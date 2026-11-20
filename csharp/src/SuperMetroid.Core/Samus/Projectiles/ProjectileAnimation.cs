@@ -31,10 +31,9 @@ internal sealed class ProjectileAnimation
     /// Plays timed frames, still pictures and deletion: each frame the animation shows anew publishes its picture and
     /// radius, and an animation that ends deletes the projectile. A shot showing a still picture keeps it.
     /// </summary>
-    /// <returns>Whether the animation ended and deleted the projectile.</returns>
     /// <param name="shot">The projectile.</param>
     /// <param name="animation">The animation the projectile plays.</param>
-    internal bool AdvanceProjectileAnimation(
+    internal void AdvanceProjectileAnimation(
         SamusProjectile shot,
         AnimationPlayer<SamusProjectileSegment, SamusProjectileFrameId, NoAnimationCue> animation)
     {
@@ -42,12 +41,10 @@ internal sealed class ProjectileAnimation
         {
             shot.Sprite = _artwork.ProjectileFrames.Resolve(frame);
             shot.Radius = SamusProjectileFrameDefinitions.Radius(frame);
-            return false;
+            return;
         }
-        if (!animation.HasStopped)
-            return false;
-        ClearProjectile(shot);
-        return true;
+        if (animation.HasStopped)
+            ClearProjectile(shot);
     }
 
 
@@ -70,10 +67,11 @@ internal sealed class ProjectileAnimation
         Offset16<ScreenPixels> place = shot.Position.Whole.RelativeToCamera(cameraPosition);
         // Every placement is published wherever it lies; the display clips it to the view (#1541).
 
-        // The empty composition an invisible projectile shows draws nothing, and so does a composition the sheet of the
-        // beams it is pictured with holds as showing nothing (#1513, #1586).
-        if (sprite.DrawsNothing)
+        // A frame that shows no composition draws nothing (#2558).
+        if (shot.Sprite is not { } sprite)
             return;
+        // A composition the sheet of the beams the projectile is pictured with holds as showing nothing draws nothing
+        // (#1513, #1586); an invisible frame shows no composition at all (#2558).
         SpriteSheet sheet = artwork.SheetOf(shot.PicturedBeams);
         string frame = ProjectileSheetFrames.ProjectileFrame(sprite);
         if (sheet.ShowsNothing(frame))
@@ -98,7 +96,7 @@ internal sealed class ProjectileAnimation
     }
 
     /// <summary>Applies pose muzzle offsets after optional Ceres turning-floor center transform, then draws the installed component frame.</summary>
-    internal void DrawFlareComponentWithMetadata(SpriteFrameBuffer sprites, SamusState samus, Position16<RoomPixels> cameraPosition, ChargeFlareComponent component, TurningFloorTransform? turningFloor, ChargeFlareArtwork artwork, ChargeFlarePose pose)
+    private void DrawFlareComponentWithMetadata(SpriteFrameBuffer sprites, SamusState samus, Position16<RoomPixels> cameraPosition, ChargeFlareComponent component, TurningFloorTransform? turningFloor, ChargeFlareArtwork artwork, ChargeFlarePose pose)
     {
         Offset16<RoomPixels> visualOffset = artwork.Placement.Resolve(pose.Running, pose.Aim);
 

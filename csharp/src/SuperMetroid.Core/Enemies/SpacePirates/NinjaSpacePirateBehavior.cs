@@ -19,12 +19,12 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemySettingsFa
     /// <exception cref="InvalidOperationException">The place holds no ninja definition.</exception>
     public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, NinjaSpacePirateSpawnSettings settings)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
+        EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition == EnemyDefinitionId.PirateGoldNinja)
             return new GoldNinjaSpacePirateEntity(this, occupant, place, common, settings);
         if (definition == EnemyDefinitionId.PirateSilverNinja)
             return new NinjaSpacePirateEntity(this, occupant, place, common, settings);
-        throw new InvalidOperationException($"The ninja Space Pirate species creates no {place.DefinitionId}.");
+        throw new InvalidOperationException($"The ninja Space Pirate species creates no {occupant.DefinitionId}.");
     }
 
     /// <summary>Provides the shared RNG used by divekick selection.</summary>

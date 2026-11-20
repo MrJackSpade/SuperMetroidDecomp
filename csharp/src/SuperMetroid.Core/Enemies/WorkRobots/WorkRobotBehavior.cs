@@ -22,12 +22,12 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemySettingsFactory<W
     /// <exception cref="InvalidOperationException">The place holds no work robot definition.</exception>
     public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, WorkRobotSpawnSettings settings)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
+        EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition == EnemyDefinitionId.WorkRobot)
             return new PoweredWorkRobotEntity(this, occupant, place, common);
         if (definition == EnemyDefinitionId.UnpoweredWorkRobot)
             return new UnpoweredWorkRobotEntity(this, occupant, place, common, settings);
-        throw new InvalidOperationException($"The work robot species creates no {place.DefinitionId}.");
+        throw new InvalidOperationException($"The work robot species creates no {occupant.DefinitionId}.");
     }
 
     /// <summary>Samples the room random number for laser timing.</summary>

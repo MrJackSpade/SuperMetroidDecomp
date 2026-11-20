@@ -41,10 +41,10 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory, IEnemyS
     /// <exception cref="InvalidOperationException">The place holds no Evir definition.</exception>
     public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
+        EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition == EnemyDefinitionId.EvirProjectile)
             return new EvirSpitEntity(this, occupant, place, common);
-        throw new InvalidOperationException($"The Evir species creates no {place.DefinitionId}.");
+        throw new InvalidOperationException($"The Evir species creates no {occupant.DefinitionId}.");
     }
 
     /// <summary>The room's enemy places, where each Evir part finds its partners when it is placed.</summary>

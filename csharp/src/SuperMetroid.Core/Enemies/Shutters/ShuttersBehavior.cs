@@ -83,7 +83,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemySettingsFactory<Gr
     /// <exception cref="InvalidOperationException">The place holds no vertical shutter's definition.</exception>
     public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, ShutterSpawnSettings settings)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
+        EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition == EnemyDefinitionId.ShutterShootable)
             return new ShootableShutterEntity(this, occupant, place, common, ShutterSegment.FullyGrown, settings);
         if (definition == EnemyDefinitionId.Kamer)
@@ -95,7 +95,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemySettingsFactory<Gr
             KeepDestroyableShutter(shutter);
             return shutter;
         }
-        throw new InvalidOperationException($"The Shutters species moves no {place.DefinitionId} vertically.");
+        throw new InvalidOperationException($"The Shutters species moves no {occupant.DefinitionId} vertically.");
     }
 
     /// <summary>Initializes the growing shutter.</summary>

@@ -19,7 +19,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 public sealed class RoomLevelData
 {
     /// <summary>Each foreground block's terrain, row by row; collision and room objects read and change it.</summary>
-    internal readonly RoomTerrainBlock[] terrain;
+    private readonly RoomTerrainBlock[] terrain;
 
     /// <summary>Each foreground block's behaviour, row by row; its terrain's collision kind gives it meaning.</summary>
     private readonly RoomBlockBehavior[] behaviors;
@@ -43,7 +43,7 @@ public sealed class RoomLevelData
     private readonly RoomBlockAppearance[] background;
 
     /// <summary>The terrain past the grid, which room objects and probes past the room's last block reach.</summary>
-    internal readonly TerrainBeyondRoom<RoomTerrainBlock, RoomBlockBehavior> BeyondRoom;
+    private readonly TerrainBeyondRoom<RoomTerrainBlock, RoomBlockBehavior> BeyondRoom;
 
     /// <summary>The foreground plane last published for display, until the next visual write; derived, never saved.</summary>
     private RoomLevelPlane? PublishedForeground { get; set; }
@@ -110,7 +110,7 @@ public sealed class RoomLevelData
     /// the room reads solid terrain with no behaviour. The intro's collision rooms, which have no level space of their
     /// own, are built with it.
     /// </summary>
-    public static TerrainBeyondRoom<RoomTerrainBlock, RoomBlockBehavior> NothingBeyondGrid() =>
+    private static TerrainBeyondRoom<RoomTerrainBlock, RoomBlockBehavior> NothingBeyondGrid() =>
         new([], 0, RoomTerrainBlocks.EdgeSolid, RoomBlockBehavior.None);
 
     /// <summary>
@@ -162,7 +162,7 @@ public sealed class RoomLevelData
     /// <exception cref="ArgumentOutOfRangeException">The block lies outside the room's width or height.</exception>
     internal Position16<RoomBlocks> GridBlock(Position16<RoomBlocks> block)
     {
-        _ = GridPlace(block);
+        RequireInGrid(block);
         return block;
     }
 
@@ -230,7 +230,7 @@ public sealed class RoomLevelData
     /// links reach it.
     /// </summary>
     /// <param name="extension">An extension block the read found in the grid.</param>
-    internal RoomCollisionBlock LinkedBlockOrEdgeSolid(RoomCollisionBlock extension) =>
+    private RoomCollisionBlock LinkedBlockOrEdgeSolid(RoomCollisionBlock extension) =>
         TryGridBlockStepped(extension.At, extension.ExtensionLink, out Position16<RoomBlocks> reached) ? GetCollisionBlock(reached)
             : EdgeSolid(extension.At + extension.ExtensionLink);
 
@@ -288,9 +288,9 @@ public sealed class RoomLevelData
         WriteObjectTerrain(Size.RowMajorIndex(block), terrain, terrain.Appearance);
 
     /// <summary>
-    /// A room object's write of only a block's collision kind and behaviour at its block, inside the grid or in the terrain
-    /// beyond the room (#2496): the block keeps its picture and what it shows, as a room object that rewrites nothing but a
-    /// block's type and its parameter does. A block of the grid no longer leads where its earlier behaviour did.
+    /// A room object's change of only how a block collides and what it does, inside the grid or in the terrain beyond
+    /// the room (#2496): the block keeps its picture and what it shows. A block of the grid no longer leads where its
+    /// earlier behaviour did.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The block is past the terrain beyond the room.</exception>
     internal void SetObjectCollisionAndBehavior(Position16<RoomBlocks> block, RoomCollisionType collision, RoomBlockBehavior behavior)
@@ -342,8 +342,8 @@ public sealed class RoomLevelData
         WriteObjectTerrain(GridPlace(block), terrain, terrain.Appearance);
 
     /// <summary>
-    /// Replaces only one foreground block's collision kind, as a room object that rewrites nothing but a block's type does
-    /// (#2494): the block keeps its picture, what it shows, its behaviour and where it leads; the block must lie in the grid.
+    /// Changes only how one foreground block collides (#2494): the block keeps its picture, what it shows, its
+    /// behaviour and where it leads; the block must lie in the grid.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The block is outside the grid.</exception>
     internal void SetCollision(Position16<RoomBlocks> block, RoomCollisionType collision)
@@ -429,15 +429,22 @@ public sealed class RoomLevelData
     /// <exception cref="ArgumentOutOfRangeException">The block lies outside the room's width or height.</exception>
     private int GridPlace(Position16<RoomBlocks> block)
     {
+        RequireInGrid(block);
+        return Size.RowMajorIndex(block);
+    }
+
+    /// <summary>Requires <paramref name="block"/> to lie in the room's grid; coordinates outside the room fail loudly.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The block lies outside the room's width or height.</exception>
+    private void RequireInGrid(Position16<RoomBlocks> block)
+    {
         if (block.X >= Size.X)
             throw new ArgumentOutOfRangeException(nameof(block), $"Block X {block.X} lies outside the {Size.X}-block room width.");
         if (block.Y >= Size.Y)
             throw new ArgumentOutOfRangeException(nameof(block), $"Block Y {block.Y} lies outside the {Size.Y}-block room height.");
-        return Size.RowMajorIndex(block);
     }
 
     /// <summary>Writes the behaviour of the grid's block at <paramref name="place"/>, which no longer leads where it did.</summary>
-    internal void WriteBehavior(int place, RoomBlockBehavior behavior)
+    private void WriteBehavior(int place, RoomBlockBehavior behavior)
     {
         behaviors[place] = behavior;
         exits.Remove(place);
@@ -481,5 +488,5 @@ public sealed class RoomLevelData
         new(place, BeyondRoom.EdgeSolid, BeyondRoom.NoBehavior) { LiesBeyondRoom = true };
 
     /// <summary>A place in the level space past the grid, counted from the first block past it.</summary>
-    internal int BeyondPlace(int place) => place - terrain.Length;
+    private int BeyondPlace(int place) => place - terrain.Length;
 }

@@ -27,7 +27,7 @@ internal sealed class CeresDoorFactory(CeresDoorBehavior doors) : IEnemyEntityFa
     /// <exception cref="InvalidDataException">The definition is no Ceres door or wall, or the placement names no facing or side.</exception>
     public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup)
     {
-        EnemyDefinitionId actor = Ensure.NotNull(place).DefinitionId;
+        EnemyDefinitionId actor = Ensure.NotNull(occupant).DefinitionId;
         if (actor == EnemyDefinitionId.CeresRidleyRoomDoor)
             return new CeresRidleyRoomDoorEntity(_doors, occupant, place, common);
         if (actor == EnemyDefinitionId.CeresElevatorRoomWall)

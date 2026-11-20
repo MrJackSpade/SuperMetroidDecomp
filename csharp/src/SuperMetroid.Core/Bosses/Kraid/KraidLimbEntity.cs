@@ -31,7 +31,7 @@ internal abstract class KraidLimbEntity(KraidBehavior species, RoomEnemyOccupant
 
     /// <summary>The limb's shot reaction behind its ignoring definition, or the shared one.</summary>
     public override EnemyShotReaction ShotReaction =>
-        Place.Definition.Shot == EnemyReaction.Ignore ? LimbShotReaction : base.ShotReaction;
+        Occupant.Definition.Shot == EnemyReaction.Ignore ? LimbShotReaction : base.ShotReaction;
 
     /// <summary>The limb's own shot reaction, which its hitboxes decide behind its definition's ignoring one (#2301).</summary>
     protected abstract EnemyShotReaction LimbShotReaction { get; }

@@ -100,7 +100,7 @@ internal sealed class EnemyDeathsAndDrops
     {
         Ensure.NotNull(enemy);
         var behavior = Explosion(new EnemyDeathExplosionState(KilledEnemy.Of(enemy, respawns), enemy.DefinitionId));
-        EnemyProjectile? explosion = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.EnemyDeathExplosion, behavior, SpriteGraphics.SharedStandard);
+        EnemyProjectile? explosion = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.EnemyDeathExplosion, behavior, default);
         if (explosion is not null)
         {
             explosion.Position = explosion.Position.WithWhole(enemy.Position.Whole);
@@ -221,7 +221,7 @@ internal sealed class EnemyDeathsAndDrops
         EnemyDropChances dropChances,
         SamusState samus)
     {
-        EnemyProjectile? pickup = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.EnemyDeathPickup, drop.Behavior, SpriteGraphics.SharedStandard);
+        EnemyProjectile? pickup = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.EnemyDeathPickup, drop.Behavior, default);
         if (pickup is null)
             return null;
 

@@ -99,6 +99,43 @@ internal static class EnemyAnimationPlayback
         Play(place, segments, ref playback, Shown, react);
 
     /// <summary>
+    /// Plays an animation whose cues never start another, as <see cref="Play{TSegment, TEvent}(RoomEnemyPlace, AnimationSegments{TSegment, EnemyFrameId, TEvent}, ref AnimationPlayback{TSegment}, Func{TEvent, AnimationContinuation{TSegment}?})"/>
+    /// plays one: <paramref name="apply"/> carries out each cue and the animation plays on.
+    /// </summary>
+    internal static void PlayApplyingCues<TSegment, TEvent>(
+        RoomEnemyPlace place,
+        AnimationSegments<TSegment, EnemyFrameId, TEvent> segments,
+        ref AnimationPlayback<TSegment> playback,
+        Action<TEvent> apply)
+        where TSegment : struct
+        where TEvent : notnull =>
+        Play(place, segments, ref playback, Shown, (TEvent cue) =>
+        {
+            apply(cue);
+            return null;
+        });
+
+    /// <summary>
+    /// One typed-animation step of a species whose cues never start another animation, as
+    /// <see cref="Advance{TState, TSegment, TEvent}(RoomEnemyPlace, AnimationSegments{TSegment, EnemyFrameId, TEvent}, Func{TState, AnimationPlayback{TSegment}}, Action{TState, AnimationPlayback{TSegment}}, Func{TState, TEvent, AnimationContinuation{TSegment}?})"/>
+    /// takes one: <paramref name="apply"/> carries out each cue and the animation plays on.
+    /// </summary>
+    internal static void AdvanceApplyingCues<TState, TSegment, TEvent>(
+        RoomEnemyPlace place,
+        AnimationSegments<TSegment, EnemyFrameId, TEvent> segments,
+        Func<TState, AnimationPlayback<TSegment>> read,
+        Action<TState, AnimationPlayback<TSegment>> write,
+        Action<TState, TEvent> apply)
+        where TState : class
+        where TSegment : struct
+        where TEvent : notnull =>
+        Advance(place, segments, read, write, (TState state, TEvent cue) =>
+        {
+            apply(state, cue);
+            return null;
+        });
+
+    /// <summary>
     /// Plays an animation that shows the species' installed frames directly, telling <paramref name="react"/> where the
     /// play stands just past each event, as the other overload does.
     /// </summary>
@@ -180,7 +217,7 @@ internal static class EnemyAnimationPlayback
                 enemy.AnimationClock.Stop();
                 return;
             default:
-                throw new InvalidOperationException($"Enemy {enemy.DefinitionId}'s animation reached an undefined {shown}.");
+                throw new InvalidOperationException($"Enemy {enemy.Occupant?.DefinitionId}'s animation reached an undefined {shown}.");
         }
     }
 

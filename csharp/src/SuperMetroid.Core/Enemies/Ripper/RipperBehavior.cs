@@ -27,12 +27,12 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemySettingsFactory<Grap
     /// <exception cref="InvalidOperationException">The place holds neither Ripper's definition.</exception>
     public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, RipperSpawnSettings settings)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
+        EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition == EnemyDefinitionId.JetRipper)
             return new JetRipperEntity(this, occupant, place, common, settings);
         if (definition == EnemyDefinitionId.Ripper)
             return new OrdinaryRipperEntity(this, occupant, place, common, settings);
-        throw new InvalidOperationException($"The Ripper species flies no {place.DefinitionId}.");
+        throw new InvalidOperationException($"The Ripper species flies no {occupant.DefinitionId}.");
     }
 
     /// <summary>Resolves horizontal wall collisions for all three Ripper variants.</summary>

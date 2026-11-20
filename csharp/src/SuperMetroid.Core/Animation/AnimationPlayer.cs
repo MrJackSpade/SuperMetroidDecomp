@@ -302,10 +302,11 @@ internal sealed class AnimationPlayer<TSegment, TFrame, TEvent>
         }
         int phase = Math.Min(place.Phase, animation.Phases.Count - 1);
         AnimationPhase<TSegment> playing = animation.Phases[phase];
-        int beat = Math.Min(place.Beat, playing.BeatCount);
-        place = new AnimationPlace(phase, beat).WithPlaysLeft(Math.Min(place.PlaysLeft, playing.IsRepeated ? playing.Plays : 0));
+        int playsLeft = Math.Min(place.PlaysLeft, playing.IsRepeated ? playing.Plays : 0);
+        place = (place.HasNotEntered ? AnimationPlace.Before(phase) : new AnimationPlace(phase, Math.Min(place.Beat, playing.BeatCount)))
+            .WithPlaysLeft(playsLeft);
         Playback = new(animation, place);
-        if (beat > 0 && rebound.Beats(playing.Segment)[playing.FirstBeat + beat - 1].ShownFrame is { } shown)
+        if (place.Beat > 0 && rebound.Beats(playing.Segment)[playing.FirstBeat + place.Beat - 1].ShownFrame is { } shown)
         {
             Shown = shown;
             return shown;
@@ -368,6 +369,10 @@ internal sealed class AnimationPlayer<TSegment, TFrame, TEvent>
             case AnimationShown<TSegment, TFrame>.Paused pause:
                 UpdatesLeft = pause.Duration;
                 break;
+            case AnimationShown<TSegment, TFrame>.Hidden hidden:
+                Shown = null;
+                UpdatesLeft = hidden.Duration;
+                return null;
             case AnimationShown<TSegment, TFrame>.HeldFrame held:
                 Shown = held.Shown;
                 IsResting = true;
@@ -436,7 +441,8 @@ internal sealed class AnimationPlayer<TSegment, TFrame, TEvent>
             return false;
         AnimationPlace place = Playback.Place;
         IReadOnlyList<AnimationPhase<TSegment>> phases = Playback.Animation.Phases;
-        if (Shown is null || place.Phase >= phases.Count || place.Beat < 1 || place.Beat > phases[place.Phase].BeatCount)
+        if (Shown is null || place.Phase >= phases.Count || place.HasNotEntered || place.IsHolding || place.Beat < 1 ||
+            place.Beat > phases[place.Phase].BeatCount)
             throw new InvalidOperationException("The animation stands on no frame to step back from.");
         // The place stands just past the beat shown, so the beat before that one is two back; before a repeated phase's
         // first beat lies its play before, if it has played one.

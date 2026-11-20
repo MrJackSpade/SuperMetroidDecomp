@@ -69,7 +69,7 @@ internal sealed class MotherBrainHeadEntity(MotherBrainBehavior species, RoomEne
     /// </summary>
     /// <exception cref="InvalidDataException">The head's definition leaves the blast to the species.</exception>
     public override EnemyPowerBombReaction PowerBombReaction => LeavesPowerBombToSpecies
-        ? throw new InvalidDataException($"Enemy {Place.DefinitionId} has no response to its own Power Bomb reaction.")
+        ? throw new InvalidDataException($"Enemy {Occupant.DefinitionId} has no response to its own Power Bomb reaction.")
         : base.PowerBombReaction;
 
     /// <summary>Shots meet the head's frames' hitboxes; its contact uses the definition's radius.</summary>

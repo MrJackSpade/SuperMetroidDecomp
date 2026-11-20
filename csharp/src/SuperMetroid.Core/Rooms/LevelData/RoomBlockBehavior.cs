@@ -32,10 +32,10 @@ public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
     private static readonly IReadOnlyList<RoomBlockReadings> Kept = KeptInOrder();
 
     /// <summary>The farthest an extension of any kept behaviour reaches backward, in blocks (or rows): a negative offset.</summary>
-    public static int MostBackwardExtension { get; } = Kept.Min(static readings => readings.ExtensionOffset);
+    private static int MostBackwardExtension { get; } = Kept.Min(static readings => readings.ExtensionOffset);
 
     /// <summary>The farthest an extension of any kept behaviour reaches forward, in blocks (or rows).</summary>
-    public static int MostForwardExtension { get; } = Kept.Max(static readings => readings.ExtensionOffset);
+    private static int MostForwardExtension { get; } = Kept.Max(static readings => readings.ExtensionOffset);
 
     /// <summary>The kept behaviour each set of readings is, for <see cref="Holding"/>.</summary>
     private static readonly Dictionary<RoomBlockReadings, RoomBlockReadings> KeptByReadings =
@@ -130,7 +130,7 @@ public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
 
     /// <summary>A resolution's readings with the special-block and special-air readings its area gives left out.</summary>
     private static RoomBlockReadings Unresolved(RoomBlockReadings resolution) =>
-        resolution with { Special = null, SpecialAir = null };
+        resolution with { Special = null, SpecialAir = null, ResolvedByArea = true };
 
     /// <summary>The empty behaviour's readings: the kept behaviour whose extension ends its chain.</summary>
     private static readonly RoomBlockReadings EmptyReadings = ExtensionWrites.Carrying(0);
@@ -148,7 +148,7 @@ public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
     public static RoomBlockBehavior None => new(EmptyReadings);
 
     /// <summary>The kept behaviour this one is.</summary>
-    internal RoomBlockReadings Readings => kept ?? EmptyReadings;
+    private RoomBlockReadings Readings => kept ?? EmptyReadings;
 
     /// <summary>The behaviour holding <paramref name="readings"/>, which must be one of the kept behaviours.</summary>
     /// <exception cref="ArgumentOutOfRangeException">No kept behaviour holds exactly these readings.</exception>
@@ -181,20 +181,6 @@ public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
     /// <param name="reaction">The reaction.</param>
     public static RoomBlockBehavior Reacting(GrappleReaction reaction) => new(GrappleWrites.Carrying(reaction));
 
-    /// <summary>The behaviour of a block whose family's reaction is <paramref name="reaction"/>, of any family.</summary>
-    /// <param name="reaction">A reaction of one of the families (<see cref="BlockReactionFamily"/>).</param>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="reaction"/> is no family's reaction.</exception>
-    public static RoomBlockBehavior ReactingAs(Enum reaction) => Ensure.NotNull(reaction) switch
-    {
-        ShootableReaction shootable => Reacting(shootable),
-        BombableReaction bombable => Reacting(bombable),
-        SpecialBlockReaction special => Reacting(special),
-        SpecialAirReaction specialAir => Reacting(specialAir),
-        SpikeReaction spike => Reacting(spike),
-        GrappleReaction grapple => Reacting(grapple),
-        _ => throw new ArgumentOutOfRangeException(nameof(reaction), reaction, "Not a block reaction."),
-    };
-
     /// <summary>An extension's behaviour.</summary>
     /// <param name="offset">The signed displacement, <see cref="MostBackwardExtension"/> through <see cref="MostForwardExtension"/>.</param>
     public static RoomBlockBehavior Extending(int offset) =>
@@ -205,9 +191,9 @@ public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
     public static RoomBlockBehavior Sloping(SlopeGeometry slope) => new(SlopeWrites.Carrying(slope));
 
     /// <summary>
-    /// This behaviour as a room of <paramref name="area"/> holds it (#1805): a behaviour whose special-block and special-air
-    /// readings the area's own tables give, as the area resolves it, and any other behaviour unchanged. The installation and
-    /// the room objects' writes hold such a behaviour unresolved, and a room's load resolves it.
+    /// This behaviour as a room of <paramref name="area"/> holds it (#1805): a behaviour with the special-block and
+    /// special-air reactions it has in that area, and any other behaviour unchanged. The installation and the room
+    /// objects' changes hold such a behaviour unresolved, and a room's load resolves it.
     /// </summary>
     /// <param name="area">The room's area, one of the game's areas.</param>
     /// <exception cref="ArgumentOutOfRangeException">
@@ -272,14 +258,14 @@ public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
 
     /// <summary>The reaction <paramref name="family"/>'s kinds read, or null when they have none for this behaviour.</summary>
     /// <exception cref="InvalidOperationException"><paramref name="family"/> is undefined.</exception>
-    public Enum? ReactionIn(BlockReactionFamily family) => family switch
+    public BlockReaction? ReactionIn(BlockReactionFamily family) => family switch
     {
-        BlockReactionFamily.Shootable => Shootable,
-        BlockReactionFamily.Bombable => Bombable,
-        BlockReactionFamily.Special => Special,
-        BlockReactionFamily.SpecialAir => SpecialAir,
-        BlockReactionFamily.Spike => Spike,
-        BlockReactionFamily.Grapple => Grapple,
+        BlockReactionFamily.Shootable => Shootable is { } shootable ? BlockReaction.Of(shootable) : null,
+        BlockReactionFamily.Bombable => Bombable is { } bombable ? BlockReaction.Of(bombable) : null,
+        BlockReactionFamily.Special => Special is { } special ? BlockReaction.Of(special) : null,
+        BlockReactionFamily.SpecialAir => SpecialAir is { } specialAir ? BlockReaction.Of(specialAir) : null,
+        BlockReactionFamily.Spike => Spike is { } spike ? BlockReaction.Of(spike) : null,
+        BlockReactionFamily.Grapple => Grapple is { } grapple ? BlockReaction.Of(grapple) : null,
         _ => throw new InvalidOperationException($"Undefined reaction family {family}."),
     };
 
@@ -292,7 +278,7 @@ public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
     }
 
     /// <summary>The reaction <paramref name="kind"/> reads, or null for a kind that reads no reaction or has none for this behaviour.</summary>
-    public Enum? ReactionUnder(RoomCollisionType kind) =>
+    public BlockReaction? ReactionUnder(RoomCollisionType kind) =>
         BlockReactionFamilies.Of(kind) is { } family ? ReactionIn(family) : null;
 
     /// <summary>The blue-door cap a shootable block's reaction selects, if it selects one.</summary>

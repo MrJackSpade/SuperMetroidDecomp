@@ -34,10 +34,10 @@ internal sealed class CrocomireBodyEntity(CrocomireBehavior species, RoomEnemyOc
         CrocomireCombat.FindCrocomireBodyHitboxReaction(Place, probe);
 
     /// <summary>The body's ignoring touch leads to Crocomire's component contact.</summary>
-    protected override bool OwnsTouch => Place.Definition.Touch == EnemyReaction.Ignore;
+    protected override bool OwnsTouch => Occupant.Definition.Touch == EnemyReaction.Ignore;
 
     /// <summary>The body's definition names no shot reaction, which leads to his hitboxes' reactions.</summary>
-    protected override bool OwnsShot => Place.Definition.Shot is null;
+    protected override bool OwnsShot => Occupant.Definition.Shot is null;
 
     /// <summary>
     /// Runs the body's own reaction to a bomb its frames' hitboxes meet with one of his own reactions, before the ignoring
@@ -47,7 +47,7 @@ internal sealed class CrocomireBodyEntity(CrocomireBehavior species, RoomEnemyOc
     /// <param name="context">The bomb contact.</param>
     public override bool TryReactToBomb(EnemyBombContext context)
     {
-        if (Place.Definition.Shot is not null || !context.UsesFrameHitboxes ||
+        if (Occupant.Definition.Shot is not null || !context.UsesFrameHitboxes ||
             context.SelectedShot == EnemyReaction.OrdinaryShot)
             return base.TryReactToBomb(context);
         Species.Combat.ReactToCrocomireBomb(context, Encounter);
@@ -62,7 +62,7 @@ internal sealed class CrocomireBodyEntity(CrocomireBehavior species, RoomEnemyOc
     private EnemyPowerBombReaction OwnPowerBombReaction => field ??= CrocomireCombat.CrocomirePowerBombReactionOf(this);
 
     /// <summary>The body takes normal bombs on its frames' hitboxes although its species definition names no shot reaction.</summary>
-    public bool AdmitsNormalBombs(bool collidesByFrameHitboxes) => Place.Definition.Shot is null && collidesByFrameHitboxes;
+    public bool AdmitsNormalBombs(bool collidesByFrameHitboxes) => Occupant.Definition.Shot is null && collidesByFrameHitboxes;
 
     /// <inheritdoc/>
     public SuperMetroid.Core.Enemies.BossBodies.BossBodyParts BodyParts => Encounter.BodyParts;

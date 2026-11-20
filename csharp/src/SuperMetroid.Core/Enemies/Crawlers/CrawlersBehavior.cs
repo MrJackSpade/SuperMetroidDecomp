@@ -27,14 +27,14 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemySettingsFactory<Cr
     /// <exception cref="InvalidOperationException">The place holds no crawler definition.</exception>
     public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, CrawlerSpawnSettings settings)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
+        EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition == EnemyDefinitionId.Sciser)
             return new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Sciser, settings);
         if (definition == EnemyDefinitionId.Zero)
             return new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Zero, settings);
         if (definition is EnemyDefinitionId.Zeela or EnemyDefinitionId.Sova or EnemyDefinitionId.Zoomer or EnemyDefinitionId.ArmoredZoomer)
             return new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Shared, settings);
-        throw new InvalidOperationException($"The crawler species crawls no {place.DefinitionId} from a surface.");
+        throw new InvalidOperationException($"The crawler species crawls no {occupant.DefinitionId} from a surface.");
     }
 
     /// <summary>A Viola, starting on the block side its placement names, which is also the surface it crawls (#2146).</summary>

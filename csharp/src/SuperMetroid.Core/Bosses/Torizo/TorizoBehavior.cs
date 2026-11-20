@@ -21,12 +21,12 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <exception cref="InvalidOperationException">The place holds no Torizo definition.</exception>
     public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
+        EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition == EnemyDefinitionId.BombTorizo)
             return new BombTorizoEntity(this, occupant, place, common, setup);
         if (definition == EnemyDefinitionId.GoldenTorizo)
             return new GoldenTorizoEntity(this, occupant, place, common, setup);
-        throw new InvalidOperationException($"The Torizo species creates no {place.DefinitionId}.");
+        throw new InvalidOperationException($"The Torizo species creates no {occupant.DefinitionId}.");
     }
 
     /// <summary>Supplies the live room services, boss flag, random state, and artwork for both statue variants.</summary>

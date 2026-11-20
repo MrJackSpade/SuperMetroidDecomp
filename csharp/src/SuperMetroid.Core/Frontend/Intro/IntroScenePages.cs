@@ -3,11 +3,13 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// <summary>Which scene page each part of the opening cinematic shows (#1404).</summary>
 internal static class IntroScenePages
 {
-    /// <summary>The laboratory page <paramref name="scene"/> shows.</summary>
-    internal static IntroScenePage Laboratory(IntroLaboratoryScene scene) => scene switch
+    /// <summary>The laboratory of each scene.</summary>
+    private static IdentityTable<IntroLaboratoryScene, IntroScenePage> LaboratoryByScene => field ??= new(new Dictionary<IntroLaboratoryScene, IntroScenePage>
     {
-        IntroLaboratoryScene.Delivery => IntroScenePage.ScientistDelivery,
-        IntroLaboratoryScene.Examination => IntroScenePage.ScientistExamination,
-        _ => throw new ArgumentOutOfRangeException(nameof(scene), scene, "Undefined intro laboratory scene."),
-    };
+        [IntroLaboratoryScene.Delivery] = IntroScenePage.ScientistDelivery,
+        [IntroLaboratoryScene.Examination] = IntroScenePage.ScientistExamination,
+    });
+
+    /// <summary>The laboratory page <paramref name="scene"/> shows.</summary>
+    internal static IntroScenePage Laboratory(IntroLaboratoryScene scene) => LaboratoryByScene[scene];
 }

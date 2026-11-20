@@ -59,13 +59,15 @@ internal sealed class KraidBackdropColours : IGameplayShadingSource
         running = null;
     }
 
-    /// <summary>The colours a fade toward <paramref name="fade"/> ends on.</summary>
-    private static KraidBackdropSettledColours GoalOf(KraidBackdropFade fade) => fade switch
+    /// <summary>The goal of each fade.</summary>
+    private static IdentityTable<KraidBackdropFade, KraidBackdropSettledColours> GoalByFade => field ??= new(new Dictionary<KraidBackdropFade, KraidBackdropSettledColours>
     {
-        KraidBackdropFade.ToBlack => KraidBackdropSettledColours.Black,
-        KraidBackdropFade.ToKraidColours => KraidBackdropSettledColours.KraidColours,
-        _ => throw new ArgumentOutOfRangeException(nameof(fade), fade, "Kraid's backdrop fades only to black or to his colours."),
-    };
+        [KraidBackdropFade.ToBlack] = KraidBackdropSettledColours.Black,
+        [KraidBackdropFade.ToKraidColours] = KraidBackdropSettledColours.KraidColours,
+    });
+
+    /// <summary>The colours a fade toward <paramref name="fade"/> ends on.</summary>
+    private static KraidBackdropSettledColours GoalOf(KraidBackdropFade fade) => GoalByFade[fade];
 
     /// <inheritdoc />
     public void ShadeGameplay(GameplayShadingBuilder frame)
@@ -103,14 +105,16 @@ internal sealed class KraidBackdropColours : IGameplayShadingSource
         _ => throw new ArgumentOutOfRangeException(nameof(shown), shown, "Undefined Kraid backdrop colours."),
     };
 
-    /// <summary>The installed shade of settled backdrop colours; none for the room's own, its pictures' standard colours.</summary>
-    private static PictureShade? ShadeOf(KraidBackdropSettledColours colours) => colours switch
+    /// <summary>The shade of each colours.</summary>
+    private static IdentityTable<KraidBackdropSettledColours, PictureShade?> ShadeByColours => field ??= new(new Dictionary<KraidBackdropSettledColours, PictureShade?>
     {
-        KraidBackdropSettledColours.RoomColours => null,
-        KraidBackdropSettledColours.KraidColours => KraidShades.Backdrop,
-        KraidBackdropSettledColours.Black => KraidShades.BackdropBlack,
-        _ => throw new ArgumentOutOfRangeException(nameof(colours), colours, "Undefined Kraid backdrop colours."),
-    };
+        [KraidBackdropSettledColours.RoomColours] = null,
+        [KraidBackdropSettledColours.KraidColours] = KraidShades.Backdrop,
+        [KraidBackdropSettledColours.Black] = KraidShades.BackdropBlack,
+    });
+
+    /// <summary>The installed shade of settled backdrop colours; none for the room's own, its pictures' standard colours.</summary>
+    private static PictureShade? ShadeOf(KraidBackdropSettledColours colours) => ShadeByColours[colours];
 
     /// <summary>The fade that took the backdrop's latest step.</summary>
     /// <param name="Goal">The colours it ends on.</param>

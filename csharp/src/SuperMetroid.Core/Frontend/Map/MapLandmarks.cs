@@ -9,17 +9,20 @@ namespace SuperMetroid.Core.Frontend.Map;
 /// </summary>
 public static class MapLandmarks
 {
-    /// <summary>The boss markers of <paramref name="area"/>'s map; Crateria and Tourian show none.</summary>
-    public static ImmutableArray<MapBossMarker> BossMarkers(AreaId area) => area switch
+    /// <summary>The boss markers of each area.</summary>
+    private static IdentityTable<AreaId, ImmutableArray<MapBossMarker>> BossMarkersByArea => field ??= new(new Dictionary<AreaId, ImmutableArray<MapBossMarker>>
     {
-        AreaId.Crateria or AreaId.Tourian => [],
-        AreaId.Brinstar => MapLandmarkDefinitions.BrinstarBosses,
-        AreaId.Norfair => MapLandmarkDefinitions.NorfairBosses,
-        AreaId.WreckedShip => MapLandmarkDefinitions.WreckedShipBosses,
-        AreaId.Maridia => MapLandmarkDefinitions.MaridiaBosses,
-        AreaId.Ceres => MapLandmarkDefinitions.CeresBosses,
-        _ => throw new ArgumentOutOfRangeException(nameof(area)),
-    };
+        [AreaId.Crateria] = [],
+        [AreaId.Tourian] = [],
+        [AreaId.Brinstar] = MapLandmarkDefinitions.BrinstarBosses,
+        [AreaId.Norfair] = MapLandmarkDefinitions.NorfairBosses,
+        [AreaId.WreckedShip] = MapLandmarkDefinitions.WreckedShipBosses,
+        [AreaId.Maridia] = MapLandmarkDefinitions.MaridiaBosses,
+        [AreaId.Ceres] = MapLandmarkDefinitions.CeresBosses,
+    });
+
+    /// <summary>The boss markers of <paramref name="area"/>'s map; Crateria and Tourian show none.</summary>
+    public static ImmutableArray<MapBossMarker> BossMarkers(AreaId area) => BossMarkersByArea[area];
 
     /// <summary>The elevator labels of one of the six Zebes areas' maps, in drawing order; Ceres has none.</summary>
     public static ImmutableArray<MapElevatorLabel> Elevators(AreaId area) => area switch

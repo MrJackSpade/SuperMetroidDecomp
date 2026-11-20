@@ -473,19 +473,22 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory, IEs
         }
     }
 
+    /// <summary>The initial action of each trigger mode.</summary>
+    private static IdentityTable<ShutterTriggerMode, VerticalShutterAction> InitialActionByTriggerMode => field ??= new(new Dictionary<ShutterTriggerMode, VerticalShutterAction>
+    {
+        [ShutterTriggerMode.Timer] = VerticalShutterAction.WaitForTimer,
+        [ShutterTriggerMode.HorizontalProximity] = VerticalShutterAction.WaitForHorizontalProximity,
+        [ShutterTriggerMode.Immediate] = VerticalShutterAction.Activate,
+        [ShutterTriggerMode.OneShotReaction] = VerticalShutterAction.Still,
+        [ShutterTriggerMode.RepeatableReaction] = VerticalShutterAction.Still,
+    });
+
     /// <summary>
     /// The action a vertical shutter whose trigger is <paramref name="triggerMode"/> starts in: waiting for its timer or for
     /// Samus, activating on its first update, or standing still until a reaction. The trigger never changes, so
     /// initialization installs it once and the first update already runs it.
     /// </summary>
-    private static VerticalShutterAction InitialAction(ShutterTriggerMode triggerMode) => triggerMode switch
-    {
-        ShutterTriggerMode.Timer => VerticalShutterAction.WaitForTimer,
-        ShutterTriggerMode.HorizontalProximity => VerticalShutterAction.WaitForHorizontalProximity,
-        ShutterTriggerMode.Immediate => VerticalShutterAction.Activate,
-        ShutterTriggerMode.OneShotReaction or ShutterTriggerMode.RepeatableReaction => VerticalShutterAction.Still,
-        _ => throw new InvalidDataException($"Vertical shutter trigger mode {triggerMode} is invalid."),
-    };
+    private static VerticalShutterAction InitialAction(ShutterTriggerMode triggerMode) => InitialActionByTriggerMode[triggerMode];
 
     /// <summary>Starts movement in the primary vertical direction and queues on-screen audio.</summary>
     private void ActivateVerticalShutter(
@@ -497,13 +500,15 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory, IEs
         QueueShutterActivationSoundIfOnScreen(place, camera);
     }
 
-    /// <summary>The action that moves a vertical shutter toward <paramref name="direction"/>.</summary>
-    private static VerticalShutterAction MovingToward(VerticalDirection direction) => direction switch
+    /// <summary>The moving toward of each direction.</summary>
+    private static IdentityTable<VerticalDirection, VerticalShutterAction> MovingTowardByDirection => field ??= new(new Dictionary<VerticalDirection, VerticalShutterAction>
     {
-        VerticalDirection.Up => VerticalShutterAction.MovingUp,
-        VerticalDirection.Down => VerticalShutterAction.MovingDown,
-        _ => throw new InvalidOperationException($"Vertical shutter direction {direction} is not up or down."),
-    };
+        [VerticalDirection.Up] = VerticalShutterAction.MovingUp,
+        [VerticalDirection.Down] = VerticalShutterAction.MovingDown,
+    });
+
+    /// <summary>The action that moves a vertical shutter toward <paramref name="direction"/>.</summary>
+    private static VerticalShutterAction MovingToward(VerticalDirection direction) => MovingTowardByDirection[direction];
 
     /// <summary>
     /// The velocity of the vertical shutter in <paramref name="place"/> moving toward <paramref name="direction"/>: its

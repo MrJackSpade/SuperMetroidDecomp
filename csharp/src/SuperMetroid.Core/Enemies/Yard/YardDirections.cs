@@ -7,15 +7,21 @@ internal static class YardDirections
     internal static YardDirectionDefinition ForDirection(YardDirection direction) =>
         Ensure.Listed(YardDirectionDefinitions.Directions, direction);
 
-    /// <summary>Whether <paramref name="direction"/> crawls along a wall rather than a floor or ceiling.</summary>
-    internal static bool IsOnWall(YardDirection direction) => direction switch
+    /// <summary>The is on wall of each direction.</summary>
+    private static IdentityTable<YardDirection, bool> IsOnWallByDirection => field ??= new(new Dictionary<YardDirection, bool>
     {
-        YardDirection.OnLeftWallMovingUp or YardDirection.OnLeftWallMovingDown or
-            YardDirection.OnRightWallMovingUp or YardDirection.OnRightWallMovingDown => true,
-        YardDirection.OnCeilingMovingLeft or YardDirection.OnCeilingMovingRight or
-            YardDirection.OnFloorMovingLeft or YardDirection.OnFloorMovingRight => false,
-        _ => throw new InvalidOperationException($"Undefined {nameof(YardDirection)} {direction}."),
-    };
+        [YardDirection.OnLeftWallMovingUp] = true,
+        [YardDirection.OnLeftWallMovingDown] = true,
+        [YardDirection.OnRightWallMovingUp] = true,
+        [YardDirection.OnRightWallMovingDown] = true,
+        [YardDirection.OnCeilingMovingLeft] = false,
+        [YardDirection.OnCeilingMovingRight] = false,
+        [YardDirection.OnFloorMovingLeft] = false,
+        [YardDirection.OnFloorMovingRight] = false,
+    });
+
+    /// <summary>Whether <paramref name="direction"/> crawls along a wall rather than a floor or ceiling.</summary>
+    internal static bool IsOnWall(YardDirection direction) => IsOnWallByDirection[direction];
 
     /// <summary>The visible and hidden airborne animations of <paramref name="facing"/>.</summary>
     /// <exception cref="InvalidDataException"><paramref name="facing"/> is neither facing.</exception>

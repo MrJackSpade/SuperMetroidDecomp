@@ -25,13 +25,15 @@ internal static class PauseFramePictures
     internal static PauseButtonLabelShade ShadeOf(PauseButtonHighlight highlight, PauseButtonLabel label) =>
         label == PauseButtonLabel.Exit || label == LitSide(highlight) ? PauseButtonLabelShade.Lit : PauseButtonLabelShade.Dim;
 
+    /// <summary>The lit side of each highlight.</summary>
+    private static IdentityTable<PauseButtonHighlight, PauseButtonLabel?> LitSideByHighlight => field ??= new(new Dictionary<PauseButtonHighlight, PauseButtonLabel?>
+    {
+        [PauseButtonHighlight.MapPage] = PauseButtonLabel.Samus,
+        [PauseButtonHighlight.Unpausing] = null,
+        [PauseButtonHighlight.EquipmentPage] = PauseButtonLabel.Map,
+    });
+
     /// <summary>The side label <paramref name="highlight"/> lights beside Exit, which every highlight lights; none while unpausing.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The highlight is undefined.</exception>
-    private static PauseButtonLabel? LitSide(PauseButtonHighlight highlight) => highlight switch
-    {
-        PauseButtonHighlight.MapPage => PauseButtonLabel.Samus,
-        PauseButtonHighlight.Unpausing => null,
-        PauseButtonHighlight.EquipmentPage => PauseButtonLabel.Map,
-        _ => throw new ArgumentOutOfRangeException(nameof(highlight), highlight, "Undefined pause highlight."),
-    };
+    private static PauseButtonLabel? LitSide(PauseButtonHighlight highlight) => LitSideByHighlight[highlight];
 }

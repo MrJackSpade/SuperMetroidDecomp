@@ -251,13 +251,15 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         return new NuclearWaffleOrientation(RotationDirection.Clockwise, NuclearWaffleTurnState.BeforeTurns);
     }
 
-    /// <summary>The way a link turns at the rising threshold: clockwise sweeping forward, counterclockwise sweeping backward.</summary>
-    private static RotationDirection RisingTurn(NuclearWaffleSweepDirection direction) => direction switch
+    /// <summary>The rising turn of each direction.</summary>
+    private static IdentityTable<NuclearWaffleSweepDirection, RotationDirection> RisingTurnByDirection => field ??= new(new Dictionary<NuclearWaffleSweepDirection, RotationDirection>
     {
-        NuclearWaffleSweepDirection.Forward => RotationDirection.Clockwise,
-        NuclearWaffleSweepDirection.Backward => RotationDirection.Counterclockwise,
-        _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, "Undefined Nuclear Waffle sweep direction."),
-    };
+        [NuclearWaffleSweepDirection.Forward] = RotationDirection.Clockwise,
+        [NuclearWaffleSweepDirection.Backward] = RotationDirection.Counterclockwise,
+    });
+
+    /// <summary>The way a link turns at the rising threshold: clockwise sweeping forward, counterclockwise sweeping backward.</summary>
+    private static RotationDirection RisingTurn(NuclearWaffleSweepDirection direction) => RisingTurnByDirection[direction];
 
     /// <summary>Emits a turn overlay and direction sprite, queuing sound on the rising turn.</summary>
     private void SpawnNuclearWaffleTurnEffects(

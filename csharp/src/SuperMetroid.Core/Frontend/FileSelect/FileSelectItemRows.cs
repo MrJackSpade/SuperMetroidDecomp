@@ -27,15 +27,17 @@ internal static class FileSelectItemRows
     /// <summary>The main page's rows: with Copy and Clear while a save exists, without them while every slot is empty.</summary>
     internal static MenuRowOrder<FileSelectItem> Main(bool hasAnySave) => hasAnySave ? MainWithData : MainEmpty;
 
+    /// <summary>The for save slot of each slot.</summary>
+    private static IdentityTable<SaveSlot, FileSelectItem> ForSaveSlotBySlot => field ??= new(new Dictionary<SaveSlot, FileSelectItem>
+    {
+        [SaveSlot.A] = FileSelectItem.SlotA,
+        [SaveSlot.B] = FileSelectItem.SlotB,
+        [SaveSlot.C] = FileSelectItem.SlotC,
+    });
+
     /// <summary>The item that selects <paramref name="slot"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The slot is not one of the three save slots.</exception>
-    internal static FileSelectItem ForSaveSlot(SaveSlot slot) => slot switch
-    {
-        SaveSlot.A => FileSelectItem.SlotA,
-        SaveSlot.B => FileSelectItem.SlotB,
-        SaveSlot.C => FileSelectItem.SlotC,
-        _ => throw new ArgumentOutOfRangeException(nameof(slot), slot, "Undefined save slot."),
-    };
+    internal static FileSelectItem ForSaveSlot(SaveSlot slot) => ForSaveSlotBySlot[slot];
 
     /// <summary>Whether an item selects a save slot, and which.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The item is not a file-select row.</exception>

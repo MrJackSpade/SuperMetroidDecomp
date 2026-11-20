@@ -45,14 +45,16 @@ public sealed class PhantoonBodyWaveEffect
         shape.Phase.ToTrigonometryAngle(),
         Period(length));
 
+    /// <summary>The period of each length.</summary>
+    private static IdentityTable<PhantoonWaveLength, int> PeriodByLength => field ??= new(new Dictionary<PhantoonWaveLength, int>
+    {
+        [PhantoonWaveLength.Short] = PhantoonWaveDefinitions.ShortPeriod,
+        [PhantoonWaveLength.Long] = PhantoonWaveDefinitions.LongPeriod,
+    });
+
     /// <summary>The screen lines of one whole cycle of a wave of <paramref name="length"/>.</summary>
     /// <param name="length">The wave's length.</param>
-    private static int Period(PhantoonWaveLength length) => length switch
-    {
-        PhantoonWaveLength.Short => PhantoonWaveDefinitions.ShortPeriod,
-        PhantoonWaveLength.Long => PhantoonWaveDefinitions.LongPeriod,
-        _ => throw new ArgumentOutOfRangeException(nameof(length), length, "Undefined Phantoon wave length."),
-    };
+    private static int Period(PhantoonWaveLength length) => PeriodByLength[length];
 
     /// <summary>
     /// A fatal hit flattens the wave: every line shows his body where it is placed, a wave of

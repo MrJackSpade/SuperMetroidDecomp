@@ -172,17 +172,24 @@ internal static class BotwoonAnimations
     /// <summary>The body segment animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<BotwoonBodyAnimationSegment> BodyStartingWith(BotwoonBodyAnimationSegment segment) => BodyStartingAt[segment];
 
+    /// <summary>The head radius of each facing.</summary>
+    private static IdentityTable<CompassDirection, Extent16<RoomPixels>> HeadRadiusByFacing => field ??= new(new Dictionary<CompassDirection, Extent16<RoomPixels>>
+    {
+        [CompassDirection.Up] = BotwoonFightDefinitions.VerticalHeadRadius,
+        [CompassDirection.Down] = BotwoonFightDefinitions.VerticalHeadRadius,
+        [CompassDirection.Left] = BotwoonFightDefinitions.HorizontalHeadRadius,
+        [CompassDirection.Right] = BotwoonFightDefinitions.HorizontalHeadRadius,
+        [CompassDirection.UpRight] = BotwoonFightDefinitions.DiagonalHeadRadius,
+        [CompassDirection.DownRight] = BotwoonFightDefinitions.DiagonalHeadRadius,
+        [CompassDirection.DownLeft] = BotwoonFightDefinitions.DiagonalHeadRadius,
+        [CompassDirection.UpLeft] = BotwoonFightDefinitions.DiagonalHeadRadius,
+    });
+
     /// <summary>
     /// The head's collision half-extents facing <paramref name="facing"/>: tall vertically, wide
     /// horizontally and square on the diagonals.
     /// </summary>
-    internal static Extent16<RoomPixels> HeadRadius(CompassDirection facing) => facing switch
-    {
-        CompassDirection.Up or CompassDirection.Down => BotwoonFightDefinitions.VerticalHeadRadius,
-        CompassDirection.Left or CompassDirection.Right => BotwoonFightDefinitions.HorizontalHeadRadius,
-        CompassDirection.UpRight or CompassDirection.DownRight or CompassDirection.DownLeft or CompassDirection.UpLeft => BotwoonFightDefinitions.DiagonalHeadRadius,
-        _ => throw new ArgumentOutOfRangeException(nameof(facing), facing, "Undefined Botwoon facing."),
-    };
+    internal static Extent16<RoomPixels> HeadRadius(CompassDirection facing) => HeadRadiusByFacing[facing];
 
     /// <summary>The animation that starts at body segment <paramref name="segment"/>: a body link cycles, a tail cap or hidden segment holds.</summary>
     private static Animation<B> BodyAnimation(B segment) => segment.Kind switch

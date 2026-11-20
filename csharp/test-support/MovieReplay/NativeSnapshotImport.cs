@@ -545,7 +545,8 @@ internal static class NativeSnapshotImport
         else
         {
             RoomEnemyProjectileKind kind = EnemyProjectileNativeWords.Kinds.Decode(id, "enemy projectile definition");
-            EnemyProjectile projectile = enemies.Projectiles.Occupy(place, kind);
+            // The room's load spawned the place's projectile, which carries its spawner's state; a place it left free is occupied afresh.
+            EnemyProjectile projectile = enemies.Projectiles.LatestInPlace(place) ?? enemies.Projectiles.Occupy(place, kind);
             VerificationAssertions.AssertTrue(NativeSlotOnlyEnemyProjectileKinds.Contains(kind),
                 $"initial native enemy projectile {projectile.Place} kind ${id:X4} has a verified slot-only import");
             // The snapshot's graphics word packs the projectile's tile base and palette row as an attribute word does: the

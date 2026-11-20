@@ -30,7 +30,7 @@ internal static class WorkRobotInitialSelectionVerification
                 NativeEnemyAnimationOracle.EntryOf(WorkRobotNativeListAddresses.Entries, expected),
                 $"Work Robot original selection {parameter}");
             var system = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-            var place = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>());
+            RoomEnemyPlace place = system.Places.InUpdateOrder[0];
             place.SetSpawnParameter1(EnemyDefinitionId.WorkRobot, parameter);
             UnpoweredWorkRobotEnemyState state = system.WorkRobotBehavior.InitializeUnpoweredWorkRobot(place.HeldOccupant(), place);
             AssertEqual(new AnimationPlayback<WorkRobotSegment>(WorkRobotAnimations.StartingWith(expected), AnimationPlace.StartOfAnimation), state.Playback,

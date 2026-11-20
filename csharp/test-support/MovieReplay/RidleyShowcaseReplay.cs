@@ -118,7 +118,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 if (color != XrayScopeDefinitionsPaletteConstants.VisorCgramIndex)
                     words.Add(shown[color].ToWord());
             foreach (var actor in runtime.Enemies.Places.InUpdateOrder)
-                words.AddRange([SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(actor.HeldOccupant().DefinitionId), actor.Position.X.Whole, actor.Position.X.Fraction,
+                words.AddRange([(actor.Occupant is { } held ? SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(held.DefinitionId) : SuperMetroid.AssetExtraction.CartridgeTables.EnemyHeaderWordsConstants.FreeSlotHeader), actor.Position.X.Whole, actor.Position.X.Fraction,
                     actor.Position.Y.Whole, actor.Position.Y.Fraction, checked((ushort)actor.Health), actor.SpritemapPointer,
                     checked((ushort)actor.AnimationClock.Hold)]);
             return words.ToArray();
@@ -507,7 +507,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 string owner = $"Enemy {actor.Ordinal}";
                 Check(owner + " identity", actor.AwaitsRespawn
                     ? SuperMetroid.AssetExtraction.CartridgeTables.EnemyHeaderWordsConstants.AwaitingRespawnHeader
-                    : SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(actor.HeldOccupant().DefinitionId), address);
+                    : (actor.Occupant is { } held ? SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(held.DefinitionId) : SuperMetroid.AssetExtraction.CartridgeTables.EnemyHeaderWordsConstants.FreeSlotHeader), address);
                 if (actor.Occupant is null || W(address) == 0) continue;
                 Check(owner + " X", actor.Position.X.Whole, address + 2);
                 Check(owner + " X fraction", actor.Position.X.Fraction, address + 4);

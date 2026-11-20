@@ -44,7 +44,7 @@ internal static class GateBeamCollisionVerification
         bombs.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, input, input);
         shots.StepFrame(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input, ControllerPreviousNewInput = GameplayAction.None }, new(0, 224), bombs, new SharedGameState(new SharedRandom()));
         var shot = shots.Shots[0];
-        AssertEqual(SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false).AsFamily(SamusProjectileFamily.BeamExplosion), shot.Type, "Native beam impacts gate during producer collision");
+        AssertEqual(SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false).AsFamily(SamusProjectileFamily.BeamExplosion), shot.HeldShot().Type, "Native beam impacts gate during producer collision");
         AssertEqual((ushort)113, shot.Position.X.Whole, "Native impact X, before any continuing flight");
         AssertEqual((ushort)329, shot.Position.Y.Whole, "Native impact Y");
         AssertEqual(0xa00f, shot.InstructionPointer, "Same-frame native impact instruction advancement");
@@ -77,7 +77,7 @@ internal static class GateBeamCollisionVerification
                 Radius = new(17, 17), Velocity = new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-1), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-1)) };
             bool result = false;
             if (wave && horizontal) ProjectileTerrainCollision.ScanHorizontalWaveShotReactions(level, shot, roomObjects, InstalledFixtures.SamusOverreads.StraddledTerrain);
-            else if (wave) ProjectileTerrainCollision.ScanVerticalWaveShotReactions(level, shot, roomObjects);
+            else if (wave) ProjectileTerrainCollision.ScanVerticalWaveShotReactions(level, shot.HeldShot(), roomObjects);
             else result = horizontal
                 ? ProjectileTerrainCollision.ScanHorizontalShotReactions(level, shot, roomObjects)
                 : ProjectileTerrainCollision.ScanVerticalShotReactions(level, shot, roomObjects);

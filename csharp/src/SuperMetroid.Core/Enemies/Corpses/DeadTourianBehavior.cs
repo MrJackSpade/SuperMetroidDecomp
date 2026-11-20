@@ -164,7 +164,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         BeforeSuperMissileQuake = (in EnemyShotContext c) =>
         {
-            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
+            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
             TriggerDeadTourianCorpseRotting(c.Enemy);
             return true;
         },

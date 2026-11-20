@@ -126,7 +126,10 @@ internal static class ProjectileInstructionsVerification
         foreach (ushort entry in entries)
         {
             var slot = new SamusProjectile(0) { Animation = SamusProjectileProgramAddresses.PlayerAt(entry), Damage = 30 };
-            var bomb = new SamusBomb(0) { Animation = SamusProjectileProgramAddresses.PlayerAt(entry), Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500), Damage = 30 };
+            var bomb = new SamusBomb(0);
+            bomb.Occupy(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500));
+            bomb.Animation = SamusProjectileProgramAddresses.PlayerAt(entry);
+            bomb.Damage = 30;
             // No bomb shows a still picture, which a shot holds (#2347): the bomb owner plays only the lists that hold none.
             bool bombPlays = !SamusProjectileProgramAddresses.HoldsStillPicture(bomb.Playback?.Animation
                 ?? throw new InvalidOperationException($"Projectile list position ${entry:X4} names no playback."));

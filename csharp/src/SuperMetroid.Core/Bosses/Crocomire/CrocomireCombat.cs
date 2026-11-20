@@ -50,7 +50,7 @@ internal sealed class CrocomireCombat
     internal void ReactToCrocomireBomb(EnemyBombContext c, CrocomireEnemyState state) =>
         // Crocomire's species definition names no shot reaction; every live component supplies its own. Normal bombs
         // therefore reach the same hit counter, dust, or mouth reaction selected by the map.
-        ResolveCrocomireHitboxShot(state, c.Bomb.Type, c.Bomb.Position.Whole, c.SelectedShot, c.Camera);
+        ResolveCrocomireHitboxShot(state, c.PlacedBomb.Type, c.Bomb.Position.Whole, c.SelectedShot, c.Camera);
 
     /// <summary>
     /// The mouth's shot (#1760): its spawner starts its animation, and a shot one runs its typed shot animation, whose
@@ -209,8 +209,8 @@ internal sealed class CrocomireCombat
                     return false;
                 if (!c.UsesFrameHitboxes)
                     throw new InvalidDataException("Crocomire's parts require collision by their frames' hitboxes.");
-                c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
-                ResolveCrocomireHitboxShot(part.Encounter, c.Projectile.Type, c.Projectile.Position.Whole, c.HitboxShot, c.Camera);
+                c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
+                ResolveCrocomireHitboxShot(part.Encounter, c.Shot.Type, c.Projectile.Position.Whole, c.HitboxShot, c.Camera);
                 return true;
             },
         };

@@ -52,7 +52,7 @@ internal static class MissileEdgeVerification
                 AssertEqual(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(expected[NativeTypeColumn]), shot.RecordedType,
                     $"Missile edge={edge} frame={frame} projectile matches the recorded type");
                 compared++;
-                if (!shot.IsActive || shot.Type.Family == SamusProjectileFamily.MissileExplosion)
+                if (!shot.IsActive || shot.HeldShot().Type.Family == SamusProjectileFamily.MissileExplosion)
                 {
                     AssertEqual(edge == 0, shot.IsActive, "Only the centered-camera impact retains its explosion");
                     break;

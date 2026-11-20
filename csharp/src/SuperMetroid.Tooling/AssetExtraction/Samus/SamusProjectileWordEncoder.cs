@@ -23,9 +23,9 @@ public static class SamusProjectileWordEncoder
     public static int EncodeBombType(SamusBomb bomb)
     {
         Ensure.NotNull(bomb);
-        if (!bomb.IsOccupied)
+        if (bomb.Occupant is not { } placed)
             return EmptySlotTypeWord;
-        int word = FamilyRow(bomb.Type.Family) << FamilyShift;
+        int word = FamilyRow(placed.Type.Family) << FamilyShift;
         if (bomb.IsBombSpread)
             word |= LiveMarker;
         if (bomb.HasReactedToTerrain)

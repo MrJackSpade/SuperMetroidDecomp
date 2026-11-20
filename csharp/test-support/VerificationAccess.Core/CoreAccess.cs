@@ -39,7 +39,7 @@ internal static class CoreAccess
     internal static bool KraidMouthHitboxOverlapsShot(RoomEnemyPlace body, ushort hitboxPointer, SamusProjectile shot)
     {
         KraidPassBounds bounds = KraidBehaviorConstants.PlaceKraidPassBounds(body, hitboxPointer);
-        return KraidCombat.OverlapsKraidMouth(bounds, new KraidBehavior.KraidCollisionShot(shot.Position.Whole, shot.Radius, shot.Type, shot.Damage, IsPlacedBomb: false));
+        return KraidCombat.OverlapsKraidMouth(bounds, new KraidBehavior.KraidCollisionShot(shot.Position.Whole, shot.Radius, shot.HeldShot().Type, shot.Damage, IsPlacedBomb: false));
     }
 
     /// <summary>Exposes frontend-owned gameplay runtime, attract timing, audio, and Samus observations for verification.</summary>

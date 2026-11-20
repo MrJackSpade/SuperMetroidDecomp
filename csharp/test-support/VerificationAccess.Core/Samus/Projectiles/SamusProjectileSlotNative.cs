@@ -14,7 +14,7 @@ internal static class SamusProjectileSlotNative
         /// the cleared word's, an uncharged Power beam's.
         /// </summary>
         internal SuperMetroid.Core.Progression.SamusProjectileType RecordedType => slot.IsOccupied
-            ? slot.Type
+            ? slot.HeldShot().Type
             : SuperMetroid.Core.Progression.SamusProjectileType.Beam(SuperMetroid.Core.Progression.SamusBeamCombination.Power, charged: false);
 
         /// <summary>Where the native snapshot's per-slot word arrays hold this projectile's place: twice its ordinal.</summary>

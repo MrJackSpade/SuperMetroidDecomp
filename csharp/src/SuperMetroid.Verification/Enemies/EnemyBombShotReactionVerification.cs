@@ -38,7 +38,7 @@ internal static class EnemyBombShotReactionVerification
             (RoomEnemySystem enemies, RoomEnemyPlace place) = LoadedRoomWithMellow(definition, frozenTimer);
             var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
             SamusBomb bomb = bombs.Bombs[0];
-            bomb.Type = SamusBombProjectileSystem.NormalBombType;
+            bomb.Occupy(SamusBombProjectileSystem.NormalBombType);
             bomb.Damage = 30;
             bomb.Radius = new(4, 4);
             bomb.Position = FixedPosition<RoomPixels>.FromWhole(Place);
@@ -91,7 +91,7 @@ internal static class EnemyBombShotReactionVerification
                 enemy.Frame = EnemyFrameId.PointAtOrigin;
             var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
             SamusBomb bomb = bombs.Bombs[0];
-            bomb.Type = SamusBombProjectileSystem.NormalBombType;
+            bomb.Occupy(SamusBombProjectileSystem.NormalBombType);
             bomb.Damage = 30;
             bomb.Radius = new(4, 4);
             bomb.Position = FixedPosition<RoomPixels>.FromWhole(place);

@@ -156,10 +156,8 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         /// first bomb whether or not either holds one; an empty place lies at rest at the room's origin with no extent,
         /// which Kraid's mouth and body, standing in his room's lower half, never meet, so a pass skips it.
         /// </summary>
-        public abstract bool HoldsProjectile { get; }
-
-        /// <summary>Reads the projectile's position, radius, type and damage.</summary>
-        public abstract KraidCollisionShot Read();
+        /// <value>The position, radius, type and damage of the projectile holding the place, or null while none holds it.</value>
+        public abstract KraidCollisionShot? Held { get; }
 
         /// <summary>Marks the projectile as having collided with Kraid.</summary>
         public abstract void MarkCollision();
@@ -175,11 +173,9 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             internal Shot(SamusProjectile shot) => _shot = Ensure.NotNull(shot);
 
             /// <inheritdoc/>
-            public override bool HoldsProjectile => _shot.IsOccupied;
-
-            /// <inheritdoc/>
-            public override KraidCollisionShot Read() =>
-                new(_shot.Position.Whole, _shot.Radius, _shot.Type, _shot.Damage, IsPlacedBomb: false);
+            public override KraidCollisionShot? Held => _shot.Occupant is { } held
+                ? new(_shot.Position.Whole, _shot.Radius, held.Type, _shot.Damage, IsPlacedBomb: false)
+                : null;
 
             /// <inheritdoc/>
             public override void MarkCollision() => _shot.Spend();
@@ -196,11 +192,9 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             internal Bomb(SamusBomb bomb) => _bomb = Ensure.NotNull(bomb);
 
             /// <inheritdoc/>
-            public override bool HoldsProjectile => _bomb.IsOccupied;
-
-            /// <inheritdoc/>
-            public override KraidCollisionShot Read() =>
-                new(_bomb.Position.Whole, _bomb.Radius, _bomb.Type, _bomb.Damage, IsPlacedBomb: !_bomb.IsBombSpread);
+            public override KraidCollisionShot? Held => _bomb.Occupant is { } placed
+                ? new(_bomb.Position.Whole, _bomb.Radius, placed.Type, _bomb.Damage, IsPlacedBomb: !_bomb.IsBombSpread)
+                : null;
 
             /// <inheritdoc/>
             public override void MarkCollision() => _bomb.Spend();

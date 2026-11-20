@@ -485,7 +485,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     AssertTrue(chargedReleaseSlot is not null, "charged release allocates projectile");
     SamusProjectile chargedSlot = chargeProjectiles.Shots[(chargedReleaseSlot ?? throw new InvalidOperationException("Verification requires chargedReleaseSlot."))];
     AssertEqual(60, chargedSlot.Damage, "charged release uses charged data pointer");
-    AssertTrue(chargedSlot.Type.IsChargedBeam,
+    AssertTrue(chargedSlot.HeldShot().Type.IsChargedBeam,
         "charged release fires a charged beam");
     AssertEqual(
         (SoundEffectId?)SamusSound.ChargedPowerBeam,
@@ -645,7 +645,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     SamusProjectileFrameResult hyperResult = hyperProjectiles.LastFrameResult;
     SamusProjectile hyperSlot = hyperProjectiles.Shots[0];
     AssertEqual(0, beforeHyper.FiredSlot(hyperProjectiles), "Hyper Beam allocates ordinary slot zero");
-    AssertEqual(SamusProjectileType.Beam(SamusBeamCombination.Plasma, charged: true), hyperSlot.Type, "Hyper Beam is a charged Plasma beam");
+    AssertEqual(SamusProjectileType.Beam(SamusBeamCombination.Plasma, charged: true), hyperSlot.HeldShot().Type, "Hyper Beam is a charged Plasma beam");
     AssertEqual(1000, hyperSlot.Damage, "Hyper Beam overwrites ROM-table damage with 1000");
     AssertEqual(SamusShotBehaviors.HyperBeam, hyperSlot.Behavior,
         "Hyper Beam selects trail-free Wave movement");
@@ -900,7 +900,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     }
     AssertTrue(wallExploded, "power beam reaches type-eight wall");
     AssertEqual(SamusProjectileFamily.BeamExplosion,
-        wallProjectiles.Shots[0].Type.Family,
+        wallProjectiles.Shots[0].HeldShot().Type.Family,
         "wall collision installs beam-explosion family");
     AssertEqual(1, wallProjectiles.Pool.ShotCount.Count,
         "beam explosion retains ordinary slot count");
@@ -1030,7 +1030,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         "missile producer installs literal ten-frame shared cooldown");
     AssertEqual(20, global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Samus.Projectiles.BeamFiring, global::SuperMetroid.Core.UpdateCountdown>(missileProjectiles.Firing, "InteractionImmunity").UpdatesLeft,
         "missile producer installs literal projectile invincibility timer twenty");
-    AssertEqual(SamusProjectileType.Of(SamusProjectileFamily.Missile), missile.Type, "missile is an ordinary missile");
+    AssertEqual(SamusProjectileType.Of(SamusProjectileFamily.Missile), missile.HeldShot().Type, "missile is an ordinary missile");
     AssertEqual(0x0064, missile.Damage, "missile reads damage from `$93:8641`");
     AssertEqual(SamusShotBehaviors.Missile, missile.Behavior,
         "missile selects `$90:AF68` pre-instruction family");
@@ -1086,7 +1086,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     }
     AssertTrue(missileExploded,
         "accelerating missile reaches the type-eight wall");
-    AssertEqual(SamusProjectileFamily.MissileExplosion, missile.Type.Family,
+    AssertEqual(SamusProjectileFamily.MissileExplosion, missile.HeldShot().Type.Family,
         "missile collision installs missile-explosion family `$0800`");
     AssertEqual(1, missileProjectiles.Pool.ShotCount.Count,
         "missile explosion retains its shared ordinary slot count");
@@ -1124,7 +1124,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         "Shoot after missile deselection allocates a new beam");
     SamusProjectile postMissileBeam =
         missileProjectiles.Shots[(postMissileBeamSlot ?? throw new InvalidOperationException("Verification requires postMissileBeamSlot."))];
-    AssertEqual(SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false), postMissileBeam.Type,
+    AssertEqual(SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false), postMissileBeam.HeldShot().Type,
         "post-missile shot is an uncharged Power Beam");
     AssertEqual(0x0014, postMissileBeam.Damage,
         "post-missile shot reloads Power Beam damage instead of retaining missile damage");
@@ -1515,7 +1515,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         "super producer installs literal twenty-frame cooldown");
     AssertEqual(2, superProjectiles.Pool.ShotCount.Count,
         "super ignition counts visible owner plus invisible link");
-    AssertEqual(SamusProjectileType.Of(SamusProjectileFamily.SuperMissile), super.Type, "super owner is a Super Missile");
+    AssertEqual(SamusProjectileType.Of(SamusProjectileFamily.SuperMissile), super.HeldShot().Type, "super owner is a Super Missile");
     AssertEqual(0x012c, super.Damage, "super owner reads retail 300 damage");
     AssertEqual(0x0100, super.Velocity.X.InTwoHundredFiftySixthsOfPixel,
         "super ignition begins at one pixel per frame");
@@ -1524,7 +1524,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         "super owner names place one as its link");
     AssertEqual(SamusShotBehaviors.SuperMissile, super.Behavior,
         "super owner selects `$90:AFE5`");
-    AssertEqual(SamusProjectileType.Of(SamusProjectileFamily.SuperMissile), superLink.Type, "super link is a Super Missile");
+    AssertEqual(SamusProjectileType.Of(SamusProjectileFamily.SuperMissile), superLink.HeldShot().Type, "super link is a Super Missile");
     AssertEqual(0x012c, superLink.Damage, "super link carries native damage sentinel");
     AssertEqual(SamusShotBehaviors.SuperMissileLink, superLink.Behavior,
         "super link selects stationary `$90:B075`");
@@ -1561,7 +1561,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     }
     AssertTrue(superExploded,
         "accelerating super reaches the type-eight wall");
-    AssertEqual(SamusProjectileType.Of(SamusProjectileFamily.MissileExplosion), super.Type,
+    AssertEqual(SamusProjectileType.Of(SamusProjectileFamily.MissileExplosion), super.HeldShot().Type,
         "super impact becomes a missile explosion");
     AssertEqual((ushort)(NativeWord(0x938693) + 8), super.InstructionPointer,
         "super collision consumes the first native explosion record");
@@ -1600,7 +1600,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     pillarProjectiles.StepFrame(new SamusTerrain { Level = pillarRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, pillarSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0x100, 0), pillarBombs, new SharedGameState(new SharedRandom()));
     AssertEqual(0x139, pillarLink.Position.X.Whole,
         "native missile helper impact does not apply the beam leading-edge radius");
-    AssertEqual(SamusProjectileFamily.MissileExplosion, pillarLink.Type.Family,
+    AssertEqual(SamusProjectileFamily.MissileExplosion, pillarLink.HeldShot().Type.Family,
         "supplemental pillar collision explodes the helper, not its owner");
     pillarProjectiles.StepFrame(new SamusTerrain { Level = pillarRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, pillarSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0x100, 0), pillarBombs, new SharedGameState(new SharedRandom()));
     AssertEqual(0x14b, pillarLink.Position.X.Whole,
@@ -1684,14 +1684,14 @@ internal static void VerifySamusPowerBeamProjectiles()
     }
     SamusProjectile skippedOwner = skippedProjectiles.Shots[0];
     SamusProjectile skippedLink = skippedProjectiles.Shots[1];
-    AssertTrue(skippedOwner.Type.IsFamily(SamusProjectileFamily.SuperMissile) && skippedLink.IsActive,
+    AssertTrue(skippedOwner.HeldShot().Type.IsFamily(SamusProjectileFamily.SuperMissile) && skippedLink.IsActive,
         "the Super Missile and its link are in flight");
     skippedLink.Position = skippedLink.Position.WithWholeX(0x5c);
     skippedOwner.Position = skippedOwner.Position.WithWholeX(0x5c).WithFractionX(0);
     skippedOwner.Velocity = skippedOwner.Velocity.WithX(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0x1400));
     skippedBombs.StepFrame(new SamusTerrain { Level = skippedWall, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, skippedSamus, 0, 0);
     skippedProjectiles.StepFrame(new SamusTerrain { Level = skippedWall, RoomObjects = skippedObjects }, skippedSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), skippedBombs, new SharedGameState(new SharedRandom()));
-    AssertEqual(SamusProjectileFamily.MissileExplosion, skippedOwner.Type.Family,
+    AssertEqual(SamusProjectileFamily.MissileExplosion, skippedOwner.HeldShot().Type.Family,
         "the owner explodes on the column-seven wall");
     AssertTrue(skippedObjects.Places.ActiveCount > 0,
         "the link still strikes the column-six Super Missile block before it is cleared");

@@ -28,14 +28,15 @@ internal static class PirateHitboxShotActions
     /// </summary>
     internal static PirateHitboxShotAction SelectGoldNinjaHitboxShotAction(
         RoomEnemyPlace enemy,
-        SamusProjectile projectile,
+        SamusProjectileOccupant held,
         EnemyReaction? hitboxShot)
     {
+        SamusProjectile projectile = held.Projectile;
         RequirePirateShotReaction(hitboxShot);
         if (hitboxShot == SpacePirateReactions.Shot || hitboxShot == EnemyReaction.OrdinaryShot)
             return PirateHitboxShotAction.Normal;
 
-        SamusProjectileFamily family = projectile.Type.Family;
+        SamusProjectileFamily family = held.Type.Family;
         if (hitboxShot == SpacePirateReactions.GoldNinjaInvincibleHitboxShot)
         {
             if (family == SamusProjectileFamily.SuperMissile &&
@@ -52,7 +53,7 @@ internal static class PirateHitboxShotActions
         EnemyVulnerabilities vulnerabilities = EnemyVulnerabilities.Of(enemy.Definition);
         EnemyWeaponVulnerability vulnerability = family switch
         {
-            SamusProjectileFamily.Beam => vulnerabilities.ForBeam(projectile.Type.BeamCombination),
+            SamusProjectileFamily.Beam => vulnerabilities.ForBeam(held.Type.BeamCombination),
             SamusProjectileFamily.Missile => vulnerabilities.Ordnance.Missile,
             SamusProjectileFamily.SuperMissile => vulnerabilities.Ordnance.SuperMissile,
             SamusProjectileFamily.PowerBomb or

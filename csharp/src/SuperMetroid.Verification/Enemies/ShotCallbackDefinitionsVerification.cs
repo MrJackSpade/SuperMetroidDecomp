@@ -158,7 +158,7 @@ internal static class ShotCallbackDefinitionsVerification
             });
             var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
             SamusProjectile projectile = projectiles.Shots[0];
-            projectile.Type = SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false);
+            projectile.Occupy(SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false));
             projectile.Damage = 20;
             projectile.Direction = SamusProjectileDirection.Right;
             projectile.Position = projectile.Position.WithWhole(enemy.Position.Whole);

@@ -41,7 +41,7 @@ internal sealed class KraidCombat
         // The arm's shot reaction raises dust where the shot struck; the hit's direction is already recorded.
         // Protected arm frames ignore the shot.
         if (c.SelectedShot == KraidReactions.ArmShot)
-            SpawnKraidArmShotExplosion(c.Bomb.Type, c.Bomb.Position.Whole);
+            SpawnKraidArmShotExplosion(c.PlacedBomb.Type, c.Bomb.Position.Whole);
     }
 
     /// <summary>Runs the foot's reaction to a bomb its hitboxes select: every foot rectangle ignores it.</summary>
@@ -61,7 +61,7 @@ internal sealed class KraidCombat
             if (!c.UsesFrameHitboxes || (c.HitboxShot != EnemyReaction.Ignore && c.HitboxShot != KraidReactions.ArmShot))
                 throw new InvalidDataException($"Kraid's arm selected the shot reaction {c.HitboxShot?.ToString() ?? "(unnamed)"}.");
 
-            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
+            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
             if (c.HitboxShot == KraidReactions.ArmShot)
                 SpawnKraidArmShotExplosion(c.ProjectileType, c.Projectile.Position.Whole);
             return true;
@@ -76,7 +76,7 @@ internal sealed class KraidCombat
             if (!c.UsesFrameHitboxes || c.HitboxShot != EnemyReaction.Ignore)
                 throw new InvalidDataException($"Kraid's foot selected the shot reaction {c.HitboxShot?.ToString() ?? "(unnamed)"}.");
 
-            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
+            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
             return true;
         },
     };
@@ -134,9 +134,8 @@ internal sealed class KraidCombat
             KraidPassBounds bounds = PlaceKraidPassBounds(body, inner);
             foreach (KraidBehavior.KraidPassProjectile projectile in tested)
             {
-                if (!projectile.HoldsProjectile)
+                if (projectile.Held is not { } shot)
                     continue;
-                KraidBehavior.KraidCollisionShot shot = projectile.Read();
                 SamusProjectileType type = shot.Type;
                 if (!OverlapsKraidMouth(bounds, shot) ||
                     (type.Family == SamusProjectileFamily.Beam && !type.IsChargedBeam))
@@ -208,9 +207,8 @@ internal sealed class KraidCombat
             KraidPassBounds bounds = PlaceKraidPassBounds(body, outerMouth);
             foreach (KraidBehavior.KraidPassProjectile projectile in tested)
             {
-                if (!projectile.HoldsProjectile)
+                if (projectile.Held is not { } shot)
                     continue;
-                KraidBehavior.KraidCollisionShot shot = projectile.Read();
                 if (!OverlapsKraidBody(ref bounds, body, shot))
                     continue;
                 SpawnKraidArmShotExplosion(shot.Type, shot.Position);

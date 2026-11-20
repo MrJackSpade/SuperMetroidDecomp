@@ -23,9 +23,10 @@ internal sealed class ProjectileTrails
     /// Leaves a trail behind <paramref name="projectile"/>: selects both sparkles' animations from the shot's beams and
     /// places them from the placement its trail list gives the frame it shows.
     /// </summary>
-    internal void SpawnTrail(SamusProjectile projectile)
+    internal void SpawnTrail(SamusProjectileOccupant held)
     {
-        switch (projectile.Type.Family)
+        SamusProjectile projectile = held.Projectile;
+        switch (held.Type.Family)
         {
             case SamusProjectileFamily.Beam:
             case SamusProjectileFamily.Missile:
@@ -38,19 +39,19 @@ internal sealed class ProjectileTrails
                 // Other families leave no trail.
                 return;
             default:
-                throw new InvalidOperationException($"Undefined {nameof(SamusProjectileFamily)} {projectile.Type.Family}.");
+                throw new InvalidOperationException($"Undefined {nameof(SamusProjectileFamily)} {held.Type.Family}.");
         }
 
         // Beams select by their beams and charge, so charged plain power selects the charged trail, not ordinary power's.
-        ProjectileTrailAnimations animations = ProjectileTrailSelection.Select(projectile.Type);
+        ProjectileTrailAnimations animations = ProjectileTrailSelection.Select(held.Type);
 
         // The only echo that leaves a trail is the Spazer special attack's trailing pair, whose trail starts from its own
         // lists (#2348); every other trail starts from its beams' family's lists, by charge.
-        ProjectileTrailPlacementList? list = projectile.Type.Echo == SamusBeamEcho.SpazerComboTrail
+        ProjectileTrailPlacementList? list = held.Type.Echo == SamusBeamEcho.SpazerComboTrail
             ? ProjectileTrailPlacements.SpazerAttackTrailingPairList(projectile.Direction)
             : ProjectileTrailPlacements.List(
-                projectile.Type.IsChargedBeam ? ProjectileTrailFamilyGroup.Charged : ProjectileTrailFamilyGroup.Uncharged,
-                projectile.Type.BeamCombination, projectile.Direction);
+                held.Type.IsChargedBeam ? ProjectileTrailFamilyGroup.Charged : ProjectileTrailFamilyGroup.Uncharged,
+                held.Type.BeamCombination, projectile.Direction);
 
         // A shot whose direction names no placement list leaves no trail, and neither does a shot whose animation has shown
         // no frame yet or whose frame its list places no trail for: those placements are not part of the game's design

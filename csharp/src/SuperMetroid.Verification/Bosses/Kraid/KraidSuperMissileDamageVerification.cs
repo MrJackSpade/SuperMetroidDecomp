@@ -59,7 +59,7 @@ internal static class KraidSuperMissileDamageVerification
             if(body.Health!=oldHealth || frame%8==0)
             {
                 Console.WriteLine($"frame={frame} hp={body.Health} ammo={samus.SuperMissiles} samus={samus.Position.X.Whole},{samus.Position.Y.Whole} samusHp={samus.Health} pose={samus.Pose} mouth={state.DisplayedHeadFrame?.InvulnerableShape}");
-                foreach(var shot in runtime.Projectiles.Shots.Where(p=>p.IsActive))Console.WriteLine($" shot={shot.Place} type={shot.Type} damage={shot.Damage} x={shot.Position.X.Whole} y={shot.Position.Y.Whole} r={shot.Radius.X},{shot.Radius.Y} pre={shot.Behavior}");
+                foreach(var shot in runtime.Projectiles.Shots.Where(p=>p.IsActive))Console.WriteLine($" shot={shot.Place} type={shot.HeldShot().Type} damage={shot.Damage} x={shot.Position.X.Whole} y={shot.Position.Y.Whole} r={shot.Radius.X},{shot.Radius.Y} pre={shot.Behavior}");
             }
             if (frame is 8 or 32)
             {
@@ -153,7 +153,7 @@ internal static class KraidSuperMissileDamageVerification
         void Place(int index)
         {
             var shot = projectiles.Shots[index];
-            shot.Type = SamusProjectileType.Of(SamusProjectileFamily.SuperMissile);
+            shot.Occupy(SamusProjectileType.Of(SamusProjectileFamily.SuperMissile));
             shot.Damage = 300;
             shot.Position = shot.Position.WithWhole(new(176, 486));
             shot.Radius = new(8, 8);
@@ -184,7 +184,7 @@ internal static class KraidSuperMissileDamageVerification
         Place(0);
         foreach (var shot in projectiles.Shots.Take(2))
         {
-            shot.Type = SamusProjectileType.Beam(SamusBeamCombination.Power, charged: true);
+            shot.Occupy(SamusProjectileType.Beam(SamusBeamCombination.Power, charged: true));
             shot.Damage = 60;
         }
         runtime.Enemies.ResolveKraidProjectileHits(projectiles, runtime.BombProjectiles);
@@ -200,7 +200,7 @@ internal static class KraidSuperMissileDamageVerification
             foreach (int place in places)
             {
                 Place(place);
-                projectiles.Shots[place].Type = SamusProjectileType.Of(SamusProjectileFamily.Missile);
+                projectiles.Shots[place].Occupy(SamusProjectileType.Of(SamusProjectileFamily.Missile));
                 projectiles.Shots[place].Damage = 100;
             }
             runtime.Enemies.ResolveKraidProjectileHits(projectiles, runtime.BombProjectiles);
@@ -213,7 +213,7 @@ internal static class KraidSuperMissileDamageVerification
 
         Prepare(5);
         var bomb = runtime.BombProjectiles.Bombs[0];
-        bomb.Type = SamusBombProjectileSystem.NormalBombType;
+        bomb.Occupy(SamusBombProjectileSystem.NormalBombType);
         bomb.Damage = 30;
         bomb.Position = bomb.Position.WithWhole(new(176, 486));
         bomb.Radius = new(8, 8);

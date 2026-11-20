@@ -430,7 +430,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     {
         BeforeSuperMissileQuake = (in EnemyShotContext c) =>
         {
-            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
+            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
             ResolveDeadSidehopperShot(c.Enemy);
             return true;
         },

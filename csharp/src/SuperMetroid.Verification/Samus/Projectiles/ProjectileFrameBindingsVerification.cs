@@ -41,17 +41,18 @@ internal static class ProjectileFrameBindingsVerification
                 Radius = new(CpuBusRegionRead.Read(rom, record + 4), CpuBusRegionRead.Read(rom, record + 5)),
                 Damage = 30,
             };
-            var nativeBomb = new SamusBomb(0)
-            {
-                Animation = SamusProjectileProgramAddresses.PlayerAt(unchecked((ushort)(pointer + 8)), updates: Word(0)),
-                SpritemapPointer = nativeShot.SpritemapPointer,
-                Radius = new(nativeShot.Radius.X, nativeShot.Radius.Y),
-                Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500), Damage = 30,
-            };
+            var nativeBomb = new SamusBomb(0);
+            nativeBomb.Occupy(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500));
+            nativeBomb.Animation = SamusProjectileProgramAddresses.PlayerAt(unchecked((ushort)(pointer + 8)), updates: Word(0));
+            nativeBomb.SpritemapPointer = nativeShot.SpritemapPointer;
+            nativeBomb.Radius = new(nativeShot.Radius.X, nativeShot.Radius.Y);
+            nativeBomb.Damage = 30;
             var installedShot = new SamusProjectile(0)
                 { Animation = SamusProjectileProgramAddresses.PlayerAt(pointer), Damage = 30 };
-            var installedBomb = new SamusBomb(0)
-                { Animation = SamusProjectileProgramAddresses.PlayerAt(pointer), Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500), Damage = 30 };
+            var installedBomb = new SamusBomb(0);
+            installedBomb.Occupy(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500));
+            installedBomb.Animation = SamusProjectileProgramAddresses.PlayerAt(pointer);
+            installedBomb.Damage = 30;
             var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: stock), new global::SuperMetroid.Core.Fx.RoomEarthquake());
             var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: stock));
             // A list repeating one still picture is held, and no bomb shows one (#2347).

@@ -47,7 +47,7 @@ internal sealed class PhantoonCombat
         AfterCommon = c =>
         {
             int appliedDamage = c.HealthBefore - c.Enemy.Health;
-            ResolvePhantoonShotReaction(c.Enemy, PhantoonEntity.EncounterOf(c.Enemy), c.Bomb.Type, appliedDamage);
+            ResolvePhantoonShotReaction(c.Enemy, PhantoonEntity.EncounterOf(c.Enemy), c.PlacedBomb.Type, appliedDamage);
         },
     };
 
@@ -267,12 +267,12 @@ internal sealed class PhantoonCombat
 
         foreach (SamusProjectile projectile in projectiles.Shots)
         {
-            if (!projectile.HasEnemyCollisionPayload)
+            if (projectile.Occupant is not { HasEnemyCollisionPayload: true } held)
                 continue;
 
-            SamusProjectileType projectileType = projectile.Type;
+            SamusProjectileType projectileType = held.Type;
             int projectileDamage = projectile.Damage;
-            SamusProjectileFamily family = projectile.Type.Family;
+            SamusProjectileFamily family = held.Type.Family;
             // Bombs, Power Bombs and the explosions beams and missiles leave behind never hit Phantoon.
             if (family is SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb or
                 SamusProjectileFamily.BeamExplosion or SamusProjectileFamily.MissileExplosion)
@@ -302,9 +302,9 @@ internal sealed class PhantoonCombat
                     state.Phase == PhantoonPhase.WaitingOnEye)
             {
                 projectiles.EnemyImpacts.TouchEnemyWithoutImpact(
-                    projectile,
+                    held,
                     body.Contact.HasAny(EnemyContact.BlocksPlasmaBeam) ||
-                        !projectile.Type.HasAnyBeam(SamusBeamFlags.Plasma));
+                        !held.Type.HasAnyBeam(SamusBeamFlags.Plasma));
                 return;
             }
 
@@ -317,7 +317,7 @@ internal sealed class PhantoonCombat
             // The shot is marked as having struck before Phantoon's reaction, whose damage does not turn it into an
             // explosion: the shot ends on its own next update, while a Plasma shot that passes through enemies keeps
             // its type, direction and animation.
-            projectiles.EnemyImpacts.TouchEnemyWithoutImpact(projectile,
+            projectiles.EnemyImpacts.TouchEnemyWithoutImpact(held,
                 body.Contact.HasAny(EnemyContact.BlocksPlasmaBeam) ||
                 !projectileType.HasAnyBeam(SamusBeamFlags.Plasma));
 

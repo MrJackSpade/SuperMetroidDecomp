@@ -37,7 +37,7 @@ internal static class MotherBrainMissileWalkResetVerification
         head.Health = 0x8bd8;
 
         var shot = runtime.Projectiles.Shots[0];
-        shot.Type = SamusProjectileType.Of(SamusProjectileFamily.Missile); shot.Damage = 100; shot.Direction = SamusProjectileDirection.UpLeft;
+        shot.Occupy(SamusProjectileType.Of(SamusProjectileFamily.Missile)); shot.Damage = 100; shot.Direction = SamusProjectileDirection.UpLeft;
         shot.Position = shot.Position.WithWhole(head.Position.Whole);
         shot.Radius = new(8, 8);
         runtime.Enemies.MotherBrainBehavior.Combat.ResolveMotherBrainLaterFormHeadShot(state, head, shot, runtime.Projectiles, SamusProjectileType.Of(SamusProjectileFamily.Missile), 100);

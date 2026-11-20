@@ -1073,13 +1073,11 @@ internal static class LookupStream2Verification
         {
             int selection = ProjectileTrailNative.Selection(trailingType);
             var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
-            var projectile = new SamusProjectile(0)
-            {
-                Type = trailingType,
-                Animation = SamusProjectileProgramAddresses.StandingAt(0x86e3),
-                Position = new(new(100, 0), new(200, 0)),
-            };
-            projectiles.Trails.SpawnTrail(projectile);
+            var projectile = new SamusProjectile(0);
+            projectile.Occupy(trailingType);
+            projectile.Animation = SamusProjectileProgramAddresses.StandingAt(0x86e3);
+            projectile.Position = new(new(100, 0), new(200, 0));
+            projectiles.Trails.SpawnTrail(projectile.HeldShot());
             // An empty trail family (programs, direction list or coordinates outside the compiled data) draws no trail (#1318).
             if (projectiles.LiveTrails.SingleOrDefault() is not { } trail)
                 continue;
@@ -1521,7 +1519,9 @@ internal static class LookupStream2Verification
         foreach (ushort pointer in SamusProjectileFrameDefinitions.TimedRecordAddresses)
         {
             if (pointer is < 0x9f87 or >= 0xa007) continue;
-            var bomb = new SamusBomb(0) { Animation = SamusProjectileProgramAddresses.PlayerAt(pointer), Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500) };
+            var bomb = new SamusBomb(0);
+            bomb.Occupy(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500));
+            bomb.Animation = SamusProjectileProgramAddresses.PlayerAt(pointer);
             var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: stock));
             bombs.AdvanceProjectileAnimation(bomb);
             AssertEqual(global::SuperMetroid.Core.Samus.Artwork.ProjectileSpriteNative.FirstStored(ReadVerificationWord(rom, (0x930000 | pointer) + 2)), bomb.SpritemapPointer, "Actual bomb handler uses sequential normal/fast pose");

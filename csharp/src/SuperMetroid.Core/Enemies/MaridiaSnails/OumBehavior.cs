@@ -449,7 +449,7 @@ internal sealed class OumBehavior : IEnemySpecies, IEnemyEntityFactory
             {
                 // Frame-hitbox collision marks the projectile, and nothing more happens: the protected shell
                 // takes no shot damage, makes no impact, plays no shot sound and has no vulnerability.
-                c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
+                c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
                 return true;
             }
             if (c.HitboxShot != OumReactions.Shot)

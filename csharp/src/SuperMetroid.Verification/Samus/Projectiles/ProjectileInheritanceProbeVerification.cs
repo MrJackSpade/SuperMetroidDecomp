@@ -49,7 +49,7 @@ internal static class ProjectileInheritanceProbeVerification
     internal static void ProbeProjectileVelocityInheritance()
     {
         var initialize = new Action<ProjectileLaunchInheritance, SamusProjectile>((launchRecords, launched) =>
-            BeamFiring.InitializePowerBeamVelocity(launchRecords, launched, InstalledFixtures.SamusOverreads.Projectiles.UnauthoredBeamFiring));
+            BeamFiring.InitializePowerBeamVelocity(launchRecords, launched.HeldShot(), InstalledFixtures.SamusOverreads.Projectiles.UnauthoredBeamFiring));
         var inheritance = new ProjectileLaunchInheritance();
         var records = new ProjectileInheritanceRecordsAccess(inheritance);
         int failures = 0;
@@ -234,7 +234,7 @@ internal static class ProjectileInheritanceProbeVerification
             restored.Player.IntroducedSamus.SelectedHudItem = SuperMetroid.Diagnostics.Saves.SaveSlotNumbering.SavedHudItem(weapon);
             restored.StepFrame((ControllerButton.Right | restored.Options.ControllerBindings.Shoot));
             var shot = restored.Projectiles.Shots.First(slot => slot.IsActive);
-            AssertEqual(family, shot.Type.Family, "Each resumed runtime fires the weapon it selected");
+            AssertEqual(family, shot.HeldShot().Type.Family, "Each resumed runtime fires the weapon it selected");
             AssertEqual(unchecked((short)(inherited + launchSpeed)), shot.Velocity.X.InTwoHundredFiftySixthsOfPixel,
                 "Debugger graph round trip retains native WRAM inheritance for resumed launch");
         }

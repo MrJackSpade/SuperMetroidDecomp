@@ -455,7 +455,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             // selected reaction runs. Normal hits get the equivalent lifecycle transition from TryStartEnemyImpact;
             // rejected and reflected hits return before that shared path. An enemy that stops the Plasma Beam also
             // forces the mark.
-            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
+            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
         }
         if (pirateAction == PirateHitboxShotActions.PirateHitboxShotAction.Ignore)
         {
@@ -480,7 +480,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             c.Projectile.Direction = reflected;
             c.Projectile.FlyOn();
             c.Projectiles.EnemyImpacts.ReflectFromEnemy(c.Samus,
-                c.Projectile);
+                c.Shot);
             RequestSpacePirateSound(EnemySoundEffectDefinitions.WalkingPirateReflectSound);
             return true;
         }
@@ -530,7 +530,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     internal EnemyShotReaction GoldNinjaShotReaction => field ??= new()
     {
         AfterSuperMissileQuake = (in EnemyShotContext c) =>
-            c.UsesFrameHitboxes && ResolveSpacePirateHitboxShot(c, PirateHitboxShotActions.SelectGoldNinjaHitboxShotAction(c.Enemy, c.Projectile, c.HitboxShot)),
+            c.UsesFrameHitboxes && ResolveSpacePirateHitboxShot(c, PirateHitboxShotActions.SelectGoldNinjaHitboxShotAction(c.Enemy, c.Shot, c.HitboxShot)),
         ShowsHitBurst = c => PirateHitboxShotActions.GoldNinjaShowsHitBurst(c.HitboxShot),
         ReplacesGenericDeath = c =>
         {

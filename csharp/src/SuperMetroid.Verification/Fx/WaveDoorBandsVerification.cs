@@ -24,11 +24,11 @@ internal static class WaveDoorBandsVerification
             behaviors[target] = (left ? RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Right)) : RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Left)));
             var level = CreateRoom(new(16, 32), words, behaviors);
             var roomObjects = RoomObjectFixtures.Unbound();
-            var shot = new SamusProjectile(0)
-            {
-                Position = new(new(72, 0), new(y, 0)), Radius = new(1, 0),
-                Velocity = new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(left ? -1 : 1), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0)), Type = SamusProjectileType.Beam(SamusBeamCombinations.Of(SamusBeamFlags.Wave), charged: false),
-            };
+            var shot = new SamusProjectile(0);
+            shot.Occupy(SamusProjectileType.Beam(SamusBeamCombinations.Of(SamusBeamFlags.Wave), charged: false));
+            shot.Position = new(new(72, 0), new(y, 0));
+            shot.Radius = new(1, 0);
+            shot.Velocity = new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(left ? -1 : 1), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0));
             // A one-pixel span avoids testing adjacent-row aggregation at the boundary.
             shot.Radius = shot.Radius.WithY(1);
             if (inside && (y & 15) == 0 && y > 0)

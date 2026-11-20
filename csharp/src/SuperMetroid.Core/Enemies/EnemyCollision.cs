@@ -201,12 +201,12 @@ internal sealed class EnemyCollision
         {
             // The enemy's vulnerability answers for the beam or missile that hit it, before the impact below turns the
             // shot into its explosion.
-            if (!projectile.HasEnemyCollisionPayload)
+            if (projectile.Occupant is not { HasEnemyCollisionPayload: true } held)
                 continue;
-            SamusProjectileType projectileType = projectile.Type;
+            SamusProjectileType projectileType = held.Type;
             int projectileDamage = Ensure.AtLeastZero(projectile.Damage);
             SamusProjectileDirection projectileDirection = projectile.Direction;
-            SamusProjectileFamily family = projectile.Type.Family;
+            SamusProjectileFamily family = held.Type.Family;
 
             // Bomb, power-bomb, and pseudo-screw actors share the projectiles' places,
             // but no ordinary enemy reacts to them as it reacts to beams or missiles.
@@ -262,7 +262,7 @@ internal sealed class EnemyCollision
             bool selectedIgnore = hitboxShot == EnemyReaction.Ignore;
             var shot = new EnemyShotContext(
                 occupant,
-                projectile,
+                held,
                 projectiles,
                 samus,
                 projectileType,
@@ -295,7 +295,7 @@ internal sealed class EnemyCollision
 
             if (selectedIgnore)
             {
-                projectiles.EnemyImpacts.TouchEnemyWithoutImpact(projectile, shot.MarksCollision);
+                projectiles.EnemyImpacts.TouchEnemyWithoutImpact(held, shot.MarksCollision);
                 return;
             }
 
@@ -313,11 +313,11 @@ internal sealed class EnemyCollision
                 // live and damage the enemy again once its flash timer runs out. Neither the beam's nor the missile's
                 // damage refuses the mark, so later overlapping enemies this pass still take the live payload.
                 projectiles.EnemyImpacts.TouchEnemyWithoutImpact(
-                    projectile,
+                    held,
                     enemy.Contact.HasAny(EnemyContact.BlocksPlasmaBeam) ||
-                        !projectile.Type.BeamCombination.HasPlasma);
+                        !held.Type.BeamCombination.HasPlasma);
             }
-            else if (!projectiles.EnemyImpacts.TryStartEnemyImpact(samusBombs, projectile,
+            else if (!projectiles.EnemyImpacts.TryStartEnemyImpact(samusBombs, held,
                 enemy.Contact.HasAny(EnemyContact.BlocksPlasmaBeam)))
                 continue;
 
@@ -489,9 +489,9 @@ internal sealed class EnemyCollision
         foreach (SamusBomb bomb in bombs.Bombs)
         {
             // A place no bomb holds has none to explode.
-            if (!bomb.IsOccupied)
+            if (bomb.Occupant is not { } placed)
                 continue;
-            SamusProjectileFamily family = bomb.Type.Family;
+            SamusProjectileFamily family = placed.Type.Family;
 
             // The radius bomb pass admits an exploding normal bomb. The radius
             // pass also admits a spread bomb. The frame-hitbox pass is narrower,
@@ -540,7 +540,7 @@ internal sealed class EnemyCollision
             bomb.Spend();
             var bombContext = new EnemyBombContext(
                 occupant,
-                bomb,
+                placed,
                 ordinaryProjectiles,
                 samus,
                 selectedShot,

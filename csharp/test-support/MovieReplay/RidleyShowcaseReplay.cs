@@ -771,8 +771,8 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     continue;
                 }
                 SamusProjectileType recordedType = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(recordedWord);
-                if (projectile.Type != recordedType)
-                    mismatches.Add($"{owner} type: native={recordedType} port={projectile.Type}");
+                if (projectile.HeldShot().Type != recordedType)
+                    mismatches.Add($"{owner} type: native={recordedType} port={projectile.HeldShot().Type}");
                 Check(owner + " X", projectile.Position.X.Whole, NativeSnapshotMemory.ProjectileX + index);
                 Check(owner + " Y", projectile.Position.Y.Whole, NativeSnapshotMemory.ProjectileY + index);
                 Check(owner + " X radius", projectile.Radius.X, NativeSnapshotMemory.ProjectileXRadius + index);
@@ -780,7 +780,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 Check(owner + " damage", projectile.Damage, NativeSnapshotMemory.ProjectileDamage + index);
                 // A beam explosion never moves, so nothing reads its sub-pixel position; one a muzzle check killed keeps
                 // the vertical fraction the original game's reset left, which no room hands over (RoomHandOver).
-                if (!projectile.Type.IsFamily(SamusProjectileFamily.BeamExplosion))
+                if (!projectile.HeldShot().Type.IsFamily(SamusProjectileFamily.BeamExplosion))
                 {
                     Check(owner + " XFraction", unchecked(projectile.Position.X.Fraction), NativeSnapshotMemory.ProjectileXFraction + index);
                     Check(owner + " YFraction", unchecked(projectile.Position.Y.Fraction), NativeSnapshotMemory.ProjectileYFraction + index);
@@ -808,13 +808,13 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     Check(owner + " FrameHold", animation.UpdatesLeft, NativeSnapshotMemory.ProjectileFrameHold + index);
                 // Only missiles keep state in the variable word that this movie reaches: their ignition, and a Super
                 // Missile's link, which no other projectile has (UnlinkedSuperMissileLink).
-                if (projectile.Type.Family is SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile)
+                if (projectile.HeldShot().Type.Family is SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile)
                 {
                     ushort recordedVariable = W(NativeSnapshotMemory.ProjectileVariable + index);
                     MissileShotState missile = projectile.KindStateAs<MissileShotState>();
                     int? linkPlace = (missile as SuperMissileShotState)?.LinkPlace;
                     if (!SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.RecordsIgnitionStage(recordedVariable, missile.Ignition) ||
-                        (projectile.Type.Family == SamusProjectileFamily.SuperMissile &&
+                        (projectile.HeldShot().Type.Family == SamusProjectileFamily.SuperMissile &&
                         linkPlace != SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeMissileLinkSlot(recordedVariable)))
                         mismatches.Add($"{owner} missile ignition: native={recordedVariable:X4} port={missile.Ignition}/{linkPlace}");
                 }

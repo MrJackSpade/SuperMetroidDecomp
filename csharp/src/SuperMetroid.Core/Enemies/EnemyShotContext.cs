@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies;
 
 /// <summary>One Samus projectile overlapping one enemy in the ordinary shot pass.</summary>
 /// <param name="Occupant">The enemy whose shot reaction runs, which a killing hit kills.</param>
-/// <param name="Projectile">The overlapping beam or missile.</param>
+/// <param name="Shot">The overlapping beam or missile, holding its place.</param>
 /// <param name="Projectiles">Samus's projectile owner, for collision preludes, impacts and reflection.</param>
 /// <param name="Samus">Samus.</param>
 /// <param name="ProjectileType">The incoming projectile type, sampled before any impact rewrites it.</param>
@@ -21,7 +21,7 @@ namespace SuperMetroid.Core.Enemies;
 [RoomScopeBoundary("A per-call input, built for one call and never kept.")]
 internal record EnemyShotContext(
     RoomEnemyOccupant Occupant,
-    SamusProjectile Projectile,
+    SamusProjectileOccupant Shot,
     SamusProjectileSystem Projectiles,
     SamusState Samus,
     SamusProjectileType ProjectileType,
@@ -34,6 +34,9 @@ internal record EnemyShotContext(
 {
     /// <summary>The place the struck occupant was spawned in, which the reaction reads and writes.</summary>
     internal RoomEnemyPlace Enemy => Occupant.Place;
+
+    /// <summary>The place the overlapping shot holds, with its position, damage and animation.</summary>
+    internal SamusProjectile Projectile => Shot.Projectile;
 
     /// <summary>Whether the common shot reaction froze the enemy at once; set for <see cref="EnemyShotReaction.AfterCommon"/>.</summary>
     internal bool Froze { get; init; }
@@ -50,5 +53,5 @@ internal record EnemyShotContext(
     /// blocks plasma.
     /// </summary>
     internal bool MarksCollision =>
-        Enemy.Contact.HasAny(EnemyContact.BlocksPlasmaBeam) || !Projectile.Type.BeamCombination.HasPlasma;
+        Enemy.Contact.HasAny(EnemyContact.BlocksPlasmaBeam) || !Shot.Type.BeamCombination.HasPlasma;
 }

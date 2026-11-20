@@ -107,7 +107,7 @@ internal static class ChainsawFiringVerification
             doorLevel.GetCollisionBlockByIndex(doorOrigin).CollisionType,
             "Chainsaw blue-door setup mutates cap synchronously");
         AssertTrue(doorProjectiles.Shots.All(slot =>
-                !slot.IsOccupied || !slot.Type.IsFamily(SamusProjectileFamily.BeamExplosion)),
+                !slot.IsOccupied || !slot.HeldShot().Type.IsFamily(SamusProjectileFamily.BeamExplosion)),
             "Wave scan opens door without synthesizing a visible beam impact");
         AssertEqual(0, doorProjectiles.Pool.ShotCount.Count,
             "door-opening no-Power-Bomb Chainsaw still deletes in B0AC callback");
@@ -156,7 +156,7 @@ internal static class ChainsawFiringVerification
             combatProjectiles, combatShared, SuperMetroid.Core.Progression.AreaId.Crateria, samus);
         AssertEqual(850, target.Health,
             "Chainsaw uses Super-Missile vulnerability byte for a 150-point hit");
-        AssertEqual(SamusProjectileType.Beam(SamusBeamCombination.SpazerPlasmaWave, charged: false), combatProjectiles.Shots[0].Type,
+        AssertEqual(SamusProjectileType.Beam(SamusBeamCombination.SpazerPlasmaWave, charged: false), combatProjectiles.Shots[0].HeldShot().Type,
             "Plasma keeps the uncharged Chainsaw shot alive after enemy damage");
 
         // The documented Orange Door interference is an ordering effect, not a special
@@ -253,7 +253,7 @@ internal static class ChainsawFiringVerification
         AssertEqual(SamusShotBehaviors.ChargedChainsaw,
             chargedProjectiles.Shots[0].Behavior,
             "charged Chainsaw retains its native unstable callback identity");
-        AssertEqual(SamusProjectileType.Beam(SamusBeamCombination.SpazerPlasmaWave, charged: true), chargedProjectiles.Shots[0].Type,
+        AssertEqual(SamusProjectileType.Beam(SamusBeamCombination.SpazerPlasmaWave, charged: true), chargedProjectiles.Shots[0].HeldShot().Type,
             "charged Chainsaw is fully allocated before unstable callback execution");
 
         Console.WriteLine("Chainsaw firing: native admission, door/enemy reactions, Orange-Door interference, callback stores, Power-Bomb-gated lifetime and charged WRAM execution agree.");

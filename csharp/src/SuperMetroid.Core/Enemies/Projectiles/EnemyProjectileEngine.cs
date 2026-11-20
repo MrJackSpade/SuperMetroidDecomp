@@ -132,10 +132,10 @@ internal sealed class EnemyProjectileEngine
 
             foreach (SamusProjectile shot in projectiles.Shots)
             {
-                if (!shot.HasEnemyCollisionPayload)
+                if (shot.Occupant is not { HasEnemyCollisionPayload: true } held)
                     continue;
 
-                SamusProjectileType shotType = shot.Type;
+                SamusProjectileType shotType = held.Type;
                 if (shotType.Family is SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb or
                     SamusProjectileFamily.BeamExplosion or SamusProjectileFamily.MissileExplosion)
                     continue;
@@ -146,7 +146,7 @@ internal sealed class EnemyProjectileEngine
                 // A shot that meets the projectile is only marked spent, a plasma shot not even that: it strikes no
                 // enemy, so a freshly fired Super Missile (or its invisible link) does not explode on the update it was
                 // fired. The shot acts on the mark as it moves on the next projectile pass.
-                if (!shot.Type.HasAnyBeam(SamusBeamFlags.Plasma))
+                if (!held.Type.HasAnyBeam(SamusBeamFlags.Plasma))
                     shot.Spend();
 
                 if (enemyProjectile.CollisionOption == EnemyProjectileCollisionOption.IndestructibleDud)

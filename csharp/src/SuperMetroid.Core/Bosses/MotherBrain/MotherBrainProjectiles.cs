@@ -331,8 +331,8 @@ internal sealed class MotherBrainProjectiles
 
             foreach (SamusBomb samusBomb in samusBombs.Bombs)
             {
-                if (!samusBomb.IsOccupied ||
-                    samusBomb.Type.Family != SamusProjectileFamily.Bomb ||
+                if (samusBomb.Occupant is not { } placed ||
+                    placed.Type.Family != SamusProjectileFamily.Bomb ||
                     !samusBomb.HasBurnedOut ||
                     !MotherBrainBombStrictOverlap(
                         bomb.Position.Whole,

@@ -686,7 +686,7 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
         bombs.StepFrame(new SamusTerrain { Level = floor, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, bombProjectileSamus, 0, 0);
     }
     AssertTrue(bombs.Bombs[0].IsExploding, "timer zero selects bomb explosion list");
-    AssertEqual(SamusBombProjectileSystem.NormalBombType, bombs.Bombs[0].Type, "the exploding bomb stays a bomb");
+    AssertEqual(SamusBombProjectileSystem.NormalBombType, bombs.Bombs[0].HeldBomb().Type, "the exploding bomb stays a bomb");
     AssertTrue(bombs.Bombs[0].HasReactedToTerrain, "first explosion pass marks block cross handled");
     AssertEqual(RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock), floor.GetCollisionBlockByIndex(4 * width + 3).Terrain,
         "bottom reaction leaves the fixture solid floor intact without inventing a PLM");
@@ -775,7 +775,7 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
     {
         SamusBomb slot = spreadBombs.Bombs[index];
         AssertTrue(slot.IsBombSpread, $"spread slot {index} selects spread pre-instruction");
-        AssertEqual(SamusBombProjectileSystem.NormalBombType, slot.Type, $"spread slot {index} holds a bomb");
+        AssertEqual(SamusBombProjectileSystem.NormalBombType, slot.HeldBomb().Type, $"spread slot {index} holds a bomb");
         AssertEqual(expectedSpreadTimers[index], slot.Fuse.UpdatesLeft,
             $"spread slot {index} consumes first ROM fuse tick");
         AssertEqual(expectedSpreadX[index], slot.Position.X.Whole,
@@ -862,7 +862,7 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
         "remaining power-bomb ammo retains HUD selection");
     AssertEqual(0x0028, powerBombs.CooldownTimer,
         "power bomb loads non-beam cooldown table entry three");
-    AssertEqual(SamusBombProjectileSystem.PowerBombType, powerBombs.Bombs[0].Type,
+    AssertEqual(SamusBombProjectileSystem.PowerBombType, powerBombs.Bombs[0].HeldBomb().Type,
         "the placed projectile is a Power Bomb");
     AssertEqual(0x00c8, powerBombs.Bombs[0].Damage,
         "power-bomb damage follows bank-$93 type-three data");

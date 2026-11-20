@@ -325,14 +325,14 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
                 // His frames' hitboxes meet a shot with his shell's dud or his core's own reaction.
                 if (c.HitboxShot == EnemyReaction.DudShot)
                 {
-                    c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
+                    c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
                     _projectiles.CreateEnemyProjectileDudShot(c.Projectile);
                     return true;
                 }
                 if (!SporeSpawnAcceptsProjectile(c.ProjectileType))
                 {
                     // The shot has struck the vulnerable core, whose shot reaction rejects it before common damage.
-                    c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
+                    c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
                     return true;
                 }
                 return false;

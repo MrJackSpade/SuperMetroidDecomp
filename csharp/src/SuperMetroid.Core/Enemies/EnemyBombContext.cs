@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies;
 
 /// <summary>One exploding normal bomb overlapping one enemy in the ordinary bomb pass.</summary>
 /// <param name="Occupant">The enemy whose selected shot reaction runs, which a killing hit kills.</param>
-/// <param name="Bomb">The exploding bomb, already marked with its hit direction.</param>
+/// <param name="PlacedBomb">The exploding bomb, holding its place, already marked with its hit direction.</param>
 /// <param name="OrdinaryProjectiles">Samus's beams and missiles (reactions read the first shot's aim).</param>
 /// <param name="Samus">Samus.</param>
 /// <param name="SelectedShot">The named reaction of the selected hitbox (the definition's on the radius path), if named.</param>
@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Enemies;
 [RoomScopeBoundary("A per-call input, built for one call and never kept.")]
 internal record EnemyBombContext(
     RoomEnemyOccupant Occupant,
-    SamusBomb Bomb,
+    SamusBombOccupant PlacedBomb,
     SamusProjectileSystem OrdinaryProjectiles,
     SamusState Samus,
     EnemyReaction? SelectedShot,
@@ -25,6 +25,9 @@ internal record EnemyBombContext(
 {
     /// <summary>The place the struck occupant was spawned in, which the reaction reads and writes.</summary>
     internal RoomEnemyPlace Enemy => Occupant.Place;
+
+    /// <summary>The place the exploding bomb holds, with its position, fuse and animation.</summary>
+    internal SamusBomb Bomb => PlacedBomb.Bomb;
 
     /// <summary>
     /// The species states of the occupant the bomb struck, taken as the pass finds the overlap (#1543). A killing hit

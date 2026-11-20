@@ -51,7 +51,7 @@ internal sealed class MotherBrainCombat
                     $"frame {c.Enemy.Frame}; every body rectangle's shot reaction is the dud shot.");
             }
             // The common collision prelude still owns Super-Missile quake first.
-            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
+            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
             _projectiles.CreateEnemyProjectileDudShot(c.Projectile);
             return true;
         },
@@ -62,7 +62,7 @@ internal sealed class MotherBrainCombat
     {
         BeforeSuperMissileQuake = (in EnemyShotContext c) =>
         {
-            ResolveMotherBrainHeadShot(c.Enemy, c.Projectile, c.Projectiles, c.ProjectileType, c.ProjectileDamage);
+            ResolveMotherBrainHeadShot(c.Enemy, c.Shot, c.Projectiles, c.ProjectileType, c.ProjectileDamage);
             return true;
         },
     };
@@ -75,11 +75,12 @@ internal sealed class MotherBrainCombat
     /// </summary>
     private void ResolveMotherBrainHeadShot(
         RoomEnemyPlace head,
-        SamusProjectile projectile,
+        SamusProjectileOccupant held,
         SamusProjectileSystem projectiles,
         SamusProjectileType projectileType,
         int projectileDamage)
     {
+        SamusProjectile projectile = held.Projectile;
         MotherBrainEnemyState state = MotherBrainEntity.EncounterOf(head);
         SamusProjectileFamily family = projectileType.Family;
         if (state.Form != MotherBrainForm.Glass)
@@ -87,7 +88,7 @@ internal sealed class MotherBrainCombat
             ResolveMotherBrainLaterFormHeadShot(
                 state,
                 head,
-                projectile,
+                held,
                 projectiles,
                 projectileType,
                 projectileDamage);
@@ -97,7 +98,7 @@ internal sealed class MotherBrainCombat
         // Every overlapping shot is marked as having struck before this reaction;
         // the next projectile pass consumes the marker, removing a Super Missile's pair too.
         projectiles.EnemyImpacts.TouchEnemyWithoutImpact(
-            projectile,
+            held,
             head.Contact.HasAny(EnemyContact.BlocksPlasmaBeam) ||
                 !projectileType.BeamCombination.HasPlasma);
         // Only missiles and Super Missiles that strike her head reach the glass.
@@ -125,14 +126,15 @@ internal sealed class MotherBrainCombat
     private void ResolveMotherBrainLaterFormHeadShot(
         MotherBrainEnemyState state,
         RoomEnemyPlace head,
-        SamusProjectile projectile,
+        SamusProjectileOccupant held,
         SamusProjectileSystem projectiles,
         SamusProjectileType projectileType,
         int projectileDamage)
     {
+        SamusProjectile projectile = held.Projectile;
         // The shot collision marked the projectile before running this reaction.
         projectiles.EnemyImpacts.TouchEnemyWithoutImpact(
-            projectile,
+            held,
             head.Contact.HasAny(EnemyContact.BlocksPlasmaBeam) ||
                 !projectileType.BeamCombination.HasPlasma);
 

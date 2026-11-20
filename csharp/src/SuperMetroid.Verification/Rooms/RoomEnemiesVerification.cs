@@ -331,7 +331,7 @@ internal static void VerifyEnemyProjectileCollisionLifecycle()
     var shotsEarthquake = new RoomEarthquake();
     var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), shotsEarthquake);
     SamusProjectile owner = shots.Shots[0];
-    owner.Type = SamusProjectileType.Of(SamusProjectileFamily.SuperMissile);
+    owner.Occupy(SamusProjectileType.Of(SamusProjectileFamily.SuperMissile));
     owner.Damage = 0x012c;
     owner.Direction = SamusProjectileDirection.Right;
     owner.Position = owner.Position.WithWhole(new(0x01b7, 0x0196));
@@ -340,7 +340,7 @@ internal static void VerifyEnemyProjectileCollisionLifecycle()
     owner.Install(SamusShotBehaviors.SuperMissile, new SuperMissileShotState(new SamusMissileIgnition.Pending(), UnlinkedSuperMissileLink.Place));
 
     SamusProjectile link = shots.Shots[1];
-    link.Type = SamusProjectileType.Of(SamusProjectileFamily.SuperMissile);
+    link.Occupy(SamusProjectileType.Of(SamusProjectileFamily.SuperMissile));
     link.Damage = 0x012c;
     link.Direction = SamusProjectileDirection.Right;
     link.Position = link.Position.WithWhole(new(0x01af, 0x0196));
@@ -352,13 +352,13 @@ internal static void VerifyEnemyProjectileCollisionLifecycle()
         shots,
         new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()));
 
-    AssertEqual(SamusProjectileType.Of(SamusProjectileFamily.SuperMissile), owner.Type,
+    AssertEqual(SamusProjectileType.Of(SamusProjectileFamily.SuperMissile), owner.HeldShot().Type,
         "enemy-projectile collision preserves fresh Super Missile family");
     AssertEqual(0x9f3b, owner.InstructionPointer,
         "enemy-projectile collision preserves fresh Super Missile animation program");
     AssertTrue(owner.IsSpent,
         "enemy-projectile collision marks Super Missile owner lifecycle");
-    AssertEqual(SamusProjectileType.Of(SamusProjectileFamily.SuperMissile), link.Type,
+    AssertEqual(SamusProjectileType.Of(SamusProjectileFamily.SuperMissile), link.HeldShot().Type,
         "enemy-projectile collision does not turn invisible link into an explosion");
     AssertEqual(0, link.SpritemapPointer,
         "enemy-projectile collision leaves Super Missile link invisible");
@@ -580,7 +580,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
         ushort damage)
     {
         SamusProjectile projectile = pool.Pool.Occupy(0);
-        projectile.Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type);
+        projectile.Occupy(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type));
         projectile.Damage = damage;
         projectile.Direction = SamusProjectileDirection.Right;
         projectile.Position = projectile.Position.WithWhole(target.Position.Whole);

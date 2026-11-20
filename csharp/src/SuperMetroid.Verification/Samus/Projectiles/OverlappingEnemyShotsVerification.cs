@@ -44,7 +44,7 @@ internal static class OverlappingEnemyShotsVerification
         var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: InstalledFixtures.Projectiles.FrameBindings), new global::SuperMetroid.Core.Fx.RoomEarthquake());
         var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: InstalledFixtures.Projectiles.FrameBindings));
         var shot = shots.Shots[0];
-        shot.Type = SamusProjectileType.Of(SamusProjectileFamily.Missile);
+        shot.Occupy(SamusProjectileType.Of(SamusProjectileFamily.Missile));
         shot.Damage = 100;
         shot.Direction = SamusProjectileDirection.Right;
         shot.Position = shot.Position.WithWhole(new(128, 128));
@@ -56,7 +56,7 @@ internal static class OverlappingEnemyShotsVerification
         foreach (var enemy in enemies.Places.InUpdateOrder.Take(3))
             AssertEqual(80, enemy.Health, "each overlapping Beetom takes native missile damage");
         AssertTrue(shot.IsSpent, "non-piercing shot is marked for deferred removal");
-        AssertEqual(SamusProjectileType.Of(SamusProjectileFamily.Missile), shot.Type, "collision preserves the missile until projectile processing");
+        AssertEqual(SamusProjectileType.Of(SamusProjectileFamily.Missile), shot.HeldShot().Type, "collision preserves the missile until projectile processing");
         var level = CreateRoom(new(16, 16), new RoomTerrainBlock[256], new RoomBlockBehavior[256]);
         shots.HandleShots(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, Position16<RoomPixels>.Zero, bombs, new SharedGameState(new SharedRandom()));
         AssertTrue(!shot.IsOccupied, "next projectile pass consumes the removal marker");

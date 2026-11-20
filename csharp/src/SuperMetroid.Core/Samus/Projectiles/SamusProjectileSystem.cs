@@ -361,7 +361,9 @@ public sealed class SamusProjectileSystem
             if (shot.Playback is null)
                 continue;
 
-            shot.Behavior?.Run(new SamusShotUpdate(shot, this, terrain, samus, cameraPosition, samusBombs, progression));
+            // A projectile is given its behaviour only once it holds its place (SamusProjectile.Install).
+            if (shot.Behavior is { } behavior && shot.Occupant is { } held)
+                behavior.Run(new SamusShotUpdate(held, this, terrain, samus, cameraPosition, samusBombs, progression));
 
             // Killing a projectile replaces rather than clears a live beam. Consequently the
             // explosion's first frame is selected in this same projectile pass.
@@ -441,7 +443,8 @@ public sealed class SamusProjectileSystem
         foreach (SamusProjectile shot in Pool.InUpdateOrder)
         {
             if (!shot.IsActive ||
-                shot.Type.Family.IsBombOrExplosion)
+                shot.Occupant is not { } held ||
+                held.Type.Family.IsBombOrExplosion)
                 continue;
 
             // Unlike a bomb or an explosion, a live shot is drawn wherever it lies, offscreen included; the display clips it.
@@ -482,11 +485,11 @@ public sealed class SamusProjectileSystem
 
         foreach (SamusProjectile shot in Pool.InUpdateOrder)
         {
-            if (!shot.IsActive || shot.Type.Family is not (
+            if (!shot.IsActive || shot.Occupant is not { } held || held.Type.Family is not (
                     SamusProjectileFamily.BeamExplosion or
                     SamusProjectileFamily.MissileExplosion))
                 continue;
-            SamusProjectileFamily family = shot.Type.Family;
+            SamusProjectileFamily family = held.Type.Family;
 
             ProjectileAnimation.DrawShot(sprites, new SpriteSource(SpriteSourceKind.SamusProjectile),
                 shot, cameraPosition, artwork);

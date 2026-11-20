@@ -66,7 +66,7 @@ internal static class BeamSpeedRowsVerification
         }
         // Exercise the actual initializer to detect a dropped combination index.
         var initialize = new Action<ProjectileLaunchInheritance, SamusProjectile>((records, launched) =>
-            BeamFiring.InitializePowerBeamVelocity(records, launched, unauthored));
+            BeamFiring.InitializePowerBeamVelocity(records, launched.HeldShot(), unauthored));
         var stationary = new ProjectileLaunchInheritance();
         // Each firing direction's beam, missile and Super Missile accelerations are the words the motion routines read
         // for that direction: sixty words in all.
@@ -90,7 +90,9 @@ internal static class BeamSpeedRowsVerification
         for (ushort combination = 0; combination < 16; combination++)
         for (ushort direction = 0; direction < 10; direction++)
         {
-            var slot = new SamusProjectile(0) { Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(combination), Direction = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeDirection(direction) };
+            var slot = new SamusProjectile(0);
+            slot.Occupy(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(combination));
+            slot.Direction = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeDirection(direction);
             initialize(stationary, slot);
             int speed = unchecked((short)retail.ReadCartridgeWord((0x90c2d1 + combination * 4 +
                 (direction is 1 or 3 or 6 or 8 ? 2 : 0))));

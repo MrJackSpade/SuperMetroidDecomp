@@ -159,7 +159,7 @@ internal sealed class TorizoCombat
         TorizoEnemyState torizoState = enemy.RequireSpeciesState<TorizoEnemyState>();
         if (c.HitboxShot == TorizoReactions.StandUpSitDownShot || enemy.HurtFlash.IsRunning || torizoState.AnimationLocked)
         {
-            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
+            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
             return true;
         }
         return false;
@@ -178,13 +178,13 @@ internal sealed class TorizoCombat
         // counterattack is not armed through these transitional body rectangles.
         if (c.HitboxShot == TorizoReactions.StandUpSitDownShot && (enemy.HurtFlash.IsRunning || torizoState.AnimationLocked))
         {
-            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
+            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
             return true;
         }
         // The reaction returns during a damage flash; a locked animation instead routes through common damage below.
         if (enemy.HurtFlash.IsRunning)
         {
-            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
+            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
             return true;
         }
 
@@ -197,7 +197,7 @@ internal sealed class TorizoCombat
         {
             if (c.Family == SamusProjectileFamily.Missile)
             {
-                c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
+                c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
                 c.Projectile.FlyOn();
                 torizoState.Phase = TorizoPhase.Idle;
                 TorizoBody.StartTorizoBodyAnimation(enemy, torizoState, TorizoAnimations.Start(TorizoFacing.FacesRight(enemy)
@@ -210,7 +210,7 @@ internal sealed class TorizoCombat
             {
                 if (TorizoFacing.FacesSamus(enemy, c.Samus))
                 {
-                    c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
+                    c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
                     torizoState.CaughtSuperMissile = true;
                     torizoState.Phase = TorizoPhase.Idle;
                     c.Projectile.Spend();

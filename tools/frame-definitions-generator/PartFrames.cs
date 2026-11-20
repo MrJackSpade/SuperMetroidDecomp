@@ -62,6 +62,14 @@ internal sealed record PartFrameConfiguration(
     public IReadOnlyDictionary<string, string> FrameLists { get; init; } = new Dictionary<string, string>(StringComparer.Ordinal);
 
     /// <summary>
+    /// For a family whose segments and animations are written once over the side a placement faces (#2557: the Ceres doors,
+    /// which show each facing's pictures through one set of segments), the animations type's members holding each side's
+    /// segments and animations: dictionaries keyed by the side, each value built by a helper of the animations type called
+    /// with the side's poses. Each side's programs are named <c>Program@Side</c>; null for a family written once.
+    /// </summary>
+    public (string Segments, string StartingAt)? Sided { get; init; }
+
+    /// <summary>
     /// The configured behaviours: Draygon's parts each show the programs its slot runs (the body, eye, tail and arms
     /// started together by <c>StartPartPrograms</c> and separately by the code each program start names), and none of his
     /// sprites shows a pose he draws on his body layer; Kraid's parts each show their own kind of pose, Kraid himself none.
@@ -254,28 +262,36 @@ internal sealed record PartFrameConfiguration(
         // its facing's, which its placement chooses; the door of Ridley's room from its own, running on into the right-facing
         // door's; the elevator room's blocked door, which a room with a turning floor places (#2426), its wall (which runs on
         // into the left-facing door's) and the getaway chamber's walls each from theirs.
+        // Each runs its animations on the side it faces (#2557): the elevator room's blocked door, the door of Ridley's room and
+        // the getaway chamber's walls the right, the elevator room's wall the left, an ordinary door the side its placement
+        // chooses.
         new("CeresElevatorDoorFactory", null, null, "CeresDoorAnimations", null, [],
             new Dictionary<string, string[]>(StringComparer.Ordinal)
             {
-                ["CeresElevatorDoor"] = ["ElevatorDoor"],
+                ["CeresElevatorDoor"] = ["ElevatorDoor@Right"],
             },
-            new Dictionary<string, string[]>(StringComparer.Ordinal), null, null, []),
+            new Dictionary<string, string[]>(StringComparer.Ordinal), null, null, [])
+        {
+            Sided = ("SegmentsBySide", "StartingAtBySide"),
+        },
         new("CeresDoorFactory", null, null, "CeresDoorAnimations", null, [],
             new Dictionary<string, string[]>(StringComparer.Ordinal)
             {
                 // Each door's cues start, by name, the closing, closed and waiting animations of its facing (#2189); the
                 // elevator room's wall starts the left-facing door's and then receives that door's cues.
-                ["CeresDoor"] = ["DoorFacingRight", "DoorFacingLeft", "CloseFacingRight", "CloseFacingLeft", "ClosedFacingRight",
-                    "ClosedFacingLeft", "ClosedFacingRightWait", "ClosedFacingLeftWait"],
-                ["CeresRidleyRoomDoor"] = ["RidleyRoomDoor", "RidleyRoomDoorWait"],
-                ["CeresElevatorRoomWall"] = ["ElevatorRoomWall", "DoorFacingLeft", "CloseFacingLeft", "ClosedFacingLeft",
-                    "ClosedFacingLeftWait"],
-                ["CeresGetawayChamberWall"] = ["GetawayChamberLeftWall", "GetawayChamberRightWall"],
+                ["CeresDoor"] = ["Door@Right", "Door@Left", "Close@Right", "Close@Left", "Closed@Right", "Closed@Left",
+                    "ClosedWait@Right", "ClosedWait@Left"],
+                ["CeresRidleyRoomDoor"] = ["RidleyRoomDoor@Right", "RidleyRoomDoorWait@Right"],
+                ["CeresElevatorRoomWall"] = ["ElevatorRoomWall@Left", "Door@Left", "Close@Left", "Closed@Left", "ClosedWait@Left"],
+                ["CeresGetawayChamberWall"] = ["GetawayChamberLeftWall@Right", "GetawayChamberRightWall@Right"],
             },
             new Dictionary<string, string[]>(StringComparer.Ordinal), null, null,
             [
                 new("CeresDoor", "CeresDoorSpawnSettings", "Facing", ["Right", "Left"]),
-            ]),
+            ])
+        {
+            Sided = ("SegmentsBySide", "StartingAtBySide"),
+        },
         // The grapple Ripper and the Ripper run their own pair of moving programs and the jet Ripper plays the grapple Ripper's (#1842);
         // only the grapple Ripper's and jet Ripper's reactions pin their shared frozen frames.
         new("RipperBehavior", null, null, "RipperAnimations", null, [],
@@ -639,7 +655,7 @@ internal sealed class PartFrames(CoreModel model, PartFrameConfiguration configu
         // The self-check: every program Core names outside the segments and animations lies in some part's closure, this
         // behaviour's or another configured behaviour's running the same animations, so no start the configuration missed
         // leaves a part without the frames it shows.
-        var inClosure = new HashSet<string>(reached.Where(pair => pair.Node.IsStart).Select(pair => pair.Node.Name), StringComparer.Ordinal);
+        var inClosure = new HashSet<string>(reached.Where(pair => pair.Node.IsStart).Select(pair => Unsided(pair.Node.Name)), StringComparer.Ordinal);
         foreach (PartFrameConfiguration sibling in PartFrameConfiguration.All.Where(other => other.Behaviour != configuration.Behaviour
                      && other.AnimationsType == configuration.AnimationsType))
         {
@@ -647,7 +663,7 @@ internal sealed class PartFrames(CoreModel model, PartFrameConfiguration configu
             var siblingProblems = new List<string>();
             PartFrames siblingFrames = new(model, sibling);
             (Dictionary<AnimationNode, PartProgram> siblingPrograms, _) = siblingFrames.Programs(siblingProblems);
-            inClosure.UnionWith(siblingFrames.Closure(siblingPrograms, siblingProblems).Where(pair => pair.Node.IsStart).Select(pair => pair.Node.Name));
+            inClosure.UnionWith(siblingFrames.Closure(siblingPrograms, siblingProblems).Where(pair => pair.Node.IsStart).Select(pair => Unsided(pair.Node.Name)));
         }
         foreach (string named in NamedOutside(programType, AnimationInitializers()).Where(program => !inClosure.Contains(program)))
             problems.Add($"{programType.Name}.{named} is named outside the segments and animations but no part's closure starts it");
@@ -744,6 +760,8 @@ internal sealed class PartFrames(CoreModel model, PartFrameConfiguration configu
     /// </summary>
     private (Dictionary<AnimationNode, PartProgram>, INamedTypeSymbol) Programs(List<string> problems)
     {
+        if (configuration.Sided is { } sided)
+            return SidedPrograms(sided.Segments, sided.StartingAt, problems);
         var programs = new Dictionary<AnimationNode, PartProgram>();
         INamedTypeSymbol? programType = null;
         INamedTypeSymbol? startType = StartType();
@@ -757,6 +775,80 @@ internal sealed class PartFrames(CoreModel model, PartFrameConfiguration configu
             ReadNamedAnimation(named, programs, programType, problems);
         return (programs, startType);
     }
+
+    /// <summary>
+    /// Every side's segments and animations of a sided family (<see cref="PartFrameConfiguration.Sided"/>), each named for its
+    /// side: the helper building a side's segments is read with its parameters bound to the poses that side passes it, and the
+    /// helper building a side's animations likewise.
+    /// </summary>
+    private (Dictionary<AnimationNode, PartProgram>, INamedTypeSymbol) SidedPrograms(string segmentsMember, string startingAtMember, List<string> problems)
+    {
+        var programs = new Dictionary<AnimationNode, PartProgram>();
+        INamedTypeSymbol? programType = null;
+        foreach ((string side, ExpressionSyntax body, IReadOnlyDictionary<IParameterSymbol, BoundArgument> bindings) in SideBodies(segmentsMember, problems))
+        {
+            var read = new Dictionary<AnimationNode, PartProgram>();
+            programType = ReadSegments(body, read, programType, programType, problems, bindings);
+            AddSide(programs, read, side, problems);
+        }
+        if (programType is null)
+            throw new InvalidDataException($"{configuration.AnimationsType}.{segmentsMember} has no side's [Segment] = [beats] entries.");
+        foreach ((string side, ExpressionSyntax body, _) in SideBodies(startingAtMember, problems))
+        {
+            var read = new Dictionary<AnimationNode, PartProgram>();
+            ReadAnimations(body, read, programType, programType, problems);
+            AddSide(programs, read, side, problems);
+        }
+        return (programs, programType);
+    }
+
+    /// <summary>
+    /// The body of the helper each side's entry of <paramref name="member"/> calls, with that call's bindings: the side is the
+    /// entry's key, an enum member, and the helper the first of the animations type's own helpers its value calls.
+    /// </summary>
+    private IEnumerable<(string Side, ExpressionSyntax Body, IReadOnlyDictionary<IParameterSymbol, BoundArgument> Bindings)> SideBodies(string member, List<string> problems)
+    {
+        ExpressionSyntax initializer = Initializer(configuration.AnimationsType!, member);
+        SemanticModel semantic = model.ModelOf(initializer.SyntaxTree);
+        int sides = 0;
+        foreach (AssignmentExpressionSyntax entry in initializer.DescendantNodes().OfType<AssignmentExpressionSyntax>())
+        {
+            if (entry is not { Left: ImplicitElementAccessSyntax { ArgumentList.Arguments: [var key] }, Right: var value }
+                || semantic.GetSymbolInfo(key.Expression).Symbol is not IFieldSymbol { ContainingType.TypeKind: TypeKind.Enum } side)
+                continue;
+            (InvocationExpressionSyntax Call, IMethodSymbol Helper, ExpressionSyntax Body)? built = value.DescendantNodesAndSelf().OfType<InvocationExpressionSyntax>()
+                .Select(call => semantic.GetSymbolInfo(call).Symbol is IMethodSymbol helper && helper.ContainingType.Name == configuration.AnimationsType
+                    && HelperBody(helper) is { } body ? (call, helper, body) : ((InvocationExpressionSyntax, IMethodSymbol, ExpressionSyntax)?)null)
+                .FirstOrDefault(found => found is not null);
+            if (built is not { } found)
+            {
+                problems.Add($"{configuration.AnimationsType}.{member}'s {side.Name} entry calls no helper of {configuration.AnimationsType} this generator can read");
+                continue;
+            }
+            sides++;
+            yield return (side.Name, found.Body, Bind(semantic, found.Call, found.Helper, Unbound));
+        }
+        if (sides == 0)
+            problems.Add($"{configuration.AnimationsType}.{member} has no side's entry");
+    }
+
+    /// <summary>Adds one side's programs to <paramref name="programs"/>, each named, with what it continues in, for <paramref name="side"/>.</summary>
+    private static void AddSide(Dictionary<AnimationNode, PartProgram> programs, Dictionary<AnimationNode, PartProgram> read, string side, List<string> problems)
+    {
+        foreach ((AnimationNode node, PartProgram program) in read)
+        {
+            var sided = new PartProgram(program.Keys, [.. program.Continuations.Select(continuation => continuation with { Name = Sided(continuation.Name, side) })],
+                [.. program.Starts.Select(start => (start.Definition, Sided(start.Program, side)))]);
+            if (!programs.TryAdd(node with { Name = Sided(node.Name, side) }, sided))
+                problems.Add($"{node.Name} is listed twice for side {side}");
+        }
+    }
+
+    /// <summary>The name of <paramref name="program"/> on <paramref name="side"/>.</summary>
+    private static string Sided(string program, string side) => $"{program}@{side}";
+
+    /// <summary>The program a sided program's name names, whatever its side.</summary>
+    private static string Unsided(string program) => program.Split('@')[0];
 
     /// <summary>
     /// The identity <c>StartingAt</c> keys its animations by: the segment type, or, for a family whose animations are named
@@ -814,6 +906,8 @@ internal sealed class PartFrames(CoreModel model, PartFrameConfiguration configu
     /// </summary>
     private List<ExpressionSyntax> SegmentInitializers()
     {
+        if (configuration.Sided is { } sided)
+            return [Initializer(configuration.AnimationsType!, sided.Segments), .. SideBodies(sided.Segments, []).Select(read => read.Body)];
         List<ExpressionSyntax> initializers = model.InitializersWithSpreads(model.Member(configuration.AnimationsType!, "Segments"));
         for (int index = 0; index < initializers.Count; index++)
         {
@@ -872,9 +966,14 @@ internal sealed class PartFrames(CoreModel model, PartFrameConfiguration configu
                     switch (element)
                     {
                         case SpreadElementSyntax { Expression: var spread }:
-                            if (BeatsOf(semantic, spread, bindings, depth + 1) is not { } inner)
+                            if (BeatsOf(semantic, spread, bindings, depth + 1) is { } inner)
+                                read.AddRange(inner);
+                            // Beats a library call reorders (Enumerable.Reverse over a run of beats handed in) show what the
+                            // call names, read as one beat (#2557).
+                            else if (spread is InvocationExpressionSyntax && semantic.GetSymbolInfo(spread).Symbol is IMethodSymbol library && !model.IsSource(library))
+                                read.Add((semantic, spread, bindings));
+                            else
                                 return null;
-                            read.AddRange(inner);
                             break;
                         case ExpressionElementSyntax { Expression: var beat }:
                             read.Add((semantic, beat, bindings));
@@ -888,6 +987,11 @@ internal sealed class PartFrames(CoreModel model, PartFrameConfiguration configu
             case InvocationExpressionSyntax invocation when semantic.GetSymbolInfo(invocation).Symbol is IMethodSymbol helper
                 && model.IsSource(helper) && HelperBody(helper) is { } body:
                 return BeatsOf(model.ModelOf(body.SyntaxTree), body, Bind(semantic, invocation, helper, bindings), depth + 1);
+            // A shared beat builder whose body is no one expression (AnimationBeats.Steady over the frames it is handed) shows
+            // what its call names, read as one beat (#2557).
+            case InvocationExpressionSyntax invocation when semantic.GetSymbolInfo(invocation).Symbol is IMethodSymbol { ReturnType: IArrayTypeSymbol } builder
+                && model.IsSource(builder):
+                return [(semantic, invocation, bindings)];
         }
         switch (semantic.GetSymbolInfo(beats).Symbol)
         {
@@ -903,10 +1007,20 @@ internal sealed class PartFrames(CoreModel model, PartFrameConfiguration configu
 
     /// <summary>The expression <paramref name="helper"/>'s body returns, when it is one expression; null otherwise.</summary>
     private static ExpressionSyntax? HelperBody(IMethodSymbol helper) =>
-        helper.DeclaringSyntaxReferences.Select(reference => reference.GetSyntax()).OfType<MethodDeclarationSyntax>()
-            .Select(declaration => declaration.ExpressionBody?.Expression
-                ?? (declaration.Body is { Statements: [ReturnStatementSyntax { Expression: { } returned }] } ? returned : null))
+        helper.DeclaringSyntaxReferences.Select(reference => reference.GetSyntax())
+            .Select(declaration => declaration switch
+            {
+                MethodDeclarationSyntax method => method.ExpressionBody?.Expression ?? Returned(method.Body),
+                LocalFunctionStatementSyntax local => local.ExpressionBody?.Expression ?? Returned(local.Body),
+                _ => null,
+            })
             .FirstOrDefault(body => body is not null);
+
+    /// <summary>The expression <paramref name="body"/> returns when its only other statements are local functions.</summary>
+    private static ExpressionSyntax? Returned(BlockSyntax? body) =>
+        body is { Statements: [.. var preceding, ReturnStatementSyntax { Expression: { } returned }] } && preceding.All(statement => statement is LocalFunctionStatementSyntax)
+            ? returned
+            : null;
 
     /// <summary>The bindings a call of <paramref name="helper"/> makes: each parameter bound to the argument the call passes it.</summary>
     private static Dictionary<IParameterSymbol, BoundArgument> Bind(SemanticModel caller, InvocationExpressionSyntax invocation, IMethodSymbol helper,
@@ -1031,15 +1145,16 @@ internal sealed class PartFrames(CoreModel model, PartFrameConfiguration configu
     private ExpressionSyntax StartingAtInitializer() => Initializer(configuration.AnimationsType!, "StartingAt");
 
     /// <summary>Every initializer the segments and animations are read from, the animations held by name (#2399) included.</summary>
-    private List<ExpressionSyntax> AnimationInitializers() =>
-        [.. SegmentInitializers(), StartingAtInitializer(), .. NamedAnimations().Select(CoreModel.InitializerOf)];
+    private List<ExpressionSyntax> AnimationInitializers() => configuration.Sided is { } sided
+        ? [.. SegmentInitializers(), Initializer(configuration.AnimationsType!, sided.StartingAt), .. SideBodies(sided.StartingAt, []).Select(read => read.Body)]
+        : [.. SegmentInitializers(), StartingAtInitializer(), .. NamedAnimations().Select(CoreModel.InitializerOf)];
 
     /// <summary>
     /// Reads the <c>[P.X] = [beats]</c> entries of <paramref name="initializer"/> into <paramref name="programs"/>, and
     /// returns the segment identity type.
     /// </summary>
     private INamedTypeSymbol? ReadSegments(ExpressionSyntax initializer, Dictionary<AnimationNode, PartProgram> programs, INamedTypeSymbol? programType,
-        INamedTypeSymbol? startType, List<string> problems)
+        INamedTypeSymbol? startType, List<string> problems, IReadOnlyDictionary<IParameterSymbol, BoundArgument>? bindings = null)
     {
         SemanticModel semantic = model.ModelOf(initializer.SyntaxTree);
         foreach (AssignmentExpressionSyntax entry in initializer.DescendantNodes().OfType<AssignmentExpressionSyntax>())
@@ -1049,7 +1164,7 @@ internal sealed class PartFrames(CoreModel model, PartFrameConfiguration configu
                 continue;
             // A segment is its collection of beats, or a helper's beats written once over a side's poses (#2411); any other
             // entry is no segment.
-            if (BeatsOf(semantic, beats, Unbound) is not { } read)
+            if (BeatsOf(semantic, beats, bindings ?? Unbound) is not { } read)
             {
                 if (beats is CollectionExpressionSyntax)
                     problems.Add($"segment {identity.Name} has beats this generator cannot read: {beats}");

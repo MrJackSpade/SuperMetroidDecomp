@@ -13,26 +13,20 @@ internal static class CeresDoorBehaviorPrivateAccess
     {
         /// <summary>The private field <c>ElevatorRoomWallDoorAnimation</c>, reached by name.</summary>
         internal static global::SuperMetroid.Core.Areas.Ceres.CeresDoorSegment ElevatorRoomWallDoorAnimation => PrivateState.StaticField<global::SuperMetroid.Core.Areas.Ceres.CeresDoorSegment>(typeof(global::SuperMetroid.Core.Areas.Ceres.CeresDoorBehavior), "ElevatorRoomWallDoorAnimation");
+        /// <summary>The private field <c>DoorClosedAnimation</c>, reached by name.</summary>
+        internal static global::SuperMetroid.Core.Areas.Ceres.CeresDoorSegment DoorClosedAnimation => PrivateState.StaticField<global::SuperMetroid.Core.Areas.Ceres.CeresDoorSegment>(typeof(global::SuperMetroid.Core.Areas.Ceres.CeresDoorBehavior), "DoorClosedAnimation");
+        /// <summary>The private field <c>DoorClosingAnimation</c>, reached by name.</summary>
+        internal static global::SuperMetroid.Core.Areas.Ceres.CeresDoorSegment DoorClosingAnimation => PrivateState.StaticField<global::SuperMetroid.Core.Areas.Ceres.CeresDoorSegment>(typeof(global::SuperMetroid.Core.Areas.Ceres.CeresDoorBehavior), "DoorClosingAnimation");
+        /// <summary>The private field <c>DoorWaitingAnimation</c>, reached by name.</summary>
+        internal static global::SuperMetroid.Core.Areas.Ceres.CeresDoorSegment DoorWaitingAnimation => PrivateState.StaticField<global::SuperMetroid.Core.Areas.Ceres.CeresDoorSegment>(typeof(global::SuperMetroid.Core.Areas.Ceres.CeresDoorBehavior), "DoorWaitingAnimation");
 
-        /// <summary>The private field <c>LeftDoorClosedAnimation</c>, reached by name.</summary>
-        internal static global::SuperMetroid.Core.Areas.Ceres.CeresDoorSegment LeftDoorClosedAnimation => PrivateState.StaticField<global::SuperMetroid.Core.Areas.Ceres.CeresDoorSegment>(typeof(global::SuperMetroid.Core.Areas.Ceres.CeresDoorBehavior), "LeftDoorClosedAnimation");
 
-        /// <summary>The private field <c>LeftDoorClosingAnimation</c>, reached by name.</summary>
-        internal static global::SuperMetroid.Core.Areas.Ceres.CeresDoorSegment LeftDoorClosingAnimation => PrivateState.StaticField<global::SuperMetroid.Core.Areas.Ceres.CeresDoorSegment>(typeof(global::SuperMetroid.Core.Areas.Ceres.CeresDoorBehavior), "LeftDoorClosingAnimation");
 
-        /// <summary>The private field <c>LeftDoorWaitingAnimation</c>, reached by name.</summary>
-        internal static global::SuperMetroid.Core.Areas.Ceres.CeresDoorSegment LeftDoorWaitingAnimation => PrivateState.StaticField<global::SuperMetroid.Core.Areas.Ceres.CeresDoorSegment>(typeof(global::SuperMetroid.Core.Areas.Ceres.CeresDoorBehavior), "LeftDoorWaitingAnimation");
 
         /// <summary>The private field <c>RidleyRoomDoorWaitingAnimation</c>, reached by name.</summary>
         internal static global::SuperMetroid.Core.Areas.Ceres.CeresDoorSegment RidleyRoomDoorWaitingAnimation => PrivateState.StaticField<global::SuperMetroid.Core.Areas.Ceres.CeresDoorSegment>(typeof(global::SuperMetroid.Core.Areas.Ceres.CeresDoorBehavior), "RidleyRoomDoorWaitingAnimation");
 
-        /// <summary>The private field <c>RightDoorClosedAnimation</c>, reached by name.</summary>
-        internal static global::SuperMetroid.Core.Areas.Ceres.CeresDoorSegment RightDoorClosedAnimation => PrivateState.StaticField<global::SuperMetroid.Core.Areas.Ceres.CeresDoorSegment>(typeof(global::SuperMetroid.Core.Areas.Ceres.CeresDoorBehavior), "RightDoorClosedAnimation");
 
-        /// <summary>The private field <c>RightDoorClosingAnimation</c>, reached by name.</summary>
-        internal static global::SuperMetroid.Core.Areas.Ceres.CeresDoorSegment RightDoorClosingAnimation => PrivateState.StaticField<global::SuperMetroid.Core.Areas.Ceres.CeresDoorSegment>(typeof(global::SuperMetroid.Core.Areas.Ceres.CeresDoorBehavior), "RightDoorClosingAnimation");
 
-        /// <summary>The private field <c>RightDoorWaitingAnimation</c>, reached by name.</summary>
-        internal static global::SuperMetroid.Core.Areas.Ceres.CeresDoorSegment RightDoorWaitingAnimation => PrivateState.StaticField<global::SuperMetroid.Core.Areas.Ceres.CeresDoorSegment>(typeof(global::SuperMetroid.Core.Areas.Ceres.CeresDoorBehavior), "RightDoorWaitingAnimation");
     }
 }

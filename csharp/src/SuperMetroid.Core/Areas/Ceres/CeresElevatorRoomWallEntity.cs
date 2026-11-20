@@ -15,7 +15,7 @@ internal sealed class CeresElevatorRoomWallEntity(CeresDoorBehavior doors, RoomE
     : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public void Initialize() => doors.Start(Place, CeresDoorSegment.ElevatorRoomWall);
+    public void Initialize() => doors.Start(Place, HorizontalDirection.Left, CeresDoorSegment.ElevatorRoomWall);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => doors.EscapeQuake.Keep(EarthquakeReach.RoomBlocksSceneryAndEnemies);

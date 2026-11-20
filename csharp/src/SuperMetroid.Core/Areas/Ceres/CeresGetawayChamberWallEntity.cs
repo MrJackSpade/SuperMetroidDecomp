@@ -14,7 +14,7 @@ internal sealed class CeresGetawayChamberWallEntity(CeresDoorBehavior doors, Roo
     : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public void Initialize() => doors.Start(Place, side);
+    public void Initialize() => doors.Start(Place, HorizontalDirection.Right, side);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame)

@@ -309,7 +309,7 @@ internal sealed class MotherBrainBody
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             beam,
             RoomEnemyProjectileKind.MotherBrainHandBeamCharging,
-            _projectileAttacks.Projectile,
+            _projectileAttacks.WithEncounter(new MotherBrainProjectileState(state)),
             graphics: SpriteGraphics.SharedIn(state.Colours.OwnShading));
         beam.Velocity = PixelVelocity<RoomPixels>.Zero;
         beam.Position = beam.Position.WithoutFractions();
@@ -324,7 +324,6 @@ internal sealed class MotherBrainBody
             EnemyMath.SineSpeed(MotherBrainHandBeamDefinitions.Speed, angle),
             EnemyMath.SineSpeed(MotherBrainHandBeamDefinitions.Speed, angle.TurnedBy(TrigonometryAngle.QuarterTurn)));
 
-        beam.State = new MotherBrainProjectileState(state);
         beam.StartAnimation(new MotherBrainHandBeamAnimation());
     }
 
@@ -362,18 +361,18 @@ internal sealed class MotherBrainBody
         if (turret is null)
             return;
 
+        var turretState = new MotherBrainTurretState(state, definition);
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             turret,
             RoomEnemyProjectileKind.MotherBrainRoomTurret,
-            _projectileAttacks.Projectile,
+            _projectileAttacks.Turret(turretState),
             MotherBrainTurretDefinitions.Graphics);
 
         turret.Position = turret.Position.WithWhole(definition.Position);
-        turret.State = new MotherBrainTurretState(state, definition);
         turret.StartAnimation(new MotherBrainTurretAnimation(MotherBrainTurretPose.Turret(definition.InitialDirection)));
 
         // A new turret draws a random number for each of its two waits, its turning wait first.
-        _projectileAttacks.Projectile.ResetMotherBrainTurretRotationTimer(turret);
-        _projectileAttacks.Projectile.ResetMotherBrainTurretCooldown(turret);
+        _projectileAttacks.Projectile.ResetMotherBrainTurretRotationTimer(turretState);
+        _projectileAttacks.Projectile.ResetMotherBrainTurretCooldown(turretState);
     }
 }

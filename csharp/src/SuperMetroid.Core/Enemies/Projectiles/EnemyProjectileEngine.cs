@@ -39,7 +39,9 @@ internal sealed class EnemyProjectileEngine
                 Scatter(projectile, scatter.Spread);
                 break;
             case EnemyProjectileCommonCue.Signal { Kind: EnemyProjectileCommonCueKind.ReturnToOrigin }:
-                projectile.Position = projectile.Position.WithWhole(projectile.StateOf<AnchoredProjectileState>().Anchor);
+                projectile.Position = projectile.Position.WithWhole(projectile.Behavior is IAnchoredProjectileBehavior anchored
+                    ? anchored.Anchor
+                    : throw new InvalidDataException($"Enemy projectile {projectile.Kind} returned to an origin its behaviour does not keep."));
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(EnemyProjectileCommonCueKind)} {cue}.");

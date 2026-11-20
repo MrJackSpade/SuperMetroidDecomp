@@ -147,12 +147,11 @@ internal sealed class MotherBrainFakeDeath
         if (projectile is null)
             return;
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, _projectileAttacks.Projectile,
+        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, _projectileAttacks.TopTube(new MotherBrainTopTubeState()),
             graphics: SpriteGraphics.SharedIn(MotherBrainColours.GlassAndTubes));
         projectile.StartAnimation(new MotherBrainTopTubeAnimation(tube));
         projectile.Position = projectile.Position.WithWhole(position);
         projectile.Velocity = PixelVelocity<RoomPixels>.Zero;
-        projectile.State = new MotherBrainTopTubeState();
     }
 
     /// <summary>Creates the falling tube enemy of <paramref name="piece"/>.</summary>

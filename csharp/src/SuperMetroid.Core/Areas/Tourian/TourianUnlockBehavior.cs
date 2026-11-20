@@ -63,11 +63,10 @@ internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<To
             EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
                 projectile,
                 RoomEnemyProjectileKind.TourianStatueDescentDust,
-                Effects,
+                new AnchoredProjectileBehavior(TourianStatueSequenceDefinitions.DescentDustAnchor),
                 _statue.SceneGraphics);
             _statue.HoldSceneProjectile(projectile);
             projectile.StartAnimation(new ChozoTourianDustAnimation(ChozoTourianDustAnimations.TourianDescentDust));
-            projectile.State = new AnchoredProjectileState(TourianStatueSequenceDefinitions.DescentDustAnchor);
         }
     }
 

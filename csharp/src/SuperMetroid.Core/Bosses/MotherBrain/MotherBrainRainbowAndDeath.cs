@@ -135,12 +135,12 @@ internal sealed class MotherBrainRainbowAndDeath
         DustExplosionAnimation animation = MotherBrainDeathExplosionDefinitions.Animations[request.Animation];
         var projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null) return; // Shared-pool exhaustion drops the spawn.
+        var explosion = new MotherBrainBodyExplosionState(state, request.Offset);
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, RoomEnemyProjectileKind.MotherBrainDeathExplosion,
-            _projectileAttacks.Projectile, graphics: default);
+            _projectileAttacks.BodyExplosion(explosion), graphics: default);
         projectile.StartAnimation(new DustExplosionProjectileAnimation(animation));
-        projectile.State = new MotherBrainBodyExplosionState(state, request.Offset);
         projectile.Velocity = FollowingExplosionLeftVelocity.Of(request.Offset);
-        MotherBrainProjectiles.MotherBrainProjectileBehavior.RunMotherBrainDeathExplosion(projectile);
+        MotherBrainProjectiles.MotherBrainProjectileBehavior.RunMotherBrainDeathExplosion(projectile, explosion);
     }
 
     /// <summary>Spawns the falling door fragment <paramref name="definition"/>.</summary>
@@ -149,11 +149,10 @@ internal sealed class MotherBrainRainbowAndDeath
         var fragment = _projectiles.AllocateEnemyProjectile();
         if (fragment is null) return;
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(fragment, RoomEnemyProjectileKind.MotherBrainEscapeDoorFragment,
-            _projectileAttacks.Projectile, graphics: default);
+            _projectileAttacks.DoorFragment(new MotherBrainDoorFragmentState()), graphics: default);
         fragment.StartAnimation(new MotherBrainEffectAnimation(MotherBrainEffectSegment.EscapeDoorParticle));
         fragment.Position = fragment.Position.WithWhole(new Position16<RoomPixels>(MotherBrainDeathDefinitions.DoorX, MotherBrainDeathDefinitions.DoorY) + definition.Offset);
         fragment.Velocity = definition.Velocity;
-        fragment.State = new MotherBrainDoorFragmentState();
     }
 
     /// <summary>Shows a glyph the Zebes escape typewriter typed over Mother Brain's room background (#1348, #1555).</summary>
@@ -255,10 +254,9 @@ internal sealed class MotherBrainRainbowAndDeath
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.MotherBrainRainbowBeamExplosion,
-            _projectileAttacks.Projectile,
+            _projectileAttacks.FollowingExplosion(new MotherBrainFollowingExplosionState(request.Offset)),
             graphics: default);
         projectile.StartAnimation(new DustExplosionProjectileAnimation(DustExplosionAnimation.MotherBrainRainbowBeamExplosion));
-        projectile.State = new MotherBrainFollowingExplosionState(request.Offset);
         projectile.Velocity = FollowingExplosionLeftVelocity.Of(request.Offset);
         projectile.Position = projectile.Position.WithWhole(samusBeforeMovement + request.Offset);
     }

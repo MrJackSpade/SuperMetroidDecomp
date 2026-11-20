@@ -426,14 +426,13 @@ internal sealed class MotherBrainHead
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             bomb,
             RoomEnemyProjectileKind.MotherBrainBomb,
-            _projectileAttacks.Projectile,
+            _projectileAttacks.Bomb(new MotherBrainBombState(state, MotherBrainBombBounceDefinitions.BounceSpeed, afterburnCount)),
             graphics: SpriteGraphics.SharedIn(state.Colours.OwnShading));
         bomb.StartAnimation(new MotherBrainEffectAnimation(MotherBrainEffectSegment.Bomb));
         RoomEnemyPlace head = state.Head;
         bomb.Position = bomb.Position.WithWhole(head.Position.Whole + MotherBrainFightDefinitions.BombOffset);
         bomb.Position = bomb.Position.WithoutFractions();
         bomb.Velocity = new(MotherBrainBombBounceDefinitions.LaunchSpeedX, MotherBrainBombBounceDefinitions.LaunchSpeedY);
-        bomb.State = new MotherBrainBombState(state, MotherBrainBombBounceDefinitions.BounceSpeed, afterburnCount);
         state.RecordBombSpawned();
     }
 
@@ -452,10 +451,9 @@ internal sealed class MotherBrainHead
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             ring,
             RoomEnemyProjectileKind.MotherBrainOnionRing,
-            _projectileAttacks.OnionRing,
+            _projectileAttacks.OnionRing(new MotherBrainOnionRingState(state, MotherBrainOnionRingDefinitions.MouthWaitUpdates)),
             graphics: SpriteGraphics.SharedIn(state.Colours.OwnShading));
         ring.StartAnimation(new MotherBrainEffectAnimation(MotherBrainEffectSegment.OnionRing));
-        ring.State = new MotherBrainOnionRingState(state, MotherBrainOnionRingDefinitions.MouthWaitUpdates);
         ring.Velocity = ring.Velocity.WithX(EnemyMath.SineSpeed(MotherBrainOnionRingDefinitions.Speed, angle));
         ring.Velocity = ring.Velocity.WithY(EnemyMath.SineSpeed(
             MotherBrainOnionRingDefinitions.Speed,
@@ -486,13 +484,13 @@ internal sealed class MotherBrainHead
         RoomEnemyProjectileKind kind = state.NeckTurnPerUpdate < MotherBrainNeckTurnDefinitions.DyingDrool
             ? RoomEnemyProjectileKind.MotherBrainDrool
             : RoomEnemyProjectileKind.MotherBrainDyingDrool;
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(drool, kind, _projectileAttacks.Projectile, graphics: default);
+        var droolState = new MotherBrainDroolState(state, mouth);
+        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(drool, kind, _projectileAttacks.Drool(droolState), graphics: default);
         drool.StartAnimation(new MotherBrainEffectAnimation(MotherBrainEffectSegment.Drool));
-        drool.State = new MotherBrainDroolState(state, mouth);
 
         // Spawning the drool attaches it to the head at once, so its position is already
         // right before the later projectile pass repeats the same attachment.
-        MotherBrainProjectiles.MotherBrainProjectileBehavior.HoldMotherBrainDroolAtMouth(drool);
+        MotherBrainProjectiles.MotherBrainProjectileBehavior.HoldMotherBrainDroolAtMouth(drool, droolState);
     }
 
     /// <summary>Runs the head's big purple breath step and the breath's setup.</summary>
@@ -505,9 +503,8 @@ internal sealed class MotherBrainHead
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             breath,
             RoomEnemyProjectileKind.MotherBrainPurpleBreathBig,
-            _projectileAttacks.Projectile,
+            _projectileAttacks.WithEncounter(new MotherBrainProjectileState(state)),
             graphics: default);
-        breath.State = new MotherBrainProjectileState(state);
         breath.StartAnimation(new MotherBrainEffectAnimation(MotherBrainEffectSegment.PurpleBreathBig));
         RoomEnemyPlace head = state.Head;
         breath.Position = breath.Position.WithWhole(head.Position.Whole + MotherBrainFightDefinitions.BreathOffset);
@@ -523,9 +520,8 @@ internal sealed class MotherBrainHead
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             breath,
             RoomEnemyProjectileKind.MotherBrainPurpleBreathSmall,
-            _projectileAttacks.Projectile,
+            _projectileAttacks.WithEncounter(new MotherBrainProjectileState(state)),
             graphics: default);
-        breath.State = new MotherBrainProjectileState(state);
         breath.StartAnimation(new MotherBrainEffectAnimation(MotherBrainEffectSegment.PurpleBreathSmall));
         RoomEnemyPlace head = state.Head;
         breath.Position = breath.Position.WithWhole(head.Position.Whole + MotherBrainFightDefinitions.BreathOffset);
@@ -539,15 +535,15 @@ internal sealed class MotherBrainHead
         if (projectile is null)
             return;
 
+        var encounter = new MotherBrainProjectileState(state);
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.MotherBrainRainbowBeamCharging,
-            _projectileAttacks.Projectile,
+            _projectileAttacks.WithEncounter(encounter),
             graphics: default);
-        projectile.State = new MotherBrainProjectileState(state);
         projectile.StartAnimation(new MotherBrainEffectAnimation(MotherBrainEffectSegment.RainbowBeamCharging));
         projectile.Velocity = PixelVelocity<RoomPixels>.Zero;
         projectile.Position = projectile.Position.WithoutFractions();
-        MotherBrainProjectiles.MotherBrainProjectileBehavior.PinMotherBrainRainbowCharge(projectile);
+        MotherBrainProjectiles.MotherBrainProjectileBehavior.PinMotherBrainRainbowCharge(projectile, encounter);
     }
 }

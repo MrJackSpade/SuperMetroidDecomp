@@ -373,8 +373,8 @@ internal static class EnemySpawnSettingsCodec
         GrappleRipperSpawnSettings s => Checked(EnemyDefinitionId.GrappleRipper, settings, new PopulationWords(Initialization: Place(EnemySpawnSelectors.LinearSpeedRow("GrappleRipper speed", s.Speed), 0, 8) | ((s.Direction switch { HorizontalDirection.Left => 0, HorizontalDirection.Right => 512, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 0), SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: Place(s.MinimumX, 0, 16), Parameter2: Place(s.MaximumX, 0, 16))),
         SbugSpawnSettings s => Checked(EnemyDefinitionId.Sbug, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: Place(s.Speed, 0, 8) | Place(s.InitialAngle.ToTrigonometryAngle().RawValue, 8, 8), Parameter2: Place(s.ActivationRadius, 0, 8) | ((s.Behavior switch { SbugActivationBehavior.MoveForward => 0, SbugActivationBehavior.ZigZag => 1, SbugActivationBehavior.MoveForwardThenWait => 5, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 8))),
         ShaktoolSpawnSettings s => Checked(EnemyDefinitionId.Shaktool, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: (s.Motion.NextWall == ShaktoolWallResponse.ReverseOrbit ? 1 << 13 : 0) | (s.Motion.Phase == ShaktoolChainPhase.Straightening ? 1 << 14 : 0) | (s.Motion.OrbitDirection == RotationDirection.Counterclockwise ? 1 << 15 : 0), Parameter2: ShaktoolSegmentPosition(s.Segment) * 2)),
-        GrowingShutterSpawnSettings s => Checked(EnemyDefinitionId.ShutterGrowing, settings, new PopulationWords(Initialization: ((s.Wait switch { GrowingShutterWait.Timer => 0, GrowingShutterWait.SamusNear => 1, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 0), SpeciesPropertyBits: 0, ExtraProperties: ((s.Growth switch { VerticalDirection.Down => 0, VerticalDirection.Up => 1, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 0), Parameter1: Place(s.Wait == GrowingShutterWait.Timer ? s.ActivationWait : s.ActivationDistance, 0, 16), Parameter2: Place(GrowingShutterSpeedRecord(s.GrowthSpeed), 0, 16))),
-        ShutterSpawnSettings s => Checked(EnemyDefinitionId.ShutterShootable, settings, new PopulationWords(Initialization: Place(EnemySpawnSelectors.LinearSpeedRow("ShutterShootable speed", s.Speed), 0, 8) | ((s.PrimaryDirection switch { VerticalDirection.Up => 0, VerticalDirection.Down => 1, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 8), SpeciesPropertyBits: 0, ExtraProperties: Place(ShutterRestUnits(s.RestAfterMovingUp), 0, 8) | Place(ShutterRestUnits(s.RestAfterMovingDown), 8, 8), Parameter1: ((s.TriggerMode switch { ShutterTriggerMode.Timer => 0, ShutterTriggerMode.HorizontalProximity => 1, ShutterTriggerMode.Immediate => 2, ShutterTriggerMode.OneShotReaction => 3, ShutterTriggerMode.RepeatableReaction => 4, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 0) | Place(s.TravelDistance, 8, 8), Parameter2: Place(s.TriggerMode == ShutterTriggerMode.Timer ? s.WaitTime : s.ProximityDistance, 0, 16))),
+        GrowingShutterSpawnSettings s => Checked(EnemyDefinitionId.ShutterGrowing, settings, new PopulationWords(Initialization: ((s.Wait switch { GrowingShutterWait.Timer => 0, GrowingShutterWait.SamusNear => 1, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 0), SpeciesPropertyBits: 0, ExtraProperties: ((s.Growth switch { VerticalDirection.Down => 0, VerticalDirection.Up => 1, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 0), Parameter1: Place(s.Wait switch { GrowingShutterWait.Timer timer => timer.Updates, GrowingShutterWait.SamusNear near => near.Distance, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }, 0, 16), Parameter2: Place(GrowingShutterSpeedRecord(s.GrowthSpeed), 0, 16))),
+        ShutterSpawnSettings s => Checked(EnemyDefinitionId.ShutterShootable, settings, new PopulationWords(Initialization: Place(EnemySpawnSelectors.LinearSpeedRow("ShutterShootable speed", s.Speed), 0, 8) | ((s.PrimaryDirection switch { VerticalDirection.Up => 0, VerticalDirection.Down => 1, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 8), SpeciesPropertyBits: 0, ExtraProperties: Place(ShutterRestUnits(s.RestAfterMovingUp), 0, 8) | Place(ShutterRestUnits(s.RestAfterMovingDown), 8, 8), Parameter1: ((s.TriggerMode switch { ShutterTriggerMode.Timer => 0, ShutterTriggerMode.HorizontalProximity => 1, ShutterTriggerMode.Immediate => 2, ShutterTriggerMode.OneShotReaction => 3, ShutterTriggerMode.RepeatableReaction => 4, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 0) | Place(s.TravelDistance, 8, 8), Parameter2: Place(s.Trigger switch { ShutterTrigger.Timer timer => timer.Wait, ShutterTrigger.HorizontalProximity near => near.Distance, _ => 0 }, 0, 16))),
         SkulteraSpawnSettings s => Checked(EnemyDefinitionId.Skultera, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: Place(EnemySpawnSelectors.LinearSpeedRow("Skultera speed", s.Speed), 0, 8) | (s.StartDirection == HorizontalDirection.Left ? 256 : 0), Parameter2: Place(s.Radius, 0, 8) | Place(s.AngleStep.ToTrigonometryAngle().RawValue, 8, 8))),
         WalkingSpacePirateSpawnSettings s => Checked(EnemyDefinitionId.PirateGoldWalking, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: (s.Facing == HorizontalDirection.Right ? 1 << 0 : 0) | (s.LaserSpeed == PirateLaserSpeed.Slow ? 1 << 15 : 0), Parameter2: Place(s.PatrolReach, 0, 16))),
         WallSpacePirateSpawnSettings s => Checked(EnemyDefinitionId.PirateGoldWall, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: (s.Wall == HorizontalDirection.Right ? 1 << 0 : 0) | (s.LaserSpeed == PirateLaserSpeed.Slow ? 1 << 15 : 0), Parameter2: Place(s.JumpSpan, 0, 16))),
@@ -434,13 +434,16 @@ internal static class EnemySpawnSettingsCodec
     /// </summary>
     private static GrowingShutterSpawnSettings DecodeGrowingShutter(PopulationWords words)
     {
-        GrowingShutterWait wait = Bits(words.Initialization, 0, 16) switch { 0 => GrowingShutterWait.Timer, 1 => GrowingShutterWait.SamusNear, var other => throw Unmapped("Wait", other) };
         int activation = Bits(words.Parameter1, 0, 16);
+        GrowingShutterWait wait = Bits(words.Initialization, 0, 16) switch
+        {
+            0 => new GrowingShutterWait.Timer(activation),
+            1 => new GrowingShutterWait.SamusNear(activation),
+            var other => throw Unmapped("Wait", other),
+        };
         return new GrowingShutterSpawnSettings(
             Wait: wait,
             Growth: Bits(words.ExtraProperties, 0, 16) switch { 0 => VerticalDirection.Down, 1 => VerticalDirection.Up, var other => throw Unmapped("Growth", other) },
-            ActivationDistance: wait == GrowingShutterWait.SamusNear ? activation : 0,
-            ActivationWait: wait == GrowingShutterWait.Timer ? activation : 0,
             GrowthSpeed: GrowingShutterSpeed(Bits(words.Parameter2, 0, 8)));
     }
 
@@ -453,15 +456,13 @@ internal static class EnemySpawnSettingsCodec
     /// </summary>
     private static ShutterSpawnSettings DecodeShutter(PopulationWords words)
     {
-        ShutterTriggerMode trigger = Bits(words.Parameter1, 0, 8) switch { 0 => ShutterTriggerMode.Timer, 1 => ShutterTriggerMode.HorizontalProximity, 2 => ShutterTriggerMode.Immediate, 3 => ShutterTriggerMode.OneShotReaction, 4 => ShutterTriggerMode.RepeatableReaction, var other => throw Unmapped("TriggerMode", other) };
         int activation = Bits(words.Parameter2, 0, 16);
+        ShutterTrigger trigger = Bits(words.Parameter1, 0, 8) switch { 0 => new ShutterTrigger.Timer(activation), 1 => new ShutterTrigger.HorizontalProximity(activation), 2 => ShutterTrigger.Immediate, 3 => ShutterTrigger.OneShotReaction, 4 => ShutterTrigger.RepeatableReaction, var other => throw Unmapped("TriggerMode", other) };
         return new ShutterSpawnSettings(
             Speed: EnemySpawnSelectors.LinearSpeed("growing shutter speed", Bits(words.Initialization, 0, 8)),
             PrimaryDirection: Bits(words.Initialization, 8, 8) switch { 0 => VerticalDirection.Up, 1 => VerticalDirection.Down, var other => throw Unmapped("PrimaryDirection", other) },
-            TriggerMode: trigger,
+            Trigger: trigger,
             TravelDistance: Bits(words.Parameter1, 8, 8),
-            ProximityDistance: trigger == ShutterTriggerMode.HorizontalProximity ? activation : 0,
-            WaitTime: trigger == ShutterTriggerMode.Timer ? activation : 0,
             RestAfterMovingUp: ShutterRestOf(Bits(words.ExtraProperties, 0, 8)),
             RestAfterMovingDown: ShutterRestOf(Bits(words.ExtraProperties, 8, 8)));
     }

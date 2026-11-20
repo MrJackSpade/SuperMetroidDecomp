@@ -10,8 +10,10 @@ public enum YellowPipeBugAction
     WaitForSamus,
     /// <summary>Delays before a yellow Pipe Bug begins straight flight.</summary>
     EmergenceDelay,
-    /// <summary>Flies a yellow Pipe Bug straight the way it emerged, the way its placement faces.</summary>
+    /// <summary>Flies a yellow Pipe Bug straight the way it emerged, the way its placement faces, until it passes Samus.</summary>
     Fly,
+    /// <summary>Flies a yellow Pipe Bug straight on after its one arc, which it never takes again (#2560).</summary>
+    FlyAfterArc,
     /// <summary>
     /// The first half of the yellow Pipe Bug's one arc, moving on the way it emerged (#2473): it dips downward ever more
     /// slowly as its place on the speed curve moves back from <see cref="PipeBugDefinitions.YellowArcStart"/>, until the

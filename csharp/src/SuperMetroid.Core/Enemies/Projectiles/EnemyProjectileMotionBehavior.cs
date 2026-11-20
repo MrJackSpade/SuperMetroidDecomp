@@ -10,17 +10,12 @@ internal abstract class EnemyProjectileMotionBehavior<TMotion> : EnemyProjectile
     where TMotion : struct, Enum
 {
     /// <summary>
-    /// The motion every kind this behaviour is bound to starts with, or null when it starts holding still. The null is the
-    /// absence of a motion, not a stand-in for one: a projectile holds a motion only while something moves it, as
-    /// <see cref="EnemyProjectile.Motion"/> holds none for every family, so one that holds none is moved by nothing (#2558).
+    /// The motion a kind this behaviour is bound to starts with, or null when it starts holding still (#2560): one source,
+    /// the one motion every kind starts with or each kind's own. The null is the absence of a motion, not a stand-in for one:
+    /// a projectile holds a motion only while something moves it, as <see cref="EnemyProjectile.Motion"/> holds none for
+    /// every family, so one that holds none is moved by nothing (#2558).
     /// </summary>
-    private readonly TMotion? _initial;
-
-    /// <summary>
-    /// The motion each kind this behaviour is bound to starts with, null for one that starts holding still; null when every
-    /// kind starts with <see cref="_initial"/>.
-    /// </summary>
-    private readonly IReadOnlyDictionary<RoomEnemyProjectileKind, TMotion?>? _startingMotions;
+    private readonly Func<RoomEnemyProjectileKind, TMotion?> _startingMotionOf;
 
     /// <summary>Each of this behaviour's motions a projectile has moved by, created once.</summary>
     private readonly Dictionary<TMotion, EnemyProjectileFamilyMotion<TMotion>> _motions = [];
@@ -33,7 +28,7 @@ internal abstract class EnemyProjectileMotionBehavior<TMotion> : EnemyProjectile
         TMotion? initial = null,
         Func<EnemyProjectileAnimation>? shot = null,
         Func<EnemyProjectileAnimation>? touch = null)
-        : base(shot, touch) => _initial = initial;
+        : base(shot, touch) => _startingMotionOf = _ => initial;
 
     /// <summary>
     /// Kinds that start in the motions <paramref name="startingMotions"/> names for each, and react to shots and touch by
@@ -48,17 +43,19 @@ internal abstract class EnemyProjectileMotionBehavior<TMotion> : EnemyProjectile
         IReadOnlyDictionary<RoomEnemyProjectileKind, TMotion?> startingMotions,
         Func<EnemyProjectileAnimation>? shot = null,
         Func<EnemyProjectileAnimation>? touch = null)
-        : base(shot, touch) => _startingMotions = Ensure.NotNull(startingMotions);
+        : base(shot, touch)
+    {
+        Ensure.NotNull(startingMotions);
+        _startingMotionOf = kind => startingMotions.TryGetValue(kind, out TMotion? starting)
+            ? starting
+            : throw new InvalidOperationException($"{GetType().Name} is not bound to enemy projectile {kind}.");
+    }
 
     /// <inheritdoc/>
     /// <exception cref="InvalidOperationException">This behaviour does not name the motion <paramref name="kind"/> starts with.</exception>
     internal sealed override EnemyProjectileMotion? InitialMotion(RoomEnemyProjectileKind kind)
     {
-        TMotion? motion = _startingMotions is null
-            ? _initial
-            : _startingMotions.TryGetValue(kind, out TMotion? starting)
-                ? starting
-                : throw new InvalidOperationException($"{GetType().Name} is not bound to enemy projectile {kind}.");
+        TMotion? motion = _startingMotionOf(kind);
         return motion is { } moving ? Moving(moving) : null;
     }
 

@@ -13,7 +13,10 @@ internal static class DefinitionCatalogPrivateAccess
     /// <summary>The private instance members checks read or call.</summary>
     extension(global::SuperMetroid.Diagnostics.SaveStates.DefinitionCatalog self)
     {
-        /// <summary>The private field <c>graph</c>, reached by name.</summary>
-        internal global::SuperMetroid.Diagnostics.SaveStates.BoundObjectGraph? graph => PrivateState.Field<global::SuperMetroid.Diagnostics.SaveStates.DefinitionCatalog, global::SuperMetroid.Diagnostics.SaveStates.BoundObjectGraph?>(self, "graph");
+        /// <summary>The private property <c>BuiltGraph</c>, reached by name.</summary>
+        internal global::SuperMetroid.Diagnostics.SaveStates.BoundObjectGraph? BuiltGraph
+        {
+            get => PrivateState.Get<global::SuperMetroid.Diagnostics.SaveStates.DefinitionCatalog, global::SuperMetroid.Diagnostics.SaveStates.BoundObjectGraph?>(self, "BuiltGraph");
+        }
     }
 }

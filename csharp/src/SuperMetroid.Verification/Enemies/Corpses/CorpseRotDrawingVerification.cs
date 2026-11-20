@@ -36,8 +36,7 @@ internal static class CorpseRotDrawingVerification
         foreach (EnemyDefinitionId enemy in new[] { EnemyDefinitionId.CorpseZoomer, EnemyDefinitionId.CorpseRipper, EnemyDefinitionId.CorpseSkree })
         {
             DeadTourianCorpseSpecies species = DeadTourianBehavior.SpeciesOf(enemy);
-            foreach (int rowCount in Enumerable.Range(0, DeadTourianCorpses.VariantCount(species))
-                .Select(variant => DeadTourianCorpses.For(species, variant).RowCount).Distinct())
+            foreach (int rowCount in DeadTourianCorpses.Variants(species).Select(corpse => corpse.RowCount).Distinct())
                 compared += VerifyDeadMonster(sheets, enemy, rowCount);
         }
         compared += VerifyDeadTorizo(sheets);

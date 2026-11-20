@@ -35,7 +35,10 @@ internal sealed class DefinitionCatalog(Type type, IReadOnlyList<FieldInfo> memb
     /// or restore that needed it. Static members hold definition data, fixed once initialized, so the index is never
     /// refreshed: a part a member loads on first use after that is written by its contents.
     /// </summary>
-    internal BoundObjectGraph Graph => field ??= new BoundObjectGraph(Roots());
+    internal BoundObjectGraph Graph => BuiltGraph ??= new BoundObjectGraph(Roots());
+
+    /// <summary>The index once a capture or restore has first needed it, and none before.</summary>
+    private BoundObjectGraph? BuiltGraph { get; set; }
 
     /// <summary>Each member holding an object other than a string, named by its prefix and field, in name order.</summary>
     private (string Name, object Root)[] Roots()

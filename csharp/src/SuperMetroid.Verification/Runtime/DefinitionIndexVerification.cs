@@ -116,7 +116,7 @@ internal static class DefinitionIndexVerification
 
     /// <summary>The catalogs <paramref name="definitions"/> has indexed.</summary>
     private static DefinitionCatalog[] Indexed(DefinitionObjects definitions) =>
-        [.. definitions.Catalogs.Where(catalog => catalog.graph is not null)];
+        [.. definitions.Catalogs.Where(catalog => catalog.BuiltGraph is not null)];
 
     /// <summary>
     /// Every object other than a string that <paramref name="catalog"/>'s members expose: each member's object; what a

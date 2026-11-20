@@ -173801,6 +173801,97 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Desktop.Input.XInputButtons",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Desktop"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Desktop/Input/XInputButtons.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Desktop.Input.XInputGamepadInput",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Desktop"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Desktop/Input/XInputGamepadInput.cs"
+      ],
+      "partial": "generated-boundary",
+      "disposition": "generated-boundary"
+    },
+    {
+      "type": "SuperMetroid.Desktop.Input.XInputGamepadInput.NativeMethods",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Desktop"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Desktop/Input/XInputGamepadInput.cs"
+      ],
+      "partial": "generated-boundary",
+      "disposition": "generated-boundary"
+    },
+    {
+      "type": "SuperMetroid.Desktop.Input.XInputGamepadInput.XInputNativeGamepad",
+      "kind": "struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Desktop"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Desktop/Input/XInputGamepadInput.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Desktop.Input.XInputGamepadInput.XInputNativeState",
+      "kind": "struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Desktop"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Desktop/Input/XInputGamepadInput.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Desktop.Input.XInputGamepadState",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Desktop"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Desktop/Input/XInputGamepadState.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Desktop.Input.XInputStick",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Desktop"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Desktop/Input/XInputStick.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.Desktop.Timing.FrameTimingConfiguration",
       "kind": "static class",
       "scope": "product",

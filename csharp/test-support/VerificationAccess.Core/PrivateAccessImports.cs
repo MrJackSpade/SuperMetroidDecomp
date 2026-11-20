@@ -332,7 +332,6 @@ global using static SuperMetroid.Core.Bosses.Phantoon.PhantoonOpeningPrivateAcce
 global using static SuperMetroid.Core.Bosses.Phantoon.PhantoonPartPrivateAccess;
 global using static SuperMetroid.Core.Bosses.Phantoon.PhantoonPathPrivateAccess;
 global using static SuperMetroid.Core.Bosses.Phantoon.PhantoonPatternsPrivateAccess;
-global using static SuperMetroid.Core.Bosses.Phantoon.PrePhantoonRoomBehaviorPrivateAccess;
 global using static SuperMetroid.Core.Bosses.Ridley.CeresEscapePrivateAccess;
 global using static SuperMetroid.Core.Bosses.Ridley.CeresRidleyBabyScenePrivateAccess;
 global using static SuperMetroid.Core.Bosses.Ridley.CeresRidleyFlightPrivateAccess;

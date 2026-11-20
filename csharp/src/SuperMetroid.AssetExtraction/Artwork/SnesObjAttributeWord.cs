@@ -29,7 +29,7 @@ public readonly record struct SnesObjAttributeWord(ushort Raw)
     /// <summary>Gets the OBJ palette selector, from 0 through 7, decoded from bits 9 through 11.</summary>
     public int PaletteIndex => (Raw >> PaletteShift) & ThreeBitMask;
     /// <summary>Gets the two-bit OBJ priority tier, from 0 through 3.</summary>
-    public int Priority => (Raw >> PriorityShift) & TwoBitMask;
+    private int Priority => (Raw >> PriorityShift) & TwoBitMask;
     /// <summary>
     /// Where the object draws among the room's layers: tiers zero and one behind the whole room, tier two between its back
     /// and front tiles, tier three in front of it.
@@ -79,7 +79,7 @@ public readonly record struct SnesObjAttributeWord(ushort Raw)
     /// <summary>
     /// Encodes a word whose object draws at <paramref name="depth"/>, written with the lowest tier that draws there.
     /// </summary>
-    public static SnesObjAttributeWord Create(int tileNumber, int paletteIndex, ActorDepth depth, PictureFlip flips = PictureFlip.None) =>
+    private static SnesObjAttributeWord Create(int tileNumber, int paletteIndex, ActorDepth depth, PictureFlip flips = PictureFlip.None) =>
         Create(tileNumber, paletteIndex, depth switch
         {
             ActorDepth.BehindRoom => 0,

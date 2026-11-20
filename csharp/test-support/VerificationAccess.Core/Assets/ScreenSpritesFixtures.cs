@@ -43,7 +43,7 @@ internal static class ScreenSpritesFixtures
             bool onScreenLoader = (short)character.Origin.Y is >= 0 and < OnScreenLoaderBand;
             foreach (SpriteFramePart part in character.Frame.Parts)
             {
-                var attributes = SnesObjAttributeWord.Create(part.Character, part.Palette ?? character.Palette, part.Depth is { } depth ? SnesObjAttributeWord.Create(0, 0, depth).Priority : character.Priority, part.Flip);
+                var attributes = SnesObjAttributeWord.Create(part.Character, part.Palette ?? character.Palette, part.Depth is { } depth ? SnesObjAttributeWord.From(SpritePart.Single(0, 0, depth)).Raw >> 12 : character.Priority, part.Flip);
                 SnesSpritemapXWord x = SnesSpritemapXWord.Create(part.Offset.X, part.Size == sizes.Large);
                 SnesSpritemapYByte y = SnesSpritemapYByte.Create(part.Offset.Y);
                 if (onScreenLoader)

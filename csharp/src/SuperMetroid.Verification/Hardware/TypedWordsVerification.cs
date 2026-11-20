@@ -571,7 +571,7 @@ internal static void VerifyTypedNativeWords()
     var objEntry = new SnesObjAttributeWord(0x6dab);
     AssertEqual(0x1ab, objEntry.TileNumber, "OBJ tile-number field");
     AssertEqual(6, objEntry.PaletteIndex, "OBJ palette field");
-    AssertEqual(2, objEntry.Priority, "OBJ priority field");
+    AssertEqual(SuperMetroid.Core.Assets.ActorDepth.BehindFrontParts, objEntry.Depth, "OBJ priority field draws between the room's back and front tiles");
     AssertTrue(objEntry.FlipHorizontally && !objEntry.FlipVertically,
         "OBJ independent flip fields");
     SnesObjAttributeWord encodedObj = SnesObjAttributeWord.Create(

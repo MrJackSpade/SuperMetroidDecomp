@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Compatibility;
 public readonly record struct ShortFrameCount
 {
     /// <summary>How many frames the count counts before it returns to zero.</summary>
-    internal const int Period = 256;
+    private const int Period = 256;
 
     /// <summary>A count standing <paramref name="frames"/> into its period.</summary>
     /// <param name="frames">How far into its period the count stands, from zero up to one less than <see cref="Period"/>.</param>
@@ -24,7 +24,7 @@ public readonly record struct ShortFrameCount
     internal static ShortFrameCount Zero => default;
 
     /// <summary>How far into its period the count stands.</summary>
-    internal int Frames { get; }
+    private int Frames { get; }
 
     /// <summary>The count <paramref name="frames"/> frames later, returned to zero at the end of each period.</summary>
     /// <param name="frames">How many frames pass; never negative.</param>

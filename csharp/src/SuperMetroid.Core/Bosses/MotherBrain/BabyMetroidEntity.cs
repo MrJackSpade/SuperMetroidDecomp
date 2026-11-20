@@ -7,17 +7,18 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class BabyMetroidEntity(BabyMetroidBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(occupant, place, common), IEnemySurroundingsInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
+/// <param name="surroundings">The room, Samus, controller and camera the population load sets the enemy up in.</param>
+internal sealed class BabyMetroidEntity(BabyMetroidBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemyPopulationSurroundings surroundings)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
-    /// <inheritdoc/>
-    public void Initialize(EnemyPopulationSurroundings surroundings) => BabyMetroidBehavior.SetUpBabyMetroid(Place, surroundings);
+    /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
+    internal BabyMetroidEnemyState State { get; } = BabyMetroidBehavior.InitializeBabyMetroid(place, surroundings.Camera.X);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunBabyMetroidMainAi(Place, Place.RequireSpeciesState<BabyMetroidEnemyState>(), frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunBabyMetroidMainAi(Place, State, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceBabyMetroidAnimation(Place, Place.RequireSpeciesState<BabyMetroidEnemyState>());
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceBabyMetroidAnimation(Place, State);
 
     /// <summary>Whether Baby Metroid's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
     public override bool ReactsToTouch => Occupant.Definition.Touch == BabyMetroidReactions.Touch || base.ReactsToTouch;
@@ -27,7 +28,7 @@ internal sealed class BabyMetroidEntity(BabyMetroidBehavior species, RoomEnemyOc
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (Occupant.Definition.Touch == BabyMetroidReactions.Touch)
-            BabyMetroidBehavior.ReactToBabyMetroidTouch(context, context.Place.RequireSpeciesState<BabyMetroidEnemyState>());
+            BabyMetroidBehavior.ReactToBabyMetroidTouch(context, State);
         else
             base.ReactToTouch(context);
     }
@@ -41,7 +42,7 @@ internal sealed class BabyMetroidEntity(BabyMetroidBehavior species, RoomEnemyOc
     {
         if (context.SelectedShot != BabyMetroidReactions.Shot)
             return base.TryReactToBomb(context);
-        BabyMetroidBehavior.ReactToBabyMetroidBomb(context, context.Enemy.RequireSpeciesState<BabyMetroidEnemyState>());
+        BabyMetroidBehavior.ReactToBabyMetroidBomb(context, State);
         return true;
     }
 

@@ -24,7 +24,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Botwoon];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new BotwoonEntity(this, occupant, place, common));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new BotwoonEntity(this, occupant, place, common));
 
     /// <summary>Active room services and RNG used by path and drop decisions.</summary>
     private readonly EnemyRoomBinding _room;
@@ -54,13 +54,13 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     }
 
     /// <summary>Sets Botwoon up when the room spawns it.</summary>
-    internal void InitializeBotwoon(RoomEnemyOccupant occupant, RoomEnemyPlace head)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal BotwoonEnemyState InitializeBotwoon(RoomEnemyOccupant occupant, RoomEnemyPlace head)
     {
         // A previously defeated Botwoon does not allocate body actors. The room loader
         // installs the permanent open wall and opens both of its screens to the camera, aligned to their top.
         bool defeated = _room.Services.Bosses.IsDefeated(DefeatedBosses.AreaMiniBoss);
         var state = new BotwoonEnemyState(defeated ? [] : SpawnBotwoonBody(occupant, head));
-        head.SetSpeciesState(state);
         // The head starts hidden in its hole.
         state.HeadPlayback = EnemyAnimationPlayback.Start(head, BotwoonAnimations.HeadStartingWith(BotwoonHeadAnimationSegment.Hidden));
 
@@ -68,7 +68,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         {
             _passEvents.Publish(new BotwoonWallChange(BotwoonWallMutation.Clear));
             head.Presence = head.Presence.With(EnemyPresence.Deleted);
-            return;
+            return state;
         }
 
         state.OpeningWait.LastFor(BotwoonFightDefinitions.OpeningDelay);
@@ -87,6 +87,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         }
         // His trail is not filled from his head: until his head has moved far enough to fill it, a body segment
         // trailing past its written places stands at the room's origin, (0,0).
+        return state;
     }
 
     /// <summary>Runs Botwoon's main AI and its movement-phase step for one update.</summary>

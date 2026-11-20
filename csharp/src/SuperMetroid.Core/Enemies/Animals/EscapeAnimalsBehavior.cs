@@ -20,7 +20,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition == EnemyDefinitionId.EtecoonEscape)
-            return EnemyOccupant.Of(new EscapeEtecoonEntity(this, occupant, place, common));
+            return EnemyOccupant.Running(new EscapeEtecoonEntity(this, occupant, place, common, occupant.SpawnSettings<EscapeEtecoonSpawnSettings>()));
         if (definition == EnemyDefinitionId.DachoraEscape)
             return EnemyOccupant.WithoutMainAi(new EscapeDachoraEntity(this, occupant, place, common));
         throw new InvalidOperationException($"The escape animals species creates no {occupant.DefinitionId}.");
@@ -39,19 +39,19 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the escape Etecoon.</summary>
-    internal void InitializeEscapeEtecoon(RoomEnemyOccupant occupant, EscapeEtecoonSpawnSettings escapeEtecoonSpawnSettings, RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal EscapeEtecoonEnemyState InitializeEscapeEtecoon(RoomEnemyOccupant occupant, EscapeEtecoonSpawnSettings escapeEtecoonSpawnSettings, RoomEnemyPlace place)
     {
         EscapeEtecoonInitialization initialization =
             EscapeEtecoons.Initialization(escapeEtecoonSpawnSettings.Role);
         var state = new EscapeEtecoonEnemyState(initialization.Action);
-        place.SetSpeciesState(state);
 
         // The critters-escaped event means the animals already escaped on an earlier visit, so the animal leaves the
         // room before it shows, moves or acts.
         if (HasCrittersEscaped())
         {
             place.Presence = place.Presence.With(EnemyPresence.Deleted);
-            return;
+            return state;
         }
 
         // An escaping animal runs its animation, is left out of the ordinary touch pass against Samus and
@@ -63,6 +63,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         place.Position = place.Position.WithWhole(initialization.Position);
         state.Playback = new(EscapeEtecoonAnimations.StartingWith(initialization.Animation), AnimationPlace.StartOfAnimation);
         state.StartWalking(initialization.Direction, initialization.Speed);
+        return state;
     }
 
     /// <summary>Initializes the escape Dachora.</summary>

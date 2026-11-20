@@ -26,7 +26,12 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.BabyMetroid];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.FromSurroundings(new BabyMetroidEntity(this, occupant, place, common));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        throw new InvalidOperationException($"Enemy {Ensure.NotNull(occupant).DefinitionId} is only placed by its room's population load.");
+
+    /// <inheritdoc/>
+    public EnemyOccupant CreateLoaded(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+        EnemyPopulationSurroundings surroundings) => EnemyOccupant.Running(new BabyMetroidEntity(this, occupant, place, common, surroundings));
 
     /// <summary>Provides the room's enemy session, room scroll values, RNG, and installed encounter colors.</summary>
     private readonly EnemyRoomBinding _room;
@@ -58,7 +63,8 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         _audio.QueueEnemyMusic(new DelayedMusicRequest(request, MusicQueueDelay.Shortest));
 
     /// <summary>Sets the Baby Metroid up when the room spawns it.</summary>
-    private static void InitializeBabyMetroid(RoomEnemyPlace place, int cameraX)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static BabyMetroidEnemyState InitializeBabyMetroid(RoomEnemyPlace place, int cameraX)
     {
         // The Baby Metroid stops the Plasma Beam and animates.
         place.Contact = place.Contact.With(EnemyContact.BlocksPlasmaBeam);
@@ -78,11 +84,11 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             place.Presence = place.Presence.With(EnemyPresence.Hidden);
         }
         state.ReactsToSamus = false;
-        place.SetSpeciesState(state);
         // The entry's colours are where the room's colours fade to, and they show from the start: the Baby Metroid and
         // its victim in the entry's colours (#1512), and the drained corpses in theirs, which the corpses' own setup
         // shows.
         place.Shading = state.Shading;
+        return state;
     }
 
     /// <summary>Runs the Baby Metroid's main AI for one update.</summary>
@@ -701,12 +707,6 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // (MetroidRecoilOrigin). For a bomb collision that means the bomb's damage controls recoil strength while
         // whatever live or left-over shot is first controls direction. It never enters vulnerability damage.
         ResolveBabyMetroidShot(c.Enemy, babyMetroidEnemyState, c.PlacedBomb.Damage, MetroidRecoilOrigin.Of(c.OrdinaryProjectiles.Shots));
-
-    /// <summary>Runs Baby Metroid's initialization AI.</summary>
-    internal static void SetUpBabyMetroid(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings)
-    {
-        InitializeBabyMetroid(place, surroundings.Camera.X);
-    }
 
     /// <summary>Runs Baby Metroid's main AI.</summary>
     internal void RunBabyMetroidMainAi(RoomEnemyPlace place, BabyMetroidEnemyState babyMetroidEnemyState, IEnemyAiFrame frame)

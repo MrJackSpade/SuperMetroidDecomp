@@ -16,7 +16,12 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Elevator];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.FromSurroundings(new ElevatorEntity(this, occupant, place, common));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        throw new InvalidOperationException($"Enemy {Ensure.NotNull(occupant).DefinitionId} is only placed by its room's population load.");
+
+    /// <inheritdoc/>
+    public EnemyOccupant CreateLoaded(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+        EnemyPopulationSurroundings surroundings) => EnemyOccupant.Running(new ElevatorEntity(this, occupant, place, common, surroundings, occupant.SpawnSettings<ElevatorSpawnSettings>()));
 
     /// <summary>The loaded room's bindings, whose game-state services set up Samus's elevator pose when the elevator departs.</summary>
     private readonly EnemyRoomBinding _room;
@@ -106,10 +111,10 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
     }
 
     /// <summary>Initializes the Elevator.</summary>
-    private void InitializeElevator(RoomEnemyOccupant occupant, ElevatorSpawnSettings elevatorSpawnSettings, RoomEnemyPlace place, SamusState samus)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal ElevatorEnemyState InitializeElevator(RoomEnemyOccupant occupant, ElevatorSpawnSettings elevatorSpawnSettings, RoomEnemyPlace place, SamusState samus)
     {
         var state = new ElevatorEnemyState();
-        place.SetSpeciesState(state);
 
         place.Frame = EnemyFrameId.PointAtOrigin;
         state.Playback = EnemyAnimationPlayback.Start(place, ElevatorAnimations.StartingWith(ElevatorSegment.Idle));
@@ -121,12 +126,13 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         {
             DoorArming = ElevatorArming.None;
             ElevatorStatus = ElevatorActorStatus.Inactive;
-            return;
+            return state;
         }
 
         place.Position = place.Position.WithWholeY(elevatorSpawnSettings.ArrivalY);
         PinSamusToElevator(place, samus);
         ArrivalElevator = place;
+        return state;
     }
 
     /// <summary>Runs the elevator's main behaviour and its four phases.</summary>
@@ -266,12 +272,6 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         EnemyAnimationPlayback.Advance(place, elevatorEnemyState, ElevatorAnimations.Segments,
             static (ElevatorEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A cue-free Elevator animation raised {cue}."));
-
-    /// <summary>Runs Elevator's initialization AI.</summary>
-    internal void SetUpElevator(RoomEnemyOccupant occupant, ElevatorSpawnSettings elevatorSpawnSettings, RoomEnemyPlace place, EnemyPopulationSurroundings surroundings)
-    {
-        InitializeElevator(occupant, elevatorSpawnSettings, place, surroundings.Samus);
-    }
 
     /// <summary>Runs Elevator's main AI.</summary>
     internal void RunElevatorMainAi(RoomEnemyOccupant occupant, ElevatorSpawnSettings elevatorSpawnSettings, RoomEnemyPlace place, ElevatorEnemyState elevatorEnemyState, IEnemyAiFrame frame)

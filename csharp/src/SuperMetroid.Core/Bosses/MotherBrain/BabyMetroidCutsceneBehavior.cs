@@ -63,10 +63,9 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         RoomEnemyPlacement population = MotherBrainBabyMetroidDefinitions.SpawnPopulation;
 
         RoomEnemyDefinition definition = _room.Definitions.ReadEnemyDefinition(population.DefinitionId);
-        _lifecycle.InitializePlaceFromDefinition(babyPlace, population, definition);
-        // The Baby's place holds the Baby its late fight makes there, from its setup (#2218, #2471).
-        babyPlace.SetSpeciesState(lateFight.MakeBaby(babyPlace));
-        _lifecycle.SetUpSpawnedEnemy(babyPlace);
+        RoomEnemyOccupant occupant = _lifecycle.InitializePlaceFromDefinition(babyPlace, population, definition);
+        // The Baby holds the Baby its late fight makes in its place, from its setup (#2218, #2471, #2554).
+        _lifecycle.SetUpEnemyJoining(occupant, lateFight.MakeBaby(babyPlace));
 
         // Spawning leaves the Baby undrawn after its setup while it animates.
         // Its animation is still live and shows its first visible frame on its first

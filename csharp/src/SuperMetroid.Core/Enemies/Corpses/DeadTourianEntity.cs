@@ -47,7 +47,7 @@ internal sealed class DeadTourianEntity(DeadTourianBehavior species, RoomEnemyOc
     {
         if (context.SelectedShot != CorpseReactions.Shot)
             return base.TryReplaceCommonBombDamage(context);
-        DeadTourianBehavior.ReplaceDeadTourianBombDamage(context, context.Enemy.RequireSpeciesState<DeadTourianCorpseEnemyState>());
+        DeadTourianBehavior.ReplaceDeadTourianBombDamage(context, State);
         return true;
     }
 

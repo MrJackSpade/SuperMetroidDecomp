@@ -54,7 +54,7 @@ internal sealed class MetroidEntity(MetroidBehavior species, RoomEnemyOccupant o
     {
         if (Occupant.Definition.Shot != MetroidReactions.Shot)
             return base.TryReactToBomb(context);
-        species.ReactToMetroidBomb(context, context.Enemy.RequireSpeciesState<MetroidEnemyState>());
+        species.ReactToMetroidBomb(context, State);
         return true;
     }
 

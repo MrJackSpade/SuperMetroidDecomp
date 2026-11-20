@@ -15,7 +15,12 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.FakeKraid];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.FromSurroundings(new FakeKraidEntity(this, occupant, place, common));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        throw new InvalidOperationException($"Enemy {Ensure.NotNull(occupant).DefinitionId} is only placed by its room's population load.");
+
+    /// <inheritdoc/>
+    public EnemyOccupant CreateLoaded(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+        EnemyPopulationSurroundings surroundings) => EnemyOccupant.Running(new FakeKraidEntity(this, occupant, place, common, surroundings));
 
     /// <summary>Provides the existing random number sampled for Fake Kraid's action decisions.</summary>
     private readonly EnemyRoomBinding _room;
@@ -75,10 +80,10 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
 
 
     /// <summary>Sets Fake Kraid up when the room spawns it.</summary>
-    private void InitializeFakeKraid(RoomEnemyPlace place, SamusState samus)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal FakeKraidEnemyState InitializeFakeKraid(RoomEnemyPlace place, SamusState samus)
     {
         var state = new FakeKraidEnemyState();
-        place.SetSpeciesState(state);
 
         // The action choice reads the already-published random number; it does not advance
         // the RNG.
@@ -98,6 +103,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = new AnimationPlayback<FakeKraidSegment>(FakeKraidAnimations.StartingWith(towardSamus == HorizontalDirection.Right
             ? FakeKraidSegment.StepForwardsFacingRight
             : FakeKraidSegment.StepForwardsFacingLeft), AnimationPlace.StartOfAnimation);
+        return state;
     }
 
     /// <summary>The side Samus stands on from Fake Kraid: right only when she stands right of him.</summary>
@@ -347,12 +353,6 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
             _startingMotions.TryGetValue(kind, out EnemyProjectileOwnedMotion? starting)
                 ? starting
                 : throw new InvalidOperationException($"{nameof(SpitAndSpikeBehavior)} is not bound to enemy projectile {kind}.");
-    }
-
-    /// <summary>Runs Fake Kraid's initialization AI.</summary>
-    internal void SetUpFakeKraid(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings)
-    {
-        InitializeFakeKraid(place, surroundings.Samus);
     }
 
     /// <summary>Runs Fake Kraid's main AI.</summary>

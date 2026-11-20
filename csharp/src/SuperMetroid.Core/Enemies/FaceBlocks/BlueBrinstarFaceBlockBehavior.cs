@@ -22,7 +22,12 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.FaceBlock];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.FromSurroundings(new BlueBrinstarFaceBlockEntity(this, occupant, place, common));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        throw new InvalidOperationException($"Enemy {Ensure.NotNull(occupant).DefinitionId} is only placed by its room's population load.");
+
+    /// <inheritdoc/>
+    public EnemyOccupant CreateLoaded(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+        EnemyPopulationSurroundings surroundings) => EnemyOccupant.Running(new BlueBrinstarFaceBlockEntity(this, occupant, place, common, surroundings, occupant.SpawnSettings<FaceBlockSpawnSettings>()));
 
     /// <summary>The face blocks the room has set up, in the order they were placed; all show the room-wide glow (#2283).</summary>
     private readonly List<RoomEnemyPlace> _blocks = [];
@@ -50,10 +55,10 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
     private PictureShading Glow => PictureShading.Shaded(FaceBlockShades.Glow(_glow.Showing));
 
     /// <summary>Initializes the Blue Brinstar face block.</summary>
-    private void InitializeBlueBrinstarFaceBlock(RoomEnemyPlace place, SamusState samus)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal BlueBrinstarFaceBlockEnemyState InitializeBlueBrinstarFaceBlock(RoomEnemyPlace place, SamusState samus)
     {
         var state = new BlueBrinstarFaceBlockEnemyState();
-        place.SetSpeciesState(state);
         _blocks.Add(place);
 
         // The neutral animation shows the neutral picture and holds it. Every directional animation shows the same
@@ -66,6 +71,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
         if (HasCollectedMorphBall(samus))
             StartGlow(place);
         RestartGlowStep();
+        return state;
     }
 
     /// <summary>Runs the Blue Brinstar face block's main AI.</summary>
@@ -146,12 +152,6 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
         EnemyAnimationPlayback.Play(place, BlueBrinstarFaceBlockAnimations.Segments, ref playback,
             static cue => throw new InvalidOperationException($"A cue-free blue Brinstar face block animation raised {cue}."));
         state.Playback = playback;
-    }
-
-    /// <summary>Runs the blue Brinstar face block's initialization AI.</summary>
-    internal void SetUpBlueBrinstarFaceBlock(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings)
-    {
-        InitializeBlueBrinstarFaceBlock(place, surroundings.Samus);
     }
 
     /// <summary>Runs the blue Brinstar face block's main AI.</summary>

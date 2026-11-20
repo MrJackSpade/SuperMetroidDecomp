@@ -548,8 +548,7 @@ internal sealed class EnemyDeathsAndDrops
         RoomEnemyDefinition definition = _room.Definitions.ReadEnemyDefinition(spawn.DefinitionId);
         // A respawned enemy keeps the empty frame its death left unless its setup chooses one, until its first cue. An
         // empty frame also keeps the respawned enemy from touching Samus before then.
-        _lifecycle.InitializePlaceFromDefinition(place, spawn, definition);
-        _lifecycle.SetUpSpawnedEnemy(place);
+        _lifecycle.SetUpSpawnedEnemy(_lifecycle.InitializePlaceFromDefinition(place, spawn, definition));
     }
 
     /// <summary>

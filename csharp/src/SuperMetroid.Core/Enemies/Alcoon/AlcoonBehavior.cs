@@ -14,7 +14,12 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Alcoon];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.FromSurroundings(new AlcoonEntity(this, occupant, place, common));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        throw new InvalidOperationException($"Enemy {Ensure.NotNull(occupant).DefinitionId} is only placed by its room's population load.");
+
+    /// <inheritdoc/>
+    public EnemyOccupant CreateLoaded(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+        EnemyPopulationSurroundings surroundings) => EnemyOccupant.Running(new AlcoonEntity(this, occupant, place, common, surroundings));
 
     /// <summary>Provides RNG for the randomized post-volley walk count.</summary>
     private readonly EnemyRoomBinding _room;
@@ -66,10 +71,10 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private const int AlcoonJumpSimulationLimit = 4096;
 
     /// <summary>Initializes the Alcoon, including its floor search.</summary>
-    private void InitializeAlcoon(RoomEnemyPlace place, RoomLevelData level)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal AlcoonEnemyState InitializeAlcoon(RoomEnemyPlace place, RoomLevelData level)
     {
         var state = new AlcoonEnemyState(AlcoonAction.WaitingForSamus);
-        place.SetSpeciesState(state);
 
         state.WalkCyclesBeforeVolley = UpdateCountdown.Ended();
         state.SpawnPosition = place.Position.Whole;
@@ -100,6 +105,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.LandingY = place.Position.Y.Whole;
         place.Position = place.Position.WithWholeY(state.SpawnPosition.Y);
+        return state;
     }
 
     /// <summary>Runs Alcoon for one update through all seven of its actions.</summary>
@@ -365,12 +371,6 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>An Alcoon fireball (#1760): it flies with vertical, then horizontal, room collision and horizontal drag.</summary>
     private static readonly EnemyProjectileBehavior Fireball = new SingleMotionProjectileBehavior(
         context => FlyAlcoonFireball(context.Projectile, context.Level));
-
-    /// <summary>Runs Alcoon's initialization AI.</summary>
-    internal void SetUpAlcoon(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings)
-    {
-        InitializeAlcoon(place, surroundings.Level);
-    }
 
     /// <summary>Runs Alcoon's main AI.</summary>
     internal void RunAlcoonMainAi(RoomEnemyPlace place, AlcoonEnemyState alcoonEnemyState, IEnemyAiFrame frame)

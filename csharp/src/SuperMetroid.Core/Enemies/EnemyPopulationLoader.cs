@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies;
 
@@ -55,10 +55,10 @@ internal sealed class EnemyPopulationLoader
 
             RoomEnemyDefinition definition = definitions.ReadEnemyDefinition(enemy);
             RoomEnemyPlace place = _places.InUpdateOrder[ordinal];
-            _lifecycle.InitializePlaceFromDefinition(place, population, definition);
+            RoomEnemyOccupant occupant = _lifecycle.InitializePlaceFromDefinition(place, population, definition);
             if (definition.Boss is { } boss)
                 _roomStatus.Boss = boss;
-            _lifecycle.SetUpEnemy(place, surroundings);
+            _lifecycle.SetUpEnemy(occupant, surroundings);
 
             // Loading replaces whatever frame the initialization AI showed: an animated enemy shows the empty frame until
             // its first animation tick replaces it, and one that collides by its frames' hitboxes collides at the point

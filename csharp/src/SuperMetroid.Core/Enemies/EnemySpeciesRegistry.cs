@@ -59,16 +59,49 @@ internal sealed class EnemySpeciesRegistry
         return registry;
     }
 
-    /// <summary>Creates the entity for <paramref name="occupant"/>, which <paramref name="place"/> now holds, and its setup, through its species' factory.</summary>
+    /// <summary>
+    /// Builds the entity for <paramref name="occupant"/>, which <paramref name="place"/> now holds, spawned on another
+    /// enemy's behalf or rebuilt by a respawn, through its species' factory.
+    /// </summary>
     /// <param name="occupant">The occupant just installed.</param>
-    /// <param name="place">The place, already holding the occupant.</param>
+    /// <param name="place">The place, already holding the occupant and its live values.</param>
     /// <exception cref="InvalidOperationException">No species owns the occupant's definition.</exception>
-    internal EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place)
-    {
-        Ensure.NotNull(occupant);
-        Ensure.NotNull(place);
-        if (!Factories.TryGetValue(occupant.DefinitionId, out IEnemyEntityFactory? factory))
-            throw new InvalidOperationException($"No enemy species owns definition {occupant.DefinitionId}.");
-        return factory.Create(occupant, place, _common);
-    }
+    internal EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place) =>
+        FactoryOf(occupant).Create(occupant, Ensure.NotNull(place), _common);
+
+    /// <summary>
+    /// Builds the entity for <paramref name="occupant"/>, which the room's population load placed in
+    /// <paramref name="place"/>, through its species' factory.
+    /// </summary>
+    /// <param name="occupant">The occupant just installed.</param>
+    /// <param name="place">The place, already holding the occupant and its live values.</param>
+    /// <param name="surroundings">The room, Samus, controller and camera the population load sets the enemy up in.</param>
+    /// <exception cref="InvalidOperationException">No species owns the occupant's definition.</exception>
+    internal EnemyOccupant CreateLoaded(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyPopulationSurroundings surroundings) =>
+        FactoryOf(occupant).CreateLoaded(occupant, Ensure.NotNull(place), _common, Ensure.NotNull(surroundings));
+
+    /// <summary>
+    /// Builds the entity for <paramref name="occupant"/>, spawned in <paramref name="place"/> joining
+    /// <paramref name="encounter"/>, through its species' factory.
+    /// </summary>
+    /// <param name="occupant">The occupant just installed.</param>
+    /// <param name="place">The place, already holding the occupant and its live values.</param>
+    /// <param name="encounter">The encounter the spawned enemy joins.</param>
+    /// <typeparam name="TEncounter">The encounter's type.</typeparam>
+    /// <exception cref="InvalidOperationException">
+    /// No species owns the occupant's definition, or its species' enemies are never spawned joining a
+    /// <typeparamref name="TEncounter"/>.
+    /// </exception>
+    internal EnemyOccupant CreateJoining<TEncounter>(RoomEnemyOccupant occupant, RoomEnemyPlace place, TEncounter encounter)
+        where TEncounter : class =>
+        FactoryOf(occupant) is IEnemyJoiningFactory<TEncounter> joining
+            ? joining.CreateJoining(occupant, Ensure.NotNull(place), _common, Ensure.NotNull(encounter))
+            : throw new InvalidOperationException($"Enemy {occupant.DefinitionId} is never spawned joining a {typeof(TEncounter).Name}.");
+
+    /// <summary>The factory of <paramref name="occupant"/>'s definition.</summary>
+    /// <exception cref="InvalidOperationException">No species owns the occupant's definition.</exception>
+    private IEnemyEntityFactory FactoryOf(RoomEnemyOccupant occupant) =>
+        Factories.TryGetValue(Ensure.NotNull(occupant).DefinitionId, out IEnemyEntityFactory? factory)
+            ? factory
+            : throw new InvalidOperationException($"No enemy species owns definition {occupant.DefinitionId}.");
 }

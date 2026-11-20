@@ -186,7 +186,7 @@ internal sealed class TorizoAttacks
                 {
                     // The floor impact waits while Golden Torizo's eye-beam explosions are disabled; once they are enabled,
                     // it bursts into flames.
-                    TorizoEnemyState state = projectile.StateOf<TorizoOwnedProjectileState>()EnemyPartners.Listed<TorizoEntity>(.Owner).State;
+                    TorizoEnemyState state = EnemyPartners.Listed<TorizoEntity>(projectile.StateOf<TorizoOwnedProjectileState>().Owner).State;
                     return state.EyeBeamExplosionsEnabled ? TorizoProjectileAnimations.ContinueWith(TorizoProjectileSegment.EyeBeamFloorFlames) : null;
                 }
                 case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.MayTurnToSmoke }:
@@ -291,9 +291,9 @@ internal sealed class TorizoAttacks
 
         // The recurring low-health drool launches in a random direction: a turning Torizo's any of the turn's, a facing
         // one's spread about its facing's heading.
-        TrigonometryAngle heading = TorizoFacing.Posture(torizo, state).IsTurning
+        TrigonometryAngle heading = state.Posture.IsTurning
             ? new(TorizoRandomDefinitions.DroolTurningAngle.Of(random))
-            : DroolHeading(TorizoFacing.Posture(torizo, state).Facing, TorizoRandomDefinitions.DroolFacingSpread.Of(random));
+            : DroolHeading(state.Posture.Facing, TorizoRandomDefinitions.DroolFacingSpread.Of(random));
         projectile.Velocity = VelocityAlong(TorizoMotionDefinitions.DroolLaunchSpeed, heading);
     }
 
@@ -322,7 +322,7 @@ internal sealed class TorizoAttacks
         projectile.Velocity = projectile.Velocity.WithY(TorizoRandomDefinitions.InitialDroolFall.Of(random));
         // The drool has no sideways speed.
         int jitteredX = _room.Random.Next(TorizoRandomDefinitions.InitialDroolXJitter) + torizo.Position.X.Whole;
-        projectile.Position = projectile.Position.WithWholeX(TorizoFacing.Posture(torizo, state).IsTurning
+        projectile.Position = projectile.Position.WithWholeX(state.Posture.IsTurning
             ? jitteredX
             : TorizoFacing.FacesRight(torizo)
                 ? jitteredX + TorizoMotionDefinitions.InitialDroolSideOffset
@@ -379,7 +379,7 @@ internal sealed class TorizoAttacks
         Offset16<RoomPixels> placement =
             BombTorizoAttacks.LowHealthExplosion(
                 site,
-                facing: TorizoFacing.Posture(torizo, state).Facing);
+                facing: state.Posture.Facing);
 
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
@@ -426,7 +426,7 @@ internal sealed class TorizoAttacks
         InitializeTorizoRandomizedProjectile(
             projectile,
             torizo,
-            TorizoRandomizedProjectileDefinitions.BombChozoOrb.Toward(TorizoFacing.Posture(torizo, state).Facing));
+            TorizoRandomizedProjectileDefinitions.BombChozoOrb.Toward(state.Posture.Facing));
     }
 
     /// <summary>Starts Bomb Torizo's sonic-boom animation at one of two randomized body heights.</summary>
@@ -488,7 +488,7 @@ internal sealed class TorizoAttacks
         InitializeTorizoRandomizedProjectile(
             projectile,
             torizo,
-            TorizoRandomizedProjectileDefinitions.GoldenChozoOrb.Toward(TorizoFacing.Posture(torizo, state).Facing));
+            TorizoRandomizedProjectileDefinitions.GoldenChozoOrb.Toward(state.Posture.Facing));
     }
 
     /// <summary>Starts a Golden egg with the game's fixed hatch timer and randomized launch speed.</summary>
@@ -544,7 +544,7 @@ internal sealed class TorizoAttacks
             TorizoProjectiles,
             SpriteGraphics.SpawnedBy(torizo));
         projectile.State = new TorizoOwnedProjectileState(torizo);
-        HorizontalDirection facing = TorizoFacing.Posture(torizo, state).Facing;
+        HorizontalDirection facing = state.Posture.Facing;
         projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectileSegment.EyeBeam));
         Offset16<RoomPixels> muzzle = TorizoProjectilePlacementDefinitions.EyeBeamMuzzle;
         projectile.Position = projectile.Position.WithWhole(torizo.Position.Whole + (facing == HorizontalDirection.Right ? muzzle : muzzle.MirroredX()));

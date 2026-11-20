@@ -173,8 +173,8 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
             static (_, cue) => throw new InvalidOperationException($"The Hibashi collision part's animation raised {cue}."));
 
     /// <summary>Advances the flame's eruption animation.</summary>
-    internal void AdvanceHibashiTypedAnimation(RoomEnemyPlace place, HibashiEnemyState hibashiEnemyStateRead, HibashiEnemyState hibashiEnemyState, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(place, hibashiEnemyStateRead, HibashiAnimations.Segments,
+    internal void AdvanceHibashiTypedAnimation(RoomEnemyPlace place, HibashiEnemyState hibashiEnemyState, EnemyAnimationCueContext _) =>
+        EnemyAnimationPlayback.Advance(place, hibashiEnemyState, HibashiAnimations.Segments,
             static (HibashiEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {

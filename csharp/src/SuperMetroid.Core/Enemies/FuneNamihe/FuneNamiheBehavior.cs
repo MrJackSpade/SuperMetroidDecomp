@@ -158,7 +158,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Advances a Fune's or Namihe's typed animation, whose state is <paramref name="state"/>.</summary>
     internal void AdvanceFuneNamiheTypedAnimation(RoomEnemyPlace place, FuneNamiheEnemyState state) =>
         EnemyAnimationPlayback.Advance(place, state, FuneNamiheAnimations.Segments,
-            static (TState state) => state.Playback, static (state, playback) => state.Playback = playback,
+            static (FuneNamiheEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) => ApplyFuneNamiheCue(place, state, cue) is { } target
                 ? new AnimationContinuation<FuneNamiheSegment>(FuneNamiheAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
                 : null);

@@ -42,7 +42,7 @@ internal sealed class PowampBalloonEntity(PowampBehavior species, RoomEnemyPlace
     /// <summary>The Powamp's own stages around common bomb damage for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>
     public override EnemyBombReaction? CommonBombDamageReaction(EnemyBombContext context) =>
-        context.SelectedShot is null ? species.PowampBombReaction : base.CommonBombDamageReaction(context);
+        context.SelectedShot is null ? PowampBehavior.PowampBalloonBombReaction : base.CommonBombDamageReaction(context);
 
     /// <summary>The balloon's own Power Bomb reaction where its definition leaves the blast to it, or the shared one.</summary>
     public override EnemyPowerBombReaction? PowerBombReaction => LeavesPowerBombToSpecies ? species.PowampBalloonPowerBombReaction : base.PowerBombReaction;

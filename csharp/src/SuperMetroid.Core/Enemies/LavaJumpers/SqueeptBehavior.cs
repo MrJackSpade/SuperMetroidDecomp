@@ -39,10 +39,9 @@ internal sealed class SqueeptBehavior : IEnemySpecies, IEnemyEntityFactory
         // Every room with it places this cosmetic second half immediately after its moving parent, which it
         // finds when it is placed and follows from then on; a population that places anything else there is refused.
         _parents.Place(place, _places.ListedBefore(place, 1));
-        return new NorfairLavaJumperFollowerState
+        return new NorfairLavaJumperFollowerState(ValidateSqueeptParent(place))
         {
             Playback = new(NorfairLavaJumperAnimations.StartingWith(NorfairLavaJumperSegment.Follower), AnimationPlace.StartOfAnimation),
-            Parent = ValidateSqueeptParent(place),
         };
     }
 

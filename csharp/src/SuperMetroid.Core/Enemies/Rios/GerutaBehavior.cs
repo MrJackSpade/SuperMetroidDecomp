@@ -44,10 +44,9 @@ internal sealed class GerutaBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         _parents.Place(place, _places.ListedBefore(place, 1));
         GerutaEnemyState parent = ValidateGerutaParent(place);
-        var state = new GerutaFollowerState
+        var state = new GerutaFollowerState(parent)
         {
             Playback = new(GerutaAnimations.StartingWith(GerutaSegment.FlamesAscending), AnimationPlace.StartOfAnimation),
-            Parent = parent,
         };
         return state;
     }

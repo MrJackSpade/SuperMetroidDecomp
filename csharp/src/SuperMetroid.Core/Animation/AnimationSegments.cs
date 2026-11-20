@@ -56,7 +56,7 @@ internal sealed class AnimationSegments<TSegment, TFrame, TEvent>
     /// <summary>The frames <paramref name="segment"/>'s beats show, in order, for a segment every beat of which shows one.</summary>
     /// <exception cref="InvalidDataException">A beat of the segment pauses, showing no frame.</exception>
     internal IReadOnlyList<TFrame> FramesShownBy(TSegment segment) =>
-        [.. Enumerable.Range(0, beats[segment].Count).Select(beat => FrameShownAt(segment, beat))];
+        [.. Enumerable.Range(0, beats[segment].Count()).Select(beat => FrameShownAt(segment, beat))];
 
     /// <summary>The frame beat <paramref name="beat"/> of <paramref name="segment"/> shows, a beat that shows one.</summary>
     /// <exception cref="InvalidDataException">The beat pauses, showing no frame.</exception>

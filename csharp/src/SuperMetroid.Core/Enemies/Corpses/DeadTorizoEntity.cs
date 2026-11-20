@@ -48,7 +48,7 @@ internal sealed class DeadTorizoEntity(DeadTorizoBehavior species, RoomEnemyPlac
     {
         if (!(context.SelectedShot is null))
             return base.TryReplaceCommonBombDamage(context);
-        DeadTorizoBehavior.ReplaceDeadTorizoBombDamage(context);
+        DeadTorizoBehavior.ReplaceDeadTorizoBombDamage(context, State);
         return true;
     }
 

@@ -88,6 +88,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
     /// Main gameplay, the pause's brightening or the time-up's white-out, whichever runs the update; the update enters the
     /// refill or the death its out-of-health check sends Samus to whichever it is (#2519).
     /// </param>
+    /// <param name="live">The loaded gameplay the update runs on.</param>
     internal void RunMainGameplayUpdate(ControllerButton controllerInput, GameplayUpdateOwner owner, LoadedGameplay live)
     {
         // Every gameplay update runs with Samus, and no update replaces her (#2503).

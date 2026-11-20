@@ -273,8 +273,8 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Platforms's typed animation.</summary>
-    internal static void AdvancePlatformsTypedAnimation(RoomEnemyPlace place, PlatformEnemyState platformEnemyStateRead, PlatformEnemyState platformEnemyState, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(place, platformEnemyStateRead, PlatformAnimations.Segments,
+    internal static void AdvancePlatformsTypedAnimation(RoomEnemyPlace place, PlatformEnemyState platformEnemyState, EnemyAnimationCueContext _) =>
+        EnemyAnimationPlayback.Advance(place, platformEnemyState, PlatformAnimations.Segments,
             static (PlatformEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {

@@ -127,8 +127,8 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
         _rowDust.Spawn(place, _room.Random.Read(), _projectiles, _frameContext.EnemyPassCount);
 
     /// <summary>Routes bomb hits through the shared shot reaction, which begins decomposition.</summary>
-    internal static void ReplaceDeadTourianBombDamage(EnemyBombContext c) =>
-        TriggerDeadTourianCorpseRotting(c.Enemy);
+    internal static void ReplaceDeadTourianBombDamage(EnemyBombContext c, DeadTourianCorpseEnemyState state) =>
+        TriggerDeadTourianCorpseRotting(c.Enemy, state);
 
     /// <summary>Advances the Tourian corpses' typed animation.</summary>
     internal static void AdvanceDeadTourianTypedAnimation(RoomEnemyPlace place, DeadTourianCorpseEnemyState state, EnemyAnimationCueContext _)

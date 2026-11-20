@@ -213,7 +213,7 @@ internal sealed class TorizoCombat
                     torizoState.CaughtSuperMissile = true;
                     torizoState.Phase = TorizoPhase.Idle;
                     c.Projectile.Spend();
-                    TorizoBody.StartTorizoBodyAnimation(enemy, torizoState, TorizoAnimations.Start(TorizoFacing.Posture(enemy, torizoState).LeadsWithFarFoot
+                    TorizoBody.StartTorizoBodyAnimation(enemy, torizoState, TorizoAnimations.Start(torizoState.Posture.LeadsWithFarFoot
                         ? TorizoFacing.FacesRight(enemy)
                             ? TorizoAnimation.GoldenFacingRightCatchingSuperMissileLeftLegForward
                             : TorizoAnimation.GoldenFacingLeftCatchingSuperMissileRightLegForward

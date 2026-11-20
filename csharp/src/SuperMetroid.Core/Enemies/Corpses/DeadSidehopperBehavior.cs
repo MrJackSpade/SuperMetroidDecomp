@@ -388,8 +388,8 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     }
 
     /// <summary>Routes a bomb that selects the corpse's shot reaction to its decay check, in place of common bomb damage.</summary>
-    internal static void ReplaceDeadSidehopperBombDamage(EnemyBombContext c) =>
-        ResolveDeadSidehopperShot(c.Enemy);
+    internal static void ReplaceDeadSidehopperBombDamage(EnemyBombContext c, DeadSidehopperEnemyState state) =>
+        ResolveDeadSidehopperShot(c.Enemy, state);
 
     /// <summary>Runs the dead Sidehopper's main AI.</summary>
     internal void RunDeadSidehopperMainAi(RoomEnemyPlace place, DeadSidehopperEnemyState state, IEnemyAiFrame frame)

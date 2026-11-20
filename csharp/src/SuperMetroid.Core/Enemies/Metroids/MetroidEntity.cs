@@ -35,13 +35,19 @@ internal sealed class MetroidEntity(MetroidBehavior species, RoomEnemyPlace plac
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (LeavesTouchToSpecies)
-            species.ResolveMetroidTouch(context.Place, context.Samus);
+            species.ResolveMetroidTouch(context.Place, State, context.Samus);
         else
             base.ReactToTouch(context);
     }
 
     /// <summary>The Metroid's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? species.ShotReaction : base.ShotReaction;
+    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? OwnShotReaction : base.ShotReaction;
+
+    /// <summary>The Metroid's own shot reaction, built over its state (#2554).</summary>
+    private EnemyShotReaction OwnShotReaction => field ??= species.ShotReactionOf(State);
+
+    /// <summary>The Metroid's own Power Bomb reaction, built over its state (#2554).</summary>
+    private EnemyPowerBombReaction OwnPowerBombReaction => field ??= MetroidBehavior.PowerBombReactionOf(State);
 
     /// <summary>The Metroid's own bomb reaction, which comes before the ignoring check, where its definition leaves shots to it.</summary>
     /// <param name="context">The bomb contact.</param>
@@ -49,13 +55,13 @@ internal sealed class MetroidEntity(MetroidBehavior species, RoomEnemyPlace plac
     {
         if (!LeavesShotToSpecies)
             return base.TryReactToBomb(context);
-        species.ReactToMetroidBomb(context);
+        species.ReactToMetroidBomb(context, State);
         return true;
     }
 
     /// <summary>The Metroid's own Power Bomb reaction where its definition leaves the blast to it, or the shared one.</summary>
     public override EnemyPowerBombReaction? PowerBombReaction =>
-        LeavesPowerBombToSpecies ? MetroidBehavior.PowerBombReaction : base.PowerBombReaction;
+        LeavesPowerBombToSpecies ? OwnPowerBombReaction : base.PowerBombReaction;
 
     /// <summary>The Metroid's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
     /// <param name="reaction">The reaction the radius path selects (none: the definition leaves shots to the Metroid), or the empty frame's.</param>

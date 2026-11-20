@@ -194,7 +194,7 @@ public sealed class SoundRequestHandshakes<TLibrary, TSound>
 
     /// <summary><paramref name="library"/>'s handshake.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The handshakes were not given <paramref name="library"/>.</exception>
-    private Handshake HandshakeOf(TLibrary library) => handshakes.TryGetValue(library, out Handshake handshake)
+    private Handshake HandshakeOf(TLibrary library) => handshakes.TryGetValue(library, out Handshake? handshake)
         ? handshake
         : throw new ArgumentOutOfRangeException(nameof(library), library, "The sound handshakes were not given this library.");
 }

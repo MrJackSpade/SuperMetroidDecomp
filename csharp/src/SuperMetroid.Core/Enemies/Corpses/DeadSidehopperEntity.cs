@@ -45,7 +45,7 @@ internal sealed class DeadSidehopperEntity(DeadSidehopperBehavior species, RoomE
     {
         if (!(context.SelectedShot is null))
             return base.TryReplaceCommonBombDamage(context);
-        DeadSidehopperBehavior.ReplaceDeadSidehopperBombDamage(context);
+        DeadSidehopperBehavior.ReplaceDeadSidehopperBombDamage(context, State);
         return true;
     }
 

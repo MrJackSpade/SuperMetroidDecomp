@@ -482,6 +482,17 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     };
 
     /// <summary>
+    /// The Powamp's bomb reaction as the balloon takes it: the body's, whose reaction after the common damage needs a
+    /// body's state, which a balloon does not have.
+    /// </summary>
+    internal static EnemyBombReaction PowampBalloonBombReaction { get; } = new()
+    {
+        RunsGenericDeath = false,
+        ShowsHitBurst = EnemyBombReaction.NeverShowsHitBurst,
+        AfterCommon = c => throw new InvalidOperationException($"Enemy place {c.Enemy.Ordinal} has no {nameof(PowampBodyState)} for its occupant."),
+    };
+
+    /// <summary>
     /// A Powamp spike (#1760): it flies outward, accelerating, with room collision. A shot spike runs the same private
     /// delete animation its definition names as its shot animation.
     /// </summary>
@@ -524,10 +535,16 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     internal EnemyPowerBombReaction PowampBalloonPowerBombReaction => field ??= new();
 
     /// <summary>Skips later shots once fatal damage begins and mirrors surviving body presentation to the balloon.</summary>
-    internal EnemyShotReaction PowampBodyShotReaction => field ??= ShotReactionSkipping(BodyRefusesContact);
+    /// <param name="state">The body's state, which the reaction acts on after a hit has killed it too.</param>
+    internal EnemyShotReaction PowampBodyShotReactionOf(PowampBodyState state) =>
+        ShotReactionSkipping(body => BodyRefusesContact(body, state), body => ResolvePowampShotAfterCommon(body, state));
 
-    /// <summary>The Powamp's shot reaction as the balloon takes it, skipped while the balloon refuses contact.</summary>
-    internal EnemyShotReaction PowampBalloonShotReaction => field ??= ShotReactionSkipping(PlacementRefusesContact);
+    /// <summary>
+    /// The Powamp's shot reaction as the balloon takes it, skipped while the balloon refuses contact. Its reaction after
+    /// the common damage is the body's, which needs a body's state, which a balloon does not have.
+    /// </summary>
+    internal EnemyShotReaction PowampBalloonShotReaction => field ??= ShotReactionSkipping(PlacementRefusesContact,
+        balloon => throw new InvalidOperationException($"Enemy place {balloon.Ordinal} has no {nameof(PowampBodyState)} for its occupant."));
 
     /// <summary>Whether a half's placement refuses Samus's touch and shots (#2474), as a grappled balloon's does.</summary>
     private static bool PlacementRefusesContact(RoomEnemyPlace half) =>
@@ -538,7 +555,9 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         PlacementRefusesContact(body) || state.IsDying;
 
     /// <summary>The Powamp's shot reaction for a half that refuses shots while <paramref name="refusesContact"/> says so.</summary>
-    private EnemyShotReaction ShotReactionSkipping(Func<RoomEnemyPlace, bool> refusesContact) => new()
+    /// <param name="refusesContact">Whether the half refuses shots.</param>
+    /// <param name="afterCommon">What the half's hit does after the common damage.</param>
+    private static EnemyShotReaction ShotReactionSkipping(Func<RoomEnemyPlace, bool> refusesContact, Action<RoomEnemyPlace> afterCommon) => new()
     {
         // A lethal shot starts the Powamp's 32-update death, during which later shots pass through it, neither spent
         // nor exploding, while the body visibly deflates; it dies in its own way, not in the usual burst.
@@ -546,7 +565,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         ExemptFromGenericDeath = true,
         // A shot damages a Powamp without the hit burst.
         ShowsHitBurst = EnemyShotReaction.NeverShowsHitBurst,
-        AfterCommon = c => ResolvePowampShotAfterCommon(c.Enemy),
+        AfterCommon = c => afterCommon(c.Enemy),
     };
 
     /// <summary>Applies touch behavior to the body before its fatal-shot state begins.</summary>

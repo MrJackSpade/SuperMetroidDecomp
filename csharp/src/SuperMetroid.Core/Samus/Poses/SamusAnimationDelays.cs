@@ -43,6 +43,7 @@ internal static class SamusAnimationDelays
     /// <param name="pose">The pose whose animation is read.</param>
     /// <param name="frame">Samus's animation frame.</param>
     /// <param name="framesBeyondAnimation">What a frame that is no step of its animation reads.</param>
+    /// <param name="step">The step.</param>
     /// <exception cref="InvalidDataException">A read past the animation reaches a frame that names no step.</exception>
     internal static bool TryStepFor(SamusPoseId pose, SamusAnimationFrame frame, SamusFramesBeyondAnimation framesBeyondAnimation,
         [NotNullWhen(true)] out SamusPoseAnimationStep? step)

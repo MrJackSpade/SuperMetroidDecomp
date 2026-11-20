@@ -44,7 +44,7 @@ internal sealed class BabyMetroidEntity(BabyMetroidBehavior species, RoomEnemyPl
     {
         if (!(context.SelectedShot is null))
             return base.TryReactToBomb(context);
-        BabyMetroidBehavior.ReactToBabyMetroidBomb(context);
+        BabyMetroidBehavior.ReactToBabyMetroidBomb(context, State);
         return true;
     }
 

@@ -415,12 +415,12 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// detaches an attached one, and any other bomb applies its peculiar recoil from the first projectile
     /// (MetroidRecoilOrigin).
     /// </summary>
-    internal void ReactToMetroidBomb(EnemyBombContext c)
+    internal void ReactToMetroidBomb(EnemyBombContext c, MetroidEnemyState state)
     {
         if (c.Enemy.Freeze.IsOver)
         {
             SamusProjectile recoilOrigin = MetroidRecoilOrigin.Of(c.OrdinaryProjectiles.Shots);
-            ResolveMetroidNonFrozenShot(c.Enemy, c.Bomb.Type, Ensure.AtLeastZero(c.Bomb.Damage), recoilOrigin.Position.Whole, c.Samus);
+            ResolveMetroidNonFrozenShot(c.Enemy, state, c.Bomb.Type, Ensure.AtLeastZero(c.Bomb.Damage), recoilOrigin.Position.Whole, c.Samus);
         }
     }
 
@@ -441,13 +441,14 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             });
 
     /// <summary>The Metroid Power Bomb reaction, which clears its outer body before generic death.</summary>
-    internal static EnemyPowerBombReaction PowerBombReaction { get; } = new()
+    /// <param name="state">The Metroid's state, which its death clears.</param>
+    internal static EnemyPowerBombReaction PowerBombReactionOf(MetroidEnemyState state) => new()
     {
-        BeforeGenericDeath = c => FinishMetroidDeath(c.Enemy, c.Samus),
+        BeforeGenericDeath = c => FinishMetroidDeath(c.Enemy, state, c.Samus),
     };
 
     /// <summary>Applies frozen missile damage or unfrozen recoil and Ice accumulation after the shared projectile prelude.</summary>
-    internal bool ResolveMetroidOrdinaryShot(in EnemyShotContext c)
+    internal bool ResolveMetroidOrdinaryShot(in EnemyShotContext c, MetroidEnemyState state)
     {
         RoomEnemyPlace enemy = c.Enemy;
         if (enemy.Freeze.IsRunning)
@@ -481,7 +482,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 // The death records the drop origin, the enemy's death spawns the explosion, and only then
                 // the five drops spawn.
                 Position16<RoomPixels> dropOrigin = enemy.Position.Whole;
-                FinishMetroidDeath(enemy, c.Samus);
+                FinishMetroidDeath(enemy, state, c.Samus);
                 _deathsAndDrops.StartGenericEnemyDeath(enemy, EnemyDeathExplosion.Big, c.Samus);
                 RequestMetroidDrops(dropOrigin, c.Samus);
             }
@@ -491,14 +492,15 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // A shot on a Metroid takes no common shot reaction and does it no health damage: the collision marks the shot,
         // then the Metroid recoils, freezes or, attached, escapes as a Power Bomb shakes it loose.
         c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
-        ResolveMetroidNonFrozenShot(enemy, c.Projectile.Type, Ensure.AtLeastZero(c.Projectile.Damage), MetroidRecoilOrigin.Of(c.Projectiles.Shots).Position.Whole, c.Samus);
+        ResolveMetroidNonFrozenShot(enemy, state, c.Projectile.Type, Ensure.AtLeastZero(c.Projectile.Damage), MetroidRecoilOrigin.Of(c.Projectiles.Shots).Position.Whole, c.Samus);
         return true;
     }
 
     /// <summary>The Metroid shot reaction, which routes ordinary projectile hits to its frozen and nonfrozen handling.</summary>
-    internal EnemyShotReaction ShotReaction => field ??= new()
+    /// <param name="state">The Metroid's state.</param>
+    internal EnemyShotReaction ShotReactionOf(MetroidEnemyState state) => new()
     {
         AdmitsBombFamilies = true,
-        AfterSuperMissileQuake = ResolveMetroidOrdinaryShot,
+        AfterSuperMissileQuake = (in EnemyShotContext c) => ResolveMetroidOrdinaryShot(c, state),
     };
 }

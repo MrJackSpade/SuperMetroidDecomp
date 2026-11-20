@@ -10,8 +10,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 internal static class TorizoFacing
 {
     /// <summary>The Torizo's posture: its facing, its leading foot and whether it is turning around.</summary>
-    internal static TorizoPosture Posture(RoomEnemyPlace torizo, TorizoEnemyState state) =>
-        state.Posture;
+    internal static TorizoPosture Posture(RoomEnemyPlace torizo) => EnemyPartners.Listed<TorizoEntity>(torizo).State.Posture;
 
     /// <summary>Whether the Torizo faces right.</summary>
     internal static bool FacesRight(RoomEnemyPlace torizo) => Posture(torizo).Facing == HorizontalDirection.Right;

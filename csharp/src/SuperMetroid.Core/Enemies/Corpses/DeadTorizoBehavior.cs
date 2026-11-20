@@ -196,10 +196,10 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Routes corpse bomb contact to rotting once the check for an ignoring reaction has passed.</summary>
-    internal static void ReplaceDeadTorizoBombDamage(EnemyBombContext c) =>
+    internal static void ReplaceDeadTorizoBombDamage(EnemyBombContext c, DeadTorizoEnemyState state) =>
         // Corpse shot reactions run directly after the collision mark. They do not consult bomb
         // vulnerability or health; they only hand the actor to its authored rotting state machine.
-        TriggerDeadTorizoRotting(c.Enemy);
+        TriggerDeadTorizoRotting(c.Enemy, state);
 
     /// <summary>Advances the dead Torizo's typed animation.</summary>
     internal static void AdvanceDeadTorizoTypedAnimation(RoomEnemyPlace place, DeadTorizoEnemyState state, EnemyAnimationCueContext _)

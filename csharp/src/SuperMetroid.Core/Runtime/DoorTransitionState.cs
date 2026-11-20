@@ -93,7 +93,11 @@ internal sealed class DoorTransitionState
     }
 
     /// <summary>Advances exactly one update of the stage selected by <see cref="Phase"/>.</summary>
+    /// <param name="runtime">The gameplay runtime.</param>
     /// <param name="loaded">The runtime's loaded room: the source room until the destination loads, then the destination.</param>
+    /// <param name="loaderProgress">The room load's progress.</param>
+    /// <param name="controllerInput">The controller input.</param>
+    /// <param name="audio">The audio queues.</param>
     public void Step(
         SuperMetroidRuntime runtime,
         RoomOccupancy.Loaded loaded,
@@ -222,7 +226,8 @@ internal sealed class DoorTransitionState
                     transition.SourceSamus,
                     sourceView,
                     loaderProgress,
-                    completedLoadingScrollUpdates: DoorOpeningScrollDefinitions.LoadingScrollUpdates);
+                    completedLoadingScrollUpdates: DoorOpeningScrollDefinitions.LoadingScrollUpdates,
+                    loaded);
                 runtime.RoomLoader.StepDoorOpeningScroll(scroll, loaderProgress, loaded);
                 if (runtime.Options.IconCancelEnabled)
                 {

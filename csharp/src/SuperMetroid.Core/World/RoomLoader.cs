@@ -342,6 +342,7 @@ internal sealed class RoomLoader
     /// the boundary reaches it in one step.
     /// </summary>
     /// <param name="door">The door the transition goes through.</param>
+    /// <param name="loaded">The loaded room the step runs in.</param>
     /// <returns>True only when the camera already lay on that screen boundary on entry.</returns>
     public bool AlignDoorCameraOnePixel(DoorDefinition door, RoomOccupancy.Loaded loaded)
     {
@@ -417,6 +418,7 @@ internal sealed class RoomLoader
     /// the destination's load starts the scroll from where she stood before this movement.
     /// </summary>
     /// <param name="door">The door the transition goes through.</param>
+    /// <param name="loaded">The loaded room the step runs in.</param>
     internal void ApplyDoorScrollingSetupMovement(DoorDefinition door, RoomOccupancy.Loaded loaded)
     {
         Ensure.NotNull(door);
@@ -428,6 +430,7 @@ internal sealed class RoomLoader
 
     /// <summary>Rebases Samus and publishes the scroll's first moving step during the destination's loading.</summary>
     /// <param name="door">The door the transition goes through.</param>
+    /// <param name="loaded">The loaded room the step runs in.</param>
     internal void PlaceSamusForDestinationLoading(DoorDefinition door, RoomOccupancy.Loaded loaded)
     {
         Ensure.NotNull(door);
@@ -459,6 +462,7 @@ internal sealed class RoomLoader
     /// <param name="sourceScroll">What the source room showed as its destination's load began.</param>
     /// <param name="loaderProgress">How far the destination's load has progressed on each scroll update.</param>
     /// <param name="completedLoadingScrollUpdates">The scroll updates the destination's load already took.</param>
+    /// <param name="loaded">The loaded room the step runs in.</param>
     /// <returns>The scroll, which the transition holds until <see cref="FinishDoorOpeningScroll"/>.</returns>
     internal DoorOpeningScrollState BeginDoorOpeningScroll(
         DoorDefinition door,
@@ -468,7 +472,6 @@ internal sealed class RoomLoader
         int completedLoadingScrollUpdates,
         RoomOccupancy.Loaded loaded)
     {
-        Ensure.NotNull(sourceScroll);
         SamusState samus = _player.Samus;
         ScrollBoundaryCamera camera = loaded.Scope.Camera;
         if (loaded.Scope.Enemies.Elevator.ArrivalElevator is { } elevator)
@@ -508,6 +511,7 @@ internal sealed class RoomLoader
     /// </summary>
     /// <param name="state">The door's opening scroll.</param>
     /// <param name="loaderProgress">How far the destination's load has progressed.</param>
+    /// <param name="loaded">The loaded room the step runs in.</param>
     internal bool StepDoorOpeningScroll(DoorOpeningScrollState state, IRoomLoadProgress loaderProgress, RoomOccupancy.Loaded loaded)
     {
         Ensure.NotNull(state);
@@ -599,6 +603,7 @@ internal sealed class RoomLoader
     /// the scroll's trajectory. This is deliberately later than the scroll.
     /// </summary>
     /// <param name="state">The door's opening scroll, which has finished.</param>
+    /// <param name="loaded">The loaded room the step runs in.</param>
     internal void FinishDoorOpeningScroll(DoorOpeningScrollState state, RoomOccupancy.Loaded loaded)
     {
         Ensure.NotNull(state);
@@ -628,6 +633,7 @@ internal sealed class RoomLoader
     /// </summary>
     /// <param name="door">The door Samus entered, which the transition goes through.</param>
     /// <param name="sourceSamus">Samus's place in the source room, which the door's opening scroll starts from.</param>
+    /// <param name="loaded">The loaded room the step runs in.</param>
     /// <returns>What the source room showed as its destination's load began, which the door's opening scroll keeps.</returns>
     internal DoorOpeningSourceView LoadPendingDoorDestinationForTransition(DoorDefinition door, FixedPosition<RoomPixels> sourceSamus,
         RoomOccupancy.Loaded loaded)

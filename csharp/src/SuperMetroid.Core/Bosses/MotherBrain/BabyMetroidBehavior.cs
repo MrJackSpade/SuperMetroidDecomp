@@ -90,6 +90,7 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <param name="samus">Samus, when the update has one.</param>
     /// <param name="camera">The enemy pass's camera, which the wait for the camera and the off-screen test read.</param>
     /// <param name="samusBombs">Samus's bomb and projectile counters, which draining Samus locks.</param>
+    /// <param name="state">The state, which its enemy holds.</param>
     internal void RunBabyMetroidMain(
         RoomEnemyPlace place, BabyMetroidEnemyState state,
         SamusState samus,
@@ -165,7 +166,8 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case BabyMetroidAction.ActivateSidehopperCorpse:
-                DeadSidehopperBehavior.ActivateDeadSidehopperVictim(RequireBabyMetroidVictim(place));
+                RoomEnemyPlace fed = RequireBabyMetroidVictim(place);
+                DeadSidehopperBehavior.ActivateDeadSidehopperVictim(fed, EnemyPartners.Listed<DeadSidehopperEntity>(fed).State);
                 state.Action = BabyMetroidAction.RiseAfterFeeding;
                 state.StateTimer.LastFor(BabyMetroidFightDefinitions.RiseUpdates);
                 goto case BabyMetroidAction.RiseAfterFeeding;
@@ -697,11 +699,11 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Uses bomb damage for recoil strength but Samus's first shot for its direction, without health loss.</summary>
-    internal static void ReactToBabyMetroidBomb(EnemyBombContext c) =>
+    internal static void ReactToBabyMetroidBomb(EnemyBombContext c, BabyMetroidEnemyState state) =>
         // The Baby's shot response reads damage from the projectile that hit it, but recoils from Samus's first shot
         // (MetroidRecoilOrigin). For a bomb collision that means the bomb's damage controls recoil strength while
         // whatever live or left-over shot is first controls direction. It never enters vulnerability damage.
-        ResolveBabyMetroidShot(c.Enemy, c.Bomb.Damage, MetroidRecoilOrigin.Of(c.OrdinaryProjectiles.Shots));
+        ResolveBabyMetroidShot(c.Enemy, state, c.Bomb.Damage, MetroidRecoilOrigin.Of(c.OrdinaryProjectiles.Shots));
 
     /// <summary>Runs Baby Metroid's initialization AI.</summary>
     internal static BabyMetroidEnemyState SetUpBabyMetroid(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings) =>

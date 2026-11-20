@@ -67,8 +67,7 @@ internal sealed class SoundEffectObserver(SoundEffectLibrary soundLibrary, int c
     {
         tickSample = MusicTrackAnalysis.NativeSample(MusicTrackAnalysis.Required(renderer), tick);
         polled = tick.ChecksRequests;
-        SoundRequestCheck<byte> poll = tick.Checks[soundLibrary];
-        requested = polled && poll.Changed && poll.Request == command;
+        requested = tick.Checks is { } checks && checks[soundLibrary] is { Changed: true } poll && poll.Request == command;
     }
 
     /// <inheritdoc />

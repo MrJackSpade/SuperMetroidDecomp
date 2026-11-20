@@ -18,9 +18,12 @@ public static class FirstPlaceFallAcceleration
     /// <param name="firstPlaceActive">Whether the first enemy-projectile place holds a live projectile.</param>
     /// <param name="firstPlacePieceAcceleration">The acceleration of the statue piece in the first place, or null when no piece is there.</param>
     /// <exception cref="InvalidOperationException">The first place holds a projectile that is not a statue piece.</exception>
-    public static SignedEightEight Of(bool firstPlaceActive, SignedEightEight? firstPlacePieceAcceleration) =>
-        firstPlacePieceAcceleration ?? (firstPlaceActive
-            ? throw new InvalidOperationException(
-                "A falling statue piece read the first projectile place while it held a projectile that is not a statue piece.")
-            : SignedEightEight.Zero);
+    public static SignedEightEight Of(FirstPlaceHolding firstPlace) => firstPlace switch
+    {
+        FirstPlaceHolding.Free => SignedEightEight.Zero,
+        FirstPlaceHolding.StatuePiece piece => piece.Acceleration,
+        FirstPlaceHolding.OtherProjectile => throw new InvalidOperationException(
+            "A falling statue piece read the first projectile place while it held a projectile that is not a statue piece."),
+        _ => throw new InvalidOperationException($"Undefined first projectile place holding {firstPlace}."),
+    };
 }

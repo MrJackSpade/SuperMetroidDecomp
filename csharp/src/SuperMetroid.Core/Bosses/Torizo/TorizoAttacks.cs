@@ -271,10 +271,13 @@ internal sealed class TorizoAttacks
             bool collided = EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical);
             if (projectile.Velocity.Y.IsNegative || !collided)
             {
-                EnemyProjectile? firstPlace = projectiles.LatestInFirstPlace;
-                SignedEightEight acceleration = FirstPlaceFallAcceleration.Of(
-                    firstPlace is { IsActive: true },
-                    firstPlace is { IsActive: true, Kind: RoomEnemyProjectileKind.BombTorizoStatueBreaking } ? StatueFragments.Of(firstPlace).Acceleration : null);
+                SignedEightEight acceleration = FirstPlaceFallAcceleration.Of(projectiles.LatestInFirstPlace switch
+                {
+                    { IsActive: true, Kind: RoomEnemyProjectileKind.BombTorizoStatueBreaking } piece =>
+                        new FirstPlaceHolding.StatuePiece(StatueFragments.Of(piece).Acceleration),
+                    { IsActive: true } => new FirstPlaceHolding.OtherProjectile(),
+                    _ => new FirstPlaceHolding.Free(),
+                });
                 // A piece's fall speed is capped at the runaway speed.
                 projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + acceleration);
                 if (IsRunaway(projectile.Velocity.Y))

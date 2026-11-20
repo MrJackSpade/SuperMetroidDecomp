@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Spatial;
-
 namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>Verification access to <see cref="DraygonRegrabSpiralLift"/>: a center a check states, built as the fight builds one.</summary>

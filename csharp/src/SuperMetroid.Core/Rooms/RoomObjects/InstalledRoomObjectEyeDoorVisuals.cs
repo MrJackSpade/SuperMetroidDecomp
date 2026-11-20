@@ -26,9 +26,4 @@ public sealed class InstalledRoomObjectEyeDoorVisuals : IRoomObjectFamilyPicture
     /// <inheritdoc/>
     IReadOnlyDictionary<RoomObjectDraw, RoomObjectFrameImage> IRoomObjectFamilyPictures.Pictures =>
         new Dictionary<RoomObjectDraw, RoomObjectFrameImage>(Images.All) { [EyeDoorObjectDrawDefinitions.MirroredOpeningClear] = mirroredClear };
-
-    /// <summary>The picture <paramref name="draw"/> shows; the mirrored opening clear shows the shared clear mirrored.</summary>
-    /// <exception cref="InvalidDataException">The installation lacks the frame.</exception>
-    internal RoomObjectFrameImage Image(RoomObjectDraw draw) =>
-        Ensure.NotNull(draw) == EyeDoorObjectDrawDefinitions.MirroredOpeningClear ? mirroredClear : Images.Image(draw);
 }

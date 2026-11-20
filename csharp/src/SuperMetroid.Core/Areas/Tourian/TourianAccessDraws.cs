@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Areas.Tourian.Artwork;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Areas.Tourian;

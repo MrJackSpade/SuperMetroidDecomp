@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Enemies;
-
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>An enemy wrote the camera's X position in the pass (#2571), before the update's ordinary scrolling.</summary>

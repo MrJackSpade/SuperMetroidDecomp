@@ -15,7 +15,7 @@ internal static class GameplayStartingColoursAccess
     {
         GameplayBasePaletteDocument document = JsonAssetDocument.Read<GameplayBasePaletteDocument>(
             File.ReadAllBytes(Path.Combine(importData, GameplayBasePaletteFormat.ArtworkFileName)), GameplayBasePaletteFormat.JsonOptions);
-        return [.. document.Initial.AsSpan(GameplayColourPositionDefinitions.BackgroundSetsFirst, GameplayColourPositionDefinitions.SetsColours)
+        return [.. document.Initial.AsSpan(GameplayColourPositionDefinitionsConstants.BackgroundSetsFirst, GameplayColourPositionDefinitions.SetsColours)
             .ToArray().Select(colour => colour.ToRgbColor())];
     }
 }

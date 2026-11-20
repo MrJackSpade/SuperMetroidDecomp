@@ -1,12 +1,10 @@
 using SuperMetroid.AssetExtraction.Rooms;
-using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Rooms.Scrolling;
-using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.World.RoomStates;
 
 namespace SuperMetroid.TestSupport.RepositoryInstallation.Verification;

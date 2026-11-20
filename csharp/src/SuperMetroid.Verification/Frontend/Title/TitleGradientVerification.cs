@@ -268,9 +268,9 @@ internal static class TitleGradientVerification
 
         var guardedBus = NewTitlePresentationReadBus(bus, colorAddresses, forbidReads: true);
         var nativeSession = new ColourEffectSessionState();
-        var native = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { (global::SuperMetroid.Core.Fx.ColourEffectSessionState)(nativeSession), (global::SuperMetroid.Core.Audio.GameplaySoundRequests)(SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone()) });
+        var native = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { nativeSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone() });
         var installedSession = new ColourEffectSessionState();
-        var installed = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { (global::SuperMetroid.Core.Fx.ColourEffectSessionState)(installedSession), (global::SuperMetroid.Core.Audio.GameplaySoundRequests)(SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone()) });
+        var installed = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { installedSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone() });
         foreach (TitleScreenAmbientPaletteFxColorDefinition definition in
                  TitleScreenAmbientPaletteOwners.All)
         {

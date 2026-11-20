@@ -24,7 +24,7 @@ internal static class UnpauseStationLockReleaseVerification
     internal static void VerifyUnpauseStationLockRelease()
     {
         var random = new SharedRandom();
-        var game = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Frontend.SuperMetroidGame>([typeof(global::SuperMetroid.Core.Saves.SaveSlotStore), typeof(global::SuperMetroid.Core.Gameplay.GameplayAssists), typeof(global::SuperMetroid.Core.Frontend.SuperMetroidGameHostServices), typeof(global::SuperMetroid.Core.Compatibility.SharedRandom)], new object?[] { (global::SuperMetroid.Core.Saves.SaveSlotStore)(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps)), (global::SuperMetroid.Core.Gameplay.GameplayAssists?)(null), (global::SuperMetroid.Core.Frontend.SuperMetroidGameHostServices)(SuperMetroid.Core.Frontend.SuperMetroidGameHostServices.Default), (global::SuperMetroid.Core.Compatibility.SharedRandom)(random) });
+        var game = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Frontend.SuperMetroidGame>([typeof(global::SuperMetroid.Core.Saves.SaveSlotStore), typeof(global::SuperMetroid.Core.Gameplay.GameplayAssists), typeof(global::SuperMetroid.Core.Frontend.SuperMetroidGameHostServices), typeof(global::SuperMetroid.Core.Compatibility.SharedRandom)], new object?[] { new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), null, SuperMetroidGameHostServices.Default, random });
         var runtime = CreateRetailRuntimeFixture(random: random, audio: game.AudioForVerification);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();

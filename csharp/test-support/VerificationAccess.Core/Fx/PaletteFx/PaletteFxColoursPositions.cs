@@ -16,19 +16,19 @@ internal static class PaletteFxColoursPositions
     /// </summary>
     private static readonly Dictionary<ColourEffectColours, int> NativeStarts = new()
     {
-        [ColourEffectColours.BabyMetroidTubeLight] = GameplayColourPositionDefinitions.BackgroundSetsFirst + 2 * GameplayColourPositionDefinitions.SetColours + 10,
-        [ColourEffectColours.TitleScreenDisplays] = GameplayColourPositionDefinitions.BackgroundSetsFirst + 2 * GameplayColourPositionDefinitions.SetColours + 14,
-        [ColourEffectColours.CutsceneGunshipEngine] = GameplayColourPositionDefinitions.BackgroundSetsFirst + 5 * GameplayColourPositionDefinitions.SetColours + 15,
-        [ColourEffectColours.CeresNavigationLightsBackground] = GameplayColourPositionDefinitions.BackgroundSetsFirst + 6 * GameplayColourPositionDefinitions.SetColours + 13,
-        [ColourEffectColours.OldMotherBrainBackgroundLights] = GameplayColourPositionDefinitions.BackgroundSetsFirst + 1 * GameplayColourPositionDefinitions.SetColours + 4,
-        [ColourEffectColours.WideZebesExplosionForeground] = GameplayColourPositionDefinitions.BackgroundSetsFirst + 0 * GameplayColourPositionDefinitions.SetColours + 1,
-        [ColourEffectColours.WideZebesExplosionBackground] = GameplayColourPositionDefinitions.BackgroundSetsFirst + 1 * GameplayColourPositionDefinitions.SetColours + 1,
-        [ColourEffectColours.ZebesExplosionFinale] = GameplayColourPositionDefinitions.BackgroundSetsFirst + 0 * GameplayColourPositionDefinitions.SetColours + 1,
-        [ColourEffectColours.SpaceDuringZebesExplosion] = GameplayColourPositionDefinitions.BackgroundSetsFirst + 0 * GameplayColourPositionDefinitions.SetColours + 0,
-        [ColourEffectColours.ExplodingZebesLava] = GameplayColourPositionDefinitions.BackgroundSetsFirst + 4 * GameplayColourPositionDefinitions.SetColours + 0,
-        [ColourEffectColours.ExplodingZebesCrust] = GameplayColourPositionDefinitions.BackgroundSetsFirst + 4 * GameplayColourPositionDefinitions.SetColours + 1,
-        [ColourEffectColours.ExplodingZebesGreyClouds] = GameplayColourPositionDefinitions.BackgroundSetsFirst + 5 * GameplayColourPositionDefinitions.SetColours + 1,
-        [ColourEffectColours.GunshipEmergingFromExplosion] = GameplayColourPositionDefinitions.BackgroundSetsFirst + 5 * GameplayColourPositionDefinitions.SetColours + 0,
+        [ColourEffectColours.BabyMetroidTubeLight] = GameplayColourPositionDefinitionsConstants.BackgroundSetsFirst + 2 * GameplayColourPositionDefinitions.SetColours + 10,
+        [ColourEffectColours.TitleScreenDisplays] = GameplayColourPositionDefinitionsConstants.BackgroundSetsFirst + 2 * GameplayColourPositionDefinitions.SetColours + 14,
+        [ColourEffectColours.CutsceneGunshipEngine] = GameplayColourPositionDefinitionsConstants.BackgroundSetsFirst + 5 * GameplayColourPositionDefinitions.SetColours + 15,
+        [ColourEffectColours.CeresNavigationLightsBackground] = GameplayColourPositionDefinitionsConstants.BackgroundSetsFirst + 6 * GameplayColourPositionDefinitions.SetColours + 13,
+        [ColourEffectColours.OldMotherBrainBackgroundLights] = GameplayColourPositionDefinitionsConstants.BackgroundSetsFirst + 1 * GameplayColourPositionDefinitions.SetColours + 4,
+        [ColourEffectColours.WideZebesExplosionForeground] = GameplayColourPositionDefinitionsConstants.BackgroundSetsFirst + 0 * GameplayColourPositionDefinitions.SetColours + 1,
+        [ColourEffectColours.WideZebesExplosionBackground] = GameplayColourPositionDefinitionsConstants.BackgroundSetsFirst + 1 * GameplayColourPositionDefinitions.SetColours + 1,
+        [ColourEffectColours.ZebesExplosionFinale] = GameplayColourPositionDefinitionsConstants.BackgroundSetsFirst + 0 * GameplayColourPositionDefinitions.SetColours + 1,
+        [ColourEffectColours.SpaceDuringZebesExplosion] = GameplayColourPositionDefinitionsConstants.BackgroundSetsFirst + 0 * GameplayColourPositionDefinitions.SetColours + 0,
+        [ColourEffectColours.ExplodingZebesLava] = GameplayColourPositionDefinitionsConstants.BackgroundSetsFirst + 4 * GameplayColourPositionDefinitions.SetColours + 0,
+        [ColourEffectColours.ExplodingZebesCrust] = GameplayColourPositionDefinitionsConstants.BackgroundSetsFirst + 4 * GameplayColourPositionDefinitions.SetColours + 1,
+        [ColourEffectColours.ExplodingZebesGreyClouds] = GameplayColourPositionDefinitionsConstants.BackgroundSetsFirst + 5 * GameplayColourPositionDefinitions.SetColours + 1,
+        [ColourEffectColours.GunshipEmergingFromExplosion] = GameplayColourPositionDefinitionsConstants.BackgroundSetsFirst + 5 * GameplayColourPositionDefinitions.SetColours + 0,
         [ColourEffectColours.TitleLogo] = GameplayColourPositionDefinitions.SpriteSetsFirst + 2 * GameplayColourPositionDefinitions.SetColours + 1,
         [ColourEffectColours.PlanetZebesText] = GameplayColourPositionDefinitions.SpriteSetsFirst + 0 * GameplayColourPositionDefinitions.SetColours + 1,
         [ColourEffectColours.GunshipGlow] = GameplayColourPositionDefinitions.SpriteSetsFirst + 7 * GameplayColourPositionDefinitions.SetColours + 15,
@@ -55,7 +55,7 @@ internal static class PaletteFxColoursPositions
             // A room's group lies where the import pre-colours the room pictures from: its first ink there (#1512).
             get => NativeStarts.TryGetValue(self, out int start)
                 ? start
-                : GameplayColourPositionDefinitions.BackgroundSetsFirst + SuperMetroid.AssetExtraction.Fx.PaletteFxRoomShades.FirstInk(self);
+                : GameplayColourPositionDefinitionsConstants.BackgroundSetsFirst + SuperMetroid.AssetExtraction.Fx.PaletteFxRoomShades.FirstInk(self);
         }
 
         /// <summary>The CGRAM byte index the native SetColorIndex command stores for the group.</summary>

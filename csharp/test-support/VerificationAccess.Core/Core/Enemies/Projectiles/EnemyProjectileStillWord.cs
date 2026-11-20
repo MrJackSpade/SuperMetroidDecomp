@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Enemies.Projectiles;
+﻿namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>A pre-instruction routine that stands for holding still: an empty routine, or the word zero of a freed slot.</summary>
 internal sealed class EnemyProjectileStillWord : EnemyProjectileMotionWord

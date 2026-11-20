@@ -43,7 +43,7 @@ internal static class PhantoonMotionDefinitionsVerification
             // Every whole speed the figure-eight reaches, with a margin: its caps keep it within seven entries of rest.
             for (int whole = -16; whole <= 16; whole++)
             {
-                words.Speed = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Bosses.Phantoon.PhantoonPathSpeed>([typeof(global::SuperMetroid.Core.Spatial.SignedSixteenSixteen)], new object?[] { (global::SuperMetroid.Core.Spatial.SignedSixteenSixteen)(SignedSixteenSixteen.FromParts(whole, fraction)) });
+                words.Speed = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Bosses.Phantoon.PhantoonPathSpeed>([typeof(global::SuperMetroid.Core.Spatial.SignedSixteenSixteen)], new object?[] { SignedSixteenSixteen.FromParts(whole, fraction) });
                 words.Stage = SuperMetroid.TestSupport.MovieReplay.PhantoonFigureEightStageWords.Decode(phase);
                 (ushort low, ushort high, ushort next) = Expected(fraction, unchecked((ushort)whole), phase, backwards);
                 (backwards ? reverse : forward)(words);

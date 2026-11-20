@@ -22,14 +22,8 @@ public sealed class LatestRenderFrameMailbox
     private long Generation { get; set; }
     /// <summary>Highest published sequence, retained across generations to reject rewinds.</summary>
     private long lastSequence;
-    /// <summary>Total valid publications observed by this mailbox.</summary>
-    private long Published { get; set; }
-    /// <summary>Total packets claimed by a consumer.</summary>
-    private long Taken { get; set; }
     /// <summary>Packets superseded by a newer publication before consumption.</summary>
     private long Replaced { get; set; }
-    /// <summary>Pending packets discarded on a load/reset generation change.</summary>
-    private long Invalidated { get; set; }
 
     /// <summary>Creates an empty visual mailbox for one positive simulation load/reset generation.</summary>
     /// <param name="initialGeneration">Positive generation identity required on the first published packet.</param>
@@ -56,7 +50,6 @@ public sealed class LatestRenderFrameMailbox
             if (Pending is not null) Replaced++;
             Pending = frame;
             lastSequence = frame.Identity.Sequence;
-            Published++;
         }
     }
 
@@ -67,7 +60,7 @@ public sealed class LatestRenderFrameMailbox
         {
             RenderFrame? frame = Pending;
             Pending = null;
-            if (frame is not null) Taken++;
+            if (frame is not null) { }
             return frame;
         }
     }
@@ -82,7 +75,7 @@ public sealed class LatestRenderFrameMailbox
         lock (sync)
         {
             ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(nextGeneration, Generation);
-            if (Pending is not null) Invalidated++;
+            if (Pending is not null) { }
             Pending = null;
             Generation = nextGeneration;
         }

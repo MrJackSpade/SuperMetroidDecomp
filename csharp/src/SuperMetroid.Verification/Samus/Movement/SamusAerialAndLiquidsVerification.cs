@@ -381,7 +381,7 @@ internal static void VerifySamusSpaceJumpAndScrewAttack()
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             EquippedItems = gravity ? SamusEquipmentFlags.GravitySuit : 0,
         };
-        global::SuperMetroid.Core.PrivateState.Set(ordinary.LiquidPhysics, "WaterSurfaceY", (int?)(submerged ? 0 : null));
+        global::SuperMetroid.Core.PrivateState.Set(ordinary.LiquidPhysics, "WaterSurfaceY", submerged ? 0 : null);
         if (cinematic)
             ordinary.Presentation.PresentInCinematic();
         SamusAerialPoseTransitions.ApplyOrdinaryJumpTransition(ordinary, SamusPoseId.SpinJumpRightPose);
@@ -496,7 +496,7 @@ internal static void VerifySamusSpaceJumpAndScrewAttack()
         "spin Fire preserves fractional vertical speed");
     AssertEqual(SamusAccelerationMode.Decelerating, spinFire.HorizontalSpeed.AccelerationMode,
         "spin Fire retains extra-run aerial acceleration");
-    AssertEqual<SamusTransitionShot?>(global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Samus.SamusTransitionShot>([typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection)], new object?[] { (global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection)(SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection.Right) }), spinFire.TransitionShot.Handed,
+    AssertEqual<SamusTransitionShot?>(global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Samus.SamusTransitionShot>([typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection)], new object?[] { SamusProjectileDirection.Right }), spinFire.TransitionShot.Handed,
         "spin Fire publishes target shot direction");
     AssertTrue(spinFire.HorizontalSpeed.SuitShade.IsDue,
         "leaving Screw Attack requests normal suit palette");
@@ -530,7 +530,7 @@ internal static void VerifySamusSpaceJumpAndScrewAttack()
         "wall-jump Shot preserves whole vertical speed");
     AssertEqual(0x2345, wallFire.Kinematics.VerticalVelocity.Speed.Fraction,
         "wall-jump Shot preserves fractional vertical speed");
-    AssertEqual<SamusTransitionShot?>(global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Samus.SamusTransitionShot>([typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection)], new object?[] { (global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection)(SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection.Right) }), wallFire.TransitionShot.Handed,
+    AssertEqual<SamusTransitionShot?>(global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Samus.SamusTransitionShot>([typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection)], new object?[] { SamusProjectileDirection.Right }), wallFire.TransitionShot.Handed,
         "wall-jump Shot publishes target shot direction");
     AssertTrue(wallFire.HorizontalSpeed.SuitShade.IsDue,
         "leaving Screw wall-jump requests normal suit palette");
@@ -1349,7 +1349,7 @@ internal static void VerifySamusAtmosphericEffects()
     // effects did; particles already shown run out on their own. Zero vertical speed returns even earlier and therefore
     // ends nothing.
     landing.Ground = SamusGround.Of(RoomDefinitions.FirstIn(AreaId.Ceres));
-    global::SuperMetroid.Core.PrivateState.Set(landing.LiquidPhysics, "WaterSurfaceY", (int?)(null));
+    global::SuperMetroid.Core.PrivateState.Set(landing.LiquidPhysics, "WaterSurfaceY", null);
     landing.Kinematics.VerticalVelocity = landing.Kinematics.VerticalVelocity.WithSpeed(landing.Kinematics.VerticalVelocity.Speed.WithWhole(1));
     int beforeCeres = landingParticles.Count;
     landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
@@ -1369,7 +1369,7 @@ internal static void VerifySamusAtmosphericEffects()
     SeedLandingSiteInlineRoomByte(bus);
     landing.Ground = SamusGround.Of(RoomDefinitions.LandingSite);
     PrivateState.Set(landing.LiquidPhysics, nameof(SamusLiquidPhysicsState.FxType), RoomFxType.Rain);
-    global::SuperMetroid.Core.PrivateState.Set(landing.LiquidPhysics, "WaterSurfaceY", (int?)(null));
+    global::SuperMetroid.Core.PrivateState.Set(landing.LiquidPhysics, "WaterSurfaceY", null);
     landing.Kinematics.VerticalVelocity = landing.Kinematics.VerticalVelocity.WithSpeed(landing.Kinematics.VerticalVelocity.Speed.WithFraction(1));
     landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
         landing, previousMovementType: SamusMovementType.Falling, previousPose: SamusPoseId.FallingRightPose,

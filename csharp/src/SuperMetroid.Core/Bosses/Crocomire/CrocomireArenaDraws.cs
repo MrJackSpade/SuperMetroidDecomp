@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;

@@ -82,7 +82,7 @@ internal static class SporeSpawnProjectileDefinitionsVerification
         for (int mirrored = 0; mirrored < 2; mirrored++)
         {
             int offset = step * 2;
-            global::SuperMetroid.Core.PrivateState.Set(spore, "Kind", (global::SuperMetroid.Core.Enemies.RoomEnemyProjectileKind)(RoomEnemyProjectileKind.SporeSpawnSpore));
+            global::SuperMetroid.Core.PrivateState.Set(spore, "Kind", RoomEnemyProjectileKind.SporeSpawnSpore);
             spore.Position = spore.Position.WithWhole(new(0x0200, 0x0200));
             enemies.SporeSpawnBehavior.Spore.Drifts.Start(spore, new SporeSpawnSporeState(mirrored != 0 ? HorizontalDirection.Left : HorizontalDirection.Right) { PathStep = ListStep<Offset16<RoomPixels>>.At(SporeSpawnProjectileDefinitions.Drift, step) });
             int x = unchecked((sbyte)rom.ReadCartridgeByte(0x86dd6c + offset));

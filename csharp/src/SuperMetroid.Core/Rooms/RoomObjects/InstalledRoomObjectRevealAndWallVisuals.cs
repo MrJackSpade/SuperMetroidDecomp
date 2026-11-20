@@ -17,8 +17,4 @@ public sealed class InstalledRoomObjectRevealAndWallVisuals : IRoomObjectFamilyP
     /// <inheritdoc/>
     IReadOnlyDictionary<RoomObjectDraw, RoomObjectFrameImage> IRoomObjectFamilyPictures.Pictures =>
         Images.All;
-
-    /// <summary>The picture <paramref name="draw"/> shows.</summary>
-    /// <exception cref="InvalidDataException">The installation holds no picture of the draw.</exception>
-    internal RoomObjectFrameImage Image(RoomObjectDraw draw) => Images.Image(draw);
 }

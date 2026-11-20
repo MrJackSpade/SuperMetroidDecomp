@@ -1,5 +1,3 @@
-using SuperMetroid.Core;
-
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
@@ -17,6 +15,17 @@ internal static class MotherBrainFadeProgressPrivateAccess
         internal global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainFade Fade
         {
             get => PrivateState.Get<global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainFadeProgress, global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainFade>(self, "Fade");
+        }
+    }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainFadeProgress self)
+    {
+        /// <summary>The private field <c>player</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Animation.AnimationPlayer<global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainFadeSegment, global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainFadeImage, global::SuperMetroid.Core.Animation.NoAnimationCue> player
+        {
+            get => PrivateState.Field<global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainFadeProgress, global::SuperMetroid.Core.Animation.AnimationPlayer<global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainFadeSegment, global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainFadeImage, global::SuperMetroid.Core.Animation.NoAnimationCue>>(self, "player");
+            set => PrivateState.SetField(self, "player", value);
         }
     }
 }

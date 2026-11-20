@@ -19,8 +19,6 @@ internal sealed class D3D11GpuTimer : IDisposable
     private int pending;
     /// <summary>Tracks an open interval and final disposal of its query resources.</summary>
     private bool active, disposed;
-    /// <summary>Intervals omitted because all query slots were awaiting GPU results.</summary>
-    private long SkippedSamples { get; set; }
 
     /// <summary>Creates a fixed number of query slots on the render device's owner thread.</summary>
     internal D3D11GpuTimer(D3D11RenderDevice owner, int capacity = 8)
@@ -41,7 +39,7 @@ internal sealed class D3D11GpuTimer : IDisposable
     {
         CheckOwner();
         if (active) throw new InvalidOperationException("Nested GPU timing interval.");
-        if (pending == slots.Length) { SkippedSamples++; return false; }
+        if (pending == slots.Length) { return false; }
         Slot slot = slots[head];
         slot.Identity = identity;
         slot.HasCompositionBoundary = false;

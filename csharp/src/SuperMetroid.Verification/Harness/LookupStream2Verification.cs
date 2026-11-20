@@ -265,7 +265,7 @@ internal static class LookupStream2Verification
             AssertEqual(64, cycle, "Native pass cadence sums to its exact loop period");
             var guarded = NewPaletteFxMechanicsForbiddenBus(rom, out _);
             var actualSession = new ColourEffectSessionState();
-            var actual = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { (global::SuperMetroid.Core.Fx.ColourEffectSessionState)(actualSession), (global::SuperMetroid.Core.Audio.GameplaySoundRequests)(SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone()) });
+            var actual = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { actualSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone() });
             actual.Start(definition.DefinitionPointer, equippedItems: 0);
             var cgram = new SnesCgram();
             var colors = new ReferencePaletteFxColorSource(guarded);

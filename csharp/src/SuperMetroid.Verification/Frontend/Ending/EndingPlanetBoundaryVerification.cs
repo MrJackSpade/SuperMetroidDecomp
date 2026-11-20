@@ -58,7 +58,7 @@ internal static class EndingPlanetBoundaryVerification
             // The crossfade keeps the atmosphere's wrapping floor, and the scene's sprites glow over the planet and the
             // sky (#1514); the native reconstruction draws the scene's sprites in the native colours.
             FramePaint nativeSprites = new FramePaint(snapshot.Paint.Backdrop, snapshot.SpriteDraws).WithNativeColours(snapshotColours);
-            DisplayLayer[] nativeLayers = [new TurningFloorLayer(global::SuperMetroid.Core.PrivateState.With<global::SuperMetroid.Core.Spatial.FloorView>(projection.Transform with {  }, "Outside", (global::SuperMetroid.Core.Spatial.FloorOverflowMode)(FloorOverflowMode.Wrap)),
+            DisplayLayer[] nativeLayers = [new TurningFloorLayer(global::SuperMetroid.Core.PrivateState.With<global::SuperMetroid.Core.Spatial.FloorView>(projection.Transform with {  }, "Outside", FloorOverflowMode.Wrap),
                     nativeFloor),
                 new SpritesLayer(nativeSprites.SpriteDraws, SpriteBlend.Glows)];
             var nativeMemory = new FramePaint(nativeSprites.Backdrop);

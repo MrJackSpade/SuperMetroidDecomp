@@ -109,9 +109,6 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
     internal bool IsWaitingOutDisplayFrame =>
         Phase == EndingCreditsPhase.SetupEscapeFromZebes && PhaseHold.Age > 0;
 
-    /// <summary>Enters <paramref name="phase"/>, which shows the scene already showing.</summary>
-    private void Enter(EndingCreditsPhase phase) => Phase = phase;
-
     /// <summary>Enters the cast's <paramref name="phase"/>, which shows the cast in that phase.</summary>
     private void Enter(EndingCastPhase phase) => Show(phase, new EndingCastScene(phase));
 

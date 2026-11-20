@@ -37,11 +37,11 @@ internal static partial class SwapchainTests
         try
         {
             int injectedLoss = 0;
-            worker = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Rendering.Direct3D11.Frames.D3D11RenderWorker>([typeof(nint), typeof(global::SuperMetroid.Core.Spatial.Extent16<global::SuperMetroid.Core.Spatial.DisplayPixels>), typeof(long), typeof(global::SuperMetroid.Rendering.Direct3D11.Device.D3D11DeviceKind), typeof(global::System.Action), typeof(int)], new object?[] { (nint)(window), (global::SuperMetroid.Core.Spatial.Extent16<global::SuperMetroid.Core.Spatial.DisplayPixels>)(new Extent16<DisplayPixels>(640, 480)), (long)(1), (global::SuperMetroid.Rendering.Direct3D11.Device.D3D11DeviceKind)(selection.Kind), (global::System.Action?)(() =>
+            worker = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Rendering.Direct3D11.Frames.D3D11RenderWorker>([typeof(nint), typeof(global::SuperMetroid.Core.Spatial.Extent16<global::SuperMetroid.Core.Spatial.DisplayPixels>), typeof(long), typeof(global::SuperMetroid.Rendering.Direct3D11.Device.D3D11DeviceKind), typeof(global::System.Action), typeof(int)], new object?[] { window, new Extent16<DisplayPixels>(640, 480), (long)(1), selection.Kind, () =>
             {
                 int failure = Interlocked.Exchange(ref injectedLoss, 0);
                 if (failure != 0) new SharpGen.Runtime.Result(failure).CheckError();
-            }), (int)(global::SuperMetroid.Rendering.Direct3D11.Telemetry.RenderTelemetryLimits.DefaultHistoryCapacity) });
+            }, Rendering.Direct3D11.Telemetry.RenderTelemetryLimits.DefaultHistoryCapacity });
             PumpUntil(() => worker.Ready.IsCompleted);
             string adapter = worker.Ready.GetAwaiter().GetResult();
             if (!adapter.Contains($"backend={selection.Kind}") ||
@@ -202,11 +202,11 @@ internal static partial class SwapchainTests
         D3D11RenderWorker? worker = null;
         try
         {
-            worker = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Rendering.Direct3D11.Frames.D3D11RenderWorker>([typeof(nint), typeof(global::SuperMetroid.Core.Spatial.Extent16<global::SuperMetroid.Core.Spatial.DisplayPixels>), typeof(long), typeof(global::SuperMetroid.Rendering.Direct3D11.Device.D3D11DeviceKind), typeof(global::System.Action), typeof(int)], new object?[] { (nint)(window), (global::SuperMetroid.Core.Spatial.Extent16<global::SuperMetroid.Core.Spatial.DisplayPixels>)(new Extent16<DisplayPixels>(640, 480)), (long)(1), (global::SuperMetroid.Rendering.Direct3D11.Device.D3D11DeviceKind)(device.Kind), (global::System.Action?)(() =>
+            worker = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Rendering.Direct3D11.Frames.D3D11RenderWorker>([typeof(nint), typeof(global::SuperMetroid.Core.Spatial.Extent16<global::SuperMetroid.Core.Spatial.DisplayPixels>), typeof(long), typeof(global::SuperMetroid.Rendering.Direct3D11.Device.D3D11DeviceKind), typeof(global::System.Action), typeof(int)], new object?[] { window, new Extent16<DisplayPixels>(640, 480), (long)(1), device.Kind, () =>
             {
                 entered.Set();
                 if (!release.Wait(TimeSpan.FromSeconds(60))) throw new TimeoutException("Door consumer release missing.");
-            }), (int)(global::SuperMetroid.Rendering.Direct3D11.Telemetry.RenderTelemetryLimits.DefaultHistoryCapacity) });
+            }, Rendering.Direct3D11.Telemetry.RenderTelemetryLimits.DefaultHistoryCapacity });
             PumpUntil(() => worker.Ready.IsCompleted);
             worker.Ready.GetAwaiter().GetResult();
             long sequence = 1;
@@ -253,12 +253,12 @@ internal static partial class SwapchainTests
         int attempts = 0;
         try
         {
-            worker = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Rendering.Direct3D11.Frames.D3D11RenderWorker>([typeof(nint), typeof(global::SuperMetroid.Core.Spatial.Extent16<global::SuperMetroid.Core.Spatial.DisplayPixels>), typeof(long), typeof(global::SuperMetroid.Rendering.Direct3D11.Device.D3D11DeviceKind), typeof(global::System.Action), typeof(int)], new object?[] { (nint)(window), (global::SuperMetroid.Core.Spatial.Extent16<global::SuperMetroid.Core.Spatial.DisplayPixels>)(new Extent16<DisplayPixels>(640, 480)), (long)(1), (global::SuperMetroid.Rendering.Direct3D11.Device.D3D11DeviceKind)(kind), (global::System.Action?)(() =>
+            worker = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Rendering.Direct3D11.Frames.D3D11RenderWorker>([typeof(nint), typeof(global::SuperMetroid.Core.Spatial.Extent16<global::SuperMetroid.Core.Spatial.DisplayPixels>), typeof(long), typeof(global::SuperMetroid.Rendering.Direct3D11.Device.D3D11DeviceKind), typeof(global::System.Action), typeof(int)], new object?[] { window, new Extent16<DisplayPixels>(640, 480), (long)(1), kind, () =>
             {
                 Interlocked.Increment(ref attempts);
                 if (repeatDeviceLoss) new SharpGen.Runtime.Result((int)DxgiDeviceLoss.DeviceRemoved).CheckError();
                 throw new InvalidDataException("Injected coverage failure must not be retried.");
-            }), (int)(global::SuperMetroid.Rendering.Direct3D11.Telemetry.RenderTelemetryLimits.DefaultHistoryCapacity) });
+            }, Rendering.Direct3D11.Telemetry.RenderTelemetryLimits.DefaultHistoryCapacity });
             PumpUntil(() => worker.Ready.IsCompleted);
             worker.Ready.GetAwaiter().GetResult();
             worker.Publish(new(new(1, 1), new DisplayPacket(0, new RgbaPixel(1, 2, 3))));
@@ -356,11 +356,11 @@ internal static partial class SwapchainTests
         D3D11RenderWorker? worker = null;
         try
         {
-            worker = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Rendering.Direct3D11.Frames.D3D11RenderWorker>([typeof(nint), typeof(global::SuperMetroid.Core.Spatial.Extent16<global::SuperMetroid.Core.Spatial.DisplayPixels>), typeof(long), typeof(global::SuperMetroid.Rendering.Direct3D11.Device.D3D11DeviceKind), typeof(global::System.Action), typeof(int)], new object?[] { (nint)(window), (global::SuperMetroid.Core.Spatial.Extent16<global::SuperMetroid.Core.Spatial.DisplayPixels>)(new Extent16<DisplayPixels>(640, 480)), (long)(1), (global::SuperMetroid.Rendering.Direct3D11.Device.D3D11DeviceKind)(selection.Kind), (global::System.Action?)(() =>
+            worker = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Rendering.Direct3D11.Frames.D3D11RenderWorker>([typeof(nint), typeof(global::SuperMetroid.Core.Spatial.Extent16<global::SuperMetroid.Core.Spatial.DisplayPixels>), typeof(long), typeof(global::SuperMetroid.Rendering.Direct3D11.Device.D3D11DeviceKind), typeof(global::System.Action), typeof(int)], new object?[] { window, new Extent16<DisplayPixels>(640, 480), (long)(1), selection.Kind, () =>
             {
                 entered.Set();
                 if (!release.Wait(TimeSpan.FromSeconds(60))) throw new TimeoutException("Slow-consumer release missing.");
-            }), (int)(global::SuperMetroid.Rendering.Direct3D11.Telemetry.RenderTelemetryLimits.DefaultHistoryCapacity) });
+            }, Rendering.Direct3D11.Telemetry.RenderTelemetryLimits.DefaultHistoryCapacity });
             PumpUntil(() => worker.Ready.IsCompleted); worker.Ready.GetAwaiter().GetResult();
             var first = Step(0);
             worker.Publish(new RenderFrame(new(sequence, 1), first.Snapshot));

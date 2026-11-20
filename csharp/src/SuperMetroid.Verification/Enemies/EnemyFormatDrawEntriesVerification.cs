@@ -64,7 +64,7 @@ internal static class EnemyFormatDrawEntriesVerification
             .First(frame => EnemyProjectileFrames.Parts(projectileSpritemaps, frame).Length > 0
                 && !InstalledFixtures.EnemySheets.Spawned(set, SpawnedObjectOwner.Shared).ShowsNothing(EnemySheetDefinitions.ProjectileFrameName(frame)));
         EnemyProjectile projectile = enemies.Projectiles.ProjectileInPlace(17);
-        global::SuperMetroid.Core.PrivateState.Set(projectile, "Kind", (global::SuperMetroid.Core.Enemies.RoomEnemyProjectileKind)(RoomEnemyProjectileKind.RidleyFireball));
+        global::SuperMetroid.Core.PrivateState.Set(projectile, "Kind", RoomEnemyProjectileKind.RidleyFireball);
         projectile.Depth = EnemyProjectileDepth.InFrontOfSamus;
         projectile.Frame = projectileFrame;
         projectile.Graphics = ProjectileGraphics;

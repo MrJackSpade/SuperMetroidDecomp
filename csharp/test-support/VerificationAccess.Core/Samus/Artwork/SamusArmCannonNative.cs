@@ -20,16 +20,26 @@ internal static class SamusArmCannonNative
         /// <summary>The installed drawing byte stored at bank-$90 <paramref name="address"/>.</summary>
         internal byte ReadDrawingByteAt(int address) => cannon.ReadDrawingByte(address - SamusSourceDefinitions.ArmCannonDrawingData);
 
-        /// <summary>The bank-$9A source of the cover tile <paramref name="direction"/> shows at <paramref name="frame"/>, or zero for the closed cover.</summary>
-        internal ushort TileSource(int direction, int frame) => (SuperMetroid.AssetExtraction.Samus.SamusProjectileDirectionCodec.FromAimIndex(direction) is var aim && frame == 0 ? null : (int?)cannon.CoverTileIndex(aim, frame >= 1 && frame <= SuperMetroid.AssetExtraction.Samus.SamusArmCannonCoverFrameCodec.InOpeningOrder.Count ? SuperMetroid.AssetExtraction.Samus.SamusArmCannonCoverFrameCodec.InOpeningOrder[frame - 1] : (SuperMetroid.Core.Samus.Artwork.SamusArmCannonCoverFrame)99)) is { } tile
-            ? ArmCannonTileSources.CoverTileDmaSources[tile]
-            : (ushort)0;
+        /// <summary>
+        /// The bank-$9A source of the cover picture cartridge aim row <paramref name="direction"/> shows at the cartridge's
+        /// cover frame <paramref name="frame"/>, or zero for the closed cover.
+        /// </summary>
+        /// <exception cref="ArgumentOutOfRangeException">The row names no aim or the frame no cover frame.</exception>
+        internal ushort TileSource(int direction, int frame)
+        {
+            SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection aim = SamusProjectileDirectionCodec.FromAimIndex(direction);
+            if (frame == SamusArmCannonCoverFrameCodec.ClosedFrame)
+                return 0;
+            if (frame < 1 || frame > SamusArmCannonCoverFrameCodec.InOpeningOrder.Count)
+                throw new ArgumentOutOfRangeException(nameof(frame), frame, "The cover list holds four frames.");
+            return ArmCannonTileSources.Source(cannon.CoverTile(aim, SamusArmCannonCoverFrameCodec.InOpeningOrder[frame - 1]));
+        }
     }
 
     /// <summary>Native views of the arm cannon's installed tile files.</summary>
     extension(SamusArmCannonArtworkFormat)
     {
-        /// <summary>The bank-$9A source of each installed cover tile.</summary>
-        internal static ArmCannonTileSources.TileSourceSequence TileSourcePointers => ArmCannonTileSources.CoverTileDmaSources;
+        /// <summary>The bank-$9A source of each cover picture, in the order the cartridge keeps them.</summary>
+        internal static IReadOnlyList<ushort> TileSourcePointers => ArmCannonTileSources.InSourceOrder.Select(ArmCannonTileSources.Source).ToList();
     }
 }

@@ -785,20 +785,21 @@ internal static class LookupStream1Verification
     {
         byte[] json = File.ReadAllBytes(Path.Combine(CartridgeImportContent.ImportData(GameInstallationLayout.SamusBodyDirectoryName), SamusArmCannonArtworkFormat.ArtworkFileName));
         var document = RequiredJson.Deserialize<SamusArmCannonArtworkDocument>(json,
-            new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true, Converters = { new SamusPoseIdJsonConverter() } });
+            new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true, Converters = { new SamusPoseIdJsonConverter(),
+                new SamusProjectileDirectionJsonConverter(), new SamusArmCannonCoverOrientationJsonConverter() } });
         SamusArmCannonSourceArtwork Load(SamusArmCannonArtworkDocument value) => SamusArmCannonSourceArtwork.FromPlacement(
             SamusArmCannonSourceArtwork.LoadPlacement(new MemoryStream(SamusArmCannonSourceArtwork.Write(value))));
         var stock = Load(document);
         ushort Native(int pose) => LittleEndianBytes.Word(LookupStream1CannonPosesRomByte(rom, 0x90C7DF + pose * 2), LookupStream1CannonPosesRomByte(rom, 0x90C7E0 + pose * 2));
-        string Identity(SamusArmCannonArtworkDocument value) => SelectedPresentationHash.Create("samus-arm-cannon-v5", hash =>
+        string Identity(SamusArmCannonArtworkDocument value) => SelectedPresentationHash.Create("samus-arm-cannon-v6", hash =>
         {
             foreach (SamusPoseId pose in SamusPoseNumbers.RecordedPoses) hash.Append("pose descriptor", value.PoseDescriptors[pose]);
             hash.Append("drawing data", value.DrawingData.Select(item => (byte)item).ToArray());
-            foreach (SpriteVisualPart appearance in value.CoverAppearances)
+            foreach (SpriteVisualPart appearance in SamusProjectileDirectionCodec.InAimOrder.Select(direction => value.CoverAppearances[direction]))
                 AppendCanonicalSpritePart(hash, CannonCoverAppearance(appearance.TileRow, appearance.TileColumn,
                     appearance.Palette ?? 0, appearance.Depth, appearance.FlipX, appearance.FlipY));
-            foreach (int[] direction in value.CoverTiles)
-                foreach (int tile in direction) hash.Append("cover tile", tile);
+            foreach (SamusProjectileDirection direction in SamusProjectileDirectionCodec.InAimOrder)
+                hash.AppendName("cover orientation", SamusArmCannonCoverOrientationKeys.Installed.Of(value.CoverOrientations[direction]));
         });
         AssertEqual(253, SamusBodySources.PoseCount, "cannon original 506-byte pointer extent");
         AssertEqual(Identity(document), stock.ContentIdentity, "cannon canonical native identity unchanged");
@@ -1332,9 +1333,9 @@ internal static class LookupStream1Verification
             AssertEqual(expected[index], sources[index], "Calculated cannon source indexing retains native identity");
         for (int word = 0; word <= ushort.MaxValue; word++)
         {
-            int nativeIndex = Array.IndexOf(expected, (ushort)word);
-            AssertEqual(nativeIndex, sources.IndexOf((ushort)word), "Calculated cannon reverse index preserves complete word domain");
-            AssertEqual(nativeIndex >= 0, sources.Contains((ushort)word), "Calculated cannon membership rejects interior addresses");
+            bool native = Array.IndexOf(expected, (ushort)word) >= 0;
+            AssertEqual(native, ArmCannonTileSources.TryDecode(word, out _), "Calculated cannon decoding preserves complete word domain");
+            AssertEqual(native, sources.Contains((ushort)word), "Calculated cannon membership rejects interior addresses");
         }
         foreach (int invalid in new[] { int.MinValue, -1, expected.Length, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => _ = sources[invalid], "Calculated cannon source index bounds preserve array contract");
@@ -1373,12 +1374,13 @@ internal static class LookupStream1Verification
         {
             using var document = System.Text.Json.JsonDocument.Parse(jsonBytes);
             var root = document.RootElement;
-            return SelectedPresentationHash.Create("samus-arm-cannon-v5", content =>
+            return SelectedPresentationHash.Create("samus-arm-cannon-v6", content =>
             {
                 System.Text.Json.JsonElement descriptors = root.GetProperty("poseDescriptors");
                 foreach (SamusPoseId pose in SamusPoseNumbers.RecordedPoses) content.Append("pose descriptor", descriptors.GetProperty(SamusPoseIdKeys.Installed.Of(pose)).GetInt32());
                 content.Append("drawing data", root.GetProperty("drawingData").EnumerateArray().Select(value => (byte)value.GetInt32()).ToArray());
-                foreach (var appearance in root.GetProperty("coverAppearances").EnumerateArray())
+                foreach (var appearance in SamusProjectileDirectionCodec.InAimOrder.Select(direction =>
+                    root.GetProperty("coverAppearances").GetProperty(SamusProjectileDirectionKeys.Installed.Of(direction))))
                 {
                     int palette = appearance.TryGetProperty("palette", out var paletteValue) && paletteValue.ValueKind != System.Text.Json.JsonValueKind.Null
                         ? paletteValue.GetInt32() : 0;
@@ -1387,8 +1389,8 @@ internal static class LookupStream1Verification
                         palette, Enum.Parse<SuperMetroid.Core.Assets.ActorDepth>(appearance.GetProperty("depth").GetString()!),
                         appearance.GetProperty("flipX").GetBoolean(), appearance.GetProperty("flipY").GetBoolean()));
                 }
-                foreach (var direction in root.GetProperty("coverTiles").EnumerateArray())
-                    foreach (var tile in direction.EnumerateArray()) content.Append("cover tile", tile.GetInt32());
+                foreach (SamusProjectileDirection direction in SamusProjectileDirectionCodec.InAimOrder)
+                    content.AppendName("cover orientation", root.GetProperty("coverOrientations").GetProperty(SamusProjectileDirectionKeys.Installed.Of(direction)).GetString()!);
             });
         }
         void Verify(SamusArmCannonCoverCharacters catalog)
@@ -1419,7 +1421,7 @@ internal static class LookupStream1Verification
         content.Append("flip-horizontal", part.FlipsHorizontally ? 1 : 0);
         content.Append("flip-vertical", part.FlipsVertically ? 1 : 0);
         content.Append("palette", part.Palette);
-        content.Append("depth", (int)part.Depth);
+        content.AppendName("depth", SuperMetroid.Core.Assets.ActorDepthKeys.Installed.Of(part.Depth));
     }
 
     /// <summary>A cover appearance's single small piece at the origin, from its document fields.</summary>
@@ -1431,7 +1433,8 @@ internal static class LookupStream1Verification
     {
         byte[] json = File.ReadAllBytes(Path.Combine(CartridgeImportContent.ImportData(GameInstallationLayout.SamusBodyDirectoryName), SamusArmCannonArtworkFormat.ArtworkFileName));
         var document = RequiredJson.Deserialize<SamusArmCannonArtworkDocument>(json,
-            new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true, Converters = { new SamusPoseIdJsonConverter() } });
+            new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true, Converters = { new SamusPoseIdJsonConverter(),
+                new SamusProjectileDirectionJsonConverter(), new SamusArmCannonCoverOrientationJsonConverter() } });
         SamusArmCannonSourceArtwork Load(SamusArmCannonArtworkDocument value) => SamusArmCannonSourceArtwork.FromPlacement(
             SamusArmCannonSourceArtwork.LoadPlacement(new MemoryStream(SamusArmCannonSourceArtwork.Write(value))));
         var stock = Load(document);
@@ -1833,7 +1836,8 @@ internal static class LookupStream1Verification
         SamusBodySources body = InstalledFixtures.SamusBody;
         byte[] json = File.ReadAllBytes(Path.Combine(CartridgeImportContent.ImportData(GameInstallationLayout.SamusBodyDirectoryName), SamusArmCannonArtworkFormat.ArtworkFileName));
         var document = RequiredJson.Deserialize<SamusArmCannonArtworkDocument>(json,
-            new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true, Converters = { new SamusPoseIdJsonConverter() } });
+            new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true, Converters = { new SamusPoseIdJsonConverter(),
+                new SamusProjectileDirectionJsonConverter(), new SamusArmCannonCoverOrientationJsonConverter() } });
         SamusArmCannonSourceArtwork Load(SamusArmCannonArtworkDocument value) => SamusArmCannonSourceArtwork.FromPlacement(
             SamusArmCannonSourceArtwork.LoadPlacement(new MemoryStream(SamusArmCannonSourceArtwork.Write(value))));
         var stock = body.ArmCannon;

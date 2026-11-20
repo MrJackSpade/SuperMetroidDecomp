@@ -60,10 +60,10 @@ internal static class SamusContentIdentityVerification
             Version = SamusArmCannonArtworkFormat.Version,
             PoseDescriptors = SamusPoseNumbers.RecordedPoses.ToDictionary(pose => pose, _ => 0),
             DrawingData = new int[SamusArmCannonArtworkFormat.DrawingDataByteCount],
-            CoverAppearances = Enumerable.Range(0, SamusProjectileDirectionCodec.Count)
-                .Select(_ => SpriteVisualPart.FromSpritePart(SpritePart.Single(0, 0, 0), SpriteArtwork.CharactersPerRow)).ToArray(),
-            CoverTiles = Enumerable.Range(0, SamusProjectileDirectionCodec.Count)
-                .Select(_ => new int[SamusArmCannonArtworkFormat.FramesPerDirection - 1]).ToArray(),
+            CoverAppearances = SamusProjectileDirectionCodec.InAimOrder.ToDictionary(direction => direction,
+                _ => SpriteVisualPart.FromSpritePart(SpritePart.Single(0, 0, 0), SpriteArtwork.CharactersPerRow)),
+            CoverOrientations = SamusProjectileDirectionCodec.InAimOrder.ToDictionary(direction => direction,
+                _ => SamusArmCannonCoverOrientation.Vertical),
         };
         SamusArmCannonSourceArtwork cannon = InstalledSamusArmCannonArtworkTooling.Load(
             new MemoryStream(SamusArmCannonSourceArtwork.Write(cannonDocument)));

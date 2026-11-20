@@ -14,7 +14,7 @@ internal static class SamusArmCannonCoverCharactersPrivateAccess
     extension(global::SuperMetroid.AssetExtraction.Samus.SamusArmCannonCoverCharacters self)
     {
         /// <summary>The private method <c>TileCharacters</c>, invoked by name.</summary>
-        internal global::System.ReadOnlyMemory<byte> TileCharacters(int index) =>
-            PrivateState.Invoke<global::SuperMetroid.AssetExtraction.Samus.SamusArmCannonCoverCharacters, global::System.ReadOnlyMemory<byte>>(self, "TileCharacters", [typeof(int)], new object?[] { index });
+        internal global::System.ReadOnlyMemory<byte> TileCharacters(global::SuperMetroid.AssetExtraction.Samus.SamusArmCannonCoverTile tile) =>
+            PrivateState.Invoke<global::SuperMetroid.AssetExtraction.Samus.SamusArmCannonCoverCharacters, global::System.ReadOnlyMemory<byte>>(self, "TileCharacters", [typeof(global::SuperMetroid.AssetExtraction.Samus.SamusArmCannonCoverTile)], new object?[] { tile });
     }
 }

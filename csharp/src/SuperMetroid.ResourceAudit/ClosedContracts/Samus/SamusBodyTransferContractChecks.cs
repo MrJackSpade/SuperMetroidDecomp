@@ -77,10 +77,10 @@ internal static class SamusBodyTransferContractChecks
             Version = SamusArmCannonArtworkFormat.Version,
             PoseDescriptors = EveryRecordedPose(0),
             DrawingData = new int[SamusArmCannonArtworkFormat.DrawingDataByteCount],
-            CoverAppearances = Enumerable.Range(0, SamusProjectileDirectionCodec.Count)
-                .Select(_ => SpriteVisualPart.FromSpritePart(SpritePart.Single(0, 0, 0), SpriteArtwork.CharactersPerRow)).ToArray(),
-            CoverTiles = Enumerable.Range(0, SamusProjectileDirectionCodec.Count).Select(_ =>
-                new int[SamusArmCannonArtworkFormat.FramesPerDirection - 1]).ToArray() };
+            CoverAppearances = SamusProjectileDirectionCodec.InAimOrder.ToDictionary(direction => direction,
+                _ => SpriteVisualPart.FromSpritePart(SpritePart.Single(0, 0, 0), SpriteArtwork.CharactersPerRow)),
+            CoverOrientations = SamusProjectileDirectionCodec.InAimOrder.ToDictionary(direction => direction,
+                _ => SamusArmCannonCoverOrientation.Vertical) };
         using var cannonJson = new MemoryStream(SamusArmCannonSourceArtwork.Write(cannonDocument));
         SamusArmCannonSourceArtwork cannon = InstalledSamusArmCannonArtworkTooling.Load(cannonJson);
         SamusBodyFrameSelection[] frames = selectors ?? new SamusBodyFrameSelection[SamusBodySources.FrameCount];

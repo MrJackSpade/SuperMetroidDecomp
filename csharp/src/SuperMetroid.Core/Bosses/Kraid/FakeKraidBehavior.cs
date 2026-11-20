@@ -117,6 +117,14 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
             ? HorizontalDirection.Right
             : HorizontalDirection.Left;
 
+    /// <summary>The port whose clock each port hands on to (#2553): top, middle and bottom in turn, then the top again.</summary>
+    private static IdentityTable<FakeKraidSpikeRow, FakeKraidSpikeRow> SpikeRowAfter { get; } = new(new Dictionary<FakeKraidSpikeRow, FakeKraidSpikeRow>
+    {
+        [FakeKraidSpikeRow.Top] = FakeKraidSpikeRow.Middle,
+        [FakeKraidSpikeRow.Middle] = FakeKraidSpikeRow.Bottom,
+        [FakeKraidSpikeRow.Bottom] = FakeKraidSpikeRow.Top,
+    });
+
     /// <summary>Runs Fake Kraid's main AI for one update.</summary>
     private void RunFakeKraidMain(
         RoomEnemyPlace place,
@@ -125,13 +133,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // Main AI moves on to the next port's clock before acting on this one.
         FakeKraidSpikeRow row = state.NextSpikeRow;
-        state.NextSpikeRow = row switch
-        {
-            FakeKraidSpikeRow.Top => FakeKraidSpikeRow.Middle,
-            FakeKraidSpikeRow.Middle => FakeKraidSpikeRow.Bottom,
-            FakeKraidSpikeRow.Bottom => FakeKraidSpikeRow.Top,
-            _ => throw new InvalidOperationException($"Undefined {nameof(FakeKraidSpikeRow)} {row}."),
-        };
+        state.NextSpikeRow = SpikeRowAfter[row];
         BossCountdown spikeWait = state.SpikeWaits[row];
         if (spikeWait.StepKeepsRunning())
             return;

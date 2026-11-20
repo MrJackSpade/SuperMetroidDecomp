@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies.Chozo.Artwork;
@@ -66,15 +67,7 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
         NoobTubeProjectileRequest request)
     {
         NoobTubePiece piece = request.Piece;
-        RoomEnemyProjectileKind kind = piece.Definition switch
-        {
-            NoobTubeProjectileDefinition.Crack => RoomEnemyProjectileKind.NoobTubeCrack,
-            NoobTubeProjectileDefinition.Shard => RoomEnemyProjectileKind.NoobTubeShard,
-            NoobTubeProjectileDefinition.ReleasedAirBubble =>
-                RoomEnemyProjectileKind.NoobTubeReleasedAirBubble,
-            _ => throw new InvalidOperationException(
-                $"Undefined n00b-tube projectile definition {piece.Definition}."),
-        };
+        RoomEnemyProjectileKind kind = PieceKinds[piece.Definition];
 
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
@@ -83,12 +76,7 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, TubePieces, graphics: TubePieceGraphics);
 
         Position16<RoomPixels> place = request.RoomObjectBlock.ToRoomPixels() + piece.Offset;
-        projectile.StartAnimation(new NoobTubeProjectileAnimation(TubePieces, piece.Start switch
-        {
-            NoobTubePieceStart.AtSegment start => NoobTubeProjectileAnimations.StartingWith(start.Segment),
-            NoobTubePieceStart.ShardFlight flight => NoobTubeProjectileAnimations.ShardAnimations[flight.Shard],
-            _ => throw new InvalidOperationException($"A n00b tube piece starts by {piece.Start}, which no case answers."),
-        }));
+        projectile.StartAnimation(new NoobTubeProjectileAnimation(TubePieces, piece.Start.Match(PieceStartAnimations, 0)));
         SpawnNoobTubeProjectileForNoobTubeProjectileDefinition[piece.Definition](piece, projectile, place);
     }
 
@@ -160,6 +148,19 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
 
     /// <summary>The tube's crack, shards and released-air bubbles (#1760): their spawner starts their animations.</summary>
     private NoobTubeProjectileBehavior TubePieces => field ??= new NoobTubeProjectileBehavior(_room);
+
+    /// <summary>The enemy projectile each n00b-tube piece spawns as (#2553): its crack, a glass shard or a released bubble.</summary>
+    private static IdentityTable<NoobTubeProjectileDefinition, RoomEnemyProjectileKind> PieceKinds { get; } = new(new Dictionary<NoobTubeProjectileDefinition, RoomEnemyProjectileKind>
+    {
+        [NoobTubeProjectileDefinition.Crack] = RoomEnemyProjectileKind.NoobTubeCrack,
+        [NoobTubeProjectileDefinition.Shard] = RoomEnemyProjectileKind.NoobTubeShard,
+        [NoobTubeProjectileDefinition.ReleasedAirBubble] = RoomEnemyProjectileKind.NoobTubeReleasedAirBubble,
+    });
+
+    /// <summary>The animation each start of a piece plays (#2553): the one beginning at its segment, or its shard's flight.</summary>
+    private static NoobTubePieceStartCases<int, Animation<NoobTubeProjectileSegment>> PieceStartAnimations { get; } = new(
+        AtSegment: static (start, _) => NoobTubeProjectileAnimations.StartingWith(start.Segment),
+        ShardFlight: static (flight, _) => NoobTubeProjectileAnimations.ShardAnimations[flight.Shard]);
 
     /// <summary>A crack, shard or bubble: the crack's, shards' and bubbles' movers, and their animations' cues.</summary>
     /// <param name="room">The loaded room, whose random numbers set a falling piece's sway.</param>

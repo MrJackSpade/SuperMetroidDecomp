@@ -29,7 +29,7 @@ internal sealed class EndingTypewriter
         this.sequence = sequence;
         Characters = Ensure.NotNull(setup.Text).CharactersOf(sequence).ToArray();
         AnimationSegments<EndingTextSequence, EndingTypewriterTyping, EndingTypewriterCue> segments =
-            EndingTypewriterAnimations.Segments(sequence, Characters.Length);
+            EndingTypewriterAnimations.Segments(sequence, Characters);
         typing = AnimationPlayer<EndingTextSequence, EndingTypewriterTyping, EndingTypewriterCue>.Starting(
             segments, EndingTypewriterAnimations.Typing(segments, sequence));
     }
@@ -57,7 +57,7 @@ internal sealed class EndingTypewriter
         if (TypedCount > Characters.Length)
             throw new InvalidDataException($"Saved ending-text typed count {TypedCount} exceeds the rebound text.");
         AnimationSegments<EndingTextSequence, EndingTypewriterTyping, EndingTypewriterCue> rebound =
-            EndingTypewriterAnimations.Segments(sequence, Characters.Length);
+            EndingTypewriterAnimations.Segments(sequence, Characters);
         typing.Rebind(rebound, EndingTypewriterAnimations.Typing(rebound, sequence));
     }
 

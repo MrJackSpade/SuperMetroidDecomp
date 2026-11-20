@@ -88,13 +88,13 @@ public sealed class TorizoEnemyState
     internal List<EnemyProjectile> LaidEggs { get; } = [];
 
     /// <summary>
-    /// Whether any egg Golden Torizo laid remains; the eggs that have gone are forgotten. The laying keeps each laid egg's
-    /// place, not the egg, so a place still counts while it holds a Golden Torizo egg, one another egg has since taken
-    /// among them, as the laying reads the place's kind (#2332).
+    /// Whether any egg Golden Torizo laid remains, each egg answering by its own life: it remains while it holds its place,
+    /// and an egg that has gone is forgotten. The laying keeps each laid egg's place, so a place another egg has since taken
+    /// still counts while that egg holds it (#2332); every such egg is one Golden Torizo laid, which answers for itself here.
     /// </summary>
     internal bool EggsRemain()
     {
-        LaidEggs.RemoveAll(egg => !egg.IsActive || egg.Kind != RoomEnemyProjectileKind.GoldenTorizoEgg);
+        LaidEggs.RemoveAll(egg => !egg.IsActive);
         return LaidEggs.Count > 0;
     }
 

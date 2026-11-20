@@ -15,25 +15,23 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyPassEvents _passEvents;
 
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } =
-        [EnemyDefinitionId.MotherBrainBody, EnemyDefinitionId.MotherBrainHead, EnemyDefinitionId.MotherBrainTubes];
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. PartFactories.Keys];
 
     /// <summary>Mother Brain's body, her head, or a tube of her fake death (#2146).</summary>
-    /// <exception cref="InvalidOperationException">The place holds no Mother Brain definition.</exception>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    {
-        EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
-        return PartFactories.TryGetValue(definition, out EnemyPartFactory? factory) ? factory(occupant, place, common)
-            : throw new InvalidOperationException($"The Mother Brain species creates no {occupant.DefinitionId}.");
-    }
+    /// <exception cref="KeyNotFoundException">The place holds no Mother Brain definition.</exception>
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        PartFactories[Ensure.NotNull(occupant).DefinitionId](this, occupant, place, common);
 
-    /// <summary>The factory of each part the species creates, by the definition that places it.</summary>
-    private IReadOnlyDictionary<EnemyDefinitionId, EnemyPartFactory> PartFactories => field ??=
-        new Dictionary<EnemyDefinitionId, EnemyPartFactory>
+    /// <summary>
+    /// The factory of each part the species creates, by the definition that places it: the species serves these
+    /// definitions, and each builds its own part from the species it is given.
+    /// </summary>
+    private static readonly Dictionary<EnemyDefinitionId, EnemyPartFactory<MotherBrainBehavior>> PartFactories =
+        new()
         {
-            [EnemyDefinitionId.MotherBrainBody] = (occupant, place, common) => EnemyOccupant.Of(new MotherBrainBodyEntity(this, occupant, place, common, _bossArtwork)),
-            [EnemyDefinitionId.MotherBrainHead] = (occupant, place, common) => EnemyOccupant.Of(new MotherBrainHeadEntity(this, occupant, place, common)),
-            [EnemyDefinitionId.MotherBrainTubes] = (occupant, place, common) => EnemyOccupant.Of(new MotherBrainTubesEntity(this, occupant, place, common)),
+            [EnemyDefinitionId.MotherBrainBody] = static (species, occupant, place, common) => EnemyOccupant.Of(new MotherBrainBodyEntity(species, occupant, place, common, species._bossArtwork)),
+            [EnemyDefinitionId.MotherBrainHead] = static (species, occupant, place, common) => EnemyOccupant.Of(new MotherBrainHeadEntity(species, occupant, place, common)),
+            [EnemyDefinitionId.MotherBrainTubes] = static (species, occupant, place, common) => EnemyOccupant.Of(new MotherBrainTubesEntity(species, occupant, place, common)),
         };
     /// <summary>Provides room services, pictures, colour state, and effects used by the encounter.</summary>
     private readonly EnemyRoomBinding _room;

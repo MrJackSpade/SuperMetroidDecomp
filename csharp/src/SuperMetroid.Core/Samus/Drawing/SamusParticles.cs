@@ -29,10 +29,9 @@ public sealed class SamusParticles
     /// <param name="start">Whether it shows at once or after a hidden wait.</param>
     internal void Spawn(SamusParticleKind kind, Position16<RoomPixels> position, SamusParticleStart start)
     {
-        SamusParticleKindDefinition definition = Definition(kind);
-        if (definition.DriftsToOneSide)
-            throw new ArgumentOutOfRangeException(nameof(kind), kind, "A particle that drifts to one side starts with its drift.");
-        Add(new SamusParticle(kind, AnimationPlace.StartOfAnimation, start, position, definition.Drift));
+        Offset16<RoomPixels> drift = Definition(kind).Drift
+            ?? throw new ArgumentOutOfRangeException(nameof(kind), kind, "A particle that drifts to one side starts with its drift.");
+        Add(new SamusParticle(kind, AnimationPlace.StartOfAnimation, start, position, drift));
     }
 
     /// <summary>Starts a particle of lava spray on its first step, rising and drifting to one side as it shows.</summary>

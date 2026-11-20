@@ -11,10 +11,10 @@ internal static class SamusParticleKindDefinitions
     internal static readonly IReadOnlyDictionary<SamusParticleKind, SamusParticleKindDefinition> Kinds =
         new Dictionary<SamusParticleKind, SamusParticleKindDefinition>
         {
-            [SamusParticleKind.SurfaceSplash] = new(Offset16<RoomPixels>.Zero, DriftsToOneSide: false, FollowsWaterSurface: false, Centred: true),
-            [SamusParticleKind.DivingSplash] = new(Offset16<RoomPixels>.Zero, DriftsToOneSide: false, FollowsWaterSurface: true, Centred: false),
-            [SamusParticleKind.LavaSpray] = new(Offset16<RoomPixels>.Zero, DriftsToOneSide: true, FollowsWaterSurface: false, Centred: true),
-            [SamusParticleKind.Bubbles] = new(Offset16<RoomPixels>.Zero, DriftsToOneSide: false, FollowsWaterSurface: false, Centred: false),
-            [SamusParticleKind.Dust] = new(SamusAtmosphericAnimationDefinitions.DustDrift, DriftsToOneSide: false, FollowsWaterSurface: false, Centred: true),
+            [SamusParticleKind.SurfaceSplash] = new(Offset16<RoomPixels>.Zero, FollowsWaterSurface: false, Centred: true),
+            [SamusParticleKind.DivingSplash] = new(Offset16<RoomPixels>.Zero, FollowsWaterSurface: true, Centred: false),
+            [SamusParticleKind.LavaSpray] = new(Drift: null, FollowsWaterSurface: false, Centred: true),
+            [SamusParticleKind.Bubbles] = new(Offset16<RoomPixels>.Zero, FollowsWaterSurface: false, Centred: false),
+            [SamusParticleKind.Dust] = new(SamusAtmosphericAnimationDefinitions.DustDrift, FollowsWaterSurface: false, Centred: true),
         };
 }

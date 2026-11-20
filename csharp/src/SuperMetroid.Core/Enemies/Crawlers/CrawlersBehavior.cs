@@ -13,36 +13,31 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } =
-    [
-        EnemyDefinitionId.Sciser, EnemyDefinitionId.Zero, EnemyDefinitionId.Viola, EnemyDefinitionId.Zeela,
-        EnemyDefinitionId.Sova, EnemyDefinitionId.Zoomer, EnemyDefinitionId.ArmoredZoomer, EnemyDefinitionId.OrangeZoomer,
-    ];
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. PartFactories.Keys];
 
     /// <summary>
     /// A crawler set up in its animation family that crawls by the shared crawl: Sciser, Zero and Viola each in their own,
     /// Zeela, Sova and both Zoomers in the shared family; or an orange Zoomer (#2146).
     /// </summary>
-    /// <exception cref="InvalidOperationException">The place holds no crawler definition.</exception>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    {
-        EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
-        return PartFactories.TryGetValue(definition, out EnemyPartFactory? factory) ? factory(occupant, place, common)
-            : throw new InvalidOperationException($"The crawler species creates no {occupant.DefinitionId}.");
-    }
+    /// <exception cref="KeyNotFoundException">The place holds no crawler definition.</exception>
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        PartFactories[Ensure.NotNull(occupant).DefinitionId](this, occupant, place, common);
 
-    /// <summary>The factory of each part the species creates, by the definition that places it.</summary>
-    private IReadOnlyDictionary<EnemyDefinitionId, EnemyPartFactory> PartFactories => field ??=
-        new Dictionary<EnemyDefinitionId, EnemyPartFactory>
+    /// <summary>
+    /// The factory of each part the species creates, by the definition that places it: the species serves these
+    /// definitions, and each builds its own part from the species it is given.
+    /// </summary>
+    private static readonly Dictionary<EnemyDefinitionId, EnemyPartFactory<CrawlersBehavior>> PartFactories =
+        new()
         {
-            [EnemyDefinitionId.Sciser] = (occupant, place, common) => EnemyOccupant.Of(new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Sciser)),
-            [EnemyDefinitionId.Zero] = (occupant, place, common) => EnemyOccupant.Of(new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Zero)),
-            [EnemyDefinitionId.Viola] = (occupant, place, common) => EnemyOccupant.Of(new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Viola)),
-            [EnemyDefinitionId.Zeela] = (occupant, place, common) => EnemyOccupant.Of(new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Shared)),
-            [EnemyDefinitionId.Sova] = (occupant, place, common) => EnemyOccupant.Of(new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Shared)),
-            [EnemyDefinitionId.Zoomer] = (occupant, place, common) => EnemyOccupant.Of(new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Shared)),
-            [EnemyDefinitionId.ArmoredZoomer] = (occupant, place, common) => EnemyOccupant.Of(new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Shared)),
-            [EnemyDefinitionId.OrangeZoomer] = (occupant, place, common) => EnemyOccupant.Of(new OrangeZoomerEntity(this, occupant, place, common)),
+            [EnemyDefinitionId.Sciser] = static (species, occupant, place, common) => EnemyOccupant.Of(new SurfaceCrawlerEntity(species, occupant, place, common, CrawlerAnimationFamily.Sciser)),
+            [EnemyDefinitionId.Zero] = static (species, occupant, place, common) => EnemyOccupant.Of(new SurfaceCrawlerEntity(species, occupant, place, common, CrawlerAnimationFamily.Zero)),
+            [EnemyDefinitionId.Viola] = static (species, occupant, place, common) => EnemyOccupant.Of(new SurfaceCrawlerEntity(species, occupant, place, common, CrawlerAnimationFamily.Viola)),
+            [EnemyDefinitionId.Zeela] = static (species, occupant, place, common) => EnemyOccupant.Of(new SurfaceCrawlerEntity(species, occupant, place, common, CrawlerAnimationFamily.Shared)),
+            [EnemyDefinitionId.Sova] = static (species, occupant, place, common) => EnemyOccupant.Of(new SurfaceCrawlerEntity(species, occupant, place, common, CrawlerAnimationFamily.Shared)),
+            [EnemyDefinitionId.Zoomer] = static (species, occupant, place, common) => EnemyOccupant.Of(new SurfaceCrawlerEntity(species, occupant, place, common, CrawlerAnimationFamily.Shared)),
+            [EnemyDefinitionId.ArmoredZoomer] = static (species, occupant, place, common) => EnemyOccupant.Of(new SurfaceCrawlerEntity(species, occupant, place, common, CrawlerAnimationFamily.Shared)),
+            [EnemyDefinitionId.OrangeZoomer] = static (species, occupant, place, common) => EnemyOccupant.Of(new OrangeZoomerEntity(species, occupant, place, common)),
         };
 
     /// <summary>Performs wall, floor, and slope probes for attached crawlers and falling Zoomers.</summary>

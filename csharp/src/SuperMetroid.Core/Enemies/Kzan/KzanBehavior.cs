@@ -8,19 +8,23 @@ namespace SuperMetroid.Core.Enemies.Kzan;
 internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.KzanBottom, EnemyDefinitionId.KzanTop];
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. PartFactories.Keys];
 
     /// <summary>A Kzan's top, or the bottom that follows it (#2146).</summary>
-    /// <exception cref="InvalidOperationException">The place holds no Kzan definition.</exception>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    {
-        EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
-        if (definition == EnemyDefinitionId.KzanTop)
-            return EnemyOccupant.Of(new KzanTopEntity(this, occupant, place, common));
-        if (definition == EnemyDefinitionId.KzanBottom)
-            return EnemyOccupant.Of(new KzanBottomEntity(this, occupant, place, common));
-        throw new InvalidOperationException($"The Kzan species creates no {occupant.DefinitionId}.");
-    }
+    /// <exception cref="KeyNotFoundException">The place holds no Kzan definition.</exception>
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        PartFactories[Ensure.NotNull(occupant).DefinitionId](this, occupant, place, common);
+
+    /// <summary>
+    /// The factory of each part the species creates, by the definition that places it: the species serves these
+    /// definitions, and each builds its own part from the species it is given.
+    /// </summary>
+    private static readonly Dictionary<EnemyDefinitionId, EnemyPartFactory<KzanBehavior>> PartFactories =
+        new()
+        {
+            [EnemyDefinitionId.KzanBottom] = static (species, occupant, place, common) => EnemyOccupant.Of(new KzanBottomEntity(species, occupant, place, common)),
+            [EnemyDefinitionId.KzanTop] = static (species, occupant, place, common) => EnemyOccupant.Of(new KzanTopEntity(species, occupant, place, common)),
+        };
 
     /// <summary>The room's enemy places, where each bottom finds its top when it is placed.</summary>
     private readonly EnemyPlaces _places;

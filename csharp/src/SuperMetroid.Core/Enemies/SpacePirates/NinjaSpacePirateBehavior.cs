@@ -13,23 +13,22 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.PirateGoldNinja, EnemyDefinitionId.PirateSilverNinja];
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. PartFactories.Keys];
 
     /// <inheritdoc/>
-    /// <exception cref="InvalidOperationException">The place holds no ninja definition.</exception>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    {
-        EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
-        return PartFactories.TryGetValue(definition, out EnemyPartFactory? factory) ? factory(occupant, place, common)
-            : throw new InvalidOperationException($"The ninja Space Pirate species creates no {occupant.DefinitionId}.");
-    }
+    /// <exception cref="KeyNotFoundException">The place holds no ninja definition.</exception>
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        PartFactories[Ensure.NotNull(occupant).DefinitionId](this, occupant, place, common);
 
-    /// <summary>The factory of each part the species creates, by the definition that places it.</summary>
-    private IReadOnlyDictionary<EnemyDefinitionId, EnemyPartFactory> PartFactories => field ??=
-        new Dictionary<EnemyDefinitionId, EnemyPartFactory>
+    /// <summary>
+    /// The factory of each part the species creates, by the definition that places it: the species serves these
+    /// definitions, and each builds its own part from the species it is given.
+    /// </summary>
+    private static readonly Dictionary<EnemyDefinitionId, EnemyPartFactory<NinjaSpacePirateBehavior>> PartFactories =
+        new()
         {
-            [EnemyDefinitionId.PirateGoldNinja] = (occupant, place, common) => EnemyOccupant.Of(new GoldNinjaSpacePirateEntity(this, occupant, place, common)),
-            [EnemyDefinitionId.PirateSilverNinja] = (occupant, place, common) => EnemyOccupant.Of(new NinjaSpacePirateEntity(this, occupant, place, common)),
+            [EnemyDefinitionId.PirateGoldNinja] = static (species, occupant, place, common) => EnemyOccupant.Of(new GoldNinjaSpacePirateEntity(species, occupant, place, common)),
+            [EnemyDefinitionId.PirateSilverNinja] = static (species, occupant, place, common) => EnemyOccupant.Of(new NinjaSpacePirateEntity(species, occupant, place, common)),
         };
 
     /// <summary>Provides the shared RNG used by divekick selection.</summary>

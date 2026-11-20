@@ -2250,6 +2250,33 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         // are English.
         Expect("class P { int FractionSubpixels => 0; /// <summary>A speed in 1/256 pixels; a 256th of a pixel; one 65536th of a pixel; a fraction of a pixel; in 256ths of a pixel; an original; the original game; its originals; <see cref=\"FractionSubpixels\"/>.</summary>\nint F => 0; }");
         Expect(CompatibilityService + "/// <summary>Evidence: the original's push hides 255/256 pixel of sub-pixel movement, in 1/65536 pixels and 65536ths.</summary>\n[CompatibilityService(\"push\")] class Push { }");
+        // A value restated by number (#2549): outside hardware owners, a cadence counted by number, read across a
+        // documentation comment's and a line-comment run's line breaks; and, in every type, a declared name that spells a
+        // cadence, a wait or a size by number. AssetExtraction is read for these alone.
+        Expect("class P { /// <summary>Its shock lands every eighth update of his own count.</summary>\nint S => 0; }", "('every eighth update')");
+        Expect("class P { void Run() { // the turrets fire every 64th enemy pass\n } }", "('every 64th enemy pass')");
+        Expect("class P { /// <summary>A rock flies every sixteenth of the updates left.</summary>\nint S => 0; }", "('every sixteenth of the updates')");
+        Expect("class P { /// <summary>The blocks narrow every four\n/// cinematic frames.</summary>\nint S => 0; }", "('every four cinematic frames')");
+        Expect("class P { string Name => \"reads the controller every second update\"; }", "('every second update')");
+        Expect("class P { void Run() {\n// The orbit closes on every\n// second update.\n } }", "('every second update')");
+        Expect("class P { static readonly int GrappleShockEveryEighthUpdate = 8; }", "('GrappleShockEveryEighthUpdate')");
+        Expect("enum P { RocksEvery16Frames }", "('RocksEvery16Frames')");
+        Expect("class P { int ClickEverySecondGlyph => 0; }", "('ClickEverySecondGlyph')");
+        Expect("class P { int DroolFormingForTwoUpdates => 0; }", "('DroolFormingForTwoUpdates')");
+        Expect("class P { int WaveBeamThreeUpdateTrail => 0; }", "('WaveBeamThreeUpdateTrail')");
+        Expect("class P { const int FourSecondHold = 240; }", "('FourSecondHold')");
+        Expect("class P { int CentredSixteenByThirtyTwoBox => 0; }", "('CentredSixteenByThirtyTwoBox')");
+        // Every update, every other thing, every 256th of a pixel, two of every four, every step of the way, a cadence's
+        // place, names that spell one, a fraction of a unit, a position in order or a number glued to a word, and a hardware
+        // owner are English.
+        Expect("class P { /// <summary>Every update; every other room; every 256th of a pixel kept; two of every four; every step of\n/// the way; the period's first place.</summary>\nint QuarterTurn => 0; int OneUpdateLate => 0; int SecondPhase => 0; int ThirdFrameCount => 0; int Bg2Frames => 0; int HalfPixel => 0; }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the requests are checked on every eighth step.</summary>\n[CompatibilityService(\"checks every eighth step\")] class Checks { }");
+        VerifySnippet("class P { /// <summary>The alarm's steps, one every fourth frame, read from bank $8C.</summary>\nint Steps => 0; }",
+            CoreDocumentationVocabularyAnalyzer.DocumentationHardwareId, "('every fourth frame')", analyzer, assemblyName: "SuperMetroid.AssetExtraction");
+        VerifySnippet("class P { int RandomExplosionEveryFourthUpdate => 0; }",
+            CoreDocumentationVocabularyAnalyzer.DocumentationHardwareId, "('RandomExplosionEveryFourthUpdate')", analyzer, assemblyName: "SuperMetroid.AssetExtraction");
+        VerifySnippet("class P { /// <summary>Reads the cartridge's bank $8C every update; the VRAM copy.</summary>\nint Steps => 0; }", analyzer: analyzer,
+            assemblyName: "SuperMetroid.AssetExtraction");
         // The species-owner template on a type that owns no species (#2427), read on the type's own summary; a type that
         // implements or is a species owner's interface owns a species, and an entity's parameter names its owner.
         const string SpeciesOwners = "interface IEnemySpecies { }\ninterface IEnemyEntityFactory { }\n";

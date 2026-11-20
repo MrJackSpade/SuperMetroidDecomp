@@ -862,6 +862,24 @@ is no longer English. Core names the wait and cites the definition that holds it
 hold (EndingExplosionFadeDefinitions.HoldUpdates)`). A wait for one update, a wait whose length is a
 named duration, a thing held to a bound, a held of frames, and line comments a blank line or code apart stay English.
 
+#2549 widens SME6454 to a value restated by number, and reads the import pipeline's assembly (`SuperMetroid.AssetExtraction`)
+for it as well as Core's, for nothing else: the pipeline may name the cartridge. Outside hardware owners it reports a
+cadence a comment or string counts by number, read across a documentation comment's line breaks and a run of line
+comments: every second, eighth, 64th or 128th update, frame, tick, pass, step, draw or visit, or every two, four or
+sixteen of them, with up to two words between (`every eighth update of his body's own update count`, `every 64th enemy
+pass`, `every fourth cinematic frame`), and every eighth or sixteenth of the updates, frames or passes. In every type it
+reports a declared name that spells a cadence, a wait or a size by number: `Every` followed by a count or an ordinal
+(`GrappleShockEveryEighthUpdate`, `BreathBubbleEvery128thUpdate`, `RocksEvery16Frames`), a count of updates, frames,
+seconds or ticks (`DroolFormingForTwoUpdates`, `WaveBeamThreeUpdateTrail`, `FourSecondHold`) and one count by another
+(`CentredSixteenByThirtyTwoBox`). A cadence's period, a wait's length and a box's size are the named member's value:
+the name says what the member paces, waits for or covers (`GrappleShock`, `DroolFormingShort`, `CentredBox`), and its
+documentation says where in its period a cadence falls (`counted on his body's own update count at the period's first
+place`) or cites the member that holds the value (`each for <see cref="CeresSteamAnimations.PuffPictureUpdates"/>`),
+never repeating the number. Every update, every other room, every 256th of a pixel kept, two of every four, a thing every
+step of the way, a name that spells one (`OneUpdateLate`), a fraction of a unit (`QuarterTurn`), a position in order
+(`SecondPhase`) or a number glued to a word (`Bg2Frames`), and a hardware owner, which describes the program it
+reproduces, stay English.
+
 #2533 widens SME6454, outside hardware owners, to the original's storage units, random bits and program bytes as enemy
 prose tells them, read across a documentation comment's line breaks: a value counted as a number of 256ths, in digits or
 words (`twelve 256ths of a pixel`, `1023 through 2815 256ths`, `32 or 64 256ths of a mark`, `four pixels and 80

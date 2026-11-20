@@ -301,11 +301,16 @@ internal static class AnalyzerTests
         Expect("interface IPalette { void Load(byte[] bytes, int destination = 0, int count = 0); }");
         // A forwarder with an optional parameter is still a forwarder.
         Expect("class Door { void Init(int slot) { } void Run(int slot, int level = 0) => Init(slot); }", ForwardingContractAnalyzer.PureForwarderId);
-        // An implementation of an external contract is justified at its one site.
-        const string comparer = " class AllEqual : System.Collections.Generic.IEqualityComparer<int> { {0}public bool Equals(int x, int y) => true; " +
-            "public int GetHashCode(int value) => 0; }";
-        Expect(attribute + comparer.Replace("{0}", "", StringComparison.Ordinal), ForwardingContractAnalyzer.DiscardedParametersId, "x, y");
-        Expect(attribute + comparer.Replace("{0}", "[ExternalContract(\"IEqualityComparer fixes the shape\")] ", StringComparison.Ordinal));
+        // An override and an interface implementation, implicit or explicit, keep the shape of the contract they answer.
+        Expect("class AllEqual : System.Collections.Generic.IEqualityComparer<int> { public bool Equals(int x, int y) => true; " +
+            "public int GetHashCode(int value) => 0; }");
+        Expect("class AllEqual : System.Collections.Generic.IEqualityComparer<int> { bool System.Collections.Generic.IEqualityComparer<int>.Equals(int x, int y) => true; " +
+            "int System.Collections.Generic.IEqualityComparer<int>.GetHashCode(int value) => 0; }");
+        Expect("abstract class Runner { internal abstract int Run(int slot, int level, int samus); } " +
+            "sealed class Quiet : Runner { internal override int Run(int slot, int level, int samus) => slot; }");
+        // A virtual method declares the contract and owns its shape.
+        Expect("class Runner { internal virtual int Run(int slot, int level, int samus) => slot; }", ForwardingContractAnalyzer.DiscardedParametersId, "level, samus");
+        // A method registered under an external contract is justified at its one site.
         Expect(attribute + " class Door { void Init(int slot) { } [ExternalContract(\"engine callback\")] void Run(int slot, int level, int camera) => Init(slot); }");
         // Other assemblies are not checked.
         VerifySnippet("class Shutter { static int Run(int slot, int level, int samus) => slot; }", null, null, analyzer, assemblyName: "Other");

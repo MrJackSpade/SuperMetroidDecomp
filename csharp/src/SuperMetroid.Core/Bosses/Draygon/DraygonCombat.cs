@@ -49,17 +49,14 @@ internal sealed class DraygonCombat
     };
 
     /// <summary>Runs the contact of <paramref name="state"/>'s body against Samus.</summary>
+    /// <remarks>
+    /// His touches always meet his frames' hitboxes, which name the ignoring touch or his own, checked as his collision
+    /// loads (<see cref="DraygonCollision"/>).
+    /// </remarks>
     internal void ReactToDraygonTouch(EnemyTouchContext context, DraygonEnemyState state)
     {
-        if (!context.UsesFrameHitboxes)
-            throw new InvalidDataException("Draygon requires his authored extended touch hitboxes.");
         if (context.HitboxTouch == EnemyReaction.Ignore)
             return; // The vulnerable eye rectangle is harmless to Samus.
-        if (context.HitboxTouch != DraygonReactions.Touch)
-        {
-            throw new InvalidDataException(
-                $"Draygon has no response to touch reaction {context.HitboxTouch}.");
-        }
         _collision.ResolveOrdinaryTouch(context, TouchDeathAnimation.Skip);
         ResolveDraygonReaction(context.Place, state, context.Samus);
     }
@@ -162,10 +159,9 @@ internal sealed class DraygonCombat
     /// </summary>
     internal EnemyShotReaction DraygonShotReaction(DraygonEnemyState state) => new()
     {
+        // His shots always meet his frames' hitboxes, which name the dud shot or his own, checked as his collision loads.
         BeforeSuperMissileQuake = (in EnemyShotContext c) =>
         {
-            if (!c.UsesFrameHitboxes)
-                throw new InvalidDataException("Draygon requires his authored extended shot hitboxes.");
             if (c.HitboxShot == EnemyReaction.DudShot)
             {
                 // Body, claws, and shell use the shared common touch; only the first
@@ -173,11 +169,6 @@ internal sealed class DraygonCombat
                 c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
                 _projectiles.CreateEnemyProjectileDudShot(c.Projectile);
                 return true;
-            }
-            if (c.HitboxShot != DraygonReactions.Shot)
-            {
-                throw new InvalidDataException(
-                    $"Draygon has no response to shot reaction {c.HitboxShot}.");
             }
             return false;
         },

@@ -570,15 +570,17 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             EnemyDeathsAndDrops.ShotKillExplosion(c.Occupant, c.ProjectileType, rule: ShotDeathAnimationRule.PirateBigExplosion),
             c.Samus);
 
-    /// <summary>Skips frozen contact and rejects unsupported extended hitbox reactions before normal touch damage.</summary>
+    /// <summary>
+    /// Runs the touch a Pirate's hitbox or definition names: the shared Pirate touch, which skips a frozen Pirate before
+    /// normal touch damage, or, at the shared point-at-origin frame's hitbox, the ordinary touch, which runs the common
+    /// touch damage as the hitbox's own touch does.
+    /// </summary>
     internal void ReactToSpacePirateTouch(EnemyTouchContext context)
     {
-        // Every hitbox of every Space Pirate frame uses the shared Pirate touch reaction; a hitbox with any other
-        // reaction is refused.
-        if (context.UsesFrameHitboxes && context.HitboxTouch != SpacePirateReactions.Touch)
+        if (context.HitboxTouch == EnemyReaction.OrdinaryTouch)
         {
-            throw new InvalidDataException(
-                $"Space Pirate has no response to touch reaction {context.HitboxTouch}.");
+            _collision.ResolveOrdinaryTouch(context);
+            return;
         }
         // While the Pirate is frozen, touching it deals neither Samus nor the Pirate contact damage.
         if (context.Place.Freeze.IsRunning)

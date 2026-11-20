@@ -92,7 +92,7 @@ internal sealed class ProjectileEnemyImpacts
         }
         else if (family is SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile)
         {
-            kind = SamusProjectileSelection.NonBeam(family);
+            kind = SamusProjectileSelection.Missile(family == SamusProjectileFamily.SuperMissile);
             segment = SamusProjectileKinds.Animation(kind, shot.Direction);
         }
         else

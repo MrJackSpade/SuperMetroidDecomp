@@ -11,8 +11,14 @@ internal static class SamusProjectileSelection
     /// combination fires the kind <see cref="UnauthoredBeamShots{TBeams, TProjectile}"/> gives it.
     /// </summary>
     internal static SamusProjectileKind BeamShot(SamusBeamCombination beams, bool charged) => beams.CanBeEquipped
-        ? Lookup(charged ? ChargedBeamShots : UnchargedBeamShots, beams)
+        ? (charged ? ChargedShots : UnchargedShots)[beams]
         : UnauthoredShots.Shot(beams, charged);
+
+    /// <summary>The kind of each equippable combination's charged shot, checked as it loads to name every one.</summary>
+    private static IReadOnlyDictionary<SamusBeamCombination, SamusProjectileKind> ChargedShots { get; } = EveryEquippable(ChargedBeamShots);
+
+    /// <summary>The kind of each equippable combination's uncharged shot, checked as it loads to name every one.</summary>
+    private static IReadOnlyDictionary<SamusBeamCombination, SamusProjectileKind> UnchargedShots { get; } = EveryEquippable(UnchargedBeamShots);
 
     /// <summary>
     /// The animation a shot of <paramref name="beams"/>, charged when <paramref name="charged"/>, runs fired in
@@ -27,9 +33,11 @@ internal static class SamusProjectileSelection
     /// <summary>Whether a shot of <paramref name="beams"/>, charged when <paramref name="charged"/>, is the Murder Beam's.</summary>
     internal static bool IsMurderBeam(SamusBeamCombination beams, bool charged) => charged && beams == MurderBeam;
 
-    /// <summary>The kind a fired missile or placed bomb of <paramref name="family"/> is.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">No missile or bomb is of the family.</exception>
-    internal static SamusProjectileKind NonBeam(SamusProjectileFamily family) => Lookup(NonBeamProjectiles, family);
+    /// <summary>The kind a fired missile is: a Super Missile when <paramref name="super"/>, else a missile.</summary>
+    internal static SamusProjectileKind Missile(bool super) => super ? SamusProjectileKind.SuperMissile : SamusProjectileKind.Missile;
+
+    /// <summary>The kind a placed bomb of <paramref name="kind"/> is.</summary>
+    internal static SamusProjectileKind Bomb(SamusBombKind kind) => Bombs[kind];
 
     /// <summary>
     /// The kind of the particles of the special attack <paramref name="beams"/> fires, or null for a combination whose attack
@@ -41,13 +49,18 @@ internal static class SamusProjectileSelection
             : SpecialAttacks.TryGetValue(beams, out SamusProjectileKind kind) ? kind : null;
 
     /// <summary>The kind <paramref name="echo"/> is.</summary>
-    internal static SamusProjectileKind Echo(SamusBeamEcho echo) => Lookup(Echoes, echo);
+    internal static SamusProjectileKind Echo(SamusBeamEcho echo) => Echoes[echo];
 
-    /// <summary>The kind <paramref name="selections"/> names for <paramref name="key"/>.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The selections name no kind for the key.</exception>
-    private static SamusProjectileKind Lookup<TKey>(IReadOnlyDictionary<TKey, SamusProjectileKind> selections, TKey key)
-        where TKey : notnull =>
-        selections.TryGetValue(key, out SamusProjectileKind kind)
-            ? kind
-            : throw new ArgumentOutOfRangeException(nameof(key), key, "No projectile kind is selected for this key.");
+    /// <summary>Returns <paramref name="shots"/> once it names a kind for every combination Samus can equip.</summary>
+    /// <exception cref="InvalidDataException">An equippable combination has no kind.</exception>
+    private static IReadOnlyDictionary<SamusBeamCombination, SamusProjectileKind> EveryEquippable(
+        IReadOnlyDictionary<SamusBeamCombination, SamusProjectileKind> shots)
+    {
+        foreach (SamusBeamCombination beams in Enum.GetValues<SamusBeamCombination>())
+        {
+            if (beams.CanBeEquipped && !shots.ContainsKey(beams))
+                throw new InvalidDataException($"The equippable combination {beams} fires no shot kind.");
+        }
+        return shots;
+    }
 }

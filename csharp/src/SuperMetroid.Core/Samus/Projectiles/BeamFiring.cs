@@ -426,7 +426,7 @@ internal sealed class BeamFiring
         // The selected HUD item chose the missile family above; the family selects the projectile kind, whose damage the
         // missile deals.
         SamusProjectileType firedType = SamusProjectileType.Of(isSuperMissile ? SamusProjectileFamily.SuperMissile : SamusProjectileFamily.Missile);
-        SamusProjectileKind kind = SamusProjectileSelection.NonBeam(firedType.Family);
+        SamusProjectileKind kind = SamusProjectileSelection.Missile(isSuperMissile);
         SamusProjectileOccupant held = projectile.Occupy(firedType, SamusProjectileDamage.Read(kind));
         projectile.PicturedBeams = SamusBeamCombinations.Of(samus.EquippedBeams);
 

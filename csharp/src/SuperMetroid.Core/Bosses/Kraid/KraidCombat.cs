@@ -32,23 +32,24 @@ internal sealed class KraidCombat
         _collision = collision;
     }
 
-    /// <summary>Runs the arm's reaction to a bomb its hitboxes select, before the check for an ignoring reaction.</summary>
+    /// <summary>
+    /// Runs the arm's reaction to a bomb its hitboxes select, before the check for an ignoring reaction: every arm rectangle
+    /// names the arm's shot (<see cref="KraidArmCollision"/>), and its definition the ignoring one.
+    /// </summary>
     internal void ReactToArmBomb(EnemyBombContext c)
     {
-        if (c.SelectedShot != EnemyReaction.Ignore && c.SelectedShot != KraidReactions.ArmShot)
-            throw new InvalidDataException($"Kraid's arm selected the bomb reaction {c.SelectedShot}.");
-
         // The arm's shot reaction raises dust where the shot struck; the hit's direction is already recorded.
         // Protected arm frames ignore the shot.
         if (c.SelectedShot == KraidReactions.ArmShot)
             SpawnKraidArmShotExplosion(c.PlacedBomb.Type, c.Bomb.Position.Whole);
     }
 
-    /// <summary>Runs the foot's reaction to a bomb its hitboxes select: every foot rectangle ignores it.</summary>
+    /// <summary>
+    /// Runs the foot's reaction to a bomb its hitboxes select: every foot rectangle ignores it
+    /// (<see cref="KraidFootCollisionDefinitions.SharedHitboxes"/>), so it does nothing.
+    /// </summary>
     internal static void ReactToFootBomb(EnemyBombContext c)
     {
-        if (c.SelectedShot != EnemyReaction.Ignore)
-            throw new InvalidDataException($"Kraid's foot selected the bomb reaction {c.SelectedShot}.");
     }
 
     /// <summary>The arm's shot reaction, which its hitboxes decide behind its definition's ignoring one.</summary>
@@ -58,9 +59,6 @@ internal sealed class KraidCombat
         // authored hitboxes select the arm's private reaction.
         AfterSuperMissileQuake = (in EnemyShotContext c) =>
         {
-            if (!c.UsesFrameHitboxes || (c.HitboxShot != EnemyReaction.Ignore && c.HitboxShot != KraidReactions.ArmShot))
-                throw new InvalidDataException($"Kraid's arm selected the shot reaction {c.HitboxShot}.");
-
             c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
             if (c.HitboxShot == KraidReactions.ArmShot)
                 SpawnKraidArmShotExplosion(c.ProjectileType, c.Projectile.Position.Whole);
@@ -68,14 +66,14 @@ internal sealed class KraidCombat
         },
     };
 
-    /// <summary>The foot's shot reaction, which its hitboxes decide behind its definition's ignoring one: every rectangle ignores the shot.</summary>
+    /// <summary>
+    /// The foot's shot reaction, which its hitboxes decide behind its definition's ignoring one: every rectangle ignores the
+    /// shot (<see cref="KraidFootCollisionDefinitions.SharedHitboxes"/>).
+    /// </summary>
     internal static EnemyShotReaction FootShotReaction { get; } = new()
     {
         AfterSuperMissileQuake = (in EnemyShotContext c) =>
         {
-            if (!c.UsesFrameHitboxes || c.HitboxShot != EnemyReaction.Ignore)
-                throw new InvalidDataException($"Kraid's foot selected the shot reaction {c.HitboxShot}.");
-
             c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
             return true;
         },

@@ -195,10 +195,10 @@ internal sealed class CrocomireCombat
         {
             AfterSuperMissileQuake = (in EnemyShotContext c) =>
             {
+                // His parts' shots always meet their frames' hitboxes (their capabilities say so); an ordinary hitbox
+                // takes the common damage, and every other names one of his own shots.
                 if (c.HitboxShot == EnemyReaction.OrdinaryShot)
                     return false;
-                if (!c.UsesFrameHitboxes)
-                    throw new InvalidDataException("Crocomire's parts require collision by their frames' hitboxes.");
                 c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
                 ResolveCrocomireHitboxShot(part.Encounter, c.Shot.Type, c.Projectile.Position.Whole, c.HitboxShot, c.Camera);
                 return true;
@@ -207,17 +207,14 @@ internal sealed class CrocomireCombat
     }
 
     /// <summary>Runs Crocomire's component contact, including normal enemy touch damage.</summary>
+    /// <remarks>
+    /// His parts' touches always meet their frames' hitboxes, which name the ignoring, claw or ordinary touch, checked as
+    /// his collision loads (<see cref="CrocomireBodyCollision"/>).
+    /// </remarks>
     internal void ReactToCrocomireTouch(EnemyTouchContext context)
     {
-        if (!context.UsesFrameHitboxes)
-            throw new InvalidDataException("Crocomire's parts require collision by their frames' hitboxes.");
         if (context.HitboxTouch == EnemyReaction.Ignore)
             return; // The corpse's rectangles ignore Samus's touch.
-        if ((context.HitboxTouch != CrocomireReactions.ClawTouch && context.HitboxTouch != EnemyReaction.OrdinaryTouch))
-        {
-            throw new InvalidDataException(
-                $"Crocomire has no response to touch reaction {context.HitboxTouch}.");
-        }
 
         _collision.ResolveOrdinaryTouch(context);
         // A claw's touch also pushes Samus back.
@@ -226,8 +223,9 @@ internal sealed class CrocomireCombat
     }
 
     /// <summary>
-    /// Runs the shot reaction a Crocomire hitbox selected after frame-hitbox collision; <paramref name="camera"/> is the
-    /// camera as the shot or bomb pass runs.
+    /// Runs the shot reaction of his own a Crocomire hitbox selected after frame-hitbox collision, absorbed, dust or mouth,
+    /// the only ones his collision names beside the ordinary shot (checked as it loads, <see cref="CrocomireBodyCollision"/>);
+    /// <paramref name="camera"/> is the camera as the shot or bomb pass runs.
     /// </summary>
     private void ResolveCrocomireHitboxShot(
         CrocomireEnemyState state,
@@ -248,18 +246,13 @@ internal sealed class CrocomireCombat
             return;
         }
 
-        if (reaction == CrocomireReactions.MouthShot)
-        {
-            ResolveCrocomireMouthShot(
-                state,
-                body,
-                projectileType,
-                projectile,
-                camera);
-            return;
-        }
-
-        throw new InvalidOperationException($"Crocomire has no response to shot reaction {reaction}.");
+        // Every other hitbox of his names his mouth's shot.
+        ResolveCrocomireMouthShot(
+            state,
+            body,
+            projectileType,
+            projectile,
+            camera);
     }
 
     /// <summary>

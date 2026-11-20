@@ -236,7 +236,7 @@ public sealed class SamusBombProjectileSystem
             if (bomb.Animation is null || bomb.Occupant is not { } placed)
                 continue;
 
-            bool wasNormalBomb = placed.Type.Family == SamusProjectileFamily.Bomb;
+            bool wasNormalBomb = placed.Kind == SamusBombKind.Bomb;
             bool bombExplosionStarted = AdvanceBomb(
                 terrain.Level,
                 placed,
@@ -290,14 +290,12 @@ public sealed class SamusBombProjectileSystem
         {
             // Bombs and Power Bombs show their animations' pictures; a Power Bomb's large flash is its blast's glowing
             // oval, drawn apart from them.
-            if (bomb.Animation is null || bomb.Occupant is not { } placed ||
-                placed.Type.Family is not (SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb))
+            if (bomb.Animation is null || bomb.Occupant is not { } placed)
                 continue;
-            SamusProjectileFamily family = placed.Type.Family;
 
             // A Power Bomb's own picture disappears on the update its fuse runs out, as its blast begins; a bomb's
             // explosion goes on showing its pictures after its fuse has run out.
-            if (family == SamusProjectileFamily.PowerBomb && bomb.HasBurnedOut)
+            if (placed.Kind == SamusBombKind.PowerBomb && bomb.HasBurnedOut)
                 continue;
 
             // The bomb is published wherever it lies; the display clips it to the view (#1541).
@@ -413,7 +411,7 @@ public sealed class SamusBombProjectileSystem
         }
 
         SamusBomb bomb = Occupy(FindFreePlace());
-        SamusBombOccupant placed = Place(bomb, placingPowerBomb ? PowerBombType : NormalBombType);
+        SamusBombOccupant placed = Place(bomb, placingPowerBomb ? SamusBombKind.PowerBomb : SamusBombKind.Bomb);
         bomb.PicturedBeams = SamusBeamCombinations.Of(samus.EquippedBeams);
         bomb.Position = bomb.Position.WithWhole(samus.Position.Whole);
         bomb.Fuse = UpdateCountdown.Lasting(MorphBallBombDefinitions.InitialBombTimer);
@@ -482,7 +480,7 @@ public sealed class SamusBombProjectileSystem
         for (int place = 0; place < PlaceCount; place++)
         {
             SamusBomb bomb = Occupy(place);
-            SamusBombOccupant placed = Place(bomb, NormalBombType);
+            SamusBombOccupant placed = Place(bomb, SamusBombKind.Bomb);
             bomb.PicturedBeams = SamusBeamCombinations.Of(samus.EquippedBeams);
             bomb.SpreadFlight = SamusBombSpreadLaunches.Launch(place, samus.BombSpreadCharge.Age);
             bomb.Position = bomb.Position.WithWhole(samus.Position.Whole);
@@ -538,15 +536,15 @@ public sealed class SamusBombProjectileSystem
             $"A bomb was admitted with all {PlaceCount} places held: the placing count ({BombCounter}) is out of step with the bombs out.");
     }
 
-    /// <summary>Takes <paramref name="bomb"/>'s place with a bomb of <paramref name="type"/> and the damage its family's bomb definition gives.</summary>
-    private static SamusBombOccupant Place(SamusBomb bomb, SamusProjectileType type) =>
-        bomb.Occupy(type, SamusProjectileDamage.Read(SamusProjectileSelection.NonBeam(type.Family)));
+    /// <summary>Takes <paramref name="bomb"/>'s place with a bomb of <paramref name="kind"/> and the damage its bomb definition gives.</summary>
+    private static SamusBombOccupant Place(SamusBomb bomb, SamusBombKind kind) =>
+        bomb.Occupy(kind, SamusProjectileDamage.Read(SamusProjectileSelection.Bomb(kind)));
 
-    /// <summary>Starts a bomb's animation, from the bomb definition of its family.</summary>
+    /// <summary>Starts a bomb's animation, from the bomb definition of its kind.</summary>
     private static void InitializeBomb(
         SamusBombOccupant placed)
     {
-        SamusProjectileKind kind = SamusProjectileSelection.NonBeam(placed.Type.Family);
+        SamusProjectileKind kind = SamusProjectileSelection.Bomb(placed.Kind);
         placed.Bomb.Animation = SamusProjectilePlayback.Start(SamusProjectileKinds.SoleAnimation(kind));
     }
 
@@ -577,18 +575,11 @@ public sealed class SamusBombProjectileSystem
             return false;
         }
 
-        SamusProjectileFamily typeFamily = placed.Type.Family;
-        if (typeFamily is not (SamusProjectileFamily.Bomb or SamusProjectileFamily.PowerBomb))
-        {
-            // Bombs are only normal bombs and Power Bombs. No producer places another family;
-            // seeing one means a bomb was mutated inconsistently.
-            throw new InvalidDataException(
-                $"The bomb in place {bomb.Place} has invalid projectile family {typeFamily}.");
-        }
-
+        // A placed bomb is a Morph Ball bomb or a Power Bomb (SamusBombKind).
+        SamusBombKind kind = placed.Kind;
         bool explosionStarted = false;
         bool powerBombBoundaryReacts = false;
-        if (typeFamily == SamusProjectileFamily.PowerBomb)
+        if (kind == SamusBombKind.PowerBomb)
         {
             PowerBombFuseStep fuse = SamusPowerBombFuse.Step(bomb.Fuse, PowerBombExplosion.IsArmed);
             powerBombBoundaryReacts = fuse.BoundaryReacts;
@@ -628,7 +619,7 @@ public sealed class SamusBombProjectileSystem
         if (bomb.SpreadFlight is { } flight && !bomb.HasBurnedOut)
             MoveBombSpread(level, bomb, flight, samusKinematics);
 
-        if (typeFamily == SamusProjectileFamily.Bomb &&
+        if (kind == SamusBombKind.Bomb &&
             bomb.HasBurnedOut &&
             !bomb.HasReactedToTerrain)
         {
@@ -637,7 +628,7 @@ public sealed class SamusBombProjectileSystem
             bomb.HasReactedToTerrain = true;
             ReactToBombExplosionCross(level, placed, roomObjects);
         }
-        else if (typeFamily == SamusProjectileFamily.PowerBomb)
+        else if (kind == SamusBombKind.PowerBomb)
         {
             // The update the explosion starts on touches no terrain (PowerBombFuseStep.BoundaryReacts). Every later frame
             // scans the newly reached rectangle border using the explosion's shared radii in whole pixels.
@@ -1007,7 +998,6 @@ public sealed class SamusBombProjectileSystem
             if (!bomb.IsActive ||
                 bomb.Occupant is not { } placed ||
                 bomb.IsBombSpread ||
-                placed.Type.Family.IsExplosion ||
                 bomb.IsSpent)
             {
                 continue;
@@ -1023,10 +1013,8 @@ public sealed class SamusBombProjectileSystem
                 continue;
             }
 
-            SamusProjectileFamily typeFamily = placed.Type.Family;
-            if (typeFamily is not (
-                    SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb) ||
-                bomb.Fuse.UpdatesLeft != MorphBallBombDefinitions.BombJumpExplosionCount)
+            // Every placed bomb, a Morph Ball bomb or a Power Bomb, launches Samus at its bomb-jump count.
+            if (bomb.Fuse.UpdatesLeft != MorphBallBombDefinitions.BombJumpExplosionCount)
                 continue;
 
             // Samus's X against the bomb's: equal is straight; Samus left of the bomb launches left;

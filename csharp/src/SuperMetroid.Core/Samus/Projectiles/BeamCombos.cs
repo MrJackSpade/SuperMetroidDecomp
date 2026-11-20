@@ -311,61 +311,62 @@ internal sealed class BeamCombos
         }
         if (spazer.LeavesTrails)
             StepTrail(shot);
-        switch (spazer.Phase)
+        if (spazer.Phase == SpazerComboPhase.Circling)
         {
-            case SpazerComboPhase.Circling:
-                PlaceSpazerParticle(samus, shot, spazer);
+            PlaceSpazerParticle(samus, shot, spazer);
+            spazer.Turn();
+            if (spazer.Angle == TrigonometryAngle.HalfTurn)
+            {
+                spazer.Radius = BeamComboDefinitions.SpazerFlyingStartRadius;
+                spazer.TurnPerUpdate = SpazerTurn(spazer.Part.SpazerTurn, BeamComboDefinitions.SpazerFlyingTurn);
+                shot.Direction = SamusProjectileDirection.UpFacingRight;
+                shot.FlyOn();
+                spazer.Phase = SpazerComboPhase.FlyingUpTowardsPoint;
+            }
+        }
+        else if (spazer.Phase == SpazerComboPhase.FlyingUpTowardsPoint)
+        {
+            PlaceSpazerParticle(samus, shot, spazer);
+            if (CameraPastRoomEdge.FromCamera(shot.Position.Y.Whole, cameraY) < BeamComboDefinitions.SpazerFallScreenLine)
+                BeginSpazerFall(shot, spazer);
+            else
+            {
                 spazer.Turn();
-                if (spazer.Angle == TrigonometryAngle.HalfTurn)
+                // The radius narrows from its flying start by a step that divides it, so it meets zero exactly and never passes it.
+                spazer.Radius -= BeamComboDefinitions.SpazerFlyingRadiusStep;
+                if (spazer.Radius == 0)
                 {
-                    spazer.Radius = BeamComboDefinitions.SpazerFlyingStartRadius;
-                    spazer.TurnPerUpdate = SpazerTurn(spazer.Part.SpazerTurn, BeamComboDefinitions.SpazerFlyingTurn);
-                    shot.Direction = SamusProjectileDirection.UpFacingRight;
-                    shot.FlyOn();
-                    spazer.Phase = SpazerComboPhase.FlyingUpTowardsPoint;
+                    spazer.TurnPerUpdate = TrigonometryAngle.Zero - SpazerTurn(spazer.Part.SpazerTurn, BeamComboDefinitions.SpazerFlyingTurn);
+                    spazer.Angle += TrigonometryAngle.HalfTurn;
+                    spazer.Phase = SpazerComboPhase.FlyingUpAwayFromPoint;
+                    shared.SetSharedCooldown(SamusProjectileCooldownDefinitions.SpecialAttackHold);
+                    _charge.ClearCount();
+                    return spazer.Part.VoicesSpazerConvergence ? SamusSound.SpazerSpecialAttackEnd : null;
                 }
-                break;
-            case SpazerComboPhase.FlyingUpTowardsPoint:
-                PlaceSpazerParticle(samus, shot, spazer);
-                if (CameraPastRoomEdge.FromCamera(shot.Position.Y.Whole, cameraY) < BeamComboDefinitions.SpazerFallScreenLine)
-                    BeginSpazerFall(shot, spazer);
-                else
-                {
-                    spazer.Turn();
-                    // The radius narrows from its flying start by a step that divides it, so it meets zero exactly and never passes it.
-                    spazer.Radius -= BeamComboDefinitions.SpazerFlyingRadiusStep;
-                    if (spazer.Radius == 0)
-                    {
-                        spazer.TurnPerUpdate = TrigonometryAngle.Zero - SpazerTurn(spazer.Part.SpazerTurn, BeamComboDefinitions.SpazerFlyingTurn);
-                        spazer.Angle += TrigonometryAngle.HalfTurn;
-                        spazer.Phase = SpazerComboPhase.FlyingUpAwayFromPoint;
-                        shared.SetSharedCooldown(SamusProjectileCooldownDefinitions.SpecialAttackHold);
-                        _charge.ClearCount();
-                        return spazer.Part.VoicesSpazerConvergence ? SamusSound.SpazerSpecialAttackEnd : null;
-                    }
-                }
-                break;
-            case SpazerComboPhase.FlyingUpAwayFromPoint:
-                PlaceSpazerParticle(samus, shot, spazer);
-                if (CameraPastRoomEdge.FromCamera(shot.Position.Y.Whole, cameraY) < BeamComboDefinitions.SpazerFallScreenLine)
-                    BeginSpazerFall(shot, spazer);
-                else
-                {
-                    spazer.Turn();
-                    spazer.Radius += BeamComboDefinitions.SpazerFlyingRadiusStep;
-                    if (spazer.Radius >= BeamComboDefinitions.SpazerFallingRadius) BeginSpazerFall(shot, spazer);
-                }
-                break;
-            case SpazerComboPhase.Falling:
-                shot.Position += new Offset16<RoomPixels>(0, BeamComboDefinitions.SpazerFallSpeed);
-                // The particle falls from beside Samus, within a room's height of the view.
-                if (CameraPastRoomEdge.FromCamera(shot.Position.Y.Whole, cameraY) >= BeamComboDefinitions.SpazerFallEndBelowCameraTop)
-                {
-                    _animation.ClearProjectile(shot);
-                    return null;
-                }
-                break;
-            default: throw new InvalidOperationException($"Undefined {nameof(SpazerComboPhase)} {spazer.Phase}.");
+            }
+        }
+        else if (spazer.Phase == SpazerComboPhase.FlyingUpAwayFromPoint)
+        {
+            PlaceSpazerParticle(samus, shot, spazer);
+            if (CameraPastRoomEdge.FromCamera(shot.Position.Y.Whole, cameraY) < BeamComboDefinitions.SpazerFallScreenLine)
+                BeginSpazerFall(shot, spazer);
+            else
+            {
+                spazer.Turn();
+                spazer.Radius += BeamComboDefinitions.SpazerFlyingRadiusStep;
+                if (spazer.Radius >= BeamComboDefinitions.SpazerFallingRadius) BeginSpazerFall(shot, spazer);
+            }
+        }
+        else
+        {
+            // The remaining member, SpazerComboPhase.Falling.
+            shot.Position += new Offset16<RoomPixels>(0, BeamComboDefinitions.SpazerFallSpeed);
+            // The particle falls from beside Samus, within a room's height of the view.
+            if (CameraPastRoomEdge.FromCamera(shot.Position.Y.Whole, cameraY) >= BeamComboDefinitions.SpazerFallEndBelowCameraTop)
+            {
+                _animation.ClearProjectile(shot);
+                return null;
+            }
         }
         shared.SetSharedCooldown(SamusProjectileCooldownDefinitions.SpecialAttackHold);
         _charge.ClearCount();

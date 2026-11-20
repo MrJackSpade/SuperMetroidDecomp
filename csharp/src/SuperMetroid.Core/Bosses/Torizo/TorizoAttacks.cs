@@ -130,96 +130,156 @@ internal sealed class TorizoAttacks
         /// </summary>
         private AnimationContinuation<TorizoProjectileSegment>? ApplyTorizoProjectileCue(EnemyProjectile projectile, SamusState samus, TorizoProjectileCue cue)
         {
-            switch (cue)
-            {
-                case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.StopMoving }:
-                    projectile.HoldStill();
-                    return null;
-                case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.StartDroolFall }:
-                    projectile.StartMotion(this, TorizoProjectileMotion.DroolFalling);
-                    return null;
-                case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.StartFragmentFall }:
-                    projectile.StartMotion(this, TorizoProjectileMotion.StatueFragmentFalling);
-                    return null;
-                case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.StartEggCharge }:
-                    projectile.StartMotion(this, TorizoProjectileMotion.EggCharging);
-                    return null;
-                case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.ThrowSuperMissile }:
-                    projectile.StartMotion(this, TorizoProjectileMotion.SuperMissileThrown);
-                    return null;
-                case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.DrawBehindSamus }:
-                    projectile.Depth = EnemyProjectileDepth.BehindSamus;
-                    return null;
-                case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.StopHarmingSamusAndDrawInFront }:
-                    projectile.CanDamageSamus = false;
-                    projectile.Depth = EnemyProjectileDepth.InFrontOfSamus;
-                    return null;
-                case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.PersistOnContactAndDrawInFront }:
-                    projectile.PersistsOnSamusContact = true;
-                    projectile.Depth = EnemyProjectileDepth.InFrontOfSamus;
-                    return null;
-                case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.TurnHarmful }:
-                    projectile.CanDamageSamus = true;
-                    return null;
-                case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.TurnHarmfulAndStopBlockingShots }:
-                    projectile.CanDamageSamus = true;
-                    projectile.BlocksSamusProjectiles = false;
-                    return null;
-                case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.BlockShots }:
-                    projectile.BlocksSamusProjectiles = true;
-                    return null;
-                case TorizoProjectileCue.PlaySound playSound:
-                    audio.QueueEnemySound(playSound.Sound, playSound.Priority);
-                    return null;
-                case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.Delete }:
-                    projectile.Delete();
-                    return null;
-                case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.Hatch }:
-                    return TorizoProjectileAnimations.ContinueWith(
-                        Eggs.Of(projectile).Facing == HorizontalDirection.Right ? TorizoProjectileSegment.EggHatchedRight : TorizoProjectileSegment.EggHatchedLeft);
-                case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.FloorImpactWaited }:
-                {
-                    // The floor impact waits while Golden Torizo's eye-beam explosions are disabled; once they are enabled,
-                    // it bursts into flames.
-                    TorizoEnemyState state = Held.Of(projectile).Owner.RequireSpeciesState<TorizoEnemyState>();
-                    return state.EyeBeamExplosionsEnabled ? TorizoProjectileAnimations.ContinueWith(TorizoProjectileSegment.EyeBeamFloorFlames) : null;
-                }
-                case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.MayTurnToSmoke }:
-                    return projectiles.TakeRandomAnimationChange() ? TorizoProjectileAnimations.ContinueWith(TorizoProjectileSegment.DeathSmoke) : null;
-                case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.AimSuperMissileTowardSamus } or TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.AimSuperMissileAwayFromSamus }:
-                    SetGoldenTorizoSuperMissileVelocity(
-                        projectile,
-                        samus,
-                        awayFromSamus: cue is TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.AimSuperMissileAwayFromSamus });
-                    return null;
-                case TorizoProjectileCue.SetRadius setRadius:
-                    projectile.Radius = setRadius.Radius;
-                    return null;
-                case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.SpawnOrbDrops }:
-                    RequestTorizoChozoOrbDrop(projectile, samus);
-                    return null;
-                case TorizoProjectileCue.Scatter scatter:
-                    projectiles.Scatter(projectile, scatter.Spread);
-                    return null;
-                case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.ReturnToOrigin }:
-                    projectile.Position = projectile.Position.WithWhole(projectile.Anchor);
-                    return null;
-                case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.RaiseDust }:
-                    projectile.Position = projectile.Position.WithWhole(projectile.Position.Whole + TorizoProjectilePlacementDefinitions.DustRise);
-                    return null;
-                case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.StopBlockingShots }:
-                    projectile.BlocksSamusProjectiles = false;
-                    return null;
-                case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.StopHarmingSamus }:
-                    projectile.CanDamageSamus = false;
-                    return null;
-                case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.DrawInFront }:
-                    projectile.Depth = EnemyProjectileDepth.InFrontOfSamus;
-                    return null;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(TorizoProjectileCueKind)} {cue}.");
-            }
+            return cue.Match(ApplyTorizoProjectileCueCases, new ApplyTorizoProjectileCueContext(audio, projectiles, projectile, samus, this));
         }
+
+        /// <summary>What <c>ApplyTorizoProjectileCueCases</c> comes to for each <see cref="TorizoProjectileCueKind"/> member, each member's own arm.</summary>
+        private static IdentityTable<TorizoProjectileCueKind, Func<ApplyTorizoProjectileCueContext, AnimationContinuation<TorizoProjectileSegment>?>> ApplyTorizoProjectileCueCasesForTorizoProjectileCueKind => field ??= new(new Dictionary<TorizoProjectileCueKind, Func<ApplyTorizoProjectileCueContext, AnimationContinuation<TorizoProjectileSegment>?>>
+        {
+            [TorizoProjectileCueKind.StopMoving] = static context =>
+            {
+                context.Projectile.HoldStill();
+                return null;
+            },
+            [TorizoProjectileCueKind.StartDroolFall] = static context =>
+            {
+                context.Projectile.StartMotion(context.Owner, TorizoProjectileMotion.DroolFalling);
+                return null;
+            },
+            [TorizoProjectileCueKind.StartFragmentFall] = static context =>
+            {
+                context.Projectile.StartMotion(context.Owner, TorizoProjectileMotion.StatueFragmentFalling);
+                return null;
+            },
+            [TorizoProjectileCueKind.StartEggCharge] = static context =>
+            {
+                context.Projectile.StartMotion(context.Owner, TorizoProjectileMotion.EggCharging);
+                return null;
+            },
+            [TorizoProjectileCueKind.ThrowSuperMissile] = static context =>
+            {
+                context.Projectile.StartMotion(context.Owner, TorizoProjectileMotion.SuperMissileThrown);
+                return null;
+            },
+            [TorizoProjectileCueKind.DrawBehindSamus] = static context =>
+            {
+                context.Projectile.Depth = EnemyProjectileDepth.BehindSamus;
+                return null;
+            },
+            [TorizoProjectileCueKind.StopHarmingSamusAndDrawInFront] = static context =>
+            {
+                context.Projectile.CanDamageSamus = false;
+                context.Projectile.Depth = EnemyProjectileDepth.InFrontOfSamus;
+                return null;
+            },
+            [TorizoProjectileCueKind.PersistOnContactAndDrawInFront] = static context =>
+            {
+                context.Projectile.PersistsOnSamusContact = true;
+                context.Projectile.Depth = EnemyProjectileDepth.InFrontOfSamus;
+                return null;
+            },
+            [TorizoProjectileCueKind.TurnHarmful] = static context =>
+            {
+                context.Projectile.CanDamageSamus = true;
+                return null;
+            },
+            [TorizoProjectileCueKind.TurnHarmfulAndStopBlockingShots] = static context =>
+            {
+                context.Projectile.CanDamageSamus = true;
+                context.Projectile.BlocksSamusProjectiles = false;
+                return null;
+            },
+            [TorizoProjectileCueKind.BlockShots] = static context =>
+            {
+                context.Projectile.BlocksSamusProjectiles = true;
+                return null;
+            },
+            [TorizoProjectileCueKind.Delete] = static context =>
+            {
+                context.Projectile.Delete();
+                return null;
+            },
+            [TorizoProjectileCueKind.Hatch] = static context => TorizoProjectileAnimations.ContinueWith(
+                            context.Owner.Eggs.Of(context.Projectile).Facing == HorizontalDirection.Right ? TorizoProjectileSegment.EggHatchedRight : TorizoProjectileSegment.EggHatchedLeft),
+            [TorizoProjectileCueKind.FloorImpactWaited] = static context =>
+            {
+                // The floor impact waits while Golden Torizo's eye-beam explosions are disabled; once they are enabled,
+                // it bursts into flames.
+                TorizoEnemyState state = context.Owner.Held.Of(context.Projectile).Owner.RequireSpeciesState<TorizoEnemyState>();
+                return state.EyeBeamExplosionsEnabled ? TorizoProjectileAnimations.ContinueWith(TorizoProjectileSegment.EyeBeamFloorFlames) : null;
+            },
+            [TorizoProjectileCueKind.MayTurnToSmoke] = static context => context.Projectiles.TakeRandomAnimationChange() ? TorizoProjectileAnimations.ContinueWith(TorizoProjectileSegment.DeathSmoke) : null,
+            [TorizoProjectileCueKind.AimSuperMissileTowardSamus] = static context =>
+            {
+                SetGoldenTorizoSuperMissileVelocity(context.Projectile, context.Samus, awayFromSamus: false);
+                return null;
+            },
+            [TorizoProjectileCueKind.AimSuperMissileAwayFromSamus] = static context =>
+            {
+                SetGoldenTorizoSuperMissileVelocity(context.Projectile, context.Samus, awayFromSamus: true);
+                return null;
+            },
+            [TorizoProjectileCueKind.SpawnOrbDrops] = static context =>
+            {
+                context.Owner.RequestTorizoChozoOrbDrop(context.Projectile, context.Samus);
+                return null;
+            },
+            [TorizoProjectileCueKind.ReturnToOrigin] = static context =>
+            {
+                context.Projectile.Position = context.Projectile.Position.WithWhole(context.Projectile.Anchor);
+                return null;
+            },
+            [TorizoProjectileCueKind.RaiseDust] = static context =>
+            {
+                context.Projectile.Position = context.Projectile.Position.WithWhole(context.Projectile.Position.Whole + TorizoProjectilePlacementDefinitions.DustRise);
+                return null;
+            },
+            [TorizoProjectileCueKind.StopBlockingShots] = static context =>
+            {
+                context.Projectile.BlocksSamusProjectiles = false;
+                return null;
+            },
+            [TorizoProjectileCueKind.StopHarmingSamus] = static context =>
+            {
+                context.Projectile.CanDamageSamus = false;
+                return null;
+            },
+            [TorizoProjectileCueKind.DrawInFront] = static context =>
+            {
+                context.Projectile.Depth = EnemyProjectileDepth.InFrontOfSamus;
+                return null;
+            },
+        });
+
+        /// <summary>What <c>ApplyTorizoProjectileCue</c> does on each <see cref="TorizoProjectileCue"/>, built once (#2553).</summary>
+        private static TorizoProjectileCueCases<ApplyTorizoProjectileCueContext, AnimationContinuation<TorizoProjectileSegment>?> ApplyTorizoProjectileCueCases { get; } = new(
+            PlaySound: static (playSound, context) =>
+            {
+                context.Audio.QueueEnemySound(playSound.Sound, playSound.Priority);
+                return null;
+            },
+            Scatter: static (scatter, context) =>
+            {
+                context.Projectiles.Scatter(context.Projectile, scatter.Spread);
+                return null;
+            },
+            SetRadius: static (setRadius, context) =>
+            {
+                context.Projectile.Radius = setRadius.Radius;
+                return null;
+            },
+            Signal: static (signal, context) =>
+            {
+                return ApplyTorizoProjectileCueCasesForTorizoProjectileCueKind[signal.Kind](context);
+            });
+
+        /// <summary>What <c>ApplyTorizoProjectileCue</c>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+        /// <param name="Audio">The <c>audio</c> <c>ApplyTorizoProjectileCue</c> was handed.</param>
+        /// <param name="Projectiles">The <c>projectiles</c> <c>ApplyTorizoProjectileCue</c> was handed.</param>
+        /// <param name="Projectile">The <c>projectile</c> <c>ApplyTorizoProjectileCue</c> was handed.</param>
+        /// <param name="Samus">The <c>samus</c> <c>ApplyTorizoProjectileCue</c> was handed.</param>
+        /// <param name="Owner">The <see cref="TorizoProjectileBehavior"/> reacting.</param>
+        private readonly record struct ApplyTorizoProjectileCueContext(EnemyAudioQueue Audio, EnemyProjectileEngine Projectiles, EnemyProjectile Projectile, SamusState Samus, TorizoProjectileBehavior Owner);
 
         /// <summary>Keeps the held super missile beside the hand of the Golden Torizo that caught it.</summary>
         private void HoldSuperMissile(EnemyProjectile projectile)

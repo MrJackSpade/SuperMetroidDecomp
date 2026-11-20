@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Areas.Ceres;
 
-/// <summary>The animation and action one Ceres steam vent starts with.</summary>
+/// <summary>The way one Ceres steam vent blows, whose dormant wait it starts with, and its action.</summary>
 internal readonly record struct CeresSteamInitialization(
-    CeresSteamSegment Animation,
+    CeresSteamWay Way,
     CeresSteamAction Action);

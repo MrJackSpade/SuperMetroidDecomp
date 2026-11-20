@@ -6,29 +6,22 @@ namespace SuperMetroid.Core.Samus.Movement;
 internal static class SamusRunningCadences
 {
     /// <summary>The cadence of each authored boost stage, by its stage.</summary>
-    private static readonly Dictionary<int, SamusRunningCadence> CadenceOfStage = StagesOf(Timings);
+    private static readonly Dictionary<int, SamusBoostCadence> CadenceOfStage = StagesOf(Timings);
 
     /// <summary>The cadence the boost restarts on after its echo's sound request found <paramref name="echo"/>, as <paramref name="restart"/> picks it.</summary>
     /// <param name="restart">Samus's rule for how the boost restarts after its echo.</param>
     /// <param name="echo">What the echo's sound request found.</param>
-    internal static SamusRunningCadence CadenceAfterEcho(BoostRestartAfterEcho restart, SoundQueueAdmission echo) =>
+    internal static SamusBoostCadence CadenceAfterEcho(BoostRestartAfterEcho restart, SoundQueueAdmission echo) =>
         Ensure.NotNull(restart).PicksUnauthoredCadence(echo)
-            ? SamusRunningCadence.UnauthoredBoost
+            ? new SamusBoostCadence(SamusRunningCadence.UnauthoredBoost, UnauthoredBoostCadence.CountdownAfterAdvance)
             : SpeedBoostCadence(restart.AuthoredStageAfterEcho(echo));
 
-    /// <summary>The cadence of authored boost stage <paramref name="stage"/>.</summary>
+    /// <summary>The cadence of authored boost stage <paramref name="stage"/> and the countdown the boost restarts with on it.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The stage is not one of the authored stages.</exception>
-    internal static SamusRunningCadence SpeedBoostCadence(int stage) =>
-        CadenceOfStage.TryGetValue(stage, out SamusRunningCadence cadence)
+    internal static SamusBoostCadence SpeedBoostCadence(int stage) =>
+        CadenceOfStage.TryGetValue(stage, out SamusBoostCadence cadence)
             ? cadence
             : throw new ArgumentOutOfRangeException(nameof(stage), stage, "The boost has five authored stages.");
-
-    /// <summary>The countdown, 0 through 2, the boost restarts with on <paramref name="cadence"/>.</summary>
-    /// <exception cref="InvalidOperationException">The cadence is ordinary running's, which is no boost cadence.</exception>
-    internal static int CountdownAfterAdvance(SamusRunningCadence cadence) =>
-        cadence == SamusRunningCadence.UnauthoredBoost
-            ? UnauthoredBoostCadence.CountdownAfterAdvance
-            : (TimingOf(cadence).Boost ?? throw new InvalidOperationException("Ordinary running is not a boost stage.")).CountdownAfterAdvance;
 
     /// <summary>The delay, in ticks, of running frame <paramref name="frame"/> on <paramref name="cadence"/>.</summary>
     /// <param name="unauthored">The session's unauthored Speed Booster cadence, which times the unauthored cadence's frames.</param>
@@ -45,14 +38,14 @@ internal static class SamusRunningCadences
             : TimingOf(cadence).Delays[frame];
     }
 
-    /// <summary>The cadence of each boost stage <paramref name="timings"/> holds, by its stage.</summary>
-    private static Dictionary<int, SamusRunningCadence> StagesOf(IReadOnlyDictionary<SamusRunningCadence, SamusRunningCadenceTiming> timings)
+    /// <summary>The cadence of each boost stage <paramref name="timings"/> holds, with its restart countdown, by its stage.</summary>
+    private static Dictionary<int, SamusBoostCadence> StagesOf(IReadOnlyDictionary<SamusRunningCadence, SamusRunningCadenceTiming> timings)
     {
-        var stages = new Dictionary<int, SamusRunningCadence>();
+        var stages = new Dictionary<int, SamusBoostCadence>();
         foreach ((SamusRunningCadence cadence, SamusRunningCadenceTiming timing) in timings)
         {
             if (timing.Boost is { } boost)
-                stages.Add(boost.Stage, cadence);
+                stages.Add(boost.Stage, new SamusBoostCadence(cadence, boost.CountdownAfterAdvance));
         }
 
         return stages;

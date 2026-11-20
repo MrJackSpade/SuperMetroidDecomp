@@ -316,7 +316,7 @@ public sealed class SamusLiquidPhysicsState
         }
 
         if (fxKind is RoomFxType.Lava or RoomFxType.Acid &&
-            IsBelowSurface(LavaAcidSurfaceY, bottom))
+            LavaAcidSurfaceY is int lavaSurface && IsBelowSurface(lavaSurface, bottom))
         {
             if (fxKind == RoomFxType.Lava && samus.HorizontalSpeed.SpeedBoostCounter.IsBuilding)
             {
@@ -346,7 +346,7 @@ public sealed class SamusLiquidPhysicsState
             // Both lava and acid now share one submerged delay.
             MediumLastEntered = SamusLiquidMedium.LavaOrAcid;
             samus.ExtraAnimationDelay = SamusAnimationDelayDefinitions.LavaOrAcidAnimationDelay;
-            TrySpawnLavaSurfaceSpray(samus, frameCounter);
+            TrySpawnLavaSurfaceSpray(samus, lavaSurface, frameCounter);
             if (SamusPoseMetadata.IsForwardFacingPose(samus.Pose) || gravitySuit)
                 samus.ExtraAnimationDelay = 0;
             return;
@@ -533,10 +533,10 @@ public sealed class SamusLiquidPhysicsState
     /// <summary>Starts the four-particle lava spray while Samus's top is above the surface and nothing holds the spray up.</summary>
     private void TrySpawnLavaSurfaceSpray(
         SamusState samus,
+        int surface,
         int frameCounter)
     {
-        // The spray runs only while Samus is below the lava or acid surface, so the surface is present.
-        int surface = LavaAcidSurfaceY ?? throw new InvalidOperationException("Lava surface spray requires a lava or acid surface.");
+        // The spray runs only while Samus is below the lava or acid surface.
         if (TopLine(samus) >= surface || !EffectWaits.SprayCanStart)
             return;
 

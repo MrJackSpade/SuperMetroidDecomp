@@ -130,26 +130,27 @@ public sealed class RoomObjectSystem : IRoomObjects, ISamusRoomObjects
     /// <summary>Creates one room's empty room-object list and the room-object family owners that run in it.</summary>
     /// <param name="room">The room the objects live in.</param>
     /// <param name="services">The room's service owners; each room-object family receives the ones it uses.</param>
+    /// <param name="reachedByEnemies">
+    /// The room's room-object places and sounds and the room objects its enemies reach, built before the enemies.
+    /// </param>
     /// <param name="visuals">The host's installed room-object artwork.</param>
     /// <param name="collectibleBlockPairs">
     /// The room's own block pairs its collectibles that show their own picture take in turn, created with the system by
     /// its builder so each room starts at the first pair.
     /// </param>
-    /// <param name="places">The room's own room-object places, created with the system by its builder so each room starts with every place free.</param>
     /// <param name="shotCapClosing">Whether a blue cap a shot opened closes behind Samus, composed by the system's builder.</param>
-    /// <param name="audioRequests">The update's audio requests of the runtime, which the room objects' sounds and music join (#2057).</param>
-    internal RoomObjectSystem(RoomObjectRoom room, RoomObjectServices services, RoomObjectVisuals visuals,
-        CollectibleBlockPairs collectibleBlockPairs, RoomObjectPlaces places, ShotOpenedCapClosing<LockedDoor> shotCapClosing,
-        GameplayAudioRequests audioRequests)
+    internal RoomObjectSystem(RoomObjectRoom room, RoomObjectServices services, RoomObjectsReachedByEnemies reachedByEnemies,
+        RoomObjectVisuals visuals, CollectibleBlockPairs collectibleBlockPairs, ShotOpenedCapClosing<LockedDoor> shotCapClosing)
     {
         Ensure.NotNull(room);
         Ensure.NotNull(services);
+        Ensure.NotNull(reachedByEnemies);
         Events = services.Events;
-        Places = new RoomObjectPlaceList(places);
-        Sounds = new RoomObjectSoundQueue(audioRequests);
+        Places = reachedByEnemies.Places;
+        Sounds = reachedByEnemies.Sounds;
         Drawing = new RoomObjectBlockDrawing(visuals);
         ProjectileTriggers = new ProjectileTriggerObjects(Places);
-        BreakableTerrain = new EnemyBreakableTerrainObjects(Places);
+        BreakableTerrain = reachedByEnemies.BreakableTerrain;
         Quicksand = new QuicksandObjects(Places);
         Scrolls = new ScrollObjects(Places);
         WreckedShipTreadmill = new WreckedShipTreadmillObjects(Places, Drawing);
@@ -160,10 +161,10 @@ public sealed class RoomObjectSystem : IRoomObjects, ISamusRoomObjects
         SpeedBoosterEscape = new SpeedBoosterEscapeObjects(services.Samus, services.Events, services.RoomFx, services.Earthquake);
         ChozoStatue = new ChozoStatueObjects(room.System, room.Area, services.Enemies, services.RoomFx, Places);
         DraygonCannons = new DraygonCannonObjects(services.Enemies);
-        BombTorizoHand = new BombTorizoHandObjects(services.Samus, Sounds);
+        BombTorizoHand = reachedByEnemies.BombTorizoHand;
         NoobTube = new NoobTubeObjects(services.Samus, services.Events, services.RoomFx, services.Earthquake, services.Enemies);
         Gates = new GateObjects(services.Samus, Places, Sounds);
-        MotherBrainGlass = new MotherBrainGlassObjects(services.Bosses, services.Events, Sounds);
+        MotherBrainGlass = reachedByEnemies.MotherBrainGlass;
         Stations = new StationObjects(room.System, services.Samus, Drawing, Places, Sounds);
         CollectibleObjects = new CollectibleObjects(room.System, services.Samus, services.RoomFx, Drawing, Places, collectibleBlockPairs, Sounds);
         EyeDoors = new EyeDoorObjects(room.System, services.Samus, services.Enemies, Sounds);

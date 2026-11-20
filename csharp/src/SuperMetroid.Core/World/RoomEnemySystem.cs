@@ -220,7 +220,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     /// The statue room's entrance statue and unlock effects as its statue sequence drives them; null in every other room
     /// (#2486).
     /// </summary>
-    internal ITourianStatueActors? TourianStatue { get; }
+    internal RoomTourianStatues? TourianStatue { get; }
 
     /// <summary>Spore Spawn, Brinstar's mini-boss, which swings its core and releases spores.</summary>
     internal SporeSpawnBehavior SporeSpawnBehavior { get; }
@@ -660,7 +660,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
             var unlockEffects = new TourianUnlockBehavior(Room, Projectiles, Earthquake, Audio, statueScene, statueRoom);
             TourianEntranceStatueBehavior = statueScene;
             TourianUnlockEffects = unlockEffects;
-            TourianStatue = new TourianStatueActors(statueScene, unlockEffects);
+            TourianStatue = new RoomTourianStatues(statueRoom, new TourianStatueActors(statueScene, unlockEffects));
         }
         SporeSpawnBehavior = new SporeSpawnBehavior(new SporeSpawnBehaviorDependencies { Audio = Audio, Room = Room, Presentation = Presentation, Projectiles = Projectiles, EffectActors = EffectActors, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, PassEvents = PassEvents, CameraFloor = CameraFloor });
         FallingSparksBehavior = new FallingSparksBehavior(Room, Projectiles, EffectActors, compatibility.FallingSparkFloorProbe);

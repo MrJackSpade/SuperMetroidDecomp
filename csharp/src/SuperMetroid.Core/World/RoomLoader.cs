@@ -143,15 +143,11 @@ internal sealed class RoomLoader
         _scrollCells = RoomScrollGrid.KeepCellsAcrossRooms(_system.StoredExploredMaps);
 
     }
-    /// <summary>The door's four-pixel scroll trajectory, kept while the destination loads and scrolls in.</summary>
-    private DoorOpeningScrollState? _doorOpeningScroll;
     /// <summary>
     /// Where an arriving elevator places Samus, set up on the destination's loading update but applied only once loading
     /// has reached that enemy's setup (<see cref="IRoomLoadProgress"/>).
     /// </summary>
     private LoaderSamusPlacement? _elevatorPlacementAwaitingSetup;
-    /// <summary>What the source room showed, kept until the door-opening scroll's offsets are installed.</summary>
-    private DoorOpeningSourceView? _sourceViewForDoorOpening;
 
     /// <summary>
     /// Executes the data-loading portion of a new game's setup: Ceres, its elevator
@@ -396,9 +392,6 @@ internal sealed class RoomLoader
     [IndependentFlag("Whether the source and destination rooms are isolated are independent room properties.")]
     internal void BeginDoorTransitionDisplay(bool sourceIsolated, bool destinationIsolated)
     {
-        if (_room.DoorTransitionShownLayers is not null)
-            throw new InvalidOperationException("The door-transition display is already active.");
-
         bool suppressForeground = sourceIsolated || destinationIsolated;
         _room.DoorTransitionShownLayers = suppressForeground
             ? ScreenLayers.Sprites
@@ -408,8 +401,6 @@ internal sealed class RoomLoader
     /// <summary>Returns the screen to the destination room's ordinary layers.</summary>
     internal void EndDoorTransitionDisplay()
     {
-        if (_room.DoorTransitionShownLayers is null)
-            throw new InvalidOperationException("The door-transition display is not active.");
         // The update that hands the screen back still counts as a scrolling update; the
         // room's ordinary display takes over on the following frame.
         RestartShortCounterDuringDoorScroll();
@@ -469,58 +460,62 @@ internal sealed class RoomLoader
     /// ran, so Samus, the camera and both layers follow the same path; how far loading had progressed on each scroll update
     /// is <see cref="IRoomLoadProgress"/>'s.
     /// </remarks>
-    internal void BeginDoorOpeningScroll(
+    /// <param name="door">The door the transition goes through.</param>
+    /// <param name="sourceSamus">Samus's place in the source room, which the scroll starts from.</param>
+    /// <param name="sourceScroll">What the source room showed as its destination's load began.</param>
+    /// <param name="loaderProgress">How far the destination's load has progressed on each scroll update.</param>
+    /// <param name="completedLoadingScrollUpdates">The scroll updates the destination's load already took.</param>
+    /// <returns>The scroll, which the transition holds until <see cref="FinishDoorOpeningScroll"/>.</returns>
+    internal DoorOpeningScrollState BeginDoorOpeningScroll(
         DoorDefinition door,
         FixedPosition<RoomPixels> sourceSamus,
+        DoorOpeningSourceView sourceScroll,
         IRoomLoadProgress loaderProgress,
         int completedLoadingScrollUpdates)
     {
+        Ensure.NotNull(sourceScroll);
         SamusState samus = _player.IntroducedSamus;
         ScrollBoundaryCamera camera = _room.LoadedCamera;
-        if (_doorOpeningScroll is not null)
-            throw new InvalidOperationException("A door-opening scroll is already active.");
         if (_room.LoadedScope.Enemies.Elevator.ArrivalElevator is { } elevator)
             _elevatorPlacementAwaitingSetup = new LoaderSamusPlacement(elevator, samus.Position.Whole);
 
-        _doorOpeningScroll = DoorOpeningScrollState.Create(
+        DoorOpeningScrollState scroll = DoorOpeningScrollState.Create(
             door,
             sourceSamus,
             camera.PixelPosition,
             _backgroundScroll.BackgroundPosition);
         DoorDirection direction = door.Orientation.Direction;
-        DoorOpeningSourceView sourceScroll = _sourceViewForDoorOpening
-            ?? throw new InvalidOperationException(
-                "Door-opening scroll lost the source room's view.");
         // The offsets derive from where the foreground stands before setup's first update.
-        Position16<RoomPixels> openingForeground = _doorOpeningScroll.CameraPosition +
+        Position16<RoomPixels> openingForeground = scroll.CameraPosition +
             Ensure.Listed(DoorOpeningScrollDefinitions.OpeningForegroundOffsets, direction);
         _backgroundScroll.BeginDoorOpeningViews(openingForeground);
-        _sourceViewForDoorOpening = null;
         // The source screen stays where it was on the screen, lying where the destination's view begins, while the
         // destination scrolls in around it.
         _room.DoorSourceBackground = RoomDoorBackground.Begin(sourceScroll.SourceForeground, sourceScroll.ForegroundScroll.AsPlaneScroll(),
             openingForeground.AsPlaneScroll(), direction == DoorDirection.Down);
-        PublishDoorOpeningLayers(_doorOpeningScroll);
+        PublishDoorOpeningLayers(scroll);
         // Each directional setup immediately takes its first step, which recomputes the
         // layer scrolls from the already-advanced layer positions. Down's first update
         // restores the scrolls it moved, so only the horizontal and upward setups leave
         // new scrolls behind.
         if (direction != DoorDirection.Down)
             _backgroundScroll.CalculateLayerScrolls();
-        samus.Position = _doorOpeningScroll.SamusPosition;
+        samus.Position = scroll.SamusPosition;
         camera.PublishDoorSamusPosition(samus.Position.Whole);
         // The scroll takes the steps it took while the destination loaded; they read no input.
         for (int step = 0; step < completedLoadingScrollUpdates; step++)
-            StepDoorOpeningScroll(loaderProgress);
+            StepDoorOpeningScroll(scroll, loaderProgress);
+        return scroll;
     }
 
     /// <summary>
     /// Runs one update of the door's scroll. True means this update finished the scroll.
     /// </summary>
-    internal bool StepDoorOpeningScroll(IRoomLoadProgress loaderProgress)
+    /// <param name="state">The door's opening scroll.</param>
+    /// <param name="loaderProgress">How far the destination's load has progressed.</param>
+    internal bool StepDoorOpeningScroll(DoorOpeningScrollState state, IRoomLoadProgress loaderProgress)
     {
-        DoorOpeningScrollState state = _doorOpeningScroll
-            ?? throw new InvalidOperationException("No door-opening scroll is active.");
+        Ensure.NotNull(state);
         SamusState samus = _player.IntroducedSamus;
         ScrollBoundaryCamera camera = _room.LoadedCamera;
         bool completed = state.Advance();
@@ -580,10 +575,10 @@ internal sealed class RoomLoader
     /// Applies the horizontal eight-pixel doorway alignment on the update after the
     /// scroll ends, before the music wait and the later narrow-door nudges.
     /// </summary>
-    internal void AlignSamusAfterDoorLoading()
+    /// <param name="state">The door's opening scroll, which has finished.</param>
+    internal void AlignSamusAfterDoorLoading(DoorOpeningScrollState state)
     {
-        DoorOpeningScrollState state = _doorOpeningScroll
-            ?? throw new InvalidOperationException("No door-opening scroll is active.");
+        Ensure.NotNull(state);
         if (state.Scroll.IsRunning)
             throw new InvalidOperationException("Door loading has not finished scrolling.");
         SamusState samus = _player.IntroducedSamus;
@@ -608,10 +603,10 @@ internal sealed class RoomLoader
     /// position, then an elevator door's control setup (the elevator setup going down, the lock going up). Releases
     /// the scroll's trajectory. This is deliberately later than the scroll.
     /// </summary>
-    internal void FinishDoorOpeningScroll()
+    /// <param name="state">The door's opening scroll, which has finished.</param>
+    internal void FinishDoorOpeningScroll(DoorOpeningScrollState state)
     {
-        DoorOpeningScrollState state = _doorOpeningScroll
-            ?? throw new InvalidOperationException("No door-opening scroll is active.");
+        Ensure.NotNull(state);
         if (state.Scroll.IsRunning)
             throw new InvalidOperationException("Door-opening scroll has not reached its endpoint.");
         SamusState samus = _player.IntroducedSamus;
@@ -629,7 +624,6 @@ internal sealed class RoomLoader
             else
                 samus.Control.LockOutPlayer();
         }
-        _doorOpeningScroll = null;
         _room.DoorSourceBackground = null;
     }
 
@@ -637,14 +631,15 @@ internal sealed class RoomLoader
     /// Loads the door's destination while the source room stays on screen; the following scroll updates slide the
     /// destination in, starting from Samus's place in the source room.
     /// </summary>
+    /// <param name="door">The door Samus entered, which the transition goes through.</param>
     /// <param name="sourceSamus">Samus's place in the source room, which the door's opening scroll starts from.</param>
-    internal void LoadPendingDoorDestinationForTransition(FixedPosition<RoomPixels> sourceSamus)
+    /// <returns>What the source room showed as its destination's load began, which the door's opening scroll keeps.</returns>
+    internal DoorOpeningSourceView LoadPendingDoorDestinationForTransition(DoorDefinition door, FixedPosition<RoomPixels> sourceSamus)
     {
+        Ensure.NotNull(door);
         SamusState samus = _player.IntroducedSamus;
 
         RoomDoorContacts sourceDoors = _room.LoadedScope.RoomObjects.DoorContacts;
-        DoorDefinition door = sourceDoors.EnteredDoor
-            ?? throw new InvalidOperationException("Samus's collision has entered no door to go through.");
         DoorTransitionPlacement placement = CalculateDoorTransitionPlacement(door, sourceSamus);
         SelectedRoom room = LoadSelectedRoom(door.DestinationRoom);
 
@@ -688,6 +683,9 @@ internal sealed class RoomLoader
         // at its apex and lets horizontal momentum carry Samus too far after exit.
         samus.Kinematics.ExtraDisplacement = FixedVector<RoomPixels>.Zero;
 
+        // The source screen is captured as the destination's load begins.
+        var sourceView = new DoorOpeningSourceView(_backgroundScroll.ForegroundScroll,
+            new RoomBackgroundLayer(_room.LoadedLevelData.ForegroundPlane.Cells, SourceScreenPictures()));
         LoadRoom(
             door,
             room,
@@ -705,6 +703,7 @@ internal sealed class RoomLoader
         // does, so an elevator rider keeps the boarding pose's radius through the door.
         samus.Ground = SamusGround.Of(room.Definition);
         _player.GroundedSamusMovementEnabled = true;
+        return sourceView;
     }
 
     /// <summary>Loads the selected room, its state and its graphics; shared by stations, doors and the attract demo.</summary>
@@ -715,14 +714,8 @@ internal sealed class RoomLoader
         RoomViewportLoadMode viewportLoadMode,
         RoomEntry entry = default)
     {
-        DoorOpeningSourceView? doorOpeningSourceView = viewportLoadMode switch
-        {
-            RoomViewportLoadMode.DisplayInitialViewport => null,
-            RoomViewportLoadMode.KeepSourceScreenWhileScrollingIn => new DoorOpeningSourceView(_backgroundScroll.ForegroundScroll,
-                new RoomBackgroundLayer(_room.LoadedLevelData.ForegroundPlane.Cells, SourceScreenPictures())),
-            _ => throw new ArgumentOutOfRangeException(
-                nameof(viewportLoadMode), viewportLoadMode, "Unknown room viewport load mode."),
-        };
+        if (viewportLoadMode is not (RoomViewportLoadMode.DisplayInitialViewport or RoomViewportLoadMode.KeepSourceScreenWhileScrollingIn))
+            throw new ArgumentOutOfRangeException(nameof(viewportLoadMode), viewportLoadMode, "Unknown room viewport load mode.");
         LoadedRoomAssets assets = entry.PreloadedAssets ??
             LoadedRoomAssets.Load(_scrollCells, room, RequireRoomAssetCatalogs());
 
@@ -735,10 +728,13 @@ internal sealed class RoomLoader
             outgoing.Projectiles.HandOverTo(_room.HandOver);
             outgoing.Enemies.HandOverTo(_room.HandOver);
         }
-        RoomScopeConstruction scope = _room.BeginConstruction(door, room, assets, entry.LoadStation);
+        // The destination's camera and bombs are built new before its load begins: no stale index of the outgoing room's
+        // bombs reaches into the destination's, and the camera step below places the camera.
+        var destinationCamera = new ScrollBoundaryCamera(assets.Scrolls);
+        var bombs = new SamusBombProjectileSystem(_audioRequests, _artwork.SamusArtwork);
+        RoomScopeConstruction scope = _room.BeginConstruction(door, room, assets, entry.LoadStation, destinationCamera, bombs);
         // The room's block animations: those the door-selected effect lists, and the treadmill a door's setup may start.
         var blockAnimations = new RoomBlockAnimations(room.State.Fx, door);
-        scope.BlockAnimations = blockAnimations;
         // The room's pictures carry its tileset's colours (#1512), so the load colours nothing.
         // The elevator shaft and Ceres Ridley's arena show their tileset's turning floor, which the shaft's door and Ridley
         // then draw over (#1349, #1467); every other room shows none (#1649). Ridley's getaway's main shows its frames.
@@ -751,10 +747,7 @@ internal sealed class RoomLoader
         // every later floor change; the screen is dark while the door loads.
         door.Setup.RoomEvent.Compose(scope);
         _display.ActiveTurningFloor = scope.ShownTurningFloor;
-        scope.LevelData = assets.LevelData;
         ScrollBoundaryCamera? previousCamera = carryOver.PreviousCamera;
-        var destinationCamera = new ScrollBoundaryCamera(assets.Scrolls);
-        scope.Camera = destinationCamera;
         if (viewportLoadMode == RoomViewportLoadMode.KeepSourceScreenWhileScrollingIn)
         {
             if (previousCamera is not null) destinationCamera.InheritTrackingState(previousCamera);
@@ -791,7 +784,6 @@ internal sealed class RoomLoader
             _system.RandomNumber,
             _audioRequests,
             room.Definition);
-        scope.FxOverlay = roomFxOverlay;
         roomFxOverlay.PrimeViewport(destinationCamera.PixelPosition);
         // The room's setup composes its own parts, the sky's bands, the Ceres haze or the statues' room, which only the
         // rooms whose setups spawn them have (#2287, #2485). The room then composes the main its state names, with the
@@ -820,37 +812,68 @@ internal sealed class RoomLoader
             loadingSamus.EquippedItems,
             _system.HasDefeatedAnyOf(room.Area, DefeatedBosses.AreaMiniBoss),
             _audioRequests);
-        scope.ColourEffects = roomColourEffects;
 
 
         // Loading destroys room-owned objects before constructing the destination: the
-        // destination's projectiles and bombs are built new here, before Load/beam graphics, so no
+        // destination's projectiles are built new here, before Load/beam graphics, so no
         // stale index reaches into them; its room-object system is built with the population below.
         // The held beam charge survives on the session; Samus's own echo storage is cleared.
         loadingSamus.HorizontalSpeed.ClearSpeedEchoes();
         loadingSamus.Shinespark.ForgetCrashEchoes();
-        var bombs = new SamusBombProjectileSystem(_audioRequests, _artwork.SamusArtwork);
         // Each room's shot places start keeping nothing; TakeOverFrom then hands them what the outgoing room's kept.
         // The room's earthquake is composed with the room: Super Missile impacts and the room's enemies start it.
         var earthquake = new RoomEarthquake();
         var projectiles = new SamusProjectileSystem(_audioRequests, _beamCharge, _samusOverreads,
             new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), _artwork.SamusArtwork, earthquake);
         projectiles.TakeOverFrom(_room.HandOver);
-        scope.BombProjectiles = bombs;
-        scope.Projectiles = projectiles;
 
         // The room-object loader walks the room's placements once. Each placement takes the first free place in update
         // order among the room's room objects before its setup runs, so a room object its setup deletes at once frees that place for the
         // next placement, and enemies can observe which room object holds which place. Every room-object family enters
         // through this one loader; an unsupported placement throws, naming it, instead of being skipped.
-        // The room's room-object system is built with its bindings, then one set of runtime services
-        // serves the room's room objects and enemies.
+        // The room objects the enemies reach are built first, then the enemies, then the room-object system whose room
+        // objects call on them; the enemies set up only once the room's room objects, the door's setup and the room's
+        // setup have run, below.
         var progress = new RoomAreaProgress(_system, room.Area);
-        var roomObjectServices = new RoomObjectRuntimeServices(scope, _player, _system);
+        var roomObjectSamus = new RoomObjectSamusAccess(_player);
+        var reachedByEnemies = new RoomObjectsReachedByEnemies(new RoomObjectPlaces(), roomObjectSamus, progress, progress, _audioRequests);
+        var areaServices = new RoomEnemyRuntimeServices(_system, destinationCamera.Scrolls, _player, reachedByEnemies, _display, progress);
+        // Each enemy system gets its own compatibility services: the sweep, the places and the effect-actor places start
+        // with no earlier kill, occupant or taken place, and a Puyo's ceiling turn starts from what loading the beams'
+        // colours below leaves. The fade step count, the boost cadence and the Yard kick's camera measure outlive the room
+        // and are handed on.
+        var compatibility = new RoomEnemyCompatibility
+        {
+            PowerBombRadius = new PowerBombRadiusAfterKill(),
+            BullInheritance = new PlaceInheritance<BullEnemyState>(EnemyPlaceOrder.Capacity),
+            BeetomInheritance = new PlaceInheritance<BeetomEnemyState>(EnemyPlaceOrder.Capacity),
+            PuyoCeilingTurn = new PuyoCeilingTurnFromLastDraw(),
+            EffectActorPlaces = new EffectActorPlaces(),
+            FadeStepCount = _fadeStepCount,
+            UnauthoredBoostCadence = _unauthoredBoostCadence,
+            YardKickDistance = _yardKickDistance,
+            FallingSparkFloorProbe = new FallingSparkFloorProbe(),
+        };
+        var enemies = new RoomEnemySystem(new RoomEnemySystemDependencies
+        {
+            Session = _enemySession,
+            Compatibility = compatibility,
+            Looks = scope.Looks,
+            Definitions = CompiledRoomEnemyDefinitions.Instance,
+            Services = areaServices,
+            Area = room.Area,
+            BossArtwork = _bossArtwork,
+            BreakableTerrain = reachedByEnemies.BreakableTerrain,
+            RoomFx = roomFxOverlay,
+            DoorPassage = _doorTransition.Passage,
+            Earthquake = earthquake,
+            Scenery = new RoomEnemyScenery(scope.Floor, scope.CeresElevatorShaft, scope.TourianStatueRoom),
+        });
+        var roomObjectServices = new RoomObjectRuntimeServices(enemies, _system);
         var roomObjectRoom = new RoomObjectRoom(assets.LevelData, _system, room.Area);
         var roomObjectBindings = new RoomObjectServices
         {
-            Samus = roomObjectServices,
+            Samus = roomObjectSamus,
             Bosses = progress,
             Events = progress,
             TourianStatue = scope.TourianStatueRoom,
@@ -861,12 +884,9 @@ internal sealed class RoomLoader
         // Each room's room objects get their own collectible block pairs, the room's first collectible that shows its own
         // picture taking the first pair, and their own places, every one free; a cap a shot opened consults the Landing
         // Site's green door before it closes behind Samus.
-        var roomObjects = new RoomObjectSystem(roomObjectRoom, roomObjectBindings, _roomObjectVisuals, new CollectibleBlockPairs(),
-            new RoomObjectPlaces(),
-            new ShotOpenedCapClosing<LockedDoor>(LockedDoorDefinitions.LandingSiteGreenDoorFacingLeft),
-            _audioRequests);
-        scope.RoomObjects = roomObjects;
-        var areaServices = new RoomEnemyRuntimeServices(_system, destinationCamera.Scrolls, _player, roomObjects, _display, progress);
+        var roomObjects = new RoomObjectSystem(roomObjectRoom, roomObjectBindings, reachedByEnemies, _roomObjectVisuals,
+            new CollectibleBlockPairs(),
+            new ShotOpenedCapClosing<LockedDoor>(LockedDoorDefinitions.LandingSiteGreenDoorFacingLeft));
         roomObjects.PopulationLoader.LoadRoomPopulation(roomObjectRoom, room.State.ObjectPopulation, roomObjectBindings);
 
         // The door's setup runs after the destination's room objects exist and before its enemies and first view are
@@ -907,39 +927,7 @@ internal sealed class RoomLoader
         SamusProjectileSystem.ShowBeamShade(_player.Colours, loadingSamus.EquippedBeams);
 
         // The destination's enemy projectile places start from what the outgoing room's left (RoomHandOver).
-        // Each enemy system gets its own compatibility services: the sweep, the places and the effect-actor places start
-        // with no earlier kill, occupant or taken place, and a Puyo's ceiling turn starts from what loading the beams'
-        // colours above left. The fade step count, the boost cadence and the Yard kick's camera measure outlive the room
-        // and are handed on.
-        var compatibility = new RoomEnemyCompatibility
-        {
-            PowerBombRadius = new PowerBombRadiusAfterKill(),
-            BullInheritance = new PlaceInheritance<BullEnemyState>(EnemyPlaceOrder.Capacity),
-            BeetomInheritance = new PlaceInheritance<BeetomEnemyState>(EnemyPlaceOrder.Capacity),
-            PuyoCeilingTurn = new PuyoCeilingTurnFromLastDraw(),
-            EffectActorPlaces = new EffectActorPlaces(),
-            FadeStepCount = _fadeStepCount,
-            UnauthoredBoostCadence = _unauthoredBoostCadence,
-            YardKickDistance = _yardKickDistance,
-            FallingSparkFloorProbe = new FallingSparkFloorProbe(),
-        };
-        var enemies = new RoomEnemySystem(new RoomEnemySystemDependencies
-        {
-            Session = _enemySession,
-            Compatibility = compatibility,
-            Looks = scope.Looks,
-            Definitions = CompiledRoomEnemyDefinitions.Instance,
-            Services = areaServices,
-            Area = room.Area,
-            BossArtwork = _bossArtwork,
-            BreakableTerrain = roomObjects.BreakableTerrain,
-            RoomFx = roomFxOverlay,
-            DoorPassage = _doorTransition.Passage,
-            Earthquake = earthquake,
-            Scenery = new RoomEnemyScenery(scope.Floor, scope.CeresElevatorShaft, scope.TourianStatueRoom),
-        });
         enemies.TakeOverFrom(_room.HandOver);
-        scope.Enemies = enemies;
         // A wall jump's waiting shake and Samus's solid-enemy contacts name enemies of the room being replaced, which
         // leave with it.
         loadingSamus.Kinematics.ForgetUnloadedRoomEnemies();
@@ -995,12 +983,11 @@ internal sealed class RoomLoader
         EnemyRoomEffects.StartEnemyGlows(enemies.LastEnemyFrame, effectSite);
         // Only the statue room, whose setup composed the statues' room and whose enemies built the statues over it, has their
         // sequence (#2287, #2485, #2486).
-        scope.TourianStatues = scope.TourianStatueRoom is { } statueRoom
+        TourianStatueSequence? tourianStatues = enemies.TourianStatue is { } statues
             ? new TourianStatueSequence(_tourianStatueDependencies, new TourianStatueSequenceRoom
             {
-                StatueRoom = statueRoom,
-                Statue = enemies.TourianStatue ?? throw new InvalidOperationException(
-                    "The statue room's enemies built no statues over the statue room."),
+                StatueRoom = statues.Room,
+                Statue = statues.Actors,
                 Level = assets.LevelData,
                 Scrolls = destinationCamera.Scrolls,
                 ArtworkFrames = scope.ArtworkFrames,
@@ -1011,17 +998,12 @@ internal sealed class RoomLoader
             })
             : null;
 
+        _room.Adopt(scope.Complete(blockAnimations, roomFxOverlay, roomColourEffects, projectiles, roomObjects, enemies,
+            tourianStatues));
+        // The door transition never redraws the destination's whole viewport: the source screen stays visible while the
+        // opening scroll moves the destination in around it.
         if (viewportLoadMode == RoomViewportLoadMode.KeepSourceScreenWhileScrollingIn)
-        {
-            // The door transition never redraws the destination's whole viewport: the source screen stays
-            // visible while the opening scroll moves the destination in around it.
-            _sourceViewForDoorOpening = doorOpeningSourceView;
-            _room.Adopt(scope.Complete());
             return;
-        }
-
-        _room.Adopt(scope.Complete());
-        _sourceViewForDoorOpening = null;
         _backgroundScroll.ForegroundPosition = destinationCamera.PixelPosition;
         _backgroundScroll.CalculateScrolls();
     }
@@ -1097,8 +1079,8 @@ internal sealed class RoomLoader
     public void InitializeCeresStartSamus()
     {
         SelectedRoom room = _room.LoadedRoom;
-        LoadStation station = _room.ActiveLoadStation
-            ?? throw new InvalidOperationException("The starting Ceres room must be loaded from its load station before Samus setup.");
+        // The Ceres start's room is the one its station loads (InitializeStartingCeresRoom).
+        LoadStation station = LoadStationDefinitions.CeresElevator;
 
         SamusState samus = InitializeSamus();
         samus.Pose = SamusPoseId.ForwardFacingPowerSuitPose;
@@ -1129,7 +1111,7 @@ internal sealed class RoomLoader
     /// <summary>Returns the active room's geometry.</summary>
     internal ActiveRoomGeometry GetActiveRoomGeometry()
     {
-        SelectedRoom room = _room.ActiveRoom ?? throw new InvalidOperationException("No room is active.");
+        SelectedRoom room = _room.LoadedRoom;
         return new ActiveRoomGeometry(room.Area, room.MapPosition, room.FallingCameraOffset, room.RisingCameraOffset);
     }
 
@@ -1139,7 +1121,7 @@ internal sealed class RoomLoader
     /// </summary>
     private RoomBlockPictureTable SourceScreenPictures()
     {
-        RoomScope scope = _room.Scope ?? throw new InvalidOperationException("A door began with no room loaded.");
+        RoomScope scope = _room.LoadedScope;
         // The elevator shaft's screen is its turning floor, which the door's scroll keeps showing: none of its blocks (#1647).
         if (scope.Room.State.TurningFloor == RoomTurningFloor.ElevatorShaft)
             return RoomBlockPictureTable.NoneDrawn(scope.BlockPictures.Sheet);

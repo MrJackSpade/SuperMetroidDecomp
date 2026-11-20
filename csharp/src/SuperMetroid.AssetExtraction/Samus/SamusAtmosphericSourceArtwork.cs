@@ -28,7 +28,20 @@ public sealed class SamusAtmosphericSourceArtwork
             throw new InvalidDataException("Samus atmospheric small-OBJ lists must each contain four frames.");
         TypeOne = [.. typeOne];
         SharedTypeFour = [.. sharedTypeFour];
+        listsByType = new Dictionary<int, IReadOnlyList<SpritePart>>
+        {
+            [SamusAtmosphericArtworkDefinitions.FootstepType] = TypeOne,
+            [SamusAtmosphericArtworkDefinitions.LavaDustType] = SharedTypeFour,
+            [SamusAtmosphericArtworkDefinitions.SharedLavaDustType] = SharedTypeFour,
+            [SamusAtmosphericArtworkDefinitions.LastSharedLavaDustType] = SharedTypeFour,
+        };
     }
+
+    /// <summary>
+    /// The appearance list each native type with one draws: type one the footsteps', types four, six and seven the shared
+    /// lava and dust list.
+    /// </summary>
+    private readonly IReadOnlyDictionary<int, IReadOnlyList<SpritePart>> listsByType;
 
     /// <summary>SHA-256 of both selected atmospheric appearance lists.</summary>
     /// <remarks>
@@ -57,12 +70,13 @@ public sealed class SamusAtmosphericSourceArtwork
     /// <returns>True for a supported type and frame; false otherwise without reading cartridge or mutable memory.</returns>
     public bool TryResolve(int type, int frame, out SpritePart attributes)
     {
-        if (type is not (1 or 4 or 6 or 7) || frame < 0 || frame >= SamusAtmosphericArtworkDefinitions.DirectAtmosphericFrameCount)
+        if (!listsByType.TryGetValue(type, out IReadOnlyList<SpritePart>? list) || frame < 0 ||
+            frame >= SamusAtmosphericArtworkDefinitions.DirectAtmosphericFrameCount)
         {
             attributes = default;
             return false;
         }
-        attributes = (type == 1 ? TypeOne : SharedTypeFour)[frame];
+        attributes = list[frame];
         return true;
     }
 }

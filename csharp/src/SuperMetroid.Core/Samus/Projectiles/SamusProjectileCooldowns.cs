@@ -21,7 +21,7 @@ internal static class SamusProjectileCooldowns
             throw new InvalidDataException($"{beams} pairs Spazer with Plasma, whose cooldowns are not authored.");
         return shot switch
         {
-            BeamShotCooldowns.Shot.Uncharged => beams == SamusBeamCombination.PlasmaIce ? PlasmaIceUnchargedShot : UnchargedShot,
+            BeamShotCooldowns.Shot.Uncharged => UnchargedShots[beams],
             BeamShotCooldowns.Shot.Charged => ChargedShot,
             BeamShotCooldowns.Shot.HeldFire => HeldFireShot,
             _ => throw new ArgumentOutOfRangeException(nameof(shot), shot, "Undefined beam shot."),

@@ -17,12 +17,6 @@ internal static class SamusAtmosphereSheetComposer
             .Concat(SamusAtmosphereSheetDefinitions.DivingSplash).Concat(SamusAtmosphereSheetDefinitions.Bubbles)
             .Select(SamusAtmosphereSheetDefinitions.FrameName);
 
-    /// <summary>The cartridge's number of the atmospheric type whose list the footstep splash draws.</summary>
-    private const int FootstepType = 1;
-
-    /// <summary>The cartridge's number of the atmospheric type whose shared list the lava spray and dust draw.</summary>
-    private const int LavaAndDustType = 4;
-
     /// <summary>What the atmosphere sheet composes with the body's spritemaps and atmospheric attributes.</summary>
     internal static SpriteSheetSources Sources(SamusSheetInputs inputs) =>
         Sources(inputs, Ensure.NotNull(inputs).SamusBody.Body.Spritemaps, inputs.SamusBody.Body.Atmosphere);
@@ -38,8 +32,8 @@ internal static class SamusAtmosphereSheetComposer
         // Each effect's pictures stand in the cartridge's order of its frames and spritemaps.
         for (int frame = 0; frame < SamusAtmosphericArtworkDefinitions.DirectAtmosphericFrameCount; frame++)
         {
-            frames.Add(Direct(inputs, atmosphere, SamusAtmosphereSheetDefinitions.FrameName(SamusAtmosphereSheetDefinitions.FootstepSplash[frame]), FootstepType, frame));
-            frames.Add(Direct(inputs, atmosphere, SamusAtmosphereSheetDefinitions.FrameName(SamusAtmosphereSheetDefinitions.LavaAndDust[frame]), LavaAndDustType, frame));
+            frames.Add(Direct(inputs, atmosphere, SamusAtmosphereSheetDefinitions.FrameName(SamusAtmosphereSheetDefinitions.FootstepSplash[frame]), SamusAtmosphericArtworkDefinitions.FootstepType, frame));
+            frames.Add(Direct(inputs, atmosphere, SamusAtmosphereSheetDefinitions.FrameName(SamusAtmosphereSheetDefinitions.LavaAndDust[frame]), SamusAtmosphericArtworkDefinitions.LavaDustType, frame));
         }
         for (int frame = 0; frame < SamusAtmosphereSheetDefinitions.DivingSplash.Count; frame++)
         {

@@ -25,19 +25,11 @@ public static class BeamTileAtlasDefinitions
 
     /// <summary>The artwork-catalog ordinal of a combination's sheet: the inverse of <see cref="SelectionAt"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The combination has no artwork.</exception>
-    public static int ArtworkOrdinal(SamusBeamCombination selection) => selection switch
-    {
-        SuperMetroid.Core.Samus.Projectiles.ChainsawBeamGraphicsDefinitions.Selection => SelectionCount,
-        SuperMetroid.Core.Samus.Projectiles.SpacetimeBeamGraphicsDefinitions.Selection => SelectionCount + 1,
-        SamusBeamCombination.SpazerPlasma or SamusBeamCombination.SpazerPlasmaIceWave =>
-            throw new ArgumentOutOfRangeException(nameof(selection), selection, "Beam combination has no artwork."),
-        SamusBeamCombination.Power or SamusBeamCombination.Wave or SamusBeamCombination.Ice or
-            SamusBeamCombination.IceWave or SamusBeamCombination.Spazer or SamusBeamCombination.SpazerWave or
-            SamusBeamCombination.SpazerIce or SamusBeamCombination.SpazerIceWave or SamusBeamCombination.Plasma or
-            SamusBeamCombination.PlasmaWave or SamusBeamCombination.PlasmaIce or
-            SamusBeamCombination.PlasmaIceWave => selection.TableIndex,
-        _ => throw new ArgumentOutOfRangeException(nameof(selection), selection, "Undefined beam combination."),
-    };
+    public static int ArtworkOrdinal(SamusBeamCombination selection) => Ensure.Listed(ArtworkOrdinals, selection);
+
+    /// <summary>Each combination with artwork's artwork-catalog ordinal: the inverse of <see cref="SelectionAt"/>.</summary>
+    private static readonly IReadOnlyDictionary<SamusBeamCombination, int> ArtworkOrdinals =
+        Enumerable.Range(0, SelectionCount + 2).ToDictionary(SelectionAt);
 
     /// <summary>Creates a selection-keyed PNG filename, retaining separately editable combination identities even where native combinations share the same source sheet.</summary>
     /// <param name="selection">Native beam identity $00..$0B, Chainsaw $0D, or SpaceTime $0E; not an artwork-catalog ordinal.</param>

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
@@ -10,6 +11,6 @@ public static class CrateriaLightningPaletteFxColorDefinitions
     public static CrateriaLightningPaletteFxColorDefinition Surface { get; } =
         new()
         {
-            ColorFrames = new(FirstRecord: 344, FrameCount: 12 + 1, ColorsPerFrame: 8),
+            ColorFrames = PaletteFxColorFrames.Of(ColourEffectId.CrateriaLightning, 8),
         };
 }

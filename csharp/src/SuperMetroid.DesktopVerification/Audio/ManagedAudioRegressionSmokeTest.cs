@@ -189,11 +189,11 @@ public static class ManagedAudioRegressionSmokeTest
             else if (frame == 270)
             {
                 // The driver's pause and resume are no game request; write them to the emulated driver directly.
-                engine.PlayerForVerification.WriteMusicPort((byte)MusicPortCommand.Pause);
+                engine.PlayerForVerification.WriteMusicPort(MusicPortCommands.Encode(MusicPortCommand.Pause));
             }
             else if (frame == 330)
             {
-                engine.PlayerForVerification.WriteMusicPort((byte)MusicPortCommand.Resume);
+                engine.PlayerForVerification.WriteMusicPort(MusicPortCommands.Encode(MusicPortCommand.Resume));
             }
             else if (frame == 390)
             {

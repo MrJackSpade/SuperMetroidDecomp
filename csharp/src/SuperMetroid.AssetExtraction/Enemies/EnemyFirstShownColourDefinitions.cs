@@ -48,22 +48,22 @@ internal static class EnemyFirstShownColourDefinitions
         [
             RidleyShades.CeresStart,
             RidleyShades.CeresHidden,
-            RidleyShades.Fade(RidleyFadeDefinitions.EyeFade.Images[^1]),
-            RidleyShades.Fade(RidleyFadeDefinitions.BodyFade.Images[^1]),
+            RidleyShades.Fade(RidleyFadeDefinitions.EyeFade.End),
+            RidleyShades.Fade(RidleyFadeDefinitions.BodyFade.End),
         ],
         [EnemyDefinitionId.Ridley] =
         [
             RidleyShades.NorfairStart,
             RidleyShades.NorfairHidden,
-            RidleyShades.Fade(RidleyFadeDefinitions.EyeFade.Images[^1]),
-            RidleyShades.Fade(RidleyFadeDefinitions.BodyFade.Images[^1]),
+            RidleyShades.Fade(RidleyFadeDefinitions.EyeFade.End),
+            RidleyShades.Fade(RidleyFadeDefinitions.BodyFade.End),
         ],
         [EnemyDefinitionId.RidleyBreakupPiece] =
         [
             RidleyShades.NorfairStart,
             RidleyShades.NorfairHidden,
-            RidleyShades.Fade(RidleyFadeDefinitions.EyeFade.Images[^1]),
-            RidleyShades.Fade(RidleyFadeDefinitions.BodyFade.Images[^1]),
+            RidleyShades.Fade(RidleyFadeDefinitions.EyeFade.End),
+            RidleyShades.Fade(RidleyFadeDefinitions.BodyFade.End),
         ],
         [EnemyDefinitionId.TourianStatue] = [TourianStatueShades.Entrance],
         [EnemyDefinitionId.BombTorizo] = [TorizoShades.Shared, TorizoShades.Body(new TorizoLook(TorizoLookKind.BombStatue))],

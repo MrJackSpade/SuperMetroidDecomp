@@ -164,7 +164,7 @@ internal sealed class SpcDefinitionUploads
 
         _music.musicPortToSnes = 0;
         // The music latch reads empty after an upload; the port model resets the sound-effect latches.
-        _music.musicInputLatch = (byte)MusicPortCommand.None;
+        _music.musicInputLatch = MusicPortCommands.Encode(MusicPortCommand.None);
         _music.musicTopLevelPointer = _voices.ReadWord(SpcDriverDefinitions.Ram.DefaultMusicPointer);
         _music.counter = SpcDriverDefinitions.Music.TrackStartupTicks;
         _voices.keyOff = _voices.keyOff | unchecked((byte)~_voices.channelOnMask);

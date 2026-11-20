@@ -456,10 +456,10 @@ internal sealed class SpcMusicSequencer
     internal void HandleMusicCommand()
     {
         int command = musicInputLatch;
-        musicInputLatch = (int)MusicPortCommand.None;
-        if (Enum.IsDefined((MusicPortCommand)command))
+        musicInputLatch = MusicPortCommands.Encode(MusicPortCommand.None);
+        if (MusicPortCommands.TryDecode(command, out MusicPortCommand control))
         {
-            switch ((MusicPortCommand)command)
+            switch (control)
             {
                 case MusicPortCommand.Pause:
                     _voices.keyOff = _voices.keyOff | unchecked((byte)~_voices.channelOnMask);

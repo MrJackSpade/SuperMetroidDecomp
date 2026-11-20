@@ -395,15 +395,10 @@ internal static class SpcMusicDefinitionCodec
     /// <summary>Distinguishes pitched notes, tie, rest, and percussion in the note opcode range.</summary>
     private static AudioMusicInstructionKind NoteKind(int opcode)
     {
-        if (Enum.IsDefined((NoteCommand)opcode))
-        {
-            return (NoteCommand)opcode switch
-            {
-                NoteCommand.Tie => AudioMusicInstructionKind.Tie,
-                NoteCommand.Rest => AudioMusicInstructionKind.Rest,
-                _ => throw new InvalidOperationException($"Undefined {nameof(NoteCommand)} {opcode:X2}."),
-            };
-        }
+        if (opcode == SpcDriverDefinitions.Music.TieNote)
+            return AudioMusicInstructionKind.Tie;
+        if (opcode == SpcDriverDefinitions.Music.RestNote)
+            return AudioMusicInstructionKind.Rest;
         return opcode >= SpcDriverDefinitions.Music.FirstPercussionNote
             ? AudioMusicInstructionKind.Percussion
             : AudioMusicInstructionKind.Note;
@@ -462,13 +457,6 @@ internal static class SpcMusicDefinitionCodec
     private sealed record DecodedProgram(int ByteCapacity, IReadOnlyList<AudioMusicInstructionMetadata> Instructions);
 
     /// <summary>The two note-range bytes that are not pitches: tie and rest. Pitches and percussion stay numeric.</summary>
-    private enum NoteCommand : byte
-    {
-        /// <summary>Extends the previous note.</summary>
-        Tie = SpcDriverDefinitions.Music.TieNote,
-        /// <summary>Silences the track for the note duration.</summary>
-        Rest = SpcDriverDefinitions.Music.RestNote,
-    }
 
     /// <summary>Allows at most two nonzero timing bytes below the SPC command marker.</summary>
     private static void ValidateTiming(string id, IReadOnlyList<byte> timing)

@@ -1,5 +1,4 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 

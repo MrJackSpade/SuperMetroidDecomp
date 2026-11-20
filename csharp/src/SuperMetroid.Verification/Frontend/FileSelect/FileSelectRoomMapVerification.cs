@@ -158,8 +158,10 @@ internal static class FileSelectRoomMapVerification
         var bus = new TestAddressSpace();
         var options = new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase };
         var arrows = new Dictionary<string, MapArrowEntry>();
-        foreach (MapScrollDirection direction in new[] { MapScrollDirection.Left, MapScrollDirection.Right, MapScrollDirection.Up, MapScrollDirection.Down })
-            arrows[direction.ToString()] = new() { X = 32 + ((int)direction - 1) * 24, Y = 79 };
+        // The fixture's arrows stand 24 pixels apart from the left one at 32, in the order their directions are listed.
+        MapScrollDirection[] arrowOrder = [MapScrollDirection.Left, MapScrollDirection.Right, MapScrollDirection.Up, MapScrollDirection.Down];
+        for (int arrow = 0; arrow < arrowOrder.Length; arrow++)
+            arrows[arrowOrder[arrow].ToString()] = new() { X = 32 + arrow * 24, Y = 79 };
         using var arrowJson = new MemoryStream();
         MapArrowFile.Write(arrowJson, new() { Version = MapArrowFormat.Version, Arrows = arrows });
         arrowJson.Position = 0;

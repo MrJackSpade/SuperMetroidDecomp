@@ -414,7 +414,7 @@ internal static class KraidAnimationsVerification
         {
             (RoomEnemySystem enemies, _, _, _) = NewKraid();
             enemies.VerificationServices().ReadRandom = () => 32;
-            enemies.KraidBehavior.Head.SpawnKraidSpitRock(NewRockSource());
+            enemies.KraidBehavior.Head.SpawnKraidSpitRock(NewRockSource(enemies));
             EnemyProjectile rock = enemies.Projectiles.EnemyProjectiles.Single(item => item.IsActive && item.Kind == RoomEnemyProjectileKind.KraidSpitRock);
             rock.StartAnimation(new KraidRockAnimation(enemies.KraidBehavior.Projectiles.SpitRock, program));
             var native = new NativeEnemyProjectileListReader(entry, rock.FrameHold.RawValue);
@@ -439,12 +439,17 @@ internal static class KraidAnimationsVerification
         Console.WriteLine("  Kraid rock programs: the poses and burst match bank $86 every update, with the stopped flight and deletion.");
     }
 
-    /// <summary>A Kraid body position and art for the real rock producers.</summary>
-    private static RoomEnemyPlace NewRockSource() => new(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>())
+    /// <summary>
+    /// A Kraid body position and art for the real rock producers: the first place of <paramref name="enemies"/> past Kraid's
+    /// eight parts, whose registry holds every species a producer's check binds.
+    /// </summary>
+    private static RoomEnemyPlace NewRockSource(RoomEnemySystem enemies)
     {
-        Position = FixedPosition<RoomPixels>.FromWhole(new(128, 224)),
-        Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook,
-    };
+        RoomEnemyPlace source = enemies.Places.InUpdateOrder[8];
+        source.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 224));
+        source.Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook;
+        return source;
+    }
 
     /// <summary>Every real rock producer, and Kago's bug, starts the typed pose its native list starts.</summary>
     private static void VerifyRockProducers()
@@ -452,7 +457,7 @@ internal static class KraidAnimationsVerification
         (RoomEnemySystem enemies, _, _, _) = NewKraid();
         ushort random = 0;
         enemies.VerificationServices().ReadRandom = () => random;
-        RoomEnemyPlace source = NewRockSource();
+        RoomEnemyPlace source = NewRockSource(enemies);
         random = 32;
         enemies.KraidBehavior.Head.SpawnKraidSpitRock(source);
         AssertTrue(enemies.Projectiles.EnemyProjectiles.Any(item => item.IsActive && item.Kind == RoomEnemyProjectileKind.KraidSpitRock),

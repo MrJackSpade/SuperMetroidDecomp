@@ -60,8 +60,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
             // retail population lays them out.
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[2];
             RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-            body.SetSpawnSettings(PlacedBody);
-            body.Bind(EnemyDefinitionId.Evir, body.Definition);
+            body.BindPlaced(EnemyDefinitionId.Evir, PlacedBody);
             var bodyState = new EvirBodyState(spit: place) { Facing = HorizontalDirection.Left };
             body.SetSpeciesState(bodyState);
             // The spit finds its body as production places it, two places after the body.

@@ -32,10 +32,8 @@ internal static class PowampBurstExplosionVerification
         // Occupy every place above the ninth and the first, so the eight spikes take the second through ninth places.
         foreach (int place in Enumerable.Range(0, EnemyProjectileEngine.PlaceCount).Where(place => place is 0 or > 8))
             enemies.Projectiles.Occupy(place, RoomEnemyProjectileKind.DustOrExplosion);
-        var body = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>())
-        {
-            Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112)),
-        };
+        RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
+        body.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112));
         AssertEqual<int?>(1, enemies.PowampBehavior.SpawnPowampSpikeBurst(body.BoundFor(EnemyDefinitionId.Powamp), body, body.Shading), "the burst's last spike takes the second place");
         // Each spike is a new projectile in its place, so the places are read again after the burst (#1590).
         AssertEqual(8, enemies.Projectiles.EnemyProjectiles.Count(slot => slot.Kind == RoomEnemyProjectileKind.PowampSpike), "the burst fires all eight spikes");

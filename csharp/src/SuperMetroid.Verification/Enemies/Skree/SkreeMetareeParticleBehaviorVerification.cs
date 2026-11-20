@@ -24,11 +24,9 @@ internal static class SkreeMetareeParticleBehaviorVerification
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, SkreeMetareeParticleNativeListAddresses.Extent, "Skree/Metaree particle");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        var source = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>())
-        {
-            Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
-            Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook,
-        };
+        RoomEnemyPlace source = enemies.Places.InUpdateOrder[0];
+        source.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96));
+        source.Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook;
         foreach ((Action<RoomEnemyPlace> spawn, SkreeMetareeParticleSegment program) in new VerifySkreeMetareeParticleBehaviorCase[]
                  {
                      new VerifySkreeMetareeParticleBehaviorCase(place => SkreeMetareeParticles.SpawnBurst(enemies.Projectiles, place.BoundFor(EnemyDefinitionId.Skree), place, SkreeMetareeParticleSegment.Skree), SkreeMetareeParticleSegment.Skree),

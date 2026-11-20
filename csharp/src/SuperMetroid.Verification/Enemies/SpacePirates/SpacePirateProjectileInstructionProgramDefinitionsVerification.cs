@@ -119,7 +119,7 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
 
         RoomEnemySystem deleteSystem = NewSystem();
         RoomEnemyPlace deleteSource = deleteSystem.Places.InUpdateOrder[0];
-        deleteSystem.NinjaSpacePirateBehavior.SpawnNinjaPirateClaw(deleteSource.HeldOccupant(), deleteSource, HorizontalDirection.Left, Offset16<RoomPixels>.Zero);
+        deleteSystem.NinjaSpacePirateBehavior.SpawnNinjaPirateClaw(deleteSource.BoundFor(EnemyDefinitionId.PirateGoldNinja), deleteSource, HorizontalDirection.Left, Offset16<RoomPixels>.Zero);
         EnemyProjectile deleting = deleteSystem.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.PirateClaw);
         deleting.StartAnimation(EnemyProjectileDeleteAnimation.Instance);

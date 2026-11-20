@@ -41,11 +41,9 @@ internal static class FakeKraidProjectileInstructionProgramDefinitionsVerificati
                 FakeKraidProjectileInstructionProgramDefinitionsTooling.PresentationWordAddress);
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
 
-        var source = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>())
-        {
-            Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112)),
-            Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook,
-        };
+        RoomEnemyPlace source = enemies.Places.InUpdateOrder[0];
+        source.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112));
+        source.Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook;
         var state = new FakeKraidEnemyState();
 
         enemies.FakeKraidBehavior.SpawnFakeKraidSpit(source.BoundFor(EnemyDefinitionId.FakeKraid), source, 12, new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(384), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-512)));

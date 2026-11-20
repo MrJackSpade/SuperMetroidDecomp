@@ -26,11 +26,9 @@ internal static class PolypRockBehaviorVerification
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, PolypRockNativeListAddresses.Extent, "Polyp-rock");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        var source = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>())
-        {
-            Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112)),
-            Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook,
-        };
+        RoomEnemyPlace source = enemies.Places.InUpdateOrder[0];
+        source.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112));
+        source.Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook;
         enemies.PolypBehavior.SpawnPolypRock(source.BoundFor(EnemyDefinitionId.Polyp), source, QuadraticSpeedCurvePlace.FromMarks(16), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-256));
         EnemyProjectile rock = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.Kind == RoomEnemyProjectileKind.PolypRock);
         AssertTrue(rock.Animation is PolypRockAnimation { PlayingSegment: PolypRockSegment.LavaRock }, "a spawned rock starts its typed program");

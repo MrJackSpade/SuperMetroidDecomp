@@ -16,7 +16,6 @@ internal static class EndingRewardCast
     });
 
     /// <summary>The idle actors the credits' end spawns for <paramref name="reward"/>, in spawn order.</summary>
-    /// <exception cref="InvalidOperationException">The reward is undefined.</exception>
     internal static IReadOnlyList<EndingSpriteDefinition> Idle(EndingReward reward) => IdleByReward[reward];
 
     /// <summary>The gesture of each reward.</summary>
@@ -28,7 +27,6 @@ internal static class EndingRewardCast
     });
 
     /// <summary>The gesture actors <paramref name="reward"/> spawns, in allocation order: the suited head first, then body and arm.</summary>
-    /// <exception cref="InvalidOperationException">The reward is undefined.</exception>
     internal static IReadOnlyList<EndingRewardActor> Gesture(EndingReward reward) => GestureByReward[reward];
 
     /// <summary>The jump head of each reward.</summary>
@@ -40,7 +38,6 @@ internal static class EndingRewardCast
     });
 
     /// <summary>The jump's head actor for <paramref name="reward"/>: none for the suitless reward, whose body carries its head.</summary>
-    /// <exception cref="InvalidOperationException">The reward is undefined.</exception>
     internal static EndingRewardActor? JumpHead(EndingReward reward) => JumpHeadByReward[reward];
 
     /// <summary>The jump body of each reward.</summary>
@@ -52,6 +49,5 @@ internal static class EndingRewardCast
     });
 
     /// <summary>The jump's body actor for <paramref name="reward"/>.</summary>
-    /// <exception cref="InvalidOperationException">The reward is undefined.</exception>
     internal static EndingRewardActor JumpBody(EndingReward reward) => JumpBodyByReward[reward];
 }

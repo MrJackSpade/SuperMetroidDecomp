@@ -36,7 +36,6 @@ internal static class FileSelectItemRows
     });
 
     /// <summary>The item that selects <paramref name="slot"/>.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The slot is not one of the three save slots.</exception>
     internal static FileSelectItem ForSaveSlot(SaveSlot slot) => ForSaveSlotBySlot[slot];
 
     /// <summary>Whether an item selects a save slot, and which.</summary>

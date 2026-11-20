@@ -58,7 +58,6 @@ public static class BlockAnimationLoops
             animation => animation, animation => Animation<BlockAnimation>.Looping([Segments.Whole(animation)]));
 
     /// <summary>The loop of <paramref name="animation"/>: its idle segment, over and over.</summary>
-    /// <exception cref="InvalidOperationException"><paramref name="animation"/> is undefined or has no loop.</exception>
     internal static Animation<BlockAnimation> Idle(BlockAnimation animation) => IdleAnimations[Require(animation)];
 
     /// <summary>Starts playing the loop of <paramref name="animation"/>, showing nothing until its first pass shows its first frame.</summary>

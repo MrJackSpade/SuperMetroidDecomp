@@ -116,12 +116,13 @@ public static class XrayRevealMap
     public static Position16<RoomPixels> OriginOf(Position16<RoomPixels> foregroundPosition) =>
         foregroundPosition.ToRoomBlock().ToRoomPixels();
 
-    /// <summary>The mirrored of each flips.</summary>
+    /// <summary>How a revealed block lays out its picture under each of the room's mirrorings.</summary>
     private static IdentityTable<BlockMirroring, RevealedBlockArrangement> MirroredByFlips => field ??= new(new Dictionary<BlockMirroring, RevealedBlockArrangement>
     {
         [BlockMirroring.None] = RevealedBlockArrangement.AsDefined,
         [BlockMirroring.Horizontal] = RevealedBlockArrangement.MirroredHorizontally,
-        [BlockMirroring.Vertical] = RevealedBlockArrangement.MirroredVertically, BlockMirroring.Horizontal | BlockMirroring.Vertical => RevealedBlockArrangement.MirroredBoth,
+        [BlockMirroring.Vertical] = RevealedBlockArrangement.MirroredVertically,
+        [BlockMirroring.Both] = RevealedBlockArrangement.MirroredBoth,
     });
 
     /// <summary>How a revealed block lays out its picture: mirrored as the room mirrors it.</summary>

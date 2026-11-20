@@ -100,6 +100,5 @@ internal sealed class KraidBodyLayer : IBossBodyDisplay
     /// The depth <paramref name="appearance"/> draws his body and the head it rises with at (#1634): behind the sprites as he
     /// rises and fights small, in front of them once he has grown; null while his body is hidden.
     /// </summary>
-    /// <exception cref="InvalidDataException"><paramref name="appearance"/> is undefined.</exception>
     internal static BossBodyDepth? DepthOf(KraidBodyAppearance appearance) => DepthByAppearance[appearance];
 }

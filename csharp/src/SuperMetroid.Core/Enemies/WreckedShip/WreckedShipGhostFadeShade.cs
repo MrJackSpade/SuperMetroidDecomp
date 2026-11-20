@@ -22,6 +22,5 @@ internal static class WreckedShipGhostFadeShade
     });
 
     /// <summary>The name the import gives <paramref name="change"/>'s shades.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="change"/> is not a defined effect.</exception>
     private static string EffectName(WreckedShipGhostFade.Effect change) => EffectNameByChange[change];
 }

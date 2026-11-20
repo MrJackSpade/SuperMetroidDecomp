@@ -27,6 +27,5 @@ public static class GameplayActions
     });
 
     /// <summary>The gameplay action a configurable <paramref name="action"/> asks for.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="action"/> is not a defined action.</exception>
     public static GameplayAction Of(ControllerAction action) => ValueByAction[action];
 }

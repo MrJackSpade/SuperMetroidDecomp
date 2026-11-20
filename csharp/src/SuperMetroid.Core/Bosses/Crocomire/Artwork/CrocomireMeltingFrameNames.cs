@@ -18,6 +18,5 @@ internal static class CrocomireMeltingFrameNames
         });
 
     /// <summary>The body sheet frame of melt image <paramref name="illustration"/> before its dissolve erases any column.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="illustration"/> is no melt image.</exception>
     internal static string Of(CrocomireMeltingIllustration illustration) => Keys[illustration];
 }

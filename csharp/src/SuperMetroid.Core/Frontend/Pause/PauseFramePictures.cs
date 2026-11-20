@@ -34,6 +34,5 @@ internal static class PauseFramePictures
     });
 
     /// <summary>The side label <paramref name="highlight"/> lights beside Exit, which every highlight lights; none while unpausing.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The highlight is undefined.</exception>
     private static PauseButtonLabel? LitSide(PauseButtonHighlight highlight) => LitSideByHighlight[highlight];
 }

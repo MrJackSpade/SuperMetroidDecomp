@@ -187,7 +187,25 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// (#1546). A tide can carry the surface above the room's top, to a negative line, which every reader treats as no
     /// surface, as the game's below-zero check does.
     /// </summary>
-    public int? Surface { get; private set; }
+    public int? Surface
+    {
+        get => LiquidSurface?.Line;
+        private set
+        {
+            if (value is not int line)
+                LiquidSurface = null;
+            else if (LiquidSurface is { } held)
+                held.Line = line;
+            else
+                LiquidSurface = new RoomLiquidSurface(line);
+        }
+    }
+
+    /// <summary>
+    /// The live liquid surface while the effect has one (#2554): one surface for as long as it lasts, which a reader that
+    /// needs a surface, the statue room's, holds; null while the liquid has none.
+    /// </summary>
+    internal RoomLiquidSurface? LiquidSurface { get; private set; }
 
     /// <summary>
     /// The liquid the room effect fills the room with, as room objects have since changed it, or null for an effect with no

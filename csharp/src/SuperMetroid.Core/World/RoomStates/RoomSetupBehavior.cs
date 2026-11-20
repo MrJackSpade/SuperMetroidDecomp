@@ -151,14 +151,18 @@ public abstract class RoomSetupBehavior
     }
 
     /// <summary>
-    /// The statue room's setup, which starts the statues' unlocking: it composes their room, whose statues' enemies take it
-    /// and whose sequence the room's load builds once its enemies are in (#2287, #2382).
+    /// The statue room's setup, which starts the statues' unlocking: it composes their room over its effect's water, whose
+    /// statues' enemies take it and whose sequence the room's load builds once its enemies are in (#2287, #2382, #2554). A
+    /// room whose effect has no water has no statue room to compose, and its statues have no owner to build them.
     /// </summary>
     private sealed class StatueUnlockingSetup() : RoomSetupBehavior(nameof(RunStatueUnlockingAnimations))
     {
         /// <inheritdoc/>
-        internal override void Compose(RoomSetupComposition composition) =>
-            Ensure.NotNull(composition).Scope.ComposeTourianStatueRoom(composition.FxOverlay);
+        internal override void Compose(RoomSetupComposition composition)
+        {
+            if (Ensure.NotNull(composition).FxOverlay.LiquidSurface is { } water)
+                composition.Scope.ComposeTourianStatueRoom(water);
+        }
     }
 
     /// <summary>An escape room's setup that starts its quake once the room's enemies are loaded.</summary>

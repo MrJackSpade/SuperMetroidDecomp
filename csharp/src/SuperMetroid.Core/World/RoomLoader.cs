@@ -747,7 +747,7 @@ internal sealed class RoomLoader
         // authoritative producer. Every other door shows the ordinary display, so stale rotating-view math cannot leak
         // across rooms. The display shows it from the next frame boundary, which alone latches the display (#2498), like
         // every later floor change; the screen is dark while the door loads.
-        door.Setup.RoomEvent.Compose(scope);
+        DoorRoomEvent composedEvent = door.Setup.RoomEvent.Compose(scope);
         _display.ActiveTurningFloor = scope.ShownTurningFloor;
         ScrollBoundaryCamera? previousCamera = carryOver.PreviousCamera;
         if (viewportLoadMode == RoomViewportLoadMode.KeepSourceScreenWhileScrollingIn)
@@ -878,7 +878,7 @@ internal sealed class RoomLoader
             Samus = roomObjectSamus,
             Bosses = progress,
             Events = progress,
-            TourianStatue = scope.TourianStatueRoom,
+            TourianStatue = scope.TourianStatueRoom is { } statueRoom ? new GreyDoorStatue.InStatueRoom(statueRoom) : new GreyDoorStatue.Absent(),
             RoomFx = new RoomObjectFx(roomFxOverlay, () => _player.Samus),
             Earthquake = roomObjectServices,
             Enemies = roomObjectServices,
@@ -894,13 +894,12 @@ internal sealed class RoomLoader
         // The door's setup runs after the destination's room objects exist and before its enemies and first view are
         // set up. Several setups change which of the room's screens scroll, and the first view already stands within
         // those limits.
-        door.Setup.Run(destinationCamera.Scrolls, new DoorSetupRoom
+        door.Setup.Run(destinationCamera.Scrolls, composedEvent, new DoorSetupRoom
         {
             Level = assets.LevelData,
             Area = room.Area,
             RoomObjects = roomObjects,
             BlockAnimations = blockAnimations,
-            Scope = scope,
             Samus = loadingSamus,
             Display = _display,
             System = _system,

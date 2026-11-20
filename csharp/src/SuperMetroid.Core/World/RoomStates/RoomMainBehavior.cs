@@ -107,11 +107,18 @@ public abstract class RoomMainBehavior
         internal override void Compose(RoomScopeConstruction scope) => Ensure.NotNull(scope).ComposeEscapeMain(site, diagonal);
     }
 
-    /// <summary>The Maridia elevatube's ride, which the tube's doors start.</summary>
+    /// <summary>
+    /// The Maridia elevatube's ride, composed only when the room is entered through one of the tube's entry doors, whose room
+    /// event composes the ride and starts it (#2554); entered otherwise the tube never rides.
+    /// </summary>
     private sealed class MaridiaElevatubeRoomMain() : RoomMainBehavior(nameof(MaridiaElevatube))
     {
         /// <inheritdoc/>
-        internal override void Compose(RoomScopeConstruction scope) => Ensure.NotNull(scope).ComposeElevatubeMain();
+        internal override void Compose(RoomScopeConstruction scope)
+        {
+            if (Ensure.NotNull(scope).MaridiaElevatube is { } tube)
+                scope.ComposeElevatubeMain(tube);
+        }
     }
 
     /// <summary>

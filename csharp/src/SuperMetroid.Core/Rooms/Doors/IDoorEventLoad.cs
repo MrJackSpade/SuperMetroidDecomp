@@ -11,4 +11,7 @@ internal interface IDoorEventLoad
     /// turn there, holding level before its first tilt.
     /// </summary>
     void ShowShaftLevelAndStartTurn();
+
+    /// <summary>Composes the elevatube's ride, which the room's main runs and the entry door starts (#2554).</summary>
+    IElevatubeRide ComposeElevatubeRide();
 }

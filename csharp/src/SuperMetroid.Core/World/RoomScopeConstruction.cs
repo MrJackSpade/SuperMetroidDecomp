@@ -92,7 +92,7 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
     /// <summary>The room's main, once the definition step has composed the one its state names.</summary>
     public IRoomMain? Main { get; private set; }
 
-    /// <summary>The elevatube's ride, once the definition step has composed the elevatube's main.</summary>
+    /// <summary>The elevatube's ride, once the tube's entry door has composed it (#2554).</summary>
     public MaridiaElevatubeRoomMainState? MaridiaElevatube { get; private set; }
 
     /// <summary>The Ceres elevator shaft's turn, once the elevator door's room event has started it (#2485).</summary>
@@ -122,12 +122,16 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
         Main = new EscapeShakingMain(site,
             diagonal is { } shaking ? new EscapeDiagonalQuake(shaking, _handOvers.EscapeQuake) : null);
 
-    /// <summary>Composes the Maridia elevatube's main and its ride, which the tube's doors start (#2287).</summary>
-    internal void ComposeElevatubeMain()
+    /// <summary>Composes the Maridia elevatube's main over the ride its entry door composed (#2287, #2554).</summary>
+    /// <param name="tube">The tube's ride.</param>
+    internal void ComposeElevatubeMain(MaridiaElevatubeRoomMainState tube) => Main = new MaridiaElevatubeMain(tube);
+
+    /// <inheritdoc/>
+    public IElevatubeRide ComposeElevatubeRide()
     {
         var tube = new MaridiaElevatubeRoomMainState(_handOvers.ElevatubeFraction);
         MaridiaElevatube = tube;
-        Main = new MaridiaElevatubeMain(tube);
+        return tube;
     }
 
     /// <summary>Composes the Ceres elevator shaft's main over the turn its elevator door's room event started (#2287, #2485).</summary>
@@ -158,7 +162,7 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
 
     /// <summary>Composes the Tourian statues' room the statue room's setup builds over the room's effect (#2485).</summary>
     /// <param name="fxOverlay">The room's effect, whose water the statues' particles splash through.</param>
-    internal void ComposeTourianStatueRoom(RoomFxOverlayState fxOverlay) => TourianStatueRoom = new TourianStatueRoom(fxOverlay);
+    internal void ComposeTourianStatueRoom(RoomLiquidSurface water) => TourianStatueRoom = new TourianStatueRoom(water);
 
     /// <summary>Composes the Ceres pre-elevator hall's main and its debris countdown, carried from the previous room's main (#2287).</summary>
     internal void ComposeFallingDebrisMain() =>
@@ -198,7 +202,9 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
         // Only a library background the player sees as its own picture has one installed (#1649).
         BackgroundImage = RoomLibraryBackgroundPicture.Of(Room.State.Background, background => new RoomBackgroundImageResolver(
             Assets.Pictures.Background(background, background.PictureDoor(Door), Assets.Tileset), Assets.BlockSheet)),
-        WrittenPictures = Assets.Pictures.Written.TryGetValue(Assets.Tileset, out WrittenPictureSheet? written) ? new WrittenPictureResolver(written) : null,
+        WrittenPictures = Assets.Pictures.Written.TryGetValue(Assets.Tileset, out WrittenPictureSheet? written)
+            ? new RoomWrittenPictures.Sheet(new WrittenPictureResolver(written))
+            : new RoomWrittenPictures.Absent(Room.Definition.Name),
         FxOverlayPictures = new WrittenPictureResolver(Assets.Pictures.FxOverlay(Assets.Tileset)),
         HudPictures = Assets.Pictures.Hud(Assets.Tileset),
         MessageBoxes = Assets.Pictures.MessageBox(Assets.Tileset),

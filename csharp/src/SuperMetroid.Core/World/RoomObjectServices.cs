@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.World;
@@ -10,7 +11,7 @@ namespace SuperMetroid.Core.World;
 /// <see cref="IRoomLiquid.TargetSurface"/>).
 /// </summary>
 [RoomLifetime]
-public sealed record RoomObjectServices
+internal sealed record RoomObjectServices
 {
     /// <summary>Samus as room objects see her.</summary>
     public required IRoomSamusAccess Samus { get; init; }
@@ -22,10 +23,10 @@ public sealed record RoomObjectServices
     public required IStoryEvents Events { get; init; }
 
     /// <summary>
-    /// The statue room's statue, whose finished sinking its grey door waits for; null in every other room, which places no
-    /// cap waiting for it (#2486).
+    /// The room's Tourian statue as its grey caps see it: the statue room's, whose finished sinking its grey door waits for,
+    /// or none in every other room, which places no cap waiting for it (#2486, #2554).
     /// </summary>
-    public ITourianStatueProgress? TourianStatue { get; init; }
+    internal required GreyDoorStatue TourianStatue { get; init; }
 
     /// <summary>The room FX the Speed Booster escape, the n00b tube, collectibles and Tourian's acid trigger drive.</summary>
     public required IRoomObjectFx RoomFx { get; init; }

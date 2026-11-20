@@ -247,9 +247,7 @@ internal sealed class AcceptedFrameBoundary
     /// </summary>
     /// <exception cref="InvalidDataException">A warning shows in a room whose tileset has no installed warning picture sheet.</exception>
     private static ShownRoomWarning? WarningOf(RoomScope scope, RoomWarningText text, RoomAppearanceView appearance, RoomWarningDepth depth) =>
-        text.Pictures.IsEmpty ? null
-            : new ShownRoomWarning((scope.WrittenPictures ?? throw new InvalidDataException(
-                $"{scope.Room.Definition.Name} shows a warning with no installed warning picture sheet.")).Resolve(text, appearance), depth);
+        text.Pictures.IsEmpty ? null : new ShownRoomWarning(scope.WrittenPictures.Resolve(text, appearance), depth);
 
     /// <summary>The pictures of the HUD's images in <paramref name="sheet"/>, the room's HUD picture sheet.</summary>
     private HudPictures HudPicturesIn(SpriteSheet sheet) =>

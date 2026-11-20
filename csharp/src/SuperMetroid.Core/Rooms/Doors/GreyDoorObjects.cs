@@ -16,21 +16,21 @@ internal sealed class GreyDoorObjects
     private readonly SharedGameState _system;
     /// <summary>The room's area.</summary>
     private readonly AreaId _area;
-    /// <summary>The statue room's statue, which a cap waiting for it reads; null in every other room (#2486).</summary>
-    private readonly ITourianStatueProgress? _tourianStatue;
+    /// <summary>The room's Tourian statue as its caps see it (#2486, #2554): the statue room's, or none.</summary>
+    private readonly GreyDoorStatue _tourianStatue;
     /// <summary>Queues the dud sound for shots rejected while the door is locked.</summary>
     private readonly RoomObjectSoundQueue _sounds;
 
     /// <summary>Binds the grey caps' conditions to the room's progression and its sound requests.</summary>
     /// <param name="system">The game's progress, whose bosses and events the caps' locks read.</param>
     /// <param name="area">The room's area, whose bosses the caps wait for.</param>
-    /// <param name="tourianStatue">The statue room's statue, or null in every other room, which places no cap waiting for it.</param>
+    /// <param name="tourianStatue">The room's Tourian statue as its caps see it: the statue room's, or none in every other room.</param>
     /// <param name="sounds">The room objects' sound requests.</param>
-    internal GreyDoorObjects(SharedGameState system, AreaId area, ITourianStatueProgress? tourianStatue, RoomObjectSoundQueue sounds)
+    internal GreyDoorObjects(SharedGameState system, AreaId area, GreyDoorStatue tourianStatue, RoomObjectSoundQueue sounds)
     {
         _system = system;
         _area = area;
-        _tourianStatue = tourianStatue;
+        _tourianStatue = Ensure.NotNull(tourianStatue);
         _sounds = sounds;
     }
 
@@ -49,8 +49,7 @@ internal sealed class GreyDoorObjects
         GreyDoorCondition.AreaTorizoDefeated => new GreyDoorLock.BossDefeated(condition, _system, _area, DefeatedBosses.AreaTorizo),
         GreyDoorCondition.EnemyDeathQuota => new GreyDoorLock.EnemyDeathQuota(_system),
         GreyDoorCondition.Never => new GreyDoorLock.Never(),
-        GreyDoorCondition.TourianStatueFinished => new GreyDoorLock.TourianStatueFinished(_tourianStatue ??
-            throw new InvalidDataException("A grey door waits for the Tourian statue in a room other than the statue room.")),
+        GreyDoorCondition.TourianStatueFinished => _tourianStatue.FinishedLock(),
         GreyDoorCondition.CrittersEscaped => new GreyDoorLock.EventSet(condition, _system, StoryEvent.CrittersEscaped),
         _ => throw new InvalidDataException($"Undefined {nameof(GreyDoorCondition)} {condition}."),
     };

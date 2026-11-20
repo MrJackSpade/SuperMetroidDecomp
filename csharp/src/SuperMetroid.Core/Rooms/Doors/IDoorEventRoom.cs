@@ -6,11 +6,8 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// </summary>
 internal interface IDoorEventRoom
 {
-    /// <summary>
-    /// Starts the elevatube's ride from <paramref name="entry"/>: holds Samus still and gives the tube the starting height,
-    /// speed and acceleration of a ride from that end.
-    /// </summary>
-    void StartElevatubeRide(ElevatubeEntry entry);
+    /// <summary>Holds Samus still for the elevatube's ride.</summary>
+    void HoldSamusStill();
 
     /// <summary>Returns the screen from the turning floor to the ordinary room display.</summary>
     void ShowOrdinaryDisplay();

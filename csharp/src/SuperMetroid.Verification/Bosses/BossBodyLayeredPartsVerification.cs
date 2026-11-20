@@ -50,7 +50,7 @@ internal static class BossBodyLayeredPartsVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
-        var state = new CrocomireEnemyState(enemies.Places.InUpdateOrder[0].HeldOccupant(), enemies.Places.InUpdateOrder[0]);
+        var state = new CrocomireEnemyState(enemies.Places.InUpdateOrder[0].BoundFor(EnemyDefinitionId.Crocomire), enemies.Places.InUpdateOrder[0]);
         state.JoinFixtureTongue(enemies.Places.InUpdateOrder[1]);
         BossBodyCanvasFixtures.AttachCrocomire(enemies, sheets);
         Dictionary<string, BossBodyFrameSource> sources = SourcesOf(frames, BossBodyOwner.Crocomire);

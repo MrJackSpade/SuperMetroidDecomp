@@ -36,7 +36,7 @@ internal static class PowampBurstExplosionVerification
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112)),
         };
-        AssertEqual<int?>(1, enemies.PowampBehavior.SpawnPowampSpikeBurst(body.HeldOccupant(), body, body.Shading), "the burst's last spike takes the second place");
+        AssertEqual<int?>(1, enemies.PowampBehavior.SpawnPowampSpikeBurst(body.BoundFor(EnemyDefinitionId.Powamp), body, body.Shading), "the burst's last spike takes the second place");
         // Each spike is a new projectile in its place, so the places are read again after the burst (#1590).
         AssertEqual(8, enemies.Projectiles.EnemyProjectiles.Count(slot => slot.Kind == RoomEnemyProjectileKind.PowampSpike), "the burst fires all eight spikes");
 

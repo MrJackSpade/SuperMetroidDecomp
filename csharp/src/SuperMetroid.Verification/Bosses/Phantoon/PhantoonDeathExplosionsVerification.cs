@@ -31,7 +31,7 @@ internal static class PhantoonDeathExplosionsVerification
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             var body = enemies.Places.InUpdateOrder[0];
             var tentacles = enemies.Places.InUpdateOrder[2];
-            var state = new PhantoonEnemyState(body.HeldOccupant(), body, enemies.Places.InUpdateOrder[1], tentacles, enemies.Places.InUpdateOrder[3]);
+            var state = new PhantoonEnemyState(body.BoundFor(EnemyDefinitionId.PhantoonBody), body, enemies.Places.InUpdateOrder[1], tentacles, enemies.Places.InUpdateOrder[3]);
             enemies.BeginPhantoonAsSetUp(state);
             Action<RoomEnemyPlace, PhantoonEnemyState> step = enemies.PhantoonBehavior.Death.RunPhantoonDyingExplosions;
             body.Position = body.Position.WithWhole(new(origin, origin));

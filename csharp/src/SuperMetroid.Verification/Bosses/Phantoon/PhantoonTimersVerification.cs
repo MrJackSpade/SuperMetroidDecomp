@@ -23,7 +23,7 @@ internal static class PhantoonTimersVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
         var body = enemies.Places.InUpdateOrder[0];
         var eye = enemies.Places.InUpdateOrder[1];
-        var state = new PhantoonEnemyState(body.HeldOccupant(), body, eye, enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]);
+        var state = new PhantoonEnemyState(body.BoundFor(EnemyDefinitionId.PhantoonBody), body, eye, enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]);
         enemies.BeginPhantoonAsSetUp(state);
         // His initialization shows his body black before any pattern fades it (#1512).
         state.Colours.Show(PhantoonBodyLook.Black);

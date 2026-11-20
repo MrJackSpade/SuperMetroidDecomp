@@ -140,7 +140,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
     private static void Bind(RoomEnemyPlace place, EnemyDefinitionId definition)
     {
         if (definition == EnemyDefinitionId.Evir)
-            place.SetSpawnSettings(PlacedBody);
+            place.BindPlaced(definition, PlacedBody);
         place.Bind(definition, place.Definition);
         place.Bind(place.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
         place.AnimationClock.StepOnNextUpdate();

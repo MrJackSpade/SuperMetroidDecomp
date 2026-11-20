@@ -58,7 +58,7 @@ internal static class PhantoonFlameSpawnsVerification
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             PhantoonPatterns patterns = enemies.PhantoonBehavior.Patterns;
             var body = enemies.Places.InUpdateOrder[0];
-            var phantoon = new PhantoonEnemyState(body.HeldOccupant(), body, enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]);
+            var phantoon = new PhantoonEnemyState(body.BoundFor(EnemyDefinitionId.PhantoonBody), body, enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]);
             body.Position = body.Position.WithWhole(new(origin, origin));
             PhantoonFlameSpawnType type = PhantoonNativeWords.FlameSpawnTypes.Decode(
                 LittleEndianBytes.HighByte(parameter), "Phantoon flame spawn type");

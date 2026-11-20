@@ -148,10 +148,9 @@ internal static class EnemyInstructionOwnerCoverageVerification
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
             // The placement's settings are recorded before the entity is bound, as a room load records them, so a species
             // that places several actors (the Ceres doors and walls) creates the one the placement names (#1953, #1999).
-            place.SetSpawnSettings(population.SpawnSettings);
             try
             {
-                place.Bind(definitionPointer, place.Definition);
+                place.BindPlaced(definitionPointer, population.SpawnSettings);
             }
             catch (InvalidOperationException exception) when (
                 exception.Message.StartsWith("No enemy species owns definition", StringComparison.Ordinal))

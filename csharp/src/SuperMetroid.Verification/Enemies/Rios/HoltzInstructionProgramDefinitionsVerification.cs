@@ -83,7 +83,7 @@ internal static class HoltzInstructionProgramDefinitionsVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.SetSpawnSettings(new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader));
+        place.BindPlaced(EnemyDefinitionId.Holtz, new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader));
         place.Bind(EnemyDefinitionId.Holtz, place.Definition);
         place.Bind(place.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
         place.AnimationClock.StepOnNextUpdate();

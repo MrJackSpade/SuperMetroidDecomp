@@ -66,7 +66,7 @@ internal static class CeresSteamCollisionDefinitionsVerification
         var compiled = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         var nativePlace = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>());
         RoomEnemyPlace compiledPlace = compiled.Places.InUpdateOrder[0];
-        compiledPlace.Bind(compiledPlace.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
+        compiledPlace.Bind(EnemyDefinitionId.CeresSteam, default(RoomEnemyDefinition));
 
         compiledPlace.Bind(EnemyDefinitionId.CeresSteam, compiledPlace.Definition);
         AssertEqual(28, CeresSteamCollisionDefinitionsConstants.FramePointers.Length,

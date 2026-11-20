@@ -35,6 +35,8 @@ internal static class KraidMouthHitboxesVerification
         Func<RoomEnemyPlace, ushort, SamusProjectile, bool> overlaps = CoreAccess.KraidMouthHitboxOverlapsShot;
         var body = enemies.Places.InUpdateOrder[0];
         var shot = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake()).Shots[0];
+        // The tested shot holds its place as an uncharged Power beam, the type the cleared slot word reads as.
+        shot.Occupy(SuperMetroid.Core.Progression.SamusProjectileType.Beam(SuperMetroid.Core.Progression.SamusBeamCombination.Power, charged: false));
         body.Position = body.Position.WithWhole(new(256, 256));
         shot.Radius = new(4, 4);
         for (int entry = 0; entry < 8; entry++)

@@ -5,6 +5,13 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// <summary>Verification set-up of Kraid's encounter for fixtures that place his state without his room's initialization.</summary>
 internal static class KraidPartsAccess
 {
+    /// <summary>Kraid's eight parts in the order his room lists them.</summary>
+    private static readonly EnemyDefinitionId[] PartsInRoomOrder =
+    [
+        EnemyDefinitionId.Kraid, EnemyDefinitionId.KraidArm, EnemyDefinitionId.KraidLintTop, EnemyDefinitionId.KraidLintMiddle,
+        EnemyDefinitionId.KraidLintBottom, EnemyDefinitionId.KraidFoot, EnemyDefinitionId.KraidFirstNail, EnemyDefinitionId.KraidSecondNail,
+    ];
+
     /// <summary>Fixture set-up of Kraid's encounter.</summary>
     extension(KraidBehavior kraid)
     {
@@ -27,7 +34,11 @@ internal static class KraidPartsAccess
             ];
             for (int place = 0; place < roomOrder.Length; place++)
             {
-                roomOrder[place].Reference.Join(enemies.InUpdateOrder[place].HeldOccupant());
+                // A part the check left unbound is bound as the room loads it.
+                RoomEnemyPlace partPlace = enemies.InUpdateOrder[place];
+                if (partPlace.Occupant is null)
+                    partPlace.Bind(PartsInRoomOrder[place], partPlace.Definition);
+                roomOrder[place].Reference.Join(partPlace.HeldOccupant());
                 KraidEncounterAccess.AttachKraidPart(roomOrder[place].State);
             }
             return state;

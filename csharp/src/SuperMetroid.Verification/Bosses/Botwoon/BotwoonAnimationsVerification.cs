@@ -169,7 +169,7 @@ internal static class BotwoonAnimationsVerification
                 $"segment selector ${selector:X2}");
         }
 
-        Action<RoomEnemyPlace, byte, ushort> spawnSpit = (head, angle, speed) => enemies.BotwoonBehavior.SpawnBotwoonSpit(head.HeldOccupant(), head, new TrigonometryAngle(angle), speed);
+        Action<RoomEnemyPlace, byte, ushort> spawnSpit = (head, angle, speed) => enemies.BotwoonBehavior.SpawnBotwoonSpit(head.BoundFor(EnemyDefinitionId.Botwoon), head, new TrigonometryAngle(angle), speed);
         spawnSpit(enemies.Places.InUpdateOrder[0], 0x40, 0x0180);
         EnemyProjectile spit = enemies.Projectiles.EnemyProjectiles.First(item => item.Kind == RoomEnemyProjectileKind.BotwoonSpit);
         AssertTrue(spit.Animation is BotwoonSpitAnimation, "the real spit producer starts the typed spit animation");

@@ -126,7 +126,7 @@ internal sealed class DownwardGateBehavior
     /// starts it sliding until the animation stops it, and handles its animation's cues.
     /// </summary>
     /// <param name="gate">What the gate's actor keeps: its gate's block, its stage and its travel through the block.</param>
-    private sealed class GateBehavior(DownwardGateState gate)
+    internal sealed class GateBehavior(DownwardGateState gate)
         : EnemyProjectileMotionBehavior<SingleMotion>(initial: null), IEnemyProjectileCues<DownwardGateProjectileCue>
     {
         /// <summary>Takes the gate on to the next stage of its travel, starting the animation that stage shows.</summary>

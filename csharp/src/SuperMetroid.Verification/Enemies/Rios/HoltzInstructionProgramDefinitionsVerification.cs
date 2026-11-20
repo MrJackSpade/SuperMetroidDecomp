@@ -87,8 +87,8 @@ internal static class HoltzInstructionProgramDefinitionsVerification
         place.Bind(EnemyDefinitionId.Holtz, place.Definition);
         place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
         place.AnimationClock.StepOnNextUpdate();
-        var state = new HoltzEnemyState(HoltzAction.WaitForAttackOpportunity) { Playback = new(HoltzAnimations.StartingWith(entry), AnimationPlace.StartOfAnimation) };
-        place.SetSpeciesState(state);
+        var state = place.SetUpPlaced<HoltzEnemyState>();
+        state.Playback = new(HoltzAnimations.StartingWith(entry), AnimationPlace.StartOfAnimation);
         return new NewHoltzInstructionSystemResult(enemies, place, state);
     }
 

@@ -210,11 +210,10 @@ internal static class EnemySpeciesCapabilitiesVerification
                 answers++;
             }
 
-            var doorState = new CeresRidleyRoomDoorState();
-            place.SetSpeciesState(doorState);
             foreach (CeresRidleyRoomDoorLook look in new[] { CeresRidleyRoomDoorLook.Actor, CeresRidleyRoomDoorLook.Overlay })
             {
-                doorState.Look = look;
+                if (entity is CeresRidleyRoomDoorEntity roomDoor)
+                    roomDoor.State.Look = look;
                 bool showsOverlay = entity is CeresRidleyRoomDoorEntity door && door.Look == CeresRidleyRoomDoorLook.Overlay;
                 AssertEqual(definition == EnemyDefinitionId.CeresRidleyRoomDoor && look == CeresRidleyRoomDoorLook.Overlay, showsOverlay,
                     $"{definition} shows the room door's overlay when the door's state says {look}");

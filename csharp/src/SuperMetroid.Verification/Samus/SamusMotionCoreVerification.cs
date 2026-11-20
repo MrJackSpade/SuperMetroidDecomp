@@ -171,7 +171,6 @@ internal static void VerifySamusHorizontalSpeed()
     {
         Pose = SamusPoseId.MovingRightNormalPose,
         // She runs in a room, whose footsteps her stride's foot contacts raise: a dry one, the Landing Site without its rain.
-        Ground = SamusGround.Of(RoomDefinitions.LandingSite),
     };
     SamusPresentation.InitializeAnimation(dashAnimation);
     dashAnimation.HorizontalSpeed.HandleExtraRunSpeed(

@@ -79,13 +79,13 @@ internal static class CrocomireRumbleDefinitionsVerification
         AssertEqual(10, CrocomireRumbleDefinitions.Oscillations[0].Repeats, "Crocomire rumble starts with the code's repeats");
         AssertEqual(1, CrocomireRumbleDefinitions.Oscillations[0].Speed, "Crocomire rumble starts at the code's speed");
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-        var state = new CrocomireEnemyState(body)
+        var state = new CrocomireEnemyState(body, enemies.Places.InUpdateOrder[1])
         {
             DeathStage = CrocomireDeathStages.Only<CrocomireDeathStage.RumbleHiddenWall>(),
             RumbleOscillation = 0,
             RumbleTowardExtreme = false,
         };
-        state.JoinFixtureTongue(enemies.Places.InUpdateOrder[1]);
+        state.TongueState.BodyXOffset = CrocomireFightDefinitions.TongueBodyXOffset;
         CrocomireDeathState death = state.Death;
         death.RumbleYOffset = 0;
         death.RumbleRepeatsLeft = UpdateCountdown.For(CrocomireRumbleDefinitions.Oscillations[0].Repeats);

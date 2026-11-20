@@ -579,7 +579,7 @@ internal static void VerifySamusSolidEnemyCollision()
         Radius = new(5, 10),
         InteractiveEnemies = [frozen],
     };
-    BlockMoveResult integratedHorizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = airRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, integrated, null, null, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2) });
+    BlockMoveResult integratedHorizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = airRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, integrated, SamusBlockMoveOwner.NewSamus, SamusBlockMoveOwner.NewSamusPose, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2) });
     AssertTrue(integratedHorizontal.Collided, "ordinary horizontal mover reports enemy collision");
     AssertEqual(101, integrated.Position.X.Whole, "ordinary horizontal mover clips to enemy gap");
     AssertTrue(integratedHorizontal.EnemyCollision is not null,
@@ -592,7 +592,7 @@ internal static void VerifySamusSolidEnemyCollision()
 
     integrated.Position = integrated.Position.WithWholeY(100);
     integrated.InteractiveEnemies = [below];
-    BlockMoveResult integratedVertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = airRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, integrated, null, null, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2), ScanLeftToRight = true });
+    BlockMoveResult integratedVertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = airRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, integrated, SamusBlockMoveOwner.NewSamus, SamusBlockMoveOwner.NewSamusPose, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2), ScanLeftToRight = true });
     AssertTrue(integratedVertical.Collided, "ordinary vertical mover reports enemy collision");
     AssertEqual(101, integrated.Position.Y.Whole, "ordinary vertical mover clips to enemy gap");
     AssertEqual<ISolidEnemy?>(below.Enemy, integratedVertical.EnemyCollision?.Enemy,
@@ -604,7 +604,7 @@ internal static void VerifySamusSolidEnemyCollision()
     integrated.Position = integrated.Position.WithWholeX(100).WithWholeY(100).WithFractionY(0x4321);
     integrated.InteractiveEnemies = [solidTouch];
     BlockMoveResult wallProbe = SamusBlockCollision.ProbeWallHorizontal(
-airRoom, integrated, null, null, signedDistance: SignedSixteenSixteen.FromParts(1, 0), roomObjects: SamusRoomObjectFixtures.Uninstalled);
+airRoom, integrated, SamusBlockMoveOwner.NewSamus, SamusBlockMoveOwner.NewSamusPose, signedDistance: SignedSixteenSixteen.FromParts(1, 0), roomObjects: SamusRoomObjectFixtures.Uninstalled);
     AssertTrue(wallProbe.EnemyCollision is { WasTouching: true },
         "wall probe detects touching enemy before blocks");
     AssertEqual(100, integrated.Position.X.Whole, "wall probe does not commit X motion");

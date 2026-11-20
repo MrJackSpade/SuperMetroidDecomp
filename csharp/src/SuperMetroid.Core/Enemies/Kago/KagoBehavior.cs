@@ -33,6 +33,10 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemySettingsFactory<KagoSp
     private readonly EnemyAudioQueue _audio;
 
     /// <summary>Binds shell AI and bug projectile behavior to the shared room systems that own their effects.</summary>
+    /// <summary>The behaviour of a bug released from its source with <paramref name="bug"/>.</summary>
+    /// <param name="bug">What the bug keeps: its source, waits and sound delay.</param>
+    internal BugBehavior Bug(KagoBugState bug) => new(_room, _audio, _deathsAndDrops, bug);
+
     internal KagoBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles, RoomEarthquake earthquake, EnemyDeathsAndDrops deathsAndDrops, EnemyRoomStatus roomStatus, EnemyAudioQueue audio)
     {
         _audio = audio;
@@ -101,7 +105,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemySettingsFactory<KagoSp
     /// <param name="audio">The enemy sound queue a waiting or airborne bug's sound joins.</param>
     /// <param name="deathsAndDrops">The drops a shot bug leaves.</param>
     /// <param name="bug">The bug's own state: the Kago it came from and its waits.</param>
-    private sealed class BugBehavior(EnemyRoomBinding room, EnemyAudioQueue audio, EnemyDeathsAndDrops deathsAndDrops, KagoBugState bug)
+    internal sealed class BugBehavior(EnemyRoomBinding room, EnemyAudioQueue audio, EnemyDeathsAndDrops deathsAndDrops, KagoBugState bug)
         : EnemyProjectileMotionBehavior<KagoBugMotion>(KagoBugMotion.Waiting), IEnemyProjectileCues<KagoBugProjectileCue>
     {
         /// <inheritdoc/>
@@ -302,7 +306,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemySettingsFactory<KagoSp
             GroundWait = UpdateCountdown.Lasting(firstGroundWait),
             SoundDelay = UpdateCountdown.Lasting(firstGroundWait + KagoDefinitions.FirstSoundPastFirstHop),
         };
-        var behavior = new BugBehavior(_room, _audio, _deathsAndDrops, bug);
+        var behavior = Bug(bug);
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.KagoBug,

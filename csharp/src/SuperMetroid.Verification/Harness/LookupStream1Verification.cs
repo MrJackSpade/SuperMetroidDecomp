@@ -290,10 +290,9 @@ internal static class LookupStream1Verification
             place.Bind(EnemyDefinitionId.Metroid, place.Definition);
             place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
             place.AnimationClock.StepOnNextUpdate();
-            enemies.Places.InUpdateOrder[0].SetSpeciesState(new MetroidEnemyState(new RoomEffectActor(RoomEffectActorKind.MetroidElectricity, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard), new RoomEffectActor(RoomEffectActorKind.MetroidShell, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard))
-            {
-                Playback = new(MetroidAnimations.StartingWith(chasing ? MetroidSegment.ChasingSamus : MetroidSegment.DrainingSamus), AnimationPlace.StartOfAnimation),
-            });
+            place.SetSpawnSettings(new MetroidSpawnSettings(IceDamageToFreeze: 0));
+            var metroidEnemyState = enemies.Places.InUpdateOrder[0].SetUpPlaced<MetroidEnemyState>();
+            metroidEnemyState.Playback = new(MetroidAnimations.StartingWith(chasing ? MetroidSegment.ChasingSamus : MetroidSegment.DrainingSamus), AnimationPlace.StartOfAnimation);
             object?[] arguments = [place, null, null, Position16<RoomPixels>.Zero, GameplayAction.None];
             for (int record = 0; record < records; record++)
             {

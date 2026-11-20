@@ -384,7 +384,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemySettings
 
     /// <summary>A laser: it flies its way until it leaves the camera, once its animation fires it (#2278).</summary>
     /// <param name="laser">What the laser keeps: its speed and the way it flies.</param>
-    private sealed class LaserBehavior(PirateLaserState laser)
+    internal sealed class LaserBehavior(PirateLaserState laser)
         : SingleMotionProjectileBehavior(context => FlyPirateLaser(context.Projectile, laser, context.Camera), initial: null),
             IEnemyProjectileCues<SpacePirateLaserCue>
     {

@@ -100,14 +100,11 @@ internal static class EnemySoundOrderVerification
         enemy.Bind(EnemyDefinitionId.Metroid, enemy.Definition);
         enemy.Bind(enemy.DefinitionId, default(RoomEnemyDefinition));
         enemy.AnimationClock.StepOnNextUpdate();
-        enemy.SetSpeciesState(new MetroidEnemyState(
-            new RoomEffectActor(RoomEffectActorKind.MetroidElectricity, default, SpriteGraphics.SharedStandard),
-            new RoomEffectActor(RoomEffectActorKind.MetroidShell, default, SpriteGraphics.SharedStandard))
-        {
-            Playback = new(MetroidAnimations.StartingWith(MetroidSegment.ChasingSamus),
+        enemy.SetSpawnSettings(new MetroidSpawnSettings(IceDamageToFreeze: 0));
+        var metroidEnemyState = enemy.SetUpPlaced<MetroidEnemyState>();
+        metroidEnemyState.Playback = new(MetroidAnimations.StartingWith(MetroidSegment.ChasingSamus),
                 AnimationSegments<MetroidSegment, EnemyFrameId, MetroidCue>.PlaceOf(MetroidAnimations.StartingWith(MetroidSegment.ChasingSamus),
-                    MetroidSegment.ChasingCry, 0)),
-        });
+                    MetroidSegment.ChasingCry, 0));
         return enemy;
     }
 

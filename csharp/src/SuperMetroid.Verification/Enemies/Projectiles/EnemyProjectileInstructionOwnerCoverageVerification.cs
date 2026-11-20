@@ -90,7 +90,7 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
                 // explosion, whose spawners start the program they choose.
                 RoomEnemyProjectileKind.MotherBrainDeathExplosion or RoomEnemyProjectileKind.DustOrExplosion ||
                 // The projectiles whose spawners start typed programs (#1291, #1395, #1760).
-                FamilyProjectileStarts.StartingAnimation(kind) is not null;
+                FamilyProjectileStarts.StartsTypedAnimation(kind);
             AssertTrue(typed, $"Projectile {kind} starts a typed program");
             // Every cartridge definition of the kind is checked: identical definitions name one kind (#2278).
             foreach (ushort definitionWord in EnemyProjectileNativeWords.Kinds.WordsByIdentity[kind])

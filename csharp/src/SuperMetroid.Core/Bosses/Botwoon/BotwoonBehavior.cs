@@ -731,13 +731,17 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         AfterCommon = c => ResolveBotwoonCombatAfterCommon(c.Enemy, state),
     };
 
+    /// <summary>The behaviour of the body segment <paramref name="segment"/>.</summary>
+    /// <param name="segment">What the segment keeps: Botwoon, its place in the body and its animation.</param>
+    internal SegmentBehavior Segment(BotwoonSegmentState segment) => new(this, segment);
+
     /// <summary>
     /// One of Botwoon's body segments (#1760): its spawner starts its animation, and Botwoon moves it, oriented and coloured
     /// with his hurt, through its death. It keeps the segment's place in his body and its fall.
     /// </summary>
     /// <param name="botwoon">Botwoon, who moves the segment.</param>
     /// <param name="segment">What the segment keeps.</param>
-    private sealed class SegmentBehavior(BotwoonBehavior botwoon, BotwoonSegmentState segment)
+    internal sealed class SegmentBehavior(BotwoonBehavior botwoon, BotwoonSegmentState segment)
         : EnemyProjectileMotionBehavior<SingleMotion>(SingleMotion.Moving)
     {
         /// <inheritdoc/>
@@ -747,7 +751,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>One of Botwoon's spits (#1760): it flies along its heading until it leaves the camera.</summary>
     /// <param name="flight">What the spit keeps: its heading's flight.</param>
-    private sealed class SpitBehavior(AngledFlightState flight)
+    internal sealed class SpitBehavior(AngledFlightState flight)
         : EnemyProjectileMotionBehavior<SingleMotion>(SingleMotion.Moving)
     {
         /// <inheritdoc/>
@@ -820,7 +824,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.BotwoonBody,
-            new SegmentBehavior(this, segment),
+            Segment(segment),
             SpriteGraphics.SpawnedBy(head));
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(head.Position.Whole);
         projectile.StartAnimation(animation);

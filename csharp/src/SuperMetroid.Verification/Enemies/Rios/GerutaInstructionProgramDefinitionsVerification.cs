@@ -103,8 +103,8 @@ internal static class GerutaInstructionProgramDefinitionsVerification
         place.Bind(EnemyDefinitionId.Geruta, place.Definition);
         place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
         place.AnimationClock.StepOnNextUpdate();
-        var state = new GerutaEnemyState(GerutaAction.WaitForAttackOpportunity) { Playback = new(GerutaAnimations.StartingWith(entry), AnimationPlace.StartOfAnimation) };
-        place.SetSpeciesState(state);
+        var state = place.SetUpPlaced<GerutaEnemyState>();
+        state.Playback = new(GerutaAnimations.StartingWith(entry), AnimationPlace.StartOfAnimation);
         return new NewGerutaInstructionSystemResult(enemies, place, state);
     }
 

@@ -171,8 +171,8 @@ internal static class CrocomireMeltingDefinitionsVerification
     {
         int sourceAddress = CrocomireMeltingSources.Tilemap(source);
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork.Bosses);
-        var state = new CrocomireEnemyState(enemies.Places.InUpdateOrder[0]);
-        state.JoinFixtureTongue(enemies.Places.InUpdateOrder[1]);
+        var state = new CrocomireEnemyState(enemies.Places.InUpdateOrder[0], enemies.Places.InUpdateOrder[1]);
+        state.TongueState.BodyXOffset = CrocomireFightDefinitions.TongueBodyXOffset;
         var vram = new SnesVram();
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(vram));
         // Crocomire's initialization attaches the body his melt image shows on (#1355, #1466, #1515).

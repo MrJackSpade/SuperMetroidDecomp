@@ -61,8 +61,8 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
         SpawnedPiece spawned = piece.Definition switch
         {
             NoobTubeProjectileDefinition.Crack => Crack(new CrackBehavior(new NoobTubeCrackState())),
-            NoobTubeProjectileDefinition.Shard => Debris(new DebrisBehavior(_room, new NoobTubeDebrisState(place.X), DebrisStart(piece), NoobTubePieceMotion.ShardFlying)),
-            NoobTubeProjectileDefinition.ReleasedAirBubble => Debris(new DebrisBehavior(_room, new NoobTubeDebrisState(place.X), DebrisStart(piece), initial: null)),
+            NoobTubeProjectileDefinition.Shard => Debris(DebrisPiece(new NoobTubeDebrisState(place.X), DebrisStart(piece), NoobTubePieceMotion.ShardFlying)),
+            NoobTubeProjectileDefinition.ReleasedAirBubble => Debris(DebrisPiece(new NoobTubeDebrisState(place.X), DebrisStart(piece), initial: null)),
             _ => throw new InvalidDataException($"N00b-tube setup lost projectile definition {piece.Definition}."),
         };
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, spawned.Behavior, graphics: TubePieceGraphics);
@@ -92,6 +92,13 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
     }
 
     /// <summary>The crack's behaviour and the animation it starts with, whose cues it owns.</summary>
+    /// <summary>The behaviour of a shard or bubble keeping <paramref name="debris"/>, its animation starting at <paramref name="start"/>.</summary>
+    /// <param name="debris">What the piece keeps: the column its sway is measured from.</param>
+    /// <param name="start">The animation the piece starts.</param>
+    /// <param name="initial">How the piece moves from its spawn, or null when it holds still until its animation starts it.</param>
+    internal DebrisBehavior DebrisPiece(NoobTubeDebrisState debris, Animation<NoobTubeProjectileSegment> start, NoobTubePieceMotion? initial) =>
+        new(_room, debris, start, initial);
+
     private static SpawnedPiece Crack(CrackBehavior crack) => new(crack, new NoobTubeCrackAnimation(crack));
 
     /// <summary>A shard's or bubble's behaviour and the animation it plays, whose cues it owns.</summary>
@@ -173,7 +180,7 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
 
     /// <summary>The tube's crack (#1760): it flickers, then falls, holding whether its flicker hides it.</summary>
     /// <param name="crack">What the crack keeps.</param>
-    private sealed class CrackBehavior(NoobTubeCrackState crack)
+    internal sealed class CrackBehavior(NoobTubeCrackState crack)
         : EnemyProjectileMotionBehavior<NoobTubeCrackMotion>(initial: null), IEnemyProjectileCues<NoobTubeCrackCue>
     {
         /// <inheritdoc/>
@@ -226,7 +233,7 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
     /// <param name="debris">What the piece keeps.</param>
     /// <param name="start">The animation the piece plays from its spawn.</param>
     /// <param name="initial">How the piece moves from its spawn: a shard flies, a bubble holds still until its animation starts it.</param>
-    private sealed class DebrisBehavior(EnemyRoomBinding room, NoobTubeDebrisState debris, Animation<NoobTubeProjectileSegment> start,
+    internal sealed class DebrisBehavior(EnemyRoomBinding room, NoobTubeDebrisState debris, Animation<NoobTubeProjectileSegment> start,
         NoobTubePieceMotion? initial)
         : EnemyProjectileMotionBehavior<NoobTubePieceMotion>(initial), IEnemyProjectileCues<NoobTubeProjectileCue>
     {

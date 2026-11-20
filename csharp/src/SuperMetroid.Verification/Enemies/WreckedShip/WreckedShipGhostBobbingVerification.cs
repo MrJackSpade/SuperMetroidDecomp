@@ -34,14 +34,11 @@ internal static class WreckedShipGhostBobbingVerification
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
             place.Bind(EnemyDefinitionId.Coven, place.Definition);
             place.Position = FixedPosition<RoomPixels>.FromWhole(new(64, y));
-            var state = new WreckedShipGhostEnemyState(WreckedShipGhostAction.InitialInvisibleDelay)
-            {
-                Action = WreckedShipGhostAction.BobbingWhileVisible,
-                VisibleTimer = UpdateCountdown.For(120),
-                BobbingOriginY = originY,
-                VerticalVelocity = SignedSixteenSixteen.FromParts(whole, 0),
-            };
-            place.SetSpeciesState(state);
+            var state = place.SetUpPlaced<WreckedShipGhostEnemyState>();
+            state.Action = WreckedShipGhostAction.BobbingWhileVisible;
+            state.VisibleTimer = UpdateCountdown.For(120);
+            state.BobbingOriginY = originY;
+            state.VerticalVelocity = SignedSixteenSixteen.FromParts(whole, 0);
 
             WreckedShipGhostBehavior.RunWreckedShipGhostMainAi(place, frame);
 

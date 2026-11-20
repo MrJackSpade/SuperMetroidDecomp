@@ -50,8 +50,8 @@ internal static class BossBodyLayeredPartsVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
-        var state = new CrocomireEnemyState(enemies.Places.InUpdateOrder[0]);
-        state.JoinFixtureTongue(enemies.Places.InUpdateOrder[1]);
+        var state = new CrocomireEnemyState(enemies.Places.InUpdateOrder[0], enemies.Places.InUpdateOrder[1]);
+        state.TongueState.BodyXOffset = CrocomireFightDefinitions.TongueBodyXOffset;
         BossBodyCanvasFixtures.AttachCrocomire(enemies, sheets);
         Dictionary<string, BossBodyFrameSource> sources = SourcesOf(frames, BossBodyOwner.Crocomire);
         Extent16<BackgroundPixels> area = SideBySideCanvas;
@@ -73,7 +73,7 @@ internal static class BossBodyLayeredPartsVerification
             melting.BeginCrocomireMeltPass(state, pass);
             for (int erased = 1; erased <= CrocomireMeltingDefinitions.ColumnCount; erased++)
             {
-                melting.EraseNextCrocomireMeltingColumn(state.Death);
+                melting.EraseNextCrocomireMeltingColumn(state);
                 Compare($"after his {pass} melt's dissolve erases {erased} columns");
             }
         }

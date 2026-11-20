@@ -735,7 +735,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemySettingsFactory<Ki
     /// under gravity until it strikes the room, where its splash stops it.
     /// </summary>
     /// <param name="acid">What the acid keeps: the way its Ki-Hunter spat it.</param>
-    private sealed class AcidBehavior(KiHunterAcidState acid) : EnemyProjectileMotionBehavior<KiHunterAcidMotion>, IEnemyProjectileCues<KiHunterAcidSpitCue>
+    internal sealed class AcidBehavior(KiHunterAcidState acid) : EnemyProjectileMotionBehavior<KiHunterAcidMotion>, IEnemyProjectileCues<KiHunterAcidSpitCue>
     {
         /// <summary>Carries out one cue of the acid's animations: its launch either way, its stop on the floor, or its deletion.</summary>
         public void RunCue(EnemyProjectileCueContext context, KiHunterAcidSpitCue cue)

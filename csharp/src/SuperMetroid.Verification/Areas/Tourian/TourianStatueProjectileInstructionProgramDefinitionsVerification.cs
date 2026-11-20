@@ -45,8 +45,12 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
             ?? throw new InvalidDataException("Projectile fixture requires installed sprites.");
         var executedOperands = new HashSet<ushort>();
         var guard = NewTourianStatueProjectileInstructionReadGuard(rom);
-        Func<EnemyProjectileAnimation, ushort?> nativePointers =
+        Func<EnemyProjectileAnimation, ushort?> projectilePointers =
             TourianStatueProjectileNativeListAddresses.Family.NativePointers(rom);
+        Func<EnemyProjectileAnimation, ushort?> decorationPointers =
+            TourianStatueDecorationNativeListAddresses.Family.NativePointers(rom);
+        // The decorations run programs of their own family (#2554), so a pointer is read from whichever family plays it.
+        Func<EnemyProjectileAnimation, ushort?> nativePointers = animation => projectilePointers(animation) ?? decorationPointers(animation);
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null), installedBosses: InstalledFixtures.BossArtwork,
             statueRoom: new FixedTourianStatueRoom(WaterSurface: 216, StatueOffset: 0));
         enemies.VerificationServices().NextRandom = () => 4;

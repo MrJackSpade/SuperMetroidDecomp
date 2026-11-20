@@ -342,8 +342,8 @@ level, fallLeft, 0, unchecked((ushort)(frame + 1)), roomObjects: SamusRoomObject
                         Position = new(new(x, 0), new(36, 0)),
                         Radius = new(12, 12),
                     };
-                    BlockMoveResult ltr = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = squareRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, leftToRight, null, null, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(1), ScanLeftToRight = true });
-                    BlockMoveResult rtl = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = squareRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, rightToLeft, null, null, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(1), ScanLeftToRight = false });
+                    BlockMoveResult ltr = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = squareRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, leftToRight, SamusBlockMoveOwner.NewSamus, SamusBlockMoveOwner.NewSamusPose, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(1), ScanLeftToRight = true });
+                    BlockMoveResult rtl = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = squareRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, rightToLeft, SamusBlockMoveOwner.NewSamus, SamusBlockMoveOwner.NewSamusPose, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(1), ScanLeftToRight = false });
                     AssertEqual(ltr.Collided, rtl.Collided,
                         $"square slope {shape}/{orientation} X={x} collision scan parity");
                     AssertEqual(ltr.AcceptedDisplacement.RawValue, rtl.AcceptedDisplacement.RawValue,
@@ -878,13 +878,13 @@ internal static void VerifySamusLiquidPhysics()
     AssertEqual(3, sample.LiquidPhysics.DeterminePoseChangeExtraAnimationDelay(sample),
         "pose-change water delay below bottom-minus-one");
     sample.LiquidPhysics.BeginFrameSoundRequests();
-    sample.LiquidPhysics.PrepareAnimationFrame(sample, new SharedRandom(), frameCounter: 0, bossPresent: false);
+    sample.LiquidPhysics.PrepareAnimationFrame(sample, SamusGround.Of(RoomDefinitions.LandingSite), new SharedRandom(), frameCounter: 0, bossPresent: false);
     AssertEqual(3, sample.ExtraAnimationDelay, "continuous water animation delay");
     AssertEqual(SamusLiquidMedium.Water, sample.LiquidPhysics.MediumLastEntered,
         "continuous water animation remembers medium");
     sample.EquippedItems = SamusEquipmentFlags.GravitySuit;
     sample.LiquidPhysics.BeginFrameSoundRequests();
-    sample.LiquidPhysics.PrepareAnimationFrame(sample, new SharedRandom(), frameCounter: 0, bossPresent: false);
+    sample.LiquidPhysics.PrepareAnimationFrame(sample, SamusGround.Of(RoomDefinitions.LandingSite), new SharedRandom(), frameCounter: 0, bossPresent: false);
     AssertEqual(0, sample.ExtraAnimationDelay, "Gravity Suit cancels submerged frame delay");
 
     // Lava's FX handler performs the retail speed-boost cancellation before checking
@@ -898,7 +898,7 @@ internal static void VerifySamusLiquidPhysics()
     sample.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(3, 0x4000);
     sample.LiquidPhysics.ConfigureLavaAcid(surfaceY: 110);
     sample.LiquidPhysics.BeginFrameSoundRequests();
-    sample.LiquidPhysics.PrepareAnimationFrame(sample, new SharedRandom(), frameCounter: 0, bossPresent: false);
+    sample.LiquidPhysics.PrepareAnimationFrame(sample, SamusGround.Of(RoomDefinitions.LandingSite), new SharedRandom(), frameCounter: 0, bossPresent: false);
     AssertTrue(!sample.HorizontalSpeed.HasRunningMomentum,
         "lava cancels momentum even with Gravity Suit");
     AssertEqual(new SamusSpeedBoostCounter(0, 0), sample.HorizontalSpeed.SpeedBoostCounter,
@@ -917,7 +917,7 @@ internal static void VerifySamusLiquidPhysics()
     sample.HorizontalSpeed.ExtraRunSpeed = sample.HorizontalSpeed.ExtraRunSpeed.WithWhole(1);
     sample.LiquidPhysics.ConfigureLavaAcid(surfaceY: 110, RoomFxType.Acid);
     sample.LiquidPhysics.BeginFrameSoundRequests();
-    sample.LiquidPhysics.PrepareAnimationFrame(sample, new SharedRandom(), frameCounter: 0, bossPresent: false);
+    sample.LiquidPhysics.PrepareAnimationFrame(sample, SamusGround.Of(RoomDefinitions.LandingSite), new SharedRandom(), frameCounter: 0, bossPresent: false);
     AssertTrue(sample.HorizontalSpeed.HasRunningMomentum, "acid preserves running momentum");
     AssertEqual(new SamusSpeedBoostCounter(2, 1), sample.HorizontalSpeed.SpeedBoostCounter,
         "acid preserves speed-boost timer/counter");
@@ -1088,7 +1088,7 @@ internal static void VerifySamusAtmosphericEffects()
     // away from the 128-frame bubble cadence so entry has exactly one sound request.
     samus.LiquidPhysics.ConfigureWater(surfaceY: 110, ignoresSurface: false, type: SuperMetroid.Core.Fx.RoomFxType.Water);
     samus.LiquidPhysics.BeginFrameSoundRequests();
-    samus.LiquidPhysics.PrepareAnimationFrame(samus, new SharedRandom(), frameCounter: 1, bossPresent: false);
+    samus.LiquidPhysics.PrepareAnimationFrame(samus, SamusGround.Of(RoomDefinitions.LandingSite), new SharedRandom(), frameCounter: 1, bossPresent: false);
     SamusParticle entrySplash = particles.Single();
     AssertEqual(SamusParticleKind.DivingSplash, entrySplash.Kind, "water entry selects the diving splash");
     AssertEqual(2, entrySplash.StepUpdatesLeft, "diving splash initial timer");
@@ -1102,7 +1102,7 @@ internal static void VerifySamusAtmosphericEffects()
     // type table. A spin/wall-jump-only `$30` request is correctly absent for type one.
     samus.LiquidPhysics.ConfigureWater(surfaceY: 112, ignoresSurface: false, type: SuperMetroid.Core.Fx.RoomFxType.Water);
     samus.LiquidPhysics.BeginFrameSoundRequests();
-    samus.LiquidPhysics.PrepareAnimationFrame(samus, new SharedRandom(), frameCounter: 2, bossPresent: false);
+    samus.LiquidPhysics.PrepareAnimationFrame(samus, SamusGround.Of(RoomDefinitions.LandingSite), new SharedRandom(), frameCounter: 2, bossPresent: false);
     AssertEqual(new SoundRequest(EnemySound.SplashOut, SoundRequestPriority.Normal),
         samus.LiquidPhysics.SoundRequests.Single(), "water-exit library-two sound");
 
@@ -1110,11 +1110,11 @@ internal static void VerifySamusAtmosphericEffects()
     // Re-enter on frame one first so the cadence call below is an already-submerged pass.
     samus.LiquidPhysics.ConfigureWater(surfaceY: 50, ignoresSurface: false, type: SuperMetroid.Core.Fx.RoomFxType.Water);
     samus.LiquidPhysics.BeginFrameSoundRequests();
-    samus.LiquidPhysics.PrepareAnimationFrame(samus, new SharedRandom(), frameCounter: 1, bossPresent: false);
+    samus.LiquidPhysics.PrepareAnimationFrame(samus, SamusGround.Of(RoomDefinitions.LandingSite), new SharedRandom(), frameCounter: 1, bossPresent: false);
     // The power-on word, $0061.
     var bubbleRandom = new SharedRandom();
     samus.LiquidPhysics.BeginFrameSoundRequests();
-    samus.LiquidPhysics.PrepareAnimationFrame(samus, bubbleRandom, frameCounter: 128, bossPresent: false);
+    samus.LiquidPhysics.PrepareAnimationFrame(samus, SamusGround.Of(RoomDefinitions.LandingSite), bubbleRandom, frameCounter: 128, bossPresent: false);
     SamusParticle bubble = particles[^1];
     AssertEqual(SamusParticleKind.Bubbles, bubble.Kind, "128-frame submerged cadence creates bubbles");
     AssertEqual(94, bubble.Position.Y, "bubble origin is Samus top plus six");
@@ -1128,7 +1128,7 @@ internal static void VerifySamusAtmosphericEffects()
     expectedRandom.Generate();
     int bubblesBefore = particles.Count;
     samus.LiquidPhysics.BeginFrameSoundRequests();
-    samus.LiquidPhysics.PrepareAnimationFrame(samus, bubbleRandom, frameCounter: 256, bossPresent: false);
+    samus.LiquidPhysics.PrepareAnimationFrame(samus, SamusGround.Of(RoomDefinitions.LandingSite), bubbleRandom, frameCounter: 256, bossPresent: false);
     AssertEqual(bubblesBefore, particles.Count, "a held bubble is not blown");
     AssertTrue(!samus.LiquidPhysics.SoundRequests.Any(request =>
         (request.SoundEffect == EnemySound.LowBubbles || request.SoundEffect == EnemySound.HighBubbles)),
@@ -1146,7 +1146,7 @@ internal static void VerifySamusAtmosphericEffects()
     samus.EquippedItems = 0;
     int beforeSpray = particles.Count;
     samus.LiquidPhysics.BeginFrameSoundRequests();
-    samus.LiquidPhysics.PrepareAnimationFrame(samus, new SharedRandom(), frameCounter: 1, bossPresent: false);
+    samus.LiquidPhysics.PrepareAnimationFrame(samus, SamusGround.Of(RoomDefinitions.LandingSite), new SharedRandom(), frameCounter: 1, bossPresent: false);
     AssertEqual(beforeSpray + 4, particles.Count, "partial lava submersion starts four spray particles");
     AssertTrue(particles.Skip(beforeSpray).All(particle => particle.Kind == SamusParticleKind.LavaSpray),
         "partial lava submersion starts lava spray");
@@ -1164,7 +1164,7 @@ internal static void VerifySamusAtmosphericEffects()
         "periodic consumer clears fractional accumulator");
     // An even frame inside the spray's wait starts no spray and requests no spray sound.
     samus.LiquidPhysics.BeginFrameSoundRequests();
-    samus.LiquidPhysics.PrepareAnimationFrame(samus, new SharedRandom(), frameCounter: 2, bossPresent: false);
+    samus.LiquidPhysics.PrepareAnimationFrame(samus, SamusGround.Of(RoomDefinitions.LandingSite), new SharedRandom(), frameCounter: 2, bossPresent: false);
     AssertEqual(beforeSpray + 4, particles.Count, "a held spray starts no particles");
     AssertTrue(!samus.LiquidPhysics.SoundRequests.Any(request => request.SoundEffect == EnemySound.LiquidDamage),
         "a held spray requests no sound");
@@ -1217,7 +1217,6 @@ internal static void VerifySamusAtmosphericEffects()
         Pose = SamusPoseId.MovingRightNormalPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)),
         // A dry room: the Landing Site without its rain.
-        Ground = SamusGround.Of(RoomDefinitions.LandingSite),
     };
     SamusPoseMetadata.RefreshCollisionRadii(runner);
     SamusPresentation.InitializeAnimation(runner, runner.PoseFrameNumbered(2));
@@ -1227,7 +1226,7 @@ internal static void VerifySamusAtmosphericEffects()
     SamusPresentation.SetAnimationFrameFromMovementOwner(runner, runner.AnimationFrameNumbered(2), timer: 1);
     runner.HorizontalSpeed.SpeedBoostCounter = new SamusSpeedBoostCounter(4, 0);
     runner.LiquidPhysics.BeginFrameSoundRequests();
-    runner.LiquidPhysics.PrepareAnimationFrame(runner, new SharedRandom(), frameCounter: 1, bossPresent: false);
+    runner.LiquidPhysics.PrepareAnimationFrame(runner, SamusGround.Of(RoomDefinitions.LandingSite), new SharedRandom(), frameCounter: 1, bossPresent: false);
     IReadOnlyList<SamusParticle> runnerParticles = runner.Presentation.Particles.All;
     AssertEqual(2, runnerParticles.Count, "boost-stage-four foot contact creates a pair");
     AssertTrue(runnerParticles.All(particle => particle.Kind == SamusParticleKind.Dust),
@@ -1242,17 +1241,17 @@ internal static void VerifySamusAtmosphericEffects()
     runner.HorizontalSpeed.SpeedBoostCounter = new SamusSpeedBoostCounter(3, 1);
     runner.HorizontalSpeed.CycleShadeTimer = 1;
     runner.LiquidPhysics.BeginFrameSoundRequests();
-    runner.LiquidPhysics.PrepareAnimationFrame(runner, new SharedRandom(), frameCounter: 1, bossPresent: false);
+    runner.LiquidPhysics.PrepareAnimationFrame(runner, SamusGround.Of(RoomDefinitions.LandingSite), new SharedRandom(), frameCounter: 1, bossPresent: false);
     AssertEqual(new SoundRequest(RoomSound.Footsteps, SoundRequestPriority.Normal),
         runner.LiquidPhysics.SoundRequests.Single(), "boost palette timer does not suppress footsteps");
     // #1386: $90:A409 reads the live boss ID; the same footstep in a boss room queues no sound.
     runner.LiquidPhysics.BeginFrameSoundRequests();
-    runner.LiquidPhysics.PrepareAnimationFrame(runner, new SharedRandom(), frameCounter: 1, bossPresent: true);
+    runner.LiquidPhysics.PrepareAnimationFrame(runner, SamusGround.Of(RoomDefinitions.LandingSite), new SharedRandom(), frameCounter: 1, bossPresent: true);
     AssertEqual(0, runner.LiquidPhysics.SoundRequests.Count, "a nonzero boss ID suppresses footsteps");
     AssertTrue(runner.Shinespark.TryStoreFromSpeedBooster(new SamusSpeedBoostCounter(4, 0)), "seed stored shine sound gate");
     runner.HorizontalSpeed.CycleShadeTimer = 0;
     runner.LiquidPhysics.BeginFrameSoundRequests();
-    runner.LiquidPhysics.PrepareAnimationFrame(runner, new SharedRandom(), frameCounter: 1, bossPresent: false);
+    runner.LiquidPhysics.PrepareAnimationFrame(runner, SamusGround.Of(RoomDefinitions.LandingSite), new SharedRandom(), frameCounter: 1, bossPresent: false);
     AssertEqual(0, runner.LiquidPhysics.SoundRequests.Count, "stored shine timer suppresses footsteps");
 
     // `$91:F046` runs before animation and before landing clears Y velocity. Norfair selects
@@ -1269,10 +1268,9 @@ internal static void VerifySamusAtmosphericEffects()
     WritePoseDefinition(bus, 0x19, [8, 3, 0xff, 0xff, 0, 0, 12, 0]);
     SamusPoseMetadata.RefreshCollisionRadii(landing);
     landing.Kinematics.VerticalVelocity = landing.Kinematics.VerticalVelocity.WithSpeed(new UnsignedSixteenSixteen(4, 1));
-    landing.Ground = SamusGround.Of(RoomDefinitions.FirstIn(AreaId.Norfair));
     landing.LiquidPhysics.BeginFrameSoundRequests();
     landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
-        landing, previousMovementType: SamusMovementType.SpinJumping, previousPose: SamusPoseId.SpinJumpRightPose,
+        landing, SamusGround.Of(RoomDefinitions.FirstIn(AreaId.Norfair)), previousMovementType: SamusMovementType.SpinJumping, previousPose: SamusPoseId.SpinJumpRightPose,
         landing.Kinematics.VerticalVelocity.Speed);
     AssertEqual(2, landing.LiquidPhysics.SoundRequests.Count,
         "spin landing publishes termination and impact sounds");
@@ -1295,7 +1293,7 @@ internal static void VerifySamusAtmosphericEffects()
     landing.Kinematics.VerticalVelocity = landing.Kinematics.VerticalVelocity.WithSpeed(landing.Kinematics.VerticalVelocity.Speed.WithWhole(5));
     landing.LiquidPhysics.BeginFrameSoundRequests();
     landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
-        landing, previousMovementType: SamusMovementType.WallJumping, previousPose: SamusPoseId.ScrewAttackRightPose,
+        landing, SamusGround.Of(RoomDefinitions.FirstIn(AreaId.Norfair)), previousMovementType: SamusMovementType.WallJumping, previousPose: SamusPoseId.ScrewAttackRightPose,
         landing.Kinematics.VerticalVelocity.Speed);
     AssertEqual(new SoundRequest(SamusSound.ScrewAttackEnd, SoundRequestPriority.Normal),
         landing.LiquidPhysics.SoundRequests[0], "Screw Attack termination sound");
@@ -1307,13 +1305,13 @@ internal static void VerifySamusAtmosphericEffects()
     {
         landing.LiquidPhysics.BeginFrameSoundRequests();
         landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
-            landing, previousMovementType: SamusMovementType.Falling, previousPose: SamusPoseId.FallingRightPose,
+            landing, SamusGround.Of(RoomDefinitions.FirstIn(AreaId.Norfair)), previousMovementType: SamusMovementType.Falling, previousPose: SamusPoseId.FallingRightPose,
             new UnsignedSixteenSixteen(whole, 0));
         AssertEqual(0, landing.LiquidPhysics.SoundRequests.Count, $"whole speed ${whole:X4} with no sub-speed lands silently");
     }
     landing.LiquidPhysics.BeginFrameSoundRequests();
     landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
-        landing, previousMovementType: SamusMovementType.Falling, previousPose: SamusPoseId.FallingRightPose,
+        landing, SamusGround.Of(RoomDefinitions.FirstIn(AreaId.Norfair)), previousMovementType: SamusMovementType.Falling, previousPose: SamusPoseId.FallingRightPose,
         new UnsignedSixteenSixteen(0x8005, 1));
     AssertEqual(new SoundRequest(RoomSound.Landing, SoundRequestPriority.Normal),
         landing.LiquidPhysics.SoundRequests.Single(), "whole speed $8005 is below five as a signed word");
@@ -1321,7 +1319,7 @@ internal static void VerifySamusAtmosphericEffects()
     landing.LiquidPhysics.BeginFrameSoundRequests();
     int beforeCinematic = landingParticles.Count;
     landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
-        landing, previousMovementType: SamusMovementType.SpinJumping, previousPose: SamusPoseId.SpinJumpRightPose,
+        landing, SamusGround.Of(RoomDefinitions.FirstIn(AreaId.Norfair)), previousMovementType: SamusMovementType.SpinJumping, previousPose: SamusPoseId.SpinJumpRightPose,
         landing.Kinematics.VerticalVelocity.Speed);
     AssertEqual(0, landing.LiquidPhysics.SoundRequests.Count,
         "cinematic landing suppresses both sound libraries");
@@ -1332,7 +1330,7 @@ internal static void VerifySamusAtmosphericEffects()
     landing.LiquidPhysics.ConfigureWater(surfaceY: 111, ignoresSurface: false, type: SuperMetroid.Core.Fx.RoomFxType.Water);
     int beforeSurface = landingParticles.Count;
     landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
-        landing, previousMovementType: SamusMovementType.Falling, previousPose: SamusPoseId.FallingRightPose,
+        landing, SamusGround.Of(RoomDefinitions.FirstIn(AreaId.Norfair)), previousMovementType: SamusMovementType.Falling, previousPose: SamusPoseId.FallingRightPose,
         landing.Kinematics.VerticalVelocity.Speed);
     AssertEqual(beforeSurface + 2, landingParticles.Count,
         "liquid exactly at the inclusive bottom does not suppress landing dust");
@@ -1344,7 +1342,7 @@ internal static void VerifySamusAtmosphericEffects()
     landing.LiquidPhysics.BeginFrameSoundRequests();
     int beforeSubmerged = landingParticles.Count;
     landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
-        landing, previousMovementType: SamusMovementType.Falling, previousPose: SamusPoseId.FallingRightPose,
+        landing, SamusGround.Of(RoomDefinitions.FirstIn(AreaId.Norfair)), previousMovementType: SamusMovementType.Falling, previousPose: SamusPoseId.FallingRightPose,
         landing.Kinematics.VerticalVelocity.Speed);
     AssertEqual(beforeSubmerged, landingParticles.Count, "submerged landing starts no particles");
     AssertEqual(9, landingWaits.BubbleWaitUpdates, "submerged landing leaves the bubbles' wait untouched");
@@ -1352,31 +1350,29 @@ internal static void VerifySamusAtmosphericEffects()
     // Ceres shows no landing effect, which ends the bubbles' wait as the original game's deletion of the landing's
     // effects did; particles already shown run out on their own. Zero vertical speed returns even earlier and therefore
     // ends nothing.
-    landing.Ground = SamusGround.Of(RoomDefinitions.FirstIn(AreaId.Ceres));
     landing.LiquidPhysics.WaterSurfaceY = null;
     landing.Kinematics.VerticalVelocity = landing.Kinematics.VerticalVelocity.WithSpeed(landing.Kinematics.VerticalVelocity.Speed.WithWhole(1));
     int beforeCeres = landingParticles.Count;
     landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
-        landing, previousMovementType: SamusMovementType.Falling, previousPose: SamusPoseId.FallingRightPose,
+        landing, SamusGround.Of(RoomDefinitions.FirstIn(AreaId.Ceres)), previousMovementType: SamusMovementType.Falling, previousPose: SamusPoseId.FallingRightPose,
         landing.Kinematics.VerticalVelocity.Speed);
     AssertTrue(landingWaits.BubbleCanForm, "Ceres ends the bubbles' landing wait");
     AssertEqual(beforeCeres, landingParticles.Count, "Ceres leaves the particles shown to run out");
     landingWaits.HoldBubbles(3);
     landing.Kinematics.VerticalVelocity = landing.Kinematics.VerticalVelocity.Stopped();
     landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
-        landing, previousMovementType: SamusMovementType.Falling, previousPose: SamusPoseId.FallingRightPose,
+        landing, SamusGround.Of(RoomDefinitions.FirstIn(AreaId.Ceres)), previousMovementType: SamusMovementType.Falling, previousPose: SamusPoseId.FallingRightPose,
         landing.Kinematics.VerticalVelocity.Speed);
     AssertEqual(3, landingWaits.BubbleWaitUpdates, "zero-speed grounding returns before graphics dispatch");
 
     // Crateria reads its literal inline room byte. Landing Site flag one requires exact FX
     // type `$000A`; with a dry surface it creates surface splashes at +4/-3 and bottom-4.
     SeedLandingSiteInlineRoomByte(bus);
-    landing.Ground = SamusGround.Of(RoomDefinitions.LandingSite);
     PrivateState.Set(landing.LiquidPhysics, nameof(SamusLiquidPhysicsState.FxType), RoomFxType.Rain);
     landing.LiquidPhysics.WaterSurfaceY = null;
     landing.Kinematics.VerticalVelocity = landing.Kinematics.VerticalVelocity.WithSpeed(landing.Kinematics.VerticalVelocity.Speed.WithFraction(1));
     landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
-        landing, previousMovementType: SamusMovementType.Falling, previousPose: SamusPoseId.FallingRightPose,
+        landing, SamusGround.Of(RoomDefinitions.LandingSite), previousMovementType: SamusMovementType.Falling, previousPose: SamusPoseId.FallingRightPose,
         landing.Kinematics.VerticalVelocity.Speed);
     AssertEqual(SamusParticleKind.SurfaceSplash, landingParticles[^2].Kind, "Landing Site type-A FX selects splash");
     AssertEqual(SamusParticleKind.SurfaceSplash, landingParticles[^1].Kind, "Landing Site type-A FX selects a splash pair");

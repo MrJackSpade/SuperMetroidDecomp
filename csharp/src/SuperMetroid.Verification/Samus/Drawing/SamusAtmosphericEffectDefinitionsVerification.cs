@@ -131,10 +131,9 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
                 Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)),
                 Kinematics = { Radius = new(5, 12) },
             };
-            samus.Ground = SamusGround.Of(RoomDefinitions.FirstIn(AreaId.Maridia));
             SamusPresentation.InitializeAnimation(samus, samus.PoseFrameNumbered(frame));
             AdvanceToFootContactTick(samus);
-            samus.LiquidPhysics.PrepareAnimationFrame(samus, new SharedRandom(), frameCounter: 1, bossPresent: false);
+            samus.LiquidPhysics.PrepareAnimationFrame(samus, SamusGround.Of(RoomDefinitions.FirstIn(AreaId.Maridia)), new SharedRandom(), frameCounter: 1, bossPresent: false);
 
             AssertEqual(SamusAtmosphericEffects.IsRunningFootContact(new SamusAnimationFrame(SamusAnimationSegmentName.Run, frame)) ? "SurfaceSplash,SurfaceSplash" : "",
                 ParticleKinds(samus), $"production running contact frame {frame}");
@@ -158,12 +157,11 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
                 Position = FixedPosition<RoomPixels>.FromWhole(new(100, 0x03b0)),
                 Kinematics = { Radius = new(5, 12) },
             };
-            runner.Ground = SamusGround.Of(room);
             if (policy == CrateriaAtmosphericEffect.LandingSite)
                 runner.LiquidPhysics.ConfigureNonLiquidRoomFx(RoomFxType.Rain);
             SamusPresentation.InitializeAnimation(runner, runner.PoseFrameNumbered(2));
             AdvanceToFootContactTick(runner);
-            runner.LiquidPhysics.PrepareAnimationFrame(runner, new SharedRandom(), frameCounter: 1, bossPresent: false);
+            runner.LiquidPhysics.PrepareAnimationFrame(runner, SamusGround.Of(room), new SharedRandom(), frameCounter: 1, bossPresent: false);
             AssertEqual(wet ? "SurfaceSplash,SurfaceSplash" : "", ParticleKinds(runner),
                 $"production Crateria running policy in {room.Name}");
 
@@ -173,7 +171,6 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
                 Position = FixedPosition<RoomPixels>.FromWhole(new(100, 0x03b0)),
                 Kinematics = { Radius = new(5, 12) },
             };
-            landing.Ground = SamusGround.Of(room);
             if (policy == CrateriaAtmosphericEffect.LandingSite)
                 landing.LiquidPhysics.ConfigureNonLiquidRoomFx(RoomFxType.Rain);
             landing.LiquidPhysics.BeginFrameSoundRequests();
@@ -214,7 +211,6 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
                 Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)),
                 Kinematics = { Radius = new(5, 12) },
             };
-            landing.Ground = SamusGround.Of(room);
             landing.LiquidPhysics.EffectWaits.HoldBubbles(9);
             landing.LiquidPhysics.BeginFrameSoundRequests();
             landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
@@ -242,7 +238,6 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
             Pose = pose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)),
             Kinematics = { Radius = new(5, 12) },
-            Ground = IntroCinematicDefinitions.Flashback.Ground,
         };
         landing.Presentation.PresentInCinematic();
         landing.LiquidPhysics.EffectWaits.HoldBubbles(9);
@@ -260,12 +255,11 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
             Pose = pose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)),
             Kinematics = { Radius = new(5, 12) },
-            Ground = IntroCinematicDefinitions.Flashback.Ground,
         };
         runner.Presentation.PresentInCinematic();
         SamusPresentation.InitializeAnimation(runner, runner.PoseFrameNumbered(2));
         AdvanceToFootContactTick(runner);
-        runner.LiquidPhysics.PrepareAnimationFrame(runner, new SharedRandom(), frameCounter: 1, bossPresent: false);
+        runner.LiquidPhysics.PrepareAnimationFrame(runner, IntroCinematicDefinitions.Flashback.Ground, new SharedRandom(), frameCounter: 1, bossPresent: false);
         AssertEqual("", ParticleKinds(runner), "the flashback's unboosted footstep raises nothing");
     }
 

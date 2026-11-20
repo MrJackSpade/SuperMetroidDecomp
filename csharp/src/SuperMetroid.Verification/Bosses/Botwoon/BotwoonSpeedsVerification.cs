@@ -33,7 +33,7 @@ internal static class BotwoonSpeedsVerification
         }
         Action<RoomEnemyPlace, BotwoonEnemyState> update = BotwoonBehavior.UpdateBotwoonSpeedStage;
         var head = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom()).Places.InUpdateOrder[0];
-        var state = new BotwoonEnemyState(body: []) { StartingHealth = 3000 };
+        var state = new BotwoonEnemyState(_ => []) { StartingHealth = 3000 };
         for (int health = 0; health <= 3000; health++)
         {
             head.Health = (ushort)health;

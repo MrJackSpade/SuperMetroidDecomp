@@ -612,7 +612,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             EnemyProjectileFrameId frame, ISnesAddressSpace source, RoomEnemyProjectileKind kind)
         {
             // Typed programs (#641) present their frames by identity.
-            return TypedProgramKinds.Contains(kind) || FamilyProjectileStarts.StartingAnimation(kind) is not null
+            return TypedProgramKinds.Contains(kind) || FamilyProjectileStarts.StartsTypedAnimation(kind)
                 ? DrawPresentedFrame(artwork, frame, source, kind)
                 : throw new InvalidOperationException($"Projectile {kind} plays no typed program.");
         }

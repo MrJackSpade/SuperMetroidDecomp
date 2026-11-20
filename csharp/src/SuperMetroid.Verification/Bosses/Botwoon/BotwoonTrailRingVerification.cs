@@ -12,7 +12,7 @@ internal static class BotwoonTrailRingVerification
     internal static void VerifyBotwoonTrailRing()
     {
         AssertEqual(256, BotwoonTrailRing.Places, "the trail ring holds the head's last 256 moving positions");
-        AssertEqual(BotwoonTrailRing.Places, new BotwoonEnemyState(body: []).History.Length, "Botwoon's trail holds one position for each ring place");
+        AssertEqual(BotwoonTrailRing.Places, new BotwoonEnemyState(_ => []).History.Length, "Botwoon's trail holds one position for each ring place");
         for (int place = -3 * BotwoonTrailRing.Places; place < 3 * BotwoonTrailRing.Places; place++)
         {
             int expected = ((place % 256) + 256) % 256;

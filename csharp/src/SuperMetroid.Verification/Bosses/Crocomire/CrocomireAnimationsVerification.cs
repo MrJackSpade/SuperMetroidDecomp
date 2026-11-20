@@ -110,9 +110,9 @@ internal static class CrocomireAnimationsVerification
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         body.Bind(EnemyDefinitionId.Crocomire, body.Definition);
         body.Position = body.Position.WithWhole(new(576, 144));
-        var state = new CrocomireEnemyState(body);
-        body.SetSpeciesState(state);
-        state.JoinFixtureTongue(enemies.Places.InUpdateOrder[1]);
+        RoomEnemyPlace tongue = enemies.Places.InUpdateOrder[1];
+        tongue.Bind(EnemyDefinitionId.CrocomireTongue, RoomEnemyDefinitionLookup.Get(EnemyDefinitionId.CrocomireTongue));
+        var state = body.SetUpPlaced<CrocomireEnemyState>(tongue);
         enemies.VerificationServices().ReadRandom = () => ushort.MaxValue;
         enemies.VerificationServices().NextRandom = () => ushort.MaxValue;
         return new NewCrocomireResult(enemies, state);
@@ -235,8 +235,7 @@ internal static class CrocomireAnimationsVerification
             (RoomEnemySystem enemies, CrocomireEnemyState state) = NewCrocomire();
             RoomEnemyPlace tongue = enemies.Places.InUpdateOrder[1];
             tongue.Bind(EnemyDefinitionId.CrocomireTongue, tongue.Definition);
-            tongue.SetSpeciesState(new CrocomireTongueState(state));
-            state.JoinTongue(tongue);
+            AssertTrue(ReferenceEquals(tongue, state.Tongue), "Crocomire's tongue is the place his room lists after him");
             state.TonguePlayback = new AnimationPlayback<CrocomireTongueSegment>(CrocomireAnimations.TongueStartingWith(program), AnimationPlace.StartOfAnimation);
             tongue.AnimationClock.StepOnNextUpdate();
             var native = new NativeEnemyListReader(BodyBankNumber, entry, 1, _ => 0);
@@ -286,7 +285,7 @@ internal static class CrocomireAnimationsVerification
         shotSystem.CrocomireBehavior.Fight.SpawnCrocomireProjectile(shotState.Body, gradient: CrocomireProjectileDefinitions.AuthoredGradients[0]);
         EnemyProjectile exploding = shotSystem.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.CrocomireProjectile);
-        exploding.StartAnimation(new CrocomireProjectileAnimation(CrocomireProjectileSegment.Shot));
+        exploding.StartAnimation(new CrocomireProjectileAnimation(CrocomireProjectileSegment.Shot, (IEnemyProjectileCues<CrocomireProjectileCue>)exploding.Behavior));
         CompareProjectile(cartridge, shotSystem, exploding, RoomEnemyProjectileKind.CrocomireProjectile, shot: true, "shot");
         AssertTrue(!exploding.IsActive, "the shot program deletes the projectile");
         AssertTrue(shotSystem.Projectiles.EnemyProjectiles.Any(projectile => projectile.Kind == RoomEnemyProjectileKind.EnemyDeathPickup),

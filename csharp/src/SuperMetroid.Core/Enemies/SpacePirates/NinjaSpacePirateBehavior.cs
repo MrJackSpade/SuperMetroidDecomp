@@ -558,7 +558,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemySettingsFa
 
     /// <summary>A thrown claw: it flies out and back along its throw, once its animation throws it (#2278).</summary>
     /// <param name="claw">What the claw keeps: the way it was thrown and how far along its throw it is.</param>
-    private sealed class ClawBehavior(NinjaPirateClawState claw)
+    internal sealed class ClawBehavior(NinjaPirateClawState claw)
         : SingleMotionProjectileBehavior(context => FlyNinjaPirateClaw(context.Projectile, claw, context.Camera), initial: null),
             IEnemyProjectileCues<SpacePirateClawCue>
     {

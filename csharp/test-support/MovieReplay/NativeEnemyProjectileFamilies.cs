@@ -8,6 +8,7 @@ internal static class NativeEnemyProjectileFamilies
     [
         EyeDoorSweatNativeListAddresses.Family,
         TourianStatueProjectileNativeListAddresses.Family,
+        TourianStatueDecorationNativeListAddresses.Family,
         SaveStationElectricityNativeListAddresses.Family,
         MotherBrainEffectNativeListAddresses.Family,
         MotherBrainTopTubeNativeListAddresses.Family,

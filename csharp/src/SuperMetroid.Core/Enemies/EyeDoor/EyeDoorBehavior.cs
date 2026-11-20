@@ -95,7 +95,7 @@ internal sealed class EyeDoorBehavior
 
     /// <summary>An eye door's shot, holding its heading and the door it came from: it aims at Samus and flies until it hits.</summary>
     /// <param name="shot">What the shot keeps.</param>
-    private sealed class ShotBehavior(EyeDoorShotState shot)
+    internal sealed class ShotBehavior(EyeDoorShotState shot)
         : EnemyProjectileMotionBehavior<SingleMotion>(initial: null), IEnemyProjectileCues<EyeDoorProjectileCue>
     {
         /// <inheritdoc/>

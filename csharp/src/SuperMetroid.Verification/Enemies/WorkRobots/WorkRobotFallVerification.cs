@@ -32,8 +32,8 @@ internal static class WorkRobotFallVerification
             place.Bind(EnemyDefinitionId.UnpoweredWorkRobot, place.Definition);
             place.Radius = new(8, 8);
             place.Position = FixedPosition<RoomPixels>.FromWhole(new(64, 32));
-            var state = new WorkRobotEnemyState() { FallVelocity = SignedSixteenSixteen.FromParts(whole, fraction) };
-            place.SetSpeciesState(state);
+            var state = place.SetUpPlaced<WorkRobotEnemyState>();
+            state.FallVelocity = SignedSixteenSixteen.FromParts(whole, fraction);
 
             enemies.WorkRobotBehavior.RunWorkRobotMainAi(place, frame);
 

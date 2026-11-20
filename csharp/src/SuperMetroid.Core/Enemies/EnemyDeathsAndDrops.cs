@@ -102,7 +102,7 @@ internal sealed class EnemyDeathsAndDrops
         EnemyProjectile? explosion = _projectiles.AllocateEnemyProjectile();
         if (explosion is not null)
         {
-            var behavior = new ExplosionBehavior(this, new EnemyDeathExplosionState(KilledEnemy.Of(enemy, respawns), enemy.DefinitionId));
+            var behavior = Explosion(new EnemyDeathExplosionState(KilledEnemy.Of(enemy, respawns), enemy.DefinitionId));
             EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
                 explosion,
                 RoomEnemyProjectileKind.EnemyDeathExplosion,
@@ -247,7 +247,7 @@ internal sealed class EnemyDeathsAndDrops
         EnemyPickupKind kind = SelectRandomEnemyDrop(dropChances, samus);
         DropBinding drop = kind == EnemyPickupKind.NoDrop
             ? DropBinding.Of(new DormantDropBehavior(this, KilledEnemy.None))
-            : DropBinding.Of(new PickupBehavior(this, new EnemyPickupState(kind, EnemyPickupDefinitions.Lifetime, KilledEnemy.None)));
+            : DropBinding.Of(Pickup(new EnemyPickupState(kind, EnemyPickupDefinitions.Lifetime, KilledEnemy.None)));
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             pickup,
             RoomEnemyProjectileKind.EnemyDeathPickup,
@@ -292,7 +292,7 @@ internal sealed class EnemyDeathsAndDrops
             projectile.Rebind(dormant);
             return new EnemyDeathAndDropAnimation(ConfigureDormantPickup(projectile), dormant);
         }
-        var pickup = new PickupBehavior(this, new EnemyPickupState(kind, EnemyPickupDefinitions.Lifetime, explosion.KilledEnemy));
+        var pickup = Pickup(new EnemyPickupState(kind, EnemyPickupDefinitions.Lifetime, explosion.KilledEnemy));
         projectile.Rebind(pickup);
         return new EnemyDeathAndDropAnimation(ConfigurePickup(projectile, kind), pickup);
     }
@@ -589,10 +589,18 @@ internal sealed class EnemyDeathsAndDrops
         KilledEnemy KilledEnemy { get; }
     }
 
+    /// <summary>The behaviour of a death explosion keeping <paramref name="explosion"/>.</summary>
+    /// <param name="explosion">What the explosion keeps: the enemy it came from and the definition its drop rolls by.</param>
+    internal ExplosionBehavior Explosion(EnemyDeathExplosionState explosion) => new(this, explosion);
+
+    /// <summary>The behaviour of a pickup keeping <paramref name="pickup"/>.</summary>
+    /// <param name="pickup">What the pickup keeps: its kind, lifetime and the enemy it came from.</param>
+    internal PickupBehavior Pickup(EnemyPickupState pickup) => new(this, pickup);
+
     /// <summary>A death explosion, holding the enemy it came from and the definition its drop rolls by.</summary>
     /// <param name="drops">The room's deaths and drops, which run the explosion's cues.</param>
     /// <param name="explosion">What the explosion keeps.</param>
-    private sealed class ExplosionBehavior(EnemyDeathsAndDrops drops, EnemyDeathExplosionState explosion)
+    internal sealed class ExplosionBehavior(EnemyDeathsAndDrops drops, EnemyDeathExplosionState explosion)
         : EnemyProjectileBehavior, IEnemyProjectileHandingOverCues<EnemyDeathExplosionCue>
     {
         /// <inheritdoc/>
@@ -603,7 +611,7 @@ internal sealed class EnemyDeathsAndDrops
     /// <summary>A pickup, holding what it restores, how long it lasts and the enemy it came from; it waits to be collected.</summary>
     /// <param name="drops">The room's deaths and drops, which tend the pickup and run its cues.</param>
     /// <param name="pickup">What the pickup keeps.</param>
-    private sealed class PickupBehavior(EnemyDeathsAndDrops drops, EnemyPickupState pickup)
+    internal sealed class PickupBehavior(EnemyDeathsAndDrops drops, EnemyPickupState pickup)
         : EnemyProjectileMotionBehavior<SingleMotion>(initial: SingleMotion.Moving),
             IEnemyProjectileCues<EnemyDeathAndDropCue>, IDropCues
     {

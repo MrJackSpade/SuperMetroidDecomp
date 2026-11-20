@@ -47,7 +47,7 @@ internal sealed class FallingSparksBehavior
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.FallingSpark,
-            new SingleMotionProjectileBehavior(context => FallFallingSpark(context.Projectile, spark, context.Level, context.ShortCounter)),
+            Spark(spark),
             SpriteGraphics.SpawnedBy(source));
         projectile.StartAnimation(new FallingSparkAnimation(FallingSparkSegment.Falling));
         projectile.Position = source.Position.WithWholeY(source.Position.Y.Whole + FallingSparkMotionDefinitions.SpawnBelowSource);
@@ -56,6 +56,11 @@ internal sealed class FallingSparksBehavior
 
 
     /// <summary>Moves the falling spark one update.</summary>
+    /// <summary>The behaviour of a falling spark keeping <paramref name="spark"/>: it falls, drifting as its launch set.</summary>
+    /// <param name="spark">What the spark keeps: its horizontal step.</param>
+    internal EnemyProjectileBehavior Spark(FallingSparkState spark) =>
+        new SingleMotionProjectileBehavior(context => FallFallingSpark(context.Projectile, spark, context.Level, context.ShortCounter));
+
     internal void FallFallingSpark(
         EnemyProjectile projectile,
         FallingSparkState spark,

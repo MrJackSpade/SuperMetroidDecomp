@@ -204,14 +204,12 @@ internal static class DraygonStateQuantitiesVerification
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         body.Bind(EnemyDefinitionId.DraygonBody, body.Definition);
         body.Position = body.Position.WithWhole(new(256, 384));
-        var state = new DraygonEnemyState(body, enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]);
-        body.SetSpeciesState(state);
-        state.Eye.Bind(EnemyDefinitionId.DraygonEye, state.Eye.Definition);
-        state.Eye.SetSpeciesState(state.EyePart);
-        state.Tail.Bind(EnemyDefinitionId.DraygonTail, state.Tail.Definition);
-        state.Tail.SetSpeciesState(state.TailPart);
-        state.Arms.Bind(EnemyDefinitionId.DraygonArms, state.Arms.Definition);
-        state.Arms.SetSpeciesState(state.ArmsPart);
+        // Draygon is set up through his group's factory, his eye, tail and arms built as its parts in the places after him.
+        RoomEnemyPlace eye = enemies.Places.InUpdateOrder[1], tail = enemies.Places.InUpdateOrder[2], arms = enemies.Places.InUpdateOrder[3];
+        eye.Bind(EnemyDefinitionId.DraygonEye, eye.Definition);
+        tail.Bind(EnemyDefinitionId.DraygonTail, tail.Definition);
+        arms.Bind(EnemyDefinitionId.DraygonArms, arms.Definition);
+        var state = body.SetUpPlaced<DraygonEnemyState>(eye, tail, arms);
         foreach (DraygonPart part in new[] { state.BodyPart, state.EyePart, state.TailPart, state.ArmsPart })
             part.SetAnimation(DraygonSegment.Rest);
         // A nonzero low byte keeps the spiral from inserting a tail whip.

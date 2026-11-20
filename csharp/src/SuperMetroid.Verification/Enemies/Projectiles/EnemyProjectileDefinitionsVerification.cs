@@ -70,7 +70,7 @@ internal static class EnemyProjectileDefinitionsVerification
             AssertEqual(startingMotions[kind], projectile.Motion,
                 $"{kind} production pre-instruction");
             // A kind whose spawner starts a typed initial program (#641, #1760) runs it in place of the definition's native list.
-            bool typedStart = FamilyProjectileStarts.StartingAnimation(kind) is not null;
+            bool typedStart = FamilyProjectileStarts.StartsTypedAnimation(kind);
             AssertEqual(typedStart, projectile.Animation is not null, $"{kind} production typed start");
             AssertEqual((ushort)1, projectile.FrameHold.RawValue,
                 $"{kind} production timer");

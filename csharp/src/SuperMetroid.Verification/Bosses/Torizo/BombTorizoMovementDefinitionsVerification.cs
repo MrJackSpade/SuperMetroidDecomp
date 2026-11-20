@@ -53,7 +53,6 @@ internal static class BombTorizoMovementDefinitionsVerification
                 Radius = new(8, 8),
             };
             var state = new TorizoEnemyState(TorizoVariant.Bomb);
-            place.SetSpeciesState(state);
             var next = enemies.TorizoBehavior.Choices.ProcessTorizoWalkStep(place, state, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus(), level,
                 TorizoWalkerDefinitions.BombTorizo, velocity);
             AssertEqual(velocity, state.Velocity.X.InTwoHundredFiftySixthsOfPixel, $"Bomb Torizo walk consumer velocity {velocity}");

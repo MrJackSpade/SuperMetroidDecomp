@@ -136,11 +136,8 @@ internal static class BotwoonAttackCooldownVerification
         RoomEnemyPlace head = enemies.Places.InUpdateOrder[0];
         head.Bind(EnemyDefinitionId.Botwoon, head.Definition);
         head.Position = head.Position.WithWhole(new(1000, 1000));
-        var state = new BotwoonEnemyState(enemies.BotwoonBehavior.SpawnBotwoonBody(head))
-        {
-            HealthBand = BotwoonHealthBandDefinitions.BelowEighth,
-        };
-        head.SetSpeciesState(state);
+        var state = head.SetUpPlaced<BotwoonEnemyState>();
+        state.HealthBand = BotwoonHealthBandDefinitions.BelowEighth;
         return new NewBotwoonHeadResult(enemies, head, state);
     }
 

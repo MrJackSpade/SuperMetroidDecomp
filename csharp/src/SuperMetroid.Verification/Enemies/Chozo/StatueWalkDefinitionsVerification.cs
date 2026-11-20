@@ -32,7 +32,6 @@ internal static class StatueWalkDefinitionsVerification
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.Radius = new(8, 8);
         var torizo = new TorizoEnemyState(TorizoVariant.Golden);
-        place.SetSpeciesState(torizo);
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         for (int step = 0; step < GoldenWalkSteps; step++)
         {

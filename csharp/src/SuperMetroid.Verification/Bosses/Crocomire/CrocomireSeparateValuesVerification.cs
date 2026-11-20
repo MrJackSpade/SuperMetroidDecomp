@@ -16,8 +16,7 @@ internal static class CrocomireSeparateValuesVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-        var state = new CrocomireEnemyState(body);
-        body.SetSpeciesState(state);
+        var state = new CrocomireEnemyState(body, enemies.Places.InUpdateOrder[1]);
 
         state.StepCounter = 5;
         AssertEqual(0, state.RumbleOscillation, "the queued steps leave the rumble oscillation alone");

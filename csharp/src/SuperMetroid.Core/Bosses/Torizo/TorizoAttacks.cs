@@ -544,7 +544,7 @@ internal sealed class TorizoAttacks
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
             return;
-        var behavior = new OrbBehavior(_projectiles, _audio, _deathsAndDrops, new TorizoChozoOrbState(TorizoChozoOrbDefinitions.BombTorizoOrbDropChances), TorizoChozoOrbMotion.BombOrbFalling);
+        var behavior = ChozoOrb(new TorizoChozoOrbState(TorizoChozoOrbDefinitions.BombTorizoOrbDropChances), TorizoChozoOrbMotion.BombOrbFalling);
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.BombTorizoChozoOrb,
@@ -610,7 +610,7 @@ internal sealed class TorizoAttacks
         if (projectile is null)
             return;
 
-        var behavior = new OrbBehavior(_projectiles, _audio, _deathsAndDrops, new TorizoChozoOrbState(TorizoChozoOrbDefinitions.GoldenTorizoOrbDropChances), TorizoChozoOrbMotion.GoldenOrbBouncing);
+        var behavior = ChozoOrb(new TorizoChozoOrbState(TorizoChozoOrbDefinitions.GoldenTorizoOrbDropChances), TorizoChozoOrbMotion.GoldenOrbBouncing);
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.GoldenTorizoChozoOrb,
@@ -629,7 +629,7 @@ internal sealed class TorizoAttacks
         if (projectile is null)
             return;
 
-        var behavior = new EggBehavior(_projectiles, _audio, new GoldenTorizoEggState(laidFacing: state.Posture.Facing));
+        var behavior = Egg(new GoldenTorizoEggState(laidFacing: state.Posture.Facing));
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.GoldenTorizoEgg,
@@ -643,6 +643,23 @@ internal sealed class TorizoAttacks
             TorizoRandomizedProjectileDefinitions.GoldenEgg.Toward(state.Posture.Facing), segment => new GoldenTorizoEggAnimation(segment, behavior));
     }
 
+    /// <summary>The behaviour of a Chozo orb keeping <paramref name="orb"/>, moving first as <paramref name="initial"/>.</summary>
+    /// <param name="orb">What the orb keeps: the drop chances its breaking rolls.</param>
+    /// <param name="initial">How the orb moves from its spawn.</param>
+    internal OrbBehavior ChozoOrb(TorizoChozoOrbState orb, TorizoChozoOrbMotion initial) =>
+        new(_projectiles, _audio, _deathsAndDrops, orb, initial);
+
+    /// <summary>The behaviour of an egg Golden Torizo lays keeping <paramref name="egg"/>.</summary>
+    /// <param name="egg">What the egg keeps: the way Golden Torizo faced as it laid it.</param>
+    internal EggBehavior Egg(GoldenTorizoEggState egg) => new(_projectiles, _audio, egg);
+
+    /// <summary>The behaviour of a super missile <paramref name="torizo"/> has caught, which it holds until it throws it.</summary>
+    /// <param name="torizo">The Golden Torizo's place.</param>
+    /// <param name="state">The Golden Torizo's state.</param>
+    internal WeaponBehavior SuperMissile(RoomEnemyPlace torizo, TorizoEnemyState state) =>
+        new(_projectiles, _audio, new TorizoOwnedProjectileState(torizo, state),
+            GoldenTorizoWeaponMotion.SuperMissileHeld, GoldenTorizoWeaponSegment.SuperMissileImpact);
+
     /// <summary>Attaches a caught super missile above the active hand and selects its facing-dependent animation.</summary>
     internal void SpawnGoldenTorizoSuperMissile(RoomEnemyPlace torizo, TorizoEnemyState state)
     {
@@ -650,8 +667,7 @@ internal sealed class TorizoAttacks
         if (projectile is null)
             return;
 
-        var behavior = new WeaponBehavior(_projectiles, _audio, new TorizoOwnedProjectileState(torizo, state),
-                GoldenTorizoWeaponMotion.SuperMissileHeld, GoldenTorizoWeaponSegment.SuperMissileImpact);
+        WeaponBehavior behavior = SuperMissile(torizo, state);
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.GoldenTorizoSuperMissile,

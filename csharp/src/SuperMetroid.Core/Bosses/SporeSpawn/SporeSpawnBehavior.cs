@@ -542,13 +542,17 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Spawns the ceiling spore emitter at <paramref name="emitter"/> for <paramref name="state"/>'s fight and runs its setup.</summary>
+    /// <summary>The behaviour of a spore spawner keeping <paramref name="emitter"/>.</summary>
+    /// <param name="emitter">What the spawner keeps: Spore Spawn and the way its spores drift.</param>
+    internal SporeSpawnSpawnerBehavior Spawner(SporeSpawnEmitterState emitter) => new(_room, _projectiles, _deathsAndDrops, emitter);
+
     internal void SpawnSporeSpawnSpawner(RoomEnemyPlace body, SporeSpawnEnemyState state, SporeSpawnEmitter emitter)
     {
         EnemyProjectile? spawner = _projectiles.AllocateEnemyProjectile();
         if (spawner is null)
             return;
 
-        var behavior = new SporeSpawnSpawnerBehavior(_room, _projectiles, _deathsAndDrops, new SporeSpawnEmitterState(state, emitter.Drift));
+        var behavior = Spawner(new SporeSpawnEmitterState(state, emitter.Drift));
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             spawner,
             RoomEnemyProjectileKind.SporeSpawnSpawner,

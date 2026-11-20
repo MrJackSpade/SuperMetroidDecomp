@@ -180,8 +180,9 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
         place.Bind(EnemyDefinitionId.YappingMaw, place.Definition);
         place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
         place.AnimationClock.StepOnNextUpdate();
-        var state = new YappingMawEnemyState { Playback = new(YappingMawAnimations.StartingWith(entry), AnimationPlace.StartOfAnimation), Links = [], RootEffectActor = new(SuperMetroid.Core.Enemies.EffectActors.RoomEffectActorKind.YappingMawBaseFacingUp, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard) };
-        place.SetSpeciesState(state);
+        place.SetSpawnSettings(new YappingMawSpawnSettings(ActivationDistance: 0, Attack: VerticalDirection.Down));
+        var state = place.SetUpPlaced<YappingMawEnemyState>();
+        state.Playback = new(YappingMawAnimations.StartingWith(entry), AnimationPlace.StartOfAnimation);
         return new NewInitializedYappingMawResult(enemies, place, state);
     }
 

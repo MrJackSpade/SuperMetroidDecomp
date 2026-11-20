@@ -103,7 +103,6 @@ internal static class MetroidBehaviorDefinitionsVerification
             EscapeMovesLeft = UpdateCountdown.Lasting(2),
             Movement = MetroidMovement.Homing,
         };
-        frozenPlace.SetSpeciesState(frozen);
         var strain = new List<(int MovesLeft, int Flash)>();
         for (int update = 0; update < 3; update++)
         {
@@ -130,12 +129,11 @@ internal static class MetroidBehaviorDefinitionsVerification
             place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
             place.AnimationClock.StepOnNextUpdate();
             // Start at the chasing loop's random-cry cue, after its four pulses.
-            enemies.Places.InUpdateOrder[0].SetSpeciesState(new MetroidEnemyState(new RoomEffectActor(RoomEffectActorKind.MetroidElectricity, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard), new RoomEffectActor(RoomEffectActorKind.MetroidShell, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard))
-            {
-                Playback = new(MetroidAnimations.StartingWith(MetroidSegment.ChasingSamus),
+            place.SetSpawnSettings(new MetroidSpawnSettings(IceDamageToFreeze: 0));
+            var metroidEnemyState = enemies.Places.InUpdateOrder[0].SetUpPlaced<MetroidEnemyState>();
+            metroidEnemyState.Playback = new(MetroidAnimations.StartingWith(MetroidSegment.ChasingSamus),
                     AnimationSegments<MetroidSegment, EnemyFrameId, MetroidCue>.PlaceOf(MetroidAnimations.StartingWith(MetroidSegment.ChasingSamus),
-                        MetroidSegment.ChasingCry, 0)),
-            });
+                        MetroidSegment.ChasingCry, 0));
 
             EnemyAnimationPlayer.AdvanceAnimation(place, RoomEnemyFrameFixtures.StandaloneSamus(), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Position16<RoomPixels>.Zero, 0);
 

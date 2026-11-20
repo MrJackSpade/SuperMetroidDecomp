@@ -10,11 +10,8 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// <param name="common">The shared participation.</param>
 /// <param name="bossArtwork">The session's installed boss artwork.</param>
 internal sealed class PhantoonTentaclesEntity(PhantoonBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
-    : PhantoonEntity(species, occupant, place, common, bossArtwork)
+    : PhantoonEntity(species, occupant, place, common, bossArtwork, species.InitializePhantoonTentacles(place))
 {
-    /// <inheritdoc/>
-    public override void Initialize() => Species.InitializePhantoonTentacles(Place);
-
     /// <summary>Takes no action of its own: the tentacles plays its own animation.</summary>
     /// <param name="frame">The enemy frame.</param>
     public override void RunMainAi(IEnemyAiFrame frame)

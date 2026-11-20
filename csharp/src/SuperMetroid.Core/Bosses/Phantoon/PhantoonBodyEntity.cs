@@ -13,11 +13,8 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// <param name="common">The shared participation.</param>
 /// <param name="bossArtwork">The session's installed boss artwork.</param>
 internal sealed class PhantoonBodyEntity(PhantoonBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
-    : PhantoonEntity(species, occupant, place, common, bossArtwork), IEnemyContactHooks, IEnemyPrivateShotReaction
+    : PhantoonEntity(species, occupant, place, common, bossArtwork, species.InitializePhantoonBody(occupant, place)), IEnemyContactHooks, IEnemyPrivateShotReaction
 {
-    /// <inheritdoc/>
-    public override void Initialize() => Species.InitializePhantoonBody(Occupant, Place);
-
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) => Species.RunPhantoonBodyMainAi(Encounter, frame);
 

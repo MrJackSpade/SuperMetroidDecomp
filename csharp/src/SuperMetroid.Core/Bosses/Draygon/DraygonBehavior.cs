@@ -21,13 +21,13 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition == EnemyDefinitionId.DraygonBody)
-            return EnemyOccupant.Of(new DraygonBodyEntity(this, occupant, place, common, _bossArtwork));
+            return EnemyOccupant.Running(new DraygonBodyEntity(this, occupant, place, common, _bossArtwork));
         if (definition == EnemyDefinitionId.DraygonEye)
-            return EnemyOccupant.Of(new DraygonEyeEntity(this, occupant, place, common, _bossArtwork));
+            return EnemyOccupant.Running(new DraygonEyeEntity(this, occupant, place, common, _bossArtwork));
         if (definition == EnemyDefinitionId.DraygonTail)
-            return EnemyOccupant.Of(new DraygonTailEntity(this, occupant, place, common, _bossArtwork));
+            return EnemyOccupant.Running(new DraygonTailEntity(this, occupant, place, common, _bossArtwork));
         if (definition == EnemyDefinitionId.DraygonArms)
-            return EnemyOccupant.Of(new DraygonArmsEntity(this, occupant, place, common, _bossArtwork));
+            return EnemyOccupant.Running(new DraygonArmsEntity(this, occupant, place, common, _bossArtwork));
         throw new InvalidOperationException($"The Draygon species creates no {occupant.DefinitionId}.");
     }
 

@@ -34,6 +34,9 @@ internal sealed class DraygonParts
     /// <summary>The room's enemy places, among which each part finds the body listed before it.</summary>
     private readonly EnemyPlaces _places;
 
+    /// <summary>The encounter Draygon's body began, under each of his parts' places, which the body links as it is set up (#2554).</summary>
+    private readonly EnemyPartLinks<DraygonEnemyState> _encounters = new();
+
     /// <summary>Builds the component from the encounter's collaborators.</summary>
     internal DraygonParts(DraygonPartsDependencies dependencies)
     {
@@ -52,7 +55,8 @@ internal sealed class DraygonParts
     /// Sets Draygon's body up when the room spawns it: it begins the encounter with his eye, tail and arms, which his room
     /// lists right after his body (#2298), each playing the animation its setup starts.
     /// </summary>
-    internal void InitializeDraygonBody(RoomEnemyOccupant occupant)
+    /// <returns>The encounter the body holds from its setup.</returns>
+    internal DraygonEnemyState InitializeDraygonBody(RoomEnemyOccupant occupant)
     {
         RoomEnemyPlace body = occupant.Place;
 
@@ -70,11 +74,13 @@ internal sealed class DraygonParts
         // his parts each hold the encounter from their own setup.
         _presentation.AttachBossBody(new BossBodyParts(BossBodyOwner.Draygon, draygon));
         _presentation.BossShadings.Show(BossShadingLayer.Draygon, draygon.Colours);
-        body.SetSpeciesState(draygon);
+        foreach (EnemyDefinitionId part in (ReadOnlySpan<EnemyDefinitionId>)[EnemyDefinitionId.DraygonEye, EnemyDefinitionId.DraygonTail, EnemyDefinitionId.DraygonArms])
+            _encounters.Place(Partner(body, EnemyDefinitionId.DraygonBody, part), draygon);
         // His setup shows only his opening's colours (#2547). His health band is the one his health starts in (#2304), so a
         // hurt the grapple's shock starts before any hit shows it, but his body layer shows it only from his first hurt
         // update or from the reaction that moves his health into another band.
         body.Shading = draygon.Colours.Sprites;
+        return draygon;
     }
 
     /// <summary>The member of Draygon's that plays <paramref name="role"/>, as his room lists them (#2298, #2556).</summary>
@@ -87,22 +93,32 @@ internal sealed class DraygonParts
     /// </summary>
     private DraygonPart JoiningPart(RoomEnemyPlace place, EnemyDefinitionId role, Func<DraygonEnemyState, DraygonPart> part)
     {
-        DraygonPart joined = part(Partner(place, role, EnemyDefinitionId.DraygonBody).RequireSpeciesState<DraygonEnemyState>());
-        place.SetSpeciesState(joined);
+        DraygonPart joined = part(_encounters.Of(place));
         place.AnimationClock.StepOnNextUpdate();
         return joined;
     }
 
     /// <summary>Sets Draygon's eye up, listed right after his body, inert until the body publishes facing AI.</summary>
-    internal void InitializeDraygonEye(RoomEnemyPlace eye) => JoiningPart(eye, EnemyDefinitionId.DraygonEye, draygon => draygon.EyePart);
+    /// <returns>The eye's part of the encounter, which it holds from its setup.</returns>
+    internal DraygonPart InitializeDraygonEye(RoomEnemyPlace eye) => JoiningPart(eye, EnemyDefinitionId.DraygonEye, draygon => draygon.EyePart);
 
     /// <summary>Sets Draygon's tail up, listed after his eye, starting with its fake whip.</summary>
-    internal void InitializeDraygonTail(RoomEnemyPlace tail) =>
-        tail.Shading = JoiningPart(tail, EnemyDefinitionId.DraygonTail, draygon => draygon.TailPart).Draygon.Colours.Sprites;
+    /// <returns>The part of the encounter it holds from its setup.</returns>
+    internal DraygonPart InitializeDraygonTail(RoomEnemyPlace tail)
+    {
+        DraygonPart joined = JoiningPart(tail, EnemyDefinitionId.DraygonTail, draygon => draygon.TailPart);
+        tail.Shading = joined.Draygon.Colours.Sprites;
+        return joined;
+    }
 
     /// <summary>Sets Draygon's arms up, listed after his tail, in their idle loop.</summary>
-    internal void InitializeDraygonArms(RoomEnemyPlace arms) =>
-        arms.Shading = JoiningPart(arms, EnemyDefinitionId.DraygonArms, draygon => draygon.ArmsPart).Draygon.Colours.Sprites;
+    /// <returns>The part of the encounter it holds from its setup.</returns>
+    internal DraygonPart InitializeDraygonArms(RoomEnemyPlace arms)
+    {
+        DraygonPart joined = JoiningPart(arms, EnemyDefinitionId.DraygonArms, draygon => draygon.ArmsPart);
+        arms.Shading = joined.Draygon.Colours.Sprites;
+        return joined;
+    }
 
     /// <summary>Sets <paramref name="eye"/> tracking Samus facing <paramref name="facing"/> (#2165).</summary>
     private static void Track(DraygonEyeState eye, HorizontalDirection facing)

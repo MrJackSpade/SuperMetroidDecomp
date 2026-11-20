@@ -15,14 +15,14 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 internal sealed class DraygonBodyEntity(DraygonBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
     : DraygonEntity(species, occupant, place, common, bossArtwork), IEnemyPrivateShotReaction
 {
-    /// <inheritdoc/>
-    public override void Initialize() => Species.Parts.InitializeDraygonBody(Occupant);
+    /// <summary>The encounter his body began as it was built (#2554).</summary>
+    private DraygonEnemyState Draygon { get; } = species.Parts.InitializeDraygonBody(occupant);
 
     /// <summary>The body's part of the encounter it set up.</summary>
-    internal override DraygonPart Part => Place.RequireSpeciesState<DraygonEnemyState>().BodyPart;
+    internal override DraygonPart Part => Draygon.BodyPart;
 
     /// <inheritdoc/>
-    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunDraygonBodyMainAi(Place, Place.RequireSpeciesState<DraygonEnemyState>(), frame);
+    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunDraygonBodyMainAi(Place, Draygon, frame);
 
     /// <summary>
     /// The body's hurt behaviour: it flashes body, eye and tail together, while a connected grapple's electrocution may

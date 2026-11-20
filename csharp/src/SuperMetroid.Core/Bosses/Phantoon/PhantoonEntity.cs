@@ -16,14 +16,12 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// <param name="place">The place the part occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="bossArtwork">The session's installed boss artwork.</param>
-internal abstract class PhantoonEntity(PhantoonBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
-    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IBossBodyFrames
+/// <param name="part">The part's own part of the encounter, which its setup made as the entity was built (#2554).</param>
+internal abstract class PhantoonEntity(PhantoonBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, BossArtworkBinding bossArtwork, PhantoonPart part)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IBossBodyFrames
 {
     /// <summary>The Phantoon species owner.</summary>
     protected PhantoonBehavior Species => species;
-
-    /// <inheritdoc/>
-    public abstract void Initialize();
 
     /// <inheritdoc/>
     public abstract void RunMainAi(IEnemyAiFrame frame);
@@ -32,7 +30,7 @@ internal abstract class PhantoonEntity(PhantoonBehavior species, RoomEnemyOccupa
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => Species.AdvancePhantoonPartAnimation(Part);
 
     /// <summary>The part's own part of the encounter, its playback included, which it holds from its setup (#2252).</summary>
-    internal PhantoonPart Part => Place.RequireSpeciesState<PhantoonPart>();
+    internal PhantoonPart Part { get; } = part;
 
     /// <summary>The encounter the part is part of, which it holds from its setup (#2252).</summary>
     internal PhantoonEnemyState Encounter => Part.Phantoon;

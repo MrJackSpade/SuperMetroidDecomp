@@ -18,7 +18,11 @@ internal sealed class MotherBrainBodyEntity(MotherBrainBehavior species, RoomEne
     : MotherBrainEntity(species, place, common), IBossBodyFrames, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
-    public override void Initialize() => Species.Body.InitializeMotherBrainBody(Place);
+    public override void Initialize()
+    {
+        RequireSharedPowerBombReaction();
+        Species.Body.InitializeMotherBrainBody(Place);
+    }
 
     /// <summary>The body's hitboxes: her brain's rectangle until its first animation shows a body frame, then its frame's.</summary>
     public override bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction) =>
@@ -45,14 +49,6 @@ internal sealed class MotherBrainBodyEntity(MotherBrainBehavior species, RoomEne
     public override bool TryReactToBomb(EnemyBombContext context) =>
         context.SelectedShot == MotherBrainReactions.BodyShot || base.TryReactToBomb(context);
 
-    /// <summary>
-    /// The shared Power Bomb reaction; the body leaves the blast to the species, which has no reaction to it, and fails
-    /// loudly if a blast reaches it.
-    /// </summary>
-    /// <exception cref="InvalidDataException">The body's definition leaves the blast to the species.</exception>
-    public override EnemyPowerBombReaction? PowerBombReaction => LeavesPowerBombToSpecies
-        ? throw new InvalidDataException($"Enemy {Place.DefinitionId} has no response to its own Power Bomb reaction.")
-        : base.PowerBombReaction;
 
     /// <inheritdoc/>
     public BossBodyFrame? FindBodyFrame(EnemyFrameId selected) =>

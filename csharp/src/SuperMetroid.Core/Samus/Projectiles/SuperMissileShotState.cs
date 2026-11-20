@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// </summary>
 /// <param name="ignition">Where the shot starts in its ignition.</param>
 /// <param name="linkPlace">The place the shot starts naming as its link, or null when it names none.</param>
-internal sealed class SuperMissileShotState(SamusMissileIgnition ignition, int? linkPlace) : MissileShotState(ignition)
+internal sealed class SuperMissileShotState(SamusMissileIgnition.Unignited ignition, int? linkPlace) : MissileShotState(ignition)
 {
     /// <summary>
     /// The place whose projectile an ignited Super Missile moves as its invisible collision link, or null when it names

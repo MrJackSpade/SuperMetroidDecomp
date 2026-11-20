@@ -245,7 +245,7 @@ internal static class BeamFiredOverLastShotVerification
     }
 
     /// <summary>Puts a missile in the last place at <paramref name="ignition"/>, ignited at <paramref name="ignitedAt"/> when given.</summary>
-    private static SamusProjectile Missile(SamusProjectileSystem projectiles, SamusMissileIgnition ignition, SignedEightEight? ignitedAt)
+    private static SamusProjectile Missile(SamusProjectileSystem projectiles, SamusMissileIgnition.Unignited ignition, SignedEightEight? ignitedAt)
     {
         SamusProjectile missile = projectiles.Pool.Occupy(LastPlace);
         missile.Type = SamusProjectileType.Of(SamusProjectileFamily.Missile);
@@ -262,7 +262,7 @@ internal static class BeamFiredOverLastShotVerification
     /// Puts a Super Missile in the last place, starting at <paramref name="ignition"/> naming <paramref name="linkPlace"/>,
     /// then ignited as its ignition does, at its speed, naming <paramref name="ignitedLinkPlace"/>.
     /// </summary>
-    private static SamusProjectile SuperMissile(SamusProjectileSystem projectiles, SamusMissileIgnition ignition, int? linkPlace,
+    private static SamusProjectile SuperMissile(SamusProjectileSystem projectiles, SamusMissileIgnition.Unignited ignition, int? linkPlace,
         int? ignitedLinkPlace)
     {
         SamusProjectile missile = projectiles.Pool.Occupy(LastPlace);

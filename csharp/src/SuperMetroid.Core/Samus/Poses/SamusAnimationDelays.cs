@@ -5,19 +5,16 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// <summary>Which animation each Samus pose animates by (#1473), and how her animation reads its frames (#2048).</summary>
 internal static class SamusAnimationDelays
 {
-    /// <summary>Every animation by its name.</summary>
-    private static readonly Dictionary<SamusAnimationName, SamusPoseAnimation> ByName = NameEveryAnimation();
+    /// <summary>Every animation by its name, each name naming one, as the table requires as it is built.</summary>
+    private static readonly IdentityTable<SamusAnimationName, SamusPoseAnimation> ByName =
+        new(SamusAnimationDelayDefinitions.All.ToDictionary(animation => animation.Name));
 
     /// <summary>The animation <paramref name="pose"/> animates by.</summary>
     /// <exception cref="InvalidOperationException">The pose is undefined.</exception>
     internal static SamusPoseAnimation AnimationForPose(SamusPoseId pose) => SamusPoseTraits.Of(pose).Animation;
 
     /// <summary>The animation named <paramref name="name"/>.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The name names no animation.</exception>
-    internal static SamusPoseAnimation AnimationNamed(SamusAnimationName name) =>
-        ByName.TryGetValue(name, out SamusPoseAnimation? animation)
-            ? animation
-            : throw new ArgumentOutOfRangeException(nameof(name), name, "No Samus animation has this name.");
+    internal static SamusPoseAnimation AnimationNamed(SamusAnimationName name) => ByName[name];
 
     /// <summary>The step of <paramref name="pose"/>'s animation at <paramref name="frame"/>.</summary>
     /// <exception cref="InvalidDataException">The frame reads no step of the pose's animation.</exception>
@@ -125,13 +122,4 @@ internal static class SamusAnimationDelays
     private static SamusPoseAnimationStep? OwnStep(SamusPoseAnimation animation, SamusAnimationFrame frame, SamusFramesBeyondAnimation framesBeyondAnimation) =>
         animation.TryStepAt(frame) ?? framesBeyondAnimation.CueValueStep(animation.Name, frame);
 
-    /// <summary>Every animation of <see cref="SamusAnimationDelayDefinitions.All"/> by its name, which each has once.</summary>
-    /// <exception cref="InvalidOperationException">An animation's name is missing from the definitions.</exception>
-    private static Dictionary<SamusAnimationName, SamusPoseAnimation> NameEveryAnimation()
-    {
-        Dictionary<SamusAnimationName, SamusPoseAnimation> byName = SamusAnimationDelayDefinitions.All.ToDictionary(animation => animation.Name);
-        return byName.Count == Enum.GetValues<SamusAnimationName>().Length
-            ? byName
-            : throw new InvalidOperationException("A Samus animation name has no animation.");
-    }
 }

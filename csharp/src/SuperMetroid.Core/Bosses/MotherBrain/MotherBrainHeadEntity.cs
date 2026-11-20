@@ -12,7 +12,11 @@ internal sealed class MotherBrainHeadEntity(MotherBrainBehavior species, RoomEne
     : MotherBrainEntity(species, place, common), IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
-    public override void Initialize() => Species.Head.InitializeMotherBrainHead(Place);
+    public override void Initialize()
+    {
+        RequireSharedPowerBombReaction();
+        Species.Head.InitializeMotherBrainHead(Place);
+    }
 
     /// <summary>The head's hitbox: her brain's rectangle, which it owns (#2220).</summary>
     public override bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction) =>
@@ -56,14 +60,6 @@ internal sealed class MotherBrainHeadEntity(MotherBrainBehavior species, RoomEne
         return true;
     }
 
-    /// <summary>
-    /// The shared Power Bomb reaction; the head leaves the blast to the species, which has no reaction to it, and fails
-    /// loudly if a blast reaches it.
-    /// </summary>
-    /// <exception cref="InvalidDataException">The head's definition leaves the blast to the species.</exception>
-    public override EnemyPowerBombReaction? PowerBombReaction => LeavesPowerBombToSpecies
-        ? throw new InvalidDataException($"Enemy {Place.DefinitionId} has no response to its own Power Bomb reaction.")
-        : base.PowerBombReaction;
 
     /// <summary>Shots meet the head's frames' hitboxes; its contact uses the definition's radius.</summary>
     public override EnemyCapabilities Capabilities => EnemyCapabilities.ProjectileFrameHitboxes;

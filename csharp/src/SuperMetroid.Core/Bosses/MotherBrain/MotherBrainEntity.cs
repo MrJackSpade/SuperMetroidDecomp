@@ -19,6 +19,17 @@ internal abstract class MotherBrainEntity(MotherBrainBehavior species, RoomEnemy
     /// <inheritdoc/>
     public abstract void Initialize();
 
+    /// <summary>
+    /// Requires the part's definition to name the shared Power Bomb reaction, checked once as the part sets up: Mother
+    /// Brain's parts have no reaction of their own to a blast, so a definition that left it to them would leave it to none.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The part's definition leaves the blast to the species.</exception>
+    protected void RequireSharedPowerBombReaction()
+    {
+        if (LeavesPowerBombToSpecies)
+            throw new InvalidDataException($"Enemy {Place.DefinitionId} has no response to its own Power Bomb reaction.");
+    }
+
     /// <summary>The encounter the part is part of, which it holds from its setup (#2218).</summary>
     /// <exception cref="InvalidOperationException">The part has not set up.</exception>
     protected MotherBrainEnemyState Encounter => Place.RequireSpeciesState<MotherBrainEnemyState>();

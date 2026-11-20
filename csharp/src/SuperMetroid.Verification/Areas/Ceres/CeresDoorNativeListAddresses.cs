@@ -16,7 +16,8 @@ internal static class CeresDoorNativeListAddresses
     /// <summary>
     /// Each typed program's native entry point, in authored order, for a door facing right and one facing left (#2557): the
     /// door of Ridley's room, the elevator room's blocked door and the getaway chamber's walls run with the right-facing
-    /// lists, and the elevator room's wall with the left-facing door it stands as.
+    /// lists, and the elevator room's wall, which the cartridge lists between them, goes on as the left-facing door it
+    /// stands as.
     /// </summary>
     internal static readonly IReadOnlyDictionary<HorizontalDirection, NativeProgramEntry<CeresDoorSegment>[]> EntriesBySide =
         new Dictionary<HorizontalDirection, NativeProgramEntry<CeresDoorSegment>[]>
@@ -31,6 +32,7 @@ internal static class CeresDoorNativeListAddresses
                 new(CeresDoorSegment.Closed, 0xf598),
                 new(CeresDoorSegment.ClosedWait, 0xf59c),
                 new(CeresDoorSegment.ElevatorDoor, 0xf610),
+                new(CeresDoorSegment.ElevatorRoomWall, 0xf61a),
                 new(CeresDoorSegment.GetawayChamberLeftWall, 0xf62a),
                 new(CeresDoorSegment.GetawayChamberRightWall, 0xf634),
             ],

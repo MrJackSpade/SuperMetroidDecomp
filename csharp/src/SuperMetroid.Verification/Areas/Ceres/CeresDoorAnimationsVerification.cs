@@ -27,12 +27,18 @@ internal static class CeresDoorAnimationsVerification
                     AssertEqual(operands[index], instruction.Operands[index] switch
                 {
                     // Each native branch names the animation the door's owner starts on that event (#2189).
-                    'T' => NativeEnemyAnimationOracle.EntryOf(entries, StartedAnimation(cue.Kind)),
+                    // The elevator room's wall goes on as a left-facing door whichever lists it is read with.
+                    'T' => NativeEnemyAnimationOracle.EntryOf(cue.Kind == CeresDoorCueKind.ElevatorRoomWallAppears ? EntriesBySide[HorizontalDirection.Left] : entries,
+                        StartedAnimation(cue.Kind)),
                     _ => throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}."),
                 }, $"{at}: operand {index}");
-            }, ShownUnseen: UnseenFrames.Contains), onlyRunOnInto: OnlyRunOnInto);
+            }, ShownUnseen: UnseenFrames.Contains), onlyRunOnInto: OnlyRunOnInto,
+            covered: entries.Select(entry => entry.Program).ToHashSet());
         segments += entries.Length;
         }
+        AssertEqual(Enum.GetValues<CeresDoorSegment>().Length,
+            EntriesBySide.Values.SelectMany(entries => entries).Select(entry => entry.Program).Distinct().Count(),
+            "every typed CeresDoorSegment has a native entry in one facing's lists");
         Console.WriteLine($"  Ceres door animations: {segments} segments ({beats} beats) match bank $A6, either way the doors face.");
     }
 

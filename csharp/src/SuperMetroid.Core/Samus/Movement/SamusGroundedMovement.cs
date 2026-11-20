@@ -35,8 +35,7 @@ public static class SamusGroundedMovement
     /// <param name="elevatorIsMoving">Whether an elevator carries her this update.</param>
     /// <param name="roomObjects">The room's room objects and door contacts her scan reaches.</param>
     /// <param name="doorBlocks">What the door blocks the elevator carries her through do to her (#2545).</param>
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "SME6474", Justification = "Whether the forward step scanned and what its vertical scan met is the outcome the grounded-movement oracles assert; a skipped scan and a scan that met nothing leave the same state.")]
-    internal static BlockMoveResult? StepFacingForward(
+    internal static void StepFacingForward(
         RoomLevelData level,
         SamusState samus,
         int frameCounter,
@@ -66,7 +65,6 @@ public static class SamusGroundedMovement
         // particular, stale base/extra X speed is retained; facing forward clears those speeds at
         // setup time, not every frame in this movement step.
         samus.ForgetVerticalCollisionResult();
-        return vertical;
     }
 
     /// <summary>

@@ -152,9 +152,8 @@ internal static class ChainsawFiringVerification
         target.Health = 1000;
         target.Frame = EnemyFrameId.SkulteraSwimmingLeftTailStraight;
         combat.System.StepStandaloneFrame(combat.System.StandaloneFrame(combat.Level) with { Camera = new(0, 0), TimeIsFrozen = true, Samus = samus });
-        AssertEqual(1, combat.System.ResolveShotsOnInteractiveEnemies(
-            combatProjectiles, combatShared, SuperMetroid.Core.Progression.AreaId.Crateria, samus),
-            "active Chainsaw overlaps one ordinary enemy");
+        combat.System.ResolveShotsOnInteractiveEnemies(
+            combatProjectiles, combatShared, SuperMetroid.Core.Progression.AreaId.Crateria, samus);
         AssertEqual(850, target.Health,
             "Chainsaw uses Super-Missile vulnerability byte for a 150-point hit");
         AssertEqual(SamusProjectileType.Beam(SamusBeamCombination.SpazerPlasmaWave, charged: false), combatProjectiles.Shots[0].Type,

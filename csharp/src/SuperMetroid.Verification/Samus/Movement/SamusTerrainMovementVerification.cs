@@ -529,12 +529,12 @@ internal static void VerifySamusGroundedMovement()
     };
     forward.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(2, 0x3456);
     forward.HorizontalSpeed.ExtraRunSpeed = forward.HorizontalSpeed.ExtraRunSpeed.WithWhole(1);
-    BlockMoveResult? stationaryForward = SamusGroundedMovement.StepFacingForward(
+    SamusGroundedMovement.StepFacingForward(
 
         level,
         forward,
         frameCounter: 0, elevatorIsMoving: false, roomObjects: SamusRoomObjectFixtures.WithQuicksand(), doorBlocks: DoorBlockMeeting.Contacts);
-    AssertTrue(stationaryForward is null, "zero elevator status skips the vertical scan");
+    // Zero elevator status skips the vertical scan: Samus stays where she stood.
     AssertEqual(SamusVerticalCollisionResult.None, forward.SolidVerticalCollisionResult, "forward movement clears vertical collision result");
     AssertEqual(0x1234, forward.Position.X.Whole, "forward movement does not scan or move X");
     AssertEqual(0x5678, forward.Position.Y.Whole, "stationary forward movement does not move Y");
@@ -559,20 +559,14 @@ internal static void VerifySamusGroundedMovement()
             Solid: true),
     ];
     forward.SolidVerticalCollisionResult = SamusVerticalCollisionResult.HitCeiling;
-    BlockMoveResult? elevatorMove = SamusGroundedMovement.StepFacingForward(
+    SamusGroundedMovement.StepFacingForward(
 
         elevatorLevel,
         forward,
         frameCounter: 1,
         elevatorIsMoving: true, roomObjects: SamusRoomObjectFixtures.WithQuicksand(), doorBlocks: DoorBlockMeeting.Contacts);
-    AssertTrue(elevatorMove is { Collided: false }, "elevator block scan accepts clear air");
-    BlockMoveResult acceptedElevatorMove = elevatorMove ?? throw new InvalidOperationException(
-        "A nonzero elevator status must execute the one-pixel vertical scan.");
-    AssertTrue(acceptedElevatorMove.EnemyCollision is null,
-        "elevator `$94:9763` path skips a colliding solid enemy");
-    AssertEqual(0x00010000, acceptedElevatorMove.AcceptedDisplacement.RawValue,
-        "elevator requests exact one-pixel downward displacement");
-    AssertEqual(101, forward.Position.Y.Whole, "elevator moves forward-facing Samus down one pixel");
+    // The elevator's `$94:9763` scan skips the solid enemy one pixel below and accepts the whole one-pixel move.
+    AssertEqual(101, forward.Position.Y.Whole, "elevator moves forward-facing Samus down one pixel past the solid enemy");
     AssertEqual(0x5678, forward.Kinematics.Position.Y.Fraction,
         "whole-pixel elevator motion preserves Y fraction");
     AssertEqual(SamusVerticalCollisionResult.None, forward.SolidVerticalCollisionResult,

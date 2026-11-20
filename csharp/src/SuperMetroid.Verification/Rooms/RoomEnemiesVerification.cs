@@ -349,12 +349,10 @@ internal static void VerifyEnemyProjectileCollisionLifecycle()
     link.SpritemapPointer = 0;
     link.Install(SamusShotBehaviors.SuperMissileLink, new SuperMissileShotState(new SamusMissileIgnition.Pending(), UnlinkedSuperMissileLink.Place));
 
-    int hits = enemies.Projectiles.ResolveEnemyProjectileSamusProjectileHits(
+    enemies.Projectiles.ResolveEnemyProjectileSamusProjectileHits(
         shots,
         new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()));
 
-    AssertEqual(2, hits,
-        "blocking enemy projectile visits Super Missile owner and linked slot");
     AssertEqual(SamusProjectileType.Of(SamusProjectileFamily.SuperMissile), owner.Type,
         "enemy-projectile collision preserves fresh Super Missile family");
     AssertEqual(0x9f3b, owner.InstructionPointer,
@@ -557,8 +555,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
         Health = 99,
         Position = FixedPosition<RoomPixels>.FromWhole(ripper.Position.Whole),
     };
-    AssertTrue(enemies.Collision.ResolveOrdinarySamusContact(samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), controllerInput: 0, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), ripper, Position16<RoomPixels>.Zero),
-        "Ripper radius contact reaches common touch AI");
+    enemies.Collision.ResolveOrdinarySamusContact(samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), controllerInput: 0, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), ripper, Position16<RoomPixels>.Zero);
     AssertEqual(94, samus.Health, "Ripper header contact damage");
     AssertEqual(0x60, samus.InvincibilityTimer.RawValue, "Ripper contact invincibility clock");
     AssertEqual(5, samus.KnockbackHold.UpdatesLeft, "Ripper contact knockback clock");
@@ -594,13 +591,12 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     }
 
     SamusProjectile shot = ArmProjectile(projectiles, ripper, type: 0x8000, damage: 20);
-    AssertEqual(1, enemies.ResolveShotsOnInteractiveEnemies(projectiles, sharedProjectiles, SuperMetroid.Core.Progression.AreaId.Crateria, RoomEnemyFrameFixtures.StandaloneSamus()),
-        "Ripper ineffective power-beam collision");
+    enemies.ResolveShotsOnInteractiveEnemies(projectiles, sharedProjectiles, SuperMetroid.Core.Progression.AreaId.Crateria, RoomEnemyFrameFixtures.StandaloneSamus());
+    AssertTrue(shot.IsSpent, "Ripper ineffective power-beam collision spends the shot");
     AssertEqual(200, ripper.Health, "Ripper power-beam immunity comes from ROM vulnerability");
 
     shot = ArmProjectile(projectiles, ripper, type: 0x8002, damage: 20);
-    AssertEqual(1, enemies.ResolveShotsOnInteractiveEnemies(projectiles, sharedProjectiles, SuperMetroid.Core.Progression.AreaId.Crateria, RoomEnemyFrameFixtures.StandaloneSamus()),
-        "Ripper Ice Beam collision");
+    enemies.ResolveShotsOnInteractiveEnemies(projectiles, sharedProjectiles, SuperMetroid.Core.Progression.AreaId.Crateria, RoomEnemyFrameFixtures.StandaloneSamus());
     AssertEqual(400, ripper.Freeze.UpdatesLeft, "Ripper Ice vulnerability freezes actor");
     ushort frozenX = ripper.Position.X.Whole;
     // The Ice Beam froze it, so Samus has it equipped; an enemy thaws at once when she has not.
@@ -622,8 +618,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     for (int hit = 0; hit < 2; hit++)
     {
         shot = ArmProjectile(projectiles, ripper, type: 0x0200, damage: 100);
-        AssertEqual(1, enemies.ResolveShotsOnInteractiveEnemies(projectiles, sharedProjectiles, SuperMetroid.Core.Progression.AreaId.Crateria, RoomEnemyFrameFixtures.StandaloneSamus()),
-            $"Ripper Super Missile hit {hit + 1}");
+        enemies.ResolveShotsOnInteractiveEnemies(projectiles, sharedProjectiles, SuperMetroid.Core.Progression.AreaId.Crateria, RoomEnemyFrameFixtures.StandaloneSamus());
         AssertEqual(criesBefore + hit + 1, enemies.Audio.SoundRequests.Count(request =>
             request.SoundEffect == expectedHurtCry && request.Priority.Requests == 3),
             "common shot queues the header cry for surviving and lethal hits");

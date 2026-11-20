@@ -27,7 +27,7 @@ internal static class ShitroidPowerBombVerification
             ?? throw new InvalidOperationException("The Big Boy room's Shitroid has no state.");
         state.Action = ShitroidAction.WaitForCamera;
 
-        _ = runtime.Enemies.Collision.ResolveOrdinaryPowerBombHits(
+        runtime.Enemies.Collision.ResolveOrdinaryPowerBombHits(
             shitroid.Position.Whole, 64, runtime.Room.LoadedLevelData, new(512, 0), runtime.Player.IntroducedSamus);
         AssertEqual(ShitroidAction.WaitForCamera, state.Action, "the blast runs no step of the Shitroid's behaviour");
         Console.WriteLine("  Shitroid Power Bomb: the blast passes the Shitroid by.");

@@ -1,4 +1,5 @@
 using SuperMetroid.Core;
+using SuperMetroid.Core.World;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Frontend;

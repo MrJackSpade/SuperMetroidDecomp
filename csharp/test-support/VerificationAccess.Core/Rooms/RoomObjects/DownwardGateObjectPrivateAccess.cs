@@ -19,4 +19,14 @@ internal static class DownwardGateObjectPrivateAccess
             get => PrivateState.Get<global::SuperMetroid.Core.Rooms.RoomObjects.DownwardGateObject, global::SuperMetroid.Core.Rooms.RoomObjects.DownwardGatePhase>(self, "Phase");
         }
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Rooms.RoomObjects.DownwardGateObject self)
+    {
+        /// <summary>The private property <c>Triggered</c>, reached by name.</summary>
+        internal bool Triggered
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Rooms.RoomObjects.DownwardGateObject, bool>(self, "Triggered");
+        }
+    }
 }

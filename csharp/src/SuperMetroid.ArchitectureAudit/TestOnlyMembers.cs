@@ -52,6 +52,8 @@ internal static class TestOnlyMembers
         var declaring = trees.Select(tree => tree.Tree).ToHashSet();
         var uses = new Dictionary<string, MemberUses>(StringComparer.Ordinal);
         var names = new HashSet<string>(StringComparer.Ordinal);
+        // The private classic extension methods, by name, which a check's call on their receiver names.
+        var extensions = new Dictionary<string, List<IMethodSymbol>>(StringComparer.Ordinal);
         foreach (var (project, compilation) in solution.Projects)
         {
             if (!ProjectScope.IsProduct(project.AssemblyName))
@@ -67,6 +69,12 @@ internal static class TestOnlyMembers
                     foreach (string way in Ways(member))
                         uses.TryAdd(Key(member, way), new MemberUses(member, way));
                     names.Add(member.Name);
+                    if (member is IMethodSymbol { IsExtensionMethod: true, DeclaredAccessibility: Accessibility.Private } extension)
+                    {
+                        if (!extensions.TryGetValue(member.Name, out var named))
+                            extensions[member.Name] = named = [];
+                        named.Add(extension);
+                    }
                 }
             }
         }
@@ -76,7 +84,7 @@ internal static class TestOnlyMembers
         var identity = new SymbolIdentity(solution.RepositoryRoot);
         var serialization = new JsonSerializationScan(identity);
         foreach (var (compilation, tree, file, check) in trees)
-            Walk(compilation, tree, file, check, uses, names, check ? null : serialization);
+            Walk(compilation, tree, file, check, uses, names, extensions, check ? null : serialization);
         var serialized = serialization.SerializerAccessedMembers();
         foreach (MemberUses use in uses.Values)
             if (identity.Key(use.Member) is { } key && serialized.Contains(key))
@@ -141,7 +149,8 @@ internal static class TestOnlyMembers
 
     /// <summary>Records every place in one file that reaches a candidate member, by the way it reaches it.</summary>
     private static void Walk(Compilation compilation, SyntaxTree tree, string file, bool check,
-        Dictionary<string, MemberUses> uses, HashSet<string> names, JsonSerializationScan? serialization)
+        Dictionary<string, MemberUses> uses, HashSet<string> names, Dictionary<string, List<IMethodSymbol>> extensions,
+        JsonSerializationScan? serialization)
     {
         var enclosing = new Dictionary<SyntaxNode, INamedTypeSymbol?>();
         foreach (SyntaxNode node in tree.GetRoot().DescendantNodes())
@@ -191,21 +200,13 @@ internal static class TestOnlyMembers
         // A check's member name that binds to nothing, for want of the private-access member that stood in for it, names the
         // receiver's private members of that name: C# reports the member inaccessible but may keep no candidate (a static
         // access resolved through extension lookup), binds the name to an unrelated extension member of the same name that
-        // some other type's generated access declares, or reports the accessible overloads that take other arguments.
+        // some other type's generated access declares, or reports the accessible overloads that take other arguments. A
+        // property pattern's subpattern name binds to nothing at all when its member is inaccessible; its receiver is the type
+        // the pattern narrows to.
         void RecordUnbound(SimpleNameSyntax name, SymbolInfo info)
         {
-            ExpressionSyntax? receiver = name.Parent switch
-            {
-                MemberAccessExpressionSyntax member when member.Name == name => member.Expression,
-                MemberBindingExpressionSyntax binding when binding.Name == name =>
-                    binding.Ancestors().OfType<ConditionalAccessExpressionSyntax>().FirstOrDefault()?.Expression,
-                _ => null,
-            };
-            if (receiver is null)
-                return;
-            SemanticModel model = SemanticModels.At(compilation, tree, receiver);
-            ITypeSymbol? type = model.GetSymbolInfo(receiver).Symbol as INamedTypeSymbol ?? model.GetTypeInfo(receiver).Type;
-            if (type is not INamedTypeSymbol { TypeKind: not TypeKind.Error } named || info.Symbol is not null && !Unrelated(info.Symbol, named))
+            if (ReceiverType(compilation, tree, name) is not { TypeKind: not TypeKind.Error } named ||
+                info.Symbol is not null && !Unrelated(info.Symbol, named))
                 return;
             string way = Access(AccessExpression(name));
             for (INamedTypeSymbol? owner = named; owner is not null; owner = owner.BaseType)
@@ -216,6 +217,16 @@ internal static class TestOnlyMembers
                                  GetMethod.DeclaredAccessibility: Accessibility.Private,
                              } or IPropertySymbol { SetMethod.DeclaredAccessibility: Accessibility.Private }))
                     Record(member, name, way, reaches: true);
+            }
+            // A call on the receiver names, too, a private classic extension method of its type: C# reports the accessible
+            // overload that takes another receiver and keeps no candidate.
+            if (name.Parent is MemberAccessExpressionSyntax { Parent: InvocationExpressionSyntax } &&
+                extensions.TryGetValue(name.Identifier.ValueText, out var privateExtensions))
+            {
+                var extended = Extended(named);
+                foreach (IMethodSymbol extension in privateExtensions.Where(extension =>
+                             extended.Contains(extension.Parameters[0].Type.OriginalDefinition.GetDocumentationCommentId() ?? "")))
+                    Record(extension, name, Use, reaches: true);
             }
         }
 
@@ -248,6 +259,43 @@ internal static class TestOnlyMembers
                 }
             }
         }
+    }
+
+    /// <summary>
+    /// The type a check's member name is looked up in: the receiver of a member access or conditional access, or the type a
+    /// property pattern narrows to, whose subpatterns name its members. Null for a name of no receiver.
+    /// </summary>
+    private static INamedTypeSymbol? ReceiverType(Compilation compilation, SyntaxTree tree, SimpleNameSyntax name)
+    {
+        // A pattern's converted type is the type it narrows its input to.
+        if (name.Parent is BaseExpressionColonSyntax { Expression: var named, Parent: SubpatternSyntax { Parent: PropertyPatternClauseSyntax { Parent: RecursivePatternSyntax pattern } } } &&
+            named == name)
+            return SemanticModels.At(compilation, tree, pattern).GetTypeInfo(pattern).ConvertedType as INamedTypeSymbol;
+        ExpressionSyntax? receiver = name.Parent switch
+        {
+            MemberAccessExpressionSyntax member when member.Name == name => member.Expression,
+            MemberBindingExpressionSyntax binding when binding.Name == name =>
+                binding.Ancestors().OfType<ConditionalAccessExpressionSyntax>().FirstOrDefault()?.Expression,
+            _ => null,
+        };
+        if (receiver is null)
+            return null;
+        SemanticModel model = SemanticModels.At(compilation, tree, receiver);
+        return model.GetSymbolInfo(receiver).Symbol as INamedTypeSymbol ?? model.GetTypeInfo(receiver).Type as INamedTypeSymbol;
+    }
+
+    /// <summary>
+    /// The documentation ids of the types a classic extension method on a receiver of type <paramref name="receiver"/> can
+    /// extend: the type itself, its base types and its interfaces.
+    /// </summary>
+    private static HashSet<string> Extended(INamedTypeSymbol receiver)
+    {
+        var extended = new HashSet<string>(StringComparer.Ordinal);
+        for (INamedTypeSymbol? type = receiver; type is not null; type = type.BaseType)
+            extended.Add(type.OriginalDefinition.GetDocumentationCommentId() ?? "");
+        foreach (INamedTypeSymbol contract in receiver.AllInterfaces)
+            extended.Add(contract.OriginalDefinition.GetDocumentationCommentId() ?? "");
+        return extended;
     }
 
     /// <summary>

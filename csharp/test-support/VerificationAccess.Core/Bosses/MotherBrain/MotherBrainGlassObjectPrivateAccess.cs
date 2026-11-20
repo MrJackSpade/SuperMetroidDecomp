@@ -31,4 +31,14 @@ internal static class MotherBrainGlassObjectPrivateAccess
             get => PrivateState.Get<global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainGlassObject, global::SuperMetroid.Core.Bosses.ListStep<global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainGlassStage>>(self, "Stage");
         }
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainGlassObject self)
+    {
+        /// <summary>The private property <c>HitCountArmed</c>, reached by name.</summary>
+        internal bool HitCountArmed
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainGlassObject, bool>(self, "HitCountArmed");
+        }
+    }
 }

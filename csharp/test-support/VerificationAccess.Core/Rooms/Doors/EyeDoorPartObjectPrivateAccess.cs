@@ -29,4 +29,14 @@ internal static class EyeDoorPartObjectPrivateAccess
             get => PrivateState.Get<global::SuperMetroid.Core.Rooms.Doors.EyeDoorPartObject, global::SuperMetroid.Core.Rooms.Doors.EyeDoorPart>(self, "Part");
         }
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Rooms.Doors.EyeDoorPartObject self)
+    {
+        /// <summary>The private property <c>WaitsForOpenedDoor</c>, reached by name.</summary>
+        internal bool WaitsForOpenedDoor
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Rooms.Doors.EyeDoorPartObject, bool>(self, "WaitsForOpenedDoor");
+        }
+    }
 }

@@ -19,4 +19,14 @@ internal static class SamusEaterObjectPrivateAccess
             get => PrivateState.Get<global::SuperMetroid.Core.Rooms.RoomObjects.SamusEaterObject, bool>(self, "Holding");
         }
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Rooms.RoomObjects.SamusEaterObject self)
+    {
+        /// <summary>The private property <c>Phase</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Rooms.RoomObjects.SamusEaterPhase Phase
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Rooms.RoomObjects.SamusEaterObject, global::SuperMetroid.Core.Rooms.RoomObjects.SamusEaterPhase>(self, "Phase");
+        }
+    }
 }

@@ -501,8 +501,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         {
             FlashbackRinkas.Step(
                 CurrentFlashbackSamus,
-                motherBrainExploding: CurrentFlashbackMotherBrain?.ExplosionStarted == true,
-                explosionsAllocated: FlashbackMotherBrainExplosions is not null);
+                motherBrainExploding: CurrentFlashbackMotherBrain?.ExplosionStarted == true);
         }
 
         // Mother Brain's sprite steps last, so one spawned on this update shows its first frame on the

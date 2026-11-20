@@ -22,23 +22,14 @@ internal sealed class IntroRinkaSystem
     private readonly Queue<IntroRinkaLaunchWave> waves = new(IntroRinkaDefinitions.Launches);
     /// <summary>The next wave's wait, counted once each update; the update it ends on launches the wave.</summary>
     private UpdateCountdown launchWait = UpdateCountdown.Lasting(IntroRinkaDefinitions.Launches[0].Wait);
-    /// <summary>Whether Mother Brain's explosions have started, after which no wave is left to launch.</summary>
-    private bool spawnsForbidden;
 
     /// <summary>One update of the launch schedule, then of every Rinka.</summary>
     /// <param name="samus">Samus, whose X position a hitting Rinka crosses before applying its knockback.</param>
     /// <param name="motherBrainExploding">True once Mother Brain's exploding step deletes the Rinkas.</param>
-    /// <param name="explosionsAllocated">
-    /// True once Mother Brain's explosions have started. The schedule launches every Rinka before then, so a launch after it
-    /// is a fault in the cinematic's script.
-    /// </param>
-    [IndependentFlag("Mother Brain exploding and her explosions having started are separate intro states read each frame.")]
-    public void Step(SamusState samus, bool motherBrainExploding,
-        bool explosionsAllocated)
+    public void Step(SamusState samus, bool motherBrainExploding)
     {
         Ensure.NotNull(samus);
 
-        spawnsForbidden = explosionsAllocated;
         // The schedule runs before the Rinkas, so a Rinka it launches runs its first flight check and animation step in this
         // same update.
         if (waves.Count != 0 && launchWait.Count())
@@ -80,15 +71,12 @@ internal sealed class IntroRinkaSystem
         HandleRinkaCueForIntroRinkaCue[cue](rinka);
     }
 
-    /// <summary>Spawns the Rinkas of <paramref name="pair"/>, in launch order, after the Rinkas already live.</summary>
+    /// <summary>
+    /// Spawns the Rinkas of <paramref name="pair"/>, in launch order, after the Rinkas already live, as the spawner's
+    /// instructions spawn each pair whatever else the flashback is showing ($8B:BA21).
+    /// </summary>
     private void Spawn(IReadOnlyList<IntroRinkaLaunch> pair)
     {
-        if (spawnsForbidden)
-        {
-            throw new InvalidOperationException(
-                "The intro Rinka schedule launched a Rinka after Mother Brain's explosions started.");
-        }
-
         foreach (IntroRinkaLaunch launch in pair)
             rinkas.Add(new IntroRinka(launch));
     }

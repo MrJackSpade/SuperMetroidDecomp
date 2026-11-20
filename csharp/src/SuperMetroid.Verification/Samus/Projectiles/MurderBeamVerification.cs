@@ -67,7 +67,7 @@ internal static class MurderBeamVerification
 
         SamusProjectile shot = projectiles.Shots[0];
         AssertEqual(SamusProjectileType.Beam(SamusBeamCombination.SpazerPlasmaIceWave, charged: true), shot.HeldShot().Type, "Murder Beam retains charged all-beams type");
-        AssertEqual(200, shot.Damage, "Murder Beam uses the native 200-damage record");
+        AssertEqual(200, shot.HeldShot().Damage, "Murder Beam uses the native 200-damage record");
         AssertEqual(SamusProjectileDirection.Left, shot.Direction,
             "safe Murder Beam faces left");
         AssertEqual((ushort)116, shot.Position.X.Whole, "Murder Beam native muzzle X");
@@ -92,7 +92,7 @@ internal static class MurderBeamVerification
             projectiles.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), shared, new SharedGameState(new SharedRandom()));
         }
         AssertEqual(SamusProjectileType.Beam(SamusBeamCombination.SpazerPlasmaIceWave, charged: true), shot.HeldShot().Type, "Murder Beam persists without an instruction list");
-        AssertEqual(200, shot.Damage, "persistent Murder Beam retains damage");
+        AssertEqual(200, shot.HeldShot().Damage, "persistent Murder Beam retains damage");
         AssertEqual((ushort)116, shot.Position.X.Whole, "persistent Murder Beam remains fixed in world X");
         AssertEqual((ushort)123, shot.Position.Y.Whole, "persistent Murder Beam remains fixed in world Y");
 
@@ -145,7 +145,7 @@ internal static class MurderBeamVerification
         }
         AssertEqual(SamusProjectileType.Beam(SamusBeamCombination.SpazerPlasmaIceWave, charged: true), shot.HeldShot().Type,
             "Murder Beam survives the phase-two to phase-three cutscene boundary");
-        AssertEqual(200, shot.Damage,
+        AssertEqual(200, shot.HeldShot().Damage,
             "phase-three Murder Beam retains its damage payload");
 
         Suite(nameof(VerifyMissileAutoCancelMurderBeam), () => VerifyMissileAutoCancelMurderBeam(level));

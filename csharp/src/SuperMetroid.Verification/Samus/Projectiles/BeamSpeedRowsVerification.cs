@@ -91,7 +91,7 @@ internal static class BeamSpeedRowsVerification
         for (ushort direction = 0; direction < 10; direction++)
         {
             var slot = new SamusProjectile(0);
-            slot.Occupy(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(combination));
+            slot.OccupyAsFired(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(combination));
             slot.Direction = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeDirection(direction);
             initialize(stationary, slot);
             int speed = unchecked((short)retail.ReadCartridgeWord((0x90c2d1 + combination * 4 +

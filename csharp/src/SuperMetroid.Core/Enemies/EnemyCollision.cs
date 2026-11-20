@@ -204,7 +204,7 @@ internal sealed class EnemyCollision
             if (projectile.Occupant is not { HasEnemyCollisionPayload: true } held)
                 continue;
             SamusProjectileType projectileType = held.Type;
-            int projectileDamage = Ensure.AtLeastZero(projectile.Damage);
+            int projectileDamage = held.Damage;
             SamusProjectileDirection projectileDirection = projectile.Direction;
             SamusProjectileFamily family = held.Type.Family;
 
@@ -562,7 +562,7 @@ internal sealed class EnemyCollision
                 {
                     var hitBomb = new EnemyBombHitContext(bombContext, enemy.Health);
                     reaction?.BeforeCommon?.Invoke(hitBomb);
-                    NormalBombHit hit = HurtByNormalBomb(enemy, bomb);
+                    NormalBombHit hit = HurtByNormalBomb(enemy, placed);
                     if (hit == NormalBombHit.HurtUnfrozen &&
                         (reaction?.ShowsHitBurst ?? EnemyBombReaction.AlwaysShowsHitBurst)(hitBomb))
                     {
@@ -592,17 +592,19 @@ internal sealed class EnemyCollision
     /// Runs the common damage a normal bomb does through the shot reaction, without the hit burst or the death that
     /// follows: the part of the reaction a species' own bomb handling runs before deciding the enemy's death itself.
     /// </summary>
-    internal void ApplyNormalBombDamage(RoomEnemyPlace enemy, SamusBomb bomb) => _ = HurtByNormalBomb(enemy, bomb);
+    internal void ApplyNormalBombDamage(RoomEnemyPlace enemy, SamusBombOccupant placed) => _ = HurtByNormalBomb(enemy, placed);
 
     /// <summary>
-    /// Damages <paramref name="enemy"/> by <paramref name="bomb"/> through its bomb vulnerability: a zero multiplier leaves
-    /// the dud flash and sound instead; otherwise the enemy flashes, is hurt, cries unless frozen and loses the damage.
+    /// Damages <paramref name="enemy"/> by the bomb <paramref name="placed"/> through its bomb vulnerability: a zero
+    /// multiplier leaves the dud flash and sound instead; otherwise the enemy flashes, is hurt, cries unless frozen and
+    /// loses the damage.
     /// </summary>
     /// <returns>Whether the bomb was a dud, hurt the enemy while it was frozen, or hurt it while it was not.</returns>
-    private NormalBombHit HurtByNormalBomb(RoomEnemyPlace enemy, SamusBomb bomb)
+    private NormalBombHit HurtByNormalBomb(RoomEnemyPlace enemy, SamusBombOccupant placed)
     {
+        SamusBomb bomb = placed.Bomb;
         EnemyWeaponVulnerability vulnerability = EnemyVulnerabilities.Of(enemy.Definition).Ordnance.Bomb;
-        int damage = vulnerability.DamageFrom(bomb.Damage);
+        int damage = vulnerability.DamageFrom(placed.Damage);
 
         // A zero multiplier still consumes the collision and leaves the hit direction on the bomb: the bomb shows the
         // dud flash where it lies and the dud sound plays, and the enemy is untouched.

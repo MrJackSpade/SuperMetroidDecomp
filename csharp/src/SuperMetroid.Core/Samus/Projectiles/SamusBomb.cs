@@ -6,9 +6,9 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <summary>
 /// One of Samus's bombs: a placed bomb, a Power Bomb, or a bomb-spread bomb. Each is created fresh when it takes its
 /// place among the five (<see cref="SamusBombProjectileSystem"/>) and ends when it is deleted or Samus's bombs are
-/// cleared; nothing it holds reaches the next bomb in its place. Once it ends it reads as no bomb, with no occupant, no
-/// damage and at rest at the room's origin, until the next bomb takes its place. What the bomb is belongs to its occupant
-/// (<see cref="SamusBombOccupant"/>), so an empty place has no type to read.
+/// cleared; nothing it holds reaches the next bomb in its place. Once it ends it reads as no bomb, with no occupant and at
+/// rest at the room's origin, until the next bomb takes its place. What the bomb is and the damage it deals belong to its
+/// occupant (<see cref="SamusBombOccupant"/>), so an empty place has no type or damage to read.
 /// </summary>
 public sealed class SamusBomb
 {
@@ -42,15 +42,19 @@ public sealed class SamusBomb
     /// <summary>Whether a bomb holds the place: from its placing, which gives it its type, until it ends.</summary>
     public bool IsOccupied => Occupant is not null;
 
-    /// <summary>Takes the place with a bomb of <paramref name="type"/>, as its placing does.</summary>
+    /// <summary>
+    /// Takes the place with a bomb of <paramref name="type"/> dealing <paramref name="damage"/>, as its placing does: the
+    /// damage is the one its family's bomb definition gives.
+    /// </summary>
     /// <param name="type">What the bomb is.</param>
+    /// <param name="damage">The damage the bomb deals.</param>
     /// <returns>The bomb now holding the place.</returns>
     /// <exception cref="InvalidOperationException">A bomb already holds the place.</exception>
-    internal SamusBombOccupant Occupy(SamusProjectileType type)
+    internal SamusBombOccupant Occupy(SamusProjectileType type, int damage)
     {
         if (Occupant is { } held)
             throw new InvalidOperationException($"Samus's bomb place {Place} already holds a {held.Type}.");
-        Occupant = new SamusBombOccupant(this, type);
+        Occupant = new SamusBombOccupant(this, type, damage);
         return Occupant;
     }
 
@@ -63,12 +67,6 @@ public sealed class SamusBomb
     /// <summary>Whether a placed bomb's explosion has reacted with the five-block cross of terrain around it; it does so once.</summary>
     public bool HasReactedToTerrain { get; internal set; }
 
-    /// <summary>Damage from the bomb's projectile data, which every bomb carries; zero before it is placed and once it ends.</summary>
-    public int Damage
-    {
-        get;
-        internal set => field = Ensure.AtLeastZero(value);
-    }
     /// <summary>
     /// The bomb's animation (#1600, #2458): the frame it shows, the updates that frame has left and where its play stands;
     /// null while no bomb is placed here.
@@ -113,7 +111,6 @@ public sealed class SamusBomb
         Occupant = null;
         PicturedBeams = SamusBeamCombination.Power;
         HasReactedToTerrain = false;
-        Damage = 0;
         Animation = null;
         Sprite = null;
         Radius = Extent16<RoomPixels>.Zero;

@@ -35,7 +35,7 @@ internal sealed class MotherBrainCombat
 
     /// <summary>Runs the head's reaction to a bomb that selects its shot reaction.</summary>
     internal void ReactToMotherBrainHeadBomb(EnemyBombContext c) =>
-        ResolveMotherBrainHeadNormalBomb(c.Enemy, c.Bomb);
+        ResolveMotherBrainHeadNormalBomb(c.Enemy, c.PlacedBomb);
 
     /// <summary>The body's shot response for each combat phase.</summary>
     internal EnemyShotReaction BodyShotReaction => field ??= new()
@@ -188,7 +188,7 @@ internal sealed class MotherBrainCombat
     /// </summary>
     private void ResolveMotherBrainHeadNormalBomb(
         RoomEnemyPlace head,
-        SamusBomb bomb)
+        SamusBombOccupant bomb)
     {
         MotherBrainEnemyState state = MotherBrainEntity.EncounterOf(head);
 

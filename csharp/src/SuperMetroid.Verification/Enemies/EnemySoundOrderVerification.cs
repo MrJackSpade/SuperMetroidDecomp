@@ -74,8 +74,7 @@ internal static class EnemySoundOrderVerification
         link.CollisionOption = EnemyProjectileCollisionOption.IndestructibleDud;
         var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
         SamusProjectile shot = shots.Shots[0];
-        shot.Occupy(SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false));
-        shot.Damage = 1;
+        shot.Occupy(SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false), 1);
         shot.Direction = SamusProjectileDirection.Right;
         shot.Position = shot.Position.WithWhole(new(0x0100, 0x0100));
 

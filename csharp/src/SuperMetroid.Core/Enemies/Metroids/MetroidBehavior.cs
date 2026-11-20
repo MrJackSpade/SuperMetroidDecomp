@@ -426,7 +426,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         if (c.Enemy.Freeze.IsOver)
         {
             SamusProjectile recoilOrigin = MetroidRecoilOrigin.Of(c.OrdinaryProjectiles.Shots);
-            ResolveMetroidNonFrozenShot(c.Enemy, c.PlacedBomb.Type, Ensure.AtLeastZero(c.Bomb.Damage), recoilOrigin.Position.Whole, c.Samus);
+            ResolveMetroidNonFrozenShot(c.Enemy, c.PlacedBomb.Type, c.PlacedBomb.Damage, recoilOrigin.Position.Whole, c.Samus);
         }
     }
 
@@ -497,7 +497,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // A shot on a Metroid takes no common shot reaction and does it no health damage: the collision marks the shot,
         // then the Metroid recoils, freezes or, attached, escapes as a Power Bomb shakes it loose.
         c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
-        ResolveMetroidNonFrozenShot(enemy, c.Shot.Type, Ensure.AtLeastZero(c.Projectile.Damage), MetroidRecoilOrigin.Of(c.Projectiles.Shots).Position.Whole, c.Samus);
+        ResolveMetroidNonFrozenShot(enemy, c.Shot.Type, c.Shot.Damage, MetroidRecoilOrigin.Of(c.Projectiles.Shots).Position.Whole, c.Samus);
         return true;
     }
 

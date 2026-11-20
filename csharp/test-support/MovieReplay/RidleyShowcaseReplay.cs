@@ -777,7 +777,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 Check(owner + " Y", projectile.Position.Y.Whole, NativeSnapshotMemory.ProjectileY + index);
                 Check(owner + " X radius", projectile.Radius.X, NativeSnapshotMemory.ProjectileXRadius + index);
                 Check(owner + " Y radius", projectile.Radius.Y, NativeSnapshotMemory.ProjectileYRadius + index);
-                Check(owner + " damage", projectile.Damage, NativeSnapshotMemory.ProjectileDamage + index);
+                Check(owner + " damage", projectile.HeldShot().Damage, NativeSnapshotMemory.ProjectileDamage + index);
                 // A beam explosion never moves, so nothing reads its sub-pixel position; one a muzzle check killed keeps
                 // the vertical fraction the original game's reset left, which no room hands over (RoomHandOver).
                 if (!projectile.HeldShot().Type.IsFamily(SamusProjectileFamily.BeamExplosion))

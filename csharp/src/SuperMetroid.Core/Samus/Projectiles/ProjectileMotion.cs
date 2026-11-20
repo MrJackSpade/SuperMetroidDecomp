@@ -306,7 +306,8 @@ internal sealed class ProjectileMotion
             return;
 
         SamusProjectile link = _pool.OccupyAtRest(place);
-        _ = link.Occupy(SamusProjectileType.Of(SamusProjectileFamily.SuperMissile));
+        const SamusProjectileKind kind = SamusProjectileKind.SuperMissileLink;
+        SamusProjectileOccupant linked = link.Occupy(SamusProjectileType.Of(SamusProjectileFamily.SuperMissile), SamusProjectileDamage.Read(kind));
         link.PicturedBeams = owner.PicturedBeams;
         link.Direction = owner.Direction;
         if (owner.IsSpent)
@@ -316,10 +317,8 @@ internal sealed class ProjectileMotion
         // The link then takes the muzzle's position for Samus's pose as it is now, over the owner's coordinates; the two
         // differ when her pose's muzzle has moved since the owner was placed.
         BeamFiring.InitializePosition(samus, link);
-        const SamusProjectileKind kind = SamusProjectileKind.SuperMissileLink;
-        link.Damage = SamusProjectileDamage.Read(kind);
         link.Animation = SamusProjectilePlayback.Start(SamusProjectileKinds.SoleAnimation(kind));
-        link.Install(SamusShotBehaviors.SuperMissileLink,
+        linked.Install(SamusShotBehaviors.SuperMissileLink,
             new SuperMissileShotState(new SamusMissileIgnition.Pending(), UnlinkedSuperMissileLink.Place));
 
         ownerState.LinkPlace = link.Place;

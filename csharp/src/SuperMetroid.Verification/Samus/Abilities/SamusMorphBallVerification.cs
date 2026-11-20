@@ -603,7 +603,7 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
     AssertEqual(1, bombs.BombCounter, "placement increments native bomb counter");
     AssertEqual(0x0010, bombs.CooldownTimer, "normal bomb loads cooldown table entry five");
     AssertEqual(59, bombs.Bombs[0].Fuse.UpdatesLeft, "placement frame immediately decrements timer 60 to 59");
-    AssertEqual(0x001e, bombs.Bombs[0].Damage, "bomb damage follows bank-$93 data pointer");
+    AssertEqual(0x001e, bombs.Bombs[0].HeldBomb().Damage, "bomb damage follows bank-$93 data pointer");
     AssertEqual(0xad45, bombs.Bombs[0].SpritemapPointer, "first instruction selects ROM bomb spritemap");
     ProjectileDrawArtwork bombArtwork = InstalledFixtures.ProjectileArtwork();
     AssertProjectileEntry(
@@ -864,7 +864,7 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
         "power bomb loads non-beam cooldown table entry three");
     AssertEqual(SamusBombProjectileSystem.PowerBombType, powerBombs.Bombs[0].HeldBomb().Type,
         "the placed projectile is a Power Bomb");
-    AssertEqual(0x00c8, powerBombs.Bombs[0].Damage,
+    AssertEqual(0x00c8, powerBombs.Bombs[0].HeldBomb().Damage,
         "power-bomb damage follows bank-$93 type-three data");
     AssertEqual(0xab97, powerBombs.Bombs[0].SpritemapPointer,
         "power-bomb placement selects first retail slow-list spritemap");

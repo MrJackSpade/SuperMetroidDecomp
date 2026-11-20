@@ -703,7 +703,6 @@ global using static SuperMetroid.Core.Samus.Projectiles.ProjectileTerrainCollisi
 global using static SuperMetroid.Core.Samus.Projectiles.ProjectileTrailSparkleAnimationsPrivateAccess;
 global using static SuperMetroid.Core.Samus.Projectiles.ProjectileTrailsPrivateAccess;
 global using static SuperMetroid.Core.Samus.Projectiles.SamusBombProjectileSystemPrivateAccess;
-global using static SuperMetroid.Core.Samus.Projectiles.SamusProjectilePrivateAccess;
 global using static SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystemPrivateAccess;
 global using static SuperMetroid.Core.Samus.Projectiles.SamusProjectileTrailPrivateAccess;
 global using static SuperMetroid.Core.Samus.SamusCeresRidleyEjectionStatePrivateAccess;

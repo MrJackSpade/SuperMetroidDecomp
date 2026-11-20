@@ -30,7 +30,7 @@ internal static class CeilingWrapVerification
             var level = CreateRoom(new(128, 32), words, new RoomBlockBehavior[words.Length]);
             var roomObjects = RoomObjectFixtures.Unbound();
             var shot = new SamusProjectile(0);
-            shot.Occupy(SamusProjectileType.Beam(SamusBeamCombination.Wave, charged: false));
+            shot.OccupyAsFired(SamusProjectileType.Beam(SamusBeamCombination.Wave, charged: false));
             shot.Position = new(new((ushort)(tileX * 16), 0), new(4, 0));
             shot.Radius = new(1, 8);
             shot.Direction = SamusProjectileDirection.Right;

@@ -93,8 +93,7 @@ internal static class EnemyHitBurstVerification
             (RoomEnemySystem enemies, RoomEnemyPlace place) = RoomWith(id, definition, health: 1000, frozenTimer);
             var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
             SamusBomb bomb = bombs.Bombs[0];
-            bomb.Occupy(SamusBombProjectileSystem.NormalBombType);
-            bomb.Damage = 30;
+            bomb.Occupy(SamusBombProjectileSystem.NormalBombType, 30);
             bomb.Radius = new(4, 4);
             bomb.Position = FixedPosition<RoomPixels>.FromWhole(Place);
             (SamusProjectileSystem shots, _) = ShotAt(SamusBeamCombination.Power);
@@ -331,8 +330,7 @@ internal static class EnemyHitBurstVerification
     {
         var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
         SamusProjectile shot = shots.Shots[0];
-        shot.Occupy(SamusProjectileType.Beam(beam, charged: false));
-        shot.Damage = 20;
+        shot.Occupy(SamusProjectileType.Beam(beam, charged: false), 20);
         shot.Direction = SamusProjectileDirection.Right;
         shot.Position = shot.Position.WithWhole(Place);
         shot.Radius = new(4, 4);

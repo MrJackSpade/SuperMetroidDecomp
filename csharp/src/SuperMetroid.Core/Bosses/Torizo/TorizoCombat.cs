@@ -35,7 +35,7 @@ internal sealed class TorizoCombat
         // The reaction returns during the hurt flash, and rejects the bomb while the animation is locked.
         if (torizo.HurtFlash.IsRunning || state.AnimationLocked)
             return;
-        DamageByNormalBomb(torizo, state, c.Bomb);
+        DamageByNormalBomb(torizo, state, c.PlacedBomb);
     }
 
     /// <summary>
@@ -51,7 +51,7 @@ internal sealed class TorizoCombat
         {
             if (torizo.HurtFlash.IsRunning || state.AnimationLocked)
                 return;
-            DamageByNormalBomb(torizo, state, c.Bomb);
+            DamageByNormalBomb(torizo, state, c.PlacedBomb);
             return;
         }
         if (torizo.HurtFlash.IsRunning)
@@ -60,11 +60,11 @@ internal sealed class TorizoCombat
         // caught a Super Missile; while his animation is locked it does the common damage alone.
         if (!state.AnimationLocked)
             state.Stunned = true;
-        DamageByNormalBomb(torizo, state, c.Bomb);
+        DamageByNormalBomb(torizo, state, c.PlacedBomb);
     }
 
     /// <summary>Applies a normal bomb's common no-death damage to the Torizo, starting its death once its health is gone.</summary>
-    private void DamageByNormalBomb(RoomEnemyPlace torizo, TorizoEnemyState state, SamusBomb bomb)
+    private void DamageByNormalBomb(RoomEnemyPlace torizo, TorizoEnemyState state, SamusBombOccupant bomb)
     {
         _collision.ApplyNormalBombDamage(torizo, bomb);
         if (torizo.Health == 0)

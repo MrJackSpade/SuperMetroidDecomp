@@ -25,7 +25,7 @@ internal static class WaveDoorBandsVerification
             var level = CreateRoom(new(16, 32), words, behaviors);
             var roomObjects = RoomObjectFixtures.Unbound();
             var shot = new SamusProjectile(0);
-            shot.Occupy(SamusProjectileType.Beam(SamusBeamCombinations.Of(SamusBeamFlags.Wave), charged: false));
+            shot.OccupyAsFired(SamusProjectileType.Beam(SamusBeamCombinations.Of(SamusBeamFlags.Wave), charged: false));
             shot.Position = new(new(72, 0), new(y, 0));
             shot.Radius = new(1, 0);
             shot.Velocity = new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(left ? -1 : 1), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0));

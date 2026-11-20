@@ -70,23 +70,30 @@ internal sealed class BeamCombos
             {
                 SpecialAttackParticle part = parts[partIndex];
                 SamusProjectile shot = particles[partIndex];
-                SamusProjectileOccupant held = shot.Occupy(SamusProjectileType.Beam(beam, charged: true));
+                // A Spazer attack's trailing particle is the Spazer echo from the start; every other particle is the
+                // combination's charged beam. Each deals the damage of the projectile it plays.
+                bool spazerTrail = kind == SamusComboKind.Spazer && part.SpazerTrail;
+                BeamComboShotKind shotKind = kind == SamusComboKind.Ice ? BeamComboShotKind.Charged
+                    : spazerTrail ? BeamComboShotKind.Echo : BeamComboShotKind.Combo;
+                SamusProjectileOccupant held = OccupyComboShot(shot, spazerTrail
+                    ? SamusProjectileType.EchoOf(SamusBeamEcho.SpazerComboTrail)
+                    : SamusProjectileType.Beam(beam, charged: true), shotKind);
                 shot.PicturedBeams = beam;
                 shot.Direction = kind == SamusComboKind.Spazer ? SamusProjectileDirection.DownFacingLeft : SamusProjectileDirection.UpFacingRight;
                 switch (kind)
                 {
                     case SamusComboKind.Wave:
-                        shot.Install(SamusShotBehaviors.WaveSpecialAttack, new WaveParticleState(part));
+                        held.Install(SamusShotBehaviors.WaveSpecialAttack, new WaveParticleState(part));
                         break;
                     case SamusComboKind.Ice:
-                        shot.Install(SamusShotBehaviors.IceSpecialAttackInward, new IceParticleState(part, orbitTurn));
+                        held.Install(SamusShotBehaviors.IceSpecialAttackInward, new IceParticleState(part, orbitTurn));
                         break;
                     case SamusComboKind.Spazer:
-                        shot.Install(SamusShotBehaviors.SpazerSpecialAttack,
+                        held.Install(SamusShotBehaviors.SpazerSpecialAttack,
                             new SpazerParticleState(part, SpazerTurn(part.SpazerTurn, BeamComboDefinitions.SpazerCirclingTurn)));
                         break;
                     case SamusComboKind.Plasma:
-                        shot.Install(SamusShotBehaviors.PlasmaSpecialAttack, new PlasmaParticleState(part, orbitTurn));
+                        held.Install(SamusShotBehaviors.PlasmaSpecialAttack, new PlasmaParticleState(part, orbitTurn));
                         break;
                     default:
                         throw new InvalidOperationException($"Undefined combo {kind}.");
@@ -103,9 +110,7 @@ internal sealed class BeamCombos
                     // starts above or left of the room's origin, a place OffRoomPlaces gives it.
                     shot.Position = shot.Position.WithWhole(new(OffRoomPlaces.Place(samus.Position.X.Whole + part.WaveStart.X), OffRoomPlaces.Place(samus.Position.Y.Whole + part.WaveStart.Y)));
                 }
-                if (kind == SamusComboKind.Spazer && part.SpazerTrail) held.Type = SamusProjectileType.EchoOf(SamusBeamEcho.SpazerComboTrail);
-                InitializeComboShot(held, kind == SamusComboKind.Ice ? BeamComboShotKind.Charged
-                    : kind == SamusComboKind.Spazer && part.SpazerTrail ? BeamComboShotKind.Echo : BeamComboShotKind.Combo);
+                StartComboShot(held, shotKind);
             }
             // Each Spazer beam particle pairs with the trailing particle that turns its way.
             if (kind == SamusComboKind.Spazer)
@@ -127,20 +132,36 @@ internal sealed class BeamCombos
         return activated;
     }
 
+    /// <summary>The projectile whose damage and animation a particle of <paramref name="type"/> takes as the charged beam, the special attack or the Spazer echo.</summary>
+    private static SamusProjectileKind ComboShotKind(SamusProjectileType type, BeamComboShotKind shotKind) => shotKind switch
+    {
+        BeamComboShotKind.Charged => SamusProjectileSelection.BeamShot(type.BeamCombination, charged: true),
+        BeamComboShotKind.Echo => SamusProjectileSelection.Echo(
+            type.Echo ?? throw new InvalidOperationException("Only an echo projectile takes the echo's damage and animation.")),
+        BeamComboShotKind.Combo => SamusProjectileSelection.SpecialAttack(type.BeamCombination)
+            ?? throw new InvalidDataException($"{type.BeamCombination}'s special attack has no particles of its own."),
+        _ => throw new ArgumentOutOfRangeException(nameof(shotKind), shotKind, "Undefined combo shot kind."),
+    };
+
+    /// <summary>
+    /// Takes <paramref name="shot"/>'s place with a particle of <paramref name="type"/> dealing the damage of the charged
+    /// beam, the special attack or the Spazer echo it plays.
+    /// </summary>
+    internal static SamusProjectileOccupant OccupyComboShot(SamusProjectile shot, SamusProjectileType type, BeamComboShotKind shotKind) =>
+        Ensure.NotNull(shot).Occupy(type, SamusProjectileDamage.Read(ComboShotKind(type, shotKind)));
+
     /// <summary>Gives a particle the damage and animation of the charged beam, the special attack or the Spazer echo, and starts its first frame.</summary>
     internal static void InitializeComboShot(SamusProjectileOccupant held, BeamComboShotKind shotKind)
     {
+        held.Damage = SamusProjectileDamage.Read(ComboShotKind(held.Type, shotKind));
+        StartComboShot(held, shotKind);
+    }
+
+    /// <summary>Starts a particle's animation as the charged beam, the special attack or the Spazer echo, from its first frame.</summary>
+    internal static void StartComboShot(SamusProjectileOccupant held, BeamComboShotKind shotKind)
+    {
         SamusProjectile shot = held.Projectile;
-        SamusProjectileKind projectileKind = shotKind switch
-        {
-            BeamComboShotKind.Charged => SamusProjectileSelection.BeamShot(held.Type.BeamCombination, charged: true),
-            BeamComboShotKind.Echo => SamusProjectileSelection.Echo(
-                held.Type.Echo ?? throw new InvalidOperationException("Only an echo projectile takes the echo's damage and animation.")),
-            BeamComboShotKind.Combo => SamusProjectileSelection.SpecialAttack(held.Type.BeamCombination)
-                ?? throw new InvalidDataException($"{held.Type.BeamCombination}'s special attack has no particles of its own."),
-            _ => throw new ArgumentOutOfRangeException(nameof(shotKind), shotKind, "Undefined combo shot kind."),
-        };
-        shot.Damage = SamusProjectileDamage.Read(projectileKind);
+        SamusProjectileKind projectileKind = ComboShotKind(held.Type, shotKind);
         SamusProjectileSegment segment = shotKind == BeamComboShotKind.Combo
             ? SamusProjectileKinds.SoleAnimation(projectileKind)
             : SamusProjectileKinds.Animation(projectileKind, shot.Direction);

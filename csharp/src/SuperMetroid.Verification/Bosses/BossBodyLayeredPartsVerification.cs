@@ -96,6 +96,7 @@ internal static class BossBodyLayeredPartsVerification
     private static int CheckKraidHead(BossSourceArtwork frames)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        enemies.Places.BindKraidPartsInRoomOrder();
         KraidEnemyState state = enemies.KraidBehavior.BeginEncounterInRoomOrder(enemies.Places);
         state.InitializeBodyLayer();
         state.ShowBody();

@@ -128,7 +128,7 @@ internal static class ProjectileTrailCoordinatesVerification
             ushort y = unchecked((ushort)(offsets + trailWord * 4));
             system.Reset();
             var shot = new SamusProjectile(0);
-            shot.Occupy(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type));
+            shot.OccupyAsFired(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type));
             shot.Direction = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeDirection(direction);
             shot.Animation = SamusProjectileProgramAddresses.StandingAt(unchecked((ushort)(record +
                     SuperMetroid.AssetExtraction.CartridgeTables.SamusProjectileListLayout.TimedRecordByteCount)));
@@ -168,7 +168,7 @@ internal static class ProjectileTrailCoordinatesVerification
             ushort listStart = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x930000 | unchecked((ushort)(data + 2 + direction * 2)));
             system.Reset();
             var shot = new SamusProjectile(0);
-            shot.Occupy(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type));
+            shot.OccupyAsFired(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type));
             shot.Direction = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeDirection(direction);
             shot.Animation = SamusProjectileProgramAddresses.PlayerAt(listStart);
             shot.Position = new(new(0x0100, 0), new(0x0100, 0));

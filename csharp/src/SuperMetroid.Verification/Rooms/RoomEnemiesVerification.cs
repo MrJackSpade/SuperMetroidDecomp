@@ -331,22 +331,20 @@ internal static void VerifyEnemyProjectileCollisionLifecycle()
     var shotsEarthquake = new RoomEarthquake();
     var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), shotsEarthquake);
     SamusProjectile owner = shots.Shots[0];
-    owner.Occupy(SamusProjectileType.Of(SamusProjectileFamily.SuperMissile));
-    owner.Damage = 0x012c;
+    owner.Occupy(SamusProjectileType.Of(SamusProjectileFamily.SuperMissile), 0x012c);
     owner.Direction = SamusProjectileDirection.Right;
     owner.Position = owner.Position.WithWhole(new(0x01b7, 0x0196));
     owner.Animation = SamusProjectileProgramAddresses.PlayerAt(0x9f3b, updates: 15);
     owner.SpritemapPointer = 0xae0f;
-    owner.Install(SamusShotBehaviors.SuperMissile, new SuperMissileShotState(new SamusMissileIgnition.Pending(), UnlinkedSuperMissileLink.Place));
+    owner.HeldShot().Install(SamusShotBehaviors.SuperMissile, new SuperMissileShotState(new SamusMissileIgnition.Pending(), UnlinkedSuperMissileLink.Place));
 
     SamusProjectile link = shots.Shots[1];
-    link.Occupy(SamusProjectileType.Of(SamusProjectileFamily.SuperMissile));
-    link.Damage = 0x012c;
+    link.Occupy(SamusProjectileType.Of(SamusProjectileFamily.SuperMissile), 0x012c);
     link.Direction = SamusProjectileDirection.Right;
     link.Position = link.Position.WithWhole(new(0x01af, 0x0196));
     link.Animation = SamusProjectileProgramAddresses.PlayerAt(0x9f7b);
     link.SpritemapPointer = 0;
-    link.Install(SamusShotBehaviors.SuperMissileLink, new SuperMissileShotState(new SamusMissileIgnition.Pending(), UnlinkedSuperMissileLink.Place));
+    link.HeldShot().Install(SamusShotBehaviors.SuperMissileLink, new SuperMissileShotState(new SamusMissileIgnition.Pending(), UnlinkedSuperMissileLink.Place));
 
     enemies.Projectiles.ResolveEnemyProjectileSamusProjectileHits(
         shots,
@@ -580,8 +578,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
         ushort damage)
     {
         SamusProjectile projectile = pool.Pool.Occupy(0);
-        projectile.Occupy(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type));
-        projectile.Damage = damage;
+        projectile.Occupy(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type), damage);
         projectile.Direction = SamusProjectileDirection.Right;
         projectile.Position = projectile.Position.WithWhole(target.Position.Whole);
         projectile.Radius = new(4, 4);

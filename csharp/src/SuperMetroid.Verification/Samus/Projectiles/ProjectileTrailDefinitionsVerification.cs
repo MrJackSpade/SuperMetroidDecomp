@@ -30,7 +30,7 @@ internal static class ProjectileTrailDefinitionsVerification
             spawned++;
             var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
             var projectile = new SamusProjectile(0);
-            projectile.Occupy(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(selection));
+            projectile.OccupyAsFired(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(selection));
             projectile.Animation = SamusProjectileProgramAddresses.StandingAt(0x86e3);
             projectile.Position = new(new(ShotColumn, 0), new(200, 0));
             projectiles.Trails.SpawnTrail(projectile.HeldShot());
@@ -44,7 +44,7 @@ internal static class ProjectileTrailDefinitionsVerification
         }
         var echoProjectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
         var echo = new SamusProjectile(0);
-        echo.Occupy(SamusProjectileType.EchoOf(SamusBeamEcho.ShinesparkEcho));
+        echo.OccupyAsFired(SamusProjectileType.EchoOf(SamusBeamEcho.ShinesparkEcho));
         echo.Animation = SamusProjectileProgramAddresses.StandingAt(0x86e3);
         echo.Position = new(new(100, 0), new(200, 0));
         AssertThrows<ArgumentOutOfRangeException>(() => echoProjectiles.Trails.SpawnTrail(echo.HeldShot()), "A Shinespark echo's selection past the trail tables is rejected");

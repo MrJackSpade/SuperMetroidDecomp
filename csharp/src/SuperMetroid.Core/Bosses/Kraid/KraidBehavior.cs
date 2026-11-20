@@ -174,7 +174,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
 
             /// <inheritdoc/>
             public override KraidCollisionShot? Held => _shot.Occupant is { } held
-                ? new(_shot.Position.Whole, _shot.Radius, held.Type, _shot.Damage, IsPlacedBomb: false)
+                ? new(_shot.Position.Whole, _shot.Radius, held.Type, held.Damage, IsPlacedBomb: false)
                 : null;
 
             /// <inheritdoc/>
@@ -193,7 +193,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
 
             /// <inheritdoc/>
             public override KraidCollisionShot? Held => _bomb.Occupant is { } placed
-                ? new(_bomb.Position.Whole, _bomb.Radius, placed.Type, _bomb.Damage, IsPlacedBomb: !_bomb.IsBombSpread)
+                ? new(_bomb.Position.Whole, _bomb.Radius, placed.Type, placed.Damage, IsPlacedBomb: !_bomb.IsBombSpread)
                 : null;
 
             /// <inheritdoc/>

@@ -828,6 +828,7 @@ internal static class LookupStream2Verification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
         // The parts hold Kraid's encounter, which the body's setup begins; this fixture begins it directly.
+        enemies.Places.BindKraidPartsInRoomOrder();
         KraidEnemyState state = enemies.KraidBehavior.BeginEncounterInRoomOrder(enemies.Places);
         enemies.VerificationServices().ReadRandom = () => 1;
         Action<RoomEnemyPlace, KraidEnemyState> finish = enemies.KraidBehavior.Rise.FinishKraidGrowth;
@@ -1076,7 +1077,7 @@ internal static class LookupStream2Verification
             int selection = ProjectileTrailNative.Selection(trailingType);
             var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
             var projectile = new SamusProjectile(0);
-            projectile.Occupy(trailingType);
+            projectile.OccupyAsFired(trailingType);
             projectile.Animation = SamusProjectileProgramAddresses.StandingAt(0x86e3);
             projectile.Position = new(new(SuperMetroid.Verification.Samus.Projectiles.ProjectileTrailDefinitionsVerification.ShotColumn, 0), new(200, 0));
             projectiles.Trails.SpawnTrail(projectile.HeldShot());
@@ -1523,7 +1524,7 @@ internal static class LookupStream2Verification
         {
             if (pointer is < 0x9f87 or >= 0xa007) continue;
             var bomb = new SamusBomb(0);
-            bomb.Occupy(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500));
+            bomb.OccupyAsPlaced(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500));
             bomb.Animation = SamusProjectileProgramAddresses.PlayerAt(pointer);
             var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: stock));
             bombs.AdvanceProjectileAnimation(bomb);

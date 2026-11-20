@@ -52,7 +52,7 @@ internal static class RidleyShotHealthStageVerification
         foreach (int index in new[] { 0, 1 })
         {
             SamusProjectile shot = runtime.Projectiles.Shots[index];
-            shot.Occupy(SamusProjectileType.Of(SamusProjectileFamily.SuperMissile)); shot.Damage = 300; shot.Direction = SamusProjectileDirection.Right;
+            shot.Occupy(SamusProjectileType.Of(SamusProjectileFamily.SuperMissile), 300); shot.Direction = SamusProjectileDirection.Right;
             shot.Position = shot.Position.WithWhole(new(0x00c5, 0x0164));
             shot.Radius = new(8, 8);
             shot.Animation = ProjectileFixturePlaybacks.Active();

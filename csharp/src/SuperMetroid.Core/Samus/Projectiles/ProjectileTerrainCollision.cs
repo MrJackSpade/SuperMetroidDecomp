@@ -461,7 +461,7 @@ internal sealed class ProjectileTerrainCollision
 
         held.Type = held.Type.AsFamily(SamusProjectileFamily.BeamExplosion);
         shot.Animation = SamusProjectilePlayback.Start(SamusProjectileSegment.BeamExplosion);
-        shot.Damage = SamusProjectileDamageDefinitions.ExplosionDamage;
+        held.Damage = SamusProjectileDamageDefinitions.ExplosionDamage;
         shot.Behavior = null;
     }
 
@@ -489,7 +489,7 @@ internal sealed class ProjectileTerrainCollision
         held.Type = held.Type.AsFamily(SamusProjectileFamily.MissileExplosion);
         shot.Animation = SamusProjectilePlayback.Start(
             wasSuperMissile ? SamusProjectileSegment.SuperMissileExplosion : SamusProjectileSegment.MissileExplosion);
-        shot.Damage = SamusProjectileDamageDefinitions.ExplosionDamage;
+        held.Damage = SamusProjectileDamageDefinitions.ExplosionDamage;
         shot.Behavior = null;
 
         if (wasSuperMissile)

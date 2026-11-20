@@ -175,7 +175,7 @@ internal static void VerifySamusPowerBeamProjectiles()
             $"power beam direction {direction} installs cooldown");
         AssertEqual(SamusProjectileDirectionCodec.FromAimIndex(direction), projectiles.Shots[0].Direction,
             $"power beam direction {direction} survives initialization");
-        AssertEqual(0x0014, projectiles.Shots[0].Damage,
+        AssertEqual(0x0014, projectiles.Shots[0].HeldShot().Damage,
             $"power beam direction {direction} loads damage");
         AssertEqual(0xa24d, projectiles.Shots[0].SpritemapPointer,
             $"power beam direction {direction} selects first art record");
@@ -215,7 +215,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         SamusProjectile combinedSlot = combinedProjectiles.Shots[0];
         AssertEqual(0, beforeCombined.FiredSlot(combinedProjectiles),
             $"beam combination {beamType} allocates one ordinary slot");
-        AssertEqual(NativeDamage(0x9383c1, beamType), combinedSlot.Damage,
+        AssertEqual(NativeDamage(0x9383c1, beamType), combinedSlot.HeldShot().Damage,
             $"beam combination {beamType} indexes uncharged data pointer");
         AssertEqual(beamType == 10 ? (ushort)12 : (ushort)15, combinedBombs.CooldownTimer,
             $"beam combination {beamType} indexes uncharged cooldown");
@@ -479,7 +479,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     int? chargedReleaseSlot = beforeChargedRelease.FiredSlot(chargeProjectiles);
     AssertTrue(chargedReleaseSlot is not null, "charged release allocates projectile");
     SamusProjectile chargedSlot = chargeProjectiles.Shots[(chargedReleaseSlot ?? throw new InvalidOperationException("Verification requires chargedReleaseSlot."))];
-    AssertEqual(60, chargedSlot.Damage, "charged release uses charged data pointer");
+    AssertEqual(60, chargedSlot.HeldShot().Damage, "charged release uses charged data pointer");
     AssertTrue(chargedSlot.HeldShot().Type.IsChargedBeam,
         "charged release fires a charged beam");
     AssertEqual(
@@ -602,7 +602,7 @@ internal static void VerifySamusPowerBeamProjectiles()
             $"charged beam combination {beamType} allocates on release");
         SamusProjectile combinedChargedSlot =
             combinedChargeProjectiles.Shots[(combinedChargedReleaseSlot ?? throw new InvalidOperationException("Verification requires combinedChargedReleaseSlot."))];
-        AssertEqual(NativeDamage(0x9383d9, beamType), combinedChargedSlot.Damage,
+        AssertEqual(NativeDamage(0x9383d9, beamType), combinedChargedSlot.HeldShot().Damage,
             $"charged beam combination {beamType} indexes charged data pointer");
         AssertEqual(30, combinedChargeBombs.CooldownTimer,
             $"charged beam combination {beamType} indexes charged cooldown");
@@ -639,7 +639,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     SamusProjectile hyperSlot = hyperProjectiles.Shots[0];
     AssertEqual(0, beforeHyper.FiredSlot(hyperProjectiles), "Hyper Beam allocates ordinary slot zero");
     AssertEqual(SamusProjectileType.Beam(SamusBeamCombination.Plasma, charged: true), hyperSlot.HeldShot().Type, "Hyper Beam is a charged Plasma beam");
-    AssertEqual(1000, hyperSlot.Damage, "Hyper Beam overwrites ROM-table damage with 1000");
+    AssertEqual(1000, hyperSlot.HeldShot().Damage, "Hyper Beam overwrites ROM-table damage with 1000");
     AssertEqual(SamusShotBehaviors.HyperBeam, hyperSlot.Behavior,
         "Hyper Beam selects trail-free Wave movement");
     AssertEqual<int?>(null, global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Samus.Projectiles.SamusProjectile, global::SuperMetroid.Core.UpdateCountdown?>(hyperSlot, "Trail")?.UpdatesLeft, "Hyper Beam does not arm a projectile trail");
@@ -1023,7 +1023,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     AssertEqual(20, global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Samus.Projectiles.BeamFiring, global::SuperMetroid.Core.UpdateCountdown>(missileProjectiles.Firing, "InteractionImmunity").UpdatesLeft,
         "missile producer installs literal projectile invincibility timer twenty");
     AssertEqual(SamusProjectileType.Of(SamusProjectileFamily.Missile), missile.HeldShot().Type, "missile is an ordinary missile");
-    AssertEqual(0x0064, missile.Damage, "missile reads damage from `$93:8641`");
+    AssertEqual(0x0064, missile.HeldShot().Damage, "missile reads damage from `$93:8641`");
     AssertEqual(SamusShotBehaviors.Missile, missile.Behavior,
         "missile selects `$90:AF68` pre-instruction family");
     AssertTrue(missile.KindStateAs<MissileShotState>().Ignition.HasIgnited,
@@ -1118,7 +1118,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         missileProjectiles.Shots[(postMissileBeamSlot ?? throw new InvalidOperationException("Verification requires postMissileBeamSlot."))];
     AssertEqual(SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false), postMissileBeam.HeldShot().Type,
         "post-missile shot is an uncharged Power Beam");
-    AssertEqual(0x0014, postMissileBeam.Damage,
+    AssertEqual(0x0014, postMissileBeam.HeldShot().Damage,
         "post-missile shot reloads Power Beam damage instead of retaining missile damage");
 
     // Point missiles use a deliberately different slope route from radius-spanning beams.
@@ -1507,7 +1507,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     AssertEqual(2, superProjectiles.Pool.ShotCount.Count,
         "super ignition counts visible owner plus invisible link");
     AssertEqual(SamusProjectileType.Of(SamusProjectileFamily.SuperMissile), super.HeldShot().Type, "super owner is a Super Missile");
-    AssertEqual(0x012c, super.Damage, "super owner reads retail 300 damage");
+    AssertEqual(0x012c, super.HeldShot().Damage, "super owner reads retail 300 damage");
     AssertEqual(0x0100, super.Velocity.X.InTwoHundredFiftySixthsOfPixel,
         "super ignition begins at one pixel per frame");
     AssertTrue(super.KindStateAs<SuperMissileShotState>().Ignition.HasIgnited, "super owner has ignited");
@@ -1516,7 +1516,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     AssertEqual(SamusShotBehaviors.SuperMissile, super.Behavior,
         "super owner selects `$90:AFE5`");
     AssertEqual(SamusProjectileType.Of(SamusProjectileFamily.SuperMissile), superLink.HeldShot().Type, "super link is a Super Missile");
-    AssertEqual(0x012c, superLink.Damage, "super link carries native damage sentinel");
+    AssertEqual(0x012c, superLink.HeldShot().Damage, "super link carries native damage sentinel");
     AssertEqual(SamusShotBehaviors.SuperMissileLink, superLink.Behavior,
         "super link selects stationary `$90:B075`");
     AssertEqual(super.Position.X.Whole, superLink.Position.X.Whole,

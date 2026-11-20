@@ -60,7 +60,7 @@ internal static class CrocomireMouthShotHoldVerification
         var ordinaryProjectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads,
             new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
         var bomb = new SamusBomb(0);
-        bomb.Occupy(SamusProjectileType.Of(SamusProjectileFamily.Bomb));
+        bomb.OccupyAsPlaced(SamusProjectileType.Of(SamusProjectileFamily.Bomb));
         bomb.Position = FixedPosition<RoomPixels>.FromWhole(body.Position.Whole);
 
         int expected = WrappingCountdown.Start(StartingHold).AddFrames(CrocomireFightDefinitions.MouthShotReactionHoldFrames).RemainingFrames;

@@ -63,8 +63,7 @@ internal static class PhantoonShotDamageVerification
             new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(),
             InstalledFixtures.SamusArtwork(projectileFrames: InstalledFixtures.Projectiles.FrameBindings), new global::SuperMetroid.Core.Fx.RoomEarthquake());
         SamusProjectile shot = shots.Shots[0];
-        shot.Occupy(SamusProjectileType.Beam(SamusBeamCombination.Power, charged));
-        shot.Damage = damage;
+        shot.Occupy(SamusProjectileType.Beam(SamusBeamCombination.Power, charged), damage);
         shot.Direction = SamusProjectileDirection.Right;
         shot.Position = shot.Position.WithWhole(eye);
         shot.Radius = new(4, 4);

@@ -413,7 +413,7 @@ public sealed class SamusBombProjectileSystem
         }
 
         SamusBomb bomb = Occupy(FindFreePlace());
-        SamusBombOccupant placed = bomb.Occupy(placingPowerBomb ? PowerBombType : NormalBombType);
+        SamusBombOccupant placed = Place(bomb, placingPowerBomb ? PowerBombType : NormalBombType);
         bomb.PicturedBeams = SamusBeamCombinations.Of(samus.EquippedBeams);
         bomb.Position = bomb.Position.WithWhole(samus.Position.Whole);
         bomb.Fuse = UpdateCountdown.Lasting(MorphBallBombDefinitions.InitialBombTimer);
@@ -482,7 +482,7 @@ public sealed class SamusBombProjectileSystem
         for (int place = 0; place < PlaceCount; place++)
         {
             SamusBomb bomb = Occupy(place);
-            SamusBombOccupant placed = bomb.Occupy(NormalBombType);
+            SamusBombOccupant placed = Place(bomb, NormalBombType);
             bomb.PicturedBeams = SamusBeamCombinations.Of(samus.EquippedBeams);
             bomb.SpreadFlight = SamusBombSpreadLaunches.Launch(place, samus.BombSpreadCharge.Age);
             bomb.Position = bomb.Position.WithWhole(samus.Position.Whole);
@@ -538,16 +538,16 @@ public sealed class SamusBombProjectileSystem
             $"A bomb was admitted with all {PlaceCount} places held: the placing count ({BombCounter}) is out of step with the bombs out.");
     }
 
-    /// <summary>Starts a bomb: its damage and its animation, from the bomb definitions of its family.</summary>
+    /// <summary>Takes <paramref name="bomb"/>'s place with a bomb of <paramref name="type"/> and the damage its family's bomb definition gives.</summary>
+    private static SamusBombOccupant Place(SamusBomb bomb, SamusProjectileType type) =>
+        bomb.Occupy(type, SamusProjectileDamage.Read(SamusProjectileSelection.NonBeam(type.Family)));
+
+    /// <summary>Starts a bomb's animation, from the bomb definition of its family.</summary>
     private static void InitializeBomb(
         SamusBombOccupant placed)
     {
-        SamusBomb bomb = placed.Bomb;
         SamusProjectileKind kind = SamusProjectileSelection.NonBeam(placed.Type.Family);
-
-        bomb.Damage = SamusProjectileDamage.Read(kind);
-
-        bomb.Animation = SamusProjectilePlayback.Start(SamusProjectileKinds.SoleAnimation(kind));
+        placed.Bomb.Animation = SamusProjectilePlayback.Start(SamusProjectileKinds.SoleAnimation(kind));
     }
 
     /// <summary>

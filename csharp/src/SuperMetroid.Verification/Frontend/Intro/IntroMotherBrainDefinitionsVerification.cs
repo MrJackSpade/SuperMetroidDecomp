@@ -165,8 +165,7 @@ internal static class IntroMotherBrainDefinitionsVerification
         for (int hit = 1; hit <= 5; hit++)
         {
             // The fixture's missile holds its place with its type and damage, as a fired missile does (#2558).
-            missile.Occupy(SamusProjectileType.Of(SamusProjectileFamily.Missile));
-            missile.Damage = SamusProjectileDamage.Read(SamusProjectileSelection.NonBeam(SamusProjectileFamily.Missile));
+            missile.Occupy(SamusProjectileType.Of(SamusProjectileFamily.Missile), SamusProjectileDamage.Read(SamusProjectileSelection.NonBeam(SamusProjectileFamily.Missile)));
             missile.Position = missile.Position.WithWhole(new(0x40, 0x80));
             bool fourth = motherBrain.TakeMissileHit(shots.EnemyImpacts, bombs);
             AssertEqual(hit == 4, fourth, $"missile {hit} starts the explosion only on the fourth hit");

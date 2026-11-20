@@ -45,7 +45,7 @@ internal static class MotherBrainHeadHitboxVerification
         head.Invincibility.End();
         runtime.Enemies.PrepareEnemyProcessingList(new(0x0000, 0x0000));
         var shot = runtime.Projectiles.Shots[0];
-        shot.Occupy(SamusProjectileType.Beam(SamusBeamCombination.PlasmaIceWave, charged: true)); shot.Damage = 900; shot.Direction = SamusProjectileDirection.UpLeft;
+        shot.Occupy(SamusProjectileType.Beam(SamusBeamCombination.PlasmaIceWave, charged: true), 900); shot.Direction = SamusProjectileDirection.UpLeft;
         shot.Position = shot.Position.WithWhole(new(0x009e, 0x0081)); shot.Radius = new(24, 24);
         shot.Animation = ProjectileFixturePlaybacks.Active();
         runtime.Enemies.ResolveShotsOnInteractiveEnemies(runtime.Projectiles, runtime.BombProjectiles, runtime.Room.LoadedRoom.Area, runtime.Player.IntroducedSamus);

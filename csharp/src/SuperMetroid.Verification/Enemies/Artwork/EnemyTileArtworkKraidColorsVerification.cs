@@ -306,7 +306,9 @@ internal static class EnemyTileArtworkKraidColorsVerification
     /// <summary>A fresh Kraid room's enemies, Kraid loaded.</summary>
     private static RoomEnemySystem NewKraidRoom(ImportEnemyArtwork artwork)
     {
+        // The room binds Kraid's parts once; a later initialization joins the same parts again.
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork.Bosses);
+        enemies.Places.BindKraidPartsInRoomOrder();
         _ = enemies.KraidBehavior.BeginEncounterInRoomOrder(enemies.Places);
         return enemies;
     }
@@ -436,6 +438,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork.Bosses);
         var colours = new RgbColor[SnesCgram.ColorCount];
+        enemies.Places.BindKraidPartsInRoomOrder();
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         body.Health = 1000;
         // The death setup restarts the arm's typed program (#641), which lives in the room's Kraid state.

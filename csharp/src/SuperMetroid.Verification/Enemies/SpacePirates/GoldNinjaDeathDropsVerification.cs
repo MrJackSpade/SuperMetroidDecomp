@@ -43,7 +43,7 @@ internal static class GoldNinjaDeathDropsVerification
         MotherBrainRinkaDoorSpawnExpected target = new MotherBrainRinkaDoorSpawnExpected(pirate.Position.X.Whole, (ushort)(pirate.Position.Y.Whole + 15));
 
         var shot = runtime.Projectiles.Shots[0];
-        shot.Occupy(SamusProjectileType.Of(SamusProjectileFamily.SuperMissile)); shot.Damage = 300; shot.Direction = SamusProjectileDirection.Right;
+        shot.Occupy(SamusProjectileType.Of(SamusProjectileFamily.SuperMissile), 300); shot.Direction = SamusProjectileDirection.Right;
         shot.Position = shot.Position.WithWhole(new(target.X, target.Y));
         shot.Radius = new(4, 4);
         shot.Animation = ProjectileFixturePlaybacks.Active();

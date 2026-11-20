@@ -1062,7 +1062,7 @@ internal static class LookupStream1Verification
         for (ushort direction = 0; direction < 10; direction++)
         {
             var slot = new SamusProjectile(0);
-            slot.Occupy(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(combination));
+            slot.OccupyAsFired(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(combination));
             slot.Direction = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeDirection(direction);
             initialize(stationary, slot);
             int speed = unchecked((short)Word(0x90c2d1 + combination * 4 + (direction is 1 or 3 or 6 or 8 ? 2 : 0)));
@@ -1670,7 +1670,7 @@ internal static class LookupStream1Verification
             interpreted++;
             if (duration == 0 || still) continue; // Existing bomb contract excludes zero-duration timed records; no bomb holds a still picture.
             var bomb = new SamusBomb(0);
-            bomb.Occupy(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500));
+            bomb.OccupyAsPlaced(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500));
             bomb.Animation = SamusProjectileProgramAddresses.PlayerAt(pointer);
             bombs.AdvanceProjectileAnimation(bomb);
             AssertTrue(bomb.IsActive, "Actual bomb timed frame survives");
@@ -1774,9 +1774,9 @@ internal static class LookupStream1Verification
         {
             var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: bindings), new global::SuperMetroid.Core.Fx.RoomEarthquake());
             var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: bindings));
-            var slot = new SamusProjectile(0) { Animation = SamusProjectileProgramAddresses.PlayerAt(program.Start), Damage = 30 };
+            var slot = new SamusProjectile(0) { Animation = SamusProjectileProgramAddresses.PlayerAt(program.Start) };
             var bomb = new SamusBomb(0);
-            bomb.Occupy(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500));
+            bomb.OccupyAsPlaced(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500));
             bomb.Animation = SamusProjectileProgramAddresses.PlayerAt(program.Start);
             // No bomb shows a still picture, which a shot holds (#2347): the bomb owner plays only the lists that hold none.
             bool bombPlays = !SamusProjectileProgramAddresses.HoldsStillPicture(bomb.Playback?.Animation
@@ -1816,7 +1816,7 @@ internal static class LookupStream1Verification
                 actualTicks++;
                 if (deleted)
                 {
-                    AssertEqual(0, slot.Damage, "Projectile deletion clears occupancy");
+                    AssertTrue(!slot.IsOccupied, "Projectile deletion clears occupancy");
                     AssertTrue(!bombPlays || !bomb.IsOccupied, "Bomb deletion clears occupancy");
                     deletions++; finished = true; break;
                 }

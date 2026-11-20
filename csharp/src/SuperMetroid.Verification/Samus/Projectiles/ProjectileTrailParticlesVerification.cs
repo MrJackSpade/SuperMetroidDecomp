@@ -24,7 +24,7 @@ internal static class ProjectileTrailParticlesVerification
             .Select(direction =>
             {
                 var charged = new SamusProjectile(0);
-                charged.Occupy(SamusProjectileType.Beam(SamusBeamCombination.Power, charged: true));
+                charged.OccupyAsFired(SamusProjectileType.Beam(SamusBeamCombination.Power, charged: true));
                 charged.Direction = direction;
                 charged.Animation = SamusProjectileProgramAddresses.ShowingBeatBefore(SamusProjectilePlayback.PlaybackAt(new SamusProjectileSegmentBeat(SamusProjectileSegment.ChargedPowerUp, 1)));
                 charged.Position = new(new(100, 0), new(200, 0));

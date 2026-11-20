@@ -104,20 +104,20 @@ internal sealed class ProjectileEnemyImpacts
                 $"Projectile family {family} is not reflectable.");
         }
 
-        shot.Damage = SamusProjectileDamage.Read(kind);
+        held.Damage = SamusProjectileDamage.Read(kind);
         shot.Animation = SamusProjectilePlayback.Start(segment);
         shot.Radius = SamusProjectilePlayback.InitialRadius(segment);
 
         if (family == SamusProjectileFamily.Missile)
-            shot.Install(SamusShotBehaviors.Missile, new MissileShotState(new SamusMissileIgnition.PendingAfterReflection()));
+            held.Install(SamusShotBehaviors.Missile, new MissileShotState(new SamusMissileIgnition.PendingAfterReflection()));
         else if (family == SamusProjectileFamily.SuperMissile)
         {
-            shot.Install(SamusShotBehaviors.SuperMissile,
+            held.Install(SamusShotBehaviors.SuperMissile,
                 new SuperMissileShotState(new SamusMissileIgnition.PendingAfterReflection(), linkPlace: null));
         }
         else
         {
-            shot.Install(!held.Type.BeamCombination.HasWave
+            held.Install(!held.Type.BeamCombination.HasWave
                 ? SamusShotBehaviors.Beam
                 : SamusShotBehaviors.WaveBeamTrail, kindState: null);
         }

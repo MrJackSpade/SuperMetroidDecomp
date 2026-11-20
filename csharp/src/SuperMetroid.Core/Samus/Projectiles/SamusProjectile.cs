@@ -26,12 +26,9 @@ public sealed class SamusProjectile
     [IntegerQuantity("ordinal of the projectile's place in Samus's shot pool")]
     public int Place { get; }
 
-    /// <summary>The damage the projectile deals; zero before it is fired and once it ends.</summary>
-    private int _damage;
-
     /// <summary>
-    /// The projectile holding the place (#2558), which carries what it is: from its firing, release or setting off, which
-    /// gives it its type (<see cref="Occupy"/>), until it ends; null while the place holds no projectile.
+    /// The projectile holding the place (#2558), which carries what it is and the damage it deals: from its firing, release
+    /// or setting off, which gives it both (<see cref="Occupy"/>), until it ends; null while the place holds no projectile.
     /// </summary>
     public SamusProjectileOccupant? Occupant { get; private set; }
 
@@ -42,34 +39,19 @@ public sealed class SamusProjectile
     public bool IsOccupied => Occupant is not null;
 
     /// <summary>
-    /// Takes the place with a projectile of <paramref name="type"/>, as its firing, release or setting off does, before it
-    /// is given its damage.
+    /// Takes the place with a projectile of <paramref name="type"/> dealing <paramref name="damage"/>, as its firing, release
+    /// or setting off does: the damage is the one its type deals, read once the type is known.
     /// </summary>
     /// <param name="type">What the projectile is.</param>
+    /// <param name="damage">The damage the projectile deals, one or more.</param>
     /// <returns>The projectile now holding the place.</returns>
     /// <exception cref="InvalidOperationException">A projectile already holds the place.</exception>
-    internal SamusProjectileOccupant Occupy(SamusProjectileType type)
+    internal SamusProjectileOccupant Occupy(SamusProjectileType type, int damage)
     {
         if (Occupant is { } held)
             throw new InvalidOperationException($"Samus's projectile place {Place} already holds a {held.Type}.");
-        Occupant = new SamusProjectileOccupant(this, type);
+        Occupant = new SamusProjectileOccupant(this, type, damage);
         return Occupant;
-    }
-
-    /// <summary>
-    /// The damage the projectile deals, one or more, or zero before it is fired and once it ends. A projectile is given its
-    /// damage once it holds its place with its type.
-    /// </summary>
-    /// <exception cref="InvalidOperationException">The damage is set while no projectile holds the place.</exception>
-    public int Damage
-    {
-        get => _damage;
-        internal set
-        {
-            if (Occupant is null)
-                throw new InvalidOperationException($"Samus's projectile place {Place} is given damage before a projectile holds it.");
-            _damage = Ensure.BetweenInclusive(1, int.MaxValue, value);
-        }
     }
 
     /// <summary>
@@ -136,17 +118,11 @@ public sealed class SamusProjectile
     }
 
     /// <summary>
-    /// What the projectile does on its update (#1923), installed when it is fired, released or changed; null for an
-    /// explosion, which only plays its animation, and before the projectile is set up.
+    /// What the projectile does on its update (#1923), installed when it is fired, released or changed
+    /// (<see cref="SamusProjectileOccupant.Install"/>); null for an explosion, which only plays its animation, and before
+    /// the projectile is set up.
     /// </summary>
     internal SamusShotBehavior? Behavior { get; set; }
-
-    /// <summary>
-    /// What the projectile's kind keeps beyond what every projectile keeps (#2346), created when the kind's behaviour is
-    /// installed (<see cref="Install"/>) and kept through its later behaviours and its explosion; null for a beam, the
-    /// Hyper Beam, and before the projectile is set up.
-    /// </summary>
-    private SamusShotKindState? KindState { get; set; }
 
     /// <summary>
     /// The Power Bomb fuse a beam carries, in updates (#2468): none for a beam fired into a free place, and for one fired
@@ -163,7 +139,7 @@ public sealed class SamusProjectile
     /// explosions keep no kind state and carry their fuse; a missile's explosion keeps its missile's.
     /// </summary>
     /// <exception cref="InvalidOperationException">The projectile keeps an undefined kind state or ignition.</exception>
-    internal BeamFiredOverLastShot.ReplacedShot AsReplacedByBeam => !IsOccupied ? new BeamFiredOverLastShot.ReplacedShot.FreePlace() : KindState switch
+    internal BeamFiredOverLastShot.ReplacedShot AsReplacedByBeam => Occupant is not { } held ? new BeamFiredOverLastShot.ReplacedShot.FreePlace() : held.KindState switch
     {
         null => new BeamFiredOverLastShot.ReplacedShot.Beam(BeamFuse.UpdatesLeft),
         MissileShotState missile => missile.Ignition switch
@@ -176,7 +152,7 @@ public sealed class SamusProjectile
         },
         ShinesparkEchoShotState echo => new BeamFiredOverLastShot.ReplacedShot.CrashEcho(echo.Angle),
         SpecialAttackParticleState => new BeamFiredOverLastShot.ReplacedShot.SpecialAttackParticle(),
-        _ => throw new InvalidOperationException($"Undefined {nameof(SamusShotKindState)} {KindState.GetType().Name}."),
+        _ => throw new InvalidOperationException($"Undefined {nameof(SamusShotKindState)} {held.KindState.GetType().Name}."),
     };
 
     /// <summary>
@@ -186,27 +162,15 @@ public sealed class SamusProjectile
     private static SignedEightEight ReflectionHeadStart =>
         SamusProjectileMotionDefinitions.ReflectedMissileIgnitionSpeed - SamusProjectileMotionDefinitions.MissileIgnitionSpeed;
 
-    /// <summary>
-    /// Gives the projectile its kind's behaviour with the state the kind starts with: firing, a special attack, an
-    /// echo's release, a Super Missile's link and a reflection install one. A particle moving on to its next behaviour
-    /// keeps its state and changes only <see cref="Behavior"/>.
-    /// </summary>
-    /// <param name="behavior">The behaviour the projectile runs from its next update.</param>
-    /// <param name="kindState">The state the kind keeps, new for this installation, or null for a kind that keeps none.</param>
-    /// <exception cref="InvalidOperationException">No projectile holds the place.</exception>
-    internal void Install(SamusShotBehavior behavior, SamusShotKindState? kindState)
+    /// <summary>The state the kind of the projectile holding the place keeps, which must be a <typeparamref name="TState"/>.</summary>
+    /// <exception cref="InvalidOperationException">No projectile holds the place, or the one holding it keeps no such state.</exception>
+    internal TState KindStateAs<TState>() where TState : SamusShotKindState => Occupant switch
     {
-        if (Occupant is null)
-            throw new InvalidOperationException($"Samus's projectile place {Place} is given a behaviour before a projectile holds it.");
-        Behavior = Ensure.NotNull(behavior);
-        KindState = kindState;
-    }
-
-    /// <summary>The state the projectile's kind keeps, which must be a <typeparamref name="TState"/>.</summary>
-    /// <exception cref="InvalidOperationException">The projectile keeps no such state.</exception>
-    internal TState KindStateAs<TState>() where TState : SamusShotKindState =>
-        KindState as TState ?? throw new InvalidOperationException(
-            $"The projectile in place {Place} keeps no {typeof(TState).Name}; it keeps {KindState?.GetType().Name ?? "nothing"}.");
+        { KindState: TState state } => state,
+        { } held => throw new InvalidOperationException(
+            $"The projectile in place {Place} keeps no {typeof(TState).Name}; it keeps {held.KindState?.GetType().Name ?? "nothing"}."),
+        null => throw new InvalidOperationException($"No projectile holds place {Place}, so none keeps a {typeof(TState).Name}."),
+    };
 
     /// <summary>A live projectile animation marks the projectile drawable and updated.</summary>
     public bool IsActive => Animation is not null;
@@ -230,7 +194,6 @@ public sealed class SamusProjectile
     /// </summary>
     internal void End()
     {
-        _damage = 0;
         Occupant = null;
         PicturedBeams = SamusBeamCombination.Power;
         Direction = default;
@@ -242,7 +205,6 @@ public sealed class SamusProjectile
         Sprite = null;
         Trail = null;
         Behavior = null;
-        KindState = null;
         BeamFuse = UpdateCountdown.Ended();
     }
 }

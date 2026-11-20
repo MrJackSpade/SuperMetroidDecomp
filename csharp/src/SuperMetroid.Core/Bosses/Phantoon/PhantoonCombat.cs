@@ -271,7 +271,7 @@ internal sealed class PhantoonCombat
                 continue;
 
             SamusProjectileType projectileType = held.Type;
-            int projectileDamage = projectile.Damage;
+            int projectileDamage = held.Damage;
             SamusProjectileFamily family = held.Type.Family;
             // Bombs, Power Bombs and the explosions beams and missiles leave behind never hit Phantoon.
             if (family is SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb or

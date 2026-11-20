@@ -60,7 +60,7 @@ internal static class ChainsawFiringVerification
             "native Chainsaw admits and allocates the shot");
         AssertEqual(0, projectiles.Pool.ShotCount.Count, "inactive Power Bomb deletes Chainsaw on first update");
         AssertEqual(0, projectiles.Shots[0].InstructionPointer, "deleted Chainsaw has no animation list");
-        AssertEqual(0, projectiles.Shots[0].Damage, "deleted Chainsaw releases its damage sentinel");
+        AssertTrue(!projectiles.Shots[0].IsOccupied, "a deleted Chainsaw shot no longer holds its place, so it deals no damage");
 
         // PowerBomb_Func3 clears the inactive shot, but the native callback still falls
         // through to the bank-$94 boundary dispatcher. A bombable origin with no PLM owner

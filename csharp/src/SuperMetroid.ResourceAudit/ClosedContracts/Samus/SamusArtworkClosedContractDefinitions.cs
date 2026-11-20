@@ -23,7 +23,6 @@ internal static class SamusArtworkClosedContractDefinitions
         new("csharp/src/SuperMetroid.AssetExtraction/Samus/SamusArmCannonCoverOrientationJsonConverter.cs"),
         new("csharp/src/SuperMetroid.AssetExtraction/Samus/SamusArmCannonCoverFrameCodec.cs"),
         new("csharp/src/SuperMetroid.AssetExtraction/Samus/SamusProjectileDirectionCodec.cs"),
-        new("csharp/src/SuperMetroid.Tooling/Core/Samus/Artwork/InstalledSamusArmCannonArtworkTooling.cs"),
         new("csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusComboMechanics.cs"),
         new("csharp/src/SuperMetroid.Core/Samus/Projectiles/BeamComboDefinitions.cs"),
         new("csharp/src/SuperMetroid.Core/Samus/Poses/SamusPoseId.cs"),

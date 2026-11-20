@@ -425,7 +425,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
                 continue;
             foreach (NorfairPipeBugMember member in formation.Members)
             {
-                if (member.Place.Entity is not NorfairPipeBugEntity && member.Place.Occupant is { } found)
+                if (member.Place != place && member.Place.Entity is not NorfairPipeBugEntity && member.Place.Occupant is { } found)
                 {
                     throw new InvalidDataException(
                         $"Norfair Pipe Bug formation place {member.Place.Ordinal} holds {found.DefinitionId}, " +

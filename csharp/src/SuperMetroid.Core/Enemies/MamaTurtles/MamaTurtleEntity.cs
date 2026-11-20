@@ -8,15 +8,15 @@ namespace SuperMetroid.Core.Enemies.MamaTurtles;
 internal sealed class MamaTurtleEntity(MamaTurtleBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     : TurtleEntity(species, occupant, place, common)
 {
-    /// <inheritdoc/>
-    public override void Initialize() => Species.InitializeMamaTurtle(Place);
+    /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
+    internal MamaTurtleEnemyState State { get; } = species.InitializeMamaTurtle(place);
 
     /// <inheritdoc/>
-    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunMamaTurtleMainAi(Occupant, Occupant.Place.RequireSpeciesState<MamaTurtleEnemyState>(), frame);
+    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunMamaTurtleMainAi(Occupant, State, frame);
 
     /// <inheritdoc/>
-    public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) => Species.AdvanceMamaTurtleTypedAnimation(Place, Place.RequireSpeciesState<MamaTurtleEnemyState>());
+    public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) => Species.AdvanceMamaTurtleTypedAnimation(Place, State);
 
     /// <inheritdoc/>
-    protected override void ReactToOwnTouch(EnemyTouchContext context) => Species.ReactToMamaTurtleTouch(context, context.Place.RequireSpeciesState<MamaTurtleEnemyState>());
+    protected override void ReactToOwnTouch(EnemyTouchContext context) => Species.ReactToMamaTurtleTouch(context, State);
 }

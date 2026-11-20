@@ -24,9 +24,9 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory, IR
     {
         EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition == EnemyDefinitionId.WorkRobot)
-            return EnemyOccupant.Of(new PoweredWorkRobotEntity(this, occupant, place, common));
+            return EnemyOccupant.Running(new PoweredWorkRobotEntity(this, occupant, place, common));
         if (definition == EnemyDefinitionId.UnpoweredWorkRobot)
-            return EnemyOccupant.Of(new UnpoweredWorkRobotEntity(this, occupant, place, common));
+            return EnemyOccupant.Running(new UnpoweredWorkRobotEntity(this, occupant, place, common, occupant.SpawnSettings<WorkRobotSpawnSettings>()));
         throw new InvalidOperationException($"The work robot species creates no {occupant.DefinitionId}.");
     }
 
@@ -71,10 +71,10 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory, IR
     private PictureShading Glow => PictureShading.Shaded(WorkRobotShades.Glow(GlowPlace));
 
     /// <summary>Initializes a powered robot.</summary>
-    internal void InitializePoweredWorkRobot(RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal WorkRobotEnemyState InitializePoweredWorkRobot(RoomEnemyPlace place)
     {
         var state = new WorkRobotEnemyState();
-        place.SetSpeciesState(state);
         _poweredRobots.Add(place);
 
         // A powered robot is solid to Samus and animates; its placements already process it off screen in every
@@ -90,6 +90,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory, IR
         // robot, and only a powered robot, shows it (#1512).
         RestartGlow();
         place.Shading = Glow;
+        return state;
     }
 
     /// <summary>
@@ -103,18 +104,19 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory, IR
     }
 
     /// <summary>Initializes an unpowered robot.</summary>
-    internal void InitializeUnpoweredWorkRobot(RoomEnemyOccupant occupant, WorkRobotSpawnSettings workRobotSpawnSettings, RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal UnpoweredWorkRobotEnemyState InitializeUnpoweredWorkRobot(RoomEnemyOccupant occupant, WorkRobotSpawnSettings workRobotSpawnSettings, RoomEnemyPlace place)
     {
         // The placement names the unpowered pose the robot holds.
         var state = new UnpoweredWorkRobotEnemyState(
             new(WorkRobotAnimations.StartingWith(workRobotSpawnSettings.Pose), AnimationPlace.StartOfAnimation));
-        place.SetSpeciesState(state);
         place.Contact = place.Contact.With(EnemyContact.SolidToSamus);
         place.AnimationClock.Restart();
 
         // An unpowered robot stops the room's glow, an earlier powered robot's too: in a room placing both, the order
         // they are placed in decides whether the glow runs.
         GlowRuns = false;
+        return state;
     }
 
     /// <summary>
@@ -294,9 +296,10 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory, IR
     }
 
     /// <summary>Applies a powered robot's recoil after the bomb damage it takes, which it never rejects once powered.</summary>
-    internal EnemyBombReaction PoweredWorkRobotBombReaction { get; } = new()
+    /// <param name="state">The state of the robot the reaction is built for.</param>
+    internal EnemyBombReaction PoweredWorkRobotBombReaction(WorkRobotEnemyState state) => new()
     {
-        AfterCommon = c => ResolveWorkRobotShotAfterCommon(c.Enemy, c.Enemy.RequireSpeciesState<WorkRobotEnemyState>(), c.Samus),
+        AfterCommon = c => ResolveWorkRobotShotAfterCommon(c.Enemy, state, c.Samus),
     };
 
     /// <summary>An unpowered robot takes the bomb damage, which it never rejects, and nothing more: it has no recoil.</summary>
@@ -330,9 +333,10 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory, IR
                 : null);
 
     /// <summary>The powered robot's shot reaction: the common damage, then its recoil.</summary>
-    internal EnemyShotReaction WorkRobotShotReaction { get; } = new()
+    /// <param name="state">The state of the robot the reaction is built for.</param>
+    internal EnemyShotReaction WorkRobotShotReaction(WorkRobotEnemyState state) => new()
     {
-        AfterCommon = c => ResolveWorkRobotShotAfterCommon(c.Enemy, c.Enemy.RequireSpeciesState<WorkRobotEnemyState>(), c.Samus),
+        AfterCommon = c => ResolveWorkRobotShotAfterCommon(c.Enemy, state, c.Samus),
     };
 
     /// <summary>Routes robot contact to its external push without Samus damage.</summary>

@@ -11,18 +11,18 @@ namespace SuperMetroid.Core.Enemies.WorkRobots;
 internal sealed class PoweredWorkRobotEntity(WorkRobotBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     : WorkRobotEntity(species, occupant, place, common)
 {
-    /// <inheritdoc/>
-    public override void Initialize() => Species.InitializePoweredWorkRobot(Place);
+    /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
+    internal WorkRobotEnemyState State { get; } = species.InitializePoweredWorkRobot(place);
 
     /// <inheritdoc/>
-    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunWorkRobotMainAi(Place, Place.RequireSpeciesState<WorkRobotEnemyState>(), frame);
+    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunWorkRobotMainAi(Place, State, frame);
 
     /// <inheritdoc/>
-    public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) => Species.AdvanceWorkRobotTypedAnimation(Place, Place.RequireSpeciesState<WorkRobotEnemyState>(), context);
+    public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) => Species.AdvanceWorkRobotTypedAnimation(Place, State, context);
 
     /// <summary>The robot takes a bomb's damage and recoils (#2164).</summary>
-    protected override EnemyBombReaction OwnBombReaction => Species.PoweredWorkRobotBombReaction;
+    protected override EnemyBombReaction OwnBombReaction => field ??= Species.PoweredWorkRobotBombReaction(State);
 
     /// <summary>The robot's own shot reaction, which recoils it after the common shot reaction.</summary>
-    protected override EnemyShotReaction OwnShotReaction => Species.WorkRobotShotReaction;
+    protected override EnemyShotReaction OwnShotReaction => field ??= Species.WorkRobotShotReaction(State);
 }

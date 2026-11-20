@@ -36,8 +36,8 @@ public sealed class TourianStatueRoom : ITourianStatueRoom, ITourianStatueProgre
     public bool IsFinished => Animation.Finished;
 
     /// <summary>
-    /// How far the statues have lowered, zero through the authored distance and the few quarter-steps that first reach it,
-    /// exposed as a negative background vertical offset. The statue sequence lowers it.
+    /// How far the statues have sunk into the room, zero through the authored distance and the few quarter-steps that
+    /// first reach it, which the display shows as the statues' placement. The statue sequence lowers it.
     /// </summary>
     internal SignedSixteenSixteen Descent { get; set; }
 

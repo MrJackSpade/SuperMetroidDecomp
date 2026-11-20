@@ -10,7 +10,8 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// <summary>
 /// How the Morph Ball and Spring Ball move: grounded, falling, bouncing and in transition.
 /// </summary>
-/// <remarks> Each of those movements is its own, sharing a few steps: the collision moves and the air, water and lava
+/// <remarks>
+/// Each of those movements is its own, sharing a few steps: the collision moves and the air, water and lava
 /// speeds. Solid enemies stop the ball through the shared block collision, conveyors carry it as inside-block
 /// reactions, and bomb-jump displacement lives in <see cref="SamusBombJumpMovement"/>.
 /// </remarks>

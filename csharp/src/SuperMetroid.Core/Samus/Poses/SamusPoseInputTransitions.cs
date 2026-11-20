@@ -45,7 +45,8 @@ public static class SamusPoseInputTransitions
     /// <summary>
     /// Looks the pose's input transitions up: a new pose, the pose's no-input fallback, or keeping the pose.
     /// </summary>
-    /// <remarks> No input, or input no transition of the pose matches, takes the pose's no-input fallback. A pose with
+    /// <remarks>
+    /// No input, or input no transition of the pose matches, takes the pose's no-input fallback. A pose with
     /// no transitions keeps its pose while any input is held, and so does a match whose target is the current pose.
     /// Running-gun pose <see cref="SamusPoseId.MovingRightGunExtendedPose"/> keeps itself while Right+Shoot is held,
     /// but Shoot alone matches none of its transitions and falls back to standing pose

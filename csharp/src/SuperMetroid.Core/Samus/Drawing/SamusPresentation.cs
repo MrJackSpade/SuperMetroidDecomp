@@ -102,7 +102,8 @@ internal sealed class SamusPresentation
     /// <summary>
     /// Restarts the pose's animation after a scripted sequence sets Samus's pose and animation directly.
     /// </summary>
-    /// <remarks> Standing drained Samus up and putting her back into the drained crouch do exactly that; her liquid's
+    /// <remarks>
+    /// Standing drained Samus up and putting her back into the drained crouch do exactly that; her liquid's
     /// extra animation delay and her collision radius stay as they were.
     /// </remarks>
     internal static void SetPoseAndAnimationForScriptedSequence(SamusState samus,

@@ -121,12 +121,12 @@ internal sealed record RoomScope
     /// <summary>The room's room-object population and the family owners that run it.</summary>
     public required RoomObjectSystem RoomObjects { get; init; }
 
-    /// <summary>The load-station record whose load established this room; null for a room entered otherwise.</summary>
+    /// <summary>The load station whose load established this room; null for a room entered otherwise.</summary>
     public LoadStation? LoadStation { get; init; }
 
     /// <summary>
-    /// The two objects carrying Samus into fresh Ceres, once Ceres-start setup has begun them. They
-    /// are projectiles of this room, so the next room's load ends them.
+    /// The two objects carrying Samus into fresh Ceres, once Ceres-start setup has begun them; the arrival belongs to
+    /// this room and ends with the next room's load.
     /// </summary>
     public CeresElevatorArrivalState? CeresElevatorArrival { get; private set; }
 

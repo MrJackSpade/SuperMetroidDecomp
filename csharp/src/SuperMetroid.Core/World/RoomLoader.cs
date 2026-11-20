@@ -214,9 +214,8 @@ internal sealed class RoomLoader
             station.Placement.CameraPosition,
             RoomViewportLoadMode.DisplayInitialViewport,
             new RoomEntry { LoadStation = station });
-        // Loading from a load station sets the save-station lockout. Without this room-entry lockout, the
-        // first standing floor probe after loading directly on a save pod immediately
-        // reopens its confirmation message.
+        // Loading at a save station locks that station until Samus leaves it, so standing on the pod does not reopen
+        // its confirmation message.
         _room.LoadedScope.RoomObjects.Stations.LockSaveStationForCurrentRoomEntry();
 
         // The Zebes start setup does not begin at its endpoint. It shows Samus facing forward
@@ -296,7 +295,7 @@ internal sealed class RoomLoader
         // Initializing Samus clears all of her state, including the speeds and pose
         // state the escape left behind; only the inventory below it survives. The player is
         // the same one, so a loadout already granted to her is not granted again.
-        // Initialization faces Samus forward in the power suit; the model's constructor defaults to the right-facing pose.
+        // Initialization faces Samus forward in the Power Suit.
         SamusState samus = InitializeSamus();
         samus.Pose = SamusPoseId.ForwardFacingPowerSuitPose;
         samus.AnimationFrame = SamusAnimationDelays.AnimationForPose(samus.Pose).Start;
@@ -373,10 +372,8 @@ internal sealed class RoomLoader
     }
 
     /// <summary>
-    /// The axis the door alignment aligns, perpendicular to travel: right/left converge camera Y,
-    /// while down/up converge camera X. This matters because aligning the
-    /// travel axis instead moves a horizontal door frame by a row while its room
-    /// scroll is being placed.
+    /// The axis the door aligns the camera on, across its direction of travel: right and left doors align the camera's
+    /// Y, down and up doors its X, so the door frame stays where it is while the room's scroll is placed.
     /// </summary>
     internal static bool DoorTransitionAlignsX(DoorDirection direction) => direction.IsVertical();
 
@@ -671,9 +668,7 @@ internal sealed class RoomLoader
         if (arrivingByElevator)
             _room.LoadedScope.Enemies.Elevator.PrepareElevatorArrival();
 
-        // The load-station record established only the first room. Once the door collision publishes
-        // a door definition, that definition and its destination definition become authoritative:
-        // the destination's scope is built without a load station.
+        // The load station chose only the first room; a door's destination is built without one.
 
         // The door's scroll has already placed Samus before the destination room is
         // constructed. This ordering is observable for elevator arrivals:
@@ -692,10 +687,8 @@ internal sealed class RoomLoader
             RoomViewportLoadMode.KeepSourceScreenWhileScrollingIn,
             new RoomEntry { RunDoorClosingObject = true, PreloadedAssets = assets });
 
-        // The door transition loads Samus's suit target colours after room/enemy colours have been
-        // loaded and before the door fade captures the destination fade target. The source fade
-        // has already driven Samus's colours to black at this point, so without this reload she would stay a black
-        // silhouette after every ordinary door transition.
+        // After a door's fade to black, Samus shows her suit's colours again before the destination fades in, after the
+        // room's and enemies' colours.
         SuperMetroid.Core.Samus.Colours.SamusSuitShade.Show(_player.Colours, samus.EquippedItems);
 
         // The door loader sets no Samus radius; the next unlocked input mode's radius update
@@ -819,10 +812,8 @@ internal sealed class RoomLoader
             _audioRequests);
         scope.ColourEffects = roomColourEffects;
 
-
-        // Loading destroys room-owned objects before constructing the destination: the
-        // destination's projectiles and bombs are built new here, before Load/beam graphics, so no
-        // stale index reaches into them; its room-object system is built with the population below.
+The destination's shots and bombs start fresh, before its pictures load, and its room objects are built with the
+population below. The held beam charge survives on the session; Samus's own echoes are cleared.
         // The held beam charge survives on the session; Samus's own echo storage is cleared.
         loadingSamus.HorizontalSpeed.ClearSpeedEchoes();
         loadingSamus.Shinespark.ForgetCrashEchoes();
@@ -898,9 +889,9 @@ internal sealed class RoomLoader
             roomObjects.DoorObjects.SpawnDoorClosingObject(assets.LevelData, door);
         }
 
-        // Loading shows the entering beams' colours before it initializes enemies. Golden Torizo's code changes the
-        // equipment during initialization and leaves those colours shown; the shots fired after it show the granted
-        // beams' own pictures (#1586).
+        // Loading shows the entering beams' colours before it sets the enemies up. Golden Torizo's setup grants
+        // equipment and leaves those colours shown; the shots fired after it show the granted beams' own pictures
+        // (#1586).
         SamusProjectileSystem.ShowBeamShade(_player.Colours, loadingSamus.EquippedBeams);
 
         // The destination's enemy projectile places start from what the outgoing room's left (RoomHandOver).

@@ -10,8 +10,8 @@ namespace SuperMetroid.Core.World;
 
 /// <summary>
 /// The pose update after the normal movement phase's animation: the pose the animation's pose-transition cue left pending, the
-/// interruptions, the collision transitions, the input transition the input phase selected or the momentum response its lookup
-/// failure selected, and the pose-history commit.
+/// interruptions, the collision transitions, the input transition the input phase selected or the momentum response
+/// chosen when her input chooses no new pose, and the pose-history commit.
 /// </summary>
 internal sealed class SamusPoseTransitionPhase
 {
@@ -47,9 +47,8 @@ internal sealed class SamusPoseTransitionPhase
             frame.Mode.Movement is SamusMovementMode.Fatal or SamusMovementMode.SuitPickup or SamusMovementMode.ScriptLocked)
             return;
 
-        // Hit interruption observes the old movement type before the pose update.
-        // Its bomb rejection still occurs when an animation transition
-        // wins pose selection; otherwise a stale request survives unmorph/morph.
+        // The hit interruption sees the old movement type before the pose update, and its bomb rejection comes before
+        // every pose transition, an animation's included.
         if (samus.HasNoKnockback)
             SamusPoseMetadata.RejectUnsupportedPublishedBombJump(samus, _freeze.TimeIsFrozen);
 
@@ -81,10 +80,8 @@ internal sealed class SamusPoseTransitionPhase
             SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.Crouching)
             samus.HorizontalSpeed.StopForNoTransition(SamusPoseMetadata.ReadFacingDirection(samus));
 
-        // Windup still runs the ordinary special-movement-type input lookup. Its unmatched
-        // chord stops Samus's momentum, just like crouching. Skipping
-        // this loses the one-frame momentum cancellation before a delayed
-        // midair launch. A selected launch or timeout must win instead.
+        // The windup still looks its input up as any special movement does: input none of its transitions matches stops
+        // Samus's momentum on this update, as crouching does, unless a launch or the timeout comes first.
         if (!transitionApplied && frame.UsePoseDefinitionFallback &&
             _player.ProspectiveSamusPose is null &&
             frame.PoseAtFrameStart is SamusPoseId.ShinesparkWindupRightPose or SamusPoseId.ShinesparkWindupLeftPose &&
@@ -108,7 +105,7 @@ internal sealed class SamusPoseTransitionPhase
 
         // The pose history moves on after any chosen pose transition takes effect,
         // including a transition to the same pose. An update that chose no transition
-        // does not move it. Keep this after the final collision and pose choice.
+        // does not move it. It moves on after the update's final collision and pose choice.
         // The grapple launch applies its transition pose early and clears the ordinary
         // input phase's input. It still reaches this same history step, once, after the
         // forced launch pose.
@@ -213,9 +210,8 @@ internal sealed class SamusPoseTransitionPhase
             transitionApplied = true;
         }
 
-        // Windup expiry installs vertical movement immediately, but publishes
-        // an interrupted pose for this later phase. Samus's animation must still see
-        // the windup body; otherwise the launch animation loses its first tick.
+        // The windup's end starts her vertical movement at once; Samus's animation sees the windup body on this update,
+        // and the launch pose is installed afterwards.
         if (!transitionApplied &&
             frame.ShinesparkMovement is { PendingLaunchPose: SamusPoseId launchPose })
         {
@@ -234,8 +230,7 @@ internal sealed class SamusPoseTransitionPhase
 
         // Grapple connection publishes a pending connection pose.
         // The animation and hurt transitions above can suppress it without
-        // undoing the already-entered beam phase. This is the
-        // ordering used by bounded Grapple momentum-retention setups.
+        // undoing the beam phase already entered.
         if (!transitionApplied &&
             frame.GrappleMovement is { PendingConnection: { } pendingConnection })
         {
@@ -323,8 +318,8 @@ internal sealed class SamusPoseTransitionPhase
         if (!transitionApplied &&
             _player.ProspectiveSamusWallCollisionPose is { } wallCollisionPose)
         {
-            // The selector result replaces the ordinary input target. Applying it
-            // here also covers the no-input “running speed was killed” branch.
+            // The wall-stop pose replaces the input transition, including when no input was held and the run's speed
+            // was stopped.
             SamusGroundedPoseTransitions.ApplyRanIntoWallPoseChange(samus, wallCollisionPose);
             transitionApplied = true;
             // The wall-stop check replaces only ProspectivePose. When the input phase matched no input
@@ -346,8 +341,7 @@ internal sealed class SamusPoseTransitionPhase
         // the grounded morph ball poses. Every one of these outcomes consumes the transition, so input
         // selected before collision cannot override the game's bounce result.
         // The landing transitions ignore the ground family's SamusMovementType.MorphBallGround, even if hurt
-        // movement left that pose with nonzero Y speed. Do not infer an airborne
-        // landing step from velocity alone.
+        // movement left that pose with Y speed.
         if (!transitionApplied &&
             frame.MorphBallMovement is { Landed: true } &&
             SamusPoseMetadata.IsAirborneMorphBallPose(frame.PoseAtFrameStart))
@@ -368,7 +362,7 @@ internal sealed class SamusPoseTransitionPhase
 
         // Spring Ball's three movement families share one collision transition, but
         // Spring Ball's movement makes held Jump an immediate relaunch and stores the jump intent
-        // during automatic rebounds. Keep it distinct from ordinary-ball state.
+        // during automatic rebounds, unlike the ordinary ball.
         // The grounded Spring Ball movement type likewise lands with no transition.
         if (!transitionApplied &&
             frame.MorphBallMovement is { Landed: true } &&

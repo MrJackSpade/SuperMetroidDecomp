@@ -26,9 +26,7 @@ public abstract class RoomMainBehavior
     public override string ToString() => Name;
 
     /// <summary>
-    /// No room-specific main behaviour runs: the state names no main, one that returns at once and leaves the working
-    /// value the room mains share (<see cref="RoomMainHandOvers"/>) untouched (#1787), or Ridley's room's, whose only work nothing
-    /// reads (#2287).
+    /// These rooms run no room-specific behaviour each update (#1787, #2287).
     /// </summary>
     public static RoomMainBehavior None { get; } = new NoRoomMain();
 

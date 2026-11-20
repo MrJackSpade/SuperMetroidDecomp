@@ -223,7 +223,7 @@ internal sealed class SamusPoseSetupSteps
     internal static void RespondStopKnockback(SamusState samus, SamusPoseId source, SamusPoseId? fallback)
     {
         // The retained hurt pose still stops Samus's momentum.
-        // Reset deceleration and cancel the momentum flag after movement.
+        // The stop cancels Samus's running momentum after movement.
         // Extra speed survives the stop, but the next normal mover
         // consumes the cancellation through HandleExtraRunSpeed.
         if (fallback == source)
@@ -388,9 +388,8 @@ internal sealed class SamusPoseSetupSteps
     }
 
     /// <summary>
-    /// Retaining the running fallback selected deceleration in the input phase. After movement, fold extra dash speed into
-    /// base and cancel boost before decelerating; changing only the mode leaves stale dash speed alive and changes the
-    /// subsequent stopping trajectory.
+    /// When the running fallback is kept, the input phase chose to slow down: after movement, the retained run folds
+    /// its extra dash speed into her base speed, ends her boost and slows down.
     /// </summary>
     private static void DecelerateRetainedRun(SamusState samus) =>
         samus.HorizontalSpeed.DecelerateForNoTransition(selectedDeceleration: true, SamusPoseMetadata.ReadFacingDirection(samus));

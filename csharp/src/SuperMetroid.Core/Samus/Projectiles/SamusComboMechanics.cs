@@ -36,7 +36,8 @@ internal static class SamusComboMechanics
     /// Scales the sine and cosine of an angle by an amplitude, as the combos place their particles, rounding toward
     /// zero in every quadrant (<see cref="UnitComponent.ReachOf"/>).
     /// </summary>
-    /// <remarks> The Ice, Plasma and Spazer attacks give the angles; Y turns back a quarter turn. The amplitude is 0
+    /// <remarks>
+    /// The Ice, Plasma and Spazer attacks give the angles; Y turns back a quarter turn. The amplitude is 0
     /// through 255.</remarks>
     internal static Offset16<RoomPixels> GetSineOffset(TrigonometryAngle angle, int amplitude)
     {

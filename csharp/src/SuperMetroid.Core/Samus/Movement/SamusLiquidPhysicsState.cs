@@ -237,7 +237,8 @@ public sealed class SamusLiquidPhysicsState
     /// Whether the grapple treats Samus as submerged, which the following grapple update reads: without the Gravity
     /// Suit, in a room with a liquid effect, while the water's surface lies above her bottom.
     /// </summary>
-    /// <remarks> The grapple compares only the water's surface, even where she ignores it, and never the lava's or
+    /// <remarks>
+    /// The grapple compares only the water's surface, even where she ignores it, and never the lava's or
     /// acid's.
     /// </remarks>
     public bool DetermineGrappleSubmersion(SamusState samus)

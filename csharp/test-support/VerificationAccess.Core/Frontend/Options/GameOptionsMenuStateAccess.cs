@@ -23,19 +23,17 @@ internal static class GameOptionsMenuStateAccess
         {
             GameOptionsSourcePresentation presentation = Ensure.NotNull(maps).GameOptions;
             ShownOptionsPage shown = self.ShownPage;
-            BackgroundTile[] tiles = presentation.CreatePage(shown.Page);
+            BackgroundTile[] tiles = presentation.CreatePage(shown.Screen);
             switch (shown.Page)
             {
-                case GameOptionsScreen.Primary:
-                    presentation.ApplyLanguage(tiles, shown.JapaneseText);
+                case GameOptionsPage.Primary:
+                    presentation.ApplyLanguage(tiles, shown.Language);
                     break;
-                case GameOptionsScreen.ControllerEnglish:
-                case GameOptionsScreen.ControllerJapanese:
+                case GameOptionsPage.Controller:
                     for (int row = 0; row < GameOptionsPageRows.ControllerActions.Count; row++)
                         presentation.ApplyControllerLabel(tiles, row, shown.Bindings[GameOptionsPageRows.ControllerActions[row]]);
                     break;
-                case GameOptionsScreen.SpecialEnglish:
-                case GameOptionsScreen.SpecialJapanese:
+                case GameOptionsPage.Special:
                     presentation.ApplySpecialToggle(tiles, GameOptionsToggle.IconCancel, shown.IconCancelEnabled);
                     presentation.ApplySpecialToggle(tiles, GameOptionsToggle.Moonwalk, shown.MoonwalkEnabled);
                     break;

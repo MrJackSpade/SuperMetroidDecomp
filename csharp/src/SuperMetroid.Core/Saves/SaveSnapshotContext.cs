@@ -22,5 +22,5 @@ public sealed record SaveSnapshotContext
     public required bool IconCancelEnabled { get; init; }
 
     /// <summary>Whether to persist the alternate Japanese text setting.</summary>
-    public required bool JapaneseText { get; init; }
+    public required TextLanguage Language { get; init; }
 }

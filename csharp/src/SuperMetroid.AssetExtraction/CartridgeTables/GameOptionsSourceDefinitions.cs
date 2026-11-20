@@ -26,10 +26,10 @@ internal static class GameOptionsSourceDefinitions
         new Dictionary<GameOptionsScreen, GameOptionsPageResource>
         {
             [GameOptionsScreen.Primary] = new(0x978df4, "primary"),
-            [GameOptionsScreen.ControllerEnglish] = new(0x978fcd, "English controller"),
-            [GameOptionsScreen.ControllerJapanese] = new(0x9791c4, "Japanese controller"),
-            [GameOptionsScreen.SpecialEnglish] = new(0x97938d, "English special-settings"),
-            [GameOptionsScreen.SpecialJapanese] = new(0x97953a, "Japanese special-settings"),
+            [GameOptionsScreen.Settings(GameOptionsPage.Controller, TextLanguage.English)] = new(0x978fcd, "English controller"),
+            [GameOptionsScreen.Settings(GameOptionsPage.Controller, TextLanguage.Japanese)] = new(0x9791c4, "Japanese controller"),
+            [GameOptionsScreen.Settings(GameOptionsPage.Special, TextLanguage.English)] = new(0x97938d, "English special-settings"),
+            [GameOptionsScreen.Settings(GameOptionsPage.Special, TextLanguage.Japanese)] = new(0x97953a, "Japanese special-settings"),
         }.ToFrozenDictionary();
 
     /// <summary>

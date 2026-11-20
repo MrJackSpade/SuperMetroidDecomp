@@ -98,7 +98,7 @@ internal sealed class FileSelectGameSequence(FrontendSession session) : IGamePha
                 optionSlot?.ControllerBindings ?? ControllerBindings.Default,
                 optionSlot?.IconCancelEnabled ?? false,
                 optionSlot?.MoonwalkEnabled ?? false,
-                japaneseText: optionSlot?.JapaneseText ?? false)
+                language: optionSlot?.Language ?? TextLanguage.English)
             {
                 StartupRoute = optionSlot?.StartupRoute ?? SaveStartupRoute.OpeningCinematic,
             });
@@ -144,7 +144,7 @@ internal sealed class FileSelectGameSequence(FrontendSession session) : IGamePha
                     }
                     else
                     {
-                        session.Show(CreateIntroCinematic(session.ActiveOptions.JapaneseText));
+                        session.Show(CreateIntroCinematic(session.ActiveOptions.Language));
                         session.Enter(session.Phases.IntroCinematic);
                         session.display.PublishIntro(session.ActiveIntro);
                     }
@@ -176,7 +176,7 @@ internal sealed class FileSelectGameSequence(FrontendSession session) : IGamePha
             }
             else
             {
-                session.Show(CreateIntroCinematic(session.ActiveOptions.JapaneseText));
+                session.Show(CreateIntroCinematic(session.ActiveOptions.Language));
                 session.Enter(session.Phases.IntroCinematic);
                 session.display.PublishIntro(session.ActiveIntro);
             }
@@ -220,7 +220,7 @@ internal sealed class FileSelectGameSequence(FrontendSession session) : IGamePha
                 session.Show(new GameOptionsMenuState(session.audio, session.Artwork.ScreenContent,
                     session.Artwork.SpriteSheets, mapSlot.ControllerBindings,
                     mapSlot.IconCancelEnabled, mapSlot.MoonwalkEnabled,
-                    japaneseText: mapSlot.JapaneseText));
+                    language: mapSlot.Language));
                 session.Enter(FileSelectStep.Options);
                 session.display.PublishMenu(session.ActiveOptions);
                 return;
@@ -262,12 +262,12 @@ internal sealed class FileSelectGameSequence(FrontendSession session) : IGamePha
     }
 
     /// <summary>Starts the opening cinematic in the text language the options menu selected.</summary>
-    private IntroCinematicState CreateIntroCinematic(bool japaneseText)
+    private IntroCinematicState CreateIntroCinematic(TextLanguage language)
     {
         var cinematic = new IntroCinematicState(new IntroCinematicOverreads(
             session.Artwork.SamusOverreads, session.Artwork.BossAndIntroOverreads.ShellFragmentFallPastCurve),
             session.audio, session.Artwork.FlashbackSamusArtwork(),
-            session.Artwork.IntroCinematicArt, japaneseText)
+            session.Artwork.IntroCinematicArt, language)
         {
             Random = session.Random,
             UnauthoredBoostCadence = session.unauthoredBoostCadence,

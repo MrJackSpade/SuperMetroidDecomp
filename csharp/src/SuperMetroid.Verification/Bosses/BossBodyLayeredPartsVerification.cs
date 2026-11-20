@@ -151,10 +151,9 @@ internal static class BossBodyLayeredPartsVerification
     private static void CheckPartShowingNothing(BossBodySheet sheet)
     {
         BossBodyFrame body = sheet.Frame(EnemyFrameId.CrocomireBodyNearFootForwardArmBent);
-        var nothing = new BossBodyFrame("Nothing", picture: null, body.Anchor, depth: null);
+        var nothing = new BossBodyFrame("Nothing", shown: null, body.Anchor);
         ShownBossBody shown = new BossBodyLayer([body, nothing]).Show();
-        SpriteSheetFrame picture = body.Picture ?? throw new InvalidOperationException("Crocomire's body frame has a picture.");
-        BossBodyDepth depth = body.Depth ?? throw new InvalidOperationException("Crocomire's body frame has a depth.");
+        (SpriteSheetFrame picture, BossBodyDepth depth) = body.Shown ?? throw new InvalidOperationException("Crocomire's body frame has a picture.");
         AssertTrue(shown.Parts.Length == 1 && shown.Parts[0] == new ShownBossBodyPart(picture, body.Anchor, picture.Size, depth),
             "a part showing nothing is not drawn, and the body beneath it shows whole at its depth");
     }

@@ -48,7 +48,7 @@ internal static class EndingTextPresentationVerification
         foreach (EndingTextSequence sequence in Enum.GetValues<EndingTextSequence>())
         {
             // The installed sequence runs to completion with its text streams guarded.
-            var installed = new EndingTypewriter(new EndingTypewriterSetup { Inventory = default, JapaneseText = true, Text = EndingTextPresentation.TypewriterOf(extracted) }, sequence);
+            var installed = new EndingTypewriter(new EndingTypewriterSetup { Inventory = default, Language = TextLanguage.Japanese, Text = EndingTextPresentation.TypewriterOf(extracted) }, sequence);
             for (int frame = 0; !installed.Completed; frame++)
             {
                 if (frame == 2048)
@@ -59,7 +59,7 @@ internal static class EndingTextPresentationVerification
             AssertTrue(installed.Shown().Any(), $"installed ending {sequence} draws its text");
         }
 
-        var saved = new EndingTypewriter(new EndingTypewriterSetup { Inventory = default, JapaneseText = false, Text = EndingTextPresentation.TypewriterOf(extracted) }, EndingTextSequence.FinalMessage);
+        var saved = new EndingTypewriter(new EndingTypewriterSetup { Inventory = default, Language = TextLanguage.English, Text = EndingTextPresentation.TypewriterOf(extracted) }, EndingTextSequence.FinalMessage);
         saved.Step();
         var restored = GraphDigestVerification.RoundTrip(saved, presentation);
         saved.Step();

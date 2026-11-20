@@ -21,7 +21,7 @@ public sealed class BossBodySheet
         var named = new Dictionary<string, BossBodyFrame>(StringComparer.Ordinal);
         foreach (BossBodyFrame frame in Ensure.NotNull(frames))
         {
-            if (frame.Picture is { } picture && picture.Sheet != sheet.Image)
+            if (frame.Shown is { } shown && shown.Picture.Sheet != sheet.Image)
                 throw new InvalidDataException($"{owner}'s body frame {frame.Name} is pictured off its sheet.");
             if (!named.TryAdd(frame.Name, frame))
                 throw new InvalidDataException($"{owner}'s body sheet repeats frame {frame.Name}.");

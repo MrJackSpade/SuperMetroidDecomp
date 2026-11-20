@@ -81,7 +81,7 @@ internal sealed class EndingGameSequence(FrontendSession session) : IGamePhase
                     endingSamus.MaxSuperMissiles,
                     endingSamus.MaxPowerBombs,
                     endingSamus.CollectedItems,
-                    endingSamus.CollectedBeams), JapaneseText = session.GameplayRuntime.JapaneseText, CrittersEscaped = session.GameplayRuntime.System.HasEvent(StoryEvent.CrittersEscaped) },
+                    endingSamus.CollectedBeams), Language = session.GameplayRuntime.Language, CrittersEscaped = session.GameplayRuntime.System.HasEvent(StoryEvent.CrittersEscaped) },
                 session.Artwork.ScreenContent.EndingText, session.Artwork.EndingBackdrops, session.Artwork.SpriteSheets));
             session.Enter(EndingStep.Credits);
             session.display.PublishBlack();

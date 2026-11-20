@@ -57,7 +57,7 @@ internal static class SaveSchemaTranslationVerification
         var restoredSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         var restoredSystem = new SharedGameState(new SharedRandom());
         (loaded ?? throw new InvalidOperationException("Verification requires loaded.")).ApplyTo(restoredSamus, restoredSystem);
-        AssertTrue(loaded.JapaneseText && targetSaves.HasCompletedGame, "language and completion survive save load");
+        AssertTrue(loaded.Language == TextLanguage.Japanese && targetSaves.HasCompletedGame, "language and completion survive save load");
 
         Suite(nameof(VerifyNamedSaveRuntime), () => VerifyNamedSaveRuntime(ram));
 
@@ -322,7 +322,7 @@ internal static class SaveSchemaTranslationVerification
         AssertEqual(SaveRamLayout.LoadedItemCountSavedWord,
             SaveRamCodec.ReadSlotWord(SaveRamCodec.Encode(importedSaves, RetailPresentationFixture()), 0, SaveRamLayout.LoadedItemCountOffset),
             "legacy importer does not carry the image's item set-up count");
-        AssertTrue(imported.JapaneseText && importedSaves.HasCompletedGame, "legacy importer decodes language and completion");
+        AssertTrue(imported.Language == TextLanguage.Japanese && importedSaves.HasCompletedGame, "legacy importer decodes language and completion");
         AssertEqual(0, SaveRamCodec.Encode(importedSaves, RetailPresentationFixture())[0x1a00], "confirmed unused bytes are not perpetuated");
         AssertTrue(!GameSaveJsonCodec.Serialize(upgraded).Contains("preservedUntranslatedSram", StringComparison.Ordinal), "legacy import never re-emits its blob");
         var bad = RequiredJson.Parse(oldJson).AsObject();

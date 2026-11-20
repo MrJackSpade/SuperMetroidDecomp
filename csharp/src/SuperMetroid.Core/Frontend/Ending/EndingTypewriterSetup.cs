@@ -9,7 +9,7 @@ internal sealed record EndingTypewriterSetup
     public required EndingInventorySnapshot Inventory { get; init; }
 
     /// <summary>Whether the Japanese subtitle shows during the percentage hold.</summary>
-    public required bool JapaneseText { get; init; }
+    public required TextLanguage Language { get; init; }
 
     /// <summary>The installed ending text.</summary>
     public required EndingTypewriterText Text { get; init; }

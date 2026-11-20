@@ -24,10 +24,10 @@ internal static class GameOptionsPageCasesVerification
         OriginalOrder[] originalOrder =
         [
             new OriginalOrder(GameOptionsScreen.Primary, "primary"),
-            new OriginalOrder(GameOptionsScreen.ControllerEnglish, "English controller"),
-            new OriginalOrder(GameOptionsScreen.ControllerJapanese, "Japanese controller"),
-            new OriginalOrder(GameOptionsScreen.SpecialEnglish, "English special-settings"),
-            new OriginalOrder(GameOptionsScreen.SpecialJapanese, "Japanese special-settings"),
+            new OriginalOrder(GameOptionsScreen.Settings(GameOptionsPage.Controller, TextLanguage.English), "English controller"),
+            new OriginalOrder(GameOptionsScreen.Settings(GameOptionsPage.Controller, TextLanguage.Japanese), "Japanese controller"),
+            new OriginalOrder(GameOptionsScreen.Settings(GameOptionsPage.Special, TextLanguage.English), "English special-settings"),
+            new OriginalOrder(GameOptionsScreen.Settings(GameOptionsPage.Special, TextLanguage.Japanese), "Japanese special-settings"),
         ];
         for (int index = 0; index < originalOrder.Length; index++)
         {

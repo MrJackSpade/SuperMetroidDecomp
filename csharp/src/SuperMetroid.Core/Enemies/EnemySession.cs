@@ -57,7 +57,7 @@ public sealed class EnemySession
     internal bool CriticalEnergyDropBias { get; set; }
 
     /// <summary>Language flag sampled when the Ceres warning-text phase begins and by Mother Brain's alternate escape-text selection.</summary>
-    public bool JapaneseText { get; set; }
+    public TextLanguage Language { get; set; }
 
     /// <summary>The count of enemy passes (<see cref="EnemyFrameContext.EnemyPassCount"/>), kept from room to room.</summary>
     internal int EnemyPassCount { get; set; }

@@ -150,8 +150,8 @@ internal static class CeresColourEffectsVerification
             "the installed subtitle placement is its initializer's");
 
         var timing = new CaptionTiming(Caption(3), Caption(3) + Caption(6), Caption(9), Subtitle(0), placed);
-        CaptionRun(cartridge, timing, japaneseText: false);
-        CaptionRun(cartridge, timing, japaneseText: true);
+        CaptionRun(cartridge, timing, TextLanguage.English);
+        CaptionRun(cartridge, timing, TextLanguage.Japanese);
 
         var native = new ReferencePaletteFxColorSource(bus);
         IPaletteFxColorSource installed = InstalledFixtures.ImportMaps.RoomPaletteFx;
@@ -181,16 +181,16 @@ internal static class CeresColourEffectsVerification
     private sealed record CaptionTiming(int SubtitleAfter, int FadeOutAfter, int LastHold, int SubtitleHold, Position16<ScreenPixels> SubtitlePlacement);
 
     /// <summary>
-    /// One destruction to its end with <paramref name="japaneseText"/>: the fades' records on every update, the caption drawn
+    /// One destruction to its end with <paramref name="language"/>: the fades' records on every update, the caption drawn
     /// with them, and the Japanese subtitle drawn only with Japanese text, at its placement, from the subtitle instruction's
     /// update for its list's hold, in the fade's record.
     /// </summary>
-    private static void CaptionRun(IImportCartridgeSource cartridge, CaptionTiming timing, bool japaneseText)
+    private static void CaptionRun(IImportCartridgeSource cartridge, CaptionTiming timing, TextLanguage language)
     {
-        string text = japaneseText ? "Japanese" : "English";
+        string text = language.ToString();
         var audio = AudioQueues.Standalone();
         CeresDestructionCinematicState scene = new(audio, InstalledFixtures.Maps.PowerBombGlowColors, InstalledFixtures.IntroArtwork.BoundCatalog,
-            spriteSheets: InstalledFixtures.SpriteSheets, outcome: CeresDestructionOutcome.SamusEscaped, japaneseText: japaneseText);
+            spriteSheets: InstalledFixtures.SpriteSheets, outcome: CeresDestructionOutcome.SamusEscaped, language: language);
         SpriteSheetFrame subtitleFrame = InstalledFixtures.SpriteSheets.Get(SpriteSheetId.ZebesRevealSprites)
             .Frame(CinematicSpriteSheet.FrameName(CinematicSpriteFamily.CeresDestruction, SubtitlePose));
         PictureShade drawn = CeresShades.Drawn(CeresSpriteColouring.ZebesTitle);
@@ -206,7 +206,7 @@ internal static class CeresColourEffectsVerification
                 .Where(draw => draw.Shading is { } shading && shading.Shades.Contains(drawn))];
             ImageSpriteDraw[] subtitles = [.. shown.Where(draw => ReferenceEquals(draw.Image, subtitleFrame))];
             ImageSpriteDraw[] captions = [.. shown.Where(draw => !ReferenceEquals(draw.Image, subtitleFrame))];
-            bool subtitleDue = japaneseText && fadeInStart is { } since &&
+            bool subtitleDue = language == TextLanguage.Japanese && fadeInStart is { } since &&
                 update - since >= timing.SubtitleAfter && update - since < timing.SubtitleAfter + timing.SubtitleHold;
             AssertEqual(subtitleDue ? 1 : 0, subtitles.Length,
                 $"{text} destruction update {update} {(subtitleDue ? "draws the Japanese subtitle once" : "draws no Japanese subtitle")}");
@@ -255,7 +255,7 @@ internal static class CeresColourEffectsVerification
         }
         AssertTrue(fadeIn is { Deleted: true } && fadeOut is { Deleted: true } && deleted is not null,
             $"both caption fades run to their ends, and the caption deletes itself, before the {text} scene ends");
-        AssertEqual(japaneseText ? timing.SubtitleHold : 0, subtitleDraws, $"the {text} scene draws the Japanese subtitle for its list's hold");
+        AssertEqual(language == TextLanguage.Japanese ? timing.SubtitleHold : 0, subtitleDraws, $"the {text} scene draws the Japanese subtitle for its list's hold");
     }
 
     /// <summary>Runs the Ceres cinematics' colour effect checks against the retail cartridge.</summary>
@@ -275,7 +275,7 @@ internal static class CeresColourEffectsVerification
     private static void VerifyFlightLights(IImportCartridgeSource cartridge)
     {
         var audio = AudioQueues.Standalone();
-        var flight = new IntroCeresFlightState(audio, InstalledFixtures.IntroArtwork.BoundCatalog.CeresFlight, sheets: InstalledFixtures.SpriteSheets, japaneseText: false);
+        var flight = new IntroCeresFlightState(audio, InstalledFixtures.IntroArtwork.BoundCatalog.CeresFlight, sheets: InstalledFixtures.SpriteSheets, language: TextLanguage.English);
         PictureShade station = CeresShades.Drawn(CeresSpriteColouring.Station);
         NativeColourEffectRun? lights = null, engine = null;
         int stationDraws = 0;

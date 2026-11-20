@@ -23,17 +23,23 @@ internal static class GameOptionsCursorPhasesVerification
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bus.Rom)), "Options cursor oracle revision");
         GameOptionsCursorPhasesPhase[] phases =
         [
-            new GameOptionsCursorPhasesPhase(GameOptionsPhase.FadeIn, 2), new GameOptionsCursorPhasesPhase(GameOptionsPhase.Main, 3),
-            new GameOptionsCursorPhasesPhase(GameOptionsPhase.DissolveOut, 5), new GameOptionsCursorPhasesPhase(GameOptionsPhase.DissolveIn, 6),
-            new GameOptionsCursorPhasesPhase(GameOptionsPhase.ControllerSettings, 7), new GameOptionsCursorPhasesPhase(GameOptionsPhase.SpecialSettings, 8),
-            new GameOptionsCursorPhasesPhase(GameOptionsPhase.ScrollControllerDown, 9), new GameOptionsCursorPhasesPhase(GameOptionsPhase.ScrollControllerUp, 10),
-            new GameOptionsCursorPhasesPhase(GameOptionsPhase.FadeOutToFileSelect, 11), new GameOptionsCursorPhasesPhase(GameOptionsPhase.FadeOutToIntro, 12),
-            new GameOptionsCursorPhasesPhase(GameOptionsPhase.StartGame, 4),
-            new GameOptionsCursorPhasesPhase(GameOptionsPhase.BlackHold, 0), new GameOptionsCursorPhasesPhase(GameOptionsPhase.BlackHold, 1),
+            new GameOptionsCursorPhasesPhase(GameOptionsPhase.FadeIn, GameOptionsPage.Primary, 2),
+            new GameOptionsCursorPhasesPhase(GameOptionsPhase.Browsing, GameOptionsPage.Primary, 3),
+            new GameOptionsCursorPhasesPhase(GameOptionsPhase.DissolveOut, GameOptionsPage.Primary, 5),
+            new GameOptionsCursorPhasesPhase(GameOptionsPhase.DissolveIn, GameOptionsPage.Controller, 6),
+            new GameOptionsCursorPhasesPhase(GameOptionsPhase.Browsing, GameOptionsPage.Controller, 7),
+            new GameOptionsCursorPhasesPhase(GameOptionsPhase.Browsing, GameOptionsPage.Special, 8),
+            new GameOptionsCursorPhasesPhase(GameOptionsPhase.ScrollControllerDown, GameOptionsPage.Controller, 9),
+            new GameOptionsCursorPhasesPhase(GameOptionsPhase.ScrollControllerUp, GameOptionsPage.Controller, 10),
+            new GameOptionsCursorPhasesPhase(GameOptionsPhase.FadeOutToFileSelect, GameOptionsPage.Primary, 11),
+            new GameOptionsCursorPhasesPhase(GameOptionsPhase.FadeOutToIntro, GameOptionsPage.Primary, 12),
+            new GameOptionsCursorPhasesPhase(GameOptionsPhase.StartGame, GameOptionsPage.Primary, 4),
+            new GameOptionsCursorPhasesPhase(GameOptionsPhase.BlackHold, GameOptionsPage.Primary, 0),
+            new GameOptionsCursorPhasesPhase(GameOptionsPhase.BlackHold, GameOptionsPage.Primary, 1),
         ];
         foreach (var phase in phases)
         {
-            ushort pointer = GameOptionsCursorPolicy.Select(phase.Phase) switch
+            ushort pointer = GameOptionsCursorPolicy.Select(phase.Phase, phase.Page) switch
             {
                 null => 0,
                 GameOptionsPage.Primary => 0xf307,
@@ -45,7 +51,7 @@ internal static class GameOptionsCursorPhasesVerification
                 $"native options cursor selection {phase.Native}");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 13, 65536, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => GameOptionsCursorPolicy.Select((GameOptionsPhase)invalid),
+            AssertThrows<ArgumentOutOfRangeException>(() => GameOptionsCursorPolicy.Select((GameOptionsPhase)invalid, GameOptionsPage.Primary),
                 "unsupported options cursor phase");
         var installed = RetailPresentationFixture();
         var controllerPage = NewMenu();
@@ -72,10 +78,10 @@ internal static class GameOptionsCursorPhasesVerification
 
         GameOptionsMenuState NewMenu()
         {
-            var menu = new GameOptionsMenuState(AudioQueues.Standalone(), screenContent: installed, spriteSheets: MenuSheetFixtures.For(installed), controllerBindings: SuperMetroid.Core.Input.ControllerBindings.Default, iconCancelEnabled: false, moonwalkEnabled: false, japaneseText: false);
-            for (int frame = 0; frame < 20 && menu.Phase != GameOptionsPhase.Main; frame++)
+            var menu = new GameOptionsMenuState(AudioQueues.Standalone(), screenContent: installed, spriteSheets: MenuSheetFixtures.For(installed), controllerBindings: SuperMetroid.Core.Input.ControllerBindings.Default, iconCancelEnabled: false, moonwalkEnabled: false, language: TextLanguage.English);
+            for (int frame = 0; frame < 20 && menu.Phase != GameOptionsPhase.Browsing; frame++)
                 menu.Step(0);
-            AssertEqual(GameOptionsPhase.Main, menu.Phase, "options reaches primary page");
+            AssertTrue(menu.Phase == GameOptionsPhase.Browsing && menu.Page == GameOptionsPage.Primary, "options reaches primary page");
             return menu;
         }
 

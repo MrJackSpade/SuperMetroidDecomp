@@ -49,29 +49,29 @@ internal static class FileMenuSnapshotTestsVerification
             Tick();
         }
 
-        var options = new GameOptionsMenuState(AudioQueues.Standalone(), screenContent: RetailPresentationFixture(), spriteSheets: MenuSheetFixtures.For(RetailPresentationFixture()), controllerBindings: SuperMetroid.Core.Input.ControllerBindings.Default, iconCancelEnabled: false, moonwalkEnabled: false, japaneseText: false);
+        var options = new GameOptionsMenuState(AudioQueues.Standalone(), screenContent: RetailPresentationFixture(), spriteSheets: MenuSheetFixtures.For(RetailPresentationFixture()), controllerBindings: SuperMetroid.Core.Input.ControllerBindings.Default, iconCancelEnabled: false, moonwalkEnabled: false, language: TextLanguage.English);
         void OptionTick(ControllerButton input = 0) => Check(options.ComposeScene, () => options.Step(input));
         void OptionPress(ControllerButton input) { OptionTick(); OptionTick(input); }
-        void OptionUntil(GameOptionsPhase phase)
+        void OptionUntil(GameOptionsPage page)
         {
-            for (int i = 0; i < 100 && options.Phase != phase; i++) OptionTick();
-            AssertEqual(phase, options.Phase, "options snapshot fixture phase");
+            for (int i = 0; i < 100 && !(options.Phase == GameOptionsPhase.Browsing && options.Page == page); i++) OptionTick();
+            AssertTrue(options.Phase == GameOptionsPhase.Browsing && options.Page == page, $"options snapshot fixture browses the {page} page");
         }
-        OptionUntil(GameOptionsPhase.Main);
+        OptionUntil(GameOptionsPage.Primary);
         for (int i = 0; i < 3; i++) OptionPress(ControllerButton.Down);
         OptionPress(ControllerButton.A);
-        OptionUntil(GameOptionsPhase.ControllerSettings);
+        OptionUntil(GameOptionsPage.Controller);
         OptionPress(ControllerButton.R);
         for (int i = 0; i < 7; i++)
         {
             OptionPress(ControllerButton.Down);
-            OptionUntil(GameOptionsPhase.ControllerSettings);
+            OptionUntil(GameOptionsPage.Controller);
         }
         OptionPress(ControllerButton.A);
-        OptionUntil(GameOptionsPhase.Main);
+        OptionUntil(GameOptionsPage.Primary);
         for (int i = 0; i < 4; i++) OptionPress(ControllerButton.Down);
         OptionPress(ControllerButton.A);
-        OptionUntil(GameOptionsPhase.SpecialSettings);
+        OptionUntil(GameOptionsPage.Special);
         OptionPress(ControllerButton.A);
         OptionPress(ControllerButton.Down);
         OptionPress(ControllerButton.Right);

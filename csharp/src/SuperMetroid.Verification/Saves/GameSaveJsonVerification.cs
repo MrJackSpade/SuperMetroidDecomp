@@ -63,7 +63,7 @@ internal static class GameSaveJsonVerification
         SuperMetroidSaveSnapshot snapshot = SuperMetroidSaveSnapshot.Capture(samus, system, SaveSnapshotFixtures.At(SuperMetroid.Core.Progression.LoadStationDefinitions.RedBrinstarSave) with { GameTime = time, ControllerBindings = bindings, MoonwalkEnabled = true, IconCancelEnabled = true });
         saveRam.SaveSlot(SaveSlot.B, snapshot);
 
-        snapshot = snapshot with { JapaneseText = true };
+        snapshot = snapshot with { Language = TextLanguage.Japanese };
         saveRam.SaveSlot(SaveSlot.B, snapshot);
         saveRam.CompleteGame();
         saveRam.SelectSlot(SaveSlot.B);

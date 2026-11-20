@@ -137,7 +137,7 @@ public static class GameSaveJsonCodec
         HudItem = slot.HudItem,
         MoonwalkEnabled = slot.MoonwalkEnabled,
         IconCancelEnabled = slot.IconCancelEnabled,
-        JapaneseText = slot.JapaneseText,
+        JapaneseText = slot.Language == TextLanguage.Japanese,
         StartupRoute = slot.StartupRoute,
         Progression = CaptureProgression(slot.Progression),
     };
@@ -174,7 +174,7 @@ public static class GameSaveJsonCodec
             ControllerBindings = bindings,
             MoonwalkEnabled = slot.MoonwalkEnabled,
             IconCancelEnabled = slot.IconCancelEnabled,
-            JapaneseText = slot.JapaneseText,
+            Language = slot.JapaneseText ? TextLanguage.Japanese : TextLanguage.English,
             StartupRoute = slot.StartupRoute,
             EquippedItems = slot.Inventory.EquippedItems,
             CollectedItems = slot.Inventory.CollectedItems,

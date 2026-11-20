@@ -34,10 +34,10 @@ public static class GameOptionsPresentationExtractor
                 RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.Menu.Background,
                     GameOptionsSourceDefinitions.TilemapByteCount)),
             [GameOptionsNames.PageName(GameOptionsScreen.Primary)] = Page(GameOptionsSourceDefinitions.Pages[GameOptionsScreen.Primary]),
-            [GameOptionsNames.PageName(GameOptionsScreen.ControllerEnglish)] = Page(GameOptionsSourceDefinitions.Pages[GameOptionsScreen.ControllerEnglish]),
-            [GameOptionsNames.PageName(GameOptionsScreen.ControllerJapanese)] = Page(GameOptionsSourceDefinitions.Pages[GameOptionsScreen.ControllerJapanese]),
-            [GameOptionsNames.PageName(GameOptionsScreen.SpecialEnglish)] = Page(GameOptionsSourceDefinitions.Pages[GameOptionsScreen.SpecialEnglish]),
-            [GameOptionsNames.PageName(GameOptionsScreen.SpecialJapanese)] = Page(GameOptionsSourceDefinitions.Pages[GameOptionsScreen.SpecialJapanese]),
+            [GameOptionsNames.PageName(GameOptionsScreen.Settings(GameOptionsPage.Controller, TextLanguage.English))] = Page(GameOptionsSourceDefinitions.Pages[GameOptionsScreen.Settings(GameOptionsPage.Controller, TextLanguage.English)]),
+            [GameOptionsNames.PageName(GameOptionsScreen.Settings(GameOptionsPage.Controller, TextLanguage.Japanese))] = Page(GameOptionsSourceDefinitions.Pages[GameOptionsScreen.Settings(GameOptionsPage.Controller, TextLanguage.Japanese)]),
+            [GameOptionsNames.PageName(GameOptionsScreen.Settings(GameOptionsPage.Special, TextLanguage.English))] = Page(GameOptionsSourceDefinitions.Pages[GameOptionsScreen.Settings(GameOptionsPage.Special, TextLanguage.English)]),
+            [GameOptionsNames.PageName(GameOptionsScreen.Settings(GameOptionsPage.Special, TextLanguage.Japanese))] = Page(GameOptionsSourceDefinitions.Pages[GameOptionsScreen.Settings(GameOptionsPage.Special, TextLanguage.Japanese)]),
         };
 
         var labels = new Dictionary<string, MapPresentationCell[]>(StringComparer.Ordinal);
@@ -57,7 +57,7 @@ public static class GameOptionsPresentationExtractor
                 .Select(region => new GameOptionsLanguageRegionDocument
                 {
                     Cells = CellRange(region.ByteOffset, region.ByteCount),
-                    HighlightWhenJapanese = region.HighlightWhenJapanese,
+                    Language = region.Language,
                 })
                 .ToArray();
         var toggles = new Dictionary<string, GameOptionsToggleVisualDocument>(StringComparer.Ordinal)

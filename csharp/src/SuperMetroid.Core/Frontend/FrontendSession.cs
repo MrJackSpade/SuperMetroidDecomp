@@ -165,7 +165,7 @@ internal sealed class FrontendSession
     internal void ChooseOptions(GameOptionsMenuState options)
     {
         Ensure.NotNull(options);
-        OptionsChoice = new ChosenGameplayOptions(new SelectedGameplayOptions(options.JapaneseText, options.ControllerBindings,
+        OptionsChoice = new ChosenGameplayOptions(new SelectedGameplayOptions(options.Language, options.ControllerBindings,
             options.MoonwalkEnabled, options.IconCancelEnabled));
     }
     /// <summary>Ceres elevator departure and blackout transition state.</summary>
@@ -363,7 +363,7 @@ internal sealed class FrontendSession
     {
         Show(new CeresDestructionCinematicState(
             audio, Artwork.ScreenContent.PowerBombGlowColors, Artwork.IntroCinematicArt, Artwork.SpriteSheets,
-            outcome, japaneseText: GameplayRuntime.JapaneseText));
+            outcome, language: GameplayRuntime.Language));
         Enter(outcome);
     }
 

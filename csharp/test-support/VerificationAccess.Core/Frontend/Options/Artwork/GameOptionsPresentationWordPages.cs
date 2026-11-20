@@ -17,7 +17,7 @@ internal static class GameOptionsPresentationWordPages
         internal byte[] CreatePageBytes(GameOptionsScreen tilemap) => BackgroundTileWordBytes.Of(presentation.CreatePage(tilemap));
 
         /// <summary>Recolours the language regions of a page held as tilemap word bytes.</summary>
-        internal void ApplyLanguage(byte[] primaryPage, bool japanese) => Change(primaryPage, tiles => presentation.ApplyLanguage(tiles, japanese));
+        internal void ApplyLanguage(byte[] primaryPage, TextLanguage language) => Change(primaryPage, tiles => presentation.ApplyLanguage(tiles, language));
 
         /// <summary>Writes one controller label into a page held as tilemap word bytes.</summary>
         internal void ApplyControllerLabel(byte[] page, int action, Input.ControllerButton button) => Change(page, tiles => presentation.ApplyControllerLabel(tiles, action, button));

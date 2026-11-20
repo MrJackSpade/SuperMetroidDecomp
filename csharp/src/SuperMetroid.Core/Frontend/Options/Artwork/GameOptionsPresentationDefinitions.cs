@@ -8,15 +8,21 @@ public static class GameOptionsPresentationDefinitions
     public static IReadOnlyList<ControllerButton> ControllerLabelButtons { get; } =
         [ControllerButton.X, ControllerButton.A, ControllerButton.B, ControllerButton.Select, ControllerButton.Y, ControllerButton.L, ControllerButton.R];
 
-    /// <summary>The name each options page's pictures are filed under.</summary>
-    internal static readonly IReadOnlyDictionary<GameOptionsScreen, string> PageNames =
-        new Dictionary<GameOptionsScreen, string>
+    /// <summary>The name each options page's pictures are filed under, before a settings page's language.</summary>
+    internal static readonly IReadOnlyDictionary<GameOptionsPage, string> PageNames =
+        new Dictionary<GameOptionsPage, string>
         {
-            [GameOptionsScreen.Primary] = "Primary",
-            [GameOptionsScreen.ControllerEnglish] = "Controller.English",
-            [GameOptionsScreen.ControllerJapanese] = "Controller.Japanese",
-            [GameOptionsScreen.SpecialEnglish] = "Special.English",
-            [GameOptionsScreen.SpecialJapanese] = "Special.Japanese",
+            [GameOptionsPage.Primary] = "Primary",
+            [GameOptionsPage.Controller] = "Controller",
+            [GameOptionsPage.Special] = "Special",
+        };
+
+    /// <summary>The name each text language's pictures are filed under (#2560).</summary>
+    internal static readonly IReadOnlyDictionary<TextLanguage, string> LanguageNames =
+        new Dictionary<TextLanguage, string>
+        {
+            [TextLanguage.English] = "English",
+            [TextLanguage.Japanese] = "Japanese",
         };
 
     /// <summary>The JSON name of a menu layout's heading sprite.</summary>

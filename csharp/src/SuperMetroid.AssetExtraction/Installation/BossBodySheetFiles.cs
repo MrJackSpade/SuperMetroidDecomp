@@ -117,7 +117,7 @@ public static class BossBodySheetFiles
             tag = $"{BossBodyOwnerKeys.Installed.Of(owner)} {key}";
             dissolves.Add(KeyValuePair.Create(tag, dissolve));
         }
-        return new(frame.Picture, frame.Anchor, frame.Depth, tag);
+        return new(frame.Shown?.Picture, frame.Anchor, frame.Shown?.Depth, tag);
     }
 
     /// <summary>
@@ -139,7 +139,8 @@ public static class BossBodySheetFiles
         PictureDissolve? dissolve = document.Dissolve is null ? null
             : dissolves.TryGetValue(document.Dissolve, out PictureDissolve? map) ? map
             : throw new InvalidDataException($"Boss body manifest {manifestPath} frame {name} names dissolve map {document.Dissolve}, which the dissolve maps do not hold.");
-        return new BossBodyFrame(name, document.Picture is null ? null : sheet.Frame(document.Picture), anchor, document.Depth, dissolve);
+        BossBodyPicture? shown = document is { Picture: { } picture, Depth: { } shownDepth } ? new(sheet.Frame(picture), shownDepth) : null;
+        return new BossBodyFrame(name, shown, anchor, dissolve);
     }
 
     /// <summary>The manifest: each boss's sheet, by boss.</summary>

@@ -35,7 +35,7 @@ internal static class GameOptionsLanguagePalettesVerification
                 int[] countOperands = enabled == 0
                     ? [0x82f0d3, 0x82f0e2, 0x82f0f1, 0x82f0ff]
                     : [0x82f114, 0x82f123, 0x82f132, 0x82f140];
-                byte[] page = presentation.CreatePageBytes(GameOptionsScreen.SpecialEnglish);
+                byte[] page = presentation.CreatePageBytes(GameOptionsScreen.Settings(GameOptionsPage.Special, TextLanguage.English));
                 presentation.ApplySpecialToggle(page, setting == 0
                     ? GameOptionsToggle.IconCancel
                     : GameOptionsToggle.Moonwalk, enabled != 0);
@@ -87,13 +87,13 @@ internal static class GameOptionsLanguagePalettesVerification
         // Set_Language_Text_Option_Highlight ($82:EDED) chooses palette zero for
         // the first pair with AltText=0 and the second pair with AltText=1.
         // Check every word, not just the first cell, on both runtime paths.
-        for (int language = 0; language < 2; language++)
+        foreach (TextLanguage language in Enum.GetValues<TextLanguage>())
         {
-            bool japanese = language != 0;
-            var menu = new GameOptionsMenuState(AudioQueues.Standalone(), japaneseText: japanese, screenContent: installed, spriteSheets: MenuSheetFixtures.For(installed), controllerBindings: SuperMetroid.Core.Input.ControllerBindings.Default, iconCancelEnabled: false, moonwalkEnabled: false);
+            bool japanese = language == TextLanguage.Japanese;
+            var menu = new GameOptionsMenuState(AudioQueues.Standalone(), language: language, screenContent: installed, spriteSheets: MenuSheetFixtures.For(installed), controllerBindings: SuperMetroid.Core.Input.ControllerBindings.Default, iconCancelEnabled: false, moonwalkEnabled: false);
             ReadOnlySpan<byte> vram = menu.ShownPageBytes(RetailImportPresentationFixture());
             byte[] editablePage = presentation.CreatePageBytes(GameOptionsScreen.Primary);
-            presentation.ApplyLanguage(editablePage, japanese);
+            presentation.ApplyLanguage(editablePage, language);
 
             for (int regionIndex = 0; regionIndex < 4; regionIndex++)
             {
@@ -108,7 +108,7 @@ internal static class GameOptionsLanguagePalettesVerification
                 GameOptionsLanguagePaletteRegion region = GameOptionsPageCells.LanguagePaletteRegions[regionIndex];
                 AssertEqual(originalOffset, region.ByteOffset, "language region offset");
                 AssertEqual(originalCount, region.ByteCount, "language region byte count");
-                AssertEqual(expected == 0, region.HighlightWhenJapanese == japanese, "language selection polarity");
+                AssertEqual(expected == 0, region.Language == language, "language selection polarity");
                 for (int offset = originalOffset; offset < originalOffset + originalCount; offset += 2)
                 {
                     int runtimePalette = PaletteAt(vram, offset);

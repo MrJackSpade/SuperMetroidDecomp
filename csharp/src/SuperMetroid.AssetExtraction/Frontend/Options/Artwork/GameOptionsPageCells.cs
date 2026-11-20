@@ -13,15 +13,6 @@ namespace SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 /// </summary>
 public static class GameOptionsPageCells
 {
-    /// <summary>A language label's language.</summary>
-    public enum GameOptionsLabelLanguage
-    {
-        /// <summary>The English label.</summary>
-        English,
-
-        /// <summary>The Japanese label.</summary>
-        Japanese,
-    }
 
     /// <summary>One of a language label's two rows.</summary>
     public enum GameOptionsLabelRow
@@ -51,10 +42,10 @@ public static class GameOptionsPageCells
     /// </summary>
     public static IReadOnlyList<GameOptionsLanguagePaletteRegion> LanguagePaletteRegions { get; } =
     [
-        LanguagePaletteRegion(GameOptionsLabelLanguage.English, GameOptionsLabelRow.Upper),
-        LanguagePaletteRegion(GameOptionsLabelLanguage.English, GameOptionsLabelRow.Lower),
-        LanguagePaletteRegion(GameOptionsLabelLanguage.Japanese, GameOptionsLabelRow.Upper),
-        LanguagePaletteRegion(GameOptionsLabelLanguage.Japanese, GameOptionsLabelRow.Lower),
+        LanguagePaletteRegion(TextLanguage.English, GameOptionsLabelRow.Upper),
+        LanguagePaletteRegion(TextLanguage.English, GameOptionsLabelRow.Lower),
+        LanguagePaletteRegion(TextLanguage.Japanese, GameOptionsLabelRow.Upper),
+        LanguagePaletteRegion(TextLanguage.Japanese, GameOptionsLabelRow.Lower),
     ];
 
     /// <summary>
@@ -72,14 +63,14 @@ public static class GameOptionsPageCells
         };
         int labelsAbove = language switch
         {
-            GameOptionsLabelLanguage.English => 0,
-            GameOptionsLabelLanguage.Japanese => 1,
+            TextLanguage.English => 0,
+            TextLanguage.Japanese => 1,
             _ => throw new ArgumentOutOfRangeException(nameof(language), language, "Undefined label language."),
         };
-        int byteCount = language == GameOptionsLabelLanguage.Japanese ? LanguageRegions.JapaneseByteCount : LanguageRegions.EnglishByteCount;
+        int byteCount = language == TextLanguage.Japanese ? LanguageRegions.JapaneseByteCount : LanguageRegions.EnglishByteCount;
         int rowBytes = GameOptionsPageDefinitions.MenuTilemapWidth * sizeof(ushort);
         return new(LanguageRegions.FirstByteOffset + rowBytes * (rowsBelowLabelTop + LanguageRegions.LanguageRowSpacing * labelsAbove),
-            byteCount, HighlightWhenJapanese: language == GameOptionsLabelLanguage.Japanese);
+            byteCount, language);
     }
 
     /// <summary>The Icon Cancel toggle's choice boxes.</summary>

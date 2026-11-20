@@ -82,7 +82,7 @@ internal static void VerifyCeresDestructionCinematic()
     var presentation = RetailPresentationFixture();
     var audio = AudioQueues.Standalone();
     var state = new CeresDestructionCinematicState(audio, glowColors: presentation.PowerBombGlowColors, artwork: artwork.BoundCatalog,
-        spriteSheets: CinematicSheetFixtures.WithIntro(artwork), outcome: SuperMetroid.Core.Frontend.CeresCinematics.CeresDestructionOutcome.SamusEscaped, japaneseText: false);
+        spriteSheets: CinematicSheetFixtures.WithIntro(artwork), outcome: SuperMetroid.Core.Frontend.CeresCinematics.CeresDestructionOutcome.SamusEscaped, language: TextLanguage.English);
     // $8B:C11B's first dispatch waits for nine NMIs; the ninth resume sets the scene up.
     for (int wait = 0; wait < CeresDestructionSceneDefinitions.InitialFrameWaits; wait++)
     {

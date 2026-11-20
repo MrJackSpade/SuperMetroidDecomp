@@ -229,13 +229,13 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// and projectiles draw from until <see cref="BindSpriteSheets"/> binds others.
     /// </param>
     /// <param name="characterArtwork">The installed opening-cinematic background and sprite artwork.</param>
-    /// <param name="japaneseText">The options menu's Japanese text setting.</param>
+    /// <param name="language">The options menu's text language.</param>
     public IntroCinematicState(
         IntroCinematicOverreads overreads,
         AudioQueues audio,
         SamusArtworkBinding samusArtwork,
         IntroCinematicArtwork characterArtwork,
-        bool japaneseText)
+        TextLanguage language)
     {
         flashbackSamusArtwork = Ensure.NotNull(samusArtwork);
         SceneSheets = samusArtwork.Sheets;
@@ -249,7 +249,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         flashbackProjectiles = new SamusProjectileSystem(flashbackAudioRequests, new BeamChargeState(), samusOverreads,
             new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), samusArtwork, new RoomEarthquake());
 
-        subtitles = new IntroJapaneseSubtitles(japaneseText);
+        subtitles = new IntroJapaneseSubtitles(language == TextLanguage.Japanese);
         this.audio = Ensure.NotNull(audio);
         CharacterArtwork = Ensure.NotNull(characterArtwork);
 

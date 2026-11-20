@@ -23,7 +23,7 @@ internal static class EndingWavySamusTests
         var installed = RepositoryInstallation.Installation;
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         var maps = installed.LoadMaps();
-        var scene = new EndingCreditsState(AudioQueues.Standalone(), new EndingCreditsSetup { GameTimeHours = 2, GameTimeMinutes = 0, Inventory = default, JapaneseText = false, CrittersEscaped = false }, maps.EndingText,
+        var scene = new EndingCreditsState(AudioQueues.Standalone(), new EndingCreditsSetup { GameTimeHours = 2, GameTimeMinutes = 0, Inventory = default, Language = TextLanguage.English, CrittersEscaped = false }, maps.EndingText,
             installed.LoadEndingBackdrops(), SuperMetroid.TestSupport.RepositoryInstallation.Verification.EndingSheetFixtures.WithEnding(
                 SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EndingObjects));
         scene.InstalledArtwork.ShowCreditsColours();

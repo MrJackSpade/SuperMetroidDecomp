@@ -285,7 +285,7 @@ internal sealed class CeresEscape : IGameplayShadingSource
         Warning.Typewriter = new(_bossArtwork.EscapeTypewriterPresentation.Get(EscapeTypewriterMessageId.Ceres));
 
         // English goes straight to typing the warning; Japanese first runs the subtitle phase.
-        if (_roomStatus.JapaneseText)
+        if (_roomStatus.Language == TextLanguage.Japanese)
         {
             Warning.Phase = CeresSelfDestructPhase.JapaneseSubtitle;
             Warning.PhaseWait.LastFor(CeresSelfDestructWarningDefinitions.JapaneseSubtitleWaitUpdates);

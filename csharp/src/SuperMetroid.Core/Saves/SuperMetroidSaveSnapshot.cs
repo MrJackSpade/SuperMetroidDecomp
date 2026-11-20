@@ -17,7 +17,7 @@ public sealed record SuperMetroidSaveSnapshot
     public required bool IconCancelEnabled { get; init; }
 
     /// <summary>Whether the alternate Japanese text setting is enabled.</summary>
-    public required bool JapaneseText { get; init; }
+    public required TextLanguage Language { get; init; }
 
     /// <summary>The collected items Samus has equipped.</summary>
     public required SamusEquipmentFlags EquippedItems { get; init; }
@@ -110,7 +110,7 @@ public sealed record SuperMetroidSaveSnapshot
             HudItem = samus.SelectedHudItem,
             MaxReserveEnergy = samus.MaxReserveEnergy,
             ReserveEnergy = samus.ReserveEnergy,
-            JapaneseText = context.JapaneseText,
+            Language = context.Language,
             GameTime = context.GameTime,
             StartupRoute = system.SavedStartupRoute,
             Checkpoint = Ensure.NotNull(context.Checkpoint),

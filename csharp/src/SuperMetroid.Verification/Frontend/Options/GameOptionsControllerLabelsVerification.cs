@@ -20,10 +20,10 @@ internal static class GameOptionsControllerLabelsVerification
         AssertThrows<ArgumentOutOfRangeException>(() => GameOptionsNames.ControllerLabelFrame(ControllerAction.Jump, ControllerButton.Start),
             "Start has no label picture");
 
-        var page = new ShownOptionsPage(GameOptionsScreen.ControllerEnglish, false, ControllerBindings.Default, false, false);
+        var page = new ShownOptionsPage(GameOptionsPage.Controller, TextLanguage.English, ControllerBindings.Default, false, false);
         string[] expected =
         [
-            GameOptionsNames.PageFrame(GameOptionsScreen.ControllerEnglish),
+            GameOptionsNames.PageFrame(GameOptionsScreen.Settings(GameOptionsPage.Controller, TextLanguage.English)),
             "Options.Controller.Shoot.X", "Options.Controller.Jump.A", "Options.Controller.Dash.B",
             "Options.Controller.ItemSelect.Select", "Options.Controller.ItemCancel.Y", "Options.Controller.AimUp.R",
             "Options.Controller.AimDown.L",

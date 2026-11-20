@@ -15,7 +15,7 @@ internal sealed class EndingCreditsRoll
     /// <summary>Collected-item snapshot displayed with the final result.</summary>
     private readonly EndingInventorySnapshot inventory;
     /// <summary>Chooses the localized post-credits text asset.</summary>
-    private readonly bool japaneseText;
+    private readonly TextLanguage language;
     /// <summary>The ending's screen: its colours and the final page's lower text (#1358, #1515).</summary>
     private readonly EndingScreen screen ;
     /// <summary>The ending's actors in their running order, in which they step and draw (<see cref="EndingCastOrderDefinitions"/>).</summary>
@@ -26,10 +26,10 @@ internal sealed class EndingCreditsRoll
     private readonly EndingArtwork _artwork;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal EndingCreditsRoll(EndingInventorySnapshot inventory, bool japaneseText, EndingScreen screen, List<EndingSprite> sprites, EndingStage stage, EndingArtwork artwork)
+    internal EndingCreditsRoll(EndingInventorySnapshot inventory, TextLanguage language, EndingScreen screen, List<EndingSprite> sprites, EndingStage stage, EndingArtwork artwork)
     {
         this.inventory = inventory;
-        this.japaneseText = japaneseText;
+        this.language = language;
         this.screen = screen;
         this.sprites = sprites;
         _stage = stage;
@@ -133,7 +133,7 @@ internal sealed class EndingCreditsRoll
     private EndingTypewriterSetup TypewriterSetup() => new()
     {
         Inventory = inventory,
-        JapaneseText = japaneseText,
+        Language = language,
         Text = _artwork.EndingText,
     };
 }

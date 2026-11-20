@@ -99,7 +99,7 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
         Flyaway = new EndingFlyaway(setup.CrittersEscaped, screen, Stage);
         Explosion = new EndingZebesExplosion(screen, sprites, Stage);
         EscapeScenes = new EndingEscapeScenes(audio, setup.GameTimeHours, setup.GameTimeMinutes, screen, sprites, Stage, InstalledArtwork);
-        CreditsRoll = new EndingCreditsRoll(setup.Inventory, setup.JapaneseText, screen, sprites, Stage, InstalledArtwork);
+        CreditsRoll = new EndingCreditsRoll(setup.Inventory, setup.Language, screen, sprites, Stage, InstalledArtwork);
         Phase = EndingCreditsPhase.SetupEscapeFromZebes;
     }
     /// <summary>

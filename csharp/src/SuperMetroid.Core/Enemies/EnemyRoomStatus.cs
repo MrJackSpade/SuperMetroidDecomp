@@ -40,10 +40,10 @@ internal sealed class EnemyRoomStatus
     /// <summary>Deepens the room's Fireflea darkness by one more Fireflea death (<see cref="FirefleaDarkness.Deeper"/>).</summary>
     internal void RecordFirefleaDeath() => FirefleaDarkness = FirefleaDarkness.Deeper;
 
-    /// <summary>Language flag sampled when the Ceres warning-text phase begins and by Mother Brain's alternate escape-text selection.</summary>
-    public bool JapaneseText
+    /// <summary>Text language sampled when the Ceres warning-text phase begins and by Mother Brain's alternate escape-text selection.</summary>
+    public TextLanguage Language
     {
-        get => _session.JapaneseText;
-        set => _session.JapaneseText = value;
+        get => _session.Language;
+        set => _session.Language = value;
     }
 }

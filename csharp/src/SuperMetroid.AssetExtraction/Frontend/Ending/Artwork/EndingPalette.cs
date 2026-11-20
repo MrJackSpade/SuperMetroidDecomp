@@ -40,14 +40,6 @@ public sealed class EndingPalette
         this.kind = kind;
     }
 
-    /// <summary>Keeps a whole screen's or a run's decoded colours.</summary>
-    /// <param name="colours">The colours in resource order: a whole screen's background colours, then its sprite colours.</param>
-    /// <param name="screen">Whether the colours are a whole screen's.</param>
-    /// <exception cref="ArgumentException">A whole screen's colours are not one background and one sprite half.</exception>
-    internal EndingPalette(ImmutableArray<RgbColor> colours, bool screen)
-        : this(colours, screen ? Kind.Screen : Kind.Run)
-    {
-    }
 
     /// <summary>The solid colour a whole screen shows behind every layer once it is loaded: its first background colour.</summary>
     /// <exception cref="InvalidOperationException">This resource is not a whole screen's.</exception>

@@ -324,7 +324,7 @@ internal sealed class SuperMetroidRuntime
             ControllerBindings = Options.ControllerBindings,
             MoonwalkEnabled = Options.MoonwalkEnabled,
             IconCancelEnabled = Options.IconCancelEnabled,
-            JapaneseText = JapaneseText,
+            Language = Language,
         });
     }
 
@@ -350,10 +350,10 @@ internal sealed class SuperMetroidRuntime
     /// Frontend language choice read by room actors whose script differs
     /// between English and Japanese. Each enemy chooses its own script by it.
     /// </summary>
-    public bool JapaneseText
+    public TextLanguage Language
     {
-        get => EnemySession.JapaneseText;
-        set => EnemySession.JapaneseText = value;
+        get => EnemySession.Language;
+        set => EnemySession.Language = value;
     }
 
     /// <summary>

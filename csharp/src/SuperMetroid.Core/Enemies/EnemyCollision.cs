@@ -267,7 +267,6 @@ internal sealed class EnemyCollision
                 hitboxShot,
                 camera)
             {
-                StruckOccupant = enemy.OccupantStates,
             };
 
             if (RunShotStage(reaction.BeforeSuperMissileQuake, shot))
@@ -541,7 +540,6 @@ internal sealed class EnemyCollision
                 usesFrameHitboxes,
                 camera)
             {
-                StruckOccupant = enemy.OccupantStates,
             };
             // The enemy's own reaction comes first, even for an ignoring selection; an ignoring selection ends the
             // contact there, and otherwise the enemy may replace common damage or run its stages around it.

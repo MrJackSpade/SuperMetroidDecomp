@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Fx.ColourEffects;
-
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
 /// <summary>One complete late-Crateria escape palette control program.</summary>

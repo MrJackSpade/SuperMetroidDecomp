@@ -740,11 +740,11 @@ internal static void VerifySamusPowerBeamProjectiles()
     SamusProjectileTrail chargedTrail = chargeProjectiles.LiveTrails[0];
     AssertEqual(1, chargedTrail.Left.FrameHold, "a new trail's left sparkle starts its program on the next update");
     // The sparkle's place is kept as the shot's place and the sparkle's offset from it, which the native's single sparkle
-    // place adds.
+    // place adds. The sparkle stands where its placement puts it, on the shot; its picture carries its own anchor (#2573).
     AssertEqual(Position16<RoomPixels>.Of(trailSourceX, trailSourceY), chargedTrail.Origin,
         "trail samples the projectile's place before movement");
-    AssertEqual(Offset16<RoomPixels>.Of(-4, -4), chargedTrail.Left.Offset,
-        "trail places its sparkle four pixels up and left of the projectile");
+    AssertEqual(Offset16<RoomPixels>.Zero, chargedTrail.Left.Offset,
+        "trail places its sparkle on the projectile");
 
     OamBuffer trailOam = SpriteFrameBuffer.DrawnOam(frame =>
     {
@@ -756,6 +756,11 @@ internal static void VerifySamusPowerBeamProjectiles()
         "charged power's empty right stream terminates without drawing");
     OamEntry firstTrailObj = trailOam.GetEntry(0);
     AssertEqual(0x038, firstTrailObj.TileNumber, "charged trail reads first `$2C38` tile");
+    // Native draws the sparkle's eight-pixel picture from four pixels up and left of the sparkle; the picture's anchor puts
+    // it there (#2573).
+    AssertEqual(new Position16<ScreenPixels>((trailSourceX + chargedTrail.Left.DisplayedOffset.X - 4) & 0x1ff,
+            (trailSourceY + chargedTrail.Left.DisplayedOffset.Y - 4) & 0xff), firstTrailObj.Position,
+        "charged trail's picture is drawn four pixels up and left of its sparkle");
     ProjectileDrawArtwork trailArtwork = InstalledFixtures.ProjectileArtwork();
     AssertProjectileEntry(
         DrawnEntries(frame => chargeProjectiles.DrawTrails(frame, Position16<RoomPixels>.Zero, trailArtwork)),

@@ -456,31 +456,17 @@ internal static class LookupStream3Verification
         }
     }
 
-    /// <summary>Checks the ordered named frame registry and derived room-sprite additions without duplicate identities.</summary>
-    internal static void VerifyStream3EnemyFrameRegistration(ISnesAddressSpace rom)
+    /// <summary>
+    /// Checks the installed enemy frame registry holds each cartridge record once. The registry no longer begins with the
+    /// 472 source registrations of commit 723df7b36: Stoke's frames (#1686), the Rios' same-picture twins (#2272), the room
+    /// sprite objects' record that draws nothing (#2370) and the Ceres doors' initial frame (#2424) left it, and the Ceres
+    /// doors' frames took new names (#1989), so its frozen prefix, and the room-sprite additions counted from that prefix,
+    /// are gone with it. The room sprite objects' pictures are compared with the cartridge's lists in
+    /// VerifyInstalledEnemySpritemaps.
+    /// </summary>
+    internal static void VerifyStream3EnemyFrameRegistration()
     {
-        // Ordered bank:pointer:name snapshot of the 472 source registrations at commit 723df7b36, under the names they had
-        // before frames were named for their meaning (#1465).
-        const string originalNamedIdentity = "421A60158BA376F9A6AD58EA817315553AD268A44B411B87A4B25059EE5DFE92";
-        var named = EnemySpritemapDefinitions.Frames.Take(472).ToArray();
-        string identity = string.Join("|", named.Select(frame => $"{frame.Bank:x2}:{frame.Pointer:x4}:{frame.LegacyName}"));
-        AssertEqual(originalNamedIdentity, Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(
-            System.Text.Encoding.UTF8.GetBytes(identity))), "enemy named registration exact ordered source identities");
         var all = EnemySpritemapDefinitions.Frames.ToArray();
-        AssertEqual(all.Length, EnemySpritemapDefinitions.Frames.Count, "enemy calculated registry count");
-        AssertTrue(EnemySpritemapDefinitions.Frames.Take(472).SequenceEqual(named), "enemy legacy named prefix slice");
-        for (int index = 0; index < 472; index++)
-            AssertEqual(named[index], EnemySpritemapDefinitions.Frames[index], "enemy legacy registration ordinal identity");
-        var additionalPointers = new SortedSet<ushort>();
-        var namedSpritePointers = named.Where(frame => frame.Bank == 0xb4).Select(frame => frame.Pointer).ToHashSet();
-        foreach (ushort pointer in SuperMetroid.Verification.Rooms.EffectActors.RoomEffectActorNativeLists.SpritemapPointers(rom))
-        {
-            if (!namedSpritePointers.Contains(pointer)) additionalPointers.Add(pointer);
-        }
-        var expectedAdditional = additionalPointers.Select(pointer =>
-            new NativeEnemySpritemapDefinition(0xb4, pointer, $"room_sprite_b4_{pointer:x4}")).ToArray();
-        AssertTrue(all.Skip(472).Take(expectedAdditional.Length).Select(frame => frame.Native).SequenceEqual(expectedAdditional),
-            "enemy additional room-sprite sort and duplicate exclusion preserve named prefix");
         AssertEqual(all.Length, all.Select(frame => new FrameAddressKey(frame.Bank, frame.Pointer)).Distinct().Count(), "enemy frame identities remain unique");
     }
 

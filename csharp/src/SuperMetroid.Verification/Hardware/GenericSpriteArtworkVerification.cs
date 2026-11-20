@@ -118,7 +118,7 @@ internal static class GenericSpriteArtworkVerification
         intro.SetupFirstIllustratedPage();
         var caret = intro.CurrentNarration;
         (caret ?? throw new InvalidOperationException("Verification requires caret.")).Step(0);
-        PlacedSpritePart[] actualParts = PlacedSpritePart.Of(intro.PrepareIllustratedPageSprites().Draws);
+        PlacedSpritePart[] actualParts = PlacedSpritePart.Of(intro.PrepareIllustratedPageSprites((intro.CurrentNarration ?? throw new InvalidOperationException("The check runs the intro once its pages have begun."))).Draws);
         expected = new OamBuffer(); expected.BeginFrame();
         DrawImportedSpritemap(reference, expected,
             (int)new SnesAddress(IntroCinematicSourceDefinitions.SpritemapBank, SuperMetroid.Verification.Frontend.Intro.CinematicSpritePoseSpritemaps.Of(caret.CaretPose)),
@@ -126,7 +126,7 @@ internal static class GenericSpriteArtworkVerification
         expected.FinalizeFrame();
         EqualParts(PlacedSpritePart.OfOamObjects(expected, MenuRenderDefinitions.ObjectSelection, new SpriteArtworkId(SpriteArtworkKind.IntroObjects)), actualParts, "illustrated-page caret owner parity");
 
-        intro.SetupMotherBrainFlashback();
+        intro.SetupMotherBrainFlashback((intro.CurrentNarration ?? throw new InvalidOperationException("The check runs the intro once its pages have begun.")));
         var motherBrain = intro.CurrentFlashbackMotherBrain;
         (motherBrain ?? throw new InvalidOperationException("Verification requires motherBrain.")).Step();
         actualParts = PlacedSpritePart.Of(intro.PrepareMotherBrainSprites().Draws);

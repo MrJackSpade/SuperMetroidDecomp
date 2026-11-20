@@ -23,8 +23,8 @@ internal static class RetailGameFixtureVerification
     /// <summary>Creates a game host from a single retail import over <paramref name="saves"/>, with optional assists and raster rendering.</summary>
     internal static SuperMetroidGame CreateRetailGameFixture(SuperMetroid.Core.Saves.SaveSlotStore saves,
         SuperMetroid.Core.Gameplay.GameplayAssists? assists = null, bool renderGameplayFrames = true,
-        SuperMetroidGameHostServices? hostServices = null, SharedRandom? random = null) =>
-        InstalledFixtures.CreateGame(saves, assists, renderGameplayFrames, hostServices, random);
+        SuperMetroidGameHostServices? hostServices = null, SharedRandom? random = null, bool mixesAudio = false) =>
+        InstalledFixtures.CreateGame(saves, assists, renderGameplayFrames, hostServices, random, mixesAudio);
 
     /// <summary>
     /// A game in main gameplay in a Brinstar room, its Samus standing under her normal movement mode with the new game's

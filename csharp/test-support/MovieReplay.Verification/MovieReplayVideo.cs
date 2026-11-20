@@ -25,7 +25,6 @@ internal sealed class MovieReplayVideo : IMovieRecorder, IDisposable
     private readonly string audioPath;
     private readonly FileStream audio;
     private readonly short[] samples = new short[AudioSession.PcmSamplesPerFrame];
-    private readonly ClipAudioLibrary clips = SuperMetroid.TestSupport.RepositoryInstallation.RepositoryInstallation.Installation.LoadAudioClips().Clips;
     private Process? encoder;
     private Extent16<ScreenPixels> size;
     private long sequence;
@@ -40,8 +39,6 @@ internal sealed class MovieReplayVideo : IMovieRecorder, IDisposable
         audio = File.Create(audioPath);
     }
 
-    /// <summary>Binds synthesized audio to a freshly created game before its first update.</summary>
-    public void Attach(SuperMetroidGame game) => game.BindAudio(clips);
 
     /// <summary>Runs one production update and appends its picture and sound.</summary>
     internal FrontendFrame Step(SuperMetroidGame game, ControllerButton input)

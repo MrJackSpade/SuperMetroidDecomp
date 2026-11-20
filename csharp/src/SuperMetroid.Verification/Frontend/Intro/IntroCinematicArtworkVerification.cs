@@ -290,8 +290,8 @@ internal static class IntroCinematicArtworkVerification
         installedState.SetupFirstIllustratedPage();
         ((nativeState.CurrentNarration ?? throw new InvalidOperationException("Verification requires nativeState.objects."))).Step(0);
         ((installedState.CurrentNarration ?? throw new InvalidOperationException("Verification requires installedState.objects."))).Step(0);
-        var nativeOam = nativeState.PrepareIllustratedPageSprites().FinalizedAsOam();
-        var installedOam = installedState.PrepareIllustratedPageSprites().FinalizedAsOam();
+        var nativeOam = nativeState.PrepareIllustratedPageSprites((nativeState.CurrentNarration ?? throw new InvalidOperationException("The check runs the intro once its pages have begun."))).FinalizedAsOam();
+        var installedOam = installedState.PrepareIllustratedPageSprites((installedState.CurrentNarration ?? throw new InvalidOperationException("The check runs the intro once its pages have begun."))).FinalizedAsOam();
         AssertTrue(installedOam.ImageEquals(nativeOam),
             "installed illustrated page draws caret without cartridge spritemap reads");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
@@ -324,7 +324,7 @@ internal static class IntroCinematicArtworkVerification
         var guarded = NewIntroArtworkSourceReadGuard(bus);
         var state = CreateRetailIntroFixture(characterArtwork: stock);
         state.SetupFirstIllustratedPage();
-        state.SetupMotherBrainFlashback();
+        state.SetupMotherBrainFlashback((state.CurrentNarration ?? throw new InvalidOperationException("The check runs the intro once its pages have begun.")));
         var level = state.CurrentFlashbackLevel ?? throw new InvalidOperationException("Verification requires level.");
         for (int index = 0; index < native.Length; index++)
             AssertEqual(native[index], level.GetCollisionBlockByIndex(index).Terrain.Collision,

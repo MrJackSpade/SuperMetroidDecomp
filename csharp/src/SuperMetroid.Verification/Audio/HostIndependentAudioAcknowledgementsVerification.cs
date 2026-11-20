@@ -37,9 +37,8 @@ internal static class HostIndependentAudioAcknowledgementsVerification
     {
         var assets = RepositoryInstallation.Installation.LoadAudioClips().Clips;
         var oracle = new ClipAudioBackend(assets);
-        SuperMetroidGame silent = CreateLandingSiteSession();
-        SuperMetroidGame playing = CreateLandingSiteSession();
-        playing.BindAudio(assets);
+        SuperMetroidGame silent = CreateLandingSiteSession(mixesAudio: false);
+        SuperMetroidGame playing = CreateLandingSiteSession(mixesAudio: true);
         SuperMetroidGame[] subjects = [silent, playing];
         SuperMetroidGame[] sessions = subjects;
         var pcm = new short[AudioSession.PcmSamplesPerFrame];
@@ -91,10 +90,10 @@ internal static class HostIndependentAudioAcknowledgementsVerification
     }
 
     /// <summary>Builds a retail gameplay session standing in the Landing Site with a reset audio queue.</summary>
-    private static SuperMetroidGame CreateLandingSiteSession()
+    private static SuperMetroidGame CreateLandingSiteSession(bool mixesAudio)
     {
         var random = new SharedRandom();
-        var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), renderGameplayFrames: false, random: random);
+        var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), renderGameplayFrames: false, random: random, mixesAudio: mixesAudio);
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true, random: random, audio: game.AudioForVerification);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();

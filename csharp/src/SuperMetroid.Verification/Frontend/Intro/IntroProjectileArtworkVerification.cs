@@ -21,7 +21,7 @@ internal static class IntroProjectileArtworkVerification
     {
         var intro = CreateRetailIntroFixture();
         intro.SetupFirstIllustratedPage();
-        intro.SetupMotherBrainFlashback();
+        intro.SetupMotherBrainFlashback((intro.CurrentNarration ?? throw new InvalidOperationException("The check runs the intro once its pages have begun.")));
         var projectiles = intro.flashbackProjectiles;
         var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
         game.Session.Show(intro);

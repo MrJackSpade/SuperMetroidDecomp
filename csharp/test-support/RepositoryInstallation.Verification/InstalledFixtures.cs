@@ -527,16 +527,18 @@ internal static class InstalledFixtures
     /// <param name="renderGameplayFrames">Whether gameplay frames are composited.</param>
     /// <param name="hostServices">The hardware-timing policies, or <see langword="null"/> for the lag-free defaults.</param>
     /// <param name="random">The session's random-number word, or <see langword="null"/> for a game that owns its own.</param>
+    /// <param name="mixesAudio">Whether the game mixes the installed clips into PCM; a muted game's PCM is silence.</param>
     internal static SuperMetroidGame CreateGame(SuperMetroid.Core.Saves.SaveSlotStore saves,
         SuperMetroid.Core.Gameplay.GameplayAssists? assists = null, bool renderGameplayFrames = true,
-        SuperMetroidGameHostServices? hostServices = null, SharedRandom? random = null)
+        SuperMetroidGameHostServices? hostServices = null, SharedRandom? random = null, bool mixesAudio = false)
     {
         // A fixture game without a supplied word is a session of its own.
         SuperMetroidGameHostServices services = hostServices ?? SuperMetroidGameHostServices.Default;
         if (!renderGameplayFrames)
             services = services with { GameplayFrames = RetainedGameplayFrames.Instance };
         return new SuperMetroidGame(saves, assists, services, random ?? new SharedRandom(),
-            SuperMetroid.Core.Audio.GameAudioOutput.Silent, fixtureGameArtwork.Value);
+            mixesAudio ? SuperMetroid.Core.Audio.GameAudioOutput.MixedFrom(AudioClips) : SuperMetroid.Core.Audio.GameAudioOutput.Silent,
+            fixtureGameArtwork.Value);
     }
 
     /// <summary>

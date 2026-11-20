@@ -111,8 +111,7 @@ internal sealed class ConvertedTimelineReplay : IConvertedMovieReplay
         {
             _ = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
             Game = InstalledFixtures.CreateGame(SuperMetroid.Diagnostics.Saves.SaveRamCodec.Decode(movie.InitialSaveRam, InstalledFixtures.Maps),
-                renderGameplayFrames: video is not null, hostServices: hostServices);
-            video?.Attach(Game);
+                renderGameplayFrames: video is not null, hostServices: hostServices, mixesAudio: video is not null);
         }
 
         Console.WriteLine($"Native first input boundary: source frame {updates[0].SourceFrame}, " +
@@ -227,8 +226,8 @@ internal sealed class ConvertedTimelineReplay : IConvertedMovieReplay
         bool consoleReset = update < updates.Count && updates[update].ConsoleReset;
         if (consoleReset)
         {
-            Game = InstalledFixtures.CreateGame(Game.Saves, renderGameplayFrames: video is not null, hostServices: hostServices);
-            video?.Attach(Game);
+            Game = InstalledFixtures.CreateGame(Game.Saves, renderGameplayFrames: video is not null, hostServices: hostServices,
+                mixesAudio: video is not null);
             Console.WriteLine($"{movie.Name} movie: console reset before update {update + 1} " +
                 $"(source frame {updates[update].SourceFrame}); the port reboots on the same cartridge.");
         }

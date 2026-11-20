@@ -107,8 +107,11 @@ internal static class CoreAccess
         /// <summary>Prepares the running flashback's sprites.</summary>
         internal SpriteFrameBuffer PrepareMotherBrainSprites() => intro.PrepareMotherBrainSprites(intro.RunningFlashback);
         /// <summary>The running discovery scene's crossfade step.</summary>
-        internal void StepBabyDiscoveryCrossfade() => intro.StepBabyDiscoveryCrossfade(intro.CurrentBabyDiscovery
+        internal void StepBabyDiscoveryCrossfade() => intro.StepBabyDiscoveryCrossfade(Narration, intro.CurrentBabyDiscovery
             ?? throw new InvalidOperationException("The fixture steps the discovery's crossfade after setting it up."));
+        /// <summary>The pages' narration actors, which the fixture's pages created.</summary>
+        internal IntroNarrationActors Narration => intro.CurrentNarration
+            ?? throw new InvalidOperationException("The fixture runs the intro's pages after they begin.");
         /// <summary>The discovery scene, which the fixture set up.</summary>
         internal IntroBabyDiscoveryState BabyDiscovery => intro.CurrentBabyDiscovery
             ?? throw new InvalidOperationException("The fixture reads the discovery after setting it up.");
@@ -119,7 +122,7 @@ internal static class CoreAccess
         internal IntroCeresFlightState CeresFlight => intro.CurrentCeresFlight
             ?? throw new InvalidOperationException("The fixture reads the Ceres flight after reaching it.");
         /// <summary>Sets up the discovery after the running flashback.</summary>
-        internal void SetupBabyDiscoveryCrossfade() => intro.SetupBabyDiscoveryCrossfade(intro.RunningFlashback);
+        internal void SetupBabyDiscoveryCrossfade() => intro.SetupBabyDiscoveryCrossfade(Narration, intro.RunningFlashback);
         /// <summary>Flashback Samus's whole-pixel X coordinate when that actor exists.</summary>
         internal ushort FlashbackSamusX => intro.CurrentFlashbackSamus?.Position.X.Whole ?? 0;
         /// <summary>Flashback Samus's whole-pixel Y coordinate when that actor exists.</summary>

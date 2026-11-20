@@ -32,9 +32,8 @@ internal static class InstalledArtworkBindingVerification
                     "The enemy artwork a game binds holds Kraid's installed colours.")).Eyes(),
             };
         // An already-finished intro is deliberately not rebound for a restored gameplay room: its restored DMA side effect
-        // would test a retired cinematic, not the room under examination. A game bound for the first time has no intro
-        // artwork of its own to keep, so it is bound the installed one, which no screen of it shows yet.
-        return (game, bindIntro) => game.BindArtwork(bindIntro || !game.Session.ArtworkBound
+        // would test a retired cinematic, not the room under examination.
+        return (game, bindIntro) => game.BindArtwork(bindIntro
             ? artwork
             : artwork with { IntroCinematicArt = game.Artwork.IntroCinematicArt });
     }

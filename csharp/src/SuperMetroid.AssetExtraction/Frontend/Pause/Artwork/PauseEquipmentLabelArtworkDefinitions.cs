@@ -14,9 +14,9 @@ public static class PauseEquipmentLabelArtworkDefinitions
     public const int EquipmentWords = 9;
     /// <summary>The beam item whose place the cartridge's Hyper label table gives Hyper's only nonblank strip: Wave's.</summary>
     public const int HyperBeamItem = 2;
-    /// <summary>Supported installed label schema version, requiring fourteen ordinary inventory labels, the Hyper label, and a nine-cell blank strip.</summary>
+    /// <summary>Supported schema version of the import-data label document, requiring fourteen ordinary inventory labels, the Hyper label, and a nine-cell blank strip.</summary>
     public const int Version = 1;
-    /// <summary>Installed JSON filename for editable equipment-page label artwork, destinations, and the unequipped-label palette selector.</summary>
+    /// <summary>Import-data JSON filename the import pictures the equipment-page labels from: their artwork, destinations, and the unequipped-label palette selector.</summary>
     public const string FileName = "pause-equipment-labels.json";
     /// <summary>The JSON key of the Hyper Beam label; separate from ordinary beam controls and placed at the Wave slot by the game's Hyper label selection.</summary>
     public const string HyperKey = "Beam.Hyper";

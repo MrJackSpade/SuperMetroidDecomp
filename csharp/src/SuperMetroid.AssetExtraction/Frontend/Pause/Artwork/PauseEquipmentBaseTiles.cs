@@ -9,8 +9,8 @@ namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 public static class PauseEquipmentBaseTiles
 {
     /// <summary>
-    /// $82:C06C-$C087 destinations: beams occupy rows16-20, suits/misc rows9-10
-    /// and13-16, boots rows19-21. All own nine cells on the cartridge's page, where a nine-cell write dispatched from
+    /// $82:C06C-$C087 destinations: beams occupy rows 16 to 20, suits and miscellaneous items rows 9 and 10
+    /// and 13 to 16, boots rows 19 to 21. All own nine cells on the cartridge's page, where a nine-cell write dispatched from
     /// the suit or boot column reaches along a beam row; the game shows each label's picture whole (#1515).
     /// </summary>
     private static bool IsEquipmentLabelCell(int cell)
@@ -23,7 +23,7 @@ public static class PauseEquipmentBaseTiles
             (row is 9 or 10 or >= 13 and <= 16 or >= 19 and <= 21);
     }
 
-    /// <summary>$82:C068/$C06A reserve labels occupy seven columns on rows10/11; supply digits use their own anchor.</summary>
+    /// <summary>$82:C068/$C06A reserve labels occupy seven columns on rows 10 and 11; supply digits use their own anchor.</summary>
     private static bool IsReserveCell(int cell)
     {
         if ((uint)(cell - PauseReserveUiDefinitions.DigitCell) < PauseReserveUiDefinitions.SupplyDigitPlaces)

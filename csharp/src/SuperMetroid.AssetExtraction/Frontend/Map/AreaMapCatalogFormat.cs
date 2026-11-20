@@ -25,9 +25,9 @@ public static class AreaMapCatalogFormat
     /// the import's read opens it (#1693).
     /// </summary>
     public const string ManifestFile = "manifest.json";
-    /// <summary>Builds the extracted JSON filename from a validated retail area identity using its lowercase enum name.</summary>
+    /// <summary>Builds the extracted JSON filename from a validated retail area identity: its installed key in lower case.</summary>
     /// <param name="area">One of the seven retail area identities.</param>
-    /// <returns>The area's lowercase name followed by <c>.json</c>, without a directory.</returns>
+    /// <returns>The area's installed key in lower case followed by <c>.json</c>, without a directory.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The value is not a retail area identity.</exception>
     [InstalledKey]
     public static string FileName(AreaId area)

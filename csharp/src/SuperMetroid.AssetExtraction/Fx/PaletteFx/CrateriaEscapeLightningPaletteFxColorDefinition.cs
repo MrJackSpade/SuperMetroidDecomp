@@ -1,6 +1,6 @@
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
-/// <summary>One complete late-Crateria escape palette control program.</summary>
+/// <summary>One escape lightning effect's records and the colours each writes.</summary>
 public sealed class CrateriaEscapeLightningPaletteFxColorDefinition
 {
     /// <summary>Only the catalog creates definitions.</summary>

@@ -77,7 +77,7 @@ internal static class RoomFxBlockAnimationPictures
         /// <exception cref="InvalidDataException"><paramref name="statue"/> is not one statue.</exception>
         internal ReadOnlyMemory<byte> TourianStatuePicture(TourianStatue statue, TourianStatueBlockPicture picture)
         {
-            int offset = (RoomFxBlockAnimationAtlasFormat.PreStatueTileCount + TourianStatueFirstTile(statue, picture)) *
+            int offset = (RoomFxBlockAnimationAtlasFormat.StatueFirstTile + TourianStatueFirstTile(statue, picture)) *
                 TourianStatueTileStripDefinitions.CharacterByteCount;
             return atlas.characters.AsMemory(offset, TourianStatuePictureByteCount(statue));
         }

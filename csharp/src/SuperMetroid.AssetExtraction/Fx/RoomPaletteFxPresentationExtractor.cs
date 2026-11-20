@@ -91,7 +91,7 @@ internal static class RoomPaletteFxPresentationExtractor
             MaridiaEnvironmentalPaletteFxColorDefinitions.All.Single(item => item.Owner == owner).ColorFrames;
 
         static PaletteFxColorFrames Heat(ColourEffectHeatSuit suit) =>
-            PaletteFxHeatProgramMechanicsDefinitions.All.Single(item => item.Suit == suit).ColorFrames;
+            PaletteFxHeatPulseColorDefinitions.All.Single(item => item.Suit == suit).ColorFrames;
 
         static PaletteFxColorFrames Loading(SamusLoadingSuitPaletteFxProgramOwner owner) =>
             SamusLoadingSuitPaletteFxColorDefinitions.All.Single(item => item.Owner == owner).ColorFrames;

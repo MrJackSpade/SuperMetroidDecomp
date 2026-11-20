@@ -33,10 +33,9 @@ internal static class FileSelectCursorPositions
 
     /// <summary>Calculates the main-page cursor Y for choices 0..5.</summary>
     /// <remarks>
-    /// Independently reviewed for #1165: save rows start at48 with five-tile spacing;
-    /// Copy/Clear/Exit start at163 with three-tile spacing. These two role groups
-    /// follow the menu's text layout. Bounds are checked before arithmetic and preserve
-    /// ArgumentOutOfRangeException. X is the separate <see cref="MainCursorX"/>.
+    /// The save rows lie five tiles apart from the first slot's row down; Copy, Clear and Exit lie three tiles apart
+    /// below them, following the menu's text layout. A choice outside the page throws
+    /// <see cref="ArgumentOutOfRangeException"/>. X is the separate <see cref="MainCursorX"/>.
     /// </remarks>
     public static int MainSelectionY(int selection)
     {
@@ -45,11 +44,10 @@ internal static class FileSelectCursorPositions
             : 163 + 24 * (selection - SaveSlotCount);
     }
 
-    /// <summary>Calculates copy/clear cursor Y, choices0..3.</summary>
+    /// <summary>Calculates the copy/clear cursor Y for the save slots and Exit.</summary>
     /// <remarks>
-    /// Independently reviewed for #1165: the three save choices start at72 with four-tile
-    /// spacing. Exit shares the main-page Exit Y. Both original tables and the extractor's
-    /// former duplicate are one logical mapping; unsupported indices remain rejected.
+    /// The save choices lie four tiles apart from the first slot's row down; Exit shares the main page's Exit row.
+    /// A choice outside the page throws <see cref="ArgumentOutOfRangeException"/>.
     /// </remarks>
     public static int DataSelectionY(int selection)
     {
@@ -60,8 +58,8 @@ internal static class FileSelectCursorPositions
 
     /// <summary>Save-slot helmet Y.</summary>
     /// <remarks>
-    /// Independently reviewed for #1165: slots0..2 use the main slot cursor anchor minus
-    /// one pixel, giving the same five-tile spacing. Reject unsupported slot indices.
+    /// Each slot's helmet lies one pixel above the main page's cursor row for that slot, so the helmets share the rows'
+    /// five-tile spacing. A slot outside the page throws <see cref="ArgumentOutOfRangeException"/>.
     /// </remarks>
     public static int HelmetY(int slot)
     {

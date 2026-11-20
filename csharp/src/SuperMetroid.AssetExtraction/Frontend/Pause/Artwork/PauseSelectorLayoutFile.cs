@@ -51,7 +51,7 @@ public static class PauseSelectorLayoutFile
     {
         if (initialDuration is < 1 or > PauseSelectorFormat.MaximumDuration || anchors is null || anchors.Count != PauseSelectorFormat.AnchorCount ||
             animation is null || animation.Length is < 1 or > PauseSelectorFormat.MaximumPhases)
-            throw new InvalidDataException("Pause selectors require version 1, sixteen anchors, palette 0..7, valid named frames and positive bounded timing.");
+            throw new InvalidDataException("Pause selectors require a positive bounded initial dwell, sixteen anchors and one to the allowed number of phases.");
         var named = new Dictionary<string, Offset16<ScreenPixels>>(StringComparer.Ordinal);
         foreach (PauseEquipmentControl control in PauseEquipmentControls.All)
         {

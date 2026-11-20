@@ -39,7 +39,7 @@ internal static class EndingScreenImage
                 ending.ObjectFragment(fragment).Load(MapBytes(Objects(artwork).Fragment(fragment)).AsSpan(0, EndingTransferExtentDefinitions.ObjectFragmentBytes));
                 break;
             case EndingTransferKind.EndingFont:
-                ending.EndingFont.Load(Font(artwork).Characters.Span[..EndingTransferExtentDefinitions.ObjectFragmentLimit]);
+                ending.EndingFont.Load(Font(artwork).Characters.Span[..EndingTransferExtentDefinitions.EndingFontUploadBytes]);
                 break;
             case EndingTransferKind.CreditsCharacterArt:
                 ExecuteCreditsCharacterArt(ending, artwork);

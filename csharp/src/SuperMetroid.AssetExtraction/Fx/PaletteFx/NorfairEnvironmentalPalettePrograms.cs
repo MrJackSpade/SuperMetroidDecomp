@@ -23,7 +23,7 @@ internal sealed class NorfairEnvironmentalPalettePrograms : IReadOnlyList<Norfai
             };
         }
     }
-    /// <summary>Visits the heat-phase program followed by palette-four, five, and six programs.</summary>
+    /// <summary>Visits the heat-phase program, then the green, purple and dark foreground glows.</summary>
     public IEnumerator<NorfairEnvironmentalPaletteFxColorDefinition> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];

@@ -19,9 +19,8 @@ internal static class PauseMenuButtonLabels
     }
 
     /// <summary>Projects a named two-row button label into the 32-column BG2 tilemap.</summary>
-    /// <remarks>MAP/EXIT/SAMUS sit at columns5/12/22.
-    /// Their lower halves are one32-word row below.
-    /// The center EXIT label occupies four columns; the outside labels occupy five.</remarks>
+    /// <remarks>MAP, EXIT and SAMUS sit side by side on the button row, each lower half one tilemap row below its upper
+    /// half. The center EXIT label occupies four columns; the outside labels occupy five.</remarks>
     public static PauseButtonLabelSpan ButtonLabelSpan(PauseButtonLabel label, int row)
     {
         int column = label switch

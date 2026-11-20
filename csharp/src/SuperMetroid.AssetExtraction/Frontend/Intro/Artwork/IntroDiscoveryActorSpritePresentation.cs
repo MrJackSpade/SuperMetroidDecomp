@@ -27,7 +27,7 @@ public sealed class IntroDiscoveryActorSpritePresentation : ICinematicSpriteFram
 
     /// <summary>Loads and validates all sixteen egg/remnant and three confused-baby visual frames.</summary>
     /// <param name="json">The caller-owned stream containing the editable sprite document.</param>
-    /// <returns>The compiled presentation keyed by native bank-$8C spritemap identities.</returns>
+    /// <returns>The compiled presentation, its compositions keyed by the poses that show them.</returns>
     /// <exception cref="InvalidDataException">The JSON, version, frame set, or sprite parts are invalid.</exception>
     public static IntroDiscoveryActorSpritePresentation Load(Stream json)
     {

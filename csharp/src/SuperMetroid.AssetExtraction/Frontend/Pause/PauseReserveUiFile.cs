@@ -7,7 +7,7 @@ using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Pause;
 
-/// <summary>Reads and writes the installed pause reserve-tank interface document.</summary>
+/// <summary>Reads and writes the import's pause reserve-tank interface document.</summary>
 public static class PauseReserveUiFile
 {
     /// <summary>Compiles editable reserve labels, digit words, arrow placements, and RGB5 pulse colors into a selected presentation.</summary>

@@ -20,11 +20,11 @@ public sealed class PauseBackdropPresentation
     { this.areas = areas; this.buttons = buttons; }
 
     /// <summary>Materializes the selected 32-by-16 button/foreground image without caching or modifying the presentation.</summary>
-    /// <returns>A new caller-owned array of 512 tiles in row-major order; the live pause menu may change its buttons' colour variants.</returns>
+    /// <returns>A new caller-owned array of 512 tiles in row-major order, which the import pictures the button page from.</returns>
     public BackgroundTile[] CreateButtonTilemap() => (BackgroundTile[])buttons.Clone();
 
-    /// <summary>Writes the selected area's complete 32-by-32 backdrop, including its authored area lettering, into the pause BG2 tilemap.</summary>
-    /// <param name="destination">The pause BG2 tilemap; tiles outside the 32-by-32 image remain unchanged.</param>
+    /// <summary>Copies the selected area's complete 32-by-32 backdrop cells, including its authored area lettering, into the import's page buffer for picturing.</summary>
+    /// <param name="destination">The import's page buffer; tiles outside the 32-by-32 image remain unchanged.</param>
     /// <param name="area">Retail area whose installed backdrop is selected; the native Ceres label is COLONY.</param>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="area"/> is not a retail area.</exception>
     public void LoadTo(Span<BackgroundTile> destination, AreaId area)

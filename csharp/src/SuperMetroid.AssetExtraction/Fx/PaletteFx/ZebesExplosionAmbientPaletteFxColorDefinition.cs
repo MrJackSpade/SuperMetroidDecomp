@@ -1,6 +1,6 @@
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
-/// <summary>One complete persistent Zebes-explosion ambient palette loop.</summary>
+/// <summary>One Zebes-explosion ambient effect's records and the colours each writes.</summary>
 public sealed class ZebesExplosionAmbientPaletteFxColorDefinition
 {
     /// <summary>Only the catalog creates definitions.</summary>

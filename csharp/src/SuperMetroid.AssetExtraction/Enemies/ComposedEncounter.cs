@@ -4,7 +4,8 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// An encounter whose artwork the import composes in looks (#1538): the authored looks it shows as it plays out, each
 /// what it copies over the characters its room's load leaves. Gameplay shows the looks of the encounters it names
 /// (<see cref="SuperMetroid.Core.Assets.EncounterArtwork"/>); every frame of the others is drawn in one look, which is its
-/// one finished picture. The values are arbitrary identities, in the order frames name the looks they show.
+/// one finished picture. The values are arbitrary identities; the order a graphics set lists the looks in is
+/// <see cref="EncounterLookUploads"/>' own named ordering.
 /// </summary>
 internal enum ComposedEncounter
 {

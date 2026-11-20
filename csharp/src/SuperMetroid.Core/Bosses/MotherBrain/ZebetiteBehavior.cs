@@ -223,7 +223,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyPlace spawned = _places.FindFreePlace() ??
             throw new InvalidOperationException("Zebetite progression filled every enemy place.");
 
-        RoomEnemyPlacement population = Zebetites.SpawnPopulation(half);
+        RoomEnemyPlacement population = Zebetites.SpawnPopulation(half, _room.Services.ZebetiteProgress.ZebetitesDestroyed);
 
         RoomEnemyDefinition definition = _room.Definitions.ReadEnemyDefinition(population.DefinitionId);
         _lifecycle.InitializePlaceFromDefinition(spawned, population, definition);

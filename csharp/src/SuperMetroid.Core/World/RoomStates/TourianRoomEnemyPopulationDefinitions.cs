@@ -76,7 +76,7 @@ internal static class TourianRoomEnemyPopulationDefinitions
     [
         new(EnemyDefinitionId.MotherBrainBody, new(129, 111), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, true, EnemySpawnSettings.None),
         new(EnemyDefinitionId.MotherBrainHead, new(129, 111), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, true, EnemySpawnSettings.None),
-        new(EnemyDefinitionId.Zebetite, new(0, 0), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new ZebetiteSpawnSettings(Half: ZebetiteHalf.Primary)),
+        new(EnemyDefinitionId.Zebetite, new(0, 0), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new ZebetiteSpawnSettings(Half: ZebetiteHalf.Primary)), // The cartridge's population entry: the room's placement, whose position the setup replaces with the standing generation's before anything reads it (#2558).
         new(EnemyDefinitionId.Rinka, new(823, 54), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new RinkaSpawnSettings.SharingPoints(RinkaSpawnPoint.RightUpper)),
         new(EnemyDefinitionId.Rinka, new(823, 166), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new RinkaSpawnSettings.SharingPoints(RinkaSpawnPoint.RightLower)),
         new(EnemyDefinitionId.Rinka, new(631, 28), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new RinkaSpawnSettings.SharingPoints(RinkaSpawnPoint.CentreUpper)),

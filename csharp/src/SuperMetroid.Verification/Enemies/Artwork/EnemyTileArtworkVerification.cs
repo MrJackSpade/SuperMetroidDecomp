@@ -30,7 +30,7 @@ using static SuperMetroid.Verification.Enemies.Artwork.EnemyTileArtworkNorfairRi
 using static SuperMetroid.Verification.Enemies.Artwork.EnemyTileArtworkPhantoonBg2FramesVerification;
 using static SuperMetroid.Verification.Enemies.Artwork.EnemyTileArtworkPhantoonColorsVerification;
 using static SuperMetroid.Verification.Enemies.Artwork.EnemyTileArtworkProjectileSpritemapsVerification;
-using static SuperMetroid.Verification.Enemies.Artwork.EnemyTileArtworkShitroidColorsVerification;
+using static SuperMetroid.Verification.Enemies.Artwork.EnemyTileArtworkBabyMetroidColorsVerification;
 using static SuperMetroid.Verification.Enemies.Artwork.EnemyTileArtworkSporeSpawnColorsVerification;
 using static SuperMetroid.Verification.Enemies.Artwork.EnemyTileArtworkTourianStatueColorsVerification;
 using static SuperMetroid.Verification.Enemies.Artwork.EnemyTileArtworkWorkRobotPaletteVerification;
@@ -141,7 +141,7 @@ internal static class EnemyTileArtworkVerification
         Suite(nameof(VerifyInstalledChozoAndTubeColors), () => VerifyInstalledChozoAndTubeColors(bus, colours, stock));
         Suite(nameof(VerifyInstalledSporeSpawnColors), () => VerifyInstalledSporeSpawnColors(bus, colours, stock));
         Suite(nameof(VerifyInstalledDachoraColors), () => VerifyInstalledDachoraColors(bus, colours, stock));
-        Suite(nameof(VerifyInstalledShitroidColors), () => VerifyInstalledShitroidColors(bus, colours, stock));
+        Suite(nameof(VerifyInstalledBabyMetroidColors), () => VerifyInstalledBabyMetroidColors(bus, colours, stock));
         Suite(nameof(VerifyInstalledBabyMetroidCutsceneColors), () => VerifyInstalledBabyMetroidCutsceneColors(bus, colours, stock));
         Suite(nameof(VerifyInstalledBotwoonColors), () => VerifyInstalledBotwoonColors(bus, colours, stock));
         Suite(nameof(VerifyInstalledMotherBrainDeathColors), () => VerifyInstalledMotherBrainDeathColors(bus, colours, stock));
@@ -336,13 +336,13 @@ internal static class EnemyTileArtworkVerification
         return 0;
     }
 
-    /// <summary>Runs only the installed Shitroid colour comparison against retail, with the live membrane pulse.</summary>
+    /// <summary>Runs only the installed Baby Metroid colour comparison against retail, with the live membrane pulse.</summary>
     [VerificationCommand("--shitroid-colors")]
-    internal static int ShitroidColorsCommand()
+    internal static int BabyMetroidColorsCommand()
     {
         var fixture = new EnemyTileFixture();
         var (bus, _, colours, stock) = fixture;
-        VerifyInstalledShitroidColors(bus, colours, stock);
+        VerifyInstalledBabyMetroidColors(bus, colours, stock);
         return 0;
     }
 }

@@ -70,7 +70,7 @@ internal static class PaletteJsonContractsFixturesVerification
             Version = TitlePaletteFormat.Version, Colors = PaletteContractColors(SnesCgram.ColorCount),
             BabyMetroidTubeLight = PaletteContractRows(tube.FrameCount, tube.ColorsPerFrame),
             FlickeringDisplays = PaletteContractRows(displays.FrameCount, displays.ColorsPerFrame),
-            SkipCopyrightWhite = PaletteContractColors(1)[0], SkipCopyrightRed = PaletteContractColors(1, 1)[0],
+            SkipCopyrightWhite = PaletteContractColors(1)[0], SkipCopyrightTint = PaletteContractColors(1, 1)[0],
         }), json => _ = TitlePaletteFile.Read(json));
         yield return new("Mother Brain health", PaletteContractDocument(new MotherBrainHealthPaletteDocument
         { Version = MotherBrainHealthPaletteFile.Version,

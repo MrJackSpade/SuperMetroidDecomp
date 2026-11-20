@@ -13,10 +13,10 @@ internal static class EnemyAiRoutineDefinitions
         /// <summary>The shared enemy bank, $A0, whose common prologue callbacks every enemy header can name.</summary>
         public const byte Bank = 0xa0;
 
-        /// <summary><c>NormalEnemyTouchAI</c> at $A0:8023.</summary>
-        public static readonly SnesAddress NormalEnemyTouch = new(Bank, 0x8023);
-        /// <summary><c>NormalEnemyShotAI</c> at $A0:802D.</summary>
-        public static readonly SnesAddress NormalEnemyShot = new(Bank, 0x802d);
+        /// <summary><c>OrdinaryTouchAI</c> at $A0:8023.</summary>
+        public static readonly SnesAddress OrdinaryTouch = new(Bank, 0x8023);
+        /// <summary><c>OrdinaryShotAI</c> at $A0:802D.</summary>
+        public static readonly SnesAddress OrdinaryShot = new(Bank, 0x802d);
         /// <summary>Shared dud-shot callback at $A0:8046.</summary>
         public static readonly SnesAddress DudShot = new(Bank, 0x8046);
         /// <summary>Shared no-op interaction callback at $A0:804C.</summary>
@@ -48,12 +48,12 @@ internal static class EnemyAiRoutineDefinitions
         public static readonly SnesAddress BabyTurtleTouch = new(Bank, 0x929f);
         /// <summary>Baby Turtle shot callback at $A2:930F.</summary>
         public static readonly SnesAddress BabyTurtleShot = new(Bank, 0x930f);
-        /// <summary><c>MaridiaLargeSnailDamagingTouchAI</c> at $A2:D388.</summary>
-        public static readonly SnesAddress MaridiaLargeSnailDamagingTouch = new(Bank, 0xd388);
-        /// <summary><c>MaridiaLargeSnailNonDamagingTouchAI</c> at $A2:D38C.</summary>
-        public static readonly SnesAddress MaridiaLargeSnailNonDamagingTouch = new(Bank, 0xd38c);
-        /// <summary><c>MaridiaLargeSnailShotAI</c> at $A2:D3B4.</summary>
-        public static readonly SnesAddress MaridiaLargeSnailShot = new(Bank, 0xd3b4);
+        /// <summary><c>OumDamagingTouchAI</c> at $A2:D388.</summary>
+        public static readonly SnesAddress OumDamagingTouch = new(Bank, 0xd388);
+        /// <summary><c>OumNonDamagingTouchAI</c> at $A2:D38C.</summary>
+        public static readonly SnesAddress OumNonDamagingTouch = new(Bank, 0xd38c);
+        /// <summary><c>OumShotAI</c> at $A2:D3B4.</summary>
+        public static readonly SnesAddress OumShot = new(Bank, 0xd3b4);
         /// <summary>Rinka touch callback at $A2:B947.</summary>
         public static readonly SnesAddress RinkaTouch = new(Bank, 0xb947);
         /// <summary>Rinka shot callback at $A2:B94D.</summary>
@@ -274,12 +274,12 @@ internal static class EnemyAiRoutineDefinitions
         public static readonly SnesAddress DeadSidehopperShot = new(Bank, 0xdd1d);
         /// <summary>Dead Sidehopper Power Bomb callback at $A9:D8CC.</summary>
         public static readonly SnesAddress DeadSidehopperPowerBomb = new(Bank, 0xd8cc);
-        /// <summary>Shitroid touch callback at $A9:F789.</summary>
-        public static readonly SnesAddress ShitroidTouch = new(Bank, 0xf789);
-        /// <summary>Shitroid shot callback at $A9:F842.</summary>
-        public static readonly SnesAddress ShitroidShot = new(Bank, 0xf842);
-        /// <summary>Shitroid Power Bomb callback at $A9:EFBA.</summary>
-        public static readonly SnesAddress ShitroidPowerBomb = new(Bank, 0xefba);
+        /// <summary>Baby Metroid touch callback at $A9:F789.</summary>
+        public static readonly SnesAddress BabyMetroidTouch = new(Bank, 0xf789);
+        /// <summary>Baby Metroid shot callback at $A9:F842.</summary>
+        public static readonly SnesAddress BabyMetroidShot = new(Bank, 0xf842);
+        /// <summary>Baby Metroid Power Bomb callback at $A9:EFBA.</summary>
+        public static readonly SnesAddress BabyMetroidPowerBomb = new(Bank, 0xefba);
     }
 
     /// <summary>Bank-$AA Torizo/Shaktool interaction callbacks.</summary>

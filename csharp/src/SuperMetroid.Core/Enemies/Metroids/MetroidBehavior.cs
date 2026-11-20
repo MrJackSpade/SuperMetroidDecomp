@@ -462,14 +462,14 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             {
                 // A frozen Metroid rejects every beam and bomb. The shot has already met it, so a non-plasma shot
                 // keeps only its collision mark and never deals ordinary damage.
-                c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
+                c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
                 return true;
             }
 
             // Like the ordinary path, the collision only marks the direction. The damage path does not reject a
             // projectile an earlier enemy marked this pass: a Super Missile that just hit a Rinka still reaches
             // the Metroid's shot reaction.
-            c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
+            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
 
             EnemyWeaponVulnerability frozenVulnerability = EnemyCollision.ReadProjectileVulnerability(enemy, c.ProjectileType);
             int frozenDamage = frozenVulnerability.DamageFrom(c.ProjectileDamage);
@@ -496,7 +496,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // A shot on a Metroid takes no common shot reaction and does it no health damage: the collision marks the shot,
         // then the Metroid recoils, freezes or, attached, escapes as a Power Bomb shakes it loose.
-        c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
+        c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
         ResolveMetroidNonFrozenShot(enemy, c.Projectile.Type, Ensure.AtLeastZero(c.Projectile.Damage), MetroidRecoilOrigin.Of(c.Projectiles.Shots).Position.Whole, c.Samus);
         return true;
     }

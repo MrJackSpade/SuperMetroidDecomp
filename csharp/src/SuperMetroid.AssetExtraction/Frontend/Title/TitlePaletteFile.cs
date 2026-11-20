@@ -93,7 +93,7 @@ public static class TitlePaletteFile
         ImmutableArray<RgbColor> screen = [.. colors];
         return new TitlePalettePresentation(screen, animatedColors,
             PackColor(document.SkipCopyrightWhite, "skip copyright white"),
-            PackColor(document.SkipCopyrightRed, "skip copyright red"));
+            PackColor(document.SkipCopyrightTint, "skip copyright tint"));
     }
 
     /// <summary>Validates one skip-only RGB5 color before packing its CGRAM word.</summary>

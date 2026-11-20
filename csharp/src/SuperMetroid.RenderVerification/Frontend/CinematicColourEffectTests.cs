@@ -64,7 +64,7 @@ internal static class CinematicColourEffectTests
                 start = update;
             if (start is { } from && FlightSamples.Contains(update - from))
             {
-                LayeredScene scene = flight.CaptureRenderSnapshot();
+                LayeredScene scene = flight.ComposeScene();
                 Verify(device, renderer, update, scene, flight.Render(), $"flight station lights, {update - from} updates in");
                 showing += Isolated(device, renderer, update, scene, station, $"flight station lights, {update - from} updates in");
                 checks++;
@@ -105,7 +105,7 @@ internal static class CinematicColourEffectTests
             previous = shown;
             if (setUp is { } from && !scene.ZebesRevealed && FloorSamples.Contains(update - from))
             {
-                Verify(device, renderer, update, scene.CaptureRenderSnapshot(), scene.Render(), $"destruction floor lights, {update - from} updates in");
+                Verify(device, renderer, update, scene.ComposeScene(), scene.Render(), $"destruction floor lights, {update - from} updates in");
                 checks++;
             }
             if (fadeIn is { } inFrom && fadeOut is null && FadeInSamples.Contains(update - inFrom))
@@ -115,7 +115,7 @@ internal static class CinematicColourEffectTests
 
             int Caption(int into, string fade)
             {
-                LayeredScene captured = scene.CaptureRenderSnapshot();
+                LayeredScene captured = scene.ComposeScene();
                 Verify(device, renderer, update, captured, scene.Render(), $"PLANET ZEBES {fade}, {into} updates in");
                 showing += Isolated(device, renderer, update, captured, caption, $"PLANET ZEBES {fade}, {into} updates in");
                 return 1;
@@ -144,7 +144,7 @@ internal static class CinematicColourEffectTests
                 start = update;
             if (start is { } from && FightSamples.Contains(update - from))
             {
-                Verify(device, renderer, update, intro.CaptureRenderSnapshot(), intro.Render(), $"fight lights, {update - from} updates in");
+                Verify(device, renderer, update, intro.ComposeScene(), intro.Render(), $"fight lights, {update - from} updates in");
                 checks++;
             }
         }

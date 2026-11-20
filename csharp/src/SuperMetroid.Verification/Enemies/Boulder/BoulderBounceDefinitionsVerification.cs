@@ -32,10 +32,10 @@ internal static class BoulderBounceDefinitionsVerification
             AssertEqual(expected, BoulderBounces.RestartPlace(impactsSoFar).InTwoHundredFiftySixthsOfMark, "Boulder native leading-zero/bounce word");
             actor.Position = actor.Position.WithY(new(55, 0));
             state.ImpactsSoFar = impactsSoFar;
-            state.BounceSpeedAccumulator = QuadraticSpeedCurvePlace.FromMarks(32);
+            state.BounceCurvePlace = QuadraticSpeedCurvePlace.FromMarks(32);
             state.Action = BoulderAction.Falling;
             fall(actor, state, level);
-            AssertEqual(expected, state.BounceSpeedAccumulator.InTwoHundredFiftySixthsOfMark, "Boulder real collision installs compiled sample without bus");
+            AssertEqual(expected, state.BounceCurvePlace.InTwoHundredFiftySixthsOfMark, "Boulder real collision installs compiled sample without bus");
             AssertEqual(impactsSoFar + 1, state.ImpactsSoFar, "Boulder counts the impact");
             bool last = impactsSoFar == BoulderBounces.ImpactCount - 1;
             AssertEqual(last ? BoulderAction.Rolling : BoulderAction.Rebound,

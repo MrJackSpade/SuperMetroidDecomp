@@ -83,7 +83,7 @@ static const uint RevealColumns = 17, RevealRows = 16;
 // A picture (a block, or a background image): its colour slot, its place in the image texture and its width and height,
 // x below y.
 static const uint PictureColoursWord = 0, PicturePlaceWord = 1, PictureSizeWord = 2;
-// The installed images (D3D11ImageAtlas), each texel the image's pixel, then its key word (D3D11ImageAtlas.KeyWord): the
+// The installed images (D3D11ImageAtlas), each texel the image's pixel, then its key word (D3D11ImageAtlas.KeyWords): the
 // place of the pixel's colour key among its image's in the low sixteen bits (#1633), and above it whether it is clear.
 Texture2D<uint2> Images : register(t4);
 static const uint KeyPlaceMask = 65535, KeyClear = 65536;

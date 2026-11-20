@@ -50,5 +50,5 @@ public sealed record GameSaveSlotJsonDocument
     public required bool JapaneseText { get; init; }
 
     /// <summary>The startup route the save resumes by.</summary>
-    public required SaveLoadingGameState StartupRoute { get; init; }
+    public required SaveStartupRoute StartupRoute { get; init; }
 }

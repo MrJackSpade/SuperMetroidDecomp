@@ -39,7 +39,7 @@ internal static class EnemyColorPresentationContractChecks
             class EnemyColorConsumer {
                 void Inspect(EnemyAuxiliaryColorCatalog auxiliary, KraidColorCatalog kraid, BotwoonColorCatalog botwoon,
                     BabyMetroidCutsceneColorCatalog baby, ZebetiteColorCatalog zebetite,
-                    ShitroidColorCatalog shitroid, DachoraColorCatalog dachora,
+                    BabyMetroidColorCatalog shitroid, DachoraColorCatalog dachora,
                     MotherBrainHealthPalettePresentation motherBrain) {
                     auxiliary.Resolve(EnemyAuxiliaryPalette.FaceBlock, 7, 3);
                     auxiliary.Resolve(EnemyAuxiliaryPalette.FaceBlock, 7, 4);
@@ -54,10 +54,10 @@ internal static class EnemyColorPresentationContractChecks
                     baby.FadeColor(BabyMetroidCutsceneColorDefinitions.FadeFrameCount, BabyMetroidCutsceneColorFormat.FadeColorCount - 1);
                     baby.FadeColor(0, 0);
                     baby.FadeColor(BabyMetroidCutsceneColorDefinitions.FadeFrameCount, BabyMetroidCutsceneColorFormat.FadeColorCount);
-                    shitroid.NormalColor(ShitroidColorDefinitions.NormalFrameCount - 1, ShitroidColorDefinitions.NormalColorsPerFrame - 1);
-                    shitroid.NormalColor(0, ShitroidColorDefinitions.NormalColorsPerFrame);
-                    shitroid.TargetColor(ShitroidColorTarget.DeadSidehopper, ShitroidColorDefinitions.TargetColorCount - 1);
-                    shitroid.TargetColor((ShitroidColorTarget)int.MaxValue, 0);
+                    shitroid.NormalColor(BabyMetroidColorDefinitions.NormalFrameCount - 1, BabyMetroidColorDefinitions.NormalColorsPerFrame - 1);
+                    shitroid.NormalColor(0, BabyMetroidColorDefinitions.NormalColorsPerFrame);
+                    shitroid.TargetColor(BabyMetroidColorTarget.DeadSidehopper, BabyMetroidColorDefinitions.TargetColorCount - 1);
+                    shitroid.TargetColor((BabyMetroidColorTarget)int.MaxValue, 0);
                     dachora.Resolve(DachoraColourPhase.Shine, DachoraColorDefinitions.AnimatedFrameCount - 1, DachoraColorFormat.ColorsPerFrame - 1);
                     dachora.Resolve(DachoraColourPhase.Default, 1, 0);
                 }

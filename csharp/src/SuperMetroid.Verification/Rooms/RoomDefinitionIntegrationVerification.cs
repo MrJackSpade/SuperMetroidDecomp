@@ -117,14 +117,14 @@ internal static class RoomDefinitionIntegrationVerification
             LoadStationRomData.DataEnd - LoadStationRomData.PointerTable);
 
         foreach (ushort doorPointer in EnumerateRetailDoorPointers()
-                     .Append(DoorDefinitionsAccess.SharedElevatorPseudoDoorPointer)
+                     .Append(DoorDefinitionsAccess.SharedElevatorRidePointer)
                      .Distinct())
         {
             AddAddressRange(forbidden,
                 DoorHeaderRomDataTooling.BankAddress | doorPointer,
                 DoorHeaderRomDataConstants.RecordByteCount);
             // The pseudo-door's remaining bytes overlap $88FE; it has no setup routine of its own.
-            if (doorPointer == DoorDefinitionsAccess.SharedElevatorPseudoDoorPointer)
+            if (doorPointer == DoorDefinitionsAccess.SharedElevatorRidePointer)
                 continue;
             DoorDefinition door = DoorDefinitions.Get(doorPointer);
             // A setup the cartridge has two routines for forbids both: the import maps either routine to it.

@@ -166,10 +166,10 @@ internal static class EndingPaletteArtworkVerification
             bool first = reached.Add(nativeState.Phase);
             if (first || frame % 173 == 0)
             {
-                LayeredScene expected = EndingCreditsPresentation.CaptureRenderSnapshot(nativeState);
+                LayeredScene expected = EndingCreditsPresentation.ComposeScene(nativeState);
                 RgbColor[] expectedColours = EndingShownColours.Of(nativeState);
                 byte[] expectedVram = nativeState.ShownVram();
-                LayeredScene actual = EndingCreditsPresentation.CaptureRenderSnapshot(installedState);
+                LayeredScene actual = EndingCreditsPresentation.ComposeScene(installedState);
                 RgbColor[] actualColours = EndingShownColours.Of(installedState);
                 byte[] actualVram = installedState.ShownVram();
                 AssertTrue(actualColours.SequenceEqual(expectedColours) &&

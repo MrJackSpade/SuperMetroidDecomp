@@ -48,8 +48,8 @@ internal static class FileMapSnapshotTestsVerification
                     AssertTrue(ScenePixels.Same(previousExpected, previous), "map packet survives window/palette/marker update");
                 legacy.Step(input);
                 phases.Add(legacy.Phase);
-                LayeredScene expected = legacy.CaptureRenderSnapshot();
-                LayeredScene packet = capture.CaptureRenderSnapshot();
+                LayeredScene expected = legacy.ComposeScene();
+                LayeredScene packet = capture.ComposeScene();
                 Compare(expected, packet, $"map navigation {legacy.Phase}, tick {tick}, cancel {cancel}");
                 AssertEqual(legacy.Phase, capture.Phase, "map capture preserves navigation");
                 AssertEqual((legacy.Outcome == FileSelectMapOutcome.Load), (capture.Outcome == FileSelectMapOutcome.Load), "map capture preserves load signal");

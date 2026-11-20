@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// The gradual acceleration toward a point and horizontally, shared by the Tourian Shitroid and the Mother Brain
+/// The gradual acceleration toward a point and horizontally, shared by the Tourian Baby Metroid and the Mother Brain
 /// baby-Metroid cutscene.
 /// Each axis accelerates in runs of steps (<see cref="SeekingVelocityRun"/>): a step that carries
 /// the velocity across zero makes the run's next step a unit larger, and a step taken while already

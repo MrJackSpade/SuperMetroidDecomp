@@ -39,7 +39,7 @@ internal static class GameOverPresentationVerification
                 "the Baby shows the same colours");
             AssertEqual(native.BabyFrame, installed.BabyFrame,
                 "compiled Baby sequence selects the same pose");
-            AssertTrue(ScenePixels.Same(native.CaptureRenderSnapshot(), installed.CaptureRenderSnapshot()),
+            AssertTrue(ScenePixels.Same(native.ComposeScene(), installed.ComposeScene()),
                 $"installed game-over frame {tick} matches cartridge pixels");
             comparedFrames++;
 

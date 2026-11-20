@@ -28,11 +28,11 @@ internal sealed class RoomEnemyRuntimeServices(
     /// <summary>Exposes the system-owned RNG to enemy AI without a raw system-state dependency.</summary>
     public IEnemyRandomNumbers Random => this;
     /// <summary>The story events that have happened, which the enemies read and mark.</summary>
-    public IGlobalEventFlags Events => progress;
+    public IStoryEvents Events => progress;
     /// <summary>Exposes the persistent Zebetite count to the Zebetites.</summary>
     public IZebetiteProgress ZebetiteProgress => progress;
     /// <summary>Exposes defeated bosses for the active room's area.</summary>
-    public IAreaBossFlags Bosses => progress;
+    public IDefeatedBossesRecorder Bosses => progress;
     /// <summary>Exposes active room-object presence to enemy AI.</summary>
     public IRoomObjectPresence RoomObjects => this;
     /// <summary>Exposes how the camera may scroll over each of the room's screens, which enemies read and change.</summary>

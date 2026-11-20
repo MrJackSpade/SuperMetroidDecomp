@@ -1738,6 +1738,59 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         Expect("class P { void Run() { // advances main-loop random state\n } }", "('main-loop')");
         Expect("class P { bool MovesLiquidBeforeMainLoop => true; }", "('MovesLiquidBeforeMainLoop')");
         Expect("class P { void Run() { int mainLoopRandom = 0; _ = mainLoopRandom; } }", "('mainLoopRandom')");
+        // The original's tables, routines, labels and storage spelled as a declared name, in every type, hardware owners
+        // included (#2552).
+        Expect("class P { int ShitroidState { get; init; } }", "('ShitroidState')");
+        Expect("interface IShitroidFeeding { }", "('IShitroidFeeding')");
+        Expect("class P { void Run() { int shitroid = 0; _ = shitroid; } }", "('shitroid')");
+        Expect("enum CrawlerSegment { SciserUpsideRight }", "('SciserUpsideRight')");
+        Expect("enum Surface { UpsideUp }", "('UpsideUp')");
+        Expect("enum ProjectileFrame { MiscDustSpark }", "('MiscDustSpark')");
+        Expect("class LowerNorfairRioBehavior { }", "('LowerNorfairRioBehavior')");
+        Expect("class MaridiaLargeSnailState { }", "('MaridiaLargeSnailState')");
+        Expect("class NorfairLavaJumpingEnemyAction { }", "('NorfairLavaJumpingEnemyAction')");
+        Expect("class RoomMainRoutines { }", "('RoomMainRoutines')");
+        Expect("class P { void RunDoorSoundWaitPrologue() { } }", "('RunDoorSoundWaitPrologue')");
+        Expect("enum GamePhaseAudio { PauseInputEpilogue }", "('PauseInputEpilogue')");
+        Expect("class P { void RunInputPhaseHead() { } }", "('RunInputPhaseHead')");
+        Expect("class P { void RunMovementPhaseTail() { } }", "('RunMovementPhaseTail')");
+        Expect("enum Segment { RespawnTail }", "('RespawnTail')");
+        Expect("class P { void ApplyStoppedInputFallback() { } }", "('ApplyStoppedInputFallback')");
+        Expect("class P { int FlareCounter => 0; }", "('FlareCounter')");
+        Expect("class P { void M(int sharedProjectiles) { } }", "('sharedProjectiles')");
+        Expect("class P { int TravelSpeedAccumulator => 0; }", "('TravelSpeedAccumulator')");
+        Expect("class P { int ElevatorFlags => 0; }", "('ElevatorFlags')");
+        Expect("enum ElevatorJourneyFlag { None }", "('ElevatorJourneyFlag')");
+        Expect("interface IAreaBossFlags { }", "('IAreaBossFlags')");
+        Expect("interface IGlobalEventFlags { }", "('IGlobalEventFlags')");
+        Expect("enum SaveLoadingGameState { MainGame }", "('SaveLoadingGameState')");
+        Expect("interface IRoomFxMotion { }", "('IRoomFxMotion')");
+        Expect("class P { void RetainSubpositions() { } }", "('RetainSubpositions')");
+        Expect("class P { int LiquidPhysicsType => 0; }", "('LiquidPhysicsType')");
+        Expect("class P { int OneInFourBranch => 0; }", "('OneInFourBranch')");
+        Expect("class P { int NormalEnemyTouch => 0; }", "('NormalEnemyTouch')");
+        Expect("class P { void ApplyEnemyCollisionPrelude() { } }", "('ApplyEnemyCollisionPrelude')");
+        Expect("class P { int ElevatorPseudoDoor => 0; }", "('ElevatorPseudoDoor')");
+        Expect("class P { void RunTorizoInitializationAi() { } }", "('RunTorizoInitializationAi')");
+        Expect("class P { void ResetPhantoonMouthControls() { } }", "('ResetPhantoonMouthControls')");
+        Expect("enum Action { SetupBrainToBeDrawn }", "('SetupBrainToBeDrawn')");
+        Expect("enum Phase { GoIntoLowPowerMode }", "('GoIntoLowPowerMode')");
+        Expect("enum Effect { TimeBombSetSubtitle }", "('TimeBombSetSubtitle')");
+        Expect("enum Animation { WaitForFirstSecondDamage }", "('WaitForFirstSecondDamage')");
+        Expect("class P { void ResetProjectileEchoStorage() { } }", "('ResetProjectileEchoStorage')");
+        Expect("class P { bool RunHudProducer() => true; }", "('RunHudProducer')");
+        Expect("class P { int CalculateBaseSpeedDecelerationDisallowed() => 0; }", "('CalculateBaseSpeedDecelerationDisallowed')");
+        Expect("class P { object CaptureRenderSnapshot() => null; }", "('CaptureRenderSnapshot')");
+        Expect("class MenuRenderSnapshotCapture { }", "('MenuRenderSnapshotCapture')");
+        Expect("enum BeetomAction { DecideActionSamusInProximity }", "('DecideActionSamusInProximity')");
+        Expect(CompatibilityService + "/// <summary>Evidence: the draining hover reads its speed.</summary>\n[CompatibilityService(\"shift\")] class DrainingShitroidFallShift { }",
+            "('DrainingShitroidFallShift')");
+        // The game's names, an upside-down Cacatac, English words that run on past a label and the labels in prose are not
+        // declared names the original spelled.
+        Expect("class P { int BabyMetroidState; void Routinely() { } int Prologued; int Flagship; }");
+        Expect("enum Surface { OnLeftWall, OnRightWall, OnCeiling, OnFloor, UpsideDown }");
+        Expect("enum ProjectileFrame { DustExplosionSpark, GerutaWingsLevel, HoltzWingsSwept, OumFacingLeft, SqueeptJumping }");
+        Expect("class P { int UpdatesHeld => 0; int SamusBombs => 0; int DoorArming => 0; void SetUpEnemy() { } object ComposeScene() => null; }");
         Expect("class P { /// <summary>The first matching button wins even for a malformed multibit binding.</summary>\nint F => 0; }",
             "('multibit')");
         Expect("class P { /// <summary>The surface replaces only the probe's middle part.</summary>\nint F => 0; }", "('middle part')");

@@ -21,7 +21,7 @@ internal sealed class GoldNinjaSpacePirateEntity(NinjaSpacePirateBehavior specie
     /// <param name="context">The bomb contact.</param>
     public override bool TryReactToBomb(EnemyBombContext context)
     {
-        if (!context.UsesFrameHitboxes || context.SelectedShot == EnemyReaction.NormalEnemyShot)
+        if (!context.UsesFrameHitboxes || context.SelectedShot == EnemyReaction.OrdinaryShot)
             return base.TryReactToBomb(context);
         NinjaSpacePirateBehavior.ReactToGoldNinjaPirateBomb(context);
         return true;

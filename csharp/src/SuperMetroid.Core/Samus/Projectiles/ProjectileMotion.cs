@@ -135,7 +135,7 @@ internal sealed class ProjectileMotion
         SamusState samus,
         SamusProjectile shot,
         Position16<RoomPixels> cameraPosition,
-        SamusBombProjectileSystem sharedProjectiles,
+        SamusBombProjectileSystem samusBombs,
         ISamusRoomObjects roomObjects)
     {
         if (shot.IsSpent)
@@ -168,7 +168,7 @@ internal sealed class ProjectileMotion
         bool collided = (axes.MovesHorizontally && MoveMissileHorizontally(level, shot, roomObjects)) ||
             (axes.MovesVertically && MoveMissileVertically(level, shot, roomObjects));
         if (collided)
-            _terrainCollision.KillMissile(shot, sharedProjectiles);
+            _terrainCollision.KillMissile(shot, samusBombs);
 
         // The missile direction step may create an explosion just
         // beyond the retention boundary. The shot's flight still runs the offscreen
@@ -182,7 +182,7 @@ internal sealed class ProjectileMotion
         SamusState samus,
         SamusProjectile shot,
         Position16<RoomPixels> cameraPosition,
-        SamusBombProjectileSystem sharedProjectiles,
+        SamusBombProjectileSystem samusBombs,
         ISamusRoomObjects roomObjects)
     {
         if (shot.IsSpent)
@@ -218,17 +218,17 @@ internal sealed class ProjectileMotion
         {
             collided = MoveMissileHorizontally(level, shot, roomObjects);
             if (collided)
-                _terrainCollision.KillMissile(shot, sharedProjectiles);
+                _terrainCollision.KillMissile(shot, samusBombs);
             UpdateSuperMissileLinkAxis(
-                level, shot, superMissile, axis: Axis.Horizontal, sharedProjectiles, roomObjects);
+                level, shot, superMissile, axis: Axis.Horizontal, samusBombs, roomObjects);
         }
         if (!collided && axes.MovesVertically)
         {
             collided = MoveMissileVertically(level, shot, roomObjects);
             if (collided)
-                _terrainCollision.KillMissile(shot, sharedProjectiles);
+                _terrainCollision.KillMissile(shot, samusBombs);
             UpdateSuperMissileLinkAxis(
-                level, shot, superMissile, axis: Axis.Vertical, sharedProjectiles, roomObjects);
+                level, shot, superMissile, axis: Axis.Vertical, samusBombs, roomObjects);
         }
 
         if (DeleteIfOutsideMovementWindow(shot, cameraPosition))
@@ -332,7 +332,7 @@ internal sealed class ProjectileMotion
         SamusProjectile owner,
         SuperMissileShotState ownerState,
         Axis axis,
-        SamusBombProjectileSystem sharedProjectiles,
+        SamusBombProjectileSystem samusBombs,
         ISamusRoomObjects roomObjects)
     {
         if (!ownerState.Ignition.HasIgnited || ownerState.LinkPlace is not { } linkPlace)
@@ -376,7 +376,7 @@ internal sealed class ProjectileMotion
                 level,
                 link,
                 roomObjects: roomObjects))
-            _terrainCollision.KillMissile(link, sharedProjectiles);
+            _terrainCollision.KillMissile(link, samusBombs);
         if (ownerExploded)
             _animation.ClearProjectile(link);
     }

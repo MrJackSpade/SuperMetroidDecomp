@@ -62,7 +62,7 @@ internal static class PauseReserveArrowVerification
 
         void CheckArrow(bool enabled, ushort color6, ushort colorB, string context)
         {
-            var capture = pause.CaptureRenderSnapshot();
+            var capture = pause.ComposeScene();
             byte[] captureVram = pause.ShownVram(RetailPresentationFixture());
             var tiles = captureVram.ToArray();
             // The arrow's colours are the shade its current state names (#1512, #1597), shown over the pause colours.

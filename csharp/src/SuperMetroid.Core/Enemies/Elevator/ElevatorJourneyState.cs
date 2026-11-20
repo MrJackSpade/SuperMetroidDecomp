@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Elevator;
 internal sealed class ElevatorJourneyState
 {
     /// <summary>What has armed the elevator's pseudo-door: nothing, a collision with it, or an elevator door load.</summary>
-    internal ElevatorJourneyFlag Flags { get; set; }
+    internal ElevatorArming DoorArming { get; set; }
 
     /// <summary>The elevator status, shared across the departure and destination room actors.</summary>
     internal ElevatorActorStatus Status { get; set; }

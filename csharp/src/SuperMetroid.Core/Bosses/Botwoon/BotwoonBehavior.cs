@@ -796,7 +796,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     /// <summary>Resolves Samus contact, leaving Botwoon at zero health to die his own way.</summary>
     internal void ReactToBotwoonTouch(EnemyTouchContext context)
     {
-        _collision.ResolveNormalEnemyTouch(context, TouchDeathAnimation.Skip);
+        _collision.ResolveOrdinaryTouch(context, TouchDeathAnimation.Skip);
         ResolveBotwoonCombatAfterCommon(context.Place);
     }
     /// <summary>

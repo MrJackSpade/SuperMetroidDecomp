@@ -32,10 +32,10 @@ internal sealed class ChainsawFuse
     internal void RunPowerBombFuse(
         RoomLevelData level,
         SamusProjectile shot,
-        SamusBombProjectileSystem sharedProjectiles,
+        SamusBombProjectileSystem samusBombs,
         ISamusRoomObjects roomObjects)
     {
-        PowerBombFuseStep fuse = SamusPowerBombFuse.Step(shot.BeamFuse, sharedProjectiles.PowerBombExplosion.IsArmed);
+        PowerBombFuseStep fuse = SamusPowerBombFuse.Step(shot.BeamFuse, samusBombs.PowerBombExplosion.IsArmed);
         // On a beam the fuse's switch to the fast animation moves the beam's own animation as far as a bomb's fast
         // animation lies from its slow one, which lands wherever the game's animations lie there.
         if (fuse.FastAnimation && shot.Animation is { } live)
@@ -43,7 +43,7 @@ internal sealed class ChainsawFuse
 
         // The borrowed fuse starts the explosion as a Power Bomb's does, its sound included.
         if (fuse.SpawnExplosion)
-            sharedProjectiles.SpawnPowerBombExplosion(shot.Position.Whole);
+            samusBombs.SpawnPowerBombExplosion(shot.Position.Whole);
         if (fuse.DeleteProjectile)
             _animation.ClearProjectile(shot);
 
@@ -54,8 +54,8 @@ internal sealed class ChainsawFuse
         {
             SamusBombProjectileSystem.ReactToPowerBombBoundary(
                 level,
-                sharedProjectiles.PowerBombExplosion.Position,
-                sharedProjectiles.PowerBombExplosion.Blast.ExplosionRadius,
+                samusBombs.PowerBombExplosion.Position,
+                samusBombs.PowerBombExplosion.Blast.ExplosionRadius,
                 roomObjects,
                 shot.Type);
         }

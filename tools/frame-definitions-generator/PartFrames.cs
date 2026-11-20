@@ -398,7 +398,7 @@ internal sealed record PartFrameConfiguration(
 
     /// <summary>The four surface programs named <paramref name="crawls"/>, as <c>CrawlerAnimationDefinitions.Families</c> selects them.</summary>
     private static string[] CrawlerFamily(string crawls) =>
-        [$"{crawls}UpsideRight", $"{crawls}UpsideLeft", $"{crawls}UpsideDown", $"{crawls}UpsideUp"];
+        [$"{crawls}OnLeftWall", $"{crawls}OnRightWall", $"{crawls}OnCeiling", $"{crawls}OnFloor"];
 }
 
 /// <summary>

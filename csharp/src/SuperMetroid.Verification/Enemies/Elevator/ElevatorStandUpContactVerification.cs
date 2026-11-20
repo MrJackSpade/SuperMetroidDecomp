@@ -13,7 +13,7 @@ internal static class ElevatorStandUpContactVerification
 {
     /// <summary>
     /// <c>$91:F404</c> installs the new pose before <c>$91:FDAE</c> probes the larger body, so
-    /// an elevator pseudo-door met by those probes sees the new pose against
+    /// an elevator ride met by those probes sees the new pose against
     /// <c>$94:938B</c>'s below-$09 gate. In the 13% movie Samus stands up ($28 to $02) on
     /// Kraid's lair elevator; native arms it in that frame and Down boards it next frame.
     /// </summary>

@@ -20,12 +20,12 @@ internal static class CacatacBehaviorVerification
     /// </summary>
     internal static void VerifyCacatacBehavior()
     {
-        foreach (bool upsideUp in new[] { true, false })
+        foreach (bool onFloor in new[] { true, false })
         {
-            string orientation = upsideUp ? "upright" : "inverted";
-            CacatacSegment idle = upsideUp ? CacatacSegment.UpsideUpIdle : CacatacSegment.UpsideDownIdle;
-            CacatacSegment loop = upsideUp ? CacatacSegment.UpsideUpIdle : CacatacSegment.UpsideDownIdlePoses;
-            (RoomEnemySystem enemies, RoomEnemyPlace place, CacatacEnemyState state) = Create(upsideUp);
+            string orientation = onFloor ? "upright" : "inverted";
+            CacatacSegment idle = onFloor ? CacatacSegment.OnFloorIdle : CacatacSegment.OnCeilingIdle;
+            CacatacSegment loop = onFloor ? CacatacSegment.OnFloorIdle : CacatacSegment.OnCeilingIdlePoses;
+            (RoomEnemySystem enemies, RoomEnemyPlace place, CacatacEnemyState state) = Create(onFloor);
             AssertEqual(new AnimationPlayback<CacatacSegment>(CacatacAnimations.StartingWith(idle), AnimationPlace.StartOfAnimation), state.Playback, $"Cacatac {orientation} starts idling");
             state.Action = CacatacAction.Stopped;
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(CacatacAnimations.Segments, loop, CacatacFrameToolingDefinitions.Spritemap),
@@ -33,15 +33,15 @@ internal static class CacatacBehaviorVerification
             AssertEqual(CacatacAction.Patrolling, state.Action, $"Cacatac {orientation} idle restores patrol");
             AssertEqual(HorizontalDirection.Left, state.PatrolDirection, $"Cacatac {orientation} idle patrols the way it was placed");
 
-            (enemies, place, state) = Create(upsideUp);
+            (enemies, place, state) = Create(onFloor);
             state.Action = CacatacAction.Stopped;
-            CacatacBehavior.SetCacatacAnimation(place, state, upsideUp ? CacatacSegment.UpsideUpAttack : CacatacSegment.UpsideDownAttack);
+            CacatacBehavior.SetCacatacAnimation(place, state, onFloor ? CacatacSegment.OnFloorAttack : CacatacSegment.OnCeilingAttack);
             EnemyInstructionRunner.ShownFrames(place, 53);
             AssertEqual(loop, state.Playback.Animation.Phases[state.Playback.Place.Phase].Segment, $"Cacatac {orientation} attack returns to idle");
             AssertEqual(CacatacAction.Patrolling, state.Action, $"Cacatac {orientation} attack resumes patrol");
             AssertEqual(HorizontalDirection.Left, state.PatrolDirection, $"Cacatac {orientation} attack resumes its leftward patrol");
             AssertEqual<SoundEffectId?>(CacatacNativeValues.SpikeSound, enemies.Audio.LatestSound, $"Cacatac {orientation} attack plays the spike sound");
-            CacatacSpikeDirection[] directions = upsideUp
+            CacatacSpikeDirection[] directions = onFloor
                 ? [CacatacSpikeDirection.LeftFacingUp, CacatacSpikeDirection.UpLeft, CacatacSpikeDirection.Up, CacatacSpikeDirection.UpRight, CacatacSpikeDirection.RightFacingUp]
                 : [CacatacSpikeDirection.LeftFacingDown, CacatacSpikeDirection.DownLeft, CacatacSpikeDirection.Down, CacatacSpikeDirection.DownRight, CacatacSpikeDirection.RightFacingDown];
             AssertEqual(string.Join(",", directions.Select(direction => CacatacSpikes.Velocity(direction).ToString()).Order()),
@@ -104,13 +104,13 @@ internal static class CacatacBehaviorVerification
     }
 
     /// <summary>A Cacatac initialized upright or inverted.</summary>
-    private static CacatacBehaviorCreateResult Create(bool upsideUp)
+    private static CacatacBehaviorCreateResult Create(bool onFloor)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.Bind(EnemyDefinitionId.Cacatac, place.Definition);
         place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
-        place.SetSpawnParameter1(EnemyDefinitionId.Cacatac, upsideUp ? CacatacNativeValues.UpsideUpParameter : (ushort)0);
+        place.SetSpawnParameter1(EnemyDefinitionId.Cacatac, onFloor ? CacatacNativeValues.OnFloorParameter : (ushort)0);
         CacatacBehavior.InitializeCacatac(place);
         return new CacatacBehaviorCreateResult(enemies, place, enemies.CacatacStates[0] ?? throw new InvalidOperationException("Cacatac has no state."));
     }

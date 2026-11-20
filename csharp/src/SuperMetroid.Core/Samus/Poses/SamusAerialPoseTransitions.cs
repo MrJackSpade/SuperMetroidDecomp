@@ -688,7 +688,7 @@ internal static class SamusAerialPoseTransitions
     /// dash component after movement, preserving the base speed and acceleration mode.
     /// It is admitted only for a still-falling body, so no new-fall Y reset is needed.
     /// </summary>
-    public static void ApplyFallingInputFallback(SamusState samus)
+    public static void StopRunWhenFallingWithoutTransition(SamusState samus)
     {
         if (SamusPoseMetadata.ReadMovementType(samus) != SamusMovementType.Falling)
             throw new InvalidOperationException("Falling input fallback requires a falling pose.");

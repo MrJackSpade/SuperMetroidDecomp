@@ -52,7 +52,7 @@ internal sealed class RidleyBodyContact
         // Ridley's touch enters the common touch response that does not check for death. That distinction matters for
         // Screw Attack: a lethal body touch leaves Lower Norfair Ridley alive long enough
         // to select the forced zero-health lunge and grab Samus for the authored death.
-        _collision.ResolveNormalEnemyTouch(
+        _collision.ResolveOrdinaryTouch(
             place,
             samus,
             pseudoScrew,

@@ -47,7 +47,7 @@ internal sealed class EndingArtwork
     /// Shows the credits' colours once, at the staff handoff; the post-credits scenes draw from the installed reward
     /// sheets, which hold the suitless and suited reward art both.
     /// </summary>
-    internal void LoadCreditsAndPostCreditsAssets()
+    internal void ShowCreditsColours()
     {
         if (creditsColoursShown)
             return;

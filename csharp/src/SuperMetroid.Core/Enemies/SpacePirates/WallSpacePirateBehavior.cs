@@ -252,7 +252,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
                 state.Action = begin.Action;
                 state.Wall = begin.Wall;
                 return null;
-            case WallSpacePirateCue.Signal { Kind: WallSpacePirateCueKind.PlayAttackSound }:
+            case WallSpacePirateCue.Signal { Kind: WallSpacePirateCueKind.PlayJumpSound }:
                 Walking.RequestSpacePirateSound(EnemySoundEffectDefinitions.WallPirateJumpSound);
                 return null;
             default:

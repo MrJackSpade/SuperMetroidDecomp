@@ -66,12 +66,12 @@ internal static class StartupReferenceTests
                 if (differences < closestDifference)
                 {
                     closestDifference = differences;
-                    closestPacket = new DisplayPacket((ushort)tick, title.CaptureRenderSnapshot());
+                    closestPacket = new DisplayPacket((ushort)tick, title.ComposeScene());
                 }
             }
             if (digest == referenceDigest)
             {
-                var packet = new DisplayPacket((ushort)tick, title.CaptureRenderSnapshot());
+                var packet = new DisplayPacket((ushort)tick, title.ComposeScene());
                 PixelComparison.Verify(packet, pixels, renderer.RenderForReadback(packet),
                     $"{device.Kind}: independent Snes9x {scene} reference at managed tick {tick}");
                 Console.WriteLine($"{device.Kind}: native Snes9x {scene} RGBA reference matches managed/GPU at tick {tick}, phase {title.Phase}.");

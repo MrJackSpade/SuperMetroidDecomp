@@ -10,7 +10,7 @@ internal sealed class NoobTubeObjects
     /// <summary>Samus as the room reads and changes her.</summary>
     private readonly IRoomSamusAccess _samus;
     /// <summary>The game's event flags.</summary>
-    private readonly IGlobalEventFlags _events;
+    private readonly IStoryEvents _events;
     /// <summary>The room's effect overlay FX.</summary>
     private readonly IRoomWaterPhysics _waterPhysics;
     /// <summary>The room's earthquake.</summary>
@@ -19,7 +19,7 @@ internal sealed class NoobTubeObjects
     private readonly IRoomObjectEnemyEffects _enemies;
 
     /// <summary>Shares the room services the tube's break reaches.</summary>
-    internal NoobTubeObjects(IRoomSamusAccess samus, IGlobalEventFlags events, IRoomWaterPhysics waterPhysics, IRoomEarthquakeWriter earthquake, IRoomObjectEnemyEffects enemies)
+    internal NoobTubeObjects(IRoomSamusAccess samus, IStoryEvents events, IRoomWaterPhysics waterPhysics, IRoomEarthquakeWriter earthquake, IRoomObjectEnemyEffects enemies)
     {
         _samus = samus;
         _events = events;

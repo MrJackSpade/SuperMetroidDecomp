@@ -4,5 +4,5 @@
 internal static class EnemyReactionConstants
 {
     /// <summary>The engine's shared reactions, which a definition may name.</summary>
-    public static IReadOnlyList<EnemyReaction> Shared { get; } = [EnemyReaction.NormalEnemyTouch, EnemyReaction.NormalEnemyShot, EnemyReaction.DudShot, EnemyReaction.Ignore];
+    public static IReadOnlyList<EnemyReaction> Shared { get; } = [EnemyReaction.OrdinaryTouch, EnemyReaction.OrdinaryShot, EnemyReaction.DudShot, EnemyReaction.Ignore];
 }

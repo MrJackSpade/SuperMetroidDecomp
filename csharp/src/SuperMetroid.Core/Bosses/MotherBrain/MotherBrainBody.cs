@@ -86,7 +86,7 @@ internal sealed class MotherBrainBody
         {
             Form = MotherBrainForm.Glass,
             HitboxesEnabled = MotherBrainHitboxParts.Brain,
-            BrainAction = MotherBrainBrainAction.SetupBrainToBeDrawn,
+            BrainAction = MotherBrainBrainAction.ShowsBrainAlone,
         });
         body.SetSpeciesState(state);
         // Her body frames show on her body from here, which her room does not show over the pipe background until her
@@ -287,7 +287,7 @@ internal sealed class MotherBrainBody
             {
                 // The hurting touch is an ordinary enemy touch: suit-divided damage, the hit's invincibility, and
                 // knockback away from her body.
-                EnemyCollision.ApplyNormalEnemyTouchDamage(samus, state.Body.Definition.Damage, state.Body.Position.X.Whole);
+                EnemyCollision.ApplyOrdinaryTouchDamage(samus, state.Body.Definition.Damage, state.Body.Position.X.Whole);
             }
             return true;
         }

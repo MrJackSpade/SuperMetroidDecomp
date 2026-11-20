@@ -10,7 +10,7 @@ cbuffer SpriteRun : register(b0)
 {
     uint FirstDraw, DrawCount;
 };
-// Each texel: the image's pixel, then its key word (D3D11ImageAtlas.KeyWord): the place of the pixel's colour key among
+// Each texel: the image's pixel, then its key word (D3D11ImageAtlas.KeyWords): the place of the pixel's colour key among
 // its image's in the low sixteen bits (#1633), then whether it is clear and whether it blends.
 // Compiled apart from Tiles.hlsl, which declares the same texture.
 Texture2D<uint2> Images : register(t4);

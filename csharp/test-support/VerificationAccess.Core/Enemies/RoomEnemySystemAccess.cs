@@ -88,16 +88,16 @@ internal static class RoomEnemySystemAccess
         /// </summary>
         internal void ResolveKraidProjectileHits(
             SamusProjectileSystem projectiles,
-            SamusBombProjectileSystem sharedProjectiles)
+            SamusBombProjectileSystem samusBombs)
         {
             Ensure.NotNull(projectiles);
-            Ensure.NotNull(sharedProjectiles);
+            Ensure.NotNull(samusBombs);
             var kraid = self.Kraid;
             RoomEnemyPlace body = self.Places.InUpdateOrder[0];
             if (kraid is null || body.DefinitionId != EnemyDefinitionId.Kraid ||
                 body.Presence.HasAny(EnemyPresence.Deleted))
                 return;
-            IReadOnlyList<KraidBehavior.KraidPassProjectile> tested = KraidBehavior.TestedByShotPasses(projectiles, sharedProjectiles);
+            IReadOnlyList<KraidBehavior.KraidPassProjectile> tested = KraidBehavior.TestedByShotPasses(projectiles, samusBombs);
             self.KraidBehavior.Combat.ResolveKraidMouthProjectileHits(body, kraid, tested);
             self.KraidBehavior.Combat.ResolveKraidBodyProjectileHits(body, kraid, tested);
         }
@@ -202,8 +202,8 @@ internal static class RoomEnemySystemAccess
             [.. self.Places.InUpdateOrder.Select(place => place.EntityState<FakeKraidEntity, FakeKraidEnemyState>())];
 
         /// <summary>Typed state for every physical slot currently owned by this family.</summary>
-        internal IReadOnlyList<NorfairLavaJumpingEnemyState?> NorfairLavaJumpingEnemyStates =>
-            [.. self.Places.InUpdateOrder.Select(place => place.EntityState<NorfairLavaJumpingEnemyEntity, NorfairLavaJumpingEnemyState>())];
+        internal IReadOnlyList<SqueeptState?> SqueeptStates =>
+            [.. self.Places.InUpdateOrder.Select(place => place.EntityState<SqueeptEntity, SqueeptState>())];
 
         /// <summary>Typed Squeept follower state for every physical slot a follower occupies.</summary>
         internal IReadOnlyList<NorfairLavaJumperFollowerState?> NorfairLavaJumperFollowerStates =>
@@ -277,10 +277,10 @@ internal static class RoomEnemySystemAccess
         internal IReadOnlyList<MetroidEnemyState?> MetroidStates =>
             [.. self.Places.InUpdateOrder.Select(place => place.EntityState<MetroidEntity, MetroidEnemyState>())];
 
-        /// <summary>The state of the one Shitroid the room has placed, each Shitroid owning its own (#2030).</summary>
-        /// <exception cref="InvalidOperationException">The room has placed no Shitroid, or more than one.</exception>
-        internal ShitroidEnemyState Shitroid =>
-            self.Places.InUpdateOrder.Select(place => place.EntityState<ShitroidEntity, ShitroidEnemyState>()).OfType<ShitroidEnemyState>().Single();
+        /// <summary>The state of the one Baby Metroid the room has placed, each Baby Metroid owning its own (#2030).</summary>
+        /// <exception cref="InvalidOperationException">The room has placed no Baby Metroid, or more than one.</exception>
+        internal BabyMetroidEnemyState BabyMetroid =>
+            self.Places.InUpdateOrder.Select(place => place.EntityState<BabyMetroidEntity, BabyMetroidEnemyState>()).OfType<BabyMetroidEnemyState>().Single();
 
         /// <summary>Native $40-byte slot offsets selected by the most recent activity scan.</summary>
         internal IReadOnlyList<RoomEnemyPlace> ActiveEnemies => self.ProcessingWindow.ActiveEnemies;
@@ -349,8 +349,8 @@ internal static class RoomEnemySystemAccess
             [.. self.Places.InUpdateOrder.Select(place => place.EntityState<YappingMawEntity, YappingMawEnemyState>())];
 
         /// <summary>Typed Oum state for all 32 physical enemy slots.</summary>
-        internal IReadOnlyList<MaridiaLargeSnailEnemyState?> MaridiaLargeSnailStates =>
-            [.. self.Places.InUpdateOrder.Select(place => place.EntityState<MaridiaLargeSnailEntity, MaridiaLargeSnailEnemyState>())];
+        internal IReadOnlyList<OumEnemyState?> OumStates =>
+            [.. self.Places.InUpdateOrder.Select(place => place.EntityState<OumEntity, OumEnemyState>())];
 
         /// <summary>Typed Beetom state for all 32 physical enemy slots.</summary>
         internal IReadOnlyList<BeetomEnemyState?> BeetomStates =>

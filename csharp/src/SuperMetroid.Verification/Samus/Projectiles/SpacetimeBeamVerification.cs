@@ -78,7 +78,7 @@ internal static class SpacetimeBeamVerification
         // Progress as the native probe's sentinel-filled tables decode, with the opening cinematic as the loading state.
         var system = new SharedGameState(new SharedRandom());
         system.Progress.CopyFrom(SentinelProgression().Progress);
-        system.LoadSavedStartupRoute(SaveLoadingGameState.OpeningCinematic);
+        system.LoadSavedStartupRoute(SaveStartupRoute.OpeningCinematic);
 
         var shared = CreateBombFixture();
         var projectiles = CreateProjectileFixture();
@@ -96,7 +96,7 @@ internal static class SpacetimeBeamVerification
         AssertEqual(1, slotsBeforeRelease.FiredSlot(projectiles),
             "Charge release allocates the second uncharged SpaceTime shot");
         // The overwrite writes word $0880, which the dispatcher does not name, so it resumes the main game (#1523).
-        AssertEqual(SaveLoadingGameState.MainGame, system.SavedStartupRoute,
+        AssertEqual(SaveStartupRoute.MainGame, system.SavedStartupRoute,
             "retail frame-one loading_game_state corruption resumes the main game");
         AssertEqual((ushort)0x100e, samus.EquippedBeams.ToEquipmentWord(),
             "SpaceTime corruption does not rewrite live equipment");
@@ -107,7 +107,7 @@ internal static class SpacetimeBeamVerification
             ?? throw new InvalidOperationException("SpaceTime save did not survive checksum validation.");
         AssertEqual((ushort)0x100e, saved.EquippedBeams.ToEquipmentWord(),
             "save retains invalid SpaceTime equipment");
-        AssertEqual(SaveLoadingGameState.MainGame, saved.StartupRoute,
+        AssertEqual(SaveStartupRoute.MainGame, saved.StartupRoute,
             "save retains the corrupted startup route");
         AssertTrue(saved.Progression.SameAs(system.Progress),
             "save retains the corrupted events, bosses, orbs, items, doors, stations and maps");
@@ -161,7 +161,7 @@ internal static class SpacetimeBeamVerification
             byte[] expected = [.. native.Select(value => value ?? ProgressionSentinel)];
             AssertTrue(DecodeSlice(expected).SameAs(state.Progress),
                 $"SpaceTime from {cursor} in slot {slot} leaves every event, boss, orb, item, door, station and map as the original copy does");
-            AssertEqual(SuperMetroid.AssetExtraction.Progression.SaveLoadingGameStateCodec.Route(LittleEndianBytes.Word(expected[ProgressionSliceLayout.LoadingGameStateOffset], expected[ProgressionSliceLayout.LoadingGameStateOffset + 1])),
+            AssertEqual(SuperMetroid.AssetExtraction.Progression.SaveStartupRouteCodec.Route(LittleEndianBytes.Word(expected[ProgressionSliceLayout.LoadingGameStateOffset], expected[ProgressionSliceLayout.LoadingGameStateOffset + 1])),
                 state.SavedStartupRoute, $"SpaceTime from {cursor} in slot {slot} leaves the loading state as the original copy does");
             situations++;
         }
@@ -182,7 +182,7 @@ internal static class SpacetimeBeamVerification
     {
         var state = new SharedGameState(new SharedRandom());
         state.Progress.CopyFrom(DecodeSlice(Enumerable.Repeat(ProgressionSentinel, SpacetimeCopyOracle.ProgressionSliceByteCount).ToArray()));
-        state.LoadSavedStartupRoute(SuperMetroid.AssetExtraction.Progression.SaveLoadingGameStateCodec.Route(LittleEndianBytes.Word(ProgressionSentinel, ProgressionSentinel)));
+        state.LoadSavedStartupRoute(SuperMetroid.AssetExtraction.Progression.SaveStartupRouteCodec.Route(LittleEndianBytes.Word(ProgressionSentinel, ProgressionSentinel)));
         return state;
     }
 
@@ -222,7 +222,7 @@ internal static class SpacetimeBeamVerification
                 CollectedBeams = SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma,
                 EquippedItems = SamusEquipmentFlags.GravitySuit,
                 CollectedItems = SamusEquipmentFlags.GravitySuit,
-                StartupRoute = SaveLoadingGameState.OpeningCinematic,
+                StartupRoute = SaveStartupRoute.OpeningCinematic,
             };
             snapshot.Progress.Events.AddAll();
             return snapshot;

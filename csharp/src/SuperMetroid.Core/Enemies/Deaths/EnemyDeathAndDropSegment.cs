@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Deaths;
 internal enum EnemyDeathAndDropSegment
 {
     /// <summary>An unseen pause before the enemy it stands for respawns, after which it is removed.</summary>
-    RespawnTail,
+    RespawnPause,
     /// <summary>One burst of the big explosion, which its animation repeats.</summary>
     BigExplosion,
     /// <summary>The big explosion becoming its drop once its bursts are done.</summary>

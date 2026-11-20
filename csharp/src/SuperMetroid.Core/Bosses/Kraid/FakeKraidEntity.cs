@@ -10,7 +10,7 @@ internal sealed class FakeKraidEntity(FakeKraidBehavior species, RoomEnemyPlace 
     : CommonParticipationEnemyEntity(place, common), IEnemySurroundingsInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
-    public void Initialize(EnemyPopulationSurroundings surroundings) => species.RunFakeKraidInitializationAi(Place, surroundings);
+    public void Initialize(EnemyPopulationSurroundings surroundings) => species.SetUpFakeKraid(Place, surroundings);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunFakeKraidMainAi(Place, frame);

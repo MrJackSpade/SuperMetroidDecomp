@@ -12,7 +12,7 @@ public sealed class SharedGameState
     /// The startup route the next save keeps. Ordinary gameplay saves the main game; the Spacetime Beam can overwrite it
     /// independently of Samus's equipment and checkpoint.
     /// </summary>
-    public SaveLoadingGameState SavedStartupRoute { get; private set; } = SaveLoadingGameState.MainGame;
+    public SaveStartupRoute SavedStartupRoute { get; private set; } = SaveStartupRoute.MainGame;
 
     /// <summary>
     /// Creates the shared state over the session's random-number generator, for a session whose power-on adds no rumble
@@ -49,7 +49,7 @@ public sealed class SharedGameState
 
     /// <summary>Restores the saved startup route from one save slot or a checkpoint.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="route"/> is not a defined route.</exception>
-    public void LoadSavedStartupRoute(SaveLoadingGameState route) =>
+    public void LoadSavedStartupRoute(SaveStartupRoute route) =>
         SavedStartupRoute = Enum.IsDefined(route) ? route : throw new ArgumentOutOfRangeException(nameof(route), route, "Undefined startup route.");
 
     /// <summary>

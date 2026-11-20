@@ -54,10 +54,10 @@ internal static class EndingMode7ArtworkVerification
             bool first = phases.Add(native.Phase);
             if (first || frame % 173 == 0)
             {
-                LayeredScene expected = EndingCreditsPresentation.CaptureRenderSnapshot(native);
+                LayeredScene expected = EndingCreditsPresentation.ComposeScene(native);
                 RgbColor[] expectedColours = EndingShownColours.Of(native);
                 byte[] expectedVram = native.ShownVram();
-                LayeredScene actual = EndingCreditsPresentation.CaptureRenderSnapshot(installed);
+                LayeredScene actual = EndingCreditsPresentation.ComposeScene(installed);
                 RgbColor[] actualColours = EndingShownColours.Of(installed);
                 byte[] actualVram = installed.ShownVram();
                 AssertTrue(actualVram.SequenceEqual(expectedVram) &&

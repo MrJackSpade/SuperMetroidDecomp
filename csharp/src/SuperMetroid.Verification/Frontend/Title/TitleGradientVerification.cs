@@ -205,8 +205,8 @@ internal static class TitleGradientVerification
             throw new InvalidDataException("Extracted title palette differs from cartridge CGRAM data.");
         AssertEqual(SuperMetroid.AssetExtraction.Frontend.Title.TitleSkipCopyrightColours.White,
             presentation.SkipCopyrightWhite, "extracted title skip copyright white");
-        AssertEqual(SuperMetroid.AssetExtraction.Frontend.Title.TitleSkipCopyrightColours.Red,
-            presentation.SkipCopyrightRed, "extracted title skip copyright red");
+        AssertEqual(SuperMetroid.AssetExtraction.Frontend.Title.TitleSkipCopyrightColours.Tint,
+            presentation.SkipCopyrightTint, "extracted title skip copyright tint");
         AssertEqual(expected.Colors[0], presentation.Backdrop, "extracted title backdrop is the cartridge's first colour");
 
         Suite(nameof(VerifyExtractedTitleAmbientPalette), () => VerifyExtractedTitleAmbientPalette(bus, presentation));
@@ -217,7 +217,7 @@ internal static class TitleGradientVerification
             CgramPalettes.ByteCount).ToHashSet();
         var guardedBus = NewTitlePresentationReadBus(bus, paletteAddresses, forbidReads: true);
         var title = CreateTitlePresentationFixture(titleBackdrop: presentation.Backdrop);
-        if (title.CaptureRenderSnapshot().Paint.Backdrop != presentation.Backdrop ||
+        if (title.ComposeScene().Paint.Backdrop != presentation.Backdrop ||
             guardedBus.ForbiddenReadAttempts != 0)
         {
             throw new InvalidDataException(
@@ -344,10 +344,10 @@ internal static class TitleGradientVerification
         document = document with { SkipCopyrightWhite = skipWhite with { Red = 32 } };
         Reject("title palette rejects out-of-range skip copyright white");
         document = document with { SkipCopyrightWhite = skipWhite };
-        PaletteRgb5 skipRed = document.SkipCopyrightRed;
-        document = document with { SkipCopyrightRed = skipRed with { Blue = 32 } };
-        Reject("title palette rejects out-of-range skip copyright red");
-        document = document with { SkipCopyrightRed = skipRed };
+        PaletteRgb5 skipRed = document.SkipCopyrightTint;
+        document = document with { SkipCopyrightTint = skipRed with { Blue = 32 } };
+        Reject("title palette rejects out-of-range skip copyright tint");
+        document = document with { SkipCopyrightTint = skipRed };
 
         string unknownField = System.Text.Encoding.UTF8.GetString(extracted)
             .Replace("\"version\": 3", "\"version\": 3,\n  \"nativeAddress\": 9232873", StringComparison.Ordinal);
@@ -526,7 +526,7 @@ internal static class TitleGradientVerification
         for (int frame = 0; frame < 16; frame++)
         {
             title.Step(0);
-            FloorScene snapshot = title.CaptureRenderSnapshot();
+            FloorScene snapshot = title.ComposeScene();
             if (snapshot.Gradient is { } shown)
                 return new CaptureInstalledTitleGradientResult(shown.Gradient, title.FloorZoom, snapshot);
         }

@@ -73,7 +73,7 @@ public sealed class SamusPowerBombExplosionState
     /// <summary>
     /// Releases the armed flag after cleanup when Crystal Flash did not take ownership.
     /// </summary>
-    public void ReleaseFlag() => IsArmed = false;
+    public void ReleasePowerBombLock() => IsArmed = false;
 
     /// <summary>Clears every explosion field during room/runtime reset.</summary>
     public void Reset()

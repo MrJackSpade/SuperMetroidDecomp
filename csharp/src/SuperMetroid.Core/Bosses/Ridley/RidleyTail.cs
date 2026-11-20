@@ -333,7 +333,7 @@ internal sealed class RidleyTail
         int dy = Math.Abs(fromTip.Y);
         if (dx >= samus.Kinematics.Radius.X + RidleyTailDefinitions.TipTouchReach || dy >= samus.Kinematics.Radius.Y + RidleyTailDefinitions.TipTouchReach)
             return;
-        EnemyCollision.ApplyNormalEnemyTouchDamage(samus, state.Tail.Damage, tip.Position.X);
+        EnemyCollision.ApplyOrdinaryTouchDamage(samus, state.Tail.Damage, tip.Position.X);
     }
 
     /// <summary>

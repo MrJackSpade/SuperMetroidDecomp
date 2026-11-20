@@ -34,13 +34,13 @@ internal static class GroundedBombSpreadVerification
             {
                 bombs.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, shootDown, 0);
                 AssertTrue(bombs.Bombs.All(slot => !slot.IsActive) && bombs.BombCounter == 0, "Down+Shoot postpones grounded spread");
-                AssertEqual(BeamChargeDefinitions.FullyChargedCounter, samus.BeamCharge.FlareCounter, "retained spread charge is not consumed while holding Down");
+                AssertEqual(BeamChargeDefinitions.FullyChargedCounter, samus.BeamCharge.UpdatesHeld, "retained spread charge is not consumed while holding Down");
                 AssertEqual((ushort)(tick + 1), samus.BombSpreadCharge.Age, "grounded spread hold counter advances once per tick");
             }
             bool releasedCharge = bombs.StepFrameConsumingCharge(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, keepDown ? shootDown : GameplayAction.Shoot, 0);
             AssertTrue(bombs.Bombs.All(slot => slot.IsActive && slot.IsBombSpread) && releasedCharge, "release or timeout creates spread and consumes charge");
             AssertEqual(5, bombs.BombCounter, "spread fills all five bomb slots");
-            AssertEqual(0, samus.BeamCharge.FlareCounter, "spawn clears actual flare counter");
+            AssertEqual(0, samus.BeamCharge.UpdatesHeld, "spawn clears actual flare counter");
             AssertEqual(0, samus.BombSpreadCharge.Age, "spawn clears hold counter");
             // Independent closed-form free-flight expectations from native D849/D8F7:
             // acceleration precedes integration, including the spawning alpha call.

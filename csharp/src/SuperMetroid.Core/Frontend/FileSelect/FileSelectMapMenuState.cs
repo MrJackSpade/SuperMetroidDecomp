@@ -215,12 +215,12 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
     private void Queue(SoundEffectId sound) => audio.QueueSound(sound, priority: SoundRequestPriority.Normal);
 
     /// <summary>Captures both map-memory owners and resolved window edges at the display boundary.</summary>
-    public LayeredScene CaptureRenderSnapshot()
+    public LayeredScene ComposeScene()
     {
-        LayeredScene Area(AreaMapBackgroundGlow glow = AreaMapBackgroundGlow.WholeScreen) => areaGraphics.CaptureRenderSnapshot(savedProgress, glow);
-        LayeredScene Frame() => roomGraphics.CaptureRenderSnapshot(content: RoomMapContent.FrameOnly);
+        LayeredScene Area(AreaMapBackgroundGlow glow = AreaMapBackgroundGlow.WholeScreen) => areaGraphics.ComposeScene(savedProgress, glow);
+        LayeredScene Frame() => roomGraphics.ComposeScene(content: RoomMapContent.FrameOnly);
         bool roomMapStepped = lastUpdateBeganIn == FileSelectMapNavigationPhase.Room;
-        LayeredScene Room(FileSelectStationMarker? shownMarker) => roomGraphics.CaptureRenderSnapshot(Scroll.Scroll,
+        LayeredScene Room(FileSelectStationMarker? shownMarker) => roomGraphics.ComposeScene(Scroll.Scroll,
             shownMarker, roomMapStepped ? animations : null);
         if (!entry.IsComplete)
         {

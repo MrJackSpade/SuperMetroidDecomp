@@ -77,31 +77,31 @@ internal sealed class FrontendDisplay
     internal void EndCapture() => capturing = false;
 
     /// <summary>Publishes the title scene's composed frame.</summary>
-    internal void PublishMenu(TitleSequenceState scene) => Compose(new(frameNumber, scene.CaptureRenderSnapshot()));
+    internal void PublishMenu(TitleSequenceState scene) => Compose(new(frameNumber, scene.ComposeScene()));
 
     /// <summary>Publishes the file-select menu's composed frame.</summary>
-    internal void PublishMenu(FileSelectMenuState scene) => Compose(new(frameNumber, scene.CaptureRenderSnapshot()));
+    internal void PublishMenu(FileSelectMenuState scene) => Compose(new(frameNumber, scene.ComposeScene()));
 
     /// <summary>Publishes the game options menu's composed frame.</summary>
-    internal void PublishMenu(GameOptionsMenuState scene) => Compose(new(frameNumber, scene.CaptureRenderSnapshot()));
+    internal void PublishMenu(GameOptionsMenuState scene) => Compose(new(frameNumber, scene.ComposeScene()));
 
     /// <summary>Publishes the paused room and menu composition without advancing the scene.</summary>
-    internal void PublishMenu(PauseMenuState scene) => Compose(new(frameNumber, scene.CaptureRenderSnapshot()));
+    internal void PublishMenu(PauseMenuState scene) => Compose(new(frameNumber, scene.ComposeScene()));
 
     /// <summary>Publishes the current game-over menu composition.</summary>
-    internal void PublishMenu(GameOverMenuState scene) => Compose(new(frameNumber, scene.CaptureRenderSnapshot()));
+    internal void PublishMenu(GameOverMenuState scene) => Compose(new(frameNumber, scene.ComposeScene()));
 
     /// <summary>Publishes the Ceres destruction cinematic's composed frame.</summary>
-    internal void PublishCeresDestruction(CeresDestructionCinematicState scene) => Compose(new(frameNumber, scene.CaptureRenderSnapshot()));
+    internal void PublishCeresDestruction(CeresDestructionCinematicState scene) => Compose(new(frameNumber, scene.ComposeScene()));
 
     /// <summary>Publishes the ending credits presentation owned by the active scene.</summary>
-    internal void PublishEnding(EndingCreditsState scene) => Compose(new(frameNumber, EndingCreditsPresentation.CaptureRenderSnapshot(scene)));
+    internal void PublishEnding(EndingCreditsState scene) => Compose(new(frameNumber, EndingCreditsPresentation.ComposeScene(scene)));
 
     /// <summary>Publishes the file-select map after its selection and animation state updates.</summary>
-    internal void PublishFileMap(FileSelectMapMenuState scene) => Compose(new(frameNumber, scene.CaptureRenderSnapshot()));
+    internal void PublishFileMap(FileSelectMapMenuState scene) => Compose(new(frameNumber, scene.ComposeScene()));
 
     /// <summary>Publishes the intro cinematic's composed frame, which every intro update must provide.</summary>
-    internal void PublishIntro(IntroCinematicState scene) => Compose(new(frameNumber, scene.CaptureRenderSnapshot()
+    internal void PublishIntro(IntroCinematicState scene) => Compose(new(frameNumber, scene.ComposeScene()
         ?? throw new InvalidOperationException("Intro publication omitted its render snapshot.")));
 
     /// <summary>

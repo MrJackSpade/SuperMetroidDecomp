@@ -18,7 +18,7 @@ internal interface ICeresEncounter
     int ExploredArenaMapRows { get; }
 
     /// <summary>Resolves Samus's projectiles against Ceres Ridley before the enemy pass; returns the hits.</summary>
-    int ResolveCeresRidleyProjectileHits(SamusProjectileSystem projectiles, SamusBombProjectileSystem sharedProjectiles);
+    int ResolveCeresRidleyProjectileHits(SamusProjectileSystem projectiles, SamusBombProjectileSystem samusBombs);
 
     /// <summary>Runs Ceres Ridley's Baby's animation as the enemy pass ends, until his animation starts (#2573).</summary>
     void StepCeresBabyWithEnemyPass();

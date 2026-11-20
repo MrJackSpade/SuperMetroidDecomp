@@ -84,7 +84,7 @@ internal static class EnemySoundEffectDefinitions
     internal static readonly SoundEffectId KzanLandingSoundEffect = EnemySound.HeavyClank;
 
     /// <summary>The enemy-library sound published when the Rio starts its return.</summary>
-    internal static readonly SoundEffectId LowerNorfairRioReturnSound = EnemySound.HoltzCry;
+    internal static readonly SoundEffectId HoltzReturnSound = EnemySound.HoltzCry;
 
     /// <summary>Enemy-library sound requested by the spinning animation cue.</summary>
     internal static readonly SoundEffectId MamaTurtleSpinSound = EnemySound.MamaTurtleSpinning;
@@ -93,10 +93,10 @@ internal static class EnemySoundEffectDefinitions
     internal static readonly SoundEffectId MamaTurtleWallSound = EnemySound.HeavyClank;
 
     /// <summary>Enemy-library sound an Oum plays once a shot has hit it.</summary>
-    internal static readonly SoundEffectId MaridiaLargeSnailShotSound = EnemySound.DudShot;
+    internal static readonly SoundEffectId OumShotSound = EnemySound.DudShot;
 
     /// <summary>Enemy-library splash sound emitted at the water collision.</summary>
-    internal static readonly SoundEffectId MaridiaLargeSnailSplashSound = EnemySound.SplashOut;
+    internal static readonly SoundEffectId OumSplashSound = EnemySound.SplashOut;
 
     /// <summary>Enemy-library sound selected by Metroid's private animation.</summary>
     internal static readonly SoundEffectId MetroidAnimationSoundEffect = EnemySound.MetroidDrain;
@@ -105,10 +105,10 @@ internal static class EnemySoundEffectDefinitions
     internal static readonly SoundEffectId MetroidRecoilSoundEffect = EnemySound.ShotMetroid;
 
     /// <summary>Enemy-library sound emitted when a parent begins its jump.</summary>
-    internal static readonly SoundEffectId NorfairLavaJumpingEnemyJumpSound = EnemySound.SplashIn;
+    internal static readonly SoundEffectId SqueeptJumpSound = EnemySound.SplashIn;
 
     /// <summary>Enemy-library sound queued when a takeoff becomes a dive.</summary>
-    internal static readonly SoundEffectId NorfairRioDiveSound = EnemySound.RioCry;
+    internal static readonly SoundEffectId GerutaDiveSound = EnemySound.RioCry;
 
     /// <summary>Enemy-library sound requested when the shared Pirate/Mother Brain laser launches.</summary>
     internal static readonly SoundEffectId PirateMotherBrainLaserSound = EnemySound.Laser;

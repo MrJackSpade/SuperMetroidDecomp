@@ -90,7 +90,7 @@ internal static class RoomEnemyFrameFixtures
         Level = Ensure.NotNull(level),
         SamusProjectiles = inputs.Projectiles,
         SamusColours = inputs.Colours,
-        SharedProjectiles = inputs.Bombs,
+        SamusBombs = inputs.Bombs,
         FrameCounter = frameCounter,
         ShortCounter = frameCounter % FrameClock.ShortCounterPeriod,
     };
@@ -123,10 +123,10 @@ internal static class RoomEnemyFrameFixtures
         /// Runs the ordinary shot pass outside the enemy pass (#2391): Samus's shots meet each interactive enemy in turn, in
         /// the order the enemy pass reaches them, with the camera at the room's origin.
         /// </summary>
-        internal void ResolveShotsOnInteractiveEnemies(SamusProjectileSystem projectiles, SamusBombProjectileSystem sharedProjectiles, AreaId roomArea, SamusState samus)
+        internal void ResolveShotsOnInteractiveEnemies(SamusProjectileSystem projectiles, SamusBombProjectileSystem samusBombs, AreaId roomArea, SamusState samus)
         {
             foreach (RoomEnemyPlace enemy in self.ProcessingWindow.InteractiveEnemies)
-                self.Collision.ResolveOrdinaryProjectileHit(projectiles, sharedProjectiles, roomArea, samus, enemy, Position16<RoomPixels>.Zero);
+                self.Collision.ResolveOrdinaryProjectileHit(projectiles, samusBombs, roomArea, samus, enemy, Position16<RoomPixels>.Zero);
         }
 
         /// <summary>

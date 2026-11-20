@@ -35,7 +35,7 @@ internal static class GoldenTorizoCodeVerification
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
             enemies.VerificationServices().IsAreaTorizoDefeated = () => defeated;
-            var initialize = new Action<RoomEnemyPlace, EnemyPopulationSurroundings>(EnemyLifecycle.RunInitializationAi);
+            var initialize = new Action<RoomEnemyPlace, EnemyPopulationSurroundings>(EnemyLifecycle.SetUpEnemy);
             var actor = enemies.Places.InUpdateOrder[0];
             actor.Bind(header, actor.Definition);
             actor.Bind(actor.DefinitionId, RoomEnemyDefinitionLookup.Get(header));

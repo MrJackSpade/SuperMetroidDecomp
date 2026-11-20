@@ -133,7 +133,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>The animation each of <paramref name="place"/>'s lives starts: a special Rinka's or an ordinary one's.</summary>
     private static RinkaSegment LifeAnimation(RoomEnemyPlace place) =>
-        IsSpecialRinka(place) ? RinkaSegment.Special : RinkaSegment.Ordinary;
+        IsSpecialRinka(place) ? RinkaSegment.KeptRunningOffScreen : RinkaSegment.Ordinary;
 
     /// <summary>True while a door load still owes a special Rinka its spawn choice.</summary>
     public bool HasDeferredLoaderTimeCameraReads => _deferredRinkaSpawns.Count != 0;
@@ -246,7 +246,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Runs a frozen Rinka's own step before the common thaw: outside its flight window it thaws at once, and once the
     /// Rinkas are ending it dies; true when it died.
     /// </summary>
-    internal bool RunRinkaFrozenTail(RoomEnemyPlace place)
+    internal bool ThawOrDieWhileFrozen(RoomEnemyPlace place)
     {
         if (RinkaIsOutsideFlightWindow(place))
             place.Freeze.End();
@@ -394,7 +394,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Applies normal contact damage before the Rinka-specific lethal-health lifecycle.</summary>
     internal void ReactToRinkaTouch(EnemyTouchContext context)
     {
-        _collision.ResolveNormalEnemyTouch(context, TouchDeathAnimation.Skip);
+        _collision.ResolveOrdinaryTouch(context, TouchDeathAnimation.Skip);
         ResolveRinkaCombatAfterCommon(context.Place);
     }
 

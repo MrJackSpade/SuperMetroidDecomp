@@ -67,7 +67,7 @@ internal static class GunshipInstalledCompositionsVerification
         while (game.Session.ResumesGameLoadingWait)
             game.StepCaptured(0);
         game.GameplayRuntimeForVerification.System.RecordBossesDefeated(AreaId.Ceres, DefeatedBosses.AreaBoss);
-        game.GameplayRuntimeForVerification.System.LoadSavedStartupRoute(SaveLoadingGameState.CeresDestruction);
+        game.GameplayRuntimeForVerification.System.LoadSavedStartupRoute(SaveStartupRoute.CeresDestruction);
         game.Session.BeginCeresDestruction(CeresDestructionOutcome.SamusEscaped);
         game.StepCaptured(0);
         var scene = game.Session.ScreenAs<CeresDestructionCinematicState>();

@@ -94,7 +94,7 @@ internal static class GameOptionsCursorPhasesVerification
     /// </summary>
     internal static bool DrawsCursor(GameOptionsMenuState menu, InstalledScreenContent presentation)
     {
-        menu.CaptureRenderSnapshot();
+        menu.ComposeScene();
         SpriteSheet sheet = MenuSheetFixtures.For(presentation).Get(SpriteSheetId.GameOptions);
         SpriteSheetFrame[] cursorFrames = [.. MenuMissileFrames.Names.Select(sheet.Frame)];
         return menu.screen.Sprites.Draws.OfType<ImageSpriteDraw>().Any(draw => cursorFrames.Contains(draw.Image));

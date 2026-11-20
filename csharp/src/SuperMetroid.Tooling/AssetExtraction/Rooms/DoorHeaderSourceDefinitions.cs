@@ -268,7 +268,7 @@ internal static class DoorHeaderSourceDefinitions
         [0x950a] = NorfairDoorDefinitions.GrappleTutorial1ToGrappleTutorial2,
         [0x9516] = NorfairDoorDefinitions.GrappleBeamToPostCrocomireJump,
         [0x9522] = NorfairDoorDefinitions.GrappleBeamToGrappleTutorial1,
-        [0x952e] = NorfairDoorDefinitions.NorfairReserveTank,
+        [0x952e] = NorfairDoorDefinitions.NorfairReserveTankToGreenBubblesMissiles,
         [0x953a] = NorfairDoorDefinitions.GreenBubblesMissilesToBubbleMountain,
         [0x9546] = NorfairDoorDefinitions.GreenBubblesMissilesToNorfairReserveTank,
         [0x9552] = NorfairDoorDefinitions.BubbleMountainToGreenBubblesMissiles,

@@ -20,10 +20,10 @@ internal static class CrawlerSurfaceAnimations
     private static CrawlerSegment ForOrientation(CrawlerAnimationDefinition definition, CrawlerSurfaceOrientation orientation) =>
         orientation switch
         {
-            CrawlerSurfaceOrientation.UpsideRight => definition.UpsideRight,
-            CrawlerSurfaceOrientation.UpsideLeft => definition.UpsideLeft,
-            CrawlerSurfaceOrientation.UpsideDown => definition.UpsideDown,
-            CrawlerSurfaceOrientation.UpsideUp => definition.UpsideUp,
+            CrawlerSurfaceOrientation.OnLeftWall => definition.OnLeftWall,
+            CrawlerSurfaceOrientation.OnRightWall => definition.OnRightWall,
+            CrawlerSurfaceOrientation.OnCeiling => definition.OnCeiling,
+            CrawlerSurfaceOrientation.OnFloor => definition.OnFloor,
             _ => throw new InvalidDataException(
                 $"Crawler surface orientation {orientation} is not one of the four surfaces."),
         };

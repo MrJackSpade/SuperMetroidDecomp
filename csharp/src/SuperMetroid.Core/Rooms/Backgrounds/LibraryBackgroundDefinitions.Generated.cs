@@ -10,16 +10,16 @@ public static partial class LibraryBackgroundDefinitions
     public static LibraryBackground ScrollingSkyLandingSite { get; } = new("ScrollingSkyLandingSite", LibraryBackgroundView.SkyRows, [CrateriaDoorDefinitions.GauntletEntranceToLandingSite, CrateriaDoorDefinitions.ParlorToLandingSite, CrateriaDoorDefinitions.CrateriaPowerBombsToLandingSite, CrateriaDoorDefinitions.CrateriaTubeToLandingSite, CrateriaDoorDefinitions.LandingSiteLandingCutscene, DoorDefinitions.LandingSiteDemoEntry]);
 
     /// <summary>The scrolling sky's rows, shown behind the blocks of <see cref="RoomDefinitions.WestOcean"/>; 6 of its entry doors each show a picture of their own.</summary>
-    public static LibraryBackground ScrollingSkyWreckedShipEntrance { get; } = new("ScrollingSkyWreckedShipEntrance", LibraryBackgroundView.SkyRows, [CrateriaDoorDefinitions.BowlingAlleyPathToWestOcean, CrateriaDoorDefinitions.MoatToWestOcean, WreckedShipDoorDefinitions.BowlingAlleyToWestOcean, WreckedShipDoorDefinitions.WreckedShipEntranceToWestOcean, WreckedShipDoorDefinitions.AtticToWestOcean, WreckedShipDoorDefinitions.GravitySuitToWestOcean]);
+    public static LibraryBackground ScrollingSkyWestOcean { get; } = new("ScrollingSkyWestOcean", LibraryBackgroundView.SkyRows, [CrateriaDoorDefinitions.BowlingAlleyPathToWestOcean, CrateriaDoorDefinitions.MoatToWestOcean, WreckedShipDoorDefinitions.BowlingAlleyToWestOcean, WreckedShipDoorDefinitions.WreckedShipEntranceToWestOcean, WreckedShipDoorDefinitions.AtticToWestOcean, WreckedShipDoorDefinitions.GravitySuitToWestOcean]);
 
     /// <summary>The scrolling sky's rows, shown behind the blocks of <see cref="RoomDefinitions.EastOcean"/>; 2 of its entry doors each show a picture of their own.</summary>
     public static LibraryBackground ScrollingSkyEastOcean { get; } = new("ScrollingSkyEastOcean", LibraryBackgroundView.SkyRows, [CrateriaDoorDefinitions.ForgottenHighwayKagosToEastOcean, WreckedShipDoorDefinitions.ElectricDeathToEastOcean]);
 
     /// <summary>The scrolling sky's rows, shown behind the blocks of <see cref="RoomDefinitions.PreBowling"/>.</summary>
-    public static LibraryBackground ScrollingSkyBowlingAlley { get; } = new("ScrollingSkyBowlingAlley", LibraryBackgroundView.SkyRows, []);
+    public static LibraryBackground ScrollingSkyPreBowling { get; } = new("ScrollingSkyPreBowling", LibraryBackgroundView.SkyRows, []);
 
     /// <summary>The picture shown behind the blocks of <see cref="RoomDefinitions.Kraid"/>.</summary>
-    public static LibraryBackground BrinstarKraidUpperLower { get; } = new("BrinstarKraidUpperLower", LibraryBackgroundView.Picture, []);
+    public static LibraryBackground KraidAlive { get; } = new("KraidAlive", LibraryBackgroundView.Picture, []);
 
     /// <summary>No picture: nothing is shown behind the blocks of <see cref="RoomDefinitions.Kraid"/>, <see cref="RoomDefinitions.Phantoon"/>, <see cref="RoomDefinitions.Draygon"/> and <see cref="RoomDefinitions.CeresElevator"/>.</summary>
     public static LibraryBackground Cleared { get; } = new("Cleared", LibraryBackgroundView.Nothing, []);

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 public enum DeadSidehopperLayout
 {
     /// <summary>The living Sidehopper the baby Metroid drains, which waits for the camera before it hops in.</summary>
-    ShitroidVictim,
+    BabyMetroidVictim,
 
     /// <summary>A Sidehopper already dead when the room loads, which rots when Samus touches it.</summary>
     AlreadyDead,

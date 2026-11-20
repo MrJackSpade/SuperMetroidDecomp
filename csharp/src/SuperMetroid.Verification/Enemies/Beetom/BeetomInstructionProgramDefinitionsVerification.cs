@@ -115,7 +115,7 @@ internal static class BeetomInstructionProgramDefinitionsVerification
         for (int value = 0; value <= ushort.MaxValue; value++)
         {
             random = (ushort)value;
-            fixture.State.Action = BeetomAction.DecideActionSamusNotInProximity;
+            fixture.State.Action = BeetomAction.ChooseIdleCrawlOrHop;
             fixture.State.ActionTimer = UpdateCountdown.For(0x1234);
             AnimationPlayback<BeetomSegment> program = fixture.State.Playback;
             fixture.Choose(fixture.State);

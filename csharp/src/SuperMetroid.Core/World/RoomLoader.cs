@@ -498,7 +498,7 @@ internal sealed class RoomLoader
         _sourceViewForDoorOpening = null;
         // The source screen stays where it was on the screen, lying where the destination's view begins, while the
         // destination scrolls in around it.
-        _room.DoorSourceBackground = RoomDoorBackground.Begin(sourceScroll.SourceBackground, sourceScroll.ForegroundScroll.AsPlaneScroll(),
+        _room.DoorSourceBackground = RoomDoorBackground.Begin(sourceScroll.SourceForeground, sourceScroll.ForegroundScroll.AsPlaneScroll(),
             openingForeground.AsPlaneScroll(), direction == DoorDirection.Down);
         PublishDoorOpeningLayers(_doorOpeningScroll);
         // Each directional setup immediately takes its first step, which recomputes the
@@ -622,7 +622,7 @@ internal sealed class RoomLoader
             NudgeOffScreenRightEdge(NudgeOffScreenLeftEdge(samus.Position.X.Whole)),
             NudgeOffScreenLeftEdge(samus.Position.Y.Whole)));
 
-        if (_room.LoadedScope.Enemies.Elevator.ElevatorFlags != ElevatorJourneyFlag.None)
+        if (_room.LoadedScope.Enemies.Elevator.DoorArming != ElevatorArming.None)
         {
             if (_room.LoadedScope.Enemies.Elevator.ElevatorTravel == ElevatorTravelDirection.Down)
                 SamusPoseMetadata.SetupForElevator(samus);
@@ -764,9 +764,9 @@ internal sealed class RoomLoader
         {
             destinationCamera.SetPosition(camera);
             if (previousCamera is not null)
-                destinationCamera.RetainSubpositions(previousCamera);
+                destinationCamera.RetainFractions(previousCamera);
             else
-                destinationCamera.RetainSubpositions(_cameraFractions.Fractions);
+                destinationCamera.RetainFractions(_cameraFractions.Fractions);
         }
         _backgroundScroll.BackgroundScrollModes = room.State.BackgroundScrollModes;
         if (viewportLoadMode == RoomViewportLoadMode.DisplayInitialViewport)
@@ -828,7 +828,7 @@ internal sealed class RoomLoader
         // stale index reaches into them; its room-object system is built with the population below.
         // The held beam charge survives on the session; Samus's own echo storage is cleared.
         loadingSamus.HorizontalSpeed.ClearSpeedEchoes();
-        loadingSamus.Shinespark.ResetProjectileEchoStorage();
+        loadingSamus.Shinespark.ForgetCrashEchoes();
         var bombs = new SamusBombProjectileSystem(_audioRequests, _artwork.SamusArtwork);
         // Each room's shot places start keeping nothing; TakeOverFrom then hands them what the outgoing room's kept.
         // The room's earthquake is composed with the room: Super Missile impacts and the room's enemies start it.

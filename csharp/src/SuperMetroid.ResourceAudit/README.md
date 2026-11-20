@@ -138,7 +138,7 @@ dotnet run --project csharp/src/SuperMetroid.ResourceAudit -c Release -- --nucle
 ```
 
 The ordinary-enemy check also accepts `Zebetite`, `WreckedShipGhost`, `Powamp`, `Spark`,
-or `Shitroid`, each targeting its already identified catalog omission.
+or `Baby Metroid`, each targeting its already identified catalog omission.
 
 These constructed-data checks confirm selected compositions;
 they do not execute gameplay or search for additional defects.

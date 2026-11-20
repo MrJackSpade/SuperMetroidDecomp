@@ -49,7 +49,7 @@ public sealed record SuperMetroidSaveSlot(
     int ReserveEnergy,
     GameClockReading GameTime,
     PersistentProgress Progression,
-    SaveLoadingGameState StartupRoute,
+    SaveStartupRoute StartupRoute,
     LoadStation Checkpoint)
 {
     /// <summary>The buttons of the seven configurable actions.</summary>

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend.Map;
 public static class MapArrowDefinitions
 {
     /// <summary>Each scroll direction's arrow picture.</summary>
-    internal static readonly IReadOnlyDictionary<MapScrollDirection, MapSpriteId> SpriteBases =
+    internal static readonly IReadOnlyDictionary<MapScrollDirection, MapSpriteId> Pictures =
         new Dictionary<MapScrollDirection, MapSpriteId>
         {
             [MapScrollDirection.Left] = MapSpriteId.ArrowLeft,

@@ -185,7 +185,7 @@ internal static class TitleSkipFadeVerification
     /// <summary>What the title runs and shows after one update.</summary>
     private static TitleFrame Capture(TitleSequenceState title)
     {
-        FloorScene scene = title.CaptureRenderSnapshot();
+        FloorScene scene = title.ComposeScene();
         return new TitleFrame(title.Phase, title.SkipStage, scene.Brightness, scene.Paint.SpriteDraws, scene.Floor?.View, scene.Gradient,
             title.BabyPose, title.FloorShading);
     }

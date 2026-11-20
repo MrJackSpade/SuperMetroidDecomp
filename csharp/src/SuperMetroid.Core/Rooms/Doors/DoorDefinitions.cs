@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// <summary>The game's 597 physical doors.</summary>
 /// <remarks>Each door names its destination room, direction and closing behavior, closing-cap block, destination
 /// screen, Samus push speed and setup.
-/// An elevator's door blocks lead to the elevator pseudo-door (<see cref="DoorBlockExit.ElevatorPseudoDoor"/>), not a door.</remarks>
+/// An elevator's door blocks lead to the elevator ride (<see cref="DoorBlockExit.ElevatorRide"/>), not a door.</remarks>
 public static class DoorDefinitions
 {
     /// <summary>The Landing Site's demo entry: the door no room leads through, by which the completion demo set's Gauntlet entrance, infinite bomb jump and crystal flash demonstrations enter the Landing Site.</summary>
@@ -272,7 +272,7 @@ public static class DoorDefinitions
         NorfairDoorDefinitions.GrappleTutorial1ToGrappleTutorial2,
         NorfairDoorDefinitions.GrappleBeamToPostCrocomireJump,
         NorfairDoorDefinitions.GrappleBeamToGrappleTutorial1,
-        NorfairDoorDefinitions.NorfairReserveTank,
+        NorfairDoorDefinitions.NorfairReserveTankToGreenBubblesMissiles,
         NorfairDoorDefinitions.GreenBubblesMissilesToBubbleMountain,
         NorfairDoorDefinitions.GreenBubblesMissilesToNorfairReserveTank,
         NorfairDoorDefinitions.BubbleMountainToGreenBubblesMissiles,

@@ -151,7 +151,7 @@ internal static class CollectiblesVerification
                 $"{kind} reused slot cannot republish its pickup message");
             if (kind is InWorldCollectibleKind.VariaSuit or InWorldCollectibleKind.GravitySuit)
             {
-                AssertEqual(0, fixture.Samus.BeamCharge.FlareCounter,
+                AssertEqual(0, fixture.Samus.BeamCharge.UpdatesHeld,
                     $"{kind} PLM clears charge counter before its message");
             }
         }

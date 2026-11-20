@@ -195,12 +195,12 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     }
 
     /// <summary>Captures file-menu display state after simulation-owned sprite preparation.</summary>
-    public LayeredScene CaptureRenderSnapshot()
+    public LayeredScene ComposeScene()
     {
         PrepareRenderSprites();
         FileSelectPresentation presentation = screenContent.FileSelect;
         // The backdrop, the page, its slots' fields and its slot letters are the menus' pictures (#1467).
-        return MenuRenderSnapshotCapture.Capture(screen, screen.PagePictures(FileSelectParts.BackgroundFrame),
+        return MenuSceneComposer.Capture(screen, screen.PagePictures(FileSelectParts.BackgroundFrame),
             screen.PlacedPictures(ShownPage.Pictures(presentation)), 0, screenFade.Level);
     }
 

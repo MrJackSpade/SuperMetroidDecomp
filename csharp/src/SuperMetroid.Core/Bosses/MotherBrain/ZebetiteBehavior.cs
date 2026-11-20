@@ -227,7 +227,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
 
         RoomEnemyDefinition definition = _room.Definitions.ReadEnemyDefinition(population.DefinitionId);
         _lifecycle.InitializePlaceFromDefinition(spawned, population, definition);
-        _lifecycle.RunSpawnedInitializationAi(spawned);
+        _lifecycle.SetUpSpawnedEnemy(spawned);
         _places.CoverSpawn(spawned);
         return spawned;
     }
@@ -280,7 +280,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs shot damage, then shares it across the linked Zebetites' health, with no generic death.</summary>
     internal EnemyShotReaction ZebetiteShotReaction => field ??= new()
     {
-        AlwaysUsesCollisionPrelude = true,
+        EndsWithoutImpact = true,
         ExemptFromGenericDeath = true,
         // The Zebetite's shot reaction runs the common damage without the hit burst.
         ShowsHitBurst = EnemyShotReaction.NeverShowsHitBurst,
@@ -289,5 +289,5 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Routes Zebetite contact through normal touch collision while skipping generic death animation.</summary>
     internal void ReactToZebetiteTouch(EnemyTouchContext context) =>
-        _collision.ResolveNormalEnemyTouch(context, TouchDeathAnimation.Skip);
+        _collision.ResolveOrdinaryTouch(context, TouchDeathAnimation.Skip);
 }

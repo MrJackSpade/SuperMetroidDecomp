@@ -586,7 +586,7 @@ internal sealed class FrontendSession
 
             // A Ceres elevator save starts with the Ceres elevator's arrival, as a new game does; every other station
             // loads through the room loader below.
-            if (slot.StartupRoute == SaveLoadingGameState.CeresElevatorArrival)
+            if (slot.StartupRoute == SaveStartupRoute.CeresElevatorArrival)
             {
                 // The save's progress is restored before the room loads, so the room's state and its enemies see it.
                 runtime.RoomLoader.RestoreSavedPlayerState(slot);

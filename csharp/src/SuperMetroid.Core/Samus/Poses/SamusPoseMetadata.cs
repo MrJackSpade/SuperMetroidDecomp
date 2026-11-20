@@ -93,7 +93,7 @@ internal static class SamusPoseMetadata
     /// Reads the current pose's no-input fallback: what is selected when no actions are held and the
     /// input transitions therefore are not consulted.
     /// </summary>
-    public static SamusNoInputFallback ReadNoInputFallback(SamusState samus) => SamusPoseTraits.Of(samus.Pose).NoInput;
+    public static SamusNoInputPose ReadNoInputPose(SamusState samus) => SamusPoseTraits.Of(samus.Pose).NoInput;
 
     /// <summary>What Samus's pose does with her arm cannon.</summary>
     public static SamusPoseAim ReadAim(SamusState samus) => ReadAim(samus.Pose);

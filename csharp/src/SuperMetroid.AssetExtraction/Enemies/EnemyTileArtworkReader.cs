@@ -116,7 +116,7 @@ internal sealed class EnemyTileArtworkReader
             string.IsNullOrWhiteSpace(manifest.ChozoAndTubeColorsSha256) ||
             string.IsNullOrWhiteSpace(manifest.SporeSpawnColorsSha256) ||
             string.IsNullOrWhiteSpace(manifest.DachoraColorsSha256) ||
-            string.IsNullOrWhiteSpace(manifest.ShitroidColorsSha256) ||
+            string.IsNullOrWhiteSpace(manifest.BabyMetroidColorsSha256) ||
             string.IsNullOrWhiteSpace(manifest.BabyMetroidCutsceneColorsSha256) ||
             string.IsNullOrWhiteSpace(manifest.BotwoonColorsSha256) ||
             string.IsNullOrWhiteSpace(manifest.MotherBrainDeathColorsSha256) ||
@@ -184,7 +184,7 @@ internal sealed class EnemyTileArtworkReader
         ChozoAndTubeColorCatalog chozoAndTubeColors = ChozoAndTubeColors(importData);
         SporeSpawnColorCatalog sporeSpawnColors = SporeSpawnColors(importData);
         DachoraColorCatalog dachoraColors = DachoraColors(importData);
-        ShitroidColorCatalog shitroidColors = ShitroidColors(importData);
+        BabyMetroidColorCatalog babyMetroidColors = BabyMetroidColors(importData);
         BabyMetroidCutsceneColorCatalog babyMetroidCutsceneColors = BabyMetroidCutsceneColors(importData);
         BotwoonColorCatalog botwoonColors = BotwoonColors(importData);
         MotherBrainDeathColorCatalog motherBrainDeathColors = MotherBrainDeathColors(importData);
@@ -210,7 +210,7 @@ internal sealed class EnemyTileArtworkReader
                 KraidColors = kraidColors, MotherBrainBodyBg2Frames = motherBrainBodyBg2Frames,
                 MotherBrainCorpse = motherBrainCorpse, MotherBrainEscapeText = motherBrainEscapeText,
                 MotherBrainSpecialSprites = motherBrainSpecialSprites, MotherBrainDeathColors = motherBrainDeathColors,
-                BabyMetroidCutsceneColors = babyMetroidCutsceneColors, ShitroidColors = shitroidColors,
+                BabyMetroidCutsceneColors = babyMetroidCutsceneColors, BabyMetroidColors = babyMetroidColors,
                 ZebetiteColors = zebetiteColors, SporeSpawnColors = sporeSpawnColors, BotwoonColors = botwoonColors,
                 NorfairRidleyColors = norfairRidleyColors,
             }),
@@ -758,11 +758,11 @@ internal sealed class EnemyTileArtworkReader
         ReadColors(importData, DachoraColorFormat.FileName, "Dachora colors",
             stream => DachoraColorFile.Read(stream));
 
-    /// <summary>The Shitroid's colours.</summary>
+    /// <summary>The Baby Metroid's colours.</summary>
     /// <exception cref="InvalidDataException">The installed file is invalid.</exception>
-    internal ShitroidColorCatalog ShitroidColors(string importData) =>
-        ReadColors(importData, ShitroidColorFormat.FileName, "Shitroid colors",
-            stream => ShitroidColorFile.Read(stream));
+    internal BabyMetroidColorCatalog BabyMetroidColors(string importData) =>
+        ReadColors(importData, BabyMetroidColorFormat.FileName, "Shitroid colors",
+            stream => BabyMetroidColorFile.Read(stream));
 
     /// <summary>The cutscene Baby Metroid's colours.</summary>
     /// <exception cref="InvalidDataException">The installed file is invalid.</exception>

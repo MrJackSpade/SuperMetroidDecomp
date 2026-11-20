@@ -128,7 +128,7 @@ internal static class PauseEquipmentRulesVerification
             var pause = Create(new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(items), CollectedItems = SamusEquipmentWordCodec.FromEquipmentWord(items) }); EnterPauseEquipment(pause);
             int variant = Array.IndexOf(wireframeMasks, (ushort)(items & 0x0101));
             int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), (int)PauseMenuSourceDefinitions.PauseWireframePointers + variant * 2);
-            var memory = pause.CaptureRenderSnapshot().Paint;
+            var memory = pause.ComposeScene().Paint;
             byte[] vram = pause.ShownVram(catalog);
             for (int row = 0; row < 17; row++)
             for (int column = 0; column < 8; column++)

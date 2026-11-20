@@ -172,7 +172,7 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
                 jump.Step();
                 if (shot.ReadyForWhiteFlash)
                     Show(EndingCreditsPhase.PostCreditsWhiteFlash, new EndingWhiteFlashScene(jump, CreditsRoll.BeginPostCreditsWhiteFlash()),
-                        EndingPostShotDefinitions.FadeFrames);
+                        EndingPostShotDefinitions.FadeSteps);
                 break;
             case EndingWhiteFlashScene { Jump: var jump, Flash: var flash }:
                 RequirePhase(EndingCreditsPhase.PostCreditsWhiteFlash);
@@ -383,7 +383,7 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
                 if (Stage.Fade.Brighten())
                 {
                     CreditsRoll.FadeWaitingBackdrop(0);
-                    Enter(EndingCreditsPhase.PostCreditsShootingStars, EndingSequenceDefinitions.Timing.WaitingBackdropFadeFrames);
+                    Enter(EndingCreditsPhase.PostCreditsShootingStars, EndingSequenceDefinitions.Timing.WaitingBackdropFadeSteps);
                 }
                 break;
 

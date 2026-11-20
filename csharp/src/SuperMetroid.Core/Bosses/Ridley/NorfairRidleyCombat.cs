@@ -476,11 +476,11 @@ internal sealed class NorfairRidleyCombat
     /// </summary>
     internal static void PrepareNorfairRidleyCombatFrame(
         NorfairRidleyState state,
-        SamusBombProjectileSystem sharedProjectiles)
+        SamusBombProjectileSystem samusBombs)
     {
         if (state.FightMode is RidleyFightMode.NotFighting or RidleyFightMode.Dying or RidleyFightMode.PowerBombDodge)
             return;
-        if (!sharedProjectiles.PowerBombExplosion.IsArmed || state.GrabState != RidleyGrabState.Released)
+        if (!samusBombs.PowerBombExplosion.IsArmed || state.GrabState != RidleyGrabState.Released)
             return;
 
         // The power-bomb lunge resets both tail controls before the lunge.

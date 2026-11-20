@@ -28,7 +28,7 @@ public sealed class EndingTypewriterText
 
     /// <summary>The characters <paramref name="sequence"/> types, in typing order.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The selector is not a supported ending text sequence.</exception>
-    public ReadOnlySpan<EndingTextCharacter> Compile(EndingTextSequence sequence) => sequence switch
+    public ReadOnlySpan<EndingTextCharacter> CharactersOf(EndingTextSequence sequence) => sequence switch
     {
         EndingTextSequence.ItemPercentage => itemPercentage.AsSpan(),
         EndingTextSequence.FinalMessage => finalMessage.AsSpan(),

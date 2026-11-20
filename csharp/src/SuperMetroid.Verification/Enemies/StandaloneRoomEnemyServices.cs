@@ -25,13 +25,13 @@ internal sealed class StandaloneRoomEnemyServices : IRoomEnemyServices
     public IEnemyRandomNumbers Random => random;
 
     /// <inheritdoc />
-    public IGlobalEventFlags Events { get; init; } = Unavailable.Instance;
+    public IStoryEvents Events { get; init; } = Unavailable.Instance;
 
     /// <inheritdoc />
     public IZebetiteProgress ZebetiteProgress { get; init; } = Unavailable.Instance;
 
     /// <inheritdoc />
-    public IAreaBossFlags Bosses { get; init; } = Unavailable.Instance;
+    public IDefeatedBossesRecorder Bosses { get; init; } = Unavailable.Instance;
 
     /// <inheritdoc />
     public IRoomObjectPresence RoomObjects { get; init; } = Unavailable.Instance;
@@ -74,7 +74,7 @@ internal sealed class StandaloneRoomEnemyServices : IRoomEnemyServices
     }
 
     /// <summary>The services a standalone host does not provide: every call fails at the dependency.</summary>
-    private sealed class Unavailable : IGlobalEventFlags, IZebetiteProgress, IAreaBossFlags, IRoomObjectPresence,
+    private sealed class Unavailable : IStoryEvents, IZebetiteProgress, IDefeatedBossesRecorder, IRoomObjectPresence,
         IRoomScrollZoneAccess, ISamusControlLock, IMotherBrainRoomEffects
     {
         /// <summary>Shared failure object for every cartridge-state capability absent from this standalone host.</summary>

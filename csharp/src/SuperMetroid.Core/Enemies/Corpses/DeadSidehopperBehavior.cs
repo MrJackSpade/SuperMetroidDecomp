@@ -20,8 +20,8 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     private readonly EnemyRoomBinding _room;
     /// <summary>Handles level collision after the scripted opening movement reaches the terrain boundary.</summary>
     private readonly EnemyTerrain _terrain;
-    /// <summary>The room's Shitroid's feeding: once it has fed, the victim is gone.</summary>
-    private readonly IShitroidFeeding _shitroid;
+    /// <summary>The room's Baby Metroid's feeding: once it has fed, the victim is gone.</summary>
+    private readonly IBabyMetroidFeeding _babyMetroidFeeding;
     /// <summary>Supplies the enemy counter used to pace dust sound effects.</summary>
     private readonly EnemyFrameContext _frameContext;
     /// <summary>Spawns dust from each completed corpse row.</summary>
@@ -38,7 +38,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         _rowDust = dependencies.RowDust;
         _room = dependencies.Room;
         _terrain = dependencies.Terrain;
-        _shitroid = dependencies.Shitroid;
+        _babyMetroidFeeding = dependencies.BabyMetroidFeeding;
         _frameContext = dependencies.FrameContext;
         _projectiles = dependencies.Projectiles;
         _collision = dependencies.Collision;
@@ -64,8 +64,8 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         DeadSidehopperLayout layout = place.SpawnSettings<DeadSidehopperSpawnSettings>().Layout;
         switch (layout)
         {
-            case DeadSidehopperLayout.ShitroidVictim:
-                InitializeShitroidVictimSidehopper(place);
+            case DeadSidehopperLayout.BabyMetroidVictim:
+                InitializeBabyMetroidVictimSidehopper(place);
                 break;
             case DeadSidehopperLayout.AlreadyDead:
                 InitializeAlreadyDeadSidehopper(place);
@@ -75,15 +75,15 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         }
     }
 
-    /// <summary>Runs the Shitroid victim layout.</summary>
-    private void InitializeShitroidVictimSidehopper(RoomEnemyPlace place)
+    /// <summary>Runs the Baby Metroid victim layout.</summary>
+    private void InitializeBabyMetroidVictimSidehopper(RoomEnemyPlace place)
     {
         // The victim stops being solid to Samus and is processed off screen; the other contact and processing
         // properties the room's population gave it stay as they were, which is observable.
         place.Contact = place.Contact.Without(EnemyContact.SolidToSamus);
         place.Processing = place.Processing.With(EnemyProcessing.OffScreen);
-        // A Shitroid that has already fed on this Sidehopper leaves no victim.
-        if (_shitroid.HasAlreadyFedOn(place))
+        // A Baby Metroid that has already fed on this Sidehopper leaves no victim.
+        if (_babyMetroidFeeding.HasAlreadyFedOn(place))
             place.Presence = place.Presence.With(EnemyPresence.Deleted);
 
         place.Position = place.Position.WithWhole(DeadSidehopperVictimDefinitions.StartPosition);
@@ -91,7 +91,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
 
         DeadSidehopperEnemyState state = InitializeDeadSidehopperCorpseState(place, DeadSidehopperAction.AliveWaitForCamera);
         SetDeadSidehopperAnimation(place, state, DeadTourianSegment.SidehopperIdle);
-        // The victim shows the colours the Shitroid's entry gives it, the target the room's colours fade to (#1512).
+        // The victim shows the colours the Baby Metroid's entry gives it, the target the room's colours fade to (#1512).
         state.DrainStage = SidehopperDrainStage.Untouched;
         place.Shading = state.Shading;
         state.Velocity = DeadSidehopperLaunchDefinitions.FirstHop;
@@ -293,7 +293,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     }
 
     /// <summary>
-    /// The end-hop cue selects the post-landing state from whether Shitroid has begun draining the victim. It is
+    /// The end-hop cue selects the post-landing state from whether Baby Metroid has begun draining the victim. It is
     /// deliberately cue-driven: replacing it with a main-AI timer would make animation length and movement
     /// cadence diverge.
     /// </summary>
@@ -305,7 +305,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
             : DeadSidehopperAction.BeginPostLandingDelay;
     }
 
-    /// <summary>Begins Shitroid's drain of its victim, when the Shitroid latches on to feed.</summary>
+    /// <summary>Begins Baby Metroid's drain of its victim, when the Baby Metroid latches on to feed.</summary>
     internal static void ActivateDeadSidehopperVictim(RoomEnemyPlace victim) =>
         victim.RequireSpeciesState<DeadSidehopperEnemyState>().DrainStage = SidehopperDrainStage.LatchedOn;
 
@@ -330,7 +330,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     {
         if (!state.IsDrained)
         {
-            _collision.ResolveNormalEnemyTouch(place, samus, pseudoScrew);
+            _collision.ResolveOrdinaryTouch(place, samus, pseudoScrew);
             return;
         }
         TriggerDeadSidehopperRotting(place, state);
@@ -429,7 +429,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     {
         BeforeSuperMissileQuake = (in EnemyShotContext c) =>
         {
-            c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
+            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
             ResolveDeadSidehopperShot(c.Enemy);
             return true;
         },
@@ -437,7 +437,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
 
     /// <summary>Uses ordinary touch damage during transformation and starts decomposition afterward.</summary>
     internal void ReactToDeadSidehopperTouch(EnemyTouchContext context) =>
-        // Before Shitroid finishes feeding, the touch reaction uses normal contact damage without a death animation. At
+        // Before Baby Metroid finishes feeding, the touch reaction uses normal contact damage without a death animation. At
         // the end of the drain it instead starts the corpse decomposition and never enters common touch damage.
         ResolveDeadSidehopperTouch(context.Place, context.Place.RequireSpeciesState<DeadSidehopperEnemyState>(), context.Samus, context.PseudoScrew);
 }

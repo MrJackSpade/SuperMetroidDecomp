@@ -570,7 +570,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     if (verifyDeferredContact) return;
 
     var projectiles = CreateProjectileFixture();
-    var sharedProjectiles = CreateBombFixture();
+    var samusBombs = CreateBombFixture();
     SeedRipperProjectileDataPointers(bus);
 
     // Each armed shot is a fresh projectile in place 0, as every firing creates one (#1590).
@@ -591,12 +591,12 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     }
 
     SamusProjectile shot = ArmProjectile(projectiles, ripper, type: 0x8000, damage: 20);
-    enemies.ResolveShotsOnInteractiveEnemies(projectiles, sharedProjectiles, SuperMetroid.Core.Progression.AreaId.Crateria, RoomEnemyFrameFixtures.StandaloneSamus());
+    enemies.ResolveShotsOnInteractiveEnemies(projectiles, samusBombs, SuperMetroid.Core.Progression.AreaId.Crateria, RoomEnemyFrameFixtures.StandaloneSamus());
     AssertTrue(shot.IsSpent, "Ripper ineffective power-beam collision spends the shot");
     AssertEqual(200, ripper.Health, "Ripper power-beam immunity comes from ROM vulnerability");
 
     shot = ArmProjectile(projectiles, ripper, type: 0x8002, damage: 20);
-    enemies.ResolveShotsOnInteractiveEnemies(projectiles, sharedProjectiles, SuperMetroid.Core.Progression.AreaId.Crateria, RoomEnemyFrameFixtures.StandaloneSamus());
+    enemies.ResolveShotsOnInteractiveEnemies(projectiles, samusBombs, SuperMetroid.Core.Progression.AreaId.Crateria, RoomEnemyFrameFixtures.StandaloneSamus());
     AssertEqual(400, ripper.Freeze.UpdatesLeft, "Ripper Ice vulnerability freezes actor");
     ushort frozenX = ripper.Position.X.Whole;
     // The Ice Beam froze it, so Samus has it equipped; an enemy thaws at once when she has not.
@@ -618,7 +618,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     for (int hit = 0; hit < 2; hit++)
     {
         shot = ArmProjectile(projectiles, ripper, type: 0x0200, damage: 100);
-        enemies.ResolveShotsOnInteractiveEnemies(projectiles, sharedProjectiles, SuperMetroid.Core.Progression.AreaId.Crateria, RoomEnemyFrameFixtures.StandaloneSamus());
+        enemies.ResolveShotsOnInteractiveEnemies(projectiles, samusBombs, SuperMetroid.Core.Progression.AreaId.Crateria, RoomEnemyFrameFixtures.StandaloneSamus());
         AssertEqual(criesBefore + hit + 1, enemies.Audio.SoundRequests.Count(request =>
             request.SoundEffect == expectedHurtCry && request.Priority.Requests == 3),
             "common shot queues the header cry for surviving and lethal hits");
@@ -1014,7 +1014,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     AssertTrue(state.Tail.Links.Skip(1).Any(segment => segment.TargetDistance == SignedEightEight.FromParts(12, 0)),
         "Ceres Ridley lunge extends articulated tail segments");
 
-    var sharedProjectiles = CreateBombFixture();
+    var samusBombs = CreateBombFixture();
     var projectiles = CreateProjectileFixture();
     // The power beam never runs the Spacetime overwrite, so one progression serves every projectile update.
     var progression = new SharedGameState(new SharedRandom());
@@ -1032,15 +1032,15 @@ internal static void VerifyCeresRidleyRoomEntry()
         // and first-frame motion. The public producer exercises allocation/type/radii
         // before this focused extended-hitbox/shot-AI test resolves the impact.
         samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(ridley.Position.X.Whole + 8)), ridley.Position.Y.Whole));
-        sharedProjectiles.StepFrame(new SamusTerrain { Level = openRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, 0, 0);
+        samusBombs.StepFrame(new SamusTerrain { Level = openRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, 0, 0);
         SamusProjectileSlotObservation slotsBeforeFire = projectiles.ObserveSlots();
-        projectiles.StepFrame(new SamusTerrain { Level = openRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), sharedProjectiles, progression);
+        projectiles.StepFrame(new SamusTerrain { Level = openRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), samusBombs, progression);
         AssertEqual(0, slotsBeforeFire.FiredSlot(projectiles),
             $"Ceres Ridley hit {hit + 1} allocates the power-beam slot");
         AssertTrue(projectiles.Shots[0].Position.X.Whole - projectiles.Shots[0].Radius.X > ridley.Position.X.Whole + 8,
             $"Ceres Ridley hit {hit + 1} is outside the header collision radius");
         AssertEqual(1, enemies.CeresRidleyBehavior.Hits.ResolveCeresRidleyProjectileHits(
-            projectiles, sharedProjectiles),
+            projectiles, samusBombs),
             $"Ceres Ridley hit {hit + 1} reaches enemy shot AI");
         observedNormalRidleyPalette |= !state.HurtFlashShows.Body;
         observedFlashRidleyPalette |= state.HurtFlashShows.Body;
@@ -1055,19 +1055,19 @@ internal static void VerifyCeresRidleyRoomEntry()
         // plus initialization, returning the same slot without shortening the program.
         for (int explosionFrame = 0; explosionFrame < nativeExplosionFrames; explosionFrame++)
         {
-            sharedProjectiles.StepFrame(new SamusTerrain { Level = openRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, 0, 0);
-            projectiles.StepFrame(new SamusTerrain { Level = openRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), sharedProjectiles, progression);
+            samusBombs.StepFrame(new SamusTerrain { Level = openRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, 0, 0);
+            projectiles.StepFrame(new SamusTerrain { Level = openRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), samusBombs, progression);
         }
 
         // This focused hit-counter test used to patch the cartridge cooldown to one.
         // Wait through the real shared projectile owner instead; do not bypass admission
         // or speed up the separately stepped enemy phase/timer fixture.
-        for (int cooldownFrame = 0; cooldownFrame < 15 && sharedProjectiles.CooldownTimer != 0; cooldownFrame++)
+        for (int cooldownFrame = 0; cooldownFrame < 15 && samusBombs.CooldownTimer != 0; cooldownFrame++)
         {
-            sharedProjectiles.StepFrame(new SamusTerrain { Level = openRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, 0, 0);
-            projectiles.StepFrame(new SamusTerrain { Level = openRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), sharedProjectiles, progression);
+            samusBombs.StepFrame(new SamusTerrain { Level = openRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, 0, 0);
+            projectiles.StepFrame(new SamusTerrain { Level = openRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), samusBombs, progression);
         }
-        AssertEqual(0, sharedProjectiles.CooldownTimer, "Native cooldown expires before the next Ceres shot");
+        AssertEqual(0, samusBombs.CooldownTimer, "Native cooldown expires before the next Ceres shot");
 
         enemies.StepStandaloneFrame(enemies.StandaloneFrame(openRoom) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
     }

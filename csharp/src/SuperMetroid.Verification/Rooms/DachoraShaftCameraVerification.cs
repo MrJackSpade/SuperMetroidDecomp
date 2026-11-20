@@ -80,7 +80,7 @@ internal static class DachoraShaftCameraVerification
         main.Run(new RoomMainUpdate
         {
             Room = room,
-            Mains = runtime.RoomMains,
+            BackgroundScroll = runtime.BackgroundScroll, RandomNumber = runtime.System.RandomNumber,
             Escape = runtime.EscapeEffects,
             Player = runtime.Player,
             FrameCounter = runtime.Clock.Counter,

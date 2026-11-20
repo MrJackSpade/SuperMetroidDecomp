@@ -359,7 +359,7 @@ public sealed class SamusHorizontalSpeedState
                 return;
             }
 
-            CopyAndAdvanceScrewAttackGlow(colours, suit);
+            ShowNextScrewAttackShade(colours, suit);
             return;
         }
 
@@ -376,7 +376,7 @@ public sealed class SamusHorizontalSpeedState
                 return;
             }
 
-            CopyAndAdvanceScrewAttackGlow(colours, suit);
+            ShowNextScrewAttackShade(colours, suit);
             return;
         }
 
@@ -414,7 +414,7 @@ public sealed class SamusHorizontalSpeedState
     }
 
     /// <summary>Shows the Screw Attack glow's next shade, going on from where the shared cycle stands.</summary>
-    private void CopyAndAdvanceScrewAttackGlow(
+    private void ShowNextScrewAttackShade(
         SamusColours colours,
         SamusSuit suit)
     {
@@ -565,7 +565,7 @@ public sealed class SamusHorizontalSpeedState
     }
 
     /// <summary>Stops Samus on an input fallback: stops acceleration and cancels boost, without clearing velocity.</summary>
-    public void ApplyStoppedInputFallback(SamusFacingDirection facingDirection)
+    public void StopForNoTransition(SamusFacingDirection facingDirection)
     {
         AccelerationMode = SamusAccelerationMode.Accelerating;
         CancelRunningMomentum(facingDirection);
@@ -577,7 +577,7 @@ public sealed class SamusHorizontalSpeedState
     /// </summary>
     /// <param name="selectedDeceleration">Whether the input phase selected deceleration rather than a stop.</param>
     /// <param name="facingDirection">The direction Samus faces, whose running momentum is cancelled.</param>
-    public void ApplyDeceleratingInputFallback(bool selectedDeceleration, SamusFacingDirection facingDirection)
+    public void DecelerateForNoTransition(bool selectedDeceleration, SamusFacingDirection facingDirection)
     {
         if (selectedDeceleration && HasBaseSpeed)
         {
@@ -732,7 +732,7 @@ public sealed class SamusHorizontalSpeedState
     /// maximum. The returned reached-maximum result is important to spin
     /// jump's decision to retain horizontal motion.
     /// </summary>
-    public AerialBaseSpeedResult CalculateBaseSpeedDecelerationDisallowed(
+    public AerialBaseSpeedResult CalculateAerialBaseSpeed(
         SamusMovementType movementType)
     {
         SamusHorizontalSpeeds entry = Speeds(movementType);

@@ -7,26 +7,26 @@ namespace SuperMetroid.Core.Enemies.Yard;
 public enum YardDirection
 {
     /// <summary>On a wall to its left, top facing right, moving up.</summary>
-    UpsideRightMovingUp,
+    OnLeftWallMovingUp,
 
     /// <summary>On a wall to its left, top facing right, moving down.</summary>
-    UpsideRightMovingDown,
+    OnLeftWallMovingDown,
 
     /// <summary>On a wall to its right, top facing left, moving up.</summary>
-    UpsideLeftMovingUp,
+    OnRightWallMovingUp,
 
     /// <summary>On a wall to its right, top facing left, moving down.</summary>
-    UpsideLeftMovingDown,
+    OnRightWallMovingDown,
 
     /// <summary>On the ceiling, moving left.</summary>
-    UpsideDownMovingLeft,
+    OnCeilingMovingLeft,
 
     /// <summary>On the ceiling, moving right.</summary>
-    UpsideDownMovingRight,
+    OnCeilingMovingRight,
 
     /// <summary>On the floor, moving left.</summary>
-    UpsideUpMovingLeft,
+    OnFloorMovingLeft,
 
     /// <summary>On the floor, moving right.</summary>
-    UpsideUpMovingRight,
+    OnFloorMovingRight,
 }

@@ -7,7 +7,7 @@ namespace SuperMetroid.Verification.Bosses.MotherBrain;
 
 /// <summary>
 /// Checks the rows the import places Mother Brain's encounter's enemies in (#1512) against their initializations on the
-/// cartridge: her brain selects row one, her body clears its palette bits, the Shitroid and the Zebetites select row two,
+/// cartridge: her brain selects row one, her body clears its palette bits, the Baby Metroid and the Zebetites select row two,
 /// the Baby's cutscene row seven, and a Rinka row two; and that the import refuses a sheet the graphics-set data places in
 /// another row than the one her encounter's shades recolour.
 /// </summary>

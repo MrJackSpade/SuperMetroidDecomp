@@ -63,7 +63,7 @@ internal static class EnemySpawnSelectorDefinitions
     public static readonly ChozoStatueSite[] ChozoStatueSites = [ChozoStatueSite.WreckedShip, ChozoStatueSite.LowerNorfair];
 
     /// <summary>Which Tourian Sidehopper placement a dead Sidehopper is, by its first parameter halved.</summary>
-    public static readonly DeadSidehopperLayout[] DeadSidehopperLayouts = [DeadSidehopperLayout.ShitroidVictim, DeadSidehopperLayout.AlreadyDead];
+    public static readonly DeadSidehopperLayout[] DeadSidehopperLayouts = [DeadSidehopperLayout.BabyMetroidVictim, DeadSidehopperLayout.AlreadyDead];
 
     /// <summary>A Fireflea's radius in pixels, by its second parameter's high byte: eight pixels a step.</summary>
     public static readonly int[] FirefleaRadii = [8, 16, 24, 32, 40, 48, 56, 64];

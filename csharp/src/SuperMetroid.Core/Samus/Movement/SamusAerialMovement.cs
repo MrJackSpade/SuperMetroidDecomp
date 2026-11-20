@@ -195,7 +195,7 @@ public static class SamusAerialMovement
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
         speed.SelectSpeedsFor(samus.LiquidPhysics.DetermineMovementMedium(samus));
         AerialBaseSpeedResult calculation =
-            speed.CalculateBaseSpeedDecelerationDisallowed(movementType: SamusMovementType.SpinJumping);
+            speed.CalculateAerialBaseSpeed(movementType: SamusMovementType.SpinJumping);
 
         // If acceleration did not overshoot the cap, spin jump retains motion only while
         // turning (SamusAccelerationMode.Turning) or while the input matching the pose's facing direction is held.
@@ -523,7 +523,7 @@ public static class SamusAerialMovement
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
         speed.SelectSpeedsFor(samus.LiquidPhysics.DetermineMovementMedium(samus));
         AerialBaseSpeedResult calculation =
-            speed.CalculateBaseSpeedDecelerationDisallowed(movementType);
+            speed.CalculateAerialBaseSpeed(movementType);
 
         // A wall jump promotes accelerating to decelerating
         // after calculating speed, then bypasses the held-direction admission test.
@@ -717,7 +717,7 @@ public static class SamusAerialMovement
         // The remembered medium is written by the preceding animation pass, not recomputed here. This
         // matters while crossing a surface: the top-boundary gate above and remembered
         // velocity window can intentionally describe different samples for one frame.
-        UnsignedSixteenSixteen minimumSpeed = samus.LiquidPhysics.LiquidPhysicsType != SamusLiquidMedium.Air
+        UnsignedSixteenSixteen minimumSpeed = samus.LiquidPhysics.MediumLastEntered != SamusLiquidMedium.Air
             ? SamusVerticalMotionDefinitions.SpaceJumpLiquidMinimumFallingSpeed
             : SamusVerticalMotionDefinitions.SpaceJumpAirMinimumFallingSpeed;
         if (fallingSpeed.IsSlowerThan(minimumSpeed) ||

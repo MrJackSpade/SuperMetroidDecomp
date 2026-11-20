@@ -17,12 +17,12 @@ internal sealed class TourianObjects
     /// <summary>The enemy effects room objects trigger.</summary>
     private readonly IRoomObjectEnemyEffects _enemies;
     /// <summary>The room's liquid motion, which the escape acid trigger starts.</summary>
-    private readonly IRoomFxMotion _roomFx;
+    private readonly IRoomLiquid _roomFx;
     /// <summary>The room's room objects, which the fake wall, the acid trigger and the access floor's change join.</summary>
     private readonly RoomObjectPlaceList _places;
 
     /// <summary>Binds Tourian room behaviours to the active room's services and room-object places.</summary>
-    internal TourianObjects(IRoomSamusAccess samus, IRoomObjectEnemyEffects enemies, IRoomFxMotion roomFx,
+    internal TourianObjects(IRoomSamusAccess samus, IRoomObjectEnemyEffects enemies, IRoomLiquid roomFx,
         RoomObjectPlaceList places)
     {
         _samus = samus;
@@ -34,7 +34,7 @@ internal sealed class TourianObjects
     /// Sets up a Metroid room's clearance watch: its placement (<paramref name="placed"/>) names the event it marks, and it
     /// stays in the room for good.
     /// </summary>
-    internal static void SetupMetroidsCleared(RoomObjectPlace place, MetroidRoomArgument placed)
+    internal static void SetupMetroidsCleared(RoomObjectPlace place, WatchedMetroidRoom placed)
     {
         Ensure.NotNull(place);
         place.Become(new MetroidRoomClearanceObject(Ensure.NotNull(placed).Cleared));

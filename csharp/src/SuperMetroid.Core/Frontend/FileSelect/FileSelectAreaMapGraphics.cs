@@ -115,7 +115,7 @@ public sealed class FileSelectAreaMapGraphics
     }
 
     /// <summary>Captures the area map's foreground and its glowing background, then the labels drawn over both, unlit by the glow (#1514).</summary>
-    public LayeredScene CaptureRenderSnapshot(PersistentProgress progress, AreaMapBackgroundGlow glow = AreaMapBackgroundGlow.WholeScreen)
+    public LayeredScene ComposeScene(PersistentProgress progress, AreaMapBackgroundGlow glow = AreaMapBackgroundGlow.WholeScreen)
     {
         PrepareLabels(progress);
         LayeredScene backgrounds = CaptureBackgrounds(glow);

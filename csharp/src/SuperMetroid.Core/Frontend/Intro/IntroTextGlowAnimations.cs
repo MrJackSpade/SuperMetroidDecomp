@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
 /// A typed narration letter's glow (#2488), played by the shared animation player: each step of the glow
-/// (<see cref="IntroTextGlowStep"/>) in turn for <see cref="CinematicTextGlowDefinitions.VariantDuration"/> updates, the
+/// (<see cref="IntroTextGlowStep"/>) in turn for <see cref="CinematicTextGlowDefinitions.GlowStepDuration"/> updates, the
 /// letter resting in the last step's colours.
 /// </summary>
 internal static class IntroTextGlowAnimations
@@ -16,7 +16,7 @@ internal static class IntroTextGlowAnimations
             [IntroTextGlowSegment.Glowing] =
             [
                 .. IntroTextGlowStep.All.SkipLast(1).Select(step =>
-                    new AnimationBeat<IntroTextGlowStep, NoAnimationCue>.Frame(step, CinematicTextGlowDefinitions.VariantDuration)),
+                    new AnimationBeat<IntroTextGlowStep, NoAnimationCue>.Frame(step, CinematicTextGlowDefinitions.GlowStepDuration)),
                 new AnimationBeat<IntroTextGlowStep, NoAnimationCue>.HeldFrame(IntroTextGlowStep.All[^1]),
             ],
         });

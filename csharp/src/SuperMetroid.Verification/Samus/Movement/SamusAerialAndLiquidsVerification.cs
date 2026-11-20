@@ -121,7 +121,7 @@ level, samus, 0, unchecked((ushort)(frame + 3)), roomObjects: SamusRoomObjectFix
     var aerialSpeed = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { AccelerationMode = SamusAccelerationMode.Decelerating };
     aerialSpeed.SelectAirSpeeds();
     AerialBaseSpeedResult accelerated =
-        aerialSpeed.CalculateBaseSpeedDecelerationDisallowed(movementType: SamusMovementType.NormalJumping);
+        aerialSpeed.CalculateAerialBaseSpeed(movementType: SamusMovementType.NormalJumping);
     AssertEqual(0x0000c000u, accelerated.Speed.RawValue, "aerial mode two uses native normal-jump acceleration");
     AssertTrue(!accelerated.ReachedMaximum, "aerial sub-cap call clears carry");
 
@@ -876,7 +876,7 @@ internal static void VerifySamusLiquidPhysics()
     sample.LiquidPhysics.BeginFrameSoundRequests();
     sample.LiquidPhysics.PrepareAnimationFrame(sample, new SharedRandom(), frameCounter: 0, bossPresent: false);
     AssertEqual(3, sample.ExtraAnimationDelay, "continuous water animation delay");
-    AssertEqual(SamusLiquidMedium.Water, sample.LiquidPhysics.LiquidPhysicsType,
+    AssertEqual(SamusLiquidMedium.Water, sample.LiquidPhysics.MediumLastEntered,
         "continuous water animation remembers medium");
     sample.EquippedItems = SamusEquipmentFlags.GravitySuit;
     sample.LiquidPhysics.BeginFrameSoundRequests();

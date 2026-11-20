@@ -484,7 +484,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs common body contact and then Evir's own combat follow-up.</summary>
     internal void ReactToEvirTouch(EnemyTouchContext context)
     {
-        _collision.ResolveNormalEnemyTouch(context);
+        _collision.ResolveOrdinaryTouch(context);
         ResolveEvirCombatAfterCommon(context.Place);
     }
 }

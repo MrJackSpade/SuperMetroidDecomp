@@ -158,21 +158,21 @@ internal sealed class EnemyCollision
     /// projectile may resolve per enemy per pass, matching the collision response's exit.
     /// </summary>
     /// <param name="projectiles">Samus's live beams and missiles, whose enemy collisions may consume, reflect, or transition them.</param>
-    /// <param name="sharedProjectiles">Shared bomb-projectile owner passed to projectile impact handling.</param>
+    /// <param name="samusBombs">Shared bomb-projectile owner passed to projectile impact handling.</param>
     /// <param name="roomArea">The area of the room the enemies are in, which decides how long a shot's freeze lasts.</param>
     /// <param name="samus">Live player state for enemy-specific shot reactions.</param>
     /// <param name="enemy">The enemy the enemy pass is processing; one that is not interactive takes no shot.</param>
     /// <param name="camera">The camera's position as the pass runs, which a reaction that starts a sound on screen reads.</param>
     public void ResolveOrdinaryProjectileHit(
         SamusProjectileSystem projectiles,
-        SamusBombProjectileSystem sharedProjectiles,
+        SamusBombProjectileSystem samusBombs,
         AreaId roomArea,
         SamusState samus,
         RoomEnemyPlace enemy,
         Position16<RoomPixels> camera)
     {
         Ensure.NotNull(projectiles);
-        Ensure.NotNull(sharedProjectiles);
+        Ensure.NotNull(samusBombs);
         Ensure.NotNull(enemy);
         if (!_lifecycle.InteractiveEnemies.Contains(enemy))
             return;
@@ -291,7 +291,7 @@ internal sealed class EnemyCollision
 
             if (selectedIgnore)
             {
-                projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(projectile, shot.MarksCollision);
+                projectiles.EnemyImpacts.TouchEnemyWithoutImpact(projectile, shot.MarksCollision);
                 return;
             }
 
@@ -300,7 +300,7 @@ internal sealed class EnemyCollision
                 return;
             }
 
-            if (reaction.AlwaysUsesCollisionPrelude || family is SamusProjectileFamily.Beam or
+            if (reaction.EndsWithoutImpact || family is SamusProjectileFamily.Beam or
                 SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile)
             {
                 // The collision marks the projectile's direction rather than striking terrain; the projectile acts on
@@ -308,12 +308,12 @@ internal sealed class EnemyCollision
                 // Missile keeps moving as itself so that it also clears its collision links, which would otherwise stay
                 // live and damage the enemy again once its flash timer runs out. Neither the beam's nor the missile's
                 // damage refuses the mark, so later overlapping enemies this pass still take the live payload.
-                projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(
+                projectiles.EnemyImpacts.TouchEnemyWithoutImpact(
                     projectile,
                     enemy.Contact.HasAny(EnemyContact.BlocksPlasmaBeam) ||
                         !projectile.Type.BeamCombination.HasPlasma);
             }
-            else if (!projectiles.EnemyImpacts.TryStartEnemyImpact(sharedProjectiles, projectile,
+            else if (!projectiles.EnemyImpacts.TryStartEnemyImpact(samusBombs, projectile,
                 enemy.Contact.HasAny(EnemyContact.BlocksPlasmaBeam)))
                 continue;
 
@@ -343,7 +343,7 @@ internal sealed class EnemyCollision
                     {
                         _deathsAndDrops.StartGenericEnemyDeath(
                             enemy,
-                            EnemyDeathsAndDrops.SelectNormalShotDeathAnimation(enemy, projectileType, rule: ShotDeathAnimationRule.ByProjectile),
+                            EnemyDeathsAndDrops.ShotKillExplosion(enemy, projectileType, rule: ShotDeathAnimationRule.ByProjectile),
                             samus);
                     }
                 }
@@ -462,7 +462,7 @@ internal sealed class EnemyCollision
         Ensure.NotNull(enemy);
 
         EnemyReaction? radiusShot = ShotReactionOf(enemy);
-        bool usesCommonShot = radiusShot == EnemyReaction.NormalEnemyShot;
+        bool usesCommonShot = radiusShot == EnemyReaction.OrdinaryShot;
         bool usesIgnoringShot = radiusShot == EnemyReaction.Ignore;
         bool usesPrivateShot = HasPrivateNormalBombShot(enemy, radiusShot);
         bool usesFrameHitboxes = enemy.CollidesByFrameHitboxes;
@@ -523,7 +523,7 @@ internal sealed class EnemyCollision
             // component into common damage merely because the definition names the ordinary shot.
             bool selectedIgnore = selectedShot == EnemyReaction.Ignore;
             bool selectedPrivateReaction = HasPrivateNormalBombShot(enemy, selectedShot);
-            if (selectedShot != EnemyReaction.NormalEnemyShot &&
+            if (selectedShot != EnemyReaction.OrdinaryShot &&
                 !selectedIgnore &&
                 !selectedPrivateReaction)
                 continue;
@@ -626,7 +626,7 @@ internal sealed class EnemyCollision
             return;
         _deathsAndDrops.StartGenericEnemyDeath(
             enemy,
-            EnemyDeathsAndDrops.SelectNormalShotDeathAnimation(enemy, SamusBombProjectileSystem.NormalBombType),
+            EnemyDeathsAndDrops.ShotKillExplosion(enemy, SamusBombProjectileSystem.NormalBombType),
             samus);
     }
 
@@ -872,7 +872,7 @@ internal sealed class EnemyCollision
             // selecting its common touch/shot reaction.
             if (!target.Overlaps(enemy.Position.X.Whole, enemy.Position.Y.Whole, enemy.Position.X.Whole, enemy.Position.Y.Whole))
                 return false;
-            reaction = contactKind == HitboxContactKind.Shot ? EnemyReaction.NormalEnemyShot : EnemyReaction.NormalEnemyTouch;
+            reaction = contactKind == HitboxContactKind.Shot ? EnemyReaction.OrdinaryShot : EnemyReaction.OrdinaryTouch;
             return true;
         }
 
@@ -911,12 +911,12 @@ internal sealed class EnemyCollision
 
     /// <summary>
     /// Handles the touch <paramref name="context"/> reached: the ordinary touch of its enemy by its Samus
-    /// (<see cref="ResolveNormalEnemyTouch(RoomEnemyPlace, SamusState, PseudoScrewCharge, TouchDeathAnimation)"/>).
+    /// (<see cref="ResolveOrdinaryTouch(RoomEnemyPlace, SamusState, PseudoScrewCharge, TouchDeathAnimation)"/>).
     /// </summary>
-    internal void ResolveNormalEnemyTouch(
+    internal void ResolveOrdinaryTouch(
         EnemyTouchContext context,
         TouchDeathAnimation deathAnimation = TouchDeathAnimation.Play) =>
-        ResolveNormalEnemyTouch(context.Place, context.Samus, context.PseudoScrew, deathAnimation);
+        ResolveOrdinaryTouch(context.Place, context.Samus, context.PseudoScrew, deathAnimation);
 
     /// <summary>
     /// Handles Samus touching one already-overlapping ordinary actor. An ordinary touch, with no
@@ -927,7 +927,7 @@ internal sealed class EnemyCollision
     /// <param name="samus">Samus, who touched it.</param>
     /// <param name="pseudoScrew">Samus's held charge, which her Pseudo Screw contact spends.</param>
     /// <param name="deathAnimation">Whether a lethal touch starts the enemy's death here.</param>
-    internal void ResolveNormalEnemyTouch(
+    internal void ResolveOrdinaryTouch(
         RoomEnemyPlace enemy,
         SamusState samus,
         PseudoScrewCharge pseudoScrew,
@@ -940,7 +940,7 @@ internal sealed class EnemyCollision
         switch (bodyAttack)
         {
             case SamusBodyAttack.None:
-                ApplyNormalEnemyTouchDamage(
+                ApplyOrdinaryTouchDamage(
                     samus,
                     enemy.Definition.Damage,
                     enemy.Position.X.Whole);
@@ -1008,7 +1008,7 @@ internal sealed class EnemyCollision
         DistanceAcrossRoomEdge.Between(firstPosition.Y, secondPosition.Y) < firstRadius.Y + secondRadius.Y;
 
     /// <summary>Applies suit reduction and health loss, then publishes the hurt direction and invincibility window.</summary>
-    internal static void ApplyNormalEnemyTouchDamage(
+    internal static void ApplyOrdinaryTouchDamage(
         SamusState samus,
         int damageBeforeSuit,
         int damageSourceX)

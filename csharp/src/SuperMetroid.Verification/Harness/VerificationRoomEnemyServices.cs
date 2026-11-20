@@ -14,7 +14,7 @@ namespace SuperMetroid.Verification.Harness;
 /// at the dependency when neither provides it.
 /// </summary>
 internal sealed class VerificationRoomEnemyServices(IRoomEnemyServices? loaded) : IRoomEnemyServices,
-    IEnemyRandomNumbers, IGlobalEventFlags, IZebetiteProgress, IAreaBossFlags, IRoomScrollZoneAccess, ISamusControlLock,
+    IEnemyRandomNumbers, IStoryEvents, IZebetiteProgress, IDefeatedBossesRecorder, IRoomScrollZoneAccess, ISamusControlLock,
     IMotherBrainRoomEffects, IRoomObjectPresence
 {
     /// <summary>Optional case-owned callback for advancing the enemy RNG.</summary>
@@ -45,11 +45,11 @@ internal sealed class VerificationRoomEnemyServices(IRoomEnemyServices? loaded) 
     /// <summary>Exposes this fixture's RNG overrides through the enemy service contract.</summary>
     public IEnemyRandomNumbers Random => this;
     /// <summary>Exposes this fixture's event query override through the enemy service contract.</summary>
-    public IGlobalEventFlags Events => this;
+    public IStoryEvents Events => this;
     /// <summary>Exposes this fixture's Zebetite count override through the enemy service contract.</summary>
     public IZebetiteProgress ZebetiteProgress => this;
     /// <summary>Exposes this fixture's boss-flag overrides through the enemy service contract.</summary>
-    public IAreaBossFlags Bosses => this;
+    public IDefeatedBossesRecorder Bosses => this;
     /// <summary>Uses loaded room services for active PLM queries.</summary>
     public IRoomObjectPresence RoomObjects => this;
     /// <summary>Exposes this fixture's room scroll-write override through the enemy service contract.</summary>

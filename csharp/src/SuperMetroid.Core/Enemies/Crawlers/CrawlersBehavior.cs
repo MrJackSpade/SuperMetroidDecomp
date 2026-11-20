@@ -58,8 +58,8 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal static CrawlerAction CrawlActionOn(CrawlerEnemyState state) => state.Surface switch
     {
-        CrawlerSurfaceOrientation.UpsideRight or CrawlerSurfaceOrientation.UpsideLeft => CrawlerAction.CrawlingVertically,
-        CrawlerSurfaceOrientation.UpsideDown or CrawlerSurfaceOrientation.UpsideUp => CrawlerAction.CrawlingHorizontally,
+        CrawlerSurfaceOrientation.OnLeftWall or CrawlerSurfaceOrientation.OnRightWall => CrawlerAction.CrawlingVertically,
+        CrawlerSurfaceOrientation.OnCeiling or CrawlerSurfaceOrientation.OnFloor => CrawlerAction.CrawlingHorizontally,
         _ => throw new InvalidOperationException($"Undefined {nameof(CrawlerSurfaceOrientation)} {state.Surface}."),
     };
 
@@ -131,9 +131,9 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
     private static PixelVelocity<RoomPixels> SignedForBlockSide(
         CrawlerSurfaceOrientation blockSide, PixelVelocity<RoomPixels> velocity) => blockSide switch
         {
-            CrawlerSurfaceOrientation.UpsideRight => velocity.ReversedX(),
-            CrawlerSurfaceOrientation.UpsideDown => velocity.ReversedY(),
-            CrawlerSurfaceOrientation.UpsideLeft or CrawlerSurfaceOrientation.UpsideUp => velocity,
+            CrawlerSurfaceOrientation.OnLeftWall => velocity.ReversedX(),
+            CrawlerSurfaceOrientation.OnCeiling => velocity.ReversedY(),
+            CrawlerSurfaceOrientation.OnRightWall or CrawlerSurfaceOrientation.OnFloor => velocity,
             _ => throw new InvalidOperationException($"Undefined {nameof(CrawlerSurfaceOrientation)} {blockSide}."),
         };
 
@@ -399,8 +399,8 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         CrawlerEnemyState state)
     {
         CrawlerSurfaceOrientation orientation = state.Velocity.Y.IsNegative
-            ? CrawlerSurfaceOrientation.UpsideDown
-            : CrawlerSurfaceOrientation.UpsideUp;
+            ? CrawlerSurfaceOrientation.OnCeiling
+            : CrawlerSurfaceOrientation.OnFloor;
         PutCrawlerOnSurface(place, state, orientation);
     }
 
@@ -410,8 +410,8 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         CrawlerEnemyState state)
     {
         CrawlerSurfaceOrientation orientation = state.Velocity.X.IsNegative
-            ? CrawlerSurfaceOrientation.UpsideRight
-            : CrawlerSurfaceOrientation.UpsideLeft;
+            ? CrawlerSurfaceOrientation.OnLeftWall
+            : CrawlerSurfaceOrientation.OnRightWall;
         PutCrawlerOnSurface(place, state, orientation);
     }
 

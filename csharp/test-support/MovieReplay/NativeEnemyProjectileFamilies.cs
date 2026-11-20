@@ -24,7 +24,7 @@ internal static class NativeEnemyProjectileFamilies
         NuclearWaffleProjectileNativeListAddresses.Family,
         PolypRockNativeListAddresses.Family,
         PowampSpikeNativeListAddresses.Family,
-        MiscDustProjectileNativeListAddresses.Family,
+        DustExplosionProjectileNativeListAddresses.Family,
         SkreeMetareeParticleNativeListAddresses.Family,
         SpacePirateProjectileNativeListAddresses.Family,
         WorkRobotLaserNativeListAddresses.Family,

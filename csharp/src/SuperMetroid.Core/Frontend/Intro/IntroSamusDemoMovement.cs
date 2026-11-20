@@ -43,11 +43,11 @@ internal static class IntroSamusDemoMovement
                 // the pose's no-input fallback only once her base speed has stopped completely.
                 fallback = samus.HorizontalSpeed.HasBaseSpeed
                     ? samus.Pose
-                    : SamusPoseMetadata.ReadNoInputFallback(samus).From(samus.Pose);
+                    : SamusPoseMetadata.ReadNoInputPose(samus).From(samus.Pose);
             }
             else if (SamusPoseMetadata.IsLeftFacingStandingPose(samus.Pose))
             {
-                if (SamusPoseMetadata.ReadNoInputFallback(samus).TryGetPose(out SamusPoseId noInputPose) && noInputPose != samus.Pose)
+                if (SamusPoseMetadata.ReadNoInputPose(samus).TryGetPose(out SamusPoseId noInputPose) && noInputPose != samus.Pose)
                     fallback = noInputPose;
             }
         }

@@ -126,7 +126,7 @@ internal sealed class EnemyDeathsAndDrops
     }
 
     /// <summary>Chooses the definition's death explosion, raising the smaller ones for Super Missile kills.</summary>
-    internal static EnemyDeathExplosion SelectNormalShotDeathAnimation(
+    internal static EnemyDeathExplosion ShotKillExplosion(
         RoomEnemyPlace enemy,
         SamusProjectileType projectileType,
         ShotDeathAnimationRule rule = ShotDeathAnimationRule.ByProjectile)
@@ -314,7 +314,7 @@ internal sealed class EnemyDeathsAndDrops
         projectile.CanDamageSamus = false;
         projectile.PersistsOnSamusContact = false;
         projectile.BlocksSamusProjectiles = false;
-        return EnemyDeathExplosionDefinitions.NoDropTail;
+        return EnemyDeathExplosionDefinitions.NoDropPause;
     }
 
     /// <summary>
@@ -567,7 +567,7 @@ internal sealed class EnemyDeathsAndDrops
         // or what its init AI set, until its first cue. An empty frame is also
         // the contact gate, so the respawned actor cannot touch Samus before then.
         _lifecycle.InitializePlaceFromDefinition(place, spawn.Population, definition);
-        _lifecycle.RunSpawnedInitializationAi(place);
+        _lifecycle.SetUpSpawnedEnemy(place);
     }
 
     /// <summary>
@@ -633,7 +633,7 @@ internal sealed class EnemyDeathsAndDrops
                 if (projectile.Kind != RoomEnemyProjectileKind.EnemyDeathExplosion)
                     throw new InvalidDataException($"Enemy projectile {projectile.Kind} reached the become-pickup cue, which only a death explosion runs.");
                 return ConvertEnemyDeathExplosionToPickup(projectile, samus);
-            case EnemyDeathAndDropCueKind.HandleRespawningEnemy:
+            case EnemyDeathAndDropCueKind.RespawnEnemy:
                 // A death explosion, or the pickup it became, rebuilds the enemy it came from when that enemy respawns; a
                 // drop spawned directly came from no enemy.
                 if (projectile.State is EnemyDeathAndDropState { KilledEnemy: { Respawns: true } killed })

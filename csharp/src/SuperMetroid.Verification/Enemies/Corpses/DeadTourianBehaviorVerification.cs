@@ -49,7 +49,7 @@ internal static class DeadTourianBehaviorVerification
     }
 
     /// <summary>
-    /// A Power Bomb reaching the waiting Shitroid victim runs its main step with the room and camera the power-bomb pass
+    /// A Power Bomb reaching the waiting Baby Metroid victim runs its main step with the room and camera the power-bomb pass
     /// carries (#1807): with no main behaviour run before it, a camera at or right of the victim's activation column
     /// leaves it waiting, and one left of that column wakes it.
     /// </summary>

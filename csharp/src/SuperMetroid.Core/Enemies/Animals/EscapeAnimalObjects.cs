@@ -10,14 +10,14 @@ namespace SuperMetroid.Core.Enemies.Animals;
 internal sealed class EscapeAnimalObjects : ICrittersEscapeReaction
 {
     /// <summary>The game's event flags.</summary>
-    private readonly IGlobalEventFlags _events;
+    private readonly IStoryEvents _events;
     /// <summary>The room's room objects, which the escape passage and the rescue wall's reaction join.</summary>
     private readonly RoomObjectPlaceList _places;
     /// <summary>What the struck rescue wall shows: its installed picture (#1580).</summary>
     private readonly IRoomObjectDrawing _drawing;
 
     /// <summary>Binds the animal-rescue room-object behaviors to room events, the shared room-object places and the installed pictures.</summary>
-    internal EscapeAnimalObjects(IGlobalEventFlags events, RoomObjectPlaceList places, IRoomObjectDrawing drawing)
+    internal EscapeAnimalObjects(IStoryEvents events, RoomObjectPlaceList places, IRoomObjectDrawing drawing)
     {
         _events = events;
         _places = places;

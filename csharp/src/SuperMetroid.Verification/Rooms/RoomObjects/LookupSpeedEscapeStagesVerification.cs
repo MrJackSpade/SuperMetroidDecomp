@@ -37,7 +37,7 @@ internal static class LookupSpeedEscapeStagesVerification
             int actual = field switch
             {
                 0 => stage.TargetSamusX,
-                1 => stage.MaximumFxY,
+                1 => stage.HighestLavaSurfaceY,
                 _ => stage.YVelocity.RawValue,
             };
             AssertEqual(ReadSamusEaterObjectWord(rom, records[index] + field * 2), actual,

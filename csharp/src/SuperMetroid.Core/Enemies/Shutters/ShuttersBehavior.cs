@@ -371,7 +371,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         // Missile's quake included.
         AfterSuperMissileQuake = (in EnemyShotContext c) =>
         {
-            c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
+            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
             ReactVerticalShutter(c.Enemy, c.Camera);
             return true;
         },

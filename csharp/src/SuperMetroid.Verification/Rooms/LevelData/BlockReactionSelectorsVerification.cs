@@ -145,7 +145,7 @@ internal static class BlockReactionSelectorsVerification
     /// <summary>
     /// Checks what a normal bomb sets off at every special block whose reaction every area shares, in every area, against
     /// the cartridge's bombed-special table read on past its sixteen shared reactions into the area tables that follow it
-    /// (the run-on that shows four plain solid blocks as Brinstar's Speed Booster blocks, <c>SpecialBlockBombRunOn</c>), and
+    /// (the run-on that shows four plain solid blocks as Brinstar's Speed Booster blocks, <c>BombRevealedSpeedBlockLookalikes</c>), and
     /// that the shared bytes past that read give a special block no reaction, which a bomb rejects (#1742). Each area's own
     /// eight entries, which the import resolves in the area (#1805), are checked against that area's table.
     /// </summary>

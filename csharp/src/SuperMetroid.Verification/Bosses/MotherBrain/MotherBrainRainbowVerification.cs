@@ -180,7 +180,7 @@ internal static void VerifyMotherBrainRainbowBeamAttackSequence()
 
     MotherBrainRainbowBeamAttackStepResult wall = attack.Step(samus, MotherBrainLateFightFixtures.QuietFrame(2, 1));
     AssertEqual(0x00eb, samus.Position.X.Whole, "actor sequence moves Samus to hardcoded wall");
-    AssertEqual(MotherBrainRainbowPhase.OneFrameDelay, attack.Encounter.RainbowPhase,
+    AssertEqual(MotherBrainRainbowPhase.PinSamusToWall, attack.Encounter.RainbowPhase,
         "wall carry installs one-frame-delay function");
     AssertTrue(wall.Starts(MotherBrainStepEffect.RainbowBeamSound) && wall.Starts(MotherBrainStepEffect.RainbowColours),
         "wall function runs sound and bit-one palette cadence");
@@ -269,13 +269,13 @@ internal static void VerifyMotherBrainRainbowBeamAttackSequence()
         decisionCalls++;
     }
     AssertEqual(129, decisionCalls, "$80 decision timer expires on 129th DEC/BPL call");
-    AssertEqual(MotherBrainFinishOffPhase.GetSamusToLowEnergy, attack.Encounter.FinishOffPhase,
+    AssertEqual(MotherBrainFinishOffPhase.AttackUntilSamusIsLow, attack.Encounter.FinishOffPhase,
         "post-drain health below $190 chooses finish-Samus chain");
     AssertEqual<MotherBrainBodySegment?>(MotherBrainBodySegment.WalkForwardReallySlow, attack.Encounter.BodyPlayback?.PlayingSegment,
         "low-health decision immediately requests the native forward body walk");
     SuperMetroid.Core.Animation.AnimationPlayback<MotherBrainHeadSegment>? headBeforeFinishThreshold = attack.Encounter.Brain.Playback;
         _ = attack.Step(samus, MotherBrainLateFightFixtures.QuietFrame(0, 0));
-        AssertEqual(MotherBrainFinishOffPhase.GetSamusToLowEnergy, attack.Encounter.FinishOffPhase,
+        AssertEqual(MotherBrainFinishOffPhase.AttackUntilSamusIsLow, attack.Encounter.FinishOffPhase,
         "399 energy remains above no-suit finish threshold 340");
     AssertTrue(headBeforeFinishThreshold == attack.Encounter.Brain.Playback,
         "RNG zero takes finish-off no-attack branch");

@@ -102,7 +102,7 @@ internal static class MurderBeamVerification
         target.Bind(EnemyPlaceFixtures.StandIn, target.Definition);
         target.Bind(target.DefinitionId, default(RoomEnemyDefinition) with
         {
-            Shot = EnemyReaction.NormalEnemyShot,
+            Shot = EnemyReaction.OrdinaryShot,
         });
         target.Position = target.Position.WithWhole(shot.Position.Whole);
         target.Radius = new(16, 16);
@@ -175,7 +175,7 @@ internal static class MurderBeamVerification
             projectiles.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = newlyPressed, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), shared, new SharedGameState(new SharedRandom()));
         }
         AssertEqual(BeamChargeDefinitions.FullyChargedCounter,
-            projectiles.Charge.FlareCounter, "pre-pause beam charge reaches charged threshold");
+            projectiles.Charge.UpdatesHeld, "pre-pause beam charge reaches charged threshold");
     }
 
     /// <summary>Checks that the right-facing corrupted beam direction fails explicitly before it can masquerade as a normal shot.</summary>

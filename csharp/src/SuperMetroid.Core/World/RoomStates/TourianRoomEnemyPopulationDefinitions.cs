@@ -59,7 +59,7 @@ internal static class TourianRoomEnemyPopulationDefinitions
     internal static RoomEnemyPopulationDefinition BigBoy { get; } = new("BigBoy",
     [
         new(EnemyDefinitionId.BabyMetroid, new(384, 64), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
-        new(EnemyDefinitionId.CorpseSidehopper, new(552, 160), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new DeadSidehopperSpawnSettings(Layout: DeadSidehopperLayout.ShitroidVictim)),
+        new(EnemyDefinitionId.CorpseSidehopper, new(552, 160), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new DeadSidehopperSpawnSettings(Layout: DeadSidehopperLayout.BabyMetroidVictim)),
         new(EnemyDefinitionId.CorpseSidehopper, new(160, 64), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new DeadSidehopperSpawnSettings(Layout: DeadSidehopperLayout.AlreadyDead)),
         new(EnemyDefinitionId.CorpseZoomer, new(240, 64), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new CorpseSpawnSettings(Corpse: DeadTourianCorpseDefinitions.ZoomerOnItsBack)),
         new(EnemyDefinitionId.CorpseZoomer, new(664, 200), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new CorpseSpawnSettings(Corpse: DeadTourianCorpseDefinitions.ZoomerUpright)),

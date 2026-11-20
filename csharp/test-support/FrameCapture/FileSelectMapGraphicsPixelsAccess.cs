@@ -22,7 +22,7 @@ internal static class FileSelectMapGraphicsPixelsAccess
         /// scenes show (#1532).
         /// </summary>
         internal LayeredScene Scene(ReadOnlySpan<ushort> usedStationMasks, bool includeBackdropInColorMath = true) =>
-            graphics.CaptureRenderSnapshot(UsedStations(usedStationMasks), ColorMath(includeBackdropInColorMath));
+            graphics.ComposeScene(UsedStations(usedStationMasks), ColorMath(includeBackdropInColorMath));
 
         /// <summary>
         /// The area map's BG1 foreground with its additive BG3 background and no labels, drawn with the game's renderer.
@@ -41,14 +41,14 @@ internal static class FileSelectMapGraphicsPixelsAccess
     {
         /// <summary>Captures the room map with its marker and draws it with the game's renderer.</summary>
         internal RgbaPixel[] Render(Offset16<MapPixels> scroll, FileSelectStationMarker marker, FileSelectMapAnimations? animations = null) =>
-            FrontendScenePixelsAccess.Pixels(graphics.CaptureRenderSnapshot(scroll, marker, animations));
+            FrontendScenePixelsAccess.Pixels(graphics.ComposeScene(scroll, marker, animations));
 
         /// <summary>The room map's fixed BG2 frame alone, as the transition shows it before the map's cells arrive.</summary>
         internal RgbaPixel[] RenderFrameOnly() =>
             FrontendScenePixelsAccess.Pixels(graphics.FrameOnlyScene());
 
         /// <summary>The scene <see cref="RenderFrameOnly"/> draws, for a comparison of the pixels two scenes show.</summary>
-        internal LayeredScene FrameOnlyScene() => graphics.CaptureRenderSnapshot(content: RoomMapContent.FrameOnly);
+        internal LayeredScene FrameOnlyScene() => graphics.ComposeScene(content: RoomMapContent.FrameOnly);
 
         /// <summary>The room map's fixed frame and its map at <paramref name="scroll"/>, without icons.</summary>
         /// <param name="scroll">The map's scroll in pixels.</param>
@@ -57,7 +57,7 @@ internal static class FileSelectMapGraphicsPixelsAccess
 
         /// <summary>The scene <c>RenderBackgrounds(scroll)</c> draws, for a comparison of the pixels two scenes show.</summary>
         /// <param name="scroll">The map's scroll in pixels.</param>
-        internal LayeredScene BackgroundsScene(Offset16<MapPixels> scroll) => graphics.CaptureRenderSnapshot(scroll);
+        internal LayeredScene BackgroundsScene(Offset16<MapPixels> scroll) => graphics.ComposeScene(scroll);
     }
 
     /// <summary>

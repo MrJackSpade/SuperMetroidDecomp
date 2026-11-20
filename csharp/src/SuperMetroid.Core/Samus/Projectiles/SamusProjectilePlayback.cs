@@ -24,14 +24,8 @@ internal static class SamusProjectilePlayback
     /// frame once the shown one has held its updates, or null while it holds, while a still picture is kept and on the
     /// update the animation ends (<see cref="AnimationPlayer{TSegment, TFrame, TEvent}.HasStopped"/>).
     /// </summary>
-    /// <exception cref="InvalidOperationException">The animation comes to rest showing no frame, which no projectile animation does.</exception>
-    internal static SamusProjectileFrameId? StepToNewFrame(AnimationPlayer<SamusProjectileSegment, SamusProjectileFrameId, NoAnimationCue> animation)
-    {
-        SamusProjectileFrameId? shown = Ensure.NotNull(animation).StepToNewFrame();
-        if (animation.IsResting && !animation.HasStopped && animation.Shown is null)
-            throw new InvalidOperationException($"Samus projectile animation at {BeatOf(animation.Playback)} came to rest showing no frame.");
-        return shown;
-    }
+    internal static SamusProjectileFrameId? StepToNewFrame(AnimationPlayer<SamusProjectileSegment, SamusProjectileFrameId, NoAnimationCue> animation) =>
+        Ensure.NotNull(animation).StepToNewFrame();
 
     /// <summary>
     /// Where <paramref name="playback"/> stands: before its first play, at the start of the segment its animation starts

@@ -545,16 +545,8 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
             state.HeadPlayback.Animation, ref place, cue => ApplyBotwoonHeadCue(head, state, cue));
         state.HeadPlayback = state.HeadPlayback with { Place = place };
         // A hold keeps the last frame shown and stops the clock (#2454): the head waits on it until a new animation is
-        // installed.
-        if (advance is AnimationShown<BotwoonHeadAnimationSegment, BotwoonHeadFrame>.Held)
-        {
-            head.AnimationClock.Stop();
-            return;
-        }
-        if (advance is not AnimationShown<BotwoonHeadAnimationSegment, BotwoonHeadFrame>.Frame shown)
-            throw new InvalidOperationException($"Botwoon's head animation ended an update with {advance}.");
-        head.Frame = BotwoonVisualDefinitions.HeadFrames.Of(shown.Shown);
-        head.AnimationClock.Show(shown.Duration);
+        // installed. Every outcome takes the shared enemy animation's meaning.
+        EnemyAnimationPlayback.Show(head, advance, static frame => BotwoonVisualDefinitions.HeadFrames.Of(frame));
     }
 
     /// <summary>Applies frame cues for facing radius, spit audio, or the volley trigger.</summary>

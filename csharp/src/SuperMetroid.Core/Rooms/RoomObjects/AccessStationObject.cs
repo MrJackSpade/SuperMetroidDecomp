@@ -102,10 +102,8 @@ internal sealed class AccessStationObject(StationAccessRule rule, AreaId area, S
         if (!operationStartedThisUpdate && OperationPhase is StationOperationPhase.InUse { Use: var use })
             StepAccess(context, stations, samus, use);
 
-        // A looping animation of images always shows its next image once the shown one's updates run out (#1627).
+        // A looping animation of images shows its next image once the shown one's updates run out (#1627).
         StationDraw? shown = _animation.StepToNewFrame();
-        if (_animation.IsResting)
-            throw new InvalidDataException($"{Kind} station animation {ShownAnimation} came to rest instead of showing its next image.");
         if (shown is { } image)
             context.Draw(place, StationObjectDraws.Family, image);
     }

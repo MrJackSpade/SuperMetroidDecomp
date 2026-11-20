@@ -153,16 +153,9 @@ internal sealed class CrocomireFight
         AnimationShown<CrocomireTongueSegment, EnemyFrameId> outcome = CrocomireAnimations.TongueSegments.PlayToNextFrame(
             state.TonguePlayback.Animation, ref place);
         state.TonguePlayback = state.TonguePlayback with { Place = place };
-        // A hold rests the animation: the last frame stays and the clock stops (#2454).
-        if (outcome is AnimationShown<CrocomireTongueSegment, EnemyFrameId>.Held)
-        {
-            tongue.AnimationClock.Stop();
-            return;
-        }
-        if (outcome is not AnimationShown<CrocomireTongueSegment, EnemyFrameId>.Frame shown)
-            throw new InvalidOperationException($"Crocomire's tongue animation ended an update with {outcome}.");
-        tongue.Frame = shown.Shown;
-        tongue.AnimationClock.Show(shown.Duration);
+        // A hold rests the animation: the last frame stays and the clock stops (#2454). Every outcome takes the shared
+        // enemy animation's meaning.
+        EnemyAnimationPlayback.Show(tongue, outcome, static frame => frame);
     }
 
     /// <summary>
@@ -190,23 +183,8 @@ internal sealed class CrocomireFight
         // stays where it was placed until its next placement.
         state.Tongue.DrawOffset += body.Position.Whole - placedAt;
         // A hold rests the animation: the last frame stays and the clock stops (#2454). A held frame (#1627) shows its
-        // frame for good, its clock stopped as a hold's is. The body animations have no pauses or ends.
-        switch (outcome)
-        {
-            case AnimationShown<CrocomireBodySegment, EnemyFrameId>.Frame shown:
-                ShowCrocomireBodyFrame(state, body, shown.Shown);
-                body.AnimationClock.Show(shown.Duration);
-                return;
-            case AnimationShown<CrocomireBodySegment, EnemyFrameId>.HeldFrame held:
-                ShowCrocomireBodyFrame(state, body, held.Shown);
-                body.AnimationClock.ShowForGood();
-                return;
-            case AnimationShown<CrocomireBodySegment, EnemyFrameId>.Held:
-                body.AnimationClock.Stop();
-                return;
-            default:
-                throw new InvalidOperationException($"Crocomire's body animation ended an update with {outcome}.");
-        }
+        // frame for good, its clock stopped as a hold's is. Every outcome takes the shared enemy animation's meaning.
+        EnemyAnimationPlayback.Show(body, outcome, frame => ShowCrocomireBodyFrame(state, body, frame));
     }
 
     /// <summary>Shows <paramref name="frame"/> on Crocomire's body.</summary>

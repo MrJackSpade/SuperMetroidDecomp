@@ -118,8 +118,6 @@ internal sealed class ProjectileTrails
             animation.Step(cue => Move(pair, cue));
             if (animation.HasStopped)
                 return;
-            if (animation.IsResting)
-                throw new InvalidOperationException($"Trail sparkle animation came to rest at {animation.Playback.Place}; a sparkle shows frames and ends.");
         }
 
         side.DisplayedOffset = side.Offset;

@@ -163,8 +163,6 @@ internal sealed class DraygonParts
                 part.Presence = part.Presence.With(EnemyPresence.Deleted);
                 part.AnimationClock.Stop();
                 return;
-            default:
-                throw new InvalidOperationException($"Undefined animation outcome {shown}.");
         }
     }
 

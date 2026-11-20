@@ -108,7 +108,6 @@ internal sealed class RoomColourEffect
     /// <paramref name="carryOut"/>.
     /// </summary>
     /// <returns>The frame the turn shows anew, of the effect that shows it, or null while a frame holds or once the effect ended.</returns>
-    /// <exception cref="InvalidOperationException">The animation comes to rest without ending, which no colour effect's does.</exception>
     internal ColourEffectFrame? TakeTurn(Action<ColourEffectCue> carryOut)
     {
         Ensure.NotNull(carryOut);
@@ -117,13 +116,12 @@ internal sealed class RoomColourEffect
             Frame = new ColourEffectFrame(FramesOf, shown);
             return Frame;
         }
+        // An animation that comes to rest without ending shows nothing new: its frame stays.
         if (play.HasStopped)
         {
             End();
             Settled = true;
         }
-        else if (play.IsResting)
-            throw new InvalidOperationException($"Colour effect {Effect}'s animation came to rest without ending.");
         return null;
     }
 }

@@ -105,10 +105,25 @@ internal sealed class CeresRidleyBabyScene
                 ? new AnimationContinuation<CeresBabySegment>(CeresBabyAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
                 : null);
         baby.Playback = new AnimationPlayback<CeresBabySegment>(animation, place);
-        if (outcome is not AnimationShown<CeresBabySegment, CeresBabyPose>.Frame shown)
-            throw new InvalidOperationException($"The Ceres Baby's animation ended an update with {outcome}.");
-        baby.Clock.Show(shown.Duration);
-        baby.ShownPose = shown.Shown;
+        switch (outcome)
+        {
+            case AnimationShown<CeresBabySegment, CeresBabyPose>.Frame shown:
+                baby.Clock.Show(shown.Duration);
+                baby.ShownPose = shown.Shown;
+                return;
+            case AnimationShown<CeresBabySegment, CeresBabyPose>.HeldFrame held:
+                baby.ShownPose = held.Shown;
+                baby.Clock.ShowForGood();
+                return;
+            case AnimationShown<CeresBabySegment, CeresBabyPose>.Paused paused:
+                baby.Clock.Pause(paused.Duration);
+                return;
+            case AnimationShown<CeresBabySegment, CeresBabyPose>.Held:
+            case AnimationShown<CeresBabySegment, CeresBabyPose>.Ended:
+                // A rest or an end keeps the pose shown last; the animation takes no further step.
+                baby.Clock.Stop();
+                return;
+        }
     }
 
     /// <summary>The frame the Baby shows for <paramref name="pose"/>, or none before the Baby's first pose.</summary>

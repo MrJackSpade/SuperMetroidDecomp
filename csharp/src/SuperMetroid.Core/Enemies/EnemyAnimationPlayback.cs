@@ -233,14 +233,40 @@ internal static class EnemyAnimationPlayback
         AnimationPlace place = playback.Place;
         AnimationShown<TSegment, TFrame> shown = segments.PlayToNextFrame(ref animation, ref place, react);
         playback = new AnimationPlayback<TSegment>(animation, place);
-        switch (shown)
+        Show(enemy, shown, (Action<TFrame>)(picture => { enemy.Frame = frame(picture); }));
+    }
+
+    /// <summary>
+    /// Shows on <paramref name="enemy"/> what one step of its animation came to (#2553): a frame for its updates or for good
+    /// through <paramref name="frame"/>, a pause, a rest on the frame shown last, or the common end, which deletes the enemy.
+    /// </summary>
+    internal static void Show<TSegment, TFrame>(RoomEnemyPlace enemy, AnimationShown<TSegment, TFrame> shown, Func<TFrame, EnemyFrameId> frame)
+        where TSegment : struct
+        where TFrame : struct
+    {
+        Ensure.NotNull(enemy);
+        Ensure.NotNull(frame);
+        Show(enemy, shown, (Action<TFrame>)(picture => { enemy.Frame = frame(picture); }));
+    }
+
+    /// <summary>
+    /// Shows on <paramref name="enemy"/> what one step of its animation came to, its frames through
+    /// <paramref name="showFrame"/>, as the other overload does.
+    /// </summary>
+    internal static void Show<TSegment, TFrame>(RoomEnemyPlace enemy, AnimationShown<TSegment, TFrame> shown, Action<TFrame> showFrame)
+        where TSegment : struct
+        where TFrame : struct
+    {
+        Ensure.NotNull(enemy);
+        Ensure.NotNull(showFrame);
+        switch (Ensure.NotNull(shown))
         {
             case AnimationShown<TSegment, TFrame>.Frame shownFrame:
-                enemy.Frame = frame(shownFrame.Shown);
+                showFrame(shownFrame.Shown);
                 enemy.AnimationClock.Show(shownFrame.Duration);
                 return;
             case AnimationShown<TSegment, TFrame>.HeldFrame held:
-                enemy.Frame = frame(held.Shown);
+                showFrame(held.Shown);
                 enemy.AnimationClock.ShowForGood();
                 return;
             case AnimationShown<TSegment, TFrame>.Paused paused:
@@ -254,8 +280,6 @@ internal static class EnemyAnimationPlayback
                 enemy.Presence = enemy.Presence.With(EnemyPresence.Deleted);
                 enemy.AnimationClock.Stop();
                 return;
-            default:
-                throw new InvalidOperationException($"Enemy {enemy.DefinitionId}'s animation reached an undefined {shown}.");
         }
     }
 

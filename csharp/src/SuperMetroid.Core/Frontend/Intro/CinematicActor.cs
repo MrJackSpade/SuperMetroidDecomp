@@ -135,11 +135,13 @@ internal sealed class CinematicActor<TAnimation, TFrame, TCue> : ICinematicActor
                 // A held animation rests on its last frame for good: playing it on again would only hold again.
                 held = true;
                 return;
+            case AnimationShown<TAnimation, TFrame>.Paused paused:
+                // A pause holds the frame shown for its updates before the animation plays on.
+                frameHold.Restart(paused.Duration);
+                return;
             case AnimationShown<TAnimation, TFrame>.Ended:
                 Delete();
                 return;
-            default:
-                throw new InvalidOperationException($"A cinematic sprite animation ended an update with {shown}.");
         }
     }
 

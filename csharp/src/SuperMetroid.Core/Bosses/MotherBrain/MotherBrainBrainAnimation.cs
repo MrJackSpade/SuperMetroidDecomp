@@ -72,11 +72,16 @@ public sealed class MotherBrainBrainAnimation
                 ShownFrame = held.Shown;
                 Clock.ShowForGood();
                 return;
+            case AnimationShown<MotherBrainHeadSegment, EnemyFrameId>.Paused paused:
+                Clock.Pause(paused.Duration);
+                return;
             case AnimationShown<MotherBrainHeadSegment, EnemyFrameId>.Held:
                 Clock.Stop();
                 return;
-            default:
-                throw new InvalidOperationException($"Mother Brain's brain animations have no {shown} beat.");
+            case AnimationShown<MotherBrainHeadSegment, EnemyFrameId>.Ended:
+                // An ended animation takes no further step; her brain keeps the picture it showed last.
+                Clock.Stop();
+                return;
         }
     }
 }

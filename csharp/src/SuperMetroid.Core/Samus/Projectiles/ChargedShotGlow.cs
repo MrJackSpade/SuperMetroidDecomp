@@ -42,14 +42,11 @@ public sealed class ChargedShotGlow
     /// Plays the glow one update on and returns the shade the update shows anew: its next shade once the shade shown last
     /// has held its updates, or none while that shade holds and on the update the glow ends (<see cref="HasEnded"/>).
     /// </summary>
-    /// <exception cref="InvalidOperationException">The glow has ended, or its sequence comes to rest instead of ending.</exception>
+    /// <exception cref="InvalidOperationException">The glow has ended.</exception>
     internal PictureShade? PlayUpdate()
     {
         if (HasEnded)
             throw new InvalidOperationException($"The {Kind} glow has ended and plays no further.");
-        PictureShade? shown = Play.StepToNewFrame();
-        if (Play.IsResting && !Play.HasStopped)
-            throw new InvalidOperationException($"The {Kind} glow came to rest; a shot's glow shows shades and ends.");
-        return shown;
+        return Play.StepToNewFrame();
     }
 }

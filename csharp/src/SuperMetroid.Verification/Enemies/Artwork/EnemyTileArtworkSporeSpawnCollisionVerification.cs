@@ -23,9 +23,9 @@ internal static class EnemyTileArtworkSporeSpawnCollisionVerification
         var installed = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
 
         RoomEnemyPlace installedPlace = installed.Places.InUpdateOrder[0];
-        installedPlace.Bind(installedPlace.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
-        // The test-only cartridge walker supplies an independent reference.
-        installedPlace.Bind(EnemyDefinitionId.SporeSpawn, installedPlace.KeptDefinition);
+        // The test-only cartridge walker supplies an independent reference; the blank definition's own values are not what
+        // the walk compares.
+        installedPlace.Bind(EnemyDefinitionId.SporeSpawn, EnemyDefinitionFixtures.Blank);
         installedPlace.Position = installedPlace.Position.WithWhole(new(0x100, 0x100));
 
         var seenLists = new HashSet<ushort>();

@@ -32,7 +32,7 @@ public sealed class TourianStatuePalettes
     }
 
     /// <summary>The boss statues in the order the installed eye colours list their glows: Phantoon, Ridley, Draygon, Kraid.</summary>
-    public static IReadOnlyList<TourianStatue> EyeRowOrder { get; } =
+    private static IReadOnlyList<TourianStatue> EyeRowOrder { get; } =
         [TourianStatue.Phantoon, TourianStatue.Ridley, TourianStatue.Draygon, TourianStatue.Kraid];
 
     /// <summary>Gets eye colour 0–3 of <paramref name="statue"/>'s eye glow.</summary>

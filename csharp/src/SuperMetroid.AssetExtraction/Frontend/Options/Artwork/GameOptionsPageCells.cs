@@ -62,7 +62,7 @@ public static class GameOptionsPageCells
     /// selected palette when Japanese is active.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The language or the row is undefined.</exception>
-    public static GameOptionsLanguagePaletteRegion LanguagePaletteRegion(GameOptionsLabelLanguage language, GameOptionsLabelRow row)
+    private static GameOptionsLanguagePaletteRegion LanguagePaletteRegion(GameOptionsLabelLanguage language, GameOptionsLabelRow row)
     {
         int rowsBelowLabelTop = row switch
         {

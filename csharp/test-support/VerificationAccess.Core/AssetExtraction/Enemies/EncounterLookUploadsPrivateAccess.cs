@@ -23,4 +23,16 @@ internal static class EncounterLookUploadsPrivateAccess
         internal static global::System.Collections.Generic.IReadOnlyList<global::SuperMetroid.AssetExtraction.Enemies.EncounterArtworkUpload> Uploads(global::SuperMetroid.AssetExtraction.Enemies.ComposedEncounter encounter, int look, global::SuperMetroid.AssetExtraction.Artwork.IInstalledArtworkContent installed) =>
             global::SuperMetroid.AssetExtraction.Enemies.EncounterLookUploads.Uploads(encounter, global::SuperMetroid.AssetExtraction.Enemies.EncounterLookUploads.Looks(encounter)[look], installed);
     }
+
+    /// <summary>The private static members checks name.</summary>
+    extension(global::SuperMetroid.AssetExtraction.Enemies.EncounterLookUploads)
+    {
+        /// <summary>The private method <c>Looks</c>, invoked by name.</summary>
+        internal static global::System.Collections.Generic.IReadOnlyList<global::SuperMetroid.AssetExtraction.Enemies.ComposedLook> Looks(global::SuperMetroid.AssetExtraction.Enemies.ComposedEncounter encounter) =>
+            PrivateState.InvokeStatic<global::System.Collections.Generic.IReadOnlyList<global::SuperMetroid.AssetExtraction.Enemies.ComposedLook>>(typeof(global::SuperMetroid.AssetExtraction.Enemies.EncounterLookUploads), "Looks", [typeof(global::SuperMetroid.AssetExtraction.Enemies.ComposedEncounter)], new object?[] { encounter });
+
+        /// <summary>The private method <c>Uploads</c>, invoked by name.</summary>
+        internal static global::System.Collections.Generic.IReadOnlyList<global::SuperMetroid.AssetExtraction.Enemies.EncounterArtworkUpload> Uploads(global::SuperMetroid.AssetExtraction.Enemies.ComposedEncounter encounter, global::SuperMetroid.AssetExtraction.Enemies.ComposedLook look, global::SuperMetroid.AssetExtraction.Artwork.IInstalledArtworkContent installed) =>
+            PrivateState.InvokeStatic<global::System.Collections.Generic.IReadOnlyList<global::SuperMetroid.AssetExtraction.Enemies.EncounterArtworkUpload>>(typeof(global::SuperMetroid.AssetExtraction.Enemies.EncounterLookUploads), "Uploads", [typeof(global::SuperMetroid.AssetExtraction.Enemies.ComposedEncounter), typeof(global::SuperMetroid.AssetExtraction.Enemies.ComposedLook), typeof(global::SuperMetroid.AssetExtraction.Artwork.IInstalledArtworkContent)], new object?[] { encounter, look, installed });
+    }
 }

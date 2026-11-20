@@ -31,7 +31,7 @@ public sealed class CeresEscapeTileArtwork
     }
 
     /// <summary>Returns a slice of installed page <paramref name="page"/> only when the requested range fits wholly inside it.</summary>
-    /// <param name="page">The page: <see cref="CeresEscapeTileArtworkDefinitions.WarningText"/> or <see cref="CeresEscapeTileArtworkDefinitions.Doors"/>.</param>
+    /// <param name="page">The page: <see cref="CeresEscapeTileArtworkDefinitions.WarningText"/> or <c>Doors</c>.</param>
     /// <param name="offset">The first byte of the page requested.</param>
     /// <param name="byteCount">The bytes requested.</param>
     /// <param name="characters">The requested characters, or empty when the range is not inside a page.</param>

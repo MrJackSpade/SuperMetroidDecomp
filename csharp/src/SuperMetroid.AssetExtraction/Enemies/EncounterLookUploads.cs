@@ -171,7 +171,7 @@ internal static class EncounterLookUploads
 
     /// <summary><paramref name="encounter"/>'s looks in the order it shows them, its room's load first.</summary>
     /// <exception cref="InvalidDataException">The encounter is not one the import composes.</exception>
-    internal static IReadOnlyList<ComposedLook> Looks(ComposedEncounter encounter) => encounter switch
+    private static IReadOnlyList<ComposedLook> Looks(ComposedEncounter encounter) => encounter switch
     {
         ComposedEncounter.DraygonEvirs => [ComposedLook.Loaded(encounter), DraygonEvirsLook],
         ComposedEncounter.Gunship => [ComposedLook.Loaded(encounter), ComposedLook.Of(encounter, GunshipTakeoffDefinitions.TakeoffLook)],
@@ -205,7 +205,7 @@ internal static class EncounterLookUploads
     /// encounter's authored sequence of looks.
     /// </summary>
     /// <exception cref="InvalidDataException">The installed artwork lacks the look's characters, or the encounter has no such look.</exception>
-    internal static IReadOnlyList<EncounterArtworkUpload> Uploads(ComposedEncounter encounter, ComposedLook look, IInstalledArtworkContent installed)
+    private static IReadOnlyList<EncounterArtworkUpload> Uploads(ComposedEncounter encounter, ComposedLook look, IInstalledArtworkContent installed)
     {
         Ensure.NotNull(installed);
         int turn = IndexOf(encounter, look);

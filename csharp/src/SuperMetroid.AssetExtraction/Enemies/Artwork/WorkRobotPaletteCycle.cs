@@ -25,7 +25,7 @@ public sealed class WorkRobotPaletteCycle
 
     /// <summary>The colours the glow shows <paramref name="place"/> in: the record of every step showing it, which must agree.</summary>
     /// <exception cref="InvalidDataException">Two steps showing the place have different colours, or no step shows it.</exception>
-    internal IReadOnlyList<RgbColor> GlowColours(WorkRobotGlowPlace place)
+    private RgbColor[] GlowColours(WorkRobotGlowPlace place)
     {
         RgbColor[][] showing = [.. Enumerable.Range(0, WorkRobotGlowAnimations.Cycle.Count)
             .Where(step => WorkRobotGlowAnimations.Cycle[step] == place)

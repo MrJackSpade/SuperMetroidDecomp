@@ -249,7 +249,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
                 }
                 return;
             case GunshipPhase.WaitForEngines:
-                WaitForGunshipEngines(top, state);
+                WaitForGunshipEngines(state);
                 return;
             case GunshipPhase.FireUpEngines:
                 FireUpGunshipEngines(top, state, pieces, samus);
@@ -477,7 +477,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     /// Waits one update for the engines to fire up: on the wait's last update the gunship shows its takeoff look from this
     /// update's frame on, and the engines fire up.
     /// </summary>
-    internal void WaitForGunshipEngines(RoomEnemyPlace top, GunshipState state)
+    internal void WaitForGunshipEngines(GunshipState state)
     {
         if (!TickGunshipPhaseTimer(state))
             return;

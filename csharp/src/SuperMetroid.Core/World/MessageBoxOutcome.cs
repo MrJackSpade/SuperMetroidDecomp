@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.World;
@@ -15,7 +16,7 @@ internal abstract record MessageBoxOutcome
     }
 
     /// <summary>The gunship's save prompt waits for its answer: a YES saves at the gunship, and either answer lets Samus out.</summary>
-    /// <param name=\"Prompt\">The prompt the ship asked for, which its answer resumes.</param>
+    /// <param name="Prompt">The prompt the ship asked for, which its answer resumes.</param>
     internal sealed record GunshipSaveAnswer(GunshipSavePrompt Prompt) : MessageBoxOutcome;
 
     /// <summary>A save station waits for the save confirmation's answer.</summary>

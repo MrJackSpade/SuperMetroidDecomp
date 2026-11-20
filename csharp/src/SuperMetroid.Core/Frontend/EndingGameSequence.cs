@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend;
 
 /// <summary>The ending: the gunship leaves Zebes while the screen darkens, then Zebes's destruction, the results and the credits.</summary>
 /// <param name="session">The frontend session the sequence runs against.</param>
-internal sealed class EndingGameSequence(FrontendSession session) : IGameplayPhase, IFrontendPhase
+internal sealed class EndingGameSequence(FrontendSession session) : IGameplayPhase, IInputFreePhase
 {
     /// <inheritdoc/>
     public SuperMetroidGameState State => SuperMetroidGameState.Ending;
@@ -50,10 +50,6 @@ internal sealed class EndingGameSequence(FrontendSession session) : IGameplayPha
     /// <remarks>Samus leaves Zebes in the loaded room.</remarks>
     public void Step(ControllerButton controllerInput, LoadedGameplay live) => LeaveZebes(controllerInput, live);
 
-    /// <inheritdoc/>
-    /// <remarks>The credits run without gameplay.</remarks>
-    public void Step(ControllerButton controllerInput) => RunCredits();
-
     /// <summary>One update of the departing gunship's gameplay while the screen darkens, which starts the credits once black.</summary>
     private void LeaveZebes(ControllerButton controllerInput, LoadedGameplay live)
     {
@@ -88,8 +84,9 @@ internal sealed class EndingGameSequence(FrontendSession session) : IGameplayPha
         }
     }
 
-    /// <summary>One update of the credits, which records the completed game once they reach their final message.</summary>
-    private void RunCredits()
+    /// <inheritdoc/>
+    /// <remarks>The credits run without gameplay or input.</remarks>
+    public void Step()
     {
         EndingCreditsPhase previousEndingPhase = session.ActiveEndingCredits.Phase;
         session.ActiveEndingCredits.Step();

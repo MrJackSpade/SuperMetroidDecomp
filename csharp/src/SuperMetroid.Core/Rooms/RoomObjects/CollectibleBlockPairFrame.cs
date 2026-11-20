@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rooms.LevelData;
+
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>A block pair's frame under an item's own picture, with the terrain it writes (#2554).</summary>

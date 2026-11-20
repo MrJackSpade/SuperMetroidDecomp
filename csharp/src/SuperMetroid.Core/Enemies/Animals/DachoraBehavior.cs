@@ -356,7 +356,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Spaces the body's trail of echoes, each new echo taking the first free one (#2147).</summary>
-    private void UpdateDachoraEchoPositions(RoomEnemyPlace body, DachoraEnemyState state)
+    private static void UpdateDachoraEchoPositions(RoomEnemyPlace body, DachoraEnemyState state)
     {
         IReadOnlyList<DachoraEcho> echoes = state.Echoes;
         if (state.TrailTimer.IsRunning)

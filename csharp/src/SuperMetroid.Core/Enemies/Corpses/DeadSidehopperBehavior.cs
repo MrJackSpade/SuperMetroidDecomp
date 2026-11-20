@@ -45,7 +45,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     }
 
     /// <summary>Carries out the dead Sidehopper's animation cue.</summary>
-    private static DeadTourianSegment? ApplyDeadSidehopperCue(RoomEnemyPlace place, DeadSidehopperEnemyState state, DeadTourianCue cue)
+    private static DeadTourianSegment? ApplyDeadSidehopperCue(DeadSidehopperEnemyState state, DeadTourianCue cue)
     {
         switch (cue.Kind)
         {
@@ -403,7 +403,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
             return;
         AnimationPlayback<DeadTourianSegment> playback = state.Playback;
         EnemyAnimationPlayback.Play(place, DeadTourianAnimations.Segments, ref playback,
-            cue => ApplyDeadSidehopperCue(place, state, cue) is { } target
+            cue => ApplyDeadSidehopperCue(state, cue) is { } target
                 ? new AnimationContinuation<DeadTourianSegment>(DeadTourianAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
                 : null);
         state.Playback = playback;

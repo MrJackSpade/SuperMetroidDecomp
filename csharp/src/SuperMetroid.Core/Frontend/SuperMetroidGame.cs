@@ -194,6 +194,9 @@ public sealed class SuperMetroidGame
             case PhaseGameplay.Frontend when phase is IFrontendPhase frontend:
                 frontend.Step(controllerInput);
                 break;
+            case PhaseGameplay.Frontend when phase is IInputFreePhase inputFree:
+                inputFree.Step();
+                break;
             case PhaseGameplay.OfRuntime ofRuntime when phase is IRuntimePhase runtimePhase:
                 runtimePhase.Step(controllerInput, ofRuntime.Runtime);
                 break;
@@ -389,6 +392,7 @@ public sealed class SuperMetroidGame
                 break;
             case PhaseRandomStep.RuntimeOwned:
                 break;
+            case PhaseRandomStep.LiquidWaveAndStatueDescentThenAdvance:
             default:
                 throw new InvalidOperationException($"Undefined {nameof(PhaseRandomStep)} {phase.RandomStep} on {phase.Need}.");
         }

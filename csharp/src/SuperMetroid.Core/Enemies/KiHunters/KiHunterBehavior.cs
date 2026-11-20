@@ -570,7 +570,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         // Wings still in place freeze, flash and recover with their body; wings that are gone have nothing to keep in step.
-        if (!wingsInPlace)
+        if (wingsInPlace is null)
             return;
         wings.AiStates = body.AiStates;
         wings.Freeze.Restart(body.Freeze.UpdatesLeft);

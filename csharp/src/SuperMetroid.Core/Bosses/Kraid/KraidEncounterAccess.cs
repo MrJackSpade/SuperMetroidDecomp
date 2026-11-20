@@ -66,11 +66,14 @@ internal sealed class KraidEncounterAccess
     /// holding none.
     /// </summary>
     /// <exception cref="InvalidDataException">The place holds another kind of Kraid part.</exception>
-    internal static TPart? FoundKraidPart<TPart>(RoomEnemyPlace place) where TPart : KraidPartState =>
-        Ensure.NotNull(place).FoundEnemy is not KraidEntity found ? null : found.PartState switch
-        {
-            TPart part => part,
-            KraidPartState other => throw new InvalidDataException(
-                $"Kraid's part at enemy {place.Ordinal} is a {other.GetType().Name}, not the {typeof(TPart).Name} its neighbour reads."),
-        };
+    internal static TPart? FoundKraidPart<TPart>(RoomEnemyPlace place) where TPart : KraidPartState
+    {
+        if (Ensure.NotNull(place).FoundEnemy is not KraidEntity found)
+            return null;
+        if (found.PartState is TPart part)
+            return part;
+        KraidPartState other = found.PartState;
+        throw new InvalidDataException(
+            $"Kraid's part at enemy {place.Ordinal} is a {other.GetType().Name}, not the {typeof(TPart).Name} its neighbour reads.");
+    }
 }

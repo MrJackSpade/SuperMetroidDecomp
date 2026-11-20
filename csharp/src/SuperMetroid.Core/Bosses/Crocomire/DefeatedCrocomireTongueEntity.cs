@@ -3,7 +3,7 @@ using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>
-/// A defeated room's Crocomire tongue (#2554): the cartridge's tongue setup finds Crocomire defeated and deletes the tongue
+/// A defeated room's Crocomire tongue (#2554): the tongue's setup finds Crocomire defeated and deletes the tongue
 /// before setting anything up, so it has no state and no action of its own.
 /// </summary>
 /// <param name="place">The place the tongue occupies.</param>

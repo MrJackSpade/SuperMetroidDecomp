@@ -393,7 +393,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         place.Found switch
         {
             EnemyPlaceFinding.Enemy { Entity: ShaktoolEntity segment } => segment.State,
-            EnemyPlaceFinding.Cleared cleared => cleared.Record.ShaktoolSegment,
+            EnemyPlaceFinding.Killed killed => killed.Remains.ShaktoolSegment,
             _ => throw new InvalidDataException($"Enemy place {place.Ordinal} holds no Shaktool segment."),
         };
 

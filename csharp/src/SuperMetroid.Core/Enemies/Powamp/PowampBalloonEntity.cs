@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Enemies.Powamp;
 /// <summary>
 /// A Powamp's balloon (#2163), which shares the Powamp's definition and which its body, listed right after it, moves. It
 /// has no AI of its own and plays its inflate and sink animations. Every room places it intangible and nothing makes it
-/// tangible, so the cartridge's collision handling passes it by: no touch, shot or bomb reaches it, and it has none
+/// tangible, so the enemies' collision handling passes it by: no touch, shot or bomb reaches it, and it has none
 /// (#2554). It keeps the Power Bomb reaction its definition leaves to it.
 /// </summary>
 /// <param name="species">The Powamp species owner.</param>

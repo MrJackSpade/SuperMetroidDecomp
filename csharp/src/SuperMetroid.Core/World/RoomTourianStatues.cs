@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Areas.Tourian;
 
 namespace SuperMetroid.Core.World;

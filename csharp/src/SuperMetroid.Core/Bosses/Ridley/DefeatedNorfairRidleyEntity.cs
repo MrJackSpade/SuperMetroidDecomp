@@ -3,7 +3,7 @@ using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>
-/// A defeated room's Lower Norfair Ridley (#2554): the cartridge's setup finds him defeated and deletes him before any
+/// A defeated room's Lower Norfair Ridley (#2554): his setup finds him defeated and deletes him before any
 /// encounter, workspace or colour side effects, so he has no encounter and no action of his own.
 /// </summary>
 /// <param name="place">The place he occupies.</param>

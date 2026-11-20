@@ -22,9 +22,8 @@ namespace SuperMetroid.Core.Enemies;
 /// whenever an enemy reads a neighbour's species state: a flame on every update, after its parent's health test; Evir
 /// parts whenever they read their body's facing or animation and an Evir body whenever it reads its spit; a fingernail
 /// once per launch; a formation's leader on every update it waits, once per member; a destroyable shutter's reaction
-/// after a hit's damage; and a Shaktool segment whenever it reaches another segment of its chain. Evidence: the followers'
-/// routines, the Evir arms' and spit's routines, the fingernail launch, the formation leader, the destroyable shutter's
-/// shot reaction and the Shaktool chain's routines read the other enemy's values, or their own after the common shot
+/// after a hit's damage; and a Shaktool segment whenever it reaches another segment of its chain. Evidence: the followers' steps, the Evir arms' and spit's steps, the fingernail launch, the formation leader, the destroyable shutter's
+/// shot reaction and the Shaktool chain's steps read the other enemy's values, or their own after the common shot
 /// damage, without testing whether an enemy still occupies it; a deletion clears only the enemy's identity, while a
 /// kill empties all it leaves, which a respawned enemy's setup writes again, and which the Shaktool chain writes to.
 /// </remarks>

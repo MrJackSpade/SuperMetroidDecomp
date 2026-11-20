@@ -27,7 +27,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Carries out one cue of the platforms' animations: each publishes the horizontal direction main AI moves in.</summary>
-    private static void ApplyPlatformCue(RoomEnemyPlace place, PlatformEnemyState state, PlatformCue cue) =>
+    private static void ApplyPlatformCue(PlatformEnemyState state, PlatformCue cue) =>
         SetPlatformHorizontalMovementFromCue(state, cue.Movement);
 
     /// <summary>
@@ -278,7 +278,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
             static (PlatformEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {
-                ApplyPlatformCue(place, platformEnemyState, cue);
+                ApplyPlatformCue(platformEnemyState, cue);
                 return null;
             });
 

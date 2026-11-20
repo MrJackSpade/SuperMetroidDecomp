@@ -42,6 +42,16 @@ internal interface IFrontendPhase : IGamePhase
     void Step(ControllerButton controllerInput);
 }
 
+/// <summary>A sequence whose steps run without gameplay and read no controller input (#2554): the credits.</summary>
+internal interface IInputFreePhase : IGamePhase
+{
+    /// <inheritdoc/>
+    PhaseGameplayNeed IGamePhase.Need => PhaseGameplayNeed.Nothing;
+
+    /// <summary>Runs one update of the sequence.</summary>
+    void Step();
+}
+
 /// <summary>A sequence whose steps run on the session's gameplay runtime, before or after its room.</summary>
 internal interface IRuntimePhase : IGamePhase
 {

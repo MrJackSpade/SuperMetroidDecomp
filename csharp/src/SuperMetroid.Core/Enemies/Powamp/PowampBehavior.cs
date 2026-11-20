@@ -355,7 +355,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Copies common shot/freeze presentation from the body to its balloon.</summary>
-    private void ResolvePowampShotAfterCommon(RoomEnemyPlace body, PowampBodyState state)
+    private static void ResolvePowampShotAfterCommon(RoomEnemyPlace body, PowampBodyState state)
     {
         PowampBalloon balloon = state.Balloon;
         if ((body.AiStates & EnemyAiStates.Frozen) != EnemyAiStates.None)
@@ -376,7 +376,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the paired state propagation after a power bomb hits a Powamp.</summary>
-    private void ResolvePowampPowerBombAfterCommon(RoomEnemyPlace body, PowampBodyState state)
+    private static void ResolvePowampPowerBombAfterCommon(RoomEnemyPlace body, PowampBodyState state)
     {
         PowampBalloon balloon = state.Balloon;
         if (body.Health == 0)

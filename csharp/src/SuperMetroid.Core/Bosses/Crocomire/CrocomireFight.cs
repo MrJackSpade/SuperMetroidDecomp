@@ -103,7 +103,7 @@ internal sealed class CrocomireFight
     /// <summary>Whether Crocomire is already defeated, so his room's tongue is deleted before any setup.</summary>
     internal bool TongueIsDeletedAtOnce => _room.Services.Bosses.IsDefeated(DefeatedBosses.AreaMiniBoss);
 
-    /// <summary>Deletes a defeated room's tongue as it is placed, before any setup, as the cartridge does (#2400, #2554).</summary>
+    /// <summary>Deletes a defeated room's tongue as it is placed, before any setup: a defeated Crocomire's tongue never sets up (#2400, #2554).</summary>
     /// <param name="place">The tongue's place.</param>
     internal static void DeleteDefeatedTongue(RoomEnemyPlace place)
     {

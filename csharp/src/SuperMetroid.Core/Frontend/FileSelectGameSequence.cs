@@ -252,7 +252,7 @@ internal sealed class FileSelectGameSequence(FrontendSession session) : IFronten
         // Unlike an ongoing escape, a file-select resume has a fresh gameplay
         // owner. Construct its ordinary HUD now so the cinematic's later room
         // handoff retains initialized HUD state and standard graphics.
-        session.InitializeSelectedGameHud(slot, created);
+        FrontendSession.InitializeSelectedGameHud(slot, created);
         created.FrameBoundary.PublishWhileLoading();
         session.ApplySelectedGameOptions(created);
         session.BeginCeresDestruction(CeresDestructionOutcome.SamusEscaped, created);

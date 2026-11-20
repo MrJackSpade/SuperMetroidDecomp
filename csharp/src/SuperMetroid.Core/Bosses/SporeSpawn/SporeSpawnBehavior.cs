@@ -535,8 +535,8 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <exception cref="InvalidOperationException">No projectile place is free: he spawns his stalk into his room's empty places.</exception>
     internal EnemyProjectile SpawnSporeSpawnStalk(RoomEnemyPlace body, Offset16<RoomPixels> segment)
     {
-        EnemyProjectile stalk = _projectiles.AllocateEnemyProjectile() ?? throw new InvalidOperationException(
-            "Spore Spawn's stalk found no free projectile place; he spawns it as his room loads, into its empty places.");
+        // He spawns his stalk as his room loads, into its empty places.
+        EnemyProjectile stalk = _projectiles.AllocateEnemyProjectileWithRoom("Spore Spawn's stalk");
 
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             stalk,

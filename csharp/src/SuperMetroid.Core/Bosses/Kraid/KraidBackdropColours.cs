@@ -75,9 +75,11 @@ internal sealed class KraidBackdropColours : IGameplayShadingSource
         {
             case KraidBackdropShown.Settled { Colours: KraidBackdropSettledColours.RoomColours }:
                 return;
-            case KraidBackdropShown.Settled settled:
-                frame.Shade(GameplayPictures.Room, ShadeOf(settled.Colours)
-                    ?? throw new InvalidOperationException($"Kraid's backdrop colours {settled.Colours} have no shade."));
+            case KraidBackdropShown.Settled { Colours: KraidBackdropSettledColours.KraidColours }:
+                frame.Shade(GameplayPictures.Room, KraidShades.Backdrop);
+                return;
+            case KraidBackdropShown.Settled { Colours: KraidBackdropSettledColours.Black }:
+                frame.Shade(GameplayPictures.Room, KraidShades.BackdropBlack);
                 return;
             case KraidBackdropShown.Fading fading:
                 frame.Shade(GameplayPictures.Room, FadeOf(fading));

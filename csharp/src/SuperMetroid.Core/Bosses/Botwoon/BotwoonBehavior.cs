@@ -820,12 +820,8 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     /// <returns>The segment, alive and inside the wall.</returns>
     internal BotwoonSegmentState SpawnBotwoonBodySegment(RoomEnemyPlace head, int segmentIndex)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
-        if (projectile is null)
-        {
-            throw new InvalidOperationException(
-                "Botwoon requires thirteen free enemy-projectile places during room load.");
-        }
+        // Botwoon's room load spawns his thirteen segments into the pool it has just cleared.
+        EnemyProjectile projectile = _projectiles.AllocateEnemyProjectileWithRoom("Botwoon's body segment");
 
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,

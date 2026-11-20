@@ -48,8 +48,7 @@ public sealed class MorphBallEyeBeamState
         // A live beam always has an eye with its state; losing either is a corrupt enemy population.
         RoomEnemyPlace body = Body
             ?? throw new InvalidDataException($"Active Morph Ball eye beam in phase {Phase} has no eye body.");
-        MorphBallEyeEnemyState eye = body.SpeciesState<MorphBallEyeEnemyState>()
-            ?? throw new InvalidDataException($"Active Morph Ball eye beam's body in enemy place {body.Ordinal} has no eye state.");
+        MorphBallEyeEnemyState eye = body.RequireSpeciesState<MorphBallEyeEnemyState>();
         return new MorphBallEyeBeamCone(Phase, body.Position.Whole, eye.Angle, AngularWidth, Color);
     }
 

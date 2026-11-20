@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Artwork;
@@ -322,15 +323,33 @@ internal sealed class EnemyProjectileEngine
     /// previous projectile left there (<see cref="EnemyProjectilePlaceLeftovers"/>), or returns null when every place is held.
     /// The new projectile is gone until its spawner gives it a kind.
     /// </summary>
-    internal EnemyProjectile? AllocateEnemyProjectile()
+    internal EnemyProjectile? AllocateEnemyProjectile() =>
+        TryAllocateEnemyProjectile(out EnemyProjectile? projectile) ? projectile : null;
+
+    /// <summary>
+    /// Spawns a fresh projectile as <see cref="AllocateEnemyProjectile"/> does, for a spawn whose room always leaves it a
+    /// place (#2554): one its load spawns into the pool the load has just cleared, which holds every place it needs.
+    /// </summary>
+    /// <param name="spawn">The spawn, named in the failure.</param>
+    /// <exception cref="InvalidOperationException">Every place is held, which the spawn's room never leaves it.</exception>
+    internal EnemyProjectile AllocateEnemyProjectileWithRoom(string spawn) =>
+        TryAllocateEnemyProjectile(out EnemyProjectile? projectile) ? projectile
+            : throw new InvalidOperationException($"{spawn} found every enemy-projectile place held.");
+
+    /// <summary>Spawns a fresh projectile into the first free place searched from the last down; false when every place is held.</summary>
+    private bool TryAllocateEnemyProjectile([NotNullWhen(true)] out EnemyProjectile? projectile)
     {
         for (int place = _places.Length - 1; place >= 0; place--)
         {
             EnemyProjectile? previous = _places[place];
             if (previous is not { IsActive: true })
-                return _places[place] = new EnemyProjectile(place, _leftovers.StartOf(place, previous?.LeftInPlace));
+            {
+                projectile = _places[place] = new EnemyProjectile(place, _leftovers.StartOf(place, previous?.LeftInPlace));
+                return true;
+            }
         }
-        return null;
+        projectile = null;
+        return false;
     }
 
     /// <summary>

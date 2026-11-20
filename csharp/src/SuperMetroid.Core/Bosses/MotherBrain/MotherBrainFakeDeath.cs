@@ -105,8 +105,7 @@ internal sealed class MotherBrainFakeDeath
     /// <exception cref="InvalidOperationException">Her fake death has not started the collapse.</exception>
     internal void RunMotherBrainTubeCollapse(MotherBrainEnemyState state)
     {
-        MotherBrainTubeCollapseProgress progress = state.TubeCollapse ??
-            throw new InvalidOperationException("Mother Brain's tube collapse ran before her fake death started it.");
+        MotherBrainTubeCollapseProgress progress = state.TubeCollapse;
         if (progress.Tube is not { } tube)
             return;
 

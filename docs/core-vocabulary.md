@@ -999,6 +999,20 @@ returns null on every path returns nothing (a cue handler whose cues never start
 report, which another caller may leave unread; the `Ensure` guards return the value they checked, and a method a
 delegate refers to, an override and an interface implementation keep their contract's shape.
 
+SME6481 (#2553) keeps Core from checking a state its types and data rule out. Outside an `[EncodingOwner]` type Core
+calls no `Enum.IsDefined` on an enum value: SME6450 leaves no way to make a value that names no member outside the
+codecs, and the codecs only yield members. No lookup that can miss (`TryGetValue`, `ContainsKey`, `GetValueOrDefault`,
+`Ensure.Listed`) reads a field or property whose initializer is a dictionary naming every member of its enum key; a
+catalog with a value for every member is an `IdentityTable<TIdentity, TValue>`, which checks once when it is built that
+every member has its value and is read by member with no guard (`SamusPoseDefinitions.Poses[pose]`,
+`KraidMouthHitboxDefinitions.Rectangles[shape]`). No downcast whose failure throws (`x is T t ? t : throw`,
+`if (x is not T t) throw`, `x as T ?? throw`) narrows a closed hierarchy, one whose every constructor is private or
+private protected: the value is typed as the case the code needs, or the hierarchy answers the question itself. The rest
+of the shape is the same decision without a detector: an animation that raises no event plays through the silent
+playback (`EnemyAnimationPlayback.AdvanceSilently`, `PlaySilently`) with no cue handler; a switch whose every member has
+an arm has no throwing default, and a switch expression whose arms are data reads an `IdentityTable`. A guard on input
+from outside the program, an installed file, a save or the controller, is not impossible and stays.
+
 `Tilemap` is matched as the one word the cartridge's sources spell. A room layer named as the destination engine names
 it, `TileMap` or `TileMapLayer`, is the two words `Tile` and `Map` and stays the game's own, as does `MapTiles`; so does
 `SpriteSheet` beside `Spritemap`, and `Scan`, `Scanned` or `FirstLine` beside `Scanline` (#1694). Documentation prose is

@@ -35,40 +35,10 @@ internal static class DraygonAnimations
             Cue(new DraygonCue.TrackWithEye(HorizontalDirection.Right)),
             Show(F.DraygonBodyFacingRightJawShut, 1),
         ],
-        [P.ArmsFacingLeftIdle] =
-        [
-            Show(F.DraygonArmsFacingLeftForward, 5),
-            Show(F.DraygonArmsFacingLeftLowering, 5),
-            Show(F.DraygonArmsFacingLeftDown, 5),
-            Show(F.DraygonArmsFacingLeftDownStretched, 5),
-            Show(F.DraygonArmsFacingLeftRaising, 5),
-            Show(F.DraygonArmsFacingLeftReaching, 5),
-        ],
-        [P.ArmsFacingLeftNearSwoopApex] =
-        [
-            Show(F.DraygonArmsFacingLeftSpreadWide, 1),
-            Show(F.DraygonArmsFacingLeftClosing, 1),
-            Show(F.DraygonArmsFacingLeftGathering, 1),
-            Show(F.DraygonArmsFacingLeftTucked, 64),
-        ],
-        [P.ArmsFacingLeftGrab] =
-        [
-            Show(F.DraygonArmsFacingLeftSpreadWide, 1),
-            Show(F.DraygonArmsFacingLeftClosing, 1),
-            Show(F.DraygonArmsFacingLeftGathering, 1),
-            Show(F.DraygonArmsFacingLeftTucked, 8),
-            Show(F.DraygonArmsFacingLeftGathering, 1),
-            Show(F.DraygonArmsFacingLeftClosing, 1),
-            Show(F.DraygonArmsFacingLeftSpreadWide, 1),
-            Show(F.DraygonArmsFacingLeftClosing, 1),
-        ],
-        [P.BodyFacingLeftDying] =
-        [
-            Show(F.DraygonLimpArmFacingLeftClawRaised, 5),
-            Show(F.DraygonLimpArmFacingLeftClawDropping, 5),
-            Show(F.DraygonLimpArmFacingLeftClawDropped, 5),
-            Show(F.DraygonLimpArmFacingLeftClawCurled, 5),
-        ],
+        [P.ArmsFacingLeftIdle] = ArmsIdle(DraygonFacingPoses.Left),
+        [P.ArmsFacingLeftNearSwoopApex] = ArmsNearSwoopApex(DraygonFacingPoses.Left),
+        [P.ArmsFacingLeftGrab] = ArmsGrab(DraygonFacingPoses.Left),
+        [P.BodyFacingLeftDying] = BodyDying(DraygonFacingPoses.Left),
         [P.BodyFacingLeftIdle] =
         [
             Cue(new DraygonCue.TrackWithEye(HorizontalDirection.Left)),
@@ -79,88 +49,22 @@ internal static class DraygonAnimations
             Cue(new DraygonCue.QueueSound(DraygonSoundDefinitions.DyingCry)),
             Cue(DraygonCue.SetBodyIntangible.Instance),
         ],
-        [P.BodyDyingExplosions] =
-        [
-            Wait(12),
-            Cue(new DraygonCue.SpawnDyingEffect(RoomEffectActorKind.BigExplosion)),
-            Cue(new DraygonCue.SpawnDyingEffect(RoomEffectActorKind.SmallExplosion)),
-            Cue(new DraygonCue.SpawnDyingEffect(RoomEffectActorKind.BigDustCloud)),
-            Cue(new DraygonCue.SpawnDyingEffect(RoomEffectActorKind.DraygonBreathBubbles)),
-            Cue(new DraygonCue.QueueSound(DraygonSoundDefinitions.Explosion)),
-        ],
+        [P.BodyDyingExplosions] = DyingExplosions(12),
         [P.BodyDyingParalysis] =
         [
             Wait(1),
             Cue(DraygonCue.ParalyseTailAndArms.Instance),
         ],
-        [P.BodyDyingExplosionLoop] =
-        [
-            Wait(16),
-            Cue(new DraygonCue.SpawnDyingEffect(RoomEffectActorKind.BigExplosion)),
-            Cue(new DraygonCue.SpawnDyingEffect(RoomEffectActorKind.SmallExplosion)),
-            Cue(new DraygonCue.SpawnDyingEffect(RoomEffectActorKind.BigDustCloud)),
-            Cue(new DraygonCue.SpawnDyingEffect(RoomEffectActorKind.DraygonBreathBubbles)),
-            Cue(new DraygonCue.QueueSound(DraygonSoundDefinitions.Explosion)),
-        ],
+        [P.BodyDyingExplosionLoop] = DyingExplosions(16),
         [P.Delete] =
         [
         ],
-        [P.BodyFacingLeftFireGoop] =
-        [
-            Show(F.DraygonBodyFacingLeftJawShut, 1),
-            Show(F.DraygonBodyFacingLeftJawParting, 2),
-            Show(F.DraygonBodyFacingLeftJawOpen, 3),
-            Cue(new DraygonCue.SpawnGoop(HorizontalDirection.Left)),
-            Cue(new DraygonCue.QueueSound(DraygonSoundDefinitions.GoopSpit)),
-            Show(F.DraygonBodyFacingLeftJawWide, 3),
-            Show(F.DraygonBodyFacingLeftJawOpen, 2),
-            Show(F.DraygonBodyFacingLeftJawParting, 2),
-            Show(F.DraygonBodyFacingLeftJawShut, 1),
-        ],
-        [P.BodyFacingLeftRoar] =
-        [
-            Cue(new DraygonCue.QueueSound(DraygonSoundDefinitions.Roar)),
-            Show(F.DraygonBodyFacingLeftJawShut, 6),
-            Show(F.DraygonBodyFacingLeftJawParting, 6),
-            Show(F.DraygonBodyFacingLeftJawOpen, 6),
-            Show(F.DraygonBodyFacingLeftJawWide, 6),
-            Show(F.DraygonBodyFacingLeftJawOpen, 6),
-            Show(F.DraygonBodyFacingLeftJawParting, 6),
-            Show(F.DraygonBodyFacingLeftJawShut, 6),
-        ],
-        [P.EyeFacingLeftIdle] =
-        [
-            Show(F.DraygonEyeFacingLeftShut, 21),
-            Show(F.DraygonEyeFacingLeftOpening, 5),
-            Show(F.DraygonEyeFacingLeftHalfOpen, 5),
-            Show(F.DraygonEyeFacingLeftOpening, 10),
-            Show(F.DraygonEyeFacingLeftOpen, 20),
-            Show(F.DraygonEyeFacingLeftNarrowing, 20),
-            Show(F.DraygonEyeFacingLeftClosing, 10),
-            Show(F.DraygonEyeFacingLeftHalfOpen, 5),
-            Show(F.DraygonEyeFacingLeftOpening, 5),
-            Show(F.DraygonEyeFacingLeftShut, 5),
-            Cue(new DraygonCue.TrackWithEye(HorizontalDirection.Left)),
-        ],
-        [P.EyeFacingLeftDying] =
-        [
-            Show(F.DraygonEyeFacingLeftOpen, 4),
-            Show(F.DraygonEyeFacingLeftNarrowing, 4),
-            Show(F.DraygonEyeFacingLeftBloodshot, 4),
-            Show(F.DraygonEyeFacingLeftClosing, 4),
-        ],
-        [P.EyeFacingLeftDyingStare] =
-        [
-            Show(F.DraygonEyeFacingLeftWide, 32),
-            Show(F.DraygonEyeFacingLeftHalfOpen, 16),
-        ],
-        [P.EyeFacingLeftDead] =
-        [
-            Show(F.DraygonEyeFacingLeftWide, 32),
-            Show(F.DraygonEyeFacingLeftHalfOpen, 32),
-            Show(F.DraygonEyeFacingLeftOpening, 32),
-            Show(F.DraygonEyeFacingLeftShut, 1),
-        ],
+        [P.BodyFacingLeftFireGoop] = BodyFireGoop(DraygonFacingPoses.Left),
+        [P.BodyFacingLeftRoar] = BodyRoar(DraygonFacingPoses.Left),
+        [P.EyeFacingLeftIdle] = EyeIdle(DraygonFacingPoses.Left),
+        [P.EyeFacingLeftDying] = EyeDying(DraygonFacingPoses.Left),
+        [P.EyeFacingLeftDyingStare] = EyeDyingStare(DraygonFacingPoses.Left),
+        [P.EyeFacingLeftDead] = EyeDead(DraygonFacingPoses.Left),
         [P.EyeFacingLeftLookingLeft] =
         [
             Show(F.DraygonEyeFacingLeftOpen, 1),
@@ -177,21 +81,7 @@ internal static class DraygonAnimations
         [
             Show(F.DraygonEyeFacingLeftClosing, 1),
         ],
-        [P.TailFacingLeftIdle] =
-        [
-            Show(F.DraygonTailFacingLeftTipCurledIn, 8),
-            Show(F.DraygonTailFacingLeftTipSwingingOut, 7),
-            Show(F.DraygonTailFacingLeftTipOut, 6),
-            Show(F.DraygonTailFacingLeftTipFurtherOut, 6),
-            Show(F.DraygonTailFacingLeftTipFarthestOut, 6),
-            Show(F.DraygonTailFacingLeftTipReturning, 6),
-            Show(F.DraygonTailFacingLeftTipBack, 6),
-            Show(F.DraygonTailFacingLeftTipReturning, 6),
-            Show(F.DraygonTailFacingLeftTipFarthestOut, 6),
-            Show(F.DraygonTailFacingLeftTipFurtherOut, 6),
-            Show(F.DraygonTailFacingLeftTipOut, 6),
-            Show(F.DraygonTailFacingLeftTipSwingingOut, 7),
-        ],
+        [P.TailFacingLeftIdle] = TailIdle(DraygonTailPoses.Left),
         [P.TailFacingLeftInitialFakeWhip] =
         [
             .. ShiftingLash(DraygonTailPoses.Left, FakeWhipTipOutUpdates),
@@ -214,101 +104,21 @@ internal static class DraygonAnimations
             Cue(new DraygonCue.QueueSound(DraygonSoundDefinitions.Explosion)),
             .. Recoil(DraygonTailPoses.Left, LashRecoilUpdates),
         ],
-        [P.ArmsFacingRightIdle] =
-        [
-            Show(F.DraygonArmsFacingRightForward, 5),
-            Show(F.DraygonArmsFacingRightLowering, 5),
-            Show(F.DraygonArmsFacingRightDown, 5),
-            Show(F.DraygonArmsFacingRightDownStretched, 5),
-            Show(F.DraygonArmsFacingRightRaising, 5),
-            Show(F.DraygonArmsFacingRightReaching, 5),
-        ],
-        [P.ArmsFacingRightNearSwoopApex] =
-        [
-            Show(F.DraygonArmsFacingRightSpreadWide, 1),
-            Show(F.DraygonArmsFacingRightClosing, 1),
-            Show(F.DraygonArmsFacingRightGathering, 1),
-            Show(F.DraygonArmsFacingRightTucked, 64),
-        ],
-        [P.ArmsFacingRightGrab] =
-        [
-            Show(F.DraygonArmsFacingRightSpreadWide, 1),
-            Show(F.DraygonArmsFacingRightClosing, 1),
-            Show(F.DraygonArmsFacingRightGathering, 1),
-            Show(F.DraygonArmsFacingRightTucked, 8),
-            Show(F.DraygonArmsFacingRightGathering, 1),
-            Show(F.DraygonArmsFacingRightClosing, 1),
-            Show(F.DraygonArmsFacingRightSpreadWide, 1),
-            Show(F.DraygonArmsFacingRightClosing, 1),
-        ],
-        [P.BodyFacingRightDying] =
-        [
-            Show(F.DraygonLimpArmFacingRightClawRaised, 5),
-            Show(F.DraygonLimpArmFacingRightClawDropping, 5),
-            Show(F.DraygonLimpArmFacingRightClawDropped, 5),
-            Show(F.DraygonLimpArmFacingRightClawCurled, 5),
-        ],
+        [P.ArmsFacingRightIdle] = ArmsIdle(DraygonFacingPoses.Right),
+        [P.ArmsFacingRightNearSwoopApex] = ArmsNearSwoopApex(DraygonFacingPoses.Right),
+        [P.ArmsFacingRightGrab] = ArmsGrab(DraygonFacingPoses.Right),
+        [P.BodyFacingRightDying] = BodyDying(DraygonFacingPoses.Right),
         [P.BodyFacingRightIdle] =
         [
             Cue(new DraygonCue.TrackWithEye(HorizontalDirection.Right)),
             Show(F.DraygonBodyFacingRightJawShut, 1),
         ],
-        [P.BodyFacingRightFireGoop] =
-        [
-            Show(F.DraygonBodyFacingRightJawShut, 1),
-            Show(F.DraygonBodyFacingRightJawParting, 2),
-            Show(F.DraygonBodyFacingRightJawOpen, 3),
-            Cue(new DraygonCue.SpawnGoop(HorizontalDirection.Right)),
-            Cue(new DraygonCue.QueueSound(DraygonSoundDefinitions.GoopSpit)),
-            Show(F.DraygonBodyFacingRightJawWide, 3),
-            Show(F.DraygonBodyFacingRightJawOpen, 2),
-            Show(F.DraygonBodyFacingRightJawParting, 2),
-            Show(F.DraygonBodyFacingRightJawShut, 1),
-        ],
-        [P.BodyFacingRightRoar] =
-        [
-            Cue(new DraygonCue.QueueSound(DraygonSoundDefinitions.Roar)),
-            Show(F.DraygonBodyFacingRightJawShut, 6),
-            Show(F.DraygonBodyFacingRightJawParting, 6),
-            Show(F.DraygonBodyFacingRightJawOpen, 6),
-            Show(F.DraygonBodyFacingRightJawWide, 6),
-            Show(F.DraygonBodyFacingRightJawOpen, 6),
-            Show(F.DraygonBodyFacingRightJawParting, 6),
-            Show(F.DraygonBodyFacingRightJawShut, 6),
-        ],
-        [P.EyeFacingRightIdle] =
-        [
-            Show(F.DraygonEyeFacingRightShut, 21),
-            Show(F.DraygonEyeFacingRightOpening, 5),
-            Show(F.DraygonEyeFacingRightHalfOpen, 5),
-            Show(F.DraygonEyeFacingRightOpening, 10),
-            Show(F.DraygonEyeFacingRightOpen, 20),
-            Show(F.DraygonEyeFacingRightNarrowing, 20),
-            Show(F.DraygonEyeFacingRightClosing, 10),
-            Show(F.DraygonEyeFacingRightHalfOpen, 5),
-            Show(F.DraygonEyeFacingRightOpening, 5),
-            Show(F.DraygonEyeFacingRightShut, 5),
-            Cue(new DraygonCue.TrackWithEye(HorizontalDirection.Left)),
-        ],
-        [P.EyeFacingRightDying] =
-        [
-            Show(F.DraygonEyeFacingRightOpen, 4),
-            Show(F.DraygonEyeFacingRightNarrowing, 4),
-            Show(F.DraygonEyeFacingRightBloodshot, 4),
-            Show(F.DraygonEyeFacingRightClosing, 4),
-        ],
-        [P.EyeFacingRightDyingStare] =
-        [
-            Show(F.DraygonEyeFacingRightWide, 32),
-            Show(F.DraygonEyeFacingRightHalfOpen, 16),
-        ],
-        [P.EyeFacingRightDead] =
-        [
-            Show(F.DraygonEyeFacingRightWide, 32),
-            Show(F.DraygonEyeFacingRightHalfOpen, 32),
-            Show(F.DraygonEyeFacingRightOpening, 32),
-            Show(F.DraygonEyeFacingRightShut, 1),
-        ],
+        [P.BodyFacingRightFireGoop] = BodyFireGoop(DraygonFacingPoses.Right),
+        [P.BodyFacingRightRoar] = BodyRoar(DraygonFacingPoses.Right),
+        [P.EyeFacingRightIdle] = EyeIdle(DraygonFacingPoses.Right),
+        [P.EyeFacingRightDying] = EyeDying(DraygonFacingPoses.Right),
+        [P.EyeFacingRightDyingStare] = EyeDyingStare(DraygonFacingPoses.Right),
+        [P.EyeFacingRightDead] = EyeDead(DraygonFacingPoses.Right),
         [P.EyeFacingRightLookingRight] =
         [
             Show(F.DraygonEyeFacingRightOpen, 1),
@@ -325,21 +135,7 @@ internal static class DraygonAnimations
         [
             Show(F.DraygonEyeFacingRightClosing, 1),
         ],
-        [P.TailFacingRightIdle] =
-        [
-            Show(F.DraygonTailFacingRightTipCurledIn, 8),
-            Show(F.DraygonTailFacingRightTipSwingingOut, 7),
-            Show(F.DraygonTailFacingRightTipOut, 6),
-            Show(F.DraygonTailFacingRightTipFurtherOut, 6),
-            Show(F.DraygonTailFacingRightTipFarthestOut, 6),
-            Show(F.DraygonTailFacingRightTipReturning, 6),
-            Show(F.DraygonTailFacingRightTipBack, 6),
-            Show(F.DraygonTailFacingRightTipReturning, 6),
-            Show(F.DraygonTailFacingRightTipFarthestOut, 6),
-            Show(F.DraygonTailFacingRightTipFurtherOut, 6),
-            Show(F.DraygonTailFacingRightTipOut, 6),
-            Show(F.DraygonTailFacingRightTipSwingingOut, 7),
-        ],
+        [P.TailFacingRightIdle] = TailIdle(DraygonTailPoses.Right),
         [P.TailFacingRightReleaseSamus] =
         [
             Cue(new DraygonCue.SetBodyPhase(DraygonPhase.ReleaseSamus)),
@@ -401,6 +197,22 @@ internal static class DraygonAnimations
         [P.TailFacingRightIdle] = Animation<DraygonSegment>.Looping([Segments.Whole(P.TailFacingRightIdle)]),
         [P.TailFacingRightWhip] = Animation<DraygonSegment>.LeadingInto([Segments.Whole(P.TailFacingRightWhip)], [Segments.Whole(P.TailFacingRightIdle)]),
         [P.TailFacingRightFlail] = Animation<DraygonSegment>.LeadingInto([Segments.Whole(P.TailFacingRightFlail)], [Segments.Whole(P.TailFacingRightIdle)]),
+    };
+
+    /// <summary>
+    /// The look his eye takes facing each way toward each straight direction Samus lies nearest (#2557): up, right, down or
+    /// left, each facing's own.
+    /// </summary>
+    internal static IReadOnlyDictionary<DraygonEyeLook, DraygonSegment> EyeLooks { get; } = new Dictionary<DraygonEyeLook, DraygonSegment>
+    {
+        [new(HorizontalDirection.Left, CompassDirection.Up)] = P.EyeFacingLeftLookingUp,
+        [new(HorizontalDirection.Left, CompassDirection.Right)] = P.EyeFacingLeftLookingRight,
+        [new(HorizontalDirection.Left, CompassDirection.Down)] = P.EyeFacingLeftLookingDown,
+        [new(HorizontalDirection.Left, CompassDirection.Left)] = P.EyeFacingLeftLookingLeft,
+        [new(HorizontalDirection.Right, CompassDirection.Up)] = P.EyeFacingRightLookingUp,
+        [new(HorizontalDirection.Right, CompassDirection.Right)] = P.EyeFacingRightLookingRight,
+        [new(HorizontalDirection.Right, CompassDirection.Down)] = P.EyeFacingRightLookingDown,
+        [new(HorizontalDirection.Right, CompassDirection.Left)] = P.EyeFacingRightLookingLeft,
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
@@ -492,6 +304,150 @@ internal static class DraygonAnimations
     /// </summary>
     private static Offset16<RoomPixels> BackFrom(HorizontalDirection facing, int pixels) =>
         DraygonParts.TowardFacing(new(-pixels, pixels), facing);
+
+    /// <summary>His arms' idle sway over a facing's poses (#2557).</summary>
+    private static AnimationBeat<EnemyFrameId, DraygonCue>[] ArmsIdle(DraygonFacingPoses poses) =>
+    [
+        Show(poses.ArmsForward, 5),
+        Show(poses.ArmsLowering, 5),
+        Show(poses.ArmsDown, 5),
+        Show(poses.ArmsDownStretched, 5),
+        Show(poses.ArmsRaising, 5),
+        Show(poses.ArmsReaching, 5),
+    ];
+
+    /// <summary>His arms closing and tucking near the top of a swoop, over a facing's poses (#2557).</summary>
+    private static AnimationBeat<EnemyFrameId, DraygonCue>[] ArmsNearSwoopApex(DraygonFacingPoses poses) =>
+    [
+        Show(poses.ArmsSpreadWide, 1),
+        Show(poses.ArmsClosing, 1),
+        Show(poses.ArmsGathering, 1),
+        Show(poses.ArmsTucked, 64),
+    ];
+
+    /// <summary>His arms' grab, over a facing's poses (#2557).</summary>
+    private static AnimationBeat<EnemyFrameId, DraygonCue>[] ArmsGrab(DraygonFacingPoses poses) =>
+    [
+        Show(poses.ArmsSpreadWide, 1),
+        Show(poses.ArmsClosing, 1),
+        Show(poses.ArmsGathering, 1),
+        Show(poses.ArmsTucked, 8),
+        Show(poses.ArmsGathering, 1),
+        Show(poses.ArmsClosing, 1),
+        Show(poses.ArmsSpreadWide, 1),
+        Show(poses.ArmsClosing, 1),
+    ];
+
+    /// <summary>His limp arm dropping as he dies, over a facing's poses (#2557).</summary>
+    private static AnimationBeat<EnemyFrameId, DraygonCue>[] BodyDying(DraygonFacingPoses poses) =>
+    [
+        Show(poses.LimpArmClawRaised, 5),
+        Show(poses.LimpArmClawDropping, 5),
+        Show(poses.LimpArmClawDropped, 5),
+        Show(poses.LimpArmClawCurled, 5),
+    ];
+
+    /// <summary>His jaw opening to spit goop the way he faces and closing again, over a facing's poses (#2557).</summary>
+    private static AnimationBeat<EnemyFrameId, DraygonCue>[] BodyFireGoop(DraygonFacingPoses poses) =>
+    [
+        Show(poses.BodyJawShut, 1),
+        Show(poses.BodyJawParting, 2),
+        Show(poses.BodyJawOpen, 3),
+        Cue(new DraygonCue.SpawnGoop(poses.Facing)),
+        Cue(new DraygonCue.QueueSound(DraygonSoundDefinitions.GoopSpit)),
+        Show(poses.BodyJawWide, 3),
+        Show(poses.BodyJawOpen, 2),
+        Show(poses.BodyJawParting, 2),
+        Show(poses.BodyJawShut, 1),
+    ];
+
+    /// <summary>His roar: the sound and his jaw opening and closing, six updates a picture, over a facing's poses (#2557).</summary>
+    private static AnimationBeat<EnemyFrameId, DraygonCue>[] BodyRoar(DraygonFacingPoses poses) =>
+    [
+        Cue(new DraygonCue.QueueSound(DraygonSoundDefinitions.Roar)),
+        Show(poses.BodyJawShut, 6),
+        Show(poses.BodyJawParting, 6),
+        Show(poses.BodyJawOpen, 6),
+        Show(poses.BodyJawWide, 6),
+        Show(poses.BodyJawOpen, 6),
+        Show(poses.BodyJawParting, 6),
+        Show(poses.BodyJawShut, 6),
+    ];
+
+    /// <summary>
+    /// His eye's idle blink over a facing's poses (#2557), tracking with it as it ends as if facing left, whichever way he
+    /// faces, as the game's right-facing blink does.
+    /// </summary>
+    private static AnimationBeat<EnemyFrameId, DraygonCue>[] EyeIdle(DraygonFacingPoses poses) =>
+    [
+        Show(poses.EyeShut, 21),
+        Show(poses.EyeOpening, 5),
+        Show(poses.EyeHalfOpen, 5),
+        Show(poses.EyeOpening, 10),
+        Show(poses.EyeOpen, 20),
+        Show(poses.EyeNarrowing, 20),
+        Show(poses.EyeClosing, 10),
+        Show(poses.EyeHalfOpen, 5),
+        Show(poses.EyeOpening, 5),
+        Show(poses.EyeShut, 5),
+        Cue(new DraygonCue.TrackWithEye(HorizontalDirection.Left)),
+    ];
+
+    /// <summary>His eye rolling as he dies, over a facing's poses (#2557).</summary>
+    private static AnimationBeat<EnemyFrameId, DraygonCue>[] EyeDying(DraygonFacingPoses poses) =>
+    [
+        Show(poses.EyeOpen, 4),
+        Show(poses.EyeNarrowing, 4),
+        Show(poses.EyeBloodshot, 4),
+        Show(poses.EyeClosing, 4),
+    ];
+
+    /// <summary>His dying eye's stare, over a facing's poses (#2557).</summary>
+    private static AnimationBeat<EnemyFrameId, DraygonCue>[] EyeDyingStare(DraygonFacingPoses poses) =>
+    [
+        Show(poses.EyeWide, 32),
+        Show(poses.EyeHalfOpen, 16),
+    ];
+
+    /// <summary>His dead eye closing for good, over a facing's poses (#2557).</summary>
+    private static AnimationBeat<EnemyFrameId, DraygonCue>[] EyeDead(DraygonFacingPoses poses) =>
+    [
+        Show(poses.EyeWide, 32),
+        Show(poses.EyeHalfOpen, 32),
+        Show(poses.EyeOpening, 32),
+        Show(poses.EyeShut, 1),
+    ];
+
+    /// <summary>His tail's idle swing, out to its farthest and back, over a facing's poses (#2557).</summary>
+    private static AnimationBeat<EnemyFrameId, DraygonCue>[] TailIdle(DraygonTailPoses poses) =>
+    [
+        Show(poses.TipCurledIn, 8),
+        Show(poses.TipSwingingOut, 7),
+        Show(poses.TipOut, 6),
+        Show(poses.TipFurtherOut, 6),
+        Show(poses.TipFarthestOut, 6),
+        Show(poses.TipReturning, 6),
+        Show(poses.TipBack, 6),
+        Show(poses.TipReturning, 6),
+        Show(poses.TipFarthestOut, 6),
+        Show(poses.TipFurtherOut, 6),
+        Show(poses.TipOut, 6),
+        Show(poses.TipSwingingOut, 7),
+    ];
+
+    /// <summary>
+    /// One round of his dying explosions after <paramref name="wait"/> updates (#2557): a big and a small explosion, a dust
+    /// cloud and breath bubbles, with the explosion sound.
+    /// </summary>
+    private static AnimationBeat<EnemyFrameId, DraygonCue>[] DyingExplosions(int wait) =>
+    [
+        Wait(wait),
+        Cue(new DraygonCue.SpawnDyingEffect(RoomEffectActorKind.BigExplosion)),
+        Cue(new DraygonCue.SpawnDyingEffect(RoomEffectActorKind.SmallExplosion)),
+        Cue(new DraygonCue.SpawnDyingEffect(RoomEffectActorKind.BigDustCloud)),
+        Cue(new DraygonCue.SpawnDyingEffect(RoomEffectActorKind.DraygonBreathBubbles)),
+        Cue(new DraygonCue.QueueSound(DraygonSoundDefinitions.Explosion)),
+    ];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, DraygonCue> Show(EnemyFrameId frame, int duration) =>

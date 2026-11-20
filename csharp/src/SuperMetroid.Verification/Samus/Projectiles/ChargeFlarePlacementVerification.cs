@@ -126,8 +126,6 @@ internal static class ChargeFlarePlacementVerification
             int past = row;
             AssertThrows<ArgumentOutOfRangeException>(() => SamusFlareRows.AimAtRow(past), $"flare row {row} past the turning placements names no placement");
         }
-        foreach (SamusTurningAim turning in Enum.GetValues<SamusTurningAim>())
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(true, new SamusFlareAim.WhileTurning(turning)), $"running flare turning {turning} is rejected");
         AssertTrue(Enumerable.Range(0, byte.MaxValue + 1).Where(SamusPoseNumbering.NamesPose)
             .Select(number => SamusPoseMetadata.ReadAim(SamusPoseNumbering.FromNumber(number)))
             .OfType<SamusPoseAim.Armed>()
@@ -177,7 +175,7 @@ internal static class ChargeFlarePlacementVerification
         AssertThrows<InvalidDataException>(() => Load(document), "Flare placement cannot contain mechanics fields");
         AssertThrows<InvalidDataException>(() => ChargeFlarePlacementFile.Load(new MemoryStream(Encoding.UTF8.GetBytes("{\"version\":1,\"version\":1}"))), "Duplicate flare properties rejected");
         Console.WriteLine($"Flare placement: {cases} native OAM cases, whole-state isolation and invalid-resource rejection pass.");
-        static ChargeFlarePlacements Load(JsonNode node) => ChargeFlarePlacementFile.Load(new MemoryStream(Encoding.UTF8.GetBytes(node.ToJsonString())));
+        static BeamFlarePlacements Load(JsonNode node) => ChargeFlarePlacementFile.Load(new MemoryStream(Encoding.UTF8.GetBytes(node.ToJsonString())));
     }
     /// <summary>Invokes the renderer's private flare component path with explicit compiled pose metadata.</summary>
     internal delegate void FlareMetadataDraw(SpriteFrameBuffer sprites, SamusState samus,
@@ -185,7 +183,7 @@ internal static class ChargeFlarePlacementVerification
         ChargeFlareArtwork artwork, ChargeFlarePose pose);
 
     /// <summary>Confirms stock flare offsets flow through actor drawing and artwork rebinding.</summary>
-    private static void VerifyRuntimeFlarePlacement(ChargeFlarePlacements stock)
+    private static void VerifyRuntimeFlarePlacement(BeamFlarePlacements stock)
     {
         var random = new SharedRandom();
         var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), random: random);

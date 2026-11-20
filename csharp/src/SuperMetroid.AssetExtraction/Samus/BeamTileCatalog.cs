@@ -6,7 +6,7 @@ using SuperMetroid.AssetExtraction.Samus.Artwork;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>The installed beam characters by combination, with the beam palettes; the projectile sheets are composed from them.</summary>
-public sealed class BeamTileCatalog : IInstalledArtworkContent
+public sealed class BeamTileCatalog
 {
     /// <summary>Every combination's installed 256-byte beam atlas, by artwork ordinal.</summary>
     private readonly BeamTileAtlas[] sheets;
@@ -33,9 +33,9 @@ public sealed class BeamTileCatalog : IInstalledArtworkContent
         return new((BeamTileAtlas[])sheets.Clone(), palettes, hyperBeamFxColors);
     }
 
-    /// <summary>Resolves a supported typed beam-tile identity to its immutable 256-byte planar transfer.</summary>
-    public ReadOnlyMemory<byte> Resolve(InstalledArtworkId asset) =>
-        sheets[BeamTileAtlasDefinitions.ArtworkOrdinal(SelectionFor(asset))].Characters;
+    /// <summary>The immutable 256-byte planar transfer of a beam combination's characters.</summary>
+    public ReadOnlyMemory<byte> Resolve(SamusBeamCombination beam) =>
+        sheets[BeamTileAtlasDefinitions.ArtworkOrdinal(beam)].Characters;
 
     /// <summary>Maps a supported native equipped-beam selection to its queued VRAM asset identity.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The combination has no artwork ($0C or $0F).</exception>
@@ -60,35 +60,4 @@ public sealed class BeamTileCatalog : IInstalledArtworkContent
         _ => throw new ArgumentOutOfRangeException(nameof(selection), selection, "Undefined beam combination."),
     };
 
-    /// <summary>The beam combination whose sheet a beam VRAM asset uploads: the inverse of <see cref="AssetFor"/>.</summary>
-    /// <exception cref="InvalidDataException">The asset is not beam artwork.</exception>
-    public static SamusBeamCombination SelectionFor(InstalledArtworkId asset) => asset switch
-    {
-        InstalledArtworkId.BeamPowerTiles => SamusBeamCombination.Power,
-        InstalledArtworkId.BeamWaveTiles => SamusBeamCombination.Wave,
-        InstalledArtworkId.BeamIceTiles => SamusBeamCombination.Ice,
-        InstalledArtworkId.BeamIceWaveTiles => SamusBeamCombination.IceWave,
-        InstalledArtworkId.BeamSpazerTiles => SamusBeamCombination.Spazer,
-        InstalledArtworkId.BeamSpazerWaveTiles => SamusBeamCombination.SpazerWave,
-        InstalledArtworkId.BeamSpazerIceTiles => SamusBeamCombination.SpazerIce,
-        InstalledArtworkId.BeamSpazerIceWaveTiles => SamusBeamCombination.SpazerIceWave,
-        InstalledArtworkId.BeamPlasmaTiles => SamusBeamCombination.Plasma,
-        InstalledArtworkId.BeamPlasmaWaveTiles => SamusBeamCombination.PlasmaWave,
-        InstalledArtworkId.BeamPlasmaIceTiles => SamusBeamCombination.PlasmaIce,
-        InstalledArtworkId.BeamPlasmaIceWaveTiles => SamusBeamCombination.PlasmaIceWave,
-        InstalledArtworkId.BeamChainsawTiles => SuperMetroid.Core.Samus.Projectiles.ChainsawBeamGraphicsDefinitions.Selection,
-        InstalledArtworkId.BeamSpacetimeTiles => SuperMetroid.Core.Samus.Projectiles.SpacetimeBeamGraphicsDefinitions.Selection,
-        InstalledArtworkId.StandardHudTiles or InstalledArtworkId.EscapeTimerFirstTiles or
-            InstalledArtworkId.EscapeTimerSecondTiles or InstalledArtworkId.ProjectileIceWaveTrailTiles or
-            InstalledArtworkId.ProjectileMissileTrailTiles or InstalledArtworkId.GrapplePointFirstTiles or
-            InstalledArtworkId.GrapplePointSecondTiles or InstalledArtworkId.GrapplePointThirdTiles or
-            InstalledArtworkId.GrapplePointFourthTiles or InstalledArtworkId.GrappleHorizontalSegmentTiles or
-            InstalledArtworkId.GrappleDiagonalSegmentTiles or InstalledArtworkId.GrappleVerticalSegmentTiles or
-            InstalledArtworkId.GunshipLiftoffFirstTiles or InstalledArtworkId.GunshipLiftoffSecondTiles or
-            InstalledArtworkId.GunshipLiftoffThirdTiles or InstalledArtworkId.GunshipLiftoffFourthTiles or
-            InstalledArtworkId.GunshipLiftoffFifthTiles => throw new InvalidDataException($"Beam catalog cannot resolve {asset}."),
-        InstalledArtworkId.StandardObjectTiles or
-            InstalledArtworkId.HudTopRowTilemap => throw new ArgumentOutOfRangeException(nameof(asset), asset, "Undefined VRAM asset."),
-        _ => throw new ArgumentOutOfRangeException(nameof(asset), asset, "Undefined VRAM asset."),
-    };
 }

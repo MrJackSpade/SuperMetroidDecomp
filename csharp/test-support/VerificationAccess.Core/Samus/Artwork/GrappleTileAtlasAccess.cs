@@ -15,7 +15,7 @@ internal static class GrappleTileAtlasAccess
             foreach (var transfer in GrappleTileDefinitions.Transfers)
                 if (transfer.SourceAddress == sourceAddress && transfer.ByteCount == byteCount)
                 {
-                    data = self.Resolve(transfer.Asset);
+                    data = self.Resolve(transfer);
                     return true;
                 }
             data = default;

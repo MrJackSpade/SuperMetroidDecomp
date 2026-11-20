@@ -164,8 +164,7 @@ public sealed class SamusCrystalFlashState
         // Activation discards existing hit immunity; Crystal Flash is not a damage shield.
         samus.InvincibilityTimer = WrappingCountdown.Start(0);
         samus.KnockbackHold = UpdateCountdown.Ended();
-        samus.KnockbackDirection = Movement.SamusKnockbackDirection.None;
-        samus.KnockbackActive = false;
+        samus.Knockback = Movement.SamusKnockback.None;
         Phase = new CrystalFlashPhase.Moving.Raising();
         return true;
     }
@@ -227,7 +226,7 @@ public sealed class SamusCrystalFlashState
         samus.AudioRequests.QueueSound(RoomSound.Silence, SoundRequestPriority.Essential);
         samus.InvincibilityTimer = WrappingCountdown.Start(0);
         samus.KnockbackHold = UpdateCountdown.Ended();
-        samus.KnockbackActive = false;
+        samus.Knockback = samus.Knockback.HandBack();
     }
 
     /// <summary>What <c>StepAmmoDrain</c> does for each <see cref="CrystalFlashAmmoKind"/> member, each member's own arm.</summary>
@@ -292,7 +291,7 @@ public sealed class SamusCrystalFlashState
         // Normal-input completion clears the same hit timers as the return path.
         samus.InvincibilityTimer = WrappingCountdown.Start(0);
         samus.KnockbackHold = UpdateCountdown.Ended();
-        samus.KnockbackActive = false;
+        samus.Knockback = samus.Knockback.HandBack();
         Phase = new CrystalFlashPhase.Inactive();
     }
 

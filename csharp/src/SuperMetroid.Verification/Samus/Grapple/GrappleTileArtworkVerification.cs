@@ -27,11 +27,11 @@ internal static class GrappleTileArtworkVerification
         byte[] png = GrappleTileExtractor.Extract(bus);
         var stock = GrappleTileAtlas.Load(new MemoryStream(png));
         foreach (var transfer in GrappleTileDefinitions.Transfers)
-            AssertTrue(stock.Resolve(transfer.Asset).Span.SequenceEqual(RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), transfer.SourceAddress, transfer.ByteCount)), "Every extracted Grapple transfer matches pinned native planar bytes");
+            AssertTrue(stock.Resolve(transfer).Span.SequenceEqual(RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), transfer.SourceAddress, transfer.ByteCount)), "Every extracted Grapple transfer matches pinned native planar bytes");
         for (int angle = 0; angle <= ushort.MaxValue; angle++)
         {
             ushort expected = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), GrappleBeamDefinitions.Rendering.SegmentTilePointers + ((angle >> 9) & 254));
-            int actual = GrappleTileSelection.TransferFor(GrappleTileSelection.SegmentAssetFor(RotationAngleConstants.FromRaw((ushort)angle))).SourceAddress;
+            int actual = GrappleTileSelection.SegmentTransferFor(RotationAngleConstants.FromRaw((ushort)angle)).SourceAddress;
             AssertEqual(0x9a0000 | expected, actual, "Compiled Grapple sector selection matches all 65536 native angles");
         }
         int cases = 0;
@@ -50,7 +50,7 @@ internal static class GrappleTileArtworkVerification
             byte[] nativeTiles = [.. RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
                     GrapplePointAnimationNative.SourceAddress(selected.PointAnimationFrame), SpriteArtwork.CharacterByteCount),
                 .. RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
-                    GrappleTileSelection.TransferFor(GrappleTileSelection.SegmentAssetFor(selected.Angle)).SourceAddress,
+                    GrappleTileSelection.SegmentTransferFor(selected.Angle).SourceAddress,
                     4 * SpriteArtwork.CharacterByteCount)];
             AssertTrue(stockTiles.Characters.SequenceEqual(nativeTiles), "Stock grapple binding holds the native endpoint and rope characters");
             cases++;
@@ -76,7 +76,6 @@ internal static class GrappleTileArtworkVerification
         IndexedPng.Write(invalidPng, new(GrappleTileDefinitions.Width, GrappleTileDefinitions.Height), invalid, SnesGraphics.DiagnosticPalette(32)); invalidPng.Position = 0;
         AssertThrows<InvalidDataException>(() => GrappleTileAtlas.Load(invalidPng), "Grapple PNG out-of-range palette index rejected");
         AssertThrows<InvalidDataException>(() => GrappleTileAtlas.Load(new MemoryStream(new byte[8])), "Malformed Grapple PNG rejected");
-        AssertThrows<InvalidDataException>(() => stock.Resolve(InstalledArtworkId.StandardHudTiles), "Grapple provider rejects unrelated identity");
         Console.WriteLine($"Grapple PNG: all 65536 angle selections and {cases} production draws preserve native OAM and full state; bindings hold native tiles.");
     }
 

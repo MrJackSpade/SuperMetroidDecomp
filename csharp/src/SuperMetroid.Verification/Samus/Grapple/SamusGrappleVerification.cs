@@ -685,8 +685,7 @@ firingLevel, cancelledSamus, controllerInput: 0, roomObjects: SamusRoomObjectFix
 
     // Selector provenance is now compiled even without installed artwork. The
     // independent all-angle cartridge comparison covers its exact sector boundaries.
-    int segmentSource = GrappleTileSelection.TransferFor(
-        GrappleTileSelection.SegmentAssetFor(samus.Grapple.Angle)).SourceAddress;
+    int segmentSource = GrappleTileSelection.SegmentTransferFor(samus.Grapple.Angle).SourceAddress;
 
     // $94:AFBA recalculates the angle from endpoint minus flare (1,-49).
     // Coarse octant division selects angle zero, giving a (0,-8) segment step.
@@ -702,7 +701,7 @@ firingLevel, cancelledSamus, controllerInput: 0, roomObjects: SamusRoomObjectFix
 
     AssertEqual(0x9a8200, GrapplePointAnimationNative.SourceAddress(samus.Grapple.PointAnimationFrame),
         "grapple selects the native first endpoint tile");
-    AssertEqual(segmentSource, GrappleTileSelection.TransferFor(GrappleTileSelection.SegmentAssetFor(samus.Grapple.Angle)).SourceAddress,
+    AssertEqual(segmentSource, GrappleTileSelection.SegmentTransferFor(samus.Grapple.Angle).SourceAddress,
         "grapple selects the native angle-selected segment tiles");
     AssertTrue(grappleOamFrame.Draws.All(draw => ReferenceEquals(InstalledFixtures.GrappleSheet.Image, ((SamusColouredDraw)draw).Image.Sheet)),
         "grapple draws show frames of the grapple sheet");

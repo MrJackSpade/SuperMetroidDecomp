@@ -428,185 +428,213 @@ internal sealed class SamusFramePhases
         RunMovementOwner(frame, samus, room);
     }
 
-    /// <summary>What <c>RunMovementOwner</c> does for each <see cref="SamusMovementOwner"/> member, each member's own arm.</summary>
-    private IdentityTable<SamusMovementOwner, Action<SamusControlFrame, SamusState, RoomScope>> RunMovementOwnerForSamusMovementOwner => field ??= new(new Dictionary<SamusMovementOwner, Action<SamusControlFrame, SamusState, RoomScope>>
+    /// <summary>Runs Samus's movement while <see cref="SamusMovementOwner.None"/> holds it.</summary>
+    private void RunNone() => _player.ClearProspectivePoses();
+
+    /// <summary>Runs Samus's movement while <see cref="SamusMovementOwner.Grapple"/> holds it.</summary>
+    private void RunGrapple(SamusControlFrame frame)
     {
-        [SamusMovementOwner.None] = (frame, samus, room) => _player.ClearProspectivePoses(),
-        [SamusMovementOwner.Grapple] = (frame, samus, room) =>
-        {
-            // The grappling movement type does not move Samus itself. Discard input transitions
-            // sampled from the pre-grapple pose once connection installs the grapple swing poses.
-            if (!frame.GrappleReleaseAcceptsPoseInput)
-            {
-                _player.ClearProspectivePoses();
-            }
-        },
-        [SamusMovementOwner.DraygonHold] = (frame, samus, room) =>
-        {
-            // Deliberately empty: Draygon's actor owns coordinates.
-        },
-        [SamusMovementOwner.Xray] = (frame, samus, room) =>
+        // The grappling movement type does not move Samus itself. Discard input transitions
+        // sampled from the pre-grapple pose once connection installs the grapple swing poses.
+        if (!frame.GrappleReleaseAcceptsPoseInput)
         {
             _player.ClearProspectivePoses();
-            samus.Xray.StepMovement(samus);
-        },
-        [SamusMovementOwner.CeresRidleyEjection] = (frame, samus, room) =>
+        }
+    }
+
+    /// <summary>Runs Samus's movement while <see cref="SamusMovementOwner.Xray"/> holds it.</summary>
+    private void RunXray(SamusState samus, SamusXrayState.SamusControl xray)
+    {
+        _player.ClearProspectivePoses();
+        xray.StepMovement(samus);
+    }
+
+    /// <summary>Runs Samus's movement while <see cref="SamusMovementOwner.CeresRidleyEjection"/> holds it.</summary>
+    private void RunCeresRidleyEjection(SamusState samus, RoomScope room)
+    {
+        // The hurt setup installs the hurt pose and clears every prospective pose and
+        // momentum response. Afterwards the damage-boost check suppresses only a
+        // damage-boost result selected from a knockback pose; it does not
+        // replace the rest of her pose input. Input choosing no new pose there keeps the
+        // knockback pose and its Stop momentum response, which clears the X acceleration
+        // mode when the pose is committed.
+        if (samus.CeresRidleyEjection.IsStarting)
         {
-            // The hurt setup installs the hurt pose and clears every prospective pose and
-            // momentum response. Afterwards the damage-boost check suppresses only a
-            // damage-boost result selected from a knockback pose; it does not
-            // replace the rest of her pose input. Input choosing no new pose there keeps the
-            // knockback pose and its Stop momentum response, which clears the X acceleration
-            // mode when the pose is committed.
-            if (samus.CeresRidleyEjection.IsStarting)
-            {
-                _player.ClearProspectivePoses();
-            }
-            else
-            {
-                if (_player.ProspectiveSamusPose is { } prospective &&
-                    SamusPoseMetadata.IsDamageBoostPose(prospective.ProspectivePose))
-                    _player.ProspectiveSamusPose = null;
-                if (_player.ProspectiveSamusFallbackPose is { } fallback &&
-                    SamusPoseMetadata.IsDamageBoostPose(fallback))
-                    _player.ProspectiveSamusFallbackPose = null;
-            }
-            samus.CeresRidleyEjection.Step(
-                room.LevelData,
-                room.RoomObjects,
-                samus,
-                room.Camera.PixelPosition.X,
-                _clock.Counter);
-        },
-        [SamusMovementOwner.Knockback] = (frame, samus, room) =>
+            _player.ClearProspectivePoses();
+        }
+        else
         {
-            SamusAerialMovement.ConfigureEnvironmentGravity(samus);
-            frame.Record(SamusKnockbackMovement.Step(
+            if (_player.ProspectiveSamusPose is { } prospective &&
+                SamusPoseMetadata.IsDamageBoostPose(prospective.ProspectivePose))
+                _player.ProspectiveSamusPose = null;
+            if (_player.ProspectiveSamusFallbackPose is { } fallback &&
+                SamusPoseMetadata.IsDamageBoostPose(fallback))
+                _player.ProspectiveSamusFallbackPose = null;
+        }
+        samus.CeresRidleyEjection.Step(
+            room.LevelData,
+            room.RoomObjects,
+            samus,
+            room.Camera.PixelPosition.X,
+            _clock.Counter);
+    }
+
+    /// <summary>Runs Samus's movement while <see cref="SamusMovementOwner.Knockback"/> holds it.</summary>
+    private void RunKnockback(SamusControlFrame frame, SamusState samus, RoomScope room, SamusKnockback.Moving knockback)
+    {
+        SamusAerialMovement.ConfigureEnvironmentGravity(samus);
+        frame.Record(SamusKnockbackMovement.Step(
+            room.LevelData,
+            samus,
+            knockback,
+            _clock.Counter,
+            room.RoomObjects));
+    }
+
+    /// <summary>Runs Samus's movement while <see cref="SamusMovementOwner.BombJump"/> holds it.</summary>
+    private void RunBombJump(SamusControlFrame frame, SamusState samus, RoomScope room)
+    {
+        // The retained pose stays while input is locked; the late rise can restore input
+        // before the bomb jump lets go of her movement, allowing a matched cancellation.
+        if (frame.BombJumpLocksPoseInput)
+        {
+            _player.ClearProspectivePoses();
+        }
+
+        // The bomb jump's movement chooses its gravity from the medium Samus is in, water, lava or air, as
+        // knockback and the shinespark do, from her pose and place as the input phase leaves them.
+        SamusAerialMovement.ConfigureEnvironmentGravity(samus);
+        frame.Record(samus.BombJumpStarting
+            ? SamusBombJumpMovement.Start(samus)
+            : SamusBombJumpMovement.Step(
                 room.LevelData,
                 samus,
                 _clock.Counter,
                 room.RoomObjects));
-        },
-        [SamusMovementOwner.BombJump] = (frame, samus, room) =>
-        {
-            // The retained pose stays while input is locked; the late rise can restore input
-            // before the bomb jump lets go of her movement, allowing a matched cancellation.
-            if (frame.BombJumpLocksPoseInput)
-            {
-                _player.ClearProspectivePoses();
-            }
-
-            // The bomb jump's movement chooses its gravity from the medium Samus is in, water, lava or air, as
-            // knockback and the shinespark do, from her pose and place as the input phase leaves them.
-            SamusAerialMovement.ConfigureEnvironmentGravity(samus);
-            frame.Record(samus.BombJumpStarting
-                ? SamusBombJumpMovement.Start(samus)
-                : SamusBombJumpMovement.Step(
-                    room.LevelData,
-                    samus,
-                    _clock.Counter,
-                    room.RoomObjects));
-        },
-        [SamusMovementOwner.CrystalFlash] = (frame, samus, room) =>
-        {
-            _player.ClearProspectivePoses();
-            frame.Record(samus.CrystalFlash.Step(
-                samus,
-                _clock.Counter));
-            if (frame.CrystalFlashMovement is { BubbleStarted: true })
-            {
-                // Crystal Flash's ending clears its state, copies Samus's raised center into the
-                // shared explosion position, then spawns the Crystal Flash explosion. This movement
-                // phase runs after the bombs' input phase, so the Crystal Flash's place among the bombs, still held,
-                // observes the released flag and deletes on the following frame.
-                room.BombProjectiles.PowerBombExplosion.BeginCrystalFlash(samus.Position.Whole);
-            }
-        },
-        [SamusMovementOwner.Drained] = (frame, samus, room) =>
-        {
-            _player.ClearProspectivePoses();
-            if (samus.Drained.TryStepFalling(
-                    room.LevelData,
-                    room.RoomObjects,
-                    samus,
-                    _clock.Counter,
-                    out DrainedSamusMovementResult fall))
-            {
-                frame.Record(fall);
-            }
-            else if (samus.InitializedPose != samus.Pose)
-            {
-                // The drained-pose sequences store a drained pose without
-                // initializing it, and the movement keeps running for the cached
-                // movement type. An airborne Samus therefore keeps her jump
-                // physics in the drained pose until a real setup runs.
-                StepUninitializedPoseMovement(frame, samus, room);
-            }
-        },
-        [SamusMovementOwner.Shinespark] = (frame, samus, room) =>
-        {
-            // Samus's environment-selected vertical acceleration pair is used
-            // as spark acceleration. The projectile step does not replace it.
-            SamusAerialMovement.ConfigureEnvironmentGravity(samus);
-            frame.Record(samus.Shinespark.Step(new SamusTerrain { Level = room.LevelData, RoomObjects = room.RoomObjects }, samus, new ShinesparkFrame { FrameCounter = _clock.Counter, SamusCannotDie = _assists.Current.SamusCannotDie, Projectiles = room.Projectiles, GameTimeFrames = _gameTime.Frames, PreviousCheckpoint = frame.PreviousCameraPoint }));
-            if (frame.ShinesparkMovement is { WindupTimedOut: true })
-            {
-                // The spark publishes an interrupted vertical pose. That
-                // priority beats an ordinary input transition sampled from the shinespark windup poses
-                // earlier in the input phase during the timeout frame.
-                _player.ClearProspectivePoses();
-            }
-        },
-        [SamusMovementOwner.Pose] = (frame, samus, room) => RunPoseOwnedMovement(frame, samus, room),
-        [SamusMovementOwner.Elevator] = (frame, samus, room) => RunPoseOwnedMovement(frame, samus, room),
-    });
-
-    /// <summary>
-    /// Runs the owner of Samus's movement this frame (<see cref="ResolveMovementOwner"/>): nothing, grapple, Draygon's hold,
-    /// X-ray, Ceres Ridley's ejection, knockback, bomb jump, Crystal Flash, the drain, the shinespark, or her pose, which an
-    /// elevator ride also runs.
-    /// </summary>
-    private void RunMovementOwner(SamusControlFrame frame, SamusState samus, RoomScope room)
-    {
-        frame.SampleMovementOwner(ResolveMovementOwner(frame, samus, room));
-        RunMovementOwnerForSamusMovementOwner[frame.MovementOwner](frame, samus, room);
     }
 
+    /// <summary>Runs Samus's movement while <see cref="SamusMovementOwner.CrystalFlash"/> holds it.</summary>
+    private void RunCrystalFlash(SamusControlFrame frame, SamusState samus, RoomScope room)
+    {
+        _player.ClearProspectivePoses();
+        frame.Record(samus.CrystalFlash.Step(
+            samus,
+            _clock.Counter));
+        if (frame.CrystalFlashMovement is { BubbleStarted: true })
+        {
+            // Crystal Flash's ending clears its state, copies Samus's raised center into the
+            // shared explosion position, then spawns the Crystal Flash explosion. This movement
+            // phase runs after the bombs' input phase, so the Crystal Flash's place among the bombs, still held,
+            // observes the released flag and deletes on the following frame.
+            room.BombProjectiles.PowerBombExplosion.BeginCrystalFlash(samus.Position.Whole);
+        }
+    }
+
+    /// <summary>Runs Samus's movement while <see cref="SamusMovementOwner.Drained"/> holds it.</summary>
+    private void RunDrained(SamusControlFrame frame, SamusState samus, RoomScope room)
+    {
+        _player.ClearProspectivePoses();
+        if (samus.Drained.TryStepFalling(
+                room.LevelData,
+                room.RoomObjects,
+                samus,
+                _clock.Counter,
+                out DrainedSamusMovementResult fall))
+        {
+            frame.Record(fall);
+        }
+        else if (samus.InitializedPose != samus.Pose)
+        {
+            // The drained-pose sequences store a drained pose without
+            // initializing it, and the movement keeps running for the cached
+            // movement type. An airborne Samus therefore keeps her jump
+            // physics in the drained pose until a real setup runs.
+            StepUninitializedPoseMovement(frame, samus, room);
+        }
+    }
+
+    /// <summary>Runs Samus's movement while <see cref="SamusMovementOwner.Shinespark"/> holds it.</summary>
+    private void RunShinespark(SamusControlFrame frame, SamusState samus, RoomScope room)
+    {
+        // Samus's environment-selected vertical acceleration pair is used
+        // as spark acceleration. The projectile step does not replace it.
+        SamusAerialMovement.ConfigureEnvironmentGravity(samus);
+        frame.Record(samus.Shinespark.Step(new SamusTerrain { Level = room.LevelData, RoomObjects = room.RoomObjects }, samus, new ShinesparkFrame { FrameCounter = _clock.Counter, SamusCannotDie = _assists.Current.SamusCannotDie, Projectiles = room.Projectiles, GameTimeFrames = _gameTime.Frames, PreviousCheckpoint = frame.PreviousCameraPoint }));
+        if (frame.ShinesparkMovement is { WindupTimedOut: true })
+        {
+            // The spark publishes an interrupted vertical pose. That
+            // priority beats an ordinary input transition sampled from the shinespark windup poses
+            // earlier in the input phase during the timeout frame.
+            _player.ClearProspectivePoses();
+        }
+    }
+
+
+
     /// <summary>
-    /// Who moves Samus this frame, in priority order: nothing under the death, suit-pickup and stationary-lock movement
-    /// modes; then grapple, Draygon's hold, X-ray, Ceres Ridley's ejection, knockback, bomb jump, Crystal Flash, the drain
-    /// and the shinespark; then nothing while her control is locked, unless an elevator ride moves her; and otherwise her
-    /// pose. Every test reads state and changes none, so resolving the owner before running it keeps the frame's order.
+    /// Runs the owner of Samus's movement this frame, in priority order: nothing under the death, suit-pickup and
+    /// stationary-lock movement modes; then grapple, Draygon's hold, X-ray, Ceres Ridley's ejection, knockback, bomb jump,
+    /// Crystal Flash, the drain and the shinespark; then nothing while her control is locked, unless an elevator ride moves
+    /// her; and otherwise her pose. Each owner's test reads state and changes none, and the owner it finds runs as the test
+    /// found it: the X-ray by its hold on her control, a knockback as the knockback that moves her.
     /// </summary>
-    private static SamusMovementOwner ResolveMovementOwner(SamusControlFrame frame, SamusState samus, RoomScope room)
+    private void RunMovementOwner(SamusControlFrame frame, SamusState samus, RoomScope room)
     {
         // The stationary lock installs an empty movement mode independently of whoever
         // moved Samus beforehand. Automatic Reserve can therefore freeze an in-progress
         // hurt launch; special owners such as knockback must not outrank this explicitly installed mode.
         if (frame.Mode.Movement is SamusMovementMode.Fatal or SamusMovementMode.SuitPickup or SamusMovementMode.ScriptLocked)
-            return SamusMovementOwner.None;
+        {
+            frame.SampleMovementOwner(SamusMovementOwner.None);
+            RunNone();
+            return;
+        }
         if (frame.GrappleOwnsMovement)
-            return SamusMovementOwner.Grapple;
+        {
+            frame.SampleMovementOwner(SamusMovementOwner.Grapple);
+            RunGrapple(frame);
+            return;
+        }
         // Draygon's grab keeps Samus still, rather than running her Draygon-held movement type's normal step.
         if (samus.DraygonGrabbed.OwnsMovement)
-            return SamusMovementOwner.DraygonHold;
+        {
+            // Draygon's actor owns her coordinates: the hold moves her not at all.
+            frame.SampleMovementOwner(SamusMovementOwner.DraygonHold);
+            return;
+        }
         // X-ray's activation pose moves her by X-ray's own movement instead of the
         // normal movement-type step. Stable X-ray bodies select one of five
         // angle frames; turning on the ground deliberately performs no movement.
-        if (samus.Xray.OwnsSamusControl)
-            return SamusMovementOwner.Xray;
+        if (samus.Xray.Control is { } xray)
+        {
+            frame.SampleMovementOwner(SamusMovementOwner.Xray);
+            RunXray(samus, xray);
+            return;
+        }
         // Ceres Ridley's shove must precede ordinary damage knockback because the knockback
         // poses are shared while ownership, duration, and termination are not.
         if (samus.CeresRidleyEjection.IsActive)
-            return SamusMovementOwner.CeresRidleyEjection;
+        {
+            frame.SampleMovementOwner(SamusMovementOwner.CeresRidleyEjection);
+            RunCeresRidleyEjection(samus, room);
+            return;
+        }
         // Knockback takes precedence over the normal movement-type step. Unlike bomb jump,
         // normal pose input remains active so the knockback poses can still select the game's
         // damage-boost escape chord.
-        if (samus.KnockbackActive)
-            return SamusMovementOwner.Knockback;
+        if (samus.Knockback is SamusKnockback.Moving knockback)
+        {
+            frame.SampleMovementOwner(SamusMovementOwner.Knockback);
+            RunKnockback(frame, samus, room, knockback);
+            return;
+        }
         // Arming the bomb jump takes both her pose input and her movement.
         if (samus.BombJumpStarting || samus.BombJumpActive)
-            return SamusMovementOwner.BombJump;
+        {
+            frame.SampleMovementOwner(SamusMovementOwner.BombJump);
+            RunBombJump(frame, samus, room);
+            return;
+        }
         // Crystal Flash moves her through its three phases and locks her pose input. Mother
         // Brain's rainbow-beam setup keeps that hold, but temporarily replaces the movement phase
         // with a lock that moves her not at all. Once restoring Samus's control reinstalls the normal
@@ -615,7 +643,11 @@ internal sealed class SamusFramePhases
         // owner, not merely the fact that a cinematic pose exists.
         if (samus.CrystalFlash.Phase is not CrystalFlashPhase.Inactive &&
             !(samus.Drained.Phase == DrainedSamusPhase.RainbowBeamLocked && samus.Control.InputLocked))
-            return SamusMovementOwner.CrystalFlash;
+        {
+            frame.SampleMovementOwner(SamusMovementOwner.CrystalFlash);
+            RunCrystalFlash(frame, samus, room);
+            return;
+        }
         // The drain's operations install special-movement-type poses that do not move Samus.
         // Only the drained-fall animation cue starts her drained fall; the other phases stay
         // motionless while enemy AI controls pose/timing. This is reached only when Crystal Flash
@@ -634,11 +666,19 @@ internal sealed class SamusFramePhases
               !SamusPoseMetadata.IsDrainedPose(samus.Pose)) &&
             !(samus.Drained.Phase == DrainedSamusPhase.RainbowBeamLocked && !samus.Control.InputLocked) &&
             (samus.Drained.Phase == DrainedSamusPhase.RainbowBeamLocked || !samus.Shinespark.OwnsMovement))
-            return SamusMovementOwner.Drained;
+        {
+            frame.SampleMovementOwner(SamusMovementOwner.Drained);
+            RunDrained(frame, samus, room);
+            return;
+        }
         // The shinespark's windup, active launch, and crash move her regardless of the pose's
         // movement type; ordinary special-movement-type physics does not exist to fall back to.
         if (samus.Shinespark.OwnsMovement)
-            return SamusMovementOwner.Shinespark;
+        {
+            frame.SampleMovementOwner(SamusMovementOwner.Shinespark);
+            RunShinespark(frame, samus, room);
+            return;
+        }
         // Samus's control lock installs an input mode which advances existing
         // projectiles but a movement mode which performs no movement at all. All
         // special movement owners above take priority; an otherwise
@@ -650,11 +690,18 @@ internal sealed class SamusFramePhases
             // Finishing the door's opening scroll reinstalls it only on downward arrival. Upward arrival
             // retains the lock until the actor reaches rest, so Samus probes no terrain there and wakes none of the
             // scroll triggers the platform passes.
-            return SamusPoseMetadata.IsForwardFacingPose(samus.Pose) && room.Enemies.Elevator.ElevatorRunsSamusMovement
-                ? SamusMovementOwner.Elevator
-                : SamusMovementOwner.None;
+            if (SamusPoseMetadata.IsForwardFacingPose(samus.Pose) && room.Enemies.Elevator.ElevatorRunsSamusMovement)
+            {
+                frame.SampleMovementOwner(SamusMovementOwner.Elevator);
+                RunPoseOwnedMovement(frame, samus, room);
+                return;
+            }
+            frame.SampleMovementOwner(SamusMovementOwner.None);
+            RunNone();
+            return;
         }
-        return SamusMovementOwner.Pose;
+        frame.SampleMovementOwner(SamusMovementOwner.Pose);
+        RunPoseOwnedMovement(frame, samus, room);
     }
 
     /// <summary>
@@ -895,9 +942,9 @@ internal sealed class SamusFramePhases
         // setup/beam/deactivation state before the input phase so its deactivation can restore the
         // ordinary pose and her normal input and movement modes before this frame samples pose input. The
         // reveal and the beam's cone are the frame boundary's to show.
-        if (samus.Xray.IsActive && !samus.DeathSequence.IsActive)
+        if (samus.Xray.Scope is { } scope && !samus.DeathSequence.IsActive)
         {
-            frame.Record(samus.Xray.StepBeam(
+            frame.Record(scope.StepBeam(
                 samus,
                 _playerActions.Current));
         }
@@ -944,13 +991,11 @@ internal sealed class SamusFramePhases
         // Sound queues persist across the whole game, but this control publication covers one update of
         // Samus's control. It opens before her movement and collision, so it is in place for the landing
         // sounds her collision plays.
-        frame.BeginControl(mode, samus.Xray.OwnsSamusControl && !frame.DeathOwnsSamus, SamusPoseMetadata.ReadMovementType(samus));
-        if (frame.XrayOwnsPoseInput)
-        {
-            samus.Xray.HandlePoseInput(
-                samus,
-                _playerActions.Current);
-        }
+        SamusXrayState.SamusControl? xrayPoseInput = frame.DeathOwnsSamus ? null : samus.Xray.Control;
+        frame.BeginControl(mode, xrayPoseInput is not null, SamusPoseMetadata.ReadMovementType(samus));
+        xrayPoseInput?.HandlePoseInput(
+            samus,
+            _playerActions.Current);
 
         // The posture-transition movement type's input step is empty. Transition
         // poses can still have input locks, but reading them here prematurely

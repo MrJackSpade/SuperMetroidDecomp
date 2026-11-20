@@ -185,7 +185,7 @@ public sealed record GameArtwork
     public required EnemyOverreadServices EnemyOverreads { get; init; }
 
     /// <summary>Charge-flare placement.</summary>
-    public required ChargeFlarePlacements ChargeFlarePlacement { private get; init; }
+    public required BeamFlarePlacements ChargeFlarePlacement { private get; init; }
 
     /// <summary>The grapple flare's standing and running offsets.</summary>
     public required ChargeFlarePlacements GrappleFlarePlacement { private get; init; }

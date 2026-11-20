@@ -29,7 +29,24 @@ public sealed class SamusXrayState
 
     /// <summary>Creates an X-ray owner whose visor colours take Samus's special suit colouring.</summary>
     /// <param name="colouring">Samus's special suit colouring, which the visor takes.</param>
-    internal SamusXrayState(SamusSpecialColouring colouring) => _colouring = Ensure.NotNull(colouring);
+    internal SamusXrayState(SamusSpecialColouring colouring)
+    {
+        _colouring = Ensure.NotNull(colouring);
+        _scope = new LiveScope(this);
+        _control = new SamusControl(this);
+    }
+
+    /// <summary>The live scope's steps, reached through <see cref="Scope"/>.</summary>
+    private readonly LiveScope _scope;
+
+    /// <summary>The X-ray's hold on Samus's control, reached through <see cref="Control"/>.</summary>
+    private readonly SamusControl _control;
+
+    /// <summary>The live scope, whose beam steps: from its activation until its teardown, including Reserve Mode; none while it is off.</summary>
+    internal LiveScope? Scope => IsActive ? _scope : null;
+
+    /// <summary>The X-ray's hold on Samus's pose input and movement while it has them (<see cref="OwnsSamusControl"/>); none otherwise.</summary>
+    internal SamusControl? Control => OwnsSamusControl ? _control : null;
 
     /// <summary>True while the X-ray scope is live: from its activation until its teardown, including Reserve Mode.</summary>
     public bool IsActive { get; private set; }
@@ -315,12 +332,11 @@ public sealed class SamusXrayState
     /// Runs X-ray's own pose input, including the exact standing and crouching turns and their completion on the
     /// update the turn's last frame has one update left to show.
     /// </summary>
-    public void HandlePoseInput(
+    private void HandlePoseInput(
         SamusState samus,
         GameplayAction controllerInput)
     {
         Ensure.NotNull(samus);
-        EnsureActive();
 
         SamusMovementType movementType = SamusPoseMetadata.ReadMovementType(samus);
         if (movementType != SamusMovementType.TurningOnGround)
@@ -364,10 +380,9 @@ public sealed class SamusXrayState
     /// Executes the X-ray scope's movement: turning does nothing, while
     /// stable X-ray poses force the aim's hold and one of the five aims the angle selects.
     /// </summary>
-    internal void StepMovement(SamusState samus)
+    private void StepMovement(SamusState samus)
     {
         Ensure.NotNull(samus);
-        EnsureActive();
 
         if (SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.TurningOnGround)
             return;
@@ -390,12 +405,11 @@ public sealed class SamusXrayState
     /// step. The reveal itself remains outside this movement state; the display reads the beam's angle and width only
     /// once the warm-up is over.
     /// </summary>
-    public XrayBeamStepResult StepBeam(
+    private XrayBeamStepResult StepBeam(
         SamusState samus,
         GameplayAction controllerInput)
     {
         Ensure.NotNull(samus);
-        EnsureActive();
 
         XrayBeamPhase phaseAtStart = BeamPhase;
 
@@ -660,10 +674,32 @@ public sealed class SamusXrayState
             phaseAtStart,
             completed);
 
-    /// <summary>Rejects movement or pose input after the X-ray scope has closed.</summary>
-    private void EnsureActive()
+    /// <summary>The live X-ray scope (<see cref="Scope"/>): its cone effect steps from its activation until its teardown.</summary>
+    /// <param name="xray">The X-ray state the scope belongs to.</param>
+    internal sealed class LiveScope(SamusXrayState xray)
     {
-        if (!IsActive)
-            throw new InvalidOperationException("X-ray is not active, so it neither moves Samus nor reads her pose input.");
+        /// <summary>
+        /// Advances the cone effect by one update: an update of the beam's warm-up, until that is over, and then the beam's
+        /// own step. The reveal itself remains outside this movement state; the display reads the beam's angle and width
+        /// only once the warm-up is over.
+        /// </summary>
+        internal XrayBeamStepResult StepBeam(SamusState samus, GameplayAction controllerInput) => xray.StepBeam(samus, controllerInput);
+    }
+
+    /// <summary>The X-ray's hold on Samus's pose input and movement (<see cref="Control"/>).</summary>
+    /// <param name="xray">The X-ray state that holds them.</param>
+    internal sealed class SamusControl(SamusXrayState xray)
+    {
+        /// <summary>
+        /// Runs X-ray's own pose input, including the exact standing and crouching turns and their completion on the
+        /// update the turn's last frame has one update left to show.
+        /// </summary>
+        internal void HandlePoseInput(SamusState samus, GameplayAction controllerInput) => xray.HandlePoseInput(samus, controllerInput);
+
+        /// <summary>
+        /// Executes the X-ray scope's movement: turning does nothing, while stable X-ray poses force the aim's hold and one
+        /// of the five aims the angle selects.
+        /// </summary>
+        internal void StepMovement(SamusState samus) => xray.StepMovement(samus);
     }
 }

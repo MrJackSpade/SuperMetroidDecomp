@@ -97,7 +97,7 @@ internal sealed class ProjectileAnimation
     /// <summary>Applies pose muzzle offsets after optional Ceres turning-floor center transform, then draws the installed component frame.</summary>
     private void DrawFlareComponentWithMetadata(SpriteFrameBuffer sprites, SamusState samus, Position16<RoomPixels> cameraPosition, ChargeFlareComponent component, TurningFloorTransform? turningFloor, ChargeFlareArtwork artwork, ChargeFlarePose pose)
     {
-        Offset16<RoomPixels> visualOffset = artwork.Placement.Resolve(pose.Running, pose.Aim);
+        Offset16<RoomPixels> visualOffset = pose.Aim.PlacedBy(artwork.Placement, pose.Running);
 
         // The flare turns with Ceres's turning floor whenever Samus's body does. Only Samus's centre turns; the muzzle
         // offsets her pose selects are added after, and her position itself is unchanged.

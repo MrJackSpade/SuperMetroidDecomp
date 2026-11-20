@@ -874,7 +874,7 @@ internal static class LookupStream1Verification
             int row = SamusProjectileDirectionCodec.FlarePlacementRow(placement.Aim);
             var expected = new ChargeFlareOffset { X = Word((placement.Running ? 0x90c1dc : 0x90c1a8) + 2 * row),
                 Y = Word((placement.Running ? 0x90c1f0 : 0x90c1c2) + 2 * row) };
-            AssertEqual(expected.Offset, stock.Resolve(placement.Running, placement.Aim), "Installed flare default matches native");
+            AssertEqual(expected.Offset, placement.Aim.PlacedBy(stock, placement.Running), "Installed flare default matches native");
         }
         AssertEqual(23, ChargeFlarePlacements.Placements(ChargeFlareSource.Beam).Count(),
             "The beam flare is placed at ten muzzles in each movement mode and three turning placements standing");
@@ -885,16 +885,9 @@ internal static class LookupStream1Verification
             int row = SamusProjectileDirectionCodec.FlarePlacementRow(placement.Aim);
             var expected = new ChargeFlareOffset { X = Word((placement.Running ? 0x9bc19a : 0x9bc14a) + row * 2),
                 Y = Word((placement.Running ? 0x9bc1ae : 0x9bc15e) + row * 2) };
-            AssertEqual(expected.Offset, grapple.Resolve(placement.Running, placement.Aim), "Installed Grapple defaults match native");
+            AssertEqual(expected.Offset, grapple.AtMuzzle(placement.Running, ((SamusFlareAim.AtMuzzle)placement.Aim).Direction), "Installed Grapple defaults match native");
         }
         AssertEqual(20, ChargeFlarePlacements.Placements(ChargeFlareSource.Grapple).Count(), "The Grapple flare is placed at ten muzzles in each movement mode");
-        // No pose places a flare while turning running, or a Grapple flare while turning (#1500).
-        foreach (SamusTurningAim turning in Enum.GetValues<SamusTurningAim>())
-        {
-            SamusFlareAim aim = new SamusFlareAim.WhileTurning(turning);
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(true, aim), "Running flare placement rejects turning placements");
-            AssertThrows<ArgumentOutOfRangeException>(() => grapple.Resolve(false, aim), "Grapple flare placement has no turning placements");
-        }
         var compositions = ChargeFlareSprites.Load(new MemoryStream(ChargeFlareSpriteExtractor.Extract(rom)));
         var body = CreateSamusIdentityFixture();
         var system = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());

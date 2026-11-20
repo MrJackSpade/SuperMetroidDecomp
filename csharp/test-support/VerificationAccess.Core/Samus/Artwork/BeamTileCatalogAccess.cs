@@ -34,7 +34,7 @@ internal static class BeamTileCatalogAccess
                 data = default;
                 return false;
             }
-            data = self.Resolve(BeamTileCatalog.AssetFor(BeamTileAtlasDefinitionsConstants.LegacySelectionFor((BeamTileSource)sourceAddress)));
+            data = self.Resolve(BeamTileAtlasDefinitionsConstants.LegacySelectionFor((BeamTileSource)sourceAddress));
             return true;
         }
     }

@@ -77,7 +77,7 @@ internal sealed record GameplayArtwork
     public required EnemyOverreadServices EnemyOverreads { get; init; }
 
     /// <summary>Where the beam's charge flare is drawn from Samus in each pose.</summary>
-    public required ChargeFlarePlacements ChargeFlarePlacement { get; init; }
+    public required BeamFlarePlacements ChargeFlarePlacement { get; init; }
 
     /// <summary>The grapple flare's standing and running offsets.</summary>
     public required ChargeFlarePlacements GrappleFlarePlacement { get; init; }

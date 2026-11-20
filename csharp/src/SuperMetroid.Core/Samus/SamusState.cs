@@ -414,8 +414,8 @@ public sealed class SamusState
     /// <summary>The bomb jump locked her pose input; independent of who moves her now.</summary>
     public bool BombJumpPoseInputLocked { get; set; }
 
-    /// <summary>Which way the pending or running knockback moves Samus, or none.</summary>
-    public Movement.SamusKnockbackDirection KnockbackDirection { get; set; }
+    /// <summary>The knockback a hit put her in: none, one moving her, or one whose movement went back to her pose.</summary>
+    public Movement.SamusKnockback Knockback { get; set; } = Movement.SamusKnockback.None;
 
     /// <summary>Which way the pending or active knockback moves Samus horizontally.</summary>
     public Movement.KnockbackHorizontalDirection KnockbackXDirection { get; set; }
@@ -448,7 +448,7 @@ public sealed class SamusState
     public UpdateCountdown KnockbackHold { get; set; } = UpdateCountdown.Ended();
 
     /// <summary>Whether no hit holds Samus: her knockback hold has run out and no knockback is pending or moving her.</summary>
-    public bool HasNoKnockback => KnockbackHold.IsOver && KnockbackDirection == Movement.SamusKnockbackDirection.None;
+    public bool HasNoKnockback => KnockbackHold.IsOver && Knockback is Movement.SamusKnockback.NoKnockback;
 
     /// <summary>Clears Samus's two own hurt timers: no invincibility is left and no knockback is held.</summary>
     public void ClearHurtTimers()
@@ -498,12 +498,6 @@ public sealed class SamusState
     /// The room's visor shade cycle, advancing at its own pace, used only by backdrop-blending rooms.
     /// </summary>
     public SamusVisorShadeState VisorShades { get; } = new();
-
-    /// <summary>
-    /// Whether the knockback moves Samus (<see cref="SamusMovementOwner.Knockback"/>). It is separate from
-    /// the knockback movement type because the game also uses that type for crystal-flash art.
-    /// </summary>
-    public bool KnockbackActive { get; set; }
 
     /// <summary>
     /// The pose the animation was last started for, whose animation <see cref="AnimationFrame"/> steps through; none before

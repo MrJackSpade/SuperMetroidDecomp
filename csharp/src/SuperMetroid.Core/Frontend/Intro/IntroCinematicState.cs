@@ -806,11 +806,11 @@ public sealed class IntroCinematicState : IFrontendScreen
         BlockMoveResult? hurtEndingProbe = null;
         bool transitionAccepted = false;
         bool groundedDemoStepped = false;
-        if (samus.KnockbackActive)
+        if (samus.Knockback is SamusKnockback.Moving knockback)
         {
             // The intro demo's movement phase runs the knockback movement that owns Samus. Its shared
             // vertical calculation now carries the Rinka knockback's arc through its apex.
-            SamusKnockbackMovement.Step(level, samus, frameCounter, IntroCollisionRoomObjects.Instance);
+            SamusKnockbackMovement.Step(level, samus, knockback, frameCounter, IntroCollisionRoomObjects.Instance);
         }
         else if (SamusPoseMetadata.IsKnockbackPose(samus.Pose))
         {
@@ -881,9 +881,8 @@ public sealed class IntroCinematicState : IFrontendScreen
         // The intro demo's movement phase consumes the knockback timer the first Rinka's hit published on the
         // preceding cinematic-sprite pass. Keeping this after animation matches Samus's update during the intro demo:
         // the hit frame finishes its standing animation before the knockback start installs the knockback pose.
-        if (!samus.KnockbackActive &&
-            samus.KnockbackHold.IsRunning &&
-            samus.KnockbackDirection == Samus.Movement.SamusKnockbackDirection.None)
+        if (samus.Knockback is SamusKnockback.NoKnockback &&
+            samus.KnockbackHold.IsRunning)
         {
             SamusKnockbackMovement.Start(samus, demoInput, KnockbackLaunch.FromHurtState(samus), poseCollision: null);
             transitionAccepted = true;

@@ -811,8 +811,7 @@ internal static class LookupStream3Verification
         {
             int address = 0x9bc346 + 2 * (angle >> 10);
             int expected = (0x9a0000|CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
-            var asset = GrappleTileSelection.SegmentAssetFor(RotationAngleConstants.FromRaw((ushort)angle));
-            AssertEqual(expected, GrappleTileSelection.TransferFor(asset).SourceAddress,
+            AssertEqual(expected, GrappleTileSelection.SegmentTransferFor(RotationAngleConstants.FromRaw((ushort)angle)).SourceAddress,
                 "stream 3 native grapple angle sector");
         }
 
@@ -834,12 +833,8 @@ internal static class LookupStream3Verification
         {
             AssertEqual(expectedTransfers[index], actualTransfers[index],
                 "stream 3 grapple transfer index");
-            AssertEqual(expectedTransfers[index], GrappleTileSelection.TransferFor(expectedTransfers[index].Asset),
-                "stream 3 grapple transfer asset dispatch");
             AssertEqual(expectedSources[index], actualTransfers[index].SourceAddress, "stream 3 grapple transfer cartridge source");
         }
-        AssertThrows<InvalidDataException>(() => GrappleTileSelection.TransferFor((InstalledArtworkId)(-1)),
-            "stream 3 invalid grapple asset");
 
         for (int parameter = 0; parameter < 3; parameter++)
         {

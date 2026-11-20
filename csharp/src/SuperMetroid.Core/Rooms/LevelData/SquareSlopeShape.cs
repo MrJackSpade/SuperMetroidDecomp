@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Samus.Movement;
+namespace SuperMetroid.Core.Rooms.LevelData;
 
 /// <summary>The five square slope shapes: which of a block's four quarters are solid before the block's mirroring.</summary>
 public enum SquareSlopeShape

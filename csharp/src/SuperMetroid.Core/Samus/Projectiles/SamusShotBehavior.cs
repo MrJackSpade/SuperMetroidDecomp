@@ -24,4 +24,10 @@ internal abstract class SamusShotBehavior
     internal virtual void AdmitFiring()
     {
     }
+
+    /// <summary>
+    /// Whether the shot ends itself on its own next update once an enemy's collision marks it: a special attack particle
+    /// does, its hit deletion (and Spazer's paired deletion) its own; every other shot is turned into its impact at once.
+    /// </summary>
+    internal virtual bool EndsItselfAfterEnemyHit => false;
 }

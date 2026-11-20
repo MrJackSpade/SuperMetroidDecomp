@@ -55,6 +55,12 @@ public sealed class SlopeShape
     /// <summary>Whether the shape is made of solid quarters rather than read as a height profile.</summary>
     public bool IsSquare { get; }
 
+    /// <summary>
+    /// The quarters of a square shape that are solid before the block's mirroring, which Samus, her shots and enemies read
+    /// through the square slopes; none for a shape read as a height profile.
+    /// </summary>
+    public SquareSlopeShape? SquareQuarters { get; init; }
+
     /// <summary>The share of a grounded horizontal move that crosses the shape.</summary>
     public SpeedShare GroundedSpeedShare { get; }
 

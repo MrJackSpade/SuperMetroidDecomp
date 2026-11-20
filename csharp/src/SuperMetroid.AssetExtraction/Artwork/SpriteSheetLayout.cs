@@ -28,8 +28,8 @@ internal sealed class SpriteSheetLayout
     /// <summary>The row of parts that do not choose their own.</summary>
     private readonly int palette;
 
-    /// <summary>The game's priority of parts that do not choose their own, from which each frame's depth is decided.</summary>
-    private readonly int priority;
+    /// <summary>The depth of parts that do not choose their own, from which each frame's depth is decided.</summary>
+    private readonly ActorDepth depth;
 
     /// <summary>The distinct frame compositions in order.</summary>
     private readonly SheetFrameSource[] laid;
@@ -53,12 +53,12 @@ internal sealed class SpriteSheetLayout
     /// <param name="sources">Each frame's installed name, parts and characters, and the eight sprite palette rows as the
     /// family is drawn with them, sixteen colours each.</param>
     /// <param name="palette">The row of parts that do not choose their own.</param>
-    /// <param name="priority">The game's priority of parts that do not choose their own, from which each frame's depth is decided.</param>
-    internal SpriteSheetLayout(SpriteSheetSources sources, int palette, int priority)
+    /// <param name="depth">The depth of parts that do not choose their own, from which each frame's depth is decided.</param>
+    internal SpriteSheetLayout(SpriteSheetSources sources, int palette, ActorDepth depth)
     {
         this.sources = Ensure.NotNull(sources);
         this.palette = palette;
-        this.priority = priority;
+        this.depth = depth;
         rowShadeInks = [.. (sources.RowShades ?? []).Select(_ => new Dictionary<int, RowShadedInk>())];
         IReadOnlyList<SheetFrameSource> frames = sources.Frames;
         ReadOnlySpan<RgbColor> spriteColours = sources.SpriteColours;
@@ -250,8 +250,8 @@ internal sealed class SpriteSheetLayout
         ImageColourGroups groups = ImageColourGroups.None;
         // Each shown pixel's ink, zero where no part shows one, in the frame's own rectangle.
         var inks = new byte[bound.Size.X * bound.Size.Y];
-        // Each shown pixel's game priority, one up so that zero marks a pixel no part shows, in the frame's own rectangle.
-        var shownPriorities = new int[inks.Length];
+        // Each shown pixel's depth, null where no part shows one, in the frame's own rectangle.
+        var shownDepths = new int?[inks.Length];
         // Back to front, so the first part ends in front.
         for (int partIndex = source.Frame.Parts.Length - 1; partIndex >= 0; partIndex--)
         {
@@ -271,15 +271,15 @@ internal sealed class SpriteSheetLayout
                     int at = (part.Offset.Y - bound.TopLeft.Y + row) * bound.Size.X + part.Offset.X - bound.TopLeft.X + column;
                     int ink = ownRow * RowColours + colour;
                     inks[at] = checked((byte)ink);
-                    // Parts are laid back to front, so each pixel ends with the priority of the part in front.
-                    shownPriorities[at] = 1 + (part.Priority ?? priority);
+                    // Parts are laid back to front, so each pixel ends with the depth of the part in front.
+                    shownDepths[at] = (int)(part.Depth ?? depth);
                     // A part keeping its own row under a drawn row keeps its colours under every row shade.
                     if (part.Palette is null || !sources.PartsKeepOwnRows)
                         ShadeRows(ink);
                 }
             }
         }
-        return new FramePicture(bound, inks, groups, DepthOf(shownPriorities, source.Name));
+        return new FramePicture(bound, inks, groups, DepthOf(shownDepths));
     }
 
     /// <summary>
@@ -328,38 +328,35 @@ internal sealed class SpriteSheetLayout
     private sealed record LaidPictures(Extent16<ImagePixels> Size, FramePicture[] Composed, int[] PictureOf, FramePicture[] Distinct,
         Position16<ImagePixels>[] Corners);
 
-    /// <summary>The game's priorities, of which priorities zero and one draw behind the whole room.</summary>
-    private const int GamePriorities = 4;
+    /// <summary>The depths a part may draw at, from the back.</summary>
+    private const int Depths = (int)ActorDepth.InFront + 1;
 
     /// <summary>
-    /// The depth a frame whose shown pixels hold <paramref name="shownPriorities"/> (each priority one up, zero for none) is
-    /// drawn at (#1514): the priority most of its pixels show, the front one of a tie. The game's priorities zero and one both
-    /// draw behind the whole room, two between its back and front tiles, and three in front of it.
+    /// The depth a frame whose shown pixels hold <paramref name="shownDepths"/> (null for a pixel no part shows) is drawn
+    /// at (#1514): the place among the room's layers most of its pixels show, the front one of a tie. The two depths behind
+    /// the room are one place among the room's tiles, which only a turning floor splits (#2583): a frame lies behind the room
+    /// where most of its pixels lie at either, and then at whichever of the two more of them show, the one in front of the
+    /// floor on a tie.
     /// </summary>
-    /// <exception cref="InvalidDataException">A pixel holds a priority the game does not have.</exception>
-    private static ActorDepth? DepthOf(ReadOnlySpan<int> shownPriorities, string frame)
+    private static ActorDepth? DepthOf(ReadOnlySpan<int?> shownDepths)
     {
-        Span<int> counts = stackalloc int[GamePriorities];
-        foreach (int shown in shownPriorities)
+        Span<int> counts = stackalloc int[Depths];
+        foreach (int? shown in shownDepths)
         {
-            if (shown == 0)
-                continue;
-            if (shown > GamePriorities)
-                throw new InvalidDataException($"Sheet frame {frame} shows a pixel of priority {shown - 1}, which the game does not have.");
-            counts[shown - 1]++;
+            if (shown is int shownDepth)
+                counts[shownDepth]++;
         }
-        int main = -1;
-        for (int candidate = 0; candidate < GamePriorities; candidate++)
-        {
-            if (counts[candidate] > 0 && (main < 0 || counts[candidate] >= counts[main]))
-                main = candidate;
-        }
-        return main < 0 ? null : DepthOfPriority[main];
+        int behindFloor = counts[(int)ActorDepth.BehindRoom], inFrontOfFloor = counts[(int)ActorDepth.BehindRoomInFrontOfFloor];
+        int behindRoom = behindFloor + inFrontOfFloor;
+        int behindFrontParts = counts[(int)ActorDepth.BehindFrontParts], inFront = counts[(int)ActorDepth.InFront];
+        if (inFront > 0 && inFront >= behindFrontParts && inFront >= behindRoom)
+            return ActorDepth.InFront;
+        if (behindFrontParts > 0 && behindFrontParts >= behindRoom)
+            return ActorDepth.BehindFrontParts;
+        if (behindRoom > 0)
+            return inFrontOfFloor >= behindFloor ? ActorDepth.BehindRoomInFrontOfFloor : ActorDepth.BehindRoom;
+        return null;
     }
-
-    /// <summary>The depth each of the game's priorities draws at, from priority zero up.</summary>
-    private static readonly ActorDepth[] DepthOfPriority =
-        [ActorDepth.BehindRoom, ActorDepth.BehindRoom, ActorDepth.BehindFrontParts, ActorDepth.InFront];
 
     /// <summary>
     /// Hashes everything <see cref="Paint"/> reads into <see cref="Identity"/>. A part is hashed by the characters it
@@ -372,7 +369,7 @@ internal sealed class SpriteSheetLayout
         using (var writer = new BinaryWriter(stream, Encoding.UTF8, leaveOpen: true))
         {
             writer.Write(palette);
-            writer.Write(priority);
+            writer.Write((int)depth);
             writer.Write(sources.PaletteBits);
             writer.Write(sources.PartsKeepOwnRows);
             foreach (RgbColor colour in sources.SpriteColours)
@@ -448,7 +445,7 @@ internal sealed class SpriteSheetLayout
         return Convert.ToBase64String(stream.GetBuffer().AsSpan(0, checked((int)stream.Length)));
     }
 
-    /// <summary>Writes what painting reads of one part: its place, size, flip, row, priority and the characters it reads.</summary>
+    /// <summary>Writes what painting reads of one part: its place, size, flip, row, depth and the characters it reads.</summary>
     private static void WritePart(BinaryWriter writer, SpriteFramePart part, SpriteArtwork characters)
     {
         writer.Write(part.Offset.X);
@@ -458,8 +455,8 @@ internal sealed class SpriteSheetLayout
         writer.Write(part.Flip.ToString());
         writer.Write(part.Palette.HasValue);
         writer.Write(part.Palette.GetValueOrDefault());
-        writer.Write(part.Priority.HasValue);
-        writer.Write(part.Priority.GetValueOrDefault());
+        writer.Write(part.Depth.HasValue);
+        writer.Write((int)part.Depth.GetValueOrDefault());
         // Each row of the part's characters is a run of consecutive characters in the artwork's grid.
         int rowBytes = part.Size.X / SpriteArtwork.CharacterPixels * SpriteArtwork.CharacterByteCount;
         for (int row = 0; row < part.Size.Y / SpriteArtwork.CharacterPixels; row++)

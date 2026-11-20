@@ -96,7 +96,6 @@ internal static class CinematicSpritemapSourceDefinitions
         new(CinematicSpritePose.ExaminedBabyNarrowing, new(Bank, 0x8d5a)),
         new(CinematicSpritePose.ExaminedBabyNarrow, new(Bank, 0x8d61)),
         new(CinematicSpritePose.CaretVisible, new(Bank, 0x8d68)),
-        new(CinematicSpritePose.Blank, null),
         new(CinematicSpritePose.NextPageArrowBright, new(Bank, 0x8ccf)),
         new(CinematicSpritePose.NextPageArrowFading, new(Bank, 0x8cdb)),
         new(CinematicSpritePose.NextPageArrowFaint, new(Bank, 0x8ce7)),

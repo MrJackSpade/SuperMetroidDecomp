@@ -201,7 +201,7 @@ public sealed class SoundAcceptanceClock<TLibrary, TSound>
         }
 
         /// <summary>The value of <paramref name="library"/>; the default value for a library the set does not hold.</summary>
-        public TValue this[TLibrary library] => PositionIn(library) is int position and >= 0 ? values[position] : default;
+        public TValue this[TLibrary library] => PositionIn(library) is int position ? values[position] : default;
 
         /// <summary>Two sets are equal when every library either holds reads the same in both.</summary>
         public bool Equals(ByLibrary<TValue> other) => ReadsSameIn(other) && other.ReadsSameIn(this);
@@ -224,8 +224,8 @@ public sealed class SoundAcceptanceClock<TLibrary, TSound>
             ? []
             : held.Zip(values, (library, value) => new KeyValuePair<TLibrary, TValue>(library, value));
 
-        /// <summary>Where the set holds <paramref name="library"/>'s value, or a negative position when it holds none.</summary>
-        private int PositionIn(TLibrary library) => held.IsDefault ? -1 : held.IndexOf(library);
+        /// <summary>Where the set holds <paramref name="library"/>'s value, or null when it holds none.</summary>
+        private int? PositionIn(TLibrary library) => !held.IsDefault && held.IndexOf(library) is var position and >= 0 ? position : null;
 
         /// <summary>Whether every library this set holds reads the same in <paramref name="other"/>.</summary>
         private bool ReadsSameIn(ByLibrary<TValue> other) =>

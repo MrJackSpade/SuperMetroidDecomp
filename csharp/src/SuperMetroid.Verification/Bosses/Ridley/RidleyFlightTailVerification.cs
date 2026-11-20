@@ -31,18 +31,18 @@ internal static class RidleyFlightTailVerification
         var state = new NorfairRidleyState { Flight = { SwoopSpeed = fullSpeed } };
         update(state.Flight, TurnStep.None, RotationAngle.Zero, fullSpeed);
         AssertEqual((ushort)0x500, state.Flight.Velocity.Y.RawValue, "native downward swoop uses full speed");
-        state.Flight.SwoopAngleAccumulator = RotationAngle.FromSteps(120);
+        state.Flight.SwoopHeading = RotationAngle.FromSteps(120);
         update(state.Flight, TurnStep.None, RotationAngle.HalfTurn, fullSpeed);
-        AssertEqual(RotationAngle.FromSteps(120), state.Flight.SwoopAngleAccumulator, "native CMP/BMI retains right-facing recovery angle");
+        AssertEqual(RotationAngle.FromSteps(120), state.Flight.SwoopHeading, "native CMP/BMI retains right-facing recovery angle");
         // A rightward step from just short of a full turn wraps the heading past zero; the half-turn target's
         // sign-of-difference test then keeps the wrapped heading instead of snapping to the target.
-        state.Flight.SwoopAngleAccumulator = RotationAngle.FromSteps(254);
+        state.Flight.SwoopHeading = RotationAngle.FromSteps(254);
         update(state.Flight, new TurnStep(RotationAngle.FromSteps(4), RotationDirection.Counterclockwise), RotationAngle.HalfTurn, fullSpeed);
-        AssertEqual(RotationAngle.FromSteps(2), state.Flight.SwoopAngleAccumulator, "swoop heading wraps past a full turn");
+        AssertEqual(RotationAngle.FromSteps(2), state.Flight.SwoopHeading, "swoop heading wraps past a full turn");
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         for (int phase = 0; phase < 256; phase++)
         {
-            state.Flight.SwoopAngleAccumulator = RotationAngle.FromSteps((byte)phase);
+            state.Flight.SwoopHeading = RotationAngle.FromSteps((byte)phase);
             update(state.Flight, TurnStep.None, RotationAngle.FromSteps(phase), fullSpeed);
             ushort NativeComponent(int angle)
             {
@@ -107,7 +107,7 @@ internal static class RidleyFlightTailVerification
         RidleyTailAngle? samusTarget = state.Tail.ClockwiseWhipTarget;
         var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
         projectiles.Pool.ShotCount.Restore(1);
-        projectiles.Shots[0].Type = SamusProjectileType.Of(SamusProjectileFamily.Missile);
+        projectiles.Shots[0].OccupyAsFired(SamusProjectileType.Of(SamusProjectileFamily.Missile));
         projectiles.Shots[0].Position = projectiles.Shots[0].Position.WithWhole(new(96, 128));
         aimedProjectiles = projectiles;
         aim(state, samus, 0);

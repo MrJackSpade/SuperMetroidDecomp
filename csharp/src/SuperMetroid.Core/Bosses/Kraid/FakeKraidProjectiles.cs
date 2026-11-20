@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 internal static class FakeKraidProjectiles
 {
     /// <summary>
-    /// The launch velocity of <paramref name="spit"/>, in pixels and 256ths of a pixel: its speed toward
-    /// <paramref name="direction"/> and the shots' common rise.
+    /// The launch velocity of <paramref name="spit"/>: its speed toward <paramref name="direction"/> and the shots'
+    /// common rise.
     /// </summary>
     /// <exception cref="InvalidDataException"><paramref name="spit"/> is neither of the two shots.</exception>
     internal static PixelVelocity<RoomPixels> SpitLaunch(HorizontalDirection direction, FakeKraidSpit spit)

@@ -12,9 +12,10 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Waver], Create);
 
     /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
-    /// <param name="place">The place, holding the new identity and the entry it is spawned from.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
+    /// <param name="place">The place, already holding the occupant.</param>
     /// <param name="common">The shared participation the entity composes.</param>
-    private EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new WaverEntity(this, place, common));
+    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new WaverEntity(this, occupant, place, common));
 
     /// <summary>Room collision service used to reflect horizontal motion and the sine wave on impact.</summary>
     private readonly EnemyTerrain _terrain;
@@ -45,9 +46,9 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Waver.</summary>
-    internal static void InitializeWaver(RoomEnemyPlace place)
+    internal static void InitializeWaver(RoomEnemyOccupant occupant, RoomEnemyPlace place)
     {
-        HorizontalDirection facing = place.SpawnSettings<WaverSpawnSettings>().Facing;
+        HorizontalDirection facing = occupant.SpawnSettings<WaverSpawnSettings>().Facing;
         var state = new WaverEnemyState
         {
             Facing = facing,
@@ -56,8 +57,8 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
         };
         place.SetSpeciesState(state);
 
-        // The setup first shows the left steady animation and then asks for the spawn's facing. Only right-facing
-        // spawns therefore change it; left-facing spawns ask for the one playing and keep it.
+        // A Waver starts with the left steady animation; a right-facing Waver then turns it to face right, while a
+        // left-facing one keeps the animation already playing and its clock.
         state.Playback = new(WaverAnimations.StartingWith(WaverSegment.SteadyFacingLeft), AnimationPlace.StartOfAnimation);
         SetWaverAnimation(place, state, WaverAnimationChoices.Steady(state.Facing));
     }

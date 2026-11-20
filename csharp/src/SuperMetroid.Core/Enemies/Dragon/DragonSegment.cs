@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Dragon;
 
 /// <summary>
-/// Dragon's idle, wing and attack animations (#641): one segment per animation a spawn, branch or wake enters, in authored order.
+/// Dragon's idle, wing and attack animations (#641).
 /// Their steps are <see cref="DragonAnimations"/>.
 /// </summary>
 internal enum DragonSegment

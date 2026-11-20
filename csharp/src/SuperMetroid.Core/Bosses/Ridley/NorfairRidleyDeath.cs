@@ -185,7 +185,7 @@ internal sealed class NorfairRidleyDeath
             // places it where that part of Ridley still stands and starts its animation.
             RoomEnemyPlacement population = new(
                 EnemyDefinitionId.RidleyBreakupPiece,
-                Position: Position16<RoomPixels>.Zero,
+                Placing: EnemyPlacing.At(Position16<RoomPixels>.Zero),
                 Contact: EnemyContact.IgnoresSamus,
                 Processing: EnemyProcessing.Animates | EnemyProcessing.OffScreen,
                 Presence: EnemyPresence.None,
@@ -201,11 +201,11 @@ internal sealed class NorfairRidleyDeath
     }
 
     /// <summary>Sets up one of the breakup's twelve pieces from the breakup it joined.</summary>
-    internal void InitializeNorfairRidleyExplosion(RoomEnemyPlace fragment)
+    internal void InitializeNorfairRidleyExplosion(RoomEnemyOccupant occupant, RoomEnemyPlace fragment)
     {
         RidleyBreakupSource source = fragment.RequireSpeciesState<RidleyBreakupSource>();
         NorfairRidleyState state = source.Ridley;
-        RidleyExplosionPart part = fragment.Spawn.Population.SpawnSettingsOf<RidleyExplosionSpawnSettings>().Part;
+        RidleyExplosionPart part = occupant.SpawnSettings<RidleyExplosionSpawnSettings>().Part;
 
         fragment.AnimationClock.Restart();
         fragment.Shading = state.Colours.SpriteShading(flashing: false);
@@ -236,8 +236,9 @@ internal sealed class NorfairRidleyDeath
     }
 
     /// <summary>Runs a breakup piece's update: flicker, drag, gravity, movement, and lifetime.</summary>
-    internal void RunNorfairRidleyExplosionMain(RoomEnemyPlace fragment, SamusState samus)
+    internal void RunNorfairRidleyExplosionMain(RoomEnemyOccupant piece, SamusState samus)
     {
+        RoomEnemyPlace fragment = piece.Place;
         if (RidleyCadenceDefinitions.BreakupFragmentHidden.IsSetIn(fragment.FrameCounter))
             fragment.Presence = fragment.Presence.With(EnemyPresence.Hidden);
         else
@@ -256,6 +257,6 @@ internal sealed class NorfairRidleyDeath
 
         // A piece's lifetime ends in the small enemy death: it leaves its place at once, and the explosion it
         // becomes keeps its definition and position for the pickup it may leave.
-        _deathsAndDrops.StartGenericEnemyDeath(fragment, EnemyDeathExplosion.Small, samus);
+        _deathsAndDrops.StartGenericEnemyDeath(piece, EnemyDeathExplosion.Small, samus);
     }
 }

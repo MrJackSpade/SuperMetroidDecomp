@@ -115,19 +115,17 @@ public sealed class SamusArmCannonSourceArtwork
     /// <exception cref="InvalidDataException">The offset lies outside the extracted drawing window.</exception>
     private byte ReadDrawingByte(int offset) => Descriptors.ReadDrawingByte(offset);
 
-    /// <summary>Gets the installed cover's character, palette, priority, and mirroring for native direction 0–9.</summary>
+    /// <summary>Gets the installed cover's character, palette, depth, and mirroring for native direction 0–9.</summary>
     public SpritePart CoverAppearance(int direction) => (uint)direction < (uint)attributes.Length
         ? attributes[direction]
         : throw new ArgumentOutOfRangeException(nameof(direction));
 
-    /// <summary>The installed cover tile native direction 0–9 shows at cover frame 0–3; the closed frame 0 shows none.</summary>
-    public int? CoverTileIndex(int direction, int frame)
+    /// <summary>The installed cover tile native direction 0–9 shows at opening picture <paramref name="frame"/>.</summary>
+    public int CoverTileIndex(int direction, SamusArmCannonCoverFrame frame)
     {
         if ((uint)direction >= SamusProjectileDirectionCodec.Count)
             throw new ArgumentOutOfRangeException(nameof(direction));
-        if ((uint)frame >= SamusArmCannonArtworkFormat.FramesPerDirection)
-            throw new ArgumentOutOfRangeException(nameof(frame));
-        return frame == 0 ? null : OpeningTile(direction, frame);
+        return OpeningTile(direction, SamusArmCannonCoverFrameCodec.CartridgeFrame(frame));
     }
 
     /// <summary>The installed cover tile <paramref name="direction"/> shows at opening frame 1–3.</summary>

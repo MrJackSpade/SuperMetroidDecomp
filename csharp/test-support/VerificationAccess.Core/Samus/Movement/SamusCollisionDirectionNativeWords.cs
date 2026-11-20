@@ -15,6 +15,5 @@ internal static class SamusCollisionDirectionNativeWords
         [SamusCollisionDirection.Right] = 1,
         [SamusCollisionDirection.Up] = 2,
         [SamusCollisionDirection.Down] = 3,
-        [SamusCollisionDirection.NonDirectionalProbe] = 15,
     });
 }

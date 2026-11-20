@@ -7,8 +7,10 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 internal sealed class PhantoonRainFlameState(int hangUpdates) : EnemyProjectileState
 {
     /// <summary>
-    /// The flame's hang before it falls (#2469): it falls, with its falling sound, on the update the hang runs out on; null
-    /// once it falls.
+    /// The flame's hang before it falls (#2469): it falls, with its falling sound, on the update the hang runs out on.
     /// </summary>
-    internal BossCountdown? HangWait { get; set; } = BossCountdown.Lasting(hangUpdates);
+    internal BossCountdown HangWait { get; } = BossCountdown.Lasting(hangUpdates);
+
+    /// <summary>Whether the flame has stopped hanging and falls.</summary>
+    internal bool Falls { get; set; }
 }

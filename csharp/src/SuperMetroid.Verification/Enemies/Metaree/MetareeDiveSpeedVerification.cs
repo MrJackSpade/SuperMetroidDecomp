@@ -19,7 +19,7 @@ internal static class MetareeDiveSpeedVerification
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            place.Bind(EnemyDefinitionId.Metaree, place.Definition);
+            place.Bind(EnemyDefinitionId.Metaree, place.KeptDefinition);
             place.Position = place.Position.WithWhole(new(0x0100, 0x0080));
             MetareeBehavior.InitializeMetaree(place);
             MetareeEnemyState state = enemies.MetareeStates[0] ?? throw new InvalidOperationException("The Metaree has no state.");

@@ -75,10 +75,9 @@ public sealed class TorizoEnemyState
     public bool AnimationLocked { get; internal set; }
 
     /// <summary>
-    /// Stepping cues counted since a decision last reset it. Golden Torizo's repeated-jump decision fires once it reaches
-    /// <see cref="TorizoDecisionDefinitions.RepeatedJumpSteps"/> and resets it, and that decision follows every one of its
-    /// stepping cues; Bomb Torizo never reads it. No fight steps a Torizo anywhere near the end of its range (#1945), so it
-    /// counts on.
+    /// Stepping cues counted since a decision last reset it. Golden Torizo's repeated-jump decision fires once it
+    /// reaches <see cref="TorizoDecisionDefinitions.RepeatedJumpSteps"/> and resets it, and that decision follows every
+    /// one of its stepping cues; Bomb Torizo never reads it (#1945).
     /// </summary>
     public int DecisionCounter { get; internal set; }
 
@@ -91,7 +90,7 @@ public sealed class TorizoEnemyState
     /// <summary>Whether any egg Golden Torizo laid remains; the eggs that have gone are forgotten.</summary>
     internal bool EggsRemain()
     {
-        LaidEggs.RemoveAll(egg => egg.Kind != RoomEnemyProjectileKind.GoldenTorizoEgg);
+        LaidEggs.RemoveAll(egg => !egg.IsActive || egg.Kind != RoomEnemyProjectileKind.GoldenTorizoEgg);
         return LaidEggs.Count > 0;
     }
 
@@ -139,8 +138,8 @@ public sealed class TorizoEnemyState
     /// <summary>The main phase the Torizo runs each frame; it starts settling under gravity as it wakes.</summary>
     public TorizoPhase Phase { get; internal set; } = TorizoPhase.Falling;
 
-    /// <summary>How the body moves itself each update while it fights, or null while it holds still (#1931).</summary>
-    internal TorizoBodyMotion? Motion { get; set; }
+    /// <summary>How the body moves itself each update while it fights (#1931).</summary>
+    internal TorizoBodyMotion Motion { get; set; }
 
     /// <summary>Whether the Torizo has started dying: lethal damage starts its death once, and it stays dying while it lasts.</summary>
     public bool DeathStarted { get; internal set; }

@@ -14,9 +14,10 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.SuspensorPlatform, EnemyDefinitionId.Tripper], Create);
 
     /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
-    /// <param name="place">The place, holding the new identity and the entry it is spawned from.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
+    /// <param name="place">The place, already holding the occupant.</param>
     /// <param name="common">The shared participation the entity composes.</param>
-    private EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new PlatformsEntity(this, place, common));
+    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new PlatformsEntity(this, occupant, place, common));
 
     /// <summary>Clips the Tripper's and the suspensor platform's horizontal and vertical displacement against room terrain.</summary>
     private readonly EnemyTerrain _terrain;
@@ -35,16 +36,16 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Sets up a Tripper or a suspensor platform: its direction and speed from its spawn settings, its first rise and the
     /// height it rests at below where it was placed.
     /// </summary>
-    internal static void InitializePlatform(RoomEnemyPlace place)
+    internal static void InitializePlatform(RoomEnemyOccupant occupant, RoomEnemyPlace place)
     {
         var state = new PlatformEnemyState
         {
-            Kind = place.DefinitionId == EnemyDefinitionId.SuspensorPlatform ? PlatformKind.SuspensorPlatform : PlatformKind.Tripper,
+            Kind = place.Holds(EnemyDefinitionId.SuspensorPlatform) ? PlatformKind.SuspensorPlatform : PlatformKind.Tripper,
         };
         place.SetSpeciesState(state);
 
         // The platform moves left or right as its spawn settings say.
-        PlatformSpawnSettings settings = place.SpawnSettings<PlatformSpawnSettings>();
+        PlatformSpawnSettings settings = occupant.SpawnSettings<PlatformSpawnSettings>();
         state.XMovement = settings.Movement;
 
         state.Playback = new(PlatformAnimations.StartingWith(PlatformAnimationChoices.SelectAnimation(
@@ -56,7 +57,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs the Tripper's and the suspensor platform's main AI.</summary>
     private void RunPlatformMain(
-        RoomEnemyPlace place,
+        RoomEnemyOccupant occupant, RoomEnemyPlace place,
         PlatformEnemyState state,
         SamusState samus,
         RoomLevelData level)
@@ -71,8 +72,8 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The sinking carry measures the horizontal step from the position before it.
         int preHorizontalX = place.Position.X.Whole;
-        MovePlatformHorizontally(place, state, level);
-        MovePlatformVertically(place, state, samus, level, movement, preHorizontalX);
+        MovePlatformHorizontally(occupant, place, state, level);
+        MovePlatformVertically(occupant, place, state, samus, level, movement, preHorizontalX);
 
         // A newly selected vertical movement restarts the speed curve only after its first update:
         // that update can move by the curve's second mark, and the next starts from the curve's start.
@@ -83,12 +84,12 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Applies horizontal movement, reversing the horizontal direction and still-art animation on wall collision.</summary>
     private void MovePlatformHorizontally(
-        RoomEnemyPlace place,
+        RoomEnemyOccupant occupant, RoomEnemyPlace place,
         PlatformEnemyState state,
         RoomLevelData level)
     {
         // The spawn settings name the speed the platform moves at.
-        SignedSixteenSixteen speed = place.SpawnSettings<PlatformSpawnSettings>().Speed;
+        SignedSixteenSixteen speed = occupant.SpawnSettings<PlatformSpawnSettings>().Speed;
         SignedSixteenSixteen displacement = speed.Toward(state.XMovement);
         if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, place, displacement))
             return;
@@ -103,13 +104,14 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>What <c>MovePlatformVertically</c> does for each <see cref="PlatformVerticalMovement"/> member, each member's own arm.</summary>
-    private IdentityTable<PlatformVerticalMovement, Action<RoomEnemyPlace, PlatformEnemyState, SamusState, RoomLevelData, int>> MovePlatformVerticallyForPlatformVerticalMovement => field ??= new(new Dictionary<PlatformVerticalMovement, Action<RoomEnemyPlace, PlatformEnemyState, SamusState, RoomLevelData, int>>
+    private IdentityTable<PlatformVerticalMovement, Action<RoomEnemyOccupant, RoomEnemyPlace, PlatformEnemyState, SamusState, RoomLevelData, int>> MovePlatformVerticallyForPlatformVerticalMovement => field ??= new(new Dictionary<PlatformVerticalMovement, Action<RoomEnemyOccupant, RoomEnemyPlace, PlatformEnemyState, SamusState, RoomLevelData, int>>
     {
-        [PlatformVerticalMovement.Rising] = (place, state, samus, level, preHorizontalX) => RaisePlatform(place, state, level),
-        [PlatformVerticalMovement.Sinking] = (place, state, samus, level, preHorizontalX) => SinkPlatform(place, state, samus, level, preHorizontalX),
+        [PlatformVerticalMovement.Rising] = (occupant, place, state, samus, level, preHorizontalX) => RaisePlatform(occupant, place, state, level),
+        [PlatformVerticalMovement.Sinking] = (occupant, place, state, samus, level, preHorizontalX) => SinkPlatform(occupant, place, state, samus, level, preHorizontalX),
     });
 
     /// <summary>Routes the platform through rise or sink physics and carries a riding Samus by accepted motion.</summary>
+    /// <param name="occupant">The enemy holding <paramref name="place"/>.</param>
     /// <param name="place">The platform's place.</param>
     /// <param name="state">The platform's state.</param>
     /// <param name="samus">Samus, carried while riding.</param>
@@ -117,19 +119,19 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <param name="movement">The vertical movement this update's rider test chose.</param>
     /// <param name="preHorizontalX">The platform's whole X before this update's horizontal movement.</param>
     private void MovePlatformVertically(
-        RoomEnemyPlace place,
+        RoomEnemyOccupant occupant, RoomEnemyPlace place,
         PlatformEnemyState state,
         SamusState samus,
         RoomLevelData level,
         PlatformVerticalMovement movement,
         int preHorizontalX)
     {
-        MovePlatformVerticallyForPlatformVerticalMovement[movement](place, state, samus, level, preHorizontalX);
+        MovePlatformVerticallyForPlatformVerticalMovement[movement](occupant, place, state, samus, level, preHorizontalX);
     }
 
     /// <summary>Returns a depressed platform toward its spawn height, stopping at its resting depth.</summary>
     private void RaisePlatform(
-        RoomEnemyPlace place,
+        RoomEnemyOccupant occupant, RoomEnemyPlace place,
         PlatformEnemyState state,
         RoomLevelData level)
     {
@@ -143,7 +145,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         SetPlatformVerticallyMovingAnimation(place, state);
-        IncrementAndClampPlatformYSpeed(place, state);
+        IncrementAndClampPlatformYSpeed(occupant, state);
         SignedSixteenSixteen displacement = state.YSpeedCurvePlace.Speed.Negative;
         if (!_terrain.MoveEnemyVertically(level, place, displacement))
             return;
@@ -153,20 +155,21 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Accelerates a ridden platform downward and publishes its collision-clipped displacement to Samus.</summary>
+    /// <param name="occupant">The enemy holding <paramref name="place"/>.</param>
     /// <param name="place">The platform's place.</param>
     /// <param name="state">The platform's state.</param>
     /// <param name="samus">Samus, carried by the platform's accepted movement.</param>
     /// <param name="level">The room's collision data.</param>
     /// <param name="preHorizontalX">The platform's whole X before this update's horizontal movement.</param>
     private void SinkPlatform(
-        RoomEnemyPlace place,
+        RoomEnemyOccupant occupant, RoomEnemyPlace place,
         PlatformEnemyState state,
         SamusState samus,
         RoomLevelData level,
         int preHorizontalX)
     {
         // Sinking always accelerates.
-        IncrementAndClampPlatformYSpeed(place, state);
+        IncrementAndClampPlatformYSpeed(occupant, state);
 
         // Add the whole-pixel horizontal step to Samus's extra displacement; fractional
         // displacement is deliberately untouched because this enemy carries only whole pixels.
@@ -191,9 +194,9 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Steps the place one mark on along the quadratic speed curve, holding it at the cap its spawn settings name: as many
     /// marks on as their vertical acceleration updates.
     /// </summary>
-    private static void IncrementAndClampPlatformYSpeed(RoomEnemyPlace place, PlatformEnemyState state)
+    private static void IncrementAndClampPlatformYSpeed(RoomEnemyOccupant occupant, PlatformEnemyState state)
     {
-        QuadraticSpeedCurvePlace cap = QuadraticSpeedCurvePlace.FromMarks(place.SpawnSettings<PlatformSpawnSettings>().VerticalAccelerationUpdates);
+        QuadraticSpeedCurvePlace cap = QuadraticSpeedCurvePlace.FromMarks(occupant.SpawnSettings<PlatformSpawnSettings>().VerticalAccelerationUpdates);
         state.YSpeedCurvePlace += QuadraticSpeedCurvePlace.OneMark;
         if (state.YSpeedCurvePlace >= cap)
             state.YSpeedCurvePlace = cap;
@@ -264,9 +267,9 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     };
 
     /// <summary>Runs Platforms's main AI.</summary>
-    internal void RunPlatformsMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunPlatformsMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, IEnemyAiFrame frame)
     {
-        RunPlatformMain(place, place.RequireSpeciesState<PlatformEnemyState>(), frame.Samus, frame.Level);
+        RunPlatformMain(occupant, place, place.RequireSpeciesState<PlatformEnemyState>(), frame.Samus, frame.Level);
     }
 
     /// <summary>Advances Platforms's typed animation.</summary>

@@ -426,7 +426,16 @@ internal static class NativeEnemyProjectileProgramOracle
             }
             if ((word & NativeEnemyListDefinitions.InstructionBit) == 0)
             {
-                var frame = VerificationAssertions.AssertIs<AnimationBeat<TFrame, TEvent>.Frame>(Next("frame"), $"{at}: frame");
+                AnimationBeat<TFrame, TEvent> shownBeat = Next("frame");
+                if (shownBeat is AnimationBeat<TFrame, TEvent>.Hidden hidden)
+                {
+                    // An operand that draws nothing hides the projectile: the typed play's hidden beat (#2558).
+                    VerificationAssertions.AssertEqual(word, hidden.Duration, $"{at}: hidden duration");
+                    VerificationAssertions.AssertEqual(HiddenOperandKey, rules.FrameOperand(unchecked((ushort)(cursor + 2))), $"{at}: a hidden beat reads an operand that draws nothing");
+                    cursor = unchecked((ushort)(cursor + 4));
+                    continue;
+                }
+                var frame = VerificationAssertions.AssertIs<AnimationBeat<TFrame, TEvent>.Frame>(shownBeat, $"{at}: frame");
                 VerificationAssertions.AssertEqual(word, frame.Duration, $"{at}: duration");
                 VerificationAssertions.AssertEqual(rules.FrameOperand(unchecked((ushort)(cursor + 2))), presentationKey(frame.Shown), $"{at}: presentation key");
                 cursor = unchecked((ushort)(cursor + 4));
@@ -530,6 +539,9 @@ internal static class NativeEnemyProjectileProgramOracle
     /// The event a typed beat raises where its native list holds a command: an event's, or a marker's (#2301, #2411), which
     /// raises its moment as an event does.
     /// </summary>
+    /// <summary>The key the rules read for an operand that draws nothing, as a hidden slot reads (#2431, #2558).</summary>
+    private const ushort HiddenOperandKey = 0;
+
     private static TEvent RaisedBy<TFrame, TEvent>(AnimationBeat<TFrame, TEvent> beat, string at)
         where TFrame : struct
         where TEvent : notnull => beat switch

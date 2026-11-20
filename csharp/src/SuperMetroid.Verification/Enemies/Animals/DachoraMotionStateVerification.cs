@@ -41,7 +41,7 @@ internal static class DachoraMotionStateVerification
         samus.Kinematics.YAcceleration = new UnsignedSixteenSixteen(0, AirGravityFraction);
         var frame = new ClockedEnemyAiFrame(
             RoomEnemyFrameFixtures.Standalone(level, 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = samus },
-            new FrameCounters(0));
+            new FrameCounters(SuperMetroid.Core.Compatibility.ShortFrameCount.Zero));
         foreach ((short whole, ushort fraction, ushort expectedWhole, ushort expectedFraction) in new VerifyDachoraMotionStateCase[]
                  {
                      new VerifyDachoraMotionStateCase(9, 61440, 10, 0),
@@ -73,7 +73,7 @@ internal static class DachoraMotionStateVerification
     {
         var frame = new ClockedEnemyAiFrame(
             RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false },
-            new FrameCounters(0));
+            new FrameCounters(SuperMetroid.Core.Compatibility.ShortFrameCount.Zero));
         foreach ((int lifetime, ushort expected, bool invisible) in new VerifyDachoraEchoLifetimeCase[] { new VerifyDachoraEchoLifetimeCase(8, 7, false), new VerifyDachoraEchoLifetimeCase(1, 0, false), new VerifyDachoraEchoLifetimeCase(0, 0, true) })
         {
             (RoomEnemySystem enemies, RoomEnemyPlace place) = NewDachoraPlace(parameter: ushort.MaxValue);
@@ -100,7 +100,7 @@ internal static class DachoraMotionStateVerification
         {
             RoomEnemyPlace part = enemies.Places.InUpdateOrder[slot];
             part.SetSpawnParameter1(EnemyDefinitionId.Dachora, slot == 0 ? (ushort)1 : ushort.MaxValue);
-            part.Bind(EnemyDefinitionId.Dachora, part.Definition);
+            part.Bind(EnemyDefinitionId.Dachora, part.KeptDefinition);
             part.Radius = new(8, 8);
         }
         for (int slot = 0; slot < 5; slot++)
@@ -117,7 +117,7 @@ internal static class DachoraMotionStateVerification
 
         var frame = new ClockedEnemyAiFrame(
             RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false },
-            new FrameCounters(0));
+            new FrameCounters(SuperMetroid.Core.Compatibility.ShortFrameCount.Zero));
         enemies.DachoraBehavior.RunDachoraMainAi(body, frame);
         AssertEqual(DachoraAction.Shinesparking, state.Action, "the charge launches the shinespark");
         AssertEqual(0, state.TrailTimer.UpdatesLeft, "the launch clears the body's trail timer");
@@ -148,7 +148,7 @@ internal static class DachoraMotionStateVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.SetSpawnParameter1(EnemyDefinitionId.Dachora, parameter);
-        place.Bind(EnemyDefinitionId.Dachora, place.Definition);
+        place.Bind(EnemyDefinitionId.Dachora, place.KeptDefinition);
         place.Radius = new(8, 8);
         InitializeThroughEntity(place);
         return (enemies, place);

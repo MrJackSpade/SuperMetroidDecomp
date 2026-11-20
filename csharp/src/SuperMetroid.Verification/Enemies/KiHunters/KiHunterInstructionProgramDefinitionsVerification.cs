@@ -155,7 +155,7 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
             RoomLevelData level = VerificationHelpersVerification.CreateEmptyRoom(new(32, 32));
             var frame = new ClockedEnemyAiFrame(
                 RoomEnemyFrameFixtures.Standalone(level, 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(Position16<RoomPixels>.Zero) } },
-                new FrameCounters(0));
+                new FrameCounters(SuperMetroid.Core.Compatibility.ShortFrameCount.Zero));
 
             ushort velocityWhole = 0;
             ushort velocityFraction = 0;
@@ -203,18 +203,18 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
         CreatePairResult CreatePair()
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            Action<RoomEnemyPlace> initializeBody = enemies.KiHunterBehavior.InitializeKiHunter;
-            Action<RoomEnemyPlace> initializeWings = enemies.KiHunterBehavior.InitializeKiHunterWings;
+            Action<RoomEnemyPlace> initializeBody = fixturePlace => enemies.KiHunterBehavior.InitializeKiHunter(fixturePlace.HeldOccupant(), fixturePlace);
+            Action<RoomEnemyPlace> initializeWings = fixturePlace => enemies.KiHunterBehavior.InitializeKiHunterWings(fixturePlace.HeldOccupant(), fixturePlace);
 
             RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-            body.Bind(EnemyDefinitionId.KihunterGreen, body.Definition);
-            body.Bind(body.DefinitionId, default(RoomEnemyDefinition));
+            body.Bind(EnemyDefinitionId.KihunterGreen, body.KeptDefinition);
+            body.Bind(body.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
             // The header's collision half-extents: the terrain movers scan the rows the body spans.
             body.Radius = CompiledRoomEnemyDefinitions.Instance.ReadEnemyDefinition(EnemyDefinitionId.KihunterGreen).Radius;
             body.Position = body.Position.WithWhole(new(0x0080, 0x0080));
             RoomEnemyPlace wings = enemies.Places.InUpdateOrder[1];
-            wings.Bind(EnemyDefinitionId.KihunterGreenWings, wings.Definition);
-            wings.Bind(wings.DefinitionId, default(RoomEnemyDefinition));
+            wings.Bind(EnemyDefinitionId.KihunterGreenWings, wings.KeptDefinition);
+            wings.Bind(wings.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
             // A winged pair's population entries, as the room load gives them: the body keeps its wings, and the wing
             // entry's detachment health is never reached by these unhurt programs.
             body.SetSpawnSettings(new KiHunterSpawnSettings(KiHunterWings.Winged));

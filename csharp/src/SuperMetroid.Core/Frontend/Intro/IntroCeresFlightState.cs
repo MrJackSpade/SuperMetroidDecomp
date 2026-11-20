@@ -19,7 +19,7 @@ internal sealed class IntroCeresFlightState
     private readonly AudioQueues audio;
     /// <summary>The colour the flight shows behind every layer, the installed flight's backdrop (#1512).</summary>
     internal RgbColor Backdrop { get; private set; }
-    /// <summary>The front-star or rear-view actors' sprite entries over the flight sprite page (#1358).</summary>
+    /// <summary>The front-star or rear-view actors' sprites over the flight sprite page (#1358).</summary>
     internal readonly ScreenSprites screenSprites;
     /// <summary>The installed Ceres flight sheet the stars and rear-view actors draw from, rebound without restarting the scene.</summary>
     private SpriteSheet flightSprites;
@@ -229,7 +229,7 @@ internal sealed class IntroCeresFlightState
         ? PictureShading.Standard.With(ColourEffectShades.Of(CeresFlightSceneDefinitions.EngineColours, frame))
         : PictureShading.Standard;
 
-    /// <summary>Places the front stars or surviving rear-view actors as this frame's sprite entries.</summary>
+    /// <summary>Places the front stars or surviving rear-view actors as this frame's sprites.</summary>
     private void PrepareRenderSprites()
     {
         screenSprites.BeginFrame();
@@ -255,11 +255,11 @@ internal sealed class IntroCeresFlightState
         return shading;
     }
 
-    /// <summary>Whether the scene shows its rear view: once the rear-view map has been queued.</summary>
+    /// <summary>Whether the scene shows its rear view: once the camera has switched to it.</summary>
     private bool ShowsRearView => Phase is not (IntroCeresFlightPhase.Initial or IntroCeresFlightPhase.WaitForMusicQueue or
         IntroCeresFlightPhase.FlyingIntoCamera);
 
-    /// <summary>Loads the rear map, places five actors, and starts the white flash.</summary>
+    /// <summary>Switches the floor to the rear view, places five actors, and starts the white flash.</summary>
     private void SetupRearView()
     {
         // The rear view's map loads; the rear view's phase selects its installed floor (#1467).
@@ -318,10 +318,9 @@ internal sealed class IntroCeresFlightState
     /// <summary>Switches to the caption page and starts typing the caption, its first glyph shown at once.</summary>
     private void SetupSpaceColonyTitle()
     {
-        // The title replaces the turning image with the caption page
-        // and starts the caption's background text object. The rear-view cinematic actors are not
-        // deleted, so Ceres and both asteroid layers remain behind the title text.
-        // English text shows no katakana caption; Japanese text shows it for one frame before the hold.
+        // The title shows the caption over the scene and starts typing it; the rear view's actors stay, so Ceres and
+        // both asteroid layers remain behind the title text. English text shows no katakana caption; Japanese text
+        // shows it for one frame before the hold.
         caption = AnimationPlayer<SpaceColonyCaptionText, SpaceColonyCaptionTyping, SpaceColonyCaptionCue>.StartShowing(
             SpaceColonyCaptionAnimations.Segments,
             SpaceColonyCaptionAnimations.Typing(japaneseText ? SpaceColonyCaptionText.WithKatakana : SpaceColonyCaptionText.English));

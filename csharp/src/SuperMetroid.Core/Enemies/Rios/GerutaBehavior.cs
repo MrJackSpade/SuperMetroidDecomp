@@ -13,12 +13,13 @@ internal sealed class GerutaBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Geruta], Create);
 
     /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
-    /// <param name="place">The place, holding the new identity and the entry it is spawned from.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
+    /// <param name="place">The place, already holding the occupant.</param>
     /// <param name="common">The shared participation the entity composes.</param>
-    private EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) =>
-        Ensure.NotNull(place).SpawnSettings<EnemyFollowerSpawnSettings>().Role == EnemyFollowerRole.Follower
-            ? EnemyOccupant.Of(new GerutaFollowerEntity(this, place, common))
-            : EnemyOccupant.Of(new GerutaEntity(this, place, common));
+    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        occupant.SpawnSettings<EnemyFollowerSpawnSettings>().Role == EnemyFollowerRole.Follower
+            ? EnemyOccupant.Of(new GerutaFollowerEntity(this, occupant, place, common))
+            : EnemyOccupant.Of(new GerutaEntity(this, occupant, place, common));
 
     /// <summary>Provides the shared RNG advanced by every parent and flame follower.</summary>
     private readonly EnemyRoomBinding _room;
@@ -212,7 +213,7 @@ internal sealed class GerutaBehavior : IEnemySpecies, IEnemyEntityFactory
         follower.Position = follower.Position.WithWhole(parent.Position.Whole + new Offset16<RoomPixels>(0, parentState.FollowerYOffset));
     }
 
-    /// <summary>Reverses vertical travel, installs the ascent animation, and enters the return state.</summary>
+    /// <summary>Turns the Rio back upward and starts the climb's animation.</summary>
     private static void BeginGerutaReturn(
         RoomEnemyPlace place,
         GerutaEnemyState state)
@@ -264,7 +265,7 @@ internal sealed class GerutaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>The parent the follower found when it was placed, the enemy its room lists directly before it.</summary>
     private RoomEnemyPlace GetPrecedingGerutaPlace(RoomEnemyPlace follower) => _parents.Of(follower);
 
-    /// <summary>Requires a flame follower to directly follow a primary Geruta population entry.</summary>
+    /// <summary>Requires a flame follower to come right after its parent Rio among the room's enemies.</summary>
     private void ValidateGerutaParent(RoomEnemyPlace follower)
     {
         RoomEnemyPlace parent = GetPrecedingGerutaPlace(follower);

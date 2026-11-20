@@ -15,8 +15,8 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     /// <inheritdoc/>
     public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= new Dictionary<EnemyDefinitionId, EnemyEntityCreation>
     {
-        [EnemyDefinitionId.PirateGoldNinja] = (place, common) => EnemyOccupant.Of(new GoldNinjaSpacePirateEntity(this, place, common)),
-        [EnemyDefinitionId.PirateSilverNinja] = (place, common) => EnemyOccupant.Of(new NinjaSpacePirateEntity(this, place, common)),
+        [EnemyDefinitionId.PirateGoldNinja] = (occupant, place, common) => EnemyOccupant.Of(new GoldNinjaSpacePirateEntity(this, occupant, place, common)),
+        [EnemyDefinitionId.PirateSilverNinja] = (occupant, place, common) => EnemyOccupant.Of(new NinjaSpacePirateEntity(this, occupant, place, common)),
     };
 
     /// <summary>Provides the shared RNG used by divekick selection.</summary>
@@ -42,22 +42,20 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     }
 
     /// <summary>Initializes the Ninja Space Pirate.</summary>
-    internal static void InitializeNinjaSpacePirate(RoomEnemyPlace place)
+    internal static void InitializeNinjaSpacePirate(RoomEnemyOccupant occupant, RoomEnemyPlace place)
     {
         var state = new NinjaSpacePirateEnemyState(NinjaSpacePirateAction.StandingStill);
         place.SetSpeciesState(state);
 
-        NinjaSpacePirateSpawnSettings settings = place.SpawnSettings<NinjaSpacePirateSpawnSettings>();
+        NinjaSpacePirateSpawnSettings settings = occupant.SpawnSettings<NinjaSpacePirateSpawnSettings>();
         bool startsAtLeft = settings.StartPost == NinjaSpacePirateStartPost.Left;
         NinjaSpacePirateSegment initial = startsAtLeft
             ? NinjaSpacePirateSegment.AwaitingSamusFacingRight
             : NinjaSpacePirateSegment.AwaitingSamusFacingLeft;
         state.Playback = new(NinjaSpacePirateAnimations.StartingWith(initial), AnimationPlace.StartOfAnimation);
 
-        // The post distance describes the requested distance between posts. The setup
-        // first establishes those requested posts around the population X coordinate, then
-        // deliberately replaces them with a symmetric pair derived from its acceleration
-        // sum. That adjustment is why the final span can differ slightly from the post distance.
+        // The posts lie symmetrically about the placement's midpoint, at the distance the spin covers, which can differ
+        // slightly from the placement's post distance.
         int requestedLeft = startsAtLeft
             ? place.Position.X.Whole
             : place.Position.X.Whole - settings.PostDistance;
@@ -249,7 +247,10 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             NinjaSpacePirateSegment.ClawAttackRight);
     }
 
-    /// <summary>Retries RNG until a nonzero dive choice after higher-priority reactions fail.</summary>
+    /// <summary>
+    /// When no reaction comes first, draws random numbers until SpacePirateDecisions.DivekickDrawnAgain no longer takes
+    /// one, then divekicks.
+    /// </summary>
     private void RunNinjaPirateReadyToDivekick(
         RoomEnemyPlace place,
         NinjaSpacePirateEnemyState state,
@@ -268,8 +269,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             return;
         }
 
-        // Every accepted draw starts the same divekick. The draws are kept because advancing the RNG until it
-        // draws a number not divisible by four is observable.
+        // Every kept draw starts the same divekick; three draws in four are kept.
         bool drawsAgain;
         do
             drawsAgain = SpacePirateDecisions.DivekickDrawnAgain.IsTakenBy(_room.Random.Generate());
@@ -329,7 +329,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     private static void InitializeNinjaPirateDive(NinjaSpacePirateEnemyState state) =>
         state.DiveSpeed = SpacePirateMotionDefinitions.NinjaDiveStartSpeed;
 
-    /// <summary>Rises until signed speed turns negative, then switches to the descent animation.</summary>
+    /// <summary>Rises until its speed carries it downward, then switches to the descent animation.</summary>
     private static void StepNinjaPirateDiveJump(
         RoomEnemyPlace place,
         NinjaSpacePirateEnemyState state,
@@ -428,19 +428,14 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
 
     /// <summary>Allocates a claw with the selected throw direction, offset, graphics, and outbound speed.</summary>
     private void SpawnNinjaPirateClaw(
-        RoomEnemyPlace source,
+        RoomEnemyOccupant occupant, RoomEnemyPlace source,
         HorizontalDirection thrown,
         Offset16<RoomPixels> spawnOffset)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.PirateClaw, Claw, SpriteGraphics.SpawnedBy(occupant, source.Shading));
         if (projectile is null)
             return;
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            projectile,
-            RoomEnemyProjectileKind.PirateClaw,
-            Claw,
-            SpriteGraphics.SpawnedBy(source));
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(source.Position.Whole + spawnOffset);
         projectile.StartAnimation(new SpacePirateProjectileAnimation(Claw, thrown == HorizontalDirection.Right
             ? SpacePirateProjectileSegment.ClawRight
@@ -476,10 +471,10 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     /// Carries out one cue of the ninja Space Pirates' animations. Becoming active continues at the active stance facing
     /// Samus, as the cue returns that animation; every other cue runs on.
     /// </summary>
-    private NinjaSpacePirateSegment? ApplyNinjaSpacePirateCue(RoomEnemyPlace place, NinjaSpacePirateCue cue, SamusState samus)
+    private NinjaSpacePirateSegment? ApplyNinjaSpacePirateCue(RoomEnemyOccupant occupant, RoomEnemyPlace place, NinjaSpacePirateCue cue, SamusState samus)
     {
         NinjaSpacePirateEnemyState state = place.RequireSpeciesState<NinjaSpacePirateEnemyState>();
-        return cue.Match(ApplyNinjaSpacePirateCueCases, new ApplyNinjaSpacePirateCueContext(place, state, samus, this));
+        return cue.Match(ApplyNinjaSpacePirateCueCases, new ApplyNinjaSpacePirateCueContext(occupant, place, state, samus, this));
     }
 
     /// <summary>What <c>ApplyNinjaSpacePirateCue</c> does on each <see cref="NinjaSpacePirateCue"/>, built once (#2553).</summary>
@@ -496,7 +491,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         },
         ThrowClaw: static (throwClaw, context) =>
         {
-            context.Owner.SpawnNinjaPirateClaw(context.Place, throwClaw.Throw, throwClaw.Offset);
+            context.Owner.SpawnNinjaPirateClaw(context.Occupant, context.Place, throwClaw.Throw, throwClaw.Offset);
             return null;
         },
         Begin: static (begin, context) =>
@@ -516,11 +511,12 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         Signal: static (signal, context) => context.Owner.NinjaSignals[signal.Kind](context.Place, context.State, context.Samus));
 
     /// <summary>What <c>ApplyNinjaSpacePirateCue</c>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <param name="Occupant">The occupant whose cue is carried out.</param>
     /// <param name="Place">The <c>place</c> <c>ApplyNinjaSpacePirateCue</c> was handed.</param>
     /// <param name="State">The <c>state</c> <c>ApplyNinjaSpacePirateCue</c> works with.</param>
     /// <param name="Samus">The <c>samus</c> <c>ApplyNinjaSpacePirateCue</c> was handed.</param>
     /// <param name="Owner">The <see cref="NinjaSpacePirateBehavior"/> reacting.</param>
-    private readonly record struct ApplyNinjaSpacePirateCueContext(RoomEnemyPlace Place, NinjaSpacePirateEnemyState State, SamusState Samus, NinjaSpacePirateBehavior Owner);
+    private readonly record struct ApplyNinjaSpacePirateCueContext(RoomEnemyOccupant Occupant, RoomEnemyPlace Place, NinjaSpacePirateEnemyState State, SamusState Samus, NinjaSpacePirateBehavior Owner);
 
     /// <summary>What each of the ninja Space Pirates' signals does, and the animation it continues at, or null to run on.</summary>
     private IdentityTable<NinjaSpacePirateCueKind, Func<RoomEnemyPlace, NinjaSpacePirateEnemyState, SamusState, NinjaSpacePirateSegment?>> NinjaSignals => field ??=
@@ -549,7 +545,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             },
         });
 
-    /// <summary>Installs an animation and restarts its frame timer.</summary>
+    /// <summary>Starts an animation and restarts its frame timer.</summary>
     private static void StartNinjaPirateAnimation(
         RoomEnemyPlace place,
         NinjaSpacePirateEnemyState state,
@@ -603,10 +599,10 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     }
 
     /// <summary>Advances the ninja Space Pirate's typed animation.</summary>
-    internal void AdvanceNinjaSpacePirateTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext context) =>
+    internal void AdvanceNinjaSpacePirateTypedAnimation(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyAnimationCueContext context) =>
         EnemyAnimationPlayback.Advance(place, NinjaSpacePirateAnimations.Segments,
             static (NinjaSpacePirateEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
-            (state, cue) => ApplyNinjaSpacePirateCue(place, cue, context.Samus) is { } continuesAt
+            (state, cue) => ApplyNinjaSpacePirateCue(occupant, place, cue, context.Samus) is { } continuesAt
                 ? new AnimationContinuation<NinjaSpacePirateSegment>(NinjaSpacePirateAnimations.StartingWith(continuesAt), AnimationPlace.StartOfAnimation)
                 : null);
 

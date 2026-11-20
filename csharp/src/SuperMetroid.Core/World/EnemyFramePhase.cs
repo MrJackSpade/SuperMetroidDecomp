@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Enemies.Gunship;
@@ -47,10 +48,8 @@ internal sealed class EnemyFramePhase
         // the elevator here, immediately before this update's elevator step (#2545).
         if (room.RoomObjects.DoorContacts.ElevatorStand.Take())
             room.Enemies.Elevator.PublishElevatorDoorContact();
-        // The frame start clears all four external-displacement values before
-        // the enemy pass. Rideable enemies then accumulate accepted platform deltas and
-        // Samus's movement consumes those live values below; movement
-        // leaves them to the enemies that carry her.
+        // The frame start clears Samus's outside displacement before the enemy pass; the enemies that carry her add to
+        // it, and her movement below moves her by it.
         samus.Kinematics.ExtraDisplacement = FixedVector<RoomPixels>.Zero;
     }
 
@@ -66,7 +65,7 @@ internal sealed class EnemyFramePhase
     /// <param name="room">The loaded room.</param>
     /// <param name="samus">Samus, whom the enemies touch, carry and hand over to.</param>
     /// <returns>What the pass's enemies did: the events they published, which this phase has carried out.</returns>
-    internal EnemyFrameResult RunEnemyUpdatePhase(EnemyProcessingList processingList, FixedPosition<RoomPixels>? samusPreviousPositionCheckpoint, RoomScope room, SamusState samus)
+    internal EnemyFrameResult RunEnemyUpdatePhase(EnemyProcessingList processingList, SamusScrollCheckpoint samusPreviousPositionCheckpoint, RoomScope room, SamusState samus)
     {
         bool hyperBeamBefore = samus.HyperBeamEnabled;
         if (processingList == EnemyProcessingList.Unprepared)
@@ -112,9 +111,8 @@ internal sealed class EnemyFramePhase
         {
             int babyMetroidCameraX = cameraMove.CameraX;
             // The camera's and the foreground's positions hold the written X to the room's coordinates (#1627).
-            // The Baby Metroid writes the camera X position during the enemy pass, before the ordinary
-            // scrolling later in this frame. Do not route it through entry
-            // placement, which would clear the camera's fraction of a pixel and its ideal position.
+            // The Baby Metroid moves the camera during the enemy pass, before the ordinary scrolling later in this
+            // update, keeping the camera's fraction of a pixel and its ideal position.
             room.Camera.SetCameraXFromEnemyAi(babyMetroidCameraX);
             _backgroundScroll.ForegroundPosition = _backgroundScroll.ForegroundPosition.WithX(babyMetroidCameraX);
         }
@@ -134,10 +132,8 @@ internal sealed class EnemyFramePhase
         samus.Kinematics.InteractiveEnemies = room.Enemies.InteractiveCollisionBodies;
         if (result.Reports(new GunshipEvent(GunshipFrameEvent.EntryStarted)))
         {
-            // Making Samus face forward performs a direct suit-colour reload and the
-            // ship explicitly clears elevator status after locking Samus's
-            // control. The enemy system owns pose/motion; these two global values
-            // remain runtime-owned and are applied on its typed event boundary.
+            // The gunship's entry makes Samus face forward, shows her suit's colours and, once her control is locked,
+            // ends the elevator's ride.
             SuperMetroid.Core.Samus.Colours.SamusSuitShade.Show(_player.Colours, samus.EquippedItems);
             room.Enemies.Elevator.ResetStatus();
         }

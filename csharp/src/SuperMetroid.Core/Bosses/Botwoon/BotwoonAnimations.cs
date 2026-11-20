@@ -64,8 +64,8 @@ internal static class BotwoonAnimations
     /// body link cycles its facing's frames at <see cref="BodyFrameDuration"/> apiece, and a tail cap and the hidden segment show their
     /// one frame.
     /// </summary>
-    internal static UnpausedAnimationSegments<BotwoonBodyAnimationSegment, EnemyProjectileFrameId, NoAnimationCue> BodySegments { get; } = new(
-        new Dictionary<BotwoonBodyAnimationSegment, AnimationBeat<EnemyProjectileFrameId, NoAnimationCue>.Unpaused[]>
+    internal static HidingUnpausedAnimationSegments<BotwoonBodyAnimationSegment, EnemyProjectileFrameId, NoAnimationCue> BodySegments { get; } = new(
+        new Dictionary<BotwoonBodyAnimationSegment, IUnpausedHidingAnimationBeat<EnemyProjectileFrameId, NoAnimationCue>[]>
         {
             [B.Link(CompassDirection.Up)] =
             [
@@ -131,7 +131,7 @@ internal static class BotwoonAnimations
                 Show(F.BotwoonBodyUpLeftRipple270, BodyFrameDuration),
             ],
             [B.TailCap(CompassDirection.UpLeft)] = [Show(F.BotwoonTailUpLeft, 1)],
-            [B.Hidden] = [Show(F.Blank, 1)],
+            [B.Hidden] = [new AnimationHiddenBeat<EnemyProjectileFrameId, NoAnimationCue>(1)],
         }, BodyAnimationKeys);
 
     /// <summary>

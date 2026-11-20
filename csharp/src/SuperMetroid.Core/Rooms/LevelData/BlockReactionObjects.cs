@@ -79,8 +79,8 @@ internal sealed class BlockReactionObjects
         RoomCollisionBlock block = level.GetCollisionBlock(position);
         place.Block = position;
 
-        // This is not the block's earlier appearance. The setup deliberately replaces the block and its mirroring with the
-        // bomb-block parent; multi-block restorations then add extension blocks around this parent.
+        // This is not the block's earlier appearance: the setup shows the bomb-block parent in place of the block and
+        // its mirroring, and multi-block restorations then add extension blocks around this parent.
         RoomBlockAppearance parent = _drawing.SetupBlock(RoomObjectSetupBlock.BombBlockParent);
         place.Become(new BlockReactionObject(BlockReactionChanges.CollisionBomb(behavior.Bombable),
             new RoomTerrainBlock(parent, block.CollisionType)));
@@ -236,9 +236,9 @@ internal sealed class BlockReactionObjects
         },
         [ShotBlockReaction.PermanentBreak] = (level, position, behavior, reaction, projectileFamily, place, block) =>
         {
-            // The deactivating setup keeps no restore block: these breaks are permanent. The current block loses its
-            // shootable collision before the first animated breaking frame runs later in this pass, keeping what it
-            // shows until then, as the setup rewrites only the block's type (#2502).
+            // The deactivating setup keeps no restore block: these breaks are permanent. The current block loses
+            // its shootable collision before the first animated breaking frame runs later in this pass, keeping
+            // what it shows until then (#2502).
             place.Become(new BlockReactionObject(BlockReactionChanges.PermanentShot(behavior.Shootable)));
             level.SetCollision(position, block.Terrain.Deactivated().Collision);
             return true;
@@ -301,12 +301,12 @@ internal sealed class BlockReactionObjects
         RoomLevelData level,
         Position16<RoomBlocks> position,
         RoomBlockBehavior behavior,
-        SamusProjectileType projectileType,
+        BlockStrike strike,
         bool solidBlock)
     {
         Ensure.NotNull(level);
         if (behavior == EscapeAnimalWallDefinitions.ReactionBehavior)
-            return _escapeAnimals.TrySpawnCrittersEscapeReaction(level, position, projectileType);
+            return _escapeAnimals.TrySpawnCrittersEscapeReaction(level, position, strike);
         if (ShotBlockReactions.Of(behavior.Shootable) is not { } reaction)
         {
             throw new UnsupportedShotBlockReactionException(
@@ -320,7 +320,7 @@ internal sealed class BlockReactionObjects
         if (behavior.Shootable is { } shootable && shootable.SetsOffOnlyInSolidBlocks && !solidBlock)
             return false;
 
-        SamusProjectileFamily projectileFamily = projectileType.Family;
+        SamusProjectileFamily projectileFamily = strike.Family;
 
         // A Power Bomb or Super Missile block breaks only for its own weapon or a bomb; any other shot leaves the block as it
         // is and takes no place.
@@ -375,10 +375,10 @@ internal sealed class BlockReactionObjects
     /// any other image, or the block's saved terrain restored as it grows back, closes it again.
     /// </summary>
     /// <param name="block">The reaction's block.</param>
-    /// <param name="draw">The image's draw; null when the image restored the block's saved terrain.</param>
-    internal void RecordImageShown(Position16<RoomBlocks> block, RoomObjectDraw? draw)
+    /// <param name="image">The image shown: a draw, or the block's saved terrain restored.</param>
+    internal void RecordImageShown(Position16<RoomBlocks> block, BlockReactionImage image)
     {
-        if (draw is RoomObjectFrameDraw<ShotBlockObjectDraws.BreakupDraw> { Frame.BreaksOpen: true })
+        if (image is BlockReactionImage.Drawn { Draw: RoomObjectFrameDraw<ShotBlockObjectDraws.BreakupDraw> { Frame.BreaksOpen: true } })
             _brokenOpenBlocks.Add(block);
         else
             _brokenOpenBlocks.Remove(block);

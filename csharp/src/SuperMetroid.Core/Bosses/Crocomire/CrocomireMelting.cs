@@ -151,7 +151,10 @@ internal sealed class CrocomireMelting
         death.BodyXBeforeMelting = state.Body.Position.X.Whole;
     }
 
-    /// <summary>Updates the acid dissolve, background distortion, tongue placement, and scheduled melting graphics.</summary>
+    /// <summary>
+    /// Updates his melting: the acid smokes, his body shakes and dissolves a column, the tongue is placed and the
+    /// melt's stretch steepens.
+    /// </summary>
     internal void RunCrocomireMelting(CrocomireEnemyState state)
     {
         _bodyLayer.SpawnCrocomireAcidSmoke(state);

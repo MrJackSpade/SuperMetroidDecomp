@@ -457,7 +457,7 @@ internal static class SamusPoseInputRules
         if (Has(newlyPressed, Down))
             return Accept(SamusPoseId.CrouchingTransitionLeftPose, CrouchOrStand);
         if (Has(newlyPressed, Jump))
-            return Accept(SamusPoseId.MoonwalkTurnJumpRightPose, StartMoonwalkTurnJump);
+            return Accept(SamusPoseId.MoonwalkTurnToSpinJumpRightPose, StartMoonwalkTurnToSpinJump);
         if (Has(held, AimDown | Shoot | Right))
             return Accept(SamusPoseId.MoonwalkAimDownLeftPose, ChangeMoonwalkPose);
         if (Has(held, AimUp | Shoot | Right))
@@ -478,7 +478,7 @@ internal static class SamusPoseInputRules
         if (Has(newlyPressed, Down))
             return Accept(SamusPoseId.CrouchingTransitionRightPose, CrouchOrStand);
         if (Has(newlyPressed, Jump))
-            return Accept(SamusPoseId.MoonwalkTurnJumpLeftPose, StartMoonwalkTurnJump);
+            return Accept(SamusPoseId.MoonwalkTurnToSpinJumpLeftPose, StartMoonwalkTurnToSpinJump);
         if (Has(held, AimUp | Shoot | Left))
             return Accept(SamusPoseId.MoonwalkAimUpRightPose, ChangeMoonwalkPose);
         if (Has(held, AimDown | Shoot | Left))
@@ -958,14 +958,14 @@ internal static class SamusPoseInputRules
     }
 
     /// <summary>The priority order of the moonwalk turn jump right input list; the mirrored list has the same order mirrored.</summary>
-    internal static SamusPoseInputMatch MatchMoonwalkTurnJumpRight(GameplayAction held, GameplayAction newlyPressed)
+    internal static SamusPoseInputMatch MatchMoonwalkTurnToSpinJumpRight(GameplayAction held, GameplayAction newlyPressed)
     {
         if (Has(held, Jump | Right))
             return Accept(SamusPoseId.SpinJumpRightPose, StartJump);
         if (Has(newlyPressed, Jump))
             return Accept(SamusPoseId.NeutralJumpTransitionRightPose, StartJump);
         if (Has(held, Right))
-            return Accept(SamusPoseId.MoonwalkTurnJumpRightPose, KeepPose);
+            return Accept(SamusPoseId.MoonwalkTurnToSpinJumpRightPose, KeepPose);
         return new(null, HasConditions: true);
     }
 
@@ -973,7 +973,7 @@ internal static class SamusPoseInputRules
     /// The aimed-up and aimed-down moonwalk turn-jump input lists, in both directions: one priority order for an aimed
     /// moonwalk turn jump to the right, continuing <paramref name="aimedTurnJump"/>; the leftward lists are it mirrored.
     /// </summary>
-    internal static SamusPoseInputMatch MatchMoonwalkTurnJumpAimedRight(SamusPoseId aimedTurnJump, GameplayAction held, GameplayAction newlyPressed)
+    internal static SamusPoseInputMatch MatchMoonwalkTurnToSpinJumpAimedRight(SamusPoseId aimedTurnJump, GameplayAction held, GameplayAction newlyPressed)
     {
         if (Has(newlyPressed, Jump) && Has(held, Right))
             return Accept(SamusPoseId.SpinJumpRightPose, StartJump);

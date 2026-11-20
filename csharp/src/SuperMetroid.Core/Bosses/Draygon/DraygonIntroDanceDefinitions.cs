@@ -17,7 +17,7 @@ internal static class DraygonIntroDanceDefinitions
 
     /// <summary>
     /// The handwritten Keiko Love path every dancing Evir follows, one move per update, right and down positive. The update
-    /// after its last move deletes the Evir, which every Evir reaches before the dance ends.
+    /// after its last move ends the Evir's dance, which every Evir reaches before the dance ends.
     /// </summary>
     /// <remarks>Adding up the path's steps traces hidden lettering, so the path is kept as drawn: fitted splines,
     /// per-stroke corrections or a numeric switch would encode the same particular letter shapes and pen timing. This is

@@ -9,15 +9,16 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// <summary>
 /// One of Draygon's occupants: his body (<see cref="DraygonBodyEntity"/>), eye (<see cref="DraygonEyeEntity"/>), tail
 /// (<see cref="DraygonTailEntity"/>) or arms (<see cref="DraygonArmsEntity"/>). Every part plays its animation through the
-/// encounter, answers his hitboxes and may show its frames on his boss body layer; the parts other than the
-/// body take the shared reactions their definitions name.
+/// encounter, answers his hitboxes and shows its frames as placed pictures; the parts other than the body take the
+/// shared reactions their definitions name.
 /// </summary>
 /// <param name="species">The Draygon species owner.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the part occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="bossArtwork">The session's installed boss artwork.</param>
-internal abstract class DraygonEntity(DraygonBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IBossBodyFrames
+internal abstract class DraygonEntity(DraygonBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IBossBodyFrames
 {
     /// <summary>The Draygon species owner.</summary>
     protected DraygonBehavior Species => species;
@@ -38,14 +39,8 @@ internal abstract class DraygonEntity(DraygonBehavior species, RoomEnemyPlace pl
     internal DraygonEnemyState Encounter => Part.Draygon;
 
     /// <inheritdoc/>
-    public bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction) =>
-        DraygonCombat.FindDraygonHitboxReaction(Place, probe, out reaction);
-
-    /// <summary>None: the parts other than the body name shared touch reactions.</summary>
-    public virtual EnemyReaction? SpeciesTouch => null;
-
-    /// <summary>None: the parts other than the body name shared shot reactions.</summary>
-    public virtual EnemyReaction? SpeciesShot => null;
+    public EnemyHitboxContact FindHitboxReaction(EnemyHitboxProbe probe) =>
+        DraygonCombat.FindDraygonHitboxReaction(Place, probe);
 
     /// <inheritdoc/>
     public BossBodyFrame? FindBodyFrame(EnemyFrameId selected) =>

@@ -36,7 +36,8 @@ public enum MotherBrainPhase2FightPhase
     /// <summary>Chooses neck targets from head/Samus Y ordering and starts the quick-positioning wait.</summary>
     LaserPositionHeadQuickly,
 
-    /// <summary>When the quick positioning runs out, slows neck rotation, installs the laser head animation, and starts the recovery wait.</summary>
+    /// <summary>When the quick positioning runs out, slows her neck, starts her head's laser animation and the recovery
+    /// wait.</summary>
     LaserPositionHeadSlowlyAndFire,
 
     /// <summary>Restores neutral neck targets after the wait and immediately re-enters thinking without the ordinary attack sequence's end phase.</summary>

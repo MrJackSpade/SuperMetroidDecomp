@@ -12,11 +12,12 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Fireflea], Create);
 
     /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
-    /// <param name="place">The place, holding the new identity and the entry it is spawned from.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
+    /// <param name="place">The place, already holding the occupant.</param>
     /// <param name="common">The shared participation the entity composes.</param>
-    private EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new FirefleaEntity(this, place, common));
+    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new FirefleaEntity(this, occupant, place, common));
 
-    /// <summary>Runs common touch handling before Fireflea's unconditional death call.</summary>
+    /// <summary>Runs the common touch, after which the Fireflea always dies.</summary>
     private readonly EnemyCollision _collision;
     /// <summary>Starts explosion and drop processing, including the second-death path.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
@@ -32,9 +33,9 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Fireflea from its flight and radius.</summary>
-    internal static void InitializeFireflea(RoomEnemyPlace place)
+    internal static void InitializeFireflea(RoomEnemyOccupant occupant, RoomEnemyPlace place)
     {
-        FirefleaSpawnSettings settings = place.SpawnSettings<FirefleaSpawnSettings>();
+        FirefleaSpawnSettings settings = occupant.SpawnSettings<FirefleaSpawnSettings>();
         FirefleaFlightState flight = settings.Flight.Match<FirefleaFlightState>(
             bobbing => StartBobbing(place, bobbing, settings.Radius),
             circling => StartCircling(place, circling, settings.Radius));
@@ -69,15 +70,16 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the Fireflea's main AI, advancing circular angle or vertical travel.</summary>
-    private static void RunFirefleaMain(RoomEnemyPlace place, FirefleaEnemyState state)
+    private static void RunFirefleaMain(RoomEnemyOccupant occupant, RoomEnemyPlace place, FirefleaEnemyState state)
     {
-        state.Flight.React(RunFirefleaMainReactions, place);
+        state.Flight.React(RunFirefleaMainReactions, occupant);
     }
 
     /// <summary>What <c>RunFirefleaMain</c> does on each <see cref="FirefleaFlightState"/>, built once (#2553).</summary>
-    private static FirefleaFlightStateReactions<RoomEnemyPlace> RunFirefleaMainReactions { get; } = new(
-        BobbingFirefleaState: static (bobbing, place) =>
+    private static FirefleaFlightStateReactions<RoomEnemyOccupant> RunFirefleaMainReactions { get; } = new(
+        BobbingFirefleaState: static (bobbing, occupant) =>
         {
+            RoomEnemyPlace place = occupant.Place;
             place.Position = place.Position.AdvanceY(bobbing.Velocity);
 
             // The Fireflea overshoots a bound before its way reverses.
@@ -86,10 +88,11 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
             if (crossedMinimum || reachedMaximum)
                 bobbing.Direction = bobbing.Direction.Reversed();
         },
-        CirclingFirefleaState: static (circling, place) =>
+        CirclingFirefleaState: static (circling, occupant) =>
         {
+            RoomEnemyPlace place = occupant.Place;
             place.Position = place.Position.WithWhole(circling.Center
-                + EnemyMath.CircleOffset(circling.Angle.ToTrigonometryAngle(), place.SpawnSettings<FirefleaSpawnSettings>().Radius));
+                + EnemyMath.CircleOffset(circling.Angle.ToTrigonometryAngle(), occupant.SpawnSettings<FirefleaSpawnSettings>().Radius));
             circling.Angle = circling.Angle.TurnedBy(circling.Definition.TurnPerUpdate);
         });
 
@@ -100,11 +103,12 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// similar contact attacks can increment the room kill count twice.
     /// </summary>
     private void ResolveFirefleaTouch(
-        RoomEnemyPlace place,
+        RoomEnemyOccupant fireflea,
         SamusState samus,
         PseudoScrewCharge pseudoScrew)
     {
-        _collision.ResolveOrdinaryTouch(place, samus, pseudoScrew);
+        RoomEnemyPlace place = fireflea.Place;
+        _collision.ResolveOrdinaryTouch(fireflea, samus, pseudoScrew);
 
         // The touch kills the Fireflea whatever it left, in the explosion the health the touch left names
         // (LeftoverNumberDeathExplosion). Queue that death animation before clearing the actor so its artwork and sound
@@ -112,7 +116,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
         // the emptied place, whose cleared health names the small explosion: the second explosion appears at the room's
         // top-left corner for whatever the place now holds (nothing, or the respawn placeholder), clears that placeholder,
         // and counts a second kill.
-        _deathsAndDrops.StartGenericEnemyDeath(place,
+        _deathsAndDrops.StartGenericEnemyDeath(fireflea,
             EnemyDeathExplosionDefinitions.LeftoverNumbered.Named(place.Health), samus);
         AdvanceFirefleaDarkness();
     }
@@ -140,9 +144,9 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
             static (FirefleaEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback);
 
     /// <summary>Runs Fireflea's main AI.</summary>
-    internal static void RunFirefleaMainAi(RoomEnemyPlace place)
+    internal static void RunFirefleaMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place)
     {
-        RunFirefleaMain(place, place.RequireSpeciesState<FirefleaEnemyState>());
+        RunFirefleaMain(occupant, place, place.RequireSpeciesState<FirefleaEnemyState>());
     }
 
     /// <summary>Advances darkness before a lethal common power-bomb death is finalized.</summary>
@@ -160,5 +164,5 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs Fireflea's touch reaction, the unconditional-death sequence.</summary>
     internal void ReactToFirefleaTouch(EnemyTouchContext context) =>
-        ResolveFirefleaTouch(context.Place, context.Samus, context.PseudoScrew);
+        ResolveFirefleaTouch(context.Occupant, context.Samus, context.PseudoScrew);
 }

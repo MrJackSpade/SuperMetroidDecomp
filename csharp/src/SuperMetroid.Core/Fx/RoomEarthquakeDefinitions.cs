@@ -30,11 +30,11 @@ public static class RoomEarthquakeDefinitions
     /// starts with.
     /// </summary>
     public static readonly EarthquakeShake UnshakenRoomShake =
-        new(EarthquakeStrength.Light, EarthquakeDirection.Horizontal, EarthquakeReach.Foreground);
+        new(EarthquakeStrength.Light, EarthquakeDirection.Horizontal, EarthquakeReach.RoomBlocks);
 
     /// <summary>The medium side-to-side earthquake, enemies included, every active lava or acid rise sustains.</summary>
     public static readonly EarthquakeShake RisingLiquidShake =
-        new(EarthquakeStrength.Medium, EarthquakeDirection.Horizontal, EarthquakeReach.ForegroundBackgroundAndEnemies);
+        new(EarthquakeStrength.Medium, EarthquakeDirection.Horizontal, EarthquakeReach.RoomBlocksSceneryAndEnemies);
 
     /// <summary>
     /// Base delays, in updates, between rising lava's or acid's repeated rumble sounds, in emission order. The live random

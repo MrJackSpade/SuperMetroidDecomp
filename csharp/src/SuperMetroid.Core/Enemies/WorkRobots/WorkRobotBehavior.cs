@@ -15,8 +15,8 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory, IR
     /// <inheritdoc/>
     public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= new Dictionary<EnemyDefinitionId, EnemyEntityCreation>
     {
-        [EnemyDefinitionId.WorkRobot] = (place, common) => EnemyOccupant.Of(new PoweredWorkRobotEntity(this, place, common)),
-        [EnemyDefinitionId.UnpoweredWorkRobot] = (place, common) => EnemyOccupant.Of(new UnpoweredWorkRobotEntity(this, place, common)),
+        [EnemyDefinitionId.WorkRobot] = (occupant, place, common) => EnemyOccupant.Of(new PoweredWorkRobotEntity(this, occupant, place, common)),
+        [EnemyDefinitionId.UnpoweredWorkRobot] = (occupant, place, common) => EnemyOccupant.Of(new UnpoweredWorkRobotEntity(this, occupant, place, common)),
     };
 
     /// <summary>Samples the room random number for laser timing.</summary>
@@ -92,11 +92,11 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory, IR
     }
 
     /// <summary>Initializes an unpowered robot.</summary>
-    internal void InitializeUnpoweredWorkRobot(RoomEnemyPlace place)
+    internal void InitializeUnpoweredWorkRobot(RoomEnemyOccupant occupant, RoomEnemyPlace place)
     {
         // The placement names the unpowered pose the robot holds.
         var state = new UnpoweredWorkRobotEnemyState(
-            new(WorkRobotAnimations.StartingWith(place.SpawnSettings<WorkRobotSpawnSettings>().Pose), AnimationPlace.StartOfAnimation));
+            new(WorkRobotAnimations.StartingWith(occupant.SpawnSettings<WorkRobotSpawnSettings>().Pose), AnimationPlace.StartOfAnimation));
         place.SetSpeciesState(state);
         place.Contact = place.Contact.With(EnemyContact.SolidToSamus);
         place.AnimationClock.Restart();
@@ -224,7 +224,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory, IR
         return firingSegment;
     }
 
-    /// <summary>Counts a nonzero laser cooldown down without unsigned wraparound.</summary>
+    /// <summary>Counts the laser cooldown down, stopping at zero.</summary>
     private static void DecrementWorkRobotLaserCooldown(WorkRobotEnemyState state)
     {
         state.LaserCooldown = state.LaserCooldown.DecrementToZero();
@@ -349,20 +349,12 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory, IR
         WorkRobotLaser laser,
         Position16<RoomPixels> camera)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(laser.ProjectileKind(), Laser, SpriteGraphics.SharedStandard);
         if (projectile is null)
             return;
 
-        // The enemy-projectile spawn copies the complete definition before the family's own setup: the diagonal and
-        // horizontal lasers do not share radii or damage, and the projectile kind's definition also supplies the blank first frame and all three contact
-        // properties. The laser's pictures carry their own
-        // colours, so it draws from the room's shared sheet in its standard colours: no picture of it shows before its
-        // first pass, so the robot's graphics its spawn briefly held never draw.
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            projectile,
-            laser.ProjectileKind(),
-            Laser,
-            SpriteGraphics.SharedStandard);
+        // The laser takes its kind's radii, damage and contact (the diagonal and horizontal lasers differ), and draws
+        // from the room's shared sheet in its standard colours.
         projectile.StartAnimation(new WorkRobotLaserAnimation(WorkRobotLaserSegment.Flare));
         projectile.Velocity = projectile.Velocity.WithX(WorkRobotLaserDefinitions.Speed.Toward(state.Facing));
         projectile.Velocity = projectile.Velocity.WithY(laser switch

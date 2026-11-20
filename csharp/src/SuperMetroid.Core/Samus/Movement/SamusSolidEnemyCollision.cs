@@ -26,7 +26,7 @@ public static class SamusSolidEnemyCollision
     /// <returns>The first qualifying body's current leading-edge gap, or the requested distance's whole pixels with no enemy when no collision is found.</returns>
     /// <remarks>No whole position or enemy body is changed. Exact current-edge contact clears <paramref name="state"/>'s vertical fraction of a pixel even for horizontal probes. The reach is a magnitude; direction supplies its sign.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="state"/> or <paramref name="interactiveEnemies"/> is null.</exception>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="direction"/> is not one of the four directions; NonDirectionalProbe is not accepted here.</exception>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="direction"/> is not one of the four directions.</exception>
     public static SolidEnemyCollisionResult Probe(
         SamusKinematicsState state,
         IReadOnlyList<SolidEnemyCollisionBody> interactiveEnemies,
@@ -69,9 +69,6 @@ public static class SamusSolidEnemyCollision
                     state.Position.Y.Whole - state.Radius.Y, enemy.Position.Y + enemy.Radius.Y),
                 SamusCollisionDirection.Down => DistanceAcrossRoomEdge.Apart(
                     enemy.Position.Y - enemy.Radius.Y, state.Position.Y.Whole + state.Radius.Y),
-                // Probe rejected the non-directional probe above. Keep a throwing arm anyway so this switch stays honest
-                // if the public enum later grows.
-                SamusCollisionDirection.NonDirectionalProbe => throw new InvalidOperationException("Unreachable collision direction."),
                 _ => throw new InvalidOperationException("Unreachable collision direction."),
             };
 
@@ -109,8 +106,6 @@ public static class SamusSolidEnemyCollision
         [SamusCollisionDirection.Right] = static (state, reach, target) => target.WithX(SolidEnemyProbeReach.TestedPixelForward(state.Position.X, reach)),
         [SamusCollisionDirection.Up] = static (state, reach, target) => target.WithY(SolidEnemyProbeReach.TestedPixelBack(state.Position.Y, reach)),
         [SamusCollisionDirection.Down] = static (state, reach, target) => target.WithY(SolidEnemyProbeReach.TestedPixelForward(state.Position.Y, reach)),
-        // The pose-observation probe targets Samus's current position.
-        [SamusCollisionDirection.NonDirectionalProbe] = static (state, reach, target) => target,
     });
 
     /// <summary>The whole-pixel centre the broad test checks: Samus's centre with the probe's axis moved to the pixel the reach tests.</summary>

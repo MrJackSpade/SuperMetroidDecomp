@@ -3,13 +3,11 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// <summary>
 /// The frames an enemy projectile shows: the compositions its segments select, then every installed animation frame. Each
 /// is named for what its picture shows: its owner, then the shape, turn, size or placement that tells it from the owner's
-/// other pictures, which its summary spells out; no animation that shows it and no place in one names it. One picture is
-/// one frame however many records store it. Its values are arbitrary and its installed name is its name in snake case.
+/// other pictures, which its summary spells out; no animation that shows it and no place in one names it. One picture
+/// is one frame. Its values are arbitrary and its installed name is its name in snake case.
 /// </summary>
 public enum EnemyProjectileFrameId
 {
-    /// <summary>The empty projectile frame, which draws nothing and is on no sheet: every beat that shows no picture (#2431).</summary>
-    Blank,
     /// <summary>The Skree debris, one composed picture.</summary>
     SkreeDebris,
     /// <summary>The Metaree debris, one composed picture.</summary>
@@ -325,7 +323,7 @@ public enum EnemyProjectileFrameId
     /// <summary>A Torizo's explosion: a fading ring of light.</summary>
     TorizoExplosionFlareRingFading,
     /// <summary>
-    /// A Torizo's death explosion: a small spark, the picture of TorizoExplosionSpark drawn over the room's front tiles, as
+    /// A Torizo's death explosion: a small spark, the picture of TorizoExplosionSpark drawn in front of the actors, as
     /// the rest of the death explosion is.
     /// </summary>
     TorizoDeathExplosionSpark,

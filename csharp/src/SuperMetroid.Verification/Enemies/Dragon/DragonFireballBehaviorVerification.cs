@@ -26,17 +26,17 @@ internal static class DragonFireballBehaviorVerification
 
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         body.SetSpawnWords(EnemyDefinitionId.Dragon, words => words);
-        body.Bind(EnemyDefinitionId.Dragon, body.Definition);
-        body.Bind(body.DefinitionId, default(RoomEnemyDefinition));
+        body.Bind(EnemyDefinitionId.Dragon, body.KeptDefinition);
+        body.Bind(body.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         body.Position = body.Position.WithWhole(new(384, 160));
         body.Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.InProjectileLook;
         enemies.DragonBehavior.InitializeDragonBody(body);
         DragonEnemyState state = enemies.DragonStates[0] ?? throw new InvalidOperationException("Verification requires the Dragon's state.");
 
         state.Facing = HorizontalDirection.Left;
-        enemies.DragonBehavior.SpawnDragonFireball(body, state);
+        enemies.DragonBehavior.SpawnDragonFireball(body.HeldOccupant(), body, state);
         state.Facing = HorizontalDirection.Right;
-        enemies.DragonBehavior.SpawnDragonFireball(body, state);
+        enemies.DragonBehavior.SpawnDragonFireball(body.HeldOccupant(), body, state);
         EnemyProjectile left = enemies.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.DragonFireball && projectile.Velocity.X.InTwoHundredFiftySixthsOfPixel < 0);
         EnemyProjectile right = enemies.Projectiles.EnemyProjectiles.Single(
@@ -59,7 +59,7 @@ internal static class DragonFireballBehaviorVerification
         }
 
         left.StartAnimation(EnemyProjectileDeleteAnimation.Instance);
-        enemies.Projectiles.AdvanceEnemyProjectileAnimations(left, RoomEnemyFrameFixtures.StandaloneSamus(), Position16<RoomPixels>.Zero, shortCounter: 0);
+        enemies.Projectiles.AdvanceEnemyProjectileAnimations(left, RoomEnemyFrameFixtures.StandaloneSamus(), Position16<RoomPixels>.Zero, shortCounter: SuperMetroid.Core.Compatibility.ShortFrameCount.Zero);
         AssertTrue(!left.IsActive, "the shared shot list still deletes the fireball");
         AssertEqual(0, guard.ForbiddenReadAttempts, "production reads none of the fireball's native list bytes");
         Console.WriteLine("  Dragon fireball behavior: both rising and falling programs and the zero-crossing switch match the native lists.");

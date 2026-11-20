@@ -4,7 +4,8 @@ namespace SuperMetroid.Core.Enemies.Yard;
 internal static class YardTurnDefinitions
 {
     /// <summary>
-    /// The turn records the movement step uses for each way the Yard crawls. Ordinary turns look seven pixels along motion.
+    /// The corner lookahead and turn animations for each way the Yard crawls. Ordinary turns look seven pixels along
+    /// motion.
     /// </summary>
     internal static readonly IdentityTable<YardDirection, YardTurnDefinition> Turns = new(new Dictionary<YardDirection, YardTurnDefinition>
     {

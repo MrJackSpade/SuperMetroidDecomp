@@ -116,10 +116,10 @@ internal sealed class CinematicActor<TAnimation, TFrame, TCue> : ICinematicActor
 
         Animation<TAnimation> animation = Playback.Animation;
         AnimationPlace place = Playback.Place;
-        AnimationShown<TAnimation, TFrame> shown = animations.Segments.PlayToNextFrame(
+        IHidingAnimationShown<TAnimation, TFrame> shown = animations.Segments.PlayToNextFrame(
             animation, ref place, cue => ApplyCue(cue, ownerCue));
         Playback = new AnimationPlayback<TAnimation>(animation, place);
-        shown.React(StepReactions, new StepContext(ownerCue, this));
+        shown.React(StepHidingReactions, new StepContext(ownerCue, this));
     }
 
     /// <summary>What <c>Step</c> does on each <see cref="AnimationShown{TAnimation, TFrame}"/>, built once (#2553).</summary>
@@ -140,6 +140,18 @@ internal sealed class CinematicActor<TAnimation, TFrame, TCue> : ICinematicActor
         // A held animation rests on its last frame for good: playing it on again would only hold again.
         Held: static (_, context) => context.Owner.held = true,
         Ended: static (_, context) => context.Owner.Delete());
+
+    /// <summary>
+    /// What <c>Step</c> does on a hidden stretch, which shows no pose for its updates (#2558), and on every other outcome,
+    /// built once.
+    /// </summary>
+    private static HidingAnimationShownReactions<TAnimation, TFrame, StepContext> StepHidingReactions { get; } = new(
+        Shown: static (shown, context) => shown.React(StepReactions, context),
+        Hidden: static (hidden, context) =>
+        {
+            context.Owner.frameHold.Restart(hidden.Duration);
+            context.Owner.Shown = null;
+        });
 
     /// <summary>What <c>Step</c>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="OwnerCue">The <c>ownerCue</c> <c>Step</c> was handed.</param>

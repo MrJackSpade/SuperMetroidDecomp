@@ -51,7 +51,7 @@ internal sealed class OldTourianWallExplosionAnimation(IEnemyProjectileCues<OldT
         };
 
     /// <inheritdoc/>
-    private protected override UnpausedAnimationSegments<OldTourianWallExplosionSegment, EnemyProjectileFrameId, OldTourianWallExplosionCue> Segments => AllSegments;
+    private protected override IUnpausedAnimationPlay<OldTourianWallExplosionSegment, EnemyProjectileFrameId, OldTourianWallExplosionCue> Segments => AllSegments;
 
     /// <inheritdoc/>
     private protected override IEnumerable<KeyValuePair<OldTourianWallExplosionSegment, Animation<OldTourianWallExplosionSegment>>> StartingAt => AllAnimations;

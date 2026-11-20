@@ -25,7 +25,7 @@ internal static class SpacePirateCollisionDefinitions
     /// <summary>The walking, wall and ninja frames' hitboxes, and the common empty frame's point hitbox.</summary>
     internal static EnemyFrameCollision<EnemyCollisionHitbox> Frames { get; } = new()
     {
-        { EnemyFrameId.Empty, [new(0, 0, 0, 0, EnemyReaction.OrdinaryTouch, EnemyReaction.OrdinaryShot)] },
+        { EnemyFrameId.PointAtOrigin, [new(0, 0, 0, 0, EnemyReaction.OrdinaryTouch, EnemyReaction.OrdinaryShot)] },
         { EnemyFrameId.WallPirateOnLeftWallLegsHanging, [new(-17, -8, 0, 30, Touch, Shot), new(-18, -19, 6, 0, Touch, Shot)] },
         { EnemyFrameId.WallPirateOnLeftWallKneesBending, [new(-16, -5, -1, 25, Touch, Shot), new(-18, -19, 6, 0, Touch, Shot)] },
         { EnemyFrameId.WallPirateOnLeftWallKneesTucked, [new(-15, -6, 0, 23, Touch, Shot), new(-18, -19, 6, 0, Touch, Shot)] },

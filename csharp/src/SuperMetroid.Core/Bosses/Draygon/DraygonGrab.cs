@@ -160,7 +160,7 @@ internal sealed class DraygonGrab
             _effectActors.SpawnRoomEffectActor(
                 body.Position.Whole + DraygonParts.TowardFacing(DraygonArenaDefinitions.MouthFacingRight, state.Facing),
                 RoomEffectActorKind.DraygonFoam,
-                graphics: default);
+                graphics: SpriteGraphics.SharedStandard);
         }
 
         state.SpiralXRadius += DraygonGrabDefinitions.SpiralRadiusGrowth;

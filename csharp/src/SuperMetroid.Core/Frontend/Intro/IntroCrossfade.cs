@@ -65,8 +65,7 @@ public sealed class IntroCrossfade
         if (run.IsOver)
             throw new InvalidOperationException($"The opening's crossfade from {from} to {to} has already ended.");
         run.Count();
-        // The tick counts the updates left before the crossfade's last one: one fewer than the run has left.
-        return new IntroCrossfadeTick(from, to, run.UpdatesLeft - 1);
+        return new IntroCrossfadeTick(from, to, run.UpdatesLeft);
     }
 
     /// <summary>The level <paramref name="scene"/> shows, from zero (black) to <see cref="Levels"/> (its colours).</summary>

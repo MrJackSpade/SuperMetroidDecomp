@@ -74,14 +74,14 @@ internal static class SamusAimedPoseChoiceDefinitions
     /// The turning jump a moonwalk takes when it reverses with Jump held, by the direction it aims; a moonwalk aims only
     /// level or diagonally.
     /// </summary>
-    internal static IReadOnlyDictionary<Shot, SamusPoseId> MoonwalkTurnJumps { get; } = new Dictionary<Shot, SamusPoseId>
+    internal static IReadOnlyDictionary<Shot, SamusPoseId> MoonwalkTurnToSpinJumps { get; } = new Dictionary<Shot, SamusPoseId>
     {
-        [Shot.UpRight] = SamusPoseId.MoonwalkTurnJumpAimUpLeftPose,
-        [Shot.Right] = SamusPoseId.MoonwalkTurnJumpLeftPose,
-        [Shot.DownRight] = SamusPoseId.MoonwalkTurnJumpAimDownLeftPose,
-        [Shot.DownLeft] = SamusPoseId.MoonwalkTurnJumpAimDownRightPose,
-        [Shot.Left] = SamusPoseId.MoonwalkTurnJumpRightPose,
-        [Shot.UpLeft] = SamusPoseId.MoonwalkTurnJumpAimUpRightPose,
+        [Shot.UpRight] = SamusPoseId.MoonwalkTurnToSpinJumpAimUpLeftPose,
+        [Shot.Right] = SamusPoseId.MoonwalkTurnToSpinJumpLeftPose,
+        [Shot.DownRight] = SamusPoseId.MoonwalkTurnToSpinJumpAimDownLeftPose,
+        [Shot.DownLeft] = SamusPoseId.MoonwalkTurnToSpinJumpAimDownRightPose,
+        [Shot.Left] = SamusPoseId.MoonwalkTurnToSpinJumpRightPose,
+        [Shot.UpLeft] = SamusPoseId.MoonwalkTurnToSpinJumpAimUpRightPose,
     };
 
     /// <summary>

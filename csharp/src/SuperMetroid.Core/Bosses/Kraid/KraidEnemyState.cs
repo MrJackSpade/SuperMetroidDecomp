@@ -194,9 +194,8 @@ public sealed class KraidEnemyState
 
     /// <summary>
     /// Removes one pending mouth reopen (#1627). Kraid removes one only while the mouth's reopen is pending, which a
-    /// mouth hit marks only after arming them, and the removal that leaves none clears the mouth, so a reopen is always
-    /// pending here: the game's wrap of its count from zero is never reached, and removing from none breaks that
-    /// order.
+    /// mouth hit marks only after arming them, and the removal that leaves none clears the mouth, so a reopen is
+    /// always pending when one is removed.
     /// </summary>
     /// <exception cref="InvalidOperationException">No reopen is pending.</exception>
     internal void RemoveOneMouthReopen() => PendingMouthReopens = PendingMouthReopens > 0

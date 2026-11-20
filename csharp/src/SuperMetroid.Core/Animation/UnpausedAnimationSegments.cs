@@ -10,7 +10,8 @@ namespace SuperMetroid.Core.Animation;
 /// <typeparam name="TFrame">The frame identity.</typeparam>
 /// <typeparam name="TEvent">The events the owner reacts to.</typeparam>
 internal sealed class UnpausedAnimationSegments<TSegment, TFrame, TEvent>
-    : AnimationSegmentPlay<TSegment, TFrame, TEvent, AnimationBeat<TFrame, TEvent>.Unpaused, AnimationShown<TSegment, TFrame>.Unpaused>
+    : AnimationSegmentPlay<TSegment, TFrame, TEvent, AnimationBeat<TFrame, TEvent>.Unpaused, AnimationShown<TSegment, TFrame>.Unpaused>,
+        IUnpausedAnimationPlay<TSegment, TFrame, TEvent>
     where TSegment : struct
     where TFrame : struct
     where TEvent : notnull
@@ -33,6 +34,11 @@ internal sealed class UnpausedAnimationSegments<TSegment, TFrame, TEvent>
         : base(segments, required)
     {
     }
+
+    /// <inheritdoc/>
+    IUnpausedHidingAnimationShown<TSegment, TFrame> IUnpausedAnimationPlay<TSegment, TFrame, TEvent>.PlayToNextFrame(
+        ref Animation<TSegment> animation, ref AnimationPlace place, Func<TEvent, AnimationPlayback<TSegment>, AnimationContinuation<TSegment>?> react) =>
+        PlayToNextFrame(ref animation, ref place, react);
 
     /// <inheritdoc/>
     private protected override AnimationShown<TSegment, TFrame>.Unpaused? Pass(AnimationBeat<TFrame, TEvent>.Unpaused beat, ref Play play) =>

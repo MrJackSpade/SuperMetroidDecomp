@@ -5,8 +5,8 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// (<see cref="MissileShotState"/>), a Super Missile's or its link's (<see cref="SuperMissileShotState"/>), a special
 /// attack particle's part and flight (<see cref="SpecialAttackParticleState"/>) and a shinespark crash echo's flight
 /// (<see cref="ShinesparkEchoShotState"/>). A new record is created each time a kind's behaviour is installed on a shot
-/// (<see cref="SamusProjectile.Install"/>); the shot keeps it through the later behaviours of its kind and its explosion,
-/// until it ends. Beams, the Hyper Beam and explosions keep nothing beyond the shot's own state, the Power Bomb fuse a beam
+/// (<see cref="SamusProjectileOccupant.Install"/>); the projectile holding the place keeps it through the later behaviours of
+/// its kind and its explosion, until it ends. Beams, the Hyper Beam and explosions keep nothing beyond the shot's own state, the Power Bomb fuse a beam
 /// carries (<see cref="SamusProjectile.BeamFuse"/>) among it.
 /// </summary>
 internal abstract class SamusShotKindState

@@ -53,7 +53,7 @@ internal static class BlueDoorObjectDrawDefinitionsVerification
             var roomObjects = RoomObjectFixtures.Unbound();
             RoomBlockBehavior behavior = RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(orientation));
             roomObjects.DoorObjects.SpawnBlueDoorOpening(level, level.BlockAt(origin), behavior,
-                SamusProjectileType.None);
+                BlockStrike.GrappleTouch.Instance);
             var guarded = NewBlueDoorDrawReadGuard(rom, lists);
             roomObjects.Step(level);
             int stride = orientation is ColoredDoorOrientation.Left or ColoredDoorOrientation.Right

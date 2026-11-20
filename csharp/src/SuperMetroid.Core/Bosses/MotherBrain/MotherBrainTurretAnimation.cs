@@ -10,7 +10,7 @@ internal sealed class MotherBrainTurretAnimation(IEnemyProjectileCues<MotherBrai
     : EnemyProjectileFrameAnimation<MotherBrainTurretPose, MotherBrainTurretCue>(MotherBrainTurretAnimations.StartingAt[pose], EnemyProjectileCueRunner<MotherBrainTurretPose, MotherBrainTurretCue>.By(owner))
 {
     /// <inheritdoc/>
-    private protected override UnpausedAnimationSegments<MotherBrainTurretPose, EnemyProjectileFrameId, MotherBrainTurretCue> Segments =>
+    private protected override IUnpausedAnimationPlay<MotherBrainTurretPose, EnemyProjectileFrameId, MotherBrainTurretCue> Segments =>
         MotherBrainTurretAnimations.Segments;
 
     /// <inheritdoc/>

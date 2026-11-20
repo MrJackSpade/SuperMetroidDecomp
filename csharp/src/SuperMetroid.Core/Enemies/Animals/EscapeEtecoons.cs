@@ -2,7 +2,7 @@ using static SuperMetroid.Core.Enemies.Animals.EscapeEtecoonDefinitions;
 
 namespace SuperMetroid.Core.Enemies.Animals;
 
-/// <summary>Starts an escape Etecoon in the role its population entry names.</summary>
+/// <summary>Starts an escape Etecoon in the role its placement names.</summary>
 internal static class EscapeEtecoons
 {
     /// <summary>The initialization of <paramref name="role"/>.</summary>

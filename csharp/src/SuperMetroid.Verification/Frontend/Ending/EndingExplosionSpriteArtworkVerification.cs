@@ -66,7 +66,7 @@ internal static class EndingExplosionSpriteArtworkVerification
                 {
                     OffsetX = x.SignedOffset, OffsetY = unchecked((sbyte)bus.ReadCartridgeByte(address + 2)),
                     TileColumn = attributes.TileNumber % 16, TileRow = attributes.TileNumber / 16,
-                    Size = x.IsLarge ? 16 : 8, Priority = attributes.Priority, Palette = null,
+                    Size = x.IsLarge ? 16 : 8, Depth = attributes.Depth, Palette = null,
                     FlipX = attributes.FlipHorizontally, FlipY = attributes.FlipVertically,
                 };
             }

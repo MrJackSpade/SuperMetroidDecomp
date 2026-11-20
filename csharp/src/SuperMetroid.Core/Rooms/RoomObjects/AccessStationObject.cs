@@ -78,7 +78,7 @@ internal sealed class AccessStationObject(StationAccessRule rule, AreaId area, S
         bool operationStartedThisUpdate = false;
         if (OperationPhase is StationOperationPhase.TouchAccepted { Use: var pending })
         {
-            if (Rule.Refill is { } refill && refill.IsFull(samus))
+            if (Rule.Reward is StationReward.Refills { Refill: var refill } && refill.IsFull(samus))
             {
                 // The full-resource branch releases Samus before the access ends. A refill between the touch and this
                 // update must release her too.
@@ -121,7 +121,7 @@ internal sealed class AccessStationObject(StationAccessRule rule, AreaId area, S
         }
         if (!_arm.HasStopped)
             return;
-        OperationPhase = Rule.Refill is null && samus.Control.InputLocked
+        OperationPhase = !Rule.Reward.ReleasesAtActivation && samus.Control.InputLocked
             ? StationOperationPhase.AwaitingMapUnpause
             : StationOperationPhase.Idle;
         // The access only ends here. Recharges released Samus at activation; leaving the map screen releases her after
@@ -136,7 +136,7 @@ internal sealed class AccessStationObject(StationAccessRule rule, AreaId area, S
             Activate(stations, samus, context.Outcome);
             // The recharges release Samus right after their message, before the arm retracts. The map leaves her
             // locked for leaving the map screen to release.
-            if (Rule.Refill is not null)
+            if (Rule.Reward.ReleasesAtActivation)
                 samus.Control.Unlock();
         },
         [StationAccessCue.Disengages] = (context, stations, samus) => context.QueueSound(EnemySound.StationDisengaged, SoundRequestPriority.Normal),
@@ -154,7 +154,7 @@ internal sealed class AccessStationObject(StationAccessRule rule, AreaId area, S
     /// </summary>
     private void Activate(StationObjects stations, IRoomSamus samus, RoomObjectStepOutcome outcome)
     {
-        if (Rule.Refill is { } refill)
+        if (Rule.Reward is StationReward.Refills { Refill: var refill })
             refill.Fill(samus);
         else
             stations.System.SetAreaMapAcquired(Area);

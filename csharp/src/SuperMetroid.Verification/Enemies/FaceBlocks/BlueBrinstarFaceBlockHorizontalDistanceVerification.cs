@@ -39,8 +39,8 @@ internal static class BlueBrinstarFaceBlockHorizontalDistanceVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.FaceBlock, place.Definition);
-        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+        place.Bind(EnemyDefinitionId.FaceBlock, place.KeptDefinition);
+        place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.SetSpawnParameter1(EnemyDefinitionId.FaceBlock, 64);
         place.SetSpawnParameter2(EnemyDefinitionId.FaceBlock, 0);
         place.Position = place.Position.WithWhole(new(blockX, RowY));
@@ -52,8 +52,8 @@ internal static class BlueBrinstarFaceBlockHorizontalDistanceVerification
             CollectedItems = SamusEquipmentFlags.MorphBall,
             Position = FixedPosition<RoomPixels>.FromWhole(new(samusX, RowY)),
         };
-        enemies.BlueBrinstarFaceBlockBehavior.RunBlueBrinstarFaceBlockMain(place, state, samus);
-        return (state.Activated, place.SpawnSettings<FaceBlockSpawnSettings>().Facing == HorizontalDirection.Right);
+        enemies.BlueBrinstarFaceBlockBehavior.RunBlueBrinstarFaceBlockMain(place.HeldOccupant(), place, state, samus);
+        return (state.Activated, place.HeldOccupant().SpawnSettings<FaceBlockSpawnSettings>().Facing == HorizontalDirection.Right);
     }
 
     /// <summary>Runs the face-block horizontal distance check through its dedicated command-line switch.</summary>

@@ -6,14 +6,14 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.DebugRunner.Tools;
 
 /// <summary>
-/// Generates the kept block behaviours (#1722, #1805), <c>RoomBlockReadingDefinitions.Generated.cs</c>: the import codec's
+/// Generates the kept block behaviours (#1722, #1805), <c>RoomBlockReadingDefinitions.cs</c>: the import codec's
 /// decoding of every behaviour byte under every collision kind, in the byte's order, and of each byte whose meaning to
 /// special blocks and special air the areas give, in every area, so the runtime holds every reading by name and no byte.
 /// </summary>
 internal static class RoomBlockReadingGenerator
 {
     /// <summary>The generated catalog, relative to the repository root.</summary>
-    internal const string GeneratedPath = "csharp/src/SuperMetroid.Core/Rooms/LevelData/RoomBlockReadingDefinitions.Generated.cs";
+    internal const string GeneratedPath = "csharp/src/SuperMetroid.Core/Rooms/LevelData/RoomBlockReadingDefinitions.cs";
 
     /// <summary>Writes the catalog over the checked-in one; the codec is its only source.</summary>
     internal static int Generate()
@@ -76,7 +76,7 @@ internal static class RoomBlockReadingGenerator
         .Append(Reaction(readings.Spike)).Append(", ")
         .Append(Reaction(readings.Grapple)).Append(",\n").Append(indent)
         .Append("new(SlopeShapeDefinitions.").Append(readings.Slope.Shape.Name).Append(", BlockMirroring.").Append(readings.Slope.Mirroring).Append("), ")
-        .Append(readings.ExtensionOffset).Append(')')
+        .Append(readings.ExtensionOffset).Append(readings.ResolvedByArea ? ", ResolvedByArea: true" : "").Append(')')
         .ToString();
 
     /// <summary>A reading's source: the reaction by its type and name, or null for a kind with no reaction (#1742).</summary>

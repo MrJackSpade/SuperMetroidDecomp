@@ -4,8 +4,8 @@ using System.Runtime.InteropServices;
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>
-/// A frontend screen's sprite entries (#1358, #1392): each placed pre-coloured frame becomes a whole-frame draw, in
-/// emission order, frontmost first. Screens publish these draws instead of writing sprite records. Every frame is published
+/// A frontend screen's sprites (#1358, #1392): the whole pre-coloured frames the screen places, each published
+/// as a whole-frame draw, frontmost first. Every frame is published
 /// where the screen places it, at a signed place on the screen (#2000), and the display clips whatever lies off the screen
 /// (#1587). A frame is always drawn whole, as its one pre-assembled image; a crowded screen never cuts a frame short (#1513).
 /// The placed frames are the screen's state, and the draws are made from them.

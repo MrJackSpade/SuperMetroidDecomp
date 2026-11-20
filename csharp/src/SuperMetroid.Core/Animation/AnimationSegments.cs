@@ -36,13 +36,8 @@ internal sealed class AnimationSegments<TSegment, TFrame, TEvent>
 
     /// <inheritdoc/>
     private protected override AnimationShown<TSegment, TFrame>? Pass(AnimationBeat<TFrame, TEvent> beat, ref Play play) =>
-        Ensure.NotNull(beat).Match(BeatPlays, ref play);
+        Ensure.NotNull(beat).Match(PausingBeatPlays, ref play);
 
     /// <inheritdoc/>
     private protected override AnimationShown<TSegment, TFrame> Shown(AnimationShown<TSegment, TFrame>.Unpaused outcome) => outcome;
-
-    /// <summary>What a play shows on each beat it passes (#2553), built once: a pause pauses the animation for its updates.</summary>
-    private static AnimationBeatCases<TFrame, TEvent, Play, AnimationShown<TSegment, TFrame>?> BeatPlays { get; } = new(
-        Unpaused: static (beat, ref play) => beat.Match(UnpausedBeatPlays, ref play),
-        Pause: static (pause, ref play) => new AnimationShown<TSegment, TFrame>.Paused(pause.Duration));
 }

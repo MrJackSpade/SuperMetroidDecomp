@@ -19,12 +19,19 @@ public static class ProjectileFrameBindingExtractor
         Ensure.NotNull(bus);
         Dictionary<SamusProjectileFrameId, ProjectileSpriteId> recordSprites = ProjectileSpriteLocations.RecordSprites(bus);
         var frames = new Dictionary<string, string>();
+        var unpictured = new List<string>();
         foreach (SamusProjectileFrameId record in SamusProjectileFrameOrder.Frames)
-            frames.Add(ProjectileFrameBindingFormat.FrameName(record), recordSprites[record].Name);
+        {
+            if (recordSprites.TryGetValue(record, out ProjectileSpriteId sprite))
+                frames.Add(ProjectileFrameBindingFormat.FrameName(record), sprite.Name);
+            else
+                unpictured.Add(ProjectileFrameBindingFormat.FrameName(record));
+        }
         return ProjectileFrameBindingFile.Write(new ProjectileFrameBindingDocument
         {
             Version = ProjectileFrameBindingFormat.Version,
             Frames = frames,
+            Unpictured = unpictured,
         });
     }
 }

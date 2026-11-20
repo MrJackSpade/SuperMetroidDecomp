@@ -9,7 +9,7 @@ internal static class RidleyWallImpactDefinitions
     public static readonly SignedEightEight MinimumSpeed = SignedEightEight.FromPixelFraction(5, 2);
     /// <summary>The wall impact's strong side-to-side earthquake, outside Norfair, shaking the background and enemies only.</summary>
     public static readonly EarthquakeShake Earthquake =
-        new EarthquakeShake(EarthquakeStrength.Strong, EarthquakeDirection.Horizontal, EarthquakeReach.BackgroundAndEnemies);
+        new EarthquakeShake(EarthquakeStrength.Strong, EarthquakeDirection.Horizontal, EarthquakeReach.SceneryAndEnemies);
     /// <summary>The wall impact initializes the quake to twelve frames.</summary>
     public const int Duration = 12;
 }

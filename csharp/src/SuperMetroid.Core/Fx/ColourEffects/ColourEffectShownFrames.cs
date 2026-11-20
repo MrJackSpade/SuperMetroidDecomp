@@ -40,6 +40,6 @@ internal static class ColourEffectShownFrames
     /// once, in the order the animation first plays them, which numbers its frames from zero in the order it shows them.
     /// </summary>
     internal static IEnumerable<AnimationBeat<int, ColourEffectCue>> Steps(ColourEffectId effect) =>
-        ColourEffectAnimations.Definition(effect).Animation.Phases.Select(phase => phase.Segment).Distinct()
+        ColourEffectAnimations.Definition(effect).Frames.OwnSegments.Distinct()
             .SelectMany(segment => ColourEffectAnimations.Segments.Beats(segment));
 }

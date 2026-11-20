@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// <remarks>Owns graphics only; selection, scrolling, windows and station markers belong to the menu state.</remarks>
 public sealed class FileSelectRoomMapGraphics
 {
-    /// <summary>The room map's menu screen: its artwork, pictures, colours and sprite entries.</summary>
+    /// <summary>The room map's menu screen: its artwork, pictures, colours and sprites.</summary>
     internal readonly MenuScreen screen;
     /// <summary>Map landmarks, stations, and boss icons drawn around the saved-station marker.</summary>
     private readonly FileSelectMapIcons icons;

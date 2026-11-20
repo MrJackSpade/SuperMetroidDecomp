@@ -315,12 +315,12 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
     /// </summary>
     private ControllerButton? PanelButton(GameplayMessageId messageId)
     {
-        GameplayMessagePanelButtonBinding binding = GameplayMessageButtons.PanelBinding(messageId);
+        GameplayMessagePanelButtonBinding? binding = GameplayMessageButtons.PanelBinding(messageId);
         if (binding == GameplayMessagePanelButtonBinding.Shoot)
             return GameplayMessageButtons.Shown(_bindings.Shoot);
         if (binding == GameplayMessagePanelButtonBinding.Run)
             return GameplayMessageButtons.Shown(_bindings.Dash);
-        // The remaining member, GameplayMessagePanelButtonBinding.None.
+        // A panel that names no button.
         return null;
     }
 }

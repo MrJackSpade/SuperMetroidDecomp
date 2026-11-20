@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 internal static class CeresFallingDebrisDefinitions
 {
     /// <summary>
-    /// Whether a falling piece is dark rather than light (#2479): taken by a sample of 32768 or more, one piece in two.
+    /// Whether a falling piece is dark rather than light (#2479): one piece in two is dark.
     /// </summary>
     internal static readonly RandomChance PieceIsDark = RandomChance.Highest(1, new RandomSampleField(15, 1));
 

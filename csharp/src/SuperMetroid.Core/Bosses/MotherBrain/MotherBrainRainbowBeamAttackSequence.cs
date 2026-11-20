@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
@@ -60,18 +61,29 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         Revival = new MotherBrainRevivalPhases(State);
         ThirdPhaseFight = new MotherBrainThirdPhaseFight(State, encounter.Walk);
         ThirdPhaseDeath = new MotherBrainThirdPhaseDeath(State, encounter.Bursts);
-        Baby = new BabyMetroidCutsceneState(this);
     }
 
     /// <summary>The encounter the sequence runs, the one owner of the state its phases read and write.</summary>
     internal MotherBrainEnemyState Encounter { get; }
 
     /// <summary>
-    /// The Baby Metroid of her late fight (#2471), made with it: the final beam's spawn gives it its place in the room's
-    /// enemies (<see cref="BabyMetroidCutsceneState.Place"/>), from which on its own turn it latches on, drains, heals Samus
-    /// and dies; her brain's attacks on it aim at it.
+    /// The Baby Metroid of her late fight (#2471), or null before the final beam's spawn makes it in its place in the
+    /// room's enemies, from which on its own turn it latches on, drains, heals Samus and dies; her brain's attacks on it
+    /// aim at it.
     /// </summary>
-    public BabyMetroidCutsceneState Baby { get; }
+    public BabyMetroidCutsceneState? Baby { get; private set; }
+
+    /// <summary>
+    /// Makes her late fight's Baby in <paramref name="place"/>, which the final beam's spawn gave it, and holds it from here.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">Her late fight has made its Baby already.</exception>
+    internal BabyMetroidCutsceneState MakeBaby(RoomEnemyPlace place)
+    {
+        if (Baby is not null)
+            throw new InvalidOperationException("Mother Brain attempted to allocate the cutscene Baby more than once.");
+        Baby = new BabyMetroidCutsceneState(this, place);
+        return Baby;
+    }
 
     /// <summary>
     /// The way the rainbow beam's cone points: the angle she aims it at Samus with, which the beam's

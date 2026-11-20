@@ -14,8 +14,8 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= new Dictionary<EnemyDefinitionId, EnemyEntityCreation>
     {
-        [EnemyDefinitionId.EtecoonEscape] = (place, common) => EnemyOccupant.Of(new EscapeEtecoonEntity(this, place, common)),
-        [EnemyDefinitionId.DachoraEscape] = (place, common) => EnemyOccupant.WithoutMainAi(new EscapeDachoraEntity(this, place, common)),
+        [EnemyDefinitionId.EtecoonEscape] = (occupant, place, common) => EnemyOccupant.Of(new EscapeEtecoonEntity(this, occupant, place, common)),
+        [EnemyDefinitionId.DachoraEscape] = (occupant, place, common) => EnemyOccupant.WithoutMainAi(new EscapeDachoraEntity(this, occupant, place, common)),
     };
 
     /// <summary>Provides room events and live Samus state used by both escape-animal branches.</summary>
@@ -31,10 +31,10 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the escape Etecoon.</summary>
-    internal void InitializeEscapeEtecoon(RoomEnemyPlace place)
+    internal void InitializeEscapeEtecoon(RoomEnemyOccupant occupant, RoomEnemyPlace place)
     {
         EscapeEtecoonInitialization initialization =
-            EscapeEtecoons.Initialization(place.SpawnSettings<EscapeEtecoonSpawnSettings>().Role);
+            EscapeEtecoons.Initialization(occupant.SpawnSettings<EscapeEtecoonSpawnSettings>().Role);
         var state = new EscapeEtecoonEnemyState(initialization.Action);
         place.SetSpeciesState(state);
 
@@ -69,7 +69,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Dachora's placement already animates and keeps it from touching Samus; the setup makes it animate again.
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
-        place.Frame = EnemyFrameId.Empty;
+        place.Frame = EnemyFrameId.PointAtOrigin;
         place.AnimationClock.Restart();
         place.RequireSpeciesState<EscapeDachoraEnemyState>().Playback =
             new(EscapeDachoraAnimations.RunningAroundLowTide, AnimationPlace.StartOfAnimation);
@@ -238,8 +238,8 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     private bool HasCrittersEscaped() => _room.Services.Events.Has(StoryEvent.CrittersEscaped);
 
     /// <summary>
-    /// Whether the acid-height branches find the acid low: at or below <see cref="EscapeAnimalMotionDefinitions.LowAcidSurfaceY"/>, or absent
-    /// from Samus's room.
+    /// Whether the escaping animals find the acid low: at or below
+    /// <see cref="EscapeAnimalMotionDefinitions.LowAcidSurfaceY"/>, or absent from Samus's room.
     /// </summary>
     private static bool IsAcidLow(SamusState samus) =>
         samus.LiquidPhysics.LavaAcidSurfaceY is not int surface || surface >= EscapeAnimalMotionDefinitions.LowAcidSurfaceY;

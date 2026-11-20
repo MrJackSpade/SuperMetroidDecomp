@@ -72,7 +72,8 @@ internal sealed class RoomObjectPopulationLoader
         }
     }
 
-    /// <summary>Claims the first free place in update order, which resets whatever it held, and installs the record's block before setup runs.</summary>
+    /// <summary>Takes the first free place in update order, which starts afresh, and gives it the placement's block
+    /// before its setup runs.</summary>
     private RoomObjectPlace? AllocateRoomPopulationPlace(Position16<RoomBlocks> block)
     {
         if (_families.Places.Spawn() is not { } place)

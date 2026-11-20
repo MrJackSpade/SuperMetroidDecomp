@@ -14,9 +14,10 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Alcoon], Create);
 
     /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
-    /// <param name="place">The place, holding the new identity and the entry it is spawned from.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
+    /// <param name="place">The place, already holding the occupant.</param>
     /// <param name="common">The shared participation the entity composes.</param>
-    private EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.FromSurroundings(new AlcoonEntity(this, place, common));
+    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.FromSurroundings(new AlcoonEntity(this, occupant, place, common));
 
     /// <summary>Provides RNG for the randomized post-volley walk count.</summary>
     private readonly EnemyRoomBinding _room;
@@ -41,25 +42,26 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Carries out one cue of the Alcoon's animations: spitting a fireball, starting to walk, or taking a stride. Starting to
     /// walk always continues at the walk for the Alcoon's facing, and a stride that meets a wall turns it round to the other walk.
     /// </summary>
-    private AnimationContinuation<AlcoonSegment>? ApplyAlcoonCue(RoomEnemyPlace place, AlcoonEnemyState state, RoomLevelData level, AlcoonCue cue) =>
-        cue.Match(ApplyAlcoonCueCases, new ApplyAlcoonCueContext(place, state, level, this));
+    private AnimationContinuation<AlcoonSegment>? ApplyAlcoonCue(RoomEnemyOccupant occupant, RoomEnemyPlace place, AlcoonEnemyState state, RoomLevelData level, AlcoonCue cue) =>
+        cue.Match(ApplyAlcoonCueCases, new ApplyAlcoonCueContext(occupant, place, state, level, this));
 
     /// <summary>What <c>ApplyAlcoonCue</c> does on each <see cref="AlcoonCue"/>, built once (#2553).</summary>
     private static AlcoonCueCases<ApplyAlcoonCueContext, AnimationContinuation<AlcoonSegment>?> ApplyAlcoonCueCases { get; } = new(
             Fire: static (fire, context) =>
             {
-                context.Owner.SpawnAlcoonFireball(context.Place, fire.Launch);
+                context.Owner.SpawnAlcoonFireball(context.Occupant, context.Place, fire.Launch);
                 context.Owner._audio.QueueEnemySound(EnemySoundEffectDefinitions.AlcoonFireSound, priority: SoundRequestPriority.Normal);
                 return (AnimationContinuation<AlcoonSegment>?)null;
             },
             Signal: static (signal, context) => context.Owner.AlcoonSignals[signal.Kind](context.Place, context.State, context.Level));
 
     /// <summary>What <c>ApplyAlcoonCue</c>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <param name="Occupant">The occupant whose cue is carried out.</param>
     /// <param name="Place">The <c>place</c> <c>ApplyAlcoonCue</c> was handed.</param>
     /// <param name="State">The <c>state</c> <c>ApplyAlcoonCue</c> was handed.</param>
     /// <param name="Level">The <c>level</c> <c>ApplyAlcoonCue</c> was handed.</param>
     /// <param name="Owner">The <see cref="AlcoonBehavior"/> reacting.</param>
-    private readonly record struct ApplyAlcoonCueContext(RoomEnemyPlace Place, AlcoonEnemyState State, RoomLevelData Level, AlcoonBehavior Owner);
+    private readonly record struct ApplyAlcoonCueContext(RoomEnemyOccupant Occupant, RoomEnemyPlace Place, AlcoonEnemyState State, RoomLevelData Level, AlcoonBehavior Owner);
 
     /// <summary>What each of the Alcoon's signals does, and the animation it continues at, or null to run on.</summary>
     private IdentityTable<AlcoonCueKind, Func<RoomEnemyPlace, AlcoonEnemyState, RoomLevelData, AnimationContinuation<AlcoonSegment>?>> AlcoonSignals => field ??=
@@ -152,12 +154,12 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         SetupAlcoonJumpMovement(state);
         if (signedXDistance < 0)
         {
-            state.WalkingDirection = HorizontalDirection.Left;
+            state.WalkingDirection = AlcoonWalk.Left;
             StartAlcoonAnimation(place, state, AlcoonSegment.AirborneLeftLookingUp);
         }
         else
         {
-            state.WalkingDirection = HorizontalDirection.Right;
+            state.WalkingDirection = AlcoonWalk.Right;
             StartAlcoonAnimation(place, state, AlcoonSegment.AirborneRightLookingUp);
         }
         state.Action = AlcoonAction.EmergingRising;
@@ -197,12 +199,12 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (samus.Position.X.Whole < place.Position.X.Whole)
         {
-            state.WalkingDirection = HorizontalDirection.Left;
+            state.WalkingDirection = AlcoonWalk.Left;
             StartAlcoonAnimation(place, state, AlcoonSegment.WalkingLeft);
         }
         else
         {
-            state.WalkingDirection = HorizontalDirection.Right;
+            state.WalkingDirection = AlcoonWalk.Right;
             StartAlcoonAnimation(place, state, AlcoonSegment.WalkingRight);
         }
         state.Action = AlcoonAction.WalkingAndFiring;
@@ -279,7 +281,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Resets the jump to its upward velocity (<see cref="AlcoonMotionDefinitions.EmergeJumpVelocity"/>).</summary>
     private static void SetupAlcoonJumpMovement(AlcoonEnemyState state)
     {
-        state.WalkingDirection = null;
+        state.WalkingDirection = AlcoonWalk.Undecided;
         state.VerticalVelocity = AlcoonMotionDefinitions.EmergeJumpVelocity;
     }
 
@@ -322,11 +324,20 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
             AnimationPlace.StartOfAnimation);
     }
 
-    /// <summary>The stride an Alcoon walking each way takes.</summary>
-    private static IdentityTable<HorizontalDirection, SignedSixteenSixteen> StrideToward => field ??= new(new Dictionary<HorizontalDirection, SignedSixteenSixteen>
+    /// <summary>The stride an Alcoon takes on each walk: one that has not picked a side yet walks nowhere.</summary>
+    private static IdentityTable<AlcoonWalk, SignedSixteenSixteen> StrideToward => field ??= new(new Dictionary<AlcoonWalk, SignedSixteenSixteen>
     {
-        [HorizontalDirection.Left] = -AlcoonWalkDefinitions.StrideDistance,
-        [HorizontalDirection.Right] = AlcoonWalkDefinitions.StrideDistance,
+        [AlcoonWalk.Left] = -AlcoonWalkDefinitions.StrideDistance,
+        [AlcoonWalk.Right] = AlcoonWalkDefinitions.StrideDistance,
+        [AlcoonWalk.Undecided] = SignedSixteenSixteen.Zero,
+    });
+
+    /// <summary>The walk a wall turns each walk round to: one that has not picked a side yet keeps walking nowhere.</summary>
+    private static IdentityTable<AlcoonWalk, AlcoonWalk> TurnedRound => field ??= new(new Dictionary<AlcoonWalk, AlcoonWalk>
+    {
+        [AlcoonWalk.Left] = AlcoonWalk.Right,
+        [AlcoonWalk.Right] = AlcoonWalk.Left,
+        [AlcoonWalk.Undecided] = AlcoonWalk.Undecided,
     });
 
     /// <summary>
@@ -338,10 +349,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         AlcoonEnemyState state,
         RoomLevelData level)
     {
-        // An Alcoon walking no way moves nowhere; a walk strides its way.
-        SignedSixteenSixteen displacement = state.WalkingDirection is { } walking
-            ? StrideToward[walking]
-            : SignedSixteenSixteen.Zero;
+        SignedSixteenSixteen displacement = StrideToward[state.WalkingDirection];
         if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, place, displacement))
         {
             EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, place);
@@ -350,19 +358,14 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // A wall turns it round; one that has not picked a side yet keeps walking nowhere and continues at the left walk.
         bool turnsLeft = !FacesLeft(state);
-        state.WalkingDirection = state.WalkingDirection switch
-        {
-            HorizontalDirection.Left => HorizontalDirection.Right,
-            HorizontalDirection.Right => HorizontalDirection.Left,
-            _ => state.WalkingDirection,
-        };
+        state.WalkingDirection = TurnedRound[state.WalkingDirection];
         return turnsLeft
             ? AlcoonAnimations.WalkingLeftFromFirstStride
             : AlcoonAnimations.WalkingRightFromFirstStride;
     }
 
     /// <summary>Whether the Alcoon faces left: it does only once it has picked the left side.</summary>
-    private static bool FacesLeft(AlcoonEnemyState state) => state.WalkingDirection == HorizontalDirection.Left;
+    private static bool FacesLeft(AlcoonEnemyState state) => state.WalkingDirection == AlcoonWalk.Left;
 
     /// <summary>An Alcoon fireball (#1760): it flies with vertical, then horizontal, room collision and horizontal drag.</summary>
     private static readonly EnemyProjectileBehavior Fireball = new SingleMotionProjectileBehavior(
@@ -381,15 +384,15 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Alcoon's typed animation.</summary>
-    internal void AdvanceAlcoonTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext context) =>
+    internal void AdvanceAlcoonTypedAnimation(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyAnimationCueContext context) =>
         EnemyAnimationPlayback.Advance(place, AlcoonAnimations.Segments,
             static (AlcoonEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
-            (state, cue) => ApplyAlcoonCue(place, state, context.Level, cue));
+            (state, cue) => ApplyAlcoonCue(occupant, place, state, context.Level, cue));
 
     /// <summary>Spits an Alcoon fireball with the vertical speed of <paramref name="launch"/>.</summary>
-    private void SpawnAlcoonFireball(RoomEnemyPlace alcoon, AlcoonFireballLaunch launch)
+    private void SpawnAlcoonFireball(RoomEnemyOccupant occupant, RoomEnemyPlace alcoon, AlcoonFireballLaunch launch)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.AlcoonFireball, Fireball, SpriteGraphics.SpawnedBy(occupant, alcoon.Shading));
         if (projectile is null)
             return;
 
@@ -398,11 +401,6 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The fireball takes its radii, damage, persistence, shot blocking, animation and motion from its definition
         // before its setup sets its position, to a fraction of a pixel, and its velocity.
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            projectile,
-            RoomEnemyProjectileKind.AlcoonFireball,
-            Fireball,
-            SpriteGraphics.SpawnedBy(alcoon));
         projectile.StartAnimation(new AlcoonFireballAnimation(AlcoonFireballSegment.Spinning));
         Offset16<RoomPixels> muzzle = AlcoonFireballLaunchDefinitions.MuzzleFacingRight;
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(alcoon.Position.Whole + (movingLeft ? muzzle.MirroredX() : muzzle));

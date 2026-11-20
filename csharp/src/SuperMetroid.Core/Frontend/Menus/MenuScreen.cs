@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend.Menus;
 
 /// <summary>
 /// The shared menu screen loaded for file select, options, game over and the
-/// file-select maps (#1358): its backdrop and its sprite entries; its pages are installed
+/// file-select maps (#1358): its backdrop and its sprites; its pages are installed
 /// pictures it places (#1467), each in the colours the import pre-coloured it in (#1512). It publishes these; the capture
 /// composes them, so no menu composes a screen of its own.
 /// </summary>

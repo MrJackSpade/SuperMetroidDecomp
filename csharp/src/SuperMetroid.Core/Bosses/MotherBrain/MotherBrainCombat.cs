@@ -48,7 +48,7 @@ internal sealed class MotherBrainCombat
 
     /// <summary>Runs the head's reaction to a bomb that selects its shot reaction.</summary>
     internal void ReactToMotherBrainHeadBomb(EnemyBombContext c) =>
-        ResolveMotherBrainHeadNormalBomb(c.Enemy, c.Bomb);
+        ResolveMotherBrainHeadNormalBomb(c.Occupant, c.PlacedBomb);
 
     /// <summary>The body's shot response for each combat phase.</summary>
     internal EnemyShotReaction BodyShotReaction => field ??= new()
@@ -60,11 +60,11 @@ internal sealed class MotherBrainCombat
             if (c.HitboxShot != MotherBrainReactions.BodyShot)
             {
                 throw new InvalidDataException(
-                    $"Mother Brain's body selected the shot reaction {c.HitboxShot?.ToString() ?? "(unnamed)"} from " +
+                    $"Mother Brain's body selected the shot reaction {c.HitboxShot} from " +
                     $"frame {c.Enemy.Frame}; every body rectangle's shot reaction is the dud shot.");
             }
-            // The common collision prelude still owns Super-Missile quake first.
-            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
+            // A Super Missile still shakes the room first.
+            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
             _projectiles.CreateEnemyProjectileDudShot(c.Projectile);
             return true;
         },
@@ -75,7 +75,7 @@ internal sealed class MotherBrainCombat
     {
         BeforeSuperMissileQuake = (in EnemyShotContext c) =>
         {
-            ResolveMotherBrainHeadShot(c.Enemy, c.Projectile, c.Projectiles, c.ProjectileType, c.ProjectileDamage);
+            ResolveMotherBrainHeadShot(c.Occupant, c.Shot, c.Projectiles, c.ProjectileType, c.ProjectileDamage);
             return true;
         },
     };
@@ -87,20 +87,22 @@ internal sealed class MotherBrainCombat
     /// vulnerability damage is applied, which never deletes the head.
     /// </summary>
     private void ResolveMotherBrainHeadShot(
-        RoomEnemyPlace head,
-        SamusProjectile projectile,
+        RoomEnemyOccupant brain,
+        SamusProjectileOccupant held,
         SamusProjectileSystem projectiles,
         SamusProjectileType projectileType,
         int projectileDamage)
     {
+        RoomEnemyPlace head = brain.Place;
+        SamusProjectile projectile = held.Projectile;
         MotherBrainEnemyState state = MotherBrainEntity.EncounterOf(head);
         SamusProjectileFamily family = projectileType.Family;
         if (state.Form != MotherBrainForm.Glass)
         {
             ResolveMotherBrainLaterFormHeadShot(
                 state,
-                head,
-                projectile,
+                brain,
+                held,
                 projectiles,
                 projectileType,
                 projectileDamage);
@@ -110,7 +112,7 @@ internal sealed class MotherBrainCombat
         // Every overlapping shot is marked as having struck before this reaction;
         // the next projectile pass consumes the marker, removing a Super Missile's pair too.
         projectiles.EnemyImpacts.TouchEnemyWithoutImpact(
-            projectile,
+            held,
             head.Contact.HasAny(EnemyContact.BlocksPlasmaBeam) ||
                 !projectileType.BeamCombination.HasPlasma);
         // Only missiles and Super Missiles that strike her head reach the glass.
@@ -120,14 +122,13 @@ internal sealed class MotherBrainCombat
         _room.Services.MotherBrain.CountHeadShotOnGlass();
         _audio.QueueEnemySound(EnemySound.ShotMotherBrain, priority: SoundRequestPriority.Normal);
 
-        // The flash step deliberately alternates odd/even flash parity when a second hit
-        // arrives during the existing flash. Common no-death normal-shot damage (#2255) then owns
-        // health, hurt-AI, and the final authored hurt duration.
+        // A second hit during a flash keeps the flash white or plain as it was. The common damage of a shot that does
+        // not kill (#2255) then takes her health and starts her hurt reaction for its authored duration.
         head.HurtFlash.Restart(head.HurtFlash.IsRunning && MotherBrainCadenceDefinitions.HurtFlashWhite.IsSetIn(head.HurtFlash.UpdatesLeft)
             ? MotherBrainFightDefinitions.HurtFlashKeepingPhase
             : MotherBrainFightDefinitions.HurtFlash);
 
-        _ = _collision.ApplyNormalShotDamage(head, projectile, projectileType, projectileDamage, _room.Area);
+        _ = _collision.ApplyNormalShotDamage(brain, projectile, projectileType, projectileDamage, _room.Area);
     }
 
     /// <summary>
@@ -137,15 +138,17 @@ internal sealed class MotherBrainCombat
     /// </summary>
     private void ResolveMotherBrainLaterFormHeadShot(
         MotherBrainEnemyState state,
-        RoomEnemyPlace head,
-        SamusProjectile projectile,
+        RoomEnemyOccupant brain,
+        SamusProjectileOccupant held,
         SamusProjectileSystem projectiles,
         SamusProjectileType projectileType,
         int projectileDamage)
     {
+        RoomEnemyPlace head = brain.Place;
+        SamusProjectile projectile = held.Projectile;
         // The shot collision marked the projectile before running this reaction.
         projectiles.EnemyImpacts.TouchEnemyWithoutImpact(
-            projectile,
+            held,
             head.Contact.HasAny(EnemyContact.BlocksPlasmaBeam) ||
                 !projectileType.BeamCombination.HasPlasma);
 
@@ -153,9 +156,8 @@ internal sealed class MotherBrainCombat
         MotherBrainProjectileType reactionProjectile = ReactionProjectiles[projectileType.Family];
         if (state.RainbowBeamSequence is { } sequence)
         {
-            // The attached sequence shares the walk counter with the encounter. The recoil
-            // clears the body phase timer when a shot takes the walk credit below zero and stores the counter
-            // immediately, before common projectile damage runs.
+            // The attached sequence shares the walk counter with the encounter. A shot that takes the walk credit below
+            // zero recoils her at once, ending the body's wait, before the common damage takes effect.
             sequence.ApplyPhase2Or3ShotReaction(reactionProjectile);
         }
         else
@@ -180,7 +182,7 @@ internal sealed class MotherBrainCombat
         // charged beams use the separate charged vulnerability after the ordinary
         // beam freeze check; Hyper would otherwise inherit Plasma's immunity; and Plasma's
         // hit immunity keeps a surviving penetrating beam from damaging the head every frame.
-        _ = _collision.ApplyNormalShotDamage(head, projectile, projectileType, projectileDamage, _room.Area);
+        _ = _collision.ApplyNormalShotDamage(brain, projectile, projectileType, projectileDamage, _room.Area);
     }
 
     /// <summary>
@@ -189,10 +191,10 @@ internal sealed class MotherBrainCombat
     /// her later forms take the common no-death bomb damage. The frame-hitbox collision has already marked the bomb.
     /// </summary>
     private void ResolveMotherBrainHeadNormalBomb(
-        RoomEnemyPlace head,
-        SamusBomb bomb)
+        RoomEnemyOccupant head,
+        SamusBombOccupant bomb)
     {
-        MotherBrainEnemyState state = MotherBrainEntity.EncounterOf(head);
+        MotherBrainEnemyState state = MotherBrainEntity.EncounterOf(head.Place);
 
         if (state.Form == MotherBrainForm.Glass)
             return;
@@ -221,23 +223,21 @@ internal sealed class MotherBrainCombat
     /// The reaction of the first hitbox the probe overlaps on her body's frame: her brain's rectangle until its first
     /// animation shows a body frame, then what its frame shows. Her body's own entity asks (#2301).
     /// </summary>
-    internal static bool FindMotherBrainBodyHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction) =>
+    internal static EnemyHitboxContact FindMotherBrainBodyHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe) =>
         FindHitboxReaction(enemy, enemy.Frame == EnemyFrameId.MotherBrainBrainHitArea
             ? MotherBrainCollisionDefinitions.BrainComponents
-            : MotherBrainCollision.ComponentsAt(enemy.Frame), probe, out reaction);
+            : MotherBrainCollision.ComponentsAt(enemy.Frame), probe);
 
     /// <summary>
     /// The reaction of the first hitbox the probe overlaps on her head: her brain, whose rectangle it owns (#2220). Her head's
     /// own entity asks (#2301).
     /// </summary>
-    internal static bool FindMotherBrainHeadHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction) =>
-        FindHitboxReaction(enemy, MotherBrainCollisionDefinitions.BrainComponents, probe, out reaction);
+    internal static EnemyHitboxContact FindMotherBrainHeadHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe) =>
+        FindHitboxReaction(enemy, MotherBrainCollisionDefinitions.BrainComponents, probe);
 
     /// <summary>The reaction of the first of <paramref name="components"/>' hitboxes the probe overlaps, placed from <paramref name="enemy"/>.</summary>
-    private static bool FindHitboxReaction(RoomEnemyPlace enemy, ReadOnlySpan<EnemyCollisionComponent> components, EnemyHitboxProbe probe,
-        out EnemyReaction? reaction)
+    private static EnemyHitboxContact FindHitboxReaction(RoomEnemyPlace enemy, ReadOnlySpan<EnemyCollisionComponent> components, EnemyHitboxProbe probe)
     {
-        reaction = null;
         foreach (EnemyCollisionComponent component in components)
         {
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
@@ -249,10 +249,9 @@ internal sealed class MotherBrainCombat
                         componentOrigin.X + hitbox.Right,
                         componentOrigin.Y + hitbox.Bottom))
                     continue;
-                reaction = probe.SelectsShot ? hitbox.Shot : hitbox.Touch;
-                return true;
+                return EnemyHitboxContact.Struck(probe.SelectsShot ? hitbox.Shot : hitbox.Touch);
             }
         }
-        return false;
+        return EnemyHitboxContact.Missed;
     }
 }

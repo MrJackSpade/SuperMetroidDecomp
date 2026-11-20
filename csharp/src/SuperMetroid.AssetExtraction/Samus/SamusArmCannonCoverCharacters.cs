@@ -1,6 +1,7 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Samus.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
@@ -36,12 +37,10 @@ public sealed class SamusArmCannonCoverCharacters
         ? tiles.Characters.Slice(index * SamusArmCannonArtworkFormat.CoverTileByteCount, SamusArmCannonArtworkFormat.CoverTileByteCount)
         : throw new ArgumentOutOfRangeException(nameof(index));
 
-    /// <summary>The cover character for native direction 0-9 and opening frame 1-3, as owned artwork.</summary>
-    /// <exception cref="InvalidDataException">The frame names no cover tile.</exception>
-    public SpriteArtwork CoverTile(int direction, int frame)
+    /// <summary>The cover character for native direction 0-9 at opening picture <paramref name="frame"/>, as owned artwork.</summary>
+    public SpriteArtwork CoverTile(int direction, SamusArmCannonCoverFrame frame)
     {
-        int index = Cannon.CoverTileIndex(direction, frame) ??
-            throw new InvalidDataException($"Arm-cannon direction {direction} frame {frame} names no installed cover tile.");
+        int index = Cannon.CoverTileIndex(direction, frame);
         return coverCharacters.GetOrAdd(index, key => new SpriteArtwork(new SpriteArtworkId(SpriteArtworkKind.SamusArmCannonCover, key),
             TileCharacters(key).Span));
     }

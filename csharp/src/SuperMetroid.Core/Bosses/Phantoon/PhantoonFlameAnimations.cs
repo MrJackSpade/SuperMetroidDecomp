@@ -18,8 +18,8 @@ internal static class PhantoonFlameAnimations
     /// update and a rain flame's impact one for a longer beat; a falling flame flickers between each of its three poses and nothing,
     /// one update each, in three runs (#2250).
     /// </summary>
-    internal static UnpausedAnimationSegments<PhantoonFlameSegment, EnemyProjectileFrameId, PhantoonFlameCue> Segments { get; } = new(
-        new Dictionary<PhantoonFlameSegment, AnimationBeat<EnemyProjectileFrameId, PhantoonFlameCue>.Unpaused[]>
+    internal static HidingUnpausedAnimationSegments<PhantoonFlameSegment, EnemyProjectileFrameId, PhantoonFlameCue> Segments { get; } = new(
+        new Dictionary<PhantoonFlameSegment, IUnpausedHidingAnimationBeat<EnemyProjectileFrameId, PhantoonFlameCue>[]>
     {
         [P.Burning] =
         [
@@ -48,17 +48,17 @@ internal static class PhantoonFlameAnimations
         [P.CasualFallingKindling] =
         [
             Show(EnemyProjectileFrameId.PhantoonFlameKindling, 1),
-            Show(EnemyProjectileFrameId.Blank, 1),
+            Hide(1),
         ],
         [P.CasualFallingTeardrop] =
         [
             Show(EnemyProjectileFrameId.PhantoonFlameTeardrop, 1),
-            Show(EnemyProjectileFrameId.Blank, 1),
+            Hide(1),
         ],
         [P.CasualFallingSputtering] =
         [
             Show(EnemyProjectileFrameId.PhantoonFlameSputtering, 1),
-            Show(EnemyProjectileFrameId.Blank, 1),
+            Hide(1),
         ],
         [P.StartingFlame] =
         [
@@ -98,6 +98,10 @@ internal static class PhantoonFlameAnimations
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> passes.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, PhantoonFlameCue>.Unpaused Show(EnemyProjectileFrameId frame, int duration) =>
         new AnimationBeat<EnemyProjectileFrameId, PhantoonFlameCue>.Frame(frame, duration);
+
+    /// <summary>Shows nothing for <paramref name="duration"/> updates (#2558): the projectile is hidden until its next frame.</summary>
+    private static AnimationHiddenBeat<EnemyProjectileFrameId, PhantoonFlameCue> Hide(int duration) =>
+        new AnimationHiddenBeat<EnemyProjectileFrameId, PhantoonFlameCue>(duration);
 
     /// <summary>Raises <paramref name="cue"/>.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, PhantoonFlameCue>.Unpaused Cue(PhantoonFlameCue cue) =>

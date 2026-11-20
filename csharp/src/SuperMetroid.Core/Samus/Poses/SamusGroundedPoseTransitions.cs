@@ -180,13 +180,10 @@ internal static class SamusGroundedPoseTransitions
 
         if (entering && !moonwalkEnabled)
         {
-            // Normal landing points at the same grounded input transitions as
-            // ordinary standing. Consequently a backward direction can nominate the
-            // corresponding Moonwalk pose before the option gate runs. The setup
-            // does not special-case the old landing movement type: with Moonwalk off it
-            // substitutes the same ordinary standing turn used from normal standing.
-            // Tests the way the candidate pose faces: the right-facing moonwalk poses travel left and become the
-            // right-to-left turn; the left-facing ones travel right and become left-to-right.
+            // A landing takes the standing pose's input transitions, so a backward direction can choose the Moonwalk
+            // pose before the option is tested; with Moonwalk off, the landing turns as standing does. The way the
+            // candidate pose faces decides: the right-facing moonwalk poses travel left and become the right-to-left
+            // turn; the left-facing ones travel right and become left-to-right.
             ApplyGroundedTurn(samus,
                 targetVisualRight ? SamusPoseId.TurningRightToLeftPose : SamusPoseId.TurningLeftToRightPose);
             return;
@@ -203,11 +200,11 @@ internal static class SamusGroundedPoseTransitions
     /// <remarks>
     /// Input requests the un-aimed turn jump; the pose setup substitutes the old muzzle's aimed turn jump.
     /// </remarks>
-    public static void ApplyMoonwalkTurnJump(SamusState samus)
+    public static void ApplyMoonwalkTurnToSpinJump(SamusState samus)
     {
         // A moonwalk aims only level or diagonally; any other aim means the pose state is inconsistent.
         SamusPoseId expectedTarget = SamusPoseMetadata.ReadAimDirection(samus) is { } direction &&
-            SamusAimedPoseChoiceDefinitions.MoonwalkTurnJumps.TryGetValue(direction, out SamusPoseId turnJump)
+            SamusAimedPoseChoiceDefinitions.MoonwalkTurnToSpinJumps.TryGetValue(direction, out SamusPoseId turnJump)
             ? turnJump
             : throw new InvalidDataException(
                 $"Moonwalk aim {SamusPoseMetadata.ReadAim(samus)} is invalid for a stable moonwalk pose.");
@@ -287,7 +284,7 @@ internal static class SamusGroundedPoseTransitions
         // turn/jump setup without a new Jump edge.
         if (wasMoonwalking && (controllerInput & GameplayAction.Jump) != GameplayAction.None)
         {
-            ApplyMoonwalkTurnJump(samus);
+            ApplyMoonwalkTurnToSpinJump(samus);
             return;
         }
 
@@ -298,9 +295,7 @@ internal static class SamusGroundedPoseTransitions
         SamusPoseId selectedTurnPose;
         if (wasForwardFacing)
         {
-            // This is the literal early branch: keep the input-transition
-            // result. Reading the shot direction of a forward-facing pose here would manufacture an aim/facing
-            // direction that the game explicitly declines to inspect.
+            // A forward-facing Samus keeps the generic turn the input transitions chose.
             selectedTurnPose = targetPose;
         }
         else

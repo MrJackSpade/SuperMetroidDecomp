@@ -41,21 +41,19 @@ internal static class FakeKraidProjectileInstructionProgramDefinitionsVerificati
                 FakeKraidProjectileInstructionProgramDefinitionsTooling.PresentationWordAddress);
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
 
-        var source = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>())
-        {
-            Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112)),
-            Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook,
-        };
+        RoomEnemyPlace source = enemies.Places.InUpdateOrder[0];
+        source.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112));
+        source.Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook;
         var state = new FakeKraidEnemyState();
 
-        enemies.FakeKraidBehavior.SpawnFakeKraidSpit(source, 12, new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(384), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-512)));
+        enemies.FakeKraidBehavior.SpawnFakeKraidSpit(source.BoundFor(EnemyDefinitionId.FakeKraid), source, 12, new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(384), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-512)));
         AssertTrue(enemies.Projectiles.EnemyProjectiles.Any(item => item.IsActive && item.Kind == RoomEnemyProjectileKind.FakeKraidSpit),
             "real Fake Kraid spit producer allocates its projectile in the enemy projectile pool");
         state.Facing = HorizontalDirection.Left;
-        AssertTrue(enemies.FakeKraidBehavior.SpawnFakeKraidSpike(source, state, FakeKraidSpikeRow.Top),
+        AssertTrue(enemies.FakeKraidBehavior.SpawnFakeKraidSpike(source.HeldOccupant(), source, state, FakeKraidSpikeRow.Top),
             "real Fake Kraid left-spike producer allocates its projectile");
         state.Facing = HorizontalDirection.Right;
-        AssertTrue(enemies.FakeKraidBehavior.SpawnFakeKraidSpike(source, state, FakeKraidSpikeRow.Middle),
+        AssertTrue(enemies.FakeKraidBehavior.SpawnFakeKraidSpike(source.HeldOccupant(), source, state, FakeKraidSpikeRow.Middle),
             "real Fake Kraid right-spike producer allocates its projectile");
 
         var cases = new[]
@@ -95,7 +93,7 @@ List:FakeKraidProjectileInstructionProgramDefinitionsConstants.SpikeRight),
             // again a countdown's whole range later, until the shot reaction below starts another animation.
             AssertTrue(projectile.IsFrameHoldStopped, $"{testCase.Kind} held pose stops its hold");
             for (int pass = 0; pass < 2; pass++)
-                enemies.Projectiles.AdvanceEnemyProjectileAnimations(projectile, restingSamus, Position16<RoomPixels>.Zero, shortCounter: 0);
+                enemies.Projectiles.AdvanceEnemyProjectileAnimations(projectile, restingSamus, Position16<RoomPixels>.Zero, shortCounter: SuperMetroid.Core.Compatibility.ShortFrameCount.Zero);
             AssertTrue(projectile.IsFrameHoldStopped && projectile.FrameHold.IsZero,
                 $"{testCase.Kind} held pose's hold counts nothing on later passes");
             AssertEqual(operand, projectile.PresentationOperandAddress, $"{testCase.Kind} held pose still shows on later passes");
@@ -119,7 +117,7 @@ List:FakeKraidProjectileInstructionProgramDefinitionsConstants.SpikeRight),
         void RunForcedTick(EnemyProjectile projectile)
         {
             projectile.FrameHold = WrappingCountdown.Start(1);
-            enemies.Projectiles.AdvanceEnemyProjectileAnimations(projectile, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), Position16<RoomPixels>.Zero, shortCounter: 0);
+            enemies.Projectiles.AdvanceEnemyProjectileAnimations(projectile, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), Position16<RoomPixels>.Zero, shortCounter: SuperMetroid.Core.Compatibility.ShortFrameCount.Zero);
         }
     }
 

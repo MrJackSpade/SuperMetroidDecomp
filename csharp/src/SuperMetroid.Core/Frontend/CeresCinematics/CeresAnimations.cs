@@ -16,7 +16,7 @@ internal static class CeresAnimations
 {
     /// <summary>The flight's, the destruction's and the Zebes reveal's actors.</summary>
     internal static CinematicAnimations<CeresAnimation, CinematicSpritePose, CeresCue> Scenes { get; } = new(
-        new Dictionary<CeresAnimation, AnimationBeat<CinematicSpritePose, CeresCue>[]>
+        new Dictionary<CeresAnimation, IHidingAnimationBeat<CinematicSpritePose, CeresCue>[]>
         {
             [A.Stars] = [B.Hold(S.FlightStars)],
             [A.LargeAsteroid] = [B.Hold(S.LargeAsteroid)],
@@ -29,14 +29,14 @@ internal static class CeresAnimations
             ],
             [A.DestructionLargeAsteroid] = [B.Hold(S.StationUnderAttackLargeAsteroid)],
             [A.SmallExplosion] = SmallExplosionBurst(),
-            [A.RepeatingSmallExplosion] = [.. SmallExplosionBurst(), B.Show(S.Blank, 16)],
+            [A.RepeatingSmallExplosion] = [.. SmallExplosionBurst(), B.Hide(16)],
             [A.LargeExplosion] =
             [
                 B.Show(S.LargeBlastFireballCluster, 5),
                 B.Show(S.LargeBlastBreakingCluster, 5),
                 B.Show(S.LargeBlastScatteringEmbers, 5),
                 B.Show(S.LargeBlastFadingEmbers, 5),
-                B.Show(S.Blank, 8),
+                B.Hide(8),
             ],
             [A.StationBlast] =
             [
@@ -54,7 +54,7 @@ internal static class CeresAnimations
             [A.ZebesStarsLowerRight] = [B.Hold(S.ZebesStarsLowerRight)],
             [A.ZebesTitle] =
             [
-                B.Show(S.Blank, 64),
+                B.Hide(64),
                 B.Raise(CeresCue.FadeInZebesTitle),
                 B.Show(S.PlanetZebesTitle, 32),
                 B.Raise(CeresCue.SpawnJapaneseTitleIfNeeded),
@@ -94,22 +94,22 @@ internal static class CeresAnimations
     /// the final wave and ends.
     /// </summary>
     internal static CinematicAnimations<CeresAnimation, CinematicSpritePose, CeresExplosionSpawnerCue> ExplosionSpawner { get; } = new(
-        new Dictionary<CeresAnimation, AnimationBeat<CinematicSpritePose, CeresExplosionSpawnerCue>[]>
+        new Dictionary<CeresAnimation, IHidingAnimationBeat<CinematicSpritePose, CeresExplosionSpawnerCue>[]>
         {
             [A.ExplosionSpawner] =
             [
-                W.Show(S.Blank, 128),
+                W.Hide(128),
                 W.Raise(CeresExplosionSpawnerCue.SpawnInitialWave),
-                W.Show(S.Blank, 69),
+                W.Hide(69),
             ],
             [A.ExplosionSpawnerRepeatingBlast] =
             [
-                W.Show(S.Blank, 12),
+                W.Hide(12),
                 W.Raise(CeresExplosionSpawnerCue.SpawnRepeatingBlast),
             ],
             [A.ExplosionSpawnerFinalWave] =
             [
-                W.Show(S.Blank, 3),
+                W.Hide(3),
                 W.Raise(CeresExplosionSpawnerCue.SpawnFinalWave),
             ],
         },

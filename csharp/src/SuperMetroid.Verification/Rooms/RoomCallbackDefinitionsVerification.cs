@@ -35,7 +35,7 @@ internal static class RoomCallbackDefinitionsVerification
         foreach (ushort roomPointer in roomPointers)
         foreach (RoomStateSelectionContext context in BuildRoomStateAuditContexts())
         {
-            RoomStateSettings state = SelectedRoom.LoadUsingCompiledSelection(
+            RoomStateSettings state = SelectedRoom.ForProgress(
                 RoomDefinitions.Get(roomPointer), context).State;
             if (!states.Add(state.Pointer))
                 continue;

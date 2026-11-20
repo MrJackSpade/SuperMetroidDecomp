@@ -245,7 +245,7 @@ public sealed class ManagedSpcPlayer
             for (int index = 0, bit = 1; index < channels.Length; index++, bit <<= 1)
             {
                 Voices.currentChannelBit = unchecked((byte)bit);
-                if (channels[index].PatternOrderPointer > byte.MaxValue)
+                if (channels[index].IsPlaying)
                     Music.HandlePanAndSweep(channels[index]);
             }
             Voices.currentChannelBit = 0;

@@ -52,14 +52,15 @@ internal sealed class DraygonParts
     /// Sets Draygon's body up when the room spawns it: it begins the encounter with his eye, tail and arms, which his room
     /// lists right after his body (#2298), each playing the animation its setup starts.
     /// </summary>
-    internal void InitializeDraygonBody(RoomEnemyPlace body)
+    internal void InitializeDraygonBody(RoomEnemyOccupant occupant)
     {
+        RoomEnemyPlace body = occupant.Place;
 
         body.AnimationClock.StepOnNextUpdate();
 
         _frameContext.RequestFullSweep();
         RoomEnemyPlace[] parts = _places.ListedRunAfter(body, DraygonPartListingDefinitions.PartsAfterBody);
-        var draygon = new DraygonEnemyState(body, eye: parts[0], tail: parts[1], arms: parts[2])
+        var draygon = new DraygonEnemyState(occupant, eye: parts[0], tail: parts[1], arms: parts[2])
         {
             Phase = DraygonPhase.IntroInitialDelay,
         };
@@ -253,23 +254,23 @@ internal sealed class DraygonParts
         _effectActors.SpawnRoomEffectActor(
             state.Body.Position.Whole + scatter,
             kind,
-            graphics: default);
+            graphics: SpriteGraphics.SharedStandard);
     }
 
     /// <summary>Applies the tail whip's hit to grabbed Samus, including suit damage.</summary>
     private void ApplyDraygonTailWhipHit(DraygonEnemyState state, SamusState samus)
     {
         state.SwoopAcceleration = DraygonSwoopDefinitions.InitialAcceleration;
-        SamusSuitDamage.Hurt(samus, state.Body.Definition.Damage);
+        SamusSuitDamage.Hurt(samus, state.BodyOccupant.Definition.Damage);
 
         // The tail hit also shakes the foreground strongly for its shake's updates, so the camera shows the hit as well as the
         // energy it costs.
-        _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Strong, EarthquakeDirection.Vertical, EarthquakeReach.Foreground), DraygonArenaDefinitions.TailHitShakeUpdates);
+        _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Strong, EarthquakeDirection.Vertical, EarthquakeReach.RoomBlocks), DraygonArenaDefinitions.TailHitShakeUpdates);
 
         _effectActors.SpawnRoomEffectActor(
             new(samus.Position.X.Whole, samus.Position.Y.Whole + DraygonArenaDefinitions.TailHitDustBelowSamus),
             RoomEffectActorKind.BigDustCloud,
-            graphics: default);
+            graphics: SpriteGraphics.SharedStandard);
     }
 
     /// <summary>
@@ -282,15 +283,10 @@ internal sealed class DraygonParts
     /// <summary>Spawns a goop as either of the body animation's two goop cues does.</summary>
     private void SpawnDraygonGoop(DraygonEnemyState state, HorizontalDirection direction)
     {
-        EnemyProjectile? goop = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? goop = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.DraygonGoop, _shots.Goop, graphics: SpriteGraphics.SharedIn(DraygonColours.Goop));
         if (goop is null)
             return;
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            goop,
-            RoomEnemyProjectileKind.DraygonGoop,
-            _shots.Goop,
-            graphics: SpriteGraphics.SharedIn(DraygonColours.Goop));
         goop.StartAnimation(new DraygonProjectileAnimation(_shots.Goop, DraygonProjectileSegment.Goop));
         goop.Position = FixedPosition<RoomPixels>.FromWhole(state.Body.Position.Whole + (direction == HorizontalDirection.Right
             ? DraygonArenaDefinitions.GoopSpawnMovingRight : DraygonArenaDefinitions.GoopSpawnMovingLeft));

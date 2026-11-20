@@ -14,13 +14,13 @@ internal static class EndingLogoAnimations
 {
     /// <summary>The logo's halves' animations.</summary>
     internal static CinematicAnimations<EndingLogoAnimation, CinematicSpritePose, EndingLogoCue> Logo { get; } = new(
-        new Dictionary<EndingLogoAnimation, AnimationBeat<CinematicSpritePose, EndingLogoCue>[]>
+        new Dictionary<EndingLogoAnimation, IHidingAnimationBeat<CinematicSpritePose, EndingLogoCue>[]>
         {
             [A.UpperS] = [B.Hold(S.LogoSUpper)],
             [A.LowerS] = [B.Hold(S.LogoSLower)],
             [A.UpperCircle] =
             [
-                B.Show(S.Blank, 96),
+                B.Hide(96),
                 B.Show(S.LogoRightCircleTip, 5),
                 B.Show(S.LogoRightCircleTipAndBlade, 5),
                 B.Show(S.LogoRightCircleWhole, 64),
@@ -29,7 +29,7 @@ internal static class EndingLogoAnimations
             ],
             [A.LowerCircle] =
             [
-                B.Show(S.Blank, 96),
+                B.Hide(96),
                 B.Show(S.LogoLeftCircleTip, 5),
                 B.Show(S.LogoLeftCircleTipAndBlade, 5),
                 B.Hold(S.LogoLeftCircleWhole),

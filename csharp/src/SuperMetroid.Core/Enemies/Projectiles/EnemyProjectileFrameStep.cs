@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>
 /// What a projectile's animation does when its frame expires (#1607): shows a frame for a duration, shows a frame for
-/// good, rests on the frame it shows, or ends (#2553).
+/// good, shows nothing for a duration (#2558), rests on the frame it shows, or ends (#2553).
 /// </summary>
 internal abstract record EnemyProjectileFrameStep
 {
@@ -47,6 +47,14 @@ internal abstract record EnemyProjectileFrameStep
         internal override void React<TContext>(EnemyProjectileFrameStepReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).Rest(this, context);
     }
 
+    /// <summary>The projectile shows nothing for <paramref name="Duration"/> updates (#2558), holding no shown frame meanwhile.</summary>
+    /// <param name="Duration">The updates the projectile stays hidden.</param>
+    internal sealed record Hide(int Duration) : EnemyProjectileFrameStep
+    {
+        /// <inheritdoc/>
+        internal override void React<TContext>(EnemyProjectileFrameStepReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).Hide(this, context);
+    }
+
     /// <summary>The animation has ended.</summary>
     internal sealed record End : EnemyProjectileFrameStep
     {
@@ -58,11 +66,13 @@ internal abstract record EnemyProjectileFrameStep
 /// <summary>What the owner of a <see cref="EnemyProjectileFrameStep"/> does on each of its cases (#2553).</summary>
 /// <param name="Show">Reacts to a <see cref="EnemyProjectileFrameStep.Show"/>.</param>
 /// <param name="ShowForGood">Reacts to a <see cref="EnemyProjectileFrameStep.ShowForGood"/>.</param>
+/// <param name="Hide">Reacts to a <see cref="EnemyProjectileFrameStep.Hide"/>.</param>
 /// <param name="Rest">Reacts to a <see cref="EnemyProjectileFrameStep.Rest"/>.</param>
 /// <param name="End">Reacts to a <see cref="EnemyProjectileFrameStep.End"/>.</param>
 /// <typeparam name="TContext">What each case reads besides itself.</typeparam>
 internal sealed record EnemyProjectileFrameStepReactions<TContext>(
     Action<EnemyProjectileFrameStep.Show, TContext> Show,
     Action<EnemyProjectileFrameStep.ShowForGood, TContext> ShowForGood,
+    Action<EnemyProjectileFrameStep.Hide, TContext> Hide,
     Action<EnemyProjectileFrameStep.Rest, TContext> Rest,
     Action<EnemyProjectileFrameStep.End, TContext> End);

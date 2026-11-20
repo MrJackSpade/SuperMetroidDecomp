@@ -48,8 +48,8 @@ public sealed class BabyMetroidEnemyState
     }
 
     /// <summary>
-    /// The wait of the current action that counts past zero: the entrance delay, the rises after feeding and after
-    /// draining Samus, the pause after draining her, the flights beside her and the hold before her release (#2253).
+    /// The current action's wait: the entrance delay, the rises after feeding and after draining Samus, the pause after
+    /// draining her, the flights beside her and the hold before her release (#2253).
     /// </summary>
     public BossCountdown StateTimer { get; } = new();
 

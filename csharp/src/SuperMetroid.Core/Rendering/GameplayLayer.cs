@@ -9,7 +9,10 @@ namespace SuperMetroid.Core.Rendering;
 /// </summary>
 public enum GameplayLayer
 {
-    /// <summary>The actors drawn behind the whole room (<see cref="Assets.ActorDepth.BehindRoom"/>).</summary>
+    /// <summary>
+    /// The actors drawn behind the whole room, at both depths behind it (<see cref="Assets.ActorDepth.BehindRoom"/> and
+    /// <see cref="Assets.ActorDepth.BehindRoomInFrontOfFloor"/>), which only a turning floor tells apart (#2583).
+    /// </summary>
     ActorsBehindRoom,
 
     /// <summary>The room's background, its back tiles.</summary>

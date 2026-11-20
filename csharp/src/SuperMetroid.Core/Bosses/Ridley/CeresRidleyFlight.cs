@@ -143,7 +143,7 @@ internal sealed class CeresRidleyFlight
         state.FireballMoveWait.LastFor(CeresRidleyFlightDefinitions.FireballMoveGiveUpUpdates);
     }
 
-    /// <summary>Steers Ridley into his fireball position and installs the mouth/fireball animation.</summary>
+    /// <summary>Steers Ridley into his fireball position, where he starts his fireballing animation.</summary>
     internal void TickCeresRidleyFireballMove(RoomEnemyPlace place, CeresRidleyState state)
     {
         state.Flight.Velocity = state.Flight.Velocity.WithY(
@@ -206,7 +206,7 @@ internal sealed class CeresRidleyFlight
         {
             state.Phase = CeresRidleyPhase.SwoopDescendingAimingDown;
             state.PhaseTimer.LastFor(CeresRidleyFlightDefinitions.SwoopDiveUpdates);
-            state.Flight.SwoopAngleAccumulator = RotationAngle.Zero;
+            state.Flight.SwoopHeading = RotationAngle.Zero;
         }
     }
 
@@ -346,8 +346,7 @@ internal sealed class CeresRidleyFlight
     /// <summary>
     /// One axis of Ridley's seek (Y and X): one run of steps toward the target, three while reversing
     /// and one otherwise, in which a step that crosses zero makes the next one a unit larger
-    /// (<see cref="SeekingVelocityRun"/>). The velocity stays within a few thousand units of rest (each update clamps it
-    /// to five pixels and a step is at most the arena's width), so the clamps compare signed velocities.
+    /// (<see cref="SeekingVelocityRun"/>). Each update clamps the velocity to five pixels an update either way.
     /// </summary>
     /// <param name="run">The run of steps from the axis velocity toward the target from Ridley's place on the axis.</param>
     /// <param name="difference">Ridley's displacement from the target on the axis.</param>
@@ -357,7 +356,7 @@ internal sealed class CeresRidleyFlight
         SignedEightEight velocity = run.Velocity;
         if (difference == 0)
             return velocity;
-        // The distance divided by the inertia, at most 32768; a step that divides to zero is raised to one.
+        // The distance divided by the inertia, at least one.
         SignedEightEight step = SeekingVelocityRun.StepFor(Math.Max(1, Math.Abs(difference) / divisor));
 
         if (difference < 0)
@@ -400,7 +399,7 @@ internal sealed class CeresRidleyFlight
         RoomEnemyDefinition definition = _room.Definitions.ReadEnemyDefinition(EnemyDefinitionId.CeresGetawayChamberWall);
         RoomEnemyPlacement population = new(
             EnemyDefinitionId.CeresGetawayChamberWall,
-            Position: position,
+            Placing: EnemyPlacing.At(position),
             Contact: EnemyContact.None,
             Processing: EnemyProcessing.Animates | EnemyProcessing.OffScreen,
             Presence: EnemyPresence.Hidden,

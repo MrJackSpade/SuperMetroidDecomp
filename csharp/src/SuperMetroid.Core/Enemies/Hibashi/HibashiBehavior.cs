@@ -9,12 +9,13 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Hibashi], Create);
 
     /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
-    /// <param name="place">The place, holding the new identity and the entry it is spawned from.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
+    /// <param name="place">The place, already holding the occupant.</param>
     /// <param name="common">The shared participation the entity composes.</param>
-    private EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) =>
-        Ensure.NotNull(place).SpawnSettings<HibashiSpawnSettings>() is HibashiCollisionPartSpawnSettings
-            ? EnemyOccupant.WithoutMainAi(new HibashiCollisionPartEntity(place, common))
-            : EnemyOccupant.Of(new HibashiEntity(this, place, common));
+    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        occupant.SpawnSettings<HibashiSpawnSettings>() is HibashiCollisionPartSpawnSettings
+            ? EnemyOccupant.WithoutMainAi(new HibashiCollisionPartEntity(occupant, place, common))
+            : EnemyOccupant.Of(new HibashiEntity(this, occupant, place, common));
 
     /// <summary>The room's enemy places, where each visible geyser finds its hitbox when it is placed.</summary>
     private readonly EnemyPlaces _places;
@@ -76,23 +77,23 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = EnemyAnimationPlayback.Start(place, HibashiAnimations.StartingWith(HibashiSegment.Flame));
         state.SpawnY = place.Position.Y.Whole;
 
-        // The visible part must never participate through its definition's radius.
-        // Its following part receives the dynamic radius from animation cues.
+        // The visible part must never participate through its definition's radius: its width is a real zero, which the
+        // overlap tests measure as they measure any width. Its following part receives the dynamic radius from animation cues.
         place.Radius = place.Radius.WithX(0);
     }
 
     /// <summary>What <c>RunHibashiMain</c> does for each <see cref="HibashiAction"/> member, each member's own arm.</summary>
-    private IdentityTable<HibashiAction, Action<RoomEnemyPlace, HibashiEnemyState>> RunHibashiMainForHibashiAction => field ??= new(new Dictionary<HibashiAction, Action<RoomEnemyPlace, HibashiEnemyState>>
+    private IdentityTable<HibashiAction, Action<RoomEnemyOccupant, RoomEnemyPlace, HibashiEnemyState>> RunHibashiMainForHibashiAction => field ??= new(new Dictionary<HibashiAction, Action<RoomEnemyOccupant, RoomEnemyPlace, HibashiEnemyState>>
     {
-        [HibashiAction.Inactive] = (place, state) => RunHibashiInactive(place, state),
-        [HibashiAction.Active] = (place, state) => { },
-        [HibashiAction.Finished] = (place, state) => RestHibashi(place, state),
+        [HibashiAction.Inactive] = (_, place, state) => RunHibashiInactive(place, state),
+        [HibashiAction.Active] = (_, place, state) => { },
+        [HibashiAction.Finished] = (occupant, place, state) => RestHibashi(occupant, state),
     });
 
     /// <summary>Runs the Hibashi's main AI.</summary>
-    private void RunHibashiMain(RoomEnemyPlace place, HibashiEnemyState state)
+    private void RunHibashiMain(RoomEnemyOccupant occupant, RoomEnemyPlace place, HibashiEnemyState state)
     {
-        RunHibashiMainForHibashiAction[state.Action](place, state);
+        RunHibashiMainForHibashiAction[state.Action](occupant, place, state);
     }
 
     /// <summary>Runs the inactive Hibashi.</summary>
@@ -116,9 +117,9 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Rests the flame whose eruption has finished, which hid it: its wait restarts at its placement's inactive time and the
     /// update it runs out on (#2340).
     /// </summary>
-    private static void RestHibashi(RoomEnemyPlace flame, HibashiEnemyState state)
+    private static void RestHibashi(RoomEnemyOccupant occupant, HibashiEnemyState state)
     {
-        state.InactiveTimer = UpdateCountdown.For(flame.SpawnSettings<HibashiFlameSpawnSettings>().InactiveTime + EnemyWaitDefinitions.RunOutUpdate);
+        state.InactiveTimer = UpdateCountdown.For(occupant.SpawnSettings<HibashiFlameSpawnSettings>().InactiveTime + EnemyWaitDefinitions.RunOutUpdate);
         state.Action = HibashiAction.Inactive;
     }
 
@@ -166,8 +167,8 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     private RoomEnemyPlace GetFollowingHibashiPart(RoomEnemyPlace flame) => _hitboxes.Of(flame);
 
     /// <summary>Runs the flame's main AI.</summary>
-    internal void RunHibashiMainAi(RoomEnemyPlace place) =>
-        RunHibashiMain(place, place.RequireSpeciesState<HibashiEnemyState>());
+    internal void RunHibashiMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place) =>
+        RunHibashiMain(occupant, place, place.RequireSpeciesState<HibashiEnemyState>());
 
     /// <summary>Advances the collision part's hitbox hold.</summary>
     internal static void AdvanceHibashiCollisionPartTypedAnimation(RoomEnemyPlace place) =>

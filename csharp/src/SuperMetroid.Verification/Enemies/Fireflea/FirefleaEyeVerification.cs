@@ -26,7 +26,7 @@ internal static class FirefleaEyeVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LowerNorfairFireflea);
         AssertEqual(RoomFxType.Fireflea, runtime.RoomFxOverlay.Type, "reported room uses Fireflea darkness");
         var eye = runtime.Enemies.Places.InUpdateOrder[0];
-        AssertEqual(EnemyDefinitionId.Fune, eye.DefinitionId, "reported rock eye is retail Fune/Namihe family");
+        AssertEqual(EnemyDefinitionId.Fune, eye.Occupant?.DefinitionId, "reported rock eye is retail Fune/Namihe family");
         ushort cameraX = 368, cameraY = 608;
         runtime.Enemies.StepStandaloneFrame(runtime.Enemies.StandaloneFrame(runtime.Room.LoadedLevelData) with { Camera = new(cameraX, cameraY), TimeIsFrozen = false, Samus = runtime.Player.IntroducedSamus });
         // The display reads the state the NMI latches (#1307); latch the loaded room's darkness once, as its first frame would.
@@ -43,9 +43,8 @@ internal static class FirefleaEyeVerification
         var memory = runtime.PublishDisplayFrame().Paint.WithShownDraws(sprites.Draws);
         var source = runtime.PublishDisplayFrame().OrdinaryBaseScene;
         var actualDarkness = (GameplayBlendLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
-        AssertEqual(BlendedLayers.Background | BlendedLayers.Backdrop, actualDarkness.Blend.Blended,
-            "reported room darkens the background and backdrop, not the sprites");
-        AssertEqual(BlendOperation.Subtract, actualDarkness.Blend.Operation, "reported room's darkness subtracts its shade");
+        AssertTrue(actualDarkness.Blend is FirefleaDarknessBlend,
+            "reported room shows Fireflea's darkness, which darkens the background and backdrop, not the sprites");
         var baseLayer = (GameplaySceneLayer)source.Layers[0];
         // Isolate the actual room OBJ pixels on a black backdrop, retaining the
         // retail graphics/palette and the production source-aware color-math kernel.
@@ -55,7 +54,7 @@ internal static class FirefleaEyeVerification
         foreach (byte darkness in new byte[] { 0, 6, 12, 18, 24, 25, 31 })
         {
             var closed = ScreenWindow.Closed;
-            var layer = new GameplayBlendLayer(objects, closed, false, actualDarkness.Blend with { Colour = new FadeLevelColour(darkness, darkness, darkness).ToColour() });
+            var layer = new GameplayBlendLayer(objects, closed, false, new FirefleaDarknessBlend(new FadeLevelColour(darkness, darkness, darkness).ToColour()));
             var pixels = DisplayRendering.Render(new LayeredScene(memory, new DisplayLayer[] { layer }, source.Brightness));
             bright ??= pixels;
             AssertTrue(pixels.SequenceEqual(bright), "native A2 darkness leaves retail eye OBJ colors unchanged");

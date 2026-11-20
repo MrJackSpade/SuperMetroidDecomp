@@ -26,7 +26,7 @@ internal static class SporeSpawnSwayVerification
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
             RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-            body.Bind(EnemyDefinitionId.SporeSpawn, body.Definition);
+            body.Bind(EnemyDefinitionId.SporeSpawn, body.KeptDefinition);
             body.Position = body.Position.WithWhole(new(128, 624));
             var state = new SporeSpawnEnemyState
             {
@@ -36,11 +36,11 @@ internal static class SporeSpawnSwayVerification
                 SwayStep = new(RotationAngle.FromSteps(Math.Abs(delta)), delta < 0 ? RotationDirection.Clockwise : RotationDirection.Counterclockwise),
                 Angle = RotationAngle.FromSteps(start),
             };
-            state.StalkLinks = [.. SporeSpawnProjectileDefinitions.StalkSegments.Select(segment => enemies.SporeSpawnBehavior.SpawnSporeSpawnStalk(body, segment))];
+            state.StalkLinks = [.. SporeSpawnProjectileDefinitions.StalkSegments.Select(segment => enemies.SporeSpawnBehavior.SpawnSporeSpawnStalk(body.HeldOccupant(), body, segment))];
             body.SetSpeciesState(state);
             var frame = new ClockedEnemyAiFrame(
                 RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false },
-                new FrameCounters(0));
+                new FrameCounters(SuperMetroid.Core.Compatibility.ShortFrameCount.Zero));
 
             enemies.SporeSpawnBehavior.RunSporeSpawnMainAi(body, state);
 

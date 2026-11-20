@@ -43,17 +43,14 @@ public static class SamusPoseInputTransitions
         SamusPoseTraits.Of(currentPose).Inputs.SelectableTargets.Contains(target);
 
     /// <summary>
-    /// Runs the complete lookup and preserves whether failure enters
-    /// the pose handling's pose-definition fallback.
+    /// Looks the pose's input transitions up: a new pose, the pose's no-input fallback, or keeping the pose.
     /// </summary>
     /// <remarks>
-    /// There are two observably different ways to return without a prospective pose.
-    /// Zero input or exhausting a nonempty list of transitions calls the pose-definition fallback. A pose
-    /// with no transitions returns directly while any input is held;
-    /// matching a transition whose target is the current pose returns directly. A nullable
-    /// transition alone cannot represent that distinction. In particular, running-gun
-    /// pose <see cref="SamusPoseId.MovingRightGunExtendedPose"/> matches itself while Right+Shoot is held, but Shoot alone reaches
-    /// the end of its transitions and must fall back to standing pose <see cref="SamusPoseId.FacingRightNormalPose"/>.
+    /// No input, or input no transition of the pose matches, takes the pose's no-input fallback. A pose with
+    /// no transitions keeps its pose while any input is held, and so does a match whose target is the current pose.
+    /// Running-gun pose <see cref="SamusPoseId.MovingRightGunExtendedPose"/> keeps itself while Right+Shoot is held,
+    /// but Shoot alone matches none of its transitions and falls back to standing pose
+    /// <see cref="SamusPoseId.FacingRightNormalPose"/>.
     /// </remarks>
     public static SamusPoseTransitionLookup Lookup(
         SamusPoseId currentPose,
@@ -74,7 +71,7 @@ public static class SamusPoseInputTransitions
         if (match.Transition is not { } transition)
             return new SamusPoseTransitionLookup(null, UsesPoseDefinitionFallback: match.HasConditions);
 
-        // The game returns directly when the winning condition keeps this pose.
+        // A match that keeps this pose keeps it, and its fallback is not consulted.
         return transition.ProspectivePose == currentPose
             ? new SamusPoseTransitionLookup(null, UsesPoseDefinitionFallback: false)
             : new SamusPoseTransitionLookup(transition, UsesPoseDefinitionFallback: false);

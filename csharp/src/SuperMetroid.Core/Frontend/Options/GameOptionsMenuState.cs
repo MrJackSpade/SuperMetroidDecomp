@@ -25,7 +25,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
 
     /// <summary>Receives the cursor and confirmation sounds.</summary>
     private readonly AudioQueues audio;
-    /// <summary>The menu screen the options menu draws: its artwork, pictures, colours and sprite entries.</summary>
+    /// <summary>The menu screen the options menu draws: its artwork, pictures, colours and sprites.</summary>
     private readonly MenuScreen screen;
     /// <summary>Derives newly pressed buttons from the held controller buttons.</summary>
     private readonly ControllerInputState controller = new();
@@ -125,8 +125,11 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     /// <summary>Gets the options menu's current phase.</summary>
     public GameOptionsPhase Phase { get; private set; }
 
-    /// <summary>How the menu hands off to the frontend (#2562): the opening sequence or file select, kept once it reaches one.</summary>
-    public GameOptionsMenuOutcome Outcome { get; private set; }
+    /// <summary>
+    /// How the menu hands off to the frontend (#2562): the opening sequence or file select, kept once it reaches one;
+    /// absent while the menu runs, before it has reached either (#2587).
+    /// </summary>
+    public GameOptionsMenuOutcome? Outcome { get; private set; }
 
     /// <summary>The phase the menu settles in once each page has dissolved in.</summary>
     private static IdentityTable<GameOptionsPage, GameOptionsPhase> SettledPhases => field ??= new(new Dictionary<GameOptionsPage, GameOptionsPhase>
@@ -218,7 +221,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
             screen.PagePictures(ShownPage.Frames()), pageVerticalScroll, fade.Level);
     }
 
-    /// <summary>Draws the current page heading and animated cursor as sprite entries.</summary>
+    /// <summary>Draws the current page heading and animated cursor as sprites.</summary>
     private void PrepareRenderSprites()
     {
         ScreenSprites sprites = screen.Sprites;

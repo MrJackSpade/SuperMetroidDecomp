@@ -8,7 +8,7 @@ internal sealed class FuneNamiheFireballAnimation(FuneNamiheFireballSegment segm
     : EnemyProjectileFrameAnimation<FuneNamiheFireballSegment, EnemyProjectileCommonCue>(FuneNamiheFireballAnimations.StartingWith(segment), EnemyProjectileCueRunners.Common<FuneNamiheFireballSegment>())
 {
     /// <inheritdoc/>
-    private protected override UnpausedAnimationSegments<FuneNamiheFireballSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => FuneNamiheFireballAnimations.Segments;
+    private protected override IUnpausedAnimationPlay<FuneNamiheFireballSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => FuneNamiheFireballAnimations.Segments;
 
     /// <inheritdoc/>
     private protected override IEnumerable<KeyValuePair<FuneNamiheFireballSegment, Animation<FuneNamiheFireballSegment>>> StartingAt => FuneNamiheFireballAnimations.StartingAt;

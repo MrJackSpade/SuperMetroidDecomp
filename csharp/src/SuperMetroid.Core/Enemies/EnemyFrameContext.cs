@@ -36,20 +36,21 @@ internal sealed class EnemyFrameContext
     /// <summary>Forces every enemy place through the current pass when processing requires a full sweep.</summary>
     internal bool ProcessAllEnemies { get; private set; }
 
-    /// <summary>Freeze flag captured during the enemy pass and retained for the draw hooks that follow it.</summary>
+    /// <summary>Whether time was frozen during the enemy pass, which the drawing that follows reads.</summary>
     internal bool TimeIsFrozen { get; private set; }
 
-    /// <summary>Defers init-AI camera reads until the door loader installs its final camera after the door-transition scroll.</summary>
+    /// <summary>Whether an enemy set up while the door scrolls reads the destination's final camera.</summary>
     internal bool DeferLoaderTimeCameraReads { get; private set; }
 
-    /// <summary>Room load: records whether init AI defers its camera reads.</summary>
+    /// <summary>Room load: records whether the room's enemy setup reads the destination's final camera rather than the
+    /// camera the door leaves.</summary>
     internal void BeginRoomLoad(bool deferLoaderTimeCameraReads) => DeferLoaderTimeCameraReads = deferLoaderTimeCameraReads;
 
 
     /// <summary>Forces every enemy place through the passes that follow, as Draygon and Spore Spawn request.</summary>
     internal void RequestFullSweep() => ProcessAllEnemies = true;
 
-    /// <summary>Enemy frame start: the freeze flag and the frame clock's count.</summary>
+    /// <summary>Enemy frame start: whether time is frozen, and the frame clock's count.</summary>
     internal void BeginFrame(bool timeIsFrozen, int frameCounter)
     {
         TimeIsFrozen = timeIsFrozen;

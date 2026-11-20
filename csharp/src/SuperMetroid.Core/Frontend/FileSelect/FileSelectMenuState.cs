@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// helmet turn before loading.
 /// </summary>
 /// <remarks>
-/// This class models the game's menu steps and brightness transitions. Its pictures, starfield, text, colours,
+/// The menu's steps and brightness transitions are the game's; its pictures, starfield, text, colours,
 /// border, helmets, and selection missile all come from the installed artwork. Slot
 /// validity and displayed energy/time are read from the saves themselves
 /// rather than from separately authored metadata.
@@ -37,7 +37,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     private readonly AudioQueues audio;
     /// <summary>Reads and changes the three save slots.</summary>
     private readonly SaveSlotStore saves;
-    /// <summary>The menu screen file select draws: its artwork, pictures, colours and sprite entries.</summary>
+    /// <summary>The menu screen file select draws: its artwork, pictures, colours and sprites.</summary>
     private readonly MenuScreen screen;
     /// <summary>Tracks button edges used by menu navigation and confirmation.</summary>
     private readonly ControllerInputState controller = new();
@@ -90,8 +90,11 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     /// <summary>Current menu phase.</summary>
     public FileSelectPhase Phase { get; private set; } = new FileSelectPhase.FadeIn();
 
-    /// <summary>How the menu hands off to its host (#2562): the game options or the title, kept once it reaches one.</summary>
-    public FileSelectMenuOutcome Outcome { get; private set; }
+    /// <summary>
+    /// How the menu hands off to its host (#2562): the game options or the title, kept once it reaches one; absent while
+    /// the menu runs, before it has reached either (#2587).
+    /// </summary>
+    public FileSelectMenuOutcome? Outcome { get; private set; }
 
     /// <summary>The selected save slot, which a requested game always names (#1976).</summary>
     /// <exception cref="InvalidDataException">A command row is selected, which names no save slot.</exception>
@@ -197,7 +200,8 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
             screen.PlacedPictures(ShownPage.Pictures(presentation)), 0, screenFade.Level);
     }
 
-    /// <summary>Builds the current border, missile, helmet, and optional copy-arrow sprite entries from menu phase.</summary>
+    /// <summary>Draws the border, the missile, the helmets and the copy arrow, as the menu's step shows them, among the
+    /// screen's sprites.</summary>
     private void PrepareRenderSprites()
     {
         ScreenSprites sprites = screen.Sprites;

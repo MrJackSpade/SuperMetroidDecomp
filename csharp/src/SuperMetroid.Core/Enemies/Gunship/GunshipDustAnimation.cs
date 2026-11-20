@@ -10,7 +10,7 @@ internal sealed class GunshipDustAnimation(IEnemyProjectileCues<GunshipDustCue> 
     : EnemyProjectileFrameAnimation<GunshipDustSegment, GunshipDustCue>(GunshipDustAnimations.StartingWith(segment), EnemyProjectileCueRunner<GunshipDustSegment, GunshipDustCue>.By(owner))
 {
     /// <inheritdoc/>
-    private protected override UnpausedAnimationSegments<GunshipDustSegment, EnemyProjectileFrameId, GunshipDustCue> Segments => GunshipDustAnimations.Segments;
+    private protected override IUnpausedAnimationPlay<GunshipDustSegment, EnemyProjectileFrameId, GunshipDustCue> Segments => GunshipDustAnimations.Segments;
 
     /// <inheritdoc/>
     private protected override IEnumerable<KeyValuePair<GunshipDustSegment, Animation<GunshipDustSegment>>> StartingAt => GunshipDustAnimations.StartingAt;

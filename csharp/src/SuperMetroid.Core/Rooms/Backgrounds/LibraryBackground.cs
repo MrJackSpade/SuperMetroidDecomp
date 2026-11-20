@@ -39,10 +39,11 @@ public sealed class LibraryBackground
     public ImmutableArray<DoorDefinition> PictureDoors { get; }
 
     /// <summary>
-    /// The door whose picture a room entered through <paramref name="entry"/> shows: that door when it shows its own
-    /// picture, otherwise null for the background's ordinary picture.
+    /// The picture a room entered through <paramref name="entry"/> shows: that door's when it shows its own picture,
+    /// otherwise the background's ordinary picture (#2558).
     /// </summary>
-    public DoorDefinition? PictureDoor(DoorDefinition entry) => PictureDoors.Contains(Ensure.NotNull(entry)) ? entry : null;
+    public LibraryBackgroundPicture PictureFor(DoorDefinition entry) =>
+        PictureDoors.Contains(Ensure.NotNull(entry)) ? LibraryBackgroundPicture.Of(entry) : LibraryBackgroundPicture.Ordinary;
 
     /// <inheritdoc cref="Name"/>
     public override string ToString() => Name;

@@ -393,10 +393,10 @@ internal static class CrocomireStateQuantitiesVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-        body.Bind(EnemyDefinitionId.Crocomire, body.Definition);
+        body.Bind(EnemyDefinitionId.Crocomire, body.KeptDefinition);
         body.Position = body.Position.WithWhole(new(576, 144));
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
-        var state = new CrocomireEnemyState(body);
+        var state = new CrocomireEnemyState(body.HeldOccupant(), body);
         body.SetSpeciesState(state);
         state.JoinFixtureTongue(enemies.Places.InUpdateOrder[1]);
         // Crocomire's initialisation attaches the body his sink hides (#1446, #1466, #1515).

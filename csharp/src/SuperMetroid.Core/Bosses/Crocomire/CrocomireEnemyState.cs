@@ -19,7 +19,16 @@ public sealed class CrocomireEnemyState : SuperMetroid.Core.Enemies.BossBodies.I
     bool SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing.BodyHidden => false;
 
     /// <summary>Creates the state for Crocomire's body place.</summary>
-    internal CrocomireEnemyState(RoomEnemyPlace body) => Body = body;
+    /// <param name="bodyOccupant">The enemy holding his body's place.</param>
+    /// <param name="body">His body's place.</param>
+    internal CrocomireEnemyState(RoomEnemyOccupant bodyOccupant, RoomEnemyPlace body)
+    {
+        BodyOccupant = bodyOccupant;
+        Body = body;
+    }
+
+    /// <summary>The enemy holding his body's place, whose sheet the objects he spawns draw from (#2558).</summary>
+    public RoomEnemyOccupant BodyOccupant { get; }
 
     /// <summary>Crocomire's body's and sprites' colours (#1512).</summary>
     internal CrocomireColours Colours { get; } = new();
@@ -98,9 +107,8 @@ public sealed class CrocomireEnemyState : SuperMetroid.Core.Enemies.BossBodies.I
     public CrocomirePhase Phase { get; internal set; } = CrocomirePhase.Dormant;
 
     /// <summary>
-    /// During combat: queued backward steps. Producers store an authored count of at most three or add at most three per
-    /// mouth hit while stepping back consumes them, so the count stays a few steps from none and never nears a wrap
-    /// (#1940).
+    /// During combat: his queued backward steps (#1940). A setup queues an authored count, each mouth hit adds to it
+    /// and stepping back consumes it.
     /// </summary>
     public int StepCounter
     {
@@ -118,13 +126,9 @@ public sealed class CrocomireEnemyState : SuperMetroid.Core.Enemies.BossBodies.I
 
     /// <summary>
     /// While the hidden wall rumbles: the oscillation under way in <see cref="CrocomireRumbleDefinitions.Oscillations"/>,
-    /// up to their count once the last has finished.
+    /// or none once the last has finished.
     /// </summary>
-    public int RumbleOscillation
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, CrocomireRumbleDefinitions.Oscillations.Length, value);
-    }
+    internal ListStep<CrocomireRumbleOscillation>? RumbleOscillation { get; set; }
 
     /// <summary>Whether the rumbling wall is heading for its oscillation's extreme rather than back to its return offset.</summary>
     public bool RumbleTowardExtreme { get; internal set; }

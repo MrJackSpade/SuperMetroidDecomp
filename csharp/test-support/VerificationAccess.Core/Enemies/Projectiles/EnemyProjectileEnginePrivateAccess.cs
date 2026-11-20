@@ -28,7 +28,15 @@ internal static class EnemyProjectileEnginePrivateAccess
     extension(global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileEngine self)
     {
         /// <summary>The private method <c>AdvanceEnemyProjectileAnimations</c>, invoked by name.</summary>
-        internal void AdvanceEnemyProjectileAnimations(global::SuperMetroid.Core.Enemies.EnemyProjectile projectile, global::SuperMetroid.Core.Samus.SamusState samus, global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.Core.Spatial.RoomPixels> camera, int shortCounter, global::SuperMetroid.Core.Samus.Projectiles.SamusBombProjectileSystem samusBombs) =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileEngine>(self, "AdvanceEnemyProjectileAnimations", [typeof(global::SuperMetroid.Core.Enemies.EnemyProjectile), typeof(global::SuperMetroid.Core.Samus.SamusState), typeof(global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.Core.Spatial.RoomPixels>), typeof(int), typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusBombProjectileSystem)], new object?[] { projectile, samus, camera, shortCounter, samusBombs });
+        internal void AdvanceEnemyProjectileAnimations(global::SuperMetroid.Core.Enemies.EnemyProjectile projectile, global::SuperMetroid.Core.Samus.SamusState samus, global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.Core.Spatial.RoomPixels> camera, global::SuperMetroid.Core.Compatibility.ShortFrameCount shortCounter, global::SuperMetroid.Core.Samus.Projectiles.SamusBombProjectileSystem samusBombs) =>
+            PrivateState.Invoke<global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileEngine>(self, "AdvanceEnemyProjectileAnimations", [typeof(global::SuperMetroid.Core.Enemies.EnemyProjectile), typeof(global::SuperMetroid.Core.Samus.SamusState), typeof(global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.Core.Spatial.RoomPixels>), typeof(global::SuperMetroid.Core.Compatibility.ShortFrameCount), typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusBombProjectileSystem)], new object?[] { projectile, samus, camera, shortCounter, samusBombs });
+    }
+
+    /// <summary>The private static members checks name.</summary>
+    extension(global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileEngine)
+    {
+        /// <summary>The private method <c>InitializeEnemyProjectileFromDefinition</c>, invoked by name.</summary>
+        internal static void InitializeEnemyProjectileFromDefinition(global::SuperMetroid.Core.Enemies.EnemyProjectile projectile, global::SuperMetroid.Core.Enemies.RoomEnemyProjectileKind kind, global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior behavior, global::SuperMetroid.Core.Enemies.SpriteGraphics graphics) =>
+            PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileEngine), "InitializeEnemyProjectileFromDefinition", [typeof(global::SuperMetroid.Core.Enemies.EnemyProjectile), typeof(global::SuperMetroid.Core.Enemies.RoomEnemyProjectileKind), typeof(global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior), typeof(global::SuperMetroid.Core.Enemies.SpriteGraphics)], new object?[] { projectile, kind, behavior, graphics });
     }
 }

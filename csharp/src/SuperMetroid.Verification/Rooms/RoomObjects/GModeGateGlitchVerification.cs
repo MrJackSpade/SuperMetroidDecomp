@@ -92,7 +92,7 @@ internal static class GModeGateGlitchVerification
                     level,
                     gate.Block,
                     DownwardGateDefinitions.ClosedGateBehavior,
-                    SamusProjectileType.Beam(SamusBeamCombination.Wave, charged: false),
+                    BlockStrike.By(SamusProjectileType.Beam(SamusBeamCombination.Wave, charged: false)),
                     solidBlock: true),
                 "direct G-Mode fixture fills the native forty-slot PLM pool");
         }
@@ -125,7 +125,7 @@ internal static class GModeGateGlitchVerification
             shots.StepFrame(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input, ControllerPreviousNewInput = GameplayAction.None }, cameraPosition: new(0, 224), samusBombs: bombs, progression: new SharedGameState(new SharedRandom()));
 
             SamusProjectile shot = shots.Shots[0];
-            if (!shot.Type.IsNone && shot.Position.X.Whole < 112 && passedGateFrame < 0)
+            if (shot.IsOccupied && shot.Position.X.Whole < 112 && passedGateFrame < 0)
                 passedGateFrame = frame;
 
             if (!samus.Xray.AreObjectsSuspended)
@@ -257,7 +257,7 @@ internal static class GModeGateGlitchVerification
                 freeLevel,
                 freeLevel.BlockAt(doorIndex),
                 RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Right)),
-                SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false));
+                BlockStrike.By(SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false)));
         AssertEqual(RoomCollisionType.SolidBlock,
             freeLevel.GetCollisionBlockByIndex(doorIndex).CollisionType,
             "blue-door setup changes only the cap origin to type-eight solid before its suspended list");
@@ -271,7 +271,7 @@ internal static class GModeGateGlitchVerification
                 fullLevel,
                 fullLevel.BlockAt(doorIndex),
                 RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Right)),
-                SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false));
+                BlockStrike.By(SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false)));
         AssertEqual(RoomCollisionType.ShootableBlock,
             fullLevel.GetCollisionBlockByIndex(doorIndex).CollisionType,
             "dropped blue-door request leaves its shootable-solid cap untouched");
@@ -447,7 +447,7 @@ internal static class GModeGateGlitchVerification
 
         AssertTrue(roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(
                 block,
-                SamusBombProjectileSystem.PowerBombType),
+                BlockStrike.By(SamusBombProjectileSystem.PowerBombType)),
             "Power Bomb publishes its hit to the intact glass-tube resident");
         AssertEqual(new ResidentObjectProjectileHit(SamusProjectileFamily.PowerBomb), (roomObjects.PopulationPlaces.Single().Behaviour as NoobTubeObject)?.AwaitingStrike,
             "G-Mode-disabled tube retains the pending Power Bomb hit");

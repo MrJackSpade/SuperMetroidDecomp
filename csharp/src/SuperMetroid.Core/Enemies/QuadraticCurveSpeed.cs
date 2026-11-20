@@ -6,10 +6,9 @@ namespace SuperMetroid.Core.Enemies;
 /// </summary>
 /// <param name="Speed">The speed toward increasing coordinates, rightward or downward, in pixels per frame.</param>
 /// <remarks>
-/// Several jump and orbit calculations read a mark's speed at a coarser precision: <see cref="CoarseToward"/> is the
-/// speed toward a direction to a 256th of a pixel, its finer fraction dropped. Those calculations (Beetom's and the hoppers' climbs,
-/// <see cref="QuadraticCurveClimb"/>, Puyo's hop estimate, and Ki-Hunter wing orbits) choose their place along the curve by summing coarse speeds,
-/// so the coarse value is the authored rule they follow, not an approximation of the full speed.
+/// Several jump and orbit calculations choose their place along the curve by summing a mark's coarse speed
+/// (<see cref="CoarseToward"/>), the speed toward a direction kept to a 256th of a pixel: Beetom's and the hoppers'
+/// climbs, <see cref="QuadraticCurveClimb"/>, Puyo's hop estimate, and Ki-Hunter wing orbits.
 /// </remarks>
 public readonly record struct QuadraticCurveSpeed(SignedSixteenSixteen Speed)
 {

@@ -4,6 +4,6 @@ namespace SuperMetroid.Core.Enemies;
 internal interface IEnemyPrivateShotReaction
 {
     /// <summary>Whether <paramref name="reaction"/>, selected from the definition or a hitbox, is one of the enemy's private shot reactions.</summary>
-    /// <param name="reaction">The reaction the species definition or the selected hitbox names, or null.</param>
-    bool OwnsPrivateShotReaction(EnemyReaction? reaction);
+    /// <param name="reaction">The reaction the species definition or the selected hitbox names.</param>
+    bool OwnsPrivateShotReaction(EnemyReaction reaction);
 }

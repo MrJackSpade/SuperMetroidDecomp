@@ -23,7 +23,7 @@ internal static class EnemyDisplayArtworkDomainAudit
         bool owned = type == typeof(EnemySpritemapCatalog).FullName
             ? ordinary
             : ordinary || EnemyExtendedFrameDefinitions.Frames.Any(frame => frame.Frame.ToString() == name) ||
-                name == nameof(EnemyFrameId.Empty);
+                name == nameof(EnemyFrameId.PointAtOrigin);
         return owned ? null : $"Known display identity {name} is outside the reviewed installed frame domain.";
     }
 }

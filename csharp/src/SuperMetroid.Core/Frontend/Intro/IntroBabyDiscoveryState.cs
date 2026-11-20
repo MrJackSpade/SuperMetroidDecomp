@@ -173,8 +173,8 @@ internal sealed class IntroBabyDiscoveryState
         IIntroCinematicSpritePresentation eggEffectArt,
         IIntroCinematicSpritePresentation actorArt)
     {
-        // With objects drawn first, the cinematic actors draw before Samus. The egg
-        // was spawned before the confused-baby object and retains its own animation and timer.
+        // In this scene the actors draw before Samus. The egg came before the confused baby and keeps its own animation
+        // and timer.
         egg.Draw(screenSprites, installedArt: actorArt);
         confusedBaby.Draw(screenSprites, installedArt: actorArt);
         foreach (IntroEggParticle particle in eggParticles)
@@ -220,8 +220,7 @@ internal sealed class IntroBabyDiscoveryState
         if (cue != DemoInputCue.EndIntroBabyDiscovery)
             throw new InvalidOperationException($"The Baby-discovery demo handles no {cue} cue.");
 
-        // The scene's end makes both phases of Samus's frame do nothing, disables demo input, and
-        // returns into the following shared delete step. Samus is never processed again.
+        // The scene's end stops Samus moving and animating for the rest of the scene and stops the demo's input.
         demo.Disable();
         Samus.Control.LockOutPlayer();
         samusUpdateStopped = true;
@@ -379,9 +378,8 @@ internal sealed class IntroBabyDiscoveryState
 
 
     /// <summary>
-    /// Adjusts a velocity toward a target by one acceleration step without passing <paramref name="limit"/> either
-    /// way; every step keeps the speed within the limit, so the step stays far inside the velocity's range. The baby and its
-    /// targets lie on the screen near Samus, so their places compare directly (#1974).
+    /// Adjusts a velocity toward a target by one acceleration step without passing <paramref name="limit"/> either way.
+    /// The baby and its targets lie on the screen near Samus, so their places compare directly (#1974).
     /// </summary>
     private static SignedEightEight AccelerateToward(
         int position,

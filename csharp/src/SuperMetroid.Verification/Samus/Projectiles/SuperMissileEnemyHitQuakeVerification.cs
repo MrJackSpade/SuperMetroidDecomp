@@ -34,9 +34,9 @@ internal static class SuperMissileEnemyHitQuakeVerification
         SamusProjectileSystem projectiles = InstalledFixtures.CreateProjectileSystem(earthquake);
         SamusBombProjectileSystem bombs = CreateBombFixture();
         projectiles.StepFrame(new SamusTerrain { Level = room, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), bombs, new SharedGameState(new SharedRandom()));
-        AssertEqual(SamusProjectileFamily.SuperMissile, projectiles.Shots[0].Type.Family, "X fires a Super Missile");
+        AssertEqual(SamusProjectileFamily.SuperMissile, projectiles.Shots[0].HeldShot().Type.Family, "X fires a Super Missile");
 
-        projectiles.EnemyImpacts.TouchEnemyWithoutImpact(projectiles.Shots[0], markCollisionState: true);
+        projectiles.EnemyImpacts.TouchEnemyWithoutImpact(projectiles.Shots[0].HeldShot(), markCollisionState: true);
         AssertTrue(earthquake.IsShakingWith(SuperMissileDefinitions.EnemyHitEarthquake, SuperMissileDefinitions.EarthquakeDuration),
             "an enemy hit starts its earthquake for thirty calls");
         AssertEqual(18, NativeEarthquakeTypes.TypeOf(SuperMissileDefinitions.EnemyHitEarthquake), "the enemy-hit earthquake is quake type $12");

@@ -89,9 +89,8 @@ internal sealed class SamusPresentation
     /// differs from PreviousPose, and otherwise keeps its frame and timer running.
     /// </summary>
     /// <remarks>
-    /// The behaviour also returns early while the animation-frame delay adjustment is negative. This model owns it as
-    /// <see cref="SamusState.ExtraAnimationDelay"/>, so it runs only where that is
-    /// nonnegative, as it is at the intro's discovery setup and its demo's end.
+    /// The animation does not restart while <see cref="SamusState.ExtraAnimationDelay"/> is negative; it is nonnegative
+    /// at the intro's discovery setup and its demo's end, the only places this runs.
     /// </remarks>
     internal static void SetAnimationFrameIfPoseChanged(SamusState samus)
     {
@@ -101,15 +100,11 @@ internal sealed class SamusPresentation
     }
 
     /// <summary>
-    /// Restarts the pose's animation after a scripted sequence writes Pose and
-    /// literal animation values without calling ordinary pose initialization.
+    /// Restarts the pose's animation after a scripted sequence sets Samus's pose and animation directly.
     /// </summary>
     /// <remarks>
-    /// Standing drained Samus up and putting her back into the drained crouch do exactly that.
-    /// The game's animation pass resolves the animation from Pose every update, whereas
-    /// this model caches it as a consistency check. This narrow method updates only that
-    /// cache plus the controller's explicit writes; it intentionally does not recompute the
-    /// liquid's extra animation delay or silently refresh collision radius.
+    /// Standing drained Samus up and putting her back into the drained crouch do exactly that; her liquid's
+    /// extra animation delay and her collision radius stay as they were.
     /// </remarks>
     internal static void SetPoseAndAnimationForScriptedSequence(SamusState samus,
         SamusPoseId pose,
@@ -135,10 +130,9 @@ internal sealed class SamusPresentation
     }
 
     /// <summary>
-    /// Publishes the angle-selected grapple art exactly as the grapple swing does before the normal
-    /// animation pass. The latter will count this hold (<see cref="SamusAnimationDelayDefinitions.GrappleSwingPictureHold"/>) down by one later in
-    /// the same gameplay frame; this one narrow operation keeps grapple code from
-    /// acquiring a general-purpose escape hatch around animation invariants.
+    /// Shows the grapple art the swing's angle selects, as the grapple swing does before her animation runs; her
+    /// animation counts its hold (<see cref="SamusAnimationDelayDefinitions.GrappleSwingPictureHold"/>) down later in the
+    /// same update.
     /// </summary>
     public static void ShowGrappleSwingPicture(SamusState samus, GrappleSwingPicture picture)
     {
@@ -193,8 +187,8 @@ internal sealed class SamusPresentation
     }
 
     /// <summary>
-    /// Advances the animation-only core of the death animation's start. Unlike ordinary gameplay animation, this update deliberately skips the liquid's
-    /// extra animation delay, the neutral jump's held rise, and controller-dependent Dash interception.
+    /// Advances the animation-only core of the death animation's start: unlike ordinary gameplay animation, it skips
+    /// the liquid's extra animation delay, the neutral jump's held rise, and controller-dependent Dash interception.
     /// </summary>
     internal static void AnimateDeathFrame(SamusState samus)
     {

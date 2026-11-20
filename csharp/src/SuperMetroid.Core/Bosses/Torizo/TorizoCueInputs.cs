@@ -6,7 +6,10 @@ using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.Core.Bosses.Torizo;
 
-/// <summary>What Bomb and Golden Torizo cues read: the Torizo playing them, Samus, the room, controller input and the frame counter's count in its 256-update cycle, which both attack choosers add (#633).</summary>
+/// <summary>
+/// What Bomb and Golden Torizo cues read: the Torizo playing them, Samus, the room, controller input and the frame
+/// counter that times the attack choice (<see cref="TorizoChoices.InFirstAttackPhase"/>) (#633).
+/// </summary>
 [RoomScopeBoundary("A per-call input, built for one call and never kept.")]
 internal readonly record struct TorizoCueInputs
 {

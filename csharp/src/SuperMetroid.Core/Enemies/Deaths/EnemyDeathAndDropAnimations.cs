@@ -13,12 +13,12 @@ namespace SuperMetroid.Core.Enemies.Deaths;
 internal static class EnemyDeathAndDropAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static UnpausedAnimationSegments<EnemyDeathAndDropSegment, EnemyProjectileFrameId, EnemyDeathAndDropCue> Segments { get; } = new(
-        new Dictionary<EnemyDeathAndDropSegment, AnimationBeat<EnemyProjectileFrameId, EnemyDeathAndDropCue>.Unpaused[]>
+    internal static HidingUnpausedAnimationSegments<EnemyDeathAndDropSegment, EnemyProjectileFrameId, EnemyDeathAndDropCue> Segments { get; } = new(
+        new Dictionary<EnemyDeathAndDropSegment, IUnpausedHidingAnimationBeat<EnemyProjectileFrameId, EnemyDeathAndDropCue>[]>
     {
         [P.RespawnPause] =
         [
-            Show(EnemyProjectileFrameId.Blank, 64),
+            Hide(64),
             Cue(new EnemyDeathAndDropCue.Signal(K.RespawnEnemy)),
             Cue(new EnemyDeathAndDropCue.Signal(K.Delete)),
         ],
@@ -26,7 +26,7 @@ internal static class EnemyDeathAndDropAnimations
         [
             Cue(new EnemyDeathAndDropCue.SpawnEffectActor(RoomEffectActorKind.SmallExplosion, EnemyDeathExplosionDefinitions.NarrowSpriteSpread)),
             Cue(new EnemyDeathAndDropCue.SpawnEffectActor(RoomEffectActorKind.Smoke, EnemyDeathExplosionDefinitions.NarrowSpriteSpread)),
-            Show(EnemyProjectileFrameId.Blank, 8),
+            Hide(8),
             Cue(new EnemyDeathAndDropCue.Signal(K.PlaySmallExplosionSound)),
         ],
         [P.BigExplosionEnd] =
@@ -38,7 +38,7 @@ internal static class EnemyDeathAndDropAnimations
             Cue(new EnemyDeathAndDropCue.SpawnEffectActor(RoomEffectActorKind.SmallExplosion, EnemyDeathExplosionDefinitions.WideSpriteSpread)),
             Cue(new EnemyDeathAndDropCue.SpawnEffectActor(RoomEffectActorKind.Smoke, EnemyDeathExplosionDefinitions.WideSpriteSpread)),
             Cue(new EnemyDeathAndDropCue.SpawnEffectActor(RoomEffectActorKind.BigDustCloud, EnemyDeathExplosionDefinitions.WideSpriteSpread)),
-            Show(EnemyProjectileFrameId.Blank, 8),
+            Hide(8),
             Cue(new EnemyDeathAndDropCue.Signal(K.PlaySmallExplosionSound)),
         ],
         [P.FakeKraidExplosionEnd] =
@@ -159,6 +159,10 @@ internal static class EnemyDeathAndDropAnimations
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, EnemyDeathAndDropCue>.Unpaused Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EnemyDeathAndDropCue>.Frame(frame, duration);
+
+    /// <summary>Shows nothing for <paramref name="duration"/> updates (#2558): the projectile is hidden until its next frame.</summary>
+    private static AnimationHiddenBeat<EnemyProjectileFrameId, EnemyDeathAndDropCue> Hide(int duration) =>
+        new AnimationHiddenBeat<EnemyProjectileFrameId, EnemyDeathAndDropCue>(duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, EnemyDeathAndDropCue>.Unpaused Cue(EnemyDeathAndDropCue cue) => new AnimationBeat<EnemyProjectileFrameId, EnemyDeathAndDropCue>.Event(cue);

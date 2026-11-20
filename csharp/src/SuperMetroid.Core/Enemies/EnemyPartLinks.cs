@@ -28,5 +28,5 @@ internal sealed class EnemyPartLinks<TLinks> where TLinks : class
         _links.TryGetValue(Ensure.NotNull(part), out TLinks? links)
             ? links
             : throw new InvalidOperationException(
-                $"Enemy {part.Ordinal} ({part.DefinitionId}) reached its partners before it was placed as a part that has them.");
+                $"Enemy {part.Ordinal} ({part.Occupant?.DefinitionId}) reached its partners before it was placed as a part that has them.");
 }

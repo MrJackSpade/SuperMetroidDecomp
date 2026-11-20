@@ -15,7 +15,7 @@ internal sealed class ChozoTourianDustAnimation(Animation<ChozoTourianDustSegmen
         ReferenceEquals(started, ChozoTourianDustAnimations.TourianDescentDust) ? started.Phases[0].Segment : base.SegmentStartedAt(started);
 
     /// <inheritdoc/>
-    private protected override UnpausedAnimationSegments<ChozoTourianDustSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => ChozoTourianDustAnimations.Segments;
+    private protected override IUnpausedAnimationPlay<ChozoTourianDustSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => ChozoTourianDustAnimations.Segments;
 
     /// <inheritdoc/>
     private protected override IEnumerable<KeyValuePair<ChozoTourianDustSegment, Animation<ChozoTourianDustSegment>>> StartingAt => ChozoTourianDustAnimations.StartingAt;

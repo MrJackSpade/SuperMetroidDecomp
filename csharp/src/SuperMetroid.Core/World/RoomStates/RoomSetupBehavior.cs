@@ -40,9 +40,8 @@ public abstract class RoomSetupBehavior
     public override string ToString() => Name;
 
     /// <summary>
-    /// No room-specific setup behaviour runs: the state names no setup, one that returns at once without changing
-    /// anything (#1787), or Draygon's room's, which only restores the room's display effects when the game unpauses; the
-    /// port draws the room without them, so nothing acts on it (#1827).
+    /// These rooms run no room-specific setup as they load (#1787); Draygon's room draws without the display effects
+    /// its unpausing would restore, so it runs none either (#1827).
     /// </summary>
     public static RoomSetupBehavior None { get; } = new NoRoomSetup();
 

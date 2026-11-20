@@ -670,8 +670,7 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
     /// </summary>
     internal AffineFloor? Floor()
     {
-        EndingFloorShot shot = EndingScreenFloor.ShotOf(Phase);
-        return shot == EndingFloorShot.None ? null : EndingScreenFloor.Of(InstalledArtwork.Sheets, shot)
+        return Phase is not IEndingFloorPhase { FloorShot: var shot } ? null : EndingScreenFloor.Of(InstalledArtwork.Sheets, shot)
             .Shaded(screen.Colours.SceneryShading(EndingFloorDefinitions.Scenery[shot]));
     }
 
@@ -711,7 +710,7 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
     /// the import pictures it as the screen shows it (#1626).
     /// </summary>
     private PicturedPlane ExplosionPlane(EndingExplosionPicture picture) =>
-        new([new PlacedPlanePicture(Picture(SpriteSheetId.EndingExplosionPictures, EndingPictureNames.ExplosionMap(picture)),
+        new([new PlacedPlanePicture(Picture(SpriteSheetId.EndingExplosionPictures, EndingPictureNames.ExplosionPicture(picture)),
             Offset16<PlanePixels>.Zero, screen.Colours.SceneryShading(EndingScenery.ExplosionPictures))]);
 
     /// <summary>

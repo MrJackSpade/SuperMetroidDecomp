@@ -29,19 +29,14 @@ internal sealed class FallingSparksBehavior
     }
 
     /// <summary>Allocates and initializes a falling spark projectile.</summary>
-    internal void SpawnFallingSpark(RoomEnemyPlace source)
+    internal void SpawnFallingSpark(RoomEnemyOccupant occupant, RoomEnemyPlace source)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.FallingSpark, Spark, SpriteGraphics.SpawnedBy(occupant, source.Shading));
         if (projectile is null)
             return;
 
         // The spark starts as its definition has it: blank at first, with its animation, size, damage and the way it
         // touches Samus. It then appears below its source, still, and drifts sideways by a random launch.
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            projectile,
-            RoomEnemyProjectileKind.FallingSpark,
-            Spark,
-            SpriteGraphics.SpawnedBy(source));
         projectile.StartAnimation(new FallingSparkAnimation(FallingSparkSegment.Falling));
         projectile.Position = source.Position.WithWholeY(source.Position.Y.Whole + FallingSparkMotionDefinitions.SpawnBelowSource);
 
@@ -92,19 +87,21 @@ internal sealed class FallingSparksBehavior
             SpawnFallingSparkTrail(projectile);
     }
 
-    /// <summary>Adds the spark's vertical speed to its position, the fraction's overflow passing into the whole.</summary>
+    /// <summary>Moves the spark by its vertical speed, a fraction past a whole pixel carrying into the whole
+    /// pixels.</summary>
     private void AddFallingSparkVerticalVelocity(
         EnemyProjectile projectile) =>
         projectile.Position = projectile.Position.AdvanceY(Spark.States.Of(projectile).VerticalSpeed);
 
-    /// <summary>Adds the spark's horizontal drift, the fraction's overflow passing into the whole.</summary>
+    /// <summary>Moves the spark by its horizontal drift, a fraction past a whole pixel carrying into the whole
+    /// pixels.</summary>
     private void AddFallingSparkHorizontalVelocity(
         EnemyProjectile projectile) =>
         projectile.Position = projectile.Position.AdvanceX(Spark.States.Of(projectile).HorizontalStep);
 
     /// <summary>
-    /// Switches a falling spark to its floor-impact animation and scales its stored
-    /// horizontal delta, the fraction's overflow passing into the whole.
+    /// Switches a falling spark to its floor-impact animation and scales its sideways drift, a fraction past a whole
+    /// pixel carrying into the whole pixels.
     /// </summary>
     private void BeginFallingSparkFloorImpact(EnemyProjectile projectile)
     {

@@ -3,12 +3,9 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <summary>
 /// The gradual acceleration toward a point and horizontally, shared by the Tourian Baby Metroid and the Mother Brain
 /// baby-Metroid cutscene.
-/// Each axis accelerates in runs of steps (<see cref="SeekingVelocityRun"/>): a step that carries
-/// the velocity across zero makes the run's next step a unit larger, and a step taken while already
-/// moving toward the target is a unit larger when the distance to the target wraps around the
-/// coordinate space. A reversal starts fresh runs. The distance is the signed distance across the wrapping space, and
-/// the velocity stays within a few thousand units of rest (each update clamps it to its axis's limit and a step is at
-/// most a room's width), so the clamps compare signed velocities.
+/// Each axis accelerates in runs of steps (<see cref="SeekingVelocityRun"/>): a step that carries the velocity across
+/// rest makes the run's next step a unit larger, and a step taken while already moving toward a target on the far side
+/// of the room's wrap (<see cref="CoordinateAxis"/>) is a unit larger. A reversal starts fresh runs.
 /// </summary>
 internal static class BabyMetroidGradualAcceleration
 {
@@ -123,7 +120,10 @@ internal static class BabyMetroidGradualAcceleration
         }
     }
 
-    /// <summary>The step for the distance divided by the divisor, a zero quotient replaced with one (<see cref="SeekingVelocityRun.StepFor"/>).</summary>
+    /// <summary>
+    /// The step for the distance: the distance divided by the divisor, at least one
+    /// (<see cref="SeekingVelocityRun.StepFor"/>).
+    /// </summary>
     private static SignedEightEight Step(int distance, int divisor)
     {
         if (divisor is < 1 or > 16)

@@ -50,9 +50,8 @@ internal static class RidleyRandomDefinitions
     internal static readonly RandomChance TailCurlinessChanges = RandomChance.Highest(1, new RandomSampleField(8, 8));
 
     /// <summary>
-    /// Whether Norfair Ridley's next pogo bounce heads away from Samus (#1619): the lowest 1365 of the 65536 samples, about
-    /// one in 48, turn him round if he heads toward her and keep his heading if he heads away; every other sample sends him
-    /// toward her.
+    /// Whether Norfair Ridley's next pogo bounce heads away from Samus (#1619): about one in 48 turns him round if he
+    /// heads toward her and keeps his heading if he heads away; every other draw sends him toward her.
     /// </summary>
     internal static readonly RandomChance PogoBounceHeadsAwayFromSamus = RandomChance.Lowest(1365, RandomSampleField.Whole);
 }

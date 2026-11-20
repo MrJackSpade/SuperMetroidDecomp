@@ -6,4 +6,4 @@ namespace SuperMetroid.Verification.Frontend.Map;
 /// <param name="Scroll">The scroll position.</param>
 /// <param name="Limits">How far the revealed map reaches.</param>
 /// <param name="Direction">The step under way.</param>
-internal readonly record struct ScrollStateResult(Offset16<MapPixels> Scroll, MapScrollLimits Limits, MapScrollDirection Direction);
+internal readonly record struct ScrollStateResult(Offset16<MapPixels> Scroll, MapScrollLimits Limits, MapScrollDirection? Direction);

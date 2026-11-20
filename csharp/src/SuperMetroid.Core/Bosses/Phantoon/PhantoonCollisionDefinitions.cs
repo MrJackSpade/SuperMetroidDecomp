@@ -5,9 +5,10 @@ using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>
-/// Phantoon's fixed hitboxes, separate from his editable background frames (#1937): the five-rectangle full body, the
+/// Phantoon's fixed hitboxes, separate from his editable body pictures (#1937): the five-rectangle full body, the
 /// vulnerable eye alone, and the invulnerable body's centre point (<see cref="PhantoonSolidifyingCentre"/>). Every
-/// component lies at his origin. The eye's, tentacles' and mouth's looks have no hitboxes: those parts always ignore Samus.
+/// component lies at his origin. The eye's, tentacles' and mouth's looks have no hitboxes: those parts always ignore
+/// Samus.
 /// </summary>
 internal static class PhantoonCollisionDefinitions
 {
@@ -65,8 +66,8 @@ internal static class PhantoonCollisionDefinitions
     private static EnemyCollisionHitbox Centered(int halfWidth, int top, int bottom) =>
         Contact(-halfWidth, top, halfWidth - 1, bottom);
     /// <summary>
-    /// Each Phantoon background frame's components: the full body, the eye alone and the invulnerable body each have one
-    /// component, and the eye's, tentacles' and mouth's looks none.
+    /// Each of Phantoon's body pictures' components: the full body, the eye alone and the invulnerable body each have
+    /// one component, and the eye's, tentacles' and mouth's looks none.
     /// </summary>
     internal static readonly Dictionary<EnemyFrameId, ImmutableArray<EnemyCollisionComponent>> FrameComponents = new()
     {

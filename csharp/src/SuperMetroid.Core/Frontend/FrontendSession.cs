@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Runtime.Attract;
@@ -160,14 +159,14 @@ internal sealed class FrontendSession
     /// <summary>The live gameplay runtime; gameplay phases run only while a game is loaded.</summary>
     internal SuperMetroidRuntime GameplayRuntime => runtime ??
         throw new InvalidOperationException("No gameplay runtime is loaded; this phase runs only during gameplay.");
-    /// <summary>The choices the options menu closed with, which every selected game starts with; null before any.</summary>
-    internal SelectedGameplayOptions? ChosenOptions { get; private set; }
+    /// <summary>The options every selected game starts with: unchosen until the options menu first closes.</summary>
+    internal GameplayOptionsChoice OptionsChoice { get; private set; } = GameplayOptionsChoice.Unchosen;
     /// <summary>Keeps <paramref name="options"/>'s choices for the selected game the menu starts.</summary>
     internal void ChooseOptions(GameOptionsMenuState options)
     {
         Ensure.NotNull(options);
-        ChosenOptions = new SelectedGameplayOptions(options.JapaneseText, options.ControllerBindings, options.MoonwalkEnabled,
-            options.IconCancelEnabled);
+        OptionsChoice = new ChosenGameplayOptions(new SelectedGameplayOptions(options.JapaneseText, options.ControllerBindings,
+            options.MoonwalkEnabled, options.IconCancelEnabled));
     }
     /// <summary>Ceres elevator departure and blackout transition state.</summary>
     internal readonly CeresDepartureState ceresDeparture = new();
@@ -516,14 +515,14 @@ internal sealed class FrontendSession
             },
             Artwork = Artwork,
             // Attract scripts retain the default controls and options of their private runtime.
-            Selected = attract ? null : ChosenOptions ?? new SelectedGameplayOptions(false, ControllerBindings.Default, false, false),
+            Selected = attract ? null : OptionsChoice.StartingOptions,
         });
     }
     /// <summary>Applies live menu controller and gameplay choices to a newly created runtime.</summary>
     internal void ApplySelectedGameOptions()
     {
         // Live edits in options take precedence over the snapshot loaded at file select.
-        if (ChosenOptions is not { } options) return;
+        if (OptionsChoice is not ChosenGameplayOptions { Options: var options }) return;
         GameplayRuntime.Options.ControllerBindings = options.ControllerBindings;
         GameplayRuntime.Options.MoonwalkEnabled = options.MoonwalkEnabled;
         GameplayRuntime.Options.IconCancelEnabled = options.IconCancelEnabled;

@@ -97,7 +97,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
     /// </summary>
     internal bool AdmireSamus()
     {
-        // Stand-up falls through here, so the admiration's first update is the update she stands up on.
+        // The admiration's first update is the update she stands up on.
         if (Encounter.PhaseTimer.StepRunsOut())
         {
             _state.SetHeadAnimation(MotherBrainHeadSegment.StretchingPhase2);

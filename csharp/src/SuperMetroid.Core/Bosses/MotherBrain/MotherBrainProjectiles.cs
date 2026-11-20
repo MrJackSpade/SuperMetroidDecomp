@@ -304,7 +304,8 @@ internal sealed class MotherBrainProjectiles
 
             foreach (SamusBomb samusBomb in samusBombs.Bombs)
             {
-                if (samusBomb.Type.Family != SamusProjectileFamily.Bomb ||
+                if (samusBomb.Occupant is not { } placed ||
+                    placed.Type.Family != SamusProjectileFamily.Bomb ||
                     !samusBomb.HasBurnedOut ||
                     !MotherBrainBombStrictOverlap(
                         bomb.Position.Whole,
@@ -320,7 +321,7 @@ internal sealed class MotherBrainProjectiles
                 dependencies.Projectiles.SpawnDustOrExplosion(position, DustExplosionAnimation.SmallDustCloud);
                 dependencies.DeathsAndDrops.SpawnEnemyDropFromDefinition(
                     position,
-                    state.Head.DefinitionId,
+                    EnemyDefinitionId.MotherBrainHead,
                     samus);
                 return true;
             }
@@ -337,10 +338,8 @@ internal sealed class MotherBrainProjectiles
             int afterburnCount = Bombs.Of(bomb).Afterburns;
             DeleteMotherBrainBomb(bomb, state);
 
-            // The bomb's explosion frees the bomb's place before both spawns. They therefore use
-            // the normal descending shared-pool competition, including legitimate same-place
-            // replacement that the outer scheduler will continue processing on this pass.
-            // Its afterburn pair flies left and right.
+            // The bomb is gone before its afterburns and explosion appear, so they can take its place among the room's
+            // projectiles this update. Its afterburn pair flies left and right.
             dependencies.RoomActors.SpawnAfterburnCenter(
                 Axis.Horizontal,
                 impact,
@@ -418,18 +417,13 @@ internal sealed class MotherBrainProjectiles
                 SpawnMotherBrainGlassSparkle(shard);
         }
 
-        /// <summary>Runs the sparkle setup using the spawning shard as parameter.</summary>
+        /// <summary>Makes a sparkle appear near the shard <paramref name="source"/>.</summary>
         private void SpawnMotherBrainGlassSparkle(EnemyProjectile source)
         {
-            EnemyProjectile? sparkle = dependencies.Projectiles.AllocateEnemyProjectile();
+            EnemyProjectile? sparkle = dependencies.Projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainGlassSparkle, Spawned, graphics: SpriteGraphics.SharedStandard);
             if (sparkle is null)
                 return;
 
-            EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-                sparkle,
-                RoomEnemyProjectileKind.MotherBrainGlassSparkle,
-                Spawned,
-                graphics: default);
             sparkle.StartAnimation(new MotherBrainGlassAnimation(Spawned, MotherBrainGlassSegment.Sparkle));
             // A shard near the top of the room may sparkle above it, so the sparkle's place is its shard's moved by its
             // offset, which continues past the room's edge as positions do.
@@ -447,15 +441,10 @@ internal sealed class MotherBrainProjectiles
         /// </summary>
         private void SpawnMotherBrainHandBeamFired(MotherBrainEnemyState state)
         {
-            EnemyProjectile? beam = dependencies.Projectiles.AllocateEnemyProjectile();
+            EnemyProjectile? beam = dependencies.Projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainHandBeamFired, Spawned, graphics: SpriteGraphics.SharedStandard);
             if (beam is null)
                 return;
 
-            EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-                beam,
-                RoomEnemyProjectileKind.MotherBrainHandBeamFired,
-                Spawned,
-                graphics: default);
             beam.Position = state.HandBeamNextPosition;
             beam.Velocity = state.HandBeamNextVelocity;
 
@@ -502,8 +491,7 @@ internal sealed class MotherBrainProjectiles
         }
 
         /// <summary>
-        /// Moves the onion ring. A live Baby place is tested before Samus and the room,
-        /// matching the private projectile's cross-enemy collision order during phase three.
+        /// Moves the onion ring. During her third phase a ring meets the Baby before Samus and the room's edges.
         /// </summary>
         private void FlyMotherBrainOnionRing(
             EnemyProjectile ring,
@@ -521,9 +509,9 @@ internal sealed class MotherBrainProjectiles
 
             ring.Position = ring.Position.Advance(ring.Velocity.ToDisplacement());
 
-            // The rings meet the Baby once her late fight's final beam has given it its place in the room, until it deletes
-            // itself.
-            if (state.RainbowBeamSequence is { Baby: { Place: not null, IsDeleted: false } baby })
+            // The rings meet the Baby once her late fight's final beam has made it in its place in the room, until it
+            // deletes itself.
+            if (state.RainbowBeamSequence is { Baby: { IsDeleted: false } baby })
             {
                 // The ring deletes every later ring as soon as the still-registered Baby
                 // reaches zero health, without an explosion.
@@ -638,15 +626,10 @@ internal sealed class MotherBrainProjectiles
         /// <summary>Runs turret-bullet initialization.</summary>
         private void SpawnMotherBrainTurretBullet(EnemyProjectile turret)
         {
-            EnemyProjectile? bullet = dependencies.Projectiles.AllocateEnemyProjectile();
+            EnemyProjectile? bullet = dependencies.Projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainRoomTurretBullet, turretBullet, MotherBrainTurretDefinitions.Graphics);
             if (bullet is null)
                 return;
 
-            EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-                bullet,
-                RoomEnemyProjectileKind.MotherBrainRoomTurretBullet,
-                turretBullet,
-                MotherBrainTurretDefinitions.Graphics);
             MotherBrainTurretDirection direction = Turrets.Of(turret).Direction;
             MotherBrainTurretDirectionDefinition definition =
                 MotherBrainTurrets.ForDirection(direction);
@@ -726,15 +709,10 @@ internal sealed class MotherBrainProjectiles
     /// </summary>
     public void SpawnMotherBrainGlassProjectile(MotherBrainGlassProjectileRequest request)
     {
-        EnemyProjectile? shard = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? shard = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainGlassShard, Projectile, graphics: SpriteGraphics.SharedStandard);
         if (shard is null)
             return; // The shard is lost when the room has no place left for an enemy projectile.
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            shard,
-            RoomEnemyProjectileKind.MotherBrainGlassShard,
-            Projectile,
-            graphics: default);
 
         // The shard launches at a random angle, any step of the turn. It selects signed sine/cosine velocities and the
         // shard's spin animation.
@@ -857,7 +835,7 @@ internal sealed class MotherBrainProjectiles
         return place.X >= 0 && viewX >= 0 && viewX < MotherBrainTurretDefinitions.ViewWidth;
     }
 
-    /// <summary>Runs the bullet's property flicker, its movement and its point collision.</summary>
+    /// <summary>Moves the bullet: it blocks Samus's shots every other update and flies until it hits a wall.</summary>
     internal static void FlyMotherBrainTurretBullet(
         EnemyProjectile bullet,
         RoomLevelData level)

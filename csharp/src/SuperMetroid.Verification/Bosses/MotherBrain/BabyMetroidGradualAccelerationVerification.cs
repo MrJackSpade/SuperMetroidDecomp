@@ -26,7 +26,7 @@ internal static class BabyMetroidGradualAccelerationVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.BigBoy);
         RoomEnemyPlace babyMetroid = runtime.Enemies.Places.InUpdateOrder.First(place =>
-            place.DefinitionId == EnemyDefinitionId.BabyMetroid);
+            place.Holds(EnemyDefinitionId.BabyMetroid));
 
         // The movie's state when the drain ends, entering RiseAfterFeeding with no velocity.
         BabyMetroidEnemyState state = babyMetroid.SpeciesState<BabyMetroidEnemyState>()
@@ -56,7 +56,7 @@ internal static class BabyMetroidGradualAccelerationVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.BigBoy);
         RoomEnemyPlace babyMetroid = runtime.Enemies.Places.InUpdateOrder.First(place =>
-            place.DefinitionId == EnemyDefinitionId.BabyMetroid);
+            place.Holds(EnemyDefinitionId.BabyMetroid));
         var samus = runtime.Player.IntroducedSamus;
         BabyMetroidEnemyState state = babyMetroid.SpeciesState<BabyMetroidEnemyState>()
             ?? throw new InvalidOperationException("The Big Boy room's Shitroid has no state.");
@@ -103,7 +103,7 @@ internal static class BabyMetroidGradualAccelerationVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.BigBoy);
         RoomEnemyPlace babyMetroid = runtime.Enemies.Places.InUpdateOrder.First(place =>
-            place.DefinitionId == EnemyDefinitionId.BabyMetroid);
+            place.Holds(EnemyDefinitionId.BabyMetroid));
         BabyMetroidEnemyState state = babyMetroid.SpeciesState<BabyMetroidEnemyState>()
             ?? throw new InvalidOperationException("The Big Boy room's Shitroid has no state.");
         BabyMetroidBehavior behavior = runtime.Enemies.BabyMetroidBehavior;

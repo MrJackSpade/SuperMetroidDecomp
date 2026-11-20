@@ -16,12 +16,12 @@ internal static class MamaTurtleEnemyDefinitionCatalogAccess
         GrappleResponse: GrappleEnemyReaction.Cancel,
         HurtResponse: EnemyHurtResponse.Inert,
         DeathExplosion: EnemyDeathExplosion.Big,
-        PowerBombReaction: null,
-        Touch: null,
+        PowerBombReaction: EnemyReaction.CommonPowerBomb,
+        Touch: TurtleReactions.Touch,
         Shot: EnemyReaction.OrdinaryShot,
         TouchHitboxScan: EnemyHitboxScan.Scanned,
         ShotHitboxScan: EnemyHitboxScan.Scanned,
-        DropChances: new EnemyDropChances(80, 80, 80, 5, 5, 5),
+        Drops: EnemyDrops.Rolling(new EnemyDropChances(80, 80, 80, 5, 5, 5)),
         Vulnerability: EnemyVulnerabilityDefinitions.Invulnerable);
 
     /// <summary>Compiled baby turtle enemy definition.</summary>
@@ -35,12 +35,12 @@ internal static class MamaTurtleEnemyDefinitionCatalogAccess
         GrappleResponse: GrappleEnemyReaction.Cancel,
         HurtResponse: EnemyHurtResponse.Inert,
         DeathExplosion: EnemyDeathExplosion.Small,
-        PowerBombReaction: null,
-        Touch: null,
-        Shot: null,
+        PowerBombReaction: EnemyReaction.CommonPowerBomb,
+        Touch: TurtleReactions.Touch,
+        Shot: TurtleReactions.Shot,
         TouchHitboxScan: EnemyHitboxScan.Scanned,
         ShotHitboxScan: EnemyHitboxScan.Scanned,
-        DropChances: new EnemyDropChances(80, 80, 80, 5, 5, 5),
+        Drops: EnemyDrops.Rolling(new EnemyDropChances(80, 80, 80, 5, 5, 5)),
         Vulnerability: EnemyVulnerabilityDefinitions.Invulnerable);
 
     /// <summary>Resolves a compiled family header by its native bank-$A0 pointer.</summary>

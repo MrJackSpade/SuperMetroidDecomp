@@ -14,9 +14,8 @@ using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Core.World;
 
 /// <summary>
-/// Owns the four statue animations and the descending background's
-/// per-frame steps. Boss victories and grey-statue events are deliberately separate:
-/// visiting the room must play each release before opening the elevator route.
+/// Owns the four statue animations and the statues' descent into the floor, each update. Boss victories and grey-statue
+/// events stay separate: visiting the room plays each release before opening the elevator route.
 /// </summary>
 [RoomLifetime]
 public sealed class TourianStatueSequence : IDisplayLatch
@@ -111,9 +110,9 @@ public sealed class TourianStatueSequence : IDisplayLatch
     private readonly UpdateCountdown _hold = UpdateCountdown.Ended();
     /// <summary>The statue room's statue offset: minus the whole pixels of its descent (<see cref="TourianStatueRoom.StatueOffset"/>).</summary>
     private int VerticalOffset => Room.StatueOffset;
-    /// <summary>Background offset latched at the same frame boundary as the displayed sprite frame.</summary>
+    /// <summary>How far the statues have sunk, as the displayed frame shows it.</summary>
     public int DisplayedVerticalOffset { get; private set; }
-    /// <summary>Captures the current background position for presentation with the corresponding sprite frame.</summary>
+    /// <summary>Latches how far the statues have sunk for the displayed frame.</summary>
     void IDisplayLatch.LatchDisplay() => DisplayedVerticalOffset = VerticalOffset;
 
     /// <summary>

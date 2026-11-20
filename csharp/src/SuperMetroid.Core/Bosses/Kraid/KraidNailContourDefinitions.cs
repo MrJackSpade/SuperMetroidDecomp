@@ -2,8 +2,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>The four ledges of Kraid's fingernail contour: where his body pushes back a nail level with each.</summary>
 /// <remarks>
-/// A nail above all four ledges is pushed back at the entry the game reads after them, which the installed
-/// <see cref="KraidNailPastLedges"/> holds (#1500).
+/// A nail above all four ledges is pushed back where <see cref="KraidNailPastLedges"/> places it (#1500).
 /// </remarks>
 internal static class KraidNailContourDefinitions
 {

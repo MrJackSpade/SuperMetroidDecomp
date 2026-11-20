@@ -2,7 +2,7 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>
-/// The state of one ninja Pirate. The speeds and spawn position are the ninja's own state, which nothing else reads.
+/// The state of one ninja Pirate: its speeds and where it spawned.
 /// </summary>
 public sealed class NinjaSpacePirateEnemyState
 {

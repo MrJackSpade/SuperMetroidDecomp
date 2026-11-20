@@ -13,12 +13,13 @@ internal sealed class HoltzBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Holtz], Create);
 
     /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
-    /// <param name="place">The place, holding the new identity and the entry it is spawned from.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
+    /// <param name="place">The place, already holding the occupant.</param>
     /// <param name="common">The shared participation the entity composes.</param>
-    private EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) =>
-        Ensure.NotNull(place).SpawnSettings<EnemyFollowerSpawnSettings>().Role == EnemyFollowerRole.Follower
-            ? EnemyOccupant.Of(new HoltzFollowerEntity(this, place, common))
-            : EnemyOccupant.Of(new HoltzEntity(this, place, common));
+    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        occupant.SpawnSettings<EnemyFollowerSpawnSettings>().Role == EnemyFollowerRole.Follower
+            ? EnemyOccupant.Of(new HoltzFollowerEntity(this, occupant, place, common))
+            : EnemyOccupant.Of(new HoltzEntity(this, occupant, place, common));
 
     /// <summary>Supplies the shared random draw taken before every parent's and follower's AI runs.</summary>
     private readonly EnemyRoomBinding _room;
@@ -155,7 +156,7 @@ internal sealed class HoltzBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Runs the Holtz's main AI and each action it runs.
-    /// The shared RNG advances before every parent and follower acts, exactly as the game does.
+    /// The shared random number advances before every parent and follower acts.
     /// </summary>
     private void RunHoltzMain(
         RoomEnemyPlace place,

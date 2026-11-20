@@ -12,8 +12,8 @@ internal static class NinjaSpacePirateBehaviorPrivateAccess
     extension(global::SuperMetroid.Core.Enemies.SpacePirates.NinjaSpacePirateBehavior self)
     {
         /// <summary>The private method <c>SpawnNinjaPirateClaw</c>, invoked by name.</summary>
-        internal void SpawnNinjaPirateClaw(global::SuperMetroid.Core.Enemies.RoomEnemyPlace source, global::SuperMetroid.Core.Spatial.HorizontalDirection thrown, global::SuperMetroid.Core.Spatial.Offset16<global::SuperMetroid.Core.Spatial.RoomPixels> spawnOffset) =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Enemies.SpacePirates.NinjaSpacePirateBehavior>(self, "SpawnNinjaPirateClaw", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Spatial.HorizontalDirection), typeof(global::SuperMetroid.Core.Spatial.Offset16<global::SuperMetroid.Core.Spatial.RoomPixels>)], new object?[] { source, thrown, spawnOffset });
+        internal void SpawnNinjaPirateClaw(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant occupant, global::SuperMetroid.Core.Enemies.RoomEnemyPlace source, global::SuperMetroid.Core.Spatial.HorizontalDirection thrown, global::SuperMetroid.Core.Spatial.Offset16<global::SuperMetroid.Core.Spatial.RoomPixels> spawnOffset) =>
+            PrivateState.Invoke<global::SuperMetroid.Core.Enemies.SpacePirates.NinjaSpacePirateBehavior>(self, "SpawnNinjaPirateClaw", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant), typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Spatial.HorizontalDirection), typeof(global::SuperMetroid.Core.Spatial.Offset16<global::SuperMetroid.Core.Spatial.RoomPixels>)], new object?[] { occupant, source, thrown, spawnOffset });
 
         /// <summary>The private method <c>StepNinjaPirateDive</c>, invoked by name.</summary>
         internal void StepNinjaPirateDive(global::SuperMetroid.Core.Enemies.RoomEnemyPlace place, global::SuperMetroid.Core.Enemies.SpacePirates.NinjaSpacePirateEnemyState state, global::SuperMetroid.Core.Rooms.LevelData.RoomLevelData level, global::SuperMetroid.Core.Spatial.HorizontalDirection direction) =>

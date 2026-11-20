@@ -19,9 +19,10 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Metroid], Create);
 
     /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
-    /// <param name="place">The place, holding the new identity and the entry it is spawned from.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
+    /// <param name="place">The place, already holding the occupant.</param>
     /// <param name="common">The shared participation the entity composes.</param>
-    private EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new MetroidEntity(this, place, common));
+    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new MetroidEntity(this, occupant, place, common));
 
     /// <summary>Supplies room RNG for the scattered death drops and idle cries.</summary>
     private readonly EnemyRoomBinding _room;
@@ -69,9 +70,9 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Metroid.</summary>
-    internal void InitializeMetroid(RoomEnemyPlace place)
+    internal void InitializeMetroid(RoomEnemyOccupant occupant, RoomEnemyPlace place)
     {
-        SpriteGraphics graphics = SpriteGraphics.SpawnedBy(place);
+        SpriteGraphics graphics = SpriteGraphics.SpawnedBy(occupant, place.Shading);
         RoomEffectActor electricity = _effectActors.SpawnRoomEffectActor(
             place.Position.Whole,
             RoomEffectActorKind.MetroidElectricity,
@@ -85,7 +86,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             Drain = FractionalEnergyDrain.Start,
             Movement = MetroidMovement.Homing,
-            IceDamageToFreeze = place.SpawnSettings<MetroidSpawnSettings>().IceDamageToFreeze,
+            IceDamageToFreeze = occupant.SpawnSettings<MetroidSpawnSettings>().IceDamageToFreeze,
         };
         place.SetSpeciesState(state);
         state.Playback = new(MetroidAnimations.StartingWith(MetroidSegment.ChasingSamus), AnimationPlace.StartOfAnimation);
@@ -101,7 +102,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     });
 
     /// <summary>Runs a Metroid for one update and whichever of its four movements it is in.</summary>
-    private void RunMetroidMain(RoomEnemyPlace place, SamusState samus, RoomLevelData level)
+    private void RunMetroidMain(RoomEnemyOccupant occupant, RoomEnemyPlace place, SamusState samus, RoomLevelData level)
     {
         MetroidEnemyState state = place.RequireSpeciesState<MetroidEnemyState>();
         int targetY = samus.Position.Y.Whole - MetroidBehaviorDefinitions.AimAboveSamus;
@@ -109,8 +110,8 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The ordinary body shows the central picture. Both outer objects are
         // repositioned and re-enabled every update the Metroid is not frozen, right after it moves.
-        PositionMetroidOuterBody(state.Electricity, place, SpriteGraphics.SpawnedBy(place));
-        PositionMetroidOuterBody(state.Shell, place, SpriteGraphics.SpawnedBy(place));
+        PositionMetroidOuterBody(state.Electricity, place, SpriteGraphics.SpawnedBy(occupant, place.Shading));
+        PositionMetroidOuterBody(state.Shell, place, SpriteGraphics.SpawnedBy(occupant, place.Shading));
     }
 
     /// <summary>Pulls the Metroid's velocity toward Samus, harder the farther she is.</summary>
@@ -423,14 +424,14 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         if (c.Enemy.Freeze.IsOver)
         {
             SamusProjectile recoilOrigin = MetroidRecoilOrigin.Of(c.OrdinaryProjectiles.Shots);
-            ResolveMetroidNonFrozenShot(c.Enemy, c.Bomb.Type, Ensure.AtLeastZero(c.Bomb.Damage), recoilOrigin.Position.Whole, c.Samus);
+            ResolveMetroidNonFrozenShot(c.Enemy, c.PlacedBomb.Type, c.PlacedBomb.Damage, recoilOrigin.Position.Whole, c.Samus);
         }
     }
 
     /// <summary>Runs Metroid's main AI.</summary>
-    internal void RunMetroidMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunMetroidMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, IEnemyAiFrame frame)
     {
-        RunMetroidMain(place, frame.Samus, frame.Level);
+        RunMetroidMain(occupant, place, frame.Samus, frame.Level);
     }
 
     /// <summary>Advances Metroid's typed animation.</summary>
@@ -449,7 +450,8 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         BeforeGenericDeath = c => FinishMetroidDeath(c.Enemy, c.Samus),
     };
 
-    /// <summary>Applies frozen missile damage or unfrozen recoil and Ice accumulation after the shared projectile prelude.</summary>
+    /// <summary>Applies frozen missile damage or unfrozen recoil and Ice accumulation once the shot has marked its
+    /// hit.</summary>
     internal bool ResolveMetroidOrdinaryShot(in EnemyShotContext c)
     {
         RoomEnemyPlace enemy = c.Enemy;
@@ -459,16 +461,16 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             {
                 // A frozen Metroid rejects every beam and bomb. The shot has already met it, so a non-plasma shot
                 // keeps only its collision mark and never deals ordinary damage.
-                c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
+                c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
                 return true;
             }
 
             // Like the ordinary path, the collision only marks the direction. The damage path does not reject a
             // projectile an earlier enemy marked this pass: a Super Missile that just hit a Rinka still reaches
             // the Metroid's shot reaction.
-            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
+            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
 
-            EnemyWeaponVulnerability frozenVulnerability = EnemyCollision.ReadProjectileVulnerability(enemy, c.ProjectileType);
+            EnemyWeaponVulnerability frozenVulnerability = EnemyCollision.ReadProjectileVulnerability(c.Occupant, c.ProjectileType);
             int frozenDamage = frozenVulnerability.DamageFrom(c.ProjectileDamage);
             if (!frozenVulnerability.FreezesWithoutDamage && frozenDamage != 0)
             {
@@ -485,7 +487,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 // the drops spawn.
                 Position16<RoomPixels> dropOrigin = enemy.Position.Whole;
                 FinishMetroidDeath(enemy, c.Samus);
-                _deathsAndDrops.StartGenericEnemyDeath(enemy, EnemyDeathExplosion.Big, c.Samus);
+                _deathsAndDrops.StartGenericEnemyDeath(c.Occupant, EnemyDeathExplosion.Big, c.Samus);
                 RequestMetroidDrops(dropOrigin, c.Samus);
             }
             return true;
@@ -493,8 +495,8 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // A shot on a Metroid takes no common shot reaction and does it no health damage: the collision marks the shot,
         // then the Metroid recoils, freezes or, attached, escapes as a Power Bomb shakes it loose.
-        c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
-        ResolveMetroidNonFrozenShot(enemy, c.Projectile.Type, Ensure.AtLeastZero(c.Projectile.Damage), MetroidRecoilOrigin.Of(c.Projectiles.Shots).Position.Whole, c.Samus);
+        c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
+        ResolveMetroidNonFrozenShot(enemy, c.Shot.Type, c.Shot.Damage, MetroidRecoilOrigin.Of(c.Projectiles.Shots).Position.Whole, c.Samus);
         return true;
     }
 

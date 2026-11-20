@@ -13,9 +13,10 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Mochtroid], Create);
 
     /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
-    /// <param name="place">The place, holding the new identity and the entry it is spawned from.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
+    /// <param name="place">The place, already holding the occupant.</param>
     /// <param name="common">The shared participation the entity composes.</param>
-    private EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new MochtroidEntity(this, place, common));
+    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new MochtroidEntity(this, occupant, place, common));
 
     /// <summary>Resolves axis movement against terrain in the order for each flight mode.</summary>
     private readonly EnemyTerrain _terrain;
@@ -144,11 +145,12 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Resolves the family-specific portion of a Mochtroid's touch.</summary>
     private void ResolveMochtroidTouch(
-        RoomEnemyPlace place,
+        RoomEnemyOccupant mochtroid,
         MochtroidEnemyState state,
         SamusState samus,
         PseudoScrewCharge pseudoScrew)
     {
+        RoomEnemyPlace place = mochtroid.Place;
         state.MovementMode = MochtroidMovementMode.TouchingSamus;
         SetMochtroidAnimation(
             place, state, MochtroidSegment.Attached);
@@ -174,13 +176,13 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
         if (samus.HorizontalSpeed.BodyAttack == SamusBodyAttack.None)
         {
             // The Mochtroid's touch hurts Samus without knocking her back: only the suit-divided damage applies.
-            SamusSuitDamage.Hurt(samus, place.Definition.Damage);
+            SamusSuitDamage.Hurt(samus, mochtroid.Definition.Damage);
         }
         else
         {
             // Samus's body attack hurts the Mochtroid as it hurts any enemy. This
             // includes Speed Booster, shinespark, Screw Attack, and pseudo-Screw.
-            _collision.ResolveOrdinaryTouch(place, samus, pseudoScrew);
+            _collision.ResolveOrdinaryTouch(mochtroid, samus, pseudoScrew);
         }
 
         // Unlike any other enemy, the Mochtroid cancels at once the invincibility and knockback its
@@ -202,7 +204,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs the attachment and drain reaction for Samus overlap.</summary>
     internal void ReactToMochtroidTouch(EnemyTouchContext context) =>
-        ResolveMochtroidTouch(context.Place, context.Place.RequireSpeciesState<MochtroidEnemyState>(), context.Samus, context.PseudoScrew);
+        ResolveMochtroidTouch(context.Occupant, context.Place.RequireSpeciesState<MochtroidEnemyState>(), context.Samus, context.PseudoScrew);
 
     /// <summary>The Mochtroid's own shot reaction, which runs the common shot damage with no stage of its own.</summary>
     internal static EnemyShotReaction MochtroidShotReaction { get; } = new();

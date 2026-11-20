@@ -40,7 +40,7 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
     /// <summary>The destination's asset graph.</summary>
     public LoadedRoomAssets Assets { get; } = Ensure.NotNull(assets);
 
-    /// <summary>The load-station record whose load establishes this room; null for a room entered otherwise.</summary>
+    /// <summary>The load station whose load establishes this room; null for a room entered otherwise.</summary>
     public LoadStation? LoadStation { get; } = loadStation;
 
     /// <summary>The frame each of the room's animations shows (#1406), which the animations the load builds select into.</summary>
@@ -207,7 +207,7 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
         BlockPictures = new RoomBlockPictureResolver(Assets.BlockSheet),
         // Only a library background the player sees as its own picture has one installed (#1649).
         BackgroundImage = RoomLibraryBackgroundPicture.Of(Room.State.Background, background => new RoomBackgroundImageResolver(
-            Assets.Pictures.Background(background, background.PictureDoor(Door), Assets.Tileset), Assets.BlockSheet)),
+            Assets.Pictures.Background(background, background.PictureFor(Door), Assets.Tileset), Assets.BlockSheet)),
         WrittenPictures = Assets.Pictures.Written.TryGetValue(Assets.Tileset, out WrittenPictureSheet? written) ? new WrittenPictureResolver(written) : null,
         FxOverlayPictures = new WrittenPictureResolver(Assets.Pictures.FxOverlay(Assets.Tileset)),
         HudPictures = Assets.Pictures.Hud(Assets.Tileset),

@@ -1,5 +1,5 @@
 namespace SuperMetroid.Core.Enemies;
 
-/// <summary>The accepted-frame counters enemy code reads for one pass.</summary>
-/// <param name="ShortCounter">The short frame counter, 0 through 255.</param>
-internal readonly record struct FrameCounters(int ShortCounter);
+/// <summary>The update counts enemy code reads for one pass.</summary>
+/// <param name="ShortCounter">The enemies' short update count, which paces their cadences (<see cref="Compatibility.ShortFrameCount"/>).</param>
+internal readonly record struct FrameCounters(Compatibility.ShortFrameCount ShortCounter);

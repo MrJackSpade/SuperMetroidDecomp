@@ -57,7 +57,8 @@ internal sealed class CrocomireSkeleton
         }
     }
 
-    /// <summary>Waits with the skeleton behind the wall before its rumble and picture-load sequence.</summary>
+    /// <summary>Waits with the skeleton behind the wall until the wall rumbles and his skeleton is bared behind
+    /// it.</summary>
     internal void RunCrocomireWaitBehindWall(CrocomireEnemyState state, SamusState samus)
     {
         if (samus.Position.X.Whole >= CrocomireSkeletonDefinitions.WallApproachX)
@@ -72,7 +73,7 @@ internal sealed class CrocomireSkeleton
         body.Contact = body.Contact.Replace(EnemyContact.SolidToSamus | EnemyContact.IgnoresSamus, EnemyContact.IgnoresSamus);
         state.Tongue.Contact = state.Tongue.Contact.With(EnemyContact.IgnoresSamus);
         state.Tongue.Presence = state.Tongue.Presence.With(EnemyPresence.Hidden);
-        state.RumbleOscillation = 0;
+        state.RumbleOscillation = ListStep<CrocomireRumbleOscillation>.FirstOf(CrocomireRumbleDefinitions.Oscillations);
         state.RumbleTowardExtreme = false;
 
         CrocomireDeathState death = state.Death;
@@ -87,7 +88,7 @@ internal sealed class CrocomireSkeleton
     internal void RunCrocomireWallRumble(CrocomireEnemyState state)
     {
         CrocomireDeathState death = state.Death;
-        if (state.RumbleOscillation == CrocomireRumbleDefinitions.Oscillations.Length)
+        if (state.RumbleOscillation is not { } underWay)
         {
             state.DeathStageWait.LastFor(CrocomireSkeletonDefinitions.SpikedWallUpdates);
             state.Colours.ShowWallSpikes();
@@ -97,7 +98,7 @@ internal sealed class CrocomireSkeleton
             return;
         }
 
-        CrocomireRumbleOscillation oscillation = CrocomireRumbleDefinitions.Oscillations[state.RumbleOscillation];
+        CrocomireRumbleOscillation oscillation = underWay.Entry;
         int target = state.RumbleTowardExtreme ? oscillation.ExtremeOffset : oscillation.ReturnOffset;
         if (death.RumbleYOffset == target)
         {
@@ -116,9 +117,9 @@ internal sealed class CrocomireSkeleton
                 return;
             }
 
-            state.RumbleOscillation++;
-            if (state.RumbleOscillation < CrocomireRumbleDefinitions.Oscillations.Length)
-                death.RumbleRepeatsLeft = UpdateCountdown.For(CrocomireRumbleDefinitions.Oscillations[state.RumbleOscillation].Repeats);
+            state.RumbleOscillation = underWay.Following;
+            if (state.RumbleOscillation is { } next)
+                death.RumbleRepeatsLeft = UpdateCountdown.For(next.Entry.Repeats);
             return;
         }
 
@@ -268,19 +269,14 @@ internal sealed class CrocomireSkeleton
     /// </summary>
     private void SpawnCrocomireSpikeWallPieces(CrocomireEnemyState state)
     {
-        SpriteGraphics graphics = SpriteGraphics.SpawnedBy(state.Body);
+        SpriteGraphics graphics = SpriteGraphics.SpawnedBy(state.BodyOccupant, state.Body.Shading);
 
         foreach (CrocomireSpikeWallPiece piece in CrocomireSpikeMotionDefinitions.Pieces.Reverse())
         {
-            EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
+            EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.CrocomireSpikeWallPieces, _combat.Debris, graphics);
             if (projectile is null)
                 return;
 
-            EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-                projectile,
-                RoomEnemyProjectileKind.CrocomireSpikeWallPieces,
-                _combat.Debris,
-                graphics);
             projectile.StartAnimation(new CrocomireProjectileAnimation(_combat.Debris, CrocomireProjectileSegment.SpikeWallPiece));
             projectile.Position = projectile.Position.WithWhole(CrocomireSkeletonDefinitions.SpikeWallTop
                 + new Offset16<RoomPixels>(0, piece.Depth));

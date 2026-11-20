@@ -8,7 +8,7 @@ internal sealed class NuclearWaffleProjectileAnimation(NuclearWaffleProjectileSe
     : EnemyProjectileFrameAnimation<NuclearWaffleProjectileSegment, EnemyProjectileCommonCue>(NuclearWaffleProjectileAnimations.StartingWith(segment), EnemyProjectileCueRunners.Common<NuclearWaffleProjectileSegment>())
 {
     /// <inheritdoc/>
-    private protected override UnpausedAnimationSegments<NuclearWaffleProjectileSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => NuclearWaffleProjectileAnimations.Segments;
+    private protected override IUnpausedAnimationPlay<NuclearWaffleProjectileSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => NuclearWaffleProjectileAnimations.Segments;
 
     /// <inheritdoc/>
     private protected override IEnumerable<KeyValuePair<NuclearWaffleProjectileSegment, Animation<NuclearWaffleProjectileSegment>>> StartingAt => NuclearWaffleProjectileAnimations.StartingAt;

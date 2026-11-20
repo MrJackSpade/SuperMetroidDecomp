@@ -5,7 +5,6 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
-using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Rooms.RoomMainCodeCatalogVerification;
 using SuperMetroid.Core.Enemies.Gunship;
@@ -21,6 +20,7 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.AssetExtraction.World.RoomStates;
 using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.TestSupport.VerificationImporters;
 
 /// <summary>Checks compiled room definitions through the production post-Ceres landing path.</summary>
 internal static class RoomDefinitionIntegrationVerification
@@ -116,7 +116,7 @@ internal static class RoomDefinitionIntegrationVerification
         AddAddressRange(forbidden, LoadStationRomData.PointerTable,
             LoadStationRomData.DataEnd - LoadStationRomData.PointerTable);
 
-        foreach (ushort doorPointer in EnumerateRetailDoorPointers()
+        foreach (ushort doorPointer in RetailDoorHeaderCatalog.EnumeratePointers()
                      .Append(DoorDefinitionsAccess.SharedElevatorRidePointer)
                      .Distinct())
         {

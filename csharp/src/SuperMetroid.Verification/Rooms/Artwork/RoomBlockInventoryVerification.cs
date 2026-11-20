@@ -226,7 +226,7 @@ internal static class RoomBlockInventoryVerification
         terrain[index] = first;
         terrain[index + 1] = second;
         behaviors[index] = reaction;
-        return new InstalledRoomLevel(size, [.. terrain], [.. behaviors], [.. new RoomBlockAppearance[size.Area]], [], 0);
+        return new InstalledRoomLevel(size, [.. terrain], [.. behaviors], [.. new RoomBlockAppearance[size.Area]], new LevelDataPastGrid<RoomTerrainBlock>([], 0));
     }
 
     /// <summary>Names <paramref name="reactions"/> for a failure message.</summary>

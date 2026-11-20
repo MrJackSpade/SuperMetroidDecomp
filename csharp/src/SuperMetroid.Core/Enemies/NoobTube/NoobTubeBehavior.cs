@@ -15,9 +15,10 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
     public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.NoobTubeCrack], Create);
 
     /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
-    /// <param name="place">The place, holding the new identity and the entry it is spawned from.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
+    /// <param name="place">The place, already holding the occupant.</param>
     /// <param name="common">The shared participation the entity composes.</param>
-    private EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.PlacedOnly(new NoobTubeCrackEntity(place, common));
+    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.PlacedOnly(new NoobTubeCrackEntity(occupant, place, common));
 
     /// <summary>The pictures and shading every tube piece draws with: the shared sheet in the tube's crack colours.</summary>
     private static readonly SpriteGraphics TubePieceGraphics =
@@ -69,11 +70,10 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
         NoobTubePiece piece = request.Piece;
         RoomEnemyProjectileKind kind = PieceKinds[piece.Definition];
 
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(kind, TubePieces, graphics: TubePieceGraphics);
         if (projectile is null)
             return;
-        // The tube's pieces draw from the shared sheet in the crack colours the room's crack setup installs (#1512).
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, TubePieces, graphics: TubePieceGraphics);
+        // The tube's pieces draw from the shared sheet in the tube's crack colours (#1512).
 
         Position16<RoomPixels> place = request.RoomObjectBlock.ToRoomPixels() + piece.Offset;
         projectile.StartAnimation(new NoobTubeProjectileAnimation(TubePieces, piece.Start.Match(PieceStartAnimations, 0)));
@@ -214,7 +214,7 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
         /// Flickers the crack: alternate values of <paramref name="shortCounter"/> hide it and show it. The crack keeps
         /// whichever its flicker last chose once it falls.
         /// </summary>
-        private void FlickerNoobTubeCrack(EnemyProjectile projectile, int shortCounter) =>
+        private void FlickerNoobTubeCrack(EnemyProjectile projectile, Compatibility.ShortFrameCount shortCounter) =>
             Pieces.Of(projectile).IsHidden = NoobTubeCadenceDefinitions.CrackHidden.IsSetIn(shortCounter);
 
         /// <summary>What <c>ApplyNoobTubeProjectileCue</c> does for each <see cref="NoobTubeProjectileCueKind"/> member, each member's own arm.</summary>
@@ -252,7 +252,7 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
         });
 
         /// <summary>Carries out one cue of the crack, shard and bubble animations; <paramref name="shortCounter"/> times the flicker.</summary>
-        private void ApplyNoobTubeProjectileCue(EnemyProjectile projectile, int shortCounter, NoobTubeProjectileCue cue, NoobTubeShardMirroring mirroring)
+        private void ApplyNoobTubeProjectileCue(EnemyProjectile projectile, Compatibility.ShortFrameCount shortCounter, NoobTubeProjectileCue cue, NoobTubeShardMirroring mirroring)
         {
             bool atOwnColumn = NoobTubeCadenceDefinitions.DebrisAtOwnColumn.IsSetIn(shortCounter);
             ApplyNoobTubeProjectileCueForNoobTubeProjectileCueKind[cue.Kind](projectile, mirroring, atOwnColumn);

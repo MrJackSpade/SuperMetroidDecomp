@@ -15,7 +15,7 @@ internal static class EndingRewardAnimations
 {
     /// <summary>The gesture's animations; the suitless legs stand still through the hair release's opening pictures.</summary>
     internal static CinematicAnimations<EndingRewardAnimation, CinematicSpritePose, EndingRewardGestureCue> Gesture { get; } = new(
-        new Dictionary<EndingRewardAnimation, AnimationBeat<CinematicSpritePose, EndingRewardGestureCue>[]>
+        new Dictionary<EndingRewardAnimation, IHidingAnimationBeat<CinematicSpritePose, EndingRewardGestureCue>[]>
         {
             [A.HairRelease] =
             [
@@ -39,7 +39,7 @@ internal static class EndingRewardAnimations
             ],
             [A.GestureArm] =
             [
-                G.Show(S.Blank, 64),
+                G.Hide(64),
                 G.Show(S.SuitedArmLowered, 8),
                 G.Show(S.SuitedArmSwingingUp, 8),
                 G.Show(S.SuitedArmFistForward, 5),
@@ -76,7 +76,7 @@ internal static class EndingRewardAnimations
 
     /// <summary>The jump's animations: each launch ends in flight, which holds its picture; the fall holds; the landing shoots.</summary>
     internal static CinematicAnimations<EndingRewardAnimation, CinematicSpritePose, EndingRewardJumpCue> Jump { get; } = new(
-        new Dictionary<EndingRewardAnimation, AnimationBeat<CinematicSpritePose, EndingRewardJumpCue>[]>
+        new Dictionary<EndingRewardAnimation, IHidingAnimationBeat<CinematicSpritePose, EndingRewardJumpCue>[]>
         {
             [A.SuitlessJump] =
             [

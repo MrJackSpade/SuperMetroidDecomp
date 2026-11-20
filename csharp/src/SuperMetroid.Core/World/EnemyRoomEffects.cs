@@ -46,12 +46,10 @@ internal sealed class EnemyRoomEffects
     /// they asked for them; the pass's other events are the runtime's (<see cref="EnemyFramePhase"/>).
     /// </summary>
     /// <remarks>
-    /// Actors spawn their fixed room objects and make their other room writes
-    /// inside the enemy pass, and each room object's setup edits the level at once. Applying them right
-    /// after the enemy pass lets Samus's movement later in the frame meet the edited
-    /// terrain; Baby Metroid clears its invisible wall this way just before Samus runs
-    /// through it. A fixed room-object spawn into a room whose places are all held is lost (RoomObjectPlaces); a room
-    /// loads with every place free.
+    /// The enemies make these room changes during their pass, and each room object's setup changes the terrain at once,
+    /// so Samus's movement later in the update meets the changed terrain; the Baby Metroid clears its invisible wall
+    /// this way just before Samus runs through it. A room object spawned into a room whose places are all held is lost
+    /// (RoomObjectPlaces); a room loads with every place free.
     /// </remarks>
     internal void ApplyEnemyRequestedRoomEffects(EnemyFrameResult pass, EnemyRoomEffectSite site)
     {

@@ -33,5 +33,5 @@ internal sealed record SamusMovementTypeDefinition(
     GrappleFiringResponse GrappleFiring,
     SamusHudSelectionMode HudSelection,
     SamusKnockbackResponse Knockback,
-    SamusNoTransitionSetup? NoTransitionSetup = null,
+    SamusNoTransitionSetup NoTransitionSetup,
     SamusPoseMovement? PoseMovement = null);

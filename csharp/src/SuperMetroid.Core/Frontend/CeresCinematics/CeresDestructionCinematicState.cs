@@ -55,7 +55,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// installed flight's backdrop, which the engine flicker never recolours.
     /// </summary>
     internal RgbColor Backdrop { get; private set; }
-    /// <summary>The live actors' sprite entries, drawn from the scene's current sheet (#1358).</summary>
+    /// <summary>The live actors' sprites, drawn from the scene's current sheet (#1358).</summary>
     internal readonly ScreenSprites screenSprites;
     /// <summary>The installed backdrops and actor placements, bound when the game is bound to its installed content (#1616).</summary>
     private IntroCinematicArtwork Artwork { get; set; }
@@ -455,11 +455,10 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         Phase = CeresDestructionPhase.WaitForMusicQueue;
     }
 
-    /// <summary>Stages the planet-reveal map and resets camera, angle, fade, and pixelation.</summary>
+    /// <summary>Shows the planet picture and resets the camera, turn, fade and pixelation.</summary>
     private void SetupZebesReveal()
     {
-        // The reveal starts on the planet-reveal page. It also stages the rear-gunship view, which becomes visible
-        // only when the gunship step later selects the floor again.
+        // The reveal shows the planet picture until the approach shows the gunship's floor again.
         View = CeresDestructionView.ZebesReveal;
         // The reveal clears the colour effects, ending the station's navigation lights, and starts the engine's flicker.
         ColourEffects = ColourEffectSystem.ForScreen();
@@ -584,14 +583,15 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     }
 
     /// <summary>
-    /// The final blast replaces the floor on the same update that creates the final explosion. With Samus gone
-    /// the upper half becomes the gunship viewed from the front over a cleared lower half; with Samus still aboard no
-    /// gunship leaves and both halves are cleared, so the floor shows nothing (#1513). No half keeps the station.
+    /// The final blast shows on the update that creates the final explosion. With Samus gone the gunship leaves the
+    /// explosion, seen from the front; with Samus still aboard no gunship leaves and the scene shows nothing (#1513).
+    /// The station is gone.
     /// </summary>
-    private void LoadFinalExplosionMaps() =>
+    private void ShowFinalExplosion() =>
         View = WithSamus ? CeresDestructionView.StationCleared : CeresDestructionView.GunshipLeavingExplosion;
 
-    /// <summary>Starts the station blast, queues its sound, adds its sprite, and replaces the station maps.</summary>
+    /// <summary>Starts the station blast, queues its sound, adds its sprite, and shows the explosion's view in place of
+    /// the station.</summary>
     private void SpawnFinalCeresExplosion()
     {
         // The final blast burns through the Power Bomb blast's stages before the station picture is replaced. It centres
@@ -607,7 +607,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             CeresAnimations.Scenes,
             CeresExplosionDefinitions.StationBlastActor.Animation)));
 
-        LoadFinalExplosionMaps();
+        ShowFinalExplosion();
     }
 
     /// <summary>Creates a wave's blast, small or large, at a camera-relative authored offset with its initial animation delay.</summary>
@@ -791,13 +791,13 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     private ColourAddWindowLayer? CaptureStationExplosion() => stationExplosion.Capture();
 
     /// <summary>
-    /// Places live actors as sprite entries in the order they spawned, the Ceres scene's small asteroids and vortex after
+    /// Places live actors as sprites in the order they spawned, the Ceres scene's small asteroids and vortex after
     /// every other actor.
     /// </summary>
     private void PrepareRenderSprites()
     {
         screenSprites.BeginFrame();
-        // Same-priority sprite overlap is decided by drawing order.
+        // The small asteroids and the vortex are drawn after the other actors, so the others overlap them.
         IEnumerable<CeresSceneActor> overCeres = CeresDestructionPhaseGroups.CeresScene.Contains(Phase)
             ? ceresActors.Where(actor => !actor.DrawnLast).Concat(ceresActors.Where(actor => actor.DrawnLast)) : ceresActors;
         foreach (CinematicActor<CeresAnimation, CinematicSpritePose, CeresCue> actor in overCeres.Select(actor => actor.Sprite).Concat(revealActors.Select(actor => actor.Sprite)))

@@ -16,16 +16,16 @@ internal static class FakeKraidBehaviorPrivateAccess
             PrivateState.Invoke<global::SuperMetroid.Core.Bosses.Kraid.FakeKraidBehavior>(self, "InitializeFakeKraid", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Samus.SamusState)], new object?[] { place, samus });
 
         /// <summary>The private method <c>SpawnFakeKraidSpike</c>, invoked by name.</summary>
-        internal bool SpawnFakeKraidSpike(global::SuperMetroid.Core.Enemies.RoomEnemyPlace source, global::SuperMetroid.Core.Bosses.Kraid.FakeKraidEnemyState state, global::SuperMetroid.Core.Bosses.Kraid.FakeKraidSpikeRow row) =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Bosses.Kraid.FakeKraidBehavior, bool>(self, "SpawnFakeKraidSpike", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Bosses.Kraid.FakeKraidEnemyState), typeof(global::SuperMetroid.Core.Bosses.Kraid.FakeKraidSpikeRow)], new object?[] { source, state, row });
+        internal bool SpawnFakeKraidSpike(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant occupant, global::SuperMetroid.Core.Enemies.RoomEnemyPlace source, global::SuperMetroid.Core.Bosses.Kraid.FakeKraidEnemyState state, global::SuperMetroid.Core.Bosses.Kraid.FakeKraidSpikeRow row) =>
+            PrivateState.Invoke<global::SuperMetroid.Core.Bosses.Kraid.FakeKraidBehavior, bool>(self, "SpawnFakeKraidSpike", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant), typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Bosses.Kraid.FakeKraidEnemyState), typeof(global::SuperMetroid.Core.Bosses.Kraid.FakeKraidSpikeRow)], new object?[] { occupant, source, state, row });
 
         /// <summary>The private method <c>SpawnFakeKraidSpit</c>, invoked by name.</summary>
-        internal void SpawnFakeKraidSpit(global::SuperMetroid.Core.Enemies.RoomEnemyPlace source, int xOffset, global::SuperMetroid.Core.Spatial.PixelVelocity<global::SuperMetroid.Core.Spatial.RoomPixels> velocity) =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Bosses.Kraid.FakeKraidBehavior>(self, "SpawnFakeKraidSpit", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(int), typeof(global::SuperMetroid.Core.Spatial.PixelVelocity<global::SuperMetroid.Core.Spatial.RoomPixels>)], new object?[] { source, xOffset, velocity });
+        internal void SpawnFakeKraidSpit(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant occupant, global::SuperMetroid.Core.Enemies.RoomEnemyPlace source, int xOffset, global::SuperMetroid.Core.Spatial.PixelVelocity<global::SuperMetroid.Core.Spatial.RoomPixels> velocity) =>
+            PrivateState.Invoke<global::SuperMetroid.Core.Bosses.Kraid.FakeKraidBehavior>(self, "SpawnFakeKraidSpit", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant), typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(int), typeof(global::SuperMetroid.Core.Spatial.PixelVelocity<global::SuperMetroid.Core.Spatial.RoomPixels>)], new object?[] { occupant, source, xOffset, velocity });
 
         /// <summary>The private method <c>SpawnFakeKraidSpitPair</c>, invoked by name.</summary>
-        internal void SpawnFakeKraidSpitPair(global::SuperMetroid.Core.Enemies.RoomEnemyPlace place, global::SuperMetroid.Core.Spatial.HorizontalDirection direction) =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Bosses.Kraid.FakeKraidBehavior>(self, "SpawnFakeKraidSpitPair", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Spatial.HorizontalDirection)], new object?[] { place, direction });
+        internal void SpawnFakeKraidSpitPair(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant occupant, global::SuperMetroid.Core.Enemies.RoomEnemyPlace place, global::SuperMetroid.Core.Spatial.HorizontalDirection direction) =>
+            PrivateState.Invoke<global::SuperMetroid.Core.Bosses.Kraid.FakeKraidBehavior>(self, "SpawnFakeKraidSpitPair", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant), typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Spatial.HorizontalDirection)], new object?[] { occupant, place, direction });
     }
 
     /// <summary>The private instance members checks read or call.</summary>

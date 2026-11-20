@@ -56,8 +56,7 @@ internal static class DraygonStateQuantitiesVerification
     /// <summary>Puts a blob of Draygon goop that has just stuck to Samus in the last projectile slot.</summary>
     private static EnemyProjectile AttachedGoop(RoomEnemySystem enemies)
     {
-        EnemyProjectile goop = enemies.Projectiles.ProjectileInPlace(17);
-        global::SuperMetroid.Core.PrivateState.Set(goop, "Kind", RoomEnemyProjectileKind.DraygonGoop);
+        EnemyProjectile goop = enemies.Projectiles.Occupy(17, RoomEnemyProjectileKind.DraygonGoop);
         goop.StartMotion(enemies.DraygonBehavior.Shots.Goop.GoopStuckToSamus);
         enemies.DraygonBehavior.Shots.Goop.Attached.Start(goop, new DraygonGoopAttachedState(stackPosition: 1));
         return goop;
@@ -200,15 +199,15 @@ internal static class DraygonStateQuantitiesVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-        body.Bind(EnemyDefinitionId.DraygonBody, body.Definition);
+        body.Bind(EnemyDefinitionId.DraygonBody, body.KeptDefinition);
         body.Position = body.Position.WithWhole(new(256, 384));
-        var state = new DraygonEnemyState(body, enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]);
+        var state = new DraygonEnemyState(body.HeldOccupant(), enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]);
         body.SetSpeciesState(state);
-        state.Eye.Bind(EnemyDefinitionId.DraygonEye, state.Eye.Definition);
+        state.Eye.Bind(EnemyDefinitionId.DraygonEye, state.Eye.KeptDefinition);
         state.Eye.SetSpeciesState(state.EyePart);
-        state.Tail.Bind(EnemyDefinitionId.DraygonTail, state.Tail.Definition);
+        state.Tail.Bind(EnemyDefinitionId.DraygonTail, state.Tail.KeptDefinition);
         state.Tail.SetSpeciesState(state.TailPart);
-        state.Arms.Bind(EnemyDefinitionId.DraygonArms, state.Arms.Definition);
+        state.Arms.Bind(EnemyDefinitionId.DraygonArms, state.Arms.KeptDefinition);
         state.Arms.SetSpeciesState(state.ArmsPart);
         foreach (DraygonPart part in new[] { state.BodyPart, state.EyePart, state.TailPart, state.ArmsPart })
             part.SetAnimation(DraygonSegment.Rest);

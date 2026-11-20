@@ -60,10 +60,10 @@ internal sealed class CrocomireFight
     }
 
     /// <summary>Sets Crocomire up when the room spawns it.</summary>
-    internal void InitializeCrocomire(RoomEnemyPlace place)
+    internal void InitializeCrocomire(RoomEnemyOccupant occupant, RoomEnemyPlace place)
     {
         _roomStatus.Boss = AreaBoss.Crocomire;
-        var state = new CrocomireEnemyState(place);
+        var state = new CrocomireEnemyState(occupant, place);
         place.SetSpeciesState(state);
         // Once attached, the room's shaking and his melt's display read his encounter from the room (#2194); his parts
         // each hold the encounter from their own setup.
@@ -96,8 +96,7 @@ internal sealed class CrocomireFight
         foreach (Position16<RoomScreens> screen in CrocomireCameraDefinitions.BehindWallScreens)
             _room.Services.RoomScroll.Write(screen, RoomScrollState.Closed);
 
-        // The wall's and the projectiles' colours his setup loads are the import's shades of them, which his wall,
-        // the bridge's fragments and his projectiles draw in (#1512).
+        // His wall, the bridge's fragments and his projectiles draw in their own shades (#1512).
     }
 
     /// <summary>Sets Crocomire's tongue up when the room spawns it.</summary>
@@ -123,18 +122,19 @@ internal sealed class CrocomireFight
 
     /// <summary>Runs the artificial left-side wall.</summary>
     internal void HandleCrocomireInvisibleWall(
-        RoomEnemyPlace body,
+        RoomEnemyOccupant crocomire,
         CrocomireEnemyState state,
         SamusState samus,
         PseudoScrewCharge pseudoScrew)
     {
+        RoomEnemyPlace body = crocomire.Place;
         if (state.DeathStage.Entry is not CrocomireDeathStage.Fighting)
             return;
         int leftEdge = body.Position.X.Whole - body.Radius.X - samus.Kinematics.Radius.X;
         if (leftEdge >= samus.Position.X.Whole)
             return;
 
-        _collision.ResolveOrdinaryTouch(body, samus, pseudoScrew);
+        _collision.ResolveOrdinaryTouch(crocomire, samus, pseudoScrew);
         samus.Position = samus.Position.WithWholeX(leftEdge);
         samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWhole(CrocomireFightDefinitions.WallPush);
     }
@@ -281,7 +281,7 @@ internal sealed class CrocomireFight
         },
         [CrocomireBodyCueKind.ShakeScreen] = (state, samus, level, body) =>
         {
-            _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Medium, EarthquakeDirection.Vertical, EarthquakeReach.Foreground), CrocomireFightDefinitions.StepShakeDuration);
+            _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Medium, EarthquakeDirection.Vertical, EarthquakeReach.RoomBlocks), CrocomireFightDefinitions.StepShakeDuration);
             _access.RequestCrocomireSound(CrocomireSoundDefinitions.ScreenShake);
             return null;
         },
@@ -464,15 +464,10 @@ internal sealed class CrocomireFight
     /// <summary>Spawns one of Crocomire's fight projectiles, fired along <paramref name="gradient"/>.</summary>
     private void SpawnCrocomireProjectile(RoomEnemyPlace body, int gradient)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.CrocomireProjectile, _combat.MouthShot, graphics: SpriteGraphics.SharedIn(CrocomireColours.ProjectileShading));
         if (projectile is null)
             return;
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            projectile,
-            RoomEnemyProjectileKind.CrocomireProjectile,
-            _combat.MouthShot,
-            graphics: SpriteGraphics.SharedIn(CrocomireColours.ProjectileShading));
         projectile.StartAnimation(new CrocomireProjectileAnimation(_combat.MouthShot, CrocomireProjectileSegment.Mouth));
         projectile.Velocity = CrocomireFightDefinitions.SpitVelocity;
         projectile.Position = projectile.Position.WithWhole(body.Position.Whole + CrocomireFightDefinitions.SpitOffset);

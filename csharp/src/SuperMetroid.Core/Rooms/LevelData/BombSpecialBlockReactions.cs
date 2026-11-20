@@ -12,7 +12,7 @@ public static class BombSpecialBlockReactions
     /// <summary>
     /// What a bomb sets off at each special block's reaction: the crumble reveal, the Speed Booster block's reveal, or the
     /// reaction that does nothing but hold its place for an update. Brinstar's own Speed Booster blocks are revealed as
-    /// Speed Booster blocks; the import resolves the same entries of the other areas' tables to plain solid blocks (#1805),
+    /// Speed Booster blocks; in the other areas those blocks stay plain solid blocks (#1805),
     /// and the run-on's lookalikes take the reveal the run-on names.
     /// </summary>
     private static readonly IdentityTable<SpecialBlockReaction, BlockReactionChange> Changes = new(

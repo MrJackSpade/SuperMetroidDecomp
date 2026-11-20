@@ -16,11 +16,11 @@ internal static class SbugBehaviorPrivateAccess
             PrivateState.InvokeStatic<global::SuperMetroid.Core.Spatial.SignedSixteenSixteen>(typeof(global::SuperMetroid.Core.Enemies.Sbug.SbugBehavior), "CalculateSignedSbugComponent", [typeof(global::SuperMetroid.Core.Spatial.TrigonometryAngle), typeof(int), typeof(global::SuperMetroid.Core.Spatial.TrigonometryAngle)], new object?[] { angle, speed, phase });
 
         /// <summary>The private method <c>ForwardLeg</c>, invoked by name.</summary>
-        internal static global::SuperMetroid.Core.Enemies.Sbug.SbugLeg ForwardLeg(global::SuperMetroid.Core.Enemies.RoomEnemyPlace place) =>
-            PrivateState.InvokeStatic<global::SuperMetroid.Core.Enemies.Sbug.SbugLeg>(typeof(global::SuperMetroid.Core.Enemies.Sbug.SbugBehavior), "ForwardLeg", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace)], new object?[] { place });
+        internal static global::SuperMetroid.Core.Enemies.Sbug.SbugLeg ForwardLeg(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant occupant) =>
+            PrivateState.InvokeStatic<global::SuperMetroid.Core.Enemies.Sbug.SbugLeg>(typeof(global::SuperMetroid.Core.Enemies.Sbug.SbugBehavior), "ForwardLeg", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant)], new object?[] { occupant });
 
         /// <summary>The private method <c>RunSbugMain</c>, invoked by name.</summary>
-        internal static void RunSbugMain(global::SuperMetroid.Core.Enemies.RoomEnemyPlace place, global::SuperMetroid.Core.Samus.SamusState samus) =>
-            PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Enemies.Sbug.SbugBehavior), "RunSbugMain", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Samus.SamusState)], new object?[] { place, samus });
+        internal static void RunSbugMain(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant occupant, global::SuperMetroid.Core.Enemies.RoomEnemyPlace place, global::SuperMetroid.Core.Samus.SamusState samus) =>
+            PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Enemies.Sbug.SbugBehavior), "RunSbugMain", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant), typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Samus.SamusState)], new object?[] { occupant, place, samus });
     }
 }

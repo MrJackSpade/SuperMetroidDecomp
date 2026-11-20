@@ -145,7 +145,7 @@ internal sealed class MotherBrainAttacks
             if (state.BombCounter >= 1)
             {
                 // A bomb attack with a bomb already alive does nothing, leaving the head's animation as it is. The body
-                // still spends the full cooldown in phase one.
+                // still waits out MotherBrainAttackPhase.Cooldown in phase one.
             }
             else
             {
@@ -176,9 +176,7 @@ internal sealed class MotherBrainAttacks
                 return;
             }
 
-            // The laser branch abandons the rest of the attack choice, then installs and
-            // starts the quick laser aim. Running its first step here keeps it in the same
-            // frame rather than introducing an otherwise visible idle frame.
+            // A laser choice ends the attack choice, and the quick laser aim starts on the same update.
             state.Phase2FightPhase = MotherBrainPhase2FightPhase.LaserPositionHeadQuickly;
             PositionMotherBrainHeadQuicklyForLaser(state, samus);
             return;
@@ -288,9 +286,8 @@ internal sealed class MotherBrainAttacks
 
         state.Phase2FightPhase = MotherBrainPhase2FightPhase.BombStandUp;
 
-        // The wait falls directly into the stand-up, so a crouched body starts standing twice on
-        // this frame. Both starts restart the same animation and timer, and the stand-up
-        // follows the wait in the same frame rather than a frame later.
+        // The stand-up runs on the wait's last update, so a crouched body starts standing twice on this update; both
+        // starts restart the same animation and timer.
         StandMotherBrainAfterBomb(state);
     }
 
@@ -380,9 +377,7 @@ internal sealed class MotherBrainAttacks
     }
 
     /// <summary>
-    /// Finishes the laser attack, including its same-frame jump back into thinking. The attack
-    /// phase and cooldown intentionally remain as selected: the laser body state replaces
-    /// the attack sequence, so the chain does not pass through that sequence's end phase.
+    /// Finishes the laser attack: thinking runs on the laser's last update, and the attack steps are left as chosen.
     /// </summary>
     internal void FinishMotherBrainLaserAttack(MotherBrainEnemyState state)
     {

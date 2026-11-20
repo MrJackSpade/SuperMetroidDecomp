@@ -4,8 +4,8 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Frontend.Map;
 
 /// <summary>
-/// Application-owned discovery cells from the station lists, each named for the room its station stands in (#1975):
-/// the name its editable marker position is installed under.
+/// The discovery cells of the map stations, each named for the room its station stands in (#1975): the name its
+/// editable marker position is installed under.
 /// </summary>
 public static class MapStationDiscoveryRules
 {

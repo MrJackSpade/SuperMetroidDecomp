@@ -78,7 +78,12 @@ public sealed class ClipAudioBackend
         SelectMusicTrack: static (selection, pass) =>
         {
             RequireBeforeSteps(pass.Stepped, selection);
-            pass.Backend.State.SongChange.Hold(new SongChange(selection.Track));
+            pass.Backend.State.SongChange.Hold(new SongChange.Play(selection.Track));
+        },
+        StopMusic: static (stop, pass) =>
+        {
+            RequireBeforeSteps(pass.Stepped, stop);
+            pass.Backend.State.SongChange.Hold(new SongChange.Stop());
         },
         ClockStep: static (step, pass) =>
         {
@@ -114,8 +119,8 @@ public sealed class ClipAudioBackend
         /// <summary>Whether a clock step has run this update.</summary>
         internal bool Stepped { get; private set; }
 
-        /// <summary>The sample offset of the clock step run last, or -1 before the first.</summary>
-        internal int LastStep { get; private set; }
+        /// <summary>The sample offset of the update's clock step run last, none before its first.</summary>
+        internal int? LastStep { get; private set; }
 
         /// <summary>Whether the clock step run last checked requests.</summary>
         internal bool LastChecked { get; private set; }
@@ -126,7 +131,7 @@ public sealed class ClipAudioBackend
             FrameStart = frameStart;
             Cursor = 0;
             Stepped = false;
-            LastStep = -1;
+            LastStep = null;
             LastChecked = false;
         }
 
@@ -177,12 +182,15 @@ public sealed class ClipAudioBackend
     /// <summary>Applies the song change waiting for this beat, unless it asks for what already plays.</summary>
     private void OnBeat(long now)
     {
-        if (State.SongChange.Take() is not SongChange change || change.Track == State.PlayingTrack)
+        if (State.SongChange.Take() is not SongChange change)
+            return;
+        // A change to what already plays, the same track or the silence, changes nothing.
+        if (change is SongChange.Play { Track: var asked } ? asked == State.PlayingTrack : State.Song is null)
             return;
         if (State.Song is MusicClipEntry playing)
             State.Beat.Hold(BeatLengthAt(playing, now - State.SongStart));
         ReleaseMusic(now);
-        if (change.Track is not MusicTrack track)
+        if (change is not SongChange.Play { Track: var track })
         {
             State.StopSong();
             return;

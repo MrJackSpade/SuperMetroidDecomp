@@ -51,7 +51,7 @@ internal static class ShutterScrewContactVerification
             var samus = runtime.Player.IntroducedSamus;
             RoomEnemyPlace shutter = runtime.Enemies.Places.InUpdateOrder[ShutterPlace];
             VerticalShutterEnemyState state = (runtime.Enemies.VerticalShutterStates[ShutterPlace] ?? throw new InvalidOperationException("Verification requires runtime.Enemies.VerticalShutterStates[10]."));
-            AssertEqual(ShutterTriggerMode.OneShotReaction, shutter.SpawnSettings<ShutterSpawnSettings>().TriggerMode, "the movie's shutter waits only for a shot");
+            AssertEqual(ShutterTriggerMode.OneShotReaction, shutter.HeldOccupant().SpawnSettings<ShutterSpawnSettings>().TriggerMode, "the movie's shutter waits only for a shot");
 
             samus.HorizontalSpeed.BodyAttack = contactDamage;
             for (int direction = 0; direction < ContactDirections.Length; direction++)
@@ -60,7 +60,7 @@ internal static class ShutterScrewContactVerification
                     contactPlaces[direction] is { } place ? runtime.Enemies.Places.InUpdateOrder[place] : null);
             }
 
-            runtime.Enemies.ShuttersBehavior.RunVerticalShutterMain(shutter, state, samus, Position16<RoomPixels>.Zero);
+            runtime.Enemies.ShuttersBehavior.RunVerticalShutterMain(shutter.HeldOccupant(), shutter, state, samus, Position16<RoomPixels>.Zero);
             string context = $"{contacts}, contact damage {contactDamage}";
             AssertEqual(reacts, state.Action is VerticalShutterAction.MovingUp or VerticalShutterAction.MovingDown,
                 $"{context}: the idle shutter starts moving");

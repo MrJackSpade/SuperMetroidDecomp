@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Ripper;
 
 /// <summary>
-/// The grapple Ripper, jet Ripper and Ripper flying loops (#641): one segment per animation a spawn, branch or wake enters, in authored order.
+/// The grapple Ripper, jet Ripper and Ripper flying loops (#641).
 /// Their steps are <see cref="RipperAnimations"/>.
 /// </summary>
 internal enum RipperSegment

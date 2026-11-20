@@ -3,8 +3,8 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Bosses.Draygon.Artwork;
 
 /// <summary>
-/// The installed pictures of Draygon's wall cannons' twelve frames (#1557), by frame. The cannons' geometry, collision,
-/// hit counts and control writes stay with their typed objects and draws.
+/// The installed pictures of Draygon's wall cannons' twelve frames (#1557), by frame. The cannons' shapes, collision
+/// and hit counts stay with their typed objects and draws.
 /// </summary>
 public sealed class InstalledDraygonCannonFrames : IRoomObjectFamilyPictures
 {

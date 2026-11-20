@@ -67,7 +67,7 @@ internal sealed class TestAddressSpace : ISnesMemoryBus,
 
     /// <summary>Imports a ROM-shaped enemy header from the fixture's seeded bytes.</summary>
     public RoomEnemyDefinition ReadEnemyDefinition(EnemyDefinitionId pointer) =>
-        SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.LoadAt(this, FixtureHeaderPointer(pointer));
+        SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.LoadAt(this, FixtureHeaderPointer(pointer), pointer);
 
     /// <summary>
     /// The bank-$A0 header pointer a fixture seeds <paramref name="definition"/>'s header at: a member's retail pointer, as
@@ -120,9 +120,11 @@ internal sealed class TestAddressSpace : ISnesMemoryBus,
         for (int slot = 0; slot <= EnemyPlaceOrder.Capacity; slot++)
         {
             ushort definitionPointerWord = ReadFixtureWord(cursor);
+            // The room load reads the quota after a terminator only when entries precede it (#2584).
             if (definitionPointerWord == 0xffff)
-                return new RoomEnemyPopulationDefinition(
-                    $"fixture population ${pointer:X4}", records.ToArray(), ReadByte(cursor + 2));
+                return records.Count == 0
+                    ? new EmptyRoomEnemyPopulationDefinition($"fixture population ${pointer:X4}")
+                    : new PlacedRoomEnemyPopulationDefinition($"fixture population ${pointer:X4}", records.ToArray(), ReadByte(cursor + 2));
             EnemyDefinitionId definitionPointer = FixturePlacedActor(definitionPointerWord, ReadFixtureWord(cursor + 12));
             if (slot == EnemyPlaceOrder.Capacity)
                 throw new InvalidDataException($"Fixture population ${pointer:X4} exceeds 32 entries.");

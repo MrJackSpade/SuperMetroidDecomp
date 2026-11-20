@@ -20,7 +20,7 @@ public sealed class InstalledGrappleSprites
     }
     /// <summary>Resolves one rope animation frame's selected appearance without advancing any segment's independent gameplay timer.</summary>
     /// <param name="frame">Zero-based frame 0..3 in native $94:B18B..B19A record order.</param>
-    /// <returns>The character, palette, priority and authored mirroring; drawing additionally mirrors it by the rope's angle.</returns>
+    /// <returns>The character, palette, depth and authored mirroring; drawing additionally mirrors it by the rope's angle.</returns>
     /// <exception cref="InvalidDataException"><paramref name="frame"/> is outside the four segment appearances.</exception>
     public SpritePart Segment(int frame)
         => (uint)frame < GrappleSpriteDefinitions.SegmentFrameCount
@@ -57,13 +57,13 @@ public sealed class InstalledGrappleSprites
         return new(Compile(document.Endpoint), document.Segments.Select(Compile).ToArray());
     }
 
-    /// <summary>Validates an authored tile, palette, priority, and flip style into a single-piece appearance.</summary>
+    /// <summary>Validates an authored tile, palette, depth, and flip style into a single-piece appearance.</summary>
     private static SpritePart Compile(GrappleSpriteStyle? style)
     {
         if (style is null || style.TileColumn is < 0 or >= ProjectileSpriteDefinitions.TileColumns || style.TileRow is < 0 or >= ProjectileSpriteDefinitions.TileRows ||
-            style.Palette is < 0 or > 7 || style.Priority is < 0 or > 3)
-            throw new InvalidDataException("Invalid Grapple tile, palette or priority.");
-        return SpritePart.Single(style.TileRow * ProjectileSpriteDefinitions.TileColumns + style.TileColumn, style.Palette, style.Priority,
+            style.Palette is < 0 or > 7)
+            throw new InvalidDataException("Invalid Grapple tile or palette.");
+        return SpritePart.Single(style.TileRow * ProjectileSpriteDefinitions.TileColumns + style.TileColumn, style.Palette, style.Depth,
             (style.FlipX ? PictureFlip.Horizontal : 0) | (style.FlipY ? PictureFlip.Vertical : 0));
     }
 

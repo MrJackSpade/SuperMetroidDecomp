@@ -1804,7 +1804,7 @@ internal static class LookupStream3Verification
                 {
                     OffsetX = x.SignedOffset, OffsetY = unchecked((sbyte)rom.ReadCartridgeByte(entry + 2)), Size = x.IsLarge ? 16 : 8,
                     TileColumn = attributes.TileNumber % 16, TileRow = attributes.TileNumber / 16,
-                    Palette = attributes.PaletteIndex, Priority = attributes.Priority,
+                    Palette = attributes.PaletteIndex, Depth = attributes.Depth,
                     FlipX = attributes.FlipHorizontally, FlipY = attributes.FlipVertically,
                 };
             }).ToArray();

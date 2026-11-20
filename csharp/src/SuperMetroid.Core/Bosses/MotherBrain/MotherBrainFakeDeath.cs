@@ -53,7 +53,7 @@ internal sealed class MotherBrainFakeDeath
     {
         if (state.FakeDeathGreying.Step() is { } image)
         {
-            // The fake-death fade greys her brain's three colours only; the room's other colours stay as they are.
+            // The fake-death fade greys only her brain; the room stays as it is.
             state.Colours.ShowFakeDeathToGrey(image);
         }
         else if (state.FakeDeathGreying.IsOver)
@@ -145,12 +145,10 @@ internal sealed class MotherBrainFakeDeath
         MotherBrainTopTubeSegment tube,
         Position16<RoomPixels> position)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(kind, _projectileAttacks.Projectile, graphics: SpriteGraphics.SharedIn(MotherBrainColours.GlassAndTubes));
         if (projectile is null)
             return;
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, _projectileAttacks.Projectile,
-            graphics: SpriteGraphics.SharedIn(MotherBrainColours.GlassAndTubes));
         projectile.StartAnimation(new MotherBrainTopTubeAnimation(tube));
         projectile.Position = projectile.Position.WithWhole(position);
         projectile.Velocity = PixelVelocity<RoomPixels>.Zero;
@@ -169,9 +167,9 @@ internal sealed class MotherBrainFakeDeath
     }
 
     /// <summary>Initializes a falling tube.</summary>
-    internal static void InitializeMotherBrainFallingTube(RoomEnemyPlace tube)
+    internal static void InitializeMotherBrainFallingTube(RoomEnemyOccupant occupant, RoomEnemyPlace tube)
     {
-        MotherBrainTubeSpawnSettings settings = tube.Spawn.Population.SpawnSettingsOf<MotherBrainTubeSpawnSettings>();
+        MotherBrainTubeSpawnSettings settings = occupant.SpawnSettings<MotherBrainTubeSpawnSettings>();
         MotherBrainTubePiece piece = settings.Piece;
         MotherBrainFallingTubeDefinition tubeBody = MotherBrainFallingTubeBody(piece);
         tube.Radius = tubeBody.Radius;
@@ -233,8 +231,7 @@ internal sealed class MotherBrainFakeDeath
     {
         AccelerateMotherBrainTube(tube);
 
-        // Hiding the tube and moving the brain are independent branches.
-        // The brain follows the tube throughout its descent, including before hiding.
+        // Her brain follows the tube all the way down, even before the tube hides.
         if (tube.Position.Y.Whole >= MotherBrainTubeCollapseDefinitions.MainTubeHiddenFromY)
             tube.Presence = tube.Presence.With(EnemyPresence.Hidden);
         // The tube holds the encounter that spawned it (#2218).
@@ -309,7 +306,7 @@ internal sealed class MotherBrainFakeDeath
     {
         if (state.FromFakeDeathGrey.Step() is { } image)
         {
-            // The restoration from grey recolours only three of the brain's colours.
+            // Only her brain's colours return from grey.
             state.Colours.ShowFakeDeathFromGrey(image);
             return;
         }

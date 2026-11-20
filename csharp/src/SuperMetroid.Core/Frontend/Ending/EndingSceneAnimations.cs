@@ -15,7 +15,7 @@ internal static class EndingSceneAnimations
 {
     /// <summary>The ending scenes' picture actors' animations.</summary>
     internal static CinematicAnimations<EndingSceneAnimation, CinematicSpritePose, EndingSceneCue> Pictures { get; } = new(
-        new Dictionary<EndingSceneAnimation, AnimationBeat<CinematicSpritePose, EndingSceneCue>[]>
+        new Dictionary<EndingSceneAnimation, IHidingAnimationBeat<CinematicSpritePose, EndingSceneCue>[]>
         {
             [A.TopCloudPattern] = [B.Hold(S.TopCloudPattern)],
             [A.TopCloudEdge] = [B.Hold(S.TopCloudEdge)],
@@ -47,7 +47,7 @@ internal static class EndingSceneAnimations
                 B.Show(S.PlanetGlowSpreadingHalo, 16),
             ],
             [A.ExplosionStars] = [B.Hold(S.EndingStarfield)],
-            [A.ExplosionLavaHidden] = [B.Show(S.Blank, 156)],
+            [A.ExplosionLavaHidden] = [B.Hide(156)],
             [A.ExplosionLava] =
             [
                 B.Show(S.PlanetLavaDark, 10),

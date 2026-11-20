@@ -107,10 +107,11 @@ void XrayInsert(uint2 candidate, int candidateRank, uint candidateSource,
     winner = candidate.x; rank = candidateRank; source = candidateSource;
 }
 
-// The rank of the actors' layer at depth `depth` (SpriteLayer.hlsli's Depth constants).
+// The rank of the actors' layer at depth `depth` (SpriteLayer.hlsli's Depth constants): both depths behind the room are
+// the actors behind it, which only a turning floor tells apart (#2583).
 int ActorRank(uint depth)
 {
-    return depth == DepthBehindRoom ? RankActorsBehindRoom
+    return depth == DepthBehindRoom || depth == DepthBehindRoomInFrontOfFloor ? RankActorsBehindRoom
         : depth == DepthBehindFrontParts ? RankActorsBehindFrontParts : RankActorsInFront;
 }
 

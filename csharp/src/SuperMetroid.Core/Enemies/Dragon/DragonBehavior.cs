@@ -12,12 +12,13 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Dragon], Create);
 
     /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
-    /// <param name="place">The place, holding the new identity and the entry it is spawned from.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
+    /// <param name="place">The place, already holding the occupant.</param>
     /// <param name="common">The shared participation the entity composes.</param>
-    private EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) =>
-        Ensure.NotNull(place).SpawnSettings<DragonSpawnSettings>().Part == DragonPart.Wing
-            ? EnemyOccupant.WithoutMainAi(new DragonWingEntity(this, place, common))
-            : EnemyOccupant.Of(new DragonEntity(this, place, common));
+    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        occupant.SpawnSettings<DragonSpawnSettings>().Part == DragonPart.Wing
+            ? EnemyOccupant.WithoutMainAi(new DragonWingEntity(this, occupant, place, common))
+            : EnemyOccupant.Of(new DragonEntity(this, occupant, place, common));
 
     /// <summary>Allocates Dragon's fireball volleys from the room projectile pool.</summary>
     private readonly EnemyProjectileEngine _projectiles;
@@ -93,21 +94,21 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         _followUpRecipients.Place(place, FollowUpAfterStruckPart.Recipients(distance => _places.ListedAfter(place, distance), DragonPartListingDefinitions.FollowUpReach)[0]);
 
     /// <summary>What <c>RunDragonMain</c> does for each <see cref="DragonAction"/> member, each member's own arm.</summary>
-    private IdentityTable<DragonAction, Action<RoomEnemyPlace, DragonEnemyState, SamusState>> RunDragonMainForDragonAction => field ??= new(new Dictionary<DragonAction, Action<RoomEnemyPlace, DragonEnemyState, SamusState>>
+    private IdentityTable<DragonAction, Action<RoomEnemyOccupant, RoomEnemyPlace, DragonEnemyState, SamusState>> RunDragonMainForDragonAction => field ??= new(new Dictionary<DragonAction, Action<RoomEnemyOccupant, RoomEnemyPlace, DragonEnemyState, SamusState>>
     {
-        [DragonAction.WaitToRise] = (place, state, samus) => RunDragonWaitToRise(place, state, samus),
-        [DragonAction.Rising] = (place, state, samus) => RunDragonRising(place, state),
-        [DragonAction.Attacking] = (place, state, samus) => RunDragonAttacking(place, state),
-        [DragonAction.AttackFinished] = (place, state, samus) => RunDragonAttacking(place, state),
-        [DragonAction.RestartingAttack] = (place, state, samus) => RunDragonAttacking(place, state),
-        [DragonAction.WaitToSink] = (place, state, samus) => RunDragonWaitToSink(place, state),
-        [DragonAction.Sinking] = (place, state, samus) => RunDragonSinking(place, state),
+        [DragonAction.WaitToRise] = (_, place, state, samus) => RunDragonWaitToRise(place, state, samus),
+        [DragonAction.Rising] = (_, place, state, samus) => RunDragonRising(place, state),
+        [DragonAction.Attacking] = (occupant, place, state, samus) => RunDragonAttacking(occupant, place, state),
+        [DragonAction.AttackFinished] = (occupant, place, state, samus) => RunDragonAttacking(occupant, place, state),
+        [DragonAction.RestartingAttack] = (occupant, place, state, samus) => RunDragonAttacking(occupant, place, state),
+        [DragonAction.WaitToSink] = (_, place, state, samus) => RunDragonWaitToSink(place, state),
+        [DragonAction.Sinking] = (_, place, state, samus) => RunDragonSinking(place, state),
     });
 
     /// <summary>Runs the Dragon body's actions; the body moves its cosmetic wing with it.</summary>
-    internal void RunDragonMain(RoomEnemyPlace place, DragonEnemyState state, SamusState samus)
+    internal void RunDragonMain(RoomEnemyOccupant occupant, RoomEnemyPlace place, DragonEnemyState state, SamusState samus)
     {
-        RunDragonMainForDragonAction[state.Action](place, state, samus);
+        RunDragonMainForDragonAction[state.Action](occupant, place, state, samus);
     }
 
     /// <summary>Waits for Samus before rising.</summary>
@@ -148,17 +149,17 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>What <c>RunDragonAttacking</c> does for each <see cref="DragonAction"/> member, each member's own arm.</summary>
-    private IdentityTable<DragonAction, Action<RoomEnemyPlace, DragonEnemyState, Animation<DragonSegment>>> RunDragonAttackingForDragonAction => field ??= new(new Dictionary<DragonAction, Action<RoomEnemyPlace, DragonEnemyState, Animation<DragonSegment>>>
+    private IdentityTable<DragonAction, Action<RoomEnemyOccupant, RoomEnemyPlace, DragonEnemyState, Animation<DragonSegment>>> RunDragonAttackingForDragonAction => field ??= new(new Dictionary<DragonAction, Action<RoomEnemyOccupant, RoomEnemyPlace, DragonEnemyState, Animation<DragonSegment>>>
     {
-        [DragonAction.Attacking] = (body, bodyState, attack) => bodyState.Playback = EnemyAnimationPlayback.StartUnlessPlaying(body, bodyState.Playback, attack),
-        [DragonAction.RestartingAttack] = (body, bodyState, attack) =>
+        [DragonAction.Attacking] = (_, body, bodyState, attack) => bodyState.Playback = EnemyAnimationPlayback.StartUnlessPlaying(body, bodyState.Playback, attack),
+        [DragonAction.RestartingAttack] = (_, body, bodyState, attack) =>
         {
             bodyState.Playback = EnemyAnimationPlayback.Start(body, attack);
             bodyState.Action = DragonAction.Attacking;
         },
-        [DragonAction.AttackFinished] = (body, bodyState, attack) =>
+        [DragonAction.AttackFinished] = (occupant, body, bodyState, attack) =>
         {
-            SpawnDragonFireball(body, bodyState);
+            SpawnDragonFireball(occupant, body, bodyState);
             // Each fireball queues one sound; two Dragons attacking in one frame queue two.
             _audio.QueueEnemySound(EnemySoundEffectDefinitions.DragonFireballSound, priority: SoundRequestPriority.Normal);
             if (--bodyState.AttackCounter != 0)
@@ -170,10 +171,10 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
             bodyState.ActionTimer = UpdateCountdown.For(DragonTimingDefinitions.WaitBeforeSink);
             bodyState.Action = DragonAction.WaitToSink;
         },
-        [DragonAction.WaitToRise] = (body, bodyState, attack) => RunDragonAttackingForDragonActionWaitToRise(body, bodyState, attack),
-        [DragonAction.Rising] = (body, bodyState, attack) => RunDragonAttackingForDragonActionWaitToRise(body, bodyState, attack),
-        [DragonAction.WaitToSink] = (body, bodyState, attack) => RunDragonAttackingForDragonActionWaitToRise(body, bodyState, attack),
-        [DragonAction.Sinking] = (body, bodyState, attack) => RunDragonAttackingForDragonActionWaitToRise(body, bodyState, attack),
+        [DragonAction.WaitToRise] = (_, body, bodyState, attack) => RunDragonAttackingForDragonActionWaitToRise(body, bodyState, attack),
+        [DragonAction.Rising] = (_, body, bodyState, attack) => RunDragonAttackingForDragonActionWaitToRise(body, bodyState, attack),
+        [DragonAction.WaitToSink] = (_, body, bodyState, attack) => RunDragonAttackingForDragonActionWaitToRise(body, bodyState, attack),
+        [DragonAction.Sinking] = (_, body, bodyState, attack) => RunDragonAttackingForDragonActionWaitToRise(body, bodyState, attack),
     });
 
     /// <summary>What <see cref="RunDragonAttackingForDragonAction"/> does for <see cref="DragonAction.WaitToRise"/>, <see cref="DragonAction.Rising"/>, <see cref="DragonAction.WaitToSink"/>, <see cref="DragonAction.Sinking"/>.</summary>
@@ -187,11 +188,11 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// while the attack rests on its last pose, and the update after that starts the attack over (#2145, #2476).
     /// </summary>
     /// <exception cref="InvalidOperationException">The body is in none of the attack's phases.</exception>
-    private void RunDragonAttacking(RoomEnemyPlace body, DragonEnemyState bodyState)
+    private void RunDragonAttacking(RoomEnemyOccupant occupant, RoomEnemyPlace body, DragonEnemyState bodyState)
     {
         // The attack faces the way the body turned before rising.
         Animation<DragonSegment> attack = DragonAnimations.StartingWith(DragonPhases.Attacking(bodyState.Facing));
-        RunDragonAttackingForDragonAction[bodyState.Action](body, bodyState, attack);
+        RunDragonAttackingForDragonAction[bodyState.Action](occupant, body, bodyState, attack);
     }
 
     /// <summary>Waits before sinking, the attack resting on its last pose; the sink starts the idle pose.</summary>
@@ -299,17 +300,12 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Spawns and initializes a Dragon fireball.</summary>
-    private void SpawnDragonFireball(RoomEnemyPlace body, DragonEnemyState bodyState)
+    private void SpawnDragonFireball(RoomEnemyOccupant occupant, RoomEnemyPlace body, DragonEnemyState bodyState)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.DragonFireball, Fireball, SpriteGraphics.SpawnedBy(occupant, body.Shading));
         if (projectile is null)
             return;
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            projectile,
-            RoomEnemyProjectileKind.DragonFireball,
-            Fireball,
-            SpriteGraphics.SpawnedBy(body));
         Offset16<RoomPixels> muzzle = DragonFireballDefinitions.MuzzleFacingRight;
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(body.Position.Whole + (bodyState.Facing == HorizontalDirection.Left ? muzzle.MirroredX() : muzzle));
         projectile.Velocity = projectile.Velocity.WithY(DragonFireballDefinitions.LaunchRise);

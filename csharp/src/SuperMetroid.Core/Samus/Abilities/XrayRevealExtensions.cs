@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Samus.Abilities;
 
-/// <summary>The X-ray scope's extension traversal; deliberately not the collision extension resolver.</summary>
+/// <summary>How the X-ray scope follows a block's extensions, apart from how collision follows them.</summary>
 public static class XrayRevealExtensions
 {
     /// <summary>

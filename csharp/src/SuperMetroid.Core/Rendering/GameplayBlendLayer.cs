@@ -1,9 +1,8 @@
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>
-/// Gameplay with a blend outside a window (#1514): the frontmost thing at each pixel outside the window blends as
-/// <see cref="Blend"/> says, with the layers <see cref="OverlayBehind"/> and <see cref="BackgroundBehind"/> place behind it
-/// or with the blend's colour. The X-ray scope's cone shows the room unblended inside it and blends the room outside it;
+/// Gameplay with a blend outside a window (#1514): outside the window the room shows the effect <see cref="Blend"/>
+/// describes, with the layers <see cref="OverlayBehind"/> and <see cref="BackgroundBehind"/> place behind it. The X-ray scope's cone shows the room unblended inside it and blends the room outside it;
 /// Phantoon's translucent body, Fireflea's darkness, the waterfall rooms and the spores blend everywhere, a closed window.
 /// The paint belongs to the containing scene, and this layer also draws the unchanged HUD.
 /// </summary>
@@ -15,7 +14,7 @@ public sealed record GameplayBlendLayer : DisplayLayer
     public ScreenWindow Window { get; }
     /// <summary>Whether the X-ray reveal's blocks replace the room's blocks they reveal.</summary>
     public bool RevealBlocks { get; }
-    /// <summary>What blends, how, and with what colour.</summary>
+    /// <summary>The effect the blend shows.</summary>
     public GameplayBlend Blend { get; }
     /// <summary>
     /// The room's effect overlay lying behind what blends, which the blend combines with, or null for none: the waterfall
@@ -32,7 +31,7 @@ public sealed record GameplayBlendLayer : DisplayLayer
     /// <param name="gameplay">The gameplay layers and actors.</param>
     /// <param name="window">The window inside which the room shows unblended; <see cref="ScreenWindow.Closed"/> blends everywhere.</param>
     /// <param name="revealBlocks">Whether to show the X-ray reveal's blocks in place of the room's.</param>
-    /// <param name="blend">What blends, how, and with what colour.</param>
+    /// <param name="blend">The effect the blend shows.</param>
     /// <param name="overlayBehind">The effect overlay lying behind what blends, or null for none.</param>
     /// <param name="backgroundBehind">Whether the room's background lies behind what blends.</param>
     [IndependentFlag("independent facts of the frame: the X-ray block reveal, and the background lying behind the blend")]

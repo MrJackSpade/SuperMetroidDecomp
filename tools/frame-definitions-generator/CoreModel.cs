@@ -84,6 +84,7 @@ internal sealed class CoreModel
         WeightedRandomChoice = SingleType("WeightedRandomChoice", arity: 1);
         SpawnedObjectOwner = SingleType("SpawnedObjectOwner");
         RoomEnemyPlace = SingleType("RoomEnemyPlace");
+        RoomEnemyOccupant = SingleType("RoomEnemyOccupant");
         AnimationSegmentPlay = SingleType("AnimationSegmentPlay", arity: 5);
         _entity = SingleType("IEnemyEntity");
         INamedTypeSymbol factory = SingleType("IEnemyEntityFactory");
@@ -162,6 +163,9 @@ internal sealed class CoreModel
 
     /// <summary>An enemy place (#1961).</summary>
     public INamedTypeSymbol RoomEnemyPlace { get; }
+
+    /// <summary>The enemy holding a place, which carries its definition (#2558).</summary>
+    public INamedTypeSymbol RoomEnemyOccupant { get; }
 
     /// <summary>
     /// The play of the segments a family's typed animations declare, each segment's beats showing frames and raising cues: the

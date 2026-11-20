@@ -35,47 +35,48 @@ internal sealed class ProjectileTrails
     /// Leaves a trail behind <paramref name="projectile"/>: selects both sparkles' animations from the shot's beams and
     /// places them from the placement its trail list gives the frame it shows.
     /// </summary>
-    internal void SpawnTrail(SamusProjectile projectile)
+    internal void SpawnTrail(SamusProjectileOccupant held)
     {
-        if (!LeavesTrail[projectile.Type.Family])
+        SamusProjectile projectile = held.Projectile;
+        if (!LeavesTrail[held.Type.Family])
             return;
 
         // Beams select by their beams and charge, so charged plain power selects the charged trail, not ordinary power's.
-        ProjectileTrailAnimations animations = ProjectileTrailSelection.Select(projectile.Type);
+        ProjectileTrailAnimations animations = ProjectileTrailSelection.Select(held.Type);
 
         // The only echo that leaves a trail is the Spazer special attack's trailing pair, whose trail starts from its own
         // lists (#2348); every other trail starts from its beams' family's lists, by charge.
-        ProjectileTrailPlacementList? list = projectile.Type.Echo == SamusBeamEcho.SpazerComboTrail
+        ProjectileTrailPlacementList? list = held.Type.Echo == SamusBeamEcho.SpazerComboTrail
             ? ProjectileTrailPlacements.SpazerAttackTrailingPairList(projectile.Direction)
             : ProjectileTrailPlacements.List(
-                projectile.Type.IsChargedBeam ? ProjectileTrailFamilyGroup.Charged : ProjectileTrailFamilyGroup.Uncharged,
-                projectile.Type.BeamCombination, projectile.Direction);
+                held.Type.IsChargedBeam ? ProjectileTrailFamilyGroup.Charged : ProjectileTrailFamilyGroup.Uncharged,
+                held.Type.BeamCombination, projectile.Direction);
 
         // A shot whose beams name no trail family leaves no trail, and neither does a shot whose animation has shown
-        // no frame yet or whose frame its list places no trail for: those placements are not part of the game's design
-        // (owner decision on #1318, #1625).
+        // no frame yet or whose frame its list places no trail for (#1318, #1625).
         if (list is not { } placements ||
             GetTrailFrame(projectile) is not { } frame ||
             ProjectileTrailPlacements.Start(placements, frame) is not { } placement)
             return;
 
         var trail = new SamusProjectileTrail(projectile.PicturedBeams, projectile.Position.Whole);
-        StartSide(trail.Left, animations.Left, placement.Left);
-        StartSide(trail.Right, animations.Right, placement.Right);
+        // Each side stands where the trail list places it and runs the animation its selection names; a side where the shot
+        // leaves no sparkle runs the one that ends without a sparkle (#2558).
+        trail.Left.Offset = placement.Left;
+        trail.Right.Offset = placement.Right;
+        StartSide(trail.Left, animations.Left);
+        StartSide(trail.Right, animations.Right);
         Add(trail);
     }
 
     /// <summary>
-    /// Starts <paramref name="side"/> on <paramref name="segment"/>, which it begins at its next update, placed
-    /// <paramref name="placement"/> from the shot; each trail frame's picture is placed about the sparkle by its own
-    /// anchor (#2573). The sparkle keeps its offset from the shot's place rather than a room position of its own, so a
-    /// sparkle beside a shot past the room's top or left edge simply lies beyond it.
+    /// Starts <paramref name="side"/> on <paramref name="segment"/>, which it begins at its next update where the trail
+    /// list placed it from the shot; each trail frame's picture is placed about the sparkle by its own anchor (#2573). The
+    /// sparkle keeps its offset from the shot's place rather than a room position of its own, so a sparkle beside a shot
+    /// past the room's top or left edge simply lies beyond it.
     /// </summary>
-    private static void StartSide(SamusProjectileTrailSide side, ProjectileTrailSegment segment, Offset16<RoomPixels> placement)
-    {
+    private static void StartSide(SamusProjectileTrailSide side, ProjectileTrailSegment segment) =>
         side.Animation = ProjectileTrailSparkleAnimations.Start(segment);
-        side.Offset = placement;
-    }
 
     /// <summary>
     /// The frame a trail starts from <paramref name="projectile"/> at: the frame its animation last showed, or null before

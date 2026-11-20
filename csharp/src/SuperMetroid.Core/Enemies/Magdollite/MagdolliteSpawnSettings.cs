@@ -8,7 +8,8 @@ internal abstract record MagdolliteSpawnSettings : EnemySpawnSettings
 {
     /// <summary>The occupant of <paramref name="place"/> the part these settings place makes, for <paramref name="species"/>.</summary>
     /// <param name="species">The species the part belongs to.</param>
+    /// <param name="occupant">The occupant the part is created for, which carries its identity.</param>
     /// <param name="place">The place the part occupies.</param>
     /// <param name="common">The participation every enemy shares.</param>
-    internal abstract EnemyOccupant Create(MagdolliteBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common);
+    internal abstract EnemyOccupant Create(MagdolliteBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common);
 }

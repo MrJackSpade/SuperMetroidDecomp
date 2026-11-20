@@ -35,7 +35,7 @@ internal sealed class TorizoCombat
         // The reaction returns during the hurt flash, and rejects the bomb while the animation is locked.
         if (torizo.HurtFlash.IsRunning || state.AnimationLocked)
             return;
-        DamageByNormalBomb(torizo, state, c.Bomb);
+        DamageByNormalBomb(c.Occupant, state, c.PlacedBomb);
     }
 
     /// <summary>
@@ -51,7 +51,7 @@ internal sealed class TorizoCombat
         {
             if (torizo.HurtFlash.IsRunning || state.AnimationLocked)
                 return;
-            DamageByNormalBomb(torizo, state, c.Bomb);
+            DamageByNormalBomb(c.Occupant, state, c.PlacedBomb);
             return;
         }
         if (torizo.HurtFlash.IsRunning)
@@ -60,15 +60,15 @@ internal sealed class TorizoCombat
         // caught a Super Missile; while his animation is locked it does the common damage alone.
         if (!state.AnimationLocked)
             state.Stunned = true;
-        DamageByNormalBomb(torizo, state, c.Bomb);
+        DamageByNormalBomb(c.Occupant, state, c.PlacedBomb);
     }
 
     /// <summary>Applies a normal bomb's common no-death damage to the Torizo, starting its death once its health is gone.</summary>
-    private void DamageByNormalBomb(RoomEnemyPlace torizo, TorizoEnemyState state, SamusBomb bomb)
+    private void DamageByNormalBomb(RoomEnemyOccupant torizo, TorizoEnemyState state, SamusBombOccupant bomb)
     {
         _collision.ApplyNormalBombDamage(torizo, bomb);
-        if (torizo.Health == 0)
-            BeginTorizoDeath(torizo, state);
+        if (torizo.Place.Health == 0)
+            BeginTorizoDeath(torizo.Place, state);
     }
 
     /// <summary>Shows Golden Torizo's body and belly in the colours of the health band <paramref name="health"/> is in.</summary>
@@ -76,20 +76,20 @@ internal sealed class TorizoCombat
         TorizoBody.ShowLook(torizo, state, TorizoLook.GoldenHealth(GoldenTorizoHealthBand.Of(Ensure.AtLeastZero(health))));
 
     /// <summary>Runs Bomb Torizo's hurt behaviour (#2240): the low-health drool, then white or its own colours on alternating flash updates.</summary>
-    internal void ApplyBombTorizoHurt(RoomEnemyPlace torizo) =>
-        ApplyHurt(torizo, unflashed: state => TorizoBody.ShowLook(torizo, state, new TorizoLook(TorizoLookKind.Normal)));
+    internal void ApplyBombTorizoHurt(RoomEnemyOccupant occupant, RoomEnemyPlace torizo) =>
+        ApplyHurt(occupant, torizo, unflashed: state => TorizoBody.ShowLook(torizo, state, new TorizoLook(TorizoLookKind.Normal)));
 
     /// <summary>Runs Golden Torizo's hurt behaviour (#2240): the low-health drool, then white or its health's colours on alternating flash updates.</summary>
-    internal void ApplyGoldenTorizoHurt(RoomEnemyPlace torizo) =>
-        ApplyHurt(torizo, unflashed: state => ShowGoldenTorizoHealthShade(torizo, state, torizo.Health));
+    internal void ApplyGoldenTorizoHurt(RoomEnemyOccupant occupant, RoomEnemyPlace torizo) =>
+        ApplyHurt(occupant, torizo, unflashed: state => ShowGoldenTorizoHealthShade(torizo, state, torizo.Health));
 
     /// <summary>
     /// Runs a Torizo's hurt behaviour: the low-health drool, then on the flash's white updates white, and on the others the
     /// colours <paramref name="unflashed"/> shows.
     /// </summary>
-    private void ApplyHurt(RoomEnemyPlace torizo, Action<TorizoEnemyState> unflashed)
+    private void ApplyHurt(RoomEnemyOccupant occupant, RoomEnemyPlace torizo, Action<TorizoEnemyState> unflashed)
     {
-        _body.MaybeSpawnLowHealthDrool(torizo);
+        _body.MaybeSpawnLowHealthDrool(occupant, torizo);
         TorizoEnemyState state = torizo.RequireSpeciesState<TorizoEnemyState>();
         if (!TorizoCadenceDefinitions.HurtWhiteShown.IsSetIn(torizo.HurtFlash.UpdatesLeft))
             unflashed(state);
@@ -159,7 +159,7 @@ internal sealed class TorizoCombat
         TorizoEnemyState torizoState = enemy.RequireSpeciesState<TorizoEnemyState>();
         if (c.HitboxShot == TorizoReactions.StandUpSitDownShot || enemy.HurtFlash.IsRunning || torizoState.AnimationLocked)
         {
-            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
+            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
             return true;
         }
         return false;
@@ -178,13 +178,13 @@ internal sealed class TorizoCombat
         // counterattack is not armed through these transitional body rectangles.
         if (c.HitboxShot == TorizoReactions.StandUpSitDownShot && (enemy.HurtFlash.IsRunning || torizoState.AnimationLocked))
         {
-            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
+            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
             return true;
         }
         // The reaction returns during a damage flash; a locked animation instead routes through common damage below.
         if (enemy.HurtFlash.IsRunning)
         {
-            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
+            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
             return true;
         }
 
@@ -197,7 +197,7 @@ internal sealed class TorizoCombat
         {
             if (c.Family == SamusProjectileFamily.Missile)
             {
-                c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
+                c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
                 c.Projectile.FlyOn();
                 torizoState.Phase = TorizoPhase.Idle;
                 TorizoBody.StartTorizoBodyAnimation(enemy, torizoState, TorizoAnimations.Start(TorizoFacing.FacesRight(enemy)
@@ -210,7 +210,7 @@ internal sealed class TorizoCombat
             {
                 if (TorizoFacing.FacesSamus(enemy, c.Samus))
                 {
-                    c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
+                    c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
                     torizoState.CaughtSuperMissile = true;
                     torizoState.Phase = TorizoPhase.Idle;
                     c.Projectile.Spend();
@@ -235,10 +235,8 @@ internal sealed class TorizoCombat
     }
 
     /// <summary>The reaction of the first hitbox the probe overlaps on a Torizo's frame, which his own entity asks for (#2301).</summary>
-    internal static bool FindTorizoHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
+    internal static EnemyHitboxContact FindTorizoHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe)
     {
-        reaction = null;
-
         // The body's rectangles lie about Torizo's position; the probe meets their edges as every room position is
         // compared, by DistanceAcrossRoomEdge.LiesBefore, also an edge reaching past either end of the room.
         Position16<RoomPixels> origin = enemy.Position.Whole;
@@ -248,9 +246,8 @@ internal sealed class TorizoCombat
             EnemyCollisionHitbox hitbox = rectangles[index];
             if (!probe.Overlaps(origin.X + hitbox.Left, origin.Y + hitbox.Top, origin.X + hitbox.Right, origin.Y + hitbox.Bottom))
                 continue;
-            reaction = probe.SelectsShot ? hitbox.Shot : hitbox.Touch;
-            return true;
+            return EnemyHitboxContact.Struck(probe.SelectsShot ? hitbox.Shot : hitbox.Touch);
         }
-        return false;
+        return EnemyHitboxContact.Missed;
     }
 }

@@ -426,8 +426,7 @@ internal static class SamusPosturePoseTransitions
     /// </summary>
     public static void ApplyMorphBallLanding(SamusState samus)
     {
-        // The speed is compared by whether its difference from the minimum is negative, so
-        // Moonfall's negative velocity lands without a rebound.
+        // A rising ball, as in Moonfall, lands without a rebound.
         if (samus.MorphBallBounceState == SamusBallBounceState.None &&
             SamusSpeedMagnitude.IsAtLeast(samus.Kinematics.VerticalVelocity.Speed.Whole, SamusMovementDefinitions.FirstBallBounceMinimumSpeed))
         {

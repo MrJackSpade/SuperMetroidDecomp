@@ -218,8 +218,8 @@ internal static class SpacePirateCollisionDefinitionsVerification
                 !walkingFramePointers.Contains(pointer);
             place.Bind(ninjaFramePointers.Contains(pointer)
                 ? EnemyDefinitionId.PirateSilverNinja
-                : wallFrame ? EnemyDefinitionId.PirateGreyWall : EnemyDefinitionId.PirateGreyWalking, place.Definition);
-            place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+                : wallFrame ? EnemyDefinitionId.PirateGreyWall : EnemyDefinitionId.PirateGreyWalking, place.KeptDefinition);
+            place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
             // Space Pirates collide by their frames' hitboxes, so the empty frame is the point-hitbox record.
             place.CollidesByFrameHitboxes = true;
             place.Frame = RoomEnemyPlaceFrameAccess.FrameAt(SpacePirateFrameBank, pointer);

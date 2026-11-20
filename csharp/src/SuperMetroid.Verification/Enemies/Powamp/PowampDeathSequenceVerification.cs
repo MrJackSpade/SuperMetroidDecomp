@@ -26,20 +26,20 @@ internal static class PowampDeathSequenceVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MtEverest);
-        RoomEnemyPlace body = runtime.Enemies.Places.InUpdateOrder.First(place => place.DefinitionId == EnemyDefinitionId.Powamp &&
-            place.SpawnSettings<PowampSpawnSettings>() is PowampBodySpawnSettings);
+        RoomEnemyPlace body = runtime.Enemies.Places.InUpdateOrder.First(place => place.Holds(EnemyDefinitionId.Powamp) &&
+            place.HeldOccupant().SpawnSettings<PowampSpawnSettings>() is PowampBodySpawnSettings);
         var state = body.RequireSpeciesState<PowampBodyState>();
 
         body.Health = 0;
         state.Action = PowampAction.DeathSequence;
         state.ActionTimer = UpdateCountdown.For(1);
-        runtime.Enemies.PowampBehavior.RunPowampMain(body, state, runtime.Room.LoadedLevelData, runtime.Player.IntroducedSamus);
+        runtime.Enemies.PowampBehavior.RunPowampMain(body.HeldOccupant(), body, state, runtime.Room.LoadedLevelData, runtime.Player.IntroducedSamus);
 
         var projectiles = runtime.Enemies.Projectiles.EnemyProjectiles;
         AssertEqual(8, projectiles.Count(p => p.Kind == RoomEnemyProjectileKind.PowampSpike), "the eight spikes fire");
         AssertEqual(1, projectiles.Count(p => p.Kind == RoomEnemyProjectileKind.EnemyDeathExplosion),
             "EnemyDeath spawns the death explosion in the same frame");
-        AssertEqual(EnemyDefinitionId.None, body.DefinitionId, "EnemyDeath clears the body slot at once");
+        AssertTrue(body.Occupant is null, "EnemyDeath clears the body slot at once");
         Console.WriteLine("  Powamp death sequence: the countdown ends in EnemyDeath with spikes and an explosion.");
     }
 

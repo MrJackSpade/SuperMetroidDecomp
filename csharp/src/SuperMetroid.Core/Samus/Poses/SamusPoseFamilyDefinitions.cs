@@ -43,8 +43,8 @@ internal static class SamusPoseFamilyDefinitions
     ];
 
     /// <summary>
-    /// The posture-transition weapon admission's answer for each pose it does not read beyond its table for; every pose not
-    /// listed is <see cref="SamusPostureTransitionAdmission.AnsweredBeyondTransitions"/>.
+    /// Whether each pose may change posture while firing, for the poses with their own answer; every other pose is
+    /// <see cref="SamusPostureTransitionAdmission.AnsweredBeyondTransitions"/>.
     /// </summary>
     internal static readonly Dictionary<SamusPoseId, SamusPostureTransitionAdmission> PostureTransitionAdmissions = new()
     {

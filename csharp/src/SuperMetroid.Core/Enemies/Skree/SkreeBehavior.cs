@@ -14,9 +14,10 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Skree], Create);
 
     /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
-    /// <param name="place">The place, holding the new identity and the entry it is spawned from.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
+    /// <param name="place">The place, already holding the occupant.</param>
     /// <param name="common">The shared participation the entity composes.</param>
-    private EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new SkreeEntity(this, place, common));
+    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new SkreeEntity(this, occupant, place, common));
 
     /// <summary>Queues the dive and floor-impact sound requests at their AI transitions.</summary>
     private readonly EnemyAudioQueue _audio;
@@ -44,9 +45,9 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>What <c>RunSkreeMain</c> does for each <see cref="SkreeAction"/> member, each member's own arm.</summary>
-    private IdentityTable<SkreeAction, Action<RoomEnemyPlace, SamusState, RoomLevelData, SkreeEnemyState>> RunSkreeMainForSkreeAction => field ??= new(new Dictionary<SkreeAction, Action<RoomEnemyPlace, SamusState, RoomLevelData, SkreeEnemyState>>
+    private IdentityTable<SkreeAction, Action<RoomEnemyOccupant, RoomEnemyPlace, SamusState, RoomLevelData, SkreeEnemyState>> RunSkreeMainForSkreeAction => field ??= new(new Dictionary<SkreeAction, Action<RoomEnemyOccupant, RoomEnemyPlace, SamusState, RoomLevelData, SkreeEnemyState>>
     {
-        [SkreeAction.Idling] = (place, samus, level, state) =>
+        [SkreeAction.Idling] = (_, place, samus, level, state) =>
         {
             if (Math.Abs(place.Position.X.Whole - samus.Position.X.Whole) < SkreeMotionDefinitions.WindUpDistance)
             {
@@ -54,23 +55,23 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.Action = SkreeAction.PreparingAttack;
             }
         },
-        [SkreeAction.PreparingAttack] = (place, samus, level, state) => { },
-        [SkreeAction.AttackReady] = (place, samus, level, state) =>
+        [SkreeAction.PreparingAttack] = (_, place, samus, level, state) => { },
+        [SkreeAction.AttackReady] = (_, place, samus, level, state) =>
         {
             StartSkreeAnimation(place, state, SkreeMetareeSegment.SkreeDiving);
             state.Action = SkreeAction.Diving;
             // The dive screeches on the update the wind-up releases it.
             _audio.QueueEnemySound(EnemySound.DiveScreech, priority: SoundRequestPriority.Normal);
         },
-        [SkreeAction.Diving] = (place, samus, level, state) => RunSkreeDive(place, state, samus, level),
-        [SkreeAction.Burrowing] = (place, samus, level, state) => RunSkreeBurrow(place, state),
+        [SkreeAction.Diving] = (_, place, samus, level, state) => RunSkreeDive(place, state, samus, level),
+        [SkreeAction.Burrowing] = (occupant, place, samus, level, state) => RunSkreeBurrow(occupant, place, state),
     });
 
     /// <summary>Winds up near Samus, dives when the wind-up cue is ready, then burrows after floor contact.</summary>
-    private void RunSkreeMain(RoomEnemyPlace place, SamusState samus, RoomLevelData level)
+    private void RunSkreeMain(RoomEnemyOccupant occupant, RoomEnemyPlace place, SamusState samus, RoomLevelData level)
     {
         SkreeEnemyState state = place.RequireSpeciesState<SkreeEnemyState>();
-        RunSkreeMainForSkreeAction[state.Action](place, samus, level, state);
+        RunSkreeMainForSkreeAction[state.Action](occupant, place, samus, level, state);
     }
 
     /// <summary>Moves downward by <see cref="SkreeMotionDefinitions.DiveStep"/> and toward Samus by <see cref="SkreeMotionDefinitions.DiveDrift"/> until the downward solid-block probe starts burrowing.</summary>
@@ -98,7 +99,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances the burrow (<see cref="SkreeMotionDefinitions.BurrowDuration"/>), spawning debris at <see cref="SkreeMotionDefinitions.DebrisBurstAt"/> and deleting the place at zero.</summary>
-    private void RunSkreeBurrow(RoomEnemyPlace place, SkreeEnemyState state)
+    private void RunSkreeBurrow(RoomEnemyOccupant occupant, RoomEnemyPlace place, SkreeEnemyState state)
     {
         if (state.BurrowTimer.StepEnds())
         {
@@ -107,7 +108,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         if (state.BurrowTimer.UpdatesLeft == SkreeMotionDefinitions.DebrisBurstAt)
-            SkreeMetareeParticles.SpawnBurst(_projectiles, place, SkreeMetareeParticleSegment.Skree);
+            SkreeMetareeParticles.SpawnBurst(_projectiles, occupant, place, SkreeMetareeParticleSegment.Skree);
         place.Position = place.Position.WithWholeY(place.Position.Y.Whole + SkreeMotionDefinitions.BurrowSink);
     }
 
@@ -119,9 +120,9 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = EnemyAnimationPlayback.StartUnlessPlaying(place, state.Playback, SkreeMetareeAnimations.StartingWith(animation));
 
     /// <summary>Runs Skree's main AI.</summary>
-    internal void RunSkreeMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunSkreeMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, IEnemyAiFrame frame)
     {
-        RunSkreeMain(place, frame.Samus, frame.Level);
+        RunSkreeMain(occupant, place, frame.Samus, frame.Level);
     }
 
     /// <summary>Advances Skree's typed animation.</summary>
@@ -148,17 +149,19 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Spawns Skree's four debris actors before generic death processing of a lethal shot.</summary>
     /// <remarks>The Skree's shot reaction adds its four debris actors after the shared normal shot response reports death, before the
     /// common death animation releases the enemy place.</remarks>
-    internal EnemyShotReaction SkreeShotReaction => field ??= new()
+    /// <param name="skree">The Skree the reaction is built for, whose sheet the objects it spawns draw from.</param>
+    internal EnemyShotReaction SkreeShotReaction(RoomEnemyOccupant skree) => new()
     {
         // Skree's shot reaction runs the common damage without the hit burst.
         ShowsHitBurst = EnemyShotReaction.NeverShowsHitBurst,
-        BeforeGenericDeath = c => SkreeMetareeParticles.SpawnBurst(_projectiles, c.Enemy, SkreeMetareeParticleSegment.Skree),
+        BeforeGenericDeath = c => SkreeMetareeParticles.SpawnBurst(_projectiles, skree, c.Enemy, SkreeMetareeParticleSegment.Skree),
     };
 
     /// <summary>Handles lethal bombs with Skree's particle burst and its ordinary death after the shared hit path.</summary>
     /// <remarks>Skree's bomb reaction spawns its four-piece burst and starts its death itself, after the common bomb damage,
     /// which starts no death for it. A normal bomb gives the ordinary death; only missiles give another.</remarks>
-    internal EnemyBombReaction SkreeBombReaction => field ??= new()
+    /// <param name="skree">The Skree the reaction is built for, whose sheet the objects it spawns draw from.</param>
+    internal EnemyBombReaction SkreeBombReaction(RoomEnemyOccupant skree) => new()
     {
         RunsGenericDeath = false,
         ShowsHitBurst = EnemyBombReaction.NeverShowsHitBurst,
@@ -166,8 +169,8 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             if (c.Enemy.Health != 0)
                 return;
-            SkreeMetareeParticles.SpawnBurst(_projectiles, c.Enemy, SkreeMetareeParticleSegment.Skree);
-            _deathsAndDrops.StartGenericEnemyDeath(c.Enemy, EnemyDeathExplosion.Small, c.Samus);
+            SkreeMetareeParticles.SpawnBurst(_projectiles, skree, c.Enemy, SkreeMetareeParticleSegment.Skree);
+            _deathsAndDrops.StartGenericEnemyDeath(c.Occupant, EnemyDeathExplosion.Small, c.Samus);
         },
     };
 }

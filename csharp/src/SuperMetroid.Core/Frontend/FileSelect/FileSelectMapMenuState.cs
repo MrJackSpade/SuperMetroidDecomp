@@ -106,8 +106,11 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
 
     /// <summary>Whether the area map's own entry, its reveal and fade, is still running before navigation begins.</summary>
     public bool IsEnteringArea => !entry.IsComplete;
-    /// <summary>How the map hands off to its host (#2562): its load or its options, kept once it reaches one.</summary>
-    public FileSelectMapOutcome Outcome { get; private set; }
+    /// <summary>
+    /// How the map hands off to its host (#2562): its load or its options, kept once it reaches one; absent while the map
+    /// runs, before it has reached either (#2587).
+    /// </summary>
+    public FileSelectMapOutcome? Outcome { get; private set; }
 
     /// <summary>Binds the installed map artwork when the game is bound to its installed content, without restarting navigation.</summary>
     public void BindScreenContent(InstalledScreenContent catalog)
@@ -230,7 +233,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
     /// <summary>Requests a menu sound at normal priority.</summary>
     private void Queue(SoundEffectId sound) => audio.QueueSound(sound, priority: SoundRequestPriority.Normal);
 
-    /// <summary>Captures both map-memory owners and resolved window edges at the display boundary.</summary>
+    /// <summary>Builds the area or room map scene the phase shows.</summary>
     public LayeredScene ComposeScene()
     {
         LayeredScene Area(AreaMapBackgroundGlow glow = AreaMapBackgroundGlow.WholeScreen) => areaGraphics.ComposeScene(savedProgress, glow);

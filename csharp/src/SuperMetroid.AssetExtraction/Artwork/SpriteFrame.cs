@@ -12,7 +12,7 @@ public sealed class SpriteFrame
     /// <summary>Validates and keeps an immutable part sequence.</summary>
     /// <param name="name">The frame's identity within its family, such as <c>Digit.3</c>.</param>
     /// <param name="parts">The parts, frontmost first.</param>
-    /// <exception cref="ArgumentException">The name is empty, or a part has an unsupported size, palette or priority, or a negative character.</exception>
+    /// <exception cref="ArgumentException">The name is empty, or a part has an unsupported size, palette or depth, or a negative character.</exception>
     public SpriteFrame(string name, ImmutableArray<SpriteFramePart> parts)
     {
         if (string.IsNullOrEmpty(name)) throw new ArgumentException("A sprite frame needs a name.", nameof(name));
@@ -21,8 +21,8 @@ public sealed class SpriteFrame
         {
             if (part.Size.X is not (8 or 16 or 32 or 64) || part.Size.Y is not (8 or 16 or 32 or 64))
                 throw new ArgumentException($"Sprite frame {name} has a {part.Size.X}x{part.Size.Y} part; sizes are 8, 16, 32 or 64.", nameof(parts));
-            if (part.Character < 0 || part.Palette is < 0 or > 7 || part.Priority is < 0 or > 3)
-                throw new ArgumentException($"Sprite frame {name} has a part with an invalid character, palette or priority.", nameof(parts));
+            if (part.Character < 0 || part.Palette is < 0 or > 7 || part.Depth is { } depth && !Enum.IsDefined(depth))
+                throw new ArgumentException($"Sprite frame {name} has a part with an invalid character, palette or depth.", nameof(parts));
         }
         Name = name;
         this.parts = ImmutableCollectionsMarshal.AsArray(parts) ?? throw new ArgumentException($"Sprite frame {name} has no part list.", nameof(parts));
@@ -37,6 +37,6 @@ public sealed class SpriteFrame
     /// <summary>The parts, frontmost first.</summary>
     public ImmutableArray<SpriteFramePart> Parts => ImmutableCollectionsMarshal.AsImmutableArray(parts);
 
-    /// <summary>The highest character any part reads, or -1 for an empty frame.</summary>
-    public int LastCharacter => Parts.IsEmpty ? -1 : Parts.Max(part => part.LastCharacter);
+    /// <summary>The highest character any part reads, or null for an empty frame, which reads none.</summary>
+    public int? LastCharacter => Parts.IsEmpty ? null : Parts.Max(part => part.LastCharacter);
 }

@@ -31,7 +31,7 @@ public abstract record BabyMetroidCutscenePhase
         /// <summary>Curves the Baby toward Mother Brain's head using the angle and speed updates.</summary>
         public sealed record CurveTowardMotherBrainHead : Flying;
 
-        /// <summary>Closes the final gap to Mother Brain before the attachment state begins.</summary>
+        /// <summary>Closes the final gap to Mother Brain before latching onto her.</summary>
         public sealed record GetRightUpInMotherBrainsFace : Flying;
 
         /// <summary>Anchors the Baby to Mother Brain's head and queues the latch sound edge.</summary>

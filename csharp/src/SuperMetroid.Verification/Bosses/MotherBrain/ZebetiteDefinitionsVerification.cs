@@ -67,7 +67,7 @@ internal static class ZebetiteDefinitionsVerification
         foreach (bool linkedHalf in new[] { false, true })
         {
             RoomEnemyPlacement population =
-                Zebetites.SpawnPopulation(linkedHalf ? ZebetiteHalf.Linked : ZebetiteHalf.Primary);
+                Zebetites.SpawnPopulation(linkedHalf ? ZebetiteHalf.Linked : ZebetiteHalf.Primary, destroyed: 0);
             SuperMetroid.AssetExtraction.Enemies.PopulationEntryWords words =
                 SuperMetroid.AssetExtraction.Enemies.RoomEnemyPopulationRecordCodec.Encode(population);
             ushort[] actual =
@@ -84,6 +84,10 @@ internal static class ZebetiteDefinitionsVerification
             int record = linkedHalf ? linkedSpawn : primarySpawn;
             for (int word = 0; word < actual.Length; word++)
             {
+                // The cartridge's spawn record leaves its position words empty for the setup to fill from the generation;
+                // the spawn places each half where its generation stands.
+                if (word is 1 or 2)
+                    continue;
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + word * 2)), actual[word],
                     $"Zebetite {(linkedHalf ? "linked" : "primary")} spawn word {word}");
             }
@@ -98,8 +102,8 @@ internal static class ZebetiteDefinitionsVerification
                 generation);
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
             place.SetSpawnParameter1(EnemyDefinitionId.Zebetite, linkedHalf ? (ushort)2 : (ushort)0);
-            place.Bind(EnemyDefinitionId.Zebetite, place.Definition);
-            enemies.ZebetiteBehavior.InitializeZebetite(place);
+            place.Bind(EnemyDefinitionId.Zebetite, place.KeptDefinition);
+            enemies.ZebetiteBehavior.InitializeZebetite(place.HeldOccupant(), place);
             ZebetiteEnemyState state = enemies.ZebetiteStates[0] ??
                 throw new InvalidDataException("Zebetite initializer omitted typed state.");
             ZebetiteGenerationDefinition expected = Zebetites.Generation(generation);
@@ -131,9 +135,9 @@ internal static class ZebetiteDefinitionsVerification
         {
             var enemies = NewZebetiteDefinitionSystem(0);
             RoomEnemyPlace place = enemies.ZebetiteBehavior.SpawnZebetite(linkedHalf ? ZebetiteHalf.Linked : ZebetiteHalf.Primary);
-            AssertEqual(Zebetites.SpawnPopulation(linkedHalf ? ZebetiteHalf.Linked : ZebetiteHalf.Primary), place.Spawn.Population,
+            AssertEqual(Zebetites.SpawnPopulation(linkedHalf ? ZebetiteHalf.Linked : ZebetiteHalf.Primary, destroyed: 0), place.HeldOccupant().Spawn,
                 $"production Zebetite {(linkedHalf ? "linked" : "primary")} population");
-            AssertEqual(linkedHalf ? ZebetiteHalf.Linked : ZebetiteHalf.Primary, place.SpawnSettings<ZebetiteSpawnSettings>().Half,
+            AssertEqual(linkedHalf ? ZebetiteHalf.Linked : ZebetiteHalf.Primary, place.HeldOccupant().SpawnSettings<ZebetiteSpawnSettings>().Half,
                 $"production Zebetite {(linkedHalf ? "linked" : "primary")} role");
         }
 

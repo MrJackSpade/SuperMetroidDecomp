@@ -61,7 +61,7 @@ internal static class SamusProjectileTrailSideNative
         AnimationPlace place = playback.Place;
         IReadOnlyList<AnimationPhase<ProjectileTrailRun>> phases = playback.Animation.Phases;
         int before = phases.Take(place.Phase).Sum(phase => phase.BeatCount * phase.Plays);
-        if (place.Beat == AnimationPlace.NotEntered)
+        if (place.HasNotEntered)
             return before;
         AnimationPhase<ProjectileTrailRun> playing = phases[place.Phase];
         int playsBefore = playing.IsRepeated ? playing.Plays - place.PlaysLeft : 0;

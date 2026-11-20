@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// </summary>
 public sealed class FileSelectAreaMapGraphics
 {
-    /// <summary>The map's menu screen: its artwork, backdrop and sprite entries.</summary>
+    /// <summary>The map's menu screen: its artwork, backdrop and sprites.</summary>
     private readonly MenuScreen screen;
     /// <summary>The installed world-map backdrops, rebound when presentation content changes.</summary>
     private MenuBackdrops backdrops;

@@ -26,10 +26,22 @@ internal sealed class CinematicAnimations<TAnimation, TFrame, TCue>
     /// <exception cref="ArgumentException">An animation plays a segment the family does not hold.</exception>
     internal CinematicAnimations(IReadOnlyDictionary<TAnimation, AnimationBeat<TFrame, TCue>[]> segments,
         Func<CinematicPlays<TAnimation, TFrame, TCue>, IReadOnlyDictionary<TAnimation, Animation<TAnimation>>> startingAt)
+        : this(Ensure.NotNull(segments).ToDictionary(pair => pair.Key, pair => pair.Value.ToArray<IHidingAnimationBeat<TFrame, TCue>>()), startingAt)
+    {
+    }
+
+    /// <summary>
+    /// Creates the animations of a family whose actors hide for stretches (#2558): <paramref name="segments"/> are the beats
+    /// each segment plays, hidden stretches among them, and <paramref name="startingAt"/> writes the animation an actor
+    /// starting each of them plays, as the other constructor's does.
+    /// </summary>
+    /// <exception cref="ArgumentException">An animation plays a segment the family does not hold.</exception>
+    internal CinematicAnimations(IReadOnlyDictionary<TAnimation, IHidingAnimationBeat<TFrame, TCue>[]> segments,
+        Func<CinematicPlays<TAnimation, TFrame, TCue>, IReadOnlyDictionary<TAnimation, Animation<TAnimation>>> startingAt)
     {
         Ensure.NotNull(segments);
         Ensure.NotNull(startingAt);
-        Segments = new AnimationSegments<TAnimation, TFrame, TCue>(segments, segments.Keys.ToHashSet());
+        Segments = new HidingAnimationSegments<TAnimation, TFrame, TCue>(segments, segments.Keys.ToHashSet());
         IReadOnlyDictionary<TAnimation, Animation<TAnimation>> starting = startingAt(new CinematicPlays<TAnimation, TFrame, TCue>(Segments));
         foreach ((TAnimation start, Animation<TAnimation> animation) in starting)
         {
@@ -43,7 +55,7 @@ internal sealed class CinematicAnimations<TAnimation, TFrame, TCue>
     }
 
     /// <summary>The segments the family's animations play.</summary>
-    internal AnimationSegments<TAnimation, TFrame, TCue> Segments { get; }
+    internal HidingAnimationSegments<TAnimation, TFrame, TCue> Segments { get; }
 
     /// <summary>The animations an actor of the family can start, each by the animation it is named for.</summary>
     internal IReadOnlyCollection<TAnimation> Starts => starts.Keys;

@@ -31,7 +31,7 @@ internal static class MotherBrainBombBounceDefinitions
     /// <summary>The sideways speed a Mother Brain bomb's floor bounce restores, without its direction.</summary>
     internal static readonly SignedEightEight BounceSpeed = SignedEightEight.FromPixelFraction(7, 16);
 
-    /// <summary>The gravity after each bounce, from the first to the eighth and last, in 256ths of a pixel an update.</summary>
+    /// <summary>The gravity after each bounce, from the first to the last, each update.</summary>
     internal static readonly SignedEightEight[] BounceAccelerations =
     [
         SignedEightEight.FromPixelFraction(1, 16),

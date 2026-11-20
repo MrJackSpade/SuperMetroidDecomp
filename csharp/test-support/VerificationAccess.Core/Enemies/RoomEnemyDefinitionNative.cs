@@ -171,7 +171,7 @@ internal static class RoomEnemyDefinitionNative
     extension(RoomEnemyPlace place)
     {
         /// <summary>The native words of the header the slot's definition identity names.</summary>
-        internal RoomEnemyNativeWords NativeHeader => Words[place.DefinitionId];
+        internal RoomEnemyNativeWords NativeHeader => Words[place.HeldOccupant().DefinitionId];
     }
 }
 

@@ -173,7 +173,7 @@ internal static class RidleyExplosionDefinitionsVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().NextRandom = () => 0x8130;
-        Action<RoomEnemyPlace> initialize = enemies.NorfairRidleyBehavior.Death.InitializeNorfairRidleyExplosion;
+        Action<RoomEnemyPlace> initialize = fixturePlace => enemies.NorfairRidleyBehavior.Death.InitializeNorfairRidleyExplosion(fixturePlace.HeldOccupant(), fixturePlace);
 
         RoomEnemyPlace fragment = enemies.Places.InUpdateOrder[1];
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];

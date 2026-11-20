@@ -14,9 +14,10 @@ internal sealed class OumBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Oum], Create);
 
     /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
-    /// <param name="place">The place, holding the new identity and the entry it is spawned from.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
+    /// <param name="place">The place, already holding the occupant.</param>
     /// <param name="common">The shared participation the entity composes.</param>
-    private EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new OumEntity(this, place, common));
+    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new OumEntity(this, occupant, place, common));
 
     /// <summary>Resolves floor, ledge, and wall contact during bounce and roll phases.</summary>
     private readonly EnemyTerrain _terrain;
@@ -441,14 +442,14 @@ internal sealed class OumBehavior : IEnemySpecies, IEnemyEntityFactory
             {
                 // Frame-hitbox collision marks the projectile, and nothing more happens: the protected shell
                 // takes no shot damage, makes no impact, plays no shot sound and has no vulnerability.
-                c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
+                c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
                 return true;
             }
             if (c.HitboxShot != OumReactions.Shot)
             {
                 throw new InvalidDataException(
                     $"Maridia Large Snail has no response to shot reaction " +
-                    $"{c.HitboxShot?.ToString() ?? "(unnamed)"}.");
+                    $"{c.HitboxShot}.");
             }
             return false;
         },
@@ -464,7 +465,7 @@ internal sealed class OumBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             throw new InvalidDataException(
                 $"Maridia Large Snail has no response to touch reaction " +
-                $"{context.HitboxTouch?.ToString() ?? "(unnamed)"}.");
+                $"{context.HitboxTouch}.");
         }
 
         // The damaging touch hurts Samus as any enemy does and then shoves her as the harmless touch does. A harmless
@@ -476,10 +477,8 @@ internal sealed class OumBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>The reaction of the first of the occupant's hitboxes the probe overlaps on the frame it shows.</summary>
     /// <exception cref="InvalidDataException">The frame shown has no Oum collision.</exception>
-    internal static bool? FindHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
+    internal static EnemyHitboxContact FindHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe)
     {
-        reaction = null;
-
         // The frame's hitboxes are read in order, and the first the probe overlaps gives the reaction.
         foreach (EnemyCollisionHitbox hitbox in
                  OumCollisionDefinitions.Frames.Of(enemy.Frame))
@@ -490,9 +489,8 @@ internal sealed class OumBehavior : IEnemySpecies, IEnemyEntityFactory
             int bottom = enemy.Position.Y.Whole + hitbox.Bottom;
             if (!probe.Overlaps(left, top, right, bottom))
                 continue;
-            reaction = probe.SelectsShot ? hitbox.Shot : hitbox.Touch;
-            return true;
+            return EnemyHitboxContact.Struck(probe.SelectsShot ? hitbox.Shot : hitbox.Touch);
         }
-        return false;
+        return EnemyHitboxContact.Missed;
     }
 }

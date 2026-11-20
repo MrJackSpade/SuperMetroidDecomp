@@ -83,8 +83,9 @@ public sealed class SamusDraygonGrabbedState
     /// <summary>
     /// Places Samus where Draygon carries her, after enemy AI has updated the
     /// boss body. Facing left places Samus to his left and facing right to his right, by
-    /// <see cref="SamusDraygonHoldDefinitions.HeldAhead"/>; both place her below the body center by <see cref="SamusDraygonHoldDefinitions.HeldBelow"/>. Draygon also places a
-    /// Samus who has just escaped: the carry that places her reports her escape, which he sees once.
+    /// <see cref="SamusDraygonHoldDefinitions.HeldAhead"/>; both place her below the body center by
+    /// <see cref="SamusDraygonHoldDefinitions.HeldBelow"/>. Draygon keeps placing her until he sees her release
+    /// (<see cref="SamusDraygonHoldPhase.ReleasedUnseen"/>).
     /// </summary>
     /// <returns>Whether she had broken free since his last carry, which this carry has him see.</returns>
     public bool CarryTo(
@@ -126,8 +127,8 @@ public sealed class SamusDraygonGrabbedState
     }
 
     /// <summary>
-    /// Runs the escape check after Samus's movement: counts a newly pressed pattern of directions only when it is nonzero
-    /// and different from the last counted pattern, and releases her once the count reaches its target.
+    /// Runs the escape check after Samus's movement: a press counts when at least one direction is newly pressed and it
+    /// differs from the last counted press, and Samus is released once the count reaches its target.
     /// </summary>
     /// <returns>Whether the check released her.</returns>
     public bool CheckDraygonEscape(
@@ -174,8 +175,8 @@ public sealed class SamusDraygonGrabbedState
     }
 
     /// <summary>
-    /// Runs the release. The release keeps extra run speed exactly as the game does,
-    /// but clears base X speed, all vertical velocity, bounce state, and acceleration mode.
+    /// Runs the release: it keeps her extra run speed but clears her base X speed, all vertical velocity, her bounce
+    /// and her acceleration mode.
     /// </summary>
     private static void LetGo(SamusState samus)
     {

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Input;
@@ -65,7 +66,7 @@ internal static class RedTowerHeroVerification
                 {
                     AssertTrue(shot.IsActive, "Retail target probe launches its single shot");
                 }
-                if (shot.Type.Family == SamusProjectileFamily.BeamExplosion)
+                if (shot.RecordedType.Family == SamusProjectileFamily.BeamExplosion)
                 {
                     impact = frame;
                     AssertEqual(118, shot.Position.X.Whole, "Shot impacts the target column, not a distant enemy");

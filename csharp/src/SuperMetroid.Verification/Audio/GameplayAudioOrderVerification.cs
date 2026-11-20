@@ -172,7 +172,7 @@ internal static class GameplayAudioOrderVerification
     /// <summary>The room's green Ki Hunter, its AI idle and its script one update from the spit.</summary>
     private static RoomEnemyPlace KiHunterAtItsSpit(SuperMetroidRuntime runtime)
     {
-        RoomEnemyPlace body = runtime.Enemies.Places.InUpdateOrder.First(place => place.DefinitionId == EnemyDefinitionId.KihunterGreen);
+        RoomEnemyPlace body = runtime.Enemies.Places.InUpdateOrder.First(place => place.Holds(EnemyDefinitionId.KihunterGreen));
         KiHunterBodyState state = runtime.Enemies.KiHunterBodyStates[body.Ordinal]
             ?? throw new InvalidOperationException("The Ki Hunter has no state.");
         body.Position = body.Position.WithWhole(new(128, 128));

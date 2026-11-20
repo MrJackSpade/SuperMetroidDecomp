@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 internal static class CeresRidleyHealthBandDefinitions
 {
     /// <summary>Ceres Ridley before he is wounded: his own colours.</summary>
-    internal static CeresRidleyHealthBand Unhurt { get; } = new(minimumHits: null, healthShade: null);
+    internal static CeresRidleyHealthBand Unhurt { get; } = new(minimumHits: 0, healthShade: null);
 
     /// <summary>Ceres Ridley once wounded, until he is nearly dead: the wounded colouring.</summary>
     internal static CeresRidleyHealthBand Wounded { get; } = new(minimumHits: 50, RidleyHealthShadeDefinitions.Wounded);

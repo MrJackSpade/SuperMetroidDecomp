@@ -17,9 +17,9 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= new Dictionary<EnemyDefinitionId, EnemyEntityCreation>
     {
-        [EnemyDefinitionId.MotherBrainBody] = (place, common) => EnemyOccupant.Of(new MotherBrainBodyEntity(this, place, common, _bossArtwork)),
-        [EnemyDefinitionId.MotherBrainHead] = (place, common) => EnemyOccupant.Of(new MotherBrainHeadEntity(this, place, common)),
-        [EnemyDefinitionId.MotherBrainTubes] = (place, common) => EnemyOccupant.Of(new MotherBrainTubesEntity(this, place, common)),
+        [EnemyDefinitionId.MotherBrainBody] = (occupant, place, common) => EnemyOccupant.Of(new MotherBrainBodyEntity(this, occupant, place, common, _bossArtwork)),
+        [EnemyDefinitionId.MotherBrainHead] = (occupant, place, common) => EnemyOccupant.Of(new MotherBrainHeadEntity(this, occupant, place, common)),
+        [EnemyDefinitionId.MotherBrainTubes] = (occupant, place, common) => EnemyOccupant.Of(new MotherBrainTubesEntity(this, occupant, place, common)),
     };
 
     /// <summary>Provides room services, pictures, colour state, and effects used by the encounter.</summary>
@@ -77,7 +77,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         Combat = new MotherBrainCombat(_room, dependencies.Projectiles, dependencies.Audio, dependencies.Collision);
     }
 
-    /// <summary>Runs the common body main/hurt entry.</summary>
+    /// <summary>Runs her room flash, her body's stage and her contact with Samus.</summary>
     internal void RunMotherBrainBodyMain(
         RoomEnemyPlace body,
         MotherBrainEnemyState state,
@@ -148,7 +148,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             if (!state.PhaseTimer.StepRunsOut())
                 return;
-            // Restoring Samus's control reinstalls the normal input and movement modes.
+            // Samus's control returns to normal.
             samus.Control.Unlock();
             state.DescentPhase = MotherBrainDescentPhase.PauseBeforeFlash;
             state.PhaseTimer.LastFor(MotherBrainWaitDefinitions.BeforeFlashUpdates);

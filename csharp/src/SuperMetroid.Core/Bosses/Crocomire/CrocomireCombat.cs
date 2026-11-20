@@ -33,7 +33,7 @@ internal sealed class CrocomireCombat
         _access = access;
     }
 
-    /// <summary>Runs Crocomire's eight-color body hurt flash.</summary>
+    /// <summary>Shows Crocomire's white hurt flash on his body.</summary>
     internal void ApplyCrocomireHurtFlash(RoomEnemyPlace body, CrocomireEnemyState state)
     {
         bool white = body.HurtFlash.IsRunning && EnemyDrawPhaseDefinitions.HurtFlashShown.IsSetIn(_frameContext.EnemyPassCount);
@@ -50,7 +50,7 @@ internal sealed class CrocomireCombat
     internal void ReactToCrocomireBomb(EnemyBombContext c, CrocomireEnemyState state) =>
         // Crocomire's species definition names no shot reaction; every live component supplies its own. Normal bombs
         // therefore reach the same hit counter, dust, or mouth reaction his frame's hitbox selects.
-        ResolveCrocomireHitboxShot(state, c.Bomb.Type, c.Bomb.Position.Whole, c.SelectedShot, c.Camera);
+        ResolveCrocomireHitboxShot(state, c.PlacedBomb.Type, c.Bomb.Position.Whole, c.SelectedShot, c.Camera);
 
     /// <summary>
     /// The mouth's shot (#1760): its spawner starts its animation, and a shot one runs its typed shot animation, whose
@@ -199,8 +199,8 @@ internal sealed class CrocomireCombat
                     return false;
                 if (!c.UsesFrameHitboxes)
                     throw new InvalidDataException("Crocomire's parts require collision by their frames' hitboxes.");
-                c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
-                ResolveCrocomireHitboxShot(part.Encounter, c.Projectile.Type, c.Projectile.Position.Whole, c.HitboxShot, c.Camera);
+                c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
+                ResolveCrocomireHitboxShot(part.Encounter, c.Shot.Type, c.Projectile.Position.Whole, c.HitboxShot, c.Camera);
                 return true;
             },
         };
@@ -216,7 +216,7 @@ internal sealed class CrocomireCombat
         if ((context.HitboxTouch != CrocomireReactions.ClawTouch && context.HitboxTouch != EnemyReaction.OrdinaryTouch))
         {
             throw new InvalidDataException(
-                $"Crocomire has no response to touch reaction {context.HitboxTouch?.ToString() ?? "(none)"}.");
+                $"Crocomire has no response to touch reaction {context.HitboxTouch}.");
         }
 
         _collision.ResolveOrdinaryTouch(context);
@@ -233,7 +233,7 @@ internal sealed class CrocomireCombat
         CrocomireEnemyState state,
         SamusProjectileType projectileType,
         Position16<RoomPixels> projectile,
-        EnemyReaction? reaction,
+        EnemyReaction reaction,
         Position16<RoomPixels> camera)
     {
         RoomEnemyPlace body = state.Body;
@@ -259,7 +259,7 @@ internal sealed class CrocomireCombat
             return;
         }
 
-        throw new InvalidOperationException($"Crocomire has no response to shot reaction {reaction?.ToString() ?? "(none)"}.");
+        throw new InvalidOperationException($"Crocomire has no response to shot reaction {reaction}.");
     }
 
     /// <summary>
@@ -279,33 +279,26 @@ internal sealed class CrocomireCombat
         // pending hit. The body is on screen while its left edge lies left of the camera's right edge, its screen reach past
         // the camera.
         bool bodyLeftEdgeIsOnScreen = body.Position.X.Whole - body.Radius.X - CrocomireFightDefinitions.MouthShotScreenReach < camera.X;
-        int stepCount = 0;
+        // The steps the hit pushes him back by, a hit off screen none, or null for a weapon on screen that pushes nothing.
+        int? pushedSteps = 0;
         SamusProjectileFamily family = projectileType.Family;
         if (bodyLeftEdgeIsOnScreen)
         {
-            if (family == SamusProjectileFamily.Beam)
+            if (family == SamusProjectileFamily.Beam && !projectileType.IsChargedBeam)
             {
-                if (!projectileType.IsChargedBeam)
-                {
-                    body.AnimationClock.HoldFor(CrocomireFightDefinitions.MouthShotReactionHoldFrames);
-                    SpawnCrocomireShotDust(projectileType, projectile);
-                    return;
-                }
-                stepCount = CrocomireFightDefinitions.ChargedBeamSteps;
+                body.AnimationClock.HoldFor(CrocomireFightDefinitions.MouthShotReactionHoldFrames);
+                SpawnCrocomireShotDust(projectileType, projectile);
+                return;
             }
-            else if (family == SamusProjectileFamily.Missile)
-            {
-                stepCount = CrocomireFightDefinitions.MissileSteps;
-            }
-            else if (family == SamusProjectileFamily.SuperMissile)
-            {
-                stepCount = CrocomireFightDefinitions.SuperMissileSteps;
-            }
+            pushedSteps = family == SamusProjectileFamily.Beam ? CrocomireFightDefinitions.ChargedBeamSteps
+                : family == SamusProjectileFamily.Missile ? CrocomireFightDefinitions.MissileSteps
+                : family == SamusProjectileFamily.SuperMissile ? CrocomireFightDefinitions.SuperMissileSteps
+                : null;
         }
 
-        if (!bodyLeftEdgeIsOnScreen || stepCount != 0)
+        if (pushedSteps is int steps)
         {
-            state.StepCounter += stepCount;
+            state.StepCounter += steps;
             if (state.StepBack.Ask())
                 body.AnimationClock.Extend(CrocomireFightDefinitions.MouthShotReactionHoldFrames);
         }
@@ -383,14 +376,14 @@ internal sealed class CrocomireCombat
     }
 
     /// <summary>
-    /// The reaction of the first hitbox the probe overlaps on the body's frame, or null when the frame has no body hitboxes;
-    /// only his body's entity asks (#2179).
+    /// The first hitbox the probe overlaps on the body's frame, whose reaction runs, or none; only his body's entity asks
+    /// (#2179).
     /// </summary>
-    internal static bool? FindCrocomireBodyHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
+    /// <exception cref="InvalidDataException">The frame has no body hitboxes.</exception>
+    internal static EnemyHitboxContact FindCrocomireBodyHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe)
     {
-        reaction = null;
         if (!CrocomireBodyCollision.HasFrame(enemy.Frame))
-            return null;
+            throw EnemyCollision.UncoveredFrame(enemy);
 
         // His body's hitboxes are the game's, whatever his installed pictures show; the first overlap wins, in the
         // order of his components and their hitboxes.
@@ -406,11 +399,10 @@ internal sealed class CrocomireCombat
                         componentOrigin.X + hitbox.Right,
                         componentOrigin.Y + hitbox.Bottom))
                     continue;
-                reaction = probe.SelectsShot ? hitbox.Shot : hitbox.Touch;
-                return true;
+                return EnemyHitboxContact.Struck(probe.SelectsShot ? hitbox.Shot : hitbox.Touch);
             }
         }
-        return false;
+        return EnemyHitboxContact.Missed;
     }
 
 }

@@ -190,8 +190,8 @@ internal static class LookupStream1Verification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().HasEvent = _ => false;
         RoomEnemyPlace dachora = enemies.Places.InUpdateOrder[0];
-        dachora.Bind(EnemyDefinitionId.DachoraEscape, dachora.Definition);
-        dachora.Bind(dachora.DefinitionId, default(RoomEnemyDefinition));
+        dachora.Bind(EnemyDefinitionId.DachoraEscape, dachora.KeptDefinition);
+        dachora.Bind(dachora.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         dachora.Position = dachora.Position.WithWhole(new(256, 200));
         enemies.EscapeAnimalsBehavior.InitializeEscapeDachora(dachora);
         return enemies;
@@ -210,13 +210,13 @@ internal static class LookupStream1Verification
             // The balloon and its body are placed as their room places them, whose settings name the part each is (#2163).
             var balloon = enemies.Places.InUpdateOrder[0];
             balloon.SetSpawnParameter1(EnemyDefinitionId.Powamp, 1);
-            balloon.Bind(EnemyDefinitionId.Powamp, balloon.Definition);
-            balloon.Bind(balloon.DefinitionId, default(RoomEnemyDefinition));
+            balloon.Bind(EnemyDefinitionId.Powamp, balloon.KeptDefinition);
+            balloon.Bind(balloon.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
             PowampBehavior.InitializePowampBalloon(balloon);
             var body = enemies.Places.InUpdateOrder[1];
             body.SetSpawnSettings(new PowampBodySpawnSettings(PowampContact.Accepts));
-            body.Bind(EnemyDefinitionId.Powamp, body.Definition);
-            body.Bind(body.DefinitionId, default(RoomEnemyDefinition));
+            body.Bind(EnemyDefinitionId.Powamp, body.KeptDefinition);
+            body.Bind(body.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
             enemies.PowampBehavior.InitializePowampBody(body);
             body.Position = body.Position.WithWholeY(100);
             var place = isBody ? body : balloon;
@@ -231,7 +231,7 @@ internal static class LookupStream1Verification
                 body.RequireSpeciesState<PowampBodyState>().Playback = new(PowampAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
             else
                 PowampBehavior.StartPowampBalloonAnimation(balloon, balloon.RequireSpeciesState<PowampBalloonState>(), program);
-            var pair = new PowampBalloon(balloon, balloon.RequireSpeciesState<PowampBalloonState>());
+            var pair = new PowampBalloon(balloon, balloon.RequireSpeciesState<PowampBalloonState>(), balloon.HeldOccupant());
             place.AnimationClock.StepOnNextUpdate();
             object?[] arguments = [place, null, null, Position16<RoomPixels>.Zero, GameplayAction.None];
             int calls = 0;
@@ -287,8 +287,8 @@ internal static class LookupStream1Verification
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
             enemies.VerificationServices().NextRandom = () => { randomCalls++; return 5; };
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            place.Bind(EnemyDefinitionId.Metroid, place.Definition);
-            place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+            place.Bind(EnemyDefinitionId.Metroid, place.KeptDefinition);
+            place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
             place.AnimationClock.StepOnNextUpdate();
             enemies.Places.InUpdateOrder[0].SetSpeciesState(new MetroidEnemyState(new RoomEffectActor(RoomEffectActorKind.MetroidElectricity, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard), new RoomEffectActor(RoomEffectActorKind.MetroidShell, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard))
             {
@@ -444,7 +444,8 @@ internal static class LookupStream1Verification
         var upper = Groups(top); var lower = Groups(bottom);
         var template = CreateSamusIdentityFixture();
         SamusBodyFrameSelection[] Decode(byte[] data) => Enumerable.Range(0, count / 4).Select(index =>
-            new SamusBodyFrameSelection(data[index * 4], data[index * 4 + 1], data[index * 4 + 2], data[index * 4 + 3])).ToArray();
+            SamusBodyFrameSelection.FromCartridge(data[index * 4], data[index * 4 + 1], data[index * 4 + 2],
+                data[index * 4 + 3])).ToArray();
         SamusBodySources Create(byte[] data) => SamusBodyCharacterArtwork.Create(new SamusBodyArtworkParts { TopSetStarts = SamusBodyNative.Records(top), BottomSetStarts = SamusBodyNative.Records(bottom), PoseFirstFrames = SamusBodyNative.Frames(poses), Placements = template.Placements, Frames = Decode(data), Spritemaps = template.Spritemaps, Atmosphere = template.Atmosphere, DeathSteps = template.DeathSteps, ArmCannon = template.ArmCannon }, upper, lower).Body;
         var stock = Create(native);
         AssertTrue(stock.Frames.SequenceEqual(Decode(native)), "All supplied frame components preserved");
@@ -704,7 +705,7 @@ internal static class LookupStream1Verification
         // the marker's character, palette row, priority or mirroring, so distinct pointers give distinct markers.
         static SpritePart Marker(ushort pointer) =>
             SpritePart.Create(Offset16<ScreenPixels>.Of(unchecked((sbyte)pointer), unchecked((sbyte)(pointer >> 8))), (pointer & 1) != 0, pointer & 511,
-                (pointer >> 9) & 7, (pointer >> 12) & 3,
+                (pointer >> 9) & 7, SnesObjAttributeWord.Create(0, 0, (pointer >> 12) & 3).Depth,
                 ((pointer & 0x4000) != 0 ? PictureFlip.Horizontal : PictureFlip.None) | ((pointer & 0x8000) != 0 ? PictureFlip.Vertical : PictureFlip.None));
         SamusSpritemapDefinition[] definitions = [.. SamusSpritemapNative.Compositions(pointers)
             .Select(pointer => new SamusSpritemapDefinition([Marker(pointer)]))];
@@ -785,7 +786,7 @@ internal static class LookupStream1Verification
     {
         byte[] json = File.ReadAllBytes(Path.Combine(CartridgeImportContent.ImportData(GameInstallationLayout.SamusBodyDirectoryName), SamusArmCannonArtworkFormat.ArtworkFileName));
         var document = RequiredJson.Deserialize<SamusArmCannonArtworkDocument>(json,
-            new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true, Converters = { new SamusPoseIdJsonConverter() } });
         SamusArmCannonSourceArtwork Load(SamusArmCannonArtworkDocument value) => SamusArmCannonSourceArtwork.FromPlacement(
             SamusArmCannonSourceArtwork.LoadPlacement(new MemoryStream(SamusArmCannonSourceArtwork.Write(value))));
         var stock = Load(document);
@@ -796,7 +797,7 @@ internal static class LookupStream1Verification
             hash.Append("drawing data", value.DrawingData.Select(item => (byte)item).ToArray());
             foreach (SpriteVisualPart appearance in value.CoverAppearances)
                 AppendCanonicalSpritePart(hash, CannonCoverAppearance(appearance.TileRow, appearance.TileColumn,
-                    appearance.Palette ?? 0, appearance.Priority, appearance.FlipX, appearance.FlipY));
+                    appearance.Palette ?? 0, appearance.Depth, appearance.FlipX, appearance.FlipY));
             foreach (int[] direction in value.CoverTiles)
                 foreach (int tile in direction) hash.Append("cover tile", tile);
         });
@@ -1045,12 +1046,14 @@ internal static class LookupStream1Verification
     {
         ushort Word(int address) => LittleEndianBytes.Word(LookupStream1ProjectileMotionRomByte(rom, address), LookupStream1ProjectileMotionRomByte(rom, address + 1));
         var initialize = new Action<ProjectileLaunchInheritance, SamusProjectile>((records, launched) =>
-            BeamFiring.InitializePowerBeamVelocity(records, launched, InstalledFixtures.SamusOverreads.Projectiles.UnauthoredBeamFiring));
+            BeamFiring.InitializePowerBeamVelocity(records, launched.HeldShot(), InstalledFixtures.SamusOverreads.Projectiles.UnauthoredBeamFiring));
         var stationary = new ProjectileLaunchInheritance();
         for (ushort combination = 0; combination < 16; combination++)
         for (ushort direction = 0; direction < 10; direction++)
         {
-            var slot = new SamusProjectile(0) { Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(combination), Direction = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeDirection(direction) };
+            var slot = new SamusProjectile(0);
+            slot.OccupyAsFired(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(combination));
+            slot.Direction = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeDirection(direction);
             initialize(stationary, slot);
             int speed = unchecked((short)Word(0x90c2d1 + combination * 4 + (direction is 1 or 3 or 6 or 8 ? 2 : 0)));
             AssertEqual(unchecked((short)(direction is 1 or 2 or 3 ? speed : direction is 6 or 7 or 8 ? -speed : 0)), slot.Velocity.X.InTwoHundredFiftySixthsOfPixel, "stream1 actual initializer X preserves adjacent missile-data overread");
@@ -1366,7 +1369,7 @@ internal static class LookupStream1Verification
             return SelectedPresentationHash.Create("samus-arm-cannon-v5", content =>
             {
                 System.Text.Json.JsonElement descriptors = root.GetProperty("poseDescriptors");
-                foreach (SamusPoseId pose in SamusPoseNumbers.RecordedPoses) content.Append("pose descriptor", descriptors.GetProperty(pose.ToString()).GetInt32());
+                foreach (SamusPoseId pose in SamusPoseNumbers.RecordedPoses) content.Append("pose descriptor", descriptors.GetProperty(SamusPoseIdKeys.Installed.Of(pose)).GetInt32());
                 content.Append("drawing data", root.GetProperty("drawingData").EnumerateArray().Select(value => (byte)value.GetInt32()).ToArray());
                 foreach (var appearance in root.GetProperty("coverAppearances").EnumerateArray())
                 {
@@ -1374,7 +1377,7 @@ internal static class LookupStream1Verification
                         ? paletteValue.GetInt32() : 0;
                     AppendCanonicalSpritePart(content, CannonCoverAppearance(
                         appearance.GetProperty("tileRow").GetInt32(), appearance.GetProperty("tileColumn").GetInt32(),
-                        palette, appearance.GetProperty("priority").GetInt32(),
+                        palette, Enum.Parse<SuperMetroid.Core.Assets.ActorDepth>(appearance.GetProperty("depth").GetString()!),
                         appearance.GetProperty("flipX").GetBoolean(), appearance.GetProperty("flipY").GetBoolean()));
                 }
                 foreach (var direction in root.GetProperty("coverTiles").EnumerateArray())
@@ -1409,19 +1412,19 @@ internal static class LookupStream1Verification
         content.Append("flip-horizontal", part.FlipsHorizontally ? 1 : 0);
         content.Append("flip-vertical", part.FlipsVertically ? 1 : 0);
         content.Append("palette", part.Palette);
-        content.Append("priority", part.Priority);
+        content.Append("depth", (int)part.Depth);
     }
 
     /// <summary>A cover appearance's single small piece at the origin, from its document fields.</summary>
-    private static SpritePart CannonCoverAppearance(int tileRow, int tileColumn, int palette, int priority, bool flipHorizontally, bool flipVertically) =>
-        SpritePart.Single(tileRow * SpriteArtwork.CharactersPerRow + tileColumn, palette, priority,
+    private static SpritePart CannonCoverAppearance(int tileRow, int tileColumn, int palette, SuperMetroid.Core.Assets.ActorDepth depth, bool flipHorizontally, bool flipVertically) =>
+        SpritePart.Single(tileRow * SpriteArtwork.CharactersPerRow + tileColumn, palette, depth,
             (flipHorizontally ? PictureFlip.Horizontal : PictureFlip.None) | (flipVertically ? PictureFlip.Vertical : PictureFlip.None));
     /// <summary>Checks arm-cannon drawing commands and extracted placement through native OAM results.</summary>
     internal static void VerifyLookupStream1CannonDrawingControls(ISnesAddressSpace rom)
     {
         byte[] json = File.ReadAllBytes(Path.Combine(CartridgeImportContent.ImportData(GameInstallationLayout.SamusBodyDirectoryName), SamusArmCannonArtworkFormat.ArtworkFileName));
         var document = RequiredJson.Deserialize<SamusArmCannonArtworkDocument>(json,
-            new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true, Converters = { new SamusPoseIdJsonConverter() } });
         SamusArmCannonSourceArtwork Load(SamusArmCannonArtworkDocument value) => SamusArmCannonSourceArtwork.FromPlacement(
             SamusArmCannonSourceArtwork.LoadPlacement(new MemoryStream(SamusArmCannonSourceArtwork.Write(value))));
         var stock = Load(document);
@@ -1632,11 +1635,7 @@ internal static class LookupStream1Verification
             Extent16<RoomPixels> radius = SamusProjectileFrameDefinitions.Radius(SamusProjectileProgramsVerification.RecordAt(pointer));
             AssertEqual(Word(0x930000 | (pointer + 4)), LittleEndianBytes.Word((byte)radius.X, (byte)radius.Y), "Typed record radii are the native bytes");
         }
-        var document = new ProjectileFrameBindingDocument
-        {
-            Version = ProjectileFrameBindingFormat.Version,
-            Frames = NativeFrameBindings(rom, expected),
-        };
+        ProjectileFrameBindingDocument document = NativeFrameBindings(rom, expected);
         var guard = NewLookupFlareForbiddenBus();
         int interpreted = 0, bombInterpreted = 0;
         var bindings = ProjectileFrameBindingFile.Load(new MemoryStream(ProjectileFrameBindingFile.Write(document)));
@@ -1660,7 +1659,9 @@ internal static class LookupStream1Verification
             AssertEqual(still ? SamusProjectileProgramAddresses.ListEndOf(pointer) : unchecked((ushort)(pointer + 8)), slot.InstructionPointer, "Actual record progression unchanged");
             interpreted++;
             if (duration == 0 || still) continue; // Existing bomb contract excludes zero-duration timed records; no bomb holds a still picture.
-            var bomb = new SamusBomb(0) { Animation = SamusProjectileProgramAddresses.PlayerAt(pointer), Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500) };
+            var bomb = new SamusBomb(0);
+            bomb.OccupyAsPlaced(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500));
+            bomb.Animation = SamusProjectileProgramAddresses.PlayerAt(pointer);
             bombs.AdvanceProjectileAnimation(bomb);
             AssertTrue(bomb.IsActive, "Actual bomb timed frame survives");
             AssertEqual(duration, bomb.NativeFrameHold, "Actual bomb timer unchanged");
@@ -1691,18 +1692,33 @@ internal static class LookupStream1Verification
     /// The bindings the cartridge's timed records give: each frame's composition, read from every record that shows it,
     /// which all store the same one (#2274).
     /// </summary>
-    private static Dictionary<string, string> NativeFrameBindings(ISnesAddressSpace rom, IEnumerable<ushort> records)
+    private static ProjectileFrameBindingDocument NativeFrameBindings(ISnesAddressSpace rom, IEnumerable<ushort> records)
     {
         var frames = new Dictionary<string, string>();
+        var unpictured = new HashSet<string>();
         foreach (ushort pointer in records)
         {
             int sprite = 0x930000 | (pointer + 2);
             string name = ProjectileFrameBindingFormat.FrameNameAt(pointer);
-            string composition = ProjectileSpriteDefinitions.Name(LittleEndianBytes.Word(rom.ReadCartridgeByte(sprite), rom.ReadCartridgeByte(sprite + 1)));
+            int selected = LittleEndianBytes.Word(rom.ReadCartridgeByte(sprite), rom.ReadCartridgeByte(sprite + 1));
+            if (selected == global::SuperMetroid.Core.Samus.Artwork.ProjectileSpriteNative.EmptyRecordAddress)
+            {
+                // A record selecting the empty record draws nothing (#2558).
+                AssertTrue(!frames.ContainsKey(name), $"every record that shows {name} draws nothing");
+                unpictured.Add(name);
+                continue;
+            }
+            string composition = ProjectileSpriteDefinitions.Name(selected);
+            AssertTrue(!unpictured.Contains(name), $"every record that shows {name} stores its composition");
             if (!frames.TryAdd(name, composition))
                 AssertEqual(frames[name], composition, $"every record that shows {name} stores its composition");
         }
-        return frames;
+        return new ProjectileFrameBindingDocument
+        {
+            Version = ProjectileFrameBindingFormat.Version,
+            Frames = frames,
+            Unpictured = [.. unpictured],
+        };
     }
 
     /// <summary>Reads native projectile radius words from bank-$93 programs.</summary>
@@ -1740,11 +1756,7 @@ internal static class LookupStream1Verification
         AssertEqual(795, records.Count, "Original timed-record scope outside the two unused lists");
         AssertEqual(1792, mechanics.Count, "Original mechanics-word scope outside the two unused lists");
         AssertEqual(103, programs.Count, "Independent native complete program domains outside the two unused lists");
-        var document = new ProjectileFrameBindingDocument
-        {
-            Version = ProjectileFrameBindingFormat.Version,
-            Frames = NativeFrameBindings(rom, records),
-        };
+        ProjectileFrameBindingDocument document = NativeFrameBindings(rom, records);
         var bindings = ProjectileFrameBindingFile.Load(new MemoryStream(ProjectileFrameBindingFile.Write(document)));
         _ = NewLookupFlareForbiddenBus();
         int actualTicks = 0, loops = 0, deletions = 0;
@@ -1752,8 +1764,10 @@ internal static class LookupStream1Verification
         {
             var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: bindings), new global::SuperMetroid.Core.Fx.RoomEarthquake());
             var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: bindings));
-            var slot = new SamusProjectile(0) { Animation = SamusProjectileProgramAddresses.PlayerAt(program.Start), Damage = 30 };
-            var bomb = new SamusBomb(0) { Animation = SamusProjectileProgramAddresses.PlayerAt(program.Start), Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500) };
+            var slot = new SamusProjectile(0) { Animation = SamusProjectileProgramAddresses.PlayerAt(program.Start) };
+            var bomb = new SamusBomb(0);
+            bomb.OccupyAsPlaced(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500));
+            bomb.Animation = SamusProjectileProgramAddresses.PlayerAt(program.Start);
             // No bomb shows a still picture, which a shot holds (#2347): the bomb owner plays only the lists that hold none.
             bool bombPlays = !SamusProjectileProgramAddresses.HoldsStillPicture(bomb.Playback?.Animation
                 ?? throw new InvalidOperationException($"Projectile list position ${program.Start:X4} names no playback."));
@@ -1792,8 +1806,8 @@ internal static class LookupStream1Verification
                 actualTicks++;
                 if (deleted)
                 {
-                    AssertEqual(0, slot.Damage, "Projectile deletion clears occupancy");
-                    AssertTrue(!bombPlays || bomb.Type.IsNone, "Bomb deletion clears occupancy");
+                    AssertTrue(!slot.IsOccupied, "Projectile deletion clears occupancy");
+                    AssertTrue(!bombPlays || !bomb.IsOccupied, "Bomb deletion clears occupancy");
                     deletions++; finished = true; break;
                 }
                 // A trail reads the frame the record just shown shows; a frame shown again stands at its first record (#2274).
@@ -1823,7 +1837,7 @@ internal static class LookupStream1Verification
         SamusBodySources body = InstalledFixtures.SamusBody;
         byte[] json = File.ReadAllBytes(Path.Combine(CartridgeImportContent.ImportData(GameInstallationLayout.SamusBodyDirectoryName), SamusArmCannonArtworkFormat.ArtworkFileName));
         var document = RequiredJson.Deserialize<SamusArmCannonArtworkDocument>(json,
-            new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true, Converters = { new SamusPoseIdJsonConverter() } });
         SamusArmCannonSourceArtwork Load(SamusArmCannonArtworkDocument value) => SamusArmCannonSourceArtwork.FromPlacement(
             SamusArmCannonSourceArtwork.LoadPlacement(new MemoryStream(SamusArmCannonSourceArtwork.Write(value))));
         var stock = body.ArmCannon;

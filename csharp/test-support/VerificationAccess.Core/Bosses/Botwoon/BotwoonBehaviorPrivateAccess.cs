@@ -12,8 +12,8 @@ internal static class BotwoonBehaviorPrivateAccess
     extension(global::SuperMetroid.Core.Bosses.Botwoon.BotwoonBehavior self)
     {
         /// <summary>The private method <c>AimBotwoonAtSamus</c>, invoked by name.</summary>
-        internal void AimBotwoonAtSamus(global::SuperMetroid.Core.Enemies.RoomEnemyPlace head, global::SuperMetroid.Core.Bosses.Botwoon.BotwoonEnemyState state, global::SuperMetroid.Core.Samus.SamusState samus) =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Bosses.Botwoon.BotwoonBehavior>(self, "AimBotwoonAtSamus", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Bosses.Botwoon.BotwoonEnemyState), typeof(global::SuperMetroid.Core.Samus.SamusState)], new object?[] { head, state, samus });
+        internal void AimBotwoonAtSamus(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant occupant, global::SuperMetroid.Core.Enemies.RoomEnemyPlace head, global::SuperMetroid.Core.Bosses.Botwoon.BotwoonEnemyState state, global::SuperMetroid.Core.Samus.SamusState samus) =>
+            PrivateState.Invoke<global::SuperMetroid.Core.Bosses.Botwoon.BotwoonBehavior>(self, "AimBotwoonAtSamus", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant), typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Bosses.Botwoon.BotwoonEnemyState), typeof(global::SuperMetroid.Core.Samus.SamusState)], new object?[] { occupant, head, state, samus });
 
         /// <summary>The private property <c>BodyAndSpit</c>, reached by name.</summary>
         internal global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior BodyAndSpit
@@ -26,16 +26,16 @@ internal static class BotwoonBehaviorPrivateAccess
             PrivateState.Invoke<global::SuperMetroid.Core.Bosses.Botwoon.BotwoonBehavior>(self, "MoveBotwoonBodySegment", [typeof(global::SuperMetroid.Core.Enemies.EnemyProjectile), typeof(int)], new object?[] { projectile, hurtFlashCadence });
 
         /// <summary>The private method <c>SpawnBotwoonBody</c>, invoked by name.</summary>
-        internal global::SuperMetroid.Core.Bosses.Botwoon.BotwoonSegmentState[] SpawnBotwoonBody(global::SuperMetroid.Core.Enemies.RoomEnemyPlace head) =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Bosses.Botwoon.BotwoonBehavior, global::SuperMetroid.Core.Bosses.Botwoon.BotwoonSegmentState[]>(self, "SpawnBotwoonBody", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace)], new object?[] { head });
+        internal global::SuperMetroid.Core.Bosses.Botwoon.BotwoonSegmentState[] SpawnBotwoonBody(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant occupant, global::SuperMetroid.Core.Enemies.RoomEnemyPlace head) =>
+            PrivateState.Invoke<global::SuperMetroid.Core.Bosses.Botwoon.BotwoonBehavior, global::SuperMetroid.Core.Bosses.Botwoon.BotwoonSegmentState[]>(self, "SpawnBotwoonBody", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant), typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace)], new object?[] { occupant, head });
 
         /// <summary>The private method <c>SpawnBotwoonBodySegment</c>, invoked by name.</summary>
-        internal global::SuperMetroid.Core.Bosses.Botwoon.BotwoonSegmentState SpawnBotwoonBodySegment(global::SuperMetroid.Core.Enemies.RoomEnemyPlace head, int segmentIndex) =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Bosses.Botwoon.BotwoonBehavior, global::SuperMetroid.Core.Bosses.Botwoon.BotwoonSegmentState>(self, "SpawnBotwoonBodySegment", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(int)], new object?[] { head, segmentIndex });
+        internal global::SuperMetroid.Core.Bosses.Botwoon.BotwoonSegmentState SpawnBotwoonBodySegment(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant occupant, global::SuperMetroid.Core.Enemies.RoomEnemyPlace head, int segmentIndex) =>
+            PrivateState.Invoke<global::SuperMetroid.Core.Bosses.Botwoon.BotwoonBehavior, global::SuperMetroid.Core.Bosses.Botwoon.BotwoonSegmentState>(self, "SpawnBotwoonBodySegment", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant), typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(int)], new object?[] { occupant, head, segmentIndex });
 
         /// <summary>The private method <c>SpawnBotwoonSpit</c>, invoked by name.</summary>
-        internal void SpawnBotwoonSpit(global::SuperMetroid.Core.Enemies.RoomEnemyPlace head, global::SuperMetroid.Core.Spatial.TrigonometryAngle angle, int speed) =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Bosses.Botwoon.BotwoonBehavior>(self, "SpawnBotwoonSpit", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Spatial.TrigonometryAngle), typeof(int)], new object?[] { head, angle, speed });
+        internal void SpawnBotwoonSpit(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant occupant, global::SuperMetroid.Core.Enemies.RoomEnemyPlace head, global::SuperMetroid.Core.Spatial.TrigonometryAngle angle, int speed) =>
+            PrivateState.Invoke<global::SuperMetroid.Core.Bosses.Botwoon.BotwoonBehavior>(self, "SpawnBotwoonSpit", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant), typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Spatial.TrigonometryAngle), typeof(int)], new object?[] { occupant, head, angle, speed });
     }
 
     /// <summary>The private static members checks name.</summary>

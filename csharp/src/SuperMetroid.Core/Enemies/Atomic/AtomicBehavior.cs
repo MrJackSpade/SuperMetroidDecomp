@@ -12,19 +12,20 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Atomic], Create);
 
     /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
-    /// <param name="place">The place, holding the new identity and the entry it is spawned from.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
+    /// <param name="place">The place, already holding the occupant.</param>
     /// <param name="common">The shared participation the entity composes.</param>
-    private EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new AtomicEntity(place, common));
+    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new AtomicEntity(occupant, place, common));
 
     /// <summary>Initializes the Atomic.</summary>
-    internal static void InitializeAtomic(RoomEnemyPlace place)
+    internal static void InitializeAtomic(RoomEnemyOccupant occupant, RoomEnemyPlace place)
     {
         var state = new AtomicEnemyState();
         place.SetSpeciesState(state);
 
         place.AnimationClock.Restart();
 
-        AtomicSpawnSettings settings = place.SpawnSettings<AtomicSpawnSettings>();
+        AtomicSpawnSettings settings = occupant.SpawnSettings<AtomicSpawnSettings>();
         state.Playback = new(AtomicAnimations.StartingWith(settings.Spin), AnimationPlace.StartOfAnimation);
     }
 
@@ -33,12 +34,12 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
     /// directions again every update.
     /// </summary>
     internal static void MoveAtomicTowardSamus(
-        RoomEnemyPlace place,
+        RoomEnemyOccupant occupant, RoomEnemyPlace place,
         SamusState samus)
     {
         // The Atomic moves towards Samus on each axis; being level with her counts as her being below or to the right, so
         // it moves down or right.
-        SignedSixteenSixteen speed = place.SpawnSettings<AtomicSpawnSettings>().Speed;
+        SignedSixteenSixteen speed = occupant.SpawnSettings<AtomicSpawnSettings>().Speed;
         SignedSixteenSixteen vertical = speed.Toward(samus.Position.Y.Whole < place.Position.Y.Whole ? VerticalDirection.Up : VerticalDirection.Down);
         place.Position = place.Position.WithY(place.Position.Y.MovedBy(vertical));
 

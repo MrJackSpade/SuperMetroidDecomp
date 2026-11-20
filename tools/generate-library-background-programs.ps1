@@ -63,9 +63,9 @@ try {
     foreach ($match in [regex]::Matches($doorFile, '\[0x([0-9a-f]{4})\] = (\w*DoorDefinitions)\.(\w+),')) {
         $doorNames[[Convert]::ToInt32($match.Groups[1].Value, 16)] = $match.Groups[2].Value + '.' + $match.Groups[3].Value
     }
-    if ($doorNames.Count -ne 596) { throw "Expected 596 door names, found $($doorNames.Count)." }
+    if ($doorNames.Count -ne 594) { throw "Expected 594 door names, found $($doorNames.Count)." }
     function Format-Door([int]$door) {
-        if ($door -eq 0) { return 'null' }
+        if ($door -eq 0) { throw 'A door transfer names no door.' }
         if (-not $doorNames.ContainsKey($door)) { throw ('Library transfer names unknown door ${0:X4}.' -f $door) }
         $qualified = $doorNames[$door]
         if ($qualified.StartsWith('DoorDefinitions.UnlistedDoorTo')) {
@@ -195,8 +195,8 @@ try {
             $command = Read-Word $cursor
             $cursor += 2
             if ($command -eq 0) { $terminated = $true; break }
-            $source = 'LibraryBackgroundSource.None'
-            $destination = 'LibraryBackgroundDestination.None'
+            $source = ''
+            $destination = ''
             $byteCount = 0
             $door = 0
             switch ($command) {
@@ -220,8 +220,15 @@ try {
                 default { throw ('Unknown bank-$8F library command ${0:X4} at ${1:X4}.' -f
                         $command, ($cursor - 2)) }
             }
-            $instructionLines.Add(('        new(LibraryBackgroundCommand.{0}, {1}, {2}, {3}, {4}),' -f
-                $name, $source, $destination, $byteCount, (Format-Door $door)))
+            # Each command kind is its own instruction carrying only its operands (#2558).
+            $instruction = switch ($name) {
+                'Transfer' { 'new LibraryBackgroundInstruction.Transfer({0}, {1}, {2})' -f $source, $destination, $byteCount }
+                'TransferForKraid' { 'new LibraryBackgroundInstruction.TransferForKraid({0}, {1}, {2})' -f $source, $destination, $byteCount }
+                'TransferForDoor' { 'new LibraryBackgroundInstruction.TransferForDoor({0}, {1}, {2}, {3})' -f (Format-Door $door), $source, $destination, $byteCount }
+                'Decompress' { 'new LibraryBackgroundInstruction.Decompress(new {0})' -f ($source -replace '^LibraryBackgroundSource\.Compressed\(', 'LibraryBackgroundSource.CompressedTilemap(') }
+                default { 'new LibraryBackgroundInstruction.{0}()' -f $name }
+            }
+            $instructionLines.Add(('        {0},' -f $instruction))
             if ($command -eq 10 -or $command -eq 12) { [void]$views.Add('Nothing') }
             elseif ($pages -contains $destination) {
                 if ($source -eq 'LibraryBackgroundSource.TilemapStaging') { [void]$views.Add('Picture') }

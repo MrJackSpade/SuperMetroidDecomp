@@ -13,10 +13,10 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= new Dictionary<EnemyDefinitionId, EnemyEntityCreation>
     {
-        [EnemyDefinitionId.DraygonArms] = (place, common) => EnemyOccupant.Of(new DraygonArmsEntity(this, place, common, _bossArtwork)),
-        [EnemyDefinitionId.DraygonBody] = (place, common) => EnemyOccupant.Of(new DraygonBodyEntity(this, place, common, _bossArtwork)),
-        [EnemyDefinitionId.DraygonEye] = (place, common) => EnemyOccupant.Of(new DraygonEyeEntity(this, place, common, _bossArtwork)),
-        [EnemyDefinitionId.DraygonTail] = (place, common) => EnemyOccupant.Of(new DraygonTailEntity(this, place, common, _bossArtwork)),
+        [EnemyDefinitionId.DraygonArms] = (occupant, place, common) => EnemyOccupant.Of(new DraygonArmsEntity(this, occupant, place, common, _bossArtwork)),
+        [EnemyDefinitionId.DraygonBody] = (occupant, place, common) => EnemyOccupant.Of(new DraygonBodyEntity(this, occupant, place, common, _bossArtwork)),
+        [EnemyDefinitionId.DraygonEye] = (occupant, place, common) => EnemyOccupant.Of(new DraygonEyeEntity(this, occupant, place, common, _bossArtwork)),
+        [EnemyDefinitionId.DraygonTail] = (occupant, place, common) => EnemyOccupant.Of(new DraygonTailEntity(this, occupant, place, common, _bossArtwork)),
     };
 
     /// <summary>The loaded room's bindings: its game-state services, random source and the boss state that outlives the room.</summary>
@@ -134,9 +134,8 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
         DraygonEnemyState state = body.RequireSpeciesState<DraygonEnemyState>();
         RunDraygonBodyMainForDraygonPhase[state.Phase](samus, frameCounter, state);
 
-        // These are four separate enemies, but Draygon's main behaviour makes the body coordinate
-        // authoritative after its phase runs. Copying here preserves that ordering for
-        // the eye AI and each part's later animation step in the same enemy frame.
+        // His arms, tail and eye are placed at his body once his phase has moved it, before the eye and each part's
+        // animation run this update.
         state.Arms.Position = state.Arms.Position.WithWholeX(body.Position.X.Whole);
         state.Tail.Position = state.Tail.Position.WithWholeX(body.Position.X.Whole);
         state.Eye.Position = state.Eye.Position.WithWholeX(body.Position.X.Whole);

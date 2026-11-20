@@ -457,7 +457,8 @@ internal static class GraphDigestVerification
     }
     /// <summary>
     /// True when every instance field of two objects of one type holds equal state: arrays of
-    /// unmanaged elements by content, arrays of other value types element by element, an owned Core object by its own
+    /// unmanaged elements by content, arrays of other value types element by element, arrays of records (a level's door
+    /// exits) element by element by their value equality, an owned Core object by its own
     /// fields, everything else by <see cref="object.Equals(object?, object?)"/>.
     /// Reflection covers fields added later, so a restore that forgets one fails here.
     /// </summary>
@@ -477,11 +478,17 @@ internal static class GraphDigestVerification
             {
                 Type element = leftArray.GetType().GetElementType()
                     ?? throw new InvalidOperationException("Verification requires leftArray.GetType().GetElementType().");
-                if (leftArray.GetType() != rightArray.GetType() || !element.IsValueType)
+                bool recordElements = !element.IsValueType && element.GetMethod("<Clone>$") is not null;
+                if (leftArray.GetType() != rightArray.GetType() || !element.IsValueType && !recordElements)
                     throw new InvalidOperationException($"{type.Name}.{field.Name} needs an element comparison.");
                 if (leftArray.Length != rightArray.Length)
                     return false;
-                if (element.IsPrimitive)
+                if (recordElements)
+                {
+                    if (!leftArray.Cast<object?>().SequenceEqual(rightArray.Cast<object?>()))
+                        return false;
+                }
+                else if (element.IsPrimitive)
                 {
                     if (!System.Runtime.InteropServices.MemoryMarshal.CreateReadOnlySpan(
                             ref System.Runtime.InteropServices.MemoryMarshal.GetArrayDataReference(leftArray), Buffer.ByteLength(leftArray))

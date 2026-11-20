@@ -635,10 +635,9 @@ internal sealed class SamusFramePhases
         }
         // Crystal Flash moves her through its three phases and locks her pose input. Mother
         // Brain's rainbow-beam setup keeps that hold, but temporarily replaces the movement phase
-        // with a lock that moves her not at all. Once restoring Samus's control reinstalls the normal
-        // movement mode, Flash resumes under the drained pose. The Super Metroid never installs that
-        // movement lock, so its interruption continues Flash immediately. Model the physical movement
-        // owner, not merely the fact that a cinematic pose exists.
+        // with a lock that moves her not at all. Once Samus's control is restored to normal movement, Flash resumes
+        // under the drained pose. The Super Metroid never locks her movement so, and its interruption continues Flash
+        // at once.
         if (samus.CrystalFlash.Phase is not CrystalFlashPhase.Inactive &&
             !(samus.Drained.Phase == DrainedSamusPhase.RainbowBeamLocked && samus.Control.InputLocked))
         {
@@ -651,9 +650,9 @@ internal sealed class SamusFramePhases
         // motionless while enemy AI controls pose/timing. This is reached only when Crystal Flash
         // no longer holds her. Controller zero changes only the pose, so a crashing spark keeps
         // its hold and finishes below; the drained-fall cue ends the spark itself.
-        // The rainbow-beam lock is the movement lock itself: once restoring Samus's control reinstalls
-        // the normal movement mode during enemy AI, this same frame's movement phase runs the knockback
-        // pose's knockback movement, as the pose's own movement does.
+        // The rainbow-beam lock is the movement lock itself: once Samus's control is restored to normal movement during
+        // the enemies' update, this update's movement runs the knockback pose's knockback movement, as the pose's own
+        // movement does.
         // The controller-held standing/crouching phases last only while Samus keeps a
         // drained body: a pose the movement installs (a wall jump out of a drained
         // spin) returns her to the ordinary movement and input. So does the landing of a drained fall that an
@@ -890,10 +889,8 @@ internal sealed class SamusFramePhases
     /// <summary>Runs the forward-facing poses' movement, including the elevator's one-pixel downward block scan.</summary>
     private void StepForwardFacingMovement(SamusState samus, RoomScope room)
     {
-        // The two front-facing poses enter through the controller-locked demo and elevator setups.
-        // The actor-owned vertical-collision value remains an explicit producer, while
-        // this consumer now includes both the zero status, which moves nothing, and the nonzero
-        // one-pixel downward block scan.
+        // The two front-facing poses enter through the controller-locked demo and elevator setups: a forward-facing
+        // Samus moves nothing while the elevator is at rest and scans one pixel down while it moves.
         SamusGroundedMovement.StepFacingForward(
             room.LevelData,
             samus,
@@ -922,9 +919,7 @@ internal sealed class SamusFramePhases
             _clock.Counter,
             room.RoomObjects);
         frame.Record(new GroundedMovementResult(default, grounding));
-        // The normal knockback entry still publishes a landing when its
-        // downward probe hits the floor. Reuse the ordinary landing seam
-        // for presentation, pose selection and the landing's speed cleanup.
+        // When the knockback ending's downward probe hits the floor, Samus lands as on any landing.
         if (grounding.Collided && !groundingDisplacement.IsNegative)
             frame.Record(new AerialMovementResult(Landed: true, HitCeiling: false));
     }
@@ -949,7 +944,7 @@ internal sealed class SamusFramePhases
 
         // The camera point is the room camera's previous Samus point or, for a new camera, the point sampled at the
         // frame's start, before enemy-owned motion and her movement.
-        frame.SampleCameraPoint(room.Camera.PreviousSamusPoint ?? cameraPointAtFrameStart);
+        frame.SampleCameraPoint(room.Camera.PreviousSamusPoint is SamusScrolledCheckpoint { Point: var point } ? point : cameraPointAtFrameStart);
 
         // Retain the frame-start pose because the turn-transition animation cue can replace Samus.Pose during
         // animation later in this same frame. Input/movement/transition phases all
@@ -1013,16 +1008,16 @@ internal sealed class SamusFramePhases
         // movement.
         if (_player.ProspectiveSamusPose is { } matchedBombCancel &&
             matchedBombCancel.ProspectivePose != samus.Pose)
-            samus.BombJumpRequest = SamusBombJumpRequest.None;
+            samus.BombJump = null;
         frame.SamplePoseLookup(poseLookup, samus);
         _player.ProspectiveSamusFallbackPose = null;
         _player.ProspectiveSamusWallCollisionPose = null;
 
-        // Zero input and a nonzero chord no input transition matches both reach the input fallback; a matched
-        // same-pose transition does not. The input phase chooses Samus's prospective pose, which takes effect
-        // after movement and animation, so the choice is captured here.
-        // A retained pose still chooses a pose transition whose change runs later.
-        if (_player.GroundedSamusMovementEnabled && frame.UsePoseDefinitionFallback)
+        // When no input transition matches, no buttons held or a combination none matches, her pose's no-transition
+        // pose is chosen; a match that keeps the pose is not. The pose her input chooses takes effect after movement
+        // and animation, so the choice is captured here, and a kept pose still chooses a pose transition whose change
+        // runs later.
+        if (_player.GroundedSamusMovementEnabled && frame.InputChoseNoPose)
         {
             _player.ProspectiveSamusFallbackPose = SamusNoTransitionPose.Resolve(
                 SamusPoseMetadata.ReadMovementType(samus),

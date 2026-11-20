@@ -108,7 +108,7 @@ internal static class CrystalFlashCleanupVerification
                 runtime.ReplaceRoomEnemiesForVerification(contactBus, new StandaloneRoomEnemyServices(() => 1), RoomEnemyFrameFixtures.StandaloneLoad(contactBus.ReadEnemyPopulation(CrystalFlashContactDefinitions.Pointer), BgArtworkFixtures.For(runtime.Vram), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), samus));
                 // Its placement selects the standing-still speed, so it stays at the contact position (#2450).
                 contactEnemy = runtime.Enemies.Places.InUpdateOrder[0];
-                AssertEqual(SignedSixteenSixteen.Zero, contactEnemy.SpawnSettings<RipperSpawnSettings>().Speed,
+                AssertEqual(SignedSixteenSixteen.Zero, contactEnemy.HeldOccupant().SpawnSettings<RipperSpawnSettings>().Speed,
                     "the contact Ripper's placement holds it still");
                 // Contact runs before AI publishes its first map. Seed that same
                 // authored map so this fixture tests contact on this exact frame.

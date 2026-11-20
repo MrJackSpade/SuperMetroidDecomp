@@ -32,7 +32,7 @@ internal sealed class DraygonMovement
         _effectActors.SpawnRoomEffectActor(
             state.Body.Position.Whole + DraygonArenaDefinitions.BreathBubbleOffset,
             RoomEffectActorKind.DraygonBreathBubbles,
-            graphics: default);
+            graphics: SpriteGraphics.SharedStandard);
     }
 
     /// <summary>

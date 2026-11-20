@@ -63,8 +63,8 @@ internal static class DragonBehaviorVerification
             {
                 RoomEnemyPlace place = enemies.Places.InUpdateOrder[bodySlot + part];
                 place.SetSpawnParameter1(EnemyDefinitionId.Dragon, (ushort)part);
-                place.Bind(EnemyDefinitionId.Dragon, place.Definition);
-                place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+                place.Bind(EnemyDefinitionId.Dragon, place.KeptDefinition);
+                place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
                 if (part == 0)
                     enemies.DragonBehavior.InitializeDragonBody(place);
                 else
@@ -77,7 +77,7 @@ internal static class DragonBehaviorVerification
             body.Action = DragonAction.AttackFinished;
             body.Facing = HorizontalDirection.Left;
             body.AttackCounter = 3;
-            enemies.DragonBehavior.RunDragonAttacking(enemies.Places.InUpdateOrder[bodySlot], body);
+            enemies.DragonBehavior.RunDragonAttacking(enemies.Places.InUpdateOrder[bodySlot].HeldOccupant(), enemies.Places.InUpdateOrder[bodySlot], body);
         }
         SoundEffectId fireball = EnemySoundEffectDefinitions.DragonFireballSound;
         AssertEqual(2, enemies.Audio.SoundRequests.Count(request => request.SoundEffect == fireball),
@@ -92,8 +92,8 @@ internal static class DragonBehaviorVerification
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         bool wing = selector is DragonSegment.WingsFacingLeft or DragonSegment.WingsFacingRight;
         place.SetSpawnParameter1(EnemyDefinitionId.Dragon, wing ? (ushort)1 : (ushort)0);
-        place.Bind(EnemyDefinitionId.Dragon, place.Definition);
-        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+        place.Bind(EnemyDefinitionId.Dragon, place.KeptDefinition);
+        place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         if (wing)
             enemies.DragonBehavior.InitializeDragonWing(place);
         else

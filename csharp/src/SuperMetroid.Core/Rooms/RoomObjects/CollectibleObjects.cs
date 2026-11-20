@@ -154,11 +154,14 @@ internal sealed class CollectibleObjects
         (InWorldCollectibleKind kind, CollectiblePresentation presentation) = item;
         RoomCollisionBlock original = level.GetCollisionBlock(place.Block);
         bool collected = system.HasCollectedItem(placed.Location);
-        CollectibleBlockPairs.Pair? blockPair = CollectibleDefinitions.Items[kind].Picture == CollectiblePictureSource.OwnPicture ? _blockPairs.Take() : null;
+        CollectibleTerrain terrain = CollectibleDefinitions.Items[kind].Picture == CollectiblePictureSource.OwnPicture
+            ? CollectibleTerrain.OwnPicture(_blockPairs.Take())
+            : CollectibleTerrain.TankBlocks;
 
         RoomTerrainBlock setup = original.Terrain.WithCollision(
             presentation == CollectiblePresentation.ShotBlock ? RoomCollisionType.ShootableBlock : RoomCollisionType.Air);
-        // The setup rewrites only the block's type and parameter, so it keeps its picture and what it shows (#2502).
+        // The setup changes how the block collides and reacts, and the block keeps its picture and what it shows
+        // (#2502).
         level.SetCollision(place.Block, setup.Collision);
         level.SetBehavior(place.Block, RoomBlockBehavior.Reacting(ShootableReaction.CollectibleTrigger));
 
@@ -175,7 +178,7 @@ internal sealed class CollectibleObjects
                 CollectiblePresentation.ShotBlock => CollectiblePhase.ShotBlock,
                 _ => throw new ArgumentOutOfRangeException(nameof(presentation)),
             };
-        place.Become(new CollectibleObject(kind, presentation, blockPair, phase, placed.Location, setup));
+        place.Become(new CollectibleObject(kind, presentation, terrain, phase, placed.Location, setup));
     }
 
     /// <summary>

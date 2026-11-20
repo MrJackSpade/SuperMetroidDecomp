@@ -35,17 +35,26 @@ public abstract record AudioEvent
     }
 
     /// <summary>
-    /// Selects <see cref="Track"/> before the update's clock steps run; the song changes on the music's next beat. A
-    /// null track stops the music.
+    /// Selects <see cref="Track"/> before the update's clock steps run; the song changes on the music's next beat.
     /// </summary>
-    /// <param name="Track">The track selected, or null to stop the music.</param>
-    public sealed record SelectMusicTrack(MusicTrack? Track) : AudioEvent
+    /// <param name="Track">The track selected.</param>
+    public sealed record SelectMusicTrack(MusicTrack Track) : AudioEvent
     {
         /// <inheritdoc/>
         internal override void React<TContext>(AudioEventReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).SelectMusicTrack(this, context);
 
         /// <inheritdoc />
-        public override string ToString() => Track is MusicTrack track ? $"music:{track}" : "music:stop";
+        public override string ToString() => $"music:{Track}";
+    }
+
+    /// <summary>Stops the music before the update's clock steps run, on the music's next beat.</summary>
+    public sealed record StopMusic : AudioEvent
+    {
+        /// <inheritdoc/>
+        internal override void React<TContext>(AudioEventReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).StopMusic(this, context);
+
+        /// <inheritdoc />
+        public override string ToString() => "music:stop";
     }
 
     /// <summary>One step of the sound acceptance clock at its sample offset within the update.</summary>
@@ -77,7 +86,8 @@ public abstract record AudioEvent
 /// <summary>What the owner of a <see cref="AudioEvent"/> does on each of its cases (#2553).</summary>
 /// <param name="ChangeMusicDataSet">Reacts to a <see cref="AudioEvent.ChangeMusicDataSet"/>.</param>
 /// <param name="SelectMusicTrack">Reacts to a <see cref="AudioEvent.SelectMusicTrack"/>.</param>
+/// <param name="StopMusic">Reacts to a <see cref="AudioEvent.StopMusic"/>.</param>
 /// <param name="ClockStep">Reacts to a <see cref="AudioEvent.ClockStep"/>.</param>
 /// <param name="StartSoundEffect">Reacts to a <see cref="AudioEvent.StartSoundEffect"/>.</param>
 /// <typeparam name="TContext">What each case reads besides itself.</typeparam>
-public sealed record AudioEventReactions<TContext>(Action<AudioEvent.ChangeMusicDataSet, TContext> ChangeMusicDataSet, Action<AudioEvent.SelectMusicTrack, TContext> SelectMusicTrack, Action<AudioEvent.ClockStep, TContext> ClockStep, Action<AudioEvent.StartSoundEffect, TContext> StartSoundEffect);
+public sealed record AudioEventReactions<TContext>(Action<AudioEvent.ChangeMusicDataSet, TContext> ChangeMusicDataSet, Action<AudioEvent.SelectMusicTrack, TContext> SelectMusicTrack, Action<AudioEvent.StopMusic, TContext> StopMusic, Action<AudioEvent.ClockStep, TContext> ClockStep, Action<AudioEvent.StartSoundEffect, TContext> StartSoundEffect);

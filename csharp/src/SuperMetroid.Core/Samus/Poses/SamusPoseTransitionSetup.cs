@@ -45,8 +45,8 @@ public sealed class SamusPoseTransitionSetup
         (owner, _, samus, targetPose, _) => owner.SetUpJumpFromDamageBoost(samus, targetPose));
 
     /// <summary>A moonwalk reverses while Jump is held, starting the moonwalk turn that jumps.</summary>
-    internal static SamusPoseTransitionSetup StartMoonwalkTurnJump { get; } = new(nameof(StartMoonwalkTurnJump),
-        (_, _, samus, _, _) => SamusPoseSetupSteps.SetUpStartMoonwalkTurnJump(samus));
+    internal static SamusPoseTransitionSetup StartMoonwalkTurnToSpinJump { get; } = new(nameof(StartMoonwalkTurnToSpinJump),
+        (_, _, samus, _, _) => SamusPoseSetupSteps.SetUpStartMoonwalkTurnToSpinJump(samus));
 
     /// <summary>She starts, aims or leaves a moonwalk, or turns instead when moonwalking is switched off.</summary>
     internal static SamusPoseTransitionSetup ChangeMoonwalkPose { get; } = new(nameof(ChangeMoonwalkPose),

@@ -51,13 +51,12 @@ internal static class WaterfallTests
         var bg3 = new OverlayBlendLayer(new AtmosphereOverlay(FxOverlayFixtures.Rows(plane, FxOverlayPlaneConstants.Rows / 2, 32), ScrollBands.Uniform(0)), 32,
             BlendOperation.Subtract, ScrollBands.Uniform(0));
         var layer = new GameplayBlendLayer(new(registers, RoomBackgroundsFixtures.Uniform(vram.Bytes, cgram.Colors, new(1), new TilemapCell(14, 8, new(4)))), ScreenWindow.Closed, false,
-            new GameplayBlend
+            new EffectBehindRoomBlend(new SuperMetroid.Core.Fx.OverlayBehindRoomBlend
             {
                 Blended = BlendedLayers.Foreground | BlendedLayers.Actors | BlendedLayers.Backdrop,
                 Operation = BlendOperation.Subtract,
-                Halved = false,
-                Colour = RgbColor.Black,
-            }, bg3, backgroundBehind: true);
+                BackgroundBehind = true,
+            }), bg3, backgroundBehind: true);
         var scene = new LayeredScene(memory, [layer], 15);
         var pixels = DisplayRendering.Render(scene);
         Check(16, 19, 13, 7, "BG2 beats low BG3 and subtracts through foreground");

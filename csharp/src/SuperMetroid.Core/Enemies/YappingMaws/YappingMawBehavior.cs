@@ -20,9 +20,10 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.YappingMaw], Create);
 
     /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
-    /// <param name="place">The place, holding the new identity and the entry it is spawned from.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
+    /// <param name="place">The place, already holding the occupant.</param>
     /// <param name="common">The shared participation the entity composes.</param>
-    private EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new YappingMawEntity(this, place, common));
+    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new YappingMawEntity(this, occupant, place, common));
 
     /// <summary>Creates the four auxiliary body-link projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
@@ -69,27 +70,21 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly record struct ApplyYappingMawCueContext(YappingMawEnemyState State, YappingMawBehavior Owner);
 
     /// <summary>Initializes the Yapping Maw.</summary>
-    internal void InitializeYappingMaw(RoomEnemyPlace place)
+    internal void InitializeYappingMaw(RoomEnemyOccupant occupant, RoomEnemyPlace place)
     {
-        // The body links are spawned mouth end first, link 3 down to link 0, so each takes the projectile place the pool
-        // gives it in that order; the Maw keeps them in root-to-mouth order.
+        // The body links are created mouth end first and kept root to mouth.
         var bodies = new EnemyProjectile[YappingMawAttackDefinitions.TongueLinks];
         for (int link = bodies.Length - 1; link >= 0; link--)
         {
-            EnemyProjectile? body = _projectiles.AllocateEnemyProjectile();
+            EnemyProjectile? body = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.YappingMawBody, EnemyProjectileBehavior.Still, SpriteGraphics.SpawnedBy(occupant, place.Shading));
             if (body is null)
             {
                 throw new InvalidDataException(
                     $"Yapping Maw place {place.Ordinal} could not allocate all four body projectiles.");
             }
 
-            EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-                body,
-                RoomEnemyProjectileKind.YappingMawBody,
-                EnemyProjectileBehavior.Still,
-                SpriteGraphics.SpawnedBy(place));
             body.Position = body.Position.WithWhole(place.Position.Whole);
-            body.InstallAnimation(new YappingMawBodyProjectileAnimation(place.SpawnSettings<YappingMawSpawnSettings>().Attack == VerticalDirection.Down
+            body.InstallAnimation(new YappingMawBodyProjectileAnimation(occupant.SpawnSettings<YappingMawSpawnSettings>().Attack == VerticalDirection.Down
                 ? YappingMawBodyProjectileSegment.FacingDown
                 : YappingMawBodyProjectileSegment.FacingUp));
             bodies[link] = body;
@@ -103,31 +98,31 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             Links = [.. bodies.Select(body => new YappingMawLink(body))],
             // The root's kind follows the Maw's attack direction; the Maw holds the root it spawned.
             RootEffectActor = _effectActors.SpawnRoomEffectActor(
-                new(place.Position.X.Whole, place.Position.Y.Whole + (YappingMawAttackDefinitions.RootDistance.Toward(place.SpawnSettings<YappingMawSpawnSettings>().Attack.Reversed()))),
-                place.SpawnSettings<YappingMawSpawnSettings>().Attack == VerticalDirection.Down
+                new(place.Position.X.Whole, place.Position.Y.Whole + (YappingMawAttackDefinitions.RootDistance.Toward(occupant.SpawnSettings<YappingMawSpawnSettings>().Attack.Reversed()))),
+                occupant.SpawnSettings<YappingMawSpawnSettings>().Attack == VerticalDirection.Down
                     ? RoomEffectActorKind.YappingMawBaseFacingDown
                     : RoomEffectActorKind.YappingMawBaseFacingUp,
-                SpriteGraphics.SpawnedBy(place)),
+                SpriteGraphics.SpawnedBy(occupant, place.Shading)),
         };
         place.SetSpeciesState(state);
 
-        state.Playback = EnemyAnimationPlayback.Start(place, YappingMawAnimations.StartingWith(place.SpawnSettings<YappingMawSpawnSettings>().Attack == VerticalDirection.Down
+        state.Playback = EnemyAnimationPlayback.Start(place, YappingMawAnimations.StartingWith(occupant.SpawnSettings<YappingMawSpawnSettings>().Attack == VerticalDirection.Down
             ? YappingMawSegment.AttackingDown
             : YappingMawSegment.AttackingUp));
     }
 
     /// <summary>What <c>RunYappingMawMain</c> does for each <see cref="YappingMawAction"/> member, each member's own arm.</summary>
-    private IdentityTable<YappingMawAction, Action<RoomEnemyPlace, YappingMawEnemyState, SamusState>> RunYappingMawMainForYappingMawAction => field ??= new(new Dictionary<YappingMawAction, Action<RoomEnemyPlace, YappingMawEnemyState, SamusState>>
+    private IdentityTable<YappingMawAction, Action<RoomEnemyOccupant, RoomEnemyPlace, YappingMawEnemyState, SamusState>> RunYappingMawMainForYappingMawAction => field ??= new(new Dictionary<YappingMawAction, Action<RoomEnemyOccupant, RoomEnemyPlace, YappingMawEnemyState, SamusState>>
     {
-        [YappingMawAction.WaitingForSamus] = (place, state, samus) => WaitForSamusWithYappingMaw(place, state, samus),
-        [YappingMawAction.BeginExtension] = (place, state, samus) => BeginYappingMawExtension(place, state),
-        [YappingMawAction.ExtendingOrRetracting] = (place, state, samus) => AdvanceYappingMawExtension(place, state, samus),
-        [YappingMawAction.RetractedDelay] = (place, state, samus) => WaitAfterYappingMawRetraction(place, state, samus),
+        [YappingMawAction.WaitingForSamus] = (occupant, place, state, samus) => WaitForSamusWithYappingMaw(occupant, state, samus),
+        [YappingMawAction.BeginExtension] = (_, place, state, samus) => BeginYappingMawExtension(place, state),
+        [YappingMawAction.ExtendingOrRetracting] = (occupant, place, state, samus) => AdvanceYappingMawExtension(occupant, place, state, samus),
+        [YappingMawAction.RetractedDelay] = (_, place, state, samus) => WaitAfterYappingMawRetraction(place, state, samus),
     });
 
     /// <summary>Runs the Maw's main behaviour, then places its four links.</summary>
     private void RunYappingMawMain(
-        RoomEnemyPlace place,
+        RoomEnemyOccupant occupant, RoomEnemyPlace place,
         YappingMawEnemyState state,
         SamusState samus,
         Position16<RoomPixels> camera)
@@ -135,7 +130,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         state.GrabCooldown = state.GrabCooldown.Counted();
         state.IsOffScreen = IsYappingMawPointOffScreen(place, camera);
 
-        RunYappingMawMainForYappingMawAction[state.Action](place, state, samus);
+        RunYappingMawMainForYappingMawAction[state.Action](occupant, place, state, samus);
 
         // The mouth owns the final point. The four body links own the root, quarter, half and three-quarter points of
         // the tongue; they do nothing of their own but show their picture where the Maw places them each update.
@@ -147,7 +142,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Waits for Samus, including the deliberately approximate distance check.</summary>
     private static void WaitForSamusWithYappingMaw(
-        RoomEnemyPlace place,
+        RoomEnemyOccupant occupant,
         YappingMawEnemyState state,
         SamusState samus)
     {
@@ -164,7 +159,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         // An attack starts only strictly inside the placement's activation distance (#2450).
-        if (distance >= place.SpawnSettings<YappingMawSpawnSettings>().ActivationDistance)
+        if (distance >= occupant.SpawnSettings<YappingMawSpawnSettings>().ActivationDistance)
             return;
 
         // The tongue reaches a nearer target where it is and a farther one only as far as its longest reach.
@@ -205,7 +200,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs the curved four-link solver and state transition.</summary>
     private void AdvanceYappingMawExtension(
-        RoomEnemyPlace place,
+        RoomEnemyOccupant occupant, RoomEnemyPlace place,
         YappingMawEnemyState state,
         SamusState samus)
     {
@@ -267,7 +262,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The six retracted animations are not one per aim. The right and left sectors have
         // dedicated art, while every other sector shares its attack direction's animation.
-        VerticalDirection reach = place.SpawnSettings<YappingMawSpawnSettings>().Attack;
+        VerticalDirection reach = occupant.SpawnSettings<YappingMawSpawnSettings>().Attack;
         if (reach == VerticalDirection.Up)
         {
             state.Playback = new(YappingMawAnimations.StartingWith(YappingMawCooldownDefinitions.Upward[state.Aim]), AnimationPlace.StartOfAnimation);
@@ -503,10 +498,10 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     };
 
     /// <summary>Runs YappingMaw's main AI.</summary>
-    internal void RunYappingMawMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunYappingMawMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, IEnemyAiFrame frame)
     {
         RunYappingMawMain(
-            place,
+            occupant, place,
             place.RequireSpeciesState<YappingMawEnemyState>(),
             frame.Samus,
             frame.Camera);

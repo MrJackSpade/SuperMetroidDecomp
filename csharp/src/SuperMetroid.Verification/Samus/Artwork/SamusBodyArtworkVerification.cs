@@ -60,7 +60,8 @@ internal static class SamusBodyArtworkVerification
             SamusBodyFrameSelection frame = stock.Frames[index];
             AssertEqual(bus.ReadCartridgeByte(address), frame.TopSet, $"Samus frame {index} upper set");
             AssertEqual(bus.ReadCartridgeByte(address + 1), frame.TopPosition, $"Samus frame {index} upper position");
-            AssertEqual(bus.ReadCartridgeByte(address + 2), frame.BottomSet, $"Samus frame {index} lower set");
+            AssertEqual(bus.ReadCartridgeByte(address + 2), frame.BottomSet ?? byte.MaxValue,
+                $"Samus frame {index} lower set, the cartridge's largest group index where it names no lower half");
             AssertEqual(bus.ReadCartridgeByte(address + 3), frame.BottomPosition, $"Samus frame {index} lower position");
         }
         for (int half = 0; half < 2; half++)
@@ -362,8 +363,8 @@ internal static class SamusBodyArtworkVerification
             SamusBodyFrameSelection selection = stock.Selection(SamusPoseNumbering.FromNumber(pose), 0);
             AssertEqual(SamusBodySources.Picture(stock.DefinitionRecord(SamusBodyHalf.Top, selection.TopSet, selection.TopPosition)),
                 pictures.Top, $"Samus pose {pose:X2} composes its frame-zero top definition");
-            AssertEqual(selection.NamesBottom
-                    ? SamusBodySources.Picture(stock.DefinitionRecord(SamusBodyHalf.Bottom, selection.BottomSet, selection.BottomPosition)) : null,
+            AssertEqual(selection.BottomSet is int bottomSet
+                    ? SamusBodySources.Picture(stock.DefinitionRecord(SamusBodyHalf.Bottom, bottomSet, selection.BottomPosition)) : null,
                 pictures.Bottom, $"Samus pose {pose:X2} composes its frame-zero bottom definition, or none when the frame names none");
         }
 

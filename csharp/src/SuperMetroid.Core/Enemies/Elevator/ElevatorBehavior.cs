@@ -16,9 +16,10 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
     public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Elevator], Create);
 
     /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
-    /// <param name="place">The place, holding the new identity and the entry it is spawned from.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
+    /// <param name="place">The place, already holding the occupant.</param>
     /// <param name="common">The shared participation the entity composes.</param>
-    private EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.FromSurroundings(new ElevatorEntity(this, place, common));
+    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.FromSurroundings(new ElevatorEntity(this, occupant, place, common));
 
     /// <summary>The loaded room's bindings, whose game-state services set up Samus's elevator pose when the elevator departs.</summary>
     private readonly EnemyRoomBinding _room;
@@ -108,12 +109,12 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
     }
 
     /// <summary>Initializes the Elevator.</summary>
-    private void InitializeElevator(RoomEnemyPlace place, SamusState samus)
+    private void InitializeElevator(RoomEnemyOccupant occupant, RoomEnemyPlace place, SamusState samus)
     {
         var state = new ElevatorEnemyState();
         place.SetSpeciesState(state);
 
-        place.Frame = EnemyFrameId.Empty;
+        place.Frame = EnemyFrameId.PointAtOrigin;
         state.Playback = EnemyAnimationPlayback.Start(place, ElevatorAnimations.StartingWith(ElevatorSegment.Idle));
         state.RestingY = place.Position.Y.Whole;
 
@@ -126,35 +127,35 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
             return;
         }
 
-        place.Position = place.Position.WithWholeY(place.SpawnSettings<ElevatorSpawnSettings>().ArrivalY);
+        place.Position = place.Position.WithWholeY(occupant.SpawnSettings<ElevatorSpawnSettings>().ArrivalY);
         PinSamusToElevator(place, samus);
         ArrivalElevator = place;
     }
 
     /// <summary>What <c>RunElevatorMain</c> does for each <see cref="ElevatorActorStatus"/> member, each member's own arm.</summary>
-    private IdentityTable<ElevatorActorStatus, Action<RoomEnemyPlace, ElevatorEnemyState, SamusState, GameplayAction, SamusProjectileSystem>> RunElevatorMainForElevatorActorStatus => field ??= new(new Dictionary<ElevatorActorStatus, Action<RoomEnemyPlace, ElevatorEnemyState, SamusState, GameplayAction, SamusProjectileSystem>>
+    private IdentityTable<ElevatorActorStatus, Action<RoomEnemyOccupant, RoomEnemyPlace, ElevatorEnemyState, SamusState, GameplayAction, SamusProjectileSystem>> RunElevatorMainForElevatorActorStatus => field ??= new(new Dictionary<ElevatorActorStatus, Action<RoomEnemyOccupant, RoomEnemyPlace, ElevatorEnemyState, SamusState, GameplayAction, SamusProjectileSystem>>
     {
-        [ElevatorActorStatus.Inactive] = (place, state, samus, newlyPressedControllerInput, samusProjectiles) =>
+        [ElevatorActorStatus.Inactive] = (occupant, place, state, samus, newlyPressedControllerInput, samusProjectiles) =>
         {
             WaitForElevatorDirectionInput(
-                place,
+                occupant, place,
                 samus,
                 newlyPressedControllerInput,
                 samusProjectiles);
         },
-        [ElevatorActorStatus.Departing] = (place, state, samus, newlyPressedControllerInput, samusProjectiles) => MoveDepartingElevator(place, samus),
-        [ElevatorActorStatus.BeginArrivalReturn] = (place, state, samus, newlyPressedControllerInput, samusProjectiles) =>
+        [ElevatorActorStatus.Departing] = (_, place, state, samus, newlyPressedControllerInput, samusProjectiles) => MoveDepartingElevator(place, samus),
+        [ElevatorActorStatus.BeginArrivalReturn] = (occupant, place, state, samus, newlyPressedControllerInput, samusProjectiles) =>
         {
             ElevatorStatus = ElevatorActorStatus.ReturningToRest;
             _passEvents.Publish(new ElevatorEvent(ElevatorFrameEvent.ArrivalReturnStarted));
-            MoveElevatorBackToRest(place, state, samus);
+            MoveElevatorBackToRest(occupant, place, state, samus);
         },
-        [ElevatorActorStatus.ReturningToRest] = (place, state, samus, newlyPressedControllerInput, samusProjectiles) => MoveElevatorBackToRest(place, state, samus),
+        [ElevatorActorStatus.ReturningToRest] = (occupant, place, state, samus, newlyPressedControllerInput, samusProjectiles) => MoveElevatorBackToRest(occupant, place, state, samus),
     });
 
     /// <summary>Runs the elevator's main behaviour and its four phases.</summary>
     private void RunElevatorMain(
-        RoomEnemyPlace place,
+        RoomEnemyOccupant occupant, RoomEnemyPlace place,
         ElevatorEnemyState state,
         SamusState samus,
         GameplayAction newlyPressedControllerInput,
@@ -166,17 +167,17 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
             return;
         }
 
-        RunElevatorMainForElevatorActorStatus[ElevatorStatus](place, state, samus, newlyPressedControllerInput, samusProjectiles);
+        RunElevatorMainForElevatorActorStatus[ElevatorStatus](occupant, place, state, samus, newlyPressedControllerInput, samusProjectiles);
     }
 
     /// <summary>Waits for the travel direction input.</summary>
     private void WaitForElevatorDirectionInput(
-        RoomEnemyPlace place,
+        RoomEnemyOccupant occupant, RoomEnemyPlace place,
         SamusState samus,
         GameplayAction newlyPressedControllerInput,
         SamusProjectileSystem samusProjectiles)
     {
-        ElevatorTravelDirection direction = place.SpawnSettings<ElevatorSpawnSettings>().Direction;
+        ElevatorTravelDirection direction = occupant.SpawnSettings<ElevatorSpawnSettings>().Direction;
         GameplayAction requiredInput = ElevatorActorDefinitions.RequiredDirectionInputs[direction];
         if (!newlyPressedControllerInput.HasAny(requiredInput))
         {
@@ -208,12 +209,12 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
 
     /// <summary>Moves the arriving elevator back to rest.</summary>
     private void MoveElevatorBackToRest(
-        RoomEnemyPlace place,
+        RoomEnemyOccupant occupant, RoomEnemyPlace place,
         ElevatorEnemyState state,
         SamusState samus)
     {
         bool stillReturning;
-        if (place.SpawnSettings<ElevatorSpawnSettings>().Direction is ElevatorTravelDirection.Up)
+        if (occupant.SpawnSettings<ElevatorSpawnSettings>().Direction is ElevatorTravelDirection.Up)
         {
             AddElevatorYVelocity(place, ElevatorActorDefinitions.TravelSpeed);
             stillReturning = place.Position.Y.Whole < state.RestingY;
@@ -263,16 +264,16 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
             static (ElevatorEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback);
 
     /// <summary>Runs Elevator's initialization AI.</summary>
-    internal void SetUpElevator(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings)
+    internal void SetUpElevator(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyPopulationSurroundings surroundings)
     {
-        InitializeElevator(place, surroundings.Samus);
+        InitializeElevator(occupant, place, surroundings.Samus);
     }
 
     /// <summary>Runs Elevator's main AI.</summary>
-    internal void RunElevatorMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunElevatorMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, IEnemyAiFrame frame)
     {
         RunElevatorMain(
-            place,
+            occupant, place,
             place.RequireSpeciesState<ElevatorEnemyState>(),
             frame.Samus,
             frame.NewlyPressedControllerInput,

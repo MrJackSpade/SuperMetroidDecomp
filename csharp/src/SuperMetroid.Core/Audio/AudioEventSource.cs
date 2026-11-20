@@ -52,7 +52,7 @@ internal sealed class AudioEventSource
     /// </summary>
     private static AudioRequestReactions<RequestApplying> RequestReactions { get; } = new(
         PlayMusicTrack: static (play, applying) => applying.Events.Add(new AudioEvent.SelectMusicTrack(play.Track)),
-        StopMusic: static (_, applying) => applying.Events.Add(new AudioEvent.SelectMusicTrack(null)),
+        StopMusic: static (_, applying) => applying.Events.Add(new AudioEvent.StopMusic()),
         ChangeMusicDataSet: static (change, applying) =>
         {
             applying.Clock.PauseForMusicLoad();

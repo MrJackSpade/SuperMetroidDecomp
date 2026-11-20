@@ -1,4 +1,6 @@
+using System.Text.Json.Serialization;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction.Artwork;
 
@@ -17,8 +19,9 @@ public sealed record SpriteVisualPart
     /// <summary>Square OBJ size in pixels, either 8 or 16.</summary>
     [IntegerQuantity("sprite edge length in pixels, eight or sixteen")]
     public required int Size { get; init; }
-    /// <summary>SNES OBJ priority tier from 0 through 3.</summary>
-    public required int Priority { get; init; }
+    /// <summary>Where the part draws among the room's layers.</summary>
+    [JsonConverter(typeof(ActorDepthJsonConverter))]
+    public required ActorDepth Depth { get; init; }
     /// <summary>OBJ palette selector, or <see langword="null"/> to inherit the drawing owner's palette.</summary>
     public required int? Palette { get; init; }
     /// <summary>Horizontal reflection applied to the selected artwork region.</summary>
@@ -27,22 +30,26 @@ public sealed record SpriteVisualPart
     public required bool FlipY { get; init; }
 
     /// <summary>
-    /// The piece this document part describes on a sheet <paramref name="tileColumns"/> characters wide. An inherited
-    /// palette becomes row 0, which the draw's palette replaces.
+    /// The piece this document part describes on a sheet <paramref name="tileColumns"/> characters wide, in the palette row
+    /// the part names.
     /// </summary>
-    /// <exception cref="InvalidDataException">The size is not eight or sixteen, or a field is outside its range.</exception>
+    /// <exception cref="InvalidDataException">
+    /// The size is not eight or sixteen, the part names no palette row of its own, or a field is outside its range.
+    /// </exception>
     public SpritePart ToSpritePart(int tileColumns)
     {
         if (Size is not (8 or 16))
             throw new InvalidDataException($"A sprite part is {Size} pixels square; parts are 8 or 16.");
+        if (Palette is not int row)
+            throw new InvalidDataException("A sprite part takes its draw's palette, but a stored piece names its own palette row.");
         try
         {
-            return SpritePart.Create(Offset16<ScreenPixels>.Of(OffsetX, OffsetY), Size == 16, TileRow * tileColumns + TileColumn, Palette ?? 0, Priority,
+            return SpritePart.Create(Offset16<ScreenPixels>.Of(OffsetX, OffsetY), Size == 16, TileRow * tileColumns + TileColumn, row, Depth,
                 (FlipX ? PictureFlip.Horizontal : PictureFlip.None) | (FlipY ? PictureFlip.Vertical : PictureFlip.None));
         }
         catch (ArgumentOutOfRangeException error)
         {
-            throw new InvalidDataException("A sprite part has an offset, character, palette or priority outside its range.", error);
+            throw new InvalidDataException("A sprite part has an offset, character, palette or depth outside its range.", error);
         }
     }
 
@@ -57,7 +64,7 @@ public sealed record SpriteVisualPart
         TileColumn = part.Character % tileColumns,
         TileRow = part.Character / tileColumns,
         Size = part.Large ? 16 : 8,
-        Priority = part.Priority,
+        Depth = part.Depth,
         Palette = inheritPalette ? null : part.Palette,
         FlipX = part.FlipsHorizontally,
         FlipY = part.FlipsVertically,

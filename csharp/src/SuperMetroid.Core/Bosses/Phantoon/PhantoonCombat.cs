@@ -47,7 +47,7 @@ internal sealed class PhantoonCombat
         AfterCommon = c =>
         {
             int appliedDamage = c.HealthBefore - c.Enemy.Health;
-            ResolvePhantoonShotReaction(c.Enemy, PhantoonEntity.EncounterOf(c.Enemy), c.Bomb.Type, appliedDamage);
+            ResolvePhantoonShotReaction(c.Enemy, PhantoonEntity.EncounterOf(c.Enemy), c.PlacedBomb.Type, appliedDamage);
         },
     };
 
@@ -198,12 +198,12 @@ internal sealed class PhantoonCombat
             RoomLevelData level)
         {
             PhantoonRainFlameState rain = Rains.Of(flame);
-            if (rain.HangWait is { } hang)
+            if (!rain.Falls)
             {
-                if (hang.StepKeepsRunning())
+                if (rain.HangWait.StepKeepsRunning())
                     return;
                 // The flame queues its own falling sound as its hang runs out, and falls in that same update.
-                rain.HangWait = null;
+                rain.Falls = true;
                 audio.QueueEnemySound(PhantoonFlameMotionDefinitions.RainFallSound, PhantoonFlameMotionDefinitions.RainSoundPriority);
             }
 
@@ -264,23 +264,22 @@ internal sealed class PhantoonCombat
 
         foreach (SamusProjectile projectile in projectiles.Shots)
         {
-            if (!projectile.HasEnemyCollisionPayload)
+            if (projectile.Occupant is not { HasEnemyCollisionPayload: true } held)
                 continue;
 
-            SamusProjectileType projectileType = projectile.Type;
-            int projectileDamage = projectile.Damage;
-            SamusProjectileFamily family = projectile.Type.Family;
+            SamusProjectileType projectileType = held.Type;
+            int projectileDamage = held.Damage;
+            SamusProjectileFamily family = held.Type.Family;
             // Bombs, Power Bombs and the explosions beams and missiles leave behind never hit Phantoon.
             if (family is SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb or
                 SamusProjectileFamily.BeamExplosion or SamusProjectileFamily.MissileExplosion)
                 continue;
 
-            if (!EnemyCollision.TryFindFrameHitboxReaction(
+            if (EnemyCollision.FindFrameHitboxContact(
                     body,
                     projectile.Position.Whole,
                     projectile.Radius,
-                    contactKind: HitboxContactKind.Shot,
-                    out EnemyReaction? hitboxShot))
+                    contactKind: HitboxContactKind.Shot) is not EnemyHitboxContact.StruckHitbox { Reaction: var hitboxShot })
             {
                 continue;
             }
@@ -299,29 +298,29 @@ internal sealed class PhantoonCombat
                     state.Phase == PhantoonPhase.WaitingOnEye)
             {
                 projectiles.EnemyImpacts.TouchEnemyWithoutImpact(
-                    projectile,
+                    held,
                     body.Contact.HasAny(EnemyContact.BlocksPlasmaBeam) ||
-                        !projectile.Type.HasAnyBeam(SamusBeamFlags.Plasma));
+                        !held.Type.HasAnyBeam(SamusBeamFlags.Plasma));
                 return;
             }
 
             if (hitboxShot != PhantoonReactions.Shot)
             {
                 throw new InvalidDataException(
-                    $"Phantoon has no response to shot reaction {hitboxShot?.ToString() ?? "(unnamed)"}.");
+                    $"Phantoon has no response to shot reaction {hitboxShot}.");
             }
 
             // The shot is marked as having struck before Phantoon's reaction, whose damage does not turn it into an
             // explosion: the shot ends on its own next update, while a Plasma shot that passes through enemies keeps
             // its type, direction and animation.
-            projectiles.EnemyImpacts.TouchEnemyWithoutImpact(projectile,
+            projectiles.EnemyImpacts.TouchEnemyWithoutImpact(held,
                 body.Contact.HasAny(EnemyContact.BlocksPlasmaBeam) ||
                 !projectileType.HasAnyBeam(SamusBeamFlags.Plasma));
 
             // Phantoon's shot reaction runs common normal-shot damage (#2255), including its charged-beam override, a
             // zero-damage shot's dud, and no death of its own; his own stage follows it. A special attack's particles
             // count as a charged beam, so the Wave Beam's shield attack damages him.
-            int appliedDamage = _collision.ApplyNormalShotDamage(body, projectile, projectileType, projectileDamage, _room.Area).HealthLost;
+            int appliedDamage = _collision.ApplyNormalShotDamage(state.BodyOccupant, projectile, projectileType, projectileDamage, _room.Area).HealthLost;
             ResolvePhantoonShotReaction(
                 body,
                 state,
@@ -331,7 +330,7 @@ internal sealed class PhantoonCombat
         }
     }
 
-    /// <summary>Runs the boss-owned tail of Phantoon's hitbox reaction after common vulnerability damage.</summary>
+    /// <summary>Phantoon's own reaction to a damaging shot, after the common damage.</summary>
     private void ResolvePhantoonShotReaction(
         RoomEnemyPlace body,
         PhantoonEnemyState state,
@@ -553,7 +552,7 @@ internal sealed class PhantoonCombat
         if (context.HitboxTouch != PhantoonReactions.Touch)
         {
             throw new InvalidDataException(
-                $"Phantoon has no response to touch reaction {context.HitboxTouch?.ToString() ?? "(unnamed)"}.");
+                $"Phantoon has no response to touch reaction {context.HitboxTouch}.");
         }
         _collision.ResolveOrdinaryTouch(context, TouchDeathAnimation.Skip);
     }
@@ -562,12 +561,10 @@ internal sealed class PhantoonCombat
     /// The reaction of the first hitbox the probe overlaps on <paramref name="enemy"/>'s frame, one of Phantoon's parts,
     /// which its own entity asks for (#2301).
     /// </summary>
-    internal static bool FindPhantoonHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
+    internal static EnemyHitboxContact FindPhantoonHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe)
     {
-        reaction = null;
-
-        // Phantoon's frames' hitboxes are his collision definitions', never his editable background frames'; the
-        // invulnerable body's centre point is a compatibility rule (PhantoonSolidifyingCentre).
+        // His pictures' hit areas are his collision definitions', never his editable pictures'; the invulnerable body's
+        // centre point is a compatibility rule (PhantoonSolidifyingCentre).
         foreach (EnemyCollisionComponent component in
                  PhantoonCollision.ComponentsAt(enemy.Frame))
         {
@@ -580,10 +577,9 @@ internal sealed class PhantoonCombat
                         componentOrigin.X + hitbox.Right,
                         componentOrigin.Y + hitbox.Bottom))
                     continue;
-                reaction = probe.SelectsShot ? hitbox.Shot : hitbox.Touch;
-                return true;
+                return EnemyHitboxContact.Struck(probe.SelectsShot ? hitbox.Shot : hitbox.Touch);
             }
         }
-        return false;
+        return EnemyHitboxContact.Missed;
     }
 }

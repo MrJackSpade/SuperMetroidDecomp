@@ -33,9 +33,9 @@ internal sealed class EndingRewardJump
     /// <summary>Separate head actor present for the two suited ending rewards.</summary>
     private readonly CinematicActor<EndingRewardAnimation, CinematicSpritePose, EndingRewardJumpCue>? head;
     /// <summary>How the suited jump's head moves: standing until its animation starts it flying ahead of the body, then rising.</summary>
-    private EndingRewardJumpMotion headMotion;
+    private EndingRewardJumpMotion headMotion = EndingRewardJumpMotion.Standing;
     /// <summary>How Samus's body moves (#2541): standing until her jump, rising, falling back once above the screen, then landed.</summary>
-    private EndingRewardJumpMotion bodyMotion;
+    private EndingRewardJumpMotion bodyMotion = EndingRewardJumpMotion.Standing;
     /// <summary>Shared vertical velocity; each active actor movement applies gravity to it.</summary>
     private SignedSixteenSixteen Velocity { get; set; }
     /// <summary>Whether Samus has passed above the screen and shows as the falling Samus, falling back or landed.</summary>

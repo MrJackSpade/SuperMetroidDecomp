@@ -76,7 +76,7 @@ internal static class KraidMovementChoicesVerification
         }
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         var body = enemies.Places.InUpdateOrder[0];
-        body.Bind(EnemyDefinitionId.Kraid, body.Definition);
+        enemies.Places.BindKraidPartsInRoomOrder();
         var foot = enemies.Places.InUpdateOrder[5];
         KraidEnemyState state = enemies.KraidBehavior.BeginEncounterInRoomOrder(enemies.Places);
         KraidFootState part = state.FootState;

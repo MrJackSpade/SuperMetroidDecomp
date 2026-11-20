@@ -14,9 +14,10 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([.. DeadTourianCorpseSpeciesDefinitions.Species.Keys], Create);
 
     /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
-    /// <param name="place">The place, holding the new identity and the entry it is spawned from.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
+    /// <param name="place">The place, already holding the occupant.</param>
     /// <param name="common">The shared participation the entity composes.</param>
-    private EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new DeadTourianEntity(this, place, common));
+    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new DeadTourianEntity(this, occupant, place, common));
 
     /// <summary>Supplies the room RNG used during decomposition.</summary>
     private readonly EnemyRoomBinding _room;
@@ -49,10 +50,10 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
             : throw new ArgumentOutOfRangeException(nameof(definitionId));
 
     /// <summary>Initializes a Tourian corpse, checking its corpse is one of its species' before registering state and starting its rot.</summary>
-    internal static void InitializeDeadTourianCorpse(RoomEnemyPlace place)
+    internal static void InitializeDeadTourianCorpse(RoomEnemyPlace place, RoomEnemyOccupant occupant)
     {
-        DeadTourianCorpseSpecies species = SpeciesOf(place.DefinitionId);
-        DeadTourianCorpseDefinition definition = place.SpawnSettings<CorpseSpawnSettings>().Corpse;
+        DeadTourianCorpseSpecies species = SpeciesOf(Ensure.NotNull(occupant).DefinitionId);
+        DeadTourianCorpseDefinition definition = occupant.SpawnSettings<CorpseSpawnSettings>().Corpse;
         if (definition.Species != species)
         {
             throw new InvalidDataException(
@@ -157,15 +158,14 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
         ReplacesCommon = c => ResolveDeadTourianCorpsePowerBomb(c.Enemy),
     };
 
-    /// <summary>Shot handling that applies the collision prelude and starts decomposition without health damage.</summary>
-    /// <remarks>The species reactions run after the ordinary projectile prelude, set process-offscreen plus
-    /// intangibility, and select their species rot reaction. No vulnerability, health damage, or projectile impact
-    /// follows.</remarks>
+    /// <summary>Shot handling that marks the shot's hit and starts decomposition without health damage.</summary>
+    /// <remarks>A shot makes the corpse keep updating off screen and lets Samus pass through it, and starts its rot; it
+    /// deals no damage and makes no impact.</remarks>
     internal static EnemyShotReaction DeadTourianShotReaction { get; } = new()
     {
         BeforeSuperMissileQuake = (in EnemyShotContext c) =>
         {
-            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
+            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
             TriggerDeadTourianCorpseRotting(c.Enemy);
             return true;
         },

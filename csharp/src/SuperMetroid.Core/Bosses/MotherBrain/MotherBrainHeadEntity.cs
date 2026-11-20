@@ -6,10 +6,11 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// Mother Brain's head (#2146): its own AI, and the touch, shots and bombs its definition leaves to it.
 /// </summary>
 /// <param name="species">The MotherBrain species owner.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the head occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class MotherBrainHeadEntity(MotherBrainBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : MotherBrainEntity(species, place, common), IEnemyPrivateShotReaction
+internal sealed class MotherBrainHeadEntity(MotherBrainBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    : MotherBrainEntity(species, occupant, place, common), IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
     public override void Initialize()
@@ -19,8 +20,8 @@ internal sealed class MotherBrainHeadEntity(MotherBrainBehavior species, RoomEne
     }
 
     /// <summary>The head's hitbox: her brain's rectangle, which it owns (#2220).</summary>
-    public override bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction) =>
-        MotherBrainCombat.FindMotherBrainHeadHitboxReaction(Place, probe, out reaction);
+    public override EnemyHitboxContact FindHitboxReaction(EnemyHitboxProbe probe) =>
+        MotherBrainCombat.FindMotherBrainHeadHitboxReaction(Place, probe);
 
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) => MotherBrainHead.RunMotherBrainHeadMain(Place, Encounter, frame.Samus);
@@ -28,27 +29,21 @@ internal sealed class MotherBrainHeadEntity(MotherBrainBehavior species, RoomEne
     /// <inheritdoc/>
     public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) => MotherBrainHead.AdvanceMotherBrainHeadPlace(Place);
 
-    /// <summary>The head's touch reaction, which its definition leaves to it.</summary>
-    public override EnemyReaction? SpeciesTouch => MotherBrainReactions.HeadTouch;
-
-    /// <summary>The head's shot reaction, which its definition leaves to it.</summary>
-    public override EnemyReaction? SpeciesShot => MotherBrainReactions.HeadShot;
-
     /// <summary>Whether the head's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
-    public override bool ReactsToTouch => LeavesTouchToSpecies || base.ReactsToTouch;
+    public override bool ReactsToTouch => Occupant.Definition.Touch == MotherBrainReactions.HeadTouch || base.ReactsToTouch;
 
     /// <summary>Runs the head's own touch where its definition leaves Samus's touch to it, or the shared one.</summary>
     /// <param name="context">The touch.</param>
     public override void ReactToTouch(EnemyTouchContext context)
     {
-        if (LeavesTouchToSpecies)
+        if (Occupant.Definition.Touch == MotherBrainReactions.HeadTouch)
             MotherBrainCombat.ReactToMotherBrainHeadTouch(context);
         else
             base.ReactToTouch(context);
     }
 
     /// <summary>The head's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? Species.Combat.HeadShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == MotherBrainReactions.HeadShot ? Species.Combat.HeadShotReaction : base.ShotReaction;
 
     /// <summary>Runs the head's own reaction to a bomb that selects its shot reaction, before the ignoring check.</summary>
     /// <param name="context">The bomb contact.</param>
@@ -65,6 +60,6 @@ internal sealed class MotherBrainHeadEntity(MotherBrainBehavior species, RoomEne
     public override EnemyCapabilities Capabilities => EnemyCapabilities.ProjectileFrameHitboxes;
 
     /// <summary>The head's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
-    /// <param name="reaction">The reaction the species' definition leaves to it or the selected hitbox names, or null.</param>
-    public bool OwnsPrivateShotReaction(EnemyReaction? reaction) => reaction == MotherBrainReactions.HeadShot;
+    /// <param name="reaction">The reaction the species' definition leaves to it or the selected hitbox names.</param>
+    public bool OwnsPrivateShotReaction(EnemyReaction reaction) => reaction == MotherBrainReactions.HeadShot;
 }

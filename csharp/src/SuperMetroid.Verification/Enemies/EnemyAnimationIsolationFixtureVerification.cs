@@ -36,7 +36,7 @@ internal static class EnemyAnimationIsolationFixtureVerification
         /// where the cartridge writes its transparent sprites.
         /// </summary>
         internal bool FrameShowsNothing(RoomEnemyPlace place) =>
-            place.Frame is { } frame && Enemies.Presentation.Artwork.Enemy(place.DefinitionId).Sheet.ShowsNothing(EnemySheetDefinitions.FrameName(frame));
+            place.Frame is { } frame && Enemies.Presentation.Artwork.Enemy(place.HeldOccupant().DefinitionId).Sheet.ShowsNothing(EnemySheetDefinitions.FrameName(frame));
         /// <summary>Enemy runtime fed by this fixture's room, RNG, and artwork.</summary>
         internal RoomEnemySystem Enemies { get; }
         /// <summary>The Boyon placed in the first enemy slot.</summary>
@@ -71,8 +71,8 @@ internal static class EnemyAnimationIsolationFixtureVerification
             Enemies.VerificationServices().IsAreaTorizoDefeated = () => BossBitCalls != 0;
             Enemies.VerificationServices().SetAreaTorizoDefeated = () => BossBitCalls++;
 
-            Actor.Bind(EnemyDefinitionId.Boyon, Actor.Definition);
-            Actor.Bind(Actor.DefinitionId, RoomEnemyDefinitionLookup.Get(Actor.DefinitionId));
+            Actor.Bind(EnemyDefinitionId.Boyon, Actor.KeptDefinition);
+            Actor.Bind(Actor.HeldOccupant().DefinitionId, RoomEnemyDefinitionLookup.Get(Actor.HeldOccupant().DefinitionId));
             Actor.Health = Actor.Definition.Health;
             Actor.Radius = new(Actor.Definition.Radius.X, Actor.Definition.Radius.Y);
             Actor.Position = Actor.Position.WithWhole(new(128, (ushort)(FloorY - Actor.Radius.Y - 12)));
@@ -89,14 +89,14 @@ internal static class EnemyAnimationIsolationFixtureVerification
             // fixture inputs, not authored animation/gameplay tuning.
             Actor.SetSpawnParameter1(EnemyDefinitionId.Boyon, (3 << 8) | 2);
             Actor.SetSpawnParameter2(EnemyDefinitionId.Boyon, Actor.Position.Y.Whole);
-            new Action<RoomEnemyPlace>(BoyonBehavior.InitializeBoyon)(Actor);
+            new Action<RoomEnemyPlace>(fixturePlace => BoyonBehavior.InitializeBoyon(fixturePlace))(Actor);
         }
 
         /// <summary>Advances enemy projectiles before the enemy frame using the same frame counter.</summary>
         internal void Step(int frame)
         {
             Enemies.StepEnemyProjectiles(Level, Samus, frameCounterByte: unchecked((byte)frame));
-            Enemies.StepStandaloneFrame(Enemies.StandaloneFrame(Level) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = Samus, ShortCounter = unchecked((byte)frame) });
+            Enemies.StepStandaloneFrame(Enemies.StandaloneFrame(Level) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = Samus, ShortCounter = new SuperMetroid.Core.Compatibility.ShortFrameCount(unchecked((byte)frame)) });
         }
 
         /// <summary>Captures a complete enemy and projectile OAM draw for artwork comparison.</summary>

@@ -32,14 +32,14 @@ internal abstract class EnemyProjectileTimelineAnimation<TSegment, TFrame, TEven
         ? SegmentStartedAt(Playback.Animation)
         : Playback.Animation.Phases[Playback.Place.Phase].Segment;
 
-    /// <summary>The family's segments.</summary>
-    private protected abstract UnpausedAnimationSegments<TSegment, TFrame, TEvent> Segments { get; }
+    /// <summary>The family's segments, which never pause and may hide.</summary>
+    private protected abstract IUnpausedAnimationPlay<TSegment, TFrame, TEvent> Segments { get; }
 
     /// <summary>
     /// Plays <paramref name="animation"/> on from <paramref name="place"/> to its next frame through <see cref="Segments"/>,
     /// carrying out each event the play raises on the projectile of <paramref name="context"/> if the timeline raises any.
     /// </summary>
-    private protected abstract AnimationShown<TSegment, TFrame>.Unpaused PlayToNextFrame(EnemyProjectileCueContext context,
+    private protected abstract IUnpausedHidingAnimationShown<TSegment, TFrame> PlayToNextFrame(EnemyProjectileCueContext context,
         ref Animation<TSegment> animation, ref AnimationPlace place);
 
     /// <summary>The family's animations, by the segment each starts at.</summary>
@@ -60,9 +60,9 @@ internal abstract class EnemyProjectileTimelineAnimation<TSegment, TFrame, TEven
     {
         Animation<TSegment> animation = Playback.Animation;
         AnimationPlace place = Playback.Place;
-        AnimationShown<TSegment, TFrame>.Unpaused shown = PlayToNextFrame(context, ref animation, ref place);
+        IUnpausedHidingAnimationShown<TSegment, TFrame> shown = PlayToNextFrame(context, ref animation, ref place);
         Playback = new AnimationPlayback<TSegment>(animation, place);
-        return shown.Match(NextFrameCases, this);
+        return shown.Match(NextFrameHidingCases, this);
     }
 
     /// <summary>
@@ -75,4 +75,12 @@ internal abstract class EnemyProjectileTimelineAnimation<TSegment, TFrame, TEven
         HeldFrame: static (held, timeline) => new EnemyProjectileFrameStep.ShowForGood(timeline.Present(held.Shown)),
         Held: static (_, _) => EnemyProjectileFrameStep.Rests,
         Ended: static (_, _) => EnemyProjectileFrameStep.Ends);
+
+    /// <summary>
+    /// What <c>NextFrame</c> makes of a hidden stretch, which hides the projectile for its updates (#2558), and of every
+    /// other outcome, built once.
+    /// </summary>
+    private static UnpausedHidingAnimationShownCases<TSegment, TFrame, EnemyProjectileTimelineAnimation<TSegment, TFrame, TEvent>, EnemyProjectileFrameStep> NextFrameHidingCases { get; } = new(
+        Shown: static (shown, timeline) => shown.Match(NextFrameCases, timeline),
+        Hidden: static (hidden, _) => new EnemyProjectileFrameStep.Hide(hidden.Duration));
 }

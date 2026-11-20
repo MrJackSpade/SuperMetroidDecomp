@@ -135,8 +135,9 @@ internal sealed class KraidProjectiles
     }
 
     /// <summary>Checks lint contact against Samus without altering the body phase.</summary>
-    private void ResolveKraidLintContact(RoomEnemyPlace lint, SamusState samus, PseudoScrewCharge pseudoScrew)
+    private void ResolveKraidLintContact(RoomEnemyOccupant lintOccupant, SamusState samus, PseudoScrewCharge pseudoScrew)
     {
+        RoomEnemyPlace lint = lintOccupant.Place;
         if (lint.Contact.HasAny(EnemyContact.IgnoresSamus) || !samus.InvincibilityTimer.IsZero)
             return;
         int edge = lint.Position.X.Whole + KraidContactDefinitions.LintLeadingEdge;
@@ -152,7 +153,7 @@ internal sealed class KraidProjectiles
             samus.Kinematics.ExtraDisplacement.X.WholePixels;
         samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWholeX(
             Math.Min(push, KraidContactDefinitions.LintPush));
-        _collision.ResolveOrdinaryTouch(lint, samus, pseudoScrew);
+        _collision.ResolveOrdinaryTouch(lintOccupant, samus, pseudoScrew);
         lint.Contact = lint.Contact.With(EnemyContact.IgnoresSamus);
     }
 
@@ -239,7 +240,7 @@ internal sealed class KraidProjectiles
     {
         RoomEnemyPlace body = _parts.Body;
         int relativeY = nail.Position.Y.Whole - body.Position.Y.Whole;
-        // A nail above every ledge is pushed back at the contour entry the walk reads after them.
+        // A nail above every ledge is pushed back where KraidNailPastLedges places it.
         int leftOffset = KraidNailContour.LedgeLeftOffset(relativeY) ??
             _room.Session.BossOverreads.KraidNailPastLedges.LeftOffset(relativeY);
         int contourX = body.Position.X.Whole + leftOffset;
@@ -265,9 +266,10 @@ internal sealed class KraidProjectiles
     });
 
     /// <summary>Advances a lint part through idle, charge, fire, and reattachment states.</summary>
-    internal void RunKraidLintMain(RoomEnemyPlace lint, KraidLintState part, SamusState samus, PseudoScrewCharge pseudoScrew)
+    internal void RunKraidLintMain(RoomEnemyOccupant lintOccupant, KraidLintState part, SamusState samus, PseudoScrewCharge pseudoScrew)
     {
-        ResolveKraidLintContact(lint, samus, pseudoScrew);
+        RoomEnemyPlace lint = lintOccupant.Place;
+        ResolveKraidLintContact(lintOccupant, samus, pseudoScrew);
         RunKraidLintMainForKraidLintPhase[part.Phase](lint, part, samus);
     }
 
@@ -373,7 +375,7 @@ internal sealed class KraidProjectiles
         // A fingernail the touch left in its place dies in the explosion the health the touch left names
         // (LeftoverNumberDeathExplosion).
         if (!context.Place.IsFree)
-            _deathsAndDrops.StartGenericEnemyDeath(context.Place,
+            _deathsAndDrops.StartGenericEnemyDeath(context.Occupant,
                 EnemyDeathExplosionDefinitions.LeftoverNumbered.Named(context.Place.Health), context.Samus);
     }
 

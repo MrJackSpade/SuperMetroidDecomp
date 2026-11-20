@@ -8,7 +8,7 @@ internal sealed class CacatacProjectileAnimation(CacatacSpikeDirection direction
     : EnemyProjectileFrameAnimation<CacatacSpikeDirection, EnemyProjectileCommonCue>(CacatacProjectileAnimations.StartingWith(direction), EnemyProjectileCueRunners.Common<CacatacSpikeDirection>())
 {
     /// <inheritdoc/>
-    private protected override UnpausedAnimationSegments<CacatacSpikeDirection, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => CacatacProjectileAnimations.Segments;
+    private protected override IUnpausedAnimationPlay<CacatacSpikeDirection, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => CacatacProjectileAnimations.Segments;
 
     /// <inheritdoc/>
     private protected override IEnumerable<KeyValuePair<CacatacSpikeDirection, Animation<CacatacSpikeDirection>>> StartingAt => CacatacProjectileAnimations.StartingAt;

@@ -21,12 +21,10 @@ internal static class PowampSpikeBehaviorVerification
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, PowampSpikeNativeListAddresses.Extent, "Powamp-spike");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        var body = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>())
-        {
-            Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112)),
-            Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook,
-        };
-        int? lastSpikePlace = enemies.PowampBehavior.SpawnPowampSpikeBurst(body, body.Shading);
+        RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
+        body.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112));
+        body.Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook;
+        int? lastSpikePlace = enemies.PowampBehavior.SpawnPowampSpikeBurst(body.BoundPlaced(EnemyDefinitionId.Powamp, new PowampBodySpawnSettings(PowampContact.Accepts)), body, body.Shading);
         EnemyProjectile[] spikes = [.. enemies.Projectiles.EnemyProjectiles.Where(projectile => projectile.Kind == RoomEnemyProjectileKind.PowampSpike)];
         AssertEqual(8, spikes.Length, "a burst spawns all eight spikes");
         // Spawning searches the pool from its last place down, so the eighth spike takes the lowest of the eight places.

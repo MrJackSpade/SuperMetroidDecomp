@@ -5,7 +5,9 @@ namespace SuperMetroid.Core.Animation;
 /// events its owner reacts to. An animation's phases name runs of these beats; playing one moves its place from frame
 /// to frame and raises the events it passes. A family whose animations may pause plays
 /// <see cref="AnimationSegments{TSegment, TFrame, TEvent}"/>, and one whose animations never pause plays
-/// <see cref="UnpausedAnimationSegments{TSegment, TFrame, TEvent}"/>, whose outcomes hold no pause (#2553).
+/// <see cref="UnpausedAnimationSegments{TSegment, TFrame, TEvent}"/>, whose outcomes hold no pause (#2553); a family whose
+/// animations hide plays <see cref="HidingAnimationSegments{TSegment, TFrame, TEvent}"/> or
+/// <see cref="HidingUnpausedAnimationSegments{TSegment, TFrame, TEvent}"/>, the only segments that hold a hidden beat (#2558).
 /// </summary>
 /// <typeparam name="TSegment">
 /// The segment identity: an enum, whose every member must be a segment, or a composite value naming the segments it requires.
@@ -18,8 +20,8 @@ internal abstract class AnimationSegmentPlay<TSegment, TFrame, TEvent, TBeat, TS
     where TSegment : struct
     where TFrame : struct
     where TEvent : notnull
-    where TBeat : AnimationBeat<TFrame, TEvent>
-    where TShown : AnimationShown<TSegment, TFrame>
+    where TBeat : class, IAnimationBeat<TFrame, TEvent>
+    where TShown : class
 {
     /// <summary>Each segment's beats.</summary>
     private readonly Dictionary<TSegment, TBeat[]> beats;
@@ -159,16 +161,16 @@ internal abstract class AnimationSegmentPlay<TSegment, TFrame, TEvent, TBeat, TS
                     ? AnimationShown<TSegment, TFrame>.Held.Instance
                     : AnimationShown<TSegment, TFrame>.Ended.Instance);
             }
-            if (place.Beat == AnimationPlace.NotEntered)
+            if (place.HasNotEntered)
                 place = Enter(animation, place.Phase);
             AnimationPhase<TSegment> phase = animation.Phases[place.Phase];
             // A held animation stays held: its last play is done and counts nothing again.
-            if (place.Beat > phase.BeatCount)
+            if (place.IsHolding)
                 return Shown(AnimationShown<TSegment, TFrame>.Held.Instance);
             if (place.Beat < phase.BeatCount)
             {
                 int beat = phase.FirstBeat + place.Beat;
-                place = place with { Beat = place.Beat + 1 };
+                place = new AnimationPlace(place.Phase, place.Beat + 1).WithPlaysLeft(place.PlaysLeft);
                 var passing = new Play(animation, place, phase, react);
                 TShown? shown = Pass(beats[phase.Segment][beat], ref passing);
                 animation = passing.Animation;
@@ -233,6 +235,11 @@ internal abstract class AnimationSegmentPlay<TSegment, TFrame, TEvent, TBeat, TS
             play.Raise(marked.Raised);
             return null;
         });
+
+    /// <summary>What a play shows on each beat of a family that may pause (#2553), built once: a pause pauses the animation for its updates.</summary>
+    private protected static AnimationBeatCases<TFrame, TEvent, Play, AnimationShown<TSegment, TFrame>?> PausingBeatPlays { get; } = new(
+        Unpaused: static (beat, ref play) => beat.Match(UnpausedBeatPlays, ref play),
+        Pause: static (pause, ref play) => new AnimationShown<TSegment, TFrame>.Paused(pause.Duration));
 
     /// <summary>What a play comes to at each end of its animation (#2553), built once.</summary>
     private static AnimationEndCases<Play, AnimationShown<TSegment, TFrame>.Unpaused?> EndPlays { get; } = new(

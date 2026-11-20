@@ -40,8 +40,8 @@ internal sealed class ChozoStatueObjects : IChozoStatueHand
     }
 
     /// <summary>
-    /// Runs the one-shot special-block setup; Samus's collision still clips her to the solid block. An admitted trigger
-    /// turns the hand block to air, then wakes the statue.
+    /// Samus touching the hand: she is still stopped by the solid block, and an admitted touch turns the hand block to
+    /// air and wakes the statue.
     /// </summary>
     public void NotifyChozoStatueHandCollision(RoomLevelData level,
         Position16<RoomBlocks> block, SamusState samus, SamusPoseId collisionPose, bool movingDown)
@@ -53,8 +53,8 @@ internal sealed class ChozoStatueObjects : IChozoStatueHand
         bool lowerNorfair = _area == AreaId.Norfair &&
             behavior == ChozoStatueRoomDefinitions.LowerNorfairHandBehavior;
         if (!wreckedShip && !lowerNorfair) return;
-        // Both setups report the block solid regardless of admission. The morph-left pose
-        // is deliberately absent: the game explicitly lists these three poses.
+        // The hand block is solid whether or not the touch is admitted. Samus morphed facing left is not admitted; only
+        // these three poses are.
         bool eligible = movingDown && collisionPose is
             (SamusPoseId.MorphBallGroundRightPose or
              SamusPoseId.SpringBallGroundRightPose or SamusPoseId.SpringBallGroundLeftPose);
@@ -67,8 +67,8 @@ internal sealed class ChozoStatueObjects : IChozoStatueHand
 
         if (eligible)
         {
-            // Both trigger setups clear only the hand block's type before waking the statue (#2502). Its behaviour, picture
-            // and what it shows survive until the room object the statue then spawns runs.
+            // Both triggers turn the hand block to air before waking the statue (#2502); its behaviour, picture and
+            // what it shows survive until the room object the statue then spawns runs.
             level.SetCollision(block, RoomCollisionType.Air);
             _hands.ActivateChozoStatueHand(level);
         }
@@ -109,8 +109,7 @@ internal sealed class ChozoStatueObjects : IChozoStatueHand
     }
 
     /// <summary>
-    /// Changes a hand, trigger or slope block's collision kind and behaviour, keeping its picture and what it shows, as the
-    /// hands' setups and the slopes' changes rewrite only each block's type and parameter (#2502).
+    /// Changes a hand, trigger or slope block's collision and behaviour, keeping its picture and what it shows (#2502).
     /// </summary>
     internal static void WriteChozoBlock(RoomLevelData level, Position16<RoomBlocks> block,
         RoomCollisionType type, RoomBlockBehavior behavior)

@@ -12,14 +12,13 @@ internal static class ExtendedHitboxWalker
     /// <summary>Walks the slot's extended hitboxes and stores the reported reaction in the row's last element.</summary>
     internal static bool Find(object?[] arguments)
     {
-        bool found = EnemyCollision.TryFindFrameHitboxReaction(
+        EnemyHitboxContact contact = EnemyCollision.FindFrameHitboxContact(
             arguments[0] as RoomEnemyPlace ?? throw new ArgumentException("Element 0 must be the enemy slot.", nameof(arguments)),
             Value<Position16<RoomPixels>>(arguments, 1),
             Value<Extent16<RoomPixels>>(arguments, 2),
-            (Value<bool>(arguments, 3)) ? HitboxContactKind.Shot : HitboxContactKind.Touch,
-            out EnemyReaction? reaction);
-        arguments[4] = reaction;
-        return found;
+            (Value<bool>(arguments, 3)) ? HitboxContactKind.Shot : HitboxContactKind.Touch);
+        arguments[4] = contact is EnemyHitboxContact.StruckHitbox struck ? struck.Reaction : null;
+        return contact is EnemyHitboxContact.StruckHitbox;
     }
 
     /// <summary>The reaction <see cref="Find"/> stored in the row's last element, or null when the walk selected none.</summary>

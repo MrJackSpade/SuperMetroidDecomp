@@ -129,7 +129,7 @@ internal static class RoomBlockSheetComposer
                 ColourGroups = groups.ManifestMembers,
             },
         };
-        return new ComposedRoomBackground(canvas.ToSplitRoomSheet(colours, frames), canvas.Size, cells);
+        return new ComposedRoomBackground(canvas.ToSplitRoomSheet(colours, frames, RoomTileCanvas.EveryFrame(frames)), canvas.Size, cells);
     }
 
     /// <summary>
@@ -245,7 +245,7 @@ internal static class RoomBlockSheetComposer
             });
             index++;
         }
-        ComposedSpriteSheet sheet = canvas.ToSplitRoomSheet(colours, frames);
+        ComposedSpriteSheet sheet = canvas.ToSplitRoomSheet(colours, frames, RoomTileCanvas.EveryFrame(frames));
         // The tileset's rooms show its first background colour where nothing is drawn (#1544).
         return new ComposedBlocks(sheet with { Manifest = sheet.Manifest with { Backdrop = RoomBackdropIndex } },
             new RoomBlockAppearances(inputsByBlock, shownBlocks), cells);

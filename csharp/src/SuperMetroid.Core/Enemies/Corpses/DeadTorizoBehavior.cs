@@ -16,9 +16,10 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.CorpseTorizo], Create);
 
     /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
-    /// <param name="place">The place, holding the new identity and the entry it is spawned from.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
+    /// <param name="place">The place, already holding the occupant.</param>
     /// <param name="common">The shared participation the entity composes.</param>
-    private EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new DeadTorizoEntity(this, place, common));
+    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new DeadTorizoEntity(this, occupant, place, common));
 
     /// <summary>Supplies the shared random seed.</summary>
     private readonly EnemyRoomBinding _room;
@@ -35,7 +36,8 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>The places of the corpses the room has set up, in the order they were placed, whose sand heaps it draws (#2283).</summary>
     private readonly List<RoomEnemyPlace> _corpses = [];
 
-    /// <summary>Binds corpse rotting to room memory, frame timing, projectiles and presentation.</summary>
+    /// <summary>Gives the corpse's rot the room's random numbers, the enemy pass's count, projectiles, drawing and
+    /// audio.</summary>
     internal DeadTorizoBehavior(EnemyRoomBinding room, EnemyFrameContext frameContext, EnemyProjectileEngine projectiles, EnemyPresentation presentation, EnemyAudioQueue audio)
     {
         _audio = audio;
@@ -226,12 +228,10 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Marks projectile collision and starts rotting without impact animation or health loss.</summary>
     internal EnemyShotReaction DeadTorizoShotReaction => field ??= new()
     {
-        // The dead corpses and Baby Metroid receive the projectile prelude but never an impact or vulnerability.
-        // Its private reaction runs after the ordinary collision prelude but before common impact/vulnerability
-        // code. The shot is marked, not converted into an explosion, and the corpse never loses health.
+        // A shot is marked as having hit the corpse, deals no damage and makes no explosion, and starts the rot.
         BeforeSuperMissileQuake = (in EnemyShotContext c) =>
         {
-            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
+            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
             TriggerDeadTorizoRotting(c.Enemy);
             return true;
         },

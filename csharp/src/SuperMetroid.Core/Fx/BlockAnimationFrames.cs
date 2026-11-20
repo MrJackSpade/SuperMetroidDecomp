@@ -17,7 +17,6 @@ internal static class BlockAnimationFrames
     private static readonly IdentityTable<BlockAnimation, string> Keys =
         new(new Dictionary<BlockAnimation, string>
         {
-            [BlockAnimation.None] = "None block animation",
             [BlockAnimation.TourianStatuePhantoon] = "TourianStatuePhantoon block animation",
             [BlockAnimation.TourianStatueRidley] = "TourianStatueRidley block animation",
             [BlockAnimation.TourianStatueKraid] = "TourianStatueKraid block animation",

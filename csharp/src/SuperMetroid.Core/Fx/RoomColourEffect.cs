@@ -29,7 +29,7 @@ internal sealed class RoomColourEffect
         Target = target;
         FramesOf = framesOf;
         play = AnimationPlayer<ColourEffectSegment, int, ColourEffectCue>.Starting(
-            ColourEffectAnimations.Segments, ColourEffectAnimations.Definition(framesOf).Animation);
+            ColourEffectAnimations.Segments, ColourEffectAnimations.Definition(framesOf).Frames.Played);
     }
 
     /// <summary>The effect's animation as it plays: due on its first turn, and on each turn its shown frame's updates run out.</summary>
@@ -95,7 +95,7 @@ internal sealed class RoomColourEffect
     internal void Restart(ColourEffectId framesOf, AnimationPlace place)
     {
         FramesOf = framesOf;
-        play.StartAt(ColourEffectAnimations.Definition(framesOf).Animation, place);
+        play.StartAt(ColourEffectAnimations.Definition(framesOf).Frames.Played, place);
     }
 
     /// <summary>

@@ -88,7 +88,8 @@ internal static class SpawnedObjectSheetSharing
         {
             shares[sheet] = new SpawnedSheetShare(own[sheet] is { } plan ? installedOf[plan] : null,
                 held[sheet].Where(frame => frame.Value.IsCommon)
-                    .ToDictionary(frame => frame.Key, frame => frame.Value.CommonSheet, StringComparer.Ordinal));
+                    .ToDictionary(frame => frame.Key, frame => frame.Value.CommonSheet ?? throw new InvalidOperationException(
+                        $"Common picture {frame.Key} was given no common sheet."), StringComparer.Ordinal));
         }
         return new SharedSpawnedSheets([.. common.Select(plan => installedOf[plan])], shares);
     }
@@ -131,8 +132,8 @@ internal static class SpawnedObjectSheetSharing
         /// <summary>Whether two or more sheets hold the picture, so it is held once on a common sheet.</summary>
         internal bool IsCommon => holders.Count > 1;
 
-        /// <summary>The common sheet the picture is held on, by its place among the common sheets.</summary>
-        internal int CommonSheet { get; set; } = -1;
+        /// <summary>The common sheet the picture is held on, by its place among the common sheets; null until one holds it.</summary>
+        internal int? CommonSheet { get; set; }
 
         /// <summary>
         /// Records that sheet <paramref name="sheet"/>, coloured as <paramref name="colouring"/>, shows the picture as frame

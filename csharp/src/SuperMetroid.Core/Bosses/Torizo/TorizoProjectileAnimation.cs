@@ -21,7 +21,7 @@ internal sealed class TorizoProjectileAnimation(IEnemyProjectileBranchingCues<To
     }
 
     /// <inheritdoc/>
-    private protected override UnpausedAnimationSegments<TorizoProjectileSegment, EnemyProjectileFrameId, TorizoProjectileCue> Segments => TorizoProjectileAnimations.Segments;
+    private protected override IUnpausedAnimationPlay<TorizoProjectileSegment, EnemyProjectileFrameId, TorizoProjectileCue> Segments => TorizoProjectileAnimations.Segments;
 
     /// <inheritdoc/>
     private protected override IEnumerable<KeyValuePair<TorizoProjectileSegment, Animation<TorizoProjectileSegment>>> StartingAt => TorizoProjectileAnimations.StartingAt;

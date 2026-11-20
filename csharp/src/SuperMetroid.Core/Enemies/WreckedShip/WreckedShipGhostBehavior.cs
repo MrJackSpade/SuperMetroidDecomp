@@ -13,9 +13,10 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Coven], Create);
 
     /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
-    /// <param name="place">The place, holding the new identity and the entry it is spawned from.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
+    /// <param name="place">The place, already holding the occupant.</param>
     /// <param name="common">The shared participation the entity composes.</param>
-    private EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new WreckedShipGhostEntity(place, common));
+    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new WreckedShipGhostEntity(occupant, place, common));
 
     /// <summary>Initializes the Wrecked Ship ghost.</summary>
     internal static void InitializeWreckedShipGhost(RoomEnemyPlace place)
@@ -77,8 +78,8 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     }
 
     /// <summary>
-    /// Tracks Samus for the spawn. The one-pixel upper bound is exclusive in the game; this asymmetric
-    /// comparison is deliberately not replaced by an absolute-distance convenience test.
+    /// Tracks Samus for the spawn: she stays still while she lies within the box around where she was, from its lower
+    /// corner up to, but not including, its upper corner.
     /// </summary>
     private static void RunWreckedShipGhostTracking(
         RoomEnemyPlace place,
@@ -176,8 +177,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     {
         AdvanceWreckedShipGhostFlicker(place, state);
 
-        // The brightening gates only on red and does not saturate the others: a full green or blue carries into the
-        // next channel, as the fade value reproduces.
+        // The ghost brightens as WreckedShipGhostFade reproduces it.
         WreckedShipGhostFadeStep step = state.Fade.Brightened();
         state.Fade = step.Next;
         int colorsChanged = step.Changes;
@@ -186,7 +186,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
             return;
 
         state.Action = WreckedShipGhostAction.FadingToGhostColours;
-        state.Fade = state.Fade.Materializing(WreckedShipGhostAppearance.Colours);
+        state.Fade = state.Fade.Materializing(WreckedShipGhostFade.GhostColours);
     }
 
     /// <summary>Fades to the ghost's own colours, with the simultaneous flicker and per-channel fade.</summary>

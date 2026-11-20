@@ -10,11 +10,8 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// humanoid-only damage-boost escape route.
 /// </summary>
 /// <remarks>
-/// This code follows the game's knockback check, knockback movement, jump launch and knockback setup.
-/// Enemy damage calculation is deliberately not invented here: the hit supplies only the
-/// collision result that enemy collision would have published, namely whether the source lies to
-/// Samus's left or right. Every pose, speed, timer value, and subsequent input
-/// transition is then taken from the game's definitions.
+/// A knockback sends Samus away from what hurt her, from the side it lay on, for the knockback's time, and she leaves
+/// it by its pose's own input.
 /// </remarks>
 public static class SamusKnockbackMovement
 {
@@ -23,10 +20,8 @@ public static class SamusKnockbackMovement
     /// knockback check runs in Samus's ordinary input phase.
     /// </summary>
     /// <remarks>
-    /// Block collision deliberately does not install a hurt pose itself. It writes the shared
-    /// knockback timer and horizontal direction; the later hit interruption admits
-    /// or suppresses that request according to the current movement type. Keeping this as
-    /// a shared handoff prevents spike blocks and spike-air from inventing bespoke motion.
+    /// Every hurt source, spike blocks and spike air included, starts the same knockback through the hit interruption,
+    /// which lets it start or holds it back by Samus's current movement.
     /// </remarks>
     internal static bool TryStartPendingHitInterruption(
         SamusState samus,
@@ -143,7 +138,7 @@ public static class SamusKnockbackMovement
         // The remainder of the knockback setup runs for both the humanoid and the ball. A pending bomb
         // jump cannot coexist with hurt movement, and shinespark/Screw contact damage is
         // cancelled before the knockback moves her.
-        samus.BombJumpRequest = SamusBombJumpRequest.None;
+        samus.BombJump = null;
         // Taking her movement ends the bomb jump's movement immediately, but
         // does not yet release its independent lock on her pose input.
         samus.BombJumpStarting = false;
@@ -314,9 +309,7 @@ public static class SamusKnockbackMovement
         // have been initialized after the knockback check latched this expiry, so end that
         // spark's hold while retaining its independently owned shade and timer.
         SamusMovementHandOver.FromKnockback(samus);
-        // The exact knockback-end cleanup shared by humanoid and morphed completion. The falling
-        // flag has no field of its own; moving down is its movement-visible
-        // publication and is consumed by every normal/ball step.
+        // The knockback ends with Samus falling, in humanoid and morphed form alike.
         samus.Knockback = SamusKnockback.None;
         samus.MorphBallBounceState = SamusBallBounceState.None;
         samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.FallFromRest;

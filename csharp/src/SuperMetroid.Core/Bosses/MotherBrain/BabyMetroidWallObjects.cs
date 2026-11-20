@@ -24,8 +24,7 @@ internal sealed class BabyMetroidWallObjects(RoomObjectPlaceList places)
         place.Block = level.GridBlock(request.Block);
         place.Become(new TerrainChangeObject(TerrainChange.MadeAtSpawn));
 
-        // The change is made as the object spawns, before its first update removes it. Each block is written once, so
-        // the order of the writes is unobservable.
+        // The wall's blocks take their collision as it spawns, before its first update removes it.
         foreach (RoomBlockShapeCell cell in shape.Cells)
         {
             Position16<RoomBlocks> block = level.GridBlock(request.Block + cell.Cell);

@@ -19,7 +19,7 @@ public static class SporeSpawnHealthBandDefinitions
     private static SporeSpawnHealthBand BadlyWounded { get; } = new(70, "badly-wounded");
 
     /// <summary>Spore Spawn below 70 health, his most hurt colours.</summary>
-    private static SporeSpawnHealthBand NearlyDead { get; } = new(null, "nearly-dead");
+    private static SporeSpawnHealthBand NearlyDead { get; } = new(0, "nearly-dead");
 
     /// <summary>The bands, highest first: the order his health is tested against them and his installed health colours hold them.</summary>
     public static IReadOnlyList<SporeSpawnHealthBand> HighestFirst { get; } = [Unhurt, Wounded, BadlyWounded, NearlyDead];

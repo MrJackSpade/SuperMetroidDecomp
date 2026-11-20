@@ -130,7 +130,7 @@ internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncoun
         [NorfairRidleyPhase.SwoopSetup] = (place, state, samus, controllerInput, level, powerBomb) =>
         {
             state.Phase = NorfairRidleyPhase.SwoopMoveToStart;
-            state.Flight.SwoopAngleAccumulator = RotationAngle.Zero;
+            state.Flight.SwoopHeading = RotationAngle.Zero;
             NorfairRidleyCombat.TickNorfairRidleySwoopMoveToStart(place, state);
         },
         [NorfairRidleyPhase.SwoopMoveToStart] = (place, state, samus, controllerInput, level, powerBomb) => NorfairRidleyCombat.TickNorfairRidleySwoopMoveToStart(place, state),

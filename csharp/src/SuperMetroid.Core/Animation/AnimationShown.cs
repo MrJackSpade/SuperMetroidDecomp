@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Animation;
 /// </summary>
 /// <typeparam name="TSegment">The segment identity.</typeparam>
 /// <typeparam name="TFrame">The frame identity.</typeparam>
-internal abstract record AnimationShown<TSegment, TFrame>
+internal abstract record AnimationShown<TSegment, TFrame> : IHidingAnimationShown<TSegment, TFrame>
     where TSegment : struct
     where TFrame : struct
 {
@@ -14,6 +14,10 @@ internal abstract record AnimationShown<TSegment, TFrame>
     private AnimationShown()
     {
     }
+
+    /// <inheritdoc/>
+    void IHidingAnimationShown<TSegment, TFrame>.React<TContext>(HidingAnimationShownReactions<TSegment, TFrame, TContext> reactions, TContext context) =>
+        Ensure.NotNull(reactions).Shown(this, context);
 
     /// <summary>Carries out the reaction <paramref name="reactions"/> has to this outcome (#2553).</summary>
     /// <param name="reactions">What its owner does on each outcome.</param>
@@ -29,12 +33,16 @@ internal abstract record AnimationShown<TSegment, TFrame>
     internal abstract TResult Match<TContext, TResult>(AnimationShownCases<TSegment, TFrame, TContext, TResult> cases, TContext context);
 
     /// <summary>An outcome that is no pause: a frame, a held frame, a rest or the end (#2553).</summary>
-    internal abstract record Unpaused : AnimationShown<TSegment, TFrame>
+    internal abstract record Unpaused : AnimationShown<TSegment, TFrame>, IUnpausedHidingAnimationShown<TSegment, TFrame>
     {
         /// <summary>Allows only the outcomes below that are no pause.</summary>
         private protected Unpaused()
         {
         }
+
+        /// <inheritdoc/>
+        TResult IUnpausedHidingAnimationShown<TSegment, TFrame>.Match<TContext, TResult>(UnpausedHidingAnimationShownCases<TSegment, TFrame, TContext, TResult> cases, TContext context) =>
+            Ensure.NotNull(cases).Shown(this, context);
 
         /// <summary>Carries out the reaction <paramref name="reactions"/> has to this outcome (#2553).</summary>
         /// <param name="reactions">What its owner does on each outcome.</param>

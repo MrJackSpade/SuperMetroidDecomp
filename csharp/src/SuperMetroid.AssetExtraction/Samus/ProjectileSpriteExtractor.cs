@@ -18,7 +18,7 @@ public static class ProjectileSpriteExtractor
     /// holds the composition it copies, which it must store byte for byte (#2295).
     /// </summary>
     /// <param name="bus">Cartridge-import-capable address space containing the native projectile spritemaps.</param>
-    /// <returns>New UTF-8 JSON bytes containing named frames with signed pixel offsets, 8- or 16-pixel part sizes, tile references, palettes, priorities, and flips.</returns>
+    /// <returns>New UTF-8 JSON bytes containing named frames with signed pixel offsets, 8- or 16-pixel part sizes, tile references, palettes, depths, and flips.</returns>
     /// <remarks>Physical projectile fields, animation timing, and instruction programs are not exported.</remarks>
     /// <exception cref="InvalidDataException">
     /// A native frame exceeds the OAM part limit, a record held as another composition's copy stores other bytes, or two
@@ -88,7 +88,7 @@ public static class ProjectileSpriteExtractor
                 var a = new SnesObjAttributeWord(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), part + 3));
                 parts[i] = new() { OffsetX = x.SignedOffset, OffsetY = unchecked((sbyte)bus.ReadCartridgeByte(part + 2)),
                     TileColumn = a.TileNumber % ProjectileSpriteDefinitions.TileColumns, TileRow = a.TileNumber / ProjectileSpriteDefinitions.TileColumns,
-                    Size = x.IsLarge ? 16 : 8, Palette = a.PaletteIndex, Priority = a.Priority, FlipX = a.FlipHorizontally, FlipY = a.FlipVertically };
+                    Size = x.IsLarge ? 16 : 8, Palette = a.PaletteIndex, Depth = a.Depth, FlipX = a.FlipHorizontally, FlipY = a.FlipVertically };
             }
             frames.Add(id.Name, parts);
         }

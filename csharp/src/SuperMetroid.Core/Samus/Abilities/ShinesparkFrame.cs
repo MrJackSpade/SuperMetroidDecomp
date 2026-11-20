@@ -8,8 +8,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 public sealed record ShinesparkFrame
 {
     /// <summary>
-    /// The frame counter, 0 through 65535 as the frame clock wraps it; only its parity is read, selecting the
-    /// vertical block-probe traversal order.
+    /// The update count, whose oddness picks the direction of the vertical block scan.
     /// </summary>
     public required int FrameCounter { get; init; }
 

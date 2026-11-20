@@ -67,7 +67,7 @@ internal static class EnemyGraphicsSetAccess
     extension(RoomEnemyPlace self)
     {
         /// <summary>The character index the cartridge draws the slot's occupant from under <paramref name="enemies"/>' graphics set.</summary>
-        internal int NativeTileBaseIn(SuperMetroid.Core.World.RoomEnemySystem enemies) => enemies.GraphicsSet.TileBaseOf(self.DefinitionId);
+        internal int NativeTileBaseIn(SuperMetroid.Core.World.RoomEnemySystem enemies) => enemies.GraphicsSet.TileBaseOf(self.HeldOccupant().DefinitionId);
     }
 
     extension(SpriteGraphics self)

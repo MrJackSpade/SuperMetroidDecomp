@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Waver;
 
 /// <summary>
-/// Waver's steady and spinning animations (#641): one segment per animation a spawn, branch or wake enters, in authored order.
+/// Waver's steady and spinning animations (#641).
 /// Their steps are <see cref="WaverAnimations"/>.
 /// </summary>
 internal enum WaverSegment

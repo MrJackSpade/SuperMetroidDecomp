@@ -223,8 +223,8 @@ internal sealed class DefinitionPruner
     }
 
     /// <summary>
-    /// Whether <paramref name="expression"/> is the slot the dispatched definition occupies: an entity's own slot member
-    /// or primary-constructor slot, or the factory's slot parameter.
+    /// Whether <paramref name="expression"/> is the slot the dispatched definition occupies, or the enemy holding it (#2558):
+    /// an entity's own slot or occupant member or primary-constructor parameter, or the factory's slot or occupant parameter.
     /// </summary>
     private bool IsOwnSlot(ExpressionSyntax expression)
     {
@@ -243,7 +243,8 @@ internal sealed class DefinitionPruner
             IParameterSymbol parameter => parameter.Type,
             _ => null,
         };
-        if (type is null || !SymbolEqualityComparer.Default.Equals(type.OriginalDefinition, _model.RoomEnemyPlace))
+        if (type is null || !(SymbolEqualityComparer.Default.Equals(type.OriginalDefinition, _model.RoomEnemyPlace)
+                || SymbolEqualityComparer.Default.Equals(type.OriginalDefinition, _model.RoomEnemyOccupant)))
             return false;
         return symbol switch
         {

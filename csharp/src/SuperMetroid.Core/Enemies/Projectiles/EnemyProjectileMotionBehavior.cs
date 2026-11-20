@@ -9,7 +9,11 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 internal abstract class EnemyProjectileMotionBehavior<TMotion> : EnemyProjectileBehavior
     where TMotion : struct, Enum
 {
-    /// <summary>The motion every kind this behaviour is bound to starts with, or null when it starts holding still.</summary>
+    /// <summary>
+    /// The motion every kind this behaviour is bound to starts with, or null when it starts holding still. The null is the
+    /// absence of a motion, not a stand-in for one: a projectile holds a motion only while something moves it, as
+    /// <see cref="EnemyProjectile.Motion"/> holds none for every family, so one that holds none is moved by nothing (#2558).
+    /// </summary>
     private readonly TMotion? _initial;
 
     /// <summary>

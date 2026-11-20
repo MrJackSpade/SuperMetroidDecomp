@@ -259,8 +259,7 @@ internal static class FrontendSheetColouringsVerification
         {
             if (beat is AnimationBeat<CinematicSpritePose, EndingRewardJumpCue>.Event { Raised: EndingRewardJumpCue.Shoot })
                 landing = EndingSpriteColouring.ShootingSamus;
-            else if (beat is AnimationBeat<CinematicSpritePose, EndingRewardJumpCue>.Frame shown
-                && shown.Shown != CinematicSpritePose.Blank)
+            else if (beat is AnimationBeat<CinematicSpritePose, EndingRewardJumpCue>.Frame shown)
                 Add(sets, CinematicSpriteSheet.FrameName(CinematicSpriteFamily.EndingReward, shown.Shown), EndingScreenInks.SpriteSet(landing));
         }
         foreach (EndingLogoActorDefinition actor in EndingLogoDefinitions.Actors)
@@ -296,10 +295,7 @@ internal static class FrontendSheetColouringsVerification
         where TCue : notnull
     {
         foreach (CinematicSpritePose pose in animations.Segments.FramesOf(animations.StartingWith(program)))
-        {
-            if (pose != CinematicSpritePose.Blank)
-                Add(sets, CinematicSpriteSheet.FrameName(family, pose), EndingScreenInks.SpriteSet(colouring));
-        }
+            Add(sets, CinematicSpriteSheet.FrameName(family, pose), EndingScreenInks.SpriteSet(colouring));
     }
 
     /// <summary>Records that frame <paramref name="name"/> is drawn in sprite set <paramref name="set"/>.</summary>

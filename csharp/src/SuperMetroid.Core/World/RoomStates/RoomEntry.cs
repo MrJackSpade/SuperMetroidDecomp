@@ -17,6 +17,6 @@ internal readonly record struct RoomEntry
     /// <summary>The destination assets a door transition built before consuming its door, or null to load them here.</summary>
     public LoadedRoomAssets? PreloadedAssets { get; init; }
 
-    /// <summary>The load-station record whose load establishes the room; null for a room entered otherwise.</summary>
+    /// <summary>The load station the room is entered at; null for a room entered otherwise.</summary>
     public LoadStation? LoadStation { get; init; }
 }

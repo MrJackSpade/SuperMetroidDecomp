@@ -42,7 +42,7 @@ public static class GrappleBeamDefinitions
         /// <see cref="FiringExtension"/> and then cancels it, and connected motion keeps it shorter still.
         /// </summary>
         public const int LongestRopeLength = FiringCancelLength - 1 + FiringExtension;
-        /// <summary>Per-update downward angular acceleration: 24/256 of a step.</summary>
+        /// <summary>Per-update downward angular acceleration, a little under a tenth of a step.</summary>
         public static readonly AngularSpeed GravityMagnitude = AngularSpeed.FromStepFraction(3, 32);
         /// <summary>Per-update angular acceleration contributed by directional input: 12/256 of a step.</summary>
         public static readonly AngularSpeed DirectionInputMagnitude = AngularSpeed.FromStepFraction(3, 64);

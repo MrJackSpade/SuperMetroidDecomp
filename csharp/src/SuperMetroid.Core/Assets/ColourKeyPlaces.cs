@@ -25,14 +25,14 @@ public sealed class ColourKeyPlaces
     /// <summary>Each entry's recolour region.</summary>
     private readonly int[] regions = new int[Entries];
 
-    /// <summary>Each entry's key place, or -1 while the entry holds none.</summary>
-    private readonly int[] places = new int[Entries];
+    /// <summary>Each entry's key place, or null while the entry holds none.</summary>
+    private readonly int?[] places = new int?[Entries];
 
     /// <summary>Holds no places.</summary>
     public ColourKeyPlaces() => Clear();
 
     /// <summary>Forgets every place, for the next image's keys.</summary>
-    public void Clear() => Array.Fill(places, -1);
+    public void Clear() => Array.Clear(places);
 
     /// <summary>
     /// The place of the key of <paramref name="pixel"/>'s colour in recolour region <paramref name="region"/> (never
@@ -42,8 +42,8 @@ public sealed class ColourKeyPlaces
     {
         int entry = EntryOf(pixel, region);
         RgbaPixel held = colours[entry];
-        place = places[entry];
-        return place >= 0 && held.R == pixel.R && held.G == pixel.G && held.B == pixel.B && regions[entry] == region;
+        place = places[entry] ?? default;
+        return places[entry] is not null && held.R == pixel.R && held.G == pixel.G && held.B == pixel.B && regions[entry] == region;
     }
 
     /// <summary>Holds <paramref name="place"/> as the place of the key of <paramref name="pixel"/>'s colour in recolour region <paramref name="region"/>.</summary>

@@ -26,7 +26,8 @@ internal static class EndingRewardCast
         [EndingReward.Armored] = [EndingRewardActor.HelmetedHead, EndingRewardActor.SuitedBody, EndingRewardActor.SuitedArm],
     });
 
-    /// <summary>The gesture actors <paramref name="reward"/> spawns, in allocation order: the suited head first, then body and arm.</summary>
+    /// <summary>The gesture actors <paramref name="reward"/> spawns, in the order they spawn, step and draw: the suited
+    /// head first, then body and arm.</summary>
     internal static IReadOnlyList<EndingRewardActor> Gesture(EndingReward reward) => GestureByReward[reward];
 
     /// <summary>The jump head of each reward.</summary>

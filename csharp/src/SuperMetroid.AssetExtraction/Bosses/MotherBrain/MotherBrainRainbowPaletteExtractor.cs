@@ -40,7 +40,7 @@ internal static class MotherBrainRainbowPaletteExtractor
             Normal = ReadFrame(MotherBrainSourceDefinitions.Palettes.NormalBrainColors,
                 MotherBrainRainbowPaletteGeometry.ColorCount,
                 MotherBrainRainbowPaletteGeometry.ColorCount,
-                MotherBrainSourceDefinitions.Palettes.NormalRearLegColors),
+                legSource: MotherBrainSourceDefinitions.Palettes.NormalRearLegColors),
         });
         return json.ToArray();
 
@@ -54,8 +54,9 @@ internal static class MotherBrainRainbowPaletteExtractor
                 int pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord(pointerAddress);
                 if (pointer == 0)
                     throw new InvalidDataException($"Mother Brain palette table ${table:X6} ends before frame {frame}.");
-                values[frame] = ReadFrame(MotherBrainSourceDefinitions.Palettes.PaletteBank | pointer,
-                    bodyCount, legCount);
+                int source = MotherBrainSourceDefinitions.Palettes.PaletteBank | pointer;
+                // A table frame lays its back legs' colours right after its body's.
+                values[frame] = ReadFrame(source, bodyCount, legCount, legSource: source + bodyCount * sizeof(ushort));
             }
             if (CartridgeImportSource.Require(bus).ReadCartridgeWord((table + frames * sizeof(ushort))) != 0)
                 throw new InvalidDataException($"Mother Brain palette table ${table:X6} lacks its native terminator.");
@@ -82,10 +83,10 @@ internal static class MotherBrainRainbowPaletteExtractor
         }
 
         MotherBrainRainbowPaletteFrameDocument ReadFrame(int source, int bodyCount,
-            int legCount, int? legSource = null) => new()
+            int legCount, int legSource) => new()
         {
             Body = ReadColors(source, bodyCount),
-            BackLegs = ReadColors(legSource ?? source + bodyCount * sizeof(ushort), legCount),
+            BackLegs = ReadColors(legSource, legCount),
         };
 
         PaletteRgb5[] ReadColors(int source, int count)

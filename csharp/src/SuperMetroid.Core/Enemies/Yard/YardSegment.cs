@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Enemies.Yard;
 
 /// <summary>
-/// The Yard's crawl, turn, hiding and airborne animations (#641): one segment per animation a spawn, branch or wake enters,
-/// and the closed shell, hidden shell and tumble those animations play on into (#2276), in authored order.
+/// The Yard's crawl, turn, hiding and airborne animations (#641), and the closed shell, hidden shell and tumble those
+/// animations play on into (#2276).
 /// Their steps are <see cref="YardAnimations"/>.
 /// </summary>
 internal enum YardSegment

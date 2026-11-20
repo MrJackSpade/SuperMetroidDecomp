@@ -10,7 +10,7 @@ internal sealed class RidleyFireballAnimation(IEnemyProjectileCues<RidleyFirebal
     : EnemyProjectileFrameAnimation<RidleyFireballSegment, RidleyFireballCue>(RidleyFireballAnimations.StartingWith(segment), EnemyProjectileCueRunner<RidleyFireballSegment, RidleyFireballCue>.By(owner))
 {
     /// <inheritdoc/>
-    private protected override UnpausedAnimationSegments<RidleyFireballSegment, EnemyProjectileFrameId, RidleyFireballCue> Segments =>
+    private protected override IUnpausedAnimationPlay<RidleyFireballSegment, EnemyProjectileFrameId, RidleyFireballCue> Segments =>
         RidleyFireballAnimations.Segments;
 
     /// <inheritdoc/>

@@ -67,11 +67,11 @@ internal static class RidleyInteractions
     /// hitboxes overlaps it.
     /// </summary>
     /// <exception cref="InvalidDataException">Ridley's frame has no collision.</exception>
-    internal static bool FindRidleyHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
+    internal static EnemyHitboxContact FindRidleyHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe)
     {
-        reaction = !BodyOverlaps(enemy, probe) ? null
-            : probe.SelectsShot ? RidleyCollisionDefinitions.BodyShotReaction : RidleyCollisionDefinitions.BodyTouchReaction;
-        return reaction is not null;
+        if (!BodyOverlaps(enemy, probe))
+            return EnemyHitboxContact.Missed;
+        return EnemyHitboxContact.Struck(probe.SelectsShot ? RidleyCollisionDefinitions.BodyShotReaction : RidleyCollisionDefinitions.BodyTouchReaction);
     }
 
     /// <summary>Whether <paramref name="probe"/> overlaps a hitbox of the body frame Ridley shows (#2410).</summary>

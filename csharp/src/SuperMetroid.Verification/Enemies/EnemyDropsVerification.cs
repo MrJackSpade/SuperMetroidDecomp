@@ -64,9 +64,9 @@ internal static class EnemyDropsVerification
             killed.Bind(EnemyDefinitionId.Mellow, mellow);
             killed.Presence = respawns ? EnemyPresence.RespawnsIfKilled : EnemyPresence.None;
 
-            fixture.System.DeathsAndDrops.StartGenericEnemyDeath(killed, EnemyDeathExplosion.Small, fixture.Samus);
+            fixture.System.DeathsAndDrops.StartGenericEnemyDeath(killed.HeldOccupant(), EnemyDeathExplosion.Small, fixture.Samus);
 
-            AssertEqual(EnemyDefinitionId.None, killed.DefinitionId, $"respawns {respawns}: the killed enemy leaves its place");
+            AssertTrue(killed.Occupant is null, $"respawns {respawns}: the killed enemy leaves its place");
             AssertEqual(respawns, killed.AwaitsRespawn, $"respawns {respawns}: the place awaits the enemy's respawn");
             AssertTrue(killed.Entity is null, $"respawns {respawns}: no behaviour runs in the place");
             AssertEqual(respawns ? places[1] : places[0], EnemyPlaceOrder.FirstFree(places),
@@ -77,7 +77,7 @@ internal static class EnemyDropsVerification
         RoomEnemyPlace place = rebuilt.System.Places.InUpdateOrder[0];
         place.Bind(EnemyDefinitionId.Mellow, mellow);
         place.Presence = EnemyPresence.RespawnsIfKilled;
-        rebuilt.System.DeathsAndDrops.StartGenericEnemyDeath(place, EnemyDeathExplosion.Small, rebuilt.Samus);
+        rebuilt.System.DeathsAndDrops.StartGenericEnemyDeath(place.HeldOccupant(), EnemyDeathExplosion.Small, rebuilt.Samus);
         place.Bind(EnemyDefinitionId.Mellow, mellow);
         AssertTrue(!place.AwaitsRespawn, "rebuilding the enemy in its place ends the wait");
         AssertEqual(rebuilt.System.Places.InUpdateOrder[1], EnemyPlaceOrder.FirstFree(rebuilt.System.Places.InUpdateOrder),
@@ -92,8 +92,8 @@ internal static class EnemyDropsVerification
         samus.HorizontalSpeed.BodyAttack = SamusBodyAttack.PseudoScrew;
         var fixture = CreateEnemyDropFixture(samus, [1]);
         var enemy = fixture.System.Places.InUpdateOrder[0];
-        enemy.Bind(EnemyPlaceFixtures.StandIn, enemy.Definition);
-        enemy.Bind(enemy.DefinitionId, default(RoomEnemyDefinition) with
+        enemy.Bind(EnemyPlaceFixtures.StandIn, enemy.KeptDefinition);
+        enemy.Bind(enemy.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank with
         {
             Touch = EnemyReaction.OrdinaryTouch,
         });
@@ -108,7 +108,7 @@ internal static class EnemyDropsVerification
         var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
         var samusColours = new SamusColours();
         fixture.System.StepStandaloneFrame(fixture.System.StandaloneFrame(fixture.Level) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, SamusProjectiles = projectiles, SamusColours = samusColours });
-        AssertTrue(enemy.AwaitsRespawn && enemy.DefinitionId == EnemyDefinitionId.None,
+        AssertTrue(enemy.AwaitsRespawn && enemy.Occupant is null,
             "contact death leaves the respawning enemy's place awaiting its respawn");
         AssertEqual(1, fixture.System.RoomStatus.EnemiesKilled, "contact death counted once");
         AssertEqual(1, enemy.FrameCounter, "the death update still counts the awaiting place's update");
@@ -196,7 +196,6 @@ internal static class EnemyDropsVerification
             EnemyPickupKind.Missile => 1,
             EnemyPickupKind.SuperMissile => 196,
             EnemyPickupKind.PowerBomb => 246,
-            EnemyPickupKind.NoDrop => throw new ArgumentOutOfRangeException(nameof(kind)),
             _ => throw new ArgumentOutOfRangeException(nameof(kind)),
         };
         EnemyDropFixture fixture = CreateEnemyDropFixture(samus, randomValues: [random]);
@@ -372,7 +371,7 @@ internal static class EnemyDropsVerification
         ushort enemyHeader = TestAddressSpace.FixtureHeaderPointer(EnemyPlaceFixtures.StandIn);
         SeedEnemyDropChancePointer(fixture.Bus, enemyHeader);
         RoomEnemyPlace enemy = fixture.System.Places.InUpdateOrder[0];
-        enemy.Bind(EnemyPlaceFixtures.StandIn, enemy.Definition);
+        enemy.Bind(EnemyPlaceFixtures.StandIn, enemy.KeptDefinition);
         enemy.Position = enemy.Position.WithWhole(new(321, 123));
         enemy.Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook;
         enemy.Contact = EnemyContact.None;
@@ -380,23 +379,23 @@ internal static class EnemyDropsVerification
         enemy.Presence = EnemyPresence.RespawnsIfKilled;
 
         // A Fireflea touched with health nine left dies in the small explosion.
-        fixture.System.DeathsAndDrops.StartGenericEnemyDeath(enemy,
+        fixture.System.DeathsAndDrops.StartGenericEnemyDeath(enemy.HeldOccupant(),
             deathAnimation: EnemyDeathExplosionDefinitions.LeftoverNumbered.Named(9), fixture.Samus);
-        AssertTrue(enemy.AwaitsRespawn && enemy.DefinitionId == EnemyDefinitionId.None,
+        AssertTrue(enemy.AwaitsRespawn && enemy.Occupant is null,
             "respawning death leaves the enemy's place awaiting its respawn");
         AssertEqual(1, fixture.System.RoomStatus.EnemiesKilled,
             "generic enemy death increments room kill counter");
 
-        EnemyProjectile explosion = fixture.System.Projectiles.ProjectileInPlace(17);
+        EnemyProjectile explosion = fixture.System.Projectiles.SpawnedInPlace(17);
         AssertEqual(RoomEnemyProjectileKind.EnemyDeathExplosion, explosion.Kind,
             "generic death allocates projectile definition F345");
-        AssertEqual(EnemyPlaceFixtures.StandIn, fixture.System.DeathsAndDrops.Explosions.Of(explosion).DropDefinitionId,
+        AssertEqual(EnemyPlaceFixtures.StandIn, fixture.System.DeathsAndDrops.Explosions.Of(explosion).Dropper?.DefinitionId,
             "death actor retains killed enemy header for later chance lookup");
         AssertEqual((ushort)321, explosion.Position.X.Whole,
             "death actor retains killed enemy X position");
         AssertEqual((ushort)123, explosion.Position.Y.Whole,
             "death actor retains killed enemy Y position");
-        AssertEqual(KilledEnemy.Of(enemy, respawns: true), fixture.System.DeathsAndDrops.Explosions.Of(explosion).KilledEnemy,
+        AssertEqual(KilledEnemy.Of((PopulatedEnemyPlace)enemy.History, respawns: true), fixture.System.DeathsAndDrops.Explosions.Of(explosion).KilledEnemy,
             "respawning slot zero is retained as the killed enemy, marked to respawn");
         AssertEqual(
             EnemyDeathExplosions.Animation(EnemyDeathExplosion.Small),

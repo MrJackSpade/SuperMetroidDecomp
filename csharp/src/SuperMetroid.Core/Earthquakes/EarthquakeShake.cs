@@ -26,8 +26,8 @@ public readonly record struct EarthquakeShake(EarthquakeStrength Strength, Earth
                 EarthquakeShakeDefinitions.HorizontalDirections.Contains(Direction) ? pixels : 0,
                 EarthquakeShakeDefinitions.VerticalDirections.Contains(Direction) ? pixels : 0);
             return new(
-                EarthquakeShakeDefinitions.ForegroundReaches.Contains(Reach) ? thrown : Offset16<RoomPixels>.Zero,
-                EarthquakeShakeDefinitions.BackgroundReaches.Contains(Reach)
+                EarthquakeShakeDefinitions.RoomBlockReaches.Contains(Reach) ? thrown : Offset16<RoomPixels>.Zero,
+                EarthquakeShakeDefinitions.SceneryReaches.Contains(Reach)
                     ? new(thrown.X, thrown.Y)
                     : Offset16<BackgroundPixels>.Zero,
                 ShakesEnemies ? thrown : Offset16<RoomPixels>.Zero);

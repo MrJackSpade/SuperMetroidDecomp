@@ -90,8 +90,8 @@ internal sealed class RoomBlockInventory
     {
         ILookup<RoomDefinition, DoorDefinition> entrances = RoomDoorListDefinitions.ByRoom.Values
             .SelectMany(list => list)
-            .Select(entry => entry.Door)
-            .OfType<DoorDefinition>()
+            .OfType<DoorBlockExit.ThroughDoor>()
+            .Select(exit => exit.Door)
             .ToLookup(door => door.DestinationRoom);
         var straddledShots = new Dictionary<InstalledRoomLevel, IReadOnlySet<RoomTerrainReaction>>();
         foreach (RoomDefinition room in RetailRooms.All)

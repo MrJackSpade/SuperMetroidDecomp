@@ -7,9 +7,8 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal static class MotherBrainTurretDefinitions
 {
     /// <summary>
-    /// Graphics installed by both projectile setups: the shared sheet in the Rinkas' colours, the standard colours
-    /// of the sheet the import composes under Mother Brain's room's set, which loads them beside her (#1464, #1512). The
-    /// turrets and their bullets exist only in the first phase, before the second phase's attack colours load.
+    /// The pictures both turrets and their bullets show: the shared sheet in the standard colours (#1464, #1512). The
+    /// turrets and their bullets exist only in the first phase.
     /// </summary>
     internal static SpriteGraphics Graphics { get; } = SpriteGraphics.SharedIn(PictureShading.Standard);
 

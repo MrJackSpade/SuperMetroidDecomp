@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Animation;
 /// </summary>
 /// <typeparam name="TFrame">The frame identity.</typeparam>
 /// <typeparam name="TEvent">The events the owner reacts to.</typeparam>
-internal abstract record AnimationBeat<TFrame, TEvent>
+internal abstract record AnimationBeat<TFrame, TEvent> : IHidingAnimationBeat<TFrame, TEvent>
     where TFrame : struct
     where TEvent : notnull
 {
@@ -15,6 +15,13 @@ internal abstract record AnimationBeat<TFrame, TEvent>
     private AnimationBeat()
     {
     }
+
+    /// <inheritdoc/>
+    TFrame? IAnimationBeat<TFrame, TEvent>.ShownFrame => ShownFrame;
+
+    /// <inheritdoc/>
+    TResult IHidingAnimationBeat<TFrame, TEvent>.Match<TPlay, TResult>(HidingAnimationBeatCases<TFrame, TEvent, TPlay, TResult> cases, ref TPlay play) =>
+        Ensure.NotNull(cases).Beat(this, ref play);
 
     /// <summary>What <paramref name="play"/> does on this beat as it passes it (#2553): a pause, or any other beat.</summary>
     /// <typeparam name="TPlay">The play passing the beat.</typeparam>
@@ -26,12 +33,16 @@ internal abstract record AnimationBeat<TFrame, TEvent>
     /// <summary>
     /// A beat that is no pause: a frame, a held frame, an event or a marker, what an animation that never pauses plays (#2553).
     /// </summary>
-    internal abstract record Unpaused : AnimationBeat<TFrame, TEvent>
+    internal abstract record Unpaused : AnimationBeat<TFrame, TEvent>, IUnpausedHidingAnimationBeat<TFrame, TEvent>
     {
         /// <summary>Allows only the beats below that are no pause.</summary>
         private protected Unpaused()
         {
         }
+
+        /// <inheritdoc/>
+        TResult IUnpausedHidingAnimationBeat<TFrame, TEvent>.Match<TPlay, TResult>(UnpausedHidingAnimationBeatCases<TFrame, TEvent, TPlay, TResult> cases, ref TPlay play) =>
+            Ensure.NotNull(cases).Unpaused(this, ref play);
 
         /// <inheritdoc/>
         internal sealed override TResult Match<TPlay, TResult>(AnimationBeatCases<TFrame, TEvent, TPlay, TResult> cases, ref TPlay play) =>

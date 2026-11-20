@@ -65,10 +65,10 @@ internal sealed class EscapeAnimalObjects : ICrittersEscapeReaction
 
     /// <summary>Spawns the rescue wall's reaction, which breaks the wall open at its place in the room's update order.</summary>
     public bool TrySpawnCrittersEscapeReaction(RoomLevelData level, Position16<RoomBlocks> position,
-        SamusProjectileType projectileType)
+        BlockStrike strike)
     {
         // The grapple beam's touch is rejected; every projectile, beams and bombs alike, is accepted.
-        if (projectileType.IsNone)
+        if (strike is BlockStrike.GrappleTouch)
             return false;
         if (_places.Spawn() is not { } place)
             return false;
@@ -84,8 +84,8 @@ internal sealed class EscapeAnimalObjects : ICrittersEscapeReaction
     }
 
     /// <summary>
-    /// Gives one of the rescue wall's blocks its collision kind and behaviour, as the wall's setup rewrites only a block's
-    /// type and behaviour: the block keeps its picture and what it shows.
+    /// Gives one of the rescue wall's blocks its collision kind and behaviour: the block keeps its picture and what it
+    /// shows.
     /// </summary>
     private static void WriteWallBlock(RoomLevelData level, Position16<RoomBlocks> block, RoomCollisionType collision,
         RoomBlockBehavior behavior)

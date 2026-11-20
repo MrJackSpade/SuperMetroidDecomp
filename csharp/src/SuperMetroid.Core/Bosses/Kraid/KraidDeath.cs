@@ -85,7 +85,7 @@ internal sealed class KraidDeath
             state.BodyState.DeathPhase = KraidDeathPhase.Sink;
             state.SinkRumbleWait.LastFor(KraidArenaDefinitions.SinkFirstSoundUpdates);
             body.Contact = body.Contact.With(EnemyContact.SolidToSamus);
-            _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Light, EarthquakeDirection.Vertical, EarthquakeReach.Foreground), KraidArenaDefinitions.SinkShakeUpdates);
+            _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Light, EarthquakeDirection.Vertical, EarthquakeReach.RoomBlocks), KraidArenaDefinitions.SinkShakeUpdates);
             state.ArmState.StartAnimation(KraidPartSegment.ArmRisingOrSinking);
             state.FootState.StartAnimation(KraidPartSegment.FootInitial);
             state.FootState.Phase = KraidFootPhase.Resting;
@@ -147,9 +147,9 @@ internal sealed class KraidDeath
         // nails, then the three lints, each in the small death explosion.
         foreach (RoomEnemyPlace nail in _parts.Nails)
             nail.Presence = nail.Presence.Without(EnemyPresence.RespawnsIfKilled);
-        foreach (RoomEnemyPlace nail in _parts.Nails)
+        foreach (RoomEnemyOccupant nail in _parts.LatestNails)
             _deathsAndDrops.StartGenericEnemyDeath(nail, EnemyDeathExplosion.Small, samus);
-        foreach (RoomEnemyPlace lint in _parts.Lints)
+        foreach (RoomEnemyOccupant lint in _parts.LatestLints)
             _deathsAndDrops.StartGenericEnemyDeath(lint, EnemyDeathExplosion.Small, samus);
         // The live sequence crumbles successive blocks while Kraid fades/sinks.
         // It must not substitute the instantaneous already-defeated-room clear.
@@ -182,9 +182,8 @@ internal sealed class KraidDeath
         // The death returns the camera to its normal tracking before the death drop.
         _cameraDistance.Request(CameraDistanceMode.NormalTracking);
 
-        // The death drops fill the same projectile pool used by ordinary deaths. Each
-        // pickup gets a random position in Kraid's floor strip and independently
-        // rolls Kraid's drop chances.
+        // The death drops share the room's enemy projectiles with other deaths. Each pickup gets a random position in
+        // Kraid's floor strip and independently rolls Kraid's drop chances.
         _deathsAndDrops.SpawnEnemyDropScatter(
             EnemyDefinitionId.Kraid,
             count: KraidArenaDefinitions.DeathDropCount,

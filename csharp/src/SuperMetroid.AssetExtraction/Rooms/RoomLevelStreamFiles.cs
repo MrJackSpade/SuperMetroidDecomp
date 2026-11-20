@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core;
 using System.Collections.Immutable;
 using System.Text.Json;
@@ -182,8 +183,8 @@ public static class RoomLevelStreamFiles
         {
             writer.Write((int)level.Size.X);
             writer.Write((int)level.Size.Y);
-            writer.Write(level.Following.Length);
-            writer.Write(level.BeyondCount);
+            writer.Write(level.PastGrid.Blocks.Length);
+            writer.Write(level.PastGrid.SpaceBlocks);
             for (int index = 0; index < level.Foreground.Length; index++)
             {
                 WriteTerrain(writer, level.Foreground[index]);
@@ -191,7 +192,7 @@ public static class RoomLevelStreamFiles
             }
             foreach (RoomBlockAppearance appearance in level.Background)
                 WriteAppearance(writer, appearance);
-            foreach (RoomTerrainBlock block in level.Following)
+            foreach (RoomTerrainBlock block in level.PastGrid.Blocks)
                 WriteTerrain(writer, block);
         }
         return memory.ToArray();
@@ -348,7 +349,7 @@ public static class RoomLevelStreamFiles
             if (reader.BaseStream.Position != file.Length)
                 throw new InvalidDataException($"Room-level file {path} has trailing bytes.");
             return new InstalledRoomLevel(size, foreground.MoveToImmutable(), behaviors.MoveToImmutable(),
-                background.MoveToImmutable(), following.MoveToImmutable(), beyondCount);
+                background.MoveToImmutable(), new LevelDataPastGrid<RoomTerrainBlock>(following.MoveToImmutable(), beyondCount));
         }
         catch (Exception error) when (error is EndOfStreamException or OverflowException or ArgumentException)
         {

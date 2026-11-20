@@ -31,7 +31,7 @@ internal static class LookupRetailObjectHeadersVerification
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             ushort word = (ushort)raw;
-            if (RoomObjectNativeWords.Headers.TryDecode(word, out RoomObjectKind header) && header != RoomObjectKind.None)
+            if (RoomObjectNativeWords.Headers.TryDecode(word, out RoomObjectKind header))
                 AssertTrue(headers.Contains(word), $"Room-object kind {header} is placed by a retail population");
         }
         // Native records independently establish which header identities the retail

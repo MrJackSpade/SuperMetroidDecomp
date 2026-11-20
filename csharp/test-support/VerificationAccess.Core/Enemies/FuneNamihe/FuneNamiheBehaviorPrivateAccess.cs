@@ -12,16 +12,16 @@ internal static class FuneNamiheBehaviorPrivateAccess
     extension(global::SuperMetroid.Core.Enemies.FuneNamihe.FuneNamiheBehavior self)
     {
         /// <summary>The private method <c>SpawnFuneNamiheFireball</c>, invoked by name.</summary>
-        internal void SpawnFuneNamiheFireball(global::SuperMetroid.Core.Enemies.RoomEnemyPlace source, global::SuperMetroid.Core.Enemies.FuneNamihe.FuneNamiheEnemyState state, global::SuperMetroid.Core.Spatial.HorizontalDirection direction, global::SuperMetroid.Core.Enemies.RoomEnemyProjectileKind kind) =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Enemies.FuneNamihe.FuneNamiheBehavior>(self, "SpawnFuneNamiheFireball", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Enemies.FuneNamihe.FuneNamiheEnemyState), typeof(global::SuperMetroid.Core.Spatial.HorizontalDirection), typeof(global::SuperMetroid.Core.Enemies.RoomEnemyProjectileKind)], new object?[] { source, state, direction, kind });
+        internal void SpawnFuneNamiheFireball(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant occupant, global::SuperMetroid.Core.Enemies.RoomEnemyPlace source, global::SuperMetroid.Core.Enemies.FuneNamihe.FuneNamiheEnemyState state, global::SuperMetroid.Core.Spatial.HorizontalDirection direction, global::SuperMetroid.Core.Enemies.RoomEnemyProjectileKind kind) =>
+            PrivateState.Invoke<global::SuperMetroid.Core.Enemies.FuneNamihe.FuneNamiheBehavior>(self, "SpawnFuneNamiheFireball", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant), typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Enemies.FuneNamihe.FuneNamiheEnemyState), typeof(global::SuperMetroid.Core.Spatial.HorizontalDirection), typeof(global::SuperMetroid.Core.Enemies.RoomEnemyProjectileKind)], new object?[] { occupant, source, state, direction, kind });
     }
 
     /// <summary>The private static members checks name.</summary>
     extension(global::SuperMetroid.Core.Enemies.FuneNamihe.FuneNamiheBehavior)
     {
         /// <summary>The private method <c>CooldownOf</c>, invoked by name.</summary>
-        internal static global::SuperMetroid.Core.UpdateCountdown CooldownOf(global::SuperMetroid.Core.Enemies.RoomEnemyPlace place) =>
-            PrivateState.InvokeStatic<global::SuperMetroid.Core.UpdateCountdown>(typeof(global::SuperMetroid.Core.Enemies.FuneNamihe.FuneNamiheBehavior), "CooldownOf", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace)], new object?[] { place });
+        internal static global::SuperMetroid.Core.UpdateCountdown CooldownOf(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant occupant) =>
+            PrivateState.InvokeStatic<global::SuperMetroid.Core.UpdateCountdown>(typeof(global::SuperMetroid.Core.Enemies.FuneNamihe.FuneNamiheBehavior), "CooldownOf", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant)], new object?[] { occupant });
 
         /// <summary>The private field <c>Fireball</c>, reached by name.</summary>
         internal static global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior Fireball => PrivateState.StaticField<global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior>(typeof(global::SuperMetroid.Core.Enemies.FuneNamihe.FuneNamiheBehavior), "Fireball");

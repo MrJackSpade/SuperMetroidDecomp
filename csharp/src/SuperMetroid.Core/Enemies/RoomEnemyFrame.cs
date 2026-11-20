@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -38,8 +39,9 @@ internal sealed record RoomEnemyFrame
     /// <summary>Samus's held charge as a Pseudo Screw contact this pass spends it: her projectiles' and her colours' (#2159).</summary>
     public PseudoScrewCharge PseudoScrew => new(SamusProjectiles, SamusColours);
 
-    /// <summary>The game's short frame counter, 0 through 255, which a door's scroll restarts.</summary>
-    public required int ShortCounter { get; init; }
+    /// <summary>The enemies' short update count, which paces their cadences and which a door's scroll
+    /// restarts.</summary>
+    public required Compatibility.ShortFrameCount ShortCounter { get; init; }
 
     /// <summary>Shared bomb and power-bomb state used by collision order and actor effects.</summary>
     public required SamusBombProjectileSystem SamusBombs { get; init; }
@@ -48,5 +50,5 @@ internal sealed record RoomEnemyFrame
     public required int FrameCounter { get; init; }
 
     /// <summary>The camera's frame-start Samus checkpoint under the live previous positions that Draygon and Yapping Maw cap; null when no camera owns them.</summary>
-    public required FixedPosition<RoomPixels>? SamusPreviousPositionCheckpoint { get; init; }
+    public required SamusScrollCheckpoint SamusPreviousPositionCheckpoint { get; init; }
 }

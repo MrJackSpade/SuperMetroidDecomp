@@ -35,7 +35,6 @@ internal static class CinematicSpritePoseKeys
         [CinematicSpritePose.ExaminedBabyNarrowing] = "ExaminedBabyNarrowing",
         [CinematicSpritePose.ExaminedBabyNarrow] = "ExaminedBabyNarrow",
         [CinematicSpritePose.CaretVisible] = "CaretVisible",
-        [CinematicSpritePose.Blank] = "Blank",
         [CinematicSpritePose.NextPageArrowBright] = "NextPageArrowBright",
         [CinematicSpritePose.NextPageArrowFading] = "NextPageArrowFading",
         [CinematicSpritePose.NextPageArrowFaint] = "NextPageArrowFaint",

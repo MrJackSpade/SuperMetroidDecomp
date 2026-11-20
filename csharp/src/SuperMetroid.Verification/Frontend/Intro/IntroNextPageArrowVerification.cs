@@ -96,7 +96,7 @@ internal static class IntroNextPageArrowVerification
         {
             AssertTrue(subtitles.HoldInputWait(), $"the second subtitle still holds the input wait at hidden update {update}");
             Step(japanese, english, ControllerButton.None);
-            AssertArrowShows(japanese, CinematicSpritePose.Blank, $"page two while the second subtitle holds the wait, update {update}");
+            AssertArrowShows(japanese, null, $"page two while the second subtitle holds the wait, update {update}");
         }
         for (int update = 0; update < ComparedLoops * LoopPoses.Length * LoopFrameUpdates; update++)
         {
@@ -168,7 +168,7 @@ internal static class IntroNextPageArrowVerification
     private static CinematicSpritePose LoopPose(int update) => LoopPoses[update / LoopFrameUpdates % LoopPoses.Length];
 
     /// <summary>Requires the Japanese arrow present and showing <paramref name="expected"/>.</summary>
-    private static void AssertArrowShows(IntroNarrationActors japanese, CinematicSpritePose expected, string at)
+    private static void AssertArrowShows(IntroNarrationActors japanese, CinematicSpritePose? expected, string at)
     {
         CinematicActor<IntroNarrationAnimation, CinematicSpritePose, NoAnimationCue> arrow = japanese.NextPageArrow
             ?? throw new InvalidOperationException($"The Japanese next-page arrow is gone at {at}.");

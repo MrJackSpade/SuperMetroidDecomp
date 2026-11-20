@@ -56,7 +56,7 @@ public sealed class SamusLiquidPhysicsState
 
     /// <summary>
     /// The room effect's liquid surface as Samus's physics sees it: none when the effect has no surface, or when a tide
-    /// carries it above the room, where the game's below-zero check finds no surface.
+    /// carries it above the room, where no surface shows.
     /// </summary>
     private static int? LiveSurface(RoomFxOverlayState fx) => fx.Surface is >= 0 ? fx.Surface : null;
 
@@ -120,10 +120,10 @@ public sealed class SamusLiquidPhysicsState
     }
 
     /// <summary>
-    /// The water surface as the air-bubble test and the diving splash read it, which do not test whether the room has
-    /// one: an absent surface reads as <see cref="AbsentWaterSurfaceLine.PlaceOf"/> places it.
+    /// The room place the diving splash stands on: the water surface, or, in a room with no water surface, the place
+    /// <see cref="AbsentWaterSurfaceLine.SplashPlace"/> gives.
     /// </summary>
-    internal int UntestedWaterSurfaceLine => AbsentWaterSurfaceLine.PlaceOf(WaterSurfaceY);
+    internal int UntestedWaterSurfaceLine => WaterSurfaceY is int surface ? OffRoomPlaces.Place(surface) : AbsentWaterSurfaceLine.SplashPlace;
 
     /// <summary>
     /// Whether Samus's movement ignores the room's water surface until a room object enables it (the n00b tube's glass),
@@ -217,14 +217,10 @@ public sealed class SamusLiquidPhysicsState
     /// lava/acid surface, without applying the Gravity Suit exemption.
     /// </summary>
     /// <remarks>
-    /// This is the exact environmental question asked by Samus's suit colouring.
-    /// It deliberately differs from
-    /// <see cref="DetermineMovementMedium"/>: the suit colouring checks for the Gravity
-    /// Suit first, then performs the raw bottom-boundary liquid test. Keeping those two
-    /// decisions separate lets the colouring reproduce both the submerged Power/Varia early
-    /// return and Gravity Suit's unconditional colour-animation bypass. Water whose surface
-    /// Samus ignores still reads as dry, while a room with no water surface goes on to test the
-    /// independent lava/acid surface exactly as the game does.
+    /// The question Samus's suit colouring asks, apart from <see cref="DetermineMovementMedium"/>: the suit colouring
+    /// checks for the Gravity Suit first, then tests her bottom boundary against the liquid, so a submerged Power or
+    /// Varia Suit and the Gravity Suit's colour animation each colour as the game shows them. Water whose surface Samus
+    /// ignores still reads as dry, while a room with no water surface goes on to test the lava or acid surface.
     /// </remarks>
     public bool IsBottomBoundarySubmerged(SamusState samus)
     {
@@ -233,15 +229,12 @@ public sealed class SamusLiquidPhysicsState
     }
 
     /// <summary>
-    /// Reproduces the liquid-flag update, which runs after the
-    /// current grapple phase and therefore affects the following grapple frame.
+    /// Whether the grapple treats Samus as submerged, which the following grapple update reads: without the Gravity
+    /// Suit, in a room with a liquid effect, while the water's surface lies above her bottom.
     /// </summary>
     /// <remarks>
-    /// This test is intentionally not the ordinary movement-medium selector. The game's grapple
-    /// checks whether Samus wears the Gravity Suit, requires the room to have an effect at all, and compares only the
-    /// water surface against Samus's bottom. It does not consult whether Samus ignores the
-    /// water's surface and never falls back to the lava/acid surface. Those quirks are retained rather than
-    /// replacing the game's single flag with a friendlier general notion of “submerged.”
+    /// The grapple compares only the water's surface, even where she ignores it, and never the lava's or
+    /// acid's.
     /// </remarks>
     public bool DetermineGrappleSubmersion(SamusState samus)
     {
@@ -321,12 +314,10 @@ public sealed class SamusLiquidPhysicsState
         if (fxKind is RoomFxType.Lava or RoomFxType.Acid &&
             IsBelowSurface(LavaAcidSurfaceY, bottom))
         {
-            if (fxKind == RoomFxType.Lava && samus.HorizontalSpeed.SpeedBoostCounter != default)
+            if (fxKind == RoomFxType.Lava && samus.HorizontalSpeed.SpeedBoostCounter.IsBuilding)
             {
-                // Lava alone cancels the speed boost before the Gravity-Suit branch.
-                // Cancelling the speed boost owns the momentum/counter/shade/echo transition;
-                // the two extra-run speeds are then cleared explicitly by the liquid step.
-                // Acid deliberately skips all three writes.
+                // Lava cancels the speed boost and Samus's extra run speed, before the Gravity Suit is considered; acid
+                // cancels neither.
                 samus.HorizontalSpeed.CancelRunningMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
                 samus.HorizontalSpeed.ExtraRunSpeed = default;
             }
@@ -519,11 +510,12 @@ public sealed class SamusLiquidPhysicsState
         int frameCounter,
         SharedRandom random)
     {
-        // Leaving water for a room configured without a water surface still runs this test, on the surface as it is
-        // read untested. A mouth near the room's top lies above it, on a line less than zero, and above any surface.
+        // Leaving water for a room configured without a water surface still runs this test, which then finds the mouth
+        // under water unless it lies above the room (AbsentWaterSurfaceLine).
         int top = TopLine(samus);
         int mouthY = top - SamusLiquidParticleDefinitions.BreathTestAboveTop;
-        if (mouthY < AbsentWaterSurfaceLine.Read(WaterSurfaceY) ||
+        bool mouthUnderWater = WaterSurfaceY is int surface ? mouthY >= surface : AbsentWaterSurfaceLine.MouthIsUnder(mouthY);
+        if (!mouthUnderWater ||
             !SamusCadenceDefinitions.BreathBubble.IsDue(frameCounter) ||
             !EffectWaits.BubbleCanForm)
         {

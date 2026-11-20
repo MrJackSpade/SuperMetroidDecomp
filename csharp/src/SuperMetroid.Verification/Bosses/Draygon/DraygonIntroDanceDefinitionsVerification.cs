@@ -70,7 +70,7 @@ internal static class DraygonIntroDanceDefinitionsVerification
     /// </summary>
     internal static void VerifyDraygonIntroMovementDefinitions(CartridgeImportAddressSpace rom)
     {
-        for (int step = 0; step < DraygonIntroDanceDefinitions.TracedPath.Length; step++)
+        for (int step = 0; step <= DraygonIntroDanceDefinitions.TracedPath.Length; step++)
         {
             NativeIntroRecord native = ReadRecord(rom, step);
             Offset16<RoomPixels> actual = DraygonIntroDanceDefinitions.TracedPath[step];
@@ -84,7 +84,7 @@ internal static class DraygonIntroDanceDefinitionsVerification
         // The Evir that waits longest still takes the step after the path's last move, its delete, before the dance ends.
         int longestDelay = LongestEvirStartDelay();
         AssertEqual(true, DraygonIntroDanceDefinitions.DurationFrames - 1 - longestDelay >= DraygonIntroDanceDefinitions.TracedPath.Length,
-            "Every Draygon intro Evir reaches the path's delete step");
+            "Every Draygon intro Evir reaches the path's delete its dance");
     }
 
     /// <summary>Whether a cartridge intro path record is the delete record that ends an Evir's dance.</summary>
@@ -100,7 +100,7 @@ internal static class DraygonIntroDanceDefinitionsVerification
         Action<DraygonEnemyState, SamusState, byte> run = (danceState, danceSamus, frameCounter) =>
             enemies.DraygonBehavior.Intro.RunDraygonIntroDance(danceState, danceSamus, frameCounter);
         // The dance starts its own stage, as the intro's handoff does.
-        var state = new DraygonEnemyState(enemies.Places.InUpdateOrder[0], enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3])
+        var state = new DraygonEnemyState(enemies.Places.InUpdateOrder[0].BoundFor(EnemyDefinitionId.DraygonBody), enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3])
         {
             IntroStage = UpdateCountdown.Lasting(DraygonIntroDanceDefinitions.DurationFrames),
         };

@@ -22,7 +22,7 @@ internal static class HopperHopArcVerification
         RoomLevelData level = VerificationHelpersVerification.CreateEmptyRoom(new(8, 8));
         var frame = new ClockedEnemyAiFrame(
             RoomEnemyFrameFixtures.Standalone(level, 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) },
-            new FrameCounters(0));
+            new FrameCounters(SuperMetroid.Core.Compatibility.ShortFrameCount.Zero));
         foreach ((bool falling, int start, int step, int expected, bool expectedFalling) in new VerifyHopperHopArcRecordCase[]
                  {
                      new VerifyHopperHopArcRecordCase(false, 2, 3, 0, true),
@@ -34,7 +34,7 @@ internal static class HopperHopArcVerification
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            place.Bind(EnemyDefinitionId.Sidehopper, place.Definition);
+            place.Bind(EnemyDefinitionId.Sidehopper, place.KeptDefinition);
             place.Position = place.Position.WithWhole(new(64, 48));
             place.Radius = new(8, 8);
             // The hopper reads its surface from its placement (#2474).
@@ -47,7 +47,7 @@ internal static class HopperHopArcVerification
             };
             place.SetSpeciesState(state);
 
-            enemies.HoppersBehavior.RunHoppersMainAi(place, frame);
+            enemies.HoppersBehavior.RunHoppersMainAi(place.HeldOccupant(), place, frame);
 
             string context = $"Hopper {(falling ? "returning" : "rising")} from record {start} by {step}";
             AssertEqual(QuadraticSpeedCurvePlace.FromMarks(expected), state.YSpeedCurvePlace, context);

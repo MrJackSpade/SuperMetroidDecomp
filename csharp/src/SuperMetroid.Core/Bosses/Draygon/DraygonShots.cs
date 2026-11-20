@@ -174,8 +174,8 @@ internal sealed class DraygonShots
 
         /// <summary>
         /// Frees the place of a Draygon goop or wall-turret shot caught in a power bomb's explosion and clears Samus's
-        /// slowdown. Inside the explosion's ellipse the shot finishes its update (<see cref="EnemyProjectile.FreePlace"/>):
-        /// the calling update goes on with it.
+        /// slowdown. Inside the explosion's ellipse the shot still finishes this update's movement
+        /// (<see cref="EnemyProjectile.FreePlace"/>).
         /// </summary>
         private static void FreePlaceIfPowerBombed(EnemyProjectile projectile, SamusState samus, SamusPowerBombExplosionState powerBomb)
         {

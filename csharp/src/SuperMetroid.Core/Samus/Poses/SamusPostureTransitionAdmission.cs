@@ -19,8 +19,7 @@ internal enum SamusPostureTransitionAdmission
     MorphKeepsCharge,
 
     /// <summary>
-    /// Any other pose: the admission reads beyond its table, and
-    /// <see cref="Compatibility.PostureAdmissionBeyondTransitions{TPose}"/> holds the answer.
+    /// Any other pose, whose answer <see cref="Compatibility.PostureAdmissionBeyondTransitions{TPose}"/> holds.
     /// </summary>
     AnsweredBeyondTransitions,
 }

@@ -157,7 +157,7 @@ public sealed class SamusSuitPickupState
         [SamusSuitPickupStage.Finish] = (samus, colours) => Finish(samus),
     });
 
-    /// <summary>Runs one update of the installed light-beam stage step.</summary>
+    /// <summary>Runs one update of the light beam's current stage.</summary>
     public void Step(SamusState samus, SamusColours colours)
     {
         Ensure.NotNull(samus);
@@ -242,8 +242,7 @@ public sealed class SamusSuitPickupState
         int amount = _lightBeamSpeed.WholePixels;
         int left = _lightBeamLeft - amount;
         int right = _lightBeamRight;
-        // The zero test shares the negative-result clamp. Exact zero must also
-        // force the right endpoint to the screen's rightmost column or the reveal is delayed by a frame.
+        // Once the left edge reaches the screen's side, the beam spans the full width.
         if (left <= 0)
         {
             left = 0;

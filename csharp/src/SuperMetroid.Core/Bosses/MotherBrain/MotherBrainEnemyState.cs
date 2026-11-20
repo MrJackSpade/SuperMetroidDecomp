@@ -22,23 +22,29 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     bool SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing.HidesBackgroundLayer => DeathHidesBodyLayer;
 
     /// <summary>Starts the shared encounter state with her body and her head (#2298).</summary>
-    /// <param name="body">Her body's place.</param>
+    /// <param name="body">The enemy holding her body's place, which begins the encounter as it sets up.</param>
     /// <param name="head">Her head's place, which her room lists right after her body.</param>
     /// <param name="walk">The walk credit the encounter's setup creates for it.</param>
     /// <param name="bursts">The burst cycle the encounter's setup creates for it (#1872).</param>
     /// <param name="brain">The brain animation the encounter's setup creates for it (#2317).</param>
-    internal MotherBrainEnemyState(RoomEnemyPlace body, RoomEnemyPlace head, MotherBrainWalkCounter walk, MotherBrainBurstCycle bursts,
+    internal MotherBrainEnemyState(RoomEnemyOccupant body, RoomEnemyPlace head, MotherBrainWalkCounter walk, MotherBrainBurstCycle bursts,
         MotherBrainBrainAnimation brain)
     {
-        Body = body;
+        BodyOccupant = Ensure.NotNull(body);
         Head = Ensure.NotNull(head);
         Walk = Ensure.NotNull(walk);
         Bursts = Ensure.NotNull(bursts);
         Brain = Ensure.NotNull(brain);
     }
 
+    /// <summary>
+    /// The enemy holding her body's place (#2558), which owns the encounter: its definition's damage is her contact damage,
+    /// which her body's, brain's and neck's touches and her laser deal.
+    /// </summary>
+    public RoomEnemyOccupant BodyOccupant { get; }
+
     /// <summary>Her body, which owns the encounter and runs first.</summary>
-    public RoomEnemyPlace Body { get; }
+    public RoomEnemyPlace Body => BodyOccupant.Place;
 
     /// <summary>Her head, the brain, which her room lists right after her body: her body's setup begins the encounter with it (#2298).</summary>
     public RoomEnemyPlace Head { get; }
@@ -354,7 +360,7 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     /// </summary>
     internal int PendingBabyCryCount { get; set; }
 
-    /// <summary>The rainbow beam's colour and cone, advanced by the simulation rather than by painting a frame.</summary>
+    /// <summary>The rainbow beam's colour and cone as she fires it.</summary>
     public MotherBrainRainbowBeamEffect RainbowBeam { get; } = new();
 
     /// <summary>

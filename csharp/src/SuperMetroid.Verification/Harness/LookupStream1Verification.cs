@@ -1346,7 +1346,7 @@ internal static class LookupStream1Verification
         Suite(nameof(VerifySelectors), () => VerifySelectors(stock));
         foreach (int invalid in new[] { int.MinValue, -1, 10, int.MaxValue })
         {
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.CoverAppearance(invalid), "Cannon cover appearance bounds remain exact");
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.CoverAppearance(SuperMetroid.AssetExtraction.Samus.SamusProjectileDirectionCodec.FromAimIndex(invalid)), "Cannon cover appearance bounds remain exact");
             AssertThrows<ArgumentOutOfRangeException>(() => stock.TileSource(invalid, 0), "Cannon tile direction bounds remain exact");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 4, int.MaxValue })
@@ -1362,7 +1362,7 @@ internal static class LookupStream1Verification
             {
                 // The cover appearance has no packed word: its character, palette row, priority and mirroring are
                 // compared with the native attribute word decoded by the import pipeline's codec.
-                AssertEqual(new SnesObjAttributeWord(Word(0x90c791 + direction * 2)).ToSinglePart(), catalog.CoverAppearance(direction), "Installed cover appearances match the native attribute words");
+                AssertEqual(new SnesObjAttributeWord(Word(0x90c791 + direction * 2)).ToSinglePart(), catalog.CoverAppearance(SuperMetroid.AssetExtraction.Samus.SamusProjectileDirectionCodec.FromAimIndex(direction)), "Installed cover appearances match the native attribute words");
                 int list = 0x900000 | Word(0x90c7a5 + direction * 2);
                 for (int frame = 0; frame < 4; frame++)
                     AssertEqual(Word(list + frame * 2), catalog.TileSource(direction, frame), "Calculated cannon orientation/frame preserves native selections");

@@ -35,16 +35,16 @@ internal static class ProjectileFileContractsVerification
             AssertTrue(compiledBeams.Resolve(BeamTileCatalog.AssetFor(SamusBeamCombinationTableOrder.FromTableIndex(selection))).Span.SequenceEqual(
                 expectedBeams.Resolve(BeamTileCatalog.AssetFor(SamusBeamCombinationTableOrder.FromTableIndex(selection))).Span),
                 "file-context beam assembly retains every transfer byte and selection");
-        Dictionary<SamusBeamCombination, BeamTileAtlas> sheets = BeamTileAtlasDefinitions.Pictured.ToDictionary(index => index, index =>
+        Dictionary<SuperMetroid.Core.Progression.SamusBeamCombination, BeamTileAtlas> sheets = BeamTileAtlasDefinitions.Pictured.ToDictionary(index => index, index =>
         {
             using var png = File.OpenRead(Path.Combine(directory, BeamTileAtlasDefinitions.FileName(index)));
             return BeamTileAtlas.Load(png, index);
         });
         var ownedBeams = BeamTileCatalog.FromAtlases(sheets, (compiledBeams.Palettes ?? throw new InvalidOperationException("Verification requires compiledBeams.Palettes.")), (compiledBeams.HyperBeamFxColors ?? throw new InvalidOperationException("Verification requires compiledBeams.HyperBeamFxColors.")));
-        sheets[SamusBeamCombination.Power] = sheets[SamusBeamCombination.Wave];
+        sheets[SuperMetroid.Core.Progression.SamusBeamCombination.Power] = sheets[SuperMetroid.Core.Progression.SamusBeamCombination.Wave];
         AssertTrue(ownedBeams.Resolve(BeamTileCatalog.AssetFor(0)).Span.SequenceEqual(
             expectedBeams.Resolve(BeamTileCatalog.AssetFor(0)).Span), "beam assembler owns the input array");
-        AssertThrows<ArgumentException>(() => BeamTileCatalog.FromAtlases(new Dictionary<SamusBeamCombination, BeamTileAtlas>(), compiledBeams.Palettes,
+        AssertThrows<ArgumentException>(() => BeamTileCatalog.FromAtlases(new Dictionary<SuperMetroid.Core.Progression.SamusBeamCombination, BeamTileAtlas>(), compiledBeams.Palettes,
             compiledBeams.HyperBeamFxColors), "beam assembler rejects an incomplete selection set");
         Console.WriteLine("PASS projectile file contracts: the extracted beam pages assemble into the loaded beam catalog.");
     }

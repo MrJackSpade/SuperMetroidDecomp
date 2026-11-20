@@ -155,8 +155,8 @@ internal static class EnemyHitBurstVerification
         AssertEqual<int?>(EffectActorPlaces.PlaceCount - 1, enemies.EffectActors.PlaceOf(burst)?.Number, "the burst takes the highest place");
 
         RoomEffectActor dud = SpawnDud(enemies);
-        int? dudPlace = enemies.EffectActors.PlaceOf(dud)?.Number;
-        AssertEqual<int?>(EffectActorPlaces.PlaceCount - 2, dudPlace, "a dud flash after the burst takes the next place down");
+        EffectActorPlaces.TakenPlace? dudPlace = enemies.EffectActors.PlaceOf(dud);
+        AssertEqual<int?>(EffectActorPlaces.PlaceCount - 2, dudPlace?.Number, "a dud flash after the burst takes the next place down");
         KraidPassBounds bounds = KraidPassBounds.Placed(left: 0, top: 0, bottom: 0);
         bounds.LeaveAfterDud(dudPlace, Place);
         AssertEqual((EffectActorPlaces.PlaceCount - 2) * 2, bounds.Bottom, "Kraid's mouth pass reads twice the place the burst left its dud");

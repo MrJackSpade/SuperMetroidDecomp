@@ -24,10 +24,10 @@ internal static void VerifyStrictFailureBoundaries()
         "duplicate persisted controller binding is rejected");
 
     AssertThrows<ArgumentOutOfRangeException>(
-        () => _ = DisplayBrightness.Require(-1),
+        () => _ = DisplayBrightness.StepsAbove(-1),
         "negative display brightness is rejected");
     AssertThrows<ArgumentOutOfRangeException>(
-        () => _ = DisplayBrightness.Require(DisplayBrightness.Full + 1),
+        () => _ = DisplayBrightness.StepsAbove(DisplayBrightness.StepsFromBlackToFull + 1),
         "display brightness above full is rejected");
 
     AssertTrue(RoomObjectSystem.IsSupportedRoomPopulationHeader(

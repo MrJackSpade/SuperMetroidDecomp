@@ -204,9 +204,9 @@ internal static class CorpseRotDrawingVerification
     private static void AssertShaderDrawsAsMapped(ImageSpriteDraw draw, CorpseRotPicture rot, string context)
     {
         RgbaPixel[] plain = SuperMetroid.TestSupport.FrameRendering.DisplayRendering.Render(
-            new LayeredScene(new FramePaint(RgbColor.Black, [draw with { CorpseRot = null }]), [], FullBrightness));
+            new LayeredScene(new FramePaint(RgbColor.Black, [draw with { CorpseRot = null }]), [], DisplayBrightness.StepsAbove(FullBrightness)));
         RgbaPixel[] rotted = SuperMetroid.TestSupport.FrameRendering.DisplayRendering.Render(
-            new LayeredScene(new FramePaint(RgbColor.Black, [draw]), [], FullBrightness));
+            new LayeredScene(new FramePaint(RgbColor.Black, [draw]), [], DisplayBrightness.StepsAbove(FullBrightness)));
         RgbaPixel backdrop = plain[0];
         Extent16<ImagePixels> size = draw.Image.Size;
         for (int y = 0; y < size.Y; y++)

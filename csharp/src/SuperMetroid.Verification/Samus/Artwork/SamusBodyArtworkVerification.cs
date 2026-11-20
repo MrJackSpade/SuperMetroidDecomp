@@ -401,7 +401,7 @@ internal static class SamusBodyArtworkVerification
         {
             int attrAddress = SamusSourceDefinitions.ArmCannonSpriteAttributes.Value + direction * 2;
             AssertEqual(new SnesObjAttributeWord(CartridgeImportSource.Require(bus).ReadCartridgeWord(attrAddress)).ToSinglePart(),
-                armCannon.CoverAppearance(direction), $"arm-cannon direction {direction} cover character, palette row, priority and flips");
+                armCannon.CoverAppearance(SuperMetroid.AssetExtraction.Samus.SamusProjectileDirectionCodec.FromAimIndex(direction)), $"arm-cannon direction {direction} cover character, palette row, priority and flips");
             int listAddress = SamusSourceDefinitions.TileListPointers.Value + direction * 2;
             int list = CartridgeImportSource.Require(bus).ReadCartridgeWord(listAddress);
             for (int frame = 0; frame < SamusArmCannonArtworkFormat.FramesPerDirection; frame++)

@@ -194,7 +194,7 @@ internal static class CeresEscapeHandoffVerification
 
         StepFrames(14, _ =>
             AssertTrue(!departure.StepFadeAfterGameplay(), "first 14 fade calls are visible"));
-        AssertEqual(1, departure.Brightness, "14 fade calls leave brightness one");
+        AssertEqual(1, departure.Brightness.StepsAboveBlack, "14 fade calls leave brightness one");
         AssertTrue(departure.StepFadeAfterGameplay(), "15th fade call reaches forced blank");
         AssertEqual(CeresDeparturePhase.Complete, departure.Phase, "Ceres blackout completes");
     }

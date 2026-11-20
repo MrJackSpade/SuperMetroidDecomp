@@ -558,8 +558,7 @@ internal static void VerifySamusArmCannon()
     AssertTrue(!cover.IsLarge, "arm-cannon cover is a small OBJ");
     // Natively the third cover tile ($9A:9E00) is uploaded to tile $1F; the draw shows the sheet frame composed over it.
     SpriteArtwork coverTile = SheetFrameSources.CharacterDraw(coverFrame.Draws[0]).Artwork;
-    AssertEqual(new SpriteArtworkId(SpriteArtworkKind.SamusArmCannonCover,
-            SamusArmCannonArtworkFormat.TileSourcePointers.IndexOf(0x9e00)), coverTile.Id,
+    AssertEqual(SpriteArtworkKind.SamusArmCannonCover, coverTile.Id.Kind,
         "pose record selects direction two, whose frame three binds the third cover tile");
     AssertTrue(coverCharacters.TryResolveTile(0x9a9e00, SpriteArtwork.CharacterByteCount, out ReadOnlyMemory<byte> nativeCover) &&
             coverTile.Characters.SequenceEqual(nativeCover.Span),

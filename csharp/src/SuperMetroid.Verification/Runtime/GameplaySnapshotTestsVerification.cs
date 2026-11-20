@@ -42,7 +42,7 @@ internal static class GameplaySnapshotTestsVerification
             ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites);
         var layer = new GameplaySceneLayer(registers, rooms, scrolls);
         AssertThrows<ArgumentException>(() => new LayeredScene(memory,
-            new DisplayLayer[] { new SpritesLayer([]), layer }, 15), "base cannot erase prior operations");
+            new DisplayLayer[] { new SpritesLayer([]), layer }, DisplayBrightness.Full), "base cannot erase prior operations");
 
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);

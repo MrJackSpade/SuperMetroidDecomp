@@ -30,7 +30,7 @@ internal static class ObjSubscreenVerification
         oam[0] = 8; oam[1] = 8;
         var memory = FramePaint.FromOam(vram, ToColors(colors), oam, 1, 0);
         var packet = new DisplayPacket(0, new LayeredScene(new FramePaint(memory.Backdrop),
-            new DisplayLayer[] { new SpritesLayer(memory.SpriteDraws, SpriteBlend.Glows) }, 15));
+            new DisplayLayer[] { new SpritesLayer(memory.SpriteDraws, SpriteBlend.Glows) }, DisplayBrightness.Full));
 
         var pixels = DisplayRendering.Render(packet);
         AssertEqual(new RgbaPixel(255, 0, 255), pixels[8 * 256 + 8], "a glowing sprite adds its blue to the red backdrop");
@@ -66,7 +66,7 @@ internal static class ObjSubscreenVerification
                     oam[0] = 8; oam[1] = 8; oam[3] = (byte)(palette * 2 + priority * 16);
                     var memory = FramePaint.FromOam(vram, shownColours, oam, 1, 3);
                     var packet = new DisplayPacket(0, new LayeredScene(memory,
-                        new DisplayLayer[] { new TurningFloorLayer(registers, floor, FloorColorBlend.AddForeground) }, 15));
+                        new DisplayLayer[] { new TurningFloorLayer(registers, floor, FloorColorBlend.AddForeground) }, DisplayBrightness.Full));
                     var pixels = DisplayRendering.Render(packet);
                     bool behindFloor = opaqueBg && priority < 2;
                     RgbaPixel expected = behindFloor ? new(0, 132, 0)
@@ -92,7 +92,7 @@ internal static class ObjSubscreenVerification
         oam[0] = 8; oam[1] = 8;
         var memory = FramePaint.FromOam(vram, ToColors(colors), oam, 1, 3);
         var packet = new DisplayPacket(0, new LayeredScene(memory,
-            new DisplayLayer[] { new TurningFloorLayer(new FloorView(0, FloorView.OwnSize, default, default), AffineFloorFixtures.Floor(vram, ToColors(colors)), FloorColorBlend.SubtractSprites) }, 15));
+            new DisplayLayer[] { new TurningFloorLayer(new FloorView(0, FloorView.OwnSize, default, default), AffineFloorFixtures.Floor(vram, ToColors(colors)), FloorColorBlend.SubtractSprites) }, DisplayBrightness.Full));
         var pixels = DisplayRendering.Render(packet);
         AssertEqual(new RgbaPixel(198, 99, 0), pixels[8 * 256 + 8], "Mode7 minus OBJ clamps each five-bit component without halving");
         AssertEqual(new RgbaPixel(255, 99, 0), pixels[0], "transparent OBJ leaves Mode7 color unchanged");
@@ -113,7 +113,7 @@ internal static class ObjSubscreenVerification
             oam[0] = 8; oam[1] = 8; oam[3] = (byte)(objPalette * 2);
             FramePaint memory = FramePaint.FromOam(vram, ToColors(palette), oam, 1, 0);
             var packet = new DisplayPacket(0, new LayeredScene(new FramePaint(memory.Backdrop),
-                new DisplayLayer[] { new SpritesLayer(memory.SpriteDraws, tint: new RgbColor(66, 33, 16)) }, 15));
+                new DisplayLayer[] { new SpritesLayer(memory.SpriteDraws, tint: new RgbColor(66, 33, 16)) }, DisplayBrightness.Full));
             var pixels = DisplayRendering.Render(packet);
             AssertEqual(objPalette == 4 ? new RgbaPixel(123, 33, 16) : new RgbaPixel(57, 0, 0), pixels[8 * 256 + 8],
                 "a sprite tint brightens only the sprites that blend, its five-bit channels expanded");
@@ -135,7 +135,7 @@ internal static class ObjSubscreenVerification
         PicturedPlane Plane(int tilemapWord) => VramPictureFixtures.Plane(vram, ToColors(colors), tilemapWord, 0, TileInkDepth.SixteenColours, new Extent16<CharacterCells>(32, 32));
         var memory = FramePaint.FromNative(ToColors(colors), []);
         var packet = new DisplayPacket(0, new LayeredScene(memory,
-            new DisplayLayer[] { new AddedPicturedPlaneLayer(Plane(0x7000)) }, 15));
+            new DisplayLayer[] { new AddedPicturedPlaneLayer(Plane(0x7000)) }, DisplayBrightness.Full));
         AssertTrue(DisplayRendering.Render(packet).All(pixel => pixel == new RgbaPixel(255, 0, 255)),
             "four-bit subscreen resolves upper bitplanes and sixteen-color palette stride before addition");
 
@@ -151,7 +151,7 @@ internal static class ObjSubscreenVerification
             var shown = new SpritesLayer(sprites.SpriteDraws);
             var masked = new DisplayPacket(0, new LayeredScene(new FramePaint(sprites.Backdrop),
                 new DisplayLayer[] { shown, new AddedPicturedPlaneLayer(Plane(0x7000),
-                    new PicturedPlaneLayer(Plane(0x6800), Offset16<PlanePixels>.Zero), shown) }, 15));
+                    new PicturedPlaneLayer(Plane(0x6800), Offset16<PlanePixels>.Zero), shown) }, DisplayBrightness.Full));
             var pixels = DisplayRendering.Render(masked);
             AssertEqual(new RgbaPixel(255, 0, 0), pixels[0], "a glow over a plane does not add to the backdrop");
             AssertEqual(palette == 4 ? new RgbaPixel(0, 255, 255) : new RgbaPixel(0, 255, 0), pixels[8 * 256 + 8],

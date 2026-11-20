@@ -32,7 +32,7 @@ internal static class TitleSequenceStatePrivateAccess
         /// <summary>The private property <c>Brightness</c>, reached by name.</summary>
         internal int Brightness
         {
-            get => PrivateState.Get<global::SuperMetroid.Core.Frontend.Title.TitleSequenceState, int>(self, "Brightness");
+            get => PrivateState.Get<global::SuperMetroid.Core.Frontend.Title.TitleSequenceState, global::SuperMetroid.Core.Rendering.DisplayBrightness>(self, "Brightness").StepsAboveBlack;
         }
 
         /// <summary>The private property <c>CopyrightRestored</c>, reached by name.</summary>

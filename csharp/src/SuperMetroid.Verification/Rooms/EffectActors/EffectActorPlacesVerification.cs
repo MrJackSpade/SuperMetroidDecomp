@@ -34,7 +34,8 @@ internal static class EffectActorPlacesVerification
         AssertTrue(objects.Live.SequenceEqual(spawned), "every spawn is live, in spawn order");
 
         RoomEffectActor ended = spawned[11];
-        int endedPlace = objects.PlaceOf(ended)?.Number ?? throw new InvalidOperationException("The twelfth spawn took a place.");
+        EffectActorPlaces.TakenPlace endedTaken = objects.PlaceOf(ended) ?? throw new InvalidOperationException("The twelfth spawn took a place.");
+        int endedPlace = endedTaken.Number;
         ended.End();
         spawned.Remove(ended);
         RoomEffectActor refill = objects.SpawnRoomEffectActor(new(65, 0), RoomEffectActorKind.BigDustCloud, SpriteGraphics.SharedStandard);
@@ -44,7 +45,7 @@ internal static class EffectActorPlacesVerification
 
         var shot = new Position16<RoomPixels>(300, 200);
         KraidPassBounds placed = KraidPassBounds.Placed(left: 0, top: 0, bottom: 0);
-        placed.LeaveAfterDud(endedPlace, shot);
+        placed.LeaveAfterDud(endedTaken, shot);
         AssertEqual(endedPlace * 2, placed.Bottom, "a dud whose flash took a place leaves twice the place as the bottom");
         placed.LeaveAfterDud(null, shot);
         AssertEqual<int>(shot.X, placed.Bottom, "a dud whose flash took no place leaves the shot's X as the bottom");

@@ -88,7 +88,7 @@ internal static class ColorWindowSnapshotTestsVerification
         AssertThrows<ArgumentException>(() => new WindowCone(Offset16<ScreenPixels>.Zero, TrigonometryAngle.Zero, TrigonometryAngle.HalfTurn),
             "a cone is narrower than half a turn");
         _ = new DisplayPacket(0, new LayeredScene(memory,
-            new DisplayLayer[] { new ColourAddWindowLayer(owned, new RgbColor(206, 8, 255)) }, 15));
+            new DisplayLayer[] { new ColourAddWindowLayer(owned, new RgbColor(206, 8, 255)) }, DisplayBrightness.Full));
         Console.WriteLine($"  Color window snapshots: {samples} suit/Power Bomb retained windows and window ownership agree.");
 
         void Compare(ColourAddWindowLayer? captured, ColourAddWindowLayer layer)

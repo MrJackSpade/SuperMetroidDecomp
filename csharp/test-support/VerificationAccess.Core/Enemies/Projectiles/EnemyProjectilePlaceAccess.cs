@@ -18,5 +18,5 @@ internal static class EnemyProjectilePlaceAccess
 
     /// <summary>Every place's projectile in place order, as <see cref="ProjectileInPlace"/> gives each, for checks that fill the pool.</summary>
     internal static EnemyProjectile[] EveryPlace(this EnemyProjectileEngine engine) =>
-        [.. Enumerable.Range(0, EnemyProjectileEngine.PlaceCount).Select(engine.ProjectileInPlace)];
+        [.. Enumerable.Range(0, EnemyProjectilePlaces.Capacity).Select(engine.ProjectileInPlace)];
 }

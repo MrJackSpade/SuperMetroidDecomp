@@ -32,7 +32,7 @@ internal static class BossColourContentIdentity
                 Span<RgbColor> bandColors = stackalloc RgbColor[BotwoonColorFormat.ColorsPerPalette];
                 for (int band = 0; band < BotwoonHealthBandDefinitions.InOrderShown.Count; band++)
                 {
-                    for (int color = 0; color < bandColors.Length; color++) bandColors[color] = colors.HealthColor(band, color);
+                    for (int color = 0; color < bandColors.Length; color++) bandColors[color] = colors.HealthColor(SuperMetroid.Core.Bosses.Botwoon.BotwoonHealthBandDefinitions.InOrderShown[band], color);
                     content.AppendColors("row", bandColors);
                 }
             });
@@ -78,7 +78,7 @@ internal static class BossColourContentIdentity
                 Span<RgbColor> bandColors = stackalloc RgbColor[DraygonColorDefinitions.HealthBandColorCount];
                 for (int band = 0; band < DraygonColorDefinitions.HealthBandCount; band++)
                 {
-                    for (int color = 0; color < bandColors.Length; color++) bandColors[color] = colors.ResolveHealthBand(band, color);
+                    for (int color = 0; color < bandColors.Length; color++) bandColors[color] = colors.ResolveHealthBand(SuperMetroid.Core.Bosses.Draygon.DraygonHealthBandDefinitions.HighestFirst[band], color);
                     content.AppendColors("row", bandColors);
                 }
             });
@@ -212,7 +212,7 @@ internal static class BossColourContentIdentity
                 content.AppendColors("spores", Enumerable.Range(0, SporeSpawnColorFormat.ColorsPerFrame).Select(colors.ResolveSpore).ToArray());
                 content.AppendColorFrames("health", Enumerable.Range(0, SporeSpawnColorFormat.HealthFrameCount)
                     .Select(frame => Enumerable.Range(0, SporeSpawnColorFormat.ColorsPerFrame)
-                        .Select(color => colors.ResolveHealth(frame, color)).ToArray()).ToArray());
+                        .Select(color => colors.ResolveHealth(SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnHealthBandDefinitions.HighestFirst[frame], color)).ToArray()).ToArray());
                 content.AppendColorFrames("deathSprite", Enumerable.Range(0, SporeSpawnColorFormat.DeathSpriteFrameCount)
                     .Select(frame => Enumerable.Range(0, SporeSpawnColorFormat.ColorsPerFrame)
                         .Select(color => colors.ResolveDeathSprite(frame, color)).ToArray()).ToArray());

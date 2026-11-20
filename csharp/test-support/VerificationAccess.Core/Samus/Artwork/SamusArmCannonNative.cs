@@ -21,7 +21,7 @@ internal static class SamusArmCannonNative
         internal byte ReadDrawingByteAt(int address) => cannon.ReadDrawingByte(address - SamusSourceDefinitions.ArmCannonDrawingData);
 
         /// <summary>The bank-$9A source of the cover tile <paramref name="direction"/> shows at <paramref name="frame"/>, or zero for the closed cover.</summary>
-        internal ushort TileSource(int direction, int frame) => cannon.CoverTileIndex(direction, frame) is { } tile
+        internal ushort TileSource(int direction, int frame) => (frame == 0 ? null : (int?)cannon.CoverTileIndex(SuperMetroid.AssetExtraction.Samus.SamusProjectileDirectionCodec.FromAimIndex(direction), SuperMetroid.AssetExtraction.Samus.SamusArmCannonCoverFrameCodec.InOpeningOrder[frame - 1])) is { } tile
             ? ArmCannonTileSources.CoverTileDmaSources[tile]
             : (ushort)0;
     }

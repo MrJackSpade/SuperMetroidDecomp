@@ -230,12 +230,12 @@ internal static class EnemyContentIdentityFixtureVerification
             });
             var heads = Ordered(new[]
             {
-                KeyValuePair.Create(0, KraidHeadTilemapAtlas.Load(Json(new KraidHeadTilemapDocument
+                KeyValuePair.Create(SuperMetroid.Core.Bosses.Kraid.KraidHeadFrame.Closed, KraidHeadTilemapAtlas.Load(Json(new KraidHeadTilemapDocument
                 {
                     Version = KraidHeadTilemapFormat.Version, Width = KraidHeadTilemapFormat.Width,
                     Height = KraidHeadTilemapFormat.Height, Cells = Cells("kraid-head-first", KraidWorkingMapDefinitions.HeadImageCells),
                 }))),
-                KeyValuePair.Create(1, KraidHeadTilemapAtlas.Load(Json(new KraidHeadTilemapDocument
+                KeyValuePair.Create(SuperMetroid.Core.Bosses.Kraid.KraidHeadFrame.Opening, KraidHeadTilemapAtlas.Load(Json(new KraidHeadTilemapDocument
                 {
                     Version = KraidHeadTilemapFormat.Version, Width = KraidHeadTilemapFormat.Width,
                     Height = KraidHeadTilemapFormat.Height, Cells = Cells("kraid-head-second", KraidWorkingMapDefinitions.HeadImageCells),

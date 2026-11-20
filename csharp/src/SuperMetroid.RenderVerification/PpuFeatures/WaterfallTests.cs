@@ -57,7 +57,7 @@ internal static class WaterfallTests
                 Operation = BlendOperation.Subtract,
                 BackgroundBehind = true,
             }), bg3, backgroundBehind: true);
-        var scene = new LayeredScene(memory, [layer], 15);
+        var scene = new LayeredScene(memory, [layer], DisplayBrightness.Full);
         var pixels = DisplayRendering.Render(scene);
         Check(16, 19, 13, 7, "BG2 beats low BG3 and subtracts through foreground");
         Check(32, 22, 17, 12, "high BG3 beats BG2");

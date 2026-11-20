@@ -100,8 +100,8 @@ internal static class CrocomireSkeletonArtworkVerification
             BareSkeleton(system, state);
             // The skeleton's chunks as its sheets picture them: every copy of the skeleton look in order (#1406, #1538).
             var characters = new byte[SpriteArtworkPlacements.TableByteCount];
-            foreach (EncounterArtworkUpload upload in EncounterLookUploads.Steps(ComposedEncounter.Crocomire, new EnemyTileTransfers(art)).Looks
-                         .SelectMany(look => look))
+            foreach (EncounterArtworkUpload upload in EncounterLookUploads.Steps(ComposedEncounter.Crocomire, new EnemyTileTransfers(art)).InOrder
+                         .SelectMany(step => step.Copies))
                 upload.ApplyTo(characters);
             return new RunInstalledResult(characters, state, guard);
         }

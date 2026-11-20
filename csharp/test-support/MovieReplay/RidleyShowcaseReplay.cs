@@ -249,9 +249,9 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                         .Where(draw => draw.Source.Kind == SpriteSourceKind.SamusArmCannon)];
                     VerificationAssertions.AssertEqual(cannon.SpriteWritten ? 1 : 0, covers.Length, $"update {frame}: cannon draw count");
                     if (cannon.SpriteWritten && cannon.TileUploadQueued)
-                        VerificationAssertions.AssertEqual(ArmCannonTileSources.CoverTileDmaSources.IndexOf(cannon.TileSource),
-                            SheetFrameSources.CharacterDraw(covers[0]).Artwork.Id.Variant,
-                            $"update {frame}: cannon draw binds the reference cover tile");
+                        VerificationAssertions.AssertEqual(SuperMetroid.AssetExtraction.Artwork.SpriteArtworkKind.SamusArmCannonCover,
+                            SheetFrameSources.CharacterDraw(covers[0]).Artwork.Id.Kind,
+                            $"update {frame}: cannon draw binds a cover tile");
                 }
                 // The recorded cover flags are a byte each; the drawing mode is compared as the draw order it selects.
                 ushort recordedCannonFlags = W(NativeSnapshotMemory.CannonFlags);
@@ -805,7 +805,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 {
                     ushort recordedVariable = W(NativeSnapshotMemory.ProjectileVariable + index);
                     MissileShotState missile = projectile.KindStateAs<MissileShotState>();
-                    int? linkPlace = (missile as SuperMissileShotState)?.LinkPlace;
+                    int? linkPlace = (missile as SuperMissileShotState)?.LinkChainPosition;
                     if (!SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.RecordsIgnitionStage(recordedVariable, missile.Ignition) ||
                         (projectile.Type.Family == SamusProjectileFamily.SuperMissile &&
                         linkPlace != SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeMissileLinkSlot(recordedVariable)))
@@ -824,7 +824,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 CheckValue(owner + " Spritemap", unchecked((ushort)projectile.SpritemapPointer), nativeSpritemap == 0 ? 0 : global::SuperMetroid.Core.Samus.Artwork.ProjectileSpriteNative.FirstStored(nativeSpritemap));
             }
             if (game.GameState == SuperMetroidGameState.MainGameplay)
-            for (int place = 0; place < SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileEngine.PlaceCount; place++)
+            for (int place = 0; place < SuperMetroid.Core.Compatibility.EnemyProjectilePlaces.Capacity; place++)
             {
                 int index = place * 2;
                 string owner = $"Enemy projectile {place}";

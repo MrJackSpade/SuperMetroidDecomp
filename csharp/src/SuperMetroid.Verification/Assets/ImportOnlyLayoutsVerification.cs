@@ -72,7 +72,7 @@ internal static class ImportOnlyLayoutsVerification
         // The map manifest lists the import data's hashes, and only the import's read opens it (#1693).
         yield return (GameInstallationLayout.MapDirectoryName, AreaMapCatalogFormat.ManifestFile);
         string ending = GameInstallationLayout.EndingObjectDirectoryName;
-        foreach (EndingExplosionPicture picture in SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingObjectArtworkFormat.ExplosionPictures)
+        foreach (SuperMetroid.Core.Frontend.Ending.Artwork.EndingExplosionPicture picture in SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingObjectArtworkFormat.ExplosionPictures)
             yield return (ending, SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingObjectArtworkFormat.FragmentFileName(picture));
         yield return (ending, SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingObjectArtworkFormat.WaitingTilemapFileName);
         yield return (ending, SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingObjectArtworkFormat.TransformationMapFileName);

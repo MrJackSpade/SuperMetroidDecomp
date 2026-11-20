@@ -90,7 +90,7 @@ internal sealed class ClosedPresentationAudit
                     ? [ContractTypeNames.MetadataName(typeof(EnemySpritemapDefinitions)), ContractTypeNames.MetadataName(typeof(EnemySpritemapDocumentOrder)),
                         ContractTypeNames.MetadataName(typeof(EnemyFrameNameDefinitions))]
                     : [ContractTypeNames.MetadataName(typeof(EnemySpritemapDefinitions)), ContractTypeNames.MetadataName(typeof(EnemySpritemapDocumentOrder)),
-                        ContractTypeNames.MetadataName(typeof(EnemyExtendedFrameDefinitions)), ContractTypeNames.MetadataName(typeof(EnemyExtendedFrameSequence)),
+                        ContractTypeNames.MetadataName(typeof(EnemyExtendedFrameDefinitions)),
                         ContractTypeNames.MetadataName(typeof(BossSpriteFrameDefinitions)), ContractTypeNames.MetadataName(typeof(EnemyExtendedFrameDocumentOrder)),
                         ContractTypeNames.MetadataName(typeof(EnemyFrameNameDefinitions)),
                         ContractTypeNames.MetadataName(typeof(SuperMetroid.Core.Enemies.Drawing.CommonEnemyEmptyFrames))];

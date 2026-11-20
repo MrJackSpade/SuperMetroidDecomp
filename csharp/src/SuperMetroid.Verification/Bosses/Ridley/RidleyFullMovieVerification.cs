@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.AssetExtraction.Video;
@@ -707,7 +708,7 @@ internal static class RidleyFullMovieVerification
             pause.mapHighlight.Shading, "the first stable pause step shows the highlight cycle's frame one");
         RgbColor[] animated = PauseShownColours.Of(pause, maps);
         game.Session.Enter(PauseStep.FadingOut);
-        game.Session.BeginPauseFade(15);
+        game.Session.BeginPauseFade(DisplayBrightness.Full);
         fadeFrames = 0;
         while (game.IsAt(PauseStep.FadingOut) && fadeFrames++ < 32)
         {

@@ -225,7 +225,7 @@ internal static class MovieDesyncComparison
             CheckArrivalSlot(17, (arrival ?? throw new InvalidOperationException("Verification requires arrival.")).PadActive, 0xa387, arrival.PadPosition.Y);
             CheckArrivalSlot(16, arrival.PlatformActive, 0xa395, arrival.PlatformPosition.Y);
         }
-        for (int slot = 0; slot < (arrivalLive ? 16 : SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileEngine.PlaceCount); slot++)
+        for (int slot = 0; slot < (arrivalLive ? 16 : SuperMetroid.Core.Compatibility.EnemyProjectilePlaces.Capacity); slot++)
         {
             // The port's projectile kind is the native bank-$86 header pointer.
             var latest = projectiles.LatestInPlace(slot);

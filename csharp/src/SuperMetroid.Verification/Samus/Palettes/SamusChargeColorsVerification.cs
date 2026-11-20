@@ -213,21 +213,21 @@ internal static class SamusChargeColorsVerification
                 content.AppendWords("explosion palette indices", selectors);
             });
             AssertEqual(originalIdentity, stockDeath.ContentIdentity, "Death color identity preserves original row serialization");
-            RgbColor before = stockDeath.SuitedColor(SuperMetroid.Core.Samus.SamusSuit.Power, 0, 0);
+            RgbColor before = stockDeath.SuitedColor(SuperMetroid.Core.Samus.Colours.SamusSuit.Power, 0, 0);
             suited[0][0][0] ^= 1;
-            AssertEqual(before, stockDeath.SuitedColor(SuperMetroid.Core.Samus.SamusSuit.Power, 0, 0), "Death catalog copies inputs instead of retaining caller arrays");
+            AssertEqual(before, stockDeath.SuitedColor(SuperMetroid.Core.Samus.Colours.SamusSuit.Power, 0, 0), "Death catalog copies inputs instead of retaining caller arrays");
         }
         foreach (int invalid in new[] { -1, 9, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => death.ExplosionPaletteIndex(invalid), "Invalid explosion frame");
         foreach (int invalid in new[] { -1, 10, int.MinValue, int.MaxValue })
         {
-            AssertThrows<ArgumentOutOfRangeException>(() => death.SuitedColor(SuperMetroid.Core.Samus.SamusSuit.Power, invalid, 0), "Invalid suited death palette");
+            AssertThrows<ArgumentOutOfRangeException>(() => death.SuitedColor(SuperMetroid.Core.Samus.Colours.SamusSuit.Power, invalid, 0), "Invalid suited death palette");
             AssertThrows<ArgumentOutOfRangeException>(() => death.SuitlessColor(invalid, 0), "Invalid suitless death palette");
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => death.SuitedColor((SuperMetroid.Core.Samus.SamusSuit)99, 0, 0), "Invalid death suit");
+        AssertThrows<ArgumentOutOfRangeException>(() => death.SuitedColor((SuperMetroid.Core.Samus.Colours.SamusSuit)99, 0, 0), "Invalid death suit");
         foreach (int invalid in new[] { -1, 16, int.MinValue, int.MaxValue })
         {
-            AssertThrows<ArgumentOutOfRangeException>(() => death.SuitedColor(SuperMetroid.Core.Samus.SamusSuit.Power, 0, invalid), "Invalid suited color");
+            AssertThrows<ArgumentOutOfRangeException>(() => death.SuitedColor(SuperMetroid.Core.Samus.Colours.SamusSuit.Power, 0, invalid), "Invalid suited color");
             AssertThrows<ArgumentOutOfRangeException>(() => death.SuitlessColor(0, invalid), "Invalid suitless color");
         }
         foreach (bool pseudo in new[] { false, true })

@@ -636,8 +636,9 @@ internal sealed class EnemyDeathsAndDrops
             case EnemyDeathAndDropCueKind.RespawnEnemy:
                 // A death explosion, or the pickup it became, rebuilds the enemy it came from when that enemy respawns; a
                 // drop spawned directly came from no enemy.
-                if (projectile.State is EnemyDeathAndDropState { KilledEnemy: { Respawns: true } killed })
-                    RespawnEnemyFromSnapshot(killed.Enemy ?? throw new InvalidDataException("A respawning death explosion names no enemy."));
+                // Only a killed enemy respawns (KilledEnemy.Of), so a respawning explosion always names its enemy.
+                if (projectile.State is EnemyDeathAndDropState { KilledEnemy: { Respawns: true, Enemy: { } respawning } })
+                    RespawnEnemyFromSnapshot(respawning);
                 return null;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(EnemyDeathAndDropCueKind)} {kind}.");

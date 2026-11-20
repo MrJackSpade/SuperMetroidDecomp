@@ -123,8 +123,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        Offset16<RoomPixels> pathOffset = ChootFalls.At(fallingPath, state.FallingLoop.Age)
-            ?? throw new InvalidDataException($"Choot falling path {fallingPath} ends before its loop's {state.FallingLoop.Length} updates.");
+        Offset16<RoomPixels> pathOffset = ChootFalls.At(fallingPath, state.FallingLoop.Age);
         place.Position = place.Position.WithWhole(state.FallingOrigin + pathOffset);
         state.FallingLoop.Count();
     }

@@ -20,12 +20,12 @@ internal static class ChootFalls
             : throw new InvalidOperationException($"Undefined {nameof(ChootFallingPath)} {fallingPath}.");
 
     /// <summary>
-    /// The offset from the falling origin of one falling path at <paramref name="update"/> updates into a loop, or null on
-    /// the update after the path's last sample, which ends one loop of the path.
+    /// The offset from the falling origin of one falling path at <paramref name="update"/> updates into a loop; a loop
+    /// lasts no longer than its path's samples.
     /// </summary>
     /// <exception cref="InvalidOperationException"><paramref name="fallingPath"/> is not a defined path.</exception>
-    /// <exception cref="InvalidDataException"><paramref name="update"/> is negative or lies past the loop's end.</exception>
-    internal static Offset16<RoomPixels>? At(ChootFallingPath fallingPath, int update)
+    /// <exception cref="InvalidDataException"><paramref name="update"/> is negative or lies at or past the path's end.</exception>
+    internal static Offset16<RoomPixels> At(ChootFallingPath fallingPath, int update)
     {
         if (!Paths.TryGetValue(fallingPath, out ChootFallSample[]? path))
             throw new InvalidOperationException($"Undefined {nameof(ChootFallingPath)} {fallingPath}.");
@@ -39,8 +39,6 @@ internal static class ChootFalls
                 return sample.Offset;
             remaining -= sample.Updates;
         }
-        if (remaining == 0)
-            return null;
-        throw new InvalidDataException($"Choot falling-pattern update {update} lies past falling path {fallingPath}.");
+        throw new InvalidDataException($"Choot falling-pattern update {update} lies at or past the end of falling path {fallingPath}.");
     }
 }

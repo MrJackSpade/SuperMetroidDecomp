@@ -1,16 +1,16 @@
-﻿using System.Collections.Immutable;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.AssetExtraction.World.Artwork;
 
 /// <summary>
-/// The order of the frames the cartridge composes from one spritemap each, as the installed enemy compositions
-/// document lists them (#1402). The order is part of the installed document contract.
+/// The frames the cartridge composes from one spritemap each, which the installed enemy compositions document holds
+/// (#1402), keyed by each frame's name (#2556). The listing is the authored one the document is written in; no reader
+/// takes a frame by its place in it, and the document's readers find each frame by name.
 /// </summary>
-internal static class EnemySpritemapDocumentOrder
+internal static class EnemySpritemapComposedFrames
 {
-    /// <summary>Every frame of the document, in the document's order.</summary>
-    internal static ImmutableArray<EnemyFrameId> Frames { get; } =
+    /// <summary>Every frame of the document.</summary>
+    internal static IReadOnlyCollection<EnemyFrameId> Frames { get; } =
     [
         EnemyFrameId.BoyonRestingRound,
         EnemyFrameId.BoyonRestingGlinting,

@@ -87,9 +87,9 @@ internal sealed class ClosedPresentationAudit
                 contract.Type is "SuperMetroid.AssetExtraction.Enemies.EnemySpritemapCatalog" or "SuperMetroid.Core.Enemies.Artwork.EnemyFrameDisplays")
             {
                 string[] definitions = contract.Type == typeof(EnemySpritemapCatalog).FullName
-                    ? [ContractTypeNames.MetadataName(typeof(EnemySpritemapDefinitions)), ContractTypeNames.MetadataName(typeof(EnemySpritemapDocumentOrder)),
+                    ? [ContractTypeNames.MetadataName(typeof(EnemySpritemapDefinitions)), ContractTypeNames.MetadataName(typeof(EnemySpritemapComposedFrames)),
                         ContractTypeNames.MetadataName(typeof(EnemyFrameNameDefinitions))]
-                    : [ContractTypeNames.MetadataName(typeof(EnemySpritemapDefinitions)), ContractTypeNames.MetadataName(typeof(EnemySpritemapDocumentOrder)),
+                    : [ContractTypeNames.MetadataName(typeof(EnemySpritemapDefinitions)), ContractTypeNames.MetadataName(typeof(EnemySpritemapComposedFrames)),
                         ContractTypeNames.MetadataName(typeof(EnemyExtendedFrameDefinitions)),
                         ContractTypeNames.MetadataName(typeof(BossSpriteFrameDefinitions)), ContractTypeNames.MetadataName(typeof(EnemyExtendedFrameDocumentOrder)),
                         ContractTypeNames.MetadataName(typeof(EnemyFrameNameDefinitions)),

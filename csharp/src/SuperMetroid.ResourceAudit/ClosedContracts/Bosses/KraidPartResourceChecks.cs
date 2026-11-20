@@ -18,8 +18,7 @@ internal static class KraidPartResourceChecks
                 break;
             case "Lint":
                 EnemyCompositionResourceChecks.RunSpritemaps("Kraid lint", KraidLintVisualDefinitions.Bank,
-                    KraidLintVisualDefinitions.Spritemaps(), KraidLintVisualDefinitions.FrameCount,
-                    EnemySpritemapToolingDefinitions.PreKraidLintFrameCount);
+                    KraidLintVisualDefinitions.Spritemaps(), KraidLintVisualDefinitions.FrameCount);
                 break;
             default: throw new ArgumentException("Expected Foot or Lint", nameof(part));
         }

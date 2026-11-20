@@ -83,7 +83,7 @@ internal static class CeresEscapeTileArtworkVerification
             CeresEscapeTileArtworkDefinitions.WarningText;
         CeresEscapeTileArtwork stockArt = stock.Areas.CeresEscapeTiles
             ?? throw new InvalidOperationException("Stock Ceres escape art was not installed.");
-        AssertTrue(stockArt.TryResolve(0, 0,
+        AssertTrue(stockArt.TryResolve(CeresEscapeTileArtworkDefinitions.WarningText, 0,
                 0x0200, out ReadOnlyMemory<byte> stockChunk),
             "Ceres warning transfer resolves in stock artwork");
         // The warning text's first page follows the timer-sprite list's timer pages.

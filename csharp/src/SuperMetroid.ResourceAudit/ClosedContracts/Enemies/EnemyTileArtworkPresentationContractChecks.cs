@@ -79,7 +79,7 @@ internal static class EnemyTileArtworkPresentationContractChecks
         sheets.Clear(); palettes.Clear();
         Require(catalog.TilesOf(first.DefinitionId).Length == first.ByteCount, "copied installed sheet");
         ReadOnlyMemory<byte> bytes;
-        Require(ceres.TryResolve(0, 1, 1, out bytes) && bytes.Length == 1,
+        Require(ceres.TryResolve(CeresEscapeTileArtworkDefinitions.WarningText, 1, 1, out bytes) && bytes.Length == 1,
             "bounded Ceres tile slice");
         CeresEscapeWarningPicture overlay = CeresEscapeWarningPictures.Emergency;
         Require(overlays.TryResolve(overlay, out ReadOnlyMemory<BackgroundTile> tiles) &&

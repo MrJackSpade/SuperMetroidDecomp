@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Assets;
 using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
 
@@ -30,20 +31,24 @@ public sealed class CeresEscapeTileArtwork
     }
 
     /// <summary>Returns a slice of installed page <paramref name="page"/> only when the requested range fits wholly inside it.</summary>
-    /// <param name="page">The page: 0 for the warning text, 1 for the doors (<see cref="CeresEscapeTileArtworkDefinitions.All"/>).</param>
+    /// <param name="page">The page: <see cref="CeresEscapeTileArtworkDefinitions.WarningText"/> or <see cref="CeresEscapeTileArtworkDefinitions.Doors"/>.</param>
     /// <param name="offset">The first byte of the page requested.</param>
     /// <param name="byteCount">The bytes requested.</param>
     /// <param name="characters">The requested characters, or empty when the range is not inside a page.</param>
-    internal bool TryResolve(int page, int offset, int byteCount,
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="page"/> is not one of the Ceres escape pages.</exception>
+    internal bool TryResolve(TileSheetDefinition page, int offset, int byteCount,
         out ReadOnlyMemory<byte> characters)
     {
-        if ((uint)page >= (uint)pages.Length || offset < 0 || byteCount <= 0 ||
-            offset > CeresEscapeTileArtworkDefinitions.All[page].ByteCount - byteCount)
+        // The pages are held in their definitions' transfer order.
+        int held = CeresEscapeTileArtworkDefinitions.All.IndexOf(Ensure.NotNull(page));
+        if (held < 0)
+            throw new ArgumentOutOfRangeException(nameof(page), page, "Not a Ceres escape tile page.");
+        if (offset < 0 || byteCount <= 0 || offset > page.ByteCount - byteCount)
         {
             characters = default;
             return false;
         }
-        characters = pages[page].Characters.Slice(offset, byteCount);
+        characters = pages[held].Characters.Slice(offset, byteCount);
         return true;
     }
 }

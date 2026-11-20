@@ -253,7 +253,7 @@ internal static class EncounterLookUploads
     private static EncounterArtworkUpload Warning(int page, IInstalledArtworkContent installed) =>
         new(CeresWarningGlyphDefinitions.WarningFirstCharacter + CeresWarningTextPages.ByteOffset(page) / SpriteCharacterTableLayout.CharacterByteCount,
             (Areas(installed).CeresEscapeTiles ?? throw new InvalidDataException("Installed Ceres escape has no editable character pages."))
-                .TryResolve(CeresWarningTextPageDefinitions.InstalledPage, CeresWarningTextPages.ByteOffset(page), CeresWarningTextPages.ByteCount(page),
+                .TryResolve(CeresEscapeTileArtworkDefinitions.WarningText, CeresWarningTextPages.ByteOffset(page), CeresWarningTextPages.ByteCount(page),
                     out ReadOnlyMemory<byte> characters)
                 ? characters
                 : throw new InvalidDataException($"Installed Ceres escape warning text has no characters for warning page {page}."));

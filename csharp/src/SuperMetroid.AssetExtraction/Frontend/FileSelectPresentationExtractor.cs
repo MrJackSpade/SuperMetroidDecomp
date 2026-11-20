@@ -247,9 +247,9 @@ public static class FileSelectPresentationExtractor
         {
             int word = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
             address = FileSelectTilemapFormat.Bank | (SnesAddressMath.OffsetInBank(address + 2));
-            if (Enum.IsDefined((FileSelectTextControl)word))
+            if (FileSelectTextControls.Of(word) is { } control)
             {
-                switch ((FileSelectTextControl)word)
+                switch (control)
                 {
                     case FileSelectTextControl.End:
                         return new(cells.ToArray());

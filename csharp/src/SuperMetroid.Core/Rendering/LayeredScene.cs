@@ -35,7 +35,7 @@ public sealed class LayeredScene : DisplayScene
     /// A layer is null, a whole-gameplay layer comes after another, or a glow names sprites that are not one of
     /// the scene's sprite layers.
     /// </exception>
-    public LayeredScene(FramePaint paint, ReadOnlySpan<DisplayLayer> layers, int brightness)
+    public LayeredScene(FramePaint paint, ReadOnlySpan<DisplayLayer> layers, DisplayBrightness brightness)
         : base(brightness)
     {
         Ensure.NotNull(paint);
@@ -60,7 +60,7 @@ public sealed class LayeredScene : DisplayScene
     public override void DrawWith<TDrawer>(TDrawer drawer) => drawer.DrawLayered(this);
 
     /// <inheritdoc/>
-    internal override DisplayScene AtBrightness(int brightness) =>
+    internal override DisplayScene AtBrightness(DisplayBrightness brightness) =>
         brightness == Brightness ? this : new LayeredScene(Paint, layers, brightness);
 
     /// <summary>Whether <paramref name="layer"/> is one of <paramref name="layers"/>, as the same instance.</summary>

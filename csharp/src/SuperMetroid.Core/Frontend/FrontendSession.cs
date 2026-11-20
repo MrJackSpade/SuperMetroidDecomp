@@ -212,11 +212,11 @@ internal sealed class FrontendSession
     /// updates before each step.
     /// </summary>
     internal ScreenFade GameplayFadeIn { get; } =
-        new(0, stepDelay: GameplayFadeDefinitions.FadeInWaitBeforeEachStep, firstWait: GameplayFadeDefinitions.FadeInWaitBeforeEachStep);
+        new(DisplayBrightness.Black, stepDelay: GameplayFadeDefinitions.FadeInWaitBeforeEachStep, firstWait: GameplayFadeDefinitions.FadeInWaitBeforeEachStep);
     /// <summary>Selects Ceres arrival rather than Landing Site at the fade destination.</summary>
     internal bool GameplayFadeLeadsToCeresArrival { get; private set; }
     /// <summary>Gameplay brightness retained through pause and unpause fades, from black through full.</summary>
-    internal int PauseBrightness => screenFade.Level;
+    internal DisplayBrightness PauseBrightness => screenFade.Level;
     /// <summary>Steps the shared screen fade one frame toward lit, without publishing it; returns whether it is fully lit.</summary>
     internal bool AdvanceScreenFadeIn() => screenFade.Brighten();
     /// <summary>Steps the shared screen fade one frame toward lit and publishes the level; returns whether it is fully lit.</summary>
@@ -466,12 +466,12 @@ internal sealed class FrontendSession
     /// </summary>
     internal void BeginBlackDeathBlackOut()
     {
-        DeathFade.Restart(0, 0);
+        DeathFade.Restart(DisplayBrightness.Black, 0);
         Enter(DeathSequenceStep.FinalBlackOut);
         display.PublishBlack();
     }
     /// <summary>Sets the screen's brightness on the published frame and retains it for pause fades.</summary>
-    internal void SetDisplayBrightness(int brightness)
+    internal void SetDisplayBrightness(DisplayBrightness brightness)
     {
         // Pause entry fades from the last level the screen was shown at.
         screenFade.Show(brightness);
@@ -481,7 +481,7 @@ internal sealed class FrontendSession
     /// Starts a pause fade from <paramref name="initialBrightness"/>, waiting the pause fades' wait before each step
     /// (<see cref="PauseFadeTiming.WaitBeforeEachStep"/>).
     /// </summary>
-    internal void BeginPauseFade(int initialBrightness)
+    internal void BeginPauseFade(DisplayBrightness initialBrightness)
     {
         screenFade.Restart(initialBrightness, PauseFadeTiming.WaitBeforeEachStep);
     }
@@ -653,7 +653,7 @@ internal sealed class FrontendSession
     /// </summary>
     internal void BeginGameplayFadeIn(GameplayFadeTarget target)
     {
-        GameplayFadeIn.Restart(0, GameplayFadeDefinitions.FadeInWaitBeforeEachStep);
+        GameplayFadeIn.Restart(DisplayBrightness.Black, GameplayFadeDefinitions.FadeInWaitBeforeEachStep);
         GameplayFadeLeadsToCeresArrival = target == GameplayFadeTarget.CeresArrival;
         Enter(Phases.GameplayFadeIn);
     }

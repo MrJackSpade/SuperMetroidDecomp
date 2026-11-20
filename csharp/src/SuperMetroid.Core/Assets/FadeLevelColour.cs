@@ -65,6 +65,14 @@ public readonly record struct FadeLevelColour
     public RgbColor ToColour() => new(Shown(Red), Shown(Green), Shown(Blue));
 
     /// <summary>
+    /// The grey <paramref name="level"/> fade levels above black in every channel: black at zero, white at
+    /// <see cref="FullLevel"/>.
+    /// </summary>
+    /// <param name="level">The grey's fade level, from zero through <see cref="FullLevel"/>.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The level is below black or above white.</exception>
+    public static FadeLevelColour Grey(int level) => new(level, level, level);
+
+    /// <summary>
     /// The colour <paramref name="progress"/> of <paramref name="length"/> of the way from <paramref name="from"/> to
     /// <paramref name="to"/> (#2289, #2294): each level moves by the fade's part of the way, truncated to a whole level, so
     /// every colour a fade shows lies on the scale. Every typed fade, of a colour or of a picture's shadings, steps so.

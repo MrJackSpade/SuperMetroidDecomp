@@ -88,7 +88,7 @@ public sealed class TitleSequenceState : IFrontendScreen
     /// <summary>The title's screen brightness and the cadence of its fades; the skip's and the fade-in's step every update.</summary>
     private readonly ScreenFade fade = new(0);
     /// <summary>Current screen brightness applied after composing title layers.</summary>
-    private int Brightness => fade.Level;
+    private DisplayBrightness Brightness => fade.Level;
     /// <summary>The Baby Metroid's pulse on the floor (#2359).</summary>
     private readonly AnimationPlayer<TitleBabySegment, TitleBabyPose, NoAnimationCue> baby = TitleBabyAnimation.Start();
     /// <summary>The pose of the Baby Metroid's pulse the floor shows.</summary>

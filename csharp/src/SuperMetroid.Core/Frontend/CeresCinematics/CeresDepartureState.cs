@@ -28,7 +28,7 @@ public sealed class CeresDepartureState
     private readonly ScreenFade fade = new(DisplayBrightness.Full);
 
     /// <summary>Master brightness during the blackout fade, from full down to black.</summary>
-    public int Brightness => fade.Level;
+    public DisplayBrightness Brightness => fade.Level;
 
     /// <summary>Starts the elevator hold from the room main's one-frame request.</summary>
     /// <exception cref="InvalidOperationException">The departure has already begun or completed; a state instance admits the sequence only once.</exception>

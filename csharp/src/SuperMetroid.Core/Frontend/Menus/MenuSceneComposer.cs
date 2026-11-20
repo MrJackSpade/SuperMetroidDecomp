@@ -15,7 +15,7 @@ internal static class MenuSceneComposer
     /// <param name="page">The pictures the page shows.</param>
     /// <param name="pageVerticalScroll">The page line shown on the screen's top line.</param>
     /// <param name="brightness">The screen brightness.</param>
-    internal static LayeredScene Capture(MenuScreen screen, PicturedPlane backdrop, PicturedPlane page, int pageVerticalScroll, int brightness)
+    internal static LayeredScene Capture(MenuScreen screen, PicturedPlane backdrop, PicturedPlane page, int pageVerticalScroll, DisplayBrightness brightness)
     {
         DisplayLayer[] layers =
         [

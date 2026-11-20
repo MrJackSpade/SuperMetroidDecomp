@@ -31,7 +31,7 @@ internal sealed class EndingStage
     internal ScreenFade Fade { get; } = new(0);
 
     /// <summary>Master brightness during cinematic fades, from black through full.</summary>
-    internal int Brightness => Fade.Level;
+    internal DisplayBrightness Brightness => Fade.Level;
 
     /// <summary>The turning floor's view, which the escape, the explosion and the planet escape share (#2541).</summary>
     internal EndingTurningFloor Floor { get; } = new();

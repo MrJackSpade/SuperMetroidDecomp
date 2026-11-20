@@ -77,3 +77,7 @@ stdout.txt
 # Player-supplied native snapshots contain emulated game memory, not just inputs.
 /csharp/test-fixtures/issue-445-player-cwj/
 test-temp/
+
+# Godot project: extracted ROM assets dropped in for the editor; never committed
+godot/assets/
+godot/.godot/

@@ -10,18 +10,28 @@
 
 ## The Godot destination
 
-- [The architectural plan](docs/godot-architecture.md) describes the shape the
-  simulation is converging on: phase dispatch through entities into domain services,
-  shared state as explicit relationships with real lifetimes, one owner of simulation
-  advancement, a display snapshot boundary, semantic audio and input contracts. That
-  shape is the design reference for every change in the C# product, not only for the
-  migration itself: a change that moves code toward it is progress, a change that
-  moves away from it is not, whatever ticket it serves.
-- What is not started is the Godot host, scene authoring and engine integration. The
-  plan does not authorize beginning that work, switching away from the active ticket,
-  or treating its illustrative names as a completed design. For migration work,
-  establish the applicable source constraints before choosing a pattern and record the
-  execution, state-ownership and lifetime contracts for the affected slice.
+- v1.0.0 is the game written new in Godot. [The v1.0.0 manifesto](docs/v1.0.0-manifesto.md)
+  states the goal and rules and wins over every other document for that work;
+  [the Godot architecture guide](docs/godot-architecture.md) says how the project is built, and
+  [the type system](docs/godot-types.md) lists every kind of type it is made of and how to decide
+  where a thing belongs. Godot work extends that system.
+- The C# port is legacy reference material: it documents what the game does. It is not a
+  blueprint. The Godot project lives in its own directory with no references to the old
+  code, reuses none of it, and does not copy its structure. The old code is not deleted.
+- None of the port's analyzers, audits or cleanup tooling apply to the Godot project.
+- For Godot work, parity means the same observable results from the same inputs, not the
+  same internal order or state (manifesto, section 4). The parity wording below describes
+  the C# port.
+- The manifesto does not authorize starting Godot work or switching away from the active
+  ticket.
+
+## Rules come from the owner
+
+- Do not change a rule, weaken or reinterpret one, or add a rule of a new kind (a check, a
+  ban, a process), in code, tickets or documents. Those are the owner's.
+- Building out what the Godot documents define is the agent's job and needs no asking: each
+  section says why it is the way it is and how to extend it, and an extension is written
+  into the document in the same change (v1.0.0 manifesto, section 6).
 
 ## Discord version updates
 
@@ -215,7 +225,7 @@ pinned local sources; reference annotations do not replace reproducing a reporte
   without a milestone is an error to correct.
 - Minor versions (`0.x.0`) are planned release bands; read each milestone's description
   for its scope. Patch versions (`0.x.y`) are reserved for bugfix releases.
-- `v1.0.0` is the full Godot port (umbrella #1393). `v1.1.0` collects low-hanging
+- `v1.0.0` is the game written new in Godot (umbrella #1393). `v1.1.0` collects low-hanging
   enhancements on top of the port, widescreen support (#1394) among them; more complex
   enhancements go to later `1.x` versions.
 - Work is ordered by milestone: take tickets from the earliest open milestone, subject

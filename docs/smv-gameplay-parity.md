@@ -4,6 +4,12 @@ The project targets functionally exact cartridge gameplay while eliminating SNES
 hardware lag. The port's smoothness is a valued improvement. This policy applies to
 every recording, present and future.
 
+## Scope
+
+This document describes replaying movies through the C# port, whose checkpoints compare the original's memory. The
+v1.0.0 Godot game is checked against the same movies on observable results only
+([v1.0.0 manifesto](v1.0.0-manifesto.md), section 4); the memory comparisons below do not gate it.
+
 ## Acceptance criterion for every movie
 
 The task for a supplied movie is to play the entire recording through the port

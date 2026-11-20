@@ -968,7 +968,7 @@ internal static void VerifySamusGroundedReversal()
             airborneCrouchedTurn.Kinematics.Radius = new(5, 16);
             airborneCrouchedTurn.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(airborneCrouchedTurn.Kinematics.VerticalVelocity.Speed.WithWhole(1), SamusVerticalDirection.Up);
             FixedCoordinate airborneYBefore = airborneCrouchedTurn.Kinematics.Position.Y;
-            SamusAerialMovement.StepTurningInAir(
+            SamusAerialMovement.StepTurningInAir(SuperMetroid.Core.Samus.Movement.SamusMovement.TurningRisingOrAimedCrouched, 
 
                 aimedLevel,
                 airborneCrouchedTurn,

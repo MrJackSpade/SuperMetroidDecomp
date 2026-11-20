@@ -83,6 +83,7 @@ public static class SamusAerialMovement
     /// Executes one frame of normal-jumping movement.
     /// </summary>
     internal static AerialMovementResult StepNormalJump(
+        SamusMovement.NormalJumpingMovement movement,
         RoomLevelData level,
         SamusState samus,
         GameplayAction controllerInput,
@@ -90,11 +91,8 @@ public static class SamusAerialMovement
         ISamusRoomObjects roomObjects)
     {
         ValidateCommon(level, samus);
-        if (SamusPoseMetadata.ReadMovementType(samus) != SamusMovementType.NormalJumping)
-            throw new InvalidOperationException(
-                $"Normal-jump movement requires {nameof(SamusMovementType.NormalJumping)}, not {SamusPoseMetadata.ReadMovementType(samus)}.");
         samus.HorizontalSpeed.HandleExtraRunSpeed(
-            movementType: SamusMovementType.NormalJumping,
+            movementType: movement.Type,
             controllerInput,
             speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
             liquidImpeded: samus.LiquidPhysics.DetermineMovementMedium(samus) !=
@@ -131,7 +129,7 @@ public static class SamusAerialMovement
             level,
             samus,
             controllerInput,
-            movementType: SamusMovementType.NormalJumping,
+            movementType: movement.Type,
             roomObjects);
         return FinishVerticalMovement(level, samus, frameCounter, roomObjects: roomObjects);
     }
@@ -141,6 +139,7 @@ public static class SamusAerialMovement
     /// including the wall-jump block contact and launch test.
     /// </summary>
     internal static AerialMovementResult StepSpinJump(
+        SamusMovement.SpinJumpingMovement movement,
         RoomLevelData level,
         SamusState samus,
         GameplayAction controllerInput,
@@ -149,9 +148,6 @@ public static class SamusAerialMovement
         ISamusRoomObjects roomObjects)
     {
         ValidateCommon(level, samus);
-        if (SamusPoseMetadata.ReadMovementType(samus) != SamusMovementType.SpinJumping)
-            throw new InvalidOperationException(
-                $"Spin-jump movement requires {nameof(SamusMovementType.SpinJumping)}, not {SamusPoseMetadata.ReadMovementType(samus)}.");
 
         // Space Jump is tried before ordinary spin movement. Space Jump is not a
         // generic double-jump: it only accepts a fresh Jump edge while descending and
@@ -185,7 +181,7 @@ public static class SamusAerialMovement
         // suppresses Samus damage, but the bomb-block setup still reads pose/boost through the shared
         // collision gate (SamusState.BreaksCollisionBombBlocks) and can break the terrain.
         samus.HorizontalSpeed.HandleExtraRunSpeed(
-            movementType: SamusMovementType.SpinJumping,
+            movementType: movement.Type,
             controllerInput,
             speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
             liquidImpeded: samus.LiquidPhysics.DetermineMovementMedium(samus) !=
@@ -195,7 +191,7 @@ public static class SamusAerialMovement
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
         speed.SelectSpeedsFor(samus.LiquidPhysics.DetermineMovementMedium(samus));
         AerialBaseSpeedResult calculation =
-            speed.CalculateAerialBaseSpeed(movementType: SamusMovementType.SpinJumping);
+            speed.CalculateAerialBaseSpeed(movementType: movement.Type);
 
         // If acceleration did not overshoot the cap, spin jump retains motion only while
         // turning (SamusAccelerationMode.Turning) or while the input matching the pose's facing direction is held.
@@ -252,6 +248,7 @@ public static class SamusAerialMovement
     /// selected contact damage before the ordinary jumping movement.
     /// </summary>
     internal static AerialMovementResult StepWallJump(
+        SamusMovement.WallJumpingMovement movement,
         RoomLevelData level,
         SamusState samus,
         GameplayAction controllerInput,
@@ -259,9 +256,6 @@ public static class SamusAerialMovement
         ISamusRoomObjects roomObjects)
     {
         ValidateCommon(level, samus);
-        if (SamusPoseMetadata.ReadMovementType(samus) != SamusMovementType.WallJumping ||
-            !SamusPoseMetadata.IsWallJumpPose(samus.Pose))
-            throw new InvalidOperationException($"Wall-jump movement requires a wall-jumping pose, not {samus.Pose}.");
 
         // From the Screw Attack spin's start the somersault always attacks as the Screw Attack.
         // From the ordinary spin's start it attacks as the pseudo Screw Attack only once the beam is fully charged
@@ -272,7 +266,7 @@ public static class SamusAerialMovement
             samus.HorizontalSpeed.BodyAttack = SamusBodyAttack.PseudoScrew;
 
         samus.HorizontalSpeed.HandleExtraRunSpeed(
-            movementType: SamusMovementType.WallJumping,
+            movementType: movement.Type,
             controllerInput,
             speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
             liquidImpeded: samus.LiquidPhysics.DetermineMovementMedium(samus) !=
@@ -282,7 +276,7 @@ public static class SamusAerialMovement
             level,
             samus,
             controllerInput,
-            movementType: SamusMovementType.WallJumping,
+            movementType: movement.Type,
             roomObjects);
         return FinishVerticalMovement(level, samus, frameCounter, roomObjects: roomObjects);
     }
@@ -292,6 +286,7 @@ public static class SamusAerialMovement
     /// variable-height jump cutoff, its movement type's X speeds, block collision, gravity, and landing.
     /// </summary>
     internal static AerialMovementResult StepDamageBoost(
+        SamusMovement.DamageBoostMovement movement,
         RoomLevelData level,
         SamusState samus,
         GameplayAction controllerInput,
@@ -299,15 +294,9 @@ public static class SamusAerialMovement
         ISamusRoomObjects roomObjects)
     {
         ValidateCommon(level, samus);
-        if (SamusPoseMetadata.ReadMovementType(samus) != SamusMovementType.DamageBoost ||
-            !SamusPoseMetadata.IsDamageBoostPose(samus.Pose))
-        {
-            throw new InvalidOperationException(
-                $"Damage-boost movement requires a damage-boost pose, not {samus.Pose}.");
-        }
 
         samus.HorizontalSpeed.HandleExtraRunSpeed(
-            movementType: SamusMovementType.DamageBoost,
+            movementType: movement.Type,
             controllerInput,
             speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
             liquidImpeded: samus.LiquidPhysics.DetermineMovementMedium(samus) !=
@@ -317,7 +306,7 @@ public static class SamusAerialMovement
             level,
             samus,
             controllerInput,
-            movementType: SamusMovementType.DamageBoost,
+            movementType: movement.Type,
             roomObjects);
         return FinishVerticalMovement(level, samus, frameCounter, roomObjects: roomObjects);
     }
@@ -328,24 +317,18 @@ public static class SamusAerialMovement
     /// release; the three-frame turn animation therefore preserves reversal momentum.
     /// </summary>
     internal static AerialMovementResult StepTurningInAir(
+        SamusMovement.AerialTurnMovement movement,
         RoomLevelData level,
         SamusState samus,
         int frameCounter,
         ISamusRoomObjects roomObjects)
     {
         ValidateCommon(level, samus);
-        SamusMovementType movementType = SamusPoseMetadata.ReadMovementType(samus);
+
         // Crouched aimed turns use the turning-while-jumping movement type even though they normally remain on
         // the floor. If a producer gives one a vertical direction, the turn movement immediately
-        // moves Samus as the ordinary jumping turns do
-        // (unaimed, aimed up, down and diagonally up). The pose name therefore cannot be used as an admission gate.
-        bool runsAerialTurn = SamusPoseMetadata.IsAerialTurnPose(samus.Pose) ||
-            (movementType == SamusMovementType.TurningRisingOrAimedCrouched &&
-             SamusPoseMetadata.IsAimedCrouchingTurnPose(samus.Pose));
-        if (movementType is not (SamusMovementType.TurningRisingOrAimedCrouched or SamusMovementType.TurningWhileFalling) ||
-            !runsAerialTurn)
-            throw new InvalidOperationException($"Aerial-turn movement requires a jumping or falling turn pose, not {samus.Pose}.");
-
+        // moves Samus as the ordinary jumping turns do (unaimed, aimed up, down and diagonally up).
+        SamusMovementType movementType = movement.Type;
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
         // The turn moves Samus horizontally as every X move does, extra run speed included, before cancelling the boost
         // later in this frame.
@@ -395,6 +378,7 @@ public static class SamusAerialMovement
 
     /// <summary>Executes one frame of <see cref="SamusMovementType.Falling"/> movement.</summary>
     internal static AerialMovementResult StepFalling(
+        SamusMovement.FallingMovement movement,
         RoomLevelData level,
         SamusState samus,
         GameplayAction controllerInput,
@@ -402,11 +386,8 @@ public static class SamusAerialMovement
         ISamusRoomObjects roomObjects)
     {
         ValidateCommon(level, samus);
-        if (SamusPoseMetadata.ReadMovementType(samus) != SamusMovementType.Falling)
-            throw new InvalidOperationException(
-                $"Falling movement requires {nameof(SamusMovementType.Falling)}, not {SamusPoseMetadata.ReadMovementType(samus)}.");
         samus.HorizontalSpeed.HandleExtraRunSpeed(
-            movementType: SamusMovementType.Falling,
+            movementType: movement.Type,
             controllerInput,
             speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
             liquidImpeded: samus.LiquidPhysics.DetermineMovementMedium(samus) !=
@@ -416,7 +397,7 @@ public static class SamusAerialMovement
             level,
             samus,
             controllerInput,
-            movementType: SamusMovementType.Falling,
+            movementType: movement.Type,
             roomObjects);
 
         // An upward speed that passed zero becomes a stationary downward state

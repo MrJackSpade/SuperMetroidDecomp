@@ -258,7 +258,7 @@ internal static void VerifySamusAimedAerialMovement()
     SamusPoseMetadata.RefreshCollisionRadii(samus);
     AssertEqual(19, samus.Kinematics.Radius.Y, "next alpha publishes aimed jump radius");
     ushort launchY = samus.Position.Y.Whole;
-    AerialMovementResult transitionFrame = SamusAerialMovement.StepNormalJump(
+    AerialMovementResult transitionFrame = SamusAerialMovement.StepNormalJump(SuperMetroid.Core.Samus.Movement.SamusMovement.NormalJumping, 
 level, samus, GameplayAction.Jump, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
     AssertEqual(launchY, samus.Position.Y.Whole, "aimed transition frame does not move vertically");
 
@@ -275,7 +275,7 @@ level, samus, GameplayAction.Jump, frameCounter: 0, roomObjects: SamusRoomObject
     // another aimed-jump pose expands through `$91:FDAE`; these few upward frames put the
     // body in open air so neither the upper nor lower probe needs to displace the center.
     for (ushort index = 0; index < 4; index++)
-        SamusAerialMovement.StepNormalJump(level, samus, GameplayAction.Jump, index, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+        SamusAerialMovement.StepNormalJump(SuperMetroid.Core.Samus.Movement.SamusMovement.NormalJumping, level, samus, GameplayAction.Jump, index, roomObjects: SamusRoomObjectFixtures.Uninstalled);
     ushort compactCenterY = samus.Position.Y.Whole;
     uint compactVelocity = samus.Kinematics.VerticalVelocity.Speed.RawValue;
     SamusVerticalDirection compactDirection = samus.Kinematics.VerticalVelocity.Direction;
@@ -302,7 +302,7 @@ level, SamusPoseId.NormalJumpAimDiagonalDownRightPose, frameCounter: 5, roomObje
     AerialMovementResult frame = default;
     for (int index = 0; index < 160; index++)
     {
-        frame = SamusAerialMovement.StepNormalJump(
+        frame = SamusAerialMovement.StepNormalJump(SuperMetroid.Core.Samus.Movement.SamusMovement.NormalJumping, 
 level, samus, GameplayAction.Jump, unchecked((ushort)index), roomObjects: SamusRoomObjectFixtures.Uninstalled);
         if (frame.Landed)
             break;
@@ -335,7 +335,7 @@ level, samus, GameplayAction.Jump, unchecked((ushort)index), roomObjects: SamusR
     compactFall.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(1, 0x8000);
     AerialMovementResult compactFallFrame = default;
     for (ushort index = 0; index < 40 && !compactFallFrame.Landed; index++)
-        compactFallFrame = SamusAerialMovement.StepFalling(level, compactFall, 0, index, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+        compactFallFrame = SamusAerialMovement.StepFalling(SuperMetroid.Core.Samus.Movement.SamusMovement.Falling, level, compactFall, 0, index, roomObjects: SamusRoomObjectFixtures.Uninstalled);
     AssertTrue(compactFallFrame.Landed, "compact falling pose reaches floor");
     ushort compactBottom = unchecked((ushort)(compactFall.Position.Y.Whole + compactFall.Kinematics.Radius.Y));
     SamusPoseTransitions.ApplyCompactAerialLanding(compactFall, level, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
@@ -412,7 +412,7 @@ level, SamusPoseId.NormalJumpAimDiagonalDownLeftPose, frameCounter: 1, roomObjec
     AerialMovementResult compactLeftFallFrame = default;
     for (ushort index = 0; index < 40 && !compactLeftFallFrame.Landed; index++)
     {
-        compactLeftFallFrame = SamusAerialMovement.StepFalling(
+        compactLeftFallFrame = SamusAerialMovement.StepFalling(SuperMetroid.Core.Samus.Movement.SamusMovement.Falling, 
 level, compactLeftLanding, 0, index, roomObjects: SamusRoomObjectFixtures.Uninstalled);
     }
     AssertTrue(compactLeftFallFrame.Landed, "mirrored compact falling pose reaches floor");

@@ -828,12 +828,12 @@ public sealed class IntroCinematicState : IFrontendScreen
         }
         else if (samus.Pose == SamusPoseId.SpinJumpLeftPose)
         {
-            fallingMovement = SamusAerialMovement.StepSpinJump(level, samus,
+            fallingMovement = SamusAerialMovement.StepSpinJump(SamusMovement.SpinJumping, level, samus,
                 demoInput, frameCounter, CurrentFlashbackDemoInput?.NewlyPressed ?? GameplayAction.None, IntroCollisionRoomObjects.Instance);
         }
         else if (SamusPoseMetadata.IsLeftFacingNormalJumpPose(samus.Pose))
         {
-            fallingMovement = SamusAerialMovement.StepNormalJump(level, samus,
+            fallingMovement = SamusAerialMovement.StepNormalJump(SamusMovement.NormalJumping, level, samus,
                 demoInput, frameCounter, IntroCollisionRoomObjects.Instance);
         }
         else if (samus.Pose is SamusPoseId.FallingRightPose or SamusPoseId.FallingLeftPose)
@@ -841,7 +841,7 @@ public sealed class IntroCinematicState : IFrontendScreen
             // When knockback ends humanoid knockback it selects the right or left falling pose and restores
             // normal movement. The following frames therefore run Samus's ordinary fall until the room's
             // collision reports the laboratory floor.
-            fallingMovement = SamusAerialMovement.StepFalling(
+            fallingMovement = SamusAerialMovement.StepFalling(SamusMovement.Falling,
 
                 level,
                 samus,

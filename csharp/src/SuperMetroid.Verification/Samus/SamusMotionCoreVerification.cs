@@ -531,7 +531,7 @@ internal static void VerifySamusExtraDisplacement()
     transition.Kinematics.ExtraDisplacement = FixedVector<RoomPixels>.FromStoredParts(0xffff, 0x8000, 0, 0x4000); // -0.8000 // +0.4000
     FixedCoordinate transitionXBefore = transition.Kinematics.Position.X;
     FixedCoordinate transitionYBefore = transition.Kinematics.Position.Y;
-    SamusAerialMovement.StepNormalJump(
+    SamusAerialMovement.StepNormalJump(SuperMetroid.Core.Samus.Movement.SamusMovement.NormalJumping, 
 
         level,
         transition,
@@ -551,7 +551,7 @@ internal static void VerifySamusExtraDisplacement()
     rising.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(new UnsignedSixteenSixteen(1, 0), SamusVerticalDirection.Up);
     rising.Kinematics.ExtraDisplacement = rising.Kinematics.ExtraDisplacement.WithWholeY(1).WithFractionY(0x8000);
     FixedCoordinate risingYBefore = rising.Kinematics.Position.Y;
-    SamusAerialMovement.StepNormalJump(
+    SamusAerialMovement.StepNormalJump(SuperMetroid.Core.Samus.Movement.SamusMovement.NormalJumping, 
 
         level,
         rising,

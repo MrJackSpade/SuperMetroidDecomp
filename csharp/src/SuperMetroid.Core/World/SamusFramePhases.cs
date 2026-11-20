@@ -178,13 +178,13 @@ internal sealed class SamusFramePhases
         if (movement == SamusMovementType.SpinJumping)
         {
             frame.Record(SamusAerialMovement.StepSpinJump(
-                level, samus, _playerActions.Current, _clock.Counter,
+                SamusMovement.SpinJumping, level, samus, _playerActions.Current, _clock.Counter,
                 _playerActions.NewlyPressed, roomObjects));
         }
         else if (movement == SamusMovementType.NormalJumping)
         {
             frame.Record(SamusAerialMovement.StepNormalJump(
-                level, samus, _playerActions.Current, _clock.Counter, roomObjects));
+                SamusMovement.NormalJumping, level, samus, _playerActions.Current, _clock.Counter, roomObjects));
         }
         else if (movement != SamusMovementType.Special)
         {
@@ -724,7 +724,7 @@ internal sealed class SamusFramePhases
         public void StepTurningWhileJumping() => _phases.StepTurningWhileJumpingPose(_move);
 
         /// <inheritdoc/>
-        public void StepTurningInAir() => _phases.StepTurningInAir(_move);
+        public void StepTurningInAir() => _phases.StepTurningInAir(_move, SamusMovement.TurningWhileFalling);
 
         /// <inheritdoc/>
         public void StepMorphBallGrounded() => _phases.StepMorphBallGrounded(_move);
@@ -736,19 +736,19 @@ internal sealed class SamusFramePhases
         public void StepSpringBallInAir() => _move.Frame.Record(SamusMorphBallMovement.StepSpringBallInAir(_move.Level, _move.Samus, _phases._playerActions.Current, _phases._clock.Counter, _move.RoomObjects));
 
         /// <inheritdoc/>
-        public void StepNormalJump() => _move.Frame.Record(SamusAerialMovement.StepNormalJump(_move.Level, _move.Samus, _phases._playerActions.Current, _phases._clock.Counter, _move.RoomObjects));
+        public void StepNormalJump() => _move.Frame.Record(SamusAerialMovement.StepNormalJump(SamusMovement.NormalJumping, _move.Level, _move.Samus, _phases._playerActions.Current, _phases._clock.Counter, _move.RoomObjects));
 
         /// <inheritdoc/>
-        public void StepSpinJump() => _move.Frame.Record(SamusAerialMovement.StepSpinJump(_move.Level, _move.Samus, _phases._playerActions.Current, _phases._clock.Counter, _phases._playerActions.NewlyPressed, _move.RoomObjects));
+        public void StepSpinJump() => _move.Frame.Record(SamusAerialMovement.StepSpinJump(SamusMovement.SpinJumping, _move.Level, _move.Samus, _phases._playerActions.Current, _phases._clock.Counter, _phases._playerActions.NewlyPressed, _move.RoomObjects));
 
         /// <inheritdoc/>
-        public void StepWallJump() => _move.Frame.Record(SamusAerialMovement.StepWallJump(_move.Level, _move.Samus, _phases._playerActions.Current, _phases._clock.Counter, _move.RoomObjects));
+        public void StepWallJump() => _move.Frame.Record(SamusAerialMovement.StepWallJump(SamusMovement.WallJumping, _move.Level, _move.Samus, _phases._playerActions.Current, _phases._clock.Counter, _move.RoomObjects));
 
         /// <inheritdoc/>
-        public void StepDamageBoost() => _move.Frame.Record(SamusAerialMovement.StepDamageBoost(_move.Level, _move.Samus, _phases._playerActions.Current, _phases._clock.Counter, _move.RoomObjects));
+        public void StepDamageBoost() => _move.Frame.Record(SamusAerialMovement.StepDamageBoost(SamusMovement.DamageBoost, _move.Level, _move.Samus, _phases._playerActions.Current, _phases._clock.Counter, _move.RoomObjects));
 
         /// <inheritdoc/>
-        public void StepFalling() => _move.Frame.Record(SamusAerialMovement.StepFalling(_move.Level, _move.Samus, _phases._playerActions.Current, _phases._clock.Counter, _move.RoomObjects));
+        public void StepFalling() => _move.Frame.Record(SamusAerialMovement.StepFalling(SamusMovement.Falling, _move.Level, _move.Samus, _phases._playerActions.Current, _phases._clock.Counter, _move.RoomObjects));
 
         /// <inheritdoc/>
         public void StepCrouching() => _move.Frame.Record(SamusPostureMovement.StepCrouching(_move.Level, _move.Samus, _phases._clock.Counter, _move.RoomObjects));
@@ -795,14 +795,14 @@ internal sealed class SamusFramePhases
             move.Samus.Kinematics.VerticalVelocity.HasNoDirection)
             StepTurningOnGround(move);
         else
-            StepTurningInAir(move);
+            StepTurningInAir(move, SamusMovement.TurningRisingOrAimedCrouched);
     }
 
     /// <summary>The turn on the ground.</summary>
     private void StepTurningOnGround(PoseMove move) => move.Frame.Record(SamusGroundedMovement.StepTurningOnGround(move.Level, move.Samus, _clock.Counter, move.RoomObjects));
 
-    /// <summary>The turn in the air.</summary>
-    private void StepTurningInAir(PoseMove move) => move.Frame.Record(SamusAerialMovement.StepTurningInAir(move.Level, move.Samus, _clock.Counter, move.RoomObjects));
+    /// <summary>The turn in the air, by the turning movement type that turns it there.</summary>
+    private void StepTurningInAir(PoseMove move, SamusMovement.AerialTurnMovement movement) => move.Frame.Record(SamusAerialMovement.StepTurningInAir(movement, move.Level, move.Samus, _clock.Counter, move.RoomObjects));
 
     /// <summary>The Morph Ball's and the Spring Ball's movement on the ground.</summary>
     private void StepMorphBallGrounded(PoseMove move) => move.Frame.Record(SamusMorphBallMovement.StepGrounded(move.Level, move.Samus, _clock.Counter, move.RoomObjects));

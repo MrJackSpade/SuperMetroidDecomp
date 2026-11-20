@@ -259,8 +259,8 @@ internal static class RidleyFullMovieVerification
             samus.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(samus.Kinematics.VerticalVelocity.Speed, SamusVerticalDirection.Down);
             samus.HorizontalSpeed.CalculateTotalSpeed(UnsignedSixteenSixteen.FromRaw(0x00054321));
             samus.HorizontalSpeed.BaseSpeed = samus.HorizontalSpeed.BaseSpeed.WithWhole(branch == 3 ? (ushort)0 : (ushort)5);
-            if (branch == 0) SamusAerialMovement.StepNormalJump(room, samus, 0, 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
-            else if (branch == 1) SamusAerialMovement.StepFalling(room, samus, 0, 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+            if (branch == 0) SamusAerialMovement.StepNormalJump(SuperMetroid.Core.Samus.Movement.SamusMovement.NormalJumping, room, samus, 0, 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+            else if (branch == 1) SamusAerialMovement.StepFalling(SuperMetroid.Core.Samus.Movement.SamusMovement.Falling, room, samus, 0, 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
             else if (branch == 2) SamusMorphBallMovement.StepSpringBallInAir(room, samus, 0, 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
             else
             {

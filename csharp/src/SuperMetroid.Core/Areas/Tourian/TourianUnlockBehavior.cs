@@ -58,13 +58,8 @@ internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<To
     {
         for (int count = 0; count < TourianStatueSequenceDefinitions.DescentDustPuffs; count++)
         {
-            var projectile = _projectiles.AllocateEnemyProjectile();
+            var projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.TourianStatueDescentDust, Effects, _statue.SceneGraphics);
             if (projectile is null) continue;
-            EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-                projectile,
-                RoomEnemyProjectileKind.TourianStatueDescentDust,
-                Effects,
-                _statue.SceneGraphics);
             _statue.HoldSceneProjectile(projectile);
             projectile.StartAnimation(new ChozoTourianDustAnimation(ChozoTourianDustAnimations.TourianDescentDust));
             projectile.State = new AnchoredProjectileState(TourianStatueSequenceDefinitions.DescentDustAnchor);
@@ -92,9 +87,8 @@ internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<To
     private EnemyProjectile? SpawnAtStatueEye(RoomEnemyProjectileKind kind, TourianStatueProjectileSegment start, TourianStatueEye eye)
     {
         Ensure.NotNull(eye);
-        var projectile = _projectiles.AllocateEnemyProjectile();
+        var projectile = _projectiles.AllocateEnemyProjectile(kind, Effects, _statue.SceneGraphics);
         if (projectile is null) return null;
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, Effects, _statue.SceneGraphics);
         _statue.HoldSceneProjectile(projectile);
         projectile.StartAnimation(new TourianStatueProjectileAnimation(start));
         projectile.Position = projectile.Position.WithWhole(eye.Position);
@@ -135,9 +129,8 @@ internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<To
     private EnemyProjectile? SpawnAtParent(EnemyProjectile parent, RoomEnemyProjectileKind kind, TourianStatueProjectileSegment start)
     {
         Ensure.NotNull(parent);
-        var projectile = _projectiles.AllocateEnemyProjectile();
+        var projectile = _projectiles.AllocateEnemyProjectile(kind, Effects, _statue.SceneGraphics);
         if (projectile is null) return null;
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, Effects, _statue.SceneGraphics);
         _statue.HoldSceneProjectile(projectile);
         projectile.StartAnimation(new TourianStatueProjectileAnimation(start));
         projectile.Position = projectile.Position.WithWhole(parent.Position.Whole);

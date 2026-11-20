@@ -820,18 +820,13 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     /// <returns>The segment, alive and inside the wall.</returns>
     internal BotwoonSegmentState SpawnBotwoonBodySegment(RoomEnemyPlace head, int segmentIndex)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.BotwoonBody, BodyAndSpit, SpriteGraphics.SpawnedBy(head));
         if (projectile is null)
         {
             throw new InvalidOperationException(
                 "Botwoon requires thirteen free enemy-projectile places during room load.");
         }
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            projectile,
-            RoomEnemyProjectileKind.BotwoonBody,
-            BodyAndSpit,
-            SpriteGraphics.SpawnedBy(head));
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(head.Position.Whole);
 
         // Every segment, the tail cap included, starts hidden inside the wall.
@@ -946,15 +941,10 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     /// <param name="speed">The spit's speed.</param>
     internal void SpawnBotwoonSpit(RoomEnemyPlace head, TrigonometryAngle angle, int speed)
     {
-        EnemyProjectile? spit = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? spit = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.BotwoonSpit, BodyAndSpit, SpriteGraphics.SpawnedBy(head));
         if (spit is null)
             return;
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            spit,
-            RoomEnemyProjectileKind.BotwoonSpit,
-            BodyAndSpit,
-            SpriteGraphics.SpawnedBy(head));
         spit.Position = FixedPosition<RoomPixels>.FromWhole(head.Position.Whole);
         spit.StartAnimation(new BotwoonSpitAnimation());
 

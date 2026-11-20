@@ -51,11 +51,10 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
                 $"Undefined n00b-tube projectile definition {piece.Definition}."),
         };
 
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(kind, TubePieces, graphics: TubePieceGraphics);
         if (projectile is null)
             return;
         // The tube's pieces draw from the shared sheet in the crack colours the room's crack setup installs (#1512).
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, TubePieces, graphics: TubePieceGraphics);
 
         Position16<RoomPixels> place = request.RoomObjectBlock.ToRoomPixels() + piece.Offset;
         projectile.StartAnimation(new NoobTubeProjectileAnimation(piece.Start switch

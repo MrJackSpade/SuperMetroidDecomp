@@ -12,17 +12,21 @@ namespace SuperMetroid.Core.Enemies;
 public sealed class EnemyProjectile
 {
     /// <summary>
-    /// Starts a projectile in <paramref name="place"/> from what the place's previous projectile left there: its whole
-    /// position and its velocity. Everything else starts afresh, and the projectile is gone until its spawner gives it a kind.
+    /// Starts a projectile of <paramref name="kind"/> holding <paramref name="place"/>, from what the place's previous
+    /// projectile left there: its whole position and its velocity. Everything else starts afresh until its spawn binds its
+    /// definition and behaviour.
     /// </summary>
     /// <param name="place">The zero-based enemy-projectile place the projectile takes.</param>
     /// <param name="left">What the place's previous projectile left there.</param>
-    internal EnemyProjectile(int place, EnemyProjectileHandOver left)
+    /// <param name="kind">What the projectile is.</param>
+    internal EnemyProjectile(int place, EnemyProjectileHandOver left, RoomEnemyProjectileKind kind)
     {
         Place = Ensure.BetweenInclusive(0, EnemyProjectileEngine.PlaceCount - 1, place);
         Position = FixedPosition<RoomPixels>.FromWhole(left.Position);
         Velocity = left.Velocity;
         Vacate();
+        Kind = kind;
+        IsActive = true;
     }
 
     /// <summary>
@@ -33,25 +37,13 @@ public sealed class EnemyProjectile
     /// </summary>
     public int Place { get; }
     /// <summary>
-    /// What the projectile is, from the binding that gives it its kind on (#2558); a projectile that has gone or freed its
-    /// place is still the kind it was. Giving the projectile a kind makes it hold its place.
+    /// What the projectile is (#2558): the kind it is created with, or the one a later binding turns it into. A projectile
+    /// that has gone or freed its place is still the kind it was.
     /// </summary>
-    /// <exception cref="InvalidOperationException">The projectile has not been given a kind.</exception>
-    public RoomEnemyProjectileKind Kind
-    {
-        get => _kind ?? throw new InvalidOperationException($"Enemy projectile in place {Place} has not been given a kind.");
-        internal set
-        {
-            _kind = value;
-            IsActive = true;
-        }
-    }
-
-    /// <summary>The kind behind <see cref="Kind"/>; null only between the spawn that creates the projectile and its binding.</summary>
-    private RoomEnemyProjectileKind? _kind;
+    public RoomEnemyProjectileKind Kind { get; private set; }
 
     /// <summary>
-    /// Whether the projectile holds its place and takes part in the projectile passes: from its binding until it is
+    /// Whether the projectile holds its place and takes part in the projectile passes: from its creation until it is
     /// deleted or frees its place.
     /// </summary>
     public bool IsActive { get; private set; }

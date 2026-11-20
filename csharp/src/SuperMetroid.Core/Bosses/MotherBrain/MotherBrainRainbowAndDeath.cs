@@ -118,11 +118,9 @@ internal sealed class MotherBrainRainbowAndDeath
         foreach (var request in step.EscapeDoorParticleSpawns) SpawnMotherBrainDoorFragment(request.Fragment);
         if (step.Starts(MotherBrainStepEffect.EscapeSubtitle))
         {
-            var subtitle = _projectiles.AllocateEnemyProjectile();
+            var subtitle = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainEscapeSubtitle, _projectileAttacks.Projectile, graphics: SpriteGraphics.SharedStandard);
             if (subtitle is not null)
             {
-                EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(subtitle, RoomEnemyProjectileKind.MotherBrainEscapeSubtitle,
-                    _projectileAttacks.Projectile, graphics: SpriteGraphics.SharedStandard);
                 subtitle.StartAnimation(new MotherBrainEffectAnimation(MotherBrainEffectSegment.EscapeSubtitle));
                 MotherBrainProjectiles.PinMotherBrainEscapeSubtitle(subtitle);
             }
@@ -133,10 +131,8 @@ internal sealed class MotherBrainRainbowAndDeath
     internal void SpawnMotherBrainDeathExplosion(MotherBrainEnemyState state, MotherBrainDeathExplosionRequest request)
     {
         DustExplosionAnimation animation = MotherBrainDeathExplosionDefinitions.Animations[request.Animation];
-        var projectile = _projectiles.AllocateEnemyProjectile();
+        var projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainDeathExplosion, _projectileAttacks.Projectile, graphics: SpriteGraphics.SharedStandard);
         if (projectile is null) return; // Shared-pool exhaustion drops the spawn.
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, RoomEnemyProjectileKind.MotherBrainDeathExplosion,
-            _projectileAttacks.Projectile, graphics: SpriteGraphics.SharedStandard);
         projectile.StartAnimation(new DustExplosionProjectileAnimation(animation));
         projectile.State = new MotherBrainBodyExplosionState(state, request.Offset);
         projectile.Velocity = FollowingExplosionLeftVelocity.Of(request.Offset);
@@ -146,10 +142,8 @@ internal sealed class MotherBrainRainbowAndDeath
     /// <summary>Spawns the falling door fragment <paramref name="definition"/>.</summary>
     internal void SpawnMotherBrainDoorFragment(MotherBrainDoorFragmentDefinition definition)
     {
-        var fragment = _projectiles.AllocateEnemyProjectile();
+        var fragment = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainEscapeDoorFragment, _projectileAttacks.Projectile, graphics: SpriteGraphics.SharedStandard);
         if (fragment is null) return;
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(fragment, RoomEnemyProjectileKind.MotherBrainEscapeDoorFragment,
-            _projectileAttacks.Projectile, graphics: SpriteGraphics.SharedStandard);
         fragment.StartAnimation(new MotherBrainEffectAnimation(MotherBrainEffectSegment.EscapeDoorParticle));
         fragment.Position = fragment.Position.WithWhole(new Position16<RoomPixels>(MotherBrainDeathDefinitions.DoorX, MotherBrainDeathDefinitions.DoorY) + definition.Offset);
         fragment.Velocity = definition.Velocity;
@@ -248,15 +242,10 @@ internal sealed class MotherBrainRainbowAndDeath
         Position16<RoomPixels> samusBeforeMovement,
         MotherBrainRainbowExplosionRequest request)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainRainbowBeamExplosion, _projectileAttacks.Projectile, graphics: SpriteGraphics.SharedStandard);
         if (projectile is null)
             return;
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            projectile,
-            RoomEnemyProjectileKind.MotherBrainRainbowBeamExplosion,
-            _projectileAttacks.Projectile,
-            graphics: SpriteGraphics.SharedStandard);
         projectile.StartAnimation(new DustExplosionProjectileAnimation(DustExplosionAnimation.MotherBrainRainbowBeamExplosion));
         projectile.State = new MotherBrainFollowingExplosionState(request.Offset);
         projectile.Velocity = FollowingExplosionLeftVelocity.Of(request.Offset);

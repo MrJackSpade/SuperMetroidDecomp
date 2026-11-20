@@ -30,7 +30,7 @@ internal static class EnemyPickupDefinitionsVerification
         for (int index = 1; index <= 5; index++)
         {
             EnemyPickupKind kind = EnemyPickupNativeWords.Selectors.Decode(index, "enemy pickup selector");
-            var projectile = new EnemyProjectile(index, default)
+            var projectile = new EnemyProjectile(index, default, RoomEnemyProjectileKind.EnemyDeathPickup)
             {
                 FrameHold = WrappingCountdown.Start(0xffff),
 

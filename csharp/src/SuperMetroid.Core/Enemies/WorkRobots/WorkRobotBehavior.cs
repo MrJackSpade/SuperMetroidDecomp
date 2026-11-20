@@ -354,7 +354,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         WorkRobotLaser laser,
         Position16<RoomPixels> camera)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(laser.ProjectileKind(), Laser, SpriteGraphics.SharedStandard);
         if (projectile is null)
             return;
 
@@ -363,11 +363,6 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         // properties. The laser's pictures carry their own
         // colours, so it draws from the room's shared sheet in its standard colours: no picture of it shows before its
         // first pass, so the robot's graphics its spawn briefly held never draw.
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            projectile,
-            laser.ProjectileKind(),
-            Laser,
-            SpriteGraphics.SharedStandard);
         projectile.StartAnimation(new WorkRobotLaserAnimation(WorkRobotLaserSegment.Flare));
         projectile.Velocity = projectile.Velocity.WithX(WorkRobotLaserDefinitions.Speed.Toward(state.Facing));
         projectile.Velocity = projectile.Velocity.WithY(laser switch

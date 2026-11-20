@@ -60,9 +60,9 @@ internal static class GunshipDustDefinitionsVerification
                 AssertEqual((ushort)0, slot.Velocity.Y.RawValue, "Dust clears stale Y velocity");
             }
         }
-        foreach (var occupied in enemies.Projectiles.EveryPlace())
+        foreach (int place in Enumerable.Range(0, EnemyProjectileEngine.PlaceCount))
         {
-            occupied.Kind = RoomEnemyProjectileKind.PhantoonStartingFlame;
+            EnemyProjectile occupied = enemies.Projectiles.Occupy(place, RoomEnemyProjectileKind.PhantoonStartingFlame);
             occupied.Position = occupied.Position.WithWholeX(0x1234);
             occupied.StartAnimation(EnemyProjectileDeleteAnimation.Instance);
         }

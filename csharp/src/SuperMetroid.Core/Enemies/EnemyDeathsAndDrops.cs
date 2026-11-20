@@ -107,14 +107,9 @@ internal sealed class EnemyDeathsAndDrops
     internal void RemoveKilledEnemy(RoomEnemyPlace enemy, EnemyDeathExplosion deathAnimation, bool respawns)
     {
         Ensure.NotNull(enemy);
-        EnemyProjectile? explosion = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? explosion = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.EnemyDeathExplosion, ExplosionsAndPickups, graphics: SpriteGraphics.SharedStandard);
         if (explosion is not null)
         {
-            EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-                explosion,
-                RoomEnemyProjectileKind.EnemyDeathExplosion,
-                ExplosionsAndPickups,
-                graphics: SpriteGraphics.SharedStandard);
             explosion.Position = explosion.Position.WithWhole(enemy.Position.Whole);
             explosion.State = new EnemyDeathExplosionState(KilledEnemy.Of(enemy, respawns), enemy.Occupant);
             explosion.StartAnimation(new EnemyDeathAndDropAnimation(EnemyDeathExplosions.Animation(deathAnimation)));
@@ -217,15 +212,10 @@ internal sealed class EnemyDeathsAndDrops
         EnemyDefinitionId definitionId,
         SamusState samus)
     {
-        EnemyProjectile? pickup = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? pickup = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.EnemyDeathPickup, ExplosionsAndPickups, graphics: SpriteGraphics.SharedStandard);
         if (pickup is null)
             return null;
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            pickup,
-            RoomEnemyProjectileKind.EnemyDeathPickup,
-            ExplosionsAndPickups,
-            graphics: SpriteGraphics.SharedStandard);
         pickup.Position = pickup.Position.WithWhole(position);
         InitializeDirectEnemyPickup(pickup, DropChancesOf(definitionId), samus);
         return pickup;
@@ -240,15 +230,10 @@ internal sealed class EnemyDeathsAndDrops
         EnemyDropChances dropChances,
         SamusState samus)
     {
-        EnemyProjectile? pickup = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? pickup = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.EnemyDeathPickup, ExplosionsAndPickups, graphics: SpriteGraphics.SharedStandard);
         if (pickup is null)
             return null;
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            pickup,
-            RoomEnemyProjectileKind.EnemyDeathPickup,
-            ExplosionsAndPickups,
-            graphics: SpriteGraphics.SharedStandard);
         pickup.Position = pickup.Position.WithWhole(position);
         InitializeDirectEnemyPickup(pickup, dropChances, samus);
         return pickup;

@@ -23,7 +23,7 @@ internal sealed class SaveStationElectricity
     internal void Spawn(Position16<RoomBlocks> roomObjectBlock)
     {
 
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.SaveStationElectricity, EnemyProjectileBehavior.Still, graphics: SpriteGraphics.SharedStandard);
         if (projectile is null)
         {
             // The projectile spawn deliberately drops a spawn when all eighteen places
@@ -31,11 +31,6 @@ internal sealed class SaveStationElectricity
             return;
         }
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            projectile,
-            RoomEnemyProjectileKind.SaveStationElectricity,
-            EnemyProjectileBehavior.Still,
-            graphics: SpriteGraphics.SharedStandard);
         projectile.StartAnimation(new SaveStationElectricityAnimation());
         projectile.Position = projectile.Position.WithWhole((roomObjectBlock + SaveStationElectricityDefinitions.BlocksFromTrigger).ToRoomPixels());
     }

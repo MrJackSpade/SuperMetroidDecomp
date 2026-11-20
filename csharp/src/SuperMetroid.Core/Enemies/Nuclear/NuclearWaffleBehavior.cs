@@ -132,17 +132,12 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         var links = new NuclearWaffleLink<EnemyProjectile>[NuclearWaffleDefinitions.ProjectileLinks];
         for (int segmentIndex = 0; segmentIndex < links.Length; segmentIndex++)
         {
-            EnemyProjectile? segment = _projectiles.AllocateEnemyProjectile();
+            EnemyProjectile? segment = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.NuclearWaffleBody, EnemyProjectileBehavior.Still, graphics);
             if (segment is null)
                 throw new InvalidOperationException("Nuclear Waffle exhausted the enemy-projectile pool during room load.");
 
             // The link starts as its definition has it: its twelve-frame animation, an 8 by 8 pixel size and 64
             // damage. It then starts at the head as one link of the body, which shots cannot destroy.
-            EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-                segment,
-                RoomEnemyProjectileKind.NuclearWaffleBody,
-                EnemyProjectileBehavior.Still,
-                graphics);
             segment.StartAnimation(new NuclearWaffleProjectileAnimation(NuclearWaffleProjectileSegment.Churning));
             segment.Position = owner.Position.WithWhole(initialHead);
             // The four links stop shots without being destroyed: a beam that strikes one is a dud, and the link

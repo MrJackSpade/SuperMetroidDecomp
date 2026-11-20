@@ -37,7 +37,7 @@ internal static class EnemyQuadraticSpeedsVerification
         AssertThrows<InvalidDataException>(() => QuadraticSpeedCurve.AtMark(QuadraticSpeedCurveDefinitions.MarkCount), "quadratic row past the table");
         if (definitionsOnly) return;
         var addRock = new Action<EnemyProjectile, QuadraticSpeedCurvePlace, VerticalDirection>(PolypBehavior.AddPolypRockQuadraticStep);
-        var rock = new EnemyProjectile(0, default);
+        var rock = new EnemyProjectile(0, default, RoomEnemyProjectileKind.DustOrExplosion);
         foreach (uint origin in new uint[] { 0, 0x0080ff37, 0xffffff37 })
         for (int index = 0; index < QuadraticSpeedCurveDefinitions.MarkCount; index++)
         foreach (VerticalDirection direction in directions)

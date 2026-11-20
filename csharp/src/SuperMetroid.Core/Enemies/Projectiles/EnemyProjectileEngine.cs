@@ -318,17 +318,24 @@ internal sealed class EnemyProjectileEngine
     }
 
     /// <summary>
-    /// Spawns a fresh projectile into the first free place searched from the last down, starting from what the place's
-    /// previous projectile left there (<see cref="EnemyProjectilePlaceLeftovers"/>), or returns null when every place is held.
-    /// The new projectile is gone until its spawner gives it a kind.
+    /// Spawns a fresh projectile of <paramref name="kind"/> into the first free place searched from the last down, starting
+    /// from what the place's previous projectile left there (<see cref="EnemyProjectilePlaceLeftovers"/>) and copying its
+    /// kind's definition (<see cref="InitializeEnemyProjectileFromDefinition"/>), or returns null when every place is held.
     /// </summary>
-    internal EnemyProjectile? AllocateEnemyProjectile()
+    /// <param name="kind">What the projectile is, which names its definition.</param>
+    /// <param name="behavior">What the projectile's kind does, bound to it for its life (#1760), which starts its motion (#1843).</param>
+    /// <param name="graphics">The sheet and shading the projectile draws with.</param>
+    internal EnemyProjectile? AllocateEnemyProjectile(RoomEnemyProjectileKind kind, EnemyProjectileBehavior behavior, SpriteGraphics graphics)
     {
         for (int place = _places.Length - 1; place >= 0; place--)
         {
             EnemyProjectile? previous = _places[place];
-            if (previous is not { IsActive: true })
-                return _places[place] = new EnemyProjectile(place, _leftovers.StartOf(place, previous?.LeftInPlace));
+            if (previous is { IsActive: true })
+                continue;
+            var projectile = new EnemyProjectile(place, _leftovers.StartOf(place, previous?.LeftInPlace), kind);
+            _places[place] = projectile;
+            InitializeEnemyProjectileFromDefinition(projectile, kind, behavior, graphics);
+            return projectile;
         }
         return null;
     }
@@ -646,15 +653,10 @@ internal sealed class EnemyProjectileEngine
     {
         // The animation is chosen before a place is taken, so an undefined one fails without taking a place.
         var playing = new DustExplosionProjectileAnimation(animation);
-        EnemyProjectile? projectile = AllocateEnemyProjectile();
+        EnemyProjectile? projectile = AllocateEnemyProjectile(RoomEnemyProjectileKind.DustOrExplosion, DustExplosionProjectileBehavior.Instance, graphics: SpriteGraphics.SharedStandard);
         if (projectile is null)
             return;
 
-        InitializeEnemyProjectileFromDefinition(
-            projectile,
-            RoomEnemyProjectileKind.DustOrExplosion,
-            DustExplosionProjectileBehavior.Instance,
-            graphics: SpriteGraphics.SharedStandard);
         projectile.Position = projectile.Position.WithWhole(position);
 
         // The spawner chooses the animation: the Rinka's is the small explosion, and the Boulder's its impact cloud.

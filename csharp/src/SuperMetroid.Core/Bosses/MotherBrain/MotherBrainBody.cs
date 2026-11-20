@@ -303,15 +303,10 @@ internal sealed class MotherBrainBody
         MotherBrainEnemyState state,
         SamusState samus)
     {
-        EnemyProjectile? beam = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? beam = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainHandBeamCharging, _projectileAttacks.Projectile, graphics: SpriteGraphics.SharedIn(state.Colours.OwnShading));
         if (beam is null)
             return;
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            beam,
-            RoomEnemyProjectileKind.MotherBrainHandBeamCharging,
-            _projectileAttacks.Projectile,
-            graphics: SpriteGraphics.SharedIn(state.Colours.OwnShading));
         beam.Velocity = PixelVelocity<RoomPixels>.Zero;
         beam.Position = beam.Position.WithoutFractions();
         beam.Position = beam.Position.WithWhole(state.Body.Position.Whole + MotherBrainFightDefinitions.HandOffset);
@@ -359,15 +354,10 @@ internal sealed class MotherBrainBody
     /// <summary>Spawns one of Mother Brain's turrets, <paramref name="definition"/>.</summary>
     internal void SpawnMotherBrainTurret(MotherBrainEnemyState state, MotherBrainTurretDefinition definition)
     {
-        EnemyProjectile? turret = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? turret = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainRoomTurret, _projectileAttacks.Projectile, MotherBrainTurretDefinitions.Graphics);
         if (turret is null)
             return;
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            turret,
-            RoomEnemyProjectileKind.MotherBrainRoomTurret,
-            _projectileAttacks.Projectile,
-            MotherBrainTurretDefinitions.Graphics);
 
         turret.Position = turret.Position.WithWhole(definition.Position);
         turret.State = new MotherBrainTurretState(state, definition);

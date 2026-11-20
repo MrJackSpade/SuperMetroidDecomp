@@ -77,12 +77,11 @@ internal static class SporeSpawnProjectileDefinitionsVerification
                 $"Spore Spawn production emitter Y {index}");
         }
 
-        EnemyProjectile spore = enemies.Projectiles.ProjectileInPlace(0);
         for (int step = 0; step < 128; step++)
         for (int mirrored = 0; mirrored < 2; mirrored++)
         {
             int offset = step * 2;
-            spore.Kind = RoomEnemyProjectileKind.SporeSpawnSpore;
+            EnemyProjectile spore = enemies.Projectiles.Occupy(0, RoomEnemyProjectileKind.SporeSpawnSpore);
             spore.Position = spore.Position.WithWhole(new(0x0200, 0x0200));
             spore.State = new SporeSpawnSporeState(mirrored != 0 ? HorizontalDirection.Left : HorizontalDirection.Right) { PathStep = ListStep<Offset16<RoomPixels>>.At(SporeSpawnProjectileDefinitions.Drift, step) };
             int x = unchecked((sbyte)rom.ReadCartridgeByte(0x86dd6c + offset));

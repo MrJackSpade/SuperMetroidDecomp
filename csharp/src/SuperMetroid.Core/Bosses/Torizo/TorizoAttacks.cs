@@ -276,14 +276,9 @@ internal sealed class TorizoAttacks
     /// </summary>
     internal void SpawnBombTorizoLowHealthDrool(RoomEnemyPlace torizo)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.BombTorizoLowHealthDrool, TorizoProjectiles, SpriteGraphics.SpawnedBy(torizo));
         if (projectile is null)
             return;
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            projectile,
-            RoomEnemyProjectileKind.BombTorizoLowHealthDrool,
-            TorizoProjectiles,
-            SpriteGraphics.SpawnedBy(torizo));
         projectile.StartAnimation(new TorizoProjectileAnimation(TorizoRandomDefinitions.LowHealthDroolForm.Choose(_room.Random.Generate())));
         int random = _room.Random.Generate();
         Offset16<RoomPixels> drool = TorizoProjectilePlacementDefinitions.LowHealthDrool;
@@ -303,14 +298,9 @@ internal sealed class TorizoAttacks
     /// </summary>
     internal void SpawnTorizoInitialDrool(RoomEnemyPlace torizo)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.TorizoInitialDrool, TorizoProjectiles, SpriteGraphics.SpawnedBy(torizo));
         if (projectile is null)
             return;
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            projectile,
-            RoomEnemyProjectileKind.TorizoInitialDrool,
-            TorizoProjectiles,
-            SpriteGraphics.SpawnedBy(torizo));
         projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectileSegment.DroolNoDelay));
         int random = _room.Random.Generate();
         // Every vertical and horizontal move of a Torizo is tested against the room's terrain, solid past its edges,
@@ -358,14 +348,9 @@ internal sealed class TorizoAttacks
     /// <summary>Places a swipe explosion at the left-facing hand placement <paramref name="placement"/>, mirroring it for right-facing Torizo.</summary>
     internal void SpawnBombTorizoExplosiveSwipe(RoomEnemyPlace torizo, Offset16<RoomPixels> placement)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.BombTorizoExplosiveSwipe, TorizoProjectiles, graphics: SpriteGraphics.SharedStandard);
         if (projectile is null)
             return;
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            projectile,
-            RoomEnemyProjectileKind.BombTorizoExplosiveSwipe,
-            TorizoProjectiles,
-            graphics: SpriteGraphics.SharedStandard);
         projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectileSegment.ExplosiveSwipe));
 
         // A right-facing Torizo mirrors the left-facing hand placement horizontally.
@@ -381,14 +366,9 @@ internal sealed class TorizoAttacks
                 site,
                 facing: TorizoFacing.Posture(torizo).Facing);
 
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.BombTorizoLowHealthExplosion, TorizoProjectiles, graphics: SpriteGraphics.SharedStandard);
         if (projectile is null)
             return;
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            projectile,
-            RoomEnemyProjectileKind.BombTorizoLowHealthExplosion,
-            TorizoProjectiles,
-            graphics: SpriteGraphics.SharedStandard);
         projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectileSegment.LowHealthExplosion));
         projectile.Position = projectile.Position.WithWhole(torizo.Position.Whole + placement);
         projectile.State = new AnchoredProjectileState(projectile.Position.Whole);
@@ -397,14 +377,9 @@ internal sealed class TorizoAttacks
     /// <summary>Starts a death explosion at the statue center and stores that center for its later animation frames.</summary>
     internal void SpawnDeathExplosion(RoomEnemyPlace torizo)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.TorizoDeathExplosion, TorizoProjectiles, graphics: SpriteGraphics.SharedStandard);
         if (projectile is null)
             return;
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            projectile,
-            RoomEnemyProjectileKind.TorizoDeathExplosion,
-            TorizoProjectiles,
-            graphics: SpriteGraphics.SharedStandard);
         projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectileSegment.DeathExplosion));
         projectile.Position = projectile.Position.WithWhole(torizo.Position.Whole);
         projectile.State = new AnchoredProjectileState(torizo.Position.Whole);
@@ -413,14 +388,9 @@ internal sealed class TorizoAttacks
     /// <summary>Allocates Bomb Torizo's Chozo orb with facing-dependent placement and randomized velocity.</summary>
     internal void SpawnBombTorizoChozoOrb(RoomEnemyPlace torizo)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.BombTorizoChozoOrb, ChozoOrb, SpriteGraphics.SpawnedBy(torizo));
         if (projectile is null)
             return;
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            projectile,
-            RoomEnemyProjectileKind.BombTorizoChozoOrb,
-            ChozoOrb,
-            SpriteGraphics.SpawnedBy(torizo));
         projectile.State = new TorizoChozoOrbState(TorizoChozoOrbDefinitions.BombTorizoOrbDropChances);
 
         InitializeTorizoRandomizedProjectile(
@@ -446,14 +416,9 @@ internal sealed class TorizoAttacks
         RoomEnemyPlace torizo,
         RoomEnemyProjectileKind kind)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(kind, TorizoProjectiles, SpriteGraphics.SpawnedBy(torizo));
         if (projectile is null)
             return;
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            projectile,
-            kind,
-            TorizoProjectiles,
-            SpriteGraphics.SpawnedBy(torizo));
 
         Offset16<RoomPixels> placement = TorizoRandomDefinitions.SonicBoomFliesHigh.IsTakenBy(_room.Random.Generate())
             ? TorizoProjectilePlacementDefinitions.HighSonicBoom
@@ -475,15 +440,10 @@ internal sealed class TorizoAttacks
     /// <summary>Allocates Golden Torizo's orb using the variant's facing-specific offset and randomized speed.</summary>
     internal void SpawnGoldenTorizoChozoOrb(RoomEnemyPlace torizo)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.GoldenTorizoChozoOrb, ChozoOrb, SpriteGraphics.SpawnedBy(torizo));
         if (projectile is null)
             return;
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            projectile,
-            RoomEnemyProjectileKind.GoldenTorizoChozoOrb,
-            ChozoOrb,
-            SpriteGraphics.SpawnedBy(torizo));
         projectile.State = new TorizoChozoOrbState(TorizoChozoOrbDefinitions.GoldenTorizoOrbDropChances);
         InitializeTorizoRandomizedProjectile(
             projectile,
@@ -494,15 +454,10 @@ internal sealed class TorizoAttacks
     /// <summary>Starts a Golden egg with the game's fixed hatch timer and randomized launch speed.</summary>
     internal void SpawnGoldenTorizoEgg(RoomEnemyPlace torizo)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.GoldenTorizoEgg, Egg, SpriteGraphics.SpawnedBy(torizo));
         if (projectile is null)
             return;
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            projectile,
-            RoomEnemyProjectileKind.GoldenTorizoEgg,
-            Egg,
-            SpriteGraphics.SpawnedBy(torizo));
 
         TorizoEnemyState state = torizo.RequireSpeciesState<TorizoEnemyState>();
         projectile.State = new GoldenTorizoEggState(laidFacing: state.Posture.Facing);
@@ -516,15 +471,10 @@ internal sealed class TorizoAttacks
     /// <summary>Attaches a caught super missile above the active hand and selects its facing-dependent animation.</summary>
     internal void SpawnGoldenTorizoSuperMissile(RoomEnemyPlace torizo)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.GoldenTorizoSuperMissile, SuperMissile, SpriteGraphics.SpawnedBy(torizo));
         if (projectile is null)
             return;
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            projectile,
-            RoomEnemyProjectileKind.GoldenTorizoSuperMissile,
-            SuperMissile,
-            SpriteGraphics.SpawnedBy(torizo));
         projectile.State = new TorizoOwnedProjectileState(torizo);
         bool facingRight = TorizoFacing.FacesRight(torizo);
         Offset16<RoomPixels> caught = TorizoProjectilePlacementDefinitions.CaughtSuperMissile;
@@ -535,15 +485,10 @@ internal sealed class TorizoAttacks
     /// <summary>Fires an eye beam from the facing-specific offset with room-RNG angular spread.</summary>
     internal void SpawnGoldenTorizoEyeBeam(RoomEnemyPlace torizo)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.GoldenTorizoEyeBeam, TorizoProjectiles, SpriteGraphics.SpawnedBy(torizo));
         if (projectile is null)
             return;
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            projectile,
-            RoomEnemyProjectileKind.GoldenTorizoEyeBeam,
-            TorizoProjectiles,
-            SpriteGraphics.SpawnedBy(torizo));
         projectile.State = new TorizoOwnedProjectileState(torizo);
         HorizontalDirection facing = TorizoFacing.Posture(torizo).Facing;
         projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectileSegment.EyeBeam));
@@ -582,10 +527,9 @@ internal sealed class TorizoAttacks
     /// <summary>Places a foot-specific dust effect 48 pixels below the statue after a landing step.</summary>
     internal void SpawnLandingDust(RoomEnemyPlace torizo, HorizontalDirection foot)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.TorizoLandingDust, TorizoProjectiles, graphics: SpriteGraphics.SharedStandard);
         if (projectile is null)
             return;
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, RoomEnemyProjectileKind.TorizoLandingDust, TorizoProjectiles, graphics: SpriteGraphics.SharedStandard);
         projectile.StartAnimation(new TorizoProjectileAnimation(foot == HorizontalDirection.Right ? TorizoProjectileSegment.LandingDustRightFoot : TorizoProjectileSegment.LandingDustLeftFoot));
         Offset16<RoomPixels> dust = TorizoProjectilePlacementDefinitions.RightFootDust;
         projectile.Position = projectile.Position.WithWhole(torizo.Position.Whole + (foot == HorizontalDirection.Right ? dust : dust.MirroredX()));
@@ -826,15 +770,10 @@ internal sealed class TorizoAttacks
     {
         BombTorizoStatueFragmentDefinition definition = BombTorizoStatueFragmentDefinitions.Fragments[request.Fragment];
 
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.BombTorizoStatueBreaking, TorizoProjectiles, graphics: SpriteGraphics.SharedStandard);
         if (projectile is null)
             return null; // Nothing spawns when the room has no place left for an enemy projectile.
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            projectile,
-            RoomEnemyProjectileKind.BombTorizoStatueBreaking,
-            TorizoProjectiles,
-            graphics: SpriteGraphics.SharedStandard);
 
         projectile.StartAnimation(new TorizoProjectileAnimation(definition.Animation));
         projectile.Position = projectile.Position.WithWhole(request.RoomObjectBlock.ToRoomPixels() + definition.Offset);

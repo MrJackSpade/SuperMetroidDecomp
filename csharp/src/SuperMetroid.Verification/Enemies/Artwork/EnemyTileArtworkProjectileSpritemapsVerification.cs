@@ -592,8 +592,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         // The frame drawn from the loaded set's sheets under the spawner's graphics.
         static OamBuffer DrawSpawnerFrame(RoomEnemySystem enemies, EnemyProjectileFrameId frame, SpriteGraphics graphics)
         {
-            EnemyProjectile slot = enemies.Projectiles.ProjectileInPlace(0);
-            slot.Kind = RoomEnemyProjectileKind.DustOrExplosion;
+            EnemyProjectile slot = enemies.Projectiles.Occupy(0, RoomEnemyProjectileKind.DustOrExplosion);
             slot.Position = slot.Position.WithWhole(new(128, 96));
             slot.Graphics = graphics;
             slot.Frame = frame;
@@ -631,8 +630,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         static RoomEnemySystem PresentedSystem(ImportEnemyArtwork artwork, EnemyProjectileFrameId frame, RoomEnemyProjectileKind kind)
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork.Bosses);
-            EnemyProjectile slot = enemies.Projectiles.ProjectileInPlace(0);
-            slot.Kind = kind;
+            EnemyProjectile slot = enemies.Projectiles.Occupy(0, kind);
             slot.Position = slot.Position.WithWhole(new(128, 96));
             // As the typed runner does when it shows the program frame.
             slot.Frame = frame;

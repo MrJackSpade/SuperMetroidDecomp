@@ -31,17 +31,12 @@ internal sealed class FallingSparksBehavior
     /// <summary>Allocates and initializes a falling spark projectile.</summary>
     internal void SpawnFallingSpark(RoomEnemyPlace source)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.FallingSpark, Spark, SpriteGraphics.SpawnedBy(source));
         if (projectile is null)
             return;
 
         // The spark starts as its definition has it: blank at first, with its animation, size, damage and the way it
         // touches Samus. It then appears below its source, still, and drifts sideways by a random launch.
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            projectile,
-            RoomEnemyProjectileKind.FallingSpark,
-            Spark,
-            SpriteGraphics.SpawnedBy(source));
         projectile.StartAnimation(new FallingSparkAnimation(FallingSparkSegment.Falling));
         projectile.Position = source.Position.WithWholeY(source.Position.Y.Whole + FallingSparkMotionDefinitions.SpawnBelowSource);
 

@@ -67,7 +67,7 @@ internal static class KraidRockLaunchDefinitionsVerification
             AssertEqual(SuperMetroid.Core.Enemies.SpriteGraphics.SharedIn(SuperMetroid.Core.Bosses.Kraid.KraidColours.RocksShading), rock.Graphics,
                 "Native rock: the rocks' colours Kraid loads, at tile base zero");
         }
-        foreach (var occupied in enemies.Projectiles.EveryPlace()) occupied.Kind = RoomEnemyProjectileKind.KraidSpitRock;
+        foreach (int place in Enumerable.Range(0, EnemyProjectileEngine.PlaceCount)) enemies.Projectiles.Occupy(place, RoomEnemyProjectileKind.KraidSpitRock);
         ushort previousX = rock.Position.X.Whole;
         reads = 0;
         spawn(body);

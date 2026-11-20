@@ -49,15 +49,10 @@ internal static class SkreeMetareeParticles
         int xOffset,
         PixelVelocity<RoomPixels> velocity)
     {
-        EnemyProjectile? particle = projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? particle = projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.SkreeMetareeParticle, Behavior, SpriteGraphics.SpawnedBy(source));
         if (particle is null)
             return;
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            particle,
-            RoomEnemyProjectileKind.SkreeMetareeParticle,
-            Behavior,
-            SpriteGraphics.SpawnedBy(source));
         particle.StartAnimation(new SkreeMetareeParticleAnimation(look));
         particle.Position = particle.Position.WithWhole(new(source.Position.X.Whole + xOffset, source.Position.Y.Whole));
         particle.Velocity = velocity;

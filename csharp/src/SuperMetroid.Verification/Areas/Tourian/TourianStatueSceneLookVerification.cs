@@ -33,10 +33,8 @@ internal static class TourianStatueSceneLookVerification
         RoomEnemyPlace unplaced = enemies.Places.InUpdateOrder[1];
         unplaced.Bind(EnemyDefinitionId.TourianStatue, unplaced.Definition);
 
-        EnemyProjectile stranger = enemies.Projectiles.AllocateEnemyProjectile()
+        EnemyProjectile stranger = enemies.Projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.DustOrExplosion, DustExplosionProjectileBehavior.Instance, SpriteGraphics.SharedStandard)
             ?? throw new InvalidOperationException("A new room has a free enemy-projectile place.");
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(stranger, RoomEnemyProjectileKind.DustOrExplosion,
-            DustExplosionProjectileBehavior.Instance, SpriteGraphics.SharedStandard);
 
         TourianEntranceStatueBehavior scene = EnemySystemFixtures.StatueScene(enemies);
         EnemySystemFixtures.InitializeStatuePlacement(placement);

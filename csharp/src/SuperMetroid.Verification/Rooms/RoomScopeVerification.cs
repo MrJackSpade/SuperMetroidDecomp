@@ -43,7 +43,8 @@ internal static class RoomScopeVerification
         runtime.ColourEffectSession.PublishedHeatPhase = heatPhase;
         source.Enemies.Earthquake.Start(NativeEarthquakeTypes.Shake(5), 4);
         runtime.EnemySession.CeresStatus = CeresEscapeStatus.RidleyEscaped;
-        EnemyProjectile sourceProjectile = source.Enemies.Projectiles.AllocateEnemyProjectile() ??
+        EnemyProjectile sourceProjectile = source.Enemies.Projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.DustOrExplosion,
+                DustExplosionProjectileBehavior.Instance, SpriteGraphics.SharedStandard) ??
             throw new InvalidOperationException("The Landing Site holds every enemy-projectile place.");
         sourceProjectile.Position = FixedPosition<RoomPixels>.FromStoredParts(0x0140, 0x1234, 0x0090, 0x5678);
         sourceProjectile.Velocity = new(SignedEightEight.FromPixels(2), SignedEightEight.FromPixels(-2));

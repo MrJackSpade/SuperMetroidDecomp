@@ -163,7 +163,7 @@ internal static class BotwoonAnimationsVerification
 
         for (ushort selector = 0; selector < 64; selector += 2)
         {
-            var projectile = new EnemyProjectile(0, default) { Kind = RoomEnemyProjectileKind.BotwoonBody };
+            var projectile = new EnemyProjectile(0, default, RoomEnemyProjectileKind.BotwoonBody);
             projectile.StartAnimation(new BotwoonSegmentAnimation(BotwoonSegmentSelectorCodec.Program(selector)));
             CompareBotwoonProjectile(rom, CartridgeImportSource.Require(rom).ReadCartridgeWord((BotwoonSegmentListTable + selector)), projectile, Pass,
                 $"segment selector ${selector:X2}");
@@ -182,7 +182,7 @@ internal static class BotwoonAnimationsVerification
         head.SetSpeciesState(state);
         // A changed selector restarts the segment; an unchanged one keeps running.
         Action<EnemyProjectile, int> animate = BotwoonBehavior.AnimateBotwoonBodySegment;
-        var segment = new EnemyProjectile(1, default) { Kind = RoomEnemyProjectileKind.BotwoonBody };
+        var segment = new EnemyProjectile(1, default, RoomEnemyProjectileKind.BotwoonBody);
         var segmentAnimation = new BotwoonSegmentAnimation(BotwoonSegmentSelectorCodec.Program(0));
         segment.State = new BotwoonSegmentState(head, 1, segment, segmentAnimation);
         segment.StartAnimation(segmentAnimation);

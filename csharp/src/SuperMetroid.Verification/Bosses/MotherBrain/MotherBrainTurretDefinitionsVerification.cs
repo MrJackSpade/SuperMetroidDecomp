@@ -80,7 +80,7 @@ internal static class MotherBrainTurretDefinitionsVerification
             for (byte current = (byte)MotherBrainTurretDefinitions.Ring.PositionOf(definition.FirstAllowedDirection);
                 current <= MotherBrainTurretDefinitions.Ring.PositionOf(definition.LastAllowedDirection); current++)
             {
-                var rotation = new EnemyProjectile(0, default)
+                var rotation = new EnemyProjectile(0, default, RoomEnemyProjectileKind.MotherBrainRoomTurret)
                 {
                     State = new MotherBrainTurretState(new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0], enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation()), definition)
                     {
@@ -133,7 +133,7 @@ internal static class MotherBrainTurretDefinitionsVerification
                 $"Mother Brain turret bullet Y velocity {direction}");
 
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            var turret = new EnemyProjectile(0, default)
+            var turret = new EnemyProjectile(0, default, RoomEnemyProjectileKind.MotherBrainRoomTurret)
             {
                 Position = new(new(0x0400, 0), new(0x0200, 0)),
                 State = new MotherBrainTurretState(new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0], enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation()), MotherBrainTurretDefinitions.Turrets[0]) { Direction = typedDirection },

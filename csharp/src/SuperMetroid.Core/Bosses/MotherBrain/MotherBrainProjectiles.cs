@@ -412,15 +412,10 @@ internal sealed class MotherBrainProjectiles
         /// <summary>Runs the sparkle setup using the spawning shard as parameter.</summary>
         private void SpawnMotherBrainGlassSparkle(EnemyProjectile source)
         {
-            EnemyProjectile? sparkle = dependencies.Projectiles.AllocateEnemyProjectile();
+            EnemyProjectile? sparkle = dependencies.Projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainGlassSparkle, Spawned, graphics: SpriteGraphics.SharedStandard);
             if (sparkle is null)
                 return;
 
-            EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-                sparkle,
-                RoomEnemyProjectileKind.MotherBrainGlassSparkle,
-                Spawned,
-                graphics: SpriteGraphics.SharedStandard);
             sparkle.StartAnimation(new MotherBrainGlassAnimation(MotherBrainGlassSegment.Sparkle));
             // A shard near the top of the room may sparkle above it, so the sparkle's place is its shard's moved by its
             // offset, which continues past the room's edge as positions do.
@@ -438,15 +433,10 @@ internal sealed class MotherBrainProjectiles
         /// </summary>
         private void SpawnMotherBrainHandBeamFired(MotherBrainEnemyState state)
         {
-            EnemyProjectile? beam = dependencies.Projectiles.AllocateEnemyProjectile();
+            EnemyProjectile? beam = dependencies.Projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainHandBeamFired, Spawned, graphics: SpriteGraphics.SharedStandard);
             if (beam is null)
                 return;
 
-            EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-                beam,
-                RoomEnemyProjectileKind.MotherBrainHandBeamFired,
-                Spawned,
-                graphics: SpriteGraphics.SharedStandard);
             beam.Position = state.HandBeamNextPosition;
             beam.Velocity = state.HandBeamNextVelocity;
 
@@ -629,15 +619,10 @@ internal sealed class MotherBrainProjectiles
         /// <summary>Runs turret-bullet initialization.</summary>
         internal void SpawnMotherBrainTurretBullet(EnemyProjectile turret)
         {
-            EnemyProjectile? bullet = dependencies.Projectiles.AllocateEnemyProjectile();
+            EnemyProjectile? bullet = dependencies.Projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainRoomTurretBullet, turretBullet, MotherBrainTurretDefinitions.Graphics);
             if (bullet is null)
                 return;
 
-            EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-                bullet,
-                RoomEnemyProjectileKind.MotherBrainRoomTurretBullet,
-                turretBullet,
-                MotherBrainTurretDefinitions.Graphics);
             MotherBrainTurretDirection direction = turret.StateOf<MotherBrainTurretState>().Direction;
             MotherBrainTurretDirectionDefinition definition =
                 MotherBrainTurrets.ForDirection(direction);
@@ -713,15 +698,10 @@ internal sealed class MotherBrainProjectiles
     /// </summary>
     public void SpawnMotherBrainGlassProjectile(MotherBrainGlassProjectileRequest request)
     {
-        EnemyProjectile? shard = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? shard = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainGlassShard, Projectile, graphics: SpriteGraphics.SharedStandard);
         if (shard is null)
             return; // The shard is lost when the room has no place left for an enemy projectile.
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            shard,
-            RoomEnemyProjectileKind.MotherBrainGlassShard,
-            Projectile,
-            graphics: SpriteGraphics.SharedStandard);
 
         // The shard launches at a random angle, any step of the turn. It selects signed sine/cosine velocities and the
         // shard's spin animation.

@@ -289,15 +289,10 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Spawns and initializes a Kago bug; with no projectile place free, none spawns.</summary>
     internal void SpawnKagoBug(RoomEnemyPlace source)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.KagoBug, Bug, SpriteGraphics.SpawnedBy(source));
         if (projectile is null)
             return;
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            projectile,
-            RoomEnemyProjectileKind.KagoBug,
-            Bug,
-            SpriteGraphics.SpawnedBy(source));
 
         projectile.Position = projectile.Position.WithWhole(source.Position.Whole);
 

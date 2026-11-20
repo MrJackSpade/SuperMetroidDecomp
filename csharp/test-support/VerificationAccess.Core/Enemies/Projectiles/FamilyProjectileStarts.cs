@@ -202,7 +202,7 @@ internal static class FamilyProjectileStarts
         // foot and a Ceres falling tile its look (#2378).
         RoomEnemyProjectileKind.SkreeMetareeParticle or RoomEnemyProjectileKind.KiHunterAcidSpit or
             RoomEnemyProjectileKind.RidleyAfterburnCenter or
-            RoomEnemyProjectileKind.PrePhantoonRoomHeldPlace or RoomEnemyProjectileKind.CrocomireProjectile or
+            RoomEnemyProjectileKind.CrocomireProjectile or
             RoomEnemyProjectileKind.CrocomireBridgeCrumbling or RoomEnemyProjectileKind.CrocomireSpikeWallPieces or
             RoomEnemyProjectileKind.KraidSpitRock or RoomEnemyProjectileKind.KraidCeilingRock or
             RoomEnemyProjectileKind.KraidRisingRock or

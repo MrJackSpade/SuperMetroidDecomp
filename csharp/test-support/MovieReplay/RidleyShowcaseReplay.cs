@@ -914,7 +914,6 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     case RoomEnemyProjectileKind.EnemyDeathPickup:
                         break;
                     case RoomEnemyProjectileKind.None:
-                    case RoomEnemyProjectileKind.PrePhantoonRoomHeldPlace:
                     case RoomEnemyProjectileKind.YappingMawBody:
                     case RoomEnemyProjectileKind.SkreeMetareeParticle:
                     case RoomEnemyProjectileKind.CrocomireProjectile:

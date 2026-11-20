@@ -77,8 +77,8 @@ internal static class ClosedPresentationContractChecks
                     spores.ResolveSpore(0);
                     phantoon.ResolvePowerOn(SuperMetroid.AssetExtraction.Enemies.Artwork.WreckedShipPoweredPart.Lights, 15);
                     phantoon.ResolvePowerOn(SuperMetroid.AssetExtraction.Enemies.Artwork.WreckedShipPoweredPart.Lights, 16);
-                    statues.ResolveEye(3, 0);
-                    statues.ResolveEye(4, 0);
+                    statues.ResolveEye(SuperMetroid.Core.Areas.Tourian.TourianStatue.Kraid, 0);
+                    statues.ResolveEye((SuperMetroid.Core.Areas.Tourian.TourianStatue)99, 0);
                     death.BodyColor(15, 13);
                     death.CorpseColor(8, 0);
                     chozo.ResolveTubeCracks(31);

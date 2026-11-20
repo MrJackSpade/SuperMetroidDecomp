@@ -13,11 +13,11 @@ internal static class InstalledBackgroundSetKeys
     {
         [InstalledBackgroundSet.Hud] = "Hud",
         [InstalledBackgroundSet.HudItemsAndEffects] = "HudItemsAndEffects",
-        [InstalledBackgroundSet.TilesFirst] = "TilesFirst",
-        [InstalledBackgroundSet.TilesSecond] = "TilesSecond",
-        [InstalledBackgroundSet.TilesThird] = "TilesThird",
-        [InstalledBackgroundSet.TilesFourth] = "TilesFourth",
-        [InstalledBackgroundSet.TilesFifth] = "TilesFifth",
-        [InstalledBackgroundSet.TilesSixth] = "TilesSixth",
+        [InstalledBackgroundSet.DoorAndSandTiles] = "TilesFirst",
+        [InstalledBackgroundSet.AnimatedLightTiles] = "TilesSecond",
+        [InstalledBackgroundSet.MachineryTiles] = "TilesThird",
+        [InstalledBackgroundSet.BackgroundAndFloorTiles] = "TilesFourth",
+        [InstalledBackgroundSet.BackdropAndStatueTiles] = "TilesFifth",
+        [InstalledBackgroundSet.BackgroundBossTiles] = "TilesSixth",
     });
 }

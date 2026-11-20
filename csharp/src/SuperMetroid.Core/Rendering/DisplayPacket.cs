@@ -13,7 +13,7 @@ public sealed class DisplayPacket
     /// <summary>What the frame shows: a layered scene, a turning floor with its sprites, or one colour.</summary>
     public DisplayScene Scene { get; }
 
-    /// <summary>The frame's visible size (<see cref="ScreenGeometry.ScreenSize"/>), the HUD included where there is one, before the host scales it to the window.</summary>
+    /// <summary>The frame's visible size (<see cref="Spatial.ScreenGeometry.ScreenSize"/>), the HUD included where there is one, before the host scales it to the window.</summary>
     public Extent16<ScreenPixels> Size { get; } = ScreenGeometry.ScreenSize;
 
     /// <summary>

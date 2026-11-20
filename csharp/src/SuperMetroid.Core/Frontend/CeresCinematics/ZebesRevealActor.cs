@@ -24,7 +24,7 @@ internal sealed class ZebesRevealActor(
 
     /// <summary>
     /// Slides the actor up by its speed after the speed grows by its acceleration, Zebes's faster than each star
-    /// quarter's. Each actor leaves once it passes <see cref="CeresDestructionSceneDefinitions.RevealActorExitY"/> above the screen, within a few
+    /// quarter's. Each actor leaves once it passes <see cref="CeresDestructionSceneDefinitions.Places.RevealActorExitY"/> above the screen, within a few
     /// dozen updates, so its speed stays small.
     /// </summary>
     /// <exception cref="InvalidDataException">The actor is a caption, which the reveal deletes before the scene slides.</exception>

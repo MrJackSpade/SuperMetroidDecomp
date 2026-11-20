@@ -39,7 +39,7 @@ internal static class SamusComboMechanics
     /// </summary>
     /// <remarks>
     /// The Ice, Plasma and Spazer attacks give angles in 256ths of a turn; Y turns back a quarter turn
-    /// with the same wrap. The amplitude is at most <see cref="ComboRingCollapse.LargestRadius"/>. It reads the game's signed sine and keeps no
+    /// with the same wrap. The amplitude is at most <see cref="Compatibility.ComboRingCollapse.LargestRadius"/>. It reads the game's signed sine and keeps no
     /// values of its own.</remarks>
     internal static Offset16<RoomPixels> GetSineOffset(TrigonometryAngle angle, int amplitude)
     {

@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>
 /// One rotting corpse's own rot schedule (#629, #1472): the fall of each of its pixel rows. The bottom row starts falling
-/// at once and each row above it waits longer by <see cref="DelayUpdatesPerRow"/>; a falling row drops <see cref="FallPixelsPerUpdate"/> each rot step until it leaves the
+/// at once and each row above it waits longer by <see cref="CorpseRotScheduleDefinitions.DelayUpdatesPerRow"/>; a falling row drops <see cref="CorpseRotScheduleDefinitions.FallPixelsPerUpdate"/> each rot step until it leaves the
 /// corpse. Mother Brain, the dead Torizo and every dead monster rot by the same schedule, each corpse with its own.
 /// </summary>
 /// <remarks>

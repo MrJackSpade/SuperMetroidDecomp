@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
-/// When a Yapping Maw may grab Samus (#2454). The Maw's cooldown starts at <see cref="YappingMawAttackDefinitions.GrabCooldown"/> when its tongue finishes
-/// retracting, when it lets Samus go and on every update it waits with Samus closer than <see cref="YappingMawAttackDefinitions.GrabSafetyDistance"/>, and at none when it
+/// When a Yapping Maw may grab Samus (#2454). The Maw's cooldown starts at <see cref="Enemies.YappingMaws.YappingMawAttackDefinitions.GrabCooldown"/> when its tongue finishes
+/// retracting, when it lets Samus go and on every update it waits with Samus closer than <see cref="Enemies.YappingMaws.YappingMawAttackDefinitions.GrabSafetyDistance"/>, and at none when it
 /// is placed and when it grabs her. Counted down past none, it lets the Maw grab for the next 32768 updates; then it
 /// refuses for 32768 updates, lets the Maw grab for the 32768 after those, and so on in rounds of 65536 updates, until
 /// the cooldown starts again.

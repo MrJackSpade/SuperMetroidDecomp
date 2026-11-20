@@ -111,14 +111,14 @@ public sealed class SamusShinesparkState
     }
 
 /// <summary>
-    /// The stage of the crash's orbit: expanding at crash entry, orbiting once the radius reaches <see cref="ShinesparkDefinitions.CrashOrbitStartRadius"/>,
-    /// and contracting once the orbit's travel reaches its largest (<see cref="CrashOrbitTravelCarryover.LargestTravel"/>).
+    /// The stage of the crash's orbit: expanding at crash entry, orbiting once the radius has passed <see cref="ShinesparkDefinitions.CrashOrbitStartRadius"/>,
+    /// and contracting once the orbit's travel has run its course (<see cref="Compatibility.CrashOrbitTravelCarryover"/>).
     /// </summary>
     private ShinesparkCrashOrbitStage CrashOrbitStage { get; set; }
 
     /// <summary>
     /// Distance of the two orbiting copies from Samus in pixels: zero at crash entry, raised by <see cref="ShinesparkDefinitions.CrashRadiusStep"/> each
-    /// update the orbit expands until it reaches <see cref="ShinesparkDefinitions.CrashOrbitStartRadius"/> and lowered as much each update it contracts
+    /// update the orbit expands until it passes <see cref="ShinesparkDefinitions.CrashOrbitStartRadius"/> and lowered as much each update it contracts
     /// until it reaches zero.
     /// </summary>
     private int CrashRadius { get; set; }

@@ -54,7 +54,7 @@ internal sealed class CeresDestructionPhase
     /// <summary>The gunship flies toward Zebes, the planet growing to the first approach limit (#1981).</summary>
     internal static CeresDestructionPhase FlyingTowardZebes { get; } = new(nameof(FlyingTowardZebes), cinematic => cinematic.RunFlyingTowardZebes());
 
-    /// <summary>The gunship turns toward Zebes, the view rotating and growing until it has panned left past <see cref="CeresDestructionSceneDefinitions.TurnTowardZebesEndX"/>.</summary>
+    /// <summary>The gunship turns toward Zebes, the view rotating and growing until it has panned left past <see cref="CeresDestructionSceneDefinitions.Places.TurnTowardZebesEndX"/>.</summary>
     internal static CeresDestructionPhase TurningTowardZebes { get; } = new(nameof(TurningTowardZebes), cinematic => cinematic.RunTurningTowardZebes());
 
     /// <summary>The gunship closes in on Zebes, the view panning back and growing until the turning floor hides before the hold.</summary>

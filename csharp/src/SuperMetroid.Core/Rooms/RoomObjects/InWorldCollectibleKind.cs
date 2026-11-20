@@ -3,7 +3,7 @@
 /// <summary>The twenty-one permanent items, each shown as a plain item, a Chozo orb or a shot-revealed item. Its values are arbitrary.</summary>
 public enum InWorldCollectibleKind
 {
-    /// <summary>An Energy Tank: adds a tank's maximum health (<see cref="SamusEnergyDefinitions.EnergyPerTank"/>) and refills health to the new maximum.</summary>
+    /// <summary>An Energy Tank: adds a tank's maximum health (<see cref="Progression.SamusEnergyDefinitions.EnergyPerTank"/>) and refills health to the new maximum.</summary>
     EnergyTank,
     /// <summary>A Missile tank: adds its missiles to both capacity and current ammunition.</summary>
     MissileTank,

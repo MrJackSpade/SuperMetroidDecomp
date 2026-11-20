@@ -47,14 +47,14 @@ internal static class RoomBlockReadingGenerator
         text.Append("/// Regenerate with <c>SuperMetroid.DebugRunner --generate-room-block-readings</c> from the import codec.\n");
         text.Append("/// </summary>\n");
         text.Append("internal static class RoomBlockReadingDefinitions\n{\n");
-        AppendTable(text, "Shootable", "shootable reaction", "ShootableReaction", precedence, static readings => readings.Shootable, Named);
-        AppendTable(text, "Bombable", "bombable reaction", "BombableReaction", precedence, static readings => readings.Bombable, Named);
-        AppendTable(text, "Special", "special-block reaction", "SpecialBlockReaction", precedence, static readings => readings.Special, Named);
-        AppendTable(text, "SpecialAir", "special-air reaction", "SpecialAirReaction", precedence, static readings => readings.SpecialAir, Named);
-        AppendTable(text, "Spike", "spike reaction", "SpikeReaction", precedence, static readings => readings.Spike, Named);
-        AppendTable(text, "Grapple", "grapple reaction", "GrappleReaction", precedence, static readings => readings.Grapple, Named);
-        AppendTable(text, "Slope", "slope shape and mirroring", "SlopeGeometry", precedence, static readings => readings.Slope, Slope);
-        AppendTable(text, "Extension", "extension offset", "int", [.. precedence.OrderBy(static readings => readings.ExtensionOffset)],
+        AppendTable<ShootableReaction>(text, "Shootable", "shootable reaction", "ShootableReaction", precedence, static readings => readings.Shootable, Named);
+        AppendTable<BombableReaction>(text, "Bombable", "bombable reaction", "BombableReaction", precedence, static readings => readings.Bombable, Named);
+        AppendTable<SpecialBlockReaction>(text, "Special", "special-block reaction", "SpecialBlockReaction", precedence, static readings => readings.Special, Named);
+        AppendTable<SpecialAirReaction>(text, "SpecialAir", "special-air reaction", "SpecialAirReaction", precedence, static readings => readings.SpecialAir, Named);
+        AppendTable<SpikeReaction>(text, "Spike", "spike reaction", "SpikeReaction", precedence, static readings => readings.Spike, Named);
+        AppendTable<GrappleReaction>(text, "Grapple", "grapple reaction", "GrappleReaction", precedence, static readings => readings.Grapple, Named);
+        AppendTable<SlopeGeometry>(text, "Slope", "slope shape and mirroring", "SlopeGeometry", precedence, static readings => readings.Slope, Slope);
+        AppendTable<int>(text, "Extension", "extension offset", "int", [.. precedence.OrderBy(static readings => readings.ExtensionOffset)],
             static readings => readings.ExtensionOffset, static offset => offset.ToString(System.Globalization.CultureInfo.InvariantCulture));
         text.Append("    /// <summary>\n");
         text.Append("    /// Each behaviour whose meaning to special blocks and special air the room's area gives, as each group of areas resolves\n");

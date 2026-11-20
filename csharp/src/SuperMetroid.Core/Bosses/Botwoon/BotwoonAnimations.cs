@@ -192,12 +192,10 @@ internal static class BotwoonAnimations
     internal static Extent16<RoomPixels> HeadRadius(CompassDirection facing) => HeadRadiusByFacing[facing];
 
     /// <summary>The animation that starts at body segment <paramref name="segment"/>: a body link cycles, a tail cap or hidden segment holds.</summary>
-    private static Animation<B> BodyAnimation(B segment) => segment.Kind switch
-    {
-        BotwoonBodyAnimationSegmentKind.Body => Animation<B>.Looping([BodySegments.Whole(segment)]),
-        BotwoonBodyAnimationSegmentKind.Tail or BotwoonBodyAnimationSegmentKind.Hidden => new([BodySegments.Whole(segment)], AnimationEnd.Holds),
-        _ => throw new ArgumentOutOfRangeException(nameof(segment), segment.Kind, "Undefined Botwoon segment animation kind."),
-    };
+    private static Animation<B> BodyAnimation(B segment) => segment.Kind == BotwoonBodyAnimationSegmentKind.Body
+        ? Animation<B>.Looping([BodySegments.Whole(segment)])
+        // The remaining members, BotwoonBodyAnimationSegmentKind.Tail and BotwoonBodyAnimationSegmentKind.Hidden.
+        : new([BodySegments.Whole(segment)], AnimationEnd.Holds);
 
     /// <summary>The beats of head animation <paramref name="segment"/>.</summary>
     private static AnimationBeat<BotwoonHeadFrame, BotwoonHeadCue>[] HeadBeats(BotwoonHeadAnimationSegment segment) => segment switch

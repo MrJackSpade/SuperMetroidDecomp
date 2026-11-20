@@ -60,10 +60,10 @@ internal sealed class DraygonSwoops
             heights.Add(candidate);
         }
 
-        if (heights.Count == 0)
-            throw new InvalidDataException("Draygon generated an empty swoop path.");
-        int frameCount = heights.Count;
-        state.SwoopPath = new DraygonSwoopPath(heights.ToImmutable(), state.Body.Position.Y.Whole);
+        // The path validates the climb once: it climbs through at least one height.
+        var path = new DraygonSwoopPath(heights.ToImmutable(), state.Body.Position.Y.Whole);
+        state.SwoopPath = path;
+        int frameCount = path.EntryCount;
 
         // The swoop covers the whole-pixel distance to Samus in as many updates as the path has entries.
         int distance = DistanceAcrossRoomEdge.Between(

@@ -31,8 +31,6 @@ internal sealed class WreckedShipTreadmillObjects
         bool areaBossDefeated)
     {
         Ensure.NotNull(level);
-        if (direction is not (WreckedShipTreadmillDirection.Rightwards or WreckedShipTreadmillDirection.Leftwards))
-            throw new ArgumentOutOfRangeException(nameof(direction), direction, "Unknown Wrecked Ship treadmill direction.");
 
         Position16<RoomBlocks> origin = level.GridBlock(
             new(WreckedShipTreadmillBlockDefinitions.BlockX, WreckedShipTreadmillBlockDefinitions.BlockY));

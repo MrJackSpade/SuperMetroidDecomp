@@ -24,8 +24,7 @@ internal static class IntroProjectileArtworkVerification
         intro.SetupMotherBrainFlashback((intro.CurrentNarration ?? throw new InvalidOperationException("The check runs the intro once its pages have begun.")));
         var projectiles = intro.flashbackProjectiles;
         var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
-        game.Session.Show(intro);
-        game.Session.Enter(SuperMetroidGameState.IntroCinematic);
+        game.Session.Enter(new IntroCinematicGamePhase(game.Session, intro));
         game.BindArtwork(game.Artwork with { SpriteSheets = InstalledFixtures.SpriteSheets });
         SamusColouredDraw Shown(IntroCinematicState scene, SpriteSourceKind kind) =>
             scene.PrepareMotherBrainSprites().Draws.OfType<SamusColouredDraw>().Single(draw => draw.Source.Kind == kind);

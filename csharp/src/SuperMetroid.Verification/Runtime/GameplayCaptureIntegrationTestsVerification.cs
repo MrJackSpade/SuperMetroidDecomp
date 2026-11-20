@@ -88,11 +88,11 @@ internal static class GameplayCaptureIntegrationTestsVerification
             game.GameplayRuntimeForVerification.FrameBoundary.BeginAcceptedFrame(0);
         }
         bool sawPause = false;
-        var fadeFrames = new Dictionary<PauseStep, int>
+        var fadeFrames = new Dictionary<object, int>
         {
             [PauseStep.DarkeningGameplay] = 0,
-            [PauseStep.FadingIn] = 0,
-            [PauseStep.FadingOut] = 0,
+            [PauseMenuStep.FadingIn] = 0,
+            [PauseMenuStep.FadingOut] = 0,
             [PauseStep.BrighteningGameplay] = 0,
         };
         // The cartridge fade counter adds a hold frame for each brightness step.
@@ -100,12 +100,12 @@ internal static class GameplayCaptureIntegrationTestsVerification
         // truncated 15-frame fade that happened to finish inside 160 frames.
         for (int tick = 0; tick < 180; tick++)
         {
-            if (legacy.GameState == SuperMetroidGameState.Pause && fadeFrames.ContainsKey(legacy.Session.PauseStep)) fadeFrames[legacy.Session.PauseStep]++;
+            if (legacy.GameState == SuperMetroidGameState.Pause && fadeFrames.ContainsKey(legacy.Session.CurrentStep)) fadeFrames[legacy.Session.CurrentStep]++;
             ControllerButton input = tick is 10 or >= 100 and <= 105 ? ControllerButton.Start : 0;
             FrontendFrame reference = legacy.Step(input);
             CapturedFrontendFrame actual = packets.StepCaptured(input);
             Compare(reference, actual);
-            sawPause |= legacy.IsAt(PauseStep.FadingIn) || legacy.IsAt(PauseStep.Menu);
+            sawPause |= legacy.IsAt(PauseMenuStep.FadingIn) || legacy.IsAt(PauseMenuStep.Menu);
             AssertEqual(legacy.GameplaySamusX, packets.GameplaySamusX, "capture preserves Samus X");
             AssertEqual(legacy.GameplaySamusY, packets.GameplaySamusY, "capture preserves Samus Y");
             AssertEqual(legacy.GameplaySamusPose, packets.GameplaySamusPose, "capture preserves pose");

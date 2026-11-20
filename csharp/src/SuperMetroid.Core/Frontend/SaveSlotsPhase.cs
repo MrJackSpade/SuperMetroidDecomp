@@ -70,7 +70,7 @@ internal sealed class SaveSlotsPhase(FrontendSession session, FileSelectMenuStat
             {
                 StartupRoute = optionSlot?.StartupRoute ?? SaveStartupRoute.OpeningCinematic,
             };
-            session.Enter(new GameOptionsPhase(session, options));
+            session.Enter(new GameOptionsMenuPhase(session, options));
             session.display.PublishMenu(options);
         }
     }

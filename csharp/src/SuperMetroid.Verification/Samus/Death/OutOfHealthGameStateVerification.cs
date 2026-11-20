@@ -59,7 +59,7 @@ internal static class OutOfHealthGameStateVerification
         AssertEqual(beforePause, runtime.GameTime.Reading, "the out-of-health check returns before counting the play time");
 
         int updates = 0;
-        while (!game.IsAt(PauseStep.Menu))
+        while (!game.IsAt(PauseMenuStep.Menu))
         {
             game.Step(0);
             AssertEqual(SuperMetroidGameState.Pause, game.GameState, "the pause's darkening and screens do not kill Samus out of health");
@@ -67,7 +67,7 @@ internal static class OutOfHealthGameStateVerification
             AssertTrue(++updates < 200, $"the pause reaches its menu; reached {game.Session.PauseStep}");
         }
         // Start, held through the pause screen's repeat delay, unpauses.
-        while (game.IsAt(PauseStep.Menu))
+        while (game.IsAt(PauseMenuStep.Menu))
         {
             game.Step(ControllerButton.Start);
             AssertTrue(++updates < 200, "held Start unpauses");

@@ -121,7 +121,7 @@ internal static class AttractCaptureTestsVerification
             FrontendFrame expected = legacy.Step(input);
             CapturedFrontendFrame actual = captured.StepCaptured(input);
             if (legacy.GameState == SuperMetroidGameState.AttractDemo)
-                states.Add(legacy.Session.AttractDemoStep);
+                states.Add((AttractDemoStep)legacy.Session.CurrentStep);
             AssertEqual(expected.GameState, actual.Frame.GameState, "demo capture state");
             AssertSequenceEqual(expected.Audio.Events, actual.Frame.Audio.Events, "demo capture audio event order");
             bool demo = expected.GameState == SuperMetroidGameState.AttractDemo;

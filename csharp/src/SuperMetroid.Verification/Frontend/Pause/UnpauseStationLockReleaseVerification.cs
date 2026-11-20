@@ -37,12 +37,11 @@ internal static class UnpauseStationLockReleaseVerification
         var pause = CreateRetailPauseFixture(new PauseMenuEntry { ScreenContent = global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps, SpriteSheets = global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SpriteSheets, Audio = AudioQueues.Standalone(), Samus = samus, System = runtime.System, Area = AreaId.Crateria, RoomMapPosition = new(0, 1), GameplayHud = runtime.AcceptedHud, MapRevealMode = global::SuperMetroid.Core.Map.MapRevealMode.None });
         EnterPauseEquipment(pause);
         game.AdoptRuntime(runtime);
-        game.Session.Show(pause);
-        game.Session.Enter(PauseStep.Menu);
+        game.Session.Enter(PauseMenuStep.Menu, pause);
 
-        for (int frame = 0; frame < 8 && game.IsAt(PauseStep.Menu); frame++)
+        for (int frame = 0; frame < 8 && game.IsAt(PauseMenuStep.Menu); frame++)
             game.StepCaptured(ControllerButton.Start);
-        AssertTrue(game.IsAt(PauseStep.FadingOut), "Start closes the menu");
+        AssertTrue(game.IsAt(PauseMenuStep.FadingOut), "Start closes the menu");
         AssertTrue(samus.Control.InputLocked && samus.Control.Mode.Movement == SamusMovementMode.RefillStation, "the station lock holds through the fade");
         while (!game.IsAt(PauseStep.BrighteningGameplay))
             game.StepCaptured(0);

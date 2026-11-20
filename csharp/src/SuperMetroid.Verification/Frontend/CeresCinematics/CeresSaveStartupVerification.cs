@@ -58,9 +58,8 @@ internal static class CeresSaveStartupVerification
         });
         var options = new GameOptionsMenuState(AudioQueues.Standalone(), screenContent: maps, spriteSheets: MenuSheetFixtures.For(maps), controllerBindings: SuperMetroid.Core.Input.ControllerBindings.Default, iconCancelEnabled: false, moonwalkEnabled: false, japaneseText: false);
         options.SkipToPhase(GameOptionsPhase.StartGame);
-        game.Session.Show(options);
         game.Session.ContinueSavedGame();
-        game.Session.Enter(FileSelectStep.Options);
+        game.Session.Enter(new GameOptionsMenuPhase(game.Session, options));
         byte[] savedBefore = SaveRamCodec.Encode(saves, RetailPresentationFixture());
         game.Step(0);
         AssertTrue(game.IsAt(CeresDestructionOutcome.SamusEscaped),
@@ -119,9 +118,8 @@ internal static class CeresSaveStartupVerification
         });
         var reloadOptions = new GameOptionsMenuState(AudioQueues.Standalone(), screenContent: maps, spriteSheets: MenuSheetFixtures.For(maps), controllerBindings: SuperMetroid.Core.Input.ControllerBindings.Default, iconCancelEnabled: false, moonwalkEnabled: false, japaneseText: false);
         reloadOptions.SkipToPhase(GameOptionsPhase.StartGame);
-        reload.Session.Show(reloadOptions);
         reload.Session.ContinueSavedGame();
-        reload.Session.Enter(FileSelectStep.Options);
+        reload.Session.Enter(new GameOptionsMenuPhase(reload.Session, reloadOptions));
         reload.Step(0);
         AssertTrue(reload.IsAt(GameDataLoadRoute.SelectedGame),
             "#1153 mode $1F dispatches Ceres initialization directly");
@@ -148,9 +146,8 @@ internal static class CeresSaveStartupVerification
         });
         var probeOptions = new GameOptionsMenuState(AudioQueues.Standalone(), screenContent: maps, spriteSheets: MenuSheetFixtures.For(maps), controllerBindings: SuperMetroid.Core.Input.ControllerBindings.Default, iconCancelEnabled: false, moonwalkEnabled: false, japaneseText: false);
         probeOptions.SkipToPhase(GameOptionsPhase.StartGame);
-        gameOverProbe.Session.Show(probeOptions);
         gameOverProbe.Session.ContinueSavedGame();
-        gameOverProbe.Session.Enter(FileSelectStep.Options);
+        gameOverProbe.Session.Enter(new GameOptionsMenuPhase(gameOverProbe.Session, probeOptions));
         gameOverProbe.Step(0);
         for (int wait = 0; wait < 256 && gameOverProbe.IsAt(GameDataLoadRoute.SelectedGame); wait++)
             gameOverProbe.Step(0);
@@ -214,9 +211,8 @@ internal static class CeresSaveStartupVerification
         });
         var oldOptions = new GameOptionsMenuState(AudioQueues.Standalone(), screenContent: maps, spriteSheets: MenuSheetFixtures.For(maps), controllerBindings: SuperMetroid.Core.Input.ControllerBindings.Default, iconCancelEnabled: false, moonwalkEnabled: false, japaneseText: false);
         oldOptions.SkipToPhase(GameOptionsPhase.StartGame);
-        unmodified.Session.Show(oldOptions);
         unmodified.Session.ContinueSavedGame();
-        unmodified.Session.Enter(FileSelectStep.Options);
+        unmodified.Session.Enter(new GameOptionsMenuPhase(unmodified.Session, oldOptions));
         unmodified.Step(0);
         AssertTrue(unmodified.IsAt(FileSelectStep.AreaMap),
             "#1153 mode $05 is not reinterpreted using an inferred compatibility rule");

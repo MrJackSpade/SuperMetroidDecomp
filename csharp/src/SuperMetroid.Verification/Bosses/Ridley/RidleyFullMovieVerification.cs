@@ -289,16 +289,25 @@ internal static class RidleyFullMovieVerification
         game.AdoptRuntime(runtime);
         // The recorded pause enters an already-running room HDMA callback.
         runtime.RoomFxOverlay.AdvanceLiquidMotion(runtime.System, false);
-        foreach (var step in new[] { PauseStep.PreparingPauseScreen, PauseStep.FadingIn,
-            PauseStep.Menu, PauseStep.FadingOut, PauseStep.RestoringGameplay,
-            PauseStep.DarkeningGameplay, PauseStep.BrighteningGameplay })
+        // The pause screen's steps show a pause screen, which the check builds as the preparation does.
+        var menu = CreateRetailPauseFixture(new PauseMenuEntry { ScreenContent = global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps, SpriteSheets = global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SpriteSheets, Audio = AudioQueues.Standalone(), Samus = runtime.Player.Samus, System = runtime.System, Area = AreaId.Norfair, RoomMapPosition = new(0, 1), GameplayHud = runtime.AcceptedHud, MapRevealMode = global::SuperMetroid.Core.Map.MapRevealMode.None });
+        foreach ((object step, Action enter) in new (object, Action)[]
+        {
+            (PauseStep.PreparingPauseScreen, () => game.Session.Enter(PauseStep.PreparingPauseScreen)),
+            (PauseMenuStep.FadingIn, () => game.Session.Enter(PauseMenuStep.FadingIn, menu)),
+            (PauseMenuStep.Menu, () => game.Session.Enter(PauseMenuStep.Menu, menu)),
+            (PauseMenuStep.FadingOut, () => game.Session.Enter(PauseMenuStep.FadingOut, menu)),
+            (PauseStep.RestoringGameplay, () => game.Session.Enter(PauseStep.RestoringGameplay)),
+            (PauseStep.DarkeningGameplay, () => game.Session.Enter(PauseStep.DarkeningGameplay)),
+            (PauseStep.BrighteningGameplay, () => game.Session.Enter(PauseStep.BrighteningGameplay)),
+        })
         {
             runtime.System.SetRandomNumber(0x117d);
-            game.Session.Enter(step);
+            enter();
             game.AdvanceMenuRandom();
             bool gameplayOwnsRandom = step is PauseStep.DarkeningGameplay or PauseStep.BrighteningGameplay;
             ushort expected = gameplayOwnsRandom ? (ushort)0x117d :
-                step == PauseStep.PreparingPauseScreen ? (ushort)0x7266 : (ushort)0x5882;
+                step is PauseStep.PreparingPauseScreen ? (ushort)0x7266 : (ushort)0x5882;
             AssertEqual(expected, runtime.System.RandomNumber,
                 "pause entry runs lava HDMA before RNG; paused dispatches advance once; gameplay fades retain runtime ownership");
         }
@@ -696,22 +705,22 @@ internal static class RidleyFullMovieVerification
         var maps = game.Session.Artwork.ScreenContent;
         RgbColor[] initial = PauseShownColours.Of(pause, maps);
         int fadeFrames = 0;
-        while (game.IsAt(PauseStep.FadingIn) && fadeFrames++ < 32)
+        while (game.IsAt(PauseMenuStep.FadingIn) && fadeFrames++ < 32)
         {
             game.Step(0);
             AssertTrue(PauseShownColours.Of(pause, maps).SequenceEqual(initial), "pause fade-in retains all palette colors");
         }
-        AssertTrue(game.IsAt(PauseStep.Menu), "pause fade-in completes");
+        AssertTrue(game.IsAt(PauseMenuStep.Menu), "pause fade-in completes");
         AssertEqual(SuperMetroid.Core.Assets.PictureShading.Shaded(SuperMetroid.Core.Frontend.Map.Artwork.MapSpriteShades.Highlight(SuperMetroid.Core.Frontend.Map.Artwork.MapHighlightFrameConstants.First)),
             pause.mapHighlight.Shading, "before the highlight cycle's first step the pause arrows show the cycle's frame zero");
         game.Step(0);
         AssertEqual(SuperMetroid.Core.Assets.PictureShading.Shaded(SuperMetroid.Core.Frontend.Map.Artwork.MapSpriteShades.Highlight(SuperMetroid.Core.Frontend.Map.Artwork.MapHighlightFrame.At(1))),
             pause.mapHighlight.Shading, "the first stable pause step shows the highlight cycle's frame one");
         RgbColor[] animated = PauseShownColours.Of(pause, maps);
-        game.Session.Enter(PauseStep.FadingOut);
+        game.Session.Enter(PauseMenuStep.FadingOut, pause);
         game.Session.BeginPauseFade(15);
         fadeFrames = 0;
-        while (game.IsAt(PauseStep.FadingOut) && fadeFrames++ < 32)
+        while (game.IsAt(PauseMenuStep.FadingOut) && fadeFrames++ < 32)
         {
             game.Step(0);
             AssertTrue(PauseShownColours.Of(pause, maps).SequenceEqual(animated), "unpause fade-out retains the last palette phase");

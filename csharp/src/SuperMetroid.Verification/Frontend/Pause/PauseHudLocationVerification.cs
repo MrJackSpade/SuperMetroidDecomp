@@ -48,8 +48,7 @@ internal static class PauseHudLocationVerification
             int inks = ((center >> 10) & 7) * 4;
             RgbColor[] centerColors = [.. Enumerable.Range(inks + 1, 3).Select(color => RgbColor.FromWord(checked(RomDataReader.ReadWordFixedBank(cart, 0xb6f000 + color * 2))))];
             game.AdoptRuntime(runtime);
-            game.Session.Show(pause);
-            game.Session.Enter(PauseStep.Menu);
+            game.Session.Enter(PauseMenuStep.Menu, pause);
             for (int frame = 0; frame < 24; frame++)
             {
                 game.StepCaptured(0);

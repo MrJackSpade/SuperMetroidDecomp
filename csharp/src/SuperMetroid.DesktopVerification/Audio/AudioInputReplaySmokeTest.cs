@@ -216,7 +216,7 @@ public static class AudioInputReplaySmokeTest
                     pause.RecordEvents(frameIndex, frame.GameState, events);
                 if (pauseOwned)
                     pause.PauseOwnedFrames++;
-                if (game.IsAt(PauseStep.Menu))
+                if (game.IsAt(PauseMenuStep.Menu))
                     pause.AddPausedFrame(samples);
 
                 if (!pauseOwned && frame.GameState == SuperMetroidGameState.MainGameplay)

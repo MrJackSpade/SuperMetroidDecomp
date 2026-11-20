@@ -552,8 +552,7 @@ internal static class SaveSchemaTranslationVerification
         PrivateState.Set(ending, nameof(EndingCreditsState.Scene), new EndingLogoScene(new EndingLogo(ending.Stage, () => { })));
         PrivateState.Set(ending, nameof(EndingCreditsState.Phase), EndingCreditsPhase.ItemPercentageScrollDown);
         PrivateState.Set(ending, nameof(EndingCreditsState.PhaseHold), UpdateCountdown.Lasting(1));
-        frontend.Session.Show(ending);
-        frontend.Session.Enter(EndingStep.Credits);
+        frontend.Session.Enter(new EndingCreditsGamePhase(frontend.Session, ending));
         int writes = 0;
         frontend.SavesChanged += () => writes++;
         frontend.Step(0);

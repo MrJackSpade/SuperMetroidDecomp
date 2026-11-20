@@ -86,7 +86,7 @@ public static class PauseAudioSmokeTest
         // Establish ordinary room music before measuring the exact pause sequence.
         for (int index = 0; index < 120; index++) frame = Step(0);
         frame = Step(ControllerButton.Start);
-        frame = StepUntil(frame, candidate => game.IsAt(PauseStep.Menu), 128);
+        frame = StepUntil(frame, candidate => game.IsAt(PauseMenuStep.Menu), 128);
         for (int index = 0; index < 120; index++) frame = Step(0);
         frame = Step(ControllerButton.Right);
         frame = Step(0);

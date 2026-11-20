@@ -465,7 +465,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             // Gameplay holds no colour image (#1512): its pictures show the import's colours under the shadings it publishes.
             ReadOnlySpan<RgbColor> comparedPalette = GameplayShownColours.Of(runtime, InstalledFixtures.SamusShadeSources);
             IEnumerable<int> comparedColours = GameplayShownColours.ComparedIn(runtime);
-            if (game.IsAt(PauseStep.FadingIn) || game.IsAt(PauseStep.Menu) || game.IsAt(PauseStep.FadingOut) || game.IsAt(PauseStep.RestoringGameplay))
+            if (game.IsAt(PauseMenuStep.FadingIn) || game.IsAt(PauseMenuStep.Menu) || game.IsAt(PauseMenuStep.FadingOut) || game.IsAt(PauseStep.RestoringGameplay))
             {
                 // The pause screen holds no colours; its pictures show the import's colours under the shadings it names (#1512).
                 PauseMenuState menu = game.Session.ScreenAs<PauseMenuState>() ?? throw new InvalidDataException("Native pause palette requires the active pause menu.");

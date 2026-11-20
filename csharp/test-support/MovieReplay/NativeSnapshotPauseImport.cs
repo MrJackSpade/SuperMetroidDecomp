@@ -26,7 +26,7 @@ internal static class NativeSnapshotPauseImport
     internal static void ImportNativePauseMenu(SuperMetroidGame game, SuperMetroidRuntime runtime,
         Func<int, ushort> W, byte[] memory)
     {
-        VerificationAssertions.AssertTrue(game.IsAt(PauseStep.Menu) && GameStateNumberCodec.IsAt(game, W(NativeSnapshotMemory.GameState)),
+        VerificationAssertions.AssertTrue(W(NativeSnapshotMemory.GameState) == GameStateNumberCodec.PauseMenuNumber,
             "pause import covers the stable pause menu");
         VerificationAssertions.AssertEqual((ushort)0, W(PauseMemory.MenuIndex), "imported pause menu is on its map page");
         VerificationAssertions.AssertEqual((ushort)0, W(PauseMemory.ButtonLabelMode), "imported pause menu shows map labels");
@@ -41,7 +41,7 @@ internal static class NativeSnapshotPauseImport
         // update and moves on at zero, one update short of the player's count.
         PrivateState.Field<MapIndicatorPulse, AnimationPlayer<MapIndicatorSegment, MapSpriteId, MapIndicatorCue>>(menu.mapIndicator, "player")
             .ResumeOn(W(PauseMemory.IndicatorAnimationFrame) / 2, W(PauseMemory.IndicatorAnimationTimer) + 1);
-        game.Session.Show(menu);
+        game.Session.Enter(PauseMenuStep.Menu, menu);
         game.Session.screenFade.SetCadence(W(PauseMemory.ScreenFadeDelay), W(PauseMemory.ScreenFadeCounter));
 
         // The native countdown starts at the reset on a change and is pinned to zero once the repeat fires; the port's repeat

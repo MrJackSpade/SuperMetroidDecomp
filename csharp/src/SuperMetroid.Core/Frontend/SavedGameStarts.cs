@@ -66,7 +66,7 @@ internal static class SavedGameStarts
             session.Artwork.SpriteSheets, slot.ControllerBindings,
             slot.IconCancelEnabled, slot.MoonwalkEnabled,
             japaneseText: slot.JapaneseText);
-        session.Enter(new GameOptionsPhase(session, options));
+        session.Enter(new GameOptionsMenuPhase(session, options));
         session.display.PublishMenu(options);
     }
 

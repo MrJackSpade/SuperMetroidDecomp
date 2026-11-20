@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Frontend;
 /// </summary>
 /// <param name="session">The frontend session the step runs against.</param>
 /// <param name="options">The options menu the step shows.</param>
-internal sealed class GameOptionsPhase(FrontendSession session, GameOptionsMenuState options) : IFrontendPhase, IScreenPhase
+internal sealed class GameOptionsMenuPhase(FrontendSession session, GameOptionsMenuState options) : IFrontendPhase, IScreenPhase
 {
     /// <inheritdoc/>
     public SuperMetroidGameState State => SuperMetroidGameState.FileSelect;

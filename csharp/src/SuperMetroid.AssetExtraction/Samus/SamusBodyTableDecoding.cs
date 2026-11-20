@@ -50,8 +50,12 @@ internal static class SamusBodyTableDecoding
     /// each pose's picture frames whose half pictures, placement and compositions the tables hold, by the frame's place
     /// in the game's layout of the pose's animation, and the compositions the explosion and atmosphere sheets show.
     /// </summary>
+    /// <param name="bus">The cartridge.</param>
+    /// <param name="shown">The frames her body can show in each pose and the picture each draws.</param>
+    /// <param name="pictures">Receives the characters each half picture transfers.</param>
     /// <exception cref="InvalidDataException">A table, definition or composition the frames select is invalid.</exception>
-    internal static SamusBodyDecoded Decode(ISnesAddressSpace bus, SamusShownFrames shown)
+    internal static SamusBodyDecoded Decode(ISnesAddressSpace bus, SamusShownFrames shown,
+        out IReadOnlyDictionary<SamusBodyPicture, SamusBodyTileTransfer> pictures)
     {
         Ensure.NotNull(bus);
         Ensure.NotNull(shown);
@@ -71,7 +75,7 @@ internal static class SamusBodyTableDecoding
             ReadBytes(bus, SamusSourceDefinitions.DrainedVerticalOffsets.Value, SamusBodyPlacementSourceDefinitions.DrainedByteCount, signed: true));
 
         var pictureNames = new Dictionary<int, SamusBodyPicture>();
-        var pictures = new Dictionary<SamusBodyPicture, SamusBodyTileTransfer>();
+        var transfers = new Dictionary<SamusBodyPicture, SamusBodyTileTransfer>();
         var compositionNames = new Dictionary<ushort, SamusSpritemapId>();
         var compositions = new Dictionary<SamusSpritemapId, SpriteVisualPart[]>();
         SamusBodyPicture PictureOf(int record, string user)
@@ -80,7 +84,7 @@ internal static class SamusBodyTableDecoding
             {
                 picture = new SamusBodyPicture(user);
                 pictureNames.Add(record, picture);
-                pictures.Add(picture, ReadDefinition(bus, record));
+                transfers.Add(picture, ReadDefinition(bus, record));
             }
             return picture;
         }
@@ -97,7 +101,7 @@ internal static class SamusBodyTableDecoding
             return composition;
         }
 
-        var frames = new Dictionary<SamusPoseId, Dictionary<int, SamusBodyDecodedFrame>>();
+        var frames = new Dictionary<SamusPoseId, IReadOnlyDictionary<int, SamusBodyDecodedFrame>>();
         foreach (SamusPoseId pose in SamusPoseIdKeys.ListedOrder.Where(SamusPoseNumbers.RecordedPoses.Contains))
         {
             int number = SamusPoseNumbers.Number(pose);
@@ -152,9 +156,10 @@ internal static class SamusBodyTableDecoding
         }
         AddAtmosphere(SamusAtmosphereSheetDefinitions.DivingSplash, DivingSplashFirstEntry);
         AddAtmosphere(SamusAtmosphereSheetDefinitions.Bubbles, BubblesFirstEntry);
+        pictures = transfers;
         return new SamusBodyDecoded(
             SamusPoseNumbers.RecordedPoses.ToDictionary(pose => pose, pose => placements[pose].ArtOrigin),
-            frames, pictures, compositions, explosion, atmosphere);
+            frames, compositions, explosion, atmosphere);
     }
 
     /// <summary>Whether the spritemap table holds an entry for the frame <paramref name="frame"/> places after <paramref name="first"/>.</summary>

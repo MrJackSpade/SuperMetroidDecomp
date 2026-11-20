@@ -247,6 +247,9 @@ internal static class RoomBlockSheetComposer
         // Adds a picture of block `block` for each assignment of values to the inputs `candidates` give the runs of characters
         // `runs` it reads, over what `over` shows where an input shows the load; returns those inputs. A block one of whose
         // runs shows nothing for an assignment is not pictured for it.
+        // A block's number is its place in the tileset's own authored block list, which every installed level document
+        // references the block by, as an animation frame's place in its own animation names the frame (owner ruling on
+        // #2556): the block's pictures are named by it.
         ImmutableArray<AppearanceInput> AddBlock(int block, ImmutableArray<RoomBlockCharacterRun> runs, BackgroundTile[] tiles,
             AppearanceOptions candidates, BgArtworkBindings over)
         {

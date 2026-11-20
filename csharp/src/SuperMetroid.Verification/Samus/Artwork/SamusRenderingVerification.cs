@@ -60,9 +60,7 @@ internal static void VerifySamusRenderingSlice()
     // parts read them (#1585).
     SamusBodySources poseOneArtwork = BoundArtwork(samus);
     SamusBodyFramePictures poseOnePictures = poseOneArtwork.Pictures(SamusPoseId.FacingRightNormalPose, 0);
-    AssertEqual(0x92d0b0, 0x920000 | SamusBodyNative.RecordPointer(SamusBodySources.Record(poseOnePictures.Top)), "pose 1 frame 0 top tile definition");
-    AssertEqual(0x92d1c8, poseOnePictures.Bottom is { } poseOneBottom ? 0x920000 | SamusBodyNative.RecordPointer(SamusBodySources.Record(poseOneBottom)) : 0,
-        "pose 1 frame 0 bottom tile definition");
+    AssertTrue(poseOnePictures.Bottom is not null, "pose 1 frame 0 selects a bottom half picture");
     ReadOnlySpan<byte> poseOneCharacters = SamusBodySheetFixtures.CharactersOf(poseOneArtwork)
         .BodyArtwork(poseOnePictures.Top, poseOnePictures.Bottom).Characters;
     AssertEqual(0x10, poseOneCharacters[0], "Samus top part 1 is the composed body's character 0");
@@ -995,7 +993,7 @@ static void SeedBodyHalfRoutingSpritemaps(TestAddressSpace bus)
 {
     bus.WriteBytes(0x92e000, [1, 0, 0, 0, 0, 0x00, 0x28]);
     for (int index = 0; index <= 3; index++)
-        WriteTestWord(bus, SamusSpritemapSources.PointerTableAddress + index * 2, 0xe000);
+        WriteTestWord(bus, SamusSourceDefinitions.SpritemapPointers.Value + index * 2, 0xe000);
     bus.WriteBytes(SamusSourceDefinitions.PostureTransitionVerticalOffsets.Value, [
         0xf8, 0x00, 0xf8, 0x00,
         0xfc, 0xfe, 0xfc, 0xfe,

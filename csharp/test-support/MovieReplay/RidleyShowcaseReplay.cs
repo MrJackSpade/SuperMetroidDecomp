@@ -131,7 +131,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             : throw new InvalidOperationException("Verification requires the installation's Samus body artwork.");
         SamusBodyComposition? Drawn() => samus.Presentation.DrawnFrame is { } picture
             ? SamusBodyCompositions.Of(picture.Pose, SamusAnimationNumbers.Number(picture.Pose, picture.PictureFrame), BodyArtwork()) : null;
-        int SpritemapIndex(SamusBodyHalfFrame? drawn) => SamusSpritemapNative.Index(BodyArtwork().Spritemaps, drawn);
+        int SpritemapIndex(SamusBodyHalfFrame? drawn) => SamusSpritemapNative.Index(drawn);
         BodyRecordResult BodyRecord() =>
             new BodyRecordResult(SpritemapIndex(Drawn()?.Top), SpritemapIndex(Drawn()?.Bottom),
                 unchecked((ushort)samus.Presentation.DrawOrigin.X), unchecked((ushort)samus.Presentation.DrawOrigin.Y));

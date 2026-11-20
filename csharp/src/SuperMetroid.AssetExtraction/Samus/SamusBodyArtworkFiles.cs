@@ -86,10 +86,10 @@ public static class SamusBodyArtworkFiles
         // The import decides once which frames her body can show and which body frames the sheet pictures, from the frames
         // her animation shows as the game's layout of the programs reads them; the tables are decoded for those frames.
         SamusShownFrames shown = new SamusShownFrameAnalysis(SamusAnimationLayout.Read(CartridgeImportSource.Require(bus))).Installed();
-        SamusBodyDecoded decoded = SamusBodyTableDecoding.Decode(bus, shown);
+        SamusBodyDecoded decoded = SamusBodyTableDecoding.Decode(bus, shown, out IReadOnlyDictionary<SamusBodyPicture, SamusBodyTileTransfer> transfers);
         var hashes = new Dictionary<string, string>(StringComparer.Ordinal);
         var pictures = new Dictionary<string, PictureEntry>(StringComparer.Ordinal);
-        foreach ((SamusBodyPicture picture, SamusBodyTileTransfer transfer) in decoded.Pictures)
+        foreach ((SamusBodyPicture picture, SamusBodyTileTransfer transfer) in transfers)
         {
             byte[] planar = new byte[SamusBodyCharacterArtwork.BytesPerDefinitionSlot];
             transfer.Planar.Span.CopyTo(planar);
@@ -218,7 +218,6 @@ public static class SamusBodyArtworkFiles
     /// <exception cref="InvalidDataException">A frame name names no frame of its pose's animation, or two name one frame.</exception>
     private static SamusBodyArtworkParts Parts(string directory, string importData, Manifest manifest)
     {
-        var halves = new Dictionary<SamusBodyHalfFrame, SamusSpritemapId?>();
         var frames = new Dictionary<SamusPoseId, IReadOnlyDictionary<int, SamusBodyDecodedFrame>>();
         foreach ((SamusPoseId pose, Dictionary<string, FrameEntry> entries) in manifest.Poses)
         {
@@ -231,21 +230,15 @@ public static class SamusBodyArtworkFiles
                 if (!decoded.TryAdd(frame, new SamusBodyDecodedFrame(new SamusBodyFramePictures(new SamusBodyPicture(entry.Top),
                         entry.Bottom is { } lower ? new SamusBodyPicture(lower) : null), entry.OriginRise, top, bottom)))
                     throw new InvalidDataException($"Samus body frame {name} of {pose} names a frame another name names.");
-                halves.Add(new SamusBodyHalfFrame(pose, SamusBodyHalf.Top, frame), top);
-                halves.Add(new SamusBodyHalfFrame(pose, SamusBodyHalf.Bottom, frame), bottom);
             }
             frames.Add(pose, decoded);
         }
-        var spritemaps = new SamusSpritemapSources(
-            manifest.Compositions.ToDictionary(pair => new SamusSpritemapId(pair.Key), pair => new SamusSpritemapDefinition(
-                [.. pair.Value.Select(part => part.ToSpritePart(SpriteArtwork.CharactersPerRow))])),
-            halves,
+        var decodedBody = new SamusBodyDecoded(manifest.ArtOrigins, frames,
+            manifest.Compositions.ToDictionary(pair => new SamusSpritemapId(pair.Key), pair => pair.Value),
             manifest.Explosion.ToDictionary(pair => pair.Key, pair => Composition(pair.Value), StringComparer.Ordinal),
             manifest.Atmosphere.ToDictionary(pair => pair.Key, pair => Composition(pair.Value), StringComparer.Ordinal));
-        SamusAtmosphericSourceArtwork atmosphere = SamusAtmosphericArtworkFiles.Load(importData);
-        SuperMetroid.Core.Samus.Death.SamusDeathSteps deathSteps = SamusDeathPaletteArtworkFiles.LoadSteps(directory);
-        SamusArmCannonSourceArtwork armCannon = SamusArmCannonArtworkFiles.LoadForImport(importData);
-        return new SamusBodyArtworkParts { ArtOrigins = manifest.ArtOrigins, Frames = frames, Spritemaps = spritemaps, Atmosphere = atmosphere, DeathSteps = deathSteps, ArmCannon = armCannon };
+        return decodedBody.Parts(SamusAtmosphericArtworkFiles.Load(importData), SamusDeathPaletteArtworkFiles.LoadSteps(directory),
+            SamusArmCannonArtworkFiles.LoadForImport(importData));
 
         static SamusSpritemapId? Composition(string? name) => name is null ? null : new SamusSpritemapId(name);
     }

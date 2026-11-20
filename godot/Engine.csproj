@@ -7,4 +7,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
+  <ItemGroup>
+    <!-- System.Threading has a Barrier of its own; the engine's Barrier is the one meant everywhere in this project. -->
+    <Using Remove="System.Threading" />
+    <Using Remove="System.Threading.Tasks" />
+  </ItemGroup>
 </Project>

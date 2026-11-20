@@ -12,8 +12,14 @@ namespace Engine.Actors;
 /// frozen, dying, dropping a pickup, hurting the player on contact, and being stepped by its room. A particular enemy
 /// adds only its own behaviour. A boss is an enemy too: one scene, its parts child nodes with their own hurtboxes.
 /// </summary>
-public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, IHasValues
+public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, IHasValues, Movement.IMoves
 {
+    /// <inheritdoc/>
+    Collider Movement.IMoves.MovingBody => RequireBody();
+
+    /// <inheritdoc/>
+    public override void _ValidateProperty(Godot.Collections.Dictionary property) => DataValues.Validate(this, property);
+
     /// <summary>The name of the status in which an enemy is stopped and can be stood on.</summary>
     public const string Frozen = "frozen";
 
@@ -68,6 +74,15 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     /// <summary>Whether it has been destroyed.</summary>
     public bool IsDead { get; private set; }
 
+    /// <summary>Whether it is asleep: it neither behaves, nor can be hit, nor hurts on contact, until it is woken.</summary>
+    public bool IsAsleep { get; private set; }
+
+    /// <summary>Puts the enemy to sleep, as a boss is before its fight begins.</summary>
+    public void Sleep() => IsAsleep = true;
+
+    /// <summary>Wakes the enemy.</summary>
+    public void Wake() => IsAsleep = false;
+
     /// <summary>Whether it was hurt in this update, for a flash.</summary>
     public bool WasJustHurt { get; private set; }
 
@@ -113,6 +128,8 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     internal void Step()
     {
         WasJustHurt = false;
+        if (IsAsleep)
+            return;
         _unhittable = _unhittable.Stepped();
         if (Status.Length > 0)
         {
@@ -133,7 +150,7 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     protected abstract void Behave();
 
     /// <inheritdoc/>
-    public bool IsHitBy(HitSide side) => side != HitSide.Enemies && !IsDead;
+    public bool IsHitBy(HitSide side) => side != HitSide.Enemies && !IsDead && !IsAsleep;
 
     /// <inheritdoc/>
     public HitResult TakeHit(Hit hit, Collider part)

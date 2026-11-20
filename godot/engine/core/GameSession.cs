@@ -57,6 +57,33 @@ public sealed class GameSession
     /// <summary>The node modes and rooms are shown under.</summary>
     public Node Host => _host;
 
+    /// <summary>The messages asked for and not yet shown, by name, in the order they were asked for.</summary>
+    private readonly Queue<string> _messages = new();
+
+    /// <summary>Asks for a message to be shown. The mode in control shows it.</summary>
+    public void RequestMessage(string message)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(message);
+        _messages.Enqueue(message);
+    }
+
+    /// <summary>Takes the next message waiting to be shown, or null when none is.</summary>
+    public string? TakeMessage() => _messages.Count > 0 ? _messages.Dequeue() : null;
+
+    /// <summary>Where the game was last asked to be saved: the room's scene and the entry point in it. Null until it is asked.</summary>
+    public (string Room, string EntryPoint)? SaveRequested { get; private set; }
+
+    /// <summary>Asks for the game to be saved, to resume in <paramref name="room"/> at <paramref name="entryPoint"/>.</summary>
+    public void RequestSave(string room, string entryPoint) => SaveRequested = (room, entryPoint);
+
+    /// <summary>Takes the request to save, if there is one.</summary>
+    public (string Room, string EntryPoint)? TakeSaveRequest()
+    {
+        (string, string)? request = SaveRequested;
+        SaveRequested = null;
+        return request;
+    }
+
     /// <summary>The count of updates played.</summary>
     public GameClock Clock { get; } = new();
 

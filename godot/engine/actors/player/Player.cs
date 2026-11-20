@@ -147,6 +147,7 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     private GameInput _input = GameInput.None;
     private Countdown _invincible = Countdown.Over;
     private int _ongoingHundredths;
+    private int _addedOngoing;
     private bool _valuesLoaded;
     private readonly Dictionary<string, IReadOnlyList<string>> _ongoingCancelledBy = new(StringComparer.Ordinal);
     private readonly List<BodyPower> _bodyPowers = [];
@@ -239,6 +240,18 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
             int y = down < 0 ? -height : down > 0 ? 0 : -(height * 2 / 3);
             return Position + PixelOffset.FromWhole(across * HalfWidth, y);
         }
+    }
+
+    /// <summary>
+    /// Adds to the ongoing damage the player takes this update, from something that is touching them. It is taken with
+    /// the room's own, unless the player's equipment cancels its source.
+    /// </summary>
+    public void AddOngoingDamage(string source, int hundredths)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(source);
+        ArgumentOutOfRangeException.ThrowIfNegative(hundredths);
+        if (!IsCancelled(source))
+            _addedOngoing += hundredths;
     }
 
     /// <summary>Gives the player a body power, not yet active.</summary>
@@ -525,7 +538,8 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     /// </summary>
     private void TakeOngoingDamage()
     {
-        int hundredths = 0;
+        int hundredths = _addedOngoing;
+        _addedOngoing = 0;
         var middle = new PixelPosition(Position.X, Position.Y - Pixels.FromWhole(HeightOf(Form) / 2));
         foreach ((string source, int amount) in Room.OngoingDamageAt(middle))
         {

@@ -5,6 +5,7 @@ using SuperMetroid.Core.Rooms.Doors;
 namespace SuperMetroid.Core.Enemies.EyeDoor;
 
 /// <summary>Eye door projectile's typed animation.</summary>
+/// <param name="segment">The segment the animation starts at.</param>
 /// <param name="cues">The behaviour that started the animation, which owns its cues.</param>
 internal sealed class EyeDoorProjectileAnimation(EyeDoorProjectileSegment segment, IEnemyProjectileCues<EyeDoorProjectileCue> cues)
     : EnemyProjectileFrameAnimation<EyeDoorProjectileSegment, EyeDoorProjectileCue>(EyeDoorProjectileAnimations.StartingWith(segment), cues)

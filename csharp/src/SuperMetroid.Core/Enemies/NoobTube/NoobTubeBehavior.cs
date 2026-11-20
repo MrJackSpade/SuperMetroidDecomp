@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies.Chozo.Artwork;
@@ -57,15 +58,15 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
         Position16<RoomPixels> place = request.RoomObjectBlock.ToRoomPixels() + piece.Offset;
         // The tube's pieces draw from the shared sheet in the crack colours the room's crack setup installs (#1512). A shard
         // flies from its spawn; the crack and the bubbles hold still until their animations start them.
-        (EnemyProjectileBehavior behavior, EnemyProjectileAnimation animation) = piece.Definition switch
+        SpawnedPiece spawned = piece.Definition switch
         {
             NoobTubeProjectileDefinition.Crack => Crack(new CrackBehavior(new NoobTubeCrackState())),
             NoobTubeProjectileDefinition.Shard => Debris(new DebrisBehavior(_room, new NoobTubeDebrisState(place.X), DebrisStart(piece), NoobTubePieceMotion.ShardFlying)),
             NoobTubeProjectileDefinition.ReleasedAirBubble => Debris(new DebrisBehavior(_room, new NoobTubeDebrisState(place.X), DebrisStart(piece), initial: null)),
             _ => throw new InvalidDataException($"N00b-tube setup lost projectile definition {piece.Definition}."),
         };
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, behavior, graphics: TubePieceGraphics);
-        projectile.StartAnimation(animation);
+        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, spawned.Behavior, graphics: TubePieceGraphics);
+        projectile.StartAnimation(spawned.Animation);
         switch (piece.Definition)
         {
             case NoobTubeProjectileDefinition.Crack:
@@ -91,10 +92,15 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
     }
 
     /// <summary>The crack's behaviour and the animation it starts with, whose cues it owns.</summary>
-    private static (EnemyProjectileBehavior, EnemyProjectileAnimation) Crack(CrackBehavior crack) => (crack, new NoobTubeCrackAnimation(crack));
+    private static SpawnedPiece Crack(CrackBehavior crack) => new(crack, new NoobTubeCrackAnimation(crack));
 
     /// <summary>A shard's or bubble's behaviour and the animation it plays, whose cues it owns.</summary>
-    private static (EnemyProjectileBehavior, EnemyProjectileAnimation) Debris(DebrisBehavior debris) => (debris, debris.Animation);
+    private static SpawnedPiece Debris(DebrisBehavior debris) => new(debris, debris.Animation);
+
+    /// <summary>A spawned piece's behaviour and the animation it starts with, whose cues the behaviour owns.</summary>
+    /// <param name="Behavior">The behaviour bound to the piece.</param>
+    /// <param name="Animation">The animation the piece starts with.</param>
+    private sealed record SpawnedPiece(EnemyProjectileBehavior Behavior, EnemyProjectileAnimation Animation);
 
     /// <summary>The animation a shard or bubble starts: a bubble's at its segment, a shard's by the shard (#2044).</summary>
     private static Animation<NoobTubeProjectileSegment> DebrisStart(NoobTubePiece piece) => piece.Start switch

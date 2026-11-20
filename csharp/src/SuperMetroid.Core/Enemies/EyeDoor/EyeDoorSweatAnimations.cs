@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Animation;
-using K = SuperMetroid.Core.Rooms.Doors.EyeDoorSweatCueKind;
 using P = SuperMetroid.Core.Rooms.Doors.EyeDoorSweatSegment;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.Doors;

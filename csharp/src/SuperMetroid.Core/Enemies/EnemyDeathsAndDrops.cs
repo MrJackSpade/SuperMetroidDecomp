@@ -245,23 +245,30 @@ internal sealed class EnemyDeathsAndDrops
         // becomes a pickup in any place for an enemy projectile, the first included. The roll reads the drop's definition
         // straight back from the pickup that holds it.
         EnemyPickupKind kind = SelectRandomEnemyDrop(dropChances, samus);
-        (EnemyProjectileBehavior behavior, IEnemyProjectileBranchingCues<EnemyDeathAndDropSegment, EnemyDeathAndDropCue> cues) = kind == EnemyPickupKind.NoDrop
-            ? Drop(new DormantDropBehavior(this, KilledEnemy.None))
-            : Drop(new PickupBehavior(this, new EnemyPickupState(kind, EnemyPickupDefinitions.Lifetime, KilledEnemy.None)));
+        DropBinding drop = kind == EnemyPickupKind.NoDrop
+            ? DropBinding.Of(new DormantDropBehavior(this, KilledEnemy.None))
+            : DropBinding.Of(new PickupBehavior(this, new EnemyPickupState(kind, EnemyPickupDefinitions.Lifetime, KilledEnemy.None)));
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             pickup,
             RoomEnemyProjectileKind.EnemyDeathPickup,
-            behavior,
+            drop.Behavior,
             graphics: default);
         pickup.Position = pickup.Position.WithWhole(position);
         pickup.StartAnimation(new EnemyDeathAndDropAnimation(kind == EnemyPickupKind.NoDrop
             ? ConfigureDormantPickup(pickup)
-            : ConfigurePickup(pickup, kind), cues));
+            : ConfigurePickup(pickup, kind), drop.Cues));
     }
 
-    /// <summary>A drop's behaviour, both as the behaviour bound to it and as the owner of its animations' cues.</summary>
-    private static (EnemyProjectileBehavior, IEnemyProjectileBranchingCues<EnemyDeathAndDropSegment, EnemyDeathAndDropCue>) Drop<TDrop>(TDrop drop)
-        where TDrop : EnemyProjectileBehavior, IEnemyProjectileBranchingCues<EnemyDeathAndDropSegment, EnemyDeathAndDropCue> => (drop, drop);
+    /// <summary>A direct drop's behaviour, both as the behaviour bound to it and as the owner of its animations' cues.</summary>
+    /// <param name="Behavior">The behaviour bound to the drop.</param>
+    /// <param name="Cues">The same behaviour, which owns the drop's animations' cues.</param>
+    private sealed record DropBinding(EnemyProjectileBehavior Behavior, IEnemyProjectileBranchingCues<EnemyDeathAndDropSegment, EnemyDeathAndDropCue> Cues)
+    {
+        /// <summary>The binding of <paramref name="drop"/>.</summary>
+        /// <typeparam name="TDrop">The drop's behaviour.</typeparam>
+        /// <param name="drop">The drop's behaviour.</param>
+        internal static DropBinding Of<TDrop>(TDrop drop)
+            where TDrop : EnemyProjectileBehavior, IEnemyProjectileBranchingCues<EnemyDeathAndDropSegment, EnemyDeathAndDropCue> => new(drop, drop);
     }
 
     /// <summary>

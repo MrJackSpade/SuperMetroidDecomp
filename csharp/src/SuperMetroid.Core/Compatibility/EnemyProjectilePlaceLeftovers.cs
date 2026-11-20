@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Enemies.Projectiles;
-
 namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
@@ -13,7 +11,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// <remarks>
 /// Taken over from the room before when the room's enemy projectiles are built, before its population loads
 /// (<see cref="TakeOverFrom"/>); consulted by every spawn as it takes a free place (<see cref="StartOf"/>); handed to the
-/// next room at the room load's teardown, from each place (<see cref="EnemyProjectilePlace"/>). The session's first room finds nothing left and
+/// next room at the room load's teardown (<see cref="HandOverTo"/>). The session's first room finds nothing left and
 /// starts every place at rest at the room's origin. Evidence: the original spawn clears a slot's sub-positions and the
 /// values its initializers write, and leaves its whole positions and velocities; deletion clears only the slot's identity,
 /// and room loading deletes every projectile without clearing them. The 13%, 100%, lowc and Ridley movies diverge in
@@ -48,4 +46,16 @@ public sealed class EnemyProjectilePlaceLeftovers
     public EnemyProjectileHandOver StartOf(int place, EnemyProjectileHandOver? leftByLastProjectile) =>
         leftByLastProjectile ?? _fromRoomBefore[place];
 
+
+    /// <summary>Leaves what each place holds for the room that replaces this one.</summary>
+    /// <param name="handOver">What this room leaves for the next.</param>
+    /// <param name="leftByLastProjectiles">What each place's last projectile of this room leaves, in place order; null for a place this room spawned nothing into.</param>
+    public void HandOverTo(RoomHandOver handOver, IReadOnlyList<EnemyProjectileHandOver?> leftByLastProjectiles)
+    {
+        Ensure.NotNull(handOver);
+        Ensure.NotNull(leftByLastProjectiles);
+        if (leftByLastProjectiles.Count != _fromRoomBefore.Length)
+            throw new ArgumentException($"The room has {_fromRoomBefore.Length} enemy-projectile places, not {leftByLastProjectiles.Count}.", nameof(leftByLastProjectiles));
+        handOver.LeaveEnemyProjectiles(Enumerable.Range(0, _fromRoomBefore.Length).Select(place => StartOf(place, leftByLastProjectiles[place])));
+    }
 }

@@ -105,7 +105,7 @@ internal sealed class EnemyProjectileEngine
 
     /// <summary>Leaves what each place's latest projectile left there for the room that replaces this one (<see cref="EnemyProjectilePlaceLeftovers"/>).</summary>
     internal void HandOverTo(RoomHandOver handOver) =>
-        handOver.LeaveEnemyProjectiles(_places.Select(place => place.Left));
+        _leftovers.HandOverTo(handOver, [.. _places.Select(place => place.LeftByLastProjectile)]);
 
     /// <summary>
     /// Queues the dud sound a rejected Samus shot makes, at <paramref name="priority"/>: a protected body part's dud competes at

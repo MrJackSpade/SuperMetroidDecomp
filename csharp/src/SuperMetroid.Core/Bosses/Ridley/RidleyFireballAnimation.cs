@@ -4,6 +4,7 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>A Ridley fireball's or afterburn's typed animation.</summary>
+/// <param name="segment">The segment the animation starts at.</param>
 /// <param name="cues">The behaviour that started the animation, which owns its cues.</param>
 internal sealed class RidleyFireballAnimation(RidleyFireballSegment segment, IEnemyProjectileCues<RidleyFireballCue> cues)
     : EnemyProjectileFrameAnimation<RidleyFireballSegment, RidleyFireballCue>(RidleyFireballAnimations.StartingWith(segment), cues)

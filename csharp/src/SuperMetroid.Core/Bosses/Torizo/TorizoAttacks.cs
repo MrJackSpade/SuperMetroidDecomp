@@ -253,6 +253,7 @@ internal sealed class TorizoAttacks
     /// <param name="audio">The enemy sound queue.</param>
     /// <param name="deathsAndDrops">The drops a broken orb leaves.</param>
     /// <param name="orb">What the orb keeps: the chances of its drops.</param>
+    /// <param name="initial">How the orb moves from its spawn.</param>
     private sealed class OrbBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles, EnemyAudioQueue audio,
         EnemyDeathsAndDrops deathsAndDrops, TorizoChozoOrbState orb, TorizoProjectileMotion initial)
         : TorizoProjectileBehavior(room, projectiles, audio, deathsAndDrops, initial, TorizoProjectileSegment.ChozoOrbShot)
@@ -305,7 +306,8 @@ internal sealed class TorizoAttacks
     /// <param name="audio">The enemy sound queue.</param>
     /// <param name="deathsAndDrops">The room's drops.</param>
     /// <param name="owned">What the projectile keeps: the Torizo it came from.</param>
-    /// <param name="shot">The animation a destroying shot starts, or null for the shared delete animation.</param>
+    /// <param name="initial">How the projectile moves from its spawn.</param>
+    /// <param name="shotSegment">The animation a destroying shot starts, or null for the shared delete animation.</param>
     private sealed class OwnedBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles, EnemyAudioQueue audio,
         EnemyDeathsAndDrops deathsAndDrops, TorizoOwnedProjectileState owned, TorizoProjectileMotion initial, TorizoProjectileSegment? shotSegment = null)
         : TorizoProjectileBehavior(room, projectiles, audio, deathsAndDrops, initial, shotSegment)

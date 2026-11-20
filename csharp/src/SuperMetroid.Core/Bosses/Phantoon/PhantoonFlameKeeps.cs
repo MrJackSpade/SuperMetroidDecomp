@@ -10,6 +10,7 @@ internal abstract record PhantoonFlameKeeps
 
     /// <summary>A rage or spiral flame, which circles the body by <paramref name="State"/>.</summary>
     /// <param name="State">The flame's orbit.</param>
+    /// <param name="Circling">How the flame circles Phantoon's body: an intro, rage or spiral flame's orbit.</param>
     internal sealed record Orbit(PhantoonOrbitingFlameState State, PhantoonFlameMotion Circling) : PhantoonFlameKeeps;
 
     /// <summary>A rain flame, which hangs by <paramref name="State"/> before it falls.</summary>

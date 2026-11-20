@@ -33,10 +33,13 @@ public sealed class EnemyProjectilePlace
     public EnemyProjectile? Occupant => _last is { IsActive: true } live ? live : null;
 
     /// <summary>
-    /// What the place leaves for the next projectile spawned into it, or for the room that replaces this one: where its
-    /// last projectile of this room stands, or what the room before left there while the room has spawned none into it.
+    /// What the place leaves for the next projectile spawned into it: where its last projectile of this room stands, or what
+    /// the room before left there while the room has spawned none into it.
     /// </summary>
-    internal EnemyProjectileHandOver Left => _leftovers.StartOf(Number, _last?.LeftInPlace);
+    internal EnemyProjectileHandOver Left => _leftovers.StartOf(Number, LeftByLastProjectile);
+
+    /// <summary>Where the place's last projectile of this room stands, or none while the room has spawned none into it.</summary>
+    internal EnemyProjectileHandOver? LeftByLastProjectile => _last?.LeftInPlace;
 
     /// <summary>
     /// Spawns a fresh projectile into the free place, starting from what the place keeps; the projectile is gone until its

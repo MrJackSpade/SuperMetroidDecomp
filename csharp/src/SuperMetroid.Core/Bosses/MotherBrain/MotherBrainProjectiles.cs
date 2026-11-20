@@ -53,6 +53,7 @@ internal sealed class MotherBrainProjectiles
 
     /// <summary>A projectile that keeps Mother Brain's encounter: a hand beam, her breath or her rainbow beam's charge (#1760).</summary>
     /// <param name="encounter">Her encounter.</param>
+    /// <param name="initial">How the projectile moves from its spawn, or null when it holds still until its animation starts it.</param>
     internal MotherBrainProjectileBehavior WithEncounter(MotherBrainProjectileState encounter, MotherBrainProjectileMotion? initial = null) =>
         new EncounterBehavior(_behaviorDependencies, TurretBullet, Projectile, encounter, initial);
 
@@ -157,7 +158,7 @@ internal sealed class MotherBrainProjectiles
     /// <param name="dependencies">The room, projectiles, earthquake, drops, Mother Brain's fight state and the room's other actors.</param>
     /// <param name="turretBullet">The behaviour the bullets a turret fires run.</param>
     /// <param name="spawned">The behaviour the sparkles and hand beams these spawn run; null for this behaviour itself.</param>
-    /// <param name="touch">The animation touching Samus starts, or null when the kind has none of its own.</param>
+    /// <param name="touchSegment">The animation touching Samus starts, or null when the kind has none of its own.</param>
     internal class MotherBrainProjectileBehavior(
         MotherBrainProjectileDependencies dependencies,
         TurretBulletBehavior turretBullet,
@@ -695,6 +696,7 @@ internal sealed class MotherBrainProjectiles
     /// <param name="turretBullet">The behaviour a turret's bullet runs.</param>
     /// <param name="spawned">The behaviour the projectiles this one spawns run.</param>
     /// <param name="encounter">What the projectile keeps: her encounter.</param>
+    /// <param name="initial">How the projectile moves from its spawn, or null when it holds still until its animation starts it.</param>
     internal sealed class EncounterBehavior(MotherBrainProjectileDependencies dependencies, TurretBulletBehavior turretBullet,
         MotherBrainProjectileBehavior spawned, MotherBrainProjectileState encounter, MotherBrainProjectileMotion? initial = null)
         : MotherBrainProjectileBehavior(dependencies, turretBullet, spawned, initial: initial)
@@ -732,7 +734,7 @@ internal sealed class MotherBrainProjectiles
     /// <param name="dependencies">What her projectiles run with.</param>
     /// <param name="turretBullet">The behaviour a turret's bullet runs.</param>
     /// <param name="spawned">The behaviour the projectiles this one spawns run.</param>
-    /// <param name="touch">The animation touching Samus starts, or null when the kind has none of its own.</param>
+    /// <param name="touchSegment">The animation touching Samus starts, or null when the kind has none of its own.</param>
     /// <param name="kept">What the projectile keeps.</param>
     /// <param name="motion">The motion that reads what it keeps.</param>
     /// <param name="move">Moves the projectile by that motion with what it keeps.</param>

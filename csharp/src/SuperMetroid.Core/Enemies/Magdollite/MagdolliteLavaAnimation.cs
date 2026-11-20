@@ -4,6 +4,7 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Enemies.Magdollite;
 
 /// <summary>Magdollite lava's typed animation.</summary>
+/// <param name="segment">The segment the animation starts at.</param>
 /// <param name="cues">The behaviour that started the animation, which owns its cues.</param>
 internal sealed class MagdolliteLavaAnimation(MagdolliteLavaSegment segment, IEnemyProjectileCues<MagdolliteLavaCue> cues)
     : EnemyProjectileFrameAnimation<MagdolliteLavaSegment, MagdolliteLavaCue>(MagdolliteLavaAnimations.StartingWith(segment), cues)

@@ -4,6 +4,7 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Areas.Tourian;
 
 /// <summary>A Tourian statue projectile's typed animation.</summary>
+/// <param name="segment">The segment the animation starts at.</param>
 /// <param name="cues">The behaviour that started the animation, which owns its cues.</param>
 internal sealed class TourianStatueProjectileAnimation(TourianStatueProjectileSegment segment, IEnemyProjectileCues<TourianStatueProjectileCue> cues)
     : EnemyProjectileFrameAnimation<TourianStatueProjectileSegment, TourianStatueProjectileCue>(TourianStatueProjectileAnimations.StartingWith(segment), cues)

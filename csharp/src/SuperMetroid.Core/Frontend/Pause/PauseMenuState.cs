@@ -167,11 +167,8 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             MapArrows.StepArrows(ActiveMapScroll.CanScroll);
         ControllerButton delayedPressed = delayedHeldInput;
         ControllerButton newlyPressed = newlyPressedInput;
-        if (Transition != PauseMenuTransition.None)
-        {
-            StepPageTransition();
+        if (StepPageTransition())
             return false;
-        }
 
         if (ScreenMode == PauseScreenMode.Map)
         {
@@ -294,51 +291,47 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         screen.Sprites.FinishFrame();
     }
 
-    /// <summary>Advances map/equipment fade, page load, and brightness phases.</summary>
-    private void StepPageTransition()
+    /// <summary>
+    /// Advances map/equipment fade, page load, and brightness phases (#2553), and reports whether a page transition ran this
+    /// update: with none under way the page's own controls run instead.
+    /// </summary>
+    private bool StepPageTransition()
     {
-        switch (Transition)
+        PauseMenuTransition transition = Transition;
+        if (transition == PauseMenuTransition.None)
+            return false;
+        if (transition is PauseMenuTransition.MapToEquipmentFadeOut or PauseMenuTransition.EquipmentToMapFadeOut)
         {
-            case PauseMenuTransition.MapToEquipmentFadeOut:
-            case PauseMenuTransition.EquipmentToMapFadeOut:
-                if (!transitionFade.Darken())
-                    return;
-
-                // The fade-out returns at black before the separate load update.
-                Transition = Transition == PauseMenuTransition.MapToEquipmentFadeOut
+            // The fade-out returns at black before the separate load update.
+            if (transitionFade.Darken())
+            {
+                Transition = transition == PauseMenuTransition.MapToEquipmentFadeOut
                     ? PauseMenuTransition.MapToEquipmentLoad : PauseMenuTransition.EquipmentToMapLoad;
-                return;
-
-            case PauseMenuTransition.MapToEquipmentLoad:
-            case PauseMenuTransition.EquipmentToMapLoad:
-                if (Transition == PauseMenuTransition.MapToEquipmentLoad)
-                {
-                    ScreenMode = PauseScreenMode.Equipment;
-                    // The selector resets on each equipment-page entry.
-                    SelectFirstCollectedEquipment();
-                    ResetItemSelectorAnimation();
-                    Transition = PauseMenuTransition.MapToEquipmentFadeIn;
-                }
-                else
-                {
-                    ScreenMode = PauseScreenMode.Map;
-                    LoadMapPage();
-                    Transition = PauseMenuTransition.EquipmentToMapFadeIn;
-                }
-                transitionFade.Restart(0, PauseFadeTiming.WaitBeforeEachStep);
-                return;
-
-            case PauseMenuTransition.MapToEquipmentFadeIn:
-            case PauseMenuTransition.EquipmentToMapFadeIn:
-                // The load set the fade to wait one update before each brightness step.
-                if (transitionFade.Brighten())
-                    Transition = PauseMenuTransition.None;
-                return;
-
-            case PauseMenuTransition.None:
-            default:
-                throw new InvalidDataException($"Invalid pause-page transition {Transition}.");
+            }
         }
+        else if (transition == PauseMenuTransition.MapToEquipmentLoad)
+        {
+            ScreenMode = PauseScreenMode.Equipment;
+            // The selector resets on each equipment-page entry.
+            SelectFirstCollectedEquipment();
+            ResetItemSelectorAnimation();
+            Transition = PauseMenuTransition.MapToEquipmentFadeIn;
+            transitionFade.Restart(0, PauseFadeTiming.WaitBeforeEachStep);
+        }
+        else if (transition == PauseMenuTransition.EquipmentToMapLoad)
+        {
+            ScreenMode = PauseScreenMode.Map;
+            LoadMapPage();
+            Transition = PauseMenuTransition.EquipmentToMapFadeIn;
+            transitionFade.Restart(0, PauseFadeTiming.WaitBeforeEachStep);
+        }
+        else
+        {
+            // The remaining members, the fade-ins: the load set the fade to wait one update before each brightness step.
+            if (transitionFade.Brighten())
+                Transition = PauseMenuTransition.None;
+        }
+        return true;
     }
 
     /// <summary>Selects reserves first when available, otherwise the first collected inventory item.</summary>

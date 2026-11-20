@@ -188,19 +188,17 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
             {
                 if (Confirmation != GameplayMessageConfirmation.None)
                 {
-                    switch (_saveChoiceInput.Advance())
+                    SaveChoiceInputCadence.Update update = _saveChoiceInput.Advance();
+                    if (update == SaveChoiceInputCadence.Update.ShowsMovedChoice)
                     {
-                        case SaveChoiceInputCadence.Update.ShowsMovedChoice:
-                            // The update showing a moved choice processes no audio; the move
-                            // sound is queued on it.
-                            LastFrameAudio = default;
-                            return MessageBoxStep.ChoiceMoved.Instance;
-                        case SaveChoiceInputCadence.Update.Waits:
-                            return MessageBoxStep.NothingAsked.Instance;
-                        case SaveChoiceInputCadence.Update.ReadsController:
-                            break;
-                        default:
-                            throw new InvalidOperationException("Undefined save-choice update.");
+                        // The update showing a moved choice processes no audio; the move
+                        // sound is queued on it.
+                        LastFrameAudio = default;
+                        return MessageBoxStep.ChoiceMoved.Instance;
+                    }
+                    else if (update == SaveChoiceInputCadence.Update.Waits)
+                    {
+                        return MessageBoxStep.NothingAsked.Instance;
                     }
                     _controller.Latch(controllerInput);
                     // A confirms the highlighted choice, then B cancels; only a press with

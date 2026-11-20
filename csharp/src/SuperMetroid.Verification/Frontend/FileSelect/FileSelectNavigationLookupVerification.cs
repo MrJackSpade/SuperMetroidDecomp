@@ -53,7 +53,8 @@ internal static class FileSelectNavigationLookupVerification
         foreach ((SaveSlot source, int list) in SaveSlots.All.Select((slot, list) => (slot, list)))
         {
             VerifyOriginalSubmenuChoices(original[list], (selected, pressed) =>
-                FileSelectDataNavigation.MoveCopyDestination(selected, source, pressed),
+                FileSelectDataNavigation.MoveCopyDestination(
+                    FileCopyDestinationRow.MenuFrom(source).Single(row => row.Item == selected), pressed).Item,
                 $"copy destination source={source}");
         }
         Console.WriteLine("Copy destination navigation: all three original choice lists, nine selectable states and input priority pass.");

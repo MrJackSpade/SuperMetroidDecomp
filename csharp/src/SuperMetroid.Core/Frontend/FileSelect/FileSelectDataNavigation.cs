@@ -13,11 +13,16 @@ internal static class FileSelectDataNavigation
     internal static FileSelectItem MoveSourceOrClear(FileSelectItem selected, IReadOnlySet<SaveSlot> occupiedSlots, ControllerButton pressed) =>
         Move(selected, Ensure.NotNull(occupiedSlots), pressed);
 
-    /// <summary>Moves among the other two save slots and Exit, without wrapping.</summary>
+    /// <summary>Moves among the other two save slots and Exit, without wrapping, Up winning when both are pressed.</summary>
     /// <remarks>Copy destinations exclude the source regardless of occupancy; the game
-    /// skips the source while moving in either direction.</remarks>
-    internal static FileSelectItem MoveCopyDestination(FileSelectItem selected, SaveSlot sourceSlot, ControllerButton pressed) =>
-        Move(selected, SaveSlots.All.Where(slot => slot != sourceSlot).ToHashSet(), pressed);
+    /// skips the source while moving in either direction. The menu of a source holds no row for it (#2553).</remarks>
+    internal static FileCopyDestinationRow MoveCopyDestination(FileCopyDestinationRow selected, ControllerButton pressed)
+    {
+        Ensure.NotNull(selected);
+        if ((pressed & ControllerButton.Up) != ControllerButton.None)
+            return selected.Above;
+        return (pressed & ControllerButton.Down) != ControllerButton.None ? selected.Below : selected;
+    }
 
     /// <summary>
     /// Validates the selected row, gives Up priority, and moves to the nearest selectable row that way on the copy and clear

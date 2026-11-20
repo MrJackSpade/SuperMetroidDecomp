@@ -131,7 +131,7 @@ internal sealed class OumBehavior : IEnemySpecies, IEnemyEntityFactory
         else if (!_terrain.MoveEnemyVertically(level, place, OumMotionDefinitions.FloorProbe))
         {
             // No floor one pixel below means Oum walked off a ledge. Oum restarts the
-            // complete three-impact settling sequence without skipping horizontal work.
+            // complete settling sequence without skipping horizontal work.
             state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
             state.BouncePhase = OumBouncePhase.Falling;
             state.RemainingBounces = OumMotionDefinitions.SettlingBounces;
@@ -180,7 +180,7 @@ internal sealed class OumBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (state.BouncePhase)
         {
             case OumBouncePhase.Falling:
-                // Falling holds the place at mark 64.
+                // Falling holds the place at its fastest fall place.
                 state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.Min(
                     state.YSpeedCurvePlace + OumMotionDefinitions.BounceAcceleration,
                     OumMotionDefinitions.FastestFallPlace);
@@ -237,8 +237,8 @@ internal sealed class OumBehavior : IEnemySpecies, IEnemyEntityFactory
         if (temporarilyReachTowardSamus)
         {
             // Temporarily extends the whole-pixel move toward Samus by the push's reach,
-            // performs collision, then retracts the center. Net velocity remains one
-            // pixel per frame while wall clipping naturally passes the lost distance to Samus.
+            // performs collision, then retracts the center. Net velocity remains its
+            // roll speed while wall clipping naturally passes the lost distance to Samus.
             speed += OumMotionDefinitions.PushReach.Toward(state.Heading);
         }
 
@@ -262,7 +262,7 @@ internal sealed class OumBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// The side of Oum Samus is on while she is within its strict 24-by-32 pushing range, or none while she is not (#2473).
+    /// The side of Oum Samus is on while she is within its strict pushing range, or none while she is not (#2473).
     /// </summary>
     private static HorizontalDirection? OumPushSide(RoomEnemyPlace place, SamusState samus) =>
         Math.Abs(samus.Position.Y.Whole - place.Position.Y.Whole) >= OumMotionDefinitions.PushingReachY ||
@@ -476,7 +476,7 @@ internal sealed class OumBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         // The damaging touch hurts Samus as any enemy does and then shoves her as the harmless touch does. A harmless
-        // touch only shoves, which is how the closed shell carries and pushes Samus without its 100 damage.
+        // touch only shoves, which is how the closed shell carries and pushes Samus without its damage.
         if (context.HitboxTouch == OumReactions.DamagingTouch)
             _collision.ResolveOrdinaryTouch(context);
         ResolveOumTouchAfterCommon(context.Place, context.Samus);

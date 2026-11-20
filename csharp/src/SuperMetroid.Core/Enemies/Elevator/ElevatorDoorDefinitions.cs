@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Elevator;
 public static class ElevatorDoorDefinitions
 {
     /// <summary>
-    /// Frames the down-elevator door transition stays paused before the door continues, on the frame after them (48 frames).
+    /// Frames the down-elevator door transition stays paused before the door continues, on the frame after them.
     /// </summary>
     public const int DownwardsElevatorDelayFrames = 48;
 }

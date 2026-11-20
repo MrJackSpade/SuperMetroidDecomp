@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Enemies.Metroids;
 internal static class MetroidCadenceDefinitions
 {
     /// <summary>
-    /// The enemy passes on which a Metroid or Mochtroid draining Samus queues the energy-drain sound: every eighth pass
-    /// of the enemy-pass counter, on its last place, while Samus has 30 energy or more. Every draining actor queues its
+    /// The enemy passes on which a Metroid or Mochtroid draining Samus queues the energy-drain sound: the last place of
+    /// each period of the enemy-pass counter, while Samus has at least the drain sound's least health. Every draining actor queues its
     /// own request.
     /// </summary>
     internal static readonly UpdateCadence DrainSoundEveryEighthEnemyPass = new(8, 7);

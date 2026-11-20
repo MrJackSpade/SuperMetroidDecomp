@@ -26,7 +26,7 @@ internal enum EscapeEtecoonSegment
     Stationary,
     /// <summary>The thanks to Samus, its entry cue.</summary>
     ExpressGratitudeThenEscape,
-    /// <summary>A thanking Etecoon's four steps to the left, each moving it three pixels.</summary>
+    /// <summary>A thanking Etecoon's steps to the left, each moving it by <see cref="EscapeEtecoonAnimations.ThankingStepPixels"/>.</summary>
     ThankingSteps,
     /// <summary>A thanking Etecoon's look back to the right and turn, before it runs for the escape.</summary>
     ThankingLook,

@@ -118,7 +118,7 @@ internal static class EtecoonAnimations
         [P.StartingCrouch] = new([Segments.Whole(P.StartingCrouch)], AnimationEnd.Holds),
     };
 
-    /// <summary>The flex its wake starts (#2061): four plays of its six hop poses, then its two closing poses, held.</summary>
+    /// <summary>The flex its wake starts (#2061): its hop poses played over (<see cref="FlexRuns"/>), then its closing poses, held.</summary>
     internal static Animation<EtecoonSegment> Flexing { get; } = new([Segments.Repeated(P.Flexing, FlexRuns), Segments.Whole(P.FlexEnd)], AnimationEnd.Holds);
 
     /// <summary>

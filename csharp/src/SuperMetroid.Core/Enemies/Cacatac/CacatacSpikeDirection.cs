@@ -6,24 +6,24 @@ namespace SuperMetroid.Core.Enemies.Cacatac;
 /// </summary>
 public enum CacatacSpikeDirection
 {
-    /// <summary>Moves left two pixels per projectile update, an upward-facing horizontal spike.</summary>
+    /// <summary>Moves left at <see cref="CacatacProjectileDefinitions.CardinalSpeed"/>, an upward-facing horizontal spike.</summary>
     LeftFacingUp,
-    /// <summary>Moves up and left by 1.5 pixels on each axis per projectile update.</summary>
+    /// <summary>Moves up and left at <see cref="CacatacProjectileDefinitions.DiagonalSpeed"/> on each axis.</summary>
     UpLeft,
-    /// <summary>Moves straight up two pixels per projectile update.</summary>
+    /// <summary>Moves straight up at <see cref="CacatacProjectileDefinitions.CardinalSpeed"/>.</summary>
     Up,
-    /// <summary>Moves up and right by 1.5 pixels on each axis per projectile update.</summary>
+    /// <summary>Moves up and right at <see cref="CacatacProjectileDefinitions.DiagonalSpeed"/> on each axis.</summary>
     UpRight,
-    /// <summary>Moves right two pixels per projectile update, an upward-facing horizontal spike.</summary>
+    /// <summary>Moves right at <see cref="CacatacProjectileDefinitions.CardinalSpeed"/>, an upward-facing horizontal spike.</summary>
     RightFacingUp,
-    /// <summary>Moves left two pixels per projectile update, a downward-facing horizontal spike.</summary>
+    /// <summary>Moves left at <see cref="CacatacProjectileDefinitions.CardinalSpeed"/>, a downward-facing horizontal spike.</summary>
     LeftFacingDown,
-    /// <summary>Moves down and left by 1.5 pixels on each axis per projectile update.</summary>
+    /// <summary>Moves down and left at <see cref="CacatacProjectileDefinitions.DiagonalSpeed"/> on each axis.</summary>
     DownLeft,
-    /// <summary>Moves straight down two pixels per projectile update.</summary>
+    /// <summary>Moves straight down at <see cref="CacatacProjectileDefinitions.CardinalSpeed"/>.</summary>
     Down,
-    /// <summary>Moves down and right by 1.5 pixels on each axis per projectile update.</summary>
+    /// <summary>Moves down and right at <see cref="CacatacProjectileDefinitions.DiagonalSpeed"/> on each axis.</summary>
     DownRight,
-    /// <summary>Moves right two pixels per projectile update, a downward-facing horizontal spike.</summary>
+    /// <summary>Moves right at <see cref="CacatacProjectileDefinitions.CardinalSpeed"/>, a downward-facing horizontal spike.</summary>
     RightFacingDown,
 }

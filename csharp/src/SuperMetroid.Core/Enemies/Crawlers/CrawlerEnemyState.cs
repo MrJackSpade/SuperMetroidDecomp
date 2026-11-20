@@ -49,13 +49,13 @@ public sealed class CrawlerEnemyState
     public CrawlerAnimationFamily SurfaceFamily { get; internal set; }
 
     /// <summary>
-    /// Falling Y velocity per AI update, separate from the speed it crawls at while attached: gravity adds half a pixel per
-    /// update while it falls slower than four pixels per update, and landing clears it.
+    /// Falling Y velocity per AI update, separate from the speed it crawls at while attached: gravity adds
+    /// <see cref="CrawlerMotionDefinitions.FallingGravity"/> while it falls slower than <see cref="CrawlerMotionDefinitions.FallingSpeedCap"/>, and landing clears it.
     /// </summary>
     public SignedSixteenSixteen FallingYVelocity { get; internal set; }
 
     /// <summary>
-    /// One falling update's gravity: adds half a pixel per update while the crawler falls slower than
+    /// One falling update's gravity: adds <see cref="CrawlerMotionDefinitions.FallingGravity"/> while the crawler falls slower than
     /// <see cref="CrawlerMotionDefinitions.FallingSpeedCap"/>.
     /// </summary>
     internal void ApplyFallingGravity()
@@ -67,7 +67,7 @@ public sealed class CrawlerEnemyState
     public CrawlerAction NonFallingAction { get; internal set; }
     /// <summary>
     /// Count of successive updates whose attachment probe misses the surface, 0 through
-    /// <see cref="CrawlerMotionDefinitions.MissedProbesBeforeFalling"/>: contact and landing reset it, and the fourth miss selects falling rather
+    /// <see cref="CrawlerMotionDefinitions.MissedProbesBeforeFalling"/>: contact and landing reset it, and the miss past that selects falling rather
     /// than another outside-corner turn.
     /// </summary>
     public int ConsecutiveMissedProbes

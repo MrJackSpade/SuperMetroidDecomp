@@ -5,7 +5,7 @@ public enum DeadTourianCorpsePhase
 {
     /// <summary>Waits for Samus to collide with the solid corpse.</summary>
     Waiting,
-    /// <summary>Counts sixteen AI updates after the collision before rotting.</summary>
+    /// <summary>Counts the pre-rot delay's AI updates after the collision before rotting.</summary>
     PreRotDelay,
     /// <summary>Rots the corpse one step of its rot schedule each update, its pixel rows falling from the foot up.</summary>
     Rotting,

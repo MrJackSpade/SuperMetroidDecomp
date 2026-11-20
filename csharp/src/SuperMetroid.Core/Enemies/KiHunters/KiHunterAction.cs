@@ -22,13 +22,13 @@ public enum KiHunterAction
     RecoveringFromSwoop,
     /// <summary>Applies gravity after clipping wings or a ground-bound spawn, then prepares a hop on landing.</summary>
     FallingAfterWingLoss,
-    /// <summary>Aims a two-pixel-per-frame hop toward Samus with an RNG-selected initial upward speed of seven or eight pixels per frame.</summary>
+    /// <summary>Aims a hop toward Samus with an RNG-selected initial upward speed.</summary>
     StartGroundJump,
     /// <summary>Holds still on the ground while the crouch, landing or spit animation plays, until its cues select the next action (#1814).</summary>
     AnimatingOnGround,
     /// <summary>Advances the collision-bearing ballistic hop and starts the landing animation after downward collision.</summary>
     GroundJump,
-    /// <summary>Counts down the post-landing or post-spit wait, then spits within 96 horizontal pixels or prepares another hop.</summary>
+    /// <summary>Counts down the post-landing or post-spit wait, then spits within <see cref="KiHunterMotionDefinitions.SpitRange"/> across or prepares another hop.</summary>
     GroundWait,
     /// <summary>Starts the acid-spit animation facing Samus and suspends movement while the animation owns the attack.</summary>
     SelectAcidSpit,

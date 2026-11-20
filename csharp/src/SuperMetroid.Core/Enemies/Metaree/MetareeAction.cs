@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Enemies.Metaree;
 /// </remarks>
 public enum MetareeAction
 {
-    /// <summary>Dives once Samus is within 72 pixels either side, whether or not she is below, at a downward speed set as it starts.</summary>
+    /// <summary>Dives once Samus is within its activation distance either side, whether or not she is below, at a downward speed set as it starts.</summary>
     Idling,
     /// <summary>Crouches to launch while its preparation animation plays.</summary>
     PreparingAttack,
@@ -20,8 +20,8 @@ public enum MetareeAction
     /// the dive sound.
     /// </summary>
     AttackReady,
-    /// <summary>Dives at its whole-pixel speed, steering two pixels an update toward Samus, until the block below stops it and it starts burrowing for 21 updates.</summary>
+    /// <summary>Dives at its whole-pixel speed, steering toward Samus by <see cref="MetareeMotionDefinitions.DiveSteer"/>, until the block below stops it and it starts burrowing for <see cref="MetareeMotionDefinitions.BurrowLifetime"/>.</summary>
     LaunchedAttack,
-    /// <summary>Decrements the timer, emits four metal particles when it reaches eight, sinks one pixel per surviving update, and deletes the actor at zero.</summary>
+    /// <summary>Decrements the timer, emits its metal particles when it reaches <see cref="MetareeMotionDefinitions.BurstCountdown"/>, sinks by <see cref="MetareeMotionDefinitions.BurrowSpeed"/> each surviving update, and deletes the actor at zero.</summary>
     Burrowing,
 }

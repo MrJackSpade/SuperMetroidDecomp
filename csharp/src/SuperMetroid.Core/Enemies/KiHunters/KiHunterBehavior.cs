@@ -281,8 +281,8 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             .CappedInWholeSteps(SwoopTurning(KiHunterMotionDefinitions.SwoopMaximumAngularVelocity, state.Heading));
 
         // The swoop runs through the second half of the turn: a rightward swoop ends as its angle comes round past the
-        // full turn onto the first half, a leftward one as it falls below the half turn. At two steps an update neither
-        // can cross the other end of that half.
+        // full turn onto the first half, a leftward one as it falls below the half turn. At its swoop's fastest turn
+        // neither can cross the other end of that half.
         state.SwoopAngle = state.SwoopAngle.TurnedByWholeStepsOf(state.AngularVelocity);
         if (state.SwoopAngle < RotationAngle.HalfTurn)
         {

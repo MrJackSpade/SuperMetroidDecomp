@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>
 /// The dead Zoomer, Ripper and Skree corpses a Tourian room places (#1810): each named for how the corpse lies, with its
-/// pose animation and its height in pixel rows, sixteen for the Zoomer and Ripper and thirty-two for the Skree. Corpses
+/// pose animation and its height in pixel rows, the Skree taller than the Zoomer and Ripper. Corpses
 /// that lie the same way are one corpse.
 /// </summary>
 internal static class DeadTourianCorpseDefinitions

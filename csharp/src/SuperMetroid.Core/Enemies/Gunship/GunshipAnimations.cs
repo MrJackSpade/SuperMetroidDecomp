@@ -20,22 +20,12 @@ internal static class GunshipAnimations
             Show(EnemyFrameId.GunshipEntrancePadLifting, 8),
             Show(EnemyFrameId.GunshipEntrancePadRising, 8),
             Show(EnemyFrameId.GunshipEntrancePadRaised, 8),
-            Show(EnemyFrameId.GunshipEntrancePadSplitting, 24),
-            Show(EnemyFrameId.GunshipEntrancePadParting, 8),
-            Show(EnemyFrameId.GunshipEntrancePadSeparating, 7),
-            Show(EnemyFrameId.GunshipEntrancePadSpreading, 6),
-            Show(EnemyFrameId.GunshipEntrancePadWidening, 5),
-            Show(EnemyFrameId.GunshipEntrancePadNearlyOpen, 4),
+            .. PadParting,
             Hold(EnemyFrameId.GunshipEntrancePadOpen),
         ],
         [P.EntrancePadClosing] =
         [
-            Show(EnemyFrameId.GunshipEntrancePadNearlyOpen, 4),
-            Show(EnemyFrameId.GunshipEntrancePadWidening, 5),
-            Show(EnemyFrameId.GunshipEntrancePadSpreading, 6),
-            Show(EnemyFrameId.GunshipEntrancePadSeparating, 7),
-            Show(EnemyFrameId.GunshipEntrancePadParting, 8),
-            Show(EnemyFrameId.GunshipEntrancePadSplitting, 24),
+            .. PadParting.Reverse(),
             Show(EnemyFrameId.GunshipEntrancePadRaised, 8),
             Show(EnemyFrameId.GunshipEntrancePadLifting, 8),
         ],
@@ -68,6 +58,20 @@ internal static class GunshipAnimations
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<GunshipSegment> StartingWith(GunshipSegment segment) => StartingAt[segment];
+
+    /// <summary>
+    /// The raised entrance pad parting, from split to nearly open: the pad's opening plays it forward and its closing plays it
+    /// back, each picture as long either way.
+    /// </summary>
+    private static AnimationBeat<EnemyFrameId, NoAnimationCue>[] PadParting =>
+    [
+        Show(EnemyFrameId.GunshipEntrancePadSplitting, 24),
+        Show(EnemyFrameId.GunshipEntrancePadParting, 8),
+        Show(EnemyFrameId.GunshipEntrancePadSeparating, 7),
+        Show(EnemyFrameId.GunshipEntrancePadSpreading, 6),
+        Show(EnemyFrameId.GunshipEntrancePadWidening, 5),
+        Show(EnemyFrameId.GunshipEntrancePadNearlyOpen, 4),
+    ];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, NoAnimationCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame(frame, duration);

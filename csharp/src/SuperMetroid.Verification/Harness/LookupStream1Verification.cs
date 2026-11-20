@@ -1639,11 +1639,7 @@ internal static class LookupStream1Verification
             Extent16<RoomPixels> radius = SamusProjectileFrameDefinitions.Radius(SamusProjectileProgramsVerification.RecordAt(pointer));
             AssertEqual(Word(0x930000 | (pointer + 4)), LittleEndianBytes.Word((byte)radius.X, (byte)radius.Y), "Typed record radii are the native bytes");
         }
-        var document = new ProjectileFrameBindingDocument
-        {
-            Version = ProjectileFrameBindingFormat.Version,
-            Frames = NativeFrameBindings(rom, expected),
-        };
+        ProjectileFrameBindingDocument document = NativeFrameBindings(rom, expected);
         var guard = NewLookupFlareForbiddenBus();
         int interpreted = 0, bombInterpreted = 0;
         var bindings = ProjectileFrameBindingFile.Load(new MemoryStream(ProjectileFrameBindingFile.Write(document)));
@@ -1696,18 +1692,33 @@ internal static class LookupStream1Verification
     /// The bindings the cartridge's timed records give: each frame's composition, read from every record that shows it,
     /// which all store the same one (#2274).
     /// </summary>
-    private static Dictionary<string, string> NativeFrameBindings(ISnesAddressSpace rom, IEnumerable<ushort> records)
+    private static ProjectileFrameBindingDocument NativeFrameBindings(ISnesAddressSpace rom, IEnumerable<ushort> records)
     {
         var frames = new Dictionary<string, string>();
+        var unpictured = new HashSet<string>();
         foreach (ushort pointer in records)
         {
             int sprite = 0x930000 | (pointer + 2);
             string name = ProjectileFrameBindingFormat.FrameNameAt(pointer);
-            string composition = ProjectileSpriteDefinitions.Name(LittleEndianBytes.Word(rom.ReadCartridgeByte(sprite), rom.ReadCartridgeByte(sprite + 1)));
+            int selected = LittleEndianBytes.Word(rom.ReadCartridgeByte(sprite), rom.ReadCartridgeByte(sprite + 1));
+            if (selected == global::SuperMetroid.Core.Samus.Artwork.ProjectileSpriteNative.EmptyRecordAddress)
+            {
+                // A record selecting the empty record draws nothing (#2558).
+                AssertTrue(!frames.ContainsKey(name), $"every record that shows {name} draws nothing");
+                unpictured.Add(name);
+                continue;
+            }
+            string composition = ProjectileSpriteDefinitions.Name(selected);
+            AssertTrue(!unpictured.Contains(name), $"every record that shows {name} stores its composition");
             if (!frames.TryAdd(name, composition))
                 AssertEqual(frames[name], composition, $"every record that shows {name} stores its composition");
         }
-        return frames;
+        return new ProjectileFrameBindingDocument
+        {
+            Version = ProjectileFrameBindingFormat.Version,
+            Frames = frames,
+            Unpictured = [.. unpictured],
+        };
     }
 
     /// <summary>Reads native projectile radius words from bank-$93 programs.</summary>
@@ -1745,11 +1756,7 @@ internal static class LookupStream1Verification
         AssertEqual(795, records.Count, "Original timed-record scope outside the two unused lists");
         AssertEqual(1792, mechanics.Count, "Original mechanics-word scope outside the two unused lists");
         AssertEqual(103, programs.Count, "Independent native complete program domains outside the two unused lists");
-        var document = new ProjectileFrameBindingDocument
-        {
-            Version = ProjectileFrameBindingFormat.Version,
-            Frames = NativeFrameBindings(rom, records),
-        };
+        ProjectileFrameBindingDocument document = NativeFrameBindings(rom, records);
         var bindings = ProjectileFrameBindingFile.Load(new MemoryStream(ProjectileFrameBindingFile.Write(document)));
         _ = NewLookupFlareForbiddenBus();
         int actualTicks = 0, loops = 0, deletions = 0;

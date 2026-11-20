@@ -19,5 +19,5 @@ public readonly record struct ProjectileSpriteId(ProjectileSpriteGroup Group, [I
     public string Name => $"{ProjectileSpriteGroupKeys.Installed.Of(Group)}.{Pose}";
 
     /// <summary>Whether this is the empty composition an invisible projectile shows, which draws nothing (#1513).</summary>
-    public bool DrawsNothing => Group == ProjectileSpriteGroup.Nothing;
+
 }

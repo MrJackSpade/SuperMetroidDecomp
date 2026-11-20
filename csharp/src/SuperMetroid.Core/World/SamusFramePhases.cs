@@ -773,11 +773,13 @@ internal sealed class SamusFramePhases
         }
     }
 
-    /// <summary>The standing movement type's movement, as the game's: the forward-facing poses' own step, otherwise standing's.</summary>
+    /// <summary>The standing movement type's movement: the forward-facing poses' and the landings' own steps, otherwise standing's.</summary>
     private void StepStandingPose(PoseMove move)
     {
         if (SamusPoseMetadata.IsForwardFacingPose(move.Samus.Pose))
             StepForwardFacingMovement(move.Samus, move.Room);
+        else if (SamusPoseMetadata.IsLandingPose(move.Samus.Pose))
+            move.Frame.Record(SamusGroundedMovement.StepLanding(move.Level, move.Samus, _clock.Counter, move.RoomObjects));
         else
             move.Frame.Record(SamusGroundedMovement.StepStanding(move.Level, move.Samus, _clock.Counter, _playerActions.Current, move.RoomObjects));
     }

@@ -61,16 +61,10 @@ public static class SamusGroundedMovement
     }
 
     /// <summary>
-    /// Runs standing movement for every pose of the standing movement type that does not face forward: the standing
-    /// poses, unaimed or aimed, the X-ray scope's standing poses, and every landing, the ordinary and spin landings plus
-    /// the aimed and horizontally firing ones. As the game's standing movement does, it reads only the way the pose faces.
+    /// Runs the movement-relevant portion of standing movement for the poses of the standing movement type that neither
+    /// face forward nor land: the standing poses, unaimed or aimed, and the X-ray scope's standing poses. It reads only the
+    /// way the moving pose faces.
     /// </summary>
-    /// <remarks>
-    /// Landing animation is cosmetic with respect to movement: a landing moves as standing does until the animation cue's
-    /// pose transition returns to <see cref="SamusPoseId.FacingRightNormalPose"/> and <see cref="SamusPoseId.FacingLeftNormalPose"/>.
-    /// It does not reset Y values: settling the accepted landing owns its cleanup, and a later hurt expiry may write a
-    /// downward direction while a landing pose remains, which must survive.
-    /// </remarks>
     internal static GroundedMovementResult StepStanding(
         RoomLevelData level,
         SamusState samus,
@@ -80,6 +74,7 @@ public static class SamusGroundedMovement
     {
         Ensure.NotNull(level);
         Ensure.NotNull(samus);
+        bool facingLeft = SamusPoseMetadata.IsFacingLeft(samus.Pose);
         ResetStandingShotAnimation(samus, controllerInput);
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
 
@@ -89,7 +84,7 @@ public static class SamusGroundedMovement
         // a freshly spawned standing Samus normally has zero base/extra speed. A left-facing
         // pose's direction is left, so the displacement is leftward even though its
         // base speed is zero, which matters once extra displacement contributes.
-        var requestedHorizontal = SamusHorizontalDisplacement.TowardFacing(samus, baseSpeed: default);
+        var requestedHorizontal = SamusHorizontalDisplacement.Toward(facingLeft ? HorizontalDirection.Left : HorizontalDirection.Right, samus, baseSpeed: default);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
         if (horizontal.Collided)
             speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
@@ -128,7 +123,7 @@ public static class SamusGroundedMovement
     {
         Ensure.NotNull(level);
         Ensure.NotNull(samus);
-        bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
+        bool facingLeft = SamusPoseMetadata.IsFacingLeft(samus.Pose);
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
 
         // The liquid Samus's bottom boundary lies in can replace her ordinary speeds with the water or lava
@@ -315,6 +310,40 @@ public static class SamusGroundedMovement
         // Ran-into-wall movement then cancels the speed boost and clears both run/base components plus
         // acceleration mode on every frame.
         speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
+        return new GroundedMovementResult(horizontal, vertical);
+    }
+
+    /// <summary>
+    /// Runs standing movement for every landing pose: the ordinary
+    /// and spin landings, plus the aimed and horizontally firing landings.
+    /// Landing animation is cosmetic with respect to movement: every member uses standing's
+    /// zero-base-speed horizontal pass, grounding probe, and momentum cleanup until the animation
+    /// cue's pose transition returns to <see cref="SamusPoseId.FacingRightNormalPose"/> and <see cref="SamusPoseId.FacingLeftNormalPose"/>.
+    /// It reads only the way the pose faces.
+    /// </summary>
+    internal static GroundedMovementResult StepLanding(
+        RoomLevelData level,
+        SamusState samus,
+        int frameCounter,
+        ISamusRoomObjects roomObjects)
+    {
+        Ensure.NotNull(level);
+        Ensure.NotNull(samus);
+        SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
+        var requestedHorizontal = SamusHorizontalDisplacement.TowardFacing(samus, baseSpeed: default);
+        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
+        if (horizontal.Collided)
+            speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
+
+        BlockMoveResult vertical = RunNoSpeedCalculationGroundingProbe(
+            level,
+            samus,
+            frameCounter,
+            roomObjects);
+        speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
+        // Landing art still uses standing movement: it does not reset Y values.
+        // Settling the accepted landing owns its cleanup; a later hurt expiry may write
+        // a downward direction while this pose remains active, and that value must survive.
         return new GroundedMovementResult(horizontal, vertical);
     }
 

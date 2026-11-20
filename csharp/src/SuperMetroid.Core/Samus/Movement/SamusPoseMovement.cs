@@ -22,7 +22,7 @@ internal sealed class SamusPoseMovement
         _step = step;
     }
 
-    /// <summary>The standing movement: the forward-facing poses' own step, otherwise standing's.</summary>
+    /// <summary>The standing movement: the forward-facing poses' and the landings' own steps, otherwise standing's.</summary>
     internal static SamusPoseMovement Standing { get; } = new(nameof(Standing), steps => steps.StepStanding());
 
     /// <summary>The run.</summary>

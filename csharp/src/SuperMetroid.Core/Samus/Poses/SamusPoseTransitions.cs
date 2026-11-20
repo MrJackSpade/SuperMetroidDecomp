@@ -232,7 +232,7 @@ internal static class SamusPoseTransitions
 
         // A compact pose aims straight down the way it faces, and lands in the normal landing facing that way.
         SamusPoseId sourcePose = samus.Pose;
-        SamusPoseId targetPose = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left)
+        SamusPoseId targetPose = SamusPoseMetadata.IsFacingLeft(samus.Pose)
             ? SamusPoseId.NormalLandingLeftPose
             : SamusPoseId.NormalLandingRightPose;
         LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(

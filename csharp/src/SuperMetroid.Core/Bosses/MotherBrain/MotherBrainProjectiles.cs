@@ -159,6 +159,7 @@ internal sealed class MotherBrainProjectiles
     /// <param name="turretBullet">The behaviour the bullets a turret fires run.</param>
     /// <param name="spawned">The behaviour the sparkles and hand beams these spawn run; null for this behaviour itself.</param>
     /// <param name="touchSegment">The animation touching Samus starts, or null when the kind has none of its own.</param>
+    /// <param name="initial">How the projectile moves from its spawn, or null when it holds still until its animation starts it.</param>
     internal class MotherBrainProjectileBehavior(
         MotherBrainProjectileDependencies dependencies,
         TurretBulletBehavior turretBullet,

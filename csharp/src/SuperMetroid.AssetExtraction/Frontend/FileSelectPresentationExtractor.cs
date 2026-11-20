@@ -165,15 +165,15 @@ public static class FileSelectPresentationExtractor
                 [FileSelectPresentationFormat.BorderName(FileSelectBorder.Copy)] = FileSelectNativeLayout.CopyBorderAnchor,
                 [FileSelectPresentationFormat.BorderName(FileSelectBorder.Clear)] = FileSelectNativeLayout.ClearBorderAnchor,
             },
-            MainCursorAnchors = Enumerable.Range(0, FileSelectCursorPositions.MainSelectionCount)
+            MainCursorAnchors = FileSelectItemRows.MainWithData
                 .Select(FileSelectCursorPositions.MainSelectionY)
                 .Select(y => new Offset16<ScreenPixels>(FileSelectCursorPositions.MainCursorX, y)).ToArray(),
-            DataCursorAnchors = Enumerable.Range(0, FileSelectCursorPositions.DataSelectionCount)
+            DataCursorAnchors = FileSelectItemRows.Data
                 .Select(FileSelectCursorPositions.DataSelectionY)
                 .Select(y => new Offset16<ScreenPixels>(FileSelectCursorPositions.DataCursorX, y)).ToArray(),
             ConfirmationCursorAnchors =
                 [FileSelectCursorPositions.ConfirmationYesAnchor, FileSelectCursorPositions.ConfirmationNoAnchor],
-            HelmetAnchors = Enumerable.Range(0, FileSelectCursorPositions.SaveSlotCount)
+            HelmetAnchors = FileSelectCursorPositions.Slots
                 .Select(FileSelectCursorPositions.HelmetY)
                 .Select(y => new Offset16<ScreenPixels>(FileSelectCursorPositions.HelmetX, y)).ToArray(),
             DynamicAnchors = new(StringComparer.Ordinal)

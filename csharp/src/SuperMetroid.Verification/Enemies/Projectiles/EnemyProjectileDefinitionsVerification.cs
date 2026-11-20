@@ -43,7 +43,8 @@ internal static class EnemyProjectileDefinitionsVerification
         // particles, the Work Robot's four diagonal lasers and the two each of Kraid's rising rocks, Fake Kraid's spikes and
         // Ki-Hunter acid. #2378 did the same for Ridley's two afterburn centres, his left and right and his up and down
         // afterburns, the Torizo's two feet's landing dust and Ceres's light and dark falling tiles.
-        AssertEqual(100, kinds.Length, "compiled enemy-projectile definition count");
+        // No kind stands for an empty place (#2558) or the pre-Phantoon room's held place, which holds no projectile (#2556).
+        AssertEqual(99, kinds.Length, "compiled enemy-projectile definition count");
 
         HashSet<int> forbidden = VerifyEnemyProjectileDefinitionRecords(rom, kinds);
         Dictionary<RoomEnemyProjectileKind, ushort[]> startingMotions = kinds.ToDictionary(kind => kind, kind => ProductionStartingMotions(rom, kind));

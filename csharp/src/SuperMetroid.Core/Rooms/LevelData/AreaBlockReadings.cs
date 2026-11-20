@@ -13,6 +13,6 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// <param name="SpecialAir">What special air makes of it in those areas.</param>
 public sealed record AreaBlockReadings(IReadOnlyList<AreaId> Areas, RoomBlockReadings Unresolved, SpecialBlockReaction Special, SpecialAirReaction SpecialAir)
 {
-    /// <summary>Every reading of the behaviour in those areas.</summary>
-    public RoomBlockReadings Readings => Unresolved with { Special = Special, SpecialAir = SpecialAir };
+    /// <summary>Every reading of the behaviour in those areas, which hold its meaning to special blocks and special air.</summary>
+    public RoomBlockReadings Readings => Unresolved with { Special = Special, SpecialAir = SpecialAir, ResolvedByArea = false };
 }

@@ -214,8 +214,7 @@ internal static class LookupStream1Verification
             balloon.Bind(balloon.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
             PowampBehavior.InitializePowampBalloon(balloon);
             var body = enemies.Places.InUpdateOrder[1];
-            body.SetSpawnSettings(new PowampBodySpawnSettings(PowampContact.Accepts));
-            body.Bind(EnemyDefinitionId.Powamp, body.KeptDefinition);
+            body.BindPlaced(EnemyDefinitionId.Powamp, new PowampBodySpawnSettings(PowampContact.Accepts));
             body.Bind(body.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
             enemies.PowampBehavior.InitializePowampBody(body);
             body.Position = body.Position.WithWholeY(100);

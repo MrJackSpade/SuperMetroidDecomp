@@ -17,9 +17,6 @@ internal static class SamusNoTransitionSetups
     {
         if (SamusPoseTraits.Of(pose).NoTransitionSetup is { } own && own != SamusNoTransitionSetup.None)
             return own;
-        return SamusMovementTypeDefinitions.Movements.TryGetValue(movementInForce, out SamusMovementTypeDefinition? movement)
-            ? movement.NoTransitionSetup ?? SamusNoTransitionSetup.None
-            : throw new ArgumentOutOfRangeException(nameof(movementInForce), movementInForce,
-                "Movement type names no setup for input that chooses no new pose.");
+        return SamusMovementTypeDefinitions.Movements[movementInForce].NoTransitionSetup ?? SamusNoTransitionSetup.None;
     }
 }

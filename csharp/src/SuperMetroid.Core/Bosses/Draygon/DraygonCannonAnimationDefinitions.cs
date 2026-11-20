@@ -48,8 +48,7 @@ internal static class DraygonCannonAnimationDefinitions
         });
 
     /// <summary>What each facing's cannon shows.</summary>
-    internal static IReadOnlyDictionary<DraygonCannonOrientation, DraygonCannonLook> Looks { get; } =
-        new Dictionary<DraygonCannonOrientation, DraygonCannonLook>
+    internal static IdentityTable<DraygonCannonOrientation, DraygonCannonLook> Looks { get; } = new(new Dictionary<DraygonCannonOrientation, DraygonCannonLook>
         {
             [DraygonCannonOrientation.Right] = new(
                 new([Segments.Whole(S.RightShield)], AnimationEnd.Holds),
@@ -59,7 +58,7 @@ internal static class DraygonCannonAnimationDefinitions
                 new([Segments.Whole(S.LeftShield)], AnimationEnd.Holds),
                 new([Segments.Repeated(S.LeftHitFlash, Flashes)], AnimationEnd.Stops),
                 Animation<S>.Looping([Segments.Whole(S.LeftSparks)])),
-        };
+        });
 
     /// <summary>Shows <paramref name="draw"/> for <paramref name="updates"/> updates.</summary>
     private static AnimationBeat<DraygonCannonDraw, NoAnimationCue> Show(DraygonCannonDraw draw, int updates) =>

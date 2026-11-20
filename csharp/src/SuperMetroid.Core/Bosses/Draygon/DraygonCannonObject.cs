@@ -25,9 +25,7 @@ internal sealed class DraygonCannonObject : RoomObjectBehaviour, IShootableRoomO
     {
         _cannons = Ensure.NotNull(cannons);
         Cannon = cannon;
-        _look = DraygonCannonAnimationDefinitions.Looks.TryGetValue(orientation, out DraygonCannonLook? look)
-            ? look
-            : throw new InvalidOperationException($"Undefined {nameof(DraygonCannonOrientation)} {orientation}.");
+        _look = DraygonCannonAnimationDefinitions.Looks[orientation];
         player = AnimationPlayer<DraygonCannonSegment, DraygonCannonDraw, NoAnimationCue>.Starting(
             DraygonCannonAnimationDefinitions.Segments, _look.Shield);
         Phase = start == DraygonCannonStart.Destroyed ? DraygonCannonPhase.StartingDestroyed : DraygonCannonPhase.StartingWhole;

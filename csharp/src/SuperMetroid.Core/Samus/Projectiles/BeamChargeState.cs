@@ -85,14 +85,11 @@ internal sealed class BeamChargeState
     internal void RestartChargePulse() => ChargePulse = AnimationPlace.StartOfAnimation;
 
     /// <summary>Each flare component's animation: the picture it shows and the wait it holds it for.</summary>
-    private readonly Dictionary<ChargeFlareComponent, ChargeFlareComponentState> _flare =
-        Enum.GetValues<ChargeFlareComponent>().ToDictionary(component => component, component => new ChargeFlareComponentState(component));
+    private readonly IdentityTable<ChargeFlareComponent, ChargeFlareComponentState> _flare = new(component => new ChargeFlareComponentState(component));
 
     /// <summary>Flare <paramref name="component"/>'s animation.</summary>
     internal ChargeFlareComponentState Flare(ChargeFlareComponent component) =>
-        _flare.TryGetValue(component, out ChargeFlareComponentState? flare)
-            ? flare
-            : throw new ArgumentOutOfRangeException(nameof(component), component, $"Undefined {nameof(ChargeFlareComponent)}.");
+        _flare[component];
 
     /// <summary>The ordinary charge flare's first update: every component starts its animation at its first picture.</summary>
     internal void StartChargeFlare()

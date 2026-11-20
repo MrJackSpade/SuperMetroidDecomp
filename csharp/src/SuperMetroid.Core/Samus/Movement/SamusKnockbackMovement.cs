@@ -78,10 +78,7 @@ public static class SamusKnockbackMovement
         // (SamusMovementTypeDefinitions). Any other cannot name another game behaviour; it means Samus carries
         // corrupt pose metadata rather than a movement family of its own.
         SamusMovementType sourceMovementType = SamusPoseMetadata.ReadMovementType(samus);
-        SamusKnockbackResponse response =
-            SamusMovementTypeDefinitions.Movements.TryGetValue(sourceMovementType, out SamusMovementTypeDefinition? definition)
-                ? definition.Knockback
-                : throw new InvalidDataException($"Movement type {sourceMovementType} has no knockback response.");
+        SamusKnockbackResponse response = SamusMovementTypeDefinitions.Movements[sourceMovementType].Knockback;
         bool morphed = response == SamusKnockbackResponse.Ball;
         bool humanoid = response == SamusKnockbackResponse.Upright;
 

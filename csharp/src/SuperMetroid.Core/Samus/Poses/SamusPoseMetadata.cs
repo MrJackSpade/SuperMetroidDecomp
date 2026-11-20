@@ -667,10 +667,7 @@ internal static class SamusPoseMetadata
     private static SamusBombJumpSetup BombJumpSetupOf(SamusState samus)
     {
         SamusMovementType movementType = ReadMovementType(samus);
-        return SamusMovementTypeDefinitions.Movements.TryGetValue(movementType, out SamusMovementTypeDefinition? definition)
-            ? definition.BombJump
-            : throw new InvalidDataException(
-                $"Bomb-jump setup cannot run invalid movement type {movementType} for pose {samus.Pose}.");
+        return SamusMovementTypeDefinitions.Movements[movementType].BombJump;
     }
 
     /// <summary>Arms the published bomb jump.</summary>

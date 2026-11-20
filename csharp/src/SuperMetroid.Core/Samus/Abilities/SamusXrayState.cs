@@ -643,9 +643,7 @@ public sealed class SamusXrayState
     /// and crouching movement types take different visor poses.
     /// </summary>
     private static XrayPosture ClassifyAllowedMovement(SamusMovementType movementType) =>
-        SamusMovementTypeDefinitions.Movements.TryGetValue(movementType, out SamusMovementTypeDefinition? definition)
-            ? definition.Xray
-            : throw new InvalidOperationException($"Undefined SamusMovementType {movementType}.");
+        SamusMovementTypeDefinitions.Movements[movementType].Xray;
 
     /// <summary>Starts the beam's closing on the update its step reads Run released.</summary>
     private void StartClosing()

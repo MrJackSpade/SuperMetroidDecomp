@@ -7,11 +7,8 @@ namespace SuperMetroid.Core.Samus.Hud;
 internal static class SamusHudObservations
 {
     /// <summary>The HUD selection mode of <paramref name="movement"/> (<see cref="SamusMovementTypeDefinitions"/>).</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The movement type has no definition.</exception>
     internal static SamusHudSelectionMode SelectionMode(SamusMovementType movement) =>
-        SamusMovementTypeDefinitions.Movements.TryGetValue(movement, out SamusMovementTypeDefinition? definition)
-            ? definition.HudSelection
-            : throw new ArgumentOutOfRangeException(nameof(movement), movement, "Undefined movement type.");
+        SamusMovementTypeDefinitions.Movements[movement].HudSelection;
 
     /// <summary>
     /// Whether the posture-transition admission admits weapons for <paramref name="pose"/>: the input transitions admit

@@ -148,15 +148,14 @@ internal static class EnemyDeathAndDropAnimations
     /// The animation each death explosion starts (#2061): the big explosion's bursts and Fake Kraid's (<see cref="BigExplosionBursts"/>, <see cref="FakeKraidExplosionBursts"/>), each
     /// scattering its sprites, before it becomes the drop; the other explosions' animations start at their segments.
     /// </summary>
-    internal static IReadOnlyDictionary<EnemyDeathExplosion, Animation<EnemyDeathAndDropSegment>> Explosions { get; } =
-        new Dictionary<EnemyDeathExplosion, Animation<EnemyDeathAndDropSegment>>
+    internal static IdentityTable<EnemyDeathExplosion, Animation<EnemyDeathAndDropSegment>> Explosions { get; } = new(new Dictionary<EnemyDeathExplosion, Animation<EnemyDeathAndDropSegment>>
         {
             [EnemyDeathExplosion.Small] = StartingAt[P.SmallExplosion],
             [EnemyDeathExplosion.SamusContact] = StartingAt[P.KilledBySamusContact],
             [EnemyDeathExplosion.Normal] = StartingAt[P.NormalExplosion],
             [EnemyDeathExplosion.FakeKraid] = new([Segments.Repeated(P.FakeKraidExplosion, FakeKraidExplosionBursts), Segments.Whole(P.FakeKraidExplosionEnd)], AnimationEnd.Holds),
             [EnemyDeathExplosion.Big] = new([Segments.Repeated(P.BigExplosion, BigExplosionBursts), Segments.Whole(P.BigExplosionEnd)], AnimationEnd.Holds),
-        };
+        });
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, EnemyDeathAndDropCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EnemyDeathAndDropCue>.Frame(frame, duration);

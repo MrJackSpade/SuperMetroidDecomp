@@ -17,7 +17,7 @@ public sealed class RoomFloorSheet
     public const string FloorFrameName = "floor";
 
     /// <summary>The picture of each floor animation frame, by the frame.</summary>
-    private readonly Dictionary<CeresFloorActorPicture, SpriteSheetFrame> pictures;
+    private readonly IdentityTable<CeresFloorActorPicture, SpriteSheetFrame> pictures;
 
     /// <summary>Checks the sheet pictures the floor and every floor animation frame (#1536).</summary>
     /// <exception cref="InvalidDataException">
@@ -28,7 +28,7 @@ public sealed class RoomFloorSheet
         Tileset = tileset;
         Sheet = Ensure.NotNull(sheet);
         Floor = new AffineFloor(sheet.Frame(FloorFrameName));
-        pictures = Enum.GetValues<CeresFloorActorPicture>().ToDictionary(frame => frame, frame => sheet.Frame(PictureNameOf(frame)));
+        pictures = new(frame => sheet.Frame(PictureNameOf(frame)));
         Resting = Enum.GetValues<CeresFloorActorPicture>().Where(frame => sheet.HoldsPicture(RestingNameOf(frame)))
             .ToDictionary(CeresFloorActors.Of, frame => frame);
     }
@@ -59,10 +59,7 @@ public sealed class RoomFloorSheet
     public AffineFloor Floor { get; }
 
     /// <summary>The picture <paramref name="frame"/>, which its actor shows over the floor.</summary>
-    /// <exception cref="InvalidDataException"><paramref name="frame"/> is not a floor animation frame.</exception>
-    public SpriteSheetFrame Picture(CeresFloorActorPicture frame) =>
-        pictures.TryGetValue(frame, out SpriteSheetFrame? picture) ? picture
-            : throw new InvalidDataException($"Unknown Ceres floor animation frame {frame}.");
+    public SpriteSheetFrame Picture(CeresFloorActorPicture frame) => pictures[frame];
 
     /// <summary>The installed name of <paramref name="tileset"/>'s floor.</summary>
     [InstalledKey]

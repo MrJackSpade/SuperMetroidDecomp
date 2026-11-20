@@ -40,10 +40,9 @@ public sealed class InstalledKeys<TIdentity>
     /// <summary>Every member's key, by member: the table a family keyed member by member reads its names from.</summary>
     public IReadOnlyDictionary<TIdentity, string> ByIdentity => keys;
 
-    /// <summary>The installed key of <paramref name="identity"/>.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The identity is no member of <typeparamref name="TIdentity"/>.</exception>
+    /// <summary>The installed key of <paramref name="identity"/>, which the table built from every member holds.</summary>
     [InstalledKey]
-    public string Of(TIdentity identity) => Ensure.Listed(keys, identity);
+    public string Of(TIdentity identity) => keys[identity];
 
     /// <summary>Whether <paramref name="key"/> is the installed key of a member, and that member, read without allocating.</summary>
     public bool TryParse(ReadOnlySpan<char> key, out TIdentity identity) =>

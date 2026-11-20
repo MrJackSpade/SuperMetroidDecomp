@@ -10,8 +10,7 @@ internal static class ChozoCarryPoseDefinitions
     /// moving her from where the open hand holds her to where its grip does. The stride walks through its steps at their
     /// own speeds while Samus bobs up and back.
     /// </summary>
-    internal static IReadOnlyDictionary<ChozoCarryPose, ChozoCarryPoseDefinition> Poses { get; } =
-        new Dictionary<ChozoCarryPose, ChozoCarryPoseDefinition>
+    internal static IdentityTable<ChozoCarryPose, ChozoCarryPoseDefinition> Poses { get; } = new(new Dictionary<ChozoCarryPose, ChozoCarryPoseDefinition>
         {
             [ChozoCarryPose.Reaching] = new(SignedEightEight.Zero, new(28, -32)),
             [ChozoCarryPose.Closing] = new(SignedEightEight.Zero, new(30, -25)),
@@ -21,5 +20,5 @@ internal static class ChozoCarryPoseDefinitions
             [ChozoCarryPose.StrideLift] = new(SignedEightEight.FromPixels(3), new(32, -24)),
             [ChozoCarryPose.StrideSwing] = new(SignedEightEight.FromPixels(14), new(32, -25)),
             [ChozoCarryPose.StridePlant] = new(SignedEightEight.FromPixels(8), new(32, -24)),
-        };
+        });
 }

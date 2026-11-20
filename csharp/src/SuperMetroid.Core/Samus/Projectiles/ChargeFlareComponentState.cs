@@ -16,9 +16,7 @@ internal sealed class ChargeFlareComponentState
     internal ChargeFlareComponentState(ChargeFlareComponent component)
     {
         Component = component;
-        animation = Animations.TryGetValue(component, out Animation<ChargeFlareSegment>? played)
-            ? played
-            : throw new ArgumentOutOfRangeException(nameof(component), component, $"Undefined {nameof(ChargeFlareComponent)}.");
+        animation = Animations[component];
         player = AnimationPlayer<ChargeFlareSegment, ChargeFlarePicture, NoAnimationCue>.StartShowing(Segments, animation, ClearedPictureUpdates);
     }
 

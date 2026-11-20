@@ -16,14 +16,13 @@ public sealed class TourianStatueAnimationDefinition
     /// The installed name of each statue's background animation (#2511), written out so renaming a statue's identity never
     /// changes a name on disk.
     /// </summary>
-    private static readonly FrozenDictionary<TourianStatue, string> AnimationKeys =
-        new Dictionary<TourianStatue, string>
+    private static readonly IdentityTable<TourianStatue, string> AnimationKeys = new(new Dictionary<TourianStatue, string>
         {
             [TourianStatue.Phantoon] = "Phantoon statue",
             [TourianStatue.Ridley] = "Ridley statue",
             [TourianStatue.Kraid] = "Kraid statue",
             [TourianStatue.Draygon] = "Draygon statue",
-        }.ToFrozenDictionary();
+        });
 
     /// <summary>
     /// The installed name of each statue picture's frame (#2511), written out so renaming a picture's identity never changes
@@ -47,8 +46,7 @@ public sealed class TourianStatueAnimationDefinition
     public required TourianStatue Statue { get; init; }
 
     /// <summary>The background animation whose frames are the statue's pictures.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The statue has no installed name.</exception>
-    public ArtworkAnimation Animation => new(Ensure.Listed(AnimationKeys, Statue));
+    public ArtworkAnimation Animation => new(AnimationKeys[Statue]);
 
     /// <summary>The event set once this statue has turned grey, and tested to skip straight to the grey picture.</summary>
     public required StoryEvent GreyEvent { get; init; }

@@ -11,8 +11,8 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 internal static class EnemyProjectileFrameSheetKeys
 {
     /// <summary>Each frame's key.</summary>
-    private static readonly FrozenDictionary<EnemyProjectileFrameId, string> Keys = EnemyProjectileFrameNameDefinitions.Names
-        .ToFrozenDictionary(entry => entry.Key, entry => EnemyFrameSheetKeys.PascalCase(entry.Value));
+    private static readonly IdentityTable<EnemyProjectileFrameId, string> Keys =
+        new(frame => EnemyFrameSheetKeys.PascalCase(EnemyProjectileFrameNameDefinitions.Names[frame]));
 
     /// <summary>Each frame by its document name.</summary>
     private static readonly FrozenDictionary<string, EnemyProjectileFrameId> ByName = EnemyProjectileFrameNameDefinitions.Names
@@ -25,8 +25,5 @@ internal static class EnemyProjectileFrameSheetKeys
         : throw new InvalidDataException($"No enemy projectile frame is named {documentName}.");
 
     /// <summary>The installed sheet key of <paramref name="frame"/>.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="frame"/> has no installed name.</exception>
-    internal static string Of(EnemyProjectileFrameId frame) => Keys.TryGetValue(frame, out string? key)
-        ? key
-        : throw new ArgumentOutOfRangeException(nameof(frame), frame, "The projectile frame has no installed name.");
+    internal static string Of(EnemyProjectileFrameId frame) => Keys[frame];
 }

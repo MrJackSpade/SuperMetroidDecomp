@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Assets;
 public sealed record GameplayShading
 {
     /// <summary>Each group's own shading, before the display's fade.</summary>
-    private readonly ImmutableDictionary<GameplayPictures, PictureShading> shadings;
+    private readonly IdentityTable<GameplayPictures, PictureShading> shadings;
 
     /// <summary>Keeps the backdrop, each group's shading and the display's fade.</summary>
     /// <param name="backdrop">The colour shown where nothing is drawn, the fade included.</param>
@@ -19,13 +19,13 @@ public sealed record GameplayShading
     /// <param name="fade">The fade of the whole display, or null while none runs.</param>
     /// <exception cref="ArgumentException">A group has no shading.</exception>
     public GameplayShading(RgbColor backdrop, ImmutableDictionary<GameplayPictures, PictureShading> shadings, GameplayDisplayFade? fade)
+        : this(backdrop, new IdentityTable<GameplayPictures, PictureShading>(shadings), fade)
     {
-        Ensure.NotNull(shadings);
-        foreach (GameplayPictures pictures in Enum.GetValues<GameplayPictures>())
-        {
-            if (!shadings.ContainsKey(pictures))
-                throw new ArgumentException($"A gameplay frame's shading names none for its {pictures} pictures.", nameof(shadings));
-        }
+    }
+
+    /// <summary>Keeps the backdrop, each group's shading and the display's fade.</summary>
+    private GameplayShading(RgbColor backdrop, IdentityTable<GameplayPictures, PictureShading> shadings, GameplayDisplayFade? fade)
+    {
         Backdrop = backdrop;
         this.shadings = shadings;
         Fade = fade;
@@ -40,9 +40,7 @@ public sealed record GameplayShading
     /// <summary>The shading <paramref name="pictures"/> show: their own, then the display's fade unless it spares them.</summary>
     public PictureShading Of(GameplayPictures pictures)
     {
-        PictureShading own = shadings.TryGetValue(pictures, out PictureShading? shading)
-            ? shading
-            : throw new ArgumentOutOfRangeException(nameof(pictures), pictures, "Undefined group of gameplay pictures.");
+        PictureShading own = shadings[pictures];
         return Fade is not { } fade || fade.SparesHud && pictures is GameplayPictures.Hud or GameplayPictures.EscapeTimer
             ? own : own.With(fade.Effect);
     }

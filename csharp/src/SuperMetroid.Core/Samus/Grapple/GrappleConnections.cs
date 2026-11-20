@@ -24,11 +24,8 @@ internal static class GrappleConnections
         new(ReflectionTurn - stop.Angle, SamusPoseMirror.Of(stop.Pose), stop.SamusOffset.MirroredX(), stop.Kind);
 
     /// <summary>Whether <paramref name="movement"/> cancels firing the Grapple (<see cref="SamusMovementTypeDefinitions"/>).</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The movement type has no definition.</exception>
     internal static bool CancelsFiring(SamusMovementType movement) =>
-        SamusMovementTypeDefinitions.Movements.TryGetValue(movement, out SamusMovementTypeDefinition? definition)
-            ? definition.GrappleFiring == GrappleFiringResponse.Cancelled
-            : throw new ArgumentOutOfRangeException(nameof(movement));
+        SamusMovementTypeDefinitions.Movements[movement].GrappleFiring == GrappleFiringResponse.Cancelled;
 
     /// <summary>Directional standing/crouching poses after the rope drops.</summary>
     internal static SamusPoseId DroppedPose(SamusProjectileDirection direction, bool compact) => direction switch

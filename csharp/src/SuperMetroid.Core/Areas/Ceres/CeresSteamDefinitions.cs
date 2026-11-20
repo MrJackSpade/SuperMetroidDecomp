@@ -13,8 +13,7 @@ public static class CeresSteamDefinitions
     /// their own way and hold their place; the two vents in the rotating elevator room puff left and right, as the left and
     /// right vents do, and are drawn turned with the room.
     /// </summary>
-    internal static readonly IReadOnlyDictionary<CeresSteamVariant, CeresSteamInitialization> Initializations =
-        new Dictionary<CeresSteamVariant, CeresSteamInitialization>
+    internal static readonly IdentityTable<CeresSteamVariant, CeresSteamInitialization> Initializations = new(new Dictionary<CeresSteamVariant, CeresSteamInitialization>
         {
             [CeresSteamVariant.Up] = new(CeresSteamSegment.UpDormant, CeresSteamAction.HoldsItsPlace),
             [CeresSteamVariant.Left] = new(CeresSteamSegment.LeftDormant, CeresSteamAction.HoldsItsPlace),
@@ -24,5 +23,5 @@ public static class CeresSteamDefinitions
                 CeresSteamAction.ApplyRotatingElevatorOffset),
             [CeresSteamVariant.RotatingElevatorRight] = new(CeresSteamSegment.RightDormant,
                 CeresSteamAction.ApplyRotatingElevatorOffset),
-        };
+        });
 }

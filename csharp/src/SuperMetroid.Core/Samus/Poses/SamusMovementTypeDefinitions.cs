@@ -35,7 +35,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 internal static class SamusMovementTypeDefinitions
 {
     /// <summary>Each movement type's definition.</summary>
-    internal static IReadOnlyDictionary<Move, SamusMovementTypeDefinition> Movements { get; } = new Dictionary<Move, SamusMovementTypeDefinition>
+    internal static IdentityTable<Move, SamusMovementTypeDefinition> Movements { get; } = new(new Dictionary<Move, SamusMovementTypeDefinition>
     {
         [Move.Standing] = new(Response.Stop, Bomb.ForwardJumpUnlessTimeFrozen, Xray.Standing, Splash.GroundedPair,
             Firing.Fires, Selection.Standard, Knockback.Upright, PoseMovement: SamusPoseMovement.Standing),
@@ -89,5 +89,5 @@ internal static class SamusMovementTypeDefinitions
             Firing.Fires, Selection.DraygonHeld, Knockback.Refused, PoseMovement: SamusPoseMovement.DraygonHeld),
         [Move.Special] = new(Response.Stop, Bomb.TurnedDown, Xray.Disallowed, Splash.Diving,
             Firing.Cancelled, Selection.Jump, Knockback.Refused),
-    };
+    });
 }

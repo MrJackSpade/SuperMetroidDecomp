@@ -76,14 +76,14 @@ internal static class ChootFallingPathDefinitions
     ];
 
     /// <summary>The samples each falling path follows; the update after its last sample ends one loop of the path.</summary>
-    internal static readonly Dictionary<ChootFallingPath, ChootFallSample[]> Paths = new()
+    internal static readonly IdentityTable<ChootFallingPath, ChootFallSample[]> Paths = new(new Dictionary<ChootFallingPath, ChootFallSample[]>
     {
         [ChootFallingPath.Normal] = Normal,
         [ChootFallingPath.Wide] = Wide,
         [ChootFallingPath.VeryWide] = VeryWide,
         [ChootFallingPath.Slow] = Slow,
         [ChootFallingPath.VerySlow] = VerySlow,
-    };
+    });
 
     /// <summary>A sample at <paramref name="offset"/> from the falling origin, held <paramref name="updates"/> updates.</summary>
     private static ChootFallSample At(Offset16<RoomPixels> offset, int updates = 1) => new(offset, updates);

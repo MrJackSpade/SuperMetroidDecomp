@@ -691,8 +691,7 @@ internal sealed class SamusFramePhases
         SamusMovementType movement = SamusPoseMetadata.ReadMovementType(samus.Pose);
         // The special movement type returns before this, and grappling, a compact airborne pose and the unused movement
         // types are owned by their own movers; any other is corrupt pose state.
-        SamusPoseMovement step = SamusMovementTypeDefinitions.Movements.TryGetValue(movement, out SamusMovementTypeDefinition? definition)
-            && definition.PoseMovement is { } owned
+        SamusPoseMovement step = SamusMovementTypeDefinitions.Movements[movement].PoseMovement is { } owned
             ? owned
             : throw new InvalidDataException(
                 $"Runtime movement step received pose {samus.Pose}, whose movement type {movement} has no movement its pose owns.");

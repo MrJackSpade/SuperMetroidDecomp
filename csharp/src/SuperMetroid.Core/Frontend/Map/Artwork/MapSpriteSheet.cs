@@ -18,12 +18,9 @@ internal static class MapSpriteSheet
     /// <param name="origin">Where the frame's origin lands.</param>
     /// <param name="screen">The map screen the sprite is drawn on.</param>
     /// <param name="colouring">What the map shows the sprite's recolourable parts as.</param>
-    /// <exception cref="InvalidOperationException">The sprite is not one <see cref="MapSpriteColourings"/> draws in <paramref name="colouring"/>, so the sheet does not picture it in that colouring.</exception>
     internal static void Draw(SpriteSheet sheet, MapSpriteId id, ScreenSprites sprites, Offset16<ScreenPixels> origin,
         MapSpriteScreen screen, MapSpriteColouring colouring)
     {
-        if (!Ensure.Listed(MapSpriteColourings.Drawn, id).Contains(colouring))
-            throw new InvalidOperationException($"Map sprite {id} is not drawn in {colouring}.");
         Draw(sheet, id, sprites, origin, PictureShading.Shaded(MapSpriteShades.Drawn(screen, colouring)));
     }
 

@@ -14,9 +14,7 @@ internal abstract class EndingSprite
     protected EndingSprite(EndingSpriteRole role)
     {
         Role = role;
-        Definition = EndingSpriteRoleDefinitions.Roles.TryGetValue(role, out EndingSpriteRoleDefinition? definition)
-            ? definition
-            : throw new ArgumentOutOfRangeException(nameof(role), role, "Undefined ending sprite role.");
+        Definition = EndingSpriteRoleDefinitions.Roles[role];
         Motion = Definition.Motion();
     }
 

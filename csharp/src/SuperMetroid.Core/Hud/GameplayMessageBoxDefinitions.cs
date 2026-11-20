@@ -122,8 +122,7 @@ public static class GameplayMessageBoxDefinitions
         /// The binding each message's panel names the button of: shoot or run for the large item panels that show one,
         /// <see cref="GameplayMessagePanelButtonBinding.None"/> for every other message.
         /// </summary>
-        public static IReadOnlyDictionary<GameplayMessageId, GameplayMessagePanelButtonBinding> PanelBindings { get; } =
-            new Dictionary<GameplayMessageId, GameplayMessagePanelButtonBinding>
+        public static IdentityTable<GameplayMessageId, GameplayMessagePanelButtonBinding> PanelBindings { get; } = new(new Dictionary<GameplayMessageId, GameplayMessagePanelButtonBinding>
         {
             [GameplayMessageId.MissileTank] = GameplayMessagePanelButtonBinding.Shoot,
             [GameplayMessageId.SuperMissileTank] = GameplayMessagePanelButtonBinding.Shoot,
@@ -152,6 +151,6 @@ public static class GameplayMessageBoxDefinitions
             [GameplayMessageId.ReserveTank] = GameplayMessagePanelButtonBinding.None,
             [GameplayMessageId.GravitySuit] = GameplayMessagePanelButtonBinding.None,
             [GameplayMessageId.GunshipSaveConfirmation] = GameplayMessagePanelButtonBinding.None,
-        };
+        });
     }
 }

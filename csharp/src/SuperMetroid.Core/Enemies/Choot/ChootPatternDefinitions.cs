@@ -15,12 +15,12 @@ internal static class ChootPatternDefinitions
     /// normal-path plateau frames and use the same vertical advance. The advances are not all the paths' final offsets,
     /// so they stay authored inputs of each drawn trajectory.
     /// </summary>
-    internal static readonly Dictionary<ChootFallingPath, int> LoopYDistances = new()
+    internal static readonly IdentityTable<ChootFallingPath, int> LoopYDistances = new(new Dictionary<ChootFallingPath, int>
     {
         [ChootFallingPath.Normal] = NormalLoopYDistance,
         [ChootFallingPath.Wide] = WideLoopYDistance,
         [ChootFallingPath.VeryWide] = VeryWideLoopYDistance,
         [ChootFallingPath.Slow] = NormalLoopYDistance,
         [ChootFallingPath.VerySlow] = NormalLoopYDistance,
-    };
+    });
 }

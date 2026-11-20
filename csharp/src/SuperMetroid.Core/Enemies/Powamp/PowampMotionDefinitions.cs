@@ -16,12 +16,12 @@ internal static class PowampMotionDefinitions
     internal static readonly IReadOnlyList<PowampBalloonPose> SinkingPoses = [PowampBalloonPose.Full, PowampBalloonPose.Halfway, PowampBalloonPose.Deflated];
 
     /// <summary>How far above the body the balloon sits in each pose: four pixels higher per pose it inflates.</summary>
-    internal static readonly IReadOnlyDictionary<PowampBalloonPose, int> BalloonHeights = new Dictionary<PowampBalloonPose, int>
+    internal static readonly IdentityTable<PowampBalloonPose, int> BalloonHeights = new(new Dictionary<PowampBalloonPose, int>
     {
         [PowampBalloonPose.Deflated] = -12,
         [PowampBalloonPose.Halfway] = -16,
         [PowampBalloonPose.Full] = -20,
-    };
+    });
 
     /// <summary>
     /// Where each balloon animation starts the balloon's sequence (#1845): inflating from deflated or from halfway, which

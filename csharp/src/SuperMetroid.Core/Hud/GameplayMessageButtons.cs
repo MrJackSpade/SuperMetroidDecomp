@@ -25,6 +25,5 @@ public static class GameplayMessageButtons
     /// <summary>The binding whose button <paramref name="messageId"/>'s panel names, or <see cref="GameplayMessagePanelButtonBinding.None"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="messageId"/> is no message the table lists.</exception>
     public static GameplayMessagePanelButtonBinding PanelBinding(GameplayMessageId messageId) =>
-        Buttons.PanelBindings.TryGetValue(messageId, out GameplayMessagePanelButtonBinding binding) ? binding
-            : throw new ArgumentOutOfRangeException(nameof(messageId), messageId, "The panel binding table does not list this message.");
+        Buttons.PanelBindings[messageId];
 }

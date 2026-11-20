@@ -4,6 +4,7 @@ using K = SuperMetroid.Core.Bosses.Torizo.TorizoProjectileCueKind;
 using O = SuperMetroid.Core.Bosses.Torizo.TorizoFallCueKind;
 using P = SuperMetroid.Core.Bosses.Torizo.TorizoProjectileSegment;
 using SuperMetroid.Core.Enemies.Projectiles;
+using static SuperMetroid.Core.Bosses.Torizo.TorizoProjectileSide;
 
 namespace SuperMetroid.Core.Bosses.Torizo;
 

@@ -162,17 +162,17 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
         {
             SpawnTourianEntranceStatueProjectile(
                 RoomEnemyProjectileKind.TourianStatueBaseDecoration,
-                TourianStatueProjectileSegment.BaseDecoration,
+                TourianStatueDecorationSegment.BaseDecoration,
                 TourianStatueDecorationDefinitions.BaseDecoration,
                 Decoration);
             SpawnTourianEntranceStatueProjectile(
                 RoomEnemyProjectileKind.TourianStatueRidley,
-                TourianStatueProjectileSegment.Ridley,
+                TourianStatueDecorationSegment.Ridley,
                 TourianStatueDecorationDefinitions.RidleyStatue,
                 Decoration);
             SpawnTourianEntranceStatueProjectile(
                 RoomEnemyProjectileKind.TourianStatuePhantoon,
-                TourianStatueProjectileSegment.Phantoon,
+                TourianStatueDecorationSegment.Phantoon,
                 TourianStatueDecorationDefinitions.PhantoonStatue,
                 Decoration);
         }
@@ -187,18 +187,18 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     /// </summary>
     private void SpawnTourianEntranceStatueProjectile(
         RoomEnemyProjectileKind kind,
-        TourianStatueProjectileSegment start,
+        TourianStatueDecorationSegment start,
         Position16<RoomPixels> position,
-        Func<Position16<RoomPixels>, TourianStatueProjectileBehavior<TourianStatueDecorationMotion>> decorations)
+        Func<Position16<RoomPixels>, DecorationBehavior> decorations)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
             return;
 
-        TourianStatueProjectileBehavior<TourianStatueDecorationMotion> decoration = decorations(position);
+        DecorationBehavior decoration = decorations(position);
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, decoration, graphics: SceneGraphics);
         HoldSceneProjectile(projectile);
-        projectile.StartAnimation(new TourianStatueProjectileAnimation(start, decoration));
+        projectile.StartAnimation(new TourianStatueDecorationAnimation(start, decoration));
         projectile.Position = projectile.Position.WithWhole(position);
     }
 
@@ -210,20 +210,30 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     /// animations, and they follow the statue room's statue down.
     /// </summary>
     /// <param name="anchor">The decoration's authored spawn point, to which it stays tied as the statue descends.</param>
-    internal TourianStatueProjectileBehavior<TourianStatueDecorationMotion> Decoration(Position16<RoomPixels> anchor) =>
+    internal DecorationBehavior Decoration(Position16<RoomPixels> anchor) =>
         new DecorationBehavior(StatueRoom.Animation, StatueRoom, anchor);
 
     /// <summary>A decoration: it follows the statue's reveal and descent, and settles at its place.</summary>
     /// <param name="statue">The statues' shared animation state, whose rest finishes the statue's sinking.</param>
     /// <param name="statueRoom">The statue room, which says how far the statue has sunk.</param>
     /// <param name="anchor">The decoration's authored spawn point.</param>
-    private sealed class DecorationBehavior(TourianStatueAnimation statue, ITourianStatueRoom statueRoom, Position16<RoomPixels> anchor)
-        : TourianStatueProjectileBehavior<TourianStatueDecorationMotion>(TourianStatueDecorationMotion.Settled)
+    internal sealed class DecorationBehavior(TourianStatueAnimation statue, ITourianStatueRoom statueRoom, Position16<RoomPixels> anchor)
+        : EnemyProjectileMotionBehavior<TourianStatueDecorationMotion>(TourianStatueDecorationMotion.Settled), IEnemyProjectileCues<TourianStatueDecorationCue>
     {
-        /// <summary>The base decoration's animation starts it following the statue's reveal.</summary>
-        /// <param name="projectile">The base decoration.</param>
-        private protected override void FollowReveal(EnemyProjectile projectile) =>
-            StartMotion(projectile, TourianStatueDecorationMotion.FollowingReveal);
+        /// <summary>Handles a decoration animation's cue: the base decoration's animation starts it following the statue's reveal.</summary>
+        /// <param name="context">The projectile, Samus and the camera of the pass running the animation.</param>
+        /// <param name="cue">The cue the animation published.</param>
+        public void RunCue(EnemyProjectileCueContext context, TourianStatueDecorationCue cue)
+        {
+            switch (cue)
+            {
+                case TourianStatueDecorationCue.FollowReveal:
+                    StartMotion(context.Projectile, TourianStatueDecorationMotion.FollowingReveal);
+                    break;
+                default:
+                    throw new InvalidOperationException($"Undefined {nameof(TourianStatueDecorationCue)} {cue}.");
+            }
+        }
 
         /// <inheritdoc/>
         private protected override void Move(EnemyProjectileMotionContext context, TourianStatueDecorationMotion motion)

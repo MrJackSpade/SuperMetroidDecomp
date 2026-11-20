@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// surface. The release's cues spawn more of the effects it spawns.
 /// </summary>
 [RoomLifetime]
-internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<TourianStatueEffectMotion>
+internal sealed class TourianUnlockBehavior : EnemyProjectileMotionBehavior<TourianStatueEffectMotion>, IEnemyProjectileCues<TourianStatueProjectileCue>
 {
     /// <summary>The room's randomness, which aims the particles.</summary>
     private readonly EnemyRoomBinding _room;
@@ -221,14 +221,24 @@ internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<To
     }
 
     /// <summary>
-    /// Handles a cue of the statues' release: its sound, its earthquake, or a particle or tail spawned at the projectile.
+    /// Handles an unlock effect animation's cue: deletion, a step down, or a cue of the statues' release: its sound, its
+    /// earthquake, or a particle or tail spawned at the projectile.
     /// </summary>
-    /// <param name="projectile">The projectile whose animation published the cue.</param>
+    /// <param name="context">The projectile, Samus and the camera of the pass running the animation.</param>
     /// <param name="cue">The cue the animation published.</param>
-    private protected override void RunReleaseCue(EnemyProjectile projectile, TourianStatueProjectileCue cue)
+    public void RunCue(EnemyProjectileCueContext context, TourianStatueProjectileCue cue)
     {
+        EnemyProjectile projectile = context.Projectile;
         switch (cue)
         {
+            case TourianStatueProjectileCue.Signal { Kind: TourianStatueProjectileCueKind.Delete }:
+                projectile.Delete();
+                break;
+            case TourianStatueProjectileCue.MoveDown moveDown:
+                // A statue effect can stand above the room's top, its Y past the seam, and a move down carries it back
+                // across, so the move keeps its place as OffRoomPlaces does.
+                projectile.Position = OffRoomPlaces.WithWholeY(projectile.Position, projectile.Position.Y.Whole + moveDown.Pixels);
+                break;
             case TourianStatueProjectileCue.Signal { Kind: TourianStatueProjectileCueKind.PlayReleaseSound }:
                 _audio.QueueEnemySound(EnemySound.TourianStatueParticle, priority: SoundRequestPriority.Normal);
                 break;
@@ -242,8 +252,7 @@ internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<To
                 SpawnTourianTail(projectile);
                 break;
             default:
-                base.RunReleaseCue(projectile, cue);
-                break;
+                throw new InvalidOperationException($"Undefined {nameof(TourianStatueProjectileCueKind)} {cue}.");
         }
     }
 }

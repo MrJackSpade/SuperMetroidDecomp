@@ -5,7 +5,11 @@ using P = SuperMetroid.Core.Areas.Tourian.TourianStatueProjectileSegment;
 
 namespace SuperMetroid.Core.Areas.Tourian;
 
-/// <summary>The Tourian statue projectile animations (#641).</summary>
+/// <summary>
+/// The Tourian statues' unlock effect animations (#641, #2554): the eyes' glows, the particles, their tails, the splashes and
+/// the souls, whose cues the unlock's behaviour runs. The entrance statue's decorations are a family of their own
+/// (<see cref="TourianStatueDecorationAnimations"/>).
+/// </summary>
 internal static class TourianStatueProjectileAnimations
 {
     /// <summary>Every segment's beats.</summary>
@@ -64,20 +68,6 @@ internal static class TourianStatueProjectileAnimations
             Show(EnemyProjectileFrameId.TourianStatueSoulMouthClosed, 8),
             Show(EnemyProjectileFrameId.TourianStatueSoulMouthOpen, 8),
         ],
-        [P.BaseDecoration] =
-        [
-            Show(EnemyProjectileFrameId.TourianStatueBaseDecoration, 128),
-            Cue(new TourianStatueProjectileCue.Signal(K.FollowReveal)),
-            Hold(EnemyProjectileFrameId.TourianStatueBaseDecoration),
-        ],
-        [P.Ridley] =
-        [
-            Hold(EnemyProjectileFrameId.TourianStatueRidley),
-        ],
-        [P.Phantoon] =
-        [
-            Hold(EnemyProjectileFrameId.TourianStatuePhantoon),
-        ],
     });
 
     /// <summary>
@@ -92,9 +82,6 @@ internal static class TourianStatueProjectileAnimations
         [P.Particle] = Animation<TourianStatueProjectileSegment>.Looping([Segments.Whole(P.Particle)]),
         [P.Tail] = new([Segments.Whole(P.Tail)], AnimationEnd.Holds),
         [P.Soul] = Animation<TourianStatueProjectileSegment>.Looping([Segments.Whole(P.Soul)]),
-        [P.BaseDecoration] = new([Segments.Whole(P.BaseDecoration)], AnimationEnd.Holds),
-        [P.Ridley] = new([Segments.Whole(P.Ridley)], AnimationEnd.Holds),
-        [P.Phantoon] = new([Segments.Whole(P.Phantoon)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
@@ -102,9 +89,6 @@ internal static class TourianStatueProjectileAnimations
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, TourianStatueProjectileCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, TourianStatueProjectileCue>.Frame(frame, duration);
-
-    /// <summary>Shows <paramref name="frame"/> for good (#2068): a statue and the base's decoration rest on their picture.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, TourianStatueProjectileCue> Hold(EnemyProjectileFrameId frame) => new AnimationBeat<EnemyProjectileFrameId, TourianStatueProjectileCue>.HeldFrame(frame);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, TourianStatueProjectileCue> Cue(TourianStatueProjectileCue cue) => new AnimationBeat<EnemyProjectileFrameId, TourianStatueProjectileCue>.Event(cue);

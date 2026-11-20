@@ -370,11 +370,9 @@ internal sealed class TorizoAttacks
                 case TorizoFamilyCue<GoldenTorizoWeaponCueKind>.Shared shared:
                     RunSharedCue(context.Projectile, shared.Cue, audio, projectiles);
                     return null;
-                case TorizoFamilyCue<GoldenTorizoWeaponCueKind>.Own { Kind: GoldenTorizoWeaponCueKind.AimSuperMissileTowardSamus }:
-                    SetGoldenTorizoSuperMissileVelocity(context.Projectile, context.Samus, awayFromSamus: false);
-                    return null;
-                case TorizoFamilyCue<GoldenTorizoWeaponCueKind>.Own { Kind: GoldenTorizoWeaponCueKind.AimSuperMissileAwayFromSamus }:
-                    SetGoldenTorizoSuperMissileVelocity(context.Projectile, context.Samus, awayFromSamus: true);
+                case TorizoFamilyCue<GoldenTorizoWeaponCueKind>.Own { Kind: GoldenTorizoWeaponCueKind.AimSuperMissileTowardSamus or GoldenTorizoWeaponCueKind.AimSuperMissileAwayFromSamus } aim:
+                    SetGoldenTorizoSuperMissileVelocity(context.Projectile, context.Samus,
+                        awayFromSamus: aim.Kind == GoldenTorizoWeaponCueKind.AimSuperMissileAwayFromSamus);
                     return null;
                 case TorizoFamilyCue<GoldenTorizoWeaponCueKind>.Own { Kind: GoldenTorizoWeaponCueKind.ThrowSuperMissile }:
                     StartMotion(context.Projectile, GoldenTorizoWeaponMotion.SuperMissileThrown);

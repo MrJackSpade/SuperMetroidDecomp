@@ -62,7 +62,7 @@ internal static class FrameColouringDefinitions
     /// the Tourian statue scene's statue programs, drawn in the scene's entrance colours.
     /// </summary>
     internal static IReadOnlyDictionary<EnemyProjectileFrameId, FrameColouring> Projectiles { get; } = new Dictionary<EnemyProjectileFrameId, FrameColouring>(
-        BossProjectiles.Concat(TourianStatueProjectileAnimations.Segments.Frames
+        BossProjectiles.Concat(TourianStatueProjectileAnimations.Segments.Frames.Union(TourianStatueDecorationAnimations.Segments.Frames)
             .Select(frame => KeyValuePair.Create(frame, TourianStatueEntrance))));
 
     /// <summary>

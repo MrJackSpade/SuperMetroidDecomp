@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Areas.Tourian;
 
-/// <summary>The Tourian statue projectile animations (#641), in authored order.</summary>
+/// <summary>The Tourian statues' unlock effect animations (#641, #2554), in authored order.</summary>
 internal enum TourianStatueProjectileSegment
 {
     /// <summary>A particle's water splash.</summary>
@@ -18,12 +18,4 @@ internal enum TourianStatueProjectileSegment
     /// <summary>A rising statue soul.</summary>
     Soul,
 
-    /// <summary>The entrance statue base decoration: shown until it may follow the reveal, then resting on its pose for good.</summary>
-    BaseDecoration,
-
-    /// <summary>The statue of Ridley, one still picture for good.</summary>
-    Ridley,
-
-    /// <summary>The statue of Phantoon, one still picture for good.</summary>
-    Phantoon,
 }

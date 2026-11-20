@@ -67,7 +67,7 @@ internal static class MetroidBehaviorDefinitionsVerification
             };
             var state = new MetroidEnemyState(
                 new RoomEffectActor(RoomEffectActorKind.MetroidElectricity, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard),
-                new RoomEffectActor(RoomEffectActorKind.MetroidShell, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard), place.SpawnSettings<MetroidSpawnSettings>())
+                new RoomEffectActor(RoomEffectActorKind.MetroidShell, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard), new MetroidSpawnSettings(IceDamageToFreeze: 0))
             {
                 EscapeMovesLeft = UpdateCountdown.For(timer),
                 Movement = MetroidMovement.PowerBombEscape,
@@ -98,7 +98,7 @@ internal static class MetroidBehaviorDefinitionsVerification
         var frozenPlace = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers());
         var frozen = new MetroidEnemyState(
             new RoomEffectActor(RoomEffectActorKind.MetroidElectricity, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard),
-            new RoomEffectActor(RoomEffectActorKind.MetroidShell, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard), place.SpawnSettings<MetroidSpawnSettings>())
+            new RoomEffectActor(RoomEffectActorKind.MetroidShell, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard), new MetroidSpawnSettings(IceDamageToFreeze: 0))
         {
             EscapeMovesLeft = UpdateCountdown.Lasting(2),
             Movement = MetroidMovement.Homing,

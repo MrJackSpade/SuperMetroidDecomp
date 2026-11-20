@@ -6,7 +6,10 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// </summary>
 internal static class ShotBlockReactionReadings
 {
-    /// <summary>The shot reaction handling <paramref name="reaction"/>, or null when no shot handles it.</summary>
-    internal static ShotBlockReaction? HandledOrNone(ShootableReaction reaction) =>
-        ShotBlockReactions.TryOf(reaction, out ShotBlockReaction handled) ? handled : null;
+    /// <summary>
+    /// The shot reaction handling <paramref name="reaction"/>, or null when no shot handles it or the block reacts to no
+    /// shot.
+    /// </summary>
+    internal static ShotBlockReaction? HandledOrNone(ShootableReaction? reaction) =>
+        reaction is { } shootable && ShotBlockReactions.TryOf(shootable, out ShotBlockReaction handled) ? handled : null;
 }

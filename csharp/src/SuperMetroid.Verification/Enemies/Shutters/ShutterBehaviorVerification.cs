@@ -141,7 +141,7 @@ internal static class ShutterBehaviorVerification
     /// </summary>
     internal static void VerifyGrowingShutterActivationTimer()
     {
-        var state = new GrowingShutterEnemyState(GrowingShutterAction.WaitForTimer, spawnY: 0, VerticalDirection.Up, place.SpawnSettings<GrowingShutterSpawnSettings>());
+        var state = new GrowingShutterEnemyState(GrowingShutterAction.WaitForTimer, spawnY: 0, VerticalDirection.Up, new GrowingShutterSpawnSettings(default, VerticalDirection.Up, ActivationDistance: 0, ActivationWait: 0, SignedSixteenSixteen.Zero));
         state.ActivationTimer = UpdateCountdown.For(2 + EnemyWaitDefinitions.RunOutUpdate);
         AssertEqual(false, ShuttersBehavior.AdvanceGrowingShutterTimer(state), "a two-update wait does not activate on its first call");
         AssertEqual(2, state.ActivationTimer.UpdatesLeft, "the first call counts the wait down by one");

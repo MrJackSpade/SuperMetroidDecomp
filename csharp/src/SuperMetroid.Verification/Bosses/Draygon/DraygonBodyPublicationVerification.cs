@@ -40,7 +40,7 @@ internal static class DraygonBodyPublicationVerification
             Position16<RoomPixels> expected = body + global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Bosses.Draygon.DraygonEnemyState, global::SuperMetroid.Core.Spatial.Offset16<global::SuperMetroid.Core.Spatial.RoomPixels>>(draygon, "BodyPictureShift");
             runtime.FrameBoundary.BeginAcceptedFrame(0);
             AssertEqual<Position16<RoomPixels>?>(expected, runtime.Display.LatchedOrdinaryRoom.Bosses?.Placement, $"Draygon at {body} publishes his body's placement");
-            AssertTrue(runtime.Display.LatchedOrdinaryRoom.Bosses is { Hidden: false }, $"Draygon at {body} shows his body");
+            AssertTrue(!runtime.Display.LatchedOrdinaryRoom.BossBodyHidden, $"Draygon at {body} shows his body");
             // Each of his installed frames lies where the cartridge's layer put it: its area 62 left of and 64 above him.
             AssertEqual(new Offset16<RoomPixels>(-62, -64), BossBodySourceDefinitions.AreaFromBoss[BossBodyOwner.Draygon],
                 "his body's area lay 62 pixels left of and 64 above him");

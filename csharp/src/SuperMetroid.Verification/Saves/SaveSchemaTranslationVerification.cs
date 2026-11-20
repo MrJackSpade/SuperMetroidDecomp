@@ -75,8 +75,7 @@ internal static class SaveSchemaTranslationVerification
         // schema's strict reader rejects it, and the save upgrades to the same saves without it.
         JsonObject schemaTwelve = SaveSchemaFixtures.AtSchema(json, 12);
         schemaTwelve.Required("slots").Required(0).Required("resources")["reserveMissiles"] = 27;
-        JsonObject twelveAsCurrent = RequiredJson.Parse(schemaTwelve.ToJsonString()).AsObject();
-        twelveAsCurrent["schemaVersion"] = GameSaveJsonFormat.SchemaVersion;
+        JsonObject twelveAsCurrent = SaveSchemaFixtures.AsCurrent(schemaTwelve);
         AssertInvalidJsonSave(twelveAsCurrent.ToJsonString(), "reserveMissiles");
         GameSaveJsonDocument upgradedTwelve = LegacyGameSaveJson.Deserialize(schemaTwelve.ToJsonString(), "game save", out bool migratedTwelve);
         AssertTrue(migratedTwelve, "a schema-twelve save is upgraded");
@@ -113,8 +112,7 @@ internal static class SaveSchemaTranslationVerification
         ToSchemaEightSlots(schemaEight);
         AssertEqual(0, schemaEight.Required("slots").Required(0).Required("checkpoint").Required("saveStation").GetValue<int>(),
             "the schema-eight fixture numbers the gunship as Crateria's station list does");
-        JsonObject eightAsCurrent = RequiredJson.Parse(schemaEight.ToJsonString()).AsObject();
-        eightAsCurrent["schemaVersion"] = GameSaveJsonFormat.SchemaVersion;
+        JsonObject eightAsCurrent = SaveSchemaFixtures.AsCurrent(schemaEight);
         AssertInvalidJsonSave(eightAsCurrent.ToJsonString(), "checkpoint");
         GameSaveJsonDocument upgradedEight = LegacyGameSaveJson.Deserialize(schemaEight.ToJsonString(), "game save", out bool migratedEight);
         AssertTrue(migratedEight, "a schema-eight save is upgraded");
@@ -143,8 +141,7 @@ internal static class SaveSchemaTranslationVerification
         JsonObject tenProgression = schemaTen.Required("slots").Required(0).Required("progression").AsObject();
         tenProgression["collectedItems"] = new JsonArray("BlueBrinstarETankExposedMissileTank");
         tenProgression["openedDoors"] = new JsonArray("RedBinstarElevYellowDoorFacingDown");
-        JsonObject tenAsCurrent = RequiredJson.Parse(schemaTen.ToJsonString()).AsObject();
-        tenAsCurrent["schemaVersion"] = GameSaveJsonFormat.SchemaVersion;
+        JsonObject tenAsCurrent = SaveSchemaFixtures.AsCurrent(schemaTen);
         AssertInvalidJsonSave(tenAsCurrent.ToJsonString(), "BlueBrinstarETankExposedMissileTank");
         GameSaveJsonDocument upgradedTen = LegacyGameSaveJson.Deserialize(schemaTen.ToJsonString(), "game save", out bool migratedTen);
         AssertTrue(migratedTen, "a schema-ten save is upgraded");
@@ -160,8 +157,7 @@ internal static class SaveSchemaTranslationVerification
         JsonObject schemaThirteen = SaveSchemaFixtures.AtSchema(json, 13);
         schemaThirteen.Required("slots").Required(0).Required("progression")["collectedItems"] =
             new JsonArray("BombTorizoDefaultOrWhenAreaTorizoDeadChozoBombs", "MorphBallDefaultExposedMorphBall");
-        JsonObject thirteenAsCurrent = RequiredJson.Parse(schemaThirteen.ToJsonString()).AsObject();
-        thirteenAsCurrent["schemaVersion"] = GameSaveJsonFormat.SchemaVersion;
+        JsonObject thirteenAsCurrent = SaveSchemaFixtures.AsCurrent(schemaThirteen);
         AssertInvalidJsonSave(thirteenAsCurrent.ToJsonString(), "BombTorizoDefaultOrWhenAreaTorizoDeadChozoBombs");
         GameSaveJsonDocument upgradedThirteen = LegacyGameSaveJson.Deserialize(schemaThirteen.ToJsonString(), "game save", out bool migratedThirteen);
         AssertTrue(migratedThirteen, "a schema-thirteen save is upgraded");
@@ -180,8 +176,7 @@ internal static class SaveSchemaTranslationVerification
         JsonObject schemaFourteen = SaveSchemaFixtures.AtSchema(json, 14);
         schemaFourteen.Required("slots").Required(0).Required("progression")["openedDoors"] = new JsonArray(
             "ClimbWhenZebesTimebombSetGreyDoorFacingLeftAt46x6", "AtticDefaultGreyDoorFacingRight", "AtticWhenAreaBossDeadGreyDoorFacingRight");
-        JsonObject fourteenAsCurrent = RequiredJson.Parse(schemaFourteen.ToJsonString()).AsObject();
-        fourteenAsCurrent["schemaVersion"] = GameSaveJsonFormat.SchemaVersion;
+        JsonObject fourteenAsCurrent = SaveSchemaFixtures.AsCurrent(schemaFourteen);
         AssertInvalidJsonSave(fourteenAsCurrent.ToJsonString(), "ClimbWhenZebesTimebombSetGreyDoorFacingLeftAt46x6");
         GameSaveJsonDocument upgradedFourteen = LegacyGameSaveJson.Deserialize(schemaFourteen.ToJsonString(), "game save", out bool migratedFourteen);
         AssertTrue(migratedFourteen, "a schema-fourteen save is upgraded");
@@ -356,7 +351,8 @@ internal static class SaveSchemaTranslationVerification
             var byNumber = new SortedDictionary<int, string>();
             foreach (JsonNode? entry in progression.Required("events").AsArray())
             {
-                StoryEvent named = Enum.Parse<StoryEvent>(entry?.GetValue<string>() ?? "", ignoreCase: true);
+                string key = entry?.GetValue<string>() ?? throw new InvalidOperationException("A saved story event is null.");
+                StoryEvent named = StoryEventKeys.Installed.ByIdentity.Single(pair => string.Equals(pair.Value, key, StringComparison.OrdinalIgnoreCase)).Key;
                 byNumber.Add(named.Number(), named == StoryEvent.BabyMetroidEncounterMusicSkipped ? "Unused14" : named.ToString());
             }
             for (int bit = 0; bit < 3; bit++)

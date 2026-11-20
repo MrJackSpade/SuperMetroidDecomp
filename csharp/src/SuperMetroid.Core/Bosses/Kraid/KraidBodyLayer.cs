@@ -12,7 +12,10 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 internal sealed class KraidBodyLayer : IBossBodyDisplay
 {
     /// <inheritdoc />
-    BossBodyShowing? IBossBodyDisplay.Showing => CaptureBodyLayer() is { } layer ? new BossBodyShowing(layer, Placement, Hidden: false) : null;
+    BossBodyShowing? IBossBodyDisplay.Showing => CaptureBodyLayer() is { } layer ? new BossBodyShowing(layer, Placement) : null;
+
+    /// <inheritdoc />
+    bool IBossBodyDisplay.HidesBodyLayer => false;
 
     /// <inheritdoc/>
     bool IBossBodyDisplay.HidesBackgroundLayer => false;

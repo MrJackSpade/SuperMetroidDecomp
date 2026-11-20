@@ -53,7 +53,7 @@ internal static class MotherBrainBodyPublicationVerification
             ?? throw new InvalidOperationException("The phase-two transition publishes her body image.");
         AssertTrue(Words(image).SequenceEqual(staged), "phase two publishes her body as it stood");
         // Her posture places her body in the room, and the frame publishes it there (#1617, #1802).
-        AssertTrue(runtime.Display.LatchedOrdinaryRoom.Bosses is { Hidden: false } shownBody && shownBody.Placement == bodyPlacement,
+        AssertTrue(!runtime.Display.LatchedOrdinaryRoom.BossBodyHidden && runtime.Display.LatchedOrdinaryRoom.Bosses is { } shownBody && shownBody.Placement == bodyPlacement,
             "phase two publishes her body where she places it");
         AssertEqual(roomScroll, runtime.BackgroundScroll.BackgroundScroll, "Mother Brain leaves the room's BG2 scroll alone");
         var drawn = (GameplaySceneLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
@@ -67,7 +67,7 @@ internal static class MotherBrainBodyPublicationVerification
         // Death: the flicker hides her body.
         state.DeathHidesBodyLayer = true;
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        AssertTrue(runtime.Display.LatchedOrdinaryRoom.Bosses is { Hidden: true } hiddenBody && hiddenBody.Placement == bodyPlacement,
+        AssertTrue(runtime.Display.LatchedOrdinaryRoom.BossBodyHidden && runtime.Display.LatchedOrdinaryRoom.Bosses is { } hiddenBody && hiddenBody.Placement == bodyPlacement,
             "the death flicker publishes her body hidden");
         var hidden = (GameplaySceneLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
         AssertTrue(!hidden.View.ShownLayers.HasFlag(ScreenLayers.BossBody), "a hidden body leaves her body's layer off the screen");

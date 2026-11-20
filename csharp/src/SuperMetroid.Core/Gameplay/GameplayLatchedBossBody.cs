@@ -3,8 +3,8 @@ using SuperMetroid.Core.Enemies.BossBodies;
 namespace SuperMetroid.Core.Gameplay;
 
 /// <summary>
-/// The body a boss shows in an accepted frame (#1352-#1356, #1466, #2031): its parts, where it is placed in the room and
-/// whether it shows this frame. Each of its frames lies where the import placed it against its boss (each installed frame's
+/// The body a boss shows in an accepted frame (#1352-#1356, #1466, #2031): its parts and where it is placed in the room;
+/// whether the frame hides it is the latch's own fact (<see cref="OrdinaryRoomFrameLatch.BossBodyHidden"/>). Each of its frames lies where the import placed it against its boss (each installed frame's
 /// anchor), so the display draws each part from the body's placement, clipped to the screen. Enemy AI chooses each during
 /// the update; the frame boundary reads where the boss stands as the frame ends. The frame shows it as its own layer
 /// (<see cref="Rendering.BossBodyView"/>, #2573).
@@ -15,12 +15,10 @@ namespace SuperMetroid.Core.Gameplay;
 /// and Mother Brain's position, Draygon's moved by his tail whip's shake of his body's picture, and once Mother Brain is gone
 /// the room's top-left corner, where the escape warning written over the background lies.
 /// </param>
-/// <param name="Hidden">Whether the body shows nothing this frame: Draygon is deleted, or Mother Brain's death flicker hides hers.</param>
 /// <param name="Shown">The body's parts' pictures as the frame shows them (#2573), resolved once as the frame boundary latches it.</param>
 public sealed record GameplayLatchedBossBody(
     BossBodyLayer Body,
     Position16<RoomPixels>? Placement,
-    bool Hidden,
     ShownBossBody Shown)
 {
     /// <summary>
@@ -29,5 +27,5 @@ public sealed record GameplayLatchedBossBody(
     /// </summary>
     /// <param name="display">The boss body the room shows, or null where no boss attached one.</param>
     internal static GameplayLatchedBossBody? Of(IBossBodyDisplay? display) =>
-        display?.Showing is { } showing ? new(showing.Layer, showing.Placement, showing.Hidden, showing.Layer.Show()) : null;
+        display?.Showing is { } showing ? new(showing.Layer, showing.Placement, showing.Layer.Show()) : null;
 }

@@ -169,7 +169,7 @@ public static class GameplayDisplayCapture
         BackgroundLineScrolls backgroundLines = LiquidLineScrolls(latched.RoomFxOverlay, backgroundScroll, skyX);
         // A boss's body shows whole where it lies (#1873); while it is hidden, once Draygon is deleted or while Mother Brain's
         // death flicker hides hers, it shows nothing.
-        ScreenLayers displayedLayers = latched.Bosses is { Hidden: true }
+        ScreenLayers displayedLayers = latched.BossBodyHidden
             ? latched.ShownLayers & ~ScreenLayers.BossBody
             : latched.ShownLayers;
         // The cameras become the pixels the layers show at the screen's top-left corner (#1514), where the room is shown

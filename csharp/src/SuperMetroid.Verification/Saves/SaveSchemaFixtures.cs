@@ -21,4 +21,20 @@ internal static class SaveSchemaFixtures
         save["schemaVersion"] = schemaVersion;
         return save;
     }
+
+    /// <summary>
+    /// A copy of <paramref name="legacy"/>, an older-schema save from <see cref="AtSchema"/>, marked as the current schema
+    /// and naming its history as the current schema does, so the current reader judges only the check's own difference.
+    /// </summary>
+    internal static JsonObject AsCurrent(JsonObject legacy)
+    {
+        JsonObject save = RequiredJson.Parse(legacy.ToJsonString()).AsObject();
+        bool completed = save.Required("gameCompleted").GetValue<bool>();
+        bool foundNone = save.Required("powerOnFoundNoValidSave").GetValue<bool>();
+        save.Remove("gameCompleted");
+        save.Remove("powerOnFoundNoValidSave");
+        save["history"] = completed ? "gameCompleted" : foundNone ? "powerOnFoundNoValidSave" : "none";
+        save["schemaVersion"] = SuperMetroid.Core.Saves.GameSaveJsonFormat.SchemaVersion;
+        return save;
+    }
 }

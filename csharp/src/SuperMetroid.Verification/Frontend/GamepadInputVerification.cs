@@ -95,10 +95,59 @@ internal static void VerifyGenericGamepadInput()
         "a USB product identifier never exceeds its sixteen-bit range");
 
     VerifyRepeatAndHeldInputDelays();
+    VerifyXInputGamepad();
 
     Console.WriteLine(
-        "  Gamepad: axes, POV, positional/0079:0011 face layouts, shoulders, and menus agree.");
+        "  Gamepad: axes, POV, positional/0079:0011 face layouts, shoulders, menus and XInput agree.");
 }
+
+/// <summary>Checks each XInput control individually against the SNES button it must produce.</summary>
+private static void VerifyXInputGamepad()
+{
+    VerifyXInputButton(XInputButtons.South, SnesButton.B, "XInput south (Xbox A) maps to SNES B");
+    VerifyXInputButton(XInputButtons.East, SnesButton.A, "XInput east (Xbox B) maps to SNES A");
+    VerifyXInputButton(XInputButtons.West, SnesButton.Y, "XInput west (Xbox X) maps to SNES Y");
+    VerifyXInputButton(XInputButtons.North, SnesButton.X, "XInput north (Xbox Y) maps to SNES X");
+    VerifyXInputButton(XInputButtons.LeftShoulder, SnesButton.L, "XInput left bumper maps to SNES L");
+    VerifyXInputButton(XInputButtons.RightShoulder, SnesButton.R, "XInput right bumper maps to SNES R");
+    VerifyXInputButton(XInputButtons.Back, SnesButton.Select, "XInput Back maps to SNES Select");
+    VerifyXInputButton(XInputButtons.Start, SnesButton.Start, "XInput Start maps to SNES Start");
+    VerifyXInputButton(XInputButtons.DPadUp, SnesButton.Up, "XInput D-pad up maps to SNES Up");
+    VerifyXInputButton(XInputButtons.DPadDown, SnesButton.Down, "XInput D-pad down maps to SNES Down");
+    VerifyXInputButton(XInputButtons.DPadLeft, SnesButton.Left, "XInput D-pad left maps to SNES Left");
+    VerifyXInputButton(XInputButtons.DPadRight, SnesButton.Right, "XInput D-pad right maps to SNES Right");
+    VerifyXInputButton(XInputButtons.DPadUp | XInputButtons.DPadLeft, SnesButton.Up | SnesButton.Left,
+        "XInput D-pad diagonal maps to both SNES directions");
+    VerifyXInputButton(XInputButtons.None, SnesButton.None, "an idle XInput controller is neutral");
+
+    AssertEqual(
+        SnesButton.L | SnesButton.R,
+        GenericGamepadInput.Map(new XInputGamepadState(XInputButtons.None, 255, 255, new(0, 0)).ToSnapshot()),
+        "pulled XInput triggers map to SNES L and R");
+    AssertEqual(
+        SnesButton.None,
+        GenericGamepadInput.Map(new XInputGamepadState(
+            XInputButtons.None, XInputGamepadState.TriggerThreshold, XInputGamepadState.TriggerThreshold, new(0, 0)).ToSnapshot()),
+        "XInput triggers resting at the threshold stay released");
+
+    // XInput's stick Y points up; the SNES word must still read up as Up.
+    AssertEqual(
+        SnesButton.Up | SnesButton.Right,
+        GenericGamepadInput.Map(new XInputGamepadState(XInputButtons.None, 0, 0, new(20000, 20000)).ToSnapshot()),
+        "XInput stick up-right maps to SNES Up and Right");
+    AssertEqual(
+        SnesButton.Down | SnesButton.Left,
+        GenericGamepadInput.Map(new XInputGamepadState(
+            XInputButtons.None, 0, 0, new(short.MinValue, short.MinValue)).ToSnapshot()),
+        "XInput stick fully down-left maps to SNES Down and Left");
+}
+
+/// <summary>Checks one XInput digital control so face-button permutations remain visible.</summary>
+private static void VerifyXInputButton(XInputButtons held, SnesButton expected, string message) =>
+    AssertEqual(
+        expected,
+        GenericGamepadInput.Map(new XInputGamepadState(held, 0, 0, new(0, 0)).ToSnapshot()),
+        message);
 
 /// <summary>
 /// The controller repeat delays and the held-input reload are frame counts that are only reloaded into countdowns: a

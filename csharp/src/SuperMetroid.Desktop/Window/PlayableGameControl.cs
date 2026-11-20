@@ -67,6 +67,8 @@ public sealed class PlayableGameControl : UserControl
     private readonly HostInputActivationGate inputActivation = new();
     /// <summary>Current Windows gamepad sample merged with keyboard input.</summary>
     private readonly WindowsGamepadInput gamepad = new();
+    /// <summary>Xbox controllers and pads in X-input mode.</summary>
+    private readonly XInputGamepadInput xinputGamepad = new();
     /// <summary>Elapsed wall-clock updates waiting to be simulated.</summary>
     private double pendingPlaybackFrames;
     /// <summary>Mutable emulated memory for the current installed-content session.</summary>
@@ -760,7 +762,9 @@ public sealed class PlayableGameControl : UserControl
         // Keyboard and gamepad are two host producers for the same physical SNES port.
         // Merge them before recording so replay sees one exact cartridge-format word and
         // never depends on which Windows device generated a particular held bit.
-        SnesButton input = keyboard.BuildControllerWord(gamepad.Poll());
+        // An Xbox controller can also appear through WinMM; both readers map it to the same
+        // buttons, so their union is the same word either way.
+        SnesButton input = keyboard.BuildControllerWord(gamepad.Poll() | xinputGamepad.Poll());
         return inputActivation.Filter(input);
     }
 

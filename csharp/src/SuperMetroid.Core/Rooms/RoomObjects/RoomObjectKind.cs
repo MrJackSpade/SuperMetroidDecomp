@@ -20,9 +20,6 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// </remarks>
 public enum RoomObjectKind
 {
-    /// <summary>No identified object: a free place, or a block reaction's short-lived object.</summary>
-    None,
-
     /// <summary>A block extending the scroll trigger to its left along a horizontal chain.</summary>
     RightwardsScrollExtension,
 

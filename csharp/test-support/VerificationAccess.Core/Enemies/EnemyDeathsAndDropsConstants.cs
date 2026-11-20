@@ -7,5 +7,5 @@ internal static class EnemyDeathsAndDropsConstants
 {
     /// <summary>Starts the selected pickup's program, 400-frame life and collision callback.</summary>
     internal static void BeginEnemyPickup(EnemyProjectile projectile, EnemyPickupKind kind) =>
-        projectile.StartAnimation(new EnemyDeathAndDropAnimation(EnemyDeathsAndDrops.ConfigurePickup(projectile, kind, KilledEnemy.None)));
+        projectile.StartAnimation(new EnemyDeathAndDropAnimation(EnemyDeathsAndDrops.ConfigurePickup(projectile, kind)));
 }

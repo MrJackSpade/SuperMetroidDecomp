@@ -267,7 +267,7 @@ internal sealed class EnemyDeathsAndDrops
         // the pickup that holds it.
         pickup.StartAnimation(new EnemyDeathAndDropAnimation(kind == EnemyPickupKind.NoDrop
             ? ConfigureDormantPickup(pickup)
-            : ConfigurePickup(pickup, kind, KilledEnemy.None)));
+            : ConfigurePickup(pickup, kind)));
     }
 
     /// <summary>
@@ -290,10 +290,18 @@ internal sealed class EnemyDeathsAndDrops
     /// Gives the projectile the selected pickup's identity, 400-frame life and collision reaction, keeping
     /// <paramref name="killedEnemy"/>, the enemy its explosion came from, and returns its animation.
     /// </summary>
-    internal static EnemyDeathAndDropSegment ConfigurePickup(EnemyProjectile projectile, EnemyPickupKind kind, KilledEnemy killedEnemy)
+    internal static EnemyDeathAndDropSegment ConfigurePickup(EnemyProjectile projectile, EnemyPickupKind kind, KilledEnemy killedEnemy) =>
+        ConfigurePickup(projectile, kind, new EnemyKilledEnemyPickupState(kind, EnemyPickupDefinitions.Lifetime, killedEnemy));
+
+    /// <summary>Gives the projectile a directly spawned pickup's identity, which came from no enemy, as the other overload does.</summary>
+    internal static EnemyDeathAndDropSegment ConfigurePickup(EnemyProjectile projectile, EnemyPickupKind kind) =>
+        ConfigurePickup(projectile, kind, new EnemyPickupState(kind, EnemyPickupDefinitions.Lifetime));
+
+    /// <summary>Gives the projectile the pickup <paramref name="state"/> of <paramref name="kind"/> and its animation.</summary>
+    private static EnemyDeathAndDropSegment ConfigurePickup(EnemyProjectile projectile, EnemyPickupKind kind, EnemyPickupState state)
     {
         EnemyPickupAnimationDefinition animation = EnemyPickups.Animation(kind);
-        projectile.State = new EnemyPickupState(kind, EnemyPickupDefinitions.Lifetime, killedEnemy);
+        projectile.State = state;
         projectile.StartMotion(SingleMotion.Moving);
 
         // A pickup is gone when Samus touches it; it keeps the explosion's other behaviours.
@@ -636,8 +644,8 @@ internal sealed class EnemyDeathsAndDrops
             case EnemyDeathAndDropCueKind.RespawnEnemy:
                 // A death explosion, or the pickup it became, rebuilds the enemy it came from when that enemy respawns; a
                 // drop spawned directly came from no enemy.
-                if (projectile.State is EnemyDeathAndDropState { KilledEnemy: { Respawns: true } killed })
-                    RespawnEnemyFromSnapshot(killed.Enemy ?? throw new InvalidDataException("A respawning death explosion names no enemy."));
+                if (projectile.State is IFromKilledEnemy { KilledEnemy: { Respawns: true } killed })
+                    RespawnEnemyFromSnapshot(killed.Enemy);
                 return null;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(EnemyDeathAndDropCueKind)} {kind}.");

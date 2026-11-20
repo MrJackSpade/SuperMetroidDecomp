@@ -7,10 +7,10 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 public static class ProjectileTrailDefinitions
 {
     /// <summary>The trail a missile or Super Missile leaves: the missile animation on the left, none on the right.</summary>
-    internal static readonly ProjectileTrailAnimations MissileTrail = new(Missile, Empty);
+    internal static readonly ProjectileTrailAnimations MissileTrail = ProjectileTrailAnimations.LeftOnly(Missile);
 
     /// <summary>The trail the Spazer special attack's trailing pair leaves: the left ice animation on both sides.</summary>
-    internal static readonly ProjectileTrailAnimations SpazerAttackTrail = new(LeftIce, LeftIce);
+    internal static readonly ProjectileTrailAnimations SpazerAttackTrail = ProjectileTrailAnimations.Both(LeftIce, LeftIce);
 
     /// <summary>
     /// The trail an uncharged beam shot of each combination leaves: Wave's own on the left of Wave alone; Ice's sparkle on
@@ -20,22 +20,22 @@ public static class ProjectileTrailDefinitions
     internal static readonly IReadOnlyDictionary<SamusBeamCombination, ProjectileTrailAnimations> UnchargedBeamTrails =
         new Dictionary<SamusBeamCombination, ProjectileTrailAnimations>
         {
-            [SamusBeamCombination.Power] = new(Empty, Empty),
-            [SamusBeamCombination.Wave] = new(Wave, Empty),
-            [SamusBeamCombination.Ice] = new(LeftIce, Empty),
-            [SamusBeamCombination.IceWave] = new(LeftIce, Empty),
-            [SamusBeamCombination.Spazer] = new(Empty, Empty),
-            [SamusBeamCombination.SpazerWave] = new(Empty, Empty),
-            [SamusBeamCombination.SpazerIce] = new(LeftIce, RightIce),
-            [SamusBeamCombination.SpazerIceWave] = new(LeftIce, RightIce),
-            [SamusBeamCombination.Plasma] = new(Empty, Empty),
-            [SamusBeamCombination.PlasmaWave] = new(Empty, Empty),
-            [SamusBeamCombination.PlasmaIce] = new(LeftIce, Empty),
-            [SamusBeamCombination.PlasmaIceWave] = new(LeftIce, RightIce),
-            [SamusBeamCombination.SpazerPlasma] = new(Empty, Empty),
-            [SamusBeamCombination.SpazerPlasmaWave] = new(Empty, Empty),
-            [SamusBeamCombination.SpazerPlasmaIce] = new(Empty, Empty),
-            [SamusBeamCombination.SpazerPlasmaIceWave] = new(Empty, Empty),
+            [SamusBeamCombination.Power] = ProjectileTrailAnimations.Bare,
+            [SamusBeamCombination.Wave] = ProjectileTrailAnimations.LeftOnly(Wave),
+            [SamusBeamCombination.Ice] = ProjectileTrailAnimations.LeftOnly(LeftIce),
+            [SamusBeamCombination.IceWave] = ProjectileTrailAnimations.LeftOnly(LeftIce),
+            [SamusBeamCombination.Spazer] = ProjectileTrailAnimations.Bare,
+            [SamusBeamCombination.SpazerWave] = ProjectileTrailAnimations.Bare,
+            [SamusBeamCombination.SpazerIce] = ProjectileTrailAnimations.Both(LeftIce, RightIce),
+            [SamusBeamCombination.SpazerIceWave] = ProjectileTrailAnimations.Both(LeftIce, RightIce),
+            [SamusBeamCombination.Plasma] = ProjectileTrailAnimations.Bare,
+            [SamusBeamCombination.PlasmaWave] = ProjectileTrailAnimations.Bare,
+            [SamusBeamCombination.PlasmaIce] = ProjectileTrailAnimations.LeftOnly(LeftIce),
+            [SamusBeamCombination.PlasmaIceWave] = ProjectileTrailAnimations.Both(LeftIce, RightIce),
+            [SamusBeamCombination.SpazerPlasma] = ProjectileTrailAnimations.Bare,
+            [SamusBeamCombination.SpazerPlasmaWave] = ProjectileTrailAnimations.Bare,
+            [SamusBeamCombination.SpazerPlasmaIce] = ProjectileTrailAnimations.Bare,
+            [SamusBeamCombination.SpazerPlasmaIceWave] = ProjectileTrailAnimations.Bare,
         };
 
     /// <summary>
@@ -46,21 +46,21 @@ public static class ProjectileTrailDefinitions
     internal static readonly IReadOnlyDictionary<SamusBeamCombination, ProjectileTrailAnimations> ChargedBeamTrails =
         new Dictionary<SamusBeamCombination, ProjectileTrailAnimations>
         {
-            [SamusBeamCombination.Power] = new(LeftIce, Empty),
-            [SamusBeamCombination.Wave] = new(Wave, Wave),
-            [SamusBeamCombination.Ice] = new(LeftIce, Empty),
-            [SamusBeamCombination.IceWave] = new(LeftIce, RightIce),
-            [SamusBeamCombination.Spazer] = new(Empty, Empty),
-            [SamusBeamCombination.SpazerWave] = new(Empty, Empty),
-            [SamusBeamCombination.SpazerIce] = new(LeftIce, RightIce),
-            [SamusBeamCombination.SpazerIceWave] = new(LeftIce, RightIce),
-            [SamusBeamCombination.Plasma] = new(Empty, Empty),
-            [SamusBeamCombination.PlasmaWave] = new(Empty, Empty),
-            [SamusBeamCombination.PlasmaIce] = new(LeftIce, Empty),
-            [SamusBeamCombination.PlasmaIceWave] = new(LeftIce, RightIce),
-            [SamusBeamCombination.SpazerPlasma] = new(Empty, Empty),
-            [SamusBeamCombination.SpazerPlasmaWave] = new(Empty, Empty),
-            [SamusBeamCombination.SpazerPlasmaIce] = new(Empty, Empty),
-            [SamusBeamCombination.SpazerPlasmaIceWave] = new(Empty, Empty),
+            [SamusBeamCombination.Power] = ProjectileTrailAnimations.LeftOnly(LeftIce),
+            [SamusBeamCombination.Wave] = ProjectileTrailAnimations.Both(Wave, Wave),
+            [SamusBeamCombination.Ice] = ProjectileTrailAnimations.LeftOnly(LeftIce),
+            [SamusBeamCombination.IceWave] = ProjectileTrailAnimations.Both(LeftIce, RightIce),
+            [SamusBeamCombination.Spazer] = ProjectileTrailAnimations.Bare,
+            [SamusBeamCombination.SpazerWave] = ProjectileTrailAnimations.Bare,
+            [SamusBeamCombination.SpazerIce] = ProjectileTrailAnimations.Both(LeftIce, RightIce),
+            [SamusBeamCombination.SpazerIceWave] = ProjectileTrailAnimations.Both(LeftIce, RightIce),
+            [SamusBeamCombination.Plasma] = ProjectileTrailAnimations.Bare,
+            [SamusBeamCombination.PlasmaWave] = ProjectileTrailAnimations.Bare,
+            [SamusBeamCombination.PlasmaIce] = ProjectileTrailAnimations.LeftOnly(LeftIce),
+            [SamusBeamCombination.PlasmaIceWave] = ProjectileTrailAnimations.Both(LeftIce, RightIce),
+            [SamusBeamCombination.SpazerPlasma] = ProjectileTrailAnimations.Bare,
+            [SamusBeamCombination.SpazerPlasmaWave] = ProjectileTrailAnimations.Bare,
+            [SamusBeamCombination.SpazerPlasmaIce] = ProjectileTrailAnimations.Bare,
+            [SamusBeamCombination.SpazerPlasmaIceWave] = ProjectileTrailAnimations.Bare,
         };
 }

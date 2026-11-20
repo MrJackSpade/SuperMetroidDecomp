@@ -36,13 +36,6 @@ public sealed class RoomObjectPopulation
         new(name, Ensure.NotNull(placements).Select(placement => new RoomObjectPlacement(
             placement.Kind, placement.Block, placement.Setup) { Site = placement.Site }));
 
-    /// <summary>Rejects an empty placement.</summary>
-    /// <exception cref="InvalidDataException">The placement is malformed.</exception>
-    private static RoomObjectPlacement Validated(RoomObjectPlacement placement)
-    {
-        Ensure.NotNull(placement);
-        if (placement.Kind == RoomObjectKind.None)
-            throw new InvalidDataException("A decoded room-object placement cannot be an empty placement.");
-        return placement;
-    }
+    /// <summary>Requires a placement.</summary>
+    private static RoomObjectPlacement Validated(RoomObjectPlacement placement) => Ensure.NotNull(placement);
 }

@@ -1023,9 +1023,9 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     // The native word holds the killed slot's table offset, bit 15 for a respawn, $FFFF for none; a
                     // cleared projectile's names the first slot. Only a direct drop is made a pickup from the start: a
                     // death's pickup is its explosion's.
-                    KilledEnemy killed = projectile.State is EnemyDeathAndDropState dropped ? dropped.KilledEnemy : KilledEnemy.None;
+                    KilledEnemy? killed = projectile.State is IFromKilledEnemy dropped ? dropped.KilledEnemy : null;
                     Check(owner + " killed enemy index", projectile.Kind == RoomEnemyProjectileKind.EnemyDeathPickup ? 0xffff
-                        : SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.OffsetOf(killed.Enemy?.Ordinal ?? 0) | (killed.Respawns ? 0x8000 : 0),
+                        : SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.OffsetOf(killed?.Enemy.Ordinal ?? 0) | (killed is { Respawns: true } ? 0x8000 : 0),
                         NativeSnapshotMemory.EnemyProjectileKilledEnemy + index);
                 }
                 ushort nativeDamage = (ushort)(W(NativeSnapshotMemory.EnemyProjectileProperties + index) & 0x0fff);

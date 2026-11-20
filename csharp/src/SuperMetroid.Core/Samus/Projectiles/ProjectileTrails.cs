@@ -61,8 +61,14 @@ internal sealed class ProjectileTrails
             return;
 
         var trail = new SamusProjectileTrail(projectile.PicturedBeams, projectile.Position.Whole);
-        StartSide(trail.Left, animations.Left, placement.Left);
-        StartSide(trail.Right, animations.Right, placement.Right);
+        // A side with no sparkle runs no animation: it has ended from the start.
+        foreach (ProjectileTrailSparkle sparkle in animations.Sparkles)
+        {
+            if (sparkle.Side == HorizontalDirection.Left)
+                StartSide(trail.Left, sparkle.Segment, placement.Left);
+            else
+                StartSide(trail.Right, sparkle.Segment, placement.Right);
+        }
         Add(trail);
     }
 

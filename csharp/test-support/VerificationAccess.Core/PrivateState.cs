@@ -15,7 +15,10 @@ internal static class PrivateState
     private const BindingFlags Declared = BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
 
     /// <summary>The members found so far, by owner, kind, name and parameter types.</summary>
-    private static readonly ConcurrentDictionary<string, MemberInfo> Found = new(StringComparer.Ordinal);
+    private static readonly ConcurrentDictionary<MemberKey, MemberInfo> Found = new(MemberKeyComparer.Instance);
+
+    /// <summary>No parameter types: a field's, a property's or a generic method's key.</summary>
+    private static readonly Type[] NoTypes = [];
 
     /// <summary>Sets <paramref name="property"/> of <paramref name="owner"/> to <paramref name="value"/> through its setter.</summary>
     /// <exception cref="MissingMemberException">The owner's type has no settable property of that name.</exception>
@@ -151,7 +154,7 @@ internal static class PrivateState
     /// <summary>A new <typeparamref name="TOwner"/> from its constructor taking <paramref name="parameters"/>.</summary>
     /// <exception cref="MissingMemberException">The owner's type has no constructor taking those parameters.</exception>
     internal static TOwner New<TOwner>(Type[] parameters, params object?[] arguments) =>
-        (TOwner)((ConstructorInfo)Found.GetOrAdd($"{typeof(TOwner).AssemblyQualifiedName}|.ctor|{Signature(parameters)}", _ =>
+        (TOwner)((ConstructorInfo)Found.GetOrAdd(new MemberKey(typeof(TOwner), ".ctor", "", parameters, 0, 0), _ =>
             typeof(TOwner).GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, parameters)
                 ?? throw new MissingMemberException(typeof(TOwner).Name, ".ctor")))
         .Invoke(BindingFlags.DoNotWrapExceptions, binder: null, arguments, culture: null);
@@ -211,36 +214,59 @@ internal static class PrivateState
 
     /// <summary>The field <paramref name="name"/> <paramref name="owner"/> declares.</summary>
     private static FieldInfo FieldOf(Type owner, string name) =>
-        (FieldInfo)Found.GetOrAdd($"{owner.AssemblyQualifiedName}|field|{name}", _ =>
-            owner.GetField(name, Declared) ?? throw new MissingMemberException(owner.Name, name));
+        (FieldInfo)Found.GetOrAdd(new MemberKey(owner, "field", name, NoTypes, 0, 0), static key =>
+            key.Owner.GetField(key.Name, Declared) ?? throw new MissingMemberException(key.Owner.Name, key.Name));
 
     /// <summary>The getter of the property <paramref name="name"/> <paramref name="owner"/> declares.</summary>
     private static MethodInfo Getter(Type owner, string name) =>
-        (MethodInfo)Found.GetOrAdd($"{owner.AssemblyQualifiedName}|get|{name}", _ =>
-            owner.GetProperty(name, Declared)?.GetMethod ?? throw new MissingMemberException(owner.Name, name));
+        (MethodInfo)Found.GetOrAdd(new MemberKey(owner, "get", name, NoTypes, 0, 0), static key =>
+            key.Owner.GetProperty(key.Name, Declared)?.GetMethod ?? throw new MissingMemberException(key.Owner.Name, key.Name));
 
     /// <summary>The setter, or init accessor, of the property <paramref name="name"/> <paramref name="owner"/> declares.</summary>
     private static MethodInfo Setter(Type owner, string name) =>
-        (MethodInfo)Found.GetOrAdd($"{owner.AssemblyQualifiedName}|set|{name}", _ =>
-            owner.GetProperty(name, Declared)?.SetMethod ?? throw new MissingMemberException(owner.Name, name));
+        (MethodInfo)Found.GetOrAdd(new MemberKey(owner, "set", name, NoTypes, 0, 0), static key =>
+            key.Owner.GetProperty(key.Name, Declared)?.SetMethod ?? throw new MissingMemberException(key.Owner.Name, key.Name));
 
     /// <summary>The method <paramref name="name"/> <paramref name="owner"/> declares taking <paramref name="parameters"/>.</summary>
     private static MethodInfo MethodOf(Type owner, string name, Type[] parameters) =>
-        (MethodInfo)Found.GetOrAdd($"{owner.AssemblyQualifiedName}|method|{name}|{Signature(parameters)}", _ =>
-            owner.GetMethod(name, Declared, parameters) ?? throw new MissingMemberException(owner.Name, name));
+        (MethodInfo)Found.GetOrAdd(new MemberKey(owner, "method", name, parameters, 0, 0), static key =>
+            key.Owner.GetMethod(key.Name, Declared, key.Parameters) ?? throw new MissingMemberException(key.Owner.Name, key.Name));
 
     /// <summary>
     /// The generic method <paramref name="name"/> <paramref name="owner"/> declares with as many type parameters as
     /// <paramref name="typeArguments"/> and <paramref name="parameterCount"/> parameters, made for those type arguments.
     /// </summary>
     private static MethodInfo GenericMethodOf(Type owner, string name, Type[] typeArguments, int parameterCount) =>
-        ((MethodInfo)Found.GetOrAdd($"{owner.AssemblyQualifiedName}|generic|{name}|{typeArguments.Length}|{parameterCount}", _ =>
+        ((MethodInfo)Found.GetOrAdd(new MemberKey(owner, "generic", name, NoTypes, typeArguments.Length, parameterCount), _ =>
         {
             MethodInfo[] candidates = [.. owner.GetMethods(Declared).Where(candidate => candidate.Name == name && candidate.IsGenericMethodDefinition &&
                 candidate.GetGenericArguments().Length == typeArguments.Length && candidate.GetParameters().Length == parameterCount)];
             return candidates.Length == 1 ? candidates[0] : throw new MissingMemberException(owner.Name, name);
         })).MakeGenericMethod(typeArguments);
 
-    /// <summary>A parameter list's key.</summary>
-    private static string Signature(Type[] parameters) => string.Join(",", parameters.Select(parameter => parameter.AssemblyQualifiedName));
+    /// <summary>A member found: its owner, its kind, its name, and the parameter types or counts that tell overloads apart.</summary>
+    /// <param name="Owner">The type declaring or inheriting the member.</param>
+    /// <param name="Kind">A field, an accessor, a method, a generic method or a constructor.</param>
+    /// <param name="Name">The member's name; empty for a constructor.</param>
+    /// <param name="Parameters">A method's or constructor's parameter types.</param>
+    /// <param name="TypeArguments">A generic method's type parameter count.</param>
+    /// <param name="ParameterCount">A generic method's parameter count.</param>
+    private readonly record struct MemberKey(Type Owner, string Kind, string Name, Type[] Parameters, int TypeArguments, int ParameterCount);
+
+    /// <summary>Tells keys apart by their parts, the parameter types one by one.</summary>
+    private sealed class MemberKeyComparer : IEqualityComparer<MemberKey>
+    {
+        /// <summary>The one comparer.</summary>
+        internal static MemberKeyComparer Instance { get; } = new();
+
+        /// <inheritdoc/>
+        public bool Equals(MemberKey x, MemberKey y) =>
+            x.Owner == y.Owner && string.Equals(x.Kind, y.Kind, StringComparison.Ordinal) && string.Equals(x.Name, y.Name, StringComparison.Ordinal) &&
+            x.TypeArguments == y.TypeArguments && x.ParameterCount == y.ParameterCount && x.Parameters.AsSpan().SequenceEqual(y.Parameters);
+
+        /// <inheritdoc/>
+        public int GetHashCode(MemberKey key) =>
+            HashCode.Combine(key.Owner, StringComparer.Ordinal.GetHashCode(key.Kind), StringComparer.Ordinal.GetHashCode(key.Name),
+                key.Parameters.Length, key.TypeArguments, key.ParameterCount);
+    }
 }

@@ -23,8 +23,8 @@ internal static class InventoriedRoomStateFixtures
 
     /// <summary>
     /// A state of <paramref name="graphicsSet"/> in a room of <paramref name="area"/> whose level shows
-    /// <paramref name="placedBlock"/> alone, its installed terrain one block of each of <paramref name="terrain"/> (one block of
-    /// air reacting to nothing when there are none), a Wave shot's straddled reads setting off
+    /// <paramref name="placedBlock"/> alone, its installed terrain one block of each of <paramref name="terrain"/> (one solid
+    /// block reacting to nothing, which starts no writer, when there are none), a Wave shot's straddled reads setting off
     /// <paramref name="straddledShots"/>, placing <paramref name="objects"/>, running <paramref name="main"/> and showing
     /// <paramref name="floor"/>; no door leads into its room.
     /// </summary>
@@ -41,7 +41,7 @@ internal static class InventoriedRoomStateFixtures
             TurningFloor = floor,
         };
         var artwork = new RoomLevelArtwork(Level, new Extent16<RoomBlocks>(1, 1), [RoomBlockAppearance.Of(placedBlock)], [default]);
-        IReadOnlyList<RoomTerrainReaction> blocks = terrain.Count == 0 ? [new(RoomCollisionType.Air, RoomBlockBehavior.None)] : terrain;
+        IReadOnlyList<RoomTerrainReaction> blocks = terrain.Count == 0 ? [new(RoomCollisionType.SolidBlock, RoomBlockBehavior.None)] : terrain;
         var installed = new InstalledRoomLevel(new Extent16<RoomBlocks>(blocks.Count, 1),
             [.. blocks.Select(block => RoomTerrainBlock.Of(0, BlockMirroring.None, block.Collision))],
             [.. blocks.Select(block => block.Behavior)], [.. new RoomBlockAppearance[blocks.Count]], [], 0);

@@ -77,8 +77,8 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void InitializeDragonBody(RoomEnemyPlace place)
     {
         PlaceFollowUpRecipient(place);
-        // A body finds its wing, which its room lists right after it.
-        place.SetSpeciesState(new DragonEnemyState(DragonAction.WaitToRise, wing: _places.ListedAfter(place, DragonPartListingDefinitions.WingPlacesAfterBody))
+        // A body finds its wing, which its room lists with it.
+        place.SetSpeciesState(new DragonEnemyState(DragonAction.WaitToRise, wing: _places.Member(place, DragonPartListingDefinitions.Listing, DragonPart.Body, DragonPart.Wing))
         {
             Playback = new(DragonAnimations.StartingWith(DragonSegment.IdleFacingLeft), AnimationPlace.StartOfAnimation),
         });
@@ -86,7 +86,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Records the enemy <paramref name="place"/>'s follow-up to a hit reaches: the enemy its room lists right after it.</summary>
     private void PlaceFollowUpRecipient(RoomEnemyPlace place) =>
-        _followUpRecipients.Place(place, FollowUpAfterStruckPart.Recipients(distance => _places.ListedAfter(place, distance), DragonPartListingDefinitions.FollowUpReach)[0]);
+        _followUpRecipients.Place(place, FollowUpAfterStruckPart.Recipient(_places.PlacesAfter(place)));
 
     /// <summary>Runs the Dragon body's actions; the body moves its cosmetic wing with it.</summary>
     internal void RunDragonMain(RoomEnemyPlace place, DragonEnemyState state, SamusState samus)

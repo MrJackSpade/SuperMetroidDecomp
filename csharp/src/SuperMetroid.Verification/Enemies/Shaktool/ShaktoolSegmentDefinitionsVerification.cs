@@ -91,10 +91,13 @@ internal static class ShaktoolSegmentDefinitionsVerification
         Suite(nameof(VerifyShaktoolDefinitionField), () => VerifyShaktoolDefinitionField(rom, ShaktoolSegmentDefinitions.NativeInitialAngleAddress,
             definition => definition.InitialOrbitAngle.RawValue, "initial angle algorithm"));
 
-    /// <summary>Checks each segment's offset back to the controlling Shaktool slot.</summary>
+    /// <summary>
+    /// Checks each segment's offset back to the controlling Shaktool slot is its place in the chain's listing
+    /// (<see cref="ShaktoolSegmentDefinitions.Chain"/>), which the segments find each other by.
+    /// </summary>
     private static void VerifyShaktoolOwnerOffsetAlgorithm(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifyShaktoolDefinitionField), () => VerifyShaktoolDefinitionField(rom, ShaktoolSegmentDefinitions.NativeOwnerOffsetAddress,
-            definition => checked((ushort)(definition.OwnerPlaceDistance * SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.RecordSize)), "owner offset"));
+            definition => checked((ushort)(Array.IndexOf(ShaktoolSegmentDefinitions.Segments, definition) * SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.RecordSize)), "owner offset"));
 
     /// <summary>Checks the first animation instruction list selected for each segment.</summary>
     private static void VerifyShaktoolInitialInstructionSelection(CartridgeImportAddressSpace rom) =>

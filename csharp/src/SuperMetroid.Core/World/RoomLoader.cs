@@ -551,7 +551,7 @@ internal sealed class RoomLoader
                     $"The door scroll finished before the loader initialized the arriving elevator in place {placement.Elevator.Ordinal}.");
             }
         }
-        _room.LoadedScope.Enemies.LoaderHooks.CompleteLoaderTimeCameraReads(loaderProgress.HasInitializedEnemyPlace, camera.PixelPosition);
+        _room.LoadedScope.Enemies.LoaderHooks.CompleteLoaderTimeCameraReads(loaderProgress.InitializedPlaces(), camera.PixelPosition);
         if (completed && _room.LoadedScope.Enemies.LoaderHooks.HasDeferredLoaderTimeCameraReads)
             throw new InvalidDataException("The door scroll finished before the loader initialized every enemy whose setup reads its camera.");
         samus.Position = state.SamusPosition;

@@ -42,7 +42,7 @@ internal sealed class SqueeptBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             Playback = new(NorfairLavaJumperAnimations.StartingWith(NorfairLavaJumperSegment.Follower), AnimationPlace.StartOfAnimation),
         });
-        _parents.Place(place, _places.ListedBefore(place, 1));
+        _parents.Place(place, _places.Member(place, EnemyFollowerListingDefinitions.Listing, EnemyFollowerRole.Follower, EnemyFollowerRole.Leader));
         ValidateSqueeptParent(place);
     }
 

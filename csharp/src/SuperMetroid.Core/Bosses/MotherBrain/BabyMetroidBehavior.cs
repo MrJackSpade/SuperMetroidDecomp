@@ -693,7 +693,7 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Requires the Baby Metroid's victim: the enemy placed directly after it (<see cref="BabyMetroidVictim"/>).</summary>
     private RoomEnemyPlace RequireBabyMetroidVictim(RoomEnemyPlace place)
     {
-        RoomEnemyPlace victim = BabyMetroidVictim.Of(_places.InUpdateOrder, place.Ordinal);
+        RoomEnemyPlace victim = BabyMetroidVictim.Of(_places.InUpdateOrder, place);
         if (victim.IsFree)
             throw new InvalidDataException("The Baby Metroid's victim, the enemy placed after it, is missing.");
         return victim;

@@ -7,7 +7,7 @@ internal interface IEnemyLoaderHooks
     bool HasDeferredLoaderTimeCameraReads { get; }
 
     /// <summary>Completes the setups deferred to the loader's camera, of the enemies in places the loader has initialized.</summary>
-    void CompleteLoaderTimeCameraReads(Func<int, bool> loaderInitializedPlace, Position16<RoomPixels> camera);
+    void CompleteLoaderTimeCameraReads(Func<RoomEnemyPlace, bool> loaderInitializedPlace, Position16<RoomPixels> camera);
 
     /// <summary>Spawns the pre-Phantoon room's setup projectile.</summary>
     void SpawnPrePhantoonRoomProjectile();

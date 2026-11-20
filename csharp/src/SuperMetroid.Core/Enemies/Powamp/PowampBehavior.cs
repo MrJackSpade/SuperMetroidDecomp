@@ -76,8 +76,8 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         PrepareToAnimate(place);
         var state = new PowampBodyState(PowampAction.DeflatedResting);
         place.SetSpeciesState(state);
-        // The body's balloon is the enemy its room lists before it, placed before it and checked once as the body is placed.
-        _balloons.Place(place, _places.ListedBefore(place, 1));
+        // The body's balloon is placed before it and checked once as the body is placed.
+        _balloons.Place(place, _places.Member(place, PowampPartListingDefinitions.Listing, PowampMember.Body, PowampMember.Balloon));
         CheckPowampBalloonPlaced(place);
         state.ActionTimer = UpdateCountdown.For(PowampMotionDefinitions.RestDuration);
         state.Playback = StartPowampAnimation(place, PowampSegment.BodySlow);

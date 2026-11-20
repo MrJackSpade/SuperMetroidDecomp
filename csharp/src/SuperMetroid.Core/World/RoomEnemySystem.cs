@@ -34,9 +34,10 @@ namespace SuperMetroid.Core.World;
 /// gameplay definitions are its own; installed artwork supplies pixels and colors.
 /// </summary>
 /// <remarks>
-/// The room keeps a fixed set of enemy places in <see cref="EnemyPlaceOrder"/>, each with a stable ordinal. The ordinals
-/// are gameplay: multi-part enemies find their parts by neighbouring ordinals, Samus records the ordinal of the enemy she
-/// meets, and the gunship's lower part copies fields from the place before it. A compacted list would lose that.
+/// The room keeps a fixed set of enemy places in <see cref="EnemyPlaceOrder"/>, each fixed for the room. Multi-part enemies
+/// hold their parts as references they find once, by role, where the population lists them (<see cref="EnemyCompositeListing"/>);
+/// the rules that reproduce a reach by placement itself (a struck part's follow-up, the gunship pad's borrowed height, the
+/// Baby Metroid's victim) are compatibility services that read the places in order. A compacted list would lose those.
 /// </remarks>
 [RoomLifetime]
 public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources

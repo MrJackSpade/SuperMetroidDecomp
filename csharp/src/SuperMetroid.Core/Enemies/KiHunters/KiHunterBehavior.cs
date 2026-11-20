@@ -91,7 +91,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initializes the Ki-Hunter body.</summary>
     internal void InitializeKiHunter(RoomEnemyPlace body)
     {
-        _wingsOfBody.Place(body, _places.ListedAfter(body, 1));
+        _wingsOfBody.Place(body, _places.Member(body, KiHunterPartListingDefinitions.Listing, KiHunterMember.Body, KiHunterMember.Wings));
         var state = new KiHunterBodyState(KiHunterAction.FlyingPatrol);
         body.SetSpeciesState(state);
 
@@ -117,7 +117,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initializes the Ki-Hunter's wings, which find their body listed right before them.</summary>
     internal void InitializeKiHunterWings(RoomEnemyPlace wings)
     {
-        _bodyOfWings.Place(wings, _places.ListedBefore(wings, 1));
+        _bodyOfWings.Place(wings, _places.Member(wings, KiHunterPartListingDefinitions.Listing, KiHunterMember.Wings, KiHunterMember.Body));
         RoomEnemyPlace body = GetKiHunterBody(wings);
         _wingSettingsOfBody.Place(body, wings.SpawnSettings<KiHunterWingsSpawnSettings>());
         var state = new KiHunterWingState(KiHunterWingAction.FollowBody);

@@ -25,6 +25,12 @@ internal static class PipeBugDefinitions
     /// <summary>The member farthest below the leader: it sinks 32 pixels back and departs at 120.</summary>
     internal static readonly NorfairPipeBugRole LowerFarRole = new(120, new NorfairPipeBugStagger(VerticalDirection.Down, 32));
 
+    /// <summary>
+    /// How the room lists a formation (#2556): the leader, then the near and far members above it, then the near and far
+    /// members below it.
+    /// </summary>
+    internal static readonly EnemyComposite<NorfairPipeBugRole> Formation = new([LeaderRole, UpperNearRole, UpperFarRole, LowerNearRole, LowerFarRole]);
+
     /// <summary>How far a Brinstar Pipe Bug rises above where it spawned before it flies, in pixels.</summary>
     internal const int BrinstarEmergenceHeight = 16;
 

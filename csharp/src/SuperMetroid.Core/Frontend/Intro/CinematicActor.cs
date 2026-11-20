@@ -106,18 +106,26 @@ internal sealed class CinematicActor<TAnimation, TFrame, TCue> : ICinematicActor
     }
 
     /// <summary>
-    /// Advances the actor by one update: when the frame expires, plays the animation on until it shows a frame, holds or
-    /// ends. Owner cues go to <paramref name="ownerCue"/>; an animation that raises one with no owner fails.
+    /// Advances an actor whose animations raise no cue for an owner by one update, as <see cref="Step(Action{TCue})"/>
+    /// does; an animation that raises one fails.
     /// </summary>
-    public void Step(Action<TCue>? ownerCue = null)
+    public void Step() => Step(cue => throw new InvalidOperationException(
+        $"Cinematic sprite animation in {Playback.PlayingSegment} raised {cue} with no owner to act on it."));
+
+    /// <summary>
+    /// Advances the actor by one update: when the frame expires, plays the animation on until it shows a frame, holds or
+    /// ends. Owner cues go to <paramref name="ownerCue"/>.
+    /// </summary>
+    public void Step(Action<TCue> ownerCue)
     {
+        Ensure.NotNull(ownerCue);
         if (!IsActive || held || !frameHold.Step())
             return;
 
         Animation<TAnimation> animation = Playback.Animation;
         AnimationPlace place = Playback.Place;
         AnimationShown<TAnimation, TFrame> shown = animations.Segments.PlayToNextFrame(
-            animation, ref place, cue => ApplyCue(cue, ownerCue));
+            animation, ref place, ownerCue);
         Playback = new AnimationPlayback<TAnimation>(animation, place);
         switch (shown)
         {
@@ -147,12 +155,6 @@ internal sealed class CinematicActor<TAnimation, TFrame, TCue> : ICinematicActor
         }
     }
 
-    /// <summary>Hands the cue to the actor's owner.</summary>
-    private void ApplyCue(TCue cue, Action<TCue>? ownerCue)
-    {
-        (ownerCue ?? throw new InvalidOperationException(
-            $"Cinematic sprite animation in {Playback.PlayingSegment} raised {cue} with no owner to act on it."))(cue);
-    }
 
     /// <summary>
     /// The width, in pixels, of the loop the actor drifts round, or null for an actor that drifts round none. The loop's
@@ -162,15 +164,13 @@ internal sealed class CinematicActor<TAnimation, TFrame, TCue> : ICinematicActor
     internal int? DriftLoopWidth { get; init; }
 
     /// <summary>
-    /// Moves a looping actor by <paramref name="horizontalDelta"/> and carries it round its loop
-    /// (<see cref="DriftLoopWidth"/>): its whole pixels stay within the loop, from zero up to the loop's width.
+    /// Moves the actor by <paramref name="horizontalDelta"/>; a looping actor is carried round its loop
+    /// (<see cref="DriftLoopWidth"/>), its whole pixels staying within the loop, from zero up to the loop's width.
     /// </summary>
-    /// <exception cref="InvalidOperationException">The actor travels no loop.</exception>
-    internal void DriftRoundLoop(SignedSixteenSixteen horizontalDelta)
+    internal void Drift(SignedSixteenSixteen horizontalDelta)
     {
-        int loop = DriftLoopWidth ?? throw new InvalidOperationException("A cinematic actor with no loop drifted round one.");
         SignedSixteenSixteen x = Position.X + horizontalDelta;
-        Position = Position.WithX(x.WithWholePixels(AlongLoop(x.WholePixels, loop)));
+        Position = Position.WithX(DriftLoopWidth is int loop ? x.WithWholePixels(AlongLoop(x.WholePixels, loop)) : x);
     }
 
     /// <summary>Where <paramref name="x"/> lies along a loop <paramref name="loop"/> pixels wide, from zero up to the width.</summary>

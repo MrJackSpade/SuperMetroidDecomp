@@ -22,6 +22,6 @@ internal sealed class CeresDestructionActor(
     internal override void Move()
     {
         if (Definition.DriftsRoundLoop)
-            Sprite.DriftRoundLoop(Definition.HorizontalDelta);
+            Sprite.Drift(Definition.HorizontalDelta);
     }
 }

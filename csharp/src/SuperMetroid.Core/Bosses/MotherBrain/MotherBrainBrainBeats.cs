@@ -106,7 +106,7 @@ internal static class MotherBrainBrainBeats<TOwn>
     /// </summary>
     internal static Dictionary<TSegment, AnimationBeat<EnemyFrameId, MotherBrainBrainCue<TOwn>>[]> Phase3Volley<TSegment>(
         TSegment aiming, AnimationBeat<EnemyFrameId, MotherBrainBrainCue<TOwn>>[] aim,
-        (TSegment Opening, TSegment Shot, TSegment End, TSegment Neutral, TSegment Hold) segments, TOwn cry, TOwn hold)
+        MotherBrainVolleySegments<TSegment> segments, TOwn cry, TOwn hold)
         where TSegment : struct, Enum => new()
     {
         [aiming] = aim,

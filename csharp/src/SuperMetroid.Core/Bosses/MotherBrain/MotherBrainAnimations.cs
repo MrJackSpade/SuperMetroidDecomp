@@ -336,7 +336,7 @@ internal static class MotherBrainAnimations
             LateFightBeats.Cue(MotherBrainHeadCueKind.DisableNeckMovement),
             LateFightBeats.Cue(MotherBrainHeadCueKind.AimOnionRingsAtSamus),
         ],
-        (L.FourOnionRingsPhase3, L.OnionRingShotPhase3, L.OnionRingVolleyEndPhase3, L.NeutralPhase3, L.NeutralPhase3Hold),
+        new MotherBrainVolleySegments<L>(L.FourOnionRingsPhase3, L.OnionRingShotPhase3, L.OnionRingVolleyEndPhase3, L.NeutralPhase3, L.NeutralPhase3Hold),
         MotherBrainLateFightCueKind.QueueBabyMetroidAttackSound, MotherBrainLateFightCueKind.MaybeHoldNeutralPhase3));
 
     /// <summary>
@@ -364,7 +364,7 @@ internal static class MotherBrainAnimations
             BabyAttackBeats.Cue(MotherBrainHeadCueKind.DisableNeckMovement),
             BabyAttackBeats.Own(MotherBrainBabyAttackCueKind.AimOnionRingsAtBabyMetroid),
         ],
-        (A.FourOnionRingsPhase3, A.OnionRingShotPhase3, A.OnionRingVolleyEndPhase3, A.NeutralPhase3, A.NeutralPhase3Hold),
+        new MotherBrainVolleySegments<A>(A.FourOnionRingsPhase3, A.OnionRingShotPhase3, A.OnionRingVolleyEndPhase3, A.NeutralPhase3, A.NeutralPhase3Hold),
         MotherBrainBabyAttackCueKind.QueueBabyMetroidAttackSound, MotherBrainBabyAttackCueKind.MaybeHoldNeutralPhase3));
 
     /// <summary>
@@ -400,7 +400,8 @@ internal static class MotherBrainAnimations
     /// </summary>
     private static Animation<TSegment> OnionRingVolley<TSegment, TCue>(AnimationSegments<TSegment, EnemyFrameId, TCue> segments,
         TSegment[] opening, TSegment ringShot, int rings, TSegment end, params TSegment[] cycle)
-        where TSegment : struct =>
+        where TSegment : struct
+        where TCue : notnull =>
         Animation<TSegment>.LeadingInto(
             [.. opening.Select(segments.Whole), segments.Repeated(ringShot, rings - 1), segments.Whole(end)],
             [.. cycle.Select(segments.Whole)]);
@@ -464,7 +465,8 @@ internal static class MotherBrainAnimations
 
     /// <summary>An animation of <paramref name="segments"/> that plays each of <paramref name="cycle"/> once in turn, over and over.</summary>
     private static Animation<TSegment> Looping<TSegment, TCue>(AnimationSegments<TSegment, EnemyFrameId, TCue> segments, params TSegment[] cycle)
-        where TSegment : struct =>
+        where TSegment : struct
+        where TCue : notnull =>
         Animation<TSegment>.Looping([.. cycle.Select(segments.Whole)]);
 
     /// <summary>
@@ -473,7 +475,8 @@ internal static class MotherBrainAnimations
     /// </summary>
     private static Animation<TSegment> LeadingInto<TSegment, TCue>(AnimationSegments<TSegment, EnemyFrameId, TCue> segments, TSegment[] lead,
         params TSegment[] cycle)
-        where TSegment : struct =>
+        where TSegment : struct
+        where TCue : notnull =>
         Animation<TSegment>.LeadingInto([.. lead.Select(segments.Whole)], [.. cycle.Select(segments.Whole)]);
 
     /// <summary>
@@ -481,6 +484,7 @@ internal static class MotherBrainAnimations
     /// still picture the last one holds (#2353): her brain shows it for good, until she plays another.
     /// </summary>
     private static Animation<TSegment> Resting<TSegment, TCue>(AnimationSegments<TSegment, EnemyFrameId, TCue> segments, params TSegment[] played)
-        where TSegment : struct =>
+        where TSegment : struct
+        where TCue : notnull =>
         new([.. played.Select(segments.Whole)], AnimationEnd.Holds);
 }

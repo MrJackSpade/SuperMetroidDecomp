@@ -54,6 +54,7 @@ internal abstract record MotherBrainBrainPlayback
     private static MotherBrainBrainPlayback Starting<TSegment, TCue>(AnimationSegments<TSegment, EnemyFrameId, TCue> segments,
         Animation<TSegment> animation, EnemyAnimationClock clock, Func<AnimationPlayback<TSegment>, EnemyFrameId, MotherBrainBrainPlayback> playing)
         where TSegment : struct
+        where TCue : notnull
     {
         var start = new AnimationPlayback<TSegment>(Ensure.NotNull(animation), AnimationPlace.StartOfAnimation);
         EnemyFrameId first = segments.FirstFrameShown(animation);
@@ -62,9 +63,9 @@ internal abstract record MotherBrainBrainPlayback
             clock.StepOnNextUpdate();
             return playing(start, first);
         }
-        (AnimationPlayback<TSegment> opened, EnemyFrameId shown) = PlayOn(segments, start, first, clock,
+        MotherBrainBrainPlayed<TSegment> opened = PlayOn(segments, start, first, clock,
             cue => throw new InvalidOperationException($"Mother Brain's brain animation raised {cue} before its opening picture."));
-        return playing(opened, shown);
+        return playing(opened.Playback, opened.Shown);
     }
 
     /// <summary>
@@ -73,10 +74,11 @@ internal abstract record MotherBrainBrainPlayback
     /// it is keeps showing <paramref name="shown"/>.
     /// </summary>
     /// <returns>Where the animation then stands, and the picture it shows.</returns>
-    private static (AnimationPlayback<TSegment> Playback, EnemyFrameId Shown) PlayOn<TSegment, TCue>(
+    private static MotherBrainBrainPlayed<TSegment> PlayOn<TSegment, TCue>(
         AnimationSegments<TSegment, EnemyFrameId, TCue> segments, AnimationPlayback<TSegment> playback, EnemyFrameId shown,
         EnemyAnimationClock clock, Func<TCue, AnimationContinuation<TSegment>?> react)
         where TSegment : struct
+        where TCue : notnull
     {
         Animation<TSegment> animation = playback.Animation;
         AnimationPlace place = playback.Place;
@@ -86,13 +88,13 @@ internal abstract record MotherBrainBrainPlayback
         {
             case AnimationShown<TSegment, EnemyFrameId>.Frame frame:
                 clock.Show(frame.Duration);
-                return (advanced, frame.Shown);
+                return new(advanced, frame.Shown);
             case AnimationShown<TSegment, EnemyFrameId>.HeldFrame held:
                 clock.ShowForGood();
-                return (advanced, held.Shown);
+                return new(advanced, held.Shown);
             case AnimationShown<TSegment, EnemyFrameId>.Held:
                 clock.Stop();
-                return (advanced, shown);
+                return new(advanced, shown);
             default:
                 throw new InvalidOperationException($"Mother Brain's brain animations have no {next} beat.");
         }
@@ -111,9 +113,9 @@ internal abstract record MotherBrainBrainPlayback
         /// <inheritdoc/>
         internal override MotherBrainBrainPlayback Step(EnemyAnimationClock clock, IMotherBrainBrainCues cues)
         {
-            (AnimationPlayback<MotherBrainHeadSegment> advanced, EnemyFrameId shown) = PlayOn(MotherBrainAnimations.HeadSegments, Animation, Shown,
+            MotherBrainBrainPlayed<MotherBrainHeadSegment> played = PlayOn(MotherBrainAnimations.HeadSegments, Animation, Shown,
                 clock, cue => ContinuingAt(cues.RunHeadCue(cue), MotherBrainAnimations.HeadStartingWith));
-            return this with { Animation = advanced, Shown = shown };
+            return this with { Animation = played.Playback, Shown = played.Shown };
         }
     }
 
@@ -127,9 +129,9 @@ internal abstract record MotherBrainBrainPlayback
         /// <inheritdoc/>
         internal override MotherBrainBrainPlayback Step(EnemyAnimationClock clock, IMotherBrainBrainCues cues)
         {
-            (AnimationPlayback<MotherBrainLateFightHeadSegment> advanced, EnemyFrameId shown) = PlayOn(MotherBrainAnimations.LateFightSegments,
+            MotherBrainBrainPlayed<MotherBrainLateFightHeadSegment> played = PlayOn(MotherBrainAnimations.LateFightSegments,
                 Animation, Shown, clock, cue => ContinuingAt(cues.RunLateFightCue(Fight, cue), MotherBrainAnimations.LateFightStartingWith));
-            return this with { Animation = advanced, Shown = shown };
+            return this with { Animation = played.Playback, Shown = played.Shown };
         }
     }
 
@@ -143,9 +145,9 @@ internal abstract record MotherBrainBrainPlayback
         /// <inheritdoc/>
         internal override MotherBrainBrainPlayback Step(EnemyAnimationClock clock, IMotherBrainBrainCues cues)
         {
-            (AnimationPlayback<MotherBrainBabyAttackSegment> advanced, EnemyFrameId shown) = PlayOn(MotherBrainAnimations.BabyAttackSegments,
+            MotherBrainBrainPlayed<MotherBrainBabyAttackSegment> played = PlayOn(MotherBrainAnimations.BabyAttackSegments,
                 Animation, Shown, clock, cue => ContinuingAt(cues.RunBabyAttackCue(Baby, cue), MotherBrainAnimations.BabyAttackStartingWith));
-            return this with { Animation = advanced, Shown = shown };
+            return this with { Animation = played.Playback, Shown = played.Shown };
         }
     }
 }

@@ -83,8 +83,8 @@ internal sealed class MotherBrainLateFightState
 
     /// <summary>
     /// Restarts her brain on her four-ring volley at the Baby once it has arrived, whose own cues act on the arrived Baby;
-    /// before it arrives, on her volley at Samus. The cartridge chooses by whether the Baby holds its place in the room's
-    /// enemies, which its arrival gives it.
+    /// before it arrives, on her volley at Samus. She chooses by whether the Baby holds its place in the room's enemies,
+    /// which its arrival gives it.
     /// </summary>
     internal void FireVolleyAtBaby()
     {

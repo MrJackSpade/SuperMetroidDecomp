@@ -7,7 +7,9 @@ namespace SuperMetroid.Core.Fx;
 /// with none (#1695). <c>Surface</c> is the liquid surface's room line, or null with
 /// no surface; <paramref name="WaterSurfaceScreenY"/> its screen line, or null while no surface is placed on the screen (#1546).
 /// <c>Scroll</c> is an atmosphere's scroll; a liquid scrolls only across, and lies on the screen where
-/// <see cref="LiquidSurfaceLine"/> places it (#1706).
+/// <see cref="LiquidSurfaceLine"/> places it (#1706). <paramref name="WaterBackgroundWavePhase"/> is the water's background
+/// wave's phase, or null while the effect runs no background wave: no water, water without it, or the Tourian entrance
+/// statue's water (#2560).
 /// </summary>
 public readonly record struct RoomFxOverlayRenderSnapshot(
     RoomFxType Type,
@@ -16,7 +18,7 @@ public readonly record struct RoomFxOverlayRenderSnapshot(
     int? Surface,
     RoomLiquid? Liquid = null,
     int WaterOverlayWavePhase = 0,
-    int WaterBackgroundWavePhase = 0,
+    int? WaterBackgroundWavePhase = null,
     int? WaterSurfaceScreenY = null)
 {
     /// <summary>How the effect's overlay blends with the room (#1545): its look's blend.</summary>

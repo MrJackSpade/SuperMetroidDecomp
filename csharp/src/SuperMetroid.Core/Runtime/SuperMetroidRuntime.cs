@@ -209,6 +209,7 @@ internal sealed class SuperMetroidRuntime
         TourianStatueDependencies = new TourianStatueSequenceDependencies { Player = Player, System = System, Assists = Assists, Freeze = Freeze };
         BossArtwork = new BossArtworkBinding(artwork.ScreenContent.CeresRidleyGetawayBoostDelays, artwork.ScreenContent.EscapeTypewriter,
             artwork.ScreenContent.MotherBrainRainbowBeamColours, artwork.KraidEyes, artwork.BossBodySheets);
+        Hud = new HudState(artwork.ScreenContent.GameplayHud);
         Artwork = new RuntimeArtwork(new RuntimeArtworkDependencies
         {
             ScreenContent = artwork.ScreenContent, SpriteSheets = artwork.SpriteSheets, SamusBodyArt = artwork.SamusBodyArt, SamusShownFrames = artwork.SamusShownFrames,
@@ -421,7 +422,7 @@ internal sealed class SuperMetroidRuntime
     private SamusSuitPickupState SuitPickup { get; } = new();
 
     /// <summary>The gameplay HUD.</summary>
-    public HudState Hud { get; } = new();
+    public HudState Hud { get; }
 
     /// <summary>The layers' positions and views, fed by the active camera; the frame boundary latches the views the screen shows.</summary>
     private BackgroundScrollState BackgroundScroll { get; } = new();

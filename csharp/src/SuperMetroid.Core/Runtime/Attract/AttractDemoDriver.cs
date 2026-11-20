@@ -85,7 +85,7 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
     /// Uses the ordinary room, room-object, enemy, FX, and graphics loaders with demo progression.
     /// </summary>
     /// <returns>The runtime's loaded room, the demo's.</returns>
-    internal RoomOccupancy.Loaded InitializeAttractDemo(AttractDemoScene scene)
+    internal RoomScope InitializeAttractDemo(AttractDemoScene scene)
     {
         Ensure.NotNull(scene);
         _system.Progress.CopyFrom(DemoProgress());
@@ -117,11 +117,11 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
         // The demo record independently supplies room and door. Do not replace room
         // selection with the door destination or derive placement from a load station.
         var room = _roomLoader.LoadSelectedRoom(scene.Room);
-        RoomOccupancy.Loaded loaded = _roomLoader.LoadRoom(door, room, scene.CameraPosition,
+        RoomScope loaded = _roomLoader.LoadRoom(door, room, scene.CameraPosition,
             RoomViewportLoadMode.DisplayInitialViewport);
         // The scene's room setup acts on the demo room the load just built; a scene without one leaves the room as loaded.
         if (scene.RoomSetup is { } roomSetup)
-            ApplyAttractRoomSetup(roomSetup, loaded.Scope);
+            ApplyAttractRoomSetup(roomSetup, loaded);
         SuperMetroid.Core.Samus.Colours.SamusSuitShade.Show(_player.Colours, samus.EquippedItems);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);

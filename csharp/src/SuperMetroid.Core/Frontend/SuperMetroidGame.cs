@@ -142,7 +142,7 @@ public sealed class SuperMetroidGame
         {
             PhaseGameplayNeed.Nothing => PhaseGameplay.Frontend.Instance,
             PhaseGameplayNeed.Runtime when Session.Runtime is { } runtime => new PhaseGameplay.OfRuntime(runtime),
-            PhaseGameplayNeed.LoadedRoom when Session.Runtime is { Room.Occupancy: RoomOccupancy.Loaded room } runtime =>
+            PhaseGameplayNeed.LoadedRoom when Session.Runtime is { Room.Scope: { } room } runtime =>
                 new PhaseGameplay.InRoom(new LoadedGameplay(runtime, room)),
             _ => throw new InvalidOperationException($"The {phase.Name} step runs on {phase.Need}, which the session has not loaded."),
         };
@@ -382,7 +382,7 @@ public sealed class SuperMetroidGame
             case PhaseRandomStep.LiquidWaveAndStatueDescentThenAdvance when gameplay is PhaseGameplay.InRoom { Live: var paused }:
                 // The liquid wave and the statues' descent still advance on the update before the pause screen; a lava or
                 // acid wave swaps the halves of the random number.
-                paused.Runtime.DoorTransition.AdvanceEffectsAndRandom(paused.Room.Scope, paused.Runtime.Player.Samus);
+                paused.Runtime.DoorTransition.AdvanceEffectsAndRandom(paused.Room, paused.Runtime.Player.Samus);
                 break;
             case PhaseRandomStep.Advance:
                 if (DisplayFrameWaitContinuation.DrawsRandom(PhaseIsWaitingOutDisplayFrame))

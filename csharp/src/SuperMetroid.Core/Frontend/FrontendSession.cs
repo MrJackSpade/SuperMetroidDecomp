@@ -601,11 +601,11 @@ internal sealed class FrontendSession
                 return true;
             }
 
-            RoomOccupancy.Loaded loaded = selected.RoomLoader.InitializeSavedGame(slot);
+            RoomScope loaded = selected.RoomLoader.InitializeSavedGame(slot);
             // Loading the save restores the controls and options it holds; the choices the player has made in the
             // options menu since replace them, as the game keeps them live.
             ApplySelectedGameOptions(selected);
-            RoomStateSettings loadedState = loaded.Scope.Room.State;
+            RoomStateSettings loadedState = loaded.Room.State;
             // Samus's appearance starts her fanfare and then the room's track behind it
             // (SavedGameAppearanceMusicDefinitions). This room state is marked as already handled, so the room's
             // change of music does not replace the fanfare with the room's track at once.

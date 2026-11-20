@@ -9,4 +9,4 @@ namespace SuperMetroid.Core.Frontend;
 /// </summary>
 /// <param name="Runtime">The session's gameplay runtime.</param>
 /// <param name="Room">The runtime's loaded room, which every room load completes and every later one replaces.</param>
-internal sealed record LoadedGameplay(SuperMetroidRuntime Runtime, RoomOccupancy.Loaded Room);
+internal sealed record LoadedGameplay(SuperMetroidRuntime Runtime, RoomScope Room);

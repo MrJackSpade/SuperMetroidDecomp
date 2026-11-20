@@ -157,7 +157,7 @@ internal sealed class RoomLoader
     /// Executes the data-loading portion of a new game's setup: Ceres, its elevator
     /// checkpoint, the checkpoint-selected room, and its fresh-save state-selection branch.
     /// </summary>
-    public RoomOccupancy.Loaded InitializeStartingCeresRoom()
+    public RoomScope InitializeStartingCeresRoom()
     {
         // A new game loads at the Ceres start; the station names the door into its room and the placement.
         LoadStation station = LoadStationDefinitions.CeresElevator;
@@ -189,7 +189,7 @@ internal sealed class RoomLoader
     /// The room loads with the save's progress, inventory and position, and Samus starts her front-facing appearance
     /// with her suit's glow and her control locked; the appearance gives her control back when it ends.
     /// </remarks>
-    public RoomOccupancy.Loaded InitializeSavedGame(SuperMetroidSaveSlot slot)
+    public RoomScope InitializeSavedGame(SuperMetroidSaveSlot slot)
     {
         Ensure.NotNull(slot);
         LoadStation station = slot.Checkpoint;
@@ -210,7 +210,7 @@ internal sealed class RoomLoader
                 $"Load station {station} targets room area " +
                 $"{room.Area}.");
         }
-        RoomOccupancy.Loaded loaded = LoadRoom(
+        RoomScope loaded = LoadRoom(
             door,
             room,
             station.Placement.CameraPosition,
@@ -219,7 +219,7 @@ internal sealed class RoomLoader
         // Loading from a load station sets the save-station lockout. Without this room-entry lockout, the
         // first standing floor probe after loading directly on a save pod immediately
         // reopens its confirmation message.
-        loaded.Scope.RoomObjects.Stations.LockSaveStationForCurrentRoomEntry();
+        loaded.RoomObjects.Stations.LockSaveStationForCurrentRoomEntry();
 
         // The Zebes start setup does not begin at its endpoint. It shows Samus facing forward
         // in her suit's colours at the saved game's appearance (<see cref="SavedGameAppearanceDefinitions"/>)
@@ -235,7 +235,7 @@ internal sealed class RoomLoader
                     ? SavedGameAppearanceDefinitions.VariaSuitGlow
                     : SavedGameAppearanceDefinitions.PowerSuitGlow;
         _player.BeginLoadAppearance(SavedGameAppearanceDefinitions.FrameCount);
-        loaded.Scope.ColourEffects.Start(
+        loaded.ColourEffects.Start(
             loadAppearance,
             _player.Samus.EquippedItems,
             _system.HasDefeatedAnyOf(room.Area, DefeatedBosses.AreaMiniBoss));
@@ -279,7 +279,7 @@ internal sealed class RoomLoader
     /// Loads the game's arrival on Zebes after Ceres:
     /// Crateria, the Zebes arrival, with the airborne Landing Site gunship.
     /// </summary>
-    public RoomOccupancy.Loaded InitializePostCeresZebesRoom()
+    public RoomScope InitializePostCeresZebesRoom()
     {
         // The Ceres escape keeps its live Samus through the cinematic.
         SamusState carried = _player.Samus;
@@ -319,7 +319,7 @@ internal sealed class RoomLoader
 
         // Arriving on Zebes ends the Ceres room's objects and projectiles before Landing Site loads, the two of the Ceres
         // elevator's arrival among them, so the gunship alone carries Samus.
-        RoomOccupancy.Loaded loaded = LoadRoom(
+        RoomScope loaded = LoadRoom(
             door,
             room,
             station.Placement.CameraPosition,
@@ -342,10 +342,10 @@ internal sealed class RoomLoader
     /// <param name="door">The door the transition goes through.</param>
     /// <param name="loaded">The loaded room the step runs in.</param>
     /// <returns>True only when the camera already lay on that screen boundary on entry.</returns>
-    public bool AlignDoorCameraOnePixel(DoorDefinition door, RoomOccupancy.Loaded loaded)
+    public bool AlignDoorCameraOnePixel(DoorDefinition door, RoomScope loaded)
     {
         Ensure.NotNull(door);
-        ScrollBoundaryCamera camera = loaded.Scope.Camera;
+        ScrollBoundaryCamera camera = loaded.Camera;
 
         DoorCameraAlignmentState alignment = DoorCameraAlignmentState.Step(
             door.Orientation.Direction,
@@ -417,7 +417,7 @@ internal sealed class RoomLoader
     /// </summary>
     /// <param name="door">The door the transition goes through.</param>
     /// <param name="loaded">The loaded room the step runs in.</param>
-    internal void ApplyDoorScrollingSetupMovement(DoorDefinition door, RoomOccupancy.Loaded loaded)
+    internal void ApplyDoorScrollingSetupMovement(DoorDefinition door, RoomScope loaded)
     {
         Ensure.NotNull(door);
         SamusState samus = _player.Samus;
@@ -429,11 +429,11 @@ internal sealed class RoomLoader
     /// <summary>Rebases Samus and publishes the scroll's first moving step during the destination's loading.</summary>
     /// <param name="door">The door the transition goes through.</param>
     /// <param name="loaded">The loaded room the step runs in.</param>
-    internal void PlaceSamusForDestinationLoading(DoorDefinition door, RoomOccupancy.Loaded loaded)
+    internal void PlaceSamusForDestinationLoading(DoorDefinition door, RoomScope loaded)
     {
         Ensure.NotNull(door);
         SamusState samus = _player.Samus;
-        ScrollBoundaryCamera camera = loaded.Scope.Camera;
+        ScrollBoundaryCamera camera = loaded.Camera;
         FixedPosition<RoomPixels> position = DoorOpeningScrollState.RebaseSamus(door, samus.Position);
         camera.PublishDoorSamusPosition(position.Whole);
         samus.Position = DoorOpeningScrollState.AdvanceSamus(door, position);
@@ -468,11 +468,11 @@ internal sealed class RoomLoader
         DoorOpeningSourceView sourceScroll,
         IRoomLoadProgress loaderProgress,
         int completedLoadingScrollUpdates,
-        RoomOccupancy.Loaded loaded)
+        RoomScope loaded)
     {
         SamusState samus = _player.Samus;
-        ScrollBoundaryCamera camera = loaded.Scope.Camera;
-        if (loaded.Scope.Enemies.Elevator.ArrivalElevator is { } elevator)
+        ScrollBoundaryCamera camera = loaded.Camera;
+        if (loaded.Enemies.Elevator.ArrivalElevator is { } elevator)
             _elevatorPlacementAwaitingSetup = new LoaderSamusPlacement(elevator, samus.Position.Whole);
 
         DoorOpeningScrollState scroll = DoorOpeningScrollState.Create(
@@ -510,11 +510,11 @@ internal sealed class RoomLoader
     /// <param name="state">The door's opening scroll.</param>
     /// <param name="loaderProgress">How far the destination's load has progressed.</param>
     /// <param name="loaded">The loaded room the step runs in.</param>
-    internal bool StepDoorOpeningScroll(DoorOpeningScrollState state, IRoomLoadProgress loaderProgress, RoomOccupancy.Loaded loaded)
+    internal bool StepDoorOpeningScroll(DoorOpeningScrollState state, IRoomLoadProgress loaderProgress, RoomScope loaded)
     {
         Ensure.NotNull(state);
         SamusState samus = _player.Samus;
-        ScrollBoundaryCamera camera = loaded.Scope.Camera;
+        ScrollBoundaryCamera camera = loaded.Camera;
         bool completed = state.Advance();
         PublishDoorOpeningLayers(state, loaded);
         // Each four-pixel step recomputes the layer scrolls, so the layers show where the camera stands on every update
@@ -543,8 +543,8 @@ internal sealed class RoomLoader
                     $"The door scroll finished before the loader initialized the arriving elevator in place {placement.Elevator.Ordinal}.");
             }
         }
-        loaded.Scope.Enemies.LoaderHooks.CompleteRinkaLoaderTimeCameraReads(loaderProgress.HasInitializedEnemyPlace, camera.PixelPosition);
-        if (completed && loaded.Scope.Enemies.LoaderHooks.HasDeferredRinkaLoaderTimeCameraReads)
+        loaded.Enemies.LoaderHooks.CompleteRinkaLoaderTimeCameraReads(loaderProgress.HasInitializedEnemyPlace, camera.PixelPosition);
+        if (completed && loaded.Enemies.LoaderHooks.HasDeferredRinkaLoaderTimeCameraReads)
             throw new InvalidDataException("The door scroll finished before the loader initialized every special Rinka.");
         samus.Position = state.SamusPosition;
         camera.PublishDoorSamusTravelAxis(state.Direction.IsVertical(), samus.Position.Whole);
@@ -555,16 +555,16 @@ internal sealed class RoomLoader
     /// Publishes the scroll's camera and second-layer positions to the camera (whose
     /// fractions the scroll never writes) and to the background-scroll owner.
     /// </summary>
-    private void PublishDoorOpeningLayers(DoorOpeningScrollState state, RoomOccupancy.Loaded loaded)
+    private void PublishDoorOpeningLayers(DoorOpeningScrollState state, RoomScope loaded)
     {
         PublishDoorCameraPosition(state.CameraPosition, loaded);
         _backgroundScroll.BackgroundPosition = state.BackgroundPosition;
     }
 
     /// <summary>Publishes a door-owned camera position to both the camera and the scroll owner.</summary>
-    private void PublishDoorCameraPosition(Position16<RoomPixels> camera, RoomOccupancy.Loaded loaded)
+    private void PublishDoorCameraPosition(Position16<RoomPixels> camera, RoomScope loaded)
     {
-        loaded.Scope.Camera.SetDoorTransitionPosition(camera);
+        loaded.Camera.SetDoorTransitionPosition(camera);
         _backgroundScroll.ForegroundPosition = camera;
     }
 
@@ -602,7 +602,7 @@ internal sealed class RoomLoader
     /// </summary>
     /// <param name="state">The door's opening scroll, which has finished.</param>
     /// <param name="loaded">The loaded room the step runs in.</param>
-    internal void FinishDoorOpeningScroll(DoorOpeningScrollState state, RoomOccupancy.Loaded loaded)
+    internal void FinishDoorOpeningScroll(DoorOpeningScrollState state, RoomScope loaded)
     {
         Ensure.NotNull(state);
         if (state.Scroll.IsRunning)
@@ -615,9 +615,9 @@ internal sealed class RoomLoader
             NudgeOffScreenRightEdge(NudgeOffScreenLeftEdge(samus.Position.X.Whole)),
             NudgeOffScreenLeftEdge(samus.Position.Y.Whole)));
 
-        if (loaded.Scope.Enemies.Elevator.DoorArming != ElevatorArming.None)
+        if (loaded.Enemies.Elevator.DoorArming != ElevatorArming.None)
         {
-            if (loaded.Scope.Enemies.Elevator.ElevatorTravel == ElevatorTravelDirection.Down)
+            if (loaded.Enemies.Elevator.ElevatorTravel == ElevatorTravelDirection.Down)
                 SamusPoseMetadata.SetupForElevator(samus);
             else
                 samus.Control.LockOutPlayer();
@@ -632,14 +632,17 @@ internal sealed class RoomLoader
     /// <param name="door">The door Samus entered, which the transition goes through.</param>
     /// <param name="sourceSamus">Samus's place in the source room, which the door's opening scroll starts from.</param>
     /// <param name="loaded">The loaded room the step runs in.</param>
-    /// <returns>What the source room showed as its destination's load began, which the door's opening scroll keeps.</returns>
-    internal DoorOpeningSourceView LoadPendingDoorDestinationForTransition(DoorDefinition door, FixedPosition<RoomPixels> sourceSamus,
-        RoomOccupancy.Loaded loaded)
+    /// <returns>
+    /// The destination room the load built, and what the source room showed as the destination's load began, which the
+    /// door's opening scroll keeps.
+    /// </returns>
+    internal DoorDestinationLoad LoadPendingDoorDestinationForTransition(DoorDefinition door, FixedPosition<RoomPixels> sourceSamus,
+        RoomScope loaded)
     {
         Ensure.NotNull(door);
         SamusState samus = _player.Samus;
 
-        RoomDoorContacts sourceDoors = loaded.Scope.RoomObjects.DoorContacts;
+        RoomDoorContacts sourceDoors = loaded.RoomObjects.DoorContacts;
         DoorTransitionPlacement placement = CalculateDoorTransitionPlacement(door, sourceSamus);
         SelectedRoom room = LoadSelectedRoom(door.DestinationRoom);
 
@@ -657,7 +660,7 @@ internal sealed class RoomLoader
         // then, with the destination's definition loaded, loads the live map from the entered area's.
         if (ExploredMapExchangeDoorDefinitions.Doors.Contains(door))
         {
-            _system.StoredExploredMaps.StoreLiveMap(loaded.Scope.Room.Area);
+            _system.StoredExploredMaps.StoreLiveMap(loaded.Room.Area);
             _system.StoredExploredMaps.LoadLiveMap(room.Area);
         }
 
@@ -665,9 +668,9 @@ internal sealed class RoomLoader
         // into an arrival after the destination's room objects and door setup exist. The room load sets up enemies in
         // the same update, so the arrival is handed to the destination's elevator just before they load: it places
         // itself at its arrival height instead of ending the journey.
-        bool arrivingByElevator = loaded.Scope.Enemies.Elevator.ElevatorStatus == ElevatorActorStatus.Departing;
+        bool arrivingByElevator = loaded.Enemies.Elevator.ElevatorStatus == ElevatorActorStatus.Departing;
         if (arrivingByElevator)
-            loaded.Scope.Enemies.Elevator.PrepareElevatorArrival();
+            loaded.Enemies.Elevator.PrepareElevatorArrival();
 
         // The load-station record established only the first room. Once the door collision publishes
         // a door definition, that definition and its destination definition become authoritative:
@@ -685,8 +688,8 @@ internal sealed class RoomLoader
 
         // The source screen is captured as the destination's load begins.
         var sourceView = new DoorOpeningSourceView(_backgroundScroll.ForegroundScroll,
-            new RoomBackgroundLayer(loaded.Scope.LevelData.ForegroundPlane.Cells, SourceScreenPictures(loaded.Scope)));
-        LoadRoom(
+            new RoomBackgroundLayer(loaded.LevelData.ForegroundPlane.Cells, SourceScreenPictures(loaded)));
+        RoomScope destination = LoadRoom(
             door,
             room,
             placement.CameraPosition,
@@ -702,11 +705,11 @@ internal sealed class RoomLoader
         // The door loader sets no Samus radius; the next unlocked input mode's radius update
         // does, so an elevator rider keeps the boarding pose's radius through the door.
         _player.GroundedSamusMovementEnabled = true;
-        return sourceView;
+        return new DoorDestinationLoad(destination, sourceView);
     }
 
     /// <summary>Loads the selected room, its state and its graphics; shared by stations, doors and the attract demo.</summary>
-    internal RoomOccupancy.Loaded LoadRoom(
+    internal RoomScope LoadRoom(
         DoorDefinition door,
         SelectedRoom room,
         Position16<RoomPixels> camera,
@@ -997,7 +1000,7 @@ internal sealed class RoomLoader
             })
             : null;
 
-        RoomOccupancy.Loaded loaded = _room.Adopt(scope.Complete(blockAnimations, roomFxOverlay, roomColourEffects, projectiles,
+        RoomScope loaded = _room.Adopt(scope.Complete(blockAnimations, roomFxOverlay, roomColourEffects, projectiles,
             roomObjects, enemies, tourianStatues));
         // The door transition never redraws the destination's whole viewport: the source screen stays visible while the
         // opening scroll moves the destination in around it.
@@ -1077,10 +1080,10 @@ internal sealed class RoomLoader
     /// the room, front-facing, and unlocks her movement when it ends.
     /// </remarks>
     /// <param name="loaded">The runtime's loaded room, the Ceres start's (<see cref="InitializeStartingCeresRoom"/>).</param>
-    public void InitializeCeresStartSamus(RoomOccupancy.Loaded loaded)
+    public void InitializeCeresStartSamus(RoomScope loaded)
     {
         Ensure.NotNull(loaded);
-        SelectedRoom room = loaded.Scope.Room;
+        SelectedRoom room = loaded.Room;
         // The Ceres start's room is the one its station loads (InitializeStartingCeresRoom).
         LoadStation station = LoadStationDefinitions.CeresElevator;
 
@@ -1098,12 +1101,12 @@ internal sealed class RoomLoader
 
         // The Ceres elevator's arrival owns its own state from the first draw, the concealer over the room's level drawn in
         // the room's own colours.
-        loaded.Scope.BeginCeresElevatorArrival(new CeresElevatorArrivalState(_player.Samus));
+        loaded.BeginCeresElevatorArrival(new CeresElevatorArrivalState(_player.Samus));
 
         // The locked Ceres start's frame publishes the initial minimap itself, so the HUD shows Ceres's room from the
         // descent's first frame; later frames keep updating it.
         ActiveRoomGeometry roomGeometry = GetActiveRoomGeometry(room);
-        _hud.UpdateMinimap(_system, new MinimapFrame { Area = roomGeometry.Area, RoomMap = roomGeometry.MapPosition, RoomSize = loaded.Scope.LevelData.Size, Samus = _player.Samus.Position.Whole, FrameCounter = _clock.ShortCounter, MapRevealMode = _assists.Current.MapReveal, PresentationMap = _artwork.ScreenContent.Get(roomGeometry.Area) });
+        _hud.UpdateMinimap(_system, new MinimapFrame { Area = roomGeometry.Area, RoomMap = roomGeometry.MapPosition, RoomSize = loaded.LevelData.Size, Samus = _player.Samus.Position.Whole, FrameCounter = _clock.ShortCounter, MapRevealMode = _assists.Current.MapReveal, PresentationMap = _artwork.ScreenContent.Get(roomGeometry.Area) });
 
         // Samus's Ceres-start control setup locks her movement until the elevator's arrival ends.
         _player.GroundedSamusMovementEnabled = false;

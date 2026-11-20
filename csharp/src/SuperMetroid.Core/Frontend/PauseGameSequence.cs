@@ -113,7 +113,7 @@ internal sealed class PauseGameSequence(FrontendSession session, GameplayGamePha
         // or the next step of a door hit or time-up gameplay wrote on this final fade update.
         // A time-up written after a door hit on the same update takes precedence.
         bool doorEntered = false;
-        if (live.Room.Scope.RoomObjects.DoorContacts.EnteredDoor is { } door)
+        if (live.Room.RoomObjects.DoorContacts.EnteredDoor is { } door)
         {
             session.EnterDoor(door);
             doorEntered = true;
@@ -142,7 +142,7 @@ internal sealed class PauseGameSequence(FrontendSession session, GameplayGamePha
         // Pausing stops every gameplay sound before the pause screen is set up, so no echo, charge, beam or
         // environmental sound plays on under the menu.
         session.audio.QueueCancelSoundEffects(SoundRequestPriority.Normal);
-        SelectedRoom pauseRoom = live.Room.Scope.Room;
+        SelectedRoom pauseRoom = live.Room.Room;
         session.Show(new PauseMenuState(new PauseMenuEntry { Samus = live.Runtime.Player.Samus, System = live.Runtime.System, Area = pauseRoom.Area, RoomMapPosition = pauseRoom.MapPosition, Audio = session.audio, GameplayHud = live.Runtime.AcceptedHud, MapRevealMode = session.Assists.MapReveal, ScreenContent = session.Artwork.ScreenContent, SpriteSheets = session.Artwork.SpriteSheets }));
         session.BeginPauseFade(0);
         session.display.PublishMenu(session.ActivePauseMenu);
@@ -173,7 +173,7 @@ internal sealed class PauseGameSequence(FrontendSession session, GameplayGamePha
             live.Runtime.PlayerButtons.NewlyPressed,
             live.Runtime.PlayerButtons.Current,
             live.Runtime.Clock.ShortCounter,
-            live.Room.Scope.BombProjectiles);
+            live.Room.BombProjectiles);
         // The paused update writes the HUD after reading pause input; the next displayed frame shows
         // its rows, including the first frame of the unpause fade.
         live.Runtime.Hud.UpdateGameplayCounters(live.Runtime.Player.Samus, live.Runtime.AudioRequests,
@@ -217,9 +217,9 @@ internal sealed class PauseGameSequence(FrontendSession session, GameplayGamePha
         // Samus's resume from pause also restores her suit's shade.
         // The equipped items are live, but the restored gameplay shade is cached.
         SuperMetroid.Core.Samus.Colours.SamusSuitShade.Show(live.Runtime.Player.Colours, resumedSamus.EquippedItems);
-        live.Room.Scope.RoomObjects.Stations.ResumeMapStationsAfterUnpause();
+        live.Room.RoomObjects.Stations.ResumeMapStationsAfterUnpause();
         resumedSamus.Control.ReleaseRefillStationOnUnpause();
-        live.Room.Scope.Enemies.Elevator.ResumeFromPause();
+        live.Room.Enemies.Elevator.ResumeFromPause();
         live.Runtime.FrameBoundary.BeginAcceptedFrame(controllerInput);
         session.Close<PauseMenuState>();
         session.BeginPauseFade(0);

@@ -12,5 +12,5 @@ internal interface IGameplayFramePublication
     /// <param name="loaded">The runtime's loaded room, the update's.</param>
     /// <param name="current">The display currently published.</param>
     /// <param name="frameNumber">The number of the update a newly published frame shows.</param>
-    DisplayPacket Publish(SuperMetroidRuntime runtime, RoomOccupancy.Loaded loaded, DisplayPacket current, int frameNumber);
+    DisplayPacket Publish(SuperMetroidRuntime runtime, RoomScope loaded, DisplayPacket current, int frameNumber);
 }

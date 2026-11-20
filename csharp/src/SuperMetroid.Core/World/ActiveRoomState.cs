@@ -31,10 +31,7 @@ internal sealed class ActiveRoomState
     public LoadStation? ActiveLoadStation => _construction is { } construction ? construction.LoadStation : Scope?.LoadStation;
 
     /// <summary>Whether a room is loaded: none before the runtime's first room load completes, then the last one's.</summary>
-    internal RoomOccupancy Occupancy { get; private set; } = RoomOccupancy.NoRoomLoaded.Instance;
-
-    /// <summary>The completed scope of the loaded room, for a reader that also runs before the first load.</summary>
-    internal RoomScope? Scope => Occupancy is RoomOccupancy.Loaded loaded ? loaded.Scope : null;
+    internal RoomScope? Scope { get; private set; }
 
     /// <summary>How many rooms the runtime has loaded, counting each completed room load (#2562).</summary>
     internal int RoomsLoaded { get; private set; }
@@ -56,22 +53,12 @@ internal sealed class ActiveRoomState
 
     /// <summary>Makes <paramref name="scope"/> the loaded room's, ending any construction.</summary>
     /// <returns>The runtime's loaded room, which now holds <paramref name="scope"/>.</returns>
-    internal RoomOccupancy.Loaded Adopt(RoomScope scope)
+    internal RoomScope Adopt(RoomScope scope)
     {
-        RoomOccupancy.Loaded loaded;
-        if (Occupancy is RoomOccupancy.Loaded earlier)
-        {
-            earlier.Replace(scope);
-            loaded = earlier;
-        }
-        else
-        {
-            loaded = new RoomOccupancy.Loaded(scope);
-            Occupancy = loaded;
-        }
+        Scope = Ensure.NotNull(scope);
         RoomsLoaded++;
         _construction = null;
-        return loaded;
+        return scope;
     }
 
     /// <summary>The value one room view reads: the part under construction during a load, otherwise the loaded scope's.</summary>

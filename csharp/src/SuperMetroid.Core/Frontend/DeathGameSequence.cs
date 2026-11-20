@@ -106,11 +106,11 @@ internal sealed class DeathGameSequence(FrontendSession session) : IGameplayPhas
     /// <summary>One update of the fatal pose, which begins Samus's death animation once the death music is processed.</summary>
     private void WaitForMusic(ControllerButton controllerInput, LoadedGameplay live)
     {
-        live.Runtime.DeathSequence.DrawFatalSamusFrame(controllerInput, live.Room.Scope, live.Runtime.Player.Samus);
+        live.Runtime.DeathSequence.DrawFatalSamusFrame(controllerInput, live.Room, live.Runtime.Player.Samus);
         session.display.PublishGameplay(live);
         if (!session.audio.HasQueuedMusic)
         {
-            live.Runtime.DeathSequence.BeginDeathSequenceAfterMusicWait(live.Room.Scope, live.Runtime.Player.Samus);
+            live.Runtime.DeathSequence.BeginDeathSequenceAfterMusicWait(live.Room, live.Runtime.Player.Samus);
             session.Enter(DeathSequenceStep.SamusDying);
         }
     }
@@ -119,7 +119,7 @@ internal sealed class DeathGameSequence(FrontendSession session) : IGameplayPhas
     private void StepSamusDying(ControllerButton controllerInput, LoadedGameplay live)
     {
         SamusDeathSequenceStepResult deathStep =
-            live.Runtime.DeathSequence.StepDeathSequenceFrame(controllerInput, live.Room.Scope, live.Runtime.Player.Samus);
+            live.Runtime.DeathSequence.StepDeathSequenceFrame(controllerInput, live.Room, live.Runtime.Player.Samus);
         session.display.PublishGameplay(live);
         if (deathStep.Completed)
         {

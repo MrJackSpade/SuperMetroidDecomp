@@ -19,5 +19,5 @@ internal sealed class RetainedGameplayFrames : IGameplayFramePublication
     }
 
     /// <inheritdoc />
-    public DisplayPacket Publish(SuperMetroidRuntime runtime, RoomOccupancy.Loaded loaded, DisplayPacket current, int frameNumber) => current;
+    public DisplayPacket Publish(SuperMetroidRuntime runtime, RoomScope loaded, DisplayPacket current, int frameNumber) => current;
 }

@@ -91,10 +91,11 @@ public sealed class EnemyProjectile
     internal Enum? Motion { get; set; }
     /// <summary>
     /// What the projectile's kind does (#1760): it moves the projectile each update, carries out its animations'
-    /// cues and names its shot and touch animations. The spawner binds it with the kind; none until then. A projectile
-    /// that ends keeps it, so the cues its animation publishes on the way out still reach their owner.
+    /// cues, names its shot and touch animations and holds what its family keeps on the projectile (#2554). The spawner
+    /// binds it with the kind; a projectile its spawner has not yet given a kind holds still. A projectile that ends keeps
+    /// it, so the cues its animation publishes on the way out still reach their owner.
     /// </summary>
-    internal EnemyProjectileBehavior? Behavior { get; set; }
+    internal EnemyProjectileBehavior Behavior { get; private set; } = EnemyProjectileBehavior.Still;
     /// <summary>Gets the sheet and shading the projectile draws its own pictures with, as its spawner supplied them.</summary>
     public SpriteGraphics Graphics { get; internal set; }
 
@@ -118,15 +119,6 @@ public sealed class EnemyProjectile
     /// animations move it in front. This is independent of the projectile's depth against the room's tiles.
     /// </summary>
     public EnemyProjectileDepth Depth { get; internal set; }
-    /// <summary>What the projectile's family keeps on it (#1470), given by its spawner; none until then.</summary>
-    internal EnemyProjectileState? State { get; set; }
-
-    /// <summary>The state the projectile's family gave it, read as that family's own type.</summary>
-    /// <typeparam name="TState">The family's state type.</typeparam>
-    /// <exception cref="InvalidOperationException">The projectile holds no state, or another family's.</exception>
-    internal TState StateOf<TState>() where TState : EnemyProjectileState =>
-        State as TState ?? throw new InvalidOperationException(
-            $"Enemy projectile {Kind} in place {Place} holds {State?.GetType().Name ?? "no state"}, not {typeof(TState).Name}.");
 
     /// <summary>Gets whether this actor damages Samus when it touches her, whether or not it survives contact or stops shots.</summary>
     public bool CanDamageSamus { get; internal set; }
@@ -206,7 +198,6 @@ public sealed class EnemyProjectile
         Graphics = SpriteGraphics.SharedStandard;
         Damage = 0;
         Depth = EnemyProjectileDepth.BehindSamus;
-        State = null;
         CollisionOption = EnemyProjectileCollisionOption.PlaysShotAnimation;
         CanDamageSamus = PersistsOnSamusContact = BlocksSamusProjectiles = false;
     }

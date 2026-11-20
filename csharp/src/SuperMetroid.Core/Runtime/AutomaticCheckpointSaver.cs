@@ -41,13 +41,13 @@ internal static class AutomaticCheckpointSaver
     public static bool TrySaveGunshipLanding(
         SaveSlotStore saves,
         SuperMetroidRuntime runtime,
-        RoomOccupancy.Loaded loaded,
+        RoomScope loaded,
         SaveSlot selectedSaveSlot)
     {
         Ensure.NotNull(saves);
         Ensure.NotNull(runtime);
         Ensure.NotNull(loaded);
-        if (!loaded.Scope.Enemies.LastEnemyFrame.Reports(GunshipFrameEvent.LandingCompleted))
+        if (!loaded.Enemies.LastEnemyFrame.Reports(GunshipFrameEvent.LandingCompleted))
             return false;
 
         // The gunship sets the ship-landed marker before moving the checkpoint from the Zebes arrival to

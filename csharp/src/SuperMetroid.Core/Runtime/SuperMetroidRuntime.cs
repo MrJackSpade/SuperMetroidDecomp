@@ -444,7 +444,7 @@ internal sealed class SuperMetroidRuntime
     /// <param name="request">The game state that owns the update and the host's work after the frame boundary.</param>
     /// <returns>What the update started for the game-state loop to act on after it: the time-up and where its out-of-health check sends Samus.</returns>
     /// <param name="loaded">The runtime's loaded room, which every gameplay update runs in.</param>
-    public RuntimeFrameOutcome StepFrame(ControllerButton playerInput, RuntimeFrameRequest request, RoomOccupancy.Loaded loaded)
+    public RuntimeFrameOutcome StepFrame(ControllerButton playerInput, RuntimeFrameRequest request, RoomScope loaded)
     {
         Ensure.NotNull(request);
         Ensure.NotNull(loaded);
@@ -456,7 +456,7 @@ internal sealed class SuperMetroidRuntime
             AmmoLoanGuard.Begin(Assists.Current.AmmoNeverRunsOut, samus);
         try
         {
-            return StepFrameGuarded(playerInput, request, infiniteAmmoGuard, loaded.Scope, samus);
+            return StepFrameGuarded(playerInput, request, infiniteAmmoGuard, loaded, samus);
         }
         finally
         {
@@ -1142,10 +1142,10 @@ internal sealed class SuperMetroidRuntime
     /// simulation, and the result shares no storage with it.
     /// </summary>
     /// <param name="loaded">The runtime's loaded room, from which every gameplay frame is shown.</param>
-    public GameplayDisplayFrame PublishDisplayFrame(RoomOccupancy.Loaded loaded)
+    public GameplayDisplayFrame PublishDisplayFrame(RoomScope loaded)
     {
         Ensure.NotNull(loaded);
-        RoomScope room = loaded.Scope;
+        RoomScope room = loaded;
         SamusState samus = Player.Samus;
         MotherBrainEnemyState? motherBrain = room.Enemies.DisplaySources.MotherBrain;
         var frameEnd = new GameplayFrameEndDisplayInputs(

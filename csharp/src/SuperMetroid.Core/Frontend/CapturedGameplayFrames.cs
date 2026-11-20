@@ -16,7 +16,7 @@ internal sealed class CapturedGameplayFrames : IGameplayFramePublication
     }
 
     /// <inheritdoc />
-    public DisplayPacket Publish(SuperMetroidRuntime runtime, RoomOccupancy.Loaded loaded, DisplayPacket current, int frameNumber)
+    public DisplayPacket Publish(SuperMetroidRuntime runtime, RoomScope loaded, DisplayPacket current, int frameNumber)
     {
         Ensure.NotNull(runtime);
         GameplayDisplayFrame frame = runtime.PublishDisplayFrame(loaded);

@@ -103,7 +103,7 @@ internal static class CeresEscapeTileArtworkVerification
 
         // The pictures of the warning pages are composed from the installed characters; composing them without those
         // characters fails rather than falling back to cartridge bytes.
-        var missing = new EnemyTileTransfers(new ImportEnemyArtwork(stock.Enemies, stock.Bosses, new AreaSourceArtwork()), timer: timer);
+        var missing = new EnemyTileTransfers(new ImportEnemyArtwork(stock.Enemies, stock.Bosses, SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.AreaArtwork), timer: timer);
         AssertThrows<InvalidDataException>(() => EncounterLookUploads.Steps(ComposedEncounter.CeresEscape, missing),
             "Ceres warning pictures reject missing installed character artwork");
         Console.WriteLine(

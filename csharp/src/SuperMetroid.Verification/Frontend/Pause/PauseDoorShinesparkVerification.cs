@@ -33,7 +33,7 @@ internal static class PauseDoorShinesparkVerification
     {
         foreach (var scenario in new[] { new VerifyPauseDoorShinesparkCase(Brightening:false, Terminal:false), new VerifyPauseDoorShinesparkCase(Brightening:false, Terminal:true), new VerifyPauseDoorShinesparkCase(Brightening:true, Terminal:false), new VerifyPauseDoorShinesparkCase(Brightening:true, Terminal:true) })
         {
-            var game=new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
+            var game=SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
             InstalledFixtures.BindGame(game);
             game.Session.CreateGameplayRuntime(GameplayRuntimePurpose.SelectedGame);
             var runtime = game.Session.GameplayRuntime;

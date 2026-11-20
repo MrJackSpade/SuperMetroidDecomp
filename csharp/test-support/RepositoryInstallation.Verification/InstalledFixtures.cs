@@ -197,6 +197,23 @@ internal static class InstalledFixtures
     private static readonly Lazy<Action<SuperMetroidGame>> gameBindings =
         new(() => InstalledGameBindings.Create(RepositoryInstallation.Installation));
 
+    /// <summary>The installed catalogs fixture games are built with, loaded once per process.</summary>
+    private static readonly Lazy<GameArtwork> fixtureGameArtwork =
+        new(() => InstalledGameBindings.Artwork(RepositoryInstallation.Installation));
+
+    /// <summary>
+    /// The installation's enemy catalog parts as the import reads them, every member complete, loaded once per process:
+    /// what a check copies with the one catalog it replaces.
+    /// </summary>
+    internal static EnemyTileArtworkParts EnemyArtworkParts => enemyArtworkParts.Value;
+
+    /// <summary>Lazy enemy catalog parts as the import reads them.</summary>
+    private static readonly Lazy<EnemyTileArtworkParts> enemyArtworkParts = Shared<EnemyTileArtworkParts>("enemy artwork parts", () =>
+    {
+        string importData = CartridgeImportContent.ImportData(GameInstallationLayout.EnemyTileDirectoryName);
+        return EnemyTileArtworkReader.Open(importData).EnemyParts(importData);
+    });
+
     /// <summary>The installation's stock room catalogs, the cartridge reference extracted from the ROM.</summary>
     internal static RoomAssetCatalogs RoomAssets => roomAssets.Value;
 
@@ -505,7 +522,7 @@ internal static class InstalledFixtures
     /// <summary>Binds the host catalogs to a game restored from a save or debugger state.</summary>
     internal static void BindGame(SuperMetroidGame game) => gameBindings.Value(game);
 
-    /// <summary>A frontend game over <paramref name="saves"/>, bound to the installation's presentation catalogs.</summary>
+    /// <summary>A muted frontend game over <paramref name="saves"/>, built with the installation's presentation catalogs.</summary>
     /// <param name="saves">The saves the game owns.</param>
     /// <param name="assists">The assists the game plays under, or <see langword="null"/> for the unassisted game.</param>
     /// <param name="renderGameplayFrames">Whether gameplay frames are composited.</param>

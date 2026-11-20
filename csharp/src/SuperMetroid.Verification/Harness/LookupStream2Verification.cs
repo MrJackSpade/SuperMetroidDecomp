@@ -640,7 +640,7 @@ internal static class LookupStream2Verification
         };
         var displayBindings = new Dictionary<EnemyFrameId, EnemyFrameId> { [EnemyFrameId.DeadTorizoStanding] = EnemyFrameId.DeadTorizoStanding };
         var display = new EnemySpritemapCatalog(displayParts, displayBindings);
-        var artwork = EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas> { [EnemyDefinitionId.CorpseTorizo] = RoomCharacterAtlasPng.Read(png, planar.Length) }, Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>
+        var artwork = EnemyTileSourceArtwork.FromArtworkForVerification(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EnemyArtworkParts with { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas> { [EnemyDefinitionId.CorpseTorizo] = RoomCharacterAtlasPng.Read(png, planar.Length) }, Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>
             {
                 [EnemyDefinitionId.CorpseTorizo] = EnemyPaletteSheetFile.Read(new MemoryStream(
                     EnemyPaletteSheetFile.Write(new EnemyPaletteSheetDocument

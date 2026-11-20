@@ -50,7 +50,7 @@ internal static class DeadTorizoArtworkVerification
                    nativeCorpse.NextByteOffset == installedCorpse.NextByteOffset,
             "Dead Torizo private corpse hook's installed composition is the native OAM");
 
-        var missing = new ImportEnemyArtwork(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), new BossSourceArtwork(), new AreaSourceArtwork());
+        var missing = new ImportEnemyArtwork(EnemyTileSourceArtwork.FromArtworkForVerification(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EnemyArtworkParts with { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BossArtwork, SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.AreaArtwork);
         AssertThrows<InvalidDataException>(() => StageDeadTorizoArtwork(missing),
             "bound installation missing the dead-Torizo sheet fails instead of reading ROM");
 

@@ -24,7 +24,7 @@ internal static class CeresEnginePaletteBindingVerification
         ImportIntroCinematicArtwork artwork = InstalledFixtures.IntroArtwork;
         InstalledSpriteSheets sheets = InstalledFixtures.SpriteSheets;
         RgbColor[] nativeColors = [RgbColor.White, RgbColor.Black]; // Pinned $8D:C880/$C886, not runtime ROM reads.
-        var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
+        var game = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
         game.BindArtwork(InstalledFixtures.GameArtwork with
         {
             ScreenContent = stock,

@@ -80,10 +80,10 @@ internal sealed class EvidencedSoundAcknowledgements : ISoundAcceptanceTiming<So
         SoundEffectId? compared = currents[position];
         bool echoed = nativeAfter[SoundStateLib1 + position] != before;
         if (echoed)
-            return SoundAcknowledgement<SoundEffectId>.Of(compared);
+            return SoundAcknowledgement<SoundEffectId>.Of(RequestOf(compared));
         // Any other acknowledgement reproduces the unmatched read; keep the SPC model's
         // acknowledgement unless it already matches.
-        return modeled.Acknowledges(compared) ? Unmatched(library, compared) : modeled;
+        return modeled.Acknowledges(RequestOf(compared)) ? Unmatched(library, compared) : modeled;
     }
 
     /// <summary>
@@ -93,13 +93,17 @@ internal sealed class EvidencedSoundAcknowledgements : ISoundAcceptanceTiming<So
     private static SoundAcknowledgement<SoundEffectId> Unmatched(SoundEffectLibrary library, SoundEffectId? compared) =>
         compared is not null
             ? SoundAcknowledgement<SoundEffectId>.Of(null)
-            : SoundAcknowledgement<SoundEffectId>.Of(library switch
+            : SoundAcknowledgement<SoundEffectId>.Of(new RequestedSound<SoundEffectId>(library switch
             {
                 SoundEffectLibrary.Samus => SamusSound.Silence,
                 SoundEffectLibrary.Enemies => EnemySound.Silence,
                 SoundEffectLibrary.Room => RoomSound.Silence,
                 _ => throw new ArgumentOutOfRangeException(nameof(library), library, "Unknown sound-effect library."),
-            });
+            }));
+
+    /// <summary>The request for <paramref name="sound"/>, or no request when the native state holds none.</summary>
+    private static RequestedSound<SoundEffectId>? RequestOf(SoundEffectId? sound) =>
+        sound is null ? null : new RequestedSound<SoundEffectId>(sound);
 
     /// <summary>Records the native sound-handler state after an update.</summary>
     public void Capture(NativeCheckpointMemory nativeMemory)

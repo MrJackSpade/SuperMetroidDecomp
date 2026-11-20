@@ -93,6 +93,9 @@ internal static class WorkRamCellVerification
         /// <summary>CPU addresses and bytes in the order they reached the bus.</summary>
         public List<RecordedBusWrite> Writes { get; } = [];
 
+        /// <summary>Reads the backing address space's cartridge byte.</summary>
+        public byte ReadCartridgeByte(int cpuAddress) => inner.ReadCartridgeByte(cpuAddress);
+
         /// <summary>Records the requested write before forwarding it to the backing address space.</summary>
         public void WriteByte(int address, byte value)
         {

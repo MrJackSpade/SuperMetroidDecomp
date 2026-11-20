@@ -24,7 +24,7 @@ internal static class EndingRewardIconArtworkVerification
         byte[] native = RomDataReader.Decompress(source,
             EndingSourceDefinitions.Artwork.PostCreditsFloorCharacters,
             EndingSourceDefinitions.Artwork.DecompressionLimit);
-        AssertTrue(EndingRewardIconCharacters.Of(stock.RewardIcon).Bytes.Span.SequenceEqual(native.AsSpan(0,
+        AssertTrue(stock.RewardIcon.Bytes.Span.SequenceEqual(native.AsSpan(0,
                 EndingRewardIconArtworkFormat.ByteCount)),
             "reward icon JSON/PNG preserves all interleaved native map and character bytes");
 
@@ -68,7 +68,7 @@ internal static class EndingRewardIconArtworkVerification
             "installed reward icon never rereads its compressed cartridge stream");
         AssertTrue(installedScene.ShownVram()
                 [..EndingRewardIconArtworkFormat.ByteCount].SequenceEqual(
-                    EndingRewardIconCharacters.Of(stock.RewardIcon).Bytes.Span),
+                    stock.RewardIcon.Bytes.Span),
             "the revealed icon is the installed icon image");
 
         Console.WriteLine("Reward icon: native VRAM/pixel parity through its reveal passes.");

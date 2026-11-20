@@ -76,17 +76,17 @@ internal static class AttractDemoSceneVerification
         Console.WriteLine("  Attract demo data: joined fields, signed placement, and end-of-set sentinel agree.");
         // Boot decides once whether the completion set plays, so each eligibility case boots a session.
         var saveRam = new SaveSlotStore(RetailPresentationFixture());
-        if (new SuperMetroidGame(saveRam).Session.DemoPlaylist != StockAttractDemoScenes.OrdinaryPlaylist)
+        if (SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(saveRam).Session.DemoPlaylist != StockAttractDemoScenes.OrdinaryPlaylist)
             throw new InvalidDataException("An empty save must expose only the three ordinary demo sets.");
         saveRam.CompleteGame();
-        if (new SuperMetroidGame(saveRam).Session.DemoPlaylist != StockAttractDemoScenes.OrdinaryPlaylist)
+        if (SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(saveRam).Session.DemoPlaylist != StockAttractDemoScenes.OrdinaryPlaylist)
             throw new InvalidDataException("Completion marker without any valid save incorrectly unlocked the completion set.");
         saveRam.SaveSlot(SaveSlot.A, SaveSnapshotFixtures.NewGame);
         saveRam.CompleteGame();
-        if (new SuperMetroidGame(saveRam).Session.DemoPlaylist != StockAttractDemoScenes.CompletedGamePlaylist)
+        if (SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(saveRam).Session.DemoPlaylist != StockAttractDemoScenes.CompletedGamePlaylist)
             throw new InvalidDataException("Valid completed-game save did not unlock the completion demo set.");
         saveRam.RestoreHistory(SaveFileHistory.None);
-        if (new SuperMetroidGame(saveRam).Session.DemoPlaylist != StockAttractDemoScenes.OrdinaryPlaylist)
+        if (SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(saveRam).Session.DemoPlaylist != StockAttractDemoScenes.OrdinaryPlaylist)
             throw new InvalidDataException("Incomplete-game save incorrectly unlocked the completion set.");
     }
 

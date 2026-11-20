@@ -29,7 +29,7 @@ internal static class CrocomirePresentation1193Verification
     /// <summary>Runs the retail Crocomire room and checks either NMI spike uploads or displayed BG1 rumble ordering.</summary>
     internal static int VerifyCrocomirePresentation(bool spikes)
     {
-        var game=new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
+        var game=SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
         var maps = InstalledFixtures.Maps;
         InstalledFixtures.BindGame(game);
         game.Session.CreateGameplayRuntime(GameplayRuntimePurpose.SelectedGame);

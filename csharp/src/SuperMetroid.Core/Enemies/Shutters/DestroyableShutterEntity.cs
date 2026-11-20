@@ -23,10 +23,16 @@ internal sealed class DestroyableShutterEntity(ShuttersBehavior species, RoomEne
     }
 
     /// <summary>The destroyable shutter's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? Species.DestroyableShutterShotReaction : base.ShotReaction;
+    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? OwnShotReaction : base.ShotReaction;
+
+    /// <summary>The destroyable shutter's own shot reaction, over its own state.</summary>
+    private EnemyShotReaction OwnShotReaction => field ??= Species.DestroyableShutterShotReactionOf(State);
+
+    /// <summary>The destroyable shutter's own stages around common bomb damage, over its own state.</summary>
+    private EnemyBombReaction OwnBombReaction => field ??= Species.DestroyableShutterBombReactionOf(State);
 
     /// <summary>The destroyable shutter's own stages around common bomb damage, for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>
     public override EnemyBombReaction? CommonBombDamageReaction(EnemyBombContext context) =>
-        context.SelectedShot is null ? Species.DestroyableShutterBombReaction : base.CommonBombDamageReaction(context);
+        context.SelectedShot is null ? OwnBombReaction : base.CommonBombDamageReaction(context);
 }

@@ -314,9 +314,10 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Runs common bomb damage before reacting a destroyable vertical shutter, as its shot reaction, which a bomb runs,
     /// does.
     /// </summary>
-    internal EnemyBombReaction DestroyableShutterBombReaction => field ??= new()
+    /// <param name="state">The destroyable shutter's state, which the reaction acts on after a hit has destroyed it.</param>
+    internal EnemyBombReaction DestroyableShutterBombReactionOf(VerticalShutterEnemyState state) => new()
     {
-        AfterCommon = c => ReactDestroyableShutterAfterCommon(c.Enemy, c.StruckOccupant, c.Camera),
+        AfterCommon = c => ReactVerticalShutter(c.Enemy, state, c.Camera),
     };
 
     /// <summary>Plays a shutter's cue-free animation on to its next frame after its frame expired.</summary>
@@ -384,10 +385,23 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         },
     };
 
-    /// <summary>Runs common shot damage for destroyable shutters.</summary>
-    internal EnemyShotReaction DestroyableShutterShotReaction => field ??= new()
+    /// <summary>
+    /// Runs common shot damage for destroyable shutters, then reacts the shutter. The hit that destroys it still sets it
+    /// off, as a shutter at rest whose killed place lies at the room's top-left corner.
+    /// </summary>
+    /// <param name="state">The destroyable shutter's state, which the reaction acts on after a hit has destroyed it.</param>
+    internal EnemyShotReaction DestroyableShutterShotReactionOf(VerticalShutterEnemyState state) => new()
     {
-        AfterCommon = c => ReactDestroyableShutterAfterCommon(c.Enemy, c.StruckOccupant, c.Camera),
+        AfterCommon = c => ReactVerticalShutter(c.Enemy, state, c.Camera),
+    };
+
+    /// <summary>
+    /// The growing shutter's shot reaction, which its definition leaves to it: the destroyable shutter's common shot damage,
+    /// whose reaction after the damage needs a vertical shutter's state, which a growing shutter does not have.
+    /// </summary>
+    internal static EnemyShotReaction GrowingShutterShotReaction { get; } = new()
+    {
+        AfterCommon = c => throw new InvalidOperationException($"Enemy place {c.Enemy.Ordinal} has no {nameof(VerticalShutterEnemyState)} for its occupant."),
     };
 
     /// <summary>Uses Samus contact to react vertical shutters.</summary>
@@ -604,14 +618,6 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyPlace place,
         Position16<RoomPixels> camera) =>
         ReactVerticalShutter(place, place.RequireSpeciesState<VerticalShutterEnemyState>(), camera);
-
-    /// <summary>
-    /// Runs a destroyable shutter's reaction after the common damage of a shot or bomb. The hit that destroys it still sets
-    /// it off, as a shutter at rest whose killed place lies at the room's top-left corner: the reaction reads the shutter's
-    /// place, which the kill cleared (<see cref="RoomEnemyPlace.FoundState{T}"/>).
-    /// </summary>
-    private void ReactDestroyableShutterAfterCommon(RoomEnemyPlace place, EnemyOccupantStates struck, Position16<RoomPixels> camera) =>
-        ReactVerticalShutter(place, struck.Require<VerticalShutterEnemyState>(), camera);
 
     /// <summary>
     /// Decides whether a reaction may start the shutter in <paramref name="place"/>, whose state is

@@ -30,12 +30,18 @@ internal sealed class YappingMawEntity(YappingMawBehavior species, RoomEnemyPlac
     }
 
     /// <summary>The Yapping Maw's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? YappingMawBehavior.YappingMawShotReaction : base.ShotReaction;
+    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? OwnShotReaction : base.ShotReaction;
+
+    /// <summary>The Maw's own shot reaction, over its own state.</summary>
+    private EnemyShotReaction OwnShotReaction => field ??= YappingMawBehavior.YappingMawShotReactionOf(State);
+
+    /// <summary>The Maw's own stages around common bomb damage, over its own state.</summary>
+    private EnemyBombReaction OwnBombReaction => field ??= YappingMawBehavior.YappingMawBombReactionOf(State);
 
     /// <summary>The Yapping Maw's own stages around common bomb damage for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>
     public override EnemyBombReaction? CommonBombDamageReaction(EnemyBombContext context) =>
-        context.SelectedShot is null ? YappingMawBehavior.YappingMawBombReaction : base.CommonBombDamageReaction(context);
+        context.SelectedShot is null ? OwnBombReaction : base.CommonBombDamageReaction(context);
 
     /// <summary>Runs the Yapping Maw's frozen behaviour after the common thaw.</summary>
     public override void RunFrozen() => YappingMawBehavior.RunYappingMawFrozen(Place, State);

@@ -507,9 +507,10 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         UnitComponent.CoarseFineSineOf(angle).Reversed.ReachRoundedDownToPixelPairsOf(ShortCircleProduct.RadiusInUse(length));
 
     /// <summary>Routes bomb hits through the Maw's shared shot reaction.</summary>
-    internal static EnemyBombReaction YappingMawBombReaction { get; } = new()
+    /// <param name="state">The Maw's state, which the reaction acts on after a hit has killed it.</param>
+    internal static EnemyBombReaction YappingMawBombReactionOf(YappingMawEnemyState state) => new()
     {
-        AfterCommon = c => ResolveYappingMawShotAfterCommon(c.Enemy, c.StruckOccupant.Require<YappingMawEnemyState>(), c.Samus),
+        AfterCommon = c => ResolveYappingMawShotAfterCommon(c.Enemy, state, c.Samus),
     };
 
     /// <summary>Runs YappingMaw's main AI.</summary>
@@ -533,9 +534,10 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             });
 
     /// <summary>Handles frozen release and death cleanup after common shot damage.</summary>
-    internal static EnemyShotReaction YappingMawShotReaction { get; } = new()
+    /// <param name="state">The Maw's state, which the reaction acts on after a hit has killed it.</param>
+    internal static EnemyShotReaction YappingMawShotReactionOf(YappingMawEnemyState state) => new()
     {
-        AfterCommon = c => ResolveYappingMawShotAfterCommon(c.Enemy, c.StruckOccupant.Require<YappingMawEnemyState>(), c.Samus),
+        AfterCommon = c => ResolveYappingMawShotAfterCommon(c.Enemy, state, c.Samus),
     };
 
     /// <summary>Runs contact as a grab that locks Samus without ordinary touch damage.</summary>

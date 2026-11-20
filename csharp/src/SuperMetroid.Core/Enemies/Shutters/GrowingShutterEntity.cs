@@ -20,5 +20,5 @@ internal sealed class GrowingShutterEntity(ShuttersBehavior species, RoomEnemyPl
     public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) => ShuttersBehavior.AdvanceShutterGrowingTypedAnimation(Place, context);
 
     /// <summary>The destroyable shutter's shot reaction where the definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? Species.DestroyableShutterShotReaction : base.ShotReaction;
+    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? ShuttersBehavior.GrowingShutterShotReaction : base.ShotReaction;
 }

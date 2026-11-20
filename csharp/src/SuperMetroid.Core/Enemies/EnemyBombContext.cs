@@ -23,11 +23,4 @@ internal readonly record struct EnemyBombContext(
     bool UsesFrameHitboxes,
     Position16<RoomPixels> Camera,
     int HealthBefore = 0)
-{
-    /// <summary>
-    /// The species states of the occupant the bomb struck, taken as the pass finds the overlap (#1543). A killing hit
-    /// removes the occupant from its place before <see cref="EnemyBombReaction.AfterCommon"/> runs; a reaction that still
-    /// acts on the killed enemy reaches its states here.
-    /// </summary>
-    internal required EnemyOccupantStates StruckOccupant { get; init; }
-}
+{}

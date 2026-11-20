@@ -23,7 +23,7 @@ internal abstract class EnemyProjectileTypedAnimation<TSegment, TFrame, TEvent> 
         Playback = new AnimationPlayback<TSegment>(Ensure.NotNull(animation), AnimationPlace.StartOfAnimation);
 
     /// <summary>The animation playing and where it stands.</summary>
-    private AnimationPlayback<TSegment> Playback { get; set; }
+    private protected AnimationPlayback<TSegment> Playback { private get; set; }
 
     /// <summary>
     /// The segment the animation stands in: before its first play, or in an animation of no phase, the segment it starts

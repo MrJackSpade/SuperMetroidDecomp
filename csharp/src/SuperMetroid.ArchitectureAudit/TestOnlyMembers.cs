@@ -185,10 +185,10 @@ internal static class TestOnlyMembers
                 Record(candidate, site, access, reaches: info.CandidateReason == CandidateReason.Inaccessible);
         }
 
-        // A check's member name that binds to nothing of its receiver's type, for want of the private-access member that stood
-        // in for it, names the receiver's members of that name: C# reports the member inaccessible but may keep no
-        // candidate (a static access resolved through extension lookup), or binds the name to an unrelated extension member
-        // of the same name that some other type's generated access declares.
+        // A check's member name that binds to nothing, for want of the private-access member that stood in for it, names the
+        // receiver's private members of that name: C# reports the member inaccessible but may keep no candidate (a static
+        // access resolved through extension lookup), binds the name to an unrelated extension member of the same name that
+        // some other type's generated access declares, or reports the accessible overloads that take other arguments.
         void RecordUnbound(SimpleNameSyntax name, SymbolInfo info)
         {
             ExpressionSyntax? receiver = name.Parent switch
@@ -202,13 +202,16 @@ internal static class TestOnlyMembers
                 return;
             SemanticModel model = SemanticModels.At(compilation, tree, receiver);
             ITypeSymbol? type = model.GetSymbolInfo(receiver).Symbol as INamedTypeSymbol ?? model.GetTypeInfo(receiver).Type;
-            if (type is not INamedTypeSymbol { TypeKind: not TypeKind.Error } named ||
-                info.CandidateSymbols.Any(candidate => SymbolEqualityComparer.Default.Equals(candidate.ContainingType?.OriginalDefinition, named.OriginalDefinition)))
+            if (type is not INamedTypeSymbol { TypeKind: not TypeKind.Error } named)
                 return;
             string way = Access(AccessExpression(name));
             for (INamedTypeSymbol? owner = named; owner is not null; owner = owner.BaseType)
             {
-                foreach (ISymbol member in owner.GetMembers(name.Identifier.ValueText))
+                foreach (ISymbol member in owner.GetMembers(name.Identifier.ValueText).Where(member =>
+                             member.DeclaredAccessibility == Accessibility.Private || member is IPropertySymbol
+                             {
+                                 GetMethod.DeclaredAccessibility: Accessibility.Private,
+                             } or IPropertySymbol { SetMethod.DeclaredAccessibility: Accessibility.Private }))
                     Record(member, name, way, reaches: true);
             }
         }

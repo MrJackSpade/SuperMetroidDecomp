@@ -89,8 +89,8 @@ internal sealed class CollectibleObjects
 
     /// <summary>
     /// Publishes Samus contact with a visible item block. The item's touch setup
-    /// finds the item room object sharing this block and arms its trigger timer;
-    /// acquisition remains owned by the following room-object step.
+    /// finds the item room object sharing this block and moves it to its touched phase,
+    /// which the following room-object step collects.
     /// </summary>
     public bool TryNotifyCollectibleTouch(Position16<RoomBlocks> block)
     {

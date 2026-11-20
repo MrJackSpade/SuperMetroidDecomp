@@ -715,7 +715,8 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
             'new(new({0}, {1}), RoomScrollState.{2})' -f $_.Column, $_.Row, $stateName
         })
         $scrollLines.Add(('            [RoomScrollChange.{0}] = [{1}],' -f $change.Name, ($writes -join ', ')))
-        $identityLines.Add(('    /// <summary>In the {0} room, {1}.</summary>' -f $change.Room, $change.Summary))
+        if (-not $roomPhrases.ContainsKey($change.Room)) { throw "Scroll change $($change.Name)'s room $($change.Room) has no state summary naming it." }
+        $identityLines.Add(('    /// <summary>In {0}, {1}.</summary>' -f $roomPhrases[$change.Room], $change.Summary))
         $identityLines.Add(('    {0},' -f $change.Name))
         $identityLines.Add('')
         $nativeLines.Add(('            [RoomScrollChange.{0}] = 0x{1:x4},' -f $change.Name, $pointer))

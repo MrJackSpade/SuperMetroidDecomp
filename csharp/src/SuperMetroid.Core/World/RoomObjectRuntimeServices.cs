@@ -10,7 +10,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.World;
 
 /// <summary>
-/// The runtime's Samus, room shake and enemy pool as the services resident room room objects call (#633). Every member
+/// The runtime's Samus, room shake and enemy pool as the services resident room objects call (#633). Every member
 /// reads the runtime when called, never a load-time snapshot.
 /// </summary>
 internal sealed class RoomObjectRuntimeServices(

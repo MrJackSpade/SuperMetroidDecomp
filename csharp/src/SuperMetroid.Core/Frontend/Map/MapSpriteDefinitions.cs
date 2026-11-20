@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Frontend.Map;
 /// <summary>Presentation keys for the <see cref="MapSpriteId"/> map compositions.</summary>
 public static class MapSpriteDefinitions
 {
-    /// <summary>Selects the world-map label naming each key.</summary>
+    /// <summary>The world-map label of each Zebes area.</summary>
     internal static readonly IReadOnlyDictionary<AreaId, MapSpriteId> WorldLabels =
         new Dictionary<AreaId, MapSpriteId>
         {

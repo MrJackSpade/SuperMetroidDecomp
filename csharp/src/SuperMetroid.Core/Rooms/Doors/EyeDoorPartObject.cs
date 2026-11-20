@@ -59,7 +59,7 @@ internal abstract class EyeDoorPartObject
             base.Update(place, context);
     }
 
-    /// <inheritdoc/>
+    /// <summary>The part leaves once its door has been opened for good; returns whether it left.</summary>
     private bool React(RoomObjectPlace place, RoomObjectStepContext context)
     {
         if (!WaitsForOpenedDoor || !context.RoomObjects.DoorObjects.IsDoorOpened(Door))

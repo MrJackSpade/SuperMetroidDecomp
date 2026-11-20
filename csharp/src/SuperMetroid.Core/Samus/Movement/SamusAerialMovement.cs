@@ -340,9 +340,9 @@ public static class SamusAerialMovement
         // moves Samus as the ordinary jumping turns do
         // (unaimed, aimed up, down and diagonally up). The pose name therefore cannot be used as an admission gate.
         bool runsAerialTurn = SamusPoseMetadata.IsAerialTurnPose(samus.Pose) ||
-            (movementType == SamusMovementType.TurningWhileJumping &&
+            (movementType == SamusMovementType.TurningRisingOrAimedCrouched &&
              SamusPoseMetadata.IsAimedCrouchingTurnPose(samus.Pose));
-        if (movementType is not (SamusMovementType.TurningWhileJumping or SamusMovementType.TurningWhileFalling) ||
+        if (movementType is not (SamusMovementType.TurningRisingOrAimedCrouched or SamusMovementType.TurningWhileFalling) ||
             !runsAerialTurn)
             throw new InvalidOperationException($"Aerial-turn movement requires a jumping or falling turn pose, not {samus.Pose}.");
 

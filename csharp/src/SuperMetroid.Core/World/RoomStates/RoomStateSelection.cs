@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.World.RoomStates;
 
 /// <summary>
 /// Runs a room's state choice (<see cref="RoomStateSelectionDefinitions"/>) with first-match
-/// precedence. Only the 262 rooms are accepted.
+/// precedence. Only the rooms of <see cref="SuperMetroid.Core.Rooms.RoomDefinitions.All"/> are accepted.
 /// </summary>
 public static class RoomStateSelection
 {
@@ -23,5 +23,5 @@ public static class RoomStateSelection
     /// <summary>The state choice of <paramref name="room"/>, which must be one of the game's rooms.</summary>
     internal static RoomStateChoice ChoiceFor(RoomDefinition room) =>
         RoomStateSelectionDefinitions.Choices.TryGetValue(room, out RoomStateChoice? choice) ? choice
-            : throw new ArgumentOutOfRangeException(nameof(room), room.Name, "Room is not one of the game's 262 rooms.");
+            : throw new ArgumentOutOfRangeException(nameof(room), room.Name, "Room is not one of the game's rooms.");
 }

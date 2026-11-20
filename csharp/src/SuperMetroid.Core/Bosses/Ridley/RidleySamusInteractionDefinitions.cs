@@ -39,7 +39,7 @@ internal static class RidleySamusInteractionDefinitions
         [SamusMovementType.Moonwalking] = GrabPolicy.Ordinary,
         [SamusMovementType.WallJumping] = GrabPolicy.Ordinary,
         [SamusMovementType.RanIntoWall] = GrabPolicy.Ordinary,
-        [SamusMovementType.TurningWhileJumping] = GrabPolicy.Ordinary,
+        [SamusMovementType.TurningRisingOrAimedCrouched] = GrabPolicy.Ordinary,
         [SamusMovementType.TurningWhileFalling] = GrabPolicy.Ordinary,
         [SamusMovementType.Special] = GrabPolicy.Ordinary,
         [SamusMovementType.SpinJumping] = GrabPolicy.Immune,

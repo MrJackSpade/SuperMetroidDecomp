@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Samus.Abilities;
 
-/// <summary>The three phases of Crystal Flash's movement.</summary>
+/// <summary>The phases of Crystal Flash's movement: inactive, then raising Samus, draining her ammunition and finishing.</summary>
 public enum CrystalFlashPhase
 {
     /// <summary>Crystal Flash does not move Samus; its suit colouring may still be waiting to restore her normal colours.</summary>

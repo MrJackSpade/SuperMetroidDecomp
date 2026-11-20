@@ -341,7 +341,7 @@ internal static class EnemyContentIdentityFixtureVerification
             var first = new SpriteVisualPart
             {
                 OffsetX = 0, OffsetY = 0, Size = 8, TileColumn = 0, TileRow = 0,
-                Palette = 1, Depth = SuperMetroid.Core.Assets.ActorDepth.BehindRoom, FlipX = false, FlipY = false,
+                Palette = 1, Depth = SuperMetroid.Core.Assets.ActorDepth.BehindRoomInFrontOfFloor, FlipX = false, FlipY = false,
             };
             var second = first with { OffsetX = 1, TileColumn = 1, Palette = 2 };
             string? change = mutate && edit?.StartsWith(family + "-", StringComparison.Ordinal) == true

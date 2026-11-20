@@ -83,14 +83,30 @@ public sealed class DataNode
     /// <summary>This value as one of <typeparamref name="TEnum"/>'s names.</summary>
     public TEnum AsEnum<TEnum>() where TEnum : struct, Enum => (TEnum)AsEnum(typeof(TEnum));
 
-    /// <summary>This value as one of the names of the enum <paramref name="type"/>.</summary>
+    /// <summary>
+    /// This value as one of the names of the enum <paramref name="type"/>. A data file writes a name in lower case with
+    /// underscores between its words, such as "passes_through"; spaces or no separator are read the same way.
+    /// </summary>
     public object AsEnum(Type type)
     {
         string name = AsText();
-        return Enum.TryParse(type, name, ignoreCase: true, out object? value) && Enum.IsDefined(type, value)
-            ? value
-            : throw Problem($"is \"{name}\", which is not one of: {string.Join(", ", Enum.GetNames(type))}");
+        string wanted = Squash(name);
+        foreach (string candidate in Enum.GetNames(type))
+        {
+            if (Squash(candidate) == wanted)
+                return Enum.Parse(type, candidate);
+        }
+
+        throw Problem($"is \"{name}\", which is not one of: {string.Join(", ", Enum.GetNames(type).Select(FileStyle))}");
     }
+
+    /// <summary>A name with its case and word separators removed, for comparing.</summary>
+    private static string Squash(string name) =>
+        new string(name.Where(letter => letter is not ('_' or ' ' or '-')).ToArray()).ToLowerInvariant();
+
+    /// <summary>A name as a data file writes it: lower case, with underscores between its words.</summary>
+    private static string FileStyle(string name) =>
+        string.Concat(name.Select((letter, index) => char.IsUpper(letter) && index > 0 ? "_" + char.ToLowerInvariant(letter) : char.ToLowerInvariant(letter).ToString()));
 
     /// <summary>The whole number named <paramref name="name"/>.</summary>
     public int Int(string name) => Get(name).AsInt();

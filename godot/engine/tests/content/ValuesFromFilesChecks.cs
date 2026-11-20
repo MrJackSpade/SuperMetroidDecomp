@@ -76,7 +76,7 @@ public sealed class ValuesFromFilesChecks
         var node = new StandInValues { DataFile = "broken.json" };
         string message = MessageOf(() => DataValues.Fill(node, assets.Library));
         Expect.True(message.Contains("sideways"));
-        Expect.True(message.Contains("Left"));
+        Expect.True(message.Contains("left, right"));
         node.Free();
     }
 

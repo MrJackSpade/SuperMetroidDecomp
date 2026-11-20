@@ -983,9 +983,8 @@ public sealed class IntroCinematicState : IFrontendScreen
         }
         FlashbackRinkas?.Draw(screenSprites, IntroSprites(CinematicSpriteFamily.IntroRinka));
         FlashbackMotherBrainExplosions?.Draw(screenSprites, IntroSprites(CinematicSpriteFamily.IntroMotherBrainExplosion));
-        // The blank pose draws nothing.
-        if (FlashbackMotherBrain.IsVisible && FlashbackMotherBrain.Pose is { } motherBrainPose &&
-            motherBrainPose != CinematicSpritePose.Blank)
+        // A hidden Mother Brain shows no pose and draws nothing.
+        if (FlashbackMotherBrain.IsVisible && FlashbackMotherBrain.Pose is { } motherBrainPose)
         {
             // Samus shown over the cinematic actors makes the intro's sprite draw put Samus first and cinematic
             // actors afterward. Retaining that drawing order preserves overlap wins.
@@ -1053,8 +1052,8 @@ public sealed class IntroCinematicState : IFrontendScreen
         var sprites = new SpriteFrameBuffer();
         sprites.BeginFrame();
         screenSprites.BeginFrame();
-        // The caret's blank pose, shown while it blinks off, draws nothing.
-        if (Narration.CaretPose is { } caretPose && caretPose != CinematicSpritePose.Blank)
+        // The caret blinks off by hiding, showing no pose.
+        if (Narration.CaretPose is { } caretPose)
         {
             // The persistent caret begins at its narration place, goes off screen during illustrated
             // crossfades, and is restored when the next narration page starts.

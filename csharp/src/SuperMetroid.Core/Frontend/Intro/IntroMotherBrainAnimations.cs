@@ -44,7 +44,7 @@ internal static class IntroMotherBrainAnimations
                 Show(S.BigExplosionBursting, 6),
                 Show(S.BigExplosionSpikedRing, 6),
                 Show(S.BigExplosionScatteredSmoke, 6),
-                Show(S.Blank, 16),
+                B.Hide(16),
             ],
             [IntroMotherBrainExplosionAnimation.Small] =
             [
@@ -54,7 +54,7 @@ internal static class IntroMotherBrainAnimations
                 Show(S.SmallExplosionHollowing, 3),
                 Show(S.SmallExplosionRing, 3),
                 Show(S.SmallExplosionFadingRing, 3),
-                Show(S.Blank, 16),
+                B.Hide(16),
             ],
         },
         plays => new Dictionary<IntroMotherBrainExplosionAnimation, Animation<IntroMotherBrainExplosionAnimation>>

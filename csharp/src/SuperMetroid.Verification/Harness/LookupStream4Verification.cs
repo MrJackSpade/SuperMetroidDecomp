@@ -139,6 +139,7 @@ internal static class LookupStream4Verification
         {
             AnimationBeat<CinematicSpritePose, EndingSceneCue>.Frame frame => frame.Duration,
             AnimationBeat<CinematicSpritePose, EndingSceneCue>.Pause pause => pause.Duration,
+            AnimationBeat<CinematicSpritePose, EndingSceneCue>.Hidden hidden => hidden.Duration,
             var other => throw new InvalidOperationException($"The stars' first beat {other} lasts no updates."),
         }, "Actual actor program retains the shared native handoff");
         AssertEqual(ticks, ZebesExplosionForegroundPaletteFxColorDefinitionsConstants.CycleFrames, "Derived complete exposure");

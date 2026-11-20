@@ -39,7 +39,7 @@ internal static class EndingRewardAnimations
             ],
             [A.GestureArm] =
             [
-                G.Show(S.Blank, 64),
+                G.Hide(64),
                 G.Show(S.SuitedArmLowered, 8),
                 G.Show(S.SuitedArmSwingingUp, 8),
                 G.Show(S.SuitedArmFistForward, 5),

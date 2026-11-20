@@ -47,7 +47,7 @@ internal sealed class IntroMotherBrainExplosionSystem
         foreach (ExplosionActor actor in actors)
         {
             // The blank pose draws nothing.
-            if (!actor.IsActive || actor.Pose is not { } pose || pose == CinematicSpritePose.Blank)
+            if (!actor.IsActive || actor.Pose is not { } pose)
                 continue;
 
             installedArt.Draw(pose, screenSprites, actor.Position, IntroShades.Drawn(IntroSpriteColouring.Explosions));

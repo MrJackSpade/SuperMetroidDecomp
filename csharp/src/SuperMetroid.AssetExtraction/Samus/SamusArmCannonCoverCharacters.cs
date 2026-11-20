@@ -15,7 +15,12 @@ public sealed class SamusArmCannonCoverCharacters
     private readonly RoomCharacterAtlas tiles;
 
     /// <summary>Cover characters already built, by cover tile index.</summary>
-    private readonly System.Collections.Concurrent.ConcurrentDictionary<int, SpriteArtwork> coverCharacters = new();
+    private readonly System.Collections.Concurrent.ConcurrentDictionary<CoverVariant, SpriteArtwork> coverCharacters = new();
+
+    /// <summary>A cover's characters, distinguished by the aim and the opening frame they show.</summary>
+    /// <param name="Direction">The aim the cover shows.</param>
+    /// <param name="Frame">How far open the cover shows.</param>
+    private sealed record CoverVariant(SamusProjectileDirection Direction, SamusArmCannonCoverFrame Frame) : SpriteArtworkVariant;
 
     /// <summary>Binds the cover characters <paramref name="tiles"/> to the extracted arm cannon <paramref name="cannon"/>.</summary>
     /// <exception cref="InvalidDataException">The characters are not the twelve cover tiles.</exception>
@@ -36,13 +41,9 @@ public sealed class SamusArmCannonCoverCharacters
         ? tiles.Characters.Slice(index * SamusArmCannonArtworkFormat.CoverTileByteCount, SamusArmCannonArtworkFormat.CoverTileByteCount)
         : throw new ArgumentOutOfRangeException(nameof(index));
 
-    /// <summary>The cover character for native direction 0-9 and opening frame 1-3, as owned artwork.</summary>
-    /// <exception cref="InvalidDataException">The frame names no cover tile.</exception>
-    public SpriteArtwork CoverTile(int direction, int frame)
-    {
-        int index = Cannon.CoverTileIndex(direction, frame) ??
-            throw new InvalidDataException($"Arm-cannon direction {direction} frame {frame} names no installed cover tile.");
-        return coverCharacters.GetOrAdd(index, key => new SpriteArtwork(new SpriteArtworkId(SpriteArtworkKind.SamusArmCannonCover, key),
-            TileCharacters(key).Span));
-    }
+    /// <summary>The cover character aim <paramref name="direction"/> shows at opening frame <paramref name="frame"/>, as owned artwork.</summary>
+    public SpriteArtwork CoverTile(SamusProjectileDirection direction, SamusArmCannonCoverFrame frame) =>
+        coverCharacters.GetOrAdd(new CoverVariant(direction, frame), key => new SpriteArtwork(
+            new SpriteArtworkId(SpriteArtworkKind.SamusArmCannonCover, key),
+            TileCharacters(Cannon.CoverTileIndex(key.Direction, key.Frame)).Span));
 }

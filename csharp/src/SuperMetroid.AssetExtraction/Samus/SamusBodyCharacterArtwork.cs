@@ -25,10 +25,13 @@ public sealed class SamusBodyCharacterArtwork
     private readonly SamusBodyTileTransfer[][] bottom;
     /// <summary>Definition lookup by physical record, including cross-group selections.</summary>
     private readonly Dictionary<int, SamusBodyTileTransfer> definitionsByRecord = [];
-    /// <summary>Owned ordinal of each definition in authored order (top sets, then bottom sets); the body artwork identity uses it.</summary>
-    private readonly Dictionary<int, int> definitionOrdinals = [];
     /// <summary>Composed body characters per selected pair, built once.</summary>
-    private readonly System.Collections.Concurrent.ConcurrentDictionary<SamusBodyArtworkKey, SpriteArtwork> bodyArtwork = new();
+    private readonly System.Collections.Concurrent.ConcurrentDictionary<BodyHalvesVariant, SpriteArtwork> bodyArtwork = new();
+
+    /// <summary>A composed body sheet, distinguished by the top and bottom half pictures it composes.</summary>
+    /// <param name="Top">The top half picture, or none.</param>
+    /// <param name="Bottom">The bottom half picture, or none.</param>
+    private sealed record BodyHalvesVariant(SamusBodyPicture? Top, SamusBodyPicture? Bottom) : SpriteArtworkVariant;
 
     /// <summary>The body whose frames select these characters.</summary>
     public SamusBodySources Body { get; }
@@ -74,16 +77,14 @@ public sealed class SamusBodyCharacterArtwork
     {
         int? topRecord = topPicture is { } shownTop ? SamusBodySources.Record(shownTop) : null;
         int? bottomRecord = bottomPicture is { } shownBottom ? SamusBodySources.Record(shownBottom) : null;
-        int topOrdinal = topRecord is { } upper ? definitionOrdinals[upper] : -1;
-        int bottomOrdinal = bottomRecord is { } lower ? definitionOrdinals[lower] : -1;
-        return bodyArtwork.GetOrAdd(new SamusBodyArtworkKey(topOrdinal, bottomOrdinal), key =>
+        return bodyArtwork.GetOrAdd(new BodyHalvesVariant(topPicture, bottomPicture), key =>
         {
             var characters = new byte[BodyCharacterCount * SpriteArtwork.CharacterByteCount];
             if (topRecord is { } upperRecord)
                 CopyHalves(DefinitionAt(upperRecord), characters, 0);
             if (bottomRecord is { } lowerRecord)
                 CopyHalves(DefinitionAt(lowerRecord), characters, HalfRowCharacters);
-            return new SpriteArtwork(new SpriteArtworkId(SpriteArtworkKind.SamusBody, key.SpriteVariant), characters);
+            return new SpriteArtwork(new SpriteArtworkId(SpriteArtworkKind.SamusBody, key), characters);
         });
 
         static void CopyHalves(SamusBodyTileTransfer definition, byte[] characters, int firstCharacter)
@@ -113,7 +114,6 @@ public sealed class SamusBodyCharacterArtwork
             int record = starts[set] + position;
             if (!definitionsByRecord.TryAdd(record, groups[set][position]))
                 throw new InvalidDataException($"Samus body definition record {record} is duplicated.");
-            definitionOrdinals.Add(record, definitionOrdinals.Count);
         }
     }
 

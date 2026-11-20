@@ -55,7 +55,7 @@ internal static class SamusBodySheetComposer
             {
                 if (!overlaid.TryGetValue(read, out SpriteArtwork? onStandardObjects))
                 {
-                    onStandardObjects = SpriteArtwork.Overlay(new SpriteArtworkId(SpriteArtworkKind.SamusBodyOnStandardObjects, read.Id.Variant),
+                    onStandardObjects = SpriteArtwork.Overlay(read.Id.InKind(SpriteArtworkKind.SamusBodyOnStandardObjects),
                         inputs.StandardObjects, read, 0);
                     overlaid.Add(read, onStandardObjects);
                 }

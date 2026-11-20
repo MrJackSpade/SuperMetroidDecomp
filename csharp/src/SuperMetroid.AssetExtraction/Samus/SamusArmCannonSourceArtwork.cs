@@ -51,7 +51,7 @@ public sealed class SamusArmCannonSourceArtwork
             selectedDrawing[index] = ReadDrawingByte(index);
         content.Append("drawing data", selectedDrawing);
         for (int direction = 0; direction < SamusProjectileDirectionCodec.Count; direction++)
-            CoverAppearance(direction).AppendIdentity(content);
+            CoverAppearanceAt(direction).AppendIdentity(content);
         for (int direction = 0; direction < SamusProjectileDirectionCodec.Count; direction++)
             for (int frame = 1; frame <= OpeningFrames; frame++)
                 content.Append("cover tile", OpeningTile(direction, frame));
@@ -115,20 +115,17 @@ public sealed class SamusArmCannonSourceArtwork
     /// <exception cref="InvalidDataException">The offset lies outside the extracted drawing window.</exception>
     private byte ReadDrawingByte(int offset) => Descriptors.ReadDrawingByte(offset);
 
-    /// <summary>Gets the installed cover's character, palette, priority, and mirroring for native direction 0–9.</summary>
-    public SpritePart CoverAppearance(int direction) => (uint)direction < (uint)attributes.Length
-        ? attributes[direction]
-        : throw new ArgumentOutOfRangeException(nameof(direction));
+    /// <summary>Gets the installed cover's character, palette, priority, and mirroring for aim <paramref name="direction"/>.</summary>
+    public SpritePart CoverAppearance(SamusProjectileDirection direction) => CoverAppearanceAt(direction.ToAimIndex());
 
-    /// <summary>The installed cover tile native direction 0–9 shows at cover frame 0–3; the closed frame 0 shows none.</summary>
-    public int? CoverTileIndex(int direction, int frame)
-    {
-        if ((uint)direction >= SamusProjectileDirectionCodec.Count)
-            throw new ArgumentOutOfRangeException(nameof(direction));
-        if ((uint)frame >= SamusArmCannonArtworkFormat.FramesPerDirection)
-            throw new ArgumentOutOfRangeException(nameof(frame));
-        return frame == 0 ? null : OpeningTile(direction, frame);
-    }
+    /// <summary>The installed cover appearance at the cartridge's aim row <paramref name="aimRow"/>, 0–9.</summary>
+    private SpritePart CoverAppearanceAt(int aimRow) => (uint)aimRow < (uint)attributes.Length
+        ? attributes[aimRow]
+        : throw new ArgumentOutOfRangeException(nameof(aimRow));
+
+    /// <summary>The installed cover tile aim <paramref name="direction"/> shows at opening frame <paramref name="frame"/>.</summary>
+    public int CoverTileIndex(SamusProjectileDirection direction, SamusArmCannonCoverFrame frame) =>
+        OpeningTile(direction.ToAimIndex(), SamusArmCannonCoverFrameCodec.CartridgeFrame(frame));
 
     /// <summary>The installed cover tile <paramref name="direction"/> shows at opening frame 1–3.</summary>
     private int OpeningTile(int direction, int frame) => openingTiles[direction][frame - 1];

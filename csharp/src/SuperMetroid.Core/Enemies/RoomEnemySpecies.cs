@@ -91,6 +91,7 @@ using SuperMetroid.Core.Enemies.OldTourianWall;
 using SuperMetroid.Core.Enemies.EffectActors;
 using SuperMetroid.Core.Enemies.Grapple;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Enemies;
 
@@ -98,8 +99,8 @@ namespace SuperMetroid.Core.Enemies;
 /// The composition of a room's species (#2571): the one place that names each species to build its owner from the room's
 /// shared enemy services and register it. What it hands the room's enemy system are the contracts the shared phases
 /// iterate (the species' frame resets, their factories, glows, late and pass draws, display latches, steps before
-/// selection, after the pass and with the room's effects) and the capability interfaces the rest of the game commands the
-/// enemies through; it keeps no member per species, so no phase reaches a species by name.
+/// selection, after the pass and with the room's effects) and the capability interfaces through which the rest of the game
+/// reaches the enemies; it keeps no member per species, so no phase reaches a species by name.
 /// </summary>
 /// <remarks>
 /// The owners are built in the game's own order, after the shared services they use, and the frame participants are kept

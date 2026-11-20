@@ -85,7 +85,7 @@ public sealed class SharedPhaseContractAnalyzer : DiagnosticAnalyzer
             start.RegisterSyntaxNodeAction(node => AnalyzeName(node, enumType, typeType, contracts, speciesNamespaces),
                 SyntaxKind.IdentifierName, SyntaxKind.GenericName);
             start.RegisterSymbolAction(symbol => AnalyzeComposition(symbol, contracts), SymbolKind.NamedType);
-            start.RegisterCompilationEndAction(end => ReportSecondComposition(end, contracts));
+            start.RegisterCompilationEndAction(ReportSecondComposition);
         });
     }
 
@@ -159,7 +159,7 @@ public sealed class SharedPhaseContractAnalyzer : DiagnosticAnalyzer
     }
 
     /// <summary>Reports every type marked as a species composition when more than one is.</summary>
-    private static void ReportSecondComposition(CompilationAnalysisContext context, ImmutableArray<INamedTypeSymbol> contracts)
+    private static void ReportSecondComposition(CompilationAnalysisContext context)
     {
         List<INamedTypeSymbol> compositions = [];
         Collect(context.Compilation.Assembly.GlobalNamespace, compositions);
@@ -202,17 +202,13 @@ public sealed class SharedPhaseContractAnalyzer : DiagnosticAnalyzer
         }
         foreach (SyntaxNode ancestor in name.Ancestors())
         {
-            switch (ancestor)
+            if (ancestor is TypeParameterConstraintClauseSyntax or TypeOfExpressionSyntax
+                or InvocationExpressionSyntax { Expression: IdentifierNameSyntax { Identifier.ValueText: "nameof" } })
             {
-                case TypeParameterConstraintClauseSyntax:
-                case TypeOfExpressionSyntax:
-                    return false;
-                case InvocationExpressionSyntax { Expression: IdentifierNameSyntax { Identifier.ValueText: "nameof" } }:
-                    return false;
-                case StatementSyntax:
-                case MemberDeclarationSyntax:
-                    return true;
+                return false;
             }
+            if (ancestor is StatementSyntax or MemberDeclarationSyntax)
+                return true;
         }
         return true;
     }

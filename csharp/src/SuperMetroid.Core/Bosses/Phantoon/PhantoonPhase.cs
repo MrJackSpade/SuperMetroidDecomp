@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>
 /// The phase of Phantoon's encounter the body runs each update (#1413, #2571): each phase runs itself on his encounter, so
-/// the body runs its current phase rather than looking up the routine a phase identity stands for.
+/// the body runs its current phase rather than looking up what a phase identity stands for.
 /// </summary>
 public sealed class PhantoonPhase
 {
@@ -12,6 +12,7 @@ public sealed class PhantoonPhase
     private readonly string _name;
 
     /// <summary>Runs the phase for one update of his encounter.</summary>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Architecture", "SME6410", Justification = "The phase names his species only as the parameter it runs on; it keeps no room's state.")]
     private readonly Action<PhantoonBehavior, PhantoonEnemyState, SamusState> _run;
 
     /// <summary>A phase named <paramref name="name"/> that runs <paramref name="run"/>.</summary>

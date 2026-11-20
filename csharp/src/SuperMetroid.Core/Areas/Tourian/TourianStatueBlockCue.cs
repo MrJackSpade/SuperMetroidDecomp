@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// <summary>
 /// One cue of a Tourian boss statue's picture animation (#2571): the effect it carries out on its statue, or the condition
 /// under which its statue starts another animation. Each cue is its own behaviour, so the statue sequence runs the cue it
-/// meets rather than looking its routine up by a kind; the values a cue acts on come from the statue's definition.
+/// meets rather than looking up what a kind does; the values a cue acts on come from the statue's definition.
 /// </summary>
 internal sealed class TourianStatueBlockCue
 {

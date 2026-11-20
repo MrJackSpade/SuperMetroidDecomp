@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// <summary>
 /// One motion a projectile behaviour owns as its own object (#2571): the behaviour creates each of its motions once, a
 /// projectile it is bound to moves by whichever it holds, and the motion runs itself, so no switch over a family's motions
-/// chooses the routine that moves the projectile.
+/// chooses how the projectile moves.
 /// </summary>
 internal sealed class EnemyProjectileOwnedMotion : EnemyProjectileMotion
 {

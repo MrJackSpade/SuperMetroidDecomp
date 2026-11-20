@@ -16,9 +16,11 @@ public sealed class ChozoStatueRoomObject
     private readonly string _name;
 
     /// <summary>Creates the room object's behaviour, given the statue's room objects.</summary>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Architecture", "SME6410", Justification = "The object names the statue's room objects only as the parameter its creation runs on; it keeps no room's state.")]
     private readonly Func<ChozoStatueObjects, RoomObjectBehaviour> _create;
 
     /// <summary>Runs the spawn's setup on the object's block once it is placed.</summary>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Architecture", "SME6410", Justification = "The object names the statue's room objects only as the parameter its setup runs on; it keeps no room's state.")]
     private readonly Action<ChozoStatueObjects, RoomLevelData, Position16<RoomBlocks>> _setUp;
 
     /// <summary>An object named <paramref name="name"/> that <paramref name="create"/> builds and <paramref name="setUp"/> sets up.</summary>
@@ -38,7 +40,7 @@ public sealed class ChozoStatueRoomObject
     /// waits for the Power Bomb block at its trigger to break open and makes that block the hand.
     /// </summary>
     public static ChozoStatueRoomObject LowerNorfairHand { get; } = new(nameof(LowerNorfairHand),
-        statue => new LowerNorfairChozoHandObject(statue),
+        statue => statue.CreateLowerNorfairHand(),
         static (_, _, _) => { });
 
     /// <summary>The Wrecked Ship statue's hand: its spawn makes its block the hand, and it leaves on its first update.</summary>

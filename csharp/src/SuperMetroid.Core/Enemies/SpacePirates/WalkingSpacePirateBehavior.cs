@@ -401,7 +401,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
 
         /// <inheritdoc/>
         internal override void Move(EnemyProjectileMotionContext context, SingleMotion motion) =>
-            FlyPirateLaser(this, Ensure.NotNull(context).Projectile, context.Camera);
+            FlyPirateLaser(this, context.Projectile, context.Camera);
 
         /// <inheritdoc/>
         /// <exception cref="InvalidOperationException">

@@ -165,7 +165,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources, 
 
     /// <summary>
     /// The room's species as their composition built them (#2571): the contracts the phases iterate and the capabilities
-    /// the rest of the game commands the enemies through.
+    /// through which the rest of the game reaches the enemies.
     /// </summary>
     internal RoomEnemySpecies SpeciesComposition { get; }
 

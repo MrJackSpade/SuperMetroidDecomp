@@ -12,19 +12,15 @@ public sealed class SpecialAirCollisionReaction
 
     /// <summary>A reaction named <paramref name="name"/> that does what the other arguments state.</summary>
     /// <param name="name">The reaction's name, for diagnostics.</param>
-    /// <param name="speedBlock">Whether the block is one of the Speed Booster blocks.</param>
-    /// <param name="placesSandReaction">Whether the reaction places a sand reaction object before it acts.</param>
-    /// <param name="quicksandSurface">Whether the block is the quicksand surface, on which a falling or standing Samus lands.</param>
-    /// <param name="stopsFall">Whether the block stops Samus's vertical speed and gravity.</param>
-    private SpecialAirCollisionReaction(string name, bool speedBlock = false, bool placesSandReaction = false,
-        bool quicksandSurface = false, bool stopsFall = false)
+    /// <param name="effect">What the block does when Samus's movement reaches it.</param>
+    private SpecialAirCollisionReaction(string name, SpecialAirCollisionEffect effect = SpecialAirCollisionEffect.None)
     {
         _name = name;
-        IsSpeedBlock = speedBlock;
-        PlacesSandReaction = placesSandReaction;
-        IsQuicksandSurface = quicksandSurface;
-        StopsFall = stopsFall;
+        _effect = effect;
     }
+
+    /// <summary>What the block does when Samus's movement reaches it.</summary>
+    private readonly SpecialAirCollisionEffect _effect;
 
     /// <summary>Nothing happens: Samus passes on.</summary>
     public static SpecialAirCollisionReaction Nothing { get; } = new(nameof(Nothing));
@@ -33,16 +29,16 @@ public sealed class SpecialAirCollisionReaction
     public static SpecialAirCollisionReaction PassesThrough { get; } = new(nameof(PassesThrough));
 
     /// <summary>Brinstar's slow respawning Speed Booster block.</summary>
-    public static SpecialAirCollisionReaction BrinstarSlowRespawningSpeedBlock { get; } = new(nameof(BrinstarSlowRespawningSpeedBlock), speedBlock: true);
+    public static SpecialAirCollisionReaction BrinstarSlowRespawningSpeedBlock { get; } = new(nameof(BrinstarSlowRespawningSpeedBlock), SpecialAirCollisionEffect.SpeedBlock);
 
     /// <summary>Brinstar's slow permanent Speed Booster block.</summary>
-    public static SpecialAirCollisionReaction BrinstarSlowPermanentSpeedBlock { get; } = new(nameof(BrinstarSlowPermanentSpeedBlock), speedBlock: true);
+    public static SpecialAirCollisionReaction BrinstarSlowPermanentSpeedBlock { get; } = new(nameof(BrinstarSlowPermanentSpeedBlock), SpecialAirCollisionEffect.SpeedBlock);
 
     /// <summary>The Dachora room's respawning Speed Booster block.</summary>
-    public static SpecialAirCollisionReaction DachoraRespawningSpeedBlock { get; } = new(nameof(DachoraRespawningSpeedBlock), speedBlock: true);
+    public static SpecialAirCollisionReaction DachoraRespawningSpeedBlock { get; } = new(nameof(DachoraRespawningSpeedBlock), SpecialAirCollisionEffect.SpeedBlock);
 
     /// <summary>Brinstar's permanent Speed Booster block.</summary>
-    public static SpecialAirCollisionReaction PermanentSpeedBlock { get; } = new(nameof(PermanentSpeedBlock), speedBlock: true);
+    public static SpecialAirCollisionReaction PermanentSpeedBlock { get; } = new(nameof(PermanentSpeedBlock), SpecialAirCollisionEffect.SpeedBlock);
 
     /// <summary>The Lower Norfair Chozo hand's trigger.</summary>
     public static SpecialAirCollisionReaction LowerNorfairChozoHand { get; } = new(nameof(LowerNorfairChozoHand));
@@ -51,31 +47,32 @@ public sealed class SpecialAirCollisionReaction
     public static SpecialAirCollisionReaction WreckedShipChozoHand { get; } = new(nameof(WreckedShipChozoHand));
 
     /// <summary>Maridia's quicksand surface, on which a falling or standing Samus lands.</summary>
-    public static SpecialAirCollisionReaction QuicksandSurface { get; } = new(nameof(QuicksandSurface), placesSandReaction: true, quicksandSurface: true);
+    public static SpecialAirCollisionReaction QuicksandSurface { get; } = new(nameof(QuicksandSurface), SpecialAirCollisionEffect.QuicksandSurface);
 
     /// <summary>Maridia's submerging quicksand, which stops Samus's vertical speed and gravity.</summary>
-    public static SpecialAirCollisionReaction SubmergingQuicksand { get; } = new(nameof(SubmergingQuicksand), placesSandReaction: true, stopsFall: true);
+    public static SpecialAirCollisionReaction SubmergingQuicksand { get; } = new(nameof(SubmergingQuicksand), SpecialAirCollisionEffect.SubmergingQuicksand);
 
     /// <summary>Maridia's slow sandfall, through which Samus passes.</summary>
-    public static SpecialAirCollisionReaction SlowSandfall { get; } = new(nameof(SlowSandfall), placesSandReaction: true);
+    public static SpecialAirCollisionReaction SlowSandfall { get; } = new(nameof(SlowSandfall), SpecialAirCollisionEffect.Sandfall);
 
     /// <summary>Maridia's fast sandfall, through which Samus passes.</summary>
-    public static SpecialAirCollisionReaction FastSandfall { get; } = new(nameof(FastSandfall), placesSandReaction: true);
+    public static SpecialAirCollisionReaction FastSandfall { get; } = new(nameof(FastSandfall), SpecialAirCollisionEffect.Sandfall);
 
     /// <summary>Whether the block is one of the Speed Booster blocks Samus's boosted movement breaks.</summary>
-    internal bool IsSpeedBlock { get; }
+    internal bool IsSpeedBlock => _effect == SpecialAirCollisionEffect.SpeedBlock;
 
     /// <summary>
     /// Whether the reaction is one of the four collision sand reactions, each of which places a sand reaction object at its
     /// block before it acts (<see cref="QuicksandObjects"/>); every one leaves the room on its first update.
     /// </summary>
-    internal bool PlacesSandReaction { get; }
+    internal bool PlacesSandReaction => _effect is SpecialAirCollisionEffect.QuicksandSurface or SpecialAirCollisionEffect.SubmergingQuicksand
+        or SpecialAirCollisionEffect.Sandfall;
 
     /// <summary>Whether the block is Maridia's quicksand surface, on which a falling or standing Samus lands.</summary>
-    internal bool IsQuicksandSurface { get; }
+    internal bool IsQuicksandSurface => _effect == SpecialAirCollisionEffect.QuicksandSurface;
 
     /// <summary>Whether the block is Maridia's submerging quicksand, which stops Samus's vertical speed and gravity.</summary>
-    internal bool StopsFall { get; }
+    internal bool StopsFall => _effect == SpecialAirCollisionEffect.SubmergingQuicksand;
 
     /// <summary>Names the reaction.</summary>
     public override string ToString() => _name;

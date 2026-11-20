@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Fx;
 public static class SpecialAirReactions
 {
     /// <summary>What each special-air reaction does to Samus inside the block and when her movement reaches it.</summary>
-    private static readonly Dictionary<SpecialAirReaction, (SpecialAirInsideReaction Inside, SpecialAirCollisionReaction Collision)> Reactions = new()
+    private static readonly Dictionary<SpecialAirReaction, SpecialAirReactionEffects> Reactions = new()
     {
         [SpecialAirReaction.FloorPlant] = new(SpecialAirInsideReaction.BrinstarFloorPlant, SpecialAirCollisionReaction.PassesThrough),
         [SpecialAirReaction.CeilingPlant] = new(SpecialAirInsideReaction.BrinstarCeilingPlant, SpecialAirCollisionReaction.PassesThrough),
@@ -47,7 +47,7 @@ public static class SpecialAirReactions
     /// <summary>What the block's reaction does.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The block has no reaction.</exception>
     /// <exception cref="InvalidOperationException">The reaction is undefined.</exception>
-    private static (SpecialAirInsideReaction Inside, SpecialAirCollisionReaction Collision) Of(SpecialAirReaction? reaction, string context)
+    private static SpecialAirReactionEffects Of(SpecialAirReaction? reaction, string context)
     {
         SpecialAirReaction validated = Validate(reaction, context);
         return Reactions.TryGetValue(validated, out var does)

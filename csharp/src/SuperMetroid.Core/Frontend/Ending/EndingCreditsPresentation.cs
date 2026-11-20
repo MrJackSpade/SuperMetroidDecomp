@@ -18,12 +18,20 @@ internal static class EndingCreditsPresentation
     public static LayeredScene ComposeScene(EndingCreditsState ending)
     {
         if (ending.UsesExplosionFinaleDisplay) return ending.CaptureExplosionFinale();
-        var layers = new List<DisplayLayer>();
-        FramePaint paint = Paint(ending);
         // The credits intentionally do not run the sprite draw step; the logo, its typed texts and the reward's shot draw
         // their own screens too.
-        if (ending.Scene.CaptureOwnScreen(ending, paint) is { } own)
-            return own;
+        return ending.Scene.CaptureScreen(ending, Paint(ending));
+    }
+
+    /// <summary>
+    /// The screen the ending's shared layering draws for the cast, the reward's reveal, gesture and jump, and the white
+    /// flash: the post-credits backdrops or the escape's turning floor and atmosphere, and the sprites in their layers.
+    /// </summary>
+    /// <param name="ending">The ending.</param>
+    /// <param name="paint">The frame's paint.</param>
+    internal static LayeredScene CaptureSharedScreen(EndingCreditsState ending, FramePaint paint)
+    {
+        var layers = new List<DisplayLayer>();
         bool waiting = ending.Phase == EndingCreditsPhase.PostCreditsWaitingBackdrop;
         RgbColor? skyWhite = FlyawaySkyWhite(ending)?.Colour;
         if (EndingCreditsPhaseGroups.PostCredits.Contains(ending.Phase))

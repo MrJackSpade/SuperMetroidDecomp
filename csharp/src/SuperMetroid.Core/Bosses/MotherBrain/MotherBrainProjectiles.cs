@@ -315,7 +315,7 @@ internal sealed class MotherBrainProjectiles
                 acceleration = bounceAcceleration;
             }
 
-            if (MoveMotherBrainBomb(bomb, acceleration))
+            if (MoveMotherBrainBomb(this, bomb, acceleration))
                 bombState.Bounces++;
         }
 
@@ -693,7 +693,11 @@ internal sealed class MotherBrainProjectiles
     }
 
     /// <summary>Advances a bomb through its trajectory and reports arena-boundary expiry.</summary>
-    private bool MoveMotherBrainBomb(
+    /// <param name="owner">The bomb's behaviour, which keeps its bounce speed.</param>
+    /// <param name="bomb">The bomb.</param>
+    /// <param name="acceleration">The bomb's vertical acceleration this update.</param>
+    private static bool MoveMotherBrainBomb(
+        MotherBrainProjectileBehavior owner,
         EnemyProjectile bomb,
         SignedEightEight acceleration)
     {
@@ -710,7 +714,7 @@ internal sealed class MotherBrainProjectiles
             return false;
 
         bomb.Position = bomb.Position.WithWholeY(MotherBrainBombBounceDefinitions.FloorY);
-        SignedEightEight bounceSpeed = Bombs.Of(bomb).BounceSpeed;
+        SignedEightEight bounceSpeed = owner.Bombs.Of(bomb).BounceSpeed;
         bomb.Velocity = new(bounceSpeed.AlongDirectionOf(bomb.Velocity.X), MotherBrainBombBounceDefinitions.BounceRise);
         return true;
     }

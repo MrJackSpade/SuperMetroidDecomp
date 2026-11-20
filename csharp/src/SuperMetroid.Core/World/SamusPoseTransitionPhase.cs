@@ -461,7 +461,7 @@ internal sealed class SamusPoseTransitionPhase
     }
 
     /// <summary>Runs the <see cref="SamusPoseTransitionSetup.StartDamageBoost"/> setup.</summary>
-    internal void SetUpStartDamageBoost(SamusControlFrame frame, SamusState samus, SamusPoseId targetPose)
+    internal static void SetUpStartDamageBoost(SamusControlFrame frame, SamusState samus, SamusPoseId targetPose)
     {
         // The accepted pose restores normal movement while
         // preserving the hurt arc and remaining timer.
@@ -475,7 +475,7 @@ internal sealed class SamusPoseTransitionPhase
     }
 
     /// <summary>Runs the <see cref="SamusPoseTransitionSetup.StartMoonwalkTurnJump"/> setup.</summary>
-    internal void SetUpStartMoonwalkTurnJump(SamusState samus, SamusPoseId targetPose)
+    internal static void SetUpStartMoonwalkTurnJump(SamusState samus, SamusPoseId targetPose)
     {
         // The stable moonwalk poses' input transitions select a generic
         // reversal target. The reversal check validates it against the old
@@ -491,13 +491,13 @@ internal sealed class SamusPoseTransitionPhase
     }
 
     /// <summary>Runs the <see cref="SamusPoseTransitionSetup.StartRunning"/> setup.</summary>
-    internal void SetUpStartRunning(SamusState samus, SamusPoseId targetPose)
+    internal static void SetUpStartRunning(SamusState samus, SamusPoseId targetPose)
     {
         SamusGroundedPoseTransitions.StartRunning(samus, targetPose);
     }
 
     /// <summary>Runs the <see cref="SamusPoseTransitionSetup.ChangeGroundedAim"/> setup.</summary>
-    internal void SetUpChangeGroundedAim(SamusState samus, SamusPoseId targetPose)
+    internal static void SetUpChangeGroundedAim(SamusState samus, SamusPoseId targetPose)
     {
         SamusGroundedPoseTransitions.ApplyGroundedAimTransition(samus, targetPose);
     }
@@ -536,7 +536,7 @@ internal sealed class SamusPoseTransitionPhase
     }
 
     /// <summary>Runs the <see cref="SamusPoseTransitionSetup.ChangeBallPose"/> setup.</summary>
-    internal void SetUpChangeBallPose(SamusState samus, SamusPoseId targetPose)
+    internal static void SetUpChangeBallPose(SamusState samus, SamusPoseId targetPose)
     {
         // These six poses all share one animation.
         // The setup preserves frame/timer and applies turning
@@ -545,7 +545,7 @@ internal sealed class SamusPoseTransitionPhase
     }
 
     /// <summary>Runs the <see cref="SamusPoseTransitionSetup.JumpSpringBall"/> setup.</summary>
-    internal void SetUpJumpSpringBall(SamusState samus, SamusPoseId targetPose)
+    internal static void SetUpJumpSpringBall(SamusState samus, SamusPoseId targetPose)
     {
         SamusPosturePoseTransitions.ApplySpringBallJump(samus, targetPose);
     }
@@ -573,7 +573,7 @@ internal sealed class SamusPoseTransitionPhase
     }
 
     /// <summary>Runs the <see cref="SamusPoseTransitionSetup.ChangeSpinDirection"/> setup.</summary>
-    internal void SetUpChangeSpinDirection(SamusState samus, SamusPoseId targetPose)
+    internal static void SetUpChangeSpinDirection(SamusState samus, SamusPoseId targetPose)
     {
         SamusAerialPoseTransitions.ApplySpinJumpDirectionTransition(samus, targetPose);
     }
@@ -592,7 +592,7 @@ internal sealed class SamusPoseTransitionPhase
     }
 
     /// <summary>Runs the <see cref="SamusPoseTransitionSetup.ChangeAerialAim"/> setup.</summary>
-    internal void SetUpChangeAerialAim(SamusState samus, SamusPoseId targetPose)
+    internal static void SetUpChangeAerialAim(SamusState samus, SamusPoseId targetPose)
     {
         SamusAerialPoseTransitions.ApplySameFacingAerialTransition(samus, targetPose);
     }
@@ -605,7 +605,7 @@ internal sealed class SamusPoseTransitionPhase
     }
 
     /// <summary>Runs the <see cref="SamusPoseTransitionSetup.AimShinespark"/> setup.</summary>
-    internal void SetUpAimShinespark(SamusState samus, SamusPoseId targetPose)
+    internal static void SetUpAimShinespark(SamusState samus, SamusPoseId targetPose)
     {
         // These are ordinary held/new input transitions, but
         // their transition hands her movement to a special owner instead of
@@ -614,7 +614,7 @@ internal sealed class SamusPoseTransitionPhase
     }
 
     /// <summary>Runs the <see cref="SamusPoseTransitionSetup.ChangeDraygonGrabbedPose"/> setup.</summary>
-    internal void SetUpChangeDraygonGrabbedPose(SamusState samus, SamusPoseId targetPose)
+    internal static void SetUpChangeDraygonGrabbedPose(SamusState samus, SamusPoseId targetPose)
     {
         // Both sets of input transitions stay within one facing; the change keeps it and starts the target's
         // own animation.
@@ -629,7 +629,7 @@ internal sealed class SamusPoseTransitionPhase
     }
 
     /// <summary>Runs the <see cref="SamusNoTransitionSetup.StopKnockback"/> setup.</summary>
-    internal void RespondStopKnockback(SamusState samus, SamusPoseId source, SamusPoseId? fallback)
+    internal static void RespondStopKnockback(SamusState samus, SamusPoseId source, SamusPoseId? fallback)
     {
         // The retained hurt pose still stops Samus's momentum.
         // Reset deceleration and cancel the momentum flag after movement.
@@ -652,7 +652,7 @@ internal sealed class SamusPoseTransitionPhase
     }
 
     /// <summary>Runs the <see cref="SamusNoTransitionSetup.ReturnToNeutralDraygonHold"/> setup.</summary>
-    internal void RespondReturnToNeutralDraygonHold(SamusState samus, SamusPoseId? fallback)
+    internal static void RespondReturnToNeutralDraygonHold(SamusState samus, SamusPoseId? fallback)
     {
         // Zero input uses the pose's fallback pose, returning aimed/firing/
         // struggling art to the neutral Draygon-grabbed poses without touching owner placement.
@@ -661,7 +661,7 @@ internal sealed class SamusPoseTransitionPhase
     }
 
     /// <summary>Runs the <see cref="SamusNoTransitionSetup.SpinFromWallJump"/> setup.</summary>
-    internal void RespondSpinFromWallJump(SamusState samus, SamusPoseId? fallback)
+    internal static void RespondSpinFromWallJump(SamusState samus, SamusPoseId? fallback)
     {
         // The pose definition leaves the launch animation for ordinary spin
         // art. The wall-jumping movement type kills Samus's X speed. The pose change
@@ -679,7 +679,7 @@ internal sealed class SamusPoseTransitionPhase
     }
 
     /// <summary>Runs the <see cref="SamusNoTransitionSetup.DecelerateFallingBall"/> setup.</summary>
-    internal void RespondDecelerateFallingBall(SamusControlFrame frame, SamusState samus, SamusPoseId source, SamusPoseId? fallback)
+    internal static void RespondDecelerateFallingBall(SamusControlFrame frame, SamusState samus, SamusPoseId source, SamusPoseId? fallback)
     {
         if (fallback == source)
         {
@@ -689,7 +689,7 @@ internal sealed class SamusPoseTransitionPhase
     }
 
     /// <summary>Runs the <see cref="SamusNoTransitionSetup.StopBall"/> setup.</summary>
-    internal void RespondStopBall(SamusState samus, SamusPoseId source, SamusPoseId? fallback)
+    internal static void RespondStopBall(SamusState samus, SamusPoseId source, SamusPoseId? fallback)
     {
         // A still ball and Spring Ball in the air or falling kill Samus's X speed: after this frame's movement,
         // the kill clears mode and base speed and goes on to cancel boost and extra running speed.
@@ -698,7 +698,7 @@ internal sealed class SamusPoseTransitionPhase
     }
 
     /// <summary>Runs the <see cref="SamusNoTransitionSetup.StopRollingBall"/> setup.</summary>
-    internal void RespondStopRollingBall(SamusState samus, SamusPoseId? fallback)
+    internal static void RespondStopRollingBall(SamusState samus, SamusPoseId? fallback)
     {
         // Killing X speed clears base and extra momentum after the
         // current movement frame for both grounded ball movement types.
@@ -710,7 +710,7 @@ internal sealed class SamusPoseTransitionPhase
     }
 
     /// <summary>Runs the <see cref="SamusNoTransitionSetup.StopRunning"/> setup.</summary>
-    internal void RespondStopRunning(SamusState samus, SamusPoseId source, SamusPoseId? fallback)
+    internal static void RespondStopRunning(SamusState samus, SamusPoseId source, SamusPoseId? fallback)
     {
         if (fallback == source)
             DecelerateRetainedRun(samus);
@@ -722,7 +722,7 @@ internal sealed class SamusPoseTransitionPhase
     }
 
     /// <summary>Runs the <see cref="SamusNoTransitionSetup.StopAimedRunning"/> setup.</summary>
-    internal void RespondStopAimedRunning(SamusState samus, SamusPoseId source, SamusPoseId? fallback)
+    internal static void RespondStopAimedRunning(SamusState samus, SamusPoseId source, SamusPoseId? fallback)
     {
         if (fallback == source)
             DecelerateRetainedRun(samus);
@@ -743,7 +743,7 @@ internal sealed class SamusPoseTransitionPhase
     }
 
     /// <summary>Runs the <see cref="SamusNoTransitionSetup.LowerGroundedAim"/> setup.</summary>
-    internal void RespondLowerGroundedAim(SamusState samus, SamusPoseId? fallback)
+    internal static void RespondLowerGroundedAim(SamusState samus, SamusPoseId? fallback)
     {
         // Only the input fallback path above populates this value; the aimed wall stops name the plain wall stops,
         // which share their radius, animation and cleanup. Validate and apply it through the same
@@ -753,14 +753,14 @@ internal sealed class SamusPoseTransitionPhase
     }
 
     /// <summary>Runs the <see cref="SamusNoTransitionSetup.AbandonAimedCrouchingTurn"/> setup.</summary>
-    internal void RespondAbandonAimedCrouchingTurn(SamusControlFrame frame, SamusState samus, SamusPoseId source, SamusPoseId? fallback)
+    internal static void RespondAbandonAimedCrouchingTurn(SamusControlFrame frame, SamusState samus, SamusPoseId source, SamusPoseId? fallback)
     {
         if (frame.UsePoseDefinitionFallback && samus.Pose == source && fallback is { } crouchingTurnFallback)
             SamusGroundedPoseTransitions.TurnAimedCrouchingForNoTransition(samus, crouchingTurnFallback);
     }
 
     /// <summary>Runs the <see cref="SamusNoTransitionSetup.StopTurn"/> setup.</summary>
-    internal void RespondStopTurn(SamusControlFrame frame, SamusState samus, SamusPoseId source)
+    internal static void RespondStopTurn(SamusControlFrame frame, SamusState samus, SamusPoseId source)
     {
         // A definition without a fallback pose retains the animation, not the momentum
         // response. The stop still cancels reverse acceleration,
@@ -770,7 +770,7 @@ internal sealed class SamusPoseTransitionPhase
     }
 
     /// <summary>Runs the <see cref="SamusNoTransitionSetup.ContinueNormalJump"/> setup.</summary>
-    internal void RespondContinueNormalJump(SamusControlFrame frame, SamusState samus, SamusPoseId? fallback)
+    internal static void RespondContinueNormalJump(SamusControlFrame frame, SamusState samus, SamusPoseId? fallback)
     {
         // An unchanged prospective pose must not reset animation or invoke
         // compact-radius expansion. Decelerating still folds momentum after
@@ -785,7 +785,7 @@ internal sealed class SamusPoseTransitionPhase
     }
 
     /// <summary>Runs the <see cref="SamusNoTransitionSetup.LowerAerialAim"/> setup.</summary>
-    internal void RespondLowerAerialAim(SamusState samus, SamusPoseId? fallback)
+    internal static void RespondLowerAerialAim(SamusState samus, SamusPoseId? fallback)
     {
         // Install the fallback's pose metadata and setup first.
         // Falling's run-speed kill, after this response, then clears only the extra component;

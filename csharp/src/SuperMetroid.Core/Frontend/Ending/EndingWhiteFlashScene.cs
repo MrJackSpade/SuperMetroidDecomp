@@ -32,4 +32,7 @@ internal sealed class EndingWhiteFlashScene(EndingRewardJump jump, WhiteWash fla
         if (shows(EndingSpriteLayer.Actors))
             EndingCreditsPresentation.DrawJump(ending, sprites, Jump);
     }
+    /// <inheritdoc/>
+    internal override LayeredScene CaptureScreen(EndingCreditsState ending, FramePaint paint) =>
+        EndingCreditsPresentation.CaptureSharedScreen(ending, paint);
 }

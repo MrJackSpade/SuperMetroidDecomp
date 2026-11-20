@@ -35,10 +35,10 @@ internal abstract class EndingScene
     internal abstract void DrawActors(EndingCreditsState ending, ScreenSprites sprites, Func<EndingSpriteLayer, bool> shows);
 
     /// <summary>
-    /// The scene's own screen, or null for a scene the ending's shared layering draws (the cast, the reward's reveal,
-    /// gesture and jump, and the white flash).
+    /// The scene's screen: its own for the credits, the logo, its typed texts and the reward's shot, the ending's shared
+    /// layering for the cast, the reward's reveal, gesture and jump, and the white flash.
     /// </summary>
     /// <param name="ending">The ending showing the scene.</param>
     /// <param name="paint">The frame's paint.</param>
-    internal virtual LayeredScene? CaptureOwnScreen(EndingCreditsState ending, FramePaint paint) => null;
+    internal abstract LayeredScene CaptureScreen(EndingCreditsState ending, FramePaint paint);
 }

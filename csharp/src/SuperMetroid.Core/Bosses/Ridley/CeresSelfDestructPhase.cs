@@ -11,6 +11,7 @@ internal sealed class CeresSelfDestructPhase
     private readonly string _name;
 
     /// <summary>Runs the phase one update, returning whether it entered the next phase to run in the same update.</summary>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Architecture", "SME6410", Justification = "The phase names the escape only as the parameter it runs on; it keeps no room's state.")]
     private readonly Func<CeresEscape, int, bool> _run;
 
     /// <summary>A phase named <paramref name="name"/> that runs <paramref name="run"/>.</summary>

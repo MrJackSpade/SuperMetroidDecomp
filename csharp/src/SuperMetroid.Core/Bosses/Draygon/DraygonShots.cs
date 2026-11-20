@@ -25,7 +25,7 @@ internal sealed class DraygonShots
     /// Draygon's goop: Samus's touch sticks it to her and a shot one drops Draygon's eye's chances, through the typed
     /// animations its definition names.
     /// </summary>
-    internal DraygonShotBehavior Goop => field ??= new DraygonShotBehavior(_deathsAndDrops, startsFlying: true,
+    internal DraygonShotBehavior Goop => field ??= new DraygonShotBehavior(_deathsAndDrops, shots => shots.GoopFlying,
         shot: goop => new DraygonProjectileAnimation(goop, DraygonProjectileSegment.GoopShot),
         touch: goop => new DraygonProjectileAnimation(goop, DraygonProjectileSegment.GoopTouch));
 
@@ -33,7 +33,7 @@ internal sealed class DraygonShots
     /// A wall turret's shot: it holds still through its muzzle bloom until its animation fires it, and a shot one runs the
     /// shared dust's small explosion, the animation its definition names.
     /// </summary>
-    internal DraygonShotBehavior WallTurretShot => field ??= new DraygonShotBehavior(_deathsAndDrops, startsFlying: false,
+    internal DraygonShotBehavior WallTurretShot => field ??= new DraygonShotBehavior(_deathsAndDrops, _ => null,
         shot: _ => new DustExplosionProjectileAnimation(DustExplosionAnimation.SmallExplosion));
 
     /// <summary>
@@ -41,14 +41,14 @@ internal sealed class DraygonShots
     /// bomb explosion of the projectile pass's bombs frees the shots it catches.
     /// </summary>
     /// <param name="deathsAndDrops">The drops a shot goop leaves.</param>
-    /// <param name="startsFlying">Whether the shot starts in the goop's flight; the turret shot holds still until fired.</param>
+    /// <param name="initial">Picks the motion the shot starts in: the goop's flight, or none for the turret shot, which holds still until fired.</param>
     /// <param name="shot">Creates the animation a destroying shot starts, from the shot's own behaviour.</param>
     /// <param name="touch">
     /// Creates the animation touching Samus starts, from the shot's own behaviour, or null when the kind has none of its own.
     /// </param>
     internal sealed class DraygonShotBehavior(
         EnemyDeathsAndDrops deathsAndDrops,
-        bool startsFlying,
+        Func<DraygonShotBehavior, EnemyProjectileMotion?> initial,
         Func<DraygonShotBehavior, EnemyProjectileAnimation> shot,
         Func<DraygonShotBehavior, EnemyProjectileAnimation>? touch = null)
         : EnemyProjectileBehavior, IEnemyProjectileCues<DraygonProjectileCue>
@@ -66,7 +66,7 @@ internal sealed class DraygonShots
         internal override EnemyProjectileAnimation? TouchAnimation() => touch?.Invoke(this);
 
         /// <inheritdoc/>
-        internal override EnemyProjectileMotion? InitialMotion(RoomEnemyProjectileKind kind) => startsFlying ? GoopFlying : null;
+        internal override EnemyProjectileMotion? InitialMotion(RoomEnemyProjectileKind kind) => initial(this);
 
         /// <summary>A goop flying from Draygon's tail until it touches Samus or leaves the room.</summary>
         internal EnemyProjectileOwnedMotion GoopFlying => field ??= new(nameof(GoopFlying),
@@ -81,7 +81,7 @@ internal sealed class DraygonShots
         {
             // The goop's power-bomb step frees a power-bombed shot's place, then still moves the shot.
             FreePlaceIfPowerBombed(context.Projectile, context.Samus, context.SamusBombs.PowerBombExplosion);
-            MoveDraygonProjectile(context.Projectile);
+            MoveDraygonProjectile(this, context.Projectile);
             DeleteDraygonProjectileOutsideRoom(context.Projectile);
         });
 
@@ -119,7 +119,7 @@ internal sealed class DraygonShots
             // tests Samus. Contact is tested before the room boundary, so a goop that touches
             // Samus outside the boundary still plays its touch animation instead of being deleted.
             FreePlaceIfPowerBombed(goop, samus, powerBomb);
-            MoveDraygonProjectile(goop);
+            MoveDraygonProjectile(this, goop);
             int xDistance = DistanceAcrossRoomEdge.Between(samus.Position.X.Whole, goop.Position.X.Whole);
             int yDistance = DistanceAcrossRoomEdge.Between(samus.Position.Y.Whole, goop.Position.Y.Whole);
             if (xDistance < DraygonArenaDefinitions.GoopTouchReach.X && yDistance < DraygonArenaDefinitions.GoopTouchReach.Y)
@@ -197,8 +197,10 @@ internal sealed class DraygonShots
         }
     }
     /// <summary>Moves a Draygon projectile along its angle at its speed.</summary>
-    internal void MoveDraygonProjectile(EnemyProjectile projectile) =>
-        Flights.Of(projectile).Advance(projectile);
+    /// <param name="owner">The shot's behaviour, which keeps its heading and speed.</param>
+    /// <param name="projectile">The shot.</param>
+    private static void MoveDraygonProjectile(DraygonShotBehavior owner, EnemyProjectile projectile) =>
+        owner.Flights.Of(projectile).Advance(projectile);
 
     /// <summary>Deletes a projectile that has left Draygon's room.</summary>
     private static void DeleteDraygonProjectileOutsideRoom(EnemyProjectile projectile)

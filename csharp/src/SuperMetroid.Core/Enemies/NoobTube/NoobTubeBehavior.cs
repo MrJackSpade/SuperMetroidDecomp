@@ -106,7 +106,7 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
     /// <summary>Sways a falling shard along its arc, drops it, and deletes it once it leaves the screen vertically.</summary>
     private static void DropNoobTubeShard(NoobTubeProjectileBehavior owner, EnemyProjectile projectile, int cameraY)
     {
-        MoveNoobTubeProjectileHorizontallyAlongArc(owner, projectile, swaySteps: 1);
+        MoveNoobTubeProjectileHorizontallyAlongArc(owner, projectile, NoobTubeDebrisMotionDefinitions.ShardSwaySteps);
         projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta());
         EnemyProjectileEngine.DeleteEnemyProjectileIfVerticallyOffScreen(projectile, cameraY);
     }
@@ -114,7 +114,7 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
     /// <summary>Sways a falling bubble along its arc, then moves it vertically once as a flying bubble does.</summary>
     private static void DropNoobTubeBubble(NoobTubeProjectileBehavior owner, EnemyProjectile projectile)
     {
-        MoveNoobTubeProjectileHorizontallyAlongArc(owner, projectile, swaySteps: 2);
+        MoveNoobTubeProjectileHorizontallyAlongArc(owner, projectile, NoobTubeDebrisMotionDefinitions.BubbleSwaySteps);
         MoveNoobTubeBubbleVertically(owner, projectile);
     }
 

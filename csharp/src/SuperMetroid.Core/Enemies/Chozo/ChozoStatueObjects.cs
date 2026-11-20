@@ -75,6 +75,9 @@ internal sealed class ChozoStatueObjects : IChozoStatueHand
         check.Delete();
     }
 
+    /// <summary>Creates the Lower Norfair statue's hand, which reports to these room objects.</summary>
+    internal LowerNorfairChozoHandObject CreateLowerNorfairHand() => new(this);
+
     /// <summary>
     /// Spawns the statue's room object <paramref name="request"/> names at its block, at the first free place in the
     /// update order, and runs its setup.

@@ -25,4 +25,7 @@ internal sealed class EndingRewardGestureScene(EndingRewardGesture gesture) : En
         if (shows(EndingSpriteLayer.Actors))
             Gesture.Draw(sprites, EndingCreditsPresentation.ActorArt(ending, CinematicSpriteFamily.EndingReward));
     }
+    /// <inheritdoc/>
+    internal override LayeredScene CaptureScreen(EndingCreditsState ending, FramePaint paint) =>
+        EndingCreditsPresentation.CaptureSharedScreen(ending, paint);
 }

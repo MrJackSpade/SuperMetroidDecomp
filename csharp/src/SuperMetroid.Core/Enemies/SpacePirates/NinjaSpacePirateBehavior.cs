@@ -574,7 +574,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
 
         /// <inheritdoc/>
         internal override void Move(EnemyProjectileMotionContext context, SingleMotion motion) =>
-            FlyNinjaPirateClaw(this, Ensure.NotNull(context).Projectile, context.Camera);
+            FlyNinjaPirateClaw(this, context.Projectile, context.Camera);
 
         /// <inheritdoc/>
         /// <exception cref="InvalidOperationException">

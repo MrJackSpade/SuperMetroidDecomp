@@ -24,6 +24,6 @@ internal sealed class EndingCreditsRollScene(CreditsScroll scroll) : EndingScene
         EndingCreditsPresentation.DrawCast(ending, sprites, shows);
 
     /// <inheritdoc/>
-    internal override LayeredScene? CaptureOwnScreen(EndingCreditsState ending, FramePaint paint) =>
+    internal override LayeredScene CaptureScreen(EndingCreditsState ending, FramePaint paint) =>
         new(paint, [new PicturedPlaneLayer(ending.CreditsPlane(), Offset16<PlanePixels>.Of(0, Scroll.ScrolledPixels))], ending.Stage.Brightness);
 }

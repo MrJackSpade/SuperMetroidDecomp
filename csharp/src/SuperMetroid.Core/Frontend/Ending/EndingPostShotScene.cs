@@ -34,6 +34,6 @@ internal sealed class EndingPostShotScene(EndingRewardJump jump, EndingPostShot 
     }
 
     /// <inheritdoc/>
-    internal override LayeredScene? CaptureOwnScreen(EndingCreditsState ending, FramePaint paint) =>
+    internal override LayeredScene CaptureScreen(EndingCreditsState ending, FramePaint paint) =>
         EndingCreditsPresentation.CapturePostShot(ending, Shot, paint);
 }

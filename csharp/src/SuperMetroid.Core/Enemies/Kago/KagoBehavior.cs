@@ -166,7 +166,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         private void RunKagoBugIdle(EnemyProjectile projectile)
         {
             StepKagoBugSound(projectile);
-            EnableKagoBugShotCollisionWhenSeparated(projectile);
+            EnableKagoBugShotCollisionWhenSeparated(this, projectile);
 
             KagoBugState bug = Bugs.Of(projectile);
             if (!bug.GroundWait.Count())
@@ -180,7 +180,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         private void RunKagoBugJumping(EnemyProjectile projectile, RoomLevelData level)
         {
             StepKagoBugSound(projectile);
-            EnableKagoBugShotCollisionWhenSeparated(projectile);
+            EnableKagoBugShotCollisionWhenSeparated(this, projectile);
 
             if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal))
             {
@@ -207,7 +207,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         private void RunKagoBugFalling(EnemyProjectile projectile, RoomLevelData level)
         {
             StepKagoBugSound(projectile);
-            EnableKagoBugShotCollisionWhenSeparated(projectile);
+            EnableKagoBugShotCollisionWhenSeparated(this, projectile);
 
             // The bug takes one of these each update, the first that applies. A wall takes this update, zeros X,
             // and deliberately postpones both vertical motion and gravity until the next frame.
@@ -231,7 +231,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         private void StartKagoBugJump(EnemyProjectile projectile)
         {
             StepKagoBugSound(projectile);
-            EnableKagoBugShotCollisionWhenSeparated(projectile);
+            EnableKagoBugShotCollisionWhenSeparated(this, projectile);
 
             int random = room.Random.Read();
             int upwardPixels = KagoDefinitions.BaseJumpSpeedPixels +
@@ -323,9 +323,11 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Lets Samus's shots hit the bug once it is at least 23 pixels from its source Kago. That
     /// delay prevents the shot which opened the shell from immediately destroying the bug.
     /// </summary>
-    private void EnableKagoBugShotCollisionWhenSeparated(EnemyProjectile projectile)
+    /// <param name="owner">The bug's behaviour, which keeps its source Kago.</param>
+    /// <param name="projectile">The bug.</param>
+    private static void EnableKagoBugShotCollisionWhenSeparated(BugBehavior owner, EnemyProjectile projectile)
     {
-        RoomEnemyPlace source = Bugs.Of(projectile).Source;
+        RoomEnemyPlace source = owner.Bugs.Of(projectile).Source;
         int distance = Math.Abs(source.Position.X.Whole - projectile.Position.X.Whole);
         if (distance >= KagoDefinitions.BugBlocksShotsDistance)
             projectile.BlocksSamusProjectiles = true;

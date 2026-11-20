@@ -90,8 +90,8 @@ public static class SamusInsideBlockReactions
                             $"Undefined {nameof(SamusVerticalDirection)} {body.VerticalVelocity.Direction}.");
                 }
             }
-            else if (reaction.Carry is { } carry)
-                SetExtra(carry);
+            else if (reaction.Sinking is { } sinking)
+                SetExtra(sinking);
         }
         void ApplyConveyor(ConveyorBlock conveyor)
         {

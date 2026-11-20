@@ -27,4 +27,7 @@ internal sealed class EndingCastScene(EndingCastPhase phase) : EndingScene
     /// <inheritdoc/>
     internal override void DrawActors(EndingCreditsState ending, ScreenSprites sprites, Func<EndingSpriteLayer, bool> shows) =>
         EndingCreditsPresentation.DrawCast(ending, sprites, shows);
+    /// <inheritdoc/>
+    internal override LayeredScene CaptureScreen(EndingCreditsState ending, FramePaint paint) =>
+        EndingCreditsPresentation.CaptureSharedScreen(ending, paint);
 }

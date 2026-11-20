@@ -25,4 +25,7 @@ internal sealed class EndingRewardJumpScene(EndingRewardJump jump) : EndingScene
         if (shows(EndingSpriteLayer.Actors))
             EndingCreditsPresentation.DrawJump(ending, sprites, Jump);
     }
+    /// <inheritdoc/>
+    internal override LayeredScene CaptureScreen(EndingCreditsState ending, FramePaint paint) =>
+        EndingCreditsPresentation.CaptureSharedScreen(ending, paint);
 }

@@ -3,7 +3,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>An enemy whose drawing adds to the common enemy drawing.</summary>
-internal interface IEnemyDrawHooks : IEnemyEntity
+internal interface IEnemyDrawHooks
 {
     /// <summary>
     /// The shading the common enemy drawing draws the occupant in, hit and freeze flashes included, when its AI owns it;

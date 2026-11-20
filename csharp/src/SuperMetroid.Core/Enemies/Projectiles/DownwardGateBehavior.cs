@@ -161,7 +161,7 @@ internal sealed class DownwardGateBehavior
 
         /// <inheritdoc/>
         internal override void Move(EnemyProjectileMotionContext context, SingleMotion motion) =>
-            RunDownwardGateProjectileMovement(this, Ensure.NotNull(context).Projectile);
+            RunDownwardGateProjectileMovement(this, context.Projectile);
 
         /// <inheritdoc/>
         public void RunCue(EnemyProjectileCueContext context, DownwardGateProjectileCue cue) => ApplyDownwardGateCue(this, context.Projectile, cue);

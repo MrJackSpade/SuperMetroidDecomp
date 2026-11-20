@@ -59,14 +59,14 @@ internal static class RoomObjectDrawSourceDefinitions
         [new ContactCrumbleRestoreDraw(BlockArrangement.Square)] = new(Bank, 0xa4b1),
     };
 
-    /// <summary>The address of each <see cref="CrocomireArenaDraw"/>.</summary>
-    internal static IReadOnlyDictionary<CrocomireArenaDraw, SnesAddress> CrocomireArena { get; } = new Dictionary<CrocomireArenaDraw, SnesAddress>
+    /// <summary>The address of each <see cref="CrocomireArenaMutation"/>.</summary>
+    internal static IReadOnlyDictionary<CrocomireArenaMutation, SnesAddress> CrocomireArena { get; } = new Dictionary<CrocomireArenaMutation, SnesAddress>
     {
-        [CrocomireArenaDraw.ClearBridge] = new(Bank, 0x9b5b),
-        [CrocomireArenaDraw.CrumbleBridgeBlock] = new(Bank, 0x9b73),
-        [CrocomireArenaDraw.ClearBridgeBlock] = new(Bank, 0x9b79),
-        [CrocomireArenaDraw.ClearInvisibleWall] = new(Bank, 0x9b7f),
-        [CrocomireArenaDraw.CreateInvisibleWall] = new(Bank, 0x9bbb),
+        [CrocomireArenaMutation.ClearBridge] = new(Bank, 0x9b5b),
+        [CrocomireArenaMutation.CrumbleBridgeBlock] = new(Bank, 0x9b73),
+        [CrocomireArenaMutation.ClearBridgeBlock] = new(Bank, 0x9b79),
+        [CrocomireArenaMutation.ClearInvisibleWall] = new(Bank, 0x9b7f),
+        [CrocomireArenaMutation.CreateInvisibleWall] = new(Bank, 0x9bbb),
     };
 
     /// <summary>The address of each <see cref="DownwardGateDraw"/>.</summary>

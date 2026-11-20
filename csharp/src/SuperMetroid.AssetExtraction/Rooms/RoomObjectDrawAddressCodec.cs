@@ -58,7 +58,7 @@ internal static class RoomObjectDrawAddressCodec
         RoomObjectFrameDraw<BotwoonWallDraw> { Frame: var frame } => RoomObjectDrawSourceDefinitions.BotwoonWall[frame],
         RoomObjectFrameDraw<ChozoStatueDraw> { Frame: var frame } => RoomObjectDrawSourceDefinitions.ChozoStatue[frame],
         RoomObjectFrameDraw<ContactCrumbleRestoreDraw> { Frame: var frame } => RoomObjectDrawSourceDefinitions.ContactCrumbleRestore[frame],
-        RoomObjectFrameDraw<CrocomireArenaDraw> { Frame: var frame } => RoomObjectDrawSourceDefinitions.CrocomireArena[frame],
+        RoomObjectFrameDraw<CrocomireArenaMutation> { Frame: var frame } => RoomObjectDrawSourceDefinitions.CrocomireArena[frame],
         RoomObjectFrameDraw<DownwardGateDraw> { Frame: var frame } => RoomObjectDrawSourceDefinitions.DownwardGate[frame],
         RoomObjectFrameDraw<DraygonCannonDraw> { Frame: var frame } => RoomObjectDrawSourceDefinitions.DraygonCannon[frame],
         RoomObjectFrameDraw<ElevatorPlatformDraw> { Frame: var frame } => RoomObjectDrawSourceDefinitions.ElevatorPlatform[frame],

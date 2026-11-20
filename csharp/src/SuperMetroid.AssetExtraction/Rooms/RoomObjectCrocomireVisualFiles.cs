@@ -14,13 +14,13 @@ public static class RoomObjectCrocomireVisualFiles
     private const string VisualFileName = "crocomire-arena.json";
 
     /// <summary>The bridge and wall frames in the installed file's order (#2567).</summary>
-    private static readonly IReadOnlyList<CrocomireArenaDraw> FrameOrder = Ensure.EveryMemberOnce<CrocomireArenaDraw>(
+    private static readonly IReadOnlyList<CrocomireArenaMutation> FrameOrder = Ensure.EveryMemberOnce<CrocomireArenaMutation>(
     [
-        CrocomireArenaDraw.ClearBridge,
-        CrocomireArenaDraw.CrumbleBridgeBlock,
-        CrocomireArenaDraw.ClearBridgeBlock,
-        CrocomireArenaDraw.ClearInvisibleWall,
-        CrocomireArenaDraw.CreateInvisibleWall,
+        CrocomireArenaMutation.ClearBridge,
+        CrocomireArenaMutation.CrumbleBridgeBlock,
+        CrocomireArenaMutation.ClearBridgeBlock,
+        CrocomireArenaMutation.ClearInvisibleWall,
+        CrocomireArenaMutation.CreateInvisibleWall,
     ]);
 
     /// <summary>The Crocomire arena as the import pictures them: every frame's geometry and published name.</summary>
@@ -45,7 +45,7 @@ public static class RoomObjectCrocomireVisualFiles
     {
         get
         {
-            foreach (CrocomireArenaDraw frame in FrameOrder)
+            foreach (CrocomireArenaMutation frame in FrameOrder)
             {
                 yield return DrawListOf(CrocomireArenaDraws.Family.Of(frame));
             }
@@ -90,5 +90,5 @@ public static class RoomObjectCrocomireVisualFiles
 
     /// <summary>Maps an arena draw to the published bridge or wall artwork key.</summary>
     internal static string VisualId(RoomObjectDraw draw) =>
-        CrocomireArenaDrawKeys.Installed.Of(RoomObjectDrawIdentity.FrameOf<CrocomireArenaDraw>(draw, "Crocomire arena"));
+        CrocomireArenaDrawKeys.Installed.Of(RoomObjectDrawIdentity.FrameOf<CrocomireArenaMutation>(draw, "Crocomire arena"));
 }

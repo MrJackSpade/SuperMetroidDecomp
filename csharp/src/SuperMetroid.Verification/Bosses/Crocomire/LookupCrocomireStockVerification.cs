@@ -24,7 +24,7 @@ internal static class LookupCrocomireStockVerification
         }
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
             if (frames.All(frame => frame.Pointer != raw))
-                AssertThrows<InvalidDataException>(() => installed.Image(NativeObjectDraws.At<CrocomireArenaDraw>((ushort)raw)), "Crocomire unknown pointer");
+                AssertThrows<InvalidDataException>(() => installed.Image(NativeObjectDraws.At<CrocomireArenaMutation>((ushort)raw)), "Crocomire unknown pointer");
         AssertImportAndRejections(rom, installed.Images, RoomObjectCrocomireVisualFiles.Family, RepositoryInstallation.Installation.RoomObjectCrocomireVisualDirectory);
     }
 }

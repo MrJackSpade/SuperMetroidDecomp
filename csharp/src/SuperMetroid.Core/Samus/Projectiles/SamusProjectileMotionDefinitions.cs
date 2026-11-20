@@ -38,8 +38,7 @@ internal static class SamusProjectileMotionDefinitions
     /// along; an ignited missile gains 64 along a cardinal direction and 54 on each axis of a diagonal; an ignited Super
     /// Missile gains 256 and 182. Both vertical directions of a side accelerate alike.
     /// </summary>
-    internal static readonly FrozenDictionary<SamusProjectileDirection, SamusDirectionAccelerations> Accelerations =
-        new Dictionary<SamusProjectileDirection, SamusDirectionAccelerations>
+    internal static readonly IdentityTable<SamusProjectileDirection, SamusDirectionAccelerations> Accelerations = new(new Dictionary<SamusProjectileDirection, SamusDirectionAccelerations>
         {
             [SamusProjectileDirection.UpFacingRight] = new(
                 new PixelVelocity<RoomPixels>(SignedEightEight.Zero, SignedEightEight.FromPixelFraction(-1, 16)),
@@ -81,5 +80,5 @@ internal static class SamusProjectileMotionDefinitions
                 new PixelVelocity<RoomPixels>(SignedEightEight.Zero, SignedEightEight.FromPixelFraction(-1, 16)),
                 new PixelVelocity<RoomPixels>(SignedEightEight.Zero, SignedEightEight.FromPixelFraction(-1, 4)),
                 new PixelVelocity<RoomPixels>(SignedEightEight.Zero, SignedEightEight.FromPixels(-1))),
-        }.ToFrozenDictionary();
+        });
 }

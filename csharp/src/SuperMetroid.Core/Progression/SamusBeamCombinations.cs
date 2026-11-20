@@ -6,8 +6,7 @@ namespace SuperMetroid.Core.Progression;
 public static class SamusBeamCombinations
 {
     /// <summary>The beam components of each combination.</summary>
-    private static readonly FrozenDictionary<SamusBeamCombination, SamusBeamFlags> ComponentsOf =
-        new Dictionary<SamusBeamCombination, SamusBeamFlags>
+    private static readonly IdentityTable<SamusBeamCombination, SamusBeamFlags> ComponentsOf = new(new Dictionary<SamusBeamCombination, SamusBeamFlags>
         {
             [SamusBeamCombination.Power] = SamusBeamFlags.None,
             [SamusBeamCombination.Wave] = SamusBeamFlags.Wave,
@@ -26,7 +25,7 @@ public static class SamusBeamCombinations
             [SamusBeamCombination.SpazerPlasmaIce] = SamusBeamFlags.Spazer | SamusBeamFlags.Plasma | SamusBeamFlags.Ice,
             [SamusBeamCombination.SpazerPlasmaIceWave] =
                 SamusBeamFlags.Spazer | SamusBeamFlags.Plasma | SamusBeamFlags.Ice | SamusBeamFlags.Wave,
-        }.ToFrozenDictionary();
+        });
 
     /// <summary>The combination each set of beam components forms.</summary>
     private static readonly FrozenDictionary<SamusBeamFlags, SamusBeamCombination> CombinationOf =
@@ -40,10 +39,7 @@ public static class SamusBeamCombinations
     extension(SamusBeamCombination combination)
     {
         /// <summary>The beam components.</summary>
-        /// <exception cref="ArgumentOutOfRangeException">The combination is undefined.</exception>
-        public SamusBeamFlags Components => ComponentsOf.TryGetValue(combination, out SamusBeamFlags components)
-            ? components
-            : throw new ArgumentOutOfRangeException(nameof(combination), combination, "Undefined beam combination.");
+        public SamusBeamFlags Components => ComponentsOf[combination];
 
         /// <summary>Whether Wave is a component.</summary>
         public bool HasWave => (combination.Components & SamusBeamFlags.Wave) != SamusBeamFlags.None;

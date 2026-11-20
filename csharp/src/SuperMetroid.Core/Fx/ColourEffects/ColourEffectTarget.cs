@@ -161,12 +161,8 @@ internal abstract record ColourEffectTarget
         public ILitTorizo Torizo { get; } = Ensure.NotNull(Torizo);
 
         /// <inheritdoc/>
-        internal override void Accept(ColourEffectId effect, ColourEffectDefinition definition)
-        {
-            AcceptOnEnemy(effect, definition);
-            if (definition.Condition is not ColourEffectCondition.EndsWhenTorizoDies)
-                throw new InvalidOperationException($"Colour effect {effect} lights a Torizo but watches {definition.Condition}, not its defeat.");
-        }
+        /// <remarks>Each belly glow watches for its Torizo's defeat, as its table is checked once when built (<see cref="ColourEffectSystem.BellyGlowEffects"/>).</remarks>
+        internal override void Accept(ColourEffectId effect, ColourEffectDefinition definition) => AcceptOnEnemy(effect, definition);
 
         /// <inheritdoc/>
         internal override void Show(ShownColourEffectFrame shown, ColourEffectFramesOnOwners owners) =>

@@ -70,15 +70,14 @@ internal sealed class BeamChargeState
     private AnimationPlace ChargePulse { get; set; } = AnimationPlace.StartOfAnimation;
 
     /// <summary>
-    /// Plays the charge pulse on by one update for <paramref name="kind"/> in <paramref name="suit"/> and returns the
-    /// shade it shows; after its last shade it starts again.
+    /// Plays the charge pulse on by one update for <paramref name="kind"/> in <paramref name="suit"/> and shows the shade it
+    /// shows on <paramref name="colours"/>' suit; after its last shade it starts again.
     /// </summary>
-    internal PictureShade PlayChargePulse(SamusChargeKind kind, SamusSuit suit)
+    internal void PlayChargePulse(SamusChargeKind kind, SamusSuit suit, SamusColours colours)
     {
         AnimationPlace place = ChargePulse;
-        PictureShade shown = SamusGlowPlay.NextShade(SamusGlowAnimationDefinitions.ChargePulses[kind][suit], ref place).Shown;
+        SamusGlowPlay.ShowNextShade(SamusGlowAnimationDefinitions.ChargePulses[kind][suit], ref place, colours);
         ChargePulse = place;
-        return shown;
     }
 
     /// <summary>Restarts the charge pulse, so its next update shows its first shade.</summary>

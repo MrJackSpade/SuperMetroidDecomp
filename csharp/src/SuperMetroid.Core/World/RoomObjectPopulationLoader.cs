@@ -55,13 +55,8 @@ internal sealed class RoomObjectPopulationLoader
 
             if (placement.Site == RoomObjectSite.OffTheRoom)
             {
-                // Nothing in the room reaches a coloured door off its grid: all it does is hold its place (#2572).
-                if (placement.Setup is not ColoredDoorSetup)
-                {
-                    throw new InvalidDataException(
-                        $"Room-object population {population.Name} placement {placementIndex} places {objectKind} off the room; " +
-                        "only a coloured door, whose place is all the room observes, is placed there.");
-                }
+                // Nothing in the room reaches a coloured door off its grid, the one setup placed there: all it does is hold
+                // its place (#2572).
                 place.Become(new OffRoomDoorHeldPlaceObject());
                 continue;
             }

@@ -98,9 +98,11 @@ internal sealed class RoomColourEffect
         play.StartAt(ColourEffectAnimations.Definition(framesOf).Animation, place);
     }
 
-    /// <summary>Restarts the effect at the start of its cycle, the phase its animation loops from, due on this turn.</summary>
-    /// <exception cref="InvalidOperationException">The effect's animation does not loop.</exception>
-    internal void RestartCycle() => play.StartAt(Animation, AnimationPlace.Before(Animation.CyclePhase));
+    /// <summary>
+    /// Restarts the effect's animation from its first phase, due on this turn: the landing site's lightning starts its calm
+    /// over (<see cref="ColourEffectCondition.RestartsWhileSamusIsHigh"/>).
+    /// </summary>
+    internal void Restart() => play.StartAt(Animation, AnimationPlace.Before(0));
 
     /// <summary>
     /// Takes the effect's turn: counts one update off its shown frame and, once it is due, plays on to its next frame, which

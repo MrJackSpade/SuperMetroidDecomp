@@ -32,7 +32,7 @@ internal static class TorizoLandingLifetimeVerification
         body.Health=body.Definition.Health;state.Posture=TorizoPosture.Initial;state.CaughtSuperMissile=state.Stunned=state.FaceBlownUp=state.GutBlownUp=false;
         body.Contact = EnemyContact.None;
         body.Processing = EnemyProcessing.Animates;
-        body.Presence = EnemyPresence.None;state.BodyPlayback=new AnimationPlayback<TorizoBodySegment>(TorizoAnimations.StartingWith(TorizoAnimation.FacingLeftFalling), AnimationPlace.Before(TorizoAnimations.StartingWith(TorizoAnimation.FacingLeftFalling).CyclePhase));body.AnimationClock.HoldFor(5);
+        body.Presence = EnemyPresence.None;state.BodyPlayback=new AnimationPlayback<TorizoBodySegment>(TorizoAnimations.StartingWith(TorizoAnimation.FacingLeftFalling), AnimationPlace.Before(((AnimationEnd.Loop)TorizoAnimations.StartingWith(TorizoAnimation.FacingLeftFalling).End).Phase));body.AnimationClock.HoldFor(5);
         body.Position = body.Position.WithWhole(new(128, (ushort)(190-body.Radius.Y)));
         var terrain=new RoomTerrainBlock[256];for(int i=12*16;i<13*16;i++)terrain[i]=RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
         // A flat floor across row 12 of the room's own blocks, which its block sheet pictures.

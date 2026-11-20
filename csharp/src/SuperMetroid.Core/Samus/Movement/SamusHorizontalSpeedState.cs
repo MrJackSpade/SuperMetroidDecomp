@@ -410,7 +410,7 @@ public sealed class SamusHorizontalSpeedState
         SamusSuit suit)
     {
         AnimationPlayback<SamusGlowSegment> cycle = FullBodyGlow.Playback;
-        colours.ShowSuit(SamusGlowPlay.NextShade(SamusGlowAnimationDefinitions.ScrewAttack[suit], ref cycle).Shown);
+        SamusGlowPlay.ShowNextShade(SamusGlowAnimationDefinitions.ScrewAttack[suit], ref cycle, colours);
         FullBodyGlow.GoOnFrom(cycle);
     }
 

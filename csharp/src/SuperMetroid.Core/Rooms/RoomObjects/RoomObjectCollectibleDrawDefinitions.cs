@@ -45,12 +45,11 @@ internal static class RoomObjectCollectibleDrawDefinitions
     };
 
     /// <summary>Each block pair's draw under an item's own picture in each of the picture's two looks (#1994).</summary>
-    internal static readonly IReadOnlyDictionary<CollectibleBlockPairs.Pair, CollectibleLookDraws> BlockPairLooks =
-        new Dictionary<CollectibleBlockPairs.Pair, CollectibleLookDraws>
+    internal static readonly IdentityTable<CollectibleBlockPairs.Pair, CollectibleLookDraws> BlockPairLooks = new(new Dictionary<CollectibleBlockPairs.Pair, CollectibleLookDraws>
         {
             [CollectibleBlockPairs.Pair.First] = new(Primary: D.FirstBlockPairPrimaryLook, Alternate: D.FirstBlockPairAlternateLook),
             [CollectibleBlockPairs.Pair.Second] = new(Primary: D.SecondBlockPairPrimaryLook, Alternate: D.SecondBlockPairAlternateLook),
             [CollectibleBlockPairs.Pair.Third] = new(Primary: D.ThirdBlockPairPrimaryLook, Alternate: D.ThirdBlockPairAlternateLook),
             [CollectibleBlockPairs.Pair.Fourth] = new(Primary: D.FourthBlockPairPrimaryLook, Alternate: D.FourthBlockPairAlternateLook),
-        };
+        });
 }

@@ -108,17 +108,15 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
     /// has no Samus, no equipment, no Torizo and no area, so the start hands the effect none of them. Every effect a screen
     /// starts plays its own animation from its start and watches nothing.
     /// </summary>
+    /// <remarks>
+    /// An effect in a frontend screen's colours starts plainly and watches nothing, as its definition is checked once when
+    /// it is built (<see cref="ColourEffectDefinition"/>).
+    /// </remarks>
     /// <exception cref="InvalidOperationException">
-    /// The effect's start chooses from Samus's equipment or the area's mini-boss, the effect watches a condition, which only
-    /// gameplay has, makes a sound, which no screen's effect makes, or shows colours no frontend screen shows.
+    /// The effect makes a sound, which no screen's effect makes, or shows colours no frontend screen shows.
     /// </exception>
     internal void StartScreen(ColourEffectId effect)
     {
-        ColourEffectDefinition definition = ColourEffectAnimations.Definition(effect);
-        if (definition.Start != ColourEffectStart.Plain)
-            throw new InvalidOperationException($"Colour effect {effect} starts by {definition.Start}, which no frontend screen has.");
-        if (definition.Condition is not ColourEffectCondition.WatchesNothing)
-            throw new InvalidOperationException($"Colour effect {effect} watches {definition.Condition}, which no frontend screen has.");
         if (ColourEffectShownFrames.Steps(effect).Any(beat => beat is AnimationBeat<int, ColourEffectCue>.Event { Raised: ColourEffectCue.QueueSound }))
             throw new InvalidOperationException($"Colour effect {effect} makes a sound, which no frontend screen's effect makes.");
         effects.Add(new RoomColourEffect(effect, framesOf: effect, ColourEffectTarget.ScreenPictures));
@@ -144,13 +142,35 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
     /// </summary>
     /// <exception cref="InvalidOperationException">The glow did not start: its start skips it.</exception>
     internal void StartTorizoBellyGlow(
-        ColourEffectId glow,
+        TorizoBellyGlow glow,
         ILitTorizo torizo,
         SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems)
     {
         // The glow shows on the Torizo that lit it (#2240), as the gunship's shows on the gunship (#1783).
-        if (!TryStart(glow, equippedItems, areaMiniBossDefeated: false, new ColourEffectTarget.OnLitTorizo(torizo)))
+        if (!TryStart(BellyGlowEffects[glow], equippedItems, areaMiniBossDefeated: false, new ColourEffectTarget.OnLitTorizo(torizo)))
             throw new InvalidOperationException($"Torizo belly glow {glow} could not start.");
+    }
+
+    /// <summary>
+    /// The effect each Torizo belly glow plays, each checked once when the table is built to watch for the defeat of the
+    /// Torizo it lights (#2553), so no start hands a Torizo an effect that watches anything else.
+    /// </summary>
+    internal static IdentityTable<TorizoBellyGlow, ColourEffectId> BellyGlowEffects { get; } = WatchingTorizos(new(new Dictionary<TorizoBellyGlow, ColourEffectId>
+    {
+        [TorizoBellyGlow.BombTorizo] = ColourEffectId.BombTorizoBelly,
+        [TorizoBellyGlow.GoldenTorizo] = ColourEffectId.GoldenTorizoBelly,
+    }));
+
+    /// <summary><paramref name="glows"/>, every effect of which watches for its Torizo's defeat.</summary>
+    /// <exception cref="ArgumentException">An effect watches anything else.</exception>
+    private static IdentityTable<TorizoBellyGlow, ColourEffectId> WatchingTorizos(IdentityTable<TorizoBellyGlow, ColourEffectId> glows)
+    {
+        foreach ((TorizoBellyGlow glow, ColourEffectId effect) in glows)
+        {
+            if (ColourEffectAnimations.Definition(effect).Condition != ColourEffectCondition.EndsWhenTorizoDies.Instance)
+                throw new ArgumentException($"Torizo belly glow {glow} plays {effect}, which does not watch for its Torizo's defeat.", nameof(glows));
+        }
+        return glows;
     }
 
     /// <summary>
@@ -213,14 +233,12 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
     /// Runs one update of a frontend screen's colour effects (#1512, #1597, #2199): each effect shows the frame it holds
     /// now, which the screen shades its pictures with, and no owner's colours are written. A screen has no Samus, no
     /// equipment and no area, so it hands its effects no conditions: none of the effects a screen starts
-    /// (<see cref="StartScreen"/>) watches one.
+    /// (<see cref="StartScreen"/>) watches one, as each definition in a screen's colours is checked to when it is built.
     /// </summary>
-    /// <exception cref="InvalidOperationException">
-    /// A frame is shown in colours no frontend screen shows, or an effect watches a condition, which only gameplay has.
-    /// </exception>
+    /// <exception cref="InvalidOperationException">A frame is shown in colours no frontend screen shows.</exception>
     internal void StepScreen()
     {
-        RunTurns(RefuseScreenCondition);
+        RunTurns(static _ => { });
     }
 
     /// <summary>
@@ -311,7 +329,7 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
                 return;
             case ColourEffectCondition.RestartsWhileSamusIsHigh high:
                 if (conditions.SamusY < high.Height)
-                    effect.RestartCycle();
+                    effect.Restart();
                 return;
             case ColourEffectCondition.BurnsSamusInHeat:
                 BurnSamusInHeat(effect, conditions.EquippedItems, conditions.Samus, conditions.FrameCounter);
@@ -319,17 +337,6 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
             default:
                 throw new InvalidOperationException($"Colour effect {effect.Effect} watches undefined condition {effect.Condition}.");
         }
-    }
-
-    /// <summary>
-    /// Checks that a frontend screen's <paramref name="effect"/> watches no condition (#2199): the conditions are Samus's,
-    /// her equipment's, a Torizo's and the area mini-boss's, none of which a screen has.
-    /// </summary>
-    /// <exception cref="InvalidOperationException">The effect watches a condition.</exception>
-    private static void RefuseScreenCondition(RoomColourEffect effect)
-    {
-        if (effect.WatchedCondition is not ColourEffectCondition.WatchesNothing)
-            throw new InvalidOperationException($"Colour effect {effect.Effect} watches {effect.WatchedCondition}, which no frontend screen has.");
     }
 
     /// <summary>

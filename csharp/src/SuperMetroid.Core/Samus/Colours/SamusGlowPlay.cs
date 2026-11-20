@@ -43,14 +43,20 @@ internal static class SamusGlowPlay
     internal static PictureShade? StepToNextShadeGoingOnIn(AnimationPlayer<G, PictureShade, NoAnimationCue> player, G sequence) =>
         Ensure.NotNull(player).StepToNewFrameGoingOnIn(SamusGlowAnimationDefinitions.Animations[sequence]);
 
-    /// <summary>Plays <paramref name="sequence"/> on from <paramref name="place"/> to its next shade, and moves the place past it.</summary>
-    /// <exception cref="InvalidOperationException">The sequence ends instead of showing a shade.</exception>
-    internal static AnimationShown<G, PictureShade>.Frame NextShade(G sequence, ref AnimationPlace place)
+    /// <summary>
+    /// Plays <paramref name="sequence"/> on from <paramref name="place"/> to its next shade, moves the place past it, and shows
+    /// the shade on <paramref name="colours"/>' suit; a sequence at rest or over shows nothing new, the suit keeping its shade.
+    /// </summary>
+    internal static void ShowNextShade(G sequence, ref AnimationPlace place, SamusColours colours)
     {
-        AnimationShown<G, PictureShade> next = SamusGlowAnimationDefinitions.Segments.PlayToNextFrame(
-            SamusGlowAnimationDefinitions.Animations[sequence], ref place, static _ => { });
-        return next as AnimationShown<G, PictureShade>.Frame
-            ?? throw new InvalidOperationException($"The {sequence} sequence reached {next}; it only shows shades.");
+        Ensure.NotNull(colours);
+        SamusGlowAnimationDefinitions.Segments.PlayToNextFrame(SamusGlowAnimationDefinitions.Animations[sequence], ref place, static _ => { })
+            .React(new AnimationShownReactions<G, PictureShade>(
+                Frame: shade => colours.ShowSuit(shade.Shown),
+                HeldFrame: shade => colours.ShowSuit(shade.Shown),
+                Paused: static _ => { },
+                Held: static _ => { },
+                Ended: static _ => { }));
     }
 
     /// <summary>
@@ -58,14 +64,12 @@ internal static class SamusGlowPlay
     /// past it: a playback of another sequence hands it its place (<see cref="AnimationPlayback{TSegment}.GoingOnIn"/>), as
     /// the Screw Attack and Speed Booster glows share theirs and every suit's glow goes on from another's.
     /// </summary>
-    /// <exception cref="InvalidOperationException">The sequence ends instead of showing a shade.</exception>
-    internal static AnimationShown<G, PictureShade>.Frame NextShade(G sequence, ref AnimationPlayback<G> playback)
+    internal static void ShowNextShade(G sequence, ref AnimationPlayback<G> playback, SamusColours colours)
     {
         Animation<G> animation = SamusGlowAnimationDefinitions.Animations[sequence];
         AnimationPlace place = ReferenceEquals(playback.Animation, animation) ? playback.Place : playback.GoingOnIn(animation).Place;
-        AnimationShown<G, PictureShade>.Frame shown = NextShade(sequence, ref place);
+        ShowNextShade(sequence, ref place, colours);
         playback = new(animation, place);
-        return shown;
     }
 
     /// <summary>The playback of <paramref name="sequence"/> before its first shade.</summary>

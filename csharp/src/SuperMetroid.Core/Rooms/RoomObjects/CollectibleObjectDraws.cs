@@ -85,9 +85,7 @@ internal static class CollectibleObjectDraws
             return Family.Of(tank.Of(look));
         if (blockPair is not { } pair)
             throw new InvalidDataException($"Collectible {kind} shows its own picture but took no block pair.");
-        return BlockPairLooks.TryGetValue(pair, out CollectibleLookDraws looks)
-            ? Family.Of(looks.Of(look))
-            : throw new InvalidDataException($"Undefined collectible block pair {pair}.");
+        return Family.Of(BlockPairLooks[pair].Of(look));
     }
 
     /// <summary>The collectibles' family: a block pair's frame writes its terrain alone; every other frame draws as pictured.</summary>

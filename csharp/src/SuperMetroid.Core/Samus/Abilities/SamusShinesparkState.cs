@@ -410,7 +410,7 @@ public sealed class SamusShinesparkState
             ? SamusGlowAnimationDefinitions.StoredShine[suit]
             : SamusGlowAnimationDefinitions.ActiveShinespark[suit];
         AnimationPlayback<SamusGlowSegment> playback = ShineGlow;
-        colours.ShowSuit(SamusGlowPlay.NextShade(glow, ref playback).Shown);
+        SamusGlowPlay.ShowNextShade(glow, ref playback, colours);
         ShineGlow = playback;
         return true;
     }

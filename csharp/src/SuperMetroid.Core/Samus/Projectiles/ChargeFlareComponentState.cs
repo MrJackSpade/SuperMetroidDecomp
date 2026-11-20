@@ -16,12 +16,16 @@ internal sealed class ChargeFlareComponentState
     internal ChargeFlareComponentState(ChargeFlareComponent component)
     {
         Component = component;
-        animation = Animations[component];
+        looping = Animations[component];
+        animation = looping.Animation;
         player = AnimationPlayer<ChargeFlareSegment, ChargeFlarePicture, NoAnimationCue>.StartShowing(Segments, animation, ClearedPictureUpdates);
     }
 
     /// <summary>The component whose animation this is.</summary>
     private ChargeFlareComponent Component { get; }
+
+    /// <summary>The component's animation, which loops.</summary>
+    private readonly LoopingAnimation<ChargeFlareSegment> looping;
 
     /// <summary>The component's animation.</summary>
     private readonly Animation<ChargeFlareSegment> animation;
@@ -46,11 +50,10 @@ internal sealed class ChargeFlareComponentState
     /// The grapple beam's flare when fired: the component restarts at its animation's loop, showing the loop's first picture
     /// for that picture's own updates, and plays on through the loop.
     /// </summary>
-    /// <exception cref="InvalidOperationException">The component's animation has no loop.</exception>
     internal void RestartAtLoop()
     {
         PlaysBackward = false;
-        player.ShowFrom(animation, AnimationPlace.Before(animation.CyclePhase));
+        player.ShowFrom(animation, AnimationPlace.Before(looping.CyclePhase));
     }
 
     /// <summary>

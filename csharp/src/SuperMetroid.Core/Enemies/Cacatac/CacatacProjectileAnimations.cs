@@ -27,7 +27,7 @@ internal static class CacatacProjectileAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at: each spike a still picture (#2275).</summary>
-    internal static IReadOnlyDictionary<CacatacSpikeDirection, Animation<CacatacSpikeDirection>> StartingAt { get; } = new Dictionary<CacatacSpikeDirection, Animation<CacatacSpikeDirection>>
+    internal static IdentityTable<CacatacSpikeDirection, Animation<CacatacSpikeDirection>> StartingAt { get; } = new(new Dictionary<CacatacSpikeDirection, Animation<CacatacSpikeDirection>>
     {
         [P.LeftFacingUp] = new([Segments.Whole(P.LeftFacingUp)], AnimationEnd.Holds),
         [P.UpLeft] = new([Segments.Whole(P.UpLeft)], AnimationEnd.Holds),
@@ -39,14 +39,10 @@ internal static class CacatacProjectileAnimations
         [P.Down] = new([Segments.Whole(P.Down)], AnimationEnd.Holds),
         [P.DownRight] = new([Segments.Whole(P.DownRight)], AnimationEnd.Holds),
         [P.RightFacingDown] = new([Segments.Whole(P.RightFacingDown)], AnimationEnd.Holds),
-    };
+    });
 
     /// <summary>The animation of a spike launched in <paramref name="direction"/>.</summary>
-    /// <exception cref="InvalidDataException"><paramref name="direction"/> is not one of the ten spike directions.</exception>
-    internal static Animation<CacatacSpikeDirection> StartingWith(CacatacSpikeDirection direction) =>
-        StartingAt.TryGetValue(direction, out Animation<CacatacSpikeDirection>? animation)
-            ? animation
-            : throw new InvalidDataException($"Cacatac spike direction {direction} is outside the ten spike directions.");
+    internal static Animation<CacatacSpikeDirection> StartingWith(CacatacSpikeDirection direction) => StartingAt[direction];
 
     /// <summary>A still picture (#2275): <paramref name="frame"/>, held from the update it shows.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue> Hold(EnemyProjectileFrameId frame) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.HeldFrame(frame);

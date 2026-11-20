@@ -126,9 +126,8 @@ internal static class SamusGroundedPoseTransitions
     /// </summary>
     private static SamusPoseId SelectRanIntoWallPose(SamusPoseId sourcePose)
     {
-        return SamusPoseMetadata.ReadAim(sourcePose) is SamusPoseAim.Aiming { Direction: var direction } &&
-            SamusAimedPoseChoiceDefinitions.WallStops.TryGetValue(direction, out SamusPoseId wallStop)
-            ? wallStop
+        return SamusPoseMetadata.ReadAim(sourcePose) is SamusPoseAim.Aiming { Direction: var direction }
+            ? SamusAimedPoseChoiceDefinitions.WallStops[direction]
             : throw new InvalidDataException(
                 $"Pose {sourcePose} aims in no shot direction ({SamusPoseMetadata.ReadAim(sourcePose)}).");
     }

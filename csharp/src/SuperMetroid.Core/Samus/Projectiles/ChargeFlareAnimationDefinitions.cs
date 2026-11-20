@@ -56,13 +56,13 @@ internal static class ChargeFlareAnimationDefinitions
     /// Each component's animation, its phases read from its runs (#2387): the main flare's opening once and then its loop
     /// repeated, each spark ring's cycle repeated.
     /// </summary>
-    internal static IdentityTable<C, Animation<S>> Animations { get; } = new(new Dictionary<C, Animation<S>>
+    internal static IdentityTable<C, LoopingAnimation<S>> Animations { get; } = new(new Dictionary<C, LoopingAnimation<S>>
     {
-        [C.MainFlare] = Animation<S>.LeadingInto(
+        [C.MainFlare] = LoopingAnimation<S>.LeadingInto(
             [Segments.Repeated(S.EmberAndGlow, EmberGlowPlays), Segments.Repeated(S.WhiteBallAndGlow, EmberGlowPlays)],
             [Segments.Repeated(S.WhiteBallAndStarburst, StarburstPlays)]),
-        [C.SlowSparks] = Animation<S>.Looping([Segments.Whole(S.SlowSparks)]),
-        [C.FastSparks] = Animation<S>.Looping([Segments.Whole(S.FastSparks)]),
+        [C.SlowSparks] = LoopingAnimation<S>.Looping([Segments.Whole(S.SlowSparks)]),
+        [C.FastSparks] = LoopingAnimation<S>.Looping([Segments.Whole(S.FastSparks)]),
     });
 
     /// <summary>Shows <paramref name="picture"/> for <paramref name="updates"/> updates.</summary>

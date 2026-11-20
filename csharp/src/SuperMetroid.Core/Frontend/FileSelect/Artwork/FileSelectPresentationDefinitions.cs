@@ -21,7 +21,7 @@ public static class FileSelectPresentationDefinitions
     /// and shines (#2202): turned away, turning, the shine on its visor from the left edge across the middle to the right
     /// edge, a tall sparkle as the shine leaves, and the wide sparkle it settles on.
     /// </summary>
-    internal static readonly IReadOnlyDictionary<FileSelectHelmetFrame, string> HelmetSpriteNames = new Dictionary<FileSelectHelmetFrame, string>
+    internal static readonly IdentityTable<FileSelectHelmetFrame, string> HelmetSpriteNames = new(new Dictionary<FileSelectHelmetFrame, string>
     {
         [FileSelectHelmetFrame.TurnedAway] = "Helmet.TurnedAway",
         [FileSelectHelmetFrame.Turning] = "Helmet.Turning",
@@ -31,7 +31,7 @@ public static class FileSelectPresentationDefinitions
         [FileSelectHelmetFrame.ShineRight] = "Helmet.ShineRight",
         [FileSelectHelmetFrame.SparkleTall] = "Helmet.SparkleTall",
         [FileSelectHelmetFrame.SparkleWide] = "Helmet.SparkleWide",
-    };
+    });
 
     /// <summary>The JSON name of a foreground page.</summary>
     internal static readonly IdentityTable<FileSelectPage, string> PageNames =

@@ -196,9 +196,9 @@ public sealed class SamusProjectileSystem
             if (chargeGlowActive)
             {
                 bool pseudoScrew = samus.HorizontalSpeed.BodyAttack == SamusBodyAttack.PseudoScrew;
-                colours.ShowSuit(Charge.PlayChargePulse(
+                Charge.PlayChargePulse(
                     pseudoScrew ? SamusChargeKind.PseudoScrew : SamusChargeKind.ChargedBeam,
-                    samus.EquippedItems.ShownSuit()));
+                    samus.EquippedItems.ShownSuit(), colours);
                 return false;
             }
 

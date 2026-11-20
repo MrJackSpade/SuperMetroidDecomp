@@ -630,13 +630,12 @@ internal static class ColourEffectAnimations
     }.ToFrozenDictionary();
 
     /// <summary>Each suit's heat pulse, whose frames are the heat phases' looks in that suit.</summary>
-    internal static FrozenDictionary<ColourEffectHeatSuit, ColourEffectId> HeatPulses { get; } =
-        new Dictionary<ColourEffectHeatSuit, ColourEffectId>
+    internal static IdentityTable<ColourEffectHeatSuit, ColourEffectId> HeatPulses { get; } = new(new Dictionary<ColourEffectHeatSuit, ColourEffectId>
     {
         [ColourEffectHeatSuit.Power] = A.PowerSuitHeatPulse,
         [ColourEffectHeatSuit.Varia] = A.VariaSuitHeatPulse,
         [ColourEffectHeatSuit.Gravity] = A.GravitySuitHeatPulse,
-    }.ToFrozenDictionary();
+    });
 
     /// <summary>How <paramref name="effect"/> starts, the colours it shows its frames in, what it watches and how it plays.</summary>
     internal static ColourEffectDefinition Definition(ColourEffectId effect) => Definitions[effect];

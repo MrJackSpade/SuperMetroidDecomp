@@ -88,7 +88,7 @@ internal static class SamusAimedPoseChoiceDefinitions
     /// The pose Samus stops in when she runs into a wall, by the direction she aims: aiming straight up she stands aiming
     /// up, and a straight-down aim stops as a level one.
     /// </summary>
-    internal static IReadOnlyDictionary<Shot, SamusPoseId> WallStops { get; } = new Dictionary<Shot, SamusPoseId>
+    internal static IdentityTable<Shot, SamusPoseId> WallStops { get; } = new(new Dictionary<Shot, SamusPoseId>
     {
         [Shot.UpFacingRight] = SamusPoseId.StandingAimUpRightPose,
         [Shot.UpRight] = SamusPoseId.RanIntoWallAimUpRightPose,
@@ -100,7 +100,7 @@ internal static class SamusAimedPoseChoiceDefinitions
         [Shot.DownLeft] = SamusPoseId.RanIntoWallAimDownLeftPose,
         [Shot.UpLeft] = SamusPoseId.RanIntoWallAimUpLeftPose,
         [Shot.UpFacingLeft] = SamusPoseId.StandingAimUpLeftPose,
-    };
+    });
 
     /// <summary>
     /// The landing a jump or fall that can shoot takes, by the direction it aims; a straight-down aim lands through the

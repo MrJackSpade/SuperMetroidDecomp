@@ -14,12 +14,12 @@ internal static class RoomObjectGrappleBlockDrawDefinitions
     internal readonly record struct DrawnBlock(GrappleBlockDraw Draw, RoomCollisionType Collision);
 
     /// <summary>How the block each draw installs collides.</summary>
-    internal static readonly IReadOnlyDictionary<GrappleBlockDraw, RoomCollisionType> Collisions = new Dictionary<GrappleBlockDraw, RoomCollisionType>
+    internal static readonly IdentityTable<GrappleBlockDraw, RoomCollisionType> Collisions = new(new Dictionary<GrappleBlockDraw, RoomCollisionType>
     {
         [GrappleBlockDraw.Intact] = RoomCollisionType.GrappleBlock,
         [GrappleBlockDraw.Rock] = RoomCollisionType.Air,
         [GrappleBlockDraw.Pieces] = RoomCollisionType.Air,
         [GrappleBlockDraw.Dust] = RoomCollisionType.Air,
         [GrappleBlockDraw.Blank] = RoomCollisionType.Air,
-    };
+    });
 }

@@ -106,15 +106,21 @@ internal static class KraidHeadAnimations
     /// The head entering the pose <paramref name="before"/> stands before, without showing it: the play stands just past
     /// the pose, which holds for its duration.
     /// </summary>
-    /// <exception cref="InvalidOperationException">The play reaches a cry or the animation's end before a pose.</exception>
+    /// <remarks>A play at rest enters no pose, so the head holds what it shows for no update.</remarks>
+    /// <exception cref="InvalidOperationException">The play reaches a cry before a pose.</exception>
     private static KraidHeadEntry Entering(AnimationPlayback<KraidHeadSegment> before)
     {
         AnimationPlace place = before.Place;
         AnimationShown<KraidHeadSegment, KraidHeadFrame> entered = Segments.PlayToNextFrame(before.Animation, ref place,
             cue => throw new InvalidOperationException($"Kraid's head enters a pose with no {cue} before it."));
-        return entered is AnimationShown<KraidHeadSegment, KraidHeadFrame>.Frame pose
-            ? new(before with { Place = place }, pose.Duration)
-            : throw new InvalidOperationException($"Kraid's head enters no pose where its play reaches {entered}.");
+        int delay = 0;
+        entered.React(new AnimationShownReactions<KraidHeadSegment, KraidHeadFrame>(
+            Frame: pose => delay = pose.Duration,
+            HeldFrame: static _ => { },
+            Paused: pause => delay = pause.Duration,
+            Held: static _ => { },
+            Ended: static _ => { }));
+        return new(before with { Place = place }, delay);
     }
 
     /// <summary>

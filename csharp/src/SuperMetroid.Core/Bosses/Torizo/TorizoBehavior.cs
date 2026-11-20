@@ -295,7 +295,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             case TorizoCue.Signal { Kind: TorizoCueKind.StartBombTorizoFight }:
                 RequestTorizoMusic(MusicRequest.SelectTrack(MusicTrack.RidleyAndDraygonBattle));
                 // The fight starts the belly's glow, which watches this Torizo and ends once it dies.
-                _passEvents.Publish(new TorizoBellyGlowRequest(ColourEffectId.BombTorizoBelly, inputs.Torizo));
+                _passEvents.Publish(new TorizoBellyGlowRequest(TorizoBellyGlow.BombTorizo, inputs.Torizo));
                 return null;
 
             case TorizoCue.Signal { Kind: TorizoCueKind.LockAnimation }:
@@ -430,7 +430,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             case TorizoCue.Signal { Kind: TorizoCueKind.StartGoldenTorizoFight }:
                 RequestTorizoMusic(MusicRequest.SelectTrack(MusicTrack.RidleyAndDraygonBattle));
                 torizo.Radius = TorizoDecisionDefinitions.GoldenFightRadius;
-                _passEvents.Publish(new TorizoBellyGlowRequest(ColourEffectId.GoldenTorizoBelly, inputs.Torizo));
+                _passEvents.Publish(new TorizoBellyGlowRequest(TorizoBellyGlow.GoldenTorizo, inputs.Torizo));
                 return null;
 
             case TorizoCue.Signal { Kind: TorizoCueKind.ClearCaughtSuperMissile }:

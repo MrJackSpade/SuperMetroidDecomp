@@ -80,11 +80,11 @@ public static class BlockAnimationLoops
     /// The frames the loop of <paramref name="animation"/> shows, in order, each with the passes it is shown for: what the
     /// import pictures under each frame's name.
     /// </summary>
+    /// <remarks>Every beat of a loop is a timed frame, as <see cref="OwnTimedFrames"/> checks once when the segments are built.</remarks>
     /// <exception cref="InvalidOperationException"><paramref name="animation"/> is undefined or has no loop.</exception>
     public static IReadOnlyList<TimedArtworkFrame> Frames(BlockAnimation animation) =>
-        [.. Segments.Beats(Require(animation)).Select(beat => beat is AnimationBeat<ArtworkFrame, NoAnimationCue>.Frame frame
-            ? new TimedArtworkFrame(frame.Shown, frame.Duration)
-            : throw new InvalidOperationException($"The {animation} loop holds a beat that is not a timed frame."))];
+        [.. Segments.Beats(Require(animation)).OfType<AnimationBeat<ArtworkFrame, NoAnimationCue>.Frame>()
+            .Select(frame => new TimedArtworkFrame(frame.Shown, frame.Duration))];
 
     /// <summary>
     /// Whether the loop of <paramref name="animation"/> waits for the area's boss to be defeated before its first frame

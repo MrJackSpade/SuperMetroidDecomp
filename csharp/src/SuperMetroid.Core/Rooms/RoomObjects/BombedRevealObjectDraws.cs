@@ -8,7 +8,5 @@ internal static class BombedRevealObjectDraws
     /// <summary>The three reveals, pictured by the installed reveals and walls.</summary>
     internal static RoomObjectDrawFamily<RoomObjectBombedRevealDraw> Family { get; } =
         new RoomObjectDrawFamily<RoomObjectBombedRevealDraw>("reveal and wall",
-            frame => RoomBlockShapes.Block(Collisions.TryGetValue(frame, out var collision)
-                ? collision
-                : throw new InvalidOperationException($"Undefined bombed-reveal draw {frame}.")));
+            frame => RoomBlockShapes.Block(Collisions[frame]));
 }

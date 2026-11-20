@@ -15,9 +15,6 @@ internal static class RidleyGrabs
             ? RidleySamusInteractionDefinitions.MorphedReleaseIntangibilityFrames
             : RidleySamusInteractionDefinitions.OrdinaryReleaseIntangibilityFrames;
 
-    /// <summary>The policy of <paramref name="movement"/>; no pose selects any other value, so one fails loudly.</summary>
-    private static GrabPolicy Policy(SamusMovementType movement) =>
-        RidleySamusInteractionDefinitions.GrabPolicies.TryGetValue(movement, out GrabPolicy policy)
-            ? policy
-            : throw new InvalidOperationException($"Undefined SamusMovementType {movement}.");
+    /// <summary>The policy of <paramref name="movement"/>.</summary>
+    private static GrabPolicy Policy(SamusMovementType movement) => RidleySamusInteractionDefinitions.GrabPolicies[movement];
 }

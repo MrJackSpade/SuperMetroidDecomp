@@ -23,9 +23,9 @@ public abstract record ColourEffectCondition
     }
 
     /// <summary>
-    /// While Samus stands higher in the room than <see cref="Height"/>, the effect restarts its cycle, the phase its
-    /// animation loops from, on every update, so it shows the cycle's first frame each update instead of its flashes: the
-    /// Crateria lightning stays calm while Samus is high on the surface.
+    /// While Samus stands higher in the room than <see cref="Height"/>, the effect restarts its animation on every update, so
+    /// it shows its first frame, the calm the lightning loops from, each update instead of its flashes: the Crateria
+    /// lightning stays calm while Samus is high on the surface.
     /// </summary>
     /// <param name="Height">The room height, in whole pixels, Samus must be above.</param>
     public sealed record RestartsWhileSamusIsHigh(int Height) : ColourEffectCondition;

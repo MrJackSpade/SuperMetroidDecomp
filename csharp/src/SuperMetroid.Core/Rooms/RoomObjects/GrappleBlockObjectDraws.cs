@@ -17,9 +17,7 @@ internal static class GrappleBlockObjectDraws
     /// <summary>
     /// How the block a draw installs collides: the Grapple block, then the breaking and blank blocks as air.
     /// </summary>
-    /// <exception cref="InvalidOperationException">The frame is undefined.</exception>
-    internal static RoomCollisionType Collision(GrappleBlockDraw frame) =>
-        Collisions.TryGetValue(frame, out RoomCollisionType value) ? value : throw new InvalidOperationException($"Undefined {nameof(GrappleBlockDraw)} {frame}.");
+    internal static RoomCollisionType Collision(GrappleBlockDraw frame) => Collisions[frame];
 
     /// <summary>The block <paramref name="frame"/> draws and how it collides.</summary>
     internal static DrawnBlock Drawn(GrappleBlockDraw frame) => new(frame, Collision(frame));

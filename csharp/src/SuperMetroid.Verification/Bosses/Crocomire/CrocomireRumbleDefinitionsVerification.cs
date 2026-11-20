@@ -82,7 +82,7 @@ internal static class CrocomireRumbleDefinitionsVerification
         var state = new CrocomireEnemyState(body)
         {
             DeathStage = CrocomireDeathStages.Only<CrocomireDeathStage.RumbleHiddenWall>(),
-            RumbleOscillation = 0,
+            RumbleOscillation = ListStep<CrocomireRumbleOscillation>.FirstOf(CrocomireRumbleDefinitions.Oscillations),
             RumbleTowardExtreme = false,
         };
         state.JoinFixtureTongue(enemies.Places.InUpdateOrder[1]);
@@ -92,7 +92,7 @@ internal static class CrocomireRumbleDefinitionsVerification
 
         // The reference model keeps the cartridge's words; production keeps signed pixel quantities, which the
         // comparisons read back as words.
-        ushort referenceIndex = checked((ushort)CrocomireNativeWords.RumbleCursor(state.RumbleOscillation, state.RumbleTowardExtreme));
+        ushort referenceIndex = checked((ushort)CrocomireNativeWords.RumbleCursor(OscillationPlace(state), state.RumbleTowardExtreme));
         ushort referenceY = unchecked((ushort)death.RumbleYOffset);
         ushort referenceCooldown = 10;
         ushort referenceDelta = 1;
@@ -114,7 +114,7 @@ internal static class CrocomireRumbleDefinitionsVerification
             // melt is over by then and nothing reads either again, so production keeps neither the marker nor the place.
             if (state.DeathStage.Entry is CrocomireDeathStage.RumbleHiddenWall)
             {
-                AssertEqual(referenceIndex, CrocomireNativeWords.RumbleCursor(state.RumbleOscillation, state.RumbleTowardExtreme),
+                AssertEqual(referenceIndex, CrocomireNativeWords.RumbleCursor(OscillationPlace(state), state.RumbleTowardExtreme),
                     $"Crocomire rumble frame {frames} target");
                 AssertEqual(referenceY, unchecked((ushort)death.RumbleYOffset),
                     $"Crocomire rumble frame {frames} Y offset");
@@ -125,7 +125,7 @@ internal static class CrocomireRumbleDefinitionsVerification
             {
                 AssertEqual(referenceCooldown, death.RumbleRepeatsLeft.UpdatesLeft,
                     $"Crocomire rumble frame {frames} repeats left");
-                AssertEqual(referenceDelta, CrocomireRumbleDefinitions.Oscillations[state.RumbleOscillation].Speed,
+                AssertEqual(referenceDelta, (state.RumbleOscillation ?? throw new InvalidOperationException("The rumble has finished.")).Entry.Speed,
                     $"Crocomire rumble frame {frames} speed");
             }
             AssertEqual(referenceDeathIndex, CrocomireNativeWords.DeathStages.Word(state.DeathStage),
@@ -210,4 +210,8 @@ internal static class CrocomireRumbleDefinitionsVerification
         Suite(nameof(VerifyCrocomireRumbleDefinitions), () => VerifyCrocomireRumbleDefinitions(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
         return 0;
     }
+
+    /// <summary>The place of the oscillation under way, or the oscillations' count once the last has finished, as the native cursor counts it.</summary>
+    private static int OscillationPlace(CrocomireEnemyState state) =>
+        state.RumbleOscillation is { } step ? step.Place : CrocomireRumbleDefinitions.Oscillations.Length;
 }

@@ -72,7 +72,7 @@ internal sealed class CrocomireSkeleton
         body.Contact = body.Contact.Replace(EnemyContact.SolidToSamus | EnemyContact.IgnoresSamus, EnemyContact.IgnoresSamus);
         state.Tongue.Contact = state.Tongue.Contact.With(EnemyContact.IgnoresSamus);
         state.Tongue.Presence = state.Tongue.Presence.With(EnemyPresence.Hidden);
-        state.RumbleOscillation = 0;
+        state.RumbleOscillation = ListStep<CrocomireRumbleOscillation>.FirstOf(CrocomireRumbleDefinitions.Oscillations);
         state.RumbleTowardExtreme = false;
 
         CrocomireDeathState death = state.Death;
@@ -87,7 +87,7 @@ internal sealed class CrocomireSkeleton
     internal void RunCrocomireWallRumble(CrocomireEnemyState state)
     {
         CrocomireDeathState death = state.Death;
-        if (state.RumbleOscillation == CrocomireRumbleDefinitions.Oscillations.Length)
+        if (state.RumbleOscillation is not { } underWay)
         {
             state.DeathStageWait.LastFor(CrocomireSkeletonDefinitions.SpikedWallUpdates);
             state.Colours.ShowWallSpikes();
@@ -97,7 +97,7 @@ internal sealed class CrocomireSkeleton
             return;
         }
 
-        CrocomireRumbleOscillation oscillation = CrocomireRumbleDefinitions.Oscillations[state.RumbleOscillation];
+        CrocomireRumbleOscillation oscillation = underWay.Entry;
         int target = state.RumbleTowardExtreme ? oscillation.ExtremeOffset : oscillation.ReturnOffset;
         if (death.RumbleYOffset == target)
         {
@@ -116,9 +116,9 @@ internal sealed class CrocomireSkeleton
                 return;
             }
 
-            state.RumbleOscillation++;
-            if (state.RumbleOscillation < CrocomireRumbleDefinitions.Oscillations.Length)
-                death.RumbleRepeatsLeft = UpdateCountdown.For(CrocomireRumbleDefinitions.Oscillations[state.RumbleOscillation].Repeats);
+            state.RumbleOscillation = underWay.Following;
+            if (state.RumbleOscillation is { } next)
+                death.RumbleRepeatsLeft = UpdateCountdown.For(next.Entry.Repeats);
             return;
         }
 

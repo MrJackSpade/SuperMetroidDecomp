@@ -67,8 +67,8 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = EnemyAnimationPlayback.Start(place, HibashiAnimations.StartingWith(HibashiSegment.Flame));
         state.SpawnY = place.Position.Y.Whole;
 
-        // The visible part must never participate through its definition's radius.
-        // Its following part receives the dynamic radius from animation cues.
+        // The visible part must never participate through its definition's radius: its width is a real zero, which the
+        // overlap tests measure as they measure any width. Its following part receives the dynamic radius from animation cues.
         place.Radius = place.Radius.WithX(0);
     }
 

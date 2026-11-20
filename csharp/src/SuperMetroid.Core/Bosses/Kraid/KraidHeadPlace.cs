@@ -6,5 +6,8 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// holds there.
 /// </summary>
 /// <param name="Animation">The head animation, named by the segment it starts at.</param>
-/// <param name="Step">The animation's step the play reaches next.</param>
+/// <param name="Step">
+/// The animation's step the play reaches next, a count of the steps it has passed: a play that has passed every step,
+/// done or holding there, has passed the animation's step count of them.
+/// </param>
 internal readonly record struct KraidHeadPlace(KraidHeadSegment Animation, int Step);

@@ -455,6 +455,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     private void PlaceLiquid(Position16<RoomPixels> camera, Offset16<OverlayPixels> surfaceDrift)
     {
         waterSurfaceScreenY = SurfaceScreenLine(camera);
+        // A surface above the room's top is a negative room line, where the game's below-zero check finds no surface.
         liquidSurfaceLine = Surface is >= 0 ? waterSurfaceScreenY : null;
         Scroll = (camera.AsOverlayScroll() + surfaceDrift).WithY(0);
     }

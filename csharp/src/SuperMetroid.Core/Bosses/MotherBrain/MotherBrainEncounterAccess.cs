@@ -26,9 +26,9 @@ internal sealed class MotherBrainEncounterAccess
     internal void RequestMuralRowReveal(MotherBrainMuralRow row) =>
         _passEvents.Publish(new MotherBrainMuralRowReveal(row));
 
-    /// <summary>Starts the brain animation that begins at <paramref name="segment"/>.</summary>
+    /// <summary>Starts her head's own brain animation that begins at <paramref name="segment"/>.</summary>
     internal static void SetMotherBrainBrainAnimation(MotherBrainEnemyState state, MotherBrainHeadSegment segment) =>
-        state.Brain.Start(MotherBrainAnimations.HeadStartingWith(segment));
+        state.Brain.Start(segment);
 
     /// <summary>Restarts the body enemy on <paramref name="segment"/> with its initial timer.</summary>
     internal static void SetMotherBrainBodyAnimation(MotherBrainEnemyState state, MotherBrainBodySegment segment)

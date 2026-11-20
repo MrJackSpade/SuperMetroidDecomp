@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 
@@ -20,62 +19,30 @@ public sealed class MotherBrainBrainAnimation
     /// <summary>The picture the brain shows, or null while her brain is not live and not drawn.</summary>
     public EnemyFrameId? Shown => Playback?.Shown;
 
-    /// <summary>
-    /// Starts <paramref name="animation"/>: one that opens with a picture shows it at once, the start counting as its first
-    /// update; one that opens with a cue shows the picture after the cue, and plays the cue and that picture at her brain's
-    /// next draw.
-    /// </summary>
-    internal void Start(Animation<MotherBrainHeadSegment> animation)
-    {
-        var started = new MotherBrainBrainPlayback(
-            new AnimationPlayback<MotherBrainHeadSegment>(Ensure.NotNull(animation), AnimationPlace.StartOfAnimation),
-            MotherBrainAnimations.HeadSegments.FirstFrameShown(animation));
-        Playback = started;
-        if (MotherBrainBrainCadence.ShowsOpeningPictureAtStart(MotherBrainAnimations.HeadSegments.OpensWithFrame(animation)))
-            Playback = Step(started, cue => throw new InvalidOperationException($"Mother Brain's brain animation raised {cue} before its opening picture."));
-        else
-            Clock.StepOnNextUpdate();
-    }
+    /// <summary>Starts her head's own animation <paramref name="segment"/>, whose cues act on her encounter.</summary>
+    internal void Start(MotherBrainHeadSegment segment) => Playback = MotherBrainBrainPlayback.StartingHead(segment, Clock);
+
+    /// <summary>Starts <paramref name="lateFight"/>'s volley at Samus at <paramref name="segment"/>, whose own cues act on that late fight.</summary>
+    internal void Start(MotherBrainLateFightState lateFight, MotherBrainLateFightHeadSegment segment) =>
+        Playback = MotherBrainBrainPlayback.StartingLateFight(lateFight, segment, Clock);
+
+    /// <summary>Starts her volley at the arrived <paramref name="baby"/> at <paramref name="segment"/>, whose own cues act on the Baby.</summary>
+    internal void Start(BabyMetroidCutsceneState baby, MotherBrainBabyAttackSegment segment) =>
+        Playback = MotherBrainBrainPlayback.StartingBabyAttack(baby, segment, Clock);
 
     /// <summary>
     /// Runs the brain animation at her brain's draw and returns the picture it shows, or null while her brain is not live:
     /// the picture shown holds for its updates, then the animation plays on to its next picture, carrying out each cue it
-    /// passes in <paramref name="react"/>. With time frozen it only reads the picture shown.
+    /// passes in <paramref name="cues"/>. With time frozen it only reads the picture shown.
     /// </summary>
-    internal EnemyFrameId? AdvanceAtDraw(bool timeIsFrozen, Func<MotherBrainHeadCue, AnimationContinuation<MotherBrainHeadSegment>?> react)
+    internal EnemyFrameId? AdvanceAtDraw(bool timeIsFrozen, IMotherBrainBrainCues cues)
     {
         if (Playback is not { } playback)
             return null;
         if (!MotherBrainBrainCadence.StepsAtDraw(timeIsFrozen) || !Clock.Expire())
             return playback.Shown;
-        MotherBrainBrainPlayback stepped = Step(playback, react);
+        MotherBrainBrainPlayback stepped = playback.Step(Clock, cues);
         Playback = stepped;
         return stepped.Shown;
-    }
-
-    /// <summary>
-    /// Plays the animation on from <paramref name="playback"/> to its next picture, shows it for the updates it states or
-    /// for good, and returns where the animation then stands with the picture it shows.
-    /// </summary>
-    private MotherBrainBrainPlayback Step(MotherBrainBrainPlayback playback, Func<MotherBrainHeadCue, AnimationContinuation<MotherBrainHeadSegment>?> react)
-    {
-        Animation<MotherBrainHeadSegment> animation = playback.Animation.Animation;
-        AnimationPlace place = playback.Animation.Place;
-        AnimationShown<MotherBrainHeadSegment, EnemyFrameId> shown = MotherBrainAnimations.HeadSegments.PlayToNextFrame(ref animation, ref place, react);
-        var advanced = new AnimationPlayback<MotherBrainHeadSegment>(animation, place);
-        switch (shown)
-        {
-            case AnimationShown<MotherBrainHeadSegment, EnemyFrameId>.Frame frame:
-                Clock.Show(frame.Duration);
-                return new MotherBrainBrainPlayback(advanced, frame.Shown);
-            case AnimationShown<MotherBrainHeadSegment, EnemyFrameId>.HeldFrame held:
-                Clock.ShowForGood();
-                return new MotherBrainBrainPlayback(advanced, held.Shown);
-            case AnimationShown<MotherBrainHeadSegment, EnemyFrameId>.Held:
-                Clock.Stop();
-                return playback with { Animation = advanced };
-            default:
-                throw new InvalidOperationException($"Mother Brain's brain animations have no {shown} beat.");
-        }
     }
 }

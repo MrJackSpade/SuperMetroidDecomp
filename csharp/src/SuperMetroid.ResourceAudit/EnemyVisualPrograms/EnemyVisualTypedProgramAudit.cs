@@ -184,6 +184,10 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(MotherBrainAnimations), "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainAnimations.cs");
         RequireSegmentFrames(MotherBrainAnimations.HeadSegments, EnemyFrameCartridgeLookupTooling.Word, MotherBrainVisualToolingDefinitions.Bank,
             nameof(MotherBrainAnimations), "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainAnimations.cs");
+        RequireSegmentFrames(MotherBrainAnimations.LateFightSegments, EnemyFrameCartridgeLookupTooling.Word, MotherBrainVisualToolingDefinitions.Bank,
+            nameof(MotherBrainAnimations), "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainAnimations.cs");
+        RequireSegmentFrames(MotherBrainAnimations.BabyAttackSegments, EnemyFrameCartridgeLookupTooling.Word, MotherBrainVisualToolingDefinitions.Bank,
+            nameof(MotherBrainAnimations), "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainAnimations.cs");
         RequireSegmentFrames(MotherBrainBabyAnimations.Segments, frame => BabyMetroidVisualToolingDefinitions.Spritemap(frame), MotherBrainVisualToolingDefinitions.Bank,
             nameof(MotherBrainBabyAnimations), "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainAnimations.cs");
         RequireSegmentFrames(MotherBrainTubeAnimations.Segments, EnemyFrameCartridgeLookupTooling.Word, MotherBrainVisualToolingDefinitions.Bank,

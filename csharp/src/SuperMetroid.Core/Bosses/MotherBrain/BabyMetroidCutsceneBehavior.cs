@@ -54,7 +54,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
     /// </summary>
     internal void SpawnMotherBrainBabyMetroid(MotherBrainRainbowBeamAttackSequence lateFight)
     {
-        if (Ensure.NotNull(lateFight).Baby is not BabyMetroidArrival.Awaited)
+        if (Ensure.NotNull(lateFight).State.Baby is not BabyMetroidArrival.Awaited)
         {
             throw new InvalidOperationException(
                 "Mother Brain attempted to allocate the cutscene Baby more than once.");

@@ -66,20 +66,13 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     /// <summary>The encounter the sequence runs, the one owner of the state its phases read and write.</summary>
     internal MotherBrainEnemyState Encounter { get; }
 
-    /// <summary>
-    /// The Baby Metroid of her late fight (#2471): awaited until the final beam's spawn builds it in its place in the room's
-    /// enemies (<see cref="BabyArrives"/>), from which on its own turn it latches on, drains, heals Samus and dies; her
-    /// brain's attacks on it aim at it.
-    /// </summary>
-    public BabyMetroidArrival Baby { get; private set; } = BabyMetroidArrival.NotYet;
-
     /// <summary>Builds the late fight's Baby in <paramref name="place"/>, which the final beam's spawn gave it, and holds it as arrived.</summary>
     /// <param name="place">The Baby's place in the room's enemies.</param>
     /// <returns>The arrived Baby.</returns>
     internal BabyMetroidCutsceneState BabyArrives(RoomEnemyPlace place)
     {
         var baby = new BabyMetroidCutsceneState(this, place);
-        Baby = new BabyMetroidArrival.Arrived(baby);
+        State.BabyHasArrived(baby);
         return baby;
     }
 
@@ -94,7 +87,6 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     /// </summary>
     public void StartAttackCycle()
     {
-        State.BabyMetroidSpawned = false;
         RainbowAttack.BeginExtendingNeckForAttack();
     }
 
@@ -123,25 +115,12 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         Encounter.RevivalPhase = MotherBrainRevivalPhase.ExecuteFinalBabyAttack;
 
     /// <summary>
-    /// Counts one more four-ring attack of her head's on the Baby, up to the most it counts
-    /// (<see cref="MotherBrainLateFightDefinitions.BabyAttackCountLimit"/>).
-    /// </summary>
-    internal void IncrementLiveBabyMetroidAttackCounter() =>
-        Revival.BabyMetroidAttackCounter = Math.Min(Revival.BabyMetroidAttackCounter + 1, MotherBrainLateFightDefinitions.BabyAttackCountLimit);
-
-    /// <summary>Starts her head's count of attacks on the Baby again from none.</summary>
-    internal void ResetLiveBabyMetroidAttackCounter() => Revival.BabyMetroidAttackCounter = 0;
-
-    /// <summary>
     /// The Baby, dying, starts Mother Brain's recovery for her third phase; she recovers from her next update on, not on the
     /// Baby's turn, since the room's enemies take their turns in their listed order.
     /// </summary>
     public void BeginPhase3RecoveryFromBabyCutscene()
     {
         Encounter.Phase3FightPhase = MotherBrainPhase3FightPhase.RecoverMakeSomeDistance;
-
-        // The Baby is gone, so her head's attack choice no longer counts it as come.
-        State.BabyMetroidSpawned = false;
     }
 
     /// <summary>

@@ -237,8 +237,9 @@ internal sealed class MotherBrainHead
     /// brain that shows a picture counts its own shake down at the same draw (#2469).
     /// </summary>
     /// <remarks>
-    /// Once her late fight has begun its own cues act on it (#2471): her attacks on the Baby count, aim at and cry at the
-    /// Baby it made.
+    /// Her late fight's volleys carry what their own cues act on (#2471, #2554): her volley at Samus the late fight, whose
+    /// count of attacks on the Baby it clears and whose cry it reads; her volley at the Baby the arrived Baby it counts,
+    /// aims at and cries at.
     /// </remarks>
     internal EnemyFrameId? AdvanceMotherBrainBrain(MotherBrainEnemyState state, SamusState samus) =>
         PlayMotherBrainBrain(state, samus)?.Frame;
@@ -249,14 +250,7 @@ internal sealed class MotherBrainHead
     /// </summary>
     private MotherBrainBrainPicture? PlayMotherBrainBrain(MotherBrainEnemyState state, SamusState samus)
     {
-        EnemyFrameId? shown = state.Brain.AdvanceAtDraw(_frameContext.TimeIsFrozen, cue => (state.RainbowBeamSequence switch
-                {
-                    { Baby: BabyMetroidArrival.Arrived arrived } lateFight => ApplyBabyAttackHeadCue(lateFight, arrived.Baby, samus, cue),
-                    { } lateFight => ApplyLateFightHeadCue(lateFight, samus, cue),
-                    null => ApplyMotherBrainHeadCue(state, samus, cue),
-                }) is { } segment
-            ? new AnimationContinuation<MotherBrainHeadSegment>(MotherBrainAnimations.HeadStartingWith(segment), AnimationPlace.StartOfAnimation)
-            : null);
+        EnemyFrameId? shown = state.Brain.AdvanceAtDraw(_frameContext.TimeIsFrozen, new BrainCues(this, state, samus));
         return shown is { } frame ? new MotherBrainBrainPicture(frame, state.BrainShake.Step()) : null;
     }
 
@@ -265,112 +259,138 @@ internal sealed class MotherBrainHead
     /// <param name="Shook">Whether her brain's shake was still shaking when the picture counted an update off it.</param>
     private readonly record struct MotherBrainBrainPicture(EnemyFrameId Frame, bool Shook);
 
-    /// <summary>
-    /// Carries out one event of a brain animation in her late fight once the Baby has arrived: her attacks on the Baby aim
-    /// at <paramref name="baby"/>, and every other cue acts as in her late fight before it arrived.
-    /// </summary>
-    /// <returns>The segment whose animation a random hold or drool event continues at; otherwise null.</returns>
-    private MotherBrainHeadSegment? ApplyBabyAttackHeadCue(MotherBrainRainbowBeamAttackSequence lateFight, BabyMetroidCutsceneState baby,
-        SamusState samus, MotherBrainHeadCue cue)
+    /// <summary>The cues of her brain's draw over <paramref name="state"/>, which read <paramref name="samus"/>.</summary>
+    /// <param name="head">The head whose projectiles, sounds and chances the cues use.</param>
+    /// <param name="state">Her encounter, on which every brain animation's shared cues act.</param>
+    /// <param name="samus">Samus, at whom her head aims.</param>
+    private sealed class BrainCues(MotherBrainHead head, MotherBrainEnemyState state, SamusState samus) : IMotherBrainBrainCues
     {
-        if (cue is not MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.AimOnionRingsAtBabyMetroid })
-            return ApplyLateFightHeadCue(lateFight, samus, cue);
-        AimMotherBrainOnionRingsAt(lateFight.Encounter, baby.Position.Whole);
-        return null;
-    }
-
-    /// <summary>
-    /// Carries out one event of a brain animation in her late fight: the cues that count and cry her attacks on the Baby act
-    /// on <paramref name="lateFight"/>, and every other cue as before it began.
-    /// </summary>
-    /// <returns>The segment whose animation a random hold or drool event continues at; otherwise null.</returns>
-    private MotherBrainHeadSegment? ApplyLateFightHeadCue(MotherBrainRainbowBeamAttackSequence lateFight, SamusState samus, MotherBrainHeadCue cue)
-    {
-        switch (cue)
+        /// <inheritdoc/>
+        public MotherBrainHeadSegment? RunHeadCue(MotherBrainBrainCue<MotherBrainHeadChanceCueKind> cue)
         {
-            case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.CountBabyMetroidAttack }:
-                lateFight.IncrementLiveBabyMetroidAttackCounter();
-                return null;
-            case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.ResetBabyMetroidAttacks }:
-                lateFight.ResetLiveBabyMetroidAttackCounter();
-                return null;
-            case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.QueueBabyMetroidAttackSound }:
-                // The attack cry step skips the attack cry once the attack counter reaches eleven.
-                if (lateFight.Revival.BabyMetroidAttackCounter != MotherBrainFightDefinitions.SilentBabyAttackCount)
-                    _audio.QueueEnemySound(MotherBrainSoundDefinitions.AttackCry, priority: SoundRequestPriority.Normal);
-                return null;
-            default:
-                return ApplyMotherBrainHeadCue(lateFight.Encounter, samus, cue);
+            switch (cue)
+            {
+                case MotherBrainBrainCue<MotherBrainHeadChanceCueKind>.Shared shared:
+                    head.ApplyMotherBrainHeadCue(state, samus, shared.Cue);
+                    return null;
+                // The neutral hold holds the phase-two neutral pose again on fifteen samples in sixteen.
+                case MotherBrainBrainCue<MotherBrainHeadChanceCueKind>.Own { Kind: MotherBrainHeadChanceCueKind.MaybeHoldNeutralPhase2 }:
+                    return MotherBrainRandomDefinitions.NeutralPhase2Holds.IsTakenBy(head._room.Random.Read()) ? MotherBrainHeadSegment.NeutralPhase2Hold : null;
+                // The hold's chance alone decides whether the phase-three pose holds again.
+                case MotherBrainBrainCue<MotherBrainHeadChanceCueKind>.Own { Kind: MotherBrainHeadChanceCueKind.MaybeHoldNeutralPhase3 }:
+                    return head.HoldsNeutralPhase3Again() ? MotherBrainHeadSegment.NeutralPhase3Hold : null;
+                // The drool hold returns its destination: only the burst's chance bursts into more drool; every other sample
+                // keeps the one-frame loop.
+                case MotherBrainBrainCue<MotherBrainHeadChanceCueKind>.Own { Kind: MotherBrainHeadChanceCueKind.MaybeDroolAgain }:
+                    return MotherBrainRandomDefinitions.DroolBursts.IsTakenBy(head._room.Random.Read()) ? MotherBrainHeadSegment.DyingDroolBurst : null;
+                default:
+                    throw new InvalidOperationException($"Undefined Mother Brain head cue {cue}.");
+            }
+        }
+
+        /// <inheritdoc/>
+        public MotherBrainLateFightHeadSegment? RunLateFightCue(MotherBrainLateFightState lateFight, MotherBrainBrainCue<MotherBrainLateFightCueKind> cue)
+        {
+            switch (cue)
+            {
+                case MotherBrainBrainCue<MotherBrainLateFightCueKind>.Shared shared:
+                    head.ApplyMotherBrainHeadCue(lateFight.Encounter, samus, shared.Cue);
+                    return null;
+                case MotherBrainBrainCue<MotherBrainLateFightCueKind>.Own { Kind: MotherBrainLateFightCueKind.ResetBabyMetroidAttacks }:
+                    lateFight.ResetBabyMetroidAttacks();
+                    return null;
+                case MotherBrainBrainCue<MotherBrainLateFightCueKind>.Own { Kind: MotherBrainLateFightCueKind.QueueBabyMetroidAttackSound }:
+                    head.QueueBabyMetroidAttackCry(lateFight);
+                    return null;
+                case MotherBrainBrainCue<MotherBrainLateFightCueKind>.Own { Kind: MotherBrainLateFightCueKind.MaybeHoldNeutralPhase3 }:
+                    return head.HoldsNeutralPhase3Again() ? MotherBrainLateFightHeadSegment.NeutralPhase3Hold : null;
+                default:
+                    throw new InvalidOperationException($"Undefined Mother Brain late-fight cue {cue}.");
+            }
+        }
+
+        /// <inheritdoc/>
+        public MotherBrainBabyAttackSegment? RunBabyAttackCue(BabyMetroidCutsceneState baby, MotherBrainBrainCue<MotherBrainBabyAttackCueKind> cue)
+        {
+            MotherBrainLateFightState lateFight = baby.LateFight.State;
+            switch (cue)
+            {
+                case MotherBrainBrainCue<MotherBrainBabyAttackCueKind>.Shared shared:
+                    head.ApplyMotherBrainHeadCue(lateFight.Encounter, samus, shared.Cue);
+                    return null;
+                case MotherBrainBrainCue<MotherBrainBabyAttackCueKind>.Own { Kind: MotherBrainBabyAttackCueKind.CountBabyMetroidAttack }:
+                    lateFight.CountBabyMetroidAttack();
+                    return null;
+                case MotherBrainBrainCue<MotherBrainBabyAttackCueKind>.Own { Kind: MotherBrainBabyAttackCueKind.AimOnionRingsAtBabyMetroid }:
+                    AimMotherBrainOnionRingsAt(lateFight.Encounter, baby.Position.Whole);
+                    return null;
+                case MotherBrainBrainCue<MotherBrainBabyAttackCueKind>.Own { Kind: MotherBrainBabyAttackCueKind.QueueBabyMetroidAttackSound }:
+                    head.QueueBabyMetroidAttackCry(lateFight);
+                    return null;
+                case MotherBrainBrainCue<MotherBrainBabyAttackCueKind>.Own { Kind: MotherBrainBabyAttackCueKind.MaybeHoldNeutralPhase3 }:
+                    return head.HoldsNeutralPhase3Again() ? MotherBrainBabyAttackSegment.NeutralPhase3Hold : null;
+                default:
+                    throw new InvalidOperationException($"Undefined Mother Brain Baby-attack cue {cue}.");
+            }
         }
     }
 
-    /// <summary>Carries out one event of a brain animation.</summary>
-    /// <returns>The segment whose animation a random hold or drool event continues at; otherwise null.</returns>
+    /// <summary>Takes the phase-three neutral hold's chance, which alone decides whether the pose holds again.</summary>
+    private bool HoldsNeutralPhase3Again() => MotherBrainRandomDefinitions.NeutralPhase3Holds.IsTakenBy(_room.Random.Read());
+
+    /// <summary>Queues her attack cry, which the attack cry step skips once <paramref name="lateFight"/>'s attack counter reaches eleven.</summary>
+    private void QueueBabyMetroidAttackCry(MotherBrainLateFightState lateFight)
+    {
+        if (lateFight.BabyMetroidAttackCounter != MotherBrainFightDefinitions.SilentBabyAttackCount)
+            _audio.QueueEnemySound(MotherBrainSoundDefinitions.AttackCry, priority: SoundRequestPriority.Normal);
+    }
+
+    /// <summary>Carries out a cue every brain animation raises to the same effect on <paramref name="state"/>.</summary>
     /// <remarks>
     /// The brain animation advances in her brain's draw, after the enemy update has queued the frame's enemy
     /// sounds, so its sounds go straight to the enemy audio queue at their limits (#1391).
     /// </remarks>
-    private MotherBrainHeadSegment? ApplyMotherBrainHeadCue(MotherBrainEnemyState state, SamusState samus, MotherBrainHeadCue cue)
+    private void ApplyMotherBrainHeadCue(MotherBrainEnemyState state, SamusState samus, MotherBrainHeadCue cue)
     {
         switch (cue)
         {
             case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.ShakeBrain }:
                 state.BrainShake.ShakeFor(MotherBrainFightDefinitions.BrainShakeUpdates);
-                return null;
+                return;
             case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.SpawnDrool }:
                 SpawnMotherBrainDrool(state);
-                return null;
+                return;
             case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.SpawnBigPurpleBreath }:
                 SpawnMotherBrainPurpleBreathBig(state);
-                return null;
+                return;
             case MotherBrainHeadCue.PlaySound playSound:
                 _audio.QueueEnemySound(playSound.Effect, priority: SoundRequestPriority.Normal);
-                return null;
+                return;
             case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.DisableNeckMovement }:
                 state.NeckMovementEnabled = false;
-                return null;
+                return;
             case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.EnableNeckMovement }:
                 state.NeckMovementEnabled = true;
-                return null;
+                return;
             case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.AimOnionRingsAtSamus }:
-            {
                 AimMotherBrainOnionRingsAt(state, samus.Position.Whole);
-                return null;
-            }
+                return;
             case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.SpawnOnionRing }:
                 SpawnMotherBrainOnionRing(state, state.OnionRingsTargetAngle);
-                return null;
+                return;
             case MotherBrainHeadCue.SpawnBomb bomb:
                 SpawnMotherBrainBomb(state, bomb.Afterburns);
-                return null;
+                return;
             case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.SpawnLaser }:
                 SpawnMotherBrainMouthLaser(state);
-                return null;
-            // Only the animation of her attacks on the Baby, which her late fight starts once the Baby has arrived, aims at
-            // it (ApplyBabyAttackHeadCue).
-            case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.AimOnionRingsAtBabyMetroid }:
-                throw new InvalidOperationException($"Mother Brain's brain raised {cue}, a cue of her attacks on the Baby, before it arrived.");
-            // Only the animations of her late fight, which it starts, raise its cues (ApplyLateFightHeadCue).
-            case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.CountBabyMetroidAttack or
-                MotherBrainHeadCueKind.ResetBabyMetroidAttacks or MotherBrainHeadCueKind.QueueBabyMetroidAttackSound }:
-                throw new InvalidOperationException($"Mother Brain's brain raised {cue}, a cue of her late fight, before it began.");
+                return;
             case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.PrepareRainbowBeamCharge }:
                 state.SmallPurpleBreathGenerationEnabled = false;
                 _audio.QueueEnemySound(MotherBrainSoundDefinitions.RainbowBeamCharge, priority: SoundRequestPriority.Normal);
-                return null;
+                return;
             case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.SpawnRainbowBeamChargeParticle }:
                 SpawnMotherBrainRainbowChargingProjectile(state);
-                return null;
-            // The neutral hold holds the phase-two neutral pose again on fifteen samples in sixteen.
-            case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.MaybeHoldNeutralPhase2 }:
-                return MotherBrainRandomDefinitions.NeutralPhase2Holds.IsTakenBy(_room.Random.Read()) ? MotherBrainHeadSegment.NeutralPhase2Hold : null;
-            // The hold's chance alone decides whether the phase-three pose holds again.
-            case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.MaybeHoldNeutralPhase3 }:
-                return MotherBrainRandomDefinitions.NeutralPhase3Holds.IsTakenBy(_room.Random.Read()) ? MotherBrainHeadSegment.NeutralPhase3Hold : null;
-            // The drool hold returns its destination: only the burst's chance bursts into more drool; every other sample
-            // keeps the one-frame loop.
-            case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.MaybeDroolAgain }:
-                return MotherBrainRandomDefinitions.DroolBursts.IsTakenBy(_room.Random.Read()) ? MotherBrainHeadSegment.DyingDroolBurst : null;
+                return;
             default:
                 throw new InvalidOperationException($"Undefined Mother Brain head cue {cue}.");
         }

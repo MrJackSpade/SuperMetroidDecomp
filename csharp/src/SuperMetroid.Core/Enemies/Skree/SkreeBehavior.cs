@@ -130,8 +130,8 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Skree's typed animation.</summary>
-    internal static void AdvanceSkreeTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(place, place.RequireSpeciesState<SkreeEnemyState>(), SkreeMetareeAnimations.Segments,
+    internal static void AdvanceSkreeTypedAnimation(RoomEnemyPlace place, SkreeEnemyState skreeEnemyState, EnemyAnimationCueContext _) =>
+        EnemyAnimationPlayback.Advance(place, skreeEnemyState, SkreeMetareeAnimations.Segments,
             static (SkreeEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {

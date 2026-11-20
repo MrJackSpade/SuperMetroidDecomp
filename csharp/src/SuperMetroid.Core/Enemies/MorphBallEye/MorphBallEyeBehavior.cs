@@ -130,7 +130,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         _audio.QueueEnemySound(EnemySoundEffectDefinitions.EyeActivationSound, priority: SoundRequestPriority.Normal);
-        RequestMorphBallEyeBeam(eye);
+        RequestMorphBallEyeBeam(eye, state);
         state.Action = MorphBallEyeAction.Active;
         state.Angle = CalculateMorphBallEyeAngle(eye, samus);
     }
@@ -187,10 +187,10 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// every room that places the eye places one beam mount and one eye, so the eye that opens is the eye the game's beam
     /// follows.
     /// </summary>
-    private void RequestMorphBallEyeBeam(RoomEnemyPlace eye)
+    private void RequestMorphBallEyeBeam(RoomEnemyPlace eye, MorphBallEyeEnemyState state)
     {
         MorphBallEyeBeam.Reset();
-        MorphBallEyeBeam.Body = eye;
+        MorphBallEyeBeam.Caster = new MorphBallEyeBeamCaster(eye, state);
         MorphBallEyeBeam.Phase = MorphBallEyeBeamPhase.PendingInitialization;
     }
 
@@ -200,18 +200,21 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal void StepMorphBallEyeBeam()
     {
+        // No beam exists until an eye requests one, and none once its fade removes it.
+        if (MorphBallEyeBeam.Caster is not { } caster)
+            return;
         switch (MorphBallEyeBeam.Phase)
         {
             case MorphBallEyeBeamPhase.Inactive:
                 return;
             case MorphBallEyeBeamPhase.PendingInitialization:
-                StartMorphBallEyeBeam();
+                StartMorphBallEyeBeam(caster.Eye);
                 return;
             case MorphBallEyeBeamPhase.Widening:
                 WidenMorphBallEyeBeam();
                 return;
             case MorphBallEyeBeamPhase.Full:
-                StepFullMorphBallEyeBeam();
+                StepFullMorphBallEyeBeam(caster.Eye);
                 return;
             case MorphBallEyeBeamPhase.Deactivating:
                 FadeMorphBallEyeBeam();
@@ -226,9 +229,8 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Seeds the beam's colour, then marks its body activated. The request a step earlier reset the beam to no width, no
     /// widening and its first colour (#2474), which nothing changes before this step.
     /// </summary>
-    private void StartMorphBallEyeBeam()
+    private void StartMorphBallEyeBeam(MorphBallEyeEnemyState state)
     {
-        MorphBallEyeEnemyState state = BeamEyeState();
 
         MorphBallEyeBeam.Color = MorphBallEyeBeamDefinitions.InitialColor;
         state.IsActivated = true;
@@ -252,9 +254,8 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Cycles the sixteen beam colors while the body stays activated, otherwise begins fading.</summary>
-    internal void StepFullMorphBallEyeBeam()
+    internal void StepFullMorphBallEyeBeam(MorphBallEyeEnemyState bodyState)
     {
-        MorphBallEyeEnemyState bodyState = BeamEyeState();
         if (!bodyState.IsActivated)
         {
             MorphBallEyeBeam.Phase = MorphBallEyeBeamPhase.Deactivating;
@@ -279,17 +280,9 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         MorphBallEyeBeam.FadeOneStep();
     }
 
-    /// <summary>
-    /// The state of the eye that cast the live beam: the eye that opened, which its request names, so it is an eye body.
-    /// </summary>
-    /// <exception cref="InvalidOperationException">The beam steps without the eye that requested it.</exception>
-    private MorphBallEyeEnemyState BeamEyeState() =>
-        (MorphBallEyeBeam.Body ?? throw new InvalidOperationException("The Morph Ball eye beam steps without the eye that cast it."))
-            .RequireSpeciesState<MorphBallEyeEnemyState>();
-
     /// <summary>Advances a beam mount's typed animation: its mount pose, which raises no cue.</summary>
-    internal static void AdvanceMorphBallEyeMountTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, place.RequireSpeciesState<MorphBallEyeMountState>(), MorphBallEyeAnimations.Segments,
+    internal static void AdvanceMorphBallEyeMountTypedAnimation(RoomEnemyPlace place, MorphBallEyeMountState morphBallEyeMountState) =>
+        EnemyAnimationPlayback.Advance(place, morphBallEyeMountState, MorphBallEyeAnimations.Segments,
             static (MorphBallEyeMountState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (state, cue) => throw new InvalidOperationException($"The Morph Ball eye mount's cue-free animation raised {cue}."));
 
@@ -297,7 +290,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Advances the eye body's typed animation: a tracking eye shows the pose its aim chose this update for good, until the
     /// next update's tracking chooses again; otherwise its eyelid animation plays.
     /// </summary>
-    internal static void AdvanceMorphBallEyeTypedAnimation(RoomEnemyPlace place, MorphBallEyeEnemyState morphBallEyeEnemyState, EnemyAnimationCueContext _)
+    internal static void AdvanceMorphBallEyeTypedAnimation(RoomEnemyPlace place, MorphBallEyeEnemyState morphBallEyeEnemyStateRead, MorphBallEyeEnemyState morphBallEyeEnemyState, EnemyAnimationCueContext _)
     {
         if (morphBallEyeEnemyState.Aim is { } aim)
         {
@@ -307,7 +300,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
             place.AnimationClock.ShowForGood();
             return;
         }
-        EnemyAnimationPlayback.Advance(place, place.RequireSpeciesState<MorphBallEyeEnemyState>(), MorphBallEyeAnimations.Segments,
+        EnemyAnimationPlayback.Advance(place, morphBallEyeEnemyStateRead, MorphBallEyeAnimations.Segments,
             static (MorphBallEyeEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (state, cue) => throw new InvalidOperationException($"The Morph Ball eye's cue-free animation raised {cue}."));
     }

@@ -524,8 +524,8 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances YappingMaw's typed animation.</summary>
-    internal void AdvanceYappingMawTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(place, place.RequireSpeciesState<YappingMawEnemyState>(), YappingMawAnimations.Segments,
+    internal void AdvanceYappingMawTypedAnimation(RoomEnemyPlace place, YappingMawEnemyState yappingMawEnemyState, EnemyAnimationCueContext _) =>
+        EnemyAnimationPlayback.Advance(place, yappingMawEnemyState, YappingMawAnimations.Segments,
             static (YappingMawEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {

@@ -270,8 +270,8 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         context => FlyDragonFireball(context.Projectile, context.Camera.Y));
 
     /// <summary>Advances a Dragon body's typed animation, whose attack raises its finishing cue.</summary>
-    internal static void AdvanceDragonBodyTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, place.RequireSpeciesState<DragonEnemyState>(), DragonAnimations.Segments,
+    internal static void AdvanceDragonBodyTypedAnimation(RoomEnemyPlace place, DragonEnemyState dragonEnemyState) =>
+        EnemyAnimationPlayback.Advance(place, dragonEnemyState, DragonAnimations.Segments,
             static (DragonEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (state, cue) =>
             {
@@ -280,8 +280,8 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
             });
 
     /// <summary>Advances a Dragon wing's typed animation, which raises no cue.</summary>
-    internal static void AdvanceDragonWingTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, place.RequireSpeciesState<DragonWingState>(), DragonAnimations.Segments,
+    internal static void AdvanceDragonWingTypedAnimation(RoomEnemyPlace place, DragonWingState dragonWingState) =>
+        EnemyAnimationPlayback.Advance(place, dragonWingState, DragonAnimations.Segments,
             static (DragonWingState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A Dragon wing's cue-free animation raised {cue}."));
 

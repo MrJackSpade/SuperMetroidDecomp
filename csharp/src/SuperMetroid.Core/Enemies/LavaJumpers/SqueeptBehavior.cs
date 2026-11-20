@@ -221,14 +221,14 @@ internal sealed class SqueeptBehavior : IEnemySpecies, IEnemyEntityFactory
             state);
 
     /// <summary>Advances a lava jumper follower's looping typed animation, which raises no cue.</summary>
-    internal static void AdvanceNorfairLavaJumperFollowerTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, place.RequireSpeciesState<NorfairLavaJumperFollowerState>(), NorfairLavaJumperAnimations.Segments,
+    internal static void AdvanceNorfairLavaJumperFollowerTypedAnimation(RoomEnemyPlace place, NorfairLavaJumperFollowerState norfairLavaJumperFollowerState) =>
+        EnemyAnimationPlayback.Advance(place, norfairLavaJumperFollowerState, NorfairLavaJumperAnimations.Segments,
             static (NorfairLavaJumperFollowerState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"The Squeept follower's animation raised {cue}."));
 
     /// <summary>Advances a jumping lava jumper's typed animation, whose jump raises its finishing cue.</summary>
-    internal static void AdvanceSqueeptTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, place.RequireSpeciesState<SqueeptState>(), NorfairLavaJumperAnimations.Segments,
+    internal static void AdvanceSqueeptTypedAnimation(RoomEnemyPlace place, SqueeptState squeeptState) =>
+        EnemyAnimationPlayback.Advance(place, squeeptState, NorfairLavaJumperAnimations.Segments,
             static (SqueeptState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {

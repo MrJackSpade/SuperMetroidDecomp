@@ -13,5 +13,5 @@ internal sealed class AtomicEntity(RoomEnemyPlace place, EnemyCommonParticipatio
     public void RunMainAi(IEnemyAiFrame frame) => AtomicBehavior.RunAtomicMainAi(Place, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => AtomicBehavior.AdvanceAtomicTypedAnimation(Place, context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => AtomicBehavior.AdvanceAtomicTypedAnimation(Place, State, context);
 }

@@ -20,7 +20,7 @@ internal sealed class PowampBodyEntity(PowampBehavior species, RoomEnemyPlace pl
     public void RunMainAi(IEnemyAiFrame frame) => species.RunPowampMain(Place, State, frame.Level, frame.Samus);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => PowampBehavior.AdvancePowampBodyTypedAnimation(Place);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => PowampBehavior.AdvancePowampBodyTypedAnimation(Place, State);
 
     /// <summary>Whether the body's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
     public override bool ReactsToTouch => LeavesTouchToSpecies || base.ReactsToTouch;

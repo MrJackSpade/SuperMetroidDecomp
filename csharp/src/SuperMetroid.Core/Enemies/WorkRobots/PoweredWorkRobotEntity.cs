@@ -23,7 +23,7 @@ internal sealed class PoweredWorkRobotEntity(WorkRobotBehavior species, RoomEnem
     public override void RunMainAi(IEnemyAiFrame frame) => Species.RunWorkRobotMainAi(Place, State, frame);
 
     /// <inheritdoc/>
-    public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) => Species.AdvanceWorkRobotTypedAnimation(Place, context);
+    public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) => Species.AdvanceWorkRobotTypedAnimation(Place, State, context);
 
     /// <summary>The robot takes a bomb's damage and recoils (#2164).</summary>
     protected override EnemyBombReaction OwnBombReaction => OwnPoweredWorkRobotBombReaction;

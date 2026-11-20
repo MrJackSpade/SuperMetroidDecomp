@@ -382,8 +382,8 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Fake Kraid's typed animation.</summary>
-    internal void AdvanceFakeKraidTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext context) =>
-        EnemyAnimationPlayback.Advance(place, place.RequireSpeciesState<FakeKraidEnemyState>(), FakeKraidAnimations.Segments,
+    internal void AdvanceFakeKraidTypedAnimation(RoomEnemyPlace place, FakeKraidEnemyState fakeKraidEnemyState, EnemyAnimationCueContext context) =>
+        EnemyAnimationPlayback.Advance(place, fakeKraidEnemyState, FakeKraidAnimations.Segments,
             static (FakeKraidEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (_, cue) => ApplyFakeKraidCue(place, cue, context.Samus, context.Level, context.Camera) is { } action
                 ? new AnimationContinuation<FakeKraidSegment>(FakeKraidAnimations.StartingWith(action), AnimationPlace.StartOfAnimation)

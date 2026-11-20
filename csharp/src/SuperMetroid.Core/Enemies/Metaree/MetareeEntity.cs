@@ -14,7 +14,7 @@ internal sealed class MetareeEntity(MetareeBehavior species, RoomEnemyPlace plac
     public void RunMainAi(IEnemyAiFrame frame) => species.RunMetareeMainAi(Place, State, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => MetareeBehavior.AdvanceMetareeTypedAnimation(Place, context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => MetareeBehavior.AdvanceMetareeTypedAnimation(Place, State, context);
 
     /// <summary>The Metaree's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
     public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? species.MetareeShotReaction : base.ShotReaction;

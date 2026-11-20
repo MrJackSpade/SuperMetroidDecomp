@@ -158,8 +158,8 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Metaree's typed animation.</summary>
-    internal static void AdvanceMetareeTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(place, place.RequireSpeciesState<MetareeEnemyState>(), SkreeMetareeAnimations.Segments,
+    internal static void AdvanceMetareeTypedAnimation(RoomEnemyPlace place, MetareeEnemyState metareeEnemyState, EnemyAnimationCueContext _) =>
+        EnemyAnimationPlayback.Advance(place, metareeEnemyState, SkreeMetareeAnimations.Segments,
             static (MetareeEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {

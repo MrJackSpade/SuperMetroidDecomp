@@ -431,8 +431,8 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Metroid's typed animation.</summary>
-    internal void AdvanceMetroidTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(place, place.RequireSpeciesState<MetroidEnemyState>(), MetroidAnimations.Segments,
+    internal void AdvanceMetroidTypedAnimation(RoomEnemyPlace place, MetroidEnemyState metroidEnemyState, EnemyAnimationCueContext _) =>
+        EnemyAnimationPlayback.Advance(place, metroidEnemyState, MetroidAnimations.Segments,
             static (MetroidEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {

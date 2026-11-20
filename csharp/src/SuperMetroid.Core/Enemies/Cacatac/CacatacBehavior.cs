@@ -149,8 +149,8 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Cacatac's typed animation.</summary>
-    internal void AdvanceCacatacTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(place, place.RequireSpeciesState<CacatacEnemyState>(), CacatacAnimations.Segments,
+    internal void AdvanceCacatacTypedAnimation(RoomEnemyPlace place, CacatacEnemyState cacatacEnemyState, EnemyAnimationCueContext _) =>
+        EnemyAnimationPlayback.Advance(place, cacatacEnemyState, CacatacAnimations.Segments,
             static (CacatacEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) => ApplyCacatacCue(place, state, cue) is { } target
                 ? new AnimationContinuation<CacatacSegment>(CacatacAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)

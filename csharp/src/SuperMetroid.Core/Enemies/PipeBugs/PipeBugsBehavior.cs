@@ -605,18 +605,18 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyAnimationPlayback.Start(place, PipeBugAnimations.StartingWith(segment));
 
     /// <summary>Advances a Brinstar Pipe Bug's typed animation.</summary>
-    internal static void AdvanceBrinstarPipeBugTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, place.RequireSpeciesState<BrinstarPipeBugState>(), PipeBugAnimations.Segments,
+    internal static void AdvanceBrinstarPipeBugTypedAnimation(RoomEnemyPlace place, BrinstarPipeBugState brinstarPipeBugState) =>
+        EnemyAnimationPlayback.Advance(place, brinstarPipeBugState, PipeBugAnimations.Segments,
             static (BrinstarPipeBugState state) => state.Playback, static (state, playback) => state.Playback = playback, static (_, cue) => RaisesNoCues(cue));
 
     /// <summary>Advances a Norfair Pipe Bug's typed animation.</summary>
-    internal static void AdvanceNorfairPipeBugTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, place.RequireSpeciesState<NorfairPipeBugState>(), PipeBugAnimations.Segments,
+    internal static void AdvanceNorfairPipeBugTypedAnimation(RoomEnemyPlace place, NorfairPipeBugState norfairPipeBugState) =>
+        EnemyAnimationPlayback.Advance(place, norfairPipeBugState, PipeBugAnimations.Segments,
             static (NorfairPipeBugState state) => state.Playback, static (state, playback) => state.Playback = playback, static (_, cue) => RaisesNoCues(cue));
 
     /// <summary>Advances a yellow Pipe Bug's typed animation.</summary>
-    internal static void AdvanceYellowPipeBugTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, place.RequireSpeciesState<YellowPipeBugState>(), PipeBugAnimations.Segments,
+    internal static void AdvanceYellowPipeBugTypedAnimation(RoomEnemyPlace place, YellowPipeBugState yellowPipeBugState) =>
+        EnemyAnimationPlayback.Advance(place, yellowPipeBugState, PipeBugAnimations.Segments,
             static (YellowPipeBugState state) => state.Playback, static (state, playback) => state.Playback = playback, static (_, cue) => RaisesNoCues(cue));
 
     /// <summary>Rejects a cue: no Pipe Bug animation raises one.</summary>

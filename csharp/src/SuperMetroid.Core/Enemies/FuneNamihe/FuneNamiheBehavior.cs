@@ -155,9 +155,9 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static readonly EnemyProjectileBehavior Fireball = new SingleMotionProjectileBehavior(
         context => FlyFuneNamiheFireball(context.Projectile, context.Camera));
 
-    /// <summary>Advances a Fune's or Namihe's typed animation, whose state is a <typeparamref name="TState"/>.</summary>
-    internal void AdvanceFuneNamiheTypedAnimation<TState>(RoomEnemyPlace place) where TState : FuneNamiheEnemyState =>
-        EnemyAnimationPlayback.Advance(place, place.RequireSpeciesState<TState>(), FuneNamiheAnimations.Segments,
+    /// <summary>Advances a Fune's or Namihe's typed animation, whose state is <paramref name="state"/>.</summary>
+    internal void AdvanceFuneNamiheTypedAnimation(RoomEnemyPlace place, FuneNamiheEnemyState state) =>
+        EnemyAnimationPlayback.Advance(place, state, FuneNamiheAnimations.Segments,
             static (TState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) => ApplyFuneNamiheCue(place, state, cue) is { } target
                 ? new AnimationContinuation<FuneNamiheSegment>(FuneNamiheAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)

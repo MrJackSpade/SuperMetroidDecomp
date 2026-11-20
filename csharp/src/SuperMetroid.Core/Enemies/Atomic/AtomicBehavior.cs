@@ -46,8 +46,8 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Atomic's typed animation.</summary>
-    internal static void AdvanceAtomicTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(place, place.RequireSpeciesState<AtomicEnemyState>(), AtomicAnimations.Segments,
+    internal static void AdvanceAtomicTypedAnimation(RoomEnemyPlace place, AtomicEnemyState atomicEnemyState, EnemyAnimationCueContext _) =>
+        EnemyAnimationPlayback.Advance(place, atomicEnemyState, AtomicAnimations.Segments,
             static (AtomicEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A cue-free Atomic animation raised {cue}."));
 

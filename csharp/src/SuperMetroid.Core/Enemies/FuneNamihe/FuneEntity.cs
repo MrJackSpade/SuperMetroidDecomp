@@ -14,5 +14,5 @@ internal sealed class FuneEntity(FuneNamiheBehavior species, RoomEnemyPlace plac
     public void RunMainAi(IEnemyAiFrame frame) => FuneNamiheBehavior.RunFuneMain(Place, State);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceFuneNamiheTypedAnimation<FuneEnemyState>(Place);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceFuneNamiheTypedAnimation(Place, State);
 }

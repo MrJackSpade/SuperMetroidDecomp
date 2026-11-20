@@ -183,8 +183,8 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Owtch's typed animation.</summary>
-    internal static void AdvanceOwtchTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(place, place.RequireSpeciesState<OwtchEnemyState>(), OwtchAnimations.Segments,
+    internal static void AdvanceOwtchTypedAnimation(RoomEnemyPlace place, OwtchEnemyState owtchEnemyState, EnemyAnimationCueContext _) =>
+        EnemyAnimationPlayback.Advance(place, owtchEnemyState, OwtchAnimations.Segments,
             static (OwtchEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {

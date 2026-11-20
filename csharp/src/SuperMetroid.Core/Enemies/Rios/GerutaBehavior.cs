@@ -296,14 +296,14 @@ internal sealed class GerutaBehavior : IEnemySpecies, IEnemyEntityFactory
             frame.Level);
 
     /// <summary>Advances a Geruta flame follower's typed animation, which raises no cue.</summary>
-    internal static void AdvanceGerutaFollowerTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, place.RequireSpeciesState<GerutaFollowerState>(), GerutaAnimations.Segments,
+    internal static void AdvanceGerutaFollowerTypedAnimation(RoomEnemyPlace place, GerutaFollowerState gerutaFollowerState) =>
+        EnemyAnimationPlayback.Advance(place, gerutaFollowerState, GerutaAnimations.Segments,
             static (GerutaFollowerState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A Norfair Rio flame follower's cue-free animation raised {cue}."));
 
     /// <summary>Advances a Geruta parent's typed animation, whose cues it carries out.</summary>
-    internal static void AdvanceGerutaTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(place, place.RequireSpeciesState<GerutaEnemyState>(), GerutaAnimations.Segments,
+    internal static void AdvanceGerutaTypedAnimation(RoomEnemyPlace place, GerutaEnemyState gerutaEnemyState, EnemyAnimationCueContext _) =>
+        EnemyAnimationPlayback.Advance(place, gerutaEnemyState, GerutaAnimations.Segments,
             static (GerutaEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (state, cue) =>
             {

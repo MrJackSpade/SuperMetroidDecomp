@@ -191,8 +191,8 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Mochtroid's typed animation.</summary>
-    internal static void AdvanceMochtroidTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(place, place.RequireSpeciesState<MochtroidEnemyState>(), MochtroidAnimations.Segments,
+    internal static void AdvanceMochtroidTypedAnimation(RoomEnemyPlace place, MochtroidEnemyState mochtroidEnemyState, EnemyAnimationCueContext _) =>
+        EnemyAnimationPlayback.Advance(place, mochtroidEnemyState, MochtroidAnimations.Segments,
             static (MochtroidEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (state, cue) => throw new InvalidOperationException($"Mochtroid's cue-free animation raised {cue}."));
 

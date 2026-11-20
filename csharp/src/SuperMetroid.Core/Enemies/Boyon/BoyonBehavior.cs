@@ -197,8 +197,8 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs Boyon's idle and bouncing loops (#641).</summary>
-    internal void AdvanceBoyonAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(place, place.RequireSpeciesState<BoyonEnemyState>(), BoyonAnimations.Segments,
+    internal void AdvanceBoyonAnimation(RoomEnemyPlace place, BoyonEnemyState boyonEnemyState, EnemyAnimationCueContext _) =>
+        EnemyAnimationPlayback.Advance(place, boyonEnemyState, BoyonAnimations.Segments,
             static (BoyonEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) => ApplyBoyonCue(place, state, cue) is { } target
                 ? new AnimationContinuation<BoyonSegment>(BoyonAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)

@@ -784,14 +784,14 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         RunKiHunterWingMain(wings, state, frame.Level);
 
     /// <summary>Advances a Ki-Hunter's wings' cue-free typed animation.</summary>
-    internal static void AdvanceKiHunterWingsTypedAnimation(RoomEnemyPlace wings) =>
-        EnemyAnimationPlayback.Advance(wings, wings.RequireSpeciesState<KiHunterWingState>(), KiHunterAnimations.Segments,
+    internal static void AdvanceKiHunterWingsTypedAnimation(RoomEnemyPlace wings, KiHunterWingState kiHunterWingState) =>
+        EnemyAnimationPlayback.Advance(wings, kiHunterWingState, KiHunterAnimations.Segments,
             static (KiHunterWingState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) => throw new InvalidOperationException($"A Ki-Hunter wing animation raised {cue}."));
 
     /// <summary>Advances a Ki-Hunter body's typed animation, carrying out its cues.</summary>
-    internal void AdvanceKiHunterBodyTypedAnimation(RoomEnemyPlace body, KiHunterBodyState kiHunterBodyState) =>
-        EnemyAnimationPlayback.Advance(body, body.RequireSpeciesState<KiHunterBodyState>(), KiHunterAnimations.Segments,
+    internal void AdvanceKiHunterBodyTypedAnimation(RoomEnemyPlace body, KiHunterBodyState kiHunterBodyStateRead, KiHunterBodyState kiHunterBodyState) =>
+        EnemyAnimationPlayback.Advance(body, kiHunterBodyStateRead, KiHunterAnimations.Segments,
             static (KiHunterBodyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) => ApplyKiHunterCue(body, kiHunterBodyState, cue) is { } target
                 ? new AnimationContinuation<KiHunterSegment>(KiHunterAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)

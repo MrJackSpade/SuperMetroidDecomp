@@ -162,8 +162,8 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Skultera's typed animation.</summary>
-    internal static void AdvanceSkulteraTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(place, place.RequireSpeciesState<SkulteraEnemyState>(), SkulteraAnimations.Segments,
+    internal static void AdvanceSkulteraTypedAnimation(RoomEnemyPlace place, SkulteraEnemyState skulteraEnemyState, EnemyAnimationCueContext _) =>
+        EnemyAnimationPlayback.Advance(place, skulteraEnemyState, SkulteraAnimations.Segments,
             static (SkulteraEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {

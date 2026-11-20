@@ -285,8 +285,8 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances ChozoStatue's typed animation.</summary>
-    internal void AdvanceChozoStatueTypedAnimation(RoomEnemyPlace place, ChozoStatueState chozoStatueState, EnemyAnimationCueContext context) =>
-        EnemyAnimationPlayback.Advance(place, place.RequireSpeciesState<ChozoStatueState>(), ChozoStatueAnimations.Segments,
+    internal void AdvanceChozoStatueTypedAnimation(RoomEnemyPlace place, ChozoStatueState chozoStatueStateRead, ChozoStatueState chozoStatueState, EnemyAnimationCueContext context) =>
+        EnemyAnimationPlayback.Advance(place, chozoStatueStateRead, ChozoStatueAnimations.Segments,
             static (ChozoStatueState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) => ApplyChozoStatueCue(place, chozoStatueState, cue, context.Samus, context.Level) is { } target
                 ? new AnimationContinuation<ChozoStatueSegment>(ChozoStatueAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)

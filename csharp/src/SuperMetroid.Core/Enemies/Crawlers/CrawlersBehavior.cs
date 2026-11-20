@@ -474,8 +474,8 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         RunOrangeZoomerMain(place, state, frame.Samus, frame.Level);
 
     /// <summary>Runs the crawlers' surface animations (#641).</summary>
-    internal static void AdvanceCrawlerTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(place, place.RequireSpeciesState<CrawlerEnemyState>(), CrawlerAnimations.Segments,
+    internal static void AdvanceCrawlerTypedAnimation(RoomEnemyPlace place, CrawlerEnemyState crawlerEnemyState, EnemyAnimationCueContext _) =>
+        EnemyAnimationPlayback.Advance(place, crawlerEnemyState, CrawlerAnimations.Segments,
             static (CrawlerEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A cue-free crawler animation raised {cue}."));
 }

@@ -376,8 +376,8 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Alcoon's typed animation.</summary>
-    internal void AdvanceAlcoonTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext context) =>
-        EnemyAnimationPlayback.Advance(place, place.RequireSpeciesState<AlcoonEnemyState>(), AlcoonAnimations.Segments,
+    internal void AdvanceAlcoonTypedAnimation(RoomEnemyPlace place, AlcoonEnemyState alcoonEnemyState, EnemyAnimationCueContext context) =>
+        EnemyAnimationPlayback.Advance(place, alcoonEnemyState, AlcoonAnimations.Segments,
             static (AlcoonEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) => ApplyAlcoonCue(place, state, context.Level, cue));
 

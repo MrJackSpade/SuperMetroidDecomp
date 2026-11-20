@@ -360,8 +360,8 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Rinka's typed animation.</summary>
-    internal static void AdvanceRinkaTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(place, place.RequireSpeciesState<RinkaEnemyState>(), RinkaAnimations.Segments,
+    internal static void AdvanceRinkaTypedAnimation(RoomEnemyPlace place, RinkaEnemyState rinkaEnemyState, EnemyAnimationCueContext _) =>
+        EnemyAnimationPlayback.Advance(place, rinkaEnemyState, RinkaAnimations.Segments,
             static (RinkaEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {

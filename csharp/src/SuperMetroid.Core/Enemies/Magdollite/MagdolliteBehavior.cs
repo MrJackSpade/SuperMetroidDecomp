@@ -645,10 +645,9 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Advances the typed animation of the Magdollite part whose state is a <typeparamref name="TState"/>.</summary>
-    internal void AdvanceMagdolliteTypedAnimation<TState>(RoomEnemyPlace place, EnemyAnimationCueContext context)
-        where TState : MagdollitePartState =>
-        EnemyAnimationPlayback.Advance(place, place.RequireSpeciesState<TState>(), MagdolliteAnimations.Segments,
+    /// <summary>Advances the typed animation of the Magdollite part whose state is <paramref name="state"/>.</summary>
+    internal void AdvanceMagdolliteTypedAnimation(RoomEnemyPlace place, MagdollitePartState state, EnemyAnimationCueContext context) =>
+        EnemyAnimationPlayback.Advance(place, state, MagdolliteAnimations.Segments,
             static (TState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {

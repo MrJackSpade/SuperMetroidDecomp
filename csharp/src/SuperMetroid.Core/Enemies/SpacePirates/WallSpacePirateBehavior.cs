@@ -269,8 +269,8 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
     }
 
     /// <summary>Advances the wall Space Pirate's typed animation.</summary>
-    internal void AdvanceWallSpacePirateTypedAnimation(RoomEnemyPlace place, WallSpacePirateEnemyState wallSpacePirateEnemyState, EnemyAnimationCueContext context) =>
-        EnemyAnimationPlayback.Advance(place, place.RequireSpeciesState<WallSpacePirateEnemyState>(), WallSpacePirateAnimations.Segments,
+    internal void AdvanceWallSpacePirateTypedAnimation(RoomEnemyPlace place, WallSpacePirateEnemyState wallSpacePirateEnemyStateRead, WallSpacePirateEnemyState wallSpacePirateEnemyState, EnemyAnimationCueContext context) =>
+        EnemyAnimationPlayback.Advance(place, wallSpacePirateEnemyStateRead, WallSpacePirateAnimations.Segments,
             static (WallSpacePirateEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) => ApplyWallSpacePirateCue(place, wallSpacePirateEnemyState, cue, context.Level) is { } continuesAt
                 ? new AnimationContinuation<WallSpacePirateSegment>(WallSpacePirateAnimations.StartingWith(continuesAt), AnimationPlace.StartOfAnimation)

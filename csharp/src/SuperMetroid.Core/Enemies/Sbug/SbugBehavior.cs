@@ -156,8 +156,8 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = EnemyAnimationPlayback.StartUnlessPlaying(place, state.Playback, SbugAnimations.StartingWith(SbugMovement.FacingAnimation(facing)));
 
     /// <summary>Advances Sbug's typed animation.</summary>
-    internal static void AdvanceSbugTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(place, place.RequireSpeciesState<SbugEnemyState>(), SbugAnimations.Segments,
+    internal static void AdvanceSbugTypedAnimation(RoomEnemyPlace place, SbugEnemyState sbugEnemyState, EnemyAnimationCueContext _) =>
+        EnemyAnimationPlayback.Advance(place, sbugEnemyState, SbugAnimations.Segments,
             static (SbugEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"Sbug's cue-free animation raised {cue}."));
 

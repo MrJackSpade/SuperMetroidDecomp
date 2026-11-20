@@ -17,7 +17,7 @@ internal sealed class UnpoweredWorkRobotEntity(WorkRobotBehavior species, RoomEn
     }
 
     /// <inheritdoc/>
-    public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) => WorkRobotBehavior.AdvanceUnpoweredWorkRobotTypedAnimation(Place);
+    public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) => WorkRobotBehavior.AdvanceUnpoweredWorkRobotTypedAnimation(Place, State);
 
     /// <summary>The robot takes a bomb's damage, never rejecting it, and does nothing more (#2164).</summary>
     protected override EnemyBombReaction OwnBombReaction => Species.UnpoweredWorkRobotBombReaction;

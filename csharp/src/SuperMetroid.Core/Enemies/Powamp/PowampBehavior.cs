@@ -490,8 +490,8 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         shot: () => new PowampSpikeAnimation(PowampSpikeSegment.Delete));
 
     /// <summary>Advances the body's pulse.</summary>
-    internal static void AdvancePowampBodyTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, place.RequireSpeciesState<PowampBodyState>(), PowampAnimations.Segments,
+    internal static void AdvancePowampBodyTypedAnimation(RoomEnemyPlace place, PowampBodyState powampBodyState) =>
+        EnemyAnimationPlayback.Advance(place, powampBodyState, PowampAnimations.Segments,
             static (PowampBodyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => RaisesNoCues(cue));
 

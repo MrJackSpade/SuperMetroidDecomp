@@ -488,8 +488,8 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Beetom's typed animation.</summary>
-    internal static void AdvanceBeetomTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(place, place.RequireSpeciesState<BeetomEnemyState>(), BeetomAnimations.Segments,
+    internal static void AdvanceBeetomTypedAnimation(RoomEnemyPlace place, BeetomEnemyState beetomEnemyState, EnemyAnimationCueContext _) =>
+        EnemyAnimationPlayback.Advance(place, beetomEnemyState, BeetomAnimations.Segments,
             static (BeetomEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) => ApplyBeetomCue(place, cue) is { } target
                 ? new AnimationContinuation<BeetomSegment>(BeetomAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)

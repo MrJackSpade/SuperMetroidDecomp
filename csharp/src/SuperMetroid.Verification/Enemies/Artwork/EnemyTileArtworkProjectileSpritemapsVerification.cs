@@ -381,9 +381,11 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                         installed.GetProgramFrame(frame.Frame).Span,
                         new Position16<ScreenPixels>(originX, originY), 0x0a00, 4,
                         clipVerticalWrap: true, originYIsOnScreen: true);
-                    AssertTrue(nativeOam.NextByteOffset == installedOam.NextByteOffset &&
-                        nativeOam.ImageEquals(installedOam),
-                        $"installed shared frame $86:{frame.OperandAddress:X4} matches ROM OAM at {originX:X4},{originY:X4}");
+                    // A part keeps its depth, not the cartridge's priority tier (#2550): two tiers draw at one depth, and
+                    // the installed part is written with the lowest tier of its depth.
+                    AssertTrue(SuperMetroid.Verification.Harness.OamPriorityComparison.SameApartFromPriority(nativeOam, installedOam),
+                        $"installed shared frame $86:{frame.OperandAddress:X4} matches ROM OAM at {originX:X4},{originY:X4} apart from the priority tier each part's depth replaces: " +
+                        $"records (x, y, tile, attributes) native {OamRecords(nativeOam)}, installed {OamRecords(installedOam)}");
                 }
                 if (EnemyProjectilePresentationFrameDefinitions.FirstProgramFrames.Contains(frame))
                 {
@@ -593,9 +595,9 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         static OamBuffer DrawSpawnerFrame(RoomEnemySystem enemies, EnemyProjectileFrameId frame, SpriteGraphics graphics)
         {
             EnemyProjectile slot = enemies.Projectiles.ProjectileInPlace(0);
-            global::SuperMetroid.Core.PrivateState.Set(slot, "Kind", RoomEnemyProjectileKind.DustOrExplosion);
+            // Spawned as production spawns a projectile: its kind, the behaviour bound to it and its graphics together.
+            FamilyProjectileStarts.Initialize(enemies, slot, RoomEnemyProjectileKind.DustOrExplosion, graphics);
             slot.Position = slot.Position.WithWhole(new(128, 96));
-            slot.Graphics = graphics;
             slot.Frame = frame;
             var oam = new OamBuffer();
             oam.BeginFrame();
@@ -632,12 +634,12 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork.Bosses);
             EnemyProjectile slot = enemies.Projectiles.ProjectileInPlace(0);
-            global::SuperMetroid.Core.PrivateState.Set(slot, "Kind", kind);
+            // It draws from the sheets a set spawning it composes from this artwork, under the graphics that spawn gives it,
+            // and is spawned as production spawns it: its kind, the behaviour bound to it and those graphics together.
+            FamilyProjectileStarts.Initialize(enemies, slot, kind, SpawnedObjectFixtures.LoadSetSpawning(enemies, frame, SpawnedGraphics));
             slot.Position = slot.Position.WithWhole(new(128, 96));
             // As the typed runner does when it shows the program frame.
             slot.Frame = frame;
-            // It draws from the sheets a set spawning it composes from this artwork, under the graphics that spawn gives it.
-            slot.Graphics = SpawnedObjectFixtures.LoadSetSpawning(enemies, frame, SpawnedGraphics);
             SpawnedObjectFixtures.ShowDrawnLooks(enemies, SuperMetroid.AssetExtraction.Enemies.FrameDrawings.Of(frame));
             return enemies;
         }

@@ -10,7 +10,7 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// Keeps room state inside the room scope (#1329). A type marked <c>[RoomLifetime]</c> holds one room's state: each
 /// room load builds it, inside the room scope's construction or a type marked <c>[RoomScopeBoundary]</c> (or as part
 /// of another room-lifetime type), and only room-lifetime types or a boundary keep it in a field or auto-property, so
-/// no session owner caches a room across loads. Room state is never reset field by field: a method named as a room
+/// no session owner caches a room across loads. A delegate that only takes room state as a parameter keeps none. Room state is never reset field by field: a method named as a room
 /// reset is reported wherever it is declared.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -122,7 +122,11 @@ public sealed class RoomLifetimeAnalyzer : DiagnosticAnalyzer
         return false;
     }
 
-    /// <summary>The room-lifetime type <paramref name="type"/> stores directly, as an array element or as a type argument.</summary>
+    /// <summary>
+    /// The room-lifetime type <paramref name="type"/> stores directly, as an array element or as a type argument. A
+    /// delegate holds no room state for the room-lifetime types it only takes as parameters, so only its return type is
+    /// read.
+    /// </summary>
     private static INamedTypeSymbol? RoomLifetimeType(ITypeSymbol type)
     {
         switch (type)
@@ -132,6 +136,8 @@ public sealed class RoomLifetimeAnalyzer : DiagnosticAnalyzer
             case INamedTypeSymbol named:
                 if (IsRoomLifetime(named))
                     return named;
+                if (named.TypeKind == TypeKind.Delegate && named.DelegateInvokeMethod is { } invoke)
+                    return RoomLifetimeType(invoke.ReturnType);
                 foreach (ITypeSymbol argument in named.TypeArguments)
                 {
                     if (RoomLifetimeType(argument) is { } inner)

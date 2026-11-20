@@ -12,14 +12,14 @@ internal static class LookupDownwardGateStockVerification
 {
     /// <summary>Compares the fourteen gate frames' pictures with the cartridge, rejects other draws, then checks the import and its rejections (#1557).</summary>
     internal static void VerifyDownwardGateStockMapping(CartridgeImportAddressSpace rom,
-        InstalledRoomObjectDownwardGateVisuals installed)
+        InstalledRoomObjectPictures installed)
     {
         LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(0xa517,"column-open"),new LookupEscapeGateStockFrame(0xa525,"column-quarter-lowered"),
             new LookupEscapeGateStockFrame(0xa533,"column-half-lowered"),new LookupEscapeGateStockFrame(0xa541,"column-three-quarters-lowered"),new LookupEscapeGateStockFrame(0xa54f,"column-fully-lowered"),new LookupEscapeGateStockFrame(0xa55d,"column-closed"),
             new LookupEscapeGateStockFrame(0xa5d7,"blue-left-trigger"),new LookupEscapeGateStockFrame(0xa5e3,"blue-right-trigger"),new LookupEscapeGateStockFrame(0xa5eb,"red-left-trigger"),
             new LookupEscapeGateStockFrame(0xa5f7,"red-right-trigger"),new LookupEscapeGateStockFrame(0xa5ff,"green-left-trigger"),new LookupEscapeGateStockFrame(0xa60b,"green-right-trigger"),
             new LookupEscapeGateStockFrame(0xa613,"yellow-left-trigger"),new LookupEscapeGateStockFrame(0xa61f,"yellow-right-trigger")];
-        foreach (InstalledRoomObjectDownwardGateVisuals pictures in new[] { InstalledRoomObjectDownwardGateVisuals.Stock(), installed })
+        foreach (InstalledRoomObjectPictures pictures in new[] { RoomObjectPicturesStock.DownwardGate, installed })
         {
             AssertPicturedAsNative(rom, pictures.Images, RoomObjectDownwardGateVisualFiles.Family, frames, WrittenCells(RoomObjectDownwardGateVisualFiles.Family));
         }

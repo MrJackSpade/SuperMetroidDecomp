@@ -58,7 +58,7 @@ internal static class SporeSpawnCeilingObjectsVerification
         AssertEqual(4, draws.Length,
             "Spore Spawn ceiling has clear and three crumble appearances");
         ushort[] pointers = [0x9413,0x9423,0x9433,0x9443];
-        InstalledRoomObjectSporeSpawnCeilingVisuals pictures = InstalledRoomObjectSporeSpawnCeilingVisuals.Stock();
+        InstalledRoomObjectPictures pictures = RoomObjectPicturesStock.SporeSpawnCeiling;
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             ushort pointer = (ushort)raw;

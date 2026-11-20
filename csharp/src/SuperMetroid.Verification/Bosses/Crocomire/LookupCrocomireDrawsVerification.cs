@@ -37,7 +37,7 @@ internal static class LookupCrocomireDrawsVerification
             }
         }
         int cells = 0;
-        InstalledRoomObjectCrocomireVisuals pictures = InstalledRoomObjectCrocomireVisuals.Stock();
+        InstalledRoomObjectPictures pictures = RoomObjectPicturesStock.Crocomire;
         for (int index = 0; index < pointers.Length; index++)
         {
             ushort pointer = pointers[index];

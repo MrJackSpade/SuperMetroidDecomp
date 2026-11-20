@@ -23,7 +23,7 @@ public static class RoomObjectStationVisualFiles
     /// <summary>Loads the installed station pictures as the player left them, without the cartridge.</summary>
     /// <param name="directory">The installed directory.</param>
     /// <exception cref="InvalidDataException">The file's format is not this importer's, or a frame's picture is missing or misshapen.</exception>
-    public static InstalledRoomObjectStationVisuals Load(string directory) =>
+    public static InstalledRoomObjectPictures Load(string directory) =>
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>The draw list of <paramref name="draw"/>, which must be one of the station draws.</summary>

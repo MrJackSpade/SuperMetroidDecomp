@@ -76,11 +76,11 @@ internal static class RoomObjectDefinitionMigrationVerification
 
         // Terrain blocks keep the collision kind and appearance of the former literal words.
         AssertEqual(RoomCollisionType.SolidBlock, MaridiaElevatubeObjectDefinitions.Shape.CollisionAt(new(0, 0)), "elevatube block");
-        AssertEqual(RoomBlockAppearance.Of(0x180), InstalledRoomObjectMaridiaElevatubeVisuals.Stock().Image(MaridiaElevatubeObjectDefinitions.BlockDraw).At(new(0, 0)),
+        AssertEqual(RoomBlockAppearance.Of(0x180), RoomObjectPicturesStock.MaridiaElevatube.Image(MaridiaElevatubeObjectDefinitions.BlockDraw).At(new(0, 0)),
             "elevatube block picture");
 
         // A restoration's geometry holds its collision; what it shows is its installed picture (#1557).
-        InstalledRoomObjectLinkedRestoreVisuals restorations = InstalledRoomObjectLinkedRestoreVisuals.Stock();
+        InstalledRoomObjectPictures restorations = RoomObjectPicturesStock.LinkedRestore;
         var bombHorizontal = new BombBlockRestoreDraw(BlockArrangement.Horizontal);
         AssertEqual(RoomCollisionType.BombableBlock, bombHorizontal.Blocks.CollisionAt(new(0, 0)), "bomb block parent");
         AssertEqual(RoomCollisionType.HorizontalExtension, bombHorizontal.Blocks.CollisionAt(new(1, 0)), "bomb block horizontal child");

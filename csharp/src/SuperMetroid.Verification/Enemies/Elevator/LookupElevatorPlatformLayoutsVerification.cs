@@ -31,7 +31,7 @@ internal static class LookupElevatorPlatformLayoutsVerification
         string[] ids = ["dim","glowing","bright"];
         var exported = RoomObjectElevatorPlatformVisualFiles.DrawLists.ToArray();
         AssertEqual(3, exported.Length, "ElevatorPlatform layout export count");
-        InstalledRoomObjectElevatorPlatformVisuals pictures = InstalledRoomObjectElevatorPlatformVisuals.Stock();
+        InstalledRoomObjectPictures pictures = RoomObjectPicturesStock.ElevatorPlatform;
         if (field == 0)
         {
             for (int raw = 0; raw <= ushort.MaxValue; raw++)

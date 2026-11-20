@@ -14,11 +14,11 @@ internal static class LookupCrocomireStockVerification
 {
     /// <summary>Compares the five arena frames' pictures with the cartridge, rejects other draws, then checks the import and its rejections.</summary>
     internal static void VerifyCrocomireStockMapping(CartridgeImportAddressSpace rom,
-        InstalledRoomObjectCrocomireVisuals installed)
+        InstalledRoomObjectPictures installed)
     {
         LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(0x9b5b,"clear-bridge"), new LookupEscapeGateStockFrame(0x9b73,"crumble-bridge-block"),
             new LookupEscapeGateStockFrame(0x9b79,"clear-bridge-block"), new LookupEscapeGateStockFrame(0x9b7f,"clear-invisible-wall"), new LookupEscapeGateStockFrame(0x9bbb,"create-invisible-wall")];
-        foreach (InstalledRoomObjectCrocomireVisuals pictures in new[] { InstalledRoomObjectCrocomireVisuals.Stock(), installed })
+        foreach (InstalledRoomObjectPictures pictures in new[] { RoomObjectPicturesStock.Crocomire, installed })
         {
             AssertPicturedAsNative(rom, pictures.Images, RoomObjectCrocomireVisualFiles.Family, frames, WrittenCells(RoomObjectCrocomireVisualFiles.Family));
         }

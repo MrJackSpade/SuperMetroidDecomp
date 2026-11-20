@@ -42,28 +42,16 @@ internal static class PirateHitboxShotActions
             if (family == SamusProjectileFamily.SuperMissile &&
                 projectile.KindStateAs<SuperMissileShotState>().Ignition is SamusMissileIgnition.Pending)
                 return PirateHitboxShotAction.Ignore;
-            return IsBeamOrMissile(family)
+            return BeamAndMissileVulnerabilities.ContainsKey(family)
                 ? PirateHitboxShotAction.Reflect
                 : PirateHitboxShotAction.Ignore;
         }
 
-        if (!IsBeamOrMissile(family))
+        // Only beams and missiles have a vulnerability the Gold Ninja reads; it ignores bombs and explosions.
+        if (!BeamAndMissileVulnerabilities.TryGetValue(family, out Func<EnemyVulnerabilities, SamusProjectileOccupant, EnemyWeaponVulnerability>? vulnerabilityOf))
             return PirateHitboxShotAction.Ignore;
 
-        EnemyVulnerabilities vulnerabilities = EnemyVulnerabilities.Of(Ensure.NotNull(enemy).Definition);
-        EnemyWeaponVulnerability vulnerability = family switch
-        {
-            SamusProjectileFamily.Beam => vulnerabilities.ForBeam(held.Type.BeamCombination),
-            SamusProjectileFamily.Missile => vulnerabilities.Ordnance.Missile,
-            SamusProjectileFamily.SuperMissile => vulnerabilities.Ordnance.SuperMissile,
-            SamusProjectileFamily.PowerBomb or
-                SamusProjectileFamily.Bomb or
-                SamusProjectileFamily.BeamExplosion or
-                SamusProjectileFamily.MissileExplosion => throw new InvalidDataException(
-                $"Gold Ninja projectile family {family} has no vulnerability field."),
-            _ => throw new InvalidDataException(
-                $"Gold Ninja projectile family {family} has no vulnerability field."),
-        };
+        EnemyWeaponVulnerability vulnerability = vulnerabilityOf(EnemyVulnerabilities.Of(Ensure.NotNull(enemy).Definition), held);
         // The Gold Ninja reflects what does it no damage, freezing beams included.
         return !vulnerability.Multiplier.IsNone && !vulnerability.FreezesWithoutDamage
             ? PirateHitboxShotAction.Normal
@@ -101,8 +89,13 @@ internal static class PirateHitboxShotActions
     internal static bool GoldNinjaShowsHitBurst(EnemyReaction reaction) => reaction == EnemyReaction.OrdinaryShot;
 
     /// <summary>Whether a shot is a beam, missile or Super Missile, the families the gold ninja reflects or is hurt by.</summary>
-    private static bool IsBeamOrMissile(SamusProjectileFamily family) =>
-        family is SamusProjectileFamily.Beam or SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile;
+    private static IReadOnlyDictionary<SamusProjectileFamily, Func<EnemyVulnerabilities, SamusProjectileOccupant, EnemyWeaponVulnerability>> BeamAndMissileVulnerabilities => field ??=
+        new Dictionary<SamusProjectileFamily, Func<EnemyVulnerabilities, SamusProjectileOccupant, EnemyWeaponVulnerability>>
+        {
+            [SamusProjectileFamily.Beam] = static (vulnerabilities, held) => vulnerabilities.ForBeam(held.Type.BeamCombination),
+            [SamusProjectileFamily.Missile] = static (vulnerabilities, held) => vulnerabilities.Ordnance.Missile,
+            [SamusProjectileFamily.SuperMissile] = static (vulnerabilities, held) => vulnerabilities.Ordnance.SuperMissile,
+        };
 
     /// <summary>Outcome chosen from a Pirate component's shot reaction before ordinary damage processing.</summary>
     internal enum PirateHitboxShotAction

@@ -52,26 +52,22 @@ public sealed class PuyoEnemyState
     /// <summary>One-half point of the initial vertical speed-curve place.</summary>
     public QuadraticSpeedCurvePlace InitialYSpeedCurvePlaceHalf { get; internal set; }
 
-    /// <summary>What <c>StepAirbornePlace</c> does for each <see cref="PuyoAction"/> member, each member's own arm.</summary>
-    private IdentityTable<PuyoAction, Action<QuadraticSpeedCurvePlace>> StepAirbornePlaceForPuyoAction => field ??= new(new Dictionary<PuyoAction, Action<QuadraticSpeedCurvePlace>>
+    /// <summary>What <c>StepAirbornePlace</c> does for a Puyo falling and one rising.</summary>
+    private IdentityTable<VerticalDirection, Action<QuadraticSpeedCurvePlace>> StepAirbornePlaceByHeading => field ??= new(new Dictionary<VerticalDirection, Action<QuadraticSpeedCurvePlace>>
     {
-        [PuyoAction.Falling] = delta =>
+        [VerticalDirection.Down] = delta =>
         {
             YSpeedCurvePlace += delta;
             if (PuyoFallRestart.StartsOver(YSpeedCurvePlace.WholeMarks))
                 YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
         },
-        [PuyoAction.Rising] = delta =>
+        [VerticalDirection.Up] = delta =>
         {
             YSpeedCurvePlace -= delta;
             if (!YSpeedCurvePlace.IsNegative)
                 return;
             Action = PuyoAction.Falling;
             YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
-        },
-        [PuyoAction.Grounded] = delta =>
-        {
-            throw new InvalidOperationException("A grounded Puyo has no airborne place to step.");
         },
     });
 
@@ -81,9 +77,9 @@ public sealed class PuyoEnemyState
     /// starts again from rest (<see cref="PuyoFallRestart"/>).
     /// </summary>
     /// <param name="delta">The hop's step along the curve, at most three whole marks.</param>
-    /// <exception cref="InvalidOperationException">The Puyo is grounded.</exception>
-    internal void StepAirbornePlace(QuadraticSpeedCurvePlace delta)
+    /// <param name="heading">The way the airborne Puyo moves: up while it rises, down while it falls.</param>
+    internal void StepAirbornePlace(QuadraticSpeedCurvePlace delta, VerticalDirection heading)
     {
-        StepAirbornePlaceForPuyoAction[Action](delta);
+        StepAirbornePlaceByHeading[heading](delta);
     }
 }

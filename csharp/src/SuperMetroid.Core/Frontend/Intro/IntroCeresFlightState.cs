@@ -334,12 +334,12 @@ internal sealed class IntroCeresFlightState
     private void StepSpaceColonyTitle() =>
         (caption ?? throw new InvalidOperationException("The SPACE COLONY title runs with no caption set up.")).Step(CarryOut);
 
-    /// <summary>Carries out <paramref name="cue"/> of the caption's typing.</summary>
-    /// <exception cref="InvalidOperationException">The cue is not one the caption's typing raises.</exception>
+    /// <summary>
+    /// Carries out <paramref name="cue"/> of the caption's typing: <see cref="SpaceColonyCaptionCue.StartFadeOut"/>, the cue
+    /// type's one member, starts the fade out.
+    /// </summary>
     private void CarryOut(SpaceColonyCaptionCue cue)
     {
-        if (cue != SpaceColonyCaptionCue.StartFadeOut)
-            throw new InvalidOperationException($"Undefined SPACE COLONY caption cue {cue}.");
         fade.StepEvery(CeresFlightSceneDefinitions.FadeOutUpdatesPerStep);
         Phase = IntroCeresFlightPhase.FadeOut;
     }

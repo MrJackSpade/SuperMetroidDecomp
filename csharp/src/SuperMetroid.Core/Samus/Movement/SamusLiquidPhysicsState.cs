@@ -21,28 +21,48 @@ public sealed class SamusLiquidPhysicsState
     /// <summary>What <c>ConfigureFor</c> does for each <see cref="RoomFxType"/> member, each member's own arm.</summary>
     private IdentityTable<RoomFxType, Action<RoomFxOverlayState>> ConfigureForForRoomFxType => field ??= new(new Dictionary<RoomFxType, Action<RoomFxOverlayState>>
     {
-        [RoomFxType.Water] = fx => ConfigureWater(LiveSurface(fx), fx.Liquid is RoomWater { IgnoresSurfaceUntilEnabled: true }, fx.Type),
-        [RoomFxType.TourianEntranceStatue] = fx => ConfigureWater(LiveSurface(fx), fx.Liquid is RoomWater { IgnoresSurfaceUntilEnabled: true }, fx.Type),
-        [RoomFxType.Lava] = fx => ConfigureLavaAcid(LiveSurface(fx)),
-        [RoomFxType.Acid] = fx => ConfigureLavaAcid(LiveSurface(fx), RoomFxType.Acid),
-        [RoomFxType.None] = fx => ConfigureForForRoomFxTypeNone(fx),
-        [RoomFxType.Spores] = fx => ConfigureForForRoomFxTypeNone(fx),
-        [RoomFxType.Rain] = fx => ConfigureForForRoomFxTypeNone(fx),
-        [RoomFxType.Fog] = fx => ConfigureForForRoomFxTypeNone(fx),
-        [RoomFxType.ScrollingSky] = fx => ConfigureForForRoomFxTypeNone(fx),
-        [RoomFxType.Fireflea] = fx => ConfigureForForRoomFxTypeNone(fx),
-        [RoomFxType.CeresRidley] = fx => ConfigureForForRoomFxTypeNone(fx),
-        [RoomFxType.CeresElevator] = fx => ConfigureForForRoomFxTypeNone(fx),
-        [RoomFxType.CeresHaze] = fx => ConfigureForForRoomFxTypeNone(fx),
+        [RoomFxType.Water] = fx => ConfigureWater(LiveSurface(fx), fx.Liquid is RoomWater { IgnoresSurfaceUntilEnabled: true }, WaterRoomFx.Water),
+        [RoomFxType.TourianEntranceStatue] = fx => ConfigureWater(LiveSurface(fx), fx.Liquid is RoomWater { IgnoresSurfaceUntilEnabled: true }, WaterRoomFx.TourianEntranceStatue),
+        [RoomFxType.Lava] = fx => ConfigureLavaAcid(LiveSurface(fx), LavaAcidRoomFx.Lava),
+        [RoomFxType.Acid] = fx => ConfigureLavaAcid(LiveSurface(fx), LavaAcidRoomFx.Acid),
+        [RoomFxType.None] = fx => ConfigureNonLiquidRoomFx(DryRoomFx.None),
+        [RoomFxType.Spores] = fx => ConfigureNonLiquidRoomFx(DryRoomFx.Spores),
+        [RoomFxType.Rain] = fx => ConfigureNonLiquidRoomFx(DryRoomFx.Rain),
+        [RoomFxType.Fog] = fx => ConfigureNonLiquidRoomFx(DryRoomFx.Fog),
+        [RoomFxType.ScrollingSky] = fx => ConfigureNonLiquidRoomFx(DryRoomFx.ScrollingSky),
+        [RoomFxType.Fireflea] = fx => ConfigureNonLiquidRoomFx(DryRoomFx.Fireflea),
+        [RoomFxType.CeresRidley] = fx => ConfigureNonLiquidRoomFx(DryRoomFx.CeresRidley),
+        [RoomFxType.CeresElevator] = fx => ConfigureNonLiquidRoomFx(DryRoomFx.CeresElevator),
+        [RoomFxType.CeresHaze] = fx => ConfigureNonLiquidRoomFx(DryRoomFx.CeresHaze),
     });
 
-    /// <summary>What <see cref="ConfigureForForRoomFxType"/> does for <see cref="RoomFxType.None"/>, <see cref="RoomFxType.Spores"/>, <see cref="RoomFxType.Rain"/>, <see cref="RoomFxType.Fog"/>, <see cref="RoomFxType.ScrollingSky"/>, <see cref="RoomFxType.Fireflea"/>, <see cref="RoomFxType.CeresRidley"/>, <see cref="RoomFxType.CeresElevator"/>, <see cref="RoomFxType.CeresHaze"/>.</summary>
-    private void ConfigureForForRoomFxTypeNone(RoomFxOverlayState fx)
+    /// <summary>The two water effects, each as its room effect type.</summary>
+    private static IdentityTable<WaterRoomFx, RoomFxType> WaterRoomFxTypes => field ??= new(new Dictionary<WaterRoomFx, RoomFxType>
     {
-        // Non-liquid FX still own the FX type, which atmospheric effects keep while the
-        // room has neither liquid surface.
-        ConfigureNonLiquidRoomFx(fx.Type);
-    }
+        [WaterRoomFx.Water] = RoomFxType.Water,
+        [WaterRoomFx.TourianEntranceStatue] = RoomFxType.TourianEntranceStatue,
+    });
+
+    /// <summary>The effects with no liquid, each as its room effect type.</summary>
+    private static IdentityTable<DryRoomFx, RoomFxType> DryRoomFxTypes => field ??= new(new Dictionary<DryRoomFx, RoomFxType>
+    {
+        [DryRoomFx.None] = RoomFxType.None,
+        [DryRoomFx.Spores] = RoomFxType.Spores,
+        [DryRoomFx.Rain] = RoomFxType.Rain,
+        [DryRoomFx.Fog] = RoomFxType.Fog,
+        [DryRoomFx.ScrollingSky] = RoomFxType.ScrollingSky,
+        [DryRoomFx.Fireflea] = RoomFxType.Fireflea,
+        [DryRoomFx.CeresRidley] = RoomFxType.CeresRidley,
+        [DryRoomFx.CeresElevator] = RoomFxType.CeresElevator,
+        [DryRoomFx.CeresHaze] = RoomFxType.CeresHaze,
+    });
+
+    /// <summary>The two lava-and-acid effects, each as its room effect type.</summary>
+    private static IdentityTable<LavaAcidRoomFx, RoomFxType> LavaAcidRoomFxTypes => field ??= new(new Dictionary<LavaAcidRoomFx, RoomFxType>
+    {
+        [LavaAcidRoomFx.Lava] = RoomFxType.Lava,
+        [LavaAcidRoomFx.Acid] = RoomFxType.Acid,
+    });
 
     /// <summary>
     /// Takes the room's selected effect into Samus's liquid state, so what the room shows and how Samus moves read one
@@ -142,37 +162,32 @@ public sealed class SamusLiquidPhysicsState
     /// Configures the water surface, or none, and whether Samus ignores it, while preserving the ordinary or statue room's
     /// FX identity; the room has no lava or acid surface.
     /// </summary>
-    private void ConfigureWater(int? surfaceY, bool ignoresSurface, RoomFxType type)
+    private void ConfigureWater(int? surfaceY, bool ignoresSurface, WaterRoomFx type)
     {
-        if (!RoomFxTypes.UsesWater(type))
-            throw new ArgumentOutOfRangeException(nameof(type), type, "A water configuration requires a water effect.");
-        FxType = type;
+        FxType = WaterRoomFxTypes[type];
         WaterSurfaceY = surfaceY;
         LavaAcidSurfaceY = null;
         IgnoresWaterSurface = ignoresSurface;
     }
 
     /// <summary>Configures a lava or acid surface, or none; the room has no water surface.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="type"/> is neither lava nor acid.</exception>
-    private void ConfigureLavaAcid(int? surfaceY, RoomFxType type = RoomFxType.Lava)
+    private void ConfigureLavaAcid(int? surfaceY, LavaAcidRoomFx type)
     {
-        FxType = type is RoomFxType.Lava or RoomFxType.Acid ? type : throw new ArgumentOutOfRangeException(nameof(type), type, "Only lava or acid has a lava/acid surface.");
+        FxType = LavaAcidRoomFxTypes[type];
         WaterSurfaceY = null;
         LavaAcidSurfaceY = surfaceY;
         IgnoresWaterSurface = false;
     }
 
     /// <summary>
-    /// Selects a non-liquid room FX, which leaves the room with neither liquid surface.
+    /// Selects non-liquid room FX <paramref name="type"/>, which leaves the room with neither liquid surface.
     /// Rain and other atmospheric owners still need their FX type,
     /// so clearing the entire state would discard observable animation behavior.
     /// </summary>
-    private void ConfigureNonLiquidRoomFx(RoomFxType type)
+    private void ConfigureNonLiquidRoomFx(DryRoomFx type)
     {
-        if (type is RoomFxType.Water or RoomFxType.TourianEntranceStatue or RoomFxType.Lava or RoomFxType.Acid)
-            throw new ArgumentOutOfRangeException(nameof(type), type, "Use the liquid-specific configuration method.");
         Clear();
-        FxType = type;
+        FxType = DryRoomFxTypes[type];
     }
 
     /// <summary>Restores the no-FX state of a dry room, which has neither liquid surface.</summary>

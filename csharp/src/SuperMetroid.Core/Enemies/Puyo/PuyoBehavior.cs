@@ -61,8 +61,8 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     private IdentityTable<PuyoAction, Action<RoomEnemyOccupant, RoomEnemyPlace, PuyoEnemyState, SamusState, RoomLevelData>> RunPuyoMainForPuyoAction => field ??= new(new Dictionary<PuyoAction, Action<RoomEnemyOccupant, RoomEnemyPlace, PuyoEnemyState, SamusState, RoomLevelData>>
     {
         [PuyoAction.Grounded] = (occupant, place, state, samus, level) => RunGroundedPuyo(occupant, place, state, samus),
-        [PuyoAction.Rising] = (_, place, state, samus, level) => RunAirbornePuyo(place, state, level),
-        [PuyoAction.Falling] = (_, place, state, samus, level) => RunAirbornePuyo(place, state, level),
+        [PuyoAction.Rising] = (_, place, state, samus, level) => RunAirbornePuyo(place, state, level, VerticalDirection.Up),
+        [PuyoAction.Falling] = (_, place, state, samus, level) => RunAirbornePuyo(place, state, level, VerticalDirection.Down),
     });
 
     /// <summary>Runs a Puyo for one update and its top-level actions.</summary>
@@ -156,44 +156,48 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     private static PuyoHopDefinition Hop(PuyoEnemyState state) => PuyoHopDefinitions.Hops[state.CurrentHop];
 
     /// <summary>What <c>RunAirbornePuyo</c> does for each <see cref="PuyoAirborneMovement"/> member, each member's own arm.</summary>
-    private IdentityTable<PuyoAirborneMovement, Action<RoomEnemyPlace, PuyoEnemyState, RoomLevelData>> RunAirbornePuyoForPuyoAirborneMovement => field ??= new(new Dictionary<PuyoAirborneMovement, Action<RoomEnemyPlace, PuyoEnemyState, RoomLevelData>>
+    private IdentityTable<PuyoAirborneMovement, Action<RoomEnemyPlace, PuyoEnemyState, RoomLevelData, VerticalDirection>> RunAirbornePuyoForPuyoAirborneMovement => field ??= new(new Dictionary<PuyoAirborneMovement, Action<RoomEnemyPlace, PuyoEnemyState, RoomLevelData, VerticalDirection>>
     {
-        [PuyoAirborneMovement.NormalShortHop] = (place, state, level) =>
+        [PuyoAirborneMovement.NormalShortHop] = (place, state, level, heading) =>
         {
             RunNormalPuyoHop(
                 place,
                 state,
                 level,
+                heading,
                 PuyoSegment.GroundedSlow);
         },
-        [PuyoAirborneMovement.NormalBigHop] = (place, state, level) =>
+        [PuyoAirborneMovement.NormalBigHop] = (place, state, level, heading) =>
         {
             RunNormalPuyoHop(
                 place,
                 state,
                 level,
+                heading,
                 PuyoSegment.GroundedMedium);
         },
-        [PuyoAirborneMovement.NormalLongHop] = (place, state, level) =>
+        [PuyoAirborneMovement.NormalLongHop] = (place, state, level, heading) =>
         {
             RunNormalPuyoHop(
                 place,
                 state,
                 level,
+                heading,
                 PuyoSegment.GroundedFast);
         },
-        [PuyoAirborneMovement.GiantHop] = (place, state, level) => RunGiantPuyoHop(place, state, level),
-        [PuyoAirborneMovement.Dropping] = (place, state, level) => RunDroppingPuyo(place, state, level),
-        [PuyoAirborneMovement.Dropped] = (place, state, level) => RunDroppedPuyo(place, state, level),
+        [PuyoAirborneMovement.GiantHop] = (place, state, level, heading) => RunGiantPuyoHop(place, state, level, heading),
+        [PuyoAirborneMovement.Dropping] = (place, state, level, heading) => RunDroppingPuyo(place, state, level),
+        [PuyoAirborneMovement.Dropped] = (place, state, level, heading) => RunDroppedPuyo(place, state, level, heading),
     });
 
-    /// <summary>Runs the airborne step.</summary>
+    /// <summary>Runs the airborne step of a Puyo rising or falling, the way <paramref name="heading"/> names.</summary>
     private void RunAirbornePuyo(
         RoomEnemyPlace place,
         PuyoEnemyState state,
-        RoomLevelData level)
+        RoomLevelData level,
+        VerticalDirection heading)
     {
-        RunAirbornePuyoForPuyoAirborneMovement[state.AirborneMovement](place, state, level);
+        RunAirbornePuyoForPuyoAirborneMovement[state.AirborneMovement](place, state, level, heading);
     }
 
     /// <summary>Runs a short, big or long hop, which lands into the grounded animation the hop names.</summary>
@@ -201,18 +205,19 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyPlace place,
         PuyoEnemyState state,
         RoomLevelData level,
+        VerticalDirection heading,
         PuyoSegment landingSegment)
     {
-        if (!MovePuyo(place, state, level))
+        if (!MovePuyo(place, state, level, heading))
             return;
 
         SetPuyoAnimation(place, state, landingSegment);
     }
 
     /// <summary>Runs the Puyo's giant airborne hop.</summary>
-    private void RunGiantPuyoHop(RoomEnemyPlace place, PuyoEnemyState state, RoomLevelData level)
+    private void RunGiantPuyoHop(RoomEnemyPlace place, PuyoEnemyState state, RoomLevelData level, VerticalDirection heading)
     {
-        if (!MovePuyo(place, state, level))
+        if (!MovePuyo(place, state, level, heading))
             return;
 
         // A normal landing returns a giant hop to the small hop. A wall or ceiling collision that turns the Puyo back
@@ -243,9 +248,9 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the bounce after the drop.</summary>
-    private void RunDroppedPuyo(RoomEnemyPlace place, PuyoEnemyState state, RoomLevelData level)
+    private void RunDroppedPuyo(RoomEnemyPlace place, PuyoEnemyState state, RoomLevelData level, VerticalDirection heading)
     {
-        if (!MovePuyo(place, state, level))
+        if (!MovePuyo(place, state, level, heading))
             return;
 
         state.HopType = PuyoHopType.Giant;
@@ -257,14 +262,14 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Moves the airborne Puyo one update along its hop, and whether the hop met terrain (#2450): a landing grounds it, and
     /// a ceiling or a wall starts its drop. Until it meets terrain it keeps its hopping poses.
     /// </summary>
-    private bool MovePuyo(RoomEnemyPlace place, PuyoEnemyState state, RoomLevelData level)
+    private bool MovePuyo(RoomEnemyPlace place, PuyoEnemyState state, RoomLevelData level, VerticalDirection heading)
     {
         QuadraticCurveSpeed curveSpeed = QuadraticSpeedCurvePlace.Min(state.YSpeedCurvePlace, PuyoHopDefinitions.FastestSpeedPlace).Speed;
-        SignedSixteenSixteen verticalDisplacement = curveSpeed.Toward(state.Action == PuyoAction.Falling ? VerticalDirection.Down : VerticalDirection.Up);
+        SignedSixteenSixteen verticalDisplacement = curveSpeed.Toward(heading);
         bool verticalCollision = _terrain.MoveEnemyVertically(level, place, verticalDisplacement);
         if (verticalCollision)
         {
-            if (state.Action == PuyoAction.Rising)
+            if (heading == VerticalDirection.Up)
             {
                 // Striking a ceiling while rising starts the drop; whether the next hop turns back is what the room's
                 // last draw and HUD redraw left (PuyoCeilingTurnFromLastDraw): always in an ordinary gameplay update.
@@ -281,9 +286,9 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The pose follows the curve place before this update's step moves it on: upright, tilted, or tilted far as the
         // place passes half and three quarters of the place the rise started from.
-        SetPuyoAirborneAnimation(place, state);
+        SetPuyoAirborneAnimation(place, state, heading);
 
-        state.StepAirbornePlace(Hop(state).CurveStep);
+        state.StepAirbornePlace(Hop(state).CurveStep, heading);
 
         // The hop moves sideways by the whole pixels of its horizontal speed only, so the giant hop's one and a quarter
         // moves exactly one pixel each update.
@@ -304,10 +309,10 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Selects the rising/falling one-frame pose for the current curve place.</summary>
-    private static void SetPuyoAirborneAnimation(RoomEnemyPlace place, PuyoEnemyState state)
+    private static void SetPuyoAirborneAnimation(RoomEnemyPlace place, PuyoEnemyState state, VerticalDirection heading)
     {
         PuyoSegment segment;
-        if (state.Action == PuyoAction.Rising)
+        if (heading == VerticalDirection.Up)
         {
             if (state.Direction == HorizontalDirection.Right)
             {

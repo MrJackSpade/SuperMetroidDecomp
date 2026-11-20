@@ -43,8 +43,8 @@ internal static class EscapeDachoraAnimations
         ],
         [P.RunningForEscapeAccelerating] =
         [
-            .. Stride(DachoraStride.Right, [90, 5, 5, 4, 4, 4], LapStepPixels),
-            .. Stride(DachoraStride.Right, [3, 3, 3, 2, 2, 2], LapStepPixels),
+            .. Stride(DachoraStride.Right, new DachoraStridePace(90, 5, 5, 4, 4, 4), LapStepPixels),
+            .. Stride(DachoraStride.Right, new DachoraStridePace(3, 3, 3, 2, 2, 2), LapStepPixels),
         ],
         [P.RunningForEscapeMaximumSpeed] = Stride(DachoraStride.Right, 1, LapStepPixels),
     });
@@ -96,17 +96,14 @@ internal static class EscapeDachoraAnimations
     /// <paramref name="step"/> pixels.
     /// </summary>
     private static AnimationBeat<EnemyFrameId, EscapeDachoraCue>[] Stride(DachoraStride stride, int updates, int step) =>
-        Stride(stride, [.. stride.Poses.Select(_ => updates)], step);
+        Stride(stride, DachoraStridePace.Even(updates), step);
 
     /// <summary>
     /// One <paramref name="stride"/> whose pace changes from pose to pose (#2477): each pose shown for its own count of
-    /// <paramref name="updates"/> and followed by a step of <paramref name="step"/> pixels.
+    /// <paramref name="pace"/> and followed by a step of <paramref name="step"/> pixels.
     /// </summary>
-    /// <exception cref="ArgumentException"><paramref name="updates"/> does not time every pose of the stride.</exception>
-    private static AnimationBeat<EnemyFrameId, EscapeDachoraCue>[] Stride(DachoraStride stride, IReadOnlyList<int> updates, int step) =>
-        updates.Count == stride.Poses.Count
-            ? [.. stride.Poses.SelectMany((pose, index) => new[] { Show(pose, updates[index]), Cue(new EscapeDachoraCue.Move(Offset: step)) })]
-            : throw new ArgumentException($"A Dachora stride of {stride.Poses.Count} poses is timed by {updates.Count} counts.", nameof(updates));
+    private static AnimationBeat<EnemyFrameId, EscapeDachoraCue>[] Stride(DachoraStride stride, DachoraStridePace pace, int step) =>
+        [.. stride.Poses.Zip(pace.Updates).SelectMany(posed => new[] { Show(posed.First, posed.Second), Cue(new EscapeDachoraCue.Move(Offset: step)) })];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, EscapeDachoraCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, EscapeDachoraCue>.Frame(frame, duration);

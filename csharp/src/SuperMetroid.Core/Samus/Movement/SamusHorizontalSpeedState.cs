@@ -425,31 +425,32 @@ public sealed class SamusHorizontalSpeedState
         Position16<RoomPixels> position)
     {
         Ensure.AtLeastZero(gameTimeFrames);
-        if (!IsActivelySpeedBoosting ||
-            SpeedEchoesDeparting ||
-            !SamusCadenceDefinitions.SpeedEchoCapture.IsDue(gameTimeFrames))
-        {
+        if (!IsActivelySpeedBoosting || !SamusCadenceDefinitions.SpeedEchoCapture.IsDue(gameTimeFrames))
             return false;
-        }
-
-        switch (SpeedEchoPhase)
-        {
-            case SpeedEchoPhase.CapturingFirst:
-                FirstSpeedEchoPosition = position;
-                SpeedEchoPhase = SpeedEchoPhase.CapturingSecond;
-                break;
-            case SpeedEchoPhase.CapturingSecond:
-                SecondSpeedEchoPosition = position;
-                SpeedEchoPhase = SpeedEchoPhase.CapturingFirst;
-                break;
-            case SpeedEchoPhase.Departing:
-                throw new InvalidOperationException("Departing echoes are not captured.");
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(SpeedEchoPhase)} {SpeedEchoPhase}.");
-        }
-
-        return true;
+        return EchoCaptures[SpeedEchoPhase](this, position);
     }
+
+    /// <summary>
+    /// What a due capture does in each echo phase (#2553): fills the echo the phase names and points the next capture at
+    /// the other, or, while the echoes depart, captures nothing. Each says whether it captured.
+    /// </summary>
+    private static IdentityTable<SpeedEchoPhase, Func<SamusHorizontalSpeedState, Position16<RoomPixels>, bool>> EchoCaptures => field ??= new(
+        new Dictionary<SpeedEchoPhase, Func<SamusHorizontalSpeedState, Position16<RoomPixels>, bool>>
+        {
+            [SpeedEchoPhase.CapturingFirst] = static (speed, position) =>
+            {
+                speed.FirstSpeedEchoPosition = position;
+                speed.SpeedEchoPhase = SpeedEchoPhase.CapturingSecond;
+                return true;
+            },
+            [SpeedEchoPhase.CapturingSecond] = static (speed, position) =>
+            {
+                speed.SecondSpeedEchoPosition = position;
+                speed.SpeedEchoPhase = SpeedEchoPhase.CapturingFirst;
+                return true;
+            },
+            [SpeedEchoPhase.Departing] = static (_, _) => false,
+        });
 
     /// <summary>
     /// Removes both echoes, stops their departure and points the next capture at the first echo: a shinespark's

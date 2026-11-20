@@ -613,28 +613,22 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// </summary>
     private void TurnPage()
     {
-        IntroIllustration? next = IntroNarrationPageDefinitions.Pages[Page].TurnsTo;
-        switch (next)
-        {
-            case IntroIllustration.MotherBrainFlashback:
-                SetupMotherBrainFlashback();
-                return;
-            case IntroIllustration.BabyDiscovery:
-                SetupBabyDiscoveryCrossfade();
-                return;
-            case IntroIllustration.BabyDelivery:
-                SetupBabyMetroidDelivery();
-                return;
-            case IntroIllustration.BabyExamination:
-                SetupBabyMetroidExamination();
-                return;
-            case null:
-                SetupFinalPage();
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(IntroIllustration)} {next}.");
-        }
+        // The last narration page turns to no illustration but the final page.
+        if (IntroNarrationPageDefinitions.Pages[Page].TurnsTo is { } next)
+            IllustrationSetups[next](this);
+        else
+            SetupFinalPage();
     }
+
+    /// <summary>How the intro sets up each illustration a narration page turns to (#2553).</summary>
+    private static IdentityTable<IntroIllustration, Action<IntroCinematicState>> IllustrationSetups => field ??= new(
+        new Dictionary<IntroIllustration, Action<IntroCinematicState>>
+        {
+            [IntroIllustration.MotherBrainFlashback] = static intro => intro.SetupMotherBrainFlashback(),
+            [IntroIllustration.BabyDiscovery] = static intro => intro.SetupBabyDiscoveryCrossfade(),
+            [IntroIllustration.BabyDelivery] = static intro => intro.SetupBabyMetroidDelivery(),
+            [IntroIllustration.BabyExamination] = static intro => intro.SetupBabyMetroidExamination(),
+        });
 
     /// <summary>
     /// Starts the page the shown illustration leads into (#2489): its narration spawns and restores the caret, and the

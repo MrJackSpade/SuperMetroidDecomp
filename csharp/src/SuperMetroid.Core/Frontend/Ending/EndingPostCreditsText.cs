@@ -71,23 +71,20 @@ internal sealed class EndingPostCreditsText
             text.BindText(value);
     }
 
+    /// <summary>The panel each post-credits panel choice shows: the result panel, the copyright panel, or none (#2553).</summary>
+    private static IdentityTable<EndingPostCreditsPanel, IReadOnlyList<EndingShownText>> PanelTexts => field ??= new(
+        new Dictionary<EndingPostCreditsPanel, IReadOnlyList<EndingShownText>>
+        {
+            [EndingPostCreditsPanel.Result] = [new(EndingPictureNames.ResultPanel, EndingResultTextLayout.ResultPanelCorner)],
+            [EndingPostCreditsPanel.Copyright] = [new(EndingPictureNames.CopyrightPanel, EndingResultTextLayout.CopyrightPanelCorner)],
+            [EndingPostCreditsPanel.None] = [],
+        });
+
     /// <summary>What the screen shows, in drawing order: the panel, the item-percentage text, then the final message.</summary>
-    /// <exception cref="InvalidOperationException">The panel is undefined.</exception>
     internal IEnumerable<EndingShownText> Shown()
     {
-        switch (Panel)
-        {
-            case EndingPostCreditsPanel.Result:
-                yield return new(EndingPictureNames.ResultPanel, EndingResultTextLayout.ResultPanelCorner);
-                break;
-            case EndingPostCreditsPanel.Copyright:
-                yield return new(EndingPictureNames.CopyrightPanel, EndingResultTextLayout.CopyrightPanelCorner);
-                break;
-            case EndingPostCreditsPanel.None:
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined post-credits panel {Panel}.");
-        }
+        foreach (EndingShownText panel in PanelTexts[Panel])
+            yield return panel;
         foreach (EndingTypewriter text in typed)
         {
             foreach (EndingShownText shown in text.Shown())

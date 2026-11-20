@@ -110,23 +110,18 @@ internal sealed class TorizoMovement
         TorizoEnemyState state,
         RoomLevelData level)
     {
-        switch (state.Motion)
-        {
-            case null:
-                return;
-            case TorizoBodyMotion.Walking:
-                Walk(torizo, state, level);
-                return;
-            case TorizoBodyMotion.Standing:
-                ApplyTorizoGravity(torizo, state, level);
-                return;
-            case TorizoBodyMotion.Leaping:
-                Leap(torizo, state, level);
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(TorizoBodyMotion)} {state.Motion}.");
-        }
+        if (state.Motion is { } motion)
+            MotionSteps[motion](torizo, state, level);
     }
+
+    /// <summary>How the body moves in each motion (#2553): a walk, gravity while standing, or a leap.</summary>
+    private IdentityTable<TorizoBodyMotion, Action<RoomEnemyPlace, TorizoEnemyState, RoomLevelData>> MotionSteps => field ??= new(
+        new Dictionary<TorizoBodyMotion, Action<RoomEnemyPlace, TorizoEnemyState, RoomLevelData>>
+        {
+            [TorizoBodyMotion.Walking] = Walk,
+            [TorizoBodyMotion.Standing] = ApplyTorizoGravity,
+            [TorizoBodyMotion.Leaping] = Leap,
+        });
 
     /// <summary>
     /// Moves the statue vertically. Meeting the ground while falling faster than it rests, it lands: a quake starts and it

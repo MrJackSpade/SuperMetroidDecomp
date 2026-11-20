@@ -36,23 +36,18 @@ internal sealed class EndingFlyawayStarsMotion(EndingStarsMotion? motion) : Endi
     {
         Ensure.NotNull(actor);
         Ensure.NotNull(scene);
-        switch (Motion)
+        if (Motion == EndingStarsMotion.WaitingForFlyaway)
         {
-            case null:
-                break;
-            case EndingStarsMotion.WaitingForFlyaway:
-                if (scene.Phase == EndingCreditsPhase.PlanetEscapeFast)
-                {
-                    Motion = EndingStarsMotion.Moving;
-                    velocity = EndingMotionDefinitions.StarsFlyawayInitialVelocity;
-                }
-                break;
-            case EndingStarsMotion.Moving:
-                velocity -= EndingMotionDefinitions.StarsFlyawayDeceleration;
-                actor.Position = actor.Position.WithX(actor.Position.X + velocity);
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(EndingStarsMotion)} {Motion}.");
+            if (scene.Phase == EndingCreditsPhase.PlanetEscapeFast)
+            {
+                Motion = EndingStarsMotion.Moving;
+                velocity = EndingMotionDefinitions.StarsFlyawayInitialVelocity;
+            }
+        }
+        else if (Motion == EndingStarsMotion.Moving)
+        {
+            velocity -= EndingMotionDefinitions.StarsFlyawayDeceleration;
+            actor.Position = actor.Position.WithX(actor.Position.X + velocity);
         }
         if (scene.Phase == EndingCreditsPhase.OperationSuccessfulText)
             actor.Delete();

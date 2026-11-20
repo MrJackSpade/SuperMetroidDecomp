@@ -732,16 +732,9 @@ public static class SamusBlockCollision
     private static bool MeetDoorBlock(SamusTerrain terrain, RoomCollisionBlock block, SamusPoseId? pose, DoorBlockMeeting meeting)
     {
         DoorContact contact = DoorContact.Of(terrain.Level.DoorExitAt(block), pose.ForRoomCollision());
-        switch (meeting)
-        {
-            case DoorBlockMeeting.Contacts:
-                terrain.RoomObjects.DoorContacts.Meet(contact);
-                break;
-            case DoorBlockMeeting.CarriedPastByElevator:
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(DoorBlockMeeting)} {meeting}.");
-        }
+        // An elevator carrying Samus past the door's block makes no contact with it.
+        if (meeting == DoorBlockMeeting.Contacts)
+            terrain.RoomObjects.DoorContacts.Meet(contact);
         return contact.Blocks;
     }
 

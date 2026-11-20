@@ -284,28 +284,26 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
         ColourEffectTarget target)
     {
         ColourEffectDefinition definition = ColourEffectAnimations.Definition(effect);
-        ColourEffectId framesOf;
-        switch (definition.Start)
-        {
-            case ColourEffectStart.Plain:
-                framesOf = effect;
-                break;
-            case ColourEffectStart.ChoosesHeatAnimationForSuit:
-                // The heat shimmer plays the pulse of the same live suit Samus wears, in its frames; Gravity before Varia.
-                framesOf = ColourEffectHeatAnimations.Pulse(ColourEffectHeatAnimations.SuitFor(equippedItems));
-                break;
-            case ColourEffectStart.SkippedOnceAreaMiniBossIsDead:
-                if (areaMiniBossDefeated)
-                    return false;
-                framesOf = effect;
-                break;
-            default:
-                throw new InvalidOperationException($"Colour effect {effect} has undefined start {definition.Start}.");
-        }
+        if (definition.Start == ColourEffectStart.SkippedOnceAreaMiniBossIsDead && areaMiniBossDefeated)
+            return false;
+        ColourEffectId framesOf = FramesStartedBy[definition.Start](effect, equippedItems);
 
         effects.Add(new RoomColourEffect(effect, framesOf, target));
         return true;
     }
+
+    /// <summary>
+    /// The effect whose frames each start plays (#2553): its own, or for the heat shimmer the pulse of the same live suit
+    /// Samus wears, in its frames, Gravity before Varia.
+    /// </summary>
+    private static IdentityTable<ColourEffectStart, Func<ColourEffectId, SuperMetroid.Core.Progression.SamusEquipmentFlags, ColourEffectId>> FramesStartedBy => field ??= new(
+        new Dictionary<ColourEffectStart, Func<ColourEffectId, SuperMetroid.Core.Progression.SamusEquipmentFlags, ColourEffectId>>
+        {
+            [ColourEffectStart.Plain] = static (effect, _) => effect,
+            [ColourEffectStart.ChoosesHeatAnimationForSuit] = static (_, equipped) =>
+                ColourEffectHeatAnimations.Pulse(ColourEffectHeatAnimations.SuitFor(equipped)),
+            [ColourEffectStart.SkippedOnceAreaMiniBossIsDead] = static (effect, _) => effect,
+        });
 
     /// <summary>
     /// Checks the condition <paramref name="effect"/> watches, before its countdown runs: from the update after its first

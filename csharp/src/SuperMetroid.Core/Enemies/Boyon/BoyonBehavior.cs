@@ -66,44 +66,39 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        if (IsBoyonSamusWithinHorizontalRange(place, samus))
+        // An arc already under way plays on, wherever Samus stands.
+        if (BounceMoveOf(state.Phase) is not { } bounce)
         {
+            if (!IsBoyonSamusWithinHorizontalRange(place, samus))
+            {
+                // Boyon may only return to idle after the falling half has reached its baseline.
+                // Leaving the trigger range in midair therefore finishes the current arc.
+                if (state.Phase == BoyonPhase.Landed)
+                {
+                    state.Phase = BoyonPhase.Resting;
+                    SetBoyonAnimation(place, state, BoyonSegment.Idle);
+                }
+                return;
+            }
             // Proximity permits another bounce: a resting Boyon starts bouncing and a landed one bounces again, its
-            // bouncing animation restarting; an arc already under way plays on. Every bounce starts with its rise.
-            if (!state.IsBouncing)
-            {
-                state.Phase = BoyonPhase.Rising;
-                SetBoyonAnimation(place, state, BoyonSegment.Bouncing);
-            }
+            // bouncing animation restarting. Every bounce starts with its rise, which moves it on the same update.
+            state.Phase = BoyonPhase.Rising;
+            SetBoyonAnimation(place, state, BoyonSegment.Bouncing);
+            bounce = MoveBoyonRising;
         }
-        else if (!state.IsBouncing)
-        {
-            // Boyon may only return to idle after the falling half has reached its baseline.
-            // Leaving the trigger range in midair therefore finishes the current arc.
-            if (state.Phase == BoyonPhase.Landed)
-            {
-                state.Phase = BoyonPhase.Resting;
-                SetBoyonAnimation(place, state, BoyonSegment.Idle);
-            }
-            return;
-        }
-
-        switch (state.Phase)
-        {
-            case BoyonPhase.Falling:
-                MoveBoyonFalling(place, state);
-                break;
-            case BoyonPhase.Rising:
-                MoveBoyonRising(place, state);
-                break;
-            case BoyonPhase.DerivingArc:
-            case BoyonPhase.Resting:
-            case BoyonPhase.Landed:
-            default:
-                throw new InvalidDataException(
-                    $"Boyon has no bounce movement in its {state.Phase} phase.");
-        }
+        bounce(place, state);
     }
+
+    /// <summary>
+    /// How a bouncing Boyon moves in <paramref name="phase"/> (#2553): its rise or its fall; none while it derives its arc,
+    /// rests or has landed, the phases that are not bouncing.
+    /// </summary>
+    private static Action<RoomEnemyPlace, BoyonEnemyState>? BounceMoveOf(BoyonPhase phase) => phase switch
+    {
+        BoyonPhase.Rising => MoveBoyonRising,
+        BoyonPhase.Falling => MoveBoyonFalling,
+        _ => null,
+    };
 
     /// <summary>
     /// Derives the arc's baseline: from the place it stands, the Boyon moves down its curve one entry at a time, adding

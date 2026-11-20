@@ -375,22 +375,28 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
             return;
 
         QueueSelectSound();
-        switch (specialRow)
-        {
-            case GameOptionsSpecialRow.IconCancel:
-                IconCancelEnabled = !IconCancelEnabled;
-                break;
-            case GameOptionsSpecialRow.Moonwalk:
-                MoonwalkEnabled = !MoonwalkEnabled;
-                break;
-            case GameOptionsSpecialRow.Exit:
-                BeginDissolveTo(GameOptionsPage.Primary);
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(GameOptionsSpecialRow)} {specialRow}.");
-        }
-        LoadVisiblePage();
+        SpecialRowChoices[specialRow](this);
     }
+
+    /// <summary>
+    /// What choosing each special-page row does (#2553): a toggle flips its setting and redraws the page, and Exit dissolves
+    /// to the primary page.
+    /// </summary>
+    private static IdentityTable<GameOptionsSpecialRow, Action<GameOptionsMenuState>> SpecialRowChoices => field ??= new(
+        new Dictionary<GameOptionsSpecialRow, Action<GameOptionsMenuState>>
+        {
+            [GameOptionsSpecialRow.IconCancel] = static menu =>
+            {
+                menu.IconCancelEnabled = !menu.IconCancelEnabled;
+                menu.LoadVisiblePage();
+            },
+            [GameOptionsSpecialRow.Moonwalk] = static menu =>
+            {
+                menu.MoonwalkEnabled = !menu.MoonwalkEnabled;
+                menu.LoadVisiblePage();
+            },
+            [GameOptionsSpecialRow.Exit] = static menu => menu.BeginDissolveTo(GameOptionsPage.Primary),
+        });
 
     /// <summary>What <c>SelectFirstRow</c> does for each <see cref="GameOptionsPage"/> member, each member's own arm.</summary>
     private IdentityTable<GameOptionsPage, Action> SelectFirstRowForGameOptionsPage => field ??= new(new Dictionary<GameOptionsPage, Action>

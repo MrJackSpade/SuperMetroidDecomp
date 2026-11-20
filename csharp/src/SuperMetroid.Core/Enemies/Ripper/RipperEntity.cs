@@ -22,7 +22,7 @@ internal abstract class RipperEntity(RipperBehavior species, RoomEnemyOccupant o
     public abstract void RunMainAi(IEnemyAiFrame frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => RipperBehavior.AdvanceRipperTypedAnimation(Place);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => RipperBehavior.AdvanceRipperTypedAnimation(Place, Place.RequireSpeciesState<RipperEnemyState>());
 
     /// <summary>The grapple Ripper and jet Ripper's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
     public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == RipperReactions.Shot ? RipperBehavior.RipperShotReaction : base.ShotReaction;

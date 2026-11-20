@@ -12,10 +12,10 @@ internal sealed class YappingMawEntity(YappingMawBehavior species, RoomEnemyOccu
     public void Initialize() => species.InitializeYappingMaw(Occupant, Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunYappingMawMainAi(Occupant, Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunYappingMawMainAi(Occupant, Place, Place.RequireSpeciesState<YappingMawEnemyState>(), frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceYappingMawTypedAnimation(Place);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceYappingMawTypedAnimation(Place, Place.RequireSpeciesState<YappingMawEnemyState>());
 
     /// <summary>Whether the Yapping Maw's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
     public override bool ReactsToTouch => Occupant.Definition.Touch == YappingMawReactions.Touch || base.ReactsToTouch;
@@ -25,7 +25,7 @@ internal sealed class YappingMawEntity(YappingMawBehavior species, RoomEnemyOccu
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (Occupant.Definition.Touch == YappingMawReactions.Touch)
-            YappingMawBehavior.ReactToYappingMawTouch(context);
+            YappingMawBehavior.ReactToYappingMawTouch(context, context.Place.RequireSpeciesState<YappingMawEnemyState>());
         else
             base.ReactToTouch(context);
     }

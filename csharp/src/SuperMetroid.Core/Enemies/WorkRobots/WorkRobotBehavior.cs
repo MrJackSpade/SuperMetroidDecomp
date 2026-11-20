@@ -248,12 +248,10 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory, IR
     /// recoil ahead or behind and holds off its next laser for its recoil delay
     /// (<see cref="WorkRobotLaserDefinitions.RecoilDelay"/>).
     /// </summary>
-    private static void ResolveWorkRobotShotAfterCommon(RoomEnemyPlace robot, SamusState samus)
+    private static void ResolveWorkRobotShotAfterCommon(RoomEnemyPlace robot, WorkRobotEnemyState state, SamusState samus)
     {
         if (robot.Health == 0)
             return;
-
-        WorkRobotEnemyState state = robot.RequireSpeciesState<WorkRobotEnemyState>();
         bool facingLeft = state.Facing == HorizontalDirection.Left;
         if (facingLeft)
         {
@@ -298,7 +296,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory, IR
     /// <summary>Applies a powered robot's recoil after the bomb damage it takes, which it never rejects once powered.</summary>
     internal EnemyBombReaction PoweredWorkRobotBombReaction { get; } = new()
     {
-        AfterCommon = c => ResolveWorkRobotShotAfterCommon(c.Enemy, c.Samus),
+        AfterCommon = c => ResolveWorkRobotShotAfterCommon(c.Enemy, c.Enemy.RequireSpeciesState<WorkRobotEnemyState>(), c.Samus),
     };
 
     /// <summary>An unpowered robot takes the bomb damage, which it never rejects, and nothing more: it has no recoil.</summary>
@@ -312,21 +310,20 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory, IR
         context => FlyWorkRobotLaser(context.Projectile, context.Level));
 
     /// <summary>Runs a powered robot's main AI.</summary>
-    internal void RunWorkRobotMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunWorkRobotMainAi(RoomEnemyPlace place, WorkRobotEnemyState state, IEnemyAiFrame frame)
     {
-        WorkRobotEnemyState state = place.RequireSpeciesState<WorkRobotEnemyState>();
         state.FallVelocity = RunWorkRobotFall(place, state.FallVelocity, frame.Level);
     }
 
     /// <summary>Advances an unpowered robot's pose, which holds and raises no cue.</summary>
-    internal static void AdvanceUnpoweredWorkRobotTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, WorkRobotAnimations.Segments,
+    internal static void AdvanceUnpoweredWorkRobotTypedAnimation(RoomEnemyPlace place, UnpoweredWorkRobotEnemyState unpoweredWorkRobotEnemyState) =>
+        EnemyAnimationPlayback.Advance(place, unpoweredWorkRobotEnemyState, WorkRobotAnimations.Segments,
             static (UnpoweredWorkRobotEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"An unpowered Work Robot's pose raised {cue}."));
 
     /// <summary>Advances a powered robot's typed animation.</summary>
-    internal void AdvanceWorkRobotTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext context) =>
-        EnemyAnimationPlayback.Advance(place, WorkRobotAnimations.Segments,
+    internal void AdvanceWorkRobotTypedAnimation(RoomEnemyPlace place, WorkRobotEnemyState workRobotEnemyState, EnemyAnimationCueContext context) =>
+        EnemyAnimationPlayback.Advance(place, workRobotEnemyState, WorkRobotAnimations.Segments,
             static (WorkRobotEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) => ApplyWorkRobotCue(place, state, context, cue) is { } continuesAt
                 ? new AnimationContinuation<WorkRobotSegment>(WorkRobotAnimations.StartingWith(continuesAt), AnimationPlace.StartOfAnimation)
@@ -335,7 +332,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory, IR
     /// <summary>The powered robot's shot reaction: the common damage, then its recoil.</summary>
     internal EnemyShotReaction WorkRobotShotReaction { get; } = new()
     {
-        AfterCommon = c => ResolveWorkRobotShotAfterCommon(c.Enemy, c.Samus),
+        AfterCommon = c => ResolveWorkRobotShotAfterCommon(c.Enemy, c.Enemy.RequireSpeciesState<WorkRobotEnemyState>(), c.Samus),
     };
 
     /// <summary>Routes robot contact to its external push without Samus damage.</summary>

@@ -12,10 +12,10 @@ internal sealed class SparkEntity(SparkBehavior species, RoomEnemyOccupant occup
     public void Initialize() => SparkBehavior.InitializeSpark(Occupant, Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunSparkMainAi(Occupant, Place);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunSparkMainAi(Occupant, Place, Place.RequireSpeciesState<SparkEnemyState>());
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => SparkBehavior.AdvanceSparkTypedAnimation(Place);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => SparkBehavior.AdvanceSparkTypedAnimation(Place, Place.RequireSpeciesState<SparkEnemyState>());
 
     /// <summary>The pass-through shot reaction where the Spark's definition leaves shots to it, or the shared one.</summary>
     public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == SparkReactions.Shot ? SparkBehavior.PassThroughShot : base.ShotReaction;

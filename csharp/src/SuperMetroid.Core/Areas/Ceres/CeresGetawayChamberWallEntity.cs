@@ -24,5 +24,5 @@ internal sealed class CeresGetawayChamberWallEntity(CeresDoorBehavior doors, Roo
     }
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => doors.AdvanceAnimation(Place, context.Samus);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => doors.AdvanceAnimation(Place, Place.RequireSpeciesState<CeresRidleyRoomDoorState>(), Place.RequireSpeciesState<CeresDoorAnimationState>(), context.Samus);
 }

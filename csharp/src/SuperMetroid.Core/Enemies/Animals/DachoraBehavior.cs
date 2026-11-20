@@ -452,27 +452,27 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     private static SignedSixteenSixteen SamusGravity(SamusState samus) => samus.Kinematics.YAcceleration.AsDisplacement();
 
     /// <summary>Advances the Dachora body's cue-free typed animation.</summary>
-    internal static void AdvanceDachoraTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, DachoraAnimations.Segments,
+    internal static void AdvanceDachoraTypedAnimation(RoomEnemyPlace place, DachoraEnemyState dachoraEnemyState) =>
+        EnemyAnimationPlayback.Advance(place, dachoraEnemyState, DachoraAnimations.Segments,
             static (DachoraEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A cue-free Dachora animation raised {cue}."));
 
     /// <summary>Advances a speed-boost echo's cue-free typed animation.</summary>
-    internal static void AdvanceDachoraEchoTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, DachoraAnimations.Segments,
+    internal static void AdvanceDachoraEchoTypedAnimation(RoomEnemyPlace place, DachoraEchoState dachoraEchoState) =>
+        EnemyAnimationPlayback.Advance(place, dachoraEchoState, DachoraAnimations.Segments,
             static (DachoraEchoState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A cue-free Dachora echo animation raised {cue}."));
 
     /// <summary>Runs a speed-boost echo's main AI, which needs only the frame counter's parity.</summary>
-    internal static void RunDachoraEchoMainAi(RoomEnemyPlace place, IEnemyAiFrame frame) =>
-        RunDachoraEcho(place, place.RequireSpeciesState<DachoraEchoState>(), frame.Clock.ShortCounter);
+    internal static void RunDachoraEchoMainAi(RoomEnemyPlace place, DachoraEchoState dachoraEchoState, IEnemyAiFrame frame) =>
+        RunDachoraEcho(place, dachoraEchoState, frame.Clock.ShortCounter);
 
     /// <summary>Runs the Dachora body's main AI, which reads Samus's gravity and the room's collision.</summary>
-    internal void RunDachoraMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunDachoraMainAi(RoomEnemyPlace place, DachoraEnemyState dachoraEnemyState, IEnemyAiFrame frame)
     {
         RunDachoraMain(
             place,
-            place.RequireSpeciesState<DachoraEnemyState>(),
+            dachoraEnemyState,
             frame.Samus,
             frame.Level);
     }

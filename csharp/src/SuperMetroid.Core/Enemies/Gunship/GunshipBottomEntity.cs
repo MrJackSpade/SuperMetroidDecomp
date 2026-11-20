@@ -15,5 +15,5 @@ internal sealed class GunshipBottomEntity(GunshipBehavior species, RoomEnemyOccu
     public void Initialize(EnemyPopulationSurroundings surroundings) => species.InitializeGunshipBottom(Occupant, Place, surroundings.Samus);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => GunshipBehavior.AdvanceGunshipAnimation(Place);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => GunshipBehavior.AdvanceGunshipAnimation(Place, Place.RequireSpeciesState<GunshipPieceState>());
 }

@@ -72,11 +72,10 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs the Hopper's current action.</summary>
     private void RunHopperMain(
-        RoomEnemyOccupant occupant, RoomEnemyPlace place,
+        RoomEnemyOccupant occupant, RoomEnemyPlace place, HopperEnemyState state,
         SamusState samus,
         RoomLevelData level)
     {
-        HopperEnemyState state = place.RequireSpeciesState<HopperEnemyState>();
         switch (state.Action)
         {
             case HopperAction.ChooseHopSize:
@@ -245,17 +244,16 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the hoppers' main AI.</summary>
-    internal void RunHoppersMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunHoppersMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, HopperEnemyState hopperEnemyState, IEnemyAiFrame frame)
     {
-        RunHopperMain(occupant, place, frame.Samus, frame.Level);
+        RunHopperMain(occupant, place, hopperEnemyState, frame.Samus, frame.Level);
     }
 
     /// <summary>Advances Hoppers's typed animation.</summary>
-    internal void AdvanceHoppersTypedAnimation(RoomEnemyPlace place)
+    internal void AdvanceHoppersTypedAnimation(RoomEnemyPlace place, HopperEnemyState state)
     {
         if (!place.AnimationClock.Expire())
             return;
-        HopperEnemyState state = place.RequireSpeciesState<HopperEnemyState>();
         AnimationPlayback<HopperSegment> playback = state.Playback;
         EnemyAnimationPlayback.Play(place, HopperAnimations.Segments, ref playback,
             cue =>

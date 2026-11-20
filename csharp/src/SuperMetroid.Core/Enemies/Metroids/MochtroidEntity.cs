@@ -12,10 +12,10 @@ internal sealed class MochtroidEntity(MochtroidBehavior species, RoomEnemyOccupa
     public void Initialize() => MochtroidBehavior.InitializeMochtroid(Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunMochtroidMainAi(Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunMochtroidMainAi(Place, Place.RequireSpeciesState<MochtroidEnemyState>(), frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => MochtroidBehavior.AdvanceMochtroidTypedAnimation(Place);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => MochtroidBehavior.AdvanceMochtroidTypedAnimation(Place, Place.RequireSpeciesState<MochtroidEnemyState>());
 
     /// <summary>Whether the Mochtroid's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
     public override bool ReactsToTouch => Occupant.Definition.Touch == MochtroidReactions.Touch || base.ReactsToTouch;
@@ -25,7 +25,7 @@ internal sealed class MochtroidEntity(MochtroidBehavior species, RoomEnemyOccupa
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (Occupant.Definition.Touch == MochtroidReactions.Touch)
-            species.ReactToMochtroidTouch(context);
+            species.ReactToMochtroidTouch(context, context.Place.RequireSpeciesState<MochtroidEnemyState>());
         else
             base.ReactToTouch(context);
     }

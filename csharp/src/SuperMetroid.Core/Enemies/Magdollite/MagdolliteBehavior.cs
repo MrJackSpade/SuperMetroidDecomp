@@ -507,7 +507,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory, I
     /// Every cue runs on to the next step, so none redirects.
     /// </summary>
     private void ApplyMagdolliteCue(
-        RoomEnemyOccupant occupant, RoomEnemyPlace place,
+        RoomEnemyOccupant occupant, RoomEnemyPlace place, MagdolliteHeadState magdolliteHeadState, MagdolliteOverlayState magdolliteOverlayState,
         MagdollitePartState state,
         MagdolliteCue cue,
         Position16<RoomPixels> camera)
@@ -524,13 +524,13 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory, I
                 place.Position += move.Offset;
                 break;
             case MagdolliteCue.Signal { Kind: MagdolliteCueKind.FinishSubmerge }:
-                place.RequireSpeciesState<MagdolliteHeadState>().FinishSubmerge();
+                magdolliteHeadState.FinishSubmerge();
                 break;
             case MagdolliteCue.Signal { Kind: MagdolliteCueKind.FinishEmerge }:
-                place.RequireSpeciesState<MagdolliteHeadState>().FinishEmerge();
+                magdolliteHeadState.FinishEmerge();
                 break;
             case MagdolliteCue.Signal { Kind: MagdolliteCueKind.FinishThrow }:
-                place.RequireSpeciesState<MagdolliteOverlayState>().FinishThrow();
+                magdolliteOverlayState.FinishThrow();
                 break;
             case MagdolliteCue.MoveWithPillar moveWithPillar:
             {
@@ -568,13 +568,13 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory, I
                 break;
             }
             case MagdolliteCue.Signal { Kind: MagdolliteCueKind.SpawnLava }:
-                SpawnMagdolliteLava(occupant, place, place.RequireSpeciesState<MagdolliteOverlayState>().ThrowDirection);
+                SpawnMagdolliteLava(occupant, place, magdolliteOverlayState.ThrowDirection);
                 break;
             case MagdolliteCue.ShiftFromThrowOrigin shift:
-                place.Position = place.Position.WithWhole(place.RequireSpeciesState<MagdolliteOverlayState>().ThrowOrigin + shift.Offset);
+                place.Position = place.Position.WithWhole(magdolliteOverlayState.ThrowOrigin + shift.Offset);
                 break;
             case MagdolliteCue.Signal { Kind: MagdolliteCueKind.StartCooldown }:
-                place.RequireSpeciesState<MagdolliteOverlayState>().AttackCooldown = UpdateCountdown.Lasting(MagdolliteMotionDefinitions.AttackCooldown);
+                magdolliteOverlayState.AttackCooldown = UpdateCountdown.Lasting(MagdolliteMotionDefinitions.AttackCooldown);
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(MagdolliteCue)} {cue}.");
@@ -650,13 +650,13 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory, I
     }
 
     /// <summary>Advances the typed animation of the Magdollite part whose state is a <typeparamref name="TState"/>.</summary>
-    internal void AdvanceMagdolliteTypedAnimation<TState>(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyAnimationCueContext context)
+    internal void AdvanceMagdolliteTypedAnimation<TState>(RoomEnemyOccupant occupant, RoomEnemyPlace place, TState tState, MagdolliteHeadState magdolliteHeadState, MagdolliteOverlayState magdolliteOverlayState, EnemyAnimationCueContext context)
         where TState : MagdollitePartState =>
-        EnemyAnimationPlayback.Advance(place, MagdolliteAnimations.Segments,
+        EnemyAnimationPlayback.Advance(place, tState, MagdolliteAnimations.Segments,
             static (TState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {
-                ApplyMagdolliteCue(occupant, place, state, cue, context.Camera);
+                ApplyMagdolliteCue(occupant, place, magdolliteHeadState, magdolliteOverlayState, state, cue, context.Camera);
                 return null;
             });
 

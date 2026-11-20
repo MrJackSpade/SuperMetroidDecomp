@@ -14,5 +14,5 @@ internal sealed class AtomicEntity(RoomEnemyOccupant occupant, RoomEnemyPlace pl
     public void RunMainAi(IEnemyAiFrame frame) => AtomicBehavior.MoveAtomicTowardSamus(Occupant, Place, Ensure.NotNull(frame).Samus);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => AtomicBehavior.AdvanceAtomicTypedAnimation(Place);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => AtomicBehavior.AdvanceAtomicTypedAnimation(Place, Place.RequireSpeciesState<AtomicEnemyState>());
 }

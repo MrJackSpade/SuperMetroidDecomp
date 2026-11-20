@@ -15,10 +15,10 @@ internal sealed class CeresSteamEntity(CeresSteamBehavior species, RoomEnemyOccu
     public void Initialize() => species.InitializeCeresSteam(Occupant, Place, motions);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => CeresSteamBehavior.RunCeresSteamMainAi(Place);
+    public void RunMainAi(IEnemyAiFrame frame) => CeresSteamBehavior.RunCeresSteamMainAi(Place, Place.RequireSpeciesState<CeresSteamEnemyState>());
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => CeresSteamBehavior.AdvanceCeresSteamAnimation(Place);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => CeresSteamBehavior.AdvanceCeresSteamAnimation(Place, Place.RequireSpeciesState<CeresSteamEnemyState>());
 
     /// <inheritdoc/>
     public EnemyHitboxContact FindHitboxReaction(EnemyHitboxProbe probe) => CeresSteamBehavior.FindHitboxReaction(Place, probe);

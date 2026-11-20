@@ -20,5 +20,5 @@ internal sealed class MagdolliteOverlayEntity(MagdolliteBehavior species, RoomEn
 
     /// <inheritdoc/>
     public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) =>
-        Species.AdvanceMagdolliteTypedAnimation<MagdolliteOverlayState>(Occupant, Place, context);
+        Species.AdvanceMagdolliteTypedAnimation<MagdolliteOverlayState>(Occupant, Place, Place.RequireSpeciesState<MagdolliteOverlayState>(), Place.RequireSpeciesState<MagdolliteHeadState>(), Place.RequireSpeciesState<MagdolliteOverlayState>(), context);
 }

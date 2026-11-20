@@ -16,8 +16,8 @@ internal sealed class EvirSpitEntity(EvirBehavior species, RoomEnemyOccupant occ
     public void Initialize() => species.InitializeEvirProjectile(Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => EvirBehavior.RunEvirProjectileMainAi(Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => EvirBehavior.RunEvirProjectileMainAi(Place, Place.RequireSpeciesState<EvirSpitState>(), frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceEvirSpitTypedAnimation(Place);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceEvirSpitTypedAnimation(Place, Place.RequireSpeciesState<EvirSpitState>());
 }

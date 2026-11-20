@@ -138,15 +138,15 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
     };
 
     /// <summary>Advances Fireflea's typed animation.</summary>
-    internal static void AdvanceFirefleaTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, FirefleaAnimations.Segments,
+    internal static void AdvanceFirefleaTypedAnimation(RoomEnemyPlace place, FirefleaEnemyState firefleaEnemyState) =>
+        EnemyAnimationPlayback.Advance(place, firefleaEnemyState, FirefleaAnimations.Segments,
             static (FirefleaEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A cue-free Fireflea animation raised {cue}."));
 
     /// <summary>Runs Fireflea's main AI.</summary>
-    internal static void RunFirefleaMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place)
+    internal static void RunFirefleaMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, FirefleaEnemyState firefleaEnemyState)
     {
-        RunFirefleaMain(occupant, place, place.RequireSpeciesState<FirefleaEnemyState>());
+        RunFirefleaMain(occupant, place, firefleaEnemyState);
     }
 
     /// <summary>Advances darkness before a lethal common power-bomb death is finalized.</summary>

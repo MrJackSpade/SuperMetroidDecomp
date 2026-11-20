@@ -18,5 +18,5 @@ internal sealed class NorfairLavaJumperFollowerEntity(SqueeptBehavior species, R
     public void RunMainAi(IEnemyAiFrame frame) => species.RunNorfairLavaJumperFollowerMain(Place);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => SqueeptBehavior.AdvanceNorfairLavaJumperFollowerTypedAnimation(Place);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => SqueeptBehavior.AdvanceNorfairLavaJumperFollowerTypedAnimation(Place, Place.RequireSpeciesState<NorfairLavaJumperFollowerState>());
 }

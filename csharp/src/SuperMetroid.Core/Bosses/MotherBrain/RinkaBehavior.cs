@@ -221,12 +221,10 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Finishes a Rinka's reaction to a touch, a shot or a power bomb after the common damage: a killed Rinka either
     /// dies, or, one of Mother Brain's, hides and waits to respawn.
     /// </summary>
-    private void ResolveRinkaCombatAfterCommon(RoomEnemyOccupant occupant, RoomEnemyPlace place)
+    private void ResolveRinkaCombatAfterCommon(RoomEnemyOccupant occupant, RoomEnemyPlace place, RinkaEnemyState state)
     {
         if (place.Health != 0)
             return;
-
-        RinkaEnemyState state = place.RequireSpeciesState<RinkaEnemyState>();
         ReleaseSpecialRinkaSpawn(state);
         if (!IsSpecialRinka(occupant))
         {
@@ -247,7 +245,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Runs a frozen Rinka's own step before the common thaw: outside its flight window it thaws at once, and once the
     /// Rinkas are ending it dies; true when it died.
     /// </summary>
-    internal bool ThawOrDieWhileFrozen(RoomEnemyOccupant occupant)
+    internal bool ThawOrDieWhileFrozen(RoomEnemyOccupant occupant, RinkaEnemyState rinkaEnemyState)
     {
         RoomEnemyPlace place = occupant.Place;
         if (RinkaIsOutsideFlightWindow(place))
@@ -255,7 +253,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!_rinkaTerminationFlag)
             return false;
 
-        ReleaseSpecialRinkaSpawn(place.RequireSpeciesState<RinkaEnemyState>());
+        ReleaseSpecialRinkaSpawn(rinkaEnemyState);
         RunRinkaDeathAnimation(occupant);
         return true;
     }
@@ -353,18 +351,18 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         RunsGenericDeath = false,
         // The bomb's common damage shows no hit burst.
         ShowsHitBurst = EnemyBombReaction.NeverShowsHitBurst,
-        AfterCommon = c => ResolveRinkaCombatAfterCommon(rinka, c.Enemy),
+        AfterCommon = c => ResolveRinkaCombatAfterCommon(rinka, c.Enemy, c.Enemy.RequireSpeciesState<RinkaEnemyState>()),
     };
 
     /// <summary>Runs Rinka's main AI.</summary>
-    internal void RunRinkaMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunRinkaMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, RinkaEnemyState rinkaEnemyState, IEnemyAiFrame frame)
     {
-        RunRinkaMain(occupant, place, place.RequireSpeciesState<RinkaEnemyState>(), frame.Samus);
+        RunRinkaMain(occupant, place, rinkaEnemyState, frame.Samus);
     }
 
     /// <summary>Advances Rinka's typed animation.</summary>
-    internal static void AdvanceRinkaTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, RinkaAnimations.Segments,
+    internal static void AdvanceRinkaTypedAnimation(RoomEnemyPlace place, RinkaEnemyState rinkaEnemyState) =>
+        EnemyAnimationPlayback.Advance(place, rinkaEnemyState, RinkaAnimations.Segments,
             static (RinkaEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {
@@ -378,7 +376,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         SkipsEnemy = enemy => enemy.Presence.HasAny(EnemyPresence.Hidden),
         ExemptFromGenericDeath = true,
-        AfterCommon = c => ResolveRinkaCombatAfterCommon(rinka, c.Enemy),
+        AfterCommon = c => ResolveRinkaCombatAfterCommon(rinka, c.Enemy, c.Enemy.RequireSpeciesState<RinkaEnemyState>()),
     };
 
     /// <summary>Rinka's reaction to a shot: its own death follows the damage, but not a shot that freezes it at once.</summary>
@@ -392,15 +390,15 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         AfterCommon = c =>
         {
             if (!c.Froze)
-                ResolveRinkaCombatAfterCommon(rinka, c.Enemy);
+                ResolveRinkaCombatAfterCommon(rinka, c.Enemy, c.Enemy.RequireSpeciesState<RinkaEnemyState>());
         },
     };
 
     /// <summary>Applies normal contact damage before the Rinka-specific lethal-health lifecycle.</summary>
-    internal void ReactToRinkaTouch(RoomEnemyOccupant occupant, EnemyTouchContext context)
+    internal void ReactToRinkaTouch(RoomEnemyOccupant occupant, EnemyTouchContext context, RinkaEnemyState rinkaEnemyState)
     {
         _collision.ResolveOrdinaryTouch(context, TouchDeathAnimation.Skip);
-        ResolveRinkaCombatAfterCommon(occupant, context.Place);
+        ResolveRinkaCombatAfterCommon(occupant, context.Place, rinkaEnemyState);
     }
 
     /// <inheritdoc/>

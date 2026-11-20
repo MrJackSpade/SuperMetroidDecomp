@@ -10,16 +10,16 @@ internal sealed class DeadTourianEntity(DeadTourianBehavior species, RoomEnemyOc
         IShowsCorpseRotRows
 {
     /// <inheritdoc/>
-    public CorpseRotRows ShownRotRows => DeadTourianBehavior.ShownDeadTourianRows(Place);
+    public CorpseRotRows ShownRotRows => DeadTourianBehavior.ShownDeadTourianRows(Place, Place.RequireSpeciesState<DeadTourianCorpseEnemyState>());
 
     /// <inheritdoc/>
     public void Initialize() => DeadTourianBehavior.InitializeDeadTourianCorpse(Place, Occupant);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunDeadTourianMainAi(Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunDeadTourianMainAi(Place, Place.RequireSpeciesState<DeadTourianCorpseEnemyState>(), frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => DeadTourianBehavior.AdvanceDeadTourianTypedAnimation(Place);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => DeadTourianBehavior.AdvanceDeadTourianTypedAnimation(Place, Place.RequireSpeciesState<DeadTourianCorpseEnemyState>());
 
     /// <summary>Whether the dead Tourian corpse's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
     public override bool ReactsToTouch => Occupant.Definition.Touch == CorpseReactions.Touch || base.ReactsToTouch;
@@ -29,7 +29,7 @@ internal sealed class DeadTourianEntity(DeadTourianBehavior species, RoomEnemyOc
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (Occupant.Definition.Touch == CorpseReactions.Touch)
-            DeadTourianBehavior.ReactToDeadTourianTouch(context);
+            DeadTourianBehavior.ReactToDeadTourianTouch(context, context.Place.RequireSpeciesState<DeadTourianCorpseEnemyState>());
         else
             base.ReactToTouch(context);
     }
@@ -43,7 +43,7 @@ internal sealed class DeadTourianEntity(DeadTourianBehavior species, RoomEnemyOc
     {
         if (context.SelectedShot != CorpseReactions.Shot)
             return base.TryReplaceCommonBombDamage(context);
-        DeadTourianBehavior.ReplaceDeadTourianBombDamage(context);
+        DeadTourianBehavior.ReplaceDeadTourianBombDamage(context, context.Enemy.RequireSpeciesState<DeadTourianCorpseEnemyState>());
         return true;
     }
 

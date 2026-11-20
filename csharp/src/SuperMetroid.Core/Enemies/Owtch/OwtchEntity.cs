@@ -12,10 +12,10 @@ internal sealed class OwtchEntity(OwtchBehavior species, RoomEnemyOccupant occup
     public void Initialize() => OwtchBehavior.InitializeOwtch(Occupant, Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunOwtchMainAi(Occupant, Place);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunOwtchMainAi(Occupant, Place, Place.RequireSpeciesState<OwtchEnemyState>());
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => OwtchBehavior.AdvanceOwtchTypedAnimation(Place);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => OwtchBehavior.AdvanceOwtchTypedAnimation(Place, Place.RequireSpeciesState<OwtchEnemyState>());
 
     /// <summary>The Owtch's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
     public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == OwtchReactions.Shot ? OwtchBehavior.OwtchShotReaction : base.ShotReaction;

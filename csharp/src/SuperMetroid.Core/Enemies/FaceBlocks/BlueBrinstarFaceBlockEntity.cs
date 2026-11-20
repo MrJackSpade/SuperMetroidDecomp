@@ -12,10 +12,10 @@ internal sealed class BlueBrinstarFaceBlockEntity(BlueBrinstarFaceBlockBehavior 
     public void Initialize(EnemyPopulationSurroundings surroundings) => species.SetUpBlueBrinstarFaceBlock(Place, surroundings);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunBlueBrinstarFaceBlockMainAi(Occupant, Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunBlueBrinstarFaceBlockMainAi(Occupant, Place, Place.RequireSpeciesState<BlueBrinstarFaceBlockEnemyState>(), frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => BlueBrinstarFaceBlockBehavior.AdvanceBlueBrinstarFaceBlockTypedAnimation(Place);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => BlueBrinstarFaceBlockBehavior.AdvanceBlueBrinstarFaceBlockTypedAnimation(Place, Place.RequireSpeciesState<BlueBrinstarFaceBlockEnemyState>());
 
     /// <summary>The pass-through shot reaction where the face block's definition leaves shots to it, or the shared one.</summary>
     public override EnemyShotReaction ShotReaction =>

@@ -12,21 +12,21 @@ internal sealed class MetroidEntity(MetroidBehavior species, RoomEnemyOccupant o
     public void Initialize() => species.InitializeMetroid(Occupant, Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunMetroidMainAi(Occupant, Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunMetroidMainAi(Occupant, Place, Place.RequireSpeciesState<MetroidEnemyState>(), frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceMetroidTypedAnimation(Place);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceMetroidTypedAnimation(Place, Place.RequireSpeciesState<MetroidEnemyState>());
 
     /// <summary>The Metroid's own hurt behaviour, ahead of its frozen behaviour when it is both hurt and frozen; the animation still advances.</summary>
     /// <param name="frame">The enemy frame.</param>
     public override bool RunHurt(RoomEnemyFrame frame)
     {
-        MetroidBehavior.ApplyMetroidHurt(Place);
+        MetroidBehavior.ApplyMetroidHurt(Place, Place.RequireSpeciesState<MetroidEnemyState>());
         return true;
     }
 
     /// <summary>The frozen Metroid's behaviour, which retains its outer-body state.</summary>
-    public override void RunFrozen() => MetroidBehavior.RunMetroidFrozen(Place);
+    public override void RunFrozen() => MetroidBehavior.RunMetroidFrozen(Place, Place.RequireSpeciesState<MetroidEnemyState>());
 
     /// <summary>Whether the Metroid's own touch, its attachment and suit-dependent draining, or a shared one applies.</summary>
     public override bool ReactsToTouch => Occupant.Definition.Touch == MetroidReactions.Touch || base.ReactsToTouch;
@@ -36,7 +36,7 @@ internal sealed class MetroidEntity(MetroidBehavior species, RoomEnemyOccupant o
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (Occupant.Definition.Touch == MetroidReactions.Touch)
-            species.ResolveMetroidTouch(context.Place, context.Samus);
+            species.ResolveMetroidTouch(context.Place, context.Place.RequireSpeciesState<MetroidEnemyState>(), context.Samus);
         else
             base.ReactToTouch(context);
     }
@@ -50,7 +50,7 @@ internal sealed class MetroidEntity(MetroidBehavior species, RoomEnemyOccupant o
     {
         if (Occupant.Definition.Shot != MetroidReactions.Shot)
             return base.TryReactToBomb(context);
-        species.ReactToMetroidBomb(context);
+        species.ReactToMetroidBomb(context, context.Enemy.RequireSpeciesState<MetroidEnemyState>());
         return true;
     }
 

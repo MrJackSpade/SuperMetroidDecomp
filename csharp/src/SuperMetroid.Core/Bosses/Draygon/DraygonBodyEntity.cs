@@ -22,7 +22,7 @@ internal sealed class DraygonBodyEntity(DraygonBehavior species, RoomEnemyOccupa
     internal override DraygonPart Part => Place.RequireSpeciesState<DraygonEnemyState>().BodyPart;
 
     /// <inheritdoc/>
-    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunDraygonBodyMainAi(Place, frame);
+    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunDraygonBodyMainAi(Place, Place.RequireSpeciesState<DraygonEnemyState>(), frame);
 
     /// <summary>
     /// The body's hurt behaviour: it flashes body, eye and tail together, while a connected grapple's electrocution may

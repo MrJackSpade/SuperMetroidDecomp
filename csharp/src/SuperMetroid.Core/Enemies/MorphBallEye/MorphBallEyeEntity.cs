@@ -15,8 +15,8 @@ internal sealed class MorphBallEyeEntity(MorphBallEyeBehavior species, RoomEnemy
     public void Initialize() => MorphBallEyeBehavior.InitializeMorphBallEyeBody(Occupant, Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunMorphBallEyeMainAi(Occupant, Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunMorphBallEyeMainAi(Occupant, Place, Place.RequireSpeciesState<MorphBallEyeEnemyState>(), frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => MorphBallEyeBehavior.AdvanceMorphBallEyeTypedAnimation(Place);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => MorphBallEyeBehavior.AdvanceMorphBallEyeTypedAnimation(Place, Place.RequireSpeciesState<MorphBallEyeEnemyState>(), Place.RequireSpeciesState<MorphBallEyeEnemyState>());
 }

@@ -15,10 +15,10 @@ internal sealed class DragonEntity(DragonBehavior species, RoomEnemyOccupant occ
     public void Initialize() => species.InitializeDragonBody(Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunDragonMain(Occupant, Place, Place.RequireSpeciesState<DragonEnemyState>(), frame.Samus);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunDragonMain(Occupant, Place, Place.RequireSpeciesState<DragonEnemyState>(), (Place.RequireSpeciesState<DragonEnemyState>()).Wing.RequireSpeciesState<DragonWingState>(), frame.Samus);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => DragonBehavior.AdvanceDragonBodyTypedAnimation(Place);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => DragonBehavior.AdvanceDragonBodyTypedAnimation(Place, Place.RequireSpeciesState<DragonEnemyState>());
 
     /// <summary>Whether the Dragon's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
     public override bool ReactsToTouch => Occupant.Definition.Touch == DragonReactions.Touch || base.ReactsToTouch;

@@ -154,8 +154,8 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Choot's typed animation.</summary>
-    internal static void AdvanceChootTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.AdvanceApplyingCues(place, ChootAnimations.Segments,
+    internal static void AdvanceChootTypedAnimation(RoomEnemyPlace place, ChootEnemyState chootEnemyState) =>
+        EnemyAnimationPlayback.AdvanceApplyingCues(place, chootEnemyState, ChootAnimations.Segments,
             static (ChootEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (ChootEnemyState _, ChootCue cue) => ApplyChootCue(place, cue));
 
@@ -171,8 +171,8 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs Choot's main AI.</summary>
-    internal static void RunChootMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal static void RunChootMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, ChootEnemyState chootEnemyState, IEnemyAiFrame frame)
     {
-        RunChootMain(occupant, place, place.RequireSpeciesState<ChootEnemyState>(), frame.Samus);
+        RunChootMain(occupant, place, chootEnemyState, frame.Samus);
     }
 }

@@ -18,10 +18,10 @@ internal sealed class MetareeEntity(MetareeBehavior species, RoomEnemyOccupant o
     public void Initialize() => MetareeBehavior.InitializeMetaree(Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunMetareeMainAi(Occupant, Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunMetareeMainAi(Occupant, Place, Place.RequireSpeciesState<MetareeEnemyState>(), frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => MetareeBehavior.AdvanceMetareeTypedAnimation(Place);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => MetareeBehavior.AdvanceMetareeTypedAnimation(Place, Place.RequireSpeciesState<MetareeEnemyState>());
 
     /// <summary>The Metaree's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
     public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == MetareeReactions.Shot ? ownShot : base.ShotReaction;

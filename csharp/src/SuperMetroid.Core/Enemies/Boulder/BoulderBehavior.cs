@@ -262,14 +262,14 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
         QuadraticSpeedCurvePlace.Min(value + increment, maximum);
 
     /// <summary>Advances Boulder's typed animation.</summary>
-    internal static void AdvanceBoulderTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, BoulderAnimations.Segments,
+    internal static void AdvanceBoulderTypedAnimation(RoomEnemyPlace place, BoulderEnemyState boulderEnemyState) =>
+        EnemyAnimationPlayback.Advance(place, boulderEnemyState, BoulderAnimations.Segments,
             static (BoulderEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A cue-free Boulder animation raised {cue}."));
 
     /// <summary>Runs Boulder's main AI.</summary>
-    internal void RunBoulderMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunBoulderMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, BoulderEnemyState boulderEnemyState, IEnemyAiFrame frame)
     {
-        RunBoulderMain(occupant, place, place.RequireSpeciesState<BoulderEnemyState>(), frame.Samus, frame.Level);
+        RunBoulderMain(occupant, place, boulderEnemyState, frame.Samus, frame.Level);
     }
 }

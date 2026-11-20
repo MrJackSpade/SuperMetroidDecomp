@@ -12,10 +12,10 @@ internal sealed class YardEntity(YardEnemyBehavior species, RoomEnemyOccupant oc
     public void Initialize() => YardEnemyBehavior.InitializeYard(Occupant, Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunYardMainAi(Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunYardMainAi(Place, Place.RequireSpeciesState<YardEnemyState>(), frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceYardTypedAnimation(Place);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceYardTypedAnimation(Place, Place.RequireSpeciesState<YardEnemyState>());
 
     /// <summary>Whether the Yard's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
     public override bool ReactsToTouch => Occupant.Definition.Touch == YardReactions.Touch || base.ReactsToTouch;
@@ -25,7 +25,7 @@ internal sealed class YardEntity(YardEnemyBehavior species, RoomEnemyOccupant oc
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (Occupant.Definition.Touch == YardReactions.Touch)
-            species.ReactToYardTouch(Occupant, context);
+            species.ReactToYardTouch(Occupant, context, context.Place.RequireSpeciesState<YardEnemyState>());
         else
             base.ReactToTouch(context);
     }

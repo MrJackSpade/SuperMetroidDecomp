@@ -277,29 +277,29 @@ internal sealed class GerutaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs a Geruta flame follower's main AI: it advances the shared enemy RNG, as every parent does, then follows its parent.</summary>
-    internal void RunGerutaFollowerMainAi(RoomEnemyPlace place)
+    internal void RunGerutaFollowerMainAi(RoomEnemyPlace place, GerutaFollowerState gerutaFollowerState)
     {
         _room.Random.Generate();
-        FollowGerutaParent(place, place.RequireSpeciesState<GerutaFollowerState>());
+        FollowGerutaParent(place, gerutaFollowerState);
     }
 
     /// <summary>Runs a Geruta parent's main AI.</summary>
-    internal void RunGerutaMainAi(RoomEnemyPlace place, IEnemyAiFrame frame) =>
+    internal void RunGerutaMainAi(RoomEnemyPlace place, GerutaEnemyState gerutaEnemyState, IEnemyAiFrame frame) =>
         RunGerutaMain(
             place,
-            place.RequireSpeciesState<GerutaEnemyState>(),
+            gerutaEnemyState,
             frame.Samus,
             frame.Level);
 
     /// <summary>Advances a Geruta flame follower's typed animation, which raises no cue.</summary>
-    internal static void AdvanceGerutaFollowerTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, GerutaAnimations.Segments,
+    internal static void AdvanceGerutaFollowerTypedAnimation(RoomEnemyPlace place, GerutaFollowerState gerutaFollowerState) =>
+        EnemyAnimationPlayback.Advance(place, gerutaFollowerState, GerutaAnimations.Segments,
             static (GerutaFollowerState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A Norfair Rio flame follower's cue-free animation raised {cue}."));
 
     /// <summary>Advances a Geruta parent's typed animation, whose cues it carries out.</summary>
-    internal static void AdvanceGerutaTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, GerutaAnimations.Segments,
+    internal static void AdvanceGerutaTypedAnimation(RoomEnemyPlace place, GerutaEnemyState gerutaEnemyState) =>
+        EnemyAnimationPlayback.Advance(place, gerutaEnemyState, GerutaAnimations.Segments,
             static (GerutaEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (state, cue) =>
             {

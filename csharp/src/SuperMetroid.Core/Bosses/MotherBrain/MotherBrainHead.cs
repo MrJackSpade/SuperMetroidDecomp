@@ -50,8 +50,7 @@ internal sealed class MotherBrainHead
     internal void InitializeMotherBrainHead(RoomEnemyPlace head)
     {
         // The head joins the encounter her body began; it holds it from here (#2218).
-        MotherBrainEnemyState state = _places.Member(head, MotherBrainFightDefinitions.Listing, EnemyDefinitionId.MotherBrainHead, EnemyDefinitionId.MotherBrainBody)
-            .RequireSpeciesState<MotherBrainEnemyState>();
+        MotherBrainEnemyState state = state;
         head.SetSpeciesState(state);
 
         head.Health = MotherBrainFightDefinitions.FirstPhaseHealth;

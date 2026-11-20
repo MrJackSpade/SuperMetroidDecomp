@@ -12,5 +12,5 @@ internal sealed class OrdinaryRipperEntity(RipperBehavior species, RoomEnemyOccu
     public override void Initialize() => RipperBehavior.InitializeRipper(Occupant, Place);
 
     /// <inheritdoc/>
-    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunRipperMainAi(Occupant, Place, frame);
+    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunRipperMainAi(Occupant, Place, Place.RequireSpeciesState<RipperEnemyState>(), Place.RequireSpeciesState<RipperEnemyState>(), frame);
 }

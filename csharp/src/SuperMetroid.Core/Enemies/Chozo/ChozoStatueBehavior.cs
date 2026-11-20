@@ -133,12 +133,11 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     /// the four statue animations raise. Every cue runs on to the next step, so none redirects.
     /// </summary>
     private void ApplyChozoStatueCue(
-        RoomEnemyPlace statue,
+        RoomEnemyPlace statue, ChozoStatueState state,
         ChozoStatueCue cue,
         SamusState samus,
         RoomLevelData level)
     {
-        ChozoStatueState state = statue.RequireSpeciesState<ChozoStatueState>();
         switch (cue)
         {
             case ChozoStatueCue.Signal { Kind: ChozoStatueCueKind.AwaitHand }:
@@ -274,14 +273,14 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         _passEvents.Publish(new ChozoStatueObjectAsked(new RoomObjectSpawnRequest<ChozoStatueRoomObject>(block, roomObject)));
 
     /// <summary>Runs ChozoStatue's main AI.</summary>
-    internal static void RunChozoStatueMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place)
+    internal static void RunChozoStatueMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, ChozoStatueState chozoStatueState)
     {
-        RunChozoStatueMain(occupant, place, place.RequireSpeciesState<ChozoStatueState>());
+        RunChozoStatueMain(occupant, place, chozoStatueState);
     }
 
     /// <summary>Advances ChozoStatue's typed animation.</summary>
-    internal void AdvanceChozoStatueTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext context) =>
-        EnemyAnimationPlayback.AdvanceApplyingCues(place, ChozoStatueAnimations.Segments,
+    internal void AdvanceChozoStatueTypedAnimation(RoomEnemyPlace place, ChozoStatueState chozoStatueState2, ChozoStatueState chozoStatueState, EnemyAnimationCueContext context) =>
+        EnemyAnimationPlayback.AdvanceApplyingCues(place, chozoStatueState2, ChozoStatueAnimations.Segments,
             static (ChozoStatueState state) => state.Playback, static (state, playback) => state.Playback = playback,
-            (ChozoStatueState _, ChozoStatueCue cue) => ApplyChozoStatueCue(place, cue, context.Samus, context.Level));
+            (ChozoStatueState _, ChozoStatueCue cue) => ApplyChozoStatueCue(place, chozoStatueState, cue, context.Samus, context.Level));
 }

@@ -418,19 +418,19 @@ internal sealed class OumBehavior : IEnemySpecies, IEnemyEntityFactory
     };
 
     /// <summary>Runs the Oum's main AI.</summary>
-    internal void RunOumMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunOumMainAi(RoomEnemyPlace place, OumEnemyState oumEnemyState, IEnemyAiFrame frame)
     {
         RunOumMain(
             place,
-            place.RequireSpeciesState<OumEnemyState>(),
+            oumEnemyState,
             frame.Samus,
             frame.Level,
             frame.ControllerInput);
     }
 
     /// <summary>Advances the Oum's typed animation.</summary>
-    internal void AdvanceOumTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, OumAnimations.Segments,
+    internal void AdvanceOumTypedAnimation(RoomEnemyPlace place, OumEnemyState oumEnemyState) =>
+        EnemyAnimationPlayback.Advance(place, oumEnemyState, OumAnimations.Segments,
             static (OumEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {

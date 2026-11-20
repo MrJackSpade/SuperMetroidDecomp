@@ -11,8 +11,8 @@ internal sealed class ZoaEntity(RoomEnemyOccupant occupant, RoomEnemyPlace place
     public void Initialize() => ZoaBehavior.InitializeZoa(Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => ZoaBehavior.RunZoaMainAi(Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => ZoaBehavior.RunZoaMainAi(Place, Place.RequireSpeciesState<ZoaEnemyState>(), frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => ZoaBehavior.AdvanceZoaAnimation(Place);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => ZoaBehavior.AdvanceZoaAnimation(Place, Place.RequireSpeciesState<ZoaEnemyState>());
 }

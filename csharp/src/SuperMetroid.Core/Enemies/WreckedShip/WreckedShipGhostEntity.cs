@@ -11,8 +11,8 @@ internal sealed class WreckedShipGhostEntity(RoomEnemyOccupant occupant, RoomEne
     public void Initialize() => WreckedShipGhostBehavior.InitializeWreckedShipGhost(Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => WreckedShipGhostBehavior.RunWreckedShipGhostMainAi(Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => WreckedShipGhostBehavior.RunWreckedShipGhostMainAi(Place, Place.RequireSpeciesState<WreckedShipGhostEnemyState>(), frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => WreckedShipGhostBehavior.AdvanceWreckedShipGhostTypedAnimation(Place);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => WreckedShipGhostBehavior.AdvanceWreckedShipGhostTypedAnimation(Place, Place.RequireSpeciesState<WreckedShipGhostEnemyState>());
 }

@@ -12,10 +12,10 @@ internal sealed class FirefleaEntity(FirefleaBehavior species, RoomEnemyOccupant
     public void Initialize() => FirefleaBehavior.InitializeFireflea(Occupant, Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => FirefleaBehavior.RunFirefleaMainAi(Occupant, Place);
+    public void RunMainAi(IEnemyAiFrame frame) => FirefleaBehavior.RunFirefleaMainAi(Occupant, Place, Place.RequireSpeciesState<FirefleaEnemyState>());
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => FirefleaBehavior.AdvanceFirefleaTypedAnimation(Place);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => FirefleaBehavior.AdvanceFirefleaTypedAnimation(Place, Place.RequireSpeciesState<FirefleaEnemyState>());
 
     /// <summary>Whether the Fireflea's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
     public override bool ReactsToTouch => Occupant.Definition.Touch == FirefleaReactions.Touch || base.ReactsToTouch;

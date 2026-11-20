@@ -16,7 +16,7 @@ internal sealed class DragonWingEntity(DragonBehavior species, RoomEnemyOccupant
     public void Initialize() => species.InitializeDragonWing(Place);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => DragonBehavior.AdvanceDragonWingTypedAnimation(Place);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => DragonBehavior.AdvanceDragonWingTypedAnimation(Place, Place.RequireSpeciesState<DragonWingState>());
 
     /// <summary>Whether the Dragon's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
     public override bool ReactsToTouch => Occupant.Definition.Touch == DragonReactions.Touch || base.ReactsToTouch;

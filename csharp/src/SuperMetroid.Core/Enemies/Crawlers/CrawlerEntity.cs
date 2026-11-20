@@ -18,5 +18,5 @@ internal abstract class CrawlerEntity(RoomEnemyOccupant occupant, RoomEnemyPlace
     public abstract void RunMainAi(IEnemyAiFrame frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => CrawlersBehavior.AdvanceCrawlerTypedAnimation(Place);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => CrawlersBehavior.AdvanceCrawlerTypedAnimation(Place, Place.RequireSpeciesState<CrawlerEnemyState>());
 }

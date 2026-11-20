@@ -606,18 +606,18 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyAnimationPlayback.Start(place, PipeBugAnimations.StartingWith(segment));
 
     /// <summary>Advances a Brinstar Pipe Bug's typed animation.</summary>
-    internal static void AdvanceBrinstarPipeBugTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, PipeBugAnimations.Segments,
+    internal static void AdvanceBrinstarPipeBugTypedAnimation(RoomEnemyPlace place, BrinstarPipeBugState brinstarPipeBugState) =>
+        EnemyAnimationPlayback.Advance(place, brinstarPipeBugState, PipeBugAnimations.Segments,
             static (BrinstarPipeBugState state) => state.Playback, static (state, playback) => state.Playback = playback, static (_, cue) => RaisesNoCues(cue));
 
     /// <summary>Advances a Norfair Pipe Bug's typed animation.</summary>
-    internal static void AdvanceNorfairPipeBugTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, PipeBugAnimations.Segments,
+    internal static void AdvanceNorfairPipeBugTypedAnimation(RoomEnemyPlace place, NorfairPipeBugState norfairPipeBugState) =>
+        EnemyAnimationPlayback.Advance(place, norfairPipeBugState, PipeBugAnimations.Segments,
             static (NorfairPipeBugState state) => state.Playback, static (state, playback) => state.Playback = playback, static (_, cue) => RaisesNoCues(cue));
 
     /// <summary>Advances a yellow Pipe Bug's typed animation.</summary>
-    internal static void AdvanceYellowPipeBugTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, PipeBugAnimations.Segments,
+    internal static void AdvanceYellowPipeBugTypedAnimation(RoomEnemyPlace place, YellowPipeBugState yellowPipeBugState) =>
+        EnemyAnimationPlayback.Advance(place, yellowPipeBugState, PipeBugAnimations.Segments,
             static (YellowPipeBugState state) => state.Playback, static (state, playback) => state.Playback = playback, static (_, cue) => RaisesNoCues(cue));
 
     /// <summary>Rejects a cue: no Pipe Bug animation raises one.</summary>
@@ -625,14 +625,14 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         throw new InvalidOperationException($"A Pipe Bug animation raised {cue}, though no Pipe Bug animation has a cue.");
 
     /// <summary>Runs a Brinstar Pipe Bug's main AI.</summary>
-    internal static void RunBrinstarPipeBugMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, IEnemyAiFrame frame) =>
-        RunBrinstarPipeBug(occupant, place, place.RequireSpeciesState<BrinstarPipeBugState>(), frame.Samus, frame.Camera);
+    internal static void RunBrinstarPipeBugMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, BrinstarPipeBugState brinstarPipeBugState, IEnemyAiFrame frame) =>
+        RunBrinstarPipeBug(occupant, place, brinstarPipeBugState, frame.Samus, frame.Camera);
 
     /// <summary>Runs a Norfair Pipe Bug's main AI.</summary>
-    internal void RunNorfairPipeBugMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, IEnemyAiFrame frame) =>
-        RunNorfairPipeBug(occupant, place, place.RequireSpeciesState<NorfairPipeBugState>(), frame.Samus, frame.Camera);
+    internal void RunNorfairPipeBugMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, NorfairPipeBugState norfairPipeBugState, IEnemyAiFrame frame) =>
+        RunNorfairPipeBug(occupant, place, norfairPipeBugState, frame.Samus, frame.Camera);
 
     /// <summary>Runs a yellow Pipe Bug's main AI.</summary>
-    internal static void RunYellowPipeBugMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, IEnemyAiFrame frame) =>
-        RunYellowPipeBug(occupant, place, place.RequireSpeciesState<YellowPipeBugState>(), frame.Samus, frame.Camera);
+    internal static void RunYellowPipeBugMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, YellowPipeBugState yellowPipeBugState, IEnemyAiFrame frame) =>
+        RunYellowPipeBug(occupant, place, yellowPipeBugState, frame.Samus, frame.Camera);
 }

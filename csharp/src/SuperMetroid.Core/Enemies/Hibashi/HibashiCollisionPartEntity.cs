@@ -14,5 +14,5 @@ internal sealed class HibashiCollisionPartEntity(RoomEnemyOccupant occupant, Roo
     public void Initialize() => HibashiBehavior.InitializeHibashiCollisionPart(Place);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => HibashiBehavior.AdvanceHibashiCollisionPartTypedAnimation(Place);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => HibashiBehavior.AdvanceHibashiCollisionPartTypedAnimation(Place, Place.RequireSpeciesState<HibashiCollisionPartState>());
 }

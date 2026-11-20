@@ -360,14 +360,14 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Puyo's typed animation.</summary>
-    internal static void AdvancePuyoTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, PuyoAnimations.Segments,
+    internal static void AdvancePuyoTypedAnimation(RoomEnemyPlace place, PuyoEnemyState puyoEnemyState) =>
+        EnemyAnimationPlayback.Advance(place, puyoEnemyState, PuyoAnimations.Segments,
             static (PuyoEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"Puyo's cue-free animation raised {cue}."));
 
     /// <summary>Runs Puyo's main AI.</summary>
-    internal void RunPuyoMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunPuyoMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, PuyoEnemyState puyoEnemyState, IEnemyAiFrame frame)
     {
-        RunPuyoMain(occupant, place, place.RequireSpeciesState<PuyoEnemyState>(), frame.Samus, frame.Level);
+        RunPuyoMain(occupant, place, puyoEnemyState, frame.Samus, frame.Level);
     }
 }

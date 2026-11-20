@@ -141,11 +141,10 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs an escaping Etecoon's typed animation where the shared enemy animation would.</summary>
-    internal static void AdvanceEscapeEtecoonTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext context)
+    internal static void AdvanceEscapeEtecoonTypedAnimation(RoomEnemyPlace place, EscapeEtecoonEnemyState state, EnemyAnimationCueContext context)
     {
         if (!place.AnimationClock.Expire())
             return;
-        EscapeEtecoonEnemyState state = place.RequireSpeciesState<EscapeEtecoonEnemyState>();
         AnimationPlayback<EscapeEtecoonSegment> playback = state.Playback;
         EnemyAnimationPlayback.Play(place, EscapeEtecoonAnimations.Segments, ref playback,
             cue => ApplyEscapeEtecoonCue(place, state, context.Samus, cue) is { } target
@@ -155,11 +154,10 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the escaping Dachora's typed animation where the shared enemy animation would.</summary>
-    internal void AdvanceEscapeDachoraTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext context)
+    internal void AdvanceEscapeDachoraTypedAnimation(RoomEnemyPlace place, EscapeDachoraEnemyState state, EnemyAnimationCueContext context)
     {
         if (!place.AnimationClock.Expire())
             return;
-        EscapeDachoraEnemyState state = place.RequireSpeciesState<EscapeDachoraEnemyState>();
         AnimationPlayback<EscapeDachoraSegment> playback = state.Playback;
         EnemyAnimationPlayback.Play(place, EscapeDachoraAnimations.Segments, ref playback,
             cue => ApplyEscapeDachoraCue(place, context.Samus, cue));
@@ -240,6 +238,6 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         place.Position = place.Position.WithX(place.Position.X.MovedBy(displacement));
 
     /// <summary>Runs the escape Etecoon's main AI.</summary>
-    internal void RunEscapeEtecoonMainAi(RoomEnemyPlace place, IEnemyAiFrame frame) =>
-        RunEscapeEtecoonMain(place, place.RequireSpeciesState<EscapeEtecoonEnemyState>(), frame.Level);
+    internal void RunEscapeEtecoonMainAi(RoomEnemyPlace place, EscapeEtecoonEnemyState escapeEtecoonEnemyState, IEnemyAiFrame frame) =>
+        RunEscapeEtecoonMain(place, escapeEtecoonEnemyState, frame.Level);
 }

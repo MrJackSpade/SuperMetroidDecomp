@@ -155,14 +155,14 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs Skultera's main AI.</summary>
-    internal void RunSkulteraMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunSkulteraMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, SkulteraEnemyState skulteraEnemyState, IEnemyAiFrame frame)
     {
-        RunSkulteraMain(occupant, place, place.RequireSpeciesState<SkulteraEnemyState>(), frame.Level);
+        RunSkulteraMain(occupant, place, skulteraEnemyState, frame.Level);
     }
 
     /// <summary>Advances Skultera's typed animation.</summary>
-    internal static void AdvanceSkulteraTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, SkulteraAnimations.Segments,
+    internal static void AdvanceSkulteraTypedAnimation(RoomEnemyPlace place, SkulteraEnemyState skulteraEnemyState) =>
+        EnemyAnimationPlayback.Advance(place, skulteraEnemyState, SkulteraAnimations.Segments,
             static (SkulteraEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {

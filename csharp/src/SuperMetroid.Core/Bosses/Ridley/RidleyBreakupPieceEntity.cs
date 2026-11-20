@@ -14,13 +14,13 @@ internal sealed class RidleyBreakupPieceEntity(NorfairRidleyBehavior ridley, Roo
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes
 {
     /// <inheritdoc/>
-    public void Initialize() => ridley.Death.InitializeNorfairRidleyExplosion(Occupant, Place);
+    public void Initialize() => ridley.Death.InitializeNorfairRidleyExplosion(Occupant, Place, Place.RequireSpeciesState<RidleyBreakupSource>());
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => ridley.Death.RunNorfairRidleyExplosionMain(Occupant, frame.Samus);
+    public void RunMainAi(IEnemyAiFrame frame) => ridley.Death.RunNorfairRidleyExplosionMain(Occupant, Occupant.Place.RequireSpeciesState<RidleyExplosionFragmentState>(), frame.Samus);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => RidleyBodyAnimation.AdvanceRidleyBreakupAnimation(Place);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => RidleyBodyAnimation.AdvanceRidleyBreakupAnimation(Place, Place.RequireSpeciesState<RidleyExplosionFragmentState>());
 
     /// <summary>None: the game defines no hitboxes for a breakup piece's frames (#2335).</summary>
     /// <param name="probe">The colliding edges and walker.</param>

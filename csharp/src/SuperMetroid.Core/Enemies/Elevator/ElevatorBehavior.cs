@@ -262,8 +262,8 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
     }
 
     /// <summary>Advances Elevator's typed animation.</summary>
-    internal static void AdvanceElevatorTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, ElevatorAnimations.Segments,
+    internal static void AdvanceElevatorTypedAnimation(RoomEnemyPlace place, ElevatorEnemyState elevatorEnemyState) =>
+        EnemyAnimationPlayback.Advance(place, elevatorEnemyState, ElevatorAnimations.Segments,
             static (ElevatorEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A cue-free Elevator animation raised {cue}."));
 
@@ -274,11 +274,11 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
     }
 
     /// <summary>Runs Elevator's main AI.</summary>
-    internal void RunElevatorMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunElevatorMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, ElevatorEnemyState elevatorEnemyState, IEnemyAiFrame frame)
     {
         RunElevatorMain(
             occupant, place,
-            place.RequireSpeciesState<ElevatorEnemyState>(),
+            elevatorEnemyState,
             frame.Samus,
             frame.NewlyPressedControllerInput,
             frame.SamusProjectiles);

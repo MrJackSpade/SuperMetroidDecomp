@@ -11,7 +11,7 @@ internal sealed class GoldenTorizoEntity(TorizoBehavior species, RoomEnemyOccupa
     : TorizoEntity(species, occupant, place, common)
 {
     /// <inheritdoc/>
-    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunGoldenTorizoMainAi(Occupant, Place, frame);
+    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunGoldenTorizoMainAi(Occupant, Place, Place.RequireSpeciesState<TorizoEnemyState>(), Place.RequireSpeciesState<TorizoEnemyState>(), Place.RequireSpeciesState<TorizoEnemyState>(), Place.RequireSpeciesState<TorizoEnemyState>(), frame);
 
     /// <summary>He is Norfair's Golden Torizo.</summary>
     protected override TorizoVariant Variant => TorizoVariant.Golden;
@@ -22,7 +22,7 @@ internal sealed class GoldenTorizoEntity(TorizoBehavior species, RoomEnemyOccupa
     /// <inheritdoc/>
     public override bool RunHurt(RoomEnemyFrame frame)
     {
-        Species.Combat.ApplyGoldenTorizoHurt(Occupant, Place);
+        Species.Combat.ApplyGoldenTorizoHurt(Occupant, Place, Place.RequireSpeciesState<TorizoEnemyState>(), Place.RequireSpeciesState<TorizoEnemyState>(), Place.RequireSpeciesState<TorizoEnemyState>());
         return true;
     }
 
@@ -32,7 +32,7 @@ internal sealed class GoldenTorizoEntity(TorizoBehavior species, RoomEnemyOccupa
     /// <inheritdoc/>
     public override bool TryReactToBomb(EnemyBombContext context)
     {
-        Species.Combat.ReactToGoldenTorizoBomb(context);
+        Species.Combat.ReactToGoldenTorizoBomb(context, context.Enemy.RequireSpeciesState<TorizoEnemyState>());
         return true;
     }
 

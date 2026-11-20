@@ -12,8 +12,8 @@ internal sealed class PolypEntity(PolypBehavior species, RoomEnemyOccupant occup
     public void Initialize() => species.InitializePolyp(Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunPolypMainAi(Occupant, Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunPolypMainAi(Occupant, Place, Place.RequireSpeciesState<PolypEnemyState>(), frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => PolypBehavior.AdvancePolypTypedAnimation(Place);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => PolypBehavior.AdvancePolypTypedAnimation(Place, Place.RequireSpeciesState<PolypEnemyState>());
 }

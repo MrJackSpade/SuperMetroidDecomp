@@ -29,7 +29,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Carries out one cue of the Hibashi's eruption: its sound, an eruption frame's hitbox, or finishing.</summary>
-    private void ApplyHibashiCue(RoomEnemyPlace place, HibashiCue cue)
+    private void ApplyHibashiCue(RoomEnemyPlace place, HibashiEnemyState hibashiEnemyState, HibashiCue cue)
     {
         switch (cue)
         {
@@ -37,10 +37,10 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
                 PlayHibashiEruptionSound();
                 break;
             case HibashiCue.EruptionStep step:
-                ApplyHibashiEruptionStep(place, step.Step);
+                ApplyHibashiEruptionStep(place, hibashiEnemyState, step.Step);
                 break;
             case HibashiCue.Signal { Kind: HibashiCueKind.FinishActivity }:
-                FinishHibashiActivity(place);
+                FinishHibashiActivity(place, hibashiEnemyState);
                 break;
             default:
                 throw new InvalidOperationException($"Undefined Hibashi cue {cue}.");
@@ -132,9 +132,8 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Runs a rising cue: moves the collision part to the step's height above the spawn and gives it the step's
     /// half-height, and the first step its half-width.
     /// </summary>
-    private void ApplyHibashiEruptionStep(RoomEnemyPlace flame, HibashiEruptionStep step)
+    private void ApplyHibashiEruptionStep(RoomEnemyPlace flame, HibashiEnemyState state, HibashiEruptionStep step)
     {
-        HibashiEnemyState state = flame.RequireSpeciesState<HibashiEnemyState>();
         RoomEnemyPlace hitbox = GetFollowingHibashiPart(flame);
         hitbox.Position = hitbox.Position.WithWholeY(state.SpawnY - step.YOffset);
         hitbox.Radius = hitbox.Radius.WithY(step.YRadius);
@@ -147,9 +146,8 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     /// and it has finished: its next update rests it.
     /// </summary>
     /// <exception cref="InvalidOperationException">The flame is not erupting.</exception>
-    private void FinishHibashiActivity(RoomEnemyPlace flame)
+    private void FinishHibashiActivity(RoomEnemyPlace flame, HibashiEnemyState state)
     {
-        HibashiEnemyState state = flame.RequireSpeciesState<HibashiEnemyState>();
         RoomEnemyPlace hitbox = GetFollowingHibashiPart(flame);
 
         if (state.Action != HibashiAction.Active)
@@ -165,22 +163,22 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     private RoomEnemyPlace GetFollowingHibashiPart(RoomEnemyPlace flame) => _hitboxes.Of(flame);
 
     /// <summary>Runs the flame's main AI.</summary>
-    internal void RunHibashiMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place) =>
-        RunHibashiMain(occupant, place, place.RequireSpeciesState<HibashiEnemyState>());
+    internal void RunHibashiMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, HibashiEnemyState hibashiEnemyState) =>
+        RunHibashiMain(occupant, place, hibashiEnemyState);
 
     /// <summary>Advances the collision part's hitbox hold.</summary>
-    internal static void AdvanceHibashiCollisionPartTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, HibashiAnimations.Segments,
+    internal static void AdvanceHibashiCollisionPartTypedAnimation(RoomEnemyPlace place, HibashiCollisionPartState hibashiCollisionPartState) =>
+        EnemyAnimationPlayback.Advance(place, hibashiCollisionPartState, HibashiAnimations.Segments,
             static (HibashiCollisionPartState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"The Hibashi collision part's animation raised {cue}."));
 
     /// <summary>Advances the flame's eruption animation.</summary>
-    internal void AdvanceHibashiTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, HibashiAnimations.Segments,
+    internal void AdvanceHibashiTypedAnimation(RoomEnemyPlace place, HibashiEnemyState hibashiEnemyState) =>
+        EnemyAnimationPlayback.Advance(place, hibashiEnemyState, HibashiAnimations.Segments,
             static (HibashiEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {
-                ApplyHibashiCue(place, cue);
+                ApplyHibashiCue(place, hibashiEnemyState, cue);
                 return null;
             });
 }

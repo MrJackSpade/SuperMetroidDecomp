@@ -12,10 +12,10 @@ internal sealed class OumEntity(OumBehavior species, RoomEnemyOccupant occupant,
     public void Initialize() => OumBehavior.InitializeOum(Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunOumMainAi(Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunOumMainAi(Place, Place.RequireSpeciesState<OumEnemyState>(), frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceOumTypedAnimation(Place);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceOumTypedAnimation(Place, Place.RequireSpeciesState<OumEnemyState>());
 
     /// <inheritdoc/>
     public EnemyHitboxContact FindHitboxReaction(EnemyHitboxProbe probe) => OumBehavior.FindHitboxReaction(Place, probe);

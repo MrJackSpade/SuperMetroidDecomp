@@ -135,9 +135,8 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         state.CrawlingVelocity = YardCrawlVelocity.Apply(state.CrawlSpeed, direction);
 
     /// <summary>Runs the Yard's main AI.</summary>
-    private void RunYardMain(RoomEnemyPlace place, SamusState samus, RoomLevelData level)
+    private void RunYardMain(RoomEnemyPlace place, YardEnemyState state, SamusState samus, RoomLevelData level)
     {
-        YardEnemyState state = place.RequireSpeciesState<YardEnemyState>();
 
         // A super-missile earthquake drops an attached/hiding Yard, but cannot restart one
         // that is already falling, kicked, or shot through the air.
@@ -588,17 +587,16 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs Yard's main AI.</summary>
-    internal void RunYardMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunYardMainAi(RoomEnemyPlace place, YardEnemyState yardEnemyState, IEnemyAiFrame frame)
     {
-        RunYardMain(place, frame.Samus, frame.Level);
+        RunYardMain(place, yardEnemyState, frame.Samus, frame.Level);
     }
 
     /// <summary>Advances Yard's typed animation.</summary>
-    internal void AdvanceYardTypedAnimation(RoomEnemyPlace place)
+    internal void AdvanceYardTypedAnimation(RoomEnemyPlace place, YardEnemyState state)
     {
         if (!place.AnimationClock.Expire())
             return;
-        var state = place.RequireSpeciesState<YardEnemyState>();
         AnimationPlayback<YardSegment> playback = state.Playback;
         EnemyAnimationPlayback.Play(place, YardAnimations.Segments, ref playback,
             (cue, playing) => ApplyYardCue(place, state, cue, playing));
@@ -621,8 +619,8 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     };
 
     /// <summary>Runs Yard's touch reaction, including its facing-dependent shell response.</summary>
-    internal void ReactToYardTouch(RoomEnemyOccupant occupant, EnemyTouchContext context) =>
-        ResolveYardTouch(occupant, context.Place, context.Place.RequireSpeciesState<YardEnemyState>(), context.Samus, context.PseudoScrew, context.ControllerInput);
+    internal void ReactToYardTouch(RoomEnemyOccupant occupant, EnemyTouchContext context, YardEnemyState yardEnemyState) =>
+        ResolveYardTouch(occupant, context.Place, yardEnemyState, context.Samus, context.PseudoScrew, context.ControllerInput);
 
     /// <summary>The enemy-library sound queued by a Yard shell kick, launch or wall bounce.</summary>
     private static readonly SoundEffectId YardBounceSound =

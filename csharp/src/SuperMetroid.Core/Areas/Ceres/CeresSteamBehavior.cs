@@ -30,11 +30,10 @@ internal sealed class CeresSteamBehavior(EnemyRoomBinding room, EnemyCollision c
     /// where a rest ends (<see cref="CeresSteamAnimations.ActivationAfter"/>, #2480), appearing and showing its puff's
     /// first picture on the wait's last update.
     /// </summary>
-    internal static void AdvanceCeresSteamAnimation(RoomEnemyPlace place)
+    internal static void AdvanceCeresSteamAnimation(RoomEnemyPlace place, CeresSteamEnemyState state)
     {
         if (!place.AnimationClock.Expire())
             return;
-        CeresSteamEnemyState state = place.RequireSpeciesState<CeresSteamEnemyState>();
         AnimationPlayback<CeresSteamSegment> playback = state.Playback;
         EnemyAnimationPlayback.PlayApplyingCues(place, CeresSteamAnimations.Segments, ref playback, (CeresSteamCueKind cue) => CarryOut(place, cue));
         if (place.AnimationClock.IsStopped)
@@ -88,8 +87,8 @@ internal sealed class CeresSteamBehavior(EnemyRoomBinding room, EnemyCollision c
     }
 
     /// <summary>Runs the Ceres steam's main AI: the vent's drawing follows its motion.</summary>
-    internal static void RunCeresSteamMainAi(RoomEnemyPlace place) =>
-        place.RequireSpeciesState<CeresSteamEnemyState>().Motion.Move(place);
+    internal static void RunCeresSteamMainAi(RoomEnemyPlace place, CeresSteamEnemyState ceresSteamEnemyState) =>
+        ceresSteamEnemyState.Motion.Move(place);
 
     /// <summary>Handles contact only for the steam's authored extended hitbox reaction.</summary>
     internal void ReactToCeresSteamTouch(EnemyTouchContext context)

@@ -11,8 +11,8 @@ internal sealed class SbugEntity(RoomEnemyOccupant occupant, RoomEnemyPlace plac
     public void Initialize() => SbugBehavior.InitializeSbug(Occupant, Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => SbugBehavior.RunSbugMainAi(Occupant, Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => SbugBehavior.RunSbugMainAi(Occupant, Place, Place.RequireSpeciesState<SbugEnemyState>(), frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => SbugBehavior.AdvanceSbugTypedAnimation(Place);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => SbugBehavior.AdvanceSbugTypedAnimation(Place, Place.RequireSpeciesState<SbugEnemyState>());
 }

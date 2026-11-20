@@ -354,7 +354,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Copies common shot/freeze presentation from the body to its balloon.</summary>
-    private void ResolvePowampShotAfterCommon(RoomEnemyPlace body)
+    private void ResolvePowampShotAfterCommon(RoomEnemyPlace body, PowampBodyState powampBodyState)
     {
         PowampBalloon balloon = BalloonOf(body);
         if ((body.AiStates & EnemyAiStates.Frozen) != EnemyAiStates.None)
@@ -370,7 +370,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         if (body.Health == 0)
         {
             // The fatal action refuses Samus's later touch and shots (PowampBodyState.IsDying).
-            body.RequireSpeciesState<PowampBodyState>().Action = PowampAction.FatalDamage;
+            powampBodyState.Action = PowampAction.FatalDamage;
         }
     }
 
@@ -477,7 +477,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         RunsGenericDeath = false,
         // Powamp's shot reaction runs the common damage without the hit burst.
         ShowsHitBurst = EnemyBombReaction.NeverShowsHitBurst,
-        AfterCommon = c => ResolvePowampShotAfterCommon(c.Enemy),
+        AfterCommon = c => ResolvePowampShotAfterCommon(c.Enemy, c.Enemy.RequireSpeciesState<PowampBodyState>()),
     };
 
     /// <summary>
@@ -489,17 +489,16 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         shot: () => new PowampSpikeAnimation(PowampSpikeSegment.Delete));
 
     /// <summary>Advances the body's pulse.</summary>
-    internal static void AdvancePowampBodyTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, PowampAnimations.Segments,
+    internal static void AdvancePowampBodyTypedAnimation(RoomEnemyPlace place, PowampBodyState powampBodyState) =>
+        EnemyAnimationPlayback.Advance(place, powampBodyState, PowampAnimations.Segments,
             static (PowampBodyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => RaisesNoCues(cue));
 
     /// <summary>Advances the balloon's inflate or sink animation and the poses it shows.</summary>
-    internal static void AdvancePowampBalloonTypedAnimation(RoomEnemyPlace place)
+    internal static void AdvancePowampBalloonTypedAnimation(RoomEnemyPlace place, PowampBalloonState balloon)
     {
         if (!place.AnimationClock.Expire())
             return;
-        PowampBalloonState balloon = place.RequireSpeciesState<PowampBalloonState>();
         AnimationPlayback<PowampSegment> playback = balloon.Playback;
         // Every frame of the balloon's animations is one of its poses, so each frame shown records the next pose.
         EnemyAnimationPlayback.Play(place, PowampAnimations.Segments, ref playback, pose =>
@@ -526,7 +525,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Skips later shots once fatal damage begins and mirrors surviving body presentation to the balloon.</summary>
     /// <param name="body">The body the reaction is built for, whose placement names whether it refuses shots.</param>
     internal EnemyShotReaction PowampBodyShotReaction(RoomEnemyOccupant body) =>
-        ShotReactionSkipping(place => BodyRefusesContact(body, place));
+        ShotReactionSkipping(place => BodyRefusesContact(body, place, place.RequireSpeciesState<PowampBodyState>()));
 
     /// <summary>The Powamp's shot reaction as the balloon takes it, skipped while the balloon refuses contact.</summary>
     /// <param name="balloon">The balloon the reaction is built for, whose placement names whether it refuses shots.</param>
@@ -538,8 +537,8 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         half.SpawnSettings<PowampSpawnSettings>().Contact == PowampContact.Refuses;
 
     /// <summary>Whether the body refuses Samus's touch and shots: its placement refuses them, or it is dying (#2474).</summary>
-    private static bool BodyRefusesContact(RoomEnemyOccupant occupant, RoomEnemyPlace body) =>
-        PlacementRefusesContact(occupant) || body.RequireSpeciesState<PowampBodyState>().IsDying;
+    private static bool BodyRefusesContact(RoomEnemyOccupant occupant, RoomEnemyPlace body, PowampBodyState powampBodyState) =>
+        PlacementRefusesContact(occupant) || powampBodyState.IsDying;
 
     /// <summary>The Powamp's shot reaction for a half that refuses shots while <paramref name="refusesContact"/> says so.</summary>
     private EnemyShotReaction ShotReactionSkipping(Func<RoomEnemyPlace, bool> refusesContact) => new()
@@ -550,13 +549,13 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         ExemptFromGenericDeath = true,
         // A shot damages a Powamp without the hit burst.
         ShowsHitBurst = EnemyShotReaction.NeverShowsHitBurst,
-        AfterCommon = c => ResolvePowampShotAfterCommon(c.Enemy),
+        AfterCommon = c => ResolvePowampShotAfterCommon(c.Enemy, c.Enemy.RequireSpeciesState<PowampBodyState>()),
     };
 
     /// <summary>Applies touch behavior to the body before its fatal-shot state begins.</summary>
-    internal void ReactToPowampBodyTouch(RoomEnemyOccupant occupant, EnemyTouchContext context)
+    internal void ReactToPowampBodyTouch(RoomEnemyOccupant occupant, EnemyTouchContext context, PowampBodyState powampBodyState)
     {
-        if (!BodyRefusesContact(occupant, context.Place))
+        if (!BodyRefusesContact(occupant, context.Place, powampBodyState))
             ResolvePowampTouch(occupant, context.Place, context.Samus, context.PseudoScrew);
     }
 

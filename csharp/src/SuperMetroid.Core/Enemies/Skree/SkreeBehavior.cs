@@ -42,9 +42,8 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Winds up near Samus, dives when the wind-up cue is ready, then burrows after floor contact.</summary>
-    private void RunSkreeMain(RoomEnemyOccupant occupant, RoomEnemyPlace place, SamusState samus, RoomLevelData level)
+    private void RunSkreeMain(RoomEnemyOccupant occupant, RoomEnemyPlace place, SkreeEnemyState state, SamusState samus, RoomLevelData level)
     {
-        SkreeEnemyState state = place.RequireSpeciesState<SkreeEnemyState>();
         switch (state.Action)
         {
             case SkreeAction.Idling:
@@ -125,14 +124,14 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = EnemyAnimationPlayback.StartUnlessPlaying(place, state.Playback, SkreeMetareeAnimations.StartingWith(animation));
 
     /// <summary>Runs Skree's main AI.</summary>
-    internal void RunSkreeMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunSkreeMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, SkreeEnemyState skreeEnemyState, IEnemyAiFrame frame)
     {
-        RunSkreeMain(occupant, place, frame.Samus, frame.Level);
+        RunSkreeMain(occupant, place, skreeEnemyState, frame.Samus, frame.Level);
     }
 
     /// <summary>Advances Skree's typed animation.</summary>
-    internal static void AdvanceSkreeTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, SkreeMetareeAnimations.Segments,
+    internal static void AdvanceSkreeTypedAnimation(RoomEnemyPlace place, SkreeEnemyState skreeEnemyState) =>
+        EnemyAnimationPlayback.Advance(place, skreeEnemyState, SkreeMetareeAnimations.Segments,
             static (SkreeEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {

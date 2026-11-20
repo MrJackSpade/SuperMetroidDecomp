@@ -69,13 +69,12 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs Crocomire's main AI for one update: the fight, or the stage of his death he is at.</summary>
     private void RunCrocomireMain(
-        RoomEnemyOccupant crocomire,
+        RoomEnemyOccupant crocomire, CrocomireEnemyState state,
         SamusState samus,
         PseudoScrewCharge pseudoScrew,
         Position16<RoomPixels> camera)
     {
         RoomEnemyPlace place = crocomire.Place;
-        CrocomireEnemyState state = place.RequireSpeciesState<CrocomireEnemyState>();
 
         if (state.DeathStage.Entry is CrocomireDeathStage.Fighting)
         {
@@ -182,15 +181,15 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Crocomire's typed animation.</summary>
-    internal void AdvanceCrocomireTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext context)
+    internal void AdvanceCrocomireTypedAnimation(RoomEnemyPlace place, CrocomireEnemyState crocomireEnemyState, EnemyAnimationCueContext context)
     {
-        Fight.AdvanceCrocomireBodyAnimation(place, context.Samus, context.Level, context.Camera.X);
+        Fight.AdvanceCrocomireBodyAnimation(place, crocomireEnemyState, context.Samus, context.Level, context.Camera.X);
     }
 
     /// <summary>Runs Crocomire's main AI.</summary>
-    internal void RunCrocomireMainAi(RoomEnemyOccupant crocomire, IEnemyAiFrame frame)
+    internal void RunCrocomireMainAi(RoomEnemyOccupant crocomire, CrocomireEnemyState crocomireEnemyState, IEnemyAiFrame frame)
     {
         _ = crocomire.Place;
-        RunCrocomireMain(crocomire, frame.Samus, frame.PseudoScrew, frame.Camera);
+        RunCrocomireMain(crocomire, crocomireEnemyState, frame.Samus, frame.PseudoScrew, frame.Camera);
     }
 }

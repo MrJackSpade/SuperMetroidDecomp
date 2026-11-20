@@ -498,9 +498,8 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     /// Carries out one cue of the ninja Space Pirates' animations. Becoming active continues at the active stance facing
     /// Samus, as the cue returns that animation; every other cue runs on.
     /// </summary>
-    private NinjaSpacePirateSegment? ApplyNinjaSpacePirateCue(RoomEnemyOccupant occupant, RoomEnemyPlace place, NinjaSpacePirateCue cue, SamusState samus)
+    private NinjaSpacePirateSegment? ApplyNinjaSpacePirateCue(RoomEnemyOccupant occupant, RoomEnemyPlace place, NinjaSpacePirateEnemyState state, NinjaSpacePirateCue cue, SamusState samus)
     {
-        NinjaSpacePirateEnemyState state = place.RequireSpeciesState<NinjaSpacePirateEnemyState>();
         switch (cue)
         {
             case NinjaSpacePirateCue.SetShading setShading:
@@ -587,21 +586,21 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     }
 
     /// <summary>Runs the ninja Space Pirate's main AI.</summary>
-    internal void RunNinjaSpacePirateMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunNinjaSpacePirateMainAi(RoomEnemyPlace place, NinjaSpacePirateEnemyState ninjaSpacePirateEnemyState, IEnemyAiFrame frame)
     {
         RunNinjaSpacePirateMain(
             place,
-            place.RequireSpeciesState<NinjaSpacePirateEnemyState>(),
+            ninjaSpacePirateEnemyState,
             frame.Samus,
             frame.Level,
             frame.SamusProjectiles);
     }
 
     /// <summary>Advances the ninja Space Pirate's typed animation.</summary>
-    internal void AdvanceNinjaSpacePirateTypedAnimation(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyAnimationCueContext context) =>
-        EnemyAnimationPlayback.Advance(place, NinjaSpacePirateAnimations.Segments,
+    internal void AdvanceNinjaSpacePirateTypedAnimation(RoomEnemyOccupant occupant, RoomEnemyPlace place, NinjaSpacePirateEnemyState ninjaSpacePirateEnemyState2, NinjaSpacePirateEnemyState ninjaSpacePirateEnemyState, EnemyAnimationCueContext context) =>
+        EnemyAnimationPlayback.Advance(place, ninjaSpacePirateEnemyState2, NinjaSpacePirateAnimations.Segments,
             static (NinjaSpacePirateEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
-            (state, cue) => ApplyNinjaSpacePirateCue(occupant, place, cue, context.Samus) is { } continuesAt
+            (state, cue) => ApplyNinjaSpacePirateCue(occupant, place, ninjaSpacePirateEnemyState, cue, context.Samus) is { } continuesAt
                 ? new AnimationContinuation<NinjaSpacePirateSegment>(NinjaSpacePirateAnimations.StartingWith(continuesAt), AnimationPlace.StartOfAnimation)
                 : null);
 

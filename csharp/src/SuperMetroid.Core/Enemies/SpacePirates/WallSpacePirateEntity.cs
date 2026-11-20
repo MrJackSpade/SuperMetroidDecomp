@@ -12,10 +12,10 @@ internal sealed class WallSpacePirateEntity(WallSpacePirateBehavior species, Roo
     public void Initialize() => WallSpacePirateBehavior.InitializeWallSpacePirate(Occupant, Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => WallSpacePirateBehavior.RunWallSpacePirateMainAi(Occupant, Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => WallSpacePirateBehavior.RunWallSpacePirateMainAi(Occupant, Place, Place.RequireSpeciesState<WallSpacePirateEnemyState>(), frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceWallSpacePirateTypedAnimation(Occupant, Place, context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceWallSpacePirateTypedAnimation(Occupant, Place, Place.RequireSpeciesState<WallSpacePirateEnemyState>(), Place.RequireSpeciesState<WallSpacePirateEnemyState>(), context);
 
     /// <inheritdoc/>
     public EnemyHitboxContact FindHitboxReaction(EnemyHitboxProbe probe) => SpacePirateHitboxes.Find(Place, probe);

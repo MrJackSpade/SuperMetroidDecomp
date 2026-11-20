@@ -534,9 +534,9 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         state.HeadPlayback = EnemyAnimationPlayback.StartUnlessPlaying(head, state.HeadPlayback, BotwoonAnimations.HeadStartingWith(segment));
 
     /// <summary>Advances Botwoon's typed animation.</summary>
-    internal void AdvanceBotwoonTypedAnimation(RoomEnemyPlace place)
+    internal void AdvanceBotwoonTypedAnimation(RoomEnemyPlace place, BotwoonEnemyState botwoonEnemyState)
     {
-        AdvanceBotwoonHeadAnimation(place, place.RequireSpeciesState<BotwoonEnemyState>());
+        AdvanceBotwoonHeadAnimation(place, botwoonEnemyState);
     }
 
     /// <summary>
@@ -718,12 +718,10 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     /// current traversal. The head and the body actors remain alive until the tail has
     /// crossed the next hole, as his death requires.
     /// </summary>
-    private static void ResolveBotwoonCombatAfterCommon(RoomEnemyPlace head)
+    private static void ResolveBotwoonCombatAfterCommon(RoomEnemyPlace head, BotwoonEnemyState state)
     {
         if (head.Health != 0)
             return;
-
-        BotwoonEnemyState state = head.RequireSpeciesState<BotwoonEnemyState>();
         state.FatallyHit = true;
 
         // The dying head becomes intangible: it leaves the
@@ -737,7 +735,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         RunsGenericDeath = false,
         // Botwoon's shot reaction runs the common damage without the hit burst.
         ShowsHitBurst = EnemyBombReaction.NeverShowsHitBurst,
-        AfterCommon = c => ResolveBotwoonCombatAfterCommon(c.Enemy),
+        AfterCommon = c => ResolveBotwoonCombatAfterCommon(c.Enemy, c.Enemy.RequireSpeciesState<BotwoonEnemyState>()),
     };
 
     /// <summary>Botwoon's body segments and spit (#1760): their spawners start their animations, and Botwoon runs them.</summary>
@@ -778,16 +776,16 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     }
 
     /// <summary>Runs Botwoon's main AI.</summary>
-    internal void RunBotwoonMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunBotwoonMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, BotwoonEnemyState botwoonEnemyState, IEnemyAiFrame frame)
     {
-        RunBotwoonMain(occupant, place, place.RequireSpeciesState<BotwoonEnemyState>(), frame.Samus);
+        RunBotwoonMain(occupant, place, botwoonEnemyState, frame.Samus);
     }
 
     /// <summary>Applies power-bomb damage while preserving Botwoon's delayed death traversal.</summary>
     internal EnemyPowerBombReaction BotwoonPowerBombReaction => field ??= new()
     {
         ExemptFromGenericDeath = true,
-        AfterCommon = c => ResolveBotwoonCombatAfterCommon(c.Enemy),
+        AfterCommon = c => ResolveBotwoonCombatAfterCommon(c.Enemy, c.Enemy.RequireSpeciesState<BotwoonEnemyState>()),
     };
 
     /// <summary>Resolves the health bands and skips generic death on shot hits.</summary>
@@ -796,14 +794,14 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         ExemptFromGenericDeath = true,
         // Botwoon's shot reaction runs the common damage without the hit burst.
         ShowsHitBurst = EnemyShotReaction.NeverShowsHitBurst,
-        AfterCommon = c => ResolveBotwoonCombatAfterCommon(c.Enemy),
+        AfterCommon = c => ResolveBotwoonCombatAfterCommon(c.Enemy, c.Enemy.RequireSpeciesState<BotwoonEnemyState>()),
     };
 
     /// <summary>Resolves Samus contact, leaving Botwoon at zero health to die his own way.</summary>
-    internal void ReactToBotwoonTouch(EnemyTouchContext context)
+    internal void ReactToBotwoonTouch(EnemyTouchContext context, BotwoonEnemyState botwoonEnemyState)
     {
         _collision.ResolveOrdinaryTouch(context, TouchDeathAnimation.Skip);
-        ResolveBotwoonCombatAfterCommon(context.Place);
+        ResolveBotwoonCombatAfterCommon(context.Place, botwoonEnemyState);
     }
     /// <summary>
     /// Spawns Botwoon's body, from the segment behind the head down to the tail. Each segment takes the room's next free
@@ -853,7 +851,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         int hurtFlashCadence)
     {
         BotwoonSegmentState segment = Segments.Of(projectile);
-        if (segment.Phase == BotwoonBodyPhase.Main && Encounter(segment).BodyDeathStarted)
+        if (segment.Phase == BotwoonBodyPhase.Main && Encounter(segment, segment.Head.RequireSpeciesState<BotwoonEnemyState>()).BodyDeathStarted)
             segment.Phase = BotwoonBodyPhase.BeginDying;
 
         switch (segment.Phase)
@@ -877,7 +875,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
                 return;
 
             case BotwoonBodyPhase.Falling:
-                RunBotwoonBodyFall(segment, hurtFlashCadence);
+                RunBotwoonBodyFall(segment, segment.Head.RequireSpeciesState<BotwoonEnemyState>(), hurtFlashCadence);
                 return;
 
             case BotwoonBodyPhase.Landed:
@@ -889,8 +887,8 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     }
 
     /// <summary>The state of the Botwoon whose body <paramref name="segment"/> is part of: his head's.</summary>
-    private static BotwoonEnemyState Encounter(BotwoonSegmentState segment) =>
-        segment.Head.RequireSpeciesState<BotwoonEnemyState>();
+    private static BotwoonEnemyState Encounter(BotwoonSegmentState segment, BotwoonEnemyState botwoonEnemyState) =>
+        botwoonEnemyState;
 
     /// <summary>Starts a segment's animation for its angle and shows the head's hurt flash on it.</summary>
     private void AnimateBotwoonBodySegment(
@@ -911,12 +909,12 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         BotwoonSegmentState segment = Segments.Of(projectile);
         projectile.Graphics = projectile.Graphics.In(segment.Head.HurtFlash.IsRunning && EnemyDrawPhaseDefinitions.HurtFlashShown.IsSetIn(hurtFlashCadence)
             ? EnemyShades.HurtFlashLook
-            : Encounter(segment).BodyShading);
+            : Encounter(segment, segment.Head.RequireSpeciesState<BotwoonEnemyState>()).BodyShading);
     }
 
     /// <summary>Accelerates a dying segment to the floor (<see cref="BotwoonFightDefinitions.FloorY"/>) and marks the tail cap's final landing.</summary>
     private void RunBotwoonBodyFall(
-        BotwoonSegmentState segment,
+        BotwoonSegmentState segment, BotwoonEnemyState botwoonEnemyState,
         int hurtFlashCadence)
     {
         EnemyProjectile projectile = segment.Projectile;
@@ -940,7 +938,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
 
         // The tail segment owns the synchronization flag.
         if (segment.IsTail)
-            Encounter(segment).LastBodySegmentLanded = true;
+            Encounter(segment, botwoonEnemyState).LastBodySegmentLanded = true;
     }
 
     /// <summary>Spawns one of Botwoon's spits.</summary>

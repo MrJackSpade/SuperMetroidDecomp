@@ -12,8 +12,8 @@ internal sealed class RioEntity(RioBehavior species, RoomEnemyOccupant occupant,
     public void Initialize() => RioBehavior.InitializeRio(Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunRioMainAi(Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunRioMainAi(Place, Place.RequireSpeciesState<RioEnemyState>(), frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => RioBehavior.AdvanceRioTypedAnimation(Place);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => RioBehavior.AdvanceRioTypedAnimation(Place, Place.RequireSpeciesState<RioEnemyState>());
 }

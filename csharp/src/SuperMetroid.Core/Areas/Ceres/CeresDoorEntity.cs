@@ -22,5 +22,5 @@ internal sealed class CeresDoorEntity(CeresDoorBehavior doors, RoomEnemyOccupant
     public void RunMainAi(IEnemyAiFrame frame) => doors.EscapeQuake.Keep(EarthquakeReach.RoomBlocksSceneryAndEnemies);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => doors.AdvanceAnimation(Place, context.Samus);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => doors.AdvanceAnimation(Place, Place.RequireSpeciesState<CeresRidleyRoomDoorState>(), Place.RequireSpeciesState<CeresDoorAnimationState>(), context.Samus);
 }

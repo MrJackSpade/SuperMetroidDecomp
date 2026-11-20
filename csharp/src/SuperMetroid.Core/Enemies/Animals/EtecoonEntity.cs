@@ -12,8 +12,8 @@ internal sealed class EtecoonEntity(EtecoonBehavior species, RoomEnemyOccupant o
     public void Initialize() => EtecoonBehavior.InitializeEtecoon(Occupant, Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunEtecoonMainAi(Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunEtecoonMainAi(Place, Place.RequireSpeciesState<EtecoonEnemyState>(), frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => EtecoonBehavior.AdvanceEtecoonTypedAnimation(Place);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => EtecoonBehavior.AdvanceEtecoonTypedAnimation(Place, Place.RequireSpeciesState<EtecoonEnemyState>());
 }

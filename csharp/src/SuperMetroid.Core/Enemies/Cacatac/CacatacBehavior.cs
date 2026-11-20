@@ -141,14 +141,14 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
         context => FlyCacatacSpike(context.Projectile, context.Camera));
 
     /// <summary>Runs Cacatac's main AI.</summary>
-    internal void RunCacatacMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place)
+    internal void RunCacatacMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, CacatacEnemyState cacatacEnemyState)
     {
-        RunCacatacMain(occupant, place, place.RequireSpeciesState<CacatacEnemyState>());
+        RunCacatacMain(occupant, place, cacatacEnemyState);
     }
 
     /// <summary>Advances Cacatac's typed animation.</summary>
-    internal void AdvanceCacatacTypedAnimation(RoomEnemyOccupant occupant, RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.AdvanceApplyingCues(place, CacatacAnimations.Segments,
+    internal void AdvanceCacatacTypedAnimation(RoomEnemyOccupant occupant, RoomEnemyPlace place, CacatacEnemyState cacatacEnemyState) =>
+        EnemyAnimationPlayback.AdvanceApplyingCues(place, cacatacEnemyState, CacatacAnimations.Segments,
             static (CacatacEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (CacatacEnemyState state, CacatacCue cue) => ApplyCacatacCue(occupant, place, state, cue));
 

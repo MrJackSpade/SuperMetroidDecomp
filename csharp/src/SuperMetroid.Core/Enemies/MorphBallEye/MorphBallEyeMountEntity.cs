@@ -16,5 +16,5 @@ internal sealed class MorphBallEyeMountEntity(MorphBallEyeBehavior species, Room
     public void Initialize() => species.InitializeMorphBallEyeMount(Occupant, Place);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => MorphBallEyeBehavior.AdvanceMorphBallEyeMountTypedAnimation(Place);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => MorphBallEyeBehavior.AdvanceMorphBallEyeMountTypedAnimation(Place, Place.RequireSpeciesState<MorphBallEyeMountState>());
 }

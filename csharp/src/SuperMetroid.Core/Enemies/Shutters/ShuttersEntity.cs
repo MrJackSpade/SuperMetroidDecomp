@@ -36,7 +36,7 @@ internal abstract class ShuttersEntity(ShuttersBehavior species, RoomEnemyOccupa
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (Occupant.Definition.Touch == ShutterReactions.Touch)
-            species.ReactToVerticalShutterTouch(Occupant, context);
+            species.ReactToVerticalShutterTouch(Occupant, context, context.Place.RequireSpeciesState<VerticalShutterEnemyState>());
         else
             base.ReactToTouch(context);
     }

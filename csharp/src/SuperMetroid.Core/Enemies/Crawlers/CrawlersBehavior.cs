@@ -163,11 +163,10 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// tangent to pursue Samus and falls off during a Super Missile wall-impact earthquake.
     /// </summary>
     private void RunOrangeZoomerMain(
-        RoomEnemyPlace place,
+        RoomEnemyPlace place, CrawlerEnemyState state,
         SamusState samus,
         RoomLevelData level)
     {
-        CrawlerEnemyState state = place.RequireSpeciesState<CrawlerEnemyState>();
         switch (state.Action)
         {
             case CrawlerAction.Settling:
@@ -270,9 +269,8 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs shared crawler main AI.</summary>
-    private void RunCrawlerMain(RoomEnemyPlace place, RoomLevelData level)
+    private void RunCrawlerMain(RoomEnemyPlace place, CrawlerEnemyState state, RoomLevelData level)
     {
-        CrawlerEnemyState state = place.RequireSpeciesState<CrawlerEnemyState>();
         switch (state.Action)
         {
             case CrawlerAction.Settling:
@@ -472,15 +470,15 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the shared crawler main AI.</summary>
-    internal void RunCrawlerMainAi(RoomEnemyPlace place, IEnemyAiFrame frame) => RunCrawlerMain(place, frame.Level);
+    internal void RunCrawlerMainAi(RoomEnemyPlace place, CrawlerEnemyState crawlerEnemyState, IEnemyAiFrame frame) => RunCrawlerMain(place, crawlerEnemyState, frame.Level);
 
     /// <summary>Runs orange Zoomer's Samus-tracking main AI.</summary>
-    internal void RunOrangeZoomerMainAi(RoomEnemyPlace place, IEnemyAiFrame frame) =>
-        RunOrangeZoomerMain(place, frame.Samus, frame.Level);
+    internal void RunOrangeZoomerMainAi(RoomEnemyPlace place, CrawlerEnemyState crawlerEnemyState, IEnemyAiFrame frame) =>
+        RunOrangeZoomerMain(place, crawlerEnemyState, frame.Samus, frame.Level);
 
     /// <summary>Runs the crawlers' surface animations (#641).</summary>
-    internal static void AdvanceCrawlerTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, CrawlerAnimations.Segments,
+    internal static void AdvanceCrawlerTypedAnimation(RoomEnemyPlace place, CrawlerEnemyState crawlerEnemyState) =>
+        EnemyAnimationPlayback.Advance(place, crawlerEnemyState, CrawlerAnimations.Segments,
             static (CrawlerEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A cue-free crawler animation raised {cue}."));
 }

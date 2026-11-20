@@ -177,14 +177,14 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
     };
 
     /// <summary>Runs Owtch's main AI.</summary>
-    internal void RunOwtchMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place)
+    internal void RunOwtchMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, OwtchEnemyState owtchEnemyState)
     {
-        RunOwtchMain(occupant, place, place.RequireSpeciesState<OwtchEnemyState>());
+        RunOwtchMain(occupant, place, owtchEnemyState);
     }
 
     /// <summary>Advances Owtch's typed animation.</summary>
-    internal static void AdvanceOwtchTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, OwtchAnimations.Segments,
+    internal static void AdvanceOwtchTypedAnimation(RoomEnemyPlace place, OwtchEnemyState owtchEnemyState) =>
+        EnemyAnimationPlayback.Advance(place, owtchEnemyState, OwtchAnimations.Segments,
             static (OwtchEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {

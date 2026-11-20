@@ -210,19 +210,19 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyMath.SineVelocity(angle, 1);
 
     /// <summary>Runs Rio's main AI.</summary>
-    internal void RunRioMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunRioMainAi(RoomEnemyPlace place, RioEnemyState rioEnemyState, IEnemyAiFrame frame)
     {
         RunRioMain(
             place,
-            place.RequireSpeciesState<RioEnemyState>(),
+            rioEnemyState,
             frame.Samus,
             frame.Level,
             frame.Camera);
     }
 
     /// <summary>Advances Rio's typed animation.</summary>
-    internal static void AdvanceRioTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, RioAnimations.Segments,
+    internal static void AdvanceRioTypedAnimation(RoomEnemyPlace place, RioEnemyState rioEnemyState) =>
+        EnemyAnimationPlayback.Advance(place, rioEnemyState, RioAnimations.Segments,
             static (RioEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {

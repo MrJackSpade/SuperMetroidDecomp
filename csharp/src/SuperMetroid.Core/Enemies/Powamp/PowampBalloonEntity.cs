@@ -19,7 +19,7 @@ internal sealed class PowampBalloonEntity(PowampBehavior species, RoomEnemyOccup
     public void Initialize() => PowampBehavior.InitializePowampBalloon(Place);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => PowampBehavior.AdvancePowampBalloonTypedAnimation(Place);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => PowampBehavior.AdvancePowampBalloonTypedAnimation(Place, Place.RequireSpeciesState<PowampBalloonState>());
 
     /// <summary>Whether the balloon's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
     public override bool ReactsToTouch => Occupant.Definition.Touch == PowampReactions.Touch || base.ReactsToTouch;

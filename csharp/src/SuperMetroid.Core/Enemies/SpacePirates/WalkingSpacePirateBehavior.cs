@@ -45,7 +45,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     /// Carries out one cue of the walking Space Pirates' animations. Choosing a movement continues at the walk or laser
     /// animation it selects, as the cue returns that animation; every other cue runs on.
     /// </summary>
-    private WalkingSpacePirateSegment? ApplyWalkingSpacePirateCue(RoomEnemyOccupant occupant, RoomEnemyPlace place, WalkingSpacePirateCue cue, SamusState samus)
+    private WalkingSpacePirateSegment? ApplyWalkingSpacePirateCue(RoomEnemyOccupant occupant, RoomEnemyPlace place, WalkingSpacePirateEnemyState walkingSpacePirateEnemyState, WalkingSpacePirateCue cue, SamusState samus)
     {
         switch (cue)
         {
@@ -58,11 +58,11 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             case WalkingSpacePirateCue.Begin begin:
                 // The pirate animation does not jump to the stand or walk it begins: main AI runs it from the next
                 // frame, as the animation runs on.
-                RequireWalkingSpacePirateState(place).Action = begin.Action;
+                RequireWalkingSpacePirateState(place, walkingSpacePirateEnemyState).Action = begin.Action;
                 return null;
             case WalkingSpacePirateCue.BeginHeading begin:
                 // As a plain begin, main AI runs the walk from the next frame, the cue's way (#2165).
-                WalkingSpacePirateEnemyState walker = RequireWalkingSpacePirateState(place);
+                WalkingSpacePirateEnemyState walker = RequireWalkingSpacePirateState(place, walkingSpacePirateEnemyState);
                 walker.Action = begin.Action;
                 walker.Heading = begin.Heading;
                 return null;
@@ -378,8 +378,8 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
 
     /// <summary>Requires the enemy to have been initialized as a walking pirate.</summary>
     internal static WalkingSpacePirateEnemyState RequireWalkingSpacePirateState(
-        RoomEnemyPlace place) =>
-        Ensure.NotNull(place).RequireSpeciesState<WalkingSpacePirateEnemyState>();
+        RoomEnemyPlace place, WalkingSpacePirateEnemyState walkingSpacePirateEnemyState) =>
+        walkingSpacePirateEnemyState;
 
     /// <summary>
     /// The Pirates' and Mother Brain's laser (#1760): its spawner starts its animation and chooses its way, and the
@@ -419,25 +419,25 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     }
 
     /// <summary>Runs the walking Space Pirate's main AI.</summary>
-    internal void RunWalkingSpacePirateMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunWalkingSpacePirateMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, WalkingSpacePirateEnemyState walkingSpacePirateEnemyState, IEnemyAiFrame frame)
     {
         RunWalkingSpacePirateMain(
             occupant, place,
-            RequireWalkingSpacePirateState(place),
+            RequireWalkingSpacePirateState(place, walkingSpacePirateEnemyState),
             frame.Samus,
             frame.Level,
             frame.SamusProjectiles);
     }
 
     /// <summary>Advances the walking Space Pirate's typed animation.</summary>
-    internal void AdvanceWalkingSpacePirateTypedAnimation(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyAnimationCueContext context)
+    internal void AdvanceWalkingSpacePirateTypedAnimation(RoomEnemyOccupant occupant, RoomEnemyPlace place, WalkingSpacePirateEnemyState walkingSpacePirateEnemyState2, WalkingSpacePirateEnemyState walkingSpacePirateEnemyState, EnemyAnimationCueContext context)
     {
         if (!place.AnimationClock.Expire())
             return;
-        var state = RequireWalkingSpacePirateState(place);
+        var state = RequireWalkingSpacePirateState(place, walkingSpacePirateEnemyState);
         AnimationPlayback<WalkingSpacePirateSegment> playback = state.Playback;
         EnemyAnimationPlayback.Play(place, WalkingSpacePirateAnimations.Segments, ref playback,
-            cue => ApplyWalkingSpacePirateCue(occupant, place, cue, context.Samus) is { } continuesAt
+            cue => ApplyWalkingSpacePirateCue(occupant, place, walkingSpacePirateEnemyState2, cue, context.Samus) is { } continuesAt
                 ? new AnimationContinuation<WalkingSpacePirateSegment>(WalkingSpacePirateAnimations.StartingWith(continuesAt), AnimationPlace.StartOfAnimation)
                 : null);
         state.Playback = playback;

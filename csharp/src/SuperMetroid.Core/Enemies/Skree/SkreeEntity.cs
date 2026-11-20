@@ -18,10 +18,10 @@ internal sealed class SkreeEntity(SkreeBehavior species, RoomEnemyOccupant occup
     public void Initialize() => SkreeBehavior.InitializeSkree(Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunSkreeMainAi(Occupant, Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunSkreeMainAi(Occupant, Place, Place.RequireSpeciesState<SkreeEnemyState>(), frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => SkreeBehavior.AdvanceSkreeTypedAnimation(Place);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => SkreeBehavior.AdvanceSkreeTypedAnimation(Place, Place.RequireSpeciesState<SkreeEnemyState>());
 
     /// <summary>The Skree's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
     public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == SkreeReactions.Shot ? ownShot : base.ShotReaction;

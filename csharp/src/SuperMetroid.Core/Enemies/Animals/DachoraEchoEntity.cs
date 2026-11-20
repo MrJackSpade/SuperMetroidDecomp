@@ -14,8 +14,8 @@ internal sealed class DachoraEchoEntity(RoomEnemyOccupant occupant, RoomEnemyPla
     public void Initialize() => DachoraBehavior.InitializeDachoraEcho(Occupant, Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => DachoraBehavior.RunDachoraEchoMainAi(Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => DachoraBehavior.RunDachoraEchoMainAi(Place, Place.RequireSpeciesState<DachoraEchoState>(), frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => DachoraBehavior.AdvanceDachoraEchoTypedAnimation(Place);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => DachoraBehavior.AdvanceDachoraEchoTypedAnimation(Place, Place.RequireSpeciesState<DachoraEchoState>());
 }

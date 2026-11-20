@@ -12,10 +12,10 @@ internal sealed class PlatformsEntity(PlatformsBehavior species, RoomEnemyOccupa
     public void Initialize() => PlatformsBehavior.InitializePlatform(Occupant, Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunPlatformsMainAi(Occupant, Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunPlatformsMainAi(Occupant, Place, Place.RequireSpeciesState<PlatformEnemyState>(), frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => PlatformsBehavior.AdvancePlatformsTypedAnimation(Place);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => PlatformsBehavior.AdvancePlatformsTypedAnimation(Place, Place.RequireSpeciesState<PlatformEnemyState>());
 
     /// <summary>The Tripper's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
     public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == PlatformsReactions.TripperShot ? PlatformsBehavior.TripperShotReaction : base.ShotReaction;

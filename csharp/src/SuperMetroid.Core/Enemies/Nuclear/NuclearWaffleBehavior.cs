@@ -289,11 +289,10 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         origin + EnemyMath.CircleOffset(angle.ToRotationAngle().ToTrigonometryAngle(), radius);
 
     /// <summary>Advances the Nuclear Waffle's typed animation.</summary>
-    internal static void AdvanceNuclearWaffleTypedAnimation(RoomEnemyPlace place)
+    internal static void AdvanceNuclearWaffleTypedAnimation(RoomEnemyPlace place, NuclearWaffleEnemyState state)
     {
         if (!place.AnimationClock.Expire())
             return;
-        NuclearWaffleEnemyState state = place.RequireSpeciesState<NuclearWaffleEnemyState>();
         AnimationPlayback<NuclearWaffleSegment> playback = state.Playback;
         EnemyAnimationPlayback.Play(place, NuclearWaffleAnimations.Segments, ref playback,
             static cue => throw new InvalidOperationException($"Nuclear Waffle's cue-free animation raised {cue}."));
@@ -301,8 +300,8 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the Nuclear Waffle's main AI.</summary>
-    internal void RunNuclearWaffleMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place)
+    internal void RunNuclearWaffleMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, NuclearWaffleEnemyState nuclearWaffleEnemyState)
     {
-        RunNuclearWaffleMain(occupant, place, place.RequireSpeciesState<NuclearWaffleEnemyState>());
+        RunNuclearWaffleMain(occupant, place, nuclearWaffleEnemyState);
     }
 }

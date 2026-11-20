@@ -198,9 +198,8 @@ internal sealed class NorfairRidleyDeath
     }
 
     /// <summary>Sets up one of the breakup's twelve pieces from the breakup it joined.</summary>
-    internal void InitializeNorfairRidleyExplosion(RoomEnemyOccupant occupant, RoomEnemyPlace fragment)
+    internal void InitializeNorfairRidleyExplosion(RoomEnemyOccupant occupant, RoomEnemyPlace fragment, RidleyBreakupSource source)
     {
-        RidleyBreakupSource source = fragment.RequireSpeciesState<RidleyBreakupSource>();
         NorfairRidleyState state = source.Ridley;
         RidleyExplosionPart part = occupant.SpawnSettings<RidleyExplosionSpawnSettings>().Part;
 
@@ -233,15 +232,13 @@ internal sealed class NorfairRidleyDeath
     }
 
     /// <summary>Runs a breakup piece's update: flicker, drag, gravity, movement, and lifetime.</summary>
-    internal void RunNorfairRidleyExplosionMain(RoomEnemyOccupant piece, SamusState samus)
+    internal void RunNorfairRidleyExplosionMain(RoomEnemyOccupant piece, RidleyExplosionFragmentState fragmentState, SamusState samus)
     {
         RoomEnemyPlace fragment = piece.Place;
         if (RidleyCadenceDefinitions.BreakupFragmentHidden.IsSetIn(fragment.FrameCounter))
             fragment.Presence = fragment.Presence.With(EnemyPresence.Hidden);
         else
             fragment.Presence = fragment.Presence.Without(EnemyPresence.Hidden);
-
-        RidleyExplosionFragmentState fragmentState = fragment.RequireSpeciesState<RidleyExplosionFragmentState>();
         // A fragment falls only for its part's authored lifetime, so its gravity adds a few pixels an update at most.
         var velocity = new PixelVelocity<RoomPixels>(
             fragmentState.Velocity.X.SlowedBy(RidleyExplosionDefinitions.BreakupFragmentDrag),

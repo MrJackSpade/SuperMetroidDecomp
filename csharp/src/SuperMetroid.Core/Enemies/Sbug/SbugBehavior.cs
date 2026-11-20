@@ -46,9 +46,8 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs an Sbug for one update through all of its actions.</summary>
-    private static void RunSbugMain(RoomEnemyOccupant occupant, RoomEnemyPlace place, SamusState samus)
+    private static void RunSbugMain(RoomEnemyOccupant occupant, RoomEnemyPlace place, SbugEnemyState state, SamusState samus)
     {
-        SbugEnemyState state = place.RequireSpeciesState<SbugEnemyState>();
         switch (state.Action)
         {
             case SbugAction.WaitForSamus:
@@ -157,11 +156,11 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = EnemyAnimationPlayback.StartUnlessPlaying(place, state.Playback, SbugAnimations.StartingWith(SbugMovement.FacingAnimation(facing)));
 
     /// <summary>Advances Sbug's typed animation.</summary>
-    internal static void AdvanceSbugTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, SbugAnimations.Segments,
+    internal static void AdvanceSbugTypedAnimation(RoomEnemyPlace place, SbugEnemyState sbugEnemyState) =>
+        EnemyAnimationPlayback.Advance(place, sbugEnemyState, SbugAnimations.Segments,
             static (SbugEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"Sbug's cue-free animation raised {cue}."));
 
     /// <summary>Runs Sbug's main AI.</summary>
-    internal static void RunSbugMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, IEnemyAiFrame frame) => RunSbugMain(occupant, place, frame.Samus);
+    internal static void RunSbugMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, SbugEnemyState sbugEnemyState, IEnemyAiFrame frame) => RunSbugMain(occupant, place, sbugEnemyState, frame.Samus);
 }

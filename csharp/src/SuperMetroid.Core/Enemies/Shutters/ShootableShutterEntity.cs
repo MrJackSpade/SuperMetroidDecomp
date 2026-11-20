@@ -28,7 +28,7 @@ internal class ShootableShutterEntity(ShuttersBehavior species, RoomEnemyOccupan
     {
         if (context.SelectedShot != ShutterReactions.Shot)
             return base.TryReactToBomb(context);
-        Species.ReactToShootableShutterBomb(Occupant, context);
+        Species.ReactToShootableShutterBomb(Occupant, context, context.Enemy.RequireSpeciesState<VerticalShutterEnemyState>());
         return true;
     }
 }

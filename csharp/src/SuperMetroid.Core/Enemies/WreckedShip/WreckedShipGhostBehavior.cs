@@ -299,14 +299,14 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     }
 
     /// <summary>Advances the Wrecked Ship ghost's typed animation.</summary>
-    internal static void AdvanceWreckedShipGhostTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, WreckedShipGhostAnimations.Segments,
+    internal static void AdvanceWreckedShipGhostTypedAnimation(RoomEnemyPlace place, WreckedShipGhostEnemyState wreckedShipGhostEnemyState) =>
+        EnemyAnimationPlayback.Advance(place, wreckedShipGhostEnemyState, WreckedShipGhostAnimations.Segments,
             static (WreckedShipGhostEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"The Wrecked Ship ghost's cue-free animation raised {cue}."));
 
     /// <summary>Runs the Wrecked Ship ghost's main AI.</summary>
-    internal static void RunWreckedShipGhostMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal static void RunWreckedShipGhostMainAi(RoomEnemyPlace place, WreckedShipGhostEnemyState wreckedShipGhostEnemyState, IEnemyAiFrame frame)
     {
-        RunWreckedShipGhostMain(place, place.RequireSpeciesState<WreckedShipGhostEnemyState>(), frame.Samus);
+        RunWreckedShipGhostMain(place, wreckedShipGhostEnemyState, frame.Samus);
     }
 }

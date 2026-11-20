@@ -288,8 +288,8 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
             .RequireSpeciesState<MorphBallEyeEnemyState>();
 
     /// <summary>Advances a beam mount's typed animation: its mount pose, which raises no cue.</summary>
-    internal static void AdvanceMorphBallEyeMountTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, MorphBallEyeAnimations.Segments,
+    internal static void AdvanceMorphBallEyeMountTypedAnimation(RoomEnemyPlace place, MorphBallEyeMountState morphBallEyeMountState) =>
+        EnemyAnimationPlayback.Advance(place, morphBallEyeMountState, MorphBallEyeAnimations.Segments,
             static (MorphBallEyeMountState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (state, cue) => throw new InvalidOperationException($"The Morph Ball eye mount's cue-free animation raised {cue}."));
 
@@ -297,9 +297,9 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Advances the eye body's typed animation: a tracking eye shows the pose its aim chose this update for good, until the
     /// next update's tracking chooses again; otherwise its eyelid animation plays.
     /// </summary>
-    internal static void AdvanceMorphBallEyeTypedAnimation(RoomEnemyPlace place)
+    internal static void AdvanceMorphBallEyeTypedAnimation(RoomEnemyPlace place, MorphBallEyeEnemyState morphBallEyeEnemyState2, MorphBallEyeEnemyState morphBallEyeEnemyState)
     {
-        if (Ensure.NotNull(place).RequireSpeciesState<MorphBallEyeEnemyState>().Aim is { } aim)
+        if (morphBallEyeEnemyState.Aim is { } aim)
         {
             if (!place.AnimationClock.Expire())
                 return;
@@ -307,14 +307,14 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
             place.AnimationClock.ShowForGood();
             return;
         }
-        EnemyAnimationPlayback.Advance(place, MorphBallEyeAnimations.Segments,
+        EnemyAnimationPlayback.Advance(place, morphBallEyeEnemyState2, MorphBallEyeAnimations.Segments,
             static (MorphBallEyeEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (state, cue) => throw new InvalidOperationException($"The Morph Ball eye's cue-free animation raised {cue}."));
     }
 
     /// <summary>Runs MorphBallEye's main AI.</summary>
-    internal void RunMorphBallEyeMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunMorphBallEyeMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, MorphBallEyeEnemyState morphBallEyeEnemyState, IEnemyAiFrame frame)
     {
-        RunMorphBallEyeMain(occupant, place, place.RequireSpeciesState<MorphBallEyeEnemyState>(), frame.Samus);
+        RunMorphBallEyeMain(occupant, place, morphBallEyeEnemyState, frame.Samus);
     }
 }

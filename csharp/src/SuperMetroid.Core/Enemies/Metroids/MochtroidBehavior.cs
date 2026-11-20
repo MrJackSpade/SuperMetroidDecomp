@@ -49,11 +49,10 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs a Mochtroid for one update, resetting its movement before it moves.</summary>
     private void RunMochtroidMain(
-        RoomEnemyPlace place,
+        RoomEnemyPlace place, MochtroidEnemyState state,
         SamusState samus,
         RoomLevelData level)
     {
-        MochtroidEnemyState state = place.RequireSpeciesState<MochtroidEnemyState>();
         MochtroidMovementMode selectedMode = state.MovementMode;
         state.MovementMode = MochtroidMovementMode.NotTouchingSamus;
         switch (selectedMode)
@@ -193,20 +192,20 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Mochtroid's typed animation.</summary>
-    internal static void AdvanceMochtroidTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, MochtroidAnimations.Segments,
+    internal static void AdvanceMochtroidTypedAnimation(RoomEnemyPlace place, MochtroidEnemyState mochtroidEnemyState) =>
+        EnemyAnimationPlayback.Advance(place, mochtroidEnemyState, MochtroidAnimations.Segments,
             static (MochtroidEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (state, cue) => throw new InvalidOperationException($"Mochtroid's cue-free animation raised {cue}."));
 
     /// <summary>Runs Mochtroid's main AI.</summary>
-    internal void RunMochtroidMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunMochtroidMainAi(RoomEnemyPlace place, MochtroidEnemyState mochtroidEnemyState, IEnemyAiFrame frame)
     {
-        RunMochtroidMain(place, frame.Samus, frame.Level);
+        RunMochtroidMain(place, mochtroidEnemyState, frame.Samus, frame.Level);
     }
 
     /// <summary>Runs the attachment and drain reaction for Samus overlap.</summary>
-    internal void ReactToMochtroidTouch(EnemyTouchContext context) =>
-        ResolveMochtroidTouch(context.Occupant, context.Place.RequireSpeciesState<MochtroidEnemyState>(), context.Samus, context.PseudoScrew);
+    internal void ReactToMochtroidTouch(EnemyTouchContext context, MochtroidEnemyState mochtroidEnemyState) =>
+        ResolveMochtroidTouch(context.Occupant, mochtroidEnemyState, context.Samus, context.PseudoScrew);
 
     /// <summary>The Mochtroid's own shot reaction, which runs the common shot damage with no stage of its own.</summary>
     internal static EnemyShotReaction MochtroidShotReaction { get; } = new();

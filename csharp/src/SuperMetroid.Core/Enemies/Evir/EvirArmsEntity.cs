@@ -16,10 +16,10 @@ internal sealed class EvirArmsEntity(EvirBehavior species, RoomEnemyOccupant occ
     public void Initialize() => species.InitializeEvirArms(Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => EvirBehavior.RunEvirArmsMainAi(Place);
+    public void RunMainAi(IEnemyAiFrame frame) => EvirBehavior.RunEvirArmsMainAi(Place, Place.RequireSpeciesState<EvirArmsState>());
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => EvirBehavior.AdvanceEvirPartTypedAnimation<EvirArmsState>(Place);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => EvirBehavior.AdvanceEvirPartTypedAnimation<EvirArmsState>(Place, Place.RequireSpeciesState<EvirArmsState>());
 
     /// <summary>The Evir's own stages around common bomb damage for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>

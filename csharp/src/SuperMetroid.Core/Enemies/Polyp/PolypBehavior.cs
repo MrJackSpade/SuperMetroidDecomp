@@ -99,15 +99,15 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         context => FlyPolypRock(context.Projectile, context.Camera));
 
     /// <summary>Advances Polyp's typed animation.</summary>
-    internal static void AdvancePolypTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, PolypAnimations.Segments,
+    internal static void AdvancePolypTypedAnimation(RoomEnemyPlace place, PolypEnemyState polypEnemyState) =>
+        EnemyAnimationPlayback.Advance(place, polypEnemyState, PolypAnimations.Segments,
             static (PolypEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"The Polyp's cue-free animation raised {cue}."));
 
     /// <summary>Runs Polyp's main AI.</summary>
-    internal void RunPolypMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunPolypMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, PolypEnemyState polypEnemyState, IEnemyAiFrame frame)
     {
-        RunPolypMain(occupant, place, place.RequireSpeciesState<PolypEnemyState>(), frame.Samus);
+        RunPolypMain(occupant, place, polypEnemyState, frame.Samus);
     }
 
     /// <summary>

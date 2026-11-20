@@ -95,9 +95,8 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs Draygon's body for one update.</summary>
-    private void RunDraygonBodyMain(RoomEnemyPlace body, SamusState samus, int frameCounter)
+    private void RunDraygonBodyMain(RoomEnemyPlace body, DraygonEnemyState state, SamusState samus, int frameCounter)
     {
-        DraygonEnemyState state = body.RequireSpeciesState<DraygonEnemyState>();
         switch (state.Phase)
         {
             case DraygonPhase.IntroInitialDelay:
@@ -215,10 +214,10 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs DraygonBody's main AI.</summary>
-    internal void RunDraygonBodyMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunDraygonBodyMainAi(RoomEnemyPlace place, DraygonEnemyState draygonEnemyState, IEnemyAiFrame frame)
     {
         // Draygon times his turrets and smoke by the frame counter's place in a short repeating cycle.
-        RunDraygonBodyMain(place, frame.Samus, _frameContext.FrameCounter);
+        RunDraygonBodyMain(place, draygonEnemyState, frame.Samus, _frameContext.FrameCounter);
     }
 
     /// <summary>

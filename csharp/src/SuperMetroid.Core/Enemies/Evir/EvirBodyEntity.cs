@@ -15,10 +15,10 @@ internal sealed class EvirBodyEntity(EvirBehavior species, RoomEnemyOccupant occ
     public void Initialize(EnemyPopulationSurroundings surroundings) => species.InitializeEvirBody(Occupant, Place, surroundings.Samus);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => EvirBehavior.RunEvirBodyMainAi(Occupant, Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => EvirBehavior.RunEvirBodyMainAi(Occupant, Place, Place.RequireSpeciesState<EvirBodyState>(), frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => EvirBehavior.AdvanceEvirPartTypedAnimation<EvirBodyState>(Place);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => EvirBehavior.AdvanceEvirPartTypedAnimation<EvirBodyState>(Place, Place.RequireSpeciesState<EvirBodyState>());
 
     /// <summary>Whether the Evir's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
     public override bool ReactsToTouch => Occupant.Definition.Touch == EvirReactions.Touch || base.ReactsToTouch;

@@ -11,8 +11,8 @@ internal sealed class ChootEntity(RoomEnemyOccupant occupant, RoomEnemyPlace pla
     public void Initialize() => ChootBehavior.InitializeChoot(Occupant, Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => ChootBehavior.RunChootMainAi(Occupant, Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => ChootBehavior.RunChootMainAi(Occupant, Place, Place.RequireSpeciesState<ChootEnemyState>(), frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => ChootBehavior.AdvanceChootTypedAnimation(Place);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => ChootBehavior.AdvanceChootTypedAnimation(Place, Place.RequireSpeciesState<ChootEnemyState>());
 }

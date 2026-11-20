@@ -59,11 +59,10 @@ internal sealed class MotherBrainBody
     /// Runs a falling tube's animation where the shared enemy animation runs: its still picture shows on the update the
     /// timer expires, and the animation then holds it.
     /// </summary>
-    internal static void AdvanceMotherBrainTubeAnimation(RoomEnemyPlace tube)
+    internal static void AdvanceMotherBrainTubeAnimation(RoomEnemyPlace tube, MotherBrainFallingTubeState tubeState)
     {
         if (!tube.AnimationClock.Expire())
             return;
-        MotherBrainFallingTubeState tubeState = tube.RequireSpeciesState<MotherBrainFallingTubeState>();
         AnimationPlayback<MotherBrainTubePiece> playback = tubeState.Playback;
         EnemyAnimationPlayback.Play(tube, MotherBrainTubeAnimations.Segments, ref playback,
             cue => throw new InvalidOperationException($"Falling-tube animations raise no event {cue}."));

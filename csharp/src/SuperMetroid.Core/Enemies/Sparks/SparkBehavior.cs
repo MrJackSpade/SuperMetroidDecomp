@@ -121,17 +121,16 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs Spark's main AI.</summary>
-    internal void RunSparkMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place)
+    internal void RunSparkMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, SparkEnemyState sparkEnemyState)
     {
-        RunSparkMain(occupant, place, place.RequireSpeciesState<SparkEnemyState>());
+        RunSparkMain(occupant, place, sparkEnemyState);
     }
 
     /// <summary>Advances Spark's typed animation.</summary>
-    internal static void AdvanceSparkTypedAnimation(RoomEnemyPlace place)
+    internal static void AdvanceSparkTypedAnimation(RoomEnemyPlace place, SparkEnemyState state)
     {
         if (!place.AnimationClock.Expire())
             return;
-        SparkEnemyState state = place.RequireSpeciesState<SparkEnemyState>();
         AnimationPlayback<SparkSegment> playback = state.Playback;
         EnemyAnimationPlayback.Play(place, SparkAnimations.Segments, ref playback,
             cue =>

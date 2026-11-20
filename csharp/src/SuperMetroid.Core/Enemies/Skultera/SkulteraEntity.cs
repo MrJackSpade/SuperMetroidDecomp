@@ -12,8 +12,8 @@ internal sealed class SkulteraEntity(SkulteraBehavior species, RoomEnemyOccupant
     public void Initialize() => SkulteraBehavior.InitializeSkultera(Occupant, Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunSkulteraMainAi(Occupant, Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunSkulteraMainAi(Occupant, Place, Place.RequireSpeciesState<SkulteraEnemyState>(), frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => SkulteraBehavior.AdvanceSkulteraTypedAnimation(Place);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => SkulteraBehavior.AdvanceSkulteraTypedAnimation(Place, Place.RequireSpeciesState<SkulteraEnemyState>());
 }

@@ -31,7 +31,7 @@ internal abstract class TorizoEntity(TorizoBehavior species, RoomEnemyOccupant o
     public abstract void RunMainAi(IEnemyAiFrame frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => Species.AdvanceTorizoTypedAnimation(Occupant, Place, this, context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => Species.AdvanceTorizoTypedAnimation(Occupant, Place, Place.RequireSpeciesState<TorizoEnemyState>(), Place.RequireSpeciesState<TorizoEnemyState>(), Place.RequireSpeciesState<TorizoEnemyState>(), Place.RequireSpeciesState<TorizoEnemyState>(), Place.RequireSpeciesState<TorizoEnemyState>(), this, context);
 
     /// <inheritdoc/>
     public EnemyHitboxContact FindHitboxReaction(EnemyHitboxProbe probe)
@@ -56,7 +56,7 @@ internal abstract class TorizoEntity(TorizoBehavior species, RoomEnemyOccupant o
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (Occupant.Definition.Touch == TorizoReactions.Touch)
-            Species.Combat.ReactToTorizoTouch(context);
+            Species.Combat.ReactToTorizoTouch(context, context.Place.RequireSpeciesState<TorizoEnemyState>());
         else
             base.ReactToTouch(context);
     }
@@ -76,7 +76,7 @@ internal abstract class TorizoEntity(TorizoBehavior species, RoomEnemyOccupant o
 
     /// <summary>Shows a step of the belly glow this Torizo's fight start lit, on this Torizo (#2240).</summary>
     /// <param name="frame">The glow's step.</param>
-    public void ShowGlow(ColourEffectFrame frame) => TorizoBehavior.ShowBellyGlow(Place, frame);
+    public void ShowGlow(ColourEffectFrame frame) => TorizoBehavior.ShowBellyGlow(Place, Place.RequireSpeciesState<TorizoEnemyState>(), frame);
 
     /// <summary>The Torizo shot reactions both Torizos own, which a normal bomb triggers as it does the common one.</summary>
     /// <param name="reaction">The reaction the species' definition leaves to it or the selected hitbox names.</param>

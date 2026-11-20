@@ -16,5 +16,5 @@ internal sealed class NamiheEntity(FuneNamiheBehavior species, RoomEnemyOccupant
         FuneNamiheBehavior.RunNamiheMain(Occupant, Place, Place.RequireSpeciesState<NamiheEnemyState>(), Ensure.NotNull(frame).Samus);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceFuneNamiheTypedAnimation<NamiheEnemyState>(Occupant, Place);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceFuneNamiheTypedAnimation<NamiheEnemyState>(Occupant, Place, Place.RequireSpeciesState<NamiheEnemyState>());
 }

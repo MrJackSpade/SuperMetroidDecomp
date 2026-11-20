@@ -9,8 +9,8 @@ internal sealed class JetRipperEntity(RipperBehavior species, RoomEnemyOccupant 
     : RipperEntity(species, occupant, place, common)
 {
     /// <inheritdoc/>
-    public override void Initialize() => RipperBehavior.InitializeJetRipper(Occupant, Place);
+    public override void Initialize() => RipperBehavior.InitializeJetRipper(Occupant, Place, Place.RequireSpeciesState<RipperEnemyState>());
 
     /// <inheritdoc/>
-    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunJetRipperMainAi(Occupant, Place, frame);
+    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunJetRipperMainAi(Occupant, Place, Place.RequireSpeciesState<RipperEnemyState>(), Place.RequireSpeciesState<RipperEnemyState>(), Place.RequireSpeciesState<RipperEnemyState>(), frame);
 }

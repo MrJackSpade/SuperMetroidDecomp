@@ -15,8 +15,8 @@ internal sealed class GerutaEntity(GerutaBehavior species, RoomEnemyOccupant occ
     public void Initialize() => GerutaBehavior.InitializeGeruta(Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunGerutaMainAi(Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunGerutaMainAi(Place, Place.RequireSpeciesState<GerutaEnemyState>(), frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => GerutaBehavior.AdvanceGerutaTypedAnimation(Place);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => GerutaBehavior.AdvanceGerutaTypedAnimation(Place, Place.RequireSpeciesState<GerutaEnemyState>());
 }

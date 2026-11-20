@@ -39,11 +39,11 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Carries out one cue of the Alcoon's animations: spitting a fireball, starting to walk, or taking a stride. Starting to
     /// walk always continues at the walk for the Alcoon's facing, and a stride that meets a wall turns it round to the other walk.
     /// </summary>
-    private AnimationContinuation<AlcoonSegment>? ApplyAlcoonCue(RoomEnemyOccupant occupant, RoomEnemyPlace place, AlcoonEnemyState state, RoomLevelData level, AlcoonCue cue)
+    private AnimationContinuation<AlcoonSegment>? ApplyAlcoonCue(RoomEnemyOccupant occupant, RoomEnemyPlace place, AlcoonEnemyState alcoonEnemyState, AlcoonEnemyState state, RoomLevelData level, AlcoonCue cue)
     {
         if (cue is AlcoonCue.Fire fire)
         {
-            SpawnAlcoonFireball(occupant, place, fire.Launch);
+            SpawnAlcoonFireball(occupant, place, alcoonEnemyState, fire.Launch);
             _audio.QueueEnemySound(EnemySoundEffectDefinitions.AlcoonFireSound, priority: SoundRequestPriority.Normal);
             return null;
         }
@@ -373,25 +373,23 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs Alcoon's main AI.</summary>
-    internal void RunAlcoonMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunAlcoonMainAi(RoomEnemyPlace place, AlcoonEnemyState alcoonEnemyState, IEnemyAiFrame frame)
     {
-        RunAlcoonMain(place, place.RequireSpeciesState<AlcoonEnemyState>(), frame.Samus, frame.Level);
+        RunAlcoonMain(place, alcoonEnemyState, frame.Samus, frame.Level);
     }
 
     /// <summary>Advances Alcoon's typed animation.</summary>
-    internal void AdvanceAlcoonTypedAnimation(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyAnimationCueContext context) =>
-        EnemyAnimationPlayback.Advance(place, AlcoonAnimations.Segments,
+    internal void AdvanceAlcoonTypedAnimation(RoomEnemyOccupant occupant, RoomEnemyPlace place, AlcoonEnemyState alcoonEnemyState, EnemyAnimationCueContext context) =>
+        EnemyAnimationPlayback.Advance(place, alcoonEnemyState, AlcoonAnimations.Segments,
             static (AlcoonEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
-            (state, cue) => ApplyAlcoonCue(occupant, place, state, context.Level, cue));
+            (state, cue) => ApplyAlcoonCue(occupant, place, alcoonEnemyState, state, context.Level, cue));
 
     /// <summary>Spits an Alcoon fireball with the vertical speed of <paramref name="launch"/>.</summary>
-    private void SpawnAlcoonFireball(RoomEnemyOccupant occupant, RoomEnemyPlace alcoon, AlcoonFireballLaunch launch)
+    private void SpawnAlcoonFireball(RoomEnemyOccupant occupant, RoomEnemyPlace alcoon, AlcoonEnemyState state, AlcoonFireballLaunch launch)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.AlcoonFireball, Fireball, SpriteGraphics.SpawnedBy(occupant, alcoon.Shading));
         if (projectile is null)
             return;
-
-        AlcoonEnemyState state = alcoon.RequireSpeciesState<AlcoonEnemyState>();
         bool movingLeft = FacesLeft(state);
 
         // The fireball takes its radii, damage, persistence, shot blocking, animation and motion from its definition

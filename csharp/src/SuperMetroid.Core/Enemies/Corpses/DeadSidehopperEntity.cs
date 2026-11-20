@@ -10,16 +10,16 @@ internal sealed class DeadSidehopperEntity(DeadSidehopperBehavior species, RoomE
         IShowsCorpseRotRows
 {
     /// <inheritdoc/>
-    public CorpseRotRows ShownRotRows => DeadSidehopperBehavior.ShownDeadSidehopperRows(Place);
+    public CorpseRotRows ShownRotRows => DeadSidehopperBehavior.ShownDeadSidehopperRows(Place, Place.RequireSpeciesState<DeadSidehopperEnemyState>());
 
     /// <inheritdoc/>
     public void Initialize() => species.InitializeDeadSidehopper(Occupant, Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunDeadSidehopperMainAi(Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunDeadSidehopperMainAi(Place, Place.RequireSpeciesState<DeadSidehopperEnemyState>(), frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => DeadSidehopperBehavior.AdvanceDeadSidehopperTypedAnimation(Place);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => DeadSidehopperBehavior.AdvanceDeadSidehopperTypedAnimation(Place, Place.RequireSpeciesState<DeadSidehopperEnemyState>(), Place.RequireSpeciesState<DeadSidehopperEnemyState>());
 
     /// <summary>Whether the dead Sidehopper's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
     public override bool ReactsToTouch => Occupant.Definition.Touch == CorpseReactions.Touch || base.ReactsToTouch;
@@ -29,7 +29,7 @@ internal sealed class DeadSidehopperEntity(DeadSidehopperBehavior species, RoomE
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (Occupant.Definition.Touch == CorpseReactions.Touch)
-            species.ReactToDeadSidehopperTouch(context);
+            species.ReactToDeadSidehopperTouch(context, context.Place.RequireSpeciesState<DeadSidehopperEnemyState>());
         else
             base.ReactToTouch(context);
     }
@@ -43,7 +43,7 @@ internal sealed class DeadSidehopperEntity(DeadSidehopperBehavior species, RoomE
     {
         if (context.SelectedShot != CorpseReactions.Shot)
             return base.TryReplaceCommonBombDamage(context);
-        DeadSidehopperBehavior.ReplaceDeadSidehopperBombDamage(context);
+        DeadSidehopperBehavior.ReplaceDeadSidehopperBombDamage(context, context.Enemy.RequireSpeciesState<DeadSidehopperEnemyState>());
         return true;
     }
 

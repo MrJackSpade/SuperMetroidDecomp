@@ -23,10 +23,10 @@ internal sealed class RinkaEntity(RinkaBehavior species, RoomEnemyOccupant occup
     public void Initialize() => species.InitializeRinka(Occupant, Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunRinkaMainAi(Occupant, Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunRinkaMainAi(Occupant, Place, Place.RequireSpeciesState<RinkaEnemyState>(), frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => RinkaBehavior.AdvanceRinkaTypedAnimation(Place);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => RinkaBehavior.AdvanceRinkaTypedAnimation(Place, Place.RequireSpeciesState<RinkaEnemyState>());
 
     /// <summary>Whether Rinka's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
     public override bool ReactsToTouch => Occupant.Definition.Touch == RinkaReactions.Touch || base.ReactsToTouch;
@@ -36,7 +36,7 @@ internal sealed class RinkaEntity(RinkaBehavior species, RoomEnemyOccupant occup
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (Occupant.Definition.Touch == RinkaReactions.Touch)
-            species.ReactToRinkaTouch(Occupant, context);
+            species.ReactToRinkaTouch(Occupant, context, context.Place.RequireSpeciesState<RinkaEnemyState>());
         else
             base.ReactToTouch(context);
     }
@@ -53,7 +53,7 @@ internal sealed class RinkaEntity(RinkaBehavior species, RoomEnemyOccupant occup
     public override EnemyPowerBombReaction PowerBombReaction => LeavesPowerBombToSpecies ? ownPowerBomb : base.PowerBombReaction;
 
     /// <summary>Runs a frozen Rinka's own step before the common thaw; true when it ended the turn.</summary>
-    public override bool PreemptFrozenTurn() => species.ThawOrDieWhileFrozen(Occupant);
+    public override bool PreemptFrozenTurn() => species.ThawOrDieWhileFrozen(Occupant, Occupant.Place.RequireSpeciesState<RinkaEnemyState>());
 
     /// <summary>Rinka's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
     /// <param name="reaction">The reaction the radius path or a hitbox selects: the species' own where its definition names it.</param>

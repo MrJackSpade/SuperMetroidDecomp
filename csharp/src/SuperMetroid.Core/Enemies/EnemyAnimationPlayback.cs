@@ -40,13 +40,14 @@ internal static class EnemyAnimationPlayback
     /// each event against the state and may continue the play in another animation.
     /// </summary>
     /// <param name="place">The enemy.</param>
+    /// <param name="state">The enemy's state, which it holds from its setup.</param>
     /// <param name="segments">The species' animation segments.</param>
     /// <param name="frame">The installed frame an animation frame shows.</param>
     /// <param name="read">Reads the species state's playback.</param>
     /// <param name="write">Stores the playback back on the species state.</param>
     /// <param name="react">Carries out an event, returning where the play continues, or null to play on.</param>
     internal static void Advance<TState, TSegment, TFrame, TEvent>(
-        RoomEnemyPlace place,
+        RoomEnemyPlace place, TState state,
         AnimationSegments<TSegment, TFrame, TEvent> segments,
         Func<TFrame, EnemyFrameId> frame,
         Func<TState, AnimationPlayback<TSegment>> read,
@@ -63,7 +64,6 @@ internal static class EnemyAnimationPlayback
         Ensure.NotNull(react);
         if (!place.AnimationClock.Expire())
             return;
-        TState state = place.RequireSpeciesState<TState>();
         AnimationPlayback<TSegment> playback = read(state);
         Play(place, segments, ref playback, frame, raised => react(state, raised));
         write(state, playback);
@@ -74,7 +74,7 @@ internal static class EnemyAnimationPlayback
     /// steps one that shows them through <c>frame</c>.
     /// </summary>
     internal static void Advance<TState, TSegment, TEvent>(
-        RoomEnemyPlace place,
+        RoomEnemyPlace place, TState tState,
         AnimationSegments<TSegment, EnemyFrameId, TEvent> segments,
         Func<TState, AnimationPlayback<TSegment>> read,
         Action<TState, AnimationPlayback<TSegment>> write,
@@ -82,7 +82,7 @@ internal static class EnemyAnimationPlayback
         where TState : class
         where TSegment : struct
         where TEvent : notnull =>
-        Advance(place, segments, Shown, read, write, react);
+        Advance(place, tState, segments, Shown, read, write, react);
 
     /// <summary>Plays an animation that shows the species' installed frames directly, as the other overload plays one.</summary>
     /// <exception cref="InvalidOperationException">The animation passes every beat without showing a frame.</exception>
@@ -114,11 +114,11 @@ internal static class EnemyAnimationPlayback
 
     /// <summary>
     /// One typed-animation step of a species whose cues never start another animation, as
-    /// <see cref="Advance{TState, TSegment, TEvent}(RoomEnemyPlace, AnimationSegments{TSegment, EnemyFrameId, TEvent}, Func{TState, AnimationPlayback{TSegment}}, Action{TState, AnimationPlayback{TSegment}}, Func{TState, TEvent, AnimationContinuation{TSegment}?})"/>
+    /// <see cref="Advance{TState, TSegment, TEvent}(RoomEnemyPlace, TState, AnimationSegments{TSegment, EnemyFrameId, TEvent}, Func{TState, AnimationPlayback{TSegment}}, Action{TState, AnimationPlayback{TSegment}}, Func{TState, TEvent, AnimationContinuation{TSegment}?})"/>
     /// takes one: <paramref name="apply"/> carries out each cue and the animation plays on.
     /// </summary>
     internal static void AdvanceApplyingCues<TState, TSegment, TEvent>(
-        RoomEnemyPlace place,
+        RoomEnemyPlace place, TState tState,
         AnimationSegments<TSegment, EnemyFrameId, TEvent> segments,
         Func<TState, AnimationPlayback<TSegment>> read,
         Action<TState, AnimationPlayback<TSegment>> write,
@@ -126,7 +126,7 @@ internal static class EnemyAnimationPlayback
         where TState : class
         where TSegment : struct
         where TEvent : notnull =>
-        Advance(place, segments, read, write, (TState state, TEvent cue) =>
+        Advance(place, tState, segments, read, write, (TState state, TEvent cue) =>
         {
             apply(state, cue);
             return null;

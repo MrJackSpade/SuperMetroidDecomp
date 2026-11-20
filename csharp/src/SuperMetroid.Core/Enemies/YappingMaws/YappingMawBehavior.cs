@@ -508,18 +508,18 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     };
 
     /// <summary>Runs YappingMaw's main AI.</summary>
-    internal void RunYappingMawMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunYappingMawMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, YappingMawEnemyState yappingMawEnemyState, IEnemyAiFrame frame)
     {
         RunYappingMawMain(
             occupant, place,
-            place.RequireSpeciesState<YappingMawEnemyState>(),
+            yappingMawEnemyState,
             frame.Samus,
             frame.Camera);
     }
 
     /// <summary>Advances YappingMaw's typed animation.</summary>
-    internal void AdvanceYappingMawTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, YappingMawAnimations.Segments,
+    internal void AdvanceYappingMawTypedAnimation(RoomEnemyPlace place, YappingMawEnemyState yappingMawEnemyState) =>
+        EnemyAnimationPlayback.Advance(place, yappingMawEnemyState, YappingMawAnimations.Segments,
             static (YappingMawEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {
@@ -534,8 +534,8 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     };
 
     /// <summary>Runs contact as a grab that locks Samus without ordinary touch damage.</summary>
-    internal static void ReactToYappingMawTouch(EnemyTouchContext context) =>
+    internal static void ReactToYappingMawTouch(EnemyTouchContext context, YappingMawEnemyState yappingMawEnemyState) =>
         // The Maw's touch deals no contact damage: once its grab cooldown has run out, a touch catches Samus,
         // taking her input and holding her in the mouth.
-        ResolveYappingMawTouch(context.Place.RequireSpeciesState<YappingMawEnemyState>(), context.Samus);
+        ResolveYappingMawTouch(yappingMawEnemyState, context.Samus);
 }

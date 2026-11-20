@@ -229,9 +229,8 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
     /// contact and a random direction choice always continues at the chosen climb, as the cues return those
     /// animations; every other cue runs on.
     /// </summary>
-    private WallSpacePirateSegment? ApplyWallSpacePirateCue(RoomEnemyOccupant occupant, RoomEnemyPlace place, WallSpacePirateCue cue, RoomLevelData level)
+    private WallSpacePirateSegment? ApplyWallSpacePirateCue(RoomEnemyOccupant occupant, RoomEnemyPlace place, WallSpacePirateEnemyState state, WallSpacePirateCue cue, RoomLevelData level)
     {
-        WallSpacePirateEnemyState state = place.RequireSpeciesState<WallSpacePirateEnemyState>();
         switch (cue)
         {
             case WallSpacePirateCue.Climb climb:
@@ -260,19 +259,19 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
     }
 
     /// <summary>Runs the wall Space Pirate's main AI.</summary>
-    internal static void RunWallSpacePirateMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal static void RunWallSpacePirateMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, WallSpacePirateEnemyState wallSpacePirateEnemyState, IEnemyAiFrame frame)
     {
         RunWallSpacePirateMain(
             occupant, place,
-            place.RequireSpeciesState<WallSpacePirateEnemyState>(),
+            wallSpacePirateEnemyState,
             frame.Samus);
     }
 
     /// <summary>Advances the wall Space Pirate's typed animation.</summary>
-    internal void AdvanceWallSpacePirateTypedAnimation(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyAnimationCueContext context) =>
-        EnemyAnimationPlayback.Advance(place, WallSpacePirateAnimations.Segments,
+    internal void AdvanceWallSpacePirateTypedAnimation(RoomEnemyOccupant occupant, RoomEnemyPlace place, WallSpacePirateEnemyState wallSpacePirateEnemyState2, WallSpacePirateEnemyState wallSpacePirateEnemyState, EnemyAnimationCueContext context) =>
+        EnemyAnimationPlayback.Advance(place, wallSpacePirateEnemyState2, WallSpacePirateAnimations.Segments,
             static (WallSpacePirateEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
-            (state, cue) => ApplyWallSpacePirateCue(occupant, place, cue, context.Level) is { } continuesAt
+            (state, cue) => ApplyWallSpacePirateCue(occupant, place, wallSpacePirateEnemyState, cue, context.Level) is { } continuesAt
                 ? new AnimationContinuation<WallSpacePirateSegment>(WallSpacePirateAnimations.StartingWith(continuesAt), AnimationPlace.StartOfAnimation)
                 : null);
 }

@@ -77,7 +77,7 @@ internal static class EndingScreenImage
             EndingPostShotUploadSource.LogoTiles => Objects(artwork).PostShotLogoTiles.Characters.Span.Slice(
                 transfer.Offset, length),
             EndingPostShotUploadSource.LogoMap => MapBytes(Objects(artwork).PostShotLogoMap).AsSpan(0, length),
-            _ => throw new InvalidOperationException($"Undefined {nameof(EndingPostShotUploadSource)} {(int)transfer.Source}."),
+            _ => throw new InvalidOperationException($"Undefined {nameof(EndingPostShotUploadSource)} {transfer.Source}."),
         };
         vram.LoadBytes(EndingVramDestinations.PostShotWordOf(transfer) * sizeof(ushort), bytes);
     }

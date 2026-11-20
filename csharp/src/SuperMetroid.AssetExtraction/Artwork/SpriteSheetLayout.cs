@@ -250,8 +250,8 @@ internal sealed class SpriteSheetLayout
         ImageColourGroups groups = ImageColourGroups.None;
         // Each shown pixel's ink, zero where no part shows one, in the frame's own rectangle.
         var inks = new byte[bound.Size.X * bound.Size.Y];
-        // Each shown pixel's depth, one up so that zero marks a pixel no part shows, in the frame's own rectangle.
-        var shownDepths = new int[inks.Length];
+        // Each shown pixel's depth, none where no part shows one, in the frame's own rectangle.
+        var shownDepths = new ActorDepth?[inks.Length];
         // Back to front, so the first part ends in front.
         for (int partIndex = source.Frame.Parts.Length - 1; partIndex >= 0; partIndex--)
         {
@@ -272,7 +272,7 @@ internal sealed class SpriteSheetLayout
                     int ink = ownRow * RowColours + colour;
                     inks[at] = checked((byte)ink);
                     // Parts are laid back to front, so each pixel ends with the depth of the part in front.
-                    shownDepths[at] = 1 + (int)(part.Depth ?? depth);
+                    shownDepths[at] = part.Depth ?? depth;
                     // A part keeping its own row under a drawn row keeps its colours under every row shade.
                     if (part.Palette is null || !sources.PartsKeepOwnRows)
                         ShadeRows(ink);
@@ -328,28 +328,37 @@ internal sealed class SpriteSheetLayout
     private sealed record LaidPictures(Extent16<ImagePixels> Size, FramePicture[] Composed, int[] PictureOf, FramePicture[] Distinct,
         Position16<ImagePixels>[] Corners);
 
-    /// <summary>The depths a part may draw at, from the back.</summary>
-    private const int Depths = (int)ActorDepth.InFront + 1;
-
     /// <summary>
-    /// The depth a frame whose shown pixels hold <paramref name="shownDepths"/> (each depth one up, zero for none) is drawn
+    /// The depth a frame whose shown pixels hold <paramref name="shownDepths"/> (none for a pixel no part shows) is drawn
     /// at (#1514): the depth most of its pixels show, the front one of a tie.
     /// </summary>
-    private static ActorDepth? DepthOf(ReadOnlySpan<int> shownDepths)
+    private static ActorDepth? DepthOf(ReadOnlySpan<ActorDepth?> shownDepths)
     {
-        Span<int> counts = stackalloc int[Depths];
-        foreach (int shown in shownDepths)
+        int behindRoom = 0, behindFrontParts = 0, inFront = 0;
+        foreach (ActorDepth? shown in shownDepths)
         {
-            if (shown != 0)
-                counts[shown - 1]++;
+            switch (shown)
+            {
+                case null:
+                    break;
+                case ActorDepth.BehindRoom:
+                    behindRoom++;
+                    break;
+                case ActorDepth.BehindFrontParts:
+                    behindFrontParts++;
+                    break;
+                case ActorDepth.InFront:
+                    inFront++;
+                    break;
+                default:
+                    throw new InvalidOperationException($"Undefined {nameof(ActorDepth)} {shown}.");
+            }
         }
-        int main = -1;
-        for (int candidate = 0; candidate < Depths; candidate++)
-        {
-            if (counts[candidate] > 0 && (main < 0 || counts[candidate] >= counts[main]))
-                main = candidate;
-        }
-        return main < 0 ? null : (ActorDepth)main;
+        if (inFront > 0 && inFront >= behindFrontParts && inFront >= behindRoom)
+            return ActorDepth.InFront;
+        if (behindFrontParts > 0 && behindFrontParts >= behindRoom)
+            return ActorDepth.BehindFrontParts;
+        return behindRoom > 0 ? ActorDepth.BehindRoom : null;
     }
 
     /// <summary>
@@ -363,7 +372,7 @@ internal sealed class SpriteSheetLayout
         using (var writer = new BinaryWriter(stream, Encoding.UTF8, leaveOpen: true))
         {
             writer.Write(palette);
-            writer.Write((int)depth);
+            writer.Write(ActorDepthKeys.Installed.Of(depth));
             writer.Write(sources.PaletteBits);
             writer.Write(sources.PartsKeepOwnRows);
             foreach (RgbColor colour in sources.SpriteColours)
@@ -449,8 +458,7 @@ internal sealed class SpriteSheetLayout
         writer.Write(part.Flip.ToString());
         writer.Write(part.Palette.HasValue);
         writer.Write(part.Palette.GetValueOrDefault());
-        writer.Write(part.Depth.HasValue);
-        writer.Write((int)part.Depth.GetValueOrDefault());
+        writer.Write(part.Depth is { } partDepth ? ActorDepthKeys.Installed.Of(partDepth) : string.Empty);
         // Each row of the part's characters is a run of consecutive characters in the artwork's grid.
         int rowBytes = part.Size.X / SpriteArtwork.CharacterPixels * SpriteArtwork.CharacterByteCount;
         for (int row = 0; row < part.Size.Y / SpriteArtwork.CharacterPixels; row++)

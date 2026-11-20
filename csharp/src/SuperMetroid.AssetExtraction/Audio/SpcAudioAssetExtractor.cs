@@ -225,7 +225,7 @@ public static class SpcAudioAssetExtractor
                         !commonWritten[pointerAddress] || !commonWritten[pointerAddress + 1])
                     {
                         throw new InvalidDataException(
-                            $"SFX library {library + 1} command ${index + 1:X2} channel {channel} " +
+                            $"SFX library {library} command ${index + 1:X2} channel {channel} " +
                             $"pointer at ${pointerAddress:X4} is outside common uploaded content.");
                     }
                     int programAddress = ReadWord(commonRam, pointerAddress);

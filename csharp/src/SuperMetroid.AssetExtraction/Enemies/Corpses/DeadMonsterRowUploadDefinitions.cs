@@ -46,7 +46,8 @@ internal static class DeadMonsterRowUploadDefinitions
             RottingCorpseSpecies.Zoomer => ZoomerRows(native.Variant),
             RottingCorpseSpecies.Ripper => RipperRows(native.Variant),
             RottingCorpseSpecies.Skree => SkreeRows(native.Variant),
-            _ => throw new InvalidDataException($"Corpse {list} has no row upload list."),
+            RottingCorpseSpecies.Torizo => throw new InvalidDataException($"Corpse {list} has no row upload list."),
+            _ => throw new InvalidOperationException($"Undefined {nameof(RottingCorpseSpecies)} {native.Species}."),
         };
     }
 

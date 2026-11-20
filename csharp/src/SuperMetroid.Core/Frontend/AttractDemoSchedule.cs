@@ -25,9 +25,9 @@ internal sealed class AttractDemoSchedule
 
     /// <summary>
     /// The blank enemy-setup waits (<see cref="GameLoadingDefinitions.EnemySetupWaits"/>) before the scene becomes visible;
-    /// none before its runtime exists (#1627).
+    /// over before its runtime exists (#1627).
     /// </summary>
-    private UpdateCountdown? load;
+    private UpdateCountdown load = UpdateCountdown.Ended();
 
     /// <summary>Whether live controller input cancelled the scene.</summary>
     internal bool Cancelled { get; private set; }
@@ -36,7 +36,7 @@ internal sealed class AttractDemoSchedule
     internal bool HasNextScene { get; private set; }
 
     /// <summary>Whether the next scene's runtime has yet to be created.</summary>
-    internal bool AwaitsScene => load is null;
+    internal bool AwaitsScene { get; private set; } = true;
 
     /// <summary>Whether the scene's scripted input has ended and its final image is holding.</summary>
     internal bool Holding => Hold.IsRunning;
@@ -46,14 +46,14 @@ internal sealed class AttractDemoSchedule
     {
         Set = StockAttractDemoScenes.FirstSet;
         ScenesBegun = 0;
-        load = null;
+        AwaitsScene = true;
     }
 
     /// <summary>The title requests a demo: its set starts again from its first scene.</summary>
     internal void RequestFromTitle()
     {
         ScenesBegun = 0;
-        load = null;
+        AwaitsScene = true;
     }
 
     /// <summary>The scene the next demo plays, or null once every demonstration of the set has begun.</summary>
@@ -62,6 +62,11 @@ internal sealed class AttractDemoSchedule
         ScenesBegun < Set.Scenes.Count ? Set.Scenes[ScenesBegun]
         : ScenesBegun == Set.Scenes.Count ? null
         : throw new InvalidOperationException($"{ScenesBegun} demonstrations began in {Set}, which holds {Set.Scenes.Count}.");
+
+    /// <summary>The scene the next demo plays, which a demo awaiting its scene always has.</summary>
+    /// <exception cref="InvalidDataException">Every demonstration of the set has begun.</exception>
+    internal AttractDemoScene SceneToBegin => ScenesBegun < Set.Scenes.Count ? Set.Scenes[ScenesBegun]
+        : throw new InvalidDataException($"The demo loader ran past the end of {Set}, which holds {Set.Scenes.Count} demonstrations.");
 
     /// <summary>Starts <paramref name="scene"/>, the next scene, with its scripted input and enemy-setup waits ahead.</summary>
     internal void Begin(AttractDemoScene scene)
@@ -72,11 +77,12 @@ internal sealed class AttractDemoSchedule
         Hold = UpdateCountdown.Ended();
         Cancelled = false;
         load = UpdateCountdown.Lasting(GameLoadingDefinitions.EnemySetupWaits);
+        AwaitsScene = false;
     }
 
     /// <summary>Counts one enemy-setup wait; returns whether it was the last.</summary>
-    /// <exception cref="InvalidOperationException">No scene has begun loading.</exception>
-    internal bool CountLoadFrame() => (load ?? throw new InvalidOperationException("No attract demo scene is loading.")).Count();
+    /// <exception cref="InvalidOperationException">No scene is loading: its waits are over.</exception>
+    internal bool CountLoadFrame() => load.Count();
 
     /// <summary>Counts one held frame; returns whether the hold ended.</summary>
     internal bool CountHoldFrame() => Hold.Count();
@@ -110,7 +116,7 @@ internal sealed class AttractDemoSchedule
     }
 
     /// <summary>The next scene of the set loads afresh.</summary>
-    internal void LoadNextScene() => load = null;
+    internal void LoadNextScene() => AwaitsScene = true;
 
     /// <summary>The set that follows <paramref name="played"/> in <paramref name="playlist"/>, which starts over after its last.</summary>
     /// <exception cref="InvalidOperationException"><paramref name="playlist"/> does not hold <paramref name="played"/>.</exception>

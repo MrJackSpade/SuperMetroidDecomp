@@ -541,8 +541,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         if (mode == FileSelectDataMode.Copy)
         {
             saves.CopySlot(operationSourceSlot, copyTargetSlot);
-            saveSlots[copyTargetSlot] = saves.ReadSlot(copyTargetSlot)
-                ?? throw new InvalidDataException("The copied save slot did not read back as a valid save.");
+            saveSlots[copyTargetSlot] = saves.ReadSavedSlot(copyTargetSlot);
             ShowPage(FileSelectPage.CopyCompleted);
             Phase = FileSelectPhase.CopyCompleted;
             return FileSelectSaveChange.Copied;

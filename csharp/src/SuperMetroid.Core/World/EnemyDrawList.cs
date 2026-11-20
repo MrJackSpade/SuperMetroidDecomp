@@ -1,8 +1,6 @@
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Bosses;
-using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Corpses;
 using SuperMetroid.Core.Rooms;

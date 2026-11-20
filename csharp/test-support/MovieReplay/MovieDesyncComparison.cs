@@ -14,6 +14,7 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.TestSupport.SamusNativeCodecs;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Samus;
+using SuperMetroid.Core.World;
 
 namespace SuperMetroid.TestSupport.MovieReplay;
 

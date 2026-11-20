@@ -16,8 +16,4 @@ public sealed class InstalledRoomObjectCollectibleVisuals : IRoomObjectFamilyPic
     /// <inheritdoc/>
     IReadOnlyDictionary<RoomObjectDraw, RoomObjectFrameImage> IRoomObjectFamilyPictures.Pictures =>
         Images.All;
-
-    /// <summary>The picture <paramref name="draw"/> shows.</summary>
-    /// <exception cref="InvalidDataException">The installation lacks the frame.</exception>
-    internal RoomObjectFrameImage Image(RoomObjectDraw draw) => Images.Image(draw);
 }

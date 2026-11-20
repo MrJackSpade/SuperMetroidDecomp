@@ -561,7 +561,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     SamusAerialPoseTransitions.ApplyOrdinaryJumpTransition(bridgeSamus, 
         SamusPoseId.NeutralJumpTransitionRightPose,
         controllerNewInput: GameplayAction.Shoot);
-    AssertEqual<SamusTransitionShot?>(global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Samus.SamusTransitionShot>([typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection)], new object?[] { (global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection)(SamusProjectileDirection.Right) }), bridgeSamus.TransitionShot.Handed,
+    AssertEqual<SamusTransitionShot?>(global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Samus.SamusTransitionShot>([typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection)], new object?[] { SamusProjectileDirection.Right }), bridgeSamus.TransitionShot.Handed,
         "normal-jump initializer hands over the new pose's shot direction");
     bridgeBombs.StepFrame(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, bridgeSamus, 0, 0);
     SamusProjectileSlotObservation beforeBridgeRelease = bridgeProjectiles.ObserveSlots();

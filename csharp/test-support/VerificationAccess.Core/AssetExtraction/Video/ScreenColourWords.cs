@@ -14,7 +14,7 @@ internal static class ScreenColourWords
     internal static byte[] Words(ReadOnlySpan<RgbColor> backgrounds, ReadOnlySpan<RgbColor> sprites)
     {
         var image = new RgbColor[ScreenColourImage.ColorCount];
-        backgrounds.CopyTo(image.AsSpan(GameplayColourPositionDefinitions.BackgroundSetsFirst, GameplayColourPositionDefinitions.SetsColours));
+        backgrounds.CopyTo(image.AsSpan(GameplayColourPositionDefinitionsConstants.BackgroundSetsFirst, GameplayColourPositionDefinitions.SetsColours));
         sprites.CopyTo(image.AsSpan(GameplayColourPositionDefinitions.SpriteSetsFirst, GameplayColourPositionDefinitions.SetsColours));
         var words = new byte[image.Length * ColourWordCodec.ByteCount];
         for (int color = 0; color < image.Length; color++)

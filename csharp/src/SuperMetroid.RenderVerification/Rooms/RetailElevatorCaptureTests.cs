@@ -2,6 +2,7 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
+using SuperMetroid.Core.World;
 namespace SuperMetroid.RenderVerification.Rooms;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.FrameCapture;

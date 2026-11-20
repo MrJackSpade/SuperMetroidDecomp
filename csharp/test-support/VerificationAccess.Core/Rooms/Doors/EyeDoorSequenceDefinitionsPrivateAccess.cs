@@ -1,5 +1,3 @@
-using SuperMetroid.Core;
-
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>

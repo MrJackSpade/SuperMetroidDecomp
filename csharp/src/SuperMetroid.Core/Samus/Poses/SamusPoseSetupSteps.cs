@@ -1,6 +1,4 @@
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Samus.Abilities;
-using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Movement;
 
 namespace SuperMetroid.Core.Samus.Poses;

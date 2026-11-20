@@ -116,7 +116,7 @@ internal static class LookupStream4Verification
         AssertEqual(cursor, (int)ZebesExplosionForegroundPaletteFxColorDefinitionsConstants.DeleteInstructionPointer, "Derived foreground terminal address");
         var guarded = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> guardedPresentationReads);
         var fxSession = new ColourEffectSessionState();
-        var fx = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { (global::SuperMetroid.Core.Fx.ColourEffectSessionState)(fxSession), (global::SuperMetroid.Core.Audio.GameplaySoundRequests)(SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone()) });
+        var fx = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { fxSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone() });
         var cgram = new SnesCgram();
         fx.StartScreen(ZebesExplosionForegroundPaletteFxColorDefinitions.DefinitionPointer);
         int ticks = 0;
@@ -209,7 +209,7 @@ internal static class LookupStream4Verification
             AssertEqual(cursor, (int)definition.LoopInstructionPointer, "Calculated terminal layout");
             var guarded = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> guardedPresentationReads);
             var fxSession = new ColourEffectSessionState();
-            var fx = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { (global::SuperMetroid.Core.Fx.ColourEffectSessionState)(fxSession), (global::SuperMetroid.Core.Audio.GameplaySoundRequests)(SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone()) });
+            var fx = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { fxSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone() });
             var cgram = new SnesCgram();
             fx.StartScreen(definition.DefinitionPointer);
             for (int cycle = 0; cycle < 2; cycle++)
@@ -244,7 +244,7 @@ internal static class LookupStream4Verification
         var selected = TitlePaletteFile.Read(new MemoryStream(json));
         var guarded = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> guardedPresentationReads);
         var fxSession = new ColourEffectSessionState();
-        var fx = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { (global::SuperMetroid.Core.Fx.ColourEffectSessionState)(fxSession), (global::SuperMetroid.Core.Audio.GameplaySoundRequests)(SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone()) });
+        var fx = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { fxSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone() });
         foreach (var program in TitleScreenAmbientPaletteOwners.All)
             fx.StartScreen(program.DefinitionPointer);
         for (int tick = 0; tick <= 80; tick++)
@@ -310,8 +310,8 @@ internal static class LookupStream4Verification
         {
             var nativeBus = NewPaletteFxMechanicsForbiddenBus(rom, out _);
             var nativeSession = new ColourEffectSessionState();
-            var native = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { (global::SuperMetroid.Core.Fx.ColourEffectSessionState)(nativeSession), (global::SuperMetroid.Core.Audio.GameplaySoundRequests)(SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone()) }); var installedSession = new ColourEffectSessionState();
-                                                                 var installed = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { (global::SuperMetroid.Core.Fx.ColourEffectSessionState)(installedSession), (global::SuperMetroid.Core.Audio.GameplaySoundRequests)(SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone()) });
+            var native = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { nativeSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone() }); var installedSession = new ColourEffectSessionState();
+                                                                 var installed = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { installedSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone() });
             var nativeCgram = new SnesCgram(); var installedCgram = new SnesCgram();
             native.Start(definition.DefinitionPointer, 0);
             installed.Start(definition.DefinitionPointer, 0);
@@ -354,8 +354,8 @@ internal static class LookupStream4Verification
             var nativeBus = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> nativeBusPresentationReads);
             var installedBus = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> installedBusPresentationReads);
             var nativeSession = new ColourEffectSessionState();
-            var native = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { (global::SuperMetroid.Core.Fx.ColourEffectSessionState)(nativeSession), (global::SuperMetroid.Core.Audio.GameplaySoundRequests)(SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone()) }); var installedSession = new ColourEffectSessionState();
-                                                                 var installed = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { (global::SuperMetroid.Core.Fx.ColourEffectSessionState)(installedSession), (global::SuperMetroid.Core.Audio.GameplaySoundRequests)(SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone()) });
+            var native = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { nativeSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone() }); var installedSession = new ColourEffectSessionState();
+                                                                 var installed = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { installedSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone() });
             var nativeCgram = new SnesCgram(); var installedCgram = new SnesCgram();
             native.StartScreen(definition.DefinitionPointer);
             installed.StartScreen(definition.DefinitionPointer);

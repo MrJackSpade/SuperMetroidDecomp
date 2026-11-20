@@ -216,7 +216,7 @@ internal sealed class PrivateAccessShims(INamedTypeSymbol owner, string path)
             string type = TypeText(property.Type);
             string get = $"PrivateState.InvokeStatic<{type}>(typeof({Owner}), \"get_{property.Name}\", [{receiverTypeOf}], new object?[] {{ self }})";
             string set = $"PrivateState.InvokeStatic(typeof({Owner}), \"set_{property.Name}\", [{receiverTypeOf}, typeof({TypeOfText(property.Type)})], new object?[] {{ self, value }})";
-            members.Add(new($"property|{property.Name}", Summary($"The private extension property <c>{property.Name}</c>, reached by name.") +
+            members.Add(new(Summary($"The private extension property <c>{property.Name}</c>, reached by name.") +
                 $"internal {type} {Name(property.Name)}\n{{\n" + (property.GetMethod is not null ? $"    get => {get};\n" : "") +
                 (property.SetMethod is not null ? $"    set => {set};\n" : "") + "}"));
             return;
@@ -232,7 +232,7 @@ internal sealed class PrivateAccessShims(INamedTypeSymbol owner, string path)
         string signature = string.Join(",", parameters.Select(parameter => $"{parameter.RefKind}:{TypeOfText(parameter.Type)}"));
         if (parameters.Any(parameter => parameter.RefKind is RefKind.Ref or RefKind.Out))
             throw new InvalidOperationException($"{method.ToDisplayString()} passes a parameter by reference, which an extension-block stand-in does not.");
-        members.Add(new($"method|{method.Name}|{signature}", Summary($"The private extension method <c>{method.Name}</c>, invoked by name.") +
+        members.Add(new(Summary($"The private extension method <c>{method.Name}</c>, invoked by name.") +
             $"internal {result} {Name(method.Name)}({ParameterList(parameters)}) =>\n    {invoker}(typeof({Owner}), \"{method.Name}\", {types}, {arguments});"));
     }
 
@@ -243,11 +243,11 @@ internal sealed class PrivateAccessShims(INamedTypeSymbol owner, string path)
         string name = Name(field.Name);
         string doc = Summary($"The private field <c>{field.Name}</c>, reached by name.");
         bool settable = written && !field.IsConst;
-        string key = $"property|{field.Name}";
+        _ = $"property|{field.Name}";
         if (field.IsStatic || field.IsConst)
         {
             string get = $"PrivateState.StaticField<{type}>(typeof({Owner}), \"{field.Name}\")";
-            _static.Add(new(key, settable
+            _static.Add(new(settable
                 ? $"{doc}internal static {type} {name}\n{{\n    get => {get};\n    set => PrivateState.SetStaticField(typeof({Owner}), \"{field.Name}\", value);\n}}"
                 : $"{doc}internal static {type} {name} => {get};"));
             return;
@@ -256,13 +256,13 @@ internal sealed class PrivateAccessShims(INamedTypeSymbol owner, string path)
         {
             string get = $"PrivateState.ValueField<{Owner}, {type}>(self, \"{field.Name}\")";
             if (settable && IsMutableValue)
-                _writing.Add(new(key, $"{doc}internal {type} {name}\n{{\n    get => {get};\n    set => PrivateState.SetValueField(ref self, \"{field.Name}\", value);\n}}"));
+                _writing.Add(new($"{doc}internal {type} {name}\n{{\n    get => {get};\n    set => PrivateState.SetValueField(ref self, \"{field.Name}\", value);\n}}"));
             else
-                _reading.Add(new(key, $"{doc}internal {type} {name} => {get};"));
+                _reading.Add(new($"{doc}internal {type} {name} => {get};"));
             return;
         }
         string read = $"PrivateState.Field<{Owner}, {type}>(self, \"{field.Name}\")";
-        _reading.Add(new(key, settable
+        _reading.Add(new(settable
             ? $"{doc}internal {type} {name}\n{{\n    get => {read};\n    set => PrivateState.SetField(self, \"{field.Name}\", value);\n}}"
             : $"{doc}internal {type} {name} => {read};"));
     }
@@ -281,18 +281,17 @@ internal sealed class PrivateAccessShims(INamedTypeSymbol owner, string path)
             string declaration = Summary($"The getter of <c>{property.Name}</c>, called directly: reflection cannot return a ref struct.") +
                 $"private delegate {type} {property.Name}Read{TypeParameterList}({(property.IsStatic ? "" : $"{Owner} self")}){Constraints(owner.TypeParameters)};";
             string read = $"PrivateState.GetterDelegate<{reader}>(typeof({Owner}), \"{property.Name}\")({(property.IsStatic ? "" : "self")})";
-            (property.IsStatic ? _static : _reading).Add(new($"property|{property.Name}",
-                $"{doc}internal {(property.IsStatic ? "static " : "")}{type} {name} => {read};", declaration));
+            (property.IsStatic ? _static : _reading).Add(new(                $"{doc}internal {(property.IsStatic ? "static " : "")}{type} {name} => {read};", declaration));
             return;
         }
         bool settable = property.SetMethod is not null && (written || property.GetMethod is null);
         bool gettable = property.GetMethod is not null;
-        string key = $"property|{property.Name}";
+        _ = $"property|{property.Name}";
         string Accessors(string get, string set) =>
             (gettable ? $"    get => {get};\n" : "") + (settable ? $"    set => {set};\n" : "");
         if (property.IsStatic)
         {
-            _static.Add(new(key, $"{doc}internal static {type} {name}\n{{\n" + Accessors(
+            _static.Add(new($"{doc}internal static {type} {name}\n{{\n" + Accessors(
                 $"PrivateState.StaticGet<{type}>(typeof({Owner}), \"{property.Name}\")",
                 $"PrivateState.StaticSet(typeof({Owner}), \"{property.Name}\", value)") + "}"));
             return;
@@ -300,12 +299,12 @@ internal sealed class PrivateAccessShims(INamedTypeSymbol owner, string path)
         if (owner.IsValueType)
         {
             settable &= IsMutableValue;
-            (settable ? _writing : _reading).Add(new(key, $"{doc}internal {type} {name}\n{{\n" + Accessors(
+            (settable ? _writing : _reading).Add(new($"{doc}internal {type} {name}\n{{\n" + Accessors(
                 $"PrivateState.ValueGet<{Owner}, {type}>(self, \"{property.Name}\")",
                 $"PrivateState.ValueSet(ref self, \"{property.Name}\", value)") + "}"));
             return;
         }
-        _reading.Add(new(key, $"{doc}internal {type} {name}\n{{\n" + Accessors(
+        _reading.Add(new($"{doc}internal {type} {name}\n{{\n" + Accessors(
             $"PrivateState.Get<{Owner}, {type}>(self, \"{property.Name}\")",
             $"PrivateState.Set(self, \"{property.Name}\", value)") + "}"));
     }
@@ -329,8 +328,7 @@ internal sealed class PrivateAccessShims(INamedTypeSymbol owner, string path)
             string invocation = method.IsStatic
                 ? (returns ? $"PrivateState.InvokeStaticGeneric<{result}>" : "PrivateState.InvokeStaticGeneric") + $"(typeof({Owner}), \"{method.Name}\", {typeArguments}, {passed})"
                 : (returns ? $"PrivateState.InvokeGeneric<{Owner}, {result}>" : $"PrivateState.InvokeGeneric<{Owner}>") + $"(self, \"{method.Name}\", {typeArguments}, {passed})";
-            (method.IsStatic ? _static : _reading).Add(new($"method|{method.Name}|{signature}",
-                $"{doc}internal {(method.IsStatic ? "static " : "")}{result} {Name(method.Name)}{typeParameters}({ParameterList(parameters)}){Constraints(method.TypeParameters)} =>\n    {invocation};"));
+            (method.IsStatic ? _static : _reading).Add(new(                $"{doc}internal {(method.IsStatic ? "static " : "")}{result} {Name(method.Name)}{typeParameters}({ParameterList(parameters)}){Constraints(method.TypeParameters)} =>\n    {invocation};"));
             return;
         }
         if (HasRefLike(method))
@@ -350,11 +348,10 @@ internal sealed class PrivateAccessShims(INamedTypeSymbol owner, string path)
                 string receiverType = TypeText(parameters[0].Type);
                 if (!_receivers.TryGetValue(receiverType, out var members))
                     _receivers[receiverType] = members = [];
-                members.Add(new($"method|{method.Name}|{signature}", $"{doc}internal {result} {Name(method.Name)}({ParameterList(parameters.Skip(1))}) =>\n    {call};", declaration));
+                members.Add(new($"{doc}internal {result} {Name(method.Name)}({ParameterList(parameters.Skip(1))}) =>\n    {call};", declaration));
                 return;
             }
-            (method.IsStatic ? _static : _reading).Add(new($"method|{method.Name}|{signature}",
-                $"{doc}internal {(method.IsStatic ? "static " : "")}{result} {Name(method.Name)}({ParameterList(parameters)}) =>\n    {call};", declaration));
+            (method.IsStatic ? _static : _reading).Add(new(                $"{doc}internal {(method.IsStatic ? "static " : "")}{result} {Name(method.Name)}({ParameterList(parameters)}) =>\n    {call};", declaration));
             return;
         }
         if (method.IsStatic)
@@ -367,12 +364,11 @@ internal sealed class PrivateAccessShims(INamedTypeSymbol owner, string path)
                 string receiverType = TypeText(parameters[0].Type);
                 if (!_receivers.TryGetValue(receiverType, out var members))
                     _receivers[receiverType] = members = [];
-                members.Add(new($"method|{method.Name}|{signature}", $"{doc}internal {result} {Name(method.Name)}({ParameterList(parameters.Skip(1))})" +
+                members.Add(new($"{doc}internal {result} {Name(method.Name)}({ParameterList(parameters.Skip(1))})" +
                     Body(invoker, $"typeof({Owner})", types, method.Name, returns ? result : null, [.. parameters], selfArgument: "self")));
                 return;
             }
-            _static.Add(new($"method|{method.Name}|{signature}",
-                $"{doc}internal static {result} {Name(method.Name)}({ParameterList(parameters)})" +
+            _static.Add(new(                $"{doc}internal static {result} {Name(method.Name)}({ParameterList(parameters)})" +
                 Body(invoker, $"typeof({Owner})", types, method.Name, returns ? result : null, [.. parameters])));
             return;
         }
@@ -380,13 +376,12 @@ internal sealed class PrivateAccessShims(INamedTypeSymbol owner, string path)
         {
             string invoker = returns ? $"PrivateState.InvokeValue<{Owner}, {result}>" : $"PrivateState.InvokeValue<{Owner}>";
             // A method of a value type that cannot change it takes the value as it is; one that can, the value itself.
-            (IsMutableValue && !method.IsReadOnly ? _writing : _reading).Add(new($"method|{method.Name}|{signature}",
-                $"{doc}internal {result} {Name(method.Name)}({ParameterList(parameters)})" +
+            (IsMutableValue && !method.IsReadOnly ? _writing : _reading).Add(new(                $"{doc}internal {result} {Name(method.Name)}({ParameterList(parameters)})" +
                 Body(invoker, "ref self", types, method.Name, returns ? result : null, [.. parameters])));
             return;
         }
         string instanceInvoker = returns ? $"PrivateState.Invoke<{Owner}, {result}>" : $"PrivateState.Invoke<{Owner}>";
-        _reading.Add(new($"method|{method.Name}|{signature}", $"{doc}internal {result} {Name(method.Name)}({ParameterList(parameters)})" +
+        _reading.Add(new($"{doc}internal {result} {Name(method.Name)}({ParameterList(parameters)})" +
             Body(instanceInvoker, "self", types, method.Name, returns ? result : null, [.. parameters])));
     }
 
@@ -638,8 +633,7 @@ internal sealed class PrivateAccessShims(INamedTypeSymbol owner, string path)
         type.WithNullableAnnotation(NullableAnnotation.NotAnnotated).ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
 
     /// <summary>One generated member: the key it is told apart by, and its source.</summary>
-    /// <param name="Key">Its kind, name and, for a method, parameters.</param>
     /// <param name="Text">Its source, documentation included.</param>
     /// <param name="Delegate">The delegate declaration its call needs at the class's level, for a signature reflection cannot pass.</param>
-    private sealed record RenderedMember(string Key, string Text, string? Delegate = null);
+    private sealed record RenderedMember(string Text, string? Delegate = null);
 }

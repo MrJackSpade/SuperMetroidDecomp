@@ -42,8 +42,8 @@ internal static class FxDefinitionMigrationVerification
         AssertEqual(SignedSixteenSixteen.FromWholePixels(-2), ConveyorBlockDefinitions.LeftwardCarry, "leftward conveyor carry");
 
         // The Fireflea shades are fade levels: the high bytes of the former shade words, below their channel bits.
-        AssertEqual(2, global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.FirefleaDarkness>([typeof(int)], new object?[] { (int)(6) }).Level, "the sixth death's faint darkness level");
-        AssertEqual(25, global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.FirefleaDarkness>([typeof(int)], new object?[] { (int)(5) }).Level, "deepest darkness level");
+        AssertEqual(2, global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.FirefleaDarkness>([typeof(int)], new object?[] { 6 }).Level, "the sixth death's faint darkness level");
+        AssertEqual(25, global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.FirefleaDarkness>([typeof(int)], new object?[] { 5 }).Level, "deepest darkness level");
         AssertEqual(6, FirefleaFlashShade.Brightest.Level, "brightest flash level");
 
         // The atlas is keyed by picture; the import reads each picture from the address it was keyed by.

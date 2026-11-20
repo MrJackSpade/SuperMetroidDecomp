@@ -35,7 +35,7 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
             _ = EnemyProjectileKinds.Get(kind);
             var projectile = global::SuperMetroid.Core.PrivateState.With<EnemyProjectile>(new EnemyProjectile(0, default)
             {
-                }, "Kind", (global::SuperMetroid.Core.Enemies.RoomEnemyProjectileKind)(kind));
+                }, "Kind", kind);
             // Botwoon's, Crocomire's, Draygon's and Kraid's spawners (and Kago's, which shares Kraid's rock pose) start
             // typed animations (#641); their oracles match them to these native lists frame by frame, and no
             // interpreter owns the lists. Crocomire's mouth projectile, Draygon's goop and Kraid's spat rock also start

@@ -18,9 +18,9 @@ internal static class BabyMetroidFatalBlowShakeVerification
         var motherBrain = MotherBrainLateFightFixtures.NewSequence();
         var baby = motherBrain.Baby;
         MotherBrainLateFightFixtures.Arrive(baby, FixedPosition<RoomPixels>.Zero);
-        global::SuperMetroid.Core.PrivateState.Set(baby, "Phase", (global::SuperMetroid.Core.Bosses.MotherBrain.BabyMetroidCutscenePhase)(BabyMetroidCutscenePhase.FinalCharge));
-        global::SuperMetroid.Core.PrivateState.Set(baby, "Position", (global::SuperMetroid.Core.Spatial.FixedPosition<global::SuperMetroid.Core.Spatial.RoomPixels>)(FixedPosition<RoomPixels>.FromWhole(new(0x00c8, 0x0057)).WithFractionsOf(baby.Position)));
-        global::SuperMetroid.Core.PrivateState.Set(baby, "Health", (int)(0));
+        global::SuperMetroid.Core.PrivateState.Set(baby, "Phase", BabyMetroidCutscenePhase.FinalCharge);
+        global::SuperMetroid.Core.PrivateState.Set(baby, "Position", FixedPosition<RoomPixels>.FromWhole(new(0x00c8, 0x0057)).WithFractionsOf(baby.Position));
+        global::SuperMetroid.Core.PrivateState.Set(baby, "Health", 0);
         var head = new Position16<RoomPixels>(0x00c8, 0x0077);
 
         // Frame-counter index 0: zero offsets around the origin; velocity zeroed then decremented.

@@ -127,9 +127,6 @@ public sealed class SamusProjectileSystem
     /// <summary>Each shot place's projectile, in place order: the live one, or the last one that ended there.</summary>
     public IReadOnlyList<SamusProjectile> Shots => Pool.Shots;
 
-    /// <summary>The last input-phase result, whose queued sounds the frontend routes after the frame.</summary>
-    private SamusProjectileFrameResult LastFrameResult { get; set; }
-
     /// <summary>
     /// Shows the equipped beams' colours: the beams show the shade of the combination they select (#1512). No pictures
     /// change: each projectile shows the sheet of the beams it is pictured with (#1586), and the installed sheets are
@@ -331,7 +328,7 @@ public sealed class SamusProjectileSystem
                 queuedSoundPriority ?? throw new InvalidDataException("A projectile sound was queued without its priority."));
         }
 
-        LastFrameResult = new SamusProjectileFrameResult(queuedSound, queuedSoundPriority);
+        _ = new SamusProjectileFrameResult(queuedSound, queuedSoundPriority);
     }
 
     /// <summary>
@@ -518,7 +515,6 @@ public sealed class SamusProjectileSystem
         Trails.Clear();
         Pool.ShotCount.Clear();
         Firing.InteractionImmunity = UpdateCountdown.Ended();
-        LastFrameResult = default;
     }
 
 }

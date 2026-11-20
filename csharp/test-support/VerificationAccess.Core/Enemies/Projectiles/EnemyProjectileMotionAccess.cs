@@ -29,5 +29,5 @@ internal static class EnemyProjectileMotionAccess
     internal static ushort KiHunterAcidLaunch(HorizontalDirection direction) => EnemyProjectileMotionWordsConstants2.KiHunterAcidLaunches[direction];
 
     /// <summary>Every bank-$86 routine word that stands for a motion or for holding still, with the word zero of a freed slot.</summary>
-    internal static IReadOnlyCollection<ushort> RoutineWords => EnemyProjectileMotionWords.Motions.Keys;
+    internal static IReadOnlyCollection<ushort> RoutineWords => EnemyProjectileMotionWordsConstants3.Motions.Keys;
 }

@@ -48,7 +48,7 @@ internal static class KraidBodyPublicationVerification
         RoomEnemyPlace body = runtime.Enemies.KraidBehavior.Parts.Body;
         state.BodyAppearance = KraidBodyAppearance.BehindSprites;
         state.ShowBody();
-        global::SuperMetroid.Core.PrivateState.Set(state, "DisplayedHeadFrame", (global::SuperMetroid.Core.Bosses.Kraid.KraidHeadFrame?)(null));
+        global::SuperMetroid.Core.PrivateState.Set(state, "DisplayedHeadFrame", null);
         body.Position = body.Position.WithWhole(new(320, 88));
         GameplayLatchedBossBody risen = Published(runtime);
         AssertTrue((risen.Body?.Frames.Select(frame => frame.Name) ?? []).SequenceEqual(["Body", "RestingHead"]),

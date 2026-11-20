@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Enemies.Projectiles;
+﻿namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>
 /// What a bank-$86 enemy-projectile pre-instruction routine stands for (#2571): one motion of the behaviour bound to the

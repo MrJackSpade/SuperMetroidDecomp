@@ -28,10 +28,10 @@ internal static class EnemyRoomCountersVerification
         AssertThrows<ArgumentOutOfRangeException>(() => enemies.Places.EnemyCount = -1,
             "the population count cannot be negative");
 
-        global::SuperMetroid.Core.PrivateState.Set(enemies.RoomStatus, "EnemiesKilled", (int)(65535));
+        global::SuperMetroid.Core.PrivateState.Set(enemies.RoomStatus, "EnemiesKilled", 65535);
         enemies.RoomStatus.RecordKill();
         AssertEqual(65536, enemies.RoomStatus.EnemiesKilled, "the kill count keeps counting past 65535");
-        AssertThrows<ArgumentOutOfRangeException>(() => global::SuperMetroid.Core.PrivateState.Set(enemies.RoomStatus, "EnemiesKilled", (int)(-1)),
+        AssertThrows<ArgumentOutOfRangeException>(() => global::SuperMetroid.Core.PrivateState.Set(enemies.RoomStatus, "EnemiesKilled", -1),
             "the kill count rejects a negative count");
 
         Console.WriteLine("Enemy room counters: darkness, slot-table and kill-count ranges hold at their bounds.");

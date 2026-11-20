@@ -61,7 +61,7 @@ internal static class DachoraShaftCameraVerification
     private static void AssertCameraXs(SuperMetroidRuntime runtime, ScrollBoundaryCamera camera, ushort startX, ushort y,
         ushort[] expectedXs, string because)
     {
-        global::SuperMetroid.Core.PrivateState.Set(camera, "Position", (global::SuperMetroid.Core.Spatial.FixedPosition<global::SuperMetroid.Core.Spatial.RoomPixels>)(FixedPosition<RoomPixels>.FromStoredParts(startX, 0x1234, y, 0x5678)));
+        global::SuperMetroid.Core.PrivateState.Set(camera, "Position", FixedPosition<RoomPixels>.FromStoredParts(startX, 0x1234, y, 0x5678));
         Position16<RoomPixels> ideal = camera.IdealPosition;
         for (int update = 0; update < expectedXs.Length; update++)
         {

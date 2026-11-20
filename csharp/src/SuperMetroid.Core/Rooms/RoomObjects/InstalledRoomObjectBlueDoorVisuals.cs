@@ -28,8 +28,4 @@ public sealed class InstalledRoomObjectBlueDoorVisuals : IRoomObjectFamilyPictur
     /// <summary>The picture the closed cap facing <paramref name="orientation"/> shows drawn solid: its facing's closed cap.</summary>
     private RoomObjectFrameImage ClosedSolid(ColoredDoorOrientation orientation) =>
         Images.Image(BlueDoorCaps.VisualSource(BlueDoorCaps.ClosedSolid(orientation)));
-
-    /// <summary>The picture <paramref name="draw"/> shows; the closed cap drawn solid shows its facing's closed cap.</summary>
-    /// <exception cref="InvalidDataException">The installation lacks the frame.</exception>
-    internal RoomObjectFrameImage Image(RoomObjectDraw draw) => Images.Image(BlueDoorCaps.VisualSource(draw));
 }

@@ -58,7 +58,7 @@ internal static class FallingSparkLaunchDefinitionsVerification
             AssertEqual((ushort)SixteenSixteenWords.WholeOf(expected), projectile.Position.X.Whole, "Native signed launch reaches actual wrapped movement");
             AssertEqual((ushort)expected, projectile.Position.X.Fraction, "Native fractional launch reaches actual movement");
         }
-        foreach (var occupied in enemies.Projectiles.EveryPlace()) global::SuperMetroid.Core.PrivateState.Set(occupied, "Kind", (global::SuperMetroid.Core.Enemies.RoomEnemyProjectileKind)(RoomEnemyProjectileKind.FallingSpark));
+        foreach (var occupied in enemies.Projectiles.EveryPlace()) global::SuperMetroid.Core.PrivateState.Set(occupied, "Kind", RoomEnemyProjectileKind.FallingSpark);
         advances = 0;
         ushort previousX = projectile.Position.X.Whole;
         spawn(source);

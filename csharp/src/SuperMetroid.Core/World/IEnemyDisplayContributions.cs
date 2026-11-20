@@ -4,8 +4,6 @@ using SuperMetroid.Core.Enemies.MorphBallEye;
 using SuperMetroid.Core.Escape;
 using SuperMetroid.Core.Rooms.Backgrounds;
 
-using SuperMetroid.Core.Enemies;
-
 namespace SuperMetroid.Core.World;
 
 /// <summary>

@@ -73,8 +73,16 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// They update from the last to the first.
     /// </summary>
     private readonly List<CeresSceneActor> ceresActors = [];
-    /// <summary>The live Zebes reveal actors in the order they spawned (#2489); they update from the last to the first.</summary>
-    private readonly List<ZebesRevealActor> revealActors = [];
+    /// <summary>
+    /// The live Zebes reveal actors that slide away, in the order they spawned (#2489): the planet and the star field's
+    /// quarters. They spawn before the captions and update after them, from the last to the first.
+    /// </summary>
+    private readonly List<ZebesRevealSlider> revealSliders = [];
+    /// <summary>
+    /// The live Zebes reveal captions in the order they spawned (#2489): the title, then the Japanese subtitle it spawns.
+    /// They spawn after the sliding actors, so they update first, from the last to the first, and draw after them.
+    /// </summary>
+    private readonly List<ZebesRevealCaption> revealCaptions = [];
     /// <summary>
     /// The invisible actor whose animation spawns the station's waves of blasts (#2489). The scene's setup update is its
     /// first; it runs before the other actors over Ceres, so a blast it spawns runs in the same update.
@@ -99,7 +107,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// The Japanese subtitle the title's cue has just spawned, which runs on the same update, after the title, before it
     /// joins the reveal's actors.
     /// </summary>
-    private ZebesRevealActor? spawnedSubtitle;
+    private ZebesRevealCaption? spawnedSubtitle;
     /// <summary>The Japanese text option, which makes the PLANET ZEBES title spawn its Japanese subtitle (#1733).</summary>
     private readonly bool japaneseText;
 
@@ -458,9 +466,18 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             FloorScroll.Y.WithWholePixels(CeresDestructionSceneDefinitions.Places.ZebesInitialFloorScrollY));
         angle = CeresDestructionSceneDefinitions.Motion.ApproachAngle;
         Zoom = FloorZoom.OwnSize;
-        revealActors.Clear();
+        revealSliders.Clear();
+        revealCaptions.Clear();
         foreach (ZebesRevealActorRole role in CeresDestructionActorDefinitions.RevealSpawnOrder)
-            revealActors.Add(CreateZebesActor(role));
+        {
+            CeresDestructionActorDefinition definition = CeresDestructionActors.ZebesActor(role);
+            CinematicActor<CeresAnimation, CinematicSpritePose, CeresCue> sprite = CreateZebesSprite(role, definition);
+            // An actor with a slide is the planet or a star quarter; the title has none.
+            if (definition.SlideAcceleration is { } acceleration)
+                revealSliders.Add(new ZebesRevealSlider(definition, sprite, acceleration));
+            else
+                revealCaptions.Add(new ZebesRevealCaption(sprite));
+        }
         Phase = CeresDestructionPhase.PlanetZebesTitle;
     }
 
@@ -505,12 +522,10 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         return actor;
     }
 
-    /// <summary>Creates the Zebes reveal actor that shows <paramref name="role"/> at its installed placement (#1596, #1733).</summary>
-    private ZebesRevealActor CreateZebesActor(ZebesRevealActorRole role)
-    {
-        CeresDestructionActorDefinition definition = CeresDestructionActors.ZebesActor(role);
-        return new ZebesRevealActor(role, definition, CreateActor(definition, Artwork.CeresDestruction.RevealActors[role].Place));
-    }
+    /// <summary>Creates the sprite of the Zebes reveal actor that shows <paramref name="role"/> at its installed placement (#1596, #1733).</summary>
+    private CinematicActor<CeresAnimation, CinematicSpritePose, CeresCue> CreateZebesSprite(
+        ZebesRevealActorRole role, CeresDestructionActorDefinition definition) =>
+        CreateActor(definition, Artwork.CeresDestruction.RevealActors[role].Place);
 
 
     /// <summary>
@@ -603,12 +618,32 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         ceresActors.Add(new CeresBlast(actor));
     }
 
-    /// <summary>Advances the planet and title objects, applying slide acceleration and finishing on star deletion.</summary>
+    /// <summary>
+    /// Advances the reveal's actors in the cinematic's order, from the last spawned to the first: the captions, which spawn
+    /// last, then the planet and stars, applying their slide while the scene slides away and finishing on the lower-right
+    /// stars' exit.
+    /// </summary>
     private void StepZebesActors(ZebesActorsMotion motion)
     {
-        for (int index = revealActors.Count - 1; index >= 0; index--)
+        for (int index = revealCaptions.Count - 1; index >= 0; index--)
         {
-            ZebesRevealActor actor = revealActors[index];
+            ZebesRevealCaption caption = revealCaptions[index];
+            caption.Sprite.Step(HandleZebesCue);
+            if (!caption.Sprite.IsActive)
+                revealCaptions.RemoveAt(index);
+            // A subtitle the title has just spawned comes after the title in the cinematic's list of objects, so it runs on
+            // the same update and shows its first pose.
+            if (spawnedSubtitle is { } subtitle)
+            {
+                spawnedSubtitle = null;
+                subtitle.Sprite.Step(HandleZebesCue);
+                revealCaptions.Add(subtitle);
+            }
+        }
+
+        for (int index = revealSliders.Count - 1; index >= 0; index--)
+        {
+            ZebesRevealSlider actor = revealSliders[index];
             if (motion == ZebesActorsMotion.SlidingAway)
             {
                 // The reveal ends when the lower-right stars leave.
@@ -624,22 +659,14 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                     }
 
                     actor.Sprite.Delete();
-                    revealActors.RemoveAt(index);
+                    revealSliders.RemoveAt(index);
                     continue;
                 }
             }
 
             actor.Sprite.Step(HandleZebesCue);
             if (!actor.Sprite.IsActive)
-                revealActors.RemoveAt(index);
-            // A subtitle the title has just spawned comes after the title in the cinematic's list of objects, so it runs on
-            // the same update and shows its first pose.
-            if (spawnedSubtitle is { } subtitle)
-            {
-                spawnedSubtitle = null;
-                subtitle.Sprite.Step(HandleZebesCue);
-                revealActors.Add(subtitle);
-            }
+                revealSliders.RemoveAt(index);
         }
     }
 
@@ -661,7 +688,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             case CeresCue.SpawnJapaneseTitleIfNeeded:
                 // With Japanese text the title spawns its Japanese subtitle as its first hold ends (#1733).
                 if (japaneseText)
-                    spawnedSubtitle = CreateZebesActor(ZebesRevealActorRole.JapaneseSubtitle);
+                    spawnedSubtitle = new ZebesRevealCaption(CreateZebesSprite(ZebesRevealActorRole.JapaneseSubtitle,
+                        CeresDestructionActors.ZebesActor(ZebesRevealActorRole.JapaneseSubtitle)));
                 return;
 
             case CeresCue.StartFlyingToZebes:
@@ -774,7 +802,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         // Same-priority sprite overlap is decided by drawing order.
         IEnumerable<CeresSceneActor> overCeres = CeresDestructionPhaseGroups.CeresScene.Contains(Phase)
             ? ceresActors.Where(actor => !actor.DrawnLast).Concat(ceresActors.Where(actor => actor.DrawnLast)) : ceresActors;
-        foreach (CinematicActor<CeresAnimation, CinematicSpritePose, CeresCue> actor in overCeres.Select(actor => actor.Sprite).Concat(revealActors.Select(actor => actor.Sprite)))
+        foreach (CinematicActor<CeresAnimation, CinematicSpritePose, CeresCue> actor in overCeres.Select(actor => actor.Sprite)
+                     .Concat(revealSliders.Select(actor => actor.Sprite)).Concat(revealCaptions.Select(caption => caption.Sprite)))
             actor.Draw(screenSprites, installedArt: Sprites);
         screenSprites.FinishFrame();
     }

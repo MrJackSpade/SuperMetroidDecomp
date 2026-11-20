@@ -24,23 +24,19 @@ public sealed class SuperMetroidGame
     internal FrontendSession Session { get; }
 
     /// <summary>
-    /// Binds installed artwork whenever a host binds the game to its content (<see cref="GameSessionComposer.Bind"/>). Each
-    /// catalog whose reference changed reaches the scenes that hold it; unchanged catalogs are left alone. The live runtime
-    /// binds through <see cref="SuperMetroidRuntime.BindArtwork"/>.
+    /// Binds installed artwork in place of the catalogs the game holds, as a host does when it binds a game it brings back to
+    /// its content (<see cref="GameSessionComposer.Bind"/>). Each catalog whose reference changed reaches the scenes that
+    /// hold it; unchanged catalogs are left alone. The live runtime binds through <see cref="SuperMetroidRuntime.BindArtwork"/>.
     /// </summary>
-    /// <exception cref="InvalidOperationException">A screen is shown in a session no host bound artwork to before.</exception>
     internal void BindArtwork(GameArtwork artwork)
     {
         Ensure.NotNull(artwork);
-        GameArtwork? previous = Session.ArtworkBound ? Session.Artwork : null;
+        GameArtwork previous = Session.Artwork;
         Session.Artwork = artwork;
         Session.Runtime?.BindArtwork(artwork.Gameplay);
-        if (previous is null || !ReferenceEquals(previous.ScreenContent, artwork.ScreenContent))
+        if (!ReferenceEquals(previous.ScreenContent, artwork.ScreenContent))
             Session.saves.BindMaps(artwork.ScreenContent.Maps);
-        // Every screen is built over the session's bound artwork, so a shown screen always has artwork to rebind from.
-        if (Session.Screen is { } screen)
-            screen.BindArtwork(previous ?? throw new InvalidOperationException(
-                "A frontend screen is shown in a session whose installed artwork was never bound."), artwork);
+        Session.Screen?.BindArtwork(previous, artwork);
     }
 
 
@@ -49,11 +45,15 @@ public sealed class SuperMetroidGame
     /// (<see cref="Compatibility.PowerOnEarthquakeSoundDelay"/>) before any update runs.
     /// </summary>
     /// <param name="saves">The saves the session owns; the host loads them and persists them on <see cref="SavesChanged"/>.</param>
+    /// <param name="audioOutput">What the session's audio produces for its host.</param>
+    /// <param name="artwork">The installed catalogs the game draws from.</param>
     /// <param name="assists">The assists the session plays under, or <see langword="null"/> for the unassisted game.</param>
     public SuperMetroidGame(
         SaveSlotStore saves,
+        GameAudioOutput audioOutput,
+        GameArtwork artwork,
         GameplayAssists? assists = null)
-        : this(saves, assists, SuperMetroidGameHostServices.Default, new SharedRandom())
+        : this(saves, assists, SuperMetroidGameHostServices.Default, new SharedRandom(), audioOutput, artwork)
     {
     }
 
@@ -69,13 +69,17 @@ public sealed class SuperMetroidGame
     /// <param name="assists">The assists the session plays under, or <see langword="null"/> for the unassisted game.</param>
     /// <param name="hostServices">The compatibility services and display policy.</param>
     /// <param name="random">The session's random number generator, which the frontend and every gameplay runtime share.</param>
+    /// <param name="audioOutput">What the session's audio produces for its host.</param>
+    /// <param name="artwork">The installed catalogs the game draws from.</param>
     internal SuperMetroidGame(
         SaveSlotStore saves,
         GameplayAssists? assists,
         SuperMetroidGameHostServices hostServices,
-        SharedRandom random)
+        SharedRandom random,
+        GameAudioOutput audioOutput,
+        GameArtwork artwork)
     {
-        Session = new FrontendSession(saves, assists, hostServices, random);
+        Session = new FrontendSession(saves, assists, hostServices, random, audioOutput, artwork);
     }
 
     /// <summary>The session's saves, which the host persists after <see cref="SavesChanged"/>.</summary>
@@ -92,21 +96,15 @@ public sealed class SuperMetroidGame
     }
 
     /// <summary>
-    /// Binds the installed sound clips whenever a host binds the game to its content, so every following update also
-    /// mixes its sound into the samples the host copies (<see cref="CopyAudioFrame"/>).
+    /// Copies the last update's interleaved stereo samples (<see cref="AudioSession.PcmSamplesPerFrame"/>) into host-owned
+    /// storage: the game's sound mixed from the clips it was built with, or silence from a muted game.
     /// </summary>
     /// <remarks>
-    /// Binding affects presentation only. Each update advances the session's sound acceptance clock and
-    /// its sound-effect acknowledgements whether or not audio is bound, so gameplay is identical
-    /// with audio enabled, disabled, or without an output device.
+    /// The output is presentation only. Each update advances the session's sound acceptance clock and its sound-effect
+    /// acknowledgements whatever the output, so gameplay is identical with audio enabled, disabled, or without an output
+    /// device.
     /// </remarks>
-    /// <exception cref="ArgumentNullException"><paramref name="clips"/> is null.</exception>
-    /// <exception cref="InvalidOperationException">The session already advanced without synthesis and has no player to continue.</exception>
-    internal void BindAudio(ClipAudioLibrary clips) => Session.audioSession.BindClips(clips);
-
-    /// <summary>Copies the last update's interleaved stereo samples (<see cref="AudioSession.PcmSamplesPerFrame"/>) into host-owned storage.</summary>
-    /// <exception cref="InvalidOperationException">No audio catalog is bound.</exception>
-    /// <exception cref="ArgumentException"><paramref name="destination"/> holds fewer than 1,600 samples.</exception>
+    /// <exception cref="ArgumentException"><paramref name="destination"/> holds fewer than one update's samples.</exception>
     public void CopyAudioFrame(Span<short> destination) => Session.audioSession.CopyFrame(destination);
 
 

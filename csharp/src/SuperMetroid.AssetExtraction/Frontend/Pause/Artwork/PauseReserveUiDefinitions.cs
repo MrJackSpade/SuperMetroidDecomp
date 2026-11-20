@@ -33,6 +33,8 @@ public static class PauseReserveUiDefinitions
     public const int VerticalStartCell = 258 / 2, VerticalCount = 8, RowStrideCells = 64 / 2;
     /// <summary>First horizontal arrow cell and number of adjacent horizontal arrows.</summary>
     public const int HorizontalStartCell = 770 / 2, HorizontalCount = 2;
+    /// <summary>The cells the arrow draws in: its vertical run and its horizontal run.</summary>
+    public const int ArrowCellCount = VerticalCount + HorizontalCount;
 
     /// <summary>Every reserve label, in document order (#2567): the mode heading, the reserve tank, manual, auto.</summary>
     public static IReadOnlyList<PauseReserveLabel> Labels { get; } = Ensure.EveryMemberOnce<PauseReserveLabel>(

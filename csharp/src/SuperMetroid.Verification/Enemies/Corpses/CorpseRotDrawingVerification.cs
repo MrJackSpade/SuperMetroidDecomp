@@ -82,7 +82,7 @@ internal static class CorpseRotDrawingVerification
     {
         RoomEnemyGraphicsSetDefinition set = SetDrawing(sheets, EnemyDefinitionId.CorpseTorizo);
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        var state = new DeadTorizoEnemyState(new CorpseRotSchedule(DeadTorizoCorpseDefinitions.RowCount), DeadTorizoPhase.Rotting);
+        var state = new DeadTorizoEnemyState(new CorpseRotSchedule(DeadTorizoCorpseDefinitions.RowCount), CorpsePhase.Rotting);
         var authored = new AuthoredRot(DeadTorizoCorpseDefinitions.RowCount);
         string body = EnemySheetDefinitions.FrameName(EnemyFrameId.DeadTorizoStanding);
         string hook = EnemySheetDefinitions.EncounterFrameName(DeadTorizoArtworkDefinitions.SandHeapFrame);

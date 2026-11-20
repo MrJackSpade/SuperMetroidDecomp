@@ -169,12 +169,8 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         // The three drawing parts follow the body to its new place, except on the update the almost-dead phase runs.
         if (phase == PhantoonPhase.AlmostDead)
             return;
-        state.Mouth.Position = state.Mouth.Position.WithWholeX(body.Position.X.Whole);
-        state.Tentacles.Position = state.Tentacles.Position.WithWholeX(body.Position.X.Whole);
-        state.Eye.Position = state.Eye.Position.WithWholeX(body.Position.X.Whole);
-        state.Mouth.Position = state.Mouth.Position.WithWholeY(body.Position.Y.Whole);
-        state.Tentacles.Position = state.Tentacles.Position.WithWholeY(body.Position.Y.Whole);
-        state.Eye.Position = state.Eye.Position.WithWholeY(body.Position.Y.Whole);
+        foreach (PhantoonPart part in state.CarriedParts)
+            part.Place.Position = part.Place.Position.WithWhole(body.Position.Whole);
     }
 
 

@@ -82,15 +82,7 @@ internal static class TorizoEncounterAnimations
         [S.BombTorizoAwakening] =
         [
             Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.Falling)),
-            Show(Left.Seated, 48),
-            ShowArtwork(L.EyesDark),
-            Show(Left.Seated, 32),
-            ShowArtwork(L.EyesGlowingFaintly),
-            Show(Left.Seated, 16),
-            ShowArtwork(L.EyesGlowingBrightly),
-            Show(Left.Seated, 8),
-            ShowArtwork(L.EyesGlowingFully),
-            Show(Left.Seated, 32),
+            .. SeatedEyesLightingUp,
         ],
         [S.SeatedEyesLightingAgain] =
         [
@@ -105,18 +97,7 @@ internal static class TorizoEncounterAnimations
         ],
         [S.BombTorizoStandingUp] =
         [
-            Show(Left.Seated, 48),
-            StandUp(Left, P.SeatedToRising),
-            Show(Left.RisingFromSeat, 16),
-            StandUp(Left, P.RisingToCrouched),
-            Show(Left.Crouched, 8),
-            StandUp(Left, P.CrouchedToHalfRisen),
-            Show(Left.HalfRisen, 8),
-            StandUp(Left, P.HalfRisenToNearlyUpright),
-            Show(Left.NearlyUpright, 8),
-            StandUp(Left, P.NearlyUprightToStepping),
-            Show(Left.UprightStepping, 8),
-            StandUp(Left, P.SteppingToWideStance),
+            .. StandingUp(Left, 48, 16, 8, 8, 8, 8),
             Cue(new TorizoCue.Signal(K.FadeToNormalColors)),
         ],
         [S.StandingColourFade] =

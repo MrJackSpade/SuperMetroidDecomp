@@ -34,7 +34,7 @@ internal sealed record ShownFileSelectSave
     internal static ShownFileSelectSave Of(SuperMetroidSaveSlot slot)
     {
         Ensure.NotNull(slot);
-        return new(slot.Health, slot.MaxHealth, Math.Min(slot.GameTime.Hours, FileSelectFieldDefinitions.MaximumTimePart),
+        return new(slot.Inventory.Health, slot.Inventory.MaxHealth, Math.Min(slot.GameTime.Hours, FileSelectFieldDefinitions.MaximumTimePart),
             Math.Min(slot.GameTime.Minutes, FileSelectFieldDefinitions.MaximumTimePart));
     }
 }

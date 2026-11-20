@@ -47,12 +47,12 @@ internal static class SamusEaterVisualsVerification
 
     /// <summary>Compares the eight plant frames' pictures with the cartridge, rejects other draws, then checks the import and its rejections (#1557).</summary>
     private static void VerifySamusEaterStockVisualMapping(CartridgeImportAddressSpace rom,
-        InstalledRoomObjectSamusEaterVisuals installed)
+        InstalledRoomObjectPictures installed)
     {
         LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(0x9e0d,"floor-idle"), new LookupEscapeGateStockFrame(0x9e45,"floor-teeth-peeking"),
             new LookupEscapeGateStockFrame(0x9e61,"floor-teeth-bared"), new LookupEscapeGateStockFrame(0x9e7d,"floor-fangs-out"), new LookupEscapeGateStockFrame(0x9e99,"ceiling-idle"),
             new LookupEscapeGateStockFrame(0x9ed1,"ceiling-teeth-peeking"), new LookupEscapeGateStockFrame(0x9eed,"ceiling-teeth-bared"), new LookupEscapeGateStockFrame(0x9f09,"ceiling-fangs-out")];
-        foreach (InstalledRoomObjectSamusEaterVisuals pictures in new[] { InstalledRoomObjectSamusEaterVisuals.Stock(), installed })
+        foreach (InstalledRoomObjectPictures pictures in new[] { RoomObjectPicturesStock.SamusEater, installed })
         {
             AssertPicturedAsNative(rom, pictures.Images, RoomObjectSamusEaterVisualFiles.Family, frames, WrittenCells(RoomObjectSamusEaterVisualFiles.Family));
         }
@@ -76,7 +76,7 @@ internal static class SamusEaterVisualsVerification
         ushort[] pointers = [0x9e0d, 0x9e45, 0x9e61, 0x9e7d, 0x9e99, 0x9ed1, 0x9eed, 0x9f09];
         var exported = RoomObjectSamusEaterVisualFiles.All.ToArray();
         AssertEqual(pointers.Length, exported.Length, "plant draw export coverage");
-        InstalledRoomObjectSamusEaterVisuals pictures = InstalledRoomObjectSamusEaterVisuals.Stock();
+        InstalledRoomObjectPictures pictures = RoomObjectPicturesStock.SamusEater;
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             ushort pointer = (ushort)raw;

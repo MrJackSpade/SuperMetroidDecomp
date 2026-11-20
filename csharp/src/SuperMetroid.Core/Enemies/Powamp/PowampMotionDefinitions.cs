@@ -53,14 +53,14 @@ internal static class PowampMotionDefinitions
     internal static readonly IReadOnlyDictionary<CompassDirection, PixelVelocity<RoomPixels>> SpikeAccelerations =
         new Dictionary<CompassDirection, PixelVelocity<RoomPixels>>
         {
-            [CompassDirection.Up] = new PixelVelocity<RoomPixels>(SignedEightEight.Zero, SignedEightEight.FromPixelFraction(-1, 8)),
-            [CompassDirection.UpRight] = new PixelVelocity<RoomPixels>(SignedEightEight.FromPixelFraction(1, 8), SignedEightEight.FromPixelFraction(-1, 8)),
-            [CompassDirection.Right] = new PixelVelocity<RoomPixels>(SignedEightEight.FromPixelFraction(1, 8), SignedEightEight.Zero),
-            [CompassDirection.DownRight] = new PixelVelocity<RoomPixels>(SignedEightEight.FromPixelFraction(1, 8), SignedEightEight.FromPixelFraction(1, 8)),
-            [CompassDirection.Down] = new PixelVelocity<RoomPixels>(SignedEightEight.Zero, SignedEightEight.FromPixelFraction(1, 8)),
-            [CompassDirection.DownLeft] = new PixelVelocity<RoomPixels>(SignedEightEight.FromPixelFraction(-1, 8), SignedEightEight.FromPixelFraction(1, 8)),
-            [CompassDirection.Left] = new PixelVelocity<RoomPixels>(SignedEightEight.FromPixelFraction(-1, 8), SignedEightEight.Zero),
-            [CompassDirection.UpLeft] = new PixelVelocity<RoomPixels>(SignedEightEight.FromPixelFraction(-1, 8), SignedEightEight.FromPixelFraction(-1, 8)),
+            [CompassDirection.Up] = Leaning(new(0, -1)),
+            [CompassDirection.UpRight] = Leaning(new(1, -1)),
+            [CompassDirection.Right] = Leaning(new(1, 0)),
+            [CompassDirection.DownRight] = Leaning(new(1, 1)),
+            [CompassDirection.Down] = Leaning(new(0, 1)),
+            [CompassDirection.DownLeft] = Leaning(new(-1, 1)),
+            [CompassDirection.Left] = Leaning(new(-1, 0)),
+            [CompassDirection.UpLeft] = Leaning(new(-1, -1)),
         };
 
     /// <summary>
@@ -96,4 +96,11 @@ internal static class PowampMotionDefinitions
 
     /// <summary>The speed the body sinks back to its spawn height at once its balloon has deflated: a pixel an update.</summary>
     internal static SignedSixteenSixteen SinkVelocity { get; } = SignedSixteenSixteen.FromWholePixels(1);
+
+    /// <summary>
+    /// A spike's acceleration leaning <paramref name="lean"/>, each axis -1, 0 or 1: an eighth of a pixel an update, each
+    /// update, along each axis it leans along.
+    /// </summary>
+    private static PixelVelocity<RoomPixels> Leaning(Offset16<RoomPixels> lean) =>
+        new(SignedEightEight.FromPixelFraction(lean.X, 8), SignedEightEight.FromPixelFraction(lean.Y, 8));
 }

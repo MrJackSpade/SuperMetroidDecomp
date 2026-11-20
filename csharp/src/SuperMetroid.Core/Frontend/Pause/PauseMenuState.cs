@@ -25,7 +25,7 @@ namespace SuperMetroid.Core.Frontend.Pause;
 /// The pause menu owns what its screens show; the game keeps the pause's steps, and Samus keeps her equipment, so an
 /// equipment-screen press changes Samus's equipment directly, as movement, drawing and saving see it.
 /// </remarks>
-internal sealed class PauseMenuState : IMenuFrontendScreen
+internal sealed class PauseMenuState : IMenuFrontendScreen, IComposedFrontendScene<LayeredScene>
 {
     /// <inheritdoc/>
     [MemberNotNull(nameof(spriteSheets))]
@@ -410,10 +410,14 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         itemSelector.Show(selectors.Cycling, selectors.InitialDurationTicks);
     }
 
+    /// <summary>Whether the equipment page offers a selectable item: Samus holds a reserve tank, an item or a beam.</summary>
+    private bool OffersSelectableItem =>
+        samus.MaxReserveEnergy != 0 || samus.CollectedItems != SamusEquipmentFlags.None || samus.CollectedBeams != SamusBeamFlags.None;
+
     /// <summary>Advances the equipment selector only while inventory offers a selectable item.</summary>
     private void StepItemSelectorAnimation()
     {
-        if (samus.MaxReserveEnergy == 0 && samus.CollectedItems == SamusEquipmentFlags.None && samus.CollectedBeams == SamusBeamFlags.None)
+        if (!OffersSelectableItem)
             return;
 
         // The equipment selector's animation holds each of its looks for that look's own hold.
@@ -423,7 +427,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// <summary>Draws the selected equipment item's authored sprite.</summary>
     private void DrawEquipmentItemSelector()
     {
-        if (samus.MaxReserveEnergy == 0 && samus.CollectedItems == SamusEquipmentFlags.None && samus.CollectedBeams == SamusBeamFlags.None)
+        if (!OffersSelectableItem)
             return;
 
         var selector = screenContent.PauseSelectors;

@@ -48,15 +48,9 @@ internal static class DragonAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    private static Dictionary<DragonSegment, Animation<DragonSegment>> StartingAt { get; } = new Dictionary<DragonSegment, Animation<DragonSegment>>
-    {
-        [P.IdleFacingLeft] = new([Segments.Whole(P.IdleFacingLeft)], AnimationEnd.Holds),
-        [P.WingsFacingLeft] = Animation<DragonSegment>.Looping([Segments.Whole(P.WingsFacingLeft)]),
-        [P.IdleFacingRight] = new([Segments.Whole(P.IdleFacingRight)], AnimationEnd.Holds),
-        [P.WingsFacingRight] = Animation<DragonSegment>.Looping([Segments.Whole(P.WingsFacingRight)]),
-        [P.AttackingFacingLeft] = new([Segments.Whole(P.AttackingFacingLeft)], AnimationEnd.Holds),
-        [P.AttackingFacingRight] = new([Segments.Whole(P.AttackingFacingRight)], AnimationEnd.Holds),
-    };
+    private static Dictionary<DragonSegment, Animation<DragonSegment>> StartingAt { get; } = Segments.Starts(Segments.EachEnding(AnimationEnd.Holds,
+        P.IdleFacingLeft, P.IdleFacingRight, P.AttackingFacingLeft, P.AttackingFacingRight),
+        P.WingsFacingLeft, P.WingsFacingRight);
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<DragonSegment> StartingWith(DragonSegment segment) => StartingAt[segment];

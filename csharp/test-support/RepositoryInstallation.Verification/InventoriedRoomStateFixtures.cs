@@ -30,7 +30,7 @@ internal static class InventoriedRoomStateFixtures
         IReadOnlySet<RoomTerrainReaction> straddledShots, RoomObjectPopulation objects, RoomMainBehavior main,
         RoomTurningFloor floor)
     {
-        var room = new RoomDefinition("InventoriedFixtureRoom", area, new(0, 0), new(1, 1), 0, 0, RoomDoorTransitionStyle.Standard);
+        var room = new RoomDefinition("InventoriedFixtureRoom", area, new(0, 0), new(1, 1)) { CameraLead = RoomCameraLeads.None };
         var state = new RoomStateSettings("InventoriedFixtureState", Level, graphicsSet, RoomMusic.Inherited, null,
             new EmptyRoomEnemyPopulationDefinition("InventoriedFixtureEnemies"),
             new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Placed),

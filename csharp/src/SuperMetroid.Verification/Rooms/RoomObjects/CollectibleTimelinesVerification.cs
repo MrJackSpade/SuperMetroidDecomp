@@ -26,8 +26,8 @@ internal static class CollectibleTimelinesVerification
     {
         var bus = new TestAddressSpace();
         SeedCollectibleRom(bus);
-        InstalledRoomObjectCollectibleVisuals collectibles = InstalledRoomObjectCollectibleVisuals.Stock();
-        InstalledRoomObjectShotBlockVisuals shotBlocks = InstalledRoomObjectShotBlockVisuals.Stock();
+        InstalledRoomObjectPictures collectibles = RoomObjectPicturesStock.Collectible;
+        InstalledRoomObjectPictures shotBlocks = RoomObjectPicturesStock.ShotBlock;
         RoomBlockAppearance Collectible(CollectibleDraw draw) => collectibles.Image(CollectibleObjectDraws.Family.Of(draw)).At(Offset16<RoomBlocks>.Zero);
         RoomBlockAppearance Breakup(BlockBreakupStage stage) =>
             shotBlocks.Image(ShotBlockObjectDraws.Breakup(BlockArrangement.Single, stage)).At(Offset16<RoomBlocks>.Zero);

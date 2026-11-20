@@ -22,71 +22,15 @@ public static class BlockAnimationLoopDefinitions
     internal static readonly FrozenDictionary<BlockAnimation, AnimationBeat<ArtworkFrame, NoAnimationCue>[]> IdleLoops =
         new Dictionary<BlockAnimation, AnimationBeat<ArtworkFrame, NoAnimationCue>[]>
     {
-        [BlockAnimation.HorizontalSpikes] =
-        [
-            new Idle(BlockAnimationFrames.Frame(BlockAnimation.HorizontalSpikes, "idle 0"), 8),
-            new Idle(BlockAnimationFrames.Frame(BlockAnimation.HorizontalSpikes, "idle 1"), 8),
-            new Idle(BlockAnimationFrames.Frame(BlockAnimation.HorizontalSpikes, "idle 2"), 8),
-            new Idle(BlockAnimationFrames.Frame(BlockAnimation.HorizontalSpikes, "idle 3"), 8),
-        ],
-        [BlockAnimation.MaridiaSandCeiling] =
-        [
-            new Idle(BlockAnimationFrames.Frame(BlockAnimation.MaridiaSandCeiling, "idle 0"), 10),
-            new Idle(BlockAnimationFrames.Frame(BlockAnimation.MaridiaSandCeiling, "idle 1"), 10),
-            new Idle(BlockAnimationFrames.Frame(BlockAnimation.MaridiaSandCeiling, "idle 2"), 10),
-            new Idle(BlockAnimationFrames.Frame(BlockAnimation.MaridiaSandCeiling, "idle 3"), 10),
-        ],
-        [BlockAnimation.MaridiaSandFalling] =
-        [
-            new Idle(BlockAnimationFrames.Frame(BlockAnimation.MaridiaSandFalling, "idle 0"), 10),
-            new Idle(BlockAnimationFrames.Frame(BlockAnimation.MaridiaSandFalling, "idle 1"), 10),
-            new Idle(BlockAnimationFrames.Frame(BlockAnimation.MaridiaSandFalling, "idle 2"), 10),
-            new Idle(BlockAnimationFrames.Frame(BlockAnimation.MaridiaSandFalling, "idle 3"), 10),
-        ],
-        [BlockAnimation.WreckedShipTreadmillRightwards] =
-        [
-            new Idle(BlockAnimationFrames.Frame(BlockAnimation.WreckedShipTreadmillRightwards, "idle 0"), 1),
-            new Idle(BlockAnimationFrames.Frame(BlockAnimation.WreckedShipTreadmillRightwards, "idle 1"), 1),
-            new Idle(BlockAnimationFrames.Frame(BlockAnimation.WreckedShipTreadmillRightwards, "idle 2"), 1),
-            new Idle(BlockAnimationFrames.Frame(BlockAnimation.WreckedShipTreadmillRightwards, "idle 3"), 1),
-        ],
-        [BlockAnimation.WreckedShipTreadmillLeftwards] =
-        [
-            new Idle(BlockAnimationFrames.Frame(BlockAnimation.WreckedShipTreadmillLeftwards, "idle 0"), 1),
-            new Idle(BlockAnimationFrames.Frame(BlockAnimation.WreckedShipTreadmillLeftwards, "idle 1"), 1),
-            new Idle(BlockAnimationFrames.Frame(BlockAnimation.WreckedShipTreadmillLeftwards, "idle 2"), 1),
-            new Idle(BlockAnimationFrames.Frame(BlockAnimation.WreckedShipTreadmillLeftwards, "idle 3"), 1),
-        ],
-        [BlockAnimation.Lava] =
-        [
-            new Idle(BlockAnimationFrames.Frame(BlockAnimation.Lava, "idle 0"), 13),
-            new Idle(BlockAnimationFrames.Frame(BlockAnimation.Lava, "idle 1"), 13),
-            new Idle(BlockAnimationFrames.Frame(BlockAnimation.Lava, "idle 2"), 13),
-            new Idle(BlockAnimationFrames.Frame(BlockAnimation.Lava, "idle 3"), 13),
-            new Idle(BlockAnimationFrames.Frame(BlockAnimation.Lava, "idle 4"), 13),
-        ],
-        [BlockAnimation.Acid] =
-        [
-            new Idle(BlockAnimationFrames.Frame(BlockAnimation.Acid, "idle 0"), 10),
-            new Idle(BlockAnimationFrames.Frame(BlockAnimation.Acid, "idle 1"), 10),
-            new Idle(BlockAnimationFrames.Frame(BlockAnimation.Acid, "idle 2"), 10),
-            new Idle(BlockAnimationFrames.Frame(BlockAnimation.Acid, "idle 3"), 10),
-            new Idle(BlockAnimationFrames.Frame(BlockAnimation.Acid, "idle 4"), 10),
-        ],
-        [BlockAnimation.Rain] =
-        [
-            new Idle(BlockAnimationFrames.Frame(BlockAnimation.Rain, "idle 0"), 10),
-            new Idle(BlockAnimationFrames.Frame(BlockAnimation.Rain, "idle 1"), 10),
-            new Idle(BlockAnimationFrames.Frame(BlockAnimation.Rain, "idle 2"), 10),
-            new Idle(BlockAnimationFrames.Frame(BlockAnimation.Rain, "idle 3"), 10),
-            new Idle(BlockAnimationFrames.Frame(BlockAnimation.Rain, "idle 4"), 10),
-        ],
-        [BlockAnimation.Spores] =
-        [
-            new Idle(BlockAnimationFrames.Frame(BlockAnimation.Spores, "idle 0"), 10),
-            new Idle(BlockAnimationFrames.Frame(BlockAnimation.Spores, "idle 1"), 10),
-            new Idle(BlockAnimationFrames.Frame(BlockAnimation.Spores, "idle 2"), 10),
-        ],
+        [BlockAnimation.HorizontalSpikes] = IdleLoop(BlockAnimation.HorizontalSpikes, frames: 4, updates: 8),
+        [BlockAnimation.MaridiaSandCeiling] = IdleLoop(BlockAnimation.MaridiaSandCeiling, frames: 4, updates: 10),
+        [BlockAnimation.MaridiaSandFalling] = IdleLoop(BlockAnimation.MaridiaSandFalling, frames: 4, updates: 10),
+        [BlockAnimation.WreckedShipTreadmillRightwards] = IdleLoop(BlockAnimation.WreckedShipTreadmillRightwards, frames: 4, updates: 1),
+        [BlockAnimation.WreckedShipTreadmillLeftwards] = IdleLoop(BlockAnimation.WreckedShipTreadmillLeftwards, frames: 4, updates: 1),
+        [BlockAnimation.Lava] = IdleLoop(BlockAnimation.Lava, frames: 5, updates: 13),
+        [BlockAnimation.Acid] = IdleLoop(BlockAnimation.Acid, frames: 5, updates: 10),
+        [BlockAnimation.Rain] = IdleLoop(BlockAnimation.Rain, frames: 5, updates: 10),
+        [BlockAnimation.Spores] = IdleLoop(BlockAnimation.Spores, frames: 3, updates: 10),
     }.ToFrozenDictionary();
 
     /// <summary>
@@ -117,4 +61,11 @@ public static class BlockAnimationLoopDefinitions
         [WreckedShipTreadmillDirection.Rightwards] = BlockAnimation.WreckedShipTreadmillRightwards,
         [WreckedShipTreadmillDirection.Leftwards] = BlockAnimation.WreckedShipTreadmillLeftwards,
     };
+
+    /// <summary>
+    /// An idle loop of <paramref name="animation"/>'s first <paramref name="frames"/> idle frames, "idle 0" on, each shown for
+    /// <paramref name="updates"/> updates.
+    /// </summary>
+    private static AnimationBeat<ArtworkFrame, NoAnimationCue>[] IdleLoop(BlockAnimation animation, int frames, int updates) =>
+        [.. Enumerable.Range(0, frames).Select(frame => new Idle(BlockAnimationFrames.Frame(animation, $"idle {frame}"), updates))];
 }

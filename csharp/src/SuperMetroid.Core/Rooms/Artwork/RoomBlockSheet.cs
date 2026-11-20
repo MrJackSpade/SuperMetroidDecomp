@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 public sealed class RoomBlockSheet
 {
     /// <summary>Pixels along each side of a block picture.</summary>
-    public const int BlockPixels = 16;
+    public const int BlockPixels = RoomGridConversions.BlockPixels;
 
     /// <summary>Checks the sheet names the backdrop its tileset's rooms show (#1544).</summary>
     /// <exception cref="InvalidDataException">The sheet names no backdrop colour.</exception>

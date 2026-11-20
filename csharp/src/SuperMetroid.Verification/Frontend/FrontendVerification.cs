@@ -176,16 +176,15 @@ internal static void VerifyFileSelectFreshSaveTilemap()
     // the menu's subsequent ENERGY + HH:MM path against one shared save store.
     saveRam.SaveSlot(SaveSlot.A, SaveSnapshotFixtures.NewGame with
     {
-        Health = 99,
-        MaxHealth = 99,
         GameTime = new SuperMetroid.Core.Progression.GameClockReading(frames: 0, seconds: 0, minutes: 34, hours: 12),
         Progress = progress,
         Checkpoint = SuperMetroid.Core.Progression.LoadStationDefinitions.CeresElevator,
+        Inventory = SaveSnapshotFixtures.NewGame.Inventory with { Health = 99, MaxHealth = 99 },
     });
     SuperMetroidSaveSlot saved = saveRam.ReadSlot(SaveSlot.A)
         ?? throw new InvalidOperationException("Fresh Ceres SRAM slot failed its own checksums.");
-    AssertEqual(99, saved.Health, "Ceres checkpoint saved health");
-    AssertEqual(99, saved.MaxHealth, "Ceres checkpoint saved maximum health");
+    AssertEqual(99, saved.Inventory.Health, "Ceres checkpoint saved health");
+    AssertEqual(99, saved.Inventory.MaxHealth, "Ceres checkpoint saved maximum health");
     AssertTrue(ReferenceEquals(SuperMetroid.Core.Progression.LoadStationDefinitions.CeresElevator, saved.Checkpoint), "Ceres checkpoint saved load station");
     AssertTrue(saved.Progression.UsedStations.Members.SequenceEqual([LoadStationDefinitions.Gunship]), "used Crateria save station");
     AssertTrue(saved.Progression.HasAreaMap(AreaId.Crateria), "Crateria map acquired");
@@ -226,7 +225,7 @@ internal static void VerifyFileSelectFreshSaveTilemap()
     AssertEqual(FileSelectPhase.CopyCompleted, copyMenu.Phase, "copy reaches completion screen");
     SuperMetroidSaveSlot copied = saveRam.ReadSlot(SaveSlot.B)
         ?? throw new InvalidOperationException("File-select COPY did not create slot B.");
-    AssertEqual(saved.Health, copied.Health, "file-select COPY preserves health");
+    AssertEqual(saved.Inventory.Health, copied.Inventory.Health, "file-select COPY preserves health");
     AssertEqual(saved.GameTime, copied.GameTime, "file-select COPY preserves time");
 
     // Re-enter the main screen from the copied SRAM image and clear slot A. This exercises
@@ -319,27 +318,26 @@ internal static void VerifySavedGameLoadAppearance()
     var saveRam = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
     saveRam.SaveSlot(SaveSlot.A, SaveSnapshotFixtures.NewGame with
     {
-        Health = 99,
-        MaxHealth = 99,
         Checkpoint = SuperMetroid.Core.Progression.LoadStationDefinitions.CrateriaSave,
+        Inventory = SaveSnapshotFixtures.NewGame.Inventory with { Health = 99, MaxHealth = 99 },
     });
     SuperMetroidSaveSlot slot = saveRam.ReadSlot(SaveSlot.A)
         ?? throw new InvalidOperationException("Synthetic Crateria save did not validate.");
 
     var runtime = CreateRetailRuntimeFixture();
     runtime.HudSetup.InitializeHud(new HudSnapshot(
-        slot.Health,
-        slot.MaxHealth,
-        slot.Missiles,
-        slot.MaxMissiles,
-        slot.SuperMissiles,
-        slot.MaxSuperMissiles,
-        slot.PowerBombs,
-        slot.MaxPowerBombs,
-        slot.EquippedItems,
+        slot.Inventory.Health,
+        slot.Inventory.MaxHealth,
+        slot.Inventory.Missiles,
+        slot.Inventory.MaxMissiles,
+        slot.Inventory.SuperMissiles,
+        slot.Inventory.MaxSuperMissiles,
+        slot.Inventory.PowerBombs,
+        slot.Inventory.MaxPowerBombs,
+        slot.Inventory.EquippedItems,
         slot.HudItem,
-        slot.ReserveEnergy,
-        slot.ReserveMode));
+        slot.Inventory.ReserveEnergy,
+        slot.Inventory.ReserveMode));
     runtime.FrameBoundary.BeginAcceptedFrame(0);
     runtime.RoomLoader.InitializeSavedGame(slot);
 
@@ -481,9 +479,10 @@ internal static void VerifyDemoInputObject()
     demo.Enable();
     demo.Load(DemoInputRecordingId.IntroMotherBrainFlashback);
 
-    // The first six records at $91:8694. The two one-frame X edges are separated by held-X
-    // records; normal projectile cooldown/motion code, not this program, decides each shot.
-    int[] boundaries = [90, 1, 40, 1, 29, 70];
+    // The first seven records at $91:8694, the last two one run of nothing held played as one input (#2557). The two
+    // one-frame X edges are separated by held-X records; normal projectile cooldown/motion code, not this program, decides
+    // each shot.
+    int[] boundaries = [90, 1, 40, 1, 29, 90];
     GameplayAction[] held =
         [0, GameplayAction.Shoot, GameplayAction.Shoot, GameplayAction.Shoot,
             GameplayAction.Shoot, 0];
@@ -508,7 +507,7 @@ internal static void VerifyDemoInputObject()
         }
     }
 
-    AssertEqual(231, elapsed, "old Mother Brain demo-input duration");
+    AssertEqual(251, elapsed, "old Mother Brain demo-input duration");
     AssertEqual(DemoInputRomDataIntroMotherBrain.NextRecord, DemoInputNativeListAddresses.Address(demo.Position),
         "old Mother Brain next record pointer");
     // Loading a record and publishing its first visible frame happen in the same handler call, so each record holds

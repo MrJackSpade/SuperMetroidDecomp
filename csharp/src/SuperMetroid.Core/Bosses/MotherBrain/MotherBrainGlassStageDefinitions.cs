@@ -1,3 +1,4 @@
+using static SuperMetroid.Core.DefinitionRun;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
@@ -19,27 +20,34 @@ internal static class MotherBrainGlassStageDefinitions
     /// <summary>What the glass shows for one update once it was destroyed on an earlier visit, and after its last stage.</summary>
     internal const MotherBrainGlassDraw ShatteredImage = MotherBrainGlassDraw.RimGone;
 
+    /// <summary>A group of four shards all thrown to the right.</summary>
+    private static readonly MotherBrainGlassShard[] RightGroup = Repeated(MotherBrainGlassShard.Right, 4);
+
+    /// <summary>A group of four shards all thrown to the left.</summary>
+    private static readonly MotherBrainGlassShard[] LeftGroup = Repeated(MotherBrainGlassShard.Left, 4);
+
+    /// <summary>A group of four shards all thrown from the centre.</summary>
+    private static readonly MotherBrainGlassShard[] CentreGroup = Repeated(MotherBrainGlassShard.Centre, 4);
+
+    /// <summary>A group of two shards thrown to the left, then two from the centre.</summary>
+    private static readonly MotherBrainGlassShard[] LeftThenCentreGroup =
+        [.. Repeated(MotherBrainGlassShard.Left, 2), .. Repeated(MotherBrainGlassShard.Centre, 2)];
+
+    /// <summary>The burst the buckling and the bursting rim both throw: two left, then two centre, as each group.</summary>
+    private static readonly MotherBrainGlassBurst RimBurst = new(LeftThenCentreGroup, LeftThenCentreGroup);
+
     /// <summary>The nine stages in order; the image after the last is <see cref="ShatteredImage"/>.</summary>
     internal static IReadOnlyList<MotherBrainGlassStage> Stages { get; } =
     [
         new(MotherBrainGlassDraw.Intact, 2, null),
         new(MotherBrainGlassDraw.PaneCracked, 4, null),
-        new(MotherBrainGlassDraw.PaneCrackedThrough, 6, new(
-            [MotherBrainGlassShard.Right, MotherBrainGlassShard.Right, MotherBrainGlassShard.Right, MotherBrainGlassShard.Right],
-            [MotherBrainGlassShard.Right, MotherBrainGlassShard.Right, MotherBrainGlassShard.Right, MotherBrainGlassShard.Right])),
+        new(MotherBrainGlassDraw.PaneCrackedThrough, 6, new(RightGroup, RightGroup)),
         new(MotherBrainGlassDraw.PaneTransition, 8, null),
         new(MotherBrainGlassDraw.PaneShifted, 10, null),
-        new(MotherBrainGlassDraw.PaneShiftedCrumbling, 12, new(
-            [MotherBrainGlassShard.Left, MotherBrainGlassShard.Left, MotherBrainGlassShard.Left, MotherBrainGlassShard.Left],
-            [MotherBrainGlassShard.Left, MotherBrainGlassShard.Left, MotherBrainGlassShard.Left, MotherBrainGlassShard.Left])),
+        new(MotherBrainGlassDraw.PaneShiftedCrumbling, 12, new(LeftGroup, LeftGroup)),
         new(MotherBrainGlassDraw.PaneShiftedEmptying, 14, new(
-            [MotherBrainGlassShard.Right, MotherBrainGlassShard.Right, MotherBrainGlassShard.Left, MotherBrainGlassShard.Left],
-            [MotherBrainGlassShard.Centre, MotherBrainGlassShard.Centre, MotherBrainGlassShard.Centre, MotherBrainGlassShard.Centre])),
-        new(MotherBrainGlassDraw.RimBuckling, 16, new(
-            [MotherBrainGlassShard.Left, MotherBrainGlassShard.Left, MotherBrainGlassShard.Centre, MotherBrainGlassShard.Centre],
-            [MotherBrainGlassShard.Left, MotherBrainGlassShard.Left, MotherBrainGlassShard.Centre, MotherBrainGlassShard.Centre])),
-        new(MotherBrainGlassDraw.RimBursting, 18, new(
-            [MotherBrainGlassShard.Left, MotherBrainGlassShard.Left, MotherBrainGlassShard.Centre, MotherBrainGlassShard.Centre],
-            [MotherBrainGlassShard.Left, MotherBrainGlassShard.Left, MotherBrainGlassShard.Centre, MotherBrainGlassShard.Centre])),
+            [.. Repeated(MotherBrainGlassShard.Right, 2), .. Repeated(MotherBrainGlassShard.Left, 2)], CentreGroup)),
+        new(MotherBrainGlassDraw.RimBuckling, 16, RimBurst),
+        new(MotherBrainGlassDraw.RimBursting, 18, RimBurst),
     ];
 }

@@ -7,12 +7,15 @@ namespace SuperMetroid.Core.Fx;
 public readonly record struct FirefleaFlashShade
 {
     /// <summary>The flash's brightest look, which the room holds once enough Firefleas are killed.</summary>
-    public static FirefleaFlashShade Brightest { get; } = new(6);
+    public static FirefleaFlashShade Brightest { get; } = new(BrightestLevel);
+
+    /// <summary>The fade levels of grey the brightest look adds.</summary>
+    private const int BrightestLevel = 6;
 
     /// <summary>Names the look that adds <paramref name="level"/> fade levels of grey.</summary>
     /// <param name="level">The fade levels the look adds, none through six.</param>
     /// <exception cref="ArgumentOutOfRangeException">The flash has no such look.</exception>
-    public FirefleaFlashShade(int level) => Level = Ensure.BetweenInclusive(0, 6, level);
+    public FirefleaFlashShade(int level) => Level = Ensure.BetweenInclusive(0, BrightestLevel, level);
 
     /// <summary>The fade levels of grey the look adds to the room's darkness.</summary>
     public int Level { get; }

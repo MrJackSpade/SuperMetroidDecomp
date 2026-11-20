@@ -291,12 +291,12 @@ internal sealed class EnemySheetShades
             case EnemyDefinitionId.Dachora:
             {
                 DachoraColorCatalog dachora = inputs.Enemies.DachoraColors ?? throw Missing("Dachora colours");
-                shades.Add(SheetShade.Run(DachoraShades.Of(DachoraColourPhase.Default, 0), first, Frame(16, colour => dachora.Resolve(DachoraColourPhase.Default, 0, colour))));
+                shades.Add(SheetShade.Run(DachoraShades.Of(DachoraColourPhase.Default, 0), first, Frame(LoadedSetColours.RowColours, colour => dachora.Resolve(DachoraColourPhase.Default, 0, colour))));
                 for (int frame = 0; frame < DachoraColorDefinitions.AnimatedFrameCount; frame++)
                 {
                     int step = frame;
-                    shades.Add(SheetShade.Run(DachoraShades.Of(DachoraColourPhase.Speed, step), first, Frame(16, colour => dachora.Resolve(DachoraColourPhase.Speed, step, colour))));
-                    shades.Add(SheetShade.Run(DachoraShades.Of(DachoraColourPhase.Shine, step), first, Frame(16, colour => dachora.Resolve(DachoraColourPhase.Shine, step, colour))));
+                    shades.Add(SheetShade.Run(DachoraShades.Of(DachoraColourPhase.Speed, step), first, Frame(LoadedSetColours.RowColours, colour => dachora.Resolve(DachoraColourPhase.Speed, step, colour))));
+                    shades.Add(SheetShade.Run(DachoraShades.Of(DachoraColourPhase.Shine, step), first, Frame(LoadedSetColours.RowColours, colour => dachora.Resolve(DachoraColourPhase.Shine, step, colour))));
                 }
                 break;
             }
@@ -557,8 +557,8 @@ internal sealed class EnemySheetShades
         int decoration = EnemySheetRowDefinitions.TourianStatueBase * LoadedSetColours.RowColours;
         int ridley = EnemySheetRowDefinitions.TourianStatueRidley * LoadedSetColours.RowColours;
         yield return new SheetShade(TourianStatueShades.Entrance,
-            [.. Enumerable.Range(body, 16), .. Enumerable.Range(decoration, 16)],
-            [.. Frame(16, statue.StatueColor), .. Frame(16, statue.BaseColor)]);
+            [.. Enumerable.Range(body, LoadedSetColours.RowColours), .. Enumerable.Range(decoration, LoadedSetColours.RowColours)],
+            [.. Frame(LoadedSetColours.RowColours, statue.StatueColor), .. Frame(LoadedSetColours.RowColours, statue.BaseColor)]);
         foreach ((PictureShade glow, SuperMetroid.Core.Areas.Tourian.TourianStatue boss) in TourianStatueColorDefinitions.EyeGlowRows)
         {
             yield return SheetShade.Run(glow, decoration + 9,
@@ -629,7 +629,7 @@ internal sealed class EnemySheetShades
     private RgbColor[] FrozenColours()
     {
         InstalledBeamPalettes beams = inputs.BeamPalettes ?? throw Missing("beam colours");
-        return Frame(16, colour => beams.ColourOf(SamusBeamCombination.Ice, colour));
+        return Frame(LoadedSetColours.RowColours, colour => beams.ColourOf(SamusBeamCombination.Ice, colour));
     }
 
     /// <summary><paramref name="count"/> colours, colour after colour.</summary>

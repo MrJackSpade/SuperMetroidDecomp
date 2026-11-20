@@ -326,7 +326,7 @@ internal sealed class EnemyProjectileEngine
                 continue;
 
             // Every placement is published wherever it lies; the display clips it to the view (#1520).
-            Offset16<ScreenPixels> screen = (projectile.Position.Whole + shake).RelativeToCamera(camera);
+            Offset16<ScreenPixels> screen = (projectile.Position.Whole + projectile.FramePlacement + shake).RelativeToCamera(camera);
 
             _presentation.PublishSpawnedFrame(sprites, new SpriteSource(SpriteSourceKind.EnemyProjectile),
                 EnemySheetDefinitions.ProjectileFrameName(frame), screen, projectile.ShownGraphics);

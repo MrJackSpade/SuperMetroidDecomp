@@ -120,27 +120,19 @@ internal sealed class GameplayActorDrawing
                 if (!chargeGlowRestoredSuitShade)
                     samus.HorizontalSpeed.UpdateSpeedBoosterGlow(_player.Colours, new SpeedBoosterGlowFrame { MovementType = SamusPoseMetadata.ReadMovementType(samus), AnimationOnSpinStart = samus.AnimationIsOn(SamusAnimationFrames.ScrewAttackSpinStart), AnimationPastScrewAttackSpin = samus.AnimationHasReached(SamusAnimationFrames.ScrewAttackWallJumpReady), AnimationBeforeWallJumpSpin = !samus.AnimationHasReached(SamusAnimationFrames.WallJumpOrdinarySpinStart), EquippedItems = samus.EquippedItems, SuppressActiveSpeedBoosterGlow = samus.SpecialColouring.Holder != SamusSpecialColouringKind.None, BottomBoundarySubmerged = samus.LiquidPhysics.IsBottomBoundarySubmerged(samus) });
             }
-            // The shinespark colouring runs at the same point of the colour step. It
-            // executes only when charge handling did not restore the suit.
+            // The special colourings run at the same point of the colour step, in this order, only when charge handling
+            // did not restore the suit. The shinespark colouring comes first; the Crystal Flash colouring owns the colours
+            // of Samus's shots and bombs during Crystal Flash, and is mutually exclusive with the shinespark and X-ray
+            // colourings; the X-ray colouring changes only one of the visor's colours while active, and its teardown
+            // restores the complete Power/Varia/Gravity suit colours once.
             if (!deathOwnsSamus && !drainedOwnsSamusColours && !chargeGlowRestoredSuitShade)
             {
                 samus.Shinespark.UpdateColouring(
                     _player.Colours,
                     samus.EquippedItems);
-            }
-            // The Crystal Flash colouring owns the colours of Samus's shots and bombs during Crystal
-            // Flash. It is mutually exclusive with the shinespark and X-ray colouring but
-            // intentionally runs at the same point of the colour step.
-            if (!deathOwnsSamus && !drainedOwnsSamusColours && !chargeGlowRestoredSuitShade)
-            {
                 samus.CrystalFlash.UpdateColouring(
                     _player.Colours,
                     samus);
-            }
-            // The X-ray colouring changes only one of the visor's colours while active; its teardown
-            // restores the complete Power/Varia/Gravity suit colours once.
-            if (!deathOwnsSamus && !drainedOwnsSamusColours && !chargeGlowRestoredSuitShade)
-            {
                 samus.Xray.UpdateColouring(
                     _player.Colours,
                     samus.EquippedItems);

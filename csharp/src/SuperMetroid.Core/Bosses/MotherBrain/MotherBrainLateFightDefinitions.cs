@@ -35,7 +35,7 @@ internal static class MotherBrainLateFightDefinitions
     internal const int DrainUpdates = 300;
 
     /// <summary>The updates the room shakes as the rainbow beam drains Samus: all of the drain but its last update.</summary>
-    internal const int DrainShakeUpdates = 299;
+    internal const int DrainShakeUpdates = DrainUpdates - 1;
 
     /// <summary>The updates she lowers her head after the rainbow beam before deciding what to do next.</summary>
     internal const int LowerHeadUpdates = 129;

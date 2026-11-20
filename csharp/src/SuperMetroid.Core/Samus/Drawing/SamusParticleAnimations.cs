@@ -47,14 +47,8 @@ internal static class SamusParticleAnimations
         });
 
     /// <summary>Each particle's animation: its pictures played once, after which it is gone.</summary>
-    internal static IReadOnlyDictionary<K, Animation<K>> Animations { get; } = new Dictionary<K, Animation<K>>
-    {
-        [K.SurfaceSplash] = new([Segments.Whole(K.SurfaceSplash)], AnimationEnd.Stops),
-        [K.LavaSpray] = new([Segments.Whole(K.LavaSpray)], AnimationEnd.Stops),
-        [K.Dust] = new([Segments.Whole(K.Dust)], AnimationEnd.Stops),
-        [K.Bubbles] = new([Segments.Whole(K.Bubbles)], AnimationEnd.Stops),
-        [K.DivingSplash] = new([Segments.Whole(K.DivingSplash)], AnimationEnd.Stops),
-    };
+    internal static IReadOnlyDictionary<K, Animation<K>> Animations { get; } = Segments.EachEnding(AnimationEnd.Stops,
+        K.SurfaceSplash, K.LavaSpray, K.Dust, K.Bubbles, K.DivingSplash);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="updates"/> updates.</summary>
     private static AnimationBeat<F, NoAnimationCue> Show(F frame, int updates) => new AnimationBeat<F, NoAnimationCue>.Frame(frame, updates);

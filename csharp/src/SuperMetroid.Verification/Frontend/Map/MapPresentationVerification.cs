@@ -173,7 +173,7 @@ internal static class MapPresentationVerification
 
 
         /// <summary>Installed elevator platform art used by the room PLM owner.</summary>
-        private readonly InstalledRoomObjectElevatorPlatformVisuals elevatorPlatform;
+        private readonly InstalledRoomObjectPictures elevatorPlatform;
 
         /// <summary>Enemy character and sprite art bound alongside room art.</summary>
         public ImportEnemyArtwork EnemyTiles { get; }

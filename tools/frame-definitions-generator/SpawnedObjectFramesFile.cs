@@ -13,6 +13,7 @@ internal static class SpawnedObjectFramesFile
         var spawning = analysis.Behaviours.Where(s => s.ProjectileFrames.Count > 0 || s.EffectActors.Count > 0).ToList();
         var sharing = analysis.Behaviours.Where(s => s.SharedProjectileFrames.Count > 0 || s.SharedEffectActors.Count > 0).ToList();
         var lines = new List<string>();
+        var written = new Dictionary<string, string>(StringComparer.Ordinal);
         lines.AddRange(CoreModel.Usings(model.ArchitectureReview, model.EnemyProjectileFrameId, model.RoomEffectActorKind, model.EnemyDefinitionId));
         lines.AddRange(
         [
@@ -33,27 +34,27 @@ internal static class SpawnedObjectFramesFile
         {
             string family = spawns.Behaviour.Family;
             string path = spawns.Behaviour.Path;
-            AddArray(lines, "EnemyProjectileFrameId", $"{family}Projectiles",
+            AddArray(lines, written,"EnemyProjectileFrameId", $"{family}Projectiles",
                 CoreModel.InDeclarationOrder(model.EnemyProjectileFrameId, spawns.ProjectileFrames), $"The projectile frames <c>{path}</c> spawns.");
-            AddArray(lines, "RoomEffectActorKind", $"{family}EffectActors",
+            AddArray(lines, written,"RoomEffectActorKind", $"{family}EffectActors",
                 SortedKinds(spawns.EffectActors), $"The room effect actors <c>{path}</c> spawns.");
         }
         foreach (BehaviourSpawns spawns in sharing)
         {
             string family = spawns.Behaviour.Family;
             string path = spawns.Behaviour.Path;
-            AddArray(lines, "EnemyProjectileFrameId", $"{family}SharedProjectiles",
+            AddArray(lines, written,"EnemyProjectileFrameId", $"{family}SharedProjectiles",
                 CoreModel.InDeclarationOrder(model.EnemyProjectileFrameId, spawns.SharedProjectileFrames),
                 $"The projectile frames <c>{path}</c> spawns onto its sets' shared sheet.");
-            AddArray(lines, "RoomEffectActorKind", $"{family}SharedEffectActors",
+            AddArray(lines, written,"RoomEffectActorKind", $"{family}SharedEffectActors",
                 SortedKinds(spawns.SharedEffectActors), $"The room effect actors <c>{path}</c> spawns onto its sets' shared sheet.");
         }
         foreach ((string sheet, Collected held) in analysis.BySheet.OrderBy(pair => pair.Key, StringComparer.Ordinal))
         {
-            AddArray(lines, "EnemyProjectileFrameId", $"{sheet}SheetProjectiles",
+            AddArray(lines, written,"EnemyProjectileFrameId", $"{sheet}SheetProjectiles",
                 CoreModel.InDeclarationOrder(model.EnemyProjectileFrameId, held.ProjectileFrames),
                 $"The projectile frames <see cref=\"SpawnedObjectOwner.{sheet}\"/>'s sheet holds.");
-            AddArray(lines, "RoomEffectActorKind", $"{sheet}SheetEffectActors",
+            AddArray(lines, written,"RoomEffectActorKind", $"{sheet}SheetEffectActors",
                 SortedKinds(held.EffectActors), $"The room effect actors <see cref=\"SpawnedObjectOwner.{sheet}\"/>'s sheet holds.");
         }
         var commonSpawners = analysis.Common.Keys.Order(StringComparer.Ordinal).ToList();
@@ -61,10 +62,10 @@ internal static class SpawnedObjectFramesFile
         {
             Collected held = analysis.Common[spawner];
             string name = Identifier(spawner);
-            AddArray(lines, "EnemyProjectileFrameId", $"Common{name}Projectiles",
+            AddArray(lines, written,"EnemyProjectileFrameId", $"Common{name}Projectiles",
                 CoreModel.InDeclarationOrder(model.EnemyProjectileFrameId, held.ProjectileFrames),
                 $"The projectile frames <c>{spawner}</c>'s code spawns onto the shared sheet of the sets whose rooms run it.");
-            AddArray(lines, "RoomEffectActorKind", $"Common{name}EffectActors",
+            AddArray(lines, written,"RoomEffectActorKind", $"Common{name}EffectActors",
                 SortedKinds(held.EffectActors), $"The room effect actors <c>{spawner}</c>'s code spawns onto the shared sheet of the sets whose rooms run it.");
         }
         lines.AddRange(
@@ -142,8 +143,11 @@ internal static class SpawnedObjectFramesFile
     /// <summary>Effect-actor kinds in ordinal name order.</summary>
     private static List<string> SortedKinds(IEnumerable<string> kinds) => [.. kinds.Order(StringComparer.Ordinal)];
 
-    /// <summary>Adds one documented array of <paramref name="element"/> members.</summary>
-    private static void AddArray(List<string> lines, string element, string name, List<string> values, string summary)
+    /// <summary>
+    /// Adds one documented array of <paramref name="element"/> members; an array holding the same members as one already
+    /// written names that array rather than listing its members again (#2557).
+    /// </summary>
+    private static void AddArray(List<string> lines, Dictionary<string, string> written, string element, string name, List<string> values, string summary)
     {
         lines.Add($"    /// <summary>{summary}</summary>");
         if (values.Count == 0)
@@ -152,6 +156,14 @@ internal static class SpawnedObjectFramesFile
             lines.Add("");
             return;
         }
+        string members = element + ":" + string.Join(",", values);
+        if (values.Count > 1 && written.TryGetValue(members, out string? first))
+        {
+            lines.Add($"    private static readonly {element}[] {name} = {first};");
+            lines.Add("");
+            return;
+        }
+        written[members] = name;
         lines.Add($"    private static readonly {element}[] {name} =");
         lines.Add("    [");
         lines.AddRange(values.Select(value => $"        {element}.{value},"));

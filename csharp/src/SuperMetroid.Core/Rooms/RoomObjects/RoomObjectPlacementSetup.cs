@@ -12,6 +12,9 @@ internal abstract record RoomObjectPlacementSetup
     {
     }
 
+    /// <summary>The kind of room object the setup places, which follows from what the setup carries (#2557).</summary>
+    internal abstract RoomObjectKind Kind { get; }
+
     /// <summary>Runs this setup through <paramref name="setups"/>.</summary>
     internal abstract void SetUp(IRoomObjectFamilySetups setups);
 }

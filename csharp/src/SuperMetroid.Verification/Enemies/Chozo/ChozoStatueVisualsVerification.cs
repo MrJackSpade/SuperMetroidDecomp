@@ -29,7 +29,7 @@ internal static class ChozoStatueVisualsVerification
             GameInstallation installation = copy.Installation;
             RoomObjectChozoStatueVisualFilesConstants.ValidateStock(
                 installation.RoomObjectChozoStatueVisualDirectory);
-            InstalledRoomObjectChozoStatueVisuals installed = installation.LoadRoomObjectChozoStatueVisuals();
+            InstalledRoomObjectPictures installed = installation.LoadRoomObjectChozoStatueVisuals();
             VerifyChozoStatueStockMapping(rom, installed);
 
             // Run both real Chozo PLM instruction lists. The bus refuses reads of compiled draw bytes, so the

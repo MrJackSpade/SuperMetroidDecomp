@@ -11,7 +11,7 @@ internal static class BeamChargeStateAccess
 {
     /// <summary>The pulse's shades: every pulse runs as many.</summary>
     private static int PulseShades =>
-        SamusGlowAnimationDefinitions.Animations[SamusGlowSegment.ChargedBeamPowerPulse].Phases[0].BeatCount;
+        SamusGlowAnimationDefinitions.Animations[SamusGlowSegment.In(SamusGlow.ChargedBeamPulse, SamusSuit.Power)].Phases[0].BeatCount;
 
     /// <summary>Reads and sets the charge pulse.</summary>
     extension(BeamChargeState self)

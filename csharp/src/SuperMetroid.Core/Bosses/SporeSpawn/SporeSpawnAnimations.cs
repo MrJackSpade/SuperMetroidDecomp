@@ -141,14 +141,26 @@ internal static class SporeSpawnAnimations
     {
         [P.Husk] = new([Segments.Whole(P.Husk)], AnimationEnd.Holds),
         [P.AwaitingDescent] = new([Segments.Whole(P.AwaitingDescent)], AnimationEnd.Holds),
-        [P.FightStarted] = Animation<SporeSpawnBodySegment>.LeadingInto([Segments.Whole(P.FightStarted)], [Segments.Whole(P.OpenAndStop), Segments.Repeated(P.OpenPulse, OpenPulseRepeats), Segments.Whole(P.CloseAndMove)]),
-        [P.OpenAndStop] = Animation<SporeSpawnBodySegment>.Looping([Segments.Whole(P.OpenAndStop), Segments.Repeated(P.OpenPulse, OpenPulseRepeats), Segments.Whole(P.CloseAndMove)]),
-        [P.CloseAndMove] = Animation<SporeSpawnBodySegment>.Looping([Segments.Whole(P.CloseAndMove), Segments.Whole(P.OpenAndStop), Segments.Repeated(P.OpenPulse, OpenPulseRepeats)]),
+        [P.FightStarted] = Animation<SporeSpawnBodySegment>.LeadingInto([Segments.Whole(P.FightStarted)], FightCycleFrom(P.OpenAndStop)),
+        [P.OpenAndStop] = Animation<SporeSpawnBodySegment>.Looping(FightCycleFrom(P.OpenAndStop)),
+        [P.CloseAndMove] = Animation<SporeSpawnBodySegment>.Looping(FightCycleFrom(P.CloseAndMove)),
         [P.Death] = new([Segments.Whole(P.Death), Segments.Repeated(P.DyingExplosions, DeathBurstRepeats), Segments.Whole(P.DeathClosing), Segments.Repeated(P.Hardening, DeathBurstRepeats), Segments.Whole(P.DeathFade)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<SporeSpawnBodySegment> StartingWith(SporeSpawnBodySegment segment) => StartingAt[segment];
+
+    /// <summary>
+    /// The fight's cycle, begun at <paramref name="segment"/>: she opens and stops, pulses open
+    /// <see cref="OpenPulseRepeats"/> times, then closes and moves, round again.
+    /// </summary>
+    private static AnimationPhase<SporeSpawnBodySegment>[] FightCycleFrom(SporeSpawnBodySegment segment)
+    {
+        AnimationPhase<SporeSpawnBodySegment>[] cycle =
+            [Segments.Whole(P.OpenAndStop), Segments.Repeated(P.OpenPulse, OpenPulseRepeats), Segments.Whole(P.CloseAndMove)];
+        int start = Array.FindIndex(cycle, phase => phase.Segment == segment);
+        return [.. cycle[start..], .. cycle[..start]];
+    }
 
     /// <summary>
     /// One step of the death fade (#2331): the step's shade, a hardening dust cloud, and the husk held for the step's

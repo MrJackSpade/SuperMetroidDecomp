@@ -45,11 +45,11 @@ internal static class SporeSpawnCeilingVisualsVerification
 
     /// <summary>Compares the four ceiling frames' pictures with the cartridge, rejects other draws, then checks the import and its rejections.</summary>
     private static void VerifySporeSpawnCeilingStockMapping(CartridgeImportAddressSpace rom,
-        InstalledRoomObjectSporeSpawnCeilingVisuals installed)
+        InstalledRoomObjectPictures installed)
     {
         LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(0x9413,"clear-ceiling"), new LookupEscapeGateStockFrame(0x9423,"ceiling-cracked"),
             new LookupEscapeGateStockFrame(0x9433,"ceiling-crumbling"), new LookupEscapeGateStockFrame(0x9443,"ceiling-crumbled")];
-        foreach (InstalledRoomObjectSporeSpawnCeilingVisuals pictures in new[] { InstalledRoomObjectSporeSpawnCeilingVisuals.Stock(), installed })
+        foreach (InstalledRoomObjectPictures pictures in new[] { RoomObjectPicturesStock.SporeSpawnCeiling, installed })
         {
             AssertPicturedAsNative(rom, pictures.Images, RoomObjectSporeSpawnCeilingVisualFiles.Family, frames, WrittenCells(RoomObjectSporeSpawnCeilingVisualFiles.Family));
         }

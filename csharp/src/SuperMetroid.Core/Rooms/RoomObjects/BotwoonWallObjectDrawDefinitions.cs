@@ -12,12 +12,7 @@ internal static class BotwoonWallObjectDrawDefinitions
     internal static RoomObjectFrameDraw<BotwoonWallDraw> Clear { get; } = BotwoonWallObjectDraws.Family.Of(BotwoonWallDraw.Clear);
 
     /// <summary>The cleared wall: nine open blocks down the column from the wall's top block.</summary>
-    private static readonly RoomBlockShape ClearedWall = new(
-    [
-        new(new(0, 0), RoomCollisionType.Air), new(new(0, 1), RoomCollisionType.Air), new(new(0, 2), RoomCollisionType.Air),
-        new(new(0, 3), RoomCollisionType.Air), new(new(0, 4), RoomCollisionType.Air), new(new(0, 5), RoomCollisionType.Air),
-        new(new(0, 6), RoomCollisionType.Air), new(new(0, 7), RoomCollisionType.Air), new(new(0, 8), RoomCollisionType.Air),
-    ]);
+    private static readonly RoomBlockShape ClearedWall = RoomBlockShapes.Column(9, RoomCollisionType.Air);
 
     /// <summary>The block shape the wall's own frame draws.</summary>
     internal static readonly Dictionary<BotwoonWallDraw, RoomBlockShape> Shapes = new()

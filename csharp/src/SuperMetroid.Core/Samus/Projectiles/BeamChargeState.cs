@@ -76,7 +76,7 @@ internal sealed class BeamChargeState
     internal PictureShade PlayChargePulse(SamusChargeKind kind, SamusSuit suit)
     {
         AnimationPlace place = ChargePulse;
-        PictureShade shown = SamusGlowPlay.NextShade(SamusGlowAnimationDefinitions.ChargePulses[kind][suit], ref place).Shown;
+        PictureShade shown = SamusGlowPlay.NextShade(SamusGlowSegment.In(SamusGlowAnimationDefinitions.ChargePulses[kind], suit), ref place).Shown;
         ChargePulse = place;
         return shown;
     }

@@ -13,55 +13,86 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// </summary>
 internal static class EndingRewardAnimations
 {
-    /// <summary>The gesture's animations; the suitless legs stand still through the hair release's opening pictures.</summary>
+    /// <summary>How long the suited Samus's arm stays hidden while her body stands idle, before the arm's gesture shows.</summary>
+    private const int ArmHiddenUpdates = 64;
+
+    /// <summary>The hair release's pictures before Samus stands whole: her suitless legs stand still beneath them for as long.</summary>
+    private static AnimationBeat<CinematicSpritePose, EndingRewardGestureCue>[] HairLoosening =>
+    [
+        G.Show(S.SuitlessIdleUpper, 90),
+        G.Show(S.SuitlessPonytailTied, 8),
+        G.Show(S.SuitlessHandsToPonytail, 10),
+        G.Show(S.SuitlessUntyingPonytail, 10),
+        G.Show(S.SuitlessPonytailUntied, 32),
+        G.Show(S.SuitlessHairFallingLoose, 10),
+        G.Show(S.SuitlessHairSwinging, 9),
+        G.Show(S.SuitlessHairSweptBack, 16),
+        G.Show(S.SuitlessHairFlowing, 10),
+    ];
+
+    /// <summary>
+    /// The suited arm's gesture before it hands off to the jump: the body, the helmet and the helmetless head play beside it
+    /// for exactly as long (#2557).
+    /// </summary>
+    private static AnimationBeat<CinematicSpritePose, EndingRewardGestureCue>[] ArmGesture =>
+    [
+        G.Hide(ArmHiddenUpdates),
+        G.Show(S.SuitedArmLowered, 8),
+        G.Show(S.SuitedArmSwingingUp, 8),
+        G.Show(S.SuitedArmFistForward, 5),
+        G.Show(S.SuitedArmFistRaised, 4),
+        G.Show(S.SuitedArmFistDrawingIn, 3),
+        G.Show(S.SuitedArmFistAtChest, 32),
+        G.Show(S.SuitedArmFistTurning, 8),
+        G.Show(S.SuitedArmFistTurned, 64),
+        G.Show(S.SuitedArmFistAtChest, 5),
+        G.Show(S.SuitedArmFistDrawingIn, 5),
+        G.Show(S.SuitedArmFistRaised, 5),
+        G.Show(S.SuitedArmFistForward, 5),
+        G.Show(S.SuitedArmSwingingUp, 112),
+    ];
+
+    /// <summary>The helmetless head's pictures before its smile holds to the end of the arm's gesture.</summary>
+    private static AnimationBeat<CinematicSpritePose, EndingRewardGestureCue>[] HeadStartingToSmile =>
+    [
+        G.Show(S.HelmetlessHeadResting, 128),
+        G.Show(S.HelmetlessHeadSmileStarting, 5),
+        G.Show(S.HelmetlessHeadSmileWidening, 5),
+    ];
+
+    /// <summary>How long the arm's gesture lasts before it hands off to the jump.</summary>
+    private static int ArmGestureUpdates => AnimationBeats<CinematicSpritePose, EndingRewardGestureCue>.UpdatesOf(ArmGesture);
+
+    /// <summary>
+    /// The gesture's animations: the suitless legs stand still through the hair release's opening pictures, and the suited
+    /// body, helmet and helmetless head last as long as the arm's gesture, so no duration restates another animation's length.
+    /// </summary>
     internal static CinematicAnimations<EndingRewardAnimation, CinematicSpritePose, EndingRewardGestureCue> Gesture { get; } = new(
         new Dictionary<EndingRewardAnimation, AnimationBeat<CinematicSpritePose, EndingRewardGestureCue>[]>
         {
             [A.HairRelease] =
             [
-                G.Show(S.SuitlessIdleUpper, 90),
-                G.Show(S.SuitlessPonytailTied, 8),
-                G.Show(S.SuitlessHandsToPonytail, 10),
-                G.Show(S.SuitlessUntyingPonytail, 10),
-                G.Show(S.SuitlessPonytailUntied, 32),
-                G.Show(S.SuitlessHairFallingLoose, 10),
-                G.Show(S.SuitlessHairSwinging, 9),
-                G.Show(S.SuitlessHairSweptBack, 16),
-                G.Show(S.SuitlessHairFlowing, 10),
+                .. HairLoosening,
                 G.Show(S.SuitlessStanding, 48),
                 G.Raise(EndingRewardGestureCue.StartJump),
             ],
-            [A.HairReleaseLegs] = [G.Show(S.SuitlessLower, 195)],
+            [A.HairReleaseLegs] = [G.Show(S.SuitlessLower, AnimationBeats<CinematicSpritePose, EndingRewardGestureCue>.UpdatesOf(HairLoosening))],
             [A.GestureBody] =
             [
-                G.Show(S.SuitedIdleBody, 64),
-                G.Show(S.SuitedHeadlessBody, 264),
+                G.Show(S.SuitedIdleBody, ArmHiddenUpdates),
+                G.Show(S.SuitedHeadlessBody, ArmGestureUpdates - ArmHiddenUpdates),
             ],
             [A.GestureArm] =
             [
-                G.Hide(64),
-                G.Show(S.SuitedArmLowered, 8),
-                G.Show(S.SuitedArmSwingingUp, 8),
-                G.Show(S.SuitedArmFistForward, 5),
-                G.Show(S.SuitedArmFistRaised, 4),
-                G.Show(S.SuitedArmFistDrawingIn, 3),
-                G.Show(S.SuitedArmFistAtChest, 32),
-                G.Show(S.SuitedArmFistTurning, 8),
-                G.Show(S.SuitedArmFistTurned, 64),
-                G.Show(S.SuitedArmFistAtChest, 5),
-                G.Show(S.SuitedArmFistDrawingIn, 5),
-                G.Show(S.SuitedArmFistRaised, 5),
-                G.Show(S.SuitedArmFistForward, 5),
-                G.Show(S.SuitedArmSwingingUp, 112),
+                .. ArmGesture,
                 G.Raise(EndingRewardGestureCue.StartJump),
             ],
-            [A.GestureHelmet] = [G.Show(S.SuitedHelmetHead, 328)],
+            [A.GestureHelmet] = [G.Show(S.SuitedHelmetHead, ArmGestureUpdates)],
             [A.GestureHead] =
             [
-                G.Show(S.HelmetlessHeadResting, 128),
-                G.Show(S.HelmetlessHeadSmileStarting, 5),
-                G.Show(S.HelmetlessHeadSmileWidening, 5),
-                G.Show(S.HelmetlessHeadSmiling, 190),
+                .. HeadStartingToSmile,
+                G.Show(S.HelmetlessHeadSmiling,
+                    ArmGestureUpdates - AnimationBeats<CinematicSpritePose, EndingRewardGestureCue>.UpdatesOf(HeadStartingToSmile)),
             ],
         },
         plays => new Dictionary<EndingRewardAnimation, Animation<EndingRewardAnimation>>

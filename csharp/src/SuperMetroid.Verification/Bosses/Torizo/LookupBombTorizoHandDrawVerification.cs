@@ -29,7 +29,7 @@ internal static class LookupBombTorizoHandDrawVerification
         string[] ids = ["intact","cleared"];
         var exported = RoomObjectBombTorizoHandVisualFiles.All.ToArray();
         AssertEqual(2, exported.Length, "Torizo hand export count");
-        InstalledRoomObjectBombTorizoHandVisuals pictures = InstalledRoomObjectBombTorizoHandVisuals.Stock();
+        InstalledRoomObjectPictures pictures = RoomObjectPicturesStock.BombTorizoHand;
         if (field == 0)
         {
             for (int raw = 0; raw <= ushort.MaxValue; raw++)

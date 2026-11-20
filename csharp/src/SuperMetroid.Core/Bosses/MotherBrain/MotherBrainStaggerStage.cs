@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// One stage of Mother Brain's drained stagger (#2315): one walk forward or back, then a pause. A stage is told by its
-/// own identity, so the stage her rainbow beam runs out at is told from the one after it, which walks alike.
+/// One stage of Mother Brain's drained stagger (#2315): one walk forward or back, then a pause. The stage her rainbow beam
+/// runs out at is told by its place in the stagger, since the one after it walks alike.
 /// </summary>
 internal sealed class MotherBrainStaggerStage
 {

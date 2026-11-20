@@ -29,7 +29,7 @@ internal static class LookupChozoLayoutsVerification
         string[] ids = ["lower-norfair-cleared-hand","wrecked-ship-clear-slope-access","wrecked-ship-block-slope-access"];
         var exported = RoomObjectChozoStatueVisualFiles.All.ToArray();
         AssertEqual(3, exported.Length, "Chozo layout export count");
-        InstalledRoomObjectChozoStatueVisuals pictures = InstalledRoomObjectChozoStatueVisuals.Stock();
+        InstalledRoomObjectPictures pictures = RoomObjectPicturesStock.ChozoStatue;
         if (field == 0)
         {
             for (int raw = 0; raw <= ushort.MaxValue; raw++)

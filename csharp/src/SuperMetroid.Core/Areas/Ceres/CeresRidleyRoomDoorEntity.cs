@@ -18,7 +18,7 @@ internal sealed class CeresRidleyRoomDoorEntity(CeresDoorBehavior doors, RoomEne
     /// <inheritdoc/>
     public void Initialize()
     {
-        doors.Start(Place, CeresDoorSegment.RidleyRoomDoor);
+        doors.Start(Place, HorizontalDirection.Right, CeresDoorSegment.RidleyRoomDoor);
         Place.SetSpeciesState(new CeresRidleyRoomDoorState());
         // The room's Ceres doors show this door's overlay while its look is the overlay (#2573).
         doors.AttachRidleyRoomDoor(Place);

@@ -138,6 +138,14 @@ internal static class InstalledFramePictureAssertions
     }
 
     /// <summary>
+    /// The pictures of <paramref name="family"/>'s installed frames among <paramref name="images"/>, without the second
+    /// identities its loader adds (a blue cap drawn solid, the eye door's mirrored clear).
+    /// </summary>
+    internal static RoomObjectFrameImages<TFrame> FamilyFrames<TFrame>(RoomObjectFrameImages<TFrame> images, RoomObjectFrameFamily<TFrame> family)
+        where TFrame : notnull =>
+        new(family.Layouts.Keys.ToDictionary(frame => frame, images.Image));
+
+    /// <summary>
     /// Requires <paramref name="shown"/>, the picture a frame's second identity shows, to be what the cartridge's draw list
     /// at <paramref name="pointer"/> draws: the same cells, each showing the cartridge's block and mirroring.
     /// </summary>

@@ -60,11 +60,11 @@ internal static class DeadTorizoCollisionVerification
             Require(!Probe().Collided, $"{trigger}: the same movement must pass the rotting corpse.");
             DeadTorizoEnemyState corpse = place.SpeciesState<DeadTorizoEnemyState>()
                 ?? throw new InvalidOperationException("The initialized corpse has no state.");
-            DeadTorizoPhase? phase = corpse.Phase;
-            corpse.Phase = DeadTorizoPhase.Finished;
+            CorpsePhase? phase = corpse.Phase;
+            corpse.Phase = CorpsePhase.Finished;
             DeadTorizoBehavior.TriggerDeadTorizoPowerBomb(place);
-            Require(corpse.Phase == DeadTorizoPhase.Finished, "An ignored corpse must not restart from another power bomb.");
-            Require(phase == DeadTorizoPhase.Rotting, "Each trigger must enter the native rotting phase.");
+            Require(corpse.Phase == CorpsePhase.Finished, "An ignored corpse must not restart from another power bomb.");
+            Require(phase == CorpsePhase.Rotting, "Each trigger must enter the native rotting phase.");
 
             bool IsInteractive()
             {

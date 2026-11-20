@@ -5,8 +5,15 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// <summary>The state of one Ceres steam vent.</summary>
 internal sealed class CeresSteamEnemyState
 {
-    /// <summary>Starts the state with the vent's <paramref name="motion"/>.</summary>
-    internal CeresSteamEnemyState(CeresSteamMotion motion) => Motion = Ensure.NotNull(motion);
+    /// <summary>Starts the state with the <paramref name="way"/> the vent blows and its <paramref name="motion"/>.</summary>
+    internal CeresSteamEnemyState(CeresSteamWay way, CeresSteamMotion motion)
+    {
+        Way = Ensure.NotNull(way);
+        Motion = Ensure.NotNull(motion);
+    }
+
+    /// <summary>The way the vent blows, whose pictures its animation shows.</summary>
+    internal CeresSteamWay Way { get; }
 
     /// <summary>Where the vent is drawn: where it stands, or turned with the elevator shaft it stands in.</summary>
     public CeresSteamMotion Motion { get; }

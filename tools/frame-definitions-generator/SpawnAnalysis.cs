@@ -272,7 +272,18 @@ internal sealed class SpawnAnalysis
         foreach (INamedTypeSymbol type in model.Types)
         {
             if (!model.IsTable(type) && model.FamilyOf(type) is null && model.OwnersOf(type) is { } owners && owners.Contains(behaviour.Type))
+            {
                 RootAll(walk, model, type);
+                // An abstract base several behaviours' entities share, itself deriving from another Core base (#2557: the
+                // corpses' CorpseEntity over the common participation), runs as each derived entity's code.
+                for (INamedTypeSymbol? shared = type.BaseType;
+                     shared is { IsAbstract: true, BaseType: { } further } && model.IsSource(further.OriginalDefinition)
+                     && model.OwnersOf(shared.OriginalDefinition) is null;
+                     shared = further)
+                {
+                    RootAll(walk, model, shared.OriginalDefinition);
+                }
+            }
         }
     }
 

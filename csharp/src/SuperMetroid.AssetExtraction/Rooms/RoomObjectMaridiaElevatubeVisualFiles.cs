@@ -23,7 +23,7 @@ public static class RoomObjectMaridiaElevatubeVisualFiles
     /// <summary>Loads the installed Maridia elevatube pictures as the player left them, without the cartridge.</summary>
     /// <param name="directory">The installed directory.</param>
     /// <exception cref="InvalidDataException">The file's format is not this importer's, or a frame's picture is missing or misshapen.</exception>
-    public static InstalledRoomObjectMaridiaElevatubeVisuals Load(string directory) =>
+    public static InstalledRoomObjectPictures Load(string directory) =>
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>Stable asset identity assigned to the elevatube's one-block artwork.</summary>

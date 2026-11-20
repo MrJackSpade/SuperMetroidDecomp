@@ -397,9 +397,9 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                     inputs.Samus,
                     TorizoBranches.Target(branch.Kind, TorizoFacing.Posture(torizo)));
 
-            case TorizoCue.Choice { Kind: TorizoChoiceKind.BombAttack } choice:
+            case TorizoCue.Choice { Kind: TorizoChoiceKind.BombAttack or TorizoChoiceKind.GoldenAttack } choice:
             {
-                bool chooseFirst = inputs.Samus.Missiles < TorizoDecisionDefinitions.BombFirstAttackMissiles ||
+                bool chooseFirst = inputs.Samus.Missiles < state.Variant.FirstAttackMissiles ||
                     TorizoChoices.InFirstAttackPhase(inputs.FrameCounter, inputs.Samus.Position.X.Whole);
                 return TorizoAnimations.ContinueWith(chooseFirst ? choice.Target : choice.Alternate);
             }
@@ -534,13 +534,6 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                     state,
                     inputs.Samus,
                     TorizoBranches.Target(branch.Kind, TorizoFacing.Posture(torizo)));
-
-            case TorizoCue.Choice { Kind: TorizoChoiceKind.GoldenAttack } choice:
-            {
-                bool chooseFirst = inputs.Samus.Missiles < TorizoDecisionDefinitions.GoldenFirstAttackMissiles ||
-                    TorizoChoices.InFirstAttackPhase(inputs.FrameCounter, inputs.Samus.Position.X.Whole);
-                return TorizoAnimations.ContinueWith(chooseFirst ? choice.Target : choice.Alternate);
-            }
 
             case TorizoCue.ShowArtwork showArtwork:
                 ShowTorizoArtwork(state, showArtwork.Look);

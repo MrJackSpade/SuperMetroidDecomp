@@ -275,8 +275,7 @@ public sealed class TourianStatueSequence : IDisplayLatch
         if (_assists.Current.TourianStatuesOpen || _system.HasEvent(StoryEvent.TourianUnlocked)) { EnableScrolling(); return; }
         if (_descentPhase == TourianStatueDescentPhase.AwaitingReleases)
         {
-            if (!_system.HasEvent(StoryEvent.PhantoonStatueGrey) || !_system.HasEvent(StoryEvent.RidleyStatueGrey)
-                || !_system.HasEvent(StoryEvent.DraygonStatueGrey) || !_system.HasEvent(StoryEvent.KraidStatueGrey)) return;
+            if (!TourianStatueAnimationDefinitions.Statues.Values.All(statue => _system.HasEvent(statue.GreyEvent))) return;
             _statue.Animation.LatchAllReleased();
             if (_statue.Animation.ReleaseInProgress) return;
             _descentPhase = TourianStatueDescentPhase.Holding;

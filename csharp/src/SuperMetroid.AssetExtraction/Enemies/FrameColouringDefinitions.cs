@@ -24,6 +24,15 @@ internal static class FrameColouringDefinitions
     /// </summary>
     private static readonly FrameColouring TourianStatueEntrance = new(EnemyDefinitionId.TourianStatue, [TourianStatueShades.Entrance]);
 
+    /// <summary>Crocomire's wall colours with his wall spikes' row, which his death sequence loads before his bridge and spike wall fall.</summary>
+    private static readonly FrameColouring CrocomireWall = new(EnemyDefinitionId.Crocomire, [CrocomireShades.Wall, CrocomireShades.WallSpikes]);
+
+    /// <summary>Draygon's opening colours, in which his goop draws.</summary>
+    private static readonly FrameColouring DraygonOpening = new(EnemyDefinitionId.DraygonBody, [DraygonShades.Intro]);
+
+    /// <summary>The colours Mother Brain's room entry loads for her falling tubes and glass shards.</summary>
+    private static readonly FrameColouring MotherBrainRoomEntry = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]);
+
     /// <summary>
     /// The bosses' projectile frames: Crocomire's bridge fragments and spike-wall pieces, drawn in his wall colours with
     /// his wall spikes' row his death sequence loads before they fall; Draygon's goop, drawn in his opening's colours; and
@@ -31,30 +40,30 @@ internal static class FrameColouringDefinitions
     /// </summary>
     private static readonly Dictionary<EnemyProjectileFrameId, FrameColouring> BossProjectiles = new()
     {
-        [EnemyProjectileFrameId.CrocomireBridgeFragment] = new(EnemyDefinitionId.Crocomire, [CrocomireShades.Wall, CrocomireShades.WallSpikes]),
-        [EnemyProjectileFrameId.CrocomireSpikeWallPiece] = new(EnemyDefinitionId.Crocomire, [CrocomireShades.Wall, CrocomireShades.WallSpikes]),
-        [EnemyProjectileFrameId.DraygonGoopCurled] = new(EnemyDefinitionId.DraygonBody, [DraygonShades.Intro]),
-        [EnemyProjectileFrameId.DraygonGoopScattered] = new(EnemyDefinitionId.DraygonBody, [DraygonShades.Intro]),
-        [EnemyProjectileFrameId.MotherBrainTopTubeTopRight] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
-        [EnemyProjectileFrameId.MotherBrainTopTubeTopLeft] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
-        [EnemyProjectileFrameId.MotherBrainTopTubeTopMiddleLeft] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
-        [EnemyProjectileFrameId.MotherBrainTopTubeTopMiddleRight] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
-        [EnemyProjectileFrameId.MotherBrainGlassShardUpTurned0] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
-        [EnemyProjectileFrameId.MotherBrainGlassShardUpTurned45] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
-        [EnemyProjectileFrameId.MotherBrainGlassShardUpTurned90] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
-        [EnemyProjectileFrameId.MotherBrainGlassShardUpTurned135] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
-        [EnemyProjectileFrameId.MotherBrainGlassShardUpTurned180] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
-        [EnemyProjectileFrameId.MotherBrainGlassShardUpTurned225] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
-        [EnemyProjectileFrameId.MotherBrainGlassShardUpTurned270] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
-        [EnemyProjectileFrameId.MotherBrainGlassShardUpTurned315] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
-        [EnemyProjectileFrameId.MotherBrainGlassShardUpRightTurned0] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
-        [EnemyProjectileFrameId.MotherBrainGlassShardUpRightTurned45] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
-        [EnemyProjectileFrameId.MotherBrainGlassShardUpRightTurned90] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
-        [EnemyProjectileFrameId.MotherBrainGlassShardUpRightTurned135] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
-        [EnemyProjectileFrameId.MotherBrainGlassShardUpRightTurned180] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
-        [EnemyProjectileFrameId.MotherBrainGlassShardUpRightTurned225] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
-        [EnemyProjectileFrameId.MotherBrainGlassShardUpRightTurned270] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
-        [EnemyProjectileFrameId.MotherBrainGlassShardUpRightTurned315] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
+        [EnemyProjectileFrameId.CrocomireBridgeFragment] = CrocomireWall,
+        [EnemyProjectileFrameId.CrocomireSpikeWallPiece] = CrocomireWall,
+        [EnemyProjectileFrameId.DraygonGoopCurled] = DraygonOpening,
+        [EnemyProjectileFrameId.DraygonGoopScattered] = DraygonOpening,
+        [EnemyProjectileFrameId.MotherBrainTopTubeTopRight] = MotherBrainRoomEntry,
+        [EnemyProjectileFrameId.MotherBrainTopTubeTopLeft] = MotherBrainRoomEntry,
+        [EnemyProjectileFrameId.MotherBrainTopTubeTopMiddleLeft] = MotherBrainRoomEntry,
+        [EnemyProjectileFrameId.MotherBrainTopTubeTopMiddleRight] = MotherBrainRoomEntry,
+        [EnemyProjectileFrameId.MotherBrainGlassShardUpTurned0] = MotherBrainRoomEntry,
+        [EnemyProjectileFrameId.MotherBrainGlassShardUpTurned45] = MotherBrainRoomEntry,
+        [EnemyProjectileFrameId.MotherBrainGlassShardUpTurned90] = MotherBrainRoomEntry,
+        [EnemyProjectileFrameId.MotherBrainGlassShardUpTurned135] = MotherBrainRoomEntry,
+        [EnemyProjectileFrameId.MotherBrainGlassShardUpTurned180] = MotherBrainRoomEntry,
+        [EnemyProjectileFrameId.MotherBrainGlassShardUpTurned225] = MotherBrainRoomEntry,
+        [EnemyProjectileFrameId.MotherBrainGlassShardUpTurned270] = MotherBrainRoomEntry,
+        [EnemyProjectileFrameId.MotherBrainGlassShardUpTurned315] = MotherBrainRoomEntry,
+        [EnemyProjectileFrameId.MotherBrainGlassShardUpRightTurned0] = MotherBrainRoomEntry,
+        [EnemyProjectileFrameId.MotherBrainGlassShardUpRightTurned45] = MotherBrainRoomEntry,
+        [EnemyProjectileFrameId.MotherBrainGlassShardUpRightTurned90] = MotherBrainRoomEntry,
+        [EnemyProjectileFrameId.MotherBrainGlassShardUpRightTurned135] = MotherBrainRoomEntry,
+        [EnemyProjectileFrameId.MotherBrainGlassShardUpRightTurned180] = MotherBrainRoomEntry,
+        [EnemyProjectileFrameId.MotherBrainGlassShardUpRightTurned225] = MotherBrainRoomEntry,
+        [EnemyProjectileFrameId.MotherBrainGlassShardUpRightTurned270] = MotherBrainRoomEntry,
+        [EnemyProjectileFrameId.MotherBrainGlassShardUpRightTurned315] = MotherBrainRoomEntry,
     };
 
     /// <summary>
@@ -75,10 +84,10 @@ internal static class FrameColouringDefinitions
     /// <summary>The enemy frames: Mother Brain's tubes, drawn from her room's entry in the tube colours it loads.</summary>
     internal static IReadOnlyDictionary<EnemyFrameId, FrameColouring> Frames { get; } = new Dictionary<EnemyFrameId, FrameColouring>
     {
-        [EnemyFrameId.MotherBrainTubeBendRight] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
-        [EnemyFrameId.MotherBrainTubeBendLeft] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
-        [EnemyFrameId.MotherBrainTubeStraightLeft] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
-        [EnemyFrameId.MotherBrainTubeStraightRight] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
-        [EnemyFrameId.MotherBrainTubeColumn] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
+        [EnemyFrameId.MotherBrainTubeBendRight] = MotherBrainRoomEntry,
+        [EnemyFrameId.MotherBrainTubeBendLeft] = MotherBrainRoomEntry,
+        [EnemyFrameId.MotherBrainTubeStraightLeft] = MotherBrainRoomEntry,
+        [EnemyFrameId.MotherBrainTubeStraightRight] = MotherBrainRoomEntry,
+        [EnemyFrameId.MotherBrainTubeColumn] = MotherBrainRoomEntry,
     };
 }

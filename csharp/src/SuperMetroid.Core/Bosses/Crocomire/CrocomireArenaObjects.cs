@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
-using static SuperMetroid.Core.Bosses.Crocomire.CrocomireArenaMutationDefinitions;
+using static SuperMetroid.Core.Bosses.Crocomire.CrocomireArenaDraws;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;
 

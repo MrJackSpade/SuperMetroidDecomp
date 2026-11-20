@@ -70,9 +70,9 @@ internal static class RoomDefinitionsVerification
     /// <summary>Checks room height in screen units against header byte five.</summary>
     private static void VerifyRoomDefinitionHeightInScreens(CartridgeImportAddressSpace rom, ushort[] rooms) => VerifyRoomDefinitionField(rom, rooms, 5, header => header.Size.Y);
     /// <summary>Checks the upward scroller setting at header byte six.</summary>
-    private static void VerifyRoomDefinitionFallingCameraOffset(CartridgeImportAddressSpace rom, ushort[] rooms) => VerifyRoomDefinitionField(rom, rooms, 6, header => header.FallingCameraOffset);
+    private static void VerifyRoomDefinitionFallingCameraOffset(CartridgeImportAddressSpace rom, ushort[] rooms) => VerifyRoomDefinitionField(rom, rooms, 6, header => header.CameraLead.FallingOffset);
     /// <summary>Checks the downward scroller setting at header byte seven.</summary>
-    private static void VerifyRoomDefinitionRisingCameraOffset(CartridgeImportAddressSpace rom, ushort[] rooms) => VerifyRoomDefinitionField(rom, rooms, 7, header => header.RisingCameraOffset);
+    private static void VerifyRoomDefinitionRisingCameraOffset(CartridgeImportAddressSpace rom, ushort[] rooms) => VerifyRoomDefinitionField(rom, rooms, 7, header => header.CameraLead.RisingOffset);
     /// <summary>
     /// Checks the isolated door transition against bit zero of header byte eight, whatever the byte's other bits hold:
     /// rooms that set only other bits (the common-element tile reloads) keep the ordinary transition.

@@ -13,10 +13,10 @@ internal static class LookupChozoStockVerification
 {
     /// <summary>Compares the three statue frames' pictures with the cartridge, rejects other draws, then checks the import and its rejections.</summary>
     internal static void VerifyChozoStatueStockMapping(CartridgeImportAddressSpace rom,
-        InstalledRoomObjectChozoStatueVisuals installed)
+        InstalledRoomObjectPictures installed)
     {
         LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(0xa2b5,"lower-norfair-cleared-hand"),new LookupEscapeGateStockFrame(0x9cc5,"wrecked-ship-clear-slope-access"),new LookupEscapeGateStockFrame(0x9d0f,"wrecked-ship-block-slope-access")];
-        foreach (InstalledRoomObjectChozoStatueVisuals pictures in new[] { InstalledRoomObjectChozoStatueVisuals.Stock(), installed })
+        foreach (InstalledRoomObjectPictures pictures in new[] { RoomObjectPicturesStock.ChozoStatue, installed })
         {
             AssertPicturedAsNative(rom, pictures.Images, RoomObjectChozoStatueVisualFiles.Family, frames, WrittenCells(RoomObjectChozoStatueVisualFiles.Family));
         }

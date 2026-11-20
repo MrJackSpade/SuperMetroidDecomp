@@ -315,7 +315,7 @@ internal static class SaveSchemaTranslationVerification
         AssertEqual(GameSaveJsonFormat.SchemaVersion, upgraded.SchemaVersion, "schema-one import becomes the current schema");
         SaveSlotStore importedSaves = GameSaveJsonCodec.ToStore(upgraded, RetailPresentationFixture());
         var imported = importedSaves.ReadSlot(SaveSlot.A);
-        AssertEqual(42, (imported ?? throw new InvalidOperationException("Verification requires imported.")).Health, "legacy named health overrides stale raw image");
+        AssertEqual(42, (imported ?? throw new InvalidOperationException("Verification requires imported.")).Inventory.Health, "legacy named health overrides stale raw image");
         AssertEqual(SaveRamLayout.ReserveMissilesSavedWord,
             SaveRamCodec.ReadSlotWord(SaveRamCodec.Encode(importedSaves, RetailPresentationFixture()), 0, SaveRamLayout.ReserveMissilesOffset),
             "legacy importer does not carry the image's reserve-missile count");
@@ -346,7 +346,7 @@ internal static class SaveSchemaTranslationVerification
             GameSaveLoadResult upgradedLoad = GameSaveFileStore.LoadOrMigrate(path, Path.Combine(fixtureDirectory, "absent.srm"), RetailPresentationFixture());
             AssertEqual(oldJson, File.ReadAllText(path + ".bak"), "automatic upgrade backs up the exact original schema-one JSON");
             AssertTrue(!File.ReadAllText(path).Contains("preservedUntranslatedSram", StringComparison.Ordinal), "automatic upgrade replaces old format with named schema");
-            AssertEqual(42, (upgradedLoad.Saves.ReadSlot(SaveSlot.A) ?? throw new InvalidOperationException("Verification requires the upgraded slot 0.")).Health, "automatic upgrade applies named values");
+            AssertEqual(42, (upgradedLoad.Saves.ReadSlot(SaveSlot.A) ?? throw new InvalidOperationException("Verification requires the upgraded slot 0.")).Inventory.Health, "automatic upgrade applies named values");
         }
         finally { Directory.Delete(fixtureDirectory, recursive: true); }
         Console.WriteLine("Schema two: named missing state, runtime restoration, legacy JSON conversion, precedence, padding removal, strict failures and backed-up upgrade pass.");
@@ -369,8 +369,10 @@ internal static class SaveSchemaTranslationVerification
             var byNumber = new SortedDictionary<int, string>();
             foreach (JsonNode? entry in progression.Required("events").AsArray())
             {
-                StoryEvent named = Enum.Parse<StoryEvent>(entry?.GetValue<string>() ?? "", ignoreCase: true);
-                byNumber.Add(named.Number(), named == StoryEvent.BabyMetroidEncounterMusicSkipped ? "Unused14" : named.ToString());
+                string key = entry?.GetValue<string>() ?? "";
+                if (!StoryEventKeys.Installed.TryParse(key, out StoryEvent named))
+                    throw new InvalidDataException($"The saved event {key} is no story event's key.");
+                byNumber.Add(named.Number(), named == StoryEvent.BabyMetroidEncounterMusicSkipped ? "Unused14" : StoryEventKeys.Installed.Of(named));
             }
             for (int bit = 0; bit < 3; bit++)
             {

@@ -80,12 +80,8 @@ public static class SamusGrappleMovement
         grapple.RopeLength = 0;
         grapple.RopeLengthDelta = GrappleBeamDefinitions.Physics.FiringExtension;
         grapple.AngularVelocity = AngularSpeed.Zero;
-        grapple.DirectionInputAcceleration = AngularSpeed.Zero;
-        grapple.GravityAcceleration = AngularSpeed.Zero;
-        grapple.VelocityCorrection = AngularSpeed.Zero;
-        grapple.JumpImpulse = AngularSpeed.Zero;
-        grapple.CollisionBounceTimer = UpdateCountdown.Ended();
-        grapple.ValidatedAnchor = null;
+        ClearSwingForces(grapple);
+        ForgetAnchorContact(grapple);
         grapple.SwingFreely();
         grapple.ScrollCameraOrdinarily(); // Firing returns the camera to its ordinary scroll.
         grapple.WallJumpTimer = UpdateCountdown.Ended();
@@ -283,22 +279,7 @@ public static class SamusGrappleMovement
         // The swing first checks Shoot. Releasing it does not immediately install jumping
         // art: it computes velocity and queues the release phase for the following frame.
         if ((controllerInput & GameplayAction.Shoot) == GameplayAction.None)
-        {
-            if (grapple.AngularVelocity == AngularSpeed.Zero && grapple.Angle == RotationAngle.HalfTurn)
-            {
-                grapple.Phase = GrapplePhase.Dropped;
-                return new GrappleMovementResult(
-                    grapple.Phase);
-            }
-
-            SamusGrappleSwing.PropelSamusFromSwing(samus, grapple);
-            // The release hands her movement to the released-from-swing movement immediately. The beam remains in
-            // its one-frame release-cleanup phase, but movement already uses the
-            // independent release movement during this same gameplay frame.
-            grapple.ReleasedMovementActive = true;
-            grapple.Phase = GrapplePhase.ReleaseFromSwing;
-            return new GrappleMovementResult(grapple.Phase);
-        }
+            return ReleaseOrDrop(samus, grapple);
 
         SamusGrappleSwing.ApplyRopeAndDirectionInput(grapple, controllerInput, newlyPressedInput);
         SamusGrappleSwing.ApplyRopeLengthDelta(terrain.Level, samus, grapple);
@@ -327,18 +308,8 @@ public static class SamusGrappleMovement
         if (anchorDisconnected)
         {
             // A block that still stops the beam keeps the rope; one replaced with air (a breakable grapple block that
-            // has crumbled), or an enemy anchor the rope has lost, ends the connection. A motionless straight-down
-            // body queues the drop; a moving pendulum uses the velocity-preserving release handoff.
-            if (grapple.AngularVelocity == AngularSpeed.Zero && grapple.Angle == RotationAngle.HalfTurn)
-            {
-                grapple.Phase = GrapplePhase.Dropped;
-                return new GrappleMovementResult(grapple.Phase);
-            }
-
-            SamusGrappleSwing.PropelSamusFromSwing(samus, grapple);
-            grapple.ReleasedMovementActive = true;
-            grapple.Phase = GrapplePhase.ReleaseFromSwing;
-            return new GrappleMovementResult(grapple.Phase);
+            // has crumbled), or an enemy anchor the rope has lost, ends the connection as releasing Shoot does.
+            return ReleaseOrDrop(samus, grapple);
         }
 
         SamusGrappleSwing.PositionSamusFromPendulum(samus, grapple);
@@ -1074,16 +1045,13 @@ public static class SamusGrappleMovement
             samus.HorizontalSpeed.ExtraRunSpeed = default;
         }
 
-        grapple.Phase = GrapplePhase.Inactive;
-        // Cancel and kill both return the camera to its ordinary scroll.
-        grapple.ScrollCameraOrdinarily();
+        EndGrapple(grapple);
         grapple.PoseChangeAutoFireTimer = UpdateCountdown.Ended();
         grapple.RopeLength = 0;
         grapple.RopeLengthDelta = 0;
         grapple.ExtensionVelocity = default(PixelVelocity<RoomPixels>);
         grapple.EndpointOffset = FixedVector<RoomPixels>.Zero;
         grapple.CancelFromConnectedPose = false;
-        SamusGrappleBeamDrawing.ClearFlareAnimation(grapple);
         SamusHudSelection.ReturnAutoCancelledItem(samus);
         return new GrappleMovementResult(
             GrapplePhase.Inactive,
@@ -1151,16 +1119,10 @@ public static class SamusGrappleMovement
         SamusPoseId releasePose = !grapple.AngularVelocity.IsNegative
             ? SamusPoseId.NormalJumpForwardLeftPose
             : SamusPoseId.NormalJumpForwardRightPose;
-        grapple.Phase = GrapplePhase.Inactive;
-        grapple.ScrollCameraOrdinarily(); // Releasing returns the camera to its ordinary scroll.
-        grapple.DirectionInputAcceleration = AngularSpeed.Zero;
-        grapple.GravityAcceleration = AngularSpeed.Zero;
-        grapple.VelocityCorrection = AngularSpeed.Zero;
-        grapple.JumpImpulse = AngularSpeed.Zero;
+        EndGrapple(grapple);
+        ClearSwingForces(grapple);
         grapple.RopeLengthDelta = 0;
-        grapple.CollisionBounceTimer = UpdateCountdown.Ended();
-        grapple.ValidatedAnchor = null;
-        SamusGrappleBeamDrawing.ClearFlareAnimation(grapple);
+        ForgetAnchorContact(grapple);
         SamusHudSelection.ReturnAutoCancelledItem(samus);
         return releasePose;
     }
@@ -1179,21 +1141,61 @@ public static class SamusGrappleMovement
         // The drop and the wall jump clear the whole grapple: its movement, its drawing, its wall grace and its
         // collision, so a later firing starts afresh; both end an automatically cancelled selection, and the update's
         // grapple phase shows the equipped beams' colours again.
-        grapple.Phase = GrapplePhase.Inactive;
+        EndGrapple(grapple);
         grapple.RopeLength = 0;
         grapple.RopeLengthDelta = 0;
         grapple.AngularVelocity = AngularSpeed.Zero;
+        ClearSwingForces(grapple);
+        ForgetAnchorContact(grapple);
+        grapple.SwingFreely();
+        grapple.WallJumpTimer = UpdateCountdown.Ended();
+        grapple.CancelFromConnectedPose = false;
+    }
+
+    /// <summary>
+    /// Ends the grapple (#2557): its phase inactive, the camera back on its ordinary scroll and the flare cleared. The
+    /// firing cancellation, the swing's release, the drop and the wall jump all do this, and each then clears what it owns
+    /// besides.
+    /// </summary>
+    private static void EndGrapple(SamusGrappleState grapple)
+    {
+        grapple.Phase = GrapplePhase.Inactive;
+        grapple.ScrollCameraOrdinarily();
+        SamusGrappleBeamDrawing.ClearFlareAnimation(grapple);
+    }
+
+    /// <summary>Clears the swing's forces (#2557): the direction input's acceleration, gravity's, the velocity correction and the jump impulse.</summary>
+    private static void ClearSwingForces(SamusGrappleState grapple)
+    {
         grapple.DirectionInputAcceleration = AngularSpeed.Zero;
         grapple.GravityAcceleration = AngularSpeed.Zero;
         grapple.VelocityCorrection = AngularSpeed.Zero;
         grapple.JumpImpulse = AngularSpeed.Zero;
+    }
+
+    /// <summary>Forgets the anchor's contact (#2557): the collision bounce timer ends and no anchor is validated.</summary>
+    private static void ForgetAnchorContact(SamusGrappleState grapple)
+    {
         grapple.CollisionBounceTimer = UpdateCountdown.Ended();
-        grapple.SwingFreely();
-        // Dropping and wall jumping return the camera to its ordinary scroll.
-        grapple.ScrollCameraOrdinarily();
-        grapple.WallJumpTimer = UpdateCountdown.Ended();
-        grapple.CancelFromConnectedPose = false;
         grapple.ValidatedAnchor = null;
-        SamusGrappleBeamDrawing.ClearFlareAnimation(grapple);
+    }
+
+    /// <summary>
+    /// Lets go of a swing (#2557), whether Shoot is released or the anchor is lost: a motionless straight-down body queues the
+    /// drop; a moving pendulum propels Samus with its velocity and hands her movement at once to the released-from-swing
+    /// movement, while the beam stays in its one-update release cleanup.
+    /// </summary>
+    private static GrappleMovementResult ReleaseOrDrop(SamusState samus, SamusGrappleState grapple)
+    {
+        if (grapple.AngularVelocity == AngularSpeed.Zero && grapple.Angle == RotationAngle.HalfTurn)
+        {
+            grapple.Phase = GrapplePhase.Dropped;
+            return new GrappleMovementResult(grapple.Phase);
+        }
+
+        SamusGrappleSwing.PropelSamusFromSwing(samus, grapple);
+        grapple.ReleasedMovementActive = true;
+        grapple.Phase = GrapplePhase.ReleaseFromSwing;
+        return new GrappleMovementResult(grapple.Phase);
     }
 }

@@ -37,7 +37,7 @@ public static class RoomObjectSamusEaterVisualFiles
     /// <summary>Loads the installed Samus Eater plant pictures as the player left them, without the cartridge.</summary>
     /// <param name="directory">The installed directory.</param>
     /// <exception cref="InvalidDataException">The file's format is not this importer's, or a frame's picture is missing or misshapen.</exception>
-    public static InstalledRoomObjectSamusEaterVisuals Load(string directory) =>
+    public static InstalledRoomObjectPictures Load(string directory) =>
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>Maps a validated draw to the artwork catalog's orientation and phase ID.</summary>

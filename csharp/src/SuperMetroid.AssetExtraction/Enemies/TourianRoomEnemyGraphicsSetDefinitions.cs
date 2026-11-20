@@ -4,6 +4,12 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// <summary>The graphics sets of the Tourian room-header region, in table order.</summary>
 internal static class TourianRoomEnemyGraphicsSetDefinitions
 {
+    /// <summary>The members of every Metroid room set, Metroids and Rinkas, in record order.</summary>
+    private static readonly RoomEnemyGraphicsSetMember[] MetroidsAndRinkas =
+    [
+        new(EnemyDefinitionId.Metroid), new(EnemyDefinitionId.Rinka),
+    ];
+
     /// <summary>The region's lists, in table order.</summary>
     internal static RoomEnemyGraphicsSetMembers[] Build() =>
     [
@@ -13,10 +19,7 @@ internal static class TourianRoomEnemyGraphicsSetDefinitions
         ]),
         new(RoomEnemyGraphicsSetDefinitions.MotherBrainSave, [
         ]),
-        new(RoomEnemyGraphicsSetDefinitions.Metroids1Default, [
-            new(EnemyDefinitionId.Metroid),
-            new(EnemyDefinitionId.Rinka),
-        ]),
+        new(RoomEnemyGraphicsSetDefinitions.Metroids1Default, MetroidsAndRinkas),
         new(RoomEnemyGraphicsSetDefinitions.DustTorizo, [
             new(EnemyDefinitionId.CorpseTorizo),
         ]),
@@ -40,14 +43,8 @@ internal static class TourianRoomEnemyGraphicsSetDefinitions
         ]),
         new(RoomEnemyGraphicsSetDefinitions.TourianFirst, [
         ]),
-        new(RoomEnemyGraphicsSetDefinitions.Metroids2Default, [
-            new(EnemyDefinitionId.Metroid),
-            new(EnemyDefinitionId.Rinka),
-        ]),
-        new(RoomEnemyGraphicsSetDefinitions.Metroids4Default, [
-            new(EnemyDefinitionId.Metroid),
-            new(EnemyDefinitionId.Rinka),
-        ]),
+        new(RoomEnemyGraphicsSetDefinitions.Metroids2Default, MetroidsAndRinkas),
+        new(RoomEnemyGraphicsSetDefinitions.Metroids4Default, MetroidsAndRinkas),
         new(RoomEnemyGraphicsSetDefinitions.Metroids1WhenFirstMetroidHallCleared, [
             new(EnemyDefinitionId.Rinka),
         ]),
@@ -73,10 +70,7 @@ internal static class TourianRoomEnemyGraphicsSetDefinitions
         ]),
         new(RoomEnemyGraphicsSetDefinitions.UpperTourianSave, [
         ]),
-        new(RoomEnemyGraphicsSetDefinitions.Metroids3Default, [
-            new(EnemyDefinitionId.Metroid),
-            new(EnemyDefinitionId.Rinka),
-        ]),
+        new(RoomEnemyGraphicsSetDefinitions.Metroids3Default, MetroidsAndRinkas),
         new(RoomEnemyGraphicsSetDefinitions.RinkaShaft, [
             new(EnemyDefinitionId.Rinka),
         ]),

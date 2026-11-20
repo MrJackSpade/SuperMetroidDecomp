@@ -23,7 +23,7 @@ internal static class LinkedRestoreVisualsVerification
     {
         LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(0xa4c7,"bomb-horizontal"), new LookupEscapeGateStockFrame(0xa4cf,"bomb-vertical"),
             new LookupEscapeGateStockFrame(0xa4d7,"bomb-square"), new LookupEscapeGateStockFrame(0xa4a1,"crumble-horizontal"), new LookupEscapeGateStockFrame(0xa4a9,"crumble-vertical"), new LookupEscapeGateStockFrame(0xa4b1,"crumble-square")];
-        InstalledRoomObjectLinkedRestoreVisuals stock = InstalledRoomObjectLinkedRestoreVisuals.Stock();
+        InstalledRoomObjectPictures stock = RoomObjectPicturesStock.LinkedRestore;
         AssertPicturedAsNative(rom, stock.Images, RoomObjectLinkedRestoreVisualFiles.Family, frames, WrittenCells(RoomObjectLinkedRestoreVisualFiles.Family));
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
             if (frames.All(frame => frame.Pointer != pointer))

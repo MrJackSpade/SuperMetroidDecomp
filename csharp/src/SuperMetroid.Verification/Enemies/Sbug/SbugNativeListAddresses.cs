@@ -13,16 +13,16 @@ internal static class SbugNativeListAddresses
     internal const byte Bank = 0xa3;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly NativeProgramEntry<SbugSegment>[] Entries =
+    internal static readonly NativeProgramEntry<CompassDirection>[] Entries =
     [
-        new NativeProgramEntry<SbugSegment>(SbugSegment.Right, 0xa071),
-        new NativeProgramEntry<SbugSegment>(SbugSegment.UpRight, 0xa085),
-        new NativeProgramEntry<SbugSegment>(SbugSegment.Up, 0xa099),
-        new NativeProgramEntry<SbugSegment>(SbugSegment.UpLeft, 0xa0ad),
-        new NativeProgramEntry<SbugSegment>(SbugSegment.Left, 0xa0c1),
-        new NativeProgramEntry<SbugSegment>(SbugSegment.DownLeft, 0xa0d5),
-        new NativeProgramEntry<SbugSegment>(SbugSegment.Down, 0xa0e9),
-        new NativeProgramEntry<SbugSegment>(SbugSegment.DownRight, 0xa0fd),
+        new NativeProgramEntry<CompassDirection>(CompassDirection.Right, 0xa071),
+        new NativeProgramEntry<CompassDirection>(CompassDirection.UpRight, 0xa085),
+        new NativeProgramEntry<CompassDirection>(CompassDirection.Up, 0xa099),
+        new NativeProgramEntry<CompassDirection>(CompassDirection.UpLeft, 0xa0ad),
+        new NativeProgramEntry<CompassDirection>(CompassDirection.Left, 0xa0c1),
+        new NativeProgramEntry<CompassDirection>(CompassDirection.DownLeft, 0xa0d5),
+        new NativeProgramEntry<CompassDirection>(CompassDirection.Down, 0xa0e9),
+        new NativeProgramEntry<CompassDirection>(CompassDirection.DownRight, 0xa0fd),
     ];
 
 }

@@ -15,17 +15,7 @@ internal static class AlcoonAnimations
     internal static AnimationSegments<AlcoonSegment, EnemyFrameId, AlcoonCue> Segments { get; } = new(
         new Dictionary<AlcoonSegment, AnimationBeat<EnemyFrameId, AlcoonCue>[]>
     {
-        [P.WalkingLeft] =
-        [
-            Cue(new AlcoonCue.Signal(K.Move)),
-            Show(EnemyFrameId.AlcoonWalkingLeftNearLegStepping, 10),
-            Cue(new AlcoonCue.Signal(K.Move)),
-            Show(EnemyFrameId.AlcoonWalkingLeftNearLegPlanted, 10),
-            Cue(new AlcoonCue.Signal(K.Move)),
-            Show(EnemyFrameId.AlcoonWalkingLeftFarLegStepping, 10),
-            Cue(new AlcoonCue.Signal(K.CompleteWalkCycle)),
-            Show(EnemyFrameId.AlcoonWalkingLeftFarLegPlanted, 10),
-        ],
+        [P.WalkingLeft] = Walk(EnemyFrameId.AlcoonWalkingLeftNearLegStepping, EnemyFrameId.AlcoonWalkingLeftNearLegPlanted, EnemyFrameId.AlcoonWalkingLeftFarLegStepping, EnemyFrameId.AlcoonWalkingLeftFarLegPlanted),
         [P.FireLeft] = Fire(AlcoonSpitPoses.Left),
         [P.AirborneLeftLookingUp] =
         [
@@ -35,17 +25,7 @@ internal static class AlcoonAnimations
         [
             Hold(EnemyFrameId.AlcoonWalkingLeftFarLegPlanted),
         ],
-        [P.WalkingRight] =
-        [
-            Cue(new AlcoonCue.Signal(K.Move)),
-            Show(EnemyFrameId.AlcoonWalkingRightNearLegStepping, 10),
-            Cue(new AlcoonCue.Signal(K.Move)),
-            Show(EnemyFrameId.AlcoonWalkingRightNearLegPlanted, 10),
-            Cue(new AlcoonCue.Signal(K.Move)),
-            Show(EnemyFrameId.AlcoonWalkingRightFarLegStepping, 10),
-            Cue(new AlcoonCue.Signal(K.CompleteWalkCycle)),
-            Show(EnemyFrameId.AlcoonWalkingRightFarLegPlanted, 10),
-        ],
+        [P.WalkingRight] = Walk(EnemyFrameId.AlcoonWalkingRightNearLegStepping, EnemyFrameId.AlcoonWalkingRightNearLegPlanted, EnemyFrameId.AlcoonWalkingRightFarLegStepping, EnemyFrameId.AlcoonWalkingRightFarLegPlanted),
         [P.FireRight] = Fire(AlcoonSpitPoses.Right),
         [P.AirborneRightLookingUp] =
         [
@@ -110,6 +90,19 @@ internal static class AlcoonAnimations
         Show(poses.MouthOpening, 3),
         Cue(new AlcoonCue.Fire(launch)),
         Show(poses.MouthWide, wideUpdates),
+    ];
+
+    /// <summary>A walk cycle over a facing's poses, <paramref name="nearLegStepping"/>, <paramref name="nearLegPlanted"/>, <paramref name="farLegStepping"/>, <paramref name="farLegPlanted"/>, each shown ten updates and each but the last moving the Alcoon on.</summary>
+    private static AnimationBeat<EnemyFrameId, AlcoonCue>[] Walk(EnemyFrameId nearLegStepping, EnemyFrameId nearLegPlanted, EnemyFrameId farLegStepping, EnemyFrameId farLegPlanted) =>
+    [
+        Cue(new AlcoonCue.Signal(K.Move)),
+        Show(nearLegStepping, 10),
+        Cue(new AlcoonCue.Signal(K.Move)),
+        Show(nearLegPlanted, 10),
+        Cue(new AlcoonCue.Signal(K.Move)),
+        Show(farLegStepping, 10),
+        Cue(new AlcoonCue.Signal(K.CompleteWalkCycle)),
+        Show(farLegPlanted, 10),
     ];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>

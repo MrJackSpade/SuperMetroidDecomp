@@ -19,28 +19,26 @@ internal static class ScriptedTerrainChangeDefinitions
     /// A block an enemy breaks: the crumble sound, at low priority, with the first of a single block's four breakup
     /// images; the last image, the cleared block, shows for one update.
     /// </summary>
-    internal static TerrainChange EnemyBreakableBlockBreak { get; } = new(1,
-    [
-        new(ShotBlockObjectDraws.Breakup(BlockArrangement.Single, BlockBreakupStage.Rock), BreakupFrameDuration,
-            SoundBefore: EnemySound.BlockCrumble) { SoundPriority = SoundRequestPriority.Low },
-        new(ShotBlockObjectDraws.Breakup(BlockArrangement.Single, BlockBreakupStage.Pieces), BreakupFrameDuration),
-        new(ShotBlockObjectDraws.Breakup(BlockArrangement.Single, BlockBreakupStage.Dust), BreakupFrameDuration),
-        new(ShotBlockObjectDraws.Breakup(BlockArrangement.Single, BlockBreakupStage.Gone), 1),
-    ]);
+    internal static TerrainChange EnemyBreakableBlockBreak { get; } = SingleBlockBreakup(EnemySound.BlockCrumble, SoundRequestPriority.Low);
 
     /// <summary>
     /// The critters' wall breaking open where a shot hit it: the crumble sound with the first of its four images; the
     /// last, the cleared block, shows for one update before <see cref="CritterWallBreakthroughObject"/> marks the
     /// critters escaped.
     /// </summary>
-    internal static TerrainChange CritterWallBreakthrough { get; } = new(1,
-    [
-        new(EscapeAnimalWalls.Family.Of(EscapeAnimalDraw.Cracking), BreakupFrameDuration,
-            SoundBefore: EnemySound.BlockCrumble),
-        new(EscapeAnimalWalls.Family.Of(EscapeAnimalDraw.Breaking), BreakupFrameDuration),
-        new(EscapeAnimalWalls.Family.Of(EscapeAnimalDraw.Crumbling), BreakupFrameDuration),
-        new(EscapeAnimalWalls.Family.Of(EscapeAnimalDraw.Blank), 1),
-    ]);
+    internal static TerrainChange CritterWallBreakthrough { get; } = TerrainChange.Breakup(
+        EscapeAnimalWalls.Family.Of(EscapeAnimalDraw.Cracking), EscapeAnimalWalls.Family.Of(EscapeAnimalDraw.Breaking),
+        EscapeAnimalWalls.Family.Of(EscapeAnimalDraw.Crumbling), EscapeAnimalWalls.Family.Of(EscapeAnimalDraw.Blank),
+        BreakupFrameDuration, EnemySound.BlockCrumble, SoundRequestPriority.Normal);
+
+    /// <summary>
+    /// A single block's breakup over its four breakup images, <paramref name="sound"/>, when there is one, requested at
+    /// <paramref name="soundPriority"/> with the first.
+    /// </summary>
+    internal static TerrainChange SingleBlockBreakup(SoundEffectId? sound, SoundRequestPriority soundPriority) => TerrainChange.Breakup(
+        ShotBlockObjectDraws.Breakup(BlockArrangement.Single, BlockBreakupStage.Rock), ShotBlockObjectDraws.Breakup(BlockArrangement.Single, BlockBreakupStage.Pieces),
+        ShotBlockObjectDraws.Breakup(BlockArrangement.Single, BlockBreakupStage.Dust), ShotBlockObjectDraws.Breakup(BlockArrangement.Single, BlockBreakupStage.Gone),
+        BreakupFrameDuration, sound, soundPriority);
 
     /// <summary>Crateria's main-street escape passage: its first pair of blocks clears, then, an update later, the pair beside it (<see cref="SecondPassagePair"/>).</summary>
     internal static TerrainChange CrateriaEscapePassage { get; } = new(1,

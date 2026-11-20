@@ -4,6 +4,24 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// <summary>The graphics sets of the Crateria room-header region, in table order. It opens with the set Draygon and Mother Brain share.</summary>
 internal static class CrateriaRoomEnemyGraphicsSetDefinitions
 {
+    /// <summary>The members of every set here that loads a face block and Stoke, in record order.</summary>
+    private static readonly RoomEnemyGraphicsSetMember[] FaceBlockAndStoke =
+    [
+        new(EnemyDefinitionId.FaceBlock), new(UnplacedEnemyArtwork.Stoke),
+    ];
+
+    /// <summary>The members of every set here that loads Sbugs and a face block, in record order.</summary>
+    private static readonly RoomEnemyGraphicsSetMember[] SbugAndFaceBlock =
+    [
+        new(EnemyDefinitionId.Sbug), new(EnemyDefinitionId.FaceBlock),
+    ];
+
+    /// <summary>The members of every set here that loads the gunship, its top and its entrance bottom, in record order.</summary>
+    private static readonly RoomEnemyGraphicsSetMember[] Gunship =
+    [
+        new(EnemyDefinitionId.ShipTop), new(EnemyDefinitionId.ShipBottomEntrance),
+    ];
+
     /// <summary>The region's lists, in table order.</summary>
     internal static RoomEnemyGraphicsSetMembers[] Build() =>
     [
@@ -22,14 +40,8 @@ internal static class CrateriaRoomEnemyGraphicsSetDefinitions
             new(EnemyDefinitionId.Waver),
             new(EnemyDefinitionId.Zoomer),
         ]),
-        new(RoomEnemyGraphicsSetDefinitions.FinalMissileBombwayWhenZebesAwake, [
-            new(EnemyDefinitionId.FaceBlock),
-            new(UnplacedEnemyArtwork.Stoke),
-        ]),
-        new(RoomEnemyGraphicsSetDefinitions.FinalMissileBombwayDefault, [
-            new(EnemyDefinitionId.FaceBlock),
-            new(UnplacedEnemyArtwork.Stoke),
-        ]),
+        new(RoomEnemyGraphicsSetDefinitions.FinalMissileBombwayWhenZebesAwake, FaceBlockAndStoke),
+        new(RoomEnemyGraphicsSetDefinitions.FinalMissileBombwayDefault, FaceBlockAndStoke),
         new(RoomEnemyGraphicsSetDefinitions.ParlorWhenZebesAwake, [
             new(EnemyDefinitionId.Zoomer),
             new(EnemyDefinitionId.Skree),
@@ -75,10 +87,7 @@ internal static class CrateriaRoomEnemyGraphicsSetDefinitions
         new(RoomEnemyGraphicsSetDefinitions.Moat, [
             new(EnemyDefinitionId.FaceBlock),
         ]),
-        new(RoomEnemyGraphicsSetDefinitions.ClimbDefault, [
-            new(EnemyDefinitionId.Sbug),
-            new(EnemyDefinitionId.FaceBlock),
-        ]),
+        new(RoomEnemyGraphicsSetDefinitions.ClimbDefault, SbugAndFaceBlock),
         new(RoomEnemyGraphicsSetDefinitions.WestOcean, [
             new(EnemyDefinitionId.Skultera),
             new(EnemyDefinitionId.Zeb),
@@ -88,10 +97,7 @@ internal static class CrateriaRoomEnemyGraphicsSetDefinitions
         new(RoomEnemyGraphicsSetDefinitions.ParlorDefault, [
             new(EnemyDefinitionId.Sbug),
         ]),
-        new(RoomEnemyGraphicsSetDefinitions.LandingSiteBeforeTimebomb, [
-            new(EnemyDefinitionId.ShipTop),
-            new(EnemyDefinitionId.ShipBottomEntrance),
-        ]),
+        new(RoomEnemyGraphicsSetDefinitions.LandingSiteBeforeTimebomb, Gunship),
         new(RoomEnemyGraphicsSetDefinitions.CrateriaSuper, [
             new(EnemyDefinitionId.Boyon),
             new(EnemyDefinitionId.YappingMaw),
@@ -113,10 +119,7 @@ internal static class CrateriaRoomEnemyGraphicsSetDefinitions
             new(EnemyDefinitionId.YappingMaw),
             new(EnemyDefinitionId.Zebbo),
         ]),
-        new(RoomEnemyGraphicsSetDefinitions.PitDefault, [
-            new(EnemyDefinitionId.Sbug),
-            new(EnemyDefinitionId.FaceBlock),
-        ]),
+        new(RoomEnemyGraphicsSetDefinitions.PitDefault, SbugAndFaceBlock),
         new(RoomEnemyGraphicsSetDefinitions.CrabMaze, [
             new(EnemyDefinitionId.Sciser),
             new(EnemyDefinitionId.Puyo),
@@ -138,10 +141,7 @@ internal static class CrateriaRoomEnemyGraphicsSetDefinitions
             new(EnemyDefinitionId.Kago),
             new(EnemyDefinitionId.ArmoredZoomer),
         ]),
-        new(RoomEnemyGraphicsSetDefinitions.LandingSiteWhenZebesTimebombSet, [
-            new(EnemyDefinitionId.ShipTop),
-            new(EnemyDefinitionId.ShipBottomEntrance),
-        ]),
+        new(RoomEnemyGraphicsSetDefinitions.LandingSiteWhenZebesTimebombSet, Gunship),
         new(RoomEnemyGraphicsSetDefinitions.ParlorWhenZebesTimebombSet, [
             new(EnemyDefinitionId.Sbug),
         ]),

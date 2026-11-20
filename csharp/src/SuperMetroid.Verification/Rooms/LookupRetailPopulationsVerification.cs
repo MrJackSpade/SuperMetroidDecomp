@@ -83,30 +83,45 @@ internal static class LookupRetailPopulationsVerification
     /// <summary>Checks that every compiled population ends at its native zero header.</summary>
     private static void VerifyRetailPopulationTermination(CartridgeImportAddressSpace rom) => VerifyRetailPopulationField(rom, 4);
 
-    /// <summary>Walks each native list and compares one selected field or terminator length.</summary>
+    /// <summary>
+    /// Walks each native list and compares one selected field or terminator length. A trigger's scroll extensions follow it
+    /// in the catalog as the reach it is placed with (#2557), wherever the cartridge lists them: each only writes its own
+    /// block and frees its place at once, so the extensions are compared as the set of blocks they cover and every other
+    /// placement in the cartridge's order.
+    /// </summary>
     private static void VerifyRetailPopulationField(CartridgeImportAddressSpace rom, int field)
     {
         int total = 0;
         int orphans = 0;
         foreach (ushort pointer in OriginalRetailPopulationPointers)
         {
-            ReadOnlySpan<RoomObjectPlacement> actual = RoomObjectPopulationDefinitions.Get(pointer).Placements.Span;
+            RoomObjectPlacement[] compiled = RoomObjectPopulationDefinitions.Get(pointer).Placements.ToArray();
+            int start = 0x8f0000 | pointer;
+            HashSet<(int X, int Y)> scrollChain = NativeScrollChain(rom, start);
+            var nativeOthers = new List<int>();
+            var nativeExtensions = new List<int>();
             int count = 0;
-            int placed = 0;
-            int address = 0x8f0000 | pointer;
-            HashSet<(int X, int Y)> scrollChain = NativeScrollChain(rom, address);
-            while (ReadSamusEaterObjectWord(rom, address) != 0)
+            for (int record = start; ReadSamusEaterObjectWord(rom, record) != 0; record += 6)
             {
+                AssertTrue(++count <= 256, "native population is bounded");
                 // A scroll extension whose step back leads to no trigger or extension extends nothing, and the catalog
                 // leaves it out (#2572).
-                if (ExtendsNothing(rom, address, scrollChain))
-                {
+                if (ExtendsNothing(rom, record, scrollChain))
                     orphans++;
-                    address += 6;
-                    count++;
-                    continue;
-                }
-                AssertTrue(count < 256 && placed < actual.Length, "native placement has a corresponding bounded operation");
+                else if (ScrollExtensionStepsBack.ContainsKey(ReadSamusEaterObjectWord(rom, record)))
+                    nativeExtensions.Add(record);
+                else
+                    nativeOthers.Add(record);
+            }
+            int[] nativeOrder = [.. nativeOthers, .. nativeExtensions.OrderBy(record => RetailPopulationFieldRomByte(rom, record + 2))
+                .ThenBy(record => RetailPopulationFieldRomByte(rom, record + 3))];
+            RoomObjectPlacement[] actual = [.. compiled.Where(placement => !RoomObjectKindVariants.ScrollExtensions.ContainsKey(placement.Kind)),
+                .. compiled.Where(placement => RoomObjectKindVariants.ScrollExtensions.ContainsKey(placement.Kind))
+                    .OrderBy(placement => placement.Block.X).ThenBy(placement => placement.Block.Y)];
+            int placed = 0;
+            foreach (int address in nativeOrder)
+            {
+                AssertTrue(placed < actual.Length, "native placement has a corresponding bounded operation");
                 RoomObjectPlacement placement = actual[placed];
                 int expected = field switch
                 {
@@ -131,24 +146,22 @@ internal static class LookupRetailPopulationsVerification
                 {
                     // A Draygon cannon's argument names its control word, which the population carries typed (#1448).
                     AssertEqual(DraygonWallCannonAddresses.Decode(checked((ushort)expected)), control,
-                        $"population {pointer:X4} operation {count} cannon control");
-                    AssertEqual(0, result, $"population {pointer:X4} operation {count} cannon carries no raw argument");
+                        $"population {pointer:X4} operation {placed} cannon control");
+                    AssertEqual(0, result, $"population {pointer:X4} operation {placed} cannon carries no raw argument");
                 }
                 else if (field == 3 && heldPlace)
                 {
                     AssertTrue(RoomObjectRoomArgumentWords.PlacedKind(RoomObjectKind.MetroidRoomClearance, expected) == placement.Kind,
-                        $"population {pointer:X4} operation {count} held place's word selects a no-op entry");
+                        $"population {pointer:X4} operation {placed} held place's word selects a no-op entry");
                 }
                 else if (field == 3 && RoomObjectRoomArgumentWords.NumbersUnread(placement.Kind))
                 {
                     // A refill station's number is read by nothing (#1623): the placement carries no argument instead of it.
                     AssertEqual<RoomObjectRoomArgument?>(null, placement.Argument,
-                        $"population {pointer:X4} operation {count} refill station carries no argument");
+                        $"population {pointer:X4} operation {placed} refill station carries no argument");
                 }
                 else if (field != 4)
-                    AssertEqual(expected, result, $"population {pointer:X4} operation {count} field {field}");
-                address += 6;
-                count++;
+                    AssertEqual(expected, result, $"population {pointer:X4} operation {placed} field {field}");
                 placed++;
             }
             if (field == 4)

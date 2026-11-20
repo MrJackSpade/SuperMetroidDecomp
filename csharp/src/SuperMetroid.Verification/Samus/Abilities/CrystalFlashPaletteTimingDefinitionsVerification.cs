@@ -22,7 +22,7 @@ internal static class CrystalFlashPaletteTimingDefinitionsVerification
         CartridgeImportAddressSpace rom)
     {
         IReadOnlyList<AnimationBeat<PictureShade, NoAnimationCue>> pulse =
-            SamusGlowAnimationDefinitions.Segments.Beats(SamusGlowSegment.CrystalFlashBody);
+            SamusGlowAnimationDefinitions.Segments.Beats(SamusGlowSegment.Of(SamusGlow.CrystalFlashBody));
         AssertEqual(CrystalFlashPaletteTimingDefinitionsConstants.RecordCount, pulse.Count, "the body pulse has one shade per native record");
         for (int record = 0; record < CrystalFlashPaletteTimingDefinitionsConstants.RecordCount; record++)
         {

@@ -27,19 +27,9 @@ internal static class CacatacProjectileAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at: each spike a still picture (#2275).</summary>
-    internal static IReadOnlyDictionary<CacatacSpikeDirection, Animation<CacatacSpikeDirection>> StartingAt { get; } = new Dictionary<CacatacSpikeDirection, Animation<CacatacSpikeDirection>>
-    {
-        [P.LeftFacingUp] = new([Segments.Whole(P.LeftFacingUp)], AnimationEnd.Holds),
-        [P.UpLeft] = new([Segments.Whole(P.UpLeft)], AnimationEnd.Holds),
-        [P.Up] = new([Segments.Whole(P.Up)], AnimationEnd.Holds),
-        [P.UpRight] = new([Segments.Whole(P.UpRight)], AnimationEnd.Holds),
-        [P.RightFacingUp] = new([Segments.Whole(P.RightFacingUp)], AnimationEnd.Holds),
-        [P.LeftFacingDown] = new([Segments.Whole(P.LeftFacingDown)], AnimationEnd.Holds),
-        [P.DownLeft] = new([Segments.Whole(P.DownLeft)], AnimationEnd.Holds),
-        [P.Down] = new([Segments.Whole(P.Down)], AnimationEnd.Holds),
-        [P.DownRight] = new([Segments.Whole(P.DownRight)], AnimationEnd.Holds),
-        [P.RightFacingDown] = new([Segments.Whole(P.RightFacingDown)], AnimationEnd.Holds),
-    };
+    internal static IReadOnlyDictionary<CacatacSpikeDirection, Animation<CacatacSpikeDirection>> StartingAt { get; } = Segments.EachEnding(AnimationEnd.Holds,
+        P.LeftFacingUp, P.UpLeft, P.Up, P.UpRight, P.RightFacingUp, P.LeftFacingDown, P.DownLeft, P.Down, P.DownRight,
+        P.RightFacingDown);
 
     /// <summary>The animation of a spike launched in <paramref name="direction"/>.</summary>
     /// <exception cref="InvalidDataException"><paramref name="direction"/> is not one of the ten spike directions.</exception>

@@ -30,12 +30,14 @@ internal abstract class EnemyProjectileAnimation
             case EnemyProjectileFrameStep.Show shown:
                 projectile.FrameHold = WrappingCountdown.Start(shown.Duration);
                 projectile.Frame = shown.Frame;
+                projectile.FramePlacement = shown.Placement;
                 return;
             case EnemyProjectileFrameStep.ShowForGood held:
                 // A frame shown for good stops the hold: the projectile shows it until its owner sets the hold again or
                 // starts another animation.
                 projectile.StopFrameHold();
                 projectile.Frame = held.Frame;
+                projectile.FramePlacement = held.Placement;
                 return;
             case EnemyProjectileFrameStep.Hide hidden:
                 projectile.FrameHold = WrappingCountdown.Start(hidden.Duration);

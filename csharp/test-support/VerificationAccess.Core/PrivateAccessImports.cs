@@ -224,7 +224,6 @@ global using static SuperMetroid.AssetExtraction.Video.VramDmaDestinationPrivate
 global using static SuperMetroid.AssetExtraction.Video.VramRegionPrivateAccess;
 global using static SuperMetroid.AssetExtraction.World.Artwork.EnemyExtendedFrameDefinitionsPrivateAccess;
 global using static SuperMetroid.Core.Areas.Ceres.CeresBabyAnimationsPrivateAccess;
-global using static SuperMetroid.Core.Areas.Ceres.CeresDoorAnimationsPrivateAccess;
 global using static SuperMetroid.Core.Areas.Ceres.CeresDoorBehaviorPrivateAccess;
 global using static SuperMetroid.Core.Areas.Ceres.CeresElevatorShaftRoomMainStatePrivateAccess;
 global using static SuperMetroid.Core.Areas.Ceres.CeresFallingTilesPrivateAccess;

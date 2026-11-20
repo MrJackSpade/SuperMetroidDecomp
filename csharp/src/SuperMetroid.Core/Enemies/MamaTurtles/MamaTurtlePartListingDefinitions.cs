@@ -4,5 +4,5 @@ namespace SuperMetroid.Core.Enemies.MamaTurtles;
 internal static class MamaTurtlePartListingDefinitions
 {
     /// <summary>The Mama Turtle, then her four babies.</summary>
-    internal static EnemyComposite<EnemyDefinitionId> Listing { get; } = new([EnemyDefinitionId.MamaTurtle, EnemyDefinitionId.BabyTurtle, EnemyDefinitionId.BabyTurtle, EnemyDefinitionId.BabyTurtle, EnemyDefinitionId.BabyTurtle]);
+    internal static EnemyComposite<EnemyDefinitionId> Listing { get; } = new([EnemyDefinitionId.MamaTurtle, .. DefinitionRun.Repeated(EnemyDefinitionId.BabyTurtle, 4)]);
 }

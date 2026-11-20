@@ -74,7 +74,7 @@ internal sealed class FileSelectGameSequence(FrontendSession session) : IGamePha
             // stored map that is now empty.
             StoredExploredMapLoads.ClearAll(session.storedExploredMaps);
         }
-        session.display.PublishMenu(session.ActiveFileSelect);
+        session.display.Publish(session.ActiveFileSelect);
         if (session.ActiveFileSelect.Outcome == FileSelectMenuOutcome.Title)
         {
             // The game soft-resets when the menu returns to the title. Starting the title again
@@ -103,7 +103,7 @@ internal sealed class FileSelectGameSequence(FrontendSession session) : IGamePha
                 StartupRoute = optionSlot?.StartupRoute ?? SaveStartupRoute.OpeningCinematic,
             });
             session.Enter(FileSelectStep.Options);
-            session.display.PublishMenu(session.ActiveOptions);
+            session.display.Publish(session.ActiveOptions);
         }
     }
 
@@ -111,13 +111,13 @@ internal sealed class FileSelectGameSequence(FrontendSession session) : IGamePha
     private void RunOptions(ControllerButton controllerInput)
     {
         session.ActiveOptions.Step(controllerInput);
-        session.display.PublishMenu(session.ActiveOptions);
+        session.display.Publish(session.ActiveOptions);
         if (session.ActiveOptions.Outcome == GameOptionsMenuOutcome.FileSelect)
         {
             session.Show(new FileSelectMenuState(session.saves, session.audio, session.Artwork.ScreenContent,
                 session.Artwork.SpriteSheets));
             session.Enter(FileSelectStep.SaveSlots);
-            session.display.PublishMenu(session.ActiveFileSelect);
+            session.display.Publish(session.ActiveFileSelect);
         }
         else if (session.ActiveOptions.Outcome == GameOptionsMenuOutcome.Intro)
         {
@@ -214,7 +214,7 @@ internal sealed class FileSelectGameSequence(FrontendSession session) : IGamePha
                     session.Artwork.ScreenContent, session.Artwork.SpriteSheets));
             }
             else session.ActiveFileSelectMap.Step(controllerInput);
-            session.display.PublishFileMap(session.ActiveFileSelectMap);
+            session.display.Publish(session.ActiveFileSelectMap);
             if (session.ActiveFileSelectMap.Outcome == FileSelectMapOutcome.Options)
             {
                 session.Show(new GameOptionsMenuState(session.audio, session.Artwork.ScreenContent,
@@ -222,7 +222,7 @@ internal sealed class FileSelectGameSequence(FrontendSession session) : IGamePha
                     mapSlot.IconCancelEnabled, mapSlot.MoonwalkEnabled,
                     japaneseText: mapSlot.JapaneseText));
                 session.Enter(FileSelectStep.Options);
-                session.display.PublishMenu(session.ActiveOptions);
+                session.display.Publish(session.ActiveOptions);
                 return;
             }
             // A latched load request waits out the next frame before the game load (see above).

@@ -29,12 +29,10 @@ internal sealed class CeresDoorFactory(CeresDoorBehavior doors) : IEnemyEntityFa
         EnemyDefinitionId actor = Ensure.NotNull(occupant).DefinitionId;
         if (actor == EnemyDefinitionId.CeresDoor)
         {
-            return EnemyOccupant.Of(new CeresDoorEntity(_doors, occupant, place, common, occupant.SpawnSettings<CeresDoorSpawnSettings>().Facing switch
-            {
-                HorizontalDirection.Right => CeresDoorSegment.DoorFacingRight,
-                HorizontalDirection.Left => CeresDoorSegment.DoorFacingLeft,
-                var other => throw new InvalidDataException($"No Ceres door faces {other}."),
-            }));
+            HorizontalDirection facing = occupant.SpawnSettings<CeresDoorSpawnSettings>().Facing;
+            if (facing is not (HorizontalDirection.Right or HorizontalDirection.Left))
+                throw new InvalidDataException($"No Ceres door faces {facing}.");
+            return EnemyOccupant.Of(new CeresDoorEntity(_doors, occupant, place, common, facing));
         }
         if (actor == EnemyDefinitionId.CeresRidleyRoomDoor)
             return EnemyOccupant.Of(new CeresRidleyRoomDoorEntity(_doors, occupant, place, common));

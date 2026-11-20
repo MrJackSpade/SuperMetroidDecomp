@@ -299,7 +299,7 @@ internal sealed class RoomLoader
         SamusState samus = InitializeSamus();
         samus.Pose = SamusPoseId.ForwardFacingPowerSuitPose;
         samus.AnimationFrame = SamusAnimationDelays.AnimationForPose(samus.Pose).Start;
-        samus.CopyInventoryFrom(carried);
+        samus.Inventory = carried.Inventory;
         _player.Samus = samus;
         _assists.CarryLoadoutGrant(carried, samus);
 

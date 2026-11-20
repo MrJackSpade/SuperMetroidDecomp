@@ -14,27 +14,9 @@ internal static class PuyoAnimations
     internal static AnimationSegments<PuyoSegment, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
         new Dictionary<PuyoSegment, AnimationBeat<EnemyFrameId, NoAnimationCue>[]>
     {
-        [P.GroundedFast] =
-        [
-            Show(EnemyFrameId.PuyoGroundedTall, 5),
-            Show(EnemyFrameId.PuyoGroundedFlattening, 5),
-            Show(EnemyFrameId.PuyoGroundedFlat, 5),
-            Show(EnemyFrameId.PuyoGroundedFlattening, 5),
-        ],
-        [P.GroundedMedium] =
-        [
-            Show(EnemyFrameId.PuyoGroundedTall, 8),
-            Show(EnemyFrameId.PuyoGroundedFlattening, 8),
-            Show(EnemyFrameId.PuyoGroundedFlat, 8),
-            Show(EnemyFrameId.PuyoGroundedFlattening, 8),
-        ],
-        [P.GroundedSlow] =
-        [
-            Show(EnemyFrameId.PuyoGroundedTall, 10),
-            Show(EnemyFrameId.PuyoGroundedFlattening, 10),
-            Show(EnemyFrameId.PuyoGroundedFlat, 10),
-            Show(EnemyFrameId.PuyoGroundedFlattening, 10),
-        ],
+        [P.GroundedFast] = Squash(5),
+        [P.GroundedMedium] = Squash(8),
+        [P.GroundedSlow] = Squash(10),
         [P.TiltedFarRight] =
         [
             Hold(EnemyFrameId.PuyoAirborneClosing),
@@ -72,6 +54,15 @@ internal static class PuyoAnimations
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<PuyoSegment> StartingWith(PuyoSegment segment) => StartingAt[segment];
+
+    /// <summary>The grounded squash loop, tall, flattening, flat and flattening again, each pose shown for <paramref name="updates"/>.</summary>
+    private static AnimationBeat<EnemyFrameId, NoAnimationCue>[] Squash(int updates) =>
+    [
+        Show(EnemyFrameId.PuyoGroundedTall, updates),
+        Show(EnemyFrameId.PuyoGroundedFlattening, updates),
+        Show(EnemyFrameId.PuyoGroundedFlat, updates),
+        Show(EnemyFrameId.PuyoGroundedFlattening, updates),
+    ];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, NoAnimationCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame(frame, duration);

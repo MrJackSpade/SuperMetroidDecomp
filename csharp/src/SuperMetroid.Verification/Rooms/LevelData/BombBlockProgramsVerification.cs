@@ -20,7 +20,7 @@ internal static class BombBlockProgramsVerification
     private static void VerifyBombBlockRestorationMapping(CartridgeImportAddressSpace rom)
     {
         ushort[] pointers = [0xa4c7, 0xa4cf, 0xa4d7];
-        InstalledRoomObjectLinkedRestoreVisuals pictures = InstalledRoomObjectLinkedRestoreVisuals.Stock();
+        InstalledRoomObjectPictures pictures = RoomObjectPicturesStock.LinkedRestore;
         AssertTrue(pointers.SequenceEqual(RoomObjectLinkedRestoreVisualFiles.BombBlockRestorations.Select(draw => RoomObjectDrawAddressCodec.Of(draw))),
             "bomb restoration export order matches native layouts");
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
@@ -215,7 +215,7 @@ internal static class BombBlockProgramsVerification
         CartridgeImportAddressSpace rom, HashSet<int> forbidden)
     {
         BombBlockProgramsRenderResult Render(
-            InstalledRoomObjectShotBlockVisuals visuals)
+            InstalledRoomObjectPictures visuals)
         {
             const int width = 8;
             const int blockIndex = 27;
@@ -231,7 +231,7 @@ internal static class BombBlockProgramsVerification
                 level.DisplayedAppearance(blockIndex));
         }
 
-        var stock = Render(InstalledRoomObjectShotBlockVisuals.Stock());
+        var stock = Render(RoomObjectPicturesStock.ShotBlock);
         AssertEqual(RoomTerrainBlock.Of(0x053, BlockMirroring.None, RoomCollisionType.Air), stock.Physical,
             "native bomb-break frame installs its original air collision word");
         // The block BG1 shows names its picture (#1431): the stock breakup frame's block.

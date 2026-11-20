@@ -11,6 +11,9 @@ namespace SuperMetroid.Core.Enemies.Skultera;
 /// </summary>
 internal static class SkulteraAnimations
 {
+    /// <summary>The updates each of a turn's poses shows, from its first to its last: slow at either end, quick through the middle.</summary>
+    private static readonly int[] TurnPoseUpdates = [13, 10, 8, 6, 6, 8, 10, 13];
+
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<SkulteraSegment, EnemyFrameId, SkulteraCue> Segments { get; } = new(
         new Dictionary<SkulteraSegment, AnimationBeat<EnemyFrameId, SkulteraCue>[]>
@@ -40,9 +43,6 @@ internal static class SkulteraAnimations
         Show(tailWaving, 14),
         Show(tailFlicking, 14),
     ];
-
-    /// <summary>The updates each of a turn's poses shows, from its first to its last: slow at either end, quick through the middle.</summary>
-    private static readonly int[] TurnPoseUpdates = [13, 10, 8, 6, 6, 8, 10, 13];
 
     /// <summary>A Skultera turning over a side's <paramref name="poses"/>, turned by 22 degrees through to 180, each as <see cref="TurnPoseUpdates"/> paces it.</summary>
     private static AnimationBeat<EnemyFrameId, SkulteraCue>[] Turning(params EnemyFrameId[] poses) =>

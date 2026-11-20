@@ -43,11 +43,15 @@ public static class RoomObjectColoredDoorVisualFiles
         {
             foreach (RoomObjectDraw draw in Draws())
             {
-                TryGet(draw, out var list);
-                yield return list;
+                yield return DrawListOf(draw);
             }
         }
     }
+
+    /// <summary>The draw list of <paramref name="draw"/>, which must be one of the coloured door cap draws.</summary>
+    /// <exception cref="InvalidDataException"><paramref name="draw"/> is not a coloured door cap draw.</exception>
+    internal static RoomObjectDrawLists.DrawList DrawListOf(RoomObjectDraw draw) =>
+        TryGet(draw, out RoomObjectDrawLists.DrawList list) ? list : throw new InvalidDataException($"{draw} is not a coloured door cap draw.");
 
     /// <summary>Builds the draw list of a recognized colored cap from how its cells collide.</summary>
     internal static bool TryGet(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)

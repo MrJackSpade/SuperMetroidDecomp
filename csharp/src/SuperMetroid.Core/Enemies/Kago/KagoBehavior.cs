@@ -268,7 +268,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Kago's typed animation.</summary>
-    internal static void AdvanceKagoTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _)
+    internal static void AdvanceKagoTypedAnimation(RoomEnemyPlace place)
     {
         if (!place.AnimationClock.Expire())
             return;

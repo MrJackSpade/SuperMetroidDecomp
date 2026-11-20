@@ -12,10 +12,7 @@ internal sealed class MotherBrainRoomObjects(RoomObjectPlaceList places)
     /// Spawns one of Mother Brain's room changes at its block: a terrain change that draws its layout on its first update
     /// and is gone on the next.
     /// </summary>
-    /// <returns>
-    /// False when the room is full; nothing is spawned or changed then (<see cref="Compatibility.RoomObjectPlaces"/>).
-    /// </returns>
-    public bool TrySpawn(RoomLevelData level, MotherBrainRoomChangeRequest request)
+    public void Spawn(RoomLevelData level, MotherBrainRoomChangeRequest request)
     {
         Ensure.NotNull(level);
         Ensure.NotNull(request);
@@ -24,7 +21,7 @@ internal sealed class MotherBrainRoomObjects(RoomObjectPlaceList places)
         // Each spawn takes the first free place in update order. Do not reserve a boss place or coalesce adjacent row
         // requests: the order of the places they take is their update order.
         if (places.Spawn() is not { } place)
-            return false;
+            return;
 
         place.Block = level.GridBlock(request.Block);
         place.Become(new TerrainChangeObject(change));
@@ -42,6 +39,5 @@ internal sealed class MotherBrainRoomObjects(RoomObjectPlaceList places)
                     level.SetObjectCollisionAndBehavior(block, cell.Collision, EscapeDoorSetupBehaviors[cell.Collision]);
             }
         }
-        return true;
     }
 }

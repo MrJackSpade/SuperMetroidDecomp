@@ -162,7 +162,8 @@ internal static void VerifySamusPowerBeamProjectiles()
         var projectiles = CreateSyntheticProjectiles();
         bombs.StepFrame(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, 0, 0);
         SamusProjectileSlotObservation beforeShot = projectiles.ObserveSlots();
-        SamusProjectileFrameResult result = projectiles.StepFrame(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), bombs, new SharedGameState(new SharedRandom()));
+        projectiles.StepFrame(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), bombs, new SharedGameState(new SharedRandom()));
+        SamusProjectileFrameResult result = projectiles.LastFrameResult;
 
         AssertEqual(0, beforeShot.FiredSlot(projectiles), $"power beam direction {direction} allocates slot zero");
         AssertEqual(
@@ -210,7 +211,8 @@ internal static void VerifySamusPowerBeamProjectiles()
         var combinedProjectiles = CreateSyntheticProjectiles();
         combinedBombs.StepFrame(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, combinedSamus, 0, 0);
         SamusProjectileSlotObservation beforeCombined = combinedProjectiles.ObserveSlots();
-        SamusProjectileFrameResult combinedResult = combinedProjectiles.StepFrame(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, combinedSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), combinedBombs, new SharedGameState(new SharedRandom()));
+        combinedProjectiles.StepFrame(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, combinedSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), combinedBombs, new SharedGameState(new SharedRandom()));
+        SamusProjectileFrameResult combinedResult = combinedProjectiles.LastFrameResult;
 
         SamusProjectile combinedSlot = combinedProjectiles.Shots[0];
         AssertEqual(0, beforeCombined.FiredSlot(combinedProjectiles),
@@ -304,7 +306,8 @@ internal static void VerifySamusPowerBeamProjectiles()
     {
         chargeBombs.StepFrame(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, chargeSamus, 0, 0);
         SamusProjectileSlotObservation beforeChargeFrame = chargeProjectiles.ObserveSlots();
-        SamusProjectileFrameResult chargeFrame = chargeProjectiles.StepFrame(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, chargeSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = frame == 0 ? GameplayAction.Shoot : 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), chargeBombs, new SharedGameState(new SharedRandom()));
+        chargeProjectiles.StepFrame(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, chargeSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = frame == 0 ? GameplayAction.Shoot : 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), chargeBombs, new SharedGameState(new SharedRandom()));
+        SamusProjectileFrameResult chargeFrame = chargeProjectiles.LastFrameResult;
         if (frame == 0)
             AssertEqual(0, beforeChargeFrame.FiredSlot(chargeProjectiles), "charge press fires initial ordinary shot");
         else if (frame == 15)
@@ -359,7 +362,8 @@ internal static void VerifySamusPowerBeamProjectiles()
     }
     rejectedReleaseBombs.SetSharedCooldown(1);
     SamusProjectileSlotObservation beforeRejectedRelease = rejectedReleaseProjectiles.ObserveSlots();
-    SamusProjectileFrameResult rejectedRelease = rejectedReleaseProjectiles.StepFrame(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, rejectedReleaseSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), rejectedReleaseBombs, new SharedGameState(new SharedRandom()));
+    rejectedReleaseProjectiles.StepFrame(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, rejectedReleaseSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), rejectedReleaseBombs, new SharedGameState(new SharedRandom()));
+    SamusProjectileFrameResult rejectedRelease = rejectedReleaseProjectiles.LastFrameResult;
     AssertEqual(null, beforeRejectedRelease.FiredSlot(rejectedReleaseProjectiles),
         "cooldown gate rejects charged-audio release fixture");
     AssertEqual((SoundEffectId?)SamusSound.Silence,
@@ -475,7 +479,8 @@ internal static void VerifySamusPowerBeamProjectiles()
 
     chargeBombs.StepFrame(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, chargeSamus, 0, 0);
     SamusProjectileSlotObservation beforeChargedRelease = chargeProjectiles.ObserveSlots();
-    SamusProjectileFrameResult chargedRelease = chargeProjectiles.StepFrame(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, chargeSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), chargeBombs, new SharedGameState(new SharedRandom()));
+    chargeProjectiles.StepFrame(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, chargeSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), chargeBombs, new SharedGameState(new SharedRandom()));
+    SamusProjectileFrameResult chargedRelease = chargeProjectiles.LastFrameResult;
     int? chargedReleaseSlot = beforeChargedRelease.FiredSlot(chargeProjectiles);
     AssertTrue(chargedReleaseSlot is not null, "charged release allocates projectile");
     SamusProjectile chargedSlot = chargeProjectiles.Shots[(chargedReleaseSlot ?? throw new InvalidOperationException("Verification requires chargedReleaseSlot."))];
@@ -595,7 +600,8 @@ internal static void VerifySamusPowerBeamProjectiles()
         combinedChargeBombs.StepFrame(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, combinedChargeSamus, 0, 0);
         SamusProjectileSlotObservation beforeCombinedChargedRelease =
             combinedChargeProjectiles.ObserveSlots();
-        SamusProjectileFrameResult combinedChargedRelease = combinedChargeProjectiles.StepFrame(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, combinedChargeSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), combinedChargeBombs, new SharedGameState(new SharedRandom()));
+        combinedChargeProjectiles.StepFrame(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, combinedChargeSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), combinedChargeBombs, new SharedGameState(new SharedRandom()));
+        SamusProjectileFrameResult combinedChargedRelease = combinedChargeProjectiles.LastFrameResult;
         int? combinedChargedReleaseSlot =
             beforeCombinedChargedRelease.FiredSlot(combinedChargeProjectiles);
         AssertTrue(combinedChargedReleaseSlot is not null,
@@ -635,7 +641,8 @@ internal static void VerifySamusPowerBeamProjectiles()
     var hyperProjectiles = CreateSyntheticProjectiles();
     hyperBombs.StepFrame(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, hyperSamus, 0, 0);
     SamusProjectileSlotObservation beforeHyper = hyperProjectiles.ObserveSlots();
-    SamusProjectileFrameResult hyperResult = hyperProjectiles.StepFrame(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, hyperSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), hyperBombs, new SharedGameState(new SharedRandom()));
+    hyperProjectiles.StepFrame(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, hyperSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), hyperBombs, new SharedGameState(new SharedRandom()));
+    SamusProjectileFrameResult hyperResult = hyperProjectiles.LastFrameResult;
     SamusProjectile hyperSlot = hyperProjectiles.Shots[0];
     AssertEqual(0, beforeHyper.FiredSlot(hyperProjectiles), "Hyper Beam allocates ordinary slot zero");
     AssertEqual(SamusProjectileType.Beam(SamusBeamCombination.Plasma, charged: true), hyperSlot.Type, "Hyper Beam is a charged Plasma beam");
@@ -1001,7 +1008,8 @@ internal static void VerifySamusPowerBeamProjectiles()
     var missileProjectiles = CreateSyntheticProjectiles();
     missileBombs.StepFrame(new SamusTerrain { Level = wall, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, missileSamus, 0, 0);
     SamusProjectileSlotObservation beforeMissile = missileProjectiles.ObserveSlots();
-    SamusProjectileFrameResult missileFired = missileProjectiles.StepFrame(new SamusTerrain { Level = wall, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, missileSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), missileBombs, new SharedGameState(new SharedRandom()));
+    missileProjectiles.StepFrame(new SamusTerrain { Level = wall, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, missileSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), missileBombs, new SharedGameState(new SharedRandom()));
+    SamusProjectileFrameResult missileFired = missileProjectiles.LastFrameResult;
     SamusProjectile missile = missileProjectiles.Shots[0];
     AssertEqual(0, beforeMissile.FiredSlot(missileProjectiles), "missile fresh press allocates slot zero");
     AssertEqual(
@@ -1487,7 +1495,8 @@ internal static void VerifySamusPowerBeamProjectiles()
     var superProjectiles = CreateSyntheticProjectilesShaking(superEarthquake);
     superBombs.StepFrame(new SamusTerrain { Level = wall, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, superSamus, 0, 0);
     SamusProjectileSlotObservation beforeSuper = superProjectiles.ObserveSlots();
-    SamusProjectileFrameResult superFired = superProjectiles.StepFrame(new SamusTerrain { Level = wall, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, superSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), superBombs, new SharedGameState(new SharedRandom()));
+    superProjectiles.StepFrame(new SamusTerrain { Level = wall, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, superSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), superBombs, new SharedGameState(new SharedRandom()));
+    SamusProjectileFrameResult superFired = superProjectiles.LastFrameResult;
     SamusProjectile super = superProjectiles.Shots[0];
     SamusProjectile superLink = superProjectiles.Shots[1];
     AssertEqual(0, beforeSuper.FiredSlot(superProjectiles), "super fresh press allocates owner slot zero");

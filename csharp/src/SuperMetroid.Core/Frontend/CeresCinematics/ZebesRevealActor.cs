@@ -3,14 +3,12 @@ using SuperMetroid.Core.Frontend.Intro;
 namespace SuperMetroid.Core.Frontend.CeresCinematics;
 
 /// <summary>
-/// One actor of the Zebes reveal (#1768, #2489): what it shows, its definition, the sprite showing it and, once the scene
-/// slides away, its upward speed.
+/// One actor of the Zebes reveal (#1768, #2489): its definition, the sprite showing it and, once the scene slides away, its
+/// upward speed.
 /// </summary>
-/// <param name="role">What the actor shows, which selects its definition and installed placement.</param>
 /// <param name="definition">The actor's animation, colouring and slide.</param>
 /// <param name="sprite">The cinematic sprite showing the actor: its position and animation.</param>
 internal sealed class ZebesRevealActor(
-    ZebesRevealActorRole role,
     CeresDestructionActorDefinition definition,
     CinematicActor<CeresAnimation, CinematicSpritePose, CeresCue> sprite)
 {

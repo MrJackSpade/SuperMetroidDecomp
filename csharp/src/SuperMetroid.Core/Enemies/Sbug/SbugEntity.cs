@@ -13,5 +13,5 @@ internal sealed class SbugEntity(RoomEnemyPlace place, EnemyCommonParticipation 
     public void RunMainAi(IEnemyAiFrame frame) => SbugBehavior.RunSbugMainAi(Place, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => SbugBehavior.AdvanceSbugTypedAnimation(Place, context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => SbugBehavior.AdvanceSbugTypedAnimation(Place);
 }

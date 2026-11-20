@@ -33,8 +33,7 @@ internal static class HibashiOwnedStateVerification
         AssertEqual(0x0120, graphicsState.SpawnY, "the graphics part keeps its spawn height");
         AssertEqual(HibashiAction.Inactive, graphicsState.Action, "the graphics part starts inactive");
         AssertEqual(HibashiDefinitions.FirstWait, graphicsState.InactiveTimer.UpdatesLeft, "a new flame starts at its first wait");
-        enemies.HibashiBehavior.RunHibashiMainAi(graphics,
-            new ClockedEnemyAiFrame(RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0), new FrameCounters(0)));
+        enemies.HibashiBehavior.RunHibashiMainAi(graphics);
         AssertEqual(HibashiAction.Active, graphicsState.Action, "a new flame erupts on its first update");
         graphicsState.Action = HibashiAction.Finished;
         HibashiBehavior.RestHibashi(graphics, graphicsState);

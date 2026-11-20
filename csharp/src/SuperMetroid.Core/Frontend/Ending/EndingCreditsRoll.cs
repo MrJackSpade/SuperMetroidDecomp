@@ -98,7 +98,7 @@ internal sealed class EndingCreditsRoll
     /// <summary>One update of the reward's colour fade <paramref name="fade"/>: on its due updates it takes its next step and shows it.</summary>
     internal void StepRewardFade(PacedFadeSteps fade)
     {
-        if (Ensure.NotNull(fade).Advance())
+        if (Ensure.NotNull(fade).AdvanceTakingStep())
             ShowRewardFade(fade);
     }
 

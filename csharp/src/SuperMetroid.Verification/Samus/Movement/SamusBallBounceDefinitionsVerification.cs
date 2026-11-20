@@ -43,12 +43,12 @@ internal static class SamusBallBounceDefinitionsVerification
                 samus.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(new UnsignedSixteenSixteen((ushort)raw, ushort.MaxValue), SamusVerticalDirection.Down);
                 samus.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(2, 0x8000);
                 samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Decelerating;
-                bool grounded = spring
-                    ? SamusPosturePoseTransitions.ApplySpringBallLanding(samus, controllerInput: 0)
-                    : SamusPosturePoseTransitions.ApplyMorphBallLanding(samus);
+                if (spring)
+                    SamusPosturePoseTransitions.ApplySpringBallLanding(samus, controllerInput: 0);
+                else
+                    SamusPosturePoseTransitions.ApplyMorphBallLanding(samus);
                 bool first = phase == 0 && unchecked((short)(raw - 3)) >= 0;
                 bool rebound = first || phase == 1;
-                AssertEqual(!rebound, grounded, "Native rebound versus grounded return");
                 AssertEqual(rebound ? (ushort)(first ? whole : whole - 1) : (ushort)0,
                     samus.Kinematics.VerticalVelocity.Speed.Whole, "Native rebound whole decrement");
                 AssertEqual(rebound ? fraction : (ushort)0, samus.Kinematics.VerticalVelocity.Speed.Fraction, "Native rebound fraction");

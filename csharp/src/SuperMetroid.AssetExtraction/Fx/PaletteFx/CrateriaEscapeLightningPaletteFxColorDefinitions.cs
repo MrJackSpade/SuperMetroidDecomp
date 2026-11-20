@@ -15,16 +15,12 @@ public static class CrateriaEscapeLightningPaletteFxColorDefinitions
     private static readonly CrateriaEscapeLightningPaletteFxColorDefinition YellowLightning = new()
     {
         Owner = CrateriaEscapeLightningPaletteOwner.YellowLightning,
-        Object = ColourEffectId.CrateriaEscapeYellowLightning,
-        ColorsPerFrame = 11,
         ColorFrames = PaletteFxColorFrames.Of(ColourEffectId.CrateriaEscapeYellowLightning, 11),
     };
     /// <summary>The Parlor's sky program targets the lightning's five-color dark tail from colour byte $AE.</summary>
     private static readonly CrateriaEscapeLightningPaletteFxColorDefinition ParlorSky = new()
     {
         Owner = CrateriaEscapeLightningPaletteOwner.ParlorSky,
-        Object = ColourEffectId.ParlorEscapeSkyFlicker,
-        ColorsPerFrame = 5,
         ColorFrames = PaletteFxColorFrames.Of(ColourEffectId.ParlorEscapeSkyFlicker, 5),
     };
     /// <summary>The yellow-lightning and Parlor sky programs in definition order.</summary>

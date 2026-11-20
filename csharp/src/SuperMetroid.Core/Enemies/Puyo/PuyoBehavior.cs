@@ -292,7 +292,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The hop moves sideways by the whole pixels of its horizontal speed only, so the giant hop's one and a quarter
         // moves exactly one pixel each update.
-        SignedSixteenSixteen horizontalDisplacement = SignedSixteenSixteen.FromWholePixels(Hop(state).XSpeed.WholePixels.Toward(state.Direction));
+        SignedSixteenSixteen horizontalDisplacement = SignedSixteenSixteen.FromWholePixels(Hop(state).XPixels.Toward(state.Direction));
 
         if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
@@ -360,7 +360,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Puyo's typed animation.</summary>
-    internal static void AdvancePuyoTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
+    internal static void AdvancePuyoTypedAnimation(RoomEnemyPlace place) =>
         EnemyAnimationPlayback.Advance(place, PuyoAnimations.Segments,
             static (PuyoEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"Puyo's cue-free animation raised {cue}."));

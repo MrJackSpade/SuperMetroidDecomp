@@ -19,20 +19,16 @@ internal sealed class CeresEscapeObjects
     /// each below it down the door solid. Only each block's collision changes: its picture, what it shows and its behaviour
     /// stay, so the door looks the same and stops Samus instead of leading out.
     /// </summary>
-    /// <returns>
-    /// False when the room is full; nothing is spawned and the door stays a door then (<see cref="Compatibility.RoomObjectPlaces"/>).
-    /// </returns>
-    public bool TrySealElevatorDoor(RoomLevelData level)
+    public void SealElevatorDoor(RoomLevelData level)
     {
         Ensure.NotNull(level);
         Position16<RoomBlocks> top = level.GridBlock(CeresElevatorDoorSealDefinitions.DoorTop);
         if (_places.Spawn() is not { } place)
-            return false;
+            return;
 
         place.Block = top;
         for (int row = 0; row < CeresElevatorDoorSealDefinitions.HeightInBlocks; row++)
             level.SetCollision(top + new Offset16<RoomBlocks>(0, row), CeresElevatorDoorSealDefinitions.SealedCollision);
         place.Become(new CeresElevatorDoorSealObject());
-        return true;
     }
 }

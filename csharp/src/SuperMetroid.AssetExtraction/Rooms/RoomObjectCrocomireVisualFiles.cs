@@ -47,11 +47,15 @@ public static class RoomObjectCrocomireVisualFiles
         {
             foreach (CrocomireArenaDraw frame in FrameOrder)
             {
-                TryGet(CrocomireArenaDraws.Family.Of(frame), out var list);
-                yield return list;
+                yield return DrawListOf(CrocomireArenaDraws.Family.Of(frame));
             }
         }
     }
+
+    /// <summary>The draw list of <paramref name="draw"/>, which must be one of the Crocomire arena draws.</summary>
+    /// <exception cref="InvalidDataException"><paramref name="draw"/> is not a Crocomire arena draw.</exception>
+    internal static RoomObjectDrawLists.DrawList DrawListOf(RoomObjectDraw draw) =>
+        TryGet(draw, out RoomObjectDrawLists.DrawList list) ? list : throw new InvalidDataException($"{draw} is not a Crocomire arena draw.");
 
     /// <summary>
     /// The draw list of one bridge or wall frame as the cartridge writes it: the runs of its draw list, each cell

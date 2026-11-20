@@ -263,7 +263,7 @@ internal static class LookupStream2Verification
                 PaletteFxRoomLook.LayShownShades(actual, cgram, colors);
                 for (int color = 0; color < 3; color++)
                     AssertEqual(ReadVerificationWord(rom, 0x8d0000 | definition.ColorPointer(frameIndex, color)),
-                        cgram.Colors[definition.Object.AnimatedColours.CartridgeColour + color], "Actual CGRAM follows each exact native hold and loop boundary");
+                        cgram.Colors[definition.ColorFrames.Effect.AnimatedColours.CartridgeColour + color], "Actual CGRAM follows each exact native hold and loop boundary");
                 elapsed++;
             }
             AssertEqual(0, guarded.ForbiddenReadAttempts, "Cadence execution avoids native mechanics reads");
@@ -339,7 +339,7 @@ internal static class LookupStream2Verification
         {
             AssertEqual((NorfairEnvironmentalPaletteOwner)count, item.Owner, "Norfair native owner order");
             AssertEqual(ReadVerificationWord(rom, 0x8d0000 | item.DefinitionPointer + 2), item.ProgramStart, "Native Norfair definition/list binding");
-            AssertEqual(ReadVerificationWord(rom, 0x8d0000 | item.ProgramStart + 2), item.Object.AnimatedColours.CartridgeByteIndex, "Native Norfair colours start where the object's colour group is placed");
+            AssertEqual(ReadVerificationWord(rom, 0x8d0000 | item.ProgramStart + 2), item.ColorFrames.Effect.AnimatedColours.CartridgeByteIndex, "Native Norfair colours start where the object's colour group is placed");
             AssertEqual(ReadVerificationWord(rom, 0x8d0000 | item.LoopInstructionPointer + 2), item.FirstRecordPointer, "Native Norfair loop target");
             AssertEqual(norfair[count].ProgramStart, item.ProgramStart, "Indexed and enumerated Norfair identities agree");
             count++;
@@ -350,7 +350,7 @@ internal static class LookupStream2Verification
         {
             AssertEqual((OldTourianEscapeAccentPaletteOwner)count, item.Owner, "Accent native owner order");
             AssertEqual(ReadVerificationWord(rom, 0x8d0000 | item.DefinitionPointer + 2), item.ProgramStart, "Native accent definition/list binding");
-            AssertEqual(ReadVerificationWord(rom, 0x8d0000 | item.ProgramStart + 2), item.Object.AnimatedColours.CartridgeByteIndex, "Native railings/panels colours start where the object's colour group is placed");
+            AssertEqual(ReadVerificationWord(rom, 0x8d0000 | item.ProgramStart + 2), item.ColorFrames.Effect.AnimatedColours.CartridgeByteIndex, "Native railings/panels colours start where the object's colour group is placed");
             AssertEqual(ReadVerificationWord(rom, 0x8d0000 | item.LoopInstructionPointer + 2), item.FirstFramePointer, "Native accent loop target");
             AssertEqual(accents[count].ProgramStart, item.ProgramStart, "Indexed and enumerated accent identities agree");
             count++;
@@ -1472,7 +1472,7 @@ internal static class LookupStream2Verification
             ushort pointer = (ushort)(0x86db + direction * 12);
             var shot = new SamusProjectile(0) { Animation = SamusProjectileProgramAddresses.PlayerAt(pointer) };
             var system = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: stock), new global::SuperMetroid.Core.Fx.RoomEarthquake());
-            _ = system.Animation.AdvanceProjectileAnimation(shot);
+            system.Animation.AdvanceProjectileAnimation(shot);
             AssertEqual(global::SuperMetroid.Core.Samus.Artwork.ProjectileSpriteNative.FirstStored(ReadVerificationWord(rom, (0x930000 | pointer) + 2)), shot.SpritemapPointer, "Actual projectile handler selects calculated compass pose");
         }
         int checkedWaveIce = 0;
@@ -1496,7 +1496,7 @@ internal static class LookupStream2Verification
                 checkedCappedSweep++;
             var shot = new SamusProjectile(0) { Animation = SamusProjectileProgramAddresses.PlayerAt(pointer) };
             var system = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: stock), new global::SuperMetroid.Core.Fx.RoomEarthquake());
-            _ = system.Animation.AdvanceProjectileAnimation(shot);
+            system.Animation.AdvanceProjectileAnimation(shot);
             AssertEqual(global::SuperMetroid.Core.Samus.Artwork.ProjectileSpriteNative.FirstStored(ReadVerificationWord(rom, (0x930000 | pointer) + 2)), shot.SpritemapPointer, "Actual handler uses native Wave/Ice traversal pose");
             checkedWaveIce++;
         }
@@ -1509,7 +1509,7 @@ internal static class LookupStream2Verification
             if (pointer is < 0x9f87 or >= 0xa007) continue;
             var bomb = new SamusBomb(0) { Animation = SamusProjectileProgramAddresses.PlayerAt(pointer), Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500) };
             var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: stock));
-            _ = bombs.AdvanceProjectileAnimation(bomb);
+            bombs.AdvanceProjectileAnimation(bomb);
             AssertEqual(global::SuperMetroid.Core.Samus.Artwork.ProjectileSpriteNative.FirstStored(ReadVerificationWord(rom, (0x930000 | pointer) + 2)), bomb.SpritemapPointer, "Actual bomb handler uses sequential normal/fast pose");
             checkedBombs++;
         }

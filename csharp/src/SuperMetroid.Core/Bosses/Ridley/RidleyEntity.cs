@@ -69,7 +69,7 @@ internal abstract class RidleyEntity(RidleyBody body, RoomEnemyPlace place, Enem
     /// <param name="samus">Samus.</param>
     /// <param name="pseudoScrew">Samus's held charge, which her Pseudo Screw contact spends.</param>
     public virtual void ResolveAfterSamusContact(SamusState samus, PseudoScrewCharge pseudoScrew) =>
-        _ = Body.Contact.ResolveSamusContact(Place, samus, pseudoScrew);
+        Body.Contact.ResolveSamusContact(Place, samus, pseudoScrew);
 
     /// <summary>Ridley's AI publishes the shading the common enemy drawing draws him in: his body, wings and tail share one latched phase (#1512).</summary>
     public PictureShading? CommonDrawShading() => Encounter.CommonDrawShading;

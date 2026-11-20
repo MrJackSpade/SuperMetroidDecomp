@@ -8,13 +8,10 @@ namespace SuperMetroid.Core.Enemies;
 /// </summary>
 public static class RoomEnemyDefinitionLookup
 {
-    /// <summary>Indexes the definitions by identity, checking their count and that each identity is defined once.</summary>
-    /// <exception cref="InvalidDataException">The count changed or an identity repeats.</exception>
-    internal static FrozenDictionary<EnemyDefinitionId, RoomEnemyDefinition> Index(RoomEnemyDefinitionEntry[] definitions, int count)
+    /// <summary>Indexes the definitions by identity, checking that each identity is defined once.</summary>
+    /// <exception cref="InvalidDataException">An identity repeats.</exception>
+    internal static FrozenDictionary<EnemyDefinitionId, RoomEnemyDefinition> Index(RoomEnemyDefinitionEntry[] definitions)
     {
-        if (definitions.Length != count)
-            throw new InvalidDataException(
-                $"Expected {count} enemy definitions, found {definitions.Length}.");
         var byId = new Dictionary<EnemyDefinitionId, RoomEnemyDefinition>(definitions.Length);
         foreach (RoomEnemyDefinitionEntry entry in definitions)
         {

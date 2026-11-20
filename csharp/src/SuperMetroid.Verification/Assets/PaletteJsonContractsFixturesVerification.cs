@@ -89,19 +89,19 @@ internal static class PaletteJsonContractsFixturesVerification
             RecoveryLights = PaletteContractRows(MotherBrainRoomColorDefinitions.RecoveryLightsFrames,
                 MotherBrainRoomColorGeometry.RecoveryLightsSliceColors * 2),
         }), json => _ = MotherBrainRoomColorFile.Read(json));
-        MotherBrainRainbowPaletteFrameDocument[] Frames(int count, int body, int legs, bool trailing) => Enumerable.Range(0, count)
+        MotherBrainRainbowPaletteFrameDocument[] Frames(int count, int body, int legs) => Enumerable.Range(0, count)
             .Select(frame => new MotherBrainRainbowPaletteFrameDocument { Body = PaletteContractColors(body, frame),
-                BackLegs = PaletteContractColors(legs, frame), TrailingColor = trailing ? PaletteContractColors(1, frame)[0] : null }).ToArray();
+                BackLegs = PaletteContractColors(legs, frame) }).ToArray();
         yield return new("Mother Brain rainbow", PaletteContractDocument(new MotherBrainRainbowPaletteDocument
         {
             Version = MotherBrainRainbowPaletteFile.Version,
             Rainbow = Frames(MotherBrainRainbowColourFormat.RainbowFrameCount, MotherBrainRainbowPaletteGeometry.ColorCount,
-                MotherBrainRainbowPaletteGeometry.ColorCount, false),
+                MotherBrainRainbowPaletteGeometry.ColorCount),
             ToGrey = Frames(MotherBrainRainbowPaletteGeometry.GreyFrameCount, MotherBrainRainbowPaletteGeometry.DrainedColors,
-                MotherBrainRainbowPaletteGeometry.BackLegCount, true),
+                MotherBrainRainbowPaletteGeometry.BackLegCount),
             FromGrey = Frames(MotherBrainRainbowPaletteGeometry.GreyFrameCount, MotherBrainRainbowPaletteGeometry.RevivalColors,
-                MotherBrainRainbowPaletteGeometry.BackLegCount, true),
-            Normal = Frames(1, MotherBrainRainbowPaletteGeometry.ColorCount, MotherBrainRainbowPaletteGeometry.ColorCount, false)[0],
+                MotherBrainRainbowPaletteGeometry.BackLegCount),
+            Normal = Frames(1, MotherBrainRainbowPaletteGeometry.ColorCount, MotherBrainRainbowPaletteGeometry.ColorCount)[0],
             FakeDeathToGrey = PaletteContractRows(MotherBrainFakeDeathFadeDefinitions.FrameCount, MotherBrainRainbowPaletteGeometry.FakeDeathColors),
         }), json => _ = MotherBrainRainbowPaletteFile.Read(json));
 

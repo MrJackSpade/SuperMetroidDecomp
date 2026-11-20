@@ -13,23 +13,18 @@ internal sealed class PhantoonDoorObjects(RoomObjectPlaceList places)
     /// top block solid (<see cref="PhantoonDoorBlockHeldSolid"/>), and its terrain change draws its frame on its first
     /// update and leaves the room on its second.
     /// </summary>
-    /// <returns>
-    /// False when every room-object place is held; nothing is spawned or changed then (<see cref="RoomObjectPlaces"/>'s
-    /// full-room rule).
-    /// </returns>
-    public bool TrySpawn(RoomLevelData level, PhantoonDoorChange change)
+    public void Spawn(RoomLevelData level, PhantoonDoorChange change)
     {
         Ensure.NotNull(level);
         TerrainChange terrainChange = Ensure.Listed(Changes, change);
 
         Position16<RoomBlocks> block = level.GridBlock(Block);
         if (places.Spawn() is not { } place)
-            return false;
+            return;
 
         place.Block = block;
         place.Become(new TerrainChangeObject(terrainChange));
         // The deactivating setup holds the door's top block solid, keeping what it shows, until the change draws (#2502).
         level.Deactivate(block);
-        return true;
     }
 }

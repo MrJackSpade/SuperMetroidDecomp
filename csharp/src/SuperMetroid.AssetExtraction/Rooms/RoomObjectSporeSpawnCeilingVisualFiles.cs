@@ -46,8 +46,7 @@ public static class RoomObjectSporeSpawnCeilingVisualFiles
         {
             foreach (SporeSpawnCeilingDraw frame in FrameOrder)
             {
-                TryGet(SporeSpawnCeilingDraws.Family.Of(frame), out var list);
-                yield return list;
+                yield return DrawListOf(SporeSpawnCeilingDraws.Family.Of(frame));
             }
         }
     }
@@ -58,6 +57,11 @@ public static class RoomObjectSporeSpawnCeilingVisualFiles
 
     /// <summary>Names the clear layout and the three successive crumble appearances for visual editing.</summary>
     internal static string VisualId(SporeSpawnCeilingDraw frame) => SporeSpawnCeilingDrawKeys.Installed.Of(frame);
+
+    /// <summary>The draw list of <paramref name="draw"/>, which must be one of the Spore Spawn ceiling draws.</summary>
+    /// <exception cref="InvalidDataException"><paramref name="draw"/> is not a Spore Spawn ceiling draw.</exception>
+    internal static RoomObjectDrawLists.DrawList DrawListOf(RoomObjectDraw draw) =>
+        TryGet(draw, out RoomObjectDrawLists.DrawList list) ? list : throw new InvalidDataException($"{draw} is not a Spore Spawn ceiling draw.");
 
     /// <summary>
     /// The draw list of a clear or crumble frame as the cartridge writes it: the square's two rows, top row first, each

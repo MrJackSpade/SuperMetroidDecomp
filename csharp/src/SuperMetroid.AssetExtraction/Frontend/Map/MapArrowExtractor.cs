@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -35,7 +36,7 @@ public static class MapArrowExtractor
             if (animation is < 1 or > 9) throw new InvalidDataException("Invalid cartridge map arrow animation.");
             int program = Read(MapSourceDefinitions.Animation.SpritePrograms + (animation - 1) * 2);
             int variants = Read(MapSourceDefinitions.Animation.SpriteBases + (animation - 1) * 2);
-            if (Read(MapSourceDefinitions.Menu.ObjectBank | variants) != MapSpriteOrdinals.Spritemaps.Word(MapArrowSprites.Picture(direction)))
+            if (Read(MapSourceDefinitions.Menu.ObjectBank | variants) != MapSpriteOrdinals.Spritemaps.Word(Ensure.Listed(MapArrowDefinitions.Pictures, direction)))
                 throw new InvalidDataException($"Cartridge arrow shape differs for {direction}.");
             for (int phase = 0; ; phase++)
             {

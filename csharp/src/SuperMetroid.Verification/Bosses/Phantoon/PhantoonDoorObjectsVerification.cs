@@ -176,7 +176,7 @@ internal static class PhantoonDoorObjectsVerification
         RoomObjectSystem roomObjects = RoomObjectFixtures.Unbound();
         string at = $"Phantoon {change}";
 
-        AssertTrue(roomObjects.BossRoomMutations.PhantoonDoor.TrySpawn(level, change), $"{at} spawns");
+        roomObjects.BossRoomMutations.PhantoonDoor.Spawn(level, change);
         AssertEqual(1, roomObjects.Places.ActiveCount, $"{at} takes one room-object place");
         ushort priorTopWord = cartridge.ReadCartridgeWord(ProgramBank | (priorList + 2));
         AssertEqual(RoomLevelWordCodec.Decode((ushort)(priorTopWord & DeactivationMask)), level.GetCollisionBlock(top).Terrain,

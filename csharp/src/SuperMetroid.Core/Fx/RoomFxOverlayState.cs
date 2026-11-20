@@ -803,38 +803,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
 
     /// <summary>Creates one room's effect state, with no room effect selected, its sounds joining <paramref name="sounds"/>.</summary>
     /// <param name="sounds">The update's sound requests of the runtime running the effect.</param>
-    internal RoomFxOverlayState(GameplaySoundRequests sounds)
-    {
-        this.sounds = Ensure.NotNull(sounds);
-        Type = RoomFxType.None;
-        TargetSurface = null;
-        LiquidLevelSpeed = default;
-        LiquidMoveDelay = WrappingCountdown.Start(0);
-        overlayLook = null;
-        Scroll = Position16<OverlayPixels>.Zero;
-        drift = TextureDrift.None;
-        rainWind = PixelVelocity<OverlayPixels>.Zero;
-        previousCamera = Position16<RoomPixels>.Zero;
-        BaseY = null;
-        TidePhase = RotationAngle.Zero;
-        TideOffset = SignedSixteenSixteen.Zero;
-        Surface = null;
-        Liquid = null;
-        waterDrift = TextureDrift.None;
-        waterOverlayWave = default;
-        waterBackgroundWave = default;
-        waterSurfaceScreenY = null;
-        liquidSurfaceLine = null;
-        lavaAcidHaze = default;
-        liquidRisePhase = LiquidRisePhase.Dormant;
-        MotionStart = LiquidMotionStart.AfterRoomLoad;
-        LiquidMotionStopped = false;
-        lavaBubbling = default;
-        SustainedEarthquake = null;
-        EarthquakeSoundTimer = WrappingCountdown.Start(0);
-        EarthquakeSoundRhythm = CyclingSequence<int>.StartOf(RoomEarthquakeDefinitions.RisingLiquidSoundBaseDelays);
-        QuakeSoundsSilenced = false;
-    }
+    internal RoomFxOverlayState(GameplaySoundRequests sounds) => this.sounds = Ensure.NotNull(sounds);
 
     /// <summary>
     /// Ends the liquid's wave: no later update's liquid wave moves the liquid, queues its ambient sound or

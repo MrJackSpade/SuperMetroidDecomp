@@ -50,7 +50,7 @@ internal static class SamusDeathFrameSelectionVerification
                     InstalledFixtures.SamusBody.Gameplay.DeathSteps);
                 string context = $"death facing {facing}, update {update}";
                 int? expectedFrame = ExpectedFrame(update);
-                AssertEqual(ExpectedPhase(update), step.PhaseAfterStep, context + ": phase");
+                AssertEqual(ExpectedPhase(update), samus.DeathSequence.Phase, context + ": phase");
                 AssertEqual(expectedFrame is int expected ? SamusDeathSheetDefinitions.Explosion[expected] : null,
                     samus.DeathSequence.ExplosionFrame, context + ": selected explosion frame");
                 AssertEqual(update < FirstExplosionUpdate, step.Draws == SamusDeathDraw.Pose, context + ": draws the death pose");

@@ -551,7 +551,7 @@ internal sealed class TorizoAttacks
         projectile.Position = projectile.Position.WithWhole(torizo.Position.Whole + (facing == HorizontalDirection.Right ? muzzle : muzzle.MirroredX()));
         // The beam's launch draws the velocity jitter every randomized launch draws; its aimed heading then sets its
         // velocity, so the jitter only advances the room's random numbers (#1945, #2335).
-        _ = DrawVelocityJitter();
+        SkipVelocityJitter();
 
         // The beam's heading is its facing's spread by up to eight steps either way.
         TrigonometryAngle heading = EyeBeamHeading(facing, _room.Random.Next(TorizoRandomDefinitions.EyeBeamSpread));
@@ -574,6 +574,16 @@ internal sealed class TorizoAttacks
     {
         SignedEightEight x = VelocityJitter(_room.Random.Generate());
         return new PixelVelocity<RoomPixels>(x, VelocityJitter(_room.Random.Generate()));
+    }
+
+    /// <summary>
+    /// Advances the room's random numbers past a randomized launch's velocity jitter, its X draw and then its Y, for a
+    /// launch whose velocity the jitter does not set.
+    /// </summary>
+    private void SkipVelocityJitter()
+    {
+        _room.Random.Advance();
+        _room.Random.Advance();
     }
 
     /// <summary>A randomized projectile's jitter on one axis, either side of its base speed.</summary>
@@ -821,14 +831,14 @@ internal sealed class TorizoAttacks
     /// Spawns the piece of Bomb Torizo's breaking statue hand that the hand asks for, placed from the hand's block and
     /// falling as its definition says; nothing spawns when the room has no place left for an enemy projectile.
     /// </summary>
-    public EnemyProjectile? SpawnBombTorizoStatueBreakingProjectile(
+    public void SpawnBombTorizoStatueBreakingProjectile(
         BombTorizoStatueProjectileRequest request)
     {
         BombTorizoStatueFragmentDefinition definition = BombTorizoStatueFragmentDefinitions.Fragments[request.Fragment];
 
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
-            return null; // Nothing spawns when the room has no place left for an enemy projectile.
+            return; // Nothing spawns when the room has no place left for an enemy projectile.
 
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
@@ -840,7 +850,6 @@ internal sealed class TorizoAttacks
         projectile.Position = projectile.Position.WithWhole(request.RoomObjectBlock.ToRoomPixels() + definition.Offset);
         projectile.Velocity = projectile.Velocity.WithY(definition.InitialFallSpeed);
         projectile.State = new BombTorizoStatueFragmentState(definition.Acceleration);
-        return projectile;
     }
 
     /// <summary>Whether a projectile has run away: it moves at least <see cref="TorizoMotionDefinitions.RunawaySpeed"/>.</summary>

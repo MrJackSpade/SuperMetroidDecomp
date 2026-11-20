@@ -133,7 +133,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Carries out one cue of the Chozo statues' animations: every cue
     /// the four statue animations raise. Every cue runs on to the next step, so none redirects.
     /// </summary>
-    private ChozoStatueSegment? ApplyChozoStatueCue(
+    private void ApplyChozoStatueCue(
         RoomEnemyPlace statue,
         ChozoStatueCue cue,
         SamusState samus,
@@ -144,36 +144,36 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             case ChozoStatueCue.Signal { Kind: ChozoStatueCueKind.AwaitHand }:
                 state.AwaitHand();
-                return null;
+                return;
 
             case ChozoStatueCue.Signal { Kind: ChozoStatueCueKind.StartLoweringAcid }:
                 // The cue writes the liquid motion values consumed by the liquid's step once, when
                 // it runs; the liquid owns them from then on.
                 _roomFx.FxOverlay.MoveLiquidAfter(ChozoStatueFxData.LoweringDelay, ChozoStatueFxData.LoweringVelocity);
-                return null;
+                return;
 
             case ChozoStatueCue.Signal { Kind: ChozoStatueCueKind.SetLoweredAcidPosition }:
                 _roomFx.FxOverlay.SetLiquidLevel(ChozoStatueRoomDefinitions.LoweredAcidY);
-                return null;
+                return;
 
             case ChozoStatueCue.Signal { Kind: ChozoStatueCueKind.UnlockSamus }:
                 EnableChozoStatueSamusControls();
-                return null;
+                return;
 
             case ChozoStatueCue.Signal { Kind: ChozoStatueCueKind.PlayGrabSound }:
                 _audio.QueueEnemySound(EnemySoundEffectDefinitions.ChozoGrabsSamusSound, priority: SoundRequestPriority.Normal);
-                return null;
+                return;
 
             case ChozoStatueCue.Signal { Kind: ChozoStatueCueKind.PlayFootstepSound }:
                 _audio.QueueEnemySound(EnemySoundEffectDefinitions.ChozoFootstepsSound, priority: SoundRequestPriority.Normal);
-                return null;
+                return;
 
             case ChozoStatueCue.Footstep footstep:
                 ProcessChozoStatueFootstep(
                     statue,
                     level,
                     footstep.OffsetX);
-                return null;
+                return;
 
             case ChozoStatueCue.Move move:
                 ProcessChozoStatueMovement(
@@ -181,11 +181,11 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
                     samus,
                     level,
                     move.Step);
-                return null;
+                return;
 
             case ChozoStatueCue.Signal { Kind: ChozoStatueCueKind.ReleaseSamus }:
                 FinishWreckedShipChozoSequence();
-                return null;
+                return;
 
             default:
                 throw new InvalidOperationException($"Undefined {nameof(ChozoStatueCueKind)} {cue}.");
@@ -280,16 +280,14 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         _passEvents.Publish(new ChozoStatueObjectAsked(new RoomObjectSpawnRequest<ChozoStatueRoomObject>(block, roomObject)));
 
     /// <summary>Runs ChozoStatue's main AI.</summary>
-    internal static void RunChozoStatueMainAi(RoomEnemyPlace place, IEnemyAiFrame _)
+    internal static void RunChozoStatueMainAi(RoomEnemyPlace place)
     {
         RunChozoStatueMain(place, place.RequireSpeciesState<ChozoStatueState>());
     }
 
     /// <summary>Advances ChozoStatue's typed animation.</summary>
     internal void AdvanceChozoStatueTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext context) =>
-        EnemyAnimationPlayback.Advance(place, ChozoStatueAnimations.Segments,
+        EnemyAnimationPlayback.AdvanceApplyingCues(place, ChozoStatueAnimations.Segments,
             static (ChozoStatueState state) => state.Playback, static (state, playback) => state.Playback = playback,
-            (state, cue) => ApplyChozoStatueCue(place, cue, context.Samus, context.Level) is { } target
-                ? new AnimationContinuation<ChozoStatueSegment>(ChozoStatueAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
-                : null);
+            (ChozoStatueState _, ChozoStatueCue cue) => ApplyChozoStatueCue(place, cue, context.Samus, context.Level));
 }

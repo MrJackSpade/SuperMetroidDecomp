@@ -246,11 +246,10 @@ public sealed class SamusProjectileSystem
     /// a successful shot just as the game does.
     /// </param>
     /// <param name="progression">The progression a Spacetime shot's overwrite turns on and off.</param>
-    internal SamusProjectileFrameResult StepFrame(SamusTerrain terrain, SamusState samus, ProjectileButtonInput buttons, Position16<RoomPixels> cameraPosition, SamusBombProjectileSystem samusBombs, SharedGameState progression)
+    internal void StepFrame(SamusTerrain terrain, SamusState samus, ProjectileButtonInput buttons, Position16<RoomPixels> cameraPosition, SamusBombProjectileSystem samusBombs, SharedGameState progression)
     {
         FireFromHud(terrain, samus, buttons, samusBombs, projectileProducerEnabled: true);
         HandleShots(terrain, samus, cameraPosition, samusBombs, progression);
-        return LastFrameResult;
     }
 
     /// <summary>
@@ -367,7 +366,7 @@ public sealed class SamusProjectileSystem
             // Killing a projectile replaces rather than clears a live beam. Consequently the
             // explosion's first frame is selected in this same projectile pass.
             if (shot.Playback is not null)
-                _ = Animation.AdvanceProjectileAnimation(shot);
+                Animation.AdvanceProjectileAnimation(shot);
         }
     }
 

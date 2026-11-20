@@ -188,12 +188,11 @@ internal static class DownwardGateObjectsVerification
                 DownwardGateObject { Phase: DownwardGatePhase.RestingClosed, Resting: true } restingGate &&
                 restingGate.Animation.Shown == DownwardGateMovementDefinitions.Closed,
             "a gate that has not moved rests on its closed image, not on an image of a movement (#1627)");
-        AssertTrue(roomObjects.Gates.TrySpawnDownwardGateTrigger(
+        roomObjects.Gates.SpawnDownwardGateTrigger(
                 level,
                 level.BlockAt(gateBlockIndex - 1),
                 level.GetCollisionBlockByIndex(gateBlockIndex - 1).Behavior,
-                SamusProjectileType.Beam(SamusBeamCombination.Spazer, charged: false)),
-            "power beam reaches the sleeping blue gate");
+                SamusProjectileType.Beam(SamusBeamCombination.Spazer, charged: false));
         StepDownwardGateObject(roomObjects, level);
         AssertTrue(roomObjects.PopulationPlaces.Single(place => place.Behaviour is DownwardGateObject).Behaviour is
                 DownwardGateObject { Phase: DownwardGatePhase.Reopening, Resting: false } wakingGate &&
@@ -223,12 +222,11 @@ internal static class DownwardGateObjectsVerification
         AssertTrue(openedGate.Behaviour is DownwardGateObject { Phase: DownwardGatePhase.RestingOpen },
             "open gate rests, waiting only for a trigger");
 
-        AssertTrue(roomObjects.Gates.TrySpawnDownwardGateTrigger(
+        roomObjects.Gates.SpawnDownwardGateTrigger(
                 level,
                 level.BlockAt(gateBlockIndex - 1),
                 level.GetCollisionBlockByIndex(gateBlockIndex - 1).Behavior,
-                SamusProjectileType.Beam(SamusBeamCombination.Spazer, charged: false)),
-            "second power beam reaches the sleeping open blue gate");
+                SamusProjectileType.Beam(SamusBeamCombination.Spazer, charged: false));
         // The open-state collision image remains for sixteen frames before $BBE1 spawns
         // the downward-moving actor, exactly as list $BC13 specifies.
         for (int frame = 0; frame < 17; frame++)
@@ -258,8 +256,7 @@ internal static class DownwardGateObjectsVerification
             ? gateBlockIndex - 1
             : gateBlockIndex + 1;
         RoomBlockBehavior bts = level.GetCollisionBlockByIndex(triggerBlockIndex).Behavior;
-        AssertTrue(roomObjects.Gates.TrySpawnDownwardGateTrigger(level, level.BlockAt(triggerBlockIndex), bts, SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(projectile)),
-            $"{trigger} is claimed by the gate dispatcher");
+        roomObjects.Gates.SpawnDownwardGateTrigger(level, level.BlockAt(triggerBlockIndex), bts, SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(projectile));
         RoomObjectPlaceSnapshot gate = roomObjects.PopulationPlaces.Single(place =>
             place.Behaviour is DownwardGateObject);
         AssertEqual(accepted, gate.Behaviour is DownwardGateObject { Triggered: true },

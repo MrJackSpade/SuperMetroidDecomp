@@ -197,17 +197,18 @@ internal static class PhantoonAnimationsVerification
     }
 
     /// <summary>Spawns one destroyable flame through the real producer.</summary>
-    private static EnemyProjectile SpawnDestroyable(RoomEnemySystem enemies, Func<PhantoonPatterns, PhantoonEnemyState, bool> spawn, string producer)
+    private static EnemyProjectile SpawnDestroyable(RoomEnemySystem enemies, Action<PhantoonPatterns, PhantoonEnemyState> spawn, string producer)
     {
-        AssertTrue(spawn(enemies.PhantoonBehavior.Patterns, RequireState(enemies)), $"the real {producer} producer allocates a flame");
-        return enemies.Projectiles.EnemyProjectiles.Single(item => item.IsActive && item.Kind == RoomEnemyProjectileKind.PhantoonDestroyableFlame);
+        spawn(enemies.PhantoonBehavior.Patterns, RequireState(enemies));
+        return enemies.Projectiles.EnemyProjectiles.SingleOrDefault(item => item.IsActive && item.Kind == RoomEnemyProjectileKind.PhantoonDestroyableFlame)
+            ?? throw new InvalidOperationException($"The real {producer} producer allocates no flame.");
     }
 
     /// <summary>The starting, casual and rage producers start the programs their native initializers install.</summary>
     private static void VerifyFlameProducers()
     {
         RoomEnemySystem starting = NewFlameSystem();
-        AssertTrue(starting.PhantoonBehavior.Opening.SpawnPhantoonStartingFlame(RequireState(starting), PhantoonFlameSpawns.StartingFlameStarts[0]), "the real starting producer allocates a flame");
+        starting.PhantoonBehavior.Opening.SpawnPhantoonStartingFlame(RequireState(starting), PhantoonFlameSpawns.StartingFlameStarts[0]);
         AssertStarted(starting.Projectiles.EnemyProjectiles.Single(item => item.Kind == RoomEnemyProjectileKind.PhantoonStartingFlame),
             PhantoonFlameSegment.StartingFlame, "starting flame");
         RoomEnemySystem casual = NewFlameSystem();
@@ -217,7 +218,7 @@ internal static class PhantoonAnimationsVerification
     }
 
     /// <summary>Spawns the last flame of an even rage wave, the one the cartridge's first rage parameter starts.</summary>
-    private static bool SpawnRageFlame(PhantoonPatterns patterns, PhantoonEnemyState phantoon) =>
+    private static void SpawnRageFlame(PhantoonPatterns patterns, PhantoonEnemyState phantoon) =>
         patterns.SpawnPhantoonRageFlame(phantoon, PhantoonFlameSpawns.EvenRageWave[^1]);
 
     /// <summary>Requires <paramref name="flame"/> to run <paramref name="program"/> from its start.</summary>

@@ -46,10 +46,10 @@ internal static class EmptyExtendedFrameShotsVerification
         shot.Position = shot.Position.WithWhole(new(0x01f2, 0x00a3));
         shot.Radius = new(8, 8);
         shot.Animation = ProjectileFixturePlaybacks.Active();
-        bool hit = runtime.Enemies.Collision.ResolveOrdinaryProjectileHit(runtime.Projectiles, runtime.BombProjectiles, runtime.Room.LoadedRoom.Area, samus,
+        runtime.Enemies.Collision.ResolveOrdinaryProjectileHit(runtime.Projectiles, runtime.BombProjectiles, runtime.Room.LoadedRoom.Area, samus,
             pirate, Position16<RoomPixels>.Zero);
 
-        AssertTrue(!hit, "the empty extended frame takes no projectile hit");
+        AssertTrue(!shot.IsSpent, "the empty extended frame takes no projectile hit: the beam flies on");
         AssertEqual(health, pirate.Health, "the beam over the empty frame deals no damage");
         Console.WriteLine("  Empty extended frame: a beam over $804F leaves the pirate untouched.");
     }

@@ -29,17 +29,11 @@ public static class CinematicGlowPaletteFxColorDefinitions
         new()
         {
             Owner = CinematicGlowPaletteFxProgramOwner.OldMotherBrainBackgroundLights,
-            Object = ColourEffectId.OldMotherBrainFightBackgroundLights,
-            ColorsPerFrame = 3,
-            FrameDuration = 6,
             ColorFrames = PaletteFxColorFrames.Of(ColourEffectId.OldMotherBrainFightBackgroundLights, 3),
         },
         new()
         {
             Owner = CinematicGlowPaletteFxProgramOwner.GunshipGlow,
-            Object = ColourEffectId.GunshipGlow,
-            ColorsPerFrame = 1,
-            FrameDuration = 5,
             ColorFrames = PaletteFxColorFrames.Of(ColourEffectId.GunshipGlow, 1),
         },
     ];

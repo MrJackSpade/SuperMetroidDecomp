@@ -8,7 +8,4 @@ public sealed class CrocomireTongueState
 
     /// <summary>The encounter the tongue is part of (#2177), which its body set up before it.</summary>
     public CrocomireEnemyState Crocomire { get; }
-
-    /// <summary>The tongue's horizontal offset from the body, in pixels, added to the body's X every update.</summary>
-    public int BodyXOffset { get; internal set; }
 }

@@ -251,7 +251,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Hoppers's typed animation.</summary>
-    internal void AdvanceHoppersTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _)
+    internal void AdvanceHoppersTypedAnimation(RoomEnemyPlace place)
     {
         if (!place.AnimationClock.Expire())
             return;

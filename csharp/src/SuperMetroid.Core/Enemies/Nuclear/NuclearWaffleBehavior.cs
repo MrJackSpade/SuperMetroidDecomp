@@ -293,7 +293,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         origin + EnemyMath.CircleOffset(angle.ToRotationAngle().ToTrigonometryAngle(), radius);
 
     /// <summary>Advances the Nuclear Waffle's typed animation.</summary>
-    internal static void AdvanceNuclearWaffleTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _)
+    internal static void AdvanceNuclearWaffleTypedAnimation(RoomEnemyPlace place)
     {
         if (!place.AnimationClock.Expire())
             return;
@@ -306,7 +306,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the Nuclear Waffle's main AI.</summary>
-    internal void RunNuclearWaffleMainAi(RoomEnemyPlace place, IEnemyAiFrame _)
+    internal void RunNuclearWaffleMainAi(RoomEnemyPlace place)
     {
         RunNuclearWaffleMain(place, place.RequireSpeciesState<NuclearWaffleEnemyState>());
     }

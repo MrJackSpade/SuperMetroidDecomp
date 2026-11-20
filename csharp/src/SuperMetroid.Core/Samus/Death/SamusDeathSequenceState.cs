@@ -57,12 +57,6 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
     internal AnimationPlayer<SamusWhiteoutSegment, SamusWhiteoutShade, NoAnimationCue>? WhiteoutBrightening { get; private set; }
 
     /// <summary>
-    /// The whiteout shade the explosion shows, or null before its first: the explosion's last update shows
-    /// <see cref="SamusWhiteoutShade.Final"/>.
-    /// </summary>
-    public SamusWhiteoutShade? WhiteoutShade { get; private set; }
-
-    /// <summary>
     /// The colour the explosion's whiteout shows every picture and sprite in but Samus's body, or null before the
     /// whiteout's first shade. Each whiteout step shows the next installed shade, and the last one stays.
     /// </summary>
@@ -119,7 +113,6 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
         Flashing = UpdateCountdown.Lasting(SamusDeathSequenceDefinitions.FlashFrameCount);
         Explosion = null;
         WhiteoutBrightening = null;
-        WhiteoutShade = null;
         Whiteout = null;
         // Dying while spin jumping ends the spin's sound at normal priority.
         if (sourceMovementType == SamusMovementType.SpinJumping)
@@ -194,7 +187,6 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
         }
 
         return new SamusDeathSequenceStepResult(
-            Phase,
             draws,
             Phase == SamusDeathSequencePhase.Complete);
     }
@@ -279,7 +271,6 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
     /// </summary>
     private void ShowWhiteout(SamusColours samusColours, SamusDeathSteps artwork, SamusWhiteoutShade shade)
     {
-        WhiteoutShade = shade;
         Whiteout = artwork.WhiteoutColour(shade);
         samusColours.ShowBeams(SamusShades.DeathWhiteout(shade));
     }

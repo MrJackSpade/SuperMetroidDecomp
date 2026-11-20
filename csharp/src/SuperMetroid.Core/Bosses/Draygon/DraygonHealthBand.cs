@@ -22,19 +22,13 @@ public sealed class DraygonHealthBand
     /// <summary>The band's name in its shade's name.</summary>
     public string Key { get; }
 
-    /// <summary>The band Draygon is in at <paramref name="health"/>.</summary>
-    /// <exception cref="InvalidDataException">
-    /// The health is above his authored health: corrupt restored state, not permission to choose a band above his own.
-    /// </exception>
-    internal static DraygonHealthBand Of(int health)
-    {
-        if (health > DraygonHealthBandDefinitions.MaximumAuthoredHealth)
-        {
-            throw new InvalidDataException(
-                $"Draygon health {health} exceeds the authored maximum {DraygonHealthBandDefinitions.MaximumAuthoredHealth} for health-band selection.");
-        }
-        return DraygonHealthBandDefinitions.HighestFirst.First(band => health >= band.MinimumHealth);
-    }
+    /// <summary>
+    /// The band Draygon is in at <paramref name="health"/>: the first, highest first, whose least health his health reaches,
+    /// as the cartridge's threshold search ($A5:9701) finds it, so any health at or above the highest band's least is in
+    /// that band.
+    /// </summary>
+    internal static DraygonHealthBand Of(int health) =>
+        DraygonHealthBandDefinitions.HighestFirst.First(band => health >= band.MinimumHealth);
 
     /// <inheritdoc/>
     public override string ToString() => Key;

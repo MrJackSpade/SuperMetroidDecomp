@@ -73,10 +73,6 @@ public static class SamusBlockCollision
         Ensure.NotNull(terrain.Level);
         Ensure.NotNull(state);
 
-        if (move.CollisionMovementDirection is { } storedDirection &&
-            storedDirection is not (SamusCollisionDirection.Left or SamusCollisionDirection.Right))
-            throw new ArgumentOutOfRangeException(nameof(move.CollisionMovementDirection));
-
         SignedSixteenSixteen acceptedDisplacement = move.Displacement;
         bool collided = false;
         SolidEnemyCollisionResult? enemyCollision = null;
@@ -92,8 +88,8 @@ public static class SamusBlockCollision
             // The probe itself reads the side the displacement was calculated toward, so a zero move
             // still detects tangency (and clears fractional Y) in the facing direction.
             bool entersLeft = move.Displacement.IsNegative;
-            SamusCollisionDirection direction = move.CollisionMovementDirection ??
-                (entersLeft ? SamusCollisionDirection.Left : SamusCollisionDirection.Right);
+            bool probesLeft = move.CollisionMovementDirection is { } side ? side == HorizontalDirection.Left : entersLeft;
+            SamusCollisionDirection direction = probesLeft ? SamusCollisionDirection.Left : SamusCollisionDirection.Right;
             SolidEnemyCollisionResult probe = SamusSolidEnemyCollision.Probe(
                 state,
                 state.InteractiveEnemies,

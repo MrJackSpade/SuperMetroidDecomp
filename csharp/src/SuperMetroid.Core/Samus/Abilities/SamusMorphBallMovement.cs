@@ -240,7 +240,7 @@ public static class SamusMorphBallMovement
             (GameplayAction.Left | GameplayAction.Right)) != GameplayAction.None;
         SignedSixteenSixteen requestedHorizontal;
         // Null when the game skips horizontal movement entirely: no probe runs.
-        SamusCollisionDirection? collisionDirection = null;
+        HorizontalDirection? collisionDirection = null;
         if (speed.AccelerationMode == SamusAccelerationMode.Accelerating && !directionHeld)
         {
             // With no horizontal direction held the game clears the displacement and persistent base speed;

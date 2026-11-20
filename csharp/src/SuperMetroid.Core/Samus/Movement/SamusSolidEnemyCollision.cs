@@ -26,7 +26,6 @@ public static class SamusSolidEnemyCollision
     /// <returns>The first qualifying body's current leading-edge gap, or the requested distance's whole pixels with no enemy when no collision is found.</returns>
     /// <remarks>No whole position or enemy body is changed. Exact current-edge contact clears <paramref name="state"/>'s vertical fraction of a pixel even for horizontal probes. The reach is a magnitude; direction supplies its sign.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="state"/> or <paramref name="interactiveEnemies"/> is null.</exception>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="direction"/> is not one of the four directions.</exception>
     public static SolidEnemyCollisionResult Probe(
         SamusKinematicsState state,
         IReadOnlyList<SolidEnemyCollisionBody> interactiveEnemies,
@@ -35,10 +34,6 @@ public static class SamusSolidEnemyCollision
     {
         Ensure.NotNull(state);
         Ensure.NotNull(interactiveEnemies);
-
-        if (direction is not (SamusCollisionDirection.Left or SamusCollisionDirection.Right or
-            SamusCollisionDirection.Up or SamusCollisionDirection.Down))
-            throw new ArgumentOutOfRangeException(nameof(direction));
 
         // The broad overlap test uses only a whole-pixel target, which the probe's reach rule places past Samus's
         // reached centre (SolidEnemyProbeReach).

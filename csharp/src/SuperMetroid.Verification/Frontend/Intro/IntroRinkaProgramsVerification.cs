@@ -10,7 +10,7 @@ internal static class IntroRinkaProgramsVerification
     /// <summary>Checks three native frame operands, published names, stock part counts, and catalog bounds.</summary>
     internal static void VerifyIntroRinkaFrameCatalog(ISnesAddressSpace rom)
     {
-        string[] names = ["rinka-0", "rinka-1", "rinka-2"];
+        string[] names = ["rinka-dim", "rinka-glowing", "rinka-bright"];
         var frames = IntroRinkaSpriteDefinitions.Frames;
         AssertEqual(3, frames.Count, "three original Rinka frames");
         for (int index = 0; index < 3; index++)

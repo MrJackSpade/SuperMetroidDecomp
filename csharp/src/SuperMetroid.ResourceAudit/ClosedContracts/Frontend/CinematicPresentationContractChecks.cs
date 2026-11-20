@@ -44,8 +44,8 @@ internal static class CinematicPresentationContractChecks
                     TitleSpriteDrawing.DrawSprite(sheet, TitleSprite.SuperMetroidLogo, titleSprites, default, titleShading);
                     TitleSpriteDrawing.DrawSprite(sheet, (TitleSprite)(-1), titleSprites, default, titleShading);
                     TitleSpriteDrawing.DrawSprite(sheet, (TitleSprite)31, titleSprites, default, titleShading);
-                    eye.FrameTiles(IntroEyeTilemapFormat.FrameCount - 1);
-                    eye.FrameTiles(IntroEyeTilemapFormat.FrameCount);
+                    eye.FrameTiles(SuperMetroid.Core.Frontend.Intro.IntroEyeFrame.Deadpan);
+                    eye.FrameTiles((SuperMetroid.Core.Frontend.Intro.IntroEyeFrame)IntroEyeTilemapFormat.FrameCount);
                     caret.Draw(SuperMetroid.Core.Frontend.Intro.CinematicSpritePose.CaretVisible, oam, default, IntroShades.Drawn(IntroSpriteColouring.CrossFadeActors));
                     caret.Draw((SuperMetroid.Core.Frontend.Intro.CinematicSpritePose)999, oam, default, IntroShades.Drawn(IntroSpriteColouring.CrossFadeActors));
                     motherBrain.Draw(SuperMetroid.Core.Frontend.Intro.CinematicSpritePose.MotherBrainPulseLow, oam, default, IntroShades.Drawn(IntroSpriteColouring.MotherBrain));

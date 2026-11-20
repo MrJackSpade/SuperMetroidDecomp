@@ -68,7 +68,7 @@ public static class BeamFiredOverLastShot
     {
         ReplacedShot.FreePlace or ReplacedShot.UnignitedMissile => 0,
         ReplacedShot.ReflectedMissile reflected => reflected.HeadStart.InTwoHundredFiftySixthsOfPixel,
-        ReplacedShot.IgnitedMissile { LinkPlace: { } linkPlace } superMissile =>
+        ReplacedShot.IgnitedMissile { LinkChainPosition: { } linkPlace } superMissile =>
             LinkedSuperMissileCount(superMissile.IgnitionSpeed, linkPlace).InTwoHundredFiftySixthsOfPixel,
         ReplacedShot.IgnitedMissile missile => missile.IgnitionSpeed.InTwoHundredFiftySixthsOfPixel,
         ReplacedShot.CrashEcho echo => echo.DepartureAngle.RawValue,
@@ -112,14 +112,14 @@ public static class BeamFiredOverLastShot
             public IgnitedMissile(SignedEightEight ignitionSpeed, int? linkPlace)
             {
                 IgnitionSpeed = ignitionSpeed;
-                LinkPlace = linkPlace is { } place ? Ensure.AtLeastZero(place) : null;
+                LinkChainPosition = linkPlace is { } place ? Ensure.AtLeastZero(place) : null;
             }
 
             /// <summary>The speed it ignited at.</summary>
             public SignedEightEight IgnitionSpeed { get; }
 
             /// <summary>The place an ignited Super Missile names as its link, or null for a missile or a Super Missile naming none.</summary>
-            public int? LinkPlace { get; }
+            public int? LinkChainPosition { get; }
         }
 
         /// <summary>A shinespark crash echo flying out from Samus.</summary>

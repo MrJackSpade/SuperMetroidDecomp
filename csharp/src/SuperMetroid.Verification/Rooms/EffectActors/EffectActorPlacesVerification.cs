@@ -23,28 +23,29 @@ internal static class EffectActorPlacesVerification
         for (int spawn = 0; spawn < EffectActorPlaces.PlaceCount; spawn++)
         {
             RoomEffectActor dust = objects.SpawnRoomEffectActor(new(spawn, 0), RoomEffectActorKind.BigDustCloud, SpriteGraphics.SharedStandard);
-            AssertEqual<int?>(EffectActorPlaces.PlaceCount - 1 - spawn, objects.PlaceOf(dust), $"spawn {spawn} takes the highest free place");
+            AssertEqual<int?>(EffectActorPlaces.PlaceCount - 1 - spawn, objects.PlaceOf(dust)?.Number, $"spawn {spawn} takes the highest free place");
             spawned.Add(dust);
         }
 
         RoomEffectActor beyond = objects.SpawnRoomEffectActor(new(64, 0), RoomEffectActorKind.BigDustCloud, SpriteGraphics.SharedStandard);
-        AssertEqual<int?>(null, objects.PlaceOf(beyond), "a spawn while every place is taken takes none");
+        AssertEqual<int?>(null, objects.PlaceOf(beyond)?.Number, "a spawn while every place is taken takes none");
         AssertTrue(beyond.IsActive, "a spawn that takes no place still runs");
         spawned.Add(beyond);
         AssertTrue(objects.Live.SequenceEqual(spawned), "every spawn is live, in spawn order");
 
         RoomEffectActor ended = spawned[11];
-        int endedPlace = objects.PlaceOf(ended) ?? throw new InvalidOperationException("The twelfth spawn took a place.");
+        EffectActorPlaces.TakenPlace endedTaken = objects.PlaceOf(ended) ?? throw new InvalidOperationException("The twelfth spawn took a place.");
+        int endedPlace = endedTaken.Number;
         ended.End();
         spawned.Remove(ended);
         RoomEffectActor refill = objects.SpawnRoomEffectActor(new(65, 0), RoomEffectActorKind.BigDustCloud, SpriteGraphics.SharedStandard);
-        AssertEqual<int?>(endedPlace, objects.PlaceOf(refill), "the next spawn takes the place an ended object freed");
+        AssertEqual<int?>(endedPlace, objects.PlaceOf(refill)?.Number, "the next spawn takes the place an ended object freed");
         spawned.Add(refill);
         AssertTrue(objects.Live.SequenceEqual(spawned), "the ended object leaves and the new one runs last");
 
         var shot = new Position16<RoomPixels>(300, 200);
         KraidPassBounds placed = KraidPassBounds.Placed(left: 0, top: 0, bottom: 0);
-        placed.LeaveAfterDud(endedPlace, shot);
+        placed.LeaveAfterDud(endedTaken, shot);
         AssertEqual(endedPlace * 2, placed.Bottom, "a dud whose flash took a place leaves twice the place as the bottom");
         placed.LeaveAfterDud(null, shot);
         AssertEqual<int>(shot.X, placed.Bottom, "a dud whose flash took no place leaves the shot's X as the bottom");
@@ -52,7 +53,7 @@ internal static class EffectActorPlacesVerification
         objects.EndAll();
         AssertTrue(!objects.Live.Any(), "ending every object leaves none live");
         RoomEffectActor afterEnd = objects.SpawnRoomEffectActor(new(66, 0), RoomEffectActorKind.BigDustCloud, SpriteGraphics.SharedStandard);
-        AssertEqual<int?>(EffectActorPlaces.PlaceCount - 1, objects.PlaceOf(afterEnd), "once every object has ended the last place is free again");
+        AssertEqual<int?>(EffectActorPlaces.PlaceCount - 1, objects.PlaceOf(afterEnd)?.Number, "once every object has ended the last place is free again");
         Console.WriteLine("Sprite object places: thirty-two places taken from the last down, unlimited live objects in spawn order, and the Kraid dud bound pass.");
     }
 

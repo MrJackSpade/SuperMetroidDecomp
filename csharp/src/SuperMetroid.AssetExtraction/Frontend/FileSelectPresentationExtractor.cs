@@ -165,15 +165,15 @@ public static class FileSelectPresentationExtractor
                 [FileSelectPresentationFormat.BorderName(FileSelectBorder.Copy)] = FileSelectNativeLayout.CopyBorderAnchor,
                 [FileSelectPresentationFormat.BorderName(FileSelectBorder.Clear)] = FileSelectNativeLayout.ClearBorderAnchor,
             },
-            MainCursorAnchors = Enumerable.Range(0, FileSelectCursorPositions.MainSelectionCount)
+            MainCursorAnchors = FileSelectItemRows.MainWithData
                 .Select(FileSelectCursorPositions.MainSelectionY)
                 .Select(y => new Offset16<ScreenPixels>(FileSelectCursorPositions.MainCursorX, y)).ToArray(),
-            DataCursorAnchors = Enumerable.Range(0, FileSelectCursorPositions.DataSelectionCount)
+            DataCursorAnchors = FileSelectItemRows.Data
                 .Select(FileSelectCursorPositions.DataSelectionY)
                 .Select(y => new Offset16<ScreenPixels>(FileSelectCursorPositions.DataCursorX, y)).ToArray(),
             ConfirmationCursorAnchors =
                 [FileSelectCursorPositions.ConfirmationYesAnchor, FileSelectCursorPositions.ConfirmationNoAnchor],
-            HelmetAnchors = Enumerable.Range(0, FileSelectCursorPositions.SaveSlotCount)
+            HelmetAnchors = FileSelectCursorPositions.Slots
                 .Select(FileSelectCursorPositions.HelmetY)
                 .Select(y => new Offset16<ScreenPixels>(FileSelectCursorPositions.HelmetX, y)).ToArray(),
             DynamicAnchors = new(StringComparer.Ordinal)
@@ -247,9 +247,9 @@ public static class FileSelectPresentationExtractor
         {
             int word = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
             address = FileSelectTilemapFormat.Bank | (SnesAddressMath.OffsetInBank(address + 2));
-            if (Enum.IsDefined((FileSelectTextControl)word))
+            if (FileSelectTextControls.Of(word) is { } control)
             {
-                switch ((FileSelectTextControl)word)
+                switch (control)
                 {
                     case FileSelectTextControl.End:
                         return new(cells.ToArray());
@@ -327,19 +327,8 @@ public static class FileSelectPresentationExtractor
     }
 
     /// <summary>Splits one SNES BG tile word into atlas position, palette, priority, and flip fields.</summary>
-    private static MapPresentationCell Cell(int raw)
-    {
-        var word = new SnesBgTilemapWord(checked((ushort)raw));
-        return new()
-        {
-            TileColumn = word.CharacterIndex % FileSelectPresentationFormat.CharacterColumns,
-            TileRow = word.CharacterIndex / FileSelectPresentationFormat.CharacterColumns,
-            Palette = word.PaletteIndex,
-            Priority = word.HasPriority,
-            FlipX = word.FlipHorizontally,
-            FlipY = word.FlipVertically,
-        };
-    }
+    private static MapPresentationCell Cell(int raw) =>
+        MapPresentationCell.Of(BackgroundTileWords.ToTile(checked((ushort)raw)), FileSelectPresentationFormat.CharacterColumns);
 
     /// <summary>Maps a tilemap byte offset to column and row within the file-select page width.</summary>
     private static Position16<CharacterCells> Point(int byteOffset)

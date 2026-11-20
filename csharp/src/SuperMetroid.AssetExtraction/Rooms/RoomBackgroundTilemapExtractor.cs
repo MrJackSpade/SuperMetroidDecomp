@@ -37,7 +37,7 @@ public static class RoomBackgroundTilemapExtractor
             for (int cell = 0; cell < cells.Length; cell++)
             {
                 int offset = (page * cells.Length + cell) * sizeof(ushort);
-                cells[cell] = BackgroundTileCells.Of(BinaryPrimitives.ReadUInt16LittleEndian(native[offset..]));
+                cells[cell] = RoomBackgroundTilemapCell.Of(BinaryPrimitives.ReadUInt16LittleEndian(native[offset..]));
             }
             pages[page] = new RoomBackgroundTilemapPage { Cells = cells };
         }

@@ -1289,15 +1289,15 @@ static void WriteZebesEscapeWarning(TestAddressSpace bus)
             WriteTestByte(bus, cursor++, checked((byte)character));
     }
 
-    Word(checked((ushort)EscapeTypewriterExtractor.DelayCommand));
+    Word(EscapeTypewriterControlWords.Delay);
     Word(EscapeTypewriterDefinitions.CharacterDelayFrames);
-    Word((ushort)EscapeTypewriterCommand.LineStart);
+    Word(checked((ushort)EscapeTypewriterControlWords.Word(EscapeTypewriterCommand.LineStart)));
     Word(0x4905);
     Text("TIME BOMB SET!");
-    Word((ushort)EscapeTypewriterCommand.LineStart);
+    Word(checked((ushort)EscapeTypewriterControlWords.Word(EscapeTypewriterCommand.LineStart)));
     Word(0x4945);
     Text("ESCAPE IMMEDIATELY!");
-    Word((ushort)EscapeTypewriterCommand.End);
+    Word(checked((ushort)EscapeTypewriterControlWords.Word(EscapeTypewriterCommand.End)));
 }
 
 /// <summary>Seeds Ripper's literal four-frame right- and left-facing bank-$A2 instruction lists.</summary>

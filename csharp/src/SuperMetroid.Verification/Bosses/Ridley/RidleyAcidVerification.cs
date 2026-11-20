@@ -81,9 +81,9 @@ internal static class RidleyAcidVerification
                 fx.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires fx.CaptureForDisplay()."),
                 FxOverlayFixtures.ArtworkOf(fx.EffectPlane, InstalledFixtures.ImportMaps.RoomFxPages, runtime.ComposedVram(),
                     GameplayShownColours.Of(runtime, InstalledFixtures.SamusShadeSources))));
-            var baseline = DisplayRendering.Render(new LayeredScene(memory, [], 15));
+            var baseline = DisplayRendering.Render(new LayeredScene(memory, [], DisplayBrightness.Full));
             var actual = DisplayRendering.Render(new LayeredScene(memory,
-                effect is null ? [] : new DisplayLayer[] { effect }, 15));
+                effect is null ? [] : new DisplayLayer[] { effect }, DisplayBrightness.Full));
             AssertEqual(expectedVisible, !actual.SequenceEqual(baseline), "acid visibility at lower-arena camera");
             AssertTrue(actual.Take(32 * 256).SequenceEqual(baseline.Take(32 * 256)), "acid does not overwrite HUD");
         }

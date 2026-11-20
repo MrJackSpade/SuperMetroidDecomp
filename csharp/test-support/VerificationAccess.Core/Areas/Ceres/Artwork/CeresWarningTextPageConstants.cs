@@ -13,7 +13,7 @@ internal static class CeresWarningTextPageConstants
     /// <param name="byteCount">Bytes the transfer moves.</param>
     internal static int? ForTransfer(int sourceAddress, int byteCount)
     {
-        int offset = sourceAddress - CeresEscapeNativeSources.PageSource(CeresWarningTextPageDefinitions.InstalledPage);
+        int offset = sourceAddress - CeresEscapeNativeSources.PageSource(SuperMetroid.AssetExtraction.Areas.Ceres.Artwork.CeresEscapeTileArtworkDefinitions.All.IndexOf(SuperMetroid.AssetExtraction.Areas.Ceres.Artwork.CeresEscapeTileArtworkDefinitions.WarningText));
         for (int page = 0; page < CeresWarningTextPageDefinitions.PageCount; page++)
         {
             if (CeresWarningTextPages.ByteOffset(page) == offset && CeresWarningTextPages.ByteCount(page) == byteCount)

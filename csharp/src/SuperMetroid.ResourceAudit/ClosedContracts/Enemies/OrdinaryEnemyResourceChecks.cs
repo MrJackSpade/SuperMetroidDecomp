@@ -7,10 +7,9 @@ namespace SuperMetroid.ResourceAudit.ClosedContracts.Enemies;
 /// <summary>Confirms only the six statically identified ordinary-composition omissions.</summary>
 internal static class OrdinaryEnemyResourceChecks
 {
-    /// <summary>Selects the reported family and its appended schema range before checking installed ordinary compositions.</summary>
+    /// <summary>Selects the reported family before checking installed ordinary compositions.</summary>
     public static void Run(string family)
     {
-        int previousCount = EnemySpritemapToolingDefinitions.PreAuditOrdinaryFrameCount;
         // Typed families (#641) name their spritemaps; the rest still resolve compiled operands.
         OrdinaryEnemyResourceFamily[] families =
         [
@@ -21,20 +20,16 @@ internal static class OrdinaryEnemyResourceChecks
             new OrdinaryEnemyResourceFamily("Spark", SparkVisualDefinitions.Bank, null, [.. EnemyCompositionSchemaTooling.Family("spark_").Select(frame => frame.Pointer)], SparkVisualDefinitions.FrameCount),
             new OrdinaryEnemyResourceFamily("Shitroid", BabyMetroidSpritemapDefinitions.Bank, null, BabyMetroidSpritemapDefinitions.Spritemaps(), BabyMetroidSpritemapDefinitions.FrameCount),
         ];
-        int offset = 0;
         foreach (var definition in families)
         {
             if (definition.Name == family)
             {
                 if (definition.Spritemaps is { } spritemaps)
-                    EnemyCompositionResourceChecks.RunSpritemaps(family, definition.Bank, spritemaps,
-                        definition.Count, previousCount, previousCount + offset);
+                    EnemyCompositionResourceChecks.RunSpritemaps(family, definition.Bank, spritemaps, definition.Count);
                 else
-                    EnemyCompositionResourceChecks.Run(family, definition.Bank, definition.Operands,
-                        definition.Count, previousCount, previousCount + offset);
+                    EnemyCompositionResourceChecks.Run(family, definition.Bank, definition.Operands, definition.Count);
                 return;
             }
-            offset += definition.Count;
         }
         throw new ArgumentException("Expected " + string.Join(", ", families.Select(item => item.Name)), nameof(family));
     }

@@ -148,8 +148,6 @@ internal static class SamusPaletteNative
                 ? Address(new(family, SamusSuitListLayout.AtPlace(suit), shade))
                 : throw new ArgumentOutOfRangeException(nameof(suit), "Suit and shade must be catalogued.");
 
-        /// <summary>The artwork row of the cycle palette at bank-$9B <paramref name="pointer"/>.</summary>
-        internal static int PaletteIndex(ushort pointer) => SamusFullBodyCycleColorFormat.PaletteIndex(Palette(pointer));
     }
 
     /// <summary>The import pipeline's decoded cycle colors by bank-$9B palette address.</summary>

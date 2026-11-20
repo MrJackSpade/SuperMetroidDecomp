@@ -194,6 +194,13 @@ internal static class EnemySheetComposer
     private sealed record LaidEnemySheet(EnemyDefinitionId Enemy, int Layout, IReadOnlyDictionary<string, IReadOnlyList<FrameLookChange>> LookChanges,
         IReadOnlyDictionary<string, CorpsePicturePlacement> CorpsePictures);
 
+    /// <summary>
+    /// The part of an installed sheet's or variant's name that says what it holds: the first twelve hexadecimal digits of the
+    /// digest of <paramref name="content"/>, how its content is spelled.
+    /// </summary>
+    private static string ContentName(string content) =>
+        Convert.ToHexString(SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(content)))[..12];
+
     /// <summary>One spawned-object sheet under a graphics set.</summary>
     /// <param name="Plan">The tile base, palette and spawners of the objects it draws.</param>
     /// <param name="Layout">The index of the distinct spawned-object layout its sheet paints.</param>
@@ -204,9 +211,9 @@ internal static class EnemySheetComposer
         IReadOnlyDictionary<string, CorpsePicturePlacement> CorpsePictures, IReadOnlySet<string> Empty);
 
     /// <summary>
-    /// Names the distinct variants of each owner in the order they are first asked for (#1599): a variant the same as an
-    /// earlier one takes its name; otherwise the session start's is its owner's standard variant, and any other its owner's
-    /// next ordinal.
+    /// Names the distinct variants of each owner (#1599, #2556): a variant the same as an earlier one takes its name;
+    /// otherwise the session start's is its owner's standard variant, and any other is named for how the manifest spells
+    /// it, its owner's name followed by a digest of that spelling, so no name depends on the order variants are asked for.
     /// </summary>
     /// <typeparam name="TDocument">How the manifest spells a variant.</typeparam>
     /// <param name="spelling">How the manifest spells a document; two variants are the same exactly when they spell alike.</param>
@@ -214,9 +221,6 @@ internal static class EnemySheetComposer
     {
         /// <summary>The name of the variant with each identity: its owner and how the manifest spells it.</summary>
         private readonly Dictionary<string, string> named = new(StringComparer.Ordinal);
-
-        /// <summary>How many ordinal variants each owner has been given.</summary>
-        private readonly Dictionary<string, int> ordinals = new(StringComparer.Ordinal);
 
         /// <summary>Each distinct variant by name, in the order they were named.</summary>
         internal Dictionary<string, TDocument> Documents { get; } = new(StringComparer.Ordinal);
@@ -231,24 +235,17 @@ internal static class EnemySheetComposer
             string identity = $"{owner}\n{spelling(document)}";
             if (named.TryGetValue(identity, out string? known))
                 return known;
-            string name;
-            if (standard)
-                name = $"{owner}.Standard";
-            else
-            {
-                int ordinal = ordinals.GetValueOrDefault(owner);
-                ordinals[owner] = ordinal + 1;
-                name = $"{owner}.{ordinal}";
-            }
-            Documents.Add(name, document);
+            string name = standard ? $"{owner}.Standard" : $"{owner}.{ContentName(identity)}";
+            if (!Documents.TryAdd(name, document))
+                throw new InvalidOperationException($"Two variants of {owner} are both named {name}.");
             named.Add(identity, name);
             return name;
         }
     }
 
     /// <summary>
-    /// Names the distinct sheets in the order they are first asked for: a sheet whose installed manifest, pixels and maps are
-    /// the same as an earlier named sheet's takes its name; otherwise its owner's next ordinal, an enemy's sheets named for
+    /// Names the distinct sheets: a sheet whose installed manifest, pixels and maps are the same as an earlier named sheet's
+    /// takes its name; otherwise its owner's name followed by a digest of its content (#2556), an enemy's sheets named for
     /// the enemy, a spawned-object sheet's own pictures for its owner and a common sheet of spawned-object pictures as common
     /// (#1513). This is what makes variants the player cannot tell apart one sheet (#1643), for any enemy: graphics sets that
     /// load an enemy into different palette rows compose it different sheets, but the installation holds only its pictures,
@@ -263,9 +260,6 @@ internal static class EnemySheetComposer
         /// <summary>The name of the sheet with each fingerprint.</summary>
         private readonly Dictionary<string, string> distinct = new(StringComparer.Ordinal);
 
-        /// <summary>How many distinct sheets each owner has been given.</summary>
-        private readonly Dictionary<string, int> ordinals = new(StringComparer.Ordinal);
-
         /// <summary>Each distinct sheet by installed name, in the order they were named.</summary>
         internal Dictionary<string, InstalledSheet> Sheets { get; } = new(StringComparer.Ordinal);
 
@@ -277,11 +271,10 @@ internal static class EnemySheetComposer
             string key = Fingerprint(sheet);
             if (!distinct.TryGetValue(key, out string? name))
             {
-                int ordinal = ordinals.GetValueOrDefault(owner);
-                ordinals[owner] = ordinal + 1;
-                name = $"{owner}.{ordinal}";
+                name = $"{owner}.{ContentName(key)}";
                 distinct.Add(key, name);
-                Sheets.Add(name, sheet);
+                if (!Sheets.TryAdd(name, sheet))
+                    throw new InvalidOperationException($"Two sheets of {owner} are both named {name}.");
             }
             names.Add(sheet, name);
             return name;

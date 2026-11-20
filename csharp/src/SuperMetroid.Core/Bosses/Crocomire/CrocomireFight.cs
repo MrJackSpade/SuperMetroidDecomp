@@ -102,9 +102,9 @@ internal sealed class CrocomireFight
     /// <summary>Sets Crocomire's tongue up when the room spawns it.</summary>
     internal void InitializeCrocomireTongue(RoomEnemyPlace place)
     {
-        // The room lists the tongue right after its body, which has set the encounter up; the tongue joins it in a
-        // defeated room too, where it is deleted at once (#2400).
-        CrocomireEnemyState state = _places.ListedBefore(place, 1).RequireSpeciesState<CrocomireEnemyState>();
+        // The tongue joins the encounter its body has set up, in a defeated room too, where it is deleted at once (#2400).
+        CrocomireEnemyState state = _places.Member(place, CrocomirePartListingDefinitions.Listing, EnemyDefinitionId.CrocomireTongue, EnemyDefinitionId.Crocomire)
+            .RequireSpeciesState<CrocomireEnemyState>();
         state.JoinTongue(place);
         if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaMiniBoss))
         {

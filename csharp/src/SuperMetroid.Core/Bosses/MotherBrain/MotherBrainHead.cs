@@ -49,8 +49,9 @@ internal sealed class MotherBrainHead
     /// <summary>Sets Mother Brain's head up when the room spawns it.</summary>
     internal void InitializeMotherBrainHead(RoomEnemyPlace head)
     {
-        // The head joins the encounter her body, listed right before it, began; it holds it from here (#2218).
-        MotherBrainEnemyState state = _places.ListedBefore(head, 1).RequireSpeciesState<MotherBrainEnemyState>();
+        // The head joins the encounter her body began; it holds it from here (#2218).
+        MotherBrainEnemyState state = _places.Member(head, MotherBrainFightDefinitions.Listing, EnemyDefinitionId.MotherBrainHead, EnemyDefinitionId.MotherBrainBody)
+            .RequireSpeciesState<MotherBrainEnemyState>();
         head.SetSpeciesState(state);
 
         head.Health = MotherBrainFightDefinitions.FirstPhaseHealth;
@@ -145,8 +146,7 @@ internal sealed class MotherBrainHead
             return;
 
         // The joints are drawn from the brain down to her body, so the joints nearer her brain lie over the others.
-        int shakeIndex = MotherBrainCadenceDefinitions.NeckShakeStep.Of(head.HurtFlash.UpdatesLeft);
-        Offset16<RoomPixels> neckShake = MotherBrainShakeDefinitions.Offsets[shakeIndex];
+        Offset16<RoomPixels> neckShake = MotherBrainShake.OffsetOn(MotherBrainCadenceDefinitions.NeckShakeStep, head.HurtFlash.UpdatesLeft);
         foreach (MotherBrainNeckJoint joint in state.Neck.Joints.Reverse())
         {
             DrawMotherBrainWorldFrame(

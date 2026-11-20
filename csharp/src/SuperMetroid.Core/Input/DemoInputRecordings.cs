@@ -131,7 +131,7 @@ public static class DemoInputRecordings
         [N.AttractDiagonalShinespark] = new(
         [
             new(A.None, A.None, 165),
-        ], DemoRecordingEnd.LoopsFrom(0)),
+        ], DemoRecordingEnd.HoldsLastInput),
         [N.AttractDiagonalShinesparkContinuation] = new(
         [
             new(A.None, A.None, 150),
@@ -890,7 +890,7 @@ public static class DemoInputRecordings
             new(A.None, A.None, 90),
             new(A.Left, A.Left, 1),
             new(A.Left, A.None, 1),
-        ], DemoRecordingEnd.LoopsFrom(2)),
+        ], DemoRecordingEnd.HoldsLastInput),
         [N.IntroBabyDiscoveryStopAndLook] = new(
         [
             new(A.None, A.None, 300),
@@ -899,7 +899,7 @@ public static class DemoInputRecordings
             new(A.None, A.None, 240),
             new(A.Left, A.Left, 1),
             new(A.Left, A.None, 1),
-        ], DemoRecordingEnd.LoopsFrom(5)),
+        ], DemoRecordingEnd.HoldsLastInput),
         [N.IntroMotherBrainFlashback] = new(
         [
             new(A.None, A.None, 90),

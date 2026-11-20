@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core.Bosses.Botwoon;
 
 namespace SuperMetroid.AssetExtraction.Bosses.Botwoon.Artwork;
 
@@ -14,9 +15,9 @@ public sealed class BotwoonColorCatalog
     internal BotwoonColorCatalog(InstalledColourRows health) => this.health = health;
 
     /// <summary>Gets one installed colour of a health-band palette.</summary>
-    /// <param name="band">Health-band index from zero through seven.</param>
+    /// <param name="band">The health band, whose installed row is its place in <see cref="BotwoonHealthBandDefinitions.InOrderShown"/>.</param>
     /// <param name="color">Color index from zero through fifteen within the complete palette.</param>
     /// <returns>The installed colour.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">Either index is outside its authored range.</exception>
-    public RgbColor HealthColor(int band, int color) => health.Colour(band, color);
+    /// <exception cref="ArgumentOutOfRangeException">The band is not one he shows, or the colour is outside its authored range.</exception>
+    public RgbColor HealthColor(BotwoonHealthBand band, int color) => health.Colour(InstalledRows.Of(BotwoonHealthBandDefinitions.InOrderShown, band), color);
 }

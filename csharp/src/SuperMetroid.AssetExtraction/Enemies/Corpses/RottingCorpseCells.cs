@@ -74,8 +74,8 @@ internal sealed class RottingCorpseCells
                 corpses.AddRange([TorizoBody, TorizoSand]);
             else if (enemy == EnemyDefinitionId.CorpseSidehopper)
             {
-                corpses.AddRange([DeadMonster(new CorpseRowUploadList(RottingCorpseSpecies.Sidehopper, 0)),
-                    DeadMonster(new CorpseRowUploadList(RottingCorpseSpecies.Sidehopper, 1))]);
+                corpses.AddRange([DeadMonster(CorpseRowUploadList.SidehopperBabyMetroidVictim),
+                    DeadMonster(CorpseRowUploadList.SidehopperAlreadyDead)]);
             }
             else if (DeadTourianBehavior.IsDeadTourianCorpseDefinition(enemy))
             {
@@ -89,7 +89,7 @@ internal sealed class RottingCorpseCells
 
     /// <summary>The dead monster whose rows <paramref name="list"/> uploads.</summary>
     private static RottingCorpseCells DeadMonster(CorpseRowUploadList list) =>
-        new(list.Name, DeadMonsterRowUploadDefinitions.ForList(list).Select(Run));
+        new(list.ToString(), DeadMonsterRowUploadDefinitions.ForList(list).Select(Run));
 
     /// <summary>The dead Torizo's body: the body rows of both its upload lists.</summary>
     private static RottingCorpseCells TorizoBody { get; } = new("Torizo",

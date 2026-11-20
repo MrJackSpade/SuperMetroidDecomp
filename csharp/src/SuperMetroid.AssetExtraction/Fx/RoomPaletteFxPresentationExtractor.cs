@@ -31,7 +31,7 @@ internal static class RoomPaletteFxPresentationExtractor
             WreckedShipGreenLights = ExtractFrames(WreckedShipGreenLightPaletteFxColorDefinitions.ColorFrames),
             RedBrinstarBackgroundGlow = ExtractFrames(RedBrinstarGlowPaletteFxColorDefinitions.ColorFrames),
             TourianGlow = ExtractFrames(TourianGlowPaletteFxColorDefinitions.ColorFrames),
-            BrinstarBlueSpores = ExtractFrames(BrinstarBlueSporePaletteFxColorDefinitions.All[0].ColorFrames),
+            BrinstarBlueSpores = ExtractFrames(BrinstarBlueSporePaletteFxColorDefinitions.Standard.ColorFrames),
             BombTorizoBelly = ExtractFrames(TorizoBellyPaletteFxColorDefinitions.All.Single(item => item.Owner == TorizoBellyPaletteOwner.BombTorizo).ColorFrames),
             GoldenTorizoBelly = ExtractFrames(TorizoBellyPaletteFxColorDefinitions.All.Single(item => item.Owner == TorizoBellyPaletteOwner.GoldenTorizo).ColorFrames),
             TourianStatueGrey = ExtractFrames(TourianStatueGreyPaletteFxColorDefinitions.ColorFrames),

@@ -9,13 +9,13 @@ public static class TourianStatueColorDefinitions
     /// <summary>The four boss-specific eye glows the statues step through, ordered Phantoon, Ridley, Draygon, Kraid.</summary>
     public const int EyeGlowCount = 4;
 
-    /// <summary>Each boss statue's eye glow and its row in the installed eye colours (#1747, #2482).</summary>
-    public static IReadOnlyList<KeyValuePair<PictureShade, int>> EyeGlowRows { get; } =
+    /// <summary>Each boss statue's eye glow and the statue it belongs to (#1747, #2482).</summary>
+    public static IReadOnlyList<KeyValuePair<PictureShade, SuperMetroid.Core.Areas.Tourian.TourianStatue>> EyeGlowRows { get; } =
     [
-        new(TourianStatueShades.PhantoonEyeGlow, 0),
-        new(TourianStatueShades.RidleyEyeGlow, 1),
-        new(TourianStatueShades.DraygonEyeGlow, 2),
-        new(TourianStatueShades.KraidEyeGlow, 3),
+        new(TourianStatueShades.PhantoonEyeGlow, SuperMetroid.Core.Areas.Tourian.TourianStatue.Phantoon),
+        new(TourianStatueShades.RidleyEyeGlow, SuperMetroid.Core.Areas.Tourian.TourianStatue.Ridley),
+        new(TourianStatueShades.DraygonEyeGlow, SuperMetroid.Core.Areas.Tourian.TourianStatue.Draygon),
+        new(TourianStatueShades.KraidEyeGlow, SuperMetroid.Core.Areas.Tourian.TourianStatue.Kraid),
     ];
 
     /// <summary>The colours of one eye glow.</summary>

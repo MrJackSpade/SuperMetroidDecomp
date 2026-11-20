@@ -21,7 +21,7 @@ public sealed class EnemyProjectile
     /// <param name="kind">What the projectile is.</param>
     internal EnemyProjectile(int place, EnemyProjectileHandOver left, RoomEnemyProjectileKind kind)
     {
-        Place = Ensure.BetweenInclusive(0, EnemyProjectileEngine.PlaceCount - 1, place);
+        Place = Ensure.BetweenInclusive(0, EnemyProjectilePlaces.Capacity - 1, place);
         Position = FixedPosition<RoomPixels>.FromWhole(left.Position);
         Velocity = left.Velocity;
         Vacate();

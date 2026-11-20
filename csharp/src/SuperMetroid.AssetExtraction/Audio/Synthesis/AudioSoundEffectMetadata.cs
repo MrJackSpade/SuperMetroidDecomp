@@ -7,7 +7,7 @@ public sealed record AudioSoundEffectMetadata(
     int Command,
     string Id,
     int StreamPointer,
-    int Configuration,
+    string Policy,
     IReadOnlyList<string> ChannelPrograms)
 {
     /// <summary>The one-based sound-effect command, 0 through 255.</summary>
@@ -17,5 +17,5 @@ public sealed record AudioSoundEffectMetadata(
     public int StreamPointer { get; init; } = Ensure.BetweenInclusive(0, ushort.MaxValue, StreamPointer);
 
     /// <summary>The voice-allocation configuration byte, 0 through 255.</summary>
-    public int Configuration { get; init; } = Ensure.BetweenInclusive(0, byte.MaxValue, Configuration);
+    public string Policy { get; init; } = string.IsNullOrEmpty(Policy) ? throw new ArgumentException("A sound effect names its policy.", nameof(Policy)) : Policy;
 }

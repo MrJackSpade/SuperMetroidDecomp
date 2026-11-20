@@ -25,24 +25,24 @@ public enum InstalledBackgroundSet
     /// </summary>
     HudItemsAndEffects,
 
-    /// <summary>The tileset's first tile colours, which the Ceres doors and Maridia's sand animate.</summary>
-    TilesFirst,
+    /// <summary>The tile colours the Ceres doors and Maridia's sand animate.</summary>
+    DoorAndSandTiles,
 
-    /// <summary>The tileset's second tile colours, which Mother Brain's room lights and Tourian's background animate.</summary>
-    TilesSecond,
+    /// <summary>The tile colours Mother Brain's room lights and Tourian's background animate.</summary>
+    AnimatedLightTiles,
 
-    /// <summary>The tileset's third tile colours, which Mother Brain's body and the Wrecked Ship's lights show.</summary>
-    TilesThird,
+    /// <summary>The tile colours Mother Brain's body and the Wrecked Ship's lights show.</summary>
+    MachineryTiles,
 
-    /// <summary>The tileset's fourth tile colours, which Draygon's room background and Ceres's floor show.</summary>
-    TilesFourth,
+    /// <summary>The tile colours Draygon's room background and Ceres's floor show.</summary>
+    BackgroundAndFloorTiles,
 
-    /// <summary>The tileset's fifth tile colours, which Kraid's room backdrop and the Tourian statues show.</summary>
-    TilesFifth,
+    /// <summary>The tile colours Kraid's room backdrop and the Tourian statues show.</summary>
+    BackdropAndStatueTiles,
 
     /// <summary>
-    /// The tileset's sixth tile colours, which the background-drawn boss bodies (Kraid, Phantoon, Crocomire, Ridley) and
-    /// the escape typewriter's text source show.
+    /// The tile colours the background-drawn boss bodies (Kraid, Phantoon, Crocomire, Ridley) and the escape typewriter's
+    /// text source show.
     /// </summary>
-    TilesSixth,
+    BackgroundBossTiles,
 }

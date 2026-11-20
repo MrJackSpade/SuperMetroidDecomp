@@ -77,9 +77,8 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void InitializeEvirArms(RoomEnemyPlace place)
     {
         PlaceFollowUpRecipients(place);
-        // The second listed enemy is not a second creature. It is the arms, which the room lists right after their
-        // body and which always read facing and position from it.
-        RoomEnemyPlace body = _places.ListedBefore(place, EvirPartListingDefinitions.ArmsPlacesAfterBody);
+        // The arms are not a second creature: they always read facing and position from their body.
+        RoomEnemyPlace body = _places.Member(place, EvirPartListingDefinitions.Listing, EvirMember.Arms, EvirMember.Body);
         RequirePlacedBody(body, place, "arms");
         var arms = new EvirArmsState(body);
         place.SetSpeciesState(arms);
@@ -92,15 +91,14 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     /// the ones the room lists after it.
     /// </summary>
     private void PlaceFollowUpRecipients(RoomEnemyPlace place) =>
-        _followUpRecipients.Place(place, FollowUpAfterStruckPart.Recipients(distance => _places.ListedAfter(place, distance), EvirPartListingDefinitions.FollowUpReach));
+        _followUpRecipients.Place(place, FollowUpAfterStruckPart.Recipients(_places.PlacesAfter(place), EvirPartListingDefinitions.FollowUpReach));
 
     /// <summary>Initializes an Evir's body, facing Samus.</summary>
     internal void InitializeEvirBody(RoomEnemyOccupant occupant, RoomEnemyPlace place, SamusState samus)
     {
         PlaceFollowUpRecipients(place);
 
-        // The room lists each Evir's spit two places after its body, behind the arms.
-        var state = new EvirBodyState(spit: _places.ListedAfter(place, EvirPartListingDefinitions.SpitPlacesAfterBody));
+        var state = new EvirBodyState(spit: _places.Member(place, EvirPartListingDefinitions.Listing, EvirMember.Body, EvirMember.Spit));
         place.SetSpeciesState(state);
         SetEvirBodyFacing(place, state, samus);
 
@@ -139,8 +137,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initializes the Evir's spit.</summary>
     internal void InitializeEvirProjectile(RoomEnemyPlace place)
     {
-        // The room lists each Evir's spit two places after its body, behind the arms.
-        RoomEnemyPlace body = _places.ListedBefore(place, EvirPartListingDefinitions.SpitPlacesAfterBody);
+        RoomEnemyPlace body = _places.Member(place, EvirPartListingDefinitions.Listing, EvirMember.Spit, EvirMember.Body);
         RequirePlacedBody(body, place, "spit");
         var state = new EvirSpitState(EvirSpitAction.Idle, body)
         {

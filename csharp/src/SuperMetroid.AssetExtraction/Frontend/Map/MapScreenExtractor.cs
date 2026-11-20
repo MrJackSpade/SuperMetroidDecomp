@@ -58,9 +58,8 @@ public static class MapScreenExtractor
             for (int index = 0; index < cells.Length; index++)
             {
                 var word = new MapTileWord(BinaryPrimitives.ReadUInt16LittleEndian(bytes.AsSpan(index * 2)));
-                cells[index] = new() { TileColumn = word.CharacterIndex % columns, TileRow = word.CharacterIndex / columns,
-                    Palette = word.PaletteIndex, Priority = word.HasPriority,
-                    FlipX = (word.Mirroring & PictureFlip.Horizontal) != PictureFlip.None, FlipY = (word.Mirroring & PictureFlip.Vertical) != PictureFlip.None };
+                cells[index] = MapPresentationCell.Of(new BackgroundTile(word.CharacterIndex, word.PaletteIndex,
+                    word.Mirroring.HasFlag(PictureFlip.Horizontal), word.Mirroring.HasFlag(PictureFlip.Vertical), word.HasPriority), columns);
             }
             pages.Add(page.Name, cells);
         }

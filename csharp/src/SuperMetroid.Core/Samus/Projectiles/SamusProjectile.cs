@@ -147,7 +147,7 @@ public sealed class SamusProjectile
             SamusMissileIgnition.Pending => new BeamFiredOverLastShot.ReplacedShot.UnignitedMissile(),
             SamusMissileIgnition.PendingAfterReflection => new BeamFiredOverLastShot.ReplacedShot.ReflectedMissile(ReflectionHeadStart),
             SamusMissileIgnition.Ignited ignited => new BeamFiredOverLastShot.ReplacedShot.IgnitedMissile(
-                ignited.Speed, (missile as SuperMissileShotState)?.LinkPlace),
+                ignited.Speed, (missile as SuperMissileShotState)?.LinkChainPosition),
             _ => throw new InvalidOperationException($"Undefined {nameof(SamusMissileIgnition)} {missile.Ignition}."),
         },
         ShinesparkEchoShotState echo => new BeamFiredOverLastShot.ReplacedShot.CrashEcho(echo.Angle),

@@ -53,8 +53,8 @@ internal static class RandomChanceVerification
 
         // A choice taken in turn gives each of the field's values the next outcome (#2421): lava's bubbling sounds go 1, 2, 3,
         // 1, 2, 3, 1, 2 over the eight values of its field, the lowest three bits.
-        SoundEffectId[] bubbling = [EnemySound.LavaBubbling1, EnemySound.LavaBubbling2, EnemySound.LavaBubbling3,
-            EnemySound.LavaBubbling1, EnemySound.LavaBubbling2, EnemySound.LavaBubbling3, EnemySound.LavaBubbling1, EnemySound.LavaBubbling2];
+        SoundEffectId[] bubbling = [EnemySound.LavaBubblingBurst, EnemySound.LavaBubblingFalling, EnemySound.LavaBubblingRising,
+            EnemySound.LavaBubblingBurst, EnemySound.LavaBubblingFalling, EnemySound.LavaBubblingRising, EnemySound.LavaBubblingBurst, EnemySound.LavaBubblingFalling];
         for (int sample = 0; sample <= ushort.MaxValue; sample++)
             AssertSameAt(bubbling[sample & 7], SuperMetroid.Core.Fx.LavaAcidWaveDefinitions.AmbientSound.Choose(sample), "lava's bubbling sound", sample);
         AssertThrows<ArgumentException>(() => WeightedRandomChoice<char>.InTurn(new RandomSampleField(0, 1), 'a', 'b', 'c'), "more outcomes than values");

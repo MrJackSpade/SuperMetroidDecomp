@@ -15,10 +15,19 @@ public static class PauseWireframeExtractor
     /// <returns>UTF-8 JSON bytes keyed by wireframe kind.</returns>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
+        static int TablePlace(PauseWireframeKind kind) => kind switch
+        {
+            PauseWireframeKind.PowerSuit => 0,
+            PauseWireframeKind.PowerSuitHiJump => 1,
+            PauseWireframeKind.VariaSuit => 2,
+            PauseWireframeKind.VariaSuitHiJump => 3,
+            _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "Undefined pause wireframe."),
+        };
+
         var frames = new Dictionary<string, PauseBackdropCell[]>();
         foreach (PauseWireframeKind kind in Enum.GetValues<PauseWireframeKind>())
         {
-            int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.PauseWireframePointers.AddWithinBank((int)kind * 2));
+            int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.PauseWireframePointers.AddWithinBank(TablePlace(kind) * 2));
             var cells = new PauseBackdropCell[PauseWireframeDefinitions.Cells];
             for (int index = 0; index < cells.Length; index++)
             {

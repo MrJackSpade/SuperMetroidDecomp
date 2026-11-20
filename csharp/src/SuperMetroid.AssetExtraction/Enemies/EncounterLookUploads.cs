@@ -171,7 +171,7 @@ internal static class EncounterLookUploads
 
     /// <summary><paramref name="encounter"/>'s looks in the order it shows them, its room's load first.</summary>
     /// <exception cref="InvalidDataException">The encounter is not one the import composes.</exception>
-    internal static IReadOnlyList<ComposedLook> Looks(ComposedEncounter encounter) => encounter switch
+    private static IReadOnlyList<ComposedLook> Looks(ComposedEncounter encounter) => encounter switch
     {
         ComposedEncounter.DraygonEvirs => [ComposedLook.Loaded(encounter), DraygonEvirsLook],
         ComposedEncounter.Gunship => [ComposedLook.Loaded(encounter), ComposedLook.Of(encounter, GunshipTakeoffDefinitions.TakeoffLook)],
@@ -186,7 +186,7 @@ internal static class EncounterLookUploads
         _ => throw new InvalidDataException($"Undefined {nameof(ComposedEncounter)} {encounter}."),
     };
 
-    /// <summary>The place of <paramref name="look"/> among <paramref name="encounter"/>'s looks.</summary>
+    /// <summary>The turn of <paramref name="look"/> in <paramref name="encounter"/>'s authored sequence of looks, zero for the room's load.</summary>
     /// <exception cref="InvalidDataException">The look is none of the encounter's.</exception>
     internal static int IndexOf(ComposedEncounter encounter, ComposedLook look)
     {
@@ -198,18 +198,19 @@ internal static class EncounterLookUploads
     /// <summary>What each of <paramref name="encounter"/>'s looks copies, resolved against <paramref name="installed"/>.</summary>
     /// <exception cref="InvalidDataException">The installed artwork lacks a look's characters.</exception>
     internal static EncounterLookSteps Steps(ComposedEncounter encounter, IInstalledArtworkContent installed) =>
-        new(encounter, [.. Enumerable.Range(0, Looks(encounter).Count).Select(look => Uploads(encounter, look, installed))]);
+        new(encounter, [.. Looks(encounter).Select(look => new EncounterLookStep(look, Uploads(encounter, look, installed)))]);
 
     /// <summary>
     /// What look <paramref name="look"/> of <paramref name="encounter"/> copies, in the order its copies land, resolved
-    /// against <paramref name="installed"/>: nothing for the room's load.
+    /// against <paramref name="installed"/>: nothing for the room's load. A look after the load is found by its turn in the
+    /// encounter's authored sequence of looks.
     /// </summary>
     /// <exception cref="InvalidDataException">The installed artwork lacks the look's characters, or the encounter has no such look.</exception>
-    private static IReadOnlyList<EncounterArtworkUpload> Uploads(ComposedEncounter encounter, int look, IInstalledArtworkContent installed)
+    private static IReadOnlyList<EncounterArtworkUpload> Uploads(ComposedEncounter encounter, ComposedLook look, IInstalledArtworkContent installed)
     {
         Ensure.NotNull(installed);
-        Ensure.BetweenInclusive(0, Looks(encounter).Count - 1, look);
-        if (look == 0)
+        int turn = IndexOf(encounter, look);
+        if (look.IsLoaded)
             return [];
         return encounter switch
         {
@@ -225,14 +226,14 @@ internal static class EncounterLookUploads
                     Whole((Bosses(installed).CrocomireSkeleton ?? throw new InvalidDataException(
                         "Installed Crocomire artwork is missing its skeleton characters.")).Chunk(chunk), CrocomireSkeletonCharacterDefinitions.ChunkByteCount,
                         $"Crocomire skeleton chunk {chunk}")))],
-            ComposedEncounter.BombTorizo => Torizo(TorizoLookUploadDefinitions.BombSequence[look - 1], installed),
-            ComposedEncounter.GoldenTorizo => Torizo(TorizoLookUploadDefinitions.GoldenSequence[look - 1], installed),
+            ComposedEncounter.BombTorizo => Torizo(TorizoLookUploadDefinitions.BombSequence[turn - 1], installed),
+            ComposedEncounter.GoldenTorizo => Torizo(TorizoLookUploadDefinitions.GoldenSequence[turn - 1], installed),
             ComposedEncounter.CeresEscape => [.. TimerPages.Select(page => Timer(page, installed)),
                 .. Enumerable.Range(0, CeresWarningTextPageDefinitions.PageCount).Select(page => Warning(page, installed))],
             ComposedEncounter.CeresElevatorDoor => [new(EncounterCharacterPlacementDefinitions.CeresDoorFirstCharacter,
                 Whole((Areas(installed).CeresDoor ?? throw new InvalidDataException("Installed area artwork has no Ceres door visuals.")).Characters,
                     CeresDoorVisualFormat.CharacterBytes, "the Ceres door characters"))],
-            ComposedEncounter.MotherBrain => MotherBrainPages(MotherBrainLooks[look - 1].Sheet, installed),
+            ComposedEncounter.MotherBrain => MotherBrainPages(MotherBrainLooks[turn - 1].Sheet, installed),
             _ => throw new InvalidDataException($"Undefined {nameof(ComposedEncounter)} {encounter}."),
         };
     }
@@ -254,7 +255,7 @@ internal static class EncounterLookUploads
     private static EncounterArtworkUpload Warning(int page, IInstalledArtworkContent installed) =>
         new(CeresWarningGlyphDefinitions.WarningFirstCharacter + CeresWarningTextPages.ByteOffset(page) / SpriteCharacterTableLayout.CharacterByteCount,
             (Areas(installed).CeresEscapeTiles ?? throw new InvalidDataException("Installed Ceres escape has no editable character pages."))
-                .TryResolve(CeresWarningTextPageDefinitions.InstalledPage, CeresWarningTextPages.ByteOffset(page), CeresWarningTextPages.ByteCount(page),
+                .TryResolve(CeresEscapeTileArtworkDefinitions.WarningText, CeresWarningTextPages.ByteOffset(page), CeresWarningTextPages.ByteCount(page),
                     out ReadOnlyMemory<byte> characters)
                 ? characters
                 : throw new InvalidDataException($"Installed Ceres escape warning text has no characters for warning page {page}."));

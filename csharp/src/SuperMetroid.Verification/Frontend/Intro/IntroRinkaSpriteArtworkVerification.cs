@@ -96,7 +96,7 @@ internal static class IntroRinkaSpriteArtworkVerification
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "production intro Rinkas never reread the three native compositions");
 
-        document.Frames.Remove("rinka-0");
+        document.Frames.Remove("rinka-dim");
         AssertThrows<InvalidDataException>(() =>
         {
             using var malformed = new MemoryStream();

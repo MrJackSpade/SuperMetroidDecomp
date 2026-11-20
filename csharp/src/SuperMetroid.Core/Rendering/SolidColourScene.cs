@@ -7,10 +7,16 @@ public sealed class SolidColourScene : DisplayScene
 {
     /// <summary>Keeps the colour and the brightness.</summary>
     /// <param name="colour">The colour filling the whole screen before the brightness applies.</param>
-    /// <param name="brightness">The frame's brightness, from black (zero) to <see cref="DisplayBrightness.Full"/>.</param>
-    /// <exception cref="ArgumentOutOfRangeException">The brightness is below black or above full.</exception>
-    public SolidColourScene(RgbaPixel colour, int brightness = DisplayBrightness.Full)
+    /// <param name="brightness">The frame's brightness.</param>
+    public SolidColourScene(RgbaPixel colour, DisplayBrightness brightness)
         : base(brightness) => Colour = colour;
+
+    /// <summary>Keeps the colour, shown undimmed.</summary>
+    /// <param name="colour">The colour filling the whole screen.</param>
+    public SolidColourScene(RgbaPixel colour)
+        : this(colour, DisplayBrightness.Full)
+    {
+    }
 
     /// <summary>The colour filling the whole screen before the brightness applies.</summary>
     public RgbaPixel Colour { get; }
@@ -19,5 +25,5 @@ public sealed class SolidColourScene : DisplayScene
     public override void DrawWith<TDrawer>(TDrawer drawer) => drawer.DrawSolidColour(this);
 
     /// <inheritdoc/>
-    internal override DisplayScene AtBrightness(int brightness) => new SolidColourScene(Colour, brightness);
+    internal override DisplayScene AtBrightness(DisplayBrightness brightness) => new SolidColourScene(Colour, brightness);
 }

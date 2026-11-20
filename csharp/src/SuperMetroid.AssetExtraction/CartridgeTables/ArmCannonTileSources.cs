@@ -1,34 +1,60 @@
+using System.Collections.Frozen;
+using SuperMetroid.AssetExtraction.Samus;
+using SuperMetroid.Core;
+
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
-/// <summary>Where the cartridge keeps the arm cannon's twelve cover tiles (#1411).</summary>
+/// <summary>
+/// Where the cartridge keeps the arm cannon's twelve cover pictures (#1411, #2556): each orientation's opening in turn, one
+/// character every $200 bytes of bank $9A from <see cref="ArmCannonTileSourceDefinitions.FirstTileSource"/>. This is the
+/// only place a cover picture meets the bank-$9A source a queued transfer names it by, and the order the import's cover
+/// page holds the pictures in.
+/// </summary>
+[EncodingOwner("bank-$9A sources of the arm cannon's cover pictures")]
 internal static class ArmCannonTileSources
 {
-    /// <summary>The twelve native cover sources from $9A:9A00 through $9A:B000 occupy successive $200-byte character blocks.</summary>
+    /// <summary>The bytes between one cover picture's source and the next.</summary>
     private const int TileSourceStride = 512;
-    /// <summary>The bank-$9A DMA source of each installed cover tile, as a queued VRAM DMA names it.</summary>
-    internal static TileSourceSequence CoverTileDmaSources => new();
 
-    /// <summary>Calculated source identities in the original exported tile order; no tile pixels are inferred.</summary>
-    internal readonly record struct TileSourceSequence : IReadOnlyList<ushort>
+    /// <summary>The orientations in the order the cartridge keeps their openings.</summary>
+    private static readonly SamusArmCannonCoverOrientation[] OrientationOrder =
+    [
+        SamusArmCannonCoverOrientation.Vertical, SamusArmCannonCoverOrientation.Horizontal,
+        SamusArmCannonCoverOrientation.DownwardDiagonal, SamusArmCannonCoverOrientation.UpwardDiagonal,
+    ];
+
+    /// <summary>Every cover picture in the order the cartridge keeps them: each orientation's opening, frame by frame.</summary>
+    internal static IReadOnlyList<SamusArmCannonCoverTile> InSourceOrder { get; } =
+    [
+        .. OrientationOrder.SelectMany(orientation => SamusArmCannonCoverFrameCodec.InOpeningOrder
+            .Select(frame => new SamusArmCannonCoverTile(orientation, frame))),
+    ];
+
+    /// <summary>Each cover picture's bank-$9A source.</summary>
+    private static readonly FrozenDictionary<SamusArmCannonCoverTile, ushort> Sources = InSourceOrder
+        .Select((tile, place) => KeyValuePair.Create(tile, checked((ushort)(ArmCannonTileSourceDefinitions.FirstTileSource + place * TileSourceStride))))
+        .ToFrozenDictionary();
+
+    /// <summary>The cover picture at each bank-$9A source.</summary>
+    private static readonly FrozenDictionary<int, SamusArmCannonCoverTile> Tiles =
+        Sources.ToFrozenDictionary(entry => (int)entry.Value, entry => entry.Key);
+
+    /// <summary>The bank-$9A source of <paramref name="tile"/>.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="tile"/> is no cover picture.</exception>
+    internal static ushort Source(SamusArmCannonCoverTile tile) => Sources.TryGetValue(tile, out ushort source)
+        ? source
+        : throw new ArgumentOutOfRangeException(nameof(tile), tile, "No cover picture is kept there.");
+
+    /// <summary>The cover picture whose bank-$9A source is <paramref name="source"/>, if one's is.</summary>
+    internal static bool TryDecode(int source, out SamusArmCannonCoverTile tile) => Tiles.TryGetValue(source, out tile);
+
+    /// <summary>Each cover picture's characters on <paramref name="page"/>, which holds them in source order.</summary>
+    /// <exception cref="InvalidDataException">The page does not hold one character of each cover picture.</exception>
+    internal static FrozenDictionary<SamusArmCannonCoverTile, ReadOnlyMemory<byte>> SplitPage(ReadOnlyMemory<byte> page)
     {
-        /// <summary>Twelve source identities: three cover frames for each vertical, horizontal, downward-diagonal, and upward-diagonal artwork orientation.</summary>
-        public int Count => 12;
-        /// <summary>Gets bank-$9A source identity $9A00 plus index times $200 for zero-based index 0–11; each identity resolves to an installed 32-byte character.</summary>
-        public ushort this[int index] => (uint)index < Count
-            ? (ushort)(ArmCannonTileSourceDefinitions.FirstTileSource + index * TileSourceStride)
-            : throw new ArgumentOutOfRangeException(nameof(index));
-        /// <summary>Finds the exact bank-relative native tile identity, returning its exported character index 0–11, or null if the position is absent or unaligned.</summary>
-        public int? IndexOf(int source)
-        {
-            int index = (source - ArmCannonTileSourceDefinitions.FirstTileSource) / TileSourceStride;
-            return (uint)index < Count && this[index] == source ? index : null;
-        }
-        /// <summary>Enumerates source identities in exported PNG character order, with the three frames of each native artwork orientation kept together.</summary>
-        public IEnumerator<ushort> GetEnumerator()
-        {
-            for (int index = 0; index < Count; index++) yield return this[index];
-        }
-        /// <summary>Exposes the same native source order through the non-generic collection interface.</summary>
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+        int bytes = SamusArmCannonArtworkFormat.CoverTileByteCount;
+        if (page.Length != InSourceOrder.Count * bytes)
+            throw new InvalidDataException("Arm-cannon cover characters must be the twelve cover pictures.");
+        return InSourceOrder.Select((tile, place) => KeyValuePair.Create(tile, page.Slice(place * bytes, bytes))).ToFrozenDictionary();
     }
 }

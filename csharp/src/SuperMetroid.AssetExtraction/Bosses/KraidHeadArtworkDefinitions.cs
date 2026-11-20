@@ -15,5 +15,6 @@ internal static class KraidHeadArtworkDefinitions
     private static readonly SnesAddress[] ByMouthStage = [new(0xa7, 0x97c8), new(0xa7, 0x9ac8), new(0xa7, 0x9dc8), new(0xa7, 0xa0c8)];
 
     /// <summary>The bank-$A7 address of the head tilemap <paramref name="head"/> shows.</summary>
-    internal static ushort Address(KraidHeadFrame head) => ByMouthStage[KraidHeadTilemapFormat.ImportKey(head)].Offset;
+    internal static ushort Address(KraidHeadFrame head) =>
+        ByMouthStage[SuperMetroid.AssetExtraction.Artwork.InstalledRows.Of(KraidHeadTilemapFormat.HeadsByMouthStage, head)].Offset;
 }

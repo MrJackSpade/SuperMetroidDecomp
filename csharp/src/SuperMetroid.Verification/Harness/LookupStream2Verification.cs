@@ -1205,7 +1205,7 @@ internal static class LookupStream2Verification
             int firstCharacter = EncounterCharacterPlacementDefinitions.GunshipFirstCharacter
                 + enumerated * GunshipLiftoffCharacterDefinitions.ByteCount / SpriteCharacterTableLayout.CharacterByteCount;
             AssertEqual(destination, ObjCharacterNativeWords.Of(firstCharacter), "Gunship original destination");
-            AssertEqual(InstalledArtworkId.GunshipLiftoffFirstTiles + enumerated, transfer.Asset, "Gunship typed transfer identity");
+            AssertEqual(GunshipLiftoffTransferDefinitions.Frames[enumerated].Asset, transfer.Asset, "Gunship typed transfer identity");
             AssertEqual(transfers[enumerated], transfer, "Gunship enumeration and indexing agree");
             enemies.GunshipBehavior.WaitForGunshipEngines(place);
             AssertEqual(enumerated + 1 == GunshipTakeoffDefinitions.EngineStartUpdates,
@@ -1241,12 +1241,12 @@ internal static class LookupStream2Verification
             {
                 var pulse = presentation.ArrowColours.Pulse(frame);
                 var row = expected.Arrow.Frames[frame & 31];
-                AssertEqual(Pack(row.Color6), pulse.Color6, "Supplied color6");
-                AssertEqual(Pack(row.Color11), pulse.Color11, "Supplied color11");
+                AssertEqual(Pack(row.Shade), pulse.Shade, "Supplied color6");
+                AssertEqual(Pack(row.Light), pulse.Light, "Supplied color11");
             }
             var solid = presentation.ArrowColours.Solid;
-            AssertEqual(Pack(expected.Arrow.SolidColor6), solid.Color6, "Solid arrow color6");
-            AssertEqual(Pack(expected.Arrow.SolidColor11), solid.Color11, "Solid arrow color11");
+            AssertEqual(Pack(expected.Arrow.SolidShade), solid.Shade, "Solid arrow color6");
+            AssertEqual(Pack(expected.Arrow.SolidLight), solid.Light, "Solid arrow color11");
         }
         static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
     }

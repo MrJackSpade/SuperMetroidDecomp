@@ -43,7 +43,7 @@ public static class EndingObjectArtworkFiles
             EndingSourceDefinitions.Artwork.ExplosionObjectCharacters,
             EndingObjectArtworkFormat.ExplosionByteCount);
         foreach (EndingExplosionPicture picture in Ensure.EveryMemberOnce(EndingObjectArtworkFormat.ExplosionPictures))
-            ExportMap(EndingObjectArtworkFormat.FragmentFileName(Ensure.Listed(EndingObjectArtworkFormat.FragmentNumbers, picture)),
+            ExportMap(EndingObjectArtworkFormat.FragmentFileName(picture),
                 EndingArtworkSources.ObjectFragment(picture), EndingObjectArtworkFormat.FragmentByteCount);
         Export(EndingObjectArtworkFormat.WaitingSamusFileName,
             EndingSourceDefinitions.Artwork.WaitingForCreditsCharacters,
@@ -57,12 +57,12 @@ public static class EndingObjectArtworkFiles
         ExportMap(EndingObjectArtworkFormat.WaitingTilemapFileName,
             EndingSourceDefinitions.Artwork.WaitingForCreditsTilemap,
             EndingObjectArtworkFormat.WaitingTilemapByteCount);
-        Export(EndingObjectArtworkFormat.PostCreditsFragmentAFileName,
+        Export(EndingObjectArtworkFormat.TransformationCharactersFileName,
             EndingSourceDefinitions.Artwork.TransformationCharacters,
-            EndingObjectArtworkFormat.PostCreditsFragmentAByteCount);
-        ExportMap(EndingObjectArtworkFormat.PostCreditsFragmentBFileName,
+            EndingObjectArtworkFormat.TransformationCharactersByteCount);
+        ExportMap(EndingObjectArtworkFormat.TransformationMapFileName,
             EndingSourceDefinitions.Artwork.TransformationTilemap,
-            EndingObjectArtworkFormat.PostCreditsFragmentBByteCount);
+            EndingObjectArtworkFormat.TransformationMapByteCount);
         Export(EndingObjectArtworkFormat.PostShotLogoTileFileName,
             EndingSourceDefinitions.Artwork.PostShotLogoTiles,
             EndingObjectArtworkFormat.PostShotLogoTileByteCount);
@@ -227,7 +227,7 @@ public static class EndingObjectArtworkFiles
             LoadSheet(EndingObjectArtworkFormat.WaitingSamusFileName, EndingObjectArtworkFormat.RewardByteCount),
             LoadSheet(EndingObjectArtworkFormat.ShootingScreenFileName, EndingObjectArtworkFormat.RewardByteCount),
             LoadSheet(EndingObjectArtworkFormat.SuitlessSamusFileName, EndingObjectArtworkFormat.RewardByteCount),
-            LoadSheet(EndingObjectArtworkFormat.PostCreditsFragmentAFileName, EndingObjectArtworkFormat.PostCreditsFragmentAByteCount),
+            LoadSheet(EndingObjectArtworkFormat.TransformationCharactersFileName, EndingObjectArtworkFormat.TransformationCharactersByteCount),
             LoadSheet(EndingObjectArtworkFormat.PostShotLogoTileFileName, EndingObjectArtworkFormat.PostShotLogoTileByteCount)));
 
         RoomCharacterAtlas LoadSheet(string name, int expectedBytes)
@@ -268,14 +268,13 @@ public static class EndingObjectArtworkFiles
         [
             EndingObjectArtworkFormat.CloudFileName,
             EndingObjectArtworkFormat.ExplosionFileName,
-            .. Enumerable.Range(0, EndingObjectArtworkFormat.FragmentCount)
-                .Select(EndingObjectArtworkFormat.FragmentFileName),
+            .. EndingObjectArtworkFormat.ExplosionPictures.Select(EndingObjectArtworkFormat.FragmentFileName),
             EndingObjectArtworkFormat.WaitingSamusFileName,
             EndingObjectArtworkFormat.ShootingScreenFileName,
             EndingObjectArtworkFormat.SuitlessSamusFileName,
             EndingObjectArtworkFormat.WaitingTilemapFileName,
-            EndingObjectArtworkFormat.PostCreditsFragmentAFileName,
-            EndingObjectArtworkFormat.PostCreditsFragmentBFileName,
+            EndingObjectArtworkFormat.TransformationCharactersFileName,
+            EndingObjectArtworkFormat.TransformationMapFileName,
             EndingObjectArtworkFormat.PostShotLogoTileFileName,
             EndingObjectArtworkFormat.PostShotLogoMapFileName,
             EndingCloudSpriteFormat.FileName,
@@ -291,12 +290,12 @@ public static class EndingObjectArtworkFiles
             names.Any(name => !manifest.StockSha256.ContainsKey(name)))
             throw new InvalidDataException($"Ending OBJ manifest {manifestPath} does not describe this installation.");
 
-        return new EndingObjectArtworkParts { Fragments = Enumerable.Range(0, EndingObjectArtworkFormat.FragmentCount)
-                .Select(index => LoadMap(EndingObjectArtworkFormat.FragmentFileName(index),
+        return new EndingObjectArtworkParts { Fragments = EndingObjectArtworkFormat.ExplosionPictures
+                .Select(picture => LoadMap(EndingObjectArtworkFormat.FragmentFileName(picture),
                     EndingObjectArtworkFormat.FragmentByteCount))
                 .ToArray(), WaitingTilemap = LoadMap(EndingObjectArtworkFormat.WaitingTilemapFileName,
-                EndingObjectArtworkFormat.WaitingTilemapByteCount), PostCreditsFragmentB = LoadMap(EndingObjectArtworkFormat.PostCreditsFragmentBFileName,
-                EndingObjectArtworkFormat.PostCreditsFragmentBByteCount), PostShotLogoMap = LoadMap(EndingObjectArtworkFormat.PostShotLogoMapFileName,
+                EndingObjectArtworkFormat.WaitingTilemapByteCount), TransformationMap = LoadMap(EndingObjectArtworkFormat.TransformationMapFileName,
+                EndingObjectArtworkFormat.TransformationMapByteCount), PostShotLogoMap = LoadMap(EndingObjectArtworkFormat.PostShotLogoMapFileName,
                 EndingObjectArtworkFormat.PostShotLogoMapByteCount), CloudSprites = LoadCloudSprites(), ExplosionSprites = LoadExplosionSprites(), CompletionTextSprites = LoadCompletionTextSprites(), RewardSprites = LoadRewardSprites(), LogoSprites = LoadLogoSprites() };
 
         EndingCloudSpritePresentation LoadCloudSprites()

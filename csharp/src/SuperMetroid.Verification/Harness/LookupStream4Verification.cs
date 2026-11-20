@@ -595,7 +595,7 @@ internal static class LookupStream4Verification
         {
             for (int frame = 0; frame < 4; frame++)
             for (int color = 0; color < 16; color++)
-                AssertEqual(expected[frame][color], catalog.ResolveHealth(frame, color), $"Health row {frame} color {color}");
+                AssertEqual(expected[frame][color], catalog.ResolveHealth(SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnHealthBandDefinitions.HighestFirst[frame], color), $"Health row {frame} color {color}");
         }
     }
 
@@ -619,7 +619,7 @@ internal static class LookupStream4Verification
             {
                 AssertEqual(spores[color], catalog.ResolveSpore(color), "Spore colours");
                 for (int frame = 0; frame < 4; frame++)
-                    AssertEqual(health[frame][color], catalog.ResolveHealth(frame, color), "Body health rows");
+                    AssertEqual(health[frame][color], catalog.ResolveHealth(SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnHealthBandDefinitions.HighestFirst[frame], color), "Body health rows");
             }
             string identity = SelectedPresentationHash.Create("SporeSpawnColorCatalog-v1", content =>
             {
@@ -731,7 +731,7 @@ internal static class LookupStream4Verification
             {
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e359 + color * 2)), catalog.ResolveSpore(color), "Spore palette words");
                 for (int frame = 0; frame < 4; frame++)
-                    AssertEqual(health[frame][color], catalog.ResolveHealth(frame, color), "Health rows");
+                    AssertEqual(health[frame][color], catalog.ResolveHealth(SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnHealthBandDefinitions.HighestFirst[frame], color), "Health rows");
                 for (int frame = 0; frame < 7; frame++)
                 {
                     AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e4f9 + frame * 32 + color * 2)), catalog.ResolveDeathLevel(frame, color), "Level colors");
@@ -1838,7 +1838,7 @@ internal static class LookupStream4Verification
                     AssertEqual(color is >= 89 and < 93 ? Pack(document.HealthBands[band][color - 89]) : (ushort)0x1234, cgram.Colors[color], "Exact changed health transfer and neighbors");
                 for (int shade = 0; shade < 4; shade++)
                     AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa596af + (band * 4 + shade) * 2)),
-                        selected.ResolveHealthBand(band, shade), "All native shades");
+                        selected.ResolveHealthBand(SuperMetroid.Core.Bosses.Draygon.DraygonHealthBandDefinitions.HighestFirst[band], shade), "All native shades");
             }
             {
                 var artwork = EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() });
@@ -1898,7 +1898,7 @@ internal static class LookupStream4Verification
                 for (int color = 0; color < 4; color++)
                 {
                     ushort expected = Native(document.HealthBands[band][color]);
-                    AssertEqual(expected, catalog.ResolveHealthBand(band, color), "Draygon native health color");
+                    AssertEqual(expected, catalog.ResolveHealthBand(SuperMetroid.Core.Bosses.Draygon.DraygonHealthBandDefinitions.HighestFirst[band], color), "Draygon native health color");
                     AssertEqual(expected, cgram.Colors[89 + color], "Draygon health interpolation actual CGRAM transfer");
                 }
             }
@@ -1912,8 +1912,7 @@ internal static class LookupStream4Verification
         }
         foreach (int invalid in new[] { -1, 16, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveWhiteFlash(invalid), "Draygon flash bounds");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealthBand(8, 0), "Draygon health band bounds");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealthBand(0, 4), "Draygon health color bounds");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealthBand(SuperMetroid.Core.Bosses.Draygon.DraygonHealthBandDefinitions.HighestFirst[0], 4), "Draygon health color bounds");
     }
 
     /// <summary>Checks Norfair reveal room palette frames and destination colors against cartridge data.</summary>
@@ -2044,7 +2043,7 @@ internal static class LookupStream4Verification
         var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
         var stock = BotwoonColorFile.Read(new MemoryStream(original));
         for (int color = 0; color < 16; color++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb39319 + color * 2)), stock.HealthColor(0, color), "native initial/header alias remains exact");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb39319 + color * 2)), stock.HealthColor(SuperMetroid.Core.Bosses.Botwoon.BotwoonHealthBandDefinitions.InOrderShown[0], color), "native initial/header alias remains exact");
         {
             var document = RequiredJson.Deserialize<BotwoonColorDocument>(original, options);
             var catalog = BotwoonColorFile.Read(new MemoryStream(BotwoonColorFile.Write(document)));
@@ -2055,8 +2054,8 @@ internal static class LookupStream4Verification
             AssertEqual(identity, catalog.ContentIdentity, "Botwoon selected identity");
             for (int band = 0; band < 8; band++) for (int color = 0; color < 16; color++)
             {
-                AssertEqual(Expected(band, color), catalog.HealthColor(band, color), "native endpoint, intermediate and copied metadata channels");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb3971b + (band * 16 + color) * 2)), stock.HealthColor(band, color), "stock owner remains immutable");
+                AssertEqual(Expected(band, color), catalog.HealthColor(SuperMetroid.Core.Bosses.Botwoon.BotwoonHealthBandDefinitions.InOrderShown[band], color), "native endpoint, intermediate and copied metadata channels");
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb3971b + (band * 16 + color) * 2)), stock.HealthColor(SuperMetroid.Core.Bosses.Botwoon.BotwoonHealthBandDefinitions.InOrderShown[band], color), "stock owner remains immutable");
             }
             {
                 var artwork = EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() });
@@ -2092,10 +2091,8 @@ internal static class LookupStream4Verification
                 AssertEqual(0, guard.ForbiddenReadAttempts, "actual palette producer performs no native palette reads");
             }
         }
-        foreach (int invalid in new[] { -1, 8, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.HealthColor(invalid, 0), "Botwoon health band domain");
         foreach (int invalid in new[] { -1, 16, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.HealthColor(0, invalid), "Botwoon health color domain");
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.HealthColor(SuperMetroid.Core.Bosses.Botwoon.BotwoonHealthBandDefinitions.InOrderShown[0], invalid), "Botwoon health color domain");
         Console.WriteLine("Botwoon installed colours:128 native outputs,16 initial aliases,the hash identity,actual threshold/copy/completed calls and native-read guard pass.");
     }
 
@@ -2439,10 +2436,8 @@ internal static class LookupStream4Verification
                 Check(hit, fight == RidleyFightMode.NotFighting || hits < 50 ? -1 : hits < 70 ? 0 : 2);
             }
         }
-        foreach (int row in new[] { -1, 3, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealth(row, 0), "Health row bounds");
         foreach (int color in new[] { -1, 14, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealth(0, color), "Health color bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealth(SuperMetroid.Core.Bosses.Ridley.RidleyHealthShadeDefinitions.LeastHurtFirst[0], color), "Health color bounds");
         Console.WriteLine("Ridley health:42 native words,actual copies,18 actual encounter selections and bounds/null pass.");
     }
 

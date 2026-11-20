@@ -62,7 +62,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         var state = new HibashiEnemyState(HibashiAction.Inactive);
         place.SetSpeciesState(state);
-        _hitboxes.Place(place, _places.ListedAfter(place, 1));
+        _hitboxes.Place(place, _places.Member(place, HibashiPartListingDefinitions.Listing, HibashiMember.Flame, HibashiMember.Hitbox));
         state.InactiveTimer = UpdateCountdown.For(HibashiDefinitions.FirstWait);
         state.Playback = EnemyAnimationPlayback.Start(place, HibashiAnimations.StartingWith(HibashiSegment.Flame));
         state.SpawnY = place.Position.Y.Whole;

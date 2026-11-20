@@ -31,7 +31,7 @@ internal static class CeresEscapeTileArtworkVerification
         for (int pageIndex = 0; pageIndex < CeresEscapeTileArtworkDefinitions.All.Length; pageIndex++)
         {
             TileSheetDefinition page = CeresEscapeTileArtworkDefinitions.All[pageIndex];
-            AssertTrue((stock.Areas.CeresEscapeTiles ?? throw new InvalidOperationException("Verification requires stock.Areas.CeresEscapeTiles.")).TryResolve(pageIndex, 0,
+            AssertTrue((stock.Areas.CeresEscapeTiles ?? throw new InvalidOperationException("Verification requires stock.Areas.CeresEscapeTiles.")).TryResolve(SuperMetroid.AssetExtraction.Areas.Ceres.Artwork.CeresEscapeTileArtworkDefinitions.All[pageIndex], 0,
                     page.ByteCount, out ReadOnlyMemory<byte> nativePage),
                 $"Ceres escape page {page.FileName} resolves completely");
             for (int offset = 0; offset < page.ByteCount; offset++)
@@ -83,7 +83,7 @@ internal static class CeresEscapeTileArtworkVerification
             CeresEscapeTileArtworkDefinitions.WarningText;
         CeresEscapeTileArtwork stockArt = stock.Areas.CeresEscapeTiles
             ?? throw new InvalidOperationException("Stock Ceres escape art was not installed.");
-        AssertTrue(stockArt.TryResolve(0, 0,
+        AssertTrue(stockArt.TryResolve(CeresEscapeTileArtworkDefinitions.WarningText, 0,
                 0x0200, out ReadOnlyMemory<byte> stockChunk),
             "Ceres warning transfer resolves in stock artwork");
         // The warning text's first page follows the timer-sprite list's timer pages.

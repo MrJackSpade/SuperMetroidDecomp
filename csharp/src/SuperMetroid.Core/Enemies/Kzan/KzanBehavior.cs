@@ -61,15 +61,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <exception cref="InvalidDataException">The enemy before the bottom is not a Kzan top.</exception>
     internal void InitializeKzanBottom(RoomEnemyPlace place)
     {
-        // The bottom follows whatever enemy precedes it. Every room with Kzans (the Wasteland and the
-        // Wrecked Ship's main shaft) places each bottom directly after its top, so that enemy is its top; any
-        // other placement is refused rather than followed.
-        if (_places.ListedBeforeOrNone(place, 1) is not { Occupant.DefinitionId: EnemyDefinitionId.KzanTop } top)
-        {
-            throw new InvalidDataException(
-                $"Kzan bottom in place {place.Ordinal} does not directly follow a Kzan top, as every room with Kzans places it.");
-        }
-        _tops.Place(place, top);
+        _tops.Place(place, _places.Member(place, KzanPartListingDefinitions.Listing, EnemyDefinitionId.KzanBottom, EnemyDefinitionId.KzanTop));
         FollowKzanTop(place);
     }
 

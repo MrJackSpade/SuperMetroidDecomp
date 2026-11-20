@@ -12,6 +12,9 @@ internal static class SamusArmCannonCoverFrameCodec
     internal static IReadOnlyList<SamusArmCannonCoverFrame> InOpeningOrder { get; } =
         [SamusArmCannonCoverFrame.SlightlyOpen, SamusArmCannonCoverFrame.HalfOpen, SamusArmCannonCoverFrame.FullyOpen];
 
+    /// <summary>The cartridge's frame number of the closed cover in a direction's cover list, which uploads no picture.</summary>
+    internal const int ClosedFrame = 0;
+
     /// <summary>The cartridge's frame number of <paramref name="frame"/> in a direction's cover list, 1 through 3.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="frame"/> is not a cover picture.</exception>
     internal static int CartridgeFrame(SamusArmCannonCoverFrame frame) => frame switch

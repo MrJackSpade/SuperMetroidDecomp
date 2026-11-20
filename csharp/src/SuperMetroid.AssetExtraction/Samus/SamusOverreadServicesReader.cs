@@ -178,7 +178,7 @@ internal static class SamusOverreadServicesReader
             .Aggregate(SamusEquipmentFlags.None, (items, name) => items | Parse(SamusEquipmentFlagsKeys.Installed, name, "cue-value step item"));
         return kind switch
         {
-            SamusOverreadDocument.CueValueStepKind.Delay => step.Ticks is >= 0 and < SamusOverreadSourceDefinitions.FirstAnimationInstructionByte
+            SamusOverreadDocument.CueValueStepKind.Delay => step.Ticks is >= 0 and <= SamusAnimationDelay.LongestTicks
                 ? new SamusAnimationDelay(step.Ticks.Value)
                 : throw new InvalidDataException($"Samus overread file's cue-value delay holds {step.Ticks} ticks."),
             SamusOverreadDocument.CueValueStepKind.Hold => new SamusAnimationHold(),

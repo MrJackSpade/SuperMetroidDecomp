@@ -9,6 +9,17 @@ internal static class MotherBrainMuralDefinitions
     /// <summary>The mural's rows, from its top border row to its bottom border row.</summary>
     internal const int RowCount = 12;
 
+    /// <summary>The shape each row draws, from the top border row to the bottom border row, the rows between open.</summary>
+    internal static IReadOnlyList<MotherBrainMuralRowShape> RowShapes { get; } =
+    [
+        MotherBrainMuralRowShape.Border,
+        MotherBrainMuralRowShape.Interior, MotherBrainMuralRowShape.Interior, MotherBrainMuralRowShape.Interior,
+        MotherBrainMuralRowShape.Interior, MotherBrainMuralRowShape.Interior, MotherBrainMuralRowShape.Interior,
+        MotherBrainMuralRowShape.Interior, MotherBrainMuralRowShape.Interior, MotherBrainMuralRowShape.Interior,
+        MotherBrainMuralRowShape.Interior,
+        MotherBrainMuralRowShape.Border,
+    ];
+
     /// <summary>The rows the reveal draws each update.</summary>
     internal const int RowsEachUpdate = 2;
 

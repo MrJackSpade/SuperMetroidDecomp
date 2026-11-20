@@ -7,8 +7,10 @@ namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
 /// One of the room's enemy places and the enemy occupying it: its identity, where it is, how it collides, its health and
-/// timers, and the species state installed for it. A place is found by the place object or its ordinal
-/// (<see cref="Ordinal"/>); <see cref="EnemyPlaceOrder"/> sets how places are allocated and processed.
+/// timers, and the species state installed for it. A place is held and passed as itself; its position in the room's list
+/// (<see cref="Ordinal"/>) is read only by the owner of the population's listing (<see cref="EnemyCompositeListing"/>) and
+/// the compatibility services that reproduce a reach by placement. <see cref="EnemyPlaceOrder"/> sets how places are
+/// allocated and processed.
 /// </summary>
 public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
 {

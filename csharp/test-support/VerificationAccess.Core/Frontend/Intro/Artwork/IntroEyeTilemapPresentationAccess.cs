@@ -11,8 +11,8 @@ internal static class IntroEyeTilemapPresentationAccess
         /// <summary>Identity of every selected eye rectangle in its compiled blink-selector order.</summary>
         public string ContentIdentity => SelectedPresentationHash.Create(nameof(IntroEyeTilemapPresentation), content =>
         {
-            content.Append("frames", self.frames.Length);
-            foreach (BackgroundTile[] frame in self.frames)
+            content.Append("frames", self.frames.Count);
+            foreach (BackgroundTile[] frame in self.frames.Values)
                 content.AppendTiles("frame", frame);
         });
     }

@@ -42,9 +42,9 @@ internal static class MapSpriteSheetComposer
         // Each sprite is pictured once, its palette-inheriting parts in its standard colouring's set (#1513).
         List<ColouredFrame<MapSpriteColouring>> frames = [.. MapSpriteArtwork.FrameNames.Select(frame =>
         {
-            MapSpriteColouring[] colourings = [.. Ensure.Listed(MapSpriteColourings.Drawn, frame.Id)];
+            MapSpriteDrawnColourings colourings = Ensure.Listed(MapSpriteColourings.Drawn, frame.Id);
             return new ColouredFrame<MapSpriteColouring>(new SheetFrameSource(frame.Name, artwork.Frame(frame.Id), artwork.Page,
-                MapSpriteColouringSets.SpriteSet(colourings[0])), colourings);
+                MapSpriteColouringSets.SpriteSet(colourings.Standard)), colourings.Standard, colourings.All);
         })];
         ColouringPictures<MapSpriteColouring> pictures = ColouringPictures<MapSpriteColouring>.Of(frames, MapSpriteColouringSets.SpriteSet);
         MapStaticPalettes palettes = maps.Palettes;

@@ -15,6 +15,14 @@ internal static class GameOptionsPageCellsPrivateAccess
     {
         /// <summary>The private method <c>ToggleLayout</c>, invoked by name.</summary>
         internal static global::SuperMetroid.AssetExtraction.Frontend.Options.Artwork.GameOptionsToggleLayout ToggleLayout(int setting) =>
-            PrivateState.InvokeStatic<global::SuperMetroid.AssetExtraction.Frontend.Options.Artwork.GameOptionsToggleLayout>(typeof(global::SuperMetroid.AssetExtraction.Frontend.Options.Artwork.GameOptionsPageCells), "ToggleLayout", [typeof(int)], new object?[] { setting });
+            PrivateState.InvokeStatic<global::SuperMetroid.AssetExtraction.Frontend.Options.Artwork.GameOptionsToggleLayout>(typeof(global::SuperMetroid.AssetExtraction.Frontend.Options.Artwork.GameOptionsPageCells), "ToggleLayout", [typeof(global::SuperMetroid.Core.Frontend.Options.GameOptionsSpecialRow)], new object?[] { setting >= 0 && setting < global::SuperMetroid.Core.Frontend.Options.GameOptionsPageRows.Special.Count ? global::SuperMetroid.Core.Frontend.Options.GameOptionsPageRows.Special[setting] : (global::SuperMetroid.Core.Frontend.Options.GameOptionsSpecialRow)99 });
+    }
+
+    /// <summary>The private static members checks name.</summary>
+    extension(global::SuperMetroid.AssetExtraction.Frontend.Options.Artwork.GameOptionsPageCells)
+    {
+        /// <summary>The private method <c>LanguagePaletteRegion</c>, invoked by name.</summary>
+        internal static global::SuperMetroid.AssetExtraction.Frontend.Options.Artwork.GameOptionsLanguagePaletteRegion LanguagePaletteRegion(global::SuperMetroid.AssetExtraction.Frontend.Options.Artwork.GameOptionsPageCells.GameOptionsLabelLanguage language, global::SuperMetroid.AssetExtraction.Frontend.Options.Artwork.GameOptionsPageCells.GameOptionsLabelRow row) =>
+            PrivateState.InvokeStatic<global::SuperMetroid.AssetExtraction.Frontend.Options.Artwork.GameOptionsLanguagePaletteRegion>(typeof(global::SuperMetroid.AssetExtraction.Frontend.Options.Artwork.GameOptionsPageCells), "LanguagePaletteRegion", [typeof(global::SuperMetroid.AssetExtraction.Frontend.Options.Artwork.GameOptionsPageCells.GameOptionsLabelLanguage), typeof(global::SuperMetroid.AssetExtraction.Frontend.Options.Artwork.GameOptionsPageCells.GameOptionsLabelRow)], new object?[] { language, row });
     }
 }

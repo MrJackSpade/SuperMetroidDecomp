@@ -42,7 +42,7 @@ internal sealed class PhantoonPatterns
             return;
 
         state.Wave.End();
-        state.Round.EyeClosedWait.LastFor(PhantoonTimerDefinitions.EyeClosed[PhantoonCadenceDefinitions.FirstEyeClosedChoice.Of(_frameContext.FrameCounter)]);
+        state.Round.EyeClosedWait.LastFor(PhantoonTimerDefinitions.EyeClosed.ChosenOn(PhantoonCadenceDefinitions.FirstEyeClosedChoice, _frameContext.FrameCounter));
         state.Phase = PhantoonPhase.MoveInFigureEightThenOpenEye;
         state.FigureEight.Stage = PhantoonFigureEightStage.EasingIn;
         if (PhantoonRandomDefinitions.FigureEightRunsReversed.IsTakenBy(_room.Random.Generate()))

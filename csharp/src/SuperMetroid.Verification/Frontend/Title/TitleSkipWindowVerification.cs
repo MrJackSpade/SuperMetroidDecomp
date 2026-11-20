@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend.Title;
 using SuperMetroid.Core.Input;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -155,7 +156,7 @@ internal static class TitleSkipWindowVerification
                 fadedIn |= title.Phase == TitleSequencePhase.TitleScreenFadeIn;
             }
             AssertTrue(fadedIn, $"{place} rebuilds the title objects and fades back in");
-            AssertEqual(SuperMetroid.Core.Rendering.DisplayBrightness.Full, title.Brightness, $"{place} returns at full brightness");
+            AssertEqual(SuperMetroid.Core.Rendering.DisplayBrightness.Full.StepsAboveBlack, title.Brightness, $"{place} returns at full brightness");
             return;
         }
         if (expected.Phase == TitleSequencePhase.TitleScreen && update > titleScreen)

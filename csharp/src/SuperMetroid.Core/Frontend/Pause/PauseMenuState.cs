@@ -85,7 +85,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// </summary>
     private readonly ScreenFade transitionFade = new(DisplayBrightness.Full);
     /// <summary>Current page-transition brightness, from black to full intensity.</summary>
-    private int TransitionBrightness => transitionFade.Level;
+    private DisplayBrightness TransitionBrightness => transitionFade.Level;
     /// <summary>The equipment control the cursor rests on (#1772); its category is the column the cursor is in.</summary>
     private PauseEquipmentControl SelectedControl { get; set; } = PauseEquipmentControls.ReserveMode;
     /// <summary>The map page's scroll, framed from the visible area cells when the map page is set up.</summary>
@@ -320,7 +320,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
                     LoadMapPage();
                     Transition = PauseMenuTransition.EquipmentToMapFadeIn;
                 }
-                transitionFade.Restart(0, PauseFadeTiming.WaitBeforeEachStep);
+                transitionFade.Restart(DisplayBrightness.Black, PauseFadeTiming.WaitBeforeEachStep);
                 return;
 
             case PauseMenuTransition.MapToEquipmentFadeIn:

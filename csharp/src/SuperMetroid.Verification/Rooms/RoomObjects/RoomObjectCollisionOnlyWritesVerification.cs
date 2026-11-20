@@ -213,7 +213,7 @@ internal static class RoomObjectCollisionOnlyWritesVerification
             new ScrollTriggerObject(RoomScrollChange.LandingSiteOpensScreen1x2TopAligned).Rest(level, block));
         kept.Check("a scroll extension's setup", Solid, [block], level =>
             ScrollObjects.SetupScrollExtension(level, PlaceAt(RoomObjectFixtures.Unbound(), block),
-                new ScrollExtension(RoomCollisionType.HorizontalExtension, -1)));
+                new ScrollExtension(ScrollExtensionDirection.Left)));
         kept.AssertEveryCaseKept();
     }
 

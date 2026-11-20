@@ -106,7 +106,7 @@ internal static class CollectiblesVerification
                 // The room's only collectible takes the first block pair, whose block under the primary look its first
                 // visible draw writes into the terrain (#2354); BG1 shows the item's own picture's first frame over it (#1538).
                 AssertEqual(
-                    RoomBlockAppearance.Of(new CollectiblePairBlock(CollectibleBlockPairs.Pair.First, CollectibleLook.Primary)),
+                    RoomBlockAppearance.Of(new CollectiblePairBlock(CollectibleBlockPairs.Pair.Solid, CollectibleLook.Primary)),
                     fixture.Level.GetCollisionBlockByIndex(fixture.BlockIndex).Terrain.Appearance,
                     $"{kind} writes the first block pair's primary-look block");
                 AssertEqual(

@@ -112,7 +112,9 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     /// </summary>
     internal void InitializeGunshipTop(RoomEnemyPlace place, SamusState samus)
     {
-        var pieces = new GunshipPieces(place, _places.ListedAfter(place, 1), _places.ListedAfter(place, 2));
+        var pieces = new GunshipPieces(place,
+            _places.Member(place, GunshipPartListingDefinitions.Listing, GunshipMember.TopHull, GunshipMember.BottomHull),
+            _places.Member(place, GunshipPartListingDefinitions.Listing, GunshipMember.TopHull, GunshipMember.EntrancePad));
         place.SetSpeciesState(pieces);
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
         place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
@@ -154,8 +156,9 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         if (occupant.SpawnSettings<GunshipSpawnSettings>().Part == GunshipBottomPiece.EntrancePad)
         {
             // The hull the pad takes its height from can stand above the room's top, after Ceres.
+            Func<int, RoomEnemyPlace> listedBefore = _places.PlacesBefore(place);
             place.Position = OffRoomPlaces.WithWholeY(place.Position, GunshipPadBorrowedHeight.Start(
-                distance => _places.ListedBefore(place, distance).Position.Y.Whole));
+                distance => listedBefore(distance).Position.Y.Whole));
         }
         else
         {

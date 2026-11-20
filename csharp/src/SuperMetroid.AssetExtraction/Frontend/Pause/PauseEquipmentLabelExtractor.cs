@@ -33,21 +33,25 @@ public static class PauseEquipmentLabelExtractor
             }
         }
 
+        // The cartridge's Hyper label table lists a strip for each beam in the beams' order, and gives Hyper's only nonblank
+        // strip the Wave Beam's place, where Hyper's label shows.
+        PauseUpgradeControl hyperBeamPlace = PauseEquipmentControls.Wave;
+        int hyperItem = PauseEquipmentControls.Beams.IndexOf(hyperBeamPlace);
         int hyper = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.HyperBeamLabels +
-            PauseEquipmentLabelArtworkDefinitions.HyperBeamItem * sizeof(ushort));
+            hyperItem * sizeof(ushort));
         for (int index = 0; index < PauseEquipmentControls.Beams.Length; index++)
         {
             int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                 PauseMenuSourceDefinitions.HyperBeamLabels + index * sizeof(ushort));
-            int expected = index == PauseEquipmentLabelArtworkDefinitions.HyperBeamItem
+            int expected = index == hyperItem
                 ? hyper : PauseMenuSourceDefinitions.BlankEquipmentLabel;
             if (pointer != expected)
                 throw new InvalidDataException("Native Hyper Beam pause pointers do not match the compiled one-label layout.");
         }
         labels.Add(PauseEquipmentLabelArtworkDefinitions.HyperKey, new()
         {
-            Column = labels[PauseEquipmentControls.Beams[PauseEquipmentLabelArtworkDefinitions.HyperBeamItem].Anchor].Column,
-            Row = labels[PauseEquipmentControls.Beams[PauseEquipmentLabelArtworkDefinitions.HyperBeamItem].Anchor].Row,
+            Column = labels[hyperBeamPlace.Anchor].Column,
+            Row = labels[hyperBeamPlace.Anchor].Row,
             Cells = ReadCells(bus, hyper, PauseEquipmentLabelArtworkDefinitions.EquipmentWords,
                 PauseEquipmentLabelArtworkDefinitions.HyperKey),
         });

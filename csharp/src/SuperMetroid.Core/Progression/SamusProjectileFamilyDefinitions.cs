@@ -1,17 +1,21 @@
-
 namespace SuperMetroid.Core.Progression;
 
-/// <summary>The game's projectile family order.</summary>
+/// <summary>What each family of Samus's projectiles is to the rules that test it (#2556).</summary>
 internal static class SamusProjectileFamilyDefinitions
 {
     /// <summary>
-    /// The families in the order the game ranks them: fired shots, then bombs, then the explosions shots leave. The
-    /// game's ordered family comparisons read this order.
+    /// Each family's role: beams, missiles and Super Missiles are fired shots, bombs and Power Bombs are bombs, and the
+    /// beam and missile explosions are the explosions shots leave.
     /// </summary>
-    internal static readonly SamusProjectileFamily[] Order =
-    [
-        SamusProjectileFamily.Beam, SamusProjectileFamily.Missile, SamusProjectileFamily.SuperMissile,
-        SamusProjectileFamily.PowerBomb, SamusProjectileFamily.Bomb, SamusProjectileFamily.BeamExplosion,
-        SamusProjectileFamily.MissileExplosion,
-    ];
+    internal static IReadOnlyDictionary<SamusProjectileFamily, SamusProjectileFamilyRole> Roles { get; } =
+        new Dictionary<SamusProjectileFamily, SamusProjectileFamilyRole>
+        {
+            [SamusProjectileFamily.Beam] = SamusProjectileFamilyRole.FiredShot,
+            [SamusProjectileFamily.Missile] = SamusProjectileFamilyRole.FiredShot,
+            [SamusProjectileFamily.SuperMissile] = SamusProjectileFamilyRole.FiredShot,
+            [SamusProjectileFamily.PowerBomb] = SamusProjectileFamilyRole.Bomb,
+            [SamusProjectileFamily.Bomb] = SamusProjectileFamilyRole.Bomb,
+            [SamusProjectileFamily.BeamExplosion] = SamusProjectileFamilyRole.Explosion,
+            [SamusProjectileFamily.MissileExplosion] = SamusProjectileFamilyRole.Explosion,
+        };
 }

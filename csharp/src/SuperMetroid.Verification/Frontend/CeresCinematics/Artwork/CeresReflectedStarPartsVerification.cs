@@ -18,12 +18,12 @@ internal static class CeresReflectedStarPartsVerification
     internal static void VerifyCeresReflectedStarParts(ISnesAddressSpace rom)
     {
         var original = IntroCinematicSpriteFrameExtractor.Extract(rom, 0x9478, 25, "stars");
-        var vortex = IntroCinematicSpriteFrameExtractor.Extract(rom, 0x8fe7, 36, "vortex-first");
+        var vortex = IntroCinematicSpriteFrameExtractor.Extract(rom, 0x8fe7, 36, "vortex-bright-sparks");
         Check(original, vortex);
         void Check(SpriteVisualPart[] sourceVisual, SpriteVisualPart[] targetVisual)
         {
             var frames = CeresFlightSpriteDefinitions.Frames.ToDictionary(frame => frame.Name, _ => Array.Empty<SpriteVisualPart>());
-            frames["stars"] = sourceVisual; frames["vortex-first"] = targetVisual;
+            frames["stars"] = sourceVisual; frames["vortex-bright-sparks"] = targetVisual;
             using var json = new MemoryStream();
             CeresFlightSpritePresentation.Write(json, new() { Version = CeresFlightSpriteFormat.Version, Frames = frames });
             json.Position = 0;

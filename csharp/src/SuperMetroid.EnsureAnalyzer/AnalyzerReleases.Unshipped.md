@@ -76,4 +76,5 @@ SME6472 | Design | Error | InlineDefinitionDataAnalyzer
 SME6474 | Design | Error | UnreadResultAnalyzer
 SME6476 | Design | Error | MagicAbsenceAnalyzer
 SME6477 | Design | Error | PrivateStateMemberAnalyzer
+SME6482 | Design | Error | ListPositionAnalyzer
 SME6479 | Design | Error | CoreDocumentationStorageAndHistoryAnalyzer

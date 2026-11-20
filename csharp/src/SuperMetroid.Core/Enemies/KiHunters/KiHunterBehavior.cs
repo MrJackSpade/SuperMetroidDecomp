@@ -91,7 +91,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initializes the Ki-Hunter body.</summary>
     internal void InitializeKiHunter(RoomEnemyOccupant occupant, RoomEnemyPlace body)
     {
-        RoomEnemyPlace wings = _places.ListedAfter(body, 1);
+        RoomEnemyPlace wings = _places.Member(body, KiHunterPartListingDefinitions.Listing, KiHunterMember.Body, KiHunterMember.Wings);
         _wingsOfBody.Place(body, wings);
         _bodyOfWings.Place(wings, new KiHunterWingsBody(body, occupant));
         var state = new KiHunterBodyState(KiHunterAction.FlyingPatrol);

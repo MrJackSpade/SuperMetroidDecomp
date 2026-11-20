@@ -13,8 +13,12 @@ internal static class SamusBodyCharacterArtworkPrivateAccess
     /// <summary>The private instance members checks read or call.</summary>
     extension(global::SuperMetroid.AssetExtraction.Samus.SamusBodyCharacterArtwork self)
     {
-        /// <summary>The private field <c>bottom</c>, reached by name.</summary>
-        internal global::SuperMetroid.AssetExtraction.Samus.SamusBodyTileTransfer[][] bottom => PrivateState.Field<global::SuperMetroid.AssetExtraction.Samus.SamusBodyCharacterArtwork, global::SuperMetroid.AssetExtraction.Samus.SamusBodyTileTransfer[][]>(self, "bottom");
+        /// <summary>The private field <c>pictures</c>, reached by name.</summary>
+        internal global::System.Collections.Generic.Dictionary<global::SuperMetroid.AssetExtraction.Samus.SamusBodyPicture, global::SuperMetroid.AssetExtraction.Samus.SamusBodyTileTransfer> pictures => PrivateState.Field<global::SuperMetroid.AssetExtraction.Samus.SamusBodyCharacterArtwork, global::System.Collections.Generic.Dictionary<global::SuperMetroid.AssetExtraction.Samus.SamusBodyPicture, global::SuperMetroid.AssetExtraction.Samus.SamusBodyTileTransfer>>(self, "pictures");
+
+        /// <summary>The private method <c>Transfer</c>, invoked by name.</summary>
+        internal global::SuperMetroid.AssetExtraction.Samus.SamusBodyTileTransfer Transfer(global::SuperMetroid.AssetExtraction.Samus.SamusBodyPicture picture) =>
+            PrivateState.Invoke<global::SuperMetroid.AssetExtraction.Samus.SamusBodyCharacterArtwork, global::SuperMetroid.AssetExtraction.Samus.SamusBodyTileTransfer>(self, "Transfer", [typeof(global::SuperMetroid.AssetExtraction.Samus.SamusBodyPicture)], new object?[] { picture });
     }
 
     /// <summary>The private static members checks name.</summary>

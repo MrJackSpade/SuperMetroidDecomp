@@ -10,9 +10,6 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// </summary>
 internal static class SamusBodySourcesPrivateAccess
 {
-    /// <summary>The getter of <c>Frames</c>, called directly: reflection cannot return a ref struct.</summary>
-    private delegate global::System.ReadOnlySpan<global::SuperMetroid.AssetExtraction.Samus.SamusBodyFrameSelection> FramesRead(global::SuperMetroid.AssetExtraction.Samus.SamusBodySources self);
-
     /// <summary>The private instance members checks read or call.</summary>
     extension(global::SuperMetroid.AssetExtraction.Samus.SamusBodySources self)
     {
@@ -21,25 +18,5 @@ internal static class SamusBodySourcesPrivateAccess
         {
             get => PrivateState.Get<global::SuperMetroid.AssetExtraction.Samus.SamusBodySources, global::SuperMetroid.Core.Samus.Death.SamusDeathSteps>(self, "DeathSteps");
         }
-
-        /// <summary>The private property <c>Frames</c>, reached by name.</summary>
-        internal global::System.ReadOnlySpan<global::SuperMetroid.AssetExtraction.Samus.SamusBodyFrameSelection> Frames => PrivateState.GetterDelegate<FramesRead>(typeof(global::SuperMetroid.AssetExtraction.Samus.SamusBodySources), "Frames")(self);
-
-        /// <summary>The private property <c>Placements</c>, reached by name.</summary>
-        internal global::System.Collections.Generic.IReadOnlyDictionary<global::SuperMetroid.Core.Samus.Poses.SamusPoseId, global::SuperMetroid.AssetExtraction.Samus.SamusBodyPosePlacement> Placements
-        {
-            get => PrivateState.Get<global::SuperMetroid.AssetExtraction.Samus.SamusBodySources, global::System.Collections.Generic.IReadOnlyDictionary<global::SuperMetroid.Core.Samus.Poses.SamusPoseId, global::SuperMetroid.AssetExtraction.Samus.SamusBodyPosePlacement>>(self, "Placements");
-        }
-
-        /// <summary>The private field <c>poseFirstFrames</c>, reached by name.</summary>
-        internal global::System.Collections.Generic.Dictionary<global::SuperMetroid.Core.Samus.Poses.SamusPoseId, int> poseFirstFrames => PrivateState.Field<global::SuperMetroid.AssetExtraction.Samus.SamusBodySources, global::System.Collections.Generic.Dictionary<global::SuperMetroid.Core.Samus.Poses.SamusPoseId, int>>(self, "poseFirstFrames");
-    }
-
-    /// <summary>The private static members checks name.</summary>
-    extension(global::SuperMetroid.AssetExtraction.Samus.SamusBodySources)
-    {
-        /// <summary>The private method <c>Picture</c>, invoked by name.</summary>
-        internal static global::SuperMetroid.AssetExtraction.Samus.SamusBodyPicture Picture(int record) =>
-            PrivateState.InvokeStatic<global::SuperMetroid.AssetExtraction.Samus.SamusBodyPicture>(typeof(global::SuperMetroid.AssetExtraction.Samus.SamusBodySources), "Picture", [typeof(int)], new object?[] { record });
     }
 }

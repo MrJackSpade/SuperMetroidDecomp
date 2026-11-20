@@ -290,10 +290,10 @@ public sealed class SamusBombProjectileSystem
         {
             // Bombs and Power Bombs show their animations' pictures; a Power Bomb's large flash is its blast's glowing
             // oval, drawn apart from them.
-            SamusProjectileFamily family = bomb.Type.Family;
             if (bomb.Animation is null ||
-                family is not (SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb))
+                bomb.Type.Family is not (SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb))
                 continue;
+            SamusProjectileFamily family = bomb.Type.Family;
 
             // A Power Bomb's own picture disappears on the update its fuse runs out, as its blast begins; a bomb's
             // explosion goes on showing its pictures after its fuse has run out.
@@ -531,7 +531,7 @@ public sealed class SamusBombProjectileSystem
     {
         for (int place = 0; place < PlaceCount; place++)
         {
-            if (_bombs[place].Type.IsNone)
+            if (!_bombs[place].IsOccupied)
                 return place;
         }
 

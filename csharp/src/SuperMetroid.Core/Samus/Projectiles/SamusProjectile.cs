@@ -48,8 +48,16 @@ public sealed class SamusProjectile
         }
     }
 
-    /// <summary>What the projectile is; <see cref="SamusProjectileType.None"/> before it is fired and once it ends.</summary>
-    public SamusProjectileType Type { get; internal set; }
+    /// <summary>What the projectile is, which its firing gives it; none before it is fired and once it ends.</summary>
+    private SamusProjectileType? _type;
+
+    /// <summary>What the projectile is, from its firing until it ends (#2558).</summary>
+    /// <exception cref="InvalidOperationException">The projectile has not been fired, or has ended: its place holds no projectile.</exception>
+    public SamusProjectileType Type
+    {
+        get => _type ?? throw new InvalidOperationException($"Samus's projectile place {Place} holds no projectile, so no projectile type.");
+        internal set => _type = value;
+    }
 
     /// <summary>
     /// The beam combination whose pictures the projectile shows (#1586): the beams Samus had equipped when she fired it,
@@ -191,7 +199,7 @@ public sealed class SamusProjectile
     /// Enemy collision admits a beam, missile, or Super Missile even when it has no animation to play. This
     /// distinction is observable for the left-facing Murder Beam, whose type and damage remain live while it has none.
     /// </summary>
-    public bool HasEnemyCollisionPayload => !Type.IsNone && Type.Family.IsBeamOrMissile;
+    public bool HasEnemyCollisionPayload => IsOccupied && Type.Family.IsBeamOrMissile;
 
     /// <summary>
     /// Ends the projectile: it no longer holds its place, and it reads as no projectile, at rest at the room's origin, to
@@ -201,7 +209,7 @@ public sealed class SamusProjectile
     {
         _damage = 0;
         IsOccupied = false;
-        Type = SamusProjectileType.None;
+        _type = null;
         PicturedBeams = SamusBeamCombination.Power;
         Direction = default;
         IsSpent = false;

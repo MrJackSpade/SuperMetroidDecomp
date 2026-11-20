@@ -32,8 +32,19 @@ public sealed class SamusBomb
     /// <summary>The bomb's explosion passes through an enemy as though it had struck nothing (#2562).</summary>
     internal void FlyOn() => IsSpent = false;
 
-    /// <summary>What the bomb is; <see cref="SamusProjectileType.None"/> before it is placed and once it ends.</summary>
-    public SamusProjectileType Type { get; internal set; }
+    /// <summary>What the bomb is, which its placing gives it; none before it is placed and once it ends.</summary>
+    private SamusProjectileType? _type;
+
+    /// <summary>What the bomb is, from its placing until it ends (#2558).</summary>
+    /// <exception cref="InvalidOperationException">No bomb holds the place.</exception>
+    public SamusProjectileType Type
+    {
+        get => _type ?? throw new InvalidOperationException($"Samus's bomb place {Place} holds no bomb, so no projectile type.");
+        internal set => _type = value;
+    }
+
+    /// <summary>Whether a bomb holds the place: from its placing, which gives it its type, until it ends.</summary>
+    public bool IsOccupied => _type is not null;
 
     /// <summary>
     /// The beam combination whose pictures the bomb and its explosion show (#1586): the beams Samus had equipped when
@@ -91,7 +102,7 @@ public sealed class SamusBomb
     {
         Position = FixedPosition<RoomPixels>.Zero;
         IsSpent = false;
-        Type = SamusProjectileType.None;
+        _type = null;
         PicturedBeams = SamusBeamCombination.Power;
         HasReactedToTerrain = false;
         Damage = 0;

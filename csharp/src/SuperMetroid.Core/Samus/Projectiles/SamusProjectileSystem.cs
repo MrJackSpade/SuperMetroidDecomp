@@ -483,11 +483,11 @@ public sealed class SamusProjectileSystem
 
         foreach (SamusProjectile shot in Pool.InUpdateOrder)
         {
-            SamusProjectileFamily family = shot.Type.Family;
-            if (!shot.IsActive || family is not (
+            if (!shot.IsActive || shot.Type.Family is not (
                     SamusProjectileFamily.BeamExplosion or
                     SamusProjectileFamily.MissileExplosion))
                 continue;
+            SamusProjectileFamily family = shot.Type.Family;
 
             ProjectileAnimation.DrawShot(sprites, new SpriteSource(SpriteSourceKind.SamusProjectile),
                 shot, cameraPosition, artwork);

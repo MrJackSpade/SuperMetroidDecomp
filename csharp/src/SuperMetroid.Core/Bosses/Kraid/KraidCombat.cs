@@ -134,6 +134,8 @@ internal sealed class KraidCombat
             KraidPassBounds bounds = PlaceKraidPassBounds(body, inner);
             foreach (KraidBehavior.KraidPassProjectile projectile in tested)
             {
+                if (!projectile.HoldsProjectile)
+                    continue;
                 KraidBehavior.KraidCollisionShot shot = projectile.Read();
                 SamusProjectileType type = shot.Type;
                 if (!OverlapsKraidMouth(bounds, shot) ||
@@ -208,6 +210,8 @@ internal sealed class KraidCombat
             KraidPassBounds bounds = PlaceKraidPassBounds(body, outerMouth);
             foreach (KraidBehavior.KraidPassProjectile projectile in tested)
             {
+                if (!projectile.HoldsProjectile)
+                    continue;
                 KraidBehavior.KraidCollisionShot shot = projectile.Read();
                 if (!OverlapsKraidBody(ref bounds, body, shot))
                     continue;

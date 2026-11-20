@@ -98,7 +98,7 @@ internal static class EnemyHitBurstVerification
             bomb.Radius = new(4, 4);
             bomb.Position = FixedPosition<RoomPixels>.FromWhole(Place);
             (SamusProjectileSystem shots, _) = ShotAt(SamusBeamCombination.Power);
-            shots.Shots[0].Type = SamusProjectileType.None;
+            shots.Shots[0].End();
             AssertTrue(enemies.Collision.ResolveOrdinaryBombHit(bombs, shots, samus: RoomEnemyFrameFixtures.StandaloneSamus(), place, Position16<RoomPixels>.Zero), $"{kind} bomb: the bomb hits the enemy");
             AssertEqual(kind == "immune" ? 1000 : 1000 - 30, place.Health, $"{kind} bomb: the enemy's health after the bomb");
             RoomEffectActor[] bursts = Bursts(enemies);

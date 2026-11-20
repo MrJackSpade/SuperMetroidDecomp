@@ -156,7 +156,7 @@ internal static class ProjectileInstructionsVerification
                 if (deleted)
                 {
                     AssertEqual(0, slot.Damage, "Delete clears projectile occupancy");
-                    AssertTrue(!bombPlays || bomb.Type.IsNone, "Delete clears bomb occupancy");
+                    AssertTrue(!bombPlays || !bomb.IsOccupied, "Delete clears bomb occupancy");
                     break;
                 }
                 // A trail reads the frame the record just shown shows; a frame shown again stands at its first record (#2274).

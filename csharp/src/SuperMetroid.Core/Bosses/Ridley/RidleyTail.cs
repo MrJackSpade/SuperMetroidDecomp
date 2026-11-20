@@ -155,7 +155,8 @@ internal sealed class RidleyTail
         SamusProjectile? missile = RidleyTailMissileTarget.Target(
             samusProjectiles.Pool.ShotCount.Count,
             samusProjectiles.Shots,
-            projectile => projectile.Type.Family is SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile &&
+            projectile => projectile.IsOccupied &&
+                projectile.Type.Family is SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile &&
                 Math.Abs((projectile.Position.Whole - tip.Position).X) - projectile.Radius.X < RidleyTailDefinitions.MissileWhipReach &&
                 Math.Abs((projectile.Position.Whole - tip.Position).Y) - projectile.Radius.Y < RidleyTailDefinitions.MissileWhipReach);
         if (missile is not null)

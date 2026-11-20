@@ -1794,7 +1794,7 @@ internal static class LookupStream1Verification
                 if (deleted)
                 {
                     AssertEqual(0, slot.Damage, "Projectile deletion clears occupancy");
-                    AssertTrue(!bombPlays || bomb.Type.IsNone, "Bomb deletion clears occupancy");
+                    AssertTrue(!bombPlays || !bomb.IsOccupied, "Bomb deletion clears occupancy");
                     deletions++; finished = true; break;
                 }
                 // A trail reads the frame the record just shown shows; a frame shown again stands at its first record (#2274).

@@ -221,7 +221,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         SamusProjectileSystem projectiles)
     {
         // A walking pirate reacts to any shot by its kind, not its picture.
-        SamusProjectile? shot = PirateFlinchFromHighestShot.Shot(projectiles.Shots, projectile => !projectile.Type.IsNone);
+        SamusProjectile? shot = PirateFlinchFromHighestShot.Shot(projectiles.Shots, projectile => projectile.IsOccupied);
         if (shot is null ||
             Math.Abs(shot.Position.X.Whole - place.Position.X.Whole) >=
                 SpacePirateMotionDefinitions.WalkingFlinchReach ||

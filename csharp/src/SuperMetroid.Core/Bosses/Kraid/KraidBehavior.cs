@@ -149,6 +149,13 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         {
         }
 
+        /// <summary>
+        /// Whether a projectile holds the tested place (#2558). A pass reaches the place past Samus's counted shots and her
+        /// first bomb whether or not either holds one; an empty place lies at rest at the room's origin with no extent,
+        /// which Kraid's mouth and body, standing in his room's lower half, never meet, so a pass skips it.
+        /// </summary>
+        public abstract bool HoldsProjectile { get; }
+
         /// <summary>Reads the projectile's position, radius, type and damage.</summary>
         public abstract KraidCollisionShot Read();
 
@@ -164,6 +171,9 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             /// <summary>Tests <paramref name="shot"/>.</summary>
             /// <param name="shot">The projectile in one of Samus's shot places.</param>
             internal Shot(SamusProjectile shot) => _shot = Ensure.NotNull(shot);
+
+            /// <inheritdoc/>
+            public override bool HoldsProjectile => _shot.IsOccupied;
 
             /// <inheritdoc/>
             public override KraidCollisionShot Read() =>
@@ -182,6 +192,9 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             /// <summary>Tests <paramref name="bomb"/>.</summary>
             /// <param name="bomb">Samus's first bomb.</param>
             internal Bomb(SamusBomb bomb) => _bomb = Ensure.NotNull(bomb);
+
+            /// <inheritdoc/>
+            public override bool HoldsProjectile => _bomb.IsOccupied;
 
             /// <inheritdoc/>
             public override KraidCollisionShot Read() =>

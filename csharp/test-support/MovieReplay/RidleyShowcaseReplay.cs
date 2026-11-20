@@ -738,7 +738,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 foreach (var bomb in runtime.BombProjectiles.Bombs)
                 {
                     int address = NativeSnapshotMemory.ProjectileType + (bomb.Place + 5) * 2;
-                    VerificationAssertions.AssertTrue(bomb.Type.IsNone, $"Bomb place {bomb.Place} holds no bomb");
+                    VerificationAssertions.AssertTrue(!bomb.IsOccupied, $"Bomb place {bomb.Place} holds no bomb");
                     VerificationAssertions.AssertTrue(W(address) == 0,
                         "Movie now activates a bomb slot; add its full live-state mapping");
                 }
@@ -762,10 +762,14 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 int index = projectile.SlotTableOffset;
                 string owner = $"Projectile {projectile.Place}";
                 // The recorded type, direction and missile variable words are compared as the projectile state they decode to.
-                SamusProjectileType recordedType = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(W(NativeSnapshotMemory.ProjectileType + index));
+                int recordedWord = W(NativeSnapshotMemory.ProjectileType + index);
+                bool recorded = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.RecordsProjectile(recordedWord);
+                if (recorded != projectile.IsOccupied)
+                    mismatches.Add($"{owner} occupancy: native={(recorded ? "held" : "empty")} port={(projectile.IsOccupied ? "held" : "empty")}");
+                if (!recorded || !projectile.IsOccupied) continue;
+                SamusProjectileType recordedType = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(recordedWord);
                 if (projectile.Type != recordedType)
                     mismatches.Add($"{owner} type: native={recordedType} port={projectile.Type}");
-                if (projectile.Type.IsNone || recordedType.IsNone) continue;
                 Check(owner + " X", projectile.Position.X.Whole, NativeSnapshotMemory.ProjectileX + index);
                 Check(owner + " Y", projectile.Position.Y.Whole, NativeSnapshotMemory.ProjectileY + index);
                 Check(owner + " X radius", projectile.Radius.X, NativeSnapshotMemory.ProjectileXRadius + index);

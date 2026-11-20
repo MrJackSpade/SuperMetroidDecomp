@@ -72,7 +72,7 @@ internal static class MovieDesyncComparison
         if (game.RuntimeForVerification is { } projectileRuntime)
         {
             Console.WriteLine("  sproj port   " + string.Join(" ", projectileRuntime.Projectiles.Shots
-                .Where(slot => !slot.Type.IsNone)
+                .Where(slot => slot.IsOccupied)
                 .Select(slot => $"{slot.Place}:{slot.Type}@{slot.Position.X.Whole:X4}.{slot.Position.X.Fraction:X4}/{slot.Position.Y.Whole:X4} r{slot.Radius.X:X}/{slot.Radius.Y:X} v{slot.Velocity.X.InTwoHundredFiftySixthsOfPixel:X4} d{slot.Direction}{(slot.IsSpent ? " spent" : "")}")));
             Console.WriteLine("  sproj native " + string.Join(" ", Enumerable.Range(0, 5)
                 .Where(slot => Native(0x0c18 + 2 * slot) != "0000")

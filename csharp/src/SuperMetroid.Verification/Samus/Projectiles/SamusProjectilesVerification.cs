@@ -1260,7 +1260,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     RoomObjectFixtures.LoadPopulation(ref residentDoorObjects, new RoomObjectRoom(residentDoorLevel, residentDoorSystem, 0), RoomObjectPopulationImporter.Read(bus, residentDoorPopulation), RoomObjectServiceFixtures.Uninstalled with { Samus = new FixtureRoomSamus(() => new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
     residentDoorObjects.Step(residentDoorLevel);
 
-    AssertTrue(residentDoorObjects.TryNotifyColoredDoorHit(new(5, 3), SamusProjectileType.None),
+    AssertTrue(residentDoorObjects.TryNotifyColoredDoorHit(new(5, 3), SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false)),
         "resident red door receives power-beam family for native rejection");
     residentDoorObjects.Step(residentDoorLevel);
     AssertTrue(residentDoorObjects.Sounds.SoundRequests.Contains(new SoundRequest(EnemySound.DudShot, SoundRequestPriority.Normal)),
@@ -1349,7 +1349,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         "grey-door setup removes condition selector before persistence checks");
 
     greyDoorObjects.Step(greyDoorLevel, enemyDeaths: 1, enemyDeathQuota: 2);
-    AssertTrue(greyDoorObjects.TryNotifyColoredDoorHit(new(2, 6), SamusProjectileType.None),
+    AssertTrue(greyDoorObjects.TryNotifyColoredDoorHit(new(2, 6), SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false)),
         "shared BTS $44 collision publishes power-beam hit to grey door");
     greyDoorObjects.Step(greyDoorLevel, enemyDeaths: 1, enemyDeathQuota: 2);
     AssertTrue(greyDoorObjects.Sounds.SoundRequests.Contains(new SoundRequest(EnemySound.DudShot, SoundRequestPriority.Normal)),
@@ -1359,7 +1359,7 @@ internal static void VerifySamusPowerBeamProjectiles()
 
     // Publish a second hit on the exact quota-completion frame. BE01 clears the PLM shot
     // timer while selecting its activation link, so this impact must not persist/open it.
-    AssertTrue(greyDoorObjects.TryNotifyColoredDoorHit(new(2, 6), SamusProjectileType.None),
+    AssertTrue(greyDoorObjects.TryNotifyColoredDoorHit(new(2, 6), SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false)),
         "quota-completion frame can observe a colliding shot");
     greyDoorObjects.Step(greyDoorLevel, enemyDeaths: 2, enemyDeathQuota: 2);
     AssertTrue(greyDoorSystem.HasEvent(StoryEvent.ZebesAwake),
@@ -1369,7 +1369,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     AssertTrue(!greyDoorSystem.HasOpenedDoorBit(greyDoorPersistedArgument),
         "quota-completion hit is cleared rather than opening grey door");
 
-    AssertTrue(greyDoorObjects.TryNotifyColoredDoorHit(new(2, 6), SamusProjectileType.None),
+    AssertTrue(greyDoorObjects.TryNotifyColoredDoorHit(new(2, 6), SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false)),
         "later shot reaches flashing grey door's installed shot pre-instruction");
     greyDoorObjects.Step(greyDoorLevel, enemyDeaths: 2, enemyDeathQuota: 2);
     AssertEqual(GreyDoorPhase.Opening, greyDoorObjects.GreyDoorSnapshots.Single().Phase,

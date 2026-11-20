@@ -167,7 +167,7 @@ internal static class EyeDoorObjectsVerification
 
         AssertTrue(roomObjects.TryNotifyColoredDoorHit(
                 new(eyeX, eyeY),
-                SamusProjectileType.None),
+                SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false)),
             $"{orientation} beam collision reaches resident eye");
         StepEyeDoorObjects(roomObjects, level);
         AssertTrue(roomObjects.Sounds.SoundRequests.Any(request =>

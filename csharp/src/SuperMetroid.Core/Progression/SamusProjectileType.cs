@@ -3,28 +3,22 @@ namespace SuperMetroid.Core.Progression;
 
 /// <summary>
 /// What a Samus projectile is: its family, the beams it carries, whether it was charged and, for an echo, which echo.
-/// Everything that reacts to a projectile (enemies, blocks, doors, bosses) reads this. The default value is
-/// <see cref="None"/>: no projectile, and what the grapple beam presents to the blocks it touches.
+/// Everything that reacts to a projectile (enemies, blocks, doors, bosses) reads this. Only a projectile has one: an empty
+/// place in Samus's projectiles holds no projectile and so no type (#2558), and the grapple beam's touch is its own
+/// strike (<see cref="BlockStrike"/>).
 /// </summary>
 public readonly record struct SamusProjectileType
 {
-    /// <summary>No projectile: an empty place in Samus's projectiles, or the grapple beam's touch.</summary>
-    public static SamusProjectileType None => default;
-
-    /// <summary>Whether this names a projectile; false for <see cref="None"/>.</summary>
-    private bool Exists { get; }
-
     /// <summary>Creates a projectile identity.</summary>
     private SamusProjectileType(SamusProjectileFamily family, SamusBeamCombination beams, bool charged, SamusBeamEcho? echo)
     {
-        Exists = true;
         Family = family;
         BeamCombination = beams;
         IsChargedBeam = charged;
         Echo = echo;
     }
 
-    /// <summary>The projectile's family; <see cref="SamusProjectileFamily.Beam"/> for <see cref="None"/>.</summary>
+    /// <summary>The projectile's family.</summary>
     public SamusProjectileFamily Family { get; }
 
     /// <summary>
@@ -38,9 +32,6 @@ public readonly record struct SamusProjectileType
 
     /// <summary>The echo this beam projectile is, or null for a fired shot or special-attack particle.</summary>
     public SamusBeamEcho? Echo { get; }
-
-    /// <summary>Whether this is <see cref="None"/>.</summary>
-    public bool IsNone => !Exists;
 
     /// <summary>A beam shot of <paramref name="beams"/>, charged or not.</summary>
     internal static SamusProjectileType Beam(SamusBeamCombination beams, bool charged) =>

@@ -200,12 +200,12 @@ internal sealed class EnemyCollision
         {
             // The enemy's vulnerability answers for the beam or missile that hit it, before the impact below turns the
             // shot into its explosion.
+            if (!projectile.HasEnemyCollisionPayload)
+                continue;
             SamusProjectileType projectileType = projectile.Type;
             int projectileDamage = Ensure.AtLeastZero(projectile.Damage);
             SamusProjectileDirection projectileDirection = projectile.Direction;
             SamusProjectileFamily family = projectile.Type.Family;
-            if (!projectile.HasEnemyCollisionPayload)
-                continue;
 
             // Bomb, power-bomb, and pseudo-screw actors share the projectiles' places,
             // but no ordinary enemy reacts to them as it reacts to beams or missiles.
@@ -488,13 +488,15 @@ internal sealed class EnemyCollision
 
         foreach (SamusBomb bomb in bombs.Bombs)
         {
+            // A place no bomb holds has none to explode.
+            if (!bomb.IsOccupied)
+                continue;
             SamusProjectileFamily family = bomb.Type.Family;
 
             // The radius bomb pass admits an exploding normal bomb. The radius
             // pass also admits a spread bomb. The frame-hitbox pass is narrower,
             // and passes over a bomb on the room's leftmost column (LeftEdgeBombMissesFrameHitboxes).
-            if (bomb.Type.IsNone ||
-                !bomb.HasBurnedOut ||
+            if (!bomb.HasBurnedOut ||
                 (usesFrameHitboxes
                     ? family != SamusProjectileFamily.Bomb ||
                       LeftEdgeBombMissesFrameHitboxes.Misses(bomb.Position.X.Whole)

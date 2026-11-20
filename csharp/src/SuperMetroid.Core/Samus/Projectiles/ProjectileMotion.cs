@@ -386,7 +386,7 @@ internal sealed class ProjectileMotion
     {
         foreach (SamusProjectile candidate in _pool.InUpdateOrder)
         {
-            if (candidate.Type.IsFamily(SamusProjectileFamily.SuperMissile))
+            if (candidate.IsOccupied && candidate.Type.IsFamily(SamusProjectileFamily.SuperMissile))
                 _animation.ClearProjectile(candidate);
         }
     }

@@ -146,7 +146,7 @@ internal sealed class Walk
     /// EnemyProjectileFrameId members that draw nothing and are on no sheet: the blank frame, which every beat that shows no
     /// picture shows (#2431).
     /// </summary>
-    public static readonly string[] ExcludedProjectileFrames = ["Blank"];
+    public static readonly string[] ExcludedProjectileFrames = [];
 
     /// <summary>
     /// RoomEffectActorKind members that are Samus's weapon effects and on no enemy sheet (#1713): the burst her hit shows

@@ -343,6 +343,10 @@ internal sealed class AnimationPlayer<TSegment, TFrame, TEvent>
             case AnimationShown<TSegment, TFrame>.Paused pause:
                 UpdatesLeft = pause.Duration;
                 return null;
+            case AnimationShown<TSegment, TFrame>.Hidden hidden:
+                Shown = null;
+                UpdatesLeft = hidden.Duration;
+                return null;
             case AnimationShown<TSegment, TFrame>.HeldFrame held:
                 Shown = held.Shown;
                 IsResting = true;

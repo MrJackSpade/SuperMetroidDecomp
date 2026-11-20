@@ -29,8 +29,7 @@ internal static class EnemyProjectileArtworkContractChecks
         EnemyProjectileSpritemapCatalog catalog = Load(document);
         EnemyProjectileFrameId directId = EnemyProjectileFrames.Identity(EnemyProjectileSpritemapDefinitions.FrameNames[0]);
         EnemyProjectilePresentationFrameDefinition program = EnemyProjectilePresentationFrameSets.All[0];
-        Require(catalog.Get(directId).IsEmpty && catalog.GetProgramFrame(program.Frame).IsEmpty &&
-            catalog.Get(EnemyProjectileFrameId.Blank).IsEmpty, "complete authored empty compositions and native blank");
+        Require(catalog.Get(directId).IsEmpty && catalog.GetProgramFrame(program.Frame).IsEmpty, "complete authored empty compositions");
         string directName = EnemyProjectileSpritemapDefinitions.FrameNames[0];
         var camelCase = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
         JsonNode withNullFrame = RequiredJson.Parse(JsonSerializer.SerializeToUtf8Bytes(document, camelCase));
@@ -58,7 +57,6 @@ internal static class EnemyProjectileArtworkContractChecks
             class ProjectileArtworkConsumer {
                 void Inspect(EnemyProjectileSpritemapCatalog art, EnemyProjectileFrameId frame, EnemyProjectileFrameId program) {
                     art.Get(EnemyProjectileFrameId.{{directId}});
-                    art.Get(EnemyProjectileFrameId.Blank);
                     art.Get((EnemyProjectileFrameId)int.MaxValue);
                     art.Get(frame);
                     art.GetProgramFrame(EnemyProjectileFrameId.{{programId}});

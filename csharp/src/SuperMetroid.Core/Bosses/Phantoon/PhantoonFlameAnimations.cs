@@ -48,17 +48,17 @@ internal static class PhantoonFlameAnimations
         [P.CasualFallingKindling] =
         [
             Show(EnemyProjectileFrameId.PhantoonFlameKindling, 1),
-            Show(EnemyProjectileFrameId.Blank, 1),
+            Hide(1),
         ],
         [P.CasualFallingTeardrop] =
         [
             Show(EnemyProjectileFrameId.PhantoonFlameTeardrop, 1),
-            Show(EnemyProjectileFrameId.Blank, 1),
+            Hide(1),
         ],
         [P.CasualFallingSputtering] =
         [
             Show(EnemyProjectileFrameId.PhantoonFlameSputtering, 1),
-            Show(EnemyProjectileFrameId.Blank, 1),
+            Hide(1),
         ],
         [P.StartingFlame] =
         [
@@ -98,6 +98,10 @@ internal static class PhantoonFlameAnimations
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> passes.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, PhantoonFlameCue> Show(EnemyProjectileFrameId frame, int duration) =>
         new AnimationBeat<EnemyProjectileFrameId, PhantoonFlameCue>.Frame(frame, duration);
+
+    /// <summary>Shows nothing for <paramref name="duration"/> updates (#2558): the projectile is hidden until its next frame.</summary>
+    private static AnimationBeat<EnemyProjectileFrameId, PhantoonFlameCue> Hide(int duration) =>
+        new AnimationBeat<EnemyProjectileFrameId, PhantoonFlameCue>.Hidden(duration);
 
     /// <summary>Raises <paramref name="cue"/>.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, PhantoonFlameCue> Cue(PhantoonFlameCue cue) =>

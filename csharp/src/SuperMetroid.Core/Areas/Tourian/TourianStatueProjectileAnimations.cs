@@ -31,7 +31,7 @@ internal static class TourianStatueProjectileAnimations
             Show(EnemyProjectileFrameId.TourianStatueEyeGlowSparkleSmall, 6),
             Show(EnemyProjectileFrameId.TourianStatueEyeGlowStreakSmall, 6),
             Show(EnemyProjectileFrameId.TourianStatueEyeGlowDot, 5),
-            Show(EnemyProjectileFrameId.Blank, 48),
+            Hide(48),
             Cue(new TourianStatueProjectileCue.Signal(K.PlayReleaseSound)),
             Cue(new TourianStatueProjectileCue.Signal(K.Earthquake)),
             Cue(new TourianStatueProjectileCue.Signal(K.SpawnParticle)),
@@ -102,6 +102,10 @@ internal static class TourianStatueProjectileAnimations
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, TourianStatueProjectileCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, TourianStatueProjectileCue>.Frame(frame, duration);
+
+    /// <summary>Shows nothing for <paramref name="duration"/> updates (#2558): the projectile is hidden until its next frame.</summary>
+    private static AnimationBeat<EnemyProjectileFrameId, TourianStatueProjectileCue> Hide(int duration) =>
+        new AnimationBeat<EnemyProjectileFrameId, TourianStatueProjectileCue>.Hidden(duration);
 
     /// <summary>Shows <paramref name="frame"/> for good (#2068): a statue and the base's decoration rest on their picture.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, TourianStatueProjectileCue> Hold(EnemyProjectileFrameId frame) => new AnimationBeat<EnemyProjectileFrameId, TourianStatueProjectileCue>.HeldFrame(frame);

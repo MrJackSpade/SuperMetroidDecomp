@@ -27,10 +27,9 @@ internal static class EnemyProjectileSpritemapNative
                 new SpritemapFrameDefinition(EnemyProjectileCompositionSources.ElevatorArrivalSpritemap(entry.Key), entry.Value))];
     }
 
-    /// <summary>The composition frame stored at bank-$8D spritemap <paramref name="spritemap"/>.</summary>
-    internal static EnemyProjectileFrameId FrameAt(ushort spritemap) => spritemap == EnemyProjectileCompositionDefinitions.BlankSpritemap
-        ? EnemyProjectileFrameId.Blank
-        : EnemyProjectileSpritemapDefinitions.FrameNames.Select(EnemyProjectileFrames.Identity)
+    /// <summary>The composition frame stored at bank-$8D spritemap <paramref name="spritemap"/>, which is not the blank map.</summary>
+    internal static EnemyProjectileFrameId FrameAt(ushort spritemap) =>
+        EnemyProjectileSpritemapDefinitions.FrameNames.Select(EnemyProjectileFrames.Identity)
             .Single(frame => EnemyProjectileCompositionSources.Spritemap(frame) == spritemap);
 
     /// <summary>The Ceres elevator arrival's pose whose picture is stored at bank-$8D spritemap <paramref name="spritemap"/>, if any.</summary>

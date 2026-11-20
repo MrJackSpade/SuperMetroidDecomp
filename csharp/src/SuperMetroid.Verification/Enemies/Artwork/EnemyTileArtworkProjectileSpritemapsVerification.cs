@@ -529,9 +529,6 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             Enumerable.Range(0, oam.NextByteOffset / 4).Select(record =>
                 $"({oam.LowTable[record * 4]:X2},{oam.LowTable[(record * 4) + 1]:X2},{oam.LowTable[(record * 4) + 2]:X2},{oam.LowTable[(record * 4) + 3]:X2})"));
 
-        // A frame on no sheet, so no set loads it (#1513): the blank frame draws nothing (#2431). Any other frame a spawn
-        // table lacks fails loudly in the set load, as a frame the game can draw must be on a sheet.
-        static bool IsOnNoSheet(EnemyProjectileFrameId frame) => frame == EnemyProjectileFrameId.Blank;
 
         static OamBuffer DrawReferenceProgramFrameWith(ushort operand, ISnesAddressSpace source, ushort word)
         {

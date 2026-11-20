@@ -56,10 +56,12 @@ internal static class DefinitionAudit
         foreach (EnemyProjectilePresentationFrameDefinition frame in EnemyProjectilePresentationFrameSets.All)
             exports.Add(ResourceDomains.EnemyProjectileProgram, ResourceIndex.Address(ResourceBanks.EnemyProjectilePrograms, EnemyProjectileProgramFrameSources.Operand(frame.Frame)));
         // An operand that shows an installed program frame's picture again shows that frame (#2210, #2234, #2249); one that
-        // draws nothing shows the blank frame, which draws without an installed frame (#2431).
+        // draws nothing hides its projectile, needing no installed frame (#2431, #2558).
+        foreach (ushort operand in EnemyProjectileProgramFrameDefinitions.DrawNothing)
+            exports.Add(ResourceDomains.EnemyProjectileProgram, ResourceIndex.Address(ResourceBanks.EnemyProjectilePrograms, operand));
         foreach ((ushort operand, EnemyProjectileFrameId shown) in EnemyProjectileProgramFrameDefinitions.AlsoStoredAt)
         {
-            if (shown == EnemyProjectileFrameId.Blank || exports.Contains(ResourceDomains.EnemyProjectileProgram,
+            if (exports.Contains(ResourceDomains.EnemyProjectileProgram,
                     ResourceIndex.Address(ResourceBanks.EnemyProjectilePrograms, EnemyProjectileProgramFrameSources.Operand(shown))))
                 exports.Add(ResourceDomains.EnemyProjectileProgram, ResourceIndex.Address(ResourceBanks.EnemyProjectilePrograms, operand));
         }

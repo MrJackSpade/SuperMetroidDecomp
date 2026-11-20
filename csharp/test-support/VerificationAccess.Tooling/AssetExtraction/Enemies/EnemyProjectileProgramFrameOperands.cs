@@ -27,16 +27,16 @@ internal static class EnemyProjectileProgramFrameOperands
     /// operand that draws nothing (#2431).
     /// </summary>
     internal static ushort OwnOperand(ushort operand) =>
-        EnemyProjectileProgramFrameDefinitions.AlsoStoredAt.TryGetValue(operand, out EnemyProjectileFrameId frame)
+        EnemyProjectileProgramFrameDefinitions.DrawNothing.Contains(operand) ? HiddenKey
+        : EnemyProjectileProgramFrameDefinitions.AlsoStoredAt.TryGetValue(operand, out EnemyProjectileFrameId frame)
             ? KeyOf(frame)
             : operand;
 
-    /// <summary>
-    /// The key a native check reads shown frame <paramref name="frame"/> by: the bank-$86 operand its installed program
-    /// frame is stored at, or zero for the blank frame, which no operand installs (#2431), as a slot showing it reads.
-    /// </summary>
-    internal static ushort KeyOf(EnemyProjectileFrameId frame) =>
-        frame == EnemyProjectileFrameId.Blank ? (ushort)0 : EnemyProjectileProgramFrameSources.Operand(frame);
+    /// <summary>The key a native check reads for an operand that draws nothing, as a hidden slot reads (#2431, #2558).</summary>
+    internal const ushort HiddenKey = 0;
+
+    /// <summary>The key a native check reads shown frame <paramref name="frame"/> by: the bank-$86 operand its installed program frame is stored at.</summary>
+    internal static ushort KeyOf(EnemyProjectileFrameId frame) => EnemyProjectileProgramFrameSources.Operand(frame);
 
     /// <summary>
     /// The bank-$86 operands that store the picture of the installed frame stored at <paramref name="operand"/> again

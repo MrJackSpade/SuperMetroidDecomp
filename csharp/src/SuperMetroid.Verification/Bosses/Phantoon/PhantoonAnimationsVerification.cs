@@ -250,7 +250,7 @@ internal static class PhantoonAnimationsVerification
             AssertEqual(!native.Deleted, projectile.IsActive, $"pre-Phantoon room update {update}: deletion");
             if (native.Deleted)
                 break;
-            AssertTrue(projectile.Frame == EnemyProjectileFrameId.Blank, $"pre-Phantoon room update {update}: the blank frame, no program frame");
+            AssertTrue(projectile.Frame is null, $"pre-Phantoon room update {update}: hidden, showing no frame");
         }
         AssertTrue(native.Deleted, "the pre-Phantoon room projectile deletes itself");
     }

@@ -65,6 +65,8 @@ internal abstract class EnemyProjectileTypedAnimation<TSegment, TFrame, TEvent> 
                 return new EnemyProjectileFrameStep.ShowForGood(Present(held.Shown));
             case AnimationShown<TSegment, TFrame>.Held:
                 return EnemyProjectileFrameStep.Rests;
+            case AnimationShown<TSegment, TFrame>.Hidden hidden:
+                return new EnemyProjectileFrameStep.Hide(hidden.Duration);
             case AnimationShown<TSegment, TFrame>.Paused:
             case AnimationShown<TSegment, TFrame>.Ended:
             default:

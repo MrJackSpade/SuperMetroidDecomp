@@ -38,6 +38,10 @@ internal abstract class EnemyProjectileAnimation
                 projectile.StopFrameHold();
                 projectile.Frame = held.Frame;
                 return;
+            case EnemyProjectileFrameStep.Hide hidden:
+                projectile.FrameHold = WrappingCountdown.Start(hidden.Duration);
+                projectile.Frame = null;
+                return;
             case EnemyProjectileFrameStep.Rest:
                 // A held timeline rests on the frame it shows: the hold stops until the projectile's owner sets it again or
                 // starts another animation.

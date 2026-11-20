@@ -4,18 +4,19 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 /// <param name="species">The Magdollite species owner.</param>
 /// <param name="place">The place the head occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class MagdolliteHeadEntity(MagdolliteBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : MagdollitePartEntity(species, place, common), IEnemySurroundingsInitialization
+/// <param name="setup">How the enemy comes to be set up, whose surroundings its initialization reads.</param>
+internal sealed class MagdolliteHeadEntity(MagdolliteBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup)
+    : MagdollitePartEntity(species, place, common)
 {
     /// <inheritdoc/>
     internal override MagdollitePartState? State => Place.SpeciesState<MagdolliteHeadState>();
 
-    /// <inheritdoc/>
-    public void Initialize(EnemyPopulationSurroundings surroundings) => Species.InitializeMagdolliteHead(Place, Ensure.NotNull(surroundings).Samus);
+    /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
+    internal MagdolliteHeadState State { get; } = species.InitializeMagdolliteHead(place, setup.SurroundingsOf(place).Samus);
 
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) =>
-        Species.RunMagdolliteHead(Place, Place.RequireSpeciesState<MagdolliteHeadState>(), Ensure.NotNull(frame).Samus);
+        Species.RunMagdolliteHead(Place, State, Ensure.NotNull(frame).Samus);
 
     /// <inheritdoc/>
     public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) =>

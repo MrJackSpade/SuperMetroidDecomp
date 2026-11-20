@@ -10,10 +10,10 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// <param name="place">The place the piece occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class RidleyBreakupPieceEntity(NorfairRidleyBehavior ridley, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes
+    : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes
 {
-    /// <inheritdoc/>
-    public void Initialize() => ridley.Death.InitializeNorfairRidleyExplosion(Place);
+    /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
+    internal RidleyExplosionFragmentState State { get; } = ridley.Death.InitializeNorfairRidleyExplosion(place);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => ridley.Death.RunNorfairRidleyExplosionMain(Place, frame.Samus);

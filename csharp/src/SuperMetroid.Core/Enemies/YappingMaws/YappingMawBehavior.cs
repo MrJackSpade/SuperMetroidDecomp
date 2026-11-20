@@ -20,7 +20,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.YappingMaw];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new YappingMawEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new YappingMawEntity(this, place, common);
 
     /// <summary>Creates the four auxiliary body-link projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
@@ -58,7 +58,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Yapping Maw.</summary>
-    internal void InitializeYappingMaw(RoomEnemyPlace place)
+    internal YappingMawEnemyState InitializeYappingMaw(RoomEnemyPlace place)
     {
         // The body links are spawned mouth end first, link 3 down to link 0, so each takes the projectile place the pool
         // gives it in that order; the Maw keeps them in root-to-mouth order.
@@ -95,11 +95,11 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
                     : RoomEffectActorKind.YappingMawBaseFacingUp,
                 SpriteGraphics.SpawnedBy(place)),
         };
-        place.SetSpeciesState(state);
 
         state.Playback = EnemyAnimationPlayback.Start(place, YappingMawAnimations.StartingWith(place.SpawnSettings<YappingMawSpawnSettings>().Attack == VerticalDirection.Down
             ? YappingMawSegment.AttackingDown
             : YappingMawSegment.AttackingUp));
+        return state;
     }
 
     /// <summary>Runs the Maw's main behaviour, then places its four links.</summary>

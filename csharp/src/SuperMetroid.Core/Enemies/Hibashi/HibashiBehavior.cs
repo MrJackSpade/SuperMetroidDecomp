@@ -9,7 +9,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Hibashi];
 
     /// <summary>The Hibashi's flame, or the collision part its placement names (#2342).</summary>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) =>
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) =>
         Ensure.NotNull(place).SpawnSettings<HibashiSpawnSettings>().Part == HibashiPart.CollisionPart
             ? new HibashiCollisionPartEntity(place, common)
             : new HibashiEntity(this, place, common);
@@ -58,10 +58,9 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Initializes the flame: it sets up its first wait (<see cref="HibashiDefinitions.FirstWait"/>) and the collision part
     /// it finds, and starts the eruption animation, whose first step plays on its first update.
     /// </summary>
-    internal void InitializeHibashi(RoomEnemyPlace place)
+    internal HibashiEnemyState InitializeHibashi(RoomEnemyPlace place)
     {
         var state = new HibashiEnemyState(HibashiAction.Inactive);
-        place.SetSpeciesState(state);
         _hitboxes.Place(place, _places.ListedAfter(place, 1));
         state.InactiveTimer = UpdateCountdown.For(HibashiDefinitions.FirstWait);
         state.Playback = EnemyAnimationPlayback.Start(place, HibashiAnimations.StartingWith(HibashiSegment.Flame));
@@ -70,6 +69,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
         // The visible part must never participate through its definition's radius.
         // Its following part receives the dynamic radius from animation cues.
         place.Radius = place.Radius.WithX(0);
+        return state;
     }
 
     /// <summary>Runs the Hibashi's main AI.</summary>

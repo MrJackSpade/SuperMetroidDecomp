@@ -11,8 +11,8 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal sealed class MotherBrainHeadEntity(MotherBrainBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
     : MotherBrainEntity(species, place, common), IEnemyPrivateShotReaction
 {
-    /// <inheritdoc/>
-    public override void Initialize() => Species.Head.InitializeMotherBrainHead(Place);
+    /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
+    internal MotherBrainEnemyState State { get; } = species.Head.InitializeMotherBrainHead(place);
 
     /// <summary>The head's hitbox: her brain's rectangle, which it owns (#2220).</summary>
     public override bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction) =>

@@ -20,7 +20,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Yard];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new YardEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new YardEntity(this, place, common);
 
     /// <summary>Provides active room context for Yard initialization and main AI.</summary>
     private readonly EnemyRoomBinding _room;
@@ -103,7 +103,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         new(playing.Animation, AnimationPlace.StartOf(playing.Place.Phase));
 
     /// <summary>Initializes the Yard.</summary>
-    internal static void InitializeYard(RoomEnemyPlace place)
+    internal static YardEnemyState InitializeYard(RoomEnemyPlace place)
     {
         YardSpawnSettings settings = place.SpawnSettings<YardSpawnSettings>();
         YardDirection direction = settings.Direction;
@@ -117,7 +117,6 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             Behavior = YardBehavior.NormalCrawling,
             CrawlSpeed = settings.CrawlSpeed,
         };
-        place.SetSpeciesState(state);
 
         place.Frame = EnemyFrameId.Empty;
         place.AnimationClock.StepOnNextUpdate();
@@ -128,6 +127,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         state.HidingAnimation = definition.HidingAnimation;
         state.AirborneFacingDirection = definition.AirborneFacingDirection;
         SetYardCrawlingVelocities(state, direction);
+        return state;
     }
 
     /// <summary>

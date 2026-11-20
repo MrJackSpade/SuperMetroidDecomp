@@ -13,7 +13,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.PirateGoldWall, EnemyDefinitionId.PirateGreyWall, EnemyDefinitionId.PirateMagentaWall, EnemyDefinitionId.PirateSilverWall];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new WallSpacePirateEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new WallSpacePirateEntity(this, place, common);
 
     /// <summary>Advances the shared random source when a climbing cue chooses a new direction.</summary>
     private readonly EnemyRoomBinding _room;
@@ -32,7 +32,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
     }
 
     /// <summary>Initializes the wall Space Pirate.</summary>
-    internal static void InitializeWallSpacePirate(RoomEnemyPlace place)
+    internal static WallSpacePirateEnemyState InitializeWallSpacePirate(RoomEnemyPlace place)
     {
         WallSpacePirateSpawnSettings settings = place.SpawnSettings<WallSpacePirateSpawnSettings>();
         // Angles are 256ths of a turn. A slow jump turns two steps a frame for 63 frames; a fast one turns four steps a
@@ -44,7 +44,6 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
             _ => throw new InvalidDataException($"Undefined {nameof(WallSpacePirateJumpSpeed)} {settings.JumpSpeed}."),
         };
         var state = new WallSpacePirateEnemyState(WallSpacePirateAction.Climbing, settings.Wall, jump);
-        place.SetSpeciesState(state);
 
         state.Playback = new(WallSpacePirateAnimations.StartingWith(settings.Wall == HorizontalDirection.Right
             ? WallSpacePirateSegment.MovingDownRightWall
@@ -52,6 +51,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         state.ClimbDirection = WallSpacePirateClimbDirection.Down;
 
         SnapWallSpacePirateXToWallGrid(place);
+        return state;
     }
 
     /// <summary>Runs a wall Space Pirate's update: climbing its wall, attacking from it or jumping to the other.</summary>

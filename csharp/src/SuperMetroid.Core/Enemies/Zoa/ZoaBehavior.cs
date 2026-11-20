@@ -12,7 +12,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Zoa];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new ZoaEntity(place, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new ZoaEntity(place, common);
 
     /// <summary>Advances Zoa's typed animation (#641) in place of the shared enemy animation.</summary>
     internal static void AdvanceZoaAnimation(RoomEnemyPlace place)
@@ -34,7 +34,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void ApplyZoaCue(ZoaEnemyState state, ZoaCue cue) => state.LaunchSpeed = cue.LaunchSpeed;
 
     /// <summary>Initializes the Zoa, saving the population coordinate and hiding the idle actor.</summary>
-    internal static void InitializeZoa(RoomEnemyPlace place)
+    internal static ZoaEnemyState InitializeZoa(RoomEnemyPlace place)
     {
         var state = new ZoaEnemyState(ZoaAction.WaitForSamus)
         {
@@ -42,12 +42,12 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
             LaunchSpeed = SignedSixteenSixteen.Zero,
             SpawnPosition = place.Position.Whole,
         };
-        place.SetSpeciesState(state);
 
         // The setup starts the left-facing shooting animation directly, leaving the frame timer as the spawn set it,
         // so asking for it again at rest starts nothing.
         state.Playback = new(ZoaAnimations.StartingWith(ZoaSegment.FacingLeftShooting), AnimationPlace.StartOfAnimation);
         place.Presence = place.Presence.With(EnemyPresence.Hidden);
+        return state;
     }
 
     /// <summary>Runs a Zoa for one update: its proximity wait, rise or horizontal shot, from the room state.</summary>

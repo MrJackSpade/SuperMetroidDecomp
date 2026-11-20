@@ -52,7 +52,7 @@ internal sealed class DraygonParts
     /// Sets Draygon's body up when the room spawns it: it begins the encounter with his eye, tail and arms, which his room
     /// lists right after his body (#2298), each playing the animation its setup starts.
     /// </summary>
-    internal void InitializeDraygonBody(RoomEnemyPlace body)
+    internal DraygonEnemyState InitializeDraygonBody(RoomEnemyPlace body)
     {
         // His opening's colours are the import's shade of them, which his sprites draw in (#1512).
 
@@ -69,11 +69,11 @@ internal sealed class DraygonParts
         // his parts each hold the encounter from their own setup.
         _presentation.AttachBossBody(new BossBodyParts(BossBodyOwner.Draygon, draygon));
         _presentation.BossShadings.Show(BossShadingLayer.Draygon, draygon.Colours);
-        body.SetSpeciesState(draygon);
         // His setup shows only his opening's colours (#2547). His health band is the one his health starts in (#2304), so a
         // hurt the grapple's shock starts before any hit shows it, but his body layer shows it only from his first hurt
         // update or from the reaction that moves his health into another band.
         body.Shading = draygon.Colours.Sprites;
+        return draygon;
     }
 
     /// <summary>

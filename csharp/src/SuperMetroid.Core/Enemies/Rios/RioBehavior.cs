@@ -12,7 +12,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Rio];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new RioEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new RioEntity(this, place, common);
 
     /// <summary>Supplies the shared enemy random number consumed on every Rio AI frame.</summary>
     private readonly EnemyRoomBinding _room;
@@ -31,13 +31,13 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Rio.</summary>
-    internal static void InitializeRio(RoomEnemyPlace place)
+    internal static RioEnemyState InitializeRio(RoomEnemyPlace place)
     {
         var state = new RioEnemyState(RioAction.WaitingForSamus);
-        place.SetSpeciesState(state);
 
         // The Rio rests in its idle animation until its first swoop starts another.
         state.Playback = EnemyAnimationPlayback.Start(place, RioAnimations.StartingWith(RioSegment.TuckedWingbeat));
+        return state;
     }
 
     /// <summary>Runs the Rio's main AI and its five actions.</summary>

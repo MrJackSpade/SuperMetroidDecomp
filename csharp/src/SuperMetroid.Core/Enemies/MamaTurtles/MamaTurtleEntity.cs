@@ -7,8 +7,8 @@ namespace SuperMetroid.Core.Enemies.MamaTurtles;
 internal sealed class MamaTurtleEntity(MamaTurtleBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
     : TurtleEntity(species, place, common)
 {
-    /// <inheritdoc/>
-    public override void Initialize() => Species.InitializeMamaTurtle(Place);
+    /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
+    internal MamaTurtleEnemyState State { get; } = species.InitializeMamaTurtle(place);
 
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) => Species.RunMamaTurtleMainAi(Place, frame);

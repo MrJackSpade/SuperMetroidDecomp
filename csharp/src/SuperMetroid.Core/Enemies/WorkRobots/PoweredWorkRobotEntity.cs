@@ -10,8 +10,8 @@ namespace SuperMetroid.Core.Enemies.WorkRobots;
 internal sealed class PoweredWorkRobotEntity(WorkRobotBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
     : WorkRobotEntity(species, place, common)
 {
-    /// <inheritdoc/>
-    public override void Initialize() => Species.InitializePoweredWorkRobot(Place);
+    /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
+    internal WorkRobotEnemyState State { get; } = species.InitializePoweredWorkRobot(place);
 
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) => Species.RunWorkRobotMainAi(Place, frame);

@@ -18,7 +18,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>The mama turtle, or one of her babies (#2146).</summary>
     /// <exception cref="InvalidOperationException">The place holds no mama turtle definition.</exception>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup)
     {
         EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
         if (definition == EnemyDefinitionId.MamaTurtle)
@@ -102,7 +102,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Mama Turtle and links her to the four babies her room lists right after her.</summary>
-    internal void InitializeMamaTurtle(RoomEnemyPlace place)
+    internal MamaTurtleEnemyState InitializeMamaTurtle(RoomEnemyPlace place)
     {
         RoomEnemyPlace[] babies = _places.ListedRunAfter(place, MamaTurtleMotionDefinitions.BabyCount);
         _babiesOfMama.Place(place, babies);
@@ -110,7 +110,6 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             _mamaOfBaby.Place(baby, place);
 
         var state = new MamaTurtleEnemyState(MamaTurtleAction.Placed);
-        place.SetSpeciesState(state);
 
         // Mama animates: leaving the shell needs her animation to run.
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
@@ -118,13 +117,14 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         place.AnimationClock.Restart();
         place.Radius = place.Radius.WithY(0);
         state.Playback = new(MamaTurtleAnimations.StartingWith(MamaTurtleSegment.Asleep), AnimationPlace.StartOfAnimation);
+        return state;
     }
 
     /// <summary>
     /// Initializes the Baby Turtle, one of the four its Mama found when she was placed; the last of them completes the
     /// family, which is checked once then.
     /// </summary>
-    internal void InitializeBabyTurtle(RoomEnemyPlace place)
+    internal BabyTurtleEnemyState InitializeBabyTurtle(RoomEnemyPlace place)
     {
         var state = new BabyTurtleEnemyState(BabyTurtleAction.CrawlingNotCarryingSamus)
         {
@@ -132,10 +132,10 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             Heading = place.SpawnSettings<BabyTurtleSpawnSettings>().Heading,
             HorizontalSpeed = MamaTurtleMotionDefinitions.BabyCrawlSpeed,
         };
-        place.SetSpeciesState(state);
 
         state.Playback = EnemyAnimationPlayback.Start(place, BabyTurtleAnimations.StartingWith(BabyCrawl(state.Heading)));
         CheckMamaTurtleFamilyCompletedBy(place);
+        return state;
     }
 
     /// <summary>

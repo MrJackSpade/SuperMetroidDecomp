@@ -60,11 +60,10 @@ internal sealed class CrocomireFight
     }
 
     /// <summary>Sets Crocomire up when the room spawns it.</summary>
-    internal void InitializeCrocomire(RoomEnemyPlace place)
+    internal CrocomireEnemyState InitializeCrocomire(RoomEnemyPlace place)
     {
         _roomStatus.Boss = AreaBoss.Crocomire;
         var state = new CrocomireEnemyState(place);
-        place.SetSpeciesState(state);
         // The room's shaking main and his melt's display read him from the room from here (#2194); his parts each hold
         // the encounter from their own setup.
         _encounters.Attach(state);
@@ -86,7 +85,7 @@ internal sealed class CrocomireFight
             _access.PublishCrocomireObject(CrocomireArenaDefinitions.FightWallBlock, CrocomireArenaMutation.ClearInvisibleWall);
             _access.PublishCrocomireObject(CrocomireArenaDefinitions.SpikeWallBlock, CrocomireArenaMutation.ClearInvisibleWall);
             _access.PublishCrocomireObject(CrocomireArenaDefinitions.BridgeFirstBlock, CrocomireArenaMutation.ClearBridge);
-            return;
+            return state;
         }
 
         // On the living branch only.
@@ -98,6 +97,7 @@ internal sealed class CrocomireFight
 
         // The wall's and the projectiles' colours his setup loads are the import's shades of them, which his wall,
         // the bridge's fragments and his projectiles draw in (#1512).
+        return state;
     }
 
     /// <summary>Sets Crocomire's tongue up when the room spawns it.</summary>

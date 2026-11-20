@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies;
+
 namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
@@ -28,45 +30,30 @@ namespace SuperMetroid.Core.Compatibility;
 /// damage, without testing whether an enemy still occupies it; a deletion clears only the record's identity, while a
 /// kill clears the whole record, which a respawned enemy's setup writes again, and which the Shaktool chain writes to.
 /// </remarks>
-/// <typeparam name="TStates">The species states one enemy owns; a new set holds none.</typeparam>
 [CompatibilityService("an enemy removed from its place leaves its state there for its neighbours: as it left it after a deletion, cleared after a kill")]
-public sealed class RemovedEnemyLeftovers<TStates> where TStates : class, new()
+internal sealed class RemovedEnemyLeftovers
 {
     /// <summary>
-    /// The states the place's last removed enemy left: a deleted enemy's as it left them, the empty set a kill cleared
-    /// them to, or null while no enemy has left the place.
+    /// What the place's last removed enemy left: the deleted enemy as it left, the record a kill cleared, or nothing while
+    /// no enemy has left the place.
     /// </summary>
-    private TStates? _left;
-
-    /// <summary>Whether the place's last removal was a kill, so that <see cref="_left"/> is the record the kill cleared.</summary>
-    private bool _leftByKill;
-
-    /// <summary>The place's enemy is deleted without being killed: its <paramref name="states"/> stay as it left them.</summary>
-    /// <param name="states">The deleted enemy's species states.</param>
-    internal void Deleted(TStates states)
-    {
-        _left = Ensure.NotNull(states);
-        _leftByKill = false;
-    }
-
-    /// <summary>The place's enemy is killed: the kill clears what it leaves, to a set that holds no state.</summary>
-    internal void Killed()
-    {
-        _left = new TStates();
-        _leftByKill = true;
-    }
+    private EnemyPlaceFinding _left = new EnemyPlaceFinding.Nothing();
 
     /// <summary>
-    /// The species states a neighbour finds in the place: <paramref name="occupant"/>'s while an enemy holds it, otherwise
-    /// what the last removed enemy left, which holds no state once a kill cleared it, or null while no enemy has left it.
+    /// The place's <paramref name="enemy"/> is deleted without being killed: its state stays as it left it. An occupant
+    /// deleted before its species built its enemy leaves no state.
     /// </summary>
-    /// <param name="occupant">The states of the enemy holding the place, or null while it holds none.</param>
-    public TStates? Found(TStates? occupant) => occupant ?? _left;
+    /// <param name="enemy">The deleted enemy, holding its state, or null when its species had not built it.</param>
+    internal void Deleted(IEnemyEntity? enemy) =>
+        _left = enemy is null ? new EnemyPlaceFinding.Nothing() : new EnemyPlaceFinding.Enemy(enemy);
+
+    /// <summary>The place's enemy is killed: the kill clears what it leaves, to a record that holds no state.</summary>
+    internal void Killed() => _left = new EnemyPlaceFinding.Cleared(new ClearedEnemyRecord());
 
     /// <summary>
-    /// The record a kill cleared, while no enemy holds the place and its last removal was a kill: a neighbour that writes to
-    /// the place writes there, and reads back what it wrote until an enemy is placed in the place again; otherwise null.
+    /// What a neighbour finds in the place: <paramref name="occupant"/> while an enemy holds it, otherwise what the last
+    /// removed enemy left.
     /// </summary>
-    /// <param name="occupant">The states of the enemy holding the place, or null while it holds none.</param>
-    public TStates? ClearedByKill(TStates? occupant) => occupant is null && _leftByKill ? _left : null;
+    /// <param name="occupant">The enemy holding the place, or null while it holds none.</param>
+    internal EnemyPlaceFinding Found(IEnemyEntity? occupant) => occupant is null ? _left : new EnemyPlaceFinding.Enemy(occupant);
 }

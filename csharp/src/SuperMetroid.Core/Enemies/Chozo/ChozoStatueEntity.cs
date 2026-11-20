@@ -5,10 +5,10 @@ namespace SuperMetroid.Core.Enemies.Chozo;
 /// <param name="place">The place the statue occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class ChozoStatueEntity(ChozoStatueBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
+    : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation
 {
-    /// <inheritdoc/>
-    public void Initialize() => species.InitializeChozoStatue(Place);
+    /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
+    internal ChozoStatueState State { get; } = species.InitializeChozoStatue(place);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => ChozoStatueBehavior.RunChozoStatueMainAi(Place, frame);

@@ -16,7 +16,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>An escaping Etecoon, or the escaping Dachora (#2146).</summary>
     /// <exception cref="InvalidOperationException">The place holds no escape animals definition.</exception>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup)
     {
         EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
         if (definition == EnemyDefinitionId.EtecoonEscape)
@@ -39,19 +39,18 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the escape Etecoon.</summary>
-    internal void InitializeEscapeEtecoon(RoomEnemyPlace place)
+    internal EscapeEtecoonEnemyState InitializeEscapeEtecoon(RoomEnemyPlace place)
     {
         EscapeEtecoonInitialization initialization =
             EscapeEtecoons.Initialization(place.SpawnSettings<EscapeEtecoonSpawnSettings>().Role);
         var state = new EscapeEtecoonEnemyState(initialization.Action);
-        place.SetSpeciesState(state);
 
         // The critters-escaped event means the animals already escaped on an earlier visit, so the animal leaves the
         // room before it shows, moves or acts.
         if (HasCrittersEscaped())
         {
             place.Presence = place.Presence.With(EnemyPresence.Deleted);
-            return;
+            return state;
         }
 
         // An escaping animal runs its animation, is left out of the ordinary touch pass against Samus and
@@ -63,24 +62,26 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         place.Position = place.Position.WithWhole(initialization.Position);
         state.Playback = new(EscapeEtecoonAnimations.StartingWith(initialization.Animation), AnimationPlace.StartOfAnimation);
         state.StartWalking(initialization.Direction, initialization.Speed);
+        return state;
     }
 
     /// <summary>Initializes the escape Dachora.</summary>
-    internal void InitializeEscapeDachora(RoomEnemyPlace place)
+    internal EscapeDachoraEnemyState InitializeEscapeDachora(RoomEnemyPlace place)
     {
-        place.SetSpeciesState(new EscapeDachoraEnemyState());
+        var state = new EscapeDachoraEnemyState();
         if (HasCrittersEscaped())
         {
             place.Presence = place.Presence.With(EnemyPresence.Deleted);
-            return;
+            return state;
         }
 
         // Dachora's placement already animates and keeps it from touching Samus; the setup makes it animate again.
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
         place.Frame = EnemyFrameId.Empty;
         place.AnimationClock.Restart();
-        place.RequireSpeciesState<EscapeDachoraEnemyState>().Playback =
+        state.Playback =
             new(EscapeDachoraAnimations.RunningAroundLowTide, AnimationPlace.StartOfAnimation);
+        return state;
     }
 
     /// <summary>Runs an escaping Etecoon's action.</summary>

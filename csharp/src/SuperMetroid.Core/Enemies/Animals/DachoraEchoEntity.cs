@@ -7,10 +7,10 @@ namespace SuperMetroid.Core.Enemies.Animals;
 /// <param name="place">The place the echo occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class DachoraEchoEntity(RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
+    : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation
 {
-    /// <inheritdoc/>
-    public void Initialize() => DachoraBehavior.InitializeDachoraEcho(Place);
+    /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
+    internal DachoraEchoState State { get; } = DachoraBehavior.InitializeDachoraEcho(place);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => DachoraBehavior.RunDachoraEchoMainAi(Place, frame);

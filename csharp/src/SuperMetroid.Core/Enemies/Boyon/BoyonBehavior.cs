@@ -19,7 +19,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Boyon];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new BoyonEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new BoyonEntity(this, place, common);
 
     /// <summary>Carries out one cue of Boyon's animations.</summary>
     private BoyonSegment? ApplyBoyonCue(RoomEnemyPlace place, BoyonEnemyState state, BoyonCue cue)
@@ -42,7 +42,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Boyon.</summary>
-    internal static void InitializeBoyon(RoomEnemyPlace place)
+    internal static BoyonEnemyState InitializeBoyon(RoomEnemyPlace place)
     {
         _ = place.SpawnSettings<BoyonSpawnSettings>();
 
@@ -56,8 +56,8 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
             BaselineCurvePlace = BoyonCurvePlace.Top,
             Phase = BoyonPhase.DerivingArc,
         };
-        place.SetSpeciesState(state);
         SetBoyonAnimation(place, state, BoyonSegment.Idle);
+        return state;
     }
 
     /// <summary>Runs the Boyon's main AI.</summary>

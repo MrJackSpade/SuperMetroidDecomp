@@ -70,7 +70,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>The growing shutter, a shootable vertical shutter, the Kamer that reuses it, or a destroyable vertical shutter (#2146, #2179).</summary>
     /// <exception cref="InvalidOperationException">The place holds no Shutters definition.</exception>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup)
     {
         EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
         if (definition == EnemyDefinitionId.ShutterGrowing)
@@ -85,7 +85,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the growing shutter.</summary>
-    internal static void InitializeGrowingShutter(RoomEnemyPlace place)
+    internal static GrowingShutterEnemyState InitializeGrowingShutter(RoomEnemyPlace place)
     {
         GrowingShutterSpawnSettings settings = place.SpawnSettings<GrowingShutterSpawnSettings>();
 
@@ -101,7 +101,6 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             ActivationTimer = UpdateCountdown.For(settings.ActivationWait + EnemyWaitDefinitions.RunOutUpdate),
         };
-        place.SetSpeciesState(state);
 
         state.GrowthLevel = 0;
 
@@ -112,6 +111,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             state,
             ShutterSegment.QuarterGrown,
             GrowthRadius(state.GrowthLevel));
+        return state;
     }
 
     /// <summary>Runs the growing shutter's main AI.</summary>

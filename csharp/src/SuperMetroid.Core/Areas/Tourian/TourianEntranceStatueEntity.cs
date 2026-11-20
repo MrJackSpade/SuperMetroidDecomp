@@ -15,13 +15,10 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class TourianEntranceStatueEntity(TourianEntranceStatueBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyDeparture
+    : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyDeparture
 {
     /// <summary>The place the placement holds until it leaves, which shows the scene's look.</summary>
     internal RoomEnemyPlace OccupiedPlace => Place;
-
-    /// <inheritdoc/>
-    public void Initialize() => species.InitializeTourianEntranceStatue(this);
 
     /// <inheritdoc/>
     /// <remarks>The scene shows no later look on a place its placement has left (#2356).</remarks>

@@ -17,7 +17,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Zebetite];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new ZebetiteEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new ZebetiteEntity(this, place, common);
 
     /// <summary>Initializes newly spawned Zebetite places through the common enemy lifecycle.</summary>
     private readonly IEnemyLifecycle _lifecycle;
@@ -73,10 +73,9 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         : PictureShading.Standard;
 
     /// <summary>Sets a Zebetite up when the room spawns it.</summary>
-    internal void InitializeZebetite(RoomEnemyPlace place)
+    internal ZebetiteEnemyState InitializeZebetite(RoomEnemyPlace place)
     {
         var state = new ZebetiteEnemyState(place.Spawn.Population);
-        place.SetSpeciesState(state);
 
         // A Zebetite animates and is solid to Samus.
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
@@ -89,7 +88,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         if (generation == PersistentProgress.ZebetiteCount)
         {
             place.Presence = place.Presence.With(EnemyPresence.Deleted);
-            return;
+            return state;
         }
 
         ZebetiteGenerationDefinition definition = Zebetites.Generation(generation);
@@ -99,6 +98,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Picture = HealthPicture(definition.Form, ZebetiteDefinitions.MaximumHealth);
         place.Position = place.Position.WithWholeX(definition.X);
         place.Position = place.Position.WithWholeY(Zebetites.YPosition(definition, state.Half));
+        return state;
     }
 
     /// <summary>Runs the main step.</summary>

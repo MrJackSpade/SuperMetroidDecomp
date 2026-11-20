@@ -19,7 +19,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Metroid];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new MetroidEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new MetroidEntity(this, place, common);
 
     /// <summary>Supplies room RNG for the five scattered death drops and idle cries.</summary>
     private readonly EnemyRoomBinding _room;
@@ -64,7 +64,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Metroid.</summary>
-    internal void InitializeMetroid(RoomEnemyPlace place)
+    internal MetroidEnemyState InitializeMetroid(RoomEnemyPlace place)
     {
         SpriteGraphics graphics = SpriteGraphics.SpawnedBy(place);
         RoomEffectActor electricity = _effectActors.SpawnRoomEffectActor(
@@ -82,8 +82,8 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             Movement = MetroidMovement.Homing,
             IceDamageToFreeze = place.SpawnSettings<MetroidSpawnSettings>().IceDamageToFreeze,
         };
-        place.SetSpeciesState(state);
         state.Playback = new(MetroidAnimations.StartingWith(MetroidSegment.ChasingSamus), AnimationPlace.StartOfAnimation);
+        return state;
     }
 
     /// <summary>Runs a Metroid for one update and whichever of its four movements it is in.</summary>

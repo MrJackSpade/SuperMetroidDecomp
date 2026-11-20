@@ -13,7 +13,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Polyp];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new PolypEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new PolypEntity(this, place, common);
 
     /// <summary>Provides the shared room RNG and enemy state used by all Polyp actors.</summary>
     private readonly EnemyRoomBinding _room;
@@ -28,16 +28,16 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Polyp.</summary>
-    internal void InitializePolyp(RoomEnemyPlace place)
+    internal PolypEnemyState InitializePolyp(RoomEnemyPlace place)
     {
         place.AnimationClock.Restart();
         var state = new PolypEnemyState(PolypAction.WaitingForSamus)
         {
             Playback = new(PolypAnimations.StartingWith(PolypSegment.Stationary), AnimationPlace.StartOfAnimation),
         };
-        place.SetSpeciesState(state);
 
         _room.Random.Reseed(SpeciesRandomReseed.PolypPlacement);
+        return state;
     }
 
     /// <summary>Runs the Polyp's main AI and its three actions.</summary>

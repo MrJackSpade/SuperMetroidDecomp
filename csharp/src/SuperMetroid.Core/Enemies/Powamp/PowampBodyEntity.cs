@@ -8,13 +8,13 @@ namespace SuperMetroid.Core.Enemies.Powamp;
 /// <param name="place">The place the body occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class PowampBodyEntity(PowampBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
+    : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
-    /// <inheritdoc/>
-    public void Initialize() => species.InitializePowampBody(Place);
+    /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
+    internal PowampBodyState State { get; } = species.InitializePowampBody(place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunPowampMain(Place, Place.RequireSpeciesState<PowampBodyState>(), frame.Level, frame.Samus);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunPowampMain(Place, State, frame.Level, frame.Samus);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => PowampBehavior.AdvancePowampBodyTypedAnimation(Place);

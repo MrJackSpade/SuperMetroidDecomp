@@ -5,17 +5,17 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 /// <param name="place">The place the body occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class MagdolliteBodyEntity(MagdolliteBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : MagdollitePartEntity(species, place, common), IEnemyInitialization
+    : MagdollitePartEntity(species, place, common)
 {
     /// <inheritdoc/>
     internal override MagdollitePartState? State => Place.SpeciesState<MagdolliteBodyState>();
 
-    /// <inheritdoc/>
-    public void Initialize() => Species.InitializeMagdolliteBody(Place);
+    /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
+    internal MagdolliteBodyState State { get; } = species.InitializeMagdolliteBody(place);
 
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) =>
-        Species.RunMagdolliteBody(Place, Place.RequireSpeciesState<MagdolliteBodyState>(), Ensure.NotNull(frame).Samus);
+        Species.RunMagdolliteBody(Place, State, Ensure.NotNull(frame).Samus);
 
     /// <inheritdoc/>
     public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) =>

@@ -4,10 +4,10 @@ namespace SuperMetroid.Core.Enemies.Sbug;
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class SbugEntity(RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
+    : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation
 {
-    /// <inheritdoc/>
-    public void Initialize() => SbugBehavior.InitializeSbug(Place);
+    /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
+    internal SbugEnemyState State { get; } = SbugBehavior.InitializeSbug(place);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => SbugBehavior.RunSbugMainAi(Place, frame);

@@ -10,8 +10,8 @@ namespace SuperMetroid.Core.Enemies.Shutters;
 internal sealed class GrowingShutterEntity(ShuttersBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
     : ShuttersEntity(species, place, common)
 {
-    /// <inheritdoc/>
-    public override void Initialize() => ShuttersBehavior.InitializeGrowingShutter(Place);
+    /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
+    internal GrowingShutterEnemyState State { get; } = ShuttersBehavior.InitializeGrowingShutter(place);
 
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) => Species.RunShutterGrowingMainAi(Place, frame);

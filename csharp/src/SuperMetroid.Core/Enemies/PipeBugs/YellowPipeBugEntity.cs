@@ -4,10 +4,10 @@ namespace SuperMetroid.Core.Enemies.PipeBugs;
 /// <param name="place">The place the Pipe Bug occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class YellowPipeBugEntity(RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
+    : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation
 {
-    /// <inheritdoc/>
-    public void Initialize() => PipeBugsBehavior.InitializeYellowPipeBug(Place);
+    /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
+    internal YellowPipeBugState State { get; } = PipeBugsBehavior.InitializeYellowPipeBug(place);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => PipeBugsBehavior.RunYellowPipeBugMainAi(Place, frame);

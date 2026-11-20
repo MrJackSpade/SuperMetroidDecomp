@@ -47,11 +47,10 @@ internal sealed class MotherBrainHead
     }
 
     /// <summary>Sets Mother Brain's head up when the room spawns it.</summary>
-    internal void InitializeMotherBrainHead(RoomEnemyPlace head)
+    internal MotherBrainEnemyState InitializeMotherBrainHead(RoomEnemyPlace head)
     {
         // The head joins the encounter her body, listed right before it, began; it holds it from here (#2218).
         MotherBrainEnemyState state = _places.ListedBefore(head, 1).RequireSpeciesState<MotherBrainEnemyState>();
-        head.SetSpeciesState(state);
 
         head.Health = MotherBrainFightDefinitions.FirstPhaseHealth;
         // The head shows her brain's hit area from its next animation update on (#2220); the visible brain runs a
@@ -60,6 +59,7 @@ internal sealed class MotherBrainHead
         head.Contact = head.Contact.With(EnemyContact.BlocksPlasmaBeam);
         head.Presence = head.Presence.With(EnemyPresence.Hidden);
         MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.WholeHeadMouthClosed);
+        return state;
     }
 
     /// <summary>

@@ -12,10 +12,10 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// <param name="common">The shared participation.</param>
 /// <param name="opening">The animation the door starts in, for the way it faces.</param>
 internal sealed class CeresDoorEntity(CeresDoorBehavior doors, RoomEnemyPlace place, EnemyCommonParticipation common, CeresDoorSegment opening)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
+    : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation
 {
-    /// <inheritdoc/>
-    public void Initialize() => doors.Start(Place, opening);
+    /// <summary>The door's or wall's animation, which it starts as it is built (#2554).</summary>
+    internal CeresDoorAnimationState State { get; } = doors.Start(place, opening);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => doors.EscapeQuake.Keep(EarthquakeReach.ForegroundBackgroundAndEnemies);

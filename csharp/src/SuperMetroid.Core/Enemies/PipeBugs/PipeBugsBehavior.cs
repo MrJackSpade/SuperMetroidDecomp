@@ -13,7 +13,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>A Brinstar Pipe Bug (Zeb or Zebbo), a Norfair one (Gamet) or a yellow one (Geega) (#2146).</summary>
     /// <exception cref="InvalidOperationException">The place holds no Pipe Bugs definition.</exception>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup)
     {
         EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
         if (definition is EnemyDefinitionId.Zeb or EnemyDefinitionId.Zebbo)
@@ -40,15 +40,15 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Brinstar Pipe Bug.</summary>
-    internal static void InitializeBrinstarPipeBug(RoomEnemyPlace place)
+    internal static BrinstarPipeBugState InitializeBrinstarPipeBug(RoomEnemyPlace place)
     {
         var state = new BrinstarPipeBugState(BrinstarPipeBugAction.WaitUntilOnScreen);
-        place.SetSpeciesState(state);
         state.SpawnPosition = place.Position.Whole;
         state.EmergenceTopY = state.SpawnPosition.Y - PipeBugDefinitions.BrinstarEmergenceHeight;
         state.RespawnDelay = UpdateCountdown.For(PipeBugDefinitions.BrinstarRespawnWait);
         state.Playback = new AnimationPlayback<PipeBugSegment>(PipeBugAnimations.StartingWith(
             PipeBugAnimationChoices.Rising(KindOf(place), HorizontalDirection.Left)), AnimationPlace.StartOfAnimation);
+        return state;
     }
 
     /// <summary>Which Brinstar Pipe Bug <paramref name="place"/> holds: the ordinary Zeb or the strong Zebbo.</summary>
@@ -60,30 +60,30 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// last, completes the formation, which is checked once then.
     /// </summary>
     /// <exception cref="InvalidDataException">The formation's last member completes a formation whose members are not all Norfair Pipe Bugs.</exception>
-    internal void InitializeNorfairPipeBug(RoomEnemyPlace place)
+    internal NorfairPipeBugState InitializeNorfairPipeBug(RoomEnemyPlace place)
     {
         // Only the formation's leader has a trigger width; it leads the four its room lists after it.
         if (place.SpawnSettings<NorfairPipeBugSpawnSettings>() is NorfairPipeBugLeaderSpawnSettings)
             _formations.Place(place, NorfairPipeBugFormation.LedBy(_places, place));
         CheckNorfairPipeBugFormationCompletedBy(place);
         var state = new NorfairPipeBugState(NorfairPipeBugAction.WaitForFormation);
-        place.SetSpeciesState(state);
         state.SpawnPosition = place.Position.Whole;
         place.Presence = place.Presence.With(EnemyPresence.Hidden);
         state.Playback = EnemyAnimationPlayback.Start(place, PipeBugAnimations.StartingWith(PipeBugSegment.GametRisingLeft));
+        return state;
     }
 
     /// <summary>Initializes the yellow Brinstar Pipe Bug.</summary>
-    internal static void InitializeYellowPipeBug(RoomEnemyPlace place)
+    internal static YellowPipeBugState InitializeYellowPipeBug(RoomEnemyPlace place)
     {
         var state = new YellowPipeBugState(YellowPipeBugAction.WaitForSamus);
-        place.SetSpeciesState(state);
         state.SpawnPosition = place.Position.Whole;
         place.Position = place.Position.WithoutFractions();
         state.Playback = EnemyAnimationPlayback.Start(place, PipeBugAnimations.StartingWith(
             place.SpawnSettings<YellowPipeBugSpawnSettings>().Facing == HorizontalDirection.Left
                 ? PipeBugSegment.GeegaFlyingLeft
                 : PipeBugSegment.GeegaFlyingRight));
+        return state;
     }
 
     /// <summary>Runs a Brinstar Pipe Bug's action.</summary>

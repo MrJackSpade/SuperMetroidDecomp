@@ -14,7 +14,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Skree];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new SkreeEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new SkreeEntity(this, place, common);
 
     /// <summary>Queues the dive and floor-impact sound requests at their AI transitions.</summary>
     private readonly EnemyAudioQueue _audio;
@@ -34,11 +34,11 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Starts a Skree in its idle action and initial shared animation.</summary>
-    internal static void InitializeSkree(RoomEnemyPlace place)
+    internal static SkreeEnemyState InitializeSkree(RoomEnemyPlace place)
     {
         var state = new SkreeEnemyState(SkreeAction.Idling);
-        place.SetSpeciesState(state);
         state.Playback = new(SkreeMetareeAnimations.StartingWith(SkreeMetareeSegment.SkreeIdling), AnimationPlace.StartOfAnimation);
+        return state;
     }
 
     /// <summary>Winds up near Samus, dives when the wind-up cue is ready, then burrows after floor contact.</summary>

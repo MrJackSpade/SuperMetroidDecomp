@@ -14,7 +14,7 @@ internal sealed class OumBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Oum];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new OumEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new OumEntity(this, place, common);
 
     /// <summary>Resolves floor, ledge, and wall contact during bounce and roll phases.</summary>
     private readonly EnemyTerrain _terrain;
@@ -33,7 +33,7 @@ internal sealed class OumBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Oum.</summary>
-    internal static void InitializeOum(RoomEnemyPlace place)
+    internal static OumEnemyState InitializeOum(RoomEnemyPlace place)
     {
         var state = new OumEnemyState(OumAction.Idle, OumBouncePhase.Falling)
         {
@@ -43,11 +43,11 @@ internal sealed class OumBehavior : IEnemySpecies, IEnemyEntityFactory
             Heading = HorizontalDirection.Right,
             RemainingBounces = OumMotionDefinitions.SettlingBounces,
         };
-        place.SetSpeciesState(state);
 
         // The spawn's left-facing idle disagrees with the right-facing Oum it counts as (ShowsSpawnIdle), which is
         // observable until the snail first starts an animation.
         state.Playback = new(OumAnimations.StartingWith(OumSegment.FacingLeftIdle), AnimationPlace.StartOfAnimation);
+        return state;
     }
 
     /// <summary>

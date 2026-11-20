@@ -13,7 +13,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Dessgeega, EnemyDefinitionId.DessgeegaLarge, EnemyDefinitionId.Sidehopper, EnemyDefinitionId.SidehopperLarge, EnemyDefinitionId.SidehopperTourian];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new HoppersEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new HoppersEntity(this, place, common);
 
     /// <summary>Supplies the shared RNG seed consumed during Hopper initialization.</summary>
     private readonly EnemyRoomBinding _room;
@@ -54,7 +54,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Hopper.</summary>
-    internal void InitializeHopper(RoomEnemyPlace place)
+    internal HopperEnemyState InitializeHopper(RoomEnemyPlace place)
     {
         HopperKind kind = HopperAnimationChoices.KindOf(place.DefinitionId);
         // The placement's reseed is followed by a draw it never reads, which later consumers observe.
@@ -65,9 +65,9 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             Kind = kind,
         };
-        place.SetSpeciesState(state);
 
         SetHopperAnimation(place, state, ReadHopperAnimation(place, state, HopperPhase.Landed));
+        return state;
     }
 
     /// <summary>Runs the Hopper's current action.</summary>

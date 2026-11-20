@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal sealed class MotherBrainTubesEntity(MotherBrainBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
     : MotherBrainEntity(species, place, common)
 {
-    /// <inheritdoc/>
-    public override void Initialize() => MotherBrainFakeDeath.InitializeMotherBrainFallingTube(Place);
+    /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
+    internal MotherBrainFallingTubeState State { get; } = MotherBrainFakeDeath.InitializeMotherBrainFallingTube(place);
 
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) => Species.FakeDeath.RunMotherBrainFallingTubeMain(Place);

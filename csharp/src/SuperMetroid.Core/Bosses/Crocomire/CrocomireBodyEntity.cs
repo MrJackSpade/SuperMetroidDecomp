@@ -17,11 +17,11 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 internal sealed class CrocomireBodyEntity(CrocomireBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
     : CrocomireEntity(species, place, common), IEnemyNormalBombAdmission, IBossBodyFrames
 {
-    /// <inheritdoc/>
-    public override void Initialize() => Species.Fight.InitializeCrocomire(Place);
+    /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
+    internal CrocomireEnemyState State { get; } = species.Fight.InitializeCrocomire(place);
 
     /// <summary>The encounter the body set up.</summary>
-    internal override CrocomireEnemyState Encounter => Place.RequireSpeciesState<CrocomireEnemyState>();
+    internal override CrocomireEnemyState Encounter => State;
 
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) => Species.RunCrocomireMainAi(Place, frame);

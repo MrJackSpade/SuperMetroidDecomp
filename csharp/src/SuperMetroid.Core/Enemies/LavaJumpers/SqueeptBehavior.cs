@@ -10,7 +10,7 @@ internal sealed class SqueeptBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Squeept];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) =>
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) =>
         Ensure.NotNull(place).SpawnSettings<EnemyFollowerSpawnSettings>().Role == EnemyFollowerRole.Follower
             ? new NorfairLavaJumperFollowerEntity(this, place, common)
             : new SqueeptEntity(this, place, common);
@@ -34,28 +34,29 @@ internal sealed class SqueeptBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes a lava jumper's cosmetic follower.</summary>
-    internal void InitializeNorfairLavaJumperFollower(RoomEnemyPlace place)
+    internal NorfairLavaJumperFollowerState InitializeNorfairLavaJumperFollower(RoomEnemyPlace place)
     {
         // Every room with it places this cosmetic second half immediately after its moving parent, which it
         // finds when it is placed and follows from then on; a population that places anything else there is refused.
-        place.SetSpeciesState(new NorfairLavaJumperFollowerState
+        var state = new NorfairLavaJumperFollowerState
         {
             Playback = new(NorfairLavaJumperAnimations.StartingWith(NorfairLavaJumperSegment.Follower), AnimationPlace.StartOfAnimation),
-        });
+        };
         _parents.Place(place, _places.ListedBefore(place, 1));
         ValidateSqueeptParent(place);
+        return state;
     }
 
     /// <summary>Initializes a jumping lava jumper, hidden in the lava at its population position.</summary>
-    internal static void InitializeSqueept(RoomEnemyPlace place)
+    internal static SqueeptState InitializeSqueept(RoomEnemyPlace place)
     {
         var state = new SqueeptState(SqueeptAction.BeginJump);
-        place.SetSpeciesState(state);
 
         // The jumping parent returns to exactly these whole population coordinates after every arc; where it lies
         // within a pixel carries over from one jump to the next.
         state.SpawnPosition = place.Position.Whole;
         state.Playback = new(NorfairLavaJumperAnimations.StartingWith(NorfairLavaJumperSegment.Hidden), AnimationPlace.StartOfAnimation);
+        return state;
     }
 
     /// <summary>

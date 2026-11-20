@@ -13,7 +13,7 @@ internal sealed class GerutaBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Geruta];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) =>
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) =>
         Ensure.NotNull(place).SpawnSettings<EnemyFollowerSpawnSettings>().Role == EnemyFollowerRole.Follower
             ? new GerutaFollowerEntity(this, place, common)
             : new GerutaEntity(this, place, common);
@@ -40,25 +40,27 @@ internal sealed class GerutaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes a flame follower: it finds its parent, listed right before it, and starts its ascending flames.</summary>
-    internal void InitializeGerutaFollower(RoomEnemyPlace place)
+    internal GerutaFollowerState InitializeGerutaFollower(RoomEnemyPlace place)
     {
         _parents.Place(place, _places.ListedBefore(place, 1));
         ValidateGerutaParent(place);
-        place.SetSpeciesState(new GerutaFollowerState
+        var state = new GerutaFollowerState
         {
             Playback = new(GerutaAnimations.StartingWith(GerutaSegment.FlamesAscending), AnimationPlace.StartOfAnimation),
-        });
+        };
+        return state;
     }
 
     /// <summary>Initializes a Geruta parent, idle and waiting for its chance to attack.</summary>
-    internal static void InitializeGeruta(RoomEnemyPlace place)
+    internal static GerutaEnemyState InitializeGeruta(RoomEnemyPlace place)
     {
-        place.SetSpeciesState(new GerutaEnemyState(GerutaAction.WaitForAttackOpportunity)
+        var state = new GerutaEnemyState(GerutaAction.WaitForAttackOpportunity)
         {
             FollowerYOffset = 0,
             Flames = GerutaFlames.Ascending,
             Playback = new(GerutaAnimations.StartingWith(GerutaSegment.Idle), AnimationPlace.StartOfAnimation),
-        });
+        };
+        return state;
     }
 
     /// <summary>

@@ -9,14 +9,14 @@ namespace SuperMetroid.Core.Enemies.Boyon;
 /// <param name="place">The place the Boyon occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class BoyonEntity(BoyonBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
+    : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation
 {
-    /// <inheritdoc/>
-    public void Initialize() => BoyonBehavior.InitializeBoyon(Place);
+    /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
+    internal BoyonEnemyState State { get; } = BoyonBehavior.InitializeBoyon(place);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) =>
-        BoyonBehavior.RunBoyonMain(Place, Place.RequireSpeciesState<BoyonEnemyState>(), frame.Samus);
+        BoyonBehavior.RunBoyonMain(Place, State, frame.Samus);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceBoyonAnimation(Place, context);

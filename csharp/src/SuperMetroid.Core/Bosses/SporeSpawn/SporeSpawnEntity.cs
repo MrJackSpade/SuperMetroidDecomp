@@ -7,10 +7,10 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class SporeSpawnEntity(SporeSpawnBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IEnemyPrivateShotReaction
+    : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IEnemyPrivateShotReaction
 {
-    /// <inheritdoc/>
-    public void Initialize() => species.InitializeSporeSpawn(Place);
+    /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
+    internal SporeSpawnEnemyState State { get; } = species.InitializeSporeSpawn(place);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunSporeSpawnMainAi(Place, Encounter);
@@ -20,7 +20,7 @@ internal sealed class SporeSpawnEntity(SporeSpawnBehavior species, RoomEnemyPlac
 
     /// <summary>The encounter his body holds from its initialization (#2231), which his own reactions act on (#2420).</summary>
     /// <exception cref="InvalidOperationException">The body has not initialized.</exception>
-    internal SporeSpawnEnemyState Encounter => Place.RequireSpeciesState<SporeSpawnEnemyState>();
+    internal SporeSpawnEnemyState Encounter => State;
 
     /// <summary>His own shot reaction, which resolves the rest of a shot on this encounter after the common damage.</summary>
     private EnemyShotReaction OwnShotReaction => field ??= species.SporeSpawnShotReactionOf(this);

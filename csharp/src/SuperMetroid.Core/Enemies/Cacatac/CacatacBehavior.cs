@@ -13,7 +13,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Cacatac];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new CacatacEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new CacatacEntity(this, place, common);
 
     /// <summary>Supplies shared room RNG for the three-in-256 spike attack gate.</summary>
     private readonly EnemyRoomBinding _room;
@@ -52,7 +52,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Cacatac.</summary>
-    internal static void InitializeCacatac(RoomEnemyPlace place)
+    internal static CacatacEnemyState InitializeCacatac(RoomEnemyPlace place)
     {
         CacatacSpawnSettings settings = place.SpawnSettings<CacatacSpawnSettings>();
         bool onFloor = settings.Mounting == CacatacMounting.Floor;
@@ -73,8 +73,8 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
             RightPatrolX = spawnX + settings.TravelDistance,
             LeftPatrolX = spawnX - settings.TravelDistance,
         };
-        place.SetSpeciesState(state);
         SetCacatacAnimation(place, state, onFloor ? CacatacSegment.OnFloorIdle : CacatacSegment.OnCeilingIdle);
+        return state;
     }
 
     /// <summary>Runs a Cacatac for one update through its three actions.</summary>

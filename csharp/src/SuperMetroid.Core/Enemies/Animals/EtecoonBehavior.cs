@@ -16,7 +16,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Etecoon];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new EtecoonEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new EtecoonEntity(this, place, common);
 
     /// <summary>Probes the floor, walls, and ceiling throughout the teaching route.</summary>
     private readonly EnemyTerrain _terrain;
@@ -43,17 +43,17 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         samus.Position.X.Whole >= EtecoonRouteDefinitions.AudibleFromSamusX;
 
     /// <summary>Initializes the Etecoon.</summary>
-    internal static void InitializeEtecoon(RoomEnemyPlace place)
+    internal static EtecoonEnemyState InitializeEtecoon(RoomEnemyPlace place)
     {
         // The placement must name the route, which the Etecoon reads where it takes it (#2531).
         _ = place.SpawnSettings<EtecoonSpawnSettings>();
         var state = new EtecoonEnemyState(EtecoonAction.Dormant);
-        place.SetSpeciesState(state);
 
         // The setup makes the Etecoon animate, whether or not its placement does.
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
         place.Frame = EnemyFrameId.Empty;
         state.Playback = EnemyAnimationPlayback.Start(place, EtecoonAnimations.StartingWith(EtecoonSegment.StartingCrouch));
+        return state;
     }
 
     /// <summary>Runs an Etecoon for one update and its actions.</summary>

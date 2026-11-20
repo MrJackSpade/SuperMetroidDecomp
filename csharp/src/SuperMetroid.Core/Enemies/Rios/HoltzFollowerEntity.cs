@@ -8,10 +8,10 @@ namespace SuperMetroid.Core.Enemies.Rios;
 /// <param name="place">The place the follower occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class HoltzFollowerEntity(HoltzBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
+    : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation
 {
-    /// <inheritdoc/>
-    public void Initialize() => species.InitializeHoltzFollower(Place);
+    /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
+    internal HoltzFollowerState State { get; } = species.InitializeHoltzFollower(place);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunHoltzFollowerMainAi(Place);

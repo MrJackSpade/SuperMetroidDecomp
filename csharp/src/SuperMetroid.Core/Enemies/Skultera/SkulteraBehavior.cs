@@ -12,7 +12,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Skultera];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new SkulteraEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new SkulteraEntity(this, place, common);
 
     /// <summary>The room's blocks Skultera's horizontal and vertical swim steps meet.</summary>
     private readonly EnemyTerrain _terrain;
@@ -42,13 +42,12 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
 
 
     /// <summary>Initializes the Skultera.</summary>
-    internal static void InitializeSkultera(RoomEnemyPlace place)
+    internal static SkulteraEnemyState InitializeSkultera(RoomEnemyPlace place)
     {
         // The placement names the way it starts swimming and the speed it swims at either way.
         SkulteraSpawnSettings settings = place.SpawnSettings<SkulteraSpawnSettings>();
         bool startsLeft = settings.StartDirection == HorizontalDirection.Left;
         var state = new SkulteraEnemyState(SkulteraAction.Swimming, settings.StartDirection);
-        place.SetSpeciesState(state);
 
         state.Playback = new(SkulteraAnimations.StartingWith(startsLeft
             ? SkulteraSegment.SwimmingLeft
@@ -56,6 +55,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.Angle = RotationAngle.Zero;
         state.PreviousYOffset = EnemyMath.CircleNegativeSinePixels(state.Angle.ToTrigonometryAngle(), settings.Radius);
+        return state;
     }
 
     /// <summary>Runs the Skultera's main AI.</summary>

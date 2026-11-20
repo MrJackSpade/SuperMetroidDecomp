@@ -18,7 +18,7 @@ internal sealed class RidleyEntityFactory(NorfairRidleyBehavior norfair, CeresRi
 
     /// <summary>Lower Norfair Ridley, Ceres Ridley, or a piece of the breakup explosion (#2146).</summary>
     /// <exception cref="InvalidOperationException">The place holds no Ridley definition.</exception>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup)
     {
         EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
         if (definition == EnemyDefinitionId.Ridley)

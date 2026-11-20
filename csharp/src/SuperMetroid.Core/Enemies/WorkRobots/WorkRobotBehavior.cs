@@ -20,7 +20,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     /// states once Phantoon is defeated, so it always has power (#2455).
     /// </summary>
     /// <exception cref="InvalidOperationException">The place holds no work robot definition.</exception>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup)
     {
         EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
         if (definition == EnemyDefinitionId.WorkRobot)
@@ -71,10 +71,9 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     internal PictureShading Glow => PictureShading.Shaded(WorkRobotShades.Glow(GlowPlace));
 
     /// <summary>Initializes a powered robot.</summary>
-    internal void InitializePoweredWorkRobot(RoomEnemyPlace place)
+    internal WorkRobotEnemyState InitializePoweredWorkRobot(RoomEnemyPlace place)
     {
         var state = new WorkRobotEnemyState();
-        place.SetSpeciesState(state);
         _poweredRobots.Add(place);
 
         // A powered robot is solid to Samus and animates; its placements already process it off screen in every
@@ -90,6 +89,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         // robot, and only a powered robot, shows it (#1512).
         RestartGlow();
         place.Shading = Glow;
+        return state;
     }
 
     /// <summary>

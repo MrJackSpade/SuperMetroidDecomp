@@ -11,15 +11,15 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Sbug];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new SbugEntity(place, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new SbugEntity(place, common);
 
     /// <summary>Initializes the Sbug.</summary>
-    internal static void InitializeSbug(RoomEnemyPlace place)
+    internal static SbugEnemyState InitializeSbug(RoomEnemyPlace place)
     {
         // A new Sbug plays no animation until it selects its first direction.
         var state = new SbugEnemyState(SbugAction.WaitForSamus);
-        place.SetSpeciesState(state);
         SetSbugFacing(place, state, ForwardLeg(place).Facing);
+        return state;
     }
 
     /// <summary>

@@ -10,7 +10,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Owtch];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new OwtchEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new OwtchEntity(this, place, common);
 
     /// <summary>Supplies the shared room random sequence used for burial and emergence.</summary>
     private readonly EnemyRoomBinding _room;
@@ -26,7 +26,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
         SetOwtchMoving(state, cue.Direction == HorizontalDirection.Left ? OwtchBehaviorState.MovingLeft : OwtchBehaviorState.MovingRight);
 
     /// <summary>Initializes the Owtch.</summary>
-    internal static void InitializeOwtch(RoomEnemyPlace place)
+    internal static OwtchEnemyState InitializeOwtch(RoomEnemyPlace place)
     {
         OwtchSpawnSettings settings = place.SpawnSettings<OwtchSpawnSettings>();
         var state = new OwtchEnemyState
@@ -36,13 +36,13 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
             MinimumX = place.Position.X.Whole - settings.TravelDistance,
             MaximumX = place.Position.X.Whole + settings.TravelDistance,
         };
-        place.SetSpeciesState(state);
         SetOwtchAnimation(place, state, InitialAnimation(settings.InitialBehavior));
 
         // An Owtch placed underground starts buried: it moves down by whole pixels only, to the same sixteen-pixel depth
         // sinking reaches.
         if (state.Behavior == OwtchBehaviorState.Underground)
             place.Position = place.Position.WithWholeY(place.Position.Y.Whole + OwtchMovementDefinitions.MaximumBurialDepth);
+        return state;
     }
 
     /// <summary>Runs the Owtch's current behaviour.</summary>

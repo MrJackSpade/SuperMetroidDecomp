@@ -19,7 +19,13 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.TourianStatue];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new TourianEntranceStatueEntity(this, place, common);
+    /// <remarks>The placement joins the scene's occupants and spawns its decorations as it is built (#2554).</remarks>
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup)
+    {
+        var occupant = new TourianEntranceStatueEntity(this, place, common);
+        InitializeTourianEntranceStatue(occupant);
+        return occupant;
+    }
 
     /// <summary>Spawns the scene's decorations and its unlock effects.</summary>
     private readonly EnemyProjectileEngine _projectiles;

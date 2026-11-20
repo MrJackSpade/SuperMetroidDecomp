@@ -12,7 +12,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Fireflea];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new FirefleaEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new FirefleaEntity(this, place, common);
 
     /// <summary>Runs common touch handling before Fireflea's unconditional death call.</summary>
     private readonly EnemyCollision _collision;
@@ -30,7 +30,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Fireflea from its flight and radius.</summary>
-    internal static void InitializeFireflea(RoomEnemyPlace place)
+    internal static FirefleaEnemyState InitializeFireflea(RoomEnemyPlace place)
     {
         FirefleaSpawnSettings settings = place.SpawnSettings<FirefleaSpawnSettings>();
         FirefleaFlightState flight = settings.Flight switch
@@ -39,10 +39,11 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
             FirefleaFlight.Bobbing bobbing => StartBobbing(place, bobbing, settings.Radius),
             _ => throw new InvalidOperationException($"Undefined {nameof(FirefleaFlight)} {settings.Flight}."),
         };
-        place.SetSpeciesState(new FirefleaEnemyState(flight)
+        var state = new FirefleaEnemyState(flight)
         {
             Playback = new(FirefleaAnimations.StartingWith(FirefleaSegment.BrightestWingbeat), AnimationPlace.StartOfAnimation),
-        });
+        };
+        return state;
     }
 
     /// <summary>Starts a circling Fireflea on its circle about where it spawned, at the circle's zero angle.</summary>

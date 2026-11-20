@@ -12,7 +12,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Shaktool];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new ShaktoolEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new ShaktoolEntity(this, place, common);
 
     /// <summary>Checks terrain collisions along each segment's orbit and attack path.</summary>
     private readonly EnemyTerrain _terrain;
@@ -36,12 +36,11 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         (angle + RotationAngle.HalfTurn).WholeStep;
 
     /// <summary>Initializes the Shaktool, establishing the segment's orbit and its place in its chain.</summary>
-    internal void InitializeShaktool(RoomEnemyPlace place)
+    internal ShaktoolSegmentState InitializeShaktool(RoomEnemyPlace place)
     {
         ShaktoolSpawnSettings settings = place.SpawnSettings<ShaktoolSpawnSettings>();
         ShaktoolSegmentDefinition definition = settings.Segment;
         var state = new ShaktoolSegmentState();
-        place.SetSpeciesState(state);
 
         place.AnimationClock.Restart();
         state.ResetOrientation();
@@ -75,6 +74,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         // unrelated center.
         if (definition != ShaktoolSegmentDefinitions.LeadingSaw)
             PositionShaktoolAroundPreviousSegment(place, state);
+        return state;
     }
 
     /// <summary>

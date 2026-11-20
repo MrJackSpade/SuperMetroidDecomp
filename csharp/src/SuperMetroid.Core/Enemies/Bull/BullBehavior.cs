@@ -11,7 +11,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Bull];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new BullEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new BullEntity(this, place, common);
 
     /// <summary>Hands each new Bull the previous Bull in its place, whose shot-reaction guard it inherits.</summary>
     private readonly PlaceInheritance<BullEnemyState> _inheritance;
@@ -21,16 +21,16 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
     internal BullBehavior(PlaceInheritance<BullEnemyState> inheritance) => _inheritance = inheritance;
 
     /// <summary>Initializes the Bull.</summary>
-    internal void InitializeBull(RoomEnemyPlace place)
+    internal BullEnemyState InitializeBull(RoomEnemyPlace place)
     {
         BullEnemyState state = _inheritance.Inherit(place.Ordinal, static previous => new BullEnemyState(previous, BullAction.MovementDelay));
-        place.SetSpeciesState(state);
 
         state.Playback = EnemyAnimationPlayback.Start(place, BullAnimations.StartingWith(BullSegment.Idle));
 
         BullSpawnSettings settings = place.SpawnSettings<BullSpawnSettings>();
         state.AccelerationIntervalTimer = UpdateCountdown.For(settings.Intervals.Acceleration);
         state.ActivationTimer = UpdateCountdown.For(BullMovementDefinitions.MovementDelay);
+        return state;
     }
 
     /// <summary>Runs a Bull for one update through all four of its actions.</summary>

@@ -16,10 +16,10 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>The Magdollite part the placement names: its head, rising body or tracking overlay (#2342, #2474).</summary>
     /// <exception cref="InvalidOperationException">The placement names no Magdollite part.</exception>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) =>
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) =>
         Ensure.NotNull(place).SpawnSettings<MagdolliteSpawnSettings>() switch
         {
-            MagdolliteHeadSpawnSettings => new MagdolliteHeadEntity(this, place, common),
+            MagdolliteHeadSpawnSettings => new MagdolliteHeadEntity(this, place, common, setup),
             MagdolliteBodySpawnSettings => new MagdolliteBodyEntity(this, place, common),
             MagdolliteOverlaySpawnSettings => new MagdolliteOverlayEntity(this, place, common),
             var part => throw new InvalidOperationException($"Undefined Magdollite part {part}."),
@@ -108,45 +108,45 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Places the head and starts it in its idle animation, facing Samus.</summary>
-    internal void InitializeMagdolliteHead(
+    internal MagdolliteHeadState InitializeMagdolliteHead(
         RoomEnemyPlace place,
         SamusState samus)
     {
         PlaceMagdollitePart(place, placesAfterHead: 0);
         var state = new MagdolliteHeadState(MagdolliteHeadAction.Waiting);
-        place.SetSpeciesState(state);
         state.OriginY = place.Position.Y.Whole;
 
         HorizontalDirection samusSide = (samus.Position.Whole - place.Position.Whole).X < 0 ? HorizontalDirection.Left : HorizontalDirection.Right;
         StartMagdolliteAnimation(place, state, samusSide == HorizontalDirection.Left ? MagdolliteSegment.LeftIdle : MagdolliteSegment.RightIdle);
         FinishPlacingMagdollitePart();
+        return state;
     }
 
     /// <summary>Places the rising body, hidden 32 pixels below its origin until the head triggers an attack.</summary>
-    internal void InitializeMagdolliteBody(RoomEnemyPlace place)
+    internal MagdolliteBodyState InitializeMagdolliteBody(RoomEnemyPlace place)
     {
         PlaceMagdollitePart(place, MagdollitePartListingDefinitions.BodyPlacesAfterHead);
         var state = new MagdolliteBodyState(MagdolliteBodyAction.Dormant);
-        place.SetSpeciesState(state);
         state.OriginY = place.Position.Y.Whole;
         StartMagdolliteAnimation(place, state, MagdolliteRiseStage.Setup.Phase.BodyAnimation);
         place.Position = place.Position.WithWholeY(place.Position.Y.Whole + MagdolliteMotionDefinitions.HiddenDepth);
         place.Presence = place.Presence.With(EnemyPresence.Hidden);
         FinishPlacingMagdollitePart();
+        return state;
     }
 
     /// <summary>Places the projectile-throwing overlay, hidden below its origin, and starts its pillar-cap animation.</summary>
-    internal void InitializeMagdolliteOverlay(RoomEnemyPlace place)
+    internal MagdolliteOverlayState InitializeMagdolliteOverlay(RoomEnemyPlace place)
     {
         PlaceMagdollitePart(place, MagdollitePartListingDefinitions.OverlayPlacesAfterHead);
         var state = new MagdolliteOverlayState(MagdolliteOverlayAction.WaitingForAttack);
-        place.SetSpeciesState(state);
         state.OriginY = place.Position.Y.Whole;
         state.AttackCooldown = UpdateCountdown.For(MagdolliteMotionDefinitions.AttackPollWait);
         StartMagdolliteAnimation(place, state, MagdolliteSegment.PillarCap);
         place.Position = place.Position.WithWholeY(place.Position.Y.Whole + MagdolliteMotionDefinitions.HiddenDepth);
         place.Presence = place.Presence.With(EnemyPresence.Hidden);
         FinishPlacingMagdollitePart();
+        return state;
     }
 
     /// <summary>Runs the head's current action.</summary>

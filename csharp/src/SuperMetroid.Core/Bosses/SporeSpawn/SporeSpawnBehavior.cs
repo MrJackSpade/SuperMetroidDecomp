@@ -20,7 +20,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.SporeSpawn];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new SporeSpawnEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new SporeSpawnEntity(this, place, common);
 
     /// <summary>Provides boss event state, installed colors, and the room RNG.</summary>
     private readonly EnemyRoomBinding _room;
@@ -64,7 +64,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         _audio.QueueEnemySound(sound, SoundRequestPriority.Normal);
 
     /// <summary>Sets Spore Spawn up when the room spawns it; his body holds his encounter from here on (#2231).</summary>
-    internal void InitializeSporeSpawn(RoomEnemyPlace body)
+    internal SporeSpawnEnemyState InitializeSporeSpawn(RoomEnemyPlace body)
     {
         var state = new SporeSpawnEnemyState
         {
@@ -72,7 +72,6 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             StalkAnchor = body.Position.Whole + SporeSpawnArenaDefinitions.StalkAnchorAboveBody,
             MovementCenter = body.Position.Whole,
         };
-        body.SetSpeciesState(state);
         _presentation.BossShadings.Show(BossShadingLayer.SporeSpawn, state.Colours);
 
         // His spores' colours, which he loads as he initializes, are the import's shade of them (#1512).
@@ -87,7 +86,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             body.Contact = body.Contact.With(EnemyContact.SolidToSamus);
             UpdateSporeSpawnStalks(body, state);
             PublishSporeSpawnObject(SporeSpawnCeilingMutation.Clear);
-            return;
+            return state;
         }
 
         state.BodyPlayback = new AnimationPlayback<SporeSpawnBodySegment>(SporeSpawnAnimations.StartingWith(SporeSpawnBodySegment.AwaitingDescent), AnimationPlace.StartOfAnimation);
@@ -99,6 +98,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         foreach (SporeSpawnEmitter emitter in SporeSpawnProjectileDefinitions.Emitters)
             SpawnSporeSpawnSpawner(body, state, emitter);
         UpdateSporeSpawnStalks(body, state);
+        return state;
     }
 
     /// <summary>Runs Spore Spawn's movement for one update.</summary>

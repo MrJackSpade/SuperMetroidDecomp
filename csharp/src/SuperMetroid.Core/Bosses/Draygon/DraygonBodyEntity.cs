@@ -14,11 +14,11 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 internal sealed class DraygonBodyEntity(DraygonBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
     : DraygonEntity(species, place, common, bossArtwork), IEnemyPrivateShotReaction
 {
-    /// <inheritdoc/>
-    public override void Initialize() => Species.Parts.InitializeDraygonBody(Place);
+    /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
+    internal DraygonEnemyState State { get; } = species.Parts.InitializeDraygonBody(place);
 
     /// <summary>The body's part of the encounter it set up.</summary>
-    internal override DraygonPart Part => Place.RequireSpeciesState<DraygonEnemyState>().BodyPart;
+    internal override DraygonPart Part => State.BodyPart;
 
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) => Species.RunDraygonBodyMainAi(Place, frame);

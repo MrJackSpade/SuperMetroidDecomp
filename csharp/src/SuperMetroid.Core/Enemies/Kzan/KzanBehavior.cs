@@ -12,7 +12,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>A Kzan's top, or the bottom that follows it (#2146).</summary>
     /// <exception cref="InvalidOperationException">The place holds no Kzan definition.</exception>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup)
     {
         EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
         if (definition == EnemyDefinitionId.KzanTop)
@@ -38,10 +38,9 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the top's idle animation, fall speed, fall distance and wait timer from its spawn settings.</summary>
-    internal static void InitializeKzanTop(RoomEnemyPlace place)
+    internal static KzanEnemyState InitializeKzanTop(RoomEnemyPlace place)
     {
         var state = new KzanEnemyState(KzanAction.WaitingToFall);
-        place.SetSpeciesState(state);
 
         state.Playback = EnemyAnimationPlayback.Start(place, KzanAnimations.StartingWith(KzanSegment.Idle));
 
@@ -55,6 +54,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         state.FallingTargetY = spawnY + place.SpawnSettings<KzanSpawnSettings>().FallDistance;
         state.RisingTargetY = spawnY;
         state.FallWaitTimer = WrappingCountdown.Start(place.SpawnSettings<KzanSpawnSettings>().FallWait);
+        return state;
     }
 
     /// <summary>Places the lower actor twelve pixels below the preceding top during setup.</summary>

@@ -14,7 +14,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>The grapple Ripper, the ordinary Ripper or the jet Ripper (#2146).</summary>
     /// <exception cref="InvalidOperationException">The place holds no Ripper definition.</exception>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup)
     {
         EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
         if (definition == EnemyDefinitionId.GrappleRipper)

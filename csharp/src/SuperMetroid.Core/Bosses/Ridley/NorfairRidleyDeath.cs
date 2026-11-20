@@ -198,7 +198,7 @@ internal sealed class NorfairRidleyDeath
     }
 
     /// <summary>Sets up one of the breakup's twelve pieces from the breakup it joined.</summary>
-    internal void InitializeNorfairRidleyExplosion(RoomEnemyPlace fragment)
+    internal RidleyExplosionFragmentState InitializeNorfairRidleyExplosion(RoomEnemyPlace fragment)
     {
         RidleyBreakupSource source = fragment.RequireSpeciesState<RidleyBreakupSource>();
         NorfairRidleyState state = source.Ridley;
@@ -229,7 +229,7 @@ internal sealed class NorfairRidleyDeath
             Picture = picture,
         };
         fragmentState.Lifetime.LastFor(RidleyExplosionDefinitions.LifetimeUpdates[part]);
-        fragment.SetSpeciesState(fragmentState);
+        return fragmentState;
     }
 
     /// <summary>Runs a breakup piece's update: flicker, drag, gravity, movement, and lifetime.</summary>

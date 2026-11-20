@@ -12,7 +12,7 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Waver];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new WaverEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new WaverEntity(this, place, common);
 
     /// <summary>Room collision service used to reflect horizontal motion and the sine wave on impact.</summary>
     private readonly EnemyTerrain _terrain;
@@ -41,7 +41,7 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Waver.</summary>
-    internal static void InitializeWaver(RoomEnemyPlace place)
+    internal static WaverEnemyState InitializeWaver(RoomEnemyPlace place)
     {
         HorizontalDirection facing = place.SpawnSettings<WaverSpawnSettings>().Facing;
         var state = new WaverEnemyState
@@ -50,12 +50,12 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
             Angle = RotationAngle.Zero,
             Action = WaverAction.Gliding,
         };
-        place.SetSpeciesState(state);
 
         // The setup first shows the left steady animation and then asks for the spawn's facing. Only right-facing
         // spawns therefore change it; left-facing spawns ask for the one playing and keep it.
         state.Playback = new(WaverAnimations.StartingWith(WaverSegment.SteadyFacingLeft), AnimationPlace.StartOfAnimation);
         SetWaverAnimation(place, state, WaverAnimationChoices.Steady(state.Facing));
+        return state;
     }
 
     /// <summary>Runs the Waver's main AI.</summary>

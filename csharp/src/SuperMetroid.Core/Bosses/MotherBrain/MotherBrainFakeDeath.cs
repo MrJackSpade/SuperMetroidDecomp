@@ -167,7 +167,7 @@ internal sealed class MotherBrainFakeDeath
     }
 
     /// <summary>Initializes a falling tube.</summary>
-    internal static void InitializeMotherBrainFallingTube(RoomEnemyPlace tube)
+    internal static MotherBrainFallingTubeState InitializeMotherBrainFallingTube(RoomEnemyPlace tube)
     {
         MotherBrainTubeSpawnSettings settings = tube.Spawn.Population.SpawnSettingsOf<MotherBrainTubeSpawnSettings>();
         MotherBrainTubePiece piece = settings.Piece;
@@ -181,7 +181,7 @@ internal sealed class MotherBrainFakeDeath
         // Only the main tube waits before it falls; the side tubes fall from their first update.
         if (main)
             state.FallDelay.LastFor(MotherBrainFallingTubePopulationDefinitions.MainFallWaitUpdates);
-        tube.SetSpeciesState(state);
+        return state;
     }
 
     /// <summary>Runs the actions of the falling tubes.</summary>

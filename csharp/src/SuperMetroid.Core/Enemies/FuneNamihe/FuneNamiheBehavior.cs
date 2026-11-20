@@ -16,7 +16,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Fune, EnemyDefinitionId.Namihe];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) =>
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) =>
         Ensure.NotNull(place).DefinitionId == EnemyDefinitionId.Namihe
             ? new NamiheEntity(this, place, common)
             : new FuneEntity(this, place, common);
@@ -60,19 +60,19 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Starts the Fune waiting on its cooldown and its idle animation, facing as its spawn settings say.</summary>
-    internal static void InitializeFune(RoomEnemyPlace place)
+    internal static FuneEnemyState InitializeFune(RoomEnemyPlace place)
     {
         var state = new FuneEnemyState(FuneAction.WaitForCooldown) { Cooldown = CooldownOf(place) };
-        place.SetSpeciesState(state);
         StartFuneNamiheAnimation(place, state);
+        return state;
     }
 
     /// <summary>Starts the Namihe waiting for Samus and its idle animation, facing as its spawn settings say.</summary>
-    internal static void InitializeNamihe(RoomEnemyPlace place)
+    internal static NamiheEnemyState InitializeNamihe(RoomEnemyPlace place)
     {
         var state = new NamiheEnemyState(NamiheAction.WaitForSamus);
-        place.SetSpeciesState(state);
         StartFuneNamiheAnimation(place, state);
+        return state;
     }
 
     /// <summary>

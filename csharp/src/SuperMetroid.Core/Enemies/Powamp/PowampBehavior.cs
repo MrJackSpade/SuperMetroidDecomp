@@ -20,7 +20,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     /// A Powamp's body or balloon, as the placement's settings name the part it is (#2163). The balloon shares the body's
     /// definition; only its placement tells them apart.
     /// </summary>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) =>
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) =>
         Ensure.NotNull(place).SpawnSettings<PowampSpawnSettings>().Part == PowampPart.Balloon
             ? new PowampBalloonEntity(this, place, common)
             : new PowampBodyEntity(this, place, common);
@@ -59,28 +59,28 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes a Powamp's balloon with its own state (#1845), deflated at its spawn.</summary>
-    internal static void InitializePowampBalloon(RoomEnemyPlace place)
+    internal static PowampBalloonState InitializePowampBalloon(RoomEnemyPlace place)
     {
         PrepareToAnimate(place);
         var balloon = new PowampBalloonState
         {
             Spawn = place.Position.Whole,
         };
-        place.SetSpeciesState(balloon);
         StartPowampBalloonAnimation(place, balloon, PowampSegment.BalloonDeflated);
+        return balloon;
     }
 
     /// <summary>Initializes a Powamp's body with its own state (#1845), resting, joined to the balloon its room lists before it.</summary>
-    internal void InitializePowampBody(RoomEnemyPlace place)
+    internal PowampBodyState InitializePowampBody(RoomEnemyPlace place)
     {
         PrepareToAnimate(place);
         var state = new PowampBodyState(PowampAction.DeflatedResting);
-        place.SetSpeciesState(state);
         // The body's balloon is the enemy its room lists before it, placed before it and checked once as the body is placed.
         _balloons.Place(place, _places.ListedBefore(place, 1));
         CheckPowampBalloonPlaced(place);
         state.ActionTimer = UpdateCountdown.For(PowampMotionDefinitions.RestDuration);
         state.Playback = StartPowampAnimation(place, PowampSegment.BodySlow);
+        return state;
     }
 
     /// <summary>Runs every action of a Powamp's body; the balloon has none, its body moves it.</summary>

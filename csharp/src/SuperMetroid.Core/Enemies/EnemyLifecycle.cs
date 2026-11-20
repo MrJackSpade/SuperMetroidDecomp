@@ -54,48 +54,18 @@ internal sealed class EnemyLifecycle : IEnemyLifecycle
         place.Shading = PictureShading.Standard;
     }
 
-    /// <summary>Runs the definition's initialization for a place the room's population load has just placed.</summary>
-    internal static void SetUpEnemy(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings)
-    {
-        Ensure.NotNull(surroundings);
-        switch (Ensure.NotNull(place).Entity)
-        {
-            case IEnemySurroundingsInitialization entity:
-                entity.Initialize(surroundings);
-                break;
-            case IEnemyInitialization entity:
-                entity.Initialize();
-                break;
-            default:
-                throw NoInitialization(place);
-        }
-    }
+    /// <summary>
+    /// Builds the enemy for a place the room's population load has just placed, with its state: its species'
+    /// initialization runs as it is built.
+    /// </summary>
+    internal static void SetUpEnemy(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings) =>
+        Ensure.NotNull(place).SetUp(new EnemySetup.Loaded(Ensure.NotNull(surroundings)));
 
     /// <summary>
-    /// Runs the definition's initialization for a place spawned on another enemy's behalf, or rebuilt by a respawn, which
-    /// has no population load's surroundings (#2455).
+    /// Builds the enemy for a place spawned on another enemy's behalf, or rebuilt by a respawn, which has no population
+    /// load's surroundings (#2455); its species' initialization runs as it is built.
     /// </summary>
-    /// <exception cref="InvalidDataException">
-    /// The place's enemy initializes from a population load's surroundings, which no such spawn has, or has no initialization.
-    /// </exception>
-    internal static void SetUpSpawnedEnemy(RoomEnemyPlace place)
-    {
-        switch (Ensure.NotNull(place).Entity)
-        {
-            case IEnemyInitialization entity:
-                entity.Initialize();
-                break;
-            case IEnemySurroundingsInitialization:
-                throw new InvalidDataException(
-                    $"Enemy {place.DefinitionId} initializes from a population load's surroundings, but was spawned on another enemy's behalf.");
-            default:
-                throw NoInitialization(place);
-        }
-    }
-
-    /// <summary>The failure for a place whose species has no initialization behaviour.</summary>
-    private static InvalidDataException NoInitialization(RoomEnemyPlace place) =>
-        new($"Enemy {place.DefinitionId} has no initialization behaviour.");
+    internal static void SetUpSpawnedEnemy(RoomEnemyPlace place) => Ensure.NotNull(place).SetUp(new EnemySetup.Spawned());
 
     /// <summary>Exposes setting up a listed enemy from its population entry to the enemy loader.</summary>
     void IEnemyLifecycle.InitializePlaceFromDefinition(
@@ -111,24 +81,24 @@ internal sealed class EnemyLifecycle : IEnemyLifecycle
 
     /// <inheritdoc/>
     RoomEnemyPlace? IEnemyLifecycle.SpawnEnemyJoining<TEncounter>(RoomEnemyPlacement population, TEncounter encounter) =>
-        Spawn(population, place => place.SetSpeciesState(Ensure.NotNull(encounter)));
+        Spawn(population, new EnemySetup.Joining<TEncounter>(Ensure.NotNull(encounter)));
 
     /// <summary>
-    /// Installs <paramref name="population"/> in the first free place, gives it what <paramref name="joining"/> installs (nothing for a plain spawn),
-    /// runs its initialization AI, starts its animation when it runs one and extends the live enemy range.
+    /// Installs <paramref name="population"/> in the first free place, builds its enemy as <paramref name="setup"/> sets it
+    /// up, which runs its initialization, starts its animation when it runs one and extends the live enemy range.
     /// </summary>
-    private RoomEnemyPlace? Spawn(RoomEnemyPlacement population, Action<RoomEnemyPlace> joining) =>
-        _places.FindFreePlace() is { } place ? SpawnAt(place, population, joining) : null;
+    private RoomEnemyPlace? Spawn(RoomEnemyPlacement population, EnemySetup setup) =>
+        _places.FindFreePlace() is { } place ? SpawnAt(place, population, setup) : null;
 
     /// <summary>
-    /// Installs <paramref name="population"/> in <paramref name="place"/>, a free one, gives it what <paramref name="joining"/>
-    /// installs, runs its initialization AI, starts its animation when it runs one and extends the live enemy range.
+    /// Installs <paramref name="population"/> in <paramref name="place"/>, a free one, builds its enemy as
+    /// <paramref name="setup"/> sets it up, which runs its initialization, starts its animation when it runs one and
+    /// extends the live enemy range.
     /// </summary>
-    private RoomEnemyPlace SpawnAt(RoomEnemyPlace place, RoomEnemyPlacement population, Action<RoomEnemyPlace> joining)
+    private RoomEnemyPlace SpawnAt(RoomEnemyPlace place, RoomEnemyPlacement population, EnemySetup setup)
     {
         InitializePlaceFromDefinition(place, population, _room.Definitions.ReadEnemyDefinition(population.DefinitionId));
-        joining(place);
-        SetUpSpawnedEnemy(place);
+        place.SetUp(setup);
         // Spawning writes the empty frame after initialization, before the first animation tick.
         place.Frame = place.Processing.HasAny(EnemyProcessing.Animates)
             ? EnemyFrameId.Empty

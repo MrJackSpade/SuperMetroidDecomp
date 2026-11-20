@@ -8,14 +8,14 @@ namespace SuperMetroid.Core.Enemies.Bull;
 /// <param name="place">The place the Bull occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class BullEntity(BullBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
+    : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
-    /// <inheritdoc/>
-    public void Initialize() => species.InitializeBull(Place);
+    /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
+    internal BullEnemyState State { get; } = species.InitializeBull(place);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) =>
-        BullBehavior.RunBullMain(Place, Place.RequireSpeciesState<BullEnemyState>(), frame.Samus);
+        BullBehavior.RunBullMain(Place, State, frame.Samus);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => BullBehavior.AdvanceBullAnimation(Place, context);

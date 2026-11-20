@@ -16,7 +16,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Dachora];
 
     /// <summary>A Dachora's body, or one of the speed-boost echoes its placement names (#2283).</summary>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) =>
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) =>
         Ensure.NotNull(place).SpawnSettings<DachoraSpawnSettings>().Role == DachoraRole.SpeedBoostEcho
             ? new DachoraEchoEntity(place, common)
             : new DachoraEntity(this, place, common);
@@ -43,31 +43,31 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes a speed-boost echo: it faces the way the body does; each trail placement later gives it an eight-update life.</summary>
-    internal static void InitializeDachoraEcho(RoomEnemyPlace place)
+    internal static DachoraEchoState InitializeDachoraEcho(RoomEnemyPlace place)
     {
         DachoraSpawnSettings settings = place.SpawnSettings<DachoraSpawnSettings>();
         var echo = new DachoraEchoState();
-        place.SetSpeciesState(echo);
         PrepareDachoraPlace(place);
         echo.Playback = new(DachoraAnimations.StartingWith(settings.Facing == HorizontalDirection.Right
             ? DachoraSegment.EchoRight
             : DachoraSegment.EchoLeft), AnimationPlace.StartOfAnimation);
+        return echo;
     }
 
     /// <summary>Initializes the Dachora's body, which finds the four echoes its room lists right after it.</summary>
-    internal void InitializeDachora(RoomEnemyPlace place)
+    internal DachoraEnemyState InitializeDachora(RoomEnemyPlace place)
     {
         DachoraSpawnSettings settings = place.SpawnSettings<DachoraSpawnSettings>();
         var state = new DachoraEnemyState(DachoraAction.WaitingForSamus)
         {
             Facing = settings.Facing,
         };
-        place.SetSpeciesState(state);
         PrepareDachoraPlace(place);
         _echoes.Place(place, _places.ListedRunAfter(place, DachoraTimingDefinitions.EchoCount));
         state.Playback = new(DachoraAnimations.StartingWith(settings.Facing == HorizontalDirection.Right
             ? DachoraSegment.IdleRight
             : DachoraSegment.IdleLeft), AnimationPlace.StartOfAnimation);
+        return state;
     }
 
     /// <summary>

@@ -12,14 +12,13 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Choot];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new ChootEntity(place, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new ChootEntity(place, common);
 
     /// <summary>Initializes the Choot, selecting a falling pattern and calculating ascent speed from parameters.</summary>
-    internal static void InitializeChoot(RoomEnemyPlace place)
+    internal static ChootEnemyState InitializeChoot(RoomEnemyPlace place)
     {
         ChootFallingPath fallingPath = place.SpawnSettings<ChootSpawnSettings>().FallingPath;
         var state = new ChootEnemyState(ChootAction.WaitingForSamus);
-        place.SetSpeciesState(state);
 
         SetChootAnimation(place, state, ChootSegment.Idle);
         state.SpawnPosition = place.Position.Whole;
@@ -30,6 +29,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         state.InitialYSpeedCurvePlace = CalculateInitialChootYSpeedCurvePlace(jumpHeight);
         state.InitialFallingPosition = state.SpawnPosition.WithY(state.SpawnPosition.Y - jumpHeight);
         state.YSpeedCurvePlace = state.InitialYSpeedCurvePlace;
+        return state;
     }
 
     /// <summary>Runs the Choot's main AI and its four wait, prepare, jump, and fall targets.</summary>

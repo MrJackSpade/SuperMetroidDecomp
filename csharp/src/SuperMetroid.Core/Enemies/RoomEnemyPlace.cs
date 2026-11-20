@@ -16,7 +16,7 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
     /// <param name="ordinal">The place's position in allocation and processing order.</param>
     /// <param name="registry">The species registry that creates the entity for each installed occupant.</param>
     /// <param name="leftovers">What the place's removed occupants leave for their neighbours, created with the room's places.</param>
-    internal RoomEnemyPlace(int ordinal, EnemySpeciesRegistry registry, RemovedEnemyLeftovers<EnemyOccupantStates> leftovers)
+    internal RoomEnemyPlace(int ordinal, EnemySpeciesRegistry registry, RemovedEnemyLeftovers leftovers)
     {
         _registry = Ensure.NotNull(registry);
         _leftovers = Ensure.NotNull(leftovers);
@@ -24,10 +24,10 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
     }
 
     /// <summary>
-    /// What the place's last removed occupant left there for the enemies that read it: its species states as it left them
-    /// after a deletion, and cleared after a kill (<see cref="RemovedEnemyLeftovers{TStates}"/>).
+    /// What the place's last removed occupant left there for the enemies that read it: the enemy with its state as it left
+    /// after a deletion, and the record a kill cleared (<see cref="RemovedEnemyLeftovers"/>).
     /// </summary>
-    private readonly RemovedEnemyLeftovers<EnemyOccupantStates> _leftovers;
+    private readonly RemovedEnemyLeftovers _leftovers;
 
     /// <summary>
     /// The place's ordinal in <see cref="EnemyPlaceOrder"/>, 0 through <see cref="EnemyPlaceOrder.Capacity"/> minus one,
@@ -60,61 +60,36 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
     /// <summary>The species registry that creates the entity for each installed occupant.</summary>
     private readonly EnemySpeciesRegistry _registry;
 
-    /// <summary>The enemy occupying the place, bound with its identity; null while the place is empty.</summary>
+    /// <summary>
+    /// The enemy occupying the place, holding its state: its species' factory builds it as the place is set up
+    /// (<see cref="SetUp"/>), once the place holds its identity and population entry; null while the place is empty.
+    /// </summary>
     internal IEnemyEntity? Entity { get; private set; }
 
     /// <summary>
-    /// The species states the current occupant owns (#1543). Its species installs them as it initializes, and the place
-    /// starts an empty set whenever its occupant leaves: a new occupant is bound, or the occupant is deleted or killed. No
-    /// state outlives its occupant; a reaction that runs on after a killing hit reaches the struck occupant's set through
-    /// its hit context.
+    /// What another enemy finds when it reads this place, which it does without testing what the place holds
+    /// (<see cref="RemovedEnemyLeftovers"/>): the enemy holding it, the enemy a deletion left there as it left, the record
+    /// the last kill cleared, or nothing while no enemy has held it.
     /// </summary>
-    internal EnemyOccupantStates OccupantStates { get; private set; } = new();
-
-    /// <summary>The occupant's species state, which its species installs before reading it.</summary>
-    /// <exception cref="InvalidOperationException">The occupant holds no <typeparamref name="T"/>.</exception>
-    internal T RequireSpeciesState<T>() where T : class =>
-        SpeciesState<T>() ?? throw new InvalidOperationException($"Enemy place {Ordinal} has no {typeof(T).Name} for its occupant.");
-
-    /// <summary>The occupant's <typeparamref name="T"/> state, or null when the place holds no occupant with one.</summary>
-    internal T? SpeciesState<T>() where T : class => OccupantStates.Find<T>();
-
-    /// <summary>Installs or replaces the occupant's <typeparamref name="T"/> state.</summary>
-    internal void SetSpeciesState<T>(T state) where T : class => OccupantStates.Install(state);
+    internal EnemyPlaceFinding Found => _leftovers.Found(DefinitionId == EnemyDefinitionId.None ? null : Entity);
 
     /// <summary>
-    /// The <typeparamref name="T"/> another enemy finds when it reads this place, which it does without testing what the
-    /// place holds (<see cref="RemovedEnemyLeftovers{TStates}"/>): the occupant's own while an enemy holds the place, the
-    /// state a deleted occupant left, or null when the place's last occupant was killed, whose cleared state reads as
-    /// nothing unless a neighbour wrote it (<see cref="FoundOrClearedState{T}"/>), or held none.
+    /// The enemy another enemy finds when it reads this place (<see cref="Found"/>): the one holding it or the one a
+    /// deletion left as it left; null when the place's last occupant was killed or no enemy has held it.
     /// </summary>
-    internal T? FoundState<T>() where T : class =>
-        _leftovers.Found(Occupant)?.Find<T>();
+    internal IEnemyEntity? FoundEnemy => Found is EnemyPlaceFinding.Enemy found ? found.Entity : null;
 
     /// <summary>
-    /// The <typeparamref name="T"/> a neighbour that writes to this place finds there, which it does without testing what
-    /// the place holds: <see cref="FoundState{T}"/>'s, or, when the place's last occupant was killed, the
-    /// <typeparamref name="T"/> among the states the kill cleared (<see cref="RemovedEnemyLeftovers{TStates}.ClearedByKill"/>),
-    /// emptied when first reached and keeping what the neighbour writes; null when the place holds no
-    /// <typeparamref name="T"/> otherwise.
+    /// Builds the occupant's enemy with its state through its species' factory, at the point its initialization runs: after
+    /// its identity, population entry and live values are installed (#2554).
     /// </summary>
-    internal T? FoundOrClearedState<T>() where T : class, new()
-    {
-        if (FoundState<T>() is { } found)
-            return found;
-        if (_leftovers.ClearedByKill(Occupant) is not { } cleared)
-            return null;
-        var emptied = new T();
-        cleared.Install(emptied);
-        return emptied;
-    }
-
-    /// <summary>The species states of the enemy holding the place, or null while it holds none.</summary>
-    private EnemyOccupantStates? Occupant => DefinitionId == EnemyDefinitionId.None ? null : OccupantStates;
+    /// <param name="setup">How the occupant comes to be set up.</param>
+    internal void SetUp(EnemySetup setup) => Entity = _registry.Create(this, Ensure.NotNull(setup));
 
     /// <summary>
-    /// Installs a new occupant's identity and binds the entity its species creates. Every identity change goes through
-    /// here, at the statement that changes the definition, because the game re-reads the definition each time the enemy runs.
+    /// Installs a new occupant's identity, releasing the enemy that held the place; its species builds the new occupant's
+    /// enemy as it is set up (<see cref="SetUp"/>). Every identity change goes through here, at the statement that changes
+    /// the definition, because the game re-reads the definition each time the enemy runs.
     /// </summary>
     /// <param name="definitionId">The occupant's definition.</param>
     /// <param name="definition">The occupant's resolved definition.</param>
@@ -124,9 +99,7 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
         DefinitionId = definitionId;
         Definition = definition;
         AwaitsRespawn = false;
-        OccupantStates = new();
         AnimationClock = new();
-        Entity = definitionId == EnemyDefinitionId.None ? null : _registry.Create(this);
     }
 
     /// <summary>
@@ -154,22 +127,21 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
     }
 
     /// <summary>
-    /// Empties the place's identity and its occupant's species states when the occupant is deleted without being killed.
-    /// The place keeps the occupant's last position, health and timers, and its species states stay for the enemies that
-    /// read it (<see cref="FoundState{T}"/>, <see cref="RemovedEnemyLeftovers{TStates}"/>, <see cref="FollowUpAfterStruckPart"/>).
+    /// Empties the place's identity and enemy when the occupant is deleted without being killed. The place keeps the
+    /// occupant's last position, health and timers, and the enemy with its state stays for the enemies that read it
+    /// (<see cref="Found"/>, <see cref="RemovedEnemyLeftovers"/>, <see cref="FollowUpAfterStruckPart"/>).
     /// </summary>
     internal void Unbind()
     {
-        _leftovers.Deleted(OccupantStates);
+        _leftovers.Deleted(Entity);
         Vacate();
     }
 
-    /// <summary>Empties the place's identity, entity and species states.</summary>
+    /// <summary>Empties the place's identity and enemy.</summary>
     private void Vacate()
     {
         DefinitionId = EnemyDefinitionId.None;
         ReleaseEntity();
-        OccupantStates = new();
     }
     /// <summary>
     /// The population entry the occupant was spawned from, kept unchanged while its live state moves on and after it is
@@ -275,8 +247,8 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
     public Offset16<RoomPixels> DrawOffset { get; internal set; }
 
     /// <summary>
-    /// Empties the place when its occupant is killed: its identity, its species states and the place's live values. The
-    /// kill clears what the occupant leaves, so the enemies that read the place find no species state there. The
+    /// Empties the place when its occupant is killed: its identity, its enemy and the place's live values. The kill clears
+    /// what the occupant leaves, so the enemies that read the place find no species state there. The
     /// population entry the occupant was spawned from survives the kill (<see cref="Spawn"/>): a respawn rebuilds the
     /// enemy from it (#2256).
     /// </summary>

@@ -13,7 +13,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.NuclearWaffle];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new NuclearWaffleEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new NuclearWaffleEntity(this, place, common);
 
     /// <summary>Allocates the four collidable links in the articulated body.</summary>
     private readonly EnemyProjectileEngine _projectiles;
@@ -32,7 +32,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Nuclear Waffle.</summary>
-    internal void InitializeNuclearWaffle(RoomEnemyPlace place)
+    internal NuclearWaffleEnemyState InitializeNuclearWaffle(RoomEnemyPlace place)
     {
         NuclearWaffleSpawnSettings settings = place.SpawnSettings<NuclearWaffleSpawnSettings>();
         NuclearWaffleSweepDefinition sweep = settings.Sweep;
@@ -52,8 +52,8 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
             Origin = origin,
             Graphics = graphics,
         };
-        place.SetSpeciesState(state);
         state.Playback = EnemyAnimationPlayback.Start(place, NuclearWaffleAnimations.StartingWith(NuclearWaffleSegment.BodyLoop));
+        return state;
     }
 
     /// <summary>Runs the Nuclear Waffle's main AI.</summary>

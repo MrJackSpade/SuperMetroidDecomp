@@ -13,7 +13,7 @@ internal sealed class HoltzBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Holtz];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) =>
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) =>
         Ensure.NotNull(place).SpawnSettings<EnemyFollowerSpawnSettings>().Role == EnemyFollowerRole.Follower
             ? new HoltzFollowerEntity(this, place, common)
             : new HoltzEntity(this, place, common);
@@ -40,24 +40,26 @@ internal sealed class HoltzBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes a flame follower: it finds its parent, listed right before it, and starts its looping flames.</summary>
-    internal void InitializeHoltzFollower(RoomEnemyPlace place)
+    internal HoltzFollowerState InitializeHoltzFollower(RoomEnemyPlace place)
     {
         _parents.Place(place, _places.ListedBefore(place, 1));
         ValidateHoltzParent(place);
-        place.SetSpeciesState(new HoltzFollowerState
+        var state = new HoltzFollowerState
         {
             Playback = new(HoltzAnimations.StartingWith(HoltzSegment.Flames), AnimationPlace.StartOfAnimation),
-        });
+        };
+        return state;
     }
 
     /// <summary>Initializes a Holtz parent, idle with its flames hidden.</summary>
-    internal static void InitializeHoltz(RoomEnemyPlace place)
+    internal static HoltzEnemyState InitializeHoltz(RoomEnemyPlace place)
     {
-        place.SetSpeciesState(new HoltzEnemyState(HoltzAction.WaitForAttackOpportunity)
+        var state = new HoltzEnemyState(HoltzAction.WaitForAttackOpportunity)
         {
             FollowerVisible = false,
             Playback = new(HoltzAnimations.StartingWith(HoltzSegment.Idle), AnimationPlace.StartOfAnimation),
-        });
+        };
+        return state;
     }
 
     /// <summary>

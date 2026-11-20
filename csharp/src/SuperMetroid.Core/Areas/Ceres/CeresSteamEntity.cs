@@ -8,10 +8,10 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// <param name="common">The shared participation.</param>
 /// <param name="motions">The motions the room gives its vents, which give this vent the one its variant names.</param>
 internal sealed class CeresSteamEntity(CeresSteamBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, CeresSteamVentMotions motions)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes
+    : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes
 {
-    /// <inheritdoc/>
-    public void Initialize() => species.InitializeCeresSteam(Place, motions);
+    /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
+    internal CeresSteamEnemyState State { get; } = species.InitializeCeresSteam(place, motions);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => CeresSteamBehavior.RunCeresSteamMainAi(Place);

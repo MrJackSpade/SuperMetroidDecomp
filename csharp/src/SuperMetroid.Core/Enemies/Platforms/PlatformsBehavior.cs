@@ -15,7 +15,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.SuspensorPlatform, EnemyDefinitionId.Tripper];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new PlatformsEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new PlatformsEntity(this, place, common);
 
     /// <summary>Clips the Tripper's and the suspensor platform's horizontal and vertical displacement against room terrain.</summary>
     private readonly EnemyTerrain _terrain;
@@ -34,13 +34,12 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Sets up a Tripper or a suspensor platform: its direction and speed from its spawn settings, its first rise and the
     /// height it rests at below where it was placed.
     /// </summary>
-    internal static void InitializePlatform(RoomEnemyPlace place)
+    internal static PlatformEnemyState InitializePlatform(RoomEnemyPlace place)
     {
         var state = new PlatformEnemyState
         {
             Kind = place.DefinitionId == EnemyDefinitionId.SuspensorPlatform ? PlatformKind.SuspensorPlatform : PlatformKind.Tripper,
         };
-        place.SetSpeciesState(state);
 
         // The platform moves left or right as its spawn settings say.
         PlatformSpawnSettings settings = place.SpawnSettings<PlatformSpawnSettings>();
@@ -51,6 +50,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.PreviousYMovement = PlatformVerticalMovement.Rising;
         state.RestingY = place.Position.Y.Whole + PlatformMotionDefinitions.RestingDepthBelowPlacement;
+        return state;
     }
 
     /// <summary>Runs the Tripper's and the suspensor platform's main AI.</summary>

@@ -25,13 +25,13 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
 
     /// <summary>The gunship's top hull, which moves the ship, or its bottom hull with the entrance pad (#2146).</summary>
     /// <exception cref="InvalidOperationException">The place holds no gunship definition.</exception>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup)
     {
         EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
         if (definition == EnemyDefinitionId.ShipTop)
             return new GunshipTopEntity(this, place, common);
         if (definition == EnemyDefinitionId.ShipBottomEntrance)
-            return new GunshipBottomEntity(this, place, common);
+            return new GunshipBottomEntity(this, place, common, setup);
         throw new InvalidOperationException($"The gunship species creates no {place.DefinitionId}.");
     }
 
@@ -140,13 +140,13 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     /// Initializes bottom hull or pad from the enemies its room lists before it; after Ceres the bottom hull is placed
     /// against the loading <paramref name="samus"/>.
     /// </summary>
-    internal void InitializeGunshipBottom(RoomEnemyPlace place, SamusState samus)
+    internal GunshipPieceState InitializeGunshipBottom(RoomEnemyPlace place, SamusState samus)
     {
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
         place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
-        place.SetSpeciesState(new GunshipPieceState(EnemyAnimationPlayback.Start(place, GunshipAnimations.StartingWith(place.SpawnSettings<GunshipSpawnSettings>().Part == GunshipBottomPiece.EntrancePad
+        var state = new GunshipPieceState(EnemyAnimationPlayback.Start(place, GunshipAnimations.StartingWith(place.SpawnSettings<GunshipSpawnSettings>().Part == GunshipBottomPiece.EntrancePad
             ? GunshipSegment.BottomEntrancePad
-            : GunshipSegment.BottomHull))));
+            : GunshipSegment.BottomHull)));
 
         if (place.SpawnSettings<GunshipSpawnSettings>().Part == GunshipBottomPiece.EntrancePad)
         {
@@ -165,6 +165,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
                 place.Position = place.Position.WithWholeY(place.Position.Y.Whole + GunshipMotionDefinitions.LandedBottomHullDrop);
             }
         }
+        return state;
     }
 
     /// <summary>Runs the top hull's sound timer and landing, boarding, save, or takeoff state machine.</summary>

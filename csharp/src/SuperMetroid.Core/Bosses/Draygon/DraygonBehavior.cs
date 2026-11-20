@@ -17,7 +17,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Draygon's body, eye, tail or arms (#2146).</summary>
     /// <exception cref="InvalidOperationException">The place holds no Draygon definition.</exception>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup)
     {
         EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
         if (definition == EnemyDefinitionId.DraygonBody)

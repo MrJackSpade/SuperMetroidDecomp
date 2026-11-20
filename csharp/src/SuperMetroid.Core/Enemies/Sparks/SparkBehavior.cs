@@ -19,7 +19,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Spark];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new SparkEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new SparkEntity(this, place, common);
 
     /// <summary>Owner of the falling-spark projectile emitted by one spark action.</summary>
     private readonly FallingSparksBehavior _fallingSparksBehavior;
@@ -47,18 +47,18 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Spark.</summary>
-    internal static void InitializeSpark(RoomEnemyPlace place)
+    internal static SparkEnemyState InitializeSpark(RoomEnemyPlace place)
     {
         SparkMovementDefinition definition = place.SpawnSettings<SparkSpawnSettings>().Start;
         var state = new SparkEnemyState(definition.Action,
             new(SparkAnimations.StartingWith(definition.Animation), AnimationPlace.StartOfAnimation));
-        place.SetSpeciesState(state);
 
         SetSparkActionTimer(place, state, additionalTime: 0);
 
         place.AnimationClock.StepOnNextUpdate();
         // Spark keeps its population properties: the setup's extra property change before Phantoon's
         // defeat is exempt under the emulation scope limits (owner decision on #1318).
+        return state;
     }
 
     /// <summary>Runs the main step.</summary>

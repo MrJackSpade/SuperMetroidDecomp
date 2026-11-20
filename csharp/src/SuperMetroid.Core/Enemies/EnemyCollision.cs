@@ -334,10 +334,11 @@ internal sealed class EnemyCollision
             {
                 if (hit == NormalShotHit.HurtUnfrozen && reaction.ShowsHitBurst(hitShot))
                     ShowHitBurst(enemy);
-                if (enemy.Health == 0 && !reaction.ExemptFromGenericDeath)
+                if (enemy.Health == 0 && reaction.Lethal is not EnemyShotLethal.SpeciesOwnedDeath)
                 {
-                    reaction.BeforeGenericDeath?.Invoke(hitShot);
-                    if (reaction.ReplacesGenericDeath?.Invoke(hitShot) != true)
+                    if (reaction.Lethal is EnemyShotLethal.AfterStage before)
+                        before.Stage(hitShot);
+                    if (!(reaction.Lethal is EnemyShotLethal.Replaced replaced && replaced.Death(hitShot)))
                     {
                         _deathsAndDrops.StartGenericEnemyDeath(
                             occupant,
@@ -736,11 +737,12 @@ internal sealed class EnemyCollision
             enemy.Health = damage >= enemy.Health
                 ? 0
                 : enemy.Health - damage;
-            if (enemy.Health == 0 && !reaction.ExemptFromGenericDeath)
+            if (enemy.Health == 0 && reaction.Lethal is not EnemyPowerBombLethal.SpeciesOwnedDeath)
             {
-                reaction.BeforeGenericDeath?.Invoke(context);
-                if (reaction.ReplacesGenericDeath is { } replaceDeath)
-                    replaceDeath(context);
+                if (reaction.Lethal is EnemyPowerBombLethal.AfterStage before)
+                    before.Stage(context);
+                if (reaction.Lethal is EnemyPowerBombLethal.Replaced replaced)
+                    replaced.Death(context);
                 else
                     _deathsAndDrops.StartGenericEnemyDeath(occupant, EnemyDeathExplosion.Small, samus);
             }

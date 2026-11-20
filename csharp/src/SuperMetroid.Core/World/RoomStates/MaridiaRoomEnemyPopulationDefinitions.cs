@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Boulder;
 using SuperMetroid.Core.Enemies.Boyon;
@@ -520,18 +521,18 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
     /// <summary>The enemy population of the East Sand Hole room.</summary>
     internal static PlacedRoomEnemyPopulationDefinition EastSandHole { get; } = new("EastSandHole",
     [
-        new(EnemyDefinitionId.Boulder, EnemyPlacing.At(new(400, 160)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new BoulderSpawnSettings(TriggerHeight: 114, TriggerReach: 4, Start: new BoulderStart.FallsFrom(114), Roll: BoulderRoll.LeftBreakingOnImpact)),
-        new(EnemyDefinitionId.Boulder, EnemyPlacing.At(new(336, 192)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new BoulderSpawnSettings(TriggerHeight: 152, TriggerReach: 4, Start: new BoulderStart.FallsFrom(162), Roll: BoulderRoll.LeftBreakingOnImpact)),
-        new(EnemyDefinitionId.Boulder, EnemyPlacing.At(new(208, 208)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new BoulderSpawnSettings(TriggerHeight: 192, TriggerReach: 4, Start: new BoulderStart.FallsFrom(162), Roll: BoulderRoll.LeftBreakingOnImpact)),
+        new(EnemyDefinitionId.Boulder, EnemyPlacing.At(new(400, 160)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new BoulderSpawnSettings(TriggerHeight: 114, TriggerReach: 4, Start: new BoulderStart.FallsFrom(114), Roll: HorizontalDirection.Left, BreaksOnFirstImpact: true)),
+        new(EnemyDefinitionId.Boulder, EnemyPlacing.At(new(336, 192)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new BoulderSpawnSettings(TriggerHeight: 152, TriggerReach: 4, Start: new BoulderStart.FallsFrom(162), Roll: HorizontalDirection.Left, BreaksOnFirstImpact: true)),
+        new(EnemyDefinitionId.Boulder, EnemyPlacing.At(new(208, 208)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new BoulderSpawnSettings(TriggerHeight: 192, TriggerReach: 4, Start: new BoulderStart.FallsFrom(162), Roll: HorizontalDirection.Left, BreaksOnFirstImpact: true)),
     ], 0);
 
     /// <summary>The enemy population of the West Sand Hole room.</summary>
     internal static PlacedRoomEnemyPopulationDefinition WestSandHole { get; } = new("WestSandHole",
     [
-        new(EnemyDefinitionId.Boulder, EnemyPlacing.At(new(464, 144)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new BoulderSpawnSettings(TriggerHeight: 80, TriggerReach: 4, Start: new BoulderStart.FallsFrom(98), Roll: BoulderRoll.LeftBreakingOnImpact)),
-        new(EnemyDefinitionId.Boulder, EnemyPlacing.At(new(176, 320)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new BoulderSpawnSettings(TriggerHeight: 128, TriggerReach: 4, Start: new BoulderStart.FallsFrom(160), Roll: BoulderRoll.LeftBreakingOnImpact)),
-        new(EnemyDefinitionId.Boulder, EnemyPlacing.At(new(240, 352)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new BoulderSpawnSettings(TriggerHeight: 240, TriggerReach: 4, Start: new BoulderStart.FallsFrom(240), Roll: BoulderRoll.LeftBreakingOnImpact)),
-        new(EnemyDefinitionId.Boulder, EnemyPlacing.At(new(48, 144)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new BoulderSpawnSettings(TriggerHeight: 64, TriggerReach: 4, Start: new BoulderStart.FallsFrom(82), Roll: BoulderRoll.LeftBreakingOnImpact)),
+        new(EnemyDefinitionId.Boulder, EnemyPlacing.At(new(464, 144)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new BoulderSpawnSettings(TriggerHeight: 80, TriggerReach: 4, Start: new BoulderStart.FallsFrom(98), Roll: HorizontalDirection.Left, BreaksOnFirstImpact: true)),
+        new(EnemyDefinitionId.Boulder, EnemyPlacing.At(new(176, 320)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new BoulderSpawnSettings(TriggerHeight: 128, TriggerReach: 4, Start: new BoulderStart.FallsFrom(160), Roll: HorizontalDirection.Left, BreaksOnFirstImpact: true)),
+        new(EnemyDefinitionId.Boulder, EnemyPlacing.At(new(240, 352)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new BoulderSpawnSettings(TriggerHeight: 240, TriggerReach: 4, Start: new BoulderStart.FallsFrom(240), Roll: HorizontalDirection.Left, BreaksOnFirstImpact: true)),
+        new(EnemyDefinitionId.Boulder, EnemyPlacing.At(new(48, 144)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new BoulderSpawnSettings(TriggerHeight: 64, TriggerReach: 4, Start: new BoulderStart.FallsFrom(82), Roll: HorizontalDirection.Left, BreaksOnFirstImpact: true)),
     ], 0);
 
     /// <summary>The enemy population of the West Cactus Alley room.</summary>

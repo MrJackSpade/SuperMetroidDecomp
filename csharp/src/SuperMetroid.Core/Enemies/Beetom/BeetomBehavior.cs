@@ -105,10 +105,10 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
                 StartBeetomCrawling(place, state, state.Heading);
                 return;
             case BeetomAction.StartShortHop:
-                StartBeetomHop(place, state, BeetomLeapDefinitions.ShortLeap.StartPlace, state.Heading, BeetomHopLength.Short);
+                StartBeetomHop(place, state, state.Heading, BeetomHopLength.Short);
                 return;
             case BeetomAction.StartLongHop:
-                StartBeetomHop(place, state, BeetomLeapDefinitions.LongLeap.StartPlace, state.Heading, BeetomHopLength.Long);
+                StartBeetomHop(place, state, state.Heading, BeetomHopLength.Long);
                 return;
             case BeetomAction.StartLunge:
                 StartBeetomLunge(place, state, samus);
@@ -199,17 +199,17 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void StartBeetomHop(
         RoomEnemyPlace place,
         BeetomEnemyState state,
-        QuadraticSpeedCurvePlace initialYSpeedCurvePlace,
         HorizontalDirection direction,
         BeetomHopLength length)
     {
-        state.YSpeedCurvePlace = initialYSpeedCurvePlace;
-        state.Begin(length switch
+        // The hop's length selects its climb, whose start place the hop rises from (#2560).
+        (state.YSpeedCurvePlace, BeetomAction rising) = length switch
         {
-            BeetomHopLength.Short => BeetomAction.ShortHopRising,
-            BeetomHopLength.Long => BeetomAction.LongHopRising,
+            BeetomHopLength.Short => (BeetomLeapDefinitions.ShortLeap.StartPlace, BeetomAction.ShortHopRising),
+            BeetomHopLength.Long => (BeetomLeapDefinitions.LongLeap.StartPlace, BeetomAction.LongHopRising),
             _ => throw new ArgumentOutOfRangeException(nameof(length), length, "Unknown Beetom hop."),
-        }, direction);
+        };
+        state.Begin(rising, direction);
         SetBeetomAnimation(
             place,
             state,

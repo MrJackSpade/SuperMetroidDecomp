@@ -337,7 +337,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
                 }
                 return false;
             },
-            ExemptFromGenericDeath = true,
+            Lethal = EnemyShotLethal.SpeciesOwned,
             AfterCommon = c => ResolveSporeSpawnShotAfterCommon(c.Enemy, body.Encounter),
         };
     }

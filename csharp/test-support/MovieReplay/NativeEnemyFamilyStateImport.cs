@@ -697,15 +697,16 @@ internal static class NativeEnemyFamilyStateImport
             // The record counts the bounces left, two before the first impact and minus one once rolling.
             boulderRecord.ImpactsSoFar = BoulderBounces.ImpactCount - 1 - unchecked((short)words.D);
             // The Boulder rolls as its placement names (#2476), which the recording's roll must be.
-            BoulderRoll boulderRoll = words.E switch
+            (HorizontalDirection Direction, bool Breaks) boulderRoll = words.E switch
             {
-                0 => BoulderRoll.Right,
-                1 => BoulderRoll.Left,
-                2 => BoulderRoll.LeftBreakingOnImpact,
+                0 => (HorizontalDirection.Right, false),
+                1 => (HorizontalDirection.Left, false),
+                2 => (HorizontalDirection.Left, true),
                 _ => throw new InvalidDataException($"Recorded Boulder roll {words.E} is not a roll."),
             };
-            if (boulderRoll != enemy.HeldOccupant().SpawnSettings<BoulderSpawnSettings>().Roll)
-                throw new InvalidDataException($"Recorded Boulder roll {boulderRoll} is not its placement's {enemy.HeldOccupant().SpawnSettings<BoulderSpawnSettings>().Roll}.");
+            BoulderSpawnSettings placed = enemy.HeldOccupant().SpawnSettings<BoulderSpawnSettings>();
+            if (boulderRoll != (placed.Roll, placed.BreaksOnFirstImpact))
+                throw new InvalidDataException($"Recorded Boulder roll {boulderRoll} is not its placement's {(placed.Roll, placed.BreaksOnFirstImpact)}.");
         }
         if (enemy.SpeciesState<RinkaEnemyState>() is { } rinkaRecord)
         {

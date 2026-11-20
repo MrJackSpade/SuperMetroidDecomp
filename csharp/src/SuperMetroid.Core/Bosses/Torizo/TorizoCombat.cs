@@ -130,7 +130,7 @@ internal sealed class TorizoCombat
     private static EnemyShotReaction ShotReaction(EnemyShotStage beforeImpact) => new()
     {
         BeforeImpact = beforeImpact,
-        ExemptFromGenericDeath = true,
+        Lethal = EnemyShotLethal.SpeciesOwned,
         // Both Torizos' shot reactions run the common damage without the hit burst.
         ShowsHitBurst = EnemyShotReaction.NeverShowsHitBurst,
         AfterCommon = c =>

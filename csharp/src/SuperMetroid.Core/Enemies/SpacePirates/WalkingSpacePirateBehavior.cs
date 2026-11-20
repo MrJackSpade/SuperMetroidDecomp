@@ -518,13 +518,13 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             return false;
         },
         ShowsHitBurst = c => PirateHitboxShotActions.ShowsHitBurst(c.HitboxShot),
-        ReplacesGenericDeath = c =>
+        Lethal = new EnemyShotLethal.Replaced(c =>
         {
             if (c.HitboxShot == EnemyReaction.OrdinaryShot)
                 return false;
             StartPirateDeath(c);
             return true;
-        },
+        }),
     };
 
     /// <summary>The gold Ninja's shot reaction: its armour's reflections, the Pirate shot logic and the drops its death scatters.</summary>
@@ -533,7 +533,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         AfterSuperMissileQuake = (in EnemyShotContext c) =>
             c.UsesFrameHitboxes && ResolveSpacePirateHitboxShot(c, PirateHitboxShotActions.SelectGoldNinjaHitboxShotAction(c.Occupant, c.Shot, c.HitboxShot)),
         ShowsHitBurst = c => PirateHitboxShotActions.GoldNinjaShowsHitBurst(c.HitboxShot),
-        ReplacesGenericDeath = c =>
+        Lethal = new EnemyShotLethal.Replaced(c =>
         {
             if (c.HitboxShot == EnemyReaction.OrdinaryShot)
                 return false;
@@ -543,7 +543,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             StartPirateDeath(c);
             _deathsAndDrops.SpawnEnemyDropScatterAround(EnemyDefinitionId.PirateGoldNinja, GoldNinjaSpacePirateDefinitions.DropScatterCount, dropOrigin, c.Samus);
             return true;
-        },
+        }),
     };
 
     /// <summary>Starts a Pirate's death by a shot: the big explosion its shot's death animation rule chooses.</summary>

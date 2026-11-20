@@ -50,7 +50,7 @@ internal static class RidleyInteractions
     /// <remarks>Ridley's shot reaction runs the common damage without the hit burst.</remarks>
     internal static EnemyShotReaction RidleyShotReaction { get; } = new()
     {
-        ExemptFromGenericDeath = true,
+        Lethal = EnemyShotLethal.SpeciesOwned,
         ShowsHitBurst = EnemyShotReaction.NeverShowsHitBurst,
     };
 
@@ -100,6 +100,6 @@ internal static class RidleyInteractions
     /// <summary>Ridley's Power Bomb reaction, exempt from the generic death.</summary>
     internal static EnemyPowerBombReaction RidleyPowerBombReaction { get; } = new()
     {
-        ExemptFromGenericDeath = true,
+        Lethal = EnemyPowerBombLethal.SpeciesOwned,
     };
 }

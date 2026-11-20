@@ -38,7 +38,7 @@ internal sealed class DraygonCombat
     /// <summary>Routes power-bomb damage for Draygon's body through its encounter reaction.</summary>
     internal EnemyPowerBombReaction DraygonPowerBombReaction => field ??= new()
     {
-        ExemptFromGenericDeath = true,
+        Lethal = EnemyPowerBombLethal.SpeciesOwned,
         AfterCommon = c => ResolveDraygonReaction(c.Enemy, c.Samus),
     };
 
@@ -176,7 +176,7 @@ internal sealed class DraygonCombat
             return false;
         },
         AfterImpact = c => AdvanceDraygonShotAcceleration(DraygonEntity.EncounterOf(c.Enemy)),
-        ExemptFromGenericDeath = true,
+        Lethal = EnemyShotLethal.SpeciesOwned,
         // Draygon's shot reaction runs the common damage without the hit burst.
         ShowsHitBurst = EnemyShotReaction.NeverShowsHitBurst,
         AfterCommon = c => ResolveDraygonReaction(c.Enemy, c.Samus),

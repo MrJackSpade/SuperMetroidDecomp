@@ -787,14 +787,14 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     /// <summary>Applies power-bomb damage while preserving Botwoon's delayed death traversal.</summary>
     internal EnemyPowerBombReaction BotwoonPowerBombReaction => field ??= new()
     {
-        ExemptFromGenericDeath = true,
+        Lethal = EnemyPowerBombLethal.SpeciesOwned,
         AfterCommon = c => ResolveBotwoonCombatAfterCommon(c.Enemy),
     };
 
     /// <summary>Resolves the health bands and skips generic death on shot hits.</summary>
     internal EnemyShotReaction BotwoonShotReaction => field ??= new()
     {
-        ExemptFromGenericDeath = true,
+        Lethal = EnemyShotLethal.SpeciesOwned,
         // Botwoon's shot reaction runs the common damage without the hit burst.
         ShowsHitBurst = EnemyShotReaction.NeverShowsHitBurst,
         AfterCommon = c => ResolveBotwoonCombatAfterCommon(c.Enemy),

@@ -172,7 +172,7 @@ internal static class PhantoonAnimationsVerification
                     break;
                 SuperMetroid.Verification.Enemies.NativeEnemyProjectileParity.AssertFrameHold(native.Timer, flame, at);
                 // A list that shows a pose again from an operand of its own shows the pose's one installed frame (#2249).
-                AssertEqual<EnemyProjectileFrameId?>(EnemyProjectileProgramFrameOperands.Frame(native.Operand, flame.Graphics.Owner), flame.Frame, $"{at}: frame");
+                AssertEqual(EnemyProjectileProgramFrameOperands.ShownAt(native.Operand, flame.Graphics.Owner), flame.Frame, $"{at}: frame");
                 if (NativeEnemyAnimationOracle.NativePlaysLeft(AssertIs<PhantoonFlameAnimation>(flame.Animation, $"{at}: flame animation").Playback) is { } playsLeft)
                     AssertEqual<int>(native.Counter, playsLeft, $"{at}: plays left");
             }

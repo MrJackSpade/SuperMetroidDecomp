@@ -202,6 +202,13 @@ public sealed class SamusProjectile
     public bool HasEnemyCollisionPayload => IsOccupied && Type.Family.IsBeamOrMissile;
 
     /// <summary>
+    /// The type the projectile strikes blocks with: its own while it holds its place, otherwise the cleared place's
+    /// (<see cref="Compatibility.ClearedShotPlaceType"/>), for a block its update reaches after it ended.
+    /// </summary>
+    internal SamusProjectileType StrikingType =>
+        Compatibility.ClearedShotPlaceType.Striking(IsOccupied, () => Type, SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false));
+
+    /// <summary>
     /// Ends the projectile: it no longer holds its place, and it reads as no projectile, at rest at the room's origin, to
     /// whatever still holds it and to anything that reads its place before the next projectile takes it.
     /// </summary>

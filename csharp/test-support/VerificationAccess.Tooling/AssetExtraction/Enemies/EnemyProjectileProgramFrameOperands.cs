@@ -48,6 +48,10 @@ internal static class EnemyProjectileProgramFrameOperands
     /// <summary>Whether bank-$86 operand <paramref name="operand"/> stores an installed program frame.</summary>
     internal static bool Contains(ushort operand) => Frames.Contains(operand);
 
+    /// <summary>The frame a projectile showing <paramref name="operand"/> holds: none for an operand that draws nothing (#2558).</summary>
+    internal static EnemyProjectileFrameId? ShownAt(ushort operand, SpawnedObjectOwner sheet) =>
+        EnemyProjectileProgramFrameDefinitions.DrawNothing.Contains(operand) ? null : Frame(operand, sheet);
+
     /// <summary>
     /// The installed program frame stored at bank-$86 operand <paramref name="operand"/> that a projectile drawing from
     /// <paramref name="sheet"/> shows: the one frame stored there, or, where several are, the one that sheet holds.

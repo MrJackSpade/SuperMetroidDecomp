@@ -41,8 +41,10 @@ internal static class EnemyProjectileSpritemapNative
     /// <summary>Native lookups of an installed catalog.</summary>
     extension(EnemyProjectileSpritemapCatalog catalog)
     {
-        /// <summary>The parts of the composition stored at bank-$8D spritemap <paramref name="spritemap"/>.</summary>
-        internal ReadOnlyMemory<SpritePart> Get(ushort spritemap) => ElevatorArrivalPoseAt(spritemap) is { } pose
+        /// <summary>The parts of the composition stored at bank-$8D spritemap <paramref name="spritemap"/>; none for the blank map (#2558).</summary>
+        internal ReadOnlyMemory<SpritePart> Get(ushort spritemap) => spritemap == EnemyProjectileCompositionDefinitions.BlankSpritemap
+            ? ReadOnlyMemory<SpritePart>.Empty
+            : ElevatorArrivalPoseAt(spritemap) is { } pose
             ? catalog.GetElevatorArrival(pose)
             : catalog.Get(FrameAt(spritemap));
     }

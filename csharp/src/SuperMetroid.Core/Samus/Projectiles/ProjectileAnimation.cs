@@ -69,7 +69,9 @@ internal sealed class ProjectileAnimation
         Offset16<ScreenPixels> place = shot.Position.Whole.RelativeToCamera(cameraPosition);
         // Every placement is published wherever it lies; the display clips it to the view (#1541).
 
-        ProjectileSpriteId sprite = shot.Sprite ?? throw new InvalidOperationException("A drawn projectile shows a composition.");
+        // A frame that shows no composition draws nothing (#2558).
+        if (shot.Sprite is not { } sprite)
+            return;
         // A composition the sheet of the beams the projectile is pictured with holds as showing nothing draws nothing
         // (#1513, #1586); an invisible frame shows no composition at all (#2558).
         SpriteSheet sheet = artwork.SheetOf(shot.PicturedBeams);

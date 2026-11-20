@@ -138,7 +138,7 @@ internal sealed class ProjectileEnemyImpacts
 
         foreach (SamusProjectile shot in _pool.InUpdateOrder)
         {
-            if (!shot.Type.IsFamily(SamusProjectileFamily.Missile))
+            if (!shot.IsOccupied || !shot.Type.IsFamily(SamusProjectileFamily.Missile))
                 continue;
 
             // The missile flies left from Samus toward the brain and is killed on crossing the line, so its position never

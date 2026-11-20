@@ -316,7 +316,7 @@ internal sealed class ProjectileTerrainCollision
         if (block.CollisionType == RoomCollisionType.SolidBlock &&
             block.Behavior.Shootable == ShootableReaction.ResidentObjectTrigger)
         {
-            NotifyResidentProjectileHit(roomObjects, block, shot.Type);
+            NotifyResidentProjectileHit(roomObjects, block, shot.StrikingType);
             return true;
         }
 
@@ -327,7 +327,7 @@ internal sealed class ProjectileTerrainCollision
                 // Setting up the probe's room object ends the span. With every room-object place taken nothing is set
                 // up, and the span goes on.
                 endSpan = roomObjects.BlockReactions.TrySpawnProjectileShotBlock(
-                    level, block.At, block.Behavior, BlockStrike.By(shot.Type),
+                    level, block.At, block.Behavior, BlockStrike.By(shot.StrikingType),
                     block.CollisionType == RoomCollisionType.ShootableBlock);
                 return block.CollisionType == RoomCollisionType.ShootableBlock;
             }
@@ -353,7 +353,7 @@ internal sealed class ProjectileTerrainCollision
         if (block.CollisionType == RoomCollisionType.ShootableBlock &&
             block.Behavior.TryGetDownwardGateTrigger(out _))
         {
-            roomObjects.Gates.TrySpawnDownwardGateTrigger(level, block.At, block.Behavior, BlockStrike.By(shot.Type));
+            roomObjects.Gates.TrySpawnDownwardGateTrigger(level, block.At, block.Behavior, BlockStrike.By(shot.StrikingType));
             return;
         }
 
@@ -362,7 +362,7 @@ internal sealed class ProjectileTerrainCollision
         // after the generic shot trigger publishes the projectile type.
         if (block.Behavior.Shootable == ShootableReaction.ResidentObjectTrigger)
         {
-            NotifyResidentProjectileHit(roomObjects, block, shot.Type);
+            NotifyResidentProjectileHit(roomObjects, block, shot.StrikingType);
             return;
         }
 
@@ -377,7 +377,7 @@ internal sealed class ProjectileTerrainCollision
                 level,
                 block.At,
                 block.Behavior,
-                BlockStrike.By(shot.Type));
+                BlockStrike.By(shot.StrikingType));
             return;
         }
 
@@ -396,7 +396,7 @@ internal sealed class ProjectileTerrainCollision
                 level,
                 block.At,
                 block.Behavior,
-                BlockStrike.By(shot.Type),
+                BlockStrike.By(shot.StrikingType),
                 solidBlock: block.CollisionType == RoomCollisionType.ShootableBlock);
         }
     }

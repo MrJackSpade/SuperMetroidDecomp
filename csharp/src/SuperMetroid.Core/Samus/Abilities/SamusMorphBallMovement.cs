@@ -108,8 +108,8 @@ public static class SamusMorphBallMovement
     {
         Validate(level, samus);
         bool ordinary = SamusPoseMetadata.IsAirborneMorphBallPose(samus.Pose);
-        bool spring = samus.Pose is SamusPoseId.SpringBallFallingRightPose or
-            SamusPoseId.SpringBallFallingLeftPose;
+        // A Spring Ball falling pose is one whose declared movement is the Spring Ball's fall.
+        bool spring = SamusPoseMetadata.ReadMovementType(samus.Pose) == SamusMovementType.SpringBallFalling;
         SamusMovementType movementType = SamusPoseMetadata.ReadMovementType(samus);
         if ((!ordinary || movementType != SamusMovementType.MorphBallFalling) &&
             (!spring || movementType != SamusMovementType.SpringBallFalling))

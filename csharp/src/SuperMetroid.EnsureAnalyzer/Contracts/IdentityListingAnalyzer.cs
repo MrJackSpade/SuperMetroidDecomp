@@ -84,7 +84,7 @@ public sealed class IdentityListingAnalyzer : DiagnosticAnalyzer
     /// <summary>Reports <paramref name="syntax"/> when <paramref name="members"/> holds enough members of one identity.</summary>
     private static void ReportListing(OperationAnalysisContext context, SyntaxNode syntax, List<IFieldSymbol> members, string what)
     {
-        foreach (IGrouping<INamedTypeSymbol, IFieldSymbol> identity in members.GroupBy(member => member.ContainingType, SymbolEqualityComparer.Default))
+        foreach (IGrouping<INamedTypeSymbol, IFieldSymbol> identity in members.GroupBy<IFieldSymbol, INamedTypeSymbol>(member => member.ContainingType, SymbolEqualityComparer.Default))
         {
             int distinct = identity.Select(member => member.Name).Distinct(StringComparer.Ordinal).Count();
             if (distinct >= ListingMembers)

@@ -32,7 +32,7 @@ internal static class CeresSteamCollisionDefinitionsVerification
             enemies.VerificationServices().NextRandom = () => 0;
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
             place.Bind(EnemyDefinitionId.CeresSteam, place.Definition);
-            place.Bind(place.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
+            place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
             place.SetSpawnParameter1(EnemyDefinitionId.CeresSteam, (ushort)variant);
             ((IEnemyInitialization)(place.Entity ?? throw new InvalidOperationException("The vent bound no entity."))).Initialize();
             object?[] arguments =
@@ -66,7 +66,7 @@ internal static class CeresSteamCollisionDefinitionsVerification
         var compiled = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         var nativePlace = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>());
         RoomEnemyPlace compiledPlace = compiled.Places.InUpdateOrder[0];
-        compiledPlace.Bind(EnemyDefinitionId.CeresSteam, default(RoomEnemyDefinition));
+        compiledPlace.Bind(EnemyDefinitionId.CeresSteam, EnemyDefinitionFixtures.Blank);
 
         compiledPlace.Bind(EnemyDefinitionId.CeresSteam, compiledPlace.Definition);
         AssertEqual(28, CeresSteamCollisionDefinitionsConstants.FramePointers.Length,

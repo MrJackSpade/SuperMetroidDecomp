@@ -95,7 +95,7 @@ internal static class YappingMawGrabCooldownVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.Bind(EnemyDefinitionId.YappingMaw, place.Definition);
-        place.Bind(place.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
+        place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.Position = place.Position.WithWhole(Root);
         place.SetSpawnParameter1(EnemyDefinitionId.YappingMaw, 48);
         place.SetSpawnParameter2(EnemyDefinitionId.YappingMaw, 0);

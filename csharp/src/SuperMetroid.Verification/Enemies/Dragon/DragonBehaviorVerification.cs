@@ -64,7 +64,7 @@ internal static class DragonBehaviorVerification
                 RoomEnemyPlace place = enemies.Places.InUpdateOrder[bodySlot + part];
                 place.SetSpawnParameter1(EnemyDefinitionId.Dragon, (ushort)part);
                 place.Bind(EnemyDefinitionId.Dragon, place.Definition);
-                place.Bind(place.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
+                place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
                 if (part == 0)
                     enemies.DragonBehavior.InitializeDragonBody(place);
                 else
@@ -93,7 +93,7 @@ internal static class DragonBehaviorVerification
         bool wing = selector is DragonSegment.WingsFacingLeft or DragonSegment.WingsFacingRight;
         place.SetSpawnParameter1(EnemyDefinitionId.Dragon, wing ? (ushort)1 : (ushort)0);
         place.Bind(EnemyDefinitionId.Dragon, place.Definition);
-        place.Bind(place.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
+        place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         if (wing)
             enemies.DragonBehavior.InitializeDragonWing(place);
         else

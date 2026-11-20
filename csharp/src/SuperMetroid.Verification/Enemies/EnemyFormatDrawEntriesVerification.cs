@@ -42,7 +42,7 @@ internal static class EnemyFormatDrawEntriesVerification
         EnemyFrameId ordinaryFrame = EnemyDefinitionFrameDefinitions.Frames[EnemyDefinitionId.Beetom]
             .First(frame => spritemaps.TryGetDisplay(frame, out EnemySpritemapParts parts) && parts.Count > 0);
         RoomEnemyPlace ordinary = enemies.Places.InUpdateOrder[0];
-        ordinary.Bind(EnemyDefinitionId.Beetom, default(RoomEnemyDefinition));
+        ordinary.Bind(EnemyDefinitionId.Beetom, EnemyDefinitionFixtures.Blank);
         ordinary.Frame = ordinaryFrame;
         ordinary.Position = ordinary.Position.WithWhole(new(100, 80));
         enemies.Drawing.Enqueue(enemies.Places.InUpdateOrder[0], reached: true);
@@ -51,7 +51,7 @@ internal static class EnemyFormatDrawEntriesVerification
         EnemyFrameId extendedFrame = EnemyDefinitionFrameDefinitions.Frames[EnemyDefinitionId.PirateGreenWalking]
             .First(frame => extendedFrames.TryGetDisplay(frame, out ReadOnlyMemory<EnemyExtendedDrawComponent> components) && components.Length > 1);
         RoomEnemyPlace extended = enemies.Places.InUpdateOrder[1];
-        extended.Bind(EnemyDefinitionId.PirateGreenWalking, default(RoomEnemyDefinition));
+        extended.Bind(EnemyDefinitionId.PirateGreenWalking, EnemyDefinitionFixtures.Blank);
         extended.CollidesByFrameHitboxes = true;
         extended.Frame = extendedFrame;
         extended.AnimationClock.HoldFor(7);

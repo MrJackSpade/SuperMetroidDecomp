@@ -124,7 +124,7 @@ internal static class RipperBehaviorVerification
     {
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.Bind(definition, place.Definition);
-        place.Bind(place.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
+        place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         return place;
     }
 

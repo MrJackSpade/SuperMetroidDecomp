@@ -85,7 +85,7 @@ internal static class ShutterBehaviorVerification
     {
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.Bind(definition, place.Definition);
-        place.Bind(place.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
+        place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.SetSpawnWords(EnemyDefinitionId.ShutterShootable, _ => SuperMetroid.AssetExtraction.Enemies.PopulationWords.Parameters(2, 0));
         return place;
     }

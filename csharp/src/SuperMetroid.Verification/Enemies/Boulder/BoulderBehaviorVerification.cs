@@ -20,7 +20,7 @@ internal static class BoulderBehaviorVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.Bind(EnemyDefinitionId.Boulder, place.Definition);
-        place.Bind(place.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
+        place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.SetSpawnSettings(new BoulderSpawnSettings(TriggerHeight: 8, TriggerReach: 8, Start: new BoulderStart.FallsFrom(1), Roll: BoulderRoll.Left));
         place.Position = place.Position.WithWhole(new(256, 512));
         BoulderBehavior.InitializeBoulder(place.HeldOccupant(), place);

@@ -63,14 +63,14 @@ internal static class HibashiDefinitionsVerification
         RoomEnemyPlace programGraphics = programSystem.Places.InUpdateOrder[0];
         programGraphics.SetSpawnParameter2(EnemyDefinitionId.Hibashi, 0);
         programGraphics.Bind(EnemyDefinitionId.Hibashi, programGraphics.Definition);
-        programGraphics.Bind(programGraphics.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
+        programGraphics.Bind(programGraphics.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         programGraphics.Position = programGraphics.Position.WithWhole(new(0x0180, 0x0200));
         initializeProgram(programGraphics);
 
         RoomEnemyPlace programHitbox = programSystem.Places.InUpdateOrder[1];
         programHitbox.SetSpawnParameter2(EnemyDefinitionId.Hibashi, 1);
         programHitbox.Bind(EnemyDefinitionId.Hibashi, programHitbox.Definition);
-        programHitbox.Bind(programHitbox.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
+        programHitbox.Bind(programHitbox.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         programHitbox.Position = programHitbox.Position.WithWhole(programGraphics.Position.Whole);
         initializeProgram(programHitbox);
 

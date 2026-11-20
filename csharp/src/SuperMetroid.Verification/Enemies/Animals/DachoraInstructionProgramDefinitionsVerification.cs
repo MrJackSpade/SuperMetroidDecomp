@@ -102,7 +102,7 @@ internal static class DachoraInstructionProgramDefinitionsVerification
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.SetSpawnParameter1(EnemyDefinitionId.Dachora, parameter);
         place.Bind(EnemyDefinitionId.Dachora, place.Definition);
-        place.Bind(place.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
+        place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         return new DachoraInstructionProgramDefinitionsNewDachoraResult(enemies, place);
     }
 

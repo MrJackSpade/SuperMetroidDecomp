@@ -93,7 +93,7 @@ internal static class EnemySpritemapArtworkVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: stock.Bosses);
         RoomEnemyPlace bull = enemies.Places.InUpdateOrder[0];
         bull.Bind(EnemyDefinitionId.Bull, bull.Definition);
-        bull.Bind(bull.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
+        bull.Bind(bull.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         bull.SetSpawnWords(EnemyDefinitionId.Bull, words => words);
         new Action<RoomEnemyPlace>(fixturePlace => enemies.BullBehavior.InitializeBull(fixturePlace.HeldOccupant(), fixturePlace))(bull);
         object?[] arguments =
@@ -520,7 +520,7 @@ internal static class EnemySpritemapArtworkVerification
                     .FirstOrDefault(placement => placement.DefinitionId == definition) is { } placed)
                 place.PopulateFor(definition, placed.SpawnSettings);
             place.Bind(definition, place.Definition);
-            place.Bind(place.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
+            place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
             // A boss's part draws in a room whose boss has attached the body its body frames show on (#2573).
             BossBodyCanvasFixtures.AttachBodyOfPart(enemies, place);
             place.Shading = PictureShading.Standard;

@@ -37,7 +37,7 @@ internal static class TorizoSwapArtworkVerification
         var installedEnemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: stock.Bosses);
         RoomEnemyPlace installedPlace = installedEnemies.Places.InUpdateOrder[0];
         installedPlace.Bind(EnemyDefinitionId.GoldenTorizo, installedPlace.Definition);
-        installedPlace.Bind(installedPlace.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
+        installedPlace.Bind(installedPlace.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
 
         ushort previousInstruction = 0;
         var authoredOpcodes = new HashSet<ushort>();

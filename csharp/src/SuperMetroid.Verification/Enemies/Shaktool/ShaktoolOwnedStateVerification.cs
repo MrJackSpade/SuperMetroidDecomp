@@ -52,7 +52,7 @@ internal static class ShaktoolOwnedStateVerification
         var misplacedEnemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace misplaced = misplacedEnemies.Places.InUpdateOrder[1];
         misplaced.Bind(EnemyDefinitionId.Shaktool, misplaced.Definition);
-        misplaced.Bind(misplaced.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
+        misplaced.Bind(misplaced.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         misplaced.SetSpawnParameter2(EnemyDefinitionId.Shaktool, 0);
         AssertThrows<InvalidDataException>(() => misplacedEnemies.ShaktoolBehavior.InitializeShaktool(misplaced.HeldOccupant(), misplaced),
             "a Shaktool chain starting after the first slot is refused");
@@ -63,7 +63,7 @@ internal static class ShaktoolOwnedStateVerification
         {
             RoomEnemyPlace place = mismatchedEnemies.Places.InUpdateOrder[index];
             place.Bind(EnemyDefinitionId.Shaktool, place.Definition);
-            place.Bind(place.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
+            place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
             place.SetSpawnSettings(new ShaktoolSpawnSettings(
                 index == 0 ? ShaktoolChainMotion.CurlingClockwise : ShaktoolChainMotion.CurlingClockwise with { OrbitDirection = RotationDirection.Counterclockwise },
                 ShaktoolSegmentDefinitions.Segments[index]));
@@ -82,7 +82,7 @@ internal static class ShaktoolOwnedStateVerification
         {
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[index];
             place.Bind(EnemyDefinitionId.Shaktool, place.Definition);
-            place.Bind(place.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
+            place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
             place.SetSpawnParameter2(EnemyDefinitionId.Shaktool, unchecked((ushort)(index * 2)));
             place.Position = place.Position.WithWhole(new(unchecked((ushort)(0x0100 + index * 16)), 0x0200));
             enemies.ShaktoolBehavior.InitializeShaktool(place.HeldOccupant(), place);

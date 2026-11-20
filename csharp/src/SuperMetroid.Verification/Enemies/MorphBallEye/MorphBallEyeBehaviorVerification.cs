@@ -192,7 +192,7 @@ internal static class MorphBallEyeBehaviorVerification
         place.SetSpawnParameter1(EnemyDefinitionId.MorphBallEye, parameter1);
         place.SetSpawnParameter2(EnemyDefinitionId.MorphBallEye, parameter2);
         place.Bind(EnemyDefinitionId.MorphBallEye, place.Definition);
-        place.Bind(place.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
+        place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         ((IEnemyInitialization)(place.Entity ?? throw new InvalidOperationException("The eye bound no entity."))).Initialize();
         return (enemies, place);
     }

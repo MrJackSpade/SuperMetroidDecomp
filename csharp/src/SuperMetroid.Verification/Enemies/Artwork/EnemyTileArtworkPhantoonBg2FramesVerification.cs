@@ -207,7 +207,7 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
         var enemies = EnemySystemFixtures.New((art is null ? EnemySessionFixtures.WithInstalledServices() : EnemySessionFixtures.WithInstalledServices(art.Enemies)), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: art?.Bosses);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.Bind(EnemyDefinitionId.PhantoonBody, place.Definition);
-        place.Bind(place.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
+        place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.SpritemapPointer = pointer;
         place.Position = place.Position.WithWhole(new(0x0080, 0x0080));
         object?[] arguments =
@@ -228,7 +228,7 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
         enemies.Drawing.Enqueue(enemies.Places.InUpdateOrder[0], reached: true);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.Bind(EnemyDefinitionId.PhantoonBody, place.Definition);
-        place.Bind(place.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
+        place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.CollidesByFrameHitboxes = true;
         if (newInstructionFrame)
             SuperMetroid.Core.PrivateState.Set(place.AnimationClock, nameof(EnemyAnimationClock.ShowsNewFrame), true);

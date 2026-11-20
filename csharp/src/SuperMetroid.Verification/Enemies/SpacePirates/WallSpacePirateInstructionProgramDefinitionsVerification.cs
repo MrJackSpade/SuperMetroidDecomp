@@ -176,7 +176,7 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
             enemies.VerificationServices().NextRandom = () => 0;
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
             place.Bind(EnemyDefinitionId.PirateGreyWall, place.Definition);
-            place.Bind(place.HeldOccupant().DefinitionId, default(RoomEnemyDefinition) with
+            place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank with
             {
                 Damage = 20,
             });

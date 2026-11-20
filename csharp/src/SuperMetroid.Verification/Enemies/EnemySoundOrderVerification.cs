@@ -95,7 +95,7 @@ internal static class EnemySoundOrderVerification
     {
         RoomEnemyPlace enemy = enemies.Places.InUpdateOrder[place];
         enemy.Bind(EnemyDefinitionId.Metroid, enemy.Definition);
-        enemy.Bind(enemy.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
+        enemy.Bind(enemy.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         enemy.AnimationClock.StepOnNextUpdate();
         enemy.SetSpeciesState(new MetroidEnemyState(
             new RoomEffectActor(RoomEffectActorKind.MetroidElectricity, default, SpriteGraphics.SharedStandard),
@@ -117,7 +117,7 @@ internal static class EnemySoundOrderVerification
     {
         RoomEnemyPlace enemy = enemies.Places.InUpdateOrder[place];
         enemy.Bind(EnemyDefinitionId.Boyon, enemy.Definition);
-        enemy.Bind(enemy.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
+        enemy.Bind(enemy.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         enemy.SetSpawnParameter2(EnemyDefinitionId.Boyon, 64);
         enemy.Position = enemy.Position.WithWhole(new(256, 512));
         BoyonBehavior.InitializeBoyon(enemy);

@@ -66,7 +66,7 @@ internal static class HopperAnimationDefinitionsVerification
 
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
             place.Bind(definitions[variant], place.Definition);
-            place.Bind(place.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
+            place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
             place.SetSpawnParameter1(EnemyDefinitionId.Sidehopper, onCeiling ? (ushort)1 : (ushort)0);
             enemies.HoppersBehavior.InitializeHopper(place, place.HeldOccupant());
             HopperEnemyState state = enemies.HopperStates[0] ?? throw new InvalidOperationException("Verification requires enemies.HopperStates[0].");
@@ -121,7 +121,7 @@ internal static class HopperAnimationDefinitionsVerification
 
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.Bind(EnemyDefinitionId.SidehopperTourian, place.Definition);
-        place.Bind(place.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
+        place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.SetSpawnSettings(new HopperSpawnSettings(HopperSurface.Floor));
         enemies.HoppersBehavior.InitializeHopper(place, place.HeldOccupant());
         EnemyInstructionRunner.ShownFrames(place, 1);

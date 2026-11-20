@@ -176,7 +176,7 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
 
             place = enemies.Places.InUpdateOrder[0];
             place.Bind(EnemyDefinitionId.FakeKraid, place.Definition);
-            place.Bind(place.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
+            place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
             // The header's collision half-extents: the terrain movers scan the rows the body spans.
             place.Radius = CompiledRoomEnemyDefinitions.Instance.ReadEnemyDefinition(EnemyDefinitionId.FakeKraid).Radius;
             place.Position = place.Position.WithWhole(new(0x0100, 0x0100));

@@ -181,7 +181,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.Bind(EnemyDefinitionId.DraygonBody, place.Definition);
-        place.Bind(place.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
+        place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.Position = place.Position.WithWhole(new(0x100, 0x100));
         foreach (ushort pointer in new ushort[] { 0xa31b, 0xa643, 0xa36b })
         {
@@ -225,7 +225,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
         enemies.Drawing.Enqueue(enemies.Places.InUpdateOrder[0], reached: true);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.Bind(EnemyDefinitionId.DraygonBody, place.Definition);
-        place.Bind(place.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
+        place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.CollidesByFrameHitboxes = true;
         if (newInstructionFrame)
             SuperMetroid.Core.PrivateState.Set(place.AnimationClock, nameof(EnemyAnimationClock.ShowsNewFrame), true);

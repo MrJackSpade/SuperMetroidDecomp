@@ -18,7 +18,7 @@ internal static class FirefleaBehaviorVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.Bind(EnemyDefinitionId.Fireflea, place.Definition);
-        place.Bind(place.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
+        place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.SetSpawnParameter1(EnemyDefinitionId.Fireflea, 0);
         place.SetSpawnParameter2(EnemyDefinitionId.Fireflea, 0);
         FirefleaBehavior.InitializeFireflea(place.HeldOccupant(), place);

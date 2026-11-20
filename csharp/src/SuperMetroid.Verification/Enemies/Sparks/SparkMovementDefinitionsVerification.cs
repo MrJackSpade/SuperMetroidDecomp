@@ -76,7 +76,7 @@ internal static class SparkMovementDefinitionsVerification
         enemies.VerificationServices().IsAreaBossDefeated = () => true;
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.Bind(EnemyDefinitionId.Spark, place.Definition);
-        place.Bind(place.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
+        place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.SetSpawnSettings(new SparkSpawnSettings(Start: SparkMovementDefinitions.AlwaysActive, BaseActionTime: 0));
         SparkBehavior.InitializeSpark(place.HeldOccupant(), place);
         SparkEnemyState state = enemies.SparkStates[0] ?? throw new InvalidOperationException("Spark has no state.");

@@ -20,7 +20,7 @@ internal static class PlatformOwnedStateVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.Bind(EnemyDefinitionId.Tripper, place.Definition);
-        place.Bind(place.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
+        place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         const int speedRecord = 5;
         const int accelerationCap = 3;
         place.SetSpawnParameter2(EnemyDefinitionId.Tripper, LittleEndianBytes.Word(speedRecord, accelerationCap));

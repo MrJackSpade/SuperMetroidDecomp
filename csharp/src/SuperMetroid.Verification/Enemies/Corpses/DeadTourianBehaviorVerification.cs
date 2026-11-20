@@ -22,7 +22,7 @@ internal static class DeadTourianBehaviorVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: InstalledFixtures.BossArtwork);
         RoomEnemyPlace corpse = enemies.Places.InUpdateOrder[0];
         corpse.Bind(EnemyDefinitionId.CorpseSidehopper, corpse.Definition);
-        corpse.Bind(corpse.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
+        corpse.Bind(corpse.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         corpse.SetSpawnParameter1(EnemyDefinitionId.CorpseSidehopper, 0);
         enemies.DeadSidehopperBehavior.InitializeDeadSidehopper(corpse.HeldOccupant(), corpse);
         AssertEqual(new AnimationPlayback<DeadTourianSegment>(DeadTourianAnimations.StartingWith(DeadTourianSegment.SidehopperIdle), AnimationPlace.StartOfAnimation),
@@ -65,7 +65,7 @@ internal static class DeadTourianBehaviorVerification
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: InstalledFixtures.BossArtwork);
             RoomEnemyPlace corpse = enemies.Places.InUpdateOrder[0];
             corpse.Bind(EnemyDefinitionId.CorpseSidehopper, corpse.Definition);
-            corpse.Bind(corpse.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
+            corpse.Bind(corpse.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
             corpse.SetSpawnParameter1(EnemyDefinitionId.CorpseSidehopper, 0);
             enemies.DeadSidehopperBehavior.InitializeDeadSidehopper(corpse.HeldOccupant(), corpse);
             DeadSidehopperEnemyState state = corpse.RequireSpeciesState<DeadSidehopperEnemyState>();

@@ -235,7 +235,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
             enemies.VerificationServices().NextRandom = () => 1;
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
             place.Bind(EnemyDefinitionId.PirateSilverNinja, place.Definition);
-            place.Bind(place.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
+            place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
             place.Position = place.Position.WithWhole(new(0x0100, 0x0100));
             place.Radius = new(8, 16);
             place.SetSpawnParameter2(EnemyDefinitionId.PirateSilverNinja, 0x0080);

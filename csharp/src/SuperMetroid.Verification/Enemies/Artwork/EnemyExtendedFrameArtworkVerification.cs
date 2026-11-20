@@ -276,7 +276,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         EnemyFrameId? frame = RoomEnemyPlaceFrameAccess.TryFrameAt(bank, pointer);
         place.Bind(ExtendedFrameShower(frame), place.Definition);
-        place.Bind(place.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
+        place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         // A boss's part draws in a room whose boss has attached the body its body frames show on (#2573).
         BossBodyCanvasFixtures.AttachBodyOfPart(enemies, place);
         if (art is not null)

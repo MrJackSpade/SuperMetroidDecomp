@@ -90,9 +90,8 @@ internal static class ProjectileDamageVerification
         foreach (ushort type in new ushort[] { 0x0300, 0x0500, 0x8500 })
         {
             var slot = new SamusBomb(0);
-            slot.OccupyAsPlaced(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type));
-            SamusBombProjectileSystem.InitializeBomb(slot);
-            AssertEqual((ushort)(type == 0x0300 ? 200 : 30), slot.HeldBomb().Damage, "Power/ordinary/spread bomb damage");
+            SamusBombOccupant placed = SamusBombProjectileSystem.Place(slot, SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type));
+            AssertEqual((ushort)(type == 0x0300 ? 200 : 30), placed.Damage, "Power/ordinary/spread bomb damage");
         }
         // The echo table's unused negative-damage entry sits at Spazer+Wave, a combination no echo is: the typed identity
         // cannot name it, so the import refuses the word that would select it (#1470).

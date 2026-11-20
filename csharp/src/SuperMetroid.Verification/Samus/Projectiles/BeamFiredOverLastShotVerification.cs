@@ -201,7 +201,8 @@ internal static class BeamFiredOverLastShotVerification
             ("a Chainsaw shot part-way through its fuse", projectiles =>
             {
                 SamusProjectile chainsaw = FlyingBeam(projectiles, LastPlace);
-                chainsaw.OccupyAsFired(SamusProjectileType.Beam(SamusBeamCombination.SpazerPlasmaWave, charged: false));
+                // The flying beam's place now holds the Chainsaw shot.
+                chainsaw.HeldShot().Type = SamusProjectileType.Beam(SamusBeamCombination.SpazerPlasmaWave, charged: false);
                 chainsaw.HeldShot().Install(SamusShotBehaviors.ChainsawPowerBomb, kindState: null);
                 chainsaw.BeamFuse = UpdateCountdown.For(chainsawFuseLeft);
             }, chainsawFuseLeft),

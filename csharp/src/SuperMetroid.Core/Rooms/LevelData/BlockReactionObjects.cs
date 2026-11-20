@@ -362,10 +362,10 @@ internal sealed class BlockReactionObjects
     /// any other image, or the block's saved terrain restored as it grows back, closes it again.
     /// </summary>
     /// <param name="block">The reaction's block.</param>
-    /// <param name="draw">The image's draw; null when the image restored the block's saved terrain.</param>
-    internal void RecordImageShown(Position16<RoomBlocks> block, RoomObjectDraw? draw)
+    /// <param name="image">The image shown: a draw, or the block's saved terrain restored.</param>
+    internal void RecordImageShown(Position16<RoomBlocks> block, BlockReactionImage image)
     {
-        if (draw is RoomObjectFrameDraw<ShotBlockObjectDraws.BreakupDraw> { Frame.BreaksOpen: true })
+        if (image is BlockReactionImage.Drawn { Draw: RoomObjectFrameDraw<ShotBlockObjectDraws.BreakupDraw> { Frame.BreaksOpen: true } })
             _brokenOpenBlocks.Add(block);
         else
             _brokenOpenBlocks.Remove(block);

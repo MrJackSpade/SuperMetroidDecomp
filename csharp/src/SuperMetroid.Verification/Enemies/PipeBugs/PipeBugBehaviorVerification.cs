@@ -172,7 +172,7 @@ internal static class PipeBugBehaviorVerification
     private static void Initialize(RoomEnemySystem enemies, RoomEnemyPlace place, EnemyDefinitionId definition, ushort parameter)
     {
         place.Bind(definition, place.Definition);
-        place.Bind(place.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
+        place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.SetSpawnParameter1(definition, parameter);
         switch (definition)
         {

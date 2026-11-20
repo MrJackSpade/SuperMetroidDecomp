@@ -90,7 +90,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
             place.Bind(EnemyDefinitionId.YappingMaw, place.Definition);
-            place.Bind(place.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
+            place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
             place.Position = place.Position.WithWhole(new(128, 128));
             place.SetSpawnParameter1(EnemyDefinitionId.YappingMaw, 128);
             place.SetSpawnParameter2(EnemyDefinitionId.YappingMaw, parameter2);
@@ -162,7 +162,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.Bind(EnemyDefinitionId.YappingMaw, place.Definition);
-        place.Bind(place.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
+        place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.Position = place.Position.WithWhole(new(128, 128));
         place.SetSpawnParameter1(EnemyDefinitionId.YappingMaw, checked((ushort)activationDistance));
         place.SetSpawnParameter2(EnemyDefinitionId.YappingMaw, 1);
@@ -178,7 +178,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.Bind(EnemyDefinitionId.YappingMaw, place.Definition);
-        place.Bind(place.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
+        place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.AnimationClock.StepOnNextUpdate();
         var state = new YappingMawEnemyState { Playback = new(YappingMawAnimations.StartingWith(entry), AnimationPlace.StartOfAnimation), Links = [], RootEffectActor = new(SuperMetroid.Core.Enemies.EffectActors.RoomEffectActorKind.YappingMawBaseFacingUp, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard) };
         place.SetSpeciesState(state);

@@ -143,7 +143,9 @@ internal static class RoomObjectProgramsVerification
             {
                 AssertTrue(frame < change.Frames.Count, $"{at}: the typed reaction ends before the native list draws");
                 BlockReactionFrame expected = change.Frames[frame];
-                RoomObjectDraw draw = expected.Draw ?? throw new InvalidDataException($"{at}: the native image draws where the typed one restores the block.");
+                RoomObjectDraw draw = expected.Image is BlockReactionImage.Drawn drawn
+                    ? drawn.Draw
+                    : throw new InvalidDataException($"{at}: the native image draws where the typed one restores the block.");
                 AssertEqual(expected.Updates, word, $"{at}: updates");
                 AssertEqual(SuperMetroid.AssetExtraction.Rooms.RoomObjectDrawAddressCodec.Of(draw), (int)Word(cursor + 2), $"{at}: draw");
                 AssertEqual(sound, expected.SoundBefore, $"{at}: sound with the image");
@@ -180,7 +182,7 @@ internal static class RoomObjectProgramsVerification
             }
             if (instruction == RoomObjectInstruction.SetObjectBtsToOne)
             {
-                AssertTrue(restoresGrappleBehaviour && frame < change.Frames.Count && change.Frames[frame].Draw is null,
+                AssertTrue(restoresGrappleBehaviour && frame < change.Frames.Count && change.Frames[frame].Image is BlockReactionImage.RestoresSavedTerrain,
                     $"{at}: only the respawning Grapple block restores its behaviour, just before its restored block");
                 grappleRestored = true;
                 cursor += 2;
@@ -188,7 +190,7 @@ internal static class RoomObjectProgramsVerification
             }
             if (instruction is RoomObjectInstruction.DrawObjectBlock or RoomObjectInstruction.DrawObjectBlockClone)
             {
-                AssertTrue(frame < change.Frames.Count && change.Frames[frame].Draw is null, $"{at}: the typed image restores the saved block");
+                AssertTrue(frame < change.Frames.Count && change.Frames[frame].Image is BlockReactionImage.RestoresSavedTerrain, $"{at}: the typed image restores the saved block");
                 AssertEqual(1, change.Frames[frame].Updates, $"{at}: the restored block stays one update");
                 AssertEqual<SoundEffectId?>(null, sound, $"{at}: no sound with the restored block");
                 frame++;

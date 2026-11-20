@@ -26,12 +26,12 @@ internal static class PowampBehaviorVerification
         RoomEnemyPlace balloon = enemies.Places.InUpdateOrder[0];
         balloon.SetSpawnParameter1(EnemyDefinitionId.Powamp, 1);
         balloon.Bind(EnemyDefinitionId.Powamp, balloon.Definition);
-        balloon.Bind(balloon.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
+        balloon.Bind(balloon.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         PowampBehavior.InitializePowampBalloon(balloon);
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[1];
         body.BindPlaced(EnemyDefinitionId.Powamp, new PowampBodySpawnSettings(PowampContact.Accepts));
         body.Bind(EnemyDefinitionId.Powamp, body.Definition);
-        body.Bind(body.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
+        body.Bind(body.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         enemies.PowampBehavior.InitializePowampBody(body);
         AssertEqual(new AnimationPlayback<PowampSegment>(PowampAnimations.StartingWith(PowampSegment.BalloonDeflated), AnimationPlace.StartOfAnimation), balloon.RequireSpeciesState<PowampBalloonState>().Playback,
             "the balloon starts deflated");

@@ -143,7 +143,7 @@ internal static class ChainsawFiringVerification
         var combat = CreateEnemyDropFixture(samus, [1]);
         RoomEnemyPlace target = combat.System.Places.InUpdateOrder[0];
         target.Bind(EnemyPlaceFixtures.StandIn, target.Definition);
-        target.Bind(target.HeldOccupant().DefinitionId, default(RoomEnemyDefinition) with
+        target.Bind(target.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank with
         {
             Shot = EnemyReaction.OrdinaryShot,
         });

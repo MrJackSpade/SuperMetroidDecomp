@@ -36,7 +36,7 @@ internal static class GrappleEnemyDeathVerification
         SeedEnemyDropChancePointer(fixture.Bus, header);
         var enemy = fixture.System.Places.InUpdateOrder[0];
         enemy.Bind(EnemyPlaceFixtures.StandIn, enemy.Definition);
-        enemy.Bind(enemy.HeldOccupant().DefinitionId, default(RoomEnemyDefinition) with
+        enemy.Bind(enemy.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank with
         {
             GrappleResponse = GrappleEnemyReaction.Kill,
             DeathExplosion = EnemyDeathExplosion.Big,
@@ -116,7 +116,7 @@ internal static class GrappleEnemyDeathVerification
         fixture.System.BossArtwork = InstalledFixtures.BossArtwork;
             var enemy = fixture.System.Places.InUpdateOrder[0];
             enemy.Bind(EnemyPlaceFixtures.StandIn, enemy.Definition);
-            enemy.Bind(enemy.HeldOccupant().DefinitionId, default(RoomEnemyDefinition) with
+            enemy.Bind(enemy.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank with
             {
                 GrappleResponse = GrappleEnemyReaction.Kill,
             });

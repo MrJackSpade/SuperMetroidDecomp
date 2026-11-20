@@ -24,7 +24,7 @@ internal static class NorfairLavaJumperBehaviorVerification
         RoomEnemyPlace parent = enemies.Places.InUpdateOrder[0];
         parent.BindPlaced(EnemyDefinitionId.Squeept, new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader));
         parent.Bind(EnemyDefinitionId.Squeept, parent.Definition);
-        parent.Bind(parent.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
+        parent.Bind(parent.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         parent.Position = parent.Position.WithWhole(new(256, 480));
         SqueeptBehavior.InitializeSqueept(parent);
         SqueeptState parentState = enemies.SqueeptStates[0]
@@ -52,7 +52,7 @@ internal static class NorfairLavaJumperBehaviorVerification
         RoomEnemyPlace follower = enemies.Places.InUpdateOrder[1];
         follower.SetSpawnParameter1(EnemyDefinitionId.Squeept, 32768);
         follower.Bind(EnemyDefinitionId.Squeept, follower.Definition);
-        follower.Bind(follower.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
+        follower.Bind(follower.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         enemies.SqueeptBehavior.InitializeNorfairLavaJumperFollower(follower);
         NorfairLavaJumperFollowerState followerState = enemies.NorfairLavaJumperFollowerStates[1]
             ?? throw new InvalidOperationException("Verification requires enemies.NorfairLavaJumperFollowerStates[1].");

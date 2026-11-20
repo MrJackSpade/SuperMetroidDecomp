@@ -43,7 +43,7 @@ public static class SamusInsideBlockReactions
                 ApplyConveyor(conveyor);
                 return;
             }
-            if (!block.Behavior.TryGetSpecialAir(out SpecialAirReaction specialAir))
+            if (block.Behavior.SpecialAirReading is not BlockKindReading<SpecialAirReaction>.Reacts { Reaction: var specialAir })
                 throw new ArgumentOutOfRangeException(nameof(block), block, "A special-air block's inside-body reaction needs a reaction the block has.");
             SpecialAirInsideReaction reaction = SpecialAirReactions.InsideOf(specialAir);
             // A sand reaction takes a room-object place before it acts; with every place taken it does nothing.
@@ -156,7 +156,7 @@ public static class SamusInsideBlockReactions
         ISamusRoomObjects roomObjects = terrain.RoomObjects;
         SamusKinematicsState body = contact.Body;
         surfaceContact = false;
-        if (!block.Behavior.TryGetSpecialAir(out SpecialAirReaction specialAir))
+        if (block.Behavior.SpecialAirReading is not BlockKindReading<SpecialAirReaction>.Reacts { Reaction: var specialAir })
             throw new ArgumentOutOfRangeException(nameof(block), block, "A special-air block's movement-collision reaction needs a reaction the block has.");
         SpecialAirCollisionReaction reaction = SpecialAirReactions.CollisionOf(specialAir);
         // A sand reaction takes a room-object place before it acts; with every place taken Samus passes as through air.

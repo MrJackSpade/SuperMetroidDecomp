@@ -6,17 +6,13 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 public static class ShotBlockReactions
 {
     /// <summary>
-    /// The shot-block response's reaction for <paramref name="reaction"/>, when the block has a reaction the response handles
-    /// (the door, collectible, gate and animal-escape reactions run before it).
+    /// The shot-block response's reaction for <paramref name="reaction"/>, when the response handles it (the door,
+    /// collectible, gate and animal-escape reactions run before it).
     /// </summary>
-    /// <param name="reaction">The block's shootable reaction, or null for none.</param>
+    /// <param name="reaction">The block's shootable reaction.</param>
     /// <param name="handled">The response's reaction.</param>
-    /// <returns>Whether the block has a reaction the response handles.</returns>
-    public static bool TryOf(ShootableReaction? reaction, out ShotBlockReaction handled)
-    {
-        handled = default;
-        return reaction is { } read && Handled.TryGetValue(read, out handled);
-    }
+    /// <returns>Whether the response handles the reaction.</returns>
+    public static bool TryOf(ShootableReaction reaction, out ShotBlockReaction handled) => Handled.TryGetValue(reaction, out handled);
 
     /// <summary>Whether <paramref name="reaction"/> is one of the reactions every weapon's scan hands to the shot-block response.</summary>
     public static bool IsWeaponReaction(ShootableReaction? reaction) => reaction is { } read && WeaponReactions.Contains(read);

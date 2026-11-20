@@ -901,7 +901,7 @@ public sealed class SamusBombProjectileSystem
             // block returns early and therefore neither allocates a room object nor mutates terrain.
             if (block.Behavior.Bombable == BombableReaction.Inert)
                 return;
-            if (!block.Behavior.TryGetBombable(out _))
+            if (block.Behavior.BombableReading is BlockKindReading<BombableReaction>.NoReaction)
             {
                 // A bombable block with no bomb reaction would make the game read unrelated data as a
                 // room-object definition; room data holds none, and the import refuses one.

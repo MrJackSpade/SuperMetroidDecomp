@@ -228,7 +228,8 @@ internal sealed class BlockReactionObjects
         Ensure.NotNull(level);
         if (behavior == EscapeAnimalWallDefinitions.ReactionBehavior)
             return _escapeAnimals.TrySpawnCrittersEscapeReaction(level, position, projectileType);
-        if (!ShotBlockReactions.TryOf(behavior.Shootable, out ShotBlockReaction reaction))
+        if (behavior.ShootableReading is not BlockKindReading<ShootableReaction>.Reacts { Reaction: var shootable } ||
+            !ShotBlockReactions.TryOf(shootable, out ShotBlockReaction reaction))
         {
             throw new UnsupportedShotBlockReactionException(
                 nameof(behavior),
@@ -238,7 +239,7 @@ internal sealed class BlockReactionObjects
         // A reaction that sets its object off only in a shootable block leaves shootable air before spawning; its
         // solid-block sibling places the object that does nothing. A reaction that sets its object off only in solid
         // blocks spawns nothing outside one.
-        if (behavior.Shootable is { } shootable && shootable.SetsOffOnlyInSolidBlocks && !solidBlock)
+        if (shootable.SetsOffOnlyInSolidBlocks && !solidBlock)
             return false;
 
         SamusProjectileFamily projectileFamily = projectileType.Family;
@@ -347,7 +348,7 @@ internal sealed class BlockReactionObjects
                 "The bomb-special setup accepts only normal-bomb and Power-Bomb families.");
         }
 
-        if (!behavior.TryGetSpecial(out SpecialBlockReaction special))
+        if (behavior.SpecialReading is not BlockKindReading<SpecialBlockReaction>.Reacts { Reaction: var special })
             throw new ArgumentOutOfRangeException(nameof(behavior), "The special block's behaviour has no special-block reaction.");
         BlockReactionChange change = BombSpecialBlockReactions.ChangeFor(special);
 

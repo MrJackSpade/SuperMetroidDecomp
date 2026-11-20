@@ -240,32 +240,20 @@ public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
     /// <summary>The reaction spike blocks and spike air read, or null when they have none for this behaviour.</summary>
     public SpikeReaction? Spike => Readings.Spike;
 
-    /// <summary>The reaction spike blocks and spike air read of the behaviour, when it gives them one (#2554).</summary>
-    /// <param name="reaction">The reaction they read.</param>
-    /// <returns>Whether the behaviour gives spikes a reaction: one a kind change brings to a spike may give it none.</returns>
-    public bool TryGetSpike(out SpikeReaction reaction) => TryRead(Spike, out reaction);
+    /// <summary>What spike blocks and spike air read of the behaviour (#2554): their reaction, or none a kind change brings.</summary>
+    public BlockKindReading<SpikeReaction> SpikeReading => BlockKindReading<SpikeReaction>.Of(Spike);
 
-    /// <summary>The reaction bombable blocks and bombable air read of the behaviour, when it gives them one (#2554).</summary>
-    /// <param name="reaction">The reaction they read.</param>
-    /// <returns>Whether the behaviour gives bombable blocks a reaction.</returns>
-    public bool TryGetBombable(out BombableReaction reaction) => TryRead(Bombable, out reaction);
+    /// <summary>What bombable blocks and bombable air read of the behaviour (#2554).</summary>
+    public BlockKindReading<BombableReaction> BombableReading => BlockKindReading<BombableReaction>.Of(Bombable);
 
-    /// <summary>The reaction special blocks read of the behaviour, when it gives them one (#2554).</summary>
-    /// <param name="reaction">The reaction they read.</param>
-    /// <returns>Whether the behaviour gives special blocks a reaction.</returns>
-    public bool TryGetSpecial(out SpecialBlockReaction reaction) => TryRead(Special, out reaction);
+    /// <summary>What shootable blocks and shootable air read of the behaviour (#2554).</summary>
+    public BlockKindReading<ShootableReaction> ShootableReading => BlockKindReading<ShootableReaction>.Of(Shootable);
 
-    /// <summary>The reaction special-air blocks read of the behaviour, when it gives them one (#2554).</summary>
-    /// <param name="reaction">The reaction they read.</param>
-    /// <returns>Whether the behaviour gives special air a reaction.</returns>
-    public bool TryGetSpecialAir(out SpecialAirReaction reaction) => TryRead(SpecialAir, out reaction);
+    /// <summary>What special blocks read of the behaviour (#2554).</summary>
+    public BlockKindReading<SpecialBlockReaction> SpecialReading => BlockKindReading<SpecialBlockReaction>.Of(Special);
 
-    /// <summary>A reacting kind's reading, when the behaviour gives the kind one.</summary>
-    private static bool TryRead<TReaction>(TReaction? read, out TReaction reaction) where TReaction : struct
-    {
-        reaction = read.GetValueOrDefault();
-        return read.HasValue;
-    }
+    /// <summary>What special-air blocks read of the behaviour (#2554).</summary>
+    public BlockKindReading<SpecialAirReaction> SpecialAirReading => BlockKindReading<SpecialAirReaction>.Of(SpecialAir);
 
     /// <summary>The reaction grapple blocks read, or null when they have none for this behaviour.</summary>
     public GrappleReaction? Grapple => Readings.Grapple;

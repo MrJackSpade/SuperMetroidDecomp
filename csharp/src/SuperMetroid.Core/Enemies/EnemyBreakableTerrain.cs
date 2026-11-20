@@ -11,7 +11,7 @@ public static class EnemyBreakableTerrain
 {
     /// <summary>Whether the spike block with <paramref name="behavior"/> spawns the enemy-breakable block.</summary>
     /// <exception cref="InvalidDataException">The behaviour gives the spike no reaction.</exception>
-    public static bool IsEnemyBreakable(RoomBlockBehavior behavior) => behavior.TryGetSpike(out SpikeReaction spike)
+    public static bool IsEnemyBreakable(RoomBlockBehavior behavior) => behavior.SpikeReading is BlockKindReading<SpikeReaction>.Reacts { Reaction: var spike }
         ? spike switch
         {
             SpikeReaction.EnemyBreakable or SpikeReaction.EnemyBreakableLetsGrappleThrough => true,

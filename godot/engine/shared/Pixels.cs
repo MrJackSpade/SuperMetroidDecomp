@@ -33,6 +33,22 @@ public readonly struct Pixels : IEquatable<Pixels>, IComparable<Pixels>
         return new((long)whole * FractionsPerPixel + fraction);
     }
 
+    /// <summary>
+    /// A distance from a number of pixels such as 1.25, taken to the nearest part of a pixel. This is how a value shown
+    /// in the editor, which can only show ordinary numbers, becomes exact; every part of a pixel the game can hold is a
+    /// number the editor shows without loss.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">The number is not finite or is too large.</exception>
+    public static Pixels FromNumber(double pixels)
+    {
+        if (!double.IsFinite(pixels) || Math.Abs(pixels) > int.MaxValue)
+            throw new ArgumentOutOfRangeException(nameof(pixels), pixels, "Not a number of pixels the game can hold.");
+        return new((long)Math.Round(pixels * FractionsPerPixel, MidpointRounding.AwayFromZero));
+    }
+
+    /// <summary>The distance as a number of pixels, exactly, for showing in the editor.</summary>
+    public double ToNumber() => (double)_fractions / FractionsPerPixel;
+
     /// <summary>The whole pixels, rounded toward the left or top: the pixel this distance lies in.</summary>
     public int Whole => checked((int)((_fractions - Fraction) / FractionsPerPixel));
 

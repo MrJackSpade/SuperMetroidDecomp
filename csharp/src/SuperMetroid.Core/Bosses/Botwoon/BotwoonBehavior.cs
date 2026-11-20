@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Bosses.Botwoon;
 /// segments and spit (#1801): it is their projectile behaviour, since a segment is a piece of Botwoon run from his state.
 /// </summary>
 [RoomLifetime]
-internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonProjectileMotion>, IEnemySpecies, IEnemyEntityFactory
+internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
     private readonly EnemyPassEvents _passEvents;
@@ -42,7 +42,6 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
 
     /// <summary>Binds Botwoon's head, body, colours, collision, and drop services.</summary>
     internal BotwoonBehavior(BotwoonBehaviorDependencies dependencies)
-        : base(StartingMotions)
     {
         _passEvents = dependencies.PassEvents;
         _room = dependencies.Room;
@@ -732,34 +731,35 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         AfterCommon = c => ResolveBotwoonCombatAfterCommon(c.Enemy, state),
     };
 
-    /// <summary>Botwoon's body segments and spit (#1760): their spawners start their animations, and Botwoon runs them.</summary>
-    internal EnemyProjectileBehavior BodyAndSpit => this;
-
-    /// <summary>A body segment and a spit move from their spawn.</summary>
-    private static readonly Dictionary<RoomEnemyProjectileKind, BotwoonProjectileMotion?> StartingMotions = new()
-    {
-        [RoomEnemyProjectileKind.BotwoonBody] = BotwoonProjectileMotion.BodySegment,
-        [RoomEnemyProjectileKind.BotwoonSpit] = BotwoonProjectileMotion.SpitFlying,
-    };
-
     /// <summary>
-    /// Moves a body segment, oriented and coloured with his hurt and run through its death, or a spit flying until it
-    /// leaves the camera.
+    /// One of Botwoon's body segments (#1760): its spawner starts its animation, and Botwoon moves it, oriented and coloured
+    /// with his hurt, through its death. It keeps the segment's place in his body and its fall.
     /// </summary>
-    /// <param name="context">The projectile and what its pass hands every motion.</param>
-    /// <param name="motion">The motion the projectile holds.</param>
-    private protected override void Move(EnemyProjectileMotionContext context, BotwoonProjectileMotion motion)
+    /// <param name="botwoon">Botwoon, who moves the segment.</param>
+    /// <param name="segment">What the segment keeps.</param>
+    private sealed class SegmentBehavior(BotwoonBehavior botwoon, BotwoonSegmentState segment)
+        : EnemyProjectileMotionBehavior<BotwoonProjectileMotion>(BotwoonProjectileMotion.BodySegment)
     {
-        switch (motion)
+        /// <inheritdoc/>
+        private protected override void Move(EnemyProjectileMotionContext context, BotwoonProjectileMotion motion)
         {
-            case BotwoonProjectileMotion.BodySegment:
-                MoveBotwoonBodySegment(context.Projectile, context.ShortCounter);
-                break;
-            case BotwoonProjectileMotion.SpitFlying:
-                FlyBotwoonSpit(context.Projectile, context.Camera);
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(BotwoonProjectileMotion)} {motion}.");
+            if (motion != BotwoonProjectileMotion.BodySegment)
+                throw new InvalidOperationException($"Botwoon's body segment does not move by {nameof(BotwoonProjectileMotion)} {motion}.");
+            botwoon.MoveBotwoonBodySegment(segment, context.ShortCounter);
+        }
+    }
+
+    /// <summary>One of Botwoon's spits (#1760): it flies along its heading until it leaves the camera.</summary>
+    /// <param name="flight">What the spit keeps: its heading's flight.</param>
+    private sealed class SpitBehavior(AngledFlightState flight)
+        : EnemyProjectileMotionBehavior<BotwoonProjectileMotion>(BotwoonProjectileMotion.SpitFlying)
+    {
+        /// <inheritdoc/>
+        private protected override void Move(EnemyProjectileMotionContext context, BotwoonProjectileMotion motion)
+        {
+            if (motion != BotwoonProjectileMotion.SpitFlying)
+                throw new InvalidOperationException($"Botwoon's spit does not move by {nameof(BotwoonProjectileMotion)} {motion}.");
+            FlyBotwoonSpit(context.Projectile, flight, context.Camera);
         }
     }
 
@@ -822,18 +822,16 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         if (_projectiles.AllocateEnemyProjectile() is not { } projectile)
             return null;
 
+        // Every segment, the tail cap included, starts hidden inside the wall.
+        var animation = new BotwoonSegmentAnimation(BotwoonBodyAnimationSegment.Hidden);
+        var segment = new BotwoonSegmentState(head, botwoon, segmentIndex, projectile, animation);
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.BotwoonBody,
-            BodyAndSpit,
+            new SegmentBehavior(this, segment),
             SpriteGraphics.SpawnedBy(head));
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(head.Position.Whole);
-
-        // Every segment, the tail cap included, starts hidden inside the wall.
-        var animation = new BotwoonSegmentAnimation(BotwoonBodyAnimationSegment.Hidden);
         projectile.StartAnimation(animation);
-        var segment = new BotwoonSegmentState(head, botwoon, segmentIndex, projectile, animation);
-        projectile.State = segment;
         projectile.CollisionOption = EnemyProjectileCollisionOption.NoCollision;
         projectile.CanDamageSamus = false;
         return segment;
@@ -841,17 +839,17 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
 
     /// <summary>Moves a body segment for one update through its four movement states.</summary>
     internal void MoveBotwoonBodySegment(
-        EnemyProjectile projectile,
+        BotwoonSegmentState segment,
         int hurtFlashCadence)
     {
-        BotwoonSegmentState segment = projectile.StateOf<BotwoonSegmentState>();
+        EnemyProjectile projectile = segment.Projectile;
         if (segment.Phase == BotwoonBodyPhase.Main && segment.Botwoon.BodyDeathStarted)
             segment.Phase = BotwoonBodyPhase.BeginDying;
 
         switch (segment.Phase)
         {
             case BotwoonBodyPhase.Main:
-                AnimateBotwoonBodySegment(projectile, hurtFlashCadence);
+                AnimateBotwoonBodySegment(segment, hurtFlashCadence);
                 return;
 
             case BotwoonBodyPhase.BeginDying:
@@ -865,7 +863,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
             case BotwoonBodyPhase.DyingDelay:
                 if (!segment.FallWait.StepKeepsRunning())
                     segment.Phase = BotwoonBodyPhase.Falling;
-                ShowBotwoonBodyHurtFlash(projectile, hurtFlashCadence);
+                ShowBotwoonBodyHurtFlash(segment, hurtFlashCadence);
                 return;
 
             case BotwoonBodyPhase.Falling:
@@ -882,21 +880,20 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
 
     /// <summary>Installs a segment animation for its angle and applies the head's hurt flash.</summary>
     internal static void AnimateBotwoonBodySegment(
-        EnemyProjectile segment,
+        BotwoonSegmentState segment,
         int hurtFlashCadence)
     {
-        BotwoonSegmentState state = segment.StateOf<BotwoonSegmentState>();
-        if (state.Animation.Install(state.Pose))
-            segment.StartAnimation(state.Animation);
+        if (segment.Animation.Install(segment.Pose))
+            segment.Projectile.StartAnimation(segment.Animation);
         ShowBotwoonBodyHurtFlash(segment, hurtFlashCadence);
     }
 
     /// <summary>Shows his body in his health band's colours, or in the hurt flash on the updates his flashing head shows it.</summary>
     private static void ShowBotwoonBodyHurtFlash(
-        EnemyProjectile projectile,
+        BotwoonSegmentState segment,
         int hurtFlashCadence)
     {
-        BotwoonSegmentState segment = projectile.StateOf<BotwoonSegmentState>();
+        EnemyProjectile projectile = segment.Projectile;
         projectile.Graphics = projectile.Graphics.In(segment.Head.HurtFlash.IsRunning && EnemyDrawPhaseDefinitions.HurtFlashShown.IsSetIn(hurtFlashCadence)
             ? EnemyShades.HurtFlashLook
             : segment.Botwoon.BodyShading);
@@ -913,7 +910,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         {
             // The segment moves on along the speed curve; it lands well before the curve ends.
             segment.FallPlace += BotwoonDeathDefinitions.FallAcceleration;
-            ShowBotwoonBodyHurtFlash(projectile, hurtFlashCadence);
+            ShowBotwoonBodyHurtFlash(segment, hurtFlashCadence);
             return;
         }
 
@@ -941,25 +938,24 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         if (spit is null)
             return;
 
+        // The spit flies along its heading at its speed, split across and down, keeping each step's fraction of a pixel
+        // so a shallow flight keeps its slow drift.
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             spit,
             RoomEnemyProjectileKind.BotwoonSpit,
-            BodyAndSpit,
+            new SpitBehavior(AngledFlightState.Launch(angle, speed)),
             SpriteGraphics.SpawnedBy(head));
         spit.Position = FixedPosition<RoomPixels>.FromWhole(head.Position.Whole);
         spit.StartAnimation(new BotwoonSpitAnimation());
-
-        // The spit flies along its heading at its speed, split across and down, keeping each step's fraction of a pixel
-        // so a shallow flight keeps its slow drift.
-        spit.State = AngledFlightState.Launch(angle, speed);
     }
 
     /// <summary>Runs a spit's per-frame flight.</summary>
     internal static void FlyBotwoonSpit(
         EnemyProjectile spit,
+        AngledFlightState flight,
         Position16<RoomPixels> camera)
     {
-        spit.StateOf<AngledFlightState>().Advance(spit);
+        flight.Advance(spit);
 
         EnemyView.DeleteOutside(spit, camera);
     }

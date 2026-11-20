@@ -475,12 +475,11 @@ internal sealed class CrocomireFight
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.CrocomireProjectile,
-            _combat.MouthShot,
+            _combat.MouthShot(new CrocomireProjectileState(gradient)),
             graphics: SpriteGraphics.SharedIn(CrocomireColours.ProjectileShading));
         projectile.StartAnimation(new CrocomireProjectileAnimation(CrocomireProjectileSegment.Mouth));
         projectile.Velocity = CrocomireFightDefinitions.SpitVelocity;
         projectile.Position = projectile.Position.WithWhole(body.Position.Whole + CrocomireFightDefinitions.SpitOffset);
         projectile.Position = projectile.Position.WithoutFractions();
-        projectile.State = new CrocomireProjectileState(gradient);
     }
 }

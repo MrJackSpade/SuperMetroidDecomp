@@ -56,10 +56,15 @@ internal sealed class CrocomireCombat
     /// The mouth's shot (#1760): its spawner starts its animation, and a shot one runs its typed shot animation, whose
     /// drop is allocated with Crocomire's chances before the deletion frees the exploding actor.
     /// </summary>
-    internal EnemyProjectileBehavior MouthShot => field ??= new CrocomireProjectileBehavior(_projectiles, _deathsAndDrops, _access,
-        () => new CrocomireProjectileAnimation(CrocomireProjectileSegment.Shot));
+    /// <param name="shot">What the shot keeps: the gradient its volley fires it along.</param>
+    internal EnemyProjectileBehavior MouthShot(CrocomireProjectileState shot) => new MouthShotBehavior(_projectiles, _deathsAndDrops, _access, shot);
 
-    /// <summary>The bridge's fragments and the spike wall's pieces (#1760): their spawners start their animations.</summary>
+    /// <summary>One piece of the spike wall (#1760), which keeps its place in the wall and its fall.</summary>
+    /// <param name="piece">What the piece keeps.</param>
+    internal EnemyProjectileBehavior SpikeWallPiece(CrocomireSpikeWallPieceState piece) =>
+        new SpikeWallPieceBehavior(_projectiles, _deathsAndDrops, _access, piece);
+
+    /// <summary>The bridge's fragments (#1760): their spawners start their animations.</summary>
     internal EnemyProjectileBehavior Debris => field ??= new CrocomireProjectileBehavior(_projectiles, _deathsAndDrops, _access);
 
     /// <summary>One of Crocomire's projectiles: the shot's aim and flight, the spike wall's and the bridge's falls, and their cues.</summary>
@@ -67,7 +72,7 @@ internal sealed class CrocomireCombat
     /// <param name="deathsAndDrops">The drops a shot mouth shot leaves.</param>
     /// <param name="access">Crocomire's last shot's gradient and his sounds.</param>
     /// <param name="shot">The animation a destroying shot starts, or null for the shared delete animation.</param>
-    private sealed class CrocomireProjectileBehavior(
+    private class CrocomireProjectileBehavior(
         EnemyProjectileEngine projectiles,
         EnemyDeathsAndDrops deathsAndDrops,
         CrocomireEncounterAccess access,
@@ -88,14 +93,12 @@ internal sealed class CrocomireCombat
             switch (motion)
             {
                 case CrocomireProjectileMotion.ShotAiming:
-                    StartCrocomireProjectileFlight(context.Projectile, context.Level);
-                    break;
+                    throw new InvalidDataException($"Crocomire projectile {context.Projectile.Kind} aims, which only his mouth shot (MouthShotBehavior) does.");
                 case CrocomireProjectileMotion.ShotFlying:
                     RunCrocomireProjectileFlight(context.Projectile, context.Level);
                     break;
                 case CrocomireProjectileMotion.SpikeWallCollapsing:
-                    RunCrocomireSpikeWallPiece(context.Projectile);
-                    break;
+                    throw new InvalidDataException($"Crocomire projectile {context.Projectile.Kind} collapses, which only a spike wall piece (SpikeWallPieceBehavior) does.");
                 case CrocomireProjectileMotion.BridgeFragmentFalling:
                     RunCrocomireBridgeFragment(context.Projectile, context.Level);
                     break;
@@ -122,23 +125,23 @@ internal sealed class CrocomireCombat
         }
 
         /// <summary>Runs the one-frame vector setup.</summary>
-        private static void StartCrocomireProjectileFlight(
+        private protected static void StartCrocomireProjectileFlight(
             EnemyProjectile projectile,
+            CrocomireProjectileState shot,
             RoomLevelData level)
         {
             // The setup performs one horizontal collision move and deliberately ignores whether it hit terrain.
             EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal);
 
             // The shot keeps the gradient its volley fires it along. The angle starts at up, not right: Y uses negative cosine.
-            int gradient = projectile.StateOf<CrocomireProjectileState>().Gradient;
+            int gradient = shot.Gradient;
             projectile.Velocity = CalculateCrocomireProjectileVelocity(EnemyMath.CalculateAimAngle(new(-CrocomireProjectileDefinitions.AimReachLeft, gradient)));
             projectile.StartMotion(CrocomireProjectileMotion.ShotFlying);
         }
 
         /// <summary>Runs the shard motion, exact to the 256th of a pixel, whose limits each piece takes from its place in the wall.</summary>
-        private void RunCrocomireSpikeWallPiece(EnemyProjectile projectile)
+        private protected void RunCrocomireSpikeWallPiece(EnemyProjectile projectile, CrocomireSpikeWallPieceState piece)
         {
-            CrocomireSpikeWallPieceState piece = projectile.StateOf<CrocomireSpikeWallPieceState>();
             SignedSixteenSixteen maximumAcceleration = piece.Piece.MaximumAcceleration;
             SignedSixteenSixteen acceleration = piece.Acceleration;
             if (acceleration != maximumAcceleration)
@@ -172,6 +175,44 @@ internal sealed class CrocomireCombat
                 access.RequestCrocomireSound(crumble);
             projectiles.SpawnDustOrExplosion(impact, DustExplosionAnimation.BigDustCloud);
             access.RequestCrocomireSound(CrocomireSoundDefinitions.BigExplosion);
+        }
+    }
+
+    /// <summary>Crocomire's mouth shot, which aims along its volley's gradient, then flies; a shot one drops his drop.</summary>
+    /// <param name="projectiles">The enemy projectiles.</param>
+    /// <param name="deathsAndDrops">The drops a shot mouth shot leaves.</param>
+    /// <param name="access">Crocomire's sounds.</param>
+    /// <param name="shot">What the shot keeps.</param>
+    private sealed class MouthShotBehavior(EnemyProjectileEngine projectiles, EnemyDeathsAndDrops deathsAndDrops, CrocomireEncounterAccess access,
+        CrocomireProjectileState shot)
+        : CrocomireProjectileBehavior(projectiles, deathsAndDrops, access, () => new CrocomireProjectileAnimation(CrocomireProjectileSegment.Shot))
+    {
+        /// <inheritdoc/>
+        private protected override void Move(EnemyProjectileMotionContext context, CrocomireProjectileMotion motion)
+        {
+            if (motion == CrocomireProjectileMotion.ShotAiming)
+                StartCrocomireProjectileFlight(context.Projectile, shot, context.Level);
+            else
+                base.Move(context, motion);
+        }
+    }
+
+    /// <summary>A piece of the spike wall, which collapses by its place in the wall.</summary>
+    /// <param name="projectiles">The enemy projectiles, which raise the dust a landing piece leaves.</param>
+    /// <param name="deathsAndDrops">The room's drops.</param>
+    /// <param name="access">Crocomire's sounds.</param>
+    /// <param name="piece">What the piece keeps.</param>
+    private sealed class SpikeWallPieceBehavior(EnemyProjectileEngine projectiles, EnemyDeathsAndDrops deathsAndDrops, CrocomireEncounterAccess access,
+        CrocomireSpikeWallPieceState piece)
+        : CrocomireProjectileBehavior(projectiles, deathsAndDrops, access)
+    {
+        /// <inheritdoc/>
+        private protected override void Move(EnemyProjectileMotionContext context, CrocomireProjectileMotion motion)
+        {
+            if (motion == CrocomireProjectileMotion.SpikeWallCollapsing)
+                RunCrocomireSpikeWallPiece(context.Projectile, piece);
+            else
+                base.Move(context, motion);
         }
     }
 

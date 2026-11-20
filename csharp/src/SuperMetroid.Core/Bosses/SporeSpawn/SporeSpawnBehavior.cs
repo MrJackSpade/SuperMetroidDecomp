@@ -272,12 +272,6 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         };
     }
 
-    /// <summary>A spore (#1760, #2410): it drifts from its spawn, and a shot one bursts, harmless, then drops and deletes itself.</summary>
-    internal SporeSpawnSporeBehavior Spore => field ??= new SporeSpawnSporeBehavior(_deathsAndDrops);
-
-    /// <summary>A ceiling spore spawner (#1760, #2410): it releases spores on its random cadence, and a shot one restarts closed.</summary>
-    internal SporeSpawnSpawnerBehavior Spawner => field ??= new SporeSpawnSpawnerBehavior(_room, _projectiles, Spore);
-
     /// <summary>A link of Spore Spawn's stalk (#1760): it holds still, and a shot one restarts its pose.</summary>
     internal EnemyProjectileBehavior Stalk => field ??= new EnemyProjectileBehavior(shot: () => new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.Stalk));
 
@@ -557,11 +551,10 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             spawner,
             RoomEnemyProjectileKind.SporeSpawnSpawner,
-            Spawner,
+            new SporeSpawnSpawnerBehavior(_room, _projectiles, _deathsAndDrops, new SporeSpawnEmitterState(state, emitter.Drift)),
             SpriteGraphics.SpawnedBy(body));
         spawner.StartAnimation(new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.SpawnerClosed));
         spawner.Position = spawner.Position.WithWhole(emitter.Place);
-        spawner.State = new SporeSpawnEmitterState(state, emitter.Drift);
     }
 
     /// <summary>

@@ -5,12 +5,14 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
 /// <summary>
 /// A ceiling spore spawner in Spore Spawn's room (#1760, #2410): it releases spores on its random cadence while Spore Spawn
-/// lets it, each spore running <paramref name="spores"/>, and a shot one restarts closed.
+/// lets it, and a shot one restarts closed.
 /// </summary>
 /// <param name="room">The loaded room, whose random numbers time the releases.</param>
 /// <param name="projectiles">The enemy projectiles, which hold the spores the spawner releases.</param>
-/// <param name="spores">The behaviour every spore the spawner releases runs.</param>
-internal sealed class SporeSpawnSpawnerBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles, SporeSpawnSporeBehavior spores)
+/// <param name="deathsAndDrops">The killed sound and the drop a shot spore the spawner releases leaves.</param>
+/// <param name="emitter">What the spawner keeps: the Spore Spawn that set it up, the way its spores drift and its release wait.</param>
+internal sealed class SporeSpawnSpawnerBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles, EnemyDeathsAndDrops deathsAndDrops,
+    SporeSpawnEmitterState emitter)
     : EnemyProjectileMotionBehavior<SporeSpawnSpawnerMotion>(SporeSpawnSpawnerMotion.Releasing, shot: () => new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.SpawnerClosed)),
         IEnemyProjectileCues<SporeSpawnProjectileCue>
 {
@@ -36,9 +38,7 @@ internal sealed class SporeSpawnSpawnerBehavior(EnemyRoomBinding room, EnemyProj
         {
             case SporeSpawnProjectileCue.SpawnSpore:
                 // The spore takes the colours of the Spore Spawn that set the spawner up.
-                EnemyProjectile spawner = context.Projectile;
-                SporeSpawnEmitterState emitter = spawner.StateOf<SporeSpawnEmitterState>();
-                SpawnSporeSpawnSpore(spawner.Position.Whole, emitter.Drift, emitter.SporeSpawn);
+                SpawnSporeSpawnSpore(context.Projectile.Position.Whole, emitter.Drift, emitter.SporeSpawn);
                 return;
             case SporeSpawnProjectileCue.SetImpactProperties or SporeSpawnProjectileCue.QueueKilledSound or SporeSpawnProjectileCue.RequestDrop
                 or SporeSpawnProjectileCue.Delete:
@@ -61,18 +61,15 @@ internal sealed class SporeSpawnSpawnerBehavior(EnemyRoomBinding room, EnemyProj
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             spore,
             RoomEnemyProjectileKind.SporeSpawnSpore,
-            spores,
+            new SporeSpawnSporeBehavior(deathsAndDrops, new SporeSpawnSporeState(drift)),
             SpriteGraphics.SharedIn(Ensure.NotNull(sporeSpawn).Colours.Sprites));
         spore.StartAnimation(new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.Spore));
         spore.Position = spore.Position.WithWhole(position);
-
-        spore.State = new SporeSpawnSporeState(drift);
     }
 
     /// <summary>Releases spores from a ceiling spawner on its random cadence while Spore Spawn lets it.</summary>
     private void ReleaseSpores(EnemyProjectile spawner)
     {
-        SporeSpawnEmitterState emitter = spawner.StateOf<SporeSpawnEmitterState>();
         if (emitter.SporeSpawn.SporeGenerationSuppressed)
             return;
 

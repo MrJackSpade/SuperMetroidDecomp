@@ -25,16 +25,23 @@ internal sealed class DraygonShots
     /// Draygon's goop: Samus's touch sticks it to her and a shot one drops Draygon's eye's chances, through the typed
     /// animations its definition names.
     /// </summary>
-    internal DraygonShotBehavior Goop => field ??= new DraygonShotBehavior(_deathsAndDrops, DraygonShotMotion.GoopFlying,
-        shot: () => new DraygonProjectileAnimation(DraygonProjectileSegment.GoopShot),
-        touch: () => new DraygonProjectileAnimation(DraygonProjectileSegment.GoopTouch));
+    /// <param name="flight">The goop's flight along its angle.</param>
+    internal EnemyProjectileBehavior Goop(AngledFlightState flight) => new FlyingShotBehavior(_deathsAndDrops, DraygonShotMotion.GoopFlying,
+        GoopShot, GoopTouch, flight);
+
+    /// <summary>The animation a shot goop starts: it drops Draygon's eye's chances.</summary>
+    private static EnemyProjectileAnimation GoopShot() => new DraygonProjectileAnimation(DraygonProjectileSegment.GoopShot);
+
+    /// <summary>The animation touching Samus starts on a goop: it sticks to her.</summary>
+    private static EnemyProjectileAnimation GoopTouch() => new DraygonProjectileAnimation(DraygonProjectileSegment.GoopTouch);
 
     /// <summary>
     /// A wall turret's shot: it holds still through its muzzle bloom until its animation fires it, and a shot one runs the
     /// shared dust's small explosion, the animation its definition names.
     /// </summary>
-    internal EnemyProjectileBehavior WallTurretShot => field ??= new DraygonShotBehavior(_deathsAndDrops, initial: null,
-        shot: () => new DustExplosionProjectileAnimation(DustExplosionAnimation.SmallExplosion));
+    /// <param name="flight">The shot's flight toward where Samus was.</param>
+    internal EnemyProjectileBehavior WallTurretShot(AngledFlightState flight) => new FlyingShotBehavior(_deathsAndDrops, initial: null,
+        () => new DustExplosionProjectileAnimation(DustExplosionAnimation.SmallExplosion), touch: null, flight);
 
     /// <summary>
     /// A goop or turret shot: the goop's flight and its hold on Samus, the turret shot's flight, and their cues. The power
@@ -44,35 +51,13 @@ internal sealed class DraygonShots
     /// <param name="initial">The motion the shot starts with: the goop's flight, or none for the turret shot.</param>
     /// <param name="shot">The animation a destroying shot starts.</param>
     /// <param name="touch">The animation touching Samus starts, or null when the kind has none of its own.</param>
-    internal sealed class DraygonShotBehavior(
+    internal abstract class DraygonShotBehavior(
         EnemyDeathsAndDrops deathsAndDrops,
         DraygonShotMotion? initial,
         Func<EnemyProjectileAnimation> shot,
         Func<EnemyProjectileAnimation>? touch = null)
         : EnemyProjectileMotionBehavior<DraygonShotMotion>(initial, shot, touch), IEnemyProjectileCues<DraygonProjectileCue>
     {
-        /// <inheritdoc/>
-        private protected override void Move(EnemyProjectileMotionContext context, DraygonShotMotion motion)
-        {
-            EnemyProjectile projectile = context.Projectile;
-            switch (motion)
-            {
-                case DraygonShotMotion.GoopStuckToSamus:
-                    RunAttachedDraygonGoop(projectile, context.Samus, context.SamusBombs.PowerBombExplosion);
-                    break;
-                case DraygonShotMotion.TurretShotFlying:
-                    // The goop's power-bomb step frees a power-bombed shot's place, then still moves the shot.
-                    FreePlaceIfPowerBombed(projectile, context.Samus, context.SamusBombs.PowerBombExplosion);
-                    MoveDraygonProjectile(projectile);
-                    DeleteDraygonProjectileOutsideRoom(projectile);
-                    break;
-                case DraygonShotMotion.GoopFlying:
-                    RunFlyingDraygonGoop(projectile, context.Samus, context.SamusBombs.PowerBombExplosion);
-                    break;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(DraygonShotMotion)} {motion}.");
-            }
-        }
 
         /// <summary>Carries out a cue of the goop's and turret shot's animations.</summary>
         public void RunCue(EnemyProjectileCueContext context, DraygonProjectileCue cue)
@@ -99,8 +84,9 @@ internal sealed class DraygonShots
         }
 
         /// <summary>Advances airborne goop, including the power bomb freeing its place and Samus contact setup.</summary>
-        private static void RunFlyingDraygonGoop(
+        private protected static void RunFlyingDraygonGoop(
             EnemyProjectile goop,
+            AngledFlightState flight,
             SamusState samus,
             SamusPowerBombExplosionState powerBomb)
         {
@@ -108,7 +94,7 @@ internal sealed class DraygonShots
             // tests Samus. Contact is tested before the room boundary, so a goop that touches
             // Samus outside the boundary still plays its touch animation instead of being deleted.
             FreePlaceIfPowerBombed(goop, samus, powerBomb);
-            MoveDraygonProjectile(goop);
+            MoveDraygonProjectile(goop, flight);
             int xDistance = DistanceAcrossRoomEdge.Between(samus.Position.X.Whole, goop.Position.X.Whole);
             int yDistance = DistanceAcrossRoomEdge.Between(samus.Position.Y.Whole, goop.Position.Y.Whole);
             if (xDistance < DraygonArenaDefinitions.GoopTouchReach.X && yDistance < DraygonArenaDefinitions.GoopTouchReach.Y)
@@ -120,7 +106,7 @@ internal sealed class DraygonShots
         }
 
         /// <summary>Attaches goop to Samus, increasing her X-speed divisor until it expires.</summary>
-        private static void AttachDraygonGoopToSamus(
+        private void AttachDraygonGoopToSamus(
             EnemyProjectile goop,
             SamusState samus,
             SamusPowerBombExplosionState powerBomb)
@@ -132,7 +118,7 @@ internal sealed class DraygonShots
                 return;
 
             samus.SlowdownLevel = nextDivisor;
-            goop.State = new DraygonGoopAttachedState(nextDivisor);
+            goop.Rebind(new StuckGoopBehavior(deathsAndDrops, shot, touch, new DraygonGoopAttachedState(nextDivisor)));
             goop.StartMotion(DraygonShotMotion.GoopStuckToSamus);
             goop.BlocksSamusProjectiles = false;
             goop.CanDamageSamus = false;
@@ -146,6 +132,7 @@ internal sealed class DraygonShots
         /// <param name="powerBomb">The power bomb explosion of the pass's bombs, which frees the goop's place.</param>
         internal static void RunAttachedDraygonGoop(
             EnemyProjectile goop,
+            DraygonGoopAttachedState attached,
             SamusState samus,
             SamusPowerBombExplosionState powerBomb)
         {
@@ -157,7 +144,6 @@ internal sealed class DraygonShots
                 return;
             }
 
-            DraygonGoopAttachedState attached = goop.StateOf<DraygonGoopAttachedState>();
             // The stack's top lies 12 pixels above Samus's centre, which stays more than her radius below the arena's
             // solid ceiling, so a stuck goop stays in the room.
             goop.Position = goop.Position.WithWhole(new(samus.Position.X.Whole, samus.Position.Y.Whole + attached.StackPosition * DraygonArenaDefinitions.GoopStackSpacing + DraygonArenaDefinitions.GoopStackTop));
@@ -170,7 +156,7 @@ internal sealed class DraygonShots
         /// slowdown. Inside the explosion's ellipse the shot finishes its update (<see cref="EnemyProjectile.FreePlace"/>):
         /// the calling update goes on with it.
         /// </summary>
-        private static void FreePlaceIfPowerBombed(EnemyProjectile projectile, SamusState samus, SamusPowerBombExplosionState powerBomb)
+        private protected static void FreePlaceIfPowerBombed(EnemyProjectile projectile, SamusState samus, SamusPowerBombExplosionState powerBomb)
         {
             int horizontalRadius = powerBomb.Blast.ExplosionRadius.WholePixels;
             if (horizontalRadius == 0)
@@ -185,9 +171,58 @@ internal sealed class DraygonShots
             samus.SlowdownLevel = 0;
         }
     }
+
+    /// <summary>A goop or a wall turret's shot in flight along its angle.</summary>
+    /// <param name="deathsAndDrops">The drops a shot goop leaves.</param>
+    /// <param name="initial">The motion the shot starts with: the goop's flight, or none for the turret shot.</param>
+    /// <param name="shot">The animation a destroying shot starts.</param>
+    /// <param name="touch">The animation touching Samus starts, or null when the kind has none of its own.</param>
+    /// <param name="flight">The shot's flight.</param>
+    private sealed class FlyingShotBehavior(EnemyDeathsAndDrops deathsAndDrops, DraygonShotMotion? initial, Func<EnemyProjectileAnimation> shot,
+        Func<EnemyProjectileAnimation>? touch, AngledFlightState flight)
+        : DraygonShotBehavior(deathsAndDrops, initial, shot, touch)
+    {
+        /// <inheritdoc/>
+        private protected override void Move(EnemyProjectileMotionContext context, DraygonShotMotion motion)
+        {
+            EnemyProjectile projectile = context.Projectile;
+            switch (motion)
+            {
+                case DraygonShotMotion.TurretShotFlying:
+                    // The goop's power-bomb step frees a power-bombed shot's place, then still moves the shot.
+                    FreePlaceIfPowerBombed(projectile, context.Samus, context.SamusBombs.PowerBombExplosion);
+                    MoveDraygonProjectile(projectile, flight);
+                    DeleteDraygonProjectileOutsideRoom(projectile);
+                    break;
+                case DraygonShotMotion.GoopFlying:
+                    RunFlyingDraygonGoop(projectile, flight, context.Samus, context.SamusBombs.PowerBombExplosion);
+                    break;
+                default:
+                    throw new InvalidOperationException($"A flying Draygon shot does not move by {nameof(DraygonShotMotion)} {motion}.");
+            }
+        }
+    }
+
+    /// <summary>A goop stuck to Samus, which keeps its place in the stack and its lifetime.</summary>
+    /// <param name="deathsAndDrops">The drops a shot goop leaves.</param>
+    /// <param name="shot">The animation a destroying shot starts.</param>
+    /// <param name="touch">The animation touching Samus starts.</param>
+    /// <param name="attached">What the stuck goop keeps.</param>
+    private sealed class StuckGoopBehavior(EnemyDeathsAndDrops deathsAndDrops, Func<EnemyProjectileAnimation> shot,
+        Func<EnemyProjectileAnimation>? touch, DraygonGoopAttachedState attached)
+        : DraygonShotBehavior(deathsAndDrops, DraygonShotMotion.GoopStuckToSamus, shot, touch)
+    {
+        /// <inheritdoc/>
+        private protected override void Move(EnemyProjectileMotionContext context, DraygonShotMotion motion)
+        {
+            if (motion != DraygonShotMotion.GoopStuckToSamus)
+                throw new InvalidOperationException($"A stuck goop does not move by {nameof(DraygonShotMotion)} {motion}.");
+            RunAttachedDraygonGoop(context.Projectile, attached, context.Samus, context.SamusBombs.PowerBombExplosion);
+        }
+    }
     /// <summary>Moves a Draygon projectile along its angle at its speed.</summary>
-    internal static void MoveDraygonProjectile(EnemyProjectile projectile) =>
-        projectile.StateOf<AngledFlightState>().Advance(projectile);
+    internal static void MoveDraygonProjectile(EnemyProjectile projectile, AngledFlightState flight) =>
+        flight.Advance(projectile);
 
     /// <summary>Deletes a projectile that has left Draygon's room.</summary>
     private static void DeleteDraygonProjectileOutsideRoom(EnemyProjectile projectile)

@@ -323,27 +323,18 @@ internal sealed class DraygonParts
         if (goop is null)
             return;
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            goop,
-            RoomEnemyProjectileKind.DraygonGoop,
-            _shots.Goop,
-            graphics: SpriteGraphics.SharedIn(DraygonColours.Goop));
-        goop.StartAnimation(new DraygonProjectileAnimation(DraygonProjectileSegment.Goop));
-        goop.Position = FixedPosition<RoomPixels>.FromWhole(state.Body.Position.Whole + (direction == HorizontalDirection.Right
-            ? DraygonArenaDefinitions.GoopSpawnMovingRight : DraygonArenaDefinitions.GoopSpawnMovingLeft));
-
         int random = _room.Random.Generate();
         // The goop leaves within the quarter turn from a half turn when Draygon moves left, or from three quarters of a
         // turn when he moves right.
         TrigonometryAngle firstAngle = direction == HorizontalDirection.Right ? TrigonometryAngle.HalfTurn + TrigonometryAngle.QuarterTurn : TrigonometryAngle.HalfTurn;
         TrigonometryAngle angle = firstAngle + new TrigonometryAngle(DraygonRandomDefinitions.GoopAngleSpread.Of(random));
-        SetDraygonProjectileVelocity(goop, angle, DraygonProjectileSpeeds.Goop);
+        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
+            goop,
+            RoomEnemyProjectileKind.DraygonGoop,
+            _shots.Goop(AngledFlightState.Launch(angle, DraygonProjectileSpeeds.Goop)),
+            graphics: SpriteGraphics.SharedIn(DraygonColours.Goop));
+        goop.StartAnimation(new DraygonProjectileAnimation(DraygonProjectileSegment.Goop));
+        goop.Position = FixedPosition<RoomPixels>.FromWhole(state.Body.Position.Whole + (direction == HorizontalDirection.Right
+            ? DraygonArenaDefinitions.GoopSpawnMovingRight : DraygonArenaDefinitions.GoopSpawnMovingLeft));
     }
-
-    /// <summary>Launches a Draygon projectile along <paramref name="angle"/> at <paramref name="speed"/>.</summary>
-    internal static void SetDraygonProjectileVelocity(
-        EnemyProjectile projectile,
-        TrigonometryAngle angle,
-        int speed) =>
-        projectile.State = AngledFlightState.Launch(angle, speed);
 }

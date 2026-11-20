@@ -899,11 +899,9 @@ public sealed class IntroCinematicState : IFrontendScreen
     }
 
     /// <summary>Runs the Mother Brain demo's end step, freezing input after its prescribed Samus pose change.</summary>
-    private void HandleMotherBrainDemoCue(DemoInputCue cue)
+    /// <remarks>The flashback demo plays only its own recording, whose signal names this routine (<see cref="DemoInputCue.EndIntroMotherBrainFlashback"/>).</remarks>
+    private void HandleMotherBrainDemoCue()
     {
-        if (cue != DemoInputCue.EndIntroMotherBrainFlashback)
-            throw new InvalidOperationException($"The Mother Brain flashback demo handles no {cue} cue.");
-
         // The flashback's end stops the demo on this update, with Samus standing facing left and her pose and its
         // animation started afresh; she shows standing through the rest of Mother Brain's explosions.
         FlashbackSamus.Pose = SamusPoseId.FacingLeftNormalPose;

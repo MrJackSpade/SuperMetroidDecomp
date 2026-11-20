@@ -74,17 +74,18 @@ public sealed class DemoInputState
     }
 
     /// <summary>
-    /// Plays one step of the recording and presses the resulting actions in the player's place. The owner acts on the cue
-    /// a recording gives as it ends in <paramref name="cue"/>.
+    /// Plays one step of the recording and presses the resulting actions in the player's place. The owner runs its end
+    /// routine, <paramref name="signalled"/>, when its recording signals as it ends: each owner plays only its own
+    /// recording, whose signal names that routine.
     /// </summary>
-    public void Step(Action<DemoInputCue> cue)
+    public void Step(Action signalled)
     {
-        Ensure.NotNull(cue);
+        Ensure.NotNull(signalled);
         if (!Enabled || Position is not { } position)
             return;
 
         if (_frameHold.StepEnds())
-            PlayNextInput(position, cue);
+            PlayNextInput(position, signalled);
         RememberPressed();
     }
 
@@ -100,9 +101,10 @@ public sealed class DemoInputState
 
     /// <summary>
     /// Plays the input <paramref name="position"/> names, or ends the recording as it says once its inputs have run out:
-    /// a loop plays its loop input at once, and a signal reaches the owner in <paramref name="cue"/> before the input ends.
+    /// a loop plays its loop input at once, and a signal runs the owner's end routine, <paramref name="signalled"/>, before
+    /// the input ends.
     /// </summary>
-    private void PlayNextInput(DemoPlaybackPosition position, Action<DemoInputCue> cue)
+    private void PlayNextInput(DemoPlaybackPosition position, Action signalled)
     {
         DemoRecording recording = DemoInputRecordings.Of(position.Recording);
         if (position.NextInput >= recording.Inputs.Count)
@@ -110,8 +112,8 @@ public sealed class DemoInputState
             if (recording.End is not DemoRecordingEnd.Loop loop)
             {
                 // A stop or a signal ends the input, the signal reaching the owner first.
-                if (recording.End is DemoRecordingEnd.Signal signal)
-                    cue(signal.Cue);
+                if (recording.End is DemoRecordingEnd.Signal)
+                    signalled();
                 EndInput();
                 return;
             }

@@ -181,9 +181,6 @@ public sealed class DraygonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBo
     /// </summary>
     public DraygonHealthBand HealthBand { get; internal set => field = Ensure.NotNull(value); }
 
-    /// <summary>True after terminal burial records the area boss as defeated; prevents repeating that persistence write.</summary>
-    public bool BossDefeatPersisted { get; internal set; }
-
 
     /// <summary>
     /// The body's phase; the body runs it each update before its three parts take the body's position. The fight starts

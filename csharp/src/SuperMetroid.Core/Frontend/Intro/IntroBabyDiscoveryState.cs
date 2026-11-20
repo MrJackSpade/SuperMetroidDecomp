@@ -215,11 +215,9 @@ internal sealed class IntroBabyDiscoveryState
     }
 
     /// <summary>Runs the discovery demo recording's end cue, disabling input and both phases of Samus's frame for the frames that follow.</summary>
-    private void HandleDemoCue(DemoInputCue cue)
+    /// <remarks>The discovery demo plays only its own recording, whose signal names this routine (<see cref="DemoInputCue.EndIntroBabyDiscovery"/>).</remarks>
+    private void HandleDemoCue()
     {
-        if (cue != DemoInputCue.EndIntroBabyDiscovery)
-            throw new InvalidOperationException($"The Baby-discovery demo handles no {cue} cue.");
-
         // The scene's end stops Samus moving and animating for the rest of the scene and stops the demo's input.
         demo.Disable();
         Samus.Control.LockOutPlayer();

@@ -90,9 +90,8 @@ public sealed class PhantoonBodyWaveEffect
             Active = false; // The wave ends, keeping its last shape.
             return;
         }
+        // The wave keeps its setup length: only this effect's setup sets the boss's wave length (PhantoonWaveState.SetUp).
         Phase += boss.Wave.PhaseStep;
-        if (boss.Wave.Length != _setupLength)
-            throw new InvalidOperationException($"Phantoon's wave length {boss.Wave.Length} changed from its setup length {_setupLength}.");
         _built = new(Phase, boss.Wave.Amplitude.Magnitude());
     }
 

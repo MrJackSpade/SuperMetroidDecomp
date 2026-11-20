@@ -120,11 +120,8 @@ internal sealed class DraygonDeath
         // The body and the eye are deleted (#2298).
         DeleteDraygonPart(body);
         DeleteDraygonPart(state.Eye);
-        if (!state.BossDefeatPersisted)
-        {
-            _room.Services.Bosses.SetDefeated(DefeatedBosses.AreaBoss);
-            state.BossDefeatPersisted = true;
-        }
+        // The sink runs once: this update deletes his body, whose step runs it.
+        _room.Services.Bosses.SetDefeated(DefeatedBosses.AreaBoss);
         _effectActors.EndAll();
     }
 

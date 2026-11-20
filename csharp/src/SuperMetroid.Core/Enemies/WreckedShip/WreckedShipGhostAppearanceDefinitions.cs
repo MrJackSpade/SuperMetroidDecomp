@@ -43,9 +43,12 @@ public static class WreckedShipGhostAppearanceDefinitions
 
     /// <summary>
     /// How long a new ghost waits before it watches Samus, in updates: as long as it waits to reappear
-    /// (<see cref="ReappearanceDelay"/>) and a further 160.
+    /// (<see cref="ReappearanceDelay"/>) and a further <see cref="FirstWatchExtraDelay"/>.
     /// </summary>
-    internal const int InitialDelay = 280;
+    internal const int InitialDelay = ReappearanceDelay + FirstWatchExtraDelay;
+
+    /// <summary>How much longer a new ghost waits before it first watches Samus than a faded one waits to reappear, in updates.</summary>
+    private const int FirstWatchExtraDelay = 160;
 
     /// <summary>
     /// The updates from the ghost's appearance to its flicker's first step: the first update it brightens starts the step.

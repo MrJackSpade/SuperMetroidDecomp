@@ -45,7 +45,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
 
         place.AnimationClock.Restart();
         state.ResetOrientation();
-        place.Processing = place.Processing.With(definition.Processing);
+        place.Processing = place.Processing.With(ShaktoolSegmentDefinitions.Processing);
         place.Contact = place.Contact.With(definition.Contact);
         // The segment's definition names how far after the chain's leading saw the room lists it. The chain's death
         // deletes the enemies the room lists first (ShaktoolDeathDeletesFirstListed), so the chain must be listed first.

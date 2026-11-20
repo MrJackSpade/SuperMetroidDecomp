@@ -77,9 +77,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
                 EnemyProjectileBehavior.Still,
                 SpriteGraphics.SpawnedBy(place));
             body.Position = body.Position.WithWhole(place.Position.Whole);
-            body.InstallAnimation(new YappingMawBodyProjectileAnimation(place.SpawnSettings<YappingMawSpawnSettings>().Attack == VerticalDirection.Down
-                ? YappingMawBodyProjectileSegment.FacingDown
-                : YappingMawBodyProjectileSegment.FacingUp));
+            body.InstallAnimation(new YappingMawBodyProjectileAnimation(YappingMawReach.Of(place.SpawnSettings<YappingMawSpawnSettings>().Attack).Body));
             bodies[link] = body;
         }
 
@@ -92,16 +90,13 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             // The root's kind follows the Maw's attack direction; the Maw holds the root it spawned.
             RootEffectActor = _effectActors.SpawnRoomEffectActor(
                 new(place.Position.X.Whole, place.Position.Y.Whole + (YappingMawAttackDefinitions.RootDistance.Toward(place.SpawnSettings<YappingMawSpawnSettings>().Attack.Reversed()))),
-                place.SpawnSettings<YappingMawSpawnSettings>().Attack == VerticalDirection.Down
-                    ? RoomEffectActorKind.YappingMawBaseFacingDown
-                    : RoomEffectActorKind.YappingMawBaseFacingUp,
+                YappingMawReach.Of(place.SpawnSettings<YappingMawSpawnSettings>().Attack).Root,
                 SpriteGraphics.SpawnedBy(place)),
         };
         place.SetSpeciesState(state);
 
-        state.Playback = EnemyAnimationPlayback.Start(place, YappingMawAnimations.StartingWith(place.SpawnSettings<YappingMawSpawnSettings>().Attack == VerticalDirection.Down
-            ? YappingMawSegment.AttackingDown
-            : YappingMawSegment.AttackingUp));
+        state.Playback = EnemyAnimationPlayback.Start(place, YappingMawAnimations.StartingWith(
+            YappingMawReach.Of(place.SpawnSettings<YappingMawSpawnSettings>().Attack).Bite));
     }
 
     /// <summary>Runs the Maw's main behaviour, then places its four links.</summary>
@@ -264,28 +259,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         // The six retracted animations are not one per aim. The right and left sectors have
         // dedicated art, while every other sector shares its attack direction's animation.
         VerticalDirection reach = place.SpawnSettings<YappingMawSpawnSettings>().Attack;
-        if (reach == VerticalDirection.Up)
-        {
-            state.Playback = new(YappingMawAnimations.StartingWith(state.Aim switch
-            {
-                YappingMawAim.Right => YappingMawSegment.CooldownUpRight,
-                YappingMawAim.Left => YappingMawSegment.CooldownUpLeft,
-                YappingMawAim.Up or YappingMawAim.UpRight or YappingMawAim.DownRight or YappingMawAim.Down or
-                    YappingMawAim.DownLeft or YappingMawAim.UpLeft => YappingMawSegment.CooldownUp,
-                _ => throw new InvalidOperationException($"Yapping Maw aim {state.Aim} is not an aim."),
-            }), AnimationPlace.StartOfAnimation);
-        }
-        else
-        {
-            state.Playback = new(YappingMawAnimations.StartingWith(state.Aim switch
-            {
-                YappingMawAim.Right => YappingMawSegment.CooldownDownRight,
-                YappingMawAim.Left => YappingMawSegment.CooldownDownLeft,
-                YappingMawAim.Up or YappingMawAim.UpRight or YappingMawAim.DownRight or YappingMawAim.Down or
-                    YappingMawAim.DownLeft or YappingMawAim.UpLeft => YappingMawSegment.CooldownDown,
-                _ => throw new InvalidOperationException($"Yapping Maw aim {state.Aim} is not an aim."),
-            }), AnimationPlace.StartOfAnimation);
-        }
+        state.Playback = new(YappingMawAnimations.StartingWith(YappingMawReach.Of(reach).CooldownAfter(state.Aim)), AnimationPlace.StartOfAnimation);
         place.AnimationClock.Restart();
 
         if (state.HasGrabbedSamus &&

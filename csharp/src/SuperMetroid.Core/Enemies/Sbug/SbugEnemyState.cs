@@ -24,5 +24,5 @@ public sealed class SbugEnemyState
     /// The animation the enemy plays and where it stands in it (#1600): none before it selects its first direction, then
     /// the loop of the facing it last selected, which selecting that facing again leaves playing (#2145).
     /// </summary>
-    internal AnimationPlayback<SbugSegment> Playback { get; set; }
+    internal AnimationPlayback<CompassDirection> Playback { get; set; }
 }

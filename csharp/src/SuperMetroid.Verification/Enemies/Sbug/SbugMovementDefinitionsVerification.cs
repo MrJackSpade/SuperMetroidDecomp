@@ -30,7 +30,7 @@ internal static class SbugMovementDefinitionsVerification
             int address = instructionTable + facing * 2;
             ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
             AssertEqual(native, NativeEnemyAnimationOracle.EntryOf(SbugNativeListAddresses.Entries,
-                    SbugMovement.FacingAnimation(SbugMovementDefinitions.Facings.InTurnOrder[facing])),
+                    SbugMovementDefinitions.Facings.InTurnOrder[facing]),
                 $"compiled Sbug facing selector {facing}");
         }
 
@@ -64,7 +64,7 @@ internal static class SbugMovementDefinitionsVerification
             CompassDirection forward = SbugBehavior.ForwardLeg(place).Facing;
             AssertEqual(SbugMovementDefinitions.Facings.InTurnOrder[selector], forward,
                 $"Sbug production facing {selector}");
-            AssertEqual(new AnimationPlayback<SbugSegment>(SbugAnimations.StartingWith(SbugMovement.FacingAnimation(forward)), AnimationPlace.StartOfAnimation), state.Playback,
+            AssertEqual(new AnimationPlayback<CompassDirection>(SbugAnimations.StartingWith(forward), AnimationPlace.StartOfAnimation), state.Playback,
                 $"Sbug production facing animation {selector}");
             AssertEqual(native, NativeEnemyAnimationOracle.EntryOf(SbugNativeListAddresses.Entries, state.Playback.Animation.Phases[0].Segment),
                 $"Sbug production facing list {selector}");

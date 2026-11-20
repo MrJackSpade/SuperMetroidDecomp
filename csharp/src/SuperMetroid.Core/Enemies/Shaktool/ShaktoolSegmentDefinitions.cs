@@ -11,45 +11,48 @@ namespace SuperMetroid.Core.Enemies.Shaktool;
 /// </summary>
 internal static class ShaktoolSegmentDefinitions
 {
+    /// <summary>How every segment is processed: each animates and moves off screen.</summary>
+    internal static readonly EnemyProcessing Processing = EnemyProcessing.OffScreen | EnemyProcessing.Animates;
+
     /// <summary>The leading saw: the chain's fixed anchor, in its first place.</summary>
     internal static readonly ShaktoolSegmentDefinition LeadingSaw =
-        new(EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyContact.None, 0,
+        new(EnemyContact.None, 0,
             RotationAngle.Zero, ShaktoolSegment.SawHandPrimaryPiece,
             ShaktoolSegmentMotion.Idle, RotationAngle.Zero, ShaktoolSegment.SawHandHeadBobPrimaryPiece);
 
     /// <summary>The outer arm on the leading saw's side, next to the saw.</summary>
     internal static readonly ShaktoolSegmentDefinition LeadingOuterArm =
-        new(EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyContact.IgnoresSamus, 1,
+        new(EnemyContact.IgnoresSamus, 1,
             RotationAngle.FromSteps(248), ShaktoolSegment.ArmPieceNormal,
             ShaktoolSegmentMotion.OrbitPreviousSegment, RotationAngle.FromStepFraction(1, 8), ShaktoolSegment.ArmPieceHeadBobBack);
 
     /// <summary>The inner arm on the leading saw's side, next to the head.</summary>
     internal static readonly ShaktoolSegmentDefinition LeadingInnerArm =
-        new(EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyContact.IgnoresSamus, 2,
+        new(EnemyContact.IgnoresSamus, 2,
             RotationAngle.FromSteps(232), ShaktoolSegment.ArmPieceNormal,
             ShaktoolSegmentMotion.OrbitPreviousSegment, RotationAngle.FromStepFraction(3, 8), ShaktoolSegment.ArmPieceHeadBobFront);
 
     /// <summary>The head at the chain's centre, which orients itself along the chain.</summary>
     internal static readonly ShaktoolSegmentDefinition Head =
-        new(EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyContact.IgnoresSamus, 3,
+        new(EnemyContact.IgnoresSamus, 3,
             RotationAngle.FromSteps(208), ShaktoolSegment.HeadAimingDown,
             ShaktoolSegmentMotion.OrbitAndOrientCenter, RotationAngle.FromStepFraction(3, 4), ShaktoolSegment.HeadHeadBob);
 
     /// <summary>The inner arm on the trailing saw's side, next to the head.</summary>
     internal static readonly ShaktoolSegmentDefinition TrailingInnerArm =
-        new(EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyContact.IgnoresSamus, 4,
+        new(EnemyContact.IgnoresSamus, 4,
             RotationAngle.FromSteps(176), ShaktoolSegment.ArmPieceNormal,
             ShaktoolSegmentMotion.OrbitPreviousSegment, RotationAngle.FromStepFraction(5, 4), ShaktoolSegment.ArmPieceHeadBobFront);
 
     /// <summary>The outer arm on the trailing saw's side, next to the saw.</summary>
     internal static readonly ShaktoolSegmentDefinition TrailingOuterArm =
-        new(EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyContact.IgnoresSamus, 5,
+        new(EnemyContact.IgnoresSamus, 5,
             RotationAngle.FromSteps(152), ShaktoolSegment.ArmPieceNormal,
             ShaktoolSegmentMotion.OrbitPreviousSegment, RotationAngle.FromStepFraction(13, 8), ShaktoolSegment.ArmPieceHeadBobBack);
 
     /// <summary>The trailing saw, which drives the chain and reverses it at walls.</summary>
     internal static readonly ShaktoolSegmentDefinition TrailingSaw =
-        new(EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyContact.None, 6,
+        new(EnemyContact.None, 6,
             RotationAngle.FromSteps(136), ShaktoolSegment.SawHandPrimaryPiece,
             ShaktoolSegmentMotion.DriveTailAndReverseAtWalls, RotationAngle.FromStepFraction(15, 8), ShaktoolSegment.SawHandHeadBobFinalPiece);
 
@@ -58,5 +61,5 @@ internal static class ShaktoolSegmentDefinitions
         [LeadingSaw, LeadingOuterArm, LeadingInnerArm, Head, TrailingInnerArm, TrailingOuterArm, TrailingSaw];
 
     /// <summary>How many segments Shaktool's chain has, in consecutive enemy places: the two saws and the five between.</summary>
-    internal const int SegmentCount = 7;
+    internal static int SegmentCount => Segments.Length;
 }

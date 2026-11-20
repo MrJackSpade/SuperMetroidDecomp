@@ -154,7 +154,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyPlace place,
         SbugEnemyState state,
         CompassDirection facing) =>
-        state.Playback = EnemyAnimationPlayback.StartUnlessPlaying(place, state.Playback, SbugAnimations.StartingWith(SbugMovement.FacingAnimation(facing)));
+        state.Playback = EnemyAnimationPlayback.StartUnlessPlaying(place, state.Playback, SbugAnimations.StartingWith(facing));
 
     /// <summary>Advances Sbug's typed animation.</summary>
     internal static void AdvanceSbugTypedAnimation(RoomEnemyPlace place) =>

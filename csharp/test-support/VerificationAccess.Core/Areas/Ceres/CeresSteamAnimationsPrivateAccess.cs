@@ -11,16 +11,6 @@ internal static class CeresSteamAnimationsPrivateAccess
     /// <summary>The private static members checks name.</summary>
     extension(global::SuperMetroid.Core.Areas.Ceres.CeresSteamAnimations)
     {
-        /// <summary>The private property <c>StartingAt</c>, reached by name.</summary>
-        internal static global::System.Collections.Generic.Dictionary<global::SuperMetroid.Core.Areas.Ceres.CeresSteamSegment, global::SuperMetroid.Core.Animation.Animation<global::SuperMetroid.Core.Areas.Ceres.CeresSteamSegment>> StartingAt
-        {
-            get => PrivateState.StaticGet<global::System.Collections.Generic.Dictionary<global::SuperMetroid.Core.Areas.Ceres.CeresSteamSegment, global::SuperMetroid.Core.Animation.Animation<global::SuperMetroid.Core.Areas.Ceres.CeresSteamSegment>>>(typeof(global::SuperMetroid.Core.Areas.Ceres.CeresSteamAnimations), "StartingAt");
-        }
-    }
-
-    /// <summary>The private static members checks name.</summary>
-    extension(global::SuperMetroid.Core.Areas.Ceres.CeresSteamAnimations)
-    {
         /// <summary>The private field <c>PuffPictureUpdates</c>, reached by name.</summary>
         internal static int PuffPictureUpdates => PrivateState.StaticField<int>(typeof(global::SuperMetroid.Core.Areas.Ceres.CeresSteamAnimations), "PuffPictureUpdates");
 

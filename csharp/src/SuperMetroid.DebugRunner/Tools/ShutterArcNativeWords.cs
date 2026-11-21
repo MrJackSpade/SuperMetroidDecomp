@@ -31,5 +31,5 @@ internal static class ShutterArcNativeWords
     };
 
     /// <summary>The rest the cartridge stores for <paramref name="rest"/>, in AI updates.</summary>
-    internal static ushort Rest(ShutterRest rest) => rest.IsPermanent ? PermanentRestUpdates : checked((ushort)rest.Updates);
+    internal static ushort Rest(ShutterRest rest) => rest.TryGetUpdates(out int updates) ? checked((ushort)updates) : PermanentRestUpdates;
 }

@@ -151,7 +151,7 @@ internal static class InstalledSporesTests
         {
             int segmentSource = RoomFxBlockAnimationSources.Of(segment).Value;
             for (int index = 0; index < segment.ByteCount; index++)
-                Require(planar[segmentOffset + index] == SuperMetroid.AssetExtraction.Cartridge.SnesCartridgeImportExtensions.ReadCartridgeByte(rom, segmentSource + index),
+                Require(planar[segmentOffset + index] == rom.ReadCartridgeByte(segmentSource + index),
                     $"Installed sheet segment ${segmentSource:X6} differs from its native bytes at +{index}.");
             segmentOffset += segment.ByteCount;
         }

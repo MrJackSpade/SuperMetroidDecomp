@@ -392,9 +392,8 @@ public static class SamusBlockCollision
             // Its setup reports the block solid unless Samus
             // is speed boosting, screw attacking, or in a shinespark pose. On an
             // accepted break it installs the air-type bomb-parent visual and
-            // reports no collision, so this scan continues through the new air.
-            if (scan.Terrain.RoomObjects.EveryPlaceHeld)
-                return false;
+            // reports no collision, so this scan continues through the new air. An inert block is solid before any room
+            // object is spawned ($94:932D), so it stops Samus even when every room-object place is held.
             if (reaction == BombableReaction.Inert)
             {
                 acceptedDisplacement = ClipHorizontalToSolid(
@@ -403,6 +402,8 @@ public static class SamusBlockCollision
                     scan.LeadingBoundary);
                 return true;
             }
+            if (scan.Terrain.RoomObjects.EveryPlaceHeld)
+                return false;
             // A reaction that breaks nothing sets off a room object with no setup, which reports no collision whatever
             // Samus's pose (#2554), so the scan continues through the block.
             if (!BlockReactionChanges.TryCollisionBomb(reaction, out BlockReactionChange? change))
@@ -826,13 +827,7 @@ public static class SamusBlockCollision
         {
             // The vertical reaction shares the exact room-object
             // setup and collision contract documented in the horizontal branch above.
-            if (scan.Terrain.RoomObjects.EveryPlaceHeld)
-            {
-                // The full room-object pool prevents rejection setup from stopping
-                // Samus. Block collision therefore lets her pass and
-                // treats an untouched bomb block as air.
-                return false;
-            }
+            // An inert block is solid before any room object is spawned ($94:932D), whatever the room-object places hold.
             if (reaction == BombableReaction.Inert)
             {
                 acceptedDisplacement = ClipVerticalToSolid(
@@ -840,6 +835,13 @@ public static class SamusBlockCollision
                     acceptedDisplacement,
                     scan.LeadingBoundary);
                 return true;
+            }
+            if (scan.Terrain.RoomObjects.EveryPlaceHeld)
+            {
+                // The full room-object pool prevents rejection setup from stopping
+                // Samus. Block collision therefore lets her pass and
+                // treats an untouched bomb block as air.
+                return false;
             }
             // A reaction that breaks nothing reports no collision whatever Samus's pose, as in the horizontal branch.
             if (!BlockReactionChanges.TryCollisionBomb(reaction, out BlockReactionChange? change))

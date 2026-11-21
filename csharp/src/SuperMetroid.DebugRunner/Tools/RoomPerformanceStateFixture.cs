@@ -22,7 +22,7 @@ internal static class RoomPerformanceStateFixture
         string romPath = Path.GetFullPath("Super Metroid.smc");
         using var data = new InstalledGameSession(root, romPath, Path.GetFullPath("standalone-assets/audio"));
         data.Game.Session.SetupSelectedGame();
-        var runtime = data.Game.Session.GameplayRuntime;
+        var runtime = data.Game.Session.Runtime ?? throw new InvalidOperationException("The selected game loaded no gameplay.");
         bool surface = scene == "surface";
         ushort camera = surface ? (ushort)1024 : (ushort)0;
         if (scene == "map")

@@ -37,8 +37,8 @@ public static class AudioInputReplaySmokeTest
             throw new InvalidDataException("Replay ROM SHA-256 does not match the recording.");
 
         CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(fullRomPath);
-        var game = new SuperMetroidGame(SuperMetroid.Diagnostics.Saves.SaveRamCodec.Decode(recording.InitialSaveRam, SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), recording.GameOptions.ToAssists());
-        game.BindAudio(DesktopAccess.LoadAudioClips());
+        var game = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGameWithAudio(SuperMetroid.Diagnostics.Saves.SaveRamCodec.Decode(recording.InitialSaveRam, SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps),
+            SuperMetroid.Core.Audio.GameAudioOutput.MixedFrom(DesktopAccess.LoadAudioClips()), recording.GameOptions.ToAssists());
 
         int framesExecuted = 0;
         bool projectileFired = false;
@@ -83,7 +83,7 @@ public static class AudioInputReplaySmokeTest
             powerBeamCommandObserved |= frame.Audio.Events.Any(audioEvent =>
                 audioEvent is AudioEvent.StartSoundEffect { SoundEffect: var started } &&
                 started == SamusSound.UnchargedPowerBeam);
-            powerBeamAcknowledged |= acknowledgements[SoundEffectLibrary.Samus].Acknowledges(SamusSound.UnchargedPowerBeam);
+            powerBeamAcknowledged |= acknowledgements[SoundEffectLibrary.Samus].Acknowledges(new SuperMetroid.Core.Compatibility.RequestedSound<SoundEffectId>(SamusSound.UnchargedPowerBeam));
 
             if (game.IsAt(DoorTransitionStep.Transitioning))
                 firstDoorBegan = true;
@@ -148,8 +148,8 @@ public static class AudioInputReplaySmokeTest
         if (!CryptographicOperations.FixedTimeEquals(actualRomDigest, recording.RomSha256))
             throw new InvalidDataException("Replay ROM SHA-256 does not match the recording.");
 
-        var game = new SuperMetroidGame(SuperMetroid.Diagnostics.Saves.SaveRamCodec.Decode(recording.InitialSaveRam, SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), recording.GameOptions.ToAssists());
-        game.BindAudio(DesktopAccess.LoadAudioClips());
+        var game = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGameWithAudio(SuperMetroid.Diagnostics.Saves.SaveRamCodec.Decode(recording.InitialSaveRam, SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps),
+            SuperMetroid.Core.Audio.GameAudioOutput.MixedFrom(DesktopAccess.LoadAudioClips()), recording.GameOptions.ToAssists());
         for (int frameIndex = 0; frameIndex < recording.ControllerInputs.Length; frameIndex++)
         {
             try
@@ -189,8 +189,8 @@ public static class AudioInputReplaySmokeTest
             throw new InvalidDataException("Replay ROM SHA-256 does not match the recording.");
 
         CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(fullRomPath);
-        var game = new SuperMetroidGame(SuperMetroid.Diagnostics.Saves.SaveRamCodec.Decode(recording.InitialSaveRam, SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), recording.GameOptions.ToAssists());
-        game.BindAudio(DesktopAccess.LoadAudioClips());
+        var game = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGameWithAudio(SuperMetroid.Diagnostics.Saves.SaveRamCodec.Decode(recording.InitialSaveRam, SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps),
+            SuperMetroid.Core.Audio.GameAudioOutput.MixedFrom(DesktopAccess.LoadAudioClips()), recording.GameOptions.ToAssists());
         var samples = new short[AudioSession.PcmSamplesPerFrame];
         var completed = new List<RecordedPauseAudioResult>();
         PauseAccumulator? active = null;

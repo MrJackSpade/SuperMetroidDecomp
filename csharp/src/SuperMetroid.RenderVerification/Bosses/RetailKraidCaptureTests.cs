@@ -47,6 +47,9 @@ internal static class RetailKraidCaptureTests
         Enum BodyPhase()
         {
             KraidBodyState state = body.SpeciesState<KraidPartState>() as KraidBodyState ?? throw new InvalidOperationException("Kraid's body has no body state.");
+            // His sunk body runs the phases that hide it and fade the room back in.
+            if (state.Run is KraidStageRun.Sunk sunk)
+                return sunk.Phase;
             return state.Stage switch
             {
                 KraidBodyStage.Rising => state.RisePhase,
@@ -56,10 +59,9 @@ internal static class RetailKraidCaptureTests
                 _ => throw new InvalidOperationException($"Undefined {nameof(KraidBodyStage)} {state.Stage}."),
             };
         }
-        // The death has played out once the background fade hands the body to the finished phase.
+        // The death has played out once the background fade hands the sunk body to the finished phase.
         static bool DeathFinished(KraidEnemyState kraid) =>
-            kraid.BodyState.Stage == KraidBodyStage.Dying &&
-            kraid.BodyState.DeathPhase is KraidDeathPhase.Finished;
+            kraid.BodyState.Run is KraidStageRun.Sunk { Phase: KraidSunkPhase.Finished };
         var phases = new HashSet<Enum>();
         int samples = 0;
         bool completed = false, ownedBackground = false;
@@ -143,9 +145,9 @@ internal static class RetailKraidCaptureTests
             if (DeathFinished(boss)) break;
             runtime.StepFrame(0);
         }
-        if (!DeathFinished(boss) || !deathPhases.Contains(KraidDeathPhase.WaitBeforeFadeIn) ||
+        if (!DeathFinished(boss) || !deathPhases.Contains(KraidSunkPhase.WaitBeforeFadeIn) ||
             !deathPhases.Contains(KraidDeathPhase.Sink) ||
-            !deathPhases.Contains(KraidDeathPhase.FadeInBackground))
+            !deathPhases.Contains(KraidSunkPhase.FadeInBackground))
             throw new InvalidOperationException("Kraid death missed sinking, the wait before the fade-in or the background fade.");
         RequireBlankBg2(runtime, $"{device.Kind}: defeated Kraid");
         Console.WriteLine($"{device.Kind}: Kraid death: {deathSamples} exact samples across {deathPhases.Count} AI states; sinking, wait, fade and blank BG2 verified.");

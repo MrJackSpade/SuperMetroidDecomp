@@ -26,9 +26,8 @@ internal static class HiddenSoakTests
         var results = new List<object>();
         foreach (bool paused in new[] { false, true })
         {
-            var game = InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps),
-                new SuperMetroid.Core.Gameplay.GameplayAssists { SkipOpeningCinematic = true, SamusCannotDie = true });
-            game.BindAudio(DesktopAccess.LoadAudioClips());
+            var game = InstalledFixtures.CreateGameWithAudio(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps),
+                SuperMetroid.Core.Audio.GameAudioOutput.MixedFrom(DesktopAccess.LoadAudioClips()), new SuperMetroid.Core.Gameplay.GameplayAssists { SkipOpeningCinematic = true, SamusCannotDie = true });
             var audio = new short[AudioSession.PcmSamplesPerFrame];
             long sequence = 0;
             CapturedFrontendFrame Step(ControllerButton input)

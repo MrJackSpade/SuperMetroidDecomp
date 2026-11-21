@@ -303,15 +303,12 @@ internal static partial class SwapchainTests
     {
         byte[] rom = File.ReadAllBytes("Super Metroid.smc");
         var options = new SuperMetroid.Core.Gameplay.GameplayAssists { SkipOpeningCinematic = true };
-        var legacy = RenderRetailFixture.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), options);
-        var captured = RenderRetailFixture.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), options);
-        var headless = RenderRetailFixture.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), options);
+        var audioAssets = DesktopAccess.LoadAudioClips();
+        var legacy = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGameWithAudio(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), SuperMetroid.Core.Audio.GameAudioOutput.MixedFrom(audioAssets), options);
+        var captured = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGameWithAudio(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), SuperMetroid.Core.Audio.GameAudioOutput.MixedFrom(audioAssets), options);
+        var headless = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGameWithAudio(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), SuperMetroid.Core.Audio.GameAudioOutput.MixedFrom(audioAssets), options);
         // Each session synthesizes through its own Core audio session, as the desktop host does;
         // do not substitute a second hand-written queue-to-PCM implementation.
-        var audioAssets = DesktopAccess.LoadAudioClips();
-        legacy.BindAudio(audioAssets);
-        captured.BindAudio(audioAssets);
-        headless.BindAudio(audioAssets);
         var left = new short[AudioSession.PcmSamplesPerFrame];
         var right = new short[AudioSession.PcmSamplesPerFrame];
         var silentDisplay = new short[AudioSession.PcmSamplesPerFrame];

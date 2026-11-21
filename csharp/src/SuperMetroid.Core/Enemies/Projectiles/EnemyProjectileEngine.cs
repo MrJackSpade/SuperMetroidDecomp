@@ -349,6 +349,21 @@ internal sealed class EnemyProjectileEngine
     internal EnemyProjectile? AllocateEnemyProjectile(RoomEnemyProjectileKind kind, EnemyProjectileBehavior behavior, SpriteGraphics graphics) =>
         TryAllocateEnemyProjectile(kind, behavior, graphics, out EnemyProjectile? projectile) ? projectile : null;
 
+    /// <summary>
+    /// Makes <paramref name="place"/> hold a fresh projectile of <paramref name="kind"/>, starting from what the place's latest
+    /// projectile left there (<see cref="EnemyProjectilePlaceLeftovers"/>), as a spawn into it does.
+    /// </summary>
+    /// <param name="place">The place the projectile takes.</param>
+    /// <param name="kind">What the projectile is.</param>
+    /// <param name="behavior">What the projectile's kind does, bound to it for its life.</param>
+    /// <returns>The projectile the place now holds.</returns>
+    internal EnemyProjectile Occupy(int place, RoomEnemyProjectileKind kind, EnemyProjectileBehavior behavior)
+    {
+        var projectile = new EnemyProjectile(place, _leftovers.StartOf(place, _places[place]?.LeftInPlace), kind, behavior);
+        _places[place] = projectile;
+        return projectile;
+    }
+
     /// <summary>Spawns a fresh projectile into the first free place searched from the last down; false when every place is held.</summary>
     private bool TryAllocateEnemyProjectile(RoomEnemyProjectileKind kind, EnemyProjectileBehavior behavior, SpriteGraphics graphics,
         [NotNullWhen(true)] out EnemyProjectile? projectile)
@@ -358,8 +373,7 @@ internal sealed class EnemyProjectileEngine
             if (!IsFree(place))
                 continue;
             Places.RecordSpawn(place);
-            projectile = new EnemyProjectile(place, _leftovers.StartOf(place, _places[place]?.LeftInPlace), kind, behavior);
-            _places[place] = projectile;
+            projectile = Occupy(place, kind, behavior);
             InitializeEnemyProjectileFromDefinition(projectile, kind, graphics);
             return true;
         }

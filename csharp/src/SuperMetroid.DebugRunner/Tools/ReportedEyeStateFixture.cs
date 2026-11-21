@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.ScenarioFixtures;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies.MorphBallEye;
@@ -20,11 +21,11 @@ internal static class ReportedEyeStateFixture
         using var data = new InstalledGameSession(root, Path.GetFullPath("Super Metroid.smc"),
             Path.GetFullPath("standalone-assets/audio"));
         data.Game.Session.SetupSelectedGame();
-        var runtime = data.Game.Session.GameplayRuntime;
+        var runtime = data.Game.Session.Runtime ?? throw new InvalidOperationException("The selected game loaded no gameplay.");
         // Room identity is fixture data; normal room loading owns its population,
         // graphics, HDMA initialization, and camera-dependent render snapshots.
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.BlueBrinstarEnergyTank, new Position16<RoomPixels>(384, 512));
-        var body = runtime.Room.LoadedScope.Enemies.Places.InUpdateOrder[1];
+        var body = ScenarioRooms.LoadedScope(runtime).Enemies.Places.InUpdateOrder[1];
         var samus = runtime.Player.Samus;
         samus.CollectedItems = SamusEquipmentFlags.MorphBall;
         samus.Control.LockOutPlayer();

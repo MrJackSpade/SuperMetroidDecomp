@@ -57,7 +57,7 @@ public sealed class BossArtworkBinding(CeresRidleyGetawayBoostDelays ceresRidley
     /// <summary>Every boss's installed body sheet (#1466), rebound with the bosses' artwork.</summary>
     public BossBodySheets BodySheets
     {
-        internal get;
+        private get;
         set => field = Ensure.NotNull(value);
     } = Ensure.NotNull(bodySheets);
 

@@ -38,7 +38,7 @@ internal sealed class DefinitionCatalog(Type type, IReadOnlyList<FieldInfo> memb
     internal BoundObjectGraph Graph => BuiltGraph ??= new BoundObjectGraph(Roots());
 
     /// <summary>The index once a capture or restore has first needed it, and none before.</summary>
-    internal BoundObjectGraph? BuiltGraph { get; set; }
+    private BoundObjectGraph? BuiltGraph { get; set; }
 
     /// <summary>Each member holding an object other than a string, named by its prefix and field, in name order.</summary>
     private (string Name, object Root)[] Roots()

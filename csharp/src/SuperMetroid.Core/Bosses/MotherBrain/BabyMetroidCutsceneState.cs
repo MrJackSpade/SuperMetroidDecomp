@@ -110,7 +110,7 @@ public sealed class BabyMetroidCutsceneState
     public int Health
     {
         get => Place.Health;
-        internal set => Place.Health = value;
+        private set => Place.Health = value;
     }
 
     /// <summary>

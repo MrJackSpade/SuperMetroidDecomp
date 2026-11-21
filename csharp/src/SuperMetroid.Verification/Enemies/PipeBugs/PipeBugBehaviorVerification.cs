@@ -64,7 +64,13 @@ internal static class PipeBugBehaviorVerification
             NorfairPipeBugState state = place.RequireSpeciesState<NorfairPipeBugState>();
             state.Action = NorfairPipeBugAction.WaitForStagger;
             state.Role = new NorfairPipeBugRole.Leader(StaggerTarget: 72);
-            state.Departure = UpdateCountdownAccess.AtAge(72, before);
+            // The member waits from a count of none: the main AI counts it up, one each update, to the count under test.
+            for (int update = 0; update < before; update++)
+            {
+                enemies.PipeBugsBehavior.RunNorfairPipeBugMainAi(place.HeldOccupant(), place, Frame(new(200, 128)));
+                AssertEqual(NorfairPipeBugAction.WaitForStagger, state.Action, $"Norfair Pipe Bug waits through count {update + 1}");
+            }
+            AssertEqual(before, state.Departure.Age, $"Norfair Pipe Bug counts {before} updates");
             enemies.PipeBugsBehavior.RunNorfairPipeBugMainAi(place.HeldOccupant(), place, Frame(new(200, 128)));
             AssertEqual(after, state.Departure.Age, $"Norfair Pipe Bug count after {before}");
             AssertEqual(departs ? NorfairPipeBugAction.Fly : NorfairPipeBugAction.WaitForStagger, state.Action,
@@ -145,7 +151,8 @@ internal static class PipeBugBehaviorVerification
             state.Action = NorfairPipeBugAction.Stagger;
             state.Role = role;
             state.RiseEndY = 128;
-            state.Departure = UpdateCountdown.Lasting(role.StaggerTarget);
+            // The role's assignment starts the member's wait at its target, uncounted.
+            AssertEqual(0, state.Departure.Age, $"the member staggering {offset} pixels starts uncounted");
             int updates = 0;
             while (state.Action == NorfairPipeBugAction.Stagger && updates <= stagger.Distance + 1)
             {

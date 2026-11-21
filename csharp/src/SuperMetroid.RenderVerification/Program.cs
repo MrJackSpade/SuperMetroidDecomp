@@ -33,11 +33,6 @@ internal static class Program
             NativeConsoleErrors.DisableDialogs();
             SuperMetroid.TestSupport.RunTimeLimit.VerificationRunTimeLimit.Start("SuperMetroid.RenderVerification " + string.Join(' ', args));
             SuperMetroid.TestSupport.RunTimeLimit.VerificationRunTimeLimit.Activity = string.Join(' ', args);
-            if (args is ["--packet-input"])
-            {
-                DisplayPacketInputTests.Run();
-                return;
-            }
             if (args is ["--ending-shooting-stars"])
             {
                 foreach (D3D11DeviceKind kind in Enum.GetValues<D3D11DeviceKind>())

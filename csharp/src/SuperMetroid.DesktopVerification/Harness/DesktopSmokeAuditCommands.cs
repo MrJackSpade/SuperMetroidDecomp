@@ -48,14 +48,9 @@ internal static class DesktopSmokeAuditCommands
             GameConfigurationPackageVerification.Run(configuredGameAssembly);
             return true;
         }
-        if (args is ["--rom-picker-audit", var gameAssembly])
+        if (args is ["--rom-picker-audit"])
         {
-            RomPickerStartupVerification.Run(gameAssembly);
-            return true;
-        }
-        if (args is ["--production-assembly-audit", .. var assemblies] && assemblies.Length != 0)
-        {
-            ProductionAssemblyVerification.Run(assemblies);
+            RomPickerStartupVerification.Run();
             return true;
         }
         if (args.Length != 0 &&

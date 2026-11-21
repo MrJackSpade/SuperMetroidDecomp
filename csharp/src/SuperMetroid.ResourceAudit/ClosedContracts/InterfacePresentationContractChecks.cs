@@ -48,7 +48,7 @@ internal static class InterfacePresentationContractChecks
         trees.Add(calls);
         string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         CSharpCompilation Compile(IEnumerable<SyntaxTree> sources) => CSharpCompilation.Create("InterfacePresentationFixture", sources,
-            platforms.Append(typeof(IIntroCinematicSpritePresentation).Assembly.Location).Distinct().Select(path => MetadataReference.CreateFromFile(path)),
+            platforms.Append(FixtureAssemblies.Core).Distinct().Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         AuditReport Inspect(CSharpCompilation compilation, bool adapted)
         {

@@ -73,7 +73,7 @@ internal static class EnemyDisplayArtworkContractChecks
         trees.Add(calls);
         string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         CSharpCompilation Compile(IEnumerable<SyntaxTree> sources) => CSharpCompilation.Create("EnemyDisplayFixture", sources,
-            platforms.Append(typeof(EnemySpritemapCatalog).Assembly.Location).Append(typeof(EnemyFrameId).Assembly.Location).Distinct()
+            platforms.Append(FixtureAssemblies.AssetExtraction).Append(FixtureAssemblies.Core).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         AuditReport Inspect(CSharpCompilation compilation, bool adapted)

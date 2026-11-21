@@ -116,7 +116,7 @@ internal static class AuditContractChecks
             """;
         SyntaxTree tree = CSharpSyntaxTree.ParseText(text, path: "fixture.cs");
         var compilation = CSharpCompilation.Create("AuditFixture", [tree],
-            [MetadataReference.CreateFromFile(typeof(object).Assembly.Location)],
+            [MetadataReference.CreateFromFile(FixtureAssemblies.CoreLibrary)],
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         SemanticModel semantic = compilation.GetSemanticModel(tree);
         var exports = new ResourceIndex();

@@ -1,31 +1,28 @@
-using SuperMetroid.Core;
-using System.Reflection;
+using SuperMetroid.Desktop.Setup;
 using System.Runtime.InteropServices;
 namespace SuperMetroid.DesktopVerification.Startup;
 
 /// <summary>Opens and cancels the real setup button's native dialog on the player's entry apartment.</summary>
 internal static partial class RomPickerStartupVerification
 {
-    /// <summary>Invokes the actual Choose ROM button on the game's apartment and cancels its native dialog.</summary>
-    [ReflectionAudit("published-assembly dialog test: the form type comes from the loaded package, and Button.PerformClick is inert on an unshown form, so WinForms OnClick is raised directly")]
-    public static void Run(string gameAssemblyPath)
+    /// <summary>
+    /// Runs the actual Choose ROM handler on a single-threaded apartment, the game's entry apartment, and cancels its native
+    /// dialog. The game's own <c>--dpi-awareness-audit</c> holds its entry thread to that apartment.
+    /// </summary>
+    public static void Run()
     {
-        Assembly game = Assembly.LoadFrom(Path.GetFullPath(gameAssemblyPath));
-        MethodInfo entry = game.EntryPoint ?? throw new InvalidDataException("Game has no entry point.");
-        ApartmentState apartment = entry.IsDefined(typeof(STAThreadAttribute)) ? ApartmentState.STA : ApartmentState.MTA;
+        const ApartmentState apartment = ApartmentState.STA;
         Exception? failure = null;
         bool opened = false, returned = false;
+        Task? clicked = null;
         var thread = new Thread(() =>
         {
             try
             {
                 // Construct without showing setup: OnShown must not inspect or install into
                 // the player's app-data directory during this ROM-free dialog regression.
-                using var setup = (Form)(Activator.CreateInstance(
-                    (game.GetType("SuperMetroid.Game.RomSetupForm", throwOnError: true) ?? throw new InvalidOperationException("Verification requires game.GetType(\"SuperMetroid.Game.RomSetupForm\", throwOnError: true).")),
-                    [Array.Empty<string>()]) ?? throw new InvalidOperationException("Verification requires Activator.CreateInstance( (game.GetType(\"SuperMetroid.Game.RomSetupForm\", throwOnError:...."));
-                _ = (setup ?? throw new InvalidOperationException("Verification requires setup.")).Handle;
-                var choose = (Button)(setup.AcceptButton ?? throw new InvalidOperationException("Verification requires setup.AcceptButton."));
+                using var setup = new RomSetupForm([]);
+                _ = setup.Handle;
                 using var context = new ApplicationContext();
                 using var timer = new System.Windows.Forms.Timer { Interval = 50 };
                 uint ownerThread = GetCurrentThreadId();
@@ -62,8 +59,7 @@ internal static partial class RomPickerStartupVerification
                     if (started) return;
                     started = true;
                     timer.Start();
-                    (typeof(Button).GetMethod("OnClick", BindingFlags.Instance | BindingFlags.NonPublic) ?? throw new InvalidOperationException("Verification requires typeof(Button).GetMethod(\"OnClick\", BindingFlags.Instance | BindingFlags.NonPublic)."))
-                        .Invoke(choose, [EventArgs.Empty]);
+                    clicked = setup.ChooseRomAsync();
                     returned = true;
                     // An async-void click failure is posted to this message loop. Allow it
                     // to dispatch before ending the test, instead of treating it as success.
@@ -84,6 +80,8 @@ internal static partial class RomPickerStartupVerification
         if (!thread.Join(TimeSpan.FromSeconds(10)))
             throw new TimeoutException("ROM-picker test thread stopped pumping messages.");
         if (failure is not null) throw new InvalidOperationException($"Choose ROM failed on the game's {apartment} apartment.", failure);
+        if (clicked is not { IsCompletedSuccessfully: true })
+            throw new InvalidOperationException("Choose ROM did not finish after its native dialog was cancelled.", clicked?.Exception);
         if (!opened || !returned) throw new InvalidOperationException("Choose ROM did not open and return from its native dialog.");
         Console.WriteLine("PASS actual Choose ROM handler: native dialog opened and cancellation returned on the player's STA apartment; no installation or saves touched.");
     }

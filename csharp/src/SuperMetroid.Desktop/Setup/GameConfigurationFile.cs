@@ -1,7 +1,7 @@
 using SuperMetroid.Diagnostics.Configuration;
 using System.Text;
 
-namespace SuperMetroid.Game;
+namespace SuperMetroid.Desktop.Setup;
 
 /// <summary>Loads player settings from the installation data root (or legacy ROM directory).</summary>
 internal sealed record GameConfigurationFile(

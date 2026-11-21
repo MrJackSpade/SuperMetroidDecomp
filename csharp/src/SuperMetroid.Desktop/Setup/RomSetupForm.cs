@@ -1,6 +1,6 @@
 using SuperMetroid.AssetExtraction.Installation;
 
-namespace SuperMetroid.Game;
+namespace SuperMetroid.Desktop.Setup;
 
 /// <summary>First-launch ROM selection and recoverable installation without blocking the UI thread.</summary>
 internal sealed class RomSetupForm : Form
@@ -42,16 +42,7 @@ internal sealed class RomSetupForm : Form
         var buttons = new FlowLayoutPanel { Dock = DockStyle.Bottom, AutoSize = true, FlowDirection = FlowDirection.RightToLeft };
         var cancel = new Button { Text = "Cancel", AutoSize = true };
         cancel.Click += (_, _) => Close();
-        choose.Click += async (_, _) =>
-        {
-            using var picker = new OpenFileDialog
-            {
-                Title = "Choose your Super Metroid ROM",
-                Filter = "SNES ROMs (*.smc;*.sfc)|*.smc;*.sfc|All files (*.*)|*.*",
-                CheckFileExists = true,
-            };
-            if (picker.ShowDialog(this) == DialogResult.OK) await Prepare(picker.FileName);
-        };
+        choose.Click += async (_, _) => await ChooseRomAsync();
         buttons.Controls.Add(cancel);
         buttons.Controls.Add(choose);
         Controls.Add(status);
@@ -59,6 +50,21 @@ internal sealed class RomSetupForm : Form
         Controls.Add(buttons);
         Controls.Add(introduction);
         AcceptButton = choose;
+    }
+
+    /// <summary>
+    /// Opens the native picker for the player's ROM, as the Choose ROM button does, and installs the chosen file; a
+    /// cancelled picker changes nothing.
+    /// </summary>
+    internal async Task ChooseRomAsync()
+    {
+        using var picker = new OpenFileDialog
+        {
+            Title = "Choose your Super Metroid ROM",
+            Filter = "SNES ROMs (*.smc;*.sfc)|*.smc;*.sfc|All files (*.*)|*.*",
+            CheckFileExists = true,
+        };
+        if (picker.ShowDialog(this) == DialogResult.OK) await Prepare(picker.FileName);
     }
 
     /// <summary>Checks or repairs the installed game files after the form is displayed.</summary>

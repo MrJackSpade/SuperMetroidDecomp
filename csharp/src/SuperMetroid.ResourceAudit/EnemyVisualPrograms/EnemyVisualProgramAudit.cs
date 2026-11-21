@@ -47,14 +47,13 @@ internal static class EnemyVisualProgramAudit
             ClassDeclarationSyntax[] adapterParts = [.. adapters.AdapterDeclarations(owner)];
             // Owners live in their domain namespaces (#626); the declaration names its own.
             string? ownerNamespace = parts.Select(part => part.FirstAncestorOrSelf<BaseNamespaceDeclarationSyntax>()?.Name.ToString()).FirstOrDefault(name => name is not null);
-            Type? type = ownerNamespace is null ? null : ConsumerAudit.ProgramOwnerType(ownerNamespace + "." + owner);
-            if (type is null || parts.Length == 0)
+            if (ownerNamespace is null || parts.Length == 0)
             {
                 report.Gap(ResourceDomains.CompiledSelector, owner, "source inventory", "Program has no matched compiled/source owner.");
                 continue;
             }
             string source = parts[0].SyntaxTree.FilePath;
-            var catalog = InstructionProgramCatalog.Of(type);
+            var catalog = InstructionProgramCatalog.Of(ownerNamespace + "." + owner);
             int? bank = ResolveBank(catalog, [.. parts, .. adapterParts], compilation);
             var addresses = new HashSet<ushort>();
             string shape = "unrecognized";
@@ -82,7 +81,7 @@ internal static class EnemyVisualProgramAudit
                 report.Gap(ResourceDomains.CompiledSelector, owner, source, "Program bank has no unambiguous source declaration.");
             else
                 foreach (ushort operand in addresses.Order())
-                    Require(type, (byte)bank.Value, operand, source, exports, report);
+                    Require(catalog.Name, (byte)bank.Value, operand, source, exports, report);
             rows.Add(new(addresses.Count));
         }
         EnemyVisualTypedProgramAudit.Inspect(exports, report, rows);
@@ -162,9 +161,8 @@ internal static class EnemyVisualProgramAudit
     }
 
     /// <summary>Resolves a presentation operand through its program-specific selector and checks the exported resource.</summary>
-    private static void Require(Type type, byte bank, ushort operand, string source, ResourceIndex exports, AuditReport report)
+    private static void Require(string owner, byte bank, ushort operand, string source, ResourceIndex exports, AuditReport report)
     {
-        string owner = type.Name;
         if (bank == ResourceBanks.EnemyProjectilePrograms)
         {
             ushort? direct = SkreeMetareeParticleVisualDefinitionsTooling.TryResolve(operand, out ushort particle)

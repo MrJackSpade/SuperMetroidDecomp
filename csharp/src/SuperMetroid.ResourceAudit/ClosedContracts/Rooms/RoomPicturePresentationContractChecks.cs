@@ -56,8 +56,8 @@ internal static class RoomPicturePresentationContractChecks
         trees.Add(calls);
         string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         CSharpCompilation compilation = CSharpCompilation.Create("RoomPictureProviderFixture", trees,
-            platforms.Append(typeof(SuperMetroid.Core.Rooms.Artwork.InstalledRoomArtwork).Assembly.Location)
-                .Append(typeof(SuperMetroid.AssetExtraction.Installation.RoomBlockSheetFiles).Assembly.Location).Distinct()
+            platforms.Append(FixtureAssemblies.Core)
+                .Append(FixtureAssemblies.AssetExtraction).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         FixtureConsumerBinding.Require(compilation, calls, nameof(RoomPicturePresentationContractChecks));

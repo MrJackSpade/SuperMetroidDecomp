@@ -2,7 +2,9 @@ namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
 /// One class of blocks whose end contributes the same to a Wave shot's straddled read (<see cref="StraddledTerrain{TTerrain}"/>),
-/// with the terrain it makes with each tail class.
+/// with the terrain it makes with each tail class. Evidence: the original scan reads the terrain halfway through a block
+/// as the second half of that block's stored terrain followed by the first half of the next block's, so blocks whose
+/// stored second halves agree make the same terrain with every next block.
 /// </summary>
 /// <typeparam name="TTerrain">The terrain a room holds.</typeparam>
 [CompatibilityService("one class of first blocks a Wave shot's scan past the room's ceiling straddles, with the terrain it makes with each class of second blocks")]

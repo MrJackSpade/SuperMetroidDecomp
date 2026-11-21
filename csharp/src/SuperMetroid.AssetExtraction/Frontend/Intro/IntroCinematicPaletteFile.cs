@@ -32,10 +32,10 @@ public static class IntroCinematicPaletteFile
         for (int index = 0; index < document.Colors.Length; index++)
         {
             PaletteRgb5? color = document.Colors[index];
-            if (color is null || (uint)color.Red > 31 || (uint)color.Green > 31 ||
-                (uint)color.Blue > 31)
+            if (color is null || (uint)color.Red > FadeLevelColour.FullLevel || (uint)color.Green > FadeLevelColour.FullLevel ||
+                (uint)color.Blue > FadeLevelColour.FullLevel)
                 throw new InvalidDataException(
-                    $"Opening palette color {index} requires red, green and blue in 0..31.");
+                    $"Opening palette color {index} requires red, green and blue in 0..{FadeLevelColour.FullLevel}.");
             image[index] = color.ToRgbColor();
         }
         return new IntroCinematicPalette(image);

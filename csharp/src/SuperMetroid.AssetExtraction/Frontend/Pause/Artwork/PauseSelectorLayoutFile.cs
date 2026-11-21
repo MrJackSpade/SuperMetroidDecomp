@@ -49,9 +49,9 @@ public static class PauseSelectorLayoutFile
     internal static PauseSelectorPresentation Presentation(int initialDuration, Dictionary<string, Offset16<ScreenPixels>>? anchors,
         PauseSelectorPhase[]? animation, Func<string, bool> isFrame)
     {
-        if (initialDuration is < 1 or > PauseSelectorFormat.MaximumDuration || anchors is null || anchors.Count != PauseSelectorFormat.AnchorCount ||
-            animation is null || animation.Length is < 1 or > PauseSelectorFormat.MaximumPhases)
-            throw new InvalidDataException("Pause selectors require a positive bounded initial dwell, sixteen anchors and one to the allowed number of phases.");
+        if (initialDuration < 1 || anchors is null || anchors.Count != PauseSelectorFormat.AnchorCount ||
+            animation is null || animation.Length < 1)
+            throw new InvalidDataException("Pause selectors require a positive initial dwell, sixteen anchors and at least one phase.");
         var named = new Dictionary<string, Offset16<ScreenPixels>>(StringComparer.Ordinal);
         foreach (PauseEquipmentControl control in PauseEquipmentControls.All)
         {
@@ -67,7 +67,7 @@ public static class PauseSelectorLayoutFile
         for (int i = 0; i < animation.Length; i++)
         {
             var phase = animation[i];
-            if (phase is null || phase.DurationTicks is < 1 or > PauseSelectorFormat.MaximumDuration ||
+            if (phase is null || phase.DurationTicks < 1 ||
                 phase.Reserve is null || !isFrame(phase.Reserve) ||
                 phase.Beam is null || !isFrame(phase.Beam) ||
                 phase.Equipment is null || !isFrame(phase.Equipment))

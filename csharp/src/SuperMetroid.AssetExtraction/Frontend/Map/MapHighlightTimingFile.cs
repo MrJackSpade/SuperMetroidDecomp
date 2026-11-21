@@ -40,11 +40,11 @@ public static class MapHighlightTimingFile
         MapHighlightTimingDocument document = JsonAssetDocument.Read<MapHighlightTimingDocument>(
             json, ArtworkJson.Options, "map highlight cycle");
         if (document.Version != Version || document.DurationTicks is null ||
-            document.DurationTicks.Length is < 1 or > MapPaletteCycleFile.MaximumFrames)
-            throw new InvalidDataException($"Map highlight cycle requires version {Version} and 1-{MapPaletteCycleFile.MaximumFrames} frames.");
+            document.DurationTicks.Length < 1)
+            throw new InvalidDataException($"Map highlight cycle requires version {Version} and at least one frame.");
         for (int frame = 0; frame < document.DurationTicks.Length; frame++)
-            if (document.DurationTicks[frame] is < 1 or > MapPaletteCycleFile.MaximumDuration)
-                throw new InvalidDataException($"Map highlight frame {frame} requires 1-{MapPaletteCycleFile.MaximumDuration} ticks.");
+            if (document.DurationTicks[frame] < 1)
+                throw new InvalidDataException($"Map highlight frame {frame} requires a hold of at least one tick.");
         return new MapHighlightCycle([.. document.DurationTicks]);
     }
 }

@@ -142,7 +142,7 @@ public static class IntroCinematicArtworkFiles
             new IntroMotherBrainSpriteDocument
             {
                 Version = IntroMotherBrainSpriteFormat.Version,
-                Frames = FramesOfParts(IntroMotherBrainSpriteDefinitions.Frames, IntroMotherBrainSpriteDefinitions.StockPartCount),
+                Frames = Frames(IntroMotherBrainSpriteDefinitions.Frames),
             }));
         WriteSprites(IntroMotherBrainExplosionSpriteFormat.FileName, json => IntroMotherBrainExplosionSpritePresentation.Write(json,
             new IntroMotherBrainExplosionSpriteDocument
@@ -154,13 +154,13 @@ public static class IntroCinematicArtworkFiles
             new IntroRinkaSpriteDocument
             {
                 Version = IntroRinkaSpriteFormat.Version,
-                Frames = FramesOfParts(IntroRinkaSpriteDefinitions.Frames, IntroRinkaSpriteDefinitions.StockPartCount),
+                Frames = Frames(IntroRinkaSpriteDefinitions.Frames),
             }));
         WriteSprites(IntroEggEffectSpriteFormat.FileName, json => IntroEggEffectSpritePresentation.Write(json,
             new IntroEggEffectSpriteDocument
             {
                 Version = IntroEggEffectSpriteFormat.Version,
-                Frames = FramesOfParts(IntroEggEffectSpriteDefinitions.Frames, IntroEggEffectSpriteDefinitions.StockPartCount),
+                Frames = Frames(IntroEggEffectSpriteDefinitions.Frames),
             }));
         WriteSprites(IntroDiscoveryActorSpriteFormat.FileName, json => IntroDiscoveryActorSpritePresentation.Write(json,
             new IntroDiscoveryActorSpriteDocument { Version = IntroDiscoveryActorSpriteFormat.Version, Frames = Frames(IntroDiscoveryActorSpriteDefinitions.Frames) }));
@@ -309,11 +309,6 @@ public static class IntroCinematicArtworkFiles
         Dictionary<string, SpriteVisualPart[]> Frames(IEnumerable<CinematicSpriteFrameDefinition> definitions) =>
             definitions.ToDictionary(definition => definition.Name, definition => IntroCinematicSpriteFrameExtractor.Extract(bus,
                 CinematicSpritemapSources.Of(definition.Pose), definition.StockPartCount, definition.Name), StringComparer.Ordinal);
-
-        // Each of a sprite family's definitions' frames, all read with the family's own stock part count.
-        Dictionary<string, SpriteVisualPart[]> FramesOfParts(IEnumerable<CinematicSpriteFrameDefinition> definitions, int stockParts) =>
-            definitions.ToDictionary(definition => definition.Name, definition => IntroCinematicSpriteFrameExtractor.Extract(bus,
-                CinematicSpritemapSources.Of(definition.Pose), stockParts, definition.Name), StringComparer.Ordinal);
     }
 
     /// <summary>
@@ -567,41 +562,18 @@ public static class IntroCinematicArtworkFiles
         return new SelectedArtworkFile(installedPath, File.ReadAllBytes(installedPath));
     }
 
-    /// <summary>Lists every resource that must be present and hashed by the intro artwork manifest.</summary>
-    private static string[] AllFileNames() =>
+    /// <summary>
+    /// The component's installed documents the game binds that the manifest also hashes: the opening's backdrops and the
+    /// Ceres approach's, reveal's and destruction's actor layouts.
+    /// </summary>
+    private static readonly string[] InstalledFiles =
     [
-        IntroCinematicArtworkFormat.BackgroundFileName,
-        IntroCinematicArtworkFormat.IntroObjectFileName,
-        IntroCinematicArtworkFormat.CinematicObjectFileName,
-        IntroCinematicArtworkFormat.PortraitTilemapFileName,
-        IntroCinematicArtworkFormat.InitialNarrationTilemapFileName,
-        IntroFinalLineTilemapFormat.FileName,
-        IntroEyeTilemapFormat.FileName,
-        IntroCaretSpriteFormat.FileName,
-        IntroNextPageArrowSpriteFormat.FileName,
-        IntroMotherBrainSpriteFormat.FileName,
-        IntroMotherBrainExplosionSpriteFormat.FileName,
-        IntroRinkaSpriteFormat.FileName,
-        IntroEggEffectSpriteFormat.FileName,
-        IntroDiscoveryActorSpriteFormat.FileName,
-        IntroScientistSpriteFormat.FileName,
-        .. IntroCinematicArtworkFormat.ScenePagesInTransferOrder
-            .Select(IntroCinematicArtworkFormat.BackgroundPageFileName),
-        IntroCinematicPaletteFile.FileName,
-        IntroBackdropFiles.FileName,
-        CeresFlightArtworkFileFormat.FloorFileName,
-        CeresFlightArtworkFileFormat.MapFileName,
-        CeresFlightArtworkFileFormat.ObjectFileName,
-        CeresFlightPaletteFormat.FileName,
-        CeresFlightSpriteFormat.FileName,
-        CeresFlightActorLayoutFormat.FileName,
-        CeresDestructionMapFormat.FileName,
-        ZebesRevealArtworkFormat.MapFileName,
-        ZebesRevealArtworkFormat.CharacterFileName,
-        CeresDestructionSpriteFormat.FileName,
-        CeresRevealActorLayoutFormat.FileName,
+        IntroBackdropFiles.FileName, CeresFlightActorLayoutFormat.FileName, CeresRevealActorLayoutFormat.FileName,
         CeresDestructionActorLayoutFormat.FileName,
     ];
+
+    /// <summary>Lists every resource that must be present and hashed by the intro artwork manifest (#2563): each list once.</summary>
+    private static string[] AllFileNames() => [.. ImportDataFiles, .. CompositionFiles, .. LayoutFiles, .. InstalledFiles];
 
     /// <summary>Manifest JSON settings shared by extraction and installation.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()

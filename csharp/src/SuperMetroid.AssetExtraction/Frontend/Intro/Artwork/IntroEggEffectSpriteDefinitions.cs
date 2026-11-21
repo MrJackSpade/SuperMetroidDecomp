@@ -4,9 +4,6 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 /// <summary>Six shell fragments and five slime-drop OAM frames from the SR388 scene.</summary>
 internal static class IntroEggEffectSpriteDefinitions
 {
-    /// <summary>Every shell-fragment and slime-drop composition contains one OAM part.</summary>
-    internal const int StockPartCount = 1;
-
     /// <summary>Ordered six shell fragments, one moving slime frame, and four impact frames.</summary>
     internal static IReadOnlyList<CinematicSpriteFrameDefinition> Frames { get; } =
     [

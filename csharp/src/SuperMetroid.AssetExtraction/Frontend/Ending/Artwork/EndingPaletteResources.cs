@@ -25,12 +25,6 @@ public static class EndingPaletteResources
     /// <param name="colours">The crossfade's colours.</param>
     internal static EndingPalette FromCrossfade(EndingLogoCrossfadeColours colours)
     {
-        Ensure.NotNull(colours);
-        var ordered = new List<RgbColor>(EndingLogoCrossfadeImage.ColourCount);
-        for (int step = 0; step < EndingLogoDefinitions.CrossfadeSteps; step++)
-            foreach (EndingLogoLayer layer in (EndingLogoLayer[])[EndingLogoLayer.Background, EndingLogoLayer.Sprites])
-                for (int colour = 0; colour < EndingLogoCrossfadeColours.ColoursPerLayer; colour++)
-                    ordered.Add(colours.Colour(step, layer, colour));
-        return EndingPalette.LogoCrossfade([.. ordered]);
+        return EndingPalette.LogoCrossfade(EndingLogoCrossfadeImage.Encode(colours));
     }
 }

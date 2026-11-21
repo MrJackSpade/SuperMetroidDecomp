@@ -22,9 +22,9 @@ public static class EnemyProjectileSpritemapDocuments
     public const int Version = 17;
     /// <summary>Maximum ordered sprite parts admitted per composition; empty compositions are valid.</summary>
     public const int MaximumParts = 128;
-    /// <summary>Sixteen 8-pixel character columns per atlas row; row times 16 plus column forms the packed character index.</summary>
+    /// <summary>Sixteen 8-pixel character columns per atlas row: a part names its character by its row and column.</summary>
     public const int TileColumns = 16;
-    /// <summary>Schema-level bound of 64 atlas rows; the selected row/column character number must also fit the sheet during packed-word compilation.</summary>
+    /// <summary>The atlas's 64 rows of characters, which a part's row names one of.</summary>
     public const int TileRows = 64;
 
     /// <summary>Strict editable composition JSON policy, rejecting unknown fields while retaining readable output.</summary>
@@ -99,8 +99,7 @@ public static class EnemyProjectileSpritemapDocuments
         for (int index = 0; index < visual.Length; index++)
         {
             SpriteVisualPart? part = visual[index];
-            if (part is null || part.OffsetX is < -256 or > 255 ||
-                part.OffsetY is < -128 or > 127 || part.Size is not (8 or 16) ||
+            if (part is null || part.Size is not (8 or 16) ||
                 part.Palette is null or < 0 or > 7 ||
                 part.TileColumn is < 0 or >= TileColumns ||
                 part.TileRow is < 0 or >= TileRows)

@@ -36,10 +36,10 @@ internal sealed class RoomTileCanvas(Extent16<ImagePixels> size)
     internal byte[] PaletteIndices { get; } = new byte[size.X * size.Y];
 
     /// <summary>
-    /// One where the pixel was painted from one of its layer's front tiles, zero elsewhere: the part of its picture
+    /// Whether the pixel was painted from one of its layer's front tiles: the part of its picture
     /// <see cref="ToSplitRoomSheet"/> installs it in (#1634). No sheet installs it, and a sheet installed whole ignores it.
     /// </summary>
-    internal byte[] FrontTiles { get; } = new byte[size.X * size.Y];
+    internal bool[] FrontTiles { get; } = new bool[size.X * size.Y];
 
     /// <summary>
     /// Paints <paramref name="tile"/> over <paramref name="character"/>'s 32 bytes with its top-left pixel at
@@ -70,7 +70,7 @@ internal sealed class RoomTileCanvas(Extent16<ImagePixels> size)
                 int index = word.PaletteIndex * RowColours + colour;
                 PaletteIndices[pixel] = (byte)index;
                 Pixels[pixel] = colours[index].ToRgbaPixel();
-                FrontTiles[pixel] = word.HasPriority ? (byte)1 : (byte)0;
+                FrontTiles[pixel] = word.HasPriority;
                 ImageColourGroup group = ImageColourGroup.Numbered(word.PaletteIndex);
                 groups = groups.With(group);
             }
@@ -105,7 +105,7 @@ internal sealed class RoomTileCanvas(Extent16<ImagePixels> size)
                 int pixel = (top + y) * Width + left + x;
                 int index = word.PaletteIndex * TwoBppRowColours + colour;
                 PaletteIndices[pixel] = (byte)index;
-                FrontTiles[pixel] = word.HasPriority ? (byte)1 : (byte)0;
+                FrontTiles[pixel] = word.HasPriority;
                 if (colour == 0)
                 {
                     Pixels[pixel] = default;
@@ -305,7 +305,7 @@ internal sealed class RoomTileCanvas(Extent16<ImagePixels> size)
                 int pixel = row + x;
                 if (Pixels[pixel].A == 0)
                     continue;
-                if (FrontTiles[pixel] != 0)
+                if (FrontTiles[pixel])
                     inFront = true;
                 else
                     behind = true;
@@ -331,7 +331,7 @@ internal sealed class RoomTileCanvas(Extent16<ImagePixels> size)
                 int to = (corner.Y + y) * width + corner.X + x;
                 bool opaque = Pixels[from].A != 0;
                 int nothing = twoBit ? PaletteIndices[from] - (PaletteIndices[from] % TwoBppRowColours) : 0;
-                if (opaque && FrontTiles[from] != 0)
+                if (opaque && FrontTiles[from])
                 {
                     pixels[to] = Pixels[from];
                     paletteIndices[to] = PaletteIndices[from];

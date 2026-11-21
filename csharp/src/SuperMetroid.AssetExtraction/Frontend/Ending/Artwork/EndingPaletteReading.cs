@@ -46,13 +46,9 @@ internal static class EndingPaletteReading
                 throw new InvalidOperationException("Only the logo crossfade is read by step and layer.");
             Ensure.BetweenInclusive(0, EndingLogoDefinitions.CrossfadeSteps - 1, step);
             Ensure.BetweenInclusive(0, EndingPalette.CrossfadeLayerColours - 1, colour);
-            int place = layer switch
-            {
-                EndingLogoLayer.Background => 0,
-                EndingLogoLayer.Sprites => 1,
-                _ => throw new ArgumentOutOfRangeException(nameof(layer), layer, "Undefined logo layer."),
-            };
-            return palette.colours[(step * 2 + place) * EndingPalette.CrossfadeLayerColours + colour];
+            if (!Enum.IsDefined(layer))
+                throw new ArgumentOutOfRangeException(nameof(layer), layer, "Undefined logo layer.");
+            return palette.colours[EndingLogoCrossfadeImage.Position(step, layer, colour)];
         }
     }
 }

@@ -55,7 +55,7 @@ internal static class IntroScenePictureSheetComposer
         RgbColor[] colours = [.. intro.Palette.BackgroundColours];
         int cells = IntroArtworkExtentDefinitions.PlaneCells;
         int planeCells = cells * cells;
-        Extent16<CharacterCells> eye = IntroArtworkExtentDefinitions.EyeFrameSize;
+        Extent16<CharacterCells> eye = new(IntroEyeTilemapFormat.Columns, IntroEyeTilemapFormat.Rows);
         int width = Math.Max(cells, Eyes.Count * eye.X) * CharacterPixels;
         int height = ((Pages.Count + 1) * cells + eye.Y) * CharacterPixels;
         var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(checked((ushort)width), checked((ushort)height)));

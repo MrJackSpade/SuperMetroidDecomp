@@ -35,9 +35,9 @@ internal static class GameOverSheetComposer
     ]);
 
     /// <summary>The first sprite colour of a whole-screen colour image.</summary>
-    private const int SpriteColours = 128;
+    private const int SpriteColours = ImageColourGroup.HalfColours;
     /// <summary>The colours of one sprite colour group.</summary>
-    private const int GroupColours = 16;
+    private const int GroupColours = ImageColourGroup.Colours;
 
     /// <summary>What the game-over sheet composes.</summary>
     internal static SpriteSheetSources Sources(ImportAreaMapPresentation maps)

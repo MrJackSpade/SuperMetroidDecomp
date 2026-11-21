@@ -81,7 +81,8 @@ internal static class RoomFxOverlayStateAccess
             SetPrivate(self, "TidePhase", tidePhase);
             SetPrivate(self, "TideOffset", tideOffset);
             SetPrivate(self, nameof(RoomFxOverlayState.BaseY), baseY);
-            SetPrivate(self, nameof(RoomFxOverlayState.Surface), surface);
+            // The surface line is published as the liquid's motion publishes it: moved in place, or created for its first line.
+            PrivateState.Invoke(self, "PublishSurface", [typeof(int?)], new object?[] { surface });
         }
 
         /// <summary>Gives the liquid <paramref name="liquid"/>'s tide standing at <paramref name="phase"/> with <paramref name="offset"/>, for a check of one tide step.</summary>

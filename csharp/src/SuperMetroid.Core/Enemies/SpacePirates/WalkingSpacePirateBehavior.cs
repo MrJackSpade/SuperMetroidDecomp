@@ -494,7 +494,7 @@ internal sealed partial class WalkingSpacePirateBehavior : IEnemySpecies, IEnemy
     /// </summary>
     internal static EnemyBombReaction SpacePirateBombReaction { get; } = new()
     {
-        ShowsHitBurst = c => PirateHitboxShotActions.ShowsHitBurst(c.SelectedShot),
+        ShowsHitBurst = PirateHitboxShotActions.ShowsHitBurst,
     };
 
     /// <summary>
@@ -503,7 +503,7 @@ internal sealed partial class WalkingSpacePirateBehavior : IEnemySpecies, IEnemy
     /// </summary>
     internal static EnemyBombReaction GoldNinjaBombReaction { get; } = new()
     {
-        ShowsHitBurst = c => PirateHitboxShotActions.GoldNinjaShowsHitBurst(c.SelectedShot),
+        ShowsHitBurst = PirateHitboxShotActions.GoldNinjaShowsHitBurst,
     };
 
     /// <summary>Uses shared Pirate shot logic, including the hitbox quake and the big death explosion, on every Pirate but the gold Ninja.</summary>
@@ -511,40 +511,59 @@ internal sealed partial class WalkingSpacePirateBehavior : IEnemySpecies, IEnemy
     {
         // Every Pirate but the gold Ninja goes on to its normal shot reaction from every hitbox, the Ninja's body reactions
         // included; the stage only refuses a reaction no Pirate hitbox names.
-        AfterSuperMissileQuake = (in EnemyShotContext c) =>
-        {
-            if (c.UsesFrameHitboxes)
-                PirateHitboxShotActions.RequirePirateShotReaction(c.HitboxShot);
-            return false;
-        },
-        ShowsHitBurst = c => PirateHitboxShotActions.ShowsHitBurst(c.HitboxShot),
-        Lethal = new EnemyShotLethal.Replaced(c =>
-        {
-            if (c.HitboxShot.IsOrdinary)
-                return false;
-            StartPirateDeath(c);
-            return true;
-        }),
+        AfterSuperMissileQuake = RequirePirateShotReaction,
+        ShowsHitBurst = PirateHitboxShotActions.ShowsHitBurst,
+        Lethal = new EnemyShotLethal.Replaced(StartPirateDeathByOwnReaction),
     };
+
+    /// <summary>Refuses, after the Super Missile quake, a hitbox reaction no Pirate hitbox names; every other goes on.</summary>
+    /// <returns>Always false: the Pirate goes on to its normal shot reaction.</returns>
+    private static bool RequirePirateShotReaction(in EnemyShotContext c)
+    {
+        if (c.UsesFrameHitboxes)
+            PirateHitboxShotActions.RequirePirateShotReaction(c.HitboxShot);
+        return false;
+    }
+
+    /// <summary>Starts a Pirate's big-explosion death in place of a lethal shot's generic one, where its hitbox's reaction is the Pirates' own.</summary>
+    /// <returns>Whether the Pirate's own death replaced the generic one.</returns>
+    private bool StartPirateDeathByOwnReaction(EnemyShotHitContext c)
+    {
+        if (c.HitboxShot.IsOrdinary)
+            return false;
+        StartPirateDeath(c);
+        return true;
+    }
 
     /// <summary>The gold Ninja's shot reaction: its armour's reflections, the Pirate shot logic and the drops its death scatters.</summary>
     internal EnemyShotReaction GoldNinjaShotReaction => field ??= new()
     {
-        AfterSuperMissileQuake = (in EnemyShotContext c) =>
-            c.UsesFrameHitboxes && ResolveSpacePirateHitboxShot(c, PirateHitboxShotActions.SelectGoldNinjaHitboxShotAction(c.Occupant, c.Shot, c.HitboxShot)),
-        ShowsHitBurst = c => PirateHitboxShotActions.GoldNinjaShowsHitBurst(c.HitboxShot),
-        Lethal = new EnemyShotLethal.Replaced(c =>
-        {
-            if (c.HitboxShot.IsOrdinary)
-                return false;
-            // The Gold Ninja's death records its position as the drop origin before the enemy's death clears the
-            // place; it then spawns the death explosion before the metal ninja Pirate's item drop spawns the drops.
-            Position16<RoomPixels> dropOrigin = c.Enemy.Position.Whole;
-            StartPirateDeath(c);
-            _deathsAndDrops.SpawnEnemyDropScatterAround(EnemyDefinitionId.PirateGoldNinja, GoldNinjaSpacePirateDefinitions.DropScatterCount, dropOrigin, c.Samus);
-            return true;
-        }),
+        AfterSuperMissileQuake = ResolveGoldNinjaHitboxShot,
+        ShowsHitBurst = PirateHitboxShotActions.GoldNinjaShowsHitBurst,
+        Lethal = new EnemyShotLethal.Replaced(StartGoldNinjaDeathByOwnReaction),
     };
+
+    /// <summary>Resolves a shot meeting the gold Ninja's hitboxes after the Super Missile quake: its armour's reflections and the Pirate shot logic.</summary>
+    /// <returns>Whether the gold Ninja's own reaction took the shot.</returns>
+    private bool ResolveGoldNinjaHitboxShot(in EnemyShotContext c) =>
+        c.UsesFrameHitboxes && ResolveSpacePirateHitboxShot(c, PirateHitboxShotActions.SelectGoldNinjaHitboxShotAction(c.Occupant, c.Shot, c.HitboxShot));
+
+    /// <summary>
+    /// Starts the gold Ninja's death in place of a lethal shot's generic one, where its hitbox's reaction is the Pirates'
+    /// own, and scatters its drops where it stood.
+    /// </summary>
+    /// <returns>Whether the gold Ninja's own death replaced the generic one.</returns>
+    private bool StartGoldNinjaDeathByOwnReaction(EnemyShotHitContext c)
+    {
+        if (c.HitboxShot.IsOrdinary)
+            return false;
+        // The Gold Ninja's death records its position as the drop origin before the enemy's death clears the
+        // place; it then spawns the death explosion before the metal ninja Pirate's item drop spawns the drops.
+        Position16<RoomPixels> dropOrigin = c.Enemy.Position.Whole;
+        StartPirateDeath(c);
+        _deathsAndDrops.SpawnEnemyDropScatterAround(EnemyDefinitionId.PirateGoldNinja, GoldNinjaSpacePirateDefinitions.DropScatterCount, dropOrigin, c.Samus);
+        return true;
+    }
 
     /// <summary>Starts a Pirate's death by a shot: the big explosion its shot's death animation rule chooses.</summary>
     private void StartPirateDeath(EnemyShotContext c) =>

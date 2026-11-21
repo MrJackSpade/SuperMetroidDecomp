@@ -428,13 +428,18 @@ internal sealed partial class DeadSidehopperBehavior : IEnemySpecies, IEnemyEnti
     /// starts rotting without taking damage or an impact.</remarks>
     internal static EnemyShotReaction DeadSidehopperShotReaction { get; } = new()
     {
-        BeforeSuperMissileQuake = (in EnemyShotContext c) =>
-        {
-            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
-            ResolveDeadSidehopperShot(c.Enemy);
-            return true;
-        },
+        BeforeSuperMissileQuake = MarkShotWithoutDamage,
     };
+
+    /// <summary>Marks a shot's hit on the corpse, which ignores it until drained and then starts rotting.</summary>
+    /// <param name="c">The shot meeting the corpse.</param>
+    /// <returns>Always true: the corpse takes no damage or impact.</returns>
+    private static bool MarkShotWithoutDamage(in EnemyShotContext c)
+    {
+        c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
+        ResolveDeadSidehopperShot(c.Enemy);
+        return true;
+    }
 
     /// <summary>Uses ordinary touch damage during transformation and starts decomposition afterward.</summary>
     internal void ReactToDeadSidehopperTouch(EnemyTouchContext context) =>

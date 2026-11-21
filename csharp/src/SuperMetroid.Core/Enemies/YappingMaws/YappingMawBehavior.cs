@@ -333,6 +333,14 @@ internal sealed partial class YappingMawBehavior : IEnemySpecies, IEnemyEntityFa
         samus.Control.LockOutPlayer();
     }
 
+    /// <summary>Runs <see cref="ResolveYappingMawShotAfterCommon(RoomEnemyPlace, YappingMawEnemyState, SamusState)"/> after a bomb's common damage.</summary>
+    private static void ResolveYappingMawShotAfterCommon(EnemyBombHitContext context) =>
+        ResolveYappingMawShotAfterCommon(context.Enemy, context.StruckOccupant.Require<YappingMawEnemyState>(), context.Samus);
+
+    /// <summary>Runs <see cref="ResolveYappingMawShotAfterCommon(RoomEnemyPlace, YappingMawEnemyState, SamusState)"/> after a shot's common damage.</summary>
+    private static void ResolveYappingMawShotAfterCommon(EnemyShotHitContext context) =>
+        ResolveYappingMawShotAfterCommon(context.Enemy, context.StruckOccupant.Require<YappingMawEnemyState>(), context.Samus);
+
     /// <summary>
     /// Runs after a hit's common damage on the Maw it struck. Ice releases a living Maw's captive; death additionally
     /// destroys all four body-link projectiles and the root effect actor, which the killed Maw's state still names.
@@ -472,7 +480,7 @@ internal sealed partial class YappingMawBehavior : IEnemySpecies, IEnemyEntityFa
     /// <summary>Routes bomb hits through the Maw's shared shot reaction.</summary>
     internal static EnemyBombReaction YappingMawBombReaction { get; } = new()
     {
-        AfterCommon = c => ResolveYappingMawShotAfterCommon(c.Enemy, c.StruckOccupant.Require<YappingMawEnemyState>(), c.Samus),
+        AfterCommon = ResolveYappingMawShotAfterCommon,
     };
 
     /// <summary>Runs YappingMaw's main AI.</summary>
@@ -498,7 +506,7 @@ internal sealed partial class YappingMawBehavior : IEnemySpecies, IEnemyEntityFa
     /// <summary>Handles frozen release and death cleanup after common shot damage.</summary>
     internal static EnemyShotReaction YappingMawShotReaction { get; } = new()
     {
-        AfterCommon = c => ResolveYappingMawShotAfterCommon(c.Enemy, c.StruckOccupant.Require<YappingMawEnemyState>(), c.Samus),
+        AfterCommon = ResolveYappingMawShotAfterCommon,
     };
 
     /// <summary>Runs contact as a grab that locks Samus without ordinary touch damage.</summary>

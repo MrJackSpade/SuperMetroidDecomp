@@ -24,6 +24,17 @@ internal sealed partial class GameplayGamePhases(FrontendSession session)
             session.FinishGameplayFadeIn();
     }
 
+    /// <summary>The status of <see cref="SuperMetroidGameState.GameplayFadeIn"/>: the fade's target and brightness.</summary>
+    internal string GameplayFadeInName() => session.GameplayFadeTarget == GameplayFadeTarget.CeresArrival
+        ? $"Ceres elevator fade-in (brightness {session.GameplayFadeIn.Level})"
+        : $"Landing Site fade-in (brightness {session.GameplayFadeIn.Level})";
+
+    /// <summary>The status of <see cref="SuperMetroidGameState.MainGameplay"/>.</summary>
+    internal static string MainGameplayName() => "Gameplay";
+
+    /// <summary>The status of <see cref="SuperMetroidGameState.ReserveTankRefill"/>.</summary>
+    internal static string ReserveTankRefillName() => "Reserve tank refill";
+
     /// <summary>Runs one update of <see cref="SuperMetroidGameState.MainGameplay"/>.</summary>
     internal void RunMainGameplay(ControllerButton controllerInput)
     {

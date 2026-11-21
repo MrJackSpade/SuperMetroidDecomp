@@ -37,8 +37,11 @@ internal sealed partial class SamusPoseTransitionPhase
         _clock = dependencies.Clock;
         _options = dependencies.Options;
         _player = dependencies.Player;
-        _setups = new SamusPoseSetupSteps(_playerActions, _clock, () => _options.MoonwalkEnabled);
+        _setups = new SamusPoseSetupSteps(_playerActions, _clock, MoonwalkEnabled);
     }
+
+    /// <summary>Whether the player's options let her moonwalk.</summary>
+    private bool MoonwalkEnabled() => _options.MoonwalkEnabled;
 
     /// <summary>Applies post-movement pose and animation transitions after the frame's selected movement mode.</summary>
     internal void Apply(SamusControlFrame frame, SamusState samus, SamusTerrain terrain)

@@ -90,6 +90,12 @@ internal static partial class PirateHitboxShotActions
     /// <param name="reaction">The reaction the hit runs: its hitbox's, or the definition's when the Pirate collides by its radius.</param>
     internal static bool ShowsHitBurst(EnemyReaction reaction) => SpacePirateReactions.ShowingHitBurst.Contains(reaction);
 
+    /// <summary>Whether a bomb's hurting hit shows the hit burst on an ordinary Pirate: where the reaction it selects shows it.</summary>
+    internal static bool ShowsHitBurst(EnemyBombHitContext context) => ShowsHitBurst(Ensure.NotNull(context).SelectedShot);
+
+    /// <summary>Whether a shot's hurting hit shows the hit burst on an ordinary Pirate: where its hitbox's reaction shows it.</summary>
+    internal static bool ShowsHitBurst(EnemyShotHitContext context) => ShowsHitBurst(Ensure.NotNull(context).HitboxShot);
+
     /// <summary>
     /// Whether a shot or bomb whose hit runs through <paramref name="reaction"/> and hurts the gold Ninja while it is not
     /// frozen shows the enemy-hit burst: only the common reaction (its empty frame) shows it, since its own reaction, like
@@ -97,6 +103,12 @@ internal static partial class PirateHitboxShotActions
     /// </summary>
     /// <param name="reaction">The reaction the hit runs: its hitbox's, or the definition's when the Ninja collides by its radius.</param>
     internal static bool GoldNinjaShowsHitBurst(EnemyReaction reaction) => Ensure.NotNull(reaction).IsOrdinary;
+
+    /// <summary>Whether a bomb's hurting hit shows the hit burst on the gold Ninja: where the reaction it selects shows it.</summary>
+    internal static bool GoldNinjaShowsHitBurst(EnemyBombHitContext context) => GoldNinjaShowsHitBurst(Ensure.NotNull(context).SelectedShot);
+
+    /// <summary>Whether a shot's hurting hit shows the hit burst on the gold Ninja: where its hitbox's reaction shows it.</summary>
+    internal static bool GoldNinjaShowsHitBurst(EnemyShotHitContext context) => GoldNinjaShowsHitBurst(Ensure.NotNull(context).HitboxShot);
 
     /// <summary>Whether a shot is a beam, missile or Super Missile, the families the gold ninja reflects or is hurt by.</summary>
     private static bool IsBeamOrMissile(SamusProjectileFamily family) =>

@@ -586,6 +586,12 @@ internal sealed partial class KiHunterBehavior : IEnemySpecies, IEnemyEntityFact
         wings.HurtFlash.Restart(body.HurtFlash.UpdatesLeft);
     }
 
+    /// <summary>Runs <see cref="ResolveKiHunterShotAfterCommon(RoomEnemyPlace)"/> after a bomb's common damage.</summary>
+    private void ResolveKiHunterShotAfterCommon(EnemyBombHitContext context) => ResolveKiHunterShotAfterCommon(context.Enemy);
+
+    /// <summary>Runs <see cref="ResolveKiHunterShotAfterCommon(RoomEnemyPlace)"/> after a shot's common damage.</summary>
+    private void ResolveKiHunterShotAfterCommon(EnemyShotHitContext context) => ResolveKiHunterShotAfterCommon(context.Enemy);
+
     /// <summary>Detaches the wings: their first orbit is centred where they are, starting where their climb starts.</summary>
     private static void DetachKiHunterWings(RoomEnemyPlace wings, KiHunterWingState state)
     {
@@ -728,7 +734,7 @@ internal sealed partial class KiHunterBehavior : IEnemySpecies, IEnemyEntityFact
     /// <summary>Runs wing-detachment logic after common bomb damage to a Ki-Hunter body.</summary>
     internal EnemyBombReaction KiHunterBombReaction => field ??= new()
     {
-        AfterCommon = c => ResolveKiHunterShotAfterCommon(c.Enemy),
+        AfterCommon = ResolveKiHunterShotAfterCommon,
     };
 
     /// <summary>Ki-Hunter acid, spat either way (#1760).</summary>
@@ -809,7 +815,7 @@ internal sealed partial class KiHunterBehavior : IEnemySpecies, IEnemyEntityFact
     /// <summary>Runs wing-detachment logic after common shot damage to a body.</summary>
     internal EnemyShotReaction KiHunterShotReaction => field ??= new()
     {
-        AfterCommon = c => ResolveKiHunterShotAfterCommon(c.Enemy),
+        AfterCommon = ResolveKiHunterShotAfterCommon,
     };
 
     /// <summary>

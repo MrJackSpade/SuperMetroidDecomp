@@ -118,9 +118,11 @@ internal sealed partial class EndingCreditsRoll
     internal EndingLogo FinishPostCreditsWhiteFlash()
     {
         sprites.Clear();
-        return new EndingLogo(_stage,
-            () => _stage.ColourEffects.StartScreen(EndingLogoDefinitions.LandingColourEffect));
+        return new EndingLogo(_stage, StartLogoLandingColourEffect);
     }
+
+    /// <summary>Starts the screen colour effect the logo's upper S half starts as it lands.</summary>
+    private void StartLogoLandingColourEffect() => _stage.ColourEffects.StartScreen(EndingLogoDefinitions.LandingColourEffect);
 
     /// <summary>Starts the item-percentage text below the completed logo.</summary>
     /// <returns>The text, which types from the next update on.</returns>

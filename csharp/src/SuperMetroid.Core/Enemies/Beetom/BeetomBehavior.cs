@@ -476,8 +476,14 @@ internal sealed partial class BeetomBehavior : IEnemySpecies, IEnemyEntityFactor
     /// <remarks>Common damage can kill the Beetom before it lets go; a Beetom it kills has nothing left to let go of.</remarks>
     internal static EnemyBombReaction BeetomBombReaction { get; } = new()
     {
-        AfterCommon = c => ResolveBeetomShotAfterCommon(c.Enemy),
+        AfterCommon = ResolveBeetomShotAfterCommon,
     };
+
+    /// <summary>Lets a Beetom go of Samus after a bomb's common damage.</summary>
+    private static void ResolveBeetomShotAfterCommon(EnemyBombHitContext context) => ResolveBeetomShotAfterCommon(context.Enemy);
+
+    /// <summary>Lets a Beetom go of Samus after a shot's common damage.</summary>
+    private static void ResolveBeetomShotAfterCommon(EnemyShotHitContext context) => ResolveBeetomShotAfterCommon(context.Enemy);
 
     /// <summary>Runs Beetom's main AI.</summary>
     internal void RunBeetomMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
@@ -496,7 +502,7 @@ internal sealed partial class BeetomBehavior : IEnemySpecies, IEnemyEntityFactor
     /// damage.</remarks>
     internal static EnemyShotReaction BeetomShotReaction { get; } = new()
     {
-        AfterCommon = c => ResolveBeetomShotAfterCommon(c.Enemy),
+        AfterCommon = ResolveBeetomShotAfterCommon,
     };
 
     /// <summary>Attaches Beetom to Samus on its selected custom contact reaction.</summary>

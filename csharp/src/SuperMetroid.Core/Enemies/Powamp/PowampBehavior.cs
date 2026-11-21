@@ -374,6 +374,12 @@ internal sealed partial class PowampBehavior : IEnemySpecies, IEnemyEntityFactor
         }
     }
 
+    /// <summary>Runs <see cref="ResolvePowampShotAfterCommon(RoomEnemyPlace)"/> after a bomb's common damage.</summary>
+    private void ResolvePowampShotAfterCommon(EnemyBombHitContext context) => ResolvePowampShotAfterCommon(context.Enemy);
+
+    /// <summary>Runs <see cref="ResolvePowampShotAfterCommon(RoomEnemyPlace)"/> after a shot's common damage.</summary>
+    private void ResolvePowampShotAfterCommon(EnemyShotHitContext context) => ResolvePowampShotAfterCommon(context.Enemy);
+
     /// <summary>Runs the paired state propagation after a power bomb hits a Powamp.</summary>
     private void ResolvePowampPowerBombAfterCommon(RoomEnemyPlace body)
     {
@@ -390,6 +396,9 @@ internal sealed partial class PowampBehavior : IEnemySpecies, IEnemyEntityFactor
         balloon.Place.Freeze.Restart(body.Freeze.UpdatesLeft);
         balloon.Place.AiStates = body.AiStates;
     }
+
+    /// <summary>Runs <see cref="ResolvePowampPowerBombAfterCommon(RoomEnemyPlace)"/> after a Power Bomb's common damage.</summary>
+    private void ResolvePowampPowerBombAfterCommon(EnemyPowerBombContext context) => ResolvePowampPowerBombAfterCommon(context.Enemy);
 
     /// <summary>Advances both halves to the same authored X offset each wiggle step (<see cref="PowampMotionDefinitions.WiggleStepDuration"/>).</summary>
     private static bool AdvancePowampWiggle(
@@ -477,16 +486,20 @@ internal sealed partial class PowampBehavior : IEnemySpecies, IEnemyEntityFactor
         RunsGenericDeath = false,
         // Powamp's shot reaction runs the common damage without the hit burst.
         ShowsHitBurst = EnemyBombReaction.NeverShowsHitBurst,
-        AfterCommon = c => ResolvePowampShotAfterCommon(c.Enemy),
+        AfterCommon = ResolvePowampShotAfterCommon,
     };
 
     /// <summary>
     /// A Powamp spike (#1760): it flies outward, accelerating, with room collision. A shot spike runs the same private
     /// delete animation its definition names as its shot animation.
     /// </summary>
-    internal StatefulSingleMotionProjectileBehavior<PowampSpikeState> Spike => field ??= new(
-        context => FlyPowampSpike(context.Projectile, context.Level),
-        shot: () => new PowampSpikeAnimation(PowampSpikeSegment.Delete));
+    internal StatefulSingleMotionProjectileBehavior<PowampSpikeState> Spike => field ??= new(FlyPowampSpike, shot: StartsSpikeDelete);
+
+    /// <summary>Moves a Powamp spike (<see cref="Spike"/>).</summary>
+    private void FlyPowampSpike(EnemyProjectileMotionContext context) => FlyPowampSpike(context.Projectile, context.Level);
+
+    /// <summary>The private delete animation a shot starts on a spike.</summary>
+    private static PowampSpikeAnimation StartsSpikeDelete() => new PowampSpikeAnimation(PowampSpikeSegment.Delete);
 
     /// <summary>Advances the body's pulse.</summary>
     internal static void AdvancePowampBodyTypedAnimation(RoomEnemyPlace place) =>
@@ -517,7 +530,7 @@ internal sealed partial class PowampBehavior : IEnemySpecies, IEnemyEntityFactor
     /// <summary>Propagates power-bomb reaction state from the body to its balloon.</summary>
     internal EnemyPowerBombReaction PowampBodyPowerBombReaction => field ??= new()
     {
-        AfterCommon = c => ResolvePowampPowerBombAfterCommon(c.Enemy),
+        AfterCommon = ResolvePowampPowerBombAfterCommon,
     };
 
     /// <summary>The balloon's Power Bomb reaction: the blast's damage alone, its body carrying a hit on to it.</summary>
@@ -525,20 +538,20 @@ internal sealed partial class PowampBehavior : IEnemySpecies, IEnemyEntityFactor
 
     /// <summary>Skips later shots once fatal damage begins and mirrors surviving body presentation to the balloon.</summary>
     /// <param name="body">The body the reaction is built for, whose placement names whether it refuses shots.</param>
-    internal EnemyShotReaction PowampBodyShotReaction(RoomEnemyOccupant body) =>
-        ShotReactionSkipping(place => BodyRefusesContact(body, place));
+    internal EnemyShotReaction PowampBodyShotReaction(PowampBodyEntity body) =>
+        ShotReactionSkipping(Ensure.NotNull(body).RefusesContact);
 
     /// <summary>The Powamp's shot reaction as the balloon takes it, skipped while the balloon refuses contact.</summary>
     /// <param name="balloon">The balloon the reaction is built for, whose placement names whether it refuses shots.</param>
-    internal EnemyShotReaction PowampBalloonShotReaction(RoomEnemyOccupant balloon) =>
-        ShotReactionSkipping(_ => PlacementRefusesContact(balloon));
+    internal EnemyShotReaction PowampBalloonShotReaction(PowampBalloonEntity balloon) =>
+        ShotReactionSkipping(Ensure.NotNull(balloon).RefusesContact);
 
     /// <summary>Whether a half's placement refuses Samus's touch and shots (#2474), as a grappled balloon's does.</summary>
-    private static bool PlacementRefusesContact(RoomEnemyOccupant half) =>
+    internal static bool PlacementRefusesContact(RoomEnemyOccupant half) =>
         half.SpawnSettings<PowampSpawnSettings>().Contact == PowampContact.Refuses;
 
     /// <summary>Whether the body refuses Samus's touch and shots: its placement refuses them, or it is dying (#2474).</summary>
-    private static bool BodyRefusesContact(RoomEnemyOccupant occupant, RoomEnemyPlace body) =>
+    internal static bool BodyRefusesContact(RoomEnemyOccupant occupant, RoomEnemyPlace body) =>
         PlacementRefusesContact(occupant) || body.RequireSpeciesState<PowampBodyState>().IsDying;
 
     /// <summary>The Powamp's shot reaction for a half that refuses shots while <paramref name="refusesContact"/> says so.</summary>
@@ -550,7 +563,7 @@ internal sealed partial class PowampBehavior : IEnemySpecies, IEnemyEntityFactor
         Lethal = EnemyShotLethal.SpeciesOwned,
         // A shot damages a Powamp without the hit burst.
         ShowsHitBurst = EnemyShotReaction.NeverShowsHitBurst,
-        AfterCommon = c => ResolvePowampShotAfterCommon(c.Enemy),
+        AfterCommon = ResolvePowampShotAfterCommon,
     };
 
     /// <summary>Applies touch behavior to the body before its fatal-shot state begins.</summary>

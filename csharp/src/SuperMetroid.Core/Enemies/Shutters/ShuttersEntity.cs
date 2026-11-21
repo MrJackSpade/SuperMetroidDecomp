@@ -14,7 +14,33 @@ internal abstract partial class ShuttersEntity(ShuttersBehavior species, RoomEne
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The shutter's own Power Bomb reaction, built for this occupant.</summary>
-    private readonly EnemyPowerBombReaction ownPowerBomb = species.VerticalShutterPowerBombReaction(occupant);
+    private EnemyPowerBombReaction OwnPowerBomb => field ??= ShuttersBehavior.VerticalShutterPowerBombReaction(this);
+
+    /// <summary>Sets the shutter off on a Power Bomb, in place of its common damage.</summary>
+    internal void ReactToPowerBomb(EnemyPowerBombContext context) => species.ReactVerticalShutter(Occupant, context.Enemy, context.Camera);
+
+    /// <summary>
+    /// Marks a shot's collision with the shootable shutter and sets it off, after the Super Missile quake: a shot deals the
+    /// shutter no damage.
+    /// </summary>
+    /// <param name="c">The shot meeting the shutter.</param>
+    /// <returns>Always true: setting the shutter off replaces the rest of the shot reaction.</returns>
+    internal bool ReactToShootableShot(in EnemyShotContext c)
+    {
+        // A shot deals the shutter no damage and starts it moving; the shot's collision is still marked, a Super
+        // Missile's quake included.
+        c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
+        species.ReactVerticalShutter(Occupant, c.Enemy, c.Camera);
+        return true;
+    }
+
+    /// <summary>Sets the destroyable shutter off after a bomb's common damage.</summary>
+    internal void ReactDestroyableAfterCommon(EnemyBombHitContext context) =>
+        species.ReactDestroyableShutterAfterCommon(Occupant, Ensure.NotNull(context).Enemy, context.StruckOccupant, context.Camera);
+
+    /// <summary>Sets the destroyable shutter off after a shot's common damage.</summary>
+    internal void ReactDestroyableAfterCommon(EnemyShotHitContext context) =>
+        species.ReactDestroyableShutterAfterCommon(Occupant, Ensure.NotNull(context).Enemy, context.StruckOccupant, context.Camera);
 
     /// <summary>The Shutters species owner.</summary>
     protected ShuttersBehavior Species => species;
@@ -43,7 +69,7 @@ internal abstract partial class ShuttersEntity(ShuttersBehavior species, RoomEne
 
     /// <summary>The vertical shutters' own Power Bomb reaction where the definition leaves the blast to them, or the shared one.</summary>
     public override EnemyPowerBombReaction PowerBombReaction =>
-        LeavesPowerBombToSpecies ? ownPowerBomb : base.PowerBombReaction;
+        LeavesPowerBombToSpecies ? OwnPowerBomb : base.PowerBombReaction;
 
     /// <summary>
     /// The shootable and destroyable vertical shutters' shot reactions, which a normal bomb triggers as it does the common one.

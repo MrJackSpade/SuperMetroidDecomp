@@ -1,6 +1,9 @@
+using SuperMetroid.Core.Rooms;
+
 namespace SuperMetroid.Core.Enemies.Kago;
 
 /// <summary>One Kago occupant: its own AI, with the shared reactions.</summary>
+[RoomLifetime]
 internal sealed partial class KagoEntity
     : CommonParticipationEnemyEntity, IEnemyInitialization, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
@@ -12,9 +15,21 @@ internal sealed partial class KagoEntity
     public KagoEntity(KagoBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
         : base(occupant, place, common)
     {
-        this.ownShot = species.KagoShotReaction(occupant);
-        this.ownBomb = species.KagoBombReaction(occupant);
+        this.species = species;
+        this.ownShot = KagoBehavior.KagoShotReaction(this);
+        this.ownBomb = KagoBehavior.KagoBombReaction(this);
     }
+
+    /// <summary>The Kago species owner, whose shell response the Kago's own reactions run.</summary>
+    private readonly KagoBehavior species;
+
+    /// <summary>Applies Kago's shell response after a bomb's common damage on this Kago.</summary>
+    internal void ResolveShellAfterCommon(EnemyBombHitContext context) =>
+        species.ResolveKagoShotAfterCommon(Occupant, Ensure.NotNull(context).Enemy, context.Enemy.RequireSpeciesState<KagoEnemyState>());
+
+    /// <summary>Applies Kago's shell response after a shot's common damage on this Kago.</summary>
+    internal void ResolveShellAfterCommon(EnemyShotHitContext context) =>
+        species.ResolveKagoShotAfterCommon(Occupant, Ensure.NotNull(context).Enemy, context.Enemy.RequireSpeciesState<KagoEnemyState>());
 
     /// <summary>The Kago's own shot reaction, built for this occupant.</summary>
     private readonly EnemyShotReaction ownShot;

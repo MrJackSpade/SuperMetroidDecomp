@@ -128,6 +128,9 @@ internal sealed partial class FallingSparksBehavior
     }
 
     /// <summary>A falling spark (#1760): it drops under gravity, bouncing on the floor and leaving a trail.</summary>
-    internal StatefulSingleMotionProjectileBehavior<FallingSparkState> Spark => field ??= new(
-        context => FallFallingSpark(context.Projectile, context.Level, context.ShortCounter));
+    internal StatefulSingleMotionProjectileBehavior<FallingSparkState> Spark => field ??= new(FallFallingSpark);
+
+    /// <summary>Moves a falling spark (<see cref="Spark"/>).</summary>
+    private void FallFallingSpark(EnemyProjectileMotionContext context) =>
+        FallFallingSpark(context.Projectile, context.Level, context.ShortCounter);
 }

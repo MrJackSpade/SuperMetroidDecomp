@@ -611,14 +611,22 @@ internal sealed partial class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFac
         AdmitsBombFamilies = true,
         // A bomb or a power bomb deals the Yard its vulnerability damage; every other shot that strikes it only kicks
         // the shell into the air, after the shot's impact.
-        BeforeVulnerability = (in EnemyShotContext c) =>
-        {
-            if (c.Family is SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb)
-                return false;
-            ResolveYardBeamLaunch(c.Enemy, c.Enemy.RequireSpeciesState<YardEnemyState>(), c.Samus);
-            return true;
-        },
+        BeforeVulnerability = KickShellIntoAir,
     };
+
+    /// <summary>
+    /// Kicks the struck Yard's shell into the air before vulnerability, after the shot's impact: a bomb or a power bomb goes
+    /// on to its vulnerability damage instead.
+    /// </summary>
+    /// <param name="c">The shot meeting the Yard.</param>
+    /// <returns>Whether the kick replaced the vulnerability damage.</returns>
+    private bool KickShellIntoAir(in EnemyShotContext c)
+    {
+        if (c.Family is SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb)
+            return false;
+        ResolveYardBeamLaunch(c.Enemy, c.Enemy.RequireSpeciesState<YardEnemyState>(), c.Samus);
+        return true;
+    }
 
     /// <summary>Runs Yard's touch reaction, including its facing-dependent shell response.</summary>
     internal void ReactToYardTouch(RoomEnemyOccupant occupant, EnemyTouchContext context) =>

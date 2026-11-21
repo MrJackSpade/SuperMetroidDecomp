@@ -449,8 +449,11 @@ internal sealed partial class MetroidBehavior : IEnemySpecies, IEnemyEntityFacto
     /// <summary>The Metroid Power Bomb reaction, which clears its outer body before generic death.</summary>
     internal static EnemyPowerBombReaction PowerBombReaction { get; } = new()
     {
-        Lethal = new EnemyPowerBombLethal.AfterStage(c => FinishMetroidDeath(c.Enemy, c.Samus)),
+        Lethal = new EnemyPowerBombLethal.AfterStage(FinishMetroidDeath),
     };
+
+    /// <summary>Clears a Metroid's outer body before a lethal Power Bomb's generic death.</summary>
+    private static void FinishMetroidDeath(EnemyPowerBombContext context) => FinishMetroidDeath(context.Enemy, context.Samus);
 
     /// <summary>Applies frozen missile damage or unfrozen recoil and Ice accumulation once the shot has marked its
     /// hit.</summary>

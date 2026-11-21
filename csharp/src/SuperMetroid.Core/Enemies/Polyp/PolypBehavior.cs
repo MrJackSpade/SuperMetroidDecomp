@@ -95,8 +95,10 @@ internal sealed partial class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>A Polyp rock (#1760): it rises and falls quadratically until it leaves the camera.</summary>
-    internal StatefulSingleMotionProjectileBehavior<PolypRockState> Rock => field ??= new(
-        context => FlyPolypRock(context.Projectile, context.Camera));
+    internal StatefulSingleMotionProjectileBehavior<PolypRockState> Rock => field ??= new(FlyPolypRock);
+
+    /// <summary>Moves a Polyp rock (<see cref="Rock"/>).</summary>
+    private void FlyPolypRock(EnemyProjectileMotionContext context) => FlyPolypRock(context.Projectile, context.Camera);
 
     /// <summary>Advances Polyp's typed animation.</summary>
     internal static void AdvancePolypTypedAnimation(RoomEnemyPlace place) =>

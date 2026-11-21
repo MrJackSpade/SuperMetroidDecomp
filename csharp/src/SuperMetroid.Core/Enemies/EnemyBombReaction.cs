@@ -20,10 +20,10 @@ internal sealed partial class EnemyBombReaction
     internal Func<EnemyBombHitContext, bool> ShowsHitBurst { get; init; } = AlwaysShowsHitBurst;
 
     /// <summary>The <see cref="ShowsHitBurst"/> of a reaction whose every hurting bomb shows the burst.</summary>
-    internal static Func<EnemyBombHitContext, bool> AlwaysShowsHitBurst { get; } = static _ => true;
+    internal static bool AlwaysShowsHitBurst(EnemyBombHitContext context) => true;
 
     /// <summary>The <see cref="ShowsHitBurst"/> of a reaction that runs the common damage without the burst.</summary>
-    internal static Func<EnemyBombHitContext, bool> NeverShowsHitBurst { get; } = static _ => false;
+    internal static bool NeverShowsHitBurst(EnemyBombHitContext context) => false;
 
     /// <summary>The plain common bomb damage: no stage of a species' own, the hit burst shown and the generic death run.</summary>
     internal static EnemyBombReaction PlainCommon { get; } = new();

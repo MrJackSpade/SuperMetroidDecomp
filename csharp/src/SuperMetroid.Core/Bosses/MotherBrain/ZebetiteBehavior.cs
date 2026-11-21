@@ -273,8 +273,14 @@ internal sealed partial class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFact
         RunsGenericDeath = false,
         // The bomb's common damage shows no hit burst.
         ShowsHitBurst = EnemyBombReaction.NeverShowsHitBurst,
-        AfterCommon = c => ResolveZebetiteShotAfterCommon(c.Enemy),
+        AfterCommon = ResolveZebetiteShotAfterCommon,
     };
+
+    /// <summary>Shares a bomb's common damage across the linked Zebetites' health.</summary>
+    private void ResolveZebetiteShotAfterCommon(EnemyBombHitContext context) => ResolveZebetiteShotAfterCommon(context.Enemy);
+
+    /// <summary>Shares a shot's common damage across the linked Zebetites' health.</summary>
+    private void ResolveZebetiteShotAfterCommon(EnemyShotHitContext context) => ResolveZebetiteShotAfterCommon(context.Enemy);
 
     /// <summary>Runs Zebetite's main AI.</summary>
     internal void RunZebetiteMainAi(RoomEnemyOccupant zebetite)
@@ -290,7 +296,7 @@ internal sealed partial class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFact
         Lethal = EnemyShotLethal.SpeciesOwned,
         // The Zebetite's shot reaction runs the common damage without the hit burst.
         ShowsHitBurst = EnemyShotReaction.NeverShowsHitBurst,
-        AfterCommon = c => ResolveZebetiteShotAfterCommon(c.Enemy),
+        AfterCommon = ResolveZebetiteShotAfterCommon,
     };
 
     /// <summary>Routes Zebetite contact through normal touch collision while skipping generic death animation.</summary>

@@ -56,30 +56,43 @@ internal sealed partial class KraidCombat
     {
         // Kraid's arm is admitted by its definition's ignoring shot reaction, which still lets its hitboxes decide; its
         // authored hitboxes select the arm's private reaction.
-        AfterSuperMissileQuake = (in EnemyShotContext c) =>
-        {
-            if (!c.UsesFrameHitboxes || (c.HitboxShot != EnemyReaction.Ignore && c.HitboxShot != KraidReactions.ArmShot))
-                throw new InvalidDataException($"Kraid's arm selected the shot reaction {c.HitboxShot}.");
-
-            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
-            if (c.HitboxShot == KraidReactions.ArmShot)
-                SpawnKraidArmShotExplosion(c.ProjectileType, c.Projectile.Position.Whole);
-            return true;
-        },
+        AfterSuperMissileQuake = ReactToArmShot,
     };
+
+    /// <summary>
+    /// Takes a shot meeting Kraid's arm after the Super Missile quake: it touches without an impact, and his arm's own
+    /// reaction spawns its explosion.
+    /// </summary>
+    /// <param name="c">The shot meeting the arm.</param>
+    /// <returns>Always true: the arm's hitboxes take every shot.</returns>
+    private bool ReactToArmShot(in EnemyShotContext c)
+    {
+        if (!c.UsesFrameHitboxes || (c.HitboxShot != EnemyReaction.Ignore && c.HitboxShot != KraidReactions.ArmShot))
+            throw new InvalidDataException($"Kraid's arm selected the shot reaction {c.HitboxShot}.");
+
+        c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
+        if (c.HitboxShot == KraidReactions.ArmShot)
+            SpawnKraidArmShotExplosion(c.ProjectileType, c.Projectile.Position.Whole);
+        return true;
+    }
 
     /// <summary>The foot's shot reaction, which its hitboxes decide behind its definition's ignoring one: every rectangle ignores the shot.</summary>
     internal static EnemyShotReaction FootShotReaction { get; } = new()
     {
-        AfterSuperMissileQuake = (in EnemyShotContext c) =>
-        {
-            if (!c.UsesFrameHitboxes || c.HitboxShot != EnemyReaction.Ignore)
-                throw new InvalidDataException($"Kraid's foot selected the shot reaction {c.HitboxShot}.");
-
-            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
-            return true;
-        },
+        AfterSuperMissileQuake = ReactToFootShot,
     };
+
+    /// <summary>Takes a shot meeting Kraid's foot after the Super Missile quake: it touches without an impact.</summary>
+    /// <param name="c">The shot meeting the foot.</param>
+    /// <returns>Always true: the foot's hitboxes take every shot.</returns>
+    private static bool ReactToFootShot(in EnemyShotContext c)
+    {
+        if (!c.UsesFrameHitboxes || c.HitboxShot != EnemyReaction.Ignore)
+            throw new InvalidDataException($"Kraid's foot selected the shot reaction {c.HitboxShot}.");
+
+        c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
+        return true;
+    }
 
     /// <summary>Runs the arm's push against Samus's touch.</summary>
     /// <param name="context">The touch.</param>

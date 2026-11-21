@@ -29,7 +29,10 @@ public sealed partial class ProjectileSheets
     /// The intro's flashback context, drawing from the intro's sheet whatever beams its flashback Samus fires with: the
     /// intro's own artwork holds only the power beam's pictures.
     /// </summary>
-    public static ProjectileSheets IntroFlashbacks(InstalledSpriteSheets sheets) => new(sheets, _ => SpriteSheetId.IntroProjectiles);
+    public static ProjectileSheets IntroFlashbacks(InstalledSpriteSheets sheets) => new(sheets, IntroSheet);
+
+    /// <summary>The intro's projectile sheet, whatever beams a flashback draw is pictured with.</summary>
+    private static SpriteSheetId IntroSheet(SamusBeamCombination beams) => SpriteSheetId.IntroProjectiles;
 
     /// <summary>The sheet a draw pictured with <paramref name="beams"/> shows.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The combination has no gameplay sheet.</exception>

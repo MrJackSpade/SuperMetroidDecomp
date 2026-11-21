@@ -92,9 +92,11 @@ internal static partial class CollectibleObjectDraws
             : throw new InvalidDataException($"Undefined collectible block pair {pair}.");
 
     /// <summary>The collectibles' family: a block pair's frame writes its terrain alone; every other frame draws as pictured.</summary>
-    private sealed partial class CollectibleDrawFamily() : RoomObjectDrawFamily<CollectibleDraw>("collectible",
-        frame => RoomBlockShapes.Block(CollisionOf(frame)))
+    private sealed partial class CollectibleDrawFamily() : RoomObjectDrawFamily<CollectibleDraw>("collectible", ShapeOf)
     {
+        /// <summary>The terrain a collectible frame writes: the block its collision names.</summary>
+        private static RoomBlockShape ShapeOf(CollectibleDraw frame) => RoomBlockShapes.Block(CollisionOf(frame));
+
         /// <inheritdoc/>
         internal override void Draw(RoomLevelData level, Position16<RoomBlocks> origin, IRoomObjectDrawing drawing,
             RoomObjectFrameDraw<CollectibleDraw> draw)

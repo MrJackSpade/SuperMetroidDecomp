@@ -12,7 +12,11 @@ internal sealed partial class PowampBodyEntity(PowampBehavior species, RoomEnemy
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The body's own shot reaction, built for this occupant.</summary>
-    private readonly EnemyShotReaction ownShot = species.PowampBodyShotReaction(occupant);
+    private EnemyShotReaction OwnShot => field ??= species.PowampBodyShotReaction(this);
+
+    /// <summary>Whether the body refuses shots: its placement refuses them, or it is dying (#2474).</summary>
+    /// <param name="body">The place the body occupies.</param>
+    internal bool RefusesContact(RoomEnemyPlace body) => PowampBehavior.BodyRefusesContact(Occupant, body);
 
     /// <inheritdoc/>
     public void Initialize() => species.InitializePowampBody(Place);
@@ -37,7 +41,7 @@ internal sealed partial class PowampBodyEntity(PowampBehavior species, RoomEnemy
     }
 
     /// <summary>The body's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == PowampReactions.Shot ? ownShot : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == PowampReactions.Shot ? OwnShot : base.ShotReaction;
 
     /// <summary>The Powamp's own stages around common bomb damage for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>

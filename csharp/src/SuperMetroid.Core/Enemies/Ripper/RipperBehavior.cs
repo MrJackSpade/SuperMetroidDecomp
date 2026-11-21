@@ -151,6 +151,12 @@ internal sealed partial class RipperBehavior : IEnemySpecies, IEnemyEntityFactor
             : EnemyFrameId.RipperFrozenFacingRight;
     }
 
+    /// <summary>Runs <see cref="ResolveGrappleRipperJetRipperShotAfterCommon(RoomEnemyPlace)"/> after a bomb's common damage.</summary>
+    private static void ResolveGrappleRipperJetRipperShotAfterCommon(EnemyBombHitContext context) => ResolveGrappleRipperJetRipperShotAfterCommon(context.Enemy);
+
+    /// <summary>Runs <see cref="ResolveGrappleRipperJetRipperShotAfterCommon(RoomEnemyPlace)"/> after a shot's common damage.</summary>
+    private static void ResolveGrappleRipperJetRipperShotAfterCommon(EnemyShotHitContext context) => ResolveGrappleRipperJetRipperShotAfterCommon(context.Enemy);
+
     /// <summary>Starts a Ripper-family enemy's state on its place.</summary>
     private static RipperEnemyState CreateRipperState(RoomEnemyPlace place)
     {
@@ -192,7 +198,7 @@ internal sealed partial class RipperBehavior : IEnemySpecies, IEnemyEntityFactor
     /// <summary>Preserves the direction-specific frozen frame after common bomb reactions.</summary>
     internal static EnemyBombReaction RipperBombReaction { get; } = new()
     {
-        AfterCommon = c => ResolveGrappleRipperJetRipperShotAfterCommon(c.Enemy),
+        AfterCommon = ResolveGrappleRipperJetRipperShotAfterCommon,
     };
 
     /// <summary>Runs grapple Ripper's main AI.</summary>
@@ -216,6 +222,6 @@ internal sealed partial class RipperBehavior : IEnemySpecies, IEnemyEntityFactor
     /// <summary>Pins grapple Ripper and jet Ripper frozen visuals after accepted shot reactions.</summary>
     internal static EnemyShotReaction RipperShotReaction { get; } = new()
     {
-        AfterCommon = c => ResolveGrappleRipperJetRipperShotAfterCommon(c.Enemy),
+        AfterCommon = ResolveGrappleRipperJetRipperShotAfterCommon,
     };
 }

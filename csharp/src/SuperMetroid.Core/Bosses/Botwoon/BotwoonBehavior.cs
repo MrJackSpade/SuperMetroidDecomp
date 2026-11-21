@@ -732,13 +732,22 @@ internal sealed partial class BotwoonBehavior : EnemyProjectileMotionBehavior<Bo
         head.Contact = head.Contact.With(EnemyContact.IgnoresSamus);
     }
 
+    /// <summary>Finishes a bomb's hit on Botwoon's head (<see cref="ResolveBotwoonCombatAfterCommon(RoomEnemyPlace)"/>).</summary>
+    private static void ResolveBotwoonCombatAfterCommon(EnemyBombHitContext context) => ResolveBotwoonCombatAfterCommon(context.Enemy);
+
+    /// <summary>Finishes a Power Bomb's hit on Botwoon's head (<see cref="ResolveBotwoonCombatAfterCommon(RoomEnemyPlace)"/>).</summary>
+    private static void ResolveBotwoonCombatAfterCommon(EnemyPowerBombContext context) => ResolveBotwoonCombatAfterCommon(context.Enemy);
+
+    /// <summary>Finishes a shot's hit on Botwoon's head (<see cref="ResolveBotwoonCombatAfterCommon(RoomEnemyPlace)"/>).</summary>
+    private static void ResolveBotwoonCombatAfterCommon(EnemyShotHitContext context) => ResolveBotwoonCombatAfterCommon(context.Enemy);
+
     /// <summary>Routes bomb hits through the shared shot reaction without generic death animation.</summary>
     internal EnemyBombReaction BotwoonBombReaction => field ??= new()
     {
         RunsGenericDeath = false,
         // Botwoon's shot reaction runs the common damage without the hit burst.
         ShowsHitBurst = EnemyBombReaction.NeverShowsHitBurst,
-        AfterCommon = c => ResolveBotwoonCombatAfterCommon(c.Enemy),
+        AfterCommon = ResolveBotwoonCombatAfterCommon,
     };
 
     /// <summary>Botwoon's body segments and spit (#1760): their spawners start their animations, and Botwoon runs them.</summary>
@@ -788,7 +797,7 @@ internal sealed partial class BotwoonBehavior : EnemyProjectileMotionBehavior<Bo
     internal EnemyPowerBombReaction BotwoonPowerBombReaction => field ??= new()
     {
         Lethal = EnemyPowerBombLethal.SpeciesOwned,
-        AfterCommon = c => ResolveBotwoonCombatAfterCommon(c.Enemy),
+        AfterCommon = ResolveBotwoonCombatAfterCommon,
     };
 
     /// <summary>Resolves the health bands and skips generic death on shot hits.</summary>
@@ -797,7 +806,7 @@ internal sealed partial class BotwoonBehavior : EnemyProjectileMotionBehavior<Bo
         Lethal = EnemyShotLethal.SpeciesOwned,
         // Botwoon's shot reaction runs the common damage without the hit burst.
         ShowsHitBurst = EnemyShotReaction.NeverShowsHitBurst,
-        AfterCommon = c => ResolveBotwoonCombatAfterCommon(c.Enemy),
+        AfterCommon = ResolveBotwoonCombatAfterCommon,
     };
 
     /// <summary>Resolves Samus contact, leaving Botwoon at zero health to die his own way.</summary>

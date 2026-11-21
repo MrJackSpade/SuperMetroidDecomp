@@ -27,7 +27,15 @@ internal sealed partial class SporeSpawnEntity(SporeSpawnBehavior species, RoomE
     private EnemyShotReaction OwnShotReaction => field ??= species.SporeSpawnShotReactionOf(this);
 
     /// <summary>His own stages around common bomb damage, which resolve the rest of a bomb on this encounter.</summary>
-    private EnemyBombReaction OwnBombReaction => field ??= species.SporeSpawnBombReactionOf(this);
+    private EnemyBombReaction OwnBombReaction => field ??= SporeSpawnBehavior.SporeSpawnBombReactionOf(this);
+
+    /// <summary>Resolves the rest of a bomb on this encounter after its common damage.</summary>
+    internal void ResolveShotAfterCommon(EnemyBombHitContext context) =>
+        species.ResolveSporeSpawnShotAfterCommon(Ensure.NotNull(context).Enemy, Encounter);
+
+    /// <summary>Resolves the rest of a shot on this encounter after its common damage.</summary>
+    internal void ResolveShotAfterCommon(EnemyShotHitContext context) =>
+        species.ResolveSporeSpawnShotAfterCommon(Ensure.NotNull(context).Enemy, Encounter);
 
     /// <inheritdoc/>
     public EnemyHitboxContact FindHitboxReaction(EnemyHitboxProbe probe)

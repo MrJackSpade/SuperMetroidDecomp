@@ -427,10 +427,19 @@ internal sealed partial class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
+    /// <summary>Runs <see cref="ResolveEvirCombatAfterCommon(RoomEnemyPlace)"/> after a bomb's common damage.</summary>
+    private void ResolveEvirCombatAfterCommon(EnemyBombHitContext context) => ResolveEvirCombatAfterCommon(context.Enemy);
+
+    /// <summary>Runs <see cref="ResolveEvirCombatAfterCommon(RoomEnemyPlace)"/> after a Power Bomb's common damage.</summary>
+    private void ResolveEvirCombatAfterCommon(EnemyPowerBombContext context) => ResolveEvirCombatAfterCommon(context.Enemy);
+
+    /// <summary>Runs <see cref="ResolveEvirCombatAfterCommon(RoomEnemyPlace)"/> after a shot's common damage.</summary>
+    private void ResolveEvirCombatAfterCommon(EnemyShotHitContext context) => ResolveEvirCombatAfterCommon(context.Enemy);
+
     /// <summary>Finishes a bomb's hit on an Evir as its other reactions do after the common damage.</summary>
     internal EnemyBombReaction EvirBombReaction => field ??= new()
     {
-        AfterCommon = c => ResolveEvirCombatAfterCommon(c.Enemy),
+        AfterCommon = ResolveEvirCombatAfterCommon,
     };
 
     /// <summary>Runs an Evir body's main AI: it bobs and turns.</summary>
@@ -480,7 +489,7 @@ internal sealed partial class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // Touch and shot collision skip the arms, which are intangible, but a Power Bomb's blast does not. Both body and arms therefore finish with the same follow-up, which reaches the enemy after
         // them in the room's list.
-        AfterCommon = c => ResolveEvirCombatAfterCommon(c.Enemy),
+        AfterCommon = ResolveEvirCombatAfterCommon,
     };
 
     /// <summary>Copies accepted body-shot freeze state to arms and attached spit after common damage.</summary>
@@ -488,7 +497,7 @@ internal sealed partial class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // After every accepted shot's common damage, ice that froze the body included, the body passes its frozen
         // time to its arms and its attached (idle) spit.
-        AfterCommon = c => ResolveEvirCombatAfterCommon(c.Enemy),
+        AfterCommon = ResolveEvirCombatAfterCommon,
     };
 
     /// <summary>Runs common body contact and then Evir's own combat follow-up.</summary>

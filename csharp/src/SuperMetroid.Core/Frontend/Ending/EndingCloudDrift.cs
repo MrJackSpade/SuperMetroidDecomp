@@ -30,7 +30,13 @@ internal sealed partial class EndingCloudDrift : EndingActorMotion
     /// </summary>
     internal static EndingCloudDrift SideCloud(HorizontalDirection drift) => new(
         drift == HorizontalDirection.Left ? EndingMotionDefinitions.RightSideCloudDrift : EndingMotionDefinitions.LeftSideCloudDrift,
-        zoom => zoom >= EndingMotionDefinitions.CloudMotionStartZoom);
+        ReleasesSideCloud);
+
+    /// <summary>Whether the zoom has released a side-cloud escape cloud: it reaches <see cref="EndingMotionDefinitions.CloudMotionStartZoom"/>.</summary>
+    private static bool ReleasesSideCloud(FloorZoom zoom) => zoom >= EndingMotionDefinitions.CloudMotionStartZoom;
+
+    /// <summary>Whether the zoom releases a top-and-bottom-cloud escape cloud: it is below <see cref="EndingMotionDefinitions.TopAndBottomCloudZoomLimit"/>.</summary>
+    private static bool ReleasesTopOrBottomCloud(FloorZoom zoom) => zoom < EndingMotionDefinitions.TopAndBottomCloudZoomLimit;
 
     /// <summary>
     /// A top-and-bottom-cloud escape cloud, released while the zoom is below
@@ -39,7 +45,7 @@ internal sealed partial class EndingCloudDrift : EndingActorMotion
     /// </summary>
     internal static EndingCloudDrift TopOrBottomCloud(VerticalDirection drift) => new(
         new Offset16<ScreenPixels>(0, 1.Toward(drift)),
-        zoom => zoom < EndingMotionDefinitions.TopAndBottomCloudZoomLimit);
+        ReleasesTopOrBottomCloud);
 
     /// <summary>Releases the waiting cloud when the zoom allows, its drift beginning next update, or drifts a released one.</summary>
     internal override void Step(ICinematicActor<EndingSceneCue> actor, IEndingActorScene scene)

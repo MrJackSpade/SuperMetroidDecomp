@@ -405,16 +405,23 @@ internal sealed partial class OumBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Plays the Oum's shot sound after the common shot damage, for damaging, freezing, and zero-damage vulnerability
+    /// Plays the Oum's shot sound after a bomb's common damage, for damaging, freezing, and zero-damage vulnerability
     /// results alike.
     /// </summary>
-    private void ResolveOumShotAfterCommon() =>
+    private void ResolveOumShotAfterCommon(EnemyBombHitContext context) =>
+        _audio.QueueEnemySound(EnemySoundEffectDefinitions.OumShotSound, priority: SoundRequestPriority.Normal);
+
+    /// <summary>
+    /// Plays the Oum's shot sound after a shot's common damage, for damaging, freezing, and zero-damage vulnerability
+    /// results alike.
+    /// </summary>
+    private void ResolveOumShotAfterCommon(EnemyShotHitContext context) =>
         _audio.QueueEnemySound(EnemySoundEffectDefinitions.OumShotSound, priority: SoundRequestPriority.Normal);
 
     /// <summary>Publishes Oum's shot sound after common bomb damage.</summary>
     internal EnemyBombReaction OumBombReaction => field ??= new()
     {
-        AfterCommon = _ => ResolveOumShotAfterCommon(),
+        AfterCommon = ResolveOumShotAfterCommon,
     };
 
     /// <summary>Runs the Oum's main AI.</summary>
@@ -441,27 +448,35 @@ internal sealed partial class OumBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>A hit on the protected shell does nothing; only a vulnerable hitbox takes common damage.</summary>
     internal EnemyShotReaction OumShotReaction => field ??= new()
     {
-        AfterSuperMissileQuake = (in EnemyShotContext c) =>
-        {
-            if (!c.UsesFrameHitboxes)
-                throw new InvalidDataException("Maridia Large Snail's shots no longer meet its frames' hitboxes.");
-            if (c.HitboxShot == EnemyReaction.Ignore)
-            {
-                // Frame-hitbox collision marks the projectile, and nothing more happens: the protected shell
-                // takes no shot damage, makes no impact, plays no shot sound and has no vulnerability.
-                c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
-                return true;
-            }
-            if (c.HitboxShot != OumReactions.Shot)
-            {
-                throw new InvalidDataException(
-                    $"Maridia Large Snail has no response to shot reaction " +
-                    $"{c.HitboxShot}.");
-            }
-            return false;
-        },
-        AfterCommon = _ => ResolveOumShotAfterCommon(),
+        AfterSuperMissileQuake = ReactToShellShot,
+        AfterCommon = ResolveOumShotAfterCommon,
     };
+
+    /// <summary>
+    /// Takes a shot meeting the Oum's protected shell after the Super Missile quake: it only marks the projectile. Its
+    /// vulnerable hitbox goes on to the common damage.
+    /// </summary>
+    /// <param name="c">The shot meeting the Oum.</param>
+    /// <returns>Whether the shell took the shot.</returns>
+    private static bool ReactToShellShot(in EnemyShotContext c)
+    {
+        if (!c.UsesFrameHitboxes)
+            throw new InvalidDataException("Maridia Large Snail's shots no longer meet its frames' hitboxes.");
+        if (c.HitboxShot == EnemyReaction.Ignore)
+        {
+            // Frame-hitbox collision marks the projectile, and nothing more happens: the protected shell
+            // takes no shot damage, makes no impact, plays no shot sound and has no vulnerability.
+            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
+            return true;
+        }
+        if (c.HitboxShot != OumReactions.Shot)
+        {
+            throw new InvalidDataException(
+                $"Maridia Large Snail has no response to shot reaction " +
+                $"{c.HitboxShot}.");
+        }
+        return false;
+    }
 
     /// <summary>Reacts to Samus touching a damaging or non-damaging Oum hitbox, each with its own push.</summary>
     internal void ReactToOumTouch(EnemyTouchContext context)

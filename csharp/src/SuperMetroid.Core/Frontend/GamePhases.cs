@@ -23,18 +23,18 @@ internal sealed partial class GamePhases
         LoadingGame = new LoadingGameSequence(session);
         GameplayFadeIn = new GamePhase(SuperMetroidGameState.GameplayFadeIn,
             PhaseRandomStep.RuntimeOwned,
-            step: controllerInput => Gameplay.RunGameplayFadeIn(controllerInput),
-            name: () => session.GameplayFadeTarget == GameplayFadeTarget.CeresArrival ? $"Ceres elevator fade-in (brightness {session.GameplayFadeIn.Level})" : $"Landing Site fade-in (brightness {session.GameplayFadeIn.Level})");
+            step: Gameplay.RunGameplayFadeIn,
+            name: Gameplay.GameplayFadeInName);
         MainGameplay = new GamePhase(SuperMetroidGameState.MainGameplay,
             PhaseRandomStep.RuntimeOwned,
-            step: controllerInput => Gameplay.RunMainGameplay(controllerInput),
-            name: () => "Gameplay");
+            step: Gameplay.RunMainGameplay,
+            name: GameplayGamePhases.MainGameplayName);
         DoorTransition = new DoorTransitionGameSequence(session);
         Pause = new PauseGameSequence(session, Gameplay);
         ReserveTankRefill = new GamePhase(SuperMetroidGameState.ReserveTankRefill,
             PhaseRandomStep.RuntimeOwned,
-            step: controllerInput => Gameplay.RunReserveTankRefill(controllerInput),
-            name: () => "Reserve tank refill");
+            step: Gameplay.RunReserveTankRefill,
+            name: GameplayGamePhases.ReserveTankRefillName);
         DeathSequence = new DeathGameSequence(session);
         GameOverMenu = new GameOverMenuGamePhase(session);
         IntroCinematic = new IntroCinematicGamePhase(session);

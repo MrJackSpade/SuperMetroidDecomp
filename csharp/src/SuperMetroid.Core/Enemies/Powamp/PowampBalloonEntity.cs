@@ -13,7 +13,11 @@ internal sealed partial class PowampBalloonEntity(PowampBehavior species, RoomEn
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The balloon's own shot reaction, built for this occupant.</summary>
-    private readonly EnemyShotReaction ownShot = species.PowampBalloonShotReaction(occupant);
+    private EnemyShotReaction OwnShot => field ??= species.PowampBalloonShotReaction(this);
+
+    /// <summary>Whether the balloon refuses shots: its placement refuses them (#2474), as a grappled balloon's does.</summary>
+    /// <param name="balloon">The place the balloon occupies.</param>
+    internal bool RefusesContact(RoomEnemyPlace balloon) => PowampBehavior.PlacementRefusesContact(Occupant);
 
     /// <inheritdoc/>
     public void Initialize() => PowampBehavior.InitializePowampBalloon(Place);
@@ -35,7 +39,7 @@ internal sealed partial class PowampBalloonEntity(PowampBehavior species, RoomEn
     }
 
     /// <summary>The balloon's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == PowampReactions.Shot ? ownShot : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == PowampReactions.Shot ? OwnShot : base.ShotReaction;
 
     /// <summary>The Powamp's own stages around common bomb damage for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>

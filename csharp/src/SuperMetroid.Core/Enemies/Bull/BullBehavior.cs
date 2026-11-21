@@ -202,12 +202,24 @@ internal sealed partial class BullBehavior : IEnemySpecies, IEnemyEntityFactory
     internal EnemyBombReaction BombReaction { get; } =
         new()
         {
-            AfterCommon = c =>
-            {
-                if (c.Enemy.Health == c.HealthBefore)
-                    ResolveBullImmuneShot(c.Enemy, c.Enemy.RequireSpeciesState<BullEnemyState>(), BullMovementDefinitions.BombKickAngle);
-            },
+            AfterCommon = KickFromUndamagingBomb,
         };
+
+    /// <summary>Kicks a Bull straight up from a bomb that left its health alone.</summary>
+    /// <param name="c">The bomb's hit.</param>
+    private static void KickFromUndamagingBomb(EnemyBombHitContext c)
+    {
+        if (c.Enemy.Health == c.HealthBefore)
+            ResolveBullImmuneShot(c.Enemy, c.Enemy.RequireSpeciesState<BullEnemyState>(), BullMovementDefinitions.BombKickAngle);
+    }
+
+    /// <summary>Kicks a Bull along a shot that froze it or left its health alone.</summary>
+    /// <param name="c">The shot's hit.</param>
+    private static void KickFromUndamagingShot(EnemyShotHitContext c)
+    {
+        if (c.Froze || c.Enemy.Health == c.HealthBefore)
+            ResolveBullImmuneShot(c.Enemy, c.Enemy.RequireSpeciesState<BullEnemyState>(), BullMovementDefinitions.ShotAngles.For(c.ProjectileDirection));
+    }
 
     /// <summary>
     /// Applies recoil after a frozen or undamaging accepted projectile hit. Only such a hit kicks the Bull, so a killed
@@ -216,10 +228,6 @@ internal sealed partial class BullBehavior : IEnemySpecies, IEnemyEntityFactory
     internal EnemyShotReaction ShotReaction { get; } =
         new()
         {
-            AfterCommon = c =>
-            {
-                if (c.Froze || c.Enemy.Health == c.HealthBefore)
-                    ResolveBullImmuneShot(c.Enemy, c.Enemy.RequireSpeciesState<BullEnemyState>(), BullMovementDefinitions.ShotAngles.For(c.ProjectileDirection));
-            },
+            AfterCommon = KickFromUndamagingShot,
         };
 }

@@ -454,10 +454,16 @@ internal sealed partial class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFact
         }
     }
 
+    /// <summary>Runs <see cref="ResolveShaktoolShotAfterCommon(RoomEnemyPlace)"/> after a bomb's common damage.</summary>
+    private void ResolveShaktoolShotAfterCommon(EnemyBombHitContext context) => ResolveShaktoolShotAfterCommon(context.Enemy);
+
+    /// <summary>Runs <see cref="ResolveShaktoolShotAfterCommon(RoomEnemyPlace)"/> after a shot's common damage.</summary>
+    private void ResolveShaktoolShotAfterCommon(EnemyShotHitContext context) => ResolveShaktoolShotAfterCommon(context.Enemy);
+
     /// <summary>Shaktool's reaction to a bomb: after the common damage, a lethal hit ends the whole Shaktool.</summary>
     internal EnemyBombReaction ShaktoolBombReaction => field ??= new()
     {
-        AfterCommon = c => ResolveShaktoolShotAfterCommon(c.Enemy),
+        AfterCommon = ResolveShaktoolShotAfterCommon,
     };
 
     /// <summary>Runs Shaktool's main AI.</summary>
@@ -492,6 +498,6 @@ internal sealed partial class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFact
     /// <summary>Shaktool's reaction to a shot: after the common damage, a lethal hit ends the whole Shaktool.</summary>
     internal EnemyShotReaction ShaktoolShotReaction => field ??= new()
     {
-        AfterCommon = c => ResolveShaktoolShotAfterCommon(c.Enemy),
+        AfterCommon = ResolveShaktoolShotAfterCommon,
     };
 }

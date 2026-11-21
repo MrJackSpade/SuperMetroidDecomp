@@ -142,21 +142,29 @@ internal sealed partial class DeadTourianBehavior : IEnemySpecies, IEnemyEntityF
     /// <summary>The power-bomb response, which ignores corpses already marked decomposed.</summary>
     internal static EnemyPowerBombReaction DeadTourianPowerBombReaction { get; } = new()
     {
-        ReplacesCommon = c => ResolveDeadTourianCorpsePowerBomb(c.Enemy),
+        ReplacesCommon = ResolveDeadTourianCorpsePowerBomb,
     };
+
+    /// <summary>Starts a corpse not yet decomposed rotting on a Power Bomb, in place of its common damage.</summary>
+    private static void ResolveDeadTourianCorpsePowerBomb(EnemyPowerBombContext context) => ResolveDeadTourianCorpsePowerBomb(context.Enemy);
 
     /// <summary>Shot handling that marks the shot's hit and starts decomposition without health damage.</summary>
     /// <remarks>A shot makes the corpse keep updating off screen and lets Samus pass through it, and starts its rot; it
     /// deals no damage and makes no impact.</remarks>
     internal static EnemyShotReaction DeadTourianShotReaction { get; } = new()
     {
-        BeforeSuperMissileQuake = (in EnemyShotContext c) =>
-        {
-            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
-            TriggerDeadTourianCorpseRotting(c.Enemy);
-            return true;
-        },
+        BeforeSuperMissileQuake = MarkShotAndRot,
     };
+
+    /// <summary>Marks a shot's hit on the corpse and starts its rot, with no damage or impact.</summary>
+    /// <param name="c">The shot meeting the corpse.</param>
+    /// <returns>Always true: the rot replaces the rest of the shot reaction.</returns>
+    private static bool MarkShotAndRot(in EnemyShotContext c)
+    {
+        c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
+        TriggerDeadTourianCorpseRotting(c.Enemy);
+        return true;
+    }
 
     /// <summary>Starts decomposition on physical contact without applying ordinary enemy contact damage.</summary>
     internal static void ReactToDeadTourianTouch(EnemyTouchContext context) =>

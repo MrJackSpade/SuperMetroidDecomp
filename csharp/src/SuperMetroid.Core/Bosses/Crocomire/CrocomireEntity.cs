@@ -21,7 +21,11 @@ internal abstract partial class CrocomireEntity(CrocomireBehavior species, RoomE
     internal abstract CrocomireEnemyState Encounter { get; }
 
     /// <summary>The shot reaction that routes the part's hitboxes' reactions to its encounter.</summary>
-    private EnemyShotReaction OwnShotReaction => field ??= Species.Combat.CrocomireShotReactionOf(this);
+    private EnemyShotReaction OwnShotReaction => field ??= new() { AfterSuperMissileQuake = ReactToOwnHitboxShot };
+
+    /// <summary>Routes a shot meeting the part's own hitboxes to Crocomire's reactions on its encounter.</summary>
+    /// <param name="context">The shot meeting the part.</param>
+    private bool ReactToOwnHitboxShot(in EnemyShotContext context) => Species.Combat.ReactToCrocomirePartShot(context, Encounter);
 
     /// <inheritdoc/>
     public abstract void Initialize();

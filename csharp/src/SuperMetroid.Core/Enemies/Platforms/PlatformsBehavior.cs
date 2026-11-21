@@ -261,12 +261,24 @@ internal sealed partial class PlatformsBehavior : IEnemySpecies, IEnemyEntityFac
     /// <summary>Replaces a frozen Tripper's frame after common Bomb reaction using its movement direction.</summary>
     internal static EnemyBombReaction TripperBombReaction { get; } = new()
     {
-        AfterCommon = c =>
-        {
-            if (c.Enemy.Freeze.IsRunning)
-                c.Enemy.Frame = TripperFrozenFrame(c.Enemy.RequireSpeciesState<PlatformEnemyState>().XMovement);
-        },
+        AfterCommon = ShowFrozenFrameAfterBomb,
     };
+
+    /// <summary>Shows a frozen Tripper's frame for its movement after a bomb's common damage.</summary>
+    /// <param name="c">The bomb's hit.</param>
+    private static void ShowFrozenFrameAfterBomb(EnemyBombHitContext c)
+    {
+        if (c.Enemy.Freeze.IsRunning)
+            c.Enemy.Frame = TripperFrozenFrame(c.Enemy.RequireSpeciesState<PlatformEnemyState>().XMovement);
+    }
+
+    /// <summary>Shows a Tripper's frozen frame for its movement after a shot froze it at once.</summary>
+    /// <param name="c">The shot's hit.</param>
+    private static void ShowFrozenFrameAfterShot(EnemyShotHitContext c)
+    {
+        if (c.Froze)
+            c.Enemy.Frame = TripperFrozenFrame(c.Enemy.RequireSpeciesState<PlatformEnemyState>().XMovement);
+    }
 
     /// <summary>Runs Platforms's main AI.</summary>
     internal void RunPlatformsMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, IEnemyAiFrame frame)
@@ -289,11 +301,7 @@ internal sealed partial class PlatformsBehavior : IEnemySpecies, IEnemyEntityFac
     /// frozen frame.</remarks>
     internal static EnemyShotReaction TripperShotReaction { get; } = new()
     {
-        AfterCommon = c =>
-        {
-            if (c.Froze)
-                c.Enemy.Frame = TripperFrozenFrame(c.Enemy.RequireSpeciesState<PlatformEnemyState>().XMovement);
-        },
+        AfterCommon = ShowFrozenFrameAfterShot,
     };
 
     /// <summary>

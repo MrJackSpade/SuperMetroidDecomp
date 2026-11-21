@@ -39,32 +39,42 @@ internal sealed partial class MotherBrainCombat
     /// <summary>The body's shot response for each combat phase.</summary>
     internal EnemyShotReaction BodyShotReaction => field ??= new()
     {
-        BeforeSuperMissileQuake = (in EnemyShotContext c) =>
-        {
-            // Every body rectangle's shot reaction is exactly the dud shot; only her brain's rectangle, which her body
-            // shows before its first animation (#2220), could select anything else.
-            if (c.HitboxShot != MotherBrainReactions.BodyShot)
-            {
-                throw new InvalidDataException(
-                    $"Mother Brain's body selected the shot reaction {c.HitboxShot} from " +
-                    $"frame {c.Enemy.Frame}; every body rectangle's shot reaction is the dud shot.");
-            }
-            // A Super Missile still shakes the room first.
-            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
-            _projectiles.CreateEnemyProjectileDudShot(c.Shot);
-            return true;
-        },
+        BeforeSuperMissileQuake = ReactToBodyShot,
     };
+
+    /// <summary>Takes a shot meeting Mother Brain's body: the dud flash, and no damage.</summary>
+    /// <param name="c">The shot meeting the body.</param>
+    /// <returns>Always true: the dud replaces the rest of the shot reaction.</returns>
+    private bool ReactToBodyShot(in EnemyShotContext c)
+    {
+        // Every body rectangle's shot reaction is exactly the dud shot; only her brain's rectangle, which her body
+        // shows before its first animation (#2220), could select anything else.
+        if (c.HitboxShot != MotherBrainReactions.BodyShot)
+        {
+            throw new InvalidDataException(
+                $"Mother Brain's body selected the shot reaction {c.HitboxShot} from " +
+                $"frame {c.Enemy.Frame}; every body rectangle's shot reaction is the dud shot.");
+        }
+        // A Super Missile still shakes the room first.
+        c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
+        _projectiles.CreateEnemyProjectileDudShot(c.Shot);
+        return true;
+    }
 
     /// <summary>The head's shot response for each combat phase.</summary>
     internal EnemyShotReaction HeadShotReaction => field ??= new()
     {
-        BeforeSuperMissileQuake = (in EnemyShotContext c) =>
-        {
-            ResolveMotherBrainHeadShot(c.Occupant, c.Shot, c.Projectiles, c.ProjectileType, c.ProjectileDamage);
-            return true;
-        },
+        BeforeSuperMissileQuake = ReactToHeadShot,
     };
+
+    /// <summary>Takes a shot meeting Mother Brain's head (<see cref="ResolveMotherBrainHeadShot"/>).</summary>
+    /// <param name="c">The shot meeting the head.</param>
+    /// <returns>Always true: the head's reaction replaces the rest of the shot reaction.</returns>
+    private bool ReactToHeadShot(in EnemyShotContext c)
+    {
+        ResolveMotherBrainHeadShot(c.Occupant, c.Shot, c.Projectiles, c.ProjectileType, c.ProjectileDamage);
+        return true;
+    }
 
     /// <summary>
     /// Reacts to a shot at the head in Mother Brain's first form. The glass encounter

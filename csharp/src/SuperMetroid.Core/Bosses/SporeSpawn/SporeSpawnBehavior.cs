@@ -261,13 +261,13 @@ internal sealed partial class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFa
 
     /// <summary>Routes accepted bomb hits on <paramref name="body"/> through his encounter's post-damage response.</summary>
     /// <param name="body">His body, whose encounter the response acts on.</param>
-    internal EnemyBombReaction SporeSpawnBombReactionOf(SporeSpawnEntity body)
+    internal static EnemyBombReaction SporeSpawnBombReactionOf(SporeSpawnEntity body)
     {
         Ensure.NotNull(body);
         return new()
         {
             RunsGenericDeath = false,
-            AfterCommon = c => ResolveSporeSpawnShotAfterCommon(c.Enemy, body.Encounter),
+            AfterCommon = body.ResolveShotAfterCommon,
         };
     }
 
@@ -281,7 +281,10 @@ internal sealed partial class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFa
     /// A link of Spore Spawn's stalk (#1760): it holds still, and a shot one restarts its pose. Its pose raises no event; the
     /// family's cue owner its animations are bound to is the spawners' (#2571).
     /// </summary>
-    internal EnemyProjectileBehavior Stalk => field ??= new EnemyProjectileBehavior(shot: () => new SporeSpawnProjectileAnimation(Spawner, SporeSpawnProjectileSegment.Stalk));
+    internal EnemyProjectileBehavior Stalk => field ??= new EnemyProjectileBehavior(shot: StartsStalkShot);
+
+    /// <summary>The animation a shot starts on a link of his stalk: its pose restarts.</summary>
+    private SporeSpawnProjectileAnimation StartsStalkShot() => new SporeSpawnProjectileAnimation(Spawner, SporeSpawnProjectileSegment.Stalk);
 
     /// <summary>Runs SporeSpawn's main AI with the encounter his <paramref name="place"/> holds.</summary>
     internal void RunSporeSpawnMainAi(RoomEnemyPlace place, SporeSpawnEnemyState state) => RunSporeSpawnMain(place, state);
@@ -319,26 +322,34 @@ internal sealed partial class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFa
         Ensure.NotNull(body);
         return new()
         {
-            AfterSuperMissileQuake = (in EnemyShotContext c) =>
-            {
-                // His frames' hitboxes meet a shot with his shell's dud or his core's own reaction.
-                if (c.HitboxShot == EnemyReaction.DudShot)
-                {
-                    c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
-                    _projectiles.CreateEnemyProjectileDudShot(c.Shot);
-                    return true;
-                }
-                if (!SporeSpawnAcceptsProjectile(c.ProjectileType))
-                {
-                    // The shot has struck the vulnerable core, whose shot reaction rejects it before common damage.
-                    c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
-                    return true;
-                }
-                return false;
-            },
+            AfterSuperMissileQuake = ReactToSporeSpawnHitboxShot,
             Lethal = EnemyShotLethal.SpeciesOwned,
-            AfterCommon = c => ResolveSporeSpawnShotAfterCommon(c.Enemy, body.Encounter),
+            AfterCommon = body.ResolveShotAfterCommon,
         };
+    }
+
+    /// <summary>
+    /// Meets a shot with his shell's dud or his core's own reaction, after the Super Missile quake: a dud flashes, and his
+    /// core rejects a weapon it does not accept before the common damage.
+    /// </summary>
+    /// <param name="c">The shot meeting his body.</param>
+    /// <returns>Whether his own reaction took the shot.</returns>
+    private bool ReactToSporeSpawnHitboxShot(in EnemyShotContext c)
+    {
+        // His frames' hitboxes meet a shot with his shell's dud or his core's own reaction.
+        if (c.HitboxShot == EnemyReaction.DudShot)
+        {
+            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
+            _projectiles.CreateEnemyProjectileDudShot(c.Shot);
+            return true;
+        }
+        if (!SporeSpawnAcceptsProjectile(c.ProjectileType))
+        {
+            // The shot has struck the vulnerable core, whose shot reaction rejects it before common damage.
+            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
+            return true;
+        }
+        return false;
     }
 
     /// <summary>
@@ -368,7 +379,7 @@ internal sealed partial class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFa
     /// Resolves the rest of a shot or bomb on Spore Spawn's <paramref name="body"/>, of encounter <paramref name="state"/>,
     /// after the common reaction: while his hurt flash shows he reacts as to a hit.
     /// </summary>
-    private void ResolveSporeSpawnShotAfterCommon(RoomEnemyPlace body, SporeSpawnEnemyState state)
+    internal void ResolveSporeSpawnShotAfterCommon(RoomEnemyPlace body, SporeSpawnEnemyState state)
     {
         // He reacts to whatever strikes his core while he flashes hurt, by this hit or by an earlier one whose flash still
         // shows: a bomb, which does him no damage, still sets him swaying inside a missile's flash.

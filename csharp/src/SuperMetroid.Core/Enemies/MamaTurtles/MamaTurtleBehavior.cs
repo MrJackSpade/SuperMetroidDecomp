@@ -694,6 +694,12 @@ internal sealed partial class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFa
     private void ResolveBabyTurtleShotAfterCommon(RoomEnemyPlace baby) =>
         WakeMamaTurtle(baby);
 
+    /// <summary>Runs <see cref="ResolveBabyTurtleShotAfterCommon(RoomEnemyPlace)"/> after a bomb's common damage.</summary>
+    private void ResolveBabyTurtleShotAfterCommon(EnemyBombHitContext context) => ResolveBabyTurtleShotAfterCommon(context.Enemy);
+
+    /// <summary>Runs <see cref="ResolveBabyTurtleShotAfterCommon(RoomEnemyPlace)"/> after a shot's common damage.</summary>
+    private void ResolveBabyTurtleShotAfterCommon(EnemyShotHitContext context) => ResolveBabyTurtleShotAfterCommon(context.Enemy);
+
     /// <summary>Wakes <paramref name="baby"/>'s Mama after a baby touch or shot reaction.</summary>
     private void WakeMamaTurtle(RoomEnemyPlace baby)
     {
@@ -747,7 +753,7 @@ internal sealed partial class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFa
     /// <summary>Runs the baby wake reaction after common bomb damage.</summary>
     internal EnemyBombReaction BabyTurtleBombReaction => field ??= new()
     {
-        AfterCommon = c => ResolveBabyTurtleShotAfterCommon(c.Enemy),
+        AfterCommon = ResolveBabyTurtleShotAfterCommon,
     };
 
     /// <summary>Runs MamaTurtle's main AI.</summary>
@@ -800,7 +806,7 @@ internal sealed partial class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFa
     /// <summary>Runs the baby wake reaction after common projectile damage.</summary>
     internal EnemyShotReaction BabyTurtleShotReaction => field ??= new()
     {
-        AfterCommon = c => ResolveBabyTurtleShotAfterCommon(c.Enemy),
+        AfterCommon = ResolveBabyTurtleShotAfterCommon,
     };
 
     /// <summary>Routes Mama contact to shell and fall handling.</summary>

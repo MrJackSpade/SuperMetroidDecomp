@@ -133,12 +133,16 @@ internal sealed partial class TorizoCombat
         Lethal = EnemyShotLethal.SpeciesOwned,
         // Both Torizos' shot reactions run the common damage without the hit burst.
         ShowsHitBurst = EnemyShotReaction.NeverShowsHitBurst,
-        AfterCommon = c =>
-        {
-            if (c.Enemy.Health == 0)
-                BeginTorizoDeath(c.Enemy, c.Enemy.RequireSpeciesState<TorizoEnemyState>());
-        },
+        AfterCommon = BeginTorizoDeathOnLethalShot,
     };
+
+    /// <summary>Begins a Torizo's own death when a shot's common damage takes its last health.</summary>
+    /// <param name="c">The shot's hit.</param>
+    private static void BeginTorizoDeathOnLethalShot(EnemyShotHitContext c)
+    {
+        if (c.Enemy.Health == 0)
+            BeginTorizoDeath(c.Enemy, c.Enemy.RequireSpeciesState<TorizoEnemyState>());
+    }
 
     /// <summary>Runs extended body touch damage without invoking the generic death animation.</summary>
     internal void ReactToTorizoTouch(EnemyTouchContext context)

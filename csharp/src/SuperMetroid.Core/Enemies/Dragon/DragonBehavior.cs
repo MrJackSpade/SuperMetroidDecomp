@@ -253,6 +253,15 @@ internal sealed partial class DragonBehavior : IEnemySpecies, IEnemyEntityFactor
         following.AiStates = actor.AiStates;
     }
 
+    /// <summary>Runs <see cref="ResolveDragonCombatAfterCommon(RoomEnemyPlace)"/> after a bomb's common damage.</summary>
+    private void ResolveDragonCombatAfterCommon(EnemyBombHitContext context) => ResolveDragonCombatAfterCommon(context.Enemy);
+
+    /// <summary>Runs <see cref="ResolveDragonCombatAfterCommon(RoomEnemyPlace)"/> after a Power Bomb's common damage.</summary>
+    private void ResolveDragonCombatAfterCommon(EnemyPowerBombContext context) => ResolveDragonCombatAfterCommon(context.Enemy);
+
+    /// <summary>Runs <see cref="ResolveDragonCombatAfterCommon(RoomEnemyPlace)"/> after a shot's common damage.</summary>
+    private void ResolveDragonCombatAfterCommon(EnemyShotHitContext context) => ResolveDragonCombatAfterCommon(context.Enemy);
+
     /// <summary>Starts <paramref name="segment"/>'s animation unless the part already plays it, restarting its frame timer.</summary>
     internal static void StartDragonAnimation(RoomEnemyPlace place, DragonPartState state, DragonSegment segment) =>
         state.Playback = EnemyAnimationPlayback.StartUnlessPlaying(place, state.Playback, DragonAnimations.StartingWith(segment));
@@ -260,7 +269,7 @@ internal sealed partial class DragonBehavior : IEnemySpecies, IEnemyEntityFactor
     /// <summary>Finishes a bomb's hit on a Dragon as its shot reaction does, carrying the hit to its paired body.</summary>
     internal EnemyBombReaction DragonBombReaction => field ??= new()
     {
-        AfterCommon = c => ResolveDragonCombatAfterCommon(c.Enemy),
+        AfterCommon = ResolveDragonCombatAfterCommon,
     };
 
     /// <summary>A Dragon fireball (#1760): it arcs under gravity and leaves below the screen.</summary>
@@ -286,13 +295,13 @@ internal sealed partial class DragonBehavior : IEnemySpecies, IEnemyEntityFactor
     /// <summary>Synchronizes wing and body state after a Dragon power-bomb reaction.</summary>
     internal EnemyPowerBombReaction DragonPowerBombReaction => field ??= new()
     {
-        AfterCommon = c => ResolveDragonCombatAfterCommon(c.Enemy),
+        AfterCommon = ResolveDragonCombatAfterCommon,
     };
 
     /// <summary>Synchronizes wing and body state after common projectile damage resolution.</summary>
     internal EnemyShotReaction DragonShotReaction => field ??= new()
     {
-        AfterCommon = c => ResolveDragonCombatAfterCommon(c.Enemy),
+        AfterCommon = ResolveDragonCombatAfterCommon,
     };
 
     /// <summary>Runs ordinary enemy touch damage before mirroring Dragon's hurt and freeze state into its wing.</summary>

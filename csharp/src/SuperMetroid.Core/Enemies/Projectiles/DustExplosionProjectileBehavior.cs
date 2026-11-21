@@ -11,9 +11,13 @@ internal sealed partial class DustExplosionProjectileBehavior : SingleMotionProj
 
     /// <summary>Use <see cref="Instance"/>.</summary>
     private DustExplosionProjectileBehavior()
-        : base(context => CullDustExplosionOutsideCamera(context.Projectile, context.Camera))
+        : base(CullDustExplosionOutsideCamera)
     {
     }
+
+    /// <summary>Removes a dust cloud or explosion once it lies outside the view.</summary>
+    private static void CullDustExplosionOutsideCamera(EnemyProjectileMotionContext context) =>
+        CullDustExplosionOutsideCamera(context.Projectile, context.Camera);
 
     /// <summary>Removes a dust cloud or explosion once it lies outside the view, the view's right and bottom edges already outside.</summary>
     internal static void CullDustExplosionOutsideCamera(

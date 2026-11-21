@@ -752,13 +752,18 @@ internal sealed partial class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityF
     {
         // A shot marks its collision and the Baby recoils, without hurting it: the shot's strength and the first shot's
         // aim decide the recoil.
-        BeforeSuperMissileQuake = (in EnemyShotContext c) =>
-        {
-            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
-            ResolveBabyMetroidShot(c.Enemy, c.Shot.Damage, MetroidRecoilOrigin.Of(c.Projectiles.Shots));
-            return true;
-        },
+        BeforeSuperMissileQuake = RecoilFromShot,
     };
+
+    /// <summary>Marks a shot's collision with the Baby and recoils it from the shot, without hurting it.</summary>
+    /// <param name="c">The shot meeting the Baby.</param>
+    /// <returns>Always true: the recoil replaces the rest of the shot reaction.</returns>
+    private static bool RecoilFromShot(in EnemyShotContext c)
+    {
+        c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
+        ResolveBabyMetroidShot(c.Enemy, c.Shot.Damage, MetroidRecoilOrigin.Of(c.Projectiles.Shots));
+        return true;
+    }
 
     /// <summary>Uses cutscene latching or recoil on contact instead of ordinary Samus damage.</summary>
     internal static void ReactToBabyMetroidTouch(EnemyTouchContext context) =>

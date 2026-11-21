@@ -607,10 +607,19 @@ internal sealed partial class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFa
         }
     }
 
+    /// <summary>Runs <see cref="ResolveMagdolliteCombatAfterCommon(RoomEnemyPlace)"/> after a bomb's common damage.</summary>
+    private void ResolveMagdolliteCombatAfterCommon(EnemyBombHitContext context) => ResolveMagdolliteCombatAfterCommon(context.Enemy);
+
+    /// <summary>Runs <see cref="ResolveMagdolliteCombatAfterCommon(RoomEnemyPlace)"/> after a Power Bomb's common damage.</summary>
+    private void ResolveMagdolliteCombatAfterCommon(EnemyPowerBombContext context) => ResolveMagdolliteCombatAfterCommon(context.Enemy);
+
+    /// <summary>Runs <see cref="ResolveMagdolliteCombatAfterCommon(RoomEnemyPlace)"/> after a shot's common damage.</summary>
+    private void ResolveMagdolliteCombatAfterCommon(EnemyShotHitContext context) => ResolveMagdolliteCombatAfterCommon(context.Enemy);
+
     /// <summary>Magdollite's reaction to a bomb: after its ordinary damage, the struck part's fate passes to the enemies listed after it.</summary>
     internal EnemyBombReaction MagdolliteBombReaction => field ??= new()
     {
-        AfterCommon = c => ResolveMagdolliteCombatAfterCommon(c.Enemy),
+        AfterCommon = ResolveMagdolliteCombatAfterCommon,
     };
 
     /// <summary>Magdollite's thrown lava (#1760).</summary>
@@ -621,9 +630,12 @@ internal sealed partial class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFa
     /// typed shot animation, the animation its definition names.
     /// </summary>
     /// <param name="deathsAndDrops">The drops a shot ball leaves.</param>
-    internal sealed partial class LavaBehavior(EnemyDeathsAndDrops deathsAndDrops) : SingleMotionProjectileBehavior(
-        context => FlyMagdolliteLava(context.Projectile, context.Camera)), IEnemyProjectileCues<MagdolliteLavaCue>
+    internal sealed partial class LavaBehavior(EnemyDeathsAndDrops deathsAndDrops) : SingleMotionProjectileBehavior(FlyLava),
+        IEnemyProjectileCues<MagdolliteLavaCue>
     {
+        /// <summary>Flies thrown lava sideways until it leaves the view.</summary>
+        private static void FlyLava(EnemyProjectileMotionContext context) => FlyMagdolliteLava(context.Projectile, context.Camera);
+
         /// <inheritdoc/>
         internal override EnemyProjectileAnimation ShotAnimation() => new MagdolliteLavaAnimation(this, MagdolliteLavaSegment.Shot);
 
@@ -667,13 +679,13 @@ internal sealed partial class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFa
     /// <summary>Propagates common power-bomb death and freezing effects to the composite's following parts.</summary>
     internal EnemyPowerBombReaction MagdollitePowerBombReaction => field ??= new()
     {
-        AfterCommon = c => ResolveMagdolliteCombatAfterCommon(c.Enemy),
+        AfterCommon = ResolveMagdolliteCombatAfterCommon,
     };
 
     /// <summary>Propagates common shot death and freezing effects to the composite's following parts.</summary>
     internal EnemyShotReaction MagdolliteShotReaction => field ??= new()
     {
-        AfterCommon = c => ResolveMagdolliteCombatAfterCommon(c.Enemy),
+        AfterCommon = ResolveMagdolliteCombatAfterCommon,
     };
 
     /// <summary>Applies normal Samus contact damage before mirroring the enemy's death or freeze state.</summary>

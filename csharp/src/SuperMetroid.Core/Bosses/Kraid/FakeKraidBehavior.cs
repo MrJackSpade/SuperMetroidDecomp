@@ -308,14 +308,18 @@ internal sealed partial class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFac
         RunsGenericDeath = false,
         // The bomb's common damage shows no hit burst.
         ShowsHitBurst = EnemyBombReaction.NeverShowsHitBurst,
-        AfterCommon = c =>
-        {
-            // The bomb selects the fake Kraid's own shot reaction, which its definition names, rather than the empty
-            // frame's ordinary one.
-            if (c.SelectedShot == KraidReactions.FakeKraidShot && c.HealthBefore != 0 && c.Enemy.Health == 0)
-                KillFakeKraid(c.Occupant, c.Samus);
-        },
+        AfterCommon = KillFakeKraidByBomb,
     };
+
+    /// <summary>Kills Fake Kraid in its own explosion when a bomb's common damage takes its last health.</summary>
+    /// <param name="c">The bomb's hit.</param>
+    private void KillFakeKraidByBomb(EnemyBombHitContext c)
+    {
+        // The bomb selects the fake Kraid's own shot reaction, which its definition names, rather than the empty
+        // frame's ordinary one.
+        if (c.SelectedShot == KraidReactions.FakeKraidShot && c.HealthBefore != 0 && c.Enemy.Health == 0)
+            KillFakeKraid(c.Occupant, c.Samus);
+    }
 
     /// <summary>Fake Kraid's spit and spikes (#1760): their spawners start their animations.</summary>
     internal SpitAndSpikeBehavior SpitAndSpikes { get; } = new();
@@ -334,12 +338,18 @@ internal sealed partial class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFac
         };
 
         /// <summary>The spit flying through the room's blocks, then falling under capped gravity.</summary>
-        internal EnemyProjectileOwnedMotion SpitFlying { get; } = new(nameof(SpitFlying),
-            context => FlyFakeKraidSpit(context.Projectile, context.Level));
+        internal EnemyProjectileOwnedMotion SpitFlying { get; } = new(nameof(SpitFlying), FlyFakeKraidSpit);
 
         /// <summary>A spike flying along its heading until it strikes a wall.</summary>
-        internal EnemyProjectileOwnedMotion SpikeFlying { get; } = new(nameof(SpikeFlying),
-            context => FlyFakeKraidSpike(context.Projectile, context.Level));
+        internal EnemyProjectileOwnedMotion SpikeFlying { get; } = new(nameof(SpikeFlying), FlyFakeKraidSpike);
+
+        /// <summary>Moves the flying spit (<see cref="SpitFlying"/>).</summary>
+        private static void FlyFakeKraidSpit(EnemyProjectileMotionContext context) =>
+            FakeKraidBehavior.FlyFakeKraidSpit(context.Projectile, context.Level);
+
+        /// <summary>Moves a flying spike (<see cref="SpikeFlying"/>).</summary>
+        private static void FlyFakeKraidSpike(EnemyProjectileMotionContext context) =>
+            FakeKraidBehavior.FlyFakeKraidSpike(context.Projectile, context.Level);
 
         /// <inheritdoc/>
         /// <exception cref="InvalidOperationException">This behaviour is not bound to <paramref name="kind"/>.</exception>
@@ -377,25 +387,36 @@ internal sealed partial class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFac
     {
         // Fake Kraid's private power-bomb reaction still owns its direct pickup explosions, spawned after its
         // death explosion.
-        Lethal = new EnemyPowerBombLethal.Replaced(c => KillFakeKraid(c.Occupant, c.Samus)),
+        Lethal = new EnemyPowerBombLethal.Replaced(KillFakeKraidByPowerBomb),
     };
+
+    /// <summary>Kills Fake Kraid in its own explosion in place of a lethal Power Bomb's generic death.</summary>
+    private void KillFakeKraidByPowerBomb(EnemyPowerBombContext context) => KillFakeKraid(context.Occupant, context.Samus);
 
     /// <summary>Replaces ordinary projectile-shot death and preserves the pickup scatter on a lethal hit.</summary>
     internal EnemyShotReaction FakeKraidShotReaction => field ??= new()
     {
         // Fake Kraid's shot reaction runs the common damage without the hit burst.
         ShowsHitBurst = EnemyShotReaction.NeverShowsHitBurst,
-        Lethal = new EnemyShotLethal.Replaced(c =>
-        {
-            KillFakeKraid(c.Occupant, c.Samus);
-            return true;
-        }),
-        AfterCommon = c =>
-        {
-            if (!c.Froze && !c.Enemy.IsFree && c.HealthBefore != 0 && c.Enemy.Health == 0)
-                SpawnFakeKraidDeathDrops(c.Enemy.Position.Whole, c.Samus);
-        },
+        Lethal = new EnemyShotLethal.Replaced(KillFakeKraidByShot),
+        AfterCommon = SpawnFakeKraidDeathDrops,
     };
+
+    /// <summary>Kills Fake Kraid in its own explosion in place of a lethal shot's generic death.</summary>
+    /// <returns>Always true: the death replaces the generic one.</returns>
+    private bool KillFakeKraidByShot(EnemyShotHitContext context)
+    {
+        KillFakeKraid(context.Occupant, context.Samus);
+        return true;
+    }
+
+    /// <summary>Scatters Fake Kraid's drops where it stood after a shot that killed it without freezing it.</summary>
+    /// <param name="c">The shot's hit.</param>
+    private void SpawnFakeKraidDeathDrops(EnemyShotHitContext c)
+    {
+        if (!c.Froze && !c.Enemy.IsFree && c.HealthBefore != 0 && c.Enemy.Health == 0)
+            SpawnFakeKraidDeathDrops(c.Enemy.Position.Whole, c.Samus);
+    }
 
     /// <summary>Runs common Samus contact and routes a resulting lethal hit to Fake Kraid's death sequence.</summary>
     internal void ReactToFakeKraidTouch(EnemyTouchContext context)

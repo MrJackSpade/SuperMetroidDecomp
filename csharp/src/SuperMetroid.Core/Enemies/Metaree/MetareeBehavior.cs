@@ -180,25 +180,27 @@ internal sealed partial class MetareeBehavior : IEnemySpecies, IEnemyEntityFacto
 
     /// <summary>Spawns four metal debris actors in the dying Metaree's colours before common shot death clears them.</summary>
     /// <param name="metaree">The Metaree the reaction is built for, whose sheet the objects it spawns draw from.</param>
-    internal EnemyShotReaction MetareeShotReaction(RoomEnemyOccupant metaree) => new()
+    internal static EnemyShotReaction MetareeShotReaction(MetareeEntity metaree) => new()
     {
-        Lethal = new EnemyShotLethal.AfterStage(c =>
-        {
-            SkreeMetareeParticles.SpawnBurst(_projectiles, metaree, c.Enemy, SkreeMetareeParticleSegment.Metaree);
-            c.Enemy.Shading = PictureShading.Standard;
-        }),
+        Lethal = new EnemyShotLethal.AfterStage(Ensure.NotNull(metaree).SpawnDebris),
     };
 
     /// <summary>After a lethal bomb, spawns the debris in the dying Metaree's colours, then shows the dead enemy, which keeps its place, in its standard shading.</summary>
     /// <param name="metaree">The Metaree the reaction is built for, whose sheet the objects it spawns draw from.</param>
-    internal EnemyBombReaction MetareeBombReaction(RoomEnemyOccupant metaree) => new()
+    internal static EnemyBombReaction MetareeBombReaction(MetareeEntity metaree) => new()
     {
-        AfterCommon = c =>
-        {
-            if (c.Enemy.Health != 0)
-                return;
-            SkreeMetareeParticles.SpawnBurst(_projectiles, metaree, c.Enemy, SkreeMetareeParticleSegment.Metaree);
-            c.Enemy.Shading = PictureShading.Standard;
-        },
+        AfterCommon = Ensure.NotNull(metaree).SpawnDebris,
     };
+
+    /// <summary>
+    /// Spawns the debris in <paramref name="metaree"/>'s dying colours, then shows the dead enemy, which keeps its place, in
+    /// its standard shading.
+    /// </summary>
+    /// <param name="metaree">The dying Metaree, whose sheet the debris draws from.</param>
+    /// <param name="enemy">The place the Metaree dies in.</param>
+    internal void SpawnMetareeDebris(RoomEnemyOccupant metaree, RoomEnemyPlace enemy)
+    {
+        SkreeMetareeParticles.SpawnBurst(_projectiles, metaree, enemy, SkreeMetareeParticleSegment.Metaree);
+        enemy.Shading = PictureShading.Standard;
+    }
 }

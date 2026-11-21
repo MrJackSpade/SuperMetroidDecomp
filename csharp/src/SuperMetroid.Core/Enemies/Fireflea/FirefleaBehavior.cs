@@ -127,14 +127,24 @@ internal sealed partial class FirefleaBehavior : IEnemySpecies, IEnemyEntityFact
     /// </summary>
     private void AdvanceFirefleaDarkness() => _roomStatus.RecordFirefleaDeath();
 
+    /// <summary>Advances the room's darkness after a bomb's common damage kills a Fireflea.</summary>
+    /// <param name="c">The bomb's hit.</param>
+    private void AdvanceFirefleaDarknessOnLethalBomb(EnemyBombHitContext c)
+    {
+        if (c.Enemy.Health == 0)
+            AdvanceFirefleaDarkness();
+    }
+
+    /// <summary>Advances the room's darkness before a lethal Power Bomb's common death.</summary>
+    private void AdvanceFirefleaDarkness(EnemyPowerBombContext context) => _roomStatus.RecordFirefleaDeath();
+
+    /// <summary>Advances the room's darkness before a lethal shot's common death.</summary>
+    private void AdvanceFirefleaDarkness(EnemyShotHitContext context) => _roomStatus.RecordFirefleaDeath();
+
     /// <summary>Advances darkness after common bomb damage kills a Fireflea.</summary>
     internal EnemyBombReaction FirefleaBombReaction => field ??= new()
     {
-        AfterCommon = c =>
-        {
-            if (c.Enemy.Health == 0)
-                AdvanceFirefleaDarkness();
-        },
+        AfterCommon = AdvanceFirefleaDarknessOnLethalBomb,
     };
 
     /// <summary>Advances Fireflea's typed animation.</summary>
@@ -153,13 +163,13 @@ internal sealed partial class FirefleaBehavior : IEnemySpecies, IEnemyEntityFact
     internal EnemyPowerBombReaction FirefleaPowerBombReaction => field ??= new()
     {
         // Reactions around common power-bomb damage.
-        Lethal = new EnemyPowerBombLethal.AfterStage(_ => AdvanceFirefleaDarkness()),
+        Lethal = new EnemyPowerBombLethal.AfterStage(AdvanceFirefleaDarkness),
     };
 
     /// <summary>Advances darkness before a lethal common projectile death is finalized.</summary>
     internal EnemyShotReaction FirefleaShotReaction => field ??= new()
     {
-        Lethal = new EnemyShotLethal.AfterStage(_ => AdvanceFirefleaDarkness()),
+        Lethal = new EnemyShotLethal.AfterStage(AdvanceFirefleaDarkness),
     };
 
     /// <summary>Runs Fireflea's touch reaction, the unconditional-death sequence.</summary>

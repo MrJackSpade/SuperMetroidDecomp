@@ -218,20 +218,28 @@ internal sealed partial class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFa
     /// <summary>Starts corpse rotting on a power bomb without common damage handling.</summary>
     internal EnemyPowerBombReaction DeadTorizoPowerBombReaction => field ??= new()
     {
-        ReplacesCommon = c => TriggerDeadTorizoPowerBomb(c.Enemy),
+        ReplacesCommon = TriggerDeadTorizoPowerBomb,
     };
+
+    /// <summary>Starts the corpse rotting on a Power Bomb, in place of its common damage.</summary>
+    private static void TriggerDeadTorizoPowerBomb(EnemyPowerBombContext context) => TriggerDeadTorizoPowerBomb(context.Enemy);
 
     /// <summary>Marks projectile collision and starts rotting without impact animation or health loss.</summary>
     internal EnemyShotReaction DeadTorizoShotReaction => field ??= new()
     {
         // A shot is marked as having hit the corpse, deals no damage and makes no explosion, and starts the rot.
-        BeforeSuperMissileQuake = (in EnemyShotContext c) =>
-        {
-            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
-            TriggerDeadTorizoRotting(c.Enemy);
-            return true;
-        },
+        BeforeSuperMissileQuake = MarkShotAndRot,
     };
+
+    /// <summary>Marks a shot's hit on the corpse and starts it rotting, with no damage or explosion.</summary>
+    /// <param name="c">The shot meeting the corpse.</param>
+    /// <returns>Always true: the rot replaces the rest of the shot reaction.</returns>
+    private static bool MarkShotAndRot(in EnemyShotContext c)
+    {
+        c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
+        TriggerDeadTorizoRotting(c.Enemy);
+        return true;
+    }
 
     /// <summary>Starts the corpse rotting when Samus touches it.</summary>
     internal static void ReactToDeadTorizoTouch(EnemyTouchContext context) =>

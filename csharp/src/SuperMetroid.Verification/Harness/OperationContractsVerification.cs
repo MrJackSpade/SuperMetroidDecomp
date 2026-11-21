@@ -29,8 +29,8 @@ internal static class OperationContractsVerification
         Func<GrappleBehavior, RoomEnemyOccupant, IEnemyAiFrame, bool> grapple = static (behavior, grappled, frame) => behavior.RunCommonGrappleAi(grappled, frame);
         Func<ClockedEnemyAiFrame, IEnemyAiFrame> narrowed = static frame => frame;
         Func<RoomObjectSetupContext, IDefeatedBossesReader> bosses = static context => context.Bosses;
-        AssertTrue(mainAi is not null && grapple is not null && narrowed is not null && bosses is not null,
-            "main AI, the grapple wrapper and PLM setup take their narrow contracts");
+        // Each conversion compiles only while its member takes the narrow contract; nothing runs them.
+        _ = new Delegate[] { mainAi, grapple, narrowed, bosses };
 
         // Concrete contexts validate required values at construction.
         var level = new RoomLevelData(new(1, 1), new RoomLevelPlanes(new RoomTerrainBlock[1], new RoomBlockBehavior[1], new RoomBlockAppearance[1]), RoomLevelData.NothingBeyondGrid(), []);

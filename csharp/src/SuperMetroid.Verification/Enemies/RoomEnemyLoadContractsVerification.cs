@@ -21,8 +21,8 @@ internal static class RoomEnemyLoadContractsVerification
         Func<IRoomEnemyLoad, IRoomEnemyActorContext> actors = static load => load;
         Func<IRoomEnemyServices, IChozoStatueRoomServices> statue = static room => room;
         Func<IRoomEnemyServices, IMotherBrainRoomServices> motherBrain = static room => room;
-        AssertTrue(population is not null && actors is not null && statue is not null && motherBrain is not null,
-            "the load and room-service contracts include their children's contracts");
+        // Each conversion compiles only while the contract includes its child's; nothing runs them.
+        _ = new Delegate[] { population, actors, statue, motherBrain };
 
         var services = new StandaloneRoomEnemyServices(() => 0x1234);
         AssertEqual(0x1234, services.Random.Generate(), "the standalone RNG generates through its installed generator");

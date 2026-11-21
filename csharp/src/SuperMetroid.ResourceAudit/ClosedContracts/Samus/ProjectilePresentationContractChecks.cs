@@ -47,7 +47,7 @@ internal static class ProjectilePresentationContractChecks
         trees.Add(calls);
         string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         CSharpCompilation Compile(IEnumerable<SyntaxTree> sources) => CSharpCompilation.Create("ProjectileProviderFixture", sources,
-            platforms.Append(typeof(ProjectileSpriteId).Assembly.Location).Append(typeof(InstalledProjectileTrails).Assembly.Location).Distinct()
+            platforms.Append(FixtureAssemblies.Core).Append(FixtureAssemblies.AssetExtraction).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         AuditReport Inspect(CSharpCompilation compilation, bool adapted)

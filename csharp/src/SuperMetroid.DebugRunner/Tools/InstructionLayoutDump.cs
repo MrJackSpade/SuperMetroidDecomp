@@ -22,12 +22,12 @@ internal static class InstructionLayoutDump
         {
             if (catalog.MechanicsWords is null)
             {
-                result[catalog.Type.Name] = new InstructionLayout { Unsupported = true };
+                result[catalog.Name] = new InstructionLayout { Unsupported = true };
                 continue;
             }
             int[][] words = [.. catalog.MechanicsWords.Select(word => new int[] { word.Address, word.Value })];
             int[] slots = [.. (catalog.PresentationOperands ?? []).Select(address => (int)address)];
-            result[catalog.Type.Name] = new InstructionLayout { Mechanics = words, Presentation = slots };
+            result[catalog.Name] = new InstructionLayout { Mechanics = words, Presentation = slots };
         }
         File.WriteAllText(outputPath, JsonSerializer.Serialize(result, global::SuperMetroid.DebugRunner.DebugRunnerJson.Info<SortedDictionary<string, InstructionLayout>>(CompactJson)));
         Console.WriteLine($"Instruction layouts: {result.Count} program types written to {outputPath}.");

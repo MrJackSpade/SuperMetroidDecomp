@@ -96,8 +96,8 @@ internal static class ClosedPresentationContractChecks
         trees.Add(calls);
         string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         var compilation = CSharpCompilation.Create("ClosedProviderFixture", trees,
-            platforms.Append(typeof(GameplayHudPresentation).Assembly.Location)
-                .Append(typeof(SuperMetroid.AssetExtraction.Frontend.Pause.Artwork.PauseReserveUiPresentation).Assembly.Location).Distinct()
+            platforms.Append(FixtureAssemblies.Core)
+                .Append(FixtureAssemblies.AssetExtraction).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         FixtureConsumerBinding.Require(compilation, calls, "ClosedPresentationContractChecks");

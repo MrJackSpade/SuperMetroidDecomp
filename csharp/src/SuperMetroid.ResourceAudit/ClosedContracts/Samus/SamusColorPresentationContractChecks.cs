@@ -51,7 +51,7 @@ internal static class SamusColorPresentationContractChecks
         trees.Add(calls);
         string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         var compilation = CSharpCompilation.Create("SamusColorProviderFixture", trees,
-            platforms.Append(typeof(SamusChargeShade).Assembly.Location).Distinct()
+            platforms.Append(FixtureAssemblies.Core).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         FixtureConsumerBinding.Require(compilation, calls, "Samus color provider confirmation");

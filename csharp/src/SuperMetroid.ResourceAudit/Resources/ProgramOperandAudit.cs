@@ -64,9 +64,8 @@ internal sealed class ProgramOperandAudit(ResourceIndex exports, AuditReport rep
                 "Presentation operand kind is not an enemy/sprite instruction selector; requires a domain-specific adapter.");
             return;
         }
-        Type? metadata = ConsumerAudit.ProgramOwnerType(owner);
-        InstructionProgramCatalog? catalog = metadata is null ? null : InstructionProgramCatalog.Of(metadata);
-        if (catalog?.PresentationOperands is not { } operands)
+        InstructionProgramCatalog catalog = InstructionProgramCatalog.Of(owner);
+        if (catalog.PresentationOperands is not { } operands)
         {
             report.Gap(ResourceDomains.CompiledSelector, owner, source,
                 "Presentation operand catalog has no recognized count/address metadata contract.");

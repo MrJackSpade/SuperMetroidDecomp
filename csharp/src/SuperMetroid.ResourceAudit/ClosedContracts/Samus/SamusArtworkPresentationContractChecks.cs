@@ -39,7 +39,7 @@ internal static class SamusArtworkPresentationContractChecks
         trees.Add(calls);
         string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         CSharpCompilation Compile(IEnumerable<SyntaxTree> sources) => CSharpCompilation.Create("SamusArtworkProviderFixture", sources,
-            platforms.Append(typeof(InstalledSamusBodyArtwork).Assembly.Location).Distinct()
+            platforms.Append(FixtureAssemblies.Core).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         AuditReport Inspect(CSharpCompilation compilation, bool adapted)

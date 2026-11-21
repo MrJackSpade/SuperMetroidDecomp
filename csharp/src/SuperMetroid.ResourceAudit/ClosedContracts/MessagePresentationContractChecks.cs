@@ -41,8 +41,8 @@ internal static class MessagePresentationContractChecks
         trees.Add(calls);
         string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         var compilation = CSharpCompilation.Create("MessageProviderFixture", trees,
-            platforms.Append(typeof(GameplayMessageTitlePresentation).Assembly.Location)
-                .Append(typeof(GameplayMessageBoxDefinitions).Assembly.Location).Distinct()
+            platforms.Append(FixtureAssemblies.AssetExtraction)
+                .Append(FixtureAssemblies.Core).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         FixtureConsumerBinding.Require(compilation, calls, "MessagePresentationContractChecks");

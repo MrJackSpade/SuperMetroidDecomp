@@ -2,6 +2,7 @@ using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.Diagnostics.Saves;
 using SuperMetroid.Core.Input;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Diagnostics.Configuration;
@@ -19,9 +20,6 @@ namespace SuperMetroid.Android.Diagnostics;
 /// </summary>
 internal sealed class AndroidSessionData : IDisposable
 {
-    /// <summary>JSON options: Indented output.</summary>
-    private static readonly JsonSerializerOptions IndentedJson = new() { WriteIndented = true };
-
     /// <summary>Installation root used for saves, states, and recordings.</summary>
     private readonly string root;
     /// <summary>The JSON save file that keeps the session's saves.</summary>
@@ -144,18 +142,30 @@ internal sealed class AndroidSessionData : IDisposable
         // The recording embeds installed-content identity. This sidecar additionally
         // identifies whether replay starts at reset or from an exact debugger graph and
         // records the Android-specific assemblies which generated that graph.
-        File.WriteAllText(Path.ChangeExtension(recorder.Path, ".json"), JsonSerializer.Serialize(new
-        {
-            format = "SuperMetroid.Android.RecordingSeed.v1",
-            recording = Path.GetFileName(recorder.Path),
-            seedFile,
-            coreBuild = typeof(SuperMetroidGame).Module.ModuleVersionId,
-            diagnosticsBuild = typeof(DebuggerSaveStateStore).Module.ModuleVersionId,
-            hostBuild = typeof(AndroidSessionData).Module.ModuleVersionId,
-            contentIdentity = ContentIdentity,
-        }, IndentedJson));
+        File.WriteAllText(Path.ChangeExtension(recorder.Path, ".json"), JsonSerializer.Serialize(
+            new RecordingSeed("SuperMetroid.Android.RecordingSeed.v1", Path.GetFileName(recorder.Path), seedFile,
+                global::SuperMetroid.Core.BuildIdentity.Version, global::SuperMetroid.Diagnostics.BuildIdentity.Version,
+                global::SuperMetroid.Android.BuildIdentity.Version, ContentIdentity),
+            AndroidJsonContext.Default.RecordingSeed));
         FlushRecording();
     }
+
+    /// <summary>A recording's sidecar: how its replay starts and the builds and content that made it.</summary>
+    /// <param name="Format">The sidecar's format name.</param>
+    /// <param name="Recording">The recording's file name.</param>
+    /// <param name="SeedFile">The debugger state the replay starts from, or null when it starts at reset.</param>
+    /// <param name="CoreBuild">The simulation's build.</param>
+    /// <param name="DiagnosticsBuild">The diagnostics' build, which wrote the debugger state.</param>
+    /// <param name="HostBuild">The Android host's build.</param>
+    /// <param name="ContentIdentity">The installed content's identity.</param>
+    internal sealed record RecordingSeed(
+        [property: JsonPropertyName("format")] string Format,
+        [property: JsonPropertyName("recording")] string Recording,
+        [property: JsonPropertyName("seedFile")] string? SeedFile,
+        [property: JsonPropertyName("coreBuild")] Guid CoreBuild,
+        [property: JsonPropertyName("diagnosticsBuild")] Guid DiagnosticsBuild,
+        [property: JsonPropertyName("hostBuild")] Guid HostBuild,
+        [property: JsonPropertyName("contentIdentity")] global::SuperMetroid.AssetExtraction.Installation.GameContentIdentity ContentIdentity);
 
     /// <summary>Begins an installed-content recording seeded from the SRAM image of the current saves.</summary>
     private ControllerInputRecorder StartRecorder() =>

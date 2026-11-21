@@ -197,7 +197,10 @@ internal sealed class MotherBrainProjectiles
         /// <summary>Carries out a turret cue: stopping, or deletion.</summary>
         public void RunCue(EnemyProjectileCueContext context, MotherBrainTurretCue cue) => RunTurretCue(context.Projectile, cue);
 
-        /// <summary>What <see cref="RunCue"/> does for each <see cref="MotherBrainGlassCue"/> member, each member's own arm.</summary>
+        /// <summary>
+        /// What <see cref="RunCue(EnemyProjectileCueContext, MotherBrainGlassCue)"/> does for each <see cref="MotherBrainGlassCue"/>
+        /// member, each member's own arm.
+        /// </summary>
         private static IdentityTable<MotherBrainGlassCue, Action<EnemyProjectileCueContext>> RunCueForMotherBrainGlassCue => field ??= new(new Dictionary<MotherBrainGlassCue, Action<EnemyProjectileCueContext>>
         {
             [MotherBrainGlassCue.Delete] = static context => context.Projectile.Delete(),
@@ -213,7 +216,10 @@ internal sealed class MotherBrainProjectiles
         public void RunCue(EnemyProjectileCueContext context, MotherBrainEffectCue cue) =>
             ApplyMotherBrainEffectCue(context.Projectile, cue);
 
-        /// <summary>What <see cref="RunCue"/> does for each <see cref="MotherBrainHandBeamCue"/> member, each member's own arm.</summary>
+        /// <summary>
+        /// What <see cref="RunCue(EnemyProjectileCueContext, MotherBrainHandBeamCue)"/> does for each
+        /// <see cref="MotherBrainHandBeamCue"/> member, each member's own arm.
+        /// </summary>
         private IdentityTable<MotherBrainHandBeamCue, Action<EnemyProjectileCueContext>> RunCueForMotherBrainHandBeamCue => field ??= new(new Dictionary<MotherBrainHandBeamCue, Action<EnemyProjectileCueContext>>
         {
             [MotherBrainHandBeamCue.SpawnNextBeam] = context => SpawnMotherBrainHandBeamFired(MotherBrains.Of(context.Projectile).MotherBrain),

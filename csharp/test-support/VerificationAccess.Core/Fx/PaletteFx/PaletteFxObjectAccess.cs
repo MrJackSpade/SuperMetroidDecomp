@@ -78,7 +78,6 @@ internal static class PaletteFxObjectAccess
     /// <summary>The bank-$8D definition address of <paramref name="paletteFxObject"/>.</summary>
     internal static ushort NativeAddress(ColourEffectId paletteFxObject) => Addresses[paletteFxObject];
 
-    /// <summary>The object whose definition is at <paramref name="address"/>.</summary>
     /// <summary>The Torizo belly glow <paramref name="effect"/> is.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The effect is no Torizo's belly glow.</exception>
     internal static TorizoBellyGlow BellyGlowOf(ColourEffectId effect) =>
@@ -86,6 +85,7 @@ internal static class PaletteFxObjectAccess
         : effect == ColourEffectId.GoldenTorizoBelly ? TorizoBellyGlow.GoldenTorizo
         : throw new ArgumentOutOfRangeException(nameof(effect), effect, "The colour effect is no Torizo's belly glow.");
 
+    /// <summary>The object whose definition is at <paramref name="address"/>.</summary>
     internal static ColourEffectId FromNative(ushort address) => Objects.TryGetValue(address, out ColourEffectId paletteFxObject)
         ? paletteFxObject
         : throw new InvalidDataException($"Palette-FX definition $8D:{address:X4} is outside the compiled retail domain.");

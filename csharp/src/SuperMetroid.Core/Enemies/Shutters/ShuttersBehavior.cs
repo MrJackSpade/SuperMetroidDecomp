@@ -439,7 +439,11 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory, IEs
         }
     }
 
-    /// <summary>The initial action of each trigger mode.</summary>
+    /// <summary>
+    /// The action a vertical shutter starts in for each trigger mode: waiting for its timer or for Samus, activating on its
+    /// first update, or standing still until a reaction. The trigger never changes, so initialization installs it once and
+    /// the first update already runs it.
+    /// </summary>
     private static IdentityTable<ShutterTriggerMode, VerticalShutterAction> InitialActionByTriggerMode => field ??= new(new Dictionary<ShutterTriggerMode, VerticalShutterAction>
     {
         [ShutterTriggerMode.Timer] = VerticalShutterAction.WaitForTimer,
@@ -449,11 +453,6 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory, IEs
         [ShutterTriggerMode.RepeatableReaction] = VerticalShutterAction.Still,
     });
 
-    /// <summary>
-    /// The action a vertical shutter whose trigger is <paramref name="triggerMode"/> starts in: waiting for its timer or for
-    /// Samus, activating on its first update, or standing still until a reaction. The trigger never changes, so
-    /// initialization installs it once and the first update already runs it.
-    /// </summary>
     /// <summary>
     /// Waits one update for what the shutter's placement is triggered by, its timer, which starts its wait over, or Samus
     /// coming near, and starts the shutter once it is.

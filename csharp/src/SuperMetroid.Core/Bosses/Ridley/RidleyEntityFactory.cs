@@ -27,7 +27,7 @@ internal sealed class RidleyEntityFactory(NorfairRidleyBehavior norfair, CeresRi
     public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= new Dictionary<EnemyDefinitionId, EnemyEntityCreation>
     {
         [EnemyDefinitionId.Ridley] = (occupant, place, common) => EnemyOccupant.Of(new NorfairRidleyEntity(Norfair, occupant, place, common)),
-        [EnemyDefinitionId.RidleyCeres] = (occupant, place, common) => EnemyOccupant.Of(new CeresRidleyEntity(Ceres, escape, occupant, place, common)),
+        [EnemyDefinitionId.RidleyCeres] = (occupant, place, common) => EnemyOccupant.Of(new CeresRidleyEntity(Ceres, Escape, occupant, place, common)),
         [EnemyDefinitionId.RidleyBreakupPiece] = (occupant, place, common) => EnemyOccupant.Of(new RidleyBreakupPieceEntity(Norfair, occupant, place, common)),
     };
 

@@ -163,8 +163,8 @@ internal sealed class EyeDoorBehavior
     }
 
     /// <summary>
-    /// Starts smoke showing <paramref name="animation"/> scattered across <paramref name="placement"/>: one random number
-    /// places the smoke on both axes, then the smoke draws one more random number of its own.
+    /// Places smoke at <paramref name="block"/>, scattered across <paramref name="placement"/>: one random number places
+    /// the smoke on both axes, then the smoke draws one more random number of its own.
     /// </summary>
     private void InitializeEyeDoorSmoke(
         EnemyProjectile projectile,

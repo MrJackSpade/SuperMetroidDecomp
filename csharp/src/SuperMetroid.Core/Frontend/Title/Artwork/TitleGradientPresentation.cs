@@ -30,7 +30,7 @@ public sealed class TitleGradientPresentation
     }
 
     /// <summary>
-    /// Returns the gradient the title shows at <paramref name="zoom"/> (#1781): the gradient whose zoom range, each
+    /// Returns the gradient the title shows at <paramref name="titleZoom"/> (#1781): the gradient whose zoom range, each
     /// <see cref="TitleGradientFormat.ZoomRangeWidth"/> wide from no zoom up, holds the zoom, and at the floor's own size
     /// its own-size gradient.
     /// </summary>

@@ -48,7 +48,7 @@ internal sealed class WreckedShipTreadmillObjects
         return true;
     }
 
-    /// <summary>Turns the treadmill's row, from <paramref name="origin"/>, into a running belt pushing in <paramref name="direction"/>.</summary>
+    /// <summary>Turns the treadmill's <paramref name="row"/> into a running belt pushing in <paramref name="direction"/>.</summary>
     /// <param name="level">The treadmill's room.</param>
     /// <param name="row">The row the belt writes, checked to fit the room as the treadmill spawned.</param>
     /// <param name="direction">The belt's push direction.</param>

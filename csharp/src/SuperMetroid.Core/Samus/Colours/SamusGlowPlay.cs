@@ -54,7 +54,7 @@ internal static class SamusGlowPlay
             .React(ShowNextShadeReactions, colours);
     }
 
-    /// <summary>What <see cref="ShowNextShade"/> does on each <see cref="AnimationShown{G, PictureShade}"/>, built once (#2553).</summary>
+    /// <summary>What <see cref="ShowNextShade(G, ref AnimationPlace, SamusColours)"/> does on each <see cref="AnimationShown{G, PictureShade}"/>, built once (#2553).</summary>
     private static AnimationShownReactions<G, PictureShade, SamusColours> ShowNextShadeReactions { get; } = new(
             Frame: static (shade, colours) => colours.ShowSuit(shade.Shown),
             HeldFrame: static (shade, colours) => colours.ShowSuit(shade.Shown),

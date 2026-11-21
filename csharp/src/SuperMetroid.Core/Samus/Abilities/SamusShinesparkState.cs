@@ -534,7 +534,7 @@ public sealed class SamusShinesparkState
     }
 
     /// <summary>
-    /// Runs one update of the released echo <paramref name="shot"/> carries: its radius grows by <see cref="ShinesparkDefinitions.EchoRadiusStep"/>, and the echo is
+    /// Runs one update of the released echo <paramref name="flight"/> carries: its radius grows by <see cref="ShinesparkDefinitions.EchoRadiusStep"/>, and the echo is
     /// placed that far from Samus's current position along its angle, at the radius <see cref="ShinesparkEchoReturn"/>
     /// places it at, which brings an echo still on the screen back to Samus. An echo placed left of or above the camera's corner, or <see cref="ShinesparkDefinitions.EchoScreenReach"/> or more right of
     /// or below it, has left the screen; the first echo leaves its height for the crash's orbit, or nothing once it has

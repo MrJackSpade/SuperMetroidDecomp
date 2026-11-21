@@ -41,13 +41,12 @@ internal static class ShaktoolInstructionDefinitionsVerification
         RoomEnemyPlace center = enemies.Places.InUpdateOrder[3];
         ShaktoolSegmentState centerState = (enemies.ShaktoolSegments[3] ?? throw new InvalidOperationException("Verification requires enemies.ShaktoolSegments[3]."));
         ShaktoolSegmentState nextState = (enemies.ShaktoolSegments[4] ?? throw new InvalidOperationException("Verification requires enemies.ShaktoolSegments[4]."));
-        // The centre's main AI orbits it and turns it to face between its neighbours.
+        // The centre's main AI orbits it and turns it to face between its neighbours, the chain curling clockwise as it was
+        // placed: the centre's orbit never changes how the chain moves.
         SamusState samus = RoomEnemyFrameFixtures.StandaloneSamus();
-        ShaktoolChain chain = center.EntityOf<ShaktoolEntity>().Chain;
         for (ushort bucket = 0; bucket <= 0x00e0; bucket += 0x0020)
         {
             ushort midpoint = unchecked((ushort)(bucket << 8));
-            chain.Motion = ShaktoolChainMotion.CurlingClockwise;
             centerState.OrbitAngle = RotationAngleConstants.FromRaw(unchecked((ushort)(midpoint ^ 0x8000)));
             centerState.AngularVelocity = RotationAngle.Zero;
             centerState.ResetOrientation();
@@ -146,7 +145,8 @@ internal static class ShaktoolInstructionDefinitionsVerification
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[index];
             place.Bind(EnemyDefinitionId.Shaktool, place.KeptDefinition);
             place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
-            place.SetSpawnParameter2(EnemyDefinitionId.Shaktool, unchecked((ushort)(index * 2)));
+            // The chain is placed curling clockwise, as its population entry names how it starts moving.
+            place.SetSpawnSettings(new ShaktoolSpawnSettings(ShaktoolChainMotion.CurlingClockwise, ShaktoolSegmentDefinitions.Segments[index]));
             place.Position = place.Position.WithWhole(new(unchecked((ushort)(0x0100 + index * 16)), 0x0200));
             initialize(place);
         }

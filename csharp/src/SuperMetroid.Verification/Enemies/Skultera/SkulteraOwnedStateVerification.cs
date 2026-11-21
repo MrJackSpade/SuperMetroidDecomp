@@ -29,9 +29,10 @@ internal static class SkulteraOwnedStateVerification
 
         SignedSixteenSixteen right = EnemyLinearSpeedTable.Speed(speedRecord);
         SignedSixteenSixteen left = -right;
-        AssertEqual(right, SkulteraBehavior.SwimVelocity(place.HeldOccupant(), HorizontalDirection.Right), "rightward speed");
-        AssertEqual(left, SkulteraBehavior.SwimVelocity(place.HeldOccupant(), HorizontalDirection.Left), "leftward speed");
+        // The Skultera swims its spawn speed, which parameter one selects, toward the way it heads.
         SkulteraSpawnSettings settings = place.HeldOccupant().SpawnSettings<SkulteraSpawnSettings>();
+        AssertEqual(right, settings.Speed.Toward(HorizontalDirection.Right), "rightward speed");
+        AssertEqual(left, settings.Speed.Toward(HorizontalDirection.Left), "leftward speed");
         AssertEqual(new VerifySkulteraOwnedStateCase(20, 10), new VerifySkulteraOwnedStateCase(settings.Radius, settings.AngleStep.ToTrigonometryAngle().RawValue), "radius and angle step come from parameter two");
 
         // The wave steps forward while the Skultera swims the way it started and backward once a turn has brought it

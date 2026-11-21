@@ -62,15 +62,10 @@ internal static class IntroDiscoveryActorSpriteArtworkVerification
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
         var guarded = NewIntroArtworkSourceReadGuard(bus, IntroArtworkSources.IntroDiscoveryActors);
-        var stockState = CreateRetailIntroFixture(characterArtwork: stock);
-        stockState.SetupFirstIllustratedPage();
-        stockState.SetupMotherBrainFlashback();
-        stockState.SetupBabyDiscoveryCrossfade();
-        for (int frame = 0; frame < 128 &&
-            stockState.Phase == IntroCinematicPhase.BabyDiscoveryCrossfade; frame++)
-            stockState.StepBabyDiscoveryCrossfade();
-        AssertEqual(IntroCinematicPhase.BabyDiscovery, stockState.Phase,
-            "discovery actor visual probe reached the lit gameplay palette");
+        var stockAudio = AudioQueues.Standalone();
+        var stockState = CreateRetailIntroFixture(stockAudio, characterArtwork: stock);
+        // The intro runs as the game runs it to the end of the crossfade into the discovery (#2554).
+        _ = stockState.StepUntil(stockAudio, scene => scene.Phase == IntroCinematicPhase.BabyDiscovery);
         (stockState.CurrentBabyDiscovery ?? throw new InvalidOperationException("Verification requires discovery.")).Step(0, crossfadeFinishing: false);
         // The scene is where production reads the discovery actors' artwork: composing it draws every actor, and the
         // renderer that would draw its pixels holds only installed pictures, never the cartridge (#2060).

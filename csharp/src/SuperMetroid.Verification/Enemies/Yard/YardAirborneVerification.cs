@@ -57,8 +57,9 @@ internal static class YardAirborneVerification
         SignedSixteenSixteen stale = SignedSixteenSixteen.FromParts(3, 0x8000);
 
         var runtime = CreateRetailRuntimeFixture();
-        AssertEqual(SignedSixteenSixteen.Zero, runtime.YardKickDistance.HorizontalDistancePlusOne,
-            "a runtime starts with no measure before its first Samus");
+        // A runtime holds its Samus from its construction (#2554), whose initialisation leaves the one-pixel measure.
+        AssertEqual(initial, runtime.YardKickDistance.HorizontalDistancePlusOne,
+            "a runtime starts with the measure its first Samus's initialisation leaves");
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom();

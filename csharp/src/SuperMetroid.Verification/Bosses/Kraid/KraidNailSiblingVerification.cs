@@ -62,6 +62,9 @@ internal static class KraidNailSiblingVerification
         ushort Word(int a) => LittleEndianBytes.Word(KraidNailSiblingRomByte(rom, a), KraidNailSiblingRomByte(rom, a + 1));
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.Places.BindKraidPartsInRoomOrder();
+        // Kraid's room has not seen him beaten, so his rise begins.
+        enemies.VerificationServices().IsAreaBossDefeated = () => false;
+        enemies.VerificationServices().SetRoomScrollState = (_, _) => { };
         KraidEnemyState state = enemies.KraidBehavior.BeginEncounterInRoomOrder(enemies.Places);
         enemies.Places.InUpdateOrder[0].Bind(EnemyDefinitionId.Kraid, enemies.Places.InUpdateOrder[0].KeptDefinition);
         ushort random = 0;

@@ -227,7 +227,7 @@ internal static class SamusOverreadServicesReader
     /// The overwrite names something the game does not have, names a member twice, leaves on a member it does not decide,
     /// or leaves a Zebetite count the game cannot hold.
     /// </exception>
-    private static ProgressionOverwrite? Overwrite(SamusOverreadDocument.Overwrite? overwrite) => overwrite is null
+    private static ProgressionOverwrite? Overwrite(SamusOverreadDocument.Overwrite? absent) => absent is not { } overwrite
         ? null
         : new ProgressionOverwrite(
             Decided(overwrite.Events, StoryEventsByName, "SpaceTime story event"),

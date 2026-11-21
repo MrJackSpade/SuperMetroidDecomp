@@ -19,18 +19,24 @@ internal static class MotherBrainPlasmaImpactVerification
     internal static int VerifyMotherBrainPlasmaImpact()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        var head = enemies.Places.InUpdateOrder[1];
-        head.Bind(EnemyDefinitionId.MotherBrainHead, head.KeptDefinition);
-        head.Bind(head.HeldOccupant().DefinitionId, RoomEnemyDefinitionLookup.Get(head.HeldOccupant().DefinitionId));
+        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
+        // Mother Brain is placed as her room's population places her, her head after her body, and stands in her second
+        // form with her head's hit area shown and walk credit to spend.
+        // Her setup reads the room's random numbers, which stand at zero here.
+        enemies.VerificationServices().ReadRandom = () => 0;
+        enemies.VerificationServices().NextRandom = () => 0;
+        MotherBrainEnemyState state = MotherBrainBabyArrival.PlaceMotherBrain(enemies, samus);
+        // Her second phase sets her brain up as her rise does, her body and brain tangible.
+        MotherBrainAscent.SetupMotherBrainPhaseTwoBrain(state);
+        RoomEnemyPlace head = state.Head;
         head.Contact = head.Contact.With(EnemyContact.BlocksPlasmaBeam);
         head.Position = head.Position.WithWhole(new(128, 128));
         head.Radius = new(16, 16);
         head.Frame = EnemyFrameId.MotherBrainBrainHitArea;
         head.Health = 18000;
-        var state = new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0].BoundFor(EnemyDefinitionId.MotherBrainBody), head, new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation(), RoomWarningFixtures.Zebes()) { Form = MotherBrainForm.SecondPhase, WalkCounter = MotherBrainWalkCredit.Of(4096) };
-        enemies.MotherBrainEncounter.BeginAsSetUp(state, head);
+        state.Form = MotherBrainForm.SecondPhase;
+        state.WalkCounter = MotherBrainWalkCredit.Of(4096);
         ((List<RoomEnemyOccupant>)enemies.ProcessingWindow.InteractiveEnemies).Add(head.HeldOccupant());
-        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: InstalledFixtures.Projectiles.FrameBindings), new global::SuperMetroid.Core.Fx.RoomEarthquake());
         var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         var shot = shots.Shots[0];

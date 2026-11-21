@@ -642,7 +642,6 @@ global using static SuperMetroid.Core.Rooms.Doors.PlacedDoorPrivateAccess;
 global using static SuperMetroid.Core.Rooms.LevelData.RoomBlockBehaviorPrivateAccess;
 global using static SuperMetroid.Core.Rooms.LevelData.RoomLevelDataPrivateAccess;
 global using static SuperMetroid.Core.Rooms.RoomObjects.AccessStationObjectPrivateAccess;
-global using static SuperMetroid.Core.Rooms.RoomObjects.BlockReactionChangeDefinitionsPrivateAccess;
 global using static SuperMetroid.Core.Rooms.RoomObjects.BlockReactionObjectPrivateAccess;
 global using static SuperMetroid.Core.Rooms.RoomObjects.CollectibleObjectPrivateAccess;
 global using static SuperMetroid.Core.Rooms.RoomObjects.DownwardGateObjectPrivateAccess;

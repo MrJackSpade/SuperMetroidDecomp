@@ -6,6 +6,7 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -193,38 +194,77 @@ internal static class NativeSnapshotMotherBrainImport
 
     /// <summary>
     /// Imports the brain animation from the playback resting on the beat the recorded pointer stands at and the recorded
-    /// count of draws the frame there has shown (#2317): a frame shows on with the updates its count leaves it, the
-    /// playback past it; a held frame shows for good; a cue, which only a start leaves the pointer on, plays at the next
-    /// draw.
+    /// count of draws the frame there has shown (#2317), bringing her brain there as the game does: its animation started,
+    /// then played on draw by draw. A frame shows on with the updates its count leaves it, the playback past it; a held
+    /// frame shows for good; a cue, which only a start leaves the pointer on, plays at the next draw.
     /// </summary>
+    /// <exception cref="InvalidDataException">
+    /// The recorded brain list is unset, which only a brain her head's initialization has not started yet has, and the room
+    /// load initialized her head; or a recorded cue stands anywhere but at the start of its animation.
+    /// </exception>
     private static void ImportBrainAnimation(MotherBrainBrainAnimation brain, AnimationPlayback<MotherBrainHeadSegment>? resting, int drawsShown)
     {
         if (resting is not { } playback)
-        {
-            brain.Playback = null;
-            return;
-        }
+            throw new InvalidDataException("The recorded brain list is unset, as only a Mother Brain whose head has not been initialized has it; the room load initialized hers.");
         AnimationPhase<MotherBrainHeadSegment> phase = playback.Animation.Phases[playback.Place.Phase];
         switch (MotherBrainAnimations.HeadSegments.Beats(phase.Segment)[phase.FirstBeat + playback.Place.Beat])
         {
             case AnimationBeat<EnemyFrameId, MotherBrainHeadCue>.Frame frame:
-                brain.Playback = new MotherBrainBrainPlayback(
-                    playback with { Place = new AnimationPlace(playback.Place.Phase, playback.Place.Beat + 1).WithPlaysLeft(playback.Place.PlaysLeft) },
-                    frame.Shown);
+                PlayBrainTo(brain, playback.Animation, new AnimationPlace(playback.Place.Phase, playback.Place.Beat + 1).WithPlaysLeft(playback.Place.PlaysLeft));
                 // The frame moves on at the draw its count passes its list's duration: its updates less the draws shown.
                 brain.Clock.HoldFor(frame.Duration - drawsShown + 1);
                 return;
-            case AnimationBeat<EnemyFrameId, MotherBrainHeadCue>.HeldFrame held:
-                brain.Playback = new MotherBrainBrainPlayback(playback with { Place = AnimationPlace.HoldingIn(playback.Place.Phase, phase.BeatCount) }, held.Shown);
-                brain.Clock.ShowForGood();
+            case AnimationBeat<EnemyFrameId, MotherBrainHeadCue>.HeldFrame:
+                PlayBrainTo(brain, playback.Animation, AnimationPlace.HoldingIn(playback.Place.Phase, phase.BeatCount));
                 return;
             default:
                 // A start leaves the pointer on its opening cue, and shows the picture after that cue until the cue plays.
-                brain.Playback = new MotherBrainBrainPlayback(playback, MotherBrainAnimations.HeadSegments.FirstFrameShown(playback.Animation));
-                brain.Clock.StepOnNextUpdate();
+                if (playback.Place is not { Phase: 0, Beat: 0 })
+                    throw new InvalidDataException($"The recorded brain list stands on a cue at {playback.Place}, which only the start of an animation leaves it on.");
+                brain.Start(playback.Animation);
                 return;
         }
     }
+
+    /// <summary>
+    /// Starts her brain on <paramref name="animation"/> as the game starts it and plays it on, draw by draw with each draw
+    /// moving it to its next picture, until it stands at <paramref name="target"/>, just past the picture it shows there. The
+    /// importer carries out none of the cues the brain passes on the way: they belong to the updates before the snapshot.
+    /// </summary>
+    /// <exception cref="InvalidDataException">Playing the animation from its start never brings it to <paramref name="target"/>.</exception>
+    private static void PlayBrainTo(MotherBrainBrainAnimation brain, Animation<MotherBrainHeadSegment> animation, AnimationPlace target)
+    {
+        int steps = PicturesTo(animation, target);
+        brain.Start(animation);
+        int shownAtStart = MotherBrainBrainCadence.ShowsOpeningPictureAtStart(MotherBrainAnimations.HeadSegments.OpensWithFrame(animation)) ? 1 : 0;
+        for (int step = shownAtStart; step < steps; step++)
+        {
+            brain.Clock.StepOnNextUpdate();
+            _ = brain.AdvanceAtDraw(timeIsFrozen: false, IgnoredCue);
+        }
+    }
+
+    /// <summary>
+    /// How many pictures <paramref name="animation"/> shows from its start until it stands at <paramref name="target"/>,
+    /// played as the brain plays it with none of its cues carried out.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The animation comes back to a place it stood at, or holds, before it reaches <paramref name="target"/>.</exception>
+    private static int PicturesTo(Animation<MotherBrainHeadSegment> animation, AnimationPlace target)
+    {
+        var passed = new HashSet<AnimationPlace>();
+        AnimationPlace place = AnimationPlace.StartOfAnimation;
+        for (int pictures = 1; ; pictures++)
+        {
+            _ = MotherBrainAnimations.HeadSegments.PlayToNextFrame(ref animation, ref place, IgnoredCue);
+            if (place == target)
+                return pictures;
+            if (!passed.Add(place))
+                throw new InvalidDataException($"Mother Brain's brain animation {animation} never stands at {target} played from its start.");
+        }
+    }
+
+    /// <summary>The importer's reaction to a brain cue it plays past: none, the animation playing straight on.</summary>
+    private static AnimationContinuation<MotherBrainHeadSegment>? IgnoredCue(MotherBrainHeadCue cue) => null;
 
     /// <summary>
     /// The brain playback the recorded brain list pointer <paramref name="pointer"/> stands for. The native pointer rests

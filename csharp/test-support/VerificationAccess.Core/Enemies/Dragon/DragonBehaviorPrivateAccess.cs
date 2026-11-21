@@ -34,10 +34,6 @@ internal static class DragonBehaviorPrivateAccess
         internal static void RunDragonRising(global::SuperMetroid.Core.Enemies.RoomEnemyPlace body, global::SuperMetroid.Core.Enemies.Dragon.DragonEnemyState bodyState) =>
             PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Enemies.Dragon.DragonBehavior), "RunDragonRising", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Enemies.Dragon.DragonEnemyState)], new object?[] { body, bodyState });
 
-        /// <summary>The private method <c>RunDragonWaitToRise</c>, invoked by name.</summary>
-        internal static void RunDragonWaitToRise(global::SuperMetroid.Core.Enemies.RoomEnemyPlace body, global::SuperMetroid.Core.Enemies.Dragon.DragonEnemyState bodyState, global::SuperMetroid.Core.Samus.SamusState samus) =>
-            PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Enemies.Dragon.DragonBehavior), "RunDragonWaitToRise", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Enemies.Dragon.DragonEnemyState), typeof(global::SuperMetroid.Core.Samus.SamusState)], new object?[] { body, bodyState, samus });
-
         /// <summary>The private method <c>StartDragonAnimation</c>, invoked by name.</summary>
         internal static void StartDragonAnimation(global::SuperMetroid.Core.Enemies.RoomEnemyPlace place, global::SuperMetroid.Core.Enemies.Dragon.DragonPartState state, global::SuperMetroid.Core.Enemies.Dragon.DragonSegment segment) =>
             PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Enemies.Dragon.DragonBehavior), "StartDragonAnimation", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Enemies.Dragon.DragonPartState), typeof(global::SuperMetroid.Core.Enemies.Dragon.DragonSegment)], new object?[] { place, state, segment });

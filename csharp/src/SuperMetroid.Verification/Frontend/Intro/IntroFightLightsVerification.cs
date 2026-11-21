@@ -80,6 +80,9 @@ internal static class IntroFightLightsVerification
         IntroCinematicState intro = InstalledFixtures.CreateIntro(audio);
         NativeColourEffectRun? lights = null;
         ColourEffectFrame? held = null;
+        // The record the last fight update showed, judged on the next update (#2554): Mother Brain's page two shows only as
+        // the next update's crossfade out of the fight, so the update that started it is known one update later.
+        (int Update, ColourEffectFrame Frame)? pending = null;
         bool pageTwo = false, discovered = false;
         for (int update = 0; !discovered; update++)
         {
@@ -91,10 +94,26 @@ internal static class IntroFightLightsVerification
             discovered = intro.Phase == IntroCinematicPhase.BabyDiscovery;
             if (before == IntroCinematicPhase.MotherBrainCrossfade && intro.Phase == IntroCinematicPhase.MotherBrainFlashback)
                 lights = new NativeColourEffectRun(cartridge, LightsDefinition);
-            bool pageTwoUpdate = !pageTwo && intro.CurrentFlashbackMotherBrain?.NextPageRequested == true;
-            pageTwo |= pageTwoUpdate;
+            bool fighting = lights is not null && intro.Phase == IntroCinematicPhase.MotherBrainFlashback;
+            if (pending is { } last)
+            {
+                if (fighting)
+                {
+                    lights!.Step();
+                    AssertEqual(lights.Record, NativeColourEffectRun.RecordOf(last.Frame), $"intro update {last.Update} shows the record the cartridge's lights list shows");
+                }
+                else
+                {
+                    // Page two started on the fight's last update: the check deletes the lights before their countdown runs, and
+                    // the record they showed stays.
+                    AssertEqual(held, last.Frame, $"page two's update {last.Update} holds the lights' last record");
+                    pageTwo = true;
+                }
+                held = last.Frame;
+                pending = null;
+            }
             ColourEffectFrame? shown = intro.ColourEffects.FrameOf(ColourEffectColours.OldMotherBrainBackgroundLights);
-            if (lights is null || (pageTwo && !pageTwoUpdate))
+            if (!fighting)
             {
                 AssertTrue(shown is null, $"intro update {update} ({intro.Phase}) shows no fight lights");
                 AssertTrue(!intro.FightRoomShading.Shades.Any(shade => shade.Effect.Contains(nameof(ColourEffectColours.OldMotherBrainBackgroundLights), StringComparison.Ordinal)),
@@ -102,17 +121,7 @@ internal static class IntroFightLightsVerification
                 continue;
             }
             ColourEffectFrame frame = shown ?? throw new InvalidOperationException($"Intro update {update} shows no fight lights.");
-            if (pageTwoUpdate)
-            {
-                // The check deletes the lights before their countdown runs: the record they showed stays.
-                AssertEqual(held, frame, $"page two's update {update} holds the lights' last record");
-            }
-            else
-            {
-                lights.Step();
-                AssertEqual(lights.Record, NativeColourEffectRun.RecordOf(frame), $"intro update {update} shows the record the cartridge's lights list shows");
-            }
-            held = frame;
+            pending = (update, frame);
             AssertEqual(1, intro.FightRoomShading.Shades.Count(shade => shade == ColourEffectShades.Of(ColourEffectColours.OldMotherBrainBackgroundLights, frame)),
                 $"intro update {update} shades the fight's room with the lights' record");
         }

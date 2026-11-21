@@ -355,10 +355,16 @@ internal static class NativeSnapshotImport
             baseY: (runtime.RoomFxOverlay.BaseY
                 ?? throw new InvalidDataException("The imported acid room's effect names no surface.")).WithFraction(new PixelFraction(W(NativeSnapshotMemory.LiquidBaseFraction))),
             // The surface word is a signed line: one a tide carries above the room's top is negative.
-            surface: CoordinateAxis.AsSigned(W(NativeSnapshotMemory.AcidSurface)));
+            surface: CoordinateAxis.AsSigned(W(NativeSnapshotMemory.AcidSurface)),
+            camera: runtime.Room.LoadedCamera.PixelPosition);
         samus.LiquidPhysics.ConfigureFor(runtime.RoomFxOverlay);
         var pipeBugPointers = new PipeBugNativeInstructionPointers(bus);
         var kraidHeadCursors = new KraidHeadNativeCursors(bus);
+        // A Shaktool chain reaches its recorded target through its wall, whose reversal the segments' records then replace
+        // (#2554); its leading saw is the first enemy.
+        int firstEnemy = NativeSnapshotMemory.EnemyBase + SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.OffsetOf(0);
+        if (W(firstEnemy) != 0 && runtime.Enemies.Places.InUpdateOrder[0].Holds(EnemyDefinitionId.Shaktool))
+            NativeEnemyFamilyStateImport.ImportShaktoolTarget(runtime.Enemies, W(firstEnemy + 48));
         // EnemyData +$0E onward; +$00 is the identity, +$02..+$08 the 16.16 position and
         // +$0A/+$0C the radii, each imported as one typed value below.
         for (int index = 0; index < runtime.Enemies.Places.InUpdateOrder.Count; index++)

@@ -61,11 +61,12 @@ internal static class RipperBehaviorVerification
         {
             RoomEnemySystem enemies = NewSystem();
             RoomEnemyPlace place = NewPlace(enemies, EnemyDefinitionId.GrappleRipper);
-            place.SetSpawnSettings(new GrappleRipperSpawnSettings(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(1), HorizontalDirection.Right, MinimumX: 0, MaximumX: ushort.MaxValue));
-            place.SetSpawnParameter1(EnemyDefinitionId.GrappleRipper, 0);
-            place.SetSpawnParameter2(EnemyDefinitionId.GrappleRipper, ushort.MaxValue);
+            // Its patrol's right bound lies at the room's left edge, so its first flight passes it and it turns back.
+            place.SetSpawnSettings(new GrappleRipperSpawnSettings(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(1), HorizontalDirection.Right, MinimumX: 0, MaximumX: 0));
             place.SetUpAsPlaced();
-            RipperBehavior.ReverseRipperVariant(place);
+            place.Position = place.Position.WithWhole(new(0x80, 0x80));
+            place.Radius = new(8, 8);
+            place.RunMainAi(RoomEnemyFrameFixtures.StandaloneSamus());
             VerifyInstalledLoop(enemies, place, RipperSegment.GrappleRipperMovingLeft, "GrappleRipper left reversal");
         }
 

@@ -3,6 +3,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Hardware.SignedSineFixtureVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Poses;
@@ -12,6 +13,10 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Constructed-cartridge checks for Mother Brain's rainbow-beam Samus movement and full drain attack chain.</summary>
 internal static class MotherBrainRainbowVerification
 {
+
+/// <summary>The picture her brain shows, as a draw with time frozen shows it without playing the brain on.</summary>
+private static EnemyFrameId? FrozenBrainPicture(MotherBrainBrainAnimation brain) =>
+    brain.AdvanceAtDraw(timeIsFrozen: true, cue => throw new InvalidOperationException($"A frozen draw played the brain's {cue}."));
 
 /// <summary>Checks recoil, floor and ceiling clamps, 8.8 sine movement and previous-position publication through the rainbow-beam Samus controller.</summary>
 internal static void VerifyMotherBrainRainbowBeamSamusMovement()
@@ -273,11 +278,14 @@ internal static void VerifyMotherBrainRainbowBeamAttackSequence()
         "post-drain health below $190 chooses finish-Samus chain");
     AssertEqual<MotherBrainBodySegment?>(MotherBrainBodySegment.WalkForwardReallySlow, attack.Encounter.BodyPlayback?.PlayingSegment,
         "low-health decision immediately requests the native forward body walk");
-    MotherBrainBrainPlayback? headBeforeFinishThreshold = attack.Encounter.Brain.Playback;
+    EnemyFrameId? headBeforeFinishThreshold = FrozenBrainPicture(attack.Encounter.Brain);
+    bool headClockStoppedBeforeFinishThreshold = attack.Encounter.Brain.Clock.IsStopped;
         _ = attack.Step(samus, MotherBrainLateFightFixtures.QuietFrame(0, 0));
         AssertEqual(MotherBrainFinishOffPhase.AttackUntilSamusIsLow, attack.Encounter.FinishOffPhase,
         "399 energy remains above no-suit finish threshold 340");
-    AssertTrue(headBeforeFinishThreshold == attack.Encounter.Brain.Playback,
+    // An attack would start her brain on its volley or bomb, restarting its clock on the attack's opening picture.
+    AssertTrue(headBeforeFinishThreshold == FrozenBrainPicture(attack.Encounter.Brain)
+            && headClockStoppedBeforeFinishThreshold == attack.Encounter.Brain.Clock.IsStopped,
         "RNG zero takes finish-off no-attack branch");
 
     // Boundary 700 uses command five; 699 uses `$18`. The second fixture also proves that

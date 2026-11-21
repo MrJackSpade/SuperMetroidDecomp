@@ -19,6 +19,9 @@ internal static class ChozoStatueHandFixtures
     {
         statue = new ChozoStatueState { Site = site };
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
+        // A statue its hand wakes takes Samus's controls away; the fixture's Samus has no controller to lose.
+        enemies.VerificationServices().SetControlsLocked = _ => { };
+        enemies.VerificationServices().SetRoomScrollState = (_, _) => { };
         return new ChozoStatueHandTrigger(enemies.ChozoStatueBehavior, statue);
     }
 

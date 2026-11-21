@@ -1,5 +1,7 @@
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Shaktool;
+using SuperMetroid.Core.Enemies.Skultera;
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.World;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies;
@@ -17,32 +19,37 @@ internal static class KilledEnemyCompatibilityVerification
     /// </summary>
     internal static void VerifyKilledEnemyCompatibility()
     {
-        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[2];
-        AssertEqual<Remains?>(null, place.FoundState<Remains>(), "a place no enemy has held holds nothing");
-        var first = new Remains();
-        place.Bind(EnemyPlaceFixtures.StandIn, place.KeptDefinition);
-        place.SetSpeciesState(first);
-        AssertTrue(ReferenceEquals(first, place.FoundState<Remains>()), "a living enemy is found as it is");
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
+            definitions: CompiledRoomEnemyDefinitions.Instance);
+        RoomEnemyPlace place = enemies.Places.InUpdateOrder[8];
+        AssertEqual<SkulteraEnemyState?>(null, place.FoundState<SkulteraEnemyState>(), "a place no enemy has held holds nothing");
+        SkulteraEnemyState first = PlaceSkultera(place);
+        AssertTrue(ReferenceEquals(first, place.FoundState<SkulteraEnemyState>()), "a living enemy is found as it is");
         place.Unbind();
-        AssertEqual<Remains?>(null, place.SpeciesState<Remains>(), "a deleted enemy's place holds no occupant");
-        AssertTrue(ReferenceEquals(first, place.FoundState<Remains>()), "a deleted enemy is found as it left itself");
-        var second = new Remains();
-        place.Bind(EnemyPlaceFixtures.StandIn, place.KeptDefinition);
-        place.SetSpeciesState(second);
-        AssertTrue(ReferenceEquals(second, place.FoundState<Remains>()), "an enemy placed after a deletion is found as itself");
+        AssertEqual<SkulteraEnemyState?>(null, place.SpeciesState<SkulteraEnemyState>(), "a deleted enemy's place holds no occupant");
+        AssertTrue(ReferenceEquals(first, place.FoundState<SkulteraEnemyState>()), "a deleted enemy is found as it left itself");
+        SkulteraEnemyState second = PlaceSkultera(place);
+        AssertTrue(ReferenceEquals(second, place.FoundState<SkulteraEnemyState>()), "an enemy placed after a deletion is found as itself");
         place.Clear();
-        AssertEqual<Remains?>(null, place.FoundState<Remains>(), "a killed enemy's cleared place holds nothing");
+        AssertEqual<SkulteraEnemyState?>(null, place.FoundState<SkulteraEnemyState>(), "a killed enemy's cleared place holds nothing");
 
+        // A Shaktool chain is placed in the first seven places as its room places it; its centre is the segment killed.
         RoomEnemyPlace killedPlace = enemies.Places.InUpdateOrder[3];
-        RoomEnemyPlace deletedPlace = enemies.Places.InUpdateOrder[4];
+        RoomEnemyPlace deletedPlace = enemies.Places.InUpdateOrder[9];
         AssertEqual<ShaktoolSegmentState?>(null, Reached(killedPlace),
             "a place no enemy has held holds no segment");
-        var living = new ShaktoolSegmentState();
-        killedPlace.Bind(EnemyPlaceFixtures.StandIn, killedPlace.KeptDefinition);
+        _ = PlaceSkultera(killedPlace);
         AssertEqual<ShaktoolSegmentState?>(null, Reached(killedPlace),
             "a living enemy that holds no segment is found holding none");
-        killedPlace.SetSpeciesState(living);
+        killedPlace.Unbind();
+        for (int index = 0; index < 7; index++)
+        {
+            RoomEnemyPlace segment = enemies.Places.InUpdateOrder[index];
+            segment.Bind(EnemyDefinitionId.Shaktool, segment.KeptDefinition);
+            segment.SetSpawnSettings(new ShaktoolSpawnSettings(ShaktoolChainMotion.CurlingClockwise, ShaktoolSegmentDefinitions.Segments[index]));
+            segment.SetUpAsPlaced();
+        }
+        ShaktoolSegmentState living = killedPlace.RequireSpeciesState<ShaktoolSegmentState>();
         AssertTrue(ReferenceEquals(living, Reached(killedPlace)), "a living segment is found as it is");
         killedPlace.Clear();
         ShaktoolSegmentState emptied = Reached(killedPlace)
@@ -56,20 +63,17 @@ internal static class KilledEnemyCompatibilityVerification
             "the chain reads back what it wrote to the killed segment");
         AssertTrue(ReferenceEquals(emptied, killedPlace.ClearedByKill<ShaktoolSegmentState>()),
             "what the chain wrote to the cleared record is kept there");
-        AssertEqual<Remains?>(null, killedPlace.FoundState<Remains>(), "the cleared record holds nothing no neighbour wrote");
-        var successor = new ShaktoolSegmentState();
-        killedPlace.Bind(EnemyPlaceFixtures.StandIn, killedPlace.KeptDefinition);
-        killedPlace.SetSpeciesState(successor);
-        AssertTrue(ReferenceEquals(successor, Reached(killedPlace)),
+        AssertEqual<SkulteraEnemyState?>(null, killedPlace.FoundState<SkulteraEnemyState>(), "the cleared record holds nothing no neighbour wrote");
+        SkulteraEnemyState successor = PlaceSkultera(killedPlace);
+        AssertEqual<ShaktoolSegmentState?>(null, Reached(killedPlace), "an enemy placed after a kill holds no segment the kill cleared");
+        AssertTrue(ReferenceEquals(successor, killedPlace.FoundState<SkulteraEnemyState>()),
             "an enemy placed after a kill is found as itself");
 
-        var deleted = new Remains();
-        deletedPlace.Bind(EnemyPlaceFixtures.StandIn, deletedPlace.KeptDefinition);
-        deletedPlace.SetSpeciesState(deleted);
+        SkulteraEnemyState deleted = PlaceSkultera(deletedPlace);
         deletedPlace.Unbind();
         AssertEqual<ShaktoolSegmentState?>(null, Reached(deletedPlace),
             "a deleted enemy's place holds no segment it did not leave");
-        AssertTrue(ReferenceEquals(deleted, deletedPlace.FoundState<Remains>()), "reaching a deleted enemy's place leaves what it left");
+        AssertTrue(ReferenceEquals(deleted, deletedPlace.FoundState<SkulteraEnemyState>()), "reaching a deleted enemy's place leaves what it left");
         Console.WriteLine("Killed-enemy compatibility: living, deleted and killed enemies' places and Shaktool segments match.");
     }
 
@@ -80,8 +84,18 @@ internal static class KilledEnemyCompatibilityVerification
     private static ShaktoolSegmentState? Reached(RoomEnemyPlace place) =>
         place.ClearedByKill<ShaktoolSegmentState>() ?? place.FoundState<ShaktoolSegmentState>();
 
-    /// <summary>A species state the check installs in a place.</summary>
-    private sealed class Remains;
+    /// <summary>
+    /// Places a Skultera in <paramref name="place"/> as its room's population places it, and returns the state its entity
+    /// holds from its setup.
+    /// </summary>
+    private static SkulteraEnemyState PlaceSkultera(RoomEnemyPlace place)
+    {
+        place.Bind(EnemyDefinitionId.Skultera, place.KeptDefinition);
+        place.SetSpawnParameter1(EnemyDefinitionId.Skultera, 3);
+        place.SetSpawnParameter2(EnemyDefinitionId.Skultera, LittleEndianBytes.Word(20, 10));
+        place.SetUpAsPlaced();
+        return place.RequireSpeciesState<SkulteraEnemyState>();
+    }
 
     /// <summary>Runs the focused killed-enemy compatibility check.</summary>
     [VerificationCommand("--killed-enemy-compatibility")]

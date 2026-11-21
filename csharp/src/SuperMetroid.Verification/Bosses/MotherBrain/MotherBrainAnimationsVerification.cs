@@ -130,40 +130,41 @@ internal static class MotherBrainAnimationsVerification
     /// </summary>
     private static void VerifyBrainRandomHolds()
     {
+        var hold = MotherBrainAnimations.HeadSegments.Beats(MotherBrainHeadSegment.NeutralPhase2Hold);
         foreach ((ushort random, bool holds) in new[] { new VerifyBrainRandomHoldsCase(61439, true), new VerifyBrainRandomHoldsCase(61440, false) })
         {
             (RoomEnemySystem enemies, MotherBrainEnemyState state) = NewMotherBrainOverInstalledSheets();
             enemies.VerificationServices().ReadRandom = () => random;
             MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.NeutralPhase2Hold);
+            EnemyFrameId? shown = null;
             for (int draw = 0; draw <= 8; draw++)
-                enemies.DrawMotherBrainBrain(state, samus: RoomEnemyFrameFixtures.StandaloneSamus());
+                shown = enemies.DrawMotherBrainBrain(state, samus: RoomEnemyFrameFixtures.StandaloneSamus());
             // Holding restarts the hold's animation and shows its first frame; leaving shows the hold's last frame before its goto.
-            AssertEqual(new AnimationPlayback<MotherBrainHeadSegment>(MotherBrainAnimations.HeadStartingWith(MotherBrainHeadSegment.NeutralPhase2Hold),
-                    new AnimationPlace(0, holds ? 1 : 3)),
-                state.Brain.Playback?.Animation, $"random {random} {(holds ? "holds" : "leaves")} the phase-two neutral pose");
+            var expected = (AnimationBeat<EnemyFrameId, MotherBrainHeadCue>.Frame)hold[holds ? 0 : 2];
+            AssertEqual((EnemyFrameId?)expected.Shown, shown, $"random {random} {(holds ? "holds" : "leaves")} the phase-two neutral pose");
         }
         foreach ((ushort random, bool bursts) in new[] { new VerifyBrainRandomHoldsCase(4063, false), new VerifyBrainRandomHoldsCase(4064, true) })
         {
             (RoomEnemySystem enemies, MotherBrainEnemyState state) = NewMotherBrainOverInstalledSheets();
-            enemies.VerificationServices().ReadRandom = () => random;
-            // Her dying drool plays through its bursts until its loop shows its first frame, which the burst's last drool has
-            // just moved on to.
+            var reads = new List<ushort>();
+            enemies.VerificationServices().ReadRandom = () =>
+            {
+                reads.Add(random);
+                return random;
+            };
+            // Her dying drool plays through its bursts, which draw no random number, into its loop, whose frame's end asks the
+            // random number whether to burst again: the first draw that asks it is that frame's last.
             var loopFrame = (AnimationBeat<EnemyFrameId, MotherBrainHeadCue>.Frame)MotherBrainAnimations.HeadSegments.Beats(MotherBrainHeadSegment.DyingDroolLoop)[0];
             MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.DyingDrool);
-            for (int draw = 0; draw < 100 && !PlaysPhase(state, MotherBrainHeadSegment.DyingDroolLoop); draw++)
+            for (int draw = 0; draw < 100 && reads.Count == 0; draw++)
                 enemies.DrawMotherBrainBrain(state, samus: RoomEnemyFrameFixtures.StandaloneSamus());
-            AssertTrue(PlaysPhase(state, MotherBrainHeadSegment.DyingDroolLoop), "the dying drool reaches its loop");
+            AssertEqual(1, reads.Count, "the dying drool reaches its loop, which asks whether to burst again");
+            // A burst shows its frame for as long as the loop's and asks nothing; the loop asks again at its frame's end.
             for (int draw = 0; draw < loopFrame.Duration; draw++)
                 enemies.DrawMotherBrainBrain(state, samus: RoomEnemyFrameFixtures.StandaloneSamus());
-            AnimationPlayback<MotherBrainHeadSegment> drooling = state.Brain.Playback?.Animation ?? throw new InvalidOperationException("Verification requires a brain playback.");
-            AssertEqual(bursts ? MotherBrainHeadSegment.DyingDroolBurst : MotherBrainHeadSegment.DyingDroolLoop, drooling.Animation.Phases[drooling.Place.Phase].Segment,
-                $"random {random} {(bursts ? "bursts into more drool" : "keeps the drool loop")}");
+            AssertEqual(bursts ? 1 : 2, reads.Count, $"random {random} {(bursts ? "bursts into more drool" : "keeps the drool loop")}");
         }
     }
-
-    /// <summary>Whether her brain's animation stands in a phase of <paramref name="segment"/>.</summary>
-    private static bool PlaysPhase(MotherBrainEnemyState state, MotherBrainHeadSegment segment) =>
-        state.Brain.Playback?.Animation is { } playing && playing.Animation.Phases[playing.Place.Phase].Segment == segment;
 
     /// <summary>
     /// A forward walk carries the body 24 pixels right and a backward walk the same distance back, each ending

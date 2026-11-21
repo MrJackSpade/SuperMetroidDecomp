@@ -1,4 +1,6 @@
 using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using static SuperMetroid.Verification.Frontend.Intro.IntroCinematicArtworkVerification;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
@@ -46,18 +48,34 @@ internal static class IntroMotherBrainInputDefinitionsVerification
         AssertTrue(endFrame >= 0 && !compiled.Enabled,
             "intro Mother Brain demo reaches its native disable/delete instruction");
 
-        // The actual cinematic owner loads the same object and plays its first record in the flashback's first dispatch.
+        // The actual cinematic plays the same demo from its first record in the flashback's setup update (#2554): the shown
+        // Samus fires no shot before the update the demo first presses the shot on, and her shot shows on that update.
+        var played = new DemoInputState();
+        played.Clear();
+        played.Enable();
+        played.Load(DemoInputRecordingId.IntroMotherBrainFlashback);
+        int firstShot = 0;
+        do
+        {
+            firstShot++;
+            AssertTrue(firstShot < 1024, "the intro Mother Brain demo presses the shot");
+            played.Step(_ => { });
+        }
+        while ((played.NewlyPressed & GameplayAction.Shoot) == 0);
         var guarded = NewIntroArtworkSourceReadGuard(bus);
-        var intro = CreateRetailIntroFixture(characterArtwork: stock);
-        intro.SetupFirstIllustratedPage();
-        intro.SetupMotherBrainFlashback();
-        intro.StepMotherBrainDemo();
-        var live = intro.CurrentFlashbackDemoInput ?? throw new InvalidOperationException("Verification requires the live flashback demo.");
-        var nativeFirst = new NativeDemoInputReference(ReferenceWord);
-        nativeFirst.Enable();
-        nativeFirst.Load(DemoInputListWords.IntroMotherBrainFlashbackObject, initializationParameter: 0);
-        nativeFirst.Step(NativeDemoInputReference.ReturnOnly, NativeDemoInputReference.NoRoutines);
-        AssertEqual(nativeFirst.Snapshot(), NativeDemoInputReference.Of(live, DemoInputNativeListAddresses.ReturnOnlyAddress), "production flashback plays the native first record");
+        var audio = AudioQueues.Standalone();
+        var intro = CreateRetailIntroFixture(audio, characterArtwork: stock);
+        _ = intro.StepToMotherBrainFlashback(audio);
+        for (int update = 1; update <= firstShot; update++)
+        {
+            if (update > 1)
+            {
+                intro.Step(ControllerButton.None);
+                audio.AdvanceFrame(default);
+            }
+            bool shotShown = intro.ComposeScene().SpriteDraws.Any(draw => draw.Source.Kind == SpriteSourceKind.SamusProjectile);
+            AssertEqual(update == firstShot, shotShown, $"flashback update {update} shows Samus's shot only once the demo's first shot press plays");
+        }
         AssertEqual(0, guarded.ForbiddenReadAttempts, "production flashback reads no guarded intro source");
     }
 }

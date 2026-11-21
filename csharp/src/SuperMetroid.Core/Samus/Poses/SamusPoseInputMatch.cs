@@ -1,3 +1,5 @@
+using System.Collections.Concurrent;
+
 namespace SuperMetroid.Core.Samus.Poses;
 
 /// <summary>
@@ -25,7 +27,16 @@ internal abstract record SamusPoseInputMatch
 
     /// <summary>The same match for the mirrored pose list: a matched transition leads to the mirrored pose.</summary>
     internal SamusPoseInputMatch Mirrored() =>
-        this is Matched matched ? new Matched(matched.Choice with { ProspectivePose = SamusPoseMirror.Of(matched.Choice.ProspectivePose) }) : this;
+        this is Matched matched ? Accepting(matched.Choice with { ProspectivePose = SamusPoseMirror.Of(matched.Choice.ProspectivePose) }) : this;
+
+    /// <summary>
+    /// The match choosing <paramref name="choice"/>: one match for each choice, made the first time a lookup chooses it, so
+    /// the per-update pose lookup allocates nothing once each choice it reaches has been made.
+    /// </summary>
+    internal static SamusPoseInputMatch Accepting(SamusPoseTransition choice) => MatchedChoices.GetOrAdd(choice, static made => new Matched(made));
+
+    /// <summary>The match made for each choice a lookup has chosen.</summary>
+    private static readonly ConcurrentDictionary<SamusPoseTransition, SamusPoseInputMatch> MatchedChoices = new();
 
     /// <summary>A condition matched.</summary>
     /// <param name="Choice">The transition it chose.</param>

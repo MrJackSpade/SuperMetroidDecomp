@@ -92,7 +92,7 @@ internal static class BeetomInstructionProgramDefinitionsVerification
     private static CreateBeetomDistantSelectionFixtureResult
         CreateBeetomDistantSelectionFixture(Func<ushort> nextRandom)
     {
-        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().SeedRandom = _ => { };
         enemies.VerificationServices().NextRandom = nextRandom;
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];

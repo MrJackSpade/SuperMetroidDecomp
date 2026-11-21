@@ -1,3 +1,5 @@
+using System.Collections.Concurrent;
+
 namespace SuperMetroid.Core.Samus.Poses;
 
 /// <summary>
@@ -21,6 +23,15 @@ public abstract record SamusPoseTransitionLookup
 
     /// <summary>Whether the lookup leaves the choice to the pose definition's fallback.</summary>
     public bool UsesPoseDefinitionFallback => this is FallingBack;
+
+    /// <summary>
+    /// The lookup choosing <paramref name="next"/>: one lookup for each transition, made the first time a lookup chooses it,
+    /// so the per-update pose lookup allocates nothing once each transition it reaches has been made.
+    /// </summary>
+    internal static SamusPoseTransitionLookup Choosing(SamusPoseTransition next) => ChosenTransitions.GetOrAdd(next, static made => new Chosen(made));
+
+    /// <summary>The lookup made for each transition a lookup has chosen.</summary>
+    private static readonly ConcurrentDictionary<SamusPoseTransition, SamusPoseTransitionLookup> ChosenTransitions = new();
 
     /// <summary>A transition to a new pose.</summary>
     /// <param name="Next">The transition chosen.</param>

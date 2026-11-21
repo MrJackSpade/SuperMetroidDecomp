@@ -27,7 +27,6 @@ internal static class PauseRemappedShoulderVerification
         {
             var random = new SharedRandom();
             var game = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), hostServices: SuperMetroidGameHostServices.Default, random: random);
-            game.Session.Enter(PauseStep.Menu);
             var runtime = CreateRetailRuntimeFixture(random: random, audio: game.AudioForVerification);
             runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
             runtime.RoomLoader.InitializeStartingCeresRoom();
@@ -38,6 +37,8 @@ internal static class PauseRemappedShoulderVerification
             var pause = CreateRetailPauseFixture(new PauseMenuEntry { ScreenContent = global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps, SpriteSheets = global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SpriteSheets, Audio = AudioQueues.Standalone(), Samus = samus, System = runtime.System, Area = AreaId.Crateria, RoomMapPosition = new(0, 1), GameplayHud = runtime.AcceptedHud, MapRevealMode = global::SuperMetroid.Core.Map.MapRevealMode.None });
             game.AdoptRuntime(runtime);
             game.Session.Show(pause);
+            // The game stands at the stable menu over the menu the pause built and shows.
+            game.Session.Enter(PauseStep.Menu);
             for (int frame = 0; frame < 8 && !pause.IsPageTransitionActive; frame++)
                 game.StepCaptured(held);
             AssertEqual(opensEquipment, pause.IsPageTransitionActive,

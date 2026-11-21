@@ -143,7 +143,8 @@ internal static class LookupStream5Verification
             var system = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null),
                 floor: RoomBackgroundsFixtures.CeresFloor());
             var place = system.Places.InUpdateOrder[0];
-            place.BindCeresDoorOrWall(EnemyDefinitionId.CeresElevatorDoor, EnemySpawnSettings.None);
+            // The intact door is set up as its room places it.
+            place.StartCeresDoorOrWall(EnemyDefinitionId.CeresElevatorDoor, EnemySpawnSettings.None);
             place.Position = place.Position.WithWhole(origin);
             system.RidleyEncounter.CeresStatus = CeresEscapeStatus.SelfDestructStarted;
             int randomCalls = 0;
@@ -327,8 +328,8 @@ internal static class LookupStream5Verification
         RoomFloor floor = RoomBackgroundsFixtures.CeresFloor();
         var system = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EnemyArtworkParts with { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new StandaloneRoomEnemyServices(() => 0), floor: floor);
         var places = (RoomEnemyPlace[])system.Places.InUpdateOrder;
-        places[0].BindCeresDoorOrWall(EnemyDefinitionId.CeresElevatorDoor, EnemySpawnSettings.None);
-        // The intact door, as it is placed, cycles the glow and platform on each of its updates (#2482).
+        // The intact door, set up as its room places it, cycles the glow and platform on each of its updates (#2482).
+        places[0].StartCeresDoorOrWall(EnemyDefinitionId.CeresElevatorDoor, EnemySpawnSettings.None);
         IEnemyAiFrame aiFrame = CeresDoorAiFrame();
         foreach (ushort tick in new ushort[] { 0, 1, 2, 3, 4, 5, 6, 7, 0xfffe, 0xffff, 0 })
         {
@@ -1102,7 +1103,8 @@ internal static class LookupStream5Verification
                 "Native directional mount tuple");
             foreach (ushort origin in new ushort[] { 0, 65535 })
             {
-                var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
+                var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
+                    definitions: CompiledRoomEnemyDefinitions.Instance);
                 // The mount's beam follows the eye listed right after it (#1835).
                 var followed = enemies.Places.InUpdateOrder[1];
                 followed.SetSpawnParameter1(EnemyDefinitionId.MorphBallEye, 0);
@@ -1806,8 +1808,8 @@ internal static class LookupStream5Verification
             var system = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EnemyArtworkParts with { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new StandaloneRoomEnemyServices(() => 0), floor: RoomBackgroundsFixtures.CeresFloor());
             system.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
             RoomEnemyPlace door = system.Places.InUpdateOrder[0];
-            door.BindCeresDoorOrWall(EnemyDefinitionId.CeresElevatorDoor, EnemySpawnSettings.None);
-            // The intact door, as it is placed, cycles the glow and platform on each of its updates (#2482).
+            // The intact door, set up as its room places it, cycles the glow and platform on each of its updates (#2482).
+            door.StartCeresDoorOrWall(EnemyDefinitionId.CeresElevatorDoor, EnemySpawnSettings.None);
             IEnemyAiFrame aiFrame = CeresDoorAiFrame();
             foreach (int counter in Enumerable.Range(0, 64))
             {

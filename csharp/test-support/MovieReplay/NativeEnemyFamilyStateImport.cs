@@ -405,9 +405,8 @@ internal static class NativeEnemyFamilyStateImport
         {
             int segmentIndex = Array.IndexOf(ShaktoolSegmentDefinitions.Segments, enemy.HeldOccupant().SpawnSettings<ShaktoolSpawnSettings>().Segment);
             // Every segment's record holds a copy of the chain's target; the leading saw's, which no straightening turns
-            // on, is the chain's (#2452).
-            if (segmentIndex == 0)
-                enemy.EntityOf<ShaktoolEntity>().Chain.TargetAngle = RotationAngleConstants.FromRaw(words.A);
+            // on, is the chain's (#2452), which the chain reached through its wall before the segments' import
+            // (ImportShaktoolTarget).
             segment.OrbitAngle = RotationAngleConstants.FromRaw(words.B);
             segment.AngularVelocity = RotationAngleConstants.FromRaw(Index(words.C, 1020, "Shaktool angular velocity"));
             ImportShaktoolOrientation(segment, segmentIndex, words.D);
@@ -621,6 +620,73 @@ internal static class NativeEnemyFamilyStateImport
     /// </summary>
     private static void ImportPhaseWait(KraidPartState part, int updatesLeft) =>
         part.PhaseWait.SetCartridgeCount(updatesLeft - 1);
+
+    /// <summary>
+    /// Brings the Shaktool chain the room's first enemy leads to the recorded target <paramref name="word"/> as the game
+    /// sets one (#2554), before the segments' own records are imported. Only a wall the trailing saw strikes sets the
+    /// chain's target: a quarter turn on, the chain's way round, from the trailing saw's bearing from the leading saw once
+    /// the wall has turned the chain end for end. A zero target is the one the chain's placement leaves before its first
+    /// wall. Any other is reached by standing the trailing saw where its bearing from the leading saw leads to that target
+    /// and running its move into solid terrain, which reverses the chain as the game does; the segments' recorded places,
+    /// clocks and states are then imported over what the reversal left in them.
+    /// </summary>
+    /// <param name="enemies">The room's enemies, the chain's segments as the room load placed them.</param>
+    /// <param name="word">The leading saw's recorded target word.</param>
+    /// <exception cref="InvalidDataException">
+    /// The target is not a whole step, which no wall leaves; the chain's placement does not turn it end for end at its
+    /// first wall; or no bearing within the room's reach leads to the target.
+    /// </exception>
+    internal static void ImportShaktoolTarget(RoomEnemySystem enemies, ushort word)
+    {
+        RotationAngle target = RotationAngle.NormalizeRaw(word);
+        if (target == RotationAngle.Zero)
+            return;
+        if (target != target.WholeStep)
+            throw new InvalidDataException($"Recorded Shaktool target ${word:X4} is not a whole step, which no wall leaves.");
+        IReadOnlyList<RoomEnemyPlace> places = Ensure.NotNull(enemies).Places.InUpdateOrder;
+        RoomEnemyPlace leadingSaw = places[0];
+        ShaktoolChainMotion motion = leadingSaw.HeldOccupant().SpawnSettings<ShaktoolSpawnSettings>().Motion;
+        if (motion.NextWall != ShaktoolWallResponse.TurnEndForEnd)
+            throw new InvalidDataException($"The Shaktool chain is placed with its first wall reversing its orbit ({motion}), where the import reaches its target through a wall that turns it end for end.");
+        RoomEnemyPlace trailingSaw = places.Single(place => place.Holds(EnemyDefinitionId.Shaktool) &&
+            place.HeldOccupant().SpawnSettings<ShaktoolSpawnSettings>().Segment == ShaktoolSegmentDefinitions.TrailingSaw);
+        // The wall turns the chain end for end, so the saws trade places: the bearing is the leading saw's place seen from
+        // where the trailing saw stood, measured clockwise from straight up, and the orbit keeps its way round.
+        RotationAngle bearing = motion.OrbitDirection == RotationDirection.Clockwise
+            ? target - RotationAngle.QuarterTurn
+            : target + RotationAngle.QuarterTurn;
+        TrigonometryAngle aim = TrigonometryAngle.QuarterTurn - bearing.ToTrigonometryAngle();
+        Offset16<RoomPixels> fromTrailingSaw = BearingOffset(aim)
+            ?? throw new InvalidDataException($"No offset within a block's reach of the leading saw aims at {aim}, the bearing recorded Shaktool target ${word:X4} follows.");
+        Position16<RoomPixels> leading = leadingSaw.Position.Whole;
+        var stands = new Position16<RoomPixels>(unchecked((ushort)(leading.X - fromTrailingSaw.X)), unchecked((ushort)(leading.Y - fromTrailingSaw.Y)));
+        trailingSaw.Position = trailingSaw.Position.WithWhole(stands);
+        int columns = (Math.Max(leading.X, stands.X) >> 4) + 2, rows = (Math.Max(leading.Y, stands.Y) >> 4) + 2;
+        trailingSaw.RunMainAi(PlacedEnemyAccess.AiFrame(RoomEnemyFrameFixtures.StandaloneSamus(),
+            level: PlacedEnemyAccess.SolidRoom(new(columns, rows))));
+        if (trailingSaw.SpeciesState<ShaktoolSegmentState>()?.Motion != ShaktoolSegmentMotion.Idle)
+            throw new InvalidOperationException("The Shaktool trailing saw's move through solid terrain did not reverse its chain.");
+    }
+
+    /// <summary>The nearest offset, searched outward ring by ring, whose aim the enemies' aim calculation reads as <paramref name="aim"/>.</summary>
+    private static Offset16<RoomPixels>? BearingOffset(TrigonometryAngle aim)
+    {
+        for (int reach = 1; reach < 128; reach++)
+        {
+            for (int y = -reach; y <= reach; y++)
+            {
+                for (int x = -reach; x <= reach; x++)
+                {
+                    if (Math.Max(Math.Abs(x), Math.Abs(y)) != reach)
+                        continue;
+                    var offset = new Offset16<RoomPixels>(x, y);
+                    if (EnemyMath.CalculateAimAngle(offset) == aim)
+                        return offset;
+                }
+            }
+        }
+        return null;
+    }
 
     /// <summary>
     /// Splits a Shaktool segment's shared orientation word by the segment's role: the centre's heading bucket and

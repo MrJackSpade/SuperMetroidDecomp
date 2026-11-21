@@ -21,14 +21,19 @@ internal static class MotherBrainLaterContactVerification
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-        var body = enemies.Places.InUpdateOrder[0];
-        body.Bind(EnemyDefinitionId.MotherBrainBody, body.KeptDefinition);
-        body.Bind(body.HeldOccupant().DefinitionId, RoomEnemyDefinitionLookup.Get(body.HeldOccupant().DefinitionId));
-        var state = new MotherBrainEnemyState(body.HeldOccupant(), enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation(), RoomWarningFixtures.Zebes()) { Form = MotherBrainForm.SecondPhase, HitboxesEnabled = MotherBrainHitboxParts.Body | MotherBrainHitboxParts.Brain | MotherBrainHitboxParts.Neck };
+        // Mother Brain is placed as her room's population places her, her head after her body, and stands in her second form
+        // with her body, brain and neck hit areas enabled. Her setup reads the room's random numbers, which stand at zero.
+        enemies.VerificationServices().ReadRandom = () => 0;
+        enemies.VerificationServices().NextRandom = () => 0;
+        MotherBrainEnemyState state = MotherBrainBabyArrival.PlaceMotherBrain(enemies, RoomEnemyFrameFixtures.StandaloneSamus());
+        RoomEnemyPlace body = state.Body;
+        // Her second phase sets her brain up as her rise does, her body and brain tangible.
+        MotherBrainAscent.SetupMotherBrainPhaseTwoBrain(state);
+        state.Form = MotherBrainForm.SecondPhase;
+        state.HitboxesEnabled = MotherBrainHitboxParts.Body | MotherBrainHitboxParts.Brain | MotherBrainHitboxParts.Neck;
         state.Head.Position = state.Head.Position.WithWhole(new(500, 500));
         state.Neck.Lower[1].Position = new(250, 80);
         state.Neck.Lower[2].Position = state.Neck.Upper[0].Position = new(500, 500);
-        enemies.MotherBrainEncounter.BeginAsSetUp(state);
         Action<RoomEnemyPlace, SamusState, SamusBombProjectileSystem> main = (body, samus, bombs) => enemies.MotherBrainBehavior.RunMotherBrainBodyMain(body, state, samus, bombs);
         foreach (string contact in new[] { "body", "neck", "no-damage side", "post-dispatch position" })
         {

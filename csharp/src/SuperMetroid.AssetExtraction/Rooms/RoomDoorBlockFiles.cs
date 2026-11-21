@@ -149,12 +149,12 @@ internal static class RoomDoorBlockFiles
     private static string NameOf(DoorBlockExit exit) => exit is DoorBlockExit.ThroughDoor { Door: var door } ? door.Name : ElevatorRideName;
 
     /// <summary>Each retail room's door blocks in each level its states use, by the room's, the level's and each exit's name.</summary>
-    private sealed record RoomDoorBlocksDocument(int Version,
+    internal sealed record RoomDoorBlocksDocument(int Version,
         SortedDictionary<string, SortedDictionary<string, SortedDictionary<string, DoorBlockDocument[]>>> Rooms);
 
     /// <summary>A door block: its column and row in its level's grid.</summary>
     [SpatialComponents("External format: the room door-blocks JSON stores each door block as its x/y block in the level's grid.")]
-    private sealed record DoorBlockDocument(int X, int Y)
+    internal sealed record DoorBlockDocument(int X, int Y)
     {
         /// <summary>The block, which must be a 16-bit column and row.</summary>
         /// <exception cref="InvalidDataException">The column or row is negative or past 16 bits.</exception>

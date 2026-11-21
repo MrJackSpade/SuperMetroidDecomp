@@ -199,9 +199,12 @@ internal static class EnemyContentIdentityFixtureVerification
             foreach (var field in fields)
             {
                 string name = typeof(T).Name + "." + field.Name;
-                document.Add(field.Name, field.Rows == 0 ? Colors(name, field.Colors)
-                    : field.Keys is { } keys ? keys.Zip(ColorRows(name, field.Rows, field.Colors)).ToDictionary(row => row.First, row => row.Second)
-                    : ColorRows(name, field.Rows, field.Colors));
+                int colors = field.Colors;
+                document.Add(field.Name, field.Rows == 0 ? Colors(name, colors)
+                    : field.Keys is { } keys ? keys.Zip(ColorRows(name, field.Rows, colors)).ToDictionary(row => row.First, row => row.Second)
+                    : field.Members is { } members ? Enumerable.Range(0, field.Rows).Select(row =>
+                        members.ToDictionary(member => member, member => Colors(name + "-row-" + row + "-" + member, colors, row))).ToArray()
+                    : ColorRows(name, field.Rows, colors));
             }
             return load(Json(document));
         }
@@ -296,9 +299,12 @@ internal static class EnemyContentIdentityFixtureVerification
                     new EnemyContentIdentityFixtureField("sprite", 0, DraygonColorDefinitions.SpriteCount), new EnemyContentIdentityFixtureField("whiteFlash", 0, DraygonColorDefinitions.WhiteFlashCount),
                     new EnemyContentIdentityFixtureField("healthBands", SuperMetroid.Core.Bosses.Draygon.DraygonHealthBandDefinitions.HighestFirst.Count, DraygonColorDefinitions.HealthBandColorCount,
                         [.. SuperMetroid.Core.Bosses.Draygon.DraygonHealthBandDefinitions.HighestFirst.Select(band => band.Key)])), PhantoonColors = ColorCatalog(PhantoonColorFormat.Version, PhantoonColorFile.Read,
-                    new EnemyContentIdentityFixtureField("healthBands", PhantoonColorDefinitions.HealthBandCount, PhantoonColorFormat.HealthBandColorCount),
-                    new EnemyContentIdentityFixtureField("fadeOut", 0, PhantoonColorFormat.FadeOutCount), new EnemyContentIdentityFixtureField("powerOn", 0, SuperMetroid.AssetExtraction.Bosses.Phantoon.Artwork.PhantoonColorCatalogAccess.PowerOnNativeColourCount)), SporeSpawnColors = ColorCatalog(SporeSpawnColorFormat.Version, SporeSpawnColorFile.Read,
-                    new EnemyContentIdentityFixtureField("spores", 0, SporeSpawnColorFormat.ColorsPerFrame), new EnemyContentIdentityFixtureField("health", SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnHealthBandDefinitions.HighestFirst.Count, SporeSpawnColorFormat.ColorsPerFrame),
+                    new EnemyContentIdentityFixtureField("healthBands", PhantoonColorDefinitions.HealthBandCount, PhantoonColorFormat.HealthBandColorCount,
+                        [.. SuperMetroid.Core.Bosses.Phantoon.PhantoonHealthBandDefinitions.HighestFirst.Select(band => band.Key)]),
+                    new EnemyContentIdentityFixtureField("fadeOut", 0, PhantoonColorFormat.FadeOutCount), new EnemyContentIdentityFixtureField("powerOn", PhantoonColorFormat.PoweredPartKeys.Count, PhantoonColorFormat.PoweredPartColourCount,
+                        [.. PhantoonColorFormat.PoweredPartKeys.Values])), SporeSpawnColors = ColorCatalog(SporeSpawnColorFormat.Version, SporeSpawnColorFile.Read,
+                    new EnemyContentIdentityFixtureField("spores", 0, SporeSpawnColorFormat.ColorsPerFrame), new EnemyContentIdentityFixtureField("health", SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnHealthBandDefinitions.HighestFirst.Count, SporeSpawnColorFormat.ColorsPerFrame,
+                        [.. SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnHealthBandDefinitions.HighestFirst.Select(band => band.Key)]),
                     new EnemyContentIdentityFixtureField("deathSprite", SporeSpawnColorFormat.DeathSpriteFrameCount, SporeSpawnColorFormat.ColorsPerFrame),
                     new EnemyContentIdentityFixtureField("deathLevel", SporeSpawnColorFormat.DeathSceneFrameCount, SporeSpawnColorFormat.ColorsPerFrame),
                     new EnemyContentIdentityFixtureField("deathBackground", SporeSpawnColorFormat.DeathSceneFrameCount, SporeSpawnColorFormat.ColorsPerFrame)), BabyMetroidColors = ColorCatalog(BabyMetroidColorFormat.Version, BabyMetroidColorFile.Read,
@@ -307,16 +313,18 @@ internal static class EnemyContentIdentityFixtureVerification
                     new EnemyContentIdentityFixtureField("deadSidehopper", 0, BabyMetroidColorDefinitions.TargetColorCount)), BabyMetroidCutsceneColors = ColorCatalog(BabyMetroidCutsceneColorFormat.Version, BabyMetroidCutsceneColorFile.Read,
                     new EnemyContentIdentityFixtureField("initial", 0, BabyMetroidCutsceneColorFormat.InitialColorCount),
                     new EnemyContentIdentityFixtureField("fade", BabyMetroidCutsceneColorDefinitions.FadeFrameCount, BabyMetroidCutsceneColorFormat.FadeColorCount)), BotwoonColors = ColorCatalog(BotwoonColorFormat.Version, BotwoonColorFile.Read,
-                    new EnemyContentIdentityFixtureField("health", SuperMetroid.Core.Bosses.Botwoon.BotwoonHealthBandDefinitions.InOrderShown.Count, BotwoonColorFormat.ColorsPerPalette)), MotherBrainDeathColors = ColorCatalog(MotherBrainDeathColorFormat.Version, MotherBrainDeathColorFile.Read,
-                    new EnemyContentIdentityFixtureField("bodyFade", MotherBrainDeathColorFile.BodyFadeFrameCount, MotherBrainDeathColorFormat.BodyColorCount),
-                    new EnemyContentIdentityFixtureField("legFade", MotherBrainDeathColorFile.BodyFadeFrameCount, MotherBrainDeathColorFormat.BodyColorCount),
+                    new EnemyContentIdentityFixtureField("health", SuperMetroid.Core.Bosses.Botwoon.BotwoonHealthBandDefinitions.InOrderShown.Count, BotwoonColorFormat.ColorsPerPalette,
+                        [.. SuperMetroid.Core.Bosses.Botwoon.BotwoonHealthBandDefinitions.InOrderShown.Select(band => band.Key)])), MotherBrainDeathColors = ColorCatalog(MotherBrainDeathColorFormat.Version, MotherBrainDeathColorFile.Read,
+                    new EnemyContentIdentityFixtureField("bodyFade", MotherBrainDeathColorFile.BodyFadeFrameCount, MotherBrainDeathColorFormat.BodyColorCount,
+                        Members: ["body", "backLegs"]),
                     new EnemyContentIdentityFixtureField("corpseFade", MotherBrainDeathColorFile.CorpseFadeFrameCount, MotherBrainDeathColorFormat.CorpseColorCount)), ZebetiteColors = ColorCatalog(ZebetiteColorFile.Version, ZebetiteColorFile.Read, new EnemyContentIdentityFixtureField("frames", ZebetiteColorFormat.FrameCount, ZebetiteColorFormat.ColorsPerFrame)), NorfairRidleyColors = ColorCatalog(NorfairRidleyColorFormat.Version, NorfairRidleyColorFile.Read,
                     new EnemyContentIdentityFixtureField("initial", 0, NorfairRidleyColorFormat.InitialColorCount),
                     new EnemyContentIdentityFixtureField("reveal", NorfairRidleyRevealDefinitions.RevealStepCount, NorfairRidleyColorFormat.RevealColorCount)), PhantoonBg2Frames = Shared("phantoon-bg2", () => PhantoonBg2FrameCatalog.Load(Bg2("phantoon-bg2", PhantoonBg2FrameDefinitions.Frames, PhantoonBg2FrameDefinitions.Version))), DraygonBg2Frames = Shared("draygon-bg2", () => DraygonBg2FrameCatalog.Load(Bg2("draygon-bg2", DraygonBg2FrameDefinitions.Frames, DraygonBg2FrameDefinitions.Version))), CrocomireBg2Frames = Shared("crocomire-bg2", () => CrocomireBg2FrameCatalog.Load(Bg2("crocomire-bg2", CrocomireBg2FrameDefinitions.Frames, CrocomireBg2FrameDefinitions.Version))), MotherBrainBodyBg2Frames = motherBrainBodyBg2Frames ?? MotherBrainBodyBg2FrameCatalog.Load(
                     Bg2("mother-brain-body-bg2", MotherBrainBodyBg2FrameDefinitions.Frames, MotherBrainBodyBg2FrameDefinitions.Version)), MotherBrainCorpse = Characters("mother-brain-corpse", RoomCharacterAtlasFormat.BytesPerTile), MotherBrainEscapeText = Characters("mother-brain-text", RoomCharacterAtlasFormat.BytesPerTile), MotherBrainSpecialSprites = special, CrocomireSkeleton = CrocomireSkeletonArtwork.Load(RoomCharacterAtlasPng.Read(Png("crocomire-skeleton", CrocomireSkeletonCharacterDefinitions.TotalByteCount), CrocomireSkeletonCharacterDefinitions.TotalByteCount)), TorizoSwaps = torizo },
                 new AreaSourceArtwork { CeresDoor = door, TourianStatueColors = ColorCatalog(TourianStatueColorFormat.Version, TourianStatueColorFile.Read,
                     new EnemyContentIdentityFixtureField("base", 0, TourianStatueColorFormat.BaseColorCount), new EnemyContentIdentityFixtureField("statue", 0, TourianStatueColorFormat.StatueColorCount),
-                    new EnemyContentIdentityFixtureField("eye", TourianStatueColorDefinitions.EyeGlows.Count, TourianStatueColorDefinitions.EyeColorCount), new EnemyContentIdentityFixtureField("grey", 0, TourianStatueColorDefinitions.GreyColorCount)), CeresEscapeTiles = ceresTiles, CeresEscapeOverlayTilemaps = overlay });
+                    new EnemyContentIdentityFixtureField("eye", TourianStatueColorDefinitions.EyeGlows.Count, TourianStatueColorDefinitions.EyeColorCount,
+                        [.. SuperMetroid.AssetExtraction.CartridgeTables.EnemySourceDefinitions.TourianStatueEyeRowOrder.Select(statue => statue.ToString())]), new EnemyContentIdentityFixtureField("grey", 0, TourianStatueColorDefinitions.GreyColorCount)), CeresEscapeTiles = ceresTiles, CeresEscapeOverlayTilemaps = overlay });
         }
 
         /// <summary>Changes the final Crocomire melt tile only for the selected map edit.</summary>

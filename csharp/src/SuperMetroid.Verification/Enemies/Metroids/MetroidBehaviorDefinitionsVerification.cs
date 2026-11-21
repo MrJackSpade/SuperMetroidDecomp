@@ -104,12 +104,11 @@ internal static class MetroidBehaviorDefinitionsVerification
             EscapeMovesLeft = UpdateCountdown.Lasting(2),
             Movement = MetroidMovement.Homing,
         };
-        frozenPlace.SetSpeciesState(frozen);
         var strain = new List<(int MovesLeft, int Flash)>();
         for (int update = 0; update < 3; update++)
         {
             frozenPlace.HurtFlash.End();
-            MetroidBehavior.RunMetroidFrozen(frozenPlace, frozenPlace.RequireSpeciesState<MetroidEnemyState>());
+            MetroidBehavior.RunMetroidFrozen(frozenPlace, frozen);
             strain.Add((frozen.EscapeMovesLeft.UpdatesLeft, frozenPlace.HurtFlash.UpdatesLeft));
         }
         AssertTrue(strain.SequenceEqual([(1, MetroidBehaviorDefinitions.EscapeFlashDuration), (0, MetroidBehaviorDefinitions.EscapeFlashDuration), (0, 0)]),

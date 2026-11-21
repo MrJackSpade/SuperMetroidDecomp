@@ -11,11 +11,14 @@ internal static class CeresDoorOrWallPlaces
         place.BindPlaced(actor, settings);
     }
 
-    /// <summary>Binds <paramref name="place"/> to the Ceres door or wall <paramref name="actor"/> placed with <paramref name="settings"/> and runs its initialization.</summary>
+    /// <summary>
+    /// Binds <paramref name="place"/> to the Ceres door or wall <paramref name="actor"/> placed with <paramref name="settings"/>
+    /// and sets it up as its room's population sets it up.
+    /// </summary>
     internal static void StartCeresDoorOrWall(this RoomEnemyPlace place, EnemyDefinitionId actor, EnemySpawnSettings settings)
     {
         place.BindCeresDoorOrWall(actor, settings);
-        EnemyLifecycle.SetUpSpawnedEnemy(place);
+        place.SetUpAsPlaced();
     }
 
     /// <summary>The elevator door <paramref name="place"/> holds.</summary>

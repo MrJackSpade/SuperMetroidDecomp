@@ -16,11 +16,12 @@ internal static class DragonOwnedStateVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         body.BindPlaced(EnemyDefinitionId.Dragon, new DragonSpawnSettings(DragonPart.Body));
-        enemies.DragonBehavior.InitializeDragonBody(body);
+        // Both parts are set up as their room's population sets them up, the wing after the body that offers it.
+        body.SetUpAsPlaced();
         RoomEnemyPlace wing = enemies.Places.InUpdateOrder[1];
         wing.SetSpawnParameter1(EnemyDefinitionId.Dragon, 1);
         wing.Bind(EnemyDefinitionId.Dragon, wing.KeptDefinition);
-        DragonBehavior.InitializeDragonWing(wing, new DragonWingState());
+        wing.SetUpAsPlaced();
         DragonEnemyState bodyState = enemies.DragonStates[0] ?? throw new InvalidOperationException("The Dragon body has no state.");
         AssertTrue(body.Entity is DragonEntity && wing.Entity is DragonWingEntity,
             "parameter one selects the wing's own entity, and its absence the body's");

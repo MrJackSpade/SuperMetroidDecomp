@@ -8,4 +8,9 @@ namespace SuperMetroid.Verification.Enemies;
 /// What each row colours, by the key the installed document names it with, for a field whose rows are keyed (#2554); none
 /// for a field whose rows are listed in order.
 /// </param>
-internal readonly record struct EnemyContentIdentityFixtureField(string Name, int Rows, int Colors, IReadOnlyList<string>? Keys = null);
+/// <param name="Members">
+/// The members each row names its colours under, for a field whose rows are objects of several palettes (#2554); none for
+/// a field whose rows are palettes.
+/// </param>
+internal readonly record struct EnemyContentIdentityFixtureField(string Name, int Rows, int Colors, IReadOnlyList<string>? Keys = null,
+    IReadOnlyList<string>? Members = null);

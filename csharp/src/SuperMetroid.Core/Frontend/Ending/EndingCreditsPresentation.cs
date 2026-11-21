@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend.Intro.Artwork;

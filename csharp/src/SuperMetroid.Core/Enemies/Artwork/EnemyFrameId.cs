@@ -3293,12 +3293,8 @@ public enum EnemyFrameId
     MotherBrainBodyArmFlungOut,
     /// <summary>Mother Brain: her body as her hand beam's arm returns: the standing picture, its arm's hitbox a pixel further out.</summary>
     MotherBrainBodyArmReturning,
-    /// <summary>Phantoon: invulnerable body.</summary>
-    PhantoonInvulnerableBody,
-    /// <summary>Phantoon: full hitbox body.</summary>
-    PhantoonFullHitboxBody,
-    /// <summary>Phantoon: eye hitbox body.</summary>
-    PhantoonEyeHitboxBody,
+    /// <summary>Phantoon: his body, its eye socket filled by his closed eye; which of its parts are hittable is his fight's <see cref="Bosses.Phantoon.PhantoonBodyHitArea"/>.</summary>
+    PhantoonBody,
     /// <summary>Phantoon: eye closed.</summary>
     PhantoonEyeClosed,
     /// <summary>Phantoon: its eye half open.</summary>

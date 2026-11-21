@@ -18,9 +18,7 @@ internal static class PhantoonNativeListAddresses
     /// <summary>Each typed part program's native entry point in bank $A7, in authored order.</summary>
     internal static readonly NativeProgramEntry<PhantoonPartSegment>[] PartEntries =
     [
-        new(PhantoonPartSegment.InvulnerableBody, 0xcc41),
-        new(PhantoonPartSegment.FullHitboxBody, 0xcc47),
-        new(PhantoonPartSegment.EyeHitboxBody, 0xcc4d),
+        new(PhantoonPartSegment.Body, 0xcc41),
         new(PhantoonPartSegment.EyeOpen, 0xcc53),
         new(PhantoonPartSegment.EyeClosed, 0xcc7b),
         new(PhantoonPartSegment.EyeCloseAndPickNewPattern, 0xcc81),

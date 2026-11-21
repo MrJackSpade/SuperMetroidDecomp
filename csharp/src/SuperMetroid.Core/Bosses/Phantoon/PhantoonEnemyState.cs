@@ -25,7 +25,7 @@ public sealed class PhantoonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IB
     internal PhantoonEnemyState(RoomEnemyOccupant bodyOccupant, RoomEnemyPlace body, RoomEnemyPlace eye, RoomEnemyPlace tentacles, RoomEnemyPlace mouth)
     {
         BodyOccupant = bodyOccupant;
-        BodyPart = new PhantoonPart(this, body, PhantoonPartSegment.InvulnerableBody);
+        BodyPart = new PhantoonPart(this, body, PhantoonPartSegment.Body);
         EyePart = new PhantoonPart(this, eye, PhantoonPartSegment.EyeClosed);
         TentaclesPart = new PhantoonPart(this, tentacles, PhantoonPartSegment.Tentacles);
         MouthPart = new PhantoonPart(this, mouth, PhantoonPartSegment.MouthInitial);
@@ -40,6 +40,25 @@ public sealed class PhantoonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IB
 
     /// <summary>His body, whose health and position are his; it runs first.</summary>
     public PhantoonPart BodyPart { get; }
+
+    /// <summary>
+    /// The hit area his body's picture has live, which his hitboxes test: it takes the hit area his fight last asked for
+    /// as the body's picture shows again, so a change waits for the picture, as the frame it is shown with does.
+    /// </summary>
+    internal PhantoonBodyHitArea BodyHitArea { get; private set; } = PhantoonBodyHitArea.SolidifyingCentre;
+
+    /// <summary>The hit area his fight last asked his body for, live from the update its picture shows.</summary>
+    internal PhantoonBodyHitArea RequestedBodyHitArea { get; private set; } = PhantoonBodyHitArea.SolidifyingCentre;
+
+    /// <summary>Restarts his body's still picture with <paramref name="area"/> live from the update it shows.</summary>
+    internal void ShowBody(PhantoonBodyHitArea area)
+    {
+        RequestedBodyHitArea = area;
+        BodyPart.StartAnimation(PhantoonPartSegment.Body);
+    }
+
+    /// <summary>Makes the hit area his fight asked for live as his body's animation plays its picture.</summary>
+    internal void BodyPictureShown() => BodyHitArea = RequestedBodyHitArea;
 
     /// <summary>His eye, which shares the body's position while keeping its own animation and colour counters.</summary>
     public PhantoonPart EyePart { get; }

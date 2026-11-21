@@ -14,9 +14,7 @@ internal static class PhantoonPartFramesConstants
     /// <summary>Each frame by the cartridge frame it shows.</summary>
     private static readonly Dictionary<EnemyFrameId, ushort> Spritemaps = new()
     {
-        [EnemyFrameId.PhantoonInvulnerableBody] = PhantoonBg2FrameDefinitionsConstants.InvulnerableBody,
-        [EnemyFrameId.PhantoonFullHitboxBody] = (ushort)PhantoonCollisionFrame.BodyFullHitbox,
-        [EnemyFrameId.PhantoonEyeHitboxBody] = (ushort)PhantoonCollisionFrame.BodyEyeHitboxOnly,
+        [EnemyFrameId.PhantoonBody] = PhantoonBg2FrameDefinitionsConstants.InvulnerableBody,
         [EnemyFrameId.PhantoonEyeHalfOpen] = PhantoonBg2FrameDefinitionsConstants.OpeningEye(1),
         [EnemyFrameId.PhantoonEyeClosed] = PhantoonBg2FrameDefinitionsConstants.ClosedEye,
         [EnemyFrameId.PhantoonEyeballCentered] = PhantoonBg2FrameDefinitionsConstants.OpeningEye(2),

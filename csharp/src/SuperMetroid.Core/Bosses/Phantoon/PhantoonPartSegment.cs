@@ -3,12 +3,8 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// <summary>Phantoon's typed part animations (#641), in authored order.</summary>
 internal enum PhantoonPartSegment
 {
-    /// <summary>The body with no hitbox.</summary>
-    InvulnerableBody,
-    /// <summary>The body with its full hitbox.</summary>
-    FullHitboxBody,
-    /// <summary>The body with only its eye hitbox.</summary>
-    EyeHitboxBody,
+    /// <summary>His body's still picture; which of its parts are hittable is his fight's <see cref="PhantoonBodyHitArea"/>.</summary>
+    Body,
     /// <summary>The eye opening, then the materialization sound and eye tracking.</summary>
     EyeOpen,
     /// <summary>His eye shut, held.</summary>

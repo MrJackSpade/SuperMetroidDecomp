@@ -37,7 +37,7 @@ internal static class PhantoonSolidifyingCentreVerification
         body.Bind(EnemyDefinitionId.PhantoonBody, body.KeptDefinition);
         body.Bind(body.HeldOccupant().DefinitionId, RoomEnemyDefinitionLookup.Get(body.HeldOccupant().DefinitionId));
         body.Position = body.Position.WithWhole(new(128, 96));
-        body.Frame = EnemyFrameId.PhantoonInvulnerableBody;
+        body.Frame = EnemyFrameId.PhantoonBody;
         body.Contact = body.Contact.Without(EnemyContact.IgnoresSamus);
         body.Health = 2500;
         var state = new PhantoonEnemyState(body.HeldOccupant(), body, enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]) { Phase = PhantoonPhase.EyeTracksSamus };

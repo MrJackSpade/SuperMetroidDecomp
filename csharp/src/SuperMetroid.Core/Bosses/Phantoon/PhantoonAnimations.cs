@@ -20,9 +20,7 @@ internal static class PhantoonAnimations
     internal static AnimationSegments<PhantoonPartSegment, EnemyFrameId, PhantoonPartCue> Segments { get; } = new(
         new Dictionary<PhantoonPartSegment, AnimationBeat<EnemyFrameId, PhantoonPartCue>[]>
     {
-        [P.InvulnerableBody] = Still(F.PhantoonInvulnerableBody),
-        [P.FullHitboxBody] = Still(F.PhantoonFullHitboxBody),
-        [P.EyeHitboxBody] = Still(F.PhantoonEyeHitboxBody),
+        [P.Body] = Still(F.PhantoonBody),
         [P.EyeOpen] =
         [
             Show(F.PhantoonEyeClosed, EyelidFrameDuration),
@@ -83,7 +81,7 @@ internal static class PhantoonAnimations
         [P.EyeClose] = HeldAfter(P.EyeClose, P.EyeClosed),
         [P.MouthSpawnFlame] = HeldAfter(P.MouthSpawnFlame, P.MouthInitial),
     }, AnimationEnd.Holds,
-        P.InvulnerableBody, P.FullHitboxBody, P.EyeHitboxBody, P.EyeOpen, P.EyeClosed, P.EyeballCentered,
+        P.Body, P.EyeOpen, P.EyeClosed, P.EyeballCentered,
         P.EyeLookingUp, P.EyeLookingUpRight, P.EyeLookingRight, P.EyeLookingDownRight, P.EyeLookingDown,
         P.EyeLookingDownLeft, P.EyeLookingLeft, P.EyeLookingUpLeft, P.MouthInitial),
         P.Tentacles);

@@ -80,10 +80,10 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
         EnemyBg2FrameDocument document =
             RequiredJson.Deserialize<EnemyBg2FrameDocument>(File.ReadAllBytes(Path.Combine(extractedDirectory, PhantoonBg2FrameDefinitions.FileName)),
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-        const string frameName = "body_invulnerable";
+        const string frameName = "body";
         EnemyBg2WriteDocument first = document.Frames[frameName][0];
         ushort firstPointer = PhantoonBg2FrameDefinitions.Frames[0].Pointer;
-        // His bodies clear the eye socket his eye fills whenever his body shows, so the import pictures each with his closed
+        // His body clears the eye socket his eye fills whenever his body shows, so the import pictures it with his closed
         // eye written into it (#1513): the cartridge's body frame, then its closed-eye frame over it.
         byte[] nativeVram = ReadReferenceExtendedBg2Vram(rom, PhantoonBg2FrameDefinitionsConstants.Bank, firstPointer,
             newInstructionFrame: true);
@@ -211,10 +211,10 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
         place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.SpritemapPointer = pointer;
         place.Position = place.Position.WithWhole(new(0x0080, 0x0080));
-        object?[] arguments =
-            [place, target, new Extent16<RoomPixels>(2, 2), selectShot, null];
-        bool found = ExtendedHitboxWalker.Find(arguments);
-        return found ? ExtendedHitboxWalker.Reaction(arguments) : null;
+        // The cartridge stored his body's picture once for each hit area; the record names the one his fight has live.
+        EnemyHitboxContact contact = PhantoonCombat.FindPhantoonHitboxReaction(place, PhantoonCollision.NativeHitArea(pointer),
+            EnemyHitboxProbe.Around(target, new Extent16<RoomPixels>(2, 2), selectShot ? HitboxContactKind.Shot : HitboxContactKind.Touch));
+        return contact is EnemyHitboxContact.StruckHitbox struck ? struck.Reaction : null;
     }
 
     /// <summary>Draws a Phantoon BG2 frame into fresh VRAM, optionally setting the native new-instruction-frame upload bit.</summary>

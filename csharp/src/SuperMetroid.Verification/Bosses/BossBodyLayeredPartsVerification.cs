@@ -131,7 +131,7 @@ internal static class BossBodyLayeredPartsVerification
             EnemyFrameId.PhantoonEyeLookingDownRight, EnemyFrameId.PhantoonEyeLookingDown, EnemyFrameId.PhantoonEyeLookingDownLeft, EnemyFrameId.PhantoonEyeLookingLeft, EnemyFrameId.PhantoonEyeLookingUpLeft,
         ];
         int compared = 0;
-        foreach (EnemyFrameId body in new[] { EnemyFrameId.PhantoonInvulnerableBody, EnemyFrameId.PhantoonFullHitboxBody, EnemyFrameId.PhantoonEyeHitboxBody })
+        foreach (EnemyFrameId body in new[] { EnemyFrameId.PhantoonBody })
         {
             foreach (EnemyFrameId eye in eyes)
             {

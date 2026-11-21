@@ -432,9 +432,7 @@ internal static class EnemyDefinitionFrameDefinitions
     /// <summary>The frames <c>Bosses/Phantoon/PhantoonBehavior.cs</c> shows.</summary>
     private static readonly EnemyFrameId[] Phantoon =
     [
-        EnemyFrameId.PhantoonInvulnerableBody,
-        EnemyFrameId.PhantoonFullHitboxBody,
-        EnemyFrameId.PhantoonEyeHitboxBody,
+        EnemyFrameId.PhantoonBody,
         EnemyFrameId.PhantoonEyeClosed,
         EnemyFrameId.PhantoonEyeHalfOpen,
         EnemyFrameId.PhantoonEyeballCentered,

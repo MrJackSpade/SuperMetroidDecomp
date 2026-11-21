@@ -91,7 +91,7 @@ internal static class RoomFloorSheetsVerification
                 int column = x / TilePixels, row = y / TilePixels;
                 bool showsTile = (column, row) is (5, 3) or (7, 4);
                 int expected = showsTile && x % TilePixels == y % TilePixels ? 5 : 0;
-                int painted = sheet.PaletteIndices[(floor.Corner.Y + y) * sheet.Size.X + floor.Corner.X + x];
+                int painted = sheet.Inks[(floor.Corner.Y + y) * sheet.Size.X + floor.Corner.X + x].PlaceIn(sheet.Manifest.Palette);
                 if (painted != expected)
                     AssertTrue(false, $"floor picture pixel ({x}, {y}) paints index {painted} where its cell's tile names {expected}");
             }

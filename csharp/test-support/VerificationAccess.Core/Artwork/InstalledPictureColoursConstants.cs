@@ -70,8 +70,8 @@ internal static class InstalledPictureColoursConstants
     /// <exception cref="InvalidOperationException">The picture was not composed or recorded by a check.</exception>
     public static int ComposedIndexAt(SpriteImage picture, int pixel)
     {
-        byte[] indices = ComposedPictures.SourceOf(picture).PaletteIndices;
-        return indices[Ensure.BetweenInclusive(0, indices.Length - 1, pixel)];
+        ComposedPictureSource source = ComposedPictures.SourceOf(picture);
+        return source.Inks[Ensure.BetweenInclusive(0, source.Inks.Length - 1, pixel)].PlaceIn(source.Palette);
     }
 
     /// <summary>

@@ -13,16 +13,16 @@ internal static class SpriteSheetFileConstants
     /// <param name="name">The sheet's installed name.</param>
     /// <param name="size">The image's width and height.</param>
     /// <param name="pixels">The image's pixels.</param>
-    /// <param name="paletteIndices">Each pixel's composed palette index.</param>
+    /// <param name="inks">Each pixel's composed ink.</param>
     /// <exception cref="InvalidDataException">The manifest is malformed or places a frame off the image.</exception>
     public static SpriteSheet Load(SpriteSheetDocument composed, string name, Extent16<ImagePixels> size, ReadOnlySpan<RgbaPixel> pixels,
-        ReadOnlySpan<byte> paletteIndices)
+        ReadOnlySpan<SuperMetroid.AssetExtraction.Artwork.ComposedInk> inks)
     {
         SpriteImage image;
         InstalledSheetDocument installed;
         try
         {
-            image = ComposedPictures.Install(name, size, pixels, paletteIndices, composed, out installed);
+            image = ComposedPictures.Install(name, size, pixels, inks, composed, out installed);
         }
         catch (ArgumentException error)
         {

@@ -153,7 +153,7 @@ internal static class FxOverlayFixtures
             frame => WrittenPictureSheetComposer.Frame(canvas, frame.FirstRow, frame.Rows, SpriteImageColours.TwoBppBackground) with { Origin = frame.Origin },
             StringComparer.Ordinal);
         ComposedSpriteSheet composed = canvas.ToSplitRoomSheet(colours, documents, RoomTileCanvas.EveryFrame(documents), SpriteImageColours.TwoBppBackground);
-        return SpriteSheetFileConstants.Load(composed.Manifest, "overlay-fixture", composed.Size, composed.Pixels, composed.PaletteIndices);
+        return SpriteSheetFileConstants.Load(composed.Manifest, "overlay-fixture", composed.Size, composed.Pixels, composed.Inks);
     }
 
     /// <summary>The gameplay overlay tilemap's words in <paramref name="image"/>, row by row.</summary>

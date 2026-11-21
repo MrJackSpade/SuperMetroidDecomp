@@ -22,7 +22,7 @@ internal static class FramePaintTestsVerification
         // colours as the loader's pictures are (#1512, #1544): its colours are all black and visible but the clear first.
         byte[] indices = [.. Enumerable.Range(0, ImageColourGroup.HalfColours).Select(index => (byte)index)];
         RgbaPixel[] fixturePixels = [.. indices.Select(index => index == 0 ? default(RgbaPixel) : new RgbaPixel(0, 0, 0))];
-        SpriteImage image = ComposedPictures.Install("Fixture", new(16, 8), fixturePixels, indices,
+        SpriteImage image = ComposedPictures.Install("Fixture", new(16, 8), fixturePixels, ComposedPictures.InksAt(indices.Select(place => (int)place), SpriteImageColours.Sprite),
             SpriteImageColours.Sprite, new RgbColor[ImageColourGroup.HalfColours]);
         sprites.BeginFrame();
         sprites.Add(new ImageSpriteDraw(new(SpriteSourceKind.EscapeTimer), new SpriteSheetFrame(image, default, new(16, 8), default),

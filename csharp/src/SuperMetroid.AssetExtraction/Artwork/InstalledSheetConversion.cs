@@ -41,19 +41,19 @@ internal static class InstalledSheetConversion
     /// <param name="composed">The composed manifest: the colours the indices name, the shades by index, the backdrop and the frames.</param>
     /// <param name="size">The sheet's width and height.</param>
     /// <param name="pixels">The composed pixels, row by row from the top.</param>
-    /// <param name="paletteIndices">Each pixel's composed palette index.</param>
+    /// <param name="inks">Each pixel's composed ink.</param>
     /// <exception cref="ArgumentException">The planes are not one entry per pixel of <paramref name="size"/>.</exception>
     /// <exception cref="InvalidDataException">
     /// The composed manifest names the wrong number of colours, a pixel, the backdrop or a shade names an index past them, a
     /// shade names an index twice, a pixel's colour or alpha disagrees with its index, or a frame leaves the sheet.
     /// </exception>
     internal static InstalledSheet Install(SpriteSheetDocument composed, Extent16<ImagePixels> size, ReadOnlySpan<RgbaPixel> pixels,
-        ReadOnlySpan<byte> paletteIndices)
+        ReadOnlySpan<ComposedInk> inks)
     {
         Ensure.NotNull(composed);
         int area = size.X * size.Y;
         Ensure.LengthEqual(pixels, area);
-        Ensure.LengthEqual(paletteIndices, area);
+        Ensure.LengthEqual(inks, area);
         int tableColours = ImageColourGroup.ColourCountOf(composed.Palette);
         if (composed.Colours is null || composed.Colours.Length != tableColours)
             throw new InvalidDataException($"A {composed.Palette} sheet names {composed.Colours?.Length ?? 0} colours, not {tableColours}.");
@@ -68,7 +68,7 @@ internal static class InstalledSheetConversion
         var firstPixel = new int?[tableColours];
         for (int pixel = 0; pixel < area; pixel++)
         {
-            int index = paletteIndices[pixel];
+            int index = inks[pixel].PlaceIn(composed.Palette);
             if (index >= tableColours)
                 throw new InvalidDataException($"A {composed.Palette} sheet's pixel {pixel} names palette index {index}, past its {tableColours} colours.");
             RgbaPixel composedPixel = pixels[pixel];

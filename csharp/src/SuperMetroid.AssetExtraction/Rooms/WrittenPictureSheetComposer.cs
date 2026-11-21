@@ -366,14 +366,13 @@ internal static class WrittenPictureSheetComposer
     internal static SpriteSheetFrameDocument Frame(RoomTileCanvas canvas, Position16<ImagePixels> corner, Extent16<ImagePixels> size, SpriteImageColours kind)
     {
         Ensure.NotNull(canvas);
-        int rowColours = kind == SpriteImageColours.TwoBppBackground ? RoomTileCanvas.TwoBppRowColours : RoomTileCanvas.RowColours;
         ImageColourGroups coloured = ImageColourGroups.None;
         for (int y = 0; y < size.Y; y++)
         for (int x = 0; x < size.X; x++)
         {
-            int index = canvas.PaletteIndices[(corner.Y + y) * canvas.Width + corner.X + x];
-            if (index % rowColours != 0)
-                coloured = coloured.With(ImageColourGroup.OfInk(index));
+            ComposedInk ink = canvas.Inks[(corner.Y + y) * canvas.Width + corner.X + x];
+            if (!ink.IsClear)
+                coloured = coloured.With(ImageColourGroup.OfInk(ink.PlaceIn(kind)));
         }
         return new SpriteSheetFrameDocument { Corner = corner, Size = size, Origin = default, ColourGroups = coloured };
     }

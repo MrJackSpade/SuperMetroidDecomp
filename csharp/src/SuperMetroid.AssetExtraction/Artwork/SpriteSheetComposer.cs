@@ -26,8 +26,8 @@ internal static class SpriteSheetComposer
         Extent16<ImagePixels> size = layout.Size;
         int area = size.X * size.Y;
         var pixels = new RgbaPixel[area];
-        var paletteIndices = new byte[area];
-        SpriteSheetDocument manifest = layout.Paint(new SpriteSheetPlanes(size, pixels, paletteIndices));
-        return new ComposedSpriteSheet(size, pixels, paletteIndices, manifest);
+        var inks = new ComposedInk[area];
+        SpriteSheetDocument manifest = layout.Paint(new SpriteSheetPlanes(size, pixels, inks));
+        return new ComposedSpriteSheet(size, pixels, inks, manifest);
     }
 }

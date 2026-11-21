@@ -62,7 +62,7 @@ internal static class NativeColouredPictures
         for (int pixel = 0; pixel < pixels.Length; pixel++)
         {
             shown[pixel] = pixels[pixel].A == 0 ? pixels[pixel]
-                : nativeColours[InstalledPictureColoursConstants.CartridgeColourOfIndex(picture, source.PaletteIndices[pixel], drawRow)].ToRgbaPixel()
+                : nativeColours[InstalledPictureColoursConstants.CartridgeColourOfIndex(picture, source.Inks[pixel].PlaceIn(source.Palette), drawRow)].ToRgbaPixel()
                     with { A = pixels[pixel].A };
         }
         ColourKey? backdrop = source.Composed.Backdrop is { } backdropIndex

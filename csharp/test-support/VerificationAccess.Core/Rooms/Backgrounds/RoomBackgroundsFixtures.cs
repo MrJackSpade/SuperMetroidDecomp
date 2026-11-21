@@ -369,7 +369,7 @@ internal static class RoomBackgroundsFixtures
             Backdrop = 0,
             Frames = frames,
         };
-        return SpriteSheetFileConstants.Load(document, name, size, image, indices);
+        return SpriteSheetFileConstants.Load(document, name, size, image, ComposedPictures.InksAt(indices.Select(place => (int)place), kind));
     }
 
     /// <summary>

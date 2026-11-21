@@ -109,7 +109,7 @@ internal static class CinematicSheetFixtures
     /// <summary>Loads one composed fixture tile sheet under a name of its own.</summary>
     private static SpriteSheet LoadTiles(SpriteSheetId id, ComposedSpriteSheet tiles, string fixture) =>
         SpriteSheetFileConstants.Load(tiles.Manifest,
-            $"{SpriteSheetDefinitions.FileNames[id]}-fixture-{fixture}", tiles.Size, tiles.Pixels, tiles.PaletteIndices);
+            $"{SpriteSheetDefinitions.FileNames[id]}-fixture-{fixture}", tiles.Size, tiles.Pixels, tiles.Inks);
 
     /// <summary>The installed sheets with the intro sheet <paramref name="intro"/> composes.</summary>
     internal static InstalledSpriteSheets WithIntro(ImportIntroCinematicArtwork intro)
@@ -193,7 +193,7 @@ internal static class CinematicSheetFixtures
     {
         ComposedSpriteSheet composed = SpriteSheetComposer.Compose(sources, 0, SuperMetroid.Core.Assets.ActorDepth.BehindRoom);
         SpriteSheet sheet = SpriteSheetFileConstants.Load(composed.Manifest, name,
-            composed.Size, composed.Pixels, composed.PaletteIndices);
+            composed.Size, composed.Pixels, composed.Inks);
         SheetFrameSources.Register(sheet, sources);
         return sheet;
     }

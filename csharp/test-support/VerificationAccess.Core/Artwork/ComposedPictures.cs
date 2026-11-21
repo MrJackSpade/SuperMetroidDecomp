@@ -27,40 +27,45 @@ internal static class ComposedPictures
     /// <param name="name">The picture's name.</param>
     /// <param name="size">The picture's width and height.</param>
     /// <param name="pixels">The composed pixels.</param>
-    /// <param name="paletteIndices">Each pixel's composed palette index.</param>
+    /// <param name="inks">Each pixel's composed ink.</param>
     /// <param name="composed">The composed manifest, whose colours, shades and backdrop the picture installs.</param>
     /// <param name="installed">The installed manifest, whose frames a sheet cuts.</param>
     internal static SpriteImage Install(string name, Extent16<ImagePixels> size, ReadOnlySpan<RgbaPixel> pixels,
-        ReadOnlySpan<byte> paletteIndices, SpriteSheetDocument composed, out InstalledSheetDocument installed)
+        ReadOnlySpan<ComposedInk> inks, SpriteSheetDocument composed, out InstalledSheetDocument installed)
     {
-        InstalledSheet sheet = InstalledSheetConversion.Install(composed, size, pixels, paletteIndices);
+        InstalledSheet sheet = InstalledSheetConversion.Install(composed, size, pixels, inks);
         installed = sheet.Manifest;
         SpriteImage image = SpriteImageFixtures.Copied(name, size, sheet.Pixels, SpriteSheetFile.ColoursOf(sheet.Manifest));
-        Record(image, composed, paletteIndices);
+        Record(image, composed, inks);
         return image;
     }
 
     /// <summary>
-    /// The picture of <paramref name="pixels"/>, composed as <paramref name="paletteIndices"/> against
+    /// The picture of <paramref name="pixels"/>, composed as <paramref name="inks"/> against
     /// <paramref name="table"/>, the colours of <paramref name="palette"/>'s half of the colour table, as the import installs
     /// it.
     /// </summary>
     internal static SpriteImage Install(string name, Extent16<ImagePixels> size, ReadOnlySpan<RgbaPixel> pixels,
-        ReadOnlySpan<byte> paletteIndices, SpriteImageColours palette, ReadOnlySpan<RgbColor> table) =>
-        Install(name, size, pixels, paletteIndices, Composed(palette, table), out _);
+        ReadOnlySpan<ComposedInk> inks, SpriteImageColours palette, ReadOnlySpan<RgbColor> table) =>
+        Install(name, size, pixels, inks, Composed(palette, table), out _);
+
+    /// <summary>The inks at <paramref name="places"/> of the colour list of a sheet composed in <paramref name="palette"/>, as a fixture names them.</summary>
+    internal static ComposedInk[] InksAt(IEnumerable<int> places, SpriteImageColours palette) =>
+        [.. Ensure.NotNull(places).Select(place => ComposedInk.AtPlace(place, palette))];
 
     /// <summary>
-    /// The whole of <paramref name="pixels"/> as one installed frame, composed as <see cref="Install(string, Extent16{ImagePixels}, ReadOnlySpan{RgbaPixel}, ReadOnlySpan{byte}, SpriteImageColours, ReadOnlySpan{RgbColor})"/>
+    /// The whole of <paramref name="pixels"/> as one installed frame, composed as <see cref="Install(string, Extent16{ImagePixels}, ReadOnlySpan{RgbaPixel}, ReadOnlySpan{ComposedInk}, SpriteImageColours, ReadOnlySpan{RgbColor})"/>
     /// composes it: the import decides, as for any sprite sheet's frame, whether the frame blends wholly or its picture
     /// carries a blend map (#1633).
     /// </summary>
     internal static SpriteSheetFrame InstallWhole(string name, Extent16<ImagePixels> size, ReadOnlySpan<RgbaPixel> pixels,
-        ReadOnlySpan<byte> paletteIndices, SpriteImageColours palette, ReadOnlySpan<RgbColor> table)
+        ReadOnlySpan<ComposedInk> inks, SpriteImageColours palette, ReadOnlySpan<RgbColor> table)
     {
         const string whole = "whole";
         ImageColourGroups groups = ImageColourGroups.None;
-        foreach (byte index in paletteIndices)
+        foreach (ComposedInk ink in inks)
         {
+            int index = ink.PlaceIn(palette);
             if (index % 16 != 0)
                 groups = groups.With(ImageColourGroup.OfInk(index));
         }
@@ -71,7 +76,7 @@ internal static class ComposedPictures
                 [whole] = new SpriteSheetFrameDocument { Corner = default, Size = size, Origin = default, ColourGroups = groups },
             },
         };
-        SpriteImage image = Install(name, size, pixels, paletteIndices, composed, out InstalledSheetDocument installed);
+        SpriteImage image = Install(name, size, pixels, inks, composed, out InstalledSheetDocument installed);
         return SpriteSheetFile.CutFrames(installed, name, image).Frame(whole);
     }
 
@@ -96,26 +101,26 @@ internal static class ComposedPictures
     {
         if (composition.Size != installed.Size)
             return false;
-        InstalledSheet converted = InstalledSheetConversion.Install(composition.Manifest, composition.Size, composition.Pixels, composition.PaletteIndices);
+        InstalledSheet converted = InstalledSheetConversion.Install(composition.Manifest, composition.Size, composition.Pixels, composition.Inks);
         SpriteImagePixels assembled = AssembledSheetImages.Assemble(converted);
         return AssembledSheetImages.HoldsPixels(installed, assembled) && AssembledSheetImages.HoldsRecolourRegions(installed, assembled);
     }
 
     /// <summary>
-    /// Records that <paramref name="picture"/>'s pixels were composed as <paramref name="paletteIndices"/> against
+    /// Records that <paramref name="picture"/>'s pixels were composed as <paramref name="inks"/> against
     /// <paramref name="composed"/>: where each of its colour keys came from, as the import knows it, and each pixel's index.
     /// </summary>
-    /// <exception cref="ArgumentException">The indices do not hold one per pixel.</exception>
+    /// <exception cref="ArgumentException">The inks do not hold one per pixel.</exception>
     /// <exception cref="InvalidDataException">
     /// The manifest names background sets for a sprite sheet or a number of sets other than one per background colour group,
     /// palette bits for a picture other than a sprite sheet or past the sprite rows, or the picture's backdrop without
     /// naming a backdrop index.
     /// </exception>
-    internal static void Record(SpriteImage picture, SpriteSheetDocument composed, ReadOnlySpan<byte> paletteIndices)
+    internal static void Record(SpriteImage picture, SpriteSheetDocument composed, ReadOnlySpan<ComposedInk> inks)
     {
         Ensure.NotNull(picture);
         Ensure.NotNull(composed);
-        Ensure.LengthEqual(paletteIndices, picture.Size.X * picture.Size.Y);
+        Ensure.LengthEqual(inks, picture.Size.X * picture.Size.Y);
         ImmutableArray<InstalledBackgroundSet> sets = [.. composed.BackgroundSets ?? []];
         if (!sets.IsEmpty && (composed.Palette == SpriteImageColours.Sprite || sets.Length != ImageColourGroup.Count))
             throw new InvalidDataException($"Sheet {picture.Name} names {sets.Length} background sets for a {composed.Palette} image.");
@@ -129,11 +134,11 @@ internal static class ComposedPictures
         // a composed picture's pixels of one index nearly all hold one key, and a whole floor holds a million of them.
         var addedOfIndex = new int[byte.MaxValue + 1];
         Array.Fill(addedOfIndex, -1);
-        for (int pixel = 0; pixel < paletteIndices.Length; pixel++)
+        for (int pixel = 0; pixel < inks.Length; pixel++)
         {
             if (pixels[pixel].A == 0)
                 continue;
-            byte index = paletteIndices[pixel];
+            int index = inks[pixel].PlaceIn(composed.Palette);
             int added = addedOfIndex[index];
             if (added >= 0 && pixels[pixel].R == pixels[added].R && pixels[pixel].G == pixels[added].G && pixels[pixel].B == pixels[added].B
                 && (regions.IsEmpty || regions[pixel] == regions[added]))
@@ -143,7 +148,7 @@ internal static class ComposedPictures
         }
         if (picture.Backdrop is { } backdrop)
             Add(indices, backdrop, composed.Backdrop ?? throw new InvalidDataException($"Sheet {picture.Name} shows a backdrop its composition names no index of."));
-        Sources.AddOrUpdate(picture, new ComposedPictureSource(composed, paletteIndices.ToArray(),
+        Sources.AddOrUpdate(picture, new ComposedPictureSource(composed, inks.ToArray(),
             indices.ToImmutableDictionary(entry => entry.Key, entry => entry.Value.ToImmutableArray())));
     }
 
@@ -160,7 +165,7 @@ internal static class ComposedPictures
     internal static void RecordAs(SpriteImage copy, SpriteImage picture)
     {
         ComposedPictureSource source = SourceOf(picture);
-        Record(copy, source.Composed, source.PaletteIndices);
+        Record(copy, source.Composed, source.Inks);
     }
 
     /// <summary>
@@ -194,7 +199,7 @@ internal static class ComposedPictures
         {
             if (Composes(picture, composition))
             {
-                Record(picture, composition.Manifest, composition.PaletteIndices);
+                Record(picture, composition.Manifest, composition.Inks);
                 return Sources.TryGetValue(picture, out ComposedPictureSource? composed) ? composed
                     : throw new InvalidOperationException($"Picture {picture.Name} was not recorded.");
             }
@@ -206,12 +211,12 @@ internal static class ComposedPictures
 
 /// <summary>What a picture a check composed was composed from.</summary>
 /// <param name="Composed">The composed manifest: the half of the colour table, the background sets and the palette bits.</param>
-/// <param name="PaletteIndices">Each pixel's composed palette index, row by row from the top.</param>
+/// <param name="Inks">Each pixel's composed ink, row by row from the top.</param>
 /// <param name="ComposedIndices">
 /// Each colour key the picture holds (its visible pixels' keys and its backdrop's), with the palette indices, ascending, its
 /// pixels of that key were composed as.
 /// </param>
-internal sealed record ComposedPictureSource(SpriteSheetDocument Composed, byte[] PaletteIndices,
+internal sealed record ComposedPictureSource(SpriteSheetDocument Composed, ComposedInk[] Inks,
     ImmutableDictionary<ColourKey, ImmutableArray<int>> ComposedIndices)
 {
     /// <summary>Which half of the colour table the picture was composed against.</summary>

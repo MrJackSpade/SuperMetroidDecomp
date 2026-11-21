@@ -41,7 +41,7 @@ internal static class RidleyHitFlashVerification
             RoomEnemyGraphicsSetLists.MembersOf(candidate).Records.ToArray().Any(record => record.DefinitionId == EnemyDefinitionId.Ridley));
         EnemySheetSource source = EnemySheetComposer.Sources(inputs, set).Enemies.Single(sheet => sheet.Enemy == EnemyDefinitionId.Ridley);
         ComposedSpriteSheet sheet = SpriteSheetComposer.Compose(source.Sources, 0, SuperMetroid.Core.Assets.ActorDepth.BehindRoom);
-        int[] painted = [.. sheet.PaletteIndices.Where(ink => ink != 0).Select(ink => (int)ink).Distinct().Order()];
+        int[] painted = [.. sheet.Inks.Where(ink => ink != SuperMetroid.AssetExtraction.Artwork.ComposedInk.None).Select(ink => ink.PlaceIn(sheet.Manifest.Palette)).Distinct().Order()];
         // Each ink is his part's own row and colour, drawn from that row with his draws' palette bits ORed in (#1512).
         AssertTrue(painted.Length > 0 && painted.All(ink => (ink / RowColours | sheet.Manifest.PaletteBits) == RidleyRow),
             $"Ridley's sheet is coloured in row seven, as his draws select (palette bits {sheet.Manifest.PaletteBits}; own rows " +

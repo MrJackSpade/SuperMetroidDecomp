@@ -25,7 +25,7 @@ internal sealed record InstalledSheetFamily(string Directory, IReadOnlyList<Name
         {
             ComposedSpriteSheet sheet = Ensure.NotNull(sheets[index].Sheet);
             installed[index] = new NamedInstalledSheet(sheets[index].Name,
-                InstalledSheetConversion.Install(sheet.Manifest, sheet.Size, sheet.Pixels, sheet.PaletteIndices) with { ShownWhole = sheet.ShownWhole });
+                InstalledSheetConversion.Install(sheet.Manifest, sheet.Size, sheet.Pixels, sheet.Inks) with { ShownWhole = sheet.ShownWhole });
         });
         return new InstalledSheetFamily(directory, installed);
     }

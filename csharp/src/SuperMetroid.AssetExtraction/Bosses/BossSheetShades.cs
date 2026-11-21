@@ -79,13 +79,13 @@ internal static class BossSheetShades
 
     /// <summary>
     /// The shades of <paramref name="owner"/>'s body sheet, painted from <paramref name="standard"/> with the inks
-    /// <paramref name="paletteIndices"/> name.
+    /// <paramref name="inks"/> of a sheet composed in <paramref name="palette"/> name.
     /// </summary>
     /// <exception cref="InvalidDataException">
     /// The boss's colours are not installed, or a colour gameplay substitutes is not unique on the body's picture.
     /// </exception>
-    internal static IReadOnlyList<SheetShade> Body(BossBodyOwner owner, BossSourceArtwork bosses, ReadOnlySpan<byte> paletteIndices,
-        ReadOnlySpan<RgbColor> standard)
+    internal static IReadOnlyList<SheetShade> Body(BossBodyOwner owner, BossSourceArtwork bosses, ReadOnlySpan<ComposedInk> inks,
+        SpriteImageColours palette, ReadOnlySpan<RgbColor> standard)
     {
         Ensure.NotNull(bosses);
         if (owner == BossBodyOwner.Draygon)
@@ -103,7 +103,7 @@ internal static class BossSheetShades
             return [];
         KraidColorCatalog kraid = bosses.KraidColors ?? throw new InvalidDataException("Kraid's body is shaded from the installed Kraid colours.");
         var shades = new List<SheetShade>();
-        HashSet<int> used = [.. paletteIndices.ToArray().Select(index => (int)index)];
+        HashSet<int> used = [.. inks.ToArray().Select(ink => ink.PlaceIn(palette))];
         // Every band's shade shows his eyes in the colours gameplay's eye glow replaces, whatever the band gives them (#1512).
         ReadOnlySpan<RgbColor> shadedEyes = kraid.Eyes().Shaded;
         for (int band = 0; band < KraidPalettes.HealthBandCount; band++)

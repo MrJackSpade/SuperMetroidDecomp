@@ -264,8 +264,7 @@ SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), SamusPoseId.Cro
     samus.HorizontalSpeed.HasRunningMomentum = true;
     samus.HorizontalSpeed.SpeedBoostCounter = new SamusSpeedBoostCounter(4, 1);
     samus.HorizontalSpeed.BaseSpeed = samus.HorizontalSpeed.BaseSpeed.WithWhole(1);
-    GroundedMovementResult crouchFrame = SamusPostureMovement.StepCrouching(
-level, samus, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+    GroundedMovementResult crouchFrame = SamusPostureMovement.StepCrouching(SamusMovementFixtures.CrouchOf(samus), SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, frameCounter: 0);
     AssertTrue(crouchFrame.Vertical.Collided, "crouch performs grounded probe");
     AssertEqual(0, samus.HorizontalSpeed.BaseSpeed.Whole, "crouch clears numeric horizontal velocity");
     AssertEqual(new SamusSpeedBoostCounter(4, 1), samus.HorizontalSpeed.SpeedBoostCounter, "crouch movement preserves boost stage");
@@ -317,8 +316,7 @@ SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), aimedSamus, unc
             SamusNoInputPose.ToPose(facesLeft ? SamusPoseId.CrouchingLeftPose : SamusPoseId.CrouchingRightPose),
             SamusPoseMetadata.ReadNoInputPose(aimedSamus),
             "aimed crouch definition fallback");
-        GroundedMovementResult aimedCrouchFrame = SamusPostureMovement.StepCrouching(
-level, aimedSamus, unchecked((ushort)index), roomObjects: SamusRoomObjectFixtures.Uninstalled);
+        GroundedMovementResult aimedCrouchFrame = SamusPostureMovement.StepCrouching(SamusMovementFixtures.CrouchOf(aimedSamus), SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), aimedSamus, unchecked((ushort)index));
         AssertTrue(aimedCrouchFrame.Vertical.Collided, "aimed crouch remains grounded");
 
         SamusPosturePoseTransitions.ApplyPostureTransition(aimedSamus, 

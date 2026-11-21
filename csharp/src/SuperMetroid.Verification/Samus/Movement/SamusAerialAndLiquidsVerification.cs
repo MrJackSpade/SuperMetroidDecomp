@@ -246,7 +246,7 @@ SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, 0, unche
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 77)),
     }.InPose(SamusPoseId.FacingLeftNormalPose);
     SamusPoseMetadata.RefreshCollisionRadii(fallLeft);
-    SamusPoseTransitions.ApplyWalkedOffFloorTransition(fallLeft, level, SamusPoseId.FallingLeftPose, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+    SamusPoseTransitions.ApplyWalkedOffFloorTransition(fallLeft, SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), frameCounter: 0);
     AssertEqual(SamusPoseId.FallingLeftPose, fallLeft.Pose, "walk-off chooses left falling pose");
     AssertEqual(21, fallLeft.Kinematics.Radius.Y, "walk-off commit retains standing radius");
     SamusPoseMetadata.RefreshCollisionRadii(fallLeft);
@@ -463,7 +463,7 @@ internal static void VerifySamusSpaceJumpAndScrewAttack()
     spinFire.HorizontalSpeed.ExtraRunSpeed = spinFire.HorizontalSpeed.ExtraRunSpeed.WithFraction(1);
     // The spin Fire body expansion fits the empty room: the pose below shows it taken.
     spinFire.ApplySpinToNormalJumpFireTransition(
-        empty,
+        SamusTerrain.InRoom(empty, SamusRoomObjectFixtures.Uninstalled),
         SamusPoseId.NormalJumpGunExtendedRightPose,
         frameCounter: 0,
         controllerNewInput: GameplayAction.Shoot);

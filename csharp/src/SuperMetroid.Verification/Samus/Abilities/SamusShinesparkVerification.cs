@@ -530,40 +530,11 @@ internal static void VerifySamusStoredShineAndShinespark()
             "an empty shot pool releases both echoes");
         SuperMetroid.Core.Samus.Projectiles.SamusProjectile echoShot = samus.Shinespark.FirstReleasedEcho.Shot!;
         echoShot.KindStateAs<ShinesparkEchoShotState>().Radius = 65528;
-        shots.Shinespark.StepShinesparkEcho(samus, echoShot, new Position16<RoomPixels>(0, 0));
+        shots.Shinespark.StepShinesparkEcho(samus, echoShot, echoShot.KindStateAs<ShinesparkEchoShotState>(), new Position16<RoomPixels>(0, 0));
         AssertTrue(samus.Shinespark.FirstReleasedEcho.ShownPosition is not null, "an echo a whole number of lookups out stays inside the viewport");
         AssertEqual(65536, echoShot.KindStateAs<ShinesparkEchoShotState>().Radius, "a departing echo's radius grows by eight past 65535");
         AssertEqual(samus.Position.Whole, samus.Shinespark.FirstReleasedEcho.ShownPosition!.Value, "a radius of whole lookups places the echo on Samus");
         Console.WriteLine("Shinespark crash: angular travel wraps past 65535 to zero; a departing echo at whole lookups is on Samus.");
-    }
-
-    /// <summary>
-    /// Checks that the spark's step runs only while the spark moves Samus (#2525): a stored shine and no spark at all
-    /// are not stepped, as the frame runs the step only for the shinespark movement owner, so stepping either is rejected.
-    /// </summary>
-    internal static void VerifyShinesparkStepRequiresMovingSpark()
-    {
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16),
-            new RoomLevelPlanes(new RoomTerrainBlock[16 * 16], new RoomBlockBehavior[16 * 16], new RoomBlockAppearance[16 * 16]), RoomLevelData.NothingBeyondGrid(), []);
-        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
-        {
-            Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
-        }.InPose(SamusPoseId.FacingRightNormalPose);
-        var terrain = SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled);
-        var frame = new ShinesparkFrame
-        {
-            FrameCounter = 0,
-            SamusCannotDie = false,
-            Projectiles = Shots(),
-            GameTimeFrames = 0,
-            PreviousCheckpoint = samus.Position,
-        };
-        AssertEqual(ShinesparkPhase.Inactive, samus.Shinespark.Phase, "a new Samus has no spark");
-        AssertThrows<InvalidOperationException>(() => samus.Shinespark.Step(terrain, samus, frame), "no spark is not stepped");
-        samus.Shinespark.TryStoreFromSpeedBooster(SamusSpeedBoostCounter.AtFullStage);
-        AssertEqual(ShinesparkPhase.Stored, samus.Shinespark.Phase, "a full boost stores the shine");
-        AssertThrows<InvalidOperationException>(() => samus.Shinespark.Step(terrain, samus, frame), "a stored shine is not stepped");
-        Console.WriteLine("Shinespark step: no spark and a stored shine are rejected.");
     }
 
     /// <summary>

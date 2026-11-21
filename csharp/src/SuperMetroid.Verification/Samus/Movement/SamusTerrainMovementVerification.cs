@@ -656,11 +656,7 @@ internal static void VerifySamusGroundedReversal()
     turnTowardLeft.Kinematics.Radius = new(5, 5);
     turnTowardLeft.HorizontalSpeed.BaseSpeed = turnTowardLeft.HorizontalSpeed.BaseSpeed.WithWhole(1);
     turnTowardLeft.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Turning;
-    GroundedMovementResult carriedRight = SamusGroundedMovement.StepTurningOnGround(
-
-        level,
-        turnTowardLeft,
-        frameCounter: 0, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
+    GroundedMovementResult carriedRight = SamusGroundedMovement.StepTurningOnGround(SamusMovementFixtures.GroundTurnOf(turnTowardLeft), SamusTerrain.InRoom(level, SamusRoomObjectFixtures.WithQuicksand()), turnTowardLeft, frameCounter: 0);
     AssertEqual(0x8000, turnTowardLeft.HorizontalSpeed.BaseSpeed.Fraction, "left-turn native deceleration amount");
     AssertEqual(0x00008000, carriedRight.Horizontal.AcceptedDisplacement.RawValue, "left-turn carries rightward momentum");
 
@@ -671,11 +667,7 @@ internal static void VerifySamusGroundedReversal()
     turnTowardRight.Kinematics.Radius = new(5, 5);
     turnTowardRight.HorizontalSpeed.BaseSpeed = turnTowardRight.HorizontalSpeed.BaseSpeed.WithWhole(1);
     turnTowardRight.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Turning;
-    GroundedMovementResult carriedLeft = SamusGroundedMovement.StepTurningOnGround(
-
-        level,
-        turnTowardRight,
-        frameCounter: 1, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
+    GroundedMovementResult carriedLeft = SamusGroundedMovement.StepTurningOnGround(SamusMovementFixtures.GroundTurnOf(turnTowardRight), SamusTerrain.InRoom(level, SamusRoomObjectFixtures.WithQuicksand()), turnTowardRight, frameCounter: 1);
     AssertEqual(-0x00008000, carriedLeft.Horizontal.AcceptedDisplacement.RawValue, "right-turn carries leftward momentum");
 
     // Underflow clears speed and mode inside $90:9A7E before direction dispatch. The last
@@ -685,11 +677,7 @@ internal static void VerifySamusGroundedReversal()
     exhaustedTurn.Kinematics.Radius = new(5, 5);
     exhaustedTurn.HorizontalSpeed.BaseSpeed = exhaustedTurn.HorizontalSpeed.BaseSpeed.WithFraction(0x2000);
     exhaustedTurn.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Turning;
-    GroundedMovementResult stopped = SamusGroundedMovement.StepTurningOnGround(
-
-        level,
-        exhaustedTurn,
-        frameCounter: 0, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
+    GroundedMovementResult stopped = SamusGroundedMovement.StepTurningOnGround(SamusMovementFixtures.GroundTurnOf(exhaustedTurn), SamusTerrain.InRoom(level, SamusRoomObjectFixtures.WithQuicksand()), exhaustedTurn, frameCounter: 0);
     AssertEqual(0, exhaustedTurn.HorizontalSpeed.BaseSpeed.Fraction, "turn underflow clears speed");
     AssertEqual(SamusAccelerationMode.Accelerating, exhaustedTurn.HorizontalSpeed.AccelerationMode, "turn underflow clears mode one");
     AssertEqual(0, stopped.Horizontal.AcceptedDisplacement.RawValue, "turn underflow does not reverse early");
@@ -846,11 +834,7 @@ internal static void VerifySamusGroundedReversal()
         AssertEqual(0, aimedTurn.HorizontalSpeed.ExtraRunSpeed.Fraction, $"aimed turn consumes extra fraction case {caseIndex}");
         AssertEqual(SamusAccelerationMode.Turning, aimedTurn.HorizontalSpeed.AccelerationMode, $"aimed turn mode one case {caseIndex}");
 
-        GroundedMovementResult carriedMomentum = SamusGroundedMovement.StepTurningOnGround(
-
-            aimedLevel,
-            aimedTurn,
-            frameCounter: (ushort)caseIndex, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
+        GroundedMovementResult carriedMomentum = SamusGroundedMovement.StepTurningOnGround(SamusMovementFixtures.GroundTurnOf(aimedTurn), SamusTerrain.InRoom(aimedLevel, SamusRoomObjectFixtures.WithQuicksand()), aimedTurn, frameCounter: (ushort)caseIndex);
         bool beganFacingRight = (caseIndex & 1) == 0;
         AssertTrue(
             beganFacingRight
@@ -940,11 +924,7 @@ internal static void VerifySamusGroundedReversal()
         AssertEqual(16, crouchedTurn.Kinematics.Radius.Y, $"crouched turn radius case {caseIndex}");
         AssertEqual(SamusAccelerationMode.Turning, crouchedTurn.HorizontalSpeed.AccelerationMode, $"crouched turn mode one case {caseIndex}");
 
-        GroundedMovementResult crouchedMomentum = SamusGroundedMovement.StepTurningOnGround(
-
-            aimedLevel,
-            crouchedTurn,
-            frameCounter: (ushort)caseIndex, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
+        GroundedMovementResult crouchedMomentum = SamusGroundedMovement.StepTurningOnGround(SamusMovementFixtures.GroundTurnOf(crouchedTurn), SamusTerrain.InRoom(aimedLevel, SamusRoomObjectFixtures.WithQuicksand()), crouchedTurn, frameCounter: (ushort)caseIndex);
         bool beganFacingRight = (caseIndex & 1) == 0;
         AssertTrue(
             beganFacingRight
@@ -1645,7 +1625,7 @@ SamusTerrain.InRoom(floor, SamusRoomObjectFixtures.WithQuicksand()), walker, fra
         turn.HorizontalSpeed.BaseSpeed = turn.HorizontalSpeed.BaseSpeed.WithWhole(1);
         turn.HorizontalSpeed.ExtraRunSpeed = turn.HorizontalSpeed.ExtraRunSpeed.WithFraction(0x4000);
         SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection? sourceMuzzleDirection = SamusPoseMetadata.ReadAimDirection(turn);
-        SamusGroundedPoseTransitions.ApplyMoonwalkTurnToSpinJump(turn, target);
+        SamusGroundedPoseTransitions.ApplyMoonwalkTurnToSpinJump(turn);
         AssertEqual<SamusTransitionShot?>(global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Samus.SamusTransitionShot>([typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection)], new object?[] { sourceMuzzleDirection
                 ?? throw new InvalidOperationException($"Moonwalk pose {source} names no aim.") }),
             turn.TransitionShot.Handed, "all six Moonwalk jump routes publish their original muzzle direction");
@@ -1659,7 +1639,7 @@ SamusTerrain.InRoom(floor, SamusRoomObjectFixtures.WithQuicksand()), walker, fra
     // Exercise the terminal command on one mirrored route. Six decrements consume three
     // two-tick art frames; applying `$F8,$1A` then creates the real 4.E000 upward launch.
     var animated = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()).InPose(SamusPoseId.MoonwalkFacingRightPose);
-    SamusGroundedPoseTransitions.ApplyMoonwalkTurnToSpinJump(animated, SamusPoseId.MoonwalkTurnToSpinJumpLeftPose);
+    SamusGroundedPoseTransitions.ApplyMoonwalkTurnToSpinJump(animated);
     for (int tick = 0; tick < 6; tick++)
         SamusPresentation.Animate(animated, new SamusAnimationStep { Random = new SharedRandom() });
     AssertEqual(SamusPoseId.SpinJumpLeftPose, (animated.CuePose.Named ?? throw new InvalidOperationException("Verification requires animated.CuePose.Named.")),

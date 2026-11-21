@@ -125,7 +125,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
                 Kinematics = { Radius = new(5, 12) },
             }.InPose(pose);
             samus.Ground = RoomDefinitions.FirstIn(AreaId.Maridia).Ground;
-            SamusPresentation.InitializeAnimation(samus, samus.PoseFrameNumbered(frame));
+            samus.ChangePose(samus.Pose, samus.PoseFrameNumbered(frame));
             AdvanceToFootContactTick(samus);
             samus.LiquidPhysics.PrepareAnimationFrame(samus, new SharedRandom(), frameCounter: 1, bossPresent: false);
 

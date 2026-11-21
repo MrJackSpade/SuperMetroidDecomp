@@ -176,8 +176,7 @@ SamusTerrain.InRoom(floor, SamusRoomObjectFixtures.Uninstalled), SamusPoseId.Mor
     ushort timerBeforeRoll = samus.AnimationFrameTimer.RawValue;
     SamusPosturePoseTransitions.ApplyMorphBallPoseChange(samus, SamusPoseId.MorphBallMovingRightPose);
     AssertEqual(timerBeforeRoll, samus.AnimationFrameTimer.RawValue, "ball direction change preserves timer");
-    MorphBallMovementResult rolling = SamusMorphBallMovement.StepGrounded(
-floor, samus, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+    MorphBallMovementResult rolling = SamusMorphBallMovement.StepGrounded(SamusMovementFixtures.GroundedBallOf(samus), SamusTerrain.InRoom(floor, SamusRoomObjectFixtures.Uninstalled), samus, frameCounter: 0);
     AssertTrue(rolling.Vertical.Collided, "rolling ball retains floor contact");
     AssertEqual(0xc000, samus.HorizontalSpeed.BaseSpeed.Fraction, "type-four acceleration uses native definition");
 
@@ -190,8 +189,7 @@ floor, samus, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled)
     RoomLevelData empty = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(new RoomTerrainBlock[width * height], new RoomBlockBehavior[width * height], new RoomBlockAppearance[width * height]), RoomLevelData.NothingBeyondGrid(), []);
     SamusPosturePoseTransitions.ApplyMorphBallPoseChange(samus, SamusPoseId.MorphBallGroundLeftPose);
     samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
-    MorphBallMovementResult unsupported = SamusMorphBallMovement.StepGrounded(
-empty, samus, frameCounter: 1, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+    MorphBallMovementResult unsupported = SamusMorphBallMovement.StepGrounded(SamusMovementFixtures.GroundedBallOf(samus), SamusTerrain.InRoom(empty, SamusRoomObjectFixtures.Uninstalled), samus, frameCounter: 1);
     AssertTrue(!unsupported.Vertical.Collided, "grounded ball detects missing floor");
     SamusPosturePoseTransitions.ApplyMorphBallWalkOff(samus);
     AssertEqual(SamusPoseId.MorphBallFallingLeftPose, samus.Pose, "left ball walk-off endpoint");
@@ -212,7 +210,7 @@ empty, samus, frameCounter: 1, roomObjects: SamusRoomObjectFixtures.Uninstalled)
     SamusPoseMetadata.RefreshCollisionRadii(boostedRoll);
     boostedRoll.HorizontalSpeed.HasRunningMomentum = true;
     boostedRoll.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(1, 0x8000);
-    SamusMorphBallMovement.StepGrounded(empty, boostedRoll, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+    SamusMorphBallMovement.StepGrounded(SamusMovementFixtures.GroundedBallOf(boostedRoll), SamusTerrain.InRoom(empty, SamusRoomObjectFixtures.Uninstalled), boostedRoll, frameCounter: 0);
     AssertEqual(34, boostedRoll.Position.X.Whole,
         "grounded moving ball adds inherited 1.8000 extra speed to native 0.C000 base");
     AssertEqual(0x4000, boostedRoll.Kinematics.Position.X.Fraction,
@@ -229,12 +227,7 @@ empty, samus, frameCounter: 1, roomObjects: SamusRoomObjectFixtures.Uninstalled)
     SamusPoseMetadata.RefreshCollisionRadii(boostedFall);
     boostedFall.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(1, 0x8000);
     boostedFall.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(boostedFall.Kinematics.VerticalVelocity.Speed, SamusVerticalDirection.Down);
-    SamusMorphBallMovement.StepFalling(
-
-        empty,
-        boostedFall,
-        controllerInput: GameplayAction.Left,
-        frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+    SamusMorphBallMovement.StepFalling(SamusMovementFixtures.FallingBallOf(boostedFall), SamusTerrain.InRoom(empty, SamusRoomObjectFixtures.Uninstalled), boostedFall, controllerInput: GameplayAction.Left, frameCounter: 0);
     AssertEqual(29, boostedFall.Position.X.Whole,
         "held-left falling ball subtracts inherited 1.8000 extra speed");
     AssertEqual(0xc000, boostedFall.Kinematics.Position.X.Fraction,
@@ -249,12 +242,7 @@ empty, samus, frameCounter: 1, roomObjects: SamusRoomObjectFixtures.Uninstalled)
     SamusPoseMetadata.RefreshCollisionRadii(opposedDirectionFall);
     opposedDirectionFall.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(1, 0x8000);
     opposedDirectionFall.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(opposedDirectionFall.Kinematics.VerticalVelocity.Speed, SamusVerticalDirection.Down);
-    SamusMorphBallMovement.StepFalling(
-
-        empty,
-        opposedDirectionFall,
-        controllerInput: (GameplayAction.Left | GameplayAction.Right),
-        frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+    SamusMorphBallMovement.StepFalling(SamusMovementFixtures.FallingBallOf(opposedDirectionFall), SamusTerrain.InRoom(empty, SamusRoomObjectFixtures.Uninstalled), opposedDirectionFall, controllerInput: (GameplayAction.Left | GameplayAction.Right), frameCounter: 0);
     AssertEqual(boostedFall.Kinematics.Position.X, opposedDirectionFall.Kinematics.Position.X,
         "Left+Right falling ball follows its pose direction instead of cancelling motion");
     AssertEqual(boostedFall.HorizontalSpeed.BaseSpeed.RawValue,
@@ -268,12 +256,7 @@ empty, samus, frameCounter: 1, roomObjects: SamusRoomObjectFixtures.Uninstalled)
     SamusPoseMetadata.RefreshCollisionRadii(boostedSpring);
     boostedSpring.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(1, 0x8000);
     boostedSpring.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(boostedSpring.Kinematics.VerticalVelocity.Speed, SamusVerticalDirection.Down);
-    SamusMorphBallMovement.StepSpringBallInAir(
-
-        empty,
-        boostedSpring,
-        controllerInput: GameplayAction.Right,
-        frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+    SamusMorphBallMovement.StepSpringBallInAir(SamusMovement.SpringBallInAir, SamusTerrain.InRoom(empty, SamusRoomObjectFixtures.Uninstalled), boostedSpring, controllerInput: GameplayAction.Right, frameCounter: 0);
     AssertEqual(34, boostedSpring.Position.X.Whole,
         "Spring-Ball air handler adds inherited extra-run speed through shared jump movement");
     AssertEqual(0x4000, boostedSpring.Kinematics.Position.X.Fraction,
@@ -363,8 +346,7 @@ empty, samus, frameCounter: 1, roomObjects: SamusRoomObjectFixtures.Uninstalled)
     samus.Position = samus.Position.WithWhole(new(48, 55));
     samus.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(new UnsignedSixteenSixteen(3, 0), SamusVerticalDirection.Down);
     samus.Kinematics.YAcceleration = default;
-    MorphBallMovementResult hardLanding = SamusMorphBallMovement.StepFalling(
-floor, samus, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+    MorphBallMovementResult hardLanding = SamusMorphBallMovement.StepFalling(SamusMovementFixtures.FallingBallOf(samus), SamusTerrain.InRoom(floor, SamusRoomObjectFixtures.Uninstalled), samus, controllerInput: 0, frameCounter: 0);
     AssertTrue(hardLanding.Landed, "hard ball fall collides with floor");
     samus.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(2, 0x8000);
     samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Decelerating;
@@ -496,8 +478,7 @@ SamusTerrain.InRoom(floor, SamusRoomObjectFixtures.Uninstalled), SamusPoseId.Mor
         "F9 equipped endpoint selects Spring Ball ground");
     AssertTrue(SamusPoseTransitions.ApplyPendingAnimationTransition(spring), "Spring Ball F9 applies");
     SamusPosturePoseTransitions.ApplyMorphBallPoseChange(spring, SamusPoseId.SpringBallMovingRightPose);
-    MorphBallMovementResult springRoll = SamusMorphBallMovement.StepGrounded(
-floor, spring, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+    MorphBallMovementResult springRoll = SamusMorphBallMovement.StepGrounded(SamusMovementFixtures.GroundedBallOf(spring), SamusTerrain.InRoom(floor, SamusRoomObjectFixtures.Uninstalled), spring, frameCounter: 0);
     AssertTrue(springRoll.Vertical.Collided, "Spring Ball roll retains floor contact");
     AssertEqual(0xc000, spring.HorizontalSpeed.BaseSpeed.Fraction,
         "type-$11 acceleration uses its ROM record");
@@ -508,8 +489,7 @@ floor, spring, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled
     SamusPosturePoseTransitions.ApplySpringBallJump(spring, SamusPoseId.SpringBallJumpRightPose);
     AssertEqual(4, spring.Kinematics.VerticalVelocity.Speed.Whole, "Spring Ball launch whole speed");
     AssertEqual(0xe000, spring.Kinematics.VerticalVelocity.Speed.Fraction, "Spring Ball launch subspeed");
-    SamusMorphBallMovement.StepSpringBallInAir(
-empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+    SamusMorphBallMovement.StepSpringBallInAir(SamusMovement.SpringBallInAir, SamusTerrain.InRoom(empty, SamusRoomObjectFixtures.Uninstalled), spring, controllerInput: 0, frameCounter: 0);
     AssertEqual(SamusVerticalDirection.Down, spring.Kinematics.VerticalVelocity.Direction, "released Spring Ball jump cuts upward arc");
 
     // The no-Jump hard impact stores the distinctive `$0601` state. A held-Jump impact
@@ -1562,8 +1542,7 @@ SamusTerrain.InRoom(ceiling, RoomObjectFixtures.Unbound()), straightBombJump, fr
     straightBombJump.Position = straightBombJump.Position.WithWholeY(55);
     straightBombJump.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(new UnsignedSixteenSixteen(3, 0), SamusVerticalDirection.Down);
     straightBombJump.Kinematics.YAcceleration = default;
-    MorphBallMovementResult bombLanding = SamusMorphBallMovement.StepGrounded(
-floor, straightBombJump, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+    MorphBallMovementResult bombLanding = SamusMorphBallMovement.StepGrounded(SamusMovementFixtures.GroundedBallOf(straightBombJump), SamusTerrain.InRoom(floor, SamusRoomObjectFixtures.Uninstalled), straightBombJump, frameCounter: 0);
     AssertTrue(bombLanding.Landed, "post-bomb-jump grounded art collides with floor");
     SamusPosturePoseTransitions.ApplyMorphBallLanding(straightBombJump);
     AssertEqual(SamusBallBounceState.FirstRebound, straightBombJump.MorphBallBounceState, "post-bomb-jump landing enters bounce one");

@@ -139,7 +139,7 @@ internal static class LookupStream4Verification
         {
             AnimationBeat<CinematicSpritePose, EndingSceneCue>.Frame frame => frame.Duration,
             AnimationBeat<CinematicSpritePose, EndingSceneCue>.Pause pause => pause.Duration,
-            AnimationBeat<CinematicSpritePose, EndingSceneCue>.Hidden hidden => hidden.Duration,
+            AnimationHiddenBeat<CinematicSpritePose, EndingSceneCue> hidden => hidden.Duration,
             var other => throw new InvalidOperationException($"The stars' first beat {other} lasts no updates."),
         }, "Actual actor program retains the shared native handoff");
         AssertEqual(ticks, ZebesExplosionForegroundPaletteFxColorDefinitionsConstants.CycleFrames, "Derived complete exposure");
@@ -536,7 +536,7 @@ internal static class LookupStream4Verification
             PrivateState.Set(floor, nameof(EndingTurningFloor.Position), floor.Position.WithX(SignedSixteenSixteen.FromParts(100, 0xC000)));
             PrivateState.Set(floor, nameof(EndingTurningFloor.Zoom), FloorZoom.FromFloorPixelsPerScreenPixel(12));
             state.ShowCastPhase(fast ? EndingCreditsPhase.PlanetEscapeFast : EndingCreditsPhase.PlanetEscapeSlow);
-            PrivateState.Set(state.Flyaway, "ShipShake", EndingShipShakeCursor.StartOf(sequence));
+            PrivateState.Set(state.Flyaway, "ShipShake", ListStep<SignedSixteenSixteen>.FirstOf(sequence));
             // The ending's own update runs the leg and makes its handoff.
             Action step = state.Step;
             uint expected = 100u << 16 | 0xC000;
@@ -553,9 +553,7 @@ internal static class LookupStream4Verification
                 AssertEqual((ushort)expected, floor.Position.X.Fraction, "production shake fraction preserves carry/borrow");
                 AssertEqual((frame + 1) % count, state.Flyaway.ShipShake.Place, "production shake moves on after each displacement and starts again after the last");
             }
-            EndingShipShakeCursor last = EndingShipShakeCursor.StartOf(sequence);
-            for (int place = 0; place < count - 1; place++)
-                last = last.Advanced();
+            ListStep<SignedSixteenSixteen> last = ListStep<SignedSixteenSixteen>.At(sequence, count - 1);
             PrivateState.Set(floor, nameof(EndingTurningFloor.Zoom), fast ? EndingMotionDefinitions.PlanetFastEndZoom : EndingMotionDefinitions.PlanetSlowEndZoom);
             PrivateState.Set(state.Flyaway, "ShipShake", last);
             PrivateState.Set(floor, nameof(EndingTurningFloor.Position), floor.Position.WithX(SignedSixteenSixteen.FromParts(0, 0x4000)));
@@ -566,8 +564,8 @@ internal static class LookupStream4Verification
             AssertEqual(fast ? EndingCreditsPhase.PlanetEscapeSlow : EndingCreditsPhase.PlanetEscapeAccelerating, state.Phase, "native zoom boundary chooses next phase after selected motion");
             if (fast)
             {
-                AssertTrue(ReferenceEquals(EndingShipShake.Slow, state.Flyaway.ShipShake.Sequence), "fast handoff starts the slow shake");
-                AssertEqual(0, state.Flyaway.ShipShake.Place, "fast handoff starts the slow shake from its first displacement");
+                AssertEqual(ListStep<SignedSixteenSixteen>.FirstOf(EndingShipShake.Slow), state.Flyaway.ShipShake,
+                    "fast handoff starts the slow shake from its first displacement");
             }
             else
             {
@@ -575,8 +573,6 @@ internal static class LookupStream4Verification
                 AssertEqual((ushort)0x8000, state.Flyaway.PlanetVelocity.Fraction, "slow handoff initializes independent acceleration fraction");
             }
         }
-        AssertThrows<ArgumentException>(() => EndingShipShakeCursor.StartOf([]), "an empty shake sequence is refused");
-        AssertThrows<InvalidOperationException>(() => _ = default(EndingShipShakeCursor).Displacement, "an unstarted shake has no displacement");
         Console.WriteLine("Ending shake: 24 native signed values, two-pixel cycles, both production cycles and restarts, independent rotation/zoom, both phase handoffs and fixed-point carries pass.");
     }
 

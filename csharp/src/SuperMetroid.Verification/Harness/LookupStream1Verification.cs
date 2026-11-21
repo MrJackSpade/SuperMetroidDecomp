@@ -804,9 +804,9 @@ internal static class LookupStream1Verification
         // The cartridge lists the balloon's height for each pose in the order each sequence shows them (#1845).
         for (int pose = 0; pose < 3; pose++)
         {
-            AssertEqual(Word(0xa8c277 + 2 * pose), PowampMotion.BalloonHeight(new PowampBalloonInflation(PowampBalloonSequence.Inflating, pose + 1).Pose),
+            AssertEqual(Word(0xa8c277 + 2 * pose), PowampMotion.BalloonHeight(SuperMetroid.Verification.Enemies.Powamp.PowampBehaviorVerification.NativeInflatingPoses[pose]),
                 "Powamp native rising balloon offset");
-            AssertEqual(Word(0xa8c27d + 2 * pose), PowampMotion.BalloonHeight(new PowampBalloonInflation(PowampBalloonSequence.Sinking, pose + 1).Pose),
+            AssertEqual(Word(0xa8c27d + 2 * pose), PowampMotion.BalloonHeight(SuperMetroid.Verification.Enemies.Powamp.PowampBehaviorVerification.NativeSinkingPoses[pose]),
                 "Powamp native sinking balloon offset");
         }
         CompassDirection[] spikeDirections = SuperMetroid.Verification.Enemies.Powamp.PowampSpikeCartridgeOrder.Directions;

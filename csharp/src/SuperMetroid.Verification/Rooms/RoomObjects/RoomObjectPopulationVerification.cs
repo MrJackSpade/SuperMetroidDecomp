@@ -75,7 +75,7 @@ internal static class RoomObjectPopulationVerification
         const ushort loop = 0xafb6;
         var cartridge = CartridgeImportSource.Require(rom);
         ushort cursor = loop;
-        foreach (TerrainChangeFrame frame in ElevatorPlatformObjectDefinitions.Cycle)
+        foreach (ElevatorPlatformFrame frame in ElevatorPlatformObjectDefinitions.Cycle)
         {
             AssertEqual((ushort)frame.Updates, cartridge.ReadCartridgeWord(0x840000 | cursor), $"elevator platform image at $84:{cursor:X4} stays its updates");
             AssertEqual(RoomObjectDrawAddressCodec.Of(frame.Draw), cartridge.ReadCartridgeWord(0x840000 | (cursor + 2)), $"elevator platform image at $84:{cursor:X4} draws its layout");

@@ -143,7 +143,8 @@ internal static void VerifySamusDrainedController()
     right.Kinematics.YAcceleration = new UnsignedSixteenSixteen(0, 0x4000);
     ushort firstHandlerY = right.Position.Y.Whole;
     ushort firstHandlerYSubposition = right.Kinematics.Position.Y.Fraction;
-    right.Drained.StepFalling(level, SamusRoomObjectFixtures.Uninstalled, right, 0);
+    AssertTrue(right.Drained.TryStepFalling(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), right, 0, out _),
+        "the first drained handler call steps her fall");
     AssertEqual(firstHandlerYSubposition, right.Kinematics.Position.Y.Fraction,
         "first drained handler call uses old zero speed");
     AssertEqual(firstHandlerY, right.Position.Y.Whole, "first drained handler frame is stationary");
@@ -153,8 +154,8 @@ internal static void VerifySamusDrainedController()
     DrainedSamusMovementResult landing = default;
     StepUntil(
         () => landing.Landed,
-        frame => landing = right.Drained.StepFalling(
-level, SamusRoomObjectFixtures.Uninstalled, right, unchecked((ushort)(frame + 1))),
+        frame => AssertTrue(right.Drained.TryStepFalling(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), right,
+            unchecked((ushort)(frame + 1)), out landing), "drained Samus falls until she lands"),
         maximumFrames: 99,
         context: "drained handler block-floor landing");
     AssertEqual(75, right.Position.Y.Whole, "drained body rests at floor minus radius");

@@ -146,7 +146,7 @@ internal static class AttractDemoSceneVerification
             AssertEqual(energy, setup.Energy, $"{setup} starts Samus with the energy its routine loads");
         }
         foreach ((AttractDemoSamusSetup.Shinespark setup, int poseImmediate) in AttractDemoNativeWords.ShinesparkImmediates)
-            AssertEqual(PoseLoadedAt(poseImmediate, setup.ToString()), setup.LaunchPose, $"{setup} launches Samus in the pose its routine loads");
+            AssertEqual(PoseLoadedAt(poseImmediate, setup.ToString()), setup.Launch.Pose, $"{setup} launches Samus in the pose its routine loads");
     }
 
     /// <summary>The opcode of a load of the accumulator from the immediate that follows it.</summary>

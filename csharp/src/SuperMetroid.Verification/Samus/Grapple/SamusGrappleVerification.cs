@@ -675,7 +675,7 @@ SamusTerrain.InRoom(firingLevel, SamusRoomObjectFixtures.Uninstalled), cancelled
     var grappleFlare = (SamusColouredDraw)grappleFlareOamFrame.Draws.Single();
     AssertEqual(InstalledFixtures.SpriteSheets.Get(ProjectileSheetFrames.For(SuperMetroid.Core.Progression.SamusBeamCombinations.Of(samus.EquippedBeams)))
             .Frame(ProjectileSheetFrames.FlareFrame(
-            ChargeFlarePictures.Of(SuperMetroid.Core.Samus.Projectiles.ChargeFlareComponent.MainFlare, facingLeft: false, ChargeFlareAnimationDefinitions.PictureNumbered(ChargeFlareComponent.MainFlare, 16)))), grappleFlare.Image,
+            ChargeFlareAnimationDefinitions.CompositionNumbered(ChargeFlareComponent.MainFlare, HorizontalDirection.Right, 16))), grappleFlare.Image,
         "grapple flare shows main flare frame sixteen from the sheet of the beams she has equipped");
     AssertEqual(new Offset16<ScreenPixels>(98, 103), grappleFlare.Origin, "grapple flare is placed at the flare origin");
 

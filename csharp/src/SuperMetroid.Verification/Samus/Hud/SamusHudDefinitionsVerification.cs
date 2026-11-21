@@ -69,7 +69,8 @@ internal static class SamusHudDefinitionsVerification
             {
                 if (rom.ReadCartridgeByte(SamusSourceDefinitions.PoseDefinitions.Value + pose * 8 + 1) != movement) continue;
                 if (!SamusPoseNumbering.NamesPose(pose)) continue;
-                metadataPose = samus.ChangePoseKeepingAnimation(SamusPoseNumbering.FromNumber(pose));
+                samus.ChangePoseKeepingAnimation(SamusPoseNumbering.FromNumber(pose));
+                metadataPose = samus.Pose;
                 if (locked) samus.Control.LockOutPlayer(); else samus.Control.Unlock();
                 samus.SelectedHudItem = SuperMetroid.Diagnostics.Saves.SaveSlotNumbering.SavedHudItem(selected); setTurn(samus, turn);
                 bool expected = !locked && pose is not (0 or 0x9b) && selected == 4 &&
@@ -95,7 +96,8 @@ internal static class SamusHudDefinitionsVerification
             for (int frame = 0; frame < 10; frame++)
                 shots.StepFrame(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), bombs, new SharedGameState(new SharedRandom()));
             AssertEqual(10, shots.Charge.UpdatesHeld, "Fixture charge earned through real producer");
-            metadataPose = samus.ChangePoseKeepingAnimation(pose);
+            samus.ChangePoseKeepingAnimation(pose);
+            metadataPose = samus.Pose;
             setTurn(samus, turn);
             SamusHudSelectionMode handler = HandlerOf(rom, movement);
             bool ball = SamusPoseMetadata.IsStableBallPose(pose);
@@ -107,10 +109,6 @@ internal static class SamusHudDefinitionsVerification
             AssertEqual(preserves ? 10 : turn != 0 ? 0 : 11, shots.Charge.UpdatesHeld, $"Actual projectile HUD charge preservation movement={movement:X2} pose={(int)SamusPoseNumbers.Number(pose):X2} turn={turn}");
             AssertTrue(shots.Shots.All(slot => !slot.IsActive), "Held partial charge does not emit shot");
         }
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => SamusHudObservations.PostureAdmitsWeapons(
-                SamusPoseId.DrainedCrouchingRightPose, InstalledFixtures.SamusOverreads.Projectiles.PostureAdmission),
-            "posture observation rejects the native prefiltered range");
         Console.WriteLine("Samus HUD definitions: 28 handler words, every bounded posture-index observation, transition case, native-pose Grapple admission case and real charge-preservation case of the records that name a pose pass with policy reads forbidden.");
     }
 

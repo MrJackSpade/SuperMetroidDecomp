@@ -60,10 +60,10 @@ internal static class PowampBehaviorVerification
     }
 
     /// <summary>The poses the cartridge's inflating sequence shows, in the order its lists show them, four bytes per pose.</summary>
-    private static readonly PowampBalloonPose[] NativeInflatingPoses = [PowampBalloonPose.Deflated, PowampBalloonPose.Halfway, PowampBalloonPose.Full];
+    internal static readonly PowampBalloonPose[] NativeInflatingPoses = [PowampBalloonPose.Deflated, PowampBalloonPose.Halfway, PowampBalloonPose.Full];
 
     /// <summary>The poses the cartridge's sinking sequence shows, in the order its lists show them, four bytes per pose.</summary>
-    private static readonly PowampBalloonPose[] NativeSinkingPoses = [PowampBalloonPose.Full, PowampBalloonPose.Halfway, PowampBalloonPose.Deflated];
+    internal static readonly PowampBalloonPose[] NativeSinkingPoses = [PowampBalloonPose.Full, PowampBalloonPose.Halfway, PowampBalloonPose.Deflated];
 
     /// <summary>
     /// The inflation the balloon records stands for the native pointer its animation's place holds: its segment's list

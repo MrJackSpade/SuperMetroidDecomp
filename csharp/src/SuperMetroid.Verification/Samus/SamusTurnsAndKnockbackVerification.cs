@@ -146,7 +146,7 @@ internal static void VerifySamusAerialTurnsAndWallJump()
         SamusPoseId genericTarget = jumping
             ? targetFacesLeft ? SamusPoseId.TurningRightToLeftJumpPose : SamusPoseId.TurningLeftToRightJumpPose
             : targetFacesLeft ? SamusPoseId.TurningRightToLeftFallingPose : SamusPoseId.TurningLeftToRightFallingPose;
-        SamusAerialPoseTransitions.ApplyAerialTurn(samus, level, genericTarget, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+        SamusAerialPoseTransitions.ApplyAerialTurn(samus, SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), frameCounter: 0);
         AssertEqual(expectedPose, samus.Pose, $"{(jumping ? "jump" : "fall")} selector direction {shotDirection}");
         AssertEqual(0x00018000u, samus.HorizontalSpeed.BaseSpeed.RawValue, "aerial selector folds extra speed");
         AssertEqual(SamusAccelerationMode.Turning, samus.HorizontalSpeed.AccelerationMode, "aerial selector starts turn mode");
@@ -165,7 +165,7 @@ internal static void VerifySamusAerialTurnsAndWallJump()
     turn.HorizontalSpeed.ExtraRunSpeed = turn.HorizontalSpeed.ExtraRunSpeed.WithFraction(0x8000);
     turn.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(turn.Kinematics.VerticalVelocity.Speed.WithWhole(2), SamusVerticalDirection.Up);
     turn.Kinematics.YAcceleration = turn.Kinematics.YAcceleration.WithFraction(0x2800);
-    SamusAerialPoseTransitions.ApplyAerialTurn(turn, level, SamusPoseId.TurningRightToLeftJumpPose, 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+    SamusAerialPoseTransitions.ApplyAerialTurn(turn, SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), 0);
     FixedCoordinate turnXBefore = turn.Kinematics.Position.X;
     SamusAerialMovement.StepTurningInAir(SuperMetroid.Core.Samus.Movement.SamusMovement.TurningRisingOrAimedCrouched, SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), turn, 0);
     AssertEqual(SixteenSixteenWords.ToDisplacement(0x00010000), turn.Kinematics.Position.X - turnXBefore, "turn retains old rightward momentum after native 0.8000 deceleration");
@@ -219,7 +219,7 @@ internal static void VerifySamusAerialTurnsAndWallJump()
         SamusPresentation.InitializeAnimation(endpoint);
         endpoint.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Turning;
         ushort timerBeforeRelease = endpoint.AnimationFrameTimer.RawValue;
-        SamusGroundedPoseTransitions.TurnForNoTransition(endpoint, SamusPoseMetadata.ReadMovementType(endpoint));
+        SamusGroundedPoseTransitions.TurnForNoTransition(endpoint);
         AssertEqual(SamusAccelerationMode.Accelerating, endpoint.HorizontalSpeed.AccelerationMode, "released turn invokes momentum command two");
         AssertEqual(source, endpoint.Pose, "released turn retains unfinished pose");
         AssertEqual(timerBeforeRelease, endpoint.AnimationFrameTimer.RawValue, "released turn does not restart animation");
@@ -603,7 +603,7 @@ internal static void VerifySamusKnockbackAndDamageBoost()
     SamusPoseMetadata.RefreshCollisionRadii(samus); // Next alpha publishes the hurt body's radius before movement.
     FixedCoordinate hurtXBefore = samus.Kinematics.Position.X;
     FixedCoordinate hurtYBefore = samus.Kinematics.Position.Y;
-    SamusKnockbackMovement.Step(empty, samus, 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+    SamusKnockbackMovement.Step(SamusTerrain.InRoom(empty, SamusRoomObjectFixtures.Uninstalled), samus, (SamusKnockback.Moving)samus.Knockback, 0);
     // Movement consumes the current timer; gameplay state eight then calls `$A0:9169`
     // after drawing/room work. Keep that distinct owner visible in this direct subsystem test.
     samus.DecrementHurtTimers();
@@ -634,8 +634,7 @@ internal static void VerifySamusKnockbackAndDamageBoost()
     // impact speed seen by `$91:F078` is the live speed entering this frame.
     int impactYSpeed = downKnockback.Kinematics.VerticalVelocity.Speed.Whole;
     int impactYSubspeed = downKnockback.Kinematics.VerticalVelocity.Speed.Fraction;
-    KnockbackMovementResult downImpact = SamusKnockbackMovement.Step(
-floorLevel, downKnockback, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+    KnockbackMovementResult downImpact = SamusKnockbackMovement.Step(SamusTerrain.InRoom(floorLevel, SamusRoomObjectFixtures.Uninstalled), downKnockback, (SamusKnockback.Moving)downKnockback.Knockback, frameCounter: 0);
     AssertTrue(downImpact.Landed, "downward knockback collision publishes landing");
     AssertEqual(5, impactYSpeed,
         "downward knockback enters collision with whole impact speed 5");
@@ -648,7 +647,6 @@ floorLevel, downKnockback, frameCounter: 0, roomObjects: SamusRoomObjectFixtures
     // Accepting it restores normal movement but retains the current hurt arc.
     SamusKnockbackMovement.ApplyDamageBoostTransition(
         samus,
-        SamusPoseId.KnockbackRightPose,
         SamusPoseId.DamageBoostRightPose);
     AssertEqual(SamusPoseId.DamageBoostRightPose, samus.Pose, "damage-boost entry pose");
     AssertEqual(
@@ -670,7 +668,6 @@ floorLevel, downKnockback, frameCounter: 0, roomObjects: SamusRoomObjectFixtures
     SamusPoseMetadata.RefreshCollisionRadii(finalHurtFrameBoost);
     SamusKnockbackMovement.ApplyDamageBoostTransition(
         finalHurtFrameBoost,
-        SamusPoseId.KnockbackLeftPose,
         SamusPoseId.DamageBoostLeftPose);
     AssertEqual(SamusPoseId.DamageBoostLeftPose, finalHurtFrameBoost.Pose,
         "final hurt-frame damage boost uses captured source pose");
@@ -730,13 +727,13 @@ floorLevel, downKnockback, frameCounter: 0, roomObjects: SamusRoomObjectFixtures
     expires.PoseHistory.Restore(SamusPoseId.KnockbackRightPose, expires.PoseHistory.PreviousMovement, expires.PoseHistory.MovementBeforePrevious);
     for (int frame = 0; frame < 5; frame++)
     {
-        SamusKnockbackMovement.Step(empty, expires, (ushort)frame, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+        SamusKnockbackMovement.Step(SamusTerrain.InRoom(empty, SamusRoomObjectFixtures.Uninstalled), expires, (SamusKnockback.Moving)expires.Knockback, (ushort)frame);
         AssertTrue(expires.KnockbackActive,
             $"hurt movement frame {frame + 1} remains active");
         expires.DecrementHurtTimers();
     }
     ushort humanoidYBeforeCompletion = expires.Position.Y.Whole;
-    SamusKnockbackMovement.Step(empty, expires, 5, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+    SamusKnockbackMovement.Step(SamusTerrain.InRoom(empty, SamusRoomObjectFixtures.Uninstalled), expires, (SamusKnockback.Moving)expires.Knockback, 5);
     ushort humanoidYAfterFinalMove = expires.Position.Y.Whole;
     AssertTrue(expires.Position.Y.Whole < humanoidYBeforeCompletion,
         "zero hurt timer still permits final movement before interruption");
@@ -790,7 +787,7 @@ floorLevel, downKnockback, frameCounter: 0, roomObjects: SamusRoomObjectFixtures
 
         // Native ball rows accelerate at 0.C000, not the humanoid hurt row's 1.8000.
         FixedCoordinate ballXBefore = ball.Kinematics.Position.X;
-        SamusKnockbackMovement.Step(empty, ball, 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+        SamusKnockbackMovement.Step(SamusTerrain.InRoom(empty, SamusRoomObjectFixtures.Uninstalled), ball, (SamusKnockback.Moving)ball.Knockback, 0);
         AssertEqual(SixteenSixteenWords.ToDisplacement(hitSide == 0 ? -0xc000 : 0xc000), ball.Kinematics.Position.X - ballXBefore,
             $"hurt movement uses live ball type for pose ${(int)SamusPoseNumbers.Number(pose):X2}");
     }
@@ -811,14 +808,10 @@ floorLevel, downKnockback, frameCounter: 0, roomObjects: SamusRoomObjectFixtures
     ushort retainedBallTimer = ballExpires.AnimationFrameTimer.RawValue;
     for (int frame = 0; frame < 5; frame++)
     {
-        SamusKnockbackMovement.Step(empty, ballExpires, unchecked((ushort)frame), roomObjects: SamusRoomObjectFixtures.Uninstalled);
+        SamusKnockbackMovement.Step(SamusTerrain.InRoom(empty, SamusRoomObjectFixtures.Uninstalled), ballExpires, (SamusKnockback.Moving)ballExpires.Knockback, unchecked((ushort)frame));
         ballExpires.DecrementHurtTimers();
     }
-    SamusKnockbackMovement.Step(
-
-        empty,
-        ballExpires,
-        frameCounter: 5, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+    SamusKnockbackMovement.Step(SamusTerrain.InRoom(empty, SamusRoomObjectFixtures.Uninstalled), ballExpires, (SamusKnockback.Moving)ballExpires.Knockback, frameCounter: 5);
     AssertTrue(SamusKnockbackMovement.TryFinishExpiredHitInterruption(ballExpires),
         "zero hurt timer ends morphed special handler at interruption");
     AssertEqual(SamusPoseId.MorphBallGroundRightPose, ballExpires.Pose,

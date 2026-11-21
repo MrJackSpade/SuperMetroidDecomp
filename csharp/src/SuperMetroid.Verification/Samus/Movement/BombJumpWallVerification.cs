@@ -57,7 +57,7 @@ internal static class BombJumpWallVerification
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWholeY(-1);
-        var hit = SamusMorphBallMovement.StepGrounded(level, samus, 0, RoomObjectFixtures.Unbound());
+        var hit = SamusMorphBallMovement.StepGrounded(SamusMovementFixtures.GroundedBallOf(samus), SamusTerrain.InRoom(level, RoomObjectFixtures.Unbound()), samus, 0);
         AssertTrue(hit.Vertical.Collided && hit.HitCeiling, "upward platform carry publishes a ceiling collision, not a floor contact");
         AssertEqual(SamusVerticalDirection.None, samus.Kinematics.VerticalVelocity.Direction, "movement leaves ceiling response deferred until pose priority is resolved");
         SamusPosturePoseTransitions.ApplySolidCeilingCollision(samus);
@@ -65,7 +65,7 @@ internal static class BombJumpWallVerification
         AssertEqual(71, samus.Position.Y.Whole, "carried Morph Ball remains at the ceiling boundary");
         samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWholeY(0);
         samus.Kinematics.YAcceleration = samus.Kinematics.YAcceleration.WithFraction(0x1C00);
-        SamusMorphBallMovement.StepGrounded(level, samus, 1, RoomObjectFixtures.Unbound());
+        SamusMorphBallMovement.StepGrounded(SamusMovementFixtures.GroundedBallOf(samus), SamusTerrain.InRoom(level, RoomObjectFixtures.Unbound()), samus, 1);
         AssertEqual(71, samus.Position.Y.Whole, "following frame moves by old zero speed, not a one-pixel grounding probe");
         AssertEqual(0x1C00, samus.Kinematics.VerticalVelocity.Speed.Fraction, "following frame stores normal gravity for its successor");
 

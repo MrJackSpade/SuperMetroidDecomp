@@ -12,7 +12,7 @@ internal static class TypedDirectionBucketsVerification
     /// <summary>Runs every typed direction-bucket check.</summary>
     internal static void VerifyTypedDirectionBuckets()
     {
-        CompassDirection[] quarters = [CompassDirection.Up, CompassDirection.Right, CompassDirection.Down, CompassDirection.Left];
+        StraightDirection[] quarters = [StraightDirection.Up, StraightDirection.Right, StraightDirection.Down, StraightDirection.Left];
         for (int units = 0; units < RotationAngle.StepsPerTurn; units++)
         {
             // The replaced arithmetic: the bearing turned on an eighth of a turn, then its quarter of the turn.

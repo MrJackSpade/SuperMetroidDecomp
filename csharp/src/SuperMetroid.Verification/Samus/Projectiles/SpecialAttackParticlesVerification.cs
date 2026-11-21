@@ -1,5 +1,6 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Artwork;
@@ -206,7 +207,7 @@ internal static class SpecialAttackParticlesVerification
                 Fly(echo, place, fraction);
                 echo.OccupyAsFired(SamusProjectileType.EchoOf(SamusBeamEcho.ShinesparkEcho));
                 BeamCombos.InitializeComboShot(echo.HeldShot(), BeamComboShotKind.Echo);
-                echo.HeldShot().Install(SamusShotBehaviors.ShinesparkEcho, new ShinesparkEchoShotState(new TrigonometryAngle(32)) { Radius = 24 });
+                echo.HeldShot().Install(SamusShotBehaviors.ShinesparkEcho, new ShinesparkEchoShotState(new TrigonometryAngle(32), new ShinesparkCrashEcho(ShinesparkCrashEchoRelease.Second)) { Radius = 24 });
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(holding), holding, $"Undefined {nameof(PlaceHolding)}.");
@@ -235,7 +236,7 @@ internal static class SpecialAttackParticlesVerification
     {
         SamusProjectile missile = projectiles.Pool.Occupy(place);
         Fly(missile, place, fraction);
-        SamusProjectileKind kind = SamusProjectileSelection.NonBeam(family);
+        SamusProjectileKind kind = SamusProjectileSelection.Missile(family == SamusProjectileFamily.SuperMissile);
         missile.Occupy(SamusProjectileType.Of(family), SamusProjectileDamage.Read(kind));
         SamusProjectileSegment segment = SamusProjectileKinds.Animation(kind, missile.Direction);
         missile.Animation = ProjectileFixturePlaybacks.StartingAfter(segment, MidPictureUpdates);
@@ -408,7 +409,7 @@ internal static class SpecialAttackParticlesVerification
         SamusProjectile replaced = echoProjectiles.Shots[3];
         SamusProjectile echo = echoProjectiles.Pool.Occupy(3);
         echo.Occupy(SamusProjectileType.EchoOf(SamusBeamEcho.ShinesparkEcho), 1);
-        echo.HeldShot().Install(SamusShotBehaviors.ShinesparkEcho, new ShinesparkEchoShotState(TrigonometryAngle.Zero));
+        echo.HeldShot().Install(SamusShotBehaviors.ShinesparkEcho, new ShinesparkEchoShotState(TrigonometryAngle.Zero, new ShinesparkCrashEcho(ShinesparkCrashEchoRelease.Second)));
         AssertTrue(!replaced.IsOccupied, "the crash echo's release ends the trailing particle it replaces");
         SamusProjectile spentBeam = echoProjectiles.Shots[1];
         spentBeam.Spend();
@@ -439,7 +440,7 @@ internal static class SpecialAttackParticlesVerification
                     continue;
                 int place = particle.Place;
                 bool wasNegative = particle.Velocity.X.IsNegative;
-                SoundEffectId? sound = projectiles.Combos.StepWaveCombo(samus, particle.HeldShot(), shared);
+                SoundEffectId? sound = projectiles.Combos.StepWaveCombo(samus, particle.HeldShot(), particle.KindStateAs<WaveParticleState>(), shared);
                 SoundEffectId? expected = !particle.IsActive
                     ? BeamComboDefinitions.WaveRemovalSound
                     : place == 3 && wasNegative != particle.Velocity.X.IsNegative

@@ -63,7 +63,7 @@ internal static class PowerBombShapeVerification
         var explosion = new SamusPowerBombExplosionState();
         explosion.Spawn(new(100, 120));
         int cases = 0;
-        foreach (var phase in new[] { new PowerBombExplosionPhase.Running.PreExplosionWhite(), new PowerBombExplosionPhase.Running.ExplosionYellow() })
+        foreach (var phase in new PowerBombExplosionPhase[] { new PowerBombExplosionPhase.Running.PreExplosionWhite(), new PowerBombExplosionPhase.Running.ExplosionYellow() })
         {
             PrivateState.Set(explosion.Blast, "RenderedPhase", phase);
             for (int radius = 0; radius < 256; radius++)

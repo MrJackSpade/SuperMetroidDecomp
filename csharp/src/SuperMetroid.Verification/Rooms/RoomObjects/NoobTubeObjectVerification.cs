@@ -342,9 +342,8 @@ internal static class NoobTubeObjectVerification
             level.GetCollisionBlockByIndex(blockIndex).Behavior,
             "already-broken n00b tube leaves its BTS-$44 origin block");
         SamusBombProjectileSystem.ReactToBombedBlock(
-            level,
+            SamusTerrain.InRoom(level, roomObjects),
             level.BlockAt(blockIndex),
-            roomObjects,
             SamusBombProjectileSystem.NormalBombType);
         roomObjects.ProjectileTriggers.NotifyResidentProjectileHit(level.BlockAt(blockIndex),
             BlockStrike.By(SamusProjectileType.Beam(SamusBeamCombination.Wave, charged: false)));

@@ -50,11 +50,11 @@ internal static class RoomObjectPopulationInputBoundaryVerification
         AssertEqual((int)RoomCollisionType.HorizontalExtension, (int)level.GetCollisionBlock(new(4, 3)).CollisionType,
             "typed extension setup publishes its native collision type");
         var scrolls = RoomScrollGrid.CreateImplicit(RoomScrollGrid.PowerOnCells(), new Extent16<RoomScreens>(2, 2), RoomScrollState.Closed);
-        AssertTrue(roomObjects.Scrolls.TryNotifyScrollTouch(new(3, 3)), "typed trigger wakes at its placement");
+        roomObjects.Scrolls.NotifyScrollTouch(new(3, 3));
         roomObjects.Step(level, scrolls);
         foreach (ScreenScrollChange write in RoomObjectScrollChangeDefinitions.Changes[TriggerChange])
             AssertEqual(write.State, scrolls.ReadScreen(write.Screen), "the compiled scroll change mutates the intended live scroll cell");
-        AssertTrue(!roomObjects.ScrollObjectTriggered(roomObjects.Scrolls.TriggerBlocks[0]), "the trigger returns to sleep after its last write");
+        AssertTrue(!roomObjects.ScrollObjectTriggered(new(3, 3)), "the trigger returns to sleep after its last write");
 
         // A population holds any number of placements, in order (#1627); the room's places bound how many objects it holds.
         RoomObjectPlacement[] many = [.. Enumerable.Range(0, 300).Select(index => global::SuperMetroid.Core.PrivateState.With<global::SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPlacement>(second with {  }, "Block", (global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.Core.Spatial.RoomBlocks>)(new(checked((ushort)(index % 8)), checked((ushort)(index / 8))))))];

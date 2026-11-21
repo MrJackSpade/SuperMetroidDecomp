@@ -21,7 +21,7 @@ internal static class FallingSpeedRecurrenceVerification
             samus.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(2, 0xc000);
             samus.HorizontalSpeed.AccelerationMode = previousMode;
             samus.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(extraWhole, extraFraction);
-            SamusPoseTransitions.ApplyWalkedOffFloorTransition(samus, level, SamusPoseId.FallingLeftPose, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+            SamusPoseTransitions.ApplyWalkedOffFloorTransition(samus, SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), frameCounter: 0);
             AssertEqual(extraWhole != 0 || extraFraction != 0 ? SamusAccelerationMode.Decelerating : SamusAccelerationMode.Accelerating,
                 samus.HorizontalSpeed.AccelerationMode, "fall entry selects acceleration mode from extra speed");
             AssertEqual(0x2c000u, samus.HorizontalSpeed.BaseSpeed.RawValue, "fall entry does not clamp base speed");

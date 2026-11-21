@@ -91,7 +91,7 @@ internal static class GModeGateGlitchVerification
             AssertTrue(roomObjects.BlockReactions.TrySpawnProjectileShotBlock(
                     level,
                     gate.Block,
-                    DownwardGateDefinitions.ClosedGateBehavior,
+                    ShotBlockReactions.ShotBlocks[DownwardGateDefinitions.ClosedGateBehavior.Shootable],
                     BlockStrike.By(SamusProjectileType.Beam(SamusBeamCombination.Wave, charged: false)),
                     solidBlock: true),
                 "direct G-Mode fixture fills the native forty-slot PLM pool");

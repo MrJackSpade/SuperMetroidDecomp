@@ -45,7 +45,7 @@ internal static class SamusDeathFrameSelectionVerification
             var samusColours = new SamusColours();
             for (int update = 1; update <= CompletionUpdate; update++)
             {
-                SamusDeathSequenceStepResult step = samus.DeathSequence.Step(samus, samusColours,
+                SamusDeathSequenceStepResult step = samus.DeathSequence.Step(samus, (SamusDeathSequencePhase.Begun)samus.DeathSequence.Phase, samusColours,
                     InstalledFixtures.SamusBody.Gameplay.DeathSteps);
                 string context = $"death facing {facing}, update {update}";
                 int? expectedFrame = ExpectedFrame(update);

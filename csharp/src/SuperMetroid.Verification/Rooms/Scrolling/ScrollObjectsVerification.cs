@@ -36,7 +36,7 @@ internal static class ScrollObjectsVerification
         var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(new RoomTerrainBlock[width * height], new RoomBlockBehavior[width * height], new RoomBlockAppearance[width * height]), RoomLevelData.NothingBeyondGrid(), []);
         var roomObjects = RoomObjectFixtures.Unbound();
         RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), 0), RoomObjectPopulationImporter.Read(bus, population), RoomObjectServiceFixtures.Uninstalled with { Samus = new FixtureRoomSamus(() => new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
-        AssertEqual(1, roomObjects.Scrolls.TriggerBlocks.Count,
+        AssertEqual(1, roomObjects.Places.InUpdateOrder.Count(place => place.Active && place.Behaviour is ScrollTriggerObject),
             "extension setup consumes no persistent PLM slot");
 
         var origin = new Position16<RoomBlocks>(3, 3);
@@ -81,8 +81,7 @@ internal static class ScrollObjectsVerification
 
         // A direct touch wakes the resident object. Its next handler pass interprets the
         // room-owned bank-$8F bytecode, restores sleep/type-three state, and remains live.
-        AssertTrue(roomObjects.Scrolls.TryNotifyScrollTouch(origin),
-            "direct special-air contact finds resident scroll owner");
+        roomObjects.Scrolls.NotifyScrollTouch(origin);
         AssertTrue(roomObjects.ScrollObjectTriggered(origin),
             "direct contact sets native PLM var bit fifteen");
         roomObjects.Step(level, scrolls);
@@ -123,12 +122,7 @@ internal static class ScrollObjectsVerification
         SamusPoseMetadata.RefreshCollisionRadii(ball);
         ball.Kinematics.ExtraDisplacement = ball.Kinematics.ExtraDisplacement.WithX(SignedSixteenSixteen.FromParts(1, 0));
         ushort ballStartX = ball.Position.X.Whole;
-        SamusMorphBallMovement.StepGrounded(
-
-            level,
-            ball,
-            frameCounter: 0,
-            roomObjects: roomObjects);
+        SamusMorphBallMovement.StepGrounded(SamusMovementFixtures.GroundedBallOf(ball), SamusTerrain.InRoom(level, roomObjects), ball, frameCounter: 0);
         AssertTrue(ball.Position.X.Whole > ballStartX,
             "Morph Ball traverses scroll extension as special air");
         AssertTrue(roomObjects.ScrollObjectTriggered(origin),

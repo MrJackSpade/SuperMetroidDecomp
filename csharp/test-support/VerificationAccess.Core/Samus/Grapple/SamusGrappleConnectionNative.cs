@@ -13,6 +13,13 @@ internal static class SamusGrappleConnectionNative
         [GrappleConnectionKind.Swinging] = 0xc79d,
     });
 
+    /// <summary>The routine a special-angle stop's function word names: the phase the stop holds the grapple in.</summary>
+    internal static readonly NativeWordIdentities<GrapplePhase> StopPhases = new(new Dictionary<GrapplePhase, ushort>
+    {
+        [GrapplePhase.ConnectedLocked] = 0xc77e,
+        [GrapplePhase.WallGrab] = 0xc814,
+    });
+
     /// <summary>The pose a connection record's handler word installs: the routine that sets that pose.</summary>
     internal static readonly NativeWordIdentities<SamusPoseId> Poses = new(new Dictionary<SamusPoseId, ushort>
     {

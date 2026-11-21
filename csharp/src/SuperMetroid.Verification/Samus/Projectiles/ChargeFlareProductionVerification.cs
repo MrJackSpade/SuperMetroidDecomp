@@ -63,8 +63,13 @@ internal static class ChargeFlareProductionVerification
         // Beam's count goes on drawing nothing (#2396).
         {
             var invalidSelector = Create();
+            // The Hyper Beam's shot counts every component back from its last picture until it steps back past its first.
+            invalidSelector.Charge.StartHyperBeamFlare();
             foreach (ChargeFlareComponent component in Enum.GetValues<ChargeFlareComponent>())
-                invalidSelector.Charge.Flare(component).RunPastFirstPicture();
+            {
+                while (invalidSelector.Charge.FlareComposition(component, HorizontalDirection.Right) is not null)
+                    _ = invalidSelector.Charge.PlayHyperBeamFlareBackward(component);
+            }
             var subject = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) }.WithHyperBeam(true).InPose(SamusPoseId.FacingRightNormalPose);
             subject.BindBodyFixture(body);
             OamBuffer outOfTableOam = invalidSelector.ChargeFlareOam(subject, new(0, 0), placement);

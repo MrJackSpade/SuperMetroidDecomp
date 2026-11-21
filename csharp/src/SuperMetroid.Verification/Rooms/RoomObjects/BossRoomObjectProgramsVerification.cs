@@ -94,9 +94,10 @@ internal static class BossRoomObjectProgramsVerification
     /// opens anything as it starts.
     /// </summary>
     private static void CompareChanges<TMutation>(ISnesAddressSpace rom, IReadOnlyList<NativeProgramEntry<TMutation>> entries,
-        IReadOnlyDictionary<TMutation, TerrainChange> changes, NativeTerrainChanges.StepReader steps, string family)
+        IEnumerable<KeyValuePair<TMutation, TerrainChange>> typedChanges, NativeTerrainChanges.StepReader steps, string family)
         where TMutation : struct, Enum
     {
+        Dictionary<TMutation, TerrainChange> changes = typedChanges.ToDictionary(change => change.Key, change => change.Value);
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         AssertEqual(Enum.GetValues<TMutation>().Length, entries.Count, $"every {family} mutation has a native list");
         AssertEqual(entries.Count, changes.Count, $"every {family} mutation has a typed change");

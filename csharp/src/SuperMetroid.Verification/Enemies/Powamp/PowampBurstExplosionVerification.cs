@@ -31,7 +31,7 @@ internal static class PowampBurstExplosionVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         // Occupy every place above the ninth and the first, so the eight spikes take the second through ninth places.
         foreach (int place in Enumerable.Range(0, SuperMetroid.Core.Compatibility.EnemyProjectilePlaces.Capacity).Where(place => place is 0 or > 8))
-            enemies.OccupyProjectile(place, RoomEnemyProjectileKind.DustOrExplosion);
+            enemies.OccupyProjectile(place, RoomEnemyProjectileKind.DustOrExplosion, SpriteGraphics.SharedStandard);
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         body.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112));
         enemies.PowampBehavior.SpawnPowampSpikeBurst(body.BoundPlaced(EnemyDefinitionId.Powamp, new PowampBodySpawnSettings(PowampContact.Accepts)), body, body.Shading);
@@ -42,7 +42,7 @@ internal static class PowampBurstExplosionVerification
         foreach (EnemyProjectile slot in enemies.Projectiles.EnemyProjectiles)
             slot.Delete();
         foreach (int place in Enumerable.Range(0, SuperMetroid.Core.Compatibility.EnemyProjectilePlaces.Capacity).Where(place => place > 4))
-            enemies.OccupyProjectile(place, RoomEnemyProjectileKind.DustOrExplosion);
+            enemies.OccupyProjectile(place, RoomEnemyProjectileKind.DustOrExplosion, SpriteGraphics.SharedStandard);
         enemies.PowampBehavior.SpawnPowampSpikeBurst(body.HeldOccupant(), body, body.Shading);
         AssertEqual<int?>(null, enemies.Projectiles.Places.LatestSpawn, "a burst finding the pool full before its eighth spike leaves no place");
         Console.WriteLine("  Powamp burst explosion: the last spike's pool place selects the explosion; a full pool selects the small one.");

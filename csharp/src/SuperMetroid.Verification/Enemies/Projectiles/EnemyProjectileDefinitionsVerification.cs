@@ -57,7 +57,7 @@ internal static class EnemyProjectileDefinitionsVerification
             statueRoom: new SuperMetroid.Core.World.TourianStatueRoom(new SuperMetroid.Core.Fx.RoomLiquidSurfaceLine(216)));
         enemies.Load(RoomEnemyFrameFixtures.StandaloneLoad(setupBus.ReadEnemyPopulation(populationPointer), BgArtworkFixtures.For(new SnesVram()), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), RoomEnemyFrameFixtures.StandaloneSamus()));
         var guard = NewEnemyProjectileDefinitionReadGuard(setupBus, forbidden);
-        EnemyProjectile projectile = enemies.OccupyProjectile(17, kinds[0]);
+        EnemyProjectile projectile = enemies.OccupyProjectile(17, kinds[0], SpriteGraphics.SharedStandard);
         Func<EnemyProjectile, SamusState, SuperMetroid.Core.Samus.Movement.KnockbackHorizontalDirection?> collideWithSamus =
             EnemyProjectileEngine.ResolveEnemyProjectileSamusCollision;
 
@@ -65,8 +65,7 @@ internal static class EnemyProjectileDefinitionsVerification
         {
             EnemyProjectileDefinition definition = EnemyProjectileKinds.Get(kind);
             // Each kind spawns a fresh projectile into the place, as production spawns one.
-            projectile = enemies.OccupyProjectile(17, kind);
-            FamilyProjectileStarts.Initialize(enemies, projectile, kind, SpriteGraphics.SharedIn(SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook));
+            projectile = FamilyProjectileStarts.Spawn(enemies, 17, kind, SpriteGraphics.SharedIn(SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook));
             AssertEqual(kind, projectile.Kind, $"{kind} production kind");
             if (startingMotions[kind].Length == 0)
                 AssertTrue(projectile.HoldsStill, $"{kind} production pre-instruction holds still");
@@ -136,8 +135,7 @@ internal static class EnemyProjectileDefinitionsVerification
                 AssertTrue(ReferenceEquals(initialProgram, projectile.Animation), $"{kind} production touch keeps its program");
             }
 
-            projectile = enemies.OccupyProjectile(17, kind);
-            FamilyProjectileStarts.Initialize(enemies, projectile, kind, SpriteGraphics.SharedStandard);
+            projectile = FamilyProjectileStarts.Spawn(enemies, 17, kind, SpriteGraphics.SharedStandard);
             projectile.Position = projectile.Position.WithWhole(new(0x0100, 0x0100));
             projectile.BlocksSamusProjectiles = true;
             projectile.CollisionOption = EnemyProjectileCollisionOption.PlaysShotAnimation;

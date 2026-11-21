@@ -44,7 +44,8 @@ internal static class KraidRockLaunchDefinitionsVerification
         Action<RoomEnemyPlace> spawn = enemies.KraidBehavior.Head.SpawnKraidSpitRock;
         var body = enemies.Places.InUpdateOrder[0];
         // The place's projectile before each spawn is a stale rock the check leaves there.
-        var rock = enemies.OccupyProjectile(17, RoomEnemyProjectileKind.KraidSpitRock);
+        var rockGraphics = SpriteGraphics.SharedIn(SuperMetroid.Core.Bosses.Kraid.KraidColours.RocksShading);
+        var rock =enemies.OccupyProjectile(17, RoomEnemyProjectileKind.KraidSpitRock, rockGraphics);
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             random = (ushort)raw;
@@ -65,10 +66,10 @@ internal static class KraidRockLaunchDefinitionsVerification
             AssertEqual(unchecked((ushort)(ushort.MaxValue - raw - 96)), rock.Position.Y.Whole, "Kraid mouth Y offset and wrap");
             AssertEqual((ushort)0, rock.Position.X.Fraction, "Clear stale rock X fraction");
             AssertEqual((ushort)0, rock.Position.Y.Fraction, "Clear stale rock Y fraction");
-            AssertEqual(SuperMetroid.Core.Enemies.SpriteGraphics.SharedIn(SuperMetroid.Core.Bosses.Kraid.KraidColours.RocksShading), rock.Graphics,
+            AssertEqual(rockGraphics, rock.Graphics,
                 "Native rock: the rocks' colours Kraid loads, at tile base zero");
         }
-        foreach (int place in Enumerable.Range(0, SuperMetroid.Core.Compatibility.EnemyProjectilePlaces.Capacity)) enemies.OccupyProjectile(place, RoomEnemyProjectileKind.KraidSpitRock);
+        foreach (int place in Enumerable.Range(0, SuperMetroid.Core.Compatibility.EnemyProjectilePlaces.Capacity)) enemies.OccupyProjectile(place, RoomEnemyProjectileKind.KraidSpitRock, rockGraphics);
         ushort previousX = rock.Position.X.Whole;
         reads = 0;
         spawn(body);

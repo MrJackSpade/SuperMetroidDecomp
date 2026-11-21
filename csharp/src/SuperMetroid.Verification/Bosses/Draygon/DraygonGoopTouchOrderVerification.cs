@@ -39,7 +39,7 @@ internal static class DraygonGoopTouchOrderVerification
             samus.KnockbackHold = UpdateCountdown.For(5);
             samus.SlowdownLevel = 0;
             var enemies = runtime.Enemies;
-            var goop = enemies.OccupyProjectile(17, RoomEnemyProjectileKind.DraygonGoop);
+            var goop = enemies.OccupyProjectile(17, RoomEnemyProjectileKind.DraygonGoop, SpriteGraphics.SharedIn(DraygonColours.Goop));
             goop.StartMotion(enemies.DraygonBehavior.Shots.Goop.GoopFlying);
             goop.StartAnimation(new DraygonProjectileAnimation(enemies.DraygonBehavior.Shots.Goop, DraygonProjectileSegment.Goop));
             // The goop flies as Draygon's spit launches it; at no speed it stays where the fixture places it.

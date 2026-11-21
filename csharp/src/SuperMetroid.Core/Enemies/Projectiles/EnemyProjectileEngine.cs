@@ -337,7 +337,7 @@ internal sealed class EnemyProjectileEngine
     /// <summary>
     /// Spawns a fresh projectile of <paramref name="kind"/> into the first free place searched from the last down, starting
     /// from what the place's previous projectile left there (<see cref="EnemyProjectilePlaceLeftovers"/>) and copying its
-    /// kind's definition (<see cref="InitializeEnemyProjectileFromDefinition"/>), or returns null when every place is held.
+    /// kind's definition (<see cref="Occupy"/>), or returns null when every place is held.
     /// </summary>
     /// <param name="kind">What the projectile is, which names its definition.</param>
     /// <param name="behavior">What the projectile's kind does, bound to it for its life (#1760), which starts its motion (#1843).</param>
@@ -347,16 +347,19 @@ internal sealed class EnemyProjectileEngine
 
     /// <summary>
     /// Makes <paramref name="place"/> hold a fresh projectile of <paramref name="kind"/>, starting from what the place's latest
-    /// projectile left there (<see cref="EnemyProjectilePlaceLeftovers"/>), as a spawn into it does.
+    /// projectile left there (<see cref="EnemyProjectilePlaceLeftovers"/>) and copying its kind's definition
+    /// (<see cref="InitializeEnemyProjectileFromDefinition"/>), as a spawn into it does.
     /// </summary>
     /// <param name="place">The place the projectile takes.</param>
-    /// <param name="kind">What the projectile is.</param>
+    /// <param name="kind">What the projectile is, which names its definition.</param>
     /// <param name="behavior">What the projectile's kind does, bound to it for its life.</param>
+    /// <param name="graphics">The sheet and shading the projectile draws with.</param>
     /// <returns>The projectile the place now holds.</returns>
-    internal EnemyProjectile Occupy(int place, RoomEnemyProjectileKind kind, EnemyProjectileBehavior behavior)
+    internal EnemyProjectile Occupy(int place, RoomEnemyProjectileKind kind, EnemyProjectileBehavior behavior, SpriteGraphics graphics)
     {
         var projectile = new EnemyProjectile(place, _leftovers.StartOf(place, _places[place]?.LeftInPlace), kind, behavior);
         _places[place] = projectile;
+        InitializeEnemyProjectileFromDefinition(projectile, kind, graphics);
         return projectile;
     }
 
@@ -369,8 +372,7 @@ internal sealed class EnemyProjectileEngine
             if (!IsFree(place))
                 continue;
             Places.RecordSpawn(place);
-            projectile = Occupy(place, kind, behavior);
-            InitializeEnemyProjectileFromDefinition(projectile, kind, graphics);
+            projectile = Occupy(place, kind, behavior, graphics);
             return true;
         }
         Places.RecordSpawn(null);

@@ -32,7 +32,7 @@ internal static class MotherBrainRingBabyHealthVerification
         AssertEqual(0x0c80, babyPlace.Health, "the Baby spawns with 3200 health");
 
         // The movie's hit: the ring reaches ($AE,$8C), exactly $24 above the Baby at ($CE,$B0).
-        EnemyProjectile ring = runtime.Enemies.OccupyProjectile(16, RoomEnemyProjectileKind.MotherBrainOnionRing);
+        EnemyProjectile ring = runtime.Enemies.OccupyProjectile(16, RoomEnemyProjectileKind.MotherBrainOnionRing, SpriteGraphics.SharedIn(state.Colours.OwnShading));
         ring.Position = ring.Position.WithWhole(new(0x00ae, 0x008c));
         ring.Radius = new(1, 1);
         ring.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));

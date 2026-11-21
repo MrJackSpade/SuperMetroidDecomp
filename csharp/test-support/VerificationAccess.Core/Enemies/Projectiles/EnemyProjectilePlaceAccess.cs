@@ -13,10 +13,11 @@ internal static class EnemyProjectilePlaceAccess
 
     /// <summary>
     /// Makes <paramref name="place"/> of <paramref name="enemies"/>' projectiles hold a fresh projectile of
-    /// <paramref name="kind"/> bound to the behaviour its production spawner binds (#2554), as a spawn into it would.
+    /// <paramref name="kind"/> bound to the behaviour its production spawner binds and drawing with
+    /// <paramref name="graphics"/> (#2554), copying its kind's definition as a spawn into the place does.
     /// </summary>
-    internal static EnemyProjectile OccupyProjectile(this RoomEnemySystem enemies, int place, RoomEnemyProjectileKind kind) =>
-        Ensure.NotNull(enemies).Projectiles.Occupy(place, kind, FamilyProjectileStarts.BehaviorOf(enemies, kind));
+    internal static EnemyProjectile OccupyProjectile(this RoomEnemySystem enemies, int place, RoomEnemyProjectileKind kind, SpriteGraphics graphics) =>
+        Ensure.NotNull(enemies).Projectiles.Occupy(place, kind, FamilyProjectileStarts.BehaviorOf(enemies, kind), graphics);
 
     /// <summary>
     /// Makes <paramref name="place"/> free, holding <paramref name="leftover"/> for the room's next spawn there, as a

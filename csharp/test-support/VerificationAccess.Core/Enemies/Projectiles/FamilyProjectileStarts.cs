@@ -55,24 +55,10 @@ internal static class FamilyProjectileStarts
     /// <param name="graphics">The sheet and shading the projectile draws with.</param>
     internal static EnemyProjectile Spawn(RoomEnemySystem enemies, int place, RoomEnemyProjectileKind kind, SpriteGraphics graphics)
     {
-        EnemyProjectile projectile = Ensure.NotNull(enemies).OccupyProjectile(place, kind);
-        Initialize(enemies, projectile, kind, graphics);
-        return projectile;
-    }
-
-    /// <summary>
-    /// Initializes <paramref name="projectile"/> as its kind's production spawner does: the place it occupies bound it to
-    /// its kind's behaviour (<see cref="BehaviorOf"/>), and the spawn copies its kind's definition.
-    /// </summary>
-    /// <param name="enemies">The enemy system whose species own the room-lifetime behaviours.</param>
-    /// <param name="projectile">The freshly spawned projectile.</param>
-    /// <param name="kind">What the projectile is.</param>
-    /// <param name="graphics">The sheet and shading the projectile draws with.</param>
-    internal static void Initialize(RoomEnemySystem enemies, EnemyProjectile projectile, RoomEnemyProjectileKind kind, SpriteGraphics graphics)
-    {
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, graphics);
+        EnemyProjectile projectile = Ensure.NotNull(enemies).OccupyProjectile(place, kind, graphics);
         if (StartingAnimation(kind) is { } start)
             projectile.StartAnimation(start(enemies));
+        return projectile;
     }
 
     /// <summary>The behaviour the production spawner of <paramref name="kind"/> binds to it.</summary>

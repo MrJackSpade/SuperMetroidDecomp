@@ -1,10 +1,10 @@
 using System.Text.Json.Serialization;
 
-namespace SuperMetroid.Core;
+namespace SuperMetroid.Core.Saves;
 
 /// <summary>
-/// The source-generated JSON metadata of every type SuperMetroid.Core's documents and reports serialize (#2602), and of
-/// every type they reach, each under its own name; <see cref="CoreJson"/> binds a call's options to it.
+/// The source-generated JSON metadata of a saved game's document and of every type it holds (#2602), each under its own
+/// name; <see cref="SaveJson"/> binds the save codec's options to it.
 /// </summary>
 [JsonSerializable(typeof(global::SuperMetroid.Core.Input.ControllerButton), TypeInfoPropertyName = "SuperMetroid_Core_Input_ControllerButton")]
 [JsonSerializable(typeof(global::SuperMetroid.Core.Map.ExploredAreaJsonDocument), TypeInfoPropertyName = "SuperMetroid_Core_Map_ExploredAreaJsonDocument")]
@@ -31,4 +31,4 @@ namespace SuperMetroid.Core;
 [JsonSerializable(typeof(global::SuperMetroid.Core.Saves.SaveResourcesJsonDocument), TypeInfoPropertyName = "SuperMetroid_Core_Saves_SaveResourcesJsonDocument")]
 [JsonSerializable(typeof(global::System.Collections.Generic.Dictionary<string, global::SuperMetroid.Core.Saves.GameSaveSlotJsonDocument>), TypeInfoPropertyName = "System_Collections_Generic_Dictionary_string_SuperMetroid_Core_Saves_GameSaveSlotJsonDocument")]
 [JsonSerializable(typeof(string[]), TypeInfoPropertyName = "stringA")]
-internal sealed partial class CoreJsonContext : JsonSerializerContext;
+internal sealed partial class SaveJsonContext : JsonSerializerContext;

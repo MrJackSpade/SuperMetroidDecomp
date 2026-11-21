@@ -35,7 +35,12 @@ public sealed class TypeFileNameAnalyzer : DiagnosticAnalyzer
     {
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.Analyze | GeneratedCodeAnalysisFlags.ReportDiagnostics);
         context.EnableConcurrentExecution();
-        context.RegisterSyntaxTreeAction(AnalyzeTree);
+        // Code a source generator emits is named by its generator, not authored (#2602).
+        context.RegisterSyntaxTreeAction(tree =>
+        {
+            if (!GeneratedSource.IsSourceGeneratorOutput(tree.Tree, tree.CancellationToken))
+                AnalyzeTree(tree);
+        });
     }
 
     /// <summary>Whether <paramref name="stem"/> (the file name without <c>.cs</c>) names <paramref name="declaration"/>.</summary>

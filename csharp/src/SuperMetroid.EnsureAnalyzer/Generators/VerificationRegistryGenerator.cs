@@ -90,7 +90,7 @@ public sealed class VerificationRegistryGenerator : IIncrementalGenerator
         string description = data.NamedArguments.FirstOrDefault(pair => pair.Key == "Description").Value.Value as string ?? "";
         bool returnsInt = method.ReturnType.SpecialType == SpecialType.System_Int32;
         string[] parameterTypes = [.. method.Parameters.Select(parameter => parameter.Type.ToDisplayString())];
-        bool takesArray = parameterTypes is ["string[]"];
+        bool takesArray = parameterTypes.Length == 1 && parameterTypes[0] == "string[]";
         bool positional = parameterTypes.All(type => type == "string");
         string call = Call(method);
         string invoke = !returnsInt ? "null"
@@ -185,7 +185,7 @@ public sealed class VerificationRegistryGenerator : IIncrementalGenerator
             named.DeclaredAccessibility is Accessibility.Public or Accessibility.Internal or Accessibility.ProtectedOrInternal &&
             named.TypeArguments.All(IsReachableType),
         ITypeParameterSymbol => false,
-        _ => type.TypeKind != TypeKind.Pointer && type.TypeKind != TypeKind.FunctionPointer,
+        _ => type.TypeKind is not (TypeKind.Pointer or TypeKind.FunctionPointer),
     };
 
     private static bool IsAuthored(IMethodSymbol method, CancellationToken cancellation) =>

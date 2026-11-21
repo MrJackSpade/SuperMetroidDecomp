@@ -2371,7 +2371,7 @@ internal static class EnemyDefinitionFrameDefinitions
             [EnemyDefinitionId.CeresElevatorRoomWall] = CeresElevatorRoomWallFrames,
             [EnemyDefinitionId.CeresGetawayChamberWall] = CeresGetawayChamberWallFrames,
             [EnemyDefinitionId.CeresElevatorDoor] = CeresElevatorDoor,
-            [EnemyDefinitionId.CeresSteam] = CeresSteam,
+            [EnemyDefinitionId.SteamVent] = CeresSteam,
             [EnemyDefinitionId.TourianStatue] = TourianEntranceStatue,
             [EnemyDefinitionId.Botwoon] = Botwoon,
             [EnemyDefinitionId.Crocomire] = CrocomireFrames,

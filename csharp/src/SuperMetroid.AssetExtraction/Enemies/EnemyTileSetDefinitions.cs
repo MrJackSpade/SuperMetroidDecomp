@@ -82,7 +82,7 @@ internal static class EnemyTileSetDefinitions
         [EnemyDefinitionId.RidleyCeres] = 8192,
         [EnemyDefinitionId.Ridley] = 8192,
         [EnemyDefinitionId.RidleyBreakupPiece] = 1024,
-        [EnemyDefinitionId.CeresSteam] = 0,
+        [EnemyDefinitionId.SteamVent] = 0,
         [EnemyDefinitionId.Zebetite] = 0,
         [EnemyDefinitionId.Kraid] = 7680,
         [EnemyDefinitionId.KraidArm] = 7680,

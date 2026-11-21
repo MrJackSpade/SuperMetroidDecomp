@@ -31,9 +31,9 @@ internal static class CeresSteamCollisionDefinitionsVerification
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null), installedBosses: stock.Bosses);
             enemies.VerificationServices().NextRandom = () => 0;
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            place.Bind(EnemyDefinitionId.CeresSteam, place.KeptDefinition);
+            place.Bind(EnemyDefinitionId.SteamVent, place.KeptDefinition);
             place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
-            place.SetSpawnParameter1(EnemyDefinitionId.CeresSteam, (ushort)variant);
+            place.SetSpawnParameter1(EnemyDefinitionId.SteamVent, (ushort)variant);
             ((IEnemyInitialization)(place.Entity ?? throw new InvalidOperationException("The vent bound no entity."))).Initialize();
             object?[] arguments =
                 [place, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
@@ -66,9 +66,9 @@ internal static class CeresSteamCollisionDefinitionsVerification
         var compiled = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         var nativePlace = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>());
         RoomEnemyPlace compiledPlace = compiled.Places.InUpdateOrder[0];
-        compiledPlace.Bind(EnemyDefinitionId.CeresSteam, EnemyDefinitionFixtures.Blank);
+        compiledPlace.Bind(EnemyDefinitionId.SteamVent, EnemyDefinitionFixtures.Blank);
 
-        compiledPlace.Bind(EnemyDefinitionId.CeresSteam, compiledPlace.KeptDefinition);
+        compiledPlace.Bind(EnemyDefinitionId.SteamVent, compiledPlace.KeptDefinition);
         AssertEqual(28, CeresSteamCollisionDefinitionsConstants.FramePointers.Length,
             "all Ceres steam extended frames have compiled collision");
         AssertEqual(21, CeresSteamCollisionDefinitions.HitboxPointers.Count(),

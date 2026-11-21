@@ -567,8 +567,8 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
         new(EnemyDefinitionId.Skultera, EnemyPlacing.At(new(872, 184)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new SkulteraSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(1), StartDirection: HorizontalDirection.Right, Radius: 16, AngleStep: RotationAngle.FromSteps(2))),
     ], 8);
 
-    /// <summary>The enemy population shared by the Draygon room and the Mother Brain room once each area's boss is dead.</summary>
-    internal static EmptyRoomEnemyPopulationDefinition DraygonOrMotherBrainWhenAreaBossDead { get; } = new("DraygonOrMotherBrainWhenAreaBossDead");
+    /// <summary>The enemy population of the Draygon room once Maridia's boss is dead: none.</summary>
+    internal static EmptyRoomEnemyPopulationDefinition DraygonWhenAreaBossDead { get; } = new("DraygonWhenAreaBossDead");
 
     /// <summary>The Maridia rooms' lists, in their authored order.</summary>
     internal static RoomEnemyPopulationDefinition[] Lists { get; } =
@@ -629,6 +629,6 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
         WestCactusAlley,
         EastCactusAlley,
         FishTank,
-        DraygonOrMotherBrainWhenAreaBossDead,
+        DraygonWhenAreaBossDead,
     ];
 }

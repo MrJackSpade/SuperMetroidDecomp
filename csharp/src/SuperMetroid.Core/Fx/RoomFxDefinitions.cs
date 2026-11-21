@@ -955,7 +955,7 @@ public static class RoomFxDefinitions
         new(214, null, SignedEightEight.Zero, 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.None, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [ColourEffectId.MaridiaSandPits], [BlockAnimation.MaridiaSandCeiling, BlockAnimation.MaridiaSandFalling], RoomEffectTint.PurpleMaridiaWater));
 
     /// <summary>A selection whose rooms show no effect of their own, starting <see cref="ColourEffectId.MaridiaSandFalls"/>, in the untinted look, Samus's visor cycling its room shades.</summary>
-    public static RoomFxSelection EastAqueductQuicksandWestAqueductQuicksand { get; } = new([],
+    public static RoomFxSelection QuicksandShaftsFallingSand { get; } = new([],
         new(null, null, SignedEightEight.Zero, 0, RoomFxType.None, RoomVisorAnimation.Animated, null, null, [ColourEffectId.MaridiaSandFalls], [], RoomEffectTint.None));
 
     /// <summary>A selection whose rooms show water, the liquid level starting at line 16, starting <see cref="ColourEffectId.MaridiaSandPits"/>, in the <see cref="RoomEffectTint.PurpleMaridiaWater"/> tint.</summary>
@@ -1009,10 +1009,6 @@ public static class RoomFxDefinitions
     /// <summary>A selection whose rooms show water, the liquid level starting at line 0, in the <see cref="RoomEffectTint.PurpleMaridiaWater"/> tint.</summary>
     public static RoomFxSelection MaridiaMissileRefill { get; } = new([],
         new(0, null, SignedEightEight.Zero, 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.None, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [], [], RoomEffectTint.PurpleMaridiaWater));
-
-    /// <summary>A selection whose rooms show no effect of their own, starting <see cref="ColourEffectId.MaridiaSandFalls"/>, in the untinted look, Samus's visor cycling its room shades.</summary>
-    public static RoomFxSelection PlasmaBeachQuicksandBotwoonQuicksand { get; } = new([],
-        new(null, null, SignedEightEight.Zero, 0, RoomFxType.None, RoomVisorAnimation.Animated, null, null, [ColourEffectId.MaridiaSandFalls], [], RoomEffectTint.None));
 
     /// <summary>A selection whose rooms show water, the liquid level starting at line 176, in the <see cref="RoomEffectTint.GreenMaridiaWater"/> tint.</summary>
     public static RoomFxSelection Shaktool { get; } = new([],

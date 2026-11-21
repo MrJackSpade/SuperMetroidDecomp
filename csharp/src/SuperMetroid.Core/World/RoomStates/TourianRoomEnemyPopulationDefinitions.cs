@@ -198,6 +198,9 @@ internal static class TourianRoomEnemyPopulationDefinitions
     /// <summary>The enemy population of the Tourian Recharge room.</summary>
     internal static EmptyRoomEnemyPopulationDefinition TourianRecharge { get; } = new("TourianRecharge");
 
+    /// <summary>The enemy population of the Mother Brain room once Tourian's boss is dead: none.</summary>
+    internal static EmptyRoomEnemyPopulationDefinition MotherBrainWhenAreaBossDead { get; } = new("MotherBrainWhenAreaBossDead");
+
     /// <summary>The enemy population of the Upper Tourian Save room.</summary>
     internal static EmptyRoomEnemyPopulationDefinition UpperTourianSave { get; } = new("UpperTourianSave");
 
@@ -249,6 +252,7 @@ internal static class TourianRoomEnemyPopulationDefinitions
         TourianEscape3,
         Seaweed,
         TourianRecharge,
+        MotherBrainWhenAreaBossDead,
         UpperTourianSave,
         Metroids3Default,
         RinkaShaft,

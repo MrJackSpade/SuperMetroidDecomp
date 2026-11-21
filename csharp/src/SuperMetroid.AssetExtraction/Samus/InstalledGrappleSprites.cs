@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Spatial;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -26,6 +27,10 @@ public sealed class InstalledGrappleSprites
         => (uint)frame < GrappleSpriteDefinitions.SegmentFrameCount
             ? segments[frame]
             : throw new InvalidDataException($"Invalid Grapple visual frame {frame}.");
+
+    /// <summary>The appearance of the rope's timed frame that shows <paramref name="picture"/>.</summary>
+    /// <exception cref="InvalidDataException">The rope shows no such picture.</exception>
+    public SpritePart Segment(GrappleRopePicture picture) => Segment(GrappleSheetDefinitions.RopeTimedFrame(picture));
 
     /// <summary>Strict camel-case JSON settings shared by grapple sprite import and export.</summary>
     private static readonly JsonSerializerOptions Options = new()

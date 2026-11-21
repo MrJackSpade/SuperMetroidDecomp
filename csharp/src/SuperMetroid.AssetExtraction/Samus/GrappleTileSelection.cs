@@ -17,13 +17,13 @@ public static class GrappleTileSelection
     };
 
     /// <summary>$9B:BFBD cycles endpoint characters at $8200/$8400/$8600/$8800, independently of rope angle.</summary>
-    public static InstalledArtworkId PointAssetFor(int frame) => frame switch
+    public static InstalledArtworkId PointAssetFor(GrappleEndpointFrame frame) => frame switch
     {
-        0 => InstalledArtworkId.GrapplePointFirstTiles,
-        1 => InstalledArtworkId.GrapplePointSecondTiles,
-        2 => InstalledArtworkId.GrapplePointThirdTiles,
-        3 => InstalledArtworkId.GrapplePointFourthTiles,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame)),
+        GrappleEndpointFrame.Point => InstalledArtworkId.GrapplePointFirstTiles,
+        GrappleEndpointFrame.Orb => InstalledArtworkId.GrapplePointSecondTiles,
+        GrappleEndpointFrame.Ring => InstalledArtworkId.GrapplePointThirdTiles,
+        GrappleEndpointFrame.SparklingRing => InstalledArtworkId.GrapplePointFourthTiles,
+        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined grapple endpoint frame."),
     };
 
     /// <summary>Resolves one of seven Grapple-owned upload identities to its native source and planar-sheet slice; this lookup neither advances endpoint animation nor enqueues a VRAM transfer.</summary>

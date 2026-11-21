@@ -23,6 +23,21 @@ public static class GrappleSheetDefinitions
     public static IReadOnlyList<GrappleRopePicture> RopePattern { get; } =
         [GrappleRopePicture.Start, GrappleRopePicture.Quarter, GrappleRopePicture.Half, GrappleRopePicture.ThreeQuarters];
 
+    /// <summary>
+    /// The timed frame of the rope's animation that shows <paramref name="picture"/>: its place in <see cref="RopePattern"/>,
+    /// the order the animation shows the pictures in.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The rope shows no such picture.</exception>
+    public static int RopeTimedFrame(GrappleRopePicture picture)
+    {
+        for (int frame = 0; frame < RopePattern.Count; frame++)
+        {
+            if (RopePattern[frame] == picture)
+                return frame;
+        }
+        throw new InvalidDataException($"The grapple rope shows no {picture} picture.");
+    }
+
     /// <summary>The rope's orientations in the sheet's order (#2567): horizontal, diagonal, vertical.</summary>
     public static IReadOnlyList<GrappleRopeOrientation> RopeOrientations { get; } =
         [GrappleRopeOrientation.Horizontal, GrappleRopeOrientation.Diagonal, GrappleRopeOrientation.Vertical];

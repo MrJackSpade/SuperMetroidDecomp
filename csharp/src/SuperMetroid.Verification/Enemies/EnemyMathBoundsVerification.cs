@@ -27,15 +27,15 @@ internal static class EnemyMathBoundsVerification
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
         };
-        var field = new RandomSampleField(0, 4);
-        // Every draw reads the field's last value, so a centre there scatters by nothing and the redraw ends at once.
-        enemies.Projectiles.Scatter(projectile, new EnemyProjectileScatter(field, field, new(field.Outcomes - 1, field.Outcomes - 1)));
+        Extent16<RoomPixels> span = new(16, 16);
+        // Every draw reads the span's last pixel, so a centre there scatters by nothing and the redraw ends at once.
+        enemies.Projectiles.Scatter(projectile, new EnemyProjectileScatter(span, new(span.X - 1, span.Y - 1)));
         AssertEqual(new Position16<RoomPixels>(128, 128), projectile.Position.Whole, "a scatter centred on its field's last value moves nothing");
         AssertThrows<ArgumentOutOfRangeException>(
-            () => enemies.Projectiles.Scatter(projectile, new EnemyProjectileScatter(field, field, new(field.Outcomes, 0))),
+            () => enemies.Projectiles.Scatter(projectile, new EnemyProjectileScatter(span, new(span.X, 0))),
             "a scatter centred past its field's values, whose redraw could never end, is rejected");
         AssertThrows<ArgumentOutOfRangeException>(
-            () => enemies.Projectiles.Scatter(projectile, new EnemyProjectileScatter(field, field, new(0, field.Outcomes))),
+            () => enemies.Projectiles.Scatter(projectile, new EnemyProjectileScatter(span, new(0, span.Y))),
             "a scatter centred past its vertical field's values is rejected");
         Console.WriteLine("Enemy math bounds: sine speeds up to 127 pixels, and scatter centres within their fields, pass.");
     }

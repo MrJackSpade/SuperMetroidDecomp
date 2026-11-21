@@ -13,7 +13,13 @@ internal static class PhantoonColorCatalogAccess
     {
         /// <summary>The power-on target the cartridge holds at position <paramref name="position"/> of its background colours.</summary>
         internal RgbColor ResolvePowerOnAtNative(int position) =>
-            self.ResolvePowerOn(PhantoonColorFormat.PoweredParts[position / PhantoonColorFormat.PoweredPartColourCount],
+            self.ResolvePowerOn(SuperMetroid.AssetExtraction.CartridgeTables.PhantoonSourceDefinitions.PowerOnGroups
+                    .Single(part => part.Value == position / PhantoonColorFormat.PoweredPartColourCount).Key,
                 position % PhantoonColorFormat.PoweredPartColourCount);
+
+        /// <summary>The health colour the cartridge holds at <paramref name="color"/> of its health palette <paramref name="palette"/>.</summary>
+        internal RgbColor ResolveHealthAtNative(int palette, int color) =>
+            self.ResolveHealth(SuperMetroid.AssetExtraction.CartridgeTables.PhantoonSourceDefinitions.HealthBandPalettes
+                .Single(band => band.Value == palette).Key, color);
     }
 }

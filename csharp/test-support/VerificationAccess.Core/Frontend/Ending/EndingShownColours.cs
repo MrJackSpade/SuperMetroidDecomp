@@ -27,8 +27,8 @@ internal static class EndingShownColours
         foreach (PictureShade shown in ending.screen.Colours.Shading.Shades)
         {
             SheetShade shade = installed[shown];
-            for (int index = 0; index < shade.Inks.Length; index++)
-                colours[shade.Inks[index]] = shade.Colours[index];
+            foreach ((int ink, RgbColor colour) in shade.InkColours)
+                colours[ink] = colour;
         }
         return colours;
     }

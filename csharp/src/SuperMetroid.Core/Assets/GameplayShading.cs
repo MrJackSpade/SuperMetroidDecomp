@@ -18,7 +18,7 @@ public sealed record GameplayShading
     /// <param name="shadings">The shading of every group of pictures, before the display's fade.</param>
     /// <param name="fade">The fade of the whole display, or null while none runs.</param>
     /// <exception cref="ArgumentException">A group has no shading.</exception>
-    public GameplayShading(RgbColor backdrop, ImmutableDictionary<GameplayPictures, PictureShading> shadings, GameplayDisplayFade? fade)
+    public GameplayShading(ShownColour backdrop, ImmutableDictionary<GameplayPictures, PictureShading> shadings, GameplayDisplayFade? fade)
     {
         Ensure.NotNull(shadings);
         foreach (GameplayPictures pictures in Enum.GetValues<GameplayPictures>())
@@ -26,13 +26,13 @@ public sealed record GameplayShading
             if (!shadings.ContainsKey(pictures))
                 throw new ArgumentException($"A gameplay frame's shading names none for its {pictures} pictures.", nameof(shadings));
         }
-        Backdrop = backdrop;
+        Backdrop = Ensure.NotNull(backdrop);
         this.shadings = shadings;
         Fade = fade;
     }
 
-    /// <summary>The colour shown where nothing is drawn.</summary>
-    public RgbColor Backdrop { get; }
+    /// <summary>What is shown where nothing is drawn, which the backend shows (#2563).</summary>
+    public ShownColour Backdrop { get; }
 
     /// <summary>The fade of the whole display, which every picture and every shaded sprite draw shows after its own shading.</summary>
     private GameplayDisplayFade? Fade { get; }
@@ -43,7 +43,7 @@ public sealed record GameplayShading
         PictureShading own = shadings.TryGetValue(pictures, out PictureShading? shading)
             ? shading
             : throw new ArgumentOutOfRangeException(nameof(pictures), pictures, "Undefined group of gameplay pictures.");
-        return Fade is not { } fade || fade.SparesHud && pictures is GameplayPictures.Hud or GameplayPictures.EscapeTimer
+        return Fade is not { } fade || fade.SparesHud && GameplayPictureDefinitions.SparedByHudSparingFade.Contains(pictures)
             ? own : own.With(fade.Effect);
     }
 
@@ -67,13 +67,15 @@ public sealed record GameplayShading
     }
 
     /// <summary>
-    /// The shading an escape timer draw that names <paramref name="shading"/> shows: its own, then its pictures' group's
-    /// shades and effects, the display's fade among them unless it spares the HUD (#1512).
+    /// The shading a draw of <paramref name="pictures"/>, whose draws show their group's shading over their own
+    /// (<see cref="SpriteSourceKindDefinitions.GroupShaded"/>), shows when it names <paramref name="shading"/>: its own,
+    /// then the group's shades and effects, the display's fade among them unless it spares the group, as it spares the HUD's
+    /// escape timer (#1512).
     /// </summary>
-    public PictureShading OfEscapeTimer(PictureShading shading)
+    public PictureShading OfGroupShaded(PictureShading shading, GameplayPictures pictures)
     {
         Ensure.NotNull(shading);
-        PictureShading group = Of(GameplayPictures.EscapeTimer);
+        PictureShading group = Of(pictures);
         PictureShading shown = shading;
         foreach (PictureShade shade in group.Shades)
             shown = shown.With(shade);
@@ -83,5 +85,5 @@ public sealed record GameplayShading
     }
 
     /// <summary>This shading with the backdrop shown in <paramref name="backdrop"/>, as X-ray shows its own.</summary>
-    public GameplayShading WithBackdrop(RgbColor backdrop) => new(backdrop, shadings, Fade);
+    public GameplayShading WithBackdrop(ShownColour backdrop) => new(backdrop, shadings, Fade);
 }

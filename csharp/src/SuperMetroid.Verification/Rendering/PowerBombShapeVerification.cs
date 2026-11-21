@@ -9,7 +9,8 @@ using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.TestSupport.FrameRendering;
 namespace SuperMetroid.Verification.Rendering;
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Verification.Samus.Projectiles;
+using SuperMetroid.Verification.Samus.Projectiles;
+using SuperMetroid.Core.Compatibility;
 
 /// <summary>Checks the Power Bomb's blast oval: its authored radii and aspect against the cartridge, its capture and its drawing.</summary>
 internal static class PowerBombShapeVerification

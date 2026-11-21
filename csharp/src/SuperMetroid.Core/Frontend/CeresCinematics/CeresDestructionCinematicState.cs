@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Progression;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend.Intro;
@@ -23,7 +24,7 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 /// same gameplay room.
 /// </remarks>
 [RoomScopeBoundary("A cinematic scene that owns its own colour effects for the scene's lifetime; no gameplay room is loaded.")]
-internal sealed class CeresDestructionCinematicState : IFrontendScreen
+internal sealed class CeresDestructionCinematicState : IFrontendScreen, IComposedFrontendScene<LayeredScene>
 {
     /// <inheritdoc/>
     void IFrontendScreen.BindArtwork(GameArtwork previous, GameArtwork artwork)
@@ -49,7 +50,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <summary>What the scene shows behind and among its actors (#2541), which the scene moves on from one stage to the next.</summary>
     private CeresDestructionView View { get; set; }
     /// <summary>Whether the Zebes reveal's pictures and planet show in place of the station's (#1467).</summary>
-    private bool ZebesRevealed => View is CeresDestructionView.ZebesReveal or CeresDestructionView.ZebesApproach or CeresDestructionView.ZebesClose;
+    private bool ZebesRevealed => CeresDestructionViewDefinitions.ShowingZebes.Contains(View);
     /// <summary>
     /// The colour the scene shows behind every layer (#1512): black until the scene loads the flight's colours, then the
     /// installed flight's backdrop, which the engine flicker never recolours.
@@ -109,7 +110,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// </summary>
     private ZebesRevealCaption? spawnedSubtitle;
     /// <summary>The Japanese text option, which makes the PLANET ZEBES title spawn its Japanese subtitle (#1733).</summary>
-    private readonly bool japaneseText;
+    private readonly TextLanguage language;
 
     /// <summary>The camera offset applied to the turning-floor Ceres or Zebes scene.</summary>
     private FixedVector<FloorPixels> FloorScroll { get; set; } = new(
@@ -149,7 +150,10 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// </summary>
     private int cinematicFrameCounter;
     /// <summary>The route when the escape timer expires while Samus remains aboard Ceres.</summary>
-    private bool WithSamus { get; }
+    private bool WithSamus => Outcome == CeresDestructionOutcome.SamusAboard;
+
+    /// <summary>How Ceres's destruction ends: with Samus aboard her gunship, or after she escaped (#2560).</summary>
+    private CeresDestructionOutcome Outcome { get; }
 
     /// <param name="audio">The shared music and sound queue, whose music the scene waits on.</param>
     /// <param name="glowColors">Installed Power Bomb glow colours for the station explosion.</param>
@@ -159,18 +163,18 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// The Ceres-destruction state with Samus aboard: the escape timer expired before Samus left, so the
     /// gunship never appears and the fade-out ends the game instead of flying to Zebes.
     /// </param>
-    /// <param name="japaneseText">The Japanese text option, which adds the PLANET ZEBES title's Japanese subtitle.</param>
+    /// <param name="language">The text language; Japanese adds the PLANET ZEBES title's Japanese subtitle.</param>
     public CeresDestructionCinematicState(
         AudioQueues audio,
         InstalledPowerBombGlowColors glowColors,
         IntroCinematicArtwork artwork,
         InstalledSpriteSheets spriteSheets,
         CeresDestructionOutcome outcome,
-        bool japaneseText)
+        TextLanguage language)
     {
-        this.japaneseText = japaneseText;
+        this.language = language;
         BindSpriteSheets(Ensure.NotNull(spriteSheets));
-        WithSamus = outcome == CeresDestructionOutcome.SamusAboard;
+        Outcome = outcome;
         this.audio = Ensure.NotNull(audio);
         Artwork = Ensure.NotNull(artwork);
         stationExplosion = new CeresStationBlast();
@@ -363,8 +367,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <summary>Runs one update of <see cref="CeresDestructionPhase.FlyingTowardZebes"/>.</summary>
     internal void RunFlyingTowardZebes()
     {
-        FloorScroll = FloorScroll.WithY(FloorScroll.Y + CeresDestructionSceneDefinitions.Motion.EighthPixel);
-        FloorScroll = FloorScroll.WithX(FloorScroll.X + CeresDestructionSceneDefinitions.Motion.NegativeHalfPixel);
+        FloorScroll += CeresDestructionSceneDefinitions.Motion.ZebesApproachScroll;
         if (Zoom < CeresDestructionSceneDefinitions.Motion.ZebesApproachZoomLimit)
             Zoom = Zoom.Widened(CeresDestructionSceneDefinitions.Motion.NearZebesZoomStep);
         else
@@ -375,8 +378,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <summary>Runs one update of <see cref="CeresDestructionPhase.TurningTowardZebes"/>.</summary>
     internal void RunTurningTowardZebes()
     {
-        FloorScroll = FloorScroll.WithY(FloorScroll.Y + CeresDestructionSceneDefinitions.Motion.EighthPixel);
-        FloorScroll = FloorScroll.WithX(FloorScroll.X + CeresDestructionSceneDefinitions.Motion.NegativeHalfPixel);
+        FloorScroll += CeresDestructionSceneDefinitions.Motion.ZebesApproachScroll;
         if (FloorScroll.X.WholePixels < CeresDestructionSceneDefinitions.Places.TurnTowardZebesEndX)
         {
             Phase = CeresDestructionPhase.ClosingInOnZebes;
@@ -392,8 +394,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <summary>Runs one update of <see cref="CeresDestructionPhase.ClosingInOnZebes"/>.</summary>
     internal void RunClosingInOnZebes()
     {
-        FloorScroll = FloorScroll.WithY(FloorScroll.Y + CeresDestructionSceneDefinitions.Motion.EighthPixel);
-        FloorScroll = FloorScroll.WithX(FloorScroll.X + CeresDestructionSceneDefinitions.Motion.EighthPixel);
+        FloorScroll += CeresDestructionSceneDefinitions.Motion.ZebesCloseInScroll;
         if (Zoom < CeresDestructionSceneDefinitions.Motion.FarZebesZoomLimit)
         {
             Zoom = Zoom.Widened(CeresDestructionSceneDefinitions.Motion.FastZoomStep);
@@ -507,8 +508,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <summary>Drifts the Ceres camera by one sixteenth pixel down and one quarter pixel left.</summary>
     private void StepInitialDrift()
     {
-        FloorScroll = FloorScroll.WithY(FloorScroll.Y + CeresDestructionSceneDefinitions.Motion.SixteenthPixel);
-        FloorScroll = FloorScroll.WithX(FloorScroll.X + CeresDestructionSceneDefinitions.Motion.NegativeQuarterPixel);
+        FloorScroll += CeresDestructionSceneDefinitions.Motion.CeresDrift;
     }
 
 
@@ -711,7 +711,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
 
             case CeresCue.SpawnJapaneseTitleIfNeeded:
                 // With Japanese text the title spawns its Japanese subtitle as its first hold ends (#1733).
-                if (japaneseText)
+                if (language == TextLanguage.Japanese)
                     spawnedSubtitle = new ZebesRevealCaption(CreateZebesSprite(ZebesRevealActorRole.JapaneseSubtitle,
                         CeresDestructionActors.ZebesActor(ZebesRevealActorRole.JapaneseSubtitle)));
                 return;

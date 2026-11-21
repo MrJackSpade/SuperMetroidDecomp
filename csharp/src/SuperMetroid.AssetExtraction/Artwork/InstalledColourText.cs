@@ -1,6 +1,7 @@
 using System.Globalization;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Compatibility;
 
 namespace SuperMetroid.AssetExtraction.Artwork;
 

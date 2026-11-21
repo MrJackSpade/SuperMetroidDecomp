@@ -17,20 +17,12 @@ namespace SuperMetroid.Core.Fx;
 internal sealed class RoomEarthquake
 {
     /// <summary>
-    /// The frames the earthquake has left, decremented by <see cref="Advance"/> while it shakes for a length and time is
-    /// not frozen; the side it shows follows the count.
+    /// How the earthquake runs (#2560): for a length, whose frames left <see cref="Advance"/> counts down while time is not
+    /// frozen and whose count selects the side it shows, or continuously (<see cref="KeepShaking"/>), standing at a place in
+    /// the sides it shows in turn (<see cref="RoomEarthquakeDefinitions.ShakeSides"/>) and moving on one each frame it
+    /// shakes until a producer gives it a new length.
     /// </summary>
-    private WrappingCountdown _remaining;
-
-    /// <summary>
-    /// Where a continuous shake (<see cref="KeepShaking"/>) stands in the sides it shows in turn
-    /// (<see cref="RoomEarthquakeDefinitions.ShakeSides"/>), moving on one each frame it shakes; null while the earthquake
-    /// shakes for a length. It shakes until a producer gives it a new length.
-    /// </summary>
-    private CyclingSequence<EarthquakeSide>? _continuousSides;
-
-    /// <summary>Whether the room shakes continuously (<see cref="KeepShaking"/>).</summary>
-    private bool IsContinuous => _continuousSides is not null;
+    private Run _run = new Run.ForLength(default);
 
     /// <summary>
     /// The shake the earthquake shows while it runs: the one its last producer gave it, or
@@ -40,16 +32,16 @@ internal sealed class RoomEarthquake
     public EarthquakeShake Shake { get; private set; } = RoomEarthquakeDefinitions.UnshakenRoomShake;
 
     /// <summary>Whether the room is shaking: it has frames left or shakes continuously.</summary>
-    public bool IsShaking => IsContinuous || !_remaining.IsZero;
+    public bool IsShaking => _run is Run.Continuous or Run.ForLength { Remaining.IsZero: false };
 
     /// <summary>
     /// The frames the earthquake has left, read where an owner moves with the room's shake: Mother Brain's brain, the
     /// door Ridley's Ceres scene draws, and the rocks Kraid's rise throws up.
     /// </summary>
     /// <exception cref="InvalidOperationException">The room shakes continuously and has no length to read.</exception>
-    public int RemainingFrames => IsContinuous
-        ? throw new InvalidOperationException("A continuously shaking room has no frames left to read.")
-        : _remaining.RemainingFrames;
+    public int RemainingFrames => _run is Run.ForLength length
+        ? length.Remaining.RemainingFrames
+        : throw new InvalidOperationException("A continuously shaking room has no frames left to read.");
 
     /// <summary>
     /// Displacement produced by the most recent <see cref="Advance"/>: the shake moves the shown layers without moving
@@ -62,7 +54,7 @@ internal sealed class RoomEarthquake
     /// earthquake a producer started for that long and that has not yet shaken a frame of it.
     /// </summary>
     internal bool IsShakingWith(EarthquakeShake shake, int framesLeft) =>
-        !IsContinuous && Shake == shake && _remaining.IsAt(framesLeft);
+        _run is Run.ForLength length && Shake == shake && length.Remaining.IsAt(framesLeft);
 
     /// <summary>Starts the earthquake: <paramref name="shake"/> for <paramref name="frames"/> frames, replacing what ran.</summary>
     /// <param name="shake">The shake to show.</param>
@@ -80,8 +72,7 @@ internal sealed class RoomEarthquake
     /// <param name="frames">The frames to shake, up to <see cref="WrappingCountdown.LongestStart"/>; zero stops the earthquake.</param>
     internal void RunFor(int frames)
     {
-        _remaining = WrappingCountdown.Start(frames);
-        _continuousSides = null;
+        _run = new Run.ForLength(WrappingCountdown.Start(frames));
     }
 
     /// <summary>Stops the earthquake; its shake stays for a producer that runs it on.</summary>
@@ -93,12 +84,14 @@ internal sealed class RoomEarthquake
     /// <summary>
     /// Shakes the room with <paramref name="shake"/> for at least <see cref="RoomEarthquakeDefinitions.SustainedShakeFrames"/>
     /// more frames without restarting its length (<see cref="WrappingCountdown.Sustained"/>): rising lava and acid, and the
-    /// Tourian statues, renew their earthquake this way every update they shake the room.
+    /// Tourian statues, renew their earthquake this way every update they shake the room. A continuous shake shakes on as
+    /// it was, with the new shake.
     /// </summary>
     internal void Sustain(EarthquakeShake shake)
     {
         Shake = shake;
-        _remaining = _remaining.Sustained(RoomEarthquakeDefinitions.SustainedShakeFrames);
+        if (_run is Run.ForLength length)
+            _run = new Run.ForLength(length.Remaining.Sustained(RoomEarthquakeDefinitions.SustainedShakeFrames));
     }
 
     /// <summary>
@@ -109,8 +102,7 @@ internal sealed class RoomEarthquake
     internal void ShakeIndefinitely(EarthquakeShake shake)
     {
         Shake = shake;
-        _remaining = default;
-        _continuousSides = CyclingSequence<EarthquakeSide>.StartOf(RoomEarthquakeDefinitions.ShakeSides);
+        _run = new Run.Continuous(CyclingSequence<EarthquakeSide>.StartOf(RoomEarthquakeDefinitions.ShakeSides));
     }
 
     /// <summary>
@@ -118,15 +110,23 @@ internal sealed class RoomEarthquake
     /// on every update. The earthquake then shakes until a producer gives it a new length, its sides alternating on from
     /// where the frames it had left put them.
     /// </summary>
-    internal void KeepShaking() => _continuousSides ??= _remaining.PlaceIn(RoomEarthquakeDefinitions.ShakeSides);
+    internal void KeepShaking()
+    {
+        if (_run is Run.ForLength length)
+            _run = new Run.Continuous(length.Remaining.PlaceIn(RoomEarthquakeDefinitions.ShakeSides));
+    }
 
     /// <summary>
     /// Whether the shake shows the side of the origin opposite its displacement this frame: the side a continuous shake
     /// stands at, or the one the frames left select as the earthquake runs down
     /// (<see cref="RoomEarthquakeDefinitions.ShakeSides"/>).
     /// </summary>
-    private EarthquakeSide ShownSide =>
-        (_continuousSides ?? _remaining.PlaceIn(RoomEarthquakeDefinitions.ShakeSides)).Current;
+    private EarthquakeSide ShownSide => _run switch
+    {
+        Run.Continuous continuous => continuous.Sides.Current,
+        Run.ForLength length => length.Remaining.PlaceIn(RoomEarthquakeDefinitions.ShakeSides).Current,
+        _ => throw new InvalidOperationException($"Undefined earthquake run {_run}."),
+    };
 
     /// <summary>The room-shake offset for projectiles, evaluated at each projectile draw pass before the earthquake's frame step.</summary>
     internal Offset16<RoomPixels> GetEnemyProjectileShake(bool timeIsFrozen)
@@ -158,11 +158,25 @@ internal sealed class RoomEarthquake
         foreground = side.Showing(foreground);
         background = side.Showing(background);
 
-        if (_continuousSides is { } sides)
-            _continuousSides = sides.Next;
-        else
-            _remaining = _remaining.Decrement().Remaining;
+        _run = _run switch
+        {
+            Run.Continuous continuous => new Run.Continuous(continuous.Sides.Next),
+            Run.ForLength length => new Run.ForLength(length.Remaining.Decrement().Remaining),
+            _ => throw new InvalidOperationException($"Undefined earthquake run {_run}."),
+        };
         LastRoomShake = new RoomShakeFrameResult(foreground, background);
         return shake.ShakesEnemies;
+    }
+
+    /// <summary>How the earthquake runs (#2560), one value: each case carries only what it counts.</summary>
+    private abstract record Run
+    {
+        /// <summary>The earthquake shakes for a length.</summary>
+        /// <param name="Remaining">The frames it has left.</param>
+        internal sealed record ForLength(WrappingCountdown Remaining) : Run;
+
+        /// <summary>The earthquake shakes until a producer gives it a length.</summary>
+        /// <param name="Sides">Where it stands in the sides it shows in turn.</param>
+        internal sealed record Continuous(CyclingSequence<EarthquakeSide> Sides) : Run;
     }
 }

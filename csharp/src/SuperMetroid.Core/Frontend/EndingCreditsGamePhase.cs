@@ -37,8 +37,8 @@ internal sealed class EndingCreditsGamePhase(FrontendSession session, EndingCred
     {
         EndingCreditsPhase previousEndingPhase = Screen.Phase;
         Screen.Step();
-        if (previousEndingPhase != EndingCreditsPhase.SeeYouNextMission &&
-            Screen.Phase == EndingCreditsPhase.SeeYouNextMission)
+        if (!EndingCreditsPhaseGroups.FinalMessage.Contains(previousEndingPhase) &&
+            EndingCreditsPhaseGroups.FinalMessage.Contains(Screen.Phase))
         {
             session.saves.CompleteGame();
             session.RaiseSavesChanged();

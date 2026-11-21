@@ -2,8 +2,8 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>
 /// The shared delete reaction: the shot or touch animation of every projectile
-/// without a typed reaction of its own. Its single cue deletes the projectile on the pass after the reaction starts,
-/// as the game's animation does.
+/// without a typed reaction of its own. Its single step ends it by deleting the projectile on the pass after the reaction
+/// starts, as the game's animation does.
 /// </summary>
 internal sealed class EnemyProjectileDeleteAnimation : EnemyProjectileAnimation
 {
@@ -16,9 +16,6 @@ internal sealed class EnemyProjectileDeleteAnimation : EnemyProjectileAnimation
     }
 
     /// <inheritdoc/>
-    private protected override EnemyProjectileFrameStep NextFrame(EnemyProjectileCueContext context)
-    {
-        context.Projectile.Delete();
-        return EnemyProjectileFrameStep.Rests;
-    }
+    private protected override EnemyProjectileFrameStep NextFrame(EnemyProjectileCueContext context) =>
+        EnemyProjectileFrameStep.Deletes;
 }

@@ -4,6 +4,7 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.AssetExtraction.Progression;
 using SuperMetroid.AssetExtraction.Samus;
@@ -105,22 +106,23 @@ public static class SaveRamCodec
             throw new InvalidDataException($"Save slot {slot}'s clock words {hours}:{minutes}:{seconds}.{frames} are not a reading of the game clock.");
         return new SuperMetroidSaveSlot(
             Slot: SlotAt(slot),
-            EquippedItems: SamusEquipmentWordCodec.FromSavedEquipmentWord(ReadWord(payload, SaveRamLayout.EquippedItemsOffset)),
-            CollectedItems: SamusEquipmentWordCodec.FromSavedEquipmentWord(ReadWord(payload, SaveRamLayout.CollectedItemsOffset)),
-            EquippedBeams: SamusEquipmentWordCodec.FromSavedBeamWord(ReadWord(payload, SaveRamLayout.EquippedBeamsOffset)),
-            CollectedBeams: SamusEquipmentWordCodec.FromSavedBeamWord(ReadWord(payload, SaveRamLayout.CollectedBeamsOffset)),
-            ReserveMode: SaveSlotNumbering.SavedReserveMode(ReadWord(payload, SaveRamLayout.ReserveModeOffset)),
-            Health: SamusCountWords.Decode(ReadWord(payload, SaveRamLayout.HealthOffset)),
-            MaxHealth: SamusCountWords.Decode(ReadWord(payload, SaveRamLayout.MaxHealthOffset)),
-            Missiles: SamusCountWords.Decode(ReadWord(payload, SaveRamLayout.MissilesOffset)),
-            MaxMissiles: SamusCountWords.Decode(ReadWord(payload, SaveRamLayout.MaxMissilesOffset)),
-            SuperMissiles: SamusCountWords.Decode(ReadWord(payload, SaveRamLayout.SuperMissilesOffset)),
-            MaxSuperMissiles: SamusCountWords.Decode(ReadWord(payload, SaveRamLayout.MaxSuperMissilesOffset)),
-            PowerBombs: SamusCountWords.Decode(ReadWord(payload, SaveRamLayout.PowerBombsOffset)),
-            MaxPowerBombs: SamusCountWords.Decode(ReadWord(payload, SaveRamLayout.MaxPowerBombsOffset)),
+            Inventory: new SamusInventory(
+                EquippedItems: SamusEquipmentWordCodec.FromSavedEquipmentWord(ReadWord(payload, SaveRamLayout.EquippedItemsOffset)),
+                CollectedItems: SamusEquipmentWordCodec.FromSavedEquipmentWord(ReadWord(payload, SaveRamLayout.CollectedItemsOffset)),
+                EquippedBeams: SamusEquipmentWordCodec.FromSavedBeamWord(ReadWord(payload, SaveRamLayout.EquippedBeamsOffset)),
+                CollectedBeams: SamusEquipmentWordCodec.FromSavedBeamWord(ReadWord(payload, SaveRamLayout.CollectedBeamsOffset)),
+                ReserveMode: SaveSlotNumbering.SavedReserveMode(ReadWord(payload, SaveRamLayout.ReserveModeOffset)),
+                Health: SamusCountWords.Decode(ReadWord(payload, SaveRamLayout.HealthOffset)),
+                MaxHealth: SamusCountWords.Decode(ReadWord(payload, SaveRamLayout.MaxHealthOffset)),
+                Missiles: SamusCountWords.Decode(ReadWord(payload, SaveRamLayout.MissilesOffset)),
+                MaxMissiles: SamusCountWords.Decode(ReadWord(payload, SaveRamLayout.MaxMissilesOffset)),
+                SuperMissiles: SamusCountWords.Decode(ReadWord(payload, SaveRamLayout.SuperMissilesOffset)),
+                MaxSuperMissiles: SamusCountWords.Decode(ReadWord(payload, SaveRamLayout.MaxSuperMissilesOffset)),
+                PowerBombs: SamusCountWords.Decode(ReadWord(payload, SaveRamLayout.PowerBombsOffset)),
+                MaxPowerBombs: SamusCountWords.Decode(ReadWord(payload, SaveRamLayout.MaxPowerBombsOffset)),
+                MaxReserveEnergy: SamusCountWords.Decode(ReadWord(payload, SaveRamLayout.MaxReserveEnergyOffset)),
+                ReserveEnergy: SamusCountWords.Decode(ReadWord(payload, SaveRamLayout.ReserveEnergyOffset))),
             HudItem: SaveSlotNumbering.SavedHudItem(ReadWord(payload, SaveRamLayout.HudItemOffset)),
-            MaxReserveEnergy: SamusCountWords.Decode(ReadWord(payload, SaveRamLayout.MaxReserveEnergyOffset)),
-            ReserveEnergy: SamusCountWords.Decode(ReadWord(payload, SaveRamLayout.ReserveEnergyOffset)),
             GameTime: new GameClockReading(frames, seconds, minutes, hours),
             Progression: DecodeProgression(payload, maps),
             StartupRoute: SuperMetroid.AssetExtraction.Progression.SaveStartupRouteCodec.Route(ReadWord(payload, SaveRamLayout.LoadingGameStateOffset)),
@@ -134,7 +136,7 @@ public static class SaveRamCodec
             // NewFileMarkerSavedWord, LoadedItemCountSavedWord, ReserveMissilesSavedWord).
             MoonwalkEnabled = ReadWord(payload, SaveRamLayout.MoonwalkOffset) != 0,
             IconCancelEnabled = ReadWord(payload, SaveRamLayout.IconCancelOffset) != 0,
-            JapaneseText = ReadWord(payload, SaveRamLayout.JapaneseTextOffset) != 0,
+            Language = ReadWord(payload, SaveRamLayout.JapaneseTextOffset) != 0 ? TextLanguage.Japanese : TextLanguage.English,
         };
     }
 
@@ -147,10 +149,10 @@ public static class SaveRamCodec
         Ensure.NotNull(snapshot);
         byte[] payload = new byte[SaveRamLayout.SlotByteCount];
 
-        WriteWord(payload, SaveRamLayout.EquippedItemsOffset, snapshot.EquippedItems.ToEquipmentWord());
-        WriteWord(payload, SaveRamLayout.CollectedItemsOffset, snapshot.CollectedItems.ToEquipmentWord());
-        WriteWord(payload, SaveRamLayout.EquippedBeamsOffset, snapshot.EquippedBeams.ToEquipmentWord());
-        WriteWord(payload, SaveRamLayout.CollectedBeamsOffset, snapshot.CollectedBeams.ToEquipmentWord());
+        WriteWord(payload, SaveRamLayout.EquippedItemsOffset, snapshot.Inventory.EquippedItems.ToEquipmentWord());
+        WriteWord(payload, SaveRamLayout.CollectedItemsOffset, snapshot.Inventory.CollectedItems.ToEquipmentWord());
+        WriteWord(payload, SaveRamLayout.EquippedBeamsOffset, snapshot.Inventory.EquippedBeams.ToEquipmentWord());
+        WriteWord(payload, SaveRamLayout.CollectedBeamsOffset, snapshot.Inventory.CollectedBeams.ToEquipmentWord());
 
         // NewSaveFile at $81:B2CB installs these eleven literal SNES controller words.
         // Later saves copy the live configurable action words, so do not silently restore
@@ -160,20 +162,20 @@ public static class SaveRamCodec
         for (int index = 0; index < buttons.Length; index++)
             WriteWord(payload, SaveRamLayout.ButtonConfigOffset + index * 2, buttons[index]);
 
-        WriteWord(payload, SaveRamLayout.ReserveModeOffset, FieldWord(snapshot.ReserveMode.SavedNumber(), nameof(snapshot.ReserveMode)));
-        WriteWord(payload, SaveRamLayout.HealthOffset, SamusCountWords.Encode(snapshot.Health));
-        WriteWord(payload, SaveRamLayout.MaxHealthOffset, SamusCountWords.Encode(snapshot.MaxHealth));
-        WriteWord(payload, SaveRamLayout.MissilesOffset, SamusCountWords.Encode(snapshot.Missiles));
-        WriteWord(payload, SaveRamLayout.MaxMissilesOffset, SamusCountWords.Encode(snapshot.MaxMissiles));
-        WriteWord(payload, SaveRamLayout.SuperMissilesOffset, SamusCountWords.Encode(snapshot.SuperMissiles));
-        WriteWord(payload, SaveRamLayout.MaxSuperMissilesOffset, SamusCountWords.Encode(snapshot.MaxSuperMissiles));
-        WriteWord(payload, SaveRamLayout.PowerBombsOffset, SamusCountWords.Encode(snapshot.PowerBombs));
-        WriteWord(payload, SaveRamLayout.MaxPowerBombsOffset, SamusCountWords.Encode(snapshot.MaxPowerBombs));
+        WriteWord(payload, SaveRamLayout.ReserveModeOffset, FieldWord(snapshot.Inventory.ReserveMode.SavedNumber(), nameof(snapshot.Inventory.ReserveMode)));
+        WriteWord(payload, SaveRamLayout.HealthOffset, SamusCountWords.Encode(snapshot.Inventory.Health));
+        WriteWord(payload, SaveRamLayout.MaxHealthOffset, SamusCountWords.Encode(snapshot.Inventory.MaxHealth));
+        WriteWord(payload, SaveRamLayout.MissilesOffset, SamusCountWords.Encode(snapshot.Inventory.Missiles));
+        WriteWord(payload, SaveRamLayout.MaxMissilesOffset, SamusCountWords.Encode(snapshot.Inventory.MaxMissiles));
+        WriteWord(payload, SaveRamLayout.SuperMissilesOffset, SamusCountWords.Encode(snapshot.Inventory.SuperMissiles));
+        WriteWord(payload, SaveRamLayout.MaxSuperMissilesOffset, SamusCountWords.Encode(snapshot.Inventory.MaxSuperMissiles));
+        WriteWord(payload, SaveRamLayout.PowerBombsOffset, SamusCountWords.Encode(snapshot.Inventory.PowerBombs));
+        WriteWord(payload, SaveRamLayout.MaxPowerBombsOffset, SamusCountWords.Encode(snapshot.Inventory.MaxPowerBombs));
         WriteWord(payload, SaveRamLayout.HudItemOffset, FieldWord(snapshot.HudItem.SavedNumber(), nameof(snapshot.HudItem)));
-        WriteWord(payload, SaveRamLayout.MaxReserveEnergyOffset, SamusCountWords.Encode(snapshot.MaxReserveEnergy));
-        WriteWord(payload, SaveRamLayout.ReserveEnergyOffset, SamusCountWords.Encode(snapshot.ReserveEnergy));
+        WriteWord(payload, SaveRamLayout.MaxReserveEnergyOffset, SamusCountWords.Encode(snapshot.Inventory.MaxReserveEnergy));
+        WriteWord(payload, SaveRamLayout.ReserveEnergyOffset, SamusCountWords.Encode(snapshot.Inventory.ReserveEnergy));
         WriteWord(payload, SaveRamLayout.ReserveMissilesOffset, SaveRamLayout.ReserveMissilesSavedWord);
-        WriteWord(payload, SaveRamLayout.JapaneseTextOffset, snapshot.JapaneseText ? (ushort)1 : (ushort)0);
+        WriteWord(payload, SaveRamLayout.JapaneseTextOffset, snapshot.Language == TextLanguage.Japanese ? (ushort)1 : (ushort)0);
         WriteWord(payload, SaveRamLayout.LoadedItemCountOffset, SaveRamLayout.LoadedItemCountSavedWord);
         WriteWord(payload, SaveRamLayout.GameTimeFramesOffset,
             FieldWord(snapshot.GameTime.Frames, nameof(snapshot.GameTime)));
@@ -206,23 +208,9 @@ public static class SaveRamCodec
         ControllerBindings = slot.ControllerBindings,
         MoonwalkEnabled = slot.MoonwalkEnabled,
         IconCancelEnabled = slot.IconCancelEnabled,
-        JapaneseText = slot.JapaneseText,
-        EquippedItems = slot.EquippedItems,
-        CollectedItems = slot.CollectedItems,
-        EquippedBeams = slot.EquippedBeams,
-        CollectedBeams = slot.CollectedBeams,
-        ReserveMode = slot.ReserveMode,
-        Health = slot.Health,
-        MaxHealth = slot.MaxHealth,
-        Missiles = slot.Missiles,
-        MaxMissiles = slot.MaxMissiles,
-        SuperMissiles = slot.SuperMissiles,
-        MaxSuperMissiles = slot.MaxSuperMissiles,
-        PowerBombs = slot.PowerBombs,
-        MaxPowerBombs = slot.MaxPowerBombs,
+        Language = slot.Language,
+        Inventory = slot.Inventory,
         HudItem = slot.HudItem,
-        MaxReserveEnergy = slot.MaxReserveEnergy,
-        ReserveEnergy = slot.ReserveEnergy,
         GameTime = slot.GameTime,
         StartupRoute = slot.StartupRoute,
         Checkpoint = slot.Checkpoint,
@@ -411,14 +399,16 @@ public static class SaveRamCodec
     /// Each word becomes buttons through <see cref="ControllerWordCodec"/>, which rejects bits no button produces;
     /// <see cref="ControllerBindings.RequireUniquePermutation"/> then rejects a corrupt permutation.
     /// </summary>
-    private static ControllerBindings ReadControllerBindings(ReadOnlySpan<byte> payload) => new(
-        Shoot: ControllerWordCodec.FromJoypadWord(ReadWord(payload, SaveRamLayout.ShootButtonOffset), "save RAM shoot binding"),
-        Jump: ControllerWordCodec.FromJoypadWord(ReadWord(payload, SaveRamLayout.JumpButtonOffset), "save RAM jump binding"),
-        Dash: ControllerWordCodec.FromJoypadWord(ReadWord(payload, SaveRamLayout.DashButtonOffset), "save RAM dash binding"),
-        ItemSelect: ControllerWordCodec.FromJoypadWord(ReadWord(payload, SaveRamLayout.SelectButtonOffset), "save RAM item-select binding"),
-        ItemCancel: ControllerWordCodec.FromJoypadWord(ReadWord(payload, SaveRamLayout.CancelButtonOffset), "save RAM item-cancel binding"),
-        AimUp: ControllerWordCodec.FromJoypadWord(ReadWord(payload, SaveRamLayout.AimUpButtonOffset), "save RAM aim-up binding"),
-        AimDown: ControllerWordCodec.FromJoypadWord(ReadWord(payload, SaveRamLayout.AimDownButtonOffset), "save RAM aim-down binding"));
+    private static ControllerBindings ReadControllerBindings(ReadOnlySpan<byte> payload) => new(new Dictionary<ControllerAction, ControllerButton>
+    {
+        [ControllerAction.Shoot] = ControllerWordCodec.FromJoypadWord(ReadWord(payload, SaveRamLayout.ShootButtonOffset), "save RAM shoot binding"),
+        [ControllerAction.Jump] = ControllerWordCodec.FromJoypadWord(ReadWord(payload, SaveRamLayout.JumpButtonOffset), "save RAM jump binding"),
+        [ControllerAction.Dash] = ControllerWordCodec.FromJoypadWord(ReadWord(payload, SaveRamLayout.DashButtonOffset), "save RAM dash binding"),
+        [ControllerAction.ItemSelect] = ControllerWordCodec.FromJoypadWord(ReadWord(payload, SaveRamLayout.SelectButtonOffset), "save RAM item-select binding"),
+        [ControllerAction.ItemCancel] = ControllerWordCodec.FromJoypadWord(ReadWord(payload, SaveRamLayout.CancelButtonOffset), "save RAM item-cancel binding"),
+        [ControllerAction.AimUp] = ControllerWordCodec.FromJoypadWord(ReadWord(payload, SaveRamLayout.AimUpButtonOffset), "save RAM aim-up binding"),
+        [ControllerAction.AimDown] = ControllerWordCodec.FromJoypadWord(ReadWord(payload, SaveRamLayout.AimDownButtonOffset), "save RAM aim-down binding"),
+    });
 
     /// <summary>The eleven controller words a slot stores: the four D-pad directions, then the bindings in WRAM order.</summary>
     private static ushort[] ButtonConfigurationWords(ControllerBindings bindings) =>
@@ -427,13 +417,13 @@ public static class SaveRamCodec
         ControllerWordCodec.ToJoypadWord(ControllerButton.Down),
         ControllerWordCodec.ToJoypadWord(ControllerButton.Left),
         ControllerWordCodec.ToJoypadWord(ControllerButton.Right),
-        ControllerWordCodec.ToJoypadWord(bindings.Shoot),
-        ControllerWordCodec.ToJoypadWord(bindings.Jump),
-        ControllerWordCodec.ToJoypadWord(bindings.Dash),
-        ControllerWordCodec.ToJoypadWord(bindings.ItemCancel),
-        ControllerWordCodec.ToJoypadWord(bindings.ItemSelect),
-        ControllerWordCodec.ToJoypadWord(bindings.AimDown),
-        ControllerWordCodec.ToJoypadWord(bindings.AimUp),
+        ControllerWordCodec.ToJoypadWord(bindings[ControllerAction.Shoot]),
+        ControllerWordCodec.ToJoypadWord(bindings[ControllerAction.Jump]),
+        ControllerWordCodec.ToJoypadWord(bindings[ControllerAction.Dash]),
+        ControllerWordCodec.ToJoypadWord(bindings[ControllerAction.ItemCancel]),
+        ControllerWordCodec.ToJoypadWord(bindings[ControllerAction.ItemSelect]),
+        ControllerWordCodec.ToJoypadWord(bindings[ControllerAction.AimDown]),
+        ControllerWordCodec.ToJoypadWord(bindings[ControllerAction.AimUp]),
     ];
 
     /// <summary>

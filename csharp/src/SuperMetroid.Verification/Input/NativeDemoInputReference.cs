@@ -28,6 +28,28 @@ internal sealed class NativeDemoInputReference(Func<ushort, ushort> readWord)
     /// <summary>Initializer parameter stored at WRAM <c>$0A80</c>.</summary>
     internal ushort InitializationParameter { get; private set; }
 
+    /// <summary>The input record the interpreter last fetched; none before its first fetch and after a redirect (#2557).</summary>
+    private ushort? _fetched;
+
+    /// <summary>
+    /// The instruction pointer as a typed playback stands for it (#2557): past every record straight after the one last
+    /// fetched that repeats its buttons, since a typed recording plays such a run as one input.
+    /// </summary>
+    internal ushort InstructionPointerPastRepeats
+    {
+        get
+        {
+            if (_fetched is not { } fetched || InstructionPointer != unchecked((ushort)(fetched + DemoInputListWords.InputRecordBytes)))
+                return InstructionPointer;
+            ushort cursor = InstructionPointer;
+            while (readWord(cursor) < DemoInputListWords.RoutineWord
+                   && readWord(unchecked((ushort)(cursor + 2))) == readWord(unchecked((ushort)(fetched + 2)))
+                   && readWord(unchecked((ushort)(cursor + 4))) == readWord(unchecked((ushort)(fetched + 4))))
+                cursor = unchecked((ushort)(cursor + DemoInputListWords.InputRecordBytes));
+            return cursor;
+        }
+    }
+
     /// <summary>Controller word currently replacing player-held input.</summary>
     internal ushort Held { get; private set; }
 
@@ -58,6 +80,7 @@ internal sealed class NativeDemoInputReference(Func<ushort, ushort> readWord)
         InstructionPointer = readWord(unchecked((ushort)(objectPointer + 4)));
         FrameHold = WrappingCountdown.Start(1);
         Timer = WrappingCountdown.Start(0);
+        _fetched = null;
     }
 
     /// <summary>A pre-instruction's redirect of all three object words.</summary>
@@ -66,6 +89,7 @@ internal sealed class NativeDemoInputReference(Func<ushort, ushort> readWord)
         FrameBehaviorPointer = frameBehaviorPointer;
         InstructionPointer = instructionPointer;
         FrameHold = WrappingCountdown.Start(frameHold);
+        _fetched = null;
     }
 
     /// <summary>
@@ -99,6 +123,7 @@ internal sealed class NativeDemoInputReference(Func<ushort, ushort> readWord)
                 Held = readWord(unchecked((ushort)(cursor + 2)));
                 NewlyPressed = readWord(unchecked((ushort)(cursor + 4)));
                 InstructionPointer = unchecked((ushort)(cursor + DemoInputListWords.InputRecordBytes));
+                _fetched = cursor;
                 return;
             }
             cursor = unchecked((ushort)(cursor + 2));
@@ -147,7 +172,7 @@ internal sealed class NativeDemoInputReference(Func<ushort, ushort> readWord)
     /// previous step's new input.
     /// </summary>
     internal string Snapshot() =>
-        $"{Enabled}/{FrameBehaviorPointer}/{InstructionPointer}/{Held}/{NewlyPressed}/{PublishedPreviousNewlyPressed}";
+        $"{Enabled}/{FrameBehaviorPointer}/{InstructionPointerPastRepeats}/{Held}/{NewlyPressed}/{PublishedPreviousNewlyPressed}";
 
     /// <summary>
     /// A typed playback's words: what its owner watches for as <paramref name="frameBehavior"/>, the native pre-instruction

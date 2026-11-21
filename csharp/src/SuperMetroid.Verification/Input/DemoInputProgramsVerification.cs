@@ -55,12 +55,24 @@ internal static class DemoInputProgramsVerification
                 {
                     AssertTrue(index < recording.Inputs.Count, $"{at}: the recording holds this input");
                     DemoInput input = recording.Inputs[index];
-                    AssertEqual(word, input.Duration, $"{at}: duration");
-                    AssertEqual(Word(cursor + 2), GameplayActionWordCodec.ToJoypadWord(input.Held), $"{at}: held");
-                    AssertEqual(Word(cursor + 4), GameplayActionWordCodec.ToJoypadWord(input.NewlyPressed), $"{at}: newly pressed");
-                    cursor = unchecked((ushort)(cursor + DemoInputListWords.InputRecordBytes));
+                    ushort held = Word(cursor + 2), newlyPressed = Word(cursor + 4);
+                    AssertEqual(held, GameplayActionWordCodec.ToJoypadWord(input.Held), $"{at}: held");
+                    AssertEqual(newlyPressed, GameplayActionWordCodec.ToJoypadWord(input.NewlyPressed), $"{at}: newly pressed");
+                    // A run of identical consecutive records in the list is the one typed input (#2557): its duration is
+                    // theirs together, and the record map counts them.
+                    int duration = 0, run = 0;
+                    do
+                    {
+                        duration += Word(cursor);
+                        cursor = unchecked((ushort)(cursor + DemoInputListWords.InputRecordBytes));
+                        run++;
+                    }
+                    while (!(loop is { } runOn && cursor == runOn.Entry) && Word(cursor) < DemoInputListWords.RoutineWord
+                        && Word(cursor + 2) == held && Word(cursor + 4) == newlyPressed);
+                    AssertEqual(duration, input.Duration, $"{at}: duration");
+                    AssertEqual(run, DemoInputNativeListAddresses.RecordsOf(id, index), $"{at}: the native records the input stands for");
                     index++;
-                    records++;
+                    records += run;
                     continue;
                 }
                 AssertEqual(recording.Inputs.Count, index, $"{at}: the recording's inputs end where its list's do");
@@ -93,6 +105,8 @@ internal static class DemoInputProgramsVerification
                 break;
             }
         }
+        AssertTrue(DemoInputNativeListAddresses.Runs.All(run => run.Input < DemoInputRecordings.Of(run.Recording).Inputs.Count),
+            "every authored run names an input of its recording");
         // Every native duration matched above is at least one, so the playback's plain countdown reaches zero on every input;
         // a recording refuses an input that would last no update (#2138).
         AssertThrows<ArgumentException>(() => new DemoRecording([new DemoInput(GameplayAction.None, GameplayAction.None, 0)], DemoRecordingEnd.Stops),

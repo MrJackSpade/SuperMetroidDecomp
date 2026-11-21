@@ -1,9 +1,7 @@
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Grapple;
-using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Artwork;
 
 namespace SuperMetroid.Core.Samus.Colours;
@@ -47,8 +45,7 @@ public static class SamusHurtFlash
         // identified by the same explicit phase/pose pair that replaces its movement.
         if (counterBefore == SamusHurtFlashDefinitions.ImpactSoundUpdate &&
             samus.Presentation.Mode != SamusPresentationMode.Cinematic &&
-            !(samus.Drained.Phase == DrainedSamusPhase.RainbowBeamLocked &&
-              samus.Pose == SamusPoseId.KnockbackLeftPose))
+            !samus.Drained.HoldsRainbowBeamKnockback(samus.Pose))
         {
             samus.AudioRequests.QueueSound(SamusSound.SamusDamaged, priority: SoundRequestPriority.Normal);
         }
@@ -57,7 +54,7 @@ public static class SamusHurtFlash
         // restores the intro shade or the equipped suit. Later updates leave the colours as they are.
         if (counterBefore <= SamusHurtFlashDefinitions.ColouredUpdates)
         {
-            if (SamusCadenceDefinitions.HurtColoursShown.IsSetIn(counterBefore))
+            if (SamusCadenceDefinitions.HurtColoursShown.IsInSecondHalfAt(counterBefore))
             {
                 colours.ShowSuit(SamusShades.Hurt(SamusHurtColorVariant.Hurt));
             }
@@ -132,13 +129,7 @@ public static class SamusHurtFlash
 
         // The grapple keeps its sound while it fires, swings, holds locked, grabs a wall and lets go of one; it is
         // silent once it is cancelled and through everything after.
-        bool grappleSoundActive = samus.Grapple.Phase is
-            GrapplePhase.Firing or
-            GrapplePhase.ConnectedSwinging or
-            GrapplePhase.ConnectedLocked or
-            GrapplePhase.WallGrab or
-            GrapplePhase.WallGrabRelease;
-        if (grappleSoundActive)
+        if (samus.Grapple.Phase.PlaysGrappleSound)
             samus.AudioRequests.QueueSound(SamusSound.Grappling, priority: SoundRequestPriority.High);
     }
 

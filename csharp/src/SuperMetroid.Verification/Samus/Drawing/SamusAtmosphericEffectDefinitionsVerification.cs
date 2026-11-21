@@ -49,18 +49,19 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
             byte landing = rom.ReadCartridgeByte(crateriaLandingTypes + room);
             AssertEqual(footstep, landing,
                 $"duplicated Crateria atmospheric policy ${room:X2}");
-            // The cartridge's policy byte names the room's effect by one bit, or none by zero (#2056).
-            CrateriaAtmosphericEffect? cartridge = footstep switch
+            // The cartridge's policy byte names the room's effect by one bit, or none by zero (#2056); the room declares
+            // the wetness of its ground that the effect gives (#2559).
+            RoomGroundWetness cartridge = footstep switch
             {
-                0 => null,
-                1 => CrateriaAtmosphericEffect.LandingSite,
-                2 => CrateriaAtmosphericEffect.WreckedShipEntrance,
-                4 => CrateriaAtmosphericEffect.WetFootsteps,
+                0 => RoomGroundWetness.Dry,
+                1 => RoomGroundWetness.WetWhileRaining,
+                2 => RoomGroundWetness.WetBelowWaterline,
+                4 => RoomGroundWetness.Wet,
                 _ => throw new InvalidDataException($"Crateria atmospheric policy ${room:X2} names no single effect: {footstep}."),
             };
             AssertEqual(cartridge,
-                SamusAtmosphericEffects.ForCrateriaRoom(RoomDefinitions.WithCartridgeNumber(rom, AreaId.Crateria, room)),
-                $"compiled Crateria atmospheric policy ${room:X2}");
+                RoomDefinitions.WithCartridgeNumber(rom, AreaId.Crateria, room).Ground.Wetness,
+                $"declared Crateria ground wetness ${room:X2}");
         }
 
         var source = new TestAddressSpace();
@@ -82,15 +83,8 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
         AssertThrows<InvalidDataException>(
             () => SamusAtmosphericEffects.IsRunningFootContact(new SamusAnimationFrame(SamusAnimationSegmentName.SlowStride, 2)),
             "running foot-contact frame off the stride");
-        AssertEqual<CrateriaAtmosphericEffect?>(null,
-            SamusAtmosphericEffects.ForCrateriaRoom(RoomDefinitions.GreenPiratesShaft),
-            "a Crateria room the policy does not name has none");
-        AssertThrows<InvalidDataException>(
-            () => SamusAtmosphericEffects.ForCrateriaRoom(RoomDefinitions.GreenBrinstarMainShaft),
-            "a room outside Crateria has no Crateria atmospheric policy");
-        AssertThrows<InvalidDataException>(
-            () => SamusAtmosphericEffects.LandingRaisesDustInBrinstarOrTourian(RoomDefinitions.LandingSite),
-            "a room outside Brinstar and Tourian has no Brinstar or Tourian landing-dust policy");
+        AssertEqual(RoomGroundDefinitions.Dusty, RoomDefinitions.GreenPiratesShaft.Ground,
+            "the Green Pirates Shaft, a Crateria room the policy does not name, has dry ground whose landings raise dust");
 
         Console.WriteLine(
             "Samus atmospheric definitions: 28 splash selectors, 10 running-contact flags, both 16-byte Crateria policy copies, Brinstar's and Tourian's landing dust, and all production handoffs pass with source tables forbidden.");
@@ -131,7 +125,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
                 Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)),
                 Kinematics = { Radius = new(5, 12) },
             };
-            samus.Ground = SamusGround.Of(RoomDefinitions.FirstIn(AreaId.Maridia));
+            samus.Ground = RoomDefinitions.FirstIn(AreaId.Maridia).Ground;
             SamusPresentation.InitializeAnimation(samus, samus.PoseFrameNumbered(frame));
             AdvanceToFootContactTick(samus);
             samus.LiquidPhysics.PrepareAnimationFrame(samus, new SharedRandom(), frameCounter: 1, bossPresent: false);
@@ -149,8 +143,8 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
         for (byte number = 0; number < 16; number++)
         {
             RoomDefinition room = RoomDefinitions.WithCartridgeNumber(rom, AreaId.Crateria, number);
-            CrateriaAtmosphericEffect? policy = SamusAtmosphericEffects.ForCrateriaRoom(room);
-            bool wet = policy is not null;
+            RoomGroundWetness wetness = room.Ground.Wetness;
+            bool wet = wetness != RoomGroundWetness.Dry;
 
             var runner = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
             {
@@ -158,8 +152,8 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
                 Position = FixedPosition<RoomPixels>.FromWhole(new(100, 0x03b0)),
                 Kinematics = { Radius = new(5, 12) },
             };
-            runner.Ground = SamusGround.Of(room);
-            if (policy == CrateriaAtmosphericEffect.LandingSite)
+            runner.Ground = room.Ground;
+            if (wetness == RoomGroundWetness.WetWhileRaining)
                 runner.LiquidPhysics.ConfigureNonLiquidRoomFx(RoomFxType.Rain);
             SamusPresentation.InitializeAnimation(runner, runner.PoseFrameNumbered(2));
             AdvanceToFootContactTick(runner);
@@ -173,8 +167,8 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
                 Position = FixedPosition<RoomPixels>.FromWhole(new(100, 0x03b0)),
                 Kinematics = { Radius = new(5, 12) },
             };
-            landing.Ground = SamusGround.Of(room);
-            if (policy == CrateriaAtmosphericEffect.LandingSite)
+            landing.Ground = room.Ground;
+            if (wetness == RoomGroundWetness.WetWhileRaining)
                 landing.LiquidPhysics.ConfigureNonLiquidRoomFx(RoomFxType.Rain);
             landing.LiquidPhysics.BeginFrameSoundRequests();
             landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
@@ -203,8 +197,8 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
             // every Tourian room, raises dust when its number is 5 through 8 or 11.
             int number = room.CartridgeNumber(rom);
             bool expected = (room.Area == AreaId.Brinstar && number == 8) || number is >= 5 and < 9 or 11;
-            AssertEqual(expected, SamusAtmosphericEffects.LandingRaisesDustInBrinstarOrTourian(room),
-                $"compiled landing dust in {room.Area} {room.Name}");
+            AssertEqual(expected, room.Ground.DryLandingsRaiseDust,
+                $"declared landing dust in {room.Area} {room.Name}");
             if (expected)
                 dustyRooms++;
 
@@ -214,7 +208,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
                 Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)),
                 Kinematics = { Radius = new(5, 12) },
             };
-            landing.Ground = SamusGround.Of(room);
+            landing.Ground = room.Ground;
             landing.LiquidPhysics.EffectWaits.HoldBubbles(9);
             landing.LiquidPhysics.BeginFrameSoundRequests();
             landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(

@@ -8,7 +8,7 @@ public sealed class DeadTourianCorpseEnemyState
     internal AnimationPlayback<DeadTourianSegment> Playback { get; set; }
 
     /// <summary>Captures the corpse's own rot schedule, and starts its own rows and its first phase.</summary>
-    internal DeadTourianCorpseEnemyState(CorpseRotSchedule rot, DeadTourianCorpsePhase phase)
+    internal DeadTourianCorpseEnemyState(CorpseRotSchedule rot, CorpsePhase phase)
     {
         Phase = phase;
         Rot = Ensure.NotNull(rot);
@@ -16,7 +16,7 @@ public sealed class DeadTourianCorpseEnemyState
     }
 
     /// <summary>The phase main AI runs.</summary>
-    public DeadTourianCorpsePhase Phase { get; internal set; }
+    public CorpsePhase Phase { get; internal set; }
     /// <summary>The corpse's own rot schedule: the fall of each of its pixel rows, as many as its definition gives it.</summary>
     internal CorpseRotSchedule Rot { get; }
     /// <summary>The corpse's own pixel rows as its rot has left them, which its frames are drawn through (#1539).</summary>

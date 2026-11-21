@@ -55,21 +55,21 @@ internal sealed class TitleGameSequence(FrontendSession session, TitleGameSequen
         session.ForgetQueuedAudio();
         session.ForgetSpacetimeRestart();
         Current = new Stage.Showing(title);
-        session.display.PublishMenu(title);
+        session.display.Publish(title);
     }
 
     /// <summary>One update of the title, which leaves for the save slots or an attract demo once it asks to.</summary>
     private void ShowTitle(TitleSequenceState title, ControllerButton controllerInput)
     {
         title.Step(controllerInput);
-        session.display.PublishMenu(title);
+        session.display.Publish(title);
         if (title.Outcome == TitleSequenceOutcome.FileSelect)
         {
             // The title enters file select only after the slow fade reaches black.
             FileSelectMenuState slots = session.Show(new FileSelectMenuState(session.saves, session.audio, session.Artwork.ScreenContent,
                 session.Artwork.SpriteSheets));
             session.EnterFileSelect(new FileSelectGameSequence.Stage.SaveSlots(slots));
-            session.display.PublishMenu(slots);
+            session.display.Publish(slots);
         }
         else if (title.Outcome == TitleSequenceOutcome.Demo)
         {

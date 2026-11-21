@@ -781,7 +781,7 @@ internal static void VerifySamusGrabbedByDraygon()
     samus.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(2, 0x8000);
     samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Decelerating;
     samus.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(new UnsignedSixteenSixteen(4, 0xc000), SamusVerticalDirection.Down);
-    samus.MorphBallBounceState = SamusBallBounceState.SecondRebound;
+    samus.MorphBallBounceState = SamusBallBounce.MorphBallSecond;
 
     bool release = repeatedUp;
     for (int inputNumber = 1; inputNumber < SamusDraygonHoldDefinitions.EscapePresses; inputNumber++)
@@ -802,7 +802,7 @@ internal static void VerifySamusGrabbedByDraygon()
     AssertEqual(0, samus.Kinematics.VerticalVelocity.Speed.Whole, "release clears Y speed");
     AssertEqual(0, samus.Kinematics.VerticalVelocity.Speed.Fraction, "release clears Y subspeed");
     AssertEqual(SamusVerticalDirection.None, samus.Kinematics.VerticalVelocity.Direction, "release clears Y direction");
-    AssertEqual(SamusBallBounceState.None, samus.MorphBallBounceState, "release clears bounce state");
+    AssertEqual(null, samus.MorphBallBounceState, "release clears bounce state");
     AssertEqual(SamusAccelerationMode.Accelerating, samus.HorizontalSpeed.AccelerationMode,
         "release clears X acceleration mode");
     AssertEqual(SamusDraygonHoldPhase.ReleasedUnseen, samus.DraygonGrabbed.Phase, "the release waits for Draygon to see it");

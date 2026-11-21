@@ -20,13 +20,13 @@ internal static class PauseSheetFrameOrder
     ]);
 
     /// <summary>Samus's wireframes: the Power Suit's, with Hi-Jump, then the Varia Suit's, with Hi-Jump.</summary>
-    internal static readonly IReadOnlyList<PauseWireframeKind> Wireframes = Ensure.EveryMemberOnce<PauseWireframeKind>(
+    internal static readonly IReadOnlyList<PauseWireframe> Wireframes =
     [
-        PauseWireframeKind.PowerSuit,
-        PauseWireframeKind.PowerSuitHiJump,
-        PauseWireframeKind.VariaSuit,
-        PauseWireframeKind.VariaSuitHiJump,
-    ]);
+        new(PauseWireframeSuit.PowerSuit, PauseWireframeBoots.RegularBoots),
+        new(PauseWireframeSuit.PowerSuit, PauseWireframeBoots.HiJumpBoots),
+        new(PauseWireframeSuit.VariaSuit, PauseWireframeBoots.RegularBoots),
+        new(PauseWireframeSuit.VariaSuit, PauseWireframeBoots.HiJumpBoots),
+    ];
 
     /// <summary>The reserve tanks' modes: none, auto, manual.</summary>
     internal static readonly IReadOnlyList<ReserveTankMode> ReserveModes = Ensure.EveryMemberOnce<ReserveTankMode>(

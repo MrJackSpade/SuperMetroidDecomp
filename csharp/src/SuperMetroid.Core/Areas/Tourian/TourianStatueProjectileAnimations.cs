@@ -2,12 +2,16 @@ using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.Projectiles;
 using K = SuperMetroid.Core.Areas.Tourian.TourianStatueProjectileCueKind;
 using P = SuperMetroid.Core.Areas.Tourian.TourianStatueProjectileSegment;
+using static SuperMetroid.Core.DefinitionRun;
 
 namespace SuperMetroid.Core.Areas.Tourian;
 
 /// <summary>The Tourian statue projectile animations (#641).</summary>
 internal static class TourianStatueProjectileAnimations
 {
+    /// <summary>How many particles an eye glow releases as it ends, one spawn cue each.</summary>
+    private const int ParticlesReleased = 4;
+
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<TourianStatueProjectileSegment, EnemyProjectileFrameId, TourianStatueProjectileCue> Segments { get; } = new(
         new Dictionary<TourianStatueProjectileSegment, AnimationBeat<EnemyProjectileFrameId, TourianStatueProjectileCue>[]>
@@ -34,10 +38,7 @@ internal static class TourianStatueProjectileAnimations
             Hide(48),
             Cue(new TourianStatueProjectileCue.Signal(K.PlayReleaseSound)),
             Cue(new TourianStatueProjectileCue.Signal(K.Earthquake)),
-            Cue(new TourianStatueProjectileCue.Signal(K.SpawnParticle)),
-            Cue(new TourianStatueProjectileCue.Signal(K.SpawnParticle)),
-            Cue(new TourianStatueProjectileCue.Signal(K.SpawnParticle)),
-            Cue(new TourianStatueProjectileCue.Signal(K.SpawnParticle)),
+            .. Repeated(Cue(new TourianStatueProjectileCue.Signal(K.SpawnParticle)), ParticlesReleased),
             Cue(new TourianStatueProjectileCue.Signal(K.Delete)),
         ],
         [P.Particle] =
@@ -96,9 +97,6 @@ internal static class TourianStatueProjectileAnimations
         [P.Ridley] = new([Segments.Whole(P.Ridley)], AnimationEnd.Holds),
         [P.Phantoon] = new([Segments.Whole(P.Phantoon)], AnimationEnd.Holds),
     };
-
-    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<TourianStatueProjectileSegment> StartingWith(TourianStatueProjectileSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, TourianStatueProjectileCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, TourianStatueProjectileCue>.Frame(frame, duration);

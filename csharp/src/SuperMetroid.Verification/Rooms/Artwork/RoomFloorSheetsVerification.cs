@@ -91,7 +91,7 @@ internal static class RoomFloorSheetsVerification
                 int column = x / TilePixels, row = y / TilePixels;
                 bool showsTile = (column, row) is (5, 3) or (7, 4);
                 int expected = showsTile && x % TilePixels == y % TilePixels ? 5 : 0;
-                int painted = sheet.PaletteIndices[(floor.Corner.Y + y) * sheet.Size.X + floor.Corner.X + x];
+                int painted = sheet.Inks[(floor.Corner.Y + y) * sheet.Size.X + floor.Corner.X + x].PlaceIn(sheet.Manifest.Palette);
                 if (painted != expected)
                     AssertTrue(false, $"floor picture pixel ({x}, {y}) paints index {painted} where its cell's tile names {expected}");
             }
@@ -129,14 +129,17 @@ internal static class RoomFloorSheetsVerification
     /// <summary>
     /// The installed Ceres Ridley floor pictures the cartridge's floor data (#1649): the tileset's characters as the cartridge
     /// stores them, which its rooms upload as the floor's memory, give every cell's tile and every tile's pixels; the floor's
-    /// picture is the whole floor (#2104), and each of its pixels is the pixel the cartridge's cell shows there.
+    /// picture is the whole floor (#2104), and each of its pixels is the pixel the cartridge's cell shows there. The floor
+    /// holds only the floor (#2573): where an actor rests on it, the floor shows nothing and the actor's resting picture shows
+    /// the cartridge's pixels.
     /// </summary>
     internal static void VerifyRidleyFloorMatchesCartridge()
     {
         SuperMetroidRuntime runtime = LoadRoom(RoomDefinitions.CeresRidley);
         TilesetDefinition tileset = runtime.Room.LoadedScope.Assets.Tileset;
-        SpriteSheetFrame image = (runtime.Room.LoadedScope.Floor ?? throw new InvalidOperationException("Ceres Ridley's arena binds no turning floor."))
-            .Sheet.Floor.Image;
+        RoomFloorSheet floorSheet = (runtime.Room.LoadedScope.Floor ?? throw new InvalidOperationException("Ceres Ridley's arena binds no turning floor."))
+            .Sheet;
+        SpriteSheetFrame image = floorSheet.Floor.Image;
         IImportCartridgeSource cartridge = (
             CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
         byte[] memory = RomDataReader.Decompress(cartridge, RoomTilesetSources.Read(cartridge).Characters[tileset.Characters]);
@@ -145,20 +148,48 @@ internal static class RoomFloorSheetsVerification
         AssertEqual(Offset16<ImagePixels>.Zero, image.Origin, "the installed floor lies at the floor's top-left corner");
         AssertEqual(new Extent16<ImagePixels>(Side * TilePixels, Side * TilePixels), image.Size, "the installed floor is the whole floor");
 
+        // Each floor pixel a resting actor's picture covers, with the composed index that picture shows there.
+        int floorPixels = image.Size.X * image.Size.Y;
+        var restingIndex = new int[floorPixels];
+        Array.Fill(restingIndex, -1);
+        foreach (CeresFloorActorPicture resting in floorSheet.Resting.Values)
+        {
+            SpriteSheetFrame picture = floorSheet.Sheet.Frame(RoomFloorSheet.RestingNameOf(resting));
+            for (int y = 0; y < picture.Size.Y; y++)
+            {
+                for (int x = 0; x < picture.Size.X; x++)
+                {
+                    int floorX = x - picture.Origin.X, floorY = y - picture.Origin.Y;
+                    AssertTrue(floorX >= 0 && floorX < image.Size.X && floorY >= 0 && floorY < image.Size.Y,
+                        $"resting picture {resting} lies on the floor");
+                    AssertTrue(restingIndex[floorY * image.Size.X + floorX] < 0, $"resting picture {resting} covers no other resting picture");
+                    restingIndex[floorY * image.Size.X + floorX] = InstalledPictureColoursConstants.ComposedIndexAt(picture.Sheet,
+                        (picture.Corner.Y + y) * picture.Sheet.Size.X + picture.Corner.X + x);
+                }
+            }
+        }
+
         SpriteImage sheet = image.Sheet;
-        int mismatches = 0;
+        int mismatches = 0, showsUnderActor = 0;
         for (int y = 0; y < image.Size.Y; y++)
         {
             for (int x = 0; x < image.Size.X; x++)
             {
                 int tile = memory[(y / TilePixels * Side + x / TilePixels) * sizeof(ushort)];
                 int expected = memory[(tile * TileBytes + y % TilePixels * TilePixels + x % TilePixels) * sizeof(ushort) + 1];
-                if (InstalledPictureColoursConstants.ComposedIndexAt(sheet, (image.Corner.Y + y) * sheet.Size.X + image.Corner.X + x) != expected)
+                int floor = InstalledPictureColoursConstants.ComposedIndexAt(sheet, (image.Corner.Y + y) * sheet.Size.X + image.Corner.X + x);
+                int underActor = restingIndex[y * image.Size.X + x];
+                if (underActor >= 0 && floor != 0)
+                    showsUnderActor++;
+                if ((underActor >= 0 ? underActor : floor) != expected)
                     mismatches++;
             }
         }
-        AssertEqual(0, mismatches, "every pixel of the installed Ceres Ridley floor is the pixel the cartridge's cell shows there");
-        Console.WriteLine($"  Turning floors: {RoomFloorSheet.NameOf(tileset)} pictures the cartridge's whole {image.Size.X}x{image.Size.Y} floor.");
+        AssertEqual(0, showsUnderActor, "the installed Ceres Ridley floor shows nothing where an actor rests on it");
+        AssertEqual(0, mismatches,
+            "every pixel of the installed Ceres Ridley floor, or of the resting picture of an actor that rests there, is the pixel the cartridge's cell shows there");
+        Console.WriteLine($"  Turning floors: {RoomFloorSheet.NameOf(tileset)} pictures the cartridge's whole {image.Size.X}x{image.Size.Y} floor, " +
+            $"{floorSheet.Resting.Count} resting actors' pictures over it.");
     }
 
     /// <summary>A retail runtime with <paramref name="room"/> loaded.</summary>

@@ -471,7 +471,7 @@ internal static class RoomObjectProgramsVerification
             AssertEqual(SuperMetroid.AssetExtraction.Rooms.RoomObjectDrawAddressCodec.Of(SamusEaterObjectDraws.Family.Of(image)), (int)Word(cursor + 2), $"{at} image");
         }
 
-        string plantName = plant.Ceiling ? "ceiling plant" : "floor plant";
+        string plantName = plant.Side == VerticalDirection.Up ? "ceiling plant" : "floor plant";
         AssertEqual(RoomObjectInstruction.InstallFrameBehavior, At(list), $"{plantName} first holds Samus");
         AssertEqual(SamusEaterObjectDefinitionsConstants.HoldFrameBehavior, Word(list + 2), $"{plantName} hold");
         AssertEqual(RoomObjectInstruction.SetEightBitTimer, At(list + 4), $"{plantName} counts its chews");

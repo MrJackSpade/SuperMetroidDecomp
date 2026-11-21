@@ -32,7 +32,8 @@ internal static class BombTorizoStatueFragmentDefinitionsVerification
             enemies.TorizoBehavior.Attacks.SpawnBombTorizoStatueBreakingProjectile(
                 new BombTorizoStatueProjectileRequest(
                     index,
-                    RoomObjectBlock: new(10, 20)));
+                    RoomObjectBlock: new(10, 20),
+                    Spawner: new AttacksSpawnFragments(enemies.TorizoBehavior.Attacks)));
             EnemyProjectile projectile = enemies.Projectiles.EnemyProjectiles.SingleOrDefault(item => item.IsActive) ??
                 throw new InvalidDataException(
                     $"Bomb Torizo statue fragment {index} failed to allocate.");
@@ -48,9 +49,9 @@ internal static class BombTorizoStatueFragmentDefinitionsVerification
             AssertEqual(unchecked((ushort)(20 * 16 + expected.Offset.Y)),
                 projectile.Position.Y.Whole,
                 $"Bomb Torizo statue fragment {index} production Y");
-            AssertEqual(expected.InitialFallSpeed, projectile.Velocity.Y,
+            AssertEqual(BombTorizoStatueFragmentDefinitions.InitialFallSpeed, projectile.Velocity.Y,
                 $"Bomb Torizo statue fragment {index} production velocity");
-            AssertEqual(expected.Acceleration, enemies.TorizoBehavior.Attacks.TorizoProjectiles.StatueFragments.Of(projectile).Acceleration,
+            AssertEqual(BombTorizoStatueFragmentDefinitions.Acceleration, enemies.TorizoBehavior.Attacks.TorizoProjectiles.StatueFragments.Of(projectile).Acceleration,
                 $"Bomb Torizo statue fragment {index} production acceleration");
         }
 
@@ -84,17 +85,26 @@ internal static class BombTorizoStatueFragmentDefinitionsVerification
     {
         for (int fragment = 0, parameter = 0; fragment < BombTorizoStatueFragmentNativeOrder.Pieces.Count; fragment++, parameter += 2)
             AssertEqual(rom.ReadCartridgeWord((0x86a7fb + parameter)),
-                BombTorizoStatueFragmentDefinitions.Fragments[BombTorizoStatueFragmentNativeOrder.Pieces[fragment]].InitialFallSpeed.RawValue, "statue native constant launch velocity field");
+                BombTorizoStatueFragmentDefinitions.InitialFallSpeed.RawValue, "statue native constant launch velocity field");
     }
     /// <summary>Checks the repeated native vertical acceleration entries.</summary>
     private static void VerifyStatueFragmentAccelerationField(ISnesAddressSpace rom)
     {
         for (int fragment = 0, parameter = 0; fragment < BombTorizoStatueFragmentNativeOrder.Pieces.Count; fragment++, parameter += 2)
             AssertEqual(rom.ReadCartridgeWord((0x86a80b + parameter)),
-                BombTorizoStatueFragmentDefinitions.Fragments[BombTorizoStatueFragmentNativeOrder.Pieces[fragment]].Acceleration.RawValue, "statue native constant acceleration field");
+                BombTorizoStatueFragmentDefinitions.Acceleration.RawValue, "statue native constant acceleration field");
     }
     /// <summary>Forbids production rereads of the five compiled statue-fragment physical tables.</summary>
     private static CartridgeReadGuard NewBombTorizoStatueFragmentReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address => address is >= 0x86a7ab and < 0x86a81b,
             address => $"Bomb Torizo statue fragment attempted migrated table read ${address:X6}.");
+
+    /// <summary>The fragment spawner the hand's room object would hand a fragment: the room's Torizo attacks.</summary>
+    /// <param name="attacks">The Torizo attacks that spawn the fragment.</param>
+    private sealed class AttacksSpawnFragments(TorizoAttacks attacks) : IBombTorizoStatueFragmentSpawner
+    {
+        /// <inheritdoc/>
+        public void SpawnBombTorizoStatueBreakingProjectile(BombTorizoStatueProjectileRequest request) =>
+            attacks.SpawnBombTorizoStatueBreakingProjectile(request);
+    }
 }

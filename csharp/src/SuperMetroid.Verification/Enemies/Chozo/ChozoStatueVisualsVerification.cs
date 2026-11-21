@@ -10,7 +10,6 @@ using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Enemies.Chozo.Artwork;
 namespace SuperMetroid.Verification.Enemies.Chozo;
 
 /// <summary>Checks extracted Chozo statue draw data and compiled PLM execution with the installed art.</summary>
@@ -29,7 +28,7 @@ internal static class ChozoStatueVisualsVerification
             GameInstallation installation = copy.Installation;
             RoomObjectChozoStatueVisualFilesConstants.ValidateStock(
                 installation.RoomObjectChozoStatueVisualDirectory);
-            InstalledRoomObjectChozoStatueVisuals installed = installation.LoadRoomObjectChozoStatueVisuals();
+            InstalledRoomObjectPictures installed = installation.LoadRoomObjectChozoStatueVisuals();
             VerifyChozoStatueStockMapping(rom, installed);
 
             // Run both real Chozo PLM instruction lists. The bus refuses reads of compiled draw bytes, so the

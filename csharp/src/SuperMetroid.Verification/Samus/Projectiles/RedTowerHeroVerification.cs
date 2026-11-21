@@ -56,7 +56,7 @@ internal static class RedTowerHeroVerification
             for (int frame = 0; frame < 100; frame++)
             {
                 ControllerButton input = frame == 0
-                    ? ControllerButton.Up | runtime.Options.ControllerBindings.Shoot
+                    ? ControllerButton.Up | runtime.Options.ControllerBindings[SuperMetroid.Core.Input.ControllerAction.Shoot]
                     : ControllerButton.Up;
                 if (followShot && frame > 0 && runtime.Projectiles.Shots[0].IsActive)
                     runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(0, (ushort)Math.Max(0, runtime.Projectiles.Shots[0].Position.Y.Whole - 160)));

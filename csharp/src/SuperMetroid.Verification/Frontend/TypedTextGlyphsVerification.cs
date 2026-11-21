@@ -34,7 +34,7 @@ internal static class TypedTextGlyphsVerification
         };
         foreach (TitleCardDefinition card in TitleCards.All)
         {
-            foreach (TitleCardTyping step in TitleCards.Typings(card.Card))
+            foreach (TitleCardTyping step in TitleCards.Typings(card))
                 titleFrames.Add(TitleSpriteDefinitions.LetterFrameName(step));
         }
         SpriteSheet titleSheet = InstalledFixtures.SpriteSheets.Get(SpriteSheetId.Title);
@@ -61,7 +61,7 @@ internal static class TypedTextGlyphsVerification
         var glyphs = new List<TypedStepFrame>();
         foreach (TitleCardDefinition card in TitleCards.All)
         {
-            foreach (TitleCardTyping step in TitleCards.Typings(card.Card))
+            foreach (TitleCardTyping step in TitleCards.Typings(card))
                 glyphs.Add(new(SpriteSheetId.Title, TitleSpriteDefinitions.LetterFrameName(step)));
         }
         glyphs.AddRange(typed);

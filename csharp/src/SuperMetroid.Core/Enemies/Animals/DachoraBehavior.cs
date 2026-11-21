@@ -393,7 +393,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemySpawnFactory<Dachor
         if (state.Lifetime.IsRunning)
         {
             state.Lifetime.Count();
-            bool visible = DachoraCadenceDefinitions.EchoOddUpdate.IsSetIn(frameCycle) == state.ShowsOnOddFrames;
+            bool visible = DachoraCadenceDefinitions.EchoOddUpdate.IsInSecondHalfAt(frameCycle) == state.ShowsOnOddFrames;
             place.Presence = visible
                 ? place.Presence.Without(EnemyPresence.Hidden)
                 : place.Presence.With(EnemyPresence.Hidden);
@@ -418,7 +418,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemySpawnFactory<Dachor
     private static void ShowDachoraColours(
         RoomEnemyPlace place, DachoraColourPhase phase, int frame)
     {
-        int lastFrame = phase == DachoraColourPhase.Default ? 0 : DachoraColorDefinitions.AnimatedFrameCount - 1;
+        int lastFrame = Ensure.Listed(DachoraColorDefinitions.PhaseFrameCounts, phase) - 1;
         place.Shading = PictureShading.Shaded(DachoraShades.Of(phase, Ensure.BetweenInclusive(0, lastFrame, frame)));
     }
 

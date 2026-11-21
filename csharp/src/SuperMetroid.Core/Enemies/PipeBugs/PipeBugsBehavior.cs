@@ -223,6 +223,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
                 RunYellowPipeBugDelay(yellowPipeBugSpawnSettings, place, state);
                 return;
             case YellowPipeBugAction.Fly:
+            case YellowPipeBugAction.FlyAfterArc:
                 RunYellowPipeBugStraightFlight(yellowPipeBugSpawnSettings, place, state, samus, camera, YellowPipeBugFacing(yellowPipeBugSpawnSettings));
                 return;
             case YellowPipeBugAction.ArcDipping:
@@ -507,7 +508,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         AddYellowPipeBugHorizontalVelocity(yellowPipeBugSpawnSettings, place, direction);
         if (ResetYellowPipeBugIfOffScreen(yellowPipeBugSpawnSettings, place, state, camera))
             return;
-        if (state.ArcCompleted)
+        if (state.Action == YellowPipeBugAction.FlyAfterArc)
             return;
 
         bool passedSamus = direction == HorizontalDirection.Left
@@ -566,8 +567,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!returnedToSpawnY)
             return;
 
-        state.ArcCompleted = true;
-        state.Action = YellowPipeBugAction.Fly;
+        state.Action = YellowPipeBugAction.FlyAfterArc;
         state.Playback = StartPipeBugAnimation(place,
             direction == HorizontalDirection.Left
                 ? PipeBugSegment.GeegaFlyingLeft
@@ -585,7 +585,6 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
             return false;
         place.Position = FixedPosition<RoomPixels>.FromWhole(state.SpawnPosition);
         state.Action = YellowPipeBugAction.WaitForSamus;
-        state.ArcCompleted = false;
         state.Playback = EnemyAnimationPlayback.Start(place, PipeBugAnimations.StartingWith(
             yellowPipeBugSpawnSettings.Facing == HorizontalDirection.Left
                 ? PipeBugSegment.GeegaFlyingLeft

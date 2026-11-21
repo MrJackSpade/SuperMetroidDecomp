@@ -42,8 +42,12 @@ internal static class ControllerButtonLookupsVerification
                 $"assignable inverse {buttons}");
         }
 
-        var bindings = new ControllerBindings(original[0], original[1], original[2],
-            original[3], original[4], original[5], original[6]);
+        var bindings = new ControllerBindings(new Dictionary<ControllerAction, ControllerButton>
+        {
+            [ControllerAction.Shoot] = original[0], [ControllerAction.Jump] = original[1], [ControllerAction.Dash] = original[2],
+            [ControllerAction.ItemSelect] = original[3], [ControllerAction.ItemCancel] = original[4], [ControllerAction.AimUp] = original[5],
+            [ControllerAction.AimDown] = original[6],
+        });
         for (int action = 0; action < ConstructorOrder.Length; action++)
         for (int requested = 0; requested < 7; requested++)
         {
@@ -58,17 +62,17 @@ internal static class ControllerButtonLookupsVerification
         {
             AssertThrows<ArgumentOutOfRangeException>(() => bindings.AssignAndSwap(ControllerAction.Shoot, rejected),
                 $"reject nonassignable {rejected}");
-            AssertTrue(!(bindings with { Shoot = rejected }).IsUniquePermutation,
+            AssertTrue(!bindings.With(ControllerAction.Shoot, rejected).IsUniquePermutation,
                 "nonassignable button invalidates permutation");
         }
         foreach (ControllerAction undefined in UndefinedActions)
             AssertThrows<ArgumentOutOfRangeException>(() => bindings.AssignAndSwap(undefined, original[0]),
                 $"reject undefined action {(int)undefined}");
-        AssertTrue(!(bindings with { Shoot = bindings.Jump }).IsUniquePermutation,
+        AssertTrue(!bindings.With(ControllerAction.Shoot, bindings[ControllerAction.Jump]).IsUniquePermutation,
             "duplicate button invalidates permutation");
         // Bindings that leave a button to no action are not a permutation; a swap onto that button is refused rather than
         // leaving the action's old button bound twice.
-        AssertThrows<InvalidOperationException>(() => (bindings with { Shoot = bindings.Jump }).AssignAndSwap(ControllerAction.Jump, original[0]),
+        AssertThrows<InvalidOperationException>(() => bindings.With(ControllerAction.Shoot, bindings[ControllerAction.Jump]).AssignAndSwap(ControllerAction.Jump, original[0]),
             "a swap onto a button no action holds is refused");
     }
 

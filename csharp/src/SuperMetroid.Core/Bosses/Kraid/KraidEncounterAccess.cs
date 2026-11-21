@@ -31,12 +31,7 @@ internal sealed class KraidEncounterAccess
     /// Marks a Kraid part dead: it stops being solid, ignores Samus, stops its animation and off-screen processing,
     /// and is hidden and deleted; its other properties are kept.
     /// </summary>
-    internal static void MarkKraidPartDead(RoomEnemyPlace place)
-    {
-        place.Contact = place.Contact.Replace(EnemyContact.SolidToSamus | EnemyContact.IgnoresSamus, EnemyContact.IgnoresSamus);
-        place.Processing = place.Processing.Without(EnemyProcessing.Animates | EnemyProcessing.OffScreen);
-        place.Presence = place.Presence.With(EnemyPresence.Deleted | EnemyPresence.Hidden);
-    }
+    internal static void MarkKraidPartDead(RoomEnemyPlace place) => RetireKraidPart(place, EnemyPresence.Deleted | EnemyPresence.Hidden);
 
     /// <summary>The room's current random number, which Kraid's next decision reads without advancing it.</summary>
     internal int ReadKraidRandomNumber() =>
@@ -53,10 +48,17 @@ internal sealed class KraidEncounterAccess
     /// Deletes a Kraid part as his body sinks away (#2298): it stops being solid, ignores Samus, stops its animation and
     /// off-screen processing, and is deleted; its other properties are kept.
     /// </summary>
-    internal static void DeleteKraidPart(RoomEnemyPlace place)
+    internal static void DeleteKraidPart(RoomEnemyPlace place) => RetireKraidPart(place, EnemyPresence.Deleted);
+
+    /// <summary>
+    /// Retires a Kraid part (#2557): it stops being solid, ignores Samus, stops its animation and off-screen processing,
+    /// and takes on <paramref name="presence"/>; its other properties are kept. A dead part is also hidden; a part his
+    /// sinking body deletes is not.
+    /// </summary>
+    private static void RetireKraidPart(RoomEnemyPlace place, EnemyPresence presence)
     {
         place.Contact = place.Contact.Replace(EnemyContact.SolidToSamus | EnemyContact.IgnoresSamus, EnemyContact.IgnoresSamus);
         place.Processing = place.Processing.Without(EnemyProcessing.Animates | EnemyProcessing.OffScreen);
-        place.Presence = place.Presence.With(EnemyPresence.Deleted);
+        place.Presence = place.Presence.With(presence);
     }
 }

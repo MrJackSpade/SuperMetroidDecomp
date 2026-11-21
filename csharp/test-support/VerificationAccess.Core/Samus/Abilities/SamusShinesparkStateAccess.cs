@@ -50,7 +50,7 @@ internal static class SamusShinesparkStateAccess
             foreach (SamusProjectile slot in self.Pool.InUpdateOrder)
             {
                 if (slot.KindStateOrNone() is ShinesparkEchoShotState echo)
-                    self.Shinespark.StepShinesparkEcho(samus, slot, echo, cameraPosition);
+                    self.Shinespark.StepShinesparkEcho(samus, slot.HeldShot(), echo, cameraPosition);
             }
         }
     }

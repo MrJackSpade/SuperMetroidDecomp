@@ -4,7 +4,6 @@ using SuperMetroid.Diagnostics.Input;
 using SuperMetroid.TestSupport.Assertions;
 using static SuperMetroid.TestSupport.MovieReplay.RidleySamusDrawReference;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Progression;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
@@ -824,7 +823,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 // A Super Missile's link never sets or reads its trail timer, on the cartridge or here; the cartridge's word is
                 // whatever the place's previous projectile left, which a fresh link does not inherit (#1590).
                 if (!projectile.IsSuperMissileLink(runtime.Projectiles.Shots))
-                    Check(owner + " TrailTimer", global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Samus.Projectiles.SamusProjectile, global::SuperMetroid.Core.UpdateCountdown?>(projectile, "Trail")?.UpdatesLeft
+                    Check(owner + " TrailTimer", global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileOccupant, global::SuperMetroid.Core.UpdateCountdown?>(projectile.HeldShot(), "Trail")?.UpdatesLeft
                         ?? throw new InvalidDataException($"{owner} leaves no trail, which no projectile this movie reaches does."),
                         NativeSnapshotMemory.ProjectileTrailTimer + index);
                 // No Spazer phase is compared: only a Spazer special attack's particles have one, they set it before

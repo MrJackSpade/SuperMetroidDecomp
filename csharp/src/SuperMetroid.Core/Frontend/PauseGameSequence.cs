@@ -116,7 +116,7 @@ internal sealed class PauseGameSequence(FrontendSession session, GameplayGamePha
         SelectedRoom pauseRoom = live.Room.Room;
         PauseMenuState menu = session.Show(new PauseMenuState(new PauseMenuEntry { Samus = live.Runtime.Player.Samus, System = live.Runtime.System, Area = pauseRoom.Area, RoomMapPosition = pauseRoom.MapPosition, Audio = session.audio, GameplayHud = live.Runtime.AcceptedHud, MapRevealMode = session.Assists.MapReveal, ScreenContent = session.Artwork.ScreenContent, SpriteSheets = session.Artwork.SpriteSheets }));
         session.BeginPauseFade(DisplayBrightness.Black);
-        session.display.PublishMenu(menu);
+        session.display.Publish(menu);
         session.SetDisplayBrightness(session.PauseBrightness);
         Current = Stage.OnScreen.FadingIn(menu);
     }
@@ -127,7 +127,7 @@ internal sealed class PauseGameSequence(FrontendSession session, GameplayGamePha
         live.Runtime.FrameBoundary.BeginAcceptedFrame(controllerInput);
         bool lit = session.AdvanceScreenFadeIn();
         menu.AdvanceAnimations(live.Runtime.Clock.ShortCounter, PauseAnimationPhase.FadingIn);
-        session.display.PublishMenu(menu);
+        session.display.Publish(menu);
         session.SetDisplayBrightness(session.PauseBrightness);
         if (lit)
             Current = Stage.OnScreen.Menu(menu);
@@ -149,7 +149,7 @@ internal sealed class PauseGameSequence(FrontendSession session, GameplayGamePha
         // its rows, including the first frame of the unpause fade.
         live.Runtime.Hud.UpdateGameplayCounters(live.Runtime.Player.Samus, live.Runtime.AudioRequests,
             timeIsFrozen: true);
-        session.display.PublishMenu(menu);
+        session.display.Publish(menu);
         if (unpauseRequested)
         {
             session.BeginPauseFade(DisplayBrightness.Full);
@@ -163,7 +163,7 @@ internal sealed class PauseGameSequence(FrontendSession session, GameplayGamePha
         live.Runtime.FrameBoundary.BeginAcceptedFrame(controllerInput);
         menu.SynchronizeAcceptedHud(live.Runtime.AcceptedHud);
         menu.AdvanceAnimations(live.Runtime.Clock.ShortCounter, PauseAnimationPhase.FadingOut);
-        session.display.PublishMenu(menu);
+        session.display.Publish(menu);
         if (session.StepScreenFadeOut())
             Current = Stage.Stateless.RestoringGameplay;
     }

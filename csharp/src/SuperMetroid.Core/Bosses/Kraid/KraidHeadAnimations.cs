@@ -92,14 +92,7 @@ internal static class KraidHeadAnimations
     internal static KraidHeadEntry GrowthResume(KraidHeadGrowthResume resume)
     {
         Animation<KraidHeadSegment> roar = StartingWith(P.Roar);
-        return Entering(new(roar, resume switch
-        {
-            KraidHeadGrowthResume.NextFrameClosed => Segments.PlaceOfFrame(roar, P.RoarClosing, KraidHeadFrame.Closed),
-            KraidHeadGrowthResume.NextFrameOpening => Segments.PlaceOfFrame(roar, P.RoarClosing, KraidHeadFrame.Opening),
-            KraidHeadGrowthResume.NextFrameWider => Segments.PlaceOfFrame(roar, P.RoarClosing, KraidHeadFrame.Wider),
-            KraidHeadGrowthResume.NextStepOther => Segments.PlaceOfFrame(roar, P.RoarOpenHold, KraidHeadFrame.Open),
-            _ => throw new InvalidOperationException($"Undefined {nameof(KraidHeadGrowthResume)} {resume}."),
-        }));
+        return Entering(new(roar, Segments.PlaceOfFrame(roar, resume.Segment, resume.Frame)));
     }
 
     /// <summary>
@@ -170,15 +163,17 @@ internal static class KraidHeadAnimations
     };
 
     /// <summary>
-    /// Where growth resumes the roar when the head shows <paramref name="next"/> next: the closed, opening or wider pose
-    /// resume the roar's closing part at that pose; the open pose, a cry or an animation's end resume it at the wide-open
-    /// hold's end.
+    /// Where growth resumes the roar when the head shows <paramref name="next"/> next: a pose the roar's closing part shows
+    /// (the closed, opening or wider pose) resumes that part at the pose; the open pose, a cry or an animation's end resume
+    /// the roar at the wide-open hold's end.
     /// </summary>
     private static KraidHeadGrowthResume GrowthResumeBefore(KraidHeadFrame? next) =>
-        next == KraidHeadFrame.Closed ? KraidHeadGrowthResume.NextFrameClosed
-        : next == KraidHeadFrame.Opening ? KraidHeadGrowthResume.NextFrameOpening
-        : next == KraidHeadFrame.Wider ? KraidHeadGrowthResume.NextFrameWider
-        : KraidHeadGrowthResume.NextStepOther;
+        next is { } pose && Segments.Beats(P.RoarClosing).Any(beat => beat.ShownFrame == pose)
+            ? new(P.RoarClosing, pose)
+            : OpenHoldResume;
+
+    /// <summary>The roar's wide-open hold, where growth resumes the head when it shows none of the closing poses next.</summary>
+    private static KraidHeadGrowthResume OpenHoldResume { get; } = new(P.RoarOpenHold, KraidHeadFrame.Open);
 
     /// <summary>The outer mouth shape body hits are tested against where <paramref name="playback"/> stands.</summary>
     internal static KraidMouthHitbox OuterMouthAt(AnimationPlayback<KraidHeadSegment> playback)

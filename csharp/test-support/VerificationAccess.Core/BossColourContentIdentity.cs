@@ -2,7 +2,6 @@ using SuperMetroid.AssetExtraction.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Botwoon;
-using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.AssetExtraction.Bosses.Botwoon.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Draygon;
@@ -168,16 +167,12 @@ internal static class BossColourContentIdentity
                 Span<RgbColor> target = stackalloc RgbColor[PhantoonColorFormat.FadeOutCount];
                 for (int color = 0; color < target.Length; color++) target[color] = colors.ResolveFadeOut(color);
                 content.AppendColors("fadeOut", target);
-                var power = new List<RgbColor>(PhantoonColorFormat.PoweredParts.Length * PhantoonColorFormat.PoweredPartColourCount);
-                foreach (WreckedShipPoweredPart part in PhantoonColorFormat.PoweredParts)
+                var power = new List<RgbColor>();
+                foreach (WreckedShipPoweredPart part in SuperMetroid.AssetExtraction.CartridgeTables.PhantoonSourceDefinitions.PowerOnGroups.OrderBy(group => group.Value).Select(group => group.Key))
                     for (int color = 0; color < PhantoonColorFormat.PoweredPartColourCount; color++) power.Add(colors.ResolvePowerOn(part, color));
                 content.AppendColors("powerOn", power.ToArray());
-                var frames = new RgbColor[PhantoonColorDefinitions.HealthBandCount][];
-                for (int band = 0; band < frames.Length; band++)
-                {
-                    frames[band] = new RgbColor[PhantoonColorFormat.HealthBandColorCount];
-                    for (int color = 0; color < frames[band].Length; color++) frames[band][color] = colors.ResolveHealth(band, color);
-                }
+                RgbColor[][] frames = [.. SuperMetroid.AssetExtraction.CartridgeTables.PhantoonSourceDefinitions.HealthBandPalettes.OrderBy(palette => palette.Value)
+                    .Select(palette => Enumerable.Range(0, PhantoonColorFormat.HealthBandColorCount).Select(color => colors.ResolveHealth(palette.Key, color)).ToArray())];
                 content.AppendColorFrames("healthBands", frames);
             });
     }

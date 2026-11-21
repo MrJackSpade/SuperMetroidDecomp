@@ -61,7 +61,5 @@ internal abstract class CrocomireEntity(CrocomireBehavior species, RoomEnemyOccu
 
     /// <summary>Crocomire's own hitbox shot reactions.</summary>
     /// <param name="reaction">The reaction the species definition or the selected hitbox names.</param>
-    public bool OwnsPrivateShotReaction(EnemyReaction reaction) =>
-        reaction == CrocomireReactions.AbsorbedShot || reaction == CrocomireReactions.DustShot ||
-        reaction == CrocomireReactions.MouthShot;
+    public bool OwnsPrivateShotReaction(EnemyReaction reaction) => CrocomireReactions.OwnShots.Contains(reaction);
 }

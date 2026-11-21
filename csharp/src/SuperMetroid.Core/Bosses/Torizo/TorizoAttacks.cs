@@ -211,7 +211,8 @@ internal sealed class TorizoAttacks
                     SetGoldenTorizoSuperMissileVelocity(
                         projectile,
                         samus,
-                        awayFromSamus: cue is TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.AimSuperMissileAwayFromSamus });
+                        turn: cue is TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.AimSuperMissileAwayFromSamus }
+                            ? HorizontalDirection.Left : HorizontalDirection.Right);
                     return null;
                 case TorizoProjectileCue.SetRadius setRadius:
                     projectile.Radius = setRadius.Radius;
@@ -272,10 +273,13 @@ internal sealed class TorizoAttacks
             bool collided = EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical);
             if (projectile.Velocity.Y.IsNegative || !collided)
             {
-                EnemyProjectile? firstPlace = projectiles.LatestInFirstPlace;
-                SignedEightEight acceleration = FirstPlaceFallAcceleration.Of(
-                    firstPlace is { IsActive: true },
-                    firstPlace is { IsActive: true, Kind: RoomEnemyProjectileKind.BombTorizoStatueBreaking } ? StatueFragments.Of(firstPlace).Acceleration : null);
+                SignedEightEight acceleration = FirstPlaceFallAcceleration.Of(projectiles.LatestInFirstPlace switch
+                {
+                    { IsActive: true, Kind: RoomEnemyProjectileKind.BombTorizoStatueBreaking } piece =>
+                        new FirstPlaceHolding.StatuePiece(StatueFragments.Of(piece).Acceleration),
+                    { IsActive: true } => new FirstPlaceHolding.OtherProjectile(),
+                    _ => new FirstPlaceHolding.Free(),
+                });
                 // A piece's fall speed is capped at the runaway speed.
                 projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + acceleration);
                 if (IsRunaway(projectile.Velocity.Y))
@@ -304,7 +308,7 @@ internal sealed class TorizoAttacks
         // The recurring low-health drool launches in a random direction: a turning Torizo's any of the turn's, a facing
         // one's spread about its facing's heading.
         TrigonometryAngle heading = TorizoFacing.Posture(torizoEnemyState).IsTurning
-            ? new(TorizoRandomDefinitions.DroolTurningAngle.Of(random))
+            ? new(TorizoRandomRolls.DroolTurningAngle.Of(random))
             : DroolHeading(TorizoFacing.Posture(torizoEnemyState).Facing, TorizoRandomDefinitions.DroolFacingSpread.Of(random));
         projectile.Velocity = VelocityAlong(TorizoMotionDefinitions.DroolLaunchSpeed, heading);
     }
@@ -516,7 +520,7 @@ internal sealed class TorizoAttacks
         SkipVelocityJitter();
 
         // The beam's heading is its facing's, spread either way by its random spread.
-        TrigonometryAngle heading = EyeBeamHeading(facing, _room.Random.Next(TorizoRandomDefinitions.EyeBeamSpread));
+        TrigonometryAngle heading = EyeBeamHeading(facing, _room.Random.Next(TorizoRandomRolls.EyeBeamSpread));
         projectile.Velocity = VelocityAlong(TorizoMotionDefinitions.EyeBeamSpeed, heading);
     }
 
@@ -769,10 +773,10 @@ internal sealed class TorizoAttacks
     internal static void SetGoldenTorizoSuperMissileVelocity(
         EnemyProjectile projectile,
         SamusState samus,
-        bool awayFromSamus)
+        HorizontalDirection turn)
     {
         TrigonometryAngle aim = EnemyMath.CalculateAimAngle(samus.Position.Whole - projectile.Position.Whole);
-        TrigonometryAngle angle = aim.InHalfTurnToward(awayFromSamus ? HorizontalDirection.Left : HorizontalDirection.Right);
+        TrigonometryAngle angle = aim.InHalfTurnToward(turn);
 
         // The missile's X speed follows the angle's cosine and its Y speed its negative sine.
         projectile.Velocity = new(
@@ -815,8 +819,8 @@ internal sealed class TorizoAttacks
 
         projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectiles, definition.Animation));
         projectile.Position = projectile.Position.WithWhole(request.RoomObjectBlock.ToRoomPixels() + definition.Offset);
-        projectile.Velocity = projectile.Velocity.WithY(definition.InitialFallSpeed);
-        TorizoProjectiles.StatueFragments.Start(projectile, new BombTorizoStatueFragmentState(definition.Acceleration));
+        projectile.Velocity = projectile.Velocity.WithY(BombTorizoStatueFragmentDefinitions.InitialFallSpeed);
+        TorizoProjectiles.StatueFragments.Start(projectile, new BombTorizoStatueFragmentState(BombTorizoStatueFragmentDefinitions.Acceleration));
     }
 
     /// <summary>Whether a projectile has run away: it moves at least <see cref="TorizoMotionDefinitions.RunawaySpeed"/>.</summary>

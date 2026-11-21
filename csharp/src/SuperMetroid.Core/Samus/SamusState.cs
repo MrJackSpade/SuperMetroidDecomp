@@ -380,8 +380,8 @@ public sealed class SamusState
     /// </summary>
     public SamusMetroidAttachmentShade MetroidAttachmentShade { get; internal set; }
 
-    /// <summary>How far a landing Morph Ball or Spring Ball has bounced; see <see cref="SamusBallBounceState"/>.</summary>
-    public SamusBallBounceState MorphBallBounceState { get; set; }
+    /// <summary>How far a landing Morph Ball or Spring Ball has bounced, or null while it is not bouncing; see <see cref="SamusBallBounce"/>.</summary>
+    public SamusBallBounce? MorphBallBounceState { get; set; }
 
     /// <summary>
     /// Samus's bomb jump, from the blast that starts it until her pose handling rejects it, an input transition to another
@@ -390,17 +390,21 @@ public sealed class SamusState
     /// </summary>
     public SamusBombJump? BombJump { get; set; }
 
-    /// <summary>True for the bomb jump's one-frame start, which sets her velocity (<see cref="SamusMovementOwner.BombJump"/>).</summary>
-    public bool BombJumpStarting { get; set; }
+    /// <summary>Where the bomb jump's hold on her movement stands: none, its one-update start, or its rising arc (#2560).</summary>
+    public Projectiles.SamusBombJumpPhase BombJumpPhase { get; set; }
 
-    /// <summary>True while the bomb jump moves Samus along its rising arc (<see cref="SamusMovementOwner.BombJump"/>).</summary>
-    public bool BombJumpActive { get; set; }
-
-    /// <summary>The bomb jump locked her pose input; independent of who moves her now.</summary>
+    /// <summary>
+    /// The bomb jump locked her pose input. This is the game's own pose-input lock, apart from who moves her: a hit takes her
+    /// movement from a bomb jump at once but keeps this lock until the hit expires, and the rise returns her pose input
+    /// before it returns her movement, so it is no stage of <see cref="BombJumpPhase"/>.
+    /// </summary>
     public bool BombJumpPoseInputLocked { get; set; }
 
+    /// <summary>What the hit's knockback does to Samus: nothing, moving her, or released with its direction kept (#2560).</summary>
+    public Movement.SamusKnockback Knockback { get; set; } = Movement.SamusKnockback.None;
+
     /// <summary>Which way the pending or running knockback moves Samus, or none.</summary>
-    public Movement.SamusKnockbackDirection KnockbackDirection { get; set; }
+    public Movement.SamusKnockbackDirection KnockbackDirection => Knockback.Direction;
 
     /// <summary>Which way the pending or active knockback moves Samus horizontally.</summary>
     public Movement.KnockbackHorizontalDirection KnockbackXDirection { get; set; }
@@ -488,7 +492,13 @@ public sealed class SamusState
     /// Whether the knockback moves Samus (<see cref="SamusMovementOwner.Knockback"/>). It is separate from
     /// the knockback movement type because the game also uses that type for crystal-flash art.
     /// </summary>
-    public bool KnockbackActive { get; set; }
+    public bool KnockbackActive => Knockback.MovesSamus;
+
+    /// <summary>
+    /// Whether a hit's knockback waits for her movement to admit it: its producer's countdown runs and no knockback holds a
+    /// direction yet.
+    /// </summary>
+    public bool KnockbackPending => KnockbackHold.IsRunning && Knockback == Movement.SamusKnockback.None;
 
     /// <summary>
     /// The pose the animation was last started for, whose animation <see cref="AnimationFrame"/> steps through; none before
@@ -879,27 +889,30 @@ public sealed class SamusState
     public SamusHealthWarningState HealthWarning => field ??= new();
 
     /// <summary>
-    /// Copies the inventory and energy from <paramref name="source"/>: what Samus keeps when she is set up again. A Samus
-    /// created fresh and given these values is the same player set up again.
+    /// What Samus carries, read or replaced whole (#2557): what a save keeps of her, and what she keeps when she is set up
+    /// again. A Samus created fresh and given it is the same player set up again.
     /// </summary>
-    internal void CopyInventoryFrom(SamusState source)
+    internal SamusInventory Inventory
     {
-        Ensure.NotNull(source);
-        EquippedItems = source.EquippedItems;
-        CollectedItems = source.CollectedItems;
-        EquippedBeams = source.EquippedBeams;
-        CollectedBeams = source.CollectedBeams;
-        ReserveTankMode = source.ReserveTankMode;
-        Health = source.Health;
-        MaxHealth = source.MaxHealth;
-        Missiles = source.Missiles;
-        MaxMissiles = source.MaxMissiles;
-        SuperMissiles = source.SuperMissiles;
-        MaxSuperMissiles = source.MaxSuperMissiles;
-        PowerBombs = source.PowerBombs;
-        MaxPowerBombs = source.MaxPowerBombs;
-        MaxReserveEnergy = source.MaxReserveEnergy;
-        ReserveEnergy = source.ReserveEnergy;
+        get => new(EquippedItems, CollectedItems, EquippedBeams, CollectedBeams, ReserveTankMode, Health, MaxHealth, Missiles, MaxMissiles, SuperMissiles, MaxSuperMissiles, PowerBombs, MaxPowerBombs, MaxReserveEnergy, ReserveEnergy);
+        set
+        {
+            EquippedItems = value.EquippedItems;
+            CollectedItems = value.CollectedItems;
+            EquippedBeams = value.EquippedBeams;
+            CollectedBeams = value.CollectedBeams;
+            ReserveTankMode = value.ReserveMode;
+            Health = value.Health;
+            MaxHealth = value.MaxHealth;
+            Missiles = value.Missiles;
+            MaxMissiles = value.MaxMissiles;
+            SuperMissiles = value.SuperMissiles;
+            MaxSuperMissiles = value.MaxSuperMissiles;
+            PowerBombs = value.PowerBombs;
+            MaxPowerBombs = value.MaxPowerBombs;
+            MaxReserveEnergy = value.MaxReserveEnergy;
+            ReserveEnergy = value.ReserveEnergy;
+        }
     }
 
     /// <summary>

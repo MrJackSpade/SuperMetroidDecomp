@@ -21,7 +21,7 @@ public sealed class KraidArmState : KraidAnimatedPartState
     /// which it slows once Kraid is below half health. An arm rising or sinking, already slow, dying or preparing a lunge
     /// does not; the arm starts rising.
     /// </summary>
-    internal bool SwingsNormally { get; private set; }
+    internal bool SwingsNormally => swing != KraidArmSwing.Away;
 
     /// <summary>
     /// Whether the arm has yet to reach its pause (#1886, #2301): its normal swing has started, as an animation or as the
@@ -29,20 +29,24 @@ public sealed class KraidArmState : KraidAnimatedPartState
     /// arm already counts as paused, as it does through the pause and any later animation. Kraid's small-form lunge waits
     /// on it.
     /// </summary>
-    internal bool YetToPause { get; private set; }
+    internal bool YetToPause => swing == KraidArmSwing.BeforePause;
+
+    /// <summary>Where the arm's swing stands (#2560): away from the normal swing, swinging before its pause, or past the pause.</summary>
+    private KraidArmSwing swing;
 
     /// <summary>The arm's normal swing begins, as its animation's cue marks: the arm has yet to reach its pause.</summary>
-    internal void BeginSwing() => YetToPause = true;
+    internal void BeginSwing() => swing = KraidArmSwing.BeforePause;
 
     /// <summary>The arm's normal swing shows its last frame, as its animation's cue marks: the arm counts as paused.</summary>
-    internal void ReachPause() => YetToPause = false;
+    internal void ReachPause() => swing = KraidArmSwing.PastPause;
 
     /// <inheritdoc/>
     private protected override void Started(KraidPartSegment segment)
     {
-        SwingsNormally = segment is KraidPartSegment.ArmNormal or KraidPartSegment.ArmNormalPause;
-        // An animation starting with the normal swing has yet to reach the pause before its first frame shows; every other
-        // one starts at the pause or away from the swing.
-        YetToPause = segment == KraidPartSegment.ArmNormal;
+        // An animation starting with the normal swing has yet to reach the pause before its first frame shows; one starting
+        // at the pause is past it, and every other one is away from the swing.
+        swing = KraidArmSwingDefinitions.BeforePause.Contains(segment) ? KraidArmSwing.BeforePause
+            : KraidArmSwingDefinitions.NormalSwing.Contains(segment) ? KraidArmSwing.PastPause
+            : KraidArmSwing.Away;
     }
 }

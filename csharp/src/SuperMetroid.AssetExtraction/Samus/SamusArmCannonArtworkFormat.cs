@@ -35,8 +35,6 @@ public static class SamusArmCannonArtworkFormat
     /// rather than install a shown frame whose displacement lies past the window.
     /// </summary>
     public const int DrawingDataByteCount = 656;
-    /// <summary>Four tile-selector slots per native aim direction: closed sentinel 0 and three successive nonclosed cover-art frames.</summary>
-    public const int FramesPerDirection = 4;
     /// <summary>Installed cover tiles: three opening frames for each of the four artwork orientations.</summary>
     public const int CoverTileCount = 12;
     /// <summary>Bytes of one installed cover tile: a single 4bpp 8x8 character.</summary>

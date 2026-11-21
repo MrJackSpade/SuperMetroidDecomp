@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Cartridge;
 
@@ -23,7 +24,7 @@ public static class RoomObjectStationVisualFiles
     /// <summary>Loads the installed station pictures as the player left them, without the cartridge.</summary>
     /// <param name="directory">The installed directory.</param>
     /// <exception cref="InvalidDataException">The file's format is not this importer's, or a frame's picture is missing or misshapen.</exception>
-    public static InstalledRoomObjectStationVisuals Load(string directory) =>
+    public static InstalledRoomObjectPictures Load(string directory) =>
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>The draw list of <paramref name="draw"/>, which must be one of the station draws.</summary>
@@ -43,20 +44,8 @@ public static class RoomObjectStationVisualFiles
             list = default;
             return false;
         }
-        RoomObjectShapeRun own = RoomObjectShapeRun.Row(new(0, 0), 1);
-        list = RoomObjectShapeRun.DrawList(request, shape, RoomObjectDrawIdentity.FrameOf<StationDraw>(request, "station") switch
-        {
-            StationDraw.MapDim or StationDraw.MapLit or StationDraw.MapBright => [own, RoomObjectShapeRun.Row(new(-1, 0), 1)],
-            StationDraw.EnergyDim or StationDraw.EnergyLit or StationDraw.EnergyBright or StationDraw.MissileDim
-                or StationDraw.MissileLit or StationDraw.MissileBright => [own, RoomObjectShapeRun.Row(new(0, -1), 1)],
-            StationDraw.SaveIdle or StationDraw.SaveLit or StationDraw.SaveDark =>
-                [.. Enumerable.Range(0, 6).Select(row => RoomObjectShapeRun.Row(new(0, -row), 2))],
-            StationDraw.MapRightRetracted => [own, RoomObjectShapeRun.Row(new(-3, 0), 1)],
-            StationDraw.MapLeftRetracted => [own, RoomObjectShapeRun.Row(new(3, 0), 1)],
-            StationDraw.MapRightExtended or StationDraw.MapLeftExtended or StationDraw.ResourceRightRetracted
-                or StationDraw.ResourceRightExtended or StationDraw.ResourceLeftRetracted or StationDraw.ResourceLeftExtended => [own],
-            var frame => throw new InvalidOperationException($"Undefined station draw {frame}."),
-        });
+        StationDraw frame = RoomObjectDrawIdentity.FrameOf<StationDraw>(request, "station");
+        list = RoomObjectShapeRun.DrawList(request, shape, [.. Ensure.Listed(StationFrameDefinitions.Frames, frame).Runs]);
         return true;
     }
 

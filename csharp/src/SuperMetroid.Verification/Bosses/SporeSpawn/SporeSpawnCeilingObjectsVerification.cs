@@ -5,7 +5,6 @@ using static SuperMetroid.Verification.Rooms.RoomObjects.SamusEaterObjectDefinit
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Bosses.SporeSpawn;
-using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -58,7 +57,7 @@ internal static class SporeSpawnCeilingObjectsVerification
         AssertEqual(4, draws.Length,
             "Spore Spawn ceiling has clear and three crumble appearances");
         ushort[] pointers = [0x9413,0x9423,0x9433,0x9443];
-        InstalledRoomObjectSporeSpawnCeilingVisuals pictures = InstalledRoomObjectSporeSpawnCeilingVisuals.Stock();
+        InstalledRoomObjectPictures pictures = RoomObjectPicturesStock.SporeSpawnCeiling;
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             ushort pointer = (ushort)raw;

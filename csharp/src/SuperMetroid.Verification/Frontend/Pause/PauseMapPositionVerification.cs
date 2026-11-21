@@ -47,7 +47,7 @@ internal static class PauseMapPositionVerification
                 }
                 nativeTimer--;
                 int id = new[] { 0x5f, 0x60, 0x61, 0x60 }[nativeFrame];
-                pause.AdvanceAnimations(0, PauseAnimationPhase.Stable);
+                pause.AdvanceAnimations(SuperMetroid.Core.Compatibility.ShortFrameCount.Zero, PauseAnimationPhase.Stable);
                 // The frame as published; whether a repaint shows the same pixels is answered from the two frames'
                 // descriptions, drawing them only when those differ (#1532, #1757).
                 LayeredScene shown = pause.ComposeScene();

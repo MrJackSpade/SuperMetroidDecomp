@@ -226,8 +226,9 @@ public static class ManagedAudioRegressionSmokeTest
         // each library's acknowledgement in library order.
         Span<byte> reported = stackalloc byte[1 + SoundEffectLibraries.Count];
         reported[0] = checked((byte)engine.PlayerForVerification.Music.musicPortToSnes);
-        for (int library = 0; library < SoundEffectLibraries.Count; library++)
-            reported[1 + library] = SoundEffectPortBytes.PortByte(acknowledgements[SoundLibraryNumbers.FromDriverIndex(library)]);
+        int reportedAt = 1;
+        foreach (SoundEffectLibrary library in SoundLibraryNumbers.InNumberOrder)
+            reported[reportedAt++] = SoundEffectPortBytes.PortByte(acknowledgements[library]);
         tally.Acknowledgements.AppendData(reported);
         tally.Frames++;
         tally.Samples += pcm.Length;

@@ -92,6 +92,5 @@ public sealed class KiHunterBodyState
     /// spawn starts falling and health at the wings' detach health sets it falling, and no wingless action leads back to
     /// flight, so every other action is a body that has lost its wings.
     /// </summary>
-    public bool Flies => Action is KiHunterAction.FlyingPatrol or KiHunterAction.Swooping or KiHunterAction.Swiping
-        or KiHunterAction.RecoveringFromSwoop;
+    public bool Flies => KiHunterActionDefinitions.Flying.Contains(Action);
 }

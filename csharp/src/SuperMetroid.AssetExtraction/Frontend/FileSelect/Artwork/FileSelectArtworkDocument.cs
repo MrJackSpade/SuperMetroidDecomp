@@ -26,7 +26,7 @@ public sealed record FileSelectArtworkDocument
     public required MapPresentationCell[] Digits { get; init; }
     /// <summary>Three tile cells in save-slot order A-C, used when copy or clear text identifies a slot.</summary>
     [JsonPropertyOrder(5)]
-    public required MapPresentationCell[] SlotLetters { get; init; }
+    public required Dictionary<string, MapPresentationCell> SlotLetters { get; init; }
     /// <summary>Exactly the named border compositions, four cursor frames, and eight helmet frames, using sprite-part offsets relative to their drawing anchors.</summary>
     [JsonPropertyOrder(8)]
     public required Dictionary<string, SpriteVisualPart[]> Sprites { get; init; }

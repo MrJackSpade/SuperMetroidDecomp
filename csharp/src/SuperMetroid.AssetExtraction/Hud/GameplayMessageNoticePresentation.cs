@@ -70,16 +70,21 @@ public sealed class GameplayMessageNoticePresentation
     /// <summary>Replaces the fixed selection-row span in an already built save-confirmation tilemap with its YES or NO variant.</summary>
     /// <param name="messageId">The save-confirmation message that owns the rows.</param>
     /// <param name="tilemap">The complete message tilemap to update.</param>
-    /// <param name="yesSelected">Whether to install the YES row instead of the NO row.</param>
+    /// <param name="choice">The choice whose row the notice shows: YES or NO (#2560).</param>
     public void ApplySelection(
         GameplayMessageId messageId,
         Span<BackgroundTile> tilemap,
-        bool yesSelected)
+        SaveChoice choice)
     {
         _ = Get(messageId);
         if (!selections.TryGetValue(messageId, out SaveSelectionRows? rows))
             throw new InvalidDataException($"Gameplay-message notice {messageId} has no selection rows.");
-        BackgroundTile[] source = yesSelected ? rows.Yes : rows.No;
+        BackgroundTile[] source = choice switch
+        {
+            SaveChoice.Yes => rows.Yes,
+            SaveChoice.No => rows.No,
+            _ => throw new ArgumentOutOfRangeException(nameof(choice), choice, "Undefined save choice."),
+        };
         int firstCell = GameplayMessageTilemapDefinitions.SaveSelectionRow * GameplayMessageTilemapDefinitions.TilemapWidth;
         if (tilemap.Length < firstCell + GameplayMessageTilemapDefinitions.SaveSelectionRowWords)
         {

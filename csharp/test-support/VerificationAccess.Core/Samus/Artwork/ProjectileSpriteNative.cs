@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Samus.Artwork;
 internal static class ProjectileSpriteNative
 {
     /// <summary>
-    /// The bank-$93 address of each projectile composition record, in <see cref="ProjectileSpriteDefinitions.Stored"/> order:
+    /// The bank-$93 address of each projectile composition record, in the order <c>ProjectileSpriteDefinitions.Stored</c> lists the stored records:
     /// a record that stores a composition again, byte for byte, holds that composition (#2295).
     /// </summary>
     private static readonly ushort[] ProjectileAddresses =
@@ -137,7 +137,7 @@ internal static class ProjectileSpriteNative
         internal int SpritemapPointer
         {
             get => slot.Sprite is { } sprite ? Address(sprite) : slot.Animation?.Shown is not null ? EmptyRecordAddress : 0;
-            set => slot.Sprite = value is 0 or EmptyRecordAddress ? null : Projectile(value);
+            set => slot.HeldShot().Sprite = value is 0 or EmptyRecordAddress ? null : Projectile(value);
         }
     }
 
@@ -148,7 +148,7 @@ internal static class ProjectileSpriteNative
         internal int SpritemapPointer
         {
             get => slot.Sprite is { } sprite ? Address(sprite) : slot.Animation?.Shown is not null ? EmptyRecordAddress : 0;
-            set => slot.Sprite = value is 0 or EmptyRecordAddress ? null : Projectile(value);
+            set => slot.HeldBomb().Sprite = value is 0 or EmptyRecordAddress ? null : Projectile(value);
         }
     }
 }

@@ -216,9 +216,18 @@ public static class GameAssetInstaller
             try { InstallComponent(rom, staging, component, families, failed.Token, reports); }
             catch { failed.Cancel(); throw; }
         }, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default);
-        InstallerComponent[] first = [.. components.Where(component => component.Kind is InstallerComponentKind.Extraction or InstallerComponentKind.Standalone)];
-        Task[] firstTasks = [.. first.Select(Start)];
-        Task extracted = Task.WhenAll(firstTasks.Where((_, index) => first[index].Kind == InstallerComponentKind.Extraction));
+        // The extraction and standalone components start in the order the run lists them; each extraction's task is also
+        // held among those composition waits for.
+        var firstTasks = new List<Task>();
+        var extractions = new List<Task>();
+        foreach (InstallerComponent component in components.Where(component => component.Kind is InstallerComponentKind.Extraction or InstallerComponentKind.Standalone))
+        {
+            Task started = Start(component);
+            firstTasks.Add(started);
+            if (component.Kind == InstallerComponentKind.Extraction)
+                extractions.Add(started);
+        }
+        Task extracted = Task.WhenAll(extractions);
         // Composition starts only once every extraction component it reads has finished, and not at all after a failure.
         Task composition = After(extracted, InstallerComponentKind.Composition);
         // The picture store starts only once every sheet family is composed, and not at all after a failure.

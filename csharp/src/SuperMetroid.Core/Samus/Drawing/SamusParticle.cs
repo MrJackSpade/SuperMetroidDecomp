@@ -29,21 +29,23 @@ public sealed class SamusParticle
         Position16<RoomPixels> position,
         Offset16<RoomPixels> drift)
     {
-        if ((start.StepUpdates > 0) == (start.HiddenUpdates > 0))
-            throw new ArgumentOutOfRangeException(nameof(start), start, "A particle either shows at once or starts hidden.");
+        Ensure.NotNull(start);
         Kind = kind;
         Animation<SamusParticleKind> animation = SamusParticleAnimations.Animations[kind];
-        if (start.StepUpdates > 0)
+        switch (start)
         {
-            Stage = new SamusParticleStage.Showing(ShowingAnimationPlayer<SamusParticleKind, SamusAtmosphereFrame, NoAnimationCue>.StartShowingAt(
-                SamusParticleAnimations.Segments, animation, from, start.StepUpdates));
-        }
-        else
-        {
-            // Every producer starts a hidden particle on its first picture, which shows for its own updates once the wait ends.
-            if (from != AnimationPlace.StartOfAnimation)
-                throw new ArgumentOutOfRangeException(nameof(from), from, "A hidden particle starts on its first picture.");
-            Stage = new SamusParticleStage.Waiting(UpdateCountdown.For(start.HiddenUpdates), animation);
+            case SamusParticleStart.ShownAtOnce shown:
+                Stage = new SamusParticleStage.Showing(ShowingAnimationPlayer<SamusParticleKind, SamusAtmosphereFrame, NoAnimationCue>.StartShowingAt(
+                    SamusParticleAnimations.Segments, animation, from, shown.StepUpdates));
+                break;
+            case SamusParticleStart.HiddenFirst hidden:
+                // Every producer starts a hidden particle on its first picture, which shows for its own updates once the wait ends.
+                if (from != AnimationPlace.StartOfAnimation)
+                    throw new ArgumentOutOfRangeException(nameof(from), from, "A hidden particle starts on its first picture.");
+                Stage = new SamusParticleStage.Waiting(UpdateCountdown.For(hidden.Updates), animation);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(start), start, "A particle either shows at once or starts hidden.");
         }
         Position = position;
         Drift = drift;

@@ -15,24 +15,16 @@ public static class MaridiaEnvironmentalPaletteFxColorDefinitions
     /// <summary>Eight-color waterfall rotation group.</summary>
     private const int WaterfallRotationColors = 8;
 
-    /// <summary>The sand-pit, sand-fall, and waterfall programs in definition order, calculated without cached records.</summary>
-    public static IReadOnlyList<MaridiaEnvironmentalPaletteFxColorDefinition> All { get; } =
-    [
-        new()
-        {
-            Owner = MaridiaEnvironmentalPaletteOwner.SandPits,
-            ColorFrames = PaletteFxColorFrames.Of(ColourEffectId.MaridiaSandPits, SandRotationColors * SandPitBandCount),
-        },
-        new()
-        {
-            Owner = MaridiaEnvironmentalPaletteOwner.SandFalls,
-            ColorFrames = PaletteFxColorFrames.Of(ColourEffectId.MaridiaSandFalls, SandRotationColors),
-        },
-        new()
-        {
-            Owner = MaridiaEnvironmentalPaletteOwner.BackgroundWaterfalls,
-            ColorFrames = PaletteFxColorFrames.Of(ColourEffectId.MaridiaBackgroundWaterfalls, WaterfallRotationColors),
-        },
-    ];
+    /// <summary>The sand pits' two separately rotating bands.</summary>
+    internal static MaridiaEnvironmentalPaletteFxColorDefinition MaridiaSandPits { get; } = new(ColourEffectId.MaridiaSandPits, SandRotationColors * SandPitBandCount);
+
+    /// <summary>The sand falls' rotation.</summary>
+    internal static MaridiaEnvironmentalPaletteFxColorDefinition MaridiaSandFalls { get; } = new(ColourEffectId.MaridiaSandFalls, SandRotationColors);
+
+    /// <summary>The background waterfalls' rotation.</summary>
+    internal static MaridiaEnvironmentalPaletteFxColorDefinition MaridiaBackgroundWaterfalls { get; } = new(ColourEffectId.MaridiaBackgroundWaterfalls, WaterfallRotationColors);
+
+    /// <summary>The sand-pit, sand-fall, and waterfall programs in definition order.</summary>
+    public static IReadOnlyList<MaridiaEnvironmentalPaletteFxColorDefinition> All { get; } = [MaridiaSandPits, MaridiaSandFalls, MaridiaBackgroundWaterfalls];
 
 }

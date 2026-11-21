@@ -79,7 +79,7 @@ internal static class PauseMenuFixtureVerification
         using var reserveJson = Json(reserveTanks);
         PauseReserveTankSourcePresentation constructedTanks = PauseReserveTankSourcePresentation.Load(reserveJson);
         // Every part comes from the stock catalog's same-named property unless the fixture constructs it above.
-        var parts = new InstalledScreenContentParts
+        var parts = new InstalledScreenContent
         {
             ContentIdentity = "constructed-pause-interaction-fixture",
             Maps = new AreaMapPresentation(areas, game.Maps.HighlightCycle, game.Maps.Labels, game.Maps.Stations, game.Maps.Landmarks,
@@ -103,7 +103,7 @@ internal static class PauseMenuFixtureVerification
             CeresRidleyGetawayBoostDelays = game.CeresRidleyGetawayBoostDelays,
         };
         // The screens and the HUD are pictured from the constructed ROM's characters (#1466).
-        return InstalledFixtures.Record(new ImportAreaMapPresentation(new InstalledScreenContent(parts),
+        return InstalledFixtures.Record(new ImportAreaMapPresentation(parts,
             new ImportPresentationCharacters(new MapCharacterArtwork(
                 global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.AssetExtraction.Frontend.Map.MapTileCharacters>([typeof(byte[])], new object?[] { Read(MapSourceDefinitions.Artwork.MapCharacters, MapTileAtlasFormat.ByteCount) }), new HudTileAtlas(hud),
                 global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.AssetExtraction.Frontend.Map.MapTileCharacters>([typeof(byte[])], new object?[] { Read(MapSourceDefinitions.Artwork.PauseInterfaceCharacters, PauseTileAtlasFormat.ByteCount) })),

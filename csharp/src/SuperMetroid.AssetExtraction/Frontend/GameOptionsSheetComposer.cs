@@ -16,7 +16,7 @@ namespace SuperMetroid.AssetExtraction.Frontend;
 internal static class GameOptionsSheetComposer
 {
     /// <summary>CGRAM's first sprite colour.</summary>
-    private const int SpriteColours = 128;
+    private const int SpriteColours = ImageColourGroup.HalfColours;
 
     /// <summary>What the options sheet composes.</summary>
     internal static SpriteSheetSources Sources(ImportAreaMapPresentation maps) => Sources(Ensure.NotNull(maps).GameOptions, maps);

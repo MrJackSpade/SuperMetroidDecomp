@@ -62,7 +62,8 @@ internal static class RoomFxDefinitionsAccess
         {
             RecordsByPointer.Add(pointer, entry);
             SuffixesByPointer.Add(pointer, suffix);
-            PointersByRecord.Add(entry.Record, pointer);
+            // A selection the cartridge stores under two headers (the quicksand shafts') places its records at the first.
+            PointersByRecord.TryAdd(entry.Record, pointer);
         }
     }
 

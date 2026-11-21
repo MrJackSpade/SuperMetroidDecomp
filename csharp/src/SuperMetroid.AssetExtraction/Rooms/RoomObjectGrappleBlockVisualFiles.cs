@@ -33,7 +33,7 @@ public static class RoomObjectGrappleBlockVisualFiles
     /// <summary>Loads the installed Grapple-block pictures as the player left them, without the cartridge.</summary>
     /// <param name="directory">The installed directory.</param>
     /// <exception cref="InvalidDataException">The file's format is not this importer's, or a frame's picture is missing or misshapen.</exception>
-    public static InstalledRoomObjectGrappleBlockVisuals Load(string directory) =>
+    public static InstalledRoomObjectPictures Load(string directory) =>
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>The published artwork identity of a Grapple-block draw.</summary>

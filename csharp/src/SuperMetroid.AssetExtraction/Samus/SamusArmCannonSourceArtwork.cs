@@ -2,11 +2,9 @@ using System.Collections.Frozen;
 using SuperMetroid.Core.Samus.Projectiles;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using SuperMetroid.Core;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.AssetExtraction.Assets;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 

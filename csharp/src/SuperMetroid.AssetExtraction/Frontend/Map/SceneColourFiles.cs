@@ -7,7 +7,8 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.Artwork;
-using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Compatibility;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 

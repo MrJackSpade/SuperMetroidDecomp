@@ -15,7 +15,7 @@ public readonly record struct RidleyHurtFlashShowing(bool Body, bool TailAndWing
 {
     /// <summary>What <paramref name="hurtFlash"/> shows on <paramref name="bodyUpdateCount"/>'s phase.</summary>
     internal static RidleyHurtFlashShowing Of(UpdateCountdown hurtFlash, int bodyUpdateCount) => new(
-        Body: hurtFlash.IsRunning && EnemyDrawPhaseDefinitions.HurtFlashShown.IsSetIn(bodyUpdateCount),
+        Body: hurtFlash.IsRunning && EnemyDrawPhaseDefinitions.HurtFlashShown.IsInSecondHalfAt(bodyUpdateCount),
         // His drawn parts take the phase one pass ahead of his body's colours.
-        TailAndWings: hurtFlash.UpdatesLeft > 1 && EnemyDrawPhaseDefinitions.HurtFlashShown.IsSetIn(bodyUpdateCount + 1));
+        TailAndWings: hurtFlash.UpdatesLeft > 1 && EnemyDrawPhaseDefinitions.HurtFlashShown.IsInSecondHalfAt(bodyUpdateCount + 1));
 }

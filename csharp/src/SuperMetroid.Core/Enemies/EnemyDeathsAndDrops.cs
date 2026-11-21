@@ -580,7 +580,7 @@ internal sealed class EnemyDeathsAndDrops
     public AnimationContinuation<EnemyDeathAndDropSegment>? RunCue(EnemyProjectileCueContext context, EnemyDeathAndDropCue cue,
         AnimationPlayback<EnemyDeathAndDropSegment> pastCue) =>
         ApplyEnemyDeathAndDropCue(context.Projectile, cue, context.Samus) is { } converted
-            ? new(EnemyDeathAndDropAnimations.StartingWith(converted), AnimationPlace.StartOfAnimation)
+            ? new(EnemyDeathAndDropAnimations.StartingAt[converted], AnimationPlace.StartOfAnimation)
             : null;
 
     /// <summary>Queues the enemy-killed sound, as the death explosion's cue does.</summary>

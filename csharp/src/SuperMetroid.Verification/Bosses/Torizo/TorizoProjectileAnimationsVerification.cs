@@ -182,7 +182,7 @@ internal static class TorizoProjectileAnimationsVerification
                 (TorizoProjectileSegment.EggBouncingRight, TorizoProjectileSegment.EggHatchingRight),
             })
         {
-            AssertEqual(AnimationEnd.Holds, TorizoProjectileAnimations.StartingWith(rolling).End, $"{rolling} holds");
+            AssertEqual(AnimationEnd.Holds, TorizoProjectileAnimations.StartingAt[rolling].End, $"{rolling} holds");
             ushort sleep = unchecked((ushort)(ProjectileEntry(rolling) + 4));
             AssertEqual(ProjectileWord.Sleep, Words[(NativeEnemyProjectileInstruction)cartridge.ReadCartridgeWord(NativeEnemyProjectileListDefinitions.ProjectileBank | sleep)].Word,
                 $"{rolling}'s sleep follows its frame");
@@ -238,8 +238,8 @@ internal static class TorizoProjectileAnimationsVerification
                 return;
             case TorizoProjectileCue.Scatter scatter:
                 // Each range field reads exactly the bits of its native mask operand.
-                AssertEqual<int>(operands[0], (scatter.Spread.XRange.Outcomes - 1) << scatter.Spread.XRange.Shift, $"{at}: scatter X range");
-                AssertEqual<int>(operands[2], (scatter.Spread.YRange.Outcomes - 1) << scatter.Spread.YRange.Shift, $"{at}: scatter Y range");
+                AssertEqual<int>(operands[0], scatter.Spread.Span.X - 1, $"{at}: scatter X range");
+                AssertEqual<int>(operands[2], scatter.Spread.Span.Y - 1, $"{at}: scatter Y range");
                 AssertEqual(new Extent16<RoomPixels>(operands[1], operands[3]), scatter.Spread.Center, $"{at}: scatter center");
                 return;
             case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.StopMoving or TorizoProjectileCueKind.AimSuperMissileTowardSamus or

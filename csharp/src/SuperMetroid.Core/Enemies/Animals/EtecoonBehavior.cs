@@ -154,7 +154,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemySpawnFactory<Etecoo
         if (!EtecoonIsWithinY(place, samus, EtecoonRouteDefinitions.ActivationYDistance))
             return;
 
-        if (state.Route == EtecoonRoute.RunLeftToTeachingStart)
+        if (EtecoonRouteDefinitions.Routes[state.Route].CriesOnWaking)
             _audio.QueueEnemySound(EnemySoundEffectDefinitions.EtecoonWakeSound, priority: SoundRequestPriority.Essential);
         state.Playback = new(EtecoonAnimations.Flexing, AnimationPlace.StartOfAnimation);
         place.AnimationClock.StepOnNextUpdate();
@@ -496,7 +496,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemySpawnFactory<Etecoo
         {
             state.ActionTimer = UpdateCountdown.For(EtecoonTimingDefinitions.HopCrouch);
             StartEtecoonAnimation(place, state, EtecoonSegment.HoppingFacingLeft);
-            state.Action = state.Route == EtecoonRoute.TeachAtOnce &&
+            state.Action = EtecoonRouteDefinitions.Routes[state.Route].TakesLongRun &&
                 place.Position.X.Whole < EtecoonRouteDefinitions.LongRunMaximumX
                     ? EtecoonAction.WaitForSamusBeforeLongRun
                     : EtecoonAction.IdleBetweenTeachingJumps;
@@ -527,7 +527,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemySpawnFactory<Etecoo
             // The count empties before the teach-at-once route is tested, so that route hops lesson after lesson.
             state.TeachingHops = 0;
         }
-        if (lessonContinues || state.Route == EtecoonRoute.TeachAtOnce)
+        if (lessonContinues || EtecoonRouteDefinitions.Routes[state.Route].RepeatsLessons)
         {
             state.Action = EtecoonAction.TeachingJump;
             state.Playback = new(EtecoonAnimations.StartingWith(EtecoonSegment.ContinueHoppingFacingLeft), AnimationPlace.StartOfAnimation);

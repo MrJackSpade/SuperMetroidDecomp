@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Bosses.Ridley;
@@ -19,7 +20,7 @@ internal static class CeresSelfDestructWarningVerification
     internal static void VerifyCeresJapaneseSubtitleWait()
     {
         RoomEnemySystem enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        enemies.Room.Session.JapaneseText = true;
+        enemies.Room.Session.Language = TextLanguage.Japanese;
         CeresEscape escape = enemies.CeresEscape;
         escape.BeginSelfDestruct();
         // Every character the typewriter types, a space or a line's first among them, moves the corner the next is typed at.

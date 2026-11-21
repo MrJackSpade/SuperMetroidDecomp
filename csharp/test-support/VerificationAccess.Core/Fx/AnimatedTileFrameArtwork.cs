@@ -62,7 +62,7 @@ internal static class AnimatedTileFrameArtwork
     /// <summary>Every animated-tile frame, with the cartridge source and size of its installed characters.</summary>
     private static IEnumerable<FramePicture> Frames()
     {
-        foreach (BlockAnimation mechanics in RoomFxBlockAnimationLoops.All)
+        foreach (BlockAnimation mechanics in RoomFxBlockAnimationLoopsConstants.All)
         {
             for (int frame = 0; frame < mechanics.Frames.Count; frame++)
             {

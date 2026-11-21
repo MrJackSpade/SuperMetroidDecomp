@@ -54,11 +54,11 @@ internal static class SpawnedObjectSheetSharing
         var commonSheetOf = new Dictionary<HeldPicture, int>(ReferenceEqualityComparer.Instance);
         foreach (HeldPicture picture in pictures.Where(picture => picture.IsCommon))
         {
-            int sheet = common.FindIndex(plan => plan.TryTake(picture));
-            if (sheet < 0)
+            PictureSheetPlan? sheet = common.FirstOrDefault(plan => plan.TryTake(picture));
+            if (sheet is null)
             {
-                sheet = common.Count;
-                common.Add(new PictureSheetPlan(picture, $"Spawned-Common {sheet}"));
+                sheet = new PictureSheetPlan(picture, $"Spawned-Common {common.Count}");
+                common.Add(sheet);
             }
             commonSheetOf.Add(picture, sheet);
         }
@@ -91,7 +91,7 @@ internal static class SpawnedObjectSheetSharing
                 held[sheet].Where(frame => frame.Value.IsCommon)
                     .ToDictionary(frame => frame.Key, frame => commonSheetOf[frame.Value], StringComparer.Ordinal));
         }
-        return new SharedSpawnedSheets([.. common.Select(plan => installedOf[plan])], shares);
+        return new SharedSpawnedSheets(shares);
     }
 
     /// <summary>One distinct picture the spawned-object sheets hold, and which of them hold it under which frame names.</summary>

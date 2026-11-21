@@ -92,7 +92,7 @@ internal static class PoseInputDefinitionsVerification
                 for (int edgeNoise = 0; edgeNoise < 2; edgeNoise++)
                 {
                     GameplayAction edges = edgeInputs[pressed * 2 + edgeNoise];
-                    SamusPoseTransitionLookup actual = default;
+                    SamusPoseTransitionLookup actual = SamusPoseTransitionLookup.KeepsPose;
                     for (int heldNoise = 0; heldNoise < 2; heldNoise++)
                     {
                         GameplayAction input = heldInputs[held * 2 + heldNoise];

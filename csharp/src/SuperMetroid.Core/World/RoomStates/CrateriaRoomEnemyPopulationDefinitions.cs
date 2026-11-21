@@ -25,6 +25,17 @@ namespace SuperMetroid.Core.World.RoomStates;
 /// <summary>The enemy placement lists of the Crateria rooms.</summary>
 internal static class CrateriaRoomEnemyPopulationDefinitions
 {
+    /// <summary>The face blocks of the Final Missile Bombway room, which it places alike in its default state and once Zebes is awake.</summary>
+    private static readonly RoomEnemyPlacement[] FinalMissileBombwayFaceBlocks =
+    [
+        new(EnemyDefinitionId.FaceBlock, EnemyPlacing.At(new(256, 72)), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
+        new(EnemyDefinitionId.FaceBlock, EnemyPlacing.At(new(128, 72)), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
+        new(EnemyDefinitionId.FaceBlock, EnemyPlacing.At(new(384, 72)), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
+        new(EnemyDefinitionId.FaceBlock, EnemyPlacing.At(new(128, 184)), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
+        new(EnemyDefinitionId.FaceBlock, EnemyPlacing.At(new(256, 184)), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
+        new(EnemyDefinitionId.FaceBlock, EnemyPlacing.At(new(384, 184)), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
+    ];
+
     /// <summary>The enemy population of the East Ocean room.</summary>
     internal static PlacedRoomEnemyPopulationDefinition EastOcean { get; } = new("EastOcean",
     [
@@ -66,26 +77,10 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
     ], 9);
 
     /// <summary>The enemy population of the Final Missile Bombway room once Zebes is awake.</summary>
-    internal static PlacedRoomEnemyPopulationDefinition FinalMissileBombwayWhenZebesAwake { get; } = new("FinalMissileBombwayWhenZebesAwake",
-    [
-        new(EnemyDefinitionId.FaceBlock, EnemyPlacing.At(new(256, 72)), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
-        new(EnemyDefinitionId.FaceBlock, EnemyPlacing.At(new(128, 72)), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
-        new(EnemyDefinitionId.FaceBlock, EnemyPlacing.At(new(384, 72)), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
-        new(EnemyDefinitionId.FaceBlock, EnemyPlacing.At(new(128, 184)), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
-        new(EnemyDefinitionId.FaceBlock, EnemyPlacing.At(new(256, 184)), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
-        new(EnemyDefinitionId.FaceBlock, EnemyPlacing.At(new(384, 184)), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
-    ], 0);
+    internal static PlacedRoomEnemyPopulationDefinition FinalMissileBombwayWhenZebesAwake { get; } = new("FinalMissileBombwayWhenZebesAwake", FinalMissileBombwayFaceBlocks, 0);
 
     /// <summary>The enemy population of the Final Missile Bombway room in its default state.</summary>
-    internal static PlacedRoomEnemyPopulationDefinition FinalMissileBombwayDefault { get; } = new("FinalMissileBombwayDefault",
-    [
-        new(EnemyDefinitionId.FaceBlock, EnemyPlacing.At(new(256, 72)), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
-        new(EnemyDefinitionId.FaceBlock, EnemyPlacing.At(new(128, 72)), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
-        new(EnemyDefinitionId.FaceBlock, EnemyPlacing.At(new(384, 72)), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
-        new(EnemyDefinitionId.FaceBlock, EnemyPlacing.At(new(128, 184)), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
-        new(EnemyDefinitionId.FaceBlock, EnemyPlacing.At(new(256, 184)), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
-        new(EnemyDefinitionId.FaceBlock, EnemyPlacing.At(new(384, 184)), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
-    ], 0);
+    internal static PlacedRoomEnemyPopulationDefinition FinalMissileBombwayDefault { get; } = new("FinalMissileBombwayDefault", FinalMissileBombwayFaceBlocks, 0);
 
     /// <summary>The enemy population of the Parlor room once Zebes is awake.</summary>
     internal static PlacedRoomEnemyPopulationDefinition ParlorWhenZebesAwake { get; } = new("ParlorWhenZebesAwake",
@@ -168,7 +163,7 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
     /// <summary>The enemy population of the Green Brinstar Elevator room.</summary>
     internal static PlacedRoomEnemyPopulationDefinition GreenBrinstarElevator { get; } = new("GreenBrinstarElevator",
     [
-        new(EnemyDefinitionId.Elevator, EnemyPlacing.At(new(128, 162)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Down, ArrivalY: 320)),
+        new(EnemyDefinitionId.Elevator, EnemyPlacing.At(new(128, 162)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: VerticalDirection.Down, ArrivalY: 320)),
     ], 0);
 
     /// <summary>The enemy population of the Final Missile room in its default state.</summary>
@@ -305,7 +300,7 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
     /// <summary>The enemy population of the Red Brinstar Elevator room.</summary>
     internal static PlacedRoomEnemyPopulationDefinition RedBrinstarElevator { get; } = new("RedBrinstarElevator",
     [
-        new(EnemyDefinitionId.Elevator, EnemyPlacing.At(new(128, 194)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Down, ArrivalY: 320)),
+        new(EnemyDefinitionId.Elevator, EnemyPlacing.At(new(128, 194)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: VerticalDirection.Down, ArrivalY: 320)),
     ], 0);
 
     /// <summary>The enemy population of the Gauntlet Energy Tank room.</summary>
@@ -356,13 +351,13 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
     /// <summary>The enemy population of the Elevator to Blue Brinstar room.</summary>
     internal static PlacedRoomEnemyPopulationDefinition ElevatorToBlueBrinstar { get; } = new("ElevatorToBlueBrinstar",
     [
-        new(EnemyDefinitionId.Elevator, EnemyPlacing.At(new(128, 162)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Down, ArrivalY: 320)),
+        new(EnemyDefinitionId.Elevator, EnemyPlacing.At(new(128, 162)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: VerticalDirection.Down, ArrivalY: 320)),
     ], 0);
 
     /// <summary>The enemy population of the Forgotten Highway Elevator room.</summary>
     internal static PlacedRoomEnemyPopulationDefinition ForgottenHighwayElevator { get; } = new("ForgottenHighwayElevator",
     [
-        new(EnemyDefinitionId.Elevator, EnemyPlacing.At(new(128, 192)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Down, ArrivalY: 320)),
+        new(EnemyDefinitionId.Elevator, EnemyPlacing.At(new(128, 192)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: VerticalDirection.Down, ArrivalY: 320)),
     ], 0);
 
     /// <summary>The enemy population of the Pre Map Flyway room.</summary>
@@ -389,52 +384,52 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
         new(EnemyDefinitionId.ShipTop, EnemyPlacing.At(new(1152, 1144)), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
         new(EnemyDefinitionId.ShipBottomEntrance, EnemyPlacing.At(new(1152, 1144)), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new GunshipSpawnSettings(Part: GunshipBottomPiece.Hull)),
         new(EnemyDefinitionId.ShipBottomEntrance, EnemyPlacing.At(new(1152, 1144)), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new GunshipSpawnSettings(Part: GunshipBottomPiece.EntrancePad)),
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(81, 1194)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(128, 1212)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(161, 1232)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(229, 1239)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(347, 1239)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(413, 1237)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(448, 1225)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(546, 1224)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(579, 1220)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(636, 1230)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(791, 1239)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(831, 1225)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(876, 1206)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(912, 1193)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(985, 1207)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(1050, 1241)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(1180, 1240)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(1273, 1226)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(1317, 1211)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(1367, 1225)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(1478, 1236)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(1572, 1236)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(81, 1194)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(128, 1212)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(161, 1232)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(229, 1239)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(347, 1239)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(413, 1237)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(448, 1225)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(546, 1224)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(579, 1220)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(636, 1230)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(791, 1239)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(831, 1225)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(876, 1206)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(912, 1193)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(985, 1207)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(1050, 1241)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(1180, 1240)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(1273, 1226)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(1317, 1211)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(1367, 1225)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(1478, 1236)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(1572, 1236)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
     ], 0);
 
     /// <summary>The enemy population of the Parlor room once the Zebes timebomb is set.</summary>
     internal static PlacedRoomEnemyPopulationDefinition ParlorWhenZebesTimebombSet { get; } = new("ParlorWhenZebesTimebombSet",
     [
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(325, 181)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(441, 186)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(478, 169)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(551, 177)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(573, 185)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(623, 192)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(689, 208)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(721, 200)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(779, 192)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(815, 160)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(862, 136)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(900, 119)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(988, 121)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(1022, 142)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(1055, 161)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(1116, 196)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(1151, 179)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(1194, 174)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(1228, 166)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(325, 181)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(441, 186)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(478, 169)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(551, 177)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(573, 185)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(623, 192)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(689, 208)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(721, 200)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(779, 192)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(815, 160)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(862, 136)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(900, 119)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(988, 121)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(1022, 142)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(1055, 161)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(1116, 196)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(1151, 179)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(1194, 174)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(1228, 166)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
     ], 0);
 
     /// <summary>The enemy population of the Bomb Torizo room once the Zebes timebomb is set.</summary>
@@ -463,7 +458,7 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
     /// <summary>The enemy population of the Statues room.</summary>
     internal static PlacedRoomEnemyPopulationDefinition Statues { get; } = new("Statues",
     [
-        new(EnemyDefinitionId.Elevator, EnemyPlacing.At(new(128, 432)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Down, ArrivalY: 576)),
+        new(EnemyDefinitionId.Elevator, EnemyPlacing.At(new(128, 432)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: VerticalDirection.Down, ArrivalY: 576)),
         new(EnemyDefinitionId.TourianStatue, EnemyPlacing.At(new(120, 184)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new TourianEntranceStatueSpawnSettings(Role: TourianEntranceStatueRole.SpawnsDecorations)),
         new(EnemyDefinitionId.TourianStatue, EnemyPlacing.At(new(142, 85)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new TourianEntranceStatueSpawnSettings(Role: TourianEntranceStatueRole.Inert)),
         new(EnemyDefinitionId.TourianStatue, EnemyPlacing.At(new(132, 136)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new TourianEntranceStatueSpawnSettings(Role: TourianEntranceStatueRole.Inert)),

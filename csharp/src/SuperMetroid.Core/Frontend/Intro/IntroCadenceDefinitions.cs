@@ -10,16 +10,16 @@ internal static class IntroCadenceDefinitions
     internal static readonly UpdateCadence BabyCriesInDance = new(64, 0);
 
     /// <summary>
-    /// The phase of the intro Mother Brain's hurt flash timer on which she shows her own colours: set on its odd counts,
+    /// The phase of the intro Mother Brain's hurt flash timer on which she shows her own colours: on its odd counts,
     /// so she flashes white on the even ones.
     /// </summary>
-    internal static readonly UpdateCounterField MotherBrainHurtShowsOwnColours = new(0, 1);
+    internal static readonly UpdateAlternation MotherBrainHurtShowsOwnColours = new(1);
 
     /// <summary>
-    /// The phase of the cinematic frame counter on which the intro Mother Brain's room shakes up: set on odd updates; on
+    /// The phase of the cinematic frame counter on which the intro Mother Brain's room shakes up: on odd updates; on
     /// even ones it shakes down.
     /// </summary>
-    internal static readonly UpdateCounterField MotherBrainRoomShakesUp = new(0, 1);
+    internal static readonly UpdateAlternation MotherBrainRoomShakesUp = new(1);
 
     /// <summary>
     /// The updates left of the crossfade into the laboratory on which the delivery and examination scenes pan the

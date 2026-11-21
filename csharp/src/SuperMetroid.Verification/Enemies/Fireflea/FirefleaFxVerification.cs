@@ -16,7 +16,8 @@ namespace SuperMetroid.Verification.Enemies.Fireflea;
 
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Compatibility;
 
 /// <summary>Checks Fireflea shade flashing, darkness, frozen-time behavior, and X-Ray composition.</summary>
 internal static class FirefleaFxVerification
@@ -200,7 +201,7 @@ internal static class FirefleaFxVerification
         AssertTrue(!darkLayer.RevealBlocks && darkLayer.OverlayBehind is null && !darkLayer.BackgroundBehind,
             "ordinary Fireflea keeps both room maps and subtracts its shade, with nothing lying behind");
         AssertTrue(samus.Xray.TryBeginAndActivate(samus, SamusPoseMetadata.ReadMovementType(samus), new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay, PowerBombExplosionActive = false, ProjectileCooldownTimer = 0, BombCounter = 0 }), "Fireflea display fixture activates X-ray");
-        for (int frame = 0; frame < 90; frame++) runtime.StepFrame(runtime.Options.ControllerBindings.Dash);
+        for (int frame = 0; frame < 90; frame++) runtime.StepFrame(runtime.Options.ControllerBindings[SuperMetroid.Core.Input.ControllerAction.Dash]);
         var packet = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         AssertTrue(packet.Layers[0] is GameplayBlendLayer, "Fireflea capture uses source-aware X-ray compositor");
         var layer = (GameplayBlendLayer)packet.Layers[0];

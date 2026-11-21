@@ -10,6 +10,17 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// </summary>
 internal sealed class ProjectileTrails
 {
+    /// <summary>
+    /// The trail lists a shot picks by its beam's charge (#2560): the one declared map between the projectile type's charge
+    /// and the trail family group named for it.
+    /// </summary>
+    private static readonly System.Collections.Frozen.FrozenDictionary<bool, ProjectileTrailFamilyGroup> GroupByCharge =
+        System.Collections.Frozen.FrozenDictionary.ToFrozenDictionary(new Dictionary<bool, ProjectileTrailFamilyGroup>
+        {
+            [false] = ProjectileTrailFamilyGroup.Uncharged,
+            [true] = ProjectileTrailFamilyGroup.Charged,
+        });
+
     /// <summary>The live trails, oldest first.</summary>
     private readonly List<SamusProjectileTrail> trails = [];
 
@@ -50,7 +61,7 @@ internal sealed class ProjectileTrails
         ProjectileTrailPlacementList? list = held.Type.Echo == SamusBeamEcho.SpazerComboTrail
             ? ProjectileTrailPlacements.SpazerAttackTrailingPairList(projectile.Direction)
             : ProjectileTrailPlacements.List(
-                held.Type.IsChargedBeam ? ProjectileTrailFamilyGroup.Charged : ProjectileTrailFamilyGroup.Uncharged,
+                GroupByCharge[held.Type.IsChargedBeam],
                 held.Type.BeamCombination, projectile.Direction);
 
         // A shot whose beams name no trail family leaves no trail, and neither does a shot whose animation has shown

@@ -4,13 +4,13 @@ using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.FileSelect.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Menus;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.AssetExtraction.Map.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
 
@@ -60,34 +60,39 @@ public sealed class FileSelectSourcePresentation
     /// </remarks>
     private static FileSelectPlacements Placements(FileSelectLayoutDocument document) => new()
     {
-        MainSlots = BySlot(document.MainSlots, "main slot fields"),
-        DataSlots = BySlot(document.DataSlots, "data slot fields"),
+        MainSlots = Keyed(SaveSlotKeys.Installed, SaveSlots.All, document.MainSlots, "main slot fields"),
+        DataSlots = Keyed(SaveSlotKeys.Installed, SaveSlots.All, document.DataSlots, "data slot fields"),
         BorderAnchors = FileSelectPresentationFormat.Borders.ToDictionary(border => border,
             border => document.BorderAnchors[FileSelectPresentationFormat.BorderName(border)]),
-        MainCursorAnchors = ByRow(FileSelectItemRows.MainWithData, document.MainCursorAnchors, "main cursor anchors"),
-        DataCursorAnchors = ByRow(FileSelectItemRows.Data, document.DataCursorAnchors, "data cursor anchors"),
-        ConfirmationCursorAnchors = ByRow(FileSelectItemRows.Confirmation, document.ConfirmationCursorAnchors, "confirmation cursor anchors"),
-        HelmetAnchors = BySlot(document.HelmetAnchors, "helmet anchors"),
+        MainCursorAnchors = Keyed(FileSelectItemKeys.Installed, FileSelectItemRows.MainWithData, document.MainCursorAnchors, "main cursor anchors"),
+        DataCursorAnchors = Keyed(FileSelectItemKeys.Installed, FileSelectItemRows.Data, document.DataCursorAnchors, "data cursor anchors"),
+        ConfirmationCursorAnchors = Keyed(YesNoChoiceKeys.Installed, FileSelectItemRows.Confirmation, document.ConfirmationCursorAnchors,
+            "confirmation cursor anchors"),
+        HelmetAnchors = Keyed(SaveSlotKeys.Installed, SaveSlots.All, document.HelmetAnchors, "helmet anchors"),
         DynamicAnchors = FileSelectPresentationFormat.Anchors.ToDictionary(anchor => anchor,
             anchor => document.DynamicAnchors[FileSelectPresentationFormat.AnchorName(anchor)]),
         CursorFrameDuration = document.CursorFrameDuration,
         HelmetFrameDuration = document.HelmetFrameDuration,
     };
 
-    /// <summary>Each save slot's entry of a document list that holds one per slot, top to bottom.</summary>
-    /// <exception cref="InvalidDataException">The list does not hold one entry per save slot.</exception>
-    private static Dictionary<SaveSlot, T> BySlot<T>(T[] inSlotOrder, string what) =>
-        inSlotOrder.Length == SaveSlots.All.Count
-            ? Enumerable.Range(0, inSlotOrder.Length).ToDictionary(index => SaveSlots.All[index], index => inSlotOrder[index])
-            : throw new InvalidDataException($"File select lists {inSlotOrder.Length} {what}, not one per save slot.");
+    /// <summary>
+    /// Each of <paramref name="keys"/>' entries of a document table that keys one entry by each one's installed key in
+    /// <paramref name="names"/>.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The table does not hold exactly one entry for each key.</exception>
+    private static Dictionary<TKey, T> Keyed<TKey, T>(InstalledKeys<TKey> names, IReadOnlyList<TKey> keys, Dictionary<string, T>? byName, string what)
+        where TKey : struct, Enum
+    {
+        if (byName is null || byName.Count != keys.Count)
+            throw new InvalidDataException($"File select lists {byName?.Count ?? 0} {what}, not one for each of its {keys.Count}.");
+        return keys.ToDictionary(key => key, key => byName.TryGetValue(names.Of(key), out T? entry) && entry is not null
+            ? entry
+            : throw new InvalidDataException($"File select lists no {what} entry for {key}."));
+    }
 
     /// <summary>Each row's entry of a document list that holds one per row of a page, top to bottom (#2359).</summary>
     /// <exception cref="InvalidDataException">The list does not hold one entry per row.</exception>
-    private static Dictionary<TRow, T> ByRow<TRow, T>(IReadOnlyList<TRow> rows, T[] inRowOrder, string what)
-        where TRow : notnull =>
-        inRowOrder.Length == rows.Count
-            ? Enumerable.Range(0, inRowOrder.Length).ToDictionary(index => rows[index], index => inRowOrder[index])
-            : throw new InvalidDataException($"File select lists {inRowOrder.Length} {what}, not one per row.");
+
 
     /// <summary>Named, compiled 32-by-32 tilemaps for the menu pages.</summary>
     private readonly Dictionary<FileSelectPage, BackgroundTile[]> pages;
@@ -202,10 +207,10 @@ public sealed class FileSelectSourcePresentation
             "file-select patches");
         ValidateExactKeys(document.Sprites, FileSelectPresentationFormat.SpriteNames,
             "file-select sprites");
-        if (document.Digits is null || document.Digits.Length != 10)
+        if (document.Digits is null || document.Digits.Length != FileSelectPresentationDefinitions.DigitCount)
             throw new InvalidDataException("File select requires ten digit cells.");
-        if (document.SlotLetters is null || document.SlotLetters.Length != 3)
-            throw new InvalidDataException("File select requires three slot-letter cells.");
+        if (document.SlotLetters is null || document.SlotLetters.Count != SaveSlots.All.Count)
+            throw new InvalidDataException("File select requires one slot-letter cell for each save slot.");
         if ((uint)document.ObjectPalette > SpritePart.MaximumPalette)
             throw new InvalidDataException("File-select object palette must be 0..7.");
 
@@ -238,8 +243,8 @@ public sealed class FileSelectSourcePresentation
 
         BackgroundTile[] digits = document.Digits.Select((cell, index) =>
             CompileCell(cell, $"file-select digit {index}")).ToArray();
-        BackgroundTile[] letters = document.SlotLetters.Select((cell, index) =>
-            CompileCell(cell, $"file-select slot letter {index}")).ToArray();
+        Dictionary<SaveSlot, BackgroundTile> letters = Keyed(SaveSlotKeys.Installed, SaveSlots.All, document.SlotLetters, "slot letters").ToDictionary(
+            entry => entry.Key, entry => CompileCell(entry.Value, $"file-select slot letter {entry.Key}"));
         var borderSprites = FileSelectPresentationFormat.Borders.ToDictionary(border => border,
             border => CompileSprite(document, FileSelectParts.BorderSpriteName(border)));
         Dictionary<MenuMissileFrame, SpriteComposition> cursorSprites = MenuMissileAnimationDefinitions.Roll.ToDictionary(frame => frame, frame =>
@@ -249,7 +254,7 @@ public sealed class FileSelectSourcePresentation
 
         ValidatePatchPlacements(layout, patches);
         return new(new FileSelectPresentation(Placements(layout)), document.ObjectPalette, new(pages, background, patches),
-            new(digits, BySlot(letters, "slot letters")), new(borderSprites, cursorSprites, helmetSprites),
+            new(digits, letters), new(borderSprites, cursorSprites, helmetSprites),
             Convert.ToHexString(SHA256.HashData(layoutBytes.Concat(artworkBytes).ToArray())));
     }
 
@@ -292,20 +297,20 @@ public sealed class FileSelectSourcePresentation
         ValidateExactKeys(document.DynamicAnchors,
             FileSelectPresentationFormat.Anchors.Select(FileSelectPresentationFormat.AnchorName),
             "file-select dynamic anchors");
-        if (document.MainSlots is null || document.MainSlots.Length != 3 ||
-            document.DataSlots is null || document.DataSlots.Length != 3)
+        if (document.MainSlots is null || document.MainSlots.Count != SaveSlots.All.Count ||
+            document.DataSlots is null || document.DataSlots.Count != SaveSlots.All.Count)
             throw new InvalidDataException("File select requires three main and three data slot layouts.");
-        ValidatePoints(document.MainCursorAnchors, 6, "main cursor");
-        ValidatePoints(document.DataCursorAnchors, 4, "data cursor");
-        ValidatePoints(document.ConfirmationCursorAnchors, 2, "confirmation cursor");
-        ValidatePoints(document.HelmetAnchors, 3, "helmet");
+        ValidatePoints(document.MainCursorAnchors?.Values.ToArray(), FileSelectItemRows.MainWithData.Count, "main cursor");
+        ValidatePoints(document.DataCursorAnchors?.Values.ToArray(), FileSelectItemRows.Data.Count, "data cursor");
+        ValidatePoints(document.ConfirmationCursorAnchors?.Values.ToArray(), FileSelectItemRows.Confirmation.Count, "confirmation cursor");
+        ValidatePoints(document.HelmetAnchors?.Values.ToArray(), SaveSlots.All.Count, "helmet");
         foreach (string name in FileSelectPresentationFormat.Borders.Select(FileSelectPresentationFormat.BorderName))
             ValidatePoint(document.BorderAnchors[name], $"{name} border");
         foreach (string name in FileSelectPresentationFormat.Anchors.Select(FileSelectPresentationFormat.AnchorName))
             ValidatePagePoint(document.DynamicAnchors[name], $"{name} dynamic anchor");
         if (document.CursorFrameDuration < 1 || document.HelmetFrameDuration < 1)
             throw new InvalidDataException("File-select actor durations must be at least one update.");
-        foreach (FileSelectSlotFieldDocument slot in document.MainSlots.Concat(document.DataSlots))
+        foreach (FileSelectSlotFieldDocument slot in document.MainSlots.Values.Concat(document.DataSlots.Values))
             ValidateSlot(slot);
         return document;
     }
@@ -327,7 +332,7 @@ public sealed class FileSelectSourcePresentation
         FileSelectLayoutDocument document,
         Dictionary<FileSelectPatch, FileSelectCompiledPatch> patches)
     {
-        foreach (FileSelectSlotFieldDocument slot in document.MainSlots.Concat(document.DataSlots))
+        foreach (FileSelectSlotFieldDocument slot in document.MainSlots.Values.Concat(document.DataSlots.Values))
         {
             ValidatePatch(slot.EnergyAnchor, patches[FileSelectPatch.Energy]);
             ValidatePatch(slot.NoDataAnchor, patches[FileSelectPatch.NoData]);

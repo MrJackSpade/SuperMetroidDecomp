@@ -78,40 +78,111 @@ internal static class BossSheetShades
     ];
 
     /// <summary>
+    /// How one boss's body sheet is shaded from his installed colours and the places in its colour list of the colours its
+    /// picture uses.
+    /// </summary>
+    private delegate IReadOnlyList<SheetShade> BodyShading(BossSourceArtwork bosses, HashSet<int> used, ReadOnlySpan<RgbColor> standard);
+
+    /// <summary>Each boss whose body sheet gameplay shades, with how it is shaded; every other body sheet has no shades.</summary>
+    private static readonly Dictionary<BossBodyOwner, BodyShading> BodyShades = new Dictionary<BossBodyOwner, BodyShading>
+    {
+        [BossBodyOwner.Draygon] = (bosses, _, _) => DraygonBackground(bosses),
+        [BossBodyOwner.Phantoon] = (bosses, _, _) => PhantoonSheetShades.Body(bosses),
+        [BossBodyOwner.Crocomire] = (bosses, _, _) => CrocomireBody(bosses),
+        [BossBodyOwner.Kraid] = KraidBody,
+    };
+
+    /// <summary>
+    /// Each boss sprite whose sheet gameplay shades over the row it draws in, with the shades from the row's first ink;
+    /// every other sprite's sheet has no shades of its own row.
+    /// </summary>
+    private static readonly IReadOnlyDictionary<EnemyDefinitionId, Func<BossSourceArtwork, int, IReadOnlyList<SheetShade>>> OwnRowShades =
+        new Dictionary<EnemyDefinitionId, Func<BossSourceArtwork, int, IReadOnlyList<SheetShade>>>
+        {
+            [EnemyDefinitionId.Botwoon] = (bosses, firstInk) => [.. Botwoon(bosses, firstInk)],
+            [EnemyDefinitionId.SporeSpawn] = (bosses, _) => SporeSpawnSheetShades.Sprites(bosses),
+            [EnemyDefinitionId.Crocomire] = (bosses, _) => CrocomireSprites(bosses),
+            [EnemyDefinitionId.CrocomireTongue] = (bosses, _) => CrocomireSprites(bosses),
+        }
+        .Concat(DraygonParts.Select(part => KeyValuePair.Create(part,
+            (Func<BossSourceArtwork, int, IReadOnlyList<SheetShade>>)((bosses, _) => [.. DraygonSprites(bosses)]))))
+        .Concat(KraidParts.Select(part => KeyValuePair.Create(part,
+            KraidSprites)))
+        .ToDictionary();
+
+    /// <summary>
+    /// Each boss whose spawned objects show his shades wherever they are drawn (#1513), with those shades; the objects every
+    /// other enemy spawns show none.
+    /// </summary>
+    private static readonly Dictionary<EnemyDefinitionId, Func<BossSourceArtwork, IReadOnlyList<SheetShade>>> SpawnedObjectShades =
+        new Dictionary<EnemyDefinitionId, Func<BossSourceArtwork, IReadOnlyList<SheetShade>>>
+        {
+            [EnemyDefinitionId.Botwoon] = bosses => [.. Botwoon(bosses, BotwoonRow * LoadedSetColours.RowColours)],
+            [EnemyDefinitionId.SporeSpawn] = SporeSpawnSheetShades.Sprites,
+            [EnemyDefinitionId.Crocomire] = CrocomireWall,
+            [EnemyDefinitionId.CrocomireTongue] = CrocomireWall,
+        }
+        .Concat(DraygonParts.Select(part => KeyValuePair.Create(part,
+            (Func<BossSourceArtwork, IReadOnlyList<SheetShade>>)(bosses => [.. DraygonSprites(bosses)]))))
+        .Concat(KraidParts.Select(part => KeyValuePair.Create(part, KraidRocks)))
+        .ToDictionary();
+
+    /// <summary>
+    /// Each boss whose spawned objects show his shades in a row his fight loads (#1513), with those row shades over the
+    /// loaded colours; the objects every other enemy spawns show none.
+    /// </summary>
+    private static readonly Dictionary<EnemyDefinitionId, Func<BossSourceArtwork, LoadedSetColours, IReadOnlyList<SheetRowShade>>> SpawnedRowShades =
+        new Dictionary<EnemyDefinitionId, Func<BossSourceArtwork, LoadedSetColours, IReadOnlyList<SheetRowShade>>>
+        {
+            [EnemyDefinitionId.Crocomire] = CrocomireProjectiles,
+            [EnemyDefinitionId.CrocomireTongue] = CrocomireProjectiles,
+        };
+
+    /// <summary>The boss sprites whose sheets gameplay shades over the row they draw in.</summary>
+    internal static IEnumerable<EnemyDefinitionId> OwnRowEnemies => OwnRowShades.Keys;
+
+    /// <summary>
     /// The shades of <paramref name="owner"/>'s body sheet, painted from <paramref name="standard"/> with the inks
-    /// <paramref name="paletteIndices"/> name.
+    /// <paramref name="inks"/> of a sheet composed in <paramref name="palette"/> name.
     /// </summary>
     /// <exception cref="InvalidDataException">
     /// The boss's colours are not installed, or a colour gameplay substitutes is not unique on the body's picture.
     /// </exception>
-    internal static IReadOnlyList<SheetShade> Body(BossBodyOwner owner, BossSourceArtwork bosses, ReadOnlySpan<byte> paletteIndices,
-        ReadOnlySpan<RgbColor> standard)
+    internal static IReadOnlyList<SheetShade> Body(BossBodyOwner owner, BossSourceArtwork bosses, ReadOnlySpan<ComposedInk> inks,
+        SpriteImageColours palette, ReadOnlySpan<RgbColor> standard)
     {
         Ensure.NotNull(bosses);
-        if (owner == BossBodyOwner.Draygon)
-            return DraygonBackground(bosses);
-        if (owner == BossBodyOwner.Phantoon)
-            return PhantoonSheetShades.Body(bosses);
-        if (owner == BossBodyOwner.Crocomire)
-        {
-            CrocomireColorCatalog crocomire = bosses.CrocomireColors;
-            RgbColor[] fight = Crocomire(crocomire, CrocomireBand.FightBody);
-            return [SheetShade.Run(CrocomireShades.FightBody, CrocomireBodyFirstInk, fight),
-                SheetShade.Run(CrocomireShades.BodyHurt, CrocomireBodyFirstInk, [.. fight.Select(_ => RgbColor.White)])];
-        }
-        if (owner != BossBodyOwner.Kraid)
-            return [];
+        return BodyShades.TryGetValue(owner, out BodyShading? shading)
+            ? shading(bosses, [.. inks.ToArray().Select(ink => ink.PlaceIn(palette))], standard) : [];
+    }
+
+    /// <summary>The shades of Crocomire's body sheet: his fight colours and their white hurt flash.</summary>
+    /// <exception cref="InvalidDataException">His colours are not installed.</exception>
+    private static IReadOnlyList<SheetShade> CrocomireBody(BossSourceArtwork bosses)
+    {
+        CrocomireColorCatalog crocomire = bosses.CrocomireColors;
+        RgbColor[] fight = Crocomire(crocomire, CrocomireBand.FightBody);
+        return [SheetShade.Run(CrocomireShades.FightBody, CrocomireBodyFirstInk, fight),
+            SheetShade.Run(CrocomireShades.BodyHurt, CrocomireBodyFirstInk, [.. fight.Select(_ => RgbColor.White)])];
+    }
+
+    /// <summary>
+    /// The shades of Kraid's body sheet: each health band, with his eyes in the colours gameplay's eye glow replaces, and
+    /// his death arm.
+    /// </summary>
+    /// <exception cref="InvalidDataException">His colours are not installed, or an eye colour is not unique on his picture.</exception>
+    private static List<SheetShade> KraidBody(BossSourceArtwork bosses, HashSet<int> used, ReadOnlySpan<RgbColor> standard)
+    {
         KraidColorCatalog kraid = bosses.KraidColors;
         var shades = new List<SheetShade>();
-        HashSet<int> used = [.. paletteIndices.ToArray().Select(index => (int)index)];
         // Every band's shade shows his eyes in the colours gameplay's eye glow replaces, whatever the band gives them (#1512).
         ReadOnlySpan<RgbColor> shadedEyes = kraid.Eyes().Shaded;
-        for (int band = 0; band < KraidPalettes.HealthBandCount; band++)
+        foreach (KraidHealthSequenceBand band in KraidPalettes.HealthSequence)
         {
             RgbColor[] colours = Band(kraid, KraidPaletteSource.Health, band);
             shadedEyes.CopyTo(colours.AsSpan(KraidPalettes.FirstEyeColour, KraidEyeGlow.Eyes));
-            shades.Add(SheetShade.Run(KraidPalettes.HealthShades[band], KraidBodyFirstInk, colours));
-            RequireUniqueEyes(standard, used, colours, KraidPalettes.HealthShades[band]);
+            shades.Add(SheetShade.Run(band.Shade, KraidBodyFirstInk, colours));
+            RequireUniqueEyes(standard, used, colours, band.Shade);
         }
         shades.Add(SheetShade.Run(KraidShades.DeathArm, KraidBodyFirstInk,
             [.. Enumerable.Range(0, KraidPalettes.BandColors).Select(colour => kraid.Resolve(KraidPaletteSource.DeathArm, colour))]));
@@ -122,23 +193,25 @@ internal static class BossSheetShades
     internal static IReadOnlyList<SheetShade> OwnRow(BossSourceArtwork bosses, EnemyDefinitionId enemy, int firstInk)
     {
         Ensure.NotNull(bosses);
-        if (enemy == EnemyDefinitionId.Botwoon)
-            return [.. Botwoon(bosses, firstInk)];
-        if (DraygonParts.Contains(enemy))
-            return [.. DraygonSprites(bosses)];
-        if (enemy == EnemyDefinitionId.SporeSpawn)
-            return SporeSpawnSheetShades.Sprites(bosses);
-        if (enemy is EnemyDefinitionId.Crocomire or EnemyDefinitionId.CrocomireTongue)
-        {
-            CrocomireColorCatalog crocomire = bosses.CrocomireColors;
-            return [SheetShade.Run(CrocomireShades.SkeletonArm, CrocomireSkeletonArmRow * LoadedSetColours.RowColours, Crocomire(crocomire, CrocomireBand.SkeletonArm)),
-                SheetShade.Run(CrocomireShades.WallSpikes, CrocomireWallSpikesRow * LoadedSetColours.RowColours, Crocomire(crocomire, CrocomireBand.WallSpikes))];
-        }
-        if (!KraidParts.Contains(enemy))
-            return [];
+        return OwnRowShades.TryGetValue(enemy, out Func<BossSourceArtwork, int, IReadOnlyList<SheetShade>>? shades) ? shades(bosses, firstInk) : [];
+    }
+
+    /// <summary>The shades of Crocomire's sprites: his skeleton's arm and the wall spikes, each in its own row.</summary>
+    /// <exception cref="InvalidDataException">His colours are not installed.</exception>
+    private static IReadOnlyList<SheetShade> CrocomireSprites(BossSourceArtwork bosses)
+    {
+        CrocomireColorCatalog crocomire = bosses.CrocomireColors;
+        return [SheetShade.Run(CrocomireShades.SkeletonArm, CrocomireSkeletonArmRow * LoadedSetColours.RowColours, Crocomire(crocomire, CrocomireBand.SkeletonArm)),
+            SheetShade.Run(CrocomireShades.WallSpikes, CrocomireWallSpikesRow * LoadedSetColours.RowColours, Crocomire(crocomire, CrocomireBand.WallSpikes))];
+    }
+
+    /// <summary>The shades of one of Kraid's sprite parts over the row from <paramref name="firstInk"/>: each health band.</summary>
+    /// <exception cref="InvalidDataException">His colours are not installed.</exception>
+    private static IReadOnlyList<SheetShade> KraidSprites(BossSourceArtwork bosses, int firstInk)
+    {
         KraidColorCatalog kraid = bosses.KraidColors;
-        return [.. Enumerable.Range(0, KraidPalettes.HealthBandCount)
-            .Select(band => SheetShade.Run(KraidPalettes.HealthShades[band], firstInk, Band(kraid, KraidPaletteSource.Secondary, band)))];
+        return [.. KraidPalettes.HealthSequence
+            .Select(band => SheetShade.Run(band.Shade, firstInk, Band(kraid, KraidPaletteSource.Secondary, band)))];
     }
 
     /// <summary>
@@ -148,25 +221,21 @@ internal static class BossSheetShades
     internal static IReadOnlyList<SheetShade> SpawnedObjects(BossSourceArtwork bosses, EnemyDefinitionId enemy)
     {
         Ensure.NotNull(bosses);
-        if (KraidParts.Contains(enemy))
-        {
-            KraidColorCatalog kraid = bosses.KraidColors;
-            return [SheetShade.Run(KraidShades.Rocks, KraidRocksRow * LoadedSetColours.RowColours,
-                [.. Enumerable.Range(0, KraidPalettes.BandColors).Select(colour => kraid.Resolve(KraidPaletteSource.InitialTarget, colour))])];
-        }
-        if (enemy == EnemyDefinitionId.Botwoon)
-            return [.. Botwoon(bosses, BotwoonRow * LoadedSetColours.RowColours)];
-        if (DraygonParts.Contains(enemy))
-            return [.. DraygonSprites(bosses)];
-        if (enemy == EnemyDefinitionId.SporeSpawn)
-            return SporeSpawnSheetShades.Sprites(bosses);
-        if (enemy is EnemyDefinitionId.Crocomire or EnemyDefinitionId.CrocomireTongue)
-        {
-            return [SheetShade.Run(CrocomireShades.Wall, CrocomireWallRow * LoadedSetColours.RowColours,
-                Crocomire(bosses.CrocomireColors, CrocomireBand.InitialWall)[..LoadedSetColours.RowColours])];
-        }
-        return [];
+        return SpawnedObjectShades.TryGetValue(enemy, out Func<BossSourceArtwork, IReadOnlyList<SheetShade>>? shades) ? shades(bosses) : [];
     }
+
+    /// <summary>The shades of Kraid's rocks, in the row his initialization loads.</summary>
+    private static IReadOnlyList<SheetShade> KraidRocks(BossSourceArtwork bosses)
+    {
+        KraidColorCatalog kraid = bosses.KraidColors;
+        return [SheetShade.Run(KraidShades.Rocks, KraidRocksRow * LoadedSetColours.RowColours,
+            [.. Enumerable.Range(0, KraidPalettes.BandColors).Select(colour => kraid.Resolve(KraidPaletteSource.InitialTarget, colour))])];
+    }
+
+    /// <summary>The shade of Crocomire's wall and the bridge's fragments, in their row.</summary>
+    private static IReadOnlyList<SheetShade> CrocomireWall(BossSourceArtwork bosses) =>
+        [SheetShade.Run(CrocomireShades.Wall, CrocomireWallRow * LoadedSetColours.RowColours,
+            Crocomire(bosses.CrocomireColors, CrocomireBand.InitialWall)[..LoadedSetColours.RowColours])];
 
     /// <summary>
     /// The row shades the objects <paramref name="enemy"/> spawns in a row its fight loads show (#1513): Crocomire's
@@ -176,8 +245,14 @@ internal static class BossSheetShades
     {
         Ensure.NotNull(bosses);
         Ensure.NotNull(colours);
-        if (enemy is not (EnemyDefinitionId.Crocomire or EnemyDefinitionId.CrocomireTongue))
-            return [];
+        return SpawnedRowShades.TryGetValue(enemy, out Func<BossSourceArtwork, LoadedSetColours, IReadOnlyList<SheetRowShade>>? shades)
+            ? shades(bosses, colours) : [];
+    }
+
+    /// <summary>Crocomire's projectiles' row shade: the projectiles' row with his colours in it over <paramref name="colours"/>.</summary>
+    /// <exception cref="InvalidDataException">His colours are not installed.</exception>
+    private static IReadOnlyList<SheetRowShade> CrocomireProjectiles(BossSourceArtwork bosses, LoadedSetColours colours)
+    {
         RgbColor[] projectiles = Crocomire(bosses.CrocomireColors, CrocomireBand.InitialProjectile);
         return [new(CrocomireShades.Projectiles, CrocomireProjectileRow,
             colours.With(CrocomireProjectileRow, 0, projectiles[..LoadedSetColours.RowColours]))];
@@ -234,8 +309,8 @@ internal static class BossSheetShades
     }
 
     /// <summary>The sixteen colours of <paramref name="source"/>'s health sequence band <paramref name="band"/>: the hurt flash's or a health band's.</summary>
-    private static RgbColor[] Band(KraidColorCatalog kraid, KraidPaletteSource source, int band) =>
-        [.. Enumerable.Range(0, KraidPalettes.BandColors).Select(colour => kraid.Resolve(source, KraidPalettes.BandColors * band + colour))];
+    private static RgbColor[] Band(KraidColorCatalog kraid, KraidPaletteSource source, KraidHealthSequenceBand band) =>
+        [.. Enumerable.Range(band.FirstColour, KraidPalettes.BandColors).Select(colour => kraid.Resolve(source, colour))];
 
     /// <summary>
     /// Requires the eye colours shade <paramref name="band"/>'s <paramref name="colours"/> show to differ from each other and

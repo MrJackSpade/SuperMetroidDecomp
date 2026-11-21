@@ -94,8 +94,8 @@ internal sealed class MotherBrainRainbowAndDeath
         {
             _projectiles.SpawnDustOrExplosion(dust.Position, dust.Animation);
             // The rot dust's sound competes at low priority.
-            if (dust.SoundEffectQueued)
-                _audio.QueueEnemySound(dust.SoundEffect, priority: SoundRequestPriority.Low);
+            if (dust.Sound is { } sound)
+                _audio.QueueEnemySound(sound, priority: SoundRequestPriority.Low);
         }
         if (step.Starts(MotherBrainStepEffect.MusicStop)) _motherBrainEncounter.RequestMusic(MusicRequest.Stop, MusicQueueDelay.Shortest);
         if (step.Starts(MotherBrainStepEffect.EscapeMusic)) _motherBrainEncounter.RequestMusic(MusicRequest.LoadDataSet(MusicDataSet.RidleyAndDraygonBattles), MusicQueueDelay.Shortest);
@@ -130,7 +130,7 @@ internal sealed class MotherBrainRainbowAndDeath
     /// <summary>Places a death explosion with the requested position and visual phase.</summary>
     private void SpawnMotherBrainDeathExplosion(MotherBrainEnemyState state, MotherBrainDeathExplosionRequest request)
     {
-        DustExplosionAnimation animation = MotherBrainDeathExplosionDefinitions.Animations[request.Animation];
+        DustExplosionAnimation animation = request.Animation;
         var projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainDeathExplosion, _projectileAttacks.Projectile, graphics: SpriteGraphics.SharedStandard);
         if (projectile is null) return; // A room whose projectiles are all in flight spawns none.
         projectile.StartAnimation(new DustExplosionProjectileAnimation(animation));
@@ -174,7 +174,7 @@ internal sealed class MotherBrainRainbowAndDeath
                 WriteZebesTypewriterGlyph(state, typed.Glyph);
             if (typing is EscapeTypewriterStep.TypedWithClick) _motherBrainEncounter.RequestCueSound(EscapeTypewriterDefinitions.ZebesClick);
         }
-        MotherBrainRainbowBeamAttackStepResult step = sequence.Step(samus, new RainbowBeamAttackFrame { EnemyFrameCounter = enemyFrameCounter, EnemyPassCount = _frameContext.EnemyPassCount, PowerBombActive = samusBombs.PowerBombExplosion.IsActive, RandomNumberSeed = MotherBrainRandomSample.FromGenerator(_room.Random.Read()), NextRandomNumber = _room.Random.Generate, AlternateEscapeText = _room.Session.JapaneseText, TypewriterFinished = typewriterFinished, RoomEarthquakeStopped = !_earthquake.IsShaking });
+        MotherBrainRainbowBeamAttackStepResult step = sequence.Step(samus, new RainbowBeamAttackFrame { EnemyFrameCounter = enemyFrameCounter, EnemyPassCount = _frameContext.EnemyPassCount, PowerBombActive = samusBombs.PowerBombExplosion.IsActive, RandomNumberSeed = MotherBrainRandomSample.FromGenerator(_room.Random.Read()), NextRandomNumber = _room.Random.Generate, Language = _room.Session.Language, TypewriterFinished = typewriterFinished, RoomEarthquakeStopped = !_earthquake.IsShaking });
         _passEvents.Publish(new MotherBrainDeathStepTaken(step));
         ApplyLiveMotherBrainRainbowState(state, sequence, step, samus, samusBombs);
     }
@@ -278,7 +278,7 @@ internal sealed class MotherBrainRainbowAndDeath
             return;
         }
         // The rainbow's colours step only on their update of the body's cadence.
-        if (!step.Starts(MotherBrainStepEffect.RainbowColours) || !MotherBrainCadenceDefinitions.RainbowColoursStep.IsSetIn(state.Body.FrameCounter))
+        if (!step.Starts(MotherBrainStepEffect.RainbowColours) || !MotherBrainCadenceDefinitions.RainbowColoursStep.IsInSecondHalfAt(state.Body.FrameCounter))
             return;
 
         ListStep<MotherBrainRainbowImage> image = state.NextRainbowImage;

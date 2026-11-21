@@ -25,7 +25,7 @@ internal static class EnemyDropSelectionDefinitions
     /// The random choice a drop's chance roll reads, 1 through 255 (a zero is drawn again), compared with the accumulated
     /// drop chances.
     /// </summary>
-    internal static readonly RandomSampleField DropRoll = new(0, 8);
+    internal static readonly RandomSampleField DropRoll = RandomSampleField.OneOf(256);
 
     /// <summary>
     /// Whether a drop's chance roll is drawn again (#2510): taken when <see cref="DropRoll"/> reads zero, one sample in 256.

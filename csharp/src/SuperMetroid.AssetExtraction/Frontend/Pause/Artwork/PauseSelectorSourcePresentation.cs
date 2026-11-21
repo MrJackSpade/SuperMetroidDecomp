@@ -57,9 +57,9 @@ public sealed class PauseSelectorSourcePresentation
         try { document = JsonAssetDocument.Read<PauseSelectorDocument>(json, ArtworkJson.Options); }
         catch (JsonException error) { throw new InvalidDataException("Invalid pause selector JSON.", error); }
         if (document.Version != PauseSelectorFormat.Version || (uint)document.Palette > 7 ||
-            document.Frames is null || document.Frames.Count is < 1 or > PauseSelectorFormat.MaximumFrames)
+            document.Frames is null || document.Frames.Count < 1)
             throw new InvalidDataException(
-                $"Pause selector artwork requires version {PauseSelectorFormat.Version}, palette 0..7 and one to the allowed number of frames.");
+                $"Pause selector artwork requires version {PauseSelectorFormat.Version}, palette 0..7 and at least one frame.");
         var frames = new Dictionary<string, SpriteComposition>();
         foreach (var frame in document.Frames)
         {

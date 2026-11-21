@@ -800,7 +800,7 @@ internal static class RoomObjectPopulationVerification
 
         var malformed = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulation>([typeof(string), typeof(global::System.Collections.Generic.IEnumerable<global::SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPlacement>)], new object?[] { $"$8F:{malformedPopulation:X4}", (global::System.Collections.Generic.IEnumerable<global::SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPlacement>)([
             RoomObjectPlacementAccess.Placed(RoomObjectKind.ScrollTrigger,
-                new(offRoomX, offRoomY), scrollChange: RoomScrollChange.BrinstarReserveTankOpensScreen1x0TopAligned) with { Site = RoomObjectSite.OffTheRoom },
+                new(offRoomX, offRoomY), scrollChange: RoomScrollChange.BrinstarReserveTank) with { Site = RoomObjectSite.OffTheRoom },
         ]) });
         AssertThrows<InvalidDataException>(
             () => RoomObjectFixtures.LoadPopulation(RoomObjectFixtures.Unbound(), new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), AreaId.Brinstar), malformed, RoomObjectServiceFixtures.Uninstalled with { Samus = new FixtureRoomSamus(() => new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
@@ -1273,18 +1273,18 @@ internal static class RoomObjectPopulationVerification
         SeedEmptyRoomEnemyPopulation(bus, 0x9600);
         SeedSaveStationElectricityProjectile(bus);
 
-        var visible = new SpriteVisualPart
+        var visible = new EnemyProjectilePartDocument
         {
-            OffsetX = 0, OffsetY = 0, TileColumn = 1, TileRow = 0,
+            OffsetX = 0, OffsetY = 0, Character = 1,
             Size = 8, Depth = SuperMetroid.Core.Assets.ActorDepth.BehindRoomInFrontOfFloor, Palette = 0, FlipX = false, FlipY = false,
         };
-        HashSet<EnemyProjectileFrameId> electricityFrames = [.. SaveStationElectricityAnimations.Segments.Frames];
+        HashSet<EnemyProjectileFrameId> electricityFrames = [EnemyProjectileFrameId.SaveStationElectricityBand];
         var artworkDocument = new EnemyProjectileSpritemapDocument
         {
             Version = EnemyProjectileSpritemapDocuments.Version,
-            Frames = EnemyProjectileSpritemapDefinitions.Frames.ToDictionary(frame => frame.Name, _ => Array.Empty<SpriteVisualPart>()),
+            Frames = EnemyProjectileSpritemapDefinitions.Frames.ToDictionary(frame => frame.Name, _ => Array.Empty<EnemyProjectilePartDocument>()),
             ProgramFrames = EnemyProjectilePresentationFrameSets.All.ToDictionary(
-                frame => frame.Name, frame => electricityFrames.Contains(frame.Frame) ? new[] { visible } : Array.Empty<SpriteVisualPart>()),
+                frame => frame.Name, frame => electricityFrames.Contains(frame.Frame) ? new[] { visible } : Array.Empty<EnemyProjectilePartDocument>()),
         };
         EnemyTileSourceArtwork tiles = EnemyTileSourceArtwork.FromArtworkForVerification(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EnemyArtworkParts with { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(),
             // The save room's sprite objects compose with the installed enemy compositions, and their sheet takes the
@@ -1297,7 +1297,7 @@ internal static class RoomObjectPopulationVerification
         enemies.Load(RoomEnemyFrameFixtures.StandaloneLoad(bus.ReadEnemyPopulation(0x9600), BgArtworkFixtures.For(new SnesVram()), level, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())));
         // The fixture room places no enemies, so loading it keeps the session's first set; a save room's own set holds
         // the electricity on its shared sheet, as entering a save room loads it (#1513).
-        SpawnedObjectFixtures.LoadSetSpawning(enemies, EnemyProjectileFrameId.SaveStationElectricitySweepBeginning,
+        SpawnedObjectFixtures.LoadSetSpawning(enemies, EnemyProjectileFrameId.SaveStationElectricityBand,
             SpriteGraphics.SharedIn(SuperMetroid.Core.Enemies.Drawing.EnemyShades.InProjectileLook));
         enemies.SaveStationElectricity.Spawn(saveBlock);
 
@@ -1308,9 +1308,17 @@ internal static class RoomObjectPopulationVerification
         AssertEqual(0x0040, electricity.Position.Y.Whole,
             "save electricity starts two blocks above the station PLM");
 
+        // The retail cartridge's discharge list names the operand its first update shows: the band moved to the sweep's
+        // start (#2557), which the typed program shows as the band at that placement.
+        var native = new SuperMetroid.TestSupport.MovieReplay.Verification.NativeEnemyProjectileListReader(
+            SaveStationElectricityNativeListAddresses.DischargeStart, electricity.FrameHold.RawValue);
         enemies.StepEnemyProjectiles(level, samus: RoomEnemyFrameFixtures.StandaloneSamus());
-        AssertEqual(EnemyProjectileProgramFrameSources.Operand(EnemyProjectileFrameId.SaveStationElectricitySweepBeginning),
-            electricity.PresentationOperandAddress, "save electricity selects its first installed frame through its typed program");
+        native.Step(CartridgeImportSource.Require(SuperMetroid.Verification.Harness.RepositoryInputsVerification.LoadRepositoryRom()));
+        AssertEqual(EnemyProjectileFrameId.SaveStationElectricityBand, electricity.Frame, "save electricity shows its band through its typed program");
+        AssertEqual(EnemyProjectileProgramFrameOperands.OwnOperand(native.Operand), electricity.PresentationOperandAddress,
+            "save electricity's first update shows the band where the cartridge's first discharge operand draws it");
+        AssertEqual(Offset16<RoomPixels>.Of(0, SaveStationElectricityDefinitions.SweepStartPixelsBelow), electricity.FramePlacement,
+            "save electricity's sweep places its band at its start (#2557)");
         AssertEqual(EnemyProjectileSpritemapDefinitions.BlankSpritemap, electricity.SpritemapPointer,
             "installed program artwork does not retain a cartridge spritemap pointer");
         var oam = new OamBuffer();
@@ -1319,8 +1327,8 @@ internal static class RoomObjectPopulationVerification
         oam.FinalizeFrame();
         AssertTrue(Enumerable.Range(0, oam.LastFinalizedSpriteCount)
             .Select(oam.GetEntry)
-            .Any(entry => entry.Position.X == 0x0030 && entry.Position.Y == 0x40),
-            "save electricity reaches the ordinary room enemy-projectile draw path");
+            .Any(entry => entry.Position.X == 0x0030 && entry.Position.Y == 0x40 + SaveStationElectricityDefinitions.SweepStartPixelsBelow),
+            "save electricity reaches the ordinary room enemy-projectile draw path, its band drawn where the sweep places it");
     }
 
     /// <summary>
@@ -1486,7 +1494,7 @@ internal static class RoomObjectPopulationVerification
     /// a retail program (#2355), and the dormant one is never touched, so which one does not matter.
     /// </summary>
     private static ushort DormantScrollProgram =>
-        RoomScrollProgramNative.Addresses[RoomScrollChange.BrinstarReserveTankOpensScreen1x0TopAligned];
+        RoomScrollProgramNative.Addresses[RoomScrollChange.BrinstarReserveTank];
 
     /// <summary>Seeds the retail scroll program the dormant scroll trigger is set up with where the cartridge stores it.</summary>
     private static void SeedDormantScrollObjectProgram(TestAddressSpace bus) =>

@@ -1,3 +1,4 @@
+using static SuperMetroid.Core.DefinitionRun;
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>Phantoon's casual-flame bursts (#2258).</summary>
@@ -10,21 +11,21 @@ public static class PhantoonCasualFlameDefinitions
     public static PhantoonCasualFlameSchedule SteadyFive { get; } = new()
     {
         Cooldown = BurstCooldown,
-        Flames = [new(32), new(32), new(32), new(32), new(32)],
+        Flames = [.. Repeated<PhantoonCasualFlame>(new(32), 5)],
     };
 
     /// <summary>Three flames in quick succession, 16 updates apart.</summary>
     public static PhantoonCasualFlameSchedule QuickThree { get; } = new()
     {
         Cooldown = BurstCooldown,
-        Flames = [new(16), new(16), new(16)],
+        Flames = [.. Repeated<PhantoonCasualFlame>(new(16), 3)],
     };
 
     /// <summary>Seven flames, slowly, 48 updates apart.</summary>
     public static PhantoonCasualFlameSchedule SlowSeven { get; } = new()
     {
         Cooldown = BurstCooldown,
-        Flames = [new(48), new(48), new(48), new(48), new(48), new(48), new(48)],
+        Flames = [.. Repeated<PhantoonCasualFlame>(new(48), 7)],
     };
 
     /// <summary>Seven flames at uneven waits, first flame first.</summary>
@@ -39,5 +40,5 @@ public static class PhantoonCasualFlameDefinitions
     /// others.
     /// </summary>
     internal static WeightedRandomChoice<PhantoonCasualFlameSchedule> Burst { get; } = WeightedRandomChoice<PhantoonCasualFlameSchedule>.InTurn(
-        new RandomSampleField(0, 2), SteadyFive, QuickThree, SlowSeven, UnevenSeven);
+        RandomSampleField.OneOf(4), SteadyFive, QuickThree, SlowSeven, UnevenSeven);
 }

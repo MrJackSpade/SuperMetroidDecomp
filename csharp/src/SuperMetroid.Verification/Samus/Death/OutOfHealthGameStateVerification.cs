@@ -64,7 +64,7 @@ internal static class OutOfHealthGameStateVerification
             game.Step(0);
             AssertEqual(SuperMetroidGameState.Pause, game.GameState, "the pause's darkening and screens do not kill Samus out of health");
             AssertEqual(beforePause, runtime.GameTime.Reading, "the darkening's gameplay with Samus out of health counts no play time");
-            AssertTrue(++updates < 200, $"the pause reaches its menu; reached {game.Session.PauseStep}");
+            AssertTrue(++updates < 200, $"the pause reaches its menu; reached {game.Session.CurrentStep}");
         }
         // Start, held through the pause screen's repeat delay, unpauses.
         while (game.IsAt(PauseStep.Menu))
@@ -79,7 +79,7 @@ internal static class OutOfHealthGameStateVerification
                 $"the unpause and its brightening do not kill Samus out of health; ended in {game.GameState}");
             AssertEqual(0, samus.Health, "Samus stays out of health through the pause");
             AssertEqual(beforePause, runtime.GameTime.Reading, "the brightening's gameplay with Samus out of health counts no play time");
-            AssertTrue(++updates < 400, $"the unpause returns to main gameplay; reached {game.Session.PauseStep}");
+            AssertTrue(++updates < 400, $"the unpause returns to main gameplay; reached {game.Session.CurrentStep}");
         }
 
         game.Step(0);

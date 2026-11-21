@@ -8,18 +8,12 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// </summary>
 internal enum CeresDoorCueKind
 {
-    /// <summary>A right-facing door appears: unless Samus is near, its owner starts it standing closed.</summary>
-    RightDoorAppears,
-    /// <summary>A left-facing door appears: unless Samus is near, its owner starts it standing closed.</summary>
-    LeftDoorAppears,
-    /// <summary>A right-facing door stands open: once Samus is away, its owner starts it closing.</summary>
-    RightDoorStandsOpen,
-    /// <summary>A left-facing door stands open: once Samus is away, its owner starts it closing.</summary>
-    LeftDoorStandsOpen,
-    /// <summary>A right-facing door stands closed: while Samus is away, its owner starts it standing closed again.</summary>
-    RightDoorStandsClosed,
-    /// <summary>A left-facing door stands closed: while Samus is away, its owner starts it standing closed again.</summary>
-    LeftDoorStandsClosed,
+    /// <summary>A door appears: unless Samus is near, its owner starts it standing closed, facing as it does.</summary>
+    DoorAppears,
+    /// <summary>A door stands open: once Samus is away, its owner starts it closing, facing as it does.</summary>
+    DoorStandsOpen,
+    /// <summary>A door stands closed: while Samus is away, its owner starts it standing closed again, facing as it does.</summary>
+    DoorStandsClosed,
     /// <summary>The door of Ridley's room waits on him: while the area boss is alive, its owner starts the wait again.</summary>
     RidleyRoomDoorWaits,
     /// <summary>The elevator room's wall appears: until Ceres Ridley has escaped, its owner starts it as a left-facing door.</summary>

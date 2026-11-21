@@ -33,7 +33,7 @@ internal static class EnemySheetFixtures
         ArgumentNullException.ThrowIfNull(set);
         EnemySheetSource source = EnemySheetComposer.Sources(Inputs, set).Enemies.Single(sheet => sheet.Enemy == enemy);
         ComposedSpriteSheet sheet = SpriteSheetComposer.Compose(source.Sources, 0, SuperMetroid.Core.Assets.ActorDepth.BehindRoom);
-        return SpriteSheetFileConstants.Load(sheet.Manifest, $"{enemy}-{set.Name}", sheet.Size, sheet.Pixels, sheet.PaletteIndices).Image;
+        return SpriteSheetFileConstants.Load(sheet.Manifest, $"{enemy}-{set.Name}", sheet.Size, sheet.Pixels, sheet.Inks).Image;
     }
 
     /// <summary>
@@ -46,7 +46,7 @@ internal static class EnemySheetFixtures
         ArgumentNullException.ThrowIfNull(set);
         SpawnedObjectSheetSource source = EnemySheetComposer.Sources(Inputs, set).Spawned.Single(sheet => sheet.Plan.Owner == owner);
         ComposedSpriteSheet sheet = SpriteSheetComposer.Compose(source.Sources, 0, SuperMetroid.Core.Assets.ActorDepth.BehindRoom);
-        return SpriteSheetFileConstants.Load(sheet.Manifest, $"Spawned-{owner}-{set.Name}", sheet.Size, sheet.Pixels, sheet.PaletteIndices);
+        return SpriteSheetFileConstants.Load(sheet.Manifest, $"Spawned-{owner}-{set.Name}", sheet.Size, sheet.Pixels, sheet.Inks);
     }
 
     /// <summary>
@@ -59,7 +59,7 @@ internal static class EnemySheetFixtures
         foreach (SpawnedObjectSheetSource source in EnemySheetComposer.Sources(Inputs, set).Spawned)
         {
             ComposedSpriteSheet sheet = SpriteSheetComposer.Compose(source.Sources, 0, SuperMetroid.Core.Assets.ActorDepth.BehindRoom);
-            yield return SpriteSheetFileConstants.Load(sheet.Manifest, $"Spawned-{source.Plan.Owner}-{set.Name}", sheet.Size, sheet.Pixels, sheet.PaletteIndices);
+            yield return SpriteSheetFileConstants.Load(sheet.Manifest, $"Spawned-{source.Plan.Owner}-{set.Name}", sheet.Size, sheet.Pixels, sheet.Inks);
         }
     }
 
@@ -192,7 +192,7 @@ internal static class EnemySheetFixtures
         {
             // A fixture's own set is coloured in the rows its records name, which the fixture recorded.
             GraphicsSetSheetSources setSources = EnemySheetComposer.Sources(
-                global::SuperMetroid.Core.PrivateState.With(global::SuperMetroid.Core.PrivateState.With(inputs with { }, "SetPaletteRows", FixtureGraphicsSetRows.CatalogueFor(set)), "SetMembers", FixtureGraphicsSetMembers.CatalogueFor(set)), set);
+                global::SuperMetroid.Core.PrivateState.With(inputs with { }, "SetMembers", FixtureGraphicsSetMembers.CatalogueFor(set)), set);
             // A name of its own keeps its frames apart from the installed sheets' in the frame-source registry.
             string owner = $"fixture-{RuntimeHelpers.GetHashCode(inputs.Enemies):X8}-{set.Name}-{RuntimeHelpers.GetHashCode(set):X8}";
             var enemies = new Dictionary<EnemyDefinitionId, EnemyArtworkVariant<SpriteSheet>>();
@@ -225,7 +225,7 @@ internal static class EnemySheetFixtures
         {
             ComposedSpriteSheet sheet = SpriteSheetComposer.Compose(sources, 0, SuperMetroid.Core.Assets.ActorDepth.BehindRoom);
             SpriteSheet loaded = SpriteSheetFileConstants.Load(sheet.Manifest, name, sheet.Size,
-                sheet.Pixels, sheet.PaletteIndices);
+                sheet.Pixels, sheet.Inks);
             SheetFrameSources.Register(loaded, sources);
             return loaded;
         }

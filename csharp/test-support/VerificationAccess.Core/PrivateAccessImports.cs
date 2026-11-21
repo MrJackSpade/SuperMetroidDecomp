@@ -15,6 +15,7 @@ global using static SuperMetroid.AssetExtraction.Areas.Ceres.CeresEscapeOverlayT
 global using static SuperMetroid.AssetExtraction.Areas.Ceres.CeresFloorDrawingsPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Areas.Escape.EscapeTimerDoorFadeShadesPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Areas.Escape.EscapeTimerSheetComposerPrivateAccess;
+global using static SuperMetroid.AssetExtraction.Areas.Escape.EscapeTypewriterControlWordsPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Areas.Escape.EscapeTypewriterExtractorPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Areas.Tourian.Artwork.TourianStatuePalettesPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Artwork.FloorSheetComposerPrivateAccess;
@@ -67,6 +68,7 @@ global using static SuperMetroid.AssetExtraction.Enemies.EnemyTileArtworkReaderP
 global using static SuperMetroid.AssetExtraction.Enemies.GunshipLiftoffArtworkCatalogPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporterPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Enemies.RoomEnemyGraphicsSetListsPrivateAccess;
+global using static SuperMetroid.AssetExtraction.Enemies.RoomEnemyGraphicsSetMemberPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Enemies.SetCharactersPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Frontend.Cinematics.CinematicSpritemapSourceDefinitionsPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingCloudSpritePresentationPrivateAccess;
@@ -192,11 +194,11 @@ global using static SuperMetroid.AssetExtraction.Rooms.RoomObjectSporeSpawnCeili
 global using static SuperMetroid.AssetExtraction.Rooms.RoomObjectStationVisualFilesPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Rooms.RoomObjectTourianAccessVisualFilesPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Rooms.RoomVisualLayoutFilesPrivateAccess;
-global using static SuperMetroid.AssetExtraction.Rooms.ScrollingSkyChunksPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Rooms.SkyTilemapPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Samus.Artwork.InstalledSamusDeathPalettesPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Samus.Artwork.InstalledSamusVisorColorsPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Samus.ChargeFlareSpritesPrivateAccess;
+global using static SuperMetroid.AssetExtraction.Samus.ProjectileSpriteDefinitionsPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Samus.GrappleSheetComposerPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Samus.GrappleSpriteExtractorPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Samus.GrappleTileAtlasPrivateAccess;
@@ -230,7 +232,6 @@ global using static SuperMetroid.AssetExtraction.Video.VramDmaDestinationPrivate
 global using static SuperMetroid.AssetExtraction.Video.VramRegionPrivateAccess;
 global using static SuperMetroid.AssetExtraction.World.Artwork.EnemyExtendedFrameDefinitionsPrivateAccess;
 global using static SuperMetroid.Core.Areas.Ceres.CeresBabyAnimationsPrivateAccess;
-global using static SuperMetroid.Core.Areas.Ceres.CeresDoorAnimationsPrivateAccess;
 global using static SuperMetroid.Core.Areas.Ceres.CeresDoorBehaviorPrivateAccess;
 global using static SuperMetroid.Core.Areas.Ceres.CeresElevatorShaftRoomMainStatePrivateAccess;
 global using static SuperMetroid.Core.Areas.Ceres.CeresFallingTilesPrivateAccess;
@@ -243,7 +244,6 @@ global using static SuperMetroid.Core.Areas.Tourian.TourianEntranceStatueBehavio
 global using static SuperMetroid.Core.Areas.Tourian.TourianStatueActorsPrivateAccess;
 global using static SuperMetroid.Core.Areas.Tourian.TourianUnlockBehaviorPrivateAccess;
 global using static SuperMetroid.Core.Assets.GameplayShadingPrivateAccess;
-global using static SuperMetroid.Core.Assets.PictureShadeFadePrivateAccess;
 global using static SuperMetroid.Core.Assets.PictureShadingPrivateAccess;
 global using static SuperMetroid.Core.Audio.AudioQueuesPrivateAccess;
 global using static SuperMetroid.Core.Audio.ClipAudioBackendPrivateAccess;
@@ -255,6 +255,7 @@ global using static SuperMetroid.Core.Bosses.Botwoon.BotwoonWallMutationDefiniti
 global using static SuperMetroid.Core.Bosses.Crocomire.CrocomireBehaviorPrivateAccess;
 global using static SuperMetroid.Core.Bosses.Crocomire.CrocomireBodyAnimationsPrivateAccess;
 global using static SuperMetroid.Core.Bosses.Crocomire.CrocomireBridgeCollapsePrivateAccess;
+global using static SuperMetroid.Core.Bosses.Crocomire.CrocomireColoursPrivateAccess;
 global using static SuperMetroid.Core.Bosses.Crocomire.CrocomireCombatPrivateAccess;
 global using static SuperMetroid.Core.Bosses.Crocomire.CrocomireFightPrivateAccess;
 global using static SuperMetroid.Core.Bosses.Crocomire.CrocomireMeltingPrivateAccess;
@@ -315,6 +316,7 @@ global using static SuperMetroid.Core.Bosses.MotherBrain.MotherBrainGlassObjects
 global using static SuperMetroid.Core.Bosses.MotherBrain.MotherBrainHeadPrivateAccess;
 global using static SuperMetroid.Core.Bosses.MotherBrain.MotherBrainMuralRowPrivateAccess;
 global using static SuperMetroid.Core.Bosses.MotherBrain.MotherBrainNeckKinematicsPrivateAccess;
+global using static SuperMetroid.Core.Bosses.MotherBrain.MotherBrainPainfulWalkingDefinitionsPrivateAccess;
 global using static SuperMetroid.Core.Bosses.MotherBrain.MotherBrainProjectilesMotherBrainProjectileBehaviorPrivateAccess;
 global using static SuperMetroid.Core.Bosses.MotherBrain.MotherBrainProjectilesPrivateAccess;
 global using static SuperMetroid.Core.Bosses.MotherBrain.MotherBrainRainbowAndDeathPrivateAccess;
@@ -390,7 +392,6 @@ global using static SuperMetroid.Core.Compatibility.ProjectileLaunchInheritanceP
 global using static SuperMetroid.Core.Compatibility.RandomChancePrivateAccess;
 global using static SuperMetroid.Core.Compatibility.RidleyTailWhipOrderPrivateAccess;
 global using static SuperMetroid.Core.Compatibility.RioAnimationFinishPrivateAccess;
-global using static SuperMetroid.Core.Compatibility.RoomObjectPlacesPrivateAccess;
 global using static SuperMetroid.Core.Compatibility.SaveChoiceInputCadencePrivateAccess;
 global using static SuperMetroid.Core.Compatibility.SharedEscapeAndDrainCountPrivateAccess;
 global using static SuperMetroid.Core.Compatibility.ShortCircleProductPrivateAccess;
@@ -400,7 +401,6 @@ global using static SuperMetroid.Core.Compatibility.SoundQueueAdmissionPrivateAc
 global using static SuperMetroid.Core.Compatibility.SoundRequestCheckTimerPrivateAccess;
 global using static SuperMetroid.Core.Compatibility.SuitPickupClosingLineWrapPrivateAccess;
 global using static SuperMetroid.Core.Compatibility.SuitShadeAtColourStepPrivateAccess;
-global using static SuperMetroid.Core.Compatibility.UpdateCounterFieldPrivateAccess;
 global using static SuperMetroid.Core.Compatibility.WeightedRandomChoicePrivateAccess;
 global using static SuperMetroid.Core.Compatibility.WreckedShipGhostFadePrivateAccess;
 global using static SuperMetroid.Core.Compatibility.XrayClosingPrivateAccess;
@@ -439,6 +439,7 @@ global using static SuperMetroid.Core.Enemies.Corpses.DeadSidehopperBehaviorPriv
 global using static SuperMetroid.Core.Enemies.Corpses.DeadTorizoAnimationsPrivateAccess;
 global using static SuperMetroid.Core.Enemies.Corpses.DeadTorizoBehaviorPrivateAccess;
 global using static SuperMetroid.Core.Enemies.Corpses.DeadTourianAnimationsPrivateAccess;
+global using static SuperMetroid.Core.Enemies.Corpses.DeadTourianBehaviorPrivateAccess;
 global using static SuperMetroid.Core.Enemies.Crawlers.CrawlerAnimationsPrivateAccess;
 global using static SuperMetroid.Core.Enemies.Crawlers.CrawlersBehaviorPrivateAccess;
 global using static SuperMetroid.Core.Enemies.Crawlers.MultiviolaAnimationsPrivateAccess;
@@ -468,8 +469,6 @@ global using static SuperMetroid.Core.Enemies.FuneNamihe.FuneNamiheAnimationsPri
 global using static SuperMetroid.Core.Enemies.FuneNamihe.FuneNamiheBehaviorPrivateAccess;
 global using static SuperMetroid.Core.Enemies.Gunship.GunshipAnimationsPrivateAccess;
 global using static SuperMetroid.Core.Enemies.Gunship.GunshipBehaviorPrivateAccess;
-global using static SuperMetroid.Core.Enemies.Gunship.GunshipIdleBobPrivateAccess;
-global using static SuperMetroid.Core.Enemies.Gunship.GunshipLandingBrakePrivateAccess;
 global using static SuperMetroid.Core.Enemies.Hibashi.HibashiAnimationsPrivateAccess;
 global using static SuperMetroid.Core.Enemies.Hibashi.HibashiBehaviorPrivateAccess;
 global using static SuperMetroid.Core.Enemies.Hoppers.HopperAnimationsPrivateAccess;
@@ -571,7 +570,6 @@ global using static SuperMetroid.Core.Frontend.Ending.EndingColoursPrivateAccess
 global using static SuperMetroid.Core.Frontend.Ending.EndingCreditsPresentationPrivateAccess;
 global using static SuperMetroid.Core.Frontend.Ending.EndingCreditsRollScenePrivateAccess;
 global using static SuperMetroid.Core.Frontend.Ending.EndingFlyawayPrivateAccess;
-global using static SuperMetroid.Core.Frontend.Ending.EndingLogoPrivateAccess;
 global using static SuperMetroid.Core.Frontend.Ending.EndingPictureSpritePrivateAccess;
 global using static SuperMetroid.Core.Frontend.Ending.EndingPostShotPrivateAccess;
 global using static SuperMetroid.Core.Frontend.Ending.EndingRewardJumpPrivateAccess;
@@ -601,6 +599,7 @@ global using static SuperMetroid.Core.Frontend.Intro.IntroScientistCutsceneState
 global using static SuperMetroid.Core.Frontend.Map.MapHighlightAnimationPrivateAccess;
 global using static SuperMetroid.Core.Frontend.Map.MapScrollPrivateAccess;
 global using static SuperMetroid.Core.Frontend.Options.GameOptionsMenuStatePrivateAccess;
+global using static SuperMetroid.Core.Frontend.Options.ShownOptionsPagePrivateAccess;
 global using static SuperMetroid.Core.Frontend.Pause.Artwork.PauseReserveTankPresentationPrivateAccess;
 global using static SuperMetroid.Core.Frontend.Pause.Artwork.PauseSelectorPresentationPrivateAccess;
 global using static SuperMetroid.Core.Frontend.Pause.PauseEquipmentControlsPrivateAccess;
@@ -625,7 +624,6 @@ global using static SuperMetroid.Core.Gameplay.LibraryImageBackgroundPrivateAcce
 global using static SuperMetroid.Core.Gameplay.RoomPlaneBackgroundPrivateAccess;
 global using static SuperMetroid.Core.Gameplay.SkyBackgroundPrivateAccess;
 global using static SuperMetroid.Core.Gameplay.XrayRevealBackgroundPrivateAccess;
-global using static SuperMetroid.Core.Hud.GameplayMessageBoxDefinitionsTimingPrivateAccess;
 global using static SuperMetroid.Core.Hud.GameplayMessageBoxStatePrivateAccess;
 global using static SuperMetroid.Core.Hud.HudStatePrivateAccess;
 global using static SuperMetroid.Core.Hud.ShownHudPrivateAccess;
@@ -676,7 +674,6 @@ global using static SuperMetroid.Core.Samus.Abilities.SamusSuitPickupStatePrivat
 global using static SuperMetroid.Core.Samus.Abilities.SamusXrayStatePrivateAccess;
 global using static SuperMetroid.Core.Samus.Abilities.ShinesparkCrashEchoPrivateAccess;
 global using static SuperMetroid.Core.Samus.Abilities.XrayRevealVisualBlocksPrivateAccess;
-global using static SuperMetroid.Core.Samus.Artwork.InstalledSamusBodyArtworkPrivateAccess;
 global using static SuperMetroid.Core.Samus.Colours.SamusColouredDrawPrivateAccess;
 global using static SuperMetroid.Core.Samus.Colours.SamusColoursPrivateAccess;
 global using static SuperMetroid.Core.Samus.Colours.SamusVisorShadeStatePrivateAccess;
@@ -715,6 +712,7 @@ global using static SuperMetroid.Core.Samus.Projectiles.ProjectileTerrainCollisi
 global using static SuperMetroid.Core.Samus.Projectiles.ProjectileTrailSparkleAnimationsPrivateAccess;
 global using static SuperMetroid.Core.Samus.Projectiles.ProjectileTrailsPrivateAccess;
 global using static SuperMetroid.Core.Samus.Projectiles.SamusBombProjectileSystemPrivateAccess;
+global using static SuperMetroid.Core.Samus.Projectiles.SamusProjectileAnimationsPrivateAccess;
 global using static SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystemPrivateAccess;
 global using static SuperMetroid.Core.Samus.Projectiles.SamusProjectileTrailPrivateAccess;
 global using static SuperMetroid.Core.Samus.SamusCeresRidleyEjectionStatePrivateAccess;

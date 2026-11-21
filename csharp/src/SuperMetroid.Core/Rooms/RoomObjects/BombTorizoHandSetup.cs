@@ -4,5 +4,8 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 internal sealed record BombTorizoHandSetup : RoomObjectPlacementSetup
 {
     /// <inheritdoc/>
+    internal override RoomObjectKind Kind => RoomObjectKind.BombTorizoHand;
+
+    /// <inheritdoc/>
     internal override void SetUp(IRoomObjectFamilySetups setups) => setups.SetUpBombTorizoHand();
 }

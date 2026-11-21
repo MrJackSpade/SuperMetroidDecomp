@@ -173,7 +173,7 @@ internal static class MapPresentationVerification
 
 
         /// <summary>Installed elevator platform art used by the room PLM owner.</summary>
-        private readonly InstalledRoomObjectElevatorPlatformVisuals elevatorPlatform;
+        private readonly InstalledRoomObjectPictures elevatorPlatform;
 
         /// <summary>Enemy character and sprite art bound alongside room art.</summary>
         public ImportEnemyArtwork EnemyTiles { get; }
@@ -577,13 +577,13 @@ internal static class MapPresentationVerification
         AssertThrows<InvalidDataException>(() => MotherBrainHealthPaletteFile.Read(
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
             {
-                Body = document.Body.Take(3).ToArray(),
+                HealthBands = document.HealthBands.Take(3).ToDictionary(),
             }, ArtworkJson.Options))), "reject incomplete Mother Brain damage states");
         AssertThrows<InvalidDataException>(() => MotherBrainHealthPaletteFile.Read(
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
             {
-                BackLegs = document.BackLegs.Select((colors, index) => index == 0 ?
-                    colors.Take(14).ToArray() : colors).ToArray(),
+                HealthBands = document.HealthBands.Select((band, index) => index == 0 ?
+                    KeyValuePair.Create(band.Key, band.Value with { BackLegs = band.Value.BackLegs.Take(14).ToArray() }) : band).ToDictionary(),
             }, ArtworkJson.Options))), "reject truncated Mother Brain rear-leg palette");
 
         Console.WriteLine("Mother Brain health palette: 8 threshold boundaries, ROM-free stock copies and schema checks pass.");
@@ -594,7 +594,7 @@ internal static class MapPresentationVerification
     {
         ushort yearPointer = RomDataReader.ReadWordFixedBank(bus,
             TitleSourceDefinitions.TextLists[TitleSequencePhase.YearText] + 6);
-        AssertEqual(yearPointer, SuperMetroid.AssetExtraction.Frontend.Title.TitleSpriteExtractor.MapSprites(bus).Cards[new(TitleSequencePhase.YearText, 1)],
+        AssertEqual(yearPointer, SuperMetroid.AssetExtraction.Frontend.Title.TitleSpriteExtractor.MapSprites(bus).Cards[new(TitleCard.Year, 1)],
             "the year's first letter is the year card's first listed spritemap");
     }
 

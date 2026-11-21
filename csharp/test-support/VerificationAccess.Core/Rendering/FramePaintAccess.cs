@@ -129,7 +129,7 @@ internal static class FramePaintAccess
     /// pictures shows what it showed, the fade included, and no fade or escape timer shading is laid over the
     /// native-coloured draws, whose native colours already show them.
     /// </summary>
-    private static GameplayShading NativeGameplay(GameplayShading gameplay, RgbColor backdrop) =>
+    private static GameplayShading NativeGameplay(GameplayShading gameplay, ShownColour backdrop) =>
         new(backdrop, Enum.GetValues<GameplayPictures>().ToImmutableDictionary(pictures => pictures,
             pictures => pictures == GameplayPictures.EscapeTimer ? PictureShading.Standard : gameplay.Of(pictures)), fade: null);
 

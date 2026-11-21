@@ -158,11 +158,13 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
         // other presents each pose it shows.
         bool direct = SymbolEqualityComparer.Default.Equals(frameType, model.EnemyProjectileFrameId) || IsFrameRecord(frameType);
         ISymbol segments = NamedBy(family, "Segments");
-        ISymbol startingAt = NamedBy(family, "StartingAt");
+        ISymbol startingAt = StartTableOf(family, segments, segmentType)
+            ?? throw new InvalidDataException($"{family.ToDisplayString()} names no table of the animations starting at each {segmentType.Name} this generator can read.");
         List<ExpressionSyntax> segmentInitializers = model.InitializersWithSpreads(segments);
         ExpressionSyntax startInitializer = CoreModel.InitializerOf(startingAt);
         AssignmentExpressionSyntax[] segmentEntries = [.. segmentInitializers.SelectMany(initializer => KeyedEntries(initializer, segmentType))];
         AssignmentExpressionSyntax[] startEntries = [.. KeyedEntries(startInitializer, segmentType)];
+        (ExpressionSyntax Played, string Name)[] builtStarts = [.. BuilderStarts(startInitializer, segmentType)];
         // The animations its owners start by their own identity rather than at a segment (#2044: each n00b-tube shard's,
         // keyed by the shard) are starts as well, named by their key's type and member.
         (ExpressionSyntax Initializer, INamedTypeSymbol Key)[] ownerKeyed = [.. OwnerKeyedAnimations(startingAt, segmentType)];
@@ -177,7 +179,8 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
         // family whose poses are plain values (a number, a segment or pose member, a single pose), whose segments are not
         // named members (Botwoon's, Mother Brain's turret), or whose segments or animations are computed from its members
         // (Fake Kraid's projectiles) shows every frame it holds.
-        bool precise = segmentType.TypeKind == TypeKind.Enum && segmentEntries.Length > 0 && startEntries.Length + ownerEntries.Length + ownerNamed.Length > 0
+        bool precise = segmentType.TypeKind == TypeKind.Enum && segmentEntries.Length > 0
+            && startEntries.Length + builtStarts.Length + ownerEntries.Length + ownerNamed.Length > 0
             && (direct || (table is not null && indexedByPose && IsConstructedPose(frameType)));
         // A family whose Present names its frame outright, with no table, shows only the frames its code names.
         Dictionary<string, string> entries = table is null ? new Dictionary<string, string>(StringComparer.Ordinal)
@@ -196,6 +199,8 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
             Add(AnimationNode.Segment(KeyOf(entry)), entry.Right);
         foreach (AssignmentExpressionSyntax entry in startEntries)
             Add(AnimationNode.Start(KeyOf(entry)), entry.Right);
+        foreach ((ExpressionSyntax played, string name) in builtStarts)
+            Add(AnimationNode.Start(name), played);
         foreach ((AssignmentExpressionSyntax entry, string name) in ownerEntries)
             Add(AnimationNode.Start(name), entry.Right);
         foreach ((ExpressionSyntax initializer, string name) in ownerNamed)
@@ -219,6 +224,12 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
         excluded.AddRange(ownerKeyed.Select(owned => owned.Initializer));
         excluded.AddRange(ownerNamed.Select(owned => owned.Initializer));
         excluded.AddRange(SharedRunsIn(segmentInitializers));
+        // The family's own helpers that build an animation over the segment they are handed (#2557: a n00b-tube shard's
+        // flight) name segments only for the starts that call them, which read them through the call.
+        excluded.AddRange(helpers.GetMembers().OfType<IMethodSymbol>()
+            .Where(method => method.ReturnType is INamedTypeSymbol { Name: "Animation", TypeArguments: [var played] }
+                && SymbolEqualityComparer.Default.Equals(played, segmentType))
+            .SelectMany(method => method.DeclaringSyntaxReferences.Select(reference => reference.GetSyntax())));
         if (table is not null)
             excluded.Add(CoreModel.InitializerOf(table));
         HashSet<string> starts = [.. nodes.Keys.Where(node => node.IsStart).Select(node => node.Name)];
@@ -305,6 +316,31 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
             if (type is not INamedTypeSymbol { Name: "Animation", TypeArguments: [var played] } || !SymbolEqualityComparer.Default.Equals(played, segmentType))
                 continue;
             yield return (CoreModel.InitializerOf(member), member.Name);
+        }
+    }
+
+    /// <summary>
+    /// The starts a <c>StartingAt</c> built by the segments' own builders names (#2557): each segment handed to
+    /// <c>Starts</c>, <c>EachLooping</c>, <c>StartsEnding</c> or <c>EachEnding</c> starts an animation that plays it whole,
+    /// read as the segment it plays.
+    /// </summary>
+    private IEnumerable<(ExpressionSyntax Played, string Name)> BuilderStarts(ExpressionSyntax initializer, INamedTypeSymbol segmentType)
+    {
+        SemanticModel semantic = model.ModelOf(initializer.SyntaxTree);
+        foreach (InvocationExpressionSyntax call in initializer.DescendantNodesAndSelf().OfType<InvocationExpressionSyntax>())
+        {
+            if (semantic.GetSymbolInfo(call).Symbol is not IMethodSymbol
+                {
+                    ContainingType.Name: "AnimationSegments", Name: "Starts" or "EachLooping" or "StartsEnding" or "EachEnding",
+                })
+            {
+                continue;
+            }
+            foreach (ArgumentSyntax argument in call.ArgumentList.Arguments)
+            {
+                if (semantic.GetSymbolInfo(argument.Expression).Symbol is IFieldSymbol field && SymbolEqualityComparer.Default.Equals(field.ContainingType, segmentType))
+                    yield return (argument.Expression, field.Name);
+            }
         }
     }
 
@@ -891,7 +927,7 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
     public IReadOnlyList<ExpressionSyntax> AnimationData(INamedTypeSymbol family)
     {
         if (model.ProgramTypeOf(family) is not { } programType || ReadableNamedBy(family, "Segments") is not { } segments
-            || ReadableNamedBy(family, "StartingAt") is not { } startingAt)
+            || StartTableOf(family, segments, (INamedTypeSymbol)TimelineAnimationOf(family).TypeArguments[0]) is not { } startingAt)
             return [];
         List<ExpressionSyntax> initializers = model.InitializersWithSpreads(segments);
         return [.. initializers, .. SharedRunsIn(initializers), CoreModel.InitializerOf(startingAt),
@@ -907,6 +943,32 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
 
     /// <summary>The static segments <paramref name="family"/>'s <c>Segments</c> returns, when it declares any this generator reads.</summary>
     public ISymbol? AnimationSegments(INamedTypeSymbol family) => ReadableNamedBy(family, "Segments");
+
+    /// <summary>
+    /// The static table of the animations starting at each <paramref name="segmentType"/> member: the one the family declares
+    /// or the one beside its <paramref name="segments"/>, whose type is a dictionary from the segment to its
+    /// animation (each family names the segment it starts at and passes the animation from that table, so the table is
+    /// found by its type, not through an override). Null when neither declares exactly one.
+    /// </summary>
+    private ISymbol? StartTableOf(INamedTypeSymbol family, ISymbol segments, INamedTypeSymbol segmentType)
+    {
+        ISymbol[] tables = [.. new[] { family.OriginalDefinition, segments.ContainingType.OriginalDefinition }
+            .Distinct<INamedTypeSymbol>(SymbolEqualityComparer.Default)
+            .SelectMany(type => type.GetMembers())
+            .Where(member => member.IsStatic && member.DeclaringSyntaxReferences.Length > 0 && IsStartTable(member switch
+            {
+                IPropertySymbol property => property.Type,
+                IFieldSymbol field => field.Type,
+                _ => null,
+            }, segmentType))
+            .Select(member => member.OriginalDefinition)];
+        return tables.Length == 1 ? tables[0] : null;
+    }
+
+    /// <summary>Whether <paramref name="type"/> is a dictionary from <paramref name="segmentType"/> to an animation of it.</summary>
+    private static bool IsStartTable(ITypeSymbol? type, INamedTypeSymbol segmentType) =>
+        type is INamedTypeSymbol { Name: "IReadOnlyDictionary" or "Dictionary", TypeArguments: [var key, INamedTypeSymbol { Name: "Animation", TypeArguments: [var played] }] }
+        && SymbolEqualityComparer.Default.Equals(key, segmentType) && SymbolEqualityComparer.Default.Equals(played, segmentType);
 
     /// <summary>The static member <paramref name="family"/>'s <paramref name="property"/> returns, when it declares one this generator reads.</summary>
     private ISymbol? ReadableNamedBy(INamedTypeSymbol family, string property)

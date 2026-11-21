@@ -174,7 +174,6 @@ internal static class EnemyProjectileProgramFrameDefinitions
         [EnemyProjectileFrameId.TorizoExplosionFlareRingCored] = 0xa3ea,
         [EnemyProjectileFrameId.TorizoExplosionFlareRing] = 0xa3ee,
         [EnemyProjectileFrameId.TorizoExplosionFlareRingFading] = 0xa3f2,
-        [EnemyProjectileFrameId.TorizoDeathExplosionSpark] = 0xa415,
         [EnemyProjectileFrameId.TorizoExplosionFireballSmall] = 0xa419,
         [EnemyProjectileFrameId.TorizoExplosionFireballLarge] = 0xa41d,
         [EnemyProjectileFrameId.TorizoExplosionFlamingRing] = 0xa421,
@@ -728,14 +727,7 @@ internal static class EnemyProjectileProgramFrameDefinitions
         [EnemyProjectileFrameId.DownwardGateTwoBlocksTall] = 0xe54c,
         [EnemyProjectileFrameId.DownwardGateThreeBlocksTall] = 0xe552,
         [EnemyProjectileFrameId.DownwardGateFourBlocksTall] = 0xe558,
-        [EnemyProjectileFrameId.SaveStationElectricitySweepBeginning] = 0xe689,
-        [EnemyProjectileFrameId.SaveStationElectricitySweepDescending] = 0xe68d,
-        [EnemyProjectileFrameId.SaveStationElectricitySweepLowering] = 0xe691,
-        [EnemyProjectileFrameId.SaveStationElectricitySweepNearingHalfway] = 0xe695,
-        [EnemyProjectileFrameId.SaveStationElectricitySweepPassingHalfway] = 0xe699,
-        [EnemyProjectileFrameId.SaveStationElectricitySweepPastHalfway] = 0xe69d,
-        [EnemyProjectileFrameId.SaveStationElectricitySweepNearingEnd] = 0xe6a1,
-        [EnemyProjectileFrameId.SaveStationElectricitySweepEnding] = 0xe6a5,
+        [EnemyProjectileFrameId.SaveStationElectricityBand] = 0xe699,
         [EnemyProjectileFrameId.BotwoonBodyUpLeftRipple0] = 0xe811,
         [EnemyProjectileFrameId.BotwoonBodyUpLeftRipple90] = 0xe815,
         [EnemyProjectileFrameId.BotwoonBodyUpLeftRipple180] = 0xe819,
@@ -969,6 +961,7 @@ internal static class EnemyProjectileProgramFrameDefinitions
         [0x9614] = EnemyProjectileFrameId.RidleyFireballFireCloudSpreading,
         [0x9618] = EnemyProjectileFrameId.RidleyFireballFireCloudBreaking,
         [0x961c] = EnemyProjectileFrameId.RidleyFireballFireCloudEmbers,
+        [0xa415] = EnemyProjectileFrameId.TorizoExplosionSpark,
         [0xa484] = EnemyProjectileFrameId.TorizoDroolDrop,
         [0xa4d0] = EnemyProjectileFrameId.BombTorizoStatueMossClump,
         [0xa4e1] = EnemyProjectileFrameId.BombTorizoStatueRubbleLitRight,
@@ -1004,6 +997,23 @@ internal static class EnemyProjectileProgramFrameDefinitions
         [0xdc16] = EnemyProjectileFrameId.SporeSpawnSpawnerOpening,
         [0xdc1a] = EnemyProjectileFrameId.SporeSpawnSpawnerClosed,
         [0xdc3c] = EnemyProjectileFrameId.SporeSpawnSporeBurstSpark,
+    }.ToFrozenDictionary();
+
+    /// <summary>
+    /// The bank-$86 operands that show an installed program frame's picture moved off the projectile's place (#2557): the
+    /// save-station electricity's sweep stores its band's spritemap once for each place it is drawn at, 8 pixels apart, and
+    /// the place level with the electricity is the band's own operand in <see cref="Operands"/>. The import composes the
+    /// band once; tools reading native lists find the frame and its placement here.
+    /// </summary>
+    internal static readonly FrozenDictionary<ushort, EnemyProjectilePlacedFrame> PlacedAt = new Dictionary<ushort, EnemyProjectilePlacedFrame>
+    {
+        [0xe689] = new(EnemyProjectileFrameId.SaveStationElectricityBand, new(0, -32)),
+        [0xe68d] = new(EnemyProjectileFrameId.SaveStationElectricityBand, new(0, -24)),
+        [0xe691] = new(EnemyProjectileFrameId.SaveStationElectricityBand, new(0, -16)),
+        [0xe695] = new(EnemyProjectileFrameId.SaveStationElectricityBand, new(0, -8)),
+        [0xe69d] = new(EnemyProjectileFrameId.SaveStationElectricityBand, new(0, 8)),
+        [0xe6a1] = new(EnemyProjectileFrameId.SaveStationElectricityBand, new(0, 16)),
+        [0xe6a5] = new(EnemyProjectileFrameId.SaveStationElectricityBand, new(0, 24)),
     }.ToFrozenDictionary();
 
     /// <summary>

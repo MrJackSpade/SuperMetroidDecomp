@@ -45,21 +45,9 @@ internal static class PhantoonFlameAnimations
             Show(EnemyProjectileFrameId.PhantoonFlameLastWisp, 5),
         ],
         [P.RainImpact] = [Show(EnemyProjectileFrameId.PhantoonFlameSplashed, 8)],
-        [P.CasualFallingKindling] =
-        [
-            Show(EnemyProjectileFrameId.PhantoonFlameKindling, 1),
-            Hide(1),
-        ],
-        [P.CasualFallingTeardrop] =
-        [
-            Show(EnemyProjectileFrameId.PhantoonFlameTeardrop, 1),
-            Hide(1),
-        ],
-        [P.CasualFallingSputtering] =
-        [
-            Show(EnemyProjectileFrameId.PhantoonFlameSputtering, 1),
-            Hide(1),
-        ],
+        [P.CasualFallingKindling] = Flicker(EnemyProjectileFrameId.PhantoonFlameKindling),
+        [P.CasualFallingTeardrop] = Flicker(EnemyProjectileFrameId.PhantoonFlameTeardrop),
+        [P.CasualFallingSputtering] = Flicker(EnemyProjectileFrameId.PhantoonFlameSputtering),
         [P.StartingFlame] =
         [
             Show(EnemyProjectileFrameId.PhantoonFlameKindling, 5),
@@ -94,6 +82,10 @@ internal static class PhantoonFlameAnimations
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<PhantoonFlameSegment> StartingWith(PhantoonFlameSegment segment) => StartingAt[segment];
+
+    /// <summary>A falling flame's flicker: <paramref name="pose"/> for one update, then nothing for one.</summary>
+    private static AnimationBeat<EnemyProjectileFrameId, PhantoonFlameCue>[] Flicker(EnemyProjectileFrameId pose) =>
+        [Show(pose, 1), Hide(1)];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> passes.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, PhantoonFlameCue> Show(EnemyProjectileFrameId frame, int duration) =>

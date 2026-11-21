@@ -1,4 +1,3 @@
-using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Spatial;
@@ -41,23 +40,23 @@ internal static class InstalledSheetConversion
     /// <param name="composed">The composed manifest: the colours the indices name, the shades by index, the backdrop and the frames.</param>
     /// <param name="size">The sheet's width and height.</param>
     /// <param name="pixels">The composed pixels, row by row from the top.</param>
-    /// <param name="paletteIndices">Each pixel's composed palette index.</param>
+    /// <param name="inks">Each pixel's composed ink.</param>
     /// <exception cref="ArgumentException">The planes are not one entry per pixel of <paramref name="size"/>.</exception>
     /// <exception cref="InvalidDataException">
     /// The composed manifest names the wrong number of colours, a pixel, the backdrop or a shade names an index past them, a
     /// shade names an index twice, a pixel's colour or alpha disagrees with its index, or a frame leaves the sheet.
     /// </exception>
     internal static InstalledSheet Install(SpriteSheetDocument composed, Extent16<ImagePixels> size, ReadOnlySpan<RgbaPixel> pixels,
-        ReadOnlySpan<byte> paletteIndices)
+        ReadOnlySpan<ComposedInk> inks)
     {
         Ensure.NotNull(composed);
         int area = size.X * size.Y;
         Ensure.LengthEqual(pixels, area);
-        Ensure.LengthEqual(paletteIndices, area);
+        Ensure.LengthEqual(inks, area);
         int tableColours = ImageColourGroup.ColourCountOf(composed.Palette);
         if (composed.Colours is null || composed.Colours.Length != tableColours)
             throw new InvalidDataException($"A {composed.Palette} sheet names {composed.Colours?.Length ?? 0} colours, not {tableColours}.");
-        RgbColor[] table = [.. composed.Colours.Select(RgbColor.FromWord)];
+        RgbColor[] table = [.. composed.Colours];
         // Each colour as the opaque pixel showing it, which every composed pixel of its index is checked against.
         RgbaPixel[] tablePixels = [.. table.Select(colour => colour.ToRgbaPixel())];
         // A clear pixel takes part in no colour key: it lies in no group.
@@ -68,7 +67,7 @@ internal static class InstalledSheetConversion
         var firstPixel = new int?[tableColours];
         for (int pixel = 0; pixel < area; pixel++)
         {
-            int index = paletteIndices[pixel];
+            int index = inks[pixel].PlaceIn(composed.Palette);
             if (index >= tableColours)
                 throw new InvalidDataException($"A {composed.Palette} sheet's pixel {pixel} names palette index {index}, past its {tableColours} colours.");
             RgbaPixel composedPixel = pixels[pixel];
@@ -101,7 +100,7 @@ internal static class InstalledSheetConversion
             used[backdrop] = true;
         }
         KeyValuePair<string, SpriteSheetShadeDocument>[] shades = [.. composed.Shades ?? []];
-        int?[][] written = [.. shades.Select(shade => WrittenBy(shade.Key, shade.Value, tableColours))];
+        RgbColor?[][] written = [.. shades.Select(shade => WrittenBy(shade.Key, shade.Value, tableColours))];
         // Each group in the order its first opaque pixel shows it, the backdrop's last where no pixel does, joins the region
         // of its colour that every shade writes alike, or starts the colour's next region.
         int[] order = [.. Enumerable.Range(0, tableColours).Where(group => used[group])
@@ -178,26 +177,24 @@ internal static class InstalledSheetConversion
     /// The colour word shade <paramref name="key"/> writes over each of the sheet's <paramref name="groups"/> composed
     /// indices, or null where it writes none.
     /// </summary>
-    /// <exception cref="InvalidDataException">The shade's lists differ in length, or it names an index past the sheet's colours or twice.</exception>
-    private static int?[] WrittenBy(string key, SpriteSheetShadeDocument shade, int groups)
+    /// <exception cref="InvalidDataException">The shade names no colours, or an index past the sheet's colours.</exception>
+    private static RgbColor?[] WrittenBy(string key, SpriteSheetShadeDocument shade, int groups)
     {
-        if (shade.Inks is null || shade.Colours is null || shade.Inks.Length != shade.Colours.Length)
-            throw new InvalidDataException($"Shade {key} names {shade.Inks?.Length ?? 0} palette indices with {shade.Colours?.Length ?? 0} colours.");
-        var written = new int?[groups];
-        for (int entry = 0; entry < shade.Inks.Length; entry++)
+        if (shade.InkColours is null)
+            throw new InvalidDataException($"Shade {key} names no colours.");
+        var written = new RgbColor?[groups];
+        foreach (KeyValuePair<int, RgbColor> entry in shade.InkColours)
         {
-            int index = shade.Inks[entry];
+            int index = entry.Key;
             if (index < 0 || index >= groups)
                 throw new InvalidDataException($"Shade {key} recolours palette index {index}, past its sheet's {groups} colours.");
-            if (written[index] is not null)
-                throw new InvalidDataException($"Shade {key} recolours palette index {index} twice.");
-            written[index] = shade.Colours[entry];
+            written[index] = entry.Value;
         }
         return written;
     }
 
     /// <summary>Whether every shade writes groups <paramref name="left"/> and <paramref name="right"/> alike.</summary>
-    private static bool WrittenAlike(int?[][] written, int left, int right) =>
+    private static bool WrittenAlike(RgbColor?[][] written, int left, int right) =>
         written.All(shade => shade[left] == shade[right]);
 
     /// <summary>
@@ -205,13 +202,13 @@ internal static class InstalledSheetConversion
     /// in the keys' order, including writes of a key's own colour, which restore it over an earlier shade. An index only
     /// clear pixels use has no key, so a shade's write of it installs nothing.
     /// </summary>
-    private static InstalledSheetShadeDocument Installed(SpriteSheetShadeDocument shade, int?[] written, List<ColourKey> keys, List<int> keyGroups)
+    private static InstalledSheetShadeDocument Installed(SpriteSheetShadeDocument shade, RgbColor?[] written, List<ColourKey> keys, List<int> keyGroups)
     {
         var substitutions = new List<InstalledColourSubstitutionDocument>();
         for (int key = 0; key < keys.Count; key++)
         {
-            if (written[keyGroups[key]] is int word)
-                substitutions.Add(InstalledColourSubstitutionDocument.Of(new KeyedSubstitution(keys[key], RgbColor.FromWord(checked((ushort)word)))));
+            if (written[keyGroups[key]] is RgbColor colour)
+                substitutions.Add(InstalledColourSubstitutionDocument.Of(new KeyedSubstitution(keys[key], colour)));
         }
         return new InstalledSheetShadeDocument { Substitutions = [.. substitutions], Blends = shade.ColourMath };
     }

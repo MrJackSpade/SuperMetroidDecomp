@@ -7,8 +7,10 @@ namespace SuperMetroid.EnsureAnalyzer.CodeFixes.Cleanup;
 
 /// <summary>
 /// A code fix the asynchronous cleanup applies (tools/cleanup/README.md): one change for all of a document's findings at
-/// once, which may change other documents too. A finding the fix cannot resolve without changing behaviour or making a
-/// choice fails the fix with <see cref="CleanupFailure"/>, naming the site; it is never skipped.
+/// once, which may change other documents too. The fix is offered for every finding and always applied (#2599): a
+/// finding whose fix needs a choice the fix cannot make is fixed all the same, and where that breaks the code the build
+/// fails at the site. A fix never skips a finding and never leaves it to be recorded as unfixed; a finding the fix cannot
+/// even find (the analyzer and the fix disagree about where it is) fails the fix with the exception that names it.
 /// </summary>
 public abstract class DocumentFixProvider : CodeFixProvider
 {
@@ -19,21 +21,16 @@ public abstract class DocumentFixProvider : CodeFixProvider
     public sealed override FixAllProvider GetFixAllProvider() => new DocumentFixAll(this);
 
     /// <inheritdoc />
-    public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
+    public sealed override Task RegisterCodeFixesAsync(CodeFixContext context)
     {
         foreach (Diagnostic diagnostic in context.Diagnostics)
         {
-            if (!await CanFixAsync(context.Document, diagnostic, context.CancellationToken).ConfigureAwait(false))
-                continue;
             context.RegisterCodeFix(
                 CodeAction.Create(Title, token => FixAsync(context.Document, ImmutableArray.Create(diagnostic), token), equivalenceKey: Title),
                 diagnostic);
         }
+        return Task.CompletedTask;
     }
-
-    /// <summary>Whether the fix is offered for <paramref name="diagnostic"/>: every finding, unless a fix tells the
-    /// shapes it cannot resolve apart cheaply. A finding not offered fails the cleanup's run, naming the site.</summary>
-    internal virtual Task<bool> CanFixAsync(Document document, Diagnostic diagnostic, CancellationToken cancellationToken) => Task.FromResult(true);
 
     /// <summary>The solution with every given finding of <paramref name="document"/> resolved.</summary>
     internal abstract Task<Solution> FixAsync(Document document, ImmutableArray<Diagnostic> diagnostics, CancellationToken cancellationToken);

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Kago;
 internal static class KagoDefinitions
 {
     /// <summary>The random field that adds zero to three <see cref="JumpHeightStepPixels"/> to a Kago bug's upward jump speed.</summary>
-    internal static readonly RandomSampleField JumpHeightSteps = new(8, 2);
+    internal static readonly RandomSampleField JumpHeightSteps = RandomSampleField.SecondOf(4);
 
     /// <summary>The upward jump speed every bug's jump starts from, in whole pixels per update.</summary>
     internal const int BaseJumpSpeedPixels = 8;
@@ -16,7 +16,7 @@ internal static class KagoDefinitions
     /// Whether a bug near its shell jumps leftward (#2479): one jump in two goes left, decided by the same random
     /// number as its height (<see cref="JumpHeightSteps"/>).
     /// </summary>
-    internal static readonly RandomChance BugJumpsLeft = RandomChance.Highest(1, new RandomSampleField(8, 1));
+    internal static readonly RandomChance BugJumpsLeft = RandomChance.Highest(1, RandomSampleField.SecondOf(2));
 
     /// <summary>How long the quake lasts when a shot strikes a Kago, in updates.</summary>
     internal const int ShotQuakeDuration = 16;
@@ -37,10 +37,10 @@ internal static class KagoDefinitions
     internal const int ShortestGroundWait = 2;
 
     /// <summary>The random field that adds zero to seven updates to a new Kago bug's first wait.</summary>
-    internal static readonly RandomSampleField FirstIdleFrames = new(0, 3);
+    internal static readonly RandomSampleField FirstIdleFrames = RandomSampleField.OneOf(8);
 
     /// <summary>The random field that adds zero to thirty-one updates to a landed Kago bug's wait.</summary>
-    internal static readonly RandomSampleField LandedIdleFrames = new(0, 5);
+    internal static readonly RandomSampleField LandedIdleFrames = RandomSampleField.OneOf(32);
 
     /// <summary>How much faster a bug falls each unobstructed airborne update (#2339).</summary>
     internal static SignedEightEight BugGravity { get; } = SignedEightEight.FromPixelFraction(7, 8);

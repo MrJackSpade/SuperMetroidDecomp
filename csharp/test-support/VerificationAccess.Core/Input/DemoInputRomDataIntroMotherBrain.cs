@@ -7,6 +7,6 @@ internal static class DemoInputRomDataIntroMotherBrain
     public const ushort Object = 0x8784;
     /// <summary>Bank-91 input list at $91:8694 consumed by the object.</summary>
     public const ushort InputList = 0x8694;
-    /// <summary>Bank-91 record following that input list at $91:86B8.</summary>
-    public const ushort NextRecord = 0x86b8;
+    /// <summary>Bank-91 record following that input list's first seven records, at $91:86BE.</summary>
+    public const ushort NextRecord = 0x86be;
 }

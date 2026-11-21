@@ -258,8 +258,8 @@ internal static class DraygonAnimationsVerification
         AssertEqual(new AnimationPlayback<DraygonSegment>(DraygonAnimations.StartingWith(DraygonSegment.BodyFacingRightReset), new AnimationPlace(0, 3)),
             state.BodyPart.Playback, "the body's own frame keeps it in the reset, after its frame");
         AssertEqual(DraygonFrameToolingDefinitions.Spritemap(EnemyFrameId.DraygonBodyFacingRightJawShut), state.Body.SpritemapPointer, "the reset shows the right-facing body frame");
-        AssertEqual<DraygonEyeAction?>(DraygonEyeAction.Tracking, state.EyeTracking.Action, "the reset gives the eye its tracking function");
-        AssertEqual<HorizontalDirection?>(HorizontalDirection.Right, state.EyeTracking.Facing, "the reset's tracking eye faces right (#2165)");
+        AssertTrue(state.EyeTracking.TrackingFacing is not null, "the reset gives the eye its tracking function");
+        AssertEqual<HorizontalDirection?>(HorizontalDirection.Right, state.EyeTracking.TrackingFacing, "the reset's tracking eye faces right (#2165)");
     }
 
     /// <summary>

@@ -51,7 +51,7 @@ internal static class EscapeTimerSheetComposer
             var attributes = new SnesObjAttributeWord(RomDataReader.ReadWordFixedBank(bus, source + 3));
             Extent16<ScreenPixels> size = x.IsLarge ? new(16, 16) : new(8, 8);
             parts[index] = new SpriteFramePart(
-                new Offset16<ScreenPixels>(checked((short)x.SignedOffset), unchecked((sbyte)bus.ReadCartridgeByte(source + 2))),
+                new Offset16<ScreenPixels>(checked((short)x.SignedOffset), new SnesSpritemapYByte(bus.ReadCartridgeByte(source + 2)).SignedOffset),
                 size, attributes.TileNumber - EscapeTimerTileAtlasFormat.FirstCharacter,
                 (attributes.FlipHorizontally ? PictureFlip.Horizontal : PictureFlip.None) |
                 (attributes.FlipVertically ? PictureFlip.Vertical : PictureFlip.None),

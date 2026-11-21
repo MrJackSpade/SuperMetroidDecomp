@@ -25,8 +25,8 @@ internal static class ActorColourContentIdentity
                 content.AppendColors("statueColors", colours[..TourianStatueColorFormat.StatueColorCount]);
                 for (int color = 0; color < TourianStatueColorDefinitions.GreyColorCount; color++) colours[color] = palettes.greyColors.Read(color);
                 content.AppendColors("greyColors", colours[..TourianStatueColorDefinitions.GreyColorCount]);
-                content.AppendColorFrames("eyeColors", Enumerable.Range(0, TourianStatueColorDefinitions.EyeGlowCount).Select(glow =>
-                    Enumerable.Range(0, TourianStatueColorDefinitions.EyeColorCount).Select(color => palettes.ResolveEye(SuperMetroid.AssetExtraction.Areas.Tourian.Artwork.TourianStatuePalettes.EyeRowOrder[glow], color)).ToArray()).ToArray());
+                content.AppendColorFrames("eyeColors", SuperMetroid.AssetExtraction.CartridgeTables.EnemySourceDefinitions.TourianStatueEyeRowOrder.Select(statue =>
+                    Enumerable.Range(0, TourianStatueColorDefinitions.EyeColorCount).Select(color => palettes.ResolveEye(statue, color)).ToArray()).ToArray());
             });
     }
 

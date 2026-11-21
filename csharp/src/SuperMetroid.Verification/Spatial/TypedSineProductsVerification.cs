@@ -302,7 +302,7 @@ internal static class TypedSineProductsVerification
     private static int VerifyTideDisplacement()
     {
         int compared = 0;
-        foreach (int peak in (int[])[LiquidTideDefinitions.SmallTidePeakPixels, LiquidTideDefinitions.LargeTidePeakPixels])
+        foreach (int peak in (int[])[LiquidTideDefinitions.Motions[LiquidTide.Small].PeakPixels, LiquidTideDefinitions.Motions[LiquidTide.Large].PeakPixels])
         {
             for (int raw = 0; raw <= byte.MaxValue; raw++)
             {

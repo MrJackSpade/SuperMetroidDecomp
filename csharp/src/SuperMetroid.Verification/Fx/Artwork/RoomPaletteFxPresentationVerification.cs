@@ -44,7 +44,7 @@ internal static class RoomPaletteFxPresentationVerification
                  frame++)
             {
                 for (int color = 0;
-                     color < NorfairEnvironmentalPaletteFxColorDefinitions.ColorsPerFrame;
+                     color < definition.ColorFrames.ColorsPerFrame;
                      color++)
                 {
                     ushort pointer = definition.ColorPointer(frame, color);
@@ -105,12 +105,12 @@ internal static class RoomPaletteFxPresentationVerification
         foreach (BrinstarBlueSporePaletteFxColorDefinition definition in
                  BrinstarBlueSporePaletteFxColorDefinitions.All)
         {
-            VerifyInstalledPaletteFxFamily(bus, presentation, $"Brinstar blue spores ({definition.Owner})", new PaletteFxFamilyShape { FrameCount = BrinstarBlueSporePaletteFxColorDefinitionsConstants.FrameCount, ColorsPerFrame = BrinstarBlueSporePaletteFxColorDefinitions.ColorsPerFrame, ColorPointer = definition.ColorPointer, Definitions = [definition.DefinitionPointer] }, BrinstarBlueSporePaletteFxColorDefinitions.CycleFrames * 2);
+            VerifyInstalledPaletteFxFamily(bus, presentation, $"Brinstar blue spores ({definition.Effect})", new PaletteFxFamilyShape { FrameCount = BrinstarBlueSporePaletteFxColorDefinitionsConstants.FrameCount, ColorsPerFrame = BrinstarBlueSporePaletteFxColorDefinitions.ColorsPerFrame, ColorPointer = definition.ColorPointer, Definitions = [definition.DefinitionPointer] }, BrinstarBlueSporePaletteFxColorDefinitions.CycleFrames * 2);
         }
         foreach (TorizoBellyPaletteFxColorDefinition definition in
                  TorizoBellyPaletteFxColorDefinitions.All)
         {
-            VerifyInstalledPaletteFxFamily(bus, presentation, $"{definition.Owner} belly", new PaletteFxFamilyShape { FrameCount = TorizoBellyPaletteFxColorDefinitionsConstants.FrameCount, ColorsPerFrame = TorizoBellyPaletteFxColorDefinitions.ColorsPerFrame, ColorPointer = definition.ColorPointer, Definitions = [definition.DefinitionPointer], LitTorizo = global::SuperMetroid.Verification.Bosses.Torizo.LivingTorizo.Instance }, TorizoBellyPaletteFxColorDefinitions.CycleFrames * 2);
+            VerifyInstalledPaletteFxFamily(bus, presentation, $"{definition.Effect} belly", new PaletteFxFamilyShape { FrameCount = TorizoBellyPaletteFxColorDefinitionsConstants.FrameCount, ColorsPerFrame = TorizoBellyPaletteFxColorDefinitions.ColorsPerFrame, ColorPointer = definition.ColorPointer, Definitions = [definition.DefinitionPointer], LitTorizo = global::SuperMetroid.Verification.Bosses.Torizo.LivingTorizo.Instance }, TorizoBellyPaletteFxColorDefinitions.CycleFrames * 2);
         }
         Suite(nameof(VerifyInstalledPaletteFxFamily), () => VerifyInstalledPaletteFxFamily(bus, presentation, "Tourian statue grey-out", new PaletteFxFamilyShape { FrameCount = TourianStatueGreyPaletteFxColorDefinitions.ColorFrames.FrameCount, ColorsPerFrame = TourianStatueGreyPaletteFxColorDefinitions.ColorsPerFrame, ColorPointer = TourianStatueGreyPaletteFxColorDefinitions.ColorPointer, Definitions = TourianStatueGreyPaletteFxColorToolingDefinitions.All
                 .Select(definition => definition.DefinitionPointer)
@@ -136,13 +136,13 @@ internal static class RoomPaletteFxPresentationVerification
         foreach (PlanetZebesTextPaletteFxColorDefinition definition in
                  PlanetZebesTextPaletteFxColorDefinitions.All)
         {
-            VerifyInstalledPaletteFxFamily(bus, presentation, $"PLANET ZEBES {definition.Owner}", new PaletteFxFamilyShape { FrameCount = PlanetZebesTextPaletteFxColorDefinitionsConstants.FrameCount, ColorsPerFrame = PlanetZebesTextPaletteFxColorDefinitions.ColorsPerFrame, ColorPointer = definition.ColorPointer, Definitions = [definition.DefinitionPointer], OnScreen = true }, PlanetZebesTextPaletteFxColorDefinitions.CycleFrames + 1);
+            VerifyInstalledPaletteFxFamily(bus, presentation, $"PLANET ZEBES {definition.Effect}", new PaletteFxFamilyShape { FrameCount = PlanetZebesTextPaletteFxColorDefinitionsConstants.FrameCount, ColorsPerFrame = PlanetZebesTextPaletteFxColorDefinitions.ColorsPerFrame, ColorPointer = definition.ColorPointer, Definitions = [definition.DefinitionPointer], OnScreen = true }, PlanetZebesTextPaletteFxColorDefinitions.CycleFrames + 1);
         }
         foreach (CinematicGlowPaletteFxColorDefinition definition in
                  CinematicGlowPaletteFxColorDefinitions.All)
         {
             // The old Mother Brain fight's lights run on the intro's screen, the gunship's glow in its room (#1733).
-            VerifyInstalledPaletteFxFamily(bus, presentation, $"Cinematic glow {definition.Owner}", new PaletteFxFamilyShape { FrameCount = CinematicGlowPaletteFxColorDefinitionsConstants.FrameCount, ColorsPerFrame = definition.ColorsPerFrame, ColorPointer = definition.ColorPointer, Definitions = [definition.DefinitionPointer], OnScreen = ColourEffectScreenColourDefinitions.FrontendScreenGroups.Contains(definition.ColorFrames.Effect.AnimatedColours) }, definition.CycleFrames * 2);
+            VerifyInstalledPaletteFxFamily(bus, presentation, $"Cinematic glow {definition.Effect}", new PaletteFxFamilyShape { FrameCount = CinematicGlowPaletteFxColorDefinitionsConstants.FrameCount, ColorsPerFrame = definition.ColorsPerFrame, ColorPointer = definition.ColorPointer, Definitions = [definition.DefinitionPointer], OnScreen = ColourEffectScreenColourDefinitions.FrontendScreenGroups.Contains(definition.ColorFrames.Effect.AnimatedColours) }, definition.CycleFrames * 2);
         }
         Suite(nameof(VerifyInstalledPaletteFxFamily), () => VerifyInstalledPaletteFxFamily(bus, presentation, "exploding Zebes fade", new PaletteFxFamilyShape { FrameCount = ExplodingZebesFadePaletteFxColorDefinitionsConstants.FrameCount, ColorsPerFrame = ExplodingZebesFadePaletteFxColorDefinitions.ColorsPerFrame, ColorPointer = ExplodingZebesFadePaletteFxColorDefinitions.ColorPointer, Definitions = [ExplodingZebesFadePaletteFxColorDefinitions.DefinitionPointer], OnScreen = true }, ExplodingZebesFadePaletteFxColorDefinitions.CycleFrames + 1));
         Suite(nameof(VerifyInstalledPaletteFxFamily), () => VerifyInstalledPaletteFxFamily(bus, presentation, "title-logo fade", new PaletteFxFamilyShape { FrameCount = TitleLogoFadePaletteFxColorDefinitionsConstants.FrameCount, ColorsPerFrame = TitleLogoFadePaletteFxColorDefinitions.ColorsPerFrame, ColorPointer = TitleLogoFadePaletteFxColorDefinitions.ColorPointer, Definitions = [TitleLogoFadePaletteFxColorDefinitions.DefinitionPointer], OnScreen = true }, TitleLogoFadePaletteFxColorDefinitions.CycleFrames + 1));
@@ -154,12 +154,12 @@ internal static class RoomPaletteFxPresentationVerification
         foreach (ZebesExplosionAmbientPaletteFxColorDefinition definition in
                  ZebesExplosionAmbientPaletteFxColorDefinitions.All)
         {
-            VerifyInstalledPaletteFxFamily(bus, presentation, $"Zebes explosion {definition.Owner}", new PaletteFxFamilyShape { FrameCount = definition.FrameCount, ColorsPerFrame = definition.ColorsPerFrame, ColorPointer = definition.ColorPointer, Definitions = [definition.DefinitionPointer], OnScreen = true }, definition.CycleFrames * 2);
+            VerifyInstalledPaletteFxFamily(bus, presentation, $"Zebes explosion {definition.Effect}", new PaletteFxFamilyShape { FrameCount = definition.FrameCount, ColorsPerFrame = definition.ColorsPerFrame, ColorPointer = definition.ColorPointer, Definitions = [definition.DefinitionPointer], OnScreen = true }, definition.CycleFrames * 2);
         }
         foreach (ZebesExplosionLayerFadePaletteFxColorDefinition definition in
                  ZebesExplosionLayerFadePaletteFxColorDefinitions.All)
         {
-            VerifyInstalledPaletteFxFamily(bus, presentation, $"Zebes explosion {definition.Owner}", new PaletteFxFamilyShape { FrameCount = ZebesExplosionLayerFadePaletteFxColorDefinitionsConstants.FrameCount, ColorsPerFrame = ZebesExplosionLayerFadePaletteFxColorDefinitions.ColorsPerFrame, ColorPointer = definition.ColorPointer, Definitions = [definition.DefinitionPointer], OnScreen = true }, definition.CycleFrames + 1);
+            VerifyInstalledPaletteFxFamily(bus, presentation, $"Zebes explosion {definition.Effect}", new PaletteFxFamilyShape { FrameCount = ZebesExplosionLayerFadePaletteFxColorDefinitionsConstants.FrameCount, ColorsPerFrame = ZebesExplosionLayerFadePaletteFxColorDefinitions.ColorsPerFrame, ColorPointer = definition.ColorPointer, Definitions = [definition.DefinitionPointer], OnScreen = true }, definition.CycleFrames + 1);
         }
         Suite(nameof(VerifyExtractedEndingGunshipPaletteFxPresentation), () => VerifyExtractedEndingGunshipPaletteFxPresentation(bus, presentation));
         Suite(nameof(VerifyExtractedSamusLoadingPaletteFxPresentation), () => VerifyExtractedSamusLoadingPaletteFxPresentation(bus, presentation));
@@ -167,7 +167,7 @@ internal static class RoomPaletteFxPresentationVerification
         foreach (TourianEscapeRedFlashPaletteFxColorDefinition definition in
                  TourianEscapeRedFlashPaletteFxColorDefinitions.All)
         {
-            VerifyInstalledPaletteFxFamily(bus, presentation, $"Tourian escape {definition.Owner}", new PaletteFxFamilyShape { FrameCount = TourianEscapeRedFlashPaletteFxColorDefinitionsConstants.FrameCount, ColorsPerFrame = definition.ColorsPerFrame, ColorPointer = definition.ColorPointer, Definitions = [definition.DefinitionPointer] }, definition.CycleFrames * 2);
+            VerifyInstalledPaletteFxFamily(bus, presentation, $"Tourian escape {definition.Effect}", new PaletteFxFamilyShape { FrameCount = TourianEscapeRedFlashPaletteFxColorDefinitionsConstants.FrameCount, ColorsPerFrame = definition.ColorsPerFrame, ColorPointer = definition.ColorPointer, Definitions = [definition.DefinitionPointer] }, definition.CycleFrames * 2);
         }
         Suite(nameof(VerifyInstalledPaletteFxFamily), () => VerifyInstalledPaletteFxFamily(bus, presentation, "Tourian escape shared red flash", new PaletteFxFamilyShape { FrameCount = TourianEscapeSharedRedFlashPaletteFxColorDefinitionsConstants.FrameCount, ColorsPerFrame = TourianEscapeSharedRedFlashPaletteFxColorDefinitions.ColorsPerFrame, ColorPointer = TourianEscapeSharedRedFlashPaletteFxColorDefinitions.ColorPointer, Definitions = TourianEscapeSharedRedFlashPaletteFxColorToolingDefinitions.All
                 .Select(definition => definition.DefinitionPointer).ToArray() }, TourianEscapeSharedRedFlashPaletteFxColorDefinitions.CycleFrames * 2));
@@ -175,13 +175,13 @@ internal static class RoomPaletteFxPresentationVerification
         foreach (OldTourianEscapeAccentPaletteFxColorDefinition definition in
                  OldTourianEscapeAccentPaletteFxColorDefinitions.All)
         {
-            VerifyInstalledPaletteFxFamily(bus, presentation, $"old Tourian escape {definition.Owner}", new PaletteFxFamilyShape { FrameCount = OldTourianEscapeAccentPaletteFxColorDefinitionsConstants.FrameCount, ColorsPerFrame = OldTourianEscapeAccentPaletteFxColorDefinitions.ColorsPerFrame, ColorPointer = definition.ColorPointer, Definitions = [definition.DefinitionPointer] }, OldTourianEscapeAccentPaletteFxColorDefinitions.CycleFrames * 2);
+            VerifyInstalledPaletteFxFamily(bus, presentation, $"old Tourian escape {definition.Effect}", new PaletteFxFamilyShape { FrameCount = OldTourianEscapeAccentPaletteFxColorDefinitionsConstants.FrameCount, ColorsPerFrame = OldTourianEscapeAccentPaletteFxColorDefinitions.ColorsPerFrame, ColorPointer = definition.ColorPointer, Definitions = [definition.DefinitionPointer] }, OldTourianEscapeAccentPaletteFxColorDefinitions.CycleFrames * 2);
         }
         Suite(nameof(VerifyInstalledPaletteFxFamily), () => VerifyInstalledPaletteFxFamily(bus, presentation, "upper Crateria escape red flash", new PaletteFxFamilyShape { FrameCount = UpperCrateriaEscapeRedFlashPaletteFxColorDefinitionsConstants.FrameCount, ColorsPerFrame = UpperCrateriaEscapeRedFlashPaletteFxColorDefinitions.ColorsPerFrame, ColorPointer = UpperCrateriaEscapeRedFlashPaletteFxColorDefinitions.ColorPointer, Definitions = [UpperCrateriaEscapeRedFlashPaletteFxColorDefinitions.DefinitionPointer] }, UpperCrateriaEscapeRedFlashPaletteFxColorDefinitions.CycleFrames * 2));
         foreach (CrateriaEscapeLightningPaletteFxColorDefinition definition in
                  CrateriaEscapeLightningPaletteFxColorDefinitions.All)
         {
-            VerifyInstalledPaletteFxFamily(bus, presentation, $"Crateria escape {definition.Owner}", new PaletteFxFamilyShape { FrameCount = CrateriaEscapeLightningPaletteFxColorDefinitionsConstants.FrameCount, ColorsPerFrame = definition.ColorsPerFrame, ColorPointer = definition.ColorPointer, Definitions = [definition.DefinitionPointer] }, CrateriaEscapeLightningPaletteFxColorDefinitions.CycleFrames * 2);
+            VerifyInstalledPaletteFxFamily(bus, presentation, $"Crateria escape {definition.Effect}", new PaletteFxFamilyShape { FrameCount = CrateriaEscapeLightningPaletteFxColorDefinitionsConstants.FrameCount, ColorsPerFrame = definition.ColorsPerFrame, ColorPointer = definition.ColorPointer, Definitions = [definition.DefinitionPointer] }, CrateriaEscapeLightningPaletteFxColorDefinitions.CycleFrames * 2);
         }
         Suite(nameof(VerifyInstalledPaletteFxFamily), () => VerifyInstalledPaletteFxFamily(bus, presentation, "Crateria and Brinstar beacon flash", new PaletteFxFamilyShape { FrameCount = BeaconPaletteFxColorDefinitionsConstants.FrameCount, ColorsPerFrame = BeaconPaletteFxColorDefinitions.ColorsPerFrame, ColorPointer = BeaconPaletteFxColorDefinitions.ColorPointer, Definitions = [BeaconPaletteFxColorDefinitions.DefinitionPointer] }, BeaconPaletteFxColorDefinitions.CycleFrames * 2));
         Suite(nameof(VerifyRoomPaletteFxPresentationValidation), () => VerifyRoomPaletteFxPresentationValidation(extracted));
@@ -207,7 +207,7 @@ internal static class RoomPaletteFxPresentationVerification
         foreach (SamusLoadingSuitPaletteFxColorDefinition definition in
                  SamusLoadingSuitPaletteFxColorDefinitions.All)
         {
-            VerifyInstalledPaletteFxFamily(bus, presentation, $"Samus loading {definition.Owner}", new PaletteFxFamilyShape { FrameCount = SamusLoadingSuitPaletteFxColorDefinitionsConstants.FrameCount, ColorsPerFrame = SamusLoadingSuitPaletteFxColorDefinitions.ColorsPerFrame, ColorPointer = definition.ColorPointer, Definitions = [definition.DefinitionPointer] }, SamusLoadingSuitPaletteFxColorDefinitions.CycleFrames + 1);
+            VerifyInstalledPaletteFxFamily(bus, presentation, $"Samus loading {definition.Effect}", new PaletteFxFamilyShape { FrameCount = SamusLoadingSuitPaletteFxColorDefinitionsConstants.FrameCount, ColorsPerFrame = SamusLoadingSuitPaletteFxColorDefinitions.ColorsPerFrame, ColorPointer = definition.ColorPointer, Definitions = [definition.DefinitionPointer] }, SamusLoadingSuitPaletteFxColorDefinitions.CycleFrames + 1);
         }
     }
 
@@ -465,238 +465,235 @@ internal static class RoomPaletteFxPresentationVerification
         Reject("room palette-FX rejects unsupported schema version");
         document = document with { Version = version };
 
-        PaletteRgb5[][]? powerHeat = document.SamusHeatPowerSuit;
-        document = document with { SamusHeatPowerSuit = null };
+        PaletteRgb5[][] powerHeat = document.Programs["samusHeatPowerSuit"];
+        document.Programs.Remove("samusHeatPowerSuit");
         Reject("room palette-FX rejects missing Power Suit heat colors");
-        document = document with { SamusHeatPowerSuit = powerHeat };
+        document.Programs["samusHeatPowerSuit"] = powerHeat;
 
-        PaletteRgb5[][]? variaHeat = document.SamusHeatVariaSuit;
-        document = document with { SamusHeatVariaSuit = (variaHeat ?? throw new InvalidOperationException("Verification requires variaHeat."))[..^1] };
+        PaletteRgb5[][] variaHeat = document.Programs["samusHeatVariaSuit"];
+        document.Programs["samusHeatVariaSuit"] = variaHeat[..^1];
         Reject("room palette-FX rejects incomplete Varia Suit heat cycle");
-        document = document with { SamusHeatVariaSuit = variaHeat };
+        document.Programs["samusHeatVariaSuit"] = variaHeat;
 
-        PaletteRgb5? gravityColor = (document.SamusHeatGravitySuit ?? throw new InvalidOperationException("Verification requires document.SamusHeatGravitySuit."))[0][0];
-        document.SamusHeatGravitySuit[0][0] = gravityColor with { Blue = 32 };
+        PaletteRgb5? gravityColor = document.Programs["samusHeatGravitySuit"][0][0];
+        document.Programs["samusHeatGravitySuit"][0][0] = gravityColor with { Blue = 32 };
         Reject("room palette-FX rejects invalid Gravity Suit heat color");
-        document.SamusHeatGravitySuit[0][0] = gravityColor;
+        document.Programs["samusHeatGravitySuit"][0][0] = gravityColor;
 
-        PaletteRgb5[][] heat = document.NorfairForegroundAndHeatPhase;
-        document = document with { NorfairForegroundAndHeatPhase = heat[..^1] };
+        PaletteRgb5[][] heat = document.Programs["norfairForegroundAndHeatPhase"];
+        document.Programs["norfairForegroundAndHeatPhase"] = heat[..^1];
         Reject("room palette-FX rejects incomplete Norfair animation");
-        document = document with { NorfairForegroundAndHeatPhase = heat };
+        document.Programs["norfairForegroundAndHeatPhase"] = heat;
 
-        PaletteRgb5[] frame = document.NorfairGreenForeground[0];
-        document.NorfairGreenForeground[0] = frame[..^1];
+        PaletteRgb5[] frame = document.Programs["norfairGreenForeground"][0];
+        document.Programs["norfairGreenForeground"][0] = frame[..^1];
         Reject("room palette-FX rejects incomplete Norfair frame");
-        document.NorfairGreenForeground[0] = frame;
+        document.Programs["norfairGreenForeground"][0] = frame;
 
-        PaletteRgb5 first = document.NorfairPurpleForeground[0][0];
-        document.NorfairPurpleForeground[0][0] = first with { Red = 32 };
+        PaletteRgb5 first = document.Programs["norfairPurpleForeground"][0][0];
+        document.Programs["norfairPurpleForeground"][0][0] = first with { Red = 32 };
         Reject("room palette-FX rejects non-RGB5 room color");
-        document.NorfairPurpleForeground[0][0] = first;
+        document.Programs["norfairPurpleForeground"][0][0] = first;
 
-        PaletteRgb5[][] waterfalls = document.MaridiaBackgroundWaterfalls;
-        document = document with { MaridiaBackgroundWaterfalls = waterfalls[..^1] };
+        PaletteRgb5[][] waterfalls = document.Programs["maridiaBackgroundWaterfalls"];
+        document.Programs["maridiaBackgroundWaterfalls"] = waterfalls[..^1];
         Reject("room palette-FX rejects incomplete Maridia animation");
-        document = document with { MaridiaBackgroundWaterfalls = waterfalls };
+        document.Programs["maridiaBackgroundWaterfalls"] = waterfalls;
 
-        PaletteRgb5[] sandFallFrame = document.MaridiaSandFalls[0];
-        document.MaridiaSandFalls[0] = sandFallFrame[..^1];
+        PaletteRgb5[] sandFallFrame = document.Programs["maridiaSandFalls"][0];
+        document.Programs["maridiaSandFalls"][0] = sandFallFrame[..^1];
         Reject("room palette-FX rejects incomplete Maridia frame");
-        document.MaridiaSandFalls[0] = sandFallFrame;
+        document.Programs["maridiaSandFalls"][0] = sandFallFrame;
 
-        PaletteRgb5[][] greenLights = document.WreckedShipGreenLights;
-        document = document with { WreckedShipGreenLights = greenLights[..^1] };
+        PaletteRgb5[][] greenLights = document.Programs["wreckedShipGreenLights"];
+        document.Programs["wreckedShipGreenLights"] = greenLights[..^1];
         Reject("room palette-FX rejects incomplete Wrecked Ship animation");
-        document = document with { WreckedShipGreenLights = greenLights };
+        document.Programs["wreckedShipGreenLights"] = greenLights;
 
-        PaletteRgb5[][] redBrinstar = document.RedBrinstarBackgroundGlow;
-        document = document with { RedBrinstarBackgroundGlow = redBrinstar[..^1] };
+        PaletteRgb5[][] redBrinstar = document.Programs["redBrinstarBackgroundGlow"];
+        document.Programs["redBrinstarBackgroundGlow"] = redBrinstar[..^1];
         Reject("room palette-FX rejects incomplete Red Brinstar animation");
-        document = document with { RedBrinstarBackgroundGlow = redBrinstar };
+        document.Programs["redBrinstarBackgroundGlow"] = redBrinstar;
 
-        PaletteRgb5[] tourianFrame = document.TourianGlow[0];
-        document.TourianGlow[0] = tourianFrame[..^1];
+        PaletteRgb5[] tourianFrame = document.Programs["tourianGlow"][0];
+        document.Programs["tourianGlow"][0] = tourianFrame[..^1];
         Reject("room palette-FX rejects incomplete Tourian glow frame");
-        document.TourianGlow[0] = tourianFrame;
+        document.Programs["tourianGlow"][0] = tourianFrame;
 
-        PaletteRgb5[][] blueSpores = document.BrinstarBlueSpores;
-        document = document with { BrinstarBlueSpores = blueSpores[..^1] };
+        PaletteRgb5[][] blueSpores = document.Programs["brinstarBlueSpores"];
+        document.Programs["brinstarBlueSpores"] = blueSpores[..^1];
         Reject("room palette-FX rejects incomplete blue-spore animation");
-        document = document with { BrinstarBlueSpores = blueSpores };
+        document.Programs["brinstarBlueSpores"] = blueSpores;
 
-        PaletteRgb5[] bombTorizoFrame = document.BombTorizoBelly[0];
-        document.BombTorizoBelly[0] = bombTorizoFrame[..^1];
+        PaletteRgb5[] bombTorizoFrame = document.Programs["bombTorizoBelly"][0];
+        document.Programs["bombTorizoBelly"][0] = bombTorizoFrame[..^1];
         Reject("room palette-FX rejects incomplete Bomb Torizo belly frame");
-        document.BombTorizoBelly[0] = bombTorizoFrame;
+        document.Programs["bombTorizoBelly"][0] = bombTorizoFrame;
 
-        PaletteRgb5[][] statueGrey = document.TourianStatueGrey;
-        document = document with { TourianStatueGrey = statueGrey[..^1] };
+        PaletteRgb5[][] statueGrey = document.Programs["tourianStatueGrey"];
+        document.Programs["tourianStatueGrey"] = statueGrey[..^1];
         Reject("room palette-FX rejects incomplete Tourian statue grey-out");
-        document = document with { TourianStatueGrey = statueGrey };
+        document.Programs["tourianStatueGrey"] = statueGrey;
 
-        PaletteRgb5[][] surfaceLightning = document.CrateriaSurfaceLightning;
-        document = document with { CrateriaSurfaceLightning = surfaceLightning[..^1] };
+        PaletteRgb5[][] surfaceLightning = document.Programs["crateriaSurfaceLightning"];
+        document.Programs["crateriaSurfaceLightning"] = surfaceLightning[..^1];
         Reject("room palette-FX rejects incomplete Crateria surface lightning");
-        document = document with { CrateriaSurfaceLightning = surfaceLightning };
+        document.Programs["crateriaSurfaceLightning"] = surfaceLightning;
 
-        PaletteRgb5[][] gunshipLights = document.CeresGunshipEngineLights;
-        document = document with { CeresGunshipEngineLights = gunshipLights[..^1] };
+        PaletteRgb5[][] gunshipLights = document.Programs["ceresGunshipEngineLights"];
+        document.Programs["ceresGunshipEngineLights"] = gunshipLights[..^1];
         Reject("room palette-FX rejects incomplete Ceres gunship-engine lights");
-        document = document with { CeresGunshipEngineLights = gunshipLights };
+        document.Programs["ceresGunshipEngineLights"] = gunshipLights;
 
-        PaletteRgb5[] navigationFrame = document.CeresNavigationLights[0];
-        document.CeresNavigationLights[0] = navigationFrame[..^1];
+        PaletteRgb5[] navigationFrame = document.Programs["ceresNavigationLights"][0];
+        document.Programs["ceresNavigationLights"][0] = navigationFrame[..^1];
         Reject("room palette-FX rejects incomplete Ceres navigation-light frame");
-        document.CeresNavigationLights[0] = navigationFrame;
+        document.Programs["ceresNavigationLights"][0] = navigationFrame;
 
-        PaletteRgb5[][] fadeIn = document.PlanetZebesTextFadeIn;
-        document = document with { PlanetZebesTextFadeIn = fadeIn[..^1] };
+        PaletteRgb5[][] fadeIn = document.Programs["planetZebesTextFadeIn"];
+        document.Programs["planetZebesTextFadeIn"] = fadeIn[..^1];
         Reject("room palette-FX rejects incomplete PLANET ZEBES fade-in");
-        document = document with { PlanetZebesTextFadeIn = fadeIn };
+        document.Programs["planetZebesTextFadeIn"] = fadeIn;
 
-        PaletteRgb5[] fadeOutFrame = document.PlanetZebesTextFadeOut[0];
-        document.PlanetZebesTextFadeOut[0] = fadeOutFrame[..^1];
+        PaletteRgb5[] fadeOutFrame = document.Programs["planetZebesTextFadeOut"][0];
+        document.Programs["planetZebesTextFadeOut"][0] = fadeOutFrame[..^1];
         Reject("room palette-FX rejects incomplete PLANET ZEBES fade-out frame");
-        document.PlanetZebesTextFadeOut[0] = fadeOutFrame;
+        document.Programs["planetZebesTextFadeOut"][0] = fadeOutFrame;
 
-        PaletteRgb5[][] motherBrainLights = document.OldMotherBrainBackgroundLights;
-        document = document with
-        {
-            OldMotherBrainBackgroundLights = motherBrainLights[..^1],
-        };
+        PaletteRgb5[][] motherBrainLights = document.Programs["oldMotherBrainBackgroundLights"];
+        document.Programs["oldMotherBrainBackgroundLights"] = motherBrainLights[..^1];
         Reject("room palette-FX rejects incomplete old Mother Brain glow");
-        document = document with { OldMotherBrainBackgroundLights = motherBrainLights };
+        document.Programs["oldMotherBrainBackgroundLights"] = motherBrainLights;
 
-        PaletteRgb5[] gunshipGlowFrame = document.CinematicGunshipGlow[0];
-        document.CinematicGunshipGlow[0] = gunshipGlowFrame[..^1];
+        PaletteRgb5[] gunshipGlowFrame = document.Programs["cinematicGunshipGlow"][0];
+        document.Programs["cinematicGunshipGlow"][0] = gunshipGlowFrame[..^1];
         Reject("room palette-FX rejects incomplete cinematic gunship-glow frame");
-        document.CinematicGunshipGlow[0] = gunshipGlowFrame;
+        document.Programs["cinematicGunshipGlow"][0] = gunshipGlowFrame;
 
-        PaletteRgb5[][] zebesFade = document.ExplodingZebesFade;
-        document = document with { ExplodingZebesFade = zebesFade[..^1] };
+        PaletteRgb5[][] zebesFade = document.Programs["explodingZebesFade"];
+        document.Programs["explodingZebesFade"] = zebesFade[..^1];
         Reject("room palette-FX rejects incomplete exploding-Zebes fade");
-        document = document with { ExplodingZebesFade = zebesFade };
+        document.Programs["explodingZebesFade"] = zebesFade;
 
-        PaletteRgb5[][] titleLogo = document.TitleLogoFade;
-        document = document with { TitleLogoFade = titleLogo[..^1] };
+        PaletteRgb5[][] titleLogo = document.Programs["titleLogoFade"];
+        document.Programs["titleLogoFade"] = titleLogo[..^1];
         Reject("room palette-FX rejects incomplete title-logo fade");
-        document = document with { TitleLogoFade = titleLogo };
+        document.Programs["titleLogoFade"] = titleLogo;
 
-        PaletteRgb5[] nintendoFrame = document.NintendoSharedFade[0];
-        document.NintendoSharedFade[0] = nintendoFrame[..^1];
+        PaletteRgb5[] nintendoFrame = document.Programs["nintendoSharedFade"][0];
+        document.Programs["nintendoSharedFade"][0] = nintendoFrame[..^1];
         Reject("room palette-FX rejects incomplete Nintendo shared-fade frame");
-        document.NintendoSharedFade[0] = nintendoFrame;
+        document.Programs["nintendoSharedFade"][0] = nintendoFrame;
 
-        PaletteRgb5[][] explosionForeground = document.ZebesExplosionForeground;
-        document = document with { ZebesExplosionForeground = explosionForeground[..^1] };
+        PaletteRgb5[][] explosionForeground = document.Programs["zebesExplosionForeground"];
+        document.Programs["zebesExplosionForeground"] = explosionForeground[..^1];
         Reject("room palette-FX rejects incomplete Zebes explosion foreground");
-        document = document with { ZebesExplosionForeground = explosionForeground };
+        document.Programs["zebesExplosionForeground"] = explosionForeground;
 
-        PaletteRgb5[] finaleFrame = document.ZebesExplosionFinale[0];
-        document.ZebesExplosionFinale[0] = finaleFrame[..^1];
+        PaletteRgb5[] finaleFrame = document.Programs["zebesExplosionFinale"][0];
+        document.Programs["zebesExplosionFinale"][0] = finaleFrame[..^1];
         Reject("room palette-FX rejects incomplete Zebes explosion finale frame");
-        document.ZebesExplosionFinale[0] = finaleFrame;
+        document.Programs["zebesExplosionFinale"][0] = finaleFrame;
 
-        PaletteRgb5[][] whiteout = document.ZebesExplosionWhiteout;
-        document = document with { ZebesExplosionWhiteout = whiteout[..^1] };
+        PaletteRgb5[][] whiteout = document.Programs["zebesExplosionWhiteout"];
+        document.Programs["zebesExplosionWhiteout"] = whiteout[..^1];
         Reject("room palette-FX rejects incomplete shared whiteout");
-        document = document with { ZebesExplosionWhiteout = whiteout };
+        document.Programs["zebesExplosionWhiteout"] = whiteout;
 
-        PaletteRgb5[][] afterglow = document.ZebesExplosionAfterglow;
-        document = document with { ZebesExplosionAfterglow = afterglow[..^1] };
+        PaletteRgb5[][] afterglow = document.Programs["zebesExplosionAfterglow"];
+        document.Programs["zebesExplosionAfterglow"] = afterglow[..^1];
         Reject("room palette-FX rejects incomplete Zebes afterglow");
-        document = document with { ZebesExplosionAfterglow = afterglow };
+        document.Programs["zebesExplosionAfterglow"] = afterglow;
 
-        PaletteRgb5[] lavaFrame = document.ZebesExplosionLava[0];
-        document.ZebesExplosionLava[0] = lavaFrame[..^1];
+        PaletteRgb5[] lavaFrame = document.Programs["zebesExplosionLava"][0];
+        document.Programs["zebesExplosionLava"][0] = lavaFrame[..^1];
         Reject("room palette-FX rejects incomplete Zebes explosion lava frame");
-        document.ZebesExplosionLava[0] = lavaFrame;
+        document.Programs["zebesExplosionLava"][0] = lavaFrame;
 
-        PaletteRgb5[][] crust = document.ZebesExplosionCrust;
-        document = document with { ZebesExplosionCrust = crust[..^1] };
+        PaletteRgb5[][] crust = document.Programs["zebesExplosionCrust"];
+        document.Programs["zebesExplosionCrust"] = crust[..^1];
         Reject("room palette-FX rejects incomplete Zebes explosion crust fade");
-        document = document with { ZebesExplosionCrust = crust };
+        document.Programs["zebesExplosionCrust"] = crust;
 
-        PaletteRgb5[] greyCloudFrame = document.ZebesExplosionGreyClouds[0];
-        document.ZebesExplosionGreyClouds[0] = greyCloudFrame[..^1];
+        PaletteRgb5[] greyCloudFrame = document.Programs["zebesExplosionGreyClouds"][0];
+        document.Programs["zebesExplosionGreyClouds"][0] = greyCloudFrame[..^1];
         Reject("room palette-FX rejects incomplete Zebes grey-cloud frame");
-        document.ZebesExplosionGreyClouds[0] = greyCloudFrame;
+        document.Programs["zebesExplosionGreyClouds"][0] = greyCloudFrame;
 
-        PaletteRgb5[][] explosionGunship = document.ZebesExplosionGunship;
-        document = document with { ZebesExplosionGunship = explosionGunship[..^1] };
+        PaletteRgb5[][] explosionGunship = document.Programs["zebesExplosionGunship"];
+        document.Programs["zebesExplosionGunship"] = explosionGunship[..^1];
         Reject("room palette-FX rejects incomplete explosion gunship reveal");
-        document = document with { ZebesExplosionGunship = explosionGunship };
+        document.Programs["zebesExplosionGunship"] = explosionGunship;
 
-        PaletteRgb5[][] powerSuit = document.SamusLoadingPowerSuit;
-        document = document with { SamusLoadingPowerSuit = powerSuit[..^1] };
+        PaletteRgb5[][] powerSuit = document.Programs["samusLoadingPowerSuit"];
+        document.Programs["samusLoadingPowerSuit"] = powerSuit[..^1];
         Reject("room palette-FX rejects incomplete Samus power-suit loading");
-        document = document with { SamusLoadingPowerSuit = powerSuit };
+        document.Programs["samusLoadingPowerSuit"] = powerSuit;
 
-        PaletteRgb5[] variaFrame = document.SamusLoadingVariaSuit[0];
-        document.SamusLoadingVariaSuit[0] = variaFrame[..^1];
+        PaletteRgb5[] variaFrame = document.Programs["samusLoadingVariaSuit"][0];
+        document.Programs["samusLoadingVariaSuit"][0] = variaFrame[..^1];
         Reject("room palette-FX rejects incomplete Samus Varia-suit frame");
-        document.SamusLoadingVariaSuit[0] = variaFrame;
+        document.Programs["samusLoadingVariaSuit"][0] = variaFrame;
 
-        PaletteRgb5[][] gravitySuit = document.SamusLoadingGravitySuit;
-        document = document with { SamusLoadingGravitySuit = gravitySuit[..^1] };
+        PaletteRgb5[][] gravitySuit = document.Programs["samusLoadingGravitySuit"];
+        document.Programs["samusLoadingGravitySuit"] = gravitySuit[..^1];
         Reject("room palette-FX rejects incomplete Samus gravity-suit loading");
-        document = document with { SamusLoadingGravitySuit = gravitySuit };
+        document.Programs["samusLoadingGravitySuit"] = gravitySuit;
 
-        PaletteRgb5[] iconFrame = document.PostCreditsIconGlare[0];
-        document.PostCreditsIconGlare[0] = iconFrame[..^1];
+        PaletteRgb5[] iconFrame = document.Programs["postCreditsIconGlare"][0];
+        document.Programs["postCreditsIconGlare"][0] = iconFrame[..^1];
         Reject("room palette-FX rejects incomplete post-credits icon-glare frame");
-        document.PostCreditsIconGlare[0] = iconFrame;
+        document.Programs["postCreditsIconGlare"][0] = iconFrame;
 
-        PaletteRgb5[][] shutter = document.TourianEscapeShutter;
-        document = document with { TourianEscapeShutter = shutter[..^1] };
+        PaletteRgb5[][] shutter = document.Programs["tourianEscapeShutter"];
+        document.Programs["tourianEscapeShutter"] = shutter[..^1];
         Reject("room palette-FX rejects incomplete Tourian escape shutter flash");
-        document = document with { TourianEscapeShutter = shutter };
+        document.Programs["tourianEscapeShutter"] = shutter;
 
-        PaletteRgb5[] backgroundFrame = document.TourianEscapeBackground[0];
-        document.TourianEscapeBackground[0] = backgroundFrame[..^1];
+        PaletteRgb5[] backgroundFrame = document.Programs["tourianEscapeBackground"][0];
+        document.Programs["tourianEscapeBackground"][0] = backgroundFrame[..^1];
         Reject("room palette-FX rejects incomplete Tourian escape background frame");
-        document.TourianEscapeBackground[0] = backgroundFrame;
+        document.Programs["tourianEscapeBackground"][0] = backgroundFrame;
 
-        PaletteRgb5[][] shared = document.TourianEscapeSharedRedFlash;
-        document = document with { TourianEscapeSharedRedFlash = shared[..^1] };
+        PaletteRgb5[][] shared = document.Programs["tourianEscapeSharedRedFlash"];
+        document.Programs["tourianEscapeSharedRedFlash"] = shared[..^1];
         Reject("room palette-FX rejects incomplete shared Tourian escape flash");
-        document = document with { TourianEscapeSharedRedFlash = shared };
+        document.Programs["tourianEscapeSharedRedFlash"] = shared;
 
-        PaletteRgb5[] oldRedFrame = document.OldTourianEscapeRedFlash[0];
-        document.OldTourianEscapeRedFlash[0] = oldRedFrame[..^1];
+        PaletteRgb5[] oldRedFrame = document.Programs["oldTourianEscapeRedFlash"][0];
+        document.Programs["oldTourianEscapeRedFlash"][0] = oldRedFrame[..^1];
         Reject("room palette-FX rejects incomplete old Tourian escape red-flash frame");
-        document.OldTourianEscapeRedFlash[0] = oldRedFrame;
+        document.Programs["oldTourianEscapeRedFlash"][0] = oldRedFrame;
 
-        PaletteRgb5[][] railings = document.OldTourianEscapeOrangeRailings;
-        document = document with { OldTourianEscapeOrangeRailings = railings[..^1] };
+        PaletteRgb5[][] railings = document.Programs["oldTourianEscapeOrangeRailings"];
+        document.Programs["oldTourianEscapeOrangeRailings"] = railings[..^1];
         Reject("room palette-FX rejects incomplete old Tourian orange railings");
-        document = document with { OldTourianEscapeOrangeRailings = railings };
+        document.Programs["oldTourianEscapeOrangeRailings"] = railings;
 
-        PaletteRgb5[] panelsFrame = document.OldTourianEscapeYellowPanels[0];
-        document.OldTourianEscapeYellowPanels[0] = panelsFrame[..^1];
+        PaletteRgb5[] panelsFrame = document.Programs["oldTourianEscapeYellowPanels"][0];
+        document.Programs["oldTourianEscapeYellowPanels"][0] = panelsFrame[..^1];
         Reject("room palette-FX rejects incomplete old Tourian yellow-panel frame");
-        document.OldTourianEscapeYellowPanels[0] = panelsFrame;
+        document.Programs["oldTourianEscapeYellowPanels"][0] = panelsFrame;
 
-        PaletteRgb5[][] upperFlash = document.UpperCrateriaEscapeRedFlash;
-        document = document with { UpperCrateriaEscapeRedFlash = upperFlash[..^1] };
+        PaletteRgb5[][] upperFlash = document.Programs["upperCrateriaEscapeRedFlash"];
+        document.Programs["upperCrateriaEscapeRedFlash"] = upperFlash[..^1];
         Reject("room palette-FX rejects incomplete upper Crateria escape red flash");
-        document = document with { UpperCrateriaEscapeRedFlash = upperFlash };
+        document.Programs["upperCrateriaEscapeRedFlash"] = upperFlash;
 
-        PaletteRgb5[] lightningFrame = document.CrateriaEscapeYellowLightning[0];
-        document.CrateriaEscapeYellowLightning[0] = lightningFrame[..^1];
+        PaletteRgb5[] lightningFrame = document.Programs["crateriaEscapeYellowLightning"][0];
+        document.Programs["crateriaEscapeYellowLightning"][0] = lightningFrame[..^1];
         Reject("room palette-FX rejects incomplete Crateria escape lightning frame");
-        document.CrateriaEscapeYellowLightning[0] = lightningFrame;
+        document.Programs["crateriaEscapeYellowLightning"][0] = lightningFrame;
 
-        PaletteRgb5[][] pixel = document.ParlorEscapeSky;
-        document = document with { ParlorEscapeSky = pixel[..^1] };
+        PaletteRgb5[][] pixel = document.Programs["parlorEscapeSky"];
+        document.Programs["parlorEscapeSky"] = pixel[..^1];
         Reject("room palette-FX rejects incomplete Crateria escape CRE pixel");
-        document = document with { ParlorEscapeSky = pixel };
+        document.Programs["parlorEscapeSky"] = pixel;
 
-        PaletteRgb5[] beaconFrame = document.BeaconFlashing[0];
-        document.BeaconFlashing[0] = beaconFrame[..^1];
+        PaletteRgb5[] beaconFrame = document.Programs["beaconFlashing"][0];
+        document.Programs["beaconFlashing"][0] = beaconFrame[..^1];
         Reject("room palette-FX rejects incomplete beacon flash frame");
-        document.BeaconFlashing[0] = beaconFrame;
+        document.Programs["beaconFlashing"][0] = beaconFrame;
 
         string unknownField = Encoding.UTF8.GetString(extracted).Replace(
             $"\"version\": {RoomPaletteFxPresentationFormat.Version}",

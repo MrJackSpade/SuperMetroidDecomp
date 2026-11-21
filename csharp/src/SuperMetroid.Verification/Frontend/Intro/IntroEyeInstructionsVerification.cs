@@ -26,7 +26,7 @@ internal static class IntroEyeInstructionsVerification
         var narration = IntroNarrationFile.Read(
             new MemoryStream(IntroNarrationExtractor.Extract(rom), writable: false));
         var objects = new IntroNarrationActors(new IntroNarrationText(),
-            new IntroJapaneseSubtitles(enabled: false), AudioQueues.Standalone(), narrationPresentation: narration);
+            new IntroJapaneseSubtitles(SuperMetroid.Core.Progression.TextLanguage.English), AudioQueues.Standalone(), narrationPresentation: narration);
 
         var native = new NativeEyeReader(rom, IntroEyeAnimationDefinitionsConstants.StartPointer);
         Compare(objects, native, BlinkingUpdates, "blinking");

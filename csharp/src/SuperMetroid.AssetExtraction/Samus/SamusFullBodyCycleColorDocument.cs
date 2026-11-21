@@ -7,12 +7,12 @@ public sealed record SamusFullBodyCycleColorDocument
 {
     /// <summary>Gets the document schema revision.</summary>
     public required int Version { get; init; }
-    /// <summary>Suit order: Power, Varia, Gravity; each contains four 16-color shades.</summary>
-    public required PaletteRgb5[][][] SpeedBooster { get; init; }
-    /// <summary>Gets Power, Varia, and Gravity Screw Attack palettes, each with four 16-color shades.</summary>
-    public required PaletteRgb5[][][] ScrewAttack { get; init; }
-    /// <summary>Gets Power, Varia, and Gravity stored-shine palettes, each with four 16-color shades.</summary>
-    public required PaletteRgb5[][][] StoredShine { get; init; }
-    /// <summary>Gets Power, Varia, and Gravity active-shinespark palettes, each with four 16-color shades.</summary>
-    public required PaletteRgb5[][][] ActiveShinespark { get; init; }
+    /// <summary>Gets each suit's Speed Booster palettes, keyed by the suit's name, each with four 16-color shades.</summary>
+    public required Dictionary<string, PaletteRgb5[][]> SpeedBooster { get; init; }
+    /// <summary>Gets each suit's Screw Attack palettes, keyed by the suit's name, each with four 16-color shades.</summary>
+    public required Dictionary<string, PaletteRgb5[][]> ScrewAttack { get; init; }
+    /// <summary>Gets each suit's stored-shine palettes, keyed by the suit's name, each with four 16-color shades.</summary>
+    public required Dictionary<string, PaletteRgb5[][]> StoredShine { get; init; }
+    /// <summary>Gets each suit's active-shinespark palettes, keyed by the suit's name, each with four 16-color shades.</summary>
+    public required Dictionary<string, PaletteRgb5[][]> ActiveShinespark { get; init; }
 }

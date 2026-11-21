@@ -20,6 +20,12 @@ internal abstract class EndingScene
     {
     }
 
+    /// <summary>
+    /// The ending's phase the scene runs (#2560): the scene carries it, so the ending's phase and the scene it shows cannot
+    /// disagree.
+    /// </summary>
+    internal abstract EndingCreditsPhase Phase { get; }
+
     /// <summary>Runs one update of the scene's phase on the ending.</summary>
     /// <param name="ending">The ending showing the scene.</param>
     /// <returns>Whether the update goes on past the phase to the ending's colour effects and stars.</returns>

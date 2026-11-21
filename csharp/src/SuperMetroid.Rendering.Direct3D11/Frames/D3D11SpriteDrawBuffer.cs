@@ -81,7 +81,7 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
         foreach (ImageSpriteDraw image in draws)
         {
             // A draw in its picture's own colours shows the image's pixels as they are and packs no colours.
-            RgbColor[]? keyColours = image.Shading.IsStandard ? null : image.Shading.KeyColours(image.Image.Sheet);
+            RgbColor[]? keyColours = image.Shading.IsStandard ? null : image.Shading.KeyColours(image.Image.Sheet, D3D11ColourBlend.Instance);
             shadedColours.Add(keyColours);
             words += (keyColours?.Length ?? 0) + CorpseRotWords(image);
         }

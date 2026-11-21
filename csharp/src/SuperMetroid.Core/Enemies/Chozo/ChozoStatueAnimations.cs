@@ -15,11 +15,7 @@ internal static class ChozoStatueAnimations
     internal static AnimationSegments<ChozoStatueSegment, EnemyFrameId, ChozoStatueCue> Segments { get; } = new(
         new Dictionary<ChozoStatueSegment, AnimationBeat<EnemyFrameId, ChozoStatueCue>[]>
     {
-        [P.LowerNorfairIdle] =
-        [
-            Cue(new ChozoStatueCue.Signal(K.AwaitHand)),
-            Hold(EnemyFrameId.ChozoStatueLowerNorfairHandsCupped),
-        ],
+        [P.LowerNorfairIdle] = Idle(ChozoStatueHand.LowerNorfair),
         [P.LowerNorfairActivated] =
         [
             .. Grab(ChozoStatueHand.LowerNorfair, outstretchedUpdates: 48, openUpdates: 70, clenchedUpdates: 96),
@@ -32,11 +28,7 @@ internal static class ChozoStatueAnimations
             Cue(new ChozoStatueCue.Signal(K.UnlockSamus)),
             Cue(new ChozoStatueCue.Signal(K.SetLoweredAcidPosition)),
         ],
-        [P.WreckedShipIdle] =
-        [
-            Cue(new ChozoStatueCue.Signal(K.AwaitHand)),
-            Hold(EnemyFrameId.ChozoStatueWreckedShipHandsCupped),
-        ],
+        [P.WreckedShipIdle] = Idle(ChozoStatueHand.WreckedShip),
         [P.WreckedShipActivated] = Grab(ChozoStatueHand.WreckedShip, outstretchedUpdates: 80, openUpdates: 134, clenchedUpdates: 128),
         [P.WreckedShipFlexing] = Flex(ChozoStatueHand.WreckedShip),
         [P.WreckedShipWalkingWithSamus] =
@@ -104,6 +96,10 @@ internal static class ChozoStatueAnimations
         Show(hand.FingersCurled, 12),
         Show(hand.FingersClenched, clenchedUpdates),
     ];
+
+    /// <summary>A statue waiting for Samus to sit in <paramref name="hand"/>, its hands cupped.</summary>
+    private static AnimationBeat<EnemyFrameId, ChozoStatueCue>[] Idle(ChozoStatueHand hand) =>
+        [Cue(new ChozoStatueCue.Signal(K.AwaitHand)), Hold(hand.HandsCupped)];
 
     /// <summary>One flex of <paramref name="hand"/>'s fingers (#2477), its eye glowing: curling, curled, clenched and back.</summary>
     private static AnimationBeat<EnemyFrameId, ChozoStatueCue>[] Flex(ChozoStatueHand hand) =>

@@ -54,7 +54,7 @@ internal sealed class FileSelectGameSequence(FrontendSession session, FileSelect
             // stored map that is now empty.
             StoredExploredMapLoads.ClearAll(session.storedExploredMaps);
         }
-        session.display.PublishMenu(slots);
+        session.display.Publish(slots);
         if (slots.Outcome == FileSelectMenuOutcome.Title)
         {
             // The game soft-resets when the menu returns to the title. Starting the title again
@@ -78,12 +78,12 @@ internal sealed class FileSelectGameSequence(FrontendSession session, FileSelect
                 optionSlot?.ControllerBindings ?? ControllerBindings.Default,
                 optionSlot?.IconCancelEnabled ?? false,
                 optionSlot?.MoonwalkEnabled ?? false,
-                japaneseText: optionSlot?.JapaneseText ?? false)
+                language: optionSlot?.Language ?? TextLanguage.English)
             {
                 StartupRoute = optionSlot?.StartupRoute ?? SaveStartupRoute.OpeningCinematic,
             });
             Current = new Stage.Options(options);
-            session.display.PublishMenu(options);
+            session.display.Publish(options);
         }
     }
 
@@ -91,13 +91,13 @@ internal sealed class FileSelectGameSequence(FrontendSession session, FileSelect
     private void RunOptions(GameOptionsMenuState options, ControllerButton controllerInput)
     {
         options.Step(controllerInput);
-        session.display.PublishMenu(options);
+        session.display.Publish(options);
         if (options.Outcome == GameOptionsMenuOutcome.FileSelect)
         {
             FileSelectMenuState slots = session.Show(new FileSelectMenuState(session.saves, session.audio, session.Artwork.ScreenContent,
                 session.Artwork.SpriteSheets));
             Current = new Stage.SaveSlots(slots);
-            session.display.PublishMenu(slots);
+            session.display.Publish(slots);
         }
         else if (options.Outcome == GameOptionsMenuOutcome.Intro)
         {
@@ -224,7 +224,7 @@ internal sealed class FileSelectGameSequence(FrontendSession session, FileSelect
             StartSavedCeresDestruction(mapSlot);
             return false;
         }
-        if (mapSlot.Checkpoint.Area != AreaId.Ceres)
+        if (AreaIds.IsZebes(mapSlot.Checkpoint.Area))
             return true;
         // Ceres has no world-map entry; preserve its checkpoint arrival path.
         bool continueUsesCeresArrival = session.SetupSelectedGame();
@@ -261,12 +261,12 @@ internal sealed class FileSelectGameSequence(FrontendSession session, FileSelect
     }
 
     /// <summary>Starts the opening cinematic in the text language the options menu selected.</summary>
-    private IntroCinematicState CreateIntroCinematic(bool japaneseText)
+    private IntroCinematicState CreateIntroCinematic(TextLanguage language)
     {
         var cinematic = new IntroCinematicState(new IntroCinematicOverreads(
             session.Artwork.SamusOverreads, session.Artwork.BossAndIntroOverreads.ShellFragmentFallPastCurve),
             session.audio, session.Artwork.FlashbackSamusArtwork(),
-            session.Artwork.IntroCinematicArt, japaneseText)
+            session.Artwork.IntroCinematicArt, language)
         {
             Random = session.Random,
             UnauthoredBoostCadence = session.unauthoredBoostCadence,

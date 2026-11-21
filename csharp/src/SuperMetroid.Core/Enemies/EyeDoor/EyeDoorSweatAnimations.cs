@@ -34,9 +34,6 @@ internal static class EyeDoorSweatAnimations
         [P.HitFloor] = new([Segments.Whole(P.HitFloor)], AnimationEnd.Holds),
     };
 
-    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<EyeDoorSweatSegment> StartingWith(EyeDoorSweatSegment segment) => StartingAt[segment];
-
     /// <summary>A still picture (#2275): <paramref name="frame"/>, held from the update it shows.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, EyeDoorProjectileCue> Hold(EnemyProjectileFrameId frame) => new AnimationBeat<EnemyProjectileFrameId, EyeDoorProjectileCue>.HeldFrame(frame);
 

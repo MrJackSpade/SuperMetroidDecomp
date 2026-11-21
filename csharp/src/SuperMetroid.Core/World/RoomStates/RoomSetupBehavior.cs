@@ -294,7 +294,8 @@ public abstract class RoomSetupBehavior
     {
         RoomScopeConstruction scope = Ensure.NotNull(composition).Scope;
         scope.ComposeCeresHaze(
-            ridleyIsDead: composition.System.HasDefeatedAnyOf(scope.Room.Area, DefeatedBosses.AreaBoss),
+            composition.System.HasDefeatedAnyOf(scope.Room.Area, DefeatedBosses.AreaBoss)
+                ? CeresHazeTint.AfterRidleyDies : CeresHazeTint.WhileRidleyLives,
             immediateViewport: composition.DisplaysInitialViewport);
     }
 

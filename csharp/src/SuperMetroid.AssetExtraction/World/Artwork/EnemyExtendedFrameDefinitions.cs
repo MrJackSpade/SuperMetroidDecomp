@@ -1,6 +1,8 @@
 using System.Collections.Immutable;
+using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 using SuperMetroid.AssetExtraction.Bosses.Crocomire.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Kraid.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
@@ -33,7 +35,7 @@ internal static class EnemyExtendedFrameDefinitions
     /// <summary>Draygon frames whose editable content consists solely of BG2 tiles.</summary>
     internal const int DraygonBg2FrameCount = 32;
     /// <summary>Phantoon frames whose editable content consists solely of BG2 tiles.</summary>
-    internal const int PhantoonBg2FrameCount = 20;
+    internal const int PhantoonBg2FrameCount = 18;
     /// <summary>Ceres steam OAM frames added after Spore Spawn identities.</summary>
     private const int CeresSteamFrameCount = 28;
     /// <summary>Oum snail OAM frames supplied by Maridia's instruction catalog.</summary>
@@ -87,52 +89,57 @@ internal static class EnemyExtendedFrameDefinitions
         DraygonBg2FrameCount + PhantoonBg2FrameCount + CrocomireSkeletonVisualDefinitions.FrameCount +
         KraidFootVisualDefinitions.FrameCount;
 
-    /// <summary>Every extended frame, each with its document name, in the document's order.</summary>
-    internal static ImmutableArray<EnemyFrameName> Frames { get; } =
-        [.. EnemyExtendedFrameDocumentOrder.Frames.Select(frame => new EnemyFrameName(frame, EnemyFrameNameDefinitions.Names[frame]))];
-
-    /// <summary>The frames of <paramref name="family"/>, as the document's run of that family holds them.</summary>
+    /// <summary>The frames of <paramref name="family"/>, as the document's first run of that family holds them.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The document holds no run of the family.</exception>
     internal static IEnumerable<EnemyFrameName> FramesOf(EnemyExtendedFrameFamily family)
     {
-        int before = 0;
         foreach (EnemyExtendedFrameRun run in FamilyRuns)
         {
             if (run.Family == family)
-                return Frames.Skip(before).Take(run.Count);
-            before += run.Count;
+                return run.Frames.Select(Named);
         }
         throw new ArgumentOutOfRangeException(nameof(family), family, "The document holds no frames of the family.");
     }
 
+    /// <summary><paramref name="frame"/> with its document name.</summary>
+    private static EnemyFrameName Named(EnemyFrameId frame) => new(frame, EnemyFrameNameDefinitions.Names[frame]);
+
+    /// <summary>$10: the high byte of Ceres steam's spritemap headers, cartridge drawing metadata after the component count (#1415).</summary>
+    private const int CeresSteamHeaderHighByte = 16;
+
     /// <summary>The document's frames as runs of one enemy family each, in the document's order (#1623).</summary>
     internal static ImmutableArray<EnemyExtendedFrameRun> FamilyRuns { get; } =
     [
-        new(EnemyExtendedFrameFamily.WalkingPirate, WalkingFrameCount),
-        new(EnemyExtendedFrameFamily.WallPirate, WallFrameCount),
-        new(EnemyExtendedFrameFamily.NinjaPirate, NinjaFrameCount),
-        new(EnemyExtendedFrameFamily.RidleyBody, BossSpriteFrameDefinitions.RidleyFrameCount),
-        new(EnemyExtendedFrameFamily.Draygon, BossSpriteFrameDefinitions.DraygonSpriteFrameCount),
-        new(EnemyExtendedFrameFamily.SporeSpawn, BossSpriteFrameDefinitions.SporeSpawnSpriteFrameCount),
-        new(EnemyExtendedFrameFamily.CeresSteam, CeresSteamFrameCount),
-        new(EnemyExtendedFrameFamily.Oum, OumFrameCount),
-        new(EnemyExtendedFrameFamily.CrocomireTongue, CrocomireSpriteFrameCount),
-        new(EnemyExtendedFrameFamily.CrocomireBody, CrocomireBodyFrameCount),
-        new(EnemyExtendedFrameFamily.BombTorizo, BombTorizoDormantFrameCount),
-        new(EnemyExtendedFrameFamily.GoldenTorizo, TorizoFacingLeftStandingUpThirdFrameCount),
-        new(EnemyExtendedFrameFamily.KraidArm, KraidArmFrameCount),
-        new(EnemyExtendedFrameFamily.GoldenTorizo, GoldenTorizoAwakeningFrameCount + GoldenTorizoWalkingFrameCount + GoldenTorizoRightwardFrameCount),
-        new(EnemyExtendedFrameFamily.TorizoJumpBack, TorizoJumpBackFrameCount),
-        new(EnemyExtendedFrameFamily.GoldenTorizo, GoldenTorizoRightOrbFrameCount + GoldenTorizoRightSonicFrameCount),
-        new(EnemyExtendedFrameFamily.TorizoFacingLeftSpringing, TorizoFacingLeftSpringingFrameCount),
-        new(EnemyExtendedFrameFamily.GoldenTorizo, GoldenTorizoLeftFootOrbFrameCount),
-        new(EnemyExtendedFrameFamily.TorizoJumpBack, TorizoJumpBackLeftNewFrameCount),
-        new(EnemyExtendedFrameFamily.GoldenTorizo, GoldenTorizoLeftOrbFrameCount),
-        new(EnemyExtendedFrameFamily.TorizoCombat, CompleteTorizoAdditionalFrameCount),
-        new(EnemyExtendedFrameFamily.MotherBrainBody, MotherBrainBodyFrameDefinitions.FrameCount),
-        new(EnemyExtendedFrameFamily.Phantoon, PhantoonBg2FrameCount),
-        new(EnemyExtendedFrameFamily.Draygon, DraygonBg2FrameCount),
-        new(EnemyExtendedFrameFamily.CrocomireSkeleton, CrocomireSkeletonVisualDefinitions.FrameCount),
-        new(EnemyExtendedFrameFamily.KraidFoot, KraidFootVisualDefinitions.FrameCount),
+        new(EnemyExtendedFrameFamily.WalkingPirate, EnemyExtendedFrameDocumentOrder.WalkingPirate),
+        new(EnemyExtendedFrameFamily.WallPirate, EnemyExtendedFrameDocumentOrder.WallPirate),
+        new(EnemyExtendedFrameFamily.NinjaPirate, EnemyExtendedFrameDocumentOrder.NinjaPirate),
+        new(EnemyExtendedFrameFamily.RidleyBody, EnemyExtendedFrameDocumentOrder.RidleyBody),
+        new(EnemyExtendedFrameFamily.Draygon, EnemyExtendedFrameDocumentOrder.DraygonSprites),
+        new(EnemyExtendedFrameFamily.SporeSpawn, EnemyExtendedFrameDocumentOrder.SporeSpawn),
+        new(EnemyExtendedFrameFamily.CeresSteam, EnemyExtendedFrameDocumentOrder.CeresSteam, HeaderHighByte: CeresSteamHeaderHighByte),
+        new(EnemyExtendedFrameFamily.Oum, EnemyExtendedFrameDocumentOrder.Oum),
+        new(EnemyExtendedFrameFamily.CrocomireTongue, EnemyExtendedFrameDocumentOrder.CrocomireTongue),
+        new(EnemyExtendedFrameFamily.CrocomireBody, EnemyExtendedFrameDocumentOrder.CrocomireBody, EnemyExtendedFrameLayers.SpritesBesideBg2),
+        new(EnemyExtendedFrameFamily.BombTorizo, EnemyExtendedFrameDocumentOrder.BombTorizoDormant),
+        new(EnemyExtendedFrameFamily.GoldenTorizo, EnemyExtendedFrameDocumentOrder.TorizoFacingLeftStandingUpThird),
+        new(EnemyExtendedFrameFamily.KraidArm, EnemyExtendedFrameDocumentOrder.KraidArm),
+        new(EnemyExtendedFrameFamily.GoldenTorizo, EnemyExtendedFrameDocumentOrder.GoldenTorizoAwakeningWalkingAndTurning),
+        new(EnemyExtendedFrameFamily.TorizoJumpBack, EnemyExtendedFrameDocumentOrder.TorizoJumpBack),
+        new(EnemyExtendedFrameFamily.GoldenTorizo, EnemyExtendedFrameDocumentOrder.GoldenTorizoRightOrbAndSonic),
+        new(EnemyExtendedFrameFamily.TorizoFacingLeftSpringing, EnemyExtendedFrameDocumentOrder.TorizoFacingLeftSpringing),
+        new(EnemyExtendedFrameFamily.GoldenTorizo, EnemyExtendedFrameDocumentOrder.GoldenTorizoLeftFootOrb),
+        new(EnemyExtendedFrameFamily.TorizoJumpBack, EnemyExtendedFrameDocumentOrder.TorizoJumpBackLeft),
+        new(EnemyExtendedFrameFamily.GoldenTorizo, EnemyExtendedFrameDocumentOrder.GoldenTorizoLeftOrb),
+        new(EnemyExtendedFrameFamily.TorizoCombat, EnemyExtendedFrameDocumentOrder.TorizoCombat),
+        new(EnemyExtendedFrameFamily.MotherBrainBody, EnemyExtendedFrameDocumentOrder.MotherBrainBody, EnemyExtendedFrameLayers.SpritesBesideBg2,
+            MotherBrainBodyBg2FrameDefinitions.MaximumComponents),
+        new(EnemyExtendedFrameFamily.Phantoon, EnemyExtendedFrameDocumentOrder.PhantoonBg2, EnemyExtendedFrameLayers.Bg2Only, PhantoonBg2FrameDefinitions.MaximumComponents),
+        new(EnemyExtendedFrameFamily.Draygon, EnemyExtendedFrameDocumentOrder.DraygonBg2, EnemyExtendedFrameLayers.Bg2Only, DraygonBg2FrameDefinitions.MaximumComponents),
+        new(EnemyExtendedFrameFamily.CrocomireSkeleton, EnemyExtendedFrameDocumentOrder.CrocomireSkeleton,
+            MaximumComponents: CrocomireSkeletonVisualDefinitions.MaximumComponents),
+        new(EnemyExtendedFrameFamily.KraidFoot, EnemyExtendedFrameDocumentOrder.KraidFoot),
     ];
+
+    /// <summary>Every extended frame, each with its document name, in the document's order: each family run's frames in turn.</summary>
+    internal static ImmutableArray<EnemyFrameName> Frames { get; } = [.. FamilyRuns.SelectMany(run => run.Frames).Select(Named)];
 }

@@ -25,18 +25,9 @@ internal sealed class NoobTubeProjectileAnimation
     /// <summary>A piece's animation whose runner hands <paramref name="owner"/> the animation's <paramref name="mirroring"/>.</summary>
     private NoobTubeProjectileAnimation(
         NoobTubeBehavior.NoobTubeProjectileBehavior owner, Animation<NoobTubeProjectileSegment> animation, NoobTubeShardMirroring mirroring)
-        : base(animation, new PieceCues(Ensure.NotNull(owner), mirroring)) => _mirroring = mirroring;
+        : base(animation.Phases[0].Segment, animation, new PieceCues(Ensure.NotNull(owner), mirroring)) => _mirroring = mirroring;
     /// <inheritdoc/>
     private protected override AnimationSegments<NoobTubeProjectileSegment, NoobTubeProjectileFrame, NoobTubeProjectileCue> Segments => NoobTubeProjectileAnimations.Segments;
-
-    /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<NoobTubeProjectileSegment, Animation<NoobTubeProjectileSegment>> StartingAt => NoobTubeProjectileAnimations.StartingAt;
-
-    /// <summary>The segment <paramref name="started"/> starts at: a shard's flight, or the segment the crack's or a bubble's is keyed by.</summary>
-    private protected override NoobTubeProjectileSegment SegmentStartedAt(Animation<NoobTubeProjectileSegment> started) =>
-        NoobTubeProjectileAnimations.ShardAnimations.Values.Any(shard => ReferenceEquals(shard, started))
-            ? started.Phases[0].Segment
-            : base.SegmentStartedAt(started);
 
     /// <inheritdoc/>
     private protected override EnemyProjectileFrameId Present(NoobTubeProjectileFrame frame) =>

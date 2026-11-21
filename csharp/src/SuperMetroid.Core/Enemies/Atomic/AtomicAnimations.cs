@@ -1,6 +1,7 @@
 using P = SuperMetroid.Core.Enemies.Atomic.AtomicSegment;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.Artwork;
+using Beats = SuperMetroid.Core.Animation.AnimationBeats<SuperMetroid.Core.Enemies.Artwork.EnemyFrameId, SuperMetroid.Core.Animation.NoAnimationCue>;
 
 namespace SuperMetroid.Core.Enemies.Atomic;
 
@@ -10,46 +11,27 @@ namespace SuperMetroid.Core.Enemies.Atomic;
 /// </summary>
 internal static class AtomicAnimations
 {
-    /// <summary>Every segment's beats.</summary>
+    /// <summary>The updates each of Atomic's turning frames shows for.</summary>
+    private const int TurnUpdates = 8;
+
+    /// <summary>Atomic turning while it faces up and right, a sixth of a turn a frame.</summary>
+    private static AnimationBeat<EnemyFrameId, NoAnimationCue>[] UpRightTurn { get; } = Beats.Steady(TurnUpdates,
+        EnemyFrameId.AtomicFacingUpRightTurned0, EnemyFrameId.AtomicFacingUpRightTurned60, EnemyFrameId.AtomicFacingUpRightTurned120,
+        EnemyFrameId.AtomicFacingUpRightTurned180, EnemyFrameId.AtomicFacingUpRightTurned240, EnemyFrameId.AtomicFacingUpRightTurned300);
+
+    /// <summary>Atomic turning while it faces up and left, a sixth of a turn a frame.</summary>
+    private static AnimationBeat<EnemyFrameId, NoAnimationCue>[] UpLeftTurn { get; } = Beats.Steady(TurnUpdates,
+        EnemyFrameId.AtomicFacingUpLeftTurned0, EnemyFrameId.AtomicFacingUpLeftTurned60, EnemyFrameId.AtomicFacingUpLeftTurned120,
+        EnemyFrameId.AtomicFacingUpLeftTurned180, EnemyFrameId.AtomicFacingUpLeftTurned240, EnemyFrameId.AtomicFacingUpLeftTurned300);
+
+    /// <summary>Every segment's beats: each turn, and each turn played back the other way.</summary>
     internal static AnimationSegments<AtomicSegment, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
         new Dictionary<AtomicSegment, AnimationBeat<EnemyFrameId, NoAnimationCue>[]>
     {
-        [P.UpRightTurning] =
-        [
-            Show(EnemyFrameId.AtomicFacingUpRightTurned0, 8),
-            Show(EnemyFrameId.AtomicFacingUpRightTurned60, 8),
-            Show(EnemyFrameId.AtomicFacingUpRightTurned120, 8),
-            Show(EnemyFrameId.AtomicFacingUpRightTurned180, 8),
-            Show(EnemyFrameId.AtomicFacingUpRightTurned240, 8),
-            Show(EnemyFrameId.AtomicFacingUpRightTurned300, 8),
-        ],
-        [P.UpLeftTurning] =
-        [
-            Show(EnemyFrameId.AtomicFacingUpLeftTurned0, 8),
-            Show(EnemyFrameId.AtomicFacingUpLeftTurned60, 8),
-            Show(EnemyFrameId.AtomicFacingUpLeftTurned120, 8),
-            Show(EnemyFrameId.AtomicFacingUpLeftTurned180, 8),
-            Show(EnemyFrameId.AtomicFacingUpLeftTurned240, 8),
-            Show(EnemyFrameId.AtomicFacingUpLeftTurned300, 8),
-        ],
-        [P.UpRightTurningBack] =
-        [
-            Show(EnemyFrameId.AtomicFacingUpRightTurned300, 8),
-            Show(EnemyFrameId.AtomicFacingUpRightTurned240, 8),
-            Show(EnemyFrameId.AtomicFacingUpRightTurned180, 8),
-            Show(EnemyFrameId.AtomicFacingUpRightTurned120, 8),
-            Show(EnemyFrameId.AtomicFacingUpRightTurned60, 8),
-            Show(EnemyFrameId.AtomicFacingUpRightTurned0, 8),
-        ],
-        [P.UpLeftTurningBack] =
-        [
-            Show(EnemyFrameId.AtomicFacingUpLeftTurned300, 8),
-            Show(EnemyFrameId.AtomicFacingUpLeftTurned240, 8),
-            Show(EnemyFrameId.AtomicFacingUpLeftTurned180, 8),
-            Show(EnemyFrameId.AtomicFacingUpLeftTurned120, 8),
-            Show(EnemyFrameId.AtomicFacingUpLeftTurned60, 8),
-            Show(EnemyFrameId.AtomicFacingUpLeftTurned0, 8),
-        ],
+        [P.UpRightTurning] = UpRightTurn,
+        [P.UpLeftTurning] = UpLeftTurn,
+        [P.UpRightTurningBack] = Beats.Backwards(UpRightTurn),
+        [P.UpLeftTurningBack] = Beats.Backwards(UpLeftTurn),
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
@@ -63,7 +45,4 @@ internal static class AtomicAnimations
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<AtomicSegment> StartingWith(AtomicSegment segment) => StartingAt[segment];
-
-    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<EnemyFrameId, NoAnimationCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame(frame, duration);
 }

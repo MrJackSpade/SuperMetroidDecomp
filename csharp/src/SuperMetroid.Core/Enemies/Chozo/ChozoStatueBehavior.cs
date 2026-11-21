@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Animation;
-using SuperMetroid.Core.Enemies.Chozo.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -62,7 +61,8 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemySpawnFactory<Ch
         statue.AnimationClock.Restart();
 
         // The statue shows its own colours, the shade of its site's statue, which no other enemy shows (#1512).
-        statue.Shading = PictureShading.Shaded(site == ChozoStatueSite.WreckedShip ? ChozoAndTubeShades.WreckedShipStatue : ChozoAndTubeShades.LowerNorfairStatue);
+        ChozoStatueSiteDefinition definition = Ensure.Listed(ChozoStatueSiteDefinitions.Sites, site);
+        statue.Shading = PictureShading.Shaded(definition.Shade);
 
         var state = new ChozoStatueState { Site = site };
         // The statue's hand carries what triggering it wakes: this statue, as its room lists it first (#2554).
@@ -93,22 +93,36 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemySpawnFactory<Ch
     {
         statueState.TriggerHand();
         DisableChozoStatueSamusControls();
-        if (statueState.Site == ChozoStatueSite.LowerNorfair)
+        return Ensure.Listed(HandWakings, statueState.Site)();
+    }
+
+    /// <summary>What each site's hand trigger does to its room, returning the room objects it asks for in order.</summary>
+    private IReadOnlyDictionary<ChozoStatueSite, Func<IReadOnlyList<RoomObjectSpawnRequest<ChozoStatueRoomObject>>>> HandWakings => field ??=
+        new Dictionary<ChozoStatueSite, Func<IReadOnlyList<RoomObjectSpawnRequest<ChozoStatueRoomObject>>>>
         {
-            // Lower Norfair's hand trigger records the acid-lowered event before waking the actor.
-            _room.Services.Events.Set(StoryEvent.LowerNorfairChozoLoweredAcid);
-            return [new(ChozoStatueRoomDefinitions.LowerNorfairHandBlock, ChozoStatueRoomObject.PlugCrumbleAtHand)];
-        }
-        else
-        {
-            // The Wrecked Ship hand opens two pairs of the room's screens before handing the statue to its carry: two
-            // open, then the two below them open with the camera aligned to their top. The slope access's opening then queues its terrain change.
-            foreach (Position16<RoomScreens> screen in ChozoStatueRoomDefinitions.WakingOpenScreens)
-                _room.Services.RoomScroll.Write(screen, RoomScrollState.Open);
-            foreach (Position16<RoomScreens> screen in ChozoStatueRoomDefinitions.WakingTopAlignedScreens)
-                _room.Services.RoomScroll.Write(screen, RoomScrollState.OpenAlignedToTop);
-            return [new(ChozoStatueRoomDefinitions.WreckedShipSlopeAccessBlock, ChozoStatueRoomObject.SlopeAccessOpening)];
-        }
+            [ChozoStatueSite.LowerNorfair] = WakeLowerNorfairStatue,
+            [ChozoStatueSite.WreckedShip] = WakeWreckedShipStatue,
+        };
+
+    /// <summary>Lower Norfair's hand trigger records the acid-lowered event before waking the actor, and plugs the hand.</summary>
+    private IReadOnlyList<RoomObjectSpawnRequest<ChozoStatueRoomObject>> WakeLowerNorfairStatue()
+    {
+        _room.Services.Events.Set(StoryEvent.LowerNorfairChozoLoweredAcid);
+        return [new(ChozoStatueRoomDefinitions.LowerNorfairHandBlock, ChozoStatueRoomObject.PlugCrumbleAtHand)];
+    }
+
+    /// <summary>
+    /// The Wrecked Ship hand opens two pairs of the room's screens before handing the statue to its carry: two open, then
+    /// the two below them open with the camera aligned to their top. The slope access's opening then queues its terrain
+    /// change.
+    /// </summary>
+    private IReadOnlyList<RoomObjectSpawnRequest<ChozoStatueRoomObject>> WakeWreckedShipStatue()
+    {
+        foreach (Position16<RoomScreens> screen in ChozoStatueRoomDefinitions.WakingOpenScreens)
+            _room.Services.RoomScroll.Write(screen, RoomScrollState.Open);
+        foreach (Position16<RoomScreens> screen in ChozoStatueRoomDefinitions.WakingTopAlignedScreens)
+            _room.Services.RoomScroll.Write(screen, RoomScrollState.OpenAlignedToTop);
+        return [new(ChozoStatueRoomDefinitions.WreckedShipSlopeAccessBlock, ChozoStatueRoomObject.SlopeAccessOpening)];
     }
 
     /// <summary>
@@ -120,9 +134,8 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemySpawnFactory<Ch
         if (state.Phase != ChozoStatuePhase.HandTriggered)
             return;
 
-        state.Playback = new(ChozoStatueAnimations.StartingWith(chozoStatueSpawnSettings.Site == ChozoStatueSite.WreckedShip
-            ? ChozoStatueSegment.WreckedShipActivated
-            : ChozoStatueSegment.LowerNorfairActivated), AnimationPlace.StartOfAnimation);
+        state.Playback = new(ChozoStatueAnimations.StartingWith(
+            Ensure.Listed(ChozoStatueSiteDefinitions.Sites, chozoStatueSpawnSettings.Site).Activated), AnimationPlace.StartOfAnimation);
         statue.AnimationClock.StepOnNextUpdate();
         state.Phase = ChozoStatuePhase.Activated;
     }
@@ -239,7 +252,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemySpawnFactory<Ch
         if (projectile is null)
             return;
 
-        projectile.StartAnimation(new ChozoTourianDustAnimation(ChozoTourianDustAnimations.StartingWith(ChozoTourianDustSegment.Footsteps)));
+        projectile.StartAnimation(new ChozoTourianDustAnimation(ChozoTourianDustAnimations.StartingAt[ChozoTourianDustSegment.Footsteps]));
         projectile.Position = projectile.Position.WithWhole(new(statue.Position.X.Whole + footstepOffsetX, statue.Position.Y.Whole + ChozoStatueRoomDefinitions.FootstepDepth));
     }
 

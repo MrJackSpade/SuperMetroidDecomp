@@ -38,7 +38,7 @@ internal static class BotwoonWallObjectsVerification
         cursor += 2;
         foreach (RoomCollisionType collision in draw.Runs.Span[0].Collisions.Span)
             AssertCollision(collision);
-        RoomObjectFrameImage picture = InstalledRoomObjectBotwoonWallVisuals.Stock().Image(draw.Draw);
+        RoomObjectFrameImage picture = RoomObjectPicturesStock.BotwoonWall.Image(draw.Draw);
         if (!RoomObjectDrawIdentity.TryShape(BotwoonWallObjectDraws.Family, draw.Draw, out RoomBlockShape? described))
             throw new InvalidOperationException("Botwoon's wall clear has no shape.");
         RoomBlockShape shape = described;

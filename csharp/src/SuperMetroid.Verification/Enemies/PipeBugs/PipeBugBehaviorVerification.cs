@@ -252,7 +252,7 @@ internal static class PipeBugBehaviorVerification
             case EnemyDefinitionId.RidleyCeres:
             case EnemyDefinitionId.Ridley:
             case EnemyDefinitionId.RidleyBreakupPiece:
-            case EnemyDefinitionId.CeresSteam:
+            case EnemyDefinitionId.SteamVent:
             case EnemyDefinitionId.CeresDoor:
             case EnemyDefinitionId.CeresRidleyRoomDoor:
             case EnemyDefinitionId.CeresElevatorDoor:

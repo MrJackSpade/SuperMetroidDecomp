@@ -171,7 +171,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemySpawnFactory<PowampS
     {
         // The ordinary rise changes behaviour and runs the grappled behaviour immediately
         // on the frame the grapple beam takes hold.
-        bool grappleAiActive = (body.AiStates & EnemyAiStates.Grappled) != EnemyAiStates.None;
+        bool grappleAiActive = body.IsGrappled;
         if (hold != PowampHold.Grappled && grappleAiActive)
         {
             state.Action = PowampAction.GrappledRiseToTargetHeight;
@@ -223,7 +223,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemySpawnFactory<PowampS
         RoomLevelData level,
         PowampHold hold)
     {
-        bool grappleAiActive = (body.AiStates & EnemyAiStates.Grappled) != EnemyAiStates.None;
+        bool grappleAiActive = body.IsGrappled;
         if (hold == PowampHold.Grappled && !grappleAiActive)
         {
             state.Action = PowampAction.InflatedFinishWiggle;
@@ -253,7 +253,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemySpawnFactory<PowampS
         PowampBodyState state,
         PowampBalloon balloon)
     {
-        if ((body.AiStates & EnemyAiStates.Grappled) == EnemyAiStates.None)
+        if (!body.IsGrappled)
             StartPowampDeflating(state, balloon);
         AlignPowampBalloonY(body, balloon);
     }
@@ -361,15 +361,15 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemySpawnFactory<PowampS
     /// <summary>Copies common shot/freeze presentation from the body to its balloon.</summary>
     private static void ResolvePowampShotAfterCommon(RoomEnemyPlace body, PowampBodyState powampBodyState, RoomEnemyPlace balloon)
     {
-        if ((body.AiStates & EnemyAiStates.Frozen) != EnemyAiStates.None)
+        if (body.IsFrozen)
         {
             balloon.Freeze.Restart(body.Freeze.UpdatesLeft);
-            balloon.AiStates = balloon.AiStates | EnemyAiStates.Frozen;
+            balloon.MarkFrozen();
         }
-        if ((body.AiStates & EnemyAiStates.Hurt) != EnemyAiStates.None)
+        if (body.IsHurt)
         {
             balloon.HurtFlash.Restart(body.HurtFlash.UpdatesLeft);
-            balloon.AiStates = balloon.AiStates | EnemyAiStates.Hurt;
+            balloon.MarkHurt();
         }
         if (body.Health == 0)
         {
@@ -572,7 +572,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemySpawnFactory<PowampS
         // A lethal shot starts the Powamp's death delay, during which later shots pass through it, neither spent
         // nor exploding, while the body visibly deflates; it dies in its own way, not in the usual burst.
         SkipsEnemy = refusesContact,
-        ExemptFromGenericDeath = true,
+        Lethal = EnemyShotLethal.SpeciesOwned,
         // A shot damages a Powamp without the hit burst.
         ShowsHitBurst = EnemyShotReaction.NeverShowsHitBurst,
         AfterCommon = afterCommon,

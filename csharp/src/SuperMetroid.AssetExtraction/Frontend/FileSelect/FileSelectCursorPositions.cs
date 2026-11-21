@@ -9,15 +9,6 @@ namespace SuperMetroid.AssetExtraction.Frontend.FileSelect;
 /// </summary>
 internal static class FileSelectCursorPositions
 {
-    /// <summary>The save slots, A-C, each file-select page lists.</summary>
-    internal const int SaveSlotCount = 3;
-
-    /// <summary>Slots A-C followed by Copy, Clear and Exit.</summary>
-    internal const int MainSelectionCount = 6;
-
-    /// <summary>Slots A-C followed by Exit.</summary>
-    internal const int DataSelectionCount = 4;
-
     /// <summary>The main-page cursor's X, the same for every choice.</summary>
     internal const int MainCursorX = 14;
 
@@ -43,8 +34,8 @@ internal static class FileSelectCursorPositions
     {
         if (!FileSelectItemRows.MainWithData.Contains(row)) throw new ArgumentOutOfRangeException(nameof(row), row, "Not a main-page row.");
         int rowsAbove = FileSelectItemRows.MainWithData.PlaceOf(row);
-        return rowsAbove < SaveSlotCount ? 48 + 40 * rowsAbove
-            : 163 + 24 * (rowsAbove - SaveSlotCount);
+        return rowsAbove < SaveSlots.All.Count ? 48 + 40 * rowsAbove
+            : 163 + 24 * (rowsAbove - SaveSlots.All.Count);
     }
 
     /// <summary>Calculates the copy/clear cursor Y for the save slots and Exit.</summary>

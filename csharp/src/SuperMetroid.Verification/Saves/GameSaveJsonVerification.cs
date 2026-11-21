@@ -63,7 +63,7 @@ internal static class GameSaveJsonVerification
         SuperMetroidSaveSnapshot snapshot = SuperMetroidSaveSnapshot.Capture(samus, system, SaveSnapshotFixtures.At(SuperMetroid.Core.Progression.LoadStationDefinitions.RedBrinstarSave) with { GameTime = time, ControllerBindings = bindings, MoonwalkEnabled = true, IconCancelEnabled = true });
         saveRam.SaveSlot(SaveSlot.B, snapshot);
 
-        snapshot = snapshot with { JapaneseText = true };
+        snapshot = snapshot with { Language = TextLanguage.Japanese };
         saveRam.SaveSlot(SaveSlot.B, snapshot);
         saveRam.CompleteGame();
         saveRam.SelectSlot(SaveSlot.B);
@@ -90,9 +90,9 @@ internal static class GameSaveJsonVerification
         SuperMetroidSaveSlot restoredSlot = restored.ReadSlot(SaveSlot.B) ??
             throw new InvalidOperationException("JSON round trip lost slot 1.");
         AssertTrue(ReferenceEquals(SuperMetroid.Core.Progression.LoadStationDefinitions.RedBrinstarSave, restoredSlot.Checkpoint), "JSON checkpoint station");
-        AssertEqual(94, restoredSlot.Health, "JSON health");
-        AssertEqual(15, restoredSlot.MaxMissiles, "JSON missile capacity");
-        AssertTrue(restoredSlot.CollectedItems.HasAll(
+        AssertEqual(94, restoredSlot.Inventory.Health, "JSON health");
+        AssertEqual(15, restoredSlot.Inventory.MaxMissiles, "JSON missile capacity");
+        AssertTrue(restoredSlot.Inventory.CollectedItems.HasAll(
             SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs | SamusEquipmentFlags.VariaSuit),
             "JSON collected equipment flags");
         SuperMetroidSaveSlot savedSlot = saveRam.ReadSlot(SaveSlot.B) ?? throw new InvalidOperationException("The saved slot 1 failed.");
@@ -101,7 +101,7 @@ internal static class GameSaveJsonVerification
         AssertTrue(restoredSlot.Progression.Events.Members.SequenceEqual([StoryEvent.ZebesAwake]),
             "JSON keeps the story events by name");
         AssertEqual(bindings, restoredSlot.ControllerBindings, "JSON controller bindings");
-        AssertEqual(ReserveTankMode.Auto, restoredSlot.ReserveMode, "JSON reserve-tank mode");
+        AssertEqual(ReserveTankMode.Auto, restoredSlot.Inventory.ReserveMode, "JSON reserve-tank mode");
         AssertEqual(HudItem.SuperMissile, restoredSlot.HudItem, "JSON HUD selection");
         AssertEqual(time, restoredSlot.GameTime, "JSON game time");
 
@@ -109,7 +109,7 @@ internal static class GameSaveJsonVerification
             json.Replace($"\"schemaVersion\": {GameSaveJsonFormat.SchemaVersion}", "\"schemaVersion\": 99", StringComparison.Ordinal),
             "schemaVersion");
         AssertInvalidJsonSave(
-            json.Replace("\"selectedSlot\": 1,", "\"selectedSlot\": 1,\n  \"unknownField\": true,",
+            json.Replace("\"selectedSlot\": \"B\",", "\"selectedSlot\": \"B\",\n  \"unknownField\": true,",
                 StringComparison.Ordinal),
             "unknownField");
         AssertInvalidJsonSave(
@@ -213,7 +213,7 @@ internal static class GameSaveJsonVerification
             AssertEqual(SaveSlots.All[expected], decoded.ReadSelectedSlot(), $"{label}: SRAM decode matches the cartridge");
             AssertEqual(FileSelectItemRows.ForSaveSlot(SaveSlots.All[expected]), new FileSelectMenuState(decoded, AudioQueues.Standalone(), screenContent: presentation, spriteSheets: MenuSheetFixtures.For(presentation)).SelectedItem,
                 $"{label}: file-select initial cursor matches $81:9ED8");
-            AssertEqual(expected, GameSaveJsonCodec.Capture(decoded).SelectedSlot,
+            AssertEqual(GameSaveJsonFormat.SlotKey(SaveSlots.All[expected]), GameSaveJsonCodec.Capture(decoded).SelectedSlot,
                 $"{label}: JSON capture keeps the cartridge-selected slot");
         }
 
@@ -234,18 +234,19 @@ internal static class GameSaveJsonVerification
         var store = new SaveSlotStore(maps);
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Health = 99, MaxHealth = 99 };
         var system = new SharedGameState(new SharedRandom());
-        SuperMetroidSaveSnapshot snapshot = SuperMetroidSaveSnapshot.Capture(samus, system,
-            SaveSnapshotFixtures.At(SuperMetroid.Core.Progression.LoadStationDefinitions.DraygonSave)) with
+        SuperMetroidSaveSnapshot captured = SuperMetroidSaveSnapshot.Capture(samus, system,
+            SaveSnapshotFixtures.At(SuperMetroid.Core.Progression.LoadStationDefinitions.DraygonSave));
+        SuperMetroidSaveSnapshot snapshot = captured with
         {
             StartupRoute = SaveStartupRoute.CeresDestruction,
             HudItem = HudItem.XRay,
-            ReserveMode = ReserveTankMode.Manual,
+            Inventory = captured.Inventory with { ReserveMode = ReserveTankMode.Manual },
         };
         store.SaveSlot(SaveSlot.A, snapshot);
         byte[] sram = SaveRamCodec.Encode(store, maps);
 
         GameSaveJsonDocument document = GameSaveJsonCodec.Capture(store);
-        GameSaveSlotJsonDocument slot = document.Slots[0] ?? throw new InvalidOperationException("JSON capture lost slot 0.");
+        GameSaveSlotJsonDocument slot = document.Slots[SlotA];
         AssertEqual(HudItem.XRay, slot.HudItem, "JSON carries the last selection of the HUD ring");
         AssertEqual(ReserveTankMode.Manual, slot.ReserveMode, "JSON carries the manual reserve-tank mode");
         AssertEqual(SaveStartupRoute.CeresDestruction, slot.StartupRoute, "JSON names the save's startup route");
@@ -270,7 +271,7 @@ internal static class GameSaveJsonVerification
         AssertInvalidJsonSave(Replaced("\"maxHealth\": 99", "\"maxHealth\": 32768"), "maxHealth");
         // The current schema always writes the startup route, so a slot without one is malformed, not a main-game save.
         JsonObject withoutRoute = RequiredJson.Parse(json).AsObject();
-        withoutRoute.Required("slots").Required(0).AsObject().Remove("startupRoute");
+        withoutRoute.Required("slots").Required(SlotA).AsObject().Remove("startupRoute");
         AssertInvalidJsonSave(withoutRoute.ToJsonString(), "startupRoute");
         Console.WriteLine("  JSON save numbers: full-range slot fields round-trip exactly; out-of-range numbers and a checkpoint naming no load station are rejected at parse.");
     }
@@ -314,7 +315,7 @@ internal static class GameSaveJsonVerification
 
         // The current schema names the stations; a name that is no station Samus uses is rejected.
         JsonObject named = RequiredJson.Parse(SavedJson(LoadStationDefinitions.CrocomireSave)).AsObject();
-        JsonObject namedProgression = named.Required("slots").Required(0).Required("progression").AsObject();
+        JsonObject namedProgression = named.Required("slots").Required(SlotA).Required("progression").AsObject();
         AssertTrue(namedProgression.Required("usedStations").AsArray().Select(name => name?.GetValue<string>())
                 .SequenceEqual([nameof(LoadStationDefinitions.CrocomireSave)]),
             "the fixture save names the Crocomire save station");
@@ -323,8 +324,7 @@ internal static class GameSaveJsonVerification
 
         // Schema eight listed used stations by their numbers (#1723); Norfair's list numbers stations 0 through 5 and 8
         // through 10, so 6 and 15 name none, and the upgrade drops them.
-        JsonObject overwritten = RequiredJson.Parse(SavedJson(LoadStationDefinitions.CrocomireSave)).AsObject();
-        overwritten["schemaVersion"] = 8;
+        JsonObject overwritten = SaveSchemaFixtures.AtSchema(SavedJson(LoadStationDefinitions.CrocomireSave), 8);
         ToSchemaEightSlots(overwritten);
         JsonObject norfair = overwritten.Required("slots").Required(0).Required("progression").Required("usedStations").AsArray()
             .Select(entry => entry?.AsObject() ?? throw new InvalidOperationException("A used-station entry is null."))
@@ -365,22 +365,35 @@ internal static class GameSaveJsonVerification
         AssertEqual(SaveFileHistory.PowerOnFoundNoValidSave, store.History, "saving a slot leaves the history");
 
         string json = GameSaveJsonCodec.Serialize(GameSaveJsonCodec.Capture(store));
-        AssertTrue(json.Contains("\"gameCompleted\": false", StringComparison.Ordinal) &&
-            json.Contains("\"powerOnFoundNoValidSave\": true", StringComparison.Ordinal), "the JSON save names the history");
+        AssertTrue(json.Contains("\"history\": \"powerOnFoundNoValidSave\"", StringComparison.Ordinal), "the JSON save names the history");
         SaveSlotStore loaded = GameSaveJsonCodec.ToStore(GameSaveJsonCodec.Deserialize(json), maps);
         AssertEqual(SaveFileHistory.PowerOnFoundNoValidSave, loaded.History, "the history survives the JSON save");
         AssertEqual(1, loaded.EarthquakeSoundDelayAtPowerOn().ExtraFrames,
             "a valid save after a power-on that found none adds the rumble's frame at the next power-on");
-        AssertInvalidJsonSave(json.Replace("\"gameCompleted\": false", "\"gameCompleted\": true", StringComparison.Ordinal),
-            "powerOnFoundNoValidSave");
+        AssertInvalidJsonSave(json.Replace("\"history\": \"powerOnFoundNoValidSave\"", "\"history\": \"bothMarks\"", StringComparison.Ordinal),
+            "bothMarks");
 
-        JsonObject schemaEleven = RequiredJson.Parse(json).AsObject();
-        schemaEleven["schemaVersion"] = 11;
+        // A schema-sixteen save names the history and lists its slots by place (#2565); it upgrades to the same saves.
+        JsonObject schemaSixteen = SaveSchemaFixtures.AtSchema(json, 16);
+        AssertEqual("powerOnFoundNoValidSave", schemaSixteen["history"]?.GetValue<string>(), "schema sixteen names the history");
+        GameSaveJsonDocument upgradedSixteen = LegacyGameSaveJson.Deserialize(schemaSixteen.ToJsonString(), "game save", out bool migratedSixteen);
+        AssertTrue(migratedSixteen, "a schema-sixteen save is upgraded");
+        AssertEqual(json, GameSaveJsonCodec.Serialize(upgradedSixteen), "a schema-sixteen save's listed slots become its keyed slots");
+
+        JsonObject schemaFifteen = SaveSchemaFixtures.AtSchema(json, 15);
+        AssertEqual(true, schemaFifteen["powerOnFoundNoValidSave"]?.GetValue<bool>(), "schema fifteen marks the power-on that found no valid save");
+        GameSaveJsonDocument upgradedFifteen = LegacyGameSaveJson.Deserialize(schemaFifteen.ToJsonString(), "game save", out bool migratedFifteen);
+        AssertTrue(migratedFifteen, "a schema-fifteen save is upgraded");
+        AssertEqual(SaveFileHistory.PowerOnFoundNoValidSave, upgradedFifteen.History, "a schema-fifteen save's marks become its history");
+        schemaFifteen["gameCompleted"] = true;
+        SaveSchemaTranslationVerification.AssertInvalidLegacyJsonSave(schemaFifteen.ToJsonString(), "cannot both hold");
+
+        JsonObject schemaEleven = SaveSchemaFixtures.AtSchema(json, 11);
         schemaEleven.Remove("powerOnFoundNoValidSave");
         GameSaveJsonDocument upgraded = LegacyGameSaveJson.Deserialize(schemaEleven.ToJsonString(), "game save", out bool migrated);
         AssertTrue(migrated, "a schema-eleven save is upgraded");
-        AssertTrue(!upgraded.PowerOnFoundNoValidSave && !upgraded.GameCompleted, "a schema-eleven save upgrades to no history");
-        Console.WriteLine("  Save-file history: a power-on that found no valid save survives the JSON save; schema eleven upgrades to none.");
+        AssertEqual(SaveFileHistory.None, upgraded.History, "a schema-eleven save upgrades to no history");
+        Console.WriteLine("  Save-file history: a power-on that found no valid save survives the JSON save; schemas sixteen, fifteen and eleven upgrade to their histories.");
     }
 
     /// <summary>The store the earlier save holds: several story events, items, doors, stations, maps and explored cells.</summary>
@@ -429,7 +442,7 @@ internal static class GameSaveJsonVerification
             "the earlier save loads the progress it was written from");
 
         JsonObject reversed = RequiredJson.Parse(earlier).AsObject();
-        JsonObject progression = reversed.Required("slots").Required(0).Required("progression").AsObject();
+        JsonObject progression = reversed.Required("slots").Required(SlotA).Required("progression").AsObject();
         foreach (string list in (string[])["events", "collectedItems", "openedDoors", "usedStations"])
         {
             string[] names = [.. progression.Required(list).AsArray().Select(name => name?.GetValue<string>()
@@ -451,7 +464,7 @@ internal static class GameSaveJsonVerification
                      ("openedDoors", "LandingSiteGreyDoorFacingLeftAt142x70"), ("usedStations", "DraygonSave")])
         {
             JsonObject twice = RequiredJson.Parse(earlier).AsObject();
-            twice.Required("slots").Required(0).Required("progression").Required(list).AsArray().Add(name);
+            twice.Required("slots").Required(SlotA).Required("progression").Required(list).AsArray().Add(name);
             AssertInvalidJsonSave(twice.ToJsonString(), list);
         }
         Console.WriteLine("  Earlier save: loads and is written again byte for byte; reversed lists load the same progress; a name listed twice is rejected.");
@@ -459,15 +472,15 @@ internal static class GameSaveJsonVerification
 
     /// <summary>
     /// The save <see cref="EarlierSaveStore"/> holds, as the game wrote it before saves read their lists in any order
-    /// (#2543, captured at 371cc2aaf5).
+    /// (#2543, captured at 371cc2aaf5), its slots keyed by name as schema seventeen keys them (#2565) and its history named
+    /// as schema sixteen names it (#2560).
     /// </summary>
     private const string EarlierSaveJson = """
         {
-          "schemaVersion": 15,
-          "selectedSlot": 0,
-          "slots": [
-            {
-              "slot": 0,
+          "schemaVersion": 17,
+          "selectedSlot": "A",
+          "slots": {
+            "A": {
               "checkpoint": "DraygonSave",
               "resources": {
                 "health": 99,
@@ -599,12 +612,9 @@ internal static class GameSaveJsonVerification
               "iconCancelEnabled": false,
               "japaneseText": false,
               "startupRoute": "mainGame"
-            },
-            null,
-            null
-          ],
-          "gameCompleted": false,
-          "powerOnFoundNoValidSave": false
+            }
+          },
+          "history": "none"
         }
         """;
 

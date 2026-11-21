@@ -35,7 +35,10 @@ internal static class IntroSheetShades
         {
             int[] inks = [.. IntroSheetInks.Background(scene)];
             for (int level = 0; level < IntroCrossfade.Levels; level++)
-                shades.Add(new SheetShade(IntroShades.Faded(scene, level), inks, Faded(inks.Select(ink => backgrounds[ink]), level)));
+            {
+                var faded = new FadeLevel(level, IntroCrossfade.Levels);
+                shades.Add(SheetShade.Of(IntroShades.Faded(scene, level), inks, ink => PreColouredFade.AtLevel(backgrounds[ink], faded)));
+            }
         }
         return shades;
     }
@@ -61,13 +64,13 @@ internal static class IntroSheetShades
             int[] colours = [.. IntroSheetInks.Sprite(scene)];
             for (int level = 0; level < IntroCrossfade.Levels; level++)
             {
-                shades.Add(new SheetShade(IntroShades.Faded(scene, level), colours, Faded(colours.Select(colour => sprites[colour]), level)));
+                var faded = new FadeLevel(level, IntroCrossfade.Levels);
+                shades.Add(SheetShade.Of(IntroShades.Faded(scene, level), colours, colour => PreColouredFade.AtLevel(sprites[colour], faded)));
                 foreach (IntroSpriteColouring colouring in Colourings)
                 {
                     int set = IntroSheetInks.SpriteSet(colouring);
-                    int[] drawn = [.. colours.Where(colour => colour / IntroSheetInks.SetColours == set)];
-                    shades.Add(new SheetShade(IntroShades.Faded(scene, level, IntroShades.Drawn(colouring)), drawn,
-                        Faded(drawn.Select(colour => sprites[colour]), level)));
+                    shades.Add(SheetShade.Of(IntroShades.Faded(scene, level, IntroShades.Drawn(colouring)),
+                        colours.Where(colour => colour / IntroSheetInks.SetColours == set), colour => PreColouredFade.AtLevel(sprites[colour], faded)));
                 }
             }
         }
@@ -89,12 +92,5 @@ internal static class IntroSheetShades
                 [.. backgrounds.Skip(step.Step * IntroSheetInks.VariantColours).Take(IntroSheetInks.VariantColours)]));
         }
         return shades;
-    }
-
-    /// <summary>Each of <paramref name="colours"/> at crossfade <paramref name="level"/>.</summary>
-    private static RgbColor[] Faded(IEnumerable<RgbColor> colours, int level)
-    {
-        var faded = new ColourLevel(level, IntroCrossfade.Levels);
-        return [.. colours.Select(faded.Apply)];
     }
 }

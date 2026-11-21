@@ -124,8 +124,8 @@ internal static class ProjectileRadiiVerification
             if (duration == 0 || still) continue;
             var bomb = new SamusBomb(0);
             bomb.OccupyAsPlaced(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500));
-            bomb.Animation = SamusProjectileProgramAddresses.PlayerAt(pointer);
-            bombs.AdvanceProjectileAnimation(bomb);
+            bomb.HeldBomb().Animation = SamusProjectileProgramAddresses.PlayerAt(pointer);
+            bombs.AdvanceProjectileAnimation(bomb.HeldBomb());
             AssertEqual(false, !bomb.IsActive, "Bomb timed record survives");
             AssertEqual(duration, bomb.NativeFrameHold, "Bomb duration unchanged");
             AssertEqual(expectedSprite, bomb.SpritemapPointer, "Bomb native artwork reference");

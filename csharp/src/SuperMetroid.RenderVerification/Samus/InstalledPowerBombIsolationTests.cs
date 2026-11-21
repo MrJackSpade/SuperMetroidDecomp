@@ -13,7 +13,8 @@ namespace SuperMetroid.RenderVerification.Samus;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.AssetExtraction.Frontend.Map;
-using SuperMetroid.TestSupport.FrameRendering;
+using SuperMetroid.TestSupport.FrameRendering;
+using SuperMetroid.Core.Compatibility;
 
 /// <summary>
 /// Finite production-owner tests of the source-identified color/lifetime coupling in

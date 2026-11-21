@@ -31,7 +31,7 @@ internal sealed class GameOverMenuGamePhase(FrontendSession session) : IFrontend
             session.Artwork.ScreenContent, session.Artwork.SpriteSheets, continueLoadsCeresArrival: session.saves.ReadSlot(session.SelectedSaveSlot)?.StartupRoute ==
                 SaveStartupRoute.CeresElevatorArrival));
         gameOver.Step(controllerInput);
-        session.display.PublishMenu(gameOver);
+        session.display.Publish(gameOver);
         if (gameOver.Outcome == GameOverMenuOutcome.CeresArrival)
         {
             // Starting a game publishes the Ceres load and reloads the save slot in the same update;

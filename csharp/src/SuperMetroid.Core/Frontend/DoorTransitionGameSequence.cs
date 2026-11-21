@@ -71,7 +71,7 @@ internal sealed class DoorTransitionGameSequence(FrontendSession session) : IGam
                 return true;
             // The elevator locks Samus; an upward elevator then finishes at once.
             live.Runtime.Player.Samus.Control.LockOutPlayer();
-            if (live.Room.Enemies.Elevator.ElevatorTravel == ElevatorTravelDirection.Up)
+            if (live.Room.Enemies.Elevator.ElevatorTravel == VerticalDirection.Up)
                 return true;
             session.DownwardsElevator.Begin();
         }

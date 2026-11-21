@@ -153,7 +153,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // Golden Torizo's main behaviour counts consecutive space-jump poses for its anti-stall leap
         // decision, then runs the same main phases as Bomb Torizo.
-        if (samus.Pose is SamusPoseId.SpaceJumpRightPose or SamusPoseId.SpaceJumpLeftPose)
+        if (SamusPoseMetadata.IsSpaceJumpPose(samus.Pose))
             state.CountSamusSpaceJumpFrame();
         else
             state.SamusSpaceJumpFrames = 0;
@@ -264,13 +264,14 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 return null;
 
             case TorizoCue.Signal { Kind: TorizoCueKind.BlowUpGut }:
-                state.GutBlownUp = true;
+                if (state.Breakage == TorizoBreakage.Intact)
+                    state.Breakage = TorizoBreakage.GutBlownUp;
                 for (int piece = 0; piece < TorizoDeathDefinitions.GutDroolPieces; piece++)
                     Attacks.SpawnBombTorizoLowHealthDrool(occupant, torizo, state);
                 return null;
 
             case TorizoCue.Signal { Kind: TorizoCueKind.MarkFaceBlownUp }:
-                state.FaceBlownUp = true;
+                state.Breakage = TorizoBreakage.GutAndFaceBlownUp;
                 return null;
 
             case TorizoCue.Signal { Kind: TorizoCueKind.MakeVisible }:
@@ -393,9 +394,9 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                     inputs.Samus,
                     TorizoBranches.Target(branch.Kind, TorizoFacing.Posture(state)));
 
-            case TorizoCue.Choice { Kind: TorizoChoiceKind.BombAttack } choice:
+            case TorizoCue.Choice { Kind: TorizoChoiceKind.BombAttack or TorizoChoiceKind.GoldenAttack } choice:
             {
-                bool chooseFirst = inputs.Samus.Missiles < TorizoDecisionDefinitions.BombFirstAttackMissiles ||
+                bool chooseFirst = inputs.Samus.Missiles < state.Variant.FirstAttackMissiles ||
                     TorizoChoices.InFirstAttackPhase(inputs.FrameCounter, inputs.Samus.Position.X.Whole);
                 return TorizoAnimations.ContinueWith(chooseFirst ? choice.Target : choice.Alternate);
             }
@@ -499,7 +500,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                     interrupt.Animation);
 
             case TorizoCue.Interrupt { Kind: TorizoInterruptKind.GoldenEggsAtLowHealth } interrupt:
-                if (torizo.Health > TorizoDecisionDefinitions.GoldenEggsHealth || !TorizoRandomDefinitions.LowHealthEggs.IsTakenBy(_room.Random.Generate()))
+                if (torizo.Health > TorizoDecisionDefinitions.GoldenEggsHealth || !TorizoRandomRolls.LowHealthEggs.IsTakenBy(_room.Random.Generate()))
                     return null;
                 state.DecisionCounter = 0;
                 state.InterruptedWalk = continuation;
@@ -530,13 +531,6 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                     state,
                     inputs.Samus,
                     TorizoBranches.Target(branch.Kind, TorizoFacing.Posture(state)));
-
-            case TorizoCue.Choice { Kind: TorizoChoiceKind.GoldenAttack } choice:
-            {
-                bool chooseFirst = inputs.Samus.Missiles < TorizoDecisionDefinitions.GoldenFirstAttackMissiles ||
-                    TorizoChoices.InFirstAttackPhase(inputs.FrameCounter, inputs.Samus.Position.X.Whole);
-                return TorizoAnimations.ContinueWith(chooseFirst ? choice.Target : choice.Alternate);
-            }
 
             case TorizoCue.ShowArtwork showArtwork:
                 ShowTorizoArtwork(state, showArtwork.Look);

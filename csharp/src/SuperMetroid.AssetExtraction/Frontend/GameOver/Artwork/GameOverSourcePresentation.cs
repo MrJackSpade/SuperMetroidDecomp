@@ -8,7 +8,6 @@ using SuperMetroid.Core.Frontend.GameOver.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Menus;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
-using SuperMetroid.AssetExtraction.Map.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
 
@@ -158,8 +157,8 @@ public sealed class GameOverSourcePresentation
     /// <summary>Rejects an OBJ palette selector outside the eight hardware rows.</summary>
     private static void ValidatePaletteIndex(int value, string name)
     {
-        if ((uint)value > 7)
-            throw new InvalidDataException($"{name} must be 0..7.");
+        if ((uint)value > SpritePart.MaximumPalette)
+            throw new InvalidDataException($"{name} must be 0..{SpritePart.MaximumPalette}.");
     }
 
     /// <summary>The compiled Baby frames, egg and cursor frames.</summary>

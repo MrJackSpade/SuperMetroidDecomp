@@ -59,7 +59,7 @@ internal static class EndingSheetFixtures
     /// <summary>Loads composed tile sheet <paramref name="tiles"/> as sheet <paramref name="sheet"/>, named by <paramref name="tag"/>.</summary>
     private static SpriteSheet Loaded(SpriteSheetId sheet, ComposedSpriteSheet tiles, string tag) =>
         SpriteSheetFileConstants.Load(tiles.Manifest,
-            $"{SpriteSheetDefinitions.FileNames[sheet]}-fixture-{tag}", tiles.Size, tiles.Pixels, tiles.PaletteIndices);
+            $"{SpriteSheetDefinitions.FileNames[sheet]}-fixture-{tag}", tiles.Size, tiles.Pixels, tiles.Inks);
 
     /// <summary>Draws <paramref name="family"/> from <paramref name="ending"/>'s sheet <paramref name="sheet"/>, as its own frames draw it.</summary>
     internal static CinematicSpriteSheet Drawer(EndingCreditsState ending, SpriteSheetId sheet, CinematicSpriteFamily family)

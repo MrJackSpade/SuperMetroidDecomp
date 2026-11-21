@@ -76,8 +76,8 @@ internal static class RoomFxOverlayStateAccess
         internal void ImportLiquidMotion(bool stopped, RotationAngle tidePhase, SignedSixteenSixteen tideOffset, FixedCoordinate baseY,
             int surface)
         {
-            SetPrivate(self, nameof(RoomFxOverlayState.MotionStart), SuperMetroid.Core.Compatibility.LiquidMotionStart.Begun);
-            SetPrivate(self, nameof(RoomFxOverlayState.LiquidMotionStopped), stopped);
+            SetPrivate(self, nameof(RoomFxOverlayState.Motion),
+                stopped ? SuperMetroid.Core.Compatibility.LiquidMotion.Stopped : SuperMetroid.Core.Compatibility.LiquidMotion.Moving);
             SetPrivate(self, "TidePhase", tidePhase);
             SetPrivate(self, "TideOffset", tideOffset);
             SetPrivate(self, nameof(RoomFxOverlayState.BaseY), baseY);

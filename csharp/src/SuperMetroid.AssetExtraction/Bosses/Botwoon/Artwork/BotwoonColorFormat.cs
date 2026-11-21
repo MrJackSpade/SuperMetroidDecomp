@@ -7,7 +7,7 @@ public static class BotwoonColorFormat
     public const string FileName = "botwoon-colors.json";
 
     /// <summary>The supported Botwoon color JSON schema version.</summary>
-    public const int Version = 1;
+    public const int Version = 2;
 
     /// <summary>The health bands the file holds a row of colours for, in the order Botwoon shows them (#2266).</summary>
     public const int HealthBandCount = 8;

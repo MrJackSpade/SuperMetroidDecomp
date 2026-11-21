@@ -13,8 +13,8 @@ internal abstract class EnemyProjectileFrameAnimation<TSegment, TEvent> : EnemyP
     where TEvent : notnull
 {
     /// <summary>Starts <paramref name="animation"/> before its first play, its events carried out by <paramref name="cues"/>.</summary>
-    private protected EnemyProjectileFrameAnimation(Animation<TSegment> animation, EnemyProjectileCueRunner<TSegment, TEvent> cues)
-        : base(animation, cues)
+    private protected EnemyProjectileFrameAnimation(TSegment startsAt, Animation<TSegment> animation, EnemyProjectileCueRunner<TSegment, TEvent> cues)
+        : base(startsAt, animation, cues)
     {
     }
 

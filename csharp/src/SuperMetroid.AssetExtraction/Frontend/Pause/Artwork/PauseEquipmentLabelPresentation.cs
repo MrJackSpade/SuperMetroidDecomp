@@ -31,7 +31,7 @@ public sealed class PauseEquipmentLabelPresentation
     internal IEnumerable<int> PageCells(PauseEquipmentLabelId label)
     {
         CompiledLabel compiled = labels[label];
-        return Enumerable.Range(compiled.PageCell, label == PauseEquipmentLabelId.Hyper ? PauseEquipmentLabelArtworkDefinitions.BeamWords : compiled.CellCount);
+        return Enumerable.Range(compiled.PageCell, PauseEquipmentLabelKeys.WordCount(PauseEquipmentLabelDefinitions.Labels[label].ShownWidth));
     }
 
     /// <summary>Clears uncollected strips, recolors collected but unequipped strips, and replaces ordinary beam labels with Hyper when active.</summary>
@@ -98,15 +98,15 @@ public sealed class PauseEquipmentLabelPresentation
             string key = PauseEquipmentLabelKeys.Name(id);
             PauseEquipmentLabel label = document.Labels[key] ??
                 throw new InvalidDataException($"Pause equipment label {key} is null.");
-            int words = PauseEquipmentLabels.IsOrdinaryBeam(id)
-                ? PauseEquipmentLabelArtworkDefinitions.BeamWords : PauseEquipmentLabelArtworkDefinitions.EquipmentWords;
+            PauseEquipmentLabelDefinition definition = PauseEquipmentLabelDefinitions.Labels[id];
+            int words = PauseEquipmentLabelKeys.WordCount(definition.StoredWidth);
             if (label.Cells is null || label.Cells.Length != words ||
                 (uint)label.Column >= PauseEquipmentLabelArtworkDefinitions.TilemapColumns ||
                 (uint)label.Row >= PauseEquipmentLabelArtworkDefinitions.TilemapRows ||
-                label.Column + (id == PauseEquipmentLabelId.Hyper ? PauseEquipmentLabelArtworkDefinitions.BeamWords : words) > PauseEquipmentLabelArtworkDefinitions.TilemapColumns)
+                label.Column + PauseEquipmentLabelKeys.WordCount(definition.ShownWidth) > PauseEquipmentLabelArtworkDefinitions.TilemapColumns)
                 throw new InvalidDataException($"Pause equipment label {key} has invalid cells or placement.");
             int destinationCell = label.Row * PauseEquipmentLabelArtworkDefinitions.TilemapColumns + label.Column;
-            if (id != PauseEquipmentLabelId.Hyper)
+            if (!definition.BorrowsPageCells)
             {
                 for (int cell = destinationCell; cell < destinationCell + words; cell++)
                 {

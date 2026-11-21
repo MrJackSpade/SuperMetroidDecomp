@@ -3,7 +3,6 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Bosses.Phantoon.Artwork;
 using SuperMetroid.Core.Rooms.RoomObjects;
-using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
@@ -22,7 +21,7 @@ public static class RoomObjectPhantoonDoorVisualFiles
 
     /// <summary>The door as the import pictures it: every frame's geometry and published name.</summary>
     internal static RoomObjectFrameFamily<PhantoonDoorDraw> Family { get; } =
-        new(VisualFileName, "Phantoon door", Layouts(), PhantoonDoorDrawKeys.Installed.ByIdentity);
+        new(VisualFileName, "Phantoon door", Layouts());
 
     /// <summary>Pictures the door frames from the cartridge's draw lists and writes the installed file.</summary>
     /// <param name="bus">The cartridge, whose draw lists are checked against the door's geometry and collision.</param>
@@ -51,11 +50,9 @@ public static class RoomObjectPhantoonDoorVisualFiles
             if (!RoomObjectDrawIdentity.TryShape(PhantoonDoorDraws.Family, draw, out RoomBlockShape? described))
                 throw new InvalidOperationException($"Phantoon door frame {frame} has no shape.");
             RoomBlockShape shape = described;
-            int[] columns = [.. shape.Cells.Select(cell => cell.Cell.X).Distinct().Order()];
-            int Height(int column) => shape.Cells.Count(cell => cell.Cell.X == columns[column]);
-            layouts.Add(new(frame, RoomObjectFrameLayout.Of(draw, columns.Length, Height,
-                (run, cell) => shape.CollisionAt(new Offset16<RoomBlocks>(columns[run], cell)),
-                _ => RoomObjectRunDirection.Vertical, run => new Offset16<RoomBlocks>(columns[run], 0))));
+            RoomObjectShapeRun[] columns = [.. shape.Cells.Select(cell => cell.Cell.X).Distinct().Order().Select(column =>
+                RoomObjectShapeRun.Column(new(column, 0), shape.Cells.Count(cell => cell.Cell.X == column)))];
+            layouts.Add(new(frame, RoomObjectFrameLayout.Of(draw, shape, columns), PhantoonDoorDrawKeys.Installed.Of(frame)));
         }
         return layouts;
     }

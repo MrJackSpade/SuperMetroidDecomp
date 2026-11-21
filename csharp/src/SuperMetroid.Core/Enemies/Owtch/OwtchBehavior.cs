@@ -204,7 +204,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemySpawnFactory<OwtchSpa
             if (OwtchAcceptsOrdinaryShot(state))
                 return false;
             if (c.MarksCollision)
-                c.Projectile.Spend();
+                c.Shot.Spend();
             return true;
         },
     };

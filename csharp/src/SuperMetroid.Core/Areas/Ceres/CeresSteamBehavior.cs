@@ -27,7 +27,7 @@ internal sealed class CeresSteamBehavior(EnemyRoomBinding room, EnemyCollision c
     /// <summary>
     /// Plays a vent's typed animation in place of the shared enemy animation. Only a dormant vent's animation holds: it
     /// hides the vent on its first update and rests there. The vent stays hidden for its drawn wait and then goes on
-    /// where a rest ends (<see cref="CeresSteamAnimations.ActivationAfter"/>, #2480), appearing and showing its puff's
+    /// where a rest ends (<see cref="CeresSteamWay.Activation"/>, #2480), appearing and showing its puff's
     /// first picture on the wait's last update.
     /// </summary>
     internal static void AdvanceCeresSteamAnimation(RoomEnemyPlace place, CeresSteamEnemyState state)
@@ -35,11 +35,11 @@ internal sealed class CeresSteamBehavior(EnemyRoomBinding room, EnemyCollision c
         if (!place.AnimationClock.Expire())
             return;
         AnimationPlayback<CeresSteamSegment> playback = state.Playback;
-        EnemyAnimationPlayback.PlayApplyingCues(place, CeresSteamAnimations.Segments, ref playback, (CeresSteamCueKind cue) => CarryOut(place, cue));
+        EnemyAnimationPlayback.PlayApplyingCues(place, state.Way.Segments, ref playback, (CeresSteamCueKind cue) => CarryOut(place, cue));
         if (place.AnimationClock.IsStopped)
         {
             place.AnimationClock.HoldFor(state.UpdatesToActivation);
-            playback = CeresSteamAnimations.ActivationAfter[playback.Animation.Phases[playback.Place.Phase].Segment];
+            playback = state.Way.Activation;
         }
         state.Playback = playback;
     }
@@ -78,10 +78,10 @@ internal sealed class CeresSteamBehavior(EnemyRoomBinding room, EnemyCollision c
 
         // Each vent waits a random number of updates, at least one (CeresSteamDefinitions.ActivationDelay), before its
         // first plume, hidden by its dormant animation, so the vents puff out of step.
-        var state = new CeresSteamEnemyState(Ensure.NotNull(motions).MotionOf(initialization.Action))
+        var state = new CeresSteamEnemyState(initialization.Way, Ensure.NotNull(motions).MotionOf(initialization.Action))
         {
             UpdatesToActivation = _room.Random.Next(CeresSteamDefinitions.ActivationDelay) + 1,
-            Playback = new AnimationPlayback<CeresSteamSegment>(CeresSteamAnimations.StartingWith(initialization.Animation), AnimationPlace.StartOfAnimation),
+            Playback = new AnimationPlayback<CeresSteamSegment>(initialization.Way.StartingAt[CeresSteamSegment.Dormant], AnimationPlace.StartOfAnimation),
         };
         return state;
     }
@@ -123,7 +123,7 @@ internal sealed class CeresSteamBehavior(EnemyRoomBinding room, EnemyCollision c
         Position16<RoomPixels> vent = enemy.Position.Whole;
         if (!probe.Overlaps(vent.X + rectangle.Left, vent.Y + rectangle.Top, vent.X + rectangle.Right, vent.Y + rectangle.Bottom))
             return EnemyHitboxContact.Missed;
-        return EnemyHitboxContact.Struck(probe.SelectsShot
+        return EnemyHitboxContact.Struck(probe.Contact == HitboxContactKind.Shot
             ? CeresSteamCollisionDefinitions.ShotReaction
             : CeresSteamCollisionDefinitions.TouchReaction);
     }

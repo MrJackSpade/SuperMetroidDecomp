@@ -30,12 +30,14 @@ internal abstract class EnemyProjectileAnimation
             case EnemyProjectileFrameStep.Show shown:
                 projectile.FrameHold = WrappingCountdown.Start(shown.Duration);
                 projectile.Frame = shown.Frame;
+                projectile.FramePlacement = shown.Placement;
                 return;
             case EnemyProjectileFrameStep.ShowForGood held:
                 // A frame shown for good stops the hold: the projectile shows it until its owner sets the hold again or
                 // starts another animation.
                 projectile.StopFrameHold();
                 projectile.Frame = held.Frame;
+                projectile.FramePlacement = held.Placement;
                 return;
             case EnemyProjectileFrameStep.Hide hidden:
                 projectile.FrameHold = WrappingCountdown.Start(hidden.Duration);
@@ -45,6 +47,9 @@ internal abstract class EnemyProjectileAnimation
                 // A held timeline rests on the frame it shows: the hold stops until the projectile's owner sets it again or
                 // starts another animation.
                 projectile.StopFrameHold();
+                return;
+            case EnemyProjectileFrameStep.Delete:
+                projectile.Delete();
                 return;
             default:
                 throw new InvalidOperationException($"A projectile animation took an undefined step {step}.");

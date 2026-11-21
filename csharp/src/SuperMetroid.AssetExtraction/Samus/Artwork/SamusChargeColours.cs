@@ -58,4 +58,10 @@ public sealed class SamusChargeColours
         if ((uint)frame >= (uint)frames) throw new ArgumentOutOfRangeException(nameof(frame));
         return hyperShot.Resolve(frames - 1 - frame, color);
     }
+
+    /// <summary>One colour of Samus's suit at step <paramref name="step"/> of the Hyper-shot glow's cycle.</summary>
+    /// <param name="step">The step of the full-body Hyper Beam cycle the glow shows.</param>
+    /// <param name="color">The colour within Samus's suit.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The step or colour is outside the cycle.</exception>
+    internal RgbColor ResolveHyperStep(int step, int color) => hyperShot.Resolve(step, color);
 }

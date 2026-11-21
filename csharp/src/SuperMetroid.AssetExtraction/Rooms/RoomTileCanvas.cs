@@ -2,20 +2,20 @@ using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.AssetExtraction.Video;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>
 /// The pixel planes of a pre-coloured room sheet, painted one four-bpp tile at a time over a tileset's background colours
-/// (#1392): each pixel's colour, palette index and colour group, and whether it was painted from a front tile, which decides
+/// (#1392): each pixel's colour and ink, the colour group and colour it was painted in (<see cref="ComposedInk"/>), and whether
+/// it was painted from a front tile, which decides
 /// the part of its picture a split sheet installs it in (#1634) and is not installed itself.
 /// </summary>
 /// <param name="size">The sheet's size.</param>
 internal sealed class RoomTileCanvas(Extent16<ImagePixels> size)
 {
     /// <summary>Colours in one palette row.</summary>
-    private const int RowColours = 16;
+    internal const int RowColours = 16;
 
     /// <summary>Pixels along a character's side.</summary>
     internal const int CharacterPixels = 8;
@@ -32,14 +32,14 @@ internal sealed class RoomTileCanvas(Extent16<ImagePixels> size)
     /// <summary>Each pixel's colour.</summary>
     internal RgbaPixel[] Pixels { get; } = new RgbaPixel[size.X * size.Y];
 
-    /// <summary>Each pixel's colour group's place times sixteen plus its colour; zero where transparent.</summary>
-    internal byte[] PaletteIndices { get; } = new byte[size.X * size.Y];
+    /// <summary>Each pixel's ink: the colour group and colour it was painted in, <see cref="ComposedInk.None"/> where transparent.</summary>
+    internal ComposedInk[] Inks { get; } = new ComposedInk[size.X * size.Y];
 
     /// <summary>
-    /// One where the pixel was painted from one of its layer's front tiles, zero elsewhere: the part of its picture
+    /// Whether the pixel was painted from one of its layer's front tiles: the part of its picture
     /// <see cref="ToSplitRoomSheet"/> installs it in (#1634). No sheet installs it, and a sheet installed whole ignores it.
     /// </summary>
-    internal byte[] FrontTiles { get; } = new byte[size.X * size.Y];
+    internal bool[] FrontTiles { get; } = new bool[size.X * size.Y];
 
     /// <summary>
     /// Paints <paramref name="tile"/> over <paramref name="character"/>'s 32 bytes with its top-left pixel at
@@ -67,10 +67,10 @@ internal sealed class RoomTileCanvas(Extent16<ImagePixels> size)
                 if (colour == 0)
                     continue;
                 int pixel = (top + y) * Width + left + x;
-                int index = word.PaletteIndex * RowColours + colour;
-                PaletteIndices[pixel] = (byte)index;
-                Pixels[pixel] = colours[index].ToRgbaPixel();
-                FrontTiles[pixel] = word.HasPriority ? (byte)1 : (byte)0;
+                var ink = new ComposedInk(word.PaletteIndex, colour);
+                Inks[pixel] = ink;
+                Pixels[pixel] = colours[ink.PlaceIn(SpriteImageColours.Background)].ToRgbaPixel();
+                FrontTiles[pixel] = word.HasPriority;
                 ImageColourGroup group = ImageColourGroup.Numbered(word.PaletteIndex);
                 groups = groups.With(group);
             }
@@ -88,7 +88,7 @@ internal sealed class RoomTileCanvas(Extent16<ImagePixels> size)
 
     /// <summary>
     /// Paints two-bit tile word <paramref name="word"/> over <paramref name="character"/>'s 16 bytes with its top-left pixel
-    /// at (<paramref name="left"/>, <paramref name="top"/>), keeping each pixel's row times four plus its colour, colour
+    /// at (<paramref name="left"/>, <paramref name="top"/>), keeping each pixel's four-colour group and colour, colour
     /// zero included, as BG3's sheets do; returns the colour groups it was coloured from.
     /// </summary>
     internal ImageColourGroups PaintTwoBppTile(int left, int top, SnesBgTilemapWord word, ReadOnlySpan<byte> character, RgbColor[] colours)
@@ -103,9 +103,10 @@ internal sealed class RoomTileCanvas(Extent16<ImagePixels> size)
                 int bit = 7 - (word.FlipHorizontally ? CharacterPixels - 1 - x : x);
                 int colour = (character[row * 2] >> bit & 1) | (character[row * 2 + 1] >> bit & 1) << 1;
                 int pixel = (top + y) * Width + left + x;
-                int index = word.PaletteIndex * TwoBppRowColours + colour;
-                PaletteIndices[pixel] = (byte)index;
-                FrontTiles[pixel] = word.HasPriority ? (byte)1 : (byte)0;
+                var ink = new ComposedInk(word.PaletteIndex, colour);
+                int index = ink.PlaceIn(SpriteImageColours.TwoBppBackground);
+                Inks[pixel] = ink;
+                FrontTiles[pixel] = word.HasPriority;
                 if (colour == 0)
                 {
                     Pixels[pixel] = default;
@@ -126,13 +127,13 @@ internal sealed class RoomTileCanvas(Extent16<ImagePixels> size)
     internal void PaintIndex(Position16<ImagePixels> at, int index, RgbColor[] colours)
     {
         int pixel = at.Y * Width + at.X;
-        PaletteIndices[pixel] = checked((byte)index);
+        Inks[pixel] = ComposedInk.AtPlace(index, SpriteImageColours.FullPalette);
         if (index != 0)
             Pixels[pixel] = colours[index].ToRgbaPixel();
     }
 
     /// <summary>Colours in one two-bit palette row.</summary>
-    private const int TwoBppRowColours = 4;
+    internal const int TwoBppRowColours = 4;
 
     /// <summary>Bytes in one two-bit character.</summary>
     internal const int TwoBppCharacterBytes = 16;
@@ -182,14 +183,14 @@ internal sealed class RoomTileCanvas(Extent16<ImagePixels> size)
     /// <summary>The painted planes as a sheet whose colour groups draw in <paramref name="backgroundSets"/>, or in none named.</summary>
     private ComposedSpriteSheet Sheet(RgbColor[] colours, Dictionary<string, SpriteSheetFrameDocument> frames,
         SpriteImageColours kind, InstalledBackgroundSet[]? backgroundSets) =>
-        new(Size, Pixels, PaletteIndices, Manifest(colours, frames, null, kind, backgroundSets));
+        new(Size, Pixels, Inks, Manifest(colours, frames, null, kind, backgroundSets));
 
     /// <summary>The composed manifest of a sheet coloured as <paramref name="kind"/> from <paramref name="colours"/>.</summary>
     private static SpriteSheetDocument Manifest(RgbColor[] colours, Dictionary<string, SpriteSheetFrameDocument> frames, string[]? blank,
         SpriteImageColours kind, InstalledBackgroundSet[]? backgroundSets) => new()
         {
             Palette = kind,
-            Colours = [.. colours.Select(colour => colour.ToWord())],
+            Colours = [.. colours],
             BackgroundSets = backgroundSets,
             Frames = frames,
             Blank = blank,
@@ -213,7 +214,7 @@ internal sealed class RoomTileCanvas(Extent16<ImagePixels> size)
         SpriteImageColours kind, InstalledBackgroundSet[]? backgroundSets, IReadOnlySet<string> split, bool keepsEmpty)
     {
         Ensure.NotNull(frames);
-        bool twoBit = kind == SpriteImageColours.TwoBppBackground;
+        bool twoBit = Ensure.Listed(SpriteImageColourDefinitions.Colourings, kind).TwoBitCharacters;
         var parts = new List<FramePart>(frames.Count);
         // The in-front parts of frames with pixels in both parts are laid in rows below the painted planes, each row as tall
         // as its tallest part.
@@ -224,67 +225,66 @@ internal sealed class RoomTileCanvas(Extent16<ImagePixels> size)
                 throw new InvalidDataException($"Frame {name} at ({frame.Corner.X}, {frame.Corner.Y}) leaves its {Size.X}x{Size.Y} sheet.");
             if (!split.Contains(name))
             {
-                parts.Add(new FramePart(name, frame, new FrameSplit.Whole()));
+                parts.Add(new FramePart(name, frame, WholeFrame.Instance));
                 continue;
             }
             InkedParts inked = InkedPartsOf(frame);
             // A frame kept whole though it inks nothing opaque is its part behind, and has no part in front.
             if ((twoBit || keepsEmpty) && inked == InkedParts.None)
                 inked = InkedParts.Behind;
-            if (inked != InkedParts.Both)
+            FrameInstallation installation = new InkedFrame(inked);
+            if (inked == InkedParts.Both)
             {
-                parts.Add(new FramePart(name, frame, new FrameSplit.Inking(inked)));
-                continue;
+                if (shelfLeft + frame.Size.X > Size.X)
+                {
+                    shelfTop += shelfHeight;
+                    shelfLeft = 0;
+                    shelfHeight = 0;
+                }
+                installation = new SplitFrame(new Position16<ImagePixels>(checked((ushort)shelfLeft), checked((ushort)shelfTop)));
+                shelfLeft += frame.Size.X;
+                shelfHeight = Math.Max(shelfHeight, frame.Size.Y);
             }
-            if (shelfLeft + frame.Size.X > Size.X)
-            {
-                shelfTop += shelfHeight;
-                shelfLeft = 0;
-                shelfHeight = 0;
-            }
-            parts.Add(new FramePart(name, frame,
-                new FrameSplit.Both(new Position16<ImagePixels>(checked((ushort)shelfLeft), checked((ushort)shelfTop)))));
-            shelfLeft += frame.Size.X;
-            shelfHeight = Math.Max(shelfHeight, frame.Size.Y);
+            parts.Add(new FramePart(name, frame, installation));
         }
         if (shelfTop + shelfHeight > RgbaPng.MaximumDimension)
             throw new InvalidDataException($"A {Size.X}x{Size.Y} sheet's in-front parts need {shelfTop + shelfHeight} rows, past the {RgbaPng.MaximumDimension} a sheet holds.");
         var size = new Extent16<ImagePixels>(Size.X, checked((ushort)(shelfTop + shelfHeight)));
         var pixels = new RgbaPixel[size.X * size.Y];
-        var paletteIndices = new byte[size.X * size.Y];
+        var inks = new ComposedInk[size.X * size.Y];
         Pixels.CopyTo(pixels, 0);
-        PaletteIndices.CopyTo(paletteIndices, 0);
+        Inks.CopyTo(inks, 0);
         var installed = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal);
         var blank = new List<string>();
         foreach (FramePart part in parts)
         {
             string inFront = PictureParts.InFront(part.Name);
-            switch (part.Split)
+            switch (part.Installation)
             {
-                case FrameSplit.Whole:
+                case WholeFrame:
                     installed.Add(part.Name, part.Frame);
                     break;
                 // A part that shows nothing is not installed (#1636): a picture that shows nothing at all is named as one that
                 // shows nothing, so the draw that chooses it draws nothing, and a picture with one part installs that part alone.
-                case FrameSplit.Inking { Parts: InkedParts.None }:
+                case InkedFrame { Parts: InkedParts.None }:
                     blank.Add(part.Name);
                     break;
-                case FrameSplit.Inking { Parts: InkedParts.Behind }:
+                case InkedFrame { Parts: InkedParts.Behind }:
                     installed.Add(part.Name, part.Frame);
                     break;
-                case FrameSplit.Inking { Parts: InkedParts.InFront }:
+                case InkedFrame { Parts: InkedParts.InFront }:
                     installed.Add(inFront, part.Frame);
                     break;
-                case FrameSplit.Both both:
-                    SeparateParts(part.Frame, both.InFrontCorner, size.X, twoBit, pixels, paletteIndices);
+                case SplitFrame { Corner: var corner }:
+                    SeparateParts(part.Frame, corner, size.X, twoBit, pixels, inks);
                     installed.Add(part.Name, part.Frame);
                     installed.Add(inFront, part.Frame with { Corner = both.InFrontCorner });
                     break;
                 default:
-                    throw new InvalidOperationException($"Undefined frame split {part.Split}.");
+                    throw new InvalidOperationException($"Undefined installation of frame {part.Name}: {part.Installation}.");
             }
         }
-        return new ComposedSpriteSheet(size, pixels, paletteIndices,
+        return new ComposedSpriteSheet(size, pixels, inks,
             Manifest(colours, installed, blank.Count == 0 ? null : [.. blank], kind, backgroundSets));
     }
 
@@ -303,7 +303,7 @@ internal sealed class RoomTileCanvas(Extent16<ImagePixels> size)
                 int pixel = row + x;
                 if (Pixels[pixel].A == 0)
                     continue;
-                if (FrontTiles[pixel] != 0)
+                if (FrontTiles[pixel])
                     inFront = true;
                 else
                     behind = true;
@@ -319,7 +319,7 @@ internal sealed class RoomTileCanvas(Extent16<ImagePixels> size)
     /// showing nothing at the other part's opaque pixels, as <see cref="SplitSheet"/> describes for a two-bit sheet.
     /// </summary>
     private void SeparateParts(SpriteSheetFrameDocument frame, Position16<ImagePixels> corner, int width, bool twoBit,
-        RgbaPixel[] pixels, byte[] paletteIndices)
+        RgbaPixel[] pixels, ComposedInk[] inks)
     {
         for (int y = 0; y < frame.Size.Y; y++)
         {
@@ -328,18 +328,18 @@ internal sealed class RoomTileCanvas(Extent16<ImagePixels> size)
                 int from = (frame.Corner.Y + y) * Width + frame.Corner.X + x;
                 int to = (corner.Y + y) * width + corner.X + x;
                 bool opaque = Pixels[from].A != 0;
-                int nothing = twoBit ? PaletteIndices[from] - (PaletteIndices[from] % TwoBppRowColours) : 0;
-                if (opaque && FrontTiles[from] != 0)
+                ComposedInk nothing = twoBit ? Inks[from].GroupClear : ComposedInk.None;
+                if (opaque && FrontTiles[from])
                 {
                     pixels[to] = Pixels[from];
-                    paletteIndices[to] = PaletteIndices[from];
+                    inks[to] = Inks[from];
                     pixels[from] = default;
-                    paletteIndices[from] = checked((byte)nothing);
+                    inks[from] = nothing;
                 }
                 else if (opaque)
-                    paletteIndices[to] = checked((byte)nothing);
+                    inks[to] = nothing;
                 else
-                    paletteIndices[to] = PaletteIndices[from];
+                    inks[to] = Inks[from];
             }
         }
     }
@@ -363,21 +363,24 @@ internal sealed class RoomTileCanvas(Extent16<ImagePixels> size)
     /// <summary>One composed frame as the split sheet installs it.</summary>
     /// <param name="Name">The frame's composed name, which its behind part keeps.</param>
     /// <param name="Frame">The frame's composed document.</param>
-    /// <param name="Split">How the sheet installs it: whole, by the one part or no part that inks a pixel, or both parts.</param>
-    private sealed record FramePart(string Name, SpriteSheetFrameDocument Frame, FrameSplit Split);
+    /// <param name="Installation">How the frame is installed: whole, by the one part it inks, or split with its in-front part moved (#2560).</param>
+    private sealed record FramePart(string Name, SpriteSheetFrameDocument Frame, FrameInstallation Installation);
 
-    /// <summary>How a split sheet installs one of its frames.</summary>
-    private abstract record FrameSplit
+    /// <summary>How a frame of a split sheet is installed (#2560): a closed choice whose split case carries its in-front part's corner.</summary>
+    private abstract record FrameInstallation;
+
+    /// <summary>A frame installed whole, as a sheet that splits none of its frames installs it.</summary>
+    private sealed record WholeFrame : FrameInstallation
     {
-        /// <summary>A frame the sheet does not split: installed whole.</summary>
-        internal sealed record Whole : FrameSplit;
-
-        /// <summary>A split frame of which at most one part inks a pixel, installed as that part or shown as nothing.</summary>
-        /// <param name="Parts">Which part inks: neither, behind or in front.</param>
-        internal sealed record Inking(InkedParts Parts) : FrameSplit;
-
-        /// <summary>A split frame both of whose parts ink a pixel: its in-front part is laid below the painted planes.</summary>
-        /// <param name="InFrontCorner">Where the in-front part is laid.</param>
-        internal sealed record Both(Position16<ImagePixels> InFrontCorner) : FrameSplit;
+        /// <summary>The one whole installation.</summary>
+        internal static WholeFrame Instance { get; } = new();
     }
+
+    /// <summary>A split frame of which at most one part inks an opaque pixel: installed as that part, or as nothing.</summary>
+    /// <param name="Parts">Which of its parts ink an opaque pixel: none, the part behind, or the part in front.</param>
+    private sealed record InkedFrame(InkedParts Parts) : FrameInstallation;
+
+    /// <summary>A split frame whose parts both ink a pixel: its in-front part is laid below the painted planes.</summary>
+    /// <param name="Corner">The corner its in-front part is laid at.</param>
+    private sealed record SplitFrame(Position16<ImagePixels> Corner) : FrameInstallation;
 }

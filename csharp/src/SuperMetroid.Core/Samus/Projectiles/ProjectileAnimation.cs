@@ -35,7 +35,7 @@ internal sealed class ProjectileAnimation
     /// <param name="shot">The projectile whose animation plays.</param>
     /// <param name="animation">The animation the projectile is playing.</param>
     internal void AdvanceProjectileAnimation(
-        SamusProjectile shot,
+        SamusProjectileOccupant shot,
         AnimationPlayer<SamusProjectileSegment, SamusProjectileFrameId, NoAnimationCue> animation)
     {
         if (SamusProjectilePlayback.StepToNewFrame(Ensure.NotNull(animation)) is { } frame)
@@ -45,7 +45,7 @@ internal sealed class ProjectileAnimation
             return;
         }
         if (animation.HasStopped)
-            ClearProjectile(shot);
+            ClearProjectile(shot.Projectile);
     }
 
 

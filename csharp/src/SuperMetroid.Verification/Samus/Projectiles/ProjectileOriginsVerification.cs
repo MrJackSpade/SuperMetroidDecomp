@@ -23,13 +23,14 @@ internal static class ProjectileOriginsVerification
     internal static void VerifyProjectileOrigins(CartridgeImportAddressSpace rom)
     {
         short Word(int address) => unchecked((short)rom.ReadCartridgeWord(address));
-        var initialize = new Action<SamusState, SamusProjectile>(BeamFiring.InitializePosition);
+        var initialize = new Action<SamusState, SamusProjectileOccupant>(BeamFiring.InitializePosition);
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         var slot = new SamusProjectile(0);
+        _ = slot.OccupyAsFired(SuperMetroid.Core.Progression.SamusProjectileType.Beam(SuperMetroid.Core.Progression.SamusBeamCombination.Power, charged: false));
 
         void Check(SamusPoseId pose, SamusProjectileDirection direction, ushort x, ushort y)
         {
-            samus.Pose = pose; samus.Position = samus.Position.WithWhole(new(x, y)); slot.Direction = direction;
+            samus.Pose = pose; samus.Position = samus.Position.WithWhole(new(x, y)); slot.HeldShot().Direction = direction;
             bool running = rom.ReadCartridgeByte(0x91b629 + SamusPoseNumbers.Number(pose) * 8 + 1) == 1 || pose is SamusPoseId.MoonwalkAimUpLeftPose or SamusPoseId.MoonwalkAimUpRightPose;
             int offset = direction.ToAimIndex() * 2;
             short dx = Word((running ? 0x90c22c : 0x90c204) + offset);
@@ -40,7 +41,7 @@ internal static class ProjectileOriginsVerification
                 or SamusPoseId.DrainedStandingRightPose or SamusPoseId.DrainedStandingLeftPose
                 ? unchecked((sbyte)stored)
                 : stored;
-            initialize(samus, slot);
+            initialize(samus, slot.HeldShot());
             AssertEqual(x + dx, slot.Position.X.Whole, "Physical muzzle X follows native direction/table selection");
             AssertEqual(unchecked((ushort)(y + dy - correction)), slot.Position.Y.Whole, "Physical muzzle Y follows native signed origin and unsigned pose correction");
             AssertEqual(direction, slot.Direction, "Origin lookup does not rewrite the direction");

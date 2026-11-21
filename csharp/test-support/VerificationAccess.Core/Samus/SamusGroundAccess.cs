@@ -13,19 +13,19 @@ namespace SuperMetroid.Core.Samus;
 internal static class SamusGroundAccess
 {
     /// <summary>The ground each check's Samus stands on, by Samus.</summary>
-    private static readonly ConditionalWeakTable<SamusState, SamusGround> grounds = new();
+    private static readonly ConditionalWeakTable<SamusState, RoomGround> grounds = new();
 
     /// <summary>Dry ground whose landings raise no dust, which a Samus stands on until a check names another.</summary>
-    private static SamusGround Unnamed { get; } = new(SamusGroundWetness.Dry, DryLandingsRaiseDust: false);
+    private static RoomGround Unnamed { get; } = new(RoomGroundWetness.Dry, DryLandingsRaiseDust: false);
 
     /// <summary>The ground a check stands Samus on.</summary>
     /// <param name="samus">Samus.</param>
     extension(SamusState samus)
     {
         /// <summary>The ground the check stands her on.</summary>
-        internal SamusGround Ground
+        internal RoomGround Ground
         {
-            get => grounds.TryGetValue(samus, out SamusGround? ground) ? ground : Unnamed;
+            get => grounds.TryGetValue(samus, out RoomGround? ground) ? ground : Unnamed;
             set => grounds.AddOrUpdate(samus, Ensure.NotNull(value));
         }
     }

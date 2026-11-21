@@ -16,8 +16,7 @@ public static class MapLandmarkFile
         foreach (AreaId area in AreaIds.All)
         {
             foreach (MapBossMarker marker in MapLandmarks.BossMarkers(area)) yield return marker.Id;
-            if (area != AreaId.Ceres)
-                foreach (var label in MapLandmarks.Elevators(area)) yield return label.Id;
+            foreach (var label in MapLandmarks.Elevators(area)) yield return label.Id;
         }
         yield return MapLandmarkDefinitions.Gunship;
     }

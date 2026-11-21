@@ -5,19 +5,7 @@ public static class BlockReactionFamilies
 {
     /// <summary>The family <paramref name="kind"/> reads its block's reaction from, or null for a kind that reads none.</summary>
     /// <exception cref="InvalidOperationException"><paramref name="kind"/> is undefined.</exception>
-    public static BlockReactionFamily? Of(RoomCollisionType kind) => kind switch
-    {
-        RoomCollisionType.ShootableBlock or RoomCollisionType.ShootableAir => BlockReactionFamily.Shootable,
-        RoomCollisionType.BombableBlock or RoomCollisionType.BombableAir => BlockReactionFamily.Bombable,
-        RoomCollisionType.SpecialBlock => BlockReactionFamily.Special,
-        RoomCollisionType.SpecialAir => BlockReactionFamily.SpecialAir,
-        RoomCollisionType.SpikeBlock or RoomCollisionType.SpikeAir => BlockReactionFamily.Spike,
-        RoomCollisionType.GrappleBlock => BlockReactionFamily.Grapple,
-        RoomCollisionType.Air or RoomCollisionType.Slope or RoomCollisionType.HorizontalExtension or
-            RoomCollisionType.UnrevealedAir or RoomCollisionType.SolidBlock or RoomCollisionType.DoorBlock or
-            RoomCollisionType.VerticalExtension => null,
-        _ => throw new InvalidOperationException($"Undefined collision kind {kind}."),
-    };
+    public static BlockReactionFamily? Of(RoomCollisionType kind) => RoomCollisionTypes.Of(kind).Reactions;
 
     /// <summary>Every reaction of <paramref name="family"/>, in the family's written-out order (its keys' listed order, #2567).</summary>
     /// <exception cref="InvalidOperationException"><paramref name="family"/> is undefined.</exception>

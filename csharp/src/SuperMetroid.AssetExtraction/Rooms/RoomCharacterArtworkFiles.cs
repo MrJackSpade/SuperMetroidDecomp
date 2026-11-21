@@ -39,12 +39,7 @@ public static class RoomCharacterArtworkFiles
         foreach ((string name, RoomCharacterSource source) in ExpectedSources())
         {
             byte[] png = pngs[name];
-            // The ghost sheet is stored uncompressed, so its length is the library background's.
-            int nativeByteCount = source is RoomCharacterSource.OfSet { Set: RoomCharacterSet.TourianStatueGhost }
-                ? LibraryBackgroundStagingDefinitions.TourianStatueGhostByteCount
-                : RomDataReader.Decompress(bus, source is RoomCharacterSource.OfSet(RoomCharacterSet set)
-                    ? tilesets.Characters[set]
-                    : RoomTilesetSourceDefinitions.CreCharacters).Length;
+            int nativeByteCount = source.NativeByteCount(bus, tilesets);
             RoomCharacterAtlasFormat.ValidateTileCount(nativeByteCount);
             using (var output = new FileStream(Path.Combine(importData, name), FileMode.CreateNew, FileAccess.Write))
                 output.Write(png);
@@ -132,8 +127,9 @@ public static class RoomCharacterArtworkFiles
             RoomCharacterSet set = tileset.Characters;
             sources[RoomCharacterSheetFiles.FileName(set)] = new RoomCharacterSource.OfSet(set);
         }
+        // The ghost sheet is stored uncompressed, so its length is the library background's.
         sources[RoomCharacterSheetFiles.FileName(RoomCharacterSet.TourianStatueGhost)] =
-            new RoomCharacterSource.OfSet(RoomCharacterSet.TourianStatueGhost);
+            new RoomCharacterSource.UncompressedSet(RoomCharacterSet.TourianStatueGhost, LibraryBackgroundStagingDefinitions.TourianStatueGhostByteCount);
         return sources;
     }
 
@@ -145,12 +141,34 @@ public static class RoomCharacterArtworkFiles
         {
         }
 
-        /// <summary>The common room elements' sheet.</summary>
-        internal sealed record Common : RoomCharacterSource;
+        /// <summary>The bytes the sheet's characters occupy in the cartridge, decompressed where the cartridge compresses them.</summary>
+        internal abstract int NativeByteCount(ISnesAddressSpace bus, RoomTilesetSourceMap tilesets);
 
-        /// <summary>A character set's sheet.</summary>
+        /// <summary>The common room elements' sheet.</summary>
+        internal sealed record Common : RoomCharacterSource
+        {
+            /// <inheritdoc/>
+            internal override int NativeByteCount(ISnesAddressSpace bus, RoomTilesetSourceMap tilesets) =>
+                RomDataReader.Decompress(CartridgeImportSource.Require(bus), RoomTilesetSourceDefinitions.CreCharacters).Length;
+        }
+
+        /// <summary>A character set's sheet, which the cartridge stores compressed.</summary>
         /// <param name="Set">The set.</param>
-        internal sealed record OfSet(RoomCharacterSet Set) : RoomCharacterSource;
+        internal record OfSet(RoomCharacterSet Set) : RoomCharacterSource
+        {
+            /// <inheritdoc/>
+            internal override int NativeByteCount(ISnesAddressSpace bus, RoomTilesetSourceMap tilesets) =>
+                RomDataReader.Decompress(CartridgeImportSource.Require(bus), Ensure.NotNull(tilesets).Characters[Set]).Length;
+        }
+
+        /// <summary>A character set's sheet the cartridge stores uncompressed, at its fixed length.</summary>
+        /// <param name="Set">The set.</param>
+        /// <param name="ByteCount">The bytes the sheet occupies.</param>
+        internal sealed record UncompressedSet(RoomCharacterSet Set, int ByteCount) : OfSet(Set)
+        {
+            /// <inheritdoc/>
+            internal override int NativeByteCount(ISnesAddressSpace bus, RoomTilesetSourceMap tilesets) => ByteCount;
+        }
     }
 
     /// <summary>Reads and writes manifest property names in their stable camel-case JSON form.</summary>

@@ -11,76 +11,14 @@ internal static class SpacePirateProjectileAnimations
     internal static AnimationSegments<SpacePirateProjectileSegment, EnemyProjectileFrameId, SpacePirateProjectileCue> Segments { get; } = new(
         new Dictionary<SpacePirateProjectileSegment, AnimationBeat<EnemyProjectileFrameId, SpacePirateProjectileCue>[]>
     {
-        [P.LaserLeft] =
-        [
-            Show(EnemyProjectileFrameId.SpacePirateLaserFlareGlint, 2),
-            Show(EnemyProjectileFrameId.SpacePirateLaserFlareGlow, 2),
-            Show(EnemyProjectileFrameId.SpacePirateLaserFlareBall, 2),
-            Cue(SpacePirateProjectileCueKind.FireLaser, HorizontalDirection.Left),
-            Show(EnemyProjectileFrameId.SpacePirateLaserEmergingBright, 1),
-            Show(EnemyProjectileFrameId.SpacePirateLaserEmergingDim, 1),
-            Show(EnemyProjectileFrameId.SpacePirateLaserExtendingBright, 1),
-            Show(EnemyProjectileFrameId.SpacePirateLaserExtendingDim, 1),
-            Show(EnemyProjectileFrameId.SpacePirateLaserLengtheningBright, 1),
-            Show(EnemyProjectileFrameId.SpacePirateLaserLengtheningDim, 1),
-            Show(EnemyProjectileFrameId.SpacePirateLaserFullLengthBright, 1),
-            Show(EnemyProjectileFrameId.SpacePirateLaserFullLengthDim, 1),
-        ],
-        [P.LaserLeftFlicker] =
-        [
-            Show(EnemyProjectileFrameId.SpacePirateLaserFullLengthBright, 1),
-            Show(EnemyProjectileFrameId.SpacePirateLaserFullLengthDim, 1),
-        ],
-        [P.LaserRight] =
-        [
-            Show(EnemyProjectileFrameId.SpacePirateLaserFlareGlint, 2),
-            Show(EnemyProjectileFrameId.SpacePirateLaserFlareGlow, 2),
-            Show(EnemyProjectileFrameId.SpacePirateLaserFlareBall, 2),
-            Cue(SpacePirateProjectileCueKind.FireLaser, HorizontalDirection.Right),
-            Show(EnemyProjectileFrameId.SpacePirateLaserEmergingBright, 1),
-            Show(EnemyProjectileFrameId.SpacePirateLaserEmergingDim, 1),
-            Show(EnemyProjectileFrameId.SpacePirateLaserExtendingBright, 1),
-            Show(EnemyProjectileFrameId.SpacePirateLaserExtendingDim, 1),
-            Show(EnemyProjectileFrameId.SpacePirateLaserLengtheningBright, 1),
-            Show(EnemyProjectileFrameId.SpacePirateLaserLengtheningDim, 1),
-            Show(EnemyProjectileFrameId.SpacePirateLaserFullLengthBright, 1),
-            Show(EnemyProjectileFrameId.SpacePirateLaserFullLengthDim, 1),
-        ],
-        [P.LaserRightFlicker] =
-        [
-            Show(EnemyProjectileFrameId.SpacePirateLaserFullLengthBright, 1),
-            Show(EnemyProjectileFrameId.SpacePirateLaserFullLengthDim, 1),
-        ],
-        [P.ClawLeft] =
-        [
-            Cue(SpacePirateProjectileCueKind.ThrowClaw, HorizontalDirection.Left),
-        ],
-        [P.ClawLeftSpin] =
-        [
-            Show(EnemyProjectileFrameId.SpacePirateClawLeftTurned0, 1),
-            Show(EnemyProjectileFrameId.SpacePirateClawLeftTurned45, 1),
-            Show(EnemyProjectileFrameId.SpacePirateClawLeftTurned90, 1),
-            Show(EnemyProjectileFrameId.SpacePirateClawLeftTurned135, 1),
-            Show(EnemyProjectileFrameId.SpacePirateClawLeftTurned180, 1),
-            Show(EnemyProjectileFrameId.SpacePirateClawLeftTurned225, 1),
-            Show(EnemyProjectileFrameId.SpacePirateClawLeftTurned270, 1),
-            Show(EnemyProjectileFrameId.SpacePirateClawLeftTurned315, 1),
-        ],
-        [P.ClawRight] =
-        [
-            Cue(SpacePirateProjectileCueKind.ThrowClaw, HorizontalDirection.Right),
-        ],
-        [P.ClawRightSpin] =
-        [
-            Show(EnemyProjectileFrameId.SpacePirateClawRightTurned0, 1),
-            Show(EnemyProjectileFrameId.SpacePirateClawRightTurned45, 1),
-            Show(EnemyProjectileFrameId.SpacePirateClawRightTurned90, 1),
-            Show(EnemyProjectileFrameId.SpacePirateClawRightTurned135, 1),
-            Show(EnemyProjectileFrameId.SpacePirateClawRightTurned180, 1),
-            Show(EnemyProjectileFrameId.SpacePirateClawRightTurned225, 1),
-            Show(EnemyProjectileFrameId.SpacePirateClawRightTurned270, 1),
-            Show(EnemyProjectileFrameId.SpacePirateClawRightTurned315, 1),
-        ],
+        [P.LaserLeft] = Laser(HorizontalDirection.Left),
+        [P.LaserLeftFlicker] = LaserFlicker,
+        [P.LaserRight] = Laser(HorizontalDirection.Right),
+        [P.LaserRightFlicker] = LaserFlicker,
+        [P.ClawLeft] = Claw(HorizontalDirection.Left),
+        [P.ClawLeftSpin] = ClawSpin(EnemyProjectileFrameId.SpacePirateClawLeftTurned0, EnemyProjectileFrameId.SpacePirateClawLeftTurned45, EnemyProjectileFrameId.SpacePirateClawLeftTurned90, EnemyProjectileFrameId.SpacePirateClawLeftTurned135, EnemyProjectileFrameId.SpacePirateClawLeftTurned180, EnemyProjectileFrameId.SpacePirateClawLeftTurned225, EnemyProjectileFrameId.SpacePirateClawLeftTurned270, EnemyProjectileFrameId.SpacePirateClawLeftTurned315),
+        [P.ClawRight] = Claw(HorizontalDirection.Right),
+        [P.ClawRightSpin] = ClawSpin(EnemyProjectileFrameId.SpacePirateClawRightTurned0, EnemyProjectileFrameId.SpacePirateClawRightTurned45, EnemyProjectileFrameId.SpacePirateClawRightTurned90, EnemyProjectileFrameId.SpacePirateClawRightTurned135, EnemyProjectileFrameId.SpacePirateClawRightTurned180, EnemyProjectileFrameId.SpacePirateClawRightTurned225, EnemyProjectileFrameId.SpacePirateClawRightTurned270, EnemyProjectileFrameId.SpacePirateClawRightTurned315),
     });
 
     /// <summary>
@@ -95,8 +33,35 @@ internal static class SpacePirateProjectileAnimations
         [P.ClawRight] = Animation<SpacePirateProjectileSegment>.LeadingInto([Segments.Whole(P.ClawRight)], [Segments.Whole(P.ClawRightSpin)]),
     };
 
-    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<SpacePirateProjectileSegment> StartingWith(SpacePirateProjectileSegment segment) => StartingAt[segment];
+    /// <summary>A laser fired <paramref name="facing"/>: its flare grows, it fires, and the beam extends to its full length, flickering bright and dim.</summary>
+    private static AnimationBeat<EnemyProjectileFrameId, SpacePirateProjectileCue>[] Laser(HorizontalDirection facing) =>
+    [
+        Show(EnemyProjectileFrameId.SpacePirateLaserFlareGlint, 2),
+        Show(EnemyProjectileFrameId.SpacePirateLaserFlareGlow, 2),
+        Show(EnemyProjectileFrameId.SpacePirateLaserFlareBall, 2),
+        Cue(SpacePirateProjectileCueKind.FireLaser, facing),
+        Show(EnemyProjectileFrameId.SpacePirateLaserEmergingBright, 1),
+        Show(EnemyProjectileFrameId.SpacePirateLaserEmergingDim, 1),
+        Show(EnemyProjectileFrameId.SpacePirateLaserExtendingBright, 1),
+        Show(EnemyProjectileFrameId.SpacePirateLaserExtendingDim, 1),
+        Show(EnemyProjectileFrameId.SpacePirateLaserLengtheningBright, 1),
+        Show(EnemyProjectileFrameId.SpacePirateLaserLengtheningDim, 1),
+        .. LaserFlicker,
+    ];
+
+    /// <summary>A full-length laser flickering bright and dim, which ends its extension and plays on while it flies either way.</summary>
+    private static AnimationBeat<EnemyProjectileFrameId, SpacePirateProjectileCue>[] LaserFlicker =>
+    [
+        Show(EnemyProjectileFrameId.SpacePirateLaserFullLengthBright, 1),
+        Show(EnemyProjectileFrameId.SpacePirateLaserFullLengthDim, 1),
+    ];
+
+    /// <summary>A claw thrown <paramref name="facing"/>.</summary>
+    private static AnimationBeat<EnemyProjectileFrameId, SpacePirateProjectileCue>[] Claw(HorizontalDirection facing) => [Cue(SpacePirateProjectileCueKind.ThrowClaw, facing)];
+
+    /// <summary>A thrown claw's spin over its side's <paramref name="turns"/>, turned by 0 degrees through to 315, one update each.</summary>
+    private static AnimationBeat<EnemyProjectileFrameId, SpacePirateProjectileCue>[] ClawSpin(params ReadOnlySpan<EnemyProjectileFrameId> turns) =>
+        AnimationBeats<EnemyProjectileFrameId, SpacePirateProjectileCue>.Steady(1, turns);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, SpacePirateProjectileCue> Show(EnemyProjectileFrameId frame, int duration) =>

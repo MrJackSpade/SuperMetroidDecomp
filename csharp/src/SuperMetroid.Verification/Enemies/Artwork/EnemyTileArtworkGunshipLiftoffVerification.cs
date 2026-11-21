@@ -74,7 +74,7 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
             "Gunship takeoff art: five compiled pages, installed PNG parity, " +
             "live page uploads pass.");
 
-        static SpriteArtworkPlacements ShowAllTakeoffPages(ImportEnemyArtwork art, IInstalledArtworkContent resolver)
+        static SpriteArtworkPlacements ShowAllTakeoffPages(ImportEnemyArtwork art, IInstalledEncounterArtwork resolver)
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(art.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), installedBosses: art.Bosses);
             RoomEnemyPlace top = enemies.Places.InUpdateOrder[0];

@@ -54,9 +54,9 @@ internal static class DraygonPrebattleXrayVerification
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         runtime.StepFrame(0);
-        runtime.StepFrame(runtime.Options.ControllerBindings.Dash);
+        runtime.StepFrame(runtime.Options.ControllerBindings[SuperMetroid.Core.Input.ControllerAction.Dash]);
         AssertTrue(samus.Xray.IsActive, "bottom-right arena position activates X-Ray through held Run");
-        for (int frame = 0; frame < 40; frame++) runtime.StepFrame(runtime.Options.ControllerBindings.Dash);
+        for (int frame = 0; frame < 40; frame++) runtime.StepFrame(runtime.Options.ControllerBindings[SuperMetroid.Core.Input.ControllerAction.Dash]);
         var boss = runtime.Enemies.Draygon;
         AssertEqual(DraygonPhase.IntroInitialDelay, (boss ?? throw new InvalidOperationException("Verification requires boss.")).Phase, "X-Ray preserves the pre-battle phase");
         var scene = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
@@ -97,7 +97,7 @@ internal static class DraygonPrebattleXrayVerification
         // #1680, #2031: his body's pictures lie once in the room against his published placement, his parts' area's top-left
         // corner 62 left of and 64 above it, where the cartridge's layer put it; the screen shows them there against the room
         // pixel at its top-left corner, starting at the area's corner.
-        Position16<RoomPixels> placement = runtime.Display.LatchedOrdinaryRoom.Bosses.Placement ?? throw new InvalidOperationException("Draygon publishes his body placement.");
+        Position16<RoomPixels> placement = runtime.Display.LatchedOrdinaryRoom.Bosses?.Placement ?? throw new InvalidOperationException("Draygon publishes his body placement.");
         Offset16<ScreenPixels> corner = (placement + BossBodySourceDefinitions.AreaFromBoss[BossBodyOwner.Draygon]).RelativeToCamera(Position16<RoomPixels>.Wrapped(ordinary.View.ForegroundScroll.X, ordinary.View.ForegroundScroll.Y));
         Console.WriteLine($"Battle-start Draygon body: {shown.Length} visible pixels; body={boss.Body.Position.X.Whole}/{boss.Body.Position.Y.Whole}, " +
             $"its area's corner on screen {corner.X}/{corner.Y}.");

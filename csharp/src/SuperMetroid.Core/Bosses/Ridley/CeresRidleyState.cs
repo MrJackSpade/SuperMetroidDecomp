@@ -30,13 +30,9 @@ public sealed class CeresRidleyState : RidleyEncounterState
     /// <exception cref="InvalidOperationException">He has not lifted off.</exception>
     public CeresRidleyPhase Phase
     {
-        get => LiftedOff ? field : throw NotLiftedOff();
-        internal set
-        {
-            field = value;
-            LiftOff();
-        }
-    } = CeresRidleyPhase.LiftoffAccelerating;
+        get => FightPhase<CeresRidleyPhase>();
+        internal set => SetFightPhase(value);
+    }
 
     /// <summary>
     /// Gets the number of shots Ridley has taken, used for health-colour progression and the fake-retreat

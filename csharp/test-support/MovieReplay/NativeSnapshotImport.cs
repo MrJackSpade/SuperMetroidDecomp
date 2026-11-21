@@ -200,12 +200,11 @@ internal static class NativeSnapshotImport
             ?? throw new InvalidDataException("The native Ridley checkpoint names no top body picture.");
         PrivateState.Set(samus.Presentation, "DrawnFrame", new SamusBodyFrame(drawnTop.Pose, SamusAnimationNumbers.Frame(drawnTop.Pose, drawnTop.AnimationFrame)));
         PrivateState.Set(samus.Presentation, "DrawOrigin", Offset16<ScreenPixels>.Wrapped(W(NativeSnapshotMemory.SamusSpriteX), W(NativeSnapshotMemory.SamusSpriteY)));
-        PrivateState.Set(samus.ArmCannon, "Frame", SamusArmCannonCoverNativeCodec.FromNative(W(NativeSnapshotMemory.CannonFrame)));
+        PrivateState.Set(samus.ArmCannon, "Cover", ArmCannonCoverOf(memory[NativeSnapshotMemory.CannonFlags] != 0,
+            memory[NativeSnapshotMemory.CannonFlags + 1] != 0, SamusArmCannonCoverNativeCodec.FromNative(W(NativeSnapshotMemory.CannonFrame))));
         PrivateState.SetField(samus.ArmCannon, "stability",
             UpdateCountdownAccess.AtAge(SamusArmCannonDefinitions.StableSelectionUpdates, W(NativeSnapshotMemory.CannonToggle)));
         PrivateState.Set(samus.ArmCannon, nameof(SamusArmCannonState.DrawOrder), SuperMetroid.AssetExtraction.Samus.SamusArmCannonDrawOrderCodec.FromDrawingMode(W(NativeSnapshotMemory.CannonDrawingMode)));
-        PrivateState.Set(samus.ArmCannon, "IsOpen", memory[NativeSnapshotMemory.CannonFlags] != 0);
-        PrivateState.Set(samus.ArmCannon, "IsTransitioning", memory[NativeSnapshotMemory.CannonFlags + 1] != 0);
         new ProjectileInheritanceRecordsAccess(samus.ProjectileInheritance).Load(memory.AsSpan(NativeSnapshotMemory.ProjectileInheritancePrefix,
             NativeSnapshotMemory.SamusSlopeAdjusted - NativeSnapshotMemory.ProjectileInheritancePrefix));
         global::SuperMetroid.Core.PrivateState.Set(samus.Kinematics, "PositionAdjustedBySlope", W(NativeSnapshotMemory.SamusSlopeAdjusted) != 0);
@@ -248,7 +247,11 @@ internal static class NativeSnapshotImport
         samus.MaxHealth = SamusCountWords.Decode(W(NativeSnapshotMemory.MaxHealth));
         samus.InvincibilityTimer = WrappingCountdown.Start(W(NativeSnapshotMemory.InvincibilityTimer));
         samus.KnockbackHold = UpdateCountdown.For(W(NativeSnapshotMemory.KnockbackTimer));
-        samus.KnockbackDirection = SamusMovementNativeWords.KnockbackDirections.Decode(W(NativeSnapshotMemory.KnockbackDirection), "Samus knockback direction");
+        // The checkpoint's movement handler is the ordinary one, so a recorded direction is a knockback that no longer moves her.
+        samus.Knockback = SamusMovementNativeWords.KnockbackDirections.Decode(W(NativeSnapshotMemory.KnockbackDirection), "Samus knockback direction") is
+            var recordedKnockback and not SamusKnockbackDirection.None
+            ? SamusKnockback.Moving(recordedKnockback).Released()
+            : SamusKnockback.None;
         samus.KnockbackXDirection = (KnockbackHorizontalDirection)W(NativeSnapshotMemory.KnockbackXDirection);
         samus.HurtFlash.HoldAt(W(NativeSnapshotMemory.HurtFlashCounter));
         PrivateState.Set(samus, "EnergyFraction", SuperMetroid.Core.Compatibility.PeriodicDamageEnergyFraction.Holding(W(NativeSnapshotMemory.SubunitHealth)));
@@ -475,6 +478,22 @@ internal static class NativeSnapshotImport
     /// resume their programs, which show their next frame later.
     /// </summary>
     /// <exception cref="InvalidOperationException">A live object's frame lies in colours no gameplay picture shows.</exception>
+    /// <summary>
+    /// The arm cannon cover the recorded open and transition flags and cover picture stand for: a closed cover shows
+    /// nothing, an open one its fully open picture, and an opening or a closing the picture it is at.
+    /// </summary>
+    private static SamusArmCannonCover ArmCannonCoverOf(bool openOrOpening, bool transitioning, SamusArmCannonCoverFrame? frame) =>
+        (openOrOpening, transitioning, frame) switch
+        {
+            (false, false, null) => SamusArmCannonCover.Closed,
+            // An open cover is where an opening's fully open picture moves on to.
+            (true, false, SamusArmCannonCoverFrame.FullyOpen) => new SamusArmCannonCover.Opening(SamusArmCannonCoverFrame.FullyOpen).Advanced(),
+            (true, true, { } opening) => new SamusArmCannonCover.Opening(opening),
+            (false, true, { } closing) => new SamusArmCannonCover.Closing(closing),
+            _ => throw new InvalidDataException(
+                $"The recorded arm cannon cover (open {openOrOpening}, moving {transitioning}, picture {frame}) is no cover state."),
+        };
+
     private static void ImportShownPaletteFxFrames(SuperMetroidRuntime runtime)
     {
         // Native slot order is the reverse of the order the effects take their turns in.

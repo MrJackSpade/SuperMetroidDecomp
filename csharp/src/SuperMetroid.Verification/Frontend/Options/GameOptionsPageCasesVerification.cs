@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Progression;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using SuperMetroid.Core.Frontend.Options;
@@ -24,10 +25,10 @@ internal static class GameOptionsPageCasesVerification
         OriginalOrder[] originalOrder =
         [
             new OriginalOrder(GameOptionsScreen.Primary, "primary"),
-            new OriginalOrder(GameOptionsScreen.ControllerEnglish, "English controller"),
-            new OriginalOrder(GameOptionsScreen.ControllerJapanese, "Japanese controller"),
-            new OriginalOrder(GameOptionsScreen.SpecialEnglish, "English special-settings"),
-            new OriginalOrder(GameOptionsScreen.SpecialJapanese, "Japanese special-settings"),
+            new OriginalOrder(GameOptionsScreen.Settings(GameOptionsPage.Controller, TextLanguage.English), "English controller"),
+            new OriginalOrder(GameOptionsScreen.Settings(GameOptionsPage.Controller, TextLanguage.Japanese), "Japanese controller"),
+            new OriginalOrder(GameOptionsScreen.Settings(GameOptionsPage.Special, TextLanguage.English), "English special-settings"),
+            new OriginalOrder(GameOptionsScreen.Settings(GameOptionsPage.Special, TextLanguage.Japanese), "Japanese special-settings"),
         ];
         for (int index = 0; index < originalOrder.Length; index++)
         {
@@ -44,9 +45,10 @@ internal static class GameOptionsPageCasesVerification
             AssertTrue(bytes.SequenceEqual(presentation.CreatePageBytes(expected.Page)),
                 "named installed page matches independently selected native resource");
         }
-        foreach (int invalid in new[] { int.MinValue, -1, 5, 65536, int.MaxValue })
-            AssertThrows<KeyNotFoundException>(() => _ = GameOptionsSourceDefinitions.Pages[(GameOptionsScreen)invalid],
-                "unsupported options tilemap selector");
+        // A screen is a page with its language (#2560), so no number names an unsupported one; the primary page has no
+        // settings screen.
+        AssertThrows<ArgumentOutOfRangeException>(() => _ = GameOptionsScreen.Settings(GameOptionsPage.Primary, SuperMetroid.Core.Progression.TextLanguage.English),
+            "the primary page is no settings screen");
     }
 
     /// <summary>Runs the focused game-options page-source check.</summary>

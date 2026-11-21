@@ -28,10 +28,10 @@ public class EndingObjectSourceArtwork
             !IsWholeMap(TransformationMap) ||
             !IsWholeMap(PostShotLogoMap) ||
             parts.Fragments.Count != EndingObjectArtworkFormat.FragmentCount ||
-            parts.Fragments.Any(fragment => fragment is null || !IsWholeMap(fragment)))
+            EndingObjectArtworkFormat.ExplosionPictures.Any(picture => !parts.Fragments.ContainsKey(picture)) ||
+            parts.Fragments.Values.Any(fragment => fragment is null || !IsWholeMap(fragment)))
             throw new InvalidDataException("Ending OBJ catalog has an incorrect native transfer length.");
-        fragments = [.. parts.Fragments];
-        fragmentsById = EndingObjectArtworkFormat.ExplosionPictures.Zip(fragments, KeyValuePair.Create).ToDictionary();
+        fragmentsById = parts.Fragments.ToDictionary();
         CloudSprites = Ensure.NotNull(parts.CloudSprites);
         ExplosionSprites = Ensure.NotNull(parts.ExplosionSprites);
         CompletionTextSprites = Ensure.NotNull(parts.CompletionTextSprites);
@@ -39,10 +39,7 @@ public class EndingObjectSourceArtwork
         LogoSprites = Ensure.NotNull(parts.LogoSprites);
     }
 
-    /// <summary>The four explosion maps in the installation's order of their pictures (<see cref="EndingObjectArtworkFormat.ExplosionPictures"/>).</summary>
-    private readonly RoomBackgroundTilemapAtlas[] fragments;
-
-    /// <summary>The same maps keyed by the explosion map each one holds.</summary>
+    /// <summary>The four explosion maps, keyed by the explosion picture each one holds.</summary>
     private readonly Dictionary<EndingExplosionPicture, RoomBackgroundTilemapAtlas> fragmentsById;
 
     /// <summary>Whether <paramref name="map"/> holds exactly one 32-by-32 page of tiles.</summary>

@@ -23,7 +23,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Samus.Projectiles.ChargeFlareCompositionsVerification;
 using static SuperMetroid.Verification.Areas.Escape.Artwork.EscapeTimerPresentationVerification;
-using static SuperMetroid.Verification.Harness.InstalledArtworkBindingVerification;
 using static SuperMetroid.Verification.Samus.Drawing.SamusAtmosphericAnimationDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.SamusContentIdentityVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -399,8 +398,8 @@ internal static class LookupStream1Verification
         byte[] png = EscapeTimerTileAtlasExtractor.Extract(rom);
         byte[] native = Enumerable.Range(0, 800).Select(index => LookupStream1TimerGlyphsRomByte(rom, 0xb0c000 + index)).ToArray();
         var stock = EscapeTimerCharacters.Read(new MemoryStream(png));
-        byte[] Transfer(EscapeTimerCharacters value) => EscapeTimerTilePageTransfers.Resolve(value, InstalledArtworkId.EscapeTimerFirstTiles).Span
-            .ConcatToArray(EscapeTimerTilePageTransfers.Resolve(value, InstalledArtworkId.EscapeTimerSecondTiles).Span);
+        byte[] Transfer(EscapeTimerCharacters value) => EscapeTimerTilePageTransfers.Resolve(value, EscapeTimerTilePage.First).Span
+            .ConcatToArray(EscapeTimerTilePageTransfers.Resolve(value, EscapeTimerTilePage.Second).Span);
         AssertTrue(Transfer(stock).SequenceEqual(native), "Both reconstructed timer pages match all800 native planar bytes");
         var queue = new VramWriteQueue(); stock.QueueTo(queue);
         AssertEqual(2, queue.Entries.Count, "Original two-page queue count");
@@ -413,7 +412,7 @@ internal static class LookupStream1Verification
         var uploads = new SpriteArtworkPlacements();
         AssertTrue(stock.TryRecordNativeTransfer(uploads, 0xb0c000, 512, 0x7e00) && stock.TryRecordNativeTransfer(uploads, 0xb0c200, 288, 0x7f00), "Both synchronous native uploads accepted");
         AssertTrue(uploads.Uploads.Select(upload => upload.FirstByte).SequenceEqual([0x3c00, 0x3e00]) &&
-            ((byte[])[.. EscapeTimerTilePageTransfers.Resolve(stock, InstalledArtworkId.EscapeTimerFirstTiles).Span, .. EscapeTimerTilePageTransfers.Resolve(stock, InstalledArtworkId.EscapeTimerSecondTiles).Span]).SequenceEqual(native),
+            ((byte[])[.. EscapeTimerTilePageTransfers.Resolve(stock, EscapeTimerTilePage.First).Span, .. EscapeTimerTilePageTransfers.Resolve(stock, EscapeTimerTilePage.Second).Span]).SequenceEqual(native),
             "The two synchronous pages show the native bytes where they land in the OBJ characters");
         AssertTrue(stock.TryResolve(0xb0c000, 512, out var first) && first.Span.SequenceEqual(native.AsSpan(0, 512)), "First restored native page resolution");
         AssertTrue(stock.TryResolve(0xb0c200, 288, out var second) && second.Span.SequenceEqual(native.AsSpan(512)), "Second restored native page resolution");
@@ -697,7 +696,7 @@ internal static class LookupStream1Verification
         AssertEqual(23, ChargeFlarePlacements.Placements(ChargeFlareSource.Beam).Count(),
             "The beam flare is placed at ten muzzles in each movement mode and three turning placements standing");
         var grappleDocument = RequiredJson.Deserialize<ChargeFlarePlacementDocument>(GrappleFlarePlacementExtractor.Extract(rom), options);
-        var grapple = ChargeFlarePlacementFile.LoadGrapple(new MemoryStream(ChargeFlarePlacementFile.WriteGrapple(grappleDocument)));
+        var grapple = ChargeFlarePlacementFile.LoadGrapple(new MemoryStream(ChargeFlarePlacementFile.Write(grappleDocument)));
         foreach (ChargeFlarePlacement placement in ChargeFlarePlacements.Placements(ChargeFlareSource.Grapple))
         {
             int row = SamusProjectileDirectionCodec.FlarePlacementRow(placement.Aim);
@@ -877,7 +876,7 @@ internal static class LookupStream1Verification
         {
             var slot = new SamusProjectile(0);
             slot.OccupyAsFired(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(combination));
-            slot.Direction = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeDirection(direction);
+            slot.HeldShot().Direction = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeDirection(direction);
             initialize(stationary, slot);
             int speed = unchecked((short)Word(0x90c2d1 + combination * 4 + (direction is 1 or 3 or 6 or 8 ? 2 : 0)));
             AssertEqual(unchecked((short)(direction is 1 or 2 or 3 ? speed : direction is 6 or 7 or 8 ? -speed : 0)), slot.Velocity.X.InTwoHundredFiftySixthsOfPixel, "stream1 actual initializer X preserves adjacent missile-data overread");
@@ -903,15 +902,13 @@ internal static class LookupStream1Verification
         ushort Word(int address) => LittleEndianBytes.Word(LookupStream1LaunchRolesRomByte(rom, address), LookupStream1LaunchRolesRomByte(rom, address + 1));
         for (int index = 0; index < 5; index++)
         {
-            var launch = SamusBombSpreadLaunches.ForPlace(index);
+            var launch = SamusBombSpreadLaunchDefinitions.LeftToRight[index];
             AssertEqual(Word(0x90d8cf + index * 2), launch.FuseTimer, "spread native fuse");
             AssertEqual(BombSpreadLaunchWords.Unpack(Word(0x90d8d9 + index * 2)), launch.HorizontalVelocity, "spread native direction/magnitude X");
             // The game negates the speed word alone and keeps the subspeed as the launch velocity's fraction (#2459).
             AssertEqual(SignedSixteenSixteen.FromParts(-Word(0x90d8e3 + index * 2), Word(0x90d8ed + index * 2)), launch.VerticalVelocity,
                 "spread native negated whole Y with its fraction");
         }
-        foreach (int invalid in new[] { int.MinValue, -1, 5, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => SamusBombSpreadLaunches.ForPlace(invalid), "spread native slot rejection");
         HibashiEruptionStep[] hibashiSteps = HibashiAnimationsToolingConstants.EruptionSteps();
         for (int index = 0; index < hibashiSteps.Length; index++)
         {
@@ -1487,8 +1484,8 @@ internal static class LookupStream1Verification
             if (duration == 0 || still) continue; // Existing bomb contract excludes zero-duration timed records; no bomb holds a still picture.
             var bomb = new SamusBomb(0);
             bomb.OccupyAsPlaced(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500));
-            bomb.Animation = SamusProjectileProgramAddresses.PlayerAt(pointer);
-            bombs.AdvanceProjectileAnimation(bomb);
+            bomb.HeldBomb().Animation = SamusProjectileProgramAddresses.PlayerAt(pointer);
+            bombs.AdvanceProjectileAnimation(bomb.HeldBomb());
             AssertTrue(bomb.IsActive, "Actual bomb timed frame survives");
             AssertEqual(duration, bomb.NativeFrameHold, "Actual bomb timer unchanged");
             AssertEqual(sprite, bomb.SpritemapPointer, "Installed bomb artwork selection");
@@ -1590,10 +1587,11 @@ internal static class LookupStream1Verification
         {
             var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: bindings), new global::SuperMetroid.Core.Fx.RoomEarthquake());
             var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: bindings));
-            var slot = new SamusProjectile(0) { Animation = SamusProjectileProgramAddresses.PlayerAt(program.Start) };
+            var slot = SuperMetroid.Core.Samus.Projectiles.SamusProjectileFixtureOccupancy.ShotPlace(SuperMetroid.Core.Progression.SamusProjectileType.Beam(SuperMetroid.Core.Progression.SamusBeamCombination.Power, charged: false));
+            slot.HeldShot().Animation = SamusProjectileProgramAddresses.PlayerAt(program.Start);
             var bomb = new SamusBomb(0);
             bomb.OccupyAsPlaced(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500));
-            bomb.Animation = SamusProjectileProgramAddresses.PlayerAt(program.Start);
+            bomb.HeldBomb().Animation = SamusProjectileProgramAddresses.PlayerAt(program.Start);
             // No bomb shows a still picture, which a shot holds (#2347): the bomb owner plays only the lists that hold none.
             bool bombPlays = !SamusProjectileProgramAddresses.HoldsStillPicture(bomb.Playback?.Animation
                 ?? throw new InvalidOperationException($"Projectile list position ${program.Start:X4} names no playback."));
@@ -1626,7 +1624,7 @@ internal static class LookupStream1Verification
                 AssertEqual(deleted, !slot.IsActive, "Exact native projectile deletion tick");
                 if (bombPlays)
                 {
-                    bombs.AdvanceProjectileAnimation(bomb);
+                    bombs.AdvanceProjectileAnimation(bomb.HeldBomb());
                     AssertEqual(deleted, !bomb.IsActive, "Exact native bomb deletion tick");
                 }
                 actualTicks++;

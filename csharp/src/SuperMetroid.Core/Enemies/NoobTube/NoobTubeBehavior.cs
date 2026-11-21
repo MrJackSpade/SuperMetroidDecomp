@@ -59,7 +59,7 @@ internal sealed class NoobTubeBehavior : IEnemySpawnFactory<EnemySpawnSettings>
         Position16<RoomPixels> place = request.RoomObjectBlock.ToRoomPixels() + piece.Offset;
         projectile.StartAnimation(new NoobTubeProjectileAnimation(TubePieces, piece.Start switch
         {
-            NoobTubePieceStart.AtSegment start => NoobTubeProjectileAnimations.StartingWith(start.Segment),
+            NoobTubePieceStart.AtSegment start => NoobTubeProjectileAnimations.StartingAt[start.Segment],
             NoobTubePieceStart.ShardFlight flight => NoobTubeProjectileAnimations.ShardAnimations[flight.Shard],
             _ => throw new InvalidOperationException($"A n00b tube piece starts by {piece.Start}, which no case answers."),
         }));
@@ -223,12 +223,12 @@ internal sealed class NoobTubeBehavior : IEnemySpawnFactory<EnemySpawnSettings>
         /// whichever its flicker last chose once it falls.
         /// </summary>
         private void FlickerNoobTubeCrack(EnemyProjectile projectile, Compatibility.ShortFrameCount shortCounter) =>
-            Pieces.Of(projectile).IsHidden = NoobTubeCadenceDefinitions.CrackHidden.IsSetIn(shortCounter);
+            Pieces.Of(projectile).IsHidden = NoobTubeCadenceDefinitions.CrackHidden.IsInSecondHalfAt(shortCounter);
 
         /// <summary>Carries out one cue of the crack, shard and bubble animations; <paramref name="shortCounter"/> times the flicker.</summary>
         private void ApplyNoobTubeProjectileCue(EnemyProjectile projectile, Compatibility.ShortFrameCount shortCounter, NoobTubeProjectileCue cue, NoobTubeShardMirroring mirroring)
         {
-            bool atOwnColumn = NoobTubeCadenceDefinitions.DebrisAtOwnColumn.IsSetIn(shortCounter);
+            bool atOwnColumn = NoobTubeCadenceDefinitions.DebrisAtOwnColumn.IsInSecondHalfAt(shortCounter);
             switch (cue.Kind)
             {
                 case NoobTubeProjectileCueKind.FlickerReflected:

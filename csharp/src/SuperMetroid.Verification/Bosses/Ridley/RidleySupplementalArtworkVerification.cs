@@ -86,7 +86,7 @@ internal static class RidleySupplementalArtworkVerification
         SpawnedObjectFixtures.LoadSetDrawing(enemies, EnemyDefinitionId.RidleyCeres);
         var state = new CeresRidleyState(Position16<RoomPixels>.Zero, RoomWarningFixtures.Ceres())
         {
-            MovementAnimationEnabled = true,
+            Motion = RidleyMotion.Running,
             Flight = { FacingDirection = facing },
         };
         global::SuperMetroid.Core.PrivateState.Set(state.Flight.Wings, "Pose", ListStep<RidleyWingPose>.At(RidleySupplementalVisualDefinitions.WingBeat, wingFrame));

@@ -35,12 +35,7 @@ public static class MagdollitePaletteCycleExtractor
                 if (!RgbColor.IsColorWord(checked((ushort)native)))
                     throw new InvalidDataException(
                         $"Magdollite color ${source:X6} has an unrepresentable high bit.");
-                frames[frame][color] = new PaletteRgb5
-                {
-                    Red = native & 31,
-                    Green = native >> 5 & 31,
-                    Blue = native >> 10 & 31,
-                };
+                frames[frame][color] = PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(native));
             }
         }
         return MagdollitePaletteCycleFile.Write(new MagdollitePaletteCycleDocument

@@ -108,7 +108,6 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemySpawnFactory<Enemy
 
         state.PhaseWait.LastFor(PhantoonTimerDefinitions.InitialFlameDelayFrames);
         state.StartingFlames.NextFlame = PhantoonStartingFlamesState.First;
-        state.StartingFlames.Orbiting = false;
         body.Contact = body.Contact.With(EnemyContact.IgnoresSamus);
         StartPhantoonPart(state.BodyPart);
         // The encounter starts asking to hide his body, with no casual-flame burst, which the fight only starts much later;
@@ -173,12 +172,8 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemySpawnFactory<Enemy
         // The three drawing parts follow the body to its new place, except on the update the almost-dead phase runs.
         if (phase == PhantoonPhase.AlmostDead)
             return;
-        state.Mouth.Position = state.Mouth.Position.WithWholeX(body.Position.X.Whole);
-        state.Tentacles.Position = state.Tentacles.Position.WithWholeX(body.Position.X.Whole);
-        state.Eye.Position = state.Eye.Position.WithWholeX(body.Position.X.Whole);
-        state.Mouth.Position = state.Mouth.Position.WithWholeY(body.Position.Y.Whole);
-        state.Tentacles.Position = state.Tentacles.Position.WithWholeY(body.Position.Y.Whole);
-        state.Eye.Position = state.Eye.Position.WithWholeY(body.Position.Y.Whole);
+        foreach (PhantoonPart part in state.CarriedParts)
+            part.Place.Position = part.Place.Position.WithWhole(body.Position.Whole);
     }
 
 
@@ -188,7 +183,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemySpawnFactory<Enemy
         PhantoonRoundState round = state.Round;
         // His health colours return on his last hurt update, as the enemy pass is about to clear his hurt state.
         bool showHealthColours = body.HurtFlash.UpdatesLeft == EnemyCollisionDefinitions.HurtStateMinimumFlashUpdates ||
-            !PhantoonCadenceDefinitions.HurtFlashShown.IsSetIn(body.FrameCounter) && round.HurtFlashShown;
+            !PhantoonCadenceDefinitions.HurtFlashShown.IsInSecondHalfAt(body.FrameCounter) && round.HurtFlashShown;
         if (showHealthColours)
         {
             ShowPhantoonHealthColours(state);
@@ -196,7 +191,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemySpawnFactory<Enemy
             return;
         }
 
-        if (!PhantoonCadenceDefinitions.HurtFlashShown.IsSetIn(body.FrameCounter) || round.HurtFlashShown)
+        if (!PhantoonCadenceDefinitions.HurtFlashShown.IsInSecondHalfAt(body.FrameCounter) || round.HurtFlashShown)
             return;
 
         state.Colours.Show(PhantoonBodyLook.White);
@@ -226,6 +221,8 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemySpawnFactory<Enemy
                 return null;
             });
         part.Playback = playback;
+        if (ReferenceEquals(part, part.Phantoon.BodyPart))
+            part.Phantoon.BodyPictureShown();
     }
 
     /// <summary>Carries out one cue of a Phantoon part animation.</summary>
@@ -264,7 +261,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemySpawnFactory<Enemy
     {
         state.WindowEnd = PhantoonWindowEnd.EyeCloses;
         RoomEnemyPlace body = state.Body;
-        state.BodyPart.StartAnimation(PhantoonPartSegment.EyeHitboxBody);
+        state.ShowBody(PhantoonBodyHitArea.EyeOnly);
         body.Contact = body.Contact.Without(EnemyContact.IgnoresSamus);
         state.PhaseWait.LastFor(PhantoonRandomDefinitions.VulnerableWindow.Choose(_room.Random.Generate()));
         state.Phase = PhantoonPhase.EyeTracksSamus;

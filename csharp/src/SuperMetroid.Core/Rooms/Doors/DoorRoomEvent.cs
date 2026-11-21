@@ -23,6 +23,9 @@ public abstract class DoorRoomEvent
     /// <param name="room">The room the door leads into.</param>
     internal virtual void Run(IDoorEventRoom room) => Ensure.NotNull(room);
 
+    /// <summary>Whether the event starts the Wrecked Ship's treadmill, whose setup blocks the room's entrance then holds.</summary>
+    internal virtual bool StartsWreckedShipTreadmill => false;
+
     /// <inheritdoc/>
     public override string ToString() => Name;
 
@@ -85,6 +88,9 @@ public abstract class DoorRoomEvent
     /// <param name="direction">The way the treadmill's belt runs.</param>
     private sealed class TreadmillStarted(WreckedShipTreadmillDirection direction) : DoorRoomEvent($"StartsTreadmill{direction}")
     {
+        /// <inheritdoc/>
+        internal override bool StartsWreckedShipTreadmill => true;
+
         /// <inheritdoc/>
         /// <remarks>
         /// The setup ignores whether the treadmill object found a free room-object place: with every place held, the

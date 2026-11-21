@@ -33,7 +33,7 @@ internal static class LookupDownwardGateDrawsVerification
             "yellow-left-trigger","yellow-right-trigger"];
         var exported = RoomObjectDownwardGateVisualFiles.All.ToArray();
         AssertEqual(14, exported.Length, "Gate draw export count");
-        InstalledRoomObjectDownwardGateVisuals? pictures = field == 2 ? InstalledRoomObjectDownwardGateVisuals.Stock() : null;
+        InstalledRoomObjectPictures? pictures = field == 2 ? RoomObjectPicturesStock.DownwardGate : null;
         if (field == 0)
         {
             for (int raw = 0; raw <= ushort.MaxValue; raw++)

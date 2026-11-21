@@ -26,14 +26,6 @@ namespace SuperMetroid.AssetExtraction.Frontend;
 /// </summary>
 internal static class FrontendFloorSheetComposer
 {
-    /// <summary>The installed sheets of frontend turning floors' pictures (#1392, #1467).</summary>
-    internal static IReadOnlyList<SpriteSheetId> Sheets { get; } =
-    [
-        SpriteSheetId.TitleFloor, SpriteSheetId.CeresFloor, SpriteSheetId.EndingSideCloudEscapeFloor,
-        SpriteSheetId.EndingTopAndBottomCloudEscapeFloor, SpriteSheetId.EndingPlanetExplosionFloor, SpriteSheetId.EndingFlyawayFloor,
-        SpriteSheetId.EndingRewardIconFloor,
-    ];
-
     /// <summary>
     /// Composes floor sheet <paramref name="sheet"/> from the stock artwork <paramref name="sources"/> read, shown whole where
     /// its scene repeats the floor beyond its edges (<see cref="RepeatingFloors"/>, #1646).
@@ -47,21 +39,27 @@ internal static class FrontendFloorSheetComposer
             : throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "The sheet holds no frontend floor.");
     }
 
+    /// <summary>The frontend floor sheets in installation order, each with how it composes from the stock artwork.</summary>
+    private static readonly FrontendFloor[] Floors =
+    [
+        new(SpriteSheetId.TitleFloor, sources => Title(sources.Maps.TitleGraphics, sources.Maps.TitlePalette)),
+        new(SpriteSheetId.CeresFloor, sources => Ceres(sources.Intro, sources.Maps.RoomPaletteFx)),
+        new(SpriteSheetId.EndingSideCloudEscapeFloor, sources => EndingShaded(EndingScene(sources, EndingFloorSceneId.SideCloudEscape, EndingPaletteId.Escape), sources,
+            EndingFloorShot.SideCloudEscape)),
+        new(SpriteSheetId.EndingTopAndBottomCloudEscapeFloor, sources => EndingShaded(EndingScene(sources, EndingFloorSceneId.TopAndBottomCloudEscape, EndingPaletteId.Escape), sources,
+            EndingFloorShot.TopAndBottomCloudEscape)),
+        new(SpriteSheetId.EndingPlanetExplosionFloor, sources => EndingShaded(EndingScene(sources, EndingFloorSceneId.PlanetExplosion, EndingPaletteId.Explosion), sources,
+            EndingFloorShot.PlanetExplosion)),
+        new(SpriteSheetId.EndingFlyawayFloor, sources => EndingShaded(Flyaway(sources.Intro.FlightCharacters, sources.EndingPalettes), sources, EndingFloorShot.Flyaway)),
+        new(SpriteSheetId.EndingRewardIconFloor, sources => EndingShaded(RewardIcon(sources.EndingMode7, sources.EndingPalettes), sources, EndingFloorShot.RewardIcon)),
+    ];
+
+    /// <summary>The installed sheets of frontend turning floors' pictures (#1392, #1467), in installation order.</summary>
+    internal static IReadOnlyList<SpriteSheetId> Sheets { get; } = [.. Floors.Select(floor => floor.Sheet)];
+
     /// <summary>How each frontend floor sheet composes from the stock artwork.</summary>
     private static readonly FrozenDictionary<SpriteSheetId, Func<ScreenTileSources, ComposedSpriteSheet>> Composers =
-        new Dictionary<SpriteSheetId, Func<ScreenTileSources, ComposedSpriteSheet>>
-        {
-            [SpriteSheetId.TitleFloor] = sources => Title(sources.Maps.TitleGraphics, sources.Maps.TitlePalette),
-            [SpriteSheetId.CeresFloor] = sources => Ceres(sources.Intro, sources.Maps.RoomPaletteFx),
-            [SpriteSheetId.EndingSideCloudEscapeFloor] = sources => EndingShaded(EndingScene(sources, EndingFloorSceneId.SideCloudEscape, EndingPaletteId.Escape), sources,
-                EndingFloorShot.SideCloudEscape),
-            [SpriteSheetId.EndingTopAndBottomCloudEscapeFloor] = sources => EndingShaded(EndingScene(sources, EndingFloorSceneId.TopAndBottomCloudEscape, EndingPaletteId.Escape), sources,
-                EndingFloorShot.TopAndBottomCloudEscape),
-            [SpriteSheetId.EndingPlanetExplosionFloor] = sources => EndingShaded(EndingScene(sources, EndingFloorSceneId.PlanetExplosion, EndingPaletteId.Explosion), sources,
-                EndingFloorShot.PlanetExplosion),
-            [SpriteSheetId.EndingFlyawayFloor] = sources => EndingShaded(Flyaway(sources.Intro.FlightCharacters, sources.EndingPalettes), sources, EndingFloorShot.Flyaway),
-            [SpriteSheetId.EndingRewardIconFloor] = sources => EndingShaded(RewardIcon(sources.EndingMode7, sources.EndingPalettes), sources, EndingFloorShot.RewardIcon),
-        }.ToFrozenDictionary();
+        Floors.ToFrozenDictionary(floor => floor.Sheet, floor => floor.Compose);
 
     /// <summary>
     /// The title's floor (#1538): the whole floor without the Baby Metroid, the title's map over the start of a floor whose

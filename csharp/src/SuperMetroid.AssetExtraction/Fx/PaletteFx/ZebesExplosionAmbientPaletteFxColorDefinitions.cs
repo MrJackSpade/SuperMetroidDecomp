@@ -9,21 +9,12 @@ namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 /// </remarks>
 public static class ZebesExplosionAmbientPaletteFxColorDefinitions
 {
-    /// <summary>Fixed afterglow and lava program descriptors in definition order.</summary>
-    private static readonly ZebesExplosionAmbientPaletteFxColorDefinition[] Definitions =
-    [
-        new()
-        {
-            Owner = ZebesExplosionAmbientPaletteFxProgramOwner.PlanetAfterglow,
-            ColorFrames = PaletteFxColorFrames.Of(ColourEffectId.ZebesExplosionPlanetAfterglow, 8),
-        },
-        new()
-        {
-            Owner = ZebesExplosionAmbientPaletteFxProgramOwner.Lava,
-            ColorFrames = PaletteFxColorFrames.Of(ColourEffectId.ExplodingZebesLava, 1),
-        },
-    ];
+    /// <summary>The planet's afterglow.</summary>
+    internal static ZebesExplosionAmbientPaletteFxColorDefinition ZebesExplosionPlanetAfterglow { get; } = new(ColourEffectId.ZebesExplosionPlanetAfterglow, 8);
+
+    /// <summary>The exploding planet's lava.</summary>
+    internal static ZebesExplosionAmbientPaletteFxColorDefinition ExplodingZebesLava { get; } = new(ColourEffectId.ExplodingZebesLava, 1);
 
     /// <summary>The afterglow and lava programs in definition order.</summary>
-    public static IReadOnlyList<ZebesExplosionAmbientPaletteFxColorDefinition> All { get; } = Array.AsReadOnly(Definitions);
+    public static IReadOnlyList<ZebesExplosionAmbientPaletteFxColorDefinition> All { get; } = [ZebesExplosionPlanetAfterglow, ExplodingZebesLava];
 }

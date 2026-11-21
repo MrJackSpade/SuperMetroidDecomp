@@ -338,7 +338,7 @@ public sealed class SuperMetroidGame
                 break;
             case PhaseRandomStep.LiquidWaveAndStatueDescentThenAdvance when gameplay is PhaseGameplay.InRoom { Live: var paused }:
                 // The liquid wave and the statues' descent still advance on the update before the pause screen; a lava
-                // or acid wave stirs the random number (SharedRandom.SwapHalves).
+                // or acid wave stirs the random number (SharedRandom.StirForLiquidWave).
                 paused.Runtime.DoorTransition.AdvanceEffectsAndRandom(paused.Room, paused.Runtime.Player.Samus);
                 break;
             case PhaseRandomStep.Advance:

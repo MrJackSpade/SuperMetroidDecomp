@@ -51,12 +51,7 @@ public static class NorfairRidleyColorExtractor
             int word = RomDataReader.ReadWordFixedBank(bus, address);
             if (!RgbColor.IsColorWord(checked((ushort)word)))
                 throw new InvalidDataException($"Norfair Ridley color ${address:X6} has bit 15 set.");
-            colors[color] = new PaletteRgb5
-            {
-                Red = word & 31,
-                Green = word >> 5 & 31,
-                Blue = word >> 10 & 31,
-            };
+            colors[color] = PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(word));
         }
         return colors;
     }

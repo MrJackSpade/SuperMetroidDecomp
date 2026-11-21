@@ -42,7 +42,7 @@ internal static class RoomScrollGridAccess
             int screens = Math.Min(states.Length, size.X * size.Y);
             var pastScreens = new ScrollCellsPastRoomScreens<RoomScrollState>(
                 new Dictionary<string, IReadOnlyList<RoomScrollState>> { [name] = states[screens..] });
-            return RoomScrollGrid.FromDefinition(cells, new RoomScrollDefinition(name, states[..screens]), size, pastScreens);
+            return RoomScrollGrid.FromDefinition(cells, new RoomScrollDefinition.ExplicitLayout(name, states[..screens]), size, pastScreens);
         }
     }
 }

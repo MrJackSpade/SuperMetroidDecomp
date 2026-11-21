@@ -138,7 +138,7 @@ internal static class CeresRidleyColorsVerification
             throw new InvalidOperationException("Ceres Ridley initialization did not publish state.");
         activeRidley.Phase = CeresRidleyPhase.RetreatDelay;
         activeRidley.PhaseTimer.LastFor(1);
-        activeRidley.MovementAnimationEnabled = false;
+        activeRidley.Motion = RidleyMotion.Still;
         enemies.CeresRidleyBehavior.RunCeresRidleyMain(place, activeRidley, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus(), InstalledFixtures.CreateProjectileSystem());
         AssertEqual(CeresRidleyPhase.PublishEscapeHandoff, activeRidley.Phase,
             "Ceres Ridley retreat publishes the Mode-7 handoff");

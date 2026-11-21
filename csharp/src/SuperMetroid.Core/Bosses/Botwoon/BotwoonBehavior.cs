@@ -97,12 +97,11 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     {
         // A fatal hit does not delete Botwoon. He keeps following his current path until
         // the tail has crossed the next hole, then the synchronized head/body death begins.
-        if (state.FatallyHit && state.ExitTransitionComplete)
+        if (state.Death == BotwoonDeathProgress.AwaitingTailExit && state.ExitTransitionComplete)
         {
-            state.BodyDeathStarted = true;
+            state.Death = BotwoonDeathProgress.Dying;
             state.Phase = BotwoonPhase.DeathDelay;
             state.PreFallWait.LastFor(BotwoonDeathDefinitions.PreFallWaitUpdates);
-            state.FatallyHit = false;
             state.ExitTransitionComplete = false;
         }
 
@@ -220,7 +219,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
 
         state.Phase = BotwoonPhase.FollowAuthoredPath;
 
-        state.InsideHole = !state.FatallyHit && BotwoonNavigationDefinitions.StartsInsideHole.IsTakenBy(_room.Random.Generate());
+        state.InsideHole = state.Death != BotwoonDeathProgress.AwaitingTailExit && BotwoonNavigationDefinitions.StartsInsideHole.IsTakenBy(_room.Random.Generate());
         state.PreviousInsideHole = state.InsideHole;
         if (state.InsideHole)
         {
@@ -715,7 +714,9 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     {
         if (head.Health != 0)
             return;
-        state.FatallyHit = true;
+        // The dying head is intangible, so only a living Botwoon takes the fatal hit.
+        if (state.Death == BotwoonDeathProgress.Alive)
+            state.Death = BotwoonDeathProgress.AwaitingTailExit;
 
         // The dying head becomes intangible: it leaves the
         // projectile, bomb and touch passes, so a later hit cannot interrupt its fall.
@@ -779,7 +780,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     /// <param name="state">The state of the enemy the reaction is built for, which it holds from its setup.</param>
     internal static EnemyPowerBombReaction BotwoonPowerBombReaction(BotwoonEnemyState state) => new()
     {
-        ExemptFromGenericDeath = true,
+        Lethal = EnemyPowerBombLethal.SpeciesOwned,
         AfterCommon = c => ResolveBotwoonCombatAfterCommon(c.Enemy, state),
     };
 
@@ -787,7 +788,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     /// <param name="state">The state of the enemy the reaction is built for, which it holds from its setup.</param>
     internal static EnemyShotReaction BotwoonShotReaction(BotwoonEnemyState state) => new()
     {
-        ExemptFromGenericDeath = true,
+        Lethal = EnemyShotLethal.SpeciesOwned,
         // Botwoon's shot reaction runs the common damage without the hit burst.
         ShowsHitBurst = EnemyShotReaction.NeverShowsHitBurst,
         AfterCommon = c => ResolveBotwoonCombatAfterCommon(c.Enemy, state),
@@ -849,7 +850,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         int hurtFlashCadence)
     {
         BotwoonSegmentState segment = Segments.Of(projectile);
-        if (segment.Phase == BotwoonBodyPhase.Main && Encounter(segment.Botwoon).BodyDeathStarted)
+        if (segment.Phase == BotwoonBodyPhase.Main && Encounter(segment.Botwoon).Death == BotwoonDeathProgress.Dying)
             segment.Phase = BotwoonBodyPhase.BeginDying;
 
         switch (segment.Phase)
@@ -905,7 +906,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         int hurtFlashCadence)
     {
         BotwoonSegmentState segment = Segments.Of(projectile);
-        projectile.Graphics = projectile.Graphics.In(segment.Head.HurtFlash.IsRunning && EnemyDrawPhaseDefinitions.HurtFlashShown.IsSetIn(hurtFlashCadence)
+        projectile.Graphics = projectile.Graphics.In(segment.Head.HurtFlash.IsRunning && EnemyDrawPhaseDefinitions.HurtFlashShown.IsInSecondHalfAt(hurtFlashCadence)
             ? EnemyShades.HurtFlashLook
             : Encounter(segment.Botwoon).BodyShading);
     }

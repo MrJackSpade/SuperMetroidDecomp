@@ -11,11 +11,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 internal static class TitleSpriteColourings
 {
     /// <summary>The title's four cards.</summary>
-    private static readonly TitleTextSequenceDefinition[] Cards =
-    [
-        TitleSequenceDefinitions.TextSequences.Year, TitleSequenceDefinitions.TextSequences.Nintendo,
-        TitleSequenceDefinitions.TextSequences.Presents, TitleSequenceDefinitions.TextSequences.MetroidThree,
-    ];
+    private static IReadOnlyList<TitleTextSequenceDefinition> Cards => TitleSequenceDefinitions.TextSequences.All;
 
     /// <summary>The colouring the title draws <paramref name="sprite"/> in.</summary>
     /// <exception cref="InvalidDataException">The title never draws the composition.</exception>
@@ -29,6 +25,6 @@ internal static class TitleSpriteColourings
     /// <summary>The colouring the title draws <paramref name="typed"/>, a card's text typed so far, in: its card's.</summary>
     /// <exception cref="InvalidDataException">No title card shows the typing.</exception>
     internal static TitleSpriteColouring Of(TitleCardTyping typed) =>
-        Cards.Where(card => card.Phase == typed.Card).Select(card => (TitleSpriteColouring?)card.Colouring).SingleOrDefault()
+        Cards.Where(card => card.Card.Card == typed.Card).Select(card => (TitleSpriteColouring?)card.Colouring).SingleOrDefault()
             ?? throw new InvalidDataException($"No title card types {typed}.");
 }

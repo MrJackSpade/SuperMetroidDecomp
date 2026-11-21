@@ -29,9 +29,6 @@ internal static class AlcoonFireballAnimations
         [P.Spinning] = Animation<AlcoonFireballSegment>.Looping([Segments.Whole(P.Spinning)]),
     };
 
-    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<AlcoonFireballSegment> StartingWith(AlcoonFireballSegment segment) => StartingAt[segment];
-
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Frame(frame, duration);
 }

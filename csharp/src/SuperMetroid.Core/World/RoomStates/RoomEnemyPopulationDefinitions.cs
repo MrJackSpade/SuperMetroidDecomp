@@ -23,8 +23,8 @@ public static class RoomEnemyPopulationDefinitions
         ..CeresRoomEnemyPopulationDefinitions.Lists,
     ]);
 
-    /// <summary>The enemy population shared by the Draygon room and the Mother Brain room once each area's boss is dead.</summary>
-    public static RoomEnemyPopulationDefinition DraygonOrMotherBrainWhenAreaBossDead => MaridiaRoomEnemyPopulationDefinitions.DraygonOrMotherBrainWhenAreaBossDead;
+    /// <summary>The enemy population of the Draygon room once Maridia's boss is dead: none.</summary>
+    public static RoomEnemyPopulationDefinition DraygonWhenAreaBossDead => MaridiaRoomEnemyPopulationDefinitions.DraygonWhenAreaBossDead;
     /// <summary>The enemy population of the East Ocean room.</summary>
     public static RoomEnemyPopulationDefinition EastOcean => CrateriaRoomEnemyPopulationDefinitions.EastOcean;
     /// <summary>The enemy population of the Crateria Power Bombs room.</summary>
@@ -595,6 +595,8 @@ public static class RoomEnemyPopulationDefinitions
     public static RoomEnemyPopulationDefinition Seaweed => TourianRoomEnemyPopulationDefinitions.Seaweed;
     /// <summary>The enemy population of the Tourian Recharge room.</summary>
     public static RoomEnemyPopulationDefinition TourianRecharge => TourianRoomEnemyPopulationDefinitions.TourianRecharge;
+    /// <summary>The enemy population of the Mother Brain room once Tourian's boss is dead: none.</summary>
+    public static RoomEnemyPopulationDefinition MotherBrainWhenAreaBossDead => TourianRoomEnemyPopulationDefinitions.MotherBrainWhenAreaBossDead;
     /// <summary>The enemy population of the Upper Tourian Save room.</summary>
     public static RoomEnemyPopulationDefinition UpperTourianSave => TourianRoomEnemyPopulationDefinitions.UpperTourianSave;
     /// <summary>The enemy population of the Metroids 3 room in its default state.</summary>

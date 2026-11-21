@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -30,7 +31,9 @@ public static class GrappleSpriteExtractor
         {
             Version = GrappleSpriteDefinitions.Version,
             Endpoint = Read(SamusSourceDefinitions.GrappleEndpointAttributes.Value),
-            Segments = Enumerable.Range(0, GrappleSpriteDefinitions.SegmentFrameCount).Select(frame => Read(SegmentAttributeAddress(frame))).ToArray(),
+            // The rope's timed records hold its pictures' appearances in the order its animation shows them.
+            Segments = GrappleSheetDefinitions.RopePattern.Select((picture, frame) => KeyValuePair.Create(picture.ToString(),
+                Read(SegmentAttributeAddress(frame)))).ToDictionary(StringComparer.Ordinal),
         });
     }
 

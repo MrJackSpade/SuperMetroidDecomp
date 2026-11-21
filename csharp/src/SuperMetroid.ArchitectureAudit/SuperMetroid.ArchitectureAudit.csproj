@@ -18,8 +18,6 @@
     <!-- The module inventory reads the same module map the #626 analyzers enforce. -->
     <Compile Include="../SuperMetroid.EnsureAnalyzer/Modules/ModuleMap.cs" Link="Shared/ModuleMap.cs" />
     <Compile Include="../SuperMetroid.ReachabilityAudit/SolutionLoading/**/*.cs" LinkBase="SolutionLoading" />
-    <!-- The test-only-member fix and the reachability prune generate one kind of private-access class. -->
-    <Compile Include="../SuperMetroid.ReachabilityAudit/Removal/PrivateAccessShims.cs" Link="Shared/PrivateAccessShims.cs" />
     <!-- The test-only-member census counts what System.Text.Json reads and writes as production use, as reachability finds it. -->
     <Compile Include="../SuperMetroid.ReachabilityAudit/Analysis/JsonSerializationScan.cs" Link="Shared/JsonSerializationScan.cs" />
     <Compile Include="../SuperMetroid.ReachabilityAudit/Analysis/GenericHelperArgument.cs" Link="Shared/GenericHelperArgument.cs" />

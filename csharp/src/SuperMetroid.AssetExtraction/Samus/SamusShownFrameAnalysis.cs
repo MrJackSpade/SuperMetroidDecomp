@@ -266,7 +266,7 @@ internal sealed class SamusShownFrameAnalysis
     /// </summary>
     private int[] InstallDrainedFall(SamusPoseId pose, int frame)
     {
-        if (pose is not (SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose))
+        if (!SamusPoseTraits.IsIn(pose, SamusPoseFamily.DrainedCrouch))
             fallingWithoutDrain.Add(pose);
         return Reach(pose, frame + 1, FrameReach.Selection);
     }
@@ -281,13 +281,13 @@ internal sealed class SamusShownFrameAnalysis
         SortedSet<int> frames = shown[pose];
         var publications = new List<SamusPublishedFrame>();
         // Once she can stand, the drained get-up moves the left-facing drained crouch to its stand-up on Up, just before the animation.
-        if (pose == SamusPoseId.DrainedCrouchingLeftPose && frames.Max >= Number(SamusDrainedAnimationDefinitions.AbleToStandFirstFrame))
+        if (pose == SamusDrainedAnimationDefinitions.GetUpPose && frames.Max >= Number(SamusDrainedAnimationDefinitions.AbleToStandFirstFrame))
             publications.Add(new(Number(SamusDrainedAnimationDefinitions.AbleToStandFrame), PublishedFrameDrawing.AfterAdvancing));
         // While she cannot stand, the drained get-up starts with the left-facing drained crouch and moves it, on Up, to its failed
         // attempt to stand, just before the animation.
-        if (pose == SamusPoseId.DrainedCrouchingLeftPose && ShowsUnableToStandFrame(frames))
+        if (pose == SamusDrainedAnimationDefinitions.GetUpPose && ShowsUnableToStandFrame(frames))
             publications.Add(new(Number(SamusDrainedAnimationDefinitions.UnableToStandFrame), PublishedFrameDrawing.AfterAdvancing));
-        if (pose is SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose)
+        if (SamusPoseTraits.IsIn(pose, SamusPoseFamily.DrainedCrouch))
         {
             // The Baby Metroid's Hyper Beam freeze and rainbow stop write the frame during enemy AI, after the animation, so
             // the draw shows it as written. The Baby puts Samus crouching at the ceiling before either. The left-facing
@@ -320,7 +320,7 @@ internal sealed class SamusShownFrameAnalysis
         var publications = new List<SamusPublishedFrame>();
         // The drained get-up for when she cannot stand runs until Mother Brain dies and checks only the frame, so on Up it moves
         // whatever pose shows one of its frames, just before the animation: every pose Samus takes in the fight that follows.
-        if (pose != SamusPoseId.DrainedCrouchingLeftPose && UnableToStandMeets(pose) && ShowsUnableToStandFrame(shown[pose]))
+        if (pose != SamusDrainedAnimationDefinitions.GetUpPose && UnableToStandMeets(pose) && ShowsUnableToStandFrame(shown[pose]))
             publications.Add(new(Number(SamusDrainedAnimationDefinitions.UnableToStandFrame), PublishedFrameDrawing.AfterAdvancing));
         // The Baby's Hyper Beam freeze and rainbow stop write the frame without checking the pose, so a Samus the drain has
         // let go of takes them in whatever pose she holds, drawn as written.
@@ -368,8 +368,8 @@ internal sealed class SamusShownFrameAnalysis
     /// takes her ordinary poses for the rest of the fight, each of which the get-up can meet.
     /// </summary>
     private static bool UnableToStandMeets(SamusPoseId pose) =>
-        pose is not (SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedStandingRightPose or
-            SamusPoseId.DrainedStandingLeftPose);
+        !(SamusPoseMetadata.IsDrainedPose(pose) &&
+            (SamusPoseTraits.IsIn(pose, SamusPoseFamily.DrainedStanding) || !SamusPoseMetadata.IsFacingLeft(pose)));
 
     /// <summary>
     /// Whether the Baby's Hyper Beam freeze and rainbow stop can meet <paramref name="pose"/> on a Samus the drain has let go
@@ -377,8 +377,7 @@ internal sealed class SamusShownFrameAnalysis
     /// which runs the Baby's freeze and stop, stops while Samus dies.
     /// </summary>
     private static bool BabyFreezeAndStopMeetFree(SamusPoseId pose) =>
-        pose is not (SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose or
-            SamusPoseId.DeathSequenceRightPose or SamusPoseId.DeathSequenceLeftPose);
+        !SamusPoseTraits.IsIn(pose, SamusPoseFamily.DrainedCrouch) && !SamusPoseTraits.IsIn(pose, SamusPoseFamily.DeathSequence);
 
     /// <summary>
     /// The picture frames <paramref name="pose"/>'s animation starts on: the frames any pose animating by its animation starts
@@ -399,7 +398,7 @@ internal sealed class SamusShownFrameAnalysis
     private static IEnumerable<int> InitialFrames(SamusPoseId pose)
     {
         SamusPoseAnimation animation = SamusAnimationDelays.AnimationForPose(pose);
-        bool dying = pose is SamusPoseId.DeathSequenceRightPose or SamusPoseId.DeathSequenceLeftPose;
+        bool dying = SamusPoseTraits.IsIn(pose, SamusPoseFamily.DeathSequence);
         // Pose initialization starts a pose on its first frame; the death setup overwrites that frame before any draw.
         if (!dying)
             yield return SamusAnimationLayout.Offset(animation, animation.Start);
@@ -408,13 +407,12 @@ internal sealed class SamusShownFrameAnalysis
             (SamusPoseMetadata.ReadMovementType(pose) == SamusMovementType.Standing &&
              SamusPoseMetadata.ReadAim(pose).AimsStraightUp))
             yield return SamusAnimationLayout.Offset(animation, animation.AfterStart);
-        if (pose is SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose)
+        if (SamusPoseTraits.IsIn(pose, SamusPoseFamily.DrainedCrouch))
         {
             yield return Number(SamusDrainedAnimationDefinitions.FallInitialFrame);
             yield return Number(SamusDrainedAnimationDefinitions.PutCrouchingFrame);
         }
-        if (pose is SamusPoseId.FallingRightPose or SamusPoseId.FallingLeftPose or
-            SamusPoseId.FallingGunExtendedRightPose or SamusPoseId.FallingGunExtendedLeftPose)
+        if (SamusPoseTraits.IsIn(pose, SamusPoseFamily.PlainFalling))
             yield return Number(SamusAnimationFrames.FastFallStart);
         // The death pose starts on the frame the movement Samus dies in selects.
         if (dying)
@@ -423,11 +421,7 @@ internal sealed class SamusShownFrameAnalysis
                 yield return SamusAnimationLayout.Offset(animation, SamusDeathSequenceFrames.InitialFrame(movementType));
         }
         // The angle, the Crystal Flash's stages and the Zebes start select these poses' frames directly.
-        if (pose is SamusPoseId.XrayingStandingRightPose or SamusPoseId.XrayingStandingLeftPose or
-            SamusPoseId.XrayingCrouchingRightPose or SamusPoseId.XrayingCrouchingLeftPose or
-            SamusPoseId.GrappleSwingRightPose or SamusPoseId.GrappleSwingLeftPose or
-            SamusPoseId.CrystalFlashRightPose or SamusPoseId.CrystalFlashLeftPose or
-            SamusPoseId.ForwardFacingPowerSuitPose or SamusPoseId.ForwardFacingSuitedPose)
+        if (SamusPoseTraits.IsIn(pose, SamusPoseFamily.FramesSelectedDirectly))
         {
             for (int frame = 0; frame < SamusAnimationLayout.StepCount(animation); frame++)
                 yield return frame;

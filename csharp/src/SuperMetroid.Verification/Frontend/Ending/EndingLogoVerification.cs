@@ -48,10 +48,11 @@ internal static class EndingLogoVerification
             logo.Step(screen.Colours);
             frame++;
             if (logo.CrossfadeStarted && fadeStart == 0) fadeStart = frame;
-            if (logo.ShownCrossfade is { } shownStep)
+            // The screen names the step the logo shows (#2560); the import's shade of that step holds the cartridge's table entry (#1512).
+            var latest = screen.Colours.Shading.Shades[^1];
+            if (EndingLogoCrossfadeStep.All.Where(candidate => EndingShades.LogoCrossfade(candidate) == latest).ToArray() is [var shownStep])
             {
-                // The screen names the step shown; the import's shade of that step holds the cartridge's table entry (#1512).
-                AssertEqual(EndingShades.LogoCrossfade(shownStep), screen.Colours.Shading.Shades[^1], "the logo shows its latest crossfade step");
+                AssertEqual(frame - fadeStart - 1, shownStep.Step, "the logo shows its crossfade's steps in turn from the update after the grey-out");
                 SheetShade step = installedShades.Single(candidate => candidate.Shade == EndingShades.LogoCrossfade(shownStep));
                 AssertTrue(step.Inks.SequenceEqual([.. Enumerable.Range(16, 16), .. Enumerable.Range(240, 16)]),
                     "a crossfade step covers the logo's background and sprite colours");
@@ -62,7 +63,7 @@ internal static class EndingLogoVerification
                         shownStep.Step * 4 + p * 2);
                     for (int i = 0; i < 16; i++)
                         AssertEqual(RomDataReader.ReadWordFixedBank(bus, 0x8c0000 | (pointer - 30 + i * 2)),
-                            step.Colours[p * 16 + i].ToWord(), "native logo crossfade palette table entry");
+                            step.Colours.ElementAt(p * 16 + i).ToWord(), "native logo crossfade palette table entry");
                 }
             }
             poses.Add(Convert.ToHexString(ScreenSpritesFixtures.Frame(objects => logo.Draw(objects, logoSprites)).LowTable));

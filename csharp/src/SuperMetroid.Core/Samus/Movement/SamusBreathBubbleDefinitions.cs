@@ -4,5 +4,5 @@ namespace SuperMetroid.Core.Samus.Movement;
 internal static class SamusBreathBubbleDefinitions
 {
     /// <summary>Whether a breath's bubbles make the low bubbling sound rather than the high one (#2479): one breath in two.</summary>
-    internal static readonly RandomChance SoundsLow = RandomChance.Highest(1, new RandomSampleField(0, 1));
+    internal static readonly RandomChance SoundsLow = RandomChance.Highest(1, RandomSampleField.OneOf(2));
 }

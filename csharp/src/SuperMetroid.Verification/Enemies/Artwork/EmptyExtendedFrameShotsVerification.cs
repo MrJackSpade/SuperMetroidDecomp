@@ -42,10 +42,10 @@ internal static class EmptyExtendedFrameShotsVerification
         runtime.Enemies.PrepareEnemyProcessingList(pirate.Position.Whole);
 
         SamusProjectile shot = runtime.Projectiles.Shots[0];
-        shot.Occupy(SamusProjectileType.Beam(SamusBeamCombination.Power, charged: true), 60); shot.Direction = SamusProjectileDirection.Left;
-        shot.Position = shot.Position.WithWhole(new(0x01f2, 0x00a3));
-        shot.Radius = new(8, 8);
-        shot.Animation = ProjectileFixturePlaybacks.Active();
+        shot.Occupy(SamusProjectileType.Beam(SamusBeamCombination.Power, charged: true), 60); shot.HeldShot().Direction = SamusProjectileDirection.Left;
+        shot.HeldShot().Position = shot.Position.WithWhole(new(0x01f2, 0x00a3));
+        shot.HeldShot().Radius = new(8, 8);
+        shot.HeldShot().Animation = ProjectileFixturePlaybacks.Active();
         runtime.Enemies.Collision.ResolveOrdinaryProjectileHit(runtime.Projectiles, runtime.BombProjectiles, runtime.Room.LoadedRoom.Area, samus,
             pirate.HeldOccupant(), Position16<RoomPixels>.Zero);
 

@@ -48,12 +48,7 @@ public static class BabyMetroidColorExtractor
                 if (!RgbColor.IsColorWord(checked((ushort)native)))
                     throw new InvalidDataException(
                         $"Shitroid color ${address:X6} has an unrepresentable high bit.");
-                colors[color] = new PaletteRgb5
-                {
-                    Red = native & 31,
-                    Green = native >> 5 & 31,
-                    Blue = native >> 10 & 31,
-                };
+                colors[color] = PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(native));
             }
             return colors;
         }

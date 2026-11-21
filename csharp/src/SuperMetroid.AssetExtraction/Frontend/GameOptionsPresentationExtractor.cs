@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Spatial;
@@ -33,31 +34,27 @@ public static class GameOptionsPresentationExtractor
             [GameOptionsPresentationFormat.BackgroundPageName] = Cells(
                 RomDataReader.ReadFixedBank(bus, MapSourceDefinitions.Menu.Background,
                     GameOptionsSourceDefinitions.TilemapByteCount)),
-            [GameOptionsNames.PageName(GameOptionsScreen.Primary)] = Page(GameOptionsSourceDefinitions.Pages[GameOptionsScreen.Primary]),
-            [GameOptionsNames.PageName(GameOptionsScreen.ControllerEnglish)] = Page(GameOptionsSourceDefinitions.Pages[GameOptionsScreen.ControllerEnglish]),
-            [GameOptionsNames.PageName(GameOptionsScreen.ControllerJapanese)] = Page(GameOptionsSourceDefinitions.Pages[GameOptionsScreen.ControllerJapanese]),
-            [GameOptionsNames.PageName(GameOptionsScreen.SpecialEnglish)] = Page(GameOptionsSourceDefinitions.Pages[GameOptionsScreen.SpecialEnglish]),
-            [GameOptionsNames.PageName(GameOptionsScreen.SpecialJapanese)] = Page(GameOptionsSourceDefinitions.Pages[GameOptionsScreen.SpecialJapanese]),
         };
+        foreach (GameOptionsScreen screen in GameOptionsPresentationFormat.Tilemaps)
+            pages.Add(GameOptionsNames.PageName(screen), Page(GameOptionsSourceDefinitions.Pages[screen]));
 
         var labels = new Dictionary<string, MapPresentationCell[]>(StringComparer.Ordinal);
-        for (int index = 0; index < GameOptionsPresentationDefinitions.ControllerLabelButtons.Count; index++)
+        foreach (ControllerButton button in GameOptionsPresentationDefinitions.ControllerLabelButtons)
         {
-            labels.Add(GameOptionsNames.ControllerLabelName(GameOptionsPresentationDefinitions.ControllerLabelButtons[index]), Cells(
+            labels.Add(GameOptionsNames.ControllerLabelName(button), Cells(
                 RomDataReader.ReadFixedBank(bus,
-                    GameOptionsSourceDefinitions.MenuBank | GameOptionsSourceDefinitions.ControllerLabelSources[index],
+                    GameOptionsSourceDefinitions.MenuBank | GameOptionsSourceDefinitions.ControllerLabelSources[button],
                     GameOptionsPageDefinitions.ControllerLabelCellCount * sizeof(ushort))));
         }
 
-        Position16<CharacterCells>[] controllerAnchors = GameOptionsPageRows.ControllerActions
-            .Select(GameOptionsPageCells.ControllerLabelAnchor)
-            .ToArray();
+        Dictionary<string, Position16<CharacterCells>> controllerAnchors = GameOptionsPageRows.ControllerActions
+            .ToDictionary(action => ControllerActionKeys.Installed.Of(action), GameOptionsPageCells.ControllerLabelAnchor, StringComparer.Ordinal);
         GameOptionsLanguageRegionDocument[] languageRegions =
             GameOptionsPageCells.LanguagePaletteRegions
                 .Select(region => new GameOptionsLanguageRegionDocument
                 {
                     Cells = CellRange(region.ByteOffset, region.ByteCount),
-                    HighlightWhenJapanese = region.HighlightWhenJapanese,
+                    Language = region.Language,
                 })
                 .ToArray();
         var toggles = new Dictionary<string, GameOptionsToggleVisualDocument>(StringComparer.Ordinal)
@@ -66,15 +63,9 @@ public static class GameOptionsPresentationExtractor
             [GameOptionsNames.ToggleName(GameOptionsToggle.Moonwalk)] = Toggle(GameOptionsPageCells.Moonwalk),
         };
 
-        var sprites = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal)
-        {
-            [GameOptionsNames.HeadingSpriteName(GameOptionsPage.Primary)] =
-                MenuSpriteExtractor.Read(bus, GameOptionsSourceDefinitions.HeadingSpritemaps[GameOptionsPage.Primary]),
-            [GameOptionsNames.HeadingSpriteName(GameOptionsPage.Controller)] =
-                MenuSpriteExtractor.Read(bus, GameOptionsSourceDefinitions.HeadingSpritemaps[GameOptionsPage.Controller]),
-            [GameOptionsNames.HeadingSpriteName(GameOptionsPage.Special)] =
-                MenuSpriteExtractor.Read(bus, GameOptionsSourceDefinitions.HeadingSpritemaps[GameOptionsPage.Special]),
-        };
+        var sprites = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
+        foreach (GameOptionsPage page in GameOptionsPresentationFormat.MenuPages)
+            sprites.Add(GameOptionsNames.HeadingSpriteName(page), MenuSpriteExtractor.Read(bus, GameOptionsSourceDefinitions.HeadingSpritemaps[page]));
         foreach (MenuMissileFrame frame in MenuMissileAnimationDefinitions.Roll)
         {
             sprites.Add(MenuMissileFrames.Name(frame),
@@ -84,18 +75,13 @@ public static class GameOptionsPresentationExtractor
         // The headings' and cursor's anchors are read from the cartridge's page setups and cursor tables; the game keeps no
         // copy of them (#1615).
         int headingRow = Word(GameOptionsSourceDefinitions.HeadingRowOperand);
-        var headings = new Dictionary<string, Offset16<ScreenPixels>>(StringComparer.Ordinal)
+        var headings = new Dictionary<string, Offset16<ScreenPixels>>(StringComparer.Ordinal);
+        var cursors = new Dictionary<string, Dictionary<string, Offset16<ScreenPixels>>>(StringComparer.Ordinal);
+        foreach (GameOptionsPage page in GameOptionsPresentationFormat.MenuPages)
         {
-            [GameOptionsPresentationFormat.MenuName(GameOptionsPage.Primary)] = Heading(GameOptionsPage.Primary),
-            [GameOptionsPresentationFormat.MenuName(GameOptionsPage.Controller)] = Heading(GameOptionsPage.Controller),
-            [GameOptionsPresentationFormat.MenuName(GameOptionsPage.Special)] = Heading(GameOptionsPage.Special),
-        };
-        var cursors = new Dictionary<string, Offset16<ScreenPixels>[]>(StringComparer.Ordinal)
-        {
-            [GameOptionsPresentationFormat.MenuName(GameOptionsPage.Primary)] = Cursor(GameOptionsPage.Primary, GameOptionsPageRows.Primary.Count),
-            [GameOptionsPresentationFormat.MenuName(GameOptionsPage.Controller)] = Cursor(GameOptionsPage.Controller, GameOptionsPageRows.Controller.Count),
-            [GameOptionsPresentationFormat.MenuName(GameOptionsPage.Special)] = Cursor(GameOptionsPage.Special, GameOptionsPageRows.Special.Count),
-        };
+            headings.Add(GameOptionsPresentationFormat.MenuName(page), Heading(page));
+            cursors.Add(GameOptionsPresentationFormat.MenuName(page), Cursor(page));
+        }
 
         using var output = new MemoryStream();
         GameOptionsSourcePresentation.Write(output, new()
@@ -134,12 +120,17 @@ public static class GameOptionsPresentationExtractor
         Offset16<ScreenPixels> Heading(GameOptionsPage page) =>
             Offset16<ScreenPixels>.Of(Word(GameOptionsSourceDefinitions.HeadingColumnOperands[page]), headingRow);
 
-        Offset16<ScreenPixels>[] Cursor(GameOptionsPage page, int rows)
+        // The cartridge's cursor table holds one entry per row, from the top.
+        Dictionary<string, Offset16<ScreenPixels>> Cursor(GameOptionsPage page)
         {
-            var result = new Offset16<ScreenPixels>[rows];
-            for (int row = 0; row < rows; row++)
-                result[row] = Offset16<ScreenPixels>.Of(GameOptionsSourceDefinitions.CursorColumns[page],
-                    Word(GameOptionsSourceDefinitions.CursorRowTables[page] + GameOptionsSourceDefinitions.CursorRowStride * row));
+            var result = new Dictionary<string, Offset16<ScreenPixels>>(StringComparer.Ordinal);
+            int entry = 0;
+            foreach (GameOptionsCursorRow row in GameOptionsLayoutFile.CursorRowsOn(page))
+            {
+                result.Add(row.Name, Offset16<ScreenPixels>.Of(GameOptionsSourceDefinitions.CursorColumns[page],
+                    Word(GameOptionsSourceDefinitions.CursorRowTables[page] + GameOptionsSourceDefinitions.CursorRowStride * entry)));
+                entry++;
+            }
             return result;
         }
     }

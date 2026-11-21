@@ -75,8 +75,8 @@ public sealed class ManagedSpcAudioBackend
                 case AudioEvent.ClockStep step:
                     if (ticks == schedule.Length)
                         throw new InvalidDataException($"An update holds more than {schedule.Length} driver ticks.");
-                    schedule[ticks++] = new SoundClockStep<SoundEffectLibrary, byte>(step.SampleOffset, step.Steps, step.ChecksRequests,
-                        step.ChecksRequests ? new SoundRequestChecks<SoundEffectLibrary, byte>(SoundEffectLibraries.InQueueOrder, _ => default) : default);
+                    schedule[ticks++] = new SoundClockStep<SoundEffectLibrary, byte>(step.SampleOffset, step.Steps,
+                        step.ChecksRequests ? new SoundRequestChecks<SoundEffectLibrary, byte>(SoundEffectLibraries.InQueueOrder, _ => default) : null);
                     break;
                 case AudioEvent.StartSoundEffect startSoundEffect:
                     if (ticks == 0 || !schedule[ticks - 1].ChecksRequests ||
@@ -119,7 +119,7 @@ public sealed class ManagedSpcAudioBackend
         return tick with
         {
             Checks = new SoundRequestChecks<SoundEffectLibrary, byte>(SoundEffectLibraries.InQueueOrder,
-                library => library == started ? start : tick.Checks[library]),
+                library => library == started ? start : tick.RanChecks[library]),
         };
     }
 }

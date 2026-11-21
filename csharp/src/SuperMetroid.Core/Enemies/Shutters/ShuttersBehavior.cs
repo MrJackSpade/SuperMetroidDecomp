@@ -94,7 +94,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory, IEs
         // Its sections' origins follow from the spawn row, each one spacing further along the growth.
         var state = new GrowingShutterEnemyState(action, place.Position.Y.Whole, settings.Growth)
         {
-            ActivationTimer = UpdateCountdown.For(settings.ActivationWait + EnemyWaitDefinitions.RunOutUpdate),
+            ActivationTimer = UpdateCountdown.For((settings.Wait is GrowingShutterWait.Timer timer ? timer.Updates : 0) + EnemyWaitDefinitions.RunOutUpdate),
         };
 
         // The shutter's new clock shows no new frame until its animation's first step shows one.
@@ -122,7 +122,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory, IEs
                 return;
 
             case GrowingShutterAction.WaitForProximity:
-                if (IsSamusWithinShutterHorizontalDistance(place, samus, growingShutterSpawnSettings.ActivationDistance))
+                if (IsSamusWithinShutterHorizontalDistance(place, samus, NearDistance(growingShutterSpawnSettings)))
                     ActivateGrowingShutter(place, state, camera);
                 return;
 
@@ -402,7 +402,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory, IEs
         var state = new VerticalShutterEnemyState(InitialAction(settings.TriggerMode));
 
         state.ReactionDirection = settings.PrimaryDirection;
-        state.ActionTimer = WrappingCountdown.Start(settings.WaitTime);
+        state.ActionTimer = WrappingCountdown.Start(settings.Trigger is ShutterTrigger.Timer timer ? timer.Wait : 0);
 
         // Every placement's travel keeps both endpoints inside the room.
         int spawnY = place.Position.Y.Whole;
@@ -433,7 +433,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory, IEs
                 state.ActionTimer = state.ActionTimer.Decrement().Remaining;
                 if (state.ActionTimer.IsZero)
                 {
-                    state.ActionTimer = WrappingCountdown.Start(shutterSpawnSettings.WaitTime);
+                    state.ActionTimer = WrappingCountdown.Start(TimerWait(shutterSpawnSettings));
                     ActivateVerticalShutter(shutterSpawnSettings, place, state, camera);
                 }
                 break;
@@ -442,7 +442,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory, IEs
                 if (IsSamusWithinShutterHorizontalDistance(
                     place,
                     samus,
-                    shutterSpawnSettings.ProximityDistance))
+                    ProximityDistance(shutterSpawnSettings)))
                 {
                     ActivateVerticalShutter(shutterSpawnSettings, place, state, camera);
                 }
@@ -490,6 +490,25 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory, IEs
     /// Samus, activating on its first update, or standing still until a reaction. The trigger never changes, so
     /// initialization installs it once and the first update already runs it.
     /// </summary>
+    /// <summary>The distance Samus must come within to grow a shutter that waits for her.</summary>
+    /// <exception cref="InvalidOperationException">The shutter waits for a timer.</exception>
+    private static int NearDistance(GrowingShutterSpawnSettings settings) => settings.Wait is GrowingShutterWait.SamusNear near
+        ? near.Distance
+        : throw new InvalidOperationException($"A growing shutter waiting for {settings.Wait} waits for no one near.");
+
+    /// <summary>The wait of a timer-triggered shutter.</summary>
+    /// <exception cref="InvalidOperationException">The shutter has another trigger.</exception>
+    private static int TimerWait(ShutterSpawnSettings settings) => settings.Trigger is ShutterTrigger.Timer timer
+        ? timer.Wait
+        : throw new InvalidOperationException($"A shutter triggered by {settings.Trigger} waits on no timer.");
+
+    /// <summary>The distance Samus must come within to start a proximity-triggered shutter.</summary>
+    /// <exception cref="InvalidOperationException">The shutter has another trigger.</exception>
+    private static int ProximityDistance(ShutterSpawnSettings settings) => settings.Trigger is ShutterTrigger.HorizontalProximity near
+        ? near.Distance
+        : throw new InvalidOperationException($"A shutter triggered by {settings.Trigger} waits for no one near.");
+
+    /// <summary>The action a shutter of <paramref name="triggerMode"/> starts in: the wait its trigger names.</summary>
     private static VerticalShutterAction InitialAction(ShutterTriggerMode triggerMode) => triggerMode switch
     {
         ShutterTriggerMode.Timer => VerticalShutterAction.WaitForTimer,

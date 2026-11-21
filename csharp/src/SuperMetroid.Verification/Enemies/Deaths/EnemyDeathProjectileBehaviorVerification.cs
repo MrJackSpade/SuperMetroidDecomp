@@ -35,8 +35,7 @@ internal static class EnemyDeathProjectileBehaviorVerification
         SamusState samus = CreateDropTestSamus();
         samus.Health = 50;
         EnemyDropFixture fixture = CreateEnemyDropFixture(samus, randomValues: [1]);
-        ushort enemyHeader = TestAddressSpace.FixtureHeaderPointer(EnemyPlaceFixtures.StandIn);
-        SeedEnemyDropChancePointer(fixture.Bus, enemyHeader);
+        SeedStandInDropper(fixture.Bus);
         RoomEnemyPlace killed = fixture.System.Places.InUpdateOrder[0];
         killed.Bind(EnemyPlaceFixtures.StandIn, killed.KeptDefinition);
         killed.Position = killed.Position.WithWhole(new(320, 120));

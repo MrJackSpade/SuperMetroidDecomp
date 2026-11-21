@@ -1,4 +1,3 @@
-using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using SuperMetroid.Core.Fx;
@@ -26,21 +25,19 @@ internal static class LookupFxTilemapSourcesVerification
                 "Original read-only type list bounds");
     }
 
-    /// <summary>Compares the seven admitted bank-$8A source addresses and rejects all other 16-bit FX identities.</summary>
+    /// <summary>Compares the seven admitted bank-$8A source addresses and rejects every other room effect type.</summary>
     internal static void VerifyFxTilemapSourceAddresses(ISnesAddressSpace rom)
     {
         var original = OriginalFxTilemapTypes.ToDictionary(type => type,
             type => 0x8a0000 | ReadVerificationWord(rom, 0x83abf0 + SuperMetroid.AssetExtraction.CartridgeTables.RoomFxRecordWords.Types.Word(type)));
         original.Add(RoomFxType.TourianEntranceStatue, 0x8a0000 | ReadVerificationWord(rom, 0x83ac16));
-        // A page's source is a pure function of its identity, so the identity domain is swept across the cores (#1532).
-        ParallelSweep.For(0, ushort.MaxValue + 1, value =>
+        foreach (RoomFxType type in Enum.GetValues<RoomFxType>())
         {
-            var type = (RoomFxType)value;
             if (original.TryGetValue(type, out int expected))
                 AssertEqual(expected, RoomFxLayer3TilemapSources.Page(type).Value, "Original page pointer");
             else
                 AssertThrows<InvalidDataException>(() => RoomFxLayer3TilemapSources.Page(type).Value,
-                    "All unsupported ushort identities reject, including odd types");
-        });
+                    $"room effect type {type} shows no page");
+        }
     }
 }

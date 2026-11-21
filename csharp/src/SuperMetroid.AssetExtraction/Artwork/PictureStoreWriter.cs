@@ -196,10 +196,14 @@ internal static class PictureStoreWriter
     /// </summary>
     private static void WriteManifests(InstalledSheetFamily family, SheetPictures[] sheets, Dictionary<StoredPicture, PicturePlacement> placements)
     {
-        var manifests = new byte[sheets.Length][];
-        Parallel.For(0, sheets.Length, index => manifests[index] = Manifest(sheets[index], placements));
-        SpriteSheetStore.Write(family.Directory,
-            [.. sheets.Select((sheet, index) => KeyValuePair.Create(sheet.Sheet.Name, manifests[index]))]);
+        // Each place holds its sheet's name with its manifest, so the manifests keep the sheets' order.
+        var manifests = new KeyValuePair<string, byte[]>[sheets.Length];
+        Parallel.For(0, sheets.Length, index =>
+        {
+            SheetPictures sheet = sheets[index];
+            manifests[index] = KeyValuePair.Create(sheet.Sheet.Name, Manifest(sheet, placements));
+        });
+        SpriteSheetStore.Write(family.Directory, manifests);
     }
 
     /// <summary>

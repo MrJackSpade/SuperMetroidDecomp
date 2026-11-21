@@ -15,18 +15,16 @@ namespace SuperMetroid.EnsureAnalyzer.CodeFixes.DeadCode;
 /// code it removes (<see cref="Removing"/>); once it has, <see cref="RemoveAsync"/> takes out each parameter of a method
 /// or constructor (a class's primary constructor included) whose every read lies in removed code: the parameter, its
 /// <c>param</c> documentation and the argument every call passes it. An argument read by a removed call is removed code
-/// too, so a parameter of the caller that only that argument read goes as well, and so on. What cannot go without a
-/// choice fails the fix, which leaves the code as it was: an argument whose evaluation could have an effect; a
-/// <c>ref</c>, <c>out</c>, <c>in</c>, <c>params</c> or extension receiver parameter; a method that is virtual, abstract,
-/// overrides, implements an interface, is partial or extern, or would then clash with another of its type's members; a
-/// method used other than by calls, by name or by crefs without parameters; a record's positional parameter; and a
-/// parameter documentation still names with <c>paramref</c>.
+/// too, so a parameter of the caller that only that argument read goes as well, and so on. Every parameter left unread
+/// goes, with every argument passed to it, whatever needs a choice (#2599): a method something else decides the
+/// signature of (an override, an interface member) or one that would clash with an overload then fails the build at the
+/// site, and a use that is no call (a method group, a cref with parameters) stays as written and fails the build there.
+/// A member that read its instance only in the removed code then reads none, and CA1822, a build error, reports it.
 /// </summary>
 internal sealed class UnreadParameters
 {
     private readonly Solution _solution;
     private readonly SolutionEdits _edits;
-    private readonly Diagnostic _site;
 
     /// <summary>The spans of the code the fix removes, by tree.</summary>
     private readonly Dictionary<SyntaxTree, List<TextSpan>> _removed = new();
@@ -40,16 +38,11 @@ internal sealed class UnreadParameters
     /// <summary>The items taken out of each parameter or argument list, by their index in it.</summary>
     private readonly Dictionary<SyntaxNode, SortedSet<int>> _listItems = new();
 
-    /// <summary>The methods, properties, indexers and events code is removed from, with their semantic models.</summary>
-    private readonly Dictionary<MemberDeclarationSyntax, SemanticModel> _enclosing = new();
-
-    /// <summary>Starts the parameter removals of one fix of <paramref name="solution"/>, whose edits are <paramref name="edits"/>;
-    /// <paramref name="site"/> names the fix's finding when a removal fails it.</summary>
-    internal UnreadParameters(Solution solution, SolutionEdits edits, Diagnostic site)
+    /// <summary>Starts the parameter removals of one fix of <paramref name="solution"/>, whose edits are <paramref name="edits"/>.</summary>
+    internal UnreadParameters(Solution solution, SolutionEdits edits)
     {
         _solution = solution;
         _edits = edits;
-        _site = site;
     }
 
     /// <summary>Records that the fix removes <paramref name="node"/>: a parameter it reads, other than one it declares,
@@ -59,9 +52,6 @@ internal sealed class UnreadParameters
         if (!_removed.TryGetValue(node.SyntaxTree, out List<TextSpan>? spans))
             _removed[node.SyntaxTree] = spans = [];
         spans.Add(node.Span);
-        if (node.Ancestors().FirstOrDefault(ancestor => ancestor is MemberDeclarationSyntax) is MemberDeclarationSyntax
-            { RawKind: (int)SyntaxKind.MethodDeclaration or (int)SyntaxKind.PropertyDeclaration or (int)SyntaxKind.IndexerDeclaration or (int)SyntaxKind.EventDeclaration } member)
-            _enclosing[member] = model;
         foreach (IdentifierNameSyntax name in node.DescendantNodesAndSelf().OfType<IdentifierNameSyntax>())
         {
             if (model.GetSymbolInfo(name).Symbol is IParameterSymbol parameter && !Declares(node, parameter))
@@ -69,8 +59,7 @@ internal sealed class UnreadParameters
         }
     }
 
-    /// <summary>Takes out every parameter left unread, with what goes with it, into the fix's edits.</summary>
-    /// <exception cref="CleanupFailure">A parameter left unread cannot be taken out without a choice.</exception>
+    /// <summary>Takes out every parameter left unread that can go without a choice, with what goes with it, into the fix's edits.</summary>
     internal async Task RemoveAsync(CancellationToken cancellationToken)
     {
         for (int index = 0; index < _candidates.Count; index++)
@@ -82,8 +71,6 @@ internal sealed class UnreadParameters
                 continue;
             await TakeAsync(parameter, method, cancellationToken).ConfigureAwait(false);
         }
-        foreach (KeyValuePair<MemberDeclarationSyntax, SemanticModel> member in _enclosing)
-            RejectLostInstanceAccess(member.Key, member.Value);
         foreach (KeyValuePair<SyntaxNode, SortedSet<int>> list in _listItems)
         {
             SourceEdits edits = await _edits.ForAsync(list.Key.SyntaxTree, cancellationToken).ConfigureAwait(false);
@@ -103,104 +90,86 @@ internal sealed class UnreadParameters
         return false;
     }
 
-    /// <summary>Takes out <paramref name="parameter"/> of <paramref name="method"/>, its documentation and every argument passed to it.</summary>
+    /// <summary>Takes out <paramref name="parameter"/> of <paramref name="method"/>, its documentation and every argument
+    /// passed to it, or, when that needs a choice, leaves it and its arguments as they are.</summary>
     private async Task TakeAsync(IParameterSymbol parameter, IMethodSymbol method, CancellationToken cancellationToken)
     {
-        string name = $"'{parameter.Name}' of {method.ToDisplayString()}";
-        if (parameter.RefKind != RefKind.None || parameter.IsParams || parameter.IsThis)
-            throw new CleanupFailure(_site, $"{name}, left unread, is a {parameter.RefKind} or params or receiver parameter, whose arguments cannot simply go");
-        if (method.IsVirtual || method.IsAbstract || method.IsOverride || method.IsExtern || method.IsPartialDefinition ||
-            method.PartialImplementationPart is not null || method.PartialDefinitionPart is not null || !method.ExplicitInterfaceImplementations.IsEmpty ||
-            ImplementsInterface(method))
-            throw new CleanupFailure(_site, $"{name}, left unread, belongs to a method whose signature something else decides");
-        if (parameter.DeclaringSyntaxReferences.Length != 1 ||
-            await parameter.DeclaringSyntaxReferences[0].GetSyntaxAsync(cancellationToken).ConfigureAwait(false) is not ParameterSyntax { Parent: ParameterListSyntax list } declaration)
-            throw new CleanupFailure(_site, $"{name}, left unread, is not declared once in a parameter list");
-        if (list.Parent is RecordDeclarationSyntax)
-            throw new CleanupFailure(_site, $"{name}, left unread, is a record's positional parameter, which is also its property");
-        RejectClash(method, parameter, name);
-        foreach (ReferenceLocation reference in await ReferencesAsync(parameter, cancellationToken).ConfigureAwait(false))
+        // Every declaration of the parameter goes (both parts of a partial method), whatever decides the signature: an
+        // override, an interface member or a clash with an overload then fails the build at the site (#2599).
+        var declarations = new List<(ParameterListSyntax List, ParameterSyntax Declaration)>();
+        foreach (SyntaxReference reference in parameter.DeclaringSyntaxReferences)
         {
-            if (!InRemoved(reference.Location) && !InParameterDocumentation(reference.Location))
-                throw new CleanupFailure(reference.Location, _site.Id, $"{name}, left unread, is still named in documentation here");
+            if (await reference.GetSyntaxAsync(cancellationToken).ConfigureAwait(false) is ParameterSyntax { Parent: ParameterListSyntax list } declaration)
+                declarations.Add((list, declaration));
         }
-        _taken.Add(parameter);
-        Take(list, list.Parameters.IndexOf(declaration));
-        if (list.Parent is { } owner)
-            await RemoveDocumentationAsync(owner, parameter.Name, cancellationToken).ConfigureAwait(false);
+        if (method.PartialImplementationPart?.Parameters[parameter.Ordinal] is { } implemented)
+            await AddDeclarationsAsync(implemented, declarations, cancellationToken).ConfigureAwait(false);
+        if (method.PartialDefinitionPart?.Parameters[parameter.Ordinal] is { } defined)
+            await AddDeclarationsAsync(defined, declarations, cancellationToken).ConfigureAwait(false);
+        if (declarations.Count == 0)
+            throw new InvalidOperationException($"'{parameter.Name}' of {method.ToDisplayString()} is declared in no parameter list.");
+        var arguments = new List<(BaseArgumentListSyntax List, int Index, ArgumentSyntax Argument, SemanticModel Model)>();
         foreach (ReferencedSymbol referenced in await SymbolFinder.FindReferencesAsync(method, _solution, cancellationToken).ConfigureAwait(false))
         {
             foreach (ReferenceLocation call in referenced.Locations)
-                await RemoveArgumentAsync(call, method, parameter, name, cancellationToken).ConfigureAwait(false);
+                await ArgumentsAsync(call, method, parameter, arguments, cancellationToken).ConfigureAwait(false);
+        }
+        _taken.Add(parameter);
+        foreach (var (list, declaration) in declarations.Distinct())
+        {
+            Take(list, list.Parameters.IndexOf(declaration));
+            if (list.Parent is { } owner)
+                await RemoveDocumentationAsync(owner, parameter.Name, cancellationToken).ConfigureAwait(false);
+        }
+        foreach (var (argumentList, index, argument, model) in arguments)
+        {
+            Removing(argument, model);
+            Take(argumentList, index);
         }
     }
 
-    /// <summary>Takes out the argument the call at <paramref name="reference"/> passes to <paramref name="parameter"/>.</summary>
-    private async Task RemoveArgumentAsync(ReferenceLocation reference, IMethodSymbol method, IParameterSymbol parameter, string name,
+    /// <summary>Adds the parameter-list declarations of another part's parameter.</summary>
+    private static async Task AddDeclarationsAsync(IParameterSymbol parameter, List<(ParameterListSyntax List, ParameterSyntax Declaration)> declarations,
         CancellationToken cancellationToken)
+    {
+        foreach (SyntaxReference reference in parameter.DeclaringSyntaxReferences)
+        {
+            if (await reference.GetSyntaxAsync(cancellationToken).ConfigureAwait(false) is ParameterSyntax { Parent: ParameterListSyntax list } declaration)
+                declarations.Add((list, declaration));
+        }
+    }
+
+    /// <summary>Adds the argument the call at <paramref name="reference"/> passes to <paramref name="parameter"/> to
+    /// <paramref name="arguments"/>; false when the parameter cannot go without a choice.</summary>
+    private async Task<bool> ArgumentsAsync(ReferenceLocation reference, IMethodSymbol method, IParameterSymbol parameter,
+        List<(BaseArgumentListSyntax List, int Index, ArgumentSyntax Argument, SemanticModel Model)> arguments, CancellationToken cancellationToken)
     {
         // A target-typed new is an implicit reference to the constructor it calls, and is edited like any other call.
         if (reference.Location.SourceTree is not { } tree)
-            throw new CleanupFailure(reference.Location, _site.Id, $"{name}, left unread, belongs to a method called from outside source");
+            return false;
         if (InRemoved(reference.Location))
-            return;
+            return true;
         SyntaxNode root = await tree.GetRootAsync(cancellationToken).ConfigureAwait(false);
         SyntaxNode node = root.FindNode(reference.Location.SourceSpan, findInsideTrivia: true, getInnermostNodeForTie: true);
         SemanticModel model = await reference.Document.GetSemanticModelAsync(cancellationToken).ConfigureAwait(false)
             ?? throw new InvalidOperationException($"{tree.FilePath} has no semantic model.");
         if (node.IsPartOfStructuredTrivia())
-        {
-            if (node.AncestorsAndSelf().OfType<CrefSyntax>().LastOrDefault() is { } cref &&
-                cref.DescendantNodesAndSelf().OfType<CrefParameterListSyntax>().Any())
-                throw new CleanupFailure(reference.Location, _site.Id, $"{name}, left unread, is named in a cref with its parameters");
-            return;
-        }
+            return !(node.AncestorsAndSelf().OfType<CrefSyntax>().LastOrDefault() is { } cref &&
+                cref.DescendantNodesAndSelf().OfType<CrefParameterListSyntax>().Any());
         if (IsNameOf(node, model, cancellationToken))
-            return;
-        if (Call(node, method, model, cancellationToken) is not { } arguments)
-            throw new CleanupFailure(reference.Location, _site.Id, $"{name}, left unread, belongs to a method used here other than by a call");
-        for (int index = 0; index < arguments.Arguments.Count; index++)
+            return true;
+        if (Call(node, method, model, cancellationToken) is not { } list)
+            return false;
+        for (int index = 0; index < list.Arguments.Count; index++)
         {
-            ArgumentSyntax argument = arguments.Arguments[index];
+            ArgumentSyntax argument = list.Arguments[index];
             bool passed = argument.NameColon is { } named ? named.Name.Identifier.ValueText == parameter.Name : index == parameter.Ordinal;
             if (!passed)
                 continue;
-            if (!SideEffects.IsFree(model.GetOperation(argument.Expression, cancellationToken)))
-                throw new CleanupFailure(argument.GetLocation(), _site.Id, $"{name}, left unread, is passed '{argument.Expression}', whose evaluation could have an effect");
-            Removing(argument, model);
-            Take(arguments, index);
+            arguments.Add((list, index, argument, model));
         }
+        return true;
     }
-
-    /// <summary>
-    /// Fails when an instance member read its instance only in removed code: it would then read no instance data, and
-    /// CA1822, a build error, asks for it to be static, a change to every call of it the fix does not make. A static,
-    /// virtual, abstract, overriding or interface-implementing member, which CA1822 leaves alone, is not checked.
-    /// </summary>
-    private void RejectLostInstanceAccess(MemberDeclarationSyntax member, SemanticModel model)
-    {
-        if (model.GetDeclaredSymbol(member) is not { IsStatic: false, IsVirtual: false, IsAbstract: false, IsOverride: false } symbol ||
-            symbol.ContainingType.AllInterfaces.SelectMany(contract => contract.GetMembers()).Any(contract =>
-                SymbolEqualityComparer.Default.Equals(symbol.ContainingType.FindImplementationForInterfaceMember(contract), symbol)))
-            return;
-        var reads = member.DescendantNodes().OfType<ExpressionSyntax>()
-            .Where(expression => ReadsInstance(model.GetOperation(expression), symbol.ContainingType)).ToList();
-        if (reads.Count > 0 && reads.All(read => InRemoved(read.GetLocation())))
-            throw new CleanupFailure(member.GetLocation(), _site.Id, $"{symbol.ToDisplayString()} reads its instance only in the code the fix removes, " +
-                "and would then be asked to be static (CA1822)");
-    }
-
-    /// <summary>Whether an operation reads the instance of <paramref name="type"/>: <c>this</c> or <c>base</c>, a member
-    /// reached through it, written or not, or a captured primary-constructor parameter.</summary>
-    private static bool ReadsInstance(IOperation? operation, INamedTypeSymbol type) => operation switch
-    {
-        IInstanceReferenceOperation { ReferenceKind: InstanceReferenceKind.ContainingTypeInstance } => true,
-        IMemberReferenceOperation { Instance: IInstanceReferenceOperation { ReferenceKind: InstanceReferenceKind.ContainingTypeInstance } } => true,
-        IInvocationOperation { Instance: IInstanceReferenceOperation { ReferenceKind: InstanceReferenceKind.ContainingTypeInstance } } => true,
-        IParameterReferenceOperation { Parameter.ContainingSymbol: IMethodSymbol { MethodKind: MethodKind.Constructor } constructor } =>
-            SymbolEqualityComparer.Default.Equals(constructor.ContainingType, type),
-        _ => false,
-    };
 
     /// <summary>The argument list of the call of <paramref name="method"/> whose target <paramref name="node"/> names, or null.</summary>
     private static BaseArgumentListSyntax? Call(SyntaxNode node, IMethodSymbol method, SemanticModel model, CancellationToken cancellationToken)
@@ -231,31 +200,8 @@ internal sealed class UnreadParameters
             invocation.Expression is IdentifierNameSyntax { Identifier.ValueText: "nameof" } &&
             model.GetOperation(invocation, cancellationToken) is INameOfOperation);
 
-    /// <summary>Fails when the method, less the parameters taken out, would take the parameters of another of its type's
-    /// members of its name, which then clash or make calls ambiguous.</summary>
-    private void RejectClash(IMethodSymbol method, IParameterSymbol parameter, string name)
-    {
-        var left = method.Parameters.Where(other => !SymbolEqualityComparer.Default.Equals(other, parameter) && !_taken.Contains(other)).ToList();
-        IEnumerable<ISymbol> siblings = method.MethodKind == MethodKind.Constructor
-            ? method.ContainingType.InstanceConstructors
-            : method.ContainingType.GetMembers(method.Name);
-        foreach (IMethodSymbol sibling in siblings.OfType<IMethodSymbol>())
-        {
-            if (SymbolEqualityComparer.Default.Equals(sibling, method) || sibling.Parameters.Length != left.Count)
-                continue;
-            if (sibling.Parameters.Zip(left, (first, second) => first.RefKind == second.RefKind &&
-                    SymbolEqualityComparer.Default.Equals(first.Type, second.Type)).All(same => same))
-                throw new CleanupFailure(_site, $"{name}, left unread, cannot go: {method.Name} would then take the parameters of {sibling.ToDisplayString()}");
-        }
-    }
-
-    /// <summary>Whether the method implements a member of an interface its type implements.</summary>
-    private static bool ImplementsInterface(IMethodSymbol method) =>
-        method.ContainingType.AllInterfaces.SelectMany(contract => contract.GetMembers()).Any(member =>
-            SymbolEqualityComparer.Default.Equals(method.ContainingType.FindImplementationForInterfaceMember(member), method));
-
     /// <summary>Takes out the <c>param</c> element documenting <paramref name="parameter"/> in the documentation of
-    /// <paramref name="owner"/>, with its lines, which must hold nothing else.</summary>
+    /// <paramref name="owner"/>: with its lines when they hold nothing else, or alone when they do.</summary>
     private async Task RemoveDocumentationAsync(SyntaxNode owner, string parameter, CancellationToken cancellationToken)
     {
         SyntaxNode documented = owner;
@@ -273,9 +219,7 @@ internal sealed class UnreadParameters
                 TextLine last = text.Lines.GetLineFromPosition(element.Span.End);
                 string before = text.ToString(TextSpan.FromBounds(first.Start, element.SpanStart)).Trim();
                 string after = text.ToString(TextSpan.FromBounds(element.Span.End, last.End)).Trim();
-                if (before != "///" || after.Length > 0)
-                    throw new CleanupFailure(element.GetLocation(), _site.Id, $"the documentation of '{parameter}', left unread, shares its lines with other text");
-                edits.Replace(TextSpan.FromBounds(first.Start, last.EndIncludingLineBreak), string.Empty);
+                edits.Replace(before == "///" && after.Length == 0 ? TextSpan.FromBounds(first.Start, last.EndIncludingLineBreak) : element.Span, string.Empty);
             }
         }
     }

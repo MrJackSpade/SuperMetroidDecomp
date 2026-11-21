@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Earthquakes;
 
@@ -163,13 +162,7 @@ internal sealed class KraidLimbs
         RoomEnemyPlace body = state.Parts.Body;
         arm.Position = arm.Position.WithWhole(body.Position.Whole + KraidArenaDefinitions.ArmOffset);
 
-        // The arm hides only when its anchor leaves the screen's gameplay
-        // viewport: it is hidden, not drawn behind anything.
-        bool onScreen = arm.Position.Y.Whole >= cameraY &&
-            arm.Position.Y.Whole - cameraY < ScreenGeometry.ScreenHeightPixels;
-        arm.Presence = onScreen
-            ? arm.Presence.Without(EnemyPresence.Hidden)
-            : arm.Presence.With(EnemyPresence.Hidden);
+        ShowWithinGameplayView(arm, cameraY);
 
         // While mouth reopens are pending the arm's swing waits on the frame it shows, its hold kept, and runs on from there
         // once none is pending.
@@ -179,17 +172,26 @@ internal sealed class KraidLimbs
             arm.AnimationClock.Resume();
     }
 
+    /// <summary>
+    /// Hides <paramref name="limb"/> only while its anchor lies outside the screen's gameplay view below
+    /// <paramref name="cameraY"/> (#2557): it is hidden, not drawn behind anything. The arm and the foot are shown so.
+    /// </summary>
+    private static void ShowWithinGameplayView(RoomEnemyPlace limb, int cameraY)
+    {
+        bool onScreen = limb.Position.Y.Whole >= cameraY &&
+            limb.Position.Y.Whole - cameraY < ScreenGeometry.ScreenHeightPixels;
+        limb.Presence = onScreen
+            ? limb.Presence.Without(EnemyPresence.Hidden)
+            : limb.Presence.With(EnemyPresence.Hidden);
+    }
+
     /// <summary>Runs the foot's lunge, retreat, and grown-form walking phases.</summary>
     internal void RunKraidFootMain(RoomEnemyPlace foot, KraidFootState part, int cameraY)
     {
         KraidEnemyState state = part.Kraid;
         RoomEnemyPlace body = part.Kraid.Parts.Body;
         foot.Position = foot.Position.WithWhole(body.Position.Whole + KraidArenaDefinitions.FootOffset);
-        bool onScreen = foot.Position.Y.Whole >= cameraY &&
-            foot.Position.Y.Whole - ScreenGeometry.ScreenHeightPixels < cameraY;
-        foot.Presence = onScreen
-            ? foot.Presence.Without(EnemyPresence.Hidden)
-            : foot.Presence.With(EnemyPresence.Hidden);
+        ShowWithinGameplayView(foot, cameraY);
 
         switch (part.Phase)
         {
@@ -230,10 +232,10 @@ internal sealed class KraidLimbs
             case KraidFootPhase.SecondPhaseThinking:
                 RunKraidSecondPhaseThinking(body, part);
                 return;
-            case KraidFootPhase.SecondPhaseWalking when part.WalkDirection == HorizontalDirection.Right:
+            case KraidFootPhase.SecondPhaseWalkingRight:
                 RunKraidSecondPhaseWalkingRight(body, part);
                 return;
-            case KraidFootPhase.SecondPhaseWalking:
+            case KraidFootPhase.SecondPhaseWalkingLeft:
                 RunKraidSecondPhaseWalkingLeft(body, part);
                 return;
             default:
@@ -348,9 +350,19 @@ internal sealed class KraidLimbs
     {
         part.Kraid.WalkTargetX = targetX;
         part.ThinkWait.LastFor(thinkUpdates);
-        part.Phase = KraidFootPhase.SecondPhaseWalking;
-        part.WalkDirection = direction;
-        part.StartAnimation(direction == HorizontalDirection.Right ? KraidPartSegment.FootWalkingBackward : KraidPartSegment.FootWalkingForward);
+        switch (direction)
+        {
+            case HorizontalDirection.Right:
+                part.Phase = KraidFootPhase.SecondPhaseWalkingRight;
+                part.StartAnimation(KraidPartSegment.FootWalkingBackward);
+                break;
+            case HorizontalDirection.Left:
+                part.Phase = KraidFootPhase.SecondPhaseWalkingLeft;
+                part.StartAnimation(KraidPartSegment.FootWalkingForward);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(direction), direction, "Undefined walk direction.");
+        }
     }
 
     /// <summary>Moves the body and foot toward the selected rightward target.</summary>

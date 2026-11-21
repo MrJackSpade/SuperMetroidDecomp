@@ -20,7 +20,7 @@ public sealed record SamusAnimationStep
     }
 
     /// <summary>The ground of the room or scene Samus animates in, which her running footsteps go by (#2416).</summary>
-    public required SamusGround Ground { get; init; }
+    public required RoomGround Ground { get; init; }
 
     /// <summary>The session's random-number generator, which Samus's liquid effects draw air bubbles from.</summary>
     public required SharedRandom Random { get; init; }

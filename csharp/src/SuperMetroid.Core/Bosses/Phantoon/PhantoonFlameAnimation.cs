@@ -7,13 +7,9 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// <param name="owner">The family's cue owner, which carries out the events the animation raises (#2571).</param>
 /// <param name="segment">Where the animation starts.</param>
 internal sealed class PhantoonFlameAnimation(IEnemyProjectileCues<PhantoonFlameCue> owner, PhantoonFlameSegment segment)
-    : EnemyProjectileFrameAnimation<PhantoonFlameSegment, PhantoonFlameCue>(PhantoonFlameAnimations.StartingWith(segment), EnemyProjectileCueRunner<PhantoonFlameSegment, PhantoonFlameCue>.By(owner))
+    : EnemyProjectileFrameAnimation<PhantoonFlameSegment, PhantoonFlameCue>(segment, PhantoonFlameAnimations.StartingWith(segment), EnemyProjectileCueRunner<PhantoonFlameSegment, PhantoonFlameCue>.By(owner))
 {
     /// <inheritdoc/>
     private protected override AnimationSegments<PhantoonFlameSegment, EnemyProjectileFrameId, PhantoonFlameCue> Segments =>
         PhantoonFlameAnimations.Segments;
-
-    /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<PhantoonFlameSegment, Animation<PhantoonFlameSegment>> StartingAt =>
-        PhantoonFlameAnimations.StartingAt;
 }

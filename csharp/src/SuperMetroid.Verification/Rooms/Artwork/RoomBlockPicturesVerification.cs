@@ -387,7 +387,7 @@ internal static class RoomBlockPicturesVerification
                 {
                     inks |= TileColour(vram, word, x, y) != 0;
                     // A frame that paints nothing has no picture: the tile it writes there paints nothing (#1513).
-                    if (shown.Picture is { } picture)
+                    if (shown.Shown?.Picture is { } picture)
                         AssertPaintsTile(() => $"{owner} {shown.Name} cell {cell} pixel ({x}, {y})", vram, word, x, y, picture,
                             new Position16<ImagePixels>(at.X - cellsCorner.X + x, at.Y - cellsCorner.Y + y));
                     // The message is built only for a failing pixel.
@@ -397,8 +397,8 @@ internal static class RoomBlockPicturesVerification
                 // The frame is drawn whole at the depth the tier of every word it paints with names (#1634): in front of the
                 // sprites for the upper tier, behind them for the lower.
                 if (inks)
-                    AssertTrue(shown.Depth == (word.HasPriority ? BossBodyDepth.InFrontOfSprites : BossBodyDepth.BehindSprites),
-                        $"{owner} {shown.Name} is drawn {shown.Depth}, but its tile ${word.Raw:X4} at cell {cell} is written in the {(word.HasPriority ? "upper" : "lower")} tier");
+                    AssertTrue(shown.Shown?.Depth == (word.HasPriority ? BossBodyDepth.InFrontOfSprites : BossBodyDepth.BehindSprites),
+                        $"{owner} {shown.Name} is drawn {shown.Shown?.Depth}, but its tile ${word.Raw:X4} at cell {cell} is written in the {(word.HasPriority ? "upper" : "lower")} tier");
             }
             frames++;
         }

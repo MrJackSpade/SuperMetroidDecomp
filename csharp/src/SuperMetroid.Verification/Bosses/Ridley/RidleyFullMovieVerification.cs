@@ -79,7 +79,7 @@ internal static class RidleyFullMovieVerification
         body.SpritemapPointer = 0xe9e9; body.Contact = EnemyContact.BlocksPlasmaBeam;
         body.Processing = EnemyProcessing.OffScreen | EnemyProcessing.Animates;
         body.Presence = EnemyPresence.None;
-        (state ?? throw new InvalidOperationException("Verification requires state.")).FightMode = RidleyFightMode.Fighting; state.MovementAnimationEnabled = true; state.Flight.FacingDirection = RidleyFacing.Left;
+        (state ?? throw new InvalidOperationException("Verification requires state.")).FightMode = RidleyFightMode.Fighting; state.Motion = RidleyMotion.Running; state.Flight.FacingDirection = RidleyFacing.Left;
         state.Phase = NorfairRidleyPhase.CarryRelease; state.PhaseTimer.LastFor(11);
         state.Flight.Velocity = state.Flight.Velocity.WithX(new SignedEightEight(0xfc00)); state.Flight.Velocity = state.Flight.Velocity.WithY(new SignedEightEight(0x0300));
         state.Tail.Action = RidleyTailAction.None;
@@ -433,7 +433,7 @@ internal static class RidleyFullMovieVerification
         foreach (AreaId samusArea in new[] { AreaId.Ceres, AreaId.Norfair, AreaId.Tourian })
         {
             var samus = runtime.Player.Samus;
-            samus.Ground = SamusGround.Of(RoomDefinitions.FirstIn(samusArea));
+            samus.Ground = RoomDefinitions.FirstIn(samusArea).Ground;
             runtime.Enemies.RidleyProjectiles.SpawnRidleyFireball(runtime.Enemies.Places.InUpdateOrder[0],
                 (runtime.Enemies.NorfairRidley() ?? throw new InvalidOperationException("Verification requires Lower Norfair Ridley.")).Flight, afterburns: 0);
             var fireball = runtime.Enemies.Projectiles.SpawnedInPlace(slotIndex--);
@@ -525,7 +525,7 @@ internal static class RidleyFullMovieVerification
         samus.Pose = SamusPoseId.SpringBallGroundRightPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus); SamusPresentation.InitializeAnimation(samus);
         samus.Position = new(new(202, 0x8000), new(425, ushort.MaxValue));
-        samus.KnockbackActive = true; samus.KnockbackDirection = SamusKnockbackDirection.UpRight;
+        samus.Knockback = SamusKnockback.Moving(SamusKnockbackDirection.UpRight);
         samus.KnockbackXDirection = KnockbackHorizontalDirection.Right; samus.KnockbackHold = UpdateCountdown.For(4);
         samus.InvincibilityTimer = WrappingCountdown.Start(95);
         samus.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(samus.Kinematics.VerticalVelocity.Speed, SamusVerticalDirection.Up); samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.WithSpeed(samus.Kinematics.VerticalVelocity.Speed.WithWhole(5)); samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.WithSpeed(samus.Kinematics.VerticalVelocity.Speed.WithFraction(0));
@@ -552,13 +552,13 @@ internal static class RidleyFullMovieVerification
         // The check starts every link blank rather than at the tail's initial layout.
         RidleyTailFixtures.BlankLinks(state.Tail);
         var segment = state.Tail.Base;
-        segment.Active = true; segment.StartedNextLink = false; segment.Stagger = RidleyTailTurn.OfSteps(2);
+        segment.Swing = RidleyTailLinkSwing.Staggering; segment.Stagger = RidleyTailTurn.OfSteps(2);
         segment.Offset = new Offset16<RoomPixels>(7, 11);
         RidleyTail.TickRidleyTailLink(state.Tail, segment);
         AssertEqual(RidleyTailTurn.OfSteps(4), segment.Stagger, "native stagger advances before returning");
         AssertEqual((short)7, segment.Offset.X, "stagger retains X offset");
         AssertEqual((short)11, segment.Offset.Y, "stagger retains Y offset");
-        segment.StartedNextLink = true; segment.Angle = RidleyTailAngle.StraightDown;
+        segment.Swing = RidleyTailLinkSwing.Swinging; segment.Angle = RidleyTailAngle.StraightDown;
         segment.SwingDirection = RotationDirection.Clockwise; segment.Distance = SignedEightEight.FromParts(2, 0);
         RidleyTail.TickRidleyTailLink(state.Tail, segment);
         AssertEqual(RidleyTailAngle.StraightDown.TurnedClockwise(2), segment.Angle, "a clockwise step short of the limit turns by the whole step");
@@ -571,8 +571,8 @@ internal static class RidleyFullMovieVerification
         AssertEqual((short)7, segment.Offset.X, "stop retains X offset");
         AssertEqual((short)11, segment.Offset.Y, "stop retains Y offset");
         var child = state.Tail.Shaft[0];
-        segment.Active = true;
-        child.Active = true; child.StartedNextLink = true;
+        segment.Activate();
+        child.Swing = RidleyTailLinkSwing.Swinging;
         child.Angle = RidleyTailAngle.StraightDown; child.SwingDirection = RotationDirection.Clockwise; child.Distance = SignedEightEight.FromParts(8, 0);
         RidleyTail.TickRidleyTailLink(state.Tail, child);
         AssertTrue(child.Active, "moving predecessor prevents child deactivation");
@@ -644,7 +644,7 @@ internal static class RidleyFullMovieVerification
                 AssertEqual(source, menu.ScreenMode, "source page remains through fade-out");
                 AssertEqual(15 - update, menu.TransitionBrightness, "native zero-delay fade-out brightness");
             }
-            AssertEqual(source == PauseScreenMode.Map ? PauseMenuTransition.MapToEquipmentLoad : PauseMenuTransition.EquipmentToMapLoad,
+            AssertEqual(new PausePageTransition(destination, PausePageTransitionStage.Load),
                 menu.Transition, "black frame returns into separate load dispatcher");
             menu.Step(0, 0);
             AssertEqual(destination, menu.ScreenMode, "separate load dispatch installs destination");

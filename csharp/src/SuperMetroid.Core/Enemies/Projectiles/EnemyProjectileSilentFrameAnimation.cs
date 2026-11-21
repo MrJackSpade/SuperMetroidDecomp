@@ -8,8 +8,8 @@ internal abstract class EnemyProjectileSilentFrameAnimation<TSegment> : EnemyPro
     where TSegment : struct
 {
     /// <summary>Starts <paramref name="animation"/> before its first play.</summary>
-    private protected EnemyProjectileSilentFrameAnimation(Animation<TSegment> animation)
-        : base(animation)
+    private protected EnemyProjectileSilentFrameAnimation(TSegment startsAt, Animation<TSegment> animation)
+        : base(startsAt, animation)
     {
     }
 

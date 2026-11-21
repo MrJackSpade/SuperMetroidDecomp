@@ -35,9 +35,6 @@ internal static class FuneNamiheFireballAnimations
         [P.Right] = Animation<FuneNamiheFireballSegment>.Looping([Segments.Whole(P.Right)]),
     };
 
-    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<FuneNamiheFireballSegment> StartingWith(FuneNamiheFireballSegment segment) => StartingAt[segment];
-
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Frame(frame, duration);
 }

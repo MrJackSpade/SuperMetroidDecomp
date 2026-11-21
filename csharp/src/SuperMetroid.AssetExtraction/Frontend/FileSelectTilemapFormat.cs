@@ -16,7 +16,7 @@ internal static class FileSelectTilemapFormat
 
     /// <summary>The stream labelling save slot <paramref name="slot"/>; the main and copy/clear screens draw the same three.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="slot"/> is not a save slot.</exception>
-    public static ushort SlotLabel(int slot) => (uint)slot < SuperMetroid.AssetExtraction.Frontend.FileSelect.FileSelectCursorPositions.SaveSlotCount
+    public static ushort SlotLabel(int slot) => (uint)slot < SuperMetroid.Core.Saves.SaveSlots.All.Count
         ? FileSelectTilemapSourceDefinitions.SlotLabels[slot]
         : throw new ArgumentOutOfRangeException(nameof(slot));
 }

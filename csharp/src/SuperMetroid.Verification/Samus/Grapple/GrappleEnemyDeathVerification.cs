@@ -32,8 +32,7 @@ internal static class GrappleEnemyDeathVerification
         SuperMetroid.TestSupport.RepositoryInstallation.Verification.SpawnedObjectFixtures.LoadSetDrawing(fixture.System, EnemyDefinitionId.Zeela);
         fixture.System.BossArtwork = InstalledFixtures.BossArtwork;
         SeedGrappleEnemyDeathRetailBanks(fixture.Bus);
-        ushort header = TestAddressSpace.FixtureHeaderPointer(EnemyPlaceFixtures.StandIn);
-        SeedEnemyDropChancePointer(fixture.Bus, header);
+        SeedStandInDropper(fixture.Bus);
         var enemy = fixture.System.Places.InUpdateOrder[0];
         enemy.Bind(EnemyPlaceFixtures.StandIn, enemy.KeptDefinition);
         enemy.Bind(enemy.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank with

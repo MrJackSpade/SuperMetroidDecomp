@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresFlightActorMetadataVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -19,7 +20,7 @@ internal static class CeresFlightActorDefinitionsVerification
 
 
         var guard = NewCeresFlightActorDefinitionReadGuard(retail);
-        var state = new IntroCeresFlightState(AudioQueues.Standalone(), InstalledFixtures.IntroArtwork.FlightCharacters.BoundCatalog, sheets: CinematicSheetFixtures.WithFlight(InstalledFixtures.IntroArtwork.FlightCharacters), japaneseText: false);
+        var state = new IntroCeresFlightState(AudioQueues.Standalone(), InstalledFixtures.IntroArtwork.FlightCharacters.BoundCatalog, sheets: CinematicSheetFixtures.WithFlight(InstalledFixtures.IntroArtwork.FlightCharacters), language: TextLanguage.English);
         for (int frame = 0; frame < 5000 && !state.Finished; frame++)
             state.StepFrame();
         AssertTrue(state.Finished, "Ceres approach completes through production actor paths");

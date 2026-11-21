@@ -233,7 +233,7 @@ internal static class SuperMetroidRuntimeAccess
                 Pose = SamusPoseId.FacingRightNormalPose,
                 AnimationFrame = SamusAnimationDelays.AnimationForPose(SamusPoseId.FacingRightNormalPose).Start,
                 Position = FixedPosition<RoomPixels>.FromWhole(position),
-                Ground = SamusGround.Of(self.Room.LoadedRoom.Definition),
+                Ground = self.Room.LoadedRoom.Definition.Ground,
             };
 
             SamusSuitShade.ShowPower(self.Player.Colours);

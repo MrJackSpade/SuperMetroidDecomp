@@ -8,7 +8,7 @@ internal static class NorfairLavaJumpDefinitions
     /// velocities in turn, from the highest jump to the lowest.
     /// </summary>
     internal static readonly WeightedRandomChoice<SignedEightEight> Launch = WeightedRandomChoice<SignedEightEight>.InTurn(
-        new RandomSampleField(9, 2),
+        EnemyRandomRolls.NorfairLavaJumpLaunch,
         -SignedEightEight.FromPixelFraction(2049, 256),
         -SignedEightEight.FromPixelFraction(897, 128),
         -SignedEightEight.FromPixelFraction(1601, 256),

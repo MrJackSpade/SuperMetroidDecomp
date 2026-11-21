@@ -43,57 +43,55 @@ public static class TitlePaletteFile
             colors[index] = color.ToRgbColor();
         }
         var animatedColors = new Dictionary<PaletteFxColorKey, RgbColor>();
-        foreach (TitleScreenAmbientPaletteFxColorDefinition definition in
-                 TitleScreenAmbientPaletteOwners.All)
-        {
-            PaletteRgb5[][]? frames = definition.Owner switch
-            {
-                TitleScreenAmbientPaletteFxProgramOwner.BabyMetroidTubeLight =>
-                    document.BabyMetroidTubeLight,
-                TitleScreenAmbientPaletteFxProgramOwner.FlickeringDisplays =>
-                    document.FlickeringDisplays,
-                _ => throw new InvalidDataException(
-                    $"Unsupported title ambient palette owner {definition.Owner}."),
-            };
-            if (frames is null || frames.Length != definition.FrameCount)
-            {
-                throw new InvalidDataException(
-                    $"Title palette {definition.Owner} requires exactly " +
-                    $"{definition.FrameCount} frames.");
-            }
-
-            for (int frame = 0; frame < frames.Length; frame++)
-            {
-                PaletteRgb5[]? frameColors = frames[frame];
-                if (frameColors is null || frameColors.Length != definition.ColorsPerFrame)
-                {
-                    throw new InvalidDataException(
-                        $"Title palette {definition.Owner} frame {frame} requires exactly " +
-                        $"{definition.ColorsPerFrame} colors.");
-                }
-
-                for (int index = 0; index < frameColors.Length; index++)
-                {
-                    PaletteRgb5? color = frameColors[index];
-                    if (color is null || (uint)color.Red > 31 || (uint)color.Green > 31 ||
-                        (uint)color.Blue > 31)
-                    {
-                        throw new InvalidDataException(
-                            $"Title palette {definition.Owner} frame {frame} color {index} " +
-                            "requires RGB components from 0 to 31.");
-                    }
-
-                    animatedColors.Add(
-                        definition.Color(frame, index),
-                        color.ToRgbColor());
-                }
-            }
-        }
+        ReadAnimated(TitleScreenAmbientPaletteFxColorDefinitions.TubeLight, document.BabyMetroidTubeLight, animatedColors);
+        ReadAnimated(TitleScreenAmbientPaletteFxColorDefinitions.Displays, document.FlickeringDisplays, animatedColors);
 
         ImmutableArray<RgbColor> screen = [.. colors];
         return new TitlePalettePresentation(screen, animatedColors,
             SkipColour(document.SkipCopyrightWhite, "skip copyright white"),
             SkipColour(document.SkipCopyrightTint, "skip copyright tint"));
+    }
+
+    /// <summary>
+    /// Validates the document's records of one looping ambient program, <paramref name="frames"/>, and adds each colour to
+    /// <paramref name="animatedColors"/> under its key in <paramref name="definition"/>.
+    /// </summary>
+    private static void ReadAnimated(TitleScreenAmbientPaletteFxColorDefinition definition, PaletteRgb5[][]? frames,
+        Dictionary<PaletteFxColorKey, RgbColor> animatedColors)
+    {
+        if (frames is null || frames.Length != definition.FrameCount)
+        {
+            throw new InvalidDataException(
+                $"Title palette {definition.Effect} requires exactly " +
+                $"{definition.FrameCount} frames.");
+        }
+
+        for (int frame = 0; frame < frames.Length; frame++)
+        {
+            PaletteRgb5[]? frameColors = frames[frame];
+            if (frameColors is null || frameColors.Length != definition.ColorsPerFrame)
+            {
+                throw new InvalidDataException(
+                    $"Title palette {definition.Effect} frame {frame} requires exactly " +
+                    $"{definition.ColorsPerFrame} colors.");
+            }
+
+            for (int index = 0; index < frameColors.Length; index++)
+            {
+                PaletteRgb5? color = frameColors[index];
+                if (color is null || (uint)color.Red > 31 || (uint)color.Green > 31 ||
+                    (uint)color.Blue > 31)
+                {
+                    throw new InvalidDataException(
+                        $"Title palette {definition.Effect} frame {frame} color {index} " +
+                        "requires RGB components from 0 to 31.");
+                }
+
+                animatedColors.Add(
+                    definition.Color(frame, index),
+                    color.ToRgbColor());
+            }
+        }
     }
 
     /// <summary>Validates one skip-only RGB5 colour and converts it to its RGB colour.</summary>

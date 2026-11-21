@@ -58,7 +58,7 @@ internal static class EnemySystemFixtures
             Area = area,
             BossArtwork = new BossArtworkBinding(InstalledFixtures.Maps.CeresRidleyGetawayBoostDelays, InstalledFixtures.Maps.EscapeTypewriter,
                 InstalledFixtures.Maps.MotherBrainRainbowBeamColours, InstalledFixtures.KraidEyes, InstalledFixtures.BossBodySheets),
-            BreakableTerrain = breakableTerrain ?? new EnemyBreakableTerrainObjects(new RoomObjectPlaceList(new RoomObjectPlaces())),
+            BreakableTerrain = breakableTerrain ?? new EnemyBreakableTerrainObjects(new RoomObjectPlaceList()),
             DoorPassage = doorPassage ?? new DoorPassage(),
             RoomFx = roomFx ?? global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.RoomFxOverlayState>([typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone() }),
             Earthquake = new RoomEarthquake(),

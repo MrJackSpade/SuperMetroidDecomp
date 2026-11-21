@@ -15,24 +15,12 @@ namespace SuperMetroid.Core.Fx.ColourEffects;
 /// </summary>
 internal static class ColourEffectAnimations
 {
-    /// <summary>
-    /// The frame of a heat pulse that shows each heat phase's look (#2421): a pulse's frames are the heat phases' looks, in
-    /// phase order.
-    /// </summary>
-    private static readonly FrozenDictionary<HeatPhase, int> HeatLooks =
-        HeatPhase.InOrder.Select((phase, look) => KeyValuePair.Create(phase, look)).ToFrozenDictionary();
-
-    /// <summary>
-    /// The updates the heat pulse shows each heat phase's look for, in phase order (<see cref="HeatPhase.InOrder"/>):
-    /// longest at the coolest and quickest between.
-    /// </summary>
-    private static readonly int[] HeatLookUpdates = [16, 4, 4, 5, 6, 7, 8, 8, 8, 8, 7, 6, 5, 4, 4, 16];
 
     /// <summary>The updates the Power Suit's heat pulse shows its last heat phase's look for, cut short from the pulse's.</summary>
     private const int PowerSuitLastHeatLookUpdates = 3;
 
     /// <summary>Each heat phase's look shown for its updates, in phase order: the heat pulse.</summary>
-    private static readonly AnimationBeat<int, ColourEffectCue>[] HeatPulseLooks = [.. HeatPhase.InOrder.Zip(HeatLookUpdates, Heat)];
+    private static readonly AnimationBeat<int, ColourEffectCue>[] HeatPulseLooks = [.. HeatPhase.InOrder.Select(phase => Heat(phase, phase.LookUpdates))];
 
     /// <summary>
     /// The runs of frames the effects play; each suit's heat pulse plays its own (#2054), and Samus in heat, which plays her
@@ -41,188 +29,30 @@ internal static class ColourEffectAnimations
     internal static AnimationSegments<ColourEffectSegment, int, ColourEffectCue> Segments { get; } = new(
         new Dictionary<ColourEffectSegment, AnimationBeat<int, ColourEffectCue>[]>
     {
-        [S.TextFade] =
-        [
-            F(0, 3),
-            F(1, 3),
-            F(2, 3),
-            F(3, 3),
-            F(4, 3),
-            F(5, 3),
-            F(6, 3),
-            F(7, 3),
-        ],
+        [S.TextFade] = Run(0, 8, 3),
         [S.Flicker] =
         [
             F(0, 1),
             F(1, 1),
         ],
-        [S.SlowGlow] =
-        [
-            F(0, 10),
-            F(1, 10),
-            F(2, 10),
-            F(3, 10),
-            F(4, 10),
-            F(5, 10),
-            F(6, 10),
-            F(7, 10),
-        ],
-        [S.SteadyBlink] =
-        [
-            F(0, 4),
-            F(1, 4),
-            F(2, 4),
-            F(3, 4),
-            F(4, 4),
-            F(5, 4),
-            F(6, 4),
-            F(7, 4),
-            F(8, 4),
-            F(9, 4),
-            F(10, 4),
-            F(11, 4),
-            F(12, 4),
-            F(13, 4),
-        ],
-        [S.OldMotherBrainBackgroundLights] =
-        [
-            F(0, 6),
-            F(1, 6),
-            F(2, 6),
-            F(3, 6),
-            F(4, 6),
-            F(5, 6),
-            F(6, 6),
-            F(7, 6),
-            F(8, 6),
-            F(9, 6),
-            F(10, 6),
-            F(11, 6),
-            F(12, 6),
-            F(13, 6),
-        ],
-        [S.GunshipGlow] =
-        [
-            F(0, 5),
-            F(1, 5),
-            F(2, 5),
-            F(3, 5),
-            F(4, 5),
-            F(5, 5),
-            F(6, 5),
-            F(7, 5),
-            F(8, 5),
-            F(9, 5),
-            F(10, 5),
-            F(11, 5),
-            F(12, 5),
-            F(13, 5),
-        ],
-        [S.ZoomedOutZebesFade] =
-        [
-            F(0, 8),
-            F(1, 8),
-            F(2, 8),
-            F(3, 8),
-            F(4, 8),
-            F(5, 8),
-            F(6, 8),
-        ],
+        [S.SlowGlow] = Run(0, 8, 10),
+        [S.SteadyBlink] = Run(0, 14, 4),
+        [S.OldMotherBrainBackgroundLights] = Run(0, 14, 6),
+        [S.GunshipGlow] = Run(0, 14, 5),
+        [S.ZoomedOutZebesFade] = Run(0, 7, 8),
         [S.WideZebesExplosionForeground] =
         [
-            F(0, 4),
-            F(1, 4),
-            F(2, 4),
+            .. Run(0, 3, 4),
             F(3, 60),
-            F(4, 6),
-            F(5, 6),
-            F(6, 6),
-            F(7, 6),
-            F(8, 6),
-            F(9, 6),
-            F(10, 6),
-            F(11, 6),
-            F(12, 6),
-            F(13, 6),
-            F(14, 6),
-            F(15, 6),
+            .. Run(4, 12, 6),
         ],
         [S.ZebesExplosionFinale] =
         [
-            F(0, 2),
-            F(1, 2),
-            F(2, 2),
-            F(3, 2),
-            F(4, 2),
-            F(5, 2),
-            F(6, 2),
-            F(7, 2),
-            F(8, 2),
-            F(9, 2),
-            F(10, 2),
-            F(11, 2),
-            F(12, 2),
-            F(13, 2),
-            F(14, 2),
-            F(15, 9),
-            F(16, 9),
-            F(17, 9),
-            F(18, 9),
-            F(19, 9),
-            F(20, 9),
-            F(21, 9),
-            F(22, 9),
-            F(23, 9),
-            F(24, 9),
-            F(25, 9),
-            F(26, 9),
-            F(27, 9),
-            F(28, 9),
-            F(29, 9),
-            F(30, 9),
-            F(31, 9),
-            F(32, 9),
-            F(33, 9),
-            F(34, 9),
-            F(35, 9),
-            F(36, 9),
-            F(37, 9),
-            F(38, 9),
-            F(39, 9),
-            F(40, 9),
-            F(41, 9),
-            F(42, 9),
-            F(43, 9),
-            F(44, 9),
+            .. Run(0, 15, 2),
+            .. Run(15, 30, 9),
         ],
-        [S.ZebesExplosionWhiteOut] =
-        [
-            F(0, 14),
-            F(1, 14),
-            F(2, 14),
-            F(3, 14),
-            F(4, 14),
-            F(5, 14),
-            F(6, 14),
-            F(7, 14),
-            F(8, 14),
-            F(9, 14),
-            F(10, 14),
-            F(11, 14),
-            F(12, 14),
-            F(13, 14),
-            F(14, 14),
-        ],
-        [S.ZebesAfterglow] =
-        [
-            F(0, 16),
-            F(1, 16),
-            F(2, 16),
-            F(3, 16),
-            F(4, 16),
-            F(5, 16),
-        ],
+        [S.ZebesExplosionWhiteOut] = Run(0, 15, 14),
+        [S.ZebesAfterglow] = Run(0, 6, 16),
         [S.ExplodingZebesLava] =
         [
             F(0, 9),
@@ -236,60 +66,10 @@ internal static class ColourEffectAnimations
             F(8, 8),
             F(9, 9),
         ],
-        [S.ExplodingZebesCrustFade] =
-        [
-            F(0, 20),
-            F(1, 20),
-            F(2, 20),
-            F(3, 20),
-            F(4, 20),
-            F(5, 20),
-            F(6, 20),
-            F(7, 20),
-        ],
-        [S.ExplodingZebesGreyCloudsFade] =
-        [
-            F(0, 14),
-            F(1, 14),
-            F(2, 14),
-            F(3, 14),
-            F(4, 14),
-            F(5, 14),
-            F(6, 14),
-            F(7, 14),
-        ],
-        [S.GunshipEmerging] =
-        [
-            F(0, 24),
-            F(1, 24),
-            F(2, 24),
-            F(3, 24),
-            F(4, 24),
-            F(5, 24),
-            F(6, 24),
-            F(7, 24),
-            F(8, 24),
-            F(9, 24),
-            F(10, 24),
-            F(11, 24),
-            F(12, 24),
-            F(13, 24),
-            F(14, 24),
-            F(15, 24),
-        ],
-        [S.HyperBeam] =
-        [
-            F(0, 2),
-            F(1, 2),
-            F(2, 2),
-            F(3, 2),
-            F(4, 2),
-            F(5, 2),
-            F(6, 2),
-            F(7, 2),
-            F(8, 2),
-            F(9, 2),
-        ],
+        [S.ExplodingZebesCrustFade] = Run(0, 8, 20),
+        [S.ExplodingZebesGreyCloudsFade] = Run(0, 8, 14),
+        [S.GunshipEmerging] = Run(0, 16, 24),
+        [S.HyperBeam] = Run(0, 10, 2),
         [S.SuitLoadingOpeningFlicker] =
         [
             F(0, 3),
@@ -314,34 +94,8 @@ internal static class ColourEffectAnimations
         [
             F(8, 1),
         ],
-        [S.PostCreditsIcon] =
-        [
-            F(0, 1),
-            F(1, 1),
-            F(2, 1),
-            F(3, 1),
-            F(4, 1),
-            F(5, 1),
-            F(6, 1),
-            F(7, 1),
-            F(8, 1),
-            F(9, 1),
-            F(10, 1),
-            F(11, 1),
-            F(12, 1),
-            F(13, 1),
-        ],
-        [S.StatueGreyOut] =
-        [
-            F(0, 8),
-            F(1, 8),
-            F(2, 8),
-            F(3, 8),
-            F(4, 8),
-            F(5, 8),
-            F(6, 8),
-            F(7, 8),
-        ],
+        [S.PostCreditsIcon] = Run(0, 14, 1),
+        [S.StatueGreyOut] = Run(0, 8, 8),
         [S.TorizoBelly] =
         [
             F(0, 10),
@@ -360,11 +114,7 @@ internal static class ColourEffectAnimations
         [S.LandingSiteDoubleStrike] =
         [
             F(1, 2),
-            F(2, 1),
-            F(3, 1),
-            F(4, 1),
-            F(5, 1),
-            F(6, 1),
+            .. Run(2, 5, 1),
             F(7, 2),
         ],
         [S.LandingSiteSecondCalm] =
@@ -373,110 +123,22 @@ internal static class ColourEffectAnimations
         ],
         [S.LandingSiteSingleStrike] =
         [
-            F(9, 1),
-            F(10, 1),
-            F(11, 1),
+            .. Run(9, 3, 1),
             F(12, 2),
         ],
-        [S.SporeDrift] =
-        [
-            F(0, 10),
-            F(1, 10),
-            F(2, 10),
-            F(3, 10),
-            F(4, 10),
-            F(5, 10),
-            F(6, 10),
-            F(7, 10),
-            F(8, 10),
-            F(9, 10),
-            F(10, 10),
-            F(11, 10),
-            F(12, 10),
-            F(13, 10),
-        ],
+        [S.SporeDrift] = Run(0, 14, 10),
         [S.BeaconFlashing] =
         [
-            F(0, 10),
-            F(1, 10),
-            F(2, 10),
-            F(3, 10),
-            F(4, 10),
-            F(5, 10),
+            .. Run(0, 6, 10),
             E(new ColourEffectCue.QueueSound(Sound: EnemySound.Beacon)),
-            F(6, 10),
-            F(7, 10),
-            F(8, 10),
-            F(9, 10),
+            .. Run(6, 4, 10),
         ],
-        [S.NorfairHeatPhases] = [.. HeatPhase.InOrder.Zip(HeatLookUpdates, (phase, updates) => new[] { E(new ColourEffectCue.PublishHeatPhase(phase)), Heat(phase, updates) })
-            .SelectMany(look => look)],
-        [S.MaridiaSand] =
-        [
-            F(0, 10),
-            F(1, 10),
-            F(2, 10),
-            F(3, 10),
-        ],
-        [S.MaridiaBackgroundWaterfalls] =
-        [
-            F(0, 2),
-            F(1, 2),
-            F(2, 2),
-            F(3, 2),
-            F(4, 2),
-            F(5, 2),
-            F(6, 2),
-            F(7, 2),
-        ],
-        [S.TourianArkanoidBlocksGlow] =
-        [
-            F(0, 10),
-            F(1, 10),
-            F(2, 10),
-            F(3, 10),
-            F(4, 10),
-            F(5, 10),
-            F(6, 10),
-            F(7, 10),
-            F(8, 10),
-            F(9, 10),
-            F(10, 10),
-        ],
-        [S.TourianEscapeRedFlashing] =
-        [
-            F(0, 2),
-            F(1, 2),
-            F(2, 2),
-            F(3, 2),
-            F(4, 2),
-            F(5, 2),
-            F(6, 2),
-            F(7, 2),
-            F(8, 2),
-            F(9, 2),
-            F(10, 2),
-            F(11, 2),
-            F(12, 2),
-            F(13, 2),
-        ],
-        [S.OldTourianRedFlashing] =
-        [
-            F(0, 3),
-            F(1, 3),
-            F(2, 3),
-            F(3, 3),
-            F(4, 3),
-            F(5, 3),
-            F(6, 3),
-            F(7, 3),
-            F(8, 3),
-            F(9, 3),
-            F(10, 3),
-            F(11, 3),
-            F(12, 3),
-            F(13, 3),
-        ],
+        [S.NorfairHeatPhases] = [.. HeatPhase.InOrder.SelectMany(phase => new[] { E(new ColourEffectCue.PublishHeatPhase(phase)), Heat(phase, phase.LookUpdates) })],
+        [S.MaridiaSand] = Run(0, 4, 10),
+        [S.MaridiaBackgroundWaterfalls] = Run(0, 8, 2),
+        [S.TourianArkanoidBlocksGlow] = Run(0, 11, 10),
+        [S.TourianEscapeRedFlashing] = Run(0, 14, 2),
+        [S.OldTourianRedFlashing] = Run(0, 14, 3),
         [S.OldTourianYellowFlash] =
         [
             F(0, 16),
@@ -485,15 +147,10 @@ internal static class ColourEffectAnimations
             F(3, 2),
             F(4, 1),
             F(5, 2),
-            F(6, 1),
-            F(7, 1),
-            F(8, 1),
-            F(9, 1),
+            .. Run(6, 4, 1),
             F(10, 32),
             F(11, 2),
-            F(12, 1),
-            F(13, 1),
-            F(14, 1),
+            .. Run(12, 3, 1),
         ],
         [S.UpperCrateriaRedFlashing] =
         [
@@ -515,16 +172,11 @@ internal static class ColourEffectAnimations
         [S.EscapeLightning] =
         [
             F(0, 49),
-            F(1, 1),
-            F(2, 1),
-            F(3, 1),
-            F(4, 1),
+            .. Run(1, 4, 1),
             F(5, 17),
             F(6, 1),
             F(7, 24),
-            F(8, 1),
-            F(9, 1),
-            F(10, 1),
+            .. Run(8, 3, 1),
         ],
     });
 
@@ -641,14 +293,15 @@ internal static class ColourEffectAnimations
     /// <summary>How <paramref name="effect"/> starts, the colours it shows its frames in, what it watches and how it plays.</summary>
     internal static ColourEffectDefinition Definition(ColourEffectId effect) => Definitions[effect];
 
-    /// <summary>
-    /// The frame of a heat pulse that shows <paramref name="phase"/>'s look (<see cref="HeatLooks"/>).
-    /// </summary>
-    /// <exception cref="KeyNotFoundException">The pulse has no such phase.</exception>
-    internal static int HeatLook(HeatPhase phase) => HeatLooks[phase];
+    /// <summary>The frame of a heat pulse that shows <paramref name="phase"/>'s look.</summary>
+    internal static int HeatLook(HeatPhase phase) => phase.Look;
 
     /// <summary>Shows frame <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<int, ColourEffectCue> F(int frame, int duration) => new AnimationBeat<int, ColourEffectCue>.Frame(frame, duration);
+
+    /// <summary>The <paramref name="count"/> frames from <paramref name="first"/> on, in turn, each shown for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<int, ColourEffectCue>[] Run(int first, int count, int duration) =>
+        AnimationBeats<int, ColourEffectCue>.Steady(duration, [.. Enumerable.Range(first, count)]);
 
     /// <summary>Shows <paramref name="phase"/>'s look of a heat pulse for <paramref name="updates"/> updates.</summary>
     private static AnimationBeat<int, ColourEffectCue> Heat(HeatPhase phase, int updates) => F(HeatLook(phase), updates);

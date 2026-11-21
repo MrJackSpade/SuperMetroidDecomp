@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+using static SuperMetroid.Core.DefinitionRun;
 namespace SuperMetroid.Core.Enemies.MamaTurtles;
 
 /// <summary>
@@ -10,10 +12,9 @@ internal static class MamaTurtleShellContourDefinitions
     internal const int HalfWidth = 24;
 
     /// <summary>The shell's surface above an actor at or left of her origin, by the actor's distance from it, 0 through 23 pixels.</summary>
-    internal static ReadOnlySpan<int> LeftOfOrigin =>
+    internal static ImmutableArray<int> LeftOfOrigin { get; } =
     [
-        -16, -16, -16, -16, -15, -15, -15, -15,
-        -15, -14, -13, -13, -12, -11, -10, -9,
+        .. Repeated(-16, 4), .. Repeated(-15, 5), -14, -13, -13, -12, -11, -10, -9,
         -8, -7, -6, -5, -4, -4, 0, 0,
     ];
 
@@ -21,10 +22,10 @@ internal static class MamaTurtleShellContourDefinitions
     /// The shell's surface above an actor right of her origin, by the actor's distance from it, 1 through 23 pixels; an
     /// actor at her origin takes <see cref="LeftOfOrigin"/>.
     /// </summary>
-    internal static ReadOnlySpan<int> RightOfOrigin =>
+    internal static ImmutableArray<int> RightOfOrigin { get; } =
     [
-             -16, -16, -15, -15, -15, -14, -13,
+             -16, -16, .. Repeated(-15, 3), -14, -13,
         -12, -11, -10, -9, -8, -7, -6, -5,
-        -4, -3, -3, -2, 0, 0, 0, 0,
+        -4, -3, -3, -2, .. Repeated(0, 4),
     ];
 }

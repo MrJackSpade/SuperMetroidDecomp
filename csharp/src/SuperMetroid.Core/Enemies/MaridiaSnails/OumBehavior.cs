@@ -497,7 +497,7 @@ internal sealed class OumBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawn
             int bottom = enemy.Position.Y.Whole + hitbox.Bottom;
             if (!probe.Overlaps(left, top, right, bottom))
                 continue;
-            return EnemyHitboxContact.Struck(probe.SelectsShot ? hitbox.Shot : hitbox.Touch);
+            return EnemyHitboxContact.Struck(probe.Contact == HitboxContactKind.Shot ? hitbox.Shot : hitbox.Touch);
         }
         return EnemyHitboxContact.Missed;
     }

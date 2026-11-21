@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Enemies;
+using static SuperMetroid.Core.DefinitionRun;
 
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
@@ -7,10 +8,14 @@ internal static class SporeSpawnProjectileDefinitions
 {
     /// <summary>
     /// His stalk's four segments in the order he spawns them, each relative to his body: on his centre line, from 64 pixels
-    /// above him downward eight pixels apart.
+    /// above him downward eight pixels apart; the last he spawns hangs at the ceiling, the one before it a quarter of the way
+    /// down the stalk, then half and three quarters of the way.
     /// </summary>
-    internal static IReadOnlyList<Offset16<RoomPixels>> StalkSegments { get; } =
-        [new(0, -64), new(0, -56), new(0, -48), new(0, -40)];
+    internal static IReadOnlyList<SporeSpawnStalkLinkDefinition> StalkSegments { get; } =
+    [
+        new(new(0, -64), SporeSpawnStalkPlace.ThreeQuarters), new(new(0, -56), SporeSpawnStalkPlace.Half),
+        new(new(0, -48), SporeSpawnStalkPlace.Quarter), new(new(0, -40), SporeSpawnStalkPlace.Ceiling),
+    ];
 
     /// <summary>
     /// The four ceiling spore emitters in the order he opens them, centred in successive 64-pixel columns of his room: the
@@ -36,17 +41,13 @@ internal static class SporeSpawnProjectileDefinitions
         new(0, 2), new(1, 0), new(1, 0), new(0, 2), new(1, 0), new(0, 2), new(1, 0), new(0, 2),
         new(1, 0), new(0, 2), new(1, 0), new(1, 0), new(0, 2), new(1, 0), new(0, 2), new(1, 0),
         new(1, 0), new(0, 2), new(1, 0), new(0, 2), new(1, 0), new(1, 0), new(0, 2), new(1, 0),
-        new(1, 0), new(0, 2), new(1, 0), new(1, 0), new(0, 2), new(1, 0), new(1, 0), new(1, 0),
-        new(0, 2), new(1, 0), new(1, 0), new(1, 0), new(0, 2), new(1, 0), new(1, 0), new(1, 0),
-        new(1, 0), new(1, 0), new(1, 0), new(1, 0), new(1, 0), new(1, 0), new(1, 0), new(1, 0),
-        new(1, 0), new(0, -2), new(1, 0), new(1, 0), new(1, 0), new(1, 0), new(1, 0), new(1, 0),
-        new(0, -2), new(1, 0), new(1, 0), new(0, 0), new(-1, 2), new(-1, 2), new(-1, 2), new(-1, 0),
+        new(1, 0), new(0, 2), new(1, 0), new(1, 0), new(0, 2), .. Repeated<Offset16<RoomPixels>>(new(1, 0), 3),
+        new(0, 2), .. Repeated<Offset16<RoomPixels>>(new(1, 0), 3), new(0, 2), .. Repeated<Offset16<RoomPixels>>(new(1, 0), 12), new(0, -2), .. Repeated<Offset16<RoomPixels>>(new(1, 0), 6),
+        new(0, -2), new(1, 0), new(1, 0), new(0, 0), .. Repeated<Offset16<RoomPixels>>(new(-1, 2), 3), new(-1, 0),
         new(0, 2), new(-1, 2), new(-1, 2), new(-1, 0), new(0, 2), new(-1, 2), new(-1, 0), new(0, 2),
         new(-1, 0), new(0, 2), new(-1, 0), new(0, 2), new(-1, 0), new(-1, 2), new(-1, 2), new(-1, 0),
         new(0, 2), new(-1, 0), new(-1, 2), new(-1, 0), new(0, 2), new(-1, 0), new(-1, 2), new(-1, 0),
-        new(-1, 0), new(0, 2), new(-1, 0), new(-1, 0), new(0, 2), new(-1, 0), new(-1, 0), new(-1, 0),
-        new(-1, 2), new(-1, 0), new(-1, 0), new(-1, 0), new(-1, 0), new(-1, 0), new(-1, 0), new(-1, 0),
-        new(-1, 0), new(-1, 0), new(0, -2), new(-1, 0), new(-1, 0), new(-1, 0), new(-1, -2), new(-1, 0),
-        new(-1, 0), new(-1, 0), new(0, -2), new(-1, 0), new(-1, 0), new(-1, -2), new(-1, 0), new(0, 0),
+        new(-1, 0), new(0, 2), new(-1, 0), new(-1, 0), new(0, 2), .. Repeated<Offset16<RoomPixels>>(new(-1, 0), 3),
+        new(-1, 2), .. Repeated<Offset16<RoomPixels>>(new(-1, 0), 9), new(0, -2), .. Repeated<Offset16<RoomPixels>>(new(-1, 0), 3), new(-1, -2), .. Repeated<Offset16<RoomPixels>>(new(-1, 0), 3), new(0, -2), new(-1, 0), new(-1, 0), new(-1, -2), new(-1, 0), new(0, 0),
     ];
 }

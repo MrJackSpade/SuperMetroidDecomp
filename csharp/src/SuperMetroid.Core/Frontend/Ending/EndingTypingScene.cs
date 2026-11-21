@@ -10,8 +10,14 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// </summary>
 /// <param name="logo">The logo's actor.</param>
 /// <param name="typing">The text that types now.</param>
-internal sealed class EndingTypingScene(EndingLogo logo, EndingTypewriter typing) : EndingScene
+/// <param name="phase">The phase the scene runs: the item percentage's typing, or the final message's.</param>
+internal sealed class EndingTypingScene(EndingLogo logo, EndingTypewriter typing, EndingCreditsPhase phase) : EndingScene
 {
+    /// <inheritdoc/>
+    internal override EndingCreditsPhase Phase { get; } =
+        phase == EndingCreditsPhase.ItemPercentage || phase == EndingCreditsPhase.SeeYouNextMission ? phase
+            : throw new ArgumentException($"A post-credits text runs no {phase} phase.", nameof(phase));
+
     /// <summary>The logo's actor.</summary>
     internal EndingLogo Logo { get; } = Ensure.NotNull(logo);
 

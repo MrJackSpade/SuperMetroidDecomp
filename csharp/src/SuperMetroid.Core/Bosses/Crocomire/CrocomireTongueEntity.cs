@@ -36,8 +36,8 @@ internal sealed class CrocomireTongueEntity(CrocomireBehavior species, RoomEnemy
     }
 
     /// <summary>The tongue's ordinary touch leads to Crocomire's component contact.</summary>
-    protected override bool OwnsTouch => Occupant.Definition.Touch == EnemyReaction.OrdinaryTouch;
+    protected override bool OwnsTouch => Occupant.Definition.Touch.IsOrdinary;
 
     /// <summary>The tongue's ordinary shot leads to his hitboxes' reactions.</summary>
-    protected override bool OwnsShot => Occupant.Definition.Shot == EnemyReaction.OrdinaryShot;
+    protected override bool OwnsShot => Occupant.Definition.Shot.IsOrdinary;
 }

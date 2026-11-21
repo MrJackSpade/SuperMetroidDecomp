@@ -10,18 +10,6 @@ internal static class IntroEggEffectDefinitions
         IntroEggShellFragment.Centre, IntroEggShellFragment.Right, IntroEggShellFragment.Lower,
     ];
 
-    /// <summary>The animation each piece of the shell shows.</summary>
-    internal static IReadOnlyDictionary<IntroEggShellFragment, IntroEggEffectAnimation> ShellFragmentAnimations { get; } =
-        new Dictionary<IntroEggShellFragment, IntroEggEffectAnimation>
-        {
-            [IntroEggShellFragment.UpperLeft] = IntroEggEffectAnimation.ShellUpperLeft,
-            [IntroEggShellFragment.UpperRight] = IntroEggEffectAnimation.ShellUpperRight,
-            [IntroEggShellFragment.Left] = IntroEggEffectAnimation.ShellLeft,
-            [IntroEggShellFragment.Centre] = IntroEggEffectAnimation.ShellCentre,
-            [IntroEggShellFragment.Right] = IntroEggEffectAnimation.ShellRight,
-            [IntroEggShellFragment.Lower] = IntroEggEffectAnimation.ShellLower,
-        };
-
     /// <summary>The screen height a falling slime drop lands at, where its puddle plays in place.</summary>
     public const int SlimeDropLandingY = 168;
 

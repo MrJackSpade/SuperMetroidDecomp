@@ -34,12 +34,9 @@ internal sealed class CeresDoorFactory(CeresDoorBehavior doors) : IEnemyEntityFa
     /// <summary>An ordinary door, facing where its placement says.</summary>
     /// <exception cref="InvalidDataException">The placement names no facing.</exception>
     private EnemyOccupant CreateDoor(RoomEnemyOccupant occupant, CeresDoorSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
-        EnemyOccupant.Running(new CeresDoorEntity(_doors, occupant, place, common, settings.Facing switch
-        {
-            HorizontalDirection.Right => CeresDoorSegment.DoorFacingRight,
-            HorizontalDirection.Left => CeresDoorSegment.DoorFacingLeft,
-            var other => throw new InvalidDataException($"No Ceres door faces {other}."),
-        }));
+        settings.Facing is HorizontalDirection.Right or HorizontalDirection.Left
+            ? EnemyOccupant.Running(new CeresDoorEntity(_doors, occupant, place, common, settings.Facing))
+            : throw new InvalidDataException($"No Ceres door faces {settings.Facing}.");
 
     /// <summary>A wall of Ridley's getaway chamber, standing on the side its placement says.</summary>
     /// <param name="occupant">The occupant the entity is created for.</param>

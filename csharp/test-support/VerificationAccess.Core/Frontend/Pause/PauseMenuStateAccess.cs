@@ -21,12 +21,12 @@ internal static class PauseMenuStateAccess
     {
         /// <summary>
         /// Runs one pause update as a check drives the menu alone: the map's arrows read <paramref name="heldInput"/>, or
-        /// the delayed-held buttons when none are given, the colour animation's phase is <paramref name="frameCycle"/>, and
+        /// the delayed-held buttons when none are given, the short frame count is <paramref name="frameCount"/>, and
         /// no bombs are frozen under the pause beyond an empty set of bomb slots.
         /// </summary>
         internal bool Step(ControllerButton delayedHeldInput, ControllerButton newlyPressedInput, ControllerButton? heldInput = null,
-            int frameCycle = 0) =>
-            self.Step(delayedHeldInput, newlyPressedInput, heldInput ?? delayedHeldInput, frameCycle, NoFrozenBombs());
+            int frameCount = 0) =>
+            self.Step(delayedHeldInput, newlyPressedInput, heldInput ?? delayedHeldInput, new Compatibility.ShortFrameCount(frameCount), NoFrozenBombs());
 
         /// <summary>
         /// Moves the map page's scroll to <paramref name="scroll"/> under the framing and limits the menu set up, as a check

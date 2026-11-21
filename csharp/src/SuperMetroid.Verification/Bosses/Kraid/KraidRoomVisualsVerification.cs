@@ -29,7 +29,7 @@ internal static class KraidRoomVisualsVerification
             GameInstallation installation = copy.Installation;
             RoomObjectKraidVisualFilesConstants.ValidateStock(
                 installation.RoomObjectKraidVisualDirectory);
-            InstalledRoomObjectKraidVisuals stock =
+            InstalledRoomObjectPictures stock =
                 installation.LoadRoomObjectKraidVisuals();
             LookupEscapeGateStockFrame[] frames = [
                 new LookupEscapeGateStockFrame(0x9367, "crumble-rock"), new LookupEscapeGateStockFrame(0x936d, "crumble-pieces"),

@@ -67,7 +67,7 @@ internal sealed class DraygonDeath
         state.EyePart.StartAnimation(state.Facing == HorizontalDirection.Right
                 ? DraygonSegment.EyeFacingRightDead
                 : DraygonSegment.EyeFacingLeftDead);
-        state.EyeTracking.Action = DraygonEyeAction.Inert;
+        state.EyeTracking.TrackingFacing = null;
     }
 
     /// <summary>

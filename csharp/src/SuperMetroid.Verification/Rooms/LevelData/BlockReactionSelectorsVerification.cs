@@ -132,7 +132,7 @@ internal static class BlockReactionSelectorsVerification
     /// <summary>Checks projectile-triggered bomb reaction instruction selection through native headers.</summary>
     internal static void VerifyReactionBombInstructionSelection(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifyNativeBlockInstructionSelection), () => VerifyNativeBlockInstructionSelection(rom, 0x94a012, 8,
-            index => RoomObjectNativeListAddresses.BlockReactionEntry(BlockReactionChanges.ReactionBomb(RoomBlockBehaviorCodec.Decode(index).Bombable)), "bomb reaction"));
+            index => RoomObjectNativeListAddresses.BlockReactionEntry(BlockReactionChangesConstants.ReactionBomb(RoomBlockBehaviorCodec.Decode(index).Bombable)), "bomb reaction"));
 
     /// <summary>Checks crumble-reveal instruction selection for the eight crumble blocks, revealed by their four native sizes.</summary>
     internal static void VerifyCrumbleRevealInstructionSelection(CartridgeImportAddressSpace rom) =>

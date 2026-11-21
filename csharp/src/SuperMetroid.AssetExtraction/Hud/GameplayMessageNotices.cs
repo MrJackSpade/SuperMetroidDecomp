@@ -10,21 +10,15 @@ public static class GameplayMessageNotices
 {
     /// <summary>Determines whether a message is one of the two editable save prompts requiring independent YES/NO selection rows.</summary>
     /// <param name="messageId">Gameplay message identity to classify; other messages return false without being validated as editable notices.</param>
-    /// <returns>True for a message that asks whether to save (<see cref="GameplayMessageBoxDefinitions.Confirmations"/>); false otherwise.</returns>
+    /// <returns>True for a message that asks whether to save (<see cref="GameplayMessageDefinition.Confirmation"/>); false otherwise.</returns>
     public static bool IsSaveConfirmation(GameplayMessageId messageId) =>
-        Ensure.Listed(GameplayMessageBoxDefinitions.Confirmations, messageId) != GameplayMessageConfirmation.None;
+        GameplayMessageBoxDefinitions.Message(messageId).Confirmation != GameplayMessageConfirmation.None;
 
     /// <summary>Gets the fixed native content height of an editable notice, excluding the top and bottom border rows; rejects unsupported message identities.</summary>
     /// <param name="messageId">One of the five identities in <see cref="GameplayMessageNoticeDefinitions.MessageIds"/>.</param>
     /// <returns>Four 32-cell rows for a save confirmation or three for a station-completion notice.</returns>
-    public static int ContentRows(GameplayMessageId messageId) =>
-        IsSaveConfirmation(messageId) ? 4 : messageId is
-            GameplayMessageId.MapDataAccessCompleted or
-            GameplayMessageId.EnergyRechargeCompleted or
-            GameplayMessageId.MissileRechargeCompleted
-                ? 3
-                : throw new ArgumentOutOfRangeException(nameof(messageId), messageId,
-                    "Message is not an editable completion/save notice.");
+    /// <exception cref="ArgumentOutOfRangeException">The message is not an editable completion or save notice.</exception>
+    public static int ContentRows(GameplayMessageId messageId) => Ensure.Listed(GameplayMessageNoticeDefinitions.ContentRows, messageId);
 
     /// <summary>
     /// Derives stock notice rectangles from the imported tilemap's visible glyph runs.

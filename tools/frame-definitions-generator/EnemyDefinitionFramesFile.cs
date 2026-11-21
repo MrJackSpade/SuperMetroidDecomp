@@ -24,6 +24,7 @@ internal static class EnemyDefinitionFramesFile
         ]);
         var arrayOf = new Dictionary<string, string>(StringComparer.Ordinal);
         var names = new HashSet<string>(StringComparer.Ordinal);
+        var written = new Dictionary<string, string>(StringComparer.Ordinal);
         int frameCount = 0;
         foreach (BehaviourSpawns spawns in analysis.Behaviours)
         {
@@ -43,9 +44,15 @@ internal static class EnemyDefinitionFramesFile
                 lines.Add(groups.Count == 1
                     ? $"    /// <summary>The frames <c>{behaviour.Path}</c> shows.</summary>"
                     : $"    /// <summary>The frames <c>{behaviour.Path}</c> shows for {string.Join(", ", group.Select(d => $"<c>{d}</c>"))}.</summary>");
+                string members = string.Join(',', frames);
                 if (frames.Count == 0)
                 {
                     lines.Add($"    private static readonly EnemyFrameId[] {name} = [];");
+                }
+                else if (frames.Count > 1 && written.TryGetValue(members, out string? first))
+                {
+                    // #2557: another behaviour's array holds the same frames, so this one names it rather than listing them again.
+                    lines.Add($"    private static readonly EnemyFrameId[] {name} = {first};");
                 }
                 else
                 {
@@ -53,6 +60,7 @@ internal static class EnemyDefinitionFramesFile
                     lines.Add("    [");
                     lines.AddRange(frames.Select(frame => $"        EnemyFrameId.{frame},"));
                     lines.Add("    ];");
+                    written[members] = name;
                 }
                 lines.Add("");
                 foreach (string definition in group)

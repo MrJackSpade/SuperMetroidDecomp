@@ -97,13 +97,11 @@ internal static class BossBodySourceDefinitions
 
     /// <summary>
     /// The frames whose cartridge drawing leaves a gap for another part, pictured whole with that part's frame written over
-    /// them (#1513): Phantoon's bodies clear their eye socket, which his eye fills whenever his body shows, so each is
+    /// them (#1513): Phantoon's body clears its eye socket, which his eye fills whenever his body shows, so it is
     /// pictured with his closed eye in it. The eye's own frames still show over it as his eye opens and looks about.
     /// </summary>
     internal static IReadOnlyDictionary<EnemyFrameId, EnemyFrameId> FramesPicturedWith { get; } = new Dictionary<EnemyFrameId, EnemyFrameId>
     {
-        [EnemyFrameId.PhantoonInvulnerableBody] = EnemyFrameId.PhantoonEyeClosed,
-        [EnemyFrameId.PhantoonFullHitboxBody] = EnemyFrameId.PhantoonEyeClosed,
-        [EnemyFrameId.PhantoonEyeHitboxBody] = EnemyFrameId.PhantoonEyeClosed,
+        [EnemyFrameId.PhantoonBody] = EnemyFrameId.PhantoonEyeClosed,
     };
 }

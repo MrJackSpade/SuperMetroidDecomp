@@ -440,7 +440,7 @@ internal sealed class MotherBrainProjectiles
 
             // The condition itself consumes one random value every live shard frame; a successful
             // sparkle consumes two more below.
-            if (MotherBrainGlassShardDefinitions.ShardSparkles.IsTakenBy(dependencies.Room.Random.Generate()))
+            if (MotherBrainRandomRolls.ShardSparkles.IsTakenBy(dependencies.Room.Random.Generate()))
                 SpawnMotherBrainGlassSparkle(shard);
         }
 
@@ -718,10 +718,14 @@ internal sealed class MotherBrainProjectiles
         Extent16<RoomPixels> firstRadius,
         Position16<RoomPixels> second,
         Extent16<RoomPixels> secondRadius) =>
-        Math.Abs(first.X - second.X) <
-            firstRadius.X + secondRadius.X &&
-        Math.Abs(first.Y - second.Y) <
-            firstRadius.Y + secondRadius.Y;
+        StrictlyOverlap(first - second, firstRadius, secondRadius);
+
+    /// <summary>
+    /// Whether two hit areas strictly overlap: their centres lie <paramref name="apart"/>, closer on each axis than the sum
+    /// of their radii, <paramref name="firstRadius"/> and <paramref name="secondRadius"/>.
+    /// </summary>
+    private static bool StrictlyOverlap(Offset16<RoomPixels> apart, Extent16<RoomPixels> firstRadius, Extent16<RoomPixels> secondRadius) =>
+        Math.Abs(apart.X) < firstRadius.X + secondRadius.X && Math.Abs(apart.Y) < firstRadius.Y + secondRadius.Y;
 
     /// <summary>Keeps the escape subtitle projectile fixed to its screen position.</summary>
     internal static void PinMotherBrainEscapeSubtitle(EnemyProjectile subtitle)
@@ -809,19 +813,15 @@ internal sealed class MotherBrainProjectiles
     private static bool MotherBrainOnionRingOverlapsSamus(
         EnemyProjectile ring,
         SamusState samus) =>
-        Math.Abs(SignedPlace(ring).X - samus.Position.X.Whole) <
-            ring.Radius.X + samus.Kinematics.Radius.X &&
-        Math.Abs(SignedPlace(ring).Y - samus.Position.Y.Whole) <
-            ring.Radius.Y + samus.Kinematics.Radius.Y;
+        StrictlyOverlap(new(SignedPlace(ring).X - samus.Position.X.Whole, SignedPlace(ring).Y - samus.Position.Y.Whole),
+            ring.Radius, samus.Kinematics.Radius);
 
     /// <summary>Checks ring contact against the Baby Metroid's current hitbox.</summary>
     private static bool MotherBrainOnionRingOverlapsBaby(
         EnemyProjectile ring,
         BabyMetroidCutsceneState baby) =>
-        Math.Abs(SignedPlace(ring).X - baby.SignedPlace.X) <
-            ring.Radius.X + BabyMetroidCutsceneState.XHitboxRadius &&
-        Math.Abs(SignedPlace(ring).Y - baby.SignedPlace.Y) <
-            ring.Radius.Y + BabyMetroidCutsceneState.YHitboxRadius;
+        StrictlyOverlap(SignedPlace(ring) - baby.SignedPlace,
+            ring.Radius, new(BabyMetroidCutsceneState.XHitboxRadius, BabyMetroidCutsceneState.YHitboxRadius));
 
     /// <summary>
     /// Where a ring or turret lies from the room's origin: one that has flown or sits above or left of the room lies at a

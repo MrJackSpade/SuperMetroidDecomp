@@ -4,5 +4,6 @@ namespace SuperMetroid.Core.Enemies.Boulder;
 /// <param name="TriggerHeight">The vertical distance, in pixels, Samus must be strictly within.</param>
 /// <param name="TriggerReach">The horizontal distance, in pixels, ahead of it Samus must be within.</param>
 /// <param name="Start">Whether it falls from a drop or rolls at once.</param>
-/// <param name="Roll">How it rolls.</param>
-internal sealed record BoulderSpawnSettings(int TriggerHeight, int TriggerReach, BoulderStart Start, BoulderRoll Roll) : EnemySpawnSettings;
+/// <param name="Roll">The way the Boulder rolls once it lands (#2560).</param>
+/// <param name="FirstImpact">What the Boulder does at its first impact: breaks, or bounces on (#2560).</param>
+internal sealed record BoulderSpawnSettings(int TriggerHeight, int TriggerReach, BoulderStart Start, HorizontalDirection Roll, BoulderImpact FirstImpact) : EnemySpawnSettings;

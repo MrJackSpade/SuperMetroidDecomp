@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>The game-completion facts the ending credits present (#633).</summary>
@@ -13,7 +14,7 @@ internal sealed record EndingCreditsSetup
     public required EndingInventorySnapshot Inventory { get; init; }
 
     /// <summary>Whether the game shows its Japanese text, which the credits' closing text follows.</summary>
-    public required bool JapaneseText { get; init; }
+    public required TextLanguage Language { get; init; }
 
     /// <summary>Whether Samus freed the animals, whose ship then escapes Zebes beside the gunship.</summary>
     public required bool CrittersEscaped { get; init; }

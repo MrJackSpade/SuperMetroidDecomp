@@ -103,7 +103,7 @@ internal static class SpacetimeBeamVerification
         saveRam.SaveSlot(SaveSlot.A, SuperMetroidSaveSnapshot.Capture(samus, system, SaveSnapshotFixtures.At(SuperMetroid.Core.Progression.LoadStationDefinitions.CrateriaSave)));
         SuperMetroidSaveSlot saved = saveRam.ReadSlot(SaveSlot.A)
             ?? throw new InvalidOperationException("SpaceTime save did not survive checksum validation.");
-        AssertEqual((ushort)0x100e, saved.EquippedBeams.ToEquipmentWord(),
+        AssertEqual((ushort)0x100e, saved.Inventory.EquippedBeams.ToEquipmentWord(),
             "save retains invalid SpaceTime equipment");
         AssertEqual(SaveStartupRoute.MainGame, saved.StartupRoute,
             "save retains the corrupted startup route");
@@ -118,9 +118,9 @@ internal static class SpacetimeBeamVerification
             "intro flashback removes current missiles");
         AssertEqual(0, restarted.MaxMissiles,
             "intro flashback removes missile capacity");
-        AssertEqual(saved.SuperMissiles, restarted.SuperMissiles,
+        AssertEqual(saved.Inventory.SuperMissiles, restarted.SuperMissiles,
             "intro flashback preserves Super Missiles");
-        AssertEqual(saved.PowerBombs, restarted.PowerBombs,
+        AssertEqual(saved.Inventory.PowerBombs, restarted.PowerBombs,
             "intro flashback preserves Power Bombs");
 
         Suite(nameof(VerifySpacetimeSaveRestartFrontend), () => VerifySpacetimeSaveRestartFrontend());
@@ -208,19 +208,8 @@ internal static class SpacetimeBeamVerification
             var snapshot = SaveSnapshotFixtures.NewGame with
             {
                 Checkpoint = SuperMetroid.Core.Progression.LoadStationDefinitions.CrateriaSave,
-                Health = 399,
-                MaxHealth = 499,
-                Missiles = 20,
-                MaxMissiles = 50,
-                SuperMissiles = 7,
-                MaxSuperMissiles = 10,
-                PowerBombs = 3,
-                MaxPowerBombs = 5,
-                EquippedBeams = SamusBeamFlags.Charge | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma,
-                CollectedBeams = SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma,
-                EquippedItems = SamusEquipmentFlags.GravitySuit,
-                CollectedItems = SamusEquipmentFlags.GravitySuit,
                 StartupRoute = SaveStartupRoute.OpeningCinematic,
+                Inventory = SaveSnapshotFixtures.NewGame.Inventory with { Health = 399, MaxHealth = 499, Missiles = 20, MaxMissiles = 50, SuperMissiles = 7, MaxSuperMissiles = 10, PowerBombs = 3, MaxPowerBombs = 5, EquippedBeams = SamusBeamFlags.Charge | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma, CollectedBeams = SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma, EquippedItems = SamusEquipmentFlags.GravitySuit, CollectedItems = SamusEquipmentFlags.GravitySuit },
             };
             snapshot.Progress.Events.AddAll();
             return snapshot;

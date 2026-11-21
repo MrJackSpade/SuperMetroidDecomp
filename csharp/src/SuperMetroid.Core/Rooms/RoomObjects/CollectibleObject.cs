@@ -246,14 +246,18 @@ internal sealed class CollectibleObject(
     /// </summary>
     private void Draw(CollectibleImage image, IRoomObjectDrawing drawing, RoomLevelData level, RoomObjectPlace place)
     {
-        // An image is a draw or a look, which its two constructors build.
-        if (image.Look is { } look)
+        switch (image.What)
         {
-            Terrain.VisibleFrame(Kind, look).Draw(level, place.Block, drawing);
-            if (Terrain.ShowsOwnPicture)
-                level.ShowCollectible(place.Block, new CollectiblePicture(Kind, look));
+            case CollectibleImage.DrawnImage drawn:
+                drawn.Draw.Draw(level, place.Block, drawing);
+                return;
+            case CollectibleImage.VisibleLook { Look: var look }:
+                Terrain.VisibleFrame(Kind, look).Draw(level, place.Block, drawing);
+                if (Terrain.ShowsOwnPicture)
+                    level.ShowCollectible(place.Block, new CollectiblePicture(Kind, look));
+                return;
+            default:
+                throw new InvalidOperationException($"Undefined collectible image {image.What}.");
         }
-        else if (image.Draw is { } draw)
-            draw.Draw(level, place.Block, drawing);
     }
 }

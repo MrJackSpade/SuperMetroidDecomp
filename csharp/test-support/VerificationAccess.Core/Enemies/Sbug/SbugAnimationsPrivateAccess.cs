@@ -12,9 +12,9 @@ internal static class SbugAnimationsPrivateAccess
     extension(global::SuperMetroid.Core.Enemies.Sbug.SbugAnimations)
     {
         /// <summary>The private property <c>StartingAt</c>, reached by name.</summary>
-        internal static global::System.Collections.Generic.Dictionary<global::SuperMetroid.Core.Enemies.Sbug.SbugSegment, global::SuperMetroid.Core.Animation.Animation<global::SuperMetroid.Core.Enemies.Sbug.SbugSegment>> StartingAt
+        internal static global::System.Collections.Generic.Dictionary<global::SuperMetroid.Core.Spatial.CompassDirection, global::SuperMetroid.Core.Animation.Animation<global::SuperMetroid.Core.Spatial.CompassDirection>> StartingAt
         {
-            get => PrivateState.StaticGet<global::System.Collections.Generic.Dictionary<global::SuperMetroid.Core.Enemies.Sbug.SbugSegment, global::SuperMetroid.Core.Animation.Animation<global::SuperMetroid.Core.Enemies.Sbug.SbugSegment>>>(typeof(global::SuperMetroid.Core.Enemies.Sbug.SbugAnimations), "StartingAt");
+            get => PrivateState.StaticGet<global::System.Collections.Generic.Dictionary<global::SuperMetroid.Core.Spatial.CompassDirection, global::SuperMetroid.Core.Animation.Animation<global::SuperMetroid.Core.Spatial.CompassDirection>>>(typeof(global::SuperMetroid.Core.Enemies.Sbug.SbugAnimations), "StartingAt");
         }
     }
 }

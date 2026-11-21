@@ -325,7 +325,7 @@ internal static class ShotBlockObjectProgramsVerification
             native.Add(pointer, runs.ToArray());
         }
         LookupEscapeGateStockFrame[] frames = [.. pointers.Select(pointer => new LookupEscapeGateStockFrame(pointer, ShotId(pointer)))];
-        InstalledRoomObjectShotBlockVisuals stock = InstalledRoomObjectShotBlockVisuals.Stock();
+        InstalledRoomObjectPictures stock = RoomObjectPicturesStock.ShotBlock;
         AssertPicturedAsNative(rom, stock.Images, RoomObjectShotBlockVisualFiles.Family, frames, native.Values.Sum(runs => runs.Sum(run => run.Length)));
         AssertImportAndRejections(rom, stock.Images, RoomObjectShotBlockVisualFiles.Family, RepositoryInstallation.Installation.RoomObjectShotBlockVisualDirectory);
     }
@@ -344,7 +344,7 @@ internal static class ShotBlockObjectProgramsVerification
     private static void VerifyShotBlockVisualSeparation(
 )
     {
-        InstalledRoomObjectShotBlockVisuals stock = InstalledRoomObjectShotBlockVisuals.Stock();
+        InstalledRoomObjectPictures stock = RoomObjectPicturesStock.ShotBlock;
         AssertEqual(RoomBlockAppearance.Of(0x053),
             stock.Image(ShotBlockObjectDraws.Breakup(BlockArrangement.Single, BlockBreakupStage.Rock)).At(Offset16<RoomBlocks>.Zero),
             "stock visual catalog retains the native first break frame");
@@ -355,7 +355,7 @@ internal static class ShotBlockObjectProgramsVerification
         words[block] = RoomTerrainBlock.Of(0x321, BlockMirroring.None, RoomCollisionType.ShootableBlock);
 
         ShotBlockObjectProgramsRenderResult Render(
-            InstalledRoomObjectShotBlockVisuals visuals)
+            InstalledRoomObjectPictures visuals)
         {
             var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new RoomBlockBehavior[words.Length], new RoomBlockAppearance[words.Length]), RoomLevelData.NothingBeyondGrid(), []);
             var roomObjects = RoomObjectFixtures.Unbound(RoomObjectFixtures.Installed with { RoomObjectShotBlockVisuals = visuals });

@@ -6,10 +6,13 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// <summary>Post-credits star motion and animation data.</summary>
 internal static class EndingShootingStarDefinitions
 {
+    /// <summary>The looks whose stars accelerate at their definition's rate; a star in any other look accelerates at twice it.</summary>
+    internal static readonly EndingShootingStarLook[] SteadyLooks = [EndingShootingStarLook.LeadIn, EndingShootingStarLook.FaintSpeck];
+
     /// <summary>The colouring every star draws in.</summary>
     internal const EndingSpriteColouring Colouring = EndingSpriteColouring.ShootingStars;
     /// <summary>The stars the shooting-star setup creates.</summary>
-    internal const int Count = 40;
+    internal static int Count => stars.Length;
     /// <summary>Initialization and reset put both coordinates at the screen center.</summary>
     internal const int Origin = 128;
     /// <summary>The updates of the hidden lead-in each flight starts with, at the origin.</summary>

@@ -136,7 +136,7 @@ internal sealed class SamusPresentation
     /// </summary>
     public static void ShowGrappleSwingPicture(SamusState samus, GrappleSwingPicture picture)
     {
-        if (samus.Pose is not (SamusPoseId.GrappleSwingRightPose or SamusPoseId.GrappleSwingLeftPose))
+        if (!SamusPoseTraits.IsIn(samus.Pose, SamusPoseFamily.GrappleSwing))
             throw new InvalidOperationException($"Grapple swing art cannot be assigned to pose {samus.Pose}.");
         SamusPoseAnimation swing = SamusAnimationDelayDefinitions.GrappleSwingAnimation;
         if (!ReferenceEquals(SamusAnimationDelays.AnimationForPose(samus.AnimationPose), swing))
@@ -169,7 +169,7 @@ internal sealed class SamusPresentation
         // The animation keeps the neutral jump's second frame alive in chunks of its rise extension while Samus is
         // still rising. This is intentionally tested before the decrement and applies only when the
         // timer's last update remains; release or the apex turns her downward and lets it expire.
-        if (samus.Pose is SamusPoseId.NeutralJumpRightPose or SamusPoseId.NeutralJumpLeftPose &&
+        if (SamusPoseTraits.IsIn(samus.Pose, SamusPoseFamily.NeutralJump) &&
             !samus.Kinematics.VerticalVelocity.IsFalling &&
             samus.AnimationIsOn(SamusAnimationFrames.NeutralJumpRise) &&
             samus.AnimationFrameTimer.IsAt(1))
@@ -304,10 +304,8 @@ internal sealed class SamusPresentation
             case SamusAnimationTurnTransition turn:
                 // A jump the pose input already selected survives the turn's final frame; checking held Jump instead
                 // would accept inputs the pose input never matched.
-                if (!samus.Control.InputLocked && !demoPoseInput && prospectiveInputPose is
-                    SamusPoseId.NeutralJumpTransitionRightPose or
-                    SamusPoseId.NeutralJumpTransitionLeftPose or
-                    SamusPoseId.SpinJumpRightPose or SamusPoseId.SpinJumpLeftPose)
+                if (!samus.Control.InputLocked && !demoPoseInput && prospectiveInputPose is { } selectedJump &&
+                    SamusPoseTraits.IsIn(selectedJump, SamusPoseFamily.JumpLaunch))
                     return;
                 if (!samus.Control.InputLocked && !demoPoseInput) samus.InputSnapshot.AutoJump.Install();
                 // The transition neither selects a new delay nor advances the shown frame; the pose transitions that
@@ -412,7 +410,7 @@ internal sealed class SamusPresentation
         bool bodyVisible = samus.KnockbackHold.IsRunning ||
             samus.InvincibilityTimer.IsZero ||
             SamusInputSnapshot.HoldsShine(samus) ||
-            !SamusCadenceDefinitions.InvincibilityFlickerHidden.IsSetIn(frameCounter);
+            !SamusCadenceDefinitions.InvincibilityFlickerHidden.IsInSecondHalfAt(frameCounter);
         // A hidden body keeps the picture and origin it last drew, which the echoes repeat.
         if (!bodyVisible)
             return;
@@ -477,11 +475,11 @@ internal sealed class SamusPresentation
             return;
         DrawActiveSpeedBoosterEcho(samus,
             sprites,
-            samus.HorizontalSpeed.FirstSpeedEchoPosition,
+            samus.HorizontalSpeed.SpeedEchoes[SpeedEcho.First].Position,
             cameraPosition);
         DrawActiveSpeedBoosterEcho(samus,
             sprites,
-            samus.HorizontalSpeed.SecondSpeedEchoPosition,
+            samus.HorizontalSpeed.SpeedEchoes[SpeedEcho.Second].Position,
             cameraPosition);
     }
 

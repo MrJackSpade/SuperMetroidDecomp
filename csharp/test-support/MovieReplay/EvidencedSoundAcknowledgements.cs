@@ -71,8 +71,8 @@ internal sealed class EvidencedSoundAcknowledgements : ISoundAcceptanceTiming<So
     private SoundAcknowledgement<SoundEffectId> ForLibrary(
         SoundEffectLibrary library, SoundAcknowledgement<SoundEffectId> modeled, NativeCheckpointMemory nativeAfter)
     {
-        // The native handler keeps each library's state at the driver's index of the library.
-        int position = SoundLibraryNumbers.DriverIndex(library);
+        // The native handler keeps each library's state one below the library's number, the driver's index of it.
+        int position = SoundLibraryNumbers.Number(library) - 1;
         byte before = states[position];
         // Other handler states send or clear requests without awaiting an echo.
         if (!Enum.IsDefined((WaitingState)before))

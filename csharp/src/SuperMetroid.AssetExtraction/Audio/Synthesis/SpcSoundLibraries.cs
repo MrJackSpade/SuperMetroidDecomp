@@ -1,4 +1,4 @@
-﻿using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Compatibility;
 
 using SuperMetroid.Core.Audio;
@@ -12,22 +12,19 @@ internal sealed class SpcSoundLibraries
     private readonly SpcRam ram;
     /// <summary>Eight music sequencer states that continue advancing under borrowed DSP voices.</summary>
     private readonly ManagedSpcMusicChannel[] channels ;
-    /// <summary>Priority, mode and voice-allocation state for the three SFX libraries.</summary>
-    private readonly ManagedSpcSoundLibrary[] soundLibraries ;
-    /// <summary>Per-library SFX instruction cursors and borrowed voice state.</summary>
-    private readonly ManagedSpcSoundChannel[][] soundChannels ;
+    /// <summary>Each SFX library's priority, mode and voice-allocation state with its channels, keyed by the library.</summary>
+    private readonly IReadOnlyDictionary<SoundEffectLibrary, ManagedSpcSoundLibrary> soundLibraries;
     /// <summary>DSP renderer reading BRR and echo data from this driver's APU RAM.</summary>
     private readonly ManagedSnesDsp dsp;
     /// <summary>What music and sound effects share on the DSP: instruments, pitch and volume writes, the key-on, key-off, noise and echo flags, and memory reads.</summary>
     private readonly SpcVoices _voices;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal SpcSoundLibraries(SpcRam ram, ManagedSpcMusicChannel[] channels, ManagedSpcSoundLibrary[] soundLibraries, ManagedSpcSoundChannel[][] soundChannels, ManagedSnesDsp dsp, SpcVoices voices)
+    internal SpcSoundLibraries(SpcRam ram, ManagedSpcMusicChannel[] channels, IReadOnlyDictionary<SoundEffectLibrary, ManagedSpcSoundLibrary> soundLibraries, ManagedSnesDsp dsp, SpcVoices voices)
     {
         this.ram = ram;
         this.channels = channels;
         this.soundLibraries = soundLibraries;
-        this.soundChannels = soundChannels;
         this.dsp = dsp;
         _voices = voices;
     }
@@ -41,7 +38,7 @@ internal sealed class SpcSoundLibraries
     }
 
     /// <summary>
-    /// One sound-effect service of library <paramref name="libraryIndex"/>: Handle CPU IO
+    /// One sound-effect service of <paramref name="soundLibrary"/>: Handle CPU IO
     /// ($1EE7/$3157/$4706) followed by Write/read CPU IO ($1621).
     /// </summary>
     /// <remarks>
@@ -49,24 +46,24 @@ internal sealed class SpcSoundLibraries
     /// when that value changed. $1621 then echoes the acted-on value and latches the CPU's
     /// current write, so a request is echoed one service after the service that reads it.
     /// </remarks>
-    internal void HandleSoundLibraryCommand(int libraryIndex, SoundRequestCheck<byte> poll)
+    internal void HandleSoundLibraryCommand(SoundEffectLibrary soundLibrary, SoundRequestCheck<byte> poll)
     {
         // The native library priority/cancellation gates pass a changed request that names a sound, which selects its
         // stream; otherwise the library advances the sound it plays, if any.
-        ManagedSpcSoundLibrary library = soundLibraries[libraryIndex];
+        ManagedSpcSoundLibrary library = soundLibraries[soundLibrary];
         int? changed = poll.Changed ? poll.Request?.Sound : null;
         if (changed is { } command && command != ManagedSpcSoundLibrary.SilentCommand &&
-            !RejectsRequest(libraryIndex, command, library.Priority, library.Mode))
-            StartSound(libraryIndex, command);
+            !RejectsRequest(soundLibrary, command, library.Priority, library.Mode))
+            StartSound(soundLibrary, command);
         else if (library.IsPlaying)
-            ProcessSoundLibrary(libraryIndex);
+            ProcessSoundLibrary(soundLibrary);
     }
 
-    /// <summary>Selects the stream of sound <paramref name="command"/> in library <paramref name="libraryIndex"/>, silencing the sound it played.</summary>
-    private void StartSound(int libraryIndex, int command)
+    /// <summary>Selects the stream of sound <paramref name="command"/> in <paramref name="soundLibrary"/>, silencing the sound it played.</summary>
+    private void StartSound(SoundEffectLibrary soundLibrary, int command)
     {
-        ManagedSpcSoundLibrary library = soundLibraries[libraryIndex];
-        ManagedSpcSoundChannel[] libraryChannels = soundChannels[libraryIndex];
+        ManagedSpcSoundLibrary library = soundLibraries[soundLibrary];
+        ManagedSpcSoundChannel[] libraryChannels = library.Channels;
         if (library.IsPlaying)
         {
             library.EnabledVoices = 0;
@@ -74,14 +71,13 @@ internal sealed class SpcSoundLibraries
                 ResetSoundChannel(library, channel);
         }
         foreach (ManagedSpcSoundChannel channel in libraryChannels)
-            channel.Legato = 0;
+            channel.Slide = channel.Slide == SoundEffectSlide.Off ? SoundEffectSlide.Off : SoundEffectSlide.Sliding;
 
         int tableIndex = command - 1;
-        SoundEffectLibrary soundLibrary = SoundLibraryNumbers.FromDriverIndex(libraryIndex);
         if ((uint)tableIndex >= SpcSoundEffectTables.CommandCount(soundLibrary))
         {
             throw new InvalidDataException(
-                $"SPC sound library {libraryIndex + 1} has no command ${command:X2}.");
+                $"SPC sound library {soundLibrary} has no command ${command:X2}.");
         }
         library.CurrentSoundIndex = unchecked((byte)(tableIndex * 2));
         library.CurrentPointer = SpcSoundEffectTables.StreamPointer(soundLibrary, command);
@@ -96,13 +92,17 @@ internal sealed class SpcSoundLibraries
     /// blocks everything except its clearing request, and each library has requests exempt from
     /// priority. The offline clip exporter (#1305) reads its policy from this rule.
     /// </summary>
-    internal static bool RejectsRequest(int libraryIndex, int command, int priority, int mode) => libraryIndex switch
+    internal static bool RejectsRequest(SoundEffectLibrary soundLibrary, int command, int priority, SoundLibraryMode mode)
     {
-        0 => command != 1 && command != 2 && priority != 0,
-        1 => command != 0x71 && command != 0x7e && priority != 0, // cartridge-encoding: allow(HardwareValue) - retail SFX2 cancellation overrides
-        2 => command != 1 && (mode == SpcDriverDefinitions.SoundEffects.LowHealthMode || command != 2 && priority != 0),
-        _ => throw new ArgumentOutOfRangeException(nameof(libraryIndex)),
-    };
+        bool lowHealth = SpcSoundEffectTables.HasLowHealthMode(soundLibrary) && mode == SoundLibraryMode.LowHealth;
+        return SpcSoundEffectTables.Admission(soundLibrary, command) switch
+        {
+            SpcSoundRequestAdmission.Clearing => false,
+            SpcSoundRequestAdmission.PriorityExempt => lowHealth,
+            SpcSoundRequestAdmission.ByPriority => lowHealth || priority != 0,
+            _ => throw new ArgumentOutOfRangeException(nameof(command)),
+        };
+    }
 
     /// <summary>Applies native allocation-policy writes for a validated sound library.</summary>
     /// <remarks>#1165 original-handler proof covers all policy cases. Mode is unchanged
@@ -167,12 +167,12 @@ internal sealed class SpcSoundLibraries
         {
             case SpcLibrary3Policy.CancelAndClearLowHealthMode:
                 library.VoicesToSetup = 1;
-                library.Mode = 0;
+                library.Mode = SoundLibraryMode.Normal;
                 library.Priority = 1;
                 break;
             case SpcLibrary3Policy.LowHealthModePreservePriority:
                 library.VoicesToSetup = 1;
-                library.Mode = SpcDriverDefinitions.SoundEffects.LowHealthMode;
+                library.Mode = SoundLibraryMode.LowHealth;
                 break;
             case SpcLibrary3Policy.OneVoiceLowPriority:
                 library.VoicesToSetup = 1;
@@ -196,13 +196,13 @@ internal sealed class SpcSoundLibraries
     }
 
     /// <summary>Allocates borrowed voices on first service and then ticks each sound-effect stream.</summary>
-    private void ProcessSoundLibrary(int libraryIndex)
+    private void ProcessSoundLibrary(SoundEffectLibrary soundLibrary)
     {
-        ManagedSpcSoundLibrary library = soundLibraries[libraryIndex];
-        ManagedSpcSoundChannel[] libraryChannels = soundChannels[libraryIndex];
-        if (library.InitializationFlag != SpcDriverDefinitions.SoundEffects.Active)
+        ManagedSpcSoundLibrary library = soundLibraries[soundLibrary];
+        ManagedSpcSoundChannel[] libraryChannels = library.Channels;
+        if (!library.Initialized)
         {
-            InitializeSoundLibrary(libraryIndex, library, libraryChannels);
+            InitializeSoundLibrary(soundLibrary, library, libraryChannels);
             for (int index = 0; index < libraryChannels.Length; index++)
             {
                 ManagedSpcSoundChannel channel = libraryChannels[index];
@@ -218,20 +218,20 @@ internal sealed class SpcSoundLibraries
 
     /// <summary>Scans hardware voices high to low and captures music state before assigning them to a sound library.</summary>
     private void InitializeSoundLibrary(
-        int libraryIndex,
+        SoundEffectLibrary soundLibrary,
         ManagedSpcSoundLibrary library,
         ManagedSpcSoundChannel[] libraryChannels)
     {
         library.VoiceId = SpcDriverDefinitions.SoundEffects.VoiceSearchStart;
         library.VoicesRemaining = _voices.channelOnMask;
-        library.InitializationFlag = SpcDriverDefinitions.SoundEffects.Active;
+        library.Initialized = true;
         library.ChannelIndex = library.ChannelIndexTimesTwo = 0;
         foreach (ManagedSpcSoundChannel channel in libraryChannels)
         {
             channel.VoiceBitset = 0;
             channel.VoiceIndex = 0;
             channel.ChannelMask = byte.MaxValue;
-            channel.Disabled = SpcDriverDefinitions.SoundEffects.Active;
+            channel.Disabled = true;
         }
 
         while ((library.VoiceId = SpcDriverWrap.Byte(library.VoiceId - 1)) != 0)
@@ -245,13 +245,13 @@ internal sealed class SpcSoundLibraries
 
             library.VoicesToSetup = SpcDriverWrap.Byte(library.VoicesToSetup - 1);
             ManagedSpcSoundChannel soundChannel = libraryChannels[library.ChannelIndex];
-            soundChannel.Disabled = 0;
+            soundChannel.Disabled = false;
             library.ChannelVoiceBitsetPointer = unchecked((ushort)(
-                SpcSoundEffectTables.AllocationStateAddress(libraryIndex, SpcAllocationField.VoiceBitset) + library.ChannelIndex));
+                SpcSoundEffectTables.AllocationStateAddress(soundLibrary, SpcAllocationField.VoiceBitset) + library.ChannelIndex));
             library.ChannelVoiceMaskPointer = unchecked((ushort)(
-                SpcSoundEffectTables.AllocationStateAddress(libraryIndex, SpcAllocationField.ChannelMask) + library.ChannelIndex));
+                SpcSoundEffectTables.AllocationStateAddress(soundLibrary, SpcAllocationField.ChannelMask) + library.ChannelIndex));
             library.ChannelVoiceIndexPointer = unchecked((ushort)(
-                SpcSoundEffectTables.AllocationStateAddress(libraryIndex, SpcAllocationField.VoiceIndex) + library.ChannelIndex));
+                SpcSoundEffectTables.AllocationStateAddress(soundLibrary, SpcAllocationField.VoiceIndex) + library.ChannelIndex));
             library.ChannelIndex = SpcDriverWrap.Byte(library.ChannelIndex + 1);
             library.ChannelIndexTimesTwo = SpcDriverWrap.Byte(library.ChannelIndexTimesTwo + 2);
 
@@ -278,8 +278,8 @@ internal sealed class SpcSoundLibraries
     /// <summary>Releases a borrowed DSP voice and restores its music instrument, pan and volume ownership.</summary>
     private void ResetSoundChannel(ManagedSpcSoundLibrary library, ManagedSpcSoundChannel soundChannel)
     {
-        soundChannel.Disabled = SpcDriverDefinitions.SoundEffects.Active;
-        soundChannel.UpdateAdsr = 0;
+        soundChannel.Disabled = true;
+        soundChannel.UpdateAdsr = false;
         library.EnabledVoices = library.EnabledVoices & soundChannel.ChannelMask;
         _voices.channelOnMask = _voices.channelOnMask & soundChannel.ChannelMask;
         _voices.currentChannelBit = _voices.currentChannelBit | soundChannel.VoiceBitset;
@@ -292,34 +292,34 @@ internal sealed class SpcSoundLibraries
         {
             library.CurrentSound = ManagedSpcSoundLibrary.SilentCommand;
             library.Priority = 0;
-            library.InitializationFlag = 0;
+            library.Initialized = false;
         }
     }
 
     /// <summary>Interprets one sound stream's timed note, repeat, noise, ADSR and pitch-slide commands.</summary>
     private void RunSoundChannel(ManagedSpcSoundLibrary library, ManagedSpcSoundChannel soundChannel)
     {
-        if (soundChannel.Disabled == SpcDriverDefinitions.SoundEffects.Active)
+        if (soundChannel.Disabled)
             return;
         soundChannel.FrameHold = SpcDriverWrap.Byte(soundChannel.FrameHold - 1);
         if (soundChannel.FrameHold == 0)
         {
-            if (soundChannel.Legato == 0)
+            if (soundChannel.Slide != SoundEffectSlide.SlidingLegato)
             {
-                soundChannel.EnablePitchSlide = 0;
+                soundChannel.Slide = SoundEffectSlide.Off;
                 soundChannel.SubnoteDelta = 0;
                 soundChannel.TargetNote = 0;
-                if (soundChannel.ReleaseFlag != SpcDriverDefinitions.SoundEffects.Active)
+                if (!soundChannel.Releasing)
                 {
                     _voices.keyOff = _voices.keyOff | soundChannel.VoiceBitset;
                     soundChannel.ReleaseTimer = 2;
                     soundChannel.FrameHold = 1;
-                    soundChannel.ReleaseFlag = SpcDriverDefinitions.SoundEffects.Active;
+                    soundChannel.Releasing = true;
                 }
                 soundChannel.ReleaseTimer = SpcDriverWrap.Byte(soundChannel.ReleaseTimer - 1);
                 if (soundChannel.ReleaseTimer != 0)
                     return;
-                soundChannel.ReleaseFlag = 0;
+                soundChannel.Releasing = false;
                 _voices.currentChannelBit = _voices.currentChannelBit & soundChannel.ChannelMask;
                 _voices.noiseEnable = _voices.noiseEnable & soundChannel.ChannelMask;
             }
@@ -327,38 +327,37 @@ internal sealed class SpcSoundLibraries
             int command;
         NextCommand:
             command = ReadSoundByte(soundChannel);
-            if (command == 0xf9) // cartridge-encoding: allow(DomainDiscriminator) - SFX inline ADSR override
+            if (SpcSoundEffectProgramCodec.Is(command, SpcSoundEffectOpcode.SetAdsr))
             {
                 soundChannel.AdsrSettings = ReadSoundByte(soundChannel);
                 soundChannel.AdsrSettings = soundChannel.AdsrSettings | LittleEndianBytes.Word(low: 0, high: ReadSoundByte(soundChannel));
                 soundChannel.PointerIndex = SpcDriverWrap.Byte(soundChannel.PointerIndex + 2);
-                soundChannel.UpdateAdsr = SpcDriverDefinitions.SoundEffects.Active;
+                soundChannel.UpdateAdsr = true;
                 goto NextCommand;
             }
-            if (command is 0xf5 or 0xf8) // cartridge-encoding: allow(DomainDiscriminator) - SFX pitch-slide forms
+            if (SpcSoundEffectProgramCodec.Is(command, SpcSoundEffectOpcode.PitchSlideLegato) || SpcSoundEffectProgramCodec.Is(command, SpcSoundEffectOpcode.PitchSlide))
             {
-                soundChannel.EnablePitchSlideLegato = command == 0xf5 // cartridge-encoding: allow(DomainDiscriminator) - legato slide
-                    ? (byte)0xf5 // cartridge-encoding: allow(DomainDiscriminator) - retained cartridge marker
-                    : (byte)0;
+                soundChannel.SlideForm = SpcDriverSnapshot.SlideFormOf(command);
                 soundChannel.SubnoteDelta = ReadSoundByte(soundChannel);
                 soundChannel.TargetNote = ReadSoundByte(soundChannel);
-                soundChannel.EnablePitchSlide = SpcDriverDefinitions.SoundEffects.Active;
+                if (soundChannel.Slide == SoundEffectSlide.Off)
+                    soundChannel.Slide = SoundEffectSlide.Sliding;
                 command = ReadSoundByte(soundChannel);
             }
-            if (command == byte.MaxValue)
+            if (SpcSoundEffectProgramCodec.Is(command, SpcSoundEffectOpcode.End))
             {
                 ResetSoundChannel(library, soundChannel);
                 return;
             }
-            if (command == 0xfe) // cartridge-encoding: allow(DomainDiscriminator) - SFX repeat-start opcode
+            if (SpcSoundEffectProgramCodec.Is(command, SpcSoundEffectOpcode.BeginRepeat))
             {
                 soundChannel.RepeatCounter = ReadSoundByte(soundChannel);
                 soundChannel.RepeatPoint = soundChannel.PointerIndex;
                 command = ReadSoundByte(soundChannel);
             }
-            if (command is 0xfb or 0xfd) // cartridge-encoding: allow(DomainDiscriminator) - SFX repeat opcodes
+            if (SpcSoundEffectProgramCodec.Is(command, SpcSoundEffectOpcode.RepeatForever) || SpcSoundEffectProgramCodec.Is(command, SpcSoundEffectOpcode.EndRepeat))
             {
-                if (command == 0xfd) // cartridge-encoding: allow(DomainDiscriminator) - counted repeat opcode
+                if (SpcSoundEffectProgramCodec.Is(command, SpcSoundEffectOpcode.EndRepeat))
                 {
                     soundChannel.RepeatCounter = SpcDriverWrap.Byte(soundChannel.RepeatCounter - 1);
                     if (soundChannel.RepeatCounter == 0)
@@ -367,7 +366,7 @@ internal sealed class SpcSoundLibraries
                 soundChannel.PointerIndex = soundChannel.RepeatPoint;
                 command = ReadSoundByte(soundChannel);
             }
-            if (command == 0xfc) // cartridge-encoding: allow(DomainDiscriminator) - SFX noise-enable opcode
+            if (SpcSoundEffectProgramCodec.Is(command, SpcSoundEffectOpcode.EnableNoise))
             {
                 _voices.noiseEnable = _voices.noiseEnable | soundChannel.VoiceBitset;
                 goto NextCommand;
@@ -386,18 +385,18 @@ internal sealed class SpcSoundLibraries
             }
             _voices.WritePitchInner(musicChannel, SpcFixedPoint.Compose(soundChannel.Note, soundChannel.Subnote));
             soundChannel.FrameHold = ReadSoundByte(soundChannel);
-            if (soundChannel.UpdateAdsr != 0)
+            if (soundChannel.UpdateAdsr)
             {
                 WriteSoundEffectAdsr(soundChannel.VoiceIndexTimesEight, soundChannel.AdsrSettings);
             }
-            if (soundChannel.Legato == 0)
+            if (soundChannel.Slide != SoundEffectSlide.SlidingLegato)
                 _voices.keyOn = _voices.keyOn | soundChannel.VoiceBitset;
         }
 
-        if (soundChannel.EnablePitchSlide != SpcDriverDefinitions.SoundEffects.Active)
+        if (soundChannel.Slide == SoundEffectSlide.Off)
             return;
-        if (soundChannel.EnablePitchSlideLegato != 0)
-            soundChannel.Legato = SpcDriverDefinitions.SoundEffects.Active;
+        if (soundChannel.SlideForm == SoundEffectSlideForm.Legato)
+            soundChannel.Slide = SoundEffectSlide.SlidingLegato;
 
         if (soundChannel.Note >= soundChannel.TargetNote)
         {
@@ -407,7 +406,7 @@ internal sealed class SpcSoundLibraries
             {
                 soundChannel.Note = SpcDriverWrap.Byte(soundChannel.Note - 1);
                 if (soundChannel.Note == soundChannel.TargetNote)
-                    soundChannel.EnablePitchSlide = soundChannel.Legato = 0;
+                    soundChannel.Slide = SoundEffectSlide.Off;
             }
         }
         else
@@ -418,7 +417,7 @@ internal sealed class SpcSoundLibraries
             {
                 soundChannel.Note = SpcDriverWrap.Byte(soundChannel.Note + 1);
                 if (soundChannel.Note == soundChannel.TargetNote)
-                    soundChannel.EnablePitchSlide = soundChannel.Legato = 0;
+                    soundChannel.Slide = SoundEffectSlide.Off;
             }
         }
         _voices.WritePitchInner(channels[soundChannel.VoiceIndex >> 1], SpcFixedPoint.Compose(soundChannel.Note, soundChannel.Subnote));

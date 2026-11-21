@@ -31,7 +31,7 @@ internal static class CeresRidleyEyeFadeDefinitionsVerification
         IReadOnlyList<SuperMetroid.AssetExtraction.Artwork.SheetShade> shades = SuperMetroid.AssetExtraction.Bosses.RidleySheetShades.CeresSprites(colours);
         Action<CeresRidleyState> tick = RidleyReveal.TickEyeFadeIn;
 
-        var state = new CeresRidleyState(Position16<RoomPixels>.Zero, RoomWarningFixtures.Ceres()) { RevealPhase = RidleyRevealPhase.FadeInEyes, MovementAnimationEnabled = false };
+        var state = new CeresRidleyState(Position16<RoomPixels>.Zero, RoomWarningFixtures.Ceres()) { RevealPhase = RidleyRevealPhase.FadeInEyes, Motion = RidleyMotion.Still };
         for (int update = 0; update < ScheduleUpdates; update++)
         {
             tick(state);

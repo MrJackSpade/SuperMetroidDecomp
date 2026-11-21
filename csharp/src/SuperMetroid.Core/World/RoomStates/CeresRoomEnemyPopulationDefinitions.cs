@@ -6,6 +6,13 @@ namespace SuperMetroid.Core.World.RoomStates;
 /// <summary>The enemy placement lists of the Ceres rooms.</summary>
 internal static class CeresRoomEnemyPopulationDefinitions
 {
+    /// <summary>The Ceres doors of the rooms with a door at each end: the left one facing right and the right one facing left.</summary>
+    private static readonly RoomEnemyPlacement[] HallwayDoors =
+    [
+        new(EnemyDefinitionId.CeresDoor, EnemyPlacing.At(new(32, 127)), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CeresDoorSpawnSettings(Facing: HorizontalDirection.Right)),
+        new(EnemyDefinitionId.CeresDoor, EnemyPlacing.At(new(480, 127)), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CeresDoorSpawnSettings(Facing: HorizontalDirection.Left)),
+    ];
+
     /// <summary>The enemy population of the Ceres Elevator room in its default state.</summary>
     internal static PlacedRoomEnemyPopulationDefinition CeresElevatorDefault { get; } = new("CeresElevatorDefault",
     [
@@ -14,11 +21,7 @@ internal static class CeresRoomEnemyPopulationDefinitions
     ], 0);
 
     /// <summary>The enemy population of the Falling Tile room in its default state.</summary>
-    internal static PlacedRoomEnemyPopulationDefinition FallingTileDefault { get; } = new("FallingTileDefault",
-    [
-        new(EnemyDefinitionId.CeresDoor, EnemyPlacing.At(new(32, 127)), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CeresDoorSpawnSettings(Facing: HorizontalDirection.Right)),
-        new(EnemyDefinitionId.CeresDoor, EnemyPlacing.At(new(480, 127)), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CeresDoorSpawnSettings(Facing: HorizontalDirection.Left)),
-    ], 0);
+    internal static PlacedRoomEnemyPopulationDefinition FallingTileDefault { get; } = new("FallingTileDefault", HallwayDoors, 0);
 
     /// <summary>The enemy population of the Magnet Stairs room in its default state.</summary>
     internal static PlacedRoomEnemyPopulationDefinition MagnetStairsDefault { get; } = new("MagnetStairsDefault",
@@ -28,18 +31,10 @@ internal static class CeresRoomEnemyPopulationDefinitions
     ], 0);
 
     /// <summary>The enemy population of the Dead Scientist room in its default state.</summary>
-    internal static PlacedRoomEnemyPopulationDefinition DeadScientistDefault { get; } = new("DeadScientistDefault",
-    [
-        new(EnemyDefinitionId.CeresDoor, EnemyPlacing.At(new(32, 127)), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CeresDoorSpawnSettings(Facing: HorizontalDirection.Right)),
-        new(EnemyDefinitionId.CeresDoor, EnemyPlacing.At(new(480, 127)), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CeresDoorSpawnSettings(Facing: HorizontalDirection.Left)),
-    ], 0);
+    internal static PlacedRoomEnemyPopulationDefinition DeadScientistDefault { get; } = new("DeadScientistDefault", HallwayDoors, 0);
 
     /// <summary>The enemy population of the Ceres Ridley hallway in its default state.</summary>
-    internal static PlacedRoomEnemyPopulationDefinition CeresRidleyHallwayDefault { get; } = new("CeresRidleyHallwayDefault",
-    [
-        new(EnemyDefinitionId.CeresDoor, EnemyPlacing.At(new(32, 127)), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CeresDoorSpawnSettings(Facing: HorizontalDirection.Right)),
-        new(EnemyDefinitionId.CeresDoor, EnemyPlacing.At(new(480, 127)), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CeresDoorSpawnSettings(Facing: HorizontalDirection.Left)),
-    ], 0);
+    internal static PlacedRoomEnemyPopulationDefinition CeresRidleyHallwayDefault { get; } = new("CeresRidleyHallwayDefault", HallwayDoors, 0);
 
     /// <summary>The enemy population of the Ceres Ridley room in its default state.</summary>
     internal static PlacedRoomEnemyPopulationDefinition CeresRidleyDefault { get; } = new("CeresRidleyDefault",
@@ -53,33 +48,33 @@ internal static class CeresRoomEnemyPopulationDefinitions
     [
         new(EnemyDefinitionId.CeresElevatorDoor, EnemyPlacing.At(new(232, 631)), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
         new(EnemyDefinitionId.CeresElevatorRoomWall, EnemyPlacing.At(new(224, 639)), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(94, 108)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.RotatingElevatorLeft)),
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(162, 108)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.RotatingElevatorRight)),
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(158, 200)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.RotatingElevatorLeft)),
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(98, 200)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.RotatingElevatorRight)),
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(94, 296)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.RotatingElevatorLeft)),
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(162, 296)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.RotatingElevatorRight)),
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(158, 392)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.RotatingElevatorLeft)),
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(98, 408)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.RotatingElevatorRight)),
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(94, 504)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.RotatingElevatorLeft)),
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(162, 504)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.RotatingElevatorRight)),
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(114, 600)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.RotatingElevatorRight)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(94, 108)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.RotatingElevatorLeft)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(162, 108)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.RotatingElevatorRight)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(158, 200)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.RotatingElevatorLeft)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(98, 200)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.RotatingElevatorRight)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(94, 296)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.RotatingElevatorLeft)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(162, 296)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.RotatingElevatorRight)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(158, 392)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.RotatingElevatorLeft)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(98, 408)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.RotatingElevatorRight)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(94, 504)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.RotatingElevatorLeft)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(162, 504)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.RotatingElevatorRight)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(114, 600)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.RotatingElevatorRight)),
     ], 0);
 
     /// <summary>The enemy population of the Falling Tile room once the area's boss is dead.</summary>
     internal static PlacedRoomEnemyPopulationDefinition FallingTileWhenAreaBossDead { get; } = new("FallingTileWhenAreaBossDead",
     [
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(160, 204)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(224, 188)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(288, 188)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(352, 204)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(440, 168)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Left)),
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(128, 66)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Down)),
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(192, 66)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Down)),
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(256, 66)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Down)),
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(320, 66)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Down)),
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(384, 66)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Down)),
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(72, 168)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Right)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(160, 204)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(224, 188)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(288, 188)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(352, 204)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(440, 168)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Left)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(128, 66)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Down)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(192, 66)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Down)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(256, 66)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Down)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(320, 66)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Down)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(384, 66)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Down)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(72, 168)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Right)),
         new(EnemyDefinitionId.CeresDoor, EnemyPlacing.At(new(32, 127)), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CeresDoorSpawnSettings(Facing: HorizontalDirection.Right)),
         new(EnemyDefinitionId.CeresDoor, EnemyPlacing.At(new(480, 127)), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CeresDoorSpawnSettings(Facing: HorizontalDirection.Left)),
     ], 0);
@@ -89,26 +84,18 @@ internal static class CeresRoomEnemyPopulationDefinitions
     [
         new(EnemyDefinitionId.CeresDoor, EnemyPlacing.At(new(32, 127)), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CeresDoorSpawnSettings(Facing: HorizontalDirection.Right)),
         new(EnemyDefinitionId.CeresDoor, EnemyPlacing.At(new(224, 383)), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CeresDoorSpawnSettings(Facing: HorizontalDirection.Left)),
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(112, 156)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(194, 176)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Right)),
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(120, 278)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(62, 304)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Left)),
-        new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(136, 404)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(112, 156)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(194, 176)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Right)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(120, 278)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(62, 304)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Left)),
+        new(EnemyDefinitionId.SteamVent, EnemyPlacing.At(new(136, 404)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
     ], 0);
 
     /// <summary>The enemy population of the Dead Scientist room once the area's boss is dead.</summary>
-    internal static PlacedRoomEnemyPopulationDefinition DeadScientistWhenAreaBossDead { get; } = new("DeadScientistWhenAreaBossDead",
-    [
-        new(EnemyDefinitionId.CeresDoor, EnemyPlacing.At(new(32, 127)), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CeresDoorSpawnSettings(Facing: HorizontalDirection.Right)),
-        new(EnemyDefinitionId.CeresDoor, EnemyPlacing.At(new(480, 127)), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CeresDoorSpawnSettings(Facing: HorizontalDirection.Left)),
-    ], 0);
+    internal static PlacedRoomEnemyPopulationDefinition DeadScientistWhenAreaBossDead { get; } = new("DeadScientistWhenAreaBossDead", HallwayDoors, 0);
 
     /// <summary>The enemy population of the Ceres Ridley hallway once the area's boss is dead.</summary>
-    internal static PlacedRoomEnemyPopulationDefinition CeresRidleyHallwayWhenAreaBossDead { get; } = new("CeresRidleyHallwayWhenAreaBossDead",
-    [
-        new(EnemyDefinitionId.CeresDoor, EnemyPlacing.At(new(32, 127)), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CeresDoorSpawnSettings(Facing: HorizontalDirection.Right)),
-        new(EnemyDefinitionId.CeresDoor, EnemyPlacing.At(new(480, 127)), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CeresDoorSpawnSettings(Facing: HorizontalDirection.Left)),
-    ], 0);
+    internal static PlacedRoomEnemyPopulationDefinition CeresRidleyHallwayWhenAreaBossDead { get; } = new("CeresRidleyHallwayWhenAreaBossDead", HallwayDoors, 0);
 
     /// <summary>The enemy population of the Ceres Ridley room once the area's boss is dead.</summary>
     internal static PlacedRoomEnemyPopulationDefinition CeresRidleyWhenAreaBossDead { get; } = new("CeresRidleyWhenAreaBossDead",

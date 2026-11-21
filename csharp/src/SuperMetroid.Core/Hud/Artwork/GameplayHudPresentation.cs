@@ -61,13 +61,9 @@ public sealed class GameplayHudPresentation
     /// <param name="value">The ammunition count to display.</param>
     public IEnumerable<PlacedHudImage> Ammo(HudAmmoCounter counter, int value)
     {
-        HudAmmoField field = counter switch
-        {
-            HudAmmoCounter.Missiles => new HudAmmoField(parts.MissileAmmoAnchor, GameplayHudDefinitions.MissileDigits),
-            HudAmmoCounter.SuperMissiles => new HudAmmoField(parts.SuperMissileAmmoAnchor, GameplayHudDefinitions.SuperMissileDigits),
-            HudAmmoCounter.PowerBombs => new HudAmmoField(parts.PowerBombAmmoAnchor, GameplayHudDefinitions.PowerBombDigits),
-            _ => throw new ArgumentOutOfRangeException(nameof(counter), counter, "Undefined ammunition counter."),
-        };
+        HudAmmoField field = parts.AmmoFields.TryGetValue(counter, out HudAmmoField shown)
+            ? shown
+            : throw new ArgumentOutOfRangeException(nameof(counter), counter, "Undefined ammunition counter.");
         // A count the game has drained below zero shows as CountsRunBelowZero.HudShown describes.
         return Digits(CountsRunBelowZero.HudShown(value), field.Anchor, field.Digits)
             .Select(digit => new PlacedHudImage(new HudAmmoDigitImage(digit.Numeral), digit.Corner));

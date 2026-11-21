@@ -8,30 +8,16 @@ public static class SamusLoadingSuitPaletteFxColorDefinitions
 
     /// <summary>Each record writes sixteen live colours.</summary>
     private const int ColorsPerFrame = 16;
-    /// <summary>The Power-suit definition's program.</summary>
-    private static readonly SamusLoadingSuitPaletteFxColorDefinition Power =
-        new()
-        {
-            Owner = SamusLoadingSuitPaletteFxProgramOwner.PowerSuit,
-            ColorFrames = PaletteFxColorFrames.Of(ColourEffectId.SamusLoadingPowerSuit, ColorsPerFrame),
-        };
-    /// <summary>The Varia-suit definition's program.</summary>
-    private static readonly SamusLoadingSuitPaletteFxColorDefinition Varia =
-        new()
-        {
-            Owner = SamusLoadingSuitPaletteFxProgramOwner.VariaSuit,
-            ColorFrames = PaletteFxColorFrames.Of(ColourEffectId.SamusLoadingVariaSuit, ColorsPerFrame),
-        };
-    /// <summary>The Gravity-suit definition's program.</summary>
-    private static readonly SamusLoadingSuitPaletteFxColorDefinition Gravity =
-        new()
-        {
-            Owner = SamusLoadingSuitPaletteFxProgramOwner.GravitySuit,
-            ColorFrames = PaletteFxColorFrames.Of(ColourEffectId.SamusLoadingGravitySuit, ColorsPerFrame),
-        };
 
-    /// <summary>The power, Varia, and gravity programs in definition order.</summary>
+    /// <summary>The Power Suit's loading colours.</summary>
+    internal static SamusLoadingSuitPaletteFxColorDefinition PowerSuit { get; } = new(ColourEffectId.SamusLoadingPowerSuit, ColorsPerFrame);
 
-    public static IReadOnlyList<SamusLoadingSuitPaletteFxColorDefinition> All { get; } = [Power, Varia, Gravity];
+    /// <summary>The Varia Suit's loading colours.</summary>
+    internal static SamusLoadingSuitPaletteFxColorDefinition VariaSuit { get; } = new(ColourEffectId.SamusLoadingVariaSuit, ColorsPerFrame);
 
+    /// <summary>The Gravity Suit's loading colours.</summary>
+    internal static SamusLoadingSuitPaletteFxColorDefinition GravitySuit { get; } = new(ColourEffectId.SamusLoadingGravitySuit, ColorsPerFrame);
+
+    /// <summary>The power, Varia, and gravity programs in definition order, each the suit's loading effect's colours.</summary>
+    public static IReadOnlyList<SamusLoadingSuitPaletteFxColorDefinition> All { get; } = [PowerSuit, VariaSuit, GravitySuit];
 }

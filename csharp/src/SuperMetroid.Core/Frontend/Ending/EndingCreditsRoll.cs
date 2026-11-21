@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rendering;
@@ -15,7 +16,7 @@ internal sealed class EndingCreditsRoll
     /// <summary>Collected-item snapshot displayed with the final result.</summary>
     private readonly EndingInventorySnapshot inventory;
     /// <summary>Chooses the localized post-credits text asset.</summary>
-    private readonly bool japaneseText;
+    private readonly TextLanguage language;
     /// <summary>The ending's screen: its colours and the final page's lower text (#1358, #1515).</summary>
     private readonly EndingScreen screen ;
     /// <summary>The ending's actors in their running order, in which they step and draw (<see cref="EndingCastOrderDefinitions"/>).</summary>
@@ -26,10 +27,10 @@ internal sealed class EndingCreditsRoll
     private readonly EndingArtwork _artwork;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal EndingCreditsRoll(EndingInventorySnapshot inventory, bool japaneseText, EndingScreen screen, List<EndingSprite> sprites, EndingStage stage, EndingArtwork artwork)
+    internal EndingCreditsRoll(EndingInventorySnapshot inventory, TextLanguage language, EndingScreen screen, List<EndingSprite> sprites, EndingStage stage, EndingArtwork artwork)
     {
         this.inventory = inventory;
-        this.japaneseText = japaneseText;
+        this.language = language;
         this.screen = screen;
         this.sprites = sprites;
         _stage = stage;
@@ -75,12 +76,12 @@ internal sealed class EndingCreditsRoll
     /// <summary>Crossfades waiting colors into the selected non-armored reward colours by <paramref name="fade"/>.</summary>
     private void ShowRewardFade(PacedFadeSteps fade)
     {
-        if (_stage.EndingReward == EndingReward.Armored) return;
+        EndingRewardDefinition reward = EndingRewardDefinitions.Rewards[_stage.EndingReward];
+        if (!EndingRewardCast.CrossfadesReveal(_stage.EndingReward)) return;
         int step = fade.Taken;
         FadeWaitingBackdrop(EndingSequenceDefinitions.Timing.WaitingBackdropFadeSteps - step);
-        screen.Colours.Fade(EndingFade.SuitlessSamus, step);
-        if (_stage.EndingReward == EndingReward.Helmetless)
-            screen.Colours.Fade(EndingFade.SuitedSamus, step);
+        foreach (EndingFade colours in reward.RevealFades)
+            screen.Colours.Fade(colours, step);
         // The fade brightens toward the post-credits colours in its steps: each step shows each colour at that step's share
         // of its brightness, rounded down, the level the import pre-colours (#1512).
     }
@@ -133,7 +134,7 @@ internal sealed class EndingCreditsRoll
     private EndingTypewriterSetup TypewriterSetup() => new()
     {
         Inventory = inventory,
-        JapaneseText = japaneseText,
+        Language = language,
         Text = _artwork.EndingText,
     };
 }

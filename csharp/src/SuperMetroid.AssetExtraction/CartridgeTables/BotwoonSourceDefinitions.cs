@@ -1,4 +1,5 @@
 using SuperMetroid.Core;
+using SuperMetroid.Core.Bosses.Botwoon;
 
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
@@ -11,4 +12,7 @@ internal static class BotwoonSourceDefinitions
 {
     /// <summary>$B3:971B-$981A, BotwoonHealthBasedPalettes: the eight sixteen-colour health images.</summary>
     internal const int HealthColors = 0xb3971b;
+
+    /// <summary>The health bands in the order <see cref="HealthColors"/> holds their images: the order he shows them.</summary>
+    internal static IReadOnlyList<BotwoonHealthBand> HealthTableOrder => BotwoonHealthBandDefinitions.InOrderShown;
 }

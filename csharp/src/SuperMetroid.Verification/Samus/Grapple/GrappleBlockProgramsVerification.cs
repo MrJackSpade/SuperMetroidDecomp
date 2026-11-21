@@ -104,7 +104,7 @@ internal static class GrappleBlockProgramsVerification
     {
         ushort[] pointers = [0xa4f9,0xa4ff,0xa505,0xa50b,0xa511];
         LookupEscapeGateStockFrame[] frames = [.. pointers.Select(pointer => new LookupEscapeGateStockFrame(pointer, GrappleId(pointer)))];
-        InstalledRoomObjectGrappleBlockVisuals stock = InstalledRoomObjectGrappleBlockVisuals.Stock();
+        InstalledRoomObjectPictures stock = RoomObjectPicturesStock.GrappleBlock;
         AssertPicturedAsNative(rom, stock.Images, RoomObjectGrappleBlockVisualFiles.Family, frames, WrittenCells(RoomObjectGrappleBlockVisualFiles.Family));
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
             if (!pointers.Contains((ushort)pointer))
@@ -173,7 +173,7 @@ internal static class GrappleBlockProgramsVerification
     {
         // Run the first PLM draw and capture collision, immediate tile upload, and later camera-streamed tile output.
         GrappleBlockProgramsRenderResult Render(
-            InstalledRoomObjectGrappleBlockVisuals visuals)
+            InstalledRoomObjectPictures visuals)
         {
             const int width = 8;
             const int blockIndex = 27;
@@ -189,7 +189,7 @@ internal static class GrappleBlockProgramsVerification
                 level.DisplayedAppearance(blockIndex));
         }
 
-        var stock = Render(InstalledRoomObjectGrappleBlockVisuals.Stock());
+        var stock = Render(RoomObjectPicturesStock.GrappleBlock);
         AssertEqual(RoomTerrainBlock.Of(0x0b7, BlockMirroring.None, RoomCollisionType.GrappleBlock), stock.Physical,
             "native first Grapple frame installs Grapple collision");
         AssertEqual(RoomBlockAppearance.Of(0x0b7), stock.Immediate,

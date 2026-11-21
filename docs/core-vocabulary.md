@@ -1012,6 +1012,31 @@ is seeded with one that its body then tests against zero or minus one. An identi
 optional (`int?`, a nullable reference, a `TryGet`) or a closed type's case, and a role is a named member. A named
 constant, a sign beside another constant, a comparison's order and a library's own result are not sentinels.
 
+SME6484 (#2559) keeps behaviour reading properties rather than testing which identity a value is. In Core and the
+import pipeline no test lists two or more members of one identity enum (an enum named `…Id` that is not `[Flags]`) to
+decide something about a value: no pattern test that combines them (`pose is SamusPoseId.SpaceJumpRightPose or
+SamusPoseId.SpaceJumpLeftPose`, `area is not (AreaId.Brinstar or AreaId.Tourian)`) and no chain of equality tests of one
+value against them (`enemy == EnemyDefinitionId.Ridley || enemy == EnemyDefinitionId.RidleyCeres`). The trait the members
+share is declared once, as a property of each member's definition or a named family the definitions list
+(`SamusPoseMetadata.IsSpaceJumpPose(pose)`, `SamusPoseTraits.IsIn(pose, SamusPoseFamily.DrainedCrouch)`), and the behaviour
+reads it. A switch that maps each member to its own value is a lookup, and a test of one member or of a named constant is
+not a listing.
+
+SME6488 (#2574) gives each thing one identity named for what it is. In Core and the import pipeline no enum mirrors
+another member for member: no switch expression or dictionary initializer maps every member of one enum to the member of
+the same name of another enum with exactly the same members, each to its own. The users name the one identity, or the
+definition carries the member it stands for (a palette effect's `ColourEffectId`, a growth resume's `KraidHeadFrame`, a
+shell piece's picture). A narrower enum embedded into a wider one (`HorizontalDirection.Left =>
+SamusCollisionDirection.Left`, the two horizontal directions among the four collision directions), or a wider one
+collapsed onto a narrower one, converts between two domains and is not a mirror. A map onto other names (a pose to the
+picture it shows) is a definition carrying its property, and enums sharing member names that nothing maps onto each other
+are separate identities. No member is named by joining the names of two or more members of another type, each
+of two words or more (`EastAqueductQuicksandWestAqueductQuicksand`): a thing several users share is named for what it is
+(`QuicksandShaftsFallingSand`, `SaveRoomDoorOnLeft`), generated catalogs included. A frame is named for what its picture
+shows, never for the hitbox or depth its record carried (`PhantoonBody`, whose hit area is the fight's
+`PhantoonBodyHitArea`), and data is never reached through another thing's identity (a shot flame drops from
+`ShotFlameDropChances`, not through his eye's enemy definition).
+
 SME6472 (#2575) keeps definition data in domain catalogs. Outside a catalog file, Core builds no value of a Core type
 wholly from constants with a nonzero numeric literal among them (`new Offset16<RoomPixels>(1, 0)`,
 `SignedSixteenSixteen.FromWholePixels(1)`, `UpdateCountdown.Lasting(1)`) and passes no nonzero numeric literal by name
@@ -1030,6 +1055,48 @@ handed to a lookup, stored or compared (`Inherit(place.Ordinal, ...)`). A member
 playing another role through the one owner of the population's listing (`EnemyCompositeListing.Member`, with the roles
 in listed order in the species' `EnemyComposite`) and keeps the place it finds; a rule the game makes depend on placement
 itself is a compatibility service (`FollowUpAfterStruckPart`, `BabyMetroidVictim`); a place is handed on as itself.
+
+SME6485 (#2560) keeps one closed choice as one typed value, in Core and AssetExtraction. No conditional on a bool
+parameter, field or stored property chooses between the two members of a two-member enum (`left ? Side.Left : Side.Right`), and
+no comparison with a two-member enum's member is stored into a bool field or property or passed to a bool parameter
+(`_facingLeft = facing == HorizontalDirection.Left`, `Show(language == TextLanguage.Japanese)`): the code holds and passes
+the enum itself. Where several values stand for one choice the choice is one enum, or a closed record set whose cases
+carry their own data; `[Flags]` only where the game composes the bits; a value that must exist is not nullable, and
+absence belongs to the absent thing. A file format that keeps a bool for compatibility converts through one declared map
+at its codec (`GameSaveJsonCodec`'s saved Japanese-text field). A comparison that only answers a question, a query's
+result, a condition or a local, is not a stored choice, and neither is a computed property asked of a value
+(`speed.IsNegative ? HorizontalDirection.Left : HorizontalDirection.Right`).
+SME6487 (#2565) pairs state and data by identity, never by list position. In Core and the import pipeline, outside an
+`[EncodingOwner]` type and a `[CompatibilityService]`, no `Zip` joins two collections that are not one
+(`frames.Zip(durations)`), no element is read at a position found in another collection
+(`colours[names.IndexOf(name)]`), no projection's index reads another collection
+(`looks.Select((look, place) => uploads[place])`), and no loop reads a static definition table and another collection at
+its own index. Each pairing is one record holding both (`KraidHealthSequenceBand`, `IntroEggShellPiece`), a keyed lookup by
+the identity it belongs to (a sheet shade's ink-to-colour map, Phantoon's health colours by band), or a reference (a packed
+picture carries its corner). Positions within one authored sequence are not pairings: a run's colours from its first ink,
+a cycle's steps (`ListStep<T>`), neighbouring entries of one list (`list.Zip(list.Skip(1))`) and a list written at the
+index it is read from.
+
+SME6483 (#2557) states repeated literal structure once, in Core's and AssetExtraction's hand-written catalog files. A
+list of two or more entries is not written out again, entry for entry, in another list of the same file, and a list
+writes no entry out three or more times in a row; entries compare by their text with its spacing removed. The shared
+list is one named definition the entries reference (`ChestOpenUploads`, `NorfairRidleyFirstShades`), a mirrored or
+reversed run is derived from the one it repeats (`AnimationBeats<TFrame, TEvent>.Backwards`, `OtherWayRound`,
+`SpritePart.MirroredVertically`), a run sharing a duration is built from its frames and that duration once
+(`AnimationBeats<TFrame, TEvent>.Steady`), and a placement names its object once, by its setup, whose kind follows from
+it (`RoomObjectKindDefinitions`). A generated catalog (`<auto-generated/>`) is its generator's to state once: the
+room-object populations place each scroll trigger with the reach its extensions give it (`ScrollTriggerPlacements`).
+
+SME6486 (#2563) keeps the random number's places out of gameplay. A random choice in Core names its roll by its
+outcomes: the number's ordinary roll of so many values (`RandomSampleField.OneOf(64)`), its second roll taken alongside
+the ordinary one (`RandomSampleField.SecondOf(64)`, a height beside a column), a part of its range
+(`RandomSampleField.RangePart(4)`, one chance in four taken by the lowest part), the whole number or nothing. A choice
+the game took from other places of the number reads a member of a compatibility service named for that choice
+(`KraidRandomRolls.SpitLaunch`, `TorizoRandomRolls.LowHealthDrool`), the only place a `RandomSampleField` is built from a
+position and a width. Counter phases are rhythms, never places of a counter: a flash white for two updates of every four
+is an `UpdateAlternation` of two updates each way, a shake through four offsets held two updates each is an
+`UpdateCycle` of four steps of two, and an action every eighth update is an `UpdateCadence`. Narrow integer storage of
+gameplay state is SME6347's; this rule adds no allowance for it.
 
 SME6474 (#2566) keeps every result read and every parameter needed, in Core and AssetExtraction. A method outside the
 assembly's public surface whose result no caller in the assembly reads, each caller discarding it (`_ = Step();`) or

@@ -145,4 +145,24 @@ public sealed class SamusCeresRidleyEjectionState
             samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.WithSpeed(fallSpeed + samus.Kinematics.YAcceleration);
         SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = SamusVerticalVelocity.Falling(samus.Kinematics.VerticalVelocity.Speed).Displacement, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter) });
     }
+
+    /// <summary>Where Ceres Ridley's shove stands: inactive, starting, or pushing toward its side.</summary>
+    private abstract record Shove
+    {
+        /// <summary>No shove holds her.</summary>
+        internal static Shove Inactive { get; } = new InactiveShove();
+
+        /// <summary>The shove has been requested and starts on its next update.</summary>
+        internal static Shove Starting { get; } = new StartingShove();
+
+        /// <summary>No shove holds her.</summary>
+        private sealed record InactiveShove : Shove;
+
+        /// <summary>The shove starts on its next update.</summary>
+        private sealed record StartingShove : Shove;
+    }
+
+    /// <summary>The shove pushes her toward <paramref name="Side"/>.</summary>
+    /// <param name="Side">The side it pushes her toward.</param>
+    private sealed record Pushing(HorizontalDirection Side) : Shove;
 }

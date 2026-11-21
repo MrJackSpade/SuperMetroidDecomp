@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -27,9 +29,9 @@ public static class CeresRidleyColorExtractor
             BodyFade = ReadRows(RidleySourceDefinitions.Ceres.BodyFadeColors,
                 RidleyShadeDefinitions.BodyFadeShadeCount,
                 CeresRidleyColorFormat.BodyFadeColorCount),
-            Health = ReadRows(RidleySourceDefinitions.Ceres.HealthColors,
-                CeresRidleyColorFormat.HealthBandCount,
-                CeresRidleyColorFormat.HealthColorCount),
+            Health = Rgb5Rows.KeyedInTableOrder(RidleySourceDefinitions.Ceres.HealthTableOrder, band => band.Key,
+                row => ReadColors(RidleySourceDefinitions.Ceres.HealthColors + row * CeresRidleyColorFormat.HealthColorCount * sizeof(ushort),
+                    CeresRidleyColorFormat.HealthColorCount)),
             Alarm = ReadRows(RidleySourceDefinitions.Ceres.AlarmColors,
                 CeresRidleyColorFormat.AlarmStepCount,
                 CeresRidleyColorFormat.AlarmColorCount),
@@ -58,12 +60,7 @@ public static class CeresRidleyColorExtractor
             for (int color = 0; color < count; color++)
             {
                 int word = LittleEndianBytes.Word(bytes[color * 2], bytes[color * 2 + 1]);
-                result[color] = new PaletteRgb5
-                {
-                    Red = word & 31,
-                    Green = word >> 5 & 31,
-                    Blue = word >> 10 & 31,
-                };
+                result[color] = PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(word));
             }
             return result;
         }

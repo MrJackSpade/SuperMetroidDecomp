@@ -17,55 +17,13 @@ public sealed record SuperMetroidSaveSnapshot
     public required bool IconCancelEnabled { get; init; }
 
     /// <summary>Whether the alternate Japanese text setting is enabled.</summary>
-    public required bool JapaneseText { get; init; }
+    public required TextLanguage Language { get; init; }
 
-    /// <summary>The collected items Samus has equipped.</summary>
-    public required SamusEquipmentFlags EquippedItems { get; init; }
-
-    /// <summary>The items Samus has collected, equipped or not.</summary>
-    public required SamusEquipmentFlags CollectedItems { get; init; }
-
-    /// <summary>The collected beams Samus has equipped.</summary>
-    public required SamusBeamFlags EquippedBeams { get; init; }
-
-    /// <summary>The beams Samus has collected, equipped or not.</summary>
-    public required SamusBeamFlags CollectedBeams { get; init; }
-
-    /// <summary>The reserve tanks' mode: none, auto or manual.</summary>
-    public required ReserveTankMode ReserveMode { get; init; }
-
-    /// <summary>Samus's current energy in energy-point units.</summary>
-    public required int Health { get; init; }
-
-    /// <summary>Samus's energy capacity in energy-point units.</summary>
-    public required int MaxHealth { get; init; }
-
-    /// <summary>The current ordinary missile count.</summary>
-    public required int Missiles { get; init; }
-
-    /// <summary>The acquired ordinary missile capacity.</summary>
-    public required int MaxMissiles { get; init; }
-
-    /// <summary>The current super missile count.</summary>
-    public required int SuperMissiles { get; init; }
-
-    /// <summary>The acquired super missile capacity.</summary>
-    public required int MaxSuperMissiles { get; init; }
-
-    /// <summary>The current power bomb count.</summary>
-    public required int PowerBombs { get; init; }
-
-    /// <summary>The acquired power bomb capacity.</summary>
-    public required int MaxPowerBombs { get; init; }
+    /// <summary>What Samus carries: her items and beams, reserve mode, energy, ammunition and reserve, with their capacities.</summary>
+    public required SamusInventory Inventory { get; init; }
 
     /// <summary>The HUD selection: beam, missile, super missile, power bomb, grapple, or X-ray.</summary>
     public required HudItem HudItem { get; init; }
-
-    /// <summary>The acquired reserve-tank capacity in energy-point units.</summary>
-    public required int MaxReserveEnergy { get; init; }
-
-    /// <summary>The energy-point total currently stored in reserve tanks.</summary>
-    public required int ReserveEnergy { get; init; }
 
     /// <summary>The gameplay clock's reading.</summary>
     public required GameClockReading GameTime { get; init; }
@@ -94,23 +52,9 @@ public sealed record SuperMetroidSaveSnapshot
             ControllerBindings = context.ControllerBindings.RequireUniquePermutation(),
             MoonwalkEnabled = context.MoonwalkEnabled,
             IconCancelEnabled = context.IconCancelEnabled,
-            EquippedItems = samus.EquippedItems,
-            CollectedItems = samus.CollectedItems,
-            EquippedBeams = samus.EquippedBeams,
-            CollectedBeams = samus.CollectedBeams,
-            ReserveMode = samus.ReserveTankMode,
-            Health = samus.Health,
-            MaxHealth = samus.MaxHealth,
-            Missiles = samus.Missiles,
-            MaxMissiles = samus.MaxMissiles,
-            SuperMissiles = samus.SuperMissiles,
-            MaxSuperMissiles = samus.MaxSuperMissiles,
-            PowerBombs = samus.PowerBombs,
-            MaxPowerBombs = samus.MaxPowerBombs,
+            Inventory = samus.Inventory,
             HudItem = samus.SelectedHudItem,
-            MaxReserveEnergy = samus.MaxReserveEnergy,
-            ReserveEnergy = samus.ReserveEnergy,
-            JapaneseText = context.JapaneseText,
+            Language = context.Language,
             GameTime = context.GameTime,
             StartupRoute = system.SavedStartupRoute,
             Checkpoint = Ensure.NotNull(context.Checkpoint),

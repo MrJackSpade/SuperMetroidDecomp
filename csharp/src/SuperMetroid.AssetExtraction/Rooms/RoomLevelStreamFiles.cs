@@ -207,9 +207,9 @@ public static class RoomLevelStreamFiles
         RoomLevelId level, int index)
     {
         RoomBlockBehavior rebuilt;
-        switch (ReadingOf(kind))
+        switch (RoomCollisionTypes.Of(kind).Behavior)
         {
-            case BehaviorReading.Reaction:
+            case RoomCollisionBehaviorKind.Reaction:
             {
                 BlockReactionFamily family = BlockReactionFamilies.Of(kind) ??
                     throw new InvalidOperationException($"Collision kind {kind} reads no reaction.");
@@ -219,16 +219,16 @@ public static class RoomLevelStreamFiles
                 rebuilt = reaction.Behavior;
                 break;
             }
-            case BehaviorReading.Slope:
+            case RoomCollisionBehaviorKind.Slope:
                 writer.Write(checked((byte)IndexOf(SlopeShapes, behavior.Slope.Shape)));
                 writer.Write(checked((byte)MirroringCodes.IndexOf(behavior.Slope.Mirroring)));
                 rebuilt = RoomBlockBehavior.Sloping(behavior.Slope);
                 break;
-            case BehaviorReading.Extension:
+            case RoomCollisionBehaviorKind.Extension:
                 writer.Write(checked((sbyte)behavior.ExtensionOffset));
                 rebuilt = RoomBlockBehavior.Extending(behavior.ExtensionOffset);
                 break;
-            case BehaviorReading.Nothing:
+            case RoomCollisionBehaviorKind.None:
                 rebuilt = RoomBlockBehavior.None;
                 break;
             default:
@@ -244,9 +244,9 @@ public static class RoomLevelStreamFiles
     private static RoomBlockBehavior ReadBehavior(BinaryReader reader, RoomCollisionType kind,
         Dictionary<BlockReactionFamily, BlockReaction[]> reactions, SlopeShape[] shapes)
     {
-        switch (ReadingOf(kind))
+        switch (RoomCollisionTypes.Of(kind).Behavior)
         {
-            case BehaviorReading.Reaction:
+            case RoomCollisionBehaviorKind.Reaction:
             {
                 BlockReaction[] named = reactions[BlockReactionFamilies.Of(kind) ??
                     throw new InvalidOperationException($"Collision kind {kind} reads no reaction.")];
@@ -255,7 +255,7 @@ public static class RoomLevelStreamFiles
                     throw new InvalidDataException($"Reaction code {reaction} is not one of the {named.Length} reactions the {kind} family names.");
                 return named[reaction].Behavior;
             }
-            case BehaviorReading.Slope:
+            case RoomCollisionBehaviorKind.Slope:
             {
                 int shape = reader.ReadByte();
                 if (shape >= shapes.Length)
@@ -265,28 +265,14 @@ public static class RoomLevelStreamFiles
                     throw new InvalidDataException($"Mirroring code {mirroring} is not one of the {MirroringCodes.Length} codes.");
                 return RoomBlockBehavior.Sloping(new SlopeGeometry(shapes[shape], MirroringCodes[mirroring]));
             }
-            case BehaviorReading.Extension:
+            case RoomCollisionBehaviorKind.Extension:
                 return RoomBlockBehavior.Extending(reader.ReadSByte());
-            case BehaviorReading.Nothing:
+            case RoomCollisionBehaviorKind.None:
                 return RoomBlockBehavior.None;
             default:
                 throw new InvalidOperationException($"Undefined behaviour reading for collision kind {kind}.");
         }
     }
-
-    /// <summary>The reading a collision kind takes of its block's behaviour, which decides how the level files write it.</summary>
-    private static BehaviorReading ReadingOf(RoomCollisionType kind) => kind switch
-    {
-        RoomCollisionType.Slope => BehaviorReading.Slope,
-        RoomCollisionType.HorizontalExtension or RoomCollisionType.VerticalExtension => BehaviorReading.Extension,
-        RoomCollisionType.SpikeAir or RoomCollisionType.SpecialAir or RoomCollisionType.ShootableAir or
-            RoomCollisionType.BombableAir or RoomCollisionType.SpikeBlock or RoomCollisionType.SpecialBlock or
-            RoomCollisionType.ShootableBlock or RoomCollisionType.GrappleBlock or RoomCollisionType.BombableBlock =>
-            BehaviorReading.Reaction,
-        RoomCollisionType.Air or RoomCollisionType.UnrevealedAir or RoomCollisionType.SolidBlock or RoomCollisionType.DoorBlock =>
-            BehaviorReading.Nothing,
-        _ => throw new InvalidOperationException($"Undefined collision kind {kind}."),
-    };
 
     /// <summary>Writes a terrain block: its collision kind's position, then its appearance.</summary>
     private static void WriteTerrain(BinaryWriter writer, RoomTerrainBlock block)
@@ -301,10 +287,10 @@ public static class RoomLevelStreamFiles
     /// <exception cref="InvalidDataException">The appearance is terrain beyond the room, which no installed level holds.</exception>
     private static void WriteAppearance(BinaryWriter writer, RoomBlockAppearance appearance)
     {
-        if (appearance.IsBeyondRoom)
+        if (appearance.Shows == RoomBlockShown.BeyondRoom)
             throw new InvalidDataException("An installed level holds no terrain beyond the room: the game fills that space itself.");
-        writer.Write(ShownCodes[appearance.ShowsNothing ? Shown.Nothing : Shown.Block]);
-        if (appearance.ShowsBlock)
+        writer.Write(ShownCodes[appearance.Shows == RoomBlockShown.Nothing ? Shown.Nothing : Shown.Block]);
+        if (appearance.Shows == RoomBlockShown.Block)
             writer.Write(checked((ushort)appearance.Block));
         writer.Write(checked((byte)MirroringCodes.IndexOf(appearance.Mirroring)));
     }
@@ -465,22 +451,6 @@ public static class RoomLevelStreamFiles
                 return index;
         }
         throw new InvalidOperationException($"{item} is not among the {items.Count} the level files name.");
-    }
-
-    /// <summary>The readings a collision kind takes of its block's behaviour, which decide how the level files write it.</summary>
-    private enum BehaviorReading
-    {
-        /// <summary>The kind reads no behaviour; its block holds <see cref="RoomBlockBehavior.None"/>.</summary>
-        Nothing,
-
-        /// <summary>The kind reads its family's reaction.</summary>
-        Reaction,
-
-        /// <summary>The kind reads a slope's shape and mirroring.</summary>
-        Slope,
-
-        /// <summary>The kind reads a signed offset to the block it collides as.</summary>
-        Extension,
     }
 
     /// <summary>

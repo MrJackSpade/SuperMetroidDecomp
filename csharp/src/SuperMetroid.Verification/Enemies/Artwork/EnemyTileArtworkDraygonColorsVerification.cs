@@ -109,7 +109,7 @@ internal static class EnemyTileArtworkDraygonColorsVerification
         {
             body.HurtFlash.Restart(flash);
             enemies.DraygonBehavior.Combat.ApplyDraygonHurt(body, state, grappling);
-            if (DraygonCadenceDefinitions.HurtWhiteFlashShown.IsSetIn(flash))
+            if (DraygonCadenceDefinitions.HurtWhiteFlashShown.IsInSecondHalfAt(flash))
                 continue;
             nonWhite++;
             AssertStartingBandShown($"the grapple shock's hurt update at flash {flash}");
@@ -155,7 +155,7 @@ internal static class EnemyTileArtworkDraygonColorsVerification
         AssertEqual(DraygonPhase.IntroInitialDelay, state.Phase,
             "visual health-band checks leave Draygon AI unchanged");
 
-        visual.HealthBands[1][1] = visual.HealthBands[1][1] with { Blue = 32 };
+        visual.HealthBands.Values.ElementAt(1)[1] = visual.HealthBands.Values.ElementAt(1)[1] with { Blue = 32 };
         AssertThrows<InvalidDataException>(() => DraygonColorFile.Read(new MemoryStream(DraygonColorFile.Write(visual), writable: false)),
             "reading Draygon colors rejects an RGB5 channel outside five-bit precision");
         Console.WriteLine("  Draygon colors: 105 native RGB5 words, live intro/hurt/flash/eight health bands, ROM guard, and strict failures pass.");

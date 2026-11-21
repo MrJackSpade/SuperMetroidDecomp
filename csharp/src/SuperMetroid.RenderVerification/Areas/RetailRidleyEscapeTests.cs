@@ -45,16 +45,16 @@ internal static class RetailRidleyEscapeTests
                 }
                 runtime.StepFrame(0);
                 bool newPhase = phases.Add((ridley ?? throw new InvalidOperationException("Verification requires ridley.")).PhaseName());
-                if (runtime.Enemies.CeresEscape.Floor.Active)
+                if (runtime.Enemies.CeresEscape.ShownFloor is not null)
                 {
                     mixedFrames++;
                     floorViews.Add(runtime.Enemies.CeresEscape.ShownFloor ?? throw new InvalidOperationException("An active getaway shows its floor."));
                 }
                 finished = triggered && runtime.Enemies.RidleyEncounter.CeresStatus == SuperMetroid.Core.Enemies.CeresEscapeStatus.SelfDestructStarted &&
-                    !runtime.Enemies.CeresEscape.Floor.Active && !samus.CeresRidleyEjection.IsActive;
+                    runtime.Enemies.CeresEscape.ShownFloor is null && !samus.CeresRidleyEjection.IsActive;
                 // Capture every mixed-mode frame, every AI boundary and periodic startup
                 // frames. Completion is captured before leaving the room-local fixture.
-                if (tick % 8 == 0 || newPhase || runtime.Enemies.CeresEscape.Floor.Active || finished)
+                if (tick % 8 == 0 || newPhase || runtime.Enemies.CeresEscape.ShownFloor is not null || finished)
                 {
                     GameplayDisplayFrame frame = runtime.PublishDisplayFrame();
                     var expected = FrontendScenePixelsAccess.Pixels(frame);

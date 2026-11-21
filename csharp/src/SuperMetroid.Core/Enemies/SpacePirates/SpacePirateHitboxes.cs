@@ -18,7 +18,7 @@ internal static class SpacePirateHitboxes
             int bottom = origin.Y + hitbox.Bottom;
             if (!probe.Overlaps(left, top, right, bottom))
                 continue;
-            return EnemyHitboxContact.Struck(probe.SelectsShot ? hitbox.Shot : hitbox.Touch);
+            return EnemyHitboxContact.Struck(probe.Contact == HitboxContactKind.Shot ? hitbox.Shot : hitbox.Touch);
         }
         return EnemyHitboxContact.Missed;
     }
@@ -28,6 +28,5 @@ internal static class SpacePirateHitboxes
     /// triggers as it does the common one.
     /// </summary>
     /// <param name="reaction">The reaction the species definition or the selected hitbox names.</param>
-    internal static bool OwnsShotReaction(EnemyReaction reaction) =>
-        (reaction == SpacePirateReactions.Shot || reaction == SpacePirateReactions.GoldNinjaVulnerableHitboxShot || reaction == SpacePirateReactions.GoldNinjaInvincibleHitboxShot);
+    internal static bool OwnsShotReaction(EnemyReaction reaction) => SpacePirateReactions.Own.Contains(reaction);
 }

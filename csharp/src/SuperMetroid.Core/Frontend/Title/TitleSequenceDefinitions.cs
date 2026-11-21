@@ -37,21 +37,24 @@ public static class TitleSequenceDefinitions
         public const MusicTrack ImmediateTitleTrack = MusicTrack.TitleScreen;
     }
 
-    /// <summary>The four title cards: where each draws and in which colouring.</summary>
+    /// <summary>The four title cards: each draws at the cards' one origin in the text colouring.</summary>
     public static class TextSequences
     {
+        /// <summary>Where every card draws, in screen pixels.</summary>
+        private static readonly Offset16<ScreenPixels> CardOrigin = new(129, 112);
         /// <summary>The year card.</summary>
-        public static readonly TitleTextSequenceDefinition Year =
-            new(TitleSequencePhase.YearText, new(129, 112), TitleSpriteColouring.Text);
+        public static readonly TitleTextSequenceDefinition Year = Card(TitleSequencePhase.YearText, TitleCardDefinitions.Year);
         /// <summary>The Nintendo card.</summary>
-        public static readonly TitleTextSequenceDefinition Nintendo =
-            new(TitleSequencePhase.NintendoText, new(129, 112), TitleSpriteColouring.Text);
+        public static readonly TitleTextSequenceDefinition Nintendo = Card(TitleSequencePhase.NintendoText, TitleCardDefinitions.Nintendo);
         /// <summary>The Presents card.</summary>
-        public static readonly TitleTextSequenceDefinition Presents =
-            new(TitleSequencePhase.PresentsText, new(129, 112), TitleSpriteColouring.Text);
+        public static readonly TitleTextSequenceDefinition Presents = Card(TitleSequencePhase.PresentsText, TitleCardDefinitions.Presents);
         /// <summary>The Metroid 3 card.</summary>
-        public static readonly TitleTextSequenceDefinition MetroidThree =
-            new(TitleSequencePhase.MetroidThreeText, new(129, 112), TitleSpriteColouring.Text);
+        public static readonly TitleTextSequenceDefinition MetroidThree = Card(TitleSequencePhase.MetroidThreeText, TitleCardDefinitions.MetroidThree);
+        /// <summary>The four cards, in the order the title shows them.</summary>
+        public static readonly IReadOnlyList<TitleTextSequenceDefinition> All = [Year, Nintendo, Presents, MetroidThree];
+
+        /// <summary><paramref name="phase"/> typing <paramref name="card"/>, drawn at the cards' origin in the text colouring.</summary>
+        private static TitleTextSequenceDefinition Card(TitleSequencePhase phase, TitleCardDefinition card) => new(phase, card, CardOrigin, TitleSpriteColouring.Text);
     }
 
     /// <summary>The floor scenes' starting transforms, motion and completion thresholds.</summary>

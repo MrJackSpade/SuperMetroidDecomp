@@ -8,8 +8,14 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// share, the copyright's hold between them pausing it.
 /// </summary>
 /// <param name="fade">The reward's colour fade, started as the reveal starts.</param>
-internal sealed class EndingRewardRevealScene(PacedFadeSteps fade) : EndingScene
+/// <param name="phase">The phase the scene runs: one of the reveal's halves, or the copyright's hold between them.</param>
+internal sealed class EndingRewardRevealScene(PacedFadeSteps fade, EndingCreditsPhase phase) : EndingScene
 {
+    /// <inheritdoc/>
+    internal override EndingCreditsPhase Phase { get; } =
+        phase == EndingCreditsPhase.PostCreditsReward || phase == EndingCreditsPhase.PostCreditsCopyright ? phase
+            : throw new ArgumentException($"The reward's reveal runs no {phase} phase.", nameof(phase));
+
     /// <summary>The reward's colour fade.</summary>
     internal PacedFadeSteps Fade { get; } = Ensure.NotNull(fade);
 

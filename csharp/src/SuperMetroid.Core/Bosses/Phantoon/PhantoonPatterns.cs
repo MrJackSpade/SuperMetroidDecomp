@@ -220,7 +220,7 @@ internal sealed class PhantoonPatterns
             if (state.WindowEnd != PhantoonWindowEnd.Swoop)
             {
                 state.Phase = PhantoonPhase.WaitingOnEye;
-                state.BodyPart.StartAnimation(PhantoonPartSegment.InvulnerableBody);
+                state.ShowBody(PhantoonBodyHitArea.SolidifyingCentre);
                 state.EyePart.StartAnimation(PhantoonPartSegment.EyeCloseAndPickNewPattern);
                 body.Contact = body.Contact.With(EnemyContact.IgnoresSamus);
 
@@ -246,7 +246,7 @@ internal sealed class PhantoonPatterns
         PointPhantoonEyeAtSamus(body, state, samus);
         state.Translucent = false;
         BeginPhantoonSwoop(state);
-        state.BodyPart.StartAnimation(PhantoonPartSegment.FullHitboxBody);
+        state.ShowBody(PhantoonBodyHitArea.WholeBody);
     }
 
     /// <summary>Runs the opaque swoop (<see cref="PhantoonArenaDefinitions.SwoopUpdates"/>).</summary>
@@ -262,7 +262,7 @@ internal sealed class PhantoonPatterns
 
         state.Phase = PhantoonPhase.FadeOutWhileSwooping;
         state.Translucent = true;
-        state.BodyPart.StartAnimation(PhantoonPartSegment.InvulnerableBody);
+        state.ShowBody(PhantoonBodyHitArea.SolidifyingCentre);
         state.EyePart.StartAnimation(PhantoonPartSegment.EyeClose);
         body.Contact = body.Contact.With(EnemyContact.IgnoresSamus);
         state.BodyFade.Resume();
@@ -332,7 +332,7 @@ internal sealed class PhantoonPatterns
     {
         state.BodyFade.Resume();
         state.Translucent = false;
-        state.BodyPart.StartAnimation(PhantoonPartSegment.FullHitboxBody);
+        state.ShowBody(PhantoonBodyHitArea.WholeBody);
         state.EyePart.StartAnimation(PhantoonPartSegment.EyeballCentered);
         state.Phase = PhantoonPhase.FadeInDuringFlameRain;
     }
@@ -370,7 +370,7 @@ internal sealed class PhantoonPatterns
 
         state.Phase = PhantoonPhase.FadeOutDuringFlameRain;
         state.BodyFade.Resume();
-        state.BodyPart.StartAnimation(PhantoonPartSegment.InvulnerableBody);
+        state.ShowBody(PhantoonBodyHitArea.SolidifyingCentre);
         state.EyePart.StartAnimation(PhantoonPartSegment.EyeClose);
         body.Contact = body.Contact.With(EnemyContact.IgnoresSamus);
         state.Translucent = true;
@@ -465,7 +465,7 @@ internal sealed class PhantoonPatterns
             return;
 
         // Alternating waves contain different numbers of flames, as their definitions hold.
-        IReadOnlyList<PhantoonRageFlameStart> wave = PhantoonCadenceDefinitions.OddRageWave.IsSetIn(state.RageWaveCount)
+        IReadOnlyList<PhantoonRageFlameStart> wave = PhantoonCadenceDefinitions.OddRageWave.IsInSecondHalfAt(state.RageWaveCount)
             ? PhantoonFlameSpawns.OddRageWave
             : PhantoonFlameSpawns.EvenRageWave;
         foreach (PhantoonRageFlameStart start in wave)
@@ -639,7 +639,7 @@ internal sealed class PhantoonPatterns
     {
         state.PhaseWait.LastFor(PhantoonArenaDefinitions.PatternPickUpdates);
         state.Round.EyeClosedWait.LastFor(PhantoonRandomDefinitions.EyeClosed.Choose(_room.Random.Generate()));
-        if (PhantoonCadenceDefinitions.FigureEightReverses.IsSetIn(_frameContext.FrameCounter))
+        if (PhantoonCadenceDefinitions.FigureEightReverses.IsInSecondHalfAt(_frameContext.FrameCounter))
         {
             if (state.FigureEight.Direction == PhantoonPathDirection.Forwards)
                 state.FigureEight.PathPlace = state.FigureEight.PathPlace.PreviousInCycle;

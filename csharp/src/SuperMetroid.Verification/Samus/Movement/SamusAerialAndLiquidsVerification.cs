@@ -381,7 +381,7 @@ internal static void VerifySamusSpaceJumpAndScrewAttack()
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             EquippedItems = gravity ? SamusEquipmentFlags.GravitySuit : 0,
         };
-        global::SuperMetroid.Core.PrivateState.Set(ordinary.LiquidPhysics, "WaterSurfaceY", submerged ? 0 : null);
+        global::SuperMetroid.Core.PrivateState.Set(ordinary.LiquidPhysics, "Surface", submerged ? new global::SuperMetroid.Core.Samus.Movement.SamusLiquidSurface.Water(0, IgnoredUntilEnabled: false) : global::SuperMetroid.Core.Samus.Movement.SamusLiquidSurface.None);
         if (cinematic)
             ordinary.Presentation.PresentInCinematic();
         SamusAerialPoseTransitions.ApplyOrdinaryJumpTransition(ordinary, SamusPoseId.SpinJumpRightPose);
@@ -714,11 +714,11 @@ empty, screwRepeat, GameplayAction.Jump, 0, GameplayAction.Jump, roomObjects: Sa
     // Samus names shades (#1512); the import resolves them from the seeded suits and cycles.
     var aerialSources = InstalledFixtures.SamusShadeSources with { Suits = suitColors, FullBodyCycles = cycleColors.ToColours() };
     var samusColours = new SamusColours();
-    palettes.UpdateSpeedBoosterGlow(samusColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.SpinJumping, AnimationOnSpinStart = (0x1b) == 0, AnimationPastScrewAttackSpin = (0x1b) >= 27, AnimationBeforeWallJumpSpin = (0x1b) < 3, EquippedItems = SamusEquipmentFlags.ScrewAttack, SuppressActiveSpeedBoosterGlow = false, BottomBoundarySubmerged = false });
+    palettes.UpdateSpeedBoosterGlow(samusColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.SpinJumping, SpinPlace = SpinGlowPlace.ShowsNormalColours, EquippedItems = SamusEquipmentFlags.ScrewAttack, SuppressActiveSpeedBoosterGlow = false, BottomBoundarySubmerged = false });
     AssertEqual(0x0111, samusColours.ShownSuit(aerialSources)[0], "ending Screw frame normal palette");
     for (int frame = 0; frame < 6; frame++)
     {
-        palettes.UpdateSpeedBoosterGlow(samusColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.SpinJumping, AnimationOnSpinStart = (1) == 0, AnimationPastScrewAttackSpin = (1) >= 27, AnimationBeforeWallJumpSpin = (1) < 3, EquippedItems = SamusEquipmentFlags.ScrewAttack, SuppressActiveSpeedBoosterGlow = false, BottomBoundarySubmerged = false });
+        palettes.UpdateSpeedBoosterGlow(samusColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.SpinJumping, SpinPlace = SpinGlowPlace.Glowing, EquippedItems = SamusEquipmentFlags.ScrewAttack, SuppressActiveSpeedBoosterGlow = false, BottomBoundarySubmerged = false });
         AssertEqual(unchecked((ushort)(0x1200 + Math.Min(frame, 6 - frame))), samusColours.ShownSuit(aerialSources)[0],
             $"Screw palette frame {frame} ROM color");
     }
@@ -1169,7 +1169,7 @@ internal static void VerifySamusAtmosphericEffects()
     // A spray particle shown for two updates first counts down and draws step zero, applying +1/-1 motion. The next
     // update reloads step zero's duration, advances to step one, and draws its distinct `$2A49` attribute word.
     var effects = new SamusParticles();
-    effects.SpawnLavaSpray(new(104, 104), SamusParticleStart.Shown(2), horizontalDrift: 1);
+    effects.SpawnLavaSpray(new(104, 104), SamusParticleStart.Shown(2), HorizontalDirection.Right);
     var oamFrame = new SpriteFrameBuffer();
     oamFrame.BeginFrame();
     OamBuffer oam;
@@ -1195,7 +1195,7 @@ internal static void VerifySamusAtmosphericEffects()
     // A particle hidden for two updates does nothing on the first; the second reloads the current ROM duration, moves,
     // and draws.
     effects.Clear();
-    effects.SpawnLavaSpray(new(100, 100), SamusParticleStart.Hidden(2), horizontalDrift: 1);
+    effects.SpawnLavaSpray(new(100, 100), SamusParticleStart.Hidden(2), HorizontalDirection.Right);
     oamFrame.BeginFrame();
     effects.UpdateAndDraw(oamFrame, new(0, 0), 0, SamusBodySheetFixtures.ForAtmosphere(atmosphere: atmosphericArt));
     oam = oamFrame.FinalizeAsOam();
@@ -1213,7 +1213,7 @@ internal static void VerifySamusAtmosphericEffects()
         Pose = SamusPoseId.MovingRightNormalPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)),
         // A dry room: the Landing Site without its rain.
-        Ground = SamusGround.Of(RoomDefinitions.LandingSite),
+        Ground = RoomDefinitions.LandingSite.Ground,
     };
     SamusPoseMetadata.RefreshCollisionRadii(runner);
     SamusPresentation.InitializeAnimation(runner, runner.PoseFrameNumbered(2));
@@ -1265,7 +1265,7 @@ internal static void VerifySamusAtmosphericEffects()
     WritePoseDefinition(bus, 0x19, [8, 3, 0xff, 0xff, 0, 0, 12, 0]);
     SamusPoseMetadata.RefreshCollisionRadii(landing);
     landing.Kinematics.VerticalVelocity = landing.Kinematics.VerticalVelocity.WithSpeed(new UnsignedSixteenSixteen(4, 1));
-    landing.Ground = SamusGround.Of(RoomDefinitions.FirstIn(AreaId.Norfair));
+    landing.Ground = RoomDefinitions.FirstIn(AreaId.Norfair).Ground;
     landing.LiquidPhysics.BeginFrameSoundRequests();
     landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
         landing, previousMovementType: SamusMovementType.SpinJumping, previousPose: SamusPoseId.SpinJumpRightPose,
@@ -1348,8 +1348,8 @@ internal static void VerifySamusAtmosphericEffects()
     // Ceres shows no landing effect, which ends the bubbles' wait as the original game's deletion of the landing's
     // effects did; particles already shown run out on their own. Zero vertical speed returns even earlier and therefore
     // ends nothing.
-    landing.Ground = SamusGround.Of(RoomDefinitions.FirstIn(AreaId.Ceres));
-    global::SuperMetroid.Core.PrivateState.Set(landing.LiquidPhysics, "WaterSurfaceY", null);
+    landing.Ground = RoomDefinitions.FirstIn(AreaId.Ceres).Ground;
+    global::SuperMetroid.Core.PrivateState.Set(landing.LiquidPhysics, "Surface", global::SuperMetroid.Core.Samus.Movement.SamusLiquidSurface.None);
     landing.Kinematics.VerticalVelocity = landing.Kinematics.VerticalVelocity.WithSpeed(landing.Kinematics.VerticalVelocity.Speed.WithWhole(1));
     int beforeCeres = landingParticles.Count;
     landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
@@ -1367,9 +1367,9 @@ internal static void VerifySamusAtmosphericEffects()
     // Crateria reads its literal inline room byte. Landing Site flag one requires exact FX
     // type `$000A`; with a dry surface it creates surface splashes at +4/-3 and bottom-4.
     SeedLandingSiteInlineRoomByte(bus);
-    landing.Ground = SamusGround.Of(RoomDefinitions.LandingSite);
+    landing.Ground = RoomDefinitions.LandingSite.Ground;
     PrivateState.Set(landing.LiquidPhysics, nameof(SamusLiquidPhysicsState.FxType), RoomFxType.Rain);
-    global::SuperMetroid.Core.PrivateState.Set(landing.LiquidPhysics, "WaterSurfaceY", null);
+    global::SuperMetroid.Core.PrivateState.Set(landing.LiquidPhysics, "Surface", global::SuperMetroid.Core.Samus.Movement.SamusLiquidSurface.None);
     landing.Kinematics.VerticalVelocity = landing.Kinematics.VerticalVelocity.WithSpeed(landing.Kinematics.VerticalVelocity.Speed.WithFraction(1));
     landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
         landing, previousMovementType: SamusMovementType.Falling, previousPose: SamusPoseId.FallingRightPose,

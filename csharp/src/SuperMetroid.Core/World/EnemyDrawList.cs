@@ -90,7 +90,7 @@ internal sealed class EnemyDrawList
             // visibly move with the station instead of remaining pinned to host screen space.
             if (reached && place.Shake.IsRunning)
             {
-                origin += new Offset16<ScreenPixels>(1.Toward(EnemyDrawPhaseDefinitions.ShakeShiftsLeft.IsSetIn(place.FrameCounter)
+                origin += new Offset16<ScreenPixels>(1.Toward(EnemyDrawPhaseDefinitions.ShakeShiftsLeft.IsInSecondHalfAt(place.FrameCounter)
                     ? HorizontalDirection.Left : HorizontalDirection.Right), 0);
                 place.Shake.Count();
             }
@@ -193,12 +193,12 @@ internal sealed class EnemyDrawList
         // A hit flash shows the common hurt colours on alternate phases. The flash shades the draw over the enemy's own
         // shading: the colours it changes show the flash, and the colours it leaves as they are keep showing what the
         // enemy's own effects laid there.
-        if (place.HurtFlash.IsRunning && EnemyDrawPhaseDefinitions.HurtFlashShown.IsSetIn(_frameContext.EnemyPassCount))
+        if (place.HurtFlash.IsRunning && EnemyDrawPhaseDefinitions.HurtFlashShown.IsInSecondHalfAt(_frameContext.EnemyPassCount))
             return place.Shading.With(EnemyShades.HurtFlash);
 
         if (place.Freeze.IsRunning &&
             (place.Freeze.UpdatesLeft >= EnemyDrawPhaseDefinitions.FrozenColoursSteadyUpdates ||
-             EnemyDrawPhaseDefinitions.FrozenColoursShown.IsSetIn(place.Freeze.UpdatesLeft)))
+             EnemyDrawPhaseDefinitions.FrozenColoursShown.IsInSecondHalfAt(place.Freeze.UpdatesLeft)))
         {
             return place.Shading.With(EnemyShades.Frozen);
         }

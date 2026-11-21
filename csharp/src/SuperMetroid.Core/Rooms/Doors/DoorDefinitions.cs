@@ -353,7 +353,6 @@ public static class DoorDefinitions
         NorfairDoorDefinitions.LowerNorfairFarmingToPlowerhouse,
         NorfairDoorDefinitions.FastPillarsSetupToMainHall,
         NorfairDoorDefinitions.FastPillarsSetupToMickeyMouse,
-        NorfairDoorDefinitions.FastPillarsSetupToMainHallAlternate,
         NorfairDoorDefinitions.FastPillarsSetupToFastRipper,
         NorfairDoorDefinitions.FastPillarsSetupToPillar,
         NorfairDoorDefinitions.MickeyMouseToFastPillarsSetup,

@@ -10,7 +10,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Frontend.Options;
 
 /// <summary>Complete options-menu owner, including both secondary pages.</summary>
-public sealed class GameOptionsMenuState : IMenuFrontendScreen
+public sealed class GameOptionsMenuState : IMenuFrontendScreen, IComposedFrontendScene<LayeredScene>
 {
     /// <inheritdoc/>
     [MemberNotNull(nameof(spriteSheets))]
@@ -33,8 +33,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     private InstalledScreenContent screenContent;
     /// <summary>The page last loaded and the state its labels, language rows and toggle choices were drawn from (#1467).</summary>
     private ShownOptionsPage ShownPage { get; set; }
-    /// <summary>Page whose input and cursor policy currently apply.</summary>
-    private GameOptionsPage page = GameOptionsPage.Primary;
+
     /// <summary>Page to load when the current page has dissolved to black.</summary>
     private GameOptionsPage dissolveDestination = GameOptionsPage.Primary;
     /// <summary>The screen's brightness, which the page fades and final exits step one level an update.</summary>
@@ -59,7 +58,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     /// <param name="controllerBindings">Initial controller-button permutation; a new game's are the defaults.</param>
     /// <param name="iconCancelEnabled">Initial state of the automatic item-cancel option.</param>
     /// <param name="moonwalkEnabled">Initial state of the moonwalk option.</param>
-    /// <param name="japaneseText">Whether the Japanese-language page variants are initially selected.</param>
+    /// <param name="language">The text language initially chosen, whose page variants the menu shows.</param>
     [IndependentFlag("Icon cancel, moonwalk and Japanese text are three independent saved options.")]
     public GameOptionsMenuState(
         AudioQueues audio,
@@ -68,7 +67,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
         ControllerBindings controllerBindings,
         bool iconCancelEnabled,
         bool moonwalkEnabled,
-        bool japaneseText)
+        TextLanguage language)
     {
         this.audio = Ensure.NotNull(audio);
         this.screenContent = Ensure.NotNull(screenContent);
@@ -79,7 +78,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
         ControllerBindings = controllerBindings.RequireUniquePermutation();
         IconCancelEnabled = iconCancelEnabled;
         MoonwalkEnabled = moonwalkEnabled;
-        JapaneseText = japaneseText;
+        Language = language;
         LoadVisiblePage();
         Phase = GameOptionsPhase.BlackHold;
     }
@@ -94,12 +93,12 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     }
 
     /// <summary>The row the cursor is on: the selected row of the page the menu shows (#2206).</summary>
-    private GameOptionsRow SelectedRow => page switch
+    private GameOptionsRow SelectedRow => Page switch
     {
         GameOptionsPage.Primary => new GameOptionsRow.OnPrimaryPage(primaryRow),
         GameOptionsPage.Controller => new GameOptionsRow.OnControllerPage(controllerRow),
         GameOptionsPage.Special => new GameOptionsRow.OnSpecialPage(specialRow),
-        _ => throw new InvalidOperationException($"Unknown options page {page}."),
+        _ => throw new InvalidOperationException($"Unknown options page {Page}."),
     };
 
     /// <summary>
@@ -109,7 +108,10 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     public SaveStartupRoute StartupRoute { get; init; }
 
     /// <summary>Gets whether the Japanese-language options pages are selected.</summary>
-    public bool JapaneseText { get; private set; }
+    public TextLanguage Language { get; private set; }
+
+    /// <summary>The page the menu shows: the page taking input, or the page a transition shows (#2560).</summary>
+    private GameOptionsPage Page { get; set; } = GameOptionsPage.Primary;
 
     /// <summary>The seven live button assignments committed when the controller page exits.</summary>
     public ControllerBindings ControllerBindings { get; private set; }
@@ -147,18 +149,31 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
 
             case GameOptionsPhase.FadeIn:
                 if (fade.Brighten())
-                    Phase = GameOptionsPhase.Main;
+                    Phase = GameOptionsPhase.Browsing;
                 break;
 
-            case GameOptionsPhase.Main:
-                StepPrimary(pressed);
+            case GameOptionsPhase.Browsing:
+                switch (Page)
+                {
+                    case GameOptionsPage.Primary:
+                        StepPrimary(pressed);
+                        break;
+                    case GameOptionsPage.Controller:
+                        StepController(pressed);
+                        break;
+                    case GameOptionsPage.Special:
+                        StepSpecial(pressed);
+                        break;
+                    default:
+                        throw new InvalidOperationException($"Unknown options page {Page}.");
+                }
                 break;
 
             case GameOptionsPhase.DissolveOut:
                 if (fade.Darken())
                 {
-                    page = dissolveDestination;
-                    SelectFirstRow(page);
+                    Page = dissolveDestination;
+                    SelectFirstRow(Page);
                     pageVerticalScroll = 0;
                     LoadVisiblePage();
                     Phase = GameOptionsPhase.DissolveIn;
@@ -167,35 +182,19 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
 
             case GameOptionsPhase.DissolveIn:
                 if (fade.Brighten())
-                {
-                    Phase = page switch
-                    {
-                        GameOptionsPage.Primary => GameOptionsPhase.Main,
-                        GameOptionsPage.Controller => GameOptionsPhase.ControllerSettings,
-                        GameOptionsPage.Special => GameOptionsPhase.SpecialSettings,
-                        _ => throw new InvalidOperationException($"Unknown options page {page}."),
-                    };
-                }
-                break;
-
-            case GameOptionsPhase.ControllerSettings:
-                StepController(pressed);
-                break;
-
-            case GameOptionsPhase.SpecialSettings:
-                StepSpecial(pressed);
+                    Phase = GameOptionsPhase.Browsing;
                 break;
 
             case GameOptionsPhase.ScrollControllerDown:
                 pageVerticalScroll += GameOptionsDefinitions.ControllerScrollPixelsPerFrame;
                 if (pageVerticalScroll == GameOptionsDefinitions.ControllerScrollLimit)
-                    Phase = GameOptionsPhase.ControllerSettings;
+                    Phase = GameOptionsPhase.Browsing;
                 break;
 
             case GameOptionsPhase.ScrollControllerUp:
                 pageVerticalScroll -= GameOptionsDefinitions.ControllerScrollPixelsPerFrame;
                 if (pageVerticalScroll == 0)
-                    Phase = GameOptionsPhase.ControllerSettings;
+                    Phase = GameOptionsPhase.Browsing;
                 break;
 
             case GameOptionsPhase.FadeOutToIntro:
@@ -235,9 +234,9 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
         sprites.BeginFrame();
         var content = screenContent;
         SpriteSheet sheet = spriteSheets.Get(SpriteSheetId.GameOptions);
-        content.GameOptions.DrawHeading(sprites, sheet, page, pageVerticalScroll);
+        content.GameOptions.DrawHeading(sprites, sheet, Page, pageVerticalScroll);
         // Transitions show no cursor: only a page phase places it, at the selected row of the page it shows.
-        if (GameOptionsCursorPolicy.Select(Phase) is { } cursorPage)
+        if (GameOptionsCursorPolicy.Select(Phase, Page) is { } cursorPage)
         {
             GameOptionsRow selected = SelectedRow;
             if (selected.Page != cursorPage)
@@ -281,7 +280,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
                 break;
             case GameOptionsPrimaryRow.EnglishText:
             case GameOptionsPrimaryRow.JapaneseText:
-                JapaneseText = !JapaneseText;
+                Language = Language == TextLanguage.Japanese ? TextLanguage.English : TextLanguage.Japanese;
                 SelectFirstRow(GameOptionsPage.Primary);
                 LoadVisiblePage();
                 break;
@@ -433,14 +432,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     [MemberNotNull(nameof(ShownPage))]
     private void LoadVisiblePage()
     {
-        GameOptionsScreen shown = page switch
-        {
-            GameOptionsPage.Primary => GameOptionsScreen.Primary,
-            GameOptionsPage.Controller => JapaneseText ? GameOptionsScreen.ControllerJapanese : GameOptionsScreen.ControllerEnglish,
-            GameOptionsPage.Special => JapaneseText ? GameOptionsScreen.SpecialJapanese : GameOptionsScreen.SpecialEnglish,
-            _ => throw new InvalidOperationException($"Unknown options page {page}."),
-        };
-        ShownPage = new ShownOptionsPage(shown, JapaneseText, ControllerBindings, IconCancelEnabled, MoonwalkEnabled);
+        ShownPage = new ShownOptionsPage(Page, Language, ControllerBindings, IconCancelEnabled, MoonwalkEnabled);
     }
 
     /// <summary>Queues the cursor sound at the menu's sound priority.</summary>

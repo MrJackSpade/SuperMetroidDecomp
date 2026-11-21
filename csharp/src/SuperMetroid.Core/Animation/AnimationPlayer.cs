@@ -34,11 +34,14 @@ internal sealed class AnimationPlayer<TSegment, TFrame, TEvent>
     /// <summary>The updates the shown frame, or the pause, has left before the play moves on.</summary>
     internal int UpdatesLeft { get; private set; } = 1;
 
+    /// <summary>Whether the animation plays on, rests for good on a held frame or past its end, or has stopped (#2560).</summary>
+    private AnimationMotion Motion { get; set; }
+
     /// <summary>Whether the animation rests for good: on a held frame, or past its end where it holds or stops.</summary>
-    internal bool IsResting { get; private set; }
+    internal bool IsResting => Motion != AnimationMotion.Playing;
 
     /// <summary>Whether the animation has stopped: it played its last phase and ends there, showing nothing more.</summary>
-    internal bool HasStopped { get; private set; }
+    internal bool HasStopped => Motion == AnimationMotion.Stopped;
 
     /// <summary>
     /// Starts <paramref name="animation"/> showing nothing: its first update plays it to its first frame, as an animation
@@ -94,8 +97,7 @@ internal sealed class AnimationPlayer<TSegment, TFrame, TEvent>
         Playback = new(Ensure.NotNull(animation), AnimationPlace.StartOfAnimation);
         Shown = null;
         UpdatesLeft = 1;
-        IsResting = false;
-        HasStopped = false;
+        Motion = AnimationMotion.Playing;
     }
 
     /// <summary>
@@ -376,14 +378,13 @@ internal sealed class AnimationPlayer<TSegment, TFrame, TEvent>
                 break;
             case AnimationShown<TSegment, TFrame>.HeldFrame held:
                 Shown = held.Shown;
-                IsResting = true;
+                Motion = AnimationMotion.Resting;
                 break;
             case AnimationShown<TSegment, TFrame>.Held:
-                IsResting = true;
+                Motion = AnimationMotion.Resting;
                 break;
             case AnimationShown<TSegment, TFrame>.Ended:
-                IsResting = true;
-                HasStopped = true;
+                Motion = AnimationMotion.Stopped;
                 break;
             default:
                 throw new InvalidOperationException($"The animation played on to {next}.");
@@ -460,8 +461,7 @@ internal sealed class AnimationPlayer<TSegment, TFrame, TEvent>
             if (--phase < 0)
             {
                 Shown = null;
-                IsResting = true;
-                HasStopped = true;
+                Motion = AnimationMotion.Stopped;
                 return false;
             }
             AnimationPhase<TSegment> before = phases[phase];

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core;
@@ -87,7 +88,7 @@ internal static class EndingShootingStarsTests
 
         var installed = RepositoryInstallation.Installation;
         var maps = installed.LoadMaps();
-        var scene = new EndingCreditsState(AudioQueues.Standalone(), new EndingCreditsSetup { GameTimeHours = 2, GameTimeMinutes = 0, Inventory = default, JapaneseText = false, CrittersEscaped = false }, maps.EndingText,
+        var scene = new EndingCreditsState(AudioQueues.Standalone(), new EndingCreditsSetup { GameTimeHours = 2, GameTimeMinutes = 0, Inventory = default, Language = TextLanguage.English, CrittersEscaped = false }, maps.EndingText,
             installed.LoadEndingBackdrops(), SuperMetroid.TestSupport.RepositoryInstallation.Verification.EndingSheetFixtures.WithEnding(
                 SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EndingObjects));
         scene.InstalledArtwork.ShowCreditsColours();
@@ -122,10 +123,12 @@ internal static class EndingShootingStarsTests
         // A later logo owner must append stars after its own actors, including after
         // the icon's actor program completes and the final text remains on screen.
         var logo = new EndingLogo(scene.Stage, () => { });
-        PrivateState.Set(scene, nameof(EndingCreditsState.Scene), new EndingLogoScene(logo));
-        PrivateState.Set(scene, nameof(EndingCreditsState.Phase), EndingCreditsPhase.PostCreditsLogo);
-        PrivateState.Set(logo, nameof(EndingLogo.Completed), true);
-        PrivateState.Set(logo, nameof(EndingLogo.CrossfadeStarted), true);
+        PrivateState.Set(scene, nameof(EndingCreditsState.Scene), new EndingLogoScene(logo, EndingCreditsPhase.PostCreditsLogo));
+        // The logo runs its own program to its handoff, as the ending steps it (#2560); it hands off after 187 updates, well inside this bound.
+        const int LogoHandoffUpdates = 300;
+        for (int update = 0; update < LogoHandoffUpdates && !logo.Completed; update++)
+            logo.Step(scene.Stage.Colours);
+        Require(logo.Completed, "The logo runs to its handoff");
         var final = EndingCreditsPresentation.ComposeScene(scene);
         Require(final.SpriteDraws.Length > 0 && final.LayersOf<SpritesLayer>().Any(), "Final logo/text retains the star plane after logo actors finish");
         Console.WriteLine($"{device.Kind}: 40 native star definitions, delay/trajectory/animation/reset, visible ending stars, phase masks and late-scene ownership passed.");

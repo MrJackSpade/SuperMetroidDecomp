@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Fx.ColourEffects;
-using SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 
@@ -36,20 +35,8 @@ public static class TitleScreenAmbientPaletteFxColorDefinitions
     internal const int DisplayColourCount = 2;
     /// <summary>The eight-frame baby-Metroid tube light.</summary>
     public static TitleScreenAmbientPaletteFxColorDefinition TubeLight { get; } =
-        new()
-        {
-            Owner = TitleScreenAmbientPaletteFxProgramOwner.BabyMetroidTubeLight,
-            FrameCount = 2 * TubeDimmingSteps,
-            ColorsPerFrame = TubeColourCount,
-            ColorFrames = PaletteFxColorFrames.Of(ColourEffectId.TitleScreenBabyMetroidTubeLight, TubeColourCount),
-        };
+        new(ColourEffectId.TitleScreenBabyMetroidTubeLight, 2 * TubeDimmingSteps, TubeColourCount);
     /// <summary>The two-frame flickering displays.</summary>
     public static TitleScreenAmbientPaletteFxColorDefinition Displays { get; } =
-        new()
-        {
-            Owner = TitleScreenAmbientPaletteFxProgramOwner.FlickeringDisplays,
-            FrameCount = DisplayStates,
-            ColorsPerFrame = DisplayColourCount,
-            ColorFrames = PaletteFxColorFrames.Of(ColourEffectId.TitleScreenFlickeringDisplays, DisplayColourCount),
-        };
+        new(ColourEffectId.TitleScreenFlickeringDisplays, DisplayStates, DisplayColourCount);
 }

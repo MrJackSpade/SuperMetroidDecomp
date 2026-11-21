@@ -477,8 +477,8 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemySpawnFac
                     or SamusProjectileDirection.UpFacingLeft => SamusProjectileDirection.DownFacingLeft,
                 _ => throw new InvalidDataException($"Projectile aim {c.Projectile.Direction} decoded to an undefined direction."),
             };
-            c.Projectile.Direction = reflected;
-            c.Projectile.FlyOn();
+            c.Shot.Direction = reflected;
+            c.Shot.FlyOn();
             c.Projectiles.EnemyImpacts.ReflectFromEnemy(c.Samus,
                 c.Shot);
             RequestSpacePirateSound(EnemySoundEffectDefinitions.WalkingPirateReflectSound);
@@ -517,13 +517,13 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemySpawnFac
             return false;
         },
         ShowsHitBurst = c => PirateHitboxShotActions.ShowsHitBurst(c.HitboxShot),
-        ReplacesGenericDeath = c =>
+        Lethal = new EnemyShotLethal.Replaced(c =>
         {
-            if (c.HitboxShot == EnemyReaction.OrdinaryShot)
+            if (c.HitboxShot.IsOrdinary)
                 return false;
             StartPirateDeath(c);
             return true;
-        },
+        }),
     };
 
     /// <summary>The gold Ninja's shot reaction: its armour's reflections, the Pirate shot logic and the drops its death scatters.</summary>
@@ -532,9 +532,9 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemySpawnFac
         AfterSuperMissileQuake = (in EnemyShotContext c) =>
             c.UsesFrameHitboxes && ResolveSpacePirateHitboxShot(c, PirateHitboxShotActions.SelectGoldNinjaHitboxShotAction(c.Occupant, c.Shot, c.HitboxShot)),
         ShowsHitBurst = c => PirateHitboxShotActions.GoldNinjaShowsHitBurst(c.HitboxShot),
-        ReplacesGenericDeath = c =>
+        Lethal = new EnemyShotLethal.Replaced(c =>
         {
-            if (c.HitboxShot == EnemyReaction.OrdinaryShot)
+            if (c.HitboxShot.IsOrdinary)
                 return false;
             // The Gold Ninja's death records its position as the drop origin before the enemy's death clears the
             // place; it then spawns the death explosion before the metal ninja Pirate's item drop spawns the drops.
@@ -542,7 +542,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemySpawnFac
             StartPirateDeath(c);
             _deathsAndDrops.SpawnEnemyDropScatterAround(EnemyDefinitionId.PirateGoldNinja, GoldNinjaSpacePirateDefinitions.DropScatterCount, dropOrigin, c.Samus);
             return true;
-        },
+        }),
     };
 
     /// <summary>Starts a Pirate's death by a shot: the big explosion its shot's death animation rule chooses.</summary>

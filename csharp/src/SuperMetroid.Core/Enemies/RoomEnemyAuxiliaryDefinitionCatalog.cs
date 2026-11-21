@@ -24,7 +24,7 @@ internal static class RoomEnemyAuxiliaryDefinitionCatalog
         Shot: EnemyReaction.Ignore,
         TouchHitboxScan: EnemyHitboxScan.Scanned,
         ShotHitboxScan: EnemyHitboxScan.Withheld,
-        Drops: EnemyDrops.Rolling(new EnemyDropChances(0, 0, 0, 255, 0, 0)),
+        Drops: EnemyDrops.Rolling(new EnemyDropChances(SmallEnergy: 0, BigEnergy: 0, Missile: 0, Nothing: 255, SuperMissile: 0, PowerBomb: 0)),
         Vulnerability: EnemyVulnerabilityDefinitions.Standard);
 
     /// <summary>The falling tubes of Mother Brain's cutscene.</summary>
@@ -50,23 +50,7 @@ internal static class RoomEnemyAuxiliaryDefinitionCatalog
     /// A wall of Ceres Ridley's getaway chamber, which his getaway places (#1989), with the same fields as every Ceres door
     /// and wall.
     /// </summary>
-    internal static readonly RoomEnemyDefinition CeresGetawayChamberWall = new(
-        Health: 40,
-        Damage: 15,
-        Radius: new(8, 32),
-        HurtFlashFrames: 4,
-        HurtSoundEffect: EnemySound.RidleyRoar,
-        Boss: null,
-        GrappleResponse: GrappleEnemyReaction.Cancel,
-        HurtResponse: EnemyHurtResponse.Inert,
-        DeathExplosion: EnemyDeathExplosion.Small,
-        PowerBombReaction: EnemyReaction.CommonPowerBomb,
-        Touch: EnemyReaction.Ignore,
-        Shot: EnemyReaction.Ignore,
-        TouchHitboxScan: EnemyHitboxScan.Scanned,
-        ShotHitboxScan: EnemyHitboxScan.Scanned,
-        Drops: EnemyDrops.Nothing,
-        Vulnerability: EnemyVulnerabilityDefinitions.Standard);
+    internal static readonly RoomEnemyDefinition CeresGetawayChamberWall = RoomEnemyDefinitionCatalog.CeresDoorAndWall;
 
     /// <summary>The cutscene actors' and getaway chamber walls' definitions, by identity.</summary>
     private static readonly Dictionary<EnemyDefinitionId, RoomEnemyDefinition> Definitions =

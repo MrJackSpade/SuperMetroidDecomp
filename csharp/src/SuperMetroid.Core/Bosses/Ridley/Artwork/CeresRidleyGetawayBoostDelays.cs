@@ -10,28 +10,17 @@ namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
 /// </summary>
 public sealed class CeresRidleyGetawayBoostDelays
 {
-    /// <summary>The ten delays the raised wings leave behind, by running frame.</summary>
-    private readonly IReadOnlyList<int> leftByWingsRaised;
-
-    /// <summary>The ten delays the lowered wings leave behind, by running frame.</summary>
-    private readonly IReadOnlyList<int> leftByWingsLowered;
+    /// <summary>The ten delays each wing frame leaves behind, by running frame, keyed by the wing frame.</summary>
+    private readonly IReadOnlyDictionary<CeresFloorActorPicture, IReadOnlyList<int>> leftByWing;
 
     /// <summary>Keeps the delays the import pipeline validated for each wing frame, by running frame.</summary>
-    internal CeresRidleyGetawayBoostDelays(IReadOnlyList<int> leftByWingsRaised, IReadOnlyList<int> leftByWingsLowered)
-    {
-        this.leftByWingsRaised = Ensure.NotNull(leftByWingsRaised);
-        this.leftByWingsLowered = Ensure.NotNull(leftByWingsLowered);
-    }
+    /// <param name="leftByWing">Each wing frame's delays, keyed by the wing frame.</param>
+    internal CeresRidleyGetawayBoostDelays(IReadOnlyDictionary<CeresFloorActorPicture, IReadOnlyList<int>> leftByWing) =>
+        this.leftByWing = Ensure.NotNull(leftByWing);
 
     /// <summary>The ten delays wing frame <paramref name="frame"/> leaves behind, by running frame.</summary>
     /// <exception cref="InvalidDataException"><paramref name="frame"/> is not one of the wing's frames.</exception>
-    public IReadOnlyList<int> LeftBy(CeresFloorActorPicture frame) => frame switch
-    {
-        CeresFloorActorPicture.WingsRaised => leftByWingsRaised,
-        CeresFloorActorPicture.WingsLowered => leftByWingsLowered,
-        CeresFloorActorPicture.BabyVertical or CeresFloorActorPicture.BabyRound or CeresFloorActorPicture.BabyHorizontal or
-            CeresFloorActorPicture.ElevatorLight or CeresFloorActorPicture.ElevatorDark =>
-            throw new InvalidDataException($"The getaway's {frame} floor frame leaves no Speed Booster delays."),
-        _ => throw new InvalidDataException($"Unknown Ceres floor animation frame {frame}."),
-    };
+    public IReadOnlyList<int> LeftBy(CeresFloorActorPicture frame) => leftByWing.TryGetValue(frame, out IReadOnlyList<int>? delays)
+        ? delays
+        : throw new InvalidDataException($"The getaway's {frame} floor frame leaves no Speed Booster delays.");
 }

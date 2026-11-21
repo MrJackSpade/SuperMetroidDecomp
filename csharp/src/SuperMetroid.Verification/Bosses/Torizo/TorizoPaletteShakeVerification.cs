@@ -85,7 +85,7 @@ internal static class TorizoPaletteShakeVerification
         AssertEqual(white, state.Colours.Shading, "The restarted fade's first step shows the hurt flash's white");
         Execute(TorizoCueKind.AdvanceColourFade);
         PictureShadeFade fromWhite = new(PictureShading.Shaded(TorizoShades.Body(new TorizoLook(TorizoLookKind.White))),
-            PictureShading.Shaded(TorizoShades.Body(new TorizoLook(TorizoLookKind.Normal))), 1, TorizoShadeDefinitions.FadeLastStep);
+            PictureShading.Shaded(TorizoShades.Body(new TorizoLook(TorizoLookKind.Normal))), new FadeLevel(1, TorizoShadeDefinitions.FadeLastStep));
         AssertEqual(PictureShading.Shaded(TorizoShades.Shared).With(fromWhite), state.Colours.Shading,
             "The fade restarts from the hurt flash's white by its own steps");
 
@@ -115,11 +115,11 @@ internal static class TorizoPaletteShakeVerification
         SheetShade goldenInitial = shades.Single(shade => shade.Shade == TorizoShades.Body(new TorizoLook(TorizoLookKind.GoldenInitial)));
         for (int i = 0; i < 32; i++)
         {
-            AssertEqual(rom.ReadCartridgeWord(0xaa8707 + i * 2), toNormal.Colours[i].ToWord(), "Normal fade reaches pinned cartridge target");
-            AssertEqual(rom.ReadCartridgeWord(0xaa8787 + i * 2), golden.Colours[i].ToWord(), "Shared Golden fade target matches cartridge");
-            AssertEqual(rom.ReadCartridgeWord(0xaa8687 + i * 2), shared.Colours[i].ToWord(), $"Torizo shared orb/flame and statue-shading colour {i} matches cartridge");
-            AssertEqual(rom.ReadCartridgeWord(0xaa86c7 + i * 2), bombInitial.Colours[i].ToWord(), $"Bomb Torizo initial body colour {i} matches cartridge");
-            AssertEqual(rom.ReadCartridgeWord(0xaa8747 + i * 2), goldenInitial.Colours[i].ToWord(), $"Golden Torizo initial body colour {i} matches cartridge");
+            AssertEqual(rom.ReadCartridgeWord(0xaa8707 + i * 2), toNormal.Colours.ElementAt(i).ToWord(), "Normal fade reaches pinned cartridge target");
+            AssertEqual(rom.ReadCartridgeWord(0xaa8787 + i * 2), golden.Colours.ElementAt(i).ToWord(), "Shared Golden fade target matches cartridge");
+            AssertEqual(rom.ReadCartridgeWord(0xaa8687 + i * 2), shared.Colours.ElementAt(i).ToWord(), $"Torizo shared orb/flame and statue-shading colour {i} matches cartridge");
+            AssertEqual(rom.ReadCartridgeWord(0xaa86c7 + i * 2), bombInitial.Colours.ElementAt(i).ToWord(), $"Bomb Torizo initial body colour {i} matches cartridge");
+            AssertEqual(rom.ReadCartridgeWord(0xaa8747 + i * 2), goldenInitial.Colours.ElementAt(i).ToWord(), $"Golden Torizo initial body colour {i} matches cartridge");
         }
     }
 
@@ -156,7 +156,7 @@ internal static class TorizoPaletteShakeVerification
         var cartridge = new HashSet<(ushort, ushort, ushort)>(Enumerable.Range(0, 6).Select(record =>
             (rom.ReadCartridgeWord(0x8de2f3 + record * 10), rom.ReadCartridgeWord(0x8de2f5 + record * 10), rom.ReadCartridgeWord(0x8de2f7 + record * 10))));
         var imported = new HashSet<(ushort, ushort, ushort)>(records.Select(record =>
-            (record.Colours[0].ToWord(), record.Colours[1].ToWord(), record.Colours[2].ToWord())));
+            (record.Colours.ElementAt(0).ToWord(), record.Colours.ElementAt(1).ToWord(), record.Colours.ElementAt(2).ToWord())));
         foreach (SheetShade record in records)
             AssertTrue(record.Inks.SequenceEqual([25, 26, 27]), "The glow recolours the tenth through twelfth colours of the first body row");
         AssertTrue(cartridge.SetEquals(imported), "The glow's records show bank $8D's colours");
@@ -172,17 +172,17 @@ internal static class TorizoPaletteShakeVerification
         colours.Step(counter);
         colours.Step(counter);
         var fading = new PictureShadeFade(PictureShading.Shaded(ColourEffectShades.Of(ColourEffectColours.TorizoBelly, shown)),
-            PictureShading.Shaded(TorizoShades.GlowingBelly(new TorizoLook(TorizoLookKind.Black))), 1, 13);
+            PictureShading.Shaded(TorizoShades.GlowingBelly(new TorizoLook(TorizoLookKind.Black))), new FadeLevel(1, 13));
         AssertEqual(fading, colours.Shading.Fades[^1], "The death fade moves the glowing colours from the record shown");
         colours.ShowBellyGlow(new ColourEffectFrame(ColourEffectId.BombTorizoBelly, records[^1].Shade.Step));
-        AssertEqual(0, colours.Shading.Fades[^1].Progress, "The glow's next record shows unmoved until the fade's next step");
+        AssertEqual(0, colours.Shading.Fades[^1].Progress.Step, "The glow's next record shows unmoved until the fade's next step");
         colours.ShowBellyGlow(shown);
         SheetShade black = shades.Single(shade => shade.Shade == TorizoShades.GlowingBelly(new TorizoLook(TorizoLookKind.Black)));
         SheetShade normal = shades.Single(shade => shade.Shade == TorizoShades.GlowingBelly(new TorizoLook(TorizoLookKind.Normal)));
         SheetShade normalBody = shades.Single(shade => shade.Shade == TorizoShades.Body(new TorizoLook(TorizoLookKind.Normal)));
         AssertTrue(black.Inks.SequenceEqual([25, 26, 27]) && black.Colours.All(colour => colour == RgbColor.Black),
             "The glowing colours in black are black");
-        AssertTrue(normal.Inks.SequenceEqual([25, 26, 27]) && normal.Colours.SequenceEqual(normalBody.Colours[9..12]),
+        AssertTrue(normal.Inks.SequenceEqual([25, 26, 27]) && normal.Colours.SequenceEqual(normalBody.Colours.Skip(9).Take(3)),
             "The glowing colours in the normal colouring are its tenth through twelfth colours");
         colours.Show(new TorizoLook(TorizoLookKind.White));
         AssertEqual(PictureShading.Shaded(TorizoShades.Shared).With(TorizoShades.Body(new TorizoLook(TorizoLookKind.White))), colours.Shading,

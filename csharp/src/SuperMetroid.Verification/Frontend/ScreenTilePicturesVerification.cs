@@ -379,7 +379,7 @@ internal static class ScreenTilePicturesVerification
             DisplayLayer whole = layer is PictureGridLayer windowed ? windowed with { Window = null } : layer;
             RgbaPixel[] pictured = RenderNamed(new LayeredScene(scene.Paint, [whole], DisplayBrightness.Full), named);
             RgbaPixel[] characters = VramTilemapImage.Draw(tilemap.Rows, tilemap.Size, vram, PauseVramLayout.MapCharacters.Offset,
-                TileInkDepth.SixteenColours, pauseColours, tilemap.Scroll, null, scene.Paint.Backdrop);
+                TileInkDepth.SixteenColours, pauseColours, tilemap.Scroll, null, scene.Paint.Backdrop.ShownWith(global::SuperMetroid.Core.Assets.ColourBlendOracle.Instance));
             AssertSamePixels(pictured, characters, $"{named}: its pictures draw what VRAM's characters draw of the cartridge's tilemap");
         }
         AssertTrue(layers > 0, $"{name} draws pictured backgrounds");

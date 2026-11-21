@@ -130,8 +130,9 @@ internal sealed class KraidCombat
             KraidPassBounds bounds = PlaceKraidPassBounds(body, inner);
             foreach (KraidBehavior.KraidPassProjectile projectile in tested)
             {
-                if (projectile.Held is not { } shot)
+                if (projectile.Held is not { } held)
                     continue;
+                KraidBehavior.KraidCollisionShot shot = held.Shot;
                 SamusProjectileType type = shot.Type;
                 if (!OverlapsKraidMouth(bounds, shot) ||
                     (type.Family == SamusProjectileFamily.Beam && !type.IsChargedBeam))
@@ -160,7 +161,7 @@ internal sealed class KraidCombat
                         ? 0
                         : body.Health - damage;
                     body.HurtFlash.Restart(body.HurtFlashFrames + EnemyCollisionDefinitions.WeaponHurtFlashExtension);
-                    body.AiStates = body.AiStates | EnemyAiStates.Hurt;
+                    body.MarkHurt();
                     if (type.HasAnyBeam(SamusBeamFlags.Plasma))
                         body.Invincibility.Restart(EnemyCollisionDefinitions.PlasmaShotInvincibilityUpdates);
                 }
@@ -171,7 +172,7 @@ internal sealed class KraidCombat
                     bounds.LeaveAfterDud(_effectActors.PlaceOf(dud), shot.Position);
                     _audio.QueueEnemySound(SamusSound.DudShot, priority: SoundRequestPriority.Low);
                 }
-                projectile.MarkCollision();
+                held.MarkCollision();
                 mouthHits++;
             }
         }
@@ -179,8 +180,7 @@ internal sealed class KraidCombat
         if (mouthHits != 0)
         {
             state.StartHurtFlash();
-            if (state.MouthReopenArmed)
-                state.MouthReopenMarked = true;
+            state.MarkMouthReopen();
             if (body.Health < 1 && state.BodyState.Fights)
                 BeginKraidDeath(state, risen.Head);
         }
@@ -204,13 +204,14 @@ internal sealed class KraidCombat
             KraidPassBounds bounds = PlaceKraidPassBounds(body, outerMouth);
             foreach (KraidBehavior.KraidPassProjectile projectile in tested)
             {
-                if (projectile.Held is not { } shot)
+                if (projectile.Held is not { } held)
                     continue;
+                KraidBehavior.KraidCollisionShot shot = held.Shot;
                 if (!OverlapsKraidBody(ref bounds, body, shot))
                     continue;
                 SpawnKraidArmShotExplosion(shot.Type, shot.Position);
                 bounds.LeaveAfterBodyHit(shot.Position);
-                projectile.MarkCollision();
+                held.MarkCollision();
                 if (shot.Type.IsChargedBeam)
                     chargedHit = true;
                 bodyHits++;
@@ -222,7 +223,6 @@ internal sealed class KraidCombat
             fight.Phase = KraidFightPhase.InitializeEyeGlow;
             if (chargedHit)
             {
-                state.MouthReopenArmed = true;
                 state.ArmMouthReopens();
             }
         }
@@ -305,7 +305,19 @@ internal sealed class KraidCombat
 
         // Kraid's foot art is replaceable, but each pose still places two physical components against one shared hitbox
         // list, moved with the pose's step.
-        foreach (KraidCollisionComponent component in footComponents)
+        return FindComponentReaction(enemy, footComponents, probe);
+    }
+
+    /// <summary>
+    /// The reaction of the first hitbox of <paramref name="components"/>, placed from <paramref name="enemy"/>'s position,
+    /// that <paramref name="probe"/> overlaps, in the components' and their hitboxes' order (#2557): struck with that
+    /// reaction, or missed.
+    /// The arm and the foot are searched alike.
+    /// </summary>
+    private static EnemyHitboxContact FindComponentReaction(
+        RoomEnemyPlace enemy, IEnumerable<KraidCollisionComponent> components, EnemyHitboxProbe probe)
+    {
+        foreach (KraidCollisionComponent component in components)
         {
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
             foreach (EnemyCollisionHitbox hitbox in component.Hitboxes)
@@ -316,7 +328,7 @@ internal sealed class KraidCombat
                         componentOrigin.X + hitbox.Right,
                         componentOrigin.Y + hitbox.Bottom))
                     continue;
-                return EnemyHitboxContact.Struck(probe.SelectsShot ? hitbox.Shot : hitbox.Touch);
+                return EnemyHitboxContact.Struck(probe.Contact == HitboxContactKind.Shot ? hitbox.Shot : hitbox.Touch);
             }
         }
         return EnemyHitboxContact.Missed;
@@ -335,22 +347,7 @@ internal sealed class KraidCombat
         // Kraid's arm art is editable, but the frame
         // also carries a separate, ordered list of physical components.
         // Read those components from the immutable definition catalog.
-        foreach (KraidCollisionComponent component in kraidComponents)
-        {
-            Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
-            foreach (EnemyCollisionHitbox hitbox in component.Hitboxes)
-            {
-                if (!probe.Overlaps(
-                        componentOrigin.X + hitbox.Left,
-                        componentOrigin.Y + hitbox.Top,
-                        componentOrigin.X + hitbox.Right,
-                        componentOrigin.Y + hitbox.Bottom))
-                    continue;
-
-                return EnemyHitboxContact.Struck(probe.SelectsShot ? hitbox.Shot : hitbox.Touch);
-            }
-        }
-        return EnemyHitboxContact.Missed;
+        return FindComponentReaction(enemy, kraidComponents, probe);
     }
 
     /// <summary>

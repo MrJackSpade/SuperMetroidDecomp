@@ -45,6 +45,13 @@ internal static class CrocomireBodyCollisionDefinitions
     /// <summary>Lower central body rectangle using the alternate shot reaction.</summary>
     private static readonly EnemyCollisionHitbox[] LowerCentralBody = [new(-38, -4, 42, 52, CrocomireReactions.ClawTouch, CrocomireReactions.AbsorbedShot)];
 
+    /// <summary>The components every arm-upright frame shows while the mouth opens and closes: the lower body, the broad high body, the lower central body and the central body.</summary>
+    private static readonly EnemyCollisionComponent[] ArmUprightMouthComponents =
+    [
+        new(new(0, 11), LowerBodyOtherMouthPose), new(new(0, 0), BroadHighBody), new(new(0, 0), LowerCentralBody),
+        new(new(0, 0), CentralBody),
+    ];
+
     /// <summary>The fifty living-body frames' physical component lists, with presentation art excluded.</summary>
     internal static EnemyFrameCollision<EnemyCollisionComponent> Frames { get; } = new()
     {
@@ -60,13 +67,13 @@ internal static class CrocomireBodyCollisionDefinitions
         { EnemyFrameId.CrocomireBodyFarFootForwardArmSweeping, [new(new(1, 12), LowerFrontBody), new(new(0, 0), CentralBody)] },
         { EnemyFrameId.CrocomireBodyFarFootForwardArmLifting, [new(new(1, 13), LowerFrontBody), new(new(0, 0), CentralBody)] },
         { EnemyFrameId.CrocomireBodyFarFootForwardArmUpright, [new(new(1, 11), LowerBodyOtherMouthPose), new(new(0, 0), CentralBody)] },
-        { EnemyFrameId.CrocomireBodyArmUprightMouthOpen, [new(new(0, 11), LowerBodyOtherMouthPose), new(new(0, 0), BroadHighBody), new(new(0, 0), LowerCentralBody), new(new(0, 0), CentralBody)] },
-        { EnemyFrameId.CrocomireBodyArmUprightMouthOpenLess, [new(new(0, 11), LowerBodyOtherMouthPose), new(new(0, 0), BroadHighBody), new(new(0, 0), LowerCentralBody), new(new(0, 0), CentralBody)] },
-        { EnemyFrameId.CrocomireBodyArmUprightMouthClosing, [new(new(0, 11), LowerBodyOtherMouthPose), new(new(0, 0), BroadHighBody), new(new(0, 0), LowerCentralBody), new(new(0, 0), CentralBody)] },
-        { EnemyFrameId.CrocomireBodyArmUprightMouthHalfClosed, [new(new(0, 11), LowerBodyOtherMouthPose), new(new(0, 0), BroadHighBody), new(new(0, 0), LowerCentralBody), new(new(0, 0), CentralBody)] },
-        { EnemyFrameId.CrocomireBodyArmUprightMouthMostlyClosed, [new(new(0, 11), LowerBodyOtherMouthPose), new(new(0, 0), BroadHighBody), new(new(0, 0), LowerCentralBody), new(new(0, 0), CentralBody)] },
-        { EnemyFrameId.CrocomireBodyArmUprightMouthNearlyShut, [new(new(0, 11), LowerBodyOtherMouthPose), new(new(0, 0), BroadHighBody), new(new(0, 0), LowerCentralBody), new(new(0, 0), CentralBody)] },
-        { EnemyFrameId.CrocomireBodyArmUprightMouthShut, [new(new(0, 11), LowerBodyOtherMouthPose), new(new(0, 0), BroadHighBody), new(new(0, 0), LowerCentralBody), new(new(0, 0), CentralBody)] },
+        { EnemyFrameId.CrocomireBodyArmUprightMouthOpen, ArmUprightMouthComponents },
+        { EnemyFrameId.CrocomireBodyArmUprightMouthOpenLess, ArmUprightMouthComponents },
+        { EnemyFrameId.CrocomireBodyArmUprightMouthClosing, ArmUprightMouthComponents },
+        { EnemyFrameId.CrocomireBodyArmUprightMouthHalfClosed, ArmUprightMouthComponents },
+        { EnemyFrameId.CrocomireBodyArmUprightMouthMostlyClosed, ArmUprightMouthComponents },
+        { EnemyFrameId.CrocomireBodyArmUprightMouthNearlyShut, ArmUprightMouthComponents },
+        { EnemyFrameId.CrocomireBodyArmUprightMouthShut, ArmUprightMouthComponents },
         { EnemyFrameId.CrocomireBodySwingingArmBent, [new(new(1, 11), UpperMouth), new(new(0, 0), CentralBody)] },
         { EnemyFrameId.CrocomireBodySwingingArmRaised, [new(new(0, 8), HighMouth), new(new(0, -2), CentralBody)] },
         { EnemyFrameId.CrocomireBodySwingingArmOutstretched, [new(new(1, 8), RaisedMouth), new(new(0, -4), CentralBody)] },

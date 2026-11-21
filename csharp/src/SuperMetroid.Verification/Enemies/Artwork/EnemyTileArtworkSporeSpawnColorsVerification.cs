@@ -105,7 +105,7 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "live Spore Spawn palette consumers avoid all migrated ROM colors");
 
-        visual.Health[0][5] = visual.Health[0][5] with { Green = 32 };
+        visual.Health.Values.First()[5] = visual.Health.Values.First()[5] with { Green = 32 };
         AssertThrows<InvalidDataException>(() => SporeSpawnColorFile.Read(new MemoryStream(SporeSpawnColorFile.Write(visual), writable: false)),
             "reading Spore Spawn colors rejects an RGB5 channel outside five-bit precision");
         Console.WriteLine("  Spore Spawn colors: 432 native RGB5 words, initial/health/seven death frames, ROM guard and strict failures pass.");
@@ -130,7 +130,11 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
     private static void AssertShade(IReadOnlyList<SheetShade> made, PictureShade shade, Func<int, RgbColor> expected, string label)
     {
         SheetShade found = made.Single(candidate => candidate.Shade == shade);
-        for (int color = 0; color < found.Colours.Length; color++)
-            AssertEqual(expected(color), found.Colours[color], $"{label} colour {color}");
+        int colour = 0;
+        foreach (RgbColor shown in found.Colours)
+        {
+            AssertEqual(expected(colour), shown, $"{label} colour {colour}");
+            colour++;
+        }
     }
 }

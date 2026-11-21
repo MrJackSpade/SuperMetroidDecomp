@@ -1,10 +1,8 @@
-using SuperMetroid.AssetExtraction.Enemies.Artwork;
 using System.Text.Json;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Bosses.Phantoon;
-using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Bosses.Phantoon.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Bosses;
@@ -23,27 +21,18 @@ public static class PhantoonColorFile
         if (document.Version != PhantoonColorFormat.Version)
             throw new InvalidDataException("Phantoon colors require the supported version.");
         if (document.HealthBands is null ||
-            document.HealthBands.Length != PhantoonColorDefinitions.HealthBandCount)
+            document.HealthBands.Count != PhantoonColorDefinitions.HealthBandCount)
             throw new InvalidDataException("Phantoon colors require eight health palettes.");
+        if (document.PowerOn is null || document.PowerOn.Count != PhantoonColorFormat.PoweredPartKeys.Count)
+            throw new InvalidDataException("Phantoon colors require the colours of every part the power-on fades.");
         return new(
-            document.HealthBands.Select((band, index) =>
-                Compile(band, PhantoonColorFormat.HealthBandColorCount,
-                    $"health palette {index}")).ToArray(),
+            PhantoonHealthBandDefinitions.HighestFirst.ToDictionary(band => band, band =>
+                Compile(document.HealthBands.TryGetValue(band.Key, out PaletteRgb5[]? colours) ? colours : null,
+                    PhantoonColorFormat.HealthBandColorCount, $"{band} health palette")),
             Compile(document.FadeOut, PhantoonColorFormat.FadeOutCount, "fade-out"),
-            PowerOnByPart(Compile(document.PowerOn, PhantoonSourceDefinitions.PowerOnColourCount, "power-on")));
-    }
-
-    /// <summary>
-    /// Decodes the power-on target, which keeps the cartridge's background colours in its order, a run of sixteen per
-    /// colour group, into the part of the ship each group's run paints: the groups in order are the powered parts in order.
-    /// </summary>
-    private static Dictionary<WreckedShipPoweredPart, RgbColor[]> PowerOnByPart(RgbColor[] colours)
-    {
-        var parts = new Dictionary<WreckedShipPoweredPart, RgbColor[]>();
-        for (int first = 0; first < colours.Length; first += PhantoonColorFormat.PoweredPartColourCount)
-            parts.Add(PhantoonColorFormat.PoweredParts[first / PhantoonColorFormat.PoweredPartColourCount],
-                colours[first..(first + PhantoonColorFormat.PoweredPartColourCount)]);
-        return parts;
+            PhantoonColorFormat.PoweredPartKeys.ToDictionary(part => part.Key, part =>
+                Compile(document.PowerOn.TryGetValue(part.Value, out PaletteRgb5[]? colours) ? colours : null,
+                    PhantoonColorFormat.PoweredPartColourCount, $"power-on {part.Value}")));
     }
 
     /// <summary>Serializes a Phantoon color document as UTF-8 JSON.</summary>

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Bosses.Crocomire;
 using SuperMetroid.AssetExtraction.Bosses.Torizo;
@@ -147,10 +148,9 @@ public static class EnemyTileArtworkFiles
                 Convert.ToHexString(SHA256.HashData(png)));
         }
         var ceresEscapeTileHashes = new Dictionary<string, string>(StringComparer.Ordinal);
-        for (int pageIndex = 0; pageIndex < CeresEscapeTileArtworkDefinitions.All.Length; pageIndex++)
+        foreach (TileSheetDefinition page in CeresEscapeTileArtworkDefinitions.All)
         {
-            TileSheetDefinition page = CeresEscapeTileArtworkDefinitions.All[pageIndex];
-            byte[] png = IndexedTilePageExtractor.Extract(bus, (int)EscapeSourceDefinitions.CeresEscapePages[pageIndex],
+            byte[] png = IndexedTilePageExtractor.Extract(bus, (int)EscapeSourceDefinitions.CeresEscapePageSources[page],
                 page.ByteCount, $"Ceres escape page {page.FileName}");
             File.WriteAllBytes(Path.Combine(importData, page.FileName), png);
             ceresEscapeTileHashes.Add(page.FileName,
@@ -450,12 +450,7 @@ public static class EnemyTileArtworkFiles
             int word = BinaryPrimitives.ReadUInt16LittleEndian(nativeColors.AsSpan(color * 2));
             if (!ColourWordCodec.IsColorWord(checked((ushort)word)))
                 throw new InvalidDataException($"Enemy ${headerWord:X4} palette has an unrepresentable high bit.");
-            colors[color] = new PaletteRgb5
-            {
-                Red = word & 31,
-                Green = word >> 5 & 31,
-                Blue = word >> 10 & 31,
-            };
+            colors[color] = PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(word));
         }
         byte[] paletteJson = EnemyPaletteSheetFile.Write(new EnemyPaletteSheetDocument
         {
@@ -584,12 +579,7 @@ public static class EnemyTileArtworkFiles
             if (!ColourWordCodec.IsColorWord(checked((ushort)word)))
                 throw new InvalidDataException(
                     $"Kraid {source} color {index} has an unrepresentable high bit.");
-            colors[index] = new PaletteRgb5
-            {
-                Red = word & 31,
-                Green = word >> 5 & 31,
-                Blue = word >> 10 & 31,
-            };
+            colors[index] = PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(word));
         }
         return colors;
     }

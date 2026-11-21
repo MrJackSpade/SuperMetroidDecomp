@@ -97,7 +97,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemySpawnFactory<SbugSpawn
     {
         // The enemy's update count alternates the diagonal legs at its zigzag cadence, read before this update is
         // counted.
-        SbugLeg leg = ZigZagLeg(sbugSpawnSettings, secondLeg: SbugDefinitions.ZigZagSecondLeg.IsSetIn(place.FrameCounter));
+        SbugLeg leg = ZigZagLeg(sbugSpawnSettings, secondLeg: SbugDefinitions.ZigZagSecondLeg.IsInSecondHalfAt(place.FrameCounter));
         SetSbugFacing(place, state, leg.Facing);
         AddSbugVelocity(place, leg);
     }
@@ -151,7 +151,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemySpawnFactory<SbugSpawn
         RoomEnemyPlace place,
         SbugEnemyState state,
         CompassDirection facing) =>
-        state.Playback = EnemyAnimationPlayback.StartUnlessPlaying(place, state.Playback, SbugAnimations.StartingWith(SbugMovement.FacingAnimation(facing)));
+        state.Playback = EnemyAnimationPlayback.StartUnlessPlaying(place, state.Playback, SbugAnimations.StartingWith(facing));
 
     /// <summary>Advances Sbug's typed animation.</summary>
     internal static void AdvanceSbugTypedAnimation(RoomEnemyPlace place, SbugEnemyState sbugEnemyState) =>

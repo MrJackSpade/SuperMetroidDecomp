@@ -35,7 +35,7 @@ public sealed class BabyMetroidEnemyState
         BabyMetroidMembraneAnimations.StandingOn(BabyMetroidMembranePace.Calm, BabyMetroidMembranePulse.First, 1);
 
     /// <summary>The pace of the membrane's pulse: calm, or quick while it feeds.</summary>
-    public BabyMetroidMembranePace MembranePace { get; private set; }
+    public BabyMetroidMembranePace MembranePace => Membrane.Playback.PlayingSegment;
 
     /// <summary>
     /// Sets the membrane's pulse to <paramref name="pace"/>: the phase showing keeps the updates it has left, and the phases
@@ -43,7 +43,6 @@ public sealed class BabyMetroidEnemyState
     /// </summary>
     internal void PaceMembrane(BabyMetroidMembranePace pace)
     {
-        MembranePace = pace;
         Membrane.GoOnIn(BabyMetroidMembraneAnimations.At(pace));
     }
 
@@ -84,7 +83,9 @@ public sealed class BabyMetroidEnemyState
 
     /// <summary>
     /// Whether Samus's touch, shots and power bombs reach the Baby Metroid's private reactions: set while
-    /// it hovers near Samus or follows her after a release, cleared while it is dormant or latched on.
+    /// it hovers near Samus or follows her after a release, cleared while it is dormant or latched on. It is a fact of the
+    /// Baby's history, not of its action alone (#2560): a Baby dormant after it followed Samus out still reacts, one dormant
+    /// before its entrance does not, so no one action names it.
     /// </summary>
     public bool ReactsToSamus { get; internal set; }
 }

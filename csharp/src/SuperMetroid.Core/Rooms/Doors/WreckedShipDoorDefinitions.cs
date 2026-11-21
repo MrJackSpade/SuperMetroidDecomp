@@ -1,19 +1,19 @@
-﻿namespace SuperMetroid.Core.Rooms.Doors;
+namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>The Wrecked Ship rooms' doors, each named for the room it leads from and the room it leads to.</summary>
 public static class WreckedShipDoorDefinitions
 {
     /// <summary>The door from the Bowling Alley room to the West Ocean room.</summary>
-    public static DoorDefinition BowlingAlleyToWestOcean { get; } = new("BowlingAlleyToWestOcean", RoomDefinitions.WestOcean, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(126, 22), new(7, 1), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
+    public static DoorDefinition BowlingAlleyToWestOcean { get; } = new("BowlingAlleyToWestOcean", RoomDefinitions.WestOcean, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(126, 22), new(7, 1), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None) { ExchangesExploredMaps = true };
 
     /// <summary>The door from the Bowling Alley room to the Pre Bowling room.</summary>
-    public static DoorDefinition BowlingAlleyToPreBowling { get; } = new("BowlingAlleyToPreBowling", RoomDefinitions.PreBowling, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(14, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
+    public static DoorDefinition BowlingAlleyToPreBowling { get; } = new("BowlingAlleyToPreBowling", RoomDefinitions.PreBowling, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(14, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None) { ExchangesExploredMaps = true };
 
     /// <summary>The door from the Bowling Alley room to the Gravity Suit room.</summary>
     public static DoorDefinition BowlingAlleyToGravitySuit { get; } = new("BowlingAlleyToGravitySuit", RoomDefinitions.GravitySuit, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(14, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Wrecked Ship Entrance room to the West Ocean room.</summary>
-    public static DoorDefinition WreckedShipEntranceToWestOcean { get; } = new("WreckedShipEntranceToWestOcean", RoomDefinitions.WestOcean, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(126, 70), new(7, 4), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
+    public static DoorDefinition WreckedShipEntranceToWestOcean { get; } = new("WreckedShipEntranceToWestOcean", RoomDefinitions.WestOcean, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(126, 70), new(7, 4), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None) { ExchangesExploredMaps = true };
 
     /// <summary>The door from the Wrecked Ship Entrance room to the Wrecked Ship Main Shaft room.</summary>
     public static DoorDefinition WreckedShipEntranceToWreckedShipMainShaft { get; } = new("WreckedShipEntranceToWreckedShipMainShaft", RoomDefinitions.WreckedShipMainShaft, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(65, 54), new(4, 3), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
@@ -25,7 +25,7 @@ public static class WreckedShipDoorDefinitions
     public static DoorDefinition AtticToAssemblyLine { get; } = new("AtticToAssemblyLine", RoomDefinitions.AssemblyLine, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Attic room to the West Ocean room.</summary>
-    public static DoorDefinition AtticToWestOcean { get; } = new("AtticToWestOcean", RoomDefinitions.WestOcean, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(126, 6), new(7, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
+    public static DoorDefinition AtticToWestOcean { get; } = new("AtticToWestOcean", RoomDefinitions.WestOcean, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(126, 6), new(7, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None) { ExchangesExploredMaps = true };
 
     /// <summary>The door from the Assembly Line room to the Attic room.</summary>
     public static DoorDefinition AssemblyLineToAttic { get; } = new("AssemblyLineToAttic", RoomDefinitions.Attic, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(110, 6), new(6, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
@@ -58,7 +58,7 @@ public static class WreckedShipDoorDefinitions
     public static DoorDefinition SpikyDeathToElectricDeath { get; } = new("SpikyDeathToElectricDeath", RoomDefinitions.ElectricDeath, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 38), new(0, 2), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Electric Death room to the East Ocean room.</summary>
-    public static DoorDefinition ElectricDeathToEastOcean { get; } = new("ElectricDeathToEastOcean", RoomDefinitions.EastOcean, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 70), new(0, 4), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
+    public static DoorDefinition ElectricDeathToEastOcean { get; } = new("ElectricDeathToEastOcean", RoomDefinitions.EastOcean, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 70), new(0, 4), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None) { ExchangesExploredMaps = true };
 
     /// <summary>The door from the Electric Death room to the Spiky Death room.</summary>
     public static DoorDefinition ElectricDeathToSpikyDeath { get; } = new("ElectricDeathToSpikyDeath", RoomDefinitions.SpikyDeath, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(30, 6), new(1, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
@@ -97,7 +97,7 @@ public static class WreckedShipDoorDefinitions
     public static DoorDefinition WreckedShipEastSuperToWreckedShipMainShaft { get; } = new("WreckedShipEastSuperToWreckedShipMainShaft", RoomDefinitions.WreckedShipMainShaft, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(94, 102), new(5, 6), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.WreckedShipMainShaftOpensScreen5x6TopAligned);
 
     /// <summary>The door from the Gravity Suit room to the West Ocean room.</summary>
-    public static DoorDefinition GravitySuitToWestOcean { get; } = new("GravitySuitToWestOcean", RoomDefinitions.WestOcean, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(94, 54), new(5, 3), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
+    public static DoorDefinition GravitySuitToWestOcean { get; } = new("GravitySuitToWestOcean", RoomDefinitions.WestOcean, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(94, 54), new(5, 3), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None) { ExchangesExploredMaps = true };
 
     /// <summary>The door from the Gravity Suit room to the Bowling Alley room.</summary>
     public static DoorDefinition GravitySuitToBowlingAlley { get; } = new("GravitySuitToBowlingAlley", RoomDefinitions.BowlingAlley, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(17, 38), new(1, 2), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.BowlingAlleyClosesScreens0x1And1x1And2x1And3x1And4x1And5x1);

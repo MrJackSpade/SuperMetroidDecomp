@@ -308,7 +308,7 @@ internal sealed class CrocomireFight
                 }
                 int random = _access.ReadCrocomireRandom();
                 int baseOffset = CrocomireFightDefinitions.SpikeWallDustSide.Toward(
-                    BossRandomRolls.InHalfFrom(random, CrocomireRandomDefinitions.SpikeWallDustLeftFrom) ? HorizontalDirection.Left : HorizontalDirection.Right);
+                    CrocomireRandomRolls.SpikeWallDustOnLeft(random) ? HorizontalDirection.Left : HorizontalDirection.Right);
                 _access.SpawnCrocomireDust(state, baseOffset + CrocomireRandomDefinitions.SpikeWallDustSpread.Of(random));
                 return null;
             case CrocomireBodyCueKind.SkeletonCollapsed:
@@ -363,11 +363,8 @@ internal sealed class CrocomireFight
                 return null;
 
             case CrocomirePhase.ProjectileAttack:
-                if (state.StepBack.Take())
-                {
-                    state.Phase = CrocomirePhase.SteppingBack;
-                    return CrocomireBodyAnimation.StepBack;
-                }
+                if (StepBackOnHit(state, CrocomirePhase.SteppingBack) is { } stepBack)
+                    return stepBack;
                 if (state.ShotsSpat < CrocomireProjectileDefinitions.VolleyShotCount)
                 {
                     int gradient = CrocomireVolley.GradientOf(state.ShotsSpat, _access.LastShotGradient);
@@ -380,12 +377,7 @@ internal sealed class CrocomireFight
                 return CrocomireBodyAnimation.StepForwardAfterDelay;
 
             case CrocomirePhase.NearSpikeWallCharge:
-                if (state.StepBack.Take())
-                {
-                    state.Phase = CrocomirePhase.SteppingBack;
-                    return CrocomireBodyAnimation.StepBack;
-                }
-                return null;
+                return StepBackOnHit(state, CrocomirePhase.SteppingBack);
 
             case CrocomirePhase.SteppingBack:
                 if (state.StepCounter != 0)
@@ -404,14 +396,10 @@ internal sealed class CrocomireFight
                 return null;
 
             case CrocomirePhase.WaitingForFirstDamage:
-                return RunCrocomireWaitingForDamage(
-                    state,
-                    CrocomirePhase.WaitingForSecondDamage);
+                return StepBackOnHit(state, CrocomirePhase.WaitingForSecondDamage);
 
             case CrocomirePhase.WaitingForSecondDamage:
-                return RunCrocomireWaitingForDamage(
-                    state,
-                    CrocomirePhase.SteppingBack);
+                return StepBackOnHit(state, CrocomirePhase.SteppingBack);
 
             case CrocomirePhase.PowerBombCharge:
             {
@@ -434,10 +422,11 @@ internal sealed class CrocomireFight
     }
 
     /// <summary>
-    /// Waits for a hit while the damage wait roars: a hit steps him back into <paramref name="damagedDestination"/>;
-    /// otherwise his roar plays on, the damage wait's animation roaring again each time his mouth has closed.
+    /// Steps him back on a pending hit (#2557): a hit spends the pending step back and steps him back into
+    /// <paramref name="damagedDestination"/>; otherwise his phase plays on. The damage waits, his spit volley and his charge
+    /// near the spike wall all react to a hit so.
     /// </summary>
-    private static CrocomireBodyAnimation? RunCrocomireWaitingForDamage(
+    private static CrocomireBodyAnimation? StepBackOnHit(
         CrocomireEnemyState state,
         CrocomirePhase damagedDestination)
     {
@@ -459,7 +448,7 @@ internal sealed class CrocomireFight
     {
         int random = _access.ReadCrocomireRandom();
         int offset = CrocomireRandomDefinitions.FootDustOffset.Of(random);
-        if (BossRandomRolls.InHalfFrom(random, CrocomireRandomDefinitions.FootDustMirroredFrom))
+        if (CrocomireRandomRolls.FootDustMirrored(random))
             offset = -offset;
         _access.SpawnCrocomireDust(state, offset);
     }

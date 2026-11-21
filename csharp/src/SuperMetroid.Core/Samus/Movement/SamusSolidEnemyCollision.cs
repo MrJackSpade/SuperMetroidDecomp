@@ -75,8 +75,7 @@ public static class SamusSolidEnemyCollision
             if (gap < 0)
                 continue;
 
-            bool wasTouching = gap == 0;
-            if (wasTouching)
+            if (gap == 0)
             {
                 // Touching clears Samus's Y fraction of a pixel whatever the direction, even for a left or right touch: a quirk of
                 // the game that decides whether repeated presses into a solid or frozen enemy drift her by a pixel.
@@ -84,19 +83,11 @@ public static class SamusSolidEnemyCollision
             }
 
             // Success publishes the whole gap and the enemy met; the move records it for its direction.
-            return new SolidEnemyCollisionResult(
-                Collided: true,
-                Distance: gap,
-                Enemy: enemy.Enemy,
-                WasTouching: wasTouching);
+            return new SolidEnemyCollisionResult.Collision(enemy.Enemy, gap);
         }
 
         // No collision names no enemy and returns the requested whole distance.
-        return new SolidEnemyCollisionResult(
-            Collided: false,
-            Distance: reach.Whole,
-            Enemy: null,
-            WasTouching: false);
+        return new SolidEnemyCollisionResult.NoCollision(reach.Whole);
     }
 
     /// <summary>The whole-pixel centre the broad test checks: Samus's centre with the probe's axis moved to the pixel the reach tests.</summary>

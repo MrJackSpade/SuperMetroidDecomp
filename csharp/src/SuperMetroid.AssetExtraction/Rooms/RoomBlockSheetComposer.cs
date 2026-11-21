@@ -120,7 +120,7 @@ internal static class RoomBlockSheetComposer
                 Corner = default,
                 Size = canvas.Size,
                 Origin = default,
-                ColourGroups = groups.ManifestMembers,
+                ColourGroups = groups,
             },
         };
         return new ComposedRoomBackground(canvas.ToSplitRoomSheet(colours, frames, RoomTileCanvas.EveryFrame(frames)), canvas.Size, cells);
@@ -235,7 +235,7 @@ internal static class RoomBlockSheetComposer
                 Corner = corner,
                 Size = new Extent16<ImagePixels>(RoomBlockSheet.BlockPixels, RoomBlockSheet.BlockPixels),
                 Origin = default,
-                ColourGroups = coloured.ManifestMembers,
+                ColourGroups = coloured,
             });
             index++;
         }
@@ -254,20 +254,20 @@ internal static class RoomBlockSheetComposer
             AppearanceOptions candidates, BgArtworkBindings over)
         {
             ImmutableArray<AppearanceInput> dependsOn = RoomAppearanceComposition.InputsOver(BgCharacterSet.Tiles, runs.Select(run => run.FirstCharacter), candidates);
-            foreach (string[] values in RoomAppearanceComposition.Assignments(dependsOn, candidates, withLoaded: true))
-                AddPicture(RoomBlockPictureNames.Of(block, dependsOn, values), runs, tiles, dependsOn, values, candidates, over);
+            foreach (AppearanceAssignment assignment in RoomAppearanceComposition.Assignments(dependsOn, candidates, withLoaded: true))
+                AddPicture(assignment.NameOfBlock(block), runs, tiles, assignment, candidates, over);
             return dependsOn;
         }
 
-        // Adds the picture `name` of a block's `tiles`, which read `runs`, while `blockInputs` take `values`, unless a run
-        // shows nothing then.
-        void AddPicture(string name, ImmutableArray<RoomBlockCharacterRun> runs, BackgroundTile[] tiles, ImmutableArray<AppearanceInput> blockInputs,
-            string[] values, AppearanceOptions candidates, BgArtworkBindings? over)
+        // Adds the picture `name` of a block's `tiles`, which read `runs`, while its inputs take the values of `assignment`,
+        // unless a run shows nothing then.
+        void AddPicture(string name, ImmutableArray<RoomBlockCharacterRun> runs, BackgroundTile[] tiles, AppearanceAssignment assignment,
+            AppearanceOptions candidates, BgArtworkBindings? over)
         {
             var shown = new BgArtworkShown[runs.Length];
             for (int run = 0; run < runs.Length; run++)
             {
-                if (!RoomAppearanceComposition.TryShowing(new CharacterSpan(BgCharacterSet.Tiles, runs[run].FirstCharacter, runs[run].CharacterCount), blockInputs, values,
+                if (!RoomAppearanceComposition.TryShowing(new CharacterSpan(BgCharacterSet.Tiles, runs[run].FirstCharacter, runs[run].CharacterCount), assignment,
                     candidates, over, out shown[run]))
                     return;
             }
@@ -279,16 +279,16 @@ internal static class RoomBlockSheetComposer
         // for it.
         void AddCell(BackgroundTile[] cellTiles, string subject, ImmutableArray<AppearanceInput> cellInputs)
         {
-            foreach (string[] values in RoomAppearanceComposition.Assignments(cellInputs, options, withLoaded: true))
+            foreach (AppearanceAssignment assignment in RoomAppearanceComposition.Assignments(cellInputs, options, withLoaded: true))
             {
-                if (values.All(value => value == RoomAppearanceValues.Loaded))
+                if (assignment.ShowsLoadThroughout)
                     continue;
                 var shown = new BgArtworkShown[RoomBackgroundImageGeometry.CellTiles];
                 bool pictured = true;
                 for (int tile = 0; tile < shown.Length && pictured; tile++)
-                    pictured = RoomAppearanceComposition.TryShowing(new CharacterSpan(BgCharacterSet.Tiles, cellTiles[tile].Tile, 1), cellInputs, values, options, loaded, out shown[tile]);
+                    pictured = RoomAppearanceComposition.TryShowing(new CharacterSpan(BgCharacterSet.Tiles, cellTiles[tile].Tile, 1), assignment, options, loaded, out shown[tile]);
                 if (pictured)
-                    pictures.Add(AppearancePictureNames.Of(subject, cellInputs, values), new Picture([.. cellTiles], shown));
+                    pictures.Add(assignment.NameOf(subject), new Picture([.. cellTiles], shown));
             }
         }
     }

@@ -2,8 +2,6 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Bosses.SporeSpawn;
 using SuperMetroid.Core.Rooms.RoomObjects;
-using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
-using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
@@ -36,7 +34,7 @@ public static class RoomObjectSporeSpawnCeilingVisualFiles
     /// <summary>Loads the installed Spore Spawn ceiling pictures as the player left them, without the cartridge.</summary>
     /// <param name="directory">The installed directory.</param>
     /// <exception cref="InvalidDataException">The file's format is not this importer's, or a frame's picture is missing or misshapen.</exception>
-    public static InstalledRoomObjectSporeSpawnCeilingVisuals Load(string directory) =>
+    public static InstalledRoomObjectPictures Load(string directory) =>
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>The draw lists of the clear and crumble frames.</summary>
@@ -75,12 +73,9 @@ public static class RoomObjectSporeSpawnCeilingVisualFiles
             list = default;
             return false;
         }
-        RoomBlockShape shape = described;
-        int rows = 2;
         int rowWidth = 2;
-        list = RoomObjectDrawListExport.Runs(request, rows, _ => rowWidth,
-            (run, cell) => shape.CollisionAt(RoomObjectDrawListExport.Stacked(run) + new Offset16<RoomBlocks>(cell, 0)),
-            RoomObjectDrawListExport.Horizontal, RoomObjectDrawListExport.Stacked);
+        list = RoomObjectDrawListExport.Runs(request, described,
+            [RoomObjectShapeRun.Row(new(0, 0), rowWidth), RoomObjectShapeRun.Row(new(0, 1), rowWidth)]);
         return true;
     }
 }

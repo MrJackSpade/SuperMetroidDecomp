@@ -31,11 +31,11 @@ public sealed class SpaceTimeProgressionOverwrite<TCursor, TOverwrite>
     where TOverwrite : class
 {
     /// <summary>What the copy overwrites, by animation position, then by shot place; null where it stops before progress.</summary>
-    private readonly IReadOnlyDictionary<TCursor, IReadOnlyList<TOverwrite?>> _overwrites;
+    private readonly IReadOnlyDictionary<TCursor, IReadOnlyDictionary<int, TOverwrite?>> _overwrites;
 
     /// <summary>Keeps the decoded overwrite of every animation position a SpaceTime shot can hold, by shot place.</summary>
-    /// <param name="overwrites">What the copy overwrites, by animation position, then by zero-based shot place.</param>
-    public SpaceTimeProgressionOverwrite(IReadOnlyDictionary<TCursor, IReadOnlyList<TOverwrite?>> overwrites) =>
+    /// <param name="overwrites">What the copy overwrites, by animation position, then keyed by the shot place.</param>
+    public SpaceTimeProgressionOverwrite(IReadOnlyDictionary<TCursor, IReadOnlyDictionary<int, TOverwrite?>> overwrites) =>
         _overwrites = Ensure.NotNull(overwrites);
 
     /// <summary>
@@ -45,10 +45,10 @@ public sealed class SpaceTimeProgressionOverwrite<TCursor, TOverwrite>
     /// <exception cref="ArgumentOutOfRangeException">No SpaceTime shot can stand at the position, or the place is not a shot place.</exception>
     public TOverwrite? For(TCursor cursor, int place)
     {
-        if (!_overwrites.TryGetValue(cursor, out IReadOnlyList<TOverwrite?>? byPlace))
+        if (!_overwrites.TryGetValue(cursor, out IReadOnlyDictionary<int, TOverwrite?>? byPlace))
             throw new ArgumentOutOfRangeException(nameof(cursor), cursor, "No SpaceTime shot animates from this position.");
-        return (uint)place < (uint)byPlace.Count
-            ? byPlace[place]
+        return byPlace.TryGetValue(place, out TOverwrite? overwrite)
+            ? overwrite
             : throw new ArgumentOutOfRangeException(nameof(place), place, $"A SpaceTime shot occupies one of {byPlace.Count} places.");
     }
 }

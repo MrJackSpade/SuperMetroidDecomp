@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Bosses.Artwork;
-using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.BossBodies;
@@ -46,7 +45,7 @@ internal sealed class CrocomireBodyEntity(CrocomireBehavior species, RoomEnemyOc
     /// <param name="context">The bomb contact.</param>
     public override bool TryReactToBomb(EnemyBombContext context)
     {
-        if (!context.UsesFrameHitboxes || context.SelectedShot == EnemyReaction.OrdinaryShot)
+        if (!context.UsesFrameHitboxes || context.SelectedShot.IsOrdinary)
             return base.TryReactToBomb(context);
         Species.Combat.ReactToCrocomireBomb(context, Encounter);
         return true;
@@ -67,5 +66,5 @@ internal sealed class CrocomireBodyEntity(CrocomireBehavior species, RoomEnemyOc
 
     /// <inheritdoc/>
     public BossBodyFrame? FindBodyFrame(EnemyFrameId selected) =>
-        CrocomireBodyLayerFrameDefinitions.Frames.Contains(selected) ? bossArtwork.Body(BossBodyOwner.Crocomire).Frame(selected) : null;
+        bossArtwork.Body(BossBodyOwner.Crocomire).Find(selected);
 }

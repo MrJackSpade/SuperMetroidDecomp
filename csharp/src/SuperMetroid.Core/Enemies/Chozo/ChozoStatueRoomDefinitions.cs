@@ -32,11 +32,8 @@ internal static class ChozoStatueRoomDefinitions
     /// <summary>The behaviour of the Lower Norfair hand's special block: the Lower Norfair Chozo hand.</summary>
     public static readonly RoomBlockBehavior LowerNorfairHandBehavior = RoomBlockBehavior.Reacting(SpecialBlockReaction.LowerNorfairChozoHand);
 
-    /// <summary>The column of the Power Bomb block whose breaking open triggers the Lower Norfair hand.</summary>
-    public const int LowerNorfairTriggerX = 4;
-
-    /// <summary>The row of the Power Bomb block whose breaking open triggers the Lower Norfair hand.</summary>
-    public const int LowerNorfairTriggerY = 8;
+    /// <summary>The Power Bomb block whose breaking open triggers the Lower Norfair hand.</summary>
+    public static readonly Position16<RoomBlocks> LowerNorfairTriggerBlock = new(4, 8);
 
     /// <summary>The Wrecked Ship hand's trigger block, where the hand room object is also placed.</summary>
     public static readonly Position16<RoomBlocks> WreckedShipHandBlock = new(74, 23);

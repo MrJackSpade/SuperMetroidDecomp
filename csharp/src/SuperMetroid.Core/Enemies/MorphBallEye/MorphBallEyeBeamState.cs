@@ -1,5 +1,4 @@
-using SuperMetroid.Core.Assets;
-namespace SuperMetroid.Core.Enemies.MorphBallEye;
+using SuperMetroid.Core.Assets;namespace SuperMetroid.Core.Enemies.MorphBallEye;
 
 /// <summary>
 /// The eye beam's room-global state: its lifetime, the eye that casts it, its angular half-width and the colour it

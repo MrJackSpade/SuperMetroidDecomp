@@ -33,7 +33,7 @@ internal sealed class TorizoBody
         if (torizo.Health is 0 or >= TorizoDecisionDefinitions.GutBlowUpHealth)
             return;
         if (_room.Random.Read() is int random &&
-            TorizoRandomDefinitions.LowHealthDrool.IsTakenBy(random))
+            TorizoRandomRolls.LowHealthDrool.IsTakenBy(random))
         {
             SpawnInitialDrool(occupant, torizo, torizoEnemyState);
         }

@@ -63,9 +63,9 @@ internal static class ProjectileInheritanceProbeVerification
             for (ushort direction = 0; direction < 10; direction++)
             {
                 int baseSpeed = direction is 1 or 3 or 6 or 8 ? DiagonalBaseSpeed : StraightBaseSpeed;
-                var slot = new SamusProjectile(0) { Direction = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeDirection(direction) };
+                var slot = SuperMetroid.Core.Samus.Projectiles.SamusProjectileFixtureOccupancy.ShotPlace(SuperMetroid.Core.Progression.SamusProjectileType.Beam(SuperMetroid.Core.Progression.SamusBeamCombination.Power, charged: false));
+                slot.HeldShot().Direction = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeDirection(direction);
                 // The launched beam holds its place as an uncharged Power beam, whose speed rows the probe reads.
-                slot.OccupyAsFired(SuperMetroid.Core.Progression.SamusProjectileType.Beam(SuperMetroid.Core.Progression.SamusBeamCombination.Power, charged: false));
                 initialize(inheritance, slot);
                 // Direct transcription of loads/LSR/ORA/ADC at $90:B218..B2F5.
                 // Do not replace these overlapping reads with idealized fixed-point math.
@@ -207,7 +207,7 @@ internal static class ProjectileInheritanceProbeVerification
         ushort inherited = records.WordBefore(SamusCollisionDirection.Right);
         AssertTrue((LittleEndianBytes.HighByteInPlace(inherited)) != 0, "Controller-driven beta publishes nonzero preceding-frame movement");
         byte[] captured = SuperMetroid.Verification.Harness.GraphDigestVerification.SerializeGraph(runtime, InstalledFixtures.BoundContent);
-        runtime.StepFrame((ControllerButton.Right | runtime.Options.ControllerBindings.Shoot));
+        runtime.StepFrame((ControllerButton.Right | runtime.Options.ControllerBindings[SuperMetroid.Core.Input.ControllerAction.Shoot]));
         AssertEqual(unchecked((short)(inherited + ReadPowerBeamLaunchSpeedSum(bus))), runtime.Projectiles.Shots.First(slot => slot.IsActive).Velocity.X.InTwoHundredFiftySixthsOfPixel,
             "Next alpha fires using prior beta displacement before reset and this-frame movement");
         AssertEqual(runtime.Room.LoadedCamera.Speed.Y.Fraction, records.CameraYSubspeed,
@@ -234,7 +234,7 @@ internal static class ProjectileInheritanceProbeVerification
             // The host binds a restored runtime to its content as it binds a new one.
             BindRetailRuntimeFixture(restored);
             restored.Player.Samus.SelectedHudItem = SuperMetroid.Diagnostics.Saves.SaveSlotNumbering.SavedHudItem(weapon);
-            restored.StepFrame((ControllerButton.Right | restored.Options.ControllerBindings.Shoot));
+            restored.StepFrame((ControllerButton.Right | restored.Options.ControllerBindings[SuperMetroid.Core.Input.ControllerAction.Shoot]));
             var shot = restored.Projectiles.Shots.First(slot => slot.IsActive);
             AssertEqual(family, shot.HeldShot().Type.Family, "Each resumed runtime fires the weapon it selected");
             AssertEqual(unchecked((short)(inherited + launchSpeed)), shot.Velocity.X.InTwoHundredFiftySixthsOfPixel,

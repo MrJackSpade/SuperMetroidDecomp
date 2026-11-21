@@ -19,9 +19,12 @@ namespace SuperMetroid.EnsureAnalyzer.CodeFixes;
 /// has none, and in its file the union of the parts' files' using directives (the cleanup's IDE0005 pass removes the
 /// unneeded ones). <c>partial</c> stays only while a generated part or a partial member needs it. A generated part is
 /// not touched. The other parts go, and a file left without a declaration is deleted, with its project list entries
-/// (the cleanup's runner removes those). Parts with preprocessor directives, a primary constructor on another part,
-/// differing type parameters or constraints, or text spanning lines that a different indentation would re-indent fail
-/// the fix.
+/// (the cleanup's runner removes those). Every finding is merged (#2599): a primary constructor on another part moves to
+/// the merged declaration with its base call, the parts' type parameters keep every part's attributes, and constraints
+/// only another part states are added. A part holding preprocessor directives moves its body whole, directives and all,
+/// and the <c>#if</c> branches a part lies in wrap what it brings. Lines inside a token spanning lines (a verbatim or
+/// raw string) keep their text when the rest is re-indented, and braces that share a line with members are given lines
+/// of their own around what is merged in.
 /// </summary>
 [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(PartialMergeCodeFixProvider)), Shared]
 public sealed class PartialMergeCodeFixProvider : DocumentFixProvider
@@ -57,9 +60,9 @@ public sealed class PartialMergeCodeFixProvider : DocumentFixProvider
             SyntaxToken identifier = root.FindToken(diagnostic.Location.SourceSpan.Start);
             if (identifier.Parent is not TypeDeclarationSyntax declaration || declaration.Identifier != identifier ||
                 model.GetDeclaredSymbol(declaration, cancellationToken) is not INamedTypeSymbol type)
-                throw new CleanupFailure(diagnostic, "the finding is not at a type declaration");
+                throw new InvalidOperationException($"{document.FilePath}: {diagnostic.Id} is reported at {diagnostic.Location.SourceSpan}, where no type is declared.");
             if (merged.Add(type))
-                await MergeAsync(edits, type, model.Compilation, diagnostic, removed, targets, cancellationToken).ConfigureAwait(false);
+                await MergeAsync(edits, type, model.Compilation, removed, targets, cancellationToken).ConfigureAwait(false);
         }
         foreach (var file in removed.GroupBy(part => part.SyntaxTree))
         {
@@ -71,19 +74,18 @@ public sealed class PartialMergeCodeFixProvider : DocumentFixProvider
 
     /// <summary>Merges the hand-written parts of <paramref name="type"/> into one, adding the removed parts to
     /// <paramref name="removed"/> and the merged declaration's file to <paramref name="targets"/>.</summary>
-    private static async Task MergeAsync(SolutionEdits edits, INamedTypeSymbol type, Compilation compilation, Diagnostic site,
+    private static async Task MergeAsync(SolutionEdits edits, INamedTypeSymbol type, Compilation compilation,
         List<TypeDeclarationSyntax> removed, HashSet<SyntaxTree> targets, CancellationToken cancellationToken)
     {
         PartialDeclarations declarations = PartialDeclarations.Of(type, cancellationToken)
-            ?? throw new CleanupFailure(site, $"{type.Name} is not partial");
+            ?? throw new InvalidOperationException($"{PartialSplitAnalyzer.SplitId} is reported for {type.ToDisplayString()}, which is not partial.");
         var trees = compilation.SyntaxTrees.ToList();
         var parts = declarations.HandWritten.OrderBy(part => trees.IndexOf(part.SyntaxTree)).ThenBy(part => part.SpanStart).ToList();
         if (parts.Count < 2)
-            throw new CleanupFailure(site, $"{type.Name} has only one hand-written declaration");
+            throw new InvalidOperationException($"{PartialSplitAnalyzer.SplitId} is reported for {type.ToDisplayString()}, which has {parts.Count} hand-written declaration.");
         TypeDeclarationSyntax target = type.ContainingType is null
             ? parts.FirstOrDefault(part => Path.GetFileNameWithoutExtension(part.SyntaxTree.FilePath) == type.Name) ?? parts[0]
             : parts[0];
-        Refuse(parts, target, site);
         targets.Add(target.SyntaxTree);
         bool keepPartial = declarations.All.Count > parts.Count ||
             parts.SelectMany(part => part.Members).Any(member => member.Modifiers.Any(SyntaxKind.PartialKeyword));
@@ -99,12 +101,14 @@ public sealed class PartialMergeCodeFixProvider : DocumentFixProvider
         int index = parts.IndexOf(target);
         var before = new List<string>();
         foreach (TypeDeclarationSyntax part in parts.Take(index))
-            before.AddRange(await MemberTextsAsync(edits, part, memberIndent, newline, site, cancellationToken).ConfigureAwait(false));
+            before.AddRange(await MemberTextsAsync(edits, part, memberIndent, newline, cancellationToken).ConfigureAwait(false));
         var after = new List<string>();
         foreach (TypeDeclarationSyntax part in parts.Skip(index + 1))
-            after.AddRange(await MemberTextsAsync(edits, part, memberIndent, newline, site, cancellationToken).ConfigureAwait(false));
+            after.AddRange(await MemberTextsAsync(edits, part, memberIndent, newline, cancellationToken).ConfigureAwait(false));
 
+        MergeTypeParameters(own, parts, target);
         MergeHeader(own, parts, target, compilation, keepPartial, typeIndent, newline);
+        MergeConstraints(own, parts, target);
         await MergeUsingsAsync(own, parts, target, newline, cancellationToken).ConfigureAwait(false);
         if (oneLine)
         {
@@ -117,75 +121,132 @@ public sealed class PartialMergeCodeFixProvider : DocumentFixProvider
         {
             if (before.Count > 0)
             {
-                if (target.OpenBraceToken.GetNextToken().SpanStart < text.Lines.GetLineFromPosition(target.OpenBraceToken.SpanStart).EndIncludingLineBreak)
-                    throw new CleanupFailure(site, $"{type.Name}'s opening brace does not end its line");
-                own.Insert(text.Lines.GetLineFromPosition(target.OpenBraceToken.SpanStart).EndIncludingLineBreak,
-                    string.Join(newline + newline, before) + newline + (target.Members.Count > 0 ? newline : ""));
+                TextLine openLine = text.Lines.GetLineFromPosition(target.OpenBraceToken.SpanStart);
+                if (target.OpenBraceToken.GetNextToken().SpanStart < openLine.EndIncludingLineBreak)
+                    own.Insert(target.OpenBraceToken.Span.End, newline + string.Join(newline + newline, before) + newline);
+                else
+                    own.Insert(openLine.EndIncludingLineBreak, string.Join(newline + newline, before) + newline + (target.Members.Count > 0 ? newline : ""));
             }
             if (after.Count > 0)
             {
                 TextLine closeLine = text.Lines.GetLineFromPosition(target.CloseBraceToken.SpanStart);
-                if (target.CloseBraceToken.GetPreviousToken().Span.End > closeLine.Start)
-                    throw new CleanupFailure(site, $"{type.Name}'s closing brace does not start its line");
                 bool preceded = target.Members.Count > 0 || before.Count > 0;
-                own.Insert(closeLine.Start, string.Concat(after.Select((member, position) => (position > 0 || preceded ? newline : "") + member + newline)));
+                string merged = string.Concat(after.Select((member, position) => (position > 0 || preceded ? newline : "") + member + newline));
+                if (target.CloseBraceToken.GetPreviousToken().Span.End > closeLine.Start)
+                    own.Insert(target.CloseBraceToken.SpanStart, newline + merged + typeIndent);
+                else
+                    own.Insert(closeLine.Start, merged);
             }
         }
         foreach (TypeDeclarationSyntax part in parts.Where(part => part != target))
         {
-            (await edits.ForAsync(part.SyntaxTree, cancellationToken).ConfigureAwait(false)).Remove(part);
+            (await edits.ForAsync(part.SyntaxTree, cancellationToken).ConfigureAwait(false)).RemoveMoved(part);
             removed.Add(part);
         }
     }
 
-    /// <summary>Fails for parts whose merge would need a choice or could change their text.</summary>
-    private static void Refuse(List<TypeDeclarationSyntax> parts, TypeDeclarationSyntax target, Diagnostic site)
-    {
-        string Shape(TypeParameterListSyntax? list) => list?.ToString().Replace(" ", "") ?? "";
-        foreach (TypeDeclarationSyntax part in parts)
-        {
-            if (part.DescendantTrivia(descendIntoTrivia: true).Any(trivia => trivia.IsDirective))
-                throw new CleanupFailure(part.Identifier.GetLocation(), site.Id, "a part holds preprocessor directives");
-            if (Shape(part.TypeParameterList) != Shape(target.TypeParameterList))
-                throw new CleanupFailure(part.Identifier.GetLocation(), site.Id, "the parts' type parameters differ");
-            if (part == target)
-                continue;
-            if (part.ParameterList is not null)
-                throw new CleanupFailure(part.Identifier.GetLocation(), site.Id, "a part other than the merged one declares the primary constructor");
-            if (part.ConstraintClauses.Count > 0 && part.ConstraintClauses.ToString() != target.ConstraintClauses.ToString())
-                throw new CleanupFailure(part.Identifier.GetLocation(), site.Id, "the parts' constraints differ");
-        }
-    }
-
-    /// <summary>The members of a part as text, each with the comments and documentation directly above it, indented as
-    /// the merged declaration's members are.</summary>
+    /// <summary>
+    /// What a part brings to the merged declaration, as texts indented as its members are: each member with the comments
+    /// and documentation directly above it, or, when the part holds preprocessor directives, its whole body, directives
+    /// and all, as one text. The <c>#if</c> branches the part lies in wrap what it brings. Lines a token spanning lines
+    /// holds keep their text.
+    /// </summary>
     private static async Task<List<string>> MemberTextsAsync(SolutionEdits edits, TypeDeclarationSyntax part, string memberIndent, string newline,
-        Diagnostic site, CancellationToken cancellationToken)
+        CancellationToken cancellationToken)
     {
         SourceEdits partEdits = await edits.ForAsync(part.SyntaxTree, cancellationToken).ConfigureAwait(false);
         SourceText text = partEdits.Text;
         string partIndent = part.Members.Count > 0
             ? Indentation(text.Lines.GetLineFromPosition(part.Members[0].SpanStart).ToString())
             : memberIndent;
+        HashSet<int> kept = Directives.TokenLines(text, part);
         var texts = new List<string>();
-        foreach (MemberDeclarationSyntax member in part.Members)
+        if (part.DescendantTrivia(part.Span, descendIntoTrivia: true).Any(trivia => trivia.IsDirective))
         {
-            TextLine first = text.Lines.GetLineFromPosition(partEdits.AttachedStart(member));
-            TextLine last = text.Lines.GetLineFromPosition(member.Span.End);
-            if (member.GetFirstToken().GetPreviousToken().Span.End > first.Start || member.GetLastToken().GetNextToken().SpanStart < last.End)
-            {
-                if (member.ToString().Contains("\n"))
-                    throw new CleanupFailure(member.GetLocation(), site.Id, "a member spanning lines shares a line with its part's braces");
-                texts.Add(memberIndent + member);
-                continue;
-            }
-            if (partIndent != memberIndent && member.DescendantTokens().Any(token => token.ToString().Contains("\n")))
-                throw new CleanupFailure(member.GetLocation(), site.Id, "re-indenting the member would change text spanning lines");
-            var lines = text.ToString(TextSpan.FromBounds(first.Start, last.End)).Replace("\r\n", "\n").Split('\n')
-                .Select(line => line.StartsWith(partIndent, StringComparison.Ordinal) ? memberIndent + line.Substring(partIndent.Length) : line);
-            texts.Add(string.Join(newline, lines));
+            TextLine openLine = text.Lines.GetLineFromPosition(part.OpenBraceToken.Span.End);
+            TextLine closeLine = text.Lines.GetLineFromPosition(part.CloseBraceToken.SpanStart);
+            var body = new List<string>();
+            string afterOpen = text.ToString(TextSpan.FromBounds(part.OpenBraceToken.Span.End, openLine.End)).Trim();
+            if (afterOpen.Length > 0)
+                body.Add(memberIndent + afterOpen);
+            if (closeLine.LineNumber - 1 >= openLine.LineNumber + 1)
+                body.Add(Reindent(text, openLine.LineNumber + 1, closeLine.LineNumber - 1, partIndent, memberIndent, kept, newline));
+            string beforeClose = text.ToString(TextSpan.FromBounds(closeLine.Start, part.CloseBraceToken.SpanStart)).Trim();
+            if (beforeClose.Length > 0 && closeLine.LineNumber != openLine.LineNumber)
+                body.Add(memberIndent + beforeClose);
+            string whole = string.Join(newline, body).Trim('\r', '\n');
+            if (whole.Trim().Length > 0)
+                texts.Add(whole);
         }
-        return texts;
+        else
+        {
+            foreach (MemberDeclarationSyntax member in part.Members)
+            {
+                TextLine first = text.Lines.GetLineFromPosition(partEdits.AttachedStart(member));
+                TextLine last = text.Lines.GetLineFromPosition(member.Span.End);
+                if (member.GetFirstToken().GetPreviousToken().Span.End > first.Start || member.GetLastToken().GetNextToken().SpanStart < last.End)
+                {
+                    // A member sharing a line with its part's braces starts its own line; its other lines keep their text.
+                    texts.Add(memberIndent + member);
+                    continue;
+                }
+                texts.Add(Reindent(text, first.LineNumber, last.LineNumber, partIndent, memberIndent, kept, newline));
+            }
+        }
+        List<string> conditions = Directives.EnclosingConditions(await part.SyntaxTree.GetRootAsync(cancellationToken).ConfigureAwait(false), part.SpanStart);
+        return conditions.Count == 0 || texts.Count == 0 ? texts : [Directives.Wrap(string.Join(newline + newline, texts), conditions, newline)];
+    }
+
+    /// <summary>Lines <paramref name="first"/> to <paramref name="last"/> of <paramref name="text"/>, moved from one
+    /// indentation to another, but those a token spanning lines holds.</summary>
+    private static string Reindent(SourceText text, int first, int last, string from, string to, HashSet<int> kept, string newline)
+    {
+        var lines = new List<string>();
+        for (int line = first; line <= last; line++)
+        {
+            string content = text.Lines[line].ToString();
+            lines.Add(!kept.Contains(line) && content.StartsWith(from, StringComparison.Ordinal) ? to + content.Substring(from.Length) : content);
+        }
+        return string.Join(newline, lines);
+    }
+
+    /// <summary>Gives the merged declaration's type parameters every part's attributes, when the parts differ in them.</summary>
+    private static void MergeTypeParameters(SourceEdits own, List<TypeDeclarationSyntax> parts, TypeDeclarationSyntax target)
+    {
+        if (target.TypeParameterList is not { } list)
+            return;
+        var merged = new List<string>();
+        for (int index = 0; index < list.Parameters.Count; index++)
+        {
+            var attributes = new List<string>();
+            foreach (TypeDeclarationSyntax part in parts)
+            {
+                if (part.TypeParameterList is { } other && index < other.Parameters.Count)
+                {
+                    foreach (AttributeListSyntax attribute in other.Parameters[index].AttributeLists)
+                    {
+                        if (!attributes.Contains(attribute.ToString()))
+                            attributes.Add(attribute.ToString());
+                    }
+                }
+            }
+            TypeParameterSyntax parameter = list.Parameters[index];
+            string variance = parameter.VarianceKeyword.IsKind(SyntaxKind.None) ? "" : parameter.VarianceKeyword.Text + " ";
+            merged.Add(string.Concat(attributes.Select(attribute => attribute + " ")) + variance + parameter.Identifier.Text);
+        }
+        string text = "<" + string.Join(", ", merged) + ">";
+        if (text != list.ToString())
+            own.Replace(list.Span, text);
+    }
+
+    /// <summary>Adds the constraints another part states to a merged declaration that states none.</summary>
+    private static void MergeConstraints(SourceEdits own, List<TypeDeclarationSyntax> parts, TypeDeclarationSyntax target)
+    {
+        if (target.ConstraintClauses.Count > 0 || parts.FirstOrDefault(part => part.ConstraintClauses.Count > 0) is not { } constrained)
+            return;
+        SyntaxNode header = (SyntaxNode?)target.BaseList ?? (SyntaxNode?)target.ParameterList ?? (SyntaxNode?)target.TypeParameterList ?? target;
+        int position = header == target ? target.Identifier.Span.End : header.Span.End;
+        own.Insert(position, " " + string.Join(" ", constrained.ConstraintClauses.Select(clause => clause.ToString())));
     }
 
     /// <summary>Gives the merged declaration the union of the parts' modifiers, attributes and base types, and another
@@ -220,6 +281,10 @@ public sealed class PartialMergeCodeFixProvider : DocumentFixProvider
                 ? TextSpan.FromBounds(target.Modifiers[0].SpanStart, target.Modifiers[target.Modifiers.Count - 1].Span.End)
                 : TextSpan.FromBounds(target.Modifiers[0].SpanStart, target.Keyword.SpanStart), modifiers);
         }
+
+        // A primary constructor another part declares moves to the merged declaration, its base call with the base list.
+        if (target.ParameterList is null && others.FirstOrDefault(part => part.ParameterList is not null)?.ParameterList is { } primary)
+            own.Insert(target.TypeParameterList?.Span.End ?? target.Identifier.Span.End, primary.ToString());
 
         var present = new HashSet<string>((target.BaseList?.Types ?? default).Select(baseType => baseType.ToString()));
         var classes = new List<string>();

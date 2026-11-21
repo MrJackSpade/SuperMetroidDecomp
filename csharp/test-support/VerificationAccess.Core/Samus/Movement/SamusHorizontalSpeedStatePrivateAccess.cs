@@ -23,22 +23,10 @@ internal static class SamusHorizontalSpeedStatePrivateAccess
         internal void FinishDepartingSpeedEchoFrame() =>
             PrivateState.Invoke<global::SuperMetroid.Core.Samus.Movement.SamusHorizontalSpeedState>(self, "FinishDepartingSpeedEchoFrame", [], new object?[] {  });
 
-        /// <summary>The private property <c>FirstSpeedEchoHorizontalSpeed</c>, reached by name.</summary>
-        internal int FirstSpeedEchoHorizontalSpeed
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.Samus.Movement.SamusHorizontalSpeedState, int>(self, "FirstSpeedEchoHorizontalSpeed");
-        }
-
         /// <summary>The private property <c>FullBodyGlow</c>, reached by name.</summary>
         internal global::SuperMetroid.Core.Animation.AnimationPlayer<global::SuperMetroid.Core.Samus.Colours.SamusGlowSegment, global::SuperMetroid.Core.Assets.PictureShade, global::SuperMetroid.Core.Animation.NoAnimationCue> FullBodyGlow
         {
             get => PrivateState.Get<global::SuperMetroid.Core.Samus.Movement.SamusHorizontalSpeedState, global::SuperMetroid.Core.Animation.AnimationPlayer<global::SuperMetroid.Core.Samus.Colours.SamusGlowSegment, global::SuperMetroid.Core.Assets.PictureShade, global::SuperMetroid.Core.Animation.NoAnimationCue>>(self, "FullBodyGlow");
-        }
-
-        /// <summary>The private property <c>SecondSpeedEchoHorizontalSpeed</c>, reached by name.</summary>
-        internal int SecondSpeedEchoHorizontalSpeed
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.Samus.Movement.SamusHorizontalSpeedState, int>(self, "SecondSpeedEchoHorizontalSpeed");
         }
 
         /// <summary>The private property <c>SpeedEchoPhase</c>, reached by name.</summary>

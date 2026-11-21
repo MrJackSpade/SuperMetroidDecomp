@@ -31,8 +31,11 @@ public sealed class KraidLintState : KraidAnimatedPartState
     /// <summary>The phase the lint runs, inactive from its setup until his growth produces it.</summary>
     public KraidLintPhase Phase { get; internal set; }
 
-    /// <summary>A lint's X offset from the body in pixels: zero, or sixteen to the left.</summary>
-    public int LintXOffset { get; internal set; }
+    /// <summary>Where the lint emerges from Kraid's mouth: on the body's line, or left of it (#2560).</summary>
+    public KraidLintEmergence Emergence { get; internal set; }
+
+    /// <summary>The lint's X offset from the body in pixels, as where it emerges places it.</summary>
+    internal int LintXOffset => KraidArenaDefinitions.LintEmergenceXOffsets[Emergence];
 
     /// <summary>The pixels a lint has travelled out of Kraid's mouth while it is produced; never negative.</summary>
     public int LintTravel

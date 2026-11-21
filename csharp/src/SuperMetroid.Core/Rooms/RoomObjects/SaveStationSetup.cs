@@ -5,5 +5,8 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 internal sealed record SaveStationSetup(SaveStationPlace SavesAt) : RoomObjectPlacementSetup
 {
     /// <inheritdoc/>
+    internal override RoomObjectKind Kind => RoomObjectKind.SaveStation;
+
+    /// <inheritdoc/>
     internal override void SetUp(IRoomObjectFamilySetups setups) => setups.SetUpSaveStation(SavesAt);
 }

@@ -13,10 +13,7 @@ internal static class MotherBrainMuralDefinitions
     internal static IReadOnlyList<MotherBrainMuralRowShape> RowShapes { get; } =
     [
         MotherBrainMuralRowShape.Border,
-        MotherBrainMuralRowShape.Interior, MotherBrainMuralRowShape.Interior, MotherBrainMuralRowShape.Interior,
-        MotherBrainMuralRowShape.Interior, MotherBrainMuralRowShape.Interior, MotherBrainMuralRowShape.Interior,
-        MotherBrainMuralRowShape.Interior, MotherBrainMuralRowShape.Interior, MotherBrainMuralRowShape.Interior,
-        MotherBrainMuralRowShape.Interior,
+        .. DefinitionRun.Repeated(MotherBrainMuralRowShape.Interior, 10),
         MotherBrainMuralRowShape.Border,
     ];
 

@@ -1,4 +1,5 @@
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Core.Progression;
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain;
@@ -86,24 +87,24 @@ internal static class MotherBrainEncodingDomainsVerification
             MotherBrainWalkCredit credit = MotherBrainWalkCreditConstants.FromNativeWord(checked((ushort)start));
 
             MotherBrainShotReactionResult hyper = MotherBrainShotReaction.Resolve(
-                MotherBrainForm.ThirdPhase, MotherBrainProjectileType.Beam, credit);
+                MotherBrainForm.ThirdPhase, SamusProjectileFamily.Beam, credit);
             int hyperRemainder = ((start - MotherBrainWalkCredit.HyperBeamShotCost) % WordRange + WordRange) % WordRange;
             bool overdrawn = hyperRemainder >= SignedWordLimit;
             AssertEqual(overdrawn ? 0 : hyperRemainder, hyper.WalkCredit.Credit, $"final-phase beam from credit {start}");
             AssertEqual(overdrawn, hyper.HyperBeamRecoil, $"final-phase beam from credit {start} recoils only on overdraw");
 
             MotherBrainShotReactionResult beam = MotherBrainShotReaction.Resolve(
-                MotherBrainForm.SecondPhase, MotherBrainProjectileType.Beam, credit);
+                MotherBrainForm.SecondPhase, SamusProjectileFamily.Beam, credit);
             AssertEqual(NativeSignedSpend(start, MotherBrainWalkCredit.StepCredit), beam.WalkCredit.Credit,
                 $"second-phase beam from credit {start}");
             AssertEqual(false, beam.HyperBeamRecoil, $"second-phase beam from credit {start} never recoils");
 
             MotherBrainShotReactionResult missile = MotherBrainShotReaction.Resolve(
-                MotherBrainForm.ThirdPhase, MotherBrainProjectileType.Missile, credit);
+                MotherBrainForm.ThirdPhase, SamusProjectileFamily.Missile, credit);
             AssertEqual(MotherBrainWalkCredit.Empty, missile.WalkCredit, $"missile from credit {start} empties the credit");
 
             MotherBrainShotReactionResult powerBomb = MotherBrainShotReaction.Resolve(
-                MotherBrainForm.SecondPhase, MotherBrainProjectileType.PowerBomb, credit);
+                MotherBrainForm.SecondPhase, SamusProjectileFamily.PowerBomb, credit);
             AssertEqual(NativeSignedSpend(start, MotherBrainWalkCredit.StepCredit), powerBomb.WalkCredit.Credit,
                 $"power bomb from credit {start} takes the wrapped reaction-zero branch");
         }

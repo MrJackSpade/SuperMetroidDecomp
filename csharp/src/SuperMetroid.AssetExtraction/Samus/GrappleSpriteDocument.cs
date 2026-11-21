@@ -7,6 +7,6 @@ public sealed record GrappleSpriteDocument
     public required int Version { get; init; }
     /// <summary>Nonnull endpoint appearance shared by connected and unconnected drawing; its position remains owned by the live grapple state.</summary>
     public required GrappleSpriteStyle Endpoint { get; init; }
-    /// <summary>Exactly four nonnull appearances in native $94:B18D/$B191/$B195/$B199 attribute-operand order; no duration or instruction fields are editable here.</summary>
-    public required GrappleSpriteStyle[] Segments { get; init; }
+    /// <summary>Each of the rope's four pictures' appearance, keyed by the picture's name; no duration or instruction fields are editable here.</summary>
+    public required Dictionary<string, GrappleSpriteStyle> Segments { get; init; }
 }

@@ -12,16 +12,19 @@ public static class MapLandmarkDefinitions
     /// <summary>The gunship's marker on the Crateria map, shown whatever Samus has explored.</summary>
     public const string Gunship = "Crateria.Gunship";
 
+    /// <summary>The areas whose maps show the gunship: Crateria, where it landed.</summary>
+    internal static readonly AreaId[] GunshipAreas = [AreaId.Crateria];
+
     /// <summary>Kraid's marker on the Brinstar map.</summary>
-    internal static readonly ImmutableArray<MapBossMarker> BrinstarBosses = [new("Boss.Kraid", DefeatedBosses.AreaBoss)];
+    internal static readonly ImmutableArray<MapBossMarker> BrinstarBosses = [new("Boss.Kraid", AreaBoss.Kraid)];
     /// <summary>Ridley's marker on the Norfair map.</summary>
-    internal static readonly ImmutableArray<MapBossMarker> NorfairBosses = [new("Boss.Ridley", DefeatedBosses.AreaBoss)];
+    internal static readonly ImmutableArray<MapBossMarker> NorfairBosses = [new("Boss.Ridley", AreaBoss.Ridley)];
     /// <summary>Phantoon's marker on the Wrecked Ship map.</summary>
-    internal static readonly ImmutableArray<MapBossMarker> WreckedShipBosses = [new("Boss.Phantoon", DefeatedBosses.AreaBoss)];
+    internal static readonly ImmutableArray<MapBossMarker> WreckedShipBosses = [new("Boss.Phantoon", AreaBoss.Phantoon)];
     /// <summary>Draygon's marker on the Maridia map.</summary>
-    internal static readonly ImmutableArray<MapBossMarker> MaridiaBosses = [new("Boss.Draygon", DefeatedBosses.AreaBoss)];
+    internal static readonly ImmutableArray<MapBossMarker> MaridiaBosses = [new("Boss.Draygon", AreaBoss.Draygon)];
     /// <summary>Ridley's marker on the Ceres map.</summary>
-    internal static readonly ImmutableArray<MapBossMarker> CeresBosses = [new("Boss.CeresRidley", DefeatedBosses.AreaBoss)];
+    internal static readonly ImmutableArray<MapBossMarker> CeresBosses = [new("Boss.CeresRidley", AreaBoss.CeresRidley)];
 
     /// <summary>Crateria's labels: three to Brinstar from west to east, then Wrecked Ship and Maridia.</summary>
     internal static readonly ImmutableArray<MapElevatorLabel> CrateriaElevators =
@@ -58,4 +61,6 @@ public static class MapLandmarkDefinitions
     ];
     /// <summary>Tourian's label to Crateria.</summary>
     internal static readonly ImmutableArray<MapElevatorLabel> TourianElevators = [new("Tourian.Elevator.ToCrateria", AreaId.Crateria)];
+    /// <summary>Ceres's labels: none, as no elevator leaves the station for another area.</summary>
+    internal static readonly ImmutableArray<MapElevatorLabel> CeresElevators = [];
 }

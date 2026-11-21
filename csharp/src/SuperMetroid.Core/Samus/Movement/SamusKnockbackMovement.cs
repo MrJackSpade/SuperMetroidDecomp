@@ -34,13 +34,8 @@ public static class SamusKnockbackMovement
         // A knockback starts only with a live producer timer, unfrozen time, and no
         // knockback direction installed. An installed direction means a previous request already
         // holds her movement; it must finish instead of being restarted.
-        if (samus.KnockbackHold.IsOver ||
-            timeIsFrozen ||
-            samus.KnockbackDirection != SamusKnockbackDirection.None ||
-            samus.KnockbackActive)
-        {
+        if (!samus.KnockbackPending || timeIsFrozen)
             return false;
-        }
 
         return Start(samus, controllerInput, KnockbackLaunch.FromHurtState(samus), poseCollision);
     }
@@ -68,7 +63,7 @@ public static class SamusKnockbackMovement
             throw new ArgumentOutOfRangeException(nameof(launch.KnockbackXDirection));
         if (launch.KnockbackTimer == 0)
             throw new ArgumentOutOfRangeException(nameof(launch.KnockbackTimer));
-        if (samus.KnockbackActive || samus.KnockbackDirection != SamusKnockbackDirection.None)
+        if (samus.Knockback != SamusKnockback.None)
             throw new InvalidOperationException("Normal knockback is already active or pending.");
 
         // Every movement type is morphed, upright, the glitch ball or one that refuses knockback
@@ -79,8 +74,6 @@ public static class SamusKnockbackMovement
             SamusMovementTypeDefinitions.Movements.TryGetValue(sourceMovementType, out SamusMovementTypeDefinition? definition)
                 ? definition.Knockback
                 : throw new InvalidDataException($"Movement type {sourceMovementType} has no knockback response.");
-        bool morphed = response == SamusKnockbackResponse.Ball;
-        bool humanoid = response == SamusKnockbackResponse.Upright;
 
         // Enemy contact has already established the knockback timer before the knockback check selects a pose.
         // Turning, grapple, current knockback, damage boost, and special-movement bodies all
@@ -92,53 +85,60 @@ public static class SamusKnockbackMovement
         // A hit replaces an ordinary body with a knockback pose. A ball, by contrast, keeps its exact Morph or Spring Ball
         // pose; since Samus's pose update sees no pose change, the rolling animation frame and timer survive.
         bool facingLeft = SamusPoseMetadata.IsFacingLeft(samus.Pose);
-        if (humanoid)
+        switch (response)
         {
-            SamusPoseId targetPose = facingLeft
-                ? SamusPoseId.KnockbackLeftPose
-                : SamusPoseId.KnockbackRightPose;
-            // Interrupted poses pass through the same expansion check as ordinary
-            // input poses before the knockback start initializes knockback. Scripted cinematic
-            // scenes without room terrain retain their explicitly positioned behavior.
-            if (poseCollision is { } collision && !SamusGroundedPoseTransitions.TryResolveKnockbackPoseCollision(samus,
-                    collision.Terrain.Level, targetPose, collision.FrameCounter, collision.Terrain.RoomObjects))
-                return false;
-            samus.Pose = targetPose;
-            // The interrupted pose commits after movement. The input phase publishes its radius
-            // next frame; keep the collision resolver's old live radius through this one.
-        }
-        else if (response == SamusKnockbackResponse.GlitchBall)
-        {
-            // A hit on the glitch ball, unlike the ball path, installs the glitch ball's knockback pose, then continues
-            // through the same knockback-start hurt setup as a humanoid pose.
-            samus.Pose = facingLeft
-                ? SamusPoseId.GlitchBallKnockbackLeftPose
-                : SamusPoseId.GlitchBallKnockbackRightPose;
-            SamusPoseMetadata.RefreshCollisionRadii(samus);
-            humanoid = true;
+            case SamusKnockbackResponse.Upright:
+                SamusPoseId targetPose = facingLeft
+                    ? SamusPoseId.KnockbackLeftPose
+                    : SamusPoseId.KnockbackRightPose;
+                // Interrupted poses pass through the same expansion check as ordinary
+                // input poses before the knockback start initializes knockback. Scripted cinematic
+                // scenes without room terrain retain their explicitly positioned behavior.
+                if (poseCollision is { } collision && !SamusGroundedPoseTransitions.TryResolveKnockbackPoseCollision(samus,
+                        collision.Terrain.Level, targetPose, collision.FrameCounter, collision.Terrain.RoomObjects))
+                    return false;
+                samus.Pose = targetPose;
+                // The interrupted pose commits after movement. The input phase publishes its radius
+                // next frame; keep the collision resolver's old live radius through this one.
+                break;
+            case SamusKnockbackResponse.GlitchBall:
+                // A hit on the glitch ball, unlike the ball path, installs the glitch ball's knockback pose, then continues
+                // through the same knockback-start hurt setup as a humanoid pose.
+                samus.Pose = facingLeft
+                    ? SamusPoseId.GlitchBallKnockbackLeftPose
+                    : SamusPoseId.GlitchBallKnockbackRightPose;
+                SamusPoseMetadata.RefreshCollisionRadii(samus);
+                break;
+            case SamusKnockbackResponse.Ball:
+                break;
+            case SamusKnockbackResponse.Refused:
+                throw new InvalidOperationException("A refused knockback took her movement.");
+            default:
+                throw new InvalidOperationException($"Undefined knockback response {response}.");
         }
 
         // A ball's knockback ignores both the damage's side and the controller: a ball facing right always goes
         // SamusKnockbackDirection.UpRight, and one facing left UpLeft. An upright Samus keeps the unusual choice of
-        // down-left or down-right with forward held.
+        // down-left or down-right with forward held, and so does the glitch ball once it takes its knockback pose.
         samus.KnockbackXDirection = launch.KnockbackXDirection;
-        if (morphed)
+        SamusKnockbackDirection direction;
+        if (response == SamusKnockbackResponse.Ball)
         {
-            samus.KnockbackDirection = facingLeft ? SamusKnockbackDirection.UpLeft : SamusKnockbackDirection.UpRight;
+            direction = facingLeft ? SamusKnockbackDirection.UpLeft : SamusKnockbackDirection.UpRight;
         }
         else
         {
             bool forwardHeld = facingLeft
                 ? (controllerInput & GameplayAction.Left) != GameplayAction.None
                 : (controllerInput & GameplayAction.Right) != GameplayAction.None;
-            samus.KnockbackDirection = launch.KnockbackXDirection == KnockbackHorizontalDirection.Left
+            direction = launch.KnockbackXDirection == KnockbackHorizontalDirection.Left
                 ? forwardHeld ? SamusKnockbackDirection.DownLeft : SamusKnockbackDirection.UpLeft
                 : forwardHeld ? SamusKnockbackDirection.DownRight : SamusKnockbackDirection.UpRight;
         }
 
         // The hit's producer owns its hurt countdown, taken above: an enemy's touch supplies the ordinary
         // one and the intro Rinka's strike a longer one, which this shared start keeps.
-        samus.KnockbackActive = true;
+        samus.Knockback = SamusKnockback.Moving(direction);
         // The knockback takes her movement, ending her flight after letting go of a
         // grapple swing if that was still running.
         samus.Grapple.ReleasedMovementActive = false;
@@ -149,8 +149,7 @@ public static class SamusKnockbackMovement
         samus.BombJump = null;
         // Taking her movement ends the bomb jump's movement immediately, but
         // does not yet release its independent lock on her pose input.
-        samus.BombJumpStarting = false;
-        samus.BombJumpActive = false;
+        samus.BombJumpPhase = Projectiles.SamusBombJumpPhase.None;
         samus.HorizontalSpeed.BodyAttack = SamusBodyAttack.None;
 
         // The hurt flash starts after bomb-jump/contact damage is cancelled. This is an independent
@@ -161,7 +160,7 @@ public static class SamusKnockbackMovement
         samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.Rising(
             SamusVerticalMotion.Knockback(samus.LiquidPhysics.DetermineMovementMedium(samus)));
         SamusAerialMovement.ConfigureEnvironmentGravity(samus);
-        if (humanoid)
+        if (response is SamusKnockbackResponse.Upright or SamusKnockbackResponse.GlitchBall)
             SamusPresentation.InitializeAnimation(samus);
         return true;
     }
@@ -177,8 +176,6 @@ public static class SamusKnockbackMovement
         Ensure.NotNull(samus);
         if (!samus.KnockbackActive)
             throw new InvalidOperationException("Knockback movement requires the knockback to hold Samus's movement.");
-        if (samus.KnockbackDirection is not (SamusKnockbackDirection.UpLeft or SamusKnockbackDirection.UpRight or SamusKnockbackDirection.DownLeft or SamusKnockbackDirection.DownRight))
-            throw new InvalidOperationException($"Invalid knockback direction {samus.KnockbackDirection}.");
 
         // The knockback keeps her movement even on the zero-timer frame.
         // Expiry belongs to the post-animation hit interruption, not this mover.
@@ -190,11 +187,9 @@ public static class SamusKnockbackMovement
         UnsignedSixteenSixteen baseSpeed = speed.CalculateBaseSpeed(SamusPoseMetadata.ReadMovementType(samus));
         var requestedX = SamusHorizontalDisplacement.Toward(
             samus.KnockbackXDirection == KnockbackHorizontalDirection.Left ? HorizontalDirection.Left : HorizontalDirection.Right, samus, baseSpeed);
-        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = requestedX.Displacement, CollisionMovementDirection = requestedX.CollisionDirection });
         // Knockback moves Samus as her ordinary sideways movement does: hitting a wall ends her horizontal momentum
         // before the vertical pass, so the next frame does not carry her on from the wall.
-        if (horizontal.Collided)
-            speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
+        _ = SamusTerrainMoves.MoveStoppingAtWalls(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus, requestedX);
 
         BlockMoveResult vertical = samus.KnockbackDirection is SamusKnockbackDirection.UpLeft or SamusKnockbackDirection.UpRight
             ? MoveWithSharedVerticalSpeedCalculation(level, samus, frameCounter, roomObjects)
@@ -244,7 +239,7 @@ public static class SamusKnockbackMovement
         // Preserve velocity and hurt values until the common expiry handoff consumes them.
         samus.Pose = targetPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
-        samus.KnockbackActive = false;
+        samus.Knockback = samus.Knockback.Released();
         SamusPresentation.InitializeAnimation(samus);
     }
 
@@ -258,11 +253,8 @@ public static class SamusKnockbackMovement
         GameplayAction controllerNewInput)
     {
         Ensure.NotNull(samus);
-        bool valid = new SamusPoseChange(samus.Pose, targetPose) is
-            (SamusPoseId.DamageBoostLeftPose,
-                SamusPoseId.NeutralJumpLeftPose or SamusPoseId.NormalJumpForwardLeftPose) or
-            (SamusPoseId.DamageBoostRightPose,
-                SamusPoseId.NeutralJumpRightPose or SamusPoseId.NormalJumpForwardRightPose);
+        bool valid = SamusPoseFamilyDefinitions.DamageBoostJumps.TryGetValue(samus.Pose, out SamusPoseFamily jumps) &&
+            SamusPoseTraits.IsIn(targetPose, jumps);
         if (!valid)
         {
             throw new InvalidOperationException(
@@ -339,9 +331,8 @@ public static class SamusKnockbackMovement
         // spark's hold while retaining its independently owned shade and timer.
         SamusMovementHandOver.BackToPose(samus, SamusMovementOwner.Knockback);
         // The knockback ends with Samus falling, in humanoid and morphed form alike.
-        samus.KnockbackDirection = SamusKnockbackDirection.None;
-        samus.KnockbackActive = false;
-        samus.MorphBallBounceState = SamusBallBounceState.None;
+        samus.Knockback = SamusKnockback.None;
+        samus.MorphBallBounceState = null;
         samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.FallFromRest;
     }
 
@@ -366,9 +357,6 @@ public static class SamusKnockbackMovement
     {
         // Any external Y displacement takes priority over the normal total-X-plus-one
         // slope-following probe, as in every no-speed vertical move; a downward knockback takes the exact same step.
-        SignedSixteenSixteen requested = SamusExtraDisplacement.CalculateNoSpeedVerticalDisplacement(
-            samus.Kinematics,
-            samus.HorizontalSpeed);
-        return SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = requested, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter) });
+        return SamusTerrainMoves.ProbeGroundWithoutSpeed(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus, frameCounter);
     }
 }

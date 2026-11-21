@@ -3,7 +3,6 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Samus.Abilities.Artwork;
-using SuperMetroid.Core.Enemies.Chozo.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Assets;
@@ -21,12 +20,9 @@ using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Samus;
-using SuperMetroid.Core.Bosses.Torizo.Artwork;
-using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Bosses.Phantoon.Artwork;
-using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 using SuperMetroid.Core.Areas.Tourian.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 
@@ -137,37 +133,37 @@ public sealed record GameInstallation(string Root)
     /// <summary>Stock definitions for shootable block appearances under the replaceable content tree.</summary>
     private string RoomObjectShotBlockVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomObjectShotBlockVisualDirectoryName);
     /// <summary>Editable shot-block appearances; PLM timing, placement, and collision remain compiled.</summary>
-    private InstalledRoomObjectShotBlockVisuals LoadRoomObjectShotBlockVisuals() =>
+    private InstalledRoomObjectPictures LoadRoomObjectShotBlockVisuals() =>
         RoomObjectShotBlockVisualFiles.Load(RoomObjectShotBlockVisualDirectory);
     /// <summary>Stock definitions for Grapple-reactive block appearances under the replaceable content tree.</summary>
     private string RoomObjectGrappleBlockVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomObjectGrappleBlockVisualDirectoryName);
     /// <summary>Editable Grapple-block appearances; timing, placement, and collision remain compiled.</summary>
-    private InstalledRoomObjectGrappleBlockVisuals LoadRoomObjectGrappleBlockVisuals() =>
+    private InstalledRoomObjectPictures LoadRoomObjectGrappleBlockVisuals() =>
         RoomObjectGrappleBlockVisualFiles.Load(RoomObjectGrappleBlockVisualDirectory);
     /// <summary>Stock definitions for save, refill, and map station appearances under the replaceable content tree.</summary>
     private string RoomObjectStationVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomObjectStationVisualDirectoryName);
     /// <summary>Editable station appearances; activation, rewards, and collision remain compiled.</summary>
-    private InstalledRoomObjectStationVisuals LoadRoomObjectStationVisuals() =>
+    private InstalledRoomObjectPictures LoadRoomObjectStationVisuals() =>
         RoomObjectStationVisualFiles.Load(RoomObjectStationVisualDirectory);
     /// <summary>Stock definitions for blue-door cap frames under the replaceable content tree.</summary>
     private string RoomObjectBlueDoorVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomObjectBlueDoorVisualDirectoryName);
     /// <summary>Editable blue-door cap art; opening timing and physical tiles remain compiled.</summary>
-    private InstalledRoomObjectBlueDoorVisuals LoadRoomObjectBlueDoorVisuals() =>
+    private InstalledRoomObjectPictures LoadRoomObjectBlueDoorVisuals() =>
         RoomObjectBlueDoorVisualFiles.Load(RoomObjectBlueDoorVisualDirectory);
     /// <summary>Stock definitions for colored-door cap frames under the replaceable content tree.</summary>
     private string RoomObjectColoredDoorVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomObjectColoredDoorVisualDirectoryName);
     /// <summary>Editable colored-door cap art; hit rules and physical tiles remain compiled.</summary>
-    private InstalledRoomObjectColoredDoorVisuals LoadRoomObjectColoredDoorVisuals() =>
+    private InstalledRoomObjectPictures LoadRoomObjectColoredDoorVisuals() =>
         RoomObjectColoredDoorVisualFiles.Load(RoomObjectColoredDoorVisualDirectory);
     /// <summary>Stock definitions for grey-door caps and shared clear frames under the replaceable content tree.</summary>
     private string RoomObjectGreyDoorVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomObjectGreyDoorVisualDirectoryName);
     /// <summary>Editable grey caps and shared clear frames; physical door rules stay compiled.</summary>
-    private InstalledRoomObjectGreyDoorVisuals LoadRoomObjectGreyDoorVisuals() =>
+    private InstalledRoomObjectPictures LoadRoomObjectGreyDoorVisuals() =>
         RoomObjectGreyDoorVisualFiles.Load(RoomObjectGreyDoorVisualDirectory);
     /// <summary>Stock definitions for the three eye-door components' appearances under the replaceable content tree.</summary>
     private string RoomObjectEyeDoorVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomObjectEyeDoorVisualDirectoryName);
     /// <summary>Editable eye-door blocks; the three PLM components retain compiled behavior.</summary>
-    private InstalledRoomObjectEyeDoorVisuals LoadRoomObjectEyeDoorVisuals() =>
+    private InstalledRoomObjectPictures LoadRoomObjectEyeDoorVisuals() =>
         RoomObjectEyeDoorVisualFiles.Load(RoomObjectEyeDoorVisualDirectory);
     /// <summary>Stock definitions for Mother Brain glass appearances under the replaceable content tree.</summary>
     private string RoomObjectMotherBrainGlassVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomObjectMotherBrainGlassVisualDirectoryName);
@@ -177,27 +173,27 @@ public sealed record GameInstallation(string Root)
     /// <summary>Stock definitions for intact and broken n00b-tube appearances under the replaceable content tree.</summary>
     private string RoomObjectNoobTubeVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomObjectNoobTubeVisualDirectoryName);
     /// <summary>Editable n00b-tube appearance; break logic and physical blocks stay compiled.</summary>
-    private InstalledRoomObjectNoobTubeVisuals LoadRoomObjectNoobTubeVisuals() =>
+    private InstalledRoomObjectPictures LoadRoomObjectNoobTubeVisuals() =>
         RoomObjectNoobTubeVisualFiles.Load(RoomObjectNoobTubeVisualDirectory);
     /// <summary>Stock definitions for downward gate-block appearances under the replaceable content tree.</summary>
     private string RoomObjectDownwardGateVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomObjectDownwardGateVisualDirectoryName);
     /// <summary>Editable gate-block art; activation, animation, and collision remain compiled.</summary>
-    private InstalledRoomObjectDownwardGateVisuals LoadRoomObjectDownwardGateVisuals() =>
+    private InstalledRoomObjectPictures LoadRoomObjectDownwardGateVisuals() =>
         RoomObjectDownwardGateVisualFiles.Load(RoomObjectDownwardGateVisualDirectory);
     /// <summary>Stock definitions for elevator-platform frames under the replaceable content tree.</summary>
     private string RoomObjectElevatorPlatformVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomObjectElevatorPlatformVisualDirectoryName);
     /// <summary>Editable elevator frames; physical blocks and the instruction loop stay compiled.</summary>
-    private InstalledRoomObjectElevatorPlatformVisuals LoadRoomObjectElevatorPlatformVisuals() =>
+    private InstalledRoomObjectPictures LoadRoomObjectElevatorPlatformVisuals() =>
         RoomObjectElevatorPlatformVisualFiles.Load(RoomObjectElevatorPlatformVisualDirectory);
     /// <summary>Stock definitions for closing escape-gate appearances under the replaceable content tree.</summary>
     private string RoomObjectEscapeGateVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomObjectEscapeGateVisualDirectoryName);
     /// <summary>Loads the installed pictures of Mother Brain's escape-gate frames as the player left them.</summary>
-    private InstalledEscapeGateFrames LoadRoomObjectEscapeGateVisuals() =>
+    private InstalledRoomObjectPictures LoadRoomObjectEscapeGateVisuals() =>
         RoomObjectEscapeGateVisualFiles.Load(RoomObjectEscapeGateVisualDirectory);
     /// <summary>Stock definitions for Bomb Torizo hand appearances under the replaceable content tree.</summary>
     private string RoomObjectBombTorizoHandVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomObjectBombTorizoHandVisualDirectoryName);
     /// <summary>Editable Bomb Torizo hand art; its physical block words stay compiled.</summary>
-    private InstalledRoomObjectBombTorizoHandVisuals LoadRoomObjectBombTorizoHandVisuals() =>
+    private InstalledRoomObjectPictures LoadRoomObjectBombTorizoHandVisuals() =>
         RoomObjectBombTorizoHandVisualFiles.Load(RoomObjectBombTorizoHandVisualDirectory);
     /// <summary>Stock definitions for reachable Draygon cannon appearances under the replaceable content tree.</summary>
     private string RoomObjectDraygonCannonVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomObjectDraygonCannonVisualDirectoryName);
@@ -212,12 +208,12 @@ public sealed record GameInstallation(string Root)
     /// <summary>Stock definitions for Chozo hand and slope-access appearances under the replaceable content tree.</summary>
     private string RoomObjectChozoStatueVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomObjectChozoStatueVisualDirectoryName);
     /// <summary>Editable Chozo hand and slope-access art; physical blocks remain compiled.</summary>
-    private InstalledRoomObjectChozoStatueVisuals LoadRoomObjectChozoStatueVisuals() =>
+    private InstalledRoomObjectPictures LoadRoomObjectChozoStatueVisuals() =>
         RoomObjectChozoStatueVisualFiles.Load(RoomObjectChozoStatueVisualDirectory);
     /// <summary>Stock definitions for linked-block restoration appearances under the replaceable content tree.</summary>
     private string RoomObjectLinkedRestoreVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomObjectLinkedRestoreVisualDirectoryName);
     /// <summary>Editable linked-block restoration art; collision stays compiled.</summary>
-    private InstalledRoomObjectLinkedRestoreVisuals LoadRoomObjectLinkedRestoreVisuals() =>
+    private InstalledRoomObjectPictures LoadRoomObjectLinkedRestoreVisuals() =>
         RoomObjectLinkedRestoreVisualFiles.Load(RoomObjectLinkedRestoreVisualDirectory);
     /// <summary>Stock definitions for Tourian access-floor appearances under the replaceable content tree.</summary>
     private string RoomObjectTourianAccessVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomObjectTourianAccessVisualDirectoryName);
@@ -227,37 +223,37 @@ public sealed record GameInstallation(string Root)
     /// <summary>Stock definitions for the bomb-revealed Speed Booster tile under the replaceable content tree.</summary>
     private string RoomObjectSpeedBoosterVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomObjectSpeedBoosterVisualDirectoryName);
     /// <summary>Editable bomb-revealed Speed Booster tile; collision stays compiled.</summary>
-    private InstalledRoomObjectSpeedBoosterVisuals LoadRoomObjectSpeedBoosterVisuals() =>
+    private InstalledRoomObjectPictures LoadRoomObjectSpeedBoosterVisuals() =>
         RoomObjectSpeedBoosterVisualFiles.Load(RoomObjectSpeedBoosterVisualDirectory);
     /// <summary>Stock definitions for the Maridia elevatube PLM tile under the replaceable content tree.</summary>
     private string RoomObjectMaridiaElevatubeVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomObjectMaridiaElevatubeVisualDirectoryName);
     /// <summary>Editable Maridia elevatube PLM tile; its physical block stays compiled.</summary>
-    private InstalledRoomObjectMaridiaElevatubeVisuals LoadRoomObjectMaridiaElevatubeVisuals() =>
+    private InstalledRoomObjectPictures LoadRoomObjectMaridiaElevatubeVisuals() =>
         RoomObjectMaridiaElevatubeVisualFiles.Load(RoomObjectMaridiaElevatubeVisualDirectory);
     /// <summary>Stock definitions for Spore Spawn ceiling tiles under the replaceable content tree.</summary>
     private string RoomObjectSporeSpawnCeilingVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomObjectSporeSpawnCeilingVisualDirectoryName);
     /// <summary>Editable Spore Spawn ceiling tiles; physical draw words stay compiled.</summary>
-    private InstalledRoomObjectSporeSpawnCeilingVisuals LoadRoomObjectSporeSpawnCeilingVisuals() =>
+    private InstalledRoomObjectPictures LoadRoomObjectSporeSpawnCeilingVisuals() =>
         RoomObjectSporeSpawnCeilingVisualFiles.Load(RoomObjectSporeSpawnCeilingVisualDirectory);
     /// <summary>Stock definitions for floor and ceiling plant tiles under the replaceable content tree.</summary>
     private string RoomObjectSamusEaterVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomObjectSamusEaterVisualDirectoryName);
     /// <summary>Editable floor/ceiling plant tiles; physical draw geometry stays compiled.</summary>
-    private InstalledRoomObjectSamusEaterVisuals LoadRoomObjectSamusEaterVisuals() =>
+    private InstalledRoomObjectPictures LoadRoomObjectSamusEaterVisuals() =>
         RoomObjectSamusEaterVisualFiles.Load(RoomObjectSamusEaterVisualDirectory);
     /// <summary>Stock definitions for Botwoon wall-clear tiles under the replaceable content tree.</summary>
     private string RoomObjectBotwoonWallVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomObjectBotwoonWallVisualDirectoryName);
     /// <summary>Editable Botwoon wall-clear tiles; collision and crumble timing stay compiled.</summary>
-    private InstalledRoomObjectBotwoonWallVisuals LoadRoomObjectBotwoonWallVisuals() =>
+    private InstalledRoomObjectPictures LoadRoomObjectBotwoonWallVisuals() =>
         RoomObjectBotwoonWallVisualFiles.Load(RoomObjectBotwoonWallVisualDirectory);
     /// <summary>Stock definitions for Kraid ceiling and spike appearances under the replaceable content tree.</summary>
     private string RoomObjectKraidVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomObjectKraidVisualDirectoryName);
     /// <summary>Editable Kraid ceiling/spike art; physical mutations stay compiled.</summary>
-    private InstalledRoomObjectKraidVisuals LoadRoomObjectKraidVisuals() =>
+    private InstalledRoomObjectPictures LoadRoomObjectKraidVisuals() =>
         RoomObjectKraidVisualFiles.Load(RoomObjectKraidVisualDirectory);
     /// <summary>Stock definitions for Crocomire bridge and wall appearances under the replaceable content tree.</summary>
     private string RoomObjectCrocomireVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomObjectCrocomireVisualDirectoryName);
     /// <summary>Editable Crocomire bridge/wall art; collision and timing stay compiled.</summary>
-    private InstalledRoomObjectCrocomireVisuals LoadRoomObjectCrocomireVisuals() =>
+    private InstalledRoomObjectPictures LoadRoomObjectCrocomireVisuals() =>
         RoomObjectCrocomireVisualFiles.Load(RoomObjectCrocomireVisualDirectory);
     /// <summary>Stock definitions for Mother Brain fake-death terrain appearances under the replaceable content tree.</summary>
     private string RoomObjectMotherBrainFakeDeathVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomObjectMotherBrainFakeDeathVisualDirectoryName);
@@ -268,12 +264,12 @@ public sealed record GameInstallation(string Root)
     /// <summary>Stock definitions for item, orb, and reveal appearances under the replaceable content tree.</summary>
     private string RoomObjectCollectibleVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomObjectCollectibleVisualDirectoryName);
     /// <summary>Editable item/orb/reveal appearances; pickup and collision remain compiled.</summary>
-    private InstalledRoomObjectCollectibleVisuals LoadRoomObjectCollectibleVisuals() =>
+    private InstalledRoomObjectPictures LoadRoomObjectCollectibleVisuals() =>
         RoomObjectCollectibleVisualFiles.Load(RoomObjectCollectibleVisualDirectory);
     /// <summary>The installed pictures of the bombed reveals, the escape passage, the escape shaft wall and the rescue wall.</summary>
     private string RoomObjectRevealAndWallVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomObjectRevealAndWallVisualDirectoryName);
     /// <summary>Loads the bombed reveals', escape passage's, escape shaft wall's and rescue wall's pictures as installed; their terrain stays the game's.</summary>
-    private InstalledRoomObjectRevealAndWallVisuals LoadRoomObjectRevealAndWallVisuals() =>
+    private InstalledRoomObjectPictures LoadRoomObjectRevealAndWallVisuals() =>
         RoomObjectRevealAndWallVisualFiles.Load(RoomObjectRevealAndWallVisualDirectory);
     /// <summary>The installed pictures of the blocks room-object setups and block reactions write of their own accord.</summary>
     public string RoomObjectSetupBlockDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomObjectSetupBlockDirectoryName);

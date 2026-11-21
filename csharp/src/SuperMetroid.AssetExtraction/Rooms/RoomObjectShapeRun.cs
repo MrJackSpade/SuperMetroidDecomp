@@ -64,8 +64,7 @@ internal readonly record struct RoomObjectShapeRun(Offset16<RoomBlocks> Start, R
         }
         if (written.Count != shape.Cells.Count)
             throw new InvalidOperationException($"Frame {draw} leaves {shape.Cells.Count - written.Count} cells of its block shape unwritten.");
-        return RoomObjectDrawListExport.Runs(draw, runs.Length, run => runs[run].Count,
-            (run, cell) => shape.CollisionAt(runs[run].CellAt(cell)), run => runs[run].Direction, run => runs[run].Start);
+        return RoomObjectDrawListExport.Runs(draw, shape, runs);
     }
 
     /// <summary>
@@ -82,9 +81,13 @@ internal readonly record struct RoomObjectShapeRun(Offset16<RoomBlocks> Start, R
     };
 
     /// <summary>
-    /// The one run the cartridge writes a line-shaped frame in: the shape's cells down its column when
-    /// <paramref name="down"/>, otherwise along its row.
+    /// The one run the cartridge writes a line-shaped frame in: the shape's cells along <paramref name="axis"/>, down its
+    /// column or along its row (#2560).
     /// </summary>
-    internal static RoomObjectShapeRun Line(bool down, RoomBlockShape shape) =>
-        down ? Column(new(0, 0), shape.Cells.Count) : Row(new(0, 0), shape.Cells.Count);
+    internal static RoomObjectShapeRun Line(Axis axis, RoomBlockShape shape) => axis switch
+    {
+        Axis.Vertical => Column(new(0, 0), shape.Cells.Count),
+        Axis.Horizontal => Row(new(0, 0), shape.Cells.Count),
+        _ => throw new ArgumentOutOfRangeException(nameof(axis), axis, "Undefined axis."),
+    };
 }

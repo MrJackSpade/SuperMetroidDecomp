@@ -105,7 +105,7 @@ internal sealed class NorfairRidleyDeath : IEnemyJoiningFactory<RidleyBreakupSou
         NorfairRidleyState state)
     {
         SpawnSmallExplosionNearNorfairRidley(body, state);
-        state.MovementAnimationEnabled = false;
+        state.Motion = RidleyMotion.Still;
         body.Presence = body.Presence.With(EnemyPresence.Hidden);
         state.Phase = NorfairRidleyPhase.DeathWait;
         state.PhaseTimer.LastFor(NorfairRidleyMotionDefinitions.BreakupWaitUpdates);
@@ -243,7 +243,7 @@ internal sealed class NorfairRidleyDeath : IEnemyJoiningFactory<RidleyBreakupSou
     internal void RunNorfairRidleyExplosionMain(RoomEnemyOccupant piece, RidleyExplosionFragmentState fragmentState, SamusState samus)
     {
         RoomEnemyPlace fragment = piece.Place;
-        if (RidleyCadenceDefinitions.BreakupFragmentHidden.IsSetIn(fragment.FrameCounter))
+        if (RidleyCadenceDefinitions.BreakupFragmentHidden.IsInSecondHalfAt(fragment.FrameCounter))
             fragment.Presence = fragment.Presence.With(EnemyPresence.Hidden);
         else
             fragment.Presence = fragment.Presence.Without(EnemyPresence.Hidden);

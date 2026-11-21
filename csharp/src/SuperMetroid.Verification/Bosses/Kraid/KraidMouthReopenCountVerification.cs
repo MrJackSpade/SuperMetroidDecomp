@@ -13,15 +13,20 @@ internal static class KraidMouthReopenCountVerification
     /// <summary>Runs the count, rejection, clear and hurt flash checks.</summary>
     internal static void VerifyKraidMouthReopenCount()
     {
-        for (int pending = 0; pending <= 3; pending++)
+        for (int spent = 0; spent <= 3; spent++)
         {
-            var armed = global::SuperMetroid.Core.PrivateState.With<KraidEnemyState>(new KraidEnemyState(KraidPartsFixtures.Standalone()), "PendingMouthReopens", pending);
+            var armed = new KraidEnemyState(KraidPartsFixtures.Standalone());
             armed.ArmMouthReopens();
-            AssertEqual(3, armed.PendingMouthReopens, $"arming from {pending} pending reopens leaves three");
+            armed.MarkMouthReopen();
+            for (int reopen = 0; reopen < spent; reopen++)
+                armed.RemoveOneMouthReopen();
+            armed.ArmMouthReopens();
+            AssertEqual(3, armed.PendingMouthReopens, $"arming from {3 - spent} pending reopens leaves three");
         }
 
         var state = new KraidEnemyState(KraidPartsFixtures.Standalone());
         state.ArmMouthReopens();
+        state.MarkMouthReopen();
         for (int expected = 2; expected >= 0; expected--)
         {
             state.RemoveOneMouthReopen();
@@ -30,8 +35,8 @@ internal static class KraidMouthReopenCountVerification
         _ = AssertThrows<InvalidOperationException>(state.RemoveOneMouthReopen, "removing a reopen from none is rejected: no caller reaches it, so no wrap is kept (#1627)");
         AssertEqual(0, state.PendingMouthReopens, "the rejected removal leaves the count at none");
 
-        state.MouthReopenArmed = true;
-        state.MouthReopenMarked = true;
+        state.ArmMouthReopens();
+        state.MarkMouthReopen();
         state.ClearMouthReactions();
         AssertTrue(!state.MouthReopenArmed && !state.MouthReopenMarked, "clearing the mouth clears every latch");
         AssertEqual(0, state.PendingMouthReopens, "clearing the mouth clears the pending reopen count with the latches");

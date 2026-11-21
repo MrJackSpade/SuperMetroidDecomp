@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Frontend.CeresCinematics;
@@ -57,17 +58,17 @@ internal sealed class IntroCeresFlightState
     /// <summary>The rear view's five station, asteroid, vortex and star actors, in spawn order, created when the camera switches to it.</summary>
     internal IReadOnlyList<CeresRearViewActor> RearViewActors { get; private set; } = [];
     /// <summary>Whether the Japanese text is selected, which shows the katakana caption.</summary>
-    private readonly bool japaneseText;
+    private readonly TextLanguage language;
 
     /// <summary>Loads installed flight art and leaves the scene black for the setup update.</summary>
     /// <param name="audio">The shared music queue the approach waits on.</param>
     /// <param name="artwork">Installed cinematic artwork.</param>
     /// <param name="sheets">The installed sheets: the Ceres flight sheet the stars and rear-view actors draw from, and the caption's pictures.</param>
-    /// <param name="japaneseText">The Japanese text option, which adds the katakana SPACE COLONY caption.</param>
+    /// <param name="language">The text language; Japanese adds the katakana SPACE COLONY caption.</param>
     public IntroCeresFlightState(AudioQueues audio, CeresFlightArtwork artwork, InstalledSpriteSheets sheets,
-        bool japaneseText)
+        TextLanguage language)
     {
-        this.japaneseText = japaneseText;
+        this.language = language;
         this.audio = Ensure.NotNull(audio);
         BindSheets(sheets);
         CeresFlightArtwork content = Ensure.NotNull(artwork);
@@ -269,7 +270,7 @@ internal sealed class IntroCeresFlightState
         // English text shows no katakana caption.
         stage = new TitleStage(AnimationPlayer<SpaceColonyCaptionText, SpaceColonyCaptionTyping, SpaceColonyCaptionCue>.StartShowing(
             SpaceColonyCaptionAnimations.Segments,
-            SpaceColonyCaptionAnimations.Typing(japaneseText ? SpaceColonyCaptionText.WithKatakana : SpaceColonyCaptionText.English)));
+            SpaceColonyCaptionAnimations.Typing(language == TextLanguage.Japanese ? SpaceColonyCaptionText.WithKatakana : SpaceColonyCaptionText.English)));
     }
 
     /// <summary>

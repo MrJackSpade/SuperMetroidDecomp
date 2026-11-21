@@ -23,8 +23,7 @@ internal static class MinimapColumnWrapVerification
 
         // A two-screen room placed at the map's last column, Samus in its second screen.
         var system = new SharedGameState(new SharedRandom());
-        var hud = new HudState();
-        hud.BindPresentation(InstalledFixtures.Maps.GameplayHud);
+        var hud = new HudState(InstalledFixtures.Maps.GameplayHud);
         hud.Initialize(HudSnapshot.NewGame);
         hud.UpdateMinimap(system, Frame(roomColumn: 63, roomRow: 6));
         AssertTrue(system.IsMapTileExplored(AreaId.Crateria, new Position16<MapTiles>(0, 6)),

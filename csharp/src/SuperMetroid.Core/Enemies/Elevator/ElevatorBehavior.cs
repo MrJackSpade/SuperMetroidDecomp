@@ -54,7 +54,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyLoadedFactory<Elev
     }
 
     /// <summary>The way the active elevator travels (#2277).</summary>
-    public ElevatorTravelDirection ElevatorTravel
+    public VerticalDirection ElevatorTravel
     {
         get => _room.Session.Elevator.Travel;
         private set => _room.Session.Elevator.Travel = value;
@@ -67,7 +67,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyLoadedFactory<Elev
     /// </summary>
     public bool ElevatorRunsSamusMovement =>
         ElevatorStatus == ElevatorActorStatus.Departing ||
-        (ElevatorStatus != ElevatorActorStatus.Inactive && ElevatorTravel == ElevatorTravelDirection.Down);
+        (ElevatorStatus != ElevatorActorStatus.Inactive && ElevatorTravel == VerticalDirection.Down);
 
     /// <summary>
     /// The elevator whose setup placed Samus on it as the room loaded for an arriving ride, while that arrival is still
@@ -182,7 +182,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyLoadedFactory<Elev
         GameplayAction newlyPressedControllerInput,
         SamusProjectileSystem samusProjectiles)
     {
-        ElevatorTravelDirection direction = elevatorSpawnSettings.Direction;
+        VerticalDirection direction = elevatorSpawnSettings.Direction;
         GameplayAction requiredInput = ElevatorActorDefinitions.RequiredDirectionInputs[direction];
         if (!newlyPressedControllerInput.HasAny(requiredInput))
         {
@@ -208,7 +208,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyLoadedFactory<Elev
         RoomEnemyPlace place,
         SamusState samus)
     {
-        AddElevatorYVelocity(place, ElevatorActorDefinitions.TravelSpeed.Toward(ElevatorTravel.Vertically()));
+        AddElevatorYVelocity(place, ElevatorActorDefinitions.TravelSpeed.Toward(ElevatorTravel));
         PinSamusToElevator(place, samus);
     }
 
@@ -219,7 +219,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyLoadedFactory<Elev
         SamusState samus)
     {
         bool stillReturning;
-        if (elevatorSpawnSettings.Direction is ElevatorTravelDirection.Up)
+        if (elevatorSpawnSettings.Direction is VerticalDirection.Up)
         {
             AddElevatorYVelocity(place, ElevatorActorDefinitions.TravelSpeed);
             stillReturning = place.Position.Y.Whole < state.RestingY;

@@ -33,15 +33,12 @@ public sealed class PhantoonTimerSchedule
     /// of <paramref name="counter"/> take the picks' durations in turn, in pick order, so a cadence of fewer than eight values
     /// chooses among the first picks only, as the first round's eye-closed choice does.
     /// </summary>
-    /// <param name="cadence">The field of the counter the choice reads, of at most eight values.</param>
+    /// <param name="cadence">The cycle of the counter the choice reads, of at most eight steps.</param>
     /// <param name="counter">The counter the choice reads.</param>
-    /// <exception cref="ArgumentException"><paramref name="cadence"/> reads more than eight values.</exception>
-    internal int ChosenOn(UpdateCounterField cadence, int counter) => cadence.Width <= PickWidth
-        ? DurationOf(Picks[cadence.Of(counter)])
+    /// <exception cref="ArgumentException"><paramref name="cadence"/> has more than eight steps.</exception>
+    internal int ChosenOn(UpdateCycle cadence, int counter) => cadence.Steps <= PickCount
+        ? DurationOf(Picks[cadence.StepAt(counter)])
         : throw new ArgumentException($"A Phantoon timer's choice reads at most {PickCount} values.", nameof(cadence));
-
-    /// <summary>The bits of a counter that read one of the <see cref="PickCount"/> picks.</summary>
-    private const int PickWidth = 3;
 
     /// <summary>
     /// The duration a random draw chooses (#2510): the eight values <paramref name="field"/> reads take the picks' durations

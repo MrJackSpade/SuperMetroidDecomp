@@ -17,26 +17,27 @@ public static class BotwoonColorExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        var bands = new PaletteRgb5[BotwoonColorFormat.HealthBandCount][];
-        for (int band = 0; band < bands.Length; band++)
+        return BotwoonColorFile.Write(new BotwoonColorDocument
         {
-            bands[band] = new PaletteRgb5[BotwoonColorFormat.ColorsPerPalette];
-            for (int color = 0; color < bands[band].Length; color++)
+            Version = BotwoonColorFormat.Version,
+            Health = Rgb5Rows.KeyedInTableOrder(BotwoonSourceDefinitions.HealthTableOrder, band => band.Key, Row),
+        });
+
+        PaletteRgb5[] Row(int row)
+        {
+            var colours = new PaletteRgb5[BotwoonColorFormat.ColorsPerPalette];
+            for (int color = 0; color < colours.Length; color++)
             {
                 int address = BotwoonSourceDefinitions.HealthColors +
-                    (band * BotwoonColorFormat.ColorsPerPalette + color) *
+                    (row * BotwoonColorFormat.ColorsPerPalette + color) *
                     sizeof(ushort);
                 int native = RomDataReader.ReadWordFixedBank(bus, address);
                 if (!RgbColor.IsColorWord(checked((ushort)native)))
                     throw new InvalidDataException(
                         $"Botwoon color ${address:X6} has an unrepresentable high bit.");
-                bands[band][color] = PaletteRgb5.From(RgbColor.FromWord(checked((ushort)native)));
+                colours[color] = PaletteRgb5.From(RgbColor.FromWord(checked((ushort)native)));
             }
+            return colours;
         }
-        return BotwoonColorFile.Write(new BotwoonColorDocument
-        {
-            Version = BotwoonColorFormat.Version,
-            Health = bands,
-        });
     }
 }

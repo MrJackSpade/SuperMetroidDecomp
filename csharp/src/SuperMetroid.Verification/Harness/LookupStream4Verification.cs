@@ -255,12 +255,12 @@ internal static class LookupStream4Verification
             fx.StepScreen();
             foreach (var program in TitleScreenAmbientPaletteOwners.All)
             {
-                var rows = program.Owner == TitleScreenAmbientPaletteFxProgramOwner.BabyMetroidTubeLight
+                var rows = program.Effect == ColourEffectId.TitleScreenBabyMetroidTubeLight
                     ? document.BabyMetroidTubeLight : document.FlickeringDisplays;
                 int frame = tick / program.FrameDuration % program.FrameCount;
                 ColourEffectFrame record = fx.FrameOf(program.Colours)
                     ?? throw new InvalidOperationException($"{program.Colours} shows no record on tick {tick}.");
-                RgbColor[] shown = PaletteFxRecordShades.Shade(program.Colours, record, new InkRange(0, int.MaxValue), selected).Colours;
+                RgbColor[] shown = [.. PaletteFxRecordShades.Shade(program.Colours, record, new InkRange(0, int.MaxValue), selected).Colours];
                 for (int index = 0; index < program.ColorsPerFrame; index++)
                     AssertEqual(Pack(rows[frame][index]), shown[index].ToWord(),
                         "Actual simultaneous title loops preserve stock output and wrap");
@@ -472,7 +472,6 @@ internal static class LookupStream4Verification
             var definition = all[index];
             int pointer = rom.ReadCartridgeWordFixedBank(0x8D0000 | (0xF795 + index * 4 + 2));
             AssertEqual((ushort)pointer, definition.ProgramStart, "native definition selects calculated setup");
-            AssertEqual((MaridiaEnvironmentalPaletteOwner)index, definition.Owner, "owner order");
             AssertEqual(rom.ReadCartridgeWordFixedBank(0x8D0000 | (pointer + 2)), definition.AnimatedColours.CartridgeByteIndex, "native colours start where the definition's colour group is placed");
             pointer += 4;
             int frame = 0;
@@ -530,7 +529,7 @@ internal static class LookupStream4Verification
         {
             IReadOnlyList<SignedSixteenSixteen> sequence = fast ? EndingShipShake.Fast : EndingShipShake.Slow;
             int count = sequence.Count, address = fast ? 0x8BDD02 : 0x8BDDAD;
-            var state = new EndingCreditsState(SuperMetroid.Core.Audio.AudioQueues.Standalone(), new EndingCreditsSetup { GameTimeHours = 0, GameTimeMinutes = 0, Inventory = default, JapaneseText = false, CrittersEscaped = false },
+            var state = new EndingCreditsState(SuperMetroid.Core.Audio.AudioQueues.Standalone(), new EndingCreditsSetup { GameTimeHours = 0, GameTimeMinutes = 0, Inventory = default, Language = SuperMetroid.Core.Progression.TextLanguage.English, CrittersEscaped = false },
                 InstalledFixtures.Maps.EndingText, InstalledFixtures.EndingBackdrops, InstalledFixtures.SpriteSheets);
             EndingTurningFloor floor = state.Stage.Floor;
             PrivateState.Set(floor, nameof(EndingTurningFloor.Position), floor.Position.WithX(SignedSixteenSixteen.FromParts(100, 0xC000)));
@@ -793,7 +792,7 @@ internal static class LookupStream4Verification
             AssertTrue(expected.SequenceEqual(BackgroundTileWordBytes.Words(copied.AsSpan(0, expected.Length))), "Subtitle direct copy preserves every cell");
             AssertEqual((ushort)0x5678, copied[^1].PackedWord, "Subtitle copy leaves the destination suffix untouched");
             // The game shows the subtitle as its installed picture at its corner (#1467, #1555); the import pictures these words.
-            var state = new EndingTypewriter(new EndingTypewriterSetup { Inventory = default, JapaneseText = true, Text = EndingTextPresentation.TypewriterOf(source) }, EndingTextSequence.ItemPercentage);
+            var state = new EndingTypewriter(new EndingTypewriterSetup { Inventory = default, Language = TextLanguage.Japanese, Text = EndingTextPresentation.TypewriterOf(source) }, EndingTextSequence.ItemPercentage);
             var subtitle = new EndingShownText(EndingPictureNames.JapaneseSubtitle, EndingResultTextLayout.JapaneseSubtitleCorner);
             // The text types in full, then shows the percentage with its subtitle for the percentage's hold (#2488).
             const int TypewriterUpdateLimit = 4000;
@@ -939,7 +938,7 @@ internal static class LookupStream4Verification
                     AssertEqual(Word(icon.Cells[cell]),tiles[(icon.Anchor.Y+cell/width)*32+icon.Anchor.X+cell%width],"Every stock icon cell");
             }
             {
-                var hud=new HudState();hud.BindPresentation(selected.Presentation);hud.Initialize(HudSnapshot.NewGame with{EquippedItems=(SamusEquipmentFlags.XrayScope|SamusEquipmentFlags.GrappleBeam),MaxMissiles=1,MaxSuperMissiles=1,MaxPowerBombs=1});
+                var hud = new HudState(selected.Presentation);hud.Initialize(HudSnapshot.NewGame with{EquippedItems=(SamusEquipmentFlags.XrayScope|SamusEquipmentFlags.GrappleBeam),MaxMissiles=1,MaxSuperMissiles=1,MaxPowerBombs=1});
                 for(int item=0;item<5;item++){var icon=document.Icons[GameplayHudStockDefinitions.IconSourceOrder[item].ToString()];int width=item==0?3:2;for(int cell=0;cell<width*2;cell++)AssertEqual(Word(icon.Cells[cell]),hud.TileWords(selected)[(icon.Anchor.Y+cell/width)*32+icon.Anchor.X+cell%width],"Actual HUD inventory draws installed icon");}
             }
             for(int item=0;item<5;item++)selected.TryApplyIcon(tiles,GameplayHudStockDefinitions.IconSourceOrder[item]);
@@ -986,7 +985,7 @@ internal static class LookupStream4Verification
                 AssertEqual(expected,tiles[index],"Stock template cell");
             }
             {
-                var hud=new HudState();hud.BindPresentation(selected.Presentation);hud.Initialize(HudSnapshot.NewGame);
+                var hud = new HudState(selected.Presentation);hud.Initialize(HudSnapshot.NewGame);
                 for(int row=0;row<3;row++)for(int x=26;x<32;x++)AssertEqual(tiles[row*32+x],hud.TileWords(selected)[row*32+x],"Actual initializer preserves selected initial minimap and border");
                 for(int x=1;x<=4;x++)AssertEqual(tiles[64+x],hud.TileWords(selected)[64+x],"Actual initializer preserves selected ENERGY typography");
             }
@@ -1036,7 +1035,7 @@ internal static class LookupStream4Verification
             var document=RequiredJson.Deserialize<GameplayHudPresentationDocument>(json,ArtworkJson.Options);
             using var output=new MemoryStream();GameplayHudPresentationFile.Write(output,document);byte[] bytes=output.ToArray();
             var selected=GameplayHudPresentationFile.Read(new MemoryStream(bytes));
-            var hud=new HudState();hud.BindPresentation(selected.Presentation);
+            var hud = new HudState(selected.Presentation);
             hud.Initialize(HudSnapshot.NewGame with{ReserveMode=ReserveTankMode.Auto,ReserveHealth=1});
             foreach(bool full in new[]{true,false})
             {
@@ -1213,7 +1212,7 @@ internal static class LookupStream4Verification
                 AssertEqual(rom.ReadCartridgeWord((pointer + color * 2)), shown[color], "Beam paint preserves native selected rows");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 12, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.Colours(SamusBeamCombinationTableOrder.FromTableIndex(invalid)), "Installed beam colors preserve selection bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.Colours(SamusBeamCombinationTableOrderConstants.FromTableIndex(invalid)), "Installed beam colors preserve selection bounds");
         Console.WriteLine("Beam paint:192 native selected words and12 actual masked-selection producers pass.");
     }
 
@@ -1593,7 +1592,7 @@ internal static class LookupStream4Verification
 
         for (ushort index = 0; index < 4; index++)
         {
-            AssertEqual(rom.ReadCartridgeWord((0x86dcb9 + 2 * index)), CoordinateAxis.Wrap(SporeSpawnProjectileDefinitions.StalkSegments[index].Y), "stream4 original stalk segment spacing");
+            AssertEqual(rom.ReadCartridgeWord((0x86dcb9 + 2 * index)), CoordinateAxis.Wrap(SporeSpawnProjectileDefinitions.StalkSegments[index].SpawnOffset.Y), "stream4 original stalk segment spacing");
             AssertEqual(rom.ReadCartridgeWord((0x86dce6 + 2 * index)), SporeSpawnProjectileDefinitions.Emitters[index].Place.X, "stream4 original ceiling emitter spacing");
         }
     }
@@ -1677,7 +1676,7 @@ internal static class LookupStream4Verification
             {
                 content.AppendWords("intro",document.Intro.Select(Pack).ToArray()); content.AppendWords("background",document.Background.Select(Pack).ToArray());
                 content.AppendWords("sprite",document.Sprite.Select(Pack).ToArray()); content.AppendWords("whiteFlash",document.WhiteFlash.Select(Pack).ToArray());
-                content.AppendWordFrames("healthBands",document.HealthBands.Select(row=>row.Select(Pack).ToArray()).ToArray());
+                content.AppendWordFrames("healthBands",document.HealthBands.Values.Select(row=>row.Select(Pack).ToArray()).ToArray());
             });
             AssertEqual(hash,selected.ContentIdentity,"Intro content hash");
             for(int color=0;color<25;color++)
@@ -1723,7 +1722,7 @@ internal static class LookupStream4Verification
             {
                 content.AppendWords("intro",document.Intro.Select(Pack).ToArray()); content.AppendWords("background",document.Background.Select(Pack).ToArray());
                 content.AppendWords("sprite",document.Sprite.Select(Pack).ToArray()); content.AppendWords("whiteFlash",document.WhiteFlash.Select(Pack).ToArray());
-                content.AppendWordFrames("healthBands",document.HealthBands.Select(row=>row.Select(Pack).ToArray()).ToArray());
+                content.AppendWordFrames("healthBands",document.HealthBands.Values.Select(row=>row.Select(Pack).ToArray()).ToArray());
             });
             AssertEqual(hash,selected.ContentIdentity,"Sprite content hash");
             for(int color=0;color<16;color++)
@@ -1740,7 +1739,7 @@ internal static class LookupStream4Verification
                 for(int color=0;color<256;color++)
                 {
                     ushort expected=0x1234;
-                    if(color is >=80 and <96) expected=white?Pack(document.WhiteFlash[color-80]):color is >=89 and <93?Pack(document.HealthBands[5][color-89]):Pack(document.Background[color-80]);
+                    if(color is >=80 and <96) expected=white?Pack(document.WhiteFlash[color-80]):color is >=89 and <93?Pack(document.HealthBands.Values.ElementAt(5)[color-89]):Pack(document.Background[color-80]);
                     if(color>=240)expected=Pack((white?document.WhiteFlash:document.Sprite)[color-240]);
                     AssertEqual(expected,cgram.Colors[color],"Full sprite/white and BG health restore");
                 }
@@ -1775,7 +1774,7 @@ internal static class LookupStream4Verification
             {
                 content.AppendWords("intro",document.Intro.Select(Pack).ToArray()); content.AppendWords("background",document.Background.Select(Pack).ToArray());
                 content.AppendWords("sprite",document.Sprite.Select(Pack).ToArray()); content.AppendWords("whiteFlash",document.WhiteFlash.Select(Pack).ToArray());
-                content.AppendWordFrames("healthBands",document.HealthBands.Select(row => row.Select(Pack).ToArray()).ToArray());
+                content.AppendWordFrames("healthBands",document.HealthBands.Values.Select(row => row.Select(Pack).ToArray()).ToArray());
             });
             AssertEqual(hash,selected.ContentIdentity,"Background canonical identity");
             for(int color=0;color<16;color++)
@@ -1792,7 +1791,7 @@ internal static class LookupStream4Verification
                 for(int color=0;color<256;color++)
                 {
                     ushort expected= 0x1234;
-                    if(color is >=80 and <96) expected=white?Pack(document.WhiteFlash[color-80]):color is >=89 and <93?Pack(document.HealthBands[3][color-89]):Pack(document.Background[color-80]);
+                    if(color is >=80 and <96) expected=white?Pack(document.WhiteFlash[color-80]):color is >=89 and <93?Pack(document.HealthBands.Values.ElementAt(3)[color-89]):Pack(document.Background[color-80]);
                     if(color>=240) expected=Pack((white?document.WhiteFlash:document.Sprite)[color-240]);
                     AssertEqual(expected,cgram.Colors[color],"Full normal/white copy with native belly overwrite order");
                 }
@@ -1806,7 +1805,7 @@ internal static class LookupStream4Verification
                 foreach(ushort timer in new ushort[]{2,0})
                 {
                     body.HurtFlash.Restart(timer); hurt(body,state,SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus()); LayDraygonShading(cgram, selected, state.Colours);
-                    for(int color=0;color<16;color++) AssertEqual(timer==2?Pack(document.WhiteFlash[color]):color is >=9 and <=12?Pack(document.HealthBands[3][color-9]):Pack(document.Background[color]),cgram.Colors[80+color],"Actual hurt producer preserves targets and health overlay");
+                    for(int color=0;color<16;color++) AssertEqual(timer==2?Pack(document.WhiteFlash[color]):color is >=9 and <=12?Pack(document.HealthBands.Values.ElementAt(3)[color-9]):Pack(document.Background[color]),cgram.Colors[80+color],"Actual hurt producer preserves targets and health overlay");
                 }
             }
         }
@@ -1827,7 +1826,7 @@ internal static class LookupStream4Verification
             {
                 content.AppendWords("intro", document.Intro.Select(Pack).ToArray()); content.AppendWords("background", document.Background.Select(Pack).ToArray());
                 content.AppendWords("sprite", document.Sprite.Select(Pack).ToArray()); content.AppendWords("whiteFlash", document.WhiteFlash.Select(Pack).ToArray());
-                content.AppendWordFrames("healthBands", document.HealthBands.Select(row => row.Select(Pack).ToArray()).ToArray());
+                content.AppendWordFrames("healthBands", document.HealthBands.Values.Select(row => row.Select(Pack).ToArray()).ToArray());
             });
             AssertEqual(hash, selected.ContentIdentity, "Draygon health resource identity");
             for (int band = 0; band < 8; band++)
@@ -1835,7 +1834,7 @@ internal static class LookupStream4Verification
                 var cgram = new SnesCgram(); for (int color = 0; color < 256; color++) cgram.SetColor(color, RgbColor.FromWord(0x1234));
                 selected.ApplyHealthBand(cgram, band);
                 for (int color = 0; color < 256; color++)
-                    AssertEqual(color is >= 89 and < 93 ? Pack(document.HealthBands[band][color - 89]) : (ushort)0x1234, cgram.Colors[color], "Exact changed health transfer and neighbors");
+                    AssertEqual(color is >= 89 and < 93 ? Pack(document.HealthBands.Values.ElementAt(band)[color - 89]) : (ushort)0x1234, cgram.Colors[color], "Exact changed health transfer and neighbors");
                 for (int shade = 0; shade < 4; shade++)
                     AssertEqual(rom.ReadCartridgeWord((0xa596af + (band * 4 + shade) * 2)),
                         selected.ResolveHealthBand(SuperMetroid.Core.Bosses.Draygon.DraygonHealthBandDefinitions.HighestFirst[band], shade), "All native shades");
@@ -1854,7 +1853,7 @@ internal static class LookupStream4Verification
                     body.Health = (ushort)((7 - band) * 750);
                     update(state); LayDraygonShading(cgram, selected, state.Colours);
                     AssertEqual(DraygonHealthBandDefinitions.HighestFirst[band], state.HealthBand, "Actual health threshold selects native color band");
-                    for (int shade = 0; shade < 4; shade++) AssertEqual(Pack(document.HealthBands[band][shade]), cgram.Colors[89 + shade], "Actual health producer shows the band's colours");
+                    for (int shade = 0; shade < 4; shade++) AssertEqual(Pack(document.HealthBands.Values.ElementAt(band)[shade]), cgram.Colors[89 + shade], "Actual health producer shows the band's colours");
                     PictureShading heldBand = DraygonRoomShading(state.Colours); update(state);
                     AssertEqual(heldBand, DraygonRoomShading(state.Colours), "Same health band keeps the shading it shows");
                     body.HurtFlash.Restart(2); hurt(body,state,SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus()); LayDraygonShading(cgram, selected, state.Colours);
@@ -1862,7 +1861,7 @@ internal static class LookupStream4Verification
                     body.HurtFlash.End(); hurt(body,state,SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus()); LayDraygonShading(cgram, selected, state.Colours);
                     for (int color = 0; color < 16; color++)
                     {
-                        AssertEqual(color is >= 9 and <= 12 ? Pack(document.HealthBands[band][color - 9]) : Pack(document.Background[color]), cgram.Colors[80 + color], "Actual normal hurt restores selected belly band");
+                        AssertEqual(color is >= 9 and <= 12 ? Pack(document.HealthBands.Values.ElementAt(band)[color - 9]) : Pack(document.Background[color]), cgram.Colors[80 + color], "Actual normal hurt restores selected belly band");
                         AssertEqual(Pack(document.Sprite[color]),cgram.Colors[240 + color],"Separate sprite paint");
                     }
                 }
@@ -1886,7 +1885,7 @@ internal static class LookupStream4Verification
                 content.AppendWords("background", document.Background.Select(Native).ToArray());
                 content.AppendWords("sprite", document.Sprite.Select(Native).ToArray());
                 content.AppendWords("whiteFlash", document.WhiteFlash.Select(Native).ToArray());
-                content.AppendWordFrames("healthBands", document.HealthBands.Select(row => row.Select(Native).ToArray()).ToArray());
+                content.AppendWordFrames("healthBands", document.HealthBands.Values.Select(row => row.Select(Native).ToArray()).ToArray());
             });
             AssertEqual(identity, catalog.ContentIdentity, "Draygon calculated palette preserves selected content identity");
             for (int color = 0; color < 16; color++)
@@ -1897,7 +1896,7 @@ internal static class LookupStream4Verification
                 catalog.ApplyHealthBand(cgram, band);
                 for (int color = 0; color < 4; color++)
                 {
-                    ushort expected = Native(document.HealthBands[band][color]);
+                    ushort expected = Native(document.HealthBands.Values.ElementAt(band)[color]);
                     AssertEqual(expected, catalog.ResolveHealthBand(SuperMetroid.Core.Bosses.Draygon.DraygonHealthBandDefinitions.HighestFirst[band], color), "Draygon native health color");
                     AssertEqual(expected, cgram.Colors[89 + color], "Draygon health interpolation actual CGRAM transfer");
                 }
@@ -2050,7 +2049,7 @@ internal static class LookupStream4Verification
             ushort Expected(int band, int color) => rom.ReadCartridgeWord((0xb3971b + (band * 16 + color) * 2));
             ushort Native(PaletteRgb5 color) => (ushort)(color.Red | color.Green << 5 | color.Blue << 10);
             string identity = SelectedPresentationHash.Create("BotwoonColorCatalog-v1", content =>
-                content.AppendWordFrames("health", document.Health.Select(row => row.Select(Native).ToArray()).ToArray()));
+                content.AppendWordFrames("health", document.Health.Values.Select(row => row.Select(Native).ToArray()).ToArray()));
             AssertEqual(identity, catalog.ContentIdentity, "Botwoon selected identity");
             for (int band = 0; band < 8; band++) for (int color = 0; color < 16; color++)
             {
@@ -2188,8 +2187,8 @@ internal static class LookupStream4Verification
         {
             int sourceAddress = 0x9a0000 | rom.ReadCartridgeWord((0x90c3b1 + selection * 2));
             byte[] native = Enumerable.Range(0, 256).Select(offset => rom.ReadCartridgeByte(sourceAddress + offset)).ToArray();
-            byte[] png = files[BeamTileAtlasDefinitions.FileName(SamusBeamCombinationTableOrder.FromTableIndex(selection))];
-            var atlas = BeamTileAtlas.Load(new MemoryStream(png), SamusBeamCombinationTableOrder.FromTableIndex(selection));
+            byte[] png = files[BeamTileAtlasDefinitions.FileName(SamusBeamCombinationTableOrderConstants.FromTableIndex(selection))];
+            var atlas = BeamTileAtlas.Load(new MemoryStream(png), SamusBeamCombinationTableOrderConstants.FromTableIndex(selection));
             AssertTrue(native.SequenceEqual(atlas.Characters.Span), "Installed DMA view matches all256 original bytes per beam selection");
             var directVram = new SnesVram();
             atlas.LoadTo(directVram);
@@ -2197,7 +2196,7 @@ internal static class LookupStream4Verification
             VerifyQueued(catalog, selection, native);
         }
         foreach (int invalid in new[] { int.MinValue, -1, 12, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => BeamTileAtlas.Load(new MemoryStream(), SamusBeamCombinationTableOrder.FromTableIndex(invalid)), "Beam atlas rejects unsupported selection before decoding PNG");
+            AssertThrows<ArgumentOutOfRangeException>(() => BeamTileAtlas.Load(new MemoryStream(), SamusBeamCombinationTableOrderConstants.FromTableIndex(invalid)), "Beam atlas rejects unsupported selection before decoding PNG");
         Console.WriteLine("Beam tiles: twelve native256-byte uploads and the bound projectile page pass.");
 
         // The projectile page the selection binds shows the calculated characters where `$90:AC8D`'s DMA put them

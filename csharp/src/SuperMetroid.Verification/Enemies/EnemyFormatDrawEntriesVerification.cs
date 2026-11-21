@@ -129,7 +129,7 @@ internal static class EnemyFormatDrawEntriesVerification
         sprites.FinalizeFrame();
         AssertEqual(new Offset16<ScreenPixels>(-16, -14), sprites.Draws[0].Origin, "An enemy left of and above the view draws at a negative place");
         ordinary.Position = ordinary.Position.WithWhole(camera);
-        ordinary.FrameCounter = Enumerable.Range(0, 16).First(EnemyDrawPhaseDefinitions.ShakeShiftsLeft.IsSetIn);
+        ordinary.FrameCounter = Enumerable.Range(0, 16).First(EnemyDrawPhaseDefinitions.ShakeShiftsLeft.IsInSecondHalfAt);
         ordinary.Shake.Restart(1);
         sprites.BeginFrame();
         enemies.Drawing.Advance(camera);

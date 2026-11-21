@@ -4,5 +4,8 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 internal sealed record MotherBrainGlassSetup : RoomObjectPlacementSetup
 {
     /// <inheritdoc/>
+    internal override RoomObjectKind Kind => RoomObjectKind.MotherBrainGlass;
+
+    /// <inheritdoc/>
     internal override void SetUp(IRoomObjectFamilySetups setups) => setups.SetUpMotherBrainGlass();
 }

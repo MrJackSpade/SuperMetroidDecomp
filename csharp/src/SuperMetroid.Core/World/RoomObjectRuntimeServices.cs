@@ -1,3 +1,6 @@
+using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Bosses.Torizo;
+using SuperMetroid.Core.Enemies.Chozo;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms;
@@ -13,7 +16,7 @@ namespace SuperMetroid.Core.World;
 /// <param name="system">The game's shared state, which an eye door's opening records.</param>
 [RoomLifetime]
 internal sealed class RoomObjectRuntimeServices(RoomEnemySystem enemies, SharedGameState system) :
-    IRoomEarthquakeWriter, IRoomObjectEnemyEffects
+    IRoomEarthquakeWriter, IRoomObjectEnemyEffects, IMotherBrainGlassShardSpawner, IBombTorizoStatueFragmentSpawner
 {
     /// <summary>The room's enemies.</summary>
     private readonly RoomEnemySystem _enemies = Ensure.NotNull(enemies);
@@ -26,6 +29,14 @@ internal sealed class RoomObjectRuntimeServices(RoomEnemySystem enemies, SharedG
 
     /// <summary>Stops the room's earthquake for a room object.</summary>
     public void Stop() => _enemies.Earthquake.Stop();
+
+    /// <summary>Spawns a shard Mother Brain's glass threw.</summary>
+    public void SpawnMotherBrainGlassProjectile(MotherBrainGlassProjectileRequest request) =>
+        Enemies.RoomObjectSpawns.SpawnMotherBrainGlassProjectile(request);
+
+    /// <summary>Spawns a fragment the Bomb Torizo statue's hand threw.</summary>
+    public void SpawnBombTorizoStatueBreakingProjectile(BombTorizoStatueProjectileRequest request) =>
+        Enemies.RoomObjectSpawns.SpawnBombTorizoStatueBreakingProjectile(request);
 
     /// <summary>Spawns a Noob Tube projectile at its room object's block.</summary>
     public void SpawnNoobTubeProjectile(NoobTubeProjectileRequest request) =>

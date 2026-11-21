@@ -66,25 +66,10 @@ internal sealed class ScrollObjects
         Ensure.NotNull(place);
         // The setup changes how the block collides and reacts, and the block keeps its picture and what it shows
         // (#2502).
-        RoomCollisionType collision = extension.TowardTrigger switch
-        {
-            ScrollExtensionDirection.Left or ScrollExtensionDirection.Right => RoomCollisionType.HorizontalExtension,
-            ScrollExtensionDirection.Up or ScrollExtensionDirection.Down => RoomCollisionType.VerticalExtension,
-            _ => throw new ArgumentOutOfRangeException(nameof(extension), extension, "Undefined scroll extension direction."),
-        };
-        int offset = Ensure.Listed(BlocksTowardTrigger, extension.TowardTrigger);
-        level.SetCollisionAndBehavior(place.Block, collision, RoomBlockBehavior.Extending(offset));
+        RoomCollisionType collision = extension.Horizontal ? RoomCollisionType.HorizontalExtension : RoomCollisionType.VerticalExtension;
+        level.SetCollisionAndBehavior(place.Block, collision, RoomBlockBehavior.Extending(extension.BlocksTowardTrigger));
 
         // An extension's whole effect is its setup, which removes it at once, freeing its place for the room's next object.
         place.Delete();
     }
-
-    /// <summary>The blocks an extension steps along its axis toward its trigger: back for left and up, forward for right and down.</summary>
-    private static readonly IReadOnlyDictionary<ScrollExtensionDirection, int> BlocksTowardTrigger = new Dictionary<ScrollExtensionDirection, int>
-    {
-        [ScrollExtensionDirection.Left] = -1,
-        [ScrollExtensionDirection.Right] = 1,
-        [ScrollExtensionDirection.Up] = -1,
-        [ScrollExtensionDirection.Down] = 1,
-    };
 }

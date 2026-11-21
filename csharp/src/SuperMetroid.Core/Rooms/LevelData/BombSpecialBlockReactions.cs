@@ -20,27 +20,12 @@ public static class BombSpecialBlockReactions
         SpecialBlockReaction read = reaction;
         if (SpeedBlockLookalikes.TryShowAsSpeedBlock(read, out LastingBlockReactionChange? shown))
             return shown;
-        return read switch
+        return Ensure.Listed(BombSpecialBlockReactionDefinitions.Responses, read) switch
         {
-            SpecialBlockReaction.RespawningCrumble1x1 or SpecialBlockReaction.RespawningCrumble2x1 or
-                SpecialBlockReaction.RespawningCrumble1x2 or SpecialBlockReaction.RespawningCrumble2x2 or
-                SpecialBlockReaction.PermanentCrumble1x1 or SpecialBlockReaction.PermanentCrumble2x1 or
-                SpecialBlockReaction.PermanentCrumble1x2 or SpecialBlockReaction.PermanentCrumble2x2 =>
-                BlockReactionChanges.CrumbleReveal(read),
-            SpecialBlockReaction.RespawningSpeedBlock or SpecialBlockReaction.PermanentSpeedBlock or
-                SpecialBlockReaction.SlowRespawningSpeedBlock or SpecialBlockReaction.SlowPermanentSpeedBlock or
-                SpecialBlockReaction.BrinstarRespawningSpeedBlock or SpecialBlockReaction.BrinstarPermanentSpeedBlock =>
-                SpeedBoosterBlockObjectDefinitions.BombReveal,
-            SpecialBlockReaction.XrayRevealedSolid or SpecialBlockReaction.CollectibleTrigger or
-                SpecialBlockReaction.MapStationRight or SpecialBlockReaction.MapStationLeft or
-                SpecialBlockReaction.EnergyStationRight or SpecialBlockReaction.EnergyStationLeft or
-                SpecialBlockReaction.MissileStationRight or SpecialBlockReaction.MissileStationLeft or
-                SpecialBlockReaction.SaveStationFloor or SpecialBlockReaction.Solid or
-                SpecialBlockReaction.WreckedShipChozoHand or SpecialBlockReaction.LowerNorfairChozoHand =>
-                LastingBlockReactionChange.MadeAtSpawn,
-            SpecialBlockReaction.BombRevealsSpeedBlock => throw new InvalidOperationException(
-                $"{nameof(SpecialBlockReaction.BombRevealsSpeedBlock)} is shown as a Speed Booster block by the run-on."),
-            _ => throw new InvalidOperationException($"Undefined {nameof(SpecialBlockReaction)} {read}."),
+            SpecialBlockBombResponse.CrumbleReveal => BlockReactionChanges.CrumbleReveal(read),
+            SpecialBlockBombResponse.SpeedBlockReveal => SpeedBoosterBlockObjectDefinitions.BombReveal,
+            SpecialBlockBombResponse.Nothing => LastingBlockReactionChange.MadeAtSpawn,
+            var response => throw new InvalidOperationException($"Undefined {nameof(SpecialBlockBombResponse)} {response}."),
         };
     }
 }

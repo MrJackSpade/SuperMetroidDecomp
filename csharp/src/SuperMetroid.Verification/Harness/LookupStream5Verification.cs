@@ -188,7 +188,7 @@ internal static class LookupStream5Verification
             var system = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
             var body = system.Places.InUpdateOrder[0];
             var eye = system.Places.InUpdateOrder[1];
-            var state = new PhantoonEnemyState(body.HeldOccupant(), body, eye, system.Places.InUpdateOrder[2], system.Places.InUpdateOrder[3]);
+            var state = new PhantoonEnemyState(body.BoundFor(EnemyDefinitionId.PhantoonBody), body, eye, system.Places.InUpdateOrder[2], system.Places.InUpdateOrder[3]);
             system.BeginPhantoonAsSetUp(state);
             int randomCalls = 0;
             system.VerificationServices().NextRandom = () => (ushort)(++randomCalls == 1 ? bucket : nextPattern);
@@ -249,7 +249,7 @@ internal static class LookupStream5Verification
             var body = system.Places.InUpdateOrder[0];
             var eye = system.Places.InUpdateOrder[1];
             var mouth = system.Places.InUpdateOrder[3];
-            var state = new PhantoonEnemyState(body.HeldOccupant(), body, eye, system.Places.InUpdateOrder[2], mouth);
+            var state = new PhantoonEnemyState(body.BoundFor(EnemyDefinitionId.PhantoonBody), body, eye, system.Places.InUpdateOrder[2], mouth);
             system.BeginPhantoonAsSetUp(state);
             int randomCalls = 0;
             system.VerificationServices().NextRandom = () => { randomCalls++; return (ushort)(reversed ? 1 : 0); };
@@ -363,7 +363,7 @@ internal static class LookupStream5Verification
             var body = system.Places.InUpdateOrder[0];
             var eye = system.Places.InUpdateOrder[1];
             var tentacles = system.Places.InUpdateOrder[2];
-            var state = new PhantoonEnemyState(body.HeldOccupant(), body, eye, tentacles, system.Places.InUpdateOrder[3]);
+            var state = new PhantoonEnemyState(body.BoundFor(EnemyDefinitionId.PhantoonBody), body, eye, tentacles, system.Places.InUpdateOrder[3]);
             system.BeginPhantoonAsSetUp(state);
             system.VerificationServices().NextRandom = () => (ushort)bucket;
             Action<PhantoonEnemyState> open = system.PhantoonBehavior.BeginPhantoonEyeTracking;
@@ -399,7 +399,9 @@ internal static class LookupStream5Verification
             else
             {
                 AssertEqual(PhantoonPhase.WaitingOnEye, state.Phase, "Unhit expiration hands off to eye close");
-                AssertEqual(PhantoonPartSegment.InvulnerableBody, state.BodyPart.PlayingProgram(), "Native invulnerable body handoff");
+                AssertEqual(PhantoonPartSegment.Body, state.BodyPart.PlayingProgram(), "Native invulnerable body handoff");
+                state.BodyPictureShown();
+                AssertEqual(PhantoonBodyHitArea.SolidifyingCentre, state.BodyHitArea, "Native invulnerable body hit area as his body's picture shows");
                 AssertEqual(PhantoonPartSegment.EyeCloseAndPickNewPattern, state.EyePart.PlayingProgram(), "Native close/reselect eye handoff");
                 AssertTrue(body.Contact.HasAny(EnemyContact.IgnoresSamus), "Expiration removes open-eye collision");
                 AssertEqual(true, state.NextPattern == PhantoonPatternChoice.FlameRain, "Unhit expiration requests next rain branch");
@@ -495,8 +497,9 @@ internal static class LookupStream5Verification
             // shade holds the initial wall's first sixteen colours in the wall's row.
             SheetShade wall = BossSheetShades.SpawnedObjects(InstalledFixtures.BossArtwork with { CrocomireColors = result }, EnemyDefinitionId.Crocomire)
                 .Single(shade => shade.Shade == SuperMetroid.Core.Bosses.Crocomire.Artwork.CrocomireShades.Wall);
-            for (int ink = 0; ink < wall.Colours.Length; ink++)
-                AssertEqual(resolve[1](ink), wall.Colours[ink], "Initial wall load shows the supplied colours");
+            RgbColor[] wallColours = [.. wall.Colours];
+            for (int ink = 0; ink < wallColours.Length; ink++)
+                AssertEqual(resolve[1](ink), wallColours[ink], "Initial wall load shows the supplied colours");
             string expectedHash = SelectedPresentationHash.Create("CrocomireColorCatalog-v1", content =>
             {
                 for (int band = 0; band < bands.Length; band++)
@@ -596,7 +599,7 @@ internal static class LookupStream5Verification
                         // The cartridge's first slot shows the area boss's flag.
                         AssertEqual(0, count, "Native used boss slot is the area boss's");
                         MapBossMarker marker = markers[shown++];
-                        AssertEqual(DefeatedBosses.AreaBoss, marker.Boss, "Named marker shows the area boss");
+                        AssertEqual(DefeatedBosses.AreaBoss, Ensure.Listed(AreaBossDefinitions.Bosses, marker.Boss).RecordedAs, "Named marker shows the area boss");
                         AssertEqual(Read(pointer + count * 4), layout.Get(marker.Id).X, "Native semantic boss X");
                         AssertEqual(Read(pointer + count * 4 + 2), layout.Get(marker.Id).Y, "Native semantic boss Y");
                     }
@@ -664,7 +667,7 @@ internal static class LookupStream5Verification
             void Draw(MapSpriteId id, int x, int y, MapSpriteColouring colouring) => MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(sprites), id, expected, Offset16<ScreenPixels>.Wrapped(x - 7, y - 9), MapSpriteScreen.FileSelect, colouring);
         }
         AssertThrows<ArgumentOutOfRangeException>(() => MapLandmarks.BossMarkers((AreaId)7), "Invalid boss area");
-        AssertThrows<ArgumentOutOfRangeException>(() => MapLandmarks.Elevators(AreaId.Ceres), "Ceres has no elevator labels");
+        AssertEqual(0, MapLandmarks.Elevators(AreaId.Ceres).Length, "Ceres has no elevator labels");
         AssertEqual(8, bossSlots, "Eight native boss slots including three unused");
         AssertEqual(17, elevatorSlots, "Seventeen native destination labels");
         Console.WriteLine("Map landmark cases: eight native boss slots, seventeen destinations, extraction/schema, 23 ordered IDs, bounds and 28 stock ordered OAM/state cases pass.");
@@ -759,7 +762,7 @@ internal static class LookupStream5Verification
         for (int band = 0; band < PhantoonColorDefinitions.HealthBandCount; band++)
         for (int color = 0; color < PhantoonColorFormat.HealthBandColorCount; color++)
         {
-            AssertEqual(ReadVerificationWord(rom, PhantoonSourceDefinitions.HealthBandColors + (band * 16 + color) * 2), stock.ResolveHealth(band, color), "Native health RGB equality");
+            AssertEqual(ReadVerificationWord(rom, PhantoonSourceDefinitions.HealthBandColors + (band * 16 + color) * 2), stock.ResolveHealthAtNative(band, color), "Native health RGB equality");
         }
         for (int color = 0; color < PhantoonSourceDefinitions.PowerOnColourCount; color++)
         {
@@ -768,10 +771,8 @@ internal static class LookupStream5Verification
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolvePowerOn(WreckedShipPoweredPart.Shared, -1), "Power lower bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolvePowerOn(WreckedShipPoweredPart.Lights, 16), "Power upper bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolvePowerOn((WreckedShipPoweredPart)Enum.GetValues<WreckedShipPoweredPart>().Length, 0), "Power rejects a part the power-on does not fade");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealth(-1, 0), "Health band lower bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealth(8, 0), "Health band upper bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealth(0, -1), "Health color lower bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealth(0, 16), "Health color upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealth(PhantoonHealthBandDefinitions.Unhurt, -1), "Health color lower bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealth(PhantoonHealthBandDefinitions.Unhurt, 16), "Health color upper bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveFadeOut(-1), "Fade lower bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveFadeOut(16), "Fade upper bound");
         Console.WriteLine("Phantoon colors: 16 native fade targets, 128 health colors, 112 power colors, the hash and bounds pass.");
@@ -782,18 +783,23 @@ internal static class LookupStream5Verification
             ushort[] Pack(PaletteRgb5[] colors) => colors.Select(c => (ushort)(c.Red | c.Green << 5 | c.Blue << 10)).ToArray();
             ushort[] fade = Pack(source.FadeOut);
             for (int color = 0; color < fade.Length; color++) AssertEqual(fade[color], result.ResolveFadeOut(color), "Fade input");
-            for (int band = 0; band < source.HealthBands.Length; band++)
+            foreach (PhantoonHealthBand band in PhantoonHealthBandDefinitions.HighestFirst)
             {
-                ushort[] values = Pack(source.HealthBands[band]);
+                ushort[] values = Pack(source.HealthBands[band.Key]);
                 for (int color = 0; color < values.Length; color++) AssertEqual(values[color], result.ResolveHealth(band, color), "Health channels");
             }
-            ushort[] power = Pack(source.PowerOn);
-            for (int color = 0; color < power.Length; color++) AssertEqual(power[color], result.ResolvePowerOnAtNative(color), "Power paint preserved");
+            foreach ((WreckedShipPoweredPart part, string key) in PhantoonColorFormat.PoweredPartKeys)
+            {
+                ushort[] power = Pack(source.PowerOn[key]);
+                for (int color = 0; color < power.Length; color++) AssertEqual(power[color], result.ResolvePowerOn(part, color), "Power paint preserved");
+            }
             string hash = SelectedPresentationHash.Create("PhantoonColorCatalog-v1", content =>
             {
                 content.AppendWords("fadeOut", fade);
-                content.AppendWords("powerOn", Pack(source.PowerOn));
-                content.AppendWordFrames("healthBands", source.HealthBands.Select(Pack).ToArray());
+                content.AppendWords("powerOn", [.. PhantoonSourceDefinitions.PowerOnGroups.OrderBy(group => group.Value)
+                    .SelectMany(group => Pack(source.PowerOn[PhantoonColorFormat.PoweredPartKeys[group.Key]]))]);
+                content.AppendWordFrames("healthBands", [.. PhantoonSourceDefinitions.HealthBandPalettes.OrderBy(palette => palette.Value)
+                    .Select(palette => Pack(source.HealthBands[palette.Key.Key]))]);
             });
             AssertEqual(hash, result.ContentIdentity, "Original canonical hash framing");
             return result;
@@ -940,17 +946,17 @@ internal static class LookupStream5Verification
                 AssertEqual(Pack(expected.Grey[color]), actual.ResolveGrey(color), "Exact grey ramp color");
                 AssertEqual(Shown(expected.Grey[color]), actual.GreyColor(color), "Installed grey colour");
             }
-            for (int row = 0; row < expected.Eye.Length; row++)
+            foreach ((string statue, PaletteRgb5[] glow) in expected.Eye)
             {
-                for (int color = 0; color < expected.Eye[row].Length; color++)
-                    AssertEqual(Shown(expected.Eye[row][color]), actual.ResolveEye(TourianStatuePalettes.EyeRowOrder[row], color), "Installed eye glow colour");
+                for (int color = 0; color < glow.Length; color++)
+                    AssertEqual(Shown(glow[color]), actual.ResolveEye(Enum.Parse<SuperMetroid.Core.Areas.Tourian.TourianStatue>(statue), color), "Installed eye glow colour");
             }
             string identity = SelectedPresentationHash.Create("TourianStatueColorCatalog-v1", hash =>
             {
                 hash.AppendWords("baseColors", expected.Base.Select(Pack).ToArray());
                 hash.AppendWords("statueColors", expected.Statue.Select(Pack).ToArray());
                 hash.AppendWords("greyColors", expected.Grey.Select(Pack).ToArray());
-                hash.AppendWordFrames("eyeColors", expected.Eye.Select(row => row.Select(Pack).ToArray()).ToArray());
+                hash.AppendWordFrames("eyeColors", expected.Eye.Values.Select(row => row.Select(Pack).ToArray()).ToArray());
             });
             AssertEqual(identity, actual.ContentIdentity, "Exact canonical selected palette identity");
             return actual;
@@ -964,7 +970,7 @@ internal static class LookupStream5Verification
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes("Super Metroid.smc"))), "Marker reference ROM revision");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
         var body = enemies.Places.InUpdateOrder[0];
-        var state = new PhantoonEnemyState(body.HeldOccupant(), body, enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]);
+        var state = new PhantoonEnemyState(body.BoundFor(EnemyDefinitionId.PhantoonBody), body, enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]);
         Action<RoomEnemyPlace, PhantoonEnemyState, ushort, int> shot = (shotPlace, shotPhantoon, shotType, shotDamage) =>
             enemies.PhantoonBehavior.Combat.ResolvePhantoonShotReaction(shotPlace, shotPhantoon, SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(shotType), shotDamage);
         ushort random = 0;
@@ -1116,8 +1122,7 @@ internal static class LookupStream5Verification
         }
         var owner = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         var body = owner.Places.InUpdateOrder[1];
-        body.SetSpawnSettings(new MorphBallEyeBodySpawnSettings(HorizontalDirection.Right));
-        body.Bind(EnemyDefinitionId.MorphBallEye, body.KeptDefinition);
+        body.BindPlaced(EnemyDefinitionId.MorphBallEye, new MorphBallEyeBodySpawnSettings(HorizontalDirection.Right));
         body.SetUpAsPlaced();
         MorphBallEyeEnemyState eye = body.SpeciesState<MorphBallEyeEnemyState>() ?? throw new InvalidOperationException("Verification requires the eye body's state.");
         // The eye's request casts the beam: its first step activates the eye and starts it widening, six more make it full.
@@ -1135,7 +1140,10 @@ internal static class LookupStream5Verification
                 rom.ReadCartridgeByte(0x88ea8d + phase * 4) & FadeLevelColour.FullLevel).ToColour();
             AssertEqual(expected, MorphBallEyeBeamDefinitions.CycleColors[phase], "Native two-channel triangle intensities");
             step();
-            AssertEqual(expected, global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Enemies.MorphBallEye.MorphBallEyeBeamState, global::SuperMetroid.Core.Assets.RgbColor>(owner.MorphBallEyeBehavior.MorphBallEyeBeam, "Color"), "Actual beam colour, zero blue intensity included");
+            // The colour is read as the frame shows it: the cone the frame boundary latches from the beam.
+            ((IDisplayLatch)owner.MorphBallEyeBehavior.MorphBallEyeBeam).LatchDisplay();
+            AssertEqual(expected, (owner.MorphBallEyeBehavior.MorphBallEyeBeam.Latched ?? throw new InvalidOperationException("The full beam latched no cone.")).Color,
+                "Actual beam colour, zero blue intensity included");
             AssertEqual(MorphBallEyeBeamColour.All[(phase + 1) & 15], owner.MorphBallEyeBehavior.MorphBallEyeBeam.NextColour, "Actual cycling and wrap after the sixteenth colour");
         }
         AssertThrows<InvalidDataException>(() => EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.MorphBallEye, PopulationWords.Parameters(0, 0x8004)),
@@ -1279,7 +1287,7 @@ internal static class LookupStream5Verification
             enemies.VerificationServices().NextRandom = () => { calls++; return random; };
             var body = enemies.Places.InUpdateOrder[0];
             var eye = enemies.Places.InUpdateOrder[1];
-            var state = new PhantoonEnemyState(body.HeldOccupant(), body, eye, enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]);
+            var state = new PhantoonEnemyState(body.BoundFor(EnemyDefinitionId.PhantoonBody), body, eye, enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]);
             enemies.BeginPhantoonAsSetUp(state);
             state.PhaseWait.LastFor(1);
             state.FigureEight.Direction = PhantoonPathDirection.Backwards;
@@ -1308,7 +1316,7 @@ internal static class LookupStream5Verification
         Action<RoomEnemyPlace, PhantoonEnemyState, SamusState> pointEye = PhantoonPatterns.PointPhantoonEyeAtSamus;
         RoomEnemyPlace eyeBody = eyeEnemies.Places.InUpdateOrder[0];
         RoomEnemyPlace trackingEye = eyeEnemies.Places.InUpdateOrder[1];
-        var eyeState = new PhantoonEnemyState(eyeBody.HeldOccupant(), eyeBody, trackingEye, eyeEnemies.Places.InUpdateOrder[2], eyeEnemies.Places.InUpdateOrder[3]);
+        var eyeState = new PhantoonEnemyState(eyeBody.BoundFor(EnemyDefinitionId.PhantoonBody), eyeBody, trackingEye, eyeEnemies.Places.InUpdateOrder[2], eyeEnemies.Places.InUpdateOrder[3]);
         eyeBody.Position = eyeBody.Position.WithWhole(new(0x4000, 0x4000));
         foreach ((short x, short y, CompassDirection direction, _) in eyeTargets)
         {
@@ -1506,7 +1514,7 @@ internal static class LookupStream5Verification
         for (int variant = 0; variant < steamVariants.Length; variant++)
         {
             var actual = CeresSteamInitializations.Initialization(steamVariants[variant]);
-            AssertEqual(ReadVerificationWord(rom, 0xa6eff5 + 2 * variant), NativeEnemyAnimationOracle.EntryOf(CeresSteamNativeListAddresses.Entries, actual.Animation), "Ceres steam original instruction dispatch");
+            AssertEqual(ReadVerificationWord(rom, 0xa6eff5 + 2 * variant), NativeEnemyAnimationOracle.EntryOf(CeresSteamNativeListAddresses.EntriesOf(actual.Way), CeresSteamSegment.Dormant), "Ceres steam original instruction dispatch");
             AssertEqual(ReadVerificationWord(rom, 0xa6f001 + 2 * variant), CeresNativeWords.SteamActionWord(actual.Action), "Ceres steam original function dispatch");
         }
         MagdolliteRiseStage stage = MagdolliteRiseStage.Setup;

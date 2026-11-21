@@ -143,21 +143,9 @@ public sealed class SamusProjectileSystem
     private static void ShowBeamShade(SamusColours colours, SamusBeamCombination selection)
     {
         Ensure.NotNull(colours);
-        switch (selection)
-        {
-            case ChainsawBeamGraphicsDefinitions.Selection:
-            case SpacetimeBeamGraphicsDefinitions.Selection:
-            case SamusBeamCombination.Power or SamusBeamCombination.Wave or SamusBeamCombination.Ice or
-                SamusBeamCombination.IceWave or SamusBeamCombination.Spazer or SamusBeamCombination.SpazerWave or
-                SamusBeamCombination.SpazerIce or SamusBeamCombination.SpazerIceWave or SamusBeamCombination.Plasma or
-                SamusBeamCombination.PlasmaWave or SamusBeamCombination.PlasmaIce or SamusBeamCombination.PlasmaIceWave:
-                colours.ShowBeams(SamusShades.Beam(selection));
-                break;
-            case SamusBeamCombination.SpazerPlasma or SamusBeamCombination.SpazerPlasmaIceWave:
-                throw new ArgumentOutOfRangeException(nameof(selection), selection, "Beam combination has no beam shade.");
-            default:
-                throw new ArgumentOutOfRangeException(nameof(selection), selection, "Undefined beam combination.");
-        }
+        if (!SamusBeamGraphicsDefinitions.ShownShades.ContainsKey(selection))
+            throw new ArgumentOutOfRangeException(nameof(selection), selection, "Beam combination has no beam shade.");
+        colours.ShowBeams(SamusShades.Beam(selection));
     }
 
     /// <summary>
@@ -306,7 +294,7 @@ public sealed class SamusProjectileSystem
                     // Uncharged firing tests both current and prior new-input latches.
                     buttons.ControllerNewInput | buttons.ControllerPreviousNewInput,
                     samusBombs,
-                    terrain.RoomObjects);
+                    terrain.RoomObjects).Request;
             }
             else if (samus.SelectedHudItem is HudItem.Missile or HudItem.SuperMissile)
             {

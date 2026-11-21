@@ -19,7 +19,7 @@ namespace SuperMetroid.AssetExtraction.Frontend;
 internal static class FileSelectSheetComposer
 {
     /// <summary>CGRAM's first sprite colour.</summary>
-    private const int SpriteColours = 128;
+    private const int SpriteColours = ImageColourGroup.HalfColours;
 
     /// <summary>What the file-select sheet composes.</summary>
     internal static SpriteSheetSources Sources(ImportAreaMapPresentation maps) =>
@@ -68,7 +68,7 @@ internal static class FileSelectSheetComposer
     /// <summary>The first colour of <see cref="CopyArrowGroup"/> the rotation moves; it moves the following ones with it.</summary>
     private const int CopyArrowFirstColour = 1;
     /// <summary>The colours of one sprite colour group.</summary>
-    private const int GroupColours = 16;
+    private const int GroupColours = ImageColourGroup.Colours;
 
     /// <summary>
     /// The copy arrows' rotation shades (#1512): after each step, every rotated colour shows the next one's colour and the

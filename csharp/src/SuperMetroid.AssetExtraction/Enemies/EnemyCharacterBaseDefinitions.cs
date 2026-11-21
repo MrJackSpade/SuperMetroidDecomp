@@ -24,7 +24,7 @@ internal static class EnemyCharacterBaseDefinitions
         [EnemyDefinitionId.CeresElevatorDoor] = 0,
         [EnemyDefinitionId.CeresElevatorRoomWall] = 0,
         [EnemyDefinitionId.CeresGetawayChamberWall] = 0,
-        [EnemyDefinitionId.CeresSteam] = 0,
+        [EnemyDefinitionId.SteamVent] = 0,
         [EnemyDefinitionId.Zebetite] = 128,
         [EnemyDefinitionId.RidleyBreakupPiece] = 0,
         [EnemyDefinitionId.MotherBrainBody] = 0,

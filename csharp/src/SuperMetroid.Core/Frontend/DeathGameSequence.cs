@@ -60,7 +60,7 @@ internal sealed class DeathGameSequence(FrontendSession session, DeathGameSequen
         SamusState dyingSamus = live.Runtime.Player.Samus;
         dyingSamus.SelectBeam();
         dyingSamus.ClearHurtTimers();
-        dyingSamus.KnockbackActive = false;
+        dyingSamus.Knockback = dyingSamus.Knockback.Released();
         Current = new Stage.BlackingOutSurroundings(fade);
     }
 

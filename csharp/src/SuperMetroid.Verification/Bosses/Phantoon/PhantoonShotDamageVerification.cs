@@ -51,12 +51,14 @@ internal static class PhantoonShotDamageVerification
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         body.Bind(EnemyDefinitionId.PhantoonBody, RoomEnemyDefinitionLookup.Get(EnemyDefinitionId.PhantoonBody));
         body.Position = body.Position.WithWhole(new(128, 96));
-        body.Frame = EnemyFrameId.PhantoonEyeHitboxBody;
+        body.Frame = EnemyFrameId.PhantoonBody;
         body.Contact = body.Contact.Without(EnemyContact.IgnoresSamus);
         body.Health = 2500;
         PhantoonEnemyState state = enemies.BeginPhantoonAsSetUp(new PhantoonEnemyState(body.HeldOccupant(), body, enemies.Places.InUpdateOrder[1],
             enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]) { Phase = PhantoonPhase.Swooping });
         state.PhaseWait.LastFor(60);
+        state.ShowBody(PhantoonBodyHitArea.EyeOnly);
+        state.BodyPictureShown();
 
         Position16<RoomPixels> eye = EyeCentre(body);
         var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads,
@@ -64,11 +66,11 @@ internal static class PhantoonShotDamageVerification
             InstalledFixtures.SamusArtwork(projectileFrames: InstalledFixtures.Projectiles.FrameBindings), new global::SuperMetroid.Core.Fx.RoomEarthquake());
         SamusProjectile shot = shots.Shots[0];
         shot.Occupy(SamusProjectileType.Beam(SamusBeamCombination.Power, charged), damage);
-        shot.Direction = SamusProjectileDirection.Right;
-        shot.Position = shot.Position.WithWhole(eye);
-        shot.Radius = new(4, 4);
-        shot.Animation = ProjectileFixturePlaybacks.Active();
-        shot.Behavior = SamusShotBehaviors.Beam;
+        shot.HeldShot().Direction = SamusProjectileDirection.Right;
+        shot.HeldShot().Position = shot.Position.WithWhole(eye);
+        shot.HeldShot().Radius = new(4, 4);
+        shot.HeldShot().Animation = ProjectileFixturePlaybacks.Active();
+        shot.HeldShot().Behavior = SamusShotBehaviors.Beam;
 
         enemies.PhantoonBehavior.Combat.ResolvePhantoonProjectileHits(state, shots,
             new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), InstalledFixtures.SamusArtwork()));
@@ -79,7 +81,7 @@ internal static class PhantoonShotDamageVerification
     /// <summary>The centre of the hitbox on his body's frame whose shot reaction is his own: his eye.</summary>
     private static Position16<RoomPixels> EyeCentre(RoomEnemyPlace body)
     {
-        foreach (EnemyCollisionComponent component in PhantoonCollision.ComponentsAt(body.Frame))
+        foreach (EnemyCollisionComponent component in PhantoonCollision.ComponentsAt(body.Frame, PhantoonBodyHitArea.EyeOnly))
         {
             foreach (EnemyCollisionHitbox hitbox in component.Hitboxes)
             {

@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -17,32 +19,27 @@ internal static class MotherBrainHealthPaletteExtractor
         MotherBrainHealthPaletteFile.Write(json, new MotherBrainHealthPaletteDocument
         {
             Version = MotherBrainHealthPaletteFile.Version,
-            Body = ReadTable(MotherBrainSourceDefinitions.Palettes.HealthBodyPointerTable),
-            BackLegs = ReadTable(MotherBrainSourceDefinitions.Palettes.HealthRearLegPointerTable),
+            HealthBands = MotherBrainSourceDefinitions.Palettes.HealthTableOrder.Select((band, state) => KeyValuePair.Create(band.Key,
+                new MotherBrainBodyColoursDocument
+                {
+                    Body = ReadState(MotherBrainSourceDefinitions.Palettes.HealthBodyPointerTable, state),
+                    BackLegs = ReadState(MotherBrainSourceDefinitions.Palettes.HealthRearLegPointerTable, state),
+                })).ToDictionary(StringComparer.Ordinal),
         });
         return json.ToArray();
 
-        PaletteRgb5[][] ReadTable(int table)
+        PaletteRgb5[] ReadState(int table, int state)
         {
-            var states = new PaletteRgb5[MotherBrainHealthPaletteFormat.StateCount][];
-            for (int state = 0; state < states.Length; state++)
+            int pointer = table + state * sizeof(ushort);
+            int source = (MotherBrainSourceDefinitions.Palettes.PaletteBank|bus.ReadCartridgeWord(pointer));
+            var colours = new PaletteRgb5[MotherBrainRainbowPaletteGeometry.ColorCount];
+            for (int color = 0; color < colours.Length; color++)
             {
-                int pointer = table + state * sizeof(ushort);
-                int source = (MotherBrainSourceDefinitions.Palettes.PaletteBank|bus.ReadCartridgeWord(pointer));
-                states[state] = new PaletteRgb5[MotherBrainRainbowPaletteGeometry.ColorCount];
-                for (int color = 0; color < states[state].Length; color++)
-                {
-                    int address = source + color * sizeof(ushort);
-                    int word = bus.ReadCartridgeWord(address);
-                    states[state][color] = new PaletteRgb5
-                    {
-                        Red = word & 31,
-                        Green = word >> 5 & 31,
-                        Blue = word >> 10 & 31,
-                    };
-                }
+                int address = source + color * sizeof(ushort);
+                int word = bus.ReadCartridgeWord(address);
+                colours[color] = PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(word));
             }
-            return states;
+            return colours;
         }
     }
 }

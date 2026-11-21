@@ -34,29 +34,10 @@ internal static class RidleyFireballAnimations
             Show(EnemyProjectileFrameId.RidleyFireballTurned180, 2),
             Show(EnemyProjectileFrameId.RidleyFireballTurned270, 2),
         ],
-        [P.AfterburnFinal] =
-        [
-            Cue(C.StopMoving),
-            Show(EnemyProjectileFrameId.RidleyFireballSpark, 5),
-        ],
-        [P.HorizontalCenter] =
-        [
-            Cue(C.StopMoving),
-            Show(EnemyProjectileFrameId.RidleyFireballSpark, 5),
-            Cue(C.SpawnHorizontalAfterburns),
-        ],
-        [P.VerticalCenter] =
-        [
-            Cue(C.StopMoving),
-            Show(EnemyProjectileFrameId.RidleyFireballSpark, 5),
-            Cue(C.SpawnVerticalAfterburns),
-        ],
-        [P.DirectionalAfterburn] =
-        [
-            Cue(C.StopMoving),
-            Show(EnemyProjectileFrameId.RidleyFireballSpark, 5),
-            Cue(C.SpawnNextAfterburn),
-        ],
+        [P.AfterburnFinal] = AfterburnSpark,
+        [P.HorizontalCenter] = [.. AfterburnSpark, Cue(C.SpawnHorizontalAfterburns)],
+        [P.VerticalCenter] = [.. AfterburnSpark, Cue(C.SpawnVerticalAfterburns)],
+        [P.DirectionalAfterburn] = [.. AfterburnSpark, Cue(C.SpawnNextAfterburn)],
         [P.AfterburnPuff] =
         [
             Show(EnemyProjectileFrameId.RidleyFireballFireCloud, 5),
@@ -66,6 +47,10 @@ internal static class RidleyFireballAnimations
             Cue(C.Delete),
         ],
     });
+
+    /// <summary>Every afterburn run's opening: the fire stops where it is and sparks, before the run raises its spawn.</summary>
+    private static AnimationBeat<EnemyProjectileFrameId, RidleyFireballCue>[] AfterburnSpark =>
+        [Cue(C.StopMoving), Show(EnemyProjectileFrameId.RidleyFireballSpark, 5)];
 
     /// <summary>
     /// The animation that starts at each segment: the launch runs on into the flight, which loops, and each afterburn run's
@@ -80,9 +65,6 @@ internal static class RidleyFireballAnimations
             [P.VerticalCenter] = new([Segments.Whole(P.VerticalCenter), Segments.Whole(P.AfterburnPuff)], AnimationEnd.Holds),
             [P.DirectionalAfterburn] = new([Segments.Whole(P.DirectionalAfterburn), Segments.Whole(P.AfterburnPuff)], AnimationEnd.Holds),
         };
-
-    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<RidleyFireballSegment> StartingWith(RidleyFireballSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> passes.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, RidleyFireballCue> Show(EnemyProjectileFrameId frame, int duration) =>

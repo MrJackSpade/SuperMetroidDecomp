@@ -13,14 +13,14 @@ internal static class LookupGreyDoorStockVerification
 {
     /// <summary>Compares the twenty four-cell frames' pictures with the cartridge, rejects other draws, then checks the import and its rejections.</summary>
     internal static void VerifyGreyDoorStockMapping(CartridgeImportAddressSpace rom,
-        InstalledRoomObjectGreyDoorVisuals installed)
+        InstalledRoomObjectPictures installed)
     {
         LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(0xa677,"clear-left"),new LookupEscapeGateStockFrame(0xa683,"clear-right"),new LookupEscapeGateStockFrame(0xa68f,"clear-up"),new LookupEscapeGateStockFrame(0xa69b,"clear-down"),
             new LookupEscapeGateStockFrame(0xa6a7,"grey-left-closed"),new LookupEscapeGateStockFrame(0xa6b3,"grey-left-ajar"),new LookupEscapeGateStockFrame(0xa6bf,"grey-left-half-open"),new LookupEscapeGateStockFrame(0xa6cb,"grey-left-nearly-open"),
             new LookupEscapeGateStockFrame(0xa6d7,"grey-right-closed"),new LookupEscapeGateStockFrame(0xa6e3,"grey-right-ajar"),new LookupEscapeGateStockFrame(0xa6ef,"grey-right-half-open"),new LookupEscapeGateStockFrame(0xa6fb,"grey-right-nearly-open"),
             new LookupEscapeGateStockFrame(0xa707,"grey-up-closed"),new LookupEscapeGateStockFrame(0xa713,"grey-up-ajar"),new LookupEscapeGateStockFrame(0xa71f,"grey-up-half-open"),new LookupEscapeGateStockFrame(0xa72b,"grey-up-nearly-open"),
             new LookupEscapeGateStockFrame(0xa737,"grey-down-closed"),new LookupEscapeGateStockFrame(0xa743,"grey-down-ajar"),new LookupEscapeGateStockFrame(0xa74f,"grey-down-half-open"),new LookupEscapeGateStockFrame(0xa75b,"grey-down-nearly-open")];
-        foreach (InstalledRoomObjectGreyDoorVisuals pictures in new[] { InstalledRoomObjectGreyDoorVisuals.Stock(), installed })
+        foreach (InstalledRoomObjectPictures pictures in new[] { RoomObjectPicturesStock.GreyDoor, installed })
             AssertPicturedAsNative(rom, pictures.Images, RoomObjectGreyDoorVisualFiles.Family, frames, 80);
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
             if (frames.All(frame => frame.Pointer != raw))

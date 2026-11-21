@@ -26,8 +26,9 @@ public static class CeresRidleyColorFile
         RgbColor[] start = Compile(document.Start, CeresRidleyColorFormat.StartColorCount, "start");
         RgbColor[][] eyeFade = CompileRows(document.EyeFade, CeresRidleyColorFormat.EyeFadeShadeCount,
             CeresRidleyColorFormat.EyeFadeColorCount, "eye fade");
-        RgbColor[][] health = CompileRows(document.Health, CeresRidleyColorFormat.HealthBandCount,
-            CeresRidleyColorFormat.HealthColorCount, "health");
+        Dictionary<SuperMetroid.Core.Bosses.Ridley.RidleyHealthShade, RgbColor[]> health = Rgb5Rows.CompileKeyed(document.Health,
+            SuperMetroid.Core.Bosses.Ridley.RidleyHealthShadeDefinitions.LeastHurtFirst, band => band.Key,
+            CeresRidleyColorFormat.HealthColorCount, "Ceres Ridley health");
         RgbColor[][] alarm = CompileRows(document.Alarm, CeresRidleyColorFormat.AlarmStepCount,
             CeresRidleyColorFormat.AlarmColorCount, "alarm");
         var retreat = new CeresRidleyRetreatColours

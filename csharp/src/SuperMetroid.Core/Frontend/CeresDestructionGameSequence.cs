@@ -68,7 +68,7 @@ internal sealed class CeresDestructionGameSequence(FrontendSession session, Cere
         runtime.FrameBoundary.BeginAcceptedFrame(controllerInput);
         CeresDestructionCinematicState destruction = Screen;
         destruction.Step();
-        session.display.PublishCeresDestruction(destruction);
+        session.display.Publish(destruction);
         if (destruction.Finished)
         {
             // The cinematic's end turns the screen black, and the game loads the Zebes landing: Crateria and the
@@ -85,7 +85,7 @@ internal sealed class CeresDestructionGameSequence(FrontendSession session, Cere
         runtime.FrameBoundary.BeginAcceptedFrame(controllerInput);
         CeresDestructionCinematicState fatalDestruction = Screen;
         fatalDestruction.Step();
-        session.display.PublishCeresDestruction(fatalDestruction);
+        session.display.Publish(fatalDestruction);
         if (fatalDestruction.Finished)
         {
             // The fatal cinematic's fade-out ends already

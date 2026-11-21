@@ -7,7 +7,6 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// and its timer, the figure-eight, the swoop, the round of vulnerability, the casual flames, the fade on his body, the
 /// wave, whether his body shows, and his death.
 /// </summary>
-[ArchitectureReview("context-bag", "Phantoon's encounter state: every member is a part or sub-state of his own fight that he owns for the room (his four parts, phases, flames, fades, wave and visibility, #2252), not a service carried through.")]
 public sealed class PhantoonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing
 {
     /// <inheritdoc />
@@ -25,11 +24,12 @@ public sealed class PhantoonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IB
     internal PhantoonEnemyState(RoomEnemyOccupant bodyOccupant, RoomEnemyPlace body, RoomEnemyPlace eye, RoomEnemyPlace tentacles, RoomEnemyPlace mouth)
     {
         BodyOccupant = bodyOccupant;
-        BodyPart = new PhantoonPart(this, body, PhantoonPartSegment.InvulnerableBody);
+        BodyPart = new PhantoonPart(this, body, PhantoonPartSegment.Body);
         EyePart = new PhantoonPart(this, eye, PhantoonPartSegment.EyeClosed);
         TentaclesPart = new PhantoonPart(this, tentacles, PhantoonPartSegment.Tentacles);
         MouthPart = new PhantoonPart(this, mouth, PhantoonPartSegment.MouthInitial);
         BodyParts = new(SuperMetroid.Core.Enemies.BossBodies.BossBodyOwner.Phantoon, this);
+        CarriedParts = [MouthPart, TentaclesPart, EyePart];
     }
 
     /// <summary>
@@ -38,11 +38,33 @@ public sealed class PhantoonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IB
     /// </summary>
     internal SuperMetroid.Core.Enemies.BossBodies.BossBodyParts BodyParts { get; }
 
+    /// <summary>The drawing parts his body carries to its place after its AI pass: his mouth, tentacles and eye.</summary>
+    internal IReadOnlyList<PhantoonPart> CarriedParts { get; }
+
     /// <summary>Phantoon's body's and his room's colours (#1512).</summary>
     internal PhantoonColours Colours { get; } = new();
 
     /// <summary>His body, whose health and position are his; it runs first.</summary>
     public PhantoonPart BodyPart { get; }
+
+    /// <summary>
+    /// The hit area his body's picture has live, which his hitboxes test: it takes the hit area his fight last asked for
+    /// as the body's picture shows again, so a change waits for the picture, as the frame it is shown with does.
+    /// </summary>
+    internal PhantoonBodyHitArea BodyHitArea { get; private set; } = PhantoonBodyHitArea.SolidifyingCentre;
+
+    /// <summary>The hit area his fight last asked his body for, live from the update its picture shows.</summary>
+    private PhantoonBodyHitArea RequestedBodyHitArea { get; set; } = PhantoonBodyHitArea.SolidifyingCentre;
+
+    /// <summary>Restarts his body's still picture with <paramref name="area"/> live from the update it shows.</summary>
+    internal void ShowBody(PhantoonBodyHitArea area)
+    {
+        RequestedBodyHitArea = area;
+        BodyPart.StartAnimation(PhantoonPartSegment.Body);
+    }
+
+    /// <summary>Makes the hit area his fight asked for live as his body's animation plays its picture.</summary>
+    internal void BodyPictureShown() => BodyHitArea = RequestedBodyHitArea;
 
     /// <summary>His eye, which shares the body's position while keeping its own animation and colour counters.</summary>
     public PhantoonPart EyePart { get; }
@@ -125,7 +147,9 @@ public sealed class PhantoonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IB
 
     /// <summary>
     /// Whether Phantoon's body shows translucent; <see cref="PhantoonBodyVisibilityEffect"/> shows him so whatever
-    /// <see cref="BodyVisibilityRequest"/> asks.
+    /// <see cref="BodyVisibilityRequest"/> asks. It is a setting of its own, not a member of the request's choice (#2560): his
+    /// patterns turn it on and off while the request stands beneath it, and the request governs his body again from the
+    /// update it ends, so folding the two into one value would lose the request the translucency covers.
     /// </summary>
     public bool Translucent { get; internal set; }
 

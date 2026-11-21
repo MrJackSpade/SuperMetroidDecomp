@@ -43,8 +43,11 @@ internal abstract class PhantoonEntity(PhantoonBehavior species, RoomEnemyOccupa
             ? entity.Encounter
             : throw new InvalidOperationException($"Enemy place {part.Ordinal} holds no part of Phantoon.");
 
-    /// <summary>The part's hitboxes, which its frame's components hold: every one of his parts finds its own (#2301).</summary>
-    public EnemyHitboxContact FindHitboxReaction(EnemyHitboxProbe probe) => PhantoonCombat.FindPhantoonHitboxReaction(Place, probe);
+    /// <summary>
+    /// The part's hitboxes, which its frame's components hold, his body's picture those of the hit area his fight has live:
+    /// every one of his parts finds its own (#2301).
+    /// </summary>
+    public EnemyHitboxContact FindHitboxReaction(EnemyHitboxProbe probe) => PhantoonCombat.FindPhantoonHitboxReaction(Place, Encounter.BodyHitArea, probe);
 
     /// <inheritdoc/>
     public BossBodyParts BodyParts => Encounter.BodyParts;

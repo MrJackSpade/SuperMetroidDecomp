@@ -47,26 +47,26 @@ internal static class GrappleSheetComposer
         SpritePart endpoint = sprites.Endpoint;
         if (endpoint.Character is >= FirstRopeCharacter and <= LastRopeCharacter)
             throw new InvalidDataException($"The grapple endpoint names rope character ${endpoint.Character:X3}, which its orientation selects.");
-        // The endpoint's and the rope's pictures stand in the order of the cartridge's tiles and segment sprites.
-        for (int point = 0; point < GrappleSheetDefinitions.Endpoint.Count; point++)
+        // Each endpoint picture shows its own characters; each rope picture its own timed appearance.
+        foreach (GrappleEndpointFrame point in GrappleSheetDefinitions.Endpoint)
         {
-            frames.Add(new(GrappleSheets.EndpointFrame(GrappleSheetDefinitions.Endpoint[point]), SpritePartFrames.CentredSmallObject(endpoint, 0),
+            frames.Add(new(GrappleSheets.EndpointFrame(point), SpritePartFrames.CentredSmallObject(endpoint, 0),
                 tiles.OnStandardObjects(inputs.StandardObjects, point, GrappleRopeOrientation.Horizontal)));
         }
         foreach (GrappleRopeOrientation orientation in RopeOrientations)
         {
-            SpriteArtwork page = tiles.OnStandardObjects(inputs.StandardObjects, 0, orientation);
-            for (int segment = 0; segment < GrappleSpriteDefinitions.SegmentFrameCount; segment++)
+            SpriteArtwork page = tiles.OnStandardObjects(inputs.StandardObjects, GrappleSheetDefinitions.Endpoint[0], orientation);
+            foreach (GrappleRopePicture picture in GrappleSheetDefinitions.RopePattern)
             {
-                SpritePart appearance = sprites.Segment(segment);
+                SpritePart appearance = sprites.Segment(picture);
                 if (appearance.Character == EndpointCharacter)
-                    throw new InvalidDataException($"Grapple rope segment {segment} names the endpoint's character, which its animation selects.");
+                    throw new InvalidDataException($"Grapple rope picture {picture} names the endpoint's character, which its animation selects.");
                 foreach (SpriteMirror mirror in RopeMirrors)
                 {
                     // `$94:AFDE` ORs the rope direction's flips into the segment's own attributes.
                     PictureFlip flips = (mirror.HasFlag(SpriteMirror.Horizontal) ? PictureFlip.Horizontal : PictureFlip.None) |
                         (mirror.HasFlag(SpriteMirror.Vertical) ? PictureFlip.Vertical : PictureFlip.None);
-                    frames.Add(new(GrappleSheets.RopeFrame(orientation, GrappleSheetDefinitions.RopePattern[segment], mirror),
+                    frames.Add(new(GrappleSheets.RopeFrame(orientation, picture, mirror),
                         SpritePartFrames.CentredSmallObject(appearance with { Flip = appearance.Flip | flips }, 0), page));
                 }
             }

@@ -88,78 +88,9 @@ internal sealed class GameplayActorDrawing
                 _freeze.TimeIsFrozen);
         }
 
-        if (colourEffects == SamusColourEffects.Advance)
-        {
-            // Samus's colours update during gameplay, just before she is drawn, so the picture drawn after this step
-            // shows every colour it sets: the full-boost glow out of liquid and the normal suit a cancelled move asks for.
-            // The drained or rainbow colouring comes first in the colour update, and nothing else in it runs after it.
-            // Its one-shot suit restore also stands for the suit shade
-            // shown at once when the drained Samus falls and when her rainbow stops.
-            // A cancelled move or a new pose asks for the normal suit during movement, before this colour step. That
-            // shade shows first, so the charge and drained colourings of the same update show over it.
-            if (!deathOwnsSamus)
-                samus.HorizontalSpeed.ShowDueSuitShade(
-                    _player.Colours, samus.EquippedItems);
-            bool drainedOwnsSamusColours = !deathOwnsSamus &&
-                samus.Drained.UpdateColouring(_player.Colours, samus.EquippedItems);
-            bool chargeGlowRestoredSuitShade = false;
-            if (!deathOwnsSamus && !drainedOwnsSamusColours)
-            {
-                // The colour update always runs charge/post-shot handling before running the
-                // selected special Samus colouring. Ordinary charged shots paint all of Samus's visible colours
-                // white for the flash's updates and restore the suit on the next; Hyper shots
-                // step through their complete shades before restore.
-                // A restored suit from the beam-charge colour step bypasses the entire special
-                // colour step on glow expiry. In particular, stored shine must not tick
-                // or overwrite the restored suit on this frame.
-                chargeGlowRestoredSuitShade = room.Projectiles.UpdateBeamChargeGlow(
-                    _player.Colours,
-                    samus,
-                    room.FxOverlay.VisorAnimation);
-
-                if (!chargeGlowRestoredSuitShade)
-                    samus.HorizontalSpeed.UpdateSpeedBoosterGlow(_player.Colours, new SpeedBoosterGlowFrame { MovementType = SamusPoseMetadata.ReadMovementType(samus), AnimationOnSpinStart = samus.AnimationIsOn(SamusAnimationFrames.ScrewAttackSpinStart), AnimationPastScrewAttackSpin = samus.AnimationHasReached(SamusAnimationFrames.ScrewAttackWallJumpReady), AnimationBeforeWallJumpSpin = !samus.AnimationHasReached(SamusAnimationFrames.WallJumpOrdinarySpinStart), EquippedItems = samus.EquippedItems, SuppressActiveSpeedBoosterGlow = samus.SpecialColouring.Holder != SamusSpecialColouringKind.None, BottomBoundarySubmerged = samus.LiquidPhysics.IsBottomBoundarySubmerged(samus) });
-            }
-            // The shinespark colouring runs at the same point of the colour step. It
-            // executes only when charge handling did not restore the suit.
-            if (!deathOwnsSamus && !drainedOwnsSamusColours && !chargeGlowRestoredSuitShade)
-            {
-                samus.Shinespark.UpdateColouring(
-                    _player.Colours,
-                    samus.EquippedItems);
-            }
-            // The Crystal Flash colouring owns the colours of Samus's shots and bombs during Crystal
-            // Flash. It is mutually exclusive with the shinespark and X-ray colouring but
-            // intentionally runs at the same point of the colour step.
-            if (!deathOwnsSamus && !drainedOwnsSamusColours && !chargeGlowRestoredSuitShade)
-            {
-                samus.CrystalFlash.UpdateColouring(
-                    _player.Colours,
-                    samus);
-            }
-            // The X-ray colouring changes only one of the visor's colours while active; its teardown
-            // restores the complete Power/Varia/Gravity suit colours once.
-            if (!deathOwnsSamus && !drainedOwnsSamusColours && !chargeGlowRestoredSuitShade)
-            {
-                samus.Xray.UpdateColouring(
-                    _player.Colours,
-                    samus.EquippedItems);
-            }
-            // The Metroid-drain colour step runs after every charge and special-colouring family. A Metroid
-            // holding Samus makes her alternate between the boost glow and the normal suit, and the ordinary hurt
-            // flash does not run, just as it does not under the drained or rainbow colouring.
-            bool metroidOwnsSamusColours = !deathOwnsSamus &&
-                !drainedOwnsSamusColours &&
-                SamusMetroidAttachmentFlash.Update(_player.Colours, samus);
-            if (!deathOwnsSamus && !drainedOwnsSamusColours && !metroidOwnsSamusColours)
-            {
-                SamusHurtFlash.Update(
-                    _player.Colours,
-                    samus,
-                    _playerActions.Current);
-            }
-
-        }
+        // The death sequence owns her colours while it owns her; otherwise the colour step runs.
+        if (colourEffects == SamusColourEffects.Advance && !deathOwnsSamus)
+            AdvanceSamusColours(room, samus);
 
         if (deathOwnsSamus)
         {
@@ -366,5 +297,49 @@ internal sealed class GameplayActorDrawing
                 scene.Publish(_sprites, room.Camera.PixelPosition);
             }
         }
+    }
+
+    /// <summary>
+    /// Runs Samus's colour step for an update the death sequence does not own (#2560). Its families run in the game's order,
+    /// and each that takes her colours ends the families after it: the drained or rainbow colouring takes them all, a charge
+    /// glow restoring her suit takes the Speed Booster glow, the shinespark's, Crystal Flash's and X-ray's colourings, and a
+    /// Metroid holding her takes the hurt flash.
+    /// </summary>
+    private void AdvanceSamusColours(RoomScope room, SamusState samus)
+    {
+        // Samus's colours update during gameplay, just before she is drawn, so the picture drawn after this step
+        // shows every colour it sets: the full-boost glow out of liquid and the normal suit a cancelled move asks for.
+        // The drained or rainbow colouring comes first in the colour update, and nothing else in it runs after it.
+        // Its one-shot suit restore also stands for the suit shade
+        // shown at once when the drained Samus falls and when her rainbow stops.
+        // A cancelled move or a new pose asks for the normal suit during movement, before this colour step. That
+        // shade shows first, so the charge and drained colourings of the same update show over it.
+        samus.HorizontalSpeed.ShowDueSuitShade(_player.Colours, samus.EquippedItems);
+        // The drained or rainbow colouring comes first in the colour update, and nothing else in it runs after it.
+        if (samus.Drained.UpdateColouring(_player.Colours, samus.EquippedItems))
+            return;
+        // The colour update always runs charge/post-shot handling before running the selected special Samus colouring.
+        // Ordinary charged shots paint all of Samus's visible colours white for the flash's updates and restore the suit on
+        // the next; Hyper shots step through their complete shades before restore. A restored suit from the beam-charge
+        // colour step bypasses the entire special colour step on glow expiry. In particular, stored shine must not tick or
+        // overwrite the restored suit on this frame.
+        if (!room.Projectiles.UpdateBeamChargeGlow(_player.Colours, samus, room.FxOverlay.VisorAnimation))
+        {
+            samus.HorizontalSpeed.UpdateSpeedBoosterGlow(_player.Colours, new SpeedBoosterGlowFrame { MovementType = SamusPoseMetadata.ReadMovementType(samus), SpinPlace = SpeedBoosterGlowFrame.SpinPlaceOf(samus, SamusPoseMetadata.ReadMovementType(samus)), EquippedItems = samus.EquippedItems, SuppressActiveSpeedBoosterGlow = samus.SpecialColouring.Holder != SamusSpecialColouringKind.None, BottomBoundarySubmerged = samus.LiquidPhysics.IsBottomBoundarySubmerged(samus) });
+            // The shinespark colouring runs at the same point of the colour step.
+            samus.Shinespark.UpdateColouring(_player.Colours, samus.EquippedItems);
+            // The Crystal Flash colouring owns the colours of Samus's shots and bombs during Crystal Flash. It is mutually
+            // exclusive with the shinespark and X-ray colouring but intentionally runs at the same point of the colour step.
+            samus.CrystalFlash.UpdateColouring(_player.Colours, samus);
+            // The X-ray colouring changes only one of the visor's colours while active; its teardown restores the complete
+            // Power/Varia/Gravity suit colours once.
+            samus.Xray.UpdateColouring(_player.Colours, samus.EquippedItems);
+        }
+        // The Metroid-drain colour step runs after every charge and special-colouring family. A Metroid holding Samus makes
+        // her alternate between the boost glow and the normal suit, and the ordinary hurt flash does not run, just as it
+        // does not under the drained or rainbow colouring.
+        if (SamusMetroidAttachmentFlash.Update(_player.Colours, samus))
+            return;
+        SamusHurtFlash.Update(_player.Colours, samus, _playerActions.Current);
     }
 }

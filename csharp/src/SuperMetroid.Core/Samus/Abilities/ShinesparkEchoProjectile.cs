@@ -62,11 +62,11 @@ internal sealed class ShinesparkEchoProjectile
         SamusProjectile replaced = _pool.Shots[place];
         Position16<RoomPixels> start = ReleasedEchoStartsAtReplacedShot.Start(
             replaced.IsOccupied ? replaced.Position.Whole : null);
-        SamusProjectile echo = _pool.Occupy(place);
-        echo.Position = echo.Position.WithWhole(start);
         var shotKind = new BeamComboShotKind.EchoShot(SamusBeamEcho.ShinesparkEcho);
-        SamusProjectileOccupant held = BeamCombos.OccupyComboShot(echo, SamusProjectileType.EchoOf(SamusBeamEcho.ShinesparkEcho), shotKind);
-        echo.PicturedBeams = picturedBeams;
+        SamusProjectileOccupant held = BeamCombos.OccupyComboShot(_pool, place, SamusProjectileType.EchoOf(SamusBeamEcho.ShinesparkEcho), shotKind);
+        SamusProjectile echo = released.Projectile;
+        released.Position = echo.Position.WithWhole(start);
+        released.PicturedBeams = picturedBeams;
         BeamCombos.StartComboShot(held, shotKind);
         var flight = new ShinesparkEchoShotState(angle.ToTrigonometryAngle());
         held.Install(SamusShotBehaviors.ShinesparkEcho, flight);
@@ -75,9 +75,9 @@ internal sealed class ShinesparkEchoProjectile
 
     /// <summary>Runs one update of the echo <paramref name="shot"/> carries, clearing the shot once the echo leaves the screen.</summary>
     internal void StepShinesparkEcho(SamusState samus,
-        SamusProjectile shot, ShinesparkEchoShotState flight, Position16<RoomPixels> camera)
+        SamusProjectileOccupant shot, ShinesparkEchoShotState flight, Position16<RoomPixels> camera)
     {
         if (!samus.Shinespark.StepReleasedEcho(samus, camera, shot, flight))
-            _animation.ClearProjectile(shot);
+            _animation.ClearProjectile(shot.Projectile);
     }
 }

@@ -88,7 +88,7 @@ internal sealed class TorizoCombat
     private void ApplyHurt(RoomEnemyOccupant occupant, RoomEnemyPlace torizo, TorizoEnemyState state, Action<TorizoEnemyState> unflashed)
     {
         _body.MaybeSpawnLowHealthDrool(occupant, torizo, state);
-        if (!TorizoCadenceDefinitions.HurtWhiteShown.IsSetIn(torizo.HurtFlash.UpdatesLeft))
+        if (!TorizoCadenceDefinitions.HurtWhiteShown.IsInSecondHalfAt(torizo.HurtFlash.UpdatesLeft))
             unflashed(state);
         else
             TorizoBody.ShowLook(torizo, state, new TorizoLook(TorizoLookKind.White));
@@ -102,8 +102,7 @@ internal sealed class TorizoCombat
         state.DeathStarted = true;
         state.Phase = TorizoPhase.Idle;
         TorizoBody.StartTorizoBodyAnimation(torizo, state, TorizoAnimations.Start(TorizoAnimation.Dying));
-        state.GutBlownUp = true;
-        state.FaceBlownUp = true;
+        state.Breakage = TorizoBreakage.GutAndFaceBlownUp;
         // The normal Torizo shot reaction makes the actor intangible when
         // entering the death animation. This removes the dying actor from Samus contact and
         // solid-enemy collision while its flashing/invisible animation frames continue.
@@ -132,7 +131,7 @@ internal sealed class TorizoCombat
     private static EnemyShotReaction ShotReaction(TorizoEnemyState state, EnemyShotStage beforeImpact) => new()
     {
         BeforeImpact = beforeImpact,
-        ExemptFromGenericDeath = true,
+        Lethal = EnemyShotLethal.SpeciesOwned,
         // Both Torizos' shot reactions run the common damage without the hit burst.
         ShowsHitBurst = EnemyShotReaction.NeverShowsHitBurst,
         AfterCommon = c =>
@@ -197,7 +196,7 @@ internal sealed class TorizoCombat
             if (c.Family == SamusProjectileFamily.Missile)
             {
                 c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
-                c.Projectile.FlyOn();
+                c.Shot.FlyOn();
                 torizoState.Phase = TorizoPhase.Idle;
                 TorizoBody.StartTorizoBodyAnimation(enemy, torizoState, TorizoAnimations.Start(TorizoFacing.FacesRight(torizoState)
                     ? TorizoAnimation.GoldenDodgeTurningRight
@@ -212,7 +211,7 @@ internal sealed class TorizoCombat
                     c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
                     torizoState.CaughtSuperMissile = true;
                     torizoState.Phase = TorizoPhase.Idle;
-                    c.Projectile.Spend();
+                    c.Shot.Spend();
                     TorizoBody.StartTorizoBodyAnimation(enemy, torizoState, TorizoAnimations.Start(TorizoFacing.Posture(torizoState).LeadsWithFarFoot
                         ? TorizoFacing.FacesRight(torizoState)
                             ? TorizoAnimation.GoldenFacingRightCatchingSuperMissileLeftLegForward
@@ -246,7 +245,7 @@ internal sealed class TorizoCombat
             EnemyCollisionHitbox hitbox = rectangles[index];
             if (!probe.Overlaps(origin.X + hitbox.Left, origin.Y + hitbox.Top, origin.X + hitbox.Right, origin.Y + hitbox.Bottom))
                 continue;
-            return EnemyHitboxContact.Struck(probe.SelectsShot ? hitbox.Shot : hitbox.Touch);
+            return EnemyHitboxContact.Struck(probe.Contact == HitboxContactKind.Shot ? hitbox.Shot : hitbox.Touch);
         }
         return EnemyHitboxContact.Missed;
     }

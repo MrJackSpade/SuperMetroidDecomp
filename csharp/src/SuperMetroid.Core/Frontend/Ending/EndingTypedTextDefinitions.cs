@@ -22,6 +22,19 @@ internal static class EndingTypedTextDefinitions
     /// </summary>
     internal const int LastLetterUpdates = 15;
 
+    /// <summary>
+    /// The clear time's columns in the order CLEAR TIME spawns them, each by the cue that spawns it (#2557): the hours' tens and
+    /// units, the colon, and the minutes' tens and units.
+    /// </summary>
+    internal static IReadOnlyList<EndingSceneCue> ClearTimeColumns { get; } =
+    [
+        EndingSceneCue.SpawnHoursTens,
+        EndingSceneCue.SpawnHoursUnits,
+        EndingSceneCue.SpawnColon,
+        EndingSceneCue.SpawnMinutesTens,
+        EndingSceneCue.SpawnMinutesUnits,
+    ];
+
     /// <summary>The updates CLEAR TIME shows between spawning each column of the clear time.</summary>
     internal const int ClearTimeColumnUpdates = 8;
 

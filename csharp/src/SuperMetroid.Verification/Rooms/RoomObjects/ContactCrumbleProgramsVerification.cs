@@ -84,7 +84,7 @@ internal static class ContactCrumbleProgramsVerification
         ushort[] pointers = [0xa4a1, 0xa4a9, 0xa4b1];
         AssertTrue(pointers.SequenceEqual(RoomObjectLinkedRestoreVisualFiles.ContactCrumbleRestorations.Select(draw => RoomObjectDrawAddressCodec.Of(draw))),
             "contact restoration export order matches native layouts");
-        InstalledRoomObjectLinkedRestoreVisuals pictures = InstalledRoomObjectLinkedRestoreVisuals.Stock();
+        InstalledRoomObjectPictures pictures = RoomObjectPicturesStock.LinkedRestore;
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
         {
             bool expected = pointers.Contains((ushort)pointer);
@@ -209,7 +209,7 @@ internal static class ContactCrumbleProgramsVerification
         CartridgeImportAddressSpace rom, HashSet<int> forbidden)
     {
         RenderBreakResult RenderBreak(
-            InstalledRoomObjectShotBlockVisuals visuals)
+            InstalledRoomObjectPictures visuals)
         {
             const int width = 8;
             const int blockIndex = 27;
@@ -230,7 +230,7 @@ internal static class ContactCrumbleProgramsVerification
                 level.DisplayedAppearance(blockIndex));
         }
 
-        var stock = RenderBreak(InstalledRoomObjectShotBlockVisuals.Stock());
+        var stock = RenderBreak(RoomObjectPicturesStock.ShotBlock);
         AssertEqual(RoomTerrainBlock.Of(0x053, BlockMirroring.None, RoomCollisionType.Air), stock.Physical,
             "contact-crumble first frame installs native air collision");
         // The block BG1 shows names its picture (#1431): the stock breakup frame's block.

@@ -12,6 +12,6 @@ internal static class IntroEggParticlePrivateAccess
     extension(global::SuperMetroid.Core.Frontend.Intro.IntroEggParticle self)
     {
         /// <summary>The private field <c>sprite</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Frontend.Intro.CinematicActor<global::SuperMetroid.Core.Frontend.Intro.IntroEggEffectAnimation, global::SuperMetroid.Core.Frontend.Intro.CinematicSpritePose, global::SuperMetroid.Core.Animation.NoAnimationCue> sprite => PrivateState.Field<global::SuperMetroid.Core.Frontend.Intro.IntroEggParticle, global::SuperMetroid.Core.Frontend.Intro.CinematicActor<global::SuperMetroid.Core.Frontend.Intro.IntroEggEffectAnimation, global::SuperMetroid.Core.Frontend.Intro.CinematicSpritePose, global::SuperMetroid.Core.Animation.NoAnimationCue>>(self, "sprite");
+        internal global::SuperMetroid.Core.Frontend.Intro.CinematicActor<global::SuperMetroid.Core.Frontend.Intro.IntroEggShellFragment, global::SuperMetroid.Core.Frontend.Intro.CinematicSpritePose, global::SuperMetroid.Core.Animation.NoAnimationCue> sprite => PrivateState.Field<global::SuperMetroid.Core.Frontend.Intro.IntroEggParticle, global::SuperMetroid.Core.Frontend.Intro.CinematicActor<global::SuperMetroid.Core.Frontend.Intro.IntroEggShellFragment, global::SuperMetroid.Core.Frontend.Intro.CinematicSpritePose, global::SuperMetroid.Core.Animation.NoAnimationCue>>(self, "sprite");
     }
 }

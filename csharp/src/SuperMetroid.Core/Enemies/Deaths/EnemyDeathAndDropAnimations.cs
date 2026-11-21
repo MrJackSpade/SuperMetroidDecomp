@@ -122,27 +122,15 @@ internal static class EnemyDeathAndDropAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<EnemyDeathAndDropSegment, Animation<EnemyDeathAndDropSegment>> StartingAt { get; } = new Dictionary<EnemyDeathAndDropSegment, Animation<EnemyDeathAndDropSegment>>
-    {
-        [P.RespawnPause] = new([Segments.Whole(P.RespawnPause)], AnimationEnd.Holds),
-        [P.NormalExplosion] = new([Segments.Whole(P.NormalExplosion)], AnimationEnd.Holds),
-        [P.SmallExplosion] = new([Segments.Whole(P.SmallExplosion)], AnimationEnd.Holds),
-        [P.SmallEnergy] = Animation<EnemyDeathAndDropSegment>.Looping([Segments.Whole(P.SmallEnergy)]),
-        [P.BigEnergy] = Animation<EnemyDeathAndDropSegment>.Looping([Segments.Whole(P.BigEnergy)]),
-        [P.Missiles] = Animation<EnemyDeathAndDropSegment>.Looping([Segments.Whole(P.Missiles)]),
-        [P.SuperMissiles] = Animation<EnemyDeathAndDropSegment>.Looping([Segments.Whole(P.SuperMissiles)]),
-        [P.PowerBombs] = Animation<EnemyDeathAndDropSegment>.Looping([Segments.Whole(P.PowerBombs)]),
-        [P.KilledBySamusContact] = new([Segments.Whole(P.KilledBySamusContact)], AnimationEnd.Holds),
-    };
+    internal static IReadOnlyDictionary<EnemyDeathAndDropSegment, Animation<EnemyDeathAndDropSegment>> StartingAt { get; } = Segments.Starts(Segments.EachEnding(AnimationEnd.Holds,
+        P.RespawnPause, P.NormalExplosion, P.SmallExplosion, P.KilledBySamusContact),
+        P.SmallEnergy, P.BigEnergy, P.Missiles, P.SuperMissiles, P.PowerBombs);
 
     /// <summary>How many bursts the big explosion makes before it becomes the drop.</summary>
     private const int BigExplosionBursts = 5;
 
     /// <summary>How many bursts Fake Kraid's explosion makes before it becomes the drop.</summary>
     private const int FakeKraidExplosionBursts = 16;
-
-    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<EnemyDeathAndDropSegment> StartingWith(EnemyDeathAndDropSegment segment) => StartingAt[segment];
 
     /// <summary>
     /// The animation each death explosion starts (#2061): the big explosion's bursts and Fake Kraid's (<see cref="BigExplosionBursts"/>, <see cref="FakeKraidExplosionBursts"/>), each

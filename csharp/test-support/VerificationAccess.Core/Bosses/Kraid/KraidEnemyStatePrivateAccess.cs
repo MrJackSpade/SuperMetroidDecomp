@@ -39,4 +39,14 @@ internal static class KraidEnemyStatePrivateAccess
             get => PrivateState.Get<global::SuperMetroid.Core.Bosses.Kraid.KraidEnemyState, global::SuperMetroid.Core.Bosses.Kraid.KraidLintState>(self, "TopLintState");
         }
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Bosses.Kraid.KraidEnemyState self)
+    {
+        /// <summary>The private property <c>Body</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Bosses.Kraid.KraidBodyShowing Body
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.Kraid.KraidEnemyState, global::SuperMetroid.Core.Bosses.Kraid.KraidBodyShowing>(self, "Body");
+        }
+    }
 }

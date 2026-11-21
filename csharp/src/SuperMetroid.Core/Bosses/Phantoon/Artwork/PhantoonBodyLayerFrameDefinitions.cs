@@ -9,9 +9,7 @@ internal static class PhantoonBodyLayerFrameDefinitions
     /// <summary>The frames Phantoon draws on his body layer, each a frame of his installed body sheet.</summary>
     internal static IReadOnlySet<EnemyFrameId> Frames { get; } = new HashSet<EnemyFrameId>
     {
-        EnemyFrameId.PhantoonInvulnerableBody,
-        EnemyFrameId.PhantoonFullHitboxBody,
-        EnemyFrameId.PhantoonEyeHitboxBody,
+        EnemyFrameId.PhantoonBody,
         EnemyFrameId.PhantoonEyeClosed,
         EnemyFrameId.PhantoonEyeHalfOpen,
         EnemyFrameId.PhantoonEyeballCentered,

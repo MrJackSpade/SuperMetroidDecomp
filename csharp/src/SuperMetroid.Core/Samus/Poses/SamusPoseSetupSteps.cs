@@ -256,7 +256,7 @@ internal sealed class SamusPoseSetupSteps
         // installed pose; then the pose update skips the kill. So
         // a spin jump keeps its launch speed only when initialization promotes it
         // to Space Jump or Screw Attack; otherwise the kill clears base/extra speed.
-        if (fallback is SamusPoseId.SpinJumpRightPose or SamusPoseId.SpinJumpLeftPose)
+        if (fallback is { } spin && SamusPoseTraits.IsIn(spin, SamusPoseFamily.GenericSpinJump))
         {
             SamusPoseId spinFallback = fallback.Value;
             SamusAerialPoseTransitions.ApplySpinJumpDirectionTransition(samus, spinFallback);
@@ -271,7 +271,8 @@ internal sealed class SamusPoseSetupSteps
         if (fallback == source)
         {
             samus.HorizontalSpeed.DecelerateForNoTransition(
-                frame.DeceleratingFallbackHasMomentum, SamusPoseMetadata.ReadFacingDirection(samus));
+                frame.DeceleratingFallbackHasMomentum ? SamusMomentumResponse.Decelerate : SamusMomentumResponse.Stop,
+                SamusPoseMetadata.ReadFacingDirection(samus));
         }
     }
 
@@ -367,7 +368,8 @@ internal sealed class SamusPoseSetupSteps
             if (jumpFallback != samus.Pose)
                 SamusAerialPoseTransitions.ApplySameFacingAerialTransition(samus, jumpFallback);
             samus.HorizontalSpeed.DecelerateForNoTransition(
-                frame.DeceleratingFallbackHasMomentum, SamusPoseMetadata.ReadFacingDirection(samus));
+                frame.DeceleratingFallbackHasMomentum ? SamusMomentumResponse.Decelerate : SamusMomentumResponse.Stop,
+                SamusPoseMetadata.ReadFacingDirection(samus));
         }
     }
 
@@ -388,5 +390,5 @@ internal sealed class SamusPoseSetupSteps
     /// its extra dash speed into her base speed, ends her boost and slows down.
     /// </summary>
     private static void DecelerateRetainedRun(SamusState samus) =>
-        samus.HorizontalSpeed.DecelerateForNoTransition(selectedDeceleration: true, SamusPoseMetadata.ReadFacingDirection(samus));
+        samus.HorizontalSpeed.DecelerateForNoTransition(SamusMomentumResponse.Decelerate, SamusPoseMetadata.ReadFacingDirection(samus));
 }

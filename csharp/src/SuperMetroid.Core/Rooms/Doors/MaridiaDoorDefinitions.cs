@@ -1,4 +1,4 @@
-﻿namespace SuperMetroid.Core.Rooms.Doors;
+namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>The Maridia rooms' doors, each named for the room it leads from and the room it leads to.</summary>
 public static class MaridiaDoorDefinitions
@@ -22,13 +22,13 @@ public static class MaridiaDoorDefinitions
     public static DoorDefinition WestTunnelToGlassTunnel { get; } = new("WestTunnelToGlassTunnel", RoomDefinitions.GlassTunnel, new(DoorDirection.Right, DoorClosingBehavior.None), null, new(0, 1), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.GlassTunnelClosesScreens0x0And0x2OpensScreen0x1TopAligned);
 
     /// <summary>The door from the West Tunnel room to the Below Spazer room.</summary>
-    public static DoorDefinition WestTunnelToBelowSpazer { get; } = new("WestTunnelToBelowSpazer", RoomDefinitions.BelowSpazer, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(30, 22), new(1, 1), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
+    public static DoorDefinition WestTunnelToBelowSpazer { get; } = new("WestTunnelToBelowSpazer", RoomDefinitions.BelowSpazer, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(30, 22), new(1, 1), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None) { ExchangesExploredMaps = true };
 
     /// <summary>The door from the East Tunnel room to the Glass Tunnel room.</summary>
     public static DoorDefinition EastTunnelToGlassTunnel { get; } = new("EastTunnelToGlassTunnel", RoomDefinitions.GlassTunnel, new(DoorDirection.Left, DoorClosingBehavior.None), null, new(0, 1), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.GlassTunnelClosesScreens0x0And0x2OpensScreen0x1TopAligned);
 
     /// <summary>The door from the East Tunnel room to the Warehouse Entrance room.</summary>
-    public static DoorDefinition EastTunnelToWarehouseEntrance { get; } = new("EastTunnelToWarehouseEntrance", RoomDefinitions.WarehouseEntrance, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
+    public static DoorDefinition EastTunnelToWarehouseEntrance { get; } = new("EastTunnelToWarehouseEntrance", RoomDefinitions.WarehouseEntrance, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None) { ExchangesExploredMaps = true };
 
     /// <summary>The door from the East Tunnel room to the Crab Hole room.</summary>
     public static DoorDefinition EastTunnelToCrabHole { get; } = new("EastTunnelToCrabHole", RoomDefinitions.CrabHole, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 22), new(0, 1), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.CrabHoleClosesScreen0x0OpensScreen0x1TopAligned);
@@ -91,7 +91,7 @@ public static class MaridiaDoorDefinitions
     public static DoorDefinition RedFishToMtEverest { get; } = new("RedFishToMtEverest", RoomDefinitions.MtEverest, new(DoorDirection.Down, DoorClosingBehavior.BlueDoorCloses), new(38, 2), new(2, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Red Fish room to the Caterpillar room.</summary>
-    public static DoorDefinition RedFishToCaterpillar { get; } = new("RedFishToCaterpillar", RoomDefinitions.Caterpillar, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(46, 54), new(2, 3), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.CaterpillarClosesScreen0x3OpensScreen1x3TopAligned);
+    public static DoorDefinition RedFishToCaterpillar { get; } = new("RedFishToCaterpillar", RoomDefinitions.Caterpillar, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(46, 54), new(2, 3), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.CaterpillarClosesScreen0x3OpensScreen1x3TopAligned) { ExchangesExploredMaps = true };
 
     /// <summary>The door from the Watering Hole room to the Northwest Maridia Bug room.</summary>
     public static DoorDefinition WateringHoleToNorthwestMaridiaBug { get; } = new("WateringHoleToNorthwestMaridiaBug", RoomDefinitions.NorthwestMaridiaBug, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 6), new(0, 0), DoorSamusSpeed.PixelsPerStep(1, 1, 4), DoorSetupDefinitions.None);
@@ -160,7 +160,7 @@ public static class MaridiaDoorDefinitions
     public static DoorDefinition MaridiaElevatorToForgottenHighwaySave { get; } = new("MaridiaElevatorToForgottenHighwaySave", RoomDefinitions.ForgottenHighwaySave, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Maridia Elevator room to the Forgotten Highway Elevator room.</summary>
-    public static DoorDefinition MaridiaElevatorToForgottenHighwayElevator { get; } = new("MaridiaElevatorToForgottenHighwayElevator", RoomDefinitions.ForgottenHighwayElevator, new(DoorDirection.Up, DoorClosingBehavior.None), null, new(0, 0), DoorSamusSpeed.None, DoorSetupDefinitions.None);
+    public static DoorDefinition MaridiaElevatorToForgottenHighwayElevator { get; } = new("MaridiaElevatorToForgottenHighwayElevator", RoomDefinitions.ForgottenHighwayElevator, new(DoorDirection.Up, DoorClosingBehavior.None), null, new(0, 0), DoorSamusSpeed.None, DoorSetupDefinitions.None) { ExchangesExploredMaps = true };
 
     /// <summary>The door from the Plasma Spark room to the Butterfly room.</summary>
     public static DoorDefinition PlasmaSparkToButterfly { get; } = new("PlasmaSparkToButterfly", RoomDefinitions.Butterfly, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);

@@ -23,7 +23,7 @@ public sealed class WaverEnemyState
     public WaverAction Action { get; internal set; }
 
     /// <summary>Advances the wave phase by its step, wrapping after a full turn.</summary>
-    internal void AdvanceWave() => Angle = Angle.TurnedBySteps(WaverMotionDefinitions.WaveStep);
+    internal void AdvanceWave() => Angle += WaverMotionDefinitions.WaveStep;
 
     /// <summary>Reflects the wave phase by half a turn, as a vertical collision does.</summary>
     internal void ReflectWave() => Angle += RotationAngle.HalfTurn;

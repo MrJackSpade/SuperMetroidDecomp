@@ -54,7 +54,7 @@ internal sealed class MotherBrainEncounter
     internal void RequestCueSound(SoundEffectId sound) =>
         _audio.QueueEnemySound(
             sound,
-            sound == MotherBrainSoundDefinitions.Explosion ? SoundRequestPriority.Low : SoundRequestPriority.Normal);
+            MotherBrainSoundDefinitions.CueSoundPriorities.TryGetValue(sound, out SoundRequestPriority priority) ? priority : SoundRequestPriority.Normal);
 
     /// <summary>
     /// Queues one music change. Mother Brain's changes come in sequences (stop, load a data set, select a track), each

@@ -34,11 +34,12 @@ public static class BullMovementDefinitions
     /// distinct direction an eighth of a turn from its neighbours.
     /// </summary>
     internal static readonly SamusProjectileDirectionMap<TrigonometryAngle> ShotAngles = new(
-        new(192), new(224), new(0), new(32), new(64), new(64), new(96), new(128), new(160), new(192));
+        UpFacingRight: new(192), UpRight: new(224), Right: new(0), DownRight: new(32), DownFacingRight: new(64),
+        DownFacingLeft: new(64), DownLeft: new(96), Left: new(128), UpLeft: new(160), UpFacingLeft: new(192));
 
     /// <summary>
     /// The compass angle a bomb that leaves the Bull unhurt kicks it at: straight up, as a shot fired straight up does,
     /// whichever side of the Bull the bomb burns on.
     /// </summary>
-    internal static readonly TrigonometryAngle BombKickAngle = new(192);
+    internal static readonly TrigonometryAngle BombKickAngle = ShotAngles.UpFacingRight;
 }

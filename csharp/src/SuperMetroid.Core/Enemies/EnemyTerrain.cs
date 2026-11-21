@@ -86,7 +86,7 @@ internal sealed class EnemyTerrain
                     BlockScanCycle.BlockDownRows(firstBlock, level.Size.X, scanIndex),
                     targetEdge,
                     SpanBlock(scanIndex, lastBlock),
-                    slopes == NonSquareSlopes.Walls))
+                    slopes))
             {
                 collided = true;
                 break;
@@ -282,12 +282,12 @@ internal sealed class EnemyTerrain
         Position16<RoomBlocks> startBlock,
         int targetEdge,
         EnemyTerrainSpanBlock spanBlock,
-        bool treatNonSquareSlopesAsWalls)
+        NonSquareSlopes slopes)
     {
         RoomCollisionBlock block = ResolveEnemyMoverBlock(level, startBlock, out Position16<RoomBlocks> reached);
         return block.Kind.Read(new ProbeReader(this, level, reached,
             () => block.Behavior.Slope.IsNonSquare
-                ? treatNonSquareSlopesAsWalls
+                ? slopes == NonSquareSlopes.Walls
                 : SquareHorizontalSlopeIsSolid(place, targetEdge, block.Behavior, spanBlock)));
     }
 
@@ -451,7 +451,7 @@ internal sealed class EnemyTerrain
         EnemyTerrainSpanBlock spanBlock)
     {
         SquareSlopeShape shape = SquareSlopes.ShapeOf(behavior);
-        SquareSlopeQuadrant quadrant = SquareSlopeQuadrant.Showing(behavior, SquareSlopeQuadrant.ColumnFor(RoomGridConversions.InSecondHalfOfBlock(targetEdge)), SquareSlopeRowHalf.Top);
+        SquareSlopeQuadrant quadrant = SquareSlopeQuadrant.Showing(behavior, SquareSlopeQuadrant.ColumnFor(targetEdge), SquareSlopeRowHalf.Top);
         // The span's last block meets only its top half when the enemy's bottom ends there; its first block only its bottom
         // half when the enemy's top starts there.
         if (spanBlock == EnemyTerrainSpanBlock.Last)
@@ -478,7 +478,7 @@ internal sealed class EnemyTerrain
         EnemyTerrainSpanBlock spanBlock)
     {
         SquareSlopeShape shape = SquareSlopes.ShapeOf(behavior);
-        SquareSlopeQuadrant quadrant = SquareSlopeQuadrant.Showing(behavior, SquareSlopeColumnHalf.Left, SquareSlopeQuadrant.RowFor(RoomGridConversions.InSecondHalfOfBlock(targetEdge)));
+        SquareSlopeQuadrant quadrant = SquareSlopeQuadrant.Showing(behavior, SquareSlopeColumnHalf.Left, SquareSlopeQuadrant.RowFor(targetEdge));
         // The span's last block meets only its left half when the enemy's right side ends there; its first block only its
         // right half when the enemy's left side starts there.
         if (spanBlock == EnemyTerrainSpanBlock.Last)

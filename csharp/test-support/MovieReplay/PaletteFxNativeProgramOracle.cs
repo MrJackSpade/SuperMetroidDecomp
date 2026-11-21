@@ -248,7 +248,7 @@ internal static class PaletteFxNativeProgramOracle
                         $"{at}: record address in {place.Effect}");
                 }
                 addresses.Add(cursor);
-                cursor = CompareLayout(cursor, PaletteFxRecordDefinitions.Layout(record), at);
+                cursor = CompareLayout(cursor, SuperMetroid.AssetExtraction.Fx.PaletteFx.PaletteFxRecords.Layout(record), at);
                 continue;
             }
             PaletteFxInstruction instruction = (PaletteFxInstruction)word;

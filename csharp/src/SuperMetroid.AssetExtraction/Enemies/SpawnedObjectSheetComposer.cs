@@ -36,6 +36,21 @@ internal static class SpawnedObjectSheetComposer
     /// </summary>
     private const int ProjectilePageCharacters = 256;
 
+    /// <summary>A spawner's own sheet and the character it begins at.</summary>
+    /// <param name="Sheet">The spawned object's own sheet.</param>
+    /// <param name="FirstCharacter">The character its pictures begin at.</param>
+    private sealed record OwnCharacterSheet(SpawnedObjectOwner Sheet, int FirstCharacter);
+
+    /// <summary>
+    /// The spawners whose objects draw from a sheet of characters of their own, whatever the spawner's, with that sheet and
+    /// the character it begins at: Mother Brain's body, whose tank glass draws from its own characters (#1435).
+    /// </summary>
+    private static readonly Dictionary<EnemyDefinitionId, OwnCharacterSheet> OwnCharacterSheets =
+        new Dictionary<EnemyDefinitionId, OwnCharacterSheet>
+        {
+            [EnemyDefinitionId.MotherBrainBody] = new(SpawnedObjectOwner.MotherBrainTankGlass, EnemyCharacterBaseDefinitions.MotherBrainTankGlassCharacters),
+        };
+
     /// <summary>
     /// The spawned-object sheets of a set laid out as <paramref name="layout"/>, drawing <paramref name="drawn"/>, each enemy
     /// in the row <paramref name="rowOf"/> gives: the shared sheet, holding every spawner's objects at character zero with
@@ -73,10 +88,12 @@ internal static class SpawnedObjectSheetComposer
         }
         // Mother Brain's tank glass draws from characters of its own, whatever its spawner's (#1435), and holds only what
         // draws from that sheet (#1513).
-        if (drawn.Contains(EnemyDefinitionId.MotherBrainBody) && SpawnedObjectFrameDefinitions.BySheet.ContainsKey(SpawnedObjectOwner.MotherBrainTankGlass))
-            plans.Add(new SpawnedObjectSheetPlan(SpawnedObjectOwner.MotherBrainTankGlass,
-                EnemyCharacterBaseDefinitions.MotherBrainTankGlassCharacters, EnemyCharacterBaseDefinitions.MotherBrainTankGlassCharacters,
-                rowOf(EnemyDefinitionId.MotherBrainBody), [EnemyDefinitionId.MotherBrainBody], [], [], []));
+        foreach (EnemyDefinitionId spawner in drawn.Where(OwnCharacterSheets.ContainsKey).Distinct())
+        {
+            (SpawnedObjectOwner sheet, int firstCharacter) = OwnCharacterSheets[spawner];
+            if (SpawnedObjectFrameDefinitions.BySheet.ContainsKey(sheet))
+                plans.Add(new SpawnedObjectSheetPlan(sheet, firstCharacter, firstCharacter, rowOf(spawner), [spawner], [], [], []));
+        }
         return plans;
     }
 
@@ -125,8 +142,8 @@ internal static class SpawnedObjectSheetComposer
         }
         EnemyProjectileSpritemapCatalog projectiles = enemies.ProjectileSpritemaps;
         EnemySpritemapCatalog spritemaps = enemies.Spritemaps;
-        int projectileBase = checked((ushort)plan.ProjectileCharacters);
-        int objectBase = checked((ushort)plan.ObjectCharacters);
+        int projectileBase = plan.ProjectileCharacters;
+        int objectBase = plan.ObjectCharacters;
         SpawnedObjects spawned = Spawned(plan);
         // Mother Brain's tank glass sheet is drawn from only by the glass's pieces, which shatter before she shows any look
         // after her room's load; the other objects of her body it holds are drawn from her body's own sheet, so none of its

@@ -39,33 +39,24 @@ internal sealed class KraidBackdropColours : IGameplayShadingSource
     /// (<see cref="KraidBackgroundDefinitions.BackdropFadeLastStep"/>), whatever values the counter takes (#2302).
     /// </summary>
     /// <param name="fade">The colours faded toward.</param>
-    internal void Step(KraidBackdropFade fade)
+    internal void Step(KraidBackdropSettledColours fade)
     {
-        KraidBackdropSettledColours goal = GoalOf(fade);
-        if (running is not null && running.Goal == goal)
+        if (running is not null && running.Goal == fade)
         {
             running = running with { Progress = running.Progress.Then() };
             return;
         }
         StartedFrom = Shows;
-        running = new RunningKraidBackdropFade(goal, StepCountedFadeProgress.Started(KraidBackgroundDefinitions.BackdropFadeLastStep));
+        running = new RunningKraidBackdropFade(fade, StepCountedFadeProgress.Started(KraidBackgroundDefinitions.BackdropFadeLastStep));
     }
 
     /// <summary>Completes the fade toward <paramref name="fade"/>'s colours: the backdrop shows them from now on.</summary>
     /// <param name="fade">The colours faded toward.</param>
-    internal void Complete(KraidBackdropFade fade)
+    internal void Complete(KraidBackdropSettledColours fade)
     {
-        StartedFrom = new KraidBackdropShown.Settled(GoalOf(fade));
+        StartedFrom = new KraidBackdropShown.Settled(fade);
         running = null;
     }
-
-    /// <summary>The colours a fade toward <paramref name="fade"/> ends on.</summary>
-    private static KraidBackdropSettledColours GoalOf(KraidBackdropFade fade) => fade switch
-    {
-        KraidBackdropFade.ToBlack => KraidBackdropSettledColours.Black,
-        KraidBackdropFade.ToKraidColours => KraidBackdropSettledColours.KraidColours,
-        _ => throw new ArgumentOutOfRangeException(nameof(fade), fade, "Kraid's backdrop fades only to black or to his colours."),
-    };
 
     /// <inheritdoc />
     public void ShadeGameplay(GameplayShadingBuilder frame)
@@ -94,7 +85,7 @@ internal sealed class KraidBackdropColours : IGameplayShadingSource
     {
         Ensure.NotNull(fading);
         return new PictureShadeFade(ShadingOf(fading.From), ShadingOf(new KraidBackdropShown.Settled(fading.Goal)),
-            fading.Progress.Moved, fading.Progress.Length);
+            new FadeLevel(fading.Progress.Moved, fading.Progress.Length));
     }
 
     /// <summary>The room pictures' shading that shows <paramref name="shown"/>.</summary>

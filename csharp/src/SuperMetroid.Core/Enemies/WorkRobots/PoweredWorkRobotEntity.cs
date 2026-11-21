@@ -9,10 +9,13 @@ namespace SuperMetroid.Core.Enemies.WorkRobots;
 /// <param name="place">The place the robot occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class PoweredWorkRobotEntity(WorkRobotBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : WorkRobotEntity(species, occupant, place, common)
+    : WorkRobotEntity(species, occupant, place, common), IEnemyDeparture
 {
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
     internal WorkRobotEnemyState State { get; } = species.InitializePoweredWorkRobot(place);
+
+    /// <summary>The robot leaves its place, so the glow no longer shows there (#2559).</summary>
+    public void Leave() => Species.RemovePoweredRobot(Place);
 
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) => Species.RunWorkRobotMainAi(Place, State, frame);

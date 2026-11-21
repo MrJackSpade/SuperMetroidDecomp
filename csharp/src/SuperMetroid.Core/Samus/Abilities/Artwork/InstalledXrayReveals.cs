@@ -74,7 +74,7 @@ public sealed class InstalledXrayReveals
     {
         if (XrayReveals.Find(type, behavior) is not { } shape) return null;
         if (!IsDrawable(shape)) return new XrayRevealDefinition(shape, null);
-        if (!blocks.TryGetValue(new XrayRevealVisualKey(type, behavior.ReactionUnder(type)), out XrayRevealVisualBlocks visual))
+        if (!blocks.TryGetValue(new XrayRevealVisualKey(type, behavior.ReactionUnder(type)), out XrayRevealVisualBlocks? visual))
             throw new InvalidDataException($"Missing X-ray visual {type}/behaviour {behavior}.");
         return new XrayRevealDefinition(shape, visual);
     }
@@ -94,11 +94,8 @@ public sealed class InstalledXrayReveals
     /// <summary>Whether this reveal shape carries authored visual blocks.</summary>
     /// <remarks>
     /// The game has seven reachable revealed-block shapes. Five copy one, Brinstar-only one, wide, tall and square
-    /// blocks; the other two traverse vertical and horizontal extensions instead. A shape is drawable exactly when it is
-    /// one of those five copy shapes.
+    /// blocks; the other two traverse vertical and horizontal extensions instead. A shape is drawable exactly when it
+    /// copies blocks of its own (<see cref="XrayRevealShapeDefinitions"/>).
     /// </remarks>
-    public static bool IsDrawable(XrayRevealShape shape) => shape is
-        XrayRevealShape.CopyOne or XrayRevealShape.CopyWide or
-        XrayRevealShape.CopyTall or XrayRevealShape.CopySquare or
-        XrayRevealShape.CopyBrinstar;
+    public static bool IsDrawable(XrayRevealShape shape) => XrayRevealShapes.CopiesBlocks(shape);
 }

@@ -227,7 +227,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemySpawnFactory<Ene
     /// quarters of the way from the stalk's anchor toward his body.
     /// </summary>
     private static void WriteSporeSpawnStalkAxis(
-        IReadOnlyList<EnemyProjectile> links,
+        IReadOnlyList<SporeSpawnStalkLink> links,
         int firstPosition,
         int anchor,
         int end,
@@ -239,21 +239,20 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemySpawnFactory<Ene
         int quarter = delta / 4;
         int half = delta / 2;
         int threeQuarters = quarter + half;
-        Span<int> positions = stackalloc int[4]
+        foreach ((SporeSpawnStalkPlace place, EnemyProjectile stalk) in links)
         {
-            firstPosition,
-            anchor + quarter,
-            anchor + half,
-            anchor + threeQuarters,
-        };
-
-        for (int segment = 0; segment < positions.Length; segment++)
-        {
-            EnemyProjectile stalk = links[segment];
+            int position = place switch
+            {
+                SporeSpawnStalkPlace.Ceiling => firstPosition,
+                SporeSpawnStalkPlace.Quarter => anchor + quarter,
+                SporeSpawnStalkPlace.Half => anchor + half,
+                SporeSpawnStalkPlace.ThreeQuarters => anchor + threeQuarters,
+                _ => throw new InvalidDataException($"Undefined Spore Spawn stalk place {place}."),
+            };
             if (axis == Axis.Horizontal)
-                stalk.Position = stalk.Position.WithWholeX(positions[segment]);
+                stalk.Position = stalk.Position.WithWholeX(position);
             else
-                stalk.Position = stalk.Position.WithWholeY(positions[segment]);
+                stalk.Position = stalk.Position.WithWholeY(position);
         }
     }
 
@@ -327,7 +326,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemySpawnFactory<Ene
                 if (c.HitboxShot == EnemyReaction.DudShot)
                 {
                     c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
-                    _projectiles.CreateEnemyProjectileDudShot(c.Projectile);
+                    _projectiles.CreateEnemyProjectileDudShot(c.Shot);
                     return true;
                 }
                 if (!SporeSpawnAcceptsProjectile(c.ProjectileType))
@@ -338,7 +337,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemySpawnFactory<Ene
                 }
                 return false;
             },
-            ExemptFromGenericDeath = true,
+            Lethal = EnemyShotLethal.SpeciesOwned,
             AfterCommon = c => ResolveSporeSpawnShotAfterCommon(c.Enemy, body.Encounter),
         };
     }
@@ -433,7 +432,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemySpawnFactory<Ene
     {
         foreach (EnemyProjectile projectile in _projectiles.EnemyProjectiles)
         {
-            if (!state.StalkLinks.Contains(projectile))
+            if (!state.StalkLinks.Any(link => link.Projectile == projectile))
                 projectile.Delete();
         }
     }
@@ -535,16 +534,16 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemySpawnFactory<Ene
             yBase: SporeSpawnArenaDefinitions.DeathDropCorner.Y,
             yScatter: SporeSpawnRandomDefinitions.DropY,
             samus: samus);
-    /// <summary>Spawns the stalk link at <paramref name="segment"/> from his body and returns it, or none when the pool is full (#1932).</summary>
-    private EnemyProjectile? SpawnSporeSpawnStalk(RoomEnemyOccupant occupant, RoomEnemyPlace body, Offset16<RoomPixels> segment)
+    /// <summary>Spawns the stalk link <paramref name="link"/> from his body and returns it, or none when the pool is full (#1932).</summary>
+    private SporeSpawnStalkLink? SpawnSporeSpawnStalk(RoomEnemyOccupant occupant, RoomEnemyPlace body, SporeSpawnStalkLinkDefinition link)
     {
         if (_projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.SporeSpawnStalk, Stalk,
                 SpriteGraphics.SpawnedBy(occupant, body.Shading)) is not { } stalk)
             return null;
 
         stalk.StartAnimation(new SporeSpawnProjectileAnimation(Spawner, SporeSpawnProjectileSegment.Stalk));
-        stalk.Position = stalk.Position.WithWhole(body.Position.Whole + segment);
-        return stalk;
+        stalk.Position = stalk.Position.WithWhole(body.Position.Whole + link.SpawnOffset);
+        return new(link.Place, stalk);
     }
 
     /// <summary>Spawns the ceiling spore emitter at <paramref name="emitter"/> for <paramref name="state"/>'s fight and runs its setup.</summary>
@@ -582,7 +581,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemySpawnFactory<Ene
                         componentOrigin.X + hitbox.Right,
                         componentOrigin.Y + hitbox.Bottom))
                     continue;
-                return EnemyHitboxContact.Struck(probe.SelectsShot ? hitbox.Shot : hitbox.Touch);
+                return EnemyHitboxContact.Struck(probe.Contact == HitboxContactKind.Shot ? hitbox.Shot : hitbox.Touch);
             }
         }
         return EnemyHitboxContact.Missed;

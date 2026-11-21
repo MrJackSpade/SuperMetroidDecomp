@@ -95,12 +95,20 @@ internal sealed class DraygonGoop
         }
 
         MoveDraygonAlongGoopPath(state);
+        if (HasLeftArena(state, direction))
+            FinishDraygonGoopFiring(state, direction, exit);
+    }
+
+    /// <summary>
+    /// Whether his goop pass travelling <paramref name="direction"/> has left the arena (#2557): rightward, past the right
+    /// side's reset distance; leftward, before the room and past the off-screen left edge.
+    /// </summary>
+    private static bool HasLeftArena(DraygonEnemyState state, HorizontalDirection direction)
+    {
         int x = state.Body.Position.X.Whole;
-        bool crossedExit = direction == HorizontalDirection.Right
+        return direction == HorizontalDirection.Right
             ? !OffRoomPlaces.LiesBeforeRoom(x) && x >= DraygonArenaDefinitions.RightSideResetDistance
             : OffRoomPlaces.LiesBeforeRoom(x) && DistanceAcrossRoomEdge.LiesBefore(x, DraygonArenaDefinitions.OffscreenLeftX);
-        if (crossedExit)
-            FinishDraygonGoopFiring(state, direction, exit);
     }
 
     /// <summary>Ends the goop firing: his arms go idle and he starts his recovery pass.</summary>
@@ -128,11 +136,7 @@ internal sealed class DraygonGoop
         }
 
         MoveDraygonAlongGoopPath(state);
-        int x = state.Body.Position.X.Whole;
-        bool offScreen = direction == HorizontalDirection.Right
-            ? !OffRoomPlaces.LiesBeforeRoom(x) && x >= DraygonArenaDefinitions.RightSideResetDistance
-            : OffRoomPlaces.LiesBeforeRoom(x) && DistanceAcrossRoomEdge.LiesBefore(x, DraygonArenaDefinitions.OffscreenLeftX);
-        if (!offScreen)
+        if (!HasLeftArena(state, direction))
             return;
 
         if (direction == HorizontalDirection.Right)

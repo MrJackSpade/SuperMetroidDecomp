@@ -55,16 +55,10 @@ internal static class TitleSpriteExtractor
             [TitleSprite.SuperMetroidLogo] = RomDataReader.ReadWordFixedBank(cartridge, FrontendSourceDefinitions.TitleLogoSpritemapOperand),
             [TitleSprite.NintendoCopyright] = FrontendSourceDefinitions.TitleCopyrightSpritemap,
         };
-        foreach (TitleTextSequenceDefinition sequence in new[]
-                 {
-                     TitleSequenceDefinitions.TextSequences.Year,
-                     TitleSequenceDefinitions.TextSequences.Nintendo,
-                     TitleSequenceDefinitions.TextSequences.Presents,
-                     TitleSequenceDefinitions.TextSequences.MetroidThree,
-                 })
+        foreach (TitleTextSequenceDefinition sequence in TitleSequenceDefinitions.TextSequences.All)
         {
             int entry = TitleSourceDefinitions.TextLists[sequence.Phase];
-            foreach (AnimationBeat<TitleCardTyping, TitleCardCue> beat in TitleCards.Segments.Beats(sequence.Phase))
+            foreach (AnimationBeat<TitleCardTyping, TitleCardCue> beat in TitleCards.Segments.Beats(sequence.Card.Card))
             {
                 int durationOrCommand = RomDataReader.ReadWordFixedBank(cartridge, entry);
                 bool nativeCommand = (durationOrCommand & TitleSourceDefinitions.CommandBit) != 0;

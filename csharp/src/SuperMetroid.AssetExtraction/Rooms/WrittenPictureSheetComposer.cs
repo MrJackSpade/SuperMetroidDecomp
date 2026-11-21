@@ -258,7 +258,7 @@ internal static class WrittenPictureSheetComposer
                 if (!RoomAppearanceComposition.InputsOver(options.Set, [character], options.Options).IsEmpty)
                     throw new InvalidDataException($"{sheetName} part {part.Name} reads {options.Set} character {character}, which a room can show other artwork at.");
             }
-            if (!TryShown(part, part.Name, [], [], out ShownPicture? fixedPicture))
+            if (!TryShown(part, part.Name, AppearanceAssignment.OfNoInput, out ShownPicture? fixedPicture))
                 throw new InvalidDataException($"{sheetName} part {part.Name} reads a character its room loads nothing over.");
             pictures.Add(fixedPicture);
         }
@@ -272,10 +272,10 @@ internal static class WrittenPictureSheetComposer
                 subject.Words.Select(word => word.Word.CharacterIndex).Distinct(), options.Options);
             if (!inputsOf.TryAdd(subject.Name, depends))
                 throw new InvalidDataException($"{sheetName} pictures {subject.Name} twice.");
-            foreach (string[] values in RoomAppearanceComposition.Assignments(depends, options.Options, withLoaded: true))
+            foreach (AppearanceAssignment assignment in RoomAppearanceComposition.Assignments(depends, options.Options, withLoaded: true))
             {
-                bool loaded = values.All(value => value == RoomAppearanceValues.Loaded);
-                if (TryShown(subject, AppearancePictureNames.Of(subject.Name, depends, values), depends, values, out ShownPicture? shown))
+                bool loaded = assignment.ShowsLoadThroughout;
+                if (TryShown(subject, assignment.NameOf(subject.Name), assignment, out ShownPicture? shown))
                 {
                     pictures.Add(shown);
                     split.Add(shown.Name);
@@ -322,9 +322,9 @@ internal static class WrittenPictureSheetComposer
         // A written picture covers its layer wherever it lies, so one that inks nothing is still installed (#1634).
         return new ComposedPictures(canvas.ToSplitRoomSheet(colours, frames, split, kind, keepsEmpty: true), inputsOf);
 
-        // `subject`'s words as they show while `depends` take `values`, named `name`, laid from its top-left written tile, as
-        // `picture`; false where a word's character shows nothing for them.
-        bool TryShown(WrittenSubject subject, string name, ImmutableArray<AppearanceInput> depends, string[] values,
+        // `subject`'s words as they show while its inputs take the values of `assignment`, named `name`, laid from its
+        // top-left written tile, as `picture`; false where a word's character shows nothing for them.
+        bool TryShown(WrittenSubject subject, string name, AppearanceAssignment assignment,
             [System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out ShownPicture? picture)
         {
             picture = null;
@@ -335,7 +335,7 @@ internal static class WrittenPictureSheetComposer
             foreach (SubjectWord written in subject.Words)
             {
                 SnesBgTilemapWord word = written.Word;
-                if (!RoomAppearanceComposition.TryShowing(new CharacterSpan(options.Set, word.CharacterIndex, 1), depends, values,
+                if (!RoomAppearanceComposition.TryShowing(new CharacterSpan(options.Set, word.CharacterIndex, 1), assignment,
                         options.Options, content, out BgArtworkShown shown))
                     return false;
                 words.Add(new PictureWord(written.Corner - origin, new ShownWord(word, shown)));
@@ -348,7 +348,7 @@ internal static class WrittenPictureSheetComposer
         {
             ReadOnlySpan<byte> character = bytes[word.Shown.Artwork].Span.Slice(word.Shown.WordOffset * sizeof(ushort), characterWords * sizeof(ushort));
             int left = corner.X, top = corner.Y;
-            if (kind == SpriteImageColours.TwoBppBackground)
+            if (Ensure.Listed(SpriteImageColourDefinitions.Colourings, kind).TwoBitCharacters)
                 canvas.PaintTwoBppTile(left, top, word.Word, character, colours);
             else
                 canvas.PaintTile(left, top, word.Word, character, colours);
@@ -371,16 +371,15 @@ internal static class WrittenPictureSheetComposer
     internal static SpriteSheetFrameDocument Frame(RoomTileCanvas canvas, Position16<ImagePixels> corner, Extent16<ImagePixels> size, SpriteImageColours kind)
     {
         Ensure.NotNull(canvas);
-        int rowColours = kind == SpriteImageColours.TwoBppBackground ? 4 : 16;
         ImageColourGroups coloured = ImageColourGroups.None;
         for (int y = 0; y < size.Y; y++)
         for (int x = 0; x < size.X; x++)
         {
-            int index = canvas.PaletteIndices[(corner.Y + y) * canvas.Width + corner.X + x];
-            if (index % rowColours != 0)
-                coloured = coloured.With(ImageColourGroup.OfInk(index));
+            ComposedInk ink = canvas.Inks[(corner.Y + y) * canvas.Width + corner.X + x];
+            if (!ink.IsClear)
+                coloured = coloured.With(ImageColourGroup.OfInk(ink.PlaceIn(kind)));
         }
-        return new SpriteSheetFrameDocument { Corner = corner, Size = size, Origin = default, ColourGroups = coloured.ManifestMembers };
+        return new SpriteSheetFrameDocument { Corner = corner, Size = size, Origin = default, ColourGroups = coloured };
     }
 
     /// <summary>The pictures <paramref name="writer"/> writes, each named as gameplay writes it, in a stable order.</summary>

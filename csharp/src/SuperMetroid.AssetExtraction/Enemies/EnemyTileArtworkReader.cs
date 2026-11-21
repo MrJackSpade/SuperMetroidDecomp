@@ -24,6 +24,7 @@ using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Phantoon.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.SporeSpawn.Artwork;
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Enemies.Artwork;
 namespace SuperMetroid.AssetExtraction.Enemies;
 
@@ -458,9 +459,9 @@ internal sealed class EnemyTileArtworkReader
     /// <exception cref="InvalidDataException">The manifest omits a frame, or an installed file is invalid.</exception>
     internal GunshipLiftoffArtworkCatalog GunshipLiftoff(string importData)
     {
-        var gunshipFrames = new RoomCharacterAtlas[
-            GunshipLiftoffTransferDefinitions.Frames.Length];
-        for (int index = 0; index < gunshipFrames.Length; index++)
+        var gunshipFrames = new Dictionary<InstalledArtworkId, RoomCharacterAtlas>();
+        // The installed takeoff frames are named by their place in the takeoff, which each transfer holds.
+        for (int index = 0; index < GunshipLiftoffTransferDefinitions.Frames.Length; index++)
         {
             if (!manifest.GunshipLiftoffSha256.TryGetValue(index,
                     out string? expectedHash) || string.IsNullOrWhiteSpace(expectedHash))
@@ -470,7 +471,7 @@ internal sealed class EnemyTileArtworkReader
             byte[] selected = ReadImportData(importData, fileName);
             try
             {
-                gunshipFrames[index] = RoomCharacterAtlasPng.Read(
+                gunshipFrames[GunshipLiftoffTransferDefinitions.Frames[index].Asset] = RoomCharacterAtlasPng.Read(
                     new MemoryStream(selected, writable: false),
                     GunshipLiftoffCharacterDefinitions.ByteCount);
             }
@@ -487,12 +488,9 @@ internal sealed class EnemyTileArtworkReader
     /// <exception cref="InvalidDataException">The manifest omits a page, or an installed file is invalid.</exception>
     internal TorizoSwapArtwork TorizoSwaps(string importData)
     {
-        var torizoPages = new RoomCharacterAtlas[
-            TorizoSwapArtworkDefinitions.All.Length];
-        for (int index = 0; index < torizoPages.Length; index++)
+        var torizoPages = new Dictionary<TorizoTilePage, RoomCharacterAtlas>();
+        foreach (TorizoTileSheet page in TorizoSwapArtworkDefinitions.All)
         {
-            TorizoTileSheet page =
-                TorizoSwapArtworkDefinitions.All[index];
             if (!manifest.TorizoInstructionTilesSha256.TryGetValue(page.FileName,
                     out string? expectedHash) || string.IsNullOrWhiteSpace(expectedHash))
                 throw new InvalidDataException(
@@ -500,7 +498,7 @@ internal sealed class EnemyTileArtworkReader
             byte[] selected = ReadImportData(importData, page.FileName);
             try
             {
-                torizoPages[index] = RoomCharacterAtlasPng.Read(
+                torizoPages[page.Page] = RoomCharacterAtlasPng.Read(
                     new MemoryStream(selected, writable: false), page.ByteCount);
             }
             catch (InvalidDataException error)
@@ -517,12 +515,9 @@ internal sealed class EnemyTileArtworkReader
     /// <exception cref="InvalidDataException">The manifest omits a page, or an installed file is invalid.</exception>
     internal CeresEscapeTileArtwork CeresEscapeTiles(string importData)
     {
-        var ceresEscapePages = new RoomCharacterAtlas[
-            CeresEscapeTileArtworkDefinitions.All.Length];
-        for (int index = 0; index < ceresEscapePages.Length; index++)
+        var ceresEscapePages = new Dictionary<TileSheetDefinition, RoomCharacterAtlas>();
+        foreach (TileSheetDefinition page in CeresEscapeTileArtworkDefinitions.All)
         {
-            TileSheetDefinition page =
-                CeresEscapeTileArtworkDefinitions.All[index];
             if (!manifest.CeresEscapeTilesSha256.TryGetValue(page.FileName,
                     out string? expectedHash) || string.IsNullOrWhiteSpace(expectedHash))
                 throw new InvalidDataException(
@@ -530,7 +525,7 @@ internal sealed class EnemyTileArtworkReader
             byte[] selected = ReadImportData(importData, page.FileName);
             try
             {
-                ceresEscapePages[index] = RoomCharacterAtlasPng.Read(
+                ceresEscapePages[page] = RoomCharacterAtlasPng.Read(
                     new MemoryStream(selected, writable: false), page.ByteCount);
             }
             catch (InvalidDataException error)

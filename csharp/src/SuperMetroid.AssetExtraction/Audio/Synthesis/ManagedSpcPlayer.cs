@@ -1,3 +1,4 @@
+using System.Collections.Frozen;
 using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core;
@@ -35,21 +36,12 @@ public sealed class ManagedSpcPlayer
         .Range(0, SpcDriverDefinitions.ChannelCount)
         .Select(index => new ManagedSpcMusicChannel { Index = unchecked((byte)index) })
         .ToArray();
-    /// <summary>Priority, mode and voice-allocation state for the three SFX libraries.</summary>
-    internal readonly ManagedSpcSoundLibrary[] soundLibraries = Enumerable
-        .Range(0, SoundEffectLibraries.Count)
-        .Select(_ => new ManagedSpcSoundLibrary())
-        .ToArray();
-    /// <summary>Per-library SFX instruction cursors and borrowed voice state.</summary>
-    internal readonly ManagedSpcSoundChannel[][] soundChannels =
-    [
-        Enumerable.Range(0, SpcDriverDefinitions.SoundEffects.LibraryOneChannelCount)
-            .Select(_ => new ManagedSpcSoundChannel()).ToArray(),
-        Enumerable.Range(0, SpcDriverDefinitions.SoundEffects.OtherLibraryChannelCount)
-            .Select(_ => new ManagedSpcSoundChannel()).ToArray(),
-        Enumerable.Range(0, SpcDriverDefinitions.SoundEffects.OtherLibraryChannelCount)
-            .Select(_ => new ManagedSpcSoundChannel()).ToArray(),
-    ];
+    /// <summary>Each SFX library's priority, mode and voice-allocation state with its channels, keyed by the library.</summary>
+    internal readonly FrozenDictionary<SoundEffectLibrary, ManagedSpcSoundLibrary> soundLibraries = SoundLibraryNumbers.InNumberOrder
+        .ToFrozenDictionary(library => library, library => new ManagedSpcSoundLibrary
+        {
+            Channels = [.. Enumerable.Range(0, SpcSoundEffectTables.Allocation(library).ChannelCount).Select(_ => new ManagedSpcSoundChannel())],
+        });
 
     /// <summary>DSP renderer reading BRR and echo data from this driver's APU RAM.</summary>
     internal readonly ManagedSnesDsp dsp;
@@ -73,7 +65,7 @@ public sealed class ManagedSpcPlayer
         dsp = CreateDsp();
         Voices = new SpcVoices(ram, dsp);
         Music = new SpcMusicSequencer(ram, channels, Voices);
-        SoundLibraries = new SpcSoundLibraries(ram, channels, soundLibraries, soundChannels, dsp, Voices);
+        SoundLibraries = new SpcSoundLibraries(ram, channels, soundLibraries, dsp, Voices);
         Uploads = new SpcDefinitionUploads(ram, Music, Voices);
         InitializeDriver();
     }
@@ -142,7 +134,7 @@ public sealed class ManagedSpcPlayer
         Ensure.NotNull(state);
         SpcDriverSnapshot.AddBytes(state,
         [
-            Music.musicInputLatch, Music.musicPortToSnes, Music.affectedVolumeOrPitch, Voices.channelOnMask, Music.fastForward,
+            Music.musicInputLatch, Music.musicPortToSnes, SpcDriverSnapshot.DirtyByte(Music.affectedVolumeOrPitch), Voices.channelOnMask, Music.fastForward,
             Music.blockCount is 0 or > SpcDriverDefinitions.Music.RepeatReloadClassMinimum ? 0 : Music.blockCount,
             Voices.keyOn, Voices.keyOff, Voices.currentChannelBit, Voices.dspFlags, Voices.noiseEnable, Voices.echoEnable, Music.echoStoredTime, Music.echoDelay,
             Music.echoFeedback, Music.globalTransposition, includeTempoPhase ? Music.mainTempoAccumulator : 0,
@@ -155,11 +147,11 @@ public sealed class ManagedSpcPlayer
             Music.echoVolumeLeft, Music.echoVolumeRight, Music.echoVolumeFadeAddLeft, Music.echoVolumeFadeAddRight]);
         foreach (ManagedSpcMusicChannel channel in channels)
             channel.WriteState(state);
-        foreach (ManagedSpcSoundLibrary library in soundLibraries)
-            library.WriteState(state);
-        foreach (ManagedSpcSoundChannel[] libraryChannels in soundChannels)
+        foreach (SoundEffectLibrary library in SoundLibraryNumbers.InNumberOrder)
+            soundLibraries[library].WriteState(state);
+        foreach (SoundEffectLibrary library in SoundLibraryNumbers.InNumberOrder)
         {
-            foreach (ManagedSpcSoundChannel channel in libraryChannels)
+            foreach (ManagedSpcSoundChannel channel in soundLibraries[library].Channels)
                 channel.WriteState(state);
         }
     }
@@ -221,8 +213,8 @@ public sealed class ManagedSpcPlayer
         int ticks = tick.Steps;
         if (tick.ChecksRequests)
         {
-            for (int library = 0; library < SoundEffectLibraries.Count; library++)
-                SoundLibraries.HandleSoundLibraryCommand(library, tick.Checks[SoundLibraryNumbers.FromDriverIndex(library)]);
+            foreach (SoundEffectLibrary library in SoundLibraryNumbers.InNumberOrder)
+                SoundLibraries.HandleSoundLibraryCommand(library, tick.RanChecks[library]);
             if (Music.echoStoredTime != Music.echoDelay)
                 Music.echoStoredTime = SpcDriverWrap.Byte(Music.echoStoredTime + 1);
         }

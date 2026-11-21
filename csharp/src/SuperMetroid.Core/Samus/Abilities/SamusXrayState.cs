@@ -31,20 +31,23 @@ public sealed class SamusXrayState
     /// <param name="colouring">Samus's special suit colouring, which the visor takes.</param>
     internal SamusXrayState(SamusSpecialColouring colouring) => _colouring = Ensure.NotNull(colouring);
 
+    /// <summary>Where the scope stands: off, or live with whether it holds Samus and whether time is frozen (#2560).</summary>
+    public XrayScopeMode Mode { get; private set; }
+
     /// <summary>True while the X-ray scope is live: from its activation until its teardown, including Reserve Mode.</summary>
-    public bool IsActive { get; private set; }
+    public bool IsActive => Mode != XrayScopeMode.Off;
 
     /// <summary>
     /// True while X-Ray owns Samus's pose input and her movement.
     /// The cone effect can remain active after automatic Reserve recovery restores the
     /// normal input and movement modes; that game state is the persistent greyout glitch.
     /// </summary>
-    public bool OwnsSamusControl { get; private set; }
+    public bool OwnsSamusControl => Mode is XrayScopeMode.HoldsSamus or XrayScopeMode.HoldsSamusTimeRunning;
 
     /// <summary>
     /// True when Reserve recovery let time run under X-Ray's still-live finishing beam, which then cannot end itself.
     /// </summary>
-    private bool IsReserveMode => IsActive && !OwnsSamusControl && !TimeIsFrozen;
+    private bool IsReserveMode => Mode == XrayScopeMode.ReserveMode;
 
     /// <summary>
     /// The four independent subsystems X-Ray setup disables. Unlike shared
@@ -70,7 +73,7 @@ public sealed class SamusXrayState
         (SuspendedSubsystems & XraySuspendedSubsystems.ColourEffects) != XraySuspendedSubsystems.None;
 
     /// <summary>X-ray freezes enemy/projectile/room-object/block-animation time.</summary>
-    public bool TimeIsFrozen { get; private set; }
+    public bool TimeIsFrozen => Mode is XrayScopeMode.BeamFreezesTime or XrayScopeMode.HoldsSamus;
 
     /// <summary>
     /// The beam's warm-up: the updates of frozen time it spends after X-ray starts before its own step begins changing
@@ -119,7 +122,7 @@ public sealed class SamusXrayState
     /// the full beam cycles the steady visor cycle's. Its first shade shows on the colouring update after it starts.
     /// </summary>
     private AnimationPlayer<SamusGlowSegment, PictureShade, NoAnimationCue> Visor { get; } =
-        SamusGlowPlay.Starting(SamusGlowSegment.XrayVisorWidening);
+        SamusGlowPlay.Starting(SamusGlowSegment.Of(SamusGlow.XrayVisorWidening));
 
 /// <summary>
     /// Runs the admission tests and pose selection of the X-ray setup.
@@ -176,7 +179,7 @@ public sealed class SamusXrayState
         // at once restores the four suspended subsystems: on this update time freezes and the beam finishes together.
         if (cancellingDirectGMode)
         {
-            TimeIsFrozen = true;
+            Mode = XrayScopeMode.BeamFreezesTime;
             Finish(samus);
             return true;
         }
@@ -213,10 +216,8 @@ public sealed class SamusXrayState
         WarmUp = XrayWarmUp.Started;
         BeamPhase = XrayBeamPhase.NoBeam;
         Closing = XrayClosing.Over;
-        TimeIsFrozen = true;
         SuspendedSubsystems = XraySuspendedSubsystems.All;
-        IsActive = true;
-        OwnsSamusControl = false;
+        Mode = XrayScopeMode.BeamFreezesTime;
     }
 
     /// <summary>
@@ -243,40 +244,52 @@ public sealed class SamusXrayState
         // The same step takes over Samus's suit colouring and clears
         // the special colouring timer even when an interrupted Flash, not a normal charge, owns it.
         samus.CrystalFlash.RelinquishSuitColouring();
-        SamusGlowPlay.Restart(Visor, SamusGlowSegment.XrayVisorWidening);
+        SamusGlowPlay.Restart(Visor, SamusGlowSegment.Of(SamusGlow.XrayVisorWidening));
         samus.AudioRequests.QueueSound(SamusSound.XrayStart, SoundRequestPriority.Normal);
-        OwnsSamusControl = true;
+        Mode = Mode switch
+        {
+            XrayScopeMode.BeamFreezesTime or XrayScopeMode.HoldsSamus => XrayScopeMode.HoldsSamus,
+            XrayScopeMode.ReserveMode or XrayScopeMode.HoldsSamusTimeRunning => XrayScopeMode.HoldsSamusTimeRunning,
+            XrayScopeMode.Off => throw new InvalidOperationException("X-ray takes Samus while its scope is live, not while it is off."),
+            _ => throw new InvalidOperationException($"Undefined {nameof(XrayScopeMode)} {Mode}."),
+        };
     }
 
     /// <summary>
     /// Automatic reserve recovery takes Samus's pose input and movement from X-Ray; the cone and the frozen time stay.
     /// </summary>
-    internal void RelinquishSamusControlForReserveRecovery()
+    internal void RelinquishSamusControlForReserveRecovery() => Mode = Mode switch
     {
-        if (IsActive)
-            OwnsSamusControl = false;
-    }
+        XrayScopeMode.HoldsSamus => XrayScopeMode.BeamFreezesTime,
+        XrayScopeMode.HoldsSamusTimeRunning => XrayScopeMode.ReserveMode,
+        XrayScopeMode.Off or XrayScopeMode.BeamFreezesTime or XrayScopeMode.ReserveMode => Mode,
+        _ => throw new InvalidOperationException($"Undefined {nameof(XrayScopeMode)} {Mode}."),
+    };
 
     /// <summary>
     /// Automatic reserve recovery freezes time, which lets a stranded finishing X-Ray beam from Reserve Mode finish its
     /// forced stand on the next update.
     /// </summary>
-    internal void FreezeSharedTimeForReserveRecovery()
+    internal void FreezeSharedTimeForReserveRecovery() => Mode = Mode switch
     {
-        if (IsActive)
-            TimeIsFrozen = true;
-    }
+        XrayScopeMode.ReserveMode => XrayScopeMode.BeamFreezesTime,
+        XrayScopeMode.HoldsSamusTimeRunning => XrayScopeMode.HoldsSamus,
+        XrayScopeMode.Off or XrayScopeMode.BeamFreezesTime or XrayScopeMode.HoldsSamus => Mode,
+        _ => throw new InvalidOperationException($"Undefined {nameof(XrayScopeMode)} {Mode}."),
+    };
 
     /// <summary>
     /// Reserve recovery lets time run again before returning Samus's pose input and movement to her pose; a finishing
     /// X-Ray beam then finds time running and leaves its cone in place, so Reserve Mode greys the screen rather than
     /// X-Ray ending.
     /// </summary>
-    internal void ClearSharedFreezeForReserveMode()
+    internal void ClearSharedFreezeForReserveMode() => Mode = Mode switch
     {
-        if (IsActive)
-            TimeIsFrozen = false;
-    }
+        XrayScopeMode.BeamFreezesTime => XrayScopeMode.ReserveMode,
+        XrayScopeMode.HoldsSamus => XrayScopeMode.HoldsSamusTimeRunning,
+        XrayScopeMode.Off or XrayScopeMode.ReserveMode or XrayScopeMode.HoldsSamusTimeRunning => Mode,
+        _ => throw new InvalidOperationException($"Undefined {nameof(XrayScopeMode)} {Mode}."),
+    };
 
     /// <summary>
     /// A door transition removes direct G-Mode's stranded X-Ray cone without restoring any of the four suspended
@@ -287,8 +300,7 @@ public sealed class SamusXrayState
         if (!IsReserveMode)
             return;
 
-        IsActive = false;
-        OwnsSamusControl = false;
+        Mode = XrayScopeMode.Off;
         WarmUp = XrayWarmUp.Over;
         BeamPhase = XrayBeamPhase.NoBeam;
         Closing = XrayClosing.Over;
@@ -297,13 +309,13 @@ public sealed class SamusXrayState
         AngularWideningSpeed = RotationAngle.Zero;
         VisorShadeMode = XrayVisorShadeMode.Widening;
         _colouring.Release(SamusSpecialColouringKind.Xray);
-        SamusGlowPlay.Restart(Visor, SamusGlowSegment.XrayVisorWidening);
+        SamusGlowPlay.Restart(Visor, SamusGlowSegment.Of(SamusGlow.XrayVisorWidening));
     }
 
     /// <summary>Another special suit colouring takes over from X-ray's.</summary>
     internal void RelinquishSuitColouring()
     {
-        SamusGlowPlay.Restart(Visor, SamusGlowSegment.XrayVisorWidening);
+        SamusGlowPlay.Restart(Visor, SamusGlowSegment.Of(SamusGlow.XrayVisorWidening));
         VisorShadeMode = XrayVisorShadeMode.Widening;
     }
 
@@ -367,16 +379,9 @@ public sealed class SamusXrayState
         if (SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.TurningOnGround)
             return;
 
-        bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
-        SamusAnimationFrame aim = facingLeft
-            ? Angle < XrayScopeDefinitions.AnimationAngles.LeftDownBelow ? XrayScopeDefinitions.Aims.Down :
-              Angle < XrayScopeDefinitions.AnimationAngles.LeftLoweredBelow ? XrayScopeDefinitions.Aims.Lowered :
-              Angle < XrayScopeDefinitions.AnimationAngles.LeftLevelBelow ? XrayScopeDefinitions.Aims.Level :
-              Angle < XrayScopeDefinitions.AnimationAngles.LeftRaisedBelow ? XrayScopeDefinitions.Aims.Raised : XrayScopeDefinitions.Aims.Up
-            : Angle < XrayScopeDefinitions.AnimationAngles.RightRaisedFrom ? XrayScopeDefinitions.Aims.Up :
-              Angle < XrayScopeDefinitions.AnimationAngles.RightLevelFrom ? XrayScopeDefinitions.Aims.Raised :
-              Angle < XrayScopeDefinitions.AnimationAngles.RightLoweredFrom ? XrayScopeDefinitions.Aims.Level :
-              Angle < XrayScopeDefinitions.AnimationAngles.RightDownFrom ? XrayScopeDefinitions.Aims.Lowered : XrayScopeDefinitions.Aims.Down;
+        // Any pose not facing left aims as a right-facing scope does.
+        SamusFacingDirection facing = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left) ? SamusFacingDirection.Left : SamusFacingDirection.Right;
+        SamusAnimationFrame aim = XrayScopeDefinitions.AimBands[facing].AimAt(Angle);
         SamusPresentation.SetAnimationFrameFromMovementOwner(samus, aim, timer: XrayScopeDefinitions.Holds.Aim);
     }
 
@@ -481,7 +486,7 @@ public sealed class SamusXrayState
             // every X-ray shade value; the visor's glow restarts at its widening for the next X-ray.
             SamusSuitShade.Show(colours, equippedItems);
             _colouring.Release(SamusSpecialColouringKind.Xray);
-            SamusGlowPlay.Restart(Visor, SamusGlowSegment.XrayVisorWidening);
+            SamusGlowPlay.Restart(Visor, SamusGlowSegment.Of(SamusGlow.XrayVisorWidening));
             VisorShadeMode = XrayVisorShadeMode.Widening;
             return true;
         }
@@ -492,7 +497,7 @@ public sealed class SamusXrayState
         if (VisorShadeMode == XrayVisorShadeMode.Widening && BeamPhase is not (XrayBeamPhase.NoBeam or XrayBeamPhase.Widening))
         {
             // The visor enters the steady cycle, whose first shade shows on this update.
-            SamusGlowPlay.Restart(Visor, SamusGlowSegment.VisorCycle);
+            SamusGlowPlay.Restart(Visor, SamusGlowSegment.Of(SamusGlow.VisorCycle));
             VisorShadeMode = XrayVisorShadeMode.FullBeam;
         }
 
@@ -603,10 +608,8 @@ public sealed class SamusXrayState
         // teardown; ending that spark while retaining the spark's colouring timer is the Blue Suit result.
         SamusMovementHandOver.BackToPose(samus, SamusMovementOwner.Xray);
         samus.InputSnapshot.ShinesparkPoseInputLocked = false;
-        TimeIsFrozen = false;
         SuspendedSubsystems = XraySuspendedSubsystems.None;
-        IsActive = false;
-        OwnsSamusControl = false;
+        Mode = XrayScopeMode.Off;
         WarmUp = XrayWarmUp.Over;
         BeamPhase = XrayBeamPhase.NoBeam;
         Closing = XrayClosing.Over;

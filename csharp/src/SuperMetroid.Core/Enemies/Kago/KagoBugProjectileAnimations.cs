@@ -18,6 +18,10 @@ internal static class KagoBugProjectileAnimations
     /// </summary>
     private const int LandedIdleDuration = 32767;
 
+    /// <summary>A shot bug's flare burst pictures (#2557).</summary>
+    private static FlareBurst Burst { get; } = new(EnemyProjectileFrameId.KagoBugSpark, EnemyProjectileFrameId.KagoBugFlareBall, EnemyProjectileFrameId.KagoBugFlareRingCored,
+        EnemyProjectileFrameId.KagoBugFlareRing, EnemyProjectileFrameId.KagoBugFlareRingFading);
+
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<KagoBugProjectileSegment, EnemyProjectileFrameId, KagoBugProjectileCue> Segments { get; } = new(
         new Dictionary<KagoBugProjectileSegment, AnimationBeat<EnemyProjectileFrameId, KagoBugProjectileCue>[]>
@@ -41,11 +45,7 @@ internal static class KagoBugProjectileAnimations
         ],
         [P.Shot] =
         [
-            Show(EnemyProjectileFrameId.KagoBugSpark, 4),
-            Show(EnemyProjectileFrameId.KagoBugFlareBall, 4),
-            Show(EnemyProjectileFrameId.KagoBugFlareRingCored, 4),
-            Show(EnemyProjectileFrameId.KagoBugFlareRing, 4),
-            Show(EnemyProjectileFrameId.KagoBugFlareRingFading, 4),
+            .. FlareBurst.Steady<KagoBugProjectileCue>(Burst, 4),
             Cue(new(K.SpawnDrop)),
             Cue(new(K.Delete)),
         ],
@@ -64,9 +64,6 @@ internal static class KagoBugProjectileAnimations
         [P.Shot] = new([Segments.Whole(P.Shot)], AnimationEnd.Holds),
         [P.Waiting] = new([Segments.Whole(P.Waiting)], AnimationEnd.Holds),
     };
-
-    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<KagoBugProjectileSegment> StartingWith(KagoBugProjectileSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, KagoBugProjectileCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, KagoBugProjectileCue>.Frame(frame, duration);

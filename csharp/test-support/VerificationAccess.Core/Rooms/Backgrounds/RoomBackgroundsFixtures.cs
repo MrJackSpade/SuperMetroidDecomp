@@ -320,9 +320,9 @@ internal static class RoomBackgroundsFixtures
     {
         bool twoBpp = kind == SpriteImageColours.TwoBppBackground;
         bool fullPalette = kind == SpriteImageColours.FullPalette;
-        var standard = new ushort[ImageColourGroup.ColourCountOf(kind)];
+        var standard = new RgbColor[ImageColourGroup.ColourCountOf(kind)];
         for (int colour = 0; colour < standard.Length; colour++)
-            standard[colour] = colour / 16 % 2 == 0 ? scene[colour].ToWord() : (ushort)random.Next(32768);
+            standard[colour] = colour / 16 % 2 == 0 ? scene[colour] : RgbColor.FromWord((ushort)random.Next(32768));
         int pixels = size.X * size.Y;
         var image = new RgbaPixel[pixels];
         var indices = new byte[pixels];
@@ -335,7 +335,7 @@ internal static class RoomBackgroundsFixtures
                 indices[pixel] = (byte)(twoBppRow * 4 + colour);
                 if (colour == 0)
                     continue;
-                image[pixel] = RgbColor.FromWord(standard[indices[pixel]]).ToRgbaPixel();
+                image[pixel] = standard[indices[pixel]].ToRgbaPixel();
                 continue;
             }
             if (random.Next(3) == 0)
@@ -343,7 +343,7 @@ internal static class RoomBackgroundsFixtures
             // A full-palette pixel names any of the 256 colours.
             int row = random.Next(fullPalette ? 16 : 8);
             indices[pixel] = (byte)(row * 16 + random.Next(1, 16));
-            image[pixel] = RgbColor.FromWord(standard[indices[pixel]]).ToRgbaPixel();
+            image[pixel] = standard[indices[pixel]].ToRgbaPixel();
         }
         var frames = new Dictionary<string, SpriteSheetFrameDocument>();
         foreach ((string frame, Position16<ImagePixels> corner) in corners)
@@ -356,7 +356,7 @@ internal static class RoomBackgroundsFixtures
                 if (index % (twoBpp ? 4 : 16) != 0 && index / 16 < 8)
                     groups = groups.With(ImageColourGroup.OfInk(index));
             }
-            frames.Add(frame, new SpriteSheetFrameDocument { Corner = corner, Size = frameSize, Origin = default, ColourGroups = groups.ManifestMembers });
+            frames.Add(frame, new SpriteSheetFrameDocument { Corner = corner, Size = frameSize, Origin = default, ColourGroups = groups });
         }
         var document = new SpriteSheetDocument
         {
@@ -369,7 +369,7 @@ internal static class RoomBackgroundsFixtures
             Backdrop = 0,
             Frames = frames,
         };
-        return SpriteSheetFileConstants.Load(document, name, size, image, indices);
+        return SpriteSheetFileConstants.Load(document, name, size, image, ComposedPictures.InksAt(indices.Select(place => (int)place), kind));
     }
 
     /// <summary>

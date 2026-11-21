@@ -32,7 +32,7 @@ internal static class PauseRemappedShoulderVerification
             runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
-            runtime.Options.ControllerBindings = ControllerBindings.Default with { AimUp = ControllerButton.L, AimDown = ControllerButton.R };
+            runtime.Options.ControllerBindings = ControllerBindings.Default.With(ControllerAction.AimUp, ControllerButton.L).With(ControllerAction.AimDown, ControllerButton.R);
             SamusState samus = runtime.Player.Samus;
             runtime.FrameBoundary.BeginAcceptedFrame(0);
             var pause = CreateRetailPauseFixture(new PauseMenuEntry { ScreenContent = global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps, SpriteSheets = global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SpriteSheets, Audio = AudioQueues.Standalone(), Samus = samus, System = runtime.System, Area = AreaId.Crateria, RoomMapPosition = new(0, 1), GameplayHud = runtime.AcceptedHud, MapRevealMode = global::SuperMetroid.Core.Map.MapRevealMode.None });

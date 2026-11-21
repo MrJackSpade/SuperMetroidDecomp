@@ -1,4 +1,4 @@
-﻿namespace SuperMetroid.Core.Rooms.Doors;
+namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>The Norfair rooms' doors, each named for the room it leads from and the room it leads to.</summary>
 public static class NorfairDoorDefinitions
@@ -34,7 +34,7 @@ public static class NorfairDoorDefinitions
     public static DoorDefinition BusinessCenterToCrocomireEscape { get; } = new("BusinessCenterToCrocomireEscape", RoomDefinitions.CrocomireEscape, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Business Center room to the Warehouse Entrance room.</summary>
-    public static DoorDefinition BusinessCenterToWarehouseEntrance { get; } = new("BusinessCenterToWarehouseEntrance", RoomDefinitions.WarehouseEntrance, new(DoorDirection.Up, DoorClosingBehavior.None), null, new(0, 0), DoorSamusSpeed.None, DoorSetupDefinitions.None);
+    public static DoorDefinition BusinessCenterToWarehouseEntrance { get; } = new("BusinessCenterToWarehouseEntrance", RoomDefinitions.WarehouseEntrance, new(DoorDirection.Up, DoorClosingBehavior.None), null, new(0, 0), DoorSamusSpeed.None, DoorSetupDefinitions.None) { ExchangesExploredMaps = true };
 
     /// <summary>The door from the Business Center room to the Frog Save room.</summary>
     public static DoorDefinition BusinessCenterToFrogSave { get; } = new("BusinessCenterToFrogSave", RoomDefinitions.FrogSave, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
@@ -419,9 +419,6 @@ public static class NorfairDoorDefinitions
 
     /// <summary>The door from the Fast Pillars Setup room to the Mickey Mouse room.</summary>
     public static DoorDefinition FastPillarsSetupToMickeyMouse { get; } = new("FastPillarsSetupToMickeyMouse", RoomDefinitions.MickeyMouse, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 54), new(0, 3), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
-
-    /// <summary>The door from the Fast Pillars Setup room to the Main Hall room: a second door the room lists to the Main Hall, leading where the first does.</summary>
-    public static DoorDefinition FastPillarsSetupToMainHallAlternate { get; } = new("FastPillarsSetupToMainHallAlternate", RoomDefinitions.MainHall, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(126, 38), new(7, 2), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Fast Pillars Setup room to the Fast Ripper room.</summary>
     public static DoorDefinition FastPillarsSetupToFastRipper { get; } = new("FastPillarsSetupToFastRipper", RoomDefinitions.FastRipper, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(62, 6), new(3, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);

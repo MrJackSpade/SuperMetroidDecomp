@@ -29,9 +29,8 @@ public enum KraidFootPhase
     SecondPhaseInitialize,
     /// <summary>Counts the second-phase foot's think delay and selects a walking target.</summary>
     SecondPhaseThinking,
-    /// <summary>
-    /// The walk moving the body toward its target its foot's way (<see cref="KraidFootState.WalkDirection"/>): backward
-    /// toward a rightward target, forward toward a leftward one.
-    /// </summary>
-    SecondPhaseWalking,
+    /// <summary>The walk moving the body toward a rightward target, its foot stepping backward (#2560).</summary>
+    SecondPhaseWalkingRight,
+    /// <summary>The walk moving the body toward a leftward target, its foot stepping forward (#2560).</summary>
+    SecondPhaseWalkingLeft,
 }

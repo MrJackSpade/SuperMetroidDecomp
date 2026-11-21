@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -27,13 +29,10 @@ public static class SamusFullBodyCycleColorExtractor
             ActiveShinespark = ReadFamily(SamusFullBodyCycleFamily.ActiveShinespark),
         });
 
-        PaletteRgb5[][][] ReadFamily(SamusFullBodyCycleFamily family)
-        {
-            var suits = new PaletteRgb5[SamusFullBodyCycleColorFormat.SuitCount][][];
-            for (int suit = 0; suit < suits.Length; suit++)
+        Dictionary<string, PaletteRgb5[][]> ReadFamily(SamusFullBodyCycleFamily family) => SamusSuitListLayout.BySuit(suit =>
             {
-                suits[suit] = new PaletteRgb5[SamusFullBodyCycleColorFormat.ShadesPerSuit][];
-                for (int shade = 0; shade < suits[suit].Length; shade++)
+                var shades = new PaletteRgb5[SamusFullBodyCycleColorFormat.ShadesPerSuit][];
+                for (int shade = 0; shade < shades.Length; shade++)
                 {
                     int pointer = checked((ushort)(family switch
                     {
@@ -50,17 +49,11 @@ public static class SamusFullBodyCycleColorExtractor
                     for (int index = 0; index < colors.Length; index++)
                     {
                         int word = LittleEndianBytes.Word(source[index * 2], source[index * 2 + 1]);
-                        colors[index] = new PaletteRgb5
-                        {
-                            Red = word & 31,
-                            Green = word >> 5 & 31,
-                            Blue = word >> 10 & 31,
-                        };
+                        colors[index] = PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(word));
                     }
-                    suits[suit][shade] = colors;
+                    shades[shade] = colors;
                 }
-            }
-            return suits;
-        }
+                return shades;
+            });
     }
 }

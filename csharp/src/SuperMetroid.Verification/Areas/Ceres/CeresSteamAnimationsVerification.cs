@@ -22,36 +22,38 @@ internal static class CeresSteamAnimationsVerification
     internal static void VerifyCeresSteamAnimations(CartridgeImportAddressSpace rom)
     {
         IImportCartridgeSource cartridge = rom;
-        int beats = NativeEnemyAnimationOracle.CompareAll(cartridge, Bank, Entries, CeresSteamAnimations.Segments, CeresSteamAnimations.StartingAt,
-            CeresSteamFrameDefinitionsConstants.Spritemap,
-            new NativeEnemyCueRules<CeresSteamCueKind>(word => Instructions.ContainsKey(word) ? 0 : null,
-                (word, _, cue, at) => AssertEqual(Instructions[word], cue, $"{at}: cue"),
-                OwnerLeavesAt: OwnerTakesOver.Contains, ShownUnseen: UnseenFrames.Contains), onlyRunOnInto: OnlyRunOnInto);
-
-        foreach ((CeresSteamSegment dormant, AnimationPlayback<CeresSteamSegment> activation) in CeresSteamAnimations.ActivationAfter)
+        int beats = 0;
+        foreach ((string name, CeresSteamWay way, NativeProgramEntry<CeresSteamSegment>[] entries) in Ways)
         {
-            ushort entry = NativeEnemyAnimationOracle.EntryOf(Entries, dormant);
+            beats += NativeEnemyAnimationOracle.CompareAll(cartridge, Bank, entries, way.Segments, way.StartingAt,
+                CeresSteamFrameDefinitionsConstants.Spritemap,
+                new NativeEnemyCueRules<CeresSteamCueKind>(word => Instructions.ContainsKey(word) ? 0 : null,
+                    (word, _, cue, at) => AssertEqual(Instructions[word], cue, $"{name} vent {at}: cue"),
+                    OwnerLeavesAt: OwnerTakesOver.Contains, ShownUnseen: UnseenFrames.Contains), onlyRunOnInto: OnlyRunOnInto);
+
+            AnimationPlayback<CeresSteamSegment> activation = way.Activation;
+            ushort entry = NativeEnemyAnimationOracle.EntryOf(entries, CeresSteamSegment.Dormant);
             int list = (Bank << 16) | entry;
             // The dormant list hides the vent, shows a frame record for one update, then counts its wait down: while the
             // wait runs it replays the list, and once it runs out the vent appears and the puff plays ($A6:F127).
-            AssertEqual(1, cartridge.ReadCartridgeWord(list + 2), $"{dormant}: the hidden frame record lasts one update, so the wait counts once an update");
-            AssertEqual(CountDownRoutine, cartridge.ReadCartridgeWord(list + 6), $"{dormant}: the wait's count-down follows the frame record");
-            AssertEqual(entry, cartridge.ReadCartridgeWord(list + 8), $"{dormant}: the count-down replays the dormant list while the wait runs");
+            AssertEqual(1, cartridge.ReadCartridgeWord(list + 2), $"{name} vent: the hidden frame record lasts one update, so the wait counts once an update");
+            AssertEqual(CountDownRoutine, cartridge.ReadCartridgeWord(list + 6), $"{name} vent: the wait's count-down follows the frame record");
+            AssertEqual(entry, cartridge.ReadCartridgeWord(list + 8), $"{name} vent: the count-down replays the dormant list while the wait runs");
             CeresSteamSegment puffing = activation.Animation.Phases[0].Segment;
-            AssertEqual(NativeEnemyAnimationOracle.EntryOf(Entries, puffing), cartridge.ReadCartridgeWord(list + 10),
-                $"{dormant}: the count-down goes on into the puff the activation plays");
+            AssertEqual(NativeEnemyAnimationOracle.EntryOf(entries, puffing), cartridge.ReadCartridgeWord(list + 10),
+                $"{name} vent: the count-down goes on into the puff the activation plays");
 
             // The activation appears the vent, as the count-down's end runs on into the appearing routine, and shows the
             // puff's first picture on the same update.
             var raised = new List<CeresSteamCueKind>();
             AnimationPlace place = activation.Place;
-            AnimationShown<CeresSteamSegment, EnemyFrameId> shown = CeresSteamAnimations.Segments.PlayToNextFrame(activation.Animation, ref place, raised.Add);
-            AssertTrue(raised.SequenceEqual([CeresSteamCueKind.Appear]), $"{dormant}: the activation appears the vent and raises nothing else");
-            AssertEqual(CeresSteamAnimations.Segments.Beats(puffing)[0].ShownFrame,
-                AssertIs<AnimationShown<CeresSteamSegment, EnemyFrameId>.Frame>(shown, $"{dormant}: the activation's first frame").Shown,
-                $"{dormant}: the activation shows the puff's first picture");
+            AnimationShown<CeresSteamSegment, EnemyFrameId> shown = way.Segments.PlayToNextFrame(activation.Animation, ref place, raised.Add);
+            AssertTrue(raised.SequenceEqual([CeresSteamCueKind.Appear]), $"{name} vent: the activation appears the vent and raises nothing else");
+            AssertEqual(way.Segments.Beats(puffing)[0].ShownFrame,
+                AssertIs<AnimationShown<CeresSteamSegment, EnemyFrameId>.Frame>(shown, $"{name} vent: the activation's first frame").Shown,
+                $"{name} vent: the activation shows the puff's first picture");
         }
-        Console.WriteLine($"  Ceres steam animations: {Entries.Length} segments ({beats} beats) match bank $A6, and the dormant count-downs go on into their puffs.");
+        Console.WriteLine($"  Ceres steam animations: {Ways.Sum(listed => listed.Entries.Length)} segments ({beats} beats) match bank $A6, and the dormant count-downs go on into their puffs.");
     }
 
     /// <summary>
@@ -67,8 +69,8 @@ internal static class CeresSteamAnimationsVerification
             definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().NextRandom = () => wait - 1;
         RoomEnemyPlace vent = enemies.Places.InUpdateOrder[0];
-        vent.SetSpawnParameter1(EnemyDefinitionId.CeresSteam, (ushort)CeresSteamVariant.Up);
-        vent.Bind(EnemyDefinitionId.CeresSteam, vent.KeptDefinition);
+        vent.SetSpawnParameter1(EnemyDefinitionId.SteamVent, (ushort)CeresSteamVariant.Up);
+        vent.Bind(EnemyDefinitionId.SteamVent, vent.KeptDefinition);
         ((IEnemyInitialization)(vent.Entity ?? throw new InvalidOperationException("The vent bound no entity."))).Initialize();
         AssertEqual(wait, vent.RequireSpeciesState<CeresSteamEnemyState>().UpdatesToActivation, "the vent draws its wait");
 
@@ -85,7 +87,7 @@ internal static class CeresSteamAnimationsVerification
         AssertTrue(!Hidden(), $"update {update}: the vent appears, harmful, on the update after its wait's last count");
         AssertEqual<EnemyFrameId?>(EnemyFrameId.CeresSteamUp, vent.Frame, $"update {update}: the vent shows its puff's first picture as it appears");
 
-        int puffUpdates = CeresSteamAnimations.Segments.Beats(CeresSteamSegment.UpPuffing).Count * CeresSteamAnimations.PuffPictureUpdates;
+        int puffUpdates = CeresSteamWay.Up.Segments.Beats(CeresSteamSegment.Puffing).Count * CeresSteamAnimations.PuffPictureUpdates;
         for (int puff = 1; puff < puffUpdates; puff++)
         {
             Advance();

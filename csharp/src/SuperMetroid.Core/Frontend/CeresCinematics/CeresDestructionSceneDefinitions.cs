@@ -126,14 +126,18 @@ internal static class CeresDestructionSceneDefinitions
         internal const int FlyAwayTurnSteps = -1;
         /// <summary>How far the floor turns each update as the gunship turns toward Zebes, in steps: one step clockwise.</summary>
         internal const int TowardZebesTurnSteps = -1;
-        /// <summary>One eighth of a pixel per update.</summary>
-        internal static SignedSixteenSixteen EighthPixel { get; } = SignedSixteenSixteen.FromPixelFraction(1, 8);
-        /// <summary>Minus one half pixel per update.</summary>
-        internal static SignedSixteenSixteen NegativeHalfPixel { get; } = SignedSixteenSixteen.FromPixelFraction(-1, 2);
-        /// <summary>One sixteenth of a pixel per update.</summary>
-        internal static SignedSixteenSixteen SixteenthPixel { get; } = SignedSixteenSixteen.FromPixelFraction(1, 16);
-        /// <summary>Minus one quarter pixel per update.</summary>
-        internal static SignedSixteenSixteen NegativeQuarterPixel { get; } = SignedSixteenSixteen.FromPixelFraction(-1, 4);
+        /// <summary>How far the Ceres camera drifts each update (#2557): a quarter pixel left and a sixteenth of a pixel down.</summary>
+        internal static FixedVector<FloorPixels> CeresDrift { get; } =
+            new(SignedSixteenSixteen.FromPixelFraction(-1, 4), SignedSixteenSixteen.FromPixelFraction(1, 16));
+        /// <summary>
+        /// How far the floor scrolls each update as the gunship flies and turns toward Zebes (#2557): half a pixel left and an
+        /// eighth of a pixel down.
+        /// </summary>
+        internal static FixedVector<FloorPixels> ZebesApproachScroll { get; } =
+            new(SignedSixteenSixteen.FromPixelFraction(-1, 2), SignedSixteenSixteen.FromPixelFraction(1, 8));
+        /// <summary>How far the floor scrolls each update as the gunship closes in on Zebes (#2557): an eighth of a pixel right and down.</summary>
+        internal static FixedVector<FloorPixels> ZebesCloseInScroll { get; } =
+            new(SignedSixteenSixteen.FromPixelFraction(1, 8), SignedSixteenSixteen.FromPixelFraction(1, 8));
         /// <summary>The fleeing gunship's horizontal velocity: a quarter pixel rightward per update.</summary>
         internal static SignedSixteenSixteen GunshipXVelocity { get; } = SignedSixteenSixteen.FromPixelFraction(1, 4);
         /// <summary>The fleeing gunship's vertical velocity: one sixteenth of a pixel upward per update.</summary>

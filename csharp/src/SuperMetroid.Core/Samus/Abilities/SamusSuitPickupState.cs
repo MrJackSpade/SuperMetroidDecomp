@@ -5,8 +5,7 @@ using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Progression;
 
-using SuperMetroid.Core.Assets;
-namespace SuperMetroid.Core.Samus.Abilities;
+using SuperMetroid.Core.Assets;namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>
 /// The shared Varia- and Gravity-suit pickup transformation.
@@ -33,8 +32,8 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// </remarks>
 public sealed class SamusSuitPickupState
 {
-    /// <summary>Whether the post-message transformation currently owns Samus input.</summary>
-    public bool IsActive { get; private set; }
+    /// <summary>Whether the post-message transformation currently owns Samus input: it runs a light-beam stage (#2560).</summary>
+    public bool IsActive => runningStage is not null;
 
     /// <summary>
     /// The wait before the light beam's first stage runs: the light beam starts on the pickup's third update
@@ -45,8 +44,18 @@ public sealed class SamusSuitPickupState
     /// <summary>The suit the pickup equips and reveals.</summary>
     public SamusSuitPickupKind Kind { get; private set; }
 
-    /// <summary>The light-beam stage the next update runs; it returns to the first stage when the transformation finishes.</summary>
-    private SamusSuitPickupStage Stage { get; set; }
+    /// <summary>The light-beam stage the next update runs, or none while no transformation runs (#2560).</summary>
+    private SamusSuitPickupStage? runningStage;
+
+    /// <summary>
+    /// The light-beam stage the next update runs, which the light beam leaves behind; a finished transformation stands at
+    /// the first stage again, as its finish resets it, and leaves that.
+    /// </summary>
+    private SamusSuitPickupStage Stage
+    {
+        get => runningStage ?? SamusSuitPickupStage.LightBeamAppears;
+        set => runningStage = value;
+    }
 
     /// <summary>
     /// Screen rows the beam has covered from each screen edge while it appears, or wiped while it shrinks: zero at
@@ -115,7 +124,7 @@ public sealed class SamusSuitPickupState
         samus.HorizontalSpeed.BaseSpeed = default;
         samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
         samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.Still;
-        samus.MorphBallBounceState = SamusBallBounceState.None;
+        samus.MorphBallBounceState = null;
 
         // The first pose tests whether the other suit is equipped. Acquiring Varia while Gravity is already
         // equipped (or vice versa) therefore starts in the suited front pose; an ordinary
@@ -140,7 +149,6 @@ public sealed class SamusSuitPickupState
         // scrolling sees no movement.
         samus.WritePreviousXPosition(samus.Position.X.Whole);
         samus.WritePreviousYPosition(samus.Position.Y.Whole);
-        IsActive = true;
         // The setup queues the transformation sound itself, at normal priority, as it runs.
         samus.AudioRequests.QueueSound(EnemySound.SuitAcquired, SoundRequestPriority.Normal);
     }
@@ -343,13 +351,12 @@ public sealed class SamusSuitPickupState
     private void Finish(SamusState samus)
     {
         Beam = SamusSuitPickupBeam.None;
-        Stage = SamusSuitPickupStage.LightBeamAppears;
+        runningStage = null;
         _lightBeamLines = 0;
         _lightBeamLeft = 0;
         _lightBeamRight = 0;
         BeamColor = RgbColor.Black;
         samus.Control.Unlock();
-        IsActive = false;
     }
 
     /// <summary>Starts a column stage at the authored edge pair.</summary>

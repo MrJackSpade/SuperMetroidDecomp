@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
@@ -30,6 +32,26 @@ internal sealed class KraidParts
 
     /// <summary>His body, which runs first.</summary>
     internal RoomEnemyPlace Body { get; }
+
+    /// <summary>
+    /// Joins the part at <paramref name="place"/> to the encounter his body began, which it holds from here (#2218, #2557):
+    /// in a room where he is defeated the part is marked dead and joins nothing; otherwise the encounter's part
+    /// <paramref name="partOf"/> names is attached there and takes his body's shading. His arm, foot and lints set up so.
+    /// </summary>
+    /// <returns>The part joined, or null in a room where he is defeated.</returns>
+    internal TPart? JoinEncounter<TPart>(EnemyRoomBinding room, RoomEnemyPlace place, Func<KraidEnemyState, TPart> partOf)
+        where TPart : KraidPartState
+    {
+        if (Ensure.NotNull(room).Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss))
+        {
+            KraidEncounterAccess.MarkKraidPartDead(place);
+            return null;
+        }
+        TPart part = Ensure.NotNull(partOf)(Encounter);
+        KraidEncounterAccess.AttachKraidPart(part);
+        place.Shading = Body.Shading;
+        return part;
+    }
 
     /// <summary>His arm.</summary>
     internal RoomEnemyPlace Arm { get; }

@@ -38,6 +38,32 @@ internal static class SpcSoundEffectTables
         _ => throw new ArgumentOutOfRangeException(nameof(library), library, "Undefined sound library."),
     };
 
+    /// <summary>How <paramref name="library"/>'s handler admits a changed request for one-based <paramref name="command"/>.</summary>
+    internal static SpcSoundRequestAdmission Admission(SoundEffectLibrary library, int command) => library switch
+    {
+        SoundEffectLibrary.Samus => AdmissionIn(SpcSoundEffectDefinitions.Library1, command),
+        SoundEffectLibrary.Enemies => AdmissionIn(SpcSoundEffectDefinitions.Library2, command),
+        SoundEffectLibrary.Room => AdmissionIn(SpcSoundEffectDefinitions.Library3, command),
+        _ => throw new ArgumentOutOfRangeException(nameof(library), library, "Undefined sound library."),
+    };
+
+    /// <summary>Whether <paramref name="library"/> keeps the low-health mode, which refuses its requests but the clearing one.</summary>
+    internal static bool HasLowHealthMode(SoundEffectLibrary library) => library switch
+    {
+        SoundEffectLibrary.Samus or SoundEffectLibrary.Enemies => false,
+        SoundEffectLibrary.Room => true,
+        _ => throw new ArgumentOutOfRangeException(nameof(library), library, "Undefined sound library."),
+    };
+
+    /// <summary>
+    /// How the request rule admits one-based <paramref name="command"/> in <paramref name="library"/>: as its effect states,
+    /// and by priority for a command beyond the library's effects, as the driver admits every command it does not exempt;
+    /// such a command's start then finds no effect.
+    /// </summary>
+    private static SpcSoundRequestAdmission AdmissionIn<TPolicy>(SpcSoundEffectDefinition<TPolicy>[] library, int command)
+        where TPolicy : struct, Enum =>
+        (uint)(command - 1) < (uint)library.Length ? library[command - 1].Admission : SpcSoundRequestAdmission.ByPriority;
+
     /// <summary>The effect a one-based <paramref name="command"/> selects in <paramref name="library"/>.</summary>
     internal static SpcSoundEffectDefinition<TPolicy> Effect<TPolicy>(SpcSoundEffectDefinition<TPolicy>[] library, int command)
         where TPolicy : struct, Enum =>
@@ -47,11 +73,10 @@ internal static class SpcSoundEffectTables
     /// The SPC RAM address of one library's allocation field: contiguous per-channel bitsets and masks, then one
     /// intervening byte before the per-channel voice indices.
     /// </summary>
-    internal static ushort AllocationStateAddress(int libraryIndex, SpcAllocationField field)
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="library"/> is not a sound library.</exception>
+    internal static ushort AllocationStateAddress(SoundEffectLibrary library, SpcAllocationField field)
     {
-        if ((uint)libraryIndex >= (uint)SpcSoundEffectDefinitions.Allocations.Length)
-            throw new ArgumentOutOfRangeException(nameof(libraryIndex));
-        (int baseAddress, int channelCount) = SpcSoundEffectDefinitions.Allocations[libraryIndex];
+        (int baseAddress, int channelCount) = Allocation(library);
         int offset = field switch
         {
             SpcAllocationField.VoiceBitset => 0,
@@ -61,6 +86,13 @@ internal static class SpcSoundEffectTables
         };
         return (ushort)(baseAddress + offset);
     }
+
+    /// <summary>Where <paramref name="library"/>'s allocation state starts in SPC RAM, and how many channels it has.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="library"/> is not a sound library.</exception>
+    internal static SoundLibraryAllocation Allocation(SoundEffectLibrary library) =>
+        SpcSoundEffectDefinitions.Allocations.TryGetValue(library, out SoundLibraryAllocation allocation)
+            ? allocation
+            : throw new ArgumentOutOfRangeException(nameof(library), library, "Undefined sound library.");
 
     /// <summary>Number of channel programs the policy <paramref name="policyKey"/> names in <paramref name="library"/> requires.</summary>
     /// <remarks>#1165: matches the voice-count writes in the handlers catalogued by

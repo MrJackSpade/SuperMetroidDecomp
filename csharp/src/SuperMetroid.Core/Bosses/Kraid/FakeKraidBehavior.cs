@@ -373,7 +373,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyLoadedFactory<Ene
     {
         // Fake Kraid's private power-bomb reaction still owns its direct pickup explosions, spawned after its
         // death explosion.
-        ReplacesGenericDeath = c => KillFakeKraid(c.Occupant, c.Samus),
+        Lethal = new EnemyPowerBombLethal.Replaced(c => KillFakeKraid(c.Occupant, c.Samus)),
     };
 
     /// <summary>Replaces ordinary projectile-shot death and preserves the pickup scatter on a lethal hit.</summary>
@@ -381,11 +381,11 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyLoadedFactory<Ene
     {
         // Fake Kraid's shot reaction runs the common damage without the hit burst.
         ShowsHitBurst = EnemyShotReaction.NeverShowsHitBurst,
-        ReplacesGenericDeath = c =>
+        Lethal = new EnemyShotLethal.Replaced(c =>
         {
             KillFakeKraid(c.Occupant, c.Samus);
             return true;
-        },
+        }),
         AfterCommon = c =>
         {
             if (!c.Froze && !c.Enemy.IsFree && c.HealthBefore != 0 && c.Enemy.Health == 0)

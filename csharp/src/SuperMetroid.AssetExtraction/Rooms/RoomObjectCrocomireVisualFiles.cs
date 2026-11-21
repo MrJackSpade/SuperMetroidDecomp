@@ -2,7 +2,6 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Rooms.RoomObjects;
-using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
@@ -14,14 +13,21 @@ public static class RoomObjectCrocomireVisualFiles
     private const string VisualFileName = "crocomire-arena.json";
 
     /// <summary>The bridge and wall frames in the installed file's order (#2567).</summary>
-    private static readonly IReadOnlyList<CrocomireArenaDraw> FrameOrder = Ensure.EveryMemberOnce<CrocomireArenaDraw>(
+    private static readonly IReadOnlyList<CrocomireArenaMutation> FrameOrder = Ensure.EveryMemberOnce<CrocomireArenaMutation>(
     [
-        CrocomireArenaDraw.ClearBridge,
-        CrocomireArenaDraw.CrumbleBridgeBlock,
-        CrocomireArenaDraw.ClearBridgeBlock,
-        CrocomireArenaDraw.ClearInvisibleWall,
-        CrocomireArenaDraw.CreateInvisibleWall,
+        CrocomireArenaMutation.ClearBridge,
+        CrocomireArenaMutation.CrumbleBridgeBlock,
+        CrocomireArenaMutation.ClearBridgeBlock,
+        CrocomireArenaMutation.ClearInvisibleWall,
+        CrocomireArenaMutation.CreateInvisibleWall,
     ]);
+
+    /// <summary>The frames that write one of the arena's invisible walls; every other frame writes along the bridge's row.</summary>
+    private static readonly HashSet<CrocomireArenaMutation> WallFrames = new HashSet<CrocomireArenaMutation>
+    {
+        CrocomireArenaMutation.ClearInvisibleWall,
+        CrocomireArenaMutation.CreateInvisibleWall,
+    };
 
     /// <summary>The Crocomire arena as the import pictures them: every frame's geometry and published name.</summary>
     internal static RoomObjectFrameFamily<RoomObjectDraw> Family { get; } =
@@ -37,7 +43,7 @@ public static class RoomObjectCrocomireVisualFiles
     /// <summary>Loads the installed Crocomire arena pictures as the player left them, without the cartridge.</summary>
     /// <param name="directory">The installed directory.</param>
     /// <exception cref="InvalidDataException">The file's format is not this importer's, or a frame's picture is missing or misshapen.</exception>
-    public static InstalledRoomObjectCrocomireVisuals Load(string directory) =>
+    public static InstalledRoomObjectPictures Load(string directory) =>
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>The draw lists of every bridge and wall draw.</summary>
@@ -45,7 +51,7 @@ public static class RoomObjectCrocomireVisualFiles
     {
         get
         {
-            foreach (CrocomireArenaDraw frame in FrameOrder)
+            foreach (CrocomireArenaMutation frame in FrameOrder)
             {
                 yield return DrawListOf(CrocomireArenaDraws.Family.Of(frame));
             }
@@ -72,23 +78,20 @@ public static class RoomObjectCrocomireVisualFiles
         RoomBlockShape shape = described;
         // A wall is written as its three columns, each down from the wall's top row and started from the origin rather
         // than from the column before. A bridge is written as the one run along its row.
-        Offset16<RoomBlocks> belowOrigin = new(0, 1);
-        Offset16<RoomBlocks>[] wallStarts = [new(0, 0), new(1, 0), new(2, 0)];
         int wallColumnHeight = 8;
-        if (shape.Covers(belowOrigin))
-        {
-            list = RoomObjectDrawListExport.Runs(draw, wallStarts.Length, _ => wallColumnHeight,
-                (run, cell) => shape.CollisionAt(wallStarts[run] + new Offset16<RoomBlocks>(0, cell)),
-                _ => RoomObjectRunDirection.Vertical, run => wallStarts[run]);
-            return true;
-        }
-        list = RoomObjectDrawListExport.Runs(draw, 1, _ => shape.Cells.Count,
-            (_, cell) => shape.CollisionAt(new Offset16<RoomBlocks>(cell, 0)),
-            RoomObjectDrawListExport.Horizontal, _ => Offset16<RoomBlocks>.Zero);
+        RoomObjectShapeRun[] wall =
+        [
+            RoomObjectShapeRun.Column(new(0, 0), wallColumnHeight), RoomObjectShapeRun.Column(new(1, 0), wallColumnHeight),
+            RoomObjectShapeRun.Column(new(2, 0), wallColumnHeight),
+        ];
+        list = RoomObjectDrawListExport.Runs(draw, shape,
+            WallFrames.Contains(RoomObjectDrawIdentity.FrameOf<CrocomireArenaMutation>(draw, "Crocomire arena"))
+                ? wall
+                : [RoomObjectShapeRun.Row(Offset16<RoomBlocks>.Zero, shape.Cells.Count)]);
         return true;
     }
 
     /// <summary>Maps an arena draw to the published bridge or wall artwork key.</summary>
     internal static string VisualId(RoomObjectDraw draw) =>
-        CrocomireArenaDrawKeys.Installed.Of(RoomObjectDrawIdentity.FrameOf<CrocomireArenaDraw>(draw, "Crocomire arena"));
+        CrocomireArenaDrawKeys.Installed.Of(RoomObjectDrawIdentity.FrameOf<CrocomireArenaMutation>(draw, "Crocomire arena"));
 }

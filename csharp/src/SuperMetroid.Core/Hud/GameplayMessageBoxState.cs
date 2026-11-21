@@ -186,8 +186,8 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
                     }
                     else
                     {
-                        MinimumDisplay = UpdateCountdown.Lasting(Ensure.Listed(GameplayMessageBoxDefinitions.Timing.MinimumDisplayFrames,
-                            message));
+                        MinimumDisplay = UpdateCountdown.Lasting(GameplayMessageBoxDefinitions.Message(message).MinimumDisplayFrames
+                            ?? throw new InvalidOperationException($"Message {message} takes input as soon as its window opens; it has no minimum display."));
                         Phase = GameplayMessageBoxPhase.MinimumDisplay;
                     }
                 }
@@ -312,7 +312,7 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
 
     /// <summary>What <paramref name="messageId"/> asks the player to confirm.</summary>
     private static GameplayMessageConfirmation ConfirmationOf(GameplayMessageId messageId) =>
-        Ensure.Listed(GameplayMessageBoxDefinitions.Confirmations, messageId);
+        GameplayMessageBoxDefinitions.Message(messageId).Confirmation;
 
     /// <summary>
     /// The button <paramref name="messageId"/>'s panel names: the configured Shoot or Run binding's, as the glyph shows it;
@@ -320,8 +320,8 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
     /// </summary>
     private ControllerButton? PanelButton(GameplayMessageId messageId) => GameplayMessageButtons.PanelBinding(messageId) switch
     {
-        GameplayMessagePanelButtonBinding.Shoot => GameplayMessageButtons.Shown(_bindings.Shoot),
-        GameplayMessagePanelButtonBinding.Run => GameplayMessageButtons.Shown(_bindings.Dash),
+        GameplayMessagePanelButtonBinding.Shoot => GameplayMessageButtons.Shown(_bindings[ControllerAction.Shoot]),
+        GameplayMessagePanelButtonBinding.Run => GameplayMessageButtons.Shown(_bindings[ControllerAction.Dash]),
         null => null,
         _ => throw new InvalidDataException($"Unknown gameplay-message panel binding for {messageId}."),
     };

@@ -118,8 +118,8 @@ internal static class ImportedBossLooks
             if (made.FirstOrDefault(candidate => candidate.Shade == shade) is not { } laid)
                 continue;
             found = true;
-            for (int index = 0; index < laid.Inks.Length; index++)
-                cgram.SetColor(offset + laid.Inks[index], laid.Colours[index]);
+            foreach ((int ink, RgbColor colour) in laid.InkColours)
+                cgram.SetColor(offset + ink, colour);
         }
         if (!found)
             throw new InvalidDataException($"The import pre-colours no shade {shade.Key} step {shade.Step}.");

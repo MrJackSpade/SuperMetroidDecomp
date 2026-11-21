@@ -20,7 +20,7 @@ public sealed class LampHanger
     /// <summary>The room the lamps light.</summary>
     public Room Room { get; } = new();
 
-    /// <summary>A lamp for the room, which reads the room and nothing else of the hanger: without its argument it would
-    /// read no instance data, so the field stays.</summary>
+    /// <summary>A lamp for the room, which reads the room and nothing else of the hanger: without its argument it reads
+    /// no instance data, and the build asks for it to be static (CA1822).</summary>
     public Lamp Hang() => new(Room);
 }

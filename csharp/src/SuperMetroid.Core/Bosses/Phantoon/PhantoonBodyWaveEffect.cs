@@ -7,19 +7,22 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// </summary>
 public sealed class PhantoonBodyWaveEffect
 {
-    /// <summary>Whether a requested wave still needs its setup-only first update.</summary>
-    private bool _beginsWithSetup;
-    /// <summary>The length captured for the next setup: the introductory or final-death wave.</summary>
-    private PhantoonWaveLength _pendingLength;
-    /// <summary>The length the wave's last setup selected; null before any setup.</summary>
-    private PhantoonWaveLength? _setupLength;
+    /// <summary>
+    /// Where the wave stands (#2560): rippling, or ended keeping its length, as the last setup started it; or requested,
+    /// waiting for its setup-only first update with the introductory or final-death wave's length while the wave it
+    /// replaces stands as it was; null before any request.
+    /// </summary>
+    private WaveState? _wave;
     /// <summary>
     /// The phase and amplitude the wave last held (#1353, #1858, #2031): its last update, or the death fill as a flat
     /// zero-amplitude wave. Setup and ending the wave keep them.
     /// </summary>
     private PhantoonWaveShape _built;
     /// <summary>Whether a setup has run and the wave has not since observed its length cleared; requesting it with Begin alone does not activate it.</summary>
-    private bool Active { get; set; }
+    private bool Active => SetUpWave is RipplingWave;
+
+    /// <summary>The wave the last setup started, which a requested wave leaves standing until its setup runs.</summary>
+    private WaveState? SetUpWave => _wave is RequestedWave requested ? requested.Replacing : _wave;
     /// <summary>
     /// The wave's phase (#2315): setup seeds <see cref="PhantoonWaveDefinitions.InitialPhase"/>, then each active update
     /// turns it by the wave's phase step. Its whole steps are the angle the wave ripples from.
@@ -32,7 +35,7 @@ public sealed class PhantoonBodyWaveEffect
     /// The wave as it now stands (#1468), or null before any setup: his body rippled down the whole screen by its amplitude
     /// at its phase's angle, over its length's period.
     /// </summary>
-    private PhantoonWave? CurrentWave => _setupLength is { } length ? Describe(length, _built) : null;
+    private PhantoonWave? CurrentWave => SetUpWave is { } wave ? Describe(wave.Length, _built) : null;
 
     /// <summary>
     /// The wave <paramref name="shape"/> shows at <paramref name="length"/> (#1468): his body rippled down the whole screen
@@ -64,8 +67,7 @@ public sealed class PhantoonBodyWaveEffect
     /// <param name="length">The new wave's length. A new request replaces any pending length.</param>
     public void Begin(PhantoonWaveLength length)
     {
-        _pendingLength = length;
-        _beginsWithSetup = true;
+        _wave = new RequestedWave(length, SetUpWave);
     }
 
     /// <summary>Runs one update of the wave: a pending setup consumes the update; later active updates end the wave once it is ended or advance its phase and rebuild its shape.</summary>
@@ -73,27 +75,42 @@ public sealed class PhantoonBodyWaveEffect
     /// <remarks>Does not publish the wave. Ending it keeps its last shape, and a new setup does not clear it; LatchDisplay owns the displayed snapshot.</remarks>
     public void Step(PhantoonEnemyState boss)
     {
-        if (_beginsWithSetup)
+        if (_wave is RequestedWave requested)
         {
-            boss.Wave.SetUp(_pendingLength);
-            _setupLength = _pendingLength;
+            boss.Wave.SetUp(requested.Length);
+            _wave = new RipplingWave(requested.Length);
             Phase = PhantoonWaveDefinitions.InitialPhase;
-            Active = true;
-            _beginsWithSetup = false;
             return; // The setup update does not also ripple.
         }
-        if (!Active) return;
+        if (_wave is not RipplingWave rippling) return;
         if (boss.Wave.HasEnded)
         {
-            Active = false; // The wave ends, keeping its last shape.
+            _wave = new EndedWave(rippling.Length); // The wave ends, keeping its last shape.
             return;
         }
         Phase += boss.Wave.PhaseStep;
-        if (boss.Wave.Length != _setupLength)
-            throw new InvalidOperationException($"Phantoon's wave length {boss.Wave.Length} changed from its setup length {_setupLength}.");
-        _built = new(Phase, boss.Wave.Amplitude.Magnitude());
+        if (boss.Wave.Length != rippling.Length)
+            throw new InvalidOperationException($"Phantoon's wave length {boss.Wave.Length} changed from its setup length {rippling.Length}.");
+        _built = new(Phase, boss.Wave.Amplitude);
     }
 
     /// <summary>Latch the completed wave with the frame's other displayed presentation state.</summary>
     public void LatchDisplay() => DisplayedWave = Active ? CurrentWave : null;
+
+    /// <summary>The wave a setup started (#2560), with the length its setup chose.</summary>
+    /// <param name="Length">The wave's length.</param>
+    private abstract record WaveState(PhantoonWaveLength Length);
+
+    /// <summary>A wave rippling his body.</summary>
+    /// <param name="Length">The wave's length.</param>
+    private sealed record RipplingWave(PhantoonWaveLength Length) : WaveState(Length);
+
+    /// <summary>A wave that has ended, keeping its last shape and length.</summary>
+    /// <param name="Length">The wave's length.</param>
+    private sealed record EndedWave(PhantoonWaveLength Length) : WaveState(Length);
+
+    /// <summary>A requested wave, whose next update sets it up and does no more.</summary>
+    /// <param name="Length">The length its setup selects.</param>
+    /// <param name="Replacing">The wave the last setup started, which stands until this one's setup runs; null before any.</param>
+    private sealed record RequestedWave(PhantoonWaveLength Length, WaveState? Replacing) : WaveState(Length);
 }

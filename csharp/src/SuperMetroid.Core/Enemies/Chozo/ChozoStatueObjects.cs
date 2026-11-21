@@ -58,12 +58,13 @@ internal sealed class ChozoStatueObjects : IChozoStatueHand
             return;
         // The hand block is solid whether or not the touch is admitted. Samus morphed facing left is not admitted; only
         // these three poses are.
-        bool eligible = movingDown && collisionPose is
-            (SamusPoseId.MorphBallGroundRightPose or
-             SamusPoseId.SpringBallGroundRightPose or SamusPoseId.SpringBallGroundLeftPose);
-        eligible &= wreckedShip
-            ? _system.HasDefeatedAnyOf(_area, DefeatedBosses.AreaBoss)
-            : samus.CollectedItems.HasAny(SamusEquipmentFlags.SpaceJump);
+        bool eligible = movingDown && SamusPoseTraits.IsIn(collisionPose, SamusPoseFamily.ChozoHandBall);
+        eligible &= site.Admission switch
+        {
+            ChozoHandAdmission.AreaBossDefeated => _system.HasDefeatedAnyOf(_area, DefeatedBosses.AreaBoss),
+            ChozoHandAdmission.SpaceJumpCollected => samus.CollectedItems.HasAny(SamusEquipmentFlags.SpaceJump),
+            _ => throw new InvalidOperationException($"Undefined {nameof(ChozoHandAdmission)} {site.Admission}."),
+        };
         // The check holds a place of its own while it runs, so the statue's objects it spawns take the places after it.
         if (_places.Spawn() is not { } check)
             return;

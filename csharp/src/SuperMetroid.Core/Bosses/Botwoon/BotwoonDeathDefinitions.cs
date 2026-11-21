@@ -57,19 +57,19 @@ internal static class BotwoonDeathDefinitions
     internal const int SmallExplosionInterval = 5;
 
     /// <summary>A death drop's X across its strip from <see cref="DropLeft"/>.</summary>
-    internal static readonly RandomSampleField DropX = new(0, 7);
+    internal static readonly RandomSampleField DropX = RandomSampleField.OneOf(128);
 
     /// <summary>A death drop's Y down its band from <see cref="DropTop"/>.</summary>
-    internal static readonly RandomSampleField DropY = new(8, 6);
+    internal static readonly RandomSampleField DropY = RandomSampleField.SecondOf(64);
 
     /// <summary>A large wall explosion's X across its strip from <see cref="LargeExplosionLeft"/>.</summary>
-    internal static readonly RandomSampleField LargeExplosionX = new(0, 5);
+    internal static readonly RandomSampleField LargeExplosionX = RandomSampleField.OneOf(32);
 
     /// <summary>A small wall explosion's X across its strip from <see cref="SmallExplosionLeft"/>.</summary>
-    internal static readonly RandomSampleField SmallExplosionX = new(0, 6);
+    internal static readonly RandomSampleField SmallExplosionX = RandomSampleField.OneOf(64);
 
     /// <summary>
     /// A wall explosion's height jitter, in pixels below the top of the band it bursts in, drawn for large and small explosions alike.
     /// </summary>
-    internal static readonly RandomSampleField ExplosionYJitter = new(0, 5);
+    internal static readonly RandomSampleField ExplosionYJitter = RandomSampleField.OneOf(32);
 }

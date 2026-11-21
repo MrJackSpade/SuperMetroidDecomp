@@ -18,7 +18,7 @@ internal static class IntroMotherBrainPartsVerification
     {
         foreach (var definition in IntroMotherBrainSpriteDefinitions.Frames)
         {
-            SpriteVisualPart[] visual = IntroCinematicSpriteFrameExtractor.Extract(rom, CinematicSpritemapSources.Of(definition.Pose), IntroMotherBrainSpriteDefinitions.StockPartCount, definition.Name);
+            SpriteVisualPart[] visual = IntroCinematicSpriteFrameExtractor.Extract(rom, CinematicSpritemapSources.Of(definition.Pose), definition.StockPartCount, definition.Name);
             SpriteComposition source = IntroCinematicSpriteCompiler.Compile(visual, definition.Name);
             foreach (ushort y in new ushort[] { 72, 0xfff8 })
             {

@@ -72,43 +72,43 @@ internal sealed class SamusPoseInputList
 
     /// <summary>The input-transition list of the damage boost left poses.</summary>
     internal static SamusPoseInputList DamageBoostLeft { get; } = new(nameof(DamageBoostLeft),
-        (held, _) => SamusPoseInputRules.MatchDamageBoostLeft(held));
+        (held, _) => SamusPoseInputRules.MatchDamageBoost(GameplayAction.Left, held));
 
     /// <summary>The input-transition list of the damage boost right poses.</summary>
     internal static SamusPoseInputList DamageBoostRight { get; } = new(nameof(DamageBoostRight),
-        (held, _) => SamusPoseInputRules.MatchDamageBoostRight(held));
+        (held, _) => SamusPoseInputRules.MatchDamageBoost(GameplayAction.Right, held));
 
     /// <summary>The input-transition list of the spin jump right poses.</summary>
     internal static SamusPoseInputList SpinJumpRight { get; } = new(nameof(SpinJumpRight),
-        (held, newlyPressed) => SamusPoseInputRules.MatchSpinJumpRight(held, newlyPressed));
+        (held, newlyPressed) => SamusPoseInputRules.MatchSpinRight(SamusPoseId.SpinJumpRightPose, held, newlyPressed));
 
     /// <summary>The input-transition list of the spin jump left poses.</summary>
     internal static SamusPoseInputList SpinJumpLeft { get; } = new(nameof(SpinJumpLeft),
-        (held, newlyPressed) => SamusPoseInputRules.MatchSpinJumpRight(MirrorButtons(held), MirrorButtons(newlyPressed)).Mirrored());
+        (held, newlyPressed) => SamusPoseInputRules.MatchSpinRight(SamusPoseId.SpinJumpRightPose, MirrorButtons(held), MirrorButtons(newlyPressed)).Mirrored());
 
     /// <summary>The input-transition list of the space jump right poses.</summary>
     internal static SamusPoseInputList SpaceJumpRight { get; } = new(nameof(SpaceJumpRight),
-        (held, newlyPressed) => SamusPoseInputRules.MatchSpaceJumpRight(held, newlyPressed));
+        (held, newlyPressed) => SamusPoseInputRules.MatchSpinRight(SamusPoseId.SpaceJumpRightPose, held, newlyPressed));
 
     /// <summary>The input-transition list of the space jump left poses.</summary>
     internal static SamusPoseInputList SpaceJumpLeft { get; } = new(nameof(SpaceJumpLeft),
-        (held, newlyPressed) => SamusPoseInputRules.MatchSpaceJumpRight(MirrorButtons(held), MirrorButtons(newlyPressed)).Mirrored());
+        (held, newlyPressed) => SamusPoseInputRules.MatchSpinRight(SamusPoseId.SpaceJumpRightPose, MirrorButtons(held), MirrorButtons(newlyPressed)).Mirrored());
 
     /// <summary>The input-transition list of the screw attack right poses.</summary>
     internal static SamusPoseInputList ScrewAttackRight { get; } = new(nameof(ScrewAttackRight),
-        (held, newlyPressed) => SamusPoseInputRules.MatchScrewAttackRight(held, newlyPressed));
+        (held, newlyPressed) => SamusPoseInputRules.MatchSpinRight(SamusPoseId.ScrewAttackRightPose, held, newlyPressed));
 
     /// <summary>The input-transition list of the screw attack left poses.</summary>
     internal static SamusPoseInputList ScrewAttackLeft { get; } = new(nameof(ScrewAttackLeft),
-        (held, newlyPressed) => SamusPoseInputRules.MatchScrewAttackRight(MirrorButtons(held), MirrorButtons(newlyPressed)).Mirrored());
+        (held, newlyPressed) => SamusPoseInputRules.MatchSpinRight(SamusPoseId.ScrewAttackRightPose, MirrorButtons(held), MirrorButtons(newlyPressed)).Mirrored());
 
     /// <summary>The input-transition list of the right-facing morph ball on the ground, still or rolling.</summary>
     internal static SamusPoseInputList MorphBallRight { get; } = new(nameof(MorphBallRight),
-        (held, newlyPressed) => SamusPoseInputRules.MatchMorphBallRight(held, newlyPressed));
+        (held, newlyPressed) => SamusPoseInputRules.MatchMorphBall(SamusPoseId.UnmorphingTransitionRightPose, held, newlyPressed));
 
     /// <summary>The input-transition list of the left-facing morph ball on the ground, still or rolling.</summary>
     internal static SamusPoseInputList MorphBallLeft { get; } = new(nameof(MorphBallLeft),
-        (held, newlyPressed) => SamusPoseInputRules.MatchMorphBallLeft(held, newlyPressed));
+        (held, newlyPressed) => SamusPoseInputRules.MatchMorphBall(SamusPoseId.UnmorphingTransitionLeftPose, held, newlyPressed));
 
     /// <summary>The input-transition list of the crouching right poses.</summary>
     internal static SamusPoseInputList CrouchingRight { get; } = new(nameof(CrouchingRight),
@@ -152,11 +152,11 @@ internal sealed class SamusPoseInputList
 
     /// <summary>The input-transition list of the right-facing spring ball on the ground, still or moving.</summary>
     internal static SamusPoseInputList SpringBallGroundRight { get; } = new(nameof(SpringBallGroundRight),
-        (held, newlyPressed) => SamusPoseInputRules.MatchSpringBallGroundRight(held, newlyPressed));
+        (held, newlyPressed) => SamusPoseInputRules.MatchSpringBallGround(SamusPoseId.UnmorphingTransitionRightPose, SamusPoseId.SpringBallJumpRightPose, held, newlyPressed));
 
     /// <summary>The input-transition list of the left-facing spring ball on the ground, still or moving.</summary>
     internal static SamusPoseInputList SpringBallGroundLeft { get; } = new(nameof(SpringBallGroundLeft),
-        (held, newlyPressed) => SamusPoseInputRules.MatchSpringBallGroundLeft(held, newlyPressed));
+        (held, newlyPressed) => SamusPoseInputRules.MatchSpringBallGround(SamusPoseId.UnmorphingTransitionLeftPose, SamusPoseId.SpringBallJumpLeftPose, held, newlyPressed));
 
     /// <summary>The input-transition list of the spring ball falling right poses.</summary>
     internal static SamusPoseInputList SpringBallFallingRight { get; } = new(nameof(SpringBallFallingRight),
@@ -168,11 +168,11 @@ internal sealed class SamusPoseInputList
 
     /// <summary>The input-transition list of the spring ball jump right poses.</summary>
     internal static SamusPoseInputList SpringBallJumpRight { get; } = new(nameof(SpringBallJumpRight),
-        (held, newlyPressed) => SamusPoseInputRules.MatchSpringBallJumpRight(held, newlyPressed));
+        (held, newlyPressed) => SamusPoseInputRules.MatchSpringBallJump(GameplayAction.Right, held, newlyPressed));
 
     /// <summary>The input-transition list of the spring ball jump left poses.</summary>
     internal static SamusPoseInputList SpringBallJumpLeft { get; } = new(nameof(SpringBallJumpLeft),
-        (held, newlyPressed) => SamusPoseInputRules.MatchSpringBallJumpLeft(held, newlyPressed));
+        (held, newlyPressed) => SamusPoseInputRules.MatchSpringBallJump(GameplayAction.Left, held, newlyPressed));
 
     /// <summary>The input-transition list of the wall jump right poses.</summary>
     internal static SamusPoseInputList WallJumpRight { get; } = new(nameof(WallJumpRight),
@@ -204,7 +204,7 @@ internal sealed class SamusPoseInputList
 
     /// <summary>The input-transition list of the normal jump aim down left poses.</summary>
     internal static SamusPoseInputList NormalJumpAimDownLeft { get; } = new(nameof(NormalJumpAimDownLeft),
-        (held, newlyPressed) => SamusPoseInputRules.MatchNormalJumpAimDownLeft(held, newlyPressed));
+        (held, newlyPressed) => SamusPoseInputRules.MatchNormalJumpAimDownLeftOfRight(MirrorButtons(held), MirrorButtons(newlyPressed)).Mirrored());
 
     /// <summary>The input-transition list of the unmorphing transition right poses.</summary>
     internal static SamusPoseInputList UnmorphingTransitionRight { get; } = new(nameof(UnmorphingTransitionRight),
@@ -224,19 +224,19 @@ internal sealed class SamusPoseInputList
 
     /// <summary>The input-transition list of the turning right to left aim up poses.</summary>
     internal static SamusPoseInputList TurningRightToLeftAimUp { get; } = new(nameof(TurningRightToLeftAimUp),
-        (held, newlyPressed) => SamusPoseInputRules.MatchTurningRightToLeftAimUp(held, newlyPressed));
+        (held, newlyPressed) => SamusPoseInputRules.MatchAimedTurningRightToLeft(SamusPoseId.TurningRightToLeftAimUpPose, held, newlyPressed));
 
     /// <summary>The input-transition list of the turning left to right aim up poses.</summary>
     internal static SamusPoseInputList TurningLeftToRightAimUp { get; } = new(nameof(TurningLeftToRightAimUp),
-        (held, newlyPressed) => SamusPoseInputRules.MatchTurningRightToLeftAimUp(MirrorButtons(held), MirrorButtons(newlyPressed)).Mirrored());
+        (held, newlyPressed) => SamusPoseInputRules.MatchAimedTurningRightToLeft(SamusPoseId.TurningRightToLeftAimUpPose, MirrorButtons(held), MirrorButtons(newlyPressed)).Mirrored());
 
     /// <summary>The input-transition list of the turning right to left aim diagonal down poses.</summary>
     internal static SamusPoseInputList TurningRightToLeftAimDiagonalDown { get; } = new(nameof(TurningRightToLeftAimDiagonalDown),
-        (held, newlyPressed) => SamusPoseInputRules.MatchTurningRightToLeftAimDiagonalDown(held, newlyPressed));
+        (held, newlyPressed) => SamusPoseInputRules.MatchAimedTurningRightToLeft(SamusPoseId.TurningRightToLeftAimDiagonalDownPose, held, newlyPressed));
 
     /// <summary>The input-transition list of the turning left to right aim diagonal down poses.</summary>
     internal static SamusPoseInputList TurningLeftToRightAimDiagonalDown { get; } = new(nameof(TurningLeftToRightAimDiagonalDown),
-        (held, newlyPressed) => SamusPoseInputRules.MatchTurningRightToLeftAimDiagonalDown(MirrorButtons(held), MirrorButtons(newlyPressed)).Mirrored());
+        (held, newlyPressed) => SamusPoseInputRules.MatchAimedTurningRightToLeft(SamusPoseId.TurningRightToLeftAimDiagonalDownPose, MirrorButtons(held), MirrorButtons(newlyPressed)).Mirrored());
 
     /// <summary>The input-transition list of the shinespark windup right poses.</summary>
     internal static SamusPoseInputList ShinesparkWindupRight { get; } = new(nameof(ShinesparkWindupRight),
@@ -260,7 +260,7 @@ internal sealed class SamusPoseInputList
 
     /// <summary>The input-transition list of every left-facing pose Draygon's grab holds Samus in.</summary>
     internal static SamusPoseInputList DraygonGrabbedLeft { get; } = new(nameof(DraygonGrabbedLeft),
-        (held, _) => SamusPoseInputRules.MatchDraygonGrabbedLeft(held));
+        (held, _) => SamusPoseInputRules.MatchDraygonGrabbedRight(MirrorButtons(held)).Mirrored());
 
     /// <summary>The input-transition list of every right-facing pose Draygon's grab holds Samus in.</summary>
     internal static SamusPoseInputList DraygonGrabbedRight { get; } = new(nameof(DraygonGrabbedRight),

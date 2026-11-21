@@ -85,8 +85,8 @@ internal static class KraidNailSiblingVerification
             random = (ushort)raw;
             ((KraidNailState)sibling.RequireSpeciesState<KraidPartState>()).NailVelocity = ((KraidNailState)sibling.RequireSpeciesState<KraidPartState>()).NailVelocity.WithY(((KraidNailState)sibling.RequireSpeciesState<KraidPartState>()).NailVelocity.Y.WithWholePixels(unchecked((short)raw)));
             ((KraidNailState)nail.RequireSpeciesState<KraidPartState>()).NailVelocity = ((KraidNailState)nail.RequireSpeciesState<KraidPartState>()).NailVelocity.WithY(((KraidNailState)nail.RequireSpeciesState<KraidPartState>()).NailVelocity.Y.WithWholePixels(unchecked((short)~raw)));
-            ((KraidNailState)sibling.RequireSpeciesState<KraidPartState>()).AlternateSpawn = siblingAlternate;
-            part.AlternateSpawn = !siblingAlternate;
+            ((KraidNailState)sibling.RequireSpeciesState<KraidPartState>()).LaunchSide = siblingAlternate ? KraidNailLaunchSide.FixedLeft : KraidNailLaunchSide.BodySide;
+            part.LaunchSide = siblingAlternate ? KraidNailLaunchSide.BodySide : KraidNailLaunchSide.FixedLeft;
             bool diagonal = (random & 1) == 0 || siblingAlternate;
             int table = ((KraidNailState)sibling.RequireSpeciesState<KraidPartState>()).NailVelocity.Y.WholePixels < 0 ? 0xa7be3e : 0xa7be46;
             int pointer = 0xa70000 | Word(table + (random & 6));
@@ -96,8 +96,8 @@ internal static class KraidNailSiblingVerification
             AssertEqual((ushort)0, ((KraidNailState)nail.RequireSpeciesState<KraidPartState>()).NailVelocity.Y.Fraction, "Launch clears old Y fraction");
             AssertEqual(diagonal ? Word(pointer + 6) : (ushort)0, ((KraidNailState)nail.RequireSpeciesState<KraidPartState>()).NailVelocity.Y.UnsignedWholePixels, "Nail launch Y velocity comes from sibling sign");
             AssertEqual(diagonal ? Word(pointer + 2) : (ushort)1, ((KraidNailState)nail.RequireSpeciesState<KraidPartState>()).NailVelocity.X.UnsignedWholePixels, "Nail launch X velocity and horizontal override");
-            AssertEqual(!diagonal, part.AlternateSpawn, "Nail spawn mode consults sibling flag, writes own flag");
-            AssertEqual(siblingAlternate, ((KraidNailState)sibling.RequireSpeciesState<KraidPartState>()).AlternateSpawn, "Sibling flag remains unchanged");
+            AssertEqual(!diagonal, part.LaunchSide == KraidNailLaunchSide.FixedLeft, "Nail spawn mode consults sibling flag, writes own flag");
+            AssertEqual(siblingAlternate, ((KraidNailState)sibling.RequireSpeciesState<KraidPartState>()).LaunchSide == KraidNailLaunchSide.FixedLeft, "Sibling flag remains unchanged");
             AssertEqual((ushort)raw, ((KraidNailState)sibling.RequireSpeciesState<KraidPartState>()).NailVelocity.Y.UnsignedWholePixels, "Sibling velocity remains unchanged");
             AssertEqual((diagonal ? KraidNailPhase.Fire : KraidNailPhase.WaitForLint), ((KraidNailState)nail.RequireSpeciesState<KraidPartState>()).Phase, "Sibling choice selects actual launch phase");
         }
@@ -107,7 +107,7 @@ internal static class KraidNailSiblingVerification
         RoomEnemyPlace secondNail = enemies.Places.InUpdateOrder[7];
         KraidNailState killedSibling = ((KraidNailState)secondNail.RequireSpeciesState<KraidPartState>());
         killedSibling.NailVelocity = FixedVector<RoomPixels>.FromStoredParts(0, 0, 0x8000, 0);
-        killedSibling.AlternateSpawn = false;
+        killedSibling.LaunchSide = KraidNailLaunchSide.BodySide;
         random = 0;
         secondNail.Clear();
         initialize(firstNail, ((KraidNailState)firstNail.RequireSpeciesState<KraidPartState>()));
@@ -118,7 +118,7 @@ internal static class KraidNailSiblingVerification
 
         // A killed sibling took no alternate spawn, whatever its mark last held, so a draw that allows it sends the launch
         // to wait for the lint (#1620).
-        killedSibling.AlternateSpawn = true;
+        killedSibling.LaunchSide = KraidNailLaunchSide.FixedLeft;
         random = 1;
         initialize(firstNail, ((KraidNailState)firstNail.RequireSpeciesState<KraidPartState>()));
         AssertEqual(KraidNailPhase.WaitForLint, ((KraidNailState)firstNail.RequireSpeciesState<KraidPartState>()).Phase,

@@ -96,7 +96,7 @@ public static class XrayRevealVisualFiles
             // The Brinstar-only copy reveals nothing in another area, whose table the import resolves to plain solid blocks
             // at the entries Brinstar gives its own Speed Booster blocks (#1805).
             XrayRevealDefinition? native = ReadNative(bus, type, value) is { } read &&
-                (read.Shape != XrayRevealShape.CopyBrinstar || area == AreaId.Brinstar) ? read : null;
+                XrayRevealShapes.RevealsIn(read.Shape, area) ? read : null;
             RoomBlockBehavior behavior = RoomBlockBehaviorCodec.Decode(area, value);
             if (native?.Shape != XrayReveals.Find(type, behavior))
                 throw new InvalidDataException(
@@ -361,7 +361,7 @@ public static class XrayRevealVisualFiles
     {
         /// <summary>The document of <paramref name="appearance"/>.</summary>
         internal static AppearanceDocument Of(RoomBlockAppearance appearance) =>
-            new(appearance.ShowsNothing ? null : appearance.Block, appearance.Mirroring);
+            new(appearance.Shows == RoomBlockShown.Nothing ? null : appearance.Block, appearance.Mirroring);
 
         /// <summary>The appearance the document names.</summary>
         /// <exception cref="ArgumentOutOfRangeException">The block is negative, or the mirroring is not the two reflections.</exception>

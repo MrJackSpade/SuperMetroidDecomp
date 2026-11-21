@@ -25,7 +25,7 @@ internal static class LookupTubeDrawsVerification
         string[] ids = ["intact","cracking","opened","upper-rows-open","lower-rows-open"];
         var exported = RoomObjectNoobTubeVisualFiles.All.ToArray();
         AssertEqual(5, exported.Length, "Tube export count");
-        InstalledRoomObjectNoobTubeVisuals? pictures = field == 2 ? InstalledRoomObjectNoobTubeVisuals.Stock() : null;
+        InstalledRoomObjectPictures? pictures = field == 2 ? RoomObjectPicturesStock.NoobTube : null;
         if (field == 0)
         {
             for (int raw = 0; raw <= ushort.MaxValue; raw++)

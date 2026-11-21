@@ -66,23 +66,12 @@ internal static class DownwardGateProjectileAnimations
     });
 
     /// <summary>The animation each place of the gate's travel starts; the stopping gate shows itself closed as it stops.</summary>
-    internal static IReadOnlyDictionary<DownwardGateProjectileSegment, Animation<DownwardGateProjectileSegment>> StartingAt { get; } = new Dictionary<DownwardGateProjectileSegment, Animation<DownwardGateProjectileSegment>>
+    internal static IReadOnlyDictionary<DownwardGateProjectileSegment, Animation<DownwardGateProjectileSegment>> StartingAt { get; } = Segments.StartsEnding(new Dictionary<DownwardGateProjectileSegment, Animation<DownwardGateProjectileSegment>>
     {
-        [P.Moving] = new([Segments.Whole(P.Moving)], AnimationEnd.Holds),
-        [P.MovedOneBlock] = new([Segments.Whole(P.MovedOneBlock)], AnimationEnd.Holds),
-        [P.MovedTwoBlocks] = new([Segments.Whole(P.MovedTwoBlocks)], AnimationEnd.Holds),
-        [P.MovedThreeBlocks] = new([Segments.Whole(P.MovedThreeBlocks)], AnimationEnd.Holds),
         [P.Stopping] = new([Segments.Whole(P.Stopping), Segments.Whole(P.Closed)], AnimationEnd.Holds),
-        [P.Closed] = new([Segments.Whole(P.Closed)], AnimationEnd.Holds),
-        [P.Rising] = new([Segments.Whole(P.Rising)], AnimationEnd.Holds),
-        [P.RisenOneBlock] = new([Segments.Whole(P.RisenOneBlock)], AnimationEnd.Holds),
-        [P.RisenTwoBlocks] = new([Segments.Whole(P.RisenTwoBlocks)], AnimationEnd.Holds),
-        [P.RisenThreeBlocks] = new([Segments.Whole(P.RisenThreeBlocks)], AnimationEnd.Holds),
-        [P.Vanishing] = new([Segments.Whole(P.Vanishing)], AnimationEnd.Holds),
-    };
-
-    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<DownwardGateProjectileSegment> StartingWith(DownwardGateProjectileSegment segment) => StartingAt[segment];
+    }, AnimationEnd.Holds,
+        P.Moving, P.MovedOneBlock, P.MovedTwoBlocks, P.MovedThreeBlocks, P.Closed, P.Rising, P.RisenOneBlock,
+        P.RisenTwoBlocks, P.RisenThreeBlocks, P.Vanishing);
 
     /// <summary>
     /// The gate's travel, each stage named by the animation that starts it, and the stage each takes the gate on to

@@ -101,7 +101,7 @@ internal sealed record RoomScope
     /// The ground Samus's running footsteps and landings go by in this room (#2416), by its area and its own policy; the
     /// room sets it as it loads, beside the liquid its effect gives her physics.
     /// </summary>
-    public required SamusGround SamusGround { get; init; }
+    public required RoomGround SamusGround { get; init; }
 
     /// <summary>The room's colour effects.</summary>
     public required ColourEffectSystem ColourEffects { get; init; }

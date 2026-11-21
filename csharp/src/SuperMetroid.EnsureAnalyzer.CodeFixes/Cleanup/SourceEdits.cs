@@ -8,14 +8,16 @@ namespace SuperMetroid.EnsureAnalyzer.CodeFixes.Cleanup;
 /// The text changes a cleanup fix makes to one document, applied together. A removed node takes its whole lines when it
 /// stands on lines of its own, with the comments and documentation directly above it; one blank line beside it goes too
 /// where two would otherwise meet, or where one would be left against an opening or closing brace or the end of the
-/// file. A node sharing a line with other code is removed with the spaces after it. Changes that overlap, and removals
-/// that would delete a preprocessor directive, fail.
+/// file. A node sharing a line with other code is removed with the spaces after it. Changes that overlap fail, and so
+/// does a removal that would delete a preprocessor directive, unless the code it removes is moved elsewhere with its
+/// directives (<see cref="RemoveMoved"/>).
 /// </summary>
 internal sealed class SourceEdits
 {
     private readonly string _path;
     private readonly List<TextChange> _changes = [];
     private readonly List<TextSpan> _removals = [];
+    private readonly List<TextSpan> _moved = [];
     private readonly List<TextSpan> _directiveLines = [];
 
     /// <summary>Starts the edits of the document holding <paramref name="text"/> at <paramref name="path"/>.</summary>
@@ -28,6 +30,9 @@ internal sealed class SourceEdits
     /// <summary>The document's text before the edits.</summary>
     internal SourceText Text { get; }
 
+    /// <summary>The document's path, which a failure names.</summary>
+    internal string FilePath => _path;
+
     /// <summary>Replaces <paramref name="span"/> with <paramref name="replacement"/>.</summary>
     internal void Replace(TextSpan span, string replacement) => _changes.Add(new TextChange(span, replacement));
 
@@ -36,6 +41,16 @@ internal sealed class SourceEdits
 
     /// <summary>Removes <paramref name="node"/>, with its lines when it stands on lines of its own.</summary>
     internal void Remove(SyntaxNode node) => RemoveRange(node, node);
+
+    /// <summary>Removes <paramref name="node"/> as <see cref="Remove"/> does, for a fix that writes its text, directives
+    /// included, somewhere else: the directives inside it go with it.</summary>
+    internal void RemoveMoved(SyntaxNode node)
+    {
+        int count = _removals.Count;
+        RemoveRange(node, node);
+        _moved.AddRange(_removals.Skip(count));
+        _removals.RemoveRange(count, _removals.Count - count);
+    }
 
     /// <summary>Removes an attribute list as <see cref="Remove"/> removes a node, but leaves the comments and
     /// documentation above it, which belong to the member it is on.</summary>
@@ -100,7 +115,7 @@ internal sealed class SourceEdits
     private List<TextSpan> Blocks()
     {
         var merged = new List<TextSpan>();
-        foreach (TextSpan removal in _removals.Concat(_directiveLines).OrderBy(span => span.Start))
+        foreach (TextSpan removal in _removals.Concat(_moved).Concat(_directiveLines).OrderBy(span => span.Start))
         {
             if (merged.Count > 0 && removal.Start <= merged[merged.Count - 1].End)
                 merged[merged.Count - 1] = TextSpan.FromBounds(merged[merged.Count - 1].Start, Math.Max(merged[merged.Count - 1].End, removal.End));

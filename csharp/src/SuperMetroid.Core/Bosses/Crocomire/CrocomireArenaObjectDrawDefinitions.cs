@@ -39,13 +39,13 @@ internal static class CrocomireArenaObjectDrawDefinitions
     ]);
 
     /// <summary>The block shape each of the five arena frames draws.</summary>
-    internal static readonly Dictionary<CrocomireArenaDraw, RoomBlockShape> Shapes = new()
+    internal static readonly Dictionary<CrocomireArenaMutation, RoomBlockShape> Shapes = new()
     {
-        [CrocomireArenaDraw.ClearBridge] = ClearedBridge,
-        [CrocomireArenaDraw.CrumbleBridgeBlock] = CrumblingBridgeBlock,
-        [CrocomireArenaDraw.ClearBridgeBlock] = ClearedBridgeBlock,
-        [CrocomireArenaDraw.ClearInvisibleWall] = ClearedWall,
-        [CrocomireArenaDraw.CreateInvisibleWall] = SolidWall,
+        [CrocomireArenaMutation.ClearBridge] = ClearedBridge,
+        [CrocomireArenaMutation.CrumbleBridgeBlock] = CrumblingBridgeBlock,
+        [CrocomireArenaMutation.ClearBridgeBlock] = ClearedBridgeBlock,
+        [CrocomireArenaMutation.ClearInvisibleWall] = ClearedWall,
+        [CrocomireArenaMutation.CreateInvisibleWall] = SolidWall,
     };
 
     /// <summary>

@@ -48,7 +48,7 @@ internal sealed class KraidProjectiles
         lint.Shading = state.Parts.Body.Shading;
         part.ShowPose(KraidPartSegment.LintInitial);
         part.Phase = KraidLintPhase.Inactive;
-        part.LintXOffset = KraidArenaDefinitions.LintXOffsets[expected];
+        part.Emergence = KraidArenaDefinitions.LintEmergences[expected];
         return state;
     }
 
@@ -67,7 +67,7 @@ internal sealed class KraidProjectiles
         // A fingernail is set up at rest, so its sibling's launch reads it as stopped, as it reads a killed one.
         nailPart.NailVelocity = FixedVector<RoomPixels>.Zero;
         // A fingernail set up, at the room's first setup or a respawn, has taken no alternate spawn, as a killed one has not.
-        nailPart.AlternateSpawn = false;
+        nailPart.LaunchSide = KraidNailLaunchSide.BodySide;
         nail.Presence = nail.Presence.With(EnemyPresence.Hidden);
         // The nail shows its spin's first pose, and the spin waits until its flight starts it from its beginning.
         _ = nailPart.ShowFirstPose(KraidPartSegment.NailLoop);
@@ -121,7 +121,7 @@ internal sealed class KraidProjectiles
             }
         }
 
-        /// <summary>Carries out a rock animation's cue: stopping its flight from the next pass, or deletion.</summary>
+        /// <summary>Carries out a rock animation's cue: stopping its flight from the next pass.</summary>
         public void RunCue(EnemyProjectileCueContext context, KraidRockCue cue)
         {
             EnemyProjectile projectile = context.Projectile;
@@ -129,9 +129,6 @@ internal sealed class KraidProjectiles
             {
                 case KraidRockCue.StopFlyingFromNextPass:
                     projectile.HoldStill();
-                    return;
-                case KraidRockCue.Delete:
-                    projectile.Delete();
                     return;
                 default:
                     throw new InvalidOperationException($"Undefined {nameof(KraidRockCue)} {cue}.");
@@ -216,16 +213,16 @@ internal sealed class KraidProjectiles
         part.SetAnimation(KraidPartSegment.NailLoop);
         part.Phase = KraidNailPhase.Fire;
 
-        if (!KraidRandomDefinitions.NailWaitsForLint.IsTakenBy(random) || siblingPart is { AlternateSpawn: true })
+        if (!KraidRandomDefinitions.NailWaitsForLint.IsTakenBy(random) || siblingPart is { LaunchSide: KraidNailLaunchSide.FixedLeft })
         {
-            part.AlternateSpawn = false;
+            part.LaunchSide = KraidNailLaunchSide.BodySide;
             RoomEnemyPlace body = part.Kraid.Parts.Body;
             nail.Position = nail.Position.WithWhole(new(RoomGridConversions.BlockStart(
                 body.Position.X.Whole - body.Radius.X - nail.Radius.X), part.Kraid.Parts.Arm.Position.Y.Whole + KraidArenaDefinitions.NailLaunchBelowArm));
             return;
         }
 
-        part.AlternateSpawn = true;
+        part.LaunchSide = KraidNailLaunchSide.FixedLeft;
         nail.Position = nail.Position.WithWhole(KraidArenaDefinitions.AlternateNailStart);
         part.NailVelocity = KraidNailLaunchDefinitions.Parked;
         part.Phase = KraidNailPhase.WaitForLint;
@@ -299,6 +296,9 @@ internal sealed class KraidProjectiles
             part.Phase = KraidLintPhase.Produce;
     }
 
+    /// <summary>Where a lint stands as it emerges from his belly (#2557): its offset from his body, less how far it has come.</summary>
+    private int EmergedLintX(KraidLintState part) => part.LintXOffset + _parts.Body.Position.X.Whole - part.LintTravel;
+
     /// <summary>Starts a lint projectile from the attached part.</summary>
     private static void ProduceKraidLint(RoomEnemyPlace lint, KraidLintState part)
     {
@@ -317,7 +317,7 @@ internal sealed class KraidProjectiles
     /// <summary>Advances the visible lint charge before firing.</summary>
     private void ChargeKraidLint(RoomEnemyPlace lint, KraidLintState part)
     {
-        lint.Shading = KraidCadenceDefinitions.LintChargeShowsOwnColours.IsSetIn(part.PhaseWait.UpdatesLeft)
+        lint.Shading = KraidCadenceDefinitions.LintChargeShowsOwnColours.IsInSecondHalfAt(part.PhaseWait.UpdatesLeft)
             ? part.Kraid.Colours.Parts
             : EnemyShades.HurtFlashLook;
         lint.Position = lint.Position.WithWholeX(

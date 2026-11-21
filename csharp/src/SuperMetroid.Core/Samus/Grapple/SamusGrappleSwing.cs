@@ -17,7 +17,8 @@ public static class SamusGrappleSwing
         SamusGrappleState grapple)
     {
         // A fast swing makes the camera scroll slowly.
-        grapple.FollowSwing(grapple.AngularVelocity.Magnitude >= GrappleSlowScrollDefinitions.FastSwingAngularSpeed);
+        grapple.FollowSwing(grapple.AngularVelocity.Magnitude >= GrappleSlowScrollDefinitions.FastSwingAngularSpeed
+            ? GrappleCameraScroll.Slow : GrappleCameraScroll.Ordinary);
         // The swing places the rope by the same collision point the terrain probes use. Besides scaling the
         // angle's signed sine and cosine, it applies the block-side endpoint bias documented in
         // CalculateCollisionPoint; using one point prevents visible art from disagreeing
@@ -36,7 +37,7 @@ public static class SamusGrappleSwing
         // move the collision body. Stock art still selects the same frame.
         var direction = GrappleSwingDirection.Nearest(grapple.MirroredAngle.ToTrigonometryAngle());
         GrappleSwingPicture picture = grapple.Artwork.GrappleSwingFrames.Resolve(direction);
-        var offset = GrappleBodyPlacements.Offset(direction, SamusPoseMetadata.IsFacingLeft(samus.Pose));
+        var offset = GrappleBodyPlacements.Offset(direction, SamusPoseMetadata.ReadFacingDirection(samus.Pose));
 
         SamusPresentation.ShowGrappleSwingPicture(samus, picture);
         samus.Position = samus.Position.WithWhole(new(ropeStart.Pixel.X + offset.X, ropeStart.Pixel.Y + offset.Y));
@@ -536,14 +537,10 @@ public static class SamusGrappleSwing
             return;
 
         // The swing's own selection: the turret spike, which the ground collision treats as light, costs nothing here.
-        int damage = block == SwingSpikeBlock.Solid
-            ? reaction == SpikeReaction.HeavySpike ? SpikeHazardDefinitions.HeavySpikeDamage
-                : reaction == SpikeReaction.LightSpike ? SpikeHazardDefinitions.LightSpikeDamage
-                : 0
-            : reaction == SpikeReaction.DamagingSpikeAir
-                ? SpikeHazardDefinitions.LightSpikeDamage
-                : 0;
-        if (damage == 0)
+        IReadOnlyDictionary<SpikeReaction, int> damages = block == SwingSpikeBlock.Solid
+            ? SamusGrappleSpikeDefinitions.SolidBlockSwingDamage
+            : SamusGrappleSpikeDefinitions.PlainBlockSwingDamage;
+        if (reaction is not { } spike || !damages.TryGetValue(spike, out int damage))
             return;
 
         samus.PeriodicDamage.Accumulate(EnergyAmount.FromEnergy(damage));

@@ -261,9 +261,9 @@ internal static class InstalledArtworkContentIdentity
                 content.Append("tiles", tiles.Length);
                 foreach (XrayRoomOverlayVisual tile in tiles)
                 {
-                    // Identity hashes the authored byte coordinates.
-                    content.Append("x", Ensure.BetweenInclusive(0, byte.MaxValue, tile.Block.X));
-                    content.Append("y", Ensure.BetweenInclusive(0, byte.MaxValue, tile.Block.Y));
+                    // Identity hashes the block's place in the room.
+                    content.Append("x", tile.Block.X);
+                    content.Append("y", tile.Block.Y);
                     content.AppendAppearances("block", [tile.Appearance]);
                 }
             }

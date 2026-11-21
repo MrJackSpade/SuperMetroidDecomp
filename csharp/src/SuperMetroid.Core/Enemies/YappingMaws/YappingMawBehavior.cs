@@ -71,9 +71,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemySpawnFactory<Yap
                 continue;
 
             body.Position = body.Position.WithWhole(place.Position.Whole);
-            body.InstallAnimation(new YappingMawBodyProjectileAnimation(yappingMawSpawnSettings.Attack == VerticalDirection.Down
-                ? YappingMawBodyProjectileSegment.FacingDown
-                : YappingMawBodyProjectileSegment.FacingUp));
+            body.InstallAnimation(new YappingMawBodyProjectileAnimation(YappingMawReach.Of(yappingMawSpawnSettings.Attack).Body));
             bodies[link] = body;
         }
 
@@ -86,15 +84,12 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemySpawnFactory<Yap
             // The root's kind follows the Maw's attack direction; the Maw holds the root it spawned.
             RootEffectActor = _effectActors.SpawnRoomEffectActor(
                 new(place.Position.X.Whole, place.Position.Y.Whole + (YappingMawAttackDefinitions.RootDistance.Toward(yappingMawSpawnSettings.Attack.Reversed()))),
-                yappingMawSpawnSettings.Attack == VerticalDirection.Down
-                    ? RoomEffectActorKind.YappingMawBaseFacingDown
-                    : RoomEffectActorKind.YappingMawBaseFacingUp,
+                YappingMawReach.Of(yappingMawSpawnSettings.Attack).Root,
                 SpriteGraphics.SpawnedBy(occupant, place.Shading)),
         };
 
-        state.Playback = EnemyAnimationPlayback.Start(place, YappingMawAnimations.StartingWith(yappingMawSpawnSettings.Attack == VerticalDirection.Down
-            ? YappingMawSegment.AttackingDown
-            : YappingMawSegment.AttackingUp));
+        state.Playback = EnemyAnimationPlayback.Start(place, YappingMawAnimations.StartingWith(
+            YappingMawReach.Of(yappingMawSpawnSettings.Attack).Bite));
         return state;
     }
 
@@ -191,7 +186,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemySpawnFactory<Yap
     /// extension only runs while the curl is 0 through <see cref="YappingMawAttackDefinitions.LargestCurl"/>: setup starts it at zero, the
     /// clamp caps it, and the update that carries it negative leaves the extension; a curl outside that range is refused.
     /// </summary>
-    private static int BendStepOf(int curl) => Ensure.BetweenInclusive(0, YappingMawAttackDefinitions.LargestCurl, curl) / YappingMawAttackDefinitions.CurlPerBendStep;
+    private static int BendStepOf(int curl) => Ensure.BetweenInclusive(0, YappingMawAttackDefinitions.LargestCurl.WholeUnits, curl) / YappingMawAttackDefinitions.CurlPerBendStep;
 
     /// <summary>Runs the curved four-link solver and state transition.</summary>
     private void AdvanceYappingMawExtension(
@@ -231,9 +226,9 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemySpawnFactory<Yap
 
         if (!state.Extension.IsNegative)
         {
-            if (state.Extension.WholeUnits >= YappingMawAttackDefinitions.LargestCurl)
+            if (state.Extension.WholeUnits >= YappingMawAttackDefinitions.LargestCurl.WholeUnits)
             {
-                state.Extension = YappingMawCurl.FromWholeUnits(YappingMawAttackDefinitions.LargestCurl);
+                state.Extension = YappingMawAttackDefinitions.LargestCurl;
                 // The turn-around steps half a mark further than the update's own advance: from extending at a mark's
                 // speed to retracting at the same mark's, or from retracting on to extending at the next mark's.
                 if (state.CurlPhase == YappingMawCurlPhase.Retracting)
@@ -258,28 +253,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemySpawnFactory<Yap
         // The six retracted animations are not one per aim. The right and left sectors have
         // dedicated art, while every other sector shares its attack direction's animation.
         VerticalDirection reach = yappingMawSpawnSettings.Attack;
-        if (reach == VerticalDirection.Up)
-        {
-            state.Playback = new(YappingMawAnimations.StartingWith(state.Aim switch
-            {
-                YappingMawAim.Right => YappingMawSegment.CooldownUpRight,
-                YappingMawAim.Left => YappingMawSegment.CooldownUpLeft,
-                YappingMawAim.Up or YappingMawAim.UpRight or YappingMawAim.DownRight or YappingMawAim.Down or
-                    YappingMawAim.DownLeft or YappingMawAim.UpLeft => YappingMawSegment.CooldownUp,
-                _ => throw new InvalidOperationException($"Yapping Maw aim {state.Aim} is not an aim."),
-            }), AnimationPlace.StartOfAnimation);
-        }
-        else
-        {
-            state.Playback = new(YappingMawAnimations.StartingWith(state.Aim switch
-            {
-                YappingMawAim.Right => YappingMawSegment.CooldownDownRight,
-                YappingMawAim.Left => YappingMawSegment.CooldownDownLeft,
-                YappingMawAim.Up or YappingMawAim.UpRight or YappingMawAim.DownRight or YappingMawAim.Down or
-                    YappingMawAim.DownLeft or YappingMawAim.UpLeft => YappingMawSegment.CooldownDown,
-                _ => throw new InvalidOperationException($"Yapping Maw aim {state.Aim} is not an aim."),
-            }), AnimationPlace.StartOfAnimation);
-        }
+        state.Playback = new(YappingMawAnimations.StartingWith(YappingMawReach.Of(reach).CooldownAfter(state.Aim)), AnimationPlace.StartOfAnimation);
         place.AnimationClock.Restart();
 
         if (state.HasGrabbedSamus &&
@@ -417,7 +391,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemySpawnFactory<Yap
 
         // The frozen colours flash back to the actor's own on alternating pairs only while fewer frozen updates are left
         // than the steady stretch's.
-        if (frozenTimer < EnemyDrawPhaseDefinitions.FrozenColoursSteadyUpdates && !EnemyDrawPhaseDefinitions.FrozenColoursShown.IsSetIn(frozenTimer))
+        if (frozenTimer < EnemyDrawPhaseDefinitions.FrozenColoursSteadyUpdates && !EnemyDrawPhaseDefinitions.FrozenColoursShown.IsInSecondHalfAt(frozenTimer))
             return originalShading;
         return EnemyShades.FrozenLook;
     }
@@ -454,12 +428,6 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemySpawnFactory<Yap
         Position16<RoomPixels> camera) =>
         !EnemyView.Contains(place.Position.Whole, camera);
 
-    /// <summary>
-    /// The axis distance, in pixels, from which the Maw's target distance is that axis's distance alone (#1627): nearer
-    /// on both axes, the distance is the sum of two short products, and the Maw's reach follows whichever it measures.
-    /// </summary>
-    private const int ShortProductReach = 255;
-
     /// <summary>The Maw's distance and bearing to Samus.</summary>
     private static YappingMawTarget CalculateYappingMawTarget(
         Position16<RoomPixels> origin,
@@ -467,12 +435,12 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemySpawnFactory<Yap
     {
         int deltaX = samus.X - origin.X;
         int absoluteX = Math.Abs(deltaX);
-        if (absoluteX >= ShortProductReach)
+        if (YappingMawDistanceReach.MeasuresByAxisAlone(absoluteX))
             return new YappingMawTarget(absoluteX, TrigonometryAngle.QuarterTurn);
 
         int deltaY = samus.Y - origin.Y;
         int absoluteY = Math.Abs(deltaY);
-        if (absoluteY >= ShortProductReach)
+        if (YappingMawDistanceReach.MeasuresByAxisAlone(absoluteY))
             return new YappingMawTarget(absoluteY, TrigonometryAngle.QuarterTurn);
 
         TrigonometryAngle positiveQuadrantAngle = EnemyMath.CalculateAimAngle(new(absoluteX, absoluteY));

@@ -22,7 +22,7 @@ internal sealed class GamePhases
         GameplayFadeIn = new GamePhase(SuperMetroidGameState.GameplayFadeIn,
             PhaseRandomStep.RuntimeOwned,
             step: (controllerInput, live) => Gameplay.RunGameplayFadeIn(controllerInput, live),
-            name: () => session.GameplayFadeLeadsToCeresArrival ? $"Ceres elevator fade-in (brightness {session.GameplayFadeIn.Level})" : $"Landing Site fade-in (brightness {session.GameplayFadeIn.Level})");
+            name: () => session.GameplayFadeTarget == GameplayFadeTarget.CeresArrival ? $"Ceres elevator fade-in (brightness {session.GameplayFadeIn.Level})" : $"Landing Site fade-in (brightness {session.GameplayFadeIn.Level})");
         MainGameplay = new GamePhase(SuperMetroidGameState.MainGameplay,
             PhaseRandomStep.RuntimeOwned,
             step: (controllerInput, live) => Gameplay.RunMainGameplay(controllerInput, live),

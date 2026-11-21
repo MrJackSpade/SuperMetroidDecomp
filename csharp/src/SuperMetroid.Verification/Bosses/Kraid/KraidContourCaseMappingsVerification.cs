@@ -46,14 +46,14 @@ internal static class KraidContourCaseMappingsVerification
         // The tested shot holds its place as an uncharged Power beam, the type the cleared slot word reads as.
         shot.OccupyAsFired(SuperMetroid.Core.Progression.SamusProjectileType.Beam(SuperMetroid.Core.Progression.SamusBeamCombination.Power, charged: false));
         body.Position = body.Position.WithWhole(new(256, 1024));
-        shot.Radius = shot.Radius.WithX(0);
+        shot.HeldShot().Radius = shot.Radius.WithX(0);
         foreach (short y in new short[] { -113, -112, -1, 0 })
         {
-            shot.Position = shot.Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole + y)));
+            shot.HeldShot().Position = shot.Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole + y)));
             int edge = body.Position.X.Whole + NativeKraidBodyLeftEdge(rom, y);
             for (int delta = -1; delta <= 1; delta++)
             {
-                shot.Position = shot.Position.WithWholeX((ushort)(edge + delta));
+                shot.HeldShot().Position = shot.Position.WithWholeX((ushort)(edge + delta));
                 AssertEqual(delta > 0, overlaps(body, shot), "Contour production edge remains strict");
             }
         }
@@ -83,13 +83,13 @@ internal static class KraidContourCaseMappingsVerification
         var native = new KraidHeadNativeCursors(rom);
         var selected = new Dictionary<ushort, KraidHeadGrowthResume>
         {
-            [SuperMetroid.Core.Bosses.Kraid.Artwork.KraidHeadFrameDefinitions.PresentationKey(KraidHeadFrame.Closed)] = KraidHeadGrowthResume.NextFrameClosed,
-            [SuperMetroid.Core.Bosses.Kraid.Artwork.KraidHeadFrameDefinitions.PresentationKey(KraidHeadFrame.Opening)] = KraidHeadGrowthResume.NextFrameOpening,
-            [SuperMetroid.Core.Bosses.Kraid.Artwork.KraidHeadFrameDefinitions.PresentationKey(KraidHeadFrame.Wider)] = KraidHeadGrowthResume.NextFrameWider,
+            [SuperMetroid.Core.Bosses.Kraid.Artwork.KraidHeadFrameDefinitions.PresentationKey(KraidHeadFrame.Closed)] = new(KraidHeadSegment.RoarClosing, KraidHeadFrame.Closed),
+            [SuperMetroid.Core.Bosses.Kraid.Artwork.KraidHeadFrameDefinitions.PresentationKey(KraidHeadFrame.Opening)] = new(KraidHeadSegment.RoarClosing, KraidHeadFrame.Opening),
+            [SuperMetroid.Core.Bosses.Kraid.Artwork.KraidHeadFrameDefinitions.PresentationKey(KraidHeadFrame.Wider)] = new(KraidHeadSegment.RoarClosing, KraidHeadFrame.Wider),
         };
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
-            KraidHeadGrowthResume resume = selected.GetValueOrDefault((ushort)raw, KraidHeadGrowthResume.NextStepOther);
+            KraidHeadGrowthResume resume = selected.GetValueOrDefault((ushort)raw, new KraidHeadGrowthResume(KraidHeadSegment.RoarOpenHold, KraidHeadFrame.Open));
             (ushort pointer, ushort timer) = NativeKraidGrowthResume(rom, (ushort)raw);
             KraidHeadEntry resumed = KraidHeadAnimations.GrowthResume(resume);
             AssertEqual(pointer, native.PointerAt(resumed.Playback), "Kraid native word-dependent resume cursor");

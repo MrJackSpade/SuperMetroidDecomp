@@ -18,7 +18,7 @@ namespace SuperMetroid.Core.Frontend.Title;
 /// Runs the title's scenes in order, showing the installed pictures, colours and gradient.
 /// </remarks>
 [RoomScopeBoundary("A cinematic scene that owns its own colour effects for the scene's lifetime; no gameplay room is loaded.")]
-public sealed class TitleSequenceState : IFrontendScreen
+public sealed class TitleSequenceState : IFrontendScreen, IComposedFrontendScene<FloorScene>
 {
     /// <inheritdoc/>
     void IFrontendScreen.BindArtwork(GameArtwork previous, GameArtwork artwork)
@@ -66,8 +66,8 @@ public sealed class TitleSequenceState : IFrontendScreen
     /// <summary>The idle title screen's wait before the attract demo starts.</summary>
     private UpdateCountdown IdleTimeout { get; set; } = UpdateCountdown.Ended();
     /// <summary>The running title card's typing (#2359): it shows nothing until its first update reads its first beat.</summary>
-    private readonly AnimationPlayer<TitleSequencePhase, TitleCardTyping, TitleCardCue> textCard =
-        AnimationPlayer<TitleSequencePhase, TitleCardTyping, TitleCardCue>.Starting(TitleCards.Segments, TitleCards.Typing(TitleSequencePhase.YearText));
+    private readonly AnimationPlayer<TitleCard, TitleCardTyping, TitleCardCue> textCard =
+        AnimationPlayer<TitleCard, TitleCardTyping, TitleCardCue>.Starting(TitleCards.Segments, TitleCards.Typing(TitleCardDefinitions.Year));
     /// <summary>The whole composition the title shows, the logo, or null while it shows none.</summary>
     internal TitleSprite? ActiveSprite { get; private set; }
     /// <summary>The running title card's text as far as it is typed, or null while no card shows any (#1979).</summary>
@@ -570,7 +570,7 @@ public sealed class TitleSequenceState : IFrontendScreen
     private void BeginTextSequence(TitleTextSequenceDefinition definition)
     {
         Phase = definition.Phase;
-        textCard.Start(TitleCards.Typing(definition.Phase));
+        textCard.Start(TitleCards.Typing(definition.Card));
         ActiveSprite = null;
         ActiveCard = null;
         ActiveOrigin = definition.Origin;

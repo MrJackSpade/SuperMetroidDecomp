@@ -20,7 +20,14 @@ public static class RoomBlockPictureNames
     /// <exception cref="ArgumentOutOfRangeException">The block index is negative.</exception>
     /// <exception cref="ArgumentException">There is not one value for each input.</exception>
     public static string Of(int block, ImmutableArray<AppearanceInput> inputs, ReadOnlySpan<string> values) =>
-        AppearancePictureNames.Of(string.Create(CultureInfo.InvariantCulture, $"block {Ensure.AtLeastZero(block)}"), inputs, values);
+        AppearancePictureNames.Of(OfBlock(block), inputs, values);
+
+    /// <summary>
+    /// The name block <paramref name="block"/>'s pictures begin with, before the values of the inputs it depends on: the
+    /// block, by its number among those its room loads, which keys the block's installed appearance inputs (#2565).
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">The block index is negative.</exception>
+    public static string OfBlock(int block) => string.Create(CultureInfo.InvariantCulture, $"block {Ensure.AtLeastZero(block)}");
 
     /// <summary>
     /// The name of the picture of <paramref name="collectible"/>'s look (#1538, #1994), which depends on no input: its kind

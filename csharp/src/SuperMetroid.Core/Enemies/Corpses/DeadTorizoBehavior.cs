@@ -53,7 +53,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemySpawnFactory<Ene
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
         AnimationPlayback<DeadTorizoSegment> playback = EnemyAnimationPlayback.Start(place, DeadTorizoAnimations.StartingWith(Corpses.DeadTorizoSegment.Stationary));
 
-        var state = new DeadTorizoEnemyState(new CorpseRotSchedule(DeadTorizoCorpseDefinitions.RowCount), DeadTorizoPhase.Wait)
+        var state = new DeadTorizoEnemyState(new CorpseRotSchedule(DeadTorizoCorpseDefinitions.RowCount), CorpsePhase.Waiting)
         {
             Playback = playback,
             FallSpeed = DeadTorizoCorpseDefinitions.StartingFallSpeed,
@@ -75,25 +75,19 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemySpawnFactory<Ene
 
         switch (state.Phase)
         {
-            case DeadTorizoPhase.Wait:
-                if (samus.Kinematics.DidCollideWithSolidEnemy(place) == true)
-                    state.Phase = DeadTorizoPhase.PreRot;
-                break;
-
-            case DeadTorizoPhase.PreRot:
-                if (state.PreRotDelay.Step())
-                {
-                    place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
-                    state.Phase = DeadTorizoPhase.Rotting;
+            case CorpsePhase.Waiting:
+            case CorpsePhase.PreRotDelay:
+                // The update its delay runs out on, the corpse already rots.
+                state.Phase = CorpseRotWait.Step(state.Phase, place, samus, state.PreRotDelay);
+                if (state.Phase == CorpsePhase.Rotting)
                     RunDeadTorizoRotting(place, state);
-                }
                 break;
 
-            case DeadTorizoPhase.Rotting:
+            case CorpsePhase.Rotting:
                 RunDeadTorizoRotting(place, state);
                 break;
 
-            case DeadTorizoPhase.Finished:
+            case CorpsePhase.Finished:
                 break;
 
             default:
@@ -111,14 +105,14 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemySpawnFactory<Ene
         state.SandForming.Step();
         bool stillRotting = state.Rot.Step(state.Rows.MoveRow, _ => FinishDeadTorizoCorpseRow());
         if (!stillRotting)
-            state.Phase = DeadTorizoPhase.Finished;
+            state.Phase = CorpsePhase.Finished;
     }
 
     /// <summary>The rest of the corpse's shot and touch reactions.</summary>
     private static void TriggerDeadTorizoRotting(RoomEnemyPlace place, DeadTorizoEnemyState state)
     {
         place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
-        state.Phase = DeadTorizoPhase.Rotting;
+        state.Phase = CorpsePhase.Rotting;
     }
 
     /// <summary>The corpse's power bomb reaction.</summary>

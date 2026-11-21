@@ -1,16 +1,10 @@
-using SuperMetroid.Core.Assets;
-using SuperMetroid.AssetExtraction.Samus;
-using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Tooling;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SuperMetroid.Core.Samus.Artwork;
-using SuperMetroid.Core.Samus.Colours;
-using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.ResourceAudit.Reports;
 using SuperMetroid.ResourceAudit.Resources;
-using SuperMetroid.AssetExtraction.Samus.Artwork;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Samus;
 

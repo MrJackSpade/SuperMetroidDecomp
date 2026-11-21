@@ -36,7 +36,7 @@ internal static class SamusColoursAccess
         foreach (ColourEffect effect in shading.Effects)
         {
             for (int ink = 0; ink < inks.Length; ink++)
-                inks[ink] = effect.Apply(inks[ink]);
+                inks[ink] = effect.Apply(inks[ink], global::SuperMetroid.Core.Assets.ColourBlendOracle.Instance);
         }
         foreach (PictureShade shade in shading.OverEffects)
             Lay(shades[shade.Key], inks);
@@ -46,8 +46,8 @@ internal static class SamusColoursAccess
     /// <summary>Lays <paramref name="shade"/>'s colours over its inks of <paramref name="inks"/>.</summary>
     private static void Lay(SheetShade shade, RgbColor[] inks)
     {
-        for (int index = 0; index < shade.Inks.Length; index++)
-            inks[shade.Inks[index]] = shade.Colours[index];
+        foreach ((int ink, RgbColor colour) in shade.InkColours)
+            inks[ink] = colour;
     }
 
     /// <summary>Reads Samus's colours as a check compares them.</summary>

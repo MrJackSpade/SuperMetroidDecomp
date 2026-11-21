@@ -99,7 +99,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemySpawnFactor
         HorizontalDirection direction)
     {
         PositionWallSpacePirateOnArc(wallSpacePirateSpawnSettings, place, state);
-        state.WallJumpArcAngle = state.WallJumpArcAngle.TurnedBySteps(state.Jump.StepsPerUpdate.Toward(direction.Reversed()));
+        state.WallJumpArcAngle += state.Jump.TurnPerUpdate.Toward(direction.Reversed());
         if (state.WallJumpArcAngle != (direction == HorizontalDirection.Right ? state.Jump.RightTarget : state.Jump.LeftTarget))
             return;
 

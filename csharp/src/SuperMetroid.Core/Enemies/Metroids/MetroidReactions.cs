@@ -18,6 +18,5 @@ internal static class MetroidReactions
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">No move, or more moves than the escape makes, are left.</exception>
     internal static Offset16<RoomPixels> EscapeDisplacement(int movesLeft) =>
-        MetroidBehaviorDefinitions.EscapeMoves[MetroidBehaviorDefinitions.EscapeDuration -
-            Ensure.BetweenInclusive(1, MetroidBehaviorDefinitions.EscapeDuration, movesLeft)];
+        MetroidBehaviorDefinitions.EscapeMoves[^Ensure.BetweenInclusive(1, MetroidBehaviorDefinitions.EscapeMoves.Length, movesLeft)];
 }

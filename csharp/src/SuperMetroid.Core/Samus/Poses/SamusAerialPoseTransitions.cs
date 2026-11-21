@@ -64,20 +64,12 @@ internal static class SamusAerialPoseTransitions
                 $"{targetPose} is not a same-facing route.");
         }
 
-        LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
-            level,
-            targetPose,
-            frameCounter,
-            roomObjects,
-            out int centerAdjustment);
-        if (collision == LargerPoseCollisionOutcome.RetainSource)
-            return;
-        if (collision == LargerPoseCollisionOutcome.CrouchFallback)
+        // Samus takes the ordinary crouch when the expanded body is blocked above and below; the pose change still runs and
+        // sees the spin/wall-jump previous movement type, and a Screw Attack spin asks for the suit's shade back.
+        LargerPoseCollisionOutcome collision = TryEnlargeInto(samus, level, targetPose, sourcePose, frameCounter, roomObjects, out int centerAdjustment);
+        if (collision != LargerPoseCollisionOutcome.Allowed)
         {
-            // Samus takes the ordinary crouch when the expanded body is blocked above and
-            // below. The pose change still runs and sees the spin/wall-jump previous movement type.
-            samus.ApplyPoseChangeCollisionCrouchFallback(sourcePose);
-            if (samus.EquippedItems.HasAny(SamusEquipmentFlags.ScrewAttack))
+            if (collision == LargerPoseCollisionOutcome.CrouchFallback && samus.EquippedItems.HasAny(SamusEquipmentFlags.ScrewAttack))
                 samus.HorizontalSpeed.ShowSuitShadeAtColourStep();
             return;
         }
@@ -134,50 +126,31 @@ internal static class SamusAerialPoseTransitions
 
         SamusPoseId sourcePose = samus.Pose;
         SamusMovementType sourceMovementType = SamusPoseMetadata.ReadMovementType(samus);
-        bool jumping = sourceMovementType == SamusMovementType.NormalJumping;
-        bool falling = sourceMovementType == SamusMovementType.Falling;
-        bool turnsLeft = genericTargetPose == (jumping
-            ? SamusPoseId.TurningRightToLeftJumpPose
-            : SamusPoseId.TurningRightToLeftFallingPose);
-        bool turnsRight = genericTargetPose == (jumping
-            ? SamusPoseId.TurningLeftToRightJumpPose
-            : SamusPoseId.TurningLeftToRightFallingPose);
-        if ((!jumping && !falling) || (!turnsLeft && !turnsRight))
-        {
-            throw new InvalidOperationException(
+        AerialTurns family = sourceMovementType == SamusMovementType.NormalJumping ? AerialTurns.Jumping
+            : sourceMovementType == SamusMovementType.Falling ? AerialTurns.Falling
+            : throw new InvalidOperationException(
                 $"Aerial turn {sourcePose} -> {genericTargetPose} is not a turn while jumping or falling.");
-        }
+        HorizontalDirection turnsTo = genericTargetPose == family.RightToLeft ? HorizontalDirection.Left
+            : genericTargetPose == family.LeftToRight ? HorizontalDirection.Right
+            : throw new InvalidOperationException(
+                $"Aerial turn {sourcePose} -> {genericTargetPose} is not a turn while jumping or falling.");
 
         // The turn keeps her aim. A straight-down aim takes the down-aimed turn away from the way she faces.
         SamusProjectileDirection? shotDirection = SamusPoseMetadata.ReadAimDirection(samus);
-        IReadOnlyDictionary<SamusProjectileDirection, SamusPoseId> turns = jumping
-            ? SamusAimedPoseChoiceDefinitions.JumpingTurns
-            : SamusAimedPoseChoiceDefinitions.FallingTurns;
-        SamusPoseId selectedTurnPose = shotDirection is { } direction && turns.TryGetValue(direction, out SamusPoseId turn)
+        SamusPoseId selectedTurnPose = shotDirection is { } direction && family.ByAim.TryGetValue(direction, out SamusPoseId turn)
             ? turn
             : throw new InvalidDataException(
-                $"{(jumping ? "Jump" : "Fall")} pose {sourcePose} aims in no shot direction ({SamusPoseMetadata.ReadAim(samus)}).");
+                $"{family.Name} pose {sourcePose} aims in no shot direction ({SamusPoseMetadata.ReadAim(samus)}).");
 
-        if ((turnsLeft && !SamusPoseMetadata.IsRightToLeftAerialTurnPose(selectedTurnPose)) ||
-            (turnsRight && !SamusPoseMetadata.IsLeftToRightAerialTurnPose(selectedTurnPose)))
+        if ((turnsTo == HorizontalDirection.Left && !SamusPoseMetadata.IsRightToLeftAerialTurnPose(selectedTurnPose)) ||
+            (turnsTo == HorizontalDirection.Right && !SamusPoseMetadata.IsLeftToRightAerialTurnPose(selectedTurnPose)))
         {
             throw new InvalidOperationException(
                 $"Aerial turn source {sourcePose} has direction metadata inconsistent with {genericTargetPose}.");
         }
 
-        LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
-            level,
-            selectedTurnPose,
-            frameCounter,
-            roomObjects,
-            out int centerAdjustment);
-        if (collision == LargerPoseCollisionOutcome.RetainSource)
+        if (TryEnlargeInto(samus, level, selectedTurnPose, sourcePose, frameCounter, roomObjects, out int centerAdjustment) != LargerPoseCollisionOutcome.Allowed)
             return;
-        if (collision == LargerPoseCollisionOutcome.CrouchFallback)
-        {
-            samus.ApplyPoseChangeCollisionCrouchFallback(sourcePose);
-            return;
-        }
 
         // The changed-pose collision resolves expansion before the pose change runs the final movement type.
         // A crouch substitution never reaches the aerial-turn momentum setup.
@@ -253,15 +226,8 @@ internal static class SamusAerialPoseTransitions
         // The accepted wall contact still passes through the ordinary changed-pose
         // collision check. Expanding a compact spin body beneath a ceiling can
         // move the center away from it, reject the expansion, or select crouch.
-        LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
-            level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
-        if (collision == LargerPoseCollisionOutcome.RetainSource)
+        if (TryEnlargeInto(samus, level, targetPose, samus.Pose, frameCounter, roomObjects, out int centerAdjustment) != LargerPoseCollisionOutcome.Allowed)
             return;
-        if (collision == LargerPoseCollisionOutcome.CrouchFallback)
-        {
-            samus.ApplyPoseChangeCollisionCrouchFallback(samus.Pose);
-            return;
-        }
         samus.Kinematics.Position += new Offset16<RoomPixels>(0, centerAdjustment);
 
         // A wall jump from a Screw Attack spin asks for the normal suit shade back before the jump starts; the shade
@@ -304,7 +270,7 @@ internal static class SamusAerialPoseTransitions
     /// </remarks>
     public static void ApplyGrappleWallJump(SamusState samus)
     {
-        if (samus.Pose is not (SamusPoseId.GrappleWallContactLeftPose or SamusPoseId.GrappleWallContactRightPose))
+        if (!SamusPoseTraits.IsIn(samus.Pose, SamusPoseFamily.GrappleWallContact))
         {
             throw new InvalidOperationException(
                 $"Grapple wall jump requires a grapple wall-contact pose, not {samus.Pose}.");
@@ -362,13 +328,7 @@ internal static class SamusAerialPoseTransitions
         // or jumping. The game's drop selects by radius/shot direction in those poses too;
         // only its output domain is restricted, not the source to connected-grapple art.
         SamusPoseId sourcePose = samus.Pose;
-        LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
-            level,
-            targetPose,
-            frameCounter,
-            roomObjects,
-            out int centerAdjustment);
-        if (collision == LargerPoseCollisionOutcome.Allowed)
+        if (TryEnlargeInto(samus, level, targetPose, sourcePose, frameCounter, roomObjects, out int centerAdjustment) == LargerPoseCollisionOutcome.Allowed)
         {
             samus.Pose = targetPose;
             SamusPoseMetadata.RefreshCollisionRadii(samus);
@@ -376,11 +336,6 @@ internal static class SamusAerialPoseTransitions
             if (samus.Pose != samus.PoseHistory.PreviousPose)
                 SamusPresentation.InitializeAnimation(samus);
         }
-        else if (collision == LargerPoseCollisionOutcome.CrouchFallback)
-        {
-            samus.ApplyPoseChangeCollisionCrouchFallback(sourcePose);
-        }
-
     }
 
     /// <summary>
@@ -487,7 +442,7 @@ internal static class SamusAerialPoseTransitions
     /// </summary>
     public static void ApplyShinesparkDirectionTransition(SamusState samus, SamusPoseId targetPose)
     {
-        if (samus.Pose is not (SamusPoseId.ShinesparkWindupRightPose or SamusPoseId.ShinesparkWindupLeftPose))
+        if (!SamusPoseTraits.IsIn(samus.Pose, SamusPoseFamily.ShinesparkWindup))
         {
             throw new InvalidOperationException(
                 $"Directional shinespark transition requires windup pose, not {samus.Pose}.");
@@ -514,7 +469,7 @@ internal static class SamusAerialPoseTransitions
                 $"Ordinary jump transition {samus.Pose} -> {targetPose} is not an active route for this setup.");
         }
 
-        samus.Pose = targetPose is SamusPoseId.SpinJumpRightPose or SamusPoseId.SpinJumpLeftPose
+        samus.Pose = SamusPoseTraits.IsIn(targetPose, SamusPoseFamily.GenericSpinJump)
             ? SelectEquippedSpinPose(samus, targetPose)
             : targetPose;
         // The pose update happens after movement. The next input phase, including
@@ -634,15 +589,13 @@ internal static class SamusAerialPoseTransitions
     {
         Ensure.NotNull(level);
 
-        bool rightJump = SamusPoseMetadata.IsRightFacingNormalJumpPose(samus.Pose) &&
-            SamusPoseMetadata.IsRightFacingNormalJumpPose(targetPose);
-        bool leftJump = SamusPoseMetadata.IsLeftFacingNormalJumpPose(samus.Pose) &&
-            SamusPoseMetadata.IsLeftFacingNormalJumpPose(targetPose);
-        bool rightFall = SamusPoseMetadata.IsRightFacingFallingPose(samus.Pose) &&
-            SamusPoseMetadata.IsRightFacingFallingPose(targetPose);
-        bool leftFall = SamusPoseMetadata.IsLeftFacingFallingPose(samus.Pose) &&
-            SamusPoseMetadata.IsLeftFacingFallingPose(targetPose);
-        if ((!rightJump && !leftJump && !rightFall && !leftFall) ||
+        // Both endpoints jump, or both fall, facing the same way.
+        SamusMovementType family = SamusPoseMetadata.ReadMovementType(samus.Pose);
+        bool sameFamily = family is SamusMovementType.NormalJumping or SamusMovementType.Falling &&
+            SamusPoseMetadata.ReadMovementType(targetPose) == family &&
+            SamusPoseMetadata.ReadFacingDirection(samus.Pose) is SamusFacingDirection.Left or SamusFacingDirection.Right &&
+            SamusPoseMetadata.ReadFacingDirection(targetPose) == SamusPoseMetadata.ReadFacingDirection(samus.Pose);
+        if (!sameFamily ||
             (!SamusPoseMetadata.IsCompactAerialPose(samus.Pose) && !SamusPoseMetadata.IsCompactAerialPose(targetPose)))
         {
             // This is the exact precondition of the collision-aware compact-pose change.
@@ -652,18 +605,8 @@ internal static class SamusAerialPoseTransitions
         }
 
         SamusPoseId sourcePose = samus.Pose;
-        LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
-                level,
-                targetPose,
-                frameCounter,
-                roomObjects,
-                out int centerAdjustment);
-        if (collision != LargerPoseCollisionOutcome.Allowed)
-        {
-            if (collision == LargerPoseCollisionOutcome.CrouchFallback)
-                samus.ApplyPoseChangeCollisionCrouchFallback(sourcePose);
+        if (TryEnlargeInto(samus, level, targetPose, sourcePose, frameCounter, roomObjects, out int centerAdjustment) != LargerPoseCollisionOutcome.Allowed)
             return;
-        }
 
         samus.Pose = targetPose;
         samus.Kinematics.Position += new Offset16<RoomPixels>(0, centerAdjustment);
@@ -674,12 +617,26 @@ internal static class SamusAerialPoseTransitions
             // Successful expansion still runs the normal-jump setup. A stored
             // shine may replace the requested aim pose; collision rejection above must
             // not consume the charge or apply the windup's one-pixel adjustment.
-            if (TryBeginShinesparkWindup(samus, targetPose,
-                rightJump || leftJump ? SamusMovementType.NormalJumping : SamusMovementType.Falling))
+            if (TryBeginShinesparkWindup(samus, targetPose, family))
                 return;
             InitializeOrdinaryAerialAcceleration(samus);
         }
         SamusPresentation.InitializeAnimation(samus);
+    }
+
+    /// <summary>
+    /// Tries to enlarge Samus from her compact pose into <paramref name="targetPose"/> (#2557): the larger pose's collision is
+    /// resolved; blocked above and below she takes the ordinary crouch, its pose change seeing <paramref name="sourcePose"/>
+    /// as the pose she came from; blocked otherwise she keeps her pose. Only an allowed expansion leaves the pose change to
+    /// the enlarging transition, which moves her by <paramref name="centerAdjustment"/>.
+    /// </summary>
+    private static LargerPoseCollisionOutcome TryEnlargeInto(SamusState samus, RoomLevelData level, SamusPoseId targetPose,
+        SamusPoseId sourcePose, int frameCounter, ISamusRoomObjects roomObjects, out int centerAdjustment)
+    {
+        LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(level, targetPose, frameCounter, roomObjects, out centerAdjustment);
+        if (collision == LargerPoseCollisionOutcome.CrouchFallback)
+            samus.ApplyPoseChangeCollisionCrouchFallback(sourcePose);
+        return collision;
     }
 
     /// <summary>
@@ -697,5 +654,25 @@ internal static class SamusAerialPoseTransitions
 
     /// <summary>Whether <paramref name="pose"/> is one the ordinary jump setup installs: a jump transition, neutral or aimed, or the spin jump.</summary>
     private static bool IsOrdinaryJumpTarget(SamusPoseId pose) =>
-        SamusPoseMetadata.IsJumpTransitionPose(pose) || pose is SamusPoseId.SpinJumpRightPose or SamusPoseId.SpinJumpLeftPose;
+        SamusPoseMetadata.IsJumpTransitionPose(pose) || SamusPoseTraits.IsIn(pose, SamusPoseFamily.GenericSpinJump);
+
+    /// <summary>
+    /// The turns of one aerial movement (#2560): the generic right-to-left and left-to-right turns its input transitions
+    /// publish, and the aimed turn each shot direction selects.
+    /// </summary>
+    /// <param name="Name">The movement's name in diagnostics.</param>
+    /// <param name="RightToLeft">The generic turn from facing right to facing left.</param>
+    /// <param name="LeftToRight">The generic turn from facing left to facing right.</param>
+    /// <param name="ByAim">The aimed turn each shot direction selects.</param>
+    private sealed record AerialTurns(string Name, SamusPoseId RightToLeft, SamusPoseId LeftToRight,
+        IReadOnlyDictionary<SamusProjectileDirection, SamusPoseId> ByAim)
+    {
+        /// <summary>The turns of a normal jump.</summary>
+        internal static AerialTurns Jumping { get; } = new("Jump", SamusPoseId.TurningRightToLeftJumpPose,
+            SamusPoseId.TurningLeftToRightJumpPose, SamusAimedPoseChoiceDefinitions.JumpingTurns);
+
+        /// <summary>The turns of a fall.</summary>
+        internal static AerialTurns Falling { get; } = new("Fall", SamusPoseId.TurningRightToLeftFallingPose,
+            SamusPoseId.TurningLeftToRightFallingPose, SamusAimedPoseChoiceDefinitions.FallingTurns);
+    }
 }

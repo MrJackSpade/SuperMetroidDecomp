@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.Options;
 
 /// <summary>The primary and two secondary options pages selected by menu navigation.</summary>
-internal enum GameOptionsPage
+public enum GameOptionsPage
 {
     /// <summary>Start, language, controller settings, and special settings.</summary>
     Primary,

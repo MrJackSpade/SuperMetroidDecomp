@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.World.RoomStates;
 
 /// <summary>
 /// The level of every room state: the room's initial blocks, block types and background blocks. Room states
-/// that share a level (a room's event and boss states) name the same member. Each level is named for the room of the
-/// first state that uses it, in the room-state catalogs' order.
+/// that share a level (a room's event and boss states) name the same member. A level one room uses is named for that
+/// room; a level rooms share (the save, refill and map station rooms') is named for what it is.
 /// </summary>
 [NumberedIdentities("Each numbered level is a different room's, numbered as the room's own name is (Grapple Tutorial Room 1-3, Metroid Room 1-4, Tourian Escape Room 1-4); nothing indexes them.")]
 public static class RoomLevelDefinitions
@@ -22,8 +22,8 @@ public static class RoomLevelDefinitions
     /// <summary>The level the Crateria state <see cref="CrateriaRoomStateDefinitions.CrateriaPowerBombs"/> uses first.</summary>
     public static RoomLevelId CrateriaPowerBombs { get; } = new("CrateriaPowerBombs");
 
-    /// <summary>The level the Crateria state <see cref="CrateriaRoomStateDefinitions.CrateriaSave"/> uses first.</summary>
-    public static RoomLevelId CrateriaSave { get; } = new("CrateriaSave");
+    /// <summary>The save room with its one door on its right, which the save rooms entered from the right share.</summary>
+    public static RoomLevelId SaveRoomDoorOnRight { get; } = new("SaveRoomDoorOnRight");
 
     /// <summary>The level the Crateria state <see cref="CrateriaRoomStateDefinitions.WestOcean"/> uses first.</summary>
     public static RoomLevelId WestOcean { get; } = new("WestOcean");
@@ -91,8 +91,8 @@ public static class RoomLevelDefinitions
     /// <summary>The level the Crateria state <see cref="CrateriaRoomStateDefinitions.LowerMushrooms"/> uses first.</summary>
     public static RoomLevelId LowerMushrooms { get; } = new("LowerMushrooms");
 
-    /// <summary>The level the Crateria state <see cref="CrateriaRoomStateDefinitions.CrateriaMap"/> uses first.</summary>
-    public static RoomLevelId CrateriaMap { get; } = new("CrateriaMap");
+    /// <summary>The map station room with its one door on its left, which the map station rooms entered from the left share.</summary>
+    public static RoomLevelId MapStationRoomDoorOnLeft { get; } = new("MapStationRoomDoorOnLeft");
 
     /// <summary>The level the Crateria state <see cref="CrateriaRoomStateDefinitions.GreenPiratesShaft"/> uses first.</summary>
     public static RoomLevelId GreenPiratesShaft { get; } = new("GreenPiratesShaft");
@@ -121,8 +121,8 @@ public static class RoomLevelDefinitions
     /// <summary>The level the Brinstar state <see cref="BrinstarRoomStateDefinitions.BrinstarReserveTank"/> uses first.</summary>
     public static RoomLevelId BrinstarReserveTank { get; } = new("BrinstarReserveTank");
 
-    /// <summary>The level the Brinstar state <see cref="BrinstarRoomStateDefinitions.GreenBrinstarMap"/> uses first.</summary>
-    public static RoomLevelId GreenBrinstarMap { get; } = new("GreenBrinstarMap");
+    /// <summary>The map station room with its one door on its right, which the map station rooms entered from the right share.</summary>
+    public static RoomLevelId MapStationRoomDoorOnRight { get; } = new("MapStationRoomDoorOnRight");
 
     /// <summary>The level the Brinstar state <see cref="BrinstarRoomStateDefinitions.GreenBrinstarFirefleas"/> uses first.</summary>
     public static RoomLevelId GreenBrinstarFirefleas { get; } = new("GreenBrinstarFirefleas");
@@ -169,8 +169,8 @@ public static class RoomLevelDefinitions
     /// <summary>The level the Brinstar state <see cref="BrinstarRoomStateDefinitions.EtecoonSuper"/> uses first.</summary>
     public static RoomLevelId EtecoonSuper { get; } = new("EtecoonSuper");
 
-    /// <summary>The level the Brinstar state <see cref="BrinstarRoomStateDefinitions.DachoraEnergyRefill"/> uses first.</summary>
-    public static RoomLevelId DachoraEnergyRefill { get; } = new("DachoraEnergyRefill");
+    /// <summary>The energy refill room with its one door on its right, which the refill rooms entered from the right share.</summary>
+    public static RoomLevelId EnergyRefillRoomDoorOnRight { get; } = new("EnergyRefillRoomDoorOnRight");
 
     /// <summary>The level the Brinstar state <see cref="BrinstarRoomStateDefinitions.SporeSpawnFarming"/> uses first.</summary>
     public static RoomLevelId SporeSpawnFarming { get; } = new("SporeSpawnFarming");
@@ -256,8 +256,8 @@ public static class RoomLevelDefinitions
     /// <summary>The level the Brinstar state <see cref="BrinstarRoomStateDefinitions.VariaSuit"/> uses first.</summary>
     public static RoomLevelId VariaSuit { get; } = new("VariaSuit");
 
-    /// <summary>The level the Brinstar state <see cref="BrinstarRoomStateDefinitions.WarehouseSave"/> uses first.</summary>
-    public static RoomLevelId WarehouseSave { get; } = new("WarehouseSave");
+    /// <summary>The save room with its one door on its left, which the save rooms entered from the left share.</summary>
+    public static RoomLevelId SaveRoomDoorOnLeft { get; } = new("SaveRoomDoorOnLeft");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.IceBeamAcid"/> uses first.</summary>
     public static RoomLevelId IceBeamAcid { get; } = new("IceBeamAcid");
@@ -400,8 +400,8 @@ public static class RoomLevelDefinitions
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.RedPirateShaft"/> uses first.</summary>
     public static RoomLevelId RedPirateShaft { get; } = new("RedPirateShaft");
 
-    /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.FrogSave"/> uses first.</summary>
-    public static RoomLevelId FrogSave { get; } = new("FrogSave");
+    /// <summary>The save room with a door on either side, which the save rooms passed through share.</summary>
+    public static RoomLevelId SaveRoomDoorsOnBothSides { get; } = new("SaveRoomDoorsOnBothSides");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.AcidStatue"/> uses first.</summary>
     public static RoomLevelId AcidStatue { get; } = new("AcidStatue");
@@ -415,8 +415,8 @@ public static class RoomLevelDefinitions
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.FastRipper"/> uses first.</summary>
     public static RoomLevelId FastRipper { get; } = new("FastRipper");
 
-    /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.GoldenTorizoEnergyRefill"/> uses first.</summary>
-    public static RoomLevelId GoldenTorizoEnergyRefill { get; } = new("GoldenTorizoEnergyRefill");
+    /// <summary>The energy refill room with its one door on its left, which the refill rooms entered from the left share.</summary>
+    public static RoomLevelId EnergyRefillRoomDoorOnLeft { get; } = new("EnergyRefillRoomDoorOnLeft");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.RidleyDefault"/> uses first.</summary>
     public static RoomLevelId Ridley { get; } = new("Ridley");

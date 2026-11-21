@@ -29,7 +29,7 @@ public sealed class EscapeTimer
     /// Whether the timer is running and shown: from the initial delay its start enters, through its expiry, until a clear,
     /// the time-up's stop or a new request.
     /// </summary>
-    public bool IsActive => Phase is not (EscapeTimerPhase.Inactive or EscapeTimerPhase.Starting or EscapeTimerPhase.StoppedAtTimeUp);
+    public bool IsActive => !EscapeTimerPhaseDefinitions.Inactive.Contains(Phase);
 
     /// <summary>The countdown remaining, in centiseconds, 0 through <see cref="LongestTime"/>.</summary>
     private int RemainingCentiseconds { get; set; }

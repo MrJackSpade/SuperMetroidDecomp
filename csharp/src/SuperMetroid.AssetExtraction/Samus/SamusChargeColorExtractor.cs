@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -17,15 +19,10 @@ public static class SamusChargeColorExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        var charged = new PaletteRgb5[SamusChargeColorFormat.SuitCount][][];
-        var pseudo = new PaletteRgb5[SamusChargeColorFormat.SuitCount][][];
-        for (int suit = 0; suit < SamusChargeColorFormat.SuitCount; suit++)
-        {
-            charged[suit] = ReadSixPhaseList(
-                SamusSourceDefinitions.BeamChargePointers.Value, suit);
-            pseudo[suit] = ReadSixPhaseList(
-                SamusSourceDefinitions.PseudoScrewPointers.Value, suit);
-        }
+        Dictionary<string, PaletteRgb5[][]> charged = SamusSuitListLayout.BySuit(place => ReadSixPhaseList(
+            SamusSourceDefinitions.BeamChargePointers.Value, place));
+        Dictionary<string, PaletteRgb5[][]> pseudo = SamusSuitListLayout.BySuit(place => ReadSixPhaseList(
+            SamusSourceDefinitions.PseudoScrewPointers.Value, place));
         var hyper = new PaletteRgb5[SamusChargeColorFormat.HyperFrameCount][];
         for (int frame = 0; frame < hyper.Length; frame++)
         {
@@ -66,12 +63,7 @@ public static class SamusChargeColorExtractor
             for (int index = 0; index < result.Length; index++)
             {
                 int word = LittleEndianBytes.Word(source[index * 2], source[index * 2 + 1]);
-                result[index] = new PaletteRgb5
-                {
-                    Red = word & 31,
-                    Green = word >> 5 & 31,
-                    Blue = word >> 10 & 31,
-                };
+                result[index] = PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(word));
             }
             return result;
         }

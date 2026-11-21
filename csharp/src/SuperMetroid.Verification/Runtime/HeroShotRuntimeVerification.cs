@@ -93,7 +93,7 @@ internal static class HeroShotRuntimeVerification
             }
             for (int frame = 0; frame < 100; frame++)
             {
-                ControllerButton input = frame == 0 ? runtime.Options.ControllerBindings.Shoot
+                ControllerButton input = frame == 0 ? runtime.Options.ControllerBindings[SuperMetroid.Core.Input.ControllerAction.Shoot]
                     : walkAfterShot ? ControllerButton.Right : 0;
                 runtime.StepFrame(input);
                 var shot = runtime.Projectiles.Shots[0];

@@ -11,11 +11,12 @@
 #    developer push moved the branch during the run, it merges its commit onto the new tip, builds the merge, and when
 #    that does not build cleans the new tip again (steps 1 to 3 on it) and commits that as the merge; it pushes the
 #    merge, until a push lands. The run's work is never discarded.
-# The owner's ruling (2026-11-15): the cleanup never fails over what it does, and would rather commit broken code. A
-# fix it cannot apply, a failed prune or inventory step, steps that do not settle or undo each other, and a failed
-# build are each recorded as a problem; the run goes on and commits and pushes what it has, naming every problem and
-# unfixed site in the commit body and the result. Only a clone, restore, tool build, workspace load or push failure,
-# where there is nothing to commit or no way to deliver it, fails the run.
+# The owner's rules (2026-11-15, #2599): a fix is always applied, and when it cannot be applied without breaking the
+# code it breaks the code; nothing is left unfixed. A fix that leaves the code not compiling, a failed prune or
+# inventory step, steps that do not settle or undo each other, and a failed build are each recorded as a problem; the
+# run goes on and commits and pushes what it has, naming every problem in the commit body and the result. A fixer that
+# offers no fix or throws is a defect of that fixer and fails the run, as a clone, restore, tool build, workspace load
+# or push failure, where there is nothing to commit or no way to deliver it, does.
 #
 # Writes the outcome to -Result as JSON: result nothing or pushed (exit 0), or failed (nonzero exit).
 param(
@@ -193,7 +194,6 @@ function Invoke-CleanupPass([string]$Of) {
     $inventoryPaths = @($outcome.InventoryPaths)
     $problems = [Collections.Generic.List[string]]::new()
     foreach ($problem in $outcome.Problems) { $problems.Add($problem) }
-    $unfixed = @($outcome.Unfixed)
     foreach ($step in $outcome.Steps) {
         Write-Host "step $(if ($null -ne $step.Number) { $step.Number } else { '-' }) $($step.Kind): $([int]$step.Seconds) s, $($step.ChangedFiles) files"
     }
@@ -258,16 +258,12 @@ function Invoke-CleanupPass([string]$Of) {
         $staleReviews | ForEach-Object { $body.Add("  $_") }
     }
     if ($inventoryPaths.Count -gt 0) { $body.Add("Inventories regenerated: $($inventoryPaths -join ', ')") }
-    if ($unfixed.Count -gt 0) {
-        $body.Add("Sites no fixer could fix ($($unfixed.Count)):")
-        $unfixed | ForEach-Object { $body.Add("  $(($_ -split "`n")[0])") }
-    }
     if ($problems.Count -gt 0) {
         $body.Add("Problems the run carried on past ($($problems.Count)):")
         $problems | ForEach-Object { $body.Add("  $(($_ -split "`n")[0])") }
     }
     $body.Add($(if ($build.Exit -ne 0) { "Does not build with tools/build.ps1 $solution; see the problems above." } else { "Built with tools/build.ps1 $solution." }))
-    return @{ Changed = $changed; Build = $build; Subject = $subject; Body = $body; Problems = $problems; Unfixed = $unfixed.Count }
+    return @{ Changed = $changed; Build = $build; Subject = $subject; Body = $body; Problems = $problems }
 }
 
 function Set-PassFolder([string]$Name) {
@@ -328,7 +324,6 @@ try {
     }
     $subject = $pass.Subject
     $problems = $pass.Problems
-    $unfixed = $pass.Unfixed
     $messageFile = Write-CommitMessage 'commit-message.txt' $subject $pass.Body
 
     Write-Step 'commit'
@@ -360,7 +355,7 @@ try {
         $push | ForEach-Object { Write-Host $_ }
         Write-Host "--- push exit $exit after $($pushed.Attempt) attempt(s)"
         if ($exit -eq 0) {
-            Save-Result @{ result = 'pushed'; tip = $Tip; commit = $delivered; message = $subject; problems = @($problems); unfixed = $unfixed }
+            Save-Result @{ result = 'pushed'; tip = $Tip; commit = $delivered; message = $subject; problems = @($problems) }
             exit 0
         }
         # A stale tip is reported as rejected with "fetch first" or "non-fast-forward"; anything else is a failure.
@@ -406,7 +401,6 @@ try {
             }
             $subject = $rerun.Subject
             $problems = $rerun.Problems
-            $unfixed = $rerun.Unfixed
             $mergedSubject = "$subject (merged onto $($moved.Substring(0, 10)), cleaned again)"
             $body = [Collections.Generic.List[string]]::new()
             $body.Add("The asynchronous cleanup of $Tip (commit $delivered) did not build merged onto $moved, where a developer push " +

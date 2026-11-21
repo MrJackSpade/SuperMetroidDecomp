@@ -445,10 +445,9 @@ internal static class GModeGateGlitchVerification
         RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), AreaId.Maridia), RoomObjectPopulationImporter.Read(bus, population), RoomObjectServiceFixtures.Uninstalled with { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = _ => false, SetEvent = _ => brokenEvent = true }, RoomFx = new RoomObjectFx(roomFx, () => samus), Earthquake = new FixtureRoomEarthquake { WriteStart = (_, _) => { } }, Enemies = new FixtureObjectEnemyEffects { NoobTubeProjectile = projectiles.Add } });
         StepNoobTube(roomObjects, level);
 
-        AssertTrue(roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(
+        roomObjects.ProjectileTriggers.NotifyResidentProjectileHit(
                 block,
-                BlockStrike.By(SamusBombProjectileSystem.PowerBombType)),
-            "Power Bomb publishes its hit to the intact glass-tube resident");
+                BlockStrike.By(SamusBombProjectileSystem.PowerBombType));
         AssertEqual(new ResidentObjectProjectileHit(SamusProjectileFamily.PowerBomb), (roomObjects.PopulationPlaces.Single().Behaviour as NoobTubeObject)?.AwaitingStrike,
             "G-Mode-disabled tube retains the pending Power Bomb hit");
         AssertTrue(!brokenEvent && projectiles.Count == 0 && !samus.Control.InputLocked,

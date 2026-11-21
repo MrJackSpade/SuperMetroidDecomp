@@ -144,8 +144,8 @@ internal static class EnemyProjectileDefinitionsVerification
             var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
             SamusProjectile shot = shots.Shots[0];
             shot.Occupy(SamusProjectileType.Beam(SamusBeamCombination.Wave, charged: false), 1);
-            shot.Direction = SamusProjectileDirection.Right;
-            shot.Position = shot.Position.WithWhole(new(0x0100, 0x0100));
+            shot.HeldShot().Direction = SamusProjectileDirection.Right;
+            shot.HeldShot().Position = shot.Position.WithWhole(new(0x0100, 0x0100));
             enemies.Projectiles.ResolveEnemyProjectileSamusProjectileHits(
                 shots,
                 new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()));
@@ -406,7 +406,7 @@ internal static class EnemyProjectileDefinitionsVerification
                     _ => TorizoProjectileSegment.ChozoOrbShot,
                 };
                 AssertTrue(projectile.Animation is TorizoProjectileAnimation started
-                        && started.Playback == new AnimationPlayback<TorizoProjectileSegment>(TorizoProjectileAnimations.StartingWith(expected), AnimationPlace.StartOfAnimation),
+                        && started.Playback == new AnimationPlayback<TorizoProjectileSegment>(TorizoProjectileAnimations.StartingAt[expected], AnimationPlace.StartOfAnimation),
                     $"{kind} production shot starts the typed {expected} program");
                 AssertTrue(projectile.Animation is not null, $"{kind} typed shot keeps no native list");
             }

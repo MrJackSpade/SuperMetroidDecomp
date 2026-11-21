@@ -46,7 +46,7 @@ internal static class FileSelectSlotDestinationsVerification
                 AssertEqual((byte)0xa2, FileSelectSlotDestinationsRomByte(rom, instruction), "native slot LDX immediate");
                 int expected = ReadVerificationWord(rom, instruction + 1);
                 AssertEqual(expected, destination(slot, field), $"slot destination {dataPage}/{field}/{slot}");
-                FileSelectSlotFieldDocument exported = (dataPage ? document.DataSlots : document.MainSlots)[slot];
+                FileSelectSlotFieldDocument exported = (dataPage ? document.DataSlots : document.MainSlots)[SuperMetroid.Core.Saves.SaveSlots.All[slot].ToString()];
                 if (field is FileSelectSlotField.Energy or FileSelectSlotField.TimeValue)
                 {
                     // The exported anchor is the page pixel of the cell the cartridge's destination word names.

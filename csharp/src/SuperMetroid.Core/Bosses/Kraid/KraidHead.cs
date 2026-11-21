@@ -200,6 +200,16 @@ internal sealed class KraidHead
         if (!AdvanceKraidHeadAnimationToItsEnd(state, fight.Head))
             return;
         fight.Phase = KraidFightPhase.FirstPhaseThinking;
+        CloseKraidMouth(state);
+    }
+
+    /// <summary>
+    /// Ends his mouth's opening (#2557): it holds closed, and a hit on his mouth or body marks a reopen: the closing mouth
+    /// then spends one pending reopen and, while any remain, waits to glow his eye again; otherwise every mark is forgotten.
+    /// His open-mouth attack and his reaction to a damaging shot both close it so.
+    /// </summary>
+    private static void CloseKraidMouth(KraidEnemyState state)
+    {
         state.HoldClosedMouth();
         if (state.MouthReopenMarked)
         {

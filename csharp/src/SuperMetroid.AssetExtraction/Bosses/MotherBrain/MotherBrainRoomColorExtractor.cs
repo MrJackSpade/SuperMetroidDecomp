@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -62,12 +64,7 @@ internal static class MotherBrainRoomColorExtractor
             for (int index = 0; index < count; index++)
             {
                 int word = bus.ReadCartridgeWord((source + index * sizeof(ushort)));
-                colors[index] = new PaletteRgb5
-                {
-                    Red = word & 31,
-                    Green = word >> 5 & 31,
-                    Blue = word >> 10 & 31,
-                };
+                colors[index] = PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(word));
             }
             return colors;
         }

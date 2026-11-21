@@ -28,7 +28,7 @@ internal static class CeresSteamDefinitionsVerification
             CeresSteamInitialization definition =
                 CeresSteamInitializations.Initialization(variant);
             AssertEqual(rom.ReadCartridgeWord((instructionTable + index * 2)),
-                NativeEnemyAnimationOracle.EntryOf(CeresSteamNativeListAddresses.Entries, definition.Animation),
+                NativeEnemyAnimationOracle.EntryOf(CeresSteamNativeListAddresses.EntriesOf(definition.Way), CeresSteamSegment.Dormant),
                 $"Ceres steam {variant} instruction list");
             AssertEqual(CeresNativeWords.DecodeSteamAction(rom.ReadCartridgeWord(functionTable + index * 2), "native Ceres steam function"),
                 definition.Action,
@@ -40,11 +40,11 @@ internal static class CeresSteamDefinitionsVerification
                 shaftTurn: shaft);
             enemies.VerificationServices().NextRandom = () => 0x001f;
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            place.SetSpawnParameter1(EnemyDefinitionId.CeresSteam, (ushort)index);
-            place.Bind(EnemyDefinitionId.CeresSteam, place.KeptDefinition);
+            place.SetSpawnParameter1(EnemyDefinitionId.SteamVent, (ushort)index);
+            place.Bind(EnemyDefinitionId.SteamVent, place.KeptDefinition);
             ((IEnemyInitialization)(place.Entity ?? throw new InvalidOperationException("The vent bound no entity."))).Initialize();
 
-            AssertEqual(new AnimationPlayback<CeresSteamSegment>(CeresSteamAnimations.StartingWith(definition.Animation), AnimationPlace.StartOfAnimation), place.RequireSpeciesState<CeresSteamEnemyState>().Playback,
+            AssertEqual(new AnimationPlayback<CeresSteamSegment>(definition.Way.StartingAt[CeresSteamSegment.Dormant], AnimationPlace.StartOfAnimation), place.RequireSpeciesState<CeresSteamEnemyState>().Playback,
                 $"production Ceres steam {variant} program");
             CeresSteamEnemyState steamState = place.SpeciesState<CeresSteamEnemyState>()
                 ?? throw new InvalidOperationException("The initialized vent has no state.");

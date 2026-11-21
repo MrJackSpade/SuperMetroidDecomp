@@ -45,8 +45,8 @@ internal static class CeresSaveStartupVerification
             Checkpoint = SuperMetroid.Core.Progression.LoadStationDefinitions.CeresElevator,
             StartupRoute = SaveStartupRoute.CeresDestruction,
             Progress = departureProgress,
-            Health = 77,
             GameTime = new SuperMetroid.Core.Progression.GameClockReading(frames: 44, seconds: 11, minutes: 2, hours: 0),
+            Inventory = SaveSnapshotFixtures.NewGame.Inventory with { Health = 77 },
         };
         var saves = new SaveSlotStore(RetailPresentationFixture());
         saves.SaveSlot(SaveSlot.A, departure);
@@ -58,7 +58,7 @@ internal static class CeresSaveStartupVerification
             RoomObjectBlueDoorVisuals = blueDoorVisuals,
             RoomObjectElevatorPlatformVisuals = elevatorPlatformVisuals,
         });
-        var options = new GameOptionsMenuState(AudioQueues.Standalone(), screenContent: maps, spriteSheets: MenuSheetFixtures.For(maps), controllerBindings: SuperMetroid.Core.Input.ControllerBindings.Default, iconCancelEnabled: false, moonwalkEnabled: false, japaneseText: false);
+        var options = new GameOptionsMenuState(AudioQueues.Standalone(), screenContent: maps, spriteSheets: MenuSheetFixtures.For(maps), controllerBindings: SuperMetroid.Core.Input.ControllerBindings.Default, iconCancelEnabled: false, moonwalkEnabled: false, language: TextLanguage.English);
         options.SkipToPhase(GameOptionsPhase.StartGame);
         game.Session.Show(options);
         game.Session.ContinueSavedGame();
@@ -119,7 +119,7 @@ internal static class CeresSaveStartupVerification
             RoomObjectBlueDoorVisuals = blueDoorVisuals,
             RoomObjectElevatorPlatformVisuals = elevatorPlatformVisuals,
         });
-        var reloadOptions = new GameOptionsMenuState(AudioQueues.Standalone(), screenContent: maps, spriteSheets: MenuSheetFixtures.For(maps), controllerBindings: SuperMetroid.Core.Input.ControllerBindings.Default, iconCancelEnabled: false, moonwalkEnabled: false, japaneseText: false);
+        var reloadOptions = new GameOptionsMenuState(AudioQueues.Standalone(), screenContent: maps, spriteSheets: MenuSheetFixtures.For(maps), controllerBindings: SuperMetroid.Core.Input.ControllerBindings.Default, iconCancelEnabled: false, moonwalkEnabled: false, language: TextLanguage.English);
         reloadOptions.SkipToPhase(GameOptionsPhase.StartGame);
         reload.Session.Show(reloadOptions);
         reload.Session.ContinueSavedGame();
@@ -148,7 +148,7 @@ internal static class CeresSaveStartupVerification
             RoomObjectBlueDoorVisuals = blueDoorVisuals,
             RoomObjectElevatorPlatformVisuals = elevatorPlatformVisuals,
         });
-        var probeOptions = new GameOptionsMenuState(AudioQueues.Standalone(), screenContent: maps, spriteSheets: MenuSheetFixtures.For(maps), controllerBindings: SuperMetroid.Core.Input.ControllerBindings.Default, iconCancelEnabled: false, moonwalkEnabled: false, japaneseText: false);
+        var probeOptions = new GameOptionsMenuState(AudioQueues.Standalone(), screenContent: maps, spriteSheets: MenuSheetFixtures.For(maps), controllerBindings: SuperMetroid.Core.Input.ControllerBindings.Default, iconCancelEnabled: false, moonwalkEnabled: false, language: TextLanguage.English);
         probeOptions.SkipToPhase(GameOptionsPhase.StartGame);
         gameOverProbe.Session.Show(probeOptions);
         gameOverProbe.Session.ContinueSavedGame();
@@ -214,7 +214,7 @@ internal static class CeresSaveStartupVerification
         {
             ScreenContent = maps,
         });
-        var oldOptions = new GameOptionsMenuState(AudioQueues.Standalone(), screenContent: maps, spriteSheets: MenuSheetFixtures.For(maps), controllerBindings: SuperMetroid.Core.Input.ControllerBindings.Default, iconCancelEnabled: false, moonwalkEnabled: false, japaneseText: false);
+        var oldOptions = new GameOptionsMenuState(AudioQueues.Standalone(), screenContent: maps, spriteSheets: MenuSheetFixtures.For(maps), controllerBindings: SuperMetroid.Core.Input.ControllerBindings.Default, iconCancelEnabled: false, moonwalkEnabled: false, language: TextLanguage.English);
         oldOptions.SkipToPhase(GameOptionsPhase.StartGame);
         unmodified.Session.Show(oldOptions);
         unmodified.Session.ContinueSavedGame();

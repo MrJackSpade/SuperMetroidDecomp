@@ -15,7 +15,8 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.Scrolling;
 namespace SuperMetroid.Verification.Enemies.Chozo;
 
-using SuperMetroid.Verification.Harness;
+using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Compatibility;
 /// <summary>Checks the Wrecked Ship Chozo hand's Samus carry and optional Power Bomb continuation.</summary>
 internal static class ChozoGrabAnimationVerification
 {

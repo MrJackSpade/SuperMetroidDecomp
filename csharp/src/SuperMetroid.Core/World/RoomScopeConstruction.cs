@@ -109,7 +109,7 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
     /// <param name="explosions">Where the room's escape explosions go off, or null for a room that sets off none.</param>
     internal void ComposeSkyMain(ScrollingSky sky, EscapeExplosionSite? explosions)
     {
-        bool bands = Room.State.Fx?.Select(Door)?.Type == RoomFxType.ScrollingSky || _setupSpawnedSkyBands;
+        bool bands = Room.State.Fx?.Select(Door) is { } effect && RoomFxTypes.Of(effect.Type).SpawnsSkyBands || _setupSpawnedSkyBands;
         var state = new ScrollingSkyState(sky, bands);
         ScrollingSky = state;
         Main = new ScrollingSkyMain(state, explosions);
@@ -151,11 +151,11 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
     internal void ComposeSkyBands() => _setupSpawnedSkyBands = true;
 
     /// <summary>Composes the Ceres haze the room's setup spawns (#2485).</summary>
-    /// <param name="ridleyIsDead">Whether Ceres Ridley is dead, which turns the haze red.</param>
+    /// <param name="tint">The haze's tint: red once Ceres Ridley is dead, blue before.</param>
     /// <param name="immediateViewport">Whether the room shows its first view at once, which shows the haze at once.</param>
     [IndependentFlag("independent load facts: whether the area's boss is dead and whether the room shows its first view at once")]
-    internal void ComposeCeresHaze(bool ridleyIsDead, bool immediateViewport) =>
-        CeresHaze = new CeresHazeState(ridleyIsDead, immediateViewport);
+    internal void ComposeCeresHaze(CeresHazeTint tint, bool immediateViewport) =>
+        CeresHaze = new CeresHazeState(tint, immediateViewport);
 
     /// <summary>Composes the Tourian statues' room the statue room's setup builds over the room's effect (#2485).</summary>
     /// <param name="water">The live surface of the room effect's water, which the statues' particles splash through.</param>
@@ -210,7 +210,7 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
         Projectiles = Ensure.NotNull(projectiles),
         BombProjectiles = BombProjectiles,
         FxOverlay = Ensure.NotNull(fxOverlay),
-        SamusGround = SamusGround.Of(Room.Definition),
+        SamusGround = Room.Definition.Ground,
         ColourEffects = Ensure.NotNull(colourEffects),
         CeresHaze = CeresHaze,
         BlockAnimations = Ensure.NotNull(blockAnimations),

@@ -30,9 +30,9 @@ internal static class EscapeTimerPresentationVerification
             EscapeTimerTileSourceConstants.FirstSourceAddress, EscapeTimerTileAtlasFormat.FirstByteCount);
         byte[] nativeSecondTiles = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadFixedBank(bus,
             EscapeTimerTileSourceConstants.SecondSourceAddress, EscapeTimerTileAtlasFormat.SecondByteCount);
-        AssertTrue(nativeFirstTiles.SequenceEqual(EscapeTimerTilePageTransfers.Resolve(tileAtlas, InstalledArtworkId.EscapeTimerFirstTiles).Span),
+        AssertTrue(nativeFirstTiles.SequenceEqual(EscapeTimerTilePageTransfers.Resolve(tileAtlas, EscapeTimerTilePage.First).Span),
             "first timer PNG page compiles to exact native characters");
-        AssertTrue(nativeSecondTiles.SequenceEqual(EscapeTimerTilePageTransfers.Resolve(tileAtlas, InstalledArtworkId.EscapeTimerSecondTiles).Span),
+        AssertTrue(nativeSecondTiles.SequenceEqual(EscapeTimerTilePageTransfers.Resolve(tileAtlas, EscapeTimerTilePage.Second).Span),
             "second timer PNG page compiles to exact native characters");
 
         var synchronous = new SpriteArtworkPlacements();
@@ -54,8 +54,8 @@ internal static class EscapeTimerPresentationVerification
                 (EscapeNativePageWords.TimerSecond - GameplayVramLayoutConstants.ObjectCharacters.Offset) * 2 / SpriteArtworkPlacements.CharacterByteCount,
                 EscapeTimerTileAtlasFormat.SecondByteCount / SpriteArtworkPlacements.CharacterByteCount),
             synchronous.Uploads[1], "Mother Brain synchronous second timer transfer shows the installed second page");
-        AssertTrue(nativeFirstTiles.SequenceEqual(EscapeTimerTilePageTransfers.Resolve(tileAtlas, InstalledArtworkId.EscapeTimerFirstTiles).ToArray()) &&
-                nativeSecondTiles.SequenceEqual(EscapeTimerTilePageTransfers.Resolve(tileAtlas, InstalledArtworkId.EscapeTimerSecondTiles).ToArray()),
+        AssertTrue(nativeFirstTiles.SequenceEqual(EscapeTimerTilePageTransfers.Resolve(tileAtlas, EscapeTimerTilePage.First).ToArray()) &&
+                nativeSecondTiles.SequenceEqual(EscapeTimerTilePageTransfers.Resolve(tileAtlas, EscapeTimerTilePage.Second).ToArray()),
             "Mother Brain synchronous timer pages hold the installed artwork");
 
         var presentation = EscapeTimerPresentationFile.Load(new MemoryStream(extracted));

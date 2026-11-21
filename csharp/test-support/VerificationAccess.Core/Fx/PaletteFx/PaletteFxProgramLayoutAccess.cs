@@ -77,9 +77,9 @@ internal static class PaletteFxProgramLayoutAccess
     extension(NorfairEnvironmentalPaletteFxColorDefinition self)
     {
         /// <summary>The list entry: <c>$8D:F08E</c> for the heat phase, then 264-byte palette programs from <c>$8D:F1D1</c>.</summary>
-        internal ushort ProgramStart => self.Owner == NorfairEnvironmentalPaletteOwner.ForegroundAndHeatPhase
+        internal ushort ProgramStart => self.Effect == ColourEffectId.NorfairForegroundAndHeatPhase
             ? (ushort)0xf08e
-            : checked((ushort)(0xf1d1 + ((int)self.Owner - (int)NorfairEnvironmentalPaletteOwner.GreenForeground) * 264));
+            : checked((ushort)(0xf1d1 + (NorfairEnvironmentalPaletteFxColorDefinitions.All.ToList().IndexOf(self) - NorfairEnvironmentalPaletteFxColorDefinitions.All.ToList().IndexOf(NorfairEnvironmentalPaletteFxColorDefinitions.NorfairGreenForegroundHeatGlow)) * 264));
 
         /// <summary>The first record's first command, which the loop returns to: the heat publication in the heat-phase program.</summary>
         internal ushort FirstRecordPointer => checked((ushort)(self.FirstFramePointer - self.HeatPublicationByteCount));
@@ -92,14 +92,14 @@ internal static class PaletteFxProgramLayoutAccess
     extension(OldTourianEscapeAccentPaletteFxColorDefinition self)
     {
         /// <summary><c>$8D:FBC1</c> for the railings, <c>$8D:FC5F</c> for the panels.</summary>
-        internal ushort ProgramStart => self.Owner == OldTourianEscapeAccentPaletteOwner.OrangeRailings ? (ushort)0xfbc1 : (ushort)0xfc5f;
+        internal ushort ProgramStart => self.Effect == ColourEffectId.OldTourianBackgroundRailingsFlashYellow ? (ushort)0xfbc1 : (ushort)0xfc5f;
     }
 
     /// <summary>PLANET ZEBES text's native list entries.</summary>
     extension(PlanetZebesTextPaletteFxColorDefinition self)
     {
         /// <summary><c>$8D:C90E</c> for the fade-in, <c>$8D:C964</c> for the fade-out.</summary>
-        internal ushort ProgramStart => self.Owner == PlanetZebesTextPaletteFxProgramOwner.FadeIn ? (ushort)0xc90e : (ushort)0xc964;
+        internal ushort ProgramStart => self.Effect == ColourEffectId.FadeInPlanetZebesText ? (ushort)0xc90e : (ushort)0xc964;
     }
 
     /// <summary>Maridia's native list structure: three programs in a row, each entry four bytes before its first record.</summary>
@@ -126,7 +126,7 @@ internal static class PaletteFxProgramLayoutAccess
     extension(CinematicGlowPaletteFxColorDefinition self)
     {
         /// <summary><c>$8D:C9BA</c> for the old Mother Brain lights, <c>$8D:CA4E</c> for the gunship.</summary>
-        internal ushort ProgramStart => self.Owner == CinematicGlowPaletteFxProgramOwner.OldMotherBrainBackgroundLights ? (ushort)0xc9ba : (ushort)0xca4e;
+        internal ushort ProgramStart => self.Effect == ColourEffectId.OldMotherBrainFightBackgroundLights ? (ushort)0xc9ba : (ushort)0xca4e;
     }
 }
 

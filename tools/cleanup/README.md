@@ -50,30 +50,37 @@ developer's checkout, with its own `bin`/`obj` and its own `temp\`), `config.jso
      - **Dead code:** the reachability audit's `--prune-keeping-verification-used` of the categories
        `unreachable-member,unreachable-type,unreferenced-field,unreferenced-enum-member,unreferenced-constant` under
        `csharp/src`, into `csharp/test-support/VerificationAccess.Core`, retiring fields to
-       `<run>\retired-fields-<step>.txt`. It deletes dead code tests do not use and moves what they still use into
-       test-support; the next code-fix step removes the usings it copies into moved files. It prints how long each of its
-       phases took.
+       `<run>\retired-fields-<step>.txt`. It moves the dead top-level types tests still use (check-only helper code)
+       whole into test-support and deletes every other dead declaration, a dead member of a production type that only
+       tests use among them: nothing in production exists for checks alone, so the checks reading such a member fail to
+       build until they drive real game code (owner ruling, #2599). The next code-fix step removes the usings it copies
+       into moved files. It prints how long each of its phases took. What is dead is read from code that compiles (a
+       reference that does not bind reaches nothing, so live code would read as dead): when a project does not compile,
+       as a fix or an earlier prune of the run leaves it where the developer has a choice to make, the prune prints
+       `Pruned nothing: ...` and changes nothing, and the next run prunes once the tree builds. A prune that throws is a
+       defect of the prune and fails the run with its exception.
      - **Stale reviews:** the architecture audit's `--prune-stale-reviews`. It deletes every `[ArchitectureReview]`
        whose finding its type no longer has (a prune of dead code can remove a finding), through the attribute's own
        syntax reference, and keeps every other byte of the file. It validates every edit before writing any and writes
        nothing if one fails. The next code-fix step removes a using the attribute alone needed.
      - A step that returns the tree to an earlier state (the steps undo each other), or a run that needs more than 6
-       rounds of the three steps, stops the loop: the run keeps the tree it has and records a problem. A failed prune
-       (which writes nothing) is recorded as a problem and the loop goes on.
+       rounds of the three steps, stops the loop: the run keeps the tree it has and records a problem. A failed stale
+       review prune (which writes nothing) is recorded as a problem and the loop goes on.
    - **Inventories:** the architecture audit's `--write`. A failure is recorded as a problem and the run goes on.
 
    The process prints each step to the log, with how long it took and how many files it changed, and writes what the
-   steps did (the counts, paths, summaries, retired fields, removed reviews, unfixed sites and problems the commit
-   message is made of) to `cleanup-outcome.json`. Only a failure to load the solution or the analyzers, or a bad command
-   line, fails it, as each step's own process failed the run before.
+   steps did (the counts, paths, summaries, retired fields, removed reviews and problems the commit message is made of)
+   to `cleanup-outcome.json`. A fix is always applied (#2599), so there are no unfixed sites to write. A failure to
+   load the solution or the analyzers, a bad command line, or a fixer that offers no fix or throws (a defect of that
+   fixer) fails it, with the full exception on standard error, as each step's own process failed the run before.
 3. **Nothing changed:** the run ends quietly. A change outside `csharp/` and `docs/` fails the run.
 4. **Build once:** `pwsh -File tools/build.ps1 csharp/SuperMetroid.Full.slnx`. When the loop changed the code, the runner starts
    this build as soon as the loop ends and writes the inventories while it runs, since the inventories write only
    `docs/`, which no build reads; when only the inventories changed, `run.ps1` builds after them. The owner's ruling (2026-11-15): the
    cleanup would rather commit broken code than fail. A failed build is recorded as a problem and the tree is
    committed and pushed anyway, as `Cleanup (does not build): ...`; its full output is kept as
-   `logs\<run>\build.log`. Every problem and unfixed site is listed in the commit body and the result, and a pushed
-   run with any of them raises a notification. A build failure is never fixed by judgment. The build changes no file;
+   `logs\<run>\build.log`. Every problem is listed in the commit body and the result, and a pushed run with any of them
+   raises a notification. A build failure is never fixed by judgment. The build changes no file;
    a tree it changed fails the run.
 5. **Commit** as `Cleanup: <rule, what, count; ...>` (stale reviews as `stale architecture reviews removed <count>`),
    with the files, the prune's own summary and every removed review in the body, under
@@ -154,24 +161,52 @@ fixture the runner's output for IDE0004, IDE0005, IDE0032, IDE0044, IDE0076 and 
 `dotnet format style --diagnostics ... --severity info`. The repository's fixers are in
 `SuperMetroid.EnsureAnalyzer.CodeFixes`, which every project references as an analyzer; the runner loads them from the
 projects' Debug references, which `run.ps1` builds first. A fixer resolves every finding without changing behaviour.
-The owner's ruling (2026-11-15): the cleanup never fails over a fix, and would rather commit broken code. A finding
-a fixer offers no fix for, refuses, throws on, or fixes in a way the runner cannot apply is recorded with the reason
-(the summary's `Unfixed` list, the log and the commit body) and the run goes on. A dead store or initializer whose value could have an effect keeps its evaluation as `_ = value;`.
+
+**A fix is always applied, breaking the code if it must; nothing is left unfixed** (the owner's rule, 2026-11-15 and
+#2599). When a finding's fix needs a choice the fixer cannot make, the fixer applies it all the same and the code it
+leaves does not compile, or fails a build rule, at that site: the build fails there, the cleanup commits and pushes it
+as `Cleanup (does not build)`, and the developer makes the choice. No fixer declines a finding, no site is skipped or
+recorded as unfixed, and the runner catches nothing a fixer throws. A fixer that offers no fix, has no fix-all,
+produces no usable change or throws is a defect of that fixer, not a site to leave: the run fails with the full
+exception, and the fixer is fixed. What each fixer does where a choice was needed:
+
+- SME6400 keeps in the file the type it is named after (its name compared without case) and moves the others, the
+  file's first type when the reported one is the file's. A moved type takes the `#define`, `#nullable` and `#pragma
+  warning` directives before it and the `#if` branches it lies in; lines inside a verbatim or raw string are not
+  re-indented. When the file it belongs in exists, it goes into that file beside its code, deleting nothing. Two types
+  that both belong in the file (`Pair` and `Pair<T>` in `Pair.cs`) get an `#error` naming both. A file-local type
+  moves, and its references fail the build.
+- SME6401 renames a file whose name differs only in case (`objectcharacterplacement.cs`, which a file system that
+  ignores case holds as the same file): the runner deletes it before it creates the new name, and the loop takes the
+  old name out of git's index. When another file has the name, the type goes into it, as SME6400's does.
+- SME6360 merges parts with directives (a part's body moves whole), a primary constructor on another part, type
+  parameters with differing attributes and constraints only one part states, whatever the braces' layout.
+- The dead-code fixes remove the member, variable or statement at every finding. A use they cannot rewrite (one that
+  reads the variable, a `nameof` or cref, a write through a receiver with effects) is left as written and fails the
+  build. An initializer with an effect is kept as `_ = value;` in a constructor the type is given when it has none,
+  or, in a type with a primary constructor, at the start of the type's body, which cannot hold it. A parameter left
+  unread goes with its arguments even where that needs a choice (an override's then fails the build), and a member
+  left reading no instance data is reported by CA1822.
+
+A dead store or initializer whose value could have an effect keeps its evaluation as `_ = value;`.
 
 A dead-code fix (CS0414, IDE0052, IDE0051, CA1823, CS0169, CS0219) takes out with the code it removes every parameter
 only that code read (`UnreadParameters`), since IDE0060, an unused parameter, is a build error: the cleanup of e4ce9514eb
 (2026-11-15) removed the write-only field `_room` of eight constructors and left each one's `room` parameter unread. The
 parameter goes with its `param` documentation and the argument every call passes it, a target-typed `new` among them;
 an argument that read a parameter of its caller is removed code too, so that parameter goes when nothing else reads
-it. Reading an automatic property is free of effects, like reading a field, so such an argument goes as well. What
-cannot go without a choice fails the fix and keeps the code as it was: an argument that could have an effect, a `ref`,
-`out`, `in` or `params` parameter, a method something else decides the signature of (virtual, abstract, an override, an
-interface's), a method used other than by calls (a method group, a cref with parameters), a removal that would clash
-with an overload, a record's positional parameter, a parameter `paramref` still names, and an instance member that would
-read its instance only in the removed code, which CA1822 (a build error) would then ask to be static.
-`IDE0052.unread-parameter` holds the constructor of the e4ce9514eb failure, a caller passing an automatic property
-through a target-typed `new`, a factory whose own parameter only fed the removed argument and a caller of it with a named
-argument, and a field the fix keeps because its removal would leave a caller reading no instance data.
+it. Reading an automatic property is free of effects, like reading a field, so such an argument goes as well. A
+parameter whose removal needs a choice goes all the same, with every argument passed to it (#2599): one passed an
+argument that could have an effect, a `ref`, `out`, `in` or `params` parameter, one of a method something else decides
+the signature of (virtual, abstract, an override, an interface's, which then no longer matches and fails the build),
+one whose removal clashes with an overload (the build fails on the duplicate), a record's positional parameter, and one
+`paramref` still names (the build fails on the reference). A use of the method that is no call (a method group, a cref
+with parameters) stays as written and fails the build there. An instance member
+that read its instance only in the removed code reads none afterwards, and CA1822 (a build error) asks for it to be
+static. `IDE0052.unread-parameter` holds the constructor of the e4ce9514eb failure, a caller passing an automatic
+property through a target-typed `new`, a factory whose own parameter only fed the removed argument and a caller of it
+with a named argument, and a field whose removal leaves a caller reading no instance data, which the build then
+reports (CA1822).
 
 Since the group is at `none`, the runner enables exactly the requested rules, as warnings, in its own analysis: in
 the compilation's per-file diagnostic options (where the `.editorconfig` severity would otherwise win over any
@@ -246,7 +281,8 @@ changed file, and the summary lists them all.
 A fix may also add, rename or delete files: SME6400 moves a type into a new file, SME6401 renames a file after its type,
 and SME6360 merges a type's hand-written parts into one and deletes the files it empties. The runner adds a new file to
 every project that compiles the file its finding is in, creates it with that file's byte-order mark (it must not exist
-yet), deletes a removed file, and keeps the explicit source lists in step: in a project file or an imported
+yet, unless the fix removes it under a name that differs only in case), deletes a removed file before it writes any,
+and keeps the explicit source lists in step: in a project file or an imported
 `.projitems`, a single-line `<Compile Include="..."/>` item that names a deleted file goes, one that names a renamed
 file is retargeted (its `Link` too), and a file created beside a listed one gets a copy of that item right after it. A
 wildcard item already covers a new file in its folder. Git records a renamed file's deletion and creation as a rename.
@@ -268,18 +304,32 @@ It builds `SuperMetroid.EnsureAnalyzer.CodeFixes` (and so the analyzer) once in 
 that imports `csharp/Directory.Build.props` and names the analyzer and code-fix assemblies (`$(CleanupAnalyzer)`,
 `$(CleanupCodeFixes)`) for the fixture's own `<Analyzer>` items. It restores the copy, runs the runner on it for that
 rule, compares every file (less `bin/`, `obj/` and the two added files) with `expected/`, including which files
-exist, and builds the fixed copy with `tools/build.ps1`. A failed fixture keeps its copy and prints where; the script
-exits nonzero when any fixture fails.
+exist, and builds the fixed copy with `tools/build.ps1`. A fixture whose fix breaks the code, as a fix must where a choice
+was needed, holds `expected-build-errors.txt` beside `input/` and `expected/`: one line per text (an error code, say)
+the build of the fixed copy must report, and that build must fail. A failed fixture keeps its copy and prints where; the
+script exits nonzero when any fixture fails.
+
+The fixtures of #2599 hold the shapes the fixers used to decline, applied: `SME6400.file-named-type` the three sites of
+cda71cca6b (a file named after its second type, `FrontendFloorSheetComposer.cs` and `GameOverBabyPaletteNames.cs`, and
+after its third, `RoomPaletteFxPrograms.cs`, on which the fixer threw); `SME6401.case-only` the fourth
+(`objectcharacterplacement.cs`); `SME6401.taken-name` a file whose name another file has, whose type joins that file;
+`SME6400.directives` a type moved with its directives, a raw string in a namespace block, a type that joins an existing
+file and a file of top-level statements; `SME6400.breaking` a file-local type and two types that both belong in one file;
+`SME6360.refusals` the merges that needed a choice; `IDE0052.breaking` initializers kept in an added constructor, in a block body given to an expression-bodied one and in a primary
+constructor's type body, a write through a receiver with effects left as written, an assignment used with the field's
+type, and a virtual method's parameter taken out with its signature; `IDE0052.unread-parameter` (above) a member left reading no
+instance data.
 
 `tools/cleanup/prune-fixtures/<name>/` confirms the dead-code prune the same way: `input/` is a small repository whose
 `csharp/Fixture.slnx` lists projects named like the shipped, host and verification projects (the reachability audit
 knows them by name), with test-support shared through `.projitems`, and `expected/` is every file of it after the prune.
-A fixture may also hold `expected-output.txt`: text the prune's output must hold, such as the `MANUAL` line of a move it
-keeps in place.
+A fixture may also hold `expected-output.txt`, text the prune's output must hold, such as its summary of what it moved,
+and `expected-build-errors.txt`, as a cleanup fixture does: the prune applies every removal and move it selects, and a
+fixture whose pruned copy must not build names the errors its build must fail with.
 
 ```powershell
 pwsh -File tools/cleanup/check-prune-fixtures.ps1                         # every prune fixture
-pwsh -File tools/cleanup/check-prune-fixtures.ps1 -Name holder-collision  # only the named ones
+pwsh -File tools/cleanup/check-prune-fixtures.ps1 -Name check-only-code   # only the named ones
 ```
 
 It builds `SuperMetroid.ReachabilityAudit` once in Release (which builds the repository analyzer in Release too), then
@@ -292,29 +342,44 @@ console error policy) and adds `SuperMetroid.EnsureAnalyzer` to every project, a
 path they read. The check restores the copy, runs the prune on it with the arguments `run.ps1` uses and
 `csharp/test-support/VerificationAccess.Core` as the destination, compares every file with `expected/` as above, and
 builds the pruned copy, so an analyzer finding fails the fixture as it fails the cleanup's build; with
-`expected-output.txt` it also requires the prune's output to hold that text. `holder-collision` holds the shapes of the
-2026-11-13 failure at a7f8ec16e6: a moved instance member whose `<Owner>Access` class another test-support folder
-already declares (it is merged into), a moved static member whose `<Owner>Constants` name an instance class holds (the
-first free name, `<Owner>Constants2`, is used), and `inheritdoc` and `see` crefs to both, which follow them.
-`extension-block` holds the shape of the 2026-11-13 failure at 2390b2f3af: a whole extension block moves into a new
-`<Owner>Constants` class with no modifier on its header, the member it declared without one becomes internal, and the
-staying private members it reaches through its owner's name or through a receiver of the owner's other block become
-internal. `extension-block-merge` moves a block into an existing `<Owner>Constants` class that already declares a block
-for the same receiver. `holder-modifiers` holds the other modifiers the prune writes: a moved `protected internal` member
-becomes `internal`, a moved `new` member drops `new`, a struct's `readonly` instance members drop `readonly` as extension
-members, an internal property's private setter that moved code writes loses its modifier, and both parts of a partial
-method that moved code calls become internal. `moved-crefs` holds crefs to members inside a moved extension block (a
-generic one among them) and a moved nested type: `see`, `seealso` and `inheritdoc`, written with the owner, with its
-namespace too, or alone inside the moved code; a moved block's cref to a member of the owner's staying block; and a
-labelled `see` in shipped code, which becomes its label. `holder-modifiers` and `partial-members` hold their code in a
-`SuperMetroid.Desktop` project: a hand-written partial type is SME6361 in Core and AssetExtraction, where only a
-generator completes one, and is code the prune meets in the shipped projects outside the SME rules. `partial-members` moves a partial method without an
-implementation as written and an implemented one, both into a partial `<Owner>Constants`, and joins the two parts of an
-instance partial method and property into one extension member each. `same-receiver-blocks` holds two extension blocks
-of one class taking the same receiver, one production uses and one only checks use: the second moves whole. Such blocks
-share a documentation-comment ID, so the audit keys each block by where it is declared as well; before, the two counted
-as one reachable declaration, the second block's members moved one by one and an empty block stayed in shipped code. A
-staying block every member of which would move out one by one fails the run.
+`expected-output.txt` it also requires the prune's output to hold that text, and with `expected-build-errors.txt` it
+requires the build to fail with each error that file names.
+
+What the prune does with dead code tests still use follows the owner's rulings of #2599: nothing in production exists
+for checks alone, and nothing is reached through reflection. A dead top-level type that verification uses, directly or
+through other such types (check-only helper code), moves whole into test-support (`SymbolRelocator` in
+`csharp/src/SuperMetroid.ReachabilityAudit/Removal`, chosen by `VerificationReferences.SelectRelocatedTypes` in
+`Analysis`): each declaration, every part of a partial type, goes to the same path under the destination, less the
+project directory, with its namespace, its file's using directives and the source project's global usings it names,
+merging into a file an earlier run wrote there, and a source file left without a type is deleted. Its name and namespace
+do not change, so every check naming it binds to it as before. Every other dead declaration is removed, a dead member of a
+production type that only checks use among them, and the checks and moved code reading it fail to build until they are
+rewritten to drive real game code. No production member is widened, renamed or reached through a generated
+private-access member for moved code, and nothing is refused, kept in place or reported as `MANUAL`: moved code that
+reaches what test-support cannot see fails to build there. Documentation staying in a shipped assembly that cites a moved
+type becomes text, a labelled cref its label and an unlabelled one the name as code, which SME6454 rejects in Core where
+the sentence must be reworded; moved documentation citing a member test-support cannot see (private, or private
+protected) becomes text the same way. A staying type compiled by a project that cannot see the destination no longer
+implements a moved interface; a type every project compiling it sees the destination from keeps it. A key the relocation
+is given that names no top-level type of repository source fails the run.
+
+Until #2599 the prune also moved check-only members of production types, into per-owner `<Owner>Constants` and
+`<Owner>Access` classes in test-support; moved code reached the staying private members it used through generated
+`<Owner>PrivateAccess` members (#2570) or, before that, through members made internal under promotion rules, and every
+move the prune could not make whole stayed in place with a `MANUAL` line. The fixtures of those shapes went with them.
+
+- `check-only-code`: `ListWindows.WideWidth`, a member of a production type only a check uses, is removed, and the check
+  fails to build (CS0117); `ListSamples`, a top-level type only checks use, moves whole into test-support, its emptied
+  file is deleted, and the shipped documentation citing it with a labelled cref keeps the label.
+- `moved-interface-implementers`: an interface only checks use moves into test-support, and the test-support types
+  implementing or extending it keep it in their base lists. Only a type some project that cannot see the destination
+  compiles loses it. The 2026-11-15 cleanup of e4ce9514eb took `ISnesMutableMemory` off test-support's
+  `ISnesMemoryBus` and the verification doubles, and every check reading work memory through them failed (CS1503,
+  CS1061).
+- `shipped-unlabelled-cref`: documentation staying in a shipped assembly cites a removed declaration with an unlabelled
+  cref. The cref becomes the name as code text, and SME6454 fails the build there, where the sentence must be reworded
+  (`<c>LastMark</c>` in `QuadraticSpeedCurvePlace`, the 2026-11-15 cleanup of e4ce9514eb). The declaration was kept in
+  place with a `MANUAL` line before.
 
 `paired-operators` holds the shape of the failure on every run from e40e73afe5 (2026-11-13) to 86b2e34794: only checks
 used `PowerBombRadius.operator >=` and nothing used `operator <=`, so the prune deleted `<=` alone and its reload failed
@@ -322,60 +387,12 @@ on CS0216. The compiler requires some declarations beside others, and the reacha
 declarations themselves (`RequiredDeclarations` in `csharp/src/SuperMetroid.ReachabilityAudit/Analysis`), not on the
 code that uses them, which for code only checks use is code the audit does not walk: each operator of a pair (`==`/`!=`,
 `<`/`>`, `<=`/`>=`, `true`/`false`) reaches its partner, a checked operator its unchecked form, and an override the
-member it overrides. A pair is kept when either is used and removed only together. The fixture keeps `<=` beside the
-`>=` only checks use (both stay in place, since operators never move), keeps `>` beside the `<` production uses,
-removes an unused `true`/`false` pair together, keeps a `GetHashCode` nothing calls beside the `Equals` production
-calls, and keeps an abstract property production reads only through its override, which the prune deleted before
-(CS0115). An `Equals` override and `GetHashCode` stay with their type, as every override of a framework member does, and
-an interface member needs no rule: an explicit implementation is reached only through it, and an implicit one does not
-need it.
-
-Since #2570 the promotion fixtures below hold what the prune does into test-support instead: the private member stays private,
-reached through its generated `<Owner>PrivateAccess` member, and the moves the refusals kept in place relocate. Before,
-the promotion fixtures held the shape of the 2026-11-13 failure at 5eddba348d, where the prune made the private field
-`RoomObjectSlotTable._places` internal for moved test code and the build failed on SME6354, and the other rules a
-promotion can break. `underscore-promotion` promotes an underscore-prefixed private field that moved code reaches
-through `this`, through a conditional access and in documentation: it becomes internal as `places`, and every reference
-follows, `nameof` and crefs among them, the constructor's assignment, which a parameter of that name would take, as
-`this.places`. `shared-field-promotion` promotes one of two underscore-prefixed fields declared together, which become
-internal together and both lose the underscore. `moved-private-cref` moves documentation naming a private member that
-moved code does not use: the test-support assembly compiles against the shipped project's reference assembly, which holds
-no private member, so the cref becomes text (a labelled one its label) instead of failing CS1574. Five fixtures hold
-promotions the prune refuses: the moved code that needs one stays where it is, untouched, with a `MANUAL` line naming
-the member, the rule and what to do (`expected-output.txt`), and the rest of the run goes on. `underscore-collision`:
-the underscore-less name is taken (SME6354 cannot be met by renaming); `rename-pairing`: the underscore-less
-`xOffset` would pair with a `yOffset` already there (SME6280); `mutable-field-promotion`: a class's mutable field in
-Core (SME6436); `argument-guard-promotion`: a private method that checks its argument by hand (SME6201);
-`derived-hiding-promotion`: a private member whose name a derived type's member takes (CS0108). Each of the five
-failed on the tool before: the first four promotions failed the whole run, and the pairing rename left a tree that did
-not build.
-
-The prune puts an owner's moved members in the class its style names, in the owner's namespace, unless a project
-compiling the destination already knows that name. It then merges into that class when it is one static class (abstract,
-for an adapter of moved interfaces) that exactly the destination's projects compile, so the moved code sees what it would
-see in the destination and reaches no other project, and otherwise passes the name over for the next free one. A merge
-into a class that already declares a moved member fails the run; an extension block is compared member by member, under
-its receiver. A name that a top-level type of another namespace takes, in any project's source or among the run's new
-holders, is passed over too, since a file importing both namespaces could name neither (CS0104), and a new holder's file
-must not exist yet, since writing into it merges into whatever class it holds.
-
-The fixtures below hold the four shapes of the 2026-11-15 cleanup of e4ce9514eb, whose tree did not build; each failed on
-the tool before:
-
-- `moved-interface-implementers`: an interface only checks use moves into test-support, and the test-support types
-  implementing or extending it keep it in their base lists. Only a type some project that cannot see the destination
-  compiles loses it (its adapter implements it); the prune took `ISnesMutableMemory` off test-support's `ISnesMemoryBus`
-  and the verification doubles, and every check reading work memory through them failed (CS1503, CS1061).
-- `holder-name-elsewhere`: a moved constant's `<Owner>Constants` name is taken in another namespace
-  (`SnesBusLayoutConstants`, CS0104 in `LibraryBackgroundProgramImporter`), and a moved method's `<Owner>Access` file
-  exists with a class of another namespace (`EndingTextPresentationAccess`, where `Typewriter()` landed out of its
-  callers' reach): both take the next free name, `<name>2`.
-- `private-signature-promotion`: a member promoted for moved code takes with it the private nested types its signature
-  names (`DefinitionObjects.Declared` and its record `Declarations`, CS0053), with their private containers and base types.
-- `shipped-unlabelled-cref`: documentation staying in a shipped assembly that cites a declaration with an unlabelled cref
-  keeps that declaration in place, dead or used only by checks, with whatever it uses, and a `MANUAL` line asks for the
-  sentence to be reworded. The cref would otherwise become code text naming nothing, which SME6454 rejects in Core
-  (`<c>LastMark</c>` in `QuadraticSpeedCurvePlace`). A labelled cref becomes its label and holds nothing back.
+member it overrides. A pair is kept when either is used and removed only together. The fixture removes `<=` together with
+the `>=` only checks use, and the check fails to build (CS0019); it keeps `>` beside the `<` production uses, removes an
+unused `true`/`false` pair together, keeps a `GetHashCode` nothing calls beside the `Equals` production calls, and keeps
+an abstract property production reads only through its override, which the prune deleted before (CS0115). An `Equals`
+override and `GetHashCode` stay with their type, as every override of a framework member does, and an interface member
+needs no rule: an explicit implementation is reached only through it, and an implicit one does not need it.
 
 The record-equality fixtures hold the shape of the 2026-11-18 failure at a0a6e3b3a5 (#2434), where the prune removed
 `Row` from the three `GameOptionsRow` cases as unread: the cases are keys of a dictionary typed by their abstract base,
@@ -399,59 +416,20 @@ stand behind the compared one. Each fixture keeps every file as written, and eac
   interface, both of which dispatch to the record's synthesized equality.
 - `record-concatenation`: a record concatenated with text, which formats it.
 
+`positional-base-argument` holds the shape of the failure at 0ea41f339b (#2599): the prune retired the dead property of
+`KraidColours.BandShade(PictureShade Shade) : BodyShown(Shade)` by deleting its positional parameter, which the base call
+reads as a constructor parameter, and the tree no longer built (CS0103). When every positional property of the record is
+dead and only the base call reads parameters, the record loses its parameter list and gets a constructor taking the
+parameters read, under constructor-parameter names, with their documentation, and passing them to its base: `BandShade`
+becomes `record BandShade : BodyShown` with `BandShade(Tint shade) : base(shade)`. Otherwise the parameter goes anyway
+and the build fails at each read, where moving the code that reads it into a constructor is the developer's choice: the
+fixture's `Glow(Tint Level)`, whose property initializer reads `Level`, loses it, and the build fails there (CS0103). An
+argument passed to a removed parameter whose evaluation calls code or writes state stays as written, so the call fails
+to compile there instead of the effect silently going with it.
+
 A value typed `object` names no type, so what is compared through it is not followed. A `with` expression copies a
 record without comparing it, and a pattern names each value it tests (a property pattern by name, a positional one
 through the synthesized `Deconstruct`), so neither needs a rule of its own.
-
-Every modifier the prune writes is one its declaration takes (`RelocationModifiers` in
-`csharp/src/SuperMetroid.ReachabilityAudit/Removal`): a moved declaration, and a staying one moved code uses, become
-internal; an extension block, an explicit interface implementation and an operator keep their declarations as written. A
-declaration a holder class cannot take, a staying member whose accessibility is bound to what it overrides or what
-overrides it, and an extension block whose owner's adapter is abstract fail the run instead of being written wrongly.
-A partial member moves into a partial class (an existing class is merged into only when it is partial). A partial
-method without an implementation moves as written, private to its new class, and the run fails when code outside that
-class reaches it or when a staying one must become internal. An instance partial member that becomes an extension
-member is written once from its two parts, and the run fails when they are not both repository source.
-
-Moved into test-support, a staying member moved code reaches stays private (#2570): moved code reaches it through a
-generated private-access member, `<Owner>PrivateAccess` in the owner's verification-access folder (or beside the moved
-code when that folder is not under the destination), an extension member of the same name and signature that reaches
-the private member through `PrivateState`, so C# binds the moved code's unchanged reference to it; every generated class
-is imported in `PrivateAccessImports.cs`. Production keeps no member wider for checks, and no promotion rule applies.
-Only a type moved code names still becomes internal. A member no extension member can stand in for (a constructor, an
-indexer, an event, a generic member or owner, a `ref struct` in its signature) and a private setter of a property moved
-code otherwise sees are refused, with a `MANUAL` line. The architecture audit's `--fix-test-only-members` generates the
-same classes for members only checks reach.
-
-Moved into a development-only project, a staying member becomes internal (a promotion) when moved code reaches it: through its owner's name, `this`, a receiver
-or a conditional access, or by constructing its type. A promotion changes only accessibility, so the rules it can break
-are the build's rules that read accessibility (`PromotionRules`, `PromotedNames` and `RenamePairing` in the same
-folder), each met or refused before anything is written. A refused promotion keeps the moves that reach the member in
-place for manual relocation, with a `MANUAL` line (`kept in place: it uses <member>, <why>`), keeps in place whatever a
-declaration that now stays uses, and the steps run again from the moves left; nothing is half-applied:
-
-- SME6354 (an underscore-prefixed field or property is private): the member is renamed to its name without the
-  underscore, which the rule's message asks for ("a member without the underscore") and which every rule that reads a
-  name as words reads as before; every reference is rewritten, crefs and `nameof` among them, and qualified with `this`
-  or its type where a local or parameter of that name would take it. A field declared together with a promoted one is
-  promoted with it and renamed too. The rename is refused when the name is taken by the owner, a containing or base
-  type or a derived type, when the name already means something else in the owner or a derived type, when code reaches
-  a member of that name through the owner's type, or when something reads the old name as text (a string literal, an
-  inactive `#if` branch, a serialization or reflection attribute). The rules that read members' names as pairs or
-  families (SME6280-SME6283, SME6351-SME6353, SME6415-SME6417) compare raw names, so losing the underscore can pair a
-  renamed `xOffset` with a `yOffset`: the prune runs those rules' own analyzers, loaded from the repository analyzer
-  assemblies each project's build runs, on each owner's file as it will be written, and refuses the renames of a file
-  where they report a new error.
-- SME6436 (no mutable field of a class is exposed, Core): a private mutable instance field is refused; its class needs
-  a named operation or a property for what the moved code needs.
-- SME6201 (a non-private method or accessor checks arguments with Ensure): a private one that checks an argument by hand
-  is refused until the check uses Ensure.
-- CS0108 (hiding): a member that a derived type's member of the same name would hide is refused.
-
-Every other rule the build enforces reads what a declaration is, says or does, which a promotion does not change; the
-CA rules that read accessibility (CA1859, CA2211) judge private and internal members alike. A cref in moved
-documentation to a staying member the destination cannot see (private, or private protected, and not promoted) becomes
-text, as a cref in a shipped assembly to moved code does.
 
 ## Seeing status
 

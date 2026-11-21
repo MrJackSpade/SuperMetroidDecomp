@@ -122,7 +122,7 @@ internal static class NativeEnemyFamilyStateImport
                 phantoon.CasualFlames.NextFlame = casualFlames < 0
                     ? null
                     : SuperMetroid.Core.Bosses.ListStep<PhantoonCasualFlame>.At(flames, flames.Count - Math.Max(1, (int)casualFlames));
-                phantoon.Wave.Amplitude = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(words.D);
+                phantoon.Wave.Amplitude = UnsignedSixteenSixteen.FromRaw((uint)words.D << 8);
                 phantoon.Wave.AmplitudeShrinking = words.E != 0;
                 phantoon.Wave.PhaseStep = RotationAngle.WrappedSteps(words.F);
             }
@@ -135,7 +135,6 @@ internal static class NativeEnemyFamilyStateImport
                     phantoon.StartingFlames.NextFlame = SuperMetroid.Core.Bosses.ListStep<TrigonometryAngle>.At(PhantoonFlameSpawns.StartingFlameStarts, words.A);
                 phantoon.FigureEight.PathPlace = PhantoonPath.At(words.A);
                 phantoon.Death.ExplosionPasses = words.A;
-                phantoon.StartingFlames.Orbiting = words.B != 0;
                 phantoon.FigureEight.Speed = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Bosses.Phantoon.PhantoonPathSpeed>([typeof(global::SuperMetroid.Core.Spatial.SignedSixteenSixteen)], new object?[] { SignedSixteenSixteen.FromParts(CoordinateAxis.AsSigned(words.C), words.B) });
                 phantoon.FigureEight.Stage = PhantoonFigureEightStageWords.Decode(words.D);
                 if (words.F != 0)
@@ -159,12 +158,12 @@ internal static class NativeEnemyFamilyStateImport
             // top hull's variables A and C through E. Variable B counts the records the takeoff has copied while the ship
             // waits for its engines, which the port times on its phase timer from the wait's start (#2469).
             gunshipRecord.PhaseTimer = UpdateCountdownAccess.Recorded(unchecked((short)words.A));
-            gunshipRecord.Bob = GunshipIdleBob.All[words.C];
+            gunshipRecord.Bob = IdleBobAt(words.C);
             gunshipRecord.BobTimer = UpdateCountdownAccess.Recorded(unchecked((short)words.D));
             gunshipRecord.BaseY = words.E;
             // E holds the next landing brake only while the ship brakes; otherwise it holds the base Y.
-            if (words.E < GunshipLandingBrake.All.Count)
-                gunshipRecord.LandingBrake = GunshipLandingBrake.All[words.E];
+            if (words.E < GunshipMotionDefinitions.LandingBrakeYDeltas.Length)
+                gunshipRecord.LandingBrake = LandingBrakeAt(words.E);
         }
         if (enemy.Holds(EnemyDefinitionId.ShipBottomEntrance) && index > 0 &&
             enemies.Places.InUpdateOrder[index - 1].SpeciesState<GunshipState>() is { } bottomOfShip)
@@ -213,7 +212,7 @@ internal static class NativeEnemyFamilyStateImport
             ridleyRoomDoorRecord.Look = words.B != 0 ? CeresRidleyRoomDoorLook.Overlay : CeresRidleyRoomDoorLook.Actor;
         if (enemy.SpeciesState<DeadTorizoEnemyState>() is { } deadTorizoRecord)
         {
-            deadTorizoRecord.Phase = CorpsesNativeWords.DeadTorizoPhases.Decode(words.A, "recorded DeadTorizoPhase");
+            deadTorizoRecord.Phase = CorpsesNativeWords.DeadTorizoPhases.Decode(words.A, "recorded dead Torizo CorpsePhase");
             // The corpse only sinks: its recorded sideways speed is nothing (#2432).
             if (words.B != 0)
                 throw new InvalidDataException($"Recorded dead Torizo sideways speed ${words.B:X4} is not nothing.");
@@ -278,10 +277,13 @@ internal static class NativeEnemyFamilyStateImport
             if (words.A != 0)
             {
                 (DraygonEyeAction eyeAction, HorizontalDirection? eyeFacing) = DraygonNativeWords.EyeActions.Decode(words.A, "recorded DraygonEyeAction");
-                draygonEyeRecord.Action = eyeAction;
-                // Only a tracking eye names the way it faces (#2165).
-                if (eyeFacing is { } facing)
-                    draygonEyeRecord.Facing = facing;
+                // Only a tracking eye names the way it faces (#2165); an inert eye faces no way (#2560).
+                draygonEyeRecord.TrackingFacing = eyeAction switch
+                {
+                    DraygonEyeAction.Inert => null,
+                    DraygonEyeAction.Tracking => eyeFacing ?? throw new InvalidDataException("A recorded tracking Draygon eye names no facing."),
+                    _ => throw new InvalidDataException($"Undefined {nameof(DraygonEyeAction)} {eyeAction}."),
+                };
             }
             // The game compares only the look angle's low byte, the bearing it stored.
             draygonEyeRecord.LookAngle = AimAngleConstants.FromClockwiseSteps(words.F & byte.MaxValue);
@@ -713,15 +715,16 @@ internal static class NativeEnemyFamilyStateImport
             // The record counts the bounces left, two before the first impact and minus one once rolling.
             boulderRecord.ImpactsSoFar = BoulderBounces.ImpactCount - 1 - unchecked((short)words.D);
             // The Boulder rolls as its placement names (#2476), which the recording's roll must be.
-            BoulderRoll boulderRoll = words.E switch
+            (HorizontalDirection Direction, bool Breaks) boulderRoll = words.E switch
             {
-                0 => BoulderRoll.Right,
-                1 => BoulderRoll.Left,
-                2 => BoulderRoll.LeftBreakingOnImpact,
+                0 => (HorizontalDirection.Right, false),
+                1 => (HorizontalDirection.Left, false),
+                2 => (HorizontalDirection.Left, true),
                 _ => throw new InvalidDataException($"Recorded Boulder roll {words.E} is not a roll."),
             };
-            if (boulderRoll != enemy.HeldOccupant().SpawnSettings<BoulderSpawnSettings>().Roll)
-                throw new InvalidDataException($"Recorded Boulder roll {boulderRoll} is not its placement's {enemy.HeldOccupant().SpawnSettings<BoulderSpawnSettings>().Roll}.");
+            BoulderSpawnSettings placed = enemy.HeldOccupant().SpawnSettings<BoulderSpawnSettings>();
+            if (boulderRoll != (placed.Roll, placed.FirstImpact == BoulderImpact.Breaks))
+                throw new InvalidDataException($"Recorded Boulder roll {boulderRoll} is not its placement's {(placed.Roll, placed.FirstImpact == BoulderImpact.Breaks)}.");
         }
         if (enemy.SpeciesState<RinkaEnemyState>() is { } rinkaRecord)
         {
@@ -1327,20 +1330,18 @@ internal static class NativeEnemyFamilyStateImport
             case KraidLintState lint:
                 if (recorded)
                     lint.Phase = KraidNativeWords.LintPhases.Decode(words.A, "recorded KraidLintPhase");
-                lint.LintXOffset = CoordinateAxis.AsSigned(words.C);
+                int emergesAt = CoordinateAxis.AsSigned(words.C);
+                lint.Emergence = KraidArenaDefinitions.LintEmergenceXOffsets.Single(pair => pair.Value == emergesAt).Key;
                 lint.LintTravel = words.B;
                 ImportPhaseWait(lint, words.F);
                 return;
             case KraidFootState foot:
             {
                 // A foot whose setup has not given it a phase rests.
-                (KraidFootPhase phase, HorizontalDirection? walk) = recorded
-                    ? KraidNativeWords.FootPhases.Decode(words.A, "recorded KraidFootPhase")
-                    : (KraidFootPhase.Resting, null);
-                foot.Phase = phase;
-                // Only the foot's walk names the way it walks (#2165).
-                if (walk is { } direction)
-                    foot.WalkDirection = direction;
+                // The foot's walk names the way it walks in its phase (#2165, #2560).
+                foot.Phase = recorded
+                    ? KraidNativeWords.FootPhases.Decode(words.A, "recorded KraidFootPhase").Phase
+                    : KraidFootPhase.Resting;
                 ImportPhaseWait(foot, words.F);
                 return;
             }
@@ -1409,6 +1410,28 @@ internal static class NativeEnemyFamilyStateImport
     /// <param name="word">The recorded countdown, read as signed.</param>
     private static int TrueDuration(ushort word) => Math.Max(0, unchecked((short)word) + 1);
 
+    /// <summary>The idle bob's step at <paramref name="place"/> in its cycle, the place the cartridge records.</summary>
+    /// <exception cref="InvalidDataException">The cycle has no such place.</exception>
+    private static GunshipIdleBob IdleBobAt(int place)
+    {
+        if ((uint)place >= (uint)GunshipMotionDefinitions.IdleBobs.Length)
+            throw new InvalidDataException($"The gunship's idle bob has no step {place}.");
+        GunshipIdleBob bob = GunshipIdleBob.First;
+        for (int step = 0; step < place; step++)
+            bob = bob.Next;
+        return bob;
+    }
+
+    /// <summary>The landing brake at <paramref name="place"/> in its schedule, the place the cartridge records.</summary>
+    /// <exception cref="InvalidDataException">The schedule has no such place.</exception>
+    private static GunshipLandingBrake LandingBrakeAt(int place)
+    {
+        GunshipLandingBrake brake = GunshipLandingBrake.First;
+        for (int step = 0; step < place; step++)
+            brake = brake.Next ?? throw new InvalidDataException($"The gunship's landing brakes have no step {place}.");
+        return brake;
+    }
+
     /// <summary>A recorded countdown that runs out on the step that takes it to zero, as the wait it stands for: its true duration left.</summary>
     /// <param name="word">The recorded countdown, read as signed.</param>
     private static UpdateCountdown TrueWait(ushort word) => UpdateCountdown.For(TrueDuration(word));
@@ -1431,16 +1454,16 @@ internal static class NativeEnemyFamilyStateImport
     /// <summary>Decodes a dead Tourian corpse's recorded bank-$A9 main-AI function word into its phase.</summary>
     /// <param name="species">The corpse's species, whose wait, pre-rot and rotting routines are its own.</param>
     /// <param name="word">The recorded function word; zero is an emptied record.</param>
-    private static DeadTourianCorpsePhase DeadTourianCorpsePhaseOf(DeadTourianCorpseSpecies species, ushort word) =>
+    private static CorpsePhase DeadTourianCorpsePhaseOf(DeadTourianCorpseSpecies species, ushort word) =>
         new DeadTourianCorpsePhaseOfCase(species, word) switch
         {
-            (_, 0xda63) => DeadTourianCorpsePhase.Finished,
+            (_, 0xda63) => CorpsePhase.Finished,
             (DeadTourianCorpseSpecies.Zoomer, 0xda69) or (DeadTourianCorpseSpecies.Ripper, 0xda73) or (DeadTourianCorpseSpecies.Skree, 0xda6e) =>
-                DeadTourianCorpsePhase.Waiting,
+                CorpsePhase.Waiting,
             (DeadTourianCorpseSpecies.Zoomer, 0xda94) or (DeadTourianCorpseSpecies.Ripper, 0xda99) or (DeadTourianCorpseSpecies.Skree, 0xda9e) =>
-                DeadTourianCorpsePhase.PreRotDelay,
+                CorpsePhase.PreRotDelay,
             (DeadTourianCorpseSpecies.Zoomer, 0xdad0) or (DeadTourianCorpseSpecies.Ripper, 0xdae6) or (DeadTourianCorpseSpecies.Skree, 0xdafc) =>
-                DeadTourianCorpsePhase.Rotting,
+                CorpsePhase.Rotting,
             _ => throw new InvalidDataException($"Recorded dead {species} function ${word:X4} is not one of its routines."),
         };
 

@@ -378,7 +378,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemySpawnFactory<RinkaSpa
     internal EnemyPowerBombReaction RinkaPowerBombReaction(RoomEnemyOccupant rinka, RinkaSpawnSettings rinkaSpawnSettings, RinkaEnemyState state) => new()
     {
         SkipsEnemy = enemy => enemy.Presence.HasAny(EnemyPresence.Hidden),
-        ExemptFromGenericDeath = true,
+        Lethal = EnemyPowerBombLethal.SpeciesOwned,
         AfterCommon = c => ResolveRinkaCombatAfterCommon(rinka, rinkaSpawnSettings, c.Enemy, state),
     };
 
@@ -389,7 +389,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemySpawnFactory<RinkaSpa
     internal EnemyShotReaction RinkaShotReaction(RoomEnemyOccupant rinka, RinkaSpawnSettings rinkaSpawnSettings, RinkaEnemyState state) => new()
     {
         // Rinka's own death follows damage only; a shot that freezes it at once skips it.
-        ExemptFromGenericDeath = true,
+        Lethal = EnemyShotLethal.SpeciesOwned,
         // Rinka's shot reaction runs the common damage without the hit burst.
         ShowsHitBurst = EnemyShotReaction.NeverShowsHitBurst,
         AfterCommon = c =>

@@ -17,27 +17,30 @@ internal static class ChozoTourianDustAnimations
     {
         [P.Footsteps] =
         [
-            Cue(new EnemyProjectileCommonCue.Scatter(Spread: new(XRange: new(0, 4), YRange: new(0, 4), Center: new(0, 3)))),
-            Show(EnemyProjectileFrameId.ChozoDustPuff, 2),
-            Show(EnemyProjectileFrameId.ChozoDustPuffPair, 2),
-            Show(EnemyProjectileFrameId.ChozoDustPuffTrio, 2),
-            Show(EnemyProjectileFrameId.ChozoDustCloudsDense, 2),
+            Cue(new EnemyProjectileCommonCue.Scatter(Spread: new(Span: new(16, 16), Center: new(0, 3)))),
+            .. PuffToCloud,
             Cue(new EnemyProjectileCommonCue.Signal(CK.Delete)),
         ],
         [P.TourianDescentDust] =
         [
             Cue(new EnemyProjectileCommonCue.Signal(CK.ReturnToOrigin)),
-            Cue(new EnemyProjectileCommonCue.Scatter(Spread: new(XRange: new(0, 6), YRange: new(0, 2), Center: new(0, 0)))),
-            Show(EnemyProjectileFrameId.ChozoDustPuff, 2),
-            Show(EnemyProjectileFrameId.ChozoDustPuffPair, 2),
-            Show(EnemyProjectileFrameId.ChozoDustPuffTrio, 2),
-            Show(EnemyProjectileFrameId.ChozoDustCloudsDense, 2),
+            Cue(new EnemyProjectileCommonCue.Scatter(Spread: new(Span: new(64, 4), Center: new(0, 0)))),
+            .. PuffToCloud,
         ],
         [P.TourianDescentDustEnd] =
         [
             Cue(new EnemyProjectileCommonCue.Signal(CK.Delete)),
         ],
     });
+
+    /// <summary>The dust's puff growing to a dense cloud, two updates a picture, which both the footsteps and the descent raise.</summary>
+    private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>[] PuffToCloud =>
+    [
+        Show(EnemyProjectileFrameId.ChozoDustPuff, 2),
+        Show(EnemyProjectileFrameId.ChozoDustPuffPair, 2),
+        Show(EnemyProjectileFrameId.ChozoDustPuffTrio, 2),
+        Show(EnemyProjectileFrameId.ChozoDustCloudsDense, 2),
+    ];
 
     /// <summary>How many puffs the Tourian statue's descent dust raises before it is deleted.</summary>
     private const int DescentDustPuffs = 64;
@@ -53,9 +56,6 @@ internal static class ChozoTourianDustAnimations
     /// </summary>
     internal static Animation<ChozoTourianDustSegment> TourianDescentDust { get; } =
         new([Segments.Repeated(P.TourianDescentDust, DescentDustPuffs), Segments.Whole(P.TourianDescentDustEnd)], AnimationEnd.Holds);
-
-    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<ChozoTourianDustSegment> StartingWith(ChozoTourianDustSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Frame(frame, duration);

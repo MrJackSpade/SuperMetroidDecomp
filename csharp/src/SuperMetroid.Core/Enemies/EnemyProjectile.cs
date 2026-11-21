@@ -71,20 +71,22 @@ public sealed class EnemyProjectile
     /// </summary>
     public WrappingCountdown FrameHold
     {
-        get;
-        internal set
-        {
-            field = value;
-            IsFrameHoldStopped = false;
-        }
+        get => frameHold ?? StoppedHold;
+        internal set => frameHold = value;
     }
+
+    /// <summary>The hold's countdown while it counts, or null while it is stopped (#2560): one value for counting or stopped.</summary>
+    private WrappingCountdown? frameHold;
+
+    /// <summary>What a stopped hold reads: zero.</summary>
+    private static WrappingCountdown StoppedHold => WrappingCountdown.Start(0);
 
     /// <summary>
     /// Whether the frame hold is stopped (#2380): the animation shows a frame for good, or rests where its timeline holds, so
     /// the hold counts nothing and the animation takes no further step until the projectile's owner sets the hold again or
     /// starts an animation (<see cref="StopFrameHold"/>).
     /// </summary>
-    public bool IsFrameHoldStopped { get; private set; }
+    public bool IsFrameHoldStopped => frameHold is null;
 
     /// <summary>
     /// Stops the frame hold (#2380): the frame shown stays, and the animation takes no further step, until the projectile's
@@ -92,11 +94,15 @@ public sealed class EnemyProjectile
     /// </summary>
     internal void StopFrameHold()
     {
-        FrameHold = WrappingCountdown.Start(0);
-        IsFrameHoldStopped = true;
+        frameHold = null;
     }
     /// <summary>The frame the projectile shows: the blank frame from its spawn until its animation shows one, none once it is gone.</summary>
     public EnemyProjectileFrameId? Frame { get; internal set; }
+    /// <summary>
+    /// Where the frame the projectile shows is drawn from its place (#2557): at the place itself, unless its animation moves
+    /// one picture about as it plays (the save-station electricity's band on its sweep).
+    /// </summary>
+    public Offset16<RoomPixels> FramePlacement { get; internal set; }
     /// <summary>
     /// How the projectile moves itself on each pass, before its animation advances (#1843): one of the motions its
     /// behaviour owns (<see cref="EnemyProjectileMotionBehavior{TMotion}"/>), held through that behaviour (#2571), or null
@@ -117,8 +123,7 @@ public sealed class EnemyProjectile
     /// projectile shows, draws from the room's shared sheet in its standard colours; any other frame with
     /// <see cref="Graphics"/>.
     /// </summary>
-    public SpriteGraphics ShownGraphics => Frame is { } frame && EnemyProjectileRoomPictureDefinitions.RoomPictures.Contains(frame)
-        ? SpriteGraphics.SharedStandard : Graphics;
+    public SpriteGraphics ShownGraphics => Frame is { } frame && frame.IsRoomPicture ? SpriteGraphics.SharedStandard : Graphics;
     /// <summary>Gets the collision half-extents in pixels, from the projectile's definition.</summary>
     public Extent16<RoomPixels> Radius { get; internal set; }
 

@@ -55,8 +55,8 @@ internal static void VerifyControllerBindingsAndOptionsSubmenus()
     ControllerBindings swapped = ControllerBindings.Default.AssignAndSwap(
         action: ControllerAction.Shoot,
         physicalButton: ControllerButton.R);
-    AssertEqual(ControllerButton.R, swapped.Shoot, "controller swap assigns requested button");
-    AssertEqual(ControllerButton.X, swapped.AimUp, "controller swap preserves permutation");
+    AssertEqual(ControllerButton.R, swapped[ControllerAction.Shoot], "controller swap assigns requested button");
+    AssertEqual(ControllerButton.X, swapped[ControllerAction.AimUp], "controller swap preserves permutation");
     GameplayAction actions = swapped.ToActions(
         ControllerButton.R | ControllerButton.X | ControllerButton.Left | ControllerButton.Right | ControllerButton.Start);
     AssertEqual(
@@ -78,53 +78,53 @@ internal static void VerifyControllerBindingsAndOptionsSubmenus()
         0);
     WriteRepeatedCompressedStream(
         rom,
-        GameOptionsSourceDefinitions.Pages[GameOptionsScreen.ControllerEnglish].Address,
+        GameOptionsSourceDefinitions.Pages[GameOptionsScreen.Settings(GameOptionsPage.Controller, TextLanguage.English)].Address,
         GameOptionsSourceDefinitions.TilemapByteCount,
         0);
     WriteRepeatedCompressedStream(
         rom,
-        GameOptionsSourceDefinitions.Pages[GameOptionsScreen.ControllerJapanese].Address,
+        GameOptionsSourceDefinitions.Pages[GameOptionsScreen.Settings(GameOptionsPage.Controller, TextLanguage.Japanese)].Address,
         GameOptionsSourceDefinitions.TilemapByteCount,
         0);
     WriteRepeatedCompressedStream(
         rom,
-        GameOptionsSourceDefinitions.Pages[GameOptionsScreen.SpecialEnglish].Address,
+        GameOptionsSourceDefinitions.Pages[GameOptionsScreen.Settings(GameOptionsPage.Special, TextLanguage.English)].Address,
         GameOptionsSourceDefinitions.TilemapByteCount,
         0);
     WriteRepeatedCompressedStream(
         rom,
-        GameOptionsSourceDefinitions.Pages[GameOptionsScreen.SpecialJapanese].Address,
+        GameOptionsSourceDefinitions.Pages[GameOptionsScreen.Settings(GameOptionsPage.Special, TextLanguage.Japanese)].Address,
         GameOptionsSourceDefinitions.TilemapByteCount,
         0);
-    var options = new GameOptionsMenuState(AudioQueues.Standalone(), screenContent: RetailPresentationFixture(), spriteSheets: MenuSheetFixtures.For(RetailPresentationFixture()), controllerBindings: SuperMetroid.Core.Input.ControllerBindings.Default, iconCancelEnabled: false, moonwalkEnabled: false, japaneseText: false);
-    StepOptionsUntil(options, GameOptionsPhase.Main);
+    var options = new GameOptionsMenuState(AudioQueues.Standalone(), screenContent: RetailPresentationFixture(), spriteSheets: MenuSheetFixtures.For(RetailPresentationFixture()), controllerBindings: SuperMetroid.Core.Input.ControllerBindings.Default, iconCancelEnabled: false, moonwalkEnabled: false, language: TextLanguage.English);
+    StepOptionsUntil(options, GameOptionsPage.Primary);
 
     for (int row = 0; row < 3; row++)
         PressOptions(options, ControllerButton.Down);
     AssertEqual<GameOptionsRow>(new GameOptionsRow.OnPrimaryPage(GameOptionsPrimaryRow.ControllerSettings), options.SelectedRow, "primary options selects controller settings");
     PressOptions(options, ControllerButton.A);
-    StepOptionsUntil(options, GameOptionsPhase.ControllerSettings);
+    StepOptionsUntil(options, GameOptionsPage.Controller);
 
     PressOptions(options, ControllerButton.R);
-    AssertEqual(ControllerButton.R, options.ControllerBindings.Shoot,
+    AssertEqual(ControllerButton.R, options.ControllerBindings[SuperMetroid.Core.Input.ControllerAction.Shoot],
         "controller page assigns physical R to Shoot");
-    AssertEqual(ControllerButton.X, options.ControllerBindings.AimUp,
+    AssertEqual(ControllerButton.X, options.ControllerBindings[SuperMetroid.Core.Input.ControllerAction.AimUp],
         "controller page swaps displaced Shoot button into Aim Up");
 
     for (int row = 0; row < 7; row++)
     {
         PressOptions(options, ControllerButton.Down);
         if (options.Phase == GameOptionsPhase.ScrollControllerDown)
-            StepOptionsUntil(options, GameOptionsPhase.ControllerSettings);
+            StepOptionsUntil(options, GameOptionsPage.Controller);
     }
     AssertEqual<GameOptionsRow>(new GameOptionsRow.OnControllerPage(GameOptionsControllerRow.Exit.Instance), options.SelectedRow, "controller page reaches Exit after native scroll");
     PressOptions(options, ControllerButton.A);
-    StepOptionsUntil(options, GameOptionsPhase.Main);
+    StepOptionsUntil(options, GameOptionsPage.Primary);
 
     for (int row = 0; row < 4; row++)
         PressOptions(options, ControllerButton.Down);
     PressOptions(options, ControllerButton.A);
-    StepOptionsUntil(options, GameOptionsPhase.SpecialSettings);
+    StepOptionsUntil(options, GameOptionsPage.Special);
     PressOptions(options, ControllerButton.A);
     AssertTrue(options.IconCancelEnabled, "special page toggles Icon Cancel");
     PressOptions(options, ControllerButton.Down);
@@ -417,7 +417,7 @@ internal static void VerifyEndingCreditsState()
             MaxSuperMissiles: 50,
             MaxPowerBombs: 50,
             CollectedItems: (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.SpringBall | SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.ScrewAttack | SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.HiJumpBoots | SamusEquipmentFlags.SpaceJump | SamusEquipmentFlags.Bombs | SamusEquipmentFlags.SpeedBooster | SamusEquipmentFlags.GrappleBeam | SamusEquipmentFlags.XrayScope),
-            CollectedBeams: SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma), JapaneseText = false, Text = RetailPresentationFixture().EndingText }, EndingTextSequence.ItemPercentage);
+            CollectedBeams: SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma), Language = TextLanguage.English, Text = RetailPresentationFixture().EndingText }, EndingTextSequence.ItemPercentage);
     for (int frame = 0; frame < 4_000 && !percentage.Completed; frame++)
         percentage.Step();
     AssertTrue(percentage.Completed && percentage.TypesItemPercentage,
@@ -445,12 +445,12 @@ private static void PressOptions(GameOptionsMenuState options, ControllerButton 
 /// <summary>Advances neutral options frames until the expected phase or fails at the bounded frame limit.</summary>
 private static void StepOptionsUntil(
     GameOptionsMenuState options,
-    GameOptionsPhase expected,
+    GameOptionsPage expected,
     int maximumFrames = 80)
 {
-    for (int frame = 0; frame < maximumFrames && options.Phase != expected; frame++)
+    for (int frame = 0; frame < maximumFrames && !(options.Phase == GameOptionsPhase.Browsing && options.Page == expected); frame++)
         options.Step(0);
-    AssertEqual(expected, options.Phase, $"options reaches {expected}");
+    AssertTrue(options.Phase == GameOptionsPhase.Browsing && options.Page == expected, $"options browses the {expected} page");
 }
 
     /// <summary>Runs door opening trajectory and alignment parity suites from the verification command line.</summary>

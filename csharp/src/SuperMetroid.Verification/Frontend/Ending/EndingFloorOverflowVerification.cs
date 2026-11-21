@@ -1,8 +1,6 @@
-using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Verification.Harness;
-using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 
 namespace SuperMetroid.Verification.Frontend.Ending;
@@ -24,15 +22,13 @@ internal static class EndingFloorOverflowVerification
         AssertBytes(bus, 0x8B82AB, [0xA9, 0x00, 0x8D, 0x1A, 0x21, 0x85, 0x5F], "the escape's setup writes Mode 7 settings 0");
         AssertBytes(bus, 0x8BDA66, [0x64, 0x5F], "the explosion's setup writes Mode 7 settings 0 again");
         AssertBytes(bus, 0x8BDBD1, [0xA9, 0x80, 0x85, 0x5F], "the gunship's emergence writes Mode 7 settings $80");
-        EndingCreditsState ending = CreateRetailEndingFixture(AudioQueues.Standalone(), gameTimeHours: 2, gameTimeMinutes: 0);
         var wrong = new List<string>();
         int repeating = 0;
         // The phases run in their declared order: every one before the planet escape keeps settings 0.
         HashSet<EndingCreditsPhase> beforeEscape = [.. EndingCreditsPhaseOrder.All.TakeWhile(phase => phase != EndingCreditsPhase.PlanetEscapeFast)];
         foreach (EndingCreditsPhase phase in EndingCreditsPhaseOrder.All)
         {
-            PrivateState.Set(ending, nameof(EndingCreditsState.Phase), phase);
-            bool repeats = EndingCreditsPresentation.FloorRepeatsBeyondEdges(ending);
+            bool repeats = EndingCreditsPresentation.FloorRepeatsBeyondEdges(phase);
             bool expected = beforeEscape.Contains(phase);
             if (repeats != expected)
                 wrong.Add($"{phase} {(repeats ? "repeats" : "does not repeat")} its floor");
@@ -40,17 +36,11 @@ internal static class EndingFloorOverflowVerification
                 repeating++;
         }
         AssertTrue(wrong.Count == 0, $"ending phases disagree with the cartridge's Mode 7 settings:{Environment.NewLine}{string.Join(Environment.NewLine, wrong)}");
-        AssertTrue(EndingCreditsPresentation.FloorRepeatsBeyondEdges(PhaseOf(ending, EndingCreditsPhase.ZebesExplosionAnimation)),
+        AssertTrue(EndingCreditsPresentation.FloorRepeatsBeyondEdges(EndingCreditsPhase.ZebesExplosionAnimation),
             "the planet's explosion repeats its floor beyond its edges");
         Console.WriteLine($"Ending floor: {repeating} phases from the escape's setup through the planet escape's music wait repeat the floor, as the cartridge's Mode 7 settings 0 do.");
     }
 
-    /// <summary>The ending at <paramref name="phase"/>.</summary>
-    private static EndingCreditsState PhaseOf(EndingCreditsState ending, EndingCreditsPhase phase)
-    {
-        PrivateState.Set(ending, nameof(EndingCreditsState.Phase), phase);
-        return ending;
-    }
 
     /// <summary>Fails unless the cartridge holds <paramref name="expected"/> from <paramref name="address"/>.</summary>
     private static void AssertBytes(ISnesAddressSpace bus, int address, byte[] expected, string what)

@@ -59,7 +59,17 @@ internal sealed class FrontendSession
     internal GamePhases Phases { get; }
 
     /// <summary>The phase of the sequence the game is running.</summary>
-    internal IGamePhase RunningPhase { get; private set; }
+    internal IGamePhase RunningPhase => running.Phase;
+
+    /// <summary>The sequence the game runs with the step it is at (#2560).</summary>
+    private SequenceStep running;
+
+    /// <summary>The step of the running sequence, whose steps are <typeparamref name="TStep"/>.</summary>
+    /// <exception cref="InvalidOperationException">The running sequence has no steps of that kind.</exception>
+    private TStep StepOf<TStep>()
+        where TStep : struct, Enum =>
+        running is SequenceStep.Of<TStep> sequence ? sequence.Step
+            : throw new InvalidOperationException($"The game runs {RunningPhase.State}, which has no {typeof(TStep).Name}.");
 
     /// <summary>
     /// The gameplay screen's fade, shared by the pause and unpause fades and the transitions between rendered phases: its
@@ -136,7 +146,7 @@ internal sealed class FrontendSession
     internal void ChooseOptions(GameOptionsMenuState options)
     {
         Ensure.NotNull(options);
-        OptionsChoice = new ChosenGameplayOptions(new SelectedGameplayOptions(options.JapaneseText, options.ControllerBindings,
+        OptionsChoice = new ChosenGameplayOptions(new SelectedGameplayOptions(options.Language, options.ControllerBindings,
             options.MoonwalkEnabled, options.IconCancelEnabled));
     }
     /// <summary>Ceres elevator departure and blackout transition state.</summary>
@@ -147,13 +157,15 @@ internal sealed class FrontendSession
     internal readonly DoorTransitionState doorTransition = new();
     /// <summary>The save slot the frontend has selected.</summary>
     internal SaveSlot SelectedSaveSlot { get; private set; }
-    /// <summary>Distinguishes a saved-game load from fresh Ceres setup.</summary>
-    internal bool LoadingExistingSave { get; private set; }
+    /// <summary>What the selected game's setup loads (#2560): a new file, the slot's save, or the Spacetime restart.</summary>
+    private SelectedGameStart selectedStart = new SelectedGameStart.NewFile();
+    /// <summary>Whether the selected game loads from a save, as a saved game or the Spacetime restart, rather than a new file.</summary>
+    internal bool LoadingExistingSave => selectedStart is not SelectedGameStart.NewFile;
     /// <summary>Selects <paramref name="slot"/>, which holds a save to load when <paramref name="existing"/>.</summary>
     internal void SelectSaveSlot(SaveSlot slot, bool existing)
     {
         SelectedSaveSlot = slot;
-        LoadingExistingSave = existing;
+        selectedStart = existing ? new SelectedGameStart.SavedGame() : new SelectedGameStart.NewFile();
         saves.SelectSlot(slot);
         if (existing)
         {
@@ -169,21 +181,23 @@ internal sealed class FrontendSession
         }
     }
     /// <summary>The next load continues the selected slot's save.</summary>
-    internal void ContinueSavedGame() => LoadingExistingSave = true;
-    /// <summary>Save state retained for restart after the Space-Time intro sequence.</summary>
-    private SuperMetroidSaveSlot? spacetimeIntroRestartSlot;
+    internal void ContinueSavedGame() => selectedStart = new SelectedGameStart.SavedGame();
     /// <summary>Retains <paramref name="slot"/>'s live inventory for the Ceres setup after a Spacetime-triggered intro.</summary>
-    internal void RetainSpacetimeRestart(SuperMetroidSaveSlot slot) => spacetimeIntroRestartSlot = Ensure.NotNull(slot);
-    /// <summary>A soft reset forgets any Spacetime Beam restart.</summary>
-    internal void ForgetSpacetimeRestart() => spacetimeIntroRestartSlot = null;
+    internal void RetainSpacetimeRestart(SuperMetroidSaveSlot slot) => selectedStart = new SelectedGameStart.SpacetimeRestart(Ensure.NotNull(slot));
+    /// <summary>A soft reset forgets any Spacetime Beam restart; the selected slot's save stays selected.</summary>
+    internal void ForgetSpacetimeRestart()
+    {
+        if (selectedStart is SelectedGameStart.SpacetimeRestart)
+            selectedStart = new SelectedGameStart.SavedGame();
+    }
     /// <summary>
     /// The fade into Landing Site or Ceres arrival, from black, waiting <see cref="GameplayFadeDefinitions.FadeInWaitBeforeEachStep"/>
     /// updates before each step.
     /// </summary>
     internal ScreenFade GameplayFadeIn { get; } =
         new(DisplayBrightness.Black, stepDelay: GameplayFadeDefinitions.FadeInWaitBeforeEachStep, firstWait: GameplayFadeDefinitions.FadeInWaitBeforeEachStep);
-    /// <summary>Selects Ceres arrival rather than Landing Site at the fade destination.</summary>
-    internal bool GameplayFadeLeadsToCeresArrival { get; private set; }
+    /// <summary>Where the running gameplay fade-in leads: ordinary gameplay, or the Ceres arrival (#2560).</summary>
+    internal GameplayFadeTarget GameplayFadeTarget { get; private set; }
     /// <summary>Gameplay brightness retained through pause and unpause fades, from black through full.</summary>
     internal DisplayBrightness PauseBrightness => screenFade.Level;
     /// <summary>Steps the shared screen fade one frame toward lit, without publishing it; returns whether it is fully lit.</summary>
@@ -227,9 +241,9 @@ internal sealed class FrontendSession
     /// <summary>The sequence the game is running.</summary>
     public SuperMetroidGameState GameState => RunningPhase.State;
     /// <summary>What the game load loads; meaningful while <see cref="GameState"/> is <see cref="SuperMetroidGameState.LoadingGame"/>.</summary>
-    internal GameDataLoadRoute LoadingRoute { get; private set; }
+    internal GameDataLoadRoute LoadingRoute => StepOf<GameDataLoadRoute>();
     /// <summary>The door transition's step; meaningful while <see cref="GameState"/> is <see cref="SuperMetroidGameState.DoorTransition"/>.</summary>
-    internal DoorTransitionStep DoorTransitionStep { get; private set; }
+    internal DoorTransitionStep DoorTransitionStep => StepOf<DoorTransitionStep>();
     /// <summary>
     /// Whether a door's transition is loading, scrolling into and fading in the next room: the step the door enters once its
     /// entry's stop requests are queued, during which it loads only the room's music data and sound effects are disabled.
@@ -237,7 +251,7 @@ internal sealed class FrontendSession
     internal bool TransitioningThroughDoor =>
         RunningPhase == Phases.DoorTransition && DoorTransitionStep == DoorTransitionStep.Transitioning;
     /// <summary>The attract demo's step; meaningful while <see cref="GameState"/> is <see cref="SuperMetroidGameState.AttractDemo"/>.</summary>
-    internal AttractDemoStep AttractDemoStep { get; private set; }
+    internal AttractDemoStep AttractDemoStep => StepOf<AttractDemoStep>();
 
     /// <summary>
     /// Enters <paramref name="phase"/> at its first step: the game load loads the chosen game, a door is entered and an
@@ -287,8 +301,7 @@ internal sealed class FrontendSession
     /// <summary>Enters the game load of <paramref name="route"/>.</summary>
     internal void Enter(GameDataLoadRoute route)
     {
-        Enter(Phases.LoadingGame);
-        LoadingRoute = route;
+        running = new SequenceStep.Of<GameDataLoadRoute>(Phases.LoadingGame, route);
     }
 
     /// <summary>Enters the door transition through <paramref name="door"/>, the door Samus entered, as she reaches it.</summary>
@@ -301,8 +314,7 @@ internal sealed class FrontendSession
     /// <summary>Enters the door transition at <paramref name="step"/>.</summary>
     internal void Enter(DoorTransitionStep step)
     {
-        Enter(Phases.DoorTransition);
-        DoorTransitionStep = step;
+        running = new SequenceStep.Of<DoorTransitionStep>(Phases.DoorTransition, step);
     }
 
 
@@ -318,15 +330,14 @@ internal sealed class FrontendSession
         Ensure.NotNull(gameplayRuntime);
         CeresDestructionCinematicState destruction = Show(new CeresDestructionCinematicState(
             audio, Artwork.ScreenContent.PowerBombGlowColors, Artwork.IntroCinematicArt, Artwork.SpriteSheets,
-            outcome, japaneseText: gameplayRuntime.JapaneseText));
+            outcome, language: gameplayRuntime.Language));
         Enter(new CeresDestructionGameSequence(this, destruction, outcome));
     }
 
     /// <summary>Enters the attract demo at <paramref name="step"/>.</summary>
     internal void Enter(AttractDemoStep step)
     {
-        Enter(Phases.AttractDemo);
-        AttractDemoStep = step;
+        running = new SequenceStep.Of<AttractDemoStep>(Phases.AttractDemo, step);
     }
     /// <summary>The compatibility services fixed at construction; production uses the game's own timing.</summary>
     internal SuperMetroidGameHostServices HostServices { get; }
@@ -481,61 +492,76 @@ internal sealed class FrontendSession
     /// <param name="slot">The save the game loads.</param>
     /// <param name="selected">The runtime of the selected game.</param>
     internal static void InitializeSelectedGameHud(SuperMetroidSaveSlot slot, SuperMetroidRuntime selected) =>
-        Ensure.NotNull(selected).HudSetup.InitializeHud(new HudSnapshot(
-            slot.Health,
-            slot.MaxHealth,
-            slot.Missiles,
-            slot.MaxMissiles,
-            slot.SuperMissiles,
-            slot.MaxSuperMissiles,
-            slot.PowerBombs,
-            slot.MaxPowerBombs,
-            slot.EquippedItems,
-            // Loading clears the selection before the visible HUD is built.
-            SelectedItem: HudItem.Beam,
-            slot.ReserveEnergy,
-            slot.ReserveMode));
+        Ensure.NotNull(selected).HudSetup.InitializeHud(SavedGameHud(slot));
+
+    /// <summary>
+    /// The HUD a saved game shows (#2557): the saved game's counters, equipment and reserve, with the selection cleared, as loading
+    /// clears it before the visible HUD is built.
+    /// </summary>
+    private static HudSnapshot SavedGameHud(SuperMetroidSaveSlot slot) => new(
+        slot.Inventory.Health,
+        slot.Inventory.MaxHealth,
+        slot.Inventory.Missiles,
+        slot.Inventory.MaxMissiles,
+        slot.Inventory.SuperMissiles,
+        slot.Inventory.MaxSuperMissiles,
+        slot.Inventory.PowerBombs,
+        slot.Inventory.MaxPowerBombs,
+        slot.Inventory.EquippedItems,
+        SelectedItem: HudItem.Beam,
+        slot.Inventory.ReserveEnergy,
+        slot.Inventory.ReserveMode);
+
+    /// <summary>Shows <paramref name="hud"/> as a game starts and publishes the frame shown while the game loads.</summary>
+    private static void ShowLoadingHud(SuperMetroidRuntime selected, HudSnapshot hud)
+    {
+        selected.HudSetup.InitializeHud(hud);
+        selected.FrameBoundary.PublishWhileLoading();
+    }
+
+    /// <summary>Loads the Ceres elevator room and sets Samus up at its start (#2557), returning her.</summary>
+    private static SamusState LoadCeresElevator(SuperMetroidRuntime selected)
+    {
+        selected.RoomLoader.InitializeCeresStartSamus(selected.RoomLoader.InitializeStartingCeresRoom());
+        return selected.Player.Samus;
+    }
+
+    /// <summary>Gives Samus, her inventory restored, the session's loadout and selects her beam.</summary>
+    private static void EquipRestoredSamus(SuperMetroidRuntime selected, SamusState samus)
+    {
+        selected.Assists.GrantLoadoutToRestoredSamus(samus);
+        samus.SelectBeam();
+    }
+
+    /// <summary>Saves the Ceres elevator arrival's automatic checkpoint to the selected slot and reports the saves changed.</summary>
+    private void SaveCeresArrival(SuperMetroidRuntime selected)
+    {
+        AutomaticCheckpointSaver.SaveCeresArrival(saves, selected, SelectedSaveSlot);
+        RaiseSavesChanged();
+    }
     /// <summary>Builds fresh Ceres or saved-game runtime state, including the selected HUD and room.</summary>
     internal bool SetupSelectedGame()
     {
         SuperMetroidRuntime selected = CreateGameplayRuntime(GameplayRuntimePurpose.SelectedGame);
 
-        if (spacetimeIntroRestartSlot is { } restartSlot)
+        if (selectedStart is SelectedGameStart.SpacetimeRestart { Slot: var restartSlot })
         {
             // The game loaded the old inventory before the intro was selected. Ceres
             // setup then starts from fresh progression while retaining equipment and other
             // resources. The flashback specifically replaces and then clears Missiles.
-            selected.HudSetup.InitializeHud(new HudSnapshot(
-                Health: restartSlot.Health,
-                MaxHealth: restartSlot.MaxHealth,
-                Missiles: 0,
-                MaxMissiles: 0,
-                SuperMissiles: restartSlot.SuperMissiles,
-                MaxSuperMissiles: restartSlot.MaxSuperMissiles,
-                PowerBombs: restartSlot.PowerBombs,
-                MaxPowerBombs: restartSlot.MaxPowerBombs,
-                EquippedItems: restartSlot.EquippedItems,
-                SelectedItem: HudItem.Beam,
-                ReserveHealth: restartSlot.ReserveEnergy,
-                ReserveMode: restartSlot.ReserveMode));
-            selected.FrameBoundary.PublishWhileLoading();
-            selected.RoomLoader.InitializeCeresStartSamus(selected.RoomLoader.InitializeStartingCeresRoom());
-            SamusState restartedSamus = selected.Player.Samus;
+            ShowLoadingHud(selected, SavedGameHud(restartSlot) with { Missiles = 0, MaxMissiles = 0 });
+            SamusState restartedSamus = LoadCeresElevator(selected);
             RestoreSpacetimeRestartInventory(restartedSamus, restartSlot);
-            selected.Assists.GrantLoadoutToRestoredSamus(restartedSamus);
-            restartedSamus.SelectBeam();
-            AutomaticCheckpointSaver.SaveCeresArrival(saves, selected, SelectedSaveSlot);
-            RaiseSavesChanged();
-            spacetimeIntroRestartSlot = null;
-            LoadingExistingSave = false;
+            EquipRestoredSamus(selected, restartedSamus);
+            SaveCeresArrival(selected);
+            selectedStart = new SelectedGameStart.NewFile();
             return true;
         }
 
-        if (LoadingExistingSave)
+        if (selectedStart is SelectedGameStart.SavedGame)
         {
             SuperMetroidSaveSlot slot = saves.ReadSavedSlot(SelectedSaveSlot);
-            InitializeSelectedGameHud(slot, selected);
-            selected.FrameBoundary.PublishWhileLoading();
+            ShowLoadingHud(selected, SavedGameHud(slot));
 
             // A Ceres elevator save starts with the Ceres elevator's arrival, as a new game does; every other station
             // loads through the room loader below.
@@ -543,11 +569,9 @@ internal sealed class FrontendSession
             {
                 // The save's progress is restored before the room loads, so the room's state and its enemies see it.
                 selected.RoomLoader.RestoreSavedPlayerState(slot);
-                selected.RoomLoader.InitializeCeresStartSamus(selected.RoomLoader.InitializeStartingCeresRoom());
-                SamusState ceresSamus = selected.Player.Samus;
+                SamusState ceresSamus = LoadCeresElevator(selected);
                 slot.ApplyTo(ceresSamus);
-                selected.Assists.GrantLoadoutToRestoredSamus(ceresSamus);
-                ceresSamus.SelectBeam();
+                EquipRestoredSamus(selected, ceresSamus);
                 ApplySelectedGameOptions(selected);
                 return true;
             }
@@ -574,15 +598,13 @@ internal sealed class FrontendSession
 
         // A new game first shows the standard HUD, then loads the Ceres elevator room and finally sets Samus up for the
         // new game.
-        selected.HudSetup.InitializeHud(HudSnapshot.NewGame);
-        selected.FrameBoundary.PublishWhileLoading();
-        selected.RoomLoader.InitializeCeresStartSamus(selected.RoomLoader.InitializeStartingCeresRoom());
+        ShowLoadingHud(selected, HudSnapshot.NewGame);
+        _ = LoadCeresElevator(selected);
         // The intro's end publishes Ceres and its elevator checkpoint
         // and saves immediately before the Ceres game state. Both the
         // full cinematic and host-configured skip converge here, so neither path can omit
         // the automatic checkpoint.
-        AutomaticCheckpointSaver.SaveCeresArrival(saves, selected, SelectedSaveSlot);
-        RaiseSavesChanged();
+        SaveCeresArrival(selected);
         return true;
     }
     /// <summary>
@@ -594,7 +616,7 @@ internal sealed class FrontendSession
     internal void BeginGameplayFadeIn(GameplayFadeTarget target)
     {
         GameplayFadeIn.Restart(DisplayBrightness.Black, GameplayFadeDefinitions.FadeInWaitBeforeEachStep);
-        GameplayFadeLeadsToCeresArrival = target == GameplayFadeTarget.CeresArrival;
+        GameplayFadeTarget = target;
         Enter(Phases.GameplayFadeIn);
     }
     /// <summary>
@@ -605,7 +627,7 @@ internal sealed class FrontendSession
     internal void FinishGameplayFadeIn()
     {
         Enter(Phases.MainGameplay);
-        GameplayFadeLeadsToCeresArrival = false;
+        GameplayFadeTarget = GameplayFadeTarget.Gameplay;
         screenFade.StepEvery(GameplayFadeDefinitions.MainGameplayUpdatesPerStep);
         RecordFullBrightness();
     }

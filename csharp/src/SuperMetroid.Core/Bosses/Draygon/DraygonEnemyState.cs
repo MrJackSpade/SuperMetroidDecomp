@@ -81,7 +81,7 @@ public sealed class DraygonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBo
     public RoomEnemyPlace Arms => ArmsPart.Place;
 
     /// <summary>His eye's tracking: inert until his body publishes the way he faces, then tracking Samus.</summary>
-    internal DraygonEyeState EyeTracking { get; } = new(DraygonEyeAction.Inert);
+    internal DraygonEyeState EyeTracking { get; } = new();
 
 
 

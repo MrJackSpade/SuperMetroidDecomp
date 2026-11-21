@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus;
 
@@ -150,7 +151,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     /// Mother Brain's walk and recoil as a shot strikes her in her second or third phase; the damage, the shot's end and
     /// her hurt flash are the common shot reaction's.
     /// </summary>
-    public void ApplyPhase2Or3ShotReaction(MotherBrainProjectileType projectileType)
+    public void ApplyPhase2Or3ShotReaction(SamusProjectileFamily projectileType)
     {
         // Her reaction to each of the six kinds of shot depends on her form and her third phase's walk credit.
         MotherBrainShotReactionResult reaction =

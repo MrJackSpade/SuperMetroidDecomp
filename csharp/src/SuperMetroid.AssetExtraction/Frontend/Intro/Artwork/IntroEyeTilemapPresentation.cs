@@ -1,7 +1,6 @@
 using System.Text.Json;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend.Intro;
-using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
@@ -30,14 +29,14 @@ public sealed class IntroEyeTilemapPresentation
             document.Frames is not { Length: IntroEyeTilemapFormat.FrameCount })
             throw new InvalidDataException("Opening eye tilemap requires four ordered frames.");
 
+        // Each installed drawing names the eye it shows by its stable ID.
         var frames = new Dictionary<IntroEyeFrame, BackgroundTile[]>();
-        for (int place = 0; place < IntroEyeTilemapFormat.FrameCount; place++)
+        foreach (IntroEyeTilemapFrame? source in document.Frames)
         {
-            IntroEyeFrame frame = IntroEyeTilemapFormat.Eyes[place];
-            IntroEyeTilemapFrame? source = document.Frames[place];
-            if (source is null || source.Id != IntroEyeTilemapFormat.FrameId(frame) ||
-                source.Cells is not { Length: IntroEyeTilemapFormat.CellsPerFrame })
-                throw new InvalidDataException($"Opening eye frame {frame} needs its stable ID and six cells.");
+            if (source is null || source.Cells is not { Length: IntroEyeTilemapFormat.CellsPerFrame } ||
+                IntroEyeTilemapFormat.Eyes.Where(eye => IntroEyeTilemapFormat.FrameId(eye) == source.Id).ToArray() is not [IntroEyeFrame frame] ||
+                frames.ContainsKey(frame))
+                throw new InvalidDataException($"Opening eye drawing {source?.Id} needs the stable ID of an eye not already drawn, and six cells.");
             var tiles = new BackgroundTile[IntroEyeTilemapFormat.CellsPerFrame];
             frames.Add(frame, tiles);
             for (int cellIndex = 0; cellIndex < tiles.Length; cellIndex++)
@@ -45,6 +44,8 @@ public sealed class IntroEyeTilemapPresentation
                 tiles[cellIndex] = source.Cells[cellIndex].Placement($"Opening eye frame {frame} cell {cellIndex}");
             }
         }
+        if (IntroEyeTilemapFormat.Eyes.Any(eye => !frames.ContainsKey(eye)))
+            throw new InvalidDataException("Opening eye tilemap requires a drawing of every eye.");
         return new IntroEyeTilemapPresentation(frames);
     }
 

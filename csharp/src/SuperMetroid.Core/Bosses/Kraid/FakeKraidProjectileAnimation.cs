@@ -6,14 +6,11 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// <summary>A Fake Kraid spit or spike's typed animation: it shows its pose and holds it for good.</summary>
 /// <param name="pose">The pose to show.</param>
 internal sealed class FakeKraidProjectileAnimation(FakeKraidProjectilePose pose)
-    : EnemyProjectileSilentAnimation<FakeKraidProjectilePose, FakeKraidProjectilePose>(PoseAnimations[pose])
+    : EnemyProjectileSilentAnimation<FakeKraidProjectilePose, FakeKraidProjectilePose>(pose, PoseAnimations[pose])
 {
 
     /// <inheritdoc/>
     private protected override AnimationSegments<FakeKraidProjectilePose, FakeKraidProjectilePose, NoAnimationCue> Segments => PoseSegments;
-
-    /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<FakeKraidProjectilePose, Animation<FakeKraidProjectilePose>> StartingAt => PoseAnimations;
 
     /// <inheritdoc/>
     private protected override EnemyProjectileFrameId Present(FakeKraidProjectilePose frame) =>

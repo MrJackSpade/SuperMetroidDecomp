@@ -8,7 +8,8 @@ namespace SuperMetroid.RenderVerification.PpuFeatures;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.FrameRendering;
-using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core.Compatibility;
 
 /// <summary>Compares Direct3D pictured-background and color-math output with the WARP reference.</summary>
 internal static class TileSmokeTests

@@ -33,8 +33,8 @@ internal static class PaletteFxRoomLook
         foreach (PictureShade shade in shading.Shades)
         {
             SheetShade laid = made.Single(candidate => candidate.Shade == shade);
-            for (int index = 0; index < laid.Inks.Length; index++)
-                cgram.SetColor(laid.Inks[index], laid.Colours[index]);
+            foreach ((int ink, RgbColor colour) in laid.InkColours)
+                cgram.SetColor(ink, colour);
         }
     }
     /// <summary>
@@ -69,8 +69,8 @@ internal static class PaletteFxRoomLook
             return;
         }
         SheetShade shade = PaletteFxRoomShades.Shade(group, record, colours);
-        for (int index = 0; index < shade.Inks.Length; index++)
-            cgram.SetColor(shade.Inks[index], shade.Colours[index]);
+        foreach ((int ink, RgbColor colour) in shade.InkColours)
+            cgram.SetColor(ink, colour);
     }
 
     /// <summary>
@@ -82,8 +82,8 @@ internal static class PaletteFxRoomLook
         ArgumentNullException.ThrowIfNull(cgram);
         int first = group.CartridgeColour;
         SheetShade shade = PaletteFxRecordShades.Shade(group, record, new InkRange(first, (first / RowColours + 1) * RowColours), colours);
-        for (int index = 0; index < shade.Inks.Length; index++)
-            cgram.SetColor(shade.Inks[index], shade.Colours[index]);
+        foreach ((int ink, RgbColor colour) in shade.InkColours)
+            cgram.SetColor(ink, colour);
     }
 
     /// <summary>Colours in one colour row.</summary>

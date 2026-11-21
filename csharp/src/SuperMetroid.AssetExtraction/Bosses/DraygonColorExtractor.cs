@@ -21,11 +21,6 @@ public static class DraygonColorExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        var bands = new PaletteRgb5[DraygonColorDefinitions.HealthBandCount][];
-        for (int band = 0; band < bands.Length; band++)
-            bands[band] = Read(DraygonSourceDefinitions.HealthBandColors +
-                band * DraygonColorDefinitions.HealthBandColorCount * sizeof(ushort),
-                DraygonColorDefinitions.HealthBandColorCount);
         return DraygonColorFile.Write(new DraygonColorDocument
         {
             Version = DraygonColorFormat.Version,
@@ -36,7 +31,9 @@ public static class DraygonColorExtractor
                 DraygonColorDefinitions.SpriteCount),
             WhiteFlash = Read(DraygonSourceDefinitions.WhiteFlashColors,
                 DraygonColorDefinitions.WhiteFlashCount),
-            HealthBands = bands,
+            HealthBands = Rgb5Rows.KeyedInTableOrder(DraygonSourceDefinitions.HealthTableOrder, band => band.Key,
+                row => Read(DraygonSourceDefinitions.HealthBandColors + row * DraygonColorDefinitions.HealthBandColorCount * sizeof(ushort),
+                    DraygonColorDefinitions.HealthBandColorCount)),
         });
 
         PaletteRgb5[] Read(int source, int count)
@@ -49,12 +46,7 @@ public static class DraygonColorExtractor
                 if (!RgbColor.IsColorWord(checked((ushort)native)))
                     throw new InvalidDataException(
                         $"Draygon color ${address:X6} has an unrepresentable high bit.");
-                colors[index] = new PaletteRgb5
-                {
-                    Red = native & 31,
-                    Green = native >> 5 & 31,
-                    Blue = native >> 10 & 31,
-                };
+                colors[index] = PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(native));
             }
             return colors;
         }

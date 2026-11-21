@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -27,12 +29,7 @@ public static class SamusHyperBeamColorExtractor
             for (int index = 0; index < frames[frame].Length; index++)
             {
                 int word = unchecked(LittleEndianBytes.Word(source[index * 2], source[index * 2 + 1]));
-                frames[frame][index] = new PaletteRgb5
-                {
-                    Red = word & 31,
-                    Green = (word >> 5) & 31,
-                    Blue = (word >> 10) & 31,
-                };
+                frames[frame][index] = PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(word));
             }
         }
         return SamusHyperBeamColorFile.Write(new SamusHyperBeamColorDocument

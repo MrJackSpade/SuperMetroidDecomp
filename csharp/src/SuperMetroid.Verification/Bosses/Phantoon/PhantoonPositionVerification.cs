@@ -73,7 +73,7 @@ internal static class PhantoonPositionVerification
             ushort displayedBodyX = (ushort)(phantoon.Body.Position.X.Whole - runtime.Room.LoadedCamera.PixelPosition.X);
             ushort displayedBodyY = (ushort)(phantoon.Body.Position.Y.Whole - runtime.Room.LoadedCamera.PixelPosition.Y);
             runtime.StepFrame(0);
-            AssertEqual<Position16<RoomPixels>?>(placementBefore, runtime.Display.LatchedOrdinaryRoom.Bosses.Placement,
+            AssertEqual<Position16<RoomPixels>?>(placementBefore, runtime.Display.LatchedOrdinaryRoom.Bosses?.Placement,
                 $"the accepted frame publishes his body placed where Phantoon lay, frame {frame}");
             if (frame == 0) continue;
             Offset16<BackgroundPixels> bodyScroll = (runtime.PublishDisplayFrame().OrdinaryBase.Room.BossBody

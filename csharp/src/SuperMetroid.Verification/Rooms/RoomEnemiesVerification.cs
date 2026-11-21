@@ -120,8 +120,8 @@ internal static void VerifyRoomEnemyLoading()
     SeedRoomEnemyLoadingArtworkAndSpawnData(bus, primaryPaletteBytes, specialPaletteBytes, primaryTileBytes, specialTileBytes);
 
     SeedRoomEnemyGraphicsSet(bus, tilesetPointer,
-        new(primaryDefinitionPointer),
-        new(specialDefinitionPointer));
+        new(primaryDefinitionPointer, FixturePaletteRow),
+        new(specialDefinitionPointer, FixturePaletteRow));
 
     SeedRoomEnemyPopulation(bus, populationPointer, deathQuota: 1,
         SuperMetroid.AssetExtraction.Enemies.RoomEnemyPopulationRecordCodec.Decode(primaryDefinitionPointer, 0x0456, 0x0789, 0, 0x2000, 0x0004, 0x1357, 0x2468));
@@ -186,8 +186,9 @@ internal static void VerifyRoomEnemyLoading()
     // The import decodes the +$0E cry byte to its library-two sound rather than retaining the word.
     AssertEqual<SoundEffectId?>(EnemySound.Squeaks, definition.HurtSoundEffect, "definition hurt cry offset $0E");
     AssertEqual(GrappleEnemyReaction.Cancel, definition.GrappleResponse, "definition grapple response offset $1A");
-    // Offset $28 names the species' own Power Bomb routine, which a definition leaves to the species (#1759).
-    AssertEqual<EnemyReaction?>(null, definition.PowerBombReaction,
+    // Offset $28 names the species' own Power Bomb routine, which a definition leaves to the species (#1759): it names the
+    // common Power Bomb reaction, the name that replaced the absent shared reaction (#2558, ffb4de5282).
+    AssertEqual(EnemyReaction.CommonPowerBomb, definition.PowerBombReaction,
         "definition power-bomb reaction offset $28 names no shared reaction");
     // The tile word is the import's to read (#1513): its low fifteen bits are the tile set's size, bit 15 set or not. The
     // fixture's identities are no members, so the headers are read at the pointers the fixture seeded them at.
@@ -331,17 +332,17 @@ internal static void VerifyEnemyProjectileCollisionLifecycle()
     var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), shotsEarthquake);
     SamusProjectile owner = shots.Shots[0];
     owner.Occupy(SamusProjectileType.Of(SamusProjectileFamily.SuperMissile), 0x012c);
-    owner.Direction = SamusProjectileDirection.Right;
-    owner.Position = owner.Position.WithWhole(new(0x01b7, 0x0196));
-    owner.Animation = SamusProjectileProgramAddresses.PlayerAt(0x9f3b, updates: 15);
+    owner.HeldShot().Direction = SamusProjectileDirection.Right;
+    owner.HeldShot().Position = owner.Position.WithWhole(new(0x01b7, 0x0196));
+    owner.HeldShot().Animation = SamusProjectileProgramAddresses.PlayerAt(0x9f3b, updates: 15);
     owner.SpritemapPointer = 0xae0f;
     owner.HeldShot().Install(SamusShotBehaviors.SuperMissile, new SuperMissileShotState(new SamusMissileIgnition.Pending(), UnlinkedSuperMissileLink.Place));
 
     SamusProjectile link = shots.Shots[1];
     link.Occupy(SamusProjectileType.Of(SamusProjectileFamily.SuperMissile), 0x012c);
-    link.Direction = SamusProjectileDirection.Right;
-    link.Position = link.Position.WithWhole(new(0x01af, 0x0196));
-    link.Animation = SamusProjectileProgramAddresses.PlayerAt(0x9f7b);
+    link.HeldShot().Direction = SamusProjectileDirection.Right;
+    link.HeldShot().Position = link.Position.WithWhole(new(0x01af, 0x0196));
+    link.HeldShot().Animation = SamusProjectileProgramAddresses.PlayerAt(0x9f7b);
     link.SpritemapPointer = 0;
     link.HeldShot().Install(SamusShotBehaviors.SuperMissileLink, new SuperMissileShotState(new SamusMissileIgnition.Pending(), UnlinkedSuperMissileLink.Place));
 
@@ -394,8 +395,6 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     SeedEnemyDefinitionWord(bus, definitionPointer, 14, 0x003e);
     SeedEnemyDefinitionWord(bus, definitionPointer, 18, 0xe49f);
     SeedEnemyDefinitionWord(bus, definitionPointer, 24, 0xe4da);
-    SeedEnemyDefinitionWord(bus, definitionPointer, 48, 0x8023);
-    SeedEnemyDefinitionWord(bus, definitionPointer, 50, 0x802d);
     SeedEnemyDefinitionWord(bus, definitionPointer, 60, vulnerabilityPointer);
 
     // Native speed parameter 16 gives +/-1.0000 pixels per frame. Keep that
@@ -415,7 +414,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
         0x00, 0x02, 0x00, 0x02, 0x00, 0x00, 0x02, 0x00, 0x00, 0x02,
     ]);
 
-    SeedRoomEnemyGraphicsSet(bus, tilesetPointer, new RoomEnemyGraphicsSetMember(definitionPointer));
+    SeedRoomEnemyGraphicsSet(bus, tilesetPointer, new RoomEnemyGraphicsSetMember(definitionPointer, FixturePaletteRow));
 
     SeedRoomEnemyPopulation(bus, populationPointer, deathQuota: 1,
         SuperMetroid.AssetExtraction.Enemies.RoomEnemyPopulationRecordCodec.Decode(definitionPointer, 80, 64, 0, 0x2800, 0, 16, 1));
@@ -576,12 +575,11 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
         ushort type,
         ushort damage)
     {
-        SamusProjectile projectile = pool.Pool.Occupy(0);
-        projectile.Occupy(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type), damage);
-        projectile.Direction = SamusProjectileDirection.Right;
-        projectile.Position = projectile.Position.WithWhole(target.Position.Whole);
-        projectile.Radius = new(4, 4);
-        projectile.Animation = ProjectileFixturePlaybacks.Active();
+        SamusProjectile projectile = pool.Pool.Occupy(0, SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type), damage).Projectile;
+        projectile.HeldShot().Direction = SamusProjectileDirection.Right;
+        projectile.HeldShot().Position = projectile.Position.WithWhole(target.Position.Whole);
+        projectile.HeldShot().Radius = new(4, 4);
+        projectile.HeldShot().Animation = ProjectileFixturePlaybacks.Active();
         return projectile;
     }
 
@@ -989,8 +987,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     // assertion isolates the missing request/target side effects reported in gameplay.
     foreach (RidleyTailLink segment in state.Tail.Links)
     {
-        segment.Active = true;
-        segment.StartedNextLink = true;
+        segment.Swing = RidleyTailLinkSwing.Swinging;
         segment.SwingDirection = RotationDirection.Clockwise;
         segment.TargetDistance = null;
     }
@@ -1129,10 +1126,10 @@ internal static void VerifyCeresRidleyRoomEntry()
         AssertEqual(CeresRidleyGetawayCurve.ZoomAt(curveIndex), enemies.CeresEscape.Floor.Zoom, "Ceres real getaway zoom publication");
         AssertEqual(unchecked((short)expectedX), enemies.CeresEscape.Floor.Offset.X, "Ceres real getaway horizontal integration");
         AssertEqual(unchecked((short)expectedY), enemies.CeresEscape.Floor.Offset.Y, "Ceres real getaway vertical integration");
-        AssertTrue(enemies.CeresEscape.Floor.Active, "Ceres getaway retains all 112 authored motion frames");
+        AssertTrue(enemies.CeresEscape.ShownFloor is not null, "Ceres getaway retains all 112 authored motion frames");
     }
     GetawayFrame();
-    AssertTrue(!enemies.CeresEscape.Floor.Active, "Ceres Ridley consumes the Mode-7 terminator");
+    AssertTrue(enemies.CeresEscape.ShownFloor is null, "Ceres Ridley consumes the Mode-7 terminator");
     AssertEqual(CeresEscapeStage.SelfDestruct, enemies.CeresEscape.Stage,
         "Ceres Ridley Mode-7 terminator starts the self-destruct, which runs in Ridley's step");
     AssertEqual(CeresSelfDestructPhase.Start, enemies.CeresEscape.Warning.Phase,
@@ -1290,13 +1287,13 @@ static void WriteZebesEscapeWarning(TestAddressSpace bus)
 
     Word(EscapeTypewriterControlWords.Delay);
     Word(EscapeTypewriterDefinitions.CharacterDelayFrames);
-    Word(checked((ushort)EscapeTypewriterControlWords.Word(EscapeTypewriterCommand.LineStart)));
+    Word(checked((ushort)EscapeTypewriterControlWordsConstants.Word(EscapeTypewriterCommand.LineStart)));
     Word(0x4905);
     Text("TIME BOMB SET!");
-    Word(checked((ushort)EscapeTypewriterControlWords.Word(EscapeTypewriterCommand.LineStart)));
+    Word(checked((ushort)EscapeTypewriterControlWordsConstants.Word(EscapeTypewriterCommand.LineStart)));
     Word(0x4945);
     Text("ESCAPE IMMEDIATELY!");
-    Word(checked((ushort)EscapeTypewriterControlWords.Word(EscapeTypewriterCommand.End)));
+    Word(checked((ushort)EscapeTypewriterControlWordsConstants.Word(EscapeTypewriterCommand.End)));
 }
 
 /// <summary>Seeds Ripper's literal four-frame right- and left-facing bank-$A2 instruction lists.</summary>
@@ -1373,12 +1370,24 @@ static ReadCeresRidleyFixtureArtworkResult ReadCeresRidleyFixtureArtwork(TestAdd
     return new ReadCeresRidleyFixtureArtworkResult(paletteWords, planar);
 }
 
-/// <summary>Writes one complete fixture header while keeping pointer-bearing fields valid.</summary>
+/// <summary>
+/// Writes one complete fixture header while keeping pointer-bearing fields valid. A retail enemy's touch and shot words
+/// (bytes 48 and 50) are its retail header's, so the verification header decode yields the reactions its compiled
+/// definition names: a seed-pattern word names a routine of the species' own, which contradicts a definition naming one
+/// of the engine's shared reactions (#2591). A fixture-only identity keeps the seed pattern there, a routine of its own
+/// that decodes to the blank definition's own reactions.
+/// </summary>
 internal static void WriteEnemyDefinition(TestAddressSpace bus, EnemyDefinitionId definitionPointer, EnemyDefinitionFields fields)
 {
     int address = 0xa00000 | TestAddressSpace.FixtureHeaderPointer(definitionPointer);
     for (int offset = 0; offset < 64; offset += 2)
         WriteTestWord(bus, address + offset, unchecked((ushort)(fields.FieldSeed + offset)));
+    if (Enum.IsDefined(definitionPointer))
+    {
+        RoomEnemyNativeWords retail = RoomEnemyDefinitionNative.Of(definitionPointer);
+        WriteTestWord(bus, address + 48, retail.TouchAiPointer);
+        WriteTestWord(bus, address + 50, retail.ShotAiPointer);
+    }
     WriteTestWord(bus, address + 14, fields.HurtSound);
 
     WriteTestWord(bus, address, fields.TileDataSize);
@@ -1459,16 +1468,7 @@ static void SeedCeresRidleyRoomEntryCartridge(
     // The room's graphics set is the retail Ceres Ridley set, Ridley and the Ceres door, each in the palette row the
     // import catalogues for it (#1512), so its members' sheets compose in the rows the cartridge loads their colours into.
     RoomEnemyGraphicsSetDefinition ceresRidleySet = RoomEnemyGraphicsSetDefinitions.CeresRidleyDefault;
-    int[] ceresRidleyRows = SuperMetroid.AssetExtraction.Enemies.EnemyGraphicsSetPaletteRowDefinitions.Rows[ceresRidleySet];
-    ReadOnlySpan<RoomEnemyGraphicsSetMember> ceresRidleyRecords = RoomEnemyGraphicsSetLists.MembersOf(ceresRidleySet).Records.Span;
-    for (int record = 0; record < ceresRidleyRecords.Length; record++)
-    {
-        int recordAddress = (0xb40000 | tilesetPointer) + record * 4;
-        WriteTestWord(bus, recordAddress, TestAddressSpace.FixtureHeaderPointer(ceresRidleyRecords[record]));
-        WriteTestWord(bus, recordAddress + 2, RoomEnemyGraphicsSetMember.NativePlacement(ceresRidleyRows[record],
-            ceresRidleyRecords[record].FixedBlock ?? 0));
-    }
-    WriteTestWord(bus, (0xb40000 | tilesetPointer) + ceresRidleyRecords.Length * 4, 0xffff);
+    SeedRoomEnemyGraphicsSet(bus, tilesetPointer, RoomEnemyGraphicsSetLists.MembersOf(ceresRidleySet).Records.Span);
     for (int color = 0; color < 16; color++)
         WriteTestWord(bus, 0xa6e14f + color * 2, unchecked((ushort)(0x1000 + color)));
 

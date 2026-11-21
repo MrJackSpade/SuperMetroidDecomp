@@ -53,7 +53,7 @@ internal static class BossBodyWholePicturesVerification
         foreach (CrocomireMeltingIllustration image in Enum.GetValues<CrocomireMeltingIllustration>())
         {
             BossBodyFrame melt = crocomire.Frame(CrocomireMeltingFrameNames.Of(image));
-            AssertTrue(melt.Picture is not null && melt.Dissolve is not null, $"Crocomire's {image} melt image is pictured once, with how its dissolve erases it");
+            AssertTrue(melt.Shown is not null && melt.Dissolve is not null, $"Crocomire's {image} melt image is pictured once, with how its dissolve erases it");
             AssertThrows<InvalidDataException>(() => crocomire.Frame($"{CrocomireMeltingFrameNames.Of(image)}.1"),
                 $"Crocomire's body sheet pictures no step of his {image} melt image's dissolve");
         }

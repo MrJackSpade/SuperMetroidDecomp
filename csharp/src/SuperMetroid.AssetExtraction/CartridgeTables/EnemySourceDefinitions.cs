@@ -63,6 +63,13 @@ internal static class EnemySourceDefinitions
     /// <summary>$86:B91E: the Tourian statue's four four-colour eye glows, Phantoon, Ridley, Draygon, Kraid (#1415).</summary>
     internal const int TourianStatueEyeColors = 0x86b91e;
 
+    /// <summary>The boss statues in the order <see cref="TourianStatueEyeColors"/> holds their eye glows.</summary>
+    internal static IReadOnlyList<SuperMetroid.Core.Areas.Tourian.TourianStatue> TourianStatueEyeRowOrder { get; } =
+    [
+        SuperMetroid.Core.Areas.Tourian.TourianStatue.Phantoon, SuperMetroid.Core.Areas.Tourian.TourianStatue.Ridley,
+        SuperMetroid.Core.Areas.Tourian.TourianStatue.Draygon, SuperMetroid.Core.Areas.Tourian.TourianStatue.Kraid,
+    ];
+
     /// <summary>$87:839C: the eight grey colours a released Tourian statue turns (#1415).</summary>
     internal const int TourianStatueGreyColors = 0x87839c;
 

@@ -26,8 +26,8 @@ internal sealed class EndingRewardJump
     /// <summary>The landing animation's cue that turns Samus's body to <see cref="ShootingColouring"/> and requests the shot.</summary>
     internal const EndingRewardJumpCue ShootCue = EndingRewardJumpCue.Shoot;
 
-    /// <summary>Selects the armored head offsets used during the launch animation.</summary>
-    private readonly bool helmeted;
+    /// <summary>The suited reward's head and the places its launch animation readies and launches it at.</summary>
+    private readonly EndingRewardJumpHead? jumpHead;
     /// <summary>Body actor whose vertical position controls the fall and landing.</summary>
     private readonly CinematicActor<EndingRewardAnimation, CinematicSpritePose, EndingRewardJumpCue> body;
     /// <summary>Separate head actor present for the two suited ending rewards.</summary>
@@ -50,10 +50,10 @@ internal sealed class EndingRewardJump
     /// <summary>Spawns the body and, for suited rewards, its helmeted or helmetless head actor.</summary>
     public EndingRewardJump(EndingReward reward)
     {
-        helmeted = reward == EndingReward.Armored;
-        if (EndingRewardCast.JumpHead(reward) is { } headActor)
+        jumpHead = EndingRewardDefinitions.Rewards[reward].JumpHead;
+        if (jumpHead is { } suitedHead)
         {
-            CinematicActor<EndingRewardAnimation, CinematicSpritePose, EndingRewardJumpCue> spawned = Spawn(headActor);
+            CinematicActor<EndingRewardAnimation, CinematicSpritePose, EndingRewardJumpCue> spawned = Spawn(suitedHead.Actor);
             head = spawned;
             bodyCues = cue => HandleSuitedBodyCue(cue, place => spawned.ScreenPlace = place);
         }

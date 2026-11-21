@@ -12,10 +12,10 @@ internal static class LookupElevatorPlatformStockVerification
 {
     /// <summary>Compares the three platform frames' pictures with the cartridge, rejects other draws, then checks the import and its rejections (#1557).</summary>
     internal static void VerifyElevatorPlatformStockMapping(CartridgeImportAddressSpace rom,
-        InstalledRoomObjectElevatorPlatformVisuals installed)
+        InstalledRoomObjectPictures installed)
     {
         LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(0xaa97,"dim"),new LookupEscapeGateStockFrame(0xaaaf,"glowing"),new LookupEscapeGateStockFrame(0xaac7,"bright")];
-        foreach (InstalledRoomObjectElevatorPlatformVisuals pictures in new[] { InstalledRoomObjectElevatorPlatformVisuals.Stock(), installed })
+        foreach (InstalledRoomObjectPictures pictures in new[] { RoomObjectPicturesStock.ElevatorPlatform, installed })
         {
             AssertPicturedAsNative(rom, pictures.Images, RoomObjectElevatorPlatformVisualFiles.Family, frames, WrittenCells(RoomObjectElevatorPlatformVisualFiles.Family));
         }

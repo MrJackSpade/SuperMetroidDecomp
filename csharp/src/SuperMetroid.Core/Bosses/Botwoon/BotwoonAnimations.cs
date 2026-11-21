@@ -43,6 +43,22 @@ internal static class BotwoonAnimations
         BotwoonHeadAnimationSegment.Hidden,
     ];
 
+    /// <summary>
+    /// What a body link and a tail cap show in each facing (#2557): the link's four ripples in the order it cycles them, and
+    /// the tail cap's one frame. Every facing's body segments are built from this.
+    /// </summary>
+    private static readonly Dictionary<CompassDirection, BotwoonBodyLook> BodyLooks = new()
+    {
+        [CompassDirection.Up] = new([F.BotwoonBodyUpRipple0, F.BotwoonBodyUpRipple90, F.BotwoonBodyUpRipple180, F.BotwoonBodyUpRipple270], F.BotwoonTailUp),
+        [CompassDirection.UpRight] = new([F.BotwoonBodyUpRightRipple0, F.BotwoonBodyUpRightRipple90, F.BotwoonBodyUpRightRipple180, F.BotwoonBodyUpRightRipple270], F.BotwoonTailUpRight),
+        [CompassDirection.Right] = new([F.BotwoonBodyRightRipple0, F.BotwoonBodyRightRipple90, F.BotwoonBodyRightRipple180, F.BotwoonBodyRightRipple270], F.BotwoonTailRight),
+        [CompassDirection.DownRight] = new([F.BotwoonBodyDownRightRipple0, F.BotwoonBodyDownRightRipple90, F.BotwoonBodyDownRightRipple180, F.BotwoonBodyDownRightRipple270], F.BotwoonTailDownRight),
+        [CompassDirection.Down] = new([F.BotwoonBodyDownRipple0, F.BotwoonBodyDownRipple90, F.BotwoonBodyDownRipple180, F.BotwoonBodyDownRipple270], F.BotwoonTailDown),
+        [CompassDirection.DownLeft] = new([F.BotwoonBodyDownLeftRipple0, F.BotwoonBodyDownLeftRipple90, F.BotwoonBodyDownLeftRipple180, F.BotwoonBodyDownLeftRipple270], F.BotwoonTailDownLeft),
+        [CompassDirection.Left] = new([F.BotwoonBodyLeftRipple0, F.BotwoonBodyLeftRipple90, F.BotwoonBodyLeftRipple180, F.BotwoonBodyLeftRipple270], F.BotwoonTailLeft),
+        [CompassDirection.UpLeft] = new([F.BotwoonBodyUpLeftRipple0, F.BotwoonBodyUpLeftRipple90, F.BotwoonBodyUpLeftRipple180, F.BotwoonBodyUpLeftRipple270], F.BotwoonTailUpLeft),
+    };
+
     /// <summary>Every body segment animation: body cycles and stationary tail caps by facing, and the hidden link or tail.</summary>
     private static readonly BotwoonBodyAnimationSegment[] BodyAnimationKeys =
     [
@@ -65,74 +81,11 @@ internal static class BotwoonAnimations
     /// one frame.
     /// </summary>
     internal static AnimationSegments<BotwoonBodyAnimationSegment, EnemyProjectileFrameId, NoAnimationCue> BodySegments { get; } = new(
-        new Dictionary<BotwoonBodyAnimationSegment, AnimationBeat<EnemyProjectileFrameId, NoAnimationCue>[]>
+        FacingOrder.SelectMany(facing => new KeyValuePair<BotwoonBodyAnimationSegment, AnimationBeat<EnemyProjectileFrameId, NoAnimationCue>[]>[]
         {
-            [B.Link(CompassDirection.Up)] =
-            [
-                Show(F.BotwoonBodyUpRipple0, BodyFrameDuration),
-                Show(F.BotwoonBodyUpRipple90, BodyFrameDuration),
-                Show(F.BotwoonBodyUpRipple180, BodyFrameDuration),
-                Show(F.BotwoonBodyUpRipple270, BodyFrameDuration),
-            ],
-            [B.TailCap(CompassDirection.Up)] = [Show(F.BotwoonTailUp, 1)],
-            [B.Link(CompassDirection.UpRight)] =
-            [
-                Show(F.BotwoonBodyUpRightRipple0, BodyFrameDuration),
-                Show(F.BotwoonBodyUpRightRipple90, BodyFrameDuration),
-                Show(F.BotwoonBodyUpRightRipple180, BodyFrameDuration),
-                Show(F.BotwoonBodyUpRightRipple270, BodyFrameDuration),
-            ],
-            [B.TailCap(CompassDirection.UpRight)] = [Show(F.BotwoonTailUpRight, 1)],
-            [B.Link(CompassDirection.Right)] =
-            [
-                Show(F.BotwoonBodyRightRipple0, BodyFrameDuration),
-                Show(F.BotwoonBodyRightRipple90, BodyFrameDuration),
-                Show(F.BotwoonBodyRightRipple180, BodyFrameDuration),
-                Show(F.BotwoonBodyRightRipple270, BodyFrameDuration),
-            ],
-            [B.TailCap(CompassDirection.Right)] = [Show(F.BotwoonTailRight, 1)],
-            [B.Link(CompassDirection.DownRight)] =
-            [
-                Show(F.BotwoonBodyDownRightRipple0, BodyFrameDuration),
-                Show(F.BotwoonBodyDownRightRipple90, BodyFrameDuration),
-                Show(F.BotwoonBodyDownRightRipple180, BodyFrameDuration),
-                Show(F.BotwoonBodyDownRightRipple270, BodyFrameDuration),
-            ],
-            [B.TailCap(CompassDirection.DownRight)] = [Show(F.BotwoonTailDownRight, 1)],
-            [B.Link(CompassDirection.Down)] =
-            [
-                Show(F.BotwoonBodyDownRipple0, BodyFrameDuration),
-                Show(F.BotwoonBodyDownRipple90, BodyFrameDuration),
-                Show(F.BotwoonBodyDownRipple180, BodyFrameDuration),
-                Show(F.BotwoonBodyDownRipple270, BodyFrameDuration),
-            ],
-            [B.TailCap(CompassDirection.Down)] = [Show(F.BotwoonTailDown, 1)],
-            [B.Link(CompassDirection.DownLeft)] =
-            [
-                Show(F.BotwoonBodyDownLeftRipple0, BodyFrameDuration),
-                Show(F.BotwoonBodyDownLeftRipple90, BodyFrameDuration),
-                Show(F.BotwoonBodyDownLeftRipple180, BodyFrameDuration),
-                Show(F.BotwoonBodyDownLeftRipple270, BodyFrameDuration),
-            ],
-            [B.TailCap(CompassDirection.DownLeft)] = [Show(F.BotwoonTailDownLeft, 1)],
-            [B.Link(CompassDirection.Left)] =
-            [
-                Show(F.BotwoonBodyLeftRipple0, BodyFrameDuration),
-                Show(F.BotwoonBodyLeftRipple90, BodyFrameDuration),
-                Show(F.BotwoonBodyLeftRipple180, BodyFrameDuration),
-                Show(F.BotwoonBodyLeftRipple270, BodyFrameDuration),
-            ],
-            [B.TailCap(CompassDirection.Left)] = [Show(F.BotwoonTailLeft, 1)],
-            [B.Link(CompassDirection.UpLeft)] =
-            [
-                Show(F.BotwoonBodyUpLeftRipple0, BodyFrameDuration),
-                Show(F.BotwoonBodyUpLeftRipple90, BodyFrameDuration),
-                Show(F.BotwoonBodyUpLeftRipple180, BodyFrameDuration),
-                Show(F.BotwoonBodyUpLeftRipple270, BodyFrameDuration),
-            ],
-            [B.TailCap(CompassDirection.UpLeft)] = [Show(F.BotwoonTailUpLeft, 1)],
-            [B.Hidden] = [new AnimationBeat<EnemyProjectileFrameId, NoAnimationCue>.Hidden(1)],
-        }, BodyAnimationKeys);
+            new(B.Link(facing), [.. BodyLooks[facing].Ripples.Select(frame => Show(frame, BodyFrameDuration))]),
+            new(B.TailCap(facing), [Show(BodyLooks[facing].Tail, 1)]),
+        }).Append(new(B.Hidden, [new AnimationBeat<EnemyProjectileFrameId, NoAnimationCue>.Hidden(1)])).ToDictionary(), BodyAnimationKeys);
 
     /// <summary>
     /// The body segment animation that starts at each of those segments: a body link cycles its frames for good, and a tail
@@ -158,10 +111,6 @@ internal static class BotwoonAnimations
     /// <summary>The spit's animation: its frames, cycled for good.</summary>
     internal static Animation<BotwoonSpitSegment> SpitFlight { get; } =
         Animation<BotwoonSpitSegment>.Looping([SpitSegments.Whole(BotwoonSpitSegment.Flight)]);
-
-    /// <summary>The spit's one animation, by the run it starts at.</summary>
-    internal static IReadOnlyDictionary<BotwoonSpitSegment, Animation<BotwoonSpitSegment>> SpitStartingAt { get; } =
-        new Dictionary<BotwoonSpitSegment, Animation<BotwoonSpitSegment>> { [BotwoonSpitSegment.Flight] = SpitFlight };
 
     /// <summary>Every projectile frame his body segments and his spit show.</summary>
     internal static IEnumerable<EnemyProjectileFrameId> ProjectileFrames => BodySegments.Frames.Concat(SpitSegments.Frames);

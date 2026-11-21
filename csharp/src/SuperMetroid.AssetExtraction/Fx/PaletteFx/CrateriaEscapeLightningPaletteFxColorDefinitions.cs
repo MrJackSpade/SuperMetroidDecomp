@@ -7,18 +7,10 @@ public static class CrateriaEscapeLightningPaletteFxColorDefinitions
 {
 
     /// <summary>The yellow-lightning program targets eleven colors from colour byte $A2.</summary>
-    private static readonly CrateriaEscapeLightningPaletteFxColorDefinition YellowLightning = new()
-    {
-        Owner = CrateriaEscapeLightningPaletteOwner.YellowLightning,
-        ColorFrames = PaletteFxColorFrames.Of(ColourEffectId.CrateriaEscapeYellowLightning, 11),
-    };
+    internal static readonly CrateriaEscapeLightningPaletteFxColorDefinition CrateriaEscapeYellowLightning = new(ColourEffectId.CrateriaEscapeYellowLightning, 11);
     /// <summary>The Parlor's sky program targets the lightning's five-color dark tail from colour byte $AE.</summary>
-    private static readonly CrateriaEscapeLightningPaletteFxColorDefinition ParlorSky = new()
-    {
-        Owner = CrateriaEscapeLightningPaletteOwner.ParlorSky,
-        ColorFrames = PaletteFxColorFrames.Of(ColourEffectId.ParlorEscapeSkyFlicker, 5),
-    };
+    internal static readonly CrateriaEscapeLightningPaletteFxColorDefinition ParlorEscapeSkyFlicker = new(ColourEffectId.ParlorEscapeSkyFlicker, 5);
     /// <summary>The yellow-lightning and Parlor sky programs in definition order.</summary>
-    public static IReadOnlyList<CrateriaEscapeLightningPaletteFxColorDefinition> All { get; } = [YellowLightning, ParlorSky];
+    public static IReadOnlyList<CrateriaEscapeLightningPaletteFxColorDefinition> All { get; } = [CrateriaEscapeYellowLightning, ParlorEscapeSkyFlicker];
 
 }

@@ -24,44 +24,14 @@ internal static class MamaTurtleAnimations
             Show(EnemyFrameId.TurtleMamaInShellFacingRight, 5),
             Show(EnemyFrameId.TurtleMamaInShellFacingViewer, 5),
         ],
-        [P.EnterShellLeft] =
-        [
-            Show(EnemyFrameId.TurtleMamaOutOfShellFacingLeft, 32),
-            Show(EnemyFrameId.TurtleMamaWithdrawingFacingLeft, 5),
-            Show(EnemyFrameId.TurtleMamaWithdrawnFacingLeft, 5),
-            Cue(new MamaTurtleCue.RiseToHover(HorizontalDirection.Left)),
-            Hold(EnemyFrameId.TurtleMamaInShellFacingLeft),
-        ],
+        [P.EnterShellLeft] = EnterShell(EnemyFrameId.TurtleMamaOutOfShellFacingLeft, 32, EnemyFrameId.TurtleMamaWithdrawingFacingLeft, EnemyFrameId.TurtleMamaWithdrawnFacingLeft, HorizontalDirection.Left, EnemyFrameId.TurtleMamaInShellFacingLeft),
         [P.Asleep] =
         [
             Hold(EnemyFrameId.TurtleMamaInShellFacingLeft),
         ],
-        [P.LeaveShellLeft] =
-        [
-            Show(EnemyFrameId.TurtleMamaInShellFacingLeft, 16),
-            Show(EnemyFrameId.TurtleMamaWithdrawnFacingLeft, 5),
-            Show(EnemyFrameId.TurtleMamaWithdrawingFacingLeft, 5),
-            Show(EnemyFrameId.TurtleMamaOutOfShellFacingLeft, 96),
-            Cue(new MamaTurtleCue.Signal(K.EnterShell)),
-            Hold(EnemyFrameId.TurtleMamaOutOfShellFacingLeft),
-        ],
-        [P.EnterShellRight] =
-        [
-            Show(EnemyFrameId.TurtleMamaOutOfShellFacingRight, 1),
-            Show(EnemyFrameId.TurtleMamaWithdrawingFacingRight, 5),
-            Show(EnemyFrameId.TurtleMamaWithdrawnFacingRight, 5),
-            Cue(new MamaTurtleCue.RiseToHover(HorizontalDirection.Right)),
-            Hold(EnemyFrameId.TurtleMamaInShellFacingRight),
-        ],
-        [P.LeaveShellRight] =
-        [
-            Show(EnemyFrameId.TurtleMamaInShellFacingRight, 16),
-            Show(EnemyFrameId.TurtleMamaWithdrawnFacingRight, 5),
-            Show(EnemyFrameId.TurtleMamaWithdrawingFacingRight, 5),
-            Show(EnemyFrameId.TurtleMamaOutOfShellFacingRight, 96),
-            Cue(new MamaTurtleCue.Signal(K.EnterShell)),
-            Hold(EnemyFrameId.TurtleMamaOutOfShellFacingRight),
-        ],
+        [P.LeaveShellLeft] = LeaveShell(EnemyFrameId.TurtleMamaInShellFacingLeft, EnemyFrameId.TurtleMamaWithdrawnFacingLeft, EnemyFrameId.TurtleMamaWithdrawingFacingLeft, EnemyFrameId.TurtleMamaOutOfShellFacingLeft),
+        [P.EnterShellRight] = EnterShell(EnemyFrameId.TurtleMamaOutOfShellFacingRight, 1, EnemyFrameId.TurtleMamaWithdrawingFacingRight, EnemyFrameId.TurtleMamaWithdrawnFacingRight, HorizontalDirection.Right, EnemyFrameId.TurtleMamaInShellFacingRight),
+        [P.LeaveShellRight] = LeaveShell(EnemyFrameId.TurtleMamaInShellFacingRight, EnemyFrameId.TurtleMamaWithdrawnFacingRight, EnemyFrameId.TurtleMamaWithdrawingFacingRight, EnemyFrameId.TurtleMamaOutOfShellFacingRight),
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
@@ -77,6 +47,27 @@ internal static class MamaTurtleAnimations
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<MamaTurtleSegment> StartingWith(MamaTurtleSegment segment) => StartingAt[segment];
+
+    /// <summary>The mama turtle entering her shell over a facing's poses, <paramref name="mamaOutOfShell"/>, <paramref name="outOfShellUpdates"/>, <paramref name="mamaWithdrawing"/>, <paramref name="mamaWithdrawn"/>, <paramref name="facing"/>, <paramref name="mamaInShell"/>.</summary>
+    private static AnimationBeat<EnemyFrameId, MamaTurtleCue>[] EnterShell(EnemyFrameId mamaOutOfShell, int outOfShellUpdates, EnemyFrameId mamaWithdrawing, EnemyFrameId mamaWithdrawn, HorizontalDirection facing, EnemyFrameId mamaInShell) =>
+    [
+        Show(mamaOutOfShell, outOfShellUpdates),
+        Show(mamaWithdrawing, 5),
+        Show(mamaWithdrawn, 5),
+        Cue(new MamaTurtleCue.RiseToHover(facing)),
+        Hold(mamaInShell),
+    ];
+
+    /// <summary>The mama turtle leaving her shell over a facing's poses, <paramref name="mamaInShell"/>, <paramref name="mamaWithdrawn"/>, <paramref name="mamaWithdrawing"/>, <paramref name="mamaOutOfShell"/>.</summary>
+    private static AnimationBeat<EnemyFrameId, MamaTurtleCue>[] LeaveShell(EnemyFrameId mamaInShell, EnemyFrameId mamaWithdrawn, EnemyFrameId mamaWithdrawing, EnemyFrameId mamaOutOfShell) =>
+    [
+        Show(mamaInShell, 16),
+        Show(mamaWithdrawn, 5),
+        Show(mamaWithdrawing, 5),
+        Show(mamaOutOfShell, 96),
+        Cue(new MamaTurtleCue.Signal(K.EnterShell)),
+        Hold(mamaOutOfShell),
+    ];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, MamaTurtleCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, MamaTurtleCue>.Frame(frame, duration);

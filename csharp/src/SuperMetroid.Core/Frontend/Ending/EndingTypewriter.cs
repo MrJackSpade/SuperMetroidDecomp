@@ -16,7 +16,7 @@ internal sealed class EndingTypewriter
     /// <summary>Collected ammo and item counts used for the item percentage.</summary>
     private readonly EndingInventorySnapshot inventory;
     /// <summary>Whether the Japanese subtitle shows during the percentage hold.</summary>
-    private readonly bool japaneseText;
+    private readonly TextLanguage language;
     /// <summary>The text this typewriter types.</summary>
     private readonly EndingTextSequence sequence;
 
@@ -25,7 +25,7 @@ internal sealed class EndingTypewriter
     {
         Ensure.NotNull(setup);
         inventory = setup.Inventory;
-        japaneseText = setup.JapaneseText;
+        language = setup.Language;
         this.sequence = sequence;
         Characters = Ensure.NotNull(setup.Text).CharactersOf(sequence).ToArray();
         AnimationSegments<EndingTextSequence, EndingTypewriterTyping, EndingTypewriterCue> segments =
@@ -44,7 +44,7 @@ internal sealed class EndingTypewriter
     /// <summary>Set after the text and any percentage hold have finished.</summary>
     public bool Completed { get; private set; }
     /// <summary>Whether the text is the item percentage's, whose completion lets the scene move the text down (#2562).</summary>
-    internal bool TypesItemPercentage => sequence == EndingTextSequence.ItemPercentage;
+    internal bool TypesItemPercentage => EndingTextSequenceDefinitions.HoldingPercentage.Contains(sequence);
 
     /// <summary>The installed characters.</summary>
     private EndingTextCharacter[] Characters { get; set; }
@@ -106,7 +106,7 @@ internal sealed class EndingTypewriter
             yield return new(EndingPictureNames.PercentDigit(tens), PercentageCorner(1));
         yield return new(EndingPictureNames.PercentDigit(units), PercentageCorner(2));
         yield return new(EndingPictureNames.PercentSign, PercentageCorner(3));
-        if (japaneseText && !Completed)
+        if (language == TextLanguage.Japanese && !Completed)
             yield return new(EndingPictureNames.JapaneseSubtitle, EndingResultTextLayout.JapaneseSubtitleCorner);
     }
 

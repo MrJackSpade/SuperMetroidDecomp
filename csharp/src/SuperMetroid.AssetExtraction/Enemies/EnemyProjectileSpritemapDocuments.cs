@@ -17,15 +17,14 @@ public static class EnemyProjectileSpritemapDocuments
 {
     /// <summary>
     /// The document schema revision extraction writes and loading accepts; 17 keys every program frame by what its picture
-    /// shows (#2154).
+    /// shows (#2154), and 18 names each part's character picture by its place among the projectile characters instead of an
+    /// atlas row and column (#2563).
     /// </summary>
-    public const int Version = 17;
+    public const int Version = 18;
     /// <summary>Maximum ordered sprite parts admitted per composition; empty compositions are valid.</summary>
     public const int MaximumParts = 128;
-    /// <summary>Sixteen 8-pixel character columns per atlas row; row times 16 plus column forms the packed character index.</summary>
-    public const int TileColumns = 16;
-    /// <summary>Schema-level bound of 64 atlas rows; the selected row/column character number must also fit the sheet during packed-word compilation.</summary>
-    public const int TileRows = 64;
+    /// <summary>The character pictures the projectile characters hold, one of which each part names.</summary>
+    public const int Characters = 1024;
 
     /// <summary>Strict editable composition JSON policy, rejecting unknown fields while retaining readable output.</summary>
     internal static readonly JsonSerializerOptions Options = new()
@@ -39,7 +38,7 @@ public static class EnemyProjectileSpritemapDocuments
 
     /// <summary>Loads named projectile compositions and timed-program visual frames, validating names/counts and part bounds without importing timing, motion, collision, or callbacks.</summary>
     /// <param name="json">Caller-owned <c>enemy-projectile-compositions.json</c> stream, read from its current position and left open; unknown and duplicate properties are rejected.</param>
-    /// <returns>Compiled packed spritemap parts, preserving supplied part order.</returns>
+    /// <returns>The compositions' sprite parts, preserving supplied part order.</returns>
     /// <exception cref="InvalidDataException">The document has another version, the wrong frames, or invalid parts.</exception>
     public static EnemyProjectileSpritemapCatalog Load(Stream json)
     {
@@ -53,7 +52,7 @@ public static class EnemyProjectileSpritemapDocuments
         var compiled = new Dictionary<EnemyProjectileFrameId, SpritePart[]>();
         foreach (string name in EnemyProjectileSpritemapDefinitions.FrameNames)
         {
-            if (!document.Frames.TryGetValue(name, out SpriteVisualPart[]? visual) ||
+            if (!document.Frames.TryGetValue(name, out EnemyProjectilePartDocument[]? visual) ||
                 visual is null)
                 throw new InvalidDataException(
                     $"Enemy-projectile composition {name} is missing.");
@@ -63,7 +62,7 @@ public static class EnemyProjectileSpritemapDocuments
         var arrival = new Dictionary<CeresElevatorArrivalPose, SpritePart[]>();
         foreach ((CeresElevatorArrivalPose pose, string name) in EnemyProjectileSpritemapDefinitions.ElevatorArrivalFrameNames)
         {
-            if (!document.Frames.TryGetValue(name, out SpriteVisualPart[]? visual) || visual is null)
+            if (!document.Frames.TryGetValue(name, out EnemyProjectilePartDocument[]? visual) || visual is null)
                 throw new InvalidDataException($"Enemy-projectile composition {name} is missing.");
             arrival[pose] = CompileParts(name, visual);
         }
@@ -75,7 +74,7 @@ public static class EnemyProjectileSpritemapDocuments
         foreach (EnemyProjectilePresentationFrameDefinition frame in definitions)
         {
             if (!document.ProgramFrames.TryGetValue(frame.Name,
-                    out SpriteVisualPart[]? visual) || visual is null)
+                    out EnemyProjectilePartDocument[]? visual) || visual is null)
                 throw new InvalidDataException(
                     $"Enemy-projectile frame {frame.Name} is missing.");
             compiledPrograms[frame.Frame] = CompileParts(frame.Name, visual);
@@ -91,7 +90,7 @@ public static class EnemyProjectileSpritemapDocuments
     /// Validates the import data's ordered sprite parts against the sheet's bounds and decodes them into the parts the import
     /// composes the pictures from; the installation holds the pictures (#1638).
     /// </summary>
-    private static SpritePart[] CompileParts(string name, SpriteVisualPart[] visual)
+    private static SpritePart[] CompileParts(string name, EnemyProjectilePartDocument[] visual)
     {
         if (visual.Length > MaximumParts)
             throw new InvalidDataException(
@@ -99,22 +98,19 @@ public static class EnemyProjectileSpritemapDocuments
         var parts = new SpritePart[visual.Length];
         for (int index = 0; index < visual.Length; index++)
         {
-            SpriteVisualPart? part = visual[index];
-            if (part is null || part.OffsetX is < -256 or > 255 ||
-                part.OffsetY is < -128 or > 127 || part.Size is not (8 or 16) ||
+            EnemyProjectilePartDocument? part = visual[index];
+            if (part is null || part.Size is not (8 or 16) ||
                 // A part's palette is absent in the shared sprite schema when it inherits its frame's row; a projectile's
                 // parts each name their own row, so an inheriting part is invalid input here, rejected with the range.
                 part.Palette is null or < 0 or > 7 ||
-                part.TileColumn is < 0 or >= TileColumns ||
-                part.TileRow is < 0 or >= TileRows)
+                part.Character is < 0 or >= Characters)
                 throw new InvalidDataException(
                     $"Enemy-projectile composition {name} part {index} is invalid.");
             PictureFlip flips =
                 (part.FlipX ? PictureFlip.Horizontal : 0) |
                 (part.FlipY ? PictureFlip.Vertical : 0);
             parts[index] = SpritePart.Create(Offset16<ScreenPixels>.Of(part.OffsetX, part.OffsetY), part.Size == 16,
-                part.TileRow * TileColumns +
-                        part.TileColumn, part.Palette.Value, part.Depth, flips);
+                part.Character, part.Palette.Value, part.Depth, flips);
         }
         return parts;
     }

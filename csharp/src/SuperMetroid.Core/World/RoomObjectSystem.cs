@@ -194,25 +194,18 @@ public sealed class RoomObjectSystem : IRoomObjects, ISamusRoomObjects
         Ensure.NotNull(level);
         var outcome = new RoomObjectStepOutcome();
         var context = new RoomObjectStepContext(this, level, frame, outcome);
-        // Each typed room object advances by its own steps, at its place in the update order; a place that holds no
-        // typed object (one whose setup did all its work) stays idle until it is freed.
+        // Each typed room object advances by its own steps, at its place in the update order; a free place has none
+        // to advance.
         foreach (RoomObjectPlace place in Places.InUpdateOrder)
         {
-            if (place.Active && place.Behaviour is { } behaviour)
+            if (place.Behaviour is { } behaviour)
                 behaviour.Update(place, context);
         }
         return outcome;
     }
 
-    /// <summary>
-    /// The object at <paramref name="place"/> leaves the room, freeing its place; when it is Mother Brain's glass, the
-    /// glass's place is first forgotten.
-    /// </summary>
-    internal void DeleteObject(RoomObjectPlace place)
-    {
-        MotherBrainGlass.OnObjectDeleted(place);
-        place.Delete();
-    }
+    /// <summary>The object at <paramref name="place"/> leaves the room, freeing its place.</summary>
+
 
     /// <inheritdoc/>
     BlockReactionObjects IRoomObjects.BlockReactions => BlockReactions;
@@ -242,7 +235,7 @@ public sealed class RoomObjectSystem : IRoomObjects, ISamusRoomObjects
     GreyDoorObjects IRoomObjects.GreyDoors => GreyDoors;
 
     /// <inheritdoc/>
-    void IRoomObjects.DeleteObject(RoomObjectPlace place) => DeleteObject(place);
+    void IRoomObjects.DeleteObject(RoomObjectPlace place) => Ensure.NotNull(place).Delete();
 
     /// <inheritdoc/>
     BlockReactionObjects ISamusRoomObjects.BlockReactions => BlockReactions;

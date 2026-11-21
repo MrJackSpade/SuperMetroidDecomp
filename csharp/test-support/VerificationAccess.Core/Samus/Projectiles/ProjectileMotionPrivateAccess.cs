@@ -20,7 +20,7 @@ internal static class ProjectileMotionPrivateAccess
     extension(global::SuperMetroid.Core.Samus.Projectiles.ProjectileMotion)
     {
         /// <summary>The private method <c>MissileSlopePointReaction</c>, invoked by name.</summary>
-        internal static bool MissileSlopePointReaction(global::SuperMetroid.Core.Rooms.LevelData.RoomCollisionBlock block, global::SuperMetroid.Core.Samus.Projectiles.SamusProjectile shot) =>
-            PrivateState.InvokeStatic<bool>(typeof(global::SuperMetroid.Core.Samus.Projectiles.ProjectileMotion), "MissileSlopePointReaction", [typeof(global::SuperMetroid.Core.Rooms.LevelData.RoomCollisionBlock), typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusProjectile)], new object?[] { block, shot });
+        internal static bool MissileSlopePointReaction(global::SuperMetroid.Core.Rooms.LevelData.RoomCollisionBlock block, global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileOccupant held) =>
+            PrivateState.InvokeStatic<bool>(typeof(global::SuperMetroid.Core.Samus.Projectiles.ProjectileMotion), "MissileSlopePointReaction", [typeof(global::SuperMetroid.Core.Rooms.LevelData.RoomCollisionBlock), typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileOccupant)], new object?[] { block, held });
     }
 }

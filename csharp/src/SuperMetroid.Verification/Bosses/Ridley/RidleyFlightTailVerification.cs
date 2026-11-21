@@ -70,7 +70,7 @@ internal static class RidleyFlightTailVerification
         RidleyTailFixtures.BlankLinks(state.Tail);
         foreach (RidleyTailLink link in state.Tail.Links)
         {
-            link.Active = true;
+            link.Activate();
             link.Angle = RidleyTailAngle.StraightDown.TurnedClockwise(16);
             link.Distance = link.RestDistance;
         }
@@ -108,7 +108,7 @@ internal static class RidleyFlightTailVerification
         var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
         projectiles.Pool.ShotCount.Restore(1);
         projectiles.Shots[0].OccupyAsFired(SamusProjectileType.Of(SamusProjectileFamily.Missile));
-        projectiles.Shots[0].Position = projectiles.Shots[0].Position.WithWhole(new(96, 128));
+        projectiles.Shots[0].HeldShot().Position = projectiles.Shots[0].Position.WithWhole(new(96, 128));
         aimedProjectiles = projectiles;
         aim(state, samus, 0);
         RidleyTailAngle? missileTarget = state.Tail.ClockwiseWhipTarget;
@@ -123,7 +123,7 @@ internal static class RidleyFlightTailVerification
         Action<RoomEnemyPlace, NorfairRidleyState, SamusState> neutral = (ridley, state, samus) => enemies.RidleyTail.HandleRidleyNeutralTailControl(ridley, state, samus, aimedProjectiles);
         state.Tail.IdleWhipEnabled = true;
         state.Tail.Base.Angle = RidleyTailAngle.StraightDown.TurnedByWholeTurns(16);
-        foreach (var segment in state.Tail.Links) segment.Active = true;
+        foreach (var segment in state.Tail.Links) segment.Activate();
         state.Tail.ClockwiseWhipTarget = state.Tail.CounterClockwiseWhipTarget = null;
         neutral(place, state, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(512, 128)) });
         AssertTrue(state.Tail.ClockwiseWhipTarget is not null, "native random fling admission works outside proximity range");

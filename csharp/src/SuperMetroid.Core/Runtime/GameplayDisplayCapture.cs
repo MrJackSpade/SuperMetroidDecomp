@@ -149,7 +149,6 @@ public static class GameplayDisplayCapture
         Ensure.NotNull(latched);
         Ensure.NotNull(live);
         GameplayRenderSnapshot scrolls = latched.Scrolls;
-        GameplayLatchedBossBody bosses = latched.Bosses;
         RoomShakeFrameResult shake = scrolls.RoomShake;
         // The foreground's scroll is signed (#2384): the room's shake, like the Crocomire rumble, adds a plain offset, and a
         // scroll above or left of the room's origin needs no wrap.
@@ -170,7 +169,7 @@ public static class GameplayDisplayCapture
         BackgroundLineScrolls backgroundLines = LiquidLineScrolls(latched.RoomFxOverlay, backgroundScroll, skyX);
         // A boss's body shows whole where it lies (#1873); while it is hidden, once Draygon is deleted or while Mother Brain's
         // death flicker hides hers, it shows nothing.
-        ScreenLayers displayedLayers = bosses.Hidden
+        ScreenLayers displayedLayers = latched.BossBodyHidden
             ? latched.ShownLayers & ~ScreenLayers.BossBody
             : latched.ShownLayers;
         // The cameras become the pixels the layers show at the screen's top-left corner (#1514), where the room is shown
@@ -200,9 +199,9 @@ public static class GameplayDisplayCapture
     private static BossBodyView? BossBodyOf(OrdinaryRoomFrameLatch latched, GameplayFrameEndDisplayInputs live,
         RoomShakeFrameResult shake, ScrollBands? skyX)
     {
-        GameplayLatchedBossBody bosses = latched.Bosses;
-        if (bosses.Shown is not { } body)
+        if (latched.Bosses is not { } bosses)
             return null;
+        ShownBossBody body = bosses.Shown;
         Position16<RoomPixels> camera = latched.Scrolls.ForegroundPosition;
         // The body shows from its placement against the camera; a body no boss places shows where the room's background
         // scroll puts it.
@@ -214,7 +213,7 @@ public static class GameplayDisplayCapture
             // Phantoon's wave ripples his body about where it lies, and Crocomire's melt sags his.
             Horizontal = latched.Phantoon is { Wave: { } wave } phantoon ? BossLineScrolls.Of(wave, camera, phantoon.BodyPlacement) : liquid.Horizontal,
             Vertical = live.CrocomireMelt is { } melt ? BossLineScrolls.Of(melt, camera) : liquid.Vertical,
-            Pixelation = latched.Phantoon is { } phantoonDisplay ? new BackgroundPixelation(phantoonDisplay.PixelationBlockSize) : default,
+            Pixelation = latched.Phantoon is { } phantoonDisplay ? new BackgroundPixelation(phantoonDisplay.PixelationBlockSize) : BackgroundPixelation.Unpixelated,
         };
     }
 
@@ -348,7 +347,7 @@ public static class GameplayDisplayCapture
         // line scrolls.
         // The reveal is drawn on the background from block pictures (#1392), so it replaces what the room's background shows
         // (#2544), and a boss's body with it (#2573). No boss whose body shows lets X-ray reveal blocks
-        // (XrayBlockRevealDefinitions).
+        // (AreaBossDefinition.XrayKeepsBackground).
         var gameplay = shownReveal is not null
             ? new GameplaySceneLayer(view, ordinary.Rooms with { Background = new XrayRevealBackground(shownReveal) })
             : new GameplaySceneLayer(view, ordinary.Rooms, ordinary.BackgroundLineScrolls) { BossBody = ordinary.BossBody };

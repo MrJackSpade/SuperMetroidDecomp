@@ -19,4 +19,17 @@ internal static class SamusBodySourcesPrivateAccess
             get => PrivateState.Get<global::SuperMetroid.AssetExtraction.Samus.SamusBodySources, global::SuperMetroid.Core.Samus.Death.SamusDeathSteps>(self, "DeathSteps");
         }
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.AssetExtraction.Samus.SamusBodySources self)
+    {
+        /// <summary>The private method <c>TryPictures</c>, invoked by name.</summary>
+        internal bool TryPictures(global::SuperMetroid.Core.Samus.Poses.SamusPoseId pose, int animationFrame, out global::SuperMetroid.AssetExtraction.Samus.SamusBodyFramePictures pictures)
+        {
+            object?[] invocationArguments = new object?[] { pose, animationFrame, null };
+            bool invocationResult = PrivateState.Invoke<global::SuperMetroid.AssetExtraction.Samus.SamusBodySources, bool>(self, "TryPictures", [typeof(global::SuperMetroid.Core.Samus.Poses.SamusPoseId), typeof(int), typeof(global::SuperMetroid.AssetExtraction.Samus.SamusBodyFramePictures).MakeByRefType()], invocationArguments);
+            pictures = (global::SuperMetroid.AssetExtraction.Samus.SamusBodyFramePictures)invocationArguments[2]!;
+            return invocationResult;
+        }
+    }
 }

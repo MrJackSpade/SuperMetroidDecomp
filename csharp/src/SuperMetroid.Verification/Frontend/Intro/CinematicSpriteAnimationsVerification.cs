@@ -61,6 +61,7 @@ internal static class CinematicSpriteAnimationsVerification
         updates += CompareFamily(cartridge, IntroMotherBrainAnimations.Explosions, NativeCinematicCues<NoAnimationCue>.None, Pictures, compared);
         updates += CompareFamily(cartridge, IntroBabyAnimations.Discovery, DiscoveryCues, Pictures, compared);
         updates += CompareFamily(cartridge, IntroBabyAnimations.Laboratory, LaboratoryCues, Pictures, compared);
+        updates += CompareFamily(cartridge, IntroEggEffectAnimations.ShellPieces, NativeCinematicCues<NoAnimationCue>.None, Pictures, compared);
         updates += CompareFamily(cartridge, IntroEggEffectAnimations.Effects, NativeCinematicCues<NoAnimationCue>.None, Pictures, compared);
         updates += CompareFamily(cartridge, IntroRinkaAnimations.Rinka, RinkaCues, Pictures, compared);
         updates += CompareRinkaLaunches(cartridge);

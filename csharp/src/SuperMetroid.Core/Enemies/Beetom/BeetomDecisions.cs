@@ -8,7 +8,7 @@ internal static class BeetomDecisions
     /// then a short hop left, a long hop right, a short hop left, a short hop right, a long hop left and a long hop right
     /// for one each.
     /// </summary>
-    internal static readonly WeightedRandomChoice<BeetomDistantChoice> DistantChoice = new(new RandomSampleField(0, 3),
+    internal static readonly WeightedRandomChoice<BeetomDistantChoice> DistantChoice = new(RandomSampleField.OneOf(8),
         new(2, new BeetomDistantChoice(BeetomAction.StartIdling, null)),
         new(1, new BeetomDistantChoice(BeetomAction.StartShortHop, HorizontalDirection.Left)),
         new(1, new BeetomDistantChoice(BeetomAction.StartLongHop, HorizontalDirection.Right)),
@@ -21,5 +21,5 @@ internal static class BeetomDecisions
     /// Whether a distant Beetom turns to face right (#2479), read from the same random number as
     /// <see cref="DistantChoice"/>: it faces the way a chosen hop goes, and after one idling choice in two it faces right.
     /// </summary>
-    internal static readonly RandomChance FacesRight = RandomChance.Highest(1, new RandomSampleField(0, 1));
+    internal static readonly RandomChance FacesRight = RandomChance.Highest(1, RandomSampleField.OneOf(2));
 }

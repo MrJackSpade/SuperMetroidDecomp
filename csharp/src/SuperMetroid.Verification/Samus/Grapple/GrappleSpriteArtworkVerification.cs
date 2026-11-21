@@ -23,7 +23,7 @@ internal static class GrappleSpriteArtworkVerification
             catalog.Endpoint, "Extracted endpoint attributes match native immediate");
         for (int i = 0; i < 4; i++)
             AssertEqual(new SnesObjAttributeWord(RomDataReader.ReadWordFixedBank(bus, GrappleSpriteExtractor.SegmentAttributeAddress(i))).ToSinglePart(),
-                catalog.Segment(i), "Extracted segment attributes match timed native record");
+                catalog.Segment(GrappleSheetDefinitions.RopePattern[i]), "Extracted segment attributes match timed native record");
         // The installed grapple sheet composes each frame from the installed appearances, which match the cartridge above:
         // the endpoint as one small OBJ centred on its origin, and each rope segment likewise, with the rope direction's flips ORed into its own.
         SpriteSheetSources composed = GrappleSheetComposer.Sources(SamusSheetInputs.Load(SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.Directory));
@@ -41,7 +41,7 @@ internal static class GrappleSpriteArtworkVerification
         {
             PictureFlip flips = ((mirror & SpriteMirror.Horizontal) != 0 ? PictureFlip.Horizontal : PictureFlip.None) |
                 ((mirror & SpriteMirror.Vertical) != 0 ? PictureFlip.Vertical : PictureFlip.None);
-            SpritePart appearance = catalog.Segment(segment);
+            SpritePart appearance = catalog.Segment(GrappleSheetDefinitions.RopePattern[segment]);
             AssertEqual(SpritePartFrames.CentredSmallObject(appearance with { Flip = appearance.Flip | flips }, 0).Parts.Single(),
                 frames[GrappleSheets.RopeFrame(orientation, GrappleSheetDefinitions.RopePattern[segment], mirror)].Parts.Single(),
                 $"Grapple rope {orientation} frame {segment} mirrored {mirror} is the native segment OBJ with the rope's flips");
@@ -49,11 +49,11 @@ internal static class GrappleSpriteArtworkVerification
         }
         foreach (string bad in new[] { "null", "{}", "{", "{\"version\":1,\"version\":1}", System.Text.Encoding.UTF8.GetString(json).Replace("\"palette\": 5", "\"palette\": 8") })
             AssertThrows<InvalidDataException>(() => InstalledGrappleSprites.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(bad))), "Invalid Grapple presentation rejected");
-        var missing = RequiredJson.Parse(json); missing.Required("segments").AsArray().RemoveAt(0);
+        var missing = RequiredJson.Parse(json); missing.Required("segments").AsObject().Remove(nameof(GrappleRopePicture.Start));
         AssertThrows<InvalidDataException>(() => InstalledGrappleSprites.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(missing.ToJsonString()))), "Missing segment appearance rejected");
-        var mechanic = RequiredJson.Parse(json); mechanic.Required("segments").Required(0)["duration"] = 1;
+        var mechanic = RequiredJson.Parse(json); mechanic.Required("segments").Required(nameof(GrappleRopePicture.Start))["duration"] = 1;
         AssertThrows<InvalidDataException>(() => InstalledGrappleSprites.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(mechanic.ToJsonString()))), "Timing field rejected");
-        AssertThrows<InvalidDataException>(() => catalog.Segment(4), "Out-of-range visual selector rejected");
+        AssertThrows<InvalidDataException>(() => catalog.Segment((GrappleRopePicture)4), "Out-of-range visual selector rejected");
         foreach (var (field, value) in new VerifyGrappleSpriteArtworkCase[] { new VerifyGrappleSpriteArtworkCase("tileColumn", -1), new VerifyGrappleSpriteArtworkCase("tileColumn", 16), new VerifyGrappleSpriteArtworkCase("tileRow", -1), new VerifyGrappleSpriteArtworkCase("tileRow", 32), new VerifyGrappleSpriteArtworkCase("palette", -1), new VerifyGrappleSpriteArtworkCase("priority", 4) })
         {
             var invalid = RequiredJson.Parse(json); invalid.Required("endpoint")[field] = value;

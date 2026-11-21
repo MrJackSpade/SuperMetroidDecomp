@@ -7,11 +7,11 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 internal static class KraidCadenceDefinitions
 {
     /// <summary>
-    /// The phase of Kraid's height that sets which way his rising body sways (#1619): set for two pixels of height, then
-    /// clear for two, so rising a pixel an update he sways one way for two updates and back for two. Breaking the ceiling's
-    /// platforms he sways left while it is set, and raising his body through the floor he sways right.
+    /// The phase of Kraid's height that sets which way his rising body sways (#1619): for two pixels of height, then
+    /// not for two, so rising a pixel an update he sways one way for two updates and back for two. Breaking the ceiling's
+    /// platforms he sways left in the alternation's second half, and raising his body through the floor he sways right.
     /// </summary>
-    internal static readonly UpdateCounterField RiseSwayPhase = new(1, 1);
+    internal static readonly UpdateAlternation RiseSwayPhase = new(2);
 
     /// <summary>
     /// The heights at which Kraid, grown and breaking the ceiling's platforms, drops the next ceiling rock (#1619): every
@@ -26,10 +26,10 @@ internal static class KraidCadenceDefinitions
     internal static readonly UpdateCadence MouthSpitRock = new(16, 0);
 
     /// <summary>
-    /// The phase of a charging lint's updates left on which it shows Kraid's colours: set on its odd updates left, so it
+    /// The phase of a charging lint's updates left on which it shows Kraid's colours: on its odd updates left, so it
     /// alternates with the white hurt colours every update.
     /// </summary>
-    internal static readonly UpdateCounterField LintChargeShowsOwnColours = new(0, 1);
+    internal static readonly UpdateAlternation LintChargeShowsOwnColours = new(1);
 
     /// <summary>
     /// The updates on which Kraid, grown and breaking the ceiling's platforms, throws up a rising rock, counted on his

@@ -20,7 +20,7 @@ internal static class MotherBrainDeathExplosionDefinitionsVerification
         for (ushort parameter = 0; parameter < 3; parameter++)
         {
             AssertEqual(rom.ReadCartridgeWord((0x86c929 + parameter * 2)),
-                DustExplosionProjectileNativeListAddresses.Entry(MotherBrainDeathExplosionDefinitions.Animations[MotherBrainDeathExplosionNativeSelectors.Animations[parameter]]),
+                DustExplosionProjectileNativeListAddresses.Entry(MotherBrainDeathExplosionNativeSelectors.Animations[parameter]),
                 $"Mother Brain death explosion instruction {parameter}");
         }
 
@@ -41,7 +41,7 @@ internal static class MotherBrainDeathExplosionDefinitionsVerification
             AssertEqual(RoomEnemyProjectileKind.MotherBrainDeathExplosion, projectile.Kind,
                 $"production Mother Brain death explosion kind {parameter}");
             AssertTrue(projectile.Animation is DustExplosionProjectileAnimation started &&
-                    started.PlayingSegment == MotherBrainDeathExplosionDefinitions.Animations[MotherBrainDeathExplosionNativeSelectors.Animations[parameter]],
+                    started.PlayingSegment == MotherBrainDeathExplosionNativeSelectors.Animations[parameter],
                 $"production Mother Brain death explosion instruction {parameter}");
             AssertEqual(0x00f9, projectile.Position.X.Whole,
                 $"production Mother Brain death explosion X {parameter}");

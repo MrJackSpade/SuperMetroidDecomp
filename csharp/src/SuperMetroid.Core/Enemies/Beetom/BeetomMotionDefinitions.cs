@@ -62,7 +62,7 @@ internal static class BeetomMotionDefinitions
     /// How far a thrown Beetom that meets a wall is moved back the other way, in pixels: twice the throw, so it lands the
     /// throw's distance on Samus's other side.
     /// </summary>
-    internal const int EscapeRebound = 32;
+    internal const int EscapeRebound = 2 * EscapeThrow;
 
     /// <summary>How fast a dropping Beetom falls: three pixels an update.</summary>
     internal static SignedSixteenSixteen DropSpeed { get; } = SignedSixteenSixteen.FromWholePixels(3);

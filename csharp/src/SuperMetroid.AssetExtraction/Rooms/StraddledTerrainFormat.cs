@@ -13,9 +13,10 @@ internal static class StraddledTerrainFormat
     /// their collision kind, mirroring and block numbers, and the terrain each lead class makes with each tail class, in
     /// place of leads and tails numbered by the level word's stored halves (#1709). Revision three names unrevealed air
     /// (#1722). Revision four names the blocks a collectible that shows its own picture writes under it by their pair and
-    /// look, each with the block number it straddles as (#2354).
+    /// look, each with the block number it straddles as (#2354). Revision five names each tail class, and keys each lead
+    /// class's terrain by the tail class it makes it with rather than by the tail classes' order (#2565).
     /// </summary>
-    internal const int Version = 4;
+    internal const int Version = 5;
 
     /// <summary>JSON filename holding the decoded straddled terrain.</summary>
     internal const string FileName = "straddled-terrain.json";

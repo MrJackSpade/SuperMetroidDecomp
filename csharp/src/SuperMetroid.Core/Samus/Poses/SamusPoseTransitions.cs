@@ -55,7 +55,7 @@ internal static class SamusPoseTransitions
         // Flash can do exactly that; unconditional reset shortens its return arc.
         if (!samus.Kinematics.VerticalVelocity.IsRising)
         {
-            samus.MorphBallBounceState = SamusBallBounceState.None;
+            samus.MorphBallBounceState = null;
             samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.FallFromRest;
         }
         SamusAerialMovement.ConfigureEnvironmentGravity(samus);
@@ -296,7 +296,7 @@ internal static class SamusPoseTransitions
         }
 
         bool startsMoonwalkJump = SamusPoseMetadata.IsMoonwalkTurnToSpinJumpPose(samus.Pose) &&
-            targetPose is SamusPoseId.SpinJumpRightPose or SamusPoseId.SpinJumpLeftPose;
+            SamusPoseTraits.IsIn(targetPose, SamusPoseFamily.GenericSpinJump);
         SamusPoseId sourcePose = samus.Pose;
         SamusMovementType previousMovementType = SamusPoseMetadata.ReadMovementType(sourcePose);
 
@@ -334,7 +334,7 @@ internal static class SamusPoseTransitions
         // The pose-transition cue does not run the jump setups. An input
         // transition out of the same turn art DOES initialize jump velocity; keeping
         // those two routes distinct preserves both ordinary jumping and Moonfall.
-        samus.MorphBallBounceState = SamusBallBounceState.None;
+        samus.MorphBallBounceState = null;
         samus.AnimationFrameTimer = samus.AnimationFrameTimer.AddFrames(cueExtraAnimationDelay);
         return true;
     }

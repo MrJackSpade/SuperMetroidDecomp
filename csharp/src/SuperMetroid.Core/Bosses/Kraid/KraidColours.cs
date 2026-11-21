@@ -12,13 +12,10 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 internal sealed class KraidColours : IGameplayShadingSource
 {
     /// <summary>
-    /// The shade his body and parts show: a health band's or the hurt flash's (#2297), or null while he shows his room's own
-    /// colours.
+    /// What his body shows (#2297, #2560): his room's own colours, a health band's or the hurt flash's shade, or his death
+    /// colours, beside the shade his parts keep showing.
     /// </summary>
-    private PictureShade? Shown { get; set; }
-
-    /// <summary>Whether his body shows his death colours.</summary>
-    private bool ShowsDeathArm { get; set; }
+    private BodyShown Shown { get; set; } = new RoomColours();
 
     /// <summary>The colours his band's shade shows his eyes in, which his eyes' glow replaces.</summary>
     private RgbColor[] shadedEyes = [];
@@ -30,7 +27,7 @@ internal sealed class KraidColours : IGameplayShadingSource
     internal static PictureShading RocksShading { get; } = PictureShading.Shaded(KraidShades.Rocks);
 
     /// <summary>The shading his sprite parts show: his band's, or his room's own colours before any.</summary>
-    internal PictureShading Parts => Shown is { } shade ? PictureShading.Shaded(shade) : PictureShading.Standard;
+    internal PictureShading Parts => Shown.PartsShade is { } shade ? PictureShading.Shaded(shade) : PictureShading.Standard;
 
     /// <summary>
     /// Shows health band <paramref name="band"/> with <paramref name="bandEyes"/> as its eyes; its shade shows the eyes in
@@ -49,7 +46,7 @@ internal sealed class KraidColours : IGameplayShadingSource
     /// <summary>Shows <paramref name="shade"/> with <paramref name="eyes"/> in his eyes, which its shade shows in <paramref name="shaded"/>.</summary>
     private void Show(PictureShade shade, ReadOnlySpan<RgbColor> eyes, ReadOnlySpan<RgbColor> shaded)
     {
-        Shown = shade;
+        Shown = Shown is DeathColours ? new DeathColours(shade) : new BandShade(shade);
         shadedEyes = Ensure.LengthEqual(shaded, KraidEyeGlow.Eyes).ToArray();
         ShowBandEyes(eyes);
     }
@@ -75,23 +72,45 @@ internal sealed class KraidColours : IGameplayShadingSource
     }
 
     /// <summary>Shows his death colours on his body.</summary>
-    internal void ShowDeathArm() => ShowsDeathArm = true;
+    internal void ShowDeathArm() => Shown = new DeathColours(Shown.PartsShade);
 
     /// <inheritdoc />
     public void ShadeGameplay(GameplayShadingBuilder frame)
     {
         Ensure.NotNull(frame);
-        if (ShowsDeathArm)
+        if (Shown is DeathColours)
         {
             frame.Shade(GameplayPictures.BossBody, KraidShades.DeathArm);
             return;
         }
-        if (Shown is not { } shade)
+        if (Shown is not BandShade { PartsShade: { } shade })
             return;
         frame.Shade(GameplayPictures.BossBody, shade);
         // His body's shades show his eyes in one set of colours; the glow's colours are shown in their place.
         ImmutableArray<RgbColor> eyes = EyeGlow.Shown;
         if (!eyes.SequenceEqual(shadedEyes))
-            frame.Affect(GameplayPictures.BossBody, new ColourSubstitution([.. shadedEyes], [.. eyes]));
+            frame.Affect(GameplayPictures.BossBody, new ColourSubstitution(EyeGlow.ShownInPlaceOf(shadedEyes)));
     }
+
+    /// <summary>What his body shows (#2560), each case with the shade his parts show.</summary>
+    /// <param name="PartsShade">The shade his parts show: the last band's or hurt flash's, or null before any.</param>
+    private abstract record BodyShown(PictureShade? PartsShade);
+
+    /// <summary>His room's own colours, before any band or hurt flash.</summary>
+    private sealed record RoomColours() : BodyShown((PictureShade?)null);
+
+    /// <summary>A health band's or the hurt flash's shade, on his body and his parts.</summary>
+    private sealed record BandShade : BodyShown
+    {
+        /// <summary>Shows <paramref name="shade"/> on his body and his parts.</summary>
+        /// <param name="shade">The band's or hurt flash's shade.</param>
+        public BandShade(PictureShade shade)
+            : base(shade)
+        {
+        }
+    }
+
+    /// <summary>His death colours on his body; his parts keep the last shade shown.</summary>
+    /// <param name="PartsShade">The shade his parts show.</param>
+    private sealed record DeathColours(PictureShade? PartsShade) : BodyShown(PartsShade);
 }

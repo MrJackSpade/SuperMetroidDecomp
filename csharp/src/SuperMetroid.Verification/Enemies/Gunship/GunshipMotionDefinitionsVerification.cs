@@ -38,7 +38,7 @@ internal static class GunshipMotionDefinitionsVerification
             top.Position = top.Position.WithWhole(new(0x1234, 0x2000));
             var part = new GunshipState(GunshipPhase.ApplyLandingBrakes);
             top.SetSpeciesState(part);
-            part.LandingBrake = GunshipLandingBrake.All[frame];
+            part.LandingBrake = Brake(frame);
             enemies.Places.InUpdateOrder[1].Position = enemies.Places.InUpdateOrder[1].Position.WithWholeY(0x2100);
             enemies.Places.InUpdateOrder[2].Position = enemies.Places.InUpdateOrder[2].Position.WithWholeY(0x2200);
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0, 0x3000)) };
@@ -69,7 +69,7 @@ internal static class GunshipMotionDefinitionsVerification
             enemies.GunshipBehavior.InitializeGunshipTop(top, RoomEnemyFrameFixtures.StandaloneSamus());
             var part = new GunshipState(GunshipPhase.Idle);
             top.SetSpeciesState(part);
-            part.Bob = GunshipIdleBob.All[phase];
+            part.Bob = Bob(phase);
             part.BobTimer = UpdateCountdown.For(1);
             top.Position = top.Position.WithWholeY(0x2000);
             enemies.Places.InUpdateOrder[1].Position = enemies.Places.InUpdateOrder[1].Position.WithWholeY(0x2100);
@@ -79,7 +79,7 @@ internal static class GunshipMotionDefinitionsVerification
 
             AssertEqual(expectedTimer, part.BobTimer.UpdatesLeft,
                 $"gunship production bob timer {phase}");
-            AssertEqual(GunshipIdleBob.All[(phase + 1) & 3], part.Bob,
+            AssertEqual(Bob((phase + 1) & 3), part.Bob,
                 $"gunship production bob phase {phase}");
             AssertEqual(unchecked((ushort)(0x2000 + expectedDelta)), top.Position.Y.Whole,
                 $"gunship production bob top Y {phase}");
@@ -134,7 +134,25 @@ internal static class GunshipMotionDefinitionsVerification
     {
         for (ushort phase = 0; phase < 4; phase++)
             AssertEqual(unchecked((sbyte)GunshipHoverDeltaSelectionRomByte(rom, GunshipMotionDefinitions.HoverDeltaReferenceAddress + 2 * phase)),
-                GunshipIdleBob.All[phase].YDelta, $"Original gunship hover delta {phase}");
+                Bob(phase).YDelta, $"Original gunship hover delta {phase}");
+    }
+
+    /// <summary>The idle bob's step <paramref name="steps"/> steps after its first.</summary>
+    private static GunshipIdleBob Bob(int steps)
+    {
+        GunshipIdleBob bob = GunshipIdleBob.First;
+        for (int step = 0; step < steps; step++)
+            bob = bob.Next;
+        return bob;
+    }
+
+    /// <summary>The landing brake <paramref name="steps"/> brakes after the first.</summary>
+    private static GunshipLandingBrake Brake(int steps)
+    {
+        GunshipLandingBrake brake = GunshipLandingBrake.First;
+        for (int step = 0; step < steps; step++)
+            brake = brake.Next ?? throw new InvalidOperationException($"The landing brakes end before brake {steps}.");
+        return brake;
     }
 
     /// <summary>Reads a native signed bob displacement byte for comparison.</summary>

@@ -89,13 +89,13 @@ internal static class EnemyTileArtworkPresentationContractChecks
                 .Select(_ => new PaletteRgb5 { Red = 1, Green = 0, Blue = 0 }).ToArray() }));
         EnemyPaletteSheet palette = EnemyPaletteSheetFile.Read(paletteJson);
         var palettes = EnemyTileSourceDefinitions.All.ToDictionary(definition => definition.DefinitionId, _ => palette);
-        var ceres = new CeresEscapeTileArtwork(CeresEscapeTileArtworkDefinitions.All.Select(page => Sheet(page.ByteCount)).ToArray());
+        var ceres = new CeresEscapeTileArtwork(CeresEscapeTileArtworkDefinitions.All.ToDictionary(page => page, page => Sheet(page.ByteCount)));
         using var overlayJson = new MemoryStream(CeresEscapeOverlays.Write(new CeresEscapeOverlayTilemapDocument {
             Version = CeresWarningGlyphDefinitions.Version,
             Pages = CeresEscapeOverlayPages.All.ToDictionary(page => page.Name, page => new BackgroundTile[page.WordCount]) }));
         CeresEscapeOverlays overlays = CeresEscapeOverlays.Load(overlayJson);
         var torizo = new TorizoSwapArtwork(TorizoSwapArtworkDefinitions.All
-            .Select(page => Sheet(page.ByteCount)).ToArray());
+            .ToDictionary(page => page.Page, page => Sheet(page.ByteCount)));
         EnemyTileSourceArtwork Install() => EnemyTileSourceArtwork.FromInstalledArtwork(PartsWith(sheets, palettes, Sheet));
         EnemyTileSourceDefinition first = EnemyTileSourceDefinitions.All[0];
         EnemyTileSourceArtwork catalog = Install();

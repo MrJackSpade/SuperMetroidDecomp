@@ -66,9 +66,10 @@ internal static class RoomFxRetailInventoryVerification
             .Select(state => state.RoomPointer)
             .Distinct()
             .ToArray();
-        DoorDefinition[] doors = RetailDoorHeaderCatalog.EnumeratePointers()
-            .Select(pointer => SuperMetroid.AssetExtraction.Rooms.CartridgeDoorHeaderImporter.Load(bus, pointer))
-            .ToArray();
+        // Each physical door header and the door it leads through: two headers can lead through one door (the Fast Pillars
+        // Setup room's two blocks into the Main Hall), so a header is found by its own pointer, not by its door's.
+        ushort[] doorPointers = [.. RetailDoorHeaderCatalog.EnumeratePointers()];
+        DoorDefinition[] doors = [.. doorPointers.Select(pointer => SuperMetroid.AssetExtraction.Rooms.CartridgeDoorHeaderImporter.Load(bus, pointer))];
 
         AssertEqual(RetailRoomFxRoomCount, roomPointers.Length,
             "retail room-FX inventory room count");
@@ -79,9 +80,9 @@ internal static class RoomFxRetailInventoryVerification
         Suite(nameof(VerifyRetailRoomFxBlockAnimationHeaders), () => VerifyRetailRoomFxBlockAnimationHeaders(bus));
         Suite(nameof(VerifyRetailLavaSurface), () => VerifyRetailLavaSurface(bus, states));
 
-        var doorByPointer = doors.ToDictionary(door => door.Pointer);
-        ILookup<ushort, DoorDefinition> incomingDoors = doors
-            .ToLookup(door => RoomDefinitions.PointerOf(door.DestinationRoom));
+        var doorByPointer = doorPointers.Zip(doors).ToDictionary(header => header.First, header => header.Second);
+        ILookup<ushort, ushort> incomingDoors = doorPointers.Zip(doors)
+            .ToLookup(header => RoomDefinitions.PointerOf(header.Second.DestinationRoom), header => header.First);
         var classifications = new Dictionary<RetailLiquidClassification, int>();
         var auditedStatePointers = new HashSet<ushort>();
         var knownExamples = new Dictionary<RoomDefinition, HashSet<RetailLiquidClassification>>();
@@ -116,12 +117,13 @@ internal static class RoomFxRetailInventoryVerification
                 AssertTrue(doorByPointer.TryGetValue(recordDoor, out DoorDefinition? fxDoor),
                     $"room {room.Definition.Name} state $8F:{room.State.Pointer:X4} FX-specific " +
                     $"door $83:{recordDoor:X4} is a physical retail door");
-                AssertEqual(room.Definition, (fxDoor ?? throw new InvalidOperationException("Verification requires fxDoor.")).DestinationRoom,
+                // The header import reads the room from the cartridge, which states none of what the room declares beside it
+                // (its silent quakes, #2559), so the door is checked to enter the room by the room's identity.
+                AssertEqual(room.Definition.Name, (fxDoor ?? throw new InvalidOperationException("Verification requires fxDoor.")).DestinationRoom.Name,
                     $"FX-specific door $83:{recordDoor:X4} enters room {room.Definition.Name}");
             }
 
             ushort[] entryPaths = incomingDoors[room.Pointer]
-                .Select(door => door.Pointer)
                 .Prepend((ushort)0)
                 .Distinct()
                 .Order()
@@ -940,8 +942,8 @@ internal static class RoomFxRetailInventoryVerification
 
         int expectedMaximum =
             fx.Liquid?.Tide == LiquidTide.Small
-                ? LiquidTideDefinitions.SmallTidePeakPixels
-                : LiquidTideDefinitions.LargeTidePeakPixels;
+                ? LiquidTideDefinitions.Motions[LiquidTide.Small].PeakPixels
+                : LiquidTideDefinitions.Motions[LiquidTide.Large].PeakPixels;
         AssertTrue(maximumAbsoluteOffset > 0 && maximumAbsoluteOffset <= expectedMaximum,
             $"room {room.Definition.Name} state $8F:{room.State.Pointer:X4} entry " +
             $"$83:{doorPointer:X4} tide moves within ±{expectedMaximum} pixels");

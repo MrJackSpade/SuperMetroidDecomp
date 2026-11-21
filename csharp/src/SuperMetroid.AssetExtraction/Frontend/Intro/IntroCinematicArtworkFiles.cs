@@ -134,21 +134,43 @@ public static class IntroCinematicArtworkFiles
                     IntroCinematicArtworkFormat.BackgroundPageByteCount));
         WriteFinalLine();
         WriteEyeFrames();
-        WriteCaretSprites();
-        WriteNextPageArrowSprites();
-        WriteMotherBrainSprites();
-        WriteMotherBrainExplosionSprites();
-        WriteRinkaSprites();
-        WriteEggEffectSprites();
-        WriteDiscoveryActorSprites();
-        WriteScientistSprites();
+        WriteSprites(IntroCaretSpriteFormat.FileName, json => IntroCaretSpritePresentation.Write(json,
+            new IntroCaretSpriteDocument { Version = IntroCaretSpriteVersion.Current.Revision, Frames = Frames(IntroCaretSpriteDefinitions.Frames) }));
+        WriteSprites(IntroNextPageArrowSpriteFormat.FileName, json => IntroNextPageArrowSpritePresentation.Write(json,
+            new IntroNextPageArrowSpriteDocument { Version = IntroNextPageArrowSpriteFormat.Version, Frames = Frames(IntroNextPageArrowSpriteDefinitions.Frames) }));
+        WriteSprites(IntroMotherBrainSpriteFormat.FileName, json => IntroMotherBrainSpritePresentation.Write(json,
+            new IntroMotherBrainSpriteDocument
+            {
+                Version = IntroMotherBrainSpriteFormat.Version,
+                Frames = Frames(IntroMotherBrainSpriteDefinitions.Frames),
+            }));
+        WriteSprites(IntroMotherBrainExplosionSpriteFormat.FileName, json => IntroMotherBrainExplosionSpritePresentation.Write(json,
+            new IntroMotherBrainExplosionSpriteDocument
+            {
+                Version = IntroMotherBrainExplosionSpriteFormat.Version,
+                Frames = Frames(IntroMotherBrainExplosionSpriteDefinitions.Frames),
+            }));
+        WriteSprites(IntroRinkaSpriteFormat.FileName, json => IntroRinkaSpritePresentation.Write(json,
+            new IntroRinkaSpriteDocument
+            {
+                Version = IntroRinkaSpriteFormat.Version,
+                Frames = Frames(IntroRinkaSpriteDefinitions.Frames),
+            }));
+        WriteSprites(IntroEggEffectSpriteFormat.FileName, json => IntroEggEffectSpritePresentation.Write(json,
+            new IntroEggEffectSpriteDocument
+            {
+                Version = IntroEggEffectSpriteFormat.Version,
+                Frames = Frames(IntroEggEffectSpriteDefinitions.Frames),
+            }));
+        WriteSprites(IntroDiscoveryActorSpriteFormat.FileName, json => IntroDiscoveryActorSpritePresentation.Write(json,
+            new IntroDiscoveryActorSpriteDocument { Version = IntroDiscoveryActorSpriteFormat.Version, Frames = Frames(IntroDiscoveryActorSpriteDefinitions.Frames) }));
+        WriteSprites(IntroScientistSpriteFormat.FileName, json => IntroScientistSpritePresentation.Write(json,
+            new IntroScientistSpriteDocument { Version = IntroScientistSpriteFormat.Version, Frames = Frames(IntroScientistSpriteDefinitions.Frames) }));
         IntroCinematicPalette opening = WritePalette();
         IReadOnlyDictionary<string, byte[]> flightFiles = CeresFlightArtworkExtractor.Extract(bus);
         foreach ((string name, byte[] file) in flightFiles)
         {
-            using (var output = new FileStream(PathOf(name), FileMode.CreateNew, FileAccess.Write))
-                output.Write(file);
-            hashes.Add(name, Convert.ToHexString(SHA256.HashData(file)));
+            WriteFile(name, file);
         }
         if (!flightFiles.TryGetValue(CeresFlightPaletteFormat.FileName, out byte[]? flightPalette))
             throw new InvalidDataException("The Ceres flight extraction wrote no palette.");
@@ -157,9 +179,7 @@ public static class IntroCinematicArtworkFiles
             CeresFlightPaletteFile.Read(new MemoryStream(flightPalette, writable: false))));
         foreach ((string name, byte[] file) in CeresDestructionArtworkExtractor.Extract(bus))
         {
-            using (var output = new FileStream(PathOf(name), FileMode.CreateNew, FileAccess.Write))
-                output.Write(file);
-            hashes.Add(name, Convert.ToHexString(SHA256.HashData(file)));
+            WriteFile(name, file);
         }
 
         var manifest = new IntroCinematicArtworkManifest(FormatVersion, sourceCartridgeSha256, hashes);
@@ -178,9 +198,7 @@ public static class IntroCinematicArtworkFiles
             using var png = new MemoryStream();
             IndexedPng.Write(png, size, indexes, SnesGraphics.DiagnosticPalette(16));
             byte[] encoded = png.ToArray();
-            using (var output = new FileStream(PathOf(name), FileMode.CreateNew, FileAccess.Write))
-                output.Write(encoded);
-            hashes.Add(name, Convert.ToHexString(SHA256.HashData(encoded)));
+            WriteFile(name, encoded);
         }
 
         void WritePage(string name, ReadOnlySpan<byte> native)
@@ -188,9 +206,7 @@ public static class IntroCinematicArtworkFiles
             if (native.Length != IntroCinematicArtworkFormat.BackgroundPageByteCount)
                 throw new InvalidDataException($"Intro tilemap {name} must contain one $0800-byte page.");
             byte[] encoded = RoomBackgroundTilemapExtractor.Encode(native);
-            using (var output = new FileStream(PathOf(name), FileMode.CreateNew, FileAccess.Write))
-                output.Write(encoded);
-            hashes.Add(name, Convert.ToHexString(SHA256.HashData(encoded)));
+            WriteFile(name, encoded);
         }
 
         void WriteFile(string name, byte[] encoded)
@@ -212,12 +228,7 @@ public static class IntroCinematicArtworkFiles
                     native.AsSpan(index * sizeof(ushort)));
                 if (!RgbColor.IsColorWord(checked((ushort)word)))
                     throw new InvalidDataException($"Opening palette color {index} has an unrepresentable high bit.");
-                colors[index] = new PaletteRgb5
-                {
-                    Red = word & 31,
-                    Green = word >> 5 & 31,
-                    Blue = word >> 10 & 31,
-                };
+                colors[index] = PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(word));
             }
             using var json = new MemoryStream();
             IntroCinematicPaletteFile.Write(json, new IntroCinematicPaletteDocument
@@ -246,9 +257,7 @@ public static class IntroCinematicArtworkFiles
             });
             byte[] encoded = json.ToArray();
             string name = IntroFinalLineTilemapFormat.FileName;
-            using (var output = new FileStream(PathOf(name), FileMode.CreateNew, FileAccess.Write))
-                output.Write(encoded);
-            hashes.Add(name, Convert.ToHexString(SHA256.HashData(encoded)));
+            WriteFile(name, encoded);
         }
 
         void WriteEyeFrames()
@@ -285,168 +294,21 @@ public static class IntroCinematicArtworkFiles
             });
             byte[] encoded = json.ToArray();
             string name = IntroEyeTilemapFormat.FileName;
-            using (var output = new FileStream(PathOf(name), FileMode.CreateNew, FileAccess.Write))
-                output.Write(encoded);
-            hashes.Add(name, Convert.ToHexString(SHA256.HashData(encoded)));
+            WriteFile(name, encoded);
         }
 
-        void WriteCaretSprites()
+        // A sprite family's document as <paramref name="write"/> serializes it.
+        void WriteSprites(string name, Action<Stream> write)
         {
-            var frames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
-            foreach (CinematicSpriteFrameDefinition definition in IntroCaretSpriteDefinitions.Frames)
-                frames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(bus,
-                    CinematicSpritemapSources.Of(definition.Pose), definition.StockPartCount, definition.Name));
             using var json = new MemoryStream();
-            IntroCaretSpritePresentation.Write(json, new IntroCaretSpriteDocument
-            {
-                Version = IntroCaretSpriteVersion.Current.Revision,
-                Frames = frames,
-            });
-            byte[] encoded = json.ToArray();
-            string name = IntroCaretSpriteFormat.FileName;
-            using (var output = new FileStream(PathOf(name), FileMode.CreateNew, FileAccess.Write))
-                output.Write(encoded);
-            hashes.Add(name, Convert.ToHexString(SHA256.HashData(encoded)));
+            write(json);
+            WriteFile(name, json.ToArray());
         }
 
-        void WriteNextPageArrowSprites()
-        {
-            var frames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
-            foreach (CinematicSpriteFrameDefinition definition in IntroNextPageArrowSpriteDefinitions.Frames)
-                frames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(bus,
-                    CinematicSpritemapSources.Of(definition.Pose), definition.StockPartCount, definition.Name));
-            using var json = new MemoryStream();
-            IntroNextPageArrowSpritePresentation.Write(json, new IntroNextPageArrowSpriteDocument
-            {
-                Version = IntroNextPageArrowSpriteFormat.Version,
-                Frames = frames,
-            });
-            WriteFile(IntroNextPageArrowSpriteFormat.FileName, json.ToArray());
-        }
-
-        void WriteMotherBrainSprites()
-        {
-            var frames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
-            foreach (CinematicSpriteFrameDefinition definition in
-                IntroMotherBrainSpriteDefinitions.Frames)
-                frames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(bus,
-                    CinematicSpritemapSources.Of(definition.Pose), IntroMotherBrainSpriteDefinitions.StockPartCount,
-                    definition.Name));
-            using var json = new MemoryStream();
-            IntroMotherBrainSpritePresentation.Write(json, new IntroMotherBrainSpriteDocument
-            {
-                Version = IntroMotherBrainSpriteFormat.Version,
-                Frames = frames,
-            });
-            byte[] encoded = json.ToArray();
-            string name = IntroMotherBrainSpriteFormat.FileName;
-            using (var output = new FileStream(PathOf(name), FileMode.CreateNew, FileAccess.Write))
-                output.Write(encoded);
-            hashes.Add(name, Convert.ToHexString(SHA256.HashData(encoded)));
-        }
-
-        void WriteMotherBrainExplosionSprites()
-        {
-            var frames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
-            foreach (CinematicSpriteFrameDefinition definition in
-                IntroMotherBrainExplosionSpriteDefinitions.Frames)
-                frames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(bus,
-                    CinematicSpritemapSources.Of(definition.Pose), definition.StockPartCount, definition.Name));
-            using var json = new MemoryStream();
-            IntroMotherBrainExplosionSpritePresentation.Write(json,
-                new IntroMotherBrainExplosionSpriteDocument
-                {
-                    Version = IntroMotherBrainExplosionSpriteFormat.Version,
-                    Frames = frames,
-                });
-            byte[] encoded = json.ToArray();
-            string name = IntroMotherBrainExplosionSpriteFormat.FileName;
-            using (var output = new FileStream(PathOf(name), FileMode.CreateNew, FileAccess.Write))
-                output.Write(encoded);
-            hashes.Add(name, Convert.ToHexString(SHA256.HashData(encoded)));
-        }
-
-        void WriteRinkaSprites()
-        {
-            var frames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
-            foreach (CinematicSpriteFrameDefinition definition in IntroRinkaSpriteDefinitions.Frames)
-                frames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(bus,
-                    CinematicSpritemapSources.Of(definition.Pose), IntroRinkaSpriteDefinitions.StockPartCount,
-                    definition.Name));
-            using var json = new MemoryStream();
-            IntroRinkaSpritePresentation.Write(json, new IntroRinkaSpriteDocument
-            {
-                Version = IntroRinkaSpriteFormat.Version,
-                Frames = frames,
-            });
-            byte[] encoded = json.ToArray();
-            string name = IntroRinkaSpriteFormat.FileName;
-            using (var output = new FileStream(PathOf(name), FileMode.CreateNew, FileAccess.Write))
-                output.Write(encoded);
-            hashes.Add(name, Convert.ToHexString(SHA256.HashData(encoded)));
-        }
-
-        void WriteEggEffectSprites()
-        {
-            var frames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
-            foreach (CinematicSpriteFrameDefinition definition in
-                IntroEggEffectSpriteDefinitions.Frames)
-                frames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(bus,
-                    CinematicSpritemapSources.Of(definition.Pose), IntroEggEffectSpriteDefinitions.StockPartCount,
-                    definition.Name));
-            using var json = new MemoryStream();
-            IntroEggEffectSpritePresentation.Write(json, new IntroEggEffectSpriteDocument
-            {
-                Version = IntroEggEffectSpriteFormat.Version,
-                Frames = frames,
-            });
-            byte[] encoded = json.ToArray();
-            string name = IntroEggEffectSpriteFormat.FileName;
-            using (var output = new FileStream(PathOf(name), FileMode.CreateNew, FileAccess.Write))
-                output.Write(encoded);
-            hashes.Add(name, Convert.ToHexString(SHA256.HashData(encoded)));
-        }
-
-        void WriteDiscoveryActorSprites()
-        {
-            var frames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
-            foreach (CinematicSpriteFrameDefinition definition in
-                IntroDiscoveryActorSpriteDefinitions.Frames)
-                frames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(bus,
-                    CinematicSpritemapSources.Of(definition.Pose), definition.StockPartCount, definition.Name));
-            using var json = new MemoryStream();
-            IntroDiscoveryActorSpritePresentation.Write(json,
-                new IntroDiscoveryActorSpriteDocument
-                {
-                    Version = IntroDiscoveryActorSpriteFormat.Version,
-                    Frames = frames,
-                });
-            byte[] encoded = json.ToArray();
-            string name = IntroDiscoveryActorSpriteFormat.FileName;
-            using (var output = new FileStream(PathOf(name), FileMode.CreateNew, FileAccess.Write))
-                output.Write(encoded);
-            hashes.Add(name, Convert.ToHexString(SHA256.HashData(encoded)));
-        }
-
-        void WriteScientistSprites()
-        {
-            var frames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
-            foreach (CinematicSpriteFrameDefinition definition in
-                IntroScientistSpriteDefinitions.Frames)
-                frames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(bus,
-                    CinematicSpritemapSources.Of(definition.Pose), definition.StockPartCount, definition.Name));
-            using var json = new MemoryStream();
-            IntroScientistSpritePresentation.Write(json, new IntroScientistSpriteDocument
-            {
-                Version = IntroScientistSpriteFormat.Version,
-                Frames = frames,
-            });
-            byte[] encoded = json.ToArray();
-            string name = IntroScientistSpriteFormat.FileName;
-            using (var output = new FileStream(PathOf(name), FileMode.CreateNew, FileAccess.Write))
-                output.Write(encoded);
-            hashes.Add(name, Convert.ToHexString(SHA256.HashData(encoded)));
-        }
+        // Each of a sprite family's definitions' frames, each read with the stock part count it names.
+        Dictionary<string, SpriteVisualPart[]> Frames(IEnumerable<CinematicSpriteFrameDefinition> definitions) =>
+            definitions.ToDictionary(definition => definition.Name, definition => IntroCinematicSpriteFrameExtractor.Extract(bus,
+                CinematicSpritemapSources.Of(definition.Pose), definition.StockPartCount, definition.Name), StringComparer.Ordinal);
     }
 
     /// <summary>
@@ -700,41 +562,18 @@ public static class IntroCinematicArtworkFiles
         return new SelectedArtworkFile(installedPath, File.ReadAllBytes(installedPath));
     }
 
-    /// <summary>Lists every resource that must be present and hashed by the intro artwork manifest.</summary>
-    private static string[] AllFileNames() =>
+    /// <summary>
+    /// The component's installed documents the game binds that the manifest also hashes: the opening's backdrops and the
+    /// Ceres approach's, reveal's and destruction's actor layouts.
+    /// </summary>
+    private static readonly string[] InstalledFiles =
     [
-        IntroCinematicArtworkFormat.BackgroundFileName,
-        IntroCinematicArtworkFormat.IntroObjectFileName,
-        IntroCinematicArtworkFormat.CinematicObjectFileName,
-        IntroCinematicArtworkFormat.PortraitTilemapFileName,
-        IntroCinematicArtworkFormat.InitialNarrationTilemapFileName,
-        IntroFinalLineTilemapFormat.FileName,
-        IntroEyeTilemapFormat.FileName,
-        IntroCaretSpriteFormat.FileName,
-        IntroNextPageArrowSpriteFormat.FileName,
-        IntroMotherBrainSpriteFormat.FileName,
-        IntroMotherBrainExplosionSpriteFormat.FileName,
-        IntroRinkaSpriteFormat.FileName,
-        IntroEggEffectSpriteFormat.FileName,
-        IntroDiscoveryActorSpriteFormat.FileName,
-        IntroScientistSpriteFormat.FileName,
-        .. IntroCinematicArtworkFormat.ScenePagesInTransferOrder
-            .Select(IntroCinematicArtworkFormat.BackgroundPageFileName),
-        IntroCinematicPaletteFile.FileName,
-        IntroBackdropFiles.FileName,
-        CeresFlightArtworkFileFormat.FloorFileName,
-        CeresFlightArtworkFileFormat.MapFileName,
-        CeresFlightArtworkFileFormat.ObjectFileName,
-        CeresFlightPaletteFormat.FileName,
-        CeresFlightSpriteFormat.FileName,
-        CeresFlightActorLayoutFormat.FileName,
-        CeresDestructionMapFormat.FileName,
-        ZebesRevealArtworkFormat.MapFileName,
-        ZebesRevealArtworkFormat.CharacterFileName,
-        CeresDestructionSpriteFormat.FileName,
-        CeresRevealActorLayoutFormat.FileName,
+        IntroBackdropFiles.FileName, CeresFlightActorLayoutFormat.FileName, CeresRevealActorLayoutFormat.FileName,
         CeresDestructionActorLayoutFormat.FileName,
     ];
+
+    /// <summary>Lists every resource that must be present and hashed by the intro artwork manifest (#2563): each list once.</summary>
+    private static string[] AllFileNames() => [.. ImportDataFiles, .. CompositionFiles, .. LayoutFiles, .. InstalledFiles];
 
     /// <summary>Manifest JSON settings shared by extraction and installation.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()

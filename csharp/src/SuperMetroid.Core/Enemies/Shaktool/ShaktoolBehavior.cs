@@ -70,7 +70,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemySpawnFactory<Shakt
 
         place.AnimationClock.Restart();
         state.ResetOrientation();
-        place.Processing = place.Processing.With(definition.Processing);
+        place.Processing = place.Processing.With(ShaktoolSegmentDefinitions.Processing);
         place.Contact = place.Contact.With(definition.Contact);
         state.Motion = definition.Motion;
         // Initialization and synchronization both take the segment's authored angular velocity unchanged.
@@ -83,7 +83,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemySpawnFactory<Shakt
         // The leading saw is the chain's fixed anchor. Every later segment centers on the preceding segment's
         // position, fractions of a pixel included. Express that link structurally instead of treating a value the game left behind as an
         // unrelated center.
-        if (definition != ShaktoolSegmentDefinitions.LeadingSaw)
+        if (!definition.AnchorsChain)
             PositionShaktoolAroundPreviousSegment(place, state, chain.Before(definition));
         return state;
     }
@@ -357,7 +357,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemySpawnFactory<Shakt
         // Every segment between the two saws takes the swap's fractions of a pixel.
         foreach (ShaktoolChainSegment segment in group)
         {
-            if (segment.Definition == ShaktoolSegmentDefinitions.LeadingSaw || segment.Definition == ShaktoolSegmentDefinitions.TrailingSaw)
+            if (segment.Definition.IsSaw)
                 continue;
             segment.Place.Position = segment.Place.Position.WithFractionX(ShaktoolOrbitDefinitions.SwapFraction).WithFractionY(ShaktoolOrbitDefinitions.SwapFraction);
         }

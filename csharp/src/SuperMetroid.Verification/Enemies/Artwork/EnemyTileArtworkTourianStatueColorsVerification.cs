@@ -22,8 +22,7 @@ using SuperMetroid.AssetExtraction;
 
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Areas.Tourian.Artwork;
-using SuperMetroid.Verification.Harness;
-namespace SuperMetroid.Verification.Enemies.Artwork;
+using SuperMetroid.Verification.Harness;namespace SuperMetroid.Verification.Enemies.Artwork;
 
 /// <summary>Native colour-write and guarded-source checks for installed Tourian entrance statue colors (#1512).</summary>
 internal static class EnemyTileArtworkTourianStatueColorsVerification
@@ -45,7 +44,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         for (int color = 0; color < TourianStatueColorDefinitions.EyeColorCount; color++)
             CheckSource(EnemySourceDefinitions.TourianStatueEyeColors +
                 (row * TourianStatueColorDefinitions.EyeColorCount + color) * sizeof(ushort),
-                (colors.ResolveEye(TourianStatuePalettes.EyeRowOrder[row], color)).ToWord());
+                (colors.ResolveEye(EnemySourceDefinitions.TourianStatueEyeRowOrder[row], color)).ToWord());
         for (int color = 0; color < TourianStatueColorDefinitions.GreyColorCount; color++)
             CheckSource(EnemySourceDefinitions.TourianStatueGreyColors + color * sizeof(ushort),
                 colors.ResolveGrey(color).ToWord());

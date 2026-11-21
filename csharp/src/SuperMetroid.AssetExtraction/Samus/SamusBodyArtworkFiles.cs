@@ -6,7 +6,6 @@ using System.Text.Json.Serialization;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Samus.Drawing;
 
 namespace SuperMetroid.AssetExtraction.Samus;

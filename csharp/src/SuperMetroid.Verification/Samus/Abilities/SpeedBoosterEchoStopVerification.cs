@@ -76,7 +76,7 @@ internal static class SpeedBoosterEchoStopVerification
             finalPeak = pcm.Max(sample => Math.Abs((int)sample));
             if (frame == 39)
             {
-                AssertEqual(3, libraries[2].CurrentSound, "boost echo remains active before wall contact");
+                AssertEqual(3, libraries[SuperMetroid.Core.Audio.SoundEffectLibrary.Room].CurrentSound, "boost echo remains active before wall contact");
                 AssertTrue(finalPeak > 0, "boost echo is audible before wall contact");
                 AssertEqual(0, stopRequests, "active boost does not cancel its echo");
             }
@@ -84,7 +84,7 @@ internal static class SpeedBoosterEchoStopVerification
         AssertEqual(1, starts, "one native boost-start request");
         AssertEqual(1, stopRequests, "one native post-draw stop request");
         AssertEqual(1, stops, "one stop request reaches the SPC");
-        AssertEqual(0, libraries[2].CurrentSound, "SPC echo ends without footsteps or landing sounds");
+        AssertEqual(0, libraries[SuperMetroid.Core.Audio.SoundEffectLibrary.Room].CurrentSound, "SPC echo ends without footsteps or landing sounds");
         AssertEqual(0, finalPeak, "echo PCM reaches silence after wall cancellation");
         Suite(nameof(VerifyEchoSoundPlayingOwnership), () => VerifyEchoSoundPlayingOwnership());
         Console.WriteLine("Speed Booster echo: one start, no premature stop, one wall-cancellation stop, then SPC/PCM silence.");

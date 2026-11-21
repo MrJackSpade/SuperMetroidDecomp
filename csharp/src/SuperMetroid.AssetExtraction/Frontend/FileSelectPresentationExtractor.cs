@@ -3,6 +3,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.FileSelect;
 using SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.Menus;
@@ -10,6 +11,7 @@ using SuperMetroid.Core.Frontend.FileSelect.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Frontend.Menus;
+using SuperMetroid.Core.Frontend;
 
 namespace SuperMetroid.AssetExtraction.Frontend;
 
@@ -103,12 +105,11 @@ public static class FileSelectPresentationExtractor
             [FileSelectParts.PatchName(FileSelectPatch.NoData)] = Document(Patch(FileSelectTilemapSourceDefinitions.NoData)),
             [FileSelectParts.PatchName(FileSelectPatch.TimeColon)] = Document(Patch(FileSelectTilemapSourceDefinitions.TimeColon)),
         };
-        var digits = Enumerable.Range(0, 10)
+        var digits = Enumerable.Range(0, FileSelectPresentationDefinitions.DigitCount)
             .Select(value => Cell(BackgroundTileWords.ToWord(FileSelectFieldTiles.Digit(value))))
             .ToArray();
-        var letters = Enumerable.Range(0, 3)
-            .Select(value => Cell(BackgroundTileWords.ToWord(FileSelectFieldTiles.SlotLetter(value))))
-            .ToArray();
+        Dictionary<string, MapPresentationCell> letters = SaveSlots.All.ToDictionary(slot => SaveSlotKeys.Installed.Of(slot),
+            slot => Cell(BackgroundTileWords.ToWord(FileSelectFieldTiles.SlotLetter(slot))), StringComparer.Ordinal);
 
         var sprites = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal)
         {
@@ -141,41 +142,30 @@ public static class FileSelectPresentationExtractor
         FileSelectSourcePresentation.Write(output, new()
         {
             Version = FileSelectPresentationFormat.Version,
-            MainSlots =
-            [
-                Slot(FileSelectNativeLayout.MainSlotDestination(0, FileSelectSlotField.Energy),
-                    FileSelectNativeLayout.MainSlotDestination(0, FileSelectSlotField.TimeValue)),
-                Slot(FileSelectNativeLayout.MainSlotDestination(1, FileSelectSlotField.Energy),
-                    FileSelectNativeLayout.MainSlotDestination(1, FileSelectSlotField.TimeValue)),
-                Slot(FileSelectNativeLayout.MainSlotDestination(2, FileSelectSlotField.Energy),
-                    FileSelectNativeLayout.MainSlotDestination(2, FileSelectSlotField.TimeValue)),
-            ],
-            DataSlots =
-            [
-                Slot(FileSelectNativeLayout.DataSlotDestination(0, FileSelectSlotField.Energy),
-                    FileSelectNativeLayout.DataSlotDestination(0, FileSelectSlotField.TimeValue)),
-                Slot(FileSelectNativeLayout.DataSlotDestination(1, FileSelectSlotField.Energy),
-                    FileSelectNativeLayout.DataSlotDestination(1, FileSelectSlotField.TimeValue)),
-                Slot(FileSelectNativeLayout.DataSlotDestination(2, FileSelectSlotField.Energy),
-                    FileSelectNativeLayout.DataSlotDestination(2, FileSelectSlotField.TimeValue)),
-            ],
+            // The native layout places the slots' fields one under another, in the slots' order.
+            MainSlots = SaveSlots.All.Select((slot, place) => KeyValuePair.Create(SaveSlotKeys.Installed.Of(slot),
+                Slot(FileSelectNativeLayout.MainSlotDestination(place, FileSelectSlotField.Energy),
+                    FileSelectNativeLayout.MainSlotDestination(place, FileSelectSlotField.TimeValue)))).ToDictionary(StringComparer.Ordinal),
+            DataSlots = SaveSlots.All.Select((slot, place) => KeyValuePair.Create(SaveSlotKeys.Installed.Of(slot),
+                Slot(FileSelectNativeLayout.DataSlotDestination(place, FileSelectSlotField.Energy),
+                    FileSelectNativeLayout.DataSlotDestination(place, FileSelectSlotField.TimeValue)))).ToDictionary(StringComparer.Ordinal),
             BorderAnchors = new(StringComparer.Ordinal)
             {
                 [FileSelectPresentationFormat.BorderName(FileSelectBorder.Main)] = FileSelectNativeLayout.NormalBorderAnchor,
                 [FileSelectPresentationFormat.BorderName(FileSelectBorder.Copy)] = FileSelectNativeLayout.CopyBorderAnchor,
                 [FileSelectPresentationFormat.BorderName(FileSelectBorder.Clear)] = FileSelectNativeLayout.ClearBorderAnchor,
             },
-            MainCursorAnchors = FileSelectItemRows.MainWithData
-                .Select(FileSelectCursorPositions.MainSelectionY)
-                .Select(y => new Offset16<ScreenPixels>(FileSelectCursorPositions.MainCursorX, y)).ToArray(),
-            DataCursorAnchors = FileSelectItemRows.Data
-                .Select(FileSelectCursorPositions.DataSelectionY)
-                .Select(y => new Offset16<ScreenPixels>(FileSelectCursorPositions.DataCursorX, y)).ToArray(),
-            ConfirmationCursorAnchors =
-                [FileSelectCursorPositions.ConfirmationYesAnchor, FileSelectCursorPositions.ConfirmationNoAnchor],
-            HelmetAnchors = FileSelectCursorPositions.Slots
-                .Select(FileSelectCursorPositions.HelmetY)
-                .Select(y => new Offset16<ScreenPixels>(FileSelectCursorPositions.HelmetX, y)).ToArray(),
+            MainCursorAnchors = FileSelectItemRows.MainWithData.ToDictionary(row => FileSelectItemKeys.Installed.Of(row),
+                row => new Offset16<ScreenPixels>(FileSelectCursorPositions.MainCursorX, FileSelectCursorPositions.MainSelectionY(row)), StringComparer.Ordinal),
+            DataCursorAnchors = FileSelectItemRows.Data.ToDictionary(row => FileSelectItemKeys.Installed.Of(row),
+                row => new Offset16<ScreenPixels>(FileSelectCursorPositions.DataCursorX, FileSelectCursorPositions.DataSelectionY(row)), StringComparer.Ordinal),
+            ConfirmationCursorAnchors = new(StringComparer.Ordinal)
+            {
+                [YesNoChoiceKeys.Installed.Of(YesNoChoice.Yes)] = FileSelectCursorPositions.ConfirmationYesAnchor,
+                [YesNoChoiceKeys.Installed.Of(YesNoChoice.No)] = FileSelectCursorPositions.ConfirmationNoAnchor,
+            },
+            HelmetAnchors = FileSelectCursorPositions.Slots.ToDictionary(slot => SaveSlotKeys.Installed.Of(slot),
+                slot => new Offset16<ScreenPixels>(FileSelectCursorPositions.HelmetX, FileSelectCursorPositions.HelmetY(slot)), StringComparer.Ordinal),
             DynamicAnchors = new(StringComparer.Ordinal)
             {
                 [FileSelectPresentationFormat.AnchorName(FileSelectAnchor.CopyDestinationSource)] =
@@ -196,12 +186,7 @@ public static class FileSelectPresentationExtractor
         void AddMainStatic(ushort[] page, bool includeDataCommands)
         {
             Apply(page, Patch(FileSelectTilemapSourceDefinitions.SamusData), FileSelectNativeLayout.SamusDataDestination);
-            Apply(page, Patch(FileSelectTilemapFormat.SlotLabel(0)), FileSelectNativeLayout.MainSlotDestination(0, FileSelectSlotField.Label));
-            Apply(page, Patch(FileSelectTilemapSourceDefinitions.Time), FileSelectNativeLayout.MainSlotDestination(0, FileSelectSlotField.TimeLabel));
-            Apply(page, Patch(FileSelectTilemapFormat.SlotLabel(1)), FileSelectNativeLayout.MainSlotDestination(1, FileSelectSlotField.Label));
-            Apply(page, Patch(FileSelectTilemapSourceDefinitions.Time), FileSelectNativeLayout.MainSlotDestination(1, FileSelectSlotField.TimeLabel));
-            Apply(page, Patch(FileSelectTilemapFormat.SlotLabel(2)), FileSelectNativeLayout.MainSlotDestination(2, FileSelectSlotField.Label));
-            Apply(page, Patch(FileSelectTilemapSourceDefinitions.Time), FileSelectNativeLayout.MainSlotDestination(2, FileSelectSlotField.TimeLabel));
+            AddSlotLabels(page, FileSelectNativeLayout.MainSlotDestination);
             if (includeDataCommands)
             {
                 Apply(page, Patch(FileSelectTilemapSourceDefinitions.DataCopy), FileSelectNativeLayout.DataCopyDestination);
@@ -218,13 +203,18 @@ public static class FileSelectPresentationExtractor
             Apply(page, Patch(mode), modeDestination);
             Apply(page, Patch(prompt), promptDestination);
             Apply(page, Patch(FileSelectTilemapSourceDefinitions.Exit), FileSelectNativeLayout.ExitDestination);
-            Apply(page, Patch(FileSelectTilemapFormat.SlotLabel(0)), FileSelectNativeLayout.DataSlotDestination(0, FileSelectSlotField.Label));
-            Apply(page, Patch(FileSelectTilemapSourceDefinitions.Time), FileSelectNativeLayout.DataSlotDestination(0, FileSelectSlotField.TimeLabel));
-            Apply(page, Patch(FileSelectTilemapFormat.SlotLabel(1)), FileSelectNativeLayout.DataSlotDestination(1, FileSelectSlotField.Label));
-            Apply(page, Patch(FileSelectTilemapSourceDefinitions.Time), FileSelectNativeLayout.DataSlotDestination(1, FileSelectSlotField.TimeLabel));
-            Apply(page, Patch(FileSelectTilemapFormat.SlotLabel(2)), FileSelectNativeLayout.DataSlotDestination(2, FileSelectSlotField.Label));
-            Apply(page, Patch(FileSelectTilemapSourceDefinitions.Time), FileSelectNativeLayout.DataSlotDestination(2, FileSelectSlotField.TimeLabel));
+            AddSlotLabels(page, FileSelectNativeLayout.DataSlotDestination);
             return page;
+        }
+
+        // Overlay each save slot's label and time label where <paramref name="destination"/> places the slot's fields.
+        void AddSlotLabels(ushort[] page, Func<int, FileSelectSlotField, int> destination)
+        {
+            for (int slot = 0; slot < SaveSlots.All.Count; slot++)
+            {
+                Apply(page, Patch(FileSelectTilemapFormat.SlotLabel(slot)), destination(slot, FileSelectSlotField.Label));
+                Apply(page, Patch(FileSelectTilemapSourceDefinitions.Time), destination(slot, FileSelectSlotField.TimeLabel));
+            }
         }
 
         // Overlay the shared question and YES/NO choices on a copy or clear page.

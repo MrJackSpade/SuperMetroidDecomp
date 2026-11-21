@@ -64,16 +64,13 @@ internal sealed class SheetPictureColouring
         var shades = new SortedDictionary<string, SheetPictureShade>(StringComparer.Ordinal);
         foreach ((string key, SpriteSheetShadeDocument shade) in document.Shades ?? [])
         {
-            if (shade.Inks.Length != shade.Colours.Length)
-                throw new InvalidDataException($"Shade {key} recolours {shade.Inks.Length} inks with {shade.Colours.Length} colours.");
             var shown = new SortedDictionary<int, RgbColor>();
-            for (int entry = 0; entry < shade.Inks.Length; entry++)
+            foreach ((int ink, ushort colour) in shade.InkColours)
             {
-                int ink = shade.Inks[entry];
                 if (ink is < 0 or >= ImageColourGroup.HalfColours)
                     throw new InvalidDataException($"Shade {key} recolours ink {ink}, past a sprite sheet's {ImageColourGroup.HalfColours}.");
                 if (Covers(groups, ink))
-                    shown.Add(ink, RgbColor.FromWord(shade.Colours[entry]));
+                    shown.Add(ink, RgbColor.FromWord(colour));
             }
             shades.Add(key, new SheetPictureShade(shade.ColourMath, shown));
         }
@@ -128,8 +125,7 @@ internal sealed class SheetPictureColouring
         shades.Count == 0 ? null
             : shades.ToDictionary(shade => shade.Key, shade => new SpriteSheetShadeDocument
             {
-                Inks = [.. shade.Value.Colours.Keys],
-                Colours = [.. shade.Value.Colours.Values.Select(colour => colour.ToWord())],
+                InkColours = new SortedDictionary<int, ushort>(shade.Value.Colours.ToDictionary(entry => entry.Key, entry => entry.Value.ToWord())),
                 ColourMath = shade.Value.Blends,
             }, StringComparer.Ordinal);
 

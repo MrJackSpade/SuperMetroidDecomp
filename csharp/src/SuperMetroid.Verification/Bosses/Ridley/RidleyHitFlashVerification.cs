@@ -50,12 +50,12 @@ internal static class RidleyHitFlashVerification
         Dictionary<string, SpriteSheetShadeDocument> shades = sheet.Manifest.Shades
             ?? throw new InvalidOperationException("Ridley's sheet installs its shades.");
         SpriteSheetShadeDocument flash = shades[EnemyShades.HurtFlash.Key];
-        AssertTrue(flash.Inks.SequenceEqual(painted), "The hurt flash lists every ink Ridley paints, those whose flash colour equals their own among them");
-        for (int index = 0; index < flash.Inks.Length; index++)
+        AssertTrue(flash.InkColours.Keys.SequenceEqual(painted), "The hurt flash lists every ink Ridley paints, those whose flash colour equals their own among them");
+        foreach ((int ink, ushort colour) in flash.InkColours)
         {
             // The flash clears his draws' palette bits, so each ink shows its own row.
-            RgbColor own = source.Sources.SpriteColours[flash.Inks[index]];
-            AssertEqual(own.ToWord(), flash.Colours[index], $"Ridley's ink {flash.Inks[index]} flashes in its own row's colour");
+            RgbColor own = source.Sources.SpriteColours[ink];
+            AssertEqual(own.ToWord(), colour, $"Ridley's ink {ink} flashes in its own row's colour");
         }
 
         // Laid in the draw's order, the encounter's colours never show on a flashing frame.
@@ -63,8 +63,8 @@ internal static class RidleyHitFlashVerification
         var shown = new Dictionary<int, ushort>();
         foreach (SpriteSheetShadeDocument laid in new[] { start, flash })
         {
-            for (int index = 0; index < laid.Inks.Length; index++)
-                shown[laid.Inks[index]] = laid.Colours[index];
+            foreach ((int ink, ushort colour) in laid.InkColours)
+                shown[ink] = colour;
         }
         foreach (int ink in painted)
             AssertEqual(source.Sources.SpriteColours[ink].ToWord(), shown[ink], $"Flashing Ridley's ink {ink} shows its own row over his encounter's load");

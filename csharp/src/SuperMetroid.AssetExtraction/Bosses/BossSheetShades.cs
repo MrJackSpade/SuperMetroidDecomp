@@ -175,12 +175,12 @@ internal static class BossSheetShades
         HashSet<int> used = [.. paletteIndices.ToArray().Select(index => (int)index)];
         // Every band's shade shows his eyes in the colours gameplay's eye glow replaces, whatever the band gives them (#1512).
         ReadOnlySpan<RgbColor> shadedEyes = kraid.Eyes().Shaded;
-        for (int band = 0; band < KraidPalettes.HealthBandCount; band++)
+        foreach (KraidHealthSequenceBand band in KraidPalettes.HealthSequence)
         {
             RgbColor[] colours = Band(kraid, KraidPaletteSource.Health, band);
             shadedEyes.CopyTo(colours.AsSpan(KraidPalettes.FirstEyeColour, KraidEyeGlow.Eyes));
-            shades.Add(SheetShade.Run(KraidPalettes.HealthShades[band], KraidBodyFirstInk, colours));
-            RequireUniqueEyes(standard, used, colours, KraidPalettes.HealthShades[band]);
+            shades.Add(SheetShade.Run(band.Shade, KraidBodyFirstInk, colours));
+            RequireUniqueEyes(standard, used, colours, band.Shade);
         }
         shades.Add(SheetShade.Run(KraidShades.DeathArm, KraidBodyFirstInk,
             [.. Enumerable.Range(0, KraidPalettes.BandColors).Select(colour => kraid.Resolve(KraidPaletteSource.DeathArm, colour))]));
@@ -209,8 +209,8 @@ internal static class BossSheetShades
     private static IReadOnlyList<SheetShade> KraidSprites(BossSourceArtwork bosses, int firstInk)
     {
         KraidColorCatalog kraid = bosses.KraidColors ?? throw new InvalidDataException("Kraid's parts are shaded from the installed Kraid colours.");
-        return [.. Enumerable.Range(0, KraidPalettes.HealthBandCount)
-            .Select(band => SheetShade.Run(KraidPalettes.HealthShades[band], firstInk, Band(kraid, KraidPaletteSource.Secondary, band)))];
+        return [.. KraidPalettes.HealthSequence
+            .Select(band => SheetShade.Run(band.Shade, firstInk, Band(kraid, KraidPaletteSource.Secondary, band)))];
     }
 
     /// <summary>
@@ -318,8 +318,8 @@ internal static class BossSheetShades
     }
 
     /// <summary>The sixteen colours of <paramref name="source"/>'s health sequence band <paramref name="band"/>: the hurt flash's or a health band's.</summary>
-    private static RgbColor[] Band(KraidColorCatalog kraid, KraidPaletteSource source, int band) =>
-        [.. Enumerable.Range(0, KraidPalettes.BandColors).Select(colour => kraid.Resolve(source, KraidPalettes.BandColors * band + colour))];
+    private static RgbColor[] Band(KraidColorCatalog kraid, KraidPaletteSource source, KraidHealthSequenceBand band) =>
+        [.. Enumerable.Range(band.FirstColour, KraidPalettes.BandColors).Select(colour => kraid.Resolve(source, colour))];
 
     /// <summary>
     /// Requires the eye colours shade <paramref name="band"/>'s <paramref name="colours"/> show to differ from each other and

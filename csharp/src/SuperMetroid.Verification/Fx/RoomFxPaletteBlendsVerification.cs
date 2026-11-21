@@ -48,9 +48,8 @@ internal static class RoomFxPaletteBlendsVerification
             IReadOnlyList<RgbColor> compiled = catalog.Inks(id);
             // The layer-3 pictures' shade of the blend holds its three colours over the blend inks (#1512).
             SheetShade shade = BlendShade(catalog, id);
-            AssertEqual(RoomFxNativeSources.PaletteBlendDestinationIndex, shade.Inks[0], $"room-FX blend {id} shades the blend inks");
-            for (int index = 0; index < compiled.Count; index++)
-                AssertEqual(compiled[index], shade.Colours[index], $"room-FX blend {id} shade colour {index}");
+            AssertEqual(RoomFxNativeSources.PaletteBlendDestinationIndex, shade.Inks.First(), $"room-FX blend {id} shades the blend inks");
+            AssertTrue(compiled.SequenceEqual(shade.Colours), $"room-FX blend {id} shade colours");
 
             (RoomFxOverlayState state, CartridgeReadGuard bus) = ConstructBlendLoad(id);
             AssertEqual<RoomEffectTint?>(id, state.Tint, $"room-FX blend {id} load names its blend");

@@ -83,19 +83,20 @@ internal static class EndingScreenShades
             AddFade(shades, postCreditsFade, postCredits);
         foreach (EndingFlashColour flashed in Flashes)
         {
-            int[] inks = EndingScreenInks.Flash(flashed.Flash);
-            shades.Add(new SheetShade(EndingShades.Flashed(flashed.Flash), inks, [.. inks.Select(_ => flashed.Colour)]));
+            shades.Add(SheetShade.Of(EndingShades.Flashed(flashed.Flash), EndingScreenInks.Flash(flashed.Flash), _ => flashed.Colour));
         }
         EndingPalette crossfade = palettes[EndingPaletteId.LogoCrossfade];
         foreach (EndingLogoCrossfadeStep step in EndingLogoCrossfadeStep.All)
         {
             int stepShown = step.Step;
-            RgbColor[] colours =
+            PictureShade shade = EndingShades.LogoCrossfade(step);
+            shades.Add(SheetShade.Combined(shade,
             [
-                .. Enumerable.Range(0, EndingScreenInks.GroupColours).Select(colour => crossfade.LogoCrossfadeColour(stepShown, EndingLogoLayer.Background, colour)),
-                .. Enumerable.Range(0, EndingScreenInks.GroupColours).Select(colour => crossfade.LogoCrossfadeColour(stepShown, EndingLogoLayer.Sprites, colour)),
-            ];
-            shades.Add(new SheetShade(EndingShades.LogoCrossfade(step), EndingScreenInks.LogoCrossfade, colours));
+                SheetShade.Run(shade, EndingScreenInks.LogoCrossfadeBackground, [.. Enumerable.Range(0, EndingScreenInks.GroupColours)
+                    .Select(colour => crossfade.LogoCrossfadeColour(stepShown, EndingLogoLayer.Background, colour))]),
+                SheetShade.Run(shade, EndingScreenInks.LogoCrossfadeSprites, [.. Enumerable.Range(0, EndingScreenInks.GroupColours)
+                    .Select(colour => crossfade.LogoCrossfadeColour(stepShown, EndingLogoLayer.Sprites, colour))]),
+            ]));
         }
         // Every record any ending object can show, over the colours its group writes.
         foreach ((ColourEffectColours group, ColourEffectFrame record) in PaletteFxRecordShades.ShownBy(PaletteFxObjects))
@@ -174,20 +175,7 @@ internal static class EndingScreenShades
 
     /// <summary>The shade <paramref name="shade"/> recolouring every ink of <paramref name="parts"/>, each once, in rising order.</summary>
     /// <exception cref="InvalidDataException">Two parts give one ink different colours.</exception>
-    private static SheetShade Merged(PictureShade shade, SheetShade[] parts)
-    {
-        var colours = new SortedDictionary<int, RgbColor>();
-        foreach (SheetShade part in parts)
-        {
-            for (int index = 0; index < part.Inks.Length; index++)
-            {
-                if (colours.TryGetValue(part.Inks[index], out RgbColor earlier) && earlier != part.Colours[index])
-                    throw new InvalidDataException($"Shade {shade.Key} gives ink {part.Inks[index]} two colours.");
-                colours[part.Inks[index]] = part.Colours[index];
-            }
-        }
-        return new SheetShade(shade, [.. colours.Keys], [.. colours.Values]);
-    }
+    private static SheetShade Merged(PictureShade shade, SheetShade[] parts) => SheetShade.Combined(shade, parts);
 
     /// <summary>The colour each flash shows.</summary>
     private static readonly EndingFlashColour[] Flashes =
@@ -202,15 +190,14 @@ internal static class EndingScreenShades
     /// <summary>The part of <paramref name="shade"/> on screen colours from <paramref name="first"/> to before <paramref name="end"/>, each moved by <paramref name="shift"/>.</summary>
     private static SheetShade Within(SheetShade shade, int first, int end, int shift)
     {
-        int[] kept = [.. Enumerable.Range(0, shade.Inks.Length).Where(index => shade.Inks[index] >= first && shade.Inks[index] < end)];
-        return new SheetShade(shade.Shade, [.. kept.Select(index => shade.Inks[index] + shift)], [.. kept.Select(index => shade.Colours[index])]);
+        return SheetShade.Of(shade.Shade, shade.InkColours.Where(entry => entry.Key >= first && entry.Key < end)
+            .Select(entry => KeyValuePair.Create(entry.Key + shift, entry.Value)));
     }
 
     /// <summary>The shade of <paramref name="load"/>, its colours those of the whole screen <paramref name="colours"/> it writes.</summary>
     private static SheetShade Loaded(EndingColourLoad load, RgbColor[] colours)
     {
-        int[] inks = EndingScreenInks.Load(load);
-        return new SheetShade(EndingShades.Loaded(load), inks, [.. inks.Select(ink => colours[ink])]);
+        return SheetShade.Of(EndingShades.Loaded(load), EndingScreenInks.Load(load), ink => colours[ink]);
     }
 
     /// <summary>Adds the shades of <paramref name="colours"/> at every level, scaling the whole screen <paramref name="source"/>'s colours.</summary>
@@ -220,7 +207,7 @@ internal static class EndingScreenShades
         for (int level = 0; level <= EndingShades.FadeLevels; level++)
         {
             var faded = new ColourLevel(level, EndingShades.FadeLevels);
-            shades.Add(new SheetShade(EndingShades.Faded(colours, level), inks, [.. inks.Select(ink => faded.Apply(source[ink]))]));
+            shades.Add(SheetShade.Of(EndingShades.Faded(colours, level), inks, ink => faded.Apply(source[ink])));
         }
     }
 

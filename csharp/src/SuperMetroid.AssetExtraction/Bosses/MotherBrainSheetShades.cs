@@ -325,7 +325,7 @@ internal static class MotherBrainSheetShades
 
     /// <summary>A shade of several runs of colours, each from its first ink, in rising order.</summary>
     private static SheetShade Rows(PictureShade shade, params ColourRun[] runs) =>
-        new(shade, [.. runs.SelectMany(run => Enumerable.Range(run.FirstInk, run.Colours.Length))], [.. runs.SelectMany(run => run.Colours)]);
+        SheetShade.Combined(shade, runs.Select(run => SheetShade.Run(shade, run.FirstInk, run.Colours)));
 
     /// <summary><paramref name="count"/> colours, each from <paramref name="colour"/>.</summary>
     private static RgbColor[] Colours(int count, Func<int, RgbColor> colour) => [.. Enumerable.Range(0, count).Select(colour)];

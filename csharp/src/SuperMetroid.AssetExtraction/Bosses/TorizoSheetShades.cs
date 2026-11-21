@@ -92,7 +92,7 @@ internal static class TorizoSheetShades
         foreach (TorizoLook to in FadeTargets)
         {
             RgbColor[] colouring = Colours(auxiliary, to);
-            shades.Add(new SheetShade(TorizoShades.GlowingBelly(to), inks, [.. inks.Select(ink => colouring[ink - BodyFirstInk])]));
+            shades.Add(SheetShade.Of(TorizoShades.GlowingBelly(to), inks, ink => colouring[ink - BodyFirstInk]));
         }
         return shades;
     }

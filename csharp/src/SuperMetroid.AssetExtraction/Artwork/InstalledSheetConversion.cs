@@ -178,20 +178,17 @@ internal static class InstalledSheetConversion
     /// The colour word shade <paramref name="key"/> writes over each of the sheet's <paramref name="groups"/> composed
     /// indices, or null where it writes none.
     /// </summary>
-    /// <exception cref="InvalidDataException">The shade's lists differ in length, or it names an index past the sheet's colours or twice.</exception>
+    /// <exception cref="InvalidDataException">The shade names no colours, or an index past the sheet's colours.</exception>
     private static int?[] WrittenBy(string key, SpriteSheetShadeDocument shade, int groups)
     {
-        if (shade.Inks is null || shade.Colours is null || shade.Inks.Length != shade.Colours.Length)
-            throw new InvalidDataException($"Shade {key} names {shade.Inks?.Length ?? 0} palette indices with {shade.Colours?.Length ?? 0} colours.");
+        if (shade.InkColours is null)
+            throw new InvalidDataException($"Shade {key} names no colours.");
         var written = new int?[groups];
-        for (int entry = 0; entry < shade.Inks.Length; entry++)
+        foreach ((int index, ushort colour) in shade.InkColours)
         {
-            int index = shade.Inks[entry];
             if (index < 0 || index >= groups)
                 throw new InvalidDataException($"Shade {key} recolours palette index {index}, past its sheet's {groups} colours.");
-            if (written[index] is not null)
-                throw new InvalidDataException($"Shade {key} recolours palette index {index} twice.");
-            written[index] = shade.Colours[entry];
+            written[index] = colour;
         }
         return written;
     }

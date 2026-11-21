@@ -155,9 +155,8 @@ internal sealed class EnemySheetShades
             var left = new Dictionary<int, RgbColor>();
             foreach (PictureShade name in laid)
             {
-                SheetShade shade = EffectOf(enemy, name);
-                for (int index = 0; index < shade.Inks.Length; index++)
-                    left[shade.Inks[index]] = shade.Colours[index];
+                foreach ((int ink, RgbColor colour) in EffectOf(enemy, name).InkColours)
+                    left[ink] = colour;
             }
             foreach ((int ink, RgbColor colour) in left)
             {
@@ -219,10 +218,10 @@ internal sealed class EnemySheetShades
             var left = new Dictionary<int, RgbColor>();
             foreach (SheetShade shade in laid)
             {
-                for (int index = 0; index < shade.Inks.Length; index++)
+                foreach ((int ink, RgbColor colour) in shade.InkColours)
                 {
-                    if (rows.Contains(shade.Inks[index] / LoadedSetColours.RowColours))
-                        left[shade.Inks[index]] = shade.Colours[index];
+                    if (rows.Contains(ink / LoadedSetColours.RowColours))
+                        left[ink] = colour;
                 }
             }
             foreach ((int ink, RgbColor colour) in left)
@@ -595,9 +594,11 @@ internal sealed class EnemySheetShades
         int body = EnemySheetRowDefinitions.TourianStatueBody * LoadedSetColours.RowColours;
         int decoration = EnemySheetRowDefinitions.TourianStatueBase * LoadedSetColours.RowColours;
         int ridley = EnemySheetRowDefinitions.TourianStatueRidley * LoadedSetColours.RowColours;
-        yield return new SheetShade(TourianStatueShades.Entrance,
-            [.. Enumerable.Range(body, LoadedSetColours.RowColours), .. Enumerable.Range(decoration, LoadedSetColours.RowColours)],
-            [.. Frame(LoadedSetColours.RowColours, statue.StatueColor), .. Frame(LoadedSetColours.RowColours, statue.BaseColor)]);
+        yield return SheetShade.Combined(TourianStatueShades.Entrance,
+        [
+            SheetShade.Run(TourianStatueShades.Entrance, body, Frame(LoadedSetColours.RowColours, statue.StatueColor)),
+            SheetShade.Run(TourianStatueShades.Entrance, decoration, Frame(LoadedSetColours.RowColours, statue.BaseColor)),
+        ]);
         foreach ((PictureShade glow, SuperMetroid.Core.Areas.Tourian.TourianStatue boss) in TourianStatueColorDefinitions.EyeGlowRows)
         {
             yield return SheetShade.Run(glow, decoration + 9,

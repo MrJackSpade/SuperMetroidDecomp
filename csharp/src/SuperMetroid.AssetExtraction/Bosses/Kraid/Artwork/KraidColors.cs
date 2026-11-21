@@ -28,16 +28,13 @@ internal static class KraidColors
     /// </summary>
     internal static KraidEyeColours Eyes(KraidColorCatalog colors)
     {
-        // The installed health colours hold one colour group per shade, in the order KraidPalettes.HealthShades lists them.
-        var byShade = new Dictionary<PictureShade, RgbColor[]>();
-        foreach (PictureShade shade in KraidPalettes.HealthShades)
-            byShade.Add(shade, EyeSet(colors, byShade.Count));
+        Dictionary<PictureShade, RgbColor[]> byShade = KraidPalettes.HealthSequence.ToDictionary(band => band.Shade, band => EyeSet(colors, band));
         return new(byShade[KraidShades.HurtFlash],
             KraidHealthBandDefinitions.HighestFirst.ToDictionary(band => band, band => (IReadOnlyList<RgbColor>)byShade[KraidShades.Health(band)]));
     }
 
-    /// <summary>The eyes' colours of the installed health colours' colour group <paramref name="group"/>.</summary>
-    private static RgbColor[] EyeSet(KraidColorCatalog colors, int group) =>
-        [.. Enumerable.Range(KraidPalettes.BandColors * group + KraidPalettes.FirstEyeColour, KraidEyeGlow.Eyes)
+    /// <summary>The eyes' colours of the installed health colours' band <paramref name="band"/>.</summary>
+    private static RgbColor[] EyeSet(KraidColorCatalog colors, KraidHealthSequenceBand band) =>
+        [.. Enumerable.Range(band.FirstColour + KraidPalettes.FirstEyeColour, KraidEyeGlow.Eyes)
             .Select(colour => Resolve(colors, KraidPaletteSource.Health, colour))];
 }

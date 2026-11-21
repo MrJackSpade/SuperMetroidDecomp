@@ -31,8 +31,7 @@ internal static class PaletteFxRecordShades
         Ensure.NotNull(colours);
         PaletteFxRecord record = PaletteFxRecord.Of(frame);
         int ink = inks.First;
-        var written = new List<int>();
-        var shades = new List<RgbColor>();
+        var written = new Dictionary<int, RgbColor>();
         int colour = 0;
         foreach (PaletteFxRecordPart part in PaletteFxRecordDefinitions.Layout(record))
         {
@@ -47,10 +46,9 @@ internal static class PaletteFxRecordShades
                     throw new InvalidDataException($"Palette-FX frame {frame} writes {group} past its colour group.");
                 if (!colours.TryReadColor(new PaletteFxColorKey(record, colour), out RgbColor shown))
                     throw new InvalidDataException($"Palette-FX colour {colour} of frame {frame} is missing from the import's palette-effect colours.");
-                written.Add(ink);
-                shades.Add(shown);
+                written.Add(ink, shown);
             }
         }
-        return new SheetShade(ColourEffectShades.Of(group, frame), [.. written], [.. shades]);
+        return SheetShade.Of(ColourEffectShades.Of(group, frame), written);
     }
 }

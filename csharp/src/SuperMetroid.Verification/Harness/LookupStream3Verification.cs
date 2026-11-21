@@ -995,7 +995,7 @@ internal static class LookupStream3Verification
             scatter.Encounter.Body.Position = FixedPosition<RoomPixels>.FromWhole(new(320, 192));
             for (int burst = 0; burst < 8; burst++)
             {
-                bursts.burstWait = UpdateCountdown.For(1);
+                bursts.burstWait.PlaceAt(UpdateCountdown.For(1));
                 int calls = 0;
                 Func<int> random = () => { calls++; return ushort.MaxValue; };
                 var requests = new List<MotherBrainDeathExplosionRequest>();

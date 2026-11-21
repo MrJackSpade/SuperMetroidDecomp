@@ -51,7 +51,7 @@ internal static class SuperMetroidGameAccess
                 throw new InvalidOperationException(
                     "A prepared runtime must be built over its game's random-number word; pass the game's word to the runtime fixture.");
             self.Session.audio.Reset();
-            self.Session.runtime = runtime;
+            self.Session.Runtime = runtime;
         }
 
         /// <summary>

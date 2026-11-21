@@ -147,9 +147,7 @@ internal sealed class FrontendSession
     private T RequireScreen<T>(string what)
         where T : class, IFrontendScreen => Screen as T ?? throw new InvalidOperationException($"The {what} is not running.");
     /// <summary>Live gameplay runtime, absent during frontend-only phases.</summary>
-    private SuperMetroidRuntime? runtime;
-    /// <summary>Live gameplay runtime, absent during frontend-only phases.</summary>
-    internal SuperMetroidRuntime? Runtime => runtime;
+    internal SuperMetroidRuntime? Runtime { get; set; }
     /// <summary>The state of the opening title sequence, which exists only while that phase runs.</summary>
     internal TitleSequenceState ActiveTitle => RequireScreen<TitleSequenceState>("opening title sequence");
     /// <summary>The state of the file-select menu, which exists only while that phase runs.</summary>
@@ -167,7 +165,7 @@ internal sealed class FrontendSession
     /// <summary>The state of the pause menu, which exists only while that phase runs.</summary>
     internal PauseMenuState ActivePauseMenu => RequireScreen<PauseMenuState>("pause menu");
     /// <summary>The live gameplay runtime; gameplay phases run only while a game is loaded.</summary>
-    internal SuperMetroidRuntime GameplayRuntime => runtime ??
+    internal SuperMetroidRuntime GameplayRuntime => Runtime ??
         throw new InvalidOperationException("No gameplay runtime is loaded; this phase runs only during gameplay.");
     /// <summary>The options every selected game starts with: unchosen until the options menu first closes.</summary>
     internal GameplayOptionsChoice OptionsChoice { get; private set; } = GameplayOptionsChoice.Unchosen;
@@ -409,9 +407,9 @@ internal sealed class FrontendSession
         // Demo loading suppresses room music; the demo's sound switch suppresses
         // scene SFX while the title track continues. Do not replace it with each
         // demo room's normal area music.
-        if (runtime?.AttractDemo.IsAttractDemo == true)
+        if (Runtime?.AttractDemo.IsAttractDemo == true)
             return;
-        if (runtime?.Room.ActiveRoom?.State is { } roomState &&
+        if (Runtime?.Room.ActiveRoom?.State is { } roomState &&
             roomState != LastAudioRoomState)
         {
             // Door setup loads music data. The track is selected
@@ -424,20 +422,20 @@ internal sealed class FrontendSession
         }
         // The music this room's enemies start is queued after the room's own, with the shortest delay. Before the
         // first room load, such as while a Ceres save starts its destruction cinematic, there are no enemies.
-        if (runtime?.Room.Scope is { Enemies: var enemies } &&
-            (runtime != _startMusicQueuedForRuntime || runtime.Room.RoomsLoaded != _startMusicQueuedForRoomLoad))
+        if (Runtime?.Room.Scope is { Enemies: var enemies } &&
+            (Runtime != _startMusicQueuedForRuntime || Runtime.Room.RoomsLoaded != _startMusicQueuedForRoomLoad))
         {
             foreach (MusicRequest request in enemies.Audio.RoomStartMusic)
                 audio.QueueMusic(request);
-            _startMusicQueuedForRuntime = runtime;
-            _startMusicQueuedForRoomLoad = runtime.Room.RoomsLoaded;
+            _startMusicQueuedForRuntime = Runtime;
+            _startMusicQueuedForRoomLoad = Runtime.Room.RoomsLoaded;
         }
 
         // The message box runs outside gameplay: the save choice's move, the gunship's saving sound as its accepted prompt
         // closes and the gunship's pad opening as its prompt returns are events of the box's updates, taken once, so
         // updates that only show the box cannot repeat them. Each update of the box makes at most one of them.
-        if (runtime is not null)
-            foreach (SoundRequest sound in runtime.MessageBoxes.TakeSounds())
+        if (Runtime is not null)
+            foreach (SoundRequest sound in Runtime.MessageBoxes.TakeSounds())
                 audio.QueueSound(sound);
     }
     /// <summary>
@@ -456,7 +454,7 @@ internal sealed class FrontendSession
     /// </summary>
     internal void BeginTimeUp()
     {
-        SuperMetroidRuntime live = runtime ?? throw new InvalidOperationException("Time-up requires a gameplay runtime.");
+        SuperMetroidRuntime live = Runtime ?? throw new InvalidOperationException("Time-up requires a gameplay runtime.");
         // A white-out the AUTO reserves' refill interrupted goes on from where it stood when the game returns to the time-up
         // (#2518): the refill neither steps nor restarts it, so its colours stay part-whitened. Only the time-up's own
         // black-out ends the white-out, and the death that ends the other gameplay fade releases the runtime.
@@ -491,12 +489,12 @@ internal sealed class FrontendSession
     }
     /// <summary>Allocates and binds the gameplay owner without selecting a room.</summary>
     /// <param name="purpose">Whether the runtime plays a selected game, which takes the assists and menu options, or an attract demo.</param>
-    [System.Diagnostics.CodeAnalysis.MemberNotNull(nameof(runtime))]
+    [System.Diagnostics.CodeAnalysis.MemberNotNull(nameof(Runtime))]
     internal void CreateGameplayRuntime(GameplayRuntimePurpose purpose)
     {
-        runtime?.LeaveCameraFractions();
+        Runtime?.LeaveCameraFractions();
         bool attract = purpose == GameplayRuntimePurpose.AttractDemo;
-        runtime = GameplayRuntimeFactory.Create(new GameplayRuntimeStart
+        Runtime = GameplayRuntimeFactory.Create(new GameplayRuntimeStart
         {
             Purpose = purpose,
             Assists = attract ? GameplayAssists.None : Assists,
@@ -617,7 +615,7 @@ internal sealed class FrontendSession
             if (slot.StartupRoute == SaveStartupRoute.CeresElevatorArrival)
             {
                 // The save's progress is restored before the room loads, so the room's state and its enemies see it.
-                runtime.RoomLoader.RestoreSavedPlayerState(slot);
+                Runtime.RoomLoader.RestoreSavedPlayerState(slot);
                 SamusState ceresSamus = LoadCeresElevator();
                 slot.ApplyTo(ceresSamus);
                 EquipRestoredSamus(ceresSamus);
@@ -625,11 +623,11 @@ internal sealed class FrontendSession
                 return true;
             }
 
-            runtime.RoomLoader.InitializeSavedGame(slot);
+            Runtime.RoomLoader.InitializeSavedGame(slot);
             // Loading the save restores the controls and options it holds; the choices the player has made in the
             // options menu since replace them, as the game keeps them live.
             ApplySelectedGameOptions();
-            RoomStateSettings loadedState = runtime.Room.ActiveRoom?.State
+            RoomStateSettings loadedState = Runtime.Room.ActiveRoom?.State
                 ?? throw new InvalidOperationException(
                     "Saved-game appearance started without an active room state.");
             // Samus's appearance starts her fanfare and then the room's track behind it
@@ -697,8 +695,8 @@ internal sealed class FrontendSession
     /// <summary>Persists the automatic Landing Site checkpoint after the gunship lands.</summary>
     internal void HandleGunshipLandingSave()
     {
-        if (runtime is null ||
-            !AutomaticCheckpointSaver.TrySaveGunshipLanding(saves, runtime, SelectedSaveSlot))
+        if (Runtime is null ||
+            !AutomaticCheckpointSaver.TrySaveGunshipLanding(saves, Runtime, SelectedSaveSlot))
             return;
         RaiseSavesChanged();
     }
@@ -718,13 +716,13 @@ internal sealed class FrontendSession
     /// <summary>The session's random number generator, which the frontend and every gameplay runtime share.</summary>
     internal SharedRandom Random { get; }
     /// <summary>A soft reset discards every gameplay owner; the menu owners keep the random generator and the frame clock.</summary>
-    internal void DiscardRuntime() => runtime = null;
+    internal void DiscardRuntime() => Runtime = null;
     /// <summary>Transfers the camera position back to the frontend before dropping gameplay state.</summary>
     internal void ReleaseRuntime()
     {
         // File-map selection may release when no runtime was ever created.
-        runtime?.LeaveCameraFractions();
-        runtime = null;
+        Runtime?.LeaveCameraFractions();
+        Runtime = null;
     }
 
     /// <summary>

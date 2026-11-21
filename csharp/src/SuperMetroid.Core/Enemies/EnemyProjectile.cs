@@ -110,7 +110,7 @@ public sealed class EnemyProjectile
     /// cues and names its shot and touch animations. The spawner binds it with the kind; none until then. A projectile
     /// that ends keeps it, so the cues its animation publishes on the way out still reach their owner.
     /// </summary>
-    internal EnemyProjectileBehavior? Behavior { get; private set; }
+    internal EnemyProjectileBehavior? Behavior { get; set; }
     /// <summary>Gets the sheet and shading the projectile draws its own pictures with, as its spawner supplied them.</summary>
     public SpriteGraphics Graphics { get; internal set; }
 

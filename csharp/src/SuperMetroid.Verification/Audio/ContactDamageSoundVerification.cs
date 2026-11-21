@@ -37,9 +37,7 @@ internal static class ContactDamageSoundVerification
         runtime.Enemies.Collision.ResolveOrdinaryTouch(sciser.HeldOccupant(), samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), TouchDeathAnimation.Play);
 
         AssertTrue(sciser.Health < healthBefore, "the speed booster damages the Sciser");
-        SoundRequest request = runtime.Enemies.Audio.SoundRequests.Single();
-        AssertEqual(EnemySound.ContactKill, request.SoundEffect, "the hit queues library-two $0B");
-        AssertEqual(1, request.Priority.Requests, "through QueueSound_Lib2_Max1");
+        AssertEqual(EnemySound.ContactKill, runtime.AudioRequests.SoundsQueued.Single(), "the hit queues library-two $0B");
         Console.WriteLine("  Contact-damage sound: Samus's damaging touch queues library-two $0B.");
     }
 

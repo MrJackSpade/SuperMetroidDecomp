@@ -2,7 +2,6 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Operations;
-using SuperMetroid.EnsureAnalyzer.Contracts;
 using SuperMetroid.ReachabilityAudit.Analysis;
 using SuperMetroid.ReachabilityAudit.Declarations;
 using SuperMetroid.ReachabilityAudit.SolutionLoading;
@@ -10,22 +9,15 @@ using SuperMetroid.ReachabilityAudit.SolutionLoading;
 namespace SuperMetroid.ArchitectureAudit;
 
 /// <summary>
-/// The test-only-member census (#2570): every product member, and every accessor, wider than its production use only so
-/// that checks can reach it. A product member (field, property accessor, method, constructor or event) that is not
-/// private, that a check reaches, and that no shipped or developer-tool code outside its own type reaches the same way,
-/// is listed: it is made private (checks observe it through public behaviour, a test-support access extension or
-/// <c>PrivateState</c>) or removed.
+/// The test-only-member census (#2570, #2602): every way of reaching a product member (a field or method as a whole, a
+/// property's read or its write) that checks use and production never does. Such a way exists only for checks: a state
+/// value bag a check reads, or a write only a check makes. It is deleted, and the checks that used it are rewritten to
+/// drive the game and assert what it observably does. A member production uses inside its own type that a check also
+/// needs is <c>internal</c> and the check calls it directly (#2602): its own type's use is production use.
 /// <para>
-/// Checks are the files only verification projects compile. Code a member's own type (or a type nested in it) runs is not
-/// counted, since a private member serves it; what System.Text.Json reads or binds of a payload shipped code serializes is
-/// production use. A member production never uses at all is dead code, which the reachability prune moves into
-/// test-support with what it reaches, reaching private state through the same private-access members (#2570), so the
-/// census leaves it to the prune. The architecture audit's push gate fails on every finding.
-/// </para>
-/// <para>
-/// A private member, or a private accessor, is listed too when a check names it: a check binds to it only when nothing
-/// stands in for it, so its generated private-access member is missing, and the fix regenerates that member. The
-/// generated classes can therefore be deleted and rebuilt from the checks that name them.
+/// Checks are the files only verification projects compile. What System.Text.Json reads or binds of a payload shipped code
+/// serializes is production use. A member production never uses at all is dead code, which the reachability prune
+/// removes, so the census leaves it to the prune. The architecture audit's push gate fails on every finding.
 /// </para>
 /// </summary>
 internal static class TestOnlyMembers
@@ -94,57 +86,34 @@ internal static class TestOnlyMembers
         var used = uses.Values.GroupBy(use => use.Member, SymbolEqualityComparer.Default)
             .Where(member => member.Any(use => use.Production + use.InsideReads + use.InsideWrites != 0))
             .Select(member => member.Key!).ToHashSet(SymbolEqualityComparer.Default);
-        // A member production never uses at all is dead code the reachability prune moves into test-support, which the
-        // asynchronous cleanup runs after each push; only a member production uses, but more widely than it needs, is a finding.
-        return [.. uses.Values.Where(use => use.Checks != 0 && use.Production == 0 && used.Contains(use.Member))
-            .Select(use => new TestOnlyMemberFinding(use, Shape(use, used: true)))];
+        // A member production never uses at all is dead code the reachability prune removes, which the asynchronous cleanup
+        // runs after each push; a way of reaching a member production uses that only checks take is a finding. Code of the
+        // member's own type is production use of it (#2602).
+        return [.. uses.Values.Where(use => use.Checks != 0 && use.Production + InsideUses(use) == 0 && used.Contains(use.Member))
+            .Select(use => new TestOnlyMemberFinding(use, Unneeded))];
+
     }
 
-    /// <summary>One line per finding, in file order, for the census; the private-state calls naming a missing member follow.</summary>
+    /// <summary>One line per finding, in file order, for the census.</summary>
     public static List<string> Census(LoadedSolution solution) =>
         [.. Collect(solution).Select(finding => $"{Describe(solution.RepositoryRoot, finding.Uses.Member)} is flagged [{Finding}] " +
-                $"({finding.Shape}): no product code outside {finding.Uses.Member.ContainingType.Name} {Verb(finding.Uses.Way)} it, " +
+                $"({finding.Shape}): no product code {Verb(finding.Uses.Way)} it, " +
                 $"but {finding.Uses.Checks} check site(s) do, first {finding.Uses.FirstCheck}.")
-            .Concat(MissingPrivateStateMembers(solution))
             .Order(StringComparer.Ordinal)];
 
-    /// <summary>
-    /// Every private-state call in a check that names a member its owner does not have (SME6477, #2570), judged against the
-    /// owner's source: a build sees only the product's metadata, which holds no private member, so SME6477 cannot.
-    /// </summary>
-    private static IEnumerable<string> MissingPrivateStateMembers(LoadedSolution solution)
+    /// <summary>The uses of a way of reaching a member that its own type's code makes: a read for a read, a write for a write.</summary>
+    private static int InsideUses(MemberUses use) => use.Way switch
     {
-        foreach (var (compilation, tree, file, check) in FirstCompilations(solution))
-        {
-            if (!check)
-                continue;
-            foreach (InvocationExpressionSyntax invocation in tree.GetRoot().DescendantNodes().OfType<InvocationExpressionSyntax>())
-            {
-                if (invocation.Expression is not MemberAccessExpressionSyntax { Expression: var state } || !state.ToString().EndsWith("PrivateState", StringComparison.Ordinal) ||
-                    SemanticModels.At(compilation, tree, invocation).GetOperation(invocation) is not IInvocationOperation operation ||
-                    PrivateStateMembers.MissingMember(operation) is not { } missing)
-                    continue;
-                yield return $"{file}:{missing.Site.GetLocation().GetLineSpan().StartLinePosition.Line + 1}: {missing.Call} names the " +
-                    $"{missing.Kind} '{missing.Name}', which {missing.Owner.ToDisplayString(SymbolDisplayFormat.CSharpErrorMessageFormat)} " +
-                    "does not have [SME6477].";
-            }
-        }
-    }
+        Write => use.InsideWrites,
+        _ => use.InsideReads,
+    };
 
     /// <summary>
-    /// What production does with a test-only way of reaching a member: its own type reaches it that way (<c>narrow</c>:
-    /// the way becomes private), production uses the member but never this way (<c>unneeded</c>: the way leaves production,
-    /// a write-only field included), or production never uses the member (<c>unused</c>: it leaves production).
+    /// What production does with a test-only way of reaching a member: it uses the member but never this way, so the way
+    /// leaves production (a write-only field included).
     /// </summary>
-    private static string Shape(MemberUses use, bool used)
-    {
-        bool inside = use.Way switch
-        {
-            Write => use.InsideWrites != 0,
-            _ => use.InsideReads != 0,
-        };
-        return inside ? "narrow" : used ? "unneeded" : "unused";
-    }
+    private const string Unneeded = "unneeded";
+
 
     /// <summary>
     /// Each repository source file with the first project that compiles it, as the module inventory binds it, so the two

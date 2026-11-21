@@ -468,7 +468,8 @@ internal static class RidleyFullMovieVerification
         AssertEqual((ushort)4, dust.Position.X.Whole, "native tail impact dust X");
         AssertEqual((ushort)130, dust.Position.Y.Whole, "native tail impact dust Y includes twelve-pixel offset");
         AssertTrue(dust.Animation is DustExplosionProjectileAnimation { PlayingSegment: DustExplosionAnimation.SmallDustCloud }, "native impact selects variant nine");
-        AssertTrue(runtime.Enemies.Audio.SoundRequests.Any(request => request.SoundEffect == EnemySound.Quake && request.Priority.Requests == 6), "native impact queues the quake sound");
+        AssertTrue(runtime.AudioRequests.SoundsQueued.Contains(EnemySound.Quake), "native impact queues the quake sound");
+
         Console.WriteLine("Ridley tail impact: native dust slot, position, instruction variant and sound pass.");
     }
 
@@ -642,17 +643,17 @@ internal static class RidleyFullMovieVerification
             {
                 menu.Step(0, 0);
                 AssertEqual(source, menu.ScreenMode, "source page remains through fade-out");
-                AssertEqual(15 - update, menu.TransitionBrightness, "native zero-delay fade-out brightness");
+                AssertEqual(15 - update, menu.TransitionBrightness.StepsAboveBlack, "native zero-delay fade-out brightness");
             }
             AssertEqual(new PausePageTransition(destination, PausePageTransitionStage.Load),
                 menu.Transition, "black frame returns into separate load dispatcher");
             menu.Step(0, 0);
             AssertEqual(destination, menu.ScreenMode, "separate load dispatch installs destination");
-            AssertEqual(0, menu.TransitionBrightness, "load dispatch remains black");
+            AssertEqual(0, menu.TransitionBrightness.StepsAboveBlack, "load dispatch remains black");
             for (int update = 1; update <= 30; update++)
             {
                 menu.Step(0, 0);
-                AssertEqual(update / 2, menu.TransitionBrightness, "native delay-one fade-in brightness");
+                AssertEqual(update / 2, menu.TransitionBrightness.StepsAboveBlack, "native delay-one fade-in brightness");
                 AssertEqual(update == 30, menu.Transition is null,
                     "input returns only after the thirtieth fade-in update");
             }

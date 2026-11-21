@@ -3,8 +3,8 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>
-/// The playback of a projectile's timeline animation, which production keeps private (#2570): checks read and set where
-/// the animation stands through <see cref="PrivateState"/>. The methods serve a family whose animation derives through
+/// The playback of a projectile's timeline animation, which its own updates advance (#2570, #2602): checks read and set
+/// where the animation stands. The methods serve a family whose animation derives through
 /// another generic animation, from which C# infers their type arguments but no extension block's.
 /// </summary>
 internal static class EnemyProjectileTimelineAnimationAccess

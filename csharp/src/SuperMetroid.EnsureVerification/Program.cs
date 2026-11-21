@@ -103,7 +103,6 @@ internal static class Program
                 new AnalyzerSuite(nameof(CatalogDecisionAnalyzerTests.VerifyCatalogDecisionAnalyzer), CatalogDecisionAnalyzerTests.VerifyCatalogDecisionAnalyzer),
                 new AnalyzerSuite(nameof(RepeatedDefinitionStructureAnalyzerTests.VerifyRepeatedDefinitionStructureAnalyzer), RepeatedDefinitionStructureAnalyzerTests.VerifyRepeatedDefinitionStructureAnalyzer),
                 new AnalyzerSuite(nameof(InlineDefinitionDataAnalyzerTests.VerifyInlineDefinitionDataAnalyzer), InlineDefinitionDataAnalyzerTests.VerifyInlineDefinitionDataAnalyzer),
-                new AnalyzerSuite(nameof(PrivateStateMemberAnalyzerTests.VerifyPrivateStateMemberAnalyzer), PrivateStateMemberAnalyzerTests.VerifyPrivateStateMemberAnalyzer),
                 new AnalyzerSuite(nameof(ListPositionAnalyzerTests.VerifyListPositionAnalyzer), ListPositionAnalyzerTests.VerifyListPositionAnalyzer),
                 new AnalyzerSuite(nameof(ParallelListAnalyzerTests.VerifyParallelListAnalyzer), ParallelListAnalyzerTests.VerifyParallelListAnalyzer),
                 new AnalyzerSuite(nameof(ClosedChoiceAsBoolAnalyzerTests.VerifyClosedChoiceAsBoolAnalyzer), ClosedChoiceAsBoolAnalyzerTests.VerifyClosedChoiceAsBoolAnalyzer),

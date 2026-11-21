@@ -525,7 +525,8 @@ internal static void VerifySamusGroundedMovement()
     {
         Pose = SamusPoseId.ForwardFacingPowerSuitPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(0x1234, 0x5678)),
-        } with { SolidVerticalCollisionResult = SamusVerticalCollisionResult.HitCeiling });
+        SolidVerticalCollisionResult = SamusVerticalCollisionResult.HitCeiling
+        });
     forward.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(2, 0x3456);
     forward.HorizontalSpeed.ExtraRunSpeed = forward.HorizontalSpeed.ExtraRunSpeed.WithWhole(1);
     SamusGroundedMovement.StepFacingForward(

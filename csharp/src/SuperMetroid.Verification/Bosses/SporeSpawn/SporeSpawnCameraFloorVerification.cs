@@ -100,7 +100,8 @@ internal static class SporeSpawnCameraFloorVerification
         Array.Fill(storage, (byte)1);
         var camera = (new ScrollBoundaryCamera(RoomScrollGrid.LoadNativeTable(storage, new Extent16<RoomScreens>(1, 3)))
         {
-            } with { Position = FixedPosition<RoomPixels>.FromStoredParts(0x0010, 0x1234, y, 0x5678) });
+            Position = FixedPosition<RoomPixels>.FromStoredParts(0x0010, 0x1234, y, 0x5678),
+        });
         return camera;
     }
 

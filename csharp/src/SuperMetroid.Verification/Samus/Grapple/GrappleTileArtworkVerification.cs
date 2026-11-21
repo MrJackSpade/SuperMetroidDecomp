@@ -46,7 +46,7 @@ internal static class GrappleTileArtworkVerification
             AssertTrue(SameGraph(native, selected), "Grapple draws preserve entire rope/animation simulation state");
             // The binding holds the endpoint frame's character, then the angle sector's four rope characters, exactly
             // as the cartridge uploads them to $6200/$6210.
-            SpriteArtwork stockTiles = stock.Tiles(selected.PointAnimationFrame, GrappleRopeOrientations.For(selected.Angle));
+            SpriteArtwork stockTiles = stock.Tiles(selected.Endpoint.Shown ?? throw new InvalidOperationException("The grapple shows no endpoint."), GrappleRopeOrientations.For(selected.Angle));
             byte[] nativeTiles = [.. RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
                     GrapplePointAnimationNative.SourceAddress(selected.PointAnimationFrame), SpriteArtwork.CharacterByteCount),
                 .. RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),

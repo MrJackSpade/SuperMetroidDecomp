@@ -48,7 +48,7 @@ public sealed class BabyMetroidCutsceneState
     public const int YHitboxRadius = 36;
 
     /// <summary>The entrance's current phase.</summary>
-    public BabyMetroidCutscenePhase Phase { get; private set; } =
+    public BabyMetroidCutscenePhase Phase { get; internal set; } =
         BabyMetroidCutscenePhase.Inactive;
 
     /// <summary>
@@ -76,7 +76,7 @@ public sealed class BabyMetroidCutsceneState
     public FixedPosition<RoomPixels> Position
     {
         get => Place.Position;
-        private set => Place.Position = value;
+        internal set => Place.Position = value;
     }
 
     /// <summary>
@@ -110,7 +110,7 @@ public sealed class BabyMetroidCutsceneState
     public int Health
     {
         get => Place.Health;
-        private set => Place.Health = value;
+        internal set => Place.Health = value;
     }
 
     /// <summary>

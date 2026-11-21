@@ -272,7 +272,7 @@ internal static class NativeSnapshotMotherBrainImport
         // Once the sequence runs, the sub-function word holds the bursts' interval; their place was imported with the
         // encounter, whose cycle the sequence shares.
         // The cartridge's interval runs below zero on the update a burst is due: a count at zero or below is due next.
-        state.Bursts.burstWait = UpdateCountdown.For(Math.Max(0, CoordinateAxis.AsSigned(W(MotherBrainMemory.BrainSubFunction))) + 1);
+        state.Bursts.burstWait.PlaceAt(UpdateCountdown.For(Math.Max(0, CoordinateAxis.AsSigned(W(MotherBrainMemory.BrainSubFunction))) + 1));
     }
 
     /// <summary>The phases of her rise from which it has placed her body with her (#1949, #2031).</summary>

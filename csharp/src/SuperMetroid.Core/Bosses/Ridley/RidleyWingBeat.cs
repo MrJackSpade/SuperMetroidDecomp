@@ -18,7 +18,7 @@ public sealed class RidleyWingBeat
     }
 
     /// <summary>Gets the pose of the beat the wings show.</summary>
-    public ListStep<RidleyWingPose> Pose { get; private set; }
+    public ListStep<RidleyWingPose> Pose { get; internal set; }
 
     /// <summary>Gets the countdown to the wings' next pose, which starts again from <see cref="RidleyWingDefinitions.BeatCountdown"/> once it runs below zero.</summary>
     public PacedCountdown Countdown { get; } = new();

@@ -19,7 +19,7 @@ namespace SuperMetroid.Core.Audio;
 internal class GameplaySoundRequests(IGameplaySoundQueue sounds)
 {
     /// <summary>The sound queues the requests go on into.</summary>
-    private readonly IGameplaySoundQueue sounds = Ensure.NotNull(sounds);
+    internal readonly IGameplaySoundQueue sounds = Ensure.NotNull(sounds);
 
     /// <summary>
     /// Requests <paramref name="request"/>'s sound now, after the update's earlier sound requests, returning what its queue

@@ -8,6 +8,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Beetom;
 using SuperMetroid.Core.Enemies.Beetom.Artwork;
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Enemies.Beetom;
@@ -58,10 +59,18 @@ internal static class BeetomInstructionProgramDefinitionsVerification
         RunBeetomLoop(processArguments, place, state, BeetomSegment.CrawlingRight, callsThroughGoto: 5);
         AssertTrue(!place.Processing.HasAny(EnemyProcessing.OffScreen), "right crawl stops off-screen processing");
 
+        // Each hop runs through the Beetom's own update: its choice armed a short hop toward its heading, which its next
+        // update starts in an open room, far from Samus.
+        RoomLevelData openRoom = VerificationHelpersVerification.CreateEmptyRoom(new(64, 32));
         foreach ((bool left, BeetomSegment hop) in new[] { new BeetomInstructionProgramDefinitionsVerifyBeetomInstructionProgramDefinitionsCase(true, BeetomSegment.HopLeft), new BeetomInstructionProgramDefinitionsVerifyBeetomInstructionProgramDefinitionsCase(false, BeetomSegment.HopRight) })
         {
-            BeetomBehavior.StartBeetomHop(place, state, left ? HorizontalDirection.Left : HorizontalDirection.Right, BeetomHopLength.Short);
+            state.Begin(BeetomAction.StartShortHop, left ? HorizontalDirection.Left : HorizontalDirection.Right);
+            enemies.BeetomBehavior.RunBeetomMainAi(place, new ClockedEnemyAiFrame(
+                RoomEnemyFrameFixtures.Standalone(openRoom, 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = samus },
+                new FrameCounters(SuperMetroid.Core.Compatibility.ShortFrameCount.Zero)));
+            AssertEqual(BeetomAction.ShortHopRising, state.Action, $"the Beetom's update starts its {hop}");
             AssertEqual(new AnimationPlayback<BeetomSegment>(BeetomAnimations.StartingWith(hop), AnimationPlace.StartOfAnimation), state.Playback, $"{hop} is installed");
+
             RunBeetomCalls(processArguments, place, 5);
             AnimationPlayback<BeetomSegment> held = state.Playback;
             RunBeetomCalls(processArguments, place, 2);

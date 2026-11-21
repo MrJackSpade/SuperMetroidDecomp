@@ -7,6 +7,6 @@ internal static class EndingPostCreditsTextAccess
     extension(EndingPostCreditsText self)
     {
         /// <summary>The typed texts the screen shows, in the order they started.</summary>
-        internal IReadOnlyList<EndingTypewriter> Typed => self.typed;
+        internal IReadOnlyList<EndingTypewriter> Typed => [.. self.typed.Values];
     }
 }

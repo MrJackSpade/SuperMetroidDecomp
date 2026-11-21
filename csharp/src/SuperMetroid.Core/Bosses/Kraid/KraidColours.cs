@@ -15,7 +15,7 @@ internal sealed class KraidColours : IGameplayShadingSource
     /// What his body shows (#2297, #2560): his room's own colours, a health band's or the hurt flash's shade, or his death
     /// colours, beside the shade his parts keep showing.
     /// </summary>
-    private BodyShown Shown { get; set; } = new RoomColours();
+    internal BodyShown Shown { get; set; } = new RoomColours();
 
     /// <summary>The colours his band's shade shows his eyes in, which his eyes' glow replaces.</summary>
     private RgbColor[] shadedEyes = [];
@@ -94,7 +94,7 @@ internal sealed class KraidColours : IGameplayShadingSource
 
     /// <summary>What his body shows (#2560), each case with the shade his parts show.</summary>
     /// <param name="PartsShade">The shade his parts show: the last band's or hurt flash's, or null before any.</param>
-    private abstract record BodyShown(PictureShade? PartsShade);
+    internal abstract record BodyShown(PictureShade? PartsShade);
 
     /// <summary>His room's own colours, before any band or hurt flash.</summary>
     private sealed record RoomColours() : BodyShown((PictureShade?)null);
@@ -112,5 +112,5 @@ internal sealed class KraidColours : IGameplayShadingSource
 
     /// <summary>His death colours on his body; his parts keep the last shade shown.</summary>
     /// <param name="PartsShade">The shade his parts show.</param>
-    private sealed record DeathColours(PictureShade? PartsShade) : BodyShown(PartsShade);
+    internal sealed record DeathColours(PictureShade? PartsShade) : BodyShown(PartsShade);
 }

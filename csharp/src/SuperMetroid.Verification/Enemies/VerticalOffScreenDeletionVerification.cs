@@ -28,7 +28,8 @@ internal static class VerticalOffScreenDeletionVerification
             var projectile = (new EnemyProjectile(0, default, RoomEnemyProjectileKind.NoobTubeShard)
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(0, y)),
-            } with { Kind = RoomEnemyProjectileKind.NoobTubeShard });
+                Kind = RoomEnemyProjectileKind.NoobTubeShard
+            });
             EnemyProjectileEngine.DeleteEnemyProjectileIfVerticallyOffScreen(projectile, cameraY);
             AssertEqual(kept, projectile.IsActive, label);
         }

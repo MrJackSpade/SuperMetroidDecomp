@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Audio;
 internal sealed class GameplayAudioRequests(IGameplaySoundQueue sounds, IGameplayMusicQueue music) : GameplaySoundRequests(sounds)
 {
     /// <summary>The music queue the requests go on into.</summary>
-    private readonly IGameplayMusicQueue music = Ensure.NotNull(music);
+    internal readonly IGameplayMusicQueue music = Ensure.NotNull(music);
 
     /// <summary>Schedules <paramref name="request"/> now, after the update's earlier music requests.</summary>
     internal void ScheduleMusic(DelayedMusicRequest request) => QueueMusic(new GameplayMusicRequest.Scheduled(request));

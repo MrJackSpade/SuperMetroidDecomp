@@ -475,7 +475,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
                 KraidHurtFlashShade shown = consumer == KraidPaletteConsumer.HealthFlash
                     ? KraidHurtFlashShade.HurtColours : KraidHurtFlashShade.BandColours;
                 new Action<RoomEnemyPlace, KraidEnemyState, KraidHurtFlashShade>(enemies.KraidBehavior.Head.UpdateKraidHealthColours)(body, state, shown);
-                PictureShade shade = state.Colours.Shown ?? throw new InvalidOperationException("Kraid's health update shows no shade.");
+                PictureShade shade = state.Colours.Shown.PartsShade ?? throw new InvalidOperationException("Kraid's health update shows no shade.");
                 AssertEqual(consumer == KraidPaletteConsumer.HealthFlash, shade == KraidShades.HurtFlash, $"Kraid's {consumer} update shows the hurt flash only on its flash");
                 AssertEqual(PictureShading.Shaded(shade), body.Shading, $"Kraid's body slot draws in {shade}");
                 // His body shows the band's shade over its sixth tile colours, his parts over their sprite row.
@@ -501,7 +501,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
             }
             case KraidPaletteConsumer.DeathArm:
                 enemies.KraidBehavior.Death.InitializeKraidDeath(state, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus());
-                AssertTrue(state.Colours.ShowsDeathArm, "Kraid's death shows his death colours");
+                AssertTrue(state.Colours.Shown is KraidColours.DeathColours, "Kraid's death shows his death colours");
                 Lay(colours, BossSheetShades.Body(BossBodyOwner.Kraid, artwork.Bosses, [], SpriteImageColours.Background, new RgbColor[ImageColourGroup.HalfColours]),
                     KraidShades.DeathArm, 0);
                 break;

@@ -58,8 +58,7 @@ internal static class BeamImpactSoundVerification
             runtime.StepFrame(0);
             if (!exploding && runtime.Projectiles.Shots[0].HeldShot().Type.IsFamily(SamusProjectileFamily.BeamExplosion))
             {
-                AssertTrue(runtime.AudioRequests.SoundRequests.Contains(
-                        new SoundRequest(EnemySound.BeamImpact, SoundRequestPriority.Normal)),
+                AssertTrue(runtime.AudioRequests.SoundsQueued.Contains(EnemySound.BeamImpact),
                     "the frame a beam hits the wall requests library-two $0C at normal priority");
                 Console.WriteLine("  Beam impact sound: a wall hit requests library-two $0C at normal priority.");
                 return;

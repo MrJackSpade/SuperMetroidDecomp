@@ -67,7 +67,8 @@ internal static class SamusOverreadHeldPoseFramesVerification
         {
             Pose = SamusPoseId.DraygonHeldBallLeftPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0100)),
-            } with { SolidVerticalCollisionResult = SamusVerticalCollisionResult.Landed });
+            SolidVerticalCollisionResult = SamusVerticalCollisionResult.Landed
+            });
         SamusDraygonGrabbedState.StepMovement(samus);
         AssertEqual(SamusVerticalCollisionResult.None, samus.SolidVerticalCollisionResult, "the Draygon-held ball's movement clears the vertical collision result");
         AssertEqual(0x0080, samus.Position.X.Whole, "the Draygon-held ball does not move horizontally");

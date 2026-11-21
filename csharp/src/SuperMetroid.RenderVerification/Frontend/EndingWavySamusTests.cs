@@ -30,8 +30,8 @@ internal static class EndingWavySamusTests
         scene.InstalledArtwork.ShowCreditsColours();
         scene.CreditsRoll.SetupPostCreditsBlank();
         // The ending stands on the backdrop fade's last update.
-        var lastFadeUpdate = UpdateCountdown.Lasting(EndingSequenceDefinitions.Timing.WaitingBackdropFadeSteps);
-        lastFadeUpdate.Age = EndingSequenceDefinitions.Timing.WaitingBackdropFadeSteps - 1;
+        var lastFadeUpdate = UpdateCountdownAccess.AtAge(EndingSequenceDefinitions.Timing.WaitingBackdropFadeSteps,
+            EndingSequenceDefinitions.Timing.WaitingBackdropFadeSteps - 1);
         scene.ShowCastPhase(EndingCreditsPhase.PostCreditsShootingStars);
         scene.PhaseHold = lastFadeUpdate;
         scene.Stage.Fade.Show(DisplayBrightness.Full);

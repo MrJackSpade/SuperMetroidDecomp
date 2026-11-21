@@ -26,7 +26,7 @@ internal sealed class MotherBrainRainbowAttackPhases
     /// Rainbow-beam angular width: its narrowest when the beam starts, widening a step at a time up to its widest and
     /// narrowing back to its narrowest as it shuts down.
     /// </summary>
-    public RotationAngle AngularWidth { get; private set; }
+    public RotationAngle AngularWidth { get; internal set; }
 
     /// <summary>
     /// The beam's sound attempts (#2253): each continuing beam step makes one and counts it, until none are left.

@@ -175,7 +175,7 @@ internal sealed class SetCharacters
     }
 
     /// <summary>The characters with every look of each part up to the one <paramref name="combination"/> names copied in order.</summary>
-    private SpriteArtwork Page(PartLook[] combination)
+    internal SpriteArtwork Page(PartLook[] combination)
     {
         var key = new EncounterLookCombination(combination.Select(choice => choice.Look));
         if (pages.TryGetValue(key, out SpriteArtwork? page))
@@ -234,5 +234,5 @@ internal sealed class SetCharacters
     /// <summary>One part of a frame with the look a combination shows it in.</summary>
     /// <param name="Part">The part.</param>
     /// <param name="Look">The look of the part's encounter shown.</param>
-    private readonly record struct PartLook(FrameLookPart Part, ComposedLook Look);
+    internal readonly record struct PartLook(FrameLookPart Part, ComposedLook Look);
 }

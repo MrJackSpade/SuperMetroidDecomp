@@ -101,8 +101,8 @@ internal static class LookupStream5Verification
             VerifyInstalledCrocomireMeltingTilemap(oracle, catalog, source, phase == 0
                 ? CrocomireBodyAnimation.MeltingFleshTopRow : CrocomireBodyAnimation.MeltingBareSkullTopRow);
         }
-        var first = art.first;
-        var second = art.second;
+        var first = art.flesh;
+        var second = art.bareSkull;
         string expectedIdentity = SelectedPresentationHash.Create("enemy-crocomire-melt-v2", content =>
         {
             content.Append("first", first.Characters.Span); content.Append("second", second.Characters.Span);

@@ -201,7 +201,7 @@ internal static class NativeSnapshotImport
         samus.Presentation.DrawOrigin = Offset16<ScreenPixels>.Wrapped(W(NativeSnapshotMemory.SamusSpriteX), W(NativeSnapshotMemory.SamusSpriteY));
         samus.ArmCannon.Cover = ArmCannonCoverOf(memory[NativeSnapshotMemory.CannonFlags] != 0,
             memory[NativeSnapshotMemory.CannonFlags + 1] != 0, SamusArmCannonCoverNativeCodec.FromNative(W(NativeSnapshotMemory.CannonFrame)));
-        samus.ArmCannon.stability = UpdateCountdownAccess.AtAge(SamusArmCannonDefinitions.StableSelectionUpdates, W(NativeSnapshotMemory.CannonToggle));
+        samus.ArmCannon.stability.PlaceAt(UpdateCountdownAccess.AtAge(SamusArmCannonDefinitions.StableSelectionUpdates, W(NativeSnapshotMemory.CannonToggle)));
         samus.ArmCannon.DrawOrder = SuperMetroid.AssetExtraction.Samus.SamusArmCannonDrawOrderCodec.FromDrawingMode(W(NativeSnapshotMemory.CannonDrawingMode));
         new ProjectileInheritanceRecordsAccess(samus.ProjectileInheritance).Load(memory.AsSpan(NativeSnapshotMemory.ProjectileInheritancePrefix,
             NativeSnapshotMemory.SamusSlopeAdjusted - NativeSnapshotMemory.ProjectileInheritancePrefix));

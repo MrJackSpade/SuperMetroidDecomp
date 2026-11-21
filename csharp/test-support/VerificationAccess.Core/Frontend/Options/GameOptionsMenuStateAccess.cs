@@ -31,7 +31,7 @@ internal static class GameOptionsMenuStateAccess
                     break;
                 case GameOptionsPage.Controller:
                     for (int row = 0; row < GameOptionsPageRows.ControllerActions.Count; row++)
-                        presentation.ApplyControllerLabel(tiles, row, shown.Bindings[GameOptionsPageRows.ControllerActions[row]]);
+                        presentation.ApplyControllerLabel(tiles, GameOptionsPageRows.ControllerActions[row], shown.Bindings[GameOptionsPageRows.ControllerActions[row]]);
                     break;
                 case GameOptionsPage.Special:
                     presentation.ApplySpecialToggle(tiles, GameOptionsToggle.IconCancel, shown.IconCancelEnabled);

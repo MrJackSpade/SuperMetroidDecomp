@@ -196,7 +196,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Arms a short or long arc from its precomputed initial speed-curve place.</summary>
-    internal static void StartBeetomHop(
+    private static void StartBeetomHop(
         RoomEnemyPlace place,
         BeetomEnemyState state,
         HorizontalDirection direction,

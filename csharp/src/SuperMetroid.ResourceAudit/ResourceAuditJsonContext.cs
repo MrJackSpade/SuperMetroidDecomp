@@ -35,4 +35,5 @@ namespace SuperMetroid.ResourceAudit;
 [JsonSerializable(typeof(global::System.Collections.Generic.List<global::SuperMetroid.ResourceAudit.Reports.AuditConsumer>), TypeInfoPropertyName = "System_Collections_Generic_List_SuperMetroid_ResourceAudit_Reports_AuditConsumer")]
 [JsonSerializable(typeof(global::System.Collections.Generic.List<global::SuperMetroid.ResourceAudit.Reports.AuditCoverage>), TypeInfoPropertyName = "System_Collections_Generic_List_SuperMetroid_ResourceAudit_Reports_AuditCoverage")]
 [JsonSerializable(typeof(global::System.Collections.Generic.List<global::SuperMetroid.ResourceAudit.Reports.AuditFinding>), TypeInfoPropertyName = "System_Collections_Generic_List_SuperMetroid_ResourceAudit_Reports_AuditFinding")]
+[JsonSerializable(typeof(global::SuperMetroid.ResourceAudit.EnemyVisualPrograms.EnemyVisualProgramAudit.ProgramAuditDocument), TypeInfoPropertyName = "SuperMetroid_ResourceAudit_EnemyVisualPrograms_EnemyVisualProgramAudit_ProgramAuditDocument")]
 internal sealed partial class ResourceAuditJsonContext : JsonSerializerContext;

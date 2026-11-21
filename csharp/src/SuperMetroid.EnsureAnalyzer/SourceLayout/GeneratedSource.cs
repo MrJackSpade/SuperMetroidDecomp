@@ -9,6 +9,15 @@ namespace SuperMetroid.EnsureAnalyzer.SourceLayout;
 /// </summary>
 internal static class GeneratedSource
 {
+    /// <summary>
+    /// Whether <paramref name="tree"/> is code a source generator emitted into the compilation (#2602), such as a
+    /// System.Text.Json context's metadata: the compiler places a generator's output under the project's intermediate
+    /// <c>obj</c> directory, in a folder named for the generator, and marks it generated. An authored file is never
+    /// generator output, whatever header or name it carries.
+    /// </summary>
+    internal static bool IsSourceGeneratorOutput(SyntaxTree tree, CancellationToken cancellation) =>
+        tree.FilePath.Replace('\\', '/').Contains("/obj/", StringComparison.Ordinal) && IsGenerated(tree, cancellation);
+
     /// <summary>The compiler's generated-code conventions: file name suffixes and an auto-generated header comment.</summary>
     internal static bool IsGenerated(SyntaxTree tree, CancellationToken cancellation)
     {

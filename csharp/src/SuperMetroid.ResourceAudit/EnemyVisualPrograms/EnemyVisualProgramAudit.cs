@@ -20,6 +20,11 @@ internal static class EnemyVisualProgramAudit
     /// <summary>Records how many presentation operands a compiled instruction owner exposes.</summary>
     internal sealed record ProgramRow(int Operands);
 
+    /// <summary>The audit's written document: each program owner's row, then the audit's findings.</summary>
+    /// <param name="Programs">Each program owner's visual references.</param>
+    /// <param name="Audit">The audit's findings.</param>
+    internal sealed record ProgramAuditDocument(List<ProgramRow> Programs, AuditReport Audit);
+
     /// <summary>Inventories compiled enemy visual programs and writes their resource findings as JSON.</summary>
     internal static int Run(string root, string output)
     {
@@ -84,7 +89,7 @@ internal static class EnemyVisualProgramAudit
         report.Sort();
         string destination = Path.GetFullPath(output);
         Directory.CreateDirectory((Path.GetDirectoryName(destination) ?? throw new InvalidOperationException("Verification requires Path.GetDirectoryName(destination).")));
-        File.WriteAllText(destination, JsonSerializer.Serialize(new { programs = rows, audit = report }, AuditReport.JsonOptions));
+        File.WriteAllText(destination, JsonSerializer.Serialize(new ProgramAuditDocument(rows, report), global::SuperMetroid.ResourceAudit.ResourceAuditJson.Info<ProgramAuditDocument>(AuditReport.JsonOptions)));
         Console.WriteLine($"Enemy visual static audit: {rows.Count} program owners, {rows.Sum(row => row.Operands)} visual references; {report.MissingResourceCount} missing resources, {report.UnresolvedCount} unresolved. No ROM or gameplay.");
         foreach (AuditFinding finding in report.Findings.DistinctBy(item => new FindingKey(item.Owner, item.Resource, item.Message)))
             Console.WriteLine($"{finding.Code} {finding.Owner} {finding.Resource}: {finding.Message}");

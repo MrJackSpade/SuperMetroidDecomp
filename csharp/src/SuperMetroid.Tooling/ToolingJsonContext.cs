@@ -140,4 +140,5 @@ namespace SuperMetroid.Tooling;
 [JsonSerializable(typeof(global::System.Collections.Generic.List<string>), TypeInfoPropertyName = "System_Collections_Generic_List_string")]
 [JsonSerializable(typeof(int[]), TypeInfoPropertyName = "intA")]
 [JsonSerializable(typeof(ushort[]), TypeInfoPropertyName = "ushortA")]
+[JsonSerializable(typeof(global::SuperMetroid.Diagnostics.Sessions.InstalledGameSession.RecordingSeed), TypeInfoPropertyName = "SuperMetroid_Diagnostics_Sessions_InstalledGameSession_RecordingSeed")]
 internal sealed partial class ToolingJsonContext : JsonSerializerContext;

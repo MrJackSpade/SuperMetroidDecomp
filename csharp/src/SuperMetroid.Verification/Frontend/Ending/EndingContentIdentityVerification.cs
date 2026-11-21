@@ -170,7 +170,7 @@ internal static class EndingContentIdentityVerification
         string? edit = null, bool reverse = false)
     {
         MemoryStream Json(object document) => new(JsonSerializer.SerializeToUtf8Bytes(document,
-            (edit == "json-indent" ? CamelCaseIndentedJson : CamelCaseJson)));
+            global::SuperMetroid.Verification.VerificationJson.Info(document.GetType(), (edit == "json-indent" ? CamelCaseIndentedJson : CamelCaseJson))));
 
 
         RoomBackgroundTilemapAtlas Map(string name, int seed = 0)
@@ -238,7 +238,7 @@ internal static class EndingContentIdentityVerification
                 }
                 frames.Add(key, parts);
             }
-            return Json(new { Version = version, Frames = frames });
+            return Json(new SuperMetroid.Verification.Frontend.SpriteFramesFixtureDocument(version, frames));
         }
 
         RoomBackgroundTilemapAtlas[] maps = [.. Enumerable.Range(0, EndingObjectArtworkFormat.FragmentCount)

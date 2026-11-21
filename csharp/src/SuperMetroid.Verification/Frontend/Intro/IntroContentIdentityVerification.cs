@@ -120,7 +120,7 @@ internal static class IntroContentIdentityVerification
             var frames = new Dictionary<string, SpriteVisualPart[]>();
             foreach (string name in reverse ? names.Reverse() : names)
                 frames.Add(name, [part with { OffsetX = name == names[^1] && edit == family + "-sprites" ? 1 : 0 }]);
-            return new(JsonSerializer.SerializeToUtf8Bytes(new { Version = version, Frames = frames }, CamelCaseJson));
+            return new(JsonSerializer.SerializeToUtf8Bytes(new SuperMetroid.Verification.Frontend.SpriteFramesFixtureDocument(version, frames), global::SuperMetroid.Verification.VerificationJson.Info<SuperMetroid.Verification.Frontend.SpriteFramesFixtureDocument>(CamelCaseJson)));
         }
     }
 
@@ -133,7 +133,7 @@ internal static class IntroContentIdentityVerification
     {
         // Serialize a fixture document, optionally changing only whitespace formatting.
         MemoryStream Json(object document) => new(JsonSerializer.SerializeToUtf8Bytes(document,
-            (edit == "json-indent" ? CamelCaseIndentedJson : CamelCaseJson)));
+            global::SuperMetroid.Verification.VerificationJson.Info(document.GetType(), (edit == "json-indent" ? CamelCaseIndentedJson : CamelCaseJson))));
         // A black backdrop with an optional red-channel edit; the colours behind the backdrops are the import's alone (#1544).
         RgbColor Backdrop(string name) => new FadeLevelColour(edit == name ? 1 : 0, 0, 0).ToColour();
 

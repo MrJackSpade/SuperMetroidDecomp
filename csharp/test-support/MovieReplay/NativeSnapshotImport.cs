@@ -605,7 +605,11 @@ internal static class NativeSnapshotImport
             }
             else
             {
-                projectile = FamilyProjectileStarts.Spawn(enemies, place, kind, graphics);
+                // The recorded place is restored directly until the import writes the pool through the generated state-graph
+                // restore (#2602).
+                projectile = enemies.OccupyProjectile(place, kind, graphics);
+                if (FamilyProjectileStarts.StartingAnimation(kind) is { } start)
+                    projectile.StartAnimation(start(enemies));
             }
             // Each slot-only kind belongs to the room's Mother Brain, which her spawn gives it in her behaviour's table
             // (#2571): her head pins the charge and the small breath's end clears her flag. The place's previous projectile

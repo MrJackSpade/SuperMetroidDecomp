@@ -14,7 +14,9 @@ internal static class EnemyProjectilePlaceAccess
     /// <summary>
     /// Makes <paramref name="place"/> of <paramref name="enemies"/>' projectiles hold a fresh projectile of
     /// <paramref name="kind"/> bound to the behaviour its production spawner binds and drawing with
-    /// <paramref name="graphics"/> (#2554), copying its kind's definition as a spawn into the place does.
+    /// <paramref name="graphics"/> (#2554), copying its kind's definition as a spawn into the place does. Only the snapshot
+    /// import uses it, to restore a recorded place, until it writes the pool through the generated state-graph restore
+    /// (#2602); checks spawn through the game (<see cref="FamilyProjectileStarts.Allocate"/>).
     /// </summary>
     internal static EnemyProjectile OccupyProjectile(this RoomEnemySystem enemies, int place, RoomEnemyProjectileKind kind, SpriteGraphics graphics) =>
         Ensure.NotNull(enemies).Projectiles.Occupy(place, kind, FamilyProjectileStarts.BehaviorOf(enemies, kind), graphics);

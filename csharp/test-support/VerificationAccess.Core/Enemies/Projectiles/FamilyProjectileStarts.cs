@@ -46,17 +46,68 @@ internal static class FamilyProjectileStarts
             ?? throw new InvalidOperationException($"A {kind} projectile spawns only in the Tourian statue room, which these enemies are not.");
 
     /// <summary>
-    /// Spawns a projectile of <paramref name="kind"/> into <paramref name="place"/> and initializes it as its kind's
-    /// production spawner does, for a check that places it itself.
+    /// Spawns a projectile of <paramref name="kind"/> through the game's spawn, into the first free place searched from the
+    /// last down, and starts the animation its kind's production spawner starts.
     /// </summary>
     /// <param name="enemies">The enemy system whose species own the room-lifetime behaviours.</param>
-    /// <param name="place">The enemy-projectile place the projectile takes.</param>
     /// <param name="kind">What the projectile is.</param>
     /// <param name="graphics">The sheet and shading the projectile draws with.</param>
-    internal static EnemyProjectile Spawn(RoomEnemySystem enemies, int place, RoomEnemyProjectileKind kind, SpriteGraphics graphics)
+    /// <exception cref="InvalidOperationException">Every place is held.</exception>
+    internal static EnemyProjectile Spawn(RoomEnemySystem enemies, RoomEnemyProjectileKind kind, SpriteGraphics graphics) =>
+        Started(enemies, Allocate(enemies, kind, graphics));
+
+    /// <summary>
+    /// Spawns a projectile of <paramref name="kind"/> into <paramref name="place"/> through the game's spawn
+    /// (<see cref="AllocateAt"/>) and starts the animation its kind's production spawner starts.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The place is held, or a place the search reaches first cannot be filled.</exception>
+    internal static EnemyProjectile SpawnAt(RoomEnemySystem enemies, int place, RoomEnemyProjectileKind kind, SpriteGraphics graphics) =>
+        Started(enemies, AllocateAt(enemies, place, kind, graphics));
+
+    /// <summary>
+    /// Spawns a projectile of <paramref name="kind"/> through the game's spawn (<see cref="EnemyProjectileEngine.AllocateEnemyProjectile"/>),
+    /// bound to the behaviour its production spawner binds: the first free place searched from the last down takes it, and
+    /// it holds its kind's definition and <paramref name="graphics"/> before any animation starts.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">Every place is held.</exception>
+    internal static EnemyProjectile Allocate(RoomEnemySystem enemies, RoomEnemyProjectileKind kind, SpriteGraphics graphics) =>
+        Ensure.NotNull(enemies).Projectiles.AllocateEnemyProjectile(kind, BehaviorOf(enemies, kind), graphics)
+            ?? throw new InvalidOperationException($"A {kind} spawn found every enemy-projectile place held.");
+
+    /// <summary>
+    /// Spawns a projectile of <paramref name="kind"/> into <paramref name="place"/> through the game's spawn: spawns of the
+    /// kind take the free places the search reaches before it, as the game's would, and are deleted once the projectile
+    /// holds <paramref name="place"/>.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The place is held, so the search passes it.</exception>
+    internal static EnemyProjectile AllocateAt(RoomEnemySystem enemies, int place, RoomEnemyProjectileKind kind, SpriteGraphics graphics)
     {
-        EnemyProjectile projectile = Ensure.NotNull(enemies).OccupyProjectile(place, kind, graphics);
-        if (StartingAnimation(kind) is { } start)
+        var before = new List<EnemyProjectile>();
+        EnemyProjectile projectile;
+        while ((projectile = Allocate(enemies, kind, graphics)).Place != place)
+        {
+            if (projectile.Place < place)
+                throw new InvalidOperationException($"A check spawns into enemy-projectile place {place}, which is held: the spawn took place {projectile.Place}.");
+            before.Add(projectile);
+        }
+        foreach (EnemyProjectile filler in before)
+            filler.Delete();
+        return projectile;
+    }
+
+    /// <summary>Spawns projectiles of <paramref name="kind"/> through the game's spawn until every place is held; returns them.</summary>
+    internal static IReadOnlyList<EnemyProjectile> FillPool(RoomEnemySystem enemies, RoomEnemyProjectileKind kind, SpriteGraphics graphics)
+    {
+        var spawned = new List<EnemyProjectile>();
+        while (Ensure.NotNull(enemies).Projectiles.FreePlaceCount > 0)
+            spawned.Add(Allocate(enemies, kind, graphics));
+        return spawned;
+    }
+
+    /// <summary><paramref name="projectile"/> after starting the animation its kind's production spawner starts.</summary>
+    private static EnemyProjectile Started(RoomEnemySystem enemies, EnemyProjectile projectile)
+    {
+        if (StartingAnimation(projectile.Kind) is { } start)
             projectile.StartAnimation(start(enemies));
         return projectile;
     }

@@ -45,7 +45,7 @@ internal static class KraidRockLaunchDefinitionsVerification
         var body = enemies.Places.InUpdateOrder[0];
         // The place's projectile before each spawn is a stale rock the check leaves there.
         var rockGraphics = SpriteGraphics.SharedIn(SuperMetroid.Core.Bosses.Kraid.KraidColours.RocksShading);
-        var rock =enemies.OccupyProjectile(17, RoomEnemyProjectileKind.KraidSpitRock, rockGraphics);
+        var rock =FamilyProjectileStarts.Allocate(enemies, RoomEnemyProjectileKind.KraidSpitRock, rockGraphics);
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             random = (ushort)raw;
@@ -69,7 +69,7 @@ internal static class KraidRockLaunchDefinitionsVerification
             AssertEqual(rockGraphics, rock.Graphics,
                 "Native rock: the rocks' colours Kraid loads, at tile base zero");
         }
-        foreach (int place in Enumerable.Range(0, SuperMetroid.Core.Compatibility.EnemyProjectilePlaces.Capacity)) enemies.OccupyProjectile(place, RoomEnemyProjectileKind.KraidSpitRock, rockGraphics);
+        FamilyProjectileStarts.FillPool(enemies, RoomEnemyProjectileKind.KraidSpitRock, rockGraphics);
         ushort previousX = rock.Position.X.Whole;
         reads = 0;
         spawn(body);

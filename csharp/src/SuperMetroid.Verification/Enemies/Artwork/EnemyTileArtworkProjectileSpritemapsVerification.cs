@@ -581,7 +581,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         static OamBuffer DrawSpawnerFrame(RoomEnemySystem enemies, EnemyProjectileFrameId frame, SpriteGraphics graphics)
         {
             // Spawned as production spawns a projectile: its kind, the behaviour bound to it and its graphics together.
-            EnemyProjectile slot = FamilyProjectileStarts.Spawn(enemies, 0, RoomEnemyProjectileKind.DustOrExplosion, graphics);
+            EnemyProjectile slot = FamilyProjectileStarts.Spawn(enemies, RoomEnemyProjectileKind.DustOrExplosion, graphics);
             slot.Position = slot.Position.WithWhole(new(128, 96));
             slot.Frame = frame;
             var oam = new OamBuffer();
@@ -620,7 +620,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork.Bosses);
             // It draws from the sheets a set spawning it composes from this artwork, under the graphics that spawn gives it,
             // and is spawned as production spawns it: its kind, the behaviour bound to it and those graphics together.
-            EnemyProjectile slot = FamilyProjectileStarts.Spawn(enemies, 0, kind, SpawnedObjectFixtures.LoadSetSpawning(enemies, frame, SpawnedGraphics));
+            EnemyProjectile slot = FamilyProjectileStarts.Spawn(enemies, kind, SpawnedObjectFixtures.LoadSetSpawning(enemies, frame, SpawnedGraphics));
             slot.Position = slot.Position.WithWhole(new(128, 96));
             // As the typed runner does when it shows the program frame.
             slot.Frame = frame;
@@ -641,7 +641,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork.Bosses);
             // The shard is spawned as the tube's spawner spawns it, bound to the tube pieces' behaviour that carries out its
             // cues (#1760). The first shard's animation opens on its flying loop, whose first beat is the reflecting flicker.
-            EnemyProjectile slot = FamilyProjectileStarts.Spawn(enemies, 0, RoomEnemyProjectileKind.NoobTubeShard, SpawnedGraphics);
+            EnemyProjectile slot = FamilyProjectileStarts.Spawn(enemies, RoomEnemyProjectileKind.NoobTubeShard, SpawnedGraphics);
             ((NoobTubeBehavior.NoobTubeProjectileBehavior)slot.Behavior).Pieces.Start(slot, new NoobTubeDebrisState(column: 128));
             slot.Position = slot.Position.WithWhole(new(128, 96));
             enemies.Projectiles.AdvanceEnemyProjectileAnimations(slot, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), Position16<RoomPixels>.Zero, shortCounter: SuperMetroid.Core.Compatibility.ShortFrameCount.Zero);

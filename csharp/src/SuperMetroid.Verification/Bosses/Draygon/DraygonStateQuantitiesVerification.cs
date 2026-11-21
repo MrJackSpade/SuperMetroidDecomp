@@ -56,7 +56,7 @@ internal static class DraygonStateQuantitiesVerification
     /// <summary>Puts a blob of Draygon goop that has just stuck to Samus in the last projectile slot.</summary>
     private static EnemyProjectile AttachedGoop(RoomEnemySystem enemies)
     {
-        EnemyProjectile goop = enemies.OccupyProjectile(17, RoomEnemyProjectileKind.DraygonGoop, SpriteGraphics.SharedIn(DraygonColours.Goop));
+        EnemyProjectile goop = FamilyProjectileStarts.Allocate(enemies, RoomEnemyProjectileKind.DraygonGoop, SpriteGraphics.SharedIn(DraygonColours.Goop));
         goop.StartMotion(enemies.DraygonBehavior.Shots.Goop.GoopStuckToSamus);
         enemies.DraygonBehavior.Shots.Goop.Attached.Start(goop, new DraygonGoopAttachedState(stackPosition: 1));
         return goop;

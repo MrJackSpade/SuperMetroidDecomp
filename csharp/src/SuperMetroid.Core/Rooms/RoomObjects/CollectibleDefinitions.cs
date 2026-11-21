@@ -33,7 +33,7 @@ internal static class CollectibleDefinitions
         [Kind.HiJumpBoots] = new(Grant.Equipment(SamusEquipmentFlags.HiJumpBoots), Message.HiJumpBoots, Consequence.Nothing,
             Picture.OwnPicture),
         [Kind.SpeedBooster] = new(Grant.Equipment(SamusEquipmentFlags.SpeedBooster), Message.SpeedBooster, Consequence.Nothing,
-            Picture.OwnPicture),
+            Picture.OwnPicture) { LavaRisingPlacements = new HashSet<CollectiblePresentation> { CollectiblePresentation.ChozoOrb } },
         [Kind.SpringBall] = new(Grant.Equipment(SamusEquipmentFlags.SpringBall), Message.SpringBall, Consequence.Nothing,
             Picture.OwnPicture),
         [Kind.XrayScope] = new(Grant.Equipment(SamusEquipmentFlags.XrayScope), Message.XrayScope, Consequence.Nothing,

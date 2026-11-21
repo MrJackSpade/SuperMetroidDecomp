@@ -13,4 +13,7 @@ public abstract record RoomObjectProjectileRequest
 
     /// <summary>The block of the room object that threw the projectile, which the projectile's place is relative to.</summary>
     public Position16<RoomBlocks> RoomObjectBlock { get; }
+
+    /// <summary>Spawns the projectile among the room's enemy projectiles, through the spawner its thrower gave it.</summary>
+    internal abstract void Spawn();
 }

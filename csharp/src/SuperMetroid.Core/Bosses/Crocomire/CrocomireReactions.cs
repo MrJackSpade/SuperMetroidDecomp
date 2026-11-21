@@ -24,4 +24,7 @@ internal static class CrocomireReactions
 
     /// <summary>The open mouth's shot reaction.</summary>
     internal static EnemyReaction MouthShot { get; } = EnemyReaction.OfSpecies("Crocomire.MouthShot");
+
+    /// <summary>His hitboxes' own shot reactions: the absorbing, the dust-raising and the mouth's.</summary>
+    internal static IReadOnlyList<EnemyReaction> OwnShots { get; } = [AbsorbedShot, DustShot, MouthShot];
 }

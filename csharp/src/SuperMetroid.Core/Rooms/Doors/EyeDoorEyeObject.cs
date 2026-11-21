@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Rooms.Doors;
@@ -64,12 +63,12 @@ internal sealed class EyeDoorEyeObject(EyeDoorOrientation orientation, PlacedDoo
     {
         if (!TakesShots || _strike.Take() is not { Family: var family })
             return false;
-        if (family is not (SamusProjectileFamily.SuperMissile or SamusProjectileFamily.Missile))
+        if (!EyeDoorShotDefinitions.Hits.TryGetValue(family, out EyeDoorHit hit))
         {
             context.RoomObjects.EyeDoors.QueueRejectedShotSound();
             return false;
         }
-        Hit(place, context, destroysAtOnce: family == SamusProjectileFamily.SuperMissile);
+        Hit(place, context, destroysAtOnce: hit == EyeDoorHit.DestroysAtOnce);
         return true;
     }
 

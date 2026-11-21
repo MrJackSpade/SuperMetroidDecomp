@@ -192,7 +192,7 @@ public static class SamusKnockbackMovement
             samus.KnockbackXDirection == KnockbackHorizontalDirection.Left ? HorizontalDirection.Left : HorizontalDirection.Right, samus, baseSpeed);
         // Knockback moves Samus as her ordinary sideways movement does: hitting a wall ends her horizontal momentum
         // before the vertical pass, so the next frame does not carry her on from the wall.
-        BlockMoveResult horizontal = SamusTerrainMoves.MoveStoppingAtWalls(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus, requestedX);
+        _ = SamusTerrainMoves.MoveStoppingAtWalls(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus, requestedX);
 
         BlockMoveResult vertical = samus.KnockbackDirection is SamusKnockbackDirection.UpLeft or SamusKnockbackDirection.UpRight
             ? MoveWithSharedVerticalSpeedCalculation(level, samus, frameCounter, roomObjects)
@@ -256,11 +256,8 @@ public static class SamusKnockbackMovement
         GameplayAction controllerNewInput)
     {
         Ensure.NotNull(samus);
-        bool valid = new SamusPoseChange(samus.Pose, targetPose) is
-            (SamusPoseId.DamageBoostLeftPose,
-                SamusPoseId.NeutralJumpLeftPose or SamusPoseId.NormalJumpForwardLeftPose) or
-            (SamusPoseId.DamageBoostRightPose,
-                SamusPoseId.NeutralJumpRightPose or SamusPoseId.NormalJumpForwardRightPose);
+        bool valid = SamusPoseFamilyDefinitions.DamageBoostJumps.TryGetValue(samus.Pose, out SamusPoseFamily jumps) &&
+            SamusPoseTraits.IsIn(targetPose, jumps);
         if (!valid)
         {
             throw new InvalidOperationException(

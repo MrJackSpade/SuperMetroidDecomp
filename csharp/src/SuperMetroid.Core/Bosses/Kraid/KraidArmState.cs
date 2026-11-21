@@ -39,9 +39,9 @@ public sealed class KraidArmState : KraidAnimatedPartState
     /// <inheritdoc/>
     private protected override void Started(KraidPartSegment segment)
     {
-        SwingsNormally = segment is KraidPartSegment.ArmNormal or KraidPartSegment.ArmNormalPause;
+        SwingsNormally = KraidArmSwingDefinitions.NormalSwing.Contains(segment);
         // An animation starting with the normal swing has yet to reach the pause before its first frame shows; every other
         // one starts at the pause or away from the swing.
-        YetToPause = segment == KraidPartSegment.ArmNormal;
+        YetToPause = KraidArmSwingDefinitions.BeforePause.Contains(segment);
     }
 }

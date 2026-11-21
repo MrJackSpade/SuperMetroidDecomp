@@ -716,12 +716,7 @@ public sealed class SamusBombProjectileSystem
 
         if (block.CollisionType != RoomCollisionType.Slope)
         {
-            return block.CollisionType is not (
-                RoomCollisionType.Air or
-                RoomCollisionType.SpikeAir or
-                RoomCollisionType.SpecialAir or
-                RoomCollisionType.UnrevealedAir or
-                RoomCollisionType.BombableAir);
+            return !RoomCollisionTypes.Of(block.CollisionType).BombsPass;
         }
 
         if (!block.Behavior.Slope.IsNonSquare)
@@ -857,11 +852,9 @@ public sealed class SamusBombProjectileSystem
         if (block.CollisionType is RoomCollisionType.SolidBlock or RoomCollisionType.ShootableBlock &&
             block.Behavior.Shootable == ShootableReaction.ResidentObjectTrigger)
         {
-            if (!roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(block.At, BlockStrike.By(projectileType)))
-            {
-                throw new InvalidOperationException(
-                    $"Bombed resident-trigger block {block.Position} has no active room-object owner.");
-            }
+            // A block no object holds any more (the already-broken n00b tube's origin) takes the
+            // bomb and nothing happens.
+            roomObjects.ProjectileTriggers.NotifyResidentProjectileHit(block.At, BlockStrike.By(projectileType));
             return;
         }
 
@@ -882,16 +875,7 @@ public sealed class SamusBombProjectileSystem
         // The bomb reaction sends these types to reactions that only report pass or stop. They
         // spawn no room object and do not alter the room's terrain or behaviours: the bomb's visit is recorded
         // and nothing else happens.
-        if (block.CollisionType is
-            RoomCollisionType.Air or
-            RoomCollisionType.Slope or
-            RoomCollisionType.SpikeAir or
-            RoomCollisionType.SpecialAir or
-            RoomCollisionType.UnrevealedAir or
-            RoomCollisionType.SolidBlock or
-            RoomCollisionType.DoorBlock or
-            RoomCollisionType.SpikeBlock or
-            RoomCollisionType.GrappleBlock)
+        if (RoomCollisionTypes.Of(block.CollisionType).BombLeavesAlone)
             return;
 
         if (block.CollisionType is RoomCollisionType.BombableAir or RoomCollisionType.BombableBlock)

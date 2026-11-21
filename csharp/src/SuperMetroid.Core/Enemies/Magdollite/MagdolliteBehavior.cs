@@ -496,7 +496,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory, I
         }
         foreach (EnemyProjectile lava in _projectiles.EnemyProjectiles)
         {
-            if (lava.Kind == RoomEnemyProjectileKind.LavaThrownByMagdollite)
+            if (lava.Behavior is { ShowsThrowersGlow: true })
                 lava.Graphics = lava.Graphics.In(glow);
         }
     }
@@ -626,6 +626,10 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory, I
     {
         /// <inheritdoc/>
         internal override EnemyProjectileAnimation ShotAnimation() => new MagdolliteLavaAnimation(this, MagdolliteLavaSegment.Shot);
+
+        /// <inheritdoc/>
+        /// <remarks>Thrown lava glows with the Magdollites, whatever Magdollite threw it.</remarks>
+        internal override bool ShowsThrowersGlow => true;
 
         /// <summary>Carries out one cue of the thrown lava's animations.</summary>
         public void RunCue(EnemyProjectileCueContext context, MagdolliteLavaCue cue)

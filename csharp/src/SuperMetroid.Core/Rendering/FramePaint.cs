@@ -96,12 +96,13 @@ public sealed class FramePaint
     public FramePaint WithBackdrop(ShownColour backdrop) => new(this, backdrop, Gameplay?.WithBackdrop(backdrop));
 
     /// <summary>
-    /// The shading a gameplay sprite draw naming <paramref name="shading"/> shows under <paramref name="gameplay"/>: an
-    /// escape timer draw's group shading after its own, any other draw's own under the display's fade.
+    /// The shading a gameplay sprite draw naming <paramref name="shading"/> shows under <paramref name="gameplay"/>: the
+    /// draw of a source shaded by its group (<see cref="SpriteSourceKindDefinitions.GroupShaded"/>) its group's shading
+    /// after its own, any other draw's own under the display's fade.
     /// </summary>
     private static PictureShading Shown(ImageSpriteDraw draw, PictureShading shading, GameplayShading gameplay) =>
-        draw.Source.Kind == SpriteSourceKind.EscapeTimer
-            ? gameplay.OfEscapeTimer(shading)
+        SpriteSourceKindDefinitions.GroupShaded.TryGetValue(draw.Source.Kind, out GameplayPictures group)
+            ? gameplay.OfGroupShaded(shading, group)
             : gameplay.OfSprite(shading, SamusColourDefinitions.Sources.Contains(draw.Source.Kind));
 
     /// <summary>Checks that a draw list is present and holds no missing draw.</summary>

@@ -161,10 +161,12 @@ internal static class IntroMotherBrainDefinitionsVerification
         var motherBrain = new IntroMotherBrainSpriteState();
         var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: InstalledFixtures.Projectiles.FrameBindings), new global::SuperMetroid.Core.Fx.RoomEarthquake());
         var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
-        SamusProjectile missile = shots.Shots[0];
         for (int hit = 1; hit <= 5; hit++)
         {
-            // The fixture's missile holds its place with its type and damage, as a fired missile does (#2558).
+            // Each missile takes a place no projectile holds, as a fired missile does: a killed missile's explosion keeps
+            // its place until its animation ends, and the cartridge's test ($8B:B786) passes over it as no missile. The
+            // missile holds its place with its type and damage (#2558).
+            SamusProjectile missile = shots.Shots[hit - 1];
             missile.Occupy(SamusProjectileType.Of(SamusProjectileFamily.Missile), SamusProjectileDamage.Read(SamusProjectileSelection.NonBeam(SamusProjectileFamily.Missile)));
             missile.Position = missile.Position.WithWhole(new(0x40, 0x80));
             bool fourth = motherBrain.TakeMissileHit(shots.EnemyImpacts, bombs);

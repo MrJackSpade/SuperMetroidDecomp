@@ -19,9 +19,10 @@ internal interface ITourianStatueActors
     void SpawnDescentDust();
 
     /// <summary>
-    /// Shows a released statue's look, its blacked-out eyes or its grey, as the shade the import pre-coloured it in (#1512).
+    /// Shows a released statue's look, its blacked-out eyes or its grey, as the shade the import pre-coloured it in (#1512):
+    /// over the room's pictures for a statue <paramref name="drawnInRoomBackground"/>, otherwise over the scene's sprites.
     /// </summary>
-    void ShowStatueLook(PictureShade look);
+    void ShowStatueLook(PictureShade look, bool drawnInRoomBackground);
 
     /// <summary>
     /// The entrance statue's sprite statue <paramref name="sprite"/>, the Ridley or Phantoon statue, which that statue's

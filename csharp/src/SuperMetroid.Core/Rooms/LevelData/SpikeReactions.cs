@@ -7,7 +7,9 @@ public static class SpikeReactions
     extension(SpikeReaction reaction)
     {
         /// <summary>Whether the grapple beam passes through a spike block with the reaction rather than stopping on it.</summary>
-        public bool LetsGrappleBeamThrough =>
-            reaction is SpikeReaction.HarmlessLetsGrappleThrough or SpikeReaction.EnemyBreakableLetsGrappleThrough;
+        public bool LetsGrappleBeamThrough => SpikeReactionDefinitions.LettingGrappleThrough.Contains(reaction);
+
+        /// <summary>Whether an enemy breaks a spike block with the reaction rather than meeting it as solid.</summary>
+        public bool BreaksUnderEnemies => SpikeReactionDefinitions.EnemyBreakable.Contains(reaction);
     }
 }

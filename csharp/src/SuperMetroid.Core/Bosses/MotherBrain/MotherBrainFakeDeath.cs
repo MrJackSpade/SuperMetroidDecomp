@@ -112,7 +112,7 @@ internal sealed class MotherBrainFakeDeath
         MotherBrainTubeDrop drop = tube.Entry;
         if (progress.Stage == MotherBrainTubeDropStage.Standing)
         {
-            bool falls = tube == MotherBrainTubeCollapseProgress.FirstTube
+            bool falls = drop.WaitsForFreeProjectiles
                 ? _projectiles.FreePlaceCount >= MotherBrainTubeCollapseDefinitions.FreeProjectilesNeeded
                 : state.TubeCollapseTimer.StepRunsOut();
             if (!falls)
@@ -175,14 +175,13 @@ internal sealed class MotherBrainFakeDeath
         MotherBrainTubePiece piece = settings.Piece;
         MotherBrainFallingTubeDefinition tubeBody = MotherBrainFallingTubeBody(piece);
         tube.Radius = tubeBody.Radius;
-        bool main = piece == MotherBrainTubePiece.Main;
-        var state = new MotherBrainFallingTubeState(piece, main ? MotherBrainTubeAction.WaitingToFall : MotherBrainTubeAction.NonMainTube)
+        var state = new MotherBrainFallingTubeState(piece, tubeBody.FallWaitUpdates is null ? MotherBrainTubeAction.NonMainTube : MotherBrainTubeAction.WaitingToFall)
         {
             FloorY = tubeBody.Floor,
         };
         // Only the main tube waits before it falls; the side tubes fall from their first update.
-        if (main)
-            state.FallDelay.LastFor(MotherBrainFallingTubePopulationDefinitions.MainFallWaitUpdates);
+        if (tubeBody.FallWaitUpdates is { } wait)
+            state.FallDelay.LastFor(wait);
         tube.SetSpeciesState(state);
     }
 

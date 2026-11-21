@@ -40,7 +40,7 @@ public sealed class FileSelectMapIcons(SharedGameState system, AreaId area, MapS
         foreach (MapBossMarker marker in MapLandmarks.BossMarkers(area))
         {
             Position16<MapPixels> point = layout.Get(marker.Id);
-            if (defeated.HasFlag(AreaBossDefinitions.RecordedAs[marker.Boss]))
+            if (defeated.HasFlag(Ensure.Listed(AreaBossDefinitions.Bosses, marker.Boss).RecordedAs))
             {
                 Draw(MapSpriteId.MarkerDefeatedBoss, point, MapSpriteColouring.Markers);
                 Draw(MapSpriteId.MarkerBoss, point, MapSpriteColouring.DefeatedBossMarker);
@@ -76,7 +76,7 @@ public sealed class FileSelectMapIcons(SharedGameState system, AreaId area, MapS
     /// <summary>Draws what follows the marker: the gunship in Crateria, the arrows, and the elevator labels once the area's map is downloaded; never the debug-only save icons the game's debug mode adds.</summary>
     public void DrawAfterMarker(ScreenSprites entries, Offset16<MapPixels> scroll, Action? drawArrows = null)
     {
-        if (area == AreaId.Crateria)
+        if (MapLandmarks.ShowsGunship(area))
         {
             var point = landmarks.Get(MapLandmarkDefinitions.Gunship);
             Add(entries, MapSpriteId.MarkerGunship, point, scroll, MapSpriteColouring.Markers);

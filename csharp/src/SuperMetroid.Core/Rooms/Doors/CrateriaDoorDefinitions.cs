@@ -1,4 +1,4 @@
-﻿namespace SuperMetroid.Core.Rooms.Doors;
+namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>The Crateria rooms' doors, each named for the room it leads from and the room it leads to.</summary>
 public static class CrateriaDoorDefinitions
@@ -56,19 +56,19 @@ public static class CrateriaDoorDefinitions
     public static DoorDefinition WestOceanToMoat { get; } = new("WestOceanToMoat", RoomDefinitions.Moat, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(30, 6), new(1, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the West Ocean room to the Wrecked Ship Entrance room.</summary>
-    public static DoorDefinition WestOceanToWreckedShipEntrance { get; } = new("WestOceanToWreckedShipEntrance", RoomDefinitions.WreckedShipEntrance, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.WreckedShipEntranceStartsTreadmillRightwards);
+    public static DoorDefinition WestOceanToWreckedShipEntrance { get; } = new("WestOceanToWreckedShipEntrance", RoomDefinitions.WreckedShipEntrance, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.WreckedShipEntranceStartsTreadmillRightwards) { ExchangesExploredMaps = true };
 
     /// <summary>The door from the West Ocean room to the Bowling Alley Path room.</summary>
     public static DoorDefinition WestOceanToBowlingAlleyPath { get; } = new("WestOceanToBowlingAlleyPath", RoomDefinitions.BowlingAlleyPath, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the West Ocean room to the Attic room.</summary>
-    public static DoorDefinition WestOceanToAttic { get; } = new("WestOceanToAttic", RoomDefinitions.Attic, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
+    public static DoorDefinition WestOceanToAttic { get; } = new("WestOceanToAttic", RoomDefinitions.Attic, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None) { ExchangesExploredMaps = true };
 
     /// <summary>The door from the West Ocean room to the Bowling Alley room.</summary>
-    public static DoorDefinition WestOceanToBowlingAlley { get; } = new("WestOceanToBowlingAlley", RoomDefinitions.BowlingAlley, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(33, 6), new(2, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.BowlingAlleyClosesScreens2x1And3x1And4x1And5x1);
+    public static DoorDefinition WestOceanToBowlingAlley { get; } = new("WestOceanToBowlingAlley", RoomDefinitions.BowlingAlley, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(33, 6), new(2, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.BowlingAlleyClosesScreens2x1And3x1And4x1And5x1) { ExchangesExploredMaps = true };
 
     /// <summary>The door from the West Ocean room to the Gravity Suit room.</summary>
-    public static DoorDefinition WestOceanToGravitySuit { get; } = new("WestOceanToGravitySuit", RoomDefinitions.GravitySuit, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
+    public static DoorDefinition WestOceanToGravitySuit { get; } = new("WestOceanToGravitySuit", RoomDefinitions.GravitySuit, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None) { ExchangesExploredMaps = true };
 
     /// <summary>The door from the Bowling Alley Path room to the West Ocean room.</summary>
     public static DoorDefinition BowlingAlleyPathToWestOcean { get; } = new("BowlingAlleyPathToWestOcean", RoomDefinitions.WestOcean, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(46, 38), new(2, 2), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
@@ -89,10 +89,10 @@ public static class CrateriaDoorDefinitions
     public static DoorDefinition ForgottenHighwayElevatorToForgottenHighwayElbow { get; } = new("ForgottenHighwayElevatorToForgottenHighwayElbow", RoomDefinitions.ForgottenHighwayElbow, new(DoorDirection.Up, DoorClosingBehavior.BlueDoorCloses), new(6, 13), new(0, 0), DoorSamusSpeed.PixelsPerStep(1, 3, 4), DoorSetupDefinitions.None);
 
     /// <summary>The door from the Forgotten Highway Elevator room to the Maridia Elevator room.</summary>
-    public static DoorDefinition ForgottenHighwayElevatorToMaridiaElevator { get; } = new("ForgottenHighwayElevatorToMaridiaElevator", RoomDefinitions.MaridiaElevator, new(DoorDirection.Down, DoorClosingBehavior.None), null, new(0, 0), DoorSamusSpeed.None, DoorSetupDefinitions.None);
+    public static DoorDefinition ForgottenHighwayElevatorToMaridiaElevator { get; } = new("ForgottenHighwayElevatorToMaridiaElevator", RoomDefinitions.MaridiaElevator, new(DoorDirection.Down, DoorClosingBehavior.None), null, new(0, 0), DoorSamusSpeed.None, DoorSetupDefinitions.None) { ExchangesExploredMaps = true };
 
     /// <summary>The door from the East Ocean room to the Electric Death room.</summary>
-    public static DoorDefinition EastOceanToElectricDeath { get; } = new("EastOceanToElectricDeath", RoomDefinitions.ElectricDeath, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(14, 22), new(0, 1), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
+    public static DoorDefinition EastOceanToElectricDeath { get; } = new("EastOceanToElectricDeath", RoomDefinitions.ElectricDeath, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(14, 22), new(0, 1), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None) { ExchangesExploredMaps = true };
 
     /// <summary>The door from the East Ocean room to the Forgotten Highway Kagos room.</summary>
     public static DoorDefinition EastOceanToForgottenHighwayKagos { get; } = new("EastOceanToForgottenHighwayKagos", RoomDefinitions.ForgottenHighwayKagos, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
@@ -131,7 +131,7 @@ public static class CrateriaDoorDefinitions
     public static DoorDefinition RedBrinstarElevatorToCrateriaKihunter { get; } = new("RedBrinstarElevatorToCrateriaKihunter", RoomDefinitions.CrateriaKihunter, new(DoorDirection.Up, DoorClosingBehavior.BlueDoorCloses), new(22, 45), new(1, 2), DoorSamusSpeed.PixelsPerStep(1, 3, 4), DoorSetupDefinitions.CrateriaKihunterOpensScreens1x0And1x1);
 
     /// <summary>The door from the Red Brinstar Elevator room to the Caterpillar room.</summary>
-    public static DoorDefinition RedBrinstarElevatorToCaterpillar { get; } = new("RedBrinstarElevatorToCaterpillar", RoomDefinitions.Caterpillar, new(DoorDirection.Down, DoorClosingBehavior.None), null, new(0, 0), DoorSamusSpeed.None, DoorSetupDefinitions.CaterpillarOpensScreen0x2);
+    public static DoorDefinition RedBrinstarElevatorToCaterpillar { get; } = new("RedBrinstarElevatorToCaterpillar", RoomDefinitions.Caterpillar, new(DoorDirection.Down, DoorClosingBehavior.None), null, new(0, 0), DoorSamusSpeed.None, DoorSetupDefinitions.CaterpillarOpensScreen0x2) { ExchangesExploredMaps = true };
 
     /// <summary>The door from the Gauntlet Energy Tank room to the Gauntlet Entrance room.</summary>
     public static DoorDefinition GauntletEnergyTankToGauntletEntrance { get; } = new("GauntletEnergyTankToGauntletEntrance", RoomDefinitions.GauntletEntrance, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
@@ -143,7 +143,7 @@ public static class CrateriaDoorDefinitions
     public static DoorDefinition PreBowlingToBowlingAlleyPath { get; } = new("PreBowlingToBowlingAlleyPath", RoomDefinitions.BowlingAlleyPath, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(30, 6), new(1, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Pre Bowling room to the Bowling Alley room.</summary>
-    public static DoorDefinition PreBowlingToBowlingAlley { get; } = new("PreBowlingToBowlingAlley", RoomDefinitions.BowlingAlley, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 22), new(0, 1), DoorSamusSpeed.PixelsPerStep(0, 5, 8), DoorSetupDefinitions.BowlingAlleyClosesScreens2x0And3x0And4x0And5x0And5x1And0x2And1x2And5x2);
+    public static DoorDefinition PreBowlingToBowlingAlley { get; } = new("PreBowlingToBowlingAlley", RoomDefinitions.BowlingAlley, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 22), new(0, 1), DoorSamusSpeed.PixelsPerStep(0, 5, 8), DoorSetupDefinitions.BowlingAlleyClosesScreens2x0And3x0And4x0And5x0And5x1And0x2And1x2And5x2) { ExchangesExploredMaps = true };
 
     /// <summary>The door from the Climb room to the Parlor room.</summary>
     public static DoorDefinition ClimbToParlor { get; } = new("ClimbToParlor", RoomDefinitions.Parlor, new(DoorDirection.Up, DoorClosingBehavior.BlueDoorCloses), new(22, 77), new(1, 4), DoorSamusSpeed.PixelsPerStep(1, 3, 4), DoorSetupDefinitions.ParlorOpensScreen1x1);
@@ -170,7 +170,7 @@ public static class CrateriaDoorDefinitions
     public static DoorDefinition ElevatorToBlueBrinstarToPit { get; } = new("ElevatorToBlueBrinstarToPit", RoomDefinitions.Pit, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(46, 6), new(2, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Elevator To Blue Brinstar room to the Morph Ball room.</summary>
-    public static DoorDefinition ElevatorToBlueBrinstarToMorphBall { get; } = new("ElevatorToBlueBrinstarToMorphBall", RoomDefinitions.MorphBall, new(DoorDirection.Down, DoorClosingBehavior.None), null, new(5, 0), DoorSamusSpeed.None, DoorSetupDefinitions.None);
+    public static DoorDefinition ElevatorToBlueBrinstarToMorphBall { get; } = new("ElevatorToBlueBrinstarToMorphBall", RoomDefinitions.MorphBall, new(DoorDirection.Down, DoorClosingBehavior.None), null, new(5, 0), DoorSamusSpeed.None, DoorSetupDefinitions.None) { ExchangesExploredMaps = true };
 
     /// <summary>The door from the Bomb Torizo room to the Flyway room.</summary>
     public static DoorDefinition BombTorizoToFlyway { get; } = new("BombTorizoToFlyway", RoomDefinitions.Flyway, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(46, 6), new(2, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
@@ -197,7 +197,7 @@ public static class CrateriaDoorDefinitions
     public static DoorDefinition GreenBrinstarElevatorToLowerMushrooms { get; } = new("GreenBrinstarElevatorToLowerMushrooms", RoomDefinitions.LowerMushrooms, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Green Brinstar Elevator room to the Green Brinstar Main Shaft room.</summary>
-    public static DoorDefinition GreenBrinstarElevatorToGreenBrinstarMainShaft { get; } = new("GreenBrinstarElevatorToGreenBrinstarMainShaft", RoomDefinitions.GreenBrinstarMainShaft, new(DoorDirection.Down, DoorClosingBehavior.None), null, new(0, 0), DoorSamusSpeed.None, DoorSetupDefinitions.GreenBrinstarMainShaftOpensScreen1x7TopAligned);
+    public static DoorDefinition GreenBrinstarElevatorToGreenBrinstarMainShaft { get; } = new("GreenBrinstarElevatorToGreenBrinstarMainShaft", RoomDefinitions.GreenBrinstarMainShaft, new(DoorDirection.Down, DoorClosingBehavior.None), null, new(0, 0), DoorSamusSpeed.None, DoorSetupDefinitions.GreenBrinstarMainShaftOpensScreen1x7TopAligned) { ExchangesExploredMaps = true };
 
     /// <summary>The door from the Lower Mushrooms room to the Green Pirates Shaft room.</summary>
     public static DoorDefinition LowerMushroomsToGreenPiratesShaft { get; } = new("LowerMushroomsToGreenPiratesShaft", RoomDefinitions.GreenPiratesShaft, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 102), new(0, 6), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
@@ -245,5 +245,5 @@ public static class CrateriaDoorDefinitions
     public static DoorDefinition StatuesToStatuesHallway { get; } = new("StatuesToStatuesHallway", RoomDefinitions.StatuesHallway, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(78, 6), new(4, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Statues room to the Tourian First room.</summary>
-    public static DoorDefinition StatuesToTourianFirst { get; } = new("StatuesToTourianFirst", RoomDefinitions.TourianFirst, new(DoorDirection.Down, DoorClosingBehavior.None), null, new(0, 0), DoorSamusSpeed.None, DoorSetupDefinitions.None);
+    public static DoorDefinition StatuesToTourianFirst { get; } = new("StatuesToTourianFirst", RoomDefinitions.TourianFirst, new(DoorDirection.Down, DoorClosingBehavior.None), null, new(0, 0), DoorSamusSpeed.None, DoorSetupDefinitions.None) { ExchangesExploredMaps = true };
 }

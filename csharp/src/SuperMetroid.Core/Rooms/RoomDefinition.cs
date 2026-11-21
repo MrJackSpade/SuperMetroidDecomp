@@ -30,4 +30,22 @@ public sealed record RoomDefinition(
     /// background layer; only the Glass Tunnel does.
     /// </summary>
     public bool XrayHidesBackground { get; init; }
+
+    /// <summary>
+    /// Whether X-ray never reveals the room's blocks, whatever boss is loaded (#2485): only the Statues room and the Glass
+    /// Tunnel.
+    /// </summary>
+    public bool XrayRevealsNoBlocks { get; init; }
+
+    /// <summary>
+    /// Whether the room's quakes are silent (#1415): entering it silences quake sounds as its room effect loads, and every
+    /// other room keeps them.
+    /// </summary>
+    public bool QuakesAreSilent { get; init; }
+
+    /// <summary>
+    /// The ground Samus's running footsteps and landings go by in the room (#2416): its area's
+    /// (<see cref="RoomGroundDefinitions.AreaGrounds"/>) unless the room declares its own.
+    /// </summary>
+    internal RoomGround Ground { get; init; } = Ensure.Listed(RoomGroundDefinitions.AreaGrounds, Area);
 }

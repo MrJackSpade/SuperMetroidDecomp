@@ -49,4 +49,10 @@ public static class ShotBlockReactionDefinitions
     {
         ShootableReaction.NothingWhenSolid,
     };
+
+    /// <summary>The reactions whose struck block frees the escape's critters: the rescue wall's origin block.</summary>
+    public static readonly IReadOnlySet<ShootableReaction> CrittersEscapeReactions = new HashSet<ShootableReaction>
+    {
+        ShootableReaction.AnimalEscape,
+    };
 }

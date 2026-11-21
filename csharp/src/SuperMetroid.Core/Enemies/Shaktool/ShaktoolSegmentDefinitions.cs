@@ -18,7 +18,7 @@ internal static class ShaktoolSegmentDefinitions
     internal static readonly ShaktoolSegmentDefinition LeadingSaw =
         new(EnemyContact.None,
             RotationAngle.Zero, ShaktoolSegment.SawHandPrimaryPiece,
-            ShaktoolSegmentMotion.Idle, RotationAngle.Zero, ShaktoolSegment.SawHandHeadBobPrimaryPiece);
+            ShaktoolSegmentMotion.Idle, RotationAngle.Zero, ShaktoolSegment.SawHandHeadBobPrimaryPiece, AnchorsChain: true, IsSaw: true);
 
     /// <summary>The outer arm on the leading saw's side, next to the saw.</summary>
     internal static readonly ShaktoolSegmentDefinition LeadingOuterArm =
@@ -54,7 +54,7 @@ internal static class ShaktoolSegmentDefinitions
     internal static readonly ShaktoolSegmentDefinition TrailingSaw =
         new(EnemyContact.None,
             RotationAngle.FromSteps(136), ShaktoolSegment.SawHandPrimaryPiece,
-            ShaktoolSegmentMotion.DriveTailAndReverseAtWalls, RotationAngle.FromStepFraction(15, 8), ShaktoolSegment.SawHandHeadBobFinalPiece);
+            ShaktoolSegmentMotion.DriveTailAndReverseAtWalls, RotationAngle.FromStepFraction(15, 8), ShaktoolSegment.SawHandHeadBobFinalPiece, IsSaw: true);
 
     /// <summary>The seven segments in chain order, leading saw first.</summary>
     internal static readonly ShaktoolSegmentDefinition[] Segments =

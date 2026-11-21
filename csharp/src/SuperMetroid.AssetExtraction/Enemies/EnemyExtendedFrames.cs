@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 
@@ -15,7 +16,7 @@ internal static class EnemyExtendedFrames
     /// </summary>
     private static bool TryResolve(EnemyExtendedFrameCatalog catalog, EnemyFrameId frame, out EnemyFrameId? stored)
     {
-        if (frame == EnemyFrameId.PointAtOrigin)
+        if (CommonEnemyEmptyFrames.IsEmpty(frame))
         {
             stored = null;
             return true;

@@ -8,7 +8,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Gameplay;
 
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Enemies.BossBodies;
+using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Compatibility;
 
 namespace SuperMetroid.Core.Runtime;
@@ -349,7 +349,7 @@ public static class GameplayDisplayCapture
         // line scrolls.
         // The reveal is drawn on the background from block pictures (#1392), so it replaces what the room's background shows
         // (#2544), and a boss's body with it (#2573). No boss whose body shows lets X-ray reveal blocks
-        // (XrayBlockRevealDefinitions).
+        // (AreaBossDefinition.XrayKeepsBackground).
         var gameplay = shownReveal is not null
             ? new GameplaySceneLayer(view, ordinary.Rooms with { Background = new XrayRevealBackground(shownReveal) })
             : new GameplaySceneLayer(view, ordinary.Rooms, ordinary.BackgroundLineScrolls) { BossBody = ordinary.BossBody };

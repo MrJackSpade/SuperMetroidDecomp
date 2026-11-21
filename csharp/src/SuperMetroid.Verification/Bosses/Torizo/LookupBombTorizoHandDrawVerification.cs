@@ -2,7 +2,6 @@ using static SuperMetroid.Verification.Rooms.RoomObjects.RoomObjectRunHeaderAsse
 using SuperMetroid.AssetExtraction.Rooms;
 using static SuperMetroid.Verification.Rooms.RoomObjects.SamusEaterObjectDefinitionsVerification;
 using SuperMetroid.Core.Bosses.Torizo;
-using SuperMetroid.Core.Bosses.Torizo.Artwork;
 
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Cartridge;

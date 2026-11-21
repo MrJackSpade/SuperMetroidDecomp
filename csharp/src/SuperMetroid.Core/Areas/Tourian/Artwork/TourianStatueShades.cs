@@ -48,7 +48,4 @@ public static class TourianStatueShades
 
     /// <summary>Draygon's statue greyed.</summary>
     public static PictureShade DraygonGrey { get; } = new("tourian-statue-draygon-grey", 0);
-
-    /// <summary>The looks of the statues drawn in the room's background, Kraid's and Draygon's, which the room's pictures show.</summary>
-    public static IReadOnlySet<PictureShade> RoomPictureLooks { get; } = new HashSet<PictureShade> { KraidCleared, KraidGrey, DraygonCleared, DraygonGrey };
 }

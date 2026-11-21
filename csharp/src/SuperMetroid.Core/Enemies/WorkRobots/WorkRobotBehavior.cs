@@ -13,22 +13,26 @@ namespace SuperMetroid.Core.Enemies.WorkRobots;
 internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory, IRoomGlow
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.WorkRobot, EnemyDefinitionId.UnpoweredWorkRobot];
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. PartFactories.Keys];
 
     /// <summary>
     /// A powered or an unpowered work robot (#2146, #2179). The rooms place the powered robot's definition only in their
     /// states once Phantoon is defeated, so it always has power (#2455).
     /// </summary>
-    /// <exception cref="InvalidOperationException">The place holds no work robot definition.</exception>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    {
-        EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
-        if (definition == EnemyDefinitionId.WorkRobot)
-            return EnemyOccupant.Of(new PoweredWorkRobotEntity(this, occupant, place, common));
-        if (definition == EnemyDefinitionId.UnpoweredWorkRobot)
-            return EnemyOccupant.Of(new UnpoweredWorkRobotEntity(this, occupant, place, common));
-        throw new InvalidOperationException($"The work robot species creates no {occupant.DefinitionId}.");
-    }
+    /// <exception cref="KeyNotFoundException">The place holds no work robot definition.</exception>
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        PartFactories[Ensure.NotNull(occupant).DefinitionId](this, occupant, place, common);
+
+    /// <summary>
+    /// The factory of each part the species creates, by the definition that places it: the species serves these
+    /// definitions, and each builds its own part from the species it is given.
+    /// </summary>
+    private static readonly Dictionary<EnemyDefinitionId, EnemyPartFactory<WorkRobotBehavior>> PartFactories =
+        new()
+        {
+            [EnemyDefinitionId.WorkRobot] = static (species, occupant, place, common) => EnemyOccupant.Of(new PoweredWorkRobotEntity(species, occupant, place, common)),
+            [EnemyDefinitionId.UnpoweredWorkRobot] = static (species, occupant, place, common) => EnemyOccupant.Of(new UnpoweredWorkRobotEntity(species, occupant, place, common)),
+        };
 
     /// <summary>Samples the room random number for laser timing.</summary>
     private readonly EnemyRoomBinding _room;
@@ -36,7 +40,10 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory, IR
     private readonly EnemyTerrain _terrain;
     /// <summary>Allocates lasers from the common enemy projectile pool.</summary>
     private readonly EnemyProjectileEngine _projectiles;
-    /// <summary>The places of the powered robots the room has set up, in the order they were placed; all show the shared glow (#2306).</summary>
+    /// <summary>
+    /// The places of the powered robots the room has set up and that still hold them, in the order they were placed; all
+    /// show the shared glow (#2306).
+    /// </summary>
     private readonly List<RoomEnemyPlace> _poweredRobots = [];
 
     /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
@@ -287,13 +294,17 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory, IR
             return;
 
         PictureShading glow = Glow;
+        // A robot that leaves its place removes the place from the list as it leaves, so no place it left,
+        // nor any enemy that took the place since, shows the glow.
         foreach (RoomEnemyPlace robot in _poweredRobots)
-        {
-            // A place whose robot has left it, and any enemy that took the place since, shows no glow.
-            if (robot.SpeciesState<WorkRobotEnemyState>() is not null)
-                robot.Shading = glow;
-        }
+            robot.Shading = glow;
     }
+
+    /// <summary>
+    /// Removes the place a powered robot has left, deleted, killed or replaced, from the robots the glow shows on: the
+    /// place shows no glow from then on unless a powered robot sets up there again.
+    /// </summary>
+    internal void RemovePoweredRobot(RoomEnemyPlace place) => _poweredRobots.Remove(Ensure.NotNull(place));
 
     /// <summary>Applies a powered robot's recoil after the bomb damage it takes, which it never rejects once powered.</summary>
     internal EnemyBombReaction PoweredWorkRobotBombReaction { get; } = new()

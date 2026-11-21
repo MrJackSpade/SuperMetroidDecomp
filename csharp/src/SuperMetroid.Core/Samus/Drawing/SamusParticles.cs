@@ -29,9 +29,9 @@ public sealed class SamusParticles
     /// <param name="start">Whether it shows at once or after a hidden wait.</param>
     internal void Spawn(SamusParticleKind kind, Position16<RoomPixels> position, SamusParticleStart start)
     {
-        if (kind == SamusParticleKind.LavaSpray)
-            throw new ArgumentOutOfRangeException(nameof(kind), kind, "Lava spray drifts outward and starts with its drift.");
-        Add(new SamusParticle(kind, AnimationPlace.StartOfAnimation, start, position, kind == SamusParticleKind.Dust ? DustDrift : Offset16<RoomPixels>.Zero));
+        Offset16<RoomPixels> drift = Definition(kind).Drift
+            ?? throw new ArgumentOutOfRangeException(nameof(kind), kind, "A particle that drifts to one side starts with its drift.");
+        Add(new SamusParticle(kind, AnimationPlace.StartOfAnimation, start, position, drift));
     }
 
     /// <summary>Starts a particle of lava spray on its first step, rising and drifting to one side as it shows.</summary>
@@ -45,6 +45,9 @@ public sealed class SamusParticles
         Add(new SamusParticle(SamusParticleKind.LavaSpray, AnimationPlace.StartOfAnimation, start, position,
             new Offset16<RoomPixels>(horizontalDrift, LavaSprayRise)));
     }
+
+    /// <summary>How particles of <paramref name="kind"/> move and are placed.</summary>
+    private static SamusParticleKindDefinition Definition(SamusParticleKind kind) => Ensure.Listed(SamusParticleKindDefinitions.Kinds, kind);
 
     /// <summary>Adds a particle already under way, as a restored game does.</summary>
     private void Add(SamusParticle particle) => _particles.Add(Ensure.NotNull(particle));
@@ -79,7 +82,7 @@ public sealed class SamusParticles
             }
             if (particle.IsHidden)
                 continue;
-            if (particle.Kind == SamusParticleKind.DivingSplash)
+            if (Definition(particle.Kind).FollowsWaterSurface)
                 particle.HoldOnLine(waterSurfaceLine);
             sprites.Add(Draw(particle, camera, sheets));
         }
@@ -94,7 +97,7 @@ public sealed class SamusParticles
         string frame = SamusAtmosphereSheetDefinitions.FrameName(
             particle.Shown ?? throw new InvalidOperationException("A particle drawn shows no picture."));
         Offset16<ScreenPixels> place = particle.Position.RelativeToCamera(camera);
-        if (particle.Kind is SamusParticleKind.SurfaceSplash or SamusParticleKind.LavaSpray or SamusParticleKind.Dust)
+        if (Definition(particle.Kind).Centred)
             place -= Offset16<ScreenPixels>.Of(SmallParticleHalfWidth, SmallParticleHalfWidth);
         SpriteSheetFrame picture = sheets.Get(SpriteSheetId.SamusAtmosphere).Frame(frame);
         return new SamusColouredDraw(new SpriteSource(SpriteSourceKind.SamusAtmosphere), picture, place);

@@ -23,7 +23,10 @@ internal static class MotherBrainFallingTubePopulationDefinitions
             [MotherBrainTubePiece.Main] = new(128, 167),
         };
 
-    /// <summary>Each piece's collision radius and the floor row it lands on.</summary>
+    /// <summary>
+    /// Each piece's collision radius and the floor row it lands on; the main tube alone waits before it falls, the last
+    /// update of its wait being the one it starts to fall on, and keeps updating off screen.
+    /// </summary>
     internal static readonly IReadOnlyDictionary<MotherBrainTubePiece, MotherBrainFallingTubeDefinition> Bodies =
         new Dictionary<MotherBrainTubePiece, MotherBrainFallingTubeDefinition>
         {
@@ -31,8 +34,6 @@ internal static class MotherBrainFallingTubePopulationDefinitions
             [MotherBrainTubePiece.BottomRight] = new(new(16, 32), 248),
             [MotherBrainTubePiece.BottomMiddleLeft] = new(new(8, 24), 240),
             [MotherBrainTubePiece.BottomMiddleRight] = new(new(8, 24), 240),
-            [MotherBrainTubePiece.Main] = new(new(16, 32), 246),
+            [MotherBrainTubePiece.Main] = new(new(16, 32), 246, FallWaitUpdates: 33, KeepsUpdatingOffScreen: true),
         };
-    /// <summary>The updates the main tube waits before it falls, the last being the update it starts to fall on.</summary>
-    internal const int MainFallWaitUpdates = 33;
 }

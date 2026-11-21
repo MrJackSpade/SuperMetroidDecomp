@@ -1,7 +1,8 @@
 namespace SuperMetroid.Core.Enemies.Yard;
 
 /// <summary>
-/// What a Yard is doing. Its look-at, solidity, touch and airborne decisions each test which of these it is.
+/// What a Yard is doing. Its look-at, solidity, touch and airborne decisions each read what the behaviour's definition
+/// states (<see cref="YardBehaviorDefinitions.Behaviors"/>).
 /// </summary>
 public enum YardBehavior
 {

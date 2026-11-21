@@ -10,9 +10,6 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// </summary>
 internal readonly record struct ComposedInk
 {
-    /// <summary>The colours of a group of a HUD or room effect sheet, which is painted in four-colour groups.</summary>
-    internal const int TwoBitGroupColours = 4;
-
     /// <summary>Names colour <paramref name="colour"/> of colour group <paramref name="group"/>.</summary>
     /// <param name="group">The group's place among the sheet's groups, from zero.</param>
     /// <param name="colour">The colour's place in its group, from zero, the group's clear colour.</param>
@@ -40,7 +37,7 @@ internal readonly record struct ComposedInk
 
     /// <summary>The colours of each group a sheet composed in <paramref name="palette"/> is painted in.</summary>
     internal static int GroupColoursOf(SpriteImageColours palette) =>
-        palette == SpriteImageColours.TwoBppBackground ? TwoBitGroupColours : ImageColourGroup.Colours;
+        Ensure.Listed(SpriteImageColourDefinitions.Colourings, palette).SetColours;
 
     /// <summary>The ink at <paramref name="place"/> of the colour list of a sheet composed in <paramref name="palette"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The place lies before the first colour.</exception>

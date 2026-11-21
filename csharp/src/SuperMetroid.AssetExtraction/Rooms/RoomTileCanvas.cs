@@ -215,7 +215,7 @@ internal sealed class RoomTileCanvas(Extent16<ImagePixels> size)
         SpriteImageColours kind, InstalledBackgroundSet[]? backgroundSets, IReadOnlySet<string> split, bool keepsEmpty)
     {
         Ensure.NotNull(frames);
-        bool twoBit = kind == SpriteImageColours.TwoBppBackground;
+        bool twoBit = Ensure.Listed(SpriteImageColourDefinitions.Colourings, kind).TwoBitCharacters;
         var parts = new List<FramePart>(frames.Count);
         // The in-front parts of frames with pixels in both parts are laid in rows below the painted planes, each row as tall
         // as its tallest part.

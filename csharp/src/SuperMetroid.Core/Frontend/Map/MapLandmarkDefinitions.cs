@@ -12,6 +12,9 @@ public static class MapLandmarkDefinitions
     /// <summary>The gunship's marker on the Crateria map, shown whatever Samus has explored.</summary>
     public const string Gunship = "Crateria.Gunship";
 
+    /// <summary>The areas whose maps show the gunship: Crateria, where it landed.</summary>
+    internal static readonly AreaId[] GunshipAreas = [AreaId.Crateria];
+
     /// <summary>Kraid's marker on the Brinstar map.</summary>
     internal static readonly ImmutableArray<MapBossMarker> BrinstarBosses = [new("Boss.Kraid", AreaBoss.Kraid)];
     /// <summary>Ridley's marker on the Norfair map.</summary>
@@ -58,4 +61,6 @@ public static class MapLandmarkDefinitions
     ];
     /// <summary>Tourian's label to Crateria.</summary>
     internal static readonly ImmutableArray<MapElevatorLabel> TourianElevators = [new("Tourian.Elevator.ToCrateria", AreaId.Crateria)];
+    /// <summary>Ceres's labels: none, as no elevator leaves the station for another area.</summary>
+    internal static readonly ImmutableArray<MapElevatorLabel> CeresElevators = [];
 }

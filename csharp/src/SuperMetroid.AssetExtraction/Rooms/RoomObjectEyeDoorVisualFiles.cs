@@ -10,6 +10,28 @@ public static class RoomObjectEyeDoorVisualFiles
     /// <summary>JSON filename for editable eye-door eye, middle, bottom, and shared clearing frames.</summary>
     private const string VisualFileName = "eye-doors.json";
 
+    /// <summary>The installed name of each side, as the published keys spell it.</summary>
+    private static readonly IReadOnlyDictionary<EyeDoorOrientation, string> SideNames = new Dictionary<EyeDoorOrientation, string>
+    {
+        [EyeDoorOrientation.Left] = "left",
+        [EyeDoorOrientation.Right] = "right",
+    };
+
+    /// <summary>
+    /// The frames that show another frame's picture, with the frame whose picture each shows: the mirrored opening clear
+    /// shows the left clear's, so the installed file holds 23 frames.
+    /// </summary>
+    private static readonly Dictionary<RoomObjectDraw, RoomObjectDraw> SharedPictures = new Dictionary<RoomObjectDraw, RoomObjectDraw>
+    {
+        [EyeDoorObjectDrawDefinitions.MirroredOpeningClear] = EyeDoorDraws.Family.Of(new EyeDoorDraws.Draw(EyeDoorLook.Clear, EyeDoorOrientation.Left)),
+    };
+
+    /// <summary>
+    /// The published key of each frame with a picture of its own (#1994): the shared clear picture once, then each side's
+    /// looks by side and look.
+    /// </summary>
+    private static readonly Dictionary<RoomObjectDraw, string> VisualKeys = PublishedKeys();
+
     /// <summary>The eye-door as the import pictures them: every frame's geometry and published name.</summary>
     internal static RoomObjectFrameFamily<RoomObjectDraw> Family { get; } =
         RoomObjectFrameImageFiles.DrawFamily(VisualFileName, "Eye-door", Editable, VisualId);
@@ -54,9 +76,9 @@ public static class RoomObjectEyeDoorVisualFiles
         }
     }
 
-    /// <summary>The mirrored clear shares one visual identity, keeping the installed file at 23 frames.</summary>
+    /// <summary>The frames with a picture of their own: a frame showing another's picture is that frame's in the installed file.</summary>
     private static IEnumerable<RoomObjectDrawLists.DrawList> Editable =>
-        All.Where(draw => draw.Draw != EyeDoorObjectDrawDefinitions.MirroredOpeningClear);
+        All.Where(draw => !SharedPictures.ContainsKey(draw.Draw));
 
     /// <summary>The draw list of <paramref name="draw"/>, which must be one of the eye door draws.</summary>
     /// <exception cref="InvalidDataException"><paramref name="draw"/> is not a eye door draw.</exception>
@@ -72,10 +94,25 @@ public static class RoomObjectEyeDoorVisualFiles
     }
 
     /// <summary>Gets a stable side and look identifier for an editable draw (#1994).</summary>
-    private static string VisualId(RoomObjectDraw request)
+    private static string VisualId(RoomObjectDraw request) => VisualKeys.TryGetValue(request, out string? key) ? key
+        : throw new InvalidDataException($"Eye-door draw {request} has no visual ID.");
+
+    /// <summary>The published key of the clear picture both sides' clear frames show.</summary>
+    private const string SharedClearKey = "left-eye-clear";
+
+    /// <summary>Spells each frame's published key: the shared clear picture's, which both sides' clear frames show, then each side's looks'.</summary>
+    private static Dictionary<RoomObjectDraw, string> PublishedKeys()
     {
-        if (!RoomObjectDrawIdentity.TryFrame<EyeDoorDraws.Draw>(request, out var draw) || request == EyeDoorObjectDrawDefinitions.MirroredOpeningClear)
-            throw new InvalidDataException($"Eye-door draw {request} has no visual ID.");
-        return draw.Look == EyeDoorLook.Clear ? "left-eye-clear" : $"{(draw.Orientation == EyeDoorOrientation.Left ? "left" : "right")}-{EyeDoorLookNames.VisualName(draw.Look)}";
+        var keys = new Dictionary<RoomObjectDraw, string>
+        {
+            [EyeDoorDraws.Family.Of(new EyeDoorDraws.Draw(EyeDoorLook.Clear, EyeDoorOrientation.Left))] = SharedClearKey,
+            [EyeDoorDraws.Family.Of(new EyeDoorDraws.Draw(EyeDoorLook.Clear, EyeDoorOrientation.Right))] = SharedClearKey,
+        };
+        foreach ((EyeDoorOrientation side, string sideName) in SideNames)
+        {
+            foreach (EyeDoorLook look in EyeDoorLookNames.TableOrder)
+                keys.Add(EyeDoorDraws.Family.Of(new EyeDoorDraws.Draw(look, side)), $"{sideName}-{EyeDoorLookNames.VisualName(look)}");
+        }
+        return keys;
     }
 }

@@ -520,7 +520,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         ShowsHitBurst = c => PirateHitboxShotActions.ShowsHitBurst(c.HitboxShot),
         ReplacesGenericDeath = c =>
         {
-            if (c.HitboxShot == EnemyReaction.OrdinaryShot)
+            if (c.HitboxShot.IsOrdinary)
                 return false;
             StartPirateDeath(c);
             return true;
@@ -535,7 +535,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         ShowsHitBurst = c => PirateHitboxShotActions.GoldNinjaShowsHitBurst(c.HitboxShot),
         ReplacesGenericDeath = c =>
         {
-            if (c.HitboxShot == EnemyReaction.OrdinaryShot)
+            if (c.HitboxShot.IsOrdinary)
                 return false;
             // The Gold Ninja's death records its position as the drop origin before the enemy's death clears the
             // place; it then spawns the death explosion before the metal ninja Pirate's item drop spawns the drops.

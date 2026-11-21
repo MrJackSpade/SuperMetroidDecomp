@@ -1012,6 +1012,16 @@ is seeded with one that its body then tests against zero or minus one. An identi
 optional (`int?`, a nullable reference, a `TryGet`) or a closed type's case, and a role is a named member. A named
 constant, a sign beside another constant, a comparison's order and a library's own result are not sentinels.
 
+SME6484 (#2559) keeps behaviour reading properties rather than testing which identity a value is. In Core and the
+import pipeline no test lists two or more members of one identity enum (an enum named `…Id` that is not `[Flags]`) to
+decide something about a value: no pattern test that combines them (`pose is SamusPoseId.SpaceJumpRightPose or
+SamusPoseId.SpaceJumpLeftPose`, `area is not (AreaId.Brinstar or AreaId.Tourian)`) and no chain of equality tests of one
+value against them (`enemy == EnemyDefinitionId.Ridley || enemy == EnemyDefinitionId.RidleyCeres`). The trait the members
+share is declared once, as a property of each member's definition or a named family the definitions list
+(`SamusPoseMetadata.IsSpaceJumpPose(pose)`, `SamusPoseTraits.IsIn(pose, SamusPoseFamily.DrainedCrouch)`), and the behaviour
+reads it. A switch that maps each member to its own value is a lookup, and a test of one member or of a named constant is
+not a listing.
+
 SME6472 (#2575) keeps definition data in domain catalogs. Outside a catalog file, Core builds no value of a Core type
 wholly from constants with a nonzero numeric literal among them (`new Offset16<RoomPixels>(1, 0)`,
 `SignedSixteenSixteen.FromWholePixels(1)`, `UpdateCountdown.Lasting(1)`) and passes no nonzero numeric literal by name

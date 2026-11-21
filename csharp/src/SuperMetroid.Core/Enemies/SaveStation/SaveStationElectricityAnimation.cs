@@ -17,10 +17,6 @@ internal sealed class SaveStationElectricityAnimation()
     /// <summary>The band is drawn where the sweep's frame places it.</summary>
     private protected override Offset16<RoomPixels> Placement(Offset16<RoomPixels> frame) => frame;
 
-    /// <summary>The segment the discharge starts at: its cycle.</summary>
-    private protected override SaveStationElectricitySegment SegmentStartedAt(Animation<SaveStationElectricitySegment> started) =>
-        Ensure.NotNull(started).Phases[0].Segment;
-
     /// <inheritdoc/>
     private protected override AnimationSegments<SaveStationElectricitySegment, Offset16<RoomPixels>, EnemyProjectileCommonCue> Segments => SaveStationElectricityAnimations.Segments;
 

@@ -12,24 +12,25 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
 {
 
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } =
-        [EnemyDefinitionId.DraygonArms, EnemyDefinitionId.DraygonBody, EnemyDefinitionId.DraygonEye, EnemyDefinitionId.DraygonTail];
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. PartFactories.Keys];
 
     /// <summary>Draygon's body, eye, tail or arms (#2146).</summary>
-    /// <exception cref="InvalidOperationException">The place holds no Draygon definition.</exception>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    {
-        EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
-        if (definition == EnemyDefinitionId.DraygonBody)
-            return EnemyOccupant.Of(new DraygonBodyEntity(this, occupant, place, common, _bossArtwork));
-        if (definition == EnemyDefinitionId.DraygonEye)
-            return EnemyOccupant.Of(new DraygonEyeEntity(this, occupant, place, common, _bossArtwork));
-        if (definition == EnemyDefinitionId.DraygonTail)
-            return EnemyOccupant.Of(new DraygonTailEntity(this, occupant, place, common, _bossArtwork));
-        if (definition == EnemyDefinitionId.DraygonArms)
-            return EnemyOccupant.Of(new DraygonArmsEntity(this, occupant, place, common, _bossArtwork));
-        throw new InvalidOperationException($"The Draygon species creates no {occupant.DefinitionId}.");
-    }
+    /// <exception cref="KeyNotFoundException">The place holds no Draygon definition.</exception>
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        PartFactories[Ensure.NotNull(occupant).DefinitionId](this, occupant, place, common);
+
+    /// <summary>
+    /// The factory of each part the species creates, by the definition that places it: the species serves these
+    /// definitions, and each builds its own part from the species it is given.
+    /// </summary>
+    private static readonly Dictionary<EnemyDefinitionId, EnemyPartFactory<DraygonBehavior>> PartFactories =
+        new()
+        {
+            [EnemyDefinitionId.DraygonArms] = static (species, occupant, place, common) => EnemyOccupant.Of(new DraygonArmsEntity(species, occupant, place, common, species._bossArtwork)),
+            [EnemyDefinitionId.DraygonBody] = static (species, occupant, place, common) => EnemyOccupant.Of(new DraygonBodyEntity(species, occupant, place, common, species._bossArtwork)),
+            [EnemyDefinitionId.DraygonEye] = static (species, occupant, place, common) => EnemyOccupant.Of(new DraygonEyeEntity(species, occupant, place, common, species._bossArtwork)),
+            [EnemyDefinitionId.DraygonTail] = static (species, occupant, place, common) => EnemyOccupant.Of(new DraygonTailEntity(species, occupant, place, common, species._bossArtwork)),
+        };
 
     /// <summary>The loaded room's bindings: its game-state services, random source and the boss state that outlives the room.</summary>
     private readonly EnemyRoomBinding _room;

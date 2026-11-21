@@ -12,13 +12,22 @@ namespace SuperMetroid.Core.Enemies.FuneNamihe;
 internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Fune, EnemyDefinitionId.Namihe];
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. PartFactories.Keys];
 
     /// <inheritdoc/>
     public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
-        Ensure.NotNull(occupant).DefinitionId == EnemyDefinitionId.Namihe
-            ? EnemyOccupant.Of(new NamiheEntity(this, occupant, place, common))
-            : EnemyOccupant.Of(new FuneEntity(this, occupant, place, common));
+        PartFactories[Ensure.NotNull(occupant).DefinitionId](this, occupant, place, common);
+
+    /// <summary>
+    /// The factory of each part the species creates, by the definition that places it: the species serves these
+    /// definitions, and each builds its own part from the species it is given.
+    /// </summary>
+    private static readonly Dictionary<EnemyDefinitionId, EnemyPartFactory<FuneNamiheBehavior>> PartFactories =
+        new()
+        {
+            [EnemyDefinitionId.Fune] = static (species, occupant, place, common) => EnemyOccupant.Of(new FuneEntity(species, occupant, place, common)),
+            [EnemyDefinitionId.Namihe] = static (species, occupant, place, common) => EnemyOccupant.Of(new NamiheEntity(species, occupant, place, common)),
+        };
 
     /// <summary>Allocates the shared directional fireball fired by either species' animation.</summary>
     private readonly EnemyProjectileEngine _projectiles;

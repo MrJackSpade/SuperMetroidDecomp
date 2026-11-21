@@ -29,25 +29,35 @@ internal static class RoomSheetShades
         Ensure.NotNull(inputs);
         SelectedRoom[] rooms = [.. RoomsOf(tileset)];
         var shades = new List<SheetShade>(PaletteFxRoomShades.Of(rooms, inputs.Maps.RoomPaletteFx));
-        if (Places(rooms, EnemyDefinitionId.Kraid))
+        foreach ((EnemyDefinitionId[] enemies, Func<RoomBlockSheetInputs, IEnumerable<SheetShade>> roomShades) in EnemyRoomShades)
         {
-            shades.AddRange(KraidBackdropShades.Of(inputs.Bosses.KraidColors
-                ?? throw new InvalidDataException("Kraid's room is shaded from the installed Kraid colours.")));
+            if (enemies.Any(enemy => Places(rooms, enemy)))
+                shades.AddRange(roomShades(inputs));
         }
-        if (Places(rooms, EnemyDefinitionId.SporeSpawn))
-            shades.AddRange(SporeSpawnSheetShades.Room(inputs.Bosses));
-        if (Places(rooms, EnemyDefinitionId.PhantoonBody))
-            shades.AddRange(PhantoonSheetShades.PowerOn(inputs.Bosses));
-        if (Places(rooms, EnemyDefinitionId.CeresElevatorDoor))
-            shades.AddRange(ElevatorRoomGlow(inputs));
-        if (Places(rooms, EnemyDefinitionId.TourianStatue))
-            shades.AddRange(TourianStatueLooks(inputs));
-        if (Places(rooms, EnemyDefinitionId.MotherBrainBody))
-            shades.AddRange(MotherBrainSheetShades.Room(inputs.Maps));
-        if (Places(rooms, EnemyDefinitionId.RidleyCeres) || Places(rooms, EnemyDefinitionId.Ridley))
-            shades.AddRange(RidleySheetShades.Room(inputs.Maps, inputs.Bosses));
         return shades;
     }
+
+    /// <summary>The shades a room of the listed enemies' rooms adds, from the room's sheet inputs.</summary>
+    /// <param name="Enemies">The enemies whose rooms add the shades.</param>
+    /// <param name="Shades">The shades the rooms add.</param>
+    private sealed record EnemyRoomShade(EnemyDefinitionId[] Enemies, Func<RoomBlockSheetInputs, IEnumerable<SheetShade>> Shades);
+
+    /// <summary>
+    /// The enemies whose colours recolour the rooms that place them, each with the shades they bring, in the order a
+    /// tileset's shades list them: Kraid's backdrop, Spore Spawn's room, the Wrecked Ship's power-on Phantoon brings, the
+    /// Ceres elevator room's glow, the Tourian statue's looks, Mother Brain's room and the Ridleys' rooms.
+    /// </summary>
+    private static readonly EnemyRoomShade[] EnemyRoomShades =
+    [
+        new([EnemyDefinitionId.Kraid], inputs => KraidBackdropShades.Of(inputs.Bosses.KraidColors
+            ?? throw new InvalidDataException("Kraid's room is shaded from the installed Kraid colours."))),
+        new([EnemyDefinitionId.SporeSpawn], inputs => SporeSpawnSheetShades.Room(inputs.Bosses)),
+        new([EnemyDefinitionId.PhantoonBody], inputs => PhantoonSheetShades.PowerOn(inputs.Bosses)),
+        new([EnemyDefinitionId.CeresElevatorDoor], ElevatorRoomGlow),
+        new([EnemyDefinitionId.TourianStatue], TourianStatueLooks),
+        new([EnemyDefinitionId.MotherBrainBody], inputs => MotherBrainSheetShades.Room(inputs.Maps)),
+        new([EnemyDefinitionId.RidleyCeres, EnemyDefinitionId.Ridley], inputs => RidleySheetShades.Room(inputs.Maps, inputs.Bosses)),
+    ];
 
     /// <summary>
     /// The shades of the pictures <paramref name="writers"/> write over a room (#1544): each writer's own effects alone,

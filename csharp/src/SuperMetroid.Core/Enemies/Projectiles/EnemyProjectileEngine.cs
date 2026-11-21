@@ -153,8 +153,8 @@ internal sealed class EnemyProjectileEngine
                     continue;
 
                 SamusProjectileType shotType = held.Type;
-                if (shotType.Family is SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb or
-                    SamusProjectileFamily.BeamExplosion or SamusProjectileFamily.MissileExplosion)
+                // Bombs and the explosions shots leave behind strike no enemy projectile.
+                if (shotType.Family.IsBombOrExplosion)
                     continue;
 
                 if (!ShotAndProjectileSquares.Meet(shot.Position.Whole, enemyProjectile.Position.Whole))

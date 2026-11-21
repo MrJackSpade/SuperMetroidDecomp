@@ -8,8 +8,12 @@ namespace SuperMetroid.Core.Rooms;
 [NumberedIdentities("Rooms such as Metroids1-4 and TourianEscape1-4 are distinct rooms with their own definitions; the number is part of each room's name, not a position anything indexes.")]
 public static class RoomDefinitions
 {
+    /// <summary><paramref name="room"/> as a wet room whose camera leads a fall by the shallower amount.</summary>
+    private static RoomDefinition WetWithShallowerFall(RoomDefinition room) =>
+        room with { CameraLead = RoomCameraLeads.ShallowerFall, Ground = RoomGroundDefinitions.Wet };
+
     /// <summary>The Landing Site room.</summary>
-    public static RoomDefinition LandingSite { get; } = new("LandingSite", AreaId.Crateria, new(23, 1), new(9, 5));
+    public static RoomDefinition LandingSite { get; } = new("LandingSite", AreaId.Crateria, new(23, 1), new(9, 5)) { Ground = RoomGroundDefinitions.WetWhileRaining };
     /// <summary>The Gauntlet Entrance room.</summary>
     public static RoomDefinition GauntletEntrance { get; } = new("GauntletEntrance", AreaId.Crateria, new(18, 3), new(5, 1));
     /// <summary>The Parlor room.</summary>
@@ -19,25 +23,25 @@ public static class RoomDefinitions
     /// <summary>The Crateria Save room.</summary>
     public static RoomDefinition CrateriaSave { get; } = new("CrateriaSave", AreaId.Crateria, new(18, 7), new(1, 1));
     /// <summary>The West Ocean room.</summary>
-    public static RoomDefinition WestOcean { get; } = new("WestOcean", AreaId.Crateria, new(38, 1), new(8, 6)) { CameraLead = RoomCameraLeads.ShallowerFall };
+    public static RoomDefinition WestOcean { get; } = new("WestOcean", AreaId.Crateria, new(38, 1), new(8, 6)) { CameraLead = RoomCameraLeads.ShallowerFall, Ground = RoomGroundDefinitions.WetBelowWaterline };
     /// <summary>The Bowling Alley Path room.</summary>
     public static RoomDefinition BowlingAlleyPath { get; } = new("BowlingAlleyPath", AreaId.Crateria, new(41, 3), new(2, 1));
     /// <summary>The Crateria Kihunter room.</summary>
-    public static RoomDefinition CrateriaKihunter { get; } = new("CrateriaKihunter", AreaId.Crateria, new(33, 5), new(3, 3));
+    public static RoomDefinition CrateriaKihunter { get; } = new("CrateriaKihunter", AreaId.Crateria, new(33, 5), new(3, 3)) { Ground = RoomGroundDefinitions.Wet };
     /// <summary>The Forgotten Highway Elevator room.</summary>
     public static RoomDefinition ForgottenHighwayElevator { get; } = new("ForgottenHighwayElevator", AreaId.Crateria, new(52, 11), new(1, 1));
     /// <summary>The East Ocean room.</summary>
-    public static RoomDefinition EastOcean { get; } = new("EastOcean", AreaId.Crateria, new(49, 1), new(7, 6));
+    public static RoomDefinition EastOcean { get; } = new("EastOcean", AreaId.Crateria, new(49, 1), new(7, 6)) { Ground = RoomGroundDefinitions.Wet };
     /// <summary>The Forgotten Highway Kagos room.</summary>
-    public static RoomDefinition ForgottenHighwayKagos { get; } = new("ForgottenHighwayKagos", AreaId.Crateria, new(56, 5), new(1, 4));
+    public static RoomDefinition ForgottenHighwayKagos { get; } = new("ForgottenHighwayKagos", AreaId.Crateria, new(56, 5), new(1, 4)) { Ground = RoomGroundDefinitions.Wet };
     /// <summary>The Crab Maze room.</summary>
-    public static RoomDefinition CrabMaze { get; } = new("CrabMaze", AreaId.Crateria, new(53, 9), new(4, 2)) { CameraLead = RoomCameraLeads.ShallowerFall };
+    public static RoomDefinition CrabMaze { get; } = WetWithShallowerFall(new("CrabMaze", AreaId.Crateria, new(53, 9), new(4, 2)));
     /// <summary>The Forgotten Highway Elbow room.</summary>
-    public static RoomDefinition ForgottenHighwayElbow { get; } = new("ForgottenHighwayElbow", AreaId.Crateria, new(52, 10), new(1, 1));
+    public static RoomDefinition ForgottenHighwayElbow { get; } = new("ForgottenHighwayElbow", AreaId.Crateria, new(52, 10), new(1, 1)) { Ground = RoomGroundDefinitions.Wet };
     /// <summary>The Crateria Tube room.</summary>
     public static RoomDefinition CrateriaTube { get; } = new("CrateriaTube", AreaId.Crateria, new(32, 5), new(1, 1));
     /// <summary>The Moat room.</summary>
-    public static RoomDefinition Moat { get; } = new("Moat", AreaId.Crateria, new(36, 5), new(2, 2)) { CameraLead = RoomCameraLeads.ShallowerFall };
+    public static RoomDefinition Moat { get; } = WetWithShallowerFall(new("Moat", AreaId.Crateria, new(36, 5), new(2, 2)));
     /// <summary>The Red Brinstar Elevator room.</summary>
     public static RoomDefinition RedBrinstarElevator { get; } = new("RedBrinstarElevator", AreaId.Crateria, new(34, 8), new(1, 1));
     /// <summary>The Gauntlet Energy Tank room.</summary>
@@ -45,13 +49,13 @@ public static class RoomDefinitions
     /// <summary>The Pre Bowling room.</summary>
     public static RoomDefinition PreBowling { get; } = new("PreBowling", AreaId.Crateria, new(43, 3), new(1, 1));
     /// <summary>The Climb room.</summary>
-    public static RoomDefinition Climb { get; } = new("Climb", AreaId.Crateria, new(18, 10), new(3, 9));
+    public static RoomDefinition Climb { get; } = new("Climb", AreaId.Crateria, new(18, 10), new(3, 9)) { QuakesAreSilent = true };
     /// <summary>The Pit room.</summary>
     public static RoomDefinition Pit { get; } = new("Pit", AreaId.Crateria, new(20, 18), new(3, 2));
     /// <summary>The Elevator to Blue Brinstar room.</summary>
     public static RoomDefinition ElevatorToBlueBrinstar { get; } = new("ElevatorToBlueBrinstar", AreaId.Crateria, new(23, 18), new(1, 1));
     /// <summary>The Bomb Torizo room.</summary>
-    public static RoomDefinition BombTorizo { get; } = new("BombTorizo", AreaId.Crateria, new(25, 7), new(1, 1));
+    public static RoomDefinition BombTorizo { get; } = new("BombTorizo", AreaId.Crateria, new(25, 7), new(1, 1)) { QuakesAreSilent = true };
     /// <summary>The Flyway room.</summary>
     public static RoomDefinition Flyway { get; } = new("Flyway", AreaId.Crateria, new(22, 7), new(3, 1));
     /// <summary>The Pre Map Flyway room.</summary>
@@ -65,7 +69,7 @@ public static class RoomDefinitions
     /// <summary>The Crateria Map room.</summary>
     public static RoomDefinition CrateriaMap { get; } = new("CrateriaMap", AreaId.Crateria, new(23, 8), new(1, 1));
     /// <summary>The Green Pirates Shaft room.</summary>
-    public static RoomDefinition GreenPiratesShaft { get; } = new("GreenPiratesShaft", AreaId.Crateria, new(11, 3), new(1, 7));
+    public static RoomDefinition GreenPiratesShaft { get; } = new("GreenPiratesShaft", AreaId.Crateria, new(11, 3), new(1, 7)) { Ground = RoomGroundDefinitions.Dusty };
     /// <summary>The Crateria Super room.</summary>
     public static RoomDefinition CrateriaSuper { get; } = new("CrateriaSuper", AreaId.Crateria, new(21, 10), new(4, 8));
     /// <summary>The Final Missile Bombway room.</summary>
@@ -83,19 +87,19 @@ public static class RoomDefinitions
     /// <summary>The Brinstar Reserve Tank room.</summary>
     public static RoomDefinition BrinstarReserveTank { get; } = new("BrinstarReserveTank", AreaId.Brinstar, new(13, 5), new(2, 1));
     /// <summary>The Green Brinstar Map room.</summary>
-    public static RoomDefinition GreenBrinstarMap { get; } = new("GreenBrinstarMap", AreaId.Brinstar, new(5, 5), new(1, 1));
+    public static RoomDefinition GreenBrinstarMap { get; } = new("GreenBrinstarMap", AreaId.Brinstar, new(5, 5), new(1, 1)) { Ground = RoomGroundDefinitions.Dusty };
     /// <summary>The Green Brinstar Firefleas room.</summary>
-    public static RoomDefinition GreenBrinstarFirefleas { get; } = new("GreenBrinstarFirefleas", AreaId.Brinstar, new(6, 7), new(3, 2));
+    public static RoomDefinition GreenBrinstarFirefleas { get; } = new("GreenBrinstarFirefleas", AreaId.Brinstar, new(6, 7), new(3, 2)) { Ground = RoomGroundDefinitions.Dusty };
     /// <summary>The Green Brinstar Missile Refill room.</summary>
-    public static RoomDefinition GreenBrinstarMissileRefill { get; } = new("GreenBrinstarMissileRefill", AreaId.Brinstar, new(5, 8), new(1, 1));
+    public static RoomDefinition GreenBrinstarMissileRefill { get; } = new("GreenBrinstarMissileRefill", AreaId.Brinstar, new(5, 8), new(1, 1)) { Ground = RoomGroundDefinitions.Dusty };
     /// <summary>The Dachora room.</summary>
-    public static RoomDefinition Dachora { get; } = new("Dachora", AreaId.Brinstar, new(10, 7), new(7, 7));
+    public static RoomDefinition Dachora { get; } = new("Dachora", AreaId.Brinstar, new(10, 7), new(7, 7)) { Ground = RoomGroundDefinitions.Dusty };
     /// <summary>The Big Pink room.</summary>
     public static RoomDefinition BigPink { get; } = new("BigPink", AreaId.Brinstar, new(15, 5), new(5, 10));
     /// <summary>The Spore Spawn Kihunters room.</summary>
     public static RoomDefinition SporeSpawnKihunters { get; } = new("SporeSpawnKihunters", AreaId.Brinstar, new(19, 5), new(4, 1));
     /// <summary>The Spore Spawn room.</summary>
-    public static RoomDefinition SporeSpawn { get; } = new("SporeSpawn", AreaId.Brinstar, new(22, 2), new(1, 3));
+    public static RoomDefinition SporeSpawn { get; } = new("SporeSpawn", AreaId.Brinstar, new(22, 2), new(1, 3)) { Ground = RoomGroundDefinitions.Dusty };
     /// <summary>The Pink Brinstar Power Bombs room.</summary>
     public static RoomDefinition PinkBrinstarPowerBombs { get; } = new("PinkBrinstarPowerBombs", AreaId.Brinstar, new(15, 8), new(2, 2));
     /// <summary>The Green Hill Zone room.</summary>
@@ -175,7 +179,7 @@ public static class RoomDefinitions
     /// <summary>The Kraid Refill room.</summary>
     public static RoomDefinition KraidRefill { get; } = new("KraidRefill", AreaId.Brinstar, new(54, 19), new(1, 1));
     /// <summary>The Statues room.</summary>
-    public static RoomDefinition Statues { get; } = new("Statues", AreaId.Crateria, new(17, 9), new(1, 2));
+    public static RoomDefinition Statues { get; } = new("Statues", AreaId.Crateria, new(17, 9), new(1, 2)) { XrayRevealsNoBlocks = true };
     /// <summary>The Warehouse Entrance room.</summary>
     public static RoomDefinition WarehouseEntrance { get; } = new("WarehouseEntrance", AreaId.Brinstar, new(41, 19), new(3, 2));
     /// <summary>The Varia Suit room.</summary>
@@ -301,7 +305,7 @@ public static class RoomDefinitions
     /// <summary>The Golden Torizo Energy Refill room.</summary>
     public static RoomDefinition GoldenTorizoEnergyRefill { get; } = new("GoldenTorizoEnergyRefill", AreaId.Norfair, new(21, 16), new(1, 1));
     /// <summary>The Ridley room.</summary>
-    public static RoomDefinition Ridley { get; } = new("Ridley", AreaId.Norfair, new(23, 17), new(1, 2));
+    public static RoomDefinition Ridley { get; } = new("Ridley", AreaId.Norfair, new(23, 17), new(1, 2)) { QuakesAreSilent = true };
     /// <summary>The Lower Norfair Farming room.</summary>
     public static RoomDefinition LowerNorfairFarming { get; } = new("LowerNorfairFarming", AreaId.Norfair, new(24, 17), new(3, 1));
     /// <summary>The Fast Pillars Setup room.</summary>
@@ -309,7 +313,7 @@ public static class RoomDefinitions
     /// <summary>The Mickey Mouse room.</summary>
     public static RoomDefinition MickeyMouse { get; } = new("MickeyMouse", AreaId.Norfair, new(26, 10), new(4, 4));
     /// <summary>The Pillar room.</summary>
-    public static RoomDefinition Pillar { get; } = new("Pillar", AreaId.Norfair, new(26, 15), new(4, 1));
+    public static RoomDefinition Pillar { get; } = new("Pillar", AreaId.Norfair, new(26, 15), new(4, 1)) { QuakesAreSilent = true };
     /// <summary>The Plowerhouse room.</summary>
     public static RoomDefinition Plowerhouse { get; } = new("Plowerhouse", AreaId.Norfair, new(27, 17), new(3, 1));
     /// <summary>The Worst Room in the Game.</summary>
@@ -371,7 +375,7 @@ public static class RoomDefinitions
     /// <summary>The Glass Tunnel Save room.</summary>
     public static RoomDefinition GlassTunnelSave { get; } = new("GlassTunnelSave", AreaId.Maridia, new(12, 20), new(1, 1));
     /// <summary>The Glass Tunnel room.</summary>
-    public static RoomDefinition GlassTunnel { get; } = new("GlassTunnel", AreaId.Maridia, new(11, 18), new(1, 3)) { XrayHidesBackground = true };
+    public static RoomDefinition GlassTunnel { get; } = new("GlassTunnel", AreaId.Maridia, new(11, 18), new(1, 3)) { XrayHidesBackground = true, XrayRevealsNoBlocks = true };
     /// <summary>The West Tunnel room.</summary>
     public static RoomDefinition WestTunnel { get; } = new("WestTunnel", AreaId.Maridia, new(10, 19), new(1, 1));
     /// <summary>The East Tunnel room.</summary>
@@ -491,19 +495,19 @@ public static class RoomDefinitions
     /// <summary>The Metroids 4 room.</summary>
     public static RoomDefinition Metroids4 { get; } = new("Metroids4", AreaId.Tourian, new(20, 14), new(1, 2));
     /// <summary>The Blue Hopper room.</summary>
-    public static RoomDefinition BlueHopper { get; } = new("BlueHopper", AreaId.Tourian, new(19, 16), new(2, 1));
+    public static RoomDefinition BlueHopper { get; } = new("BlueHopper", AreaId.Tourian, new(19, 16), new(2, 1)) { Ground = RoomGroundDefinitions.Dusty };
     /// <summary>The Dust Torizo room.</summary>
-    public static RoomDefinition DustTorizo { get; } = new("DustTorizo", AreaId.Tourian, new(17, 16), new(2, 1));
+    public static RoomDefinition DustTorizo { get; } = new("DustTorizo", AreaId.Tourian, new(17, 16), new(2, 1)) { Ground = RoomGroundDefinitions.Dusty };
     /// <summary>The Big Boy room.</summary>
-    public static RoomDefinition BigBoy { get; } = new("BigBoy", AreaId.Tourian, new(13, 16), new(4, 1));
+    public static RoomDefinition BigBoy { get; } = new("BigBoy", AreaId.Tourian, new(13, 16), new(4, 1)) { Ground = RoomGroundDefinitions.Dusty };
     /// <summary>The Seaweed room.</summary>
-    public static RoomDefinition Seaweed { get; } = new("Seaweed", AreaId.Tourian, new(12, 16), new(1, 2));
+    public static RoomDefinition Seaweed { get; } = new("Seaweed", AreaId.Tourian, new(12, 16), new(1, 2)) { Ground = RoomGroundDefinitions.Dusty };
     /// <summary>The Tourian Recharge room.</summary>
     public static RoomDefinition TourianRecharge { get; } = new("TourianRecharge", AreaId.Tourian, new(11, 17), new(1, 1));
     /// <summary>The Mother Brain room.</summary>
-    public static RoomDefinition MotherBrain { get; } = new("MotherBrain", AreaId.Tourian, new(13, 19), new(4, 1));
+    public static RoomDefinition MotherBrain { get; } = new("MotherBrain", AreaId.Tourian, new(13, 19), new(4, 1)) { QuakesAreSilent = true };
     /// <summary>The Tourian Eye Door room.</summary>
-    public static RoomDefinition TourianEyeDoor { get; } = new("TourianEyeDoor", AreaId.Tourian, new(13, 17), new(4, 1));
+    public static RoomDefinition TourianEyeDoor { get; } = new("TourianEyeDoor", AreaId.Tourian, new(13, 17), new(4, 1)) { Ground = RoomGroundDefinitions.Dusty };
     /// <summary>The Rinka Shaft room.</summary>
     public static RoomDefinition RinkaShaft { get; } = new("RinkaShaft", AreaId.Tourian, new(17, 17), new(1, 3));
     /// <summary>The Mother Brain Save room.</summary>
@@ -515,7 +519,7 @@ public static class RoomDefinitions
     /// <summary>The Tourian Escape 3 room.</summary>
     public static RoomDefinition TourianEscape3 { get; } = new("TourianEscape3", AreaId.Tourian, new(12, 20), new(6, 2));
     /// <summary>The Tourian Escape 4 room.</summary>
-    public static RoomDefinition TourianEscape4 { get; } = new("TourianEscape4", AreaId.Tourian, new(18, 17), new(3, 6));
+    public static RoomDefinition TourianEscape4 { get; } = new("TourianEscape4", AreaId.Tourian, new(18, 17), new(3, 6)) { QuakesAreSilent = true };
     /// <summary>The Upper Tourian Save room.</summary>
     public static RoomDefinition UpperTourianSave { get; } = new("UpperTourianSave", AreaId.Tourian, new(21, 13), new(1, 1));
     /// <summary>The Ceres Elevator room.</summary>

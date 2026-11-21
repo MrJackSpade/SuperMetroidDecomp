@@ -343,7 +343,7 @@ internal static class WrittenPictureSheetComposer
         {
             ReadOnlySpan<byte> character = bytes[word.Shown.Artwork].Span.Slice(word.Shown.WordOffset * sizeof(ushort), characterWords * sizeof(ushort));
             int left = corner.X, top = corner.Y;
-            if (kind == SpriteImageColours.TwoBppBackground)
+            if (Ensure.Listed(SpriteImageColourDefinitions.Colourings, kind).TwoBitCharacters)
                 canvas.PaintTwoBppTile(left, top, word.Word, character, colours);
             else
                 canvas.PaintTile(left, top, word.Word, character, colours);

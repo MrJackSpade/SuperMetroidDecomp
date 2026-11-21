@@ -78,7 +78,7 @@ using SuperMetroid.AssetExtraction.Bosses.Phantoon.Artwork;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
-using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Compatibility;
 namespace SuperMetroid.Verification.Harness;
 
@@ -597,7 +597,7 @@ internal static class LookupStream5Verification
                         // The cartridge's first slot shows the area boss's flag.
                         AssertEqual(0, count, "Native used boss slot is the area boss's");
                         MapBossMarker marker = markers[shown++];
-                        AssertEqual(DefeatedBosses.AreaBoss, AreaBossDefinitions.RecordedAs[marker.Boss], "Named marker shows the area boss");
+                        AssertEqual(DefeatedBosses.AreaBoss, Ensure.Listed(AreaBossDefinitions.Bosses, marker.Boss).RecordedAs, "Named marker shows the area boss");
                         AssertEqual(Read(pointer + count * 4), layout.Get(marker.Id).X, "Native semantic boss X");
                         AssertEqual(Read(pointer + count * 4 + 2), layout.Get(marker.Id).Y, "Native semantic boss Y");
                     }
@@ -665,7 +665,7 @@ internal static class LookupStream5Verification
             void Draw(MapSpriteId id, int x, int y, MapSpriteColouring colouring) => MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(sprites), id, expected, Offset16<ScreenPixels>.Wrapped(x - 7, y - 9), MapSpriteScreen.FileSelect, colouring);
         }
         AssertThrows<ArgumentOutOfRangeException>(() => MapLandmarks.BossMarkers((AreaId)7), "Invalid boss area");
-        AssertThrows<ArgumentOutOfRangeException>(() => MapLandmarks.Elevators(AreaId.Ceres), "Ceres has no elevator labels");
+        AssertEqual(0, MapLandmarks.Elevators(AreaId.Ceres).Length, "Ceres has no elevator labels");
         AssertEqual(8, bossSlots, "Eight native boss slots including three unused");
         AssertEqual(17, elevatorSlots, "Seventeen native destination labels");
         Console.WriteLine("Map landmark cases: eight native boss slots, seventeen destinations, extraction/schema, 23 ordered IDs, bounds and 28 stock ordered OAM/state cases pass.");

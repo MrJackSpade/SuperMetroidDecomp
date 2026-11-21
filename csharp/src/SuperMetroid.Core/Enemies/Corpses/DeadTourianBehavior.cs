@@ -35,13 +35,9 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
         _projectiles = projectiles;
     }
 
-    /// <summary>Recognizes the three Tourian corpse enemy definitions handled by this owner.</summary>
-    internal static bool IsDeadTourianCorpseDefinition(EnemyDefinitionId definitionId) =>
-        DeadTourianCorpseSpeciesDefinitions.Species.ContainsKey(definitionId);
-
     /// <summary>The species whose corpse <paramref name="definitionId"/> places.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="definitionId"/> is not a Tourian corpse.</exception>
-    internal static DeadTourianCorpseSpecies SpeciesOf(EnemyDefinitionId definitionId) =>
+    private static DeadTourianCorpseSpecies SpeciesOf(EnemyDefinitionId definitionId) =>
         DeadTourianCorpseSpeciesDefinitions.Species.TryGetValue(definitionId, out DeadTourianCorpseSpecies species)
             ? species
             : throw new ArgumentOutOfRangeException(nameof(definitionId));

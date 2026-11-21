@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Bosses.Ridley.Artwork;
+
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>Ridley's tail as it is made, and the swings, spacings, reaches and extensions its actions set (#2238).</summary>

@@ -17,25 +17,22 @@ public static class GameSaveJsonFormat
     public const int SchemaVersion = 16;
 
     /// <summary>Each save slot's name in a game save, which keys the slot and names the selected one (schema sixteen, #2565).</summary>
-    private static readonly IReadOnlyDictionary<SaveSlot, string> SlotKeys = new Dictionary<SaveSlot, string>
+    private static readonly InstalledKeys<SaveSlot> SlotKeys = new(new Dictionary<SaveSlot, string>
     {
         [SaveSlot.A] = "A",
         [SaveSlot.B] = "B",
         [SaveSlot.C] = "C",
-    };
+    });
 
     /// <summary>The name a game save gives <paramref name="slot"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="slot"/> is no save slot.</exception>
-    public static string SlotKey(SaveSlot slot) => SlotKeys.TryGetValue(slot, out string? key)
-        ? key
-        : throw new ArgumentOutOfRangeException(nameof(slot), slot, "Undefined save slot.");
+    public static string SlotKey(SaveSlot slot) => SlotKeys.Of(slot);
 
     /// <summary>The save slot a game save names <paramref name="key"/>.</summary>
     /// <exception cref="InvalidDataException">No slot has that name.</exception>
-    public static SaveSlot SlotNamed(string? key) =>
-        SlotKeys.FirstOrDefault(entry => string.Equals(entry.Value, key, StringComparison.Ordinal)) is { Value: not null } named
-            ? named.Key
-            : throw new InvalidDataException($"'{key}' names no save slot; a slot is named A, B or C");
+    public static SaveSlot SlotNamed(string? key) => SlotKeys.TryParse(key, out SaveSlot slot)
+        ? slot
+        : throw new InvalidDataException($"'{key}' names no save slot; a slot is named A, B or C");
 
     /// <summary>The file extension of a game save.</summary>
     public const string FileExtension = ".save.json";

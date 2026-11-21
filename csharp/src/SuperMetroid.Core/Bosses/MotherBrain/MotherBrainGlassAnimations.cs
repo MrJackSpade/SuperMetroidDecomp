@@ -75,19 +75,17 @@ internal static class MotherBrainGlassAnimations
         P.ShardFlyingLeft, P.ShardFlyingLeft, P.ShardFlyingLeft,
         P.ShardFlyingUpLeft, P.ShardFlyingUpLeft);
 
-    /// <summary>How long each of a flying shard's eight turns shows as it spins (#2557), in order.</summary>
-    private static ReadOnlySpan<int> SpinCadence => [4, 3, 2, 3, 4, 3, 2, 3];
-
-    /// <summary>A shard spinning through <paramref name="turns"/>, its heading's eight turns, at <see cref="SpinCadence"/>.</summary>
-    private static Beat[] Spin(params ReadOnlySpan<EnemyProjectileFrameId> turns)
-    {
-        if (turns.Length != SpinCadence.Length)
-            throw new ArgumentException($"A shard spins through {SpinCadence.Length} turns, not {turns.Length}.", nameof(turns));
-        var beats = new Beat[turns.Length];
-        for (int turn = 0; turn < turns.Length; turn++)
-            beats[turn] = Show(turns[turn], SpinCadence[turn]);
-        return beats;
-    }
+    /// <summary>
+    /// A shard spinning through its heading's eight turns, <paramref name="turned0"/> to <paramref name="turned315"/>, each
+    /// shown as long as the spin's cadence holds it (#2557): longest square on, shortest edge on.
+    /// </summary>
+    private static Beat[] Spin(EnemyProjectileFrameId turned0, EnemyProjectileFrameId turned45, EnemyProjectileFrameId turned90,
+        EnemyProjectileFrameId turned135, EnemyProjectileFrameId turned180, EnemyProjectileFrameId turned225, EnemyProjectileFrameId turned270,
+        EnemyProjectileFrameId turned315) =>
+    [
+        Show(turned0, 4), Show(turned45, 3), Show(turned90, 2), Show(turned135, 3),
+        Show(turned180, 4), Show(turned225, 3), Show(turned270, 2), Show(turned315, 3),
+    ];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> passes.</summary>
     private static Beat Show(EnemyProjectileFrameId frame, int duration) => new Beat.Frame(frame, duration);

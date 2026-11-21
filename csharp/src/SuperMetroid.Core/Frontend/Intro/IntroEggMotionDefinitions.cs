@@ -22,8 +22,7 @@ internal static class IntroEggMotionDefinitions
 
     /// <summary>The definition of <paramref name="fragment"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="fragment"/> is not a piece of the shell.</exception>
-    internal static IntroEggShellPiece ShellPiece(IntroEggShellFragment fragment) =>
-        ShellPieces.TryGetValue(fragment, out IntroEggShellPiece? piece) ? piece : throw new ArgumentOutOfRangeException(nameof(fragment));
+    internal static IntroEggShellPiece ShellPiece(IntroEggShellFragment fragment) => Ensure.Listed(ShellPieces, fragment);
 
     /// <summary>
     /// The updates <see cref="ShellFall"/> covers. The upper-left and upper-right pieces fly three updates past it before

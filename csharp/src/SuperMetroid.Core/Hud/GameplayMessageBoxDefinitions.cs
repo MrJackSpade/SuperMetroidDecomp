@@ -71,10 +71,7 @@ public static class GameplayMessageBoxDefinitions
 
     /// <summary>The definition of <paramref name="messageId"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="messageId"/> is no message the table lists.</exception>
-    public static GameplayMessageDefinition Message(GameplayMessageId messageId) =>
-        Messages.TryGetValue(messageId, out GameplayMessageDefinition? definition)
-            ? definition
-            : throw new ArgumentOutOfRangeException(nameof(messageId), messageId, "The message table does not list this message.");
+    public static GameplayMessageDefinition Message(GameplayMessageId messageId) => Ensure.Listed(Messages, messageId);
 
     /// <summary>Which button an item panel names for its action.</summary>
     public static class Buttons

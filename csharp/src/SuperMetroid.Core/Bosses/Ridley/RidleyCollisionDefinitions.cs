@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Bosses.Ridley;
@@ -86,15 +87,15 @@ internal static class RidleyCollisionDefinitions
     /// </summary>
     internal static readonly IReadOnlyDictionary<EnemyFrameId, RidleySideBodyCollision> SideFacing = new Dictionary<EnemyFrameId, RidleySideBodyCollision>
     {
-        [EnemyFrameId.RidleyBodyLeft] = new(FacesRight: false, LeftLegsNotExtended, LeftHeadMouthClosed),
-        [EnemyFrameId.RidleyBodyRight] = new(FacesRight: true, RightLegsNotExtended, RightHeadMouthClosed),
-        [EnemyFrameId.RidleyBodyLeftMouthHalfOpen] = new(FacesRight: false, LeftLegsNotExtended, LeftHeadMouthHalfOpen),
-        [EnemyFrameId.RidleyBodyLeftMouthOpen] = new(FacesRight: false, LeftLegsNotExtended, LeftHeadMouthOpen),
-        [EnemyFrameId.RidleyBodyRightMouthHalfOpen] = new(FacesRight: true, RightLegsNotExtended, RightHeadMouthHalfOpen),
-        [EnemyFrameId.RidleyBodyRightMouthOpen] = new(FacesRight: true, RightLegsNotExtended, RightHeadMouthOpen),
-        [EnemyFrameId.RidleyBodyLeftLegsHalfExtended] = new(FacesRight: false, LeftLegsHalfExtended, LeftHeadMouthClosed),
-        [EnemyFrameId.RidleyBodyLeftLegsExtended] = new(FacesRight: false, LeftLegsExtended, LeftHeadMouthClosed),
-        [EnemyFrameId.RidleyBodyRightLegsHalfExtended] = new(FacesRight: true, RightLegsHalfExtended, RightHeadMouthClosed),
-        [EnemyFrameId.RidleyBodyRightLegsExtended] = new(FacesRight: true, RightLegsExtended, RightHeadMouthClosed),
+        [EnemyFrameId.RidleyBodyLeft] = new(HorizontalDirection.Left, LeftLegsNotExtended, LeftHeadMouthClosed),
+        [EnemyFrameId.RidleyBodyRight] = new(HorizontalDirection.Right, RightLegsNotExtended, RightHeadMouthClosed),
+        [EnemyFrameId.RidleyBodyLeftMouthHalfOpen] = new(HorizontalDirection.Left, LeftLegsNotExtended, LeftHeadMouthHalfOpen),
+        [EnemyFrameId.RidleyBodyLeftMouthOpen] = new(HorizontalDirection.Left, LeftLegsNotExtended, LeftHeadMouthOpen),
+        [EnemyFrameId.RidleyBodyRightMouthHalfOpen] = new(HorizontalDirection.Right, RightLegsNotExtended, RightHeadMouthHalfOpen),
+        [EnemyFrameId.RidleyBodyRightMouthOpen] = new(HorizontalDirection.Right, RightLegsNotExtended, RightHeadMouthOpen),
+        [EnemyFrameId.RidleyBodyLeftLegsHalfExtended] = new(HorizontalDirection.Left, LeftLegsHalfExtended, LeftHeadMouthClosed),
+        [EnemyFrameId.RidleyBodyLeftLegsExtended] = new(HorizontalDirection.Left, LeftLegsExtended, LeftHeadMouthClosed),
+        [EnemyFrameId.RidleyBodyRightLegsHalfExtended] = new(HorizontalDirection.Right, RightLegsHalfExtended, RightHeadMouthClosed),
+        [EnemyFrameId.RidleyBodyRightLegsExtended] = new(HorizontalDirection.Right, RightLegsExtended, RightHeadMouthClosed),
     };
 }

@@ -5,6 +5,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// an identity the installed table names, which each lead class's outcomes are keyed by.
 /// </summary>
 /// <param name="name">The class's installed name, for diagnostics.</param>
+[CompatibilityService("one class of second blocks a Wave shot's scan past the room's ceiling straddles into")]
 public sealed class StraddledTerrainTail(string name)
 {
     /// <summary>The class's installed name.</summary>

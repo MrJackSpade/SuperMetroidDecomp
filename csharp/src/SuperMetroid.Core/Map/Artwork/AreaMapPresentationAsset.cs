@@ -32,7 +32,12 @@ public sealed class AreaMapPresentationAsset : IAreaMapView
         {
             var cell = new Position16<MapTiles>(x, y);
             int i = Index(cell);
-            this.cells[i] = new ExploredMapCell(cells[i], rules.IsDiscoverable(cell), rules.IsRevealedByMapStation(cell), rules.RevealsCellAbove(cell));
+            this.cells[i] = new ExploredMapCell(cells[i])
+            {
+                Discoverable = rules.IsDiscoverable(cell),
+                RevealedByMapStation = rules.IsRevealedByMapStation(cell),
+                RevealsCellAbove = rules.RevealsCellAbove(cell),
+            };
         }
     }
 
@@ -56,8 +61,15 @@ public sealed class AreaMapPresentationAsset : IAreaMapView
 
     /// <summary>One map cell: how it looks and the exploration rules it is shown under.</summary>
     /// <param name="Look">How the cell looks.</param>
-    /// <param name="Discoverable">Whether the cell can be discovered.</param>
-    /// <param name="RevealedByMapStation">Whether downloading the area's map reveals the cell.</param>
-    /// <param name="RevealsCellAbove">Whether visiting the cell also explores the cell above.</param>
-    private readonly record struct ExploredMapCell(MapCell Look, bool Discoverable, bool RevealedByMapStation, bool RevealsCellAbove);
+    private readonly record struct ExploredMapCell(MapCell Look)
+    {
+        /// <summary>Whether the cell can be discovered.</summary>
+        internal required bool Discoverable { get; init; }
+
+        /// <summary>Whether downloading the area's map reveals the cell.</summary>
+        internal required bool RevealedByMapStation { get; init; }
+
+        /// <summary>Whether visiting the cell also explores the cell above.</summary>
+        internal required bool RevealsCellAbove { get; init; }
+    }
 }

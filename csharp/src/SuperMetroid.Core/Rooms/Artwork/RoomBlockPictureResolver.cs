@@ -62,11 +62,11 @@ public sealed class RoomBlockPictureResolver(RoomBlockSheet sheet)
         }
         LayeredPicture?[]? blocks = fresh ? new LayeredPicture?[Sheet.Inputs.Count] : null;
         Dictionary<CollectiblePicture, LayeredPicture>? collectibles = fresh ? [] : null;
-        foreach (UsedPicture picture in used)
+        foreach (UsedPicture entry in used)
         {
-            RoomCellPicture shown = picture.Picture;
+            RoomCellPicture shown = entry.Picture;
             ImmutableArray<AppearanceInput> inputs = InputsOf(shown);
-            string[] shownValues = picture.Values;
+            string[] shownValues = entry.Values;
             bool changed = fresh;
             for (int input = 0; input < inputs.Length; input++)
             {

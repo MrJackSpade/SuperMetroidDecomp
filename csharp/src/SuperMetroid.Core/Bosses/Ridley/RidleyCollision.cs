@@ -38,7 +38,7 @@ internal static class RidleyCollision
         RidleySideBodyCollision side = SideFacing.TryGetValue(frame, out RidleySideBodyCollision? shown)
             ? shown
             : throw new InvalidOperationException($"{frame} is no side-facing Ridley body frame.");
-        bool right = side.FacesRight;
+        bool right = side.Facing == SuperMetroid.Core.Spatial.HorizontalDirection.Right;
         return
         [
             Side(LeftLegsOrigin, side.Legs),

@@ -133,7 +133,7 @@ public sealed record PictureShading
         FrozenDictionary<ColourKey, RgbColor> colours = ColoursOf(picture);
         ImmutableArray<ColourKey> keys = picture.ColourKeys;
         _ = Ensure.LengthEqual(shown, keys.Length);
-        // The backend's colour table lists the picture's keys in their order; each entry is written at the key's own place.
+        // The colours are listed in the order of the picture's keys; each is written at its key's own place.
         int place = 0;
         foreach (ColourKey key in keys)
             shown[place++] = colours[key];

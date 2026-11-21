@@ -578,8 +578,7 @@ internal static class SamusAnimationDelayDefinitions
 
     /// <summary>
     /// Every animation, one for each <see cref="SamusAnimationName"/>. The list's order carries no meaning: every reader
-    /// finds an animation by its name, and the import pairs each with where the cartridge lays it out by the animation
-    /// itself (#2565).
+    /// finds an animation by its name or by the animation itself (#2565).
     /// </summary>
     internal static IReadOnlyList<SamusPoseAnimation> All { get; } =
     [

@@ -201,9 +201,12 @@ public sealed class SoundAcceptanceClock<TLibrary, TSound>
         public override string ToString() => $"[{string.Join(", ", Held().Select(entry => $"{entry.Key}: {entry.Value}"))}]";
 
         /// <summary>Each library the set holds with its value, in order; none for the default value.</summary>
-        private IEnumerable<KeyValuePair<TLibrary, TValue>> Held() => values is null
-            ? []
-            : held.Select(library => new KeyValuePair<TLibrary, TValue>(library, values[library]));
+        private IEnumerable<KeyValuePair<TLibrary, TValue>> Held()
+        {
+            if (values is not { } known)
+                return [];
+            return held.Select(library => new KeyValuePair<TLibrary, TValue>(library, known[library]));
+        }
 
         /// <summary>Whether every library this set holds reads the same in <paramref name="other"/>.</summary>
         private bool ReadsSameIn(ByLibrary<TValue> other) =>

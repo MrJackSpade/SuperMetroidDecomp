@@ -12,7 +12,7 @@ internal static class DefinitionObjectsAccess
             get
             {
                 lock (self.gate)
-                    return self.Declared.Catalogs;
+                    return [.. self.Declared.ByPrefix.OrderBy(entry => entry.Key, StringComparer.Ordinal).Select(entry => entry.Value)];
             }
         }
     }

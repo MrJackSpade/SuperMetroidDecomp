@@ -27,15 +27,15 @@ internal static class SpcSoundLibrary2PointersVerification
     /// <summary>Compares native pointers and command bounds, then checks driver acknowledgement and rejection timing.</summary>
     private static void VerifySpcSoundStreams(ISnesAddressSpace rom, int library, int count, int source)
     {
-        AssertEqual(count, SpcSoundEffectTables.CommandCount(SuperMetroid.AssetExtraction.Audio.SoundLibraryNumbers.FromDriverIndex(library)), "native sound command extent");
+        AssertEqual(count, SpcSoundEffectTables.CommandCount(SuperMetroid.AssetExtraction.Audio.SoundDriverLibraryPlaces.At(library)), "native sound command extent");
         for (int command = 1; command <= count; command++)
         {
             int address = source + (command - 1) * sizeof(ushort);
             ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
-            AssertEqual(native, SpcSoundEffectTables.StreamPointer(SuperMetroid.AssetExtraction.Audio.SoundLibraryNumbers.FromDriverIndex(library), command), "original sound stream dispatch");
+            AssertEqual(native, SpcSoundEffectTables.StreamPointer(SuperMetroid.AssetExtraction.Audio.SoundDriverLibraryPlaces.At(library), command), "original sound stream dispatch");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 0, count + 1, 256, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => SpcSoundEffectTables.StreamPointer(SuperMetroid.AssetExtraction.Audio.SoundLibraryNumbers.FromDriverIndex(library), invalid), "unsupported stream command");
+            AssertThrows<ArgumentOutOfRangeException>(() => SpcSoundEffectTables.StreamPointer(SuperMetroid.AssetExtraction.Audio.SoundDriverLibraryPlaces.At(library), invalid), "unsupported stream command");
         foreach (int invalid in new[] { int.MinValue, -1, 3, int.MaxValue })
         {
             AssertThrows<ArgumentOutOfRangeException>(() => SpcSoundEffectTables.StreamPointer((SuperMetroid.Core.Audio.SoundEffectLibrary)99, 1), "unsupported stream library");

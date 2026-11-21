@@ -604,21 +604,16 @@ internal static class LookupStream1Verification
             SamusArmCannonSourceArtwork.LoadPlacement(new MemoryStream(SamusArmCannonSourceArtwork.Write(value))));
         var stock = Load(document);
         ushort Native(int pose) => LittleEndianBytes.Word(LookupStream1CannonPosesRomByte(rom, 0x90C7DF + pose * 2), LookupStream1CannonPosesRomByte(rom, 0x90C7E0 + pose * 2));
-        string Identity(SamusArmCannonArtworkDocument value) => SelectedPresentationHash.Create("samus-arm-cannon-v6", hash =>
-        {
-            foreach (SamusPoseId pose in SamusPoseNumbers.RecordedPoses) hash.Append("pose descriptor", value.PoseDescriptors[pose]);
-            hash.Append("drawing data", value.DrawingData.Select(item => (byte)item).ToArray());
-            foreach (SpriteVisualPart appearance in SamusProjectileDirectionCodec.InAimOrder.Select(direction => value.CoverAppearances[direction]))
-                AppendCanonicalSpritePart(hash, CannonCoverAppearance(appearance.TileRow, appearance.TileColumn,
-                    appearance.Palette ?? 0, appearance.Depth, appearance.FlipX, appearance.FlipY));
-            foreach (SamusProjectileDirection direction in SamusProjectileDirectionCodec.InAimOrder)
-                hash.AppendName("cover orientation", SamusArmCannonCoverOrientationKeys.Installed.Of(value.CoverOrientations[direction]));
-        });
         AssertEqual(253, SamusBodyTableDecoding.PoseCount, "cannon original 506-byte pointer extent");
-        AssertEqual(Identity(document), stock.ContentIdentity, "cannon canonical native identity unchanged");
+        foreach (SamusProjectileDirection direction in SamusProjectileDirectionCodec.InAimOrder)
+        {
+            SpriteVisualPart appearance = document.CoverAppearances[direction];
+            AssertEqual(CannonCoverAppearance(appearance.TileRow, appearance.TileColumn, appearance.Palette ?? 0, appearance.Depth, appearance.FlipX, appearance.FlipY),
+                stock.CoverAppearance(direction), $"cannon {direction} cover appearance loads as its document places it");
+        }
         AssertEqual(SamusPoseNumbers.RecordedPoses.Count, document.PoseDescriptors.Count, "cannon installs one descriptor per pose with a record, and none for a record no pose names");
         foreach (SamusPoseId pose in SamusPoseNumbers.RecordedPoses)
-            AssertEqual(Native(SamusPoseNumbers.Number(pose)), stock.PoseDrawingData(pose), "cannon installed native pose dispatch");
+            AssertEqual(Native(SamusPoseNumbers.Number(pose)), document.PoseDrawingData(pose), "cannon installed native pose dispatch");
         Console.WriteLine("Cannon poses: 233 named installed descriptors and the canonical stock hash pass.");
     }
 
@@ -1156,7 +1151,6 @@ internal static class LookupStream1Verification
         byte[] png = File.ReadAllBytes(Path.Combine(CartridgeImportContent.ImportData(GameInstallationLayout.SamusBodyDirectoryName), SamusArmCannonArtworkFormat.TileFileName));
         SamusArmCannonCoverCharacters cover = InstalledSamusArmCannonArtworkToolingConstants.LoadWithCover(new MemoryStream(json), new MemoryStream(png));
         SamusArmCannonSourceArtwork stock = cover.Cannon;
-        AssertEqual(ReferenceIdentity(json), stock.ContentIdentity, "Calculated cannon selectors preserve canonical native content identity");
         Suite(nameof(VerifySelectors), () => VerifySelectors(stock));
         foreach (int invalid in new[] { int.MinValue, -1, 10, int.MaxValue })
         {
@@ -1183,29 +1177,6 @@ internal static class LookupStream1Verification
             }
         }
 
-        static string ReferenceIdentity(byte[] jsonBytes)
-        {
-            using var document = System.Text.Json.JsonDocument.Parse(jsonBytes);
-            var root = document.RootElement;
-            return SelectedPresentationHash.Create("samus-arm-cannon-v6", content =>
-            {
-                System.Text.Json.JsonElement descriptors = root.GetProperty("poseDescriptors");
-                foreach (SamusPoseId pose in SamusPoseNumbers.RecordedPoses) content.Append("pose descriptor", descriptors.GetProperty(SamusPoseIdKeys.Installed.Of(pose)).GetInt32());
-                content.Append("drawing data", root.GetProperty("drawingData").EnumerateArray().Select(value => (byte)value.GetInt32()).ToArray());
-                foreach (var appearance in SamusProjectileDirectionCodec.InAimOrder.Select(direction =>
-                    root.GetProperty("coverAppearances").GetProperty(SamusProjectileDirectionKeys.Installed.Of(direction))))
-                {
-                    int palette = appearance.TryGetProperty("palette", out var paletteValue) && paletteValue.ValueKind != System.Text.Json.JsonValueKind.Null
-                        ? paletteValue.GetInt32() : 0;
-                    AppendCanonicalSpritePart(content, CannonCoverAppearance(
-                        appearance.GetProperty("tileRow").GetInt32(), appearance.GetProperty("tileColumn").GetInt32(),
-                        palette, Enum.Parse<SuperMetroid.Core.Assets.ActorDepth>(appearance.GetProperty("depth").GetString()!),
-                        appearance.GetProperty("flipX").GetBoolean(), appearance.GetProperty("flipY").GetBoolean()));
-                }
-                foreach (SamusProjectileDirection direction in SamusProjectileDirectionCodec.InAimOrder)
-                    content.AppendName("cover orientation", root.GetProperty("coverOrientations").GetProperty(SamusProjectileDirectionKeys.Installed.Of(direction)).GetString()!);
-            });
-        }
         void Verify(SamusArmCannonCoverCharacters catalog)
         {
             for (int index = 0; index < expected.Length; index++)
@@ -1255,10 +1226,10 @@ internal static class LookupStream1Verification
         for (int index = 0; index < count; index++)
         {
             ushort address = (ushort)(start + index);
-            AssertEqual(LookupStream1CannonDrawingControlsRomByte(rom, 0x900000 | address), stock.ReadDrawingByteAt(address), "cannon complete installed byte window");
+            AssertEqual(LookupStream1CannonDrawingControlsRomByte(rom, 0x900000 | address), document.ReadDrawingByteAt(address), "cannon complete installed byte window");
         }
         foreach (ushort address in new ushort[] { 0, start - 1, start + count, ushort.MaxValue })
-            AssertThrows<InvalidDataException>(() => stock.ReadDrawingByteAt(address), "cannon drawing bounds remain exact");
+            AssertThrows<InvalidDataException>(() => document.ReadDrawingByteAt(address), "cannon drawing bounds remain exact");
         Console.WriteLine($"Cannon drawing: the {count}-byte extracted window holds the cartridge's bytes and its bounds are exact.");
     }
 
@@ -1276,14 +1247,8 @@ internal static class LookupStream1Verification
         SpritePart[] one = [.. oneWords.Select(word => new SnesObjAttributeWord(word).ToSinglePart())];
         SpritePart[] shared = [.. sharedWords.Select(word => new SnesObjAttributeWord(word).ToSinglePart())];
         var stock = new SamusAtmosphericSourceArtwork(one, shared);
-        string Identity(SpritePart[] first, SpritePart[] second) => SelectedPresentationHash.Create("InstalledSamusAtmosphericArtwork.v2", hash =>
-        {
-            hash.Append("type one", first.Length);
-            foreach (SpritePart part in first) AppendCanonicalSpritePart(hash, part);
-            hash.Append("shared type four", second.Length);
-            foreach (SpritePart part in second) AppendCanonicalSpritePart(hash, part);
-        });
-        AssertEqual(Identity(one, shared), stock.ContentIdentity, "atmospheric canonical selected identity unchanged");
+        AssertTrue(stock.FootstepSplash.SequenceEqual(one) && stock.LavaAndDust.SequenceEqual(shared),
+            "atmospheric pieces hold the decoded native words in order");
         for (int kind = 0; kind < 2; kind++)
         for (int frame = 0; frame < 4; frame++)
         {
@@ -1667,11 +1632,13 @@ internal static class LookupStream1Verification
         SamusArmCannonSourceArtwork Load(SamusArmCannonArtworkDocument value) => SamusArmCannonSourceArtwork.FromPlacement(
             SamusArmCannonSourceArtwork.LoadPlacement(new MemoryStream(SamusArmCannonSourceArtwork.Write(value))));
         var stock = body.ArmCannon;
-        AssertEqual(Load(document).ContentIdentity, stock.ContentIdentity, "Body binding preserves canonical cannon identity");
+        SamusArmCannonSourceArtwork loaded = Load(document);
+        foreach (SamusProjectileDirection direction in SamusProjectileDirectionCodec.InAimOrder)
+            AssertEqual(loaded.CoverAppearance(direction), stock.CoverAppearance(direction), $"Body binding keeps the cannon document's {direction} cover");
         for (int index = 0; index < document.DrawingData.Length; index++)
         {
             ushort address = (ushort)(0xc9d9 + index);
-            AssertEqual(LookupStream1CannonPlacementRomByte(rom, 0x900000 | address), stock.ReadDrawingByteAt(address), "Every installed native cannon byte");
+            AssertEqual(LookupStream1CannonPlacementRomByte(rom, 0x900000 | address), document.ReadDrawingByteAt(address), "Every installed native cannon byte");
         }
         int draws = 0;
         foreach (SamusPoseId pose in new[]

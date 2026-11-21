@@ -58,7 +58,7 @@ internal static class RoomFxBlockAnimationDefinitionAccess
                     if (pointer != self.FrameInstructionPointer(index))
                         continue;
 
-                    value = checked((ushort)self.Frames[index].Duration);
+                    value = checked((ushort)BlockAnimationLoopPasses.Of(self)[index]);
                     return true;
                 }
 

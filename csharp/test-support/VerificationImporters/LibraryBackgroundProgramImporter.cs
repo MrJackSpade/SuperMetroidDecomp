@@ -70,7 +70,7 @@ internal static class LibraryBackgroundProgramImporter
                     break;
                 }
                 case LibraryBackgroundCommand.Decompress:
-                    if (LibraryBackgroundOperandDecoding.DecompressionDestination(Word((ushort)(cursor + 3))) != LibraryBackgroundDestination.TilemapStaging)
+                    if (!LibraryBackgroundOperandDecoding.StagesInTilemapStaging(Word((ushort)(cursor + 3))))
                         throw new InvalidDataException($"Import background decompression at $8F:{commandPointer:X4} stages outside the tilemap staging.");
                     instructions.Add(new LibraryBackgroundInstruction.Decompress(
                         LibraryBackgroundOperandDecoding.DecompressedSource(Long(cursor))));

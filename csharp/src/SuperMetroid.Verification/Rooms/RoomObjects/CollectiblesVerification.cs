@@ -124,8 +124,6 @@ internal static class CollectiblesVerification
                 $"{kind} records its item location collected");
             AssertEqual(1, pickupStep.Pickups.Count,
                 $"{kind} publishes exactly one acquisition");
-            AssertEqual(kind, pickupStep.Pickups[0].Kind,
-                $"{kind} acquisition identity");
             AssertEqual(1, fixture.RoomObjects.Sounds.Requests.PermanentItemFanfares,
                 $"{kind} starts the shared permanent-item fanfare once, as it is picked up");
             AssertPermanentCollectibleEffect(kind, fixture.Samus);

@@ -42,7 +42,7 @@ internal static class SamusChargeColorsVerification
             {
                 int address = SamusSourceDefinitions.PaletteBank.Value |
                     (pointer + color * sizeof(ushort));
-                AssertEqual(BlockWord(address), native.ResolveHyper(frame, color),
+                AssertEqual(BlockWord(address), native.ResolveHyperStep(SuperMetroid.Core.Samus.Colours.SamusShadeDefinitions.FullBodyCycles.HyperBeamShadeCount - 1 - (frame), color),
                     $"Hyper-shot frame {frame} color {color}");
             }
         }
@@ -101,7 +101,7 @@ internal static class SamusChargeColorsVerification
             // Even glow steps 20..2 select Hyper palettes 0..9.
             AssertEqual(20 - frame * 2, glowStepsBefore, $"Hyper-shot playback frame {frame}");
             for (int color = 0; color < SamusChargeColorFormat.ColorsPerPalette; color++)
-                AssertEqual(InstalledFixtures.ImportOf(original).SamusColours.Charge.ResolveHyper(frame, color),
+                AssertEqual(InstalledFixtures.ImportOf(original).SamusColours.Charge.ResolveHyperStep(SuperMetroid.Core.Samus.Colours.SamusShadeDefinitions.FullBodyCycles.HyperBeamShadeCount - 1 - (frame), color),
                     samusColours.ShownSuit(installedSources)[color],
                     $"installed Hyper-shot colour {frame}/{color}");
         }

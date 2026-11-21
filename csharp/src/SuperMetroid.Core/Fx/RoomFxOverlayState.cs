@@ -218,7 +218,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// <summary>
     /// Selects the door's room effect and initializes the liquid and tint state shared by room effects and room objects.
     /// From then until Samus leaves the room, the effect overlay shows the effect's liquid or atmosphere, or nothing for an
-    /// effect without one (<c>FxOverlayPlane</c>).
+    /// effect without one.
     /// </summary>
     private void SelectEffect(RoomFxLoadSource source)
     {

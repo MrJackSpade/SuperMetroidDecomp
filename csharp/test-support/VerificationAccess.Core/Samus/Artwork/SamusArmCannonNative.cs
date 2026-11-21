@@ -10,16 +10,27 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// </summary>
 internal static class SamusArmCannonNative
 {
+    /// <summary>Native views of the arm cannon's import document (#2604), which the import composes the cannon from.</summary>
+    extension(SamusArmCannonArtworkDocument document)
+    {
+        /// <summary>The bank-$90 address of <paramref name="pose"/>'s drawing descriptor, as the document places it.</summary>
+        internal ushort PoseDrawingData(SamusPoseId pose) =>
+            checked((ushort)(SamusSourceDefinitions.ArmCannonDrawingData + document.PoseDescriptors[pose]));
+
+        /// <summary>The document's drawing byte at bank-$90 <paramref name="address"/>.</summary>
+        /// <exception cref="InvalidDataException">The address lies outside the extracted drawing window.</exception>
+        internal byte ReadDrawingByteAt(int address)
+        {
+            int offset = address - SamusSourceDefinitions.ArmCannonDrawingData;
+            return (uint)offset < (uint)document.DrawingData.Length
+                ? checked((byte)document.DrawingData[offset])
+                : throw new InvalidDataException($"Arm-cannon drawing byte {offset} is not extracted.");
+        }
+    }
+
     /// <summary>Native views of the installed arm cannon.</summary>
     extension(SamusArmCannonSourceArtwork cannon)
     {
-        /// <summary>The bank-$90 address of <paramref name="pose"/>'s drawing descriptor.</summary>
-        internal ushort PoseDrawingData(SamusPoseId pose) =>
-            checked((ushort)(SamusSourceDefinitions.ArmCannonDrawingData + cannon.PoseDescriptor(pose)));
-
-        /// <summary>The installed drawing byte stored at bank-$90 <paramref name="address"/>.</summary>
-        internal byte ReadDrawingByteAt(int address) => cannon.ReadDrawingByte(address - SamusSourceDefinitions.ArmCannonDrawingData);
-
         /// <summary>
         /// The bank-$9A source of the cover picture cartridge aim row <paramref name="direction"/> shows at the cartridge's
         /// cover frame <paramref name="frame"/>, or zero for the closed cover.

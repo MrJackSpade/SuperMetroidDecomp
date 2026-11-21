@@ -23,7 +23,7 @@ internal static class SamusColorClosedContractDefinitions
         new("SuperMetroid.AssetExtraction.Samus.Artwork.InstalledSamusSuitColors", "samus-suit-complete-palettes", ["Apply", "Resolve"],
             [PaletteDefinitions, FullBodyCyclePalettes,
              new("csharp/src/SuperMetroid.AssetExtraction/Samus/Artwork/InstalledSamusSuitColors.cs")]),
-        new("SuperMetroid.AssetExtraction.Samus.Artwork.SamusChargeColours", "samus-charge-complete-palettes", ["ApplyCharge", "ApplyHyper", "ResolveHyper"],
+        new("SuperMetroid.AssetExtraction.Samus.Artwork.SamusChargeColours", "samus-charge-complete-palettes", ["ApplyCharge", "ApplyHyper", "ResolveHyperStep"],
             [PaletteDefinitions, FullBodyCyclePalettes,
              new("csharp/src/SuperMetroid.AssetExtraction/Samus/Artwork/SamusChargeColours.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Artwork/SamusChargeShade.cs"),

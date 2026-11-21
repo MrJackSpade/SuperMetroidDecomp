@@ -84,7 +84,7 @@ internal static class AreaDefinitionMigrationVerification
         AssertEqual(0x20, RoomEarthquakeDefinitions.SustainedShakeFrames, "descent and release earthquake timer bit");
         AssertEqual(16, TourianStatueColorFormat.BaseColorCount, "statue base colours");
         AssertEqual(16, TourianStatueColorFormat.StatueColorCount, "statue colours");
-        AssertEqual(4, TourianStatueColorDefinitions.EyeGlowCount, "eye rows");
+        AssertEqual(4, TourianStatueColorDefinitions.EyeGlows.Count, "eye rows");
         AssertEqual(4, TourianStatueColorDefinitions.EyeColorCount, "eye colours");
         AssertEqual(8, TourianStatueColorDefinitions.GreyColorCount, "grey colours");
         AssertEqual(0x86b91e, EnemySourceDefinitions.TourianStatueEyeColors, "eye colour source");

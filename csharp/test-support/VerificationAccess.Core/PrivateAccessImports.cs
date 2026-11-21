@@ -199,7 +199,6 @@ global using static SuperMetroid.AssetExtraction.Samus.InstalledSamusHyperBeamCo
 global using static SuperMetroid.AssetExtraction.Samus.PowerBombGlowColorExtractorPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Samus.ProjectileSheetComposerPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Samus.ProjectileTrailSourcesPrivateAccess;
-global using static SuperMetroid.AssetExtraction.Samus.SamusArmCannonSourceArtworkPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Samus.SamusAtmosphereSheetComposerPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Samus.SamusAtmosphericArtworkFilesPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Samus.SamusBodyArtworkFilesPrivateAccess;

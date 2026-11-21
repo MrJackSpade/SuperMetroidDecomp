@@ -21,6 +21,7 @@ internal sealed partial class StateGraphTypes : IStateGraphRegistry
         var types = new StateGraphTypes();
         types.Add(SuperMetroid.Core.GeneratedStateGraph.Register);
         types.Add(SuperMetroid.AssetExtraction.GeneratedStateGraph.Register);
+        types.Add(SuperMetroid.Diagnostics.GeneratedStateGraph.Register);
         return types;
     });
 

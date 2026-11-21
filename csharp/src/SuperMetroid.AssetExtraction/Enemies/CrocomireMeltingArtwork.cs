@@ -77,7 +77,7 @@ public sealed class CrocomireMeltingArtwork
     public static void WriteTilemap(Stream json, CrocomireMeltingTilemapDocument document)
     {
         Ensure.NotNull(json);
-        json.Write(JsonSerializer.SerializeToUtf8Bytes(document, TilemapJsonOptions));
+        json.Write(JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Enemies.CrocomireMeltingTilemapDocument>(TilemapJsonOptions)));
     }
 
     /// <summary>
@@ -94,7 +94,7 @@ public sealed class CrocomireMeltingArtwork
             // of the same property before deserialization can silently overwrite them.
             JsonAssetDocument.RejectDuplicateProperties(parsed.RootElement, StringComparer.OrdinalIgnoreCase,
                 name => new InvalidDataException($"Duplicate enemy composition property {name}."));
-            document = parsed.RootElement.Deserialize<CrocomireMeltingTilemapDocument>(TilemapJsonOptions)
+            document = parsed.RootElement.Deserialize<CrocomireMeltingTilemapDocument>(global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Enemies.CrocomireMeltingTilemapDocument>(TilemapJsonOptions))
                 ?? throw new InvalidDataException("Crocomire melt tilemap JSON is null.");
         }
         catch (JsonException error)

@@ -111,9 +111,7 @@ internal static class PowerBombGlowColorsVerification
     /// <summary>Checks that the Power Bomb colour codec rejects out-of-range colours.</summary>
     internal static void VerifyPowerBombGlowColorsRejectMalformedDocuments(string stock)
     {
-        PowerBombGlowColorDocument document = JsonSerializer.Deserialize<PowerBombGlowColorDocument>(
-            File.ReadAllBytes(Path.Combine(stock, PowerBombGlowColorFile.FileName)),
-            ArtworkJson.Options)
+        PowerBombGlowColorDocument document = JsonSerializer.Deserialize<PowerBombGlowColorDocument>(File.ReadAllBytes(Path.Combine(stock, PowerBombGlowColorFile.FileName)), global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Samus.PowerBombGlowColorDocument>(ArtworkJson.Options))
             ?? throw new InvalidDataException("Stock Power Bomb color document is null.");
         AssertThrows<InvalidDataException>(() => PowerBombGlowColorFile.Read(new MemoryStream(PowerBombGlowColorFile.Write(document with
         {

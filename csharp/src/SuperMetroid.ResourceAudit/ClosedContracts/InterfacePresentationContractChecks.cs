@@ -21,7 +21,7 @@ internal static class InterfacePresentationContractChecks
         var document = new IntroDiscoveryActorSpriteDocument {
             Version = IntroDiscoveryActorSpriteFormat.Version,
             Frames = IntroDiscoveryActorSpriteDefinitions.Frames.ToDictionary(frame => frame.Name, _ => Array.Empty<SpriteVisualPart>()) };
-        Stream Json() => new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options));
+        Stream Json() => new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.ResourceAudit.ResourceAuditJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Intro.Artwork.IntroDiscoveryActorSpriteDocument>(ArtworkJson.Options)));
         _ = IntroDiscoveryActorSpritePresentation.Load(Json());
         document.Frames.Remove(IntroDiscoveryActorSpriteDefinitions.Frames[0].Name);
         bool rejected = false;

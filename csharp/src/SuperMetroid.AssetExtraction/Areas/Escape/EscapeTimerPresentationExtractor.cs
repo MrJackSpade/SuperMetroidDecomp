@@ -31,6 +31,6 @@ public static class EscapeTimerPresentationExtractor
     /// <param name="document">Authored layout whose collections are read for serialization, not retained by the writer.</param>
     public static void Write(Stream output, EscapeTimerPresentationDocument document)
     {
-        output.Write(JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options));
+        output.Write(JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Areas.Escape.EscapeTimerPresentationDocument>(ArtworkJson.Options)));
     }
 }

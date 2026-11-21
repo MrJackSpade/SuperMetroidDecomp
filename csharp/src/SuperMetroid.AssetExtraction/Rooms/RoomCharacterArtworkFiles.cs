@@ -51,7 +51,7 @@ public static class RoomCharacterArtworkFiles
             FormatVersion, sourceCartridgeSha256, entries);
         using var stream = new FileStream(Path.Combine(importData, ManifestFileName),
             FileMode.CreateNew, FileAccess.Write);
-        JsonSerializer.Serialize(stream, manifest, JsonOptions);
+        JsonSerializer.Serialize(stream, manifest, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Rooms.RoomCharacterArtworkFiles.RoomCharacterFileManifest>(JsonOptions));
     }
 
     /// <summary>
@@ -66,8 +66,7 @@ public static class RoomCharacterArtworkFiles
         RoomCharacterFileManifest manifest;
         try
         {
-            manifest = JsonSerializer.Deserialize<RoomCharacterFileManifest>(
-                File.ReadAllBytes(manifestPath), JsonOptions)
+            manifest = JsonSerializer.Deserialize<RoomCharacterFileManifest>(File.ReadAllBytes(manifestPath), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Rooms.RoomCharacterArtworkFiles.RoomCharacterFileManifest>(JsonOptions))
                 ?? throw new InvalidDataException("Room character manifest is empty.");
         }
         catch (JsonException error)
@@ -176,10 +175,10 @@ public static class RoomCharacterArtworkFiles
     };
 
     /// <summary>Records cartridge provenance and the required PNG entries for a stock installation.</summary>
-    private sealed record RoomCharacterFileManifest(
+    internal sealed record RoomCharacterFileManifest(
         int Version, string SourceCartridgeSha256,
         Dictionary<string, RoomCharacterFileEntry> Entries);
 
     /// <summary>Pairs an installed PNG hash with the planar transfer length its atlas must decode.</summary>
-    private sealed record RoomCharacterFileEntry(int NativeByteCount, string Sha256);
+    internal sealed record RoomCharacterFileEntry(int NativeByteCount, string Sha256);
 }

@@ -43,7 +43,7 @@ public static class CeresRidleyColorFile
 
     /// <summary>Serializes a complete current-version color document as indented camel-case UTF-8 JSON.</summary>
     public static byte[] Write(CeresRidleyColorDocument document) =>
-        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyColorDocument>(ArtworkJson.Options));
 
     /// <summary>Requires the palette family's exact row count and validates every row with its expected color width.</summary>
     private static RgbColor[][] CompileRows(PaletteRgb5[][]? rows, int count,

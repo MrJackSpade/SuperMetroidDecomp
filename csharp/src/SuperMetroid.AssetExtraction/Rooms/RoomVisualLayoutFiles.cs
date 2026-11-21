@@ -92,7 +92,7 @@ public static class RoomVisualLayoutFiles
         Directory.CreateDirectory(directory);
         foreach ((RoomLevelId level, int widthInBlocks) in RetailLevels.OrderBy(item => item.Key.Name, StringComparer.Ordinal))
         {
-            byte[] json = JsonSerializer.SerializeToUtf8Bytes(Decode(bus, level, widthInBlocks), JsonOptions);
+            byte[] json = JsonSerializer.SerializeToUtf8Bytes(Decode(bus, level, widthInBlocks), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Rooms.RoomVisualLayoutFiles.RoomVisualLayoutDocument>(JsonOptions));
             using var file = new FileStream(Path.Combine(directory, LevelFileName(level)), FileMode.CreateNew, FileAccess.Write);
             file.Write(json);
         }
@@ -193,7 +193,7 @@ public static class RoomVisualLayoutFiles
 
     /// <summary>Editable initial foreground and background appearances with fixed level identity and block dimensions.</summary>
     [SpatialComponents("External format: per-level room-layout JSON stores widthInBlocks/heightInBlocks.")]
-    private sealed record RoomVisualLayoutDocument(int FormatVersion, string Level,
+    internal sealed record RoomVisualLayoutDocument(int FormatVersion, string Level,
         int WidthInBlocks, int HeightInBlocks, RoomLayoutPlaneDocument Foreground,
         RoomLayoutPlaneDocument Background)
     {
@@ -202,5 +202,5 @@ public static class RoomVisualLayoutFiles
         public Extent16<RoomBlocks> Size => new(checked((ushort)WidthInBlocks), checked((ushort)HeightInBlocks));
     }
     /// <summary>One plane of a layout document: each block's number, row by row, and one mirroring code per block.</summary>
-    private sealed record RoomLayoutPlaneDocument(int?[] Blocks, string Mirroring);
+    internal sealed record RoomLayoutPlaneDocument(int?[] Blocks, string Mirroring);
 }

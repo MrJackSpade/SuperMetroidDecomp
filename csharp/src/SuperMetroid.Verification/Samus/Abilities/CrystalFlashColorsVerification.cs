@@ -46,9 +46,7 @@ internal static class CrystalFlashColorsVerification
                     $"Crystal Flash bubble frame {frame}, color {color} matches cartridge");
         }
 
-        CrystalFlashColorDocument document = JsonSerializer.Deserialize<CrystalFlashColorDocument>(
-            File.ReadAllBytes(Path.Combine(stockDirectory, CrystalFlashColorFile.FileName)),
-            ArtworkJson.Options)
+        CrystalFlashColorDocument document = JsonSerializer.Deserialize<CrystalFlashColorDocument>(File.ReadAllBytes(Path.Combine(stockDirectory, CrystalFlashColorFile.FileName)), global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Samus.CrystalFlashColorDocument>(ArtworkJson.Options))
             ?? throw new InvalidDataException("Stock Crystal Flash color JSON is null.");
         SamusState samus = StartCrystalFlash();
 
@@ -79,8 +77,7 @@ internal static class CrystalFlashColorsVerification
         PaletteRgb5 previous = document.Body[0][1];
         document.Body[0][1] = previous with { Red = 32 };
         AssertThrows<InvalidDataException>(() => CrystalFlashColorFile.Read(
-            new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(
-                document, ArtworkJson.Options), writable: false)),
+            new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Samus.CrystalFlashColorDocument>(ArtworkJson.Options)), writable: false)),
             "Crystal Flash colors reject out-of-range RGB5 channels");
 
         Console.WriteLine("Crystal Flash colors: 136 stock words, 100 independent body/bubble calls reach CGRAM, ROM guard and strict values pass.");

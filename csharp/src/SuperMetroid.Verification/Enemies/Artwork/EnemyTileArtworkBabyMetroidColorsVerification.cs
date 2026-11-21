@@ -46,8 +46,7 @@ internal static class EnemyTileArtworkBabyMetroidColorsVerification
 
         string file = Path.Combine(stockDirectory, BabyMetroidColorFormat.FileName);
         byte[] stockJson = File.ReadAllBytes(file);
-        BabyMetroidColorDocument visual = JsonSerializer.Deserialize<BabyMetroidColorDocument>(
-            stockJson, CaseInsensitiveJson) ??
+        BabyMetroidColorDocument visual = JsonSerializer.Deserialize<BabyMetroidColorDocument>(stockJson, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Bosses.MotherBrain.BabyMetroidColorDocument>(CaseInsensitiveJson)) ??
             throw new InvalidDataException("Stock Shitroid color JSON is null.");
         BabyMetroidColorCatalog colors = native;
 

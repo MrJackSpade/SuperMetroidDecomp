@@ -12,7 +12,7 @@ public static class RequiredJson
 {
     /// <summary>Deserializes a required <typeparamref name="T"/> from UTF-8 JSON.</summary>
     public static T Deserialize<T>(ReadOnlySpan<byte> utf8Json, JsonSerializerOptions? options = null) =>
-        JsonSerializer.Deserialize<T>(utf8Json, options) ?? throw Missing<T>();
+        JsonSerializer.Deserialize<T>(utf8Json, global::SuperMetroid.Tooling.ToolingJson.Info<T>(options)) ?? throw Missing<T>();
 
     /// <summary>Parses UTF-8 JSON whose root must not be the <c>null</c> literal.</summary>
     public static JsonNode Parse(ReadOnlySpan<byte> utf8Json) => JsonNode.Parse(utf8Json) ?? throw MissingNode();

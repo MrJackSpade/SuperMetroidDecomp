@@ -54,7 +54,7 @@ public static class ProjectileFrameBindingFile
     /// <param name="document">Complete timed-record assignments to serialize; the dictionary is not retained.</param>
     /// <returns>JSON bytes for <see cref="ProjectileFrameBindingFormat.FileName"/>.</returns>
     public static byte[] Write(ProjectileFrameBindingDocument document) =>
-        JsonSerializer.SerializeToUtf8Bytes(document, Options);
+        JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Samus.ProjectileFrameBindingDocument>(Options));
 
     /// <summary>Strict camel-case schema options used consistently by load and write.</summary>
     private static readonly JsonSerializerOptions Options = new()

@@ -120,7 +120,7 @@ internal sealed class ReplayTrace : IDisposable
     /// <summary>Reads and deserializes a compact trace's identity manifest.</summary>
     /// <param name="directory">The compact trace directory.</param>
     public static CompactReplayTraceManifest ReadCompactManifest(string directory) =>
-        JsonSerializer.Deserialize<CompactReplayTraceManifest>(File.ReadAllText(Path.Combine(directory, CompactManifestFile)), ManifestJson)
+        JsonSerializer.Deserialize<CompactReplayTraceManifest>(File.ReadAllText(Path.Combine(directory, CompactManifestFile)), global::SuperMetroid.TestSupport.MovieReplay.MovieReplayJson.Info<global::SuperMetroid.TestSupport.MovieReplay.CompactReplayTraceManifest>(ManifestJson))
             ?? throw new InvalidDataException($"Empty {CompactManifestFile} in {directory}.");
 
     /// <summary>SHA-256 of a file, as upper-case hexadecimal.</summary>

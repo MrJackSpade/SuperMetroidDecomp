@@ -152,8 +152,7 @@ public sealed class GameplayMessagePanelPresentation
     /// <param name="document">Authored titles and tile arrays read for serialization, not retained by the writer.</param>
     public static void Write(Stream output, GameplayMessagePanelDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(
-            document, ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Hud.GameplayMessagePanelDocument>(ArtworkJson.Options));
         output.Write(bytes);
     }
 

@@ -44,7 +44,7 @@ public sealed class MapScreenPresentation
     /// <summary>Writes a map-screen document as camel-case JSON.</summary>
     public static void Write(Stream output, MapScreenDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Map.MapScreenDocument>(ArtworkJson.Options));
         output.Write(bytes);
     }
 }

@@ -56,7 +56,7 @@ public static class InstalledAudioClips
         if (!File.Exists(manifestPath))
             throw new FileNotFoundException($"Audio clip manifest was not found at '{manifestPath}'.", manifestPath);
         byte[] manifestBytes = File.ReadAllBytes(manifestPath);
-        AudioClipManifest manifest = JsonSerializer.Deserialize<AudioClipManifest>(manifestBytes, ManifestOptions)
+        AudioClipManifest manifest = JsonSerializer.Deserialize<AudioClipManifest>(manifestBytes, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Audio.AudioClipManifest>(ManifestOptions))
             ?? throw new InvalidDataException($"Audio clip manifest '{manifestPath}' deserialized to null.");
         if (manifest.FormatVersion != AudioClipManifest.CurrentFormatVersion)
         {

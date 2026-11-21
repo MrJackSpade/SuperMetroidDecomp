@@ -73,7 +73,7 @@ public sealed class EndingTextPresentation
         {
             Version = TypewriterVersion, PercentageHeading = document.PercentageHeading, PercentageDetail = document.PercentageDetail,
             FinalMessage = document.FinalMessage,
-        }, ArtworkJson.Options);
+        }, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingTypewriterDocument>(ArtworkJson.Options));
     }
 
     /// <summary>
@@ -161,7 +161,7 @@ public sealed class EndingTextPresentation
     /// <param name="document">Versioned tilemap templates and bounded labels to serialize.</param>
     public static void Write(Stream output, EndingTextDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingTextDocument>(ArtworkJson.Options));
         output.Write(bytes);
     }
 

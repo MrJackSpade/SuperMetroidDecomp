@@ -44,8 +44,7 @@ public static class RoomSkyTilemapArtworkFiles
         }
         using var manifest = new FileStream(Path.Combine(importData,
             RoomSkyTilemapFormat.ManifestFileName), FileMode.CreateNew, FileAccess.Write);
-        JsonSerializer.Serialize(manifest,
-            new RoomSkyFileManifest(FormatVersion, sourceCartridgeSha256, hashes), JsonOptions);
+        JsonSerializer.Serialize(manifest, new RoomSkyFileManifest(FormatVersion, sourceCartridgeSha256, hashes), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Rooms.RoomSkyTilemapArtworkFiles.RoomSkyFileManifest>(JsonOptions));
     }
 
     /// <summary>Checks the pages' provenance and seven-page manifest coverage, then compiles each page of the component's import data, without cartridge access.</summary>
@@ -98,6 +97,6 @@ public static class RoomSkyTilemapArtworkFiles
     };
 
     /// <summary>Source cartridge identity and hashes for all seven stock sky-page files.</summary>
-    private sealed record RoomSkyFileManifest(int Version, string SourceCartridgeSha256,
+    internal sealed record RoomSkyFileManifest(int Version, string SourceCartridgeSha256,
         Dictionary<string, string> Sha256);
 }

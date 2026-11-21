@@ -83,7 +83,7 @@ public static class EnemyProjectileSpritemapDocuments
 
     /// <summary>Writes the document as camel-case JSON.</summary>
     internal static byte[] Write(EnemyProjectileSpritemapDocument document) =>
-        JsonSerializer.SerializeToUtf8Bytes(document, Options);
+        JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Enemies.EnemyProjectileSpritemapDocument>(Options));
 
     /// <summary>
     /// Validates the import data's ordered sprite parts against the sheet's bounds and decodes them into the parts the import

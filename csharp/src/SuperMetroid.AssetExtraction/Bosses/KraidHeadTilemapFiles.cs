@@ -23,7 +23,7 @@ internal static class KraidHeadTilemapFiles
             Width = KraidHeadTilemapFormat.Width,
             Height = KraidHeadTilemapFormat.Height,
             Cells = [.. tiles.Select(tile => RoomBackgroundTilemapCell.Of(tile))],
-        }, JsonOptions);
+        }, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Bosses.KraidHeadTilemapDocument>(JsonOptions));
         return json;
     }
 

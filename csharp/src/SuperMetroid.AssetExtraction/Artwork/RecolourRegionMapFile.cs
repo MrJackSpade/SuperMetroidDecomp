@@ -38,7 +38,7 @@ internal static class RecolourRegionMapFile
             if (!documents.TryAdd(tag, Encoded(tag, map)))
                 throw new ArgumentException($"Recolour-region map {tag} is named twice.", nameof(maps));
         }
-        return JsonSerializer.SerializeToUtf8Bytes(new Document(Version, documents), Options);
+        return JsonSerializer.SerializeToUtf8Bytes(new Document(Version, documents), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Artwork.RecolourRegionMapFile.Document>(Options));
     }
 
     /// <summary>One map's runs.</summary>
@@ -127,10 +127,10 @@ internal static class RecolourRegionMapFile
     /// <summary>The map file.</summary>
     /// <param name="Version">The format revision.</param>
     /// <param name="Maps">Every map, by tag.</param>
-    private sealed record Document(int Version, Dictionary<string, MapDocument> Maps);
+    internal sealed record Document(int Version, Dictionary<string, MapDocument> Maps);
 
     /// <summary>One map.</summary>
     /// <param name="Size">The width and height of the picture it is for.</param>
     /// <param name="Rows">Each row's runs, region then count.</param>
-    private sealed record MapDocument(Extent16<ImagePixels> Size, int[][] Rows);
+    internal sealed record MapDocument(Extent16<ImagePixels> Size, int[][] Rows);
 }

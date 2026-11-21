@@ -51,5 +51,5 @@ public static class SamusHyperBeamColorFile
     /// <param name="document">Ten complete RGB5 palette rows to serialize; the writer does not retain their arrays.</param>
     /// <returns>JSON bytes for <see cref="SamusHyperBeamColorFormat.FileName"/>.</returns>
     public static byte[] Write(SamusHyperBeamColorDocument document) =>
-        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Samus.SamusHyperBeamColorDocument>(ArtworkJson.Options));
 }

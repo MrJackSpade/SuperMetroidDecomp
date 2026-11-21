@@ -79,7 +79,7 @@ internal static class RoomObjectFrameImageFiles
                     cell.Value.Mirroring)).ToArray()));
         }
         Directory.CreateDirectory(directory);
-        byte[] json = JsonSerializer.SerializeToUtf8Bytes(new FrameDocument(FormatVersion, frames.ToArray()), JsonOptions);
+        byte[] json = JsonSerializer.SerializeToUtf8Bytes(new FrameDocument(FormatVersion, frames.ToArray()), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Rooms.RoomObjectFrameImageFiles.FrameDocument>(JsonOptions));
         using var output = new FileStream(Path.Combine(directory, family.FileName), FileMode.CreateNew, FileAccess.Write);
         output.Write(json);
     }
@@ -198,7 +198,7 @@ internal static class RoomObjectFrameImageFiles
     {
         try
         {
-            return JsonSerializer.Deserialize<FrameDocument>(File.ReadAllBytes(path), JsonOptions)
+            return JsonSerializer.Deserialize<FrameDocument>(File.ReadAllBytes(path), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Rooms.RoomObjectFrameImageFiles.FrameDocument>(JsonOptions))
                 ?? throw new InvalidDataException($"{family} pictures {path} are empty.");
         }
         catch (JsonException error)
@@ -214,15 +214,15 @@ internal static class RoomObjectFrameImageFiles
             : CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, pointer));
 
     /// <summary>The installed document: its format and every frame's picture.</summary>
-    private sealed record FrameDocument(int Version, FrameEntry[] Frames);
+    internal sealed record FrameDocument(int Version, FrameEntry[] Frames);
 
     /// <summary>One frame's picture: its published name and every cell it shows.</summary>
-    private sealed record FrameEntry(string Id, FrameCell[] Cells);
+    internal sealed record FrameEntry(string Id, FrameCell[] Cells);
 
     /// <summary>
     /// One pictured cell: its place from the object's origin, the block it shows, or null where it shows nothing, and how it
     /// is mirrored.
     /// </summary>
     [SpatialComponents("External format: a room object's frame document stores each pictured cell's offset from the object's origin as x/y blocks.")]
-    private sealed record FrameCell(int X, int Y, int? Block, BlockMirroring Mirroring);
+    internal sealed record FrameCell(int X, int Y, int? Block, BlockMirroring Mirroring);
 }

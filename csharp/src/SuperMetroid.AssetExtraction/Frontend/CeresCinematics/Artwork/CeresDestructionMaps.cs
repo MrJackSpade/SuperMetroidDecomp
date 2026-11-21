@@ -37,8 +37,7 @@ public sealed class CeresDestructionMaps
     public static void Write(Stream json, CeresDestructionMapDocument document)
     {
         Ensure.NotNull(json);
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
-            ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork.CeresDestructionMapDocument>(ArtworkJson.Options));
         json.Write(bytes);
     }
 
@@ -48,8 +47,7 @@ public sealed class CeresDestructionMaps
         CeresDestructionMapDocument document;
         try
         {
-            document = JsonSerializer.Deserialize<CeresDestructionMapDocument>(json,
-                ArtworkJson.Options)
+            document = JsonSerializer.Deserialize<CeresDestructionMapDocument>(json, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork.CeresDestructionMapDocument>(ArtworkJson.Options))
                 ?? throw new InvalidDataException("Ceres destruction map JSON is null.");
         }
         catch (JsonException error)

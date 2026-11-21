@@ -106,7 +106,7 @@ public static class CeresRidleyGetawayBoostDelayFiles
     /// <param name="document">The complete delay document.</param>
     /// <returns>JSON bytes, without writing a file.</returns>
     public static byte[] Write(CeresRidleyGetawayBoostDelayDocument document) =>
-        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyGetawayBoostDelayDocument>(ArtworkJson.Options));
 
     /// <summary>
     /// Where in the floor update queue the unauthored cadence's first delay lies: its stream word names a bank-$91 place

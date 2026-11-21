@@ -40,7 +40,7 @@ public static class MapStationLayoutFile
     /// <param name="document">The station-marker layout to serialize.</param>
     public static void Write(Stream json, MapStationLayoutDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Map.Artwork.MapStationLayoutDocument>(ArtworkJson.Options));
         json.Write(bytes);
     }
 }

@@ -77,7 +77,7 @@ public static class PauseReserveUiFile
     /// <param name="document">Selected editable visuals satisfying the same schema and field limits as <see cref="Read"/>.</param>
     public static void Write(Stream output, PauseReserveUiDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Pause.PauseReserveUiDocument>(ArtworkJson.Options));
         output.Write(bytes);
     }
 }

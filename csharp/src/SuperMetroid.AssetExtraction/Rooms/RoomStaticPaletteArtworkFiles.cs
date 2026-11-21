@@ -42,8 +42,7 @@ public static class RoomStaticPaletteArtworkFiles
         }
         using var manifest = new FileStream(Path.Combine(importData, ManifestFileName),
             FileMode.CreateNew, FileAccess.Write);
-        JsonSerializer.Serialize(manifest,
-            new RoomPaletteFileManifest(FormatVersion, sourceCartridgeSha256, hashes), JsonOptions);
+        JsonSerializer.Serialize(manifest, new RoomPaletteFileManifest(FormatVersion, sourceCartridgeSha256, hashes), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Rooms.RoomStaticPaletteArtworkFiles.RoomPaletteFileManifest>(JsonOptions));
     }
 
     /// <summary>Checks the room-palette provenance and compiles each palette document of the component's import data.</summary>
@@ -58,8 +57,7 @@ public static class RoomStaticPaletteArtworkFiles
         RoomPaletteFileManifest manifest;
         try
         {
-            manifest = JsonSerializer.Deserialize<RoomPaletteFileManifest>(
-                File.ReadAllBytes(manifestPath), JsonOptions)
+            manifest = JsonSerializer.Deserialize<RoomPaletteFileManifest>(File.ReadAllBytes(manifestPath), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Rooms.RoomStaticPaletteArtworkFiles.RoomPaletteFileManifest>(JsonOptions))
                 ?? throw new InvalidDataException("Room palette manifest is empty.");
         }
         catch (JsonException error)
@@ -112,6 +110,6 @@ public static class RoomStaticPaletteArtworkFiles
     };
 
     /// <summary>Records the cartridge revision and hashes of all extracted room palette files.</summary>
-    private sealed record RoomPaletteFileManifest(
+    internal sealed record RoomPaletteFileManifest(
         int Version, string SourceCartridgeSha256, Dictionary<string, string> Sha256);
 }

@@ -73,7 +73,7 @@ internal static class ProjectileCompositionsVerification
         if (!compositionOnly)
             VerifyIntroProjectileArtwork(drawnId);
 
-        void Reject(ProjectileSpriteDocument bad) => AssertThrows<InvalidDataException>(() => InstalledProjectileSprites.Load(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(bad, options))), "Malformed composition rejected");
+        void Reject(ProjectileSpriteDocument bad) => AssertThrows<InvalidDataException>(() => InstalledProjectileSprites.Load(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(bad, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Samus.ProjectileSpriteDocument>(options)))), "Malformed composition rejected");
         Reject(document with { Version = ProjectileSpriteDefinitions.Version + 1 });
         foreach (var badPart in new[] { original with { Palette = null }, original with { TileColumn = 16 }, original with { TileRow = 32 }, original with { OffsetX = 256 }, original with { OffsetY = -129 }, original with { Size = 32 } })
         {
@@ -98,7 +98,7 @@ internal static class ProjectileCompositionsVerification
         JsonSerializerOptions options)
     {
         AssertEqual(ProjectileSpriteDefinitions.All.Count, document.Frames.Count, "one installed composition per distinct composition");
-        AssertEqual(document.Frames.Count, document.Frames.Values.Select(parts => JsonSerializer.Serialize(parts, options)).Distinct().Count(),
+        AssertEqual(document.Frames.Count, document.Frames.Values.Select(parts => JsonSerializer.Serialize(parts, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Artwork.SpriteVisualPart[]>(options))).Distinct().Count(),
             "no two installed compositions hold the same parts");
         AssertEqual(ProjectileSpriteNative.Projectile(0xed9e), ProjectileSpriteNative.Projectile(0xedca),
             "charged Ice's two stored crosses are one composition");

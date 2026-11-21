@@ -349,7 +349,7 @@ public static class EnemyTileArtworkFiles
             Convert.ToHexString(SHA256.HashData(auxiliaryColors)));
         // The manifest names every sheet by its enemy's or artwork's key and pins the import data's hashes: only the import reads it (#1693, #2548).
         File.WriteAllBytes(Path.Combine(importData, EnemyTileArtworkFormat.ManifestFileName),
-            JsonSerializer.SerializeToUtf8Bytes(manifest, JsonOptions));
+            JsonSerializer.SerializeToUtf8Bytes(manifest, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Enemies.EnemyTileArtworkFiles.EnemyTileManifest>(JsonOptions)));
     }
 
     /// <summary>

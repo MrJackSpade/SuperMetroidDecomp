@@ -48,6 +48,6 @@ public static class MotherBrainHealthPaletteFile
     /// <param name="document">Four health-band images for body/brain and rear legs; supplied arrays are not modified.</param>
     public static void Write(Stream json, MotherBrainHealthPaletteDocument document)
     {
-        json.Write(JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options));
+        json.Write(JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainHealthPaletteDocument>(ArtworkJson.Options)));
     }
 }

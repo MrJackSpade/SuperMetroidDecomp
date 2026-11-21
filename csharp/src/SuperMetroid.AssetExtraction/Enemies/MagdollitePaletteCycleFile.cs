@@ -51,5 +51,5 @@ public static class MagdollitePaletteCycleFile
     /// <param name="document">Four complete RGB5 glow rows to serialize; their arrays are not retained.</param>
     /// <returns>JSON bytes for <see cref="MagdollitePaletteCycleFormat.FileName"/>.</returns>
     public static byte[] Write(MagdollitePaletteCycleDocument document) =>
-        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Enemies.MagdollitePaletteCycleDocument>(ArtworkJson.Options));
 }

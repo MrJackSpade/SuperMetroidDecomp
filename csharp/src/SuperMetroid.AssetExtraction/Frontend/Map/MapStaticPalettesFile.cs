@@ -50,7 +50,7 @@ public static class MapStaticPalettesFile
     /// <param name="document">Document to serialize.</param>
     public static void Write(Stream json, MapStaticPalettesDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Map.MapStaticPalettesDocument>(ArtworkJson.Options));
         json.Write(bytes);
     }
 }

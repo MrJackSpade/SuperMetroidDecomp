@@ -136,7 +136,7 @@ public sealed class GameplayMessageTitlePresentation
     /// <param name="document">Authored title dictionary and border array read for serialization, not retained by the writer.</param>
     public static void Write(Stream output, GameplayMessageTitleDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Hud.GameplayMessageTitleDocument>(ArtworkJson.Options));
         output.Write(bytes);
     }
 

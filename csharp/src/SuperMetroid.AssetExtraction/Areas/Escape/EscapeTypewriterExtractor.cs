@@ -116,5 +116,5 @@ public static class EscapeTypewriterExtractor
     /// <param name="output">Non-null caller-owned writable stream, written at its current position without being disposed.</param>
     /// <param name="document">Selected programs to serialize.</param>
     internal static void Write(Stream output, EscapeTypewriterDocument document) =>
-        output.Write(JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options));
+        output.Write(JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Areas.Escape.EscapeTypewriterDocument>(ArtworkJson.Options)));
 }

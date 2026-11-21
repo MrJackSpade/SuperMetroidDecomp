@@ -31,7 +31,7 @@ public static class DachoraColorFile
     /// <param name="document">Supported-version default palette and four-frame speed/shine sequences.</param>
     /// <returns>JSON bytes ready to store as the Dachora color resource.</returns>
     public static byte[] Write(DachoraColorDocument document) =>
-        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Enemies.DachoraColorDocument>(ArtworkJson.Options));
 
     /// <summary>Requires four animated frames and validates each sixteen-color row.</summary>
     private static RgbColor[][] CompileFrames(PaletteRgb5[][]? source, string name)

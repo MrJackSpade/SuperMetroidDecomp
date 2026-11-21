@@ -35,7 +35,7 @@ internal static class EnemyFrameDisplayFiles
         Version = Revision,
         DisplayFrames = EnemyFrameBindingRules.Identity(EnemySpritemapDefinitions.Frames),
         MultipartDisplayFrames = EnemyFrameBindingRules.Identity(EnemyExtendedFrameDefinitions.Frames),
-    }, Options);
+    }, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Enemies.EnemyFrameDisplayDocument>(Options));
 
     /// <summary>
     /// Reads and validates the bindings in <paramref name="json"/> by the rules <see cref="EnemyFrameBindingRules"/> states

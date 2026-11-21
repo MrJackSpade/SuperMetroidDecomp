@@ -121,7 +121,7 @@ public static class SamusBodyArtworkFiles
         SamusDeathTileArtworkFiles.Extract(bus, importData);
         SamusArmCannonArtworkFiles.Extract(bus, importData);
         File.WriteAllBytes(Path.Combine(importData, ArtworkFileName),
-            JsonSerializer.SerializeToUtf8Bytes(manifest, JsonOptions));
+            JsonSerializer.SerializeToUtf8Bytes(manifest, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Samus.SamusBodyArtworkFiles.Manifest>(JsonOptions)));
         // The installation holds the frames the body sheet pictures with their placements: the game binds those and nothing else.
         InstalledSamusBody installed = LoadForImport(directory, importData).InstalledBody(shown);
         SamusArmCannonArtworkFiles.Install(directory, installed.ArmCannon);
@@ -134,7 +134,7 @@ public static class SamusBodyArtworkFiles
                         installed.FramesOf(pose).ToDictionary(pair => animation.NameOf(pair.Key), pair => pair.Value, StringComparer.Ordinal),
                         installed.ShownFrames.PictureFrames[pose].OrderBy(pair => pair.Key, animation.FrameOrder).ToDictionary(
                             pair => animation.NameOf(pair.Key), pair => animation.NameOf(pair.Value), StringComparer.Ordinal));
-                })), JsonOptions));
+                })), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Samus.SamusBodyArtworkFiles.GameManifest>(JsonOptions)));
     }
 
     /// <summary>

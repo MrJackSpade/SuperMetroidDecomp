@@ -147,7 +147,7 @@ public sealed class GameOverSourcePresentation
     /// <param name="document">Caller-owned artwork and layout; its collections are not modified.</param>
     public static void Write(Stream output, GameOverPresentationDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork.GameOverPresentationDocument>(ArtworkJson.Options));
         output.Write(bytes);
     }
 

@@ -61,30 +61,28 @@ internal static class MotherBrainRoomColorsVerification
         Suite(nameof(VerifyMotherBrainRecoveryLights), () => VerifyMotherBrainRecoveryLights(state));
 
         MotherBrainRoomColorDocument document =
-            JsonSerializer.Deserialize<MotherBrainRoomColorDocument>(
-                File.ReadAllBytes(Path.Combine(stock, MotherBrainRoomColorFormat.FileName)),
-                ArtworkJson.Options)
+            JsonSerializer.Deserialize<MotherBrainRoomColorDocument>(File.ReadAllBytes(Path.Combine(stock, MotherBrainRoomColorFormat.FileName)), global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorDocument>(ArtworkJson.Options))
             ?? throw new InvalidDataException("Extracted Mother Brain room colors are null.");
         AssertThrows<InvalidDataException>(() => MotherBrainRoomColorFile.Read(
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
             {
                 Flash = document.Flash.Take(13).ToArray(),
-            }, ArtworkJson.Options))), "reject truncated Mother Brain room-flash list");
+            }, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorDocument>(ArtworkJson.Options)))), "reject truncated Mother Brain room-flash list");
         AssertThrows<InvalidDataException>(() => MotherBrainRoomColorFile.Read(
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
             {
                 PhaseTwoAttack = document.PhaseTwoAttack.Take(14).ToArray(),
-            }, ArtworkJson.Options))), "reject truncated phase-two attack colors");
+            }, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorDocument>(ArtworkJson.Options)))), "reject truncated phase-two attack colors");
         AssertThrows<InvalidDataException>(() => MotherBrainRoomColorFile.Read(
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
             {
                 InitialGlassShard = (document.InitialGlassShard ?? throw new InvalidOperationException("Verification requires document.InitialGlassShard.")).Take(14).ToArray(),
-            }, ArtworkJson.Options))), "reject truncated room-entry glass colors");
+            }, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorDocument>(ArtworkJson.Options)))), "reject truncated room-entry glass colors");
         AssertThrows<InvalidDataException>(() => MotherBrainRoomColorFile.Read(
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
             {
                 RecoveryLights = (document.RecoveryLights ?? throw new InvalidOperationException("Verification requires document.RecoveryLights.")).Take(6).ToArray(),
-            }, ArtworkJson.Options))), "reject truncated room-light recovery sequence");
+            }, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorDocument>(ArtworkJson.Options)))), "reject truncated room-light recovery sequence");
         Console.WriteLine("Mother Brain room colors: entry, 14 flash frames, final grey, phase-two and seven recovery-light shades match the cartridge's colours and the production paths that lay them; strict validation passes.");
     }
 

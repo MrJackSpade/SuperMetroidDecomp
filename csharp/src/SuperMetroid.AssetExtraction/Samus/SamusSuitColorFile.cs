@@ -32,7 +32,7 @@ public static class SamusSuitColorFile
     /// <param name="document">Document containing all three 16-color palettes.</param>
     /// <returns>A new caller-owned JSON byte array.</returns>
     public static byte[] Write(SamusSuitColorDocument document) =>
-        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Samus.SamusSuitColorDocument>(ArtworkJson.Options));
 
     /// <summary>Validates all sixteen RGB5 slots, including color zero, and packs them into native words.</summary>
     private static RgbColor[] Compile(PaletteRgb5[]? source, string name)

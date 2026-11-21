@@ -39,7 +39,6 @@ public static class CeresFlightPaletteFile
     public static void Write(Stream json, CeresFlightPaletteDocument document)
     {
         Ensure.NotNull(json);
-        json.Write(JsonSerializer.SerializeToUtf8Bytes(document,
-            ArtworkJson.Options));
+        json.Write(JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Areas.Ceres.CeresFlightPaletteDocument>(ArtworkJson.Options)));
     }
 }

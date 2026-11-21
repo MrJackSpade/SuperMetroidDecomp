@@ -82,7 +82,7 @@ public static class MapPresentationExtractor
                 file.Write(bytes);
             hashes.Add(name, Convert.ToHexString(SHA256.HashData(bytes)));
         }
-        byte[] revealBytes = JsonSerializer.SerializeToUtf8Bytes(stationCells, IndentedJson);
+        byte[] revealBytes = JsonSerializer.SerializeToUtf8Bytes(stationCells, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::System.Collections.Generic.Dictionary<string, int[]>>(IndentedJson));
         using (var file = new FileStream(PathOf(AreaMapCatalogFormat.StationRevealFile), FileMode.CreateNew, FileAccess.Write))
             file.Write(revealBytes);
         hashes.Add(AreaMapCatalogFormat.StationRevealFile, Convert.ToHexString(SHA256.HashData(revealBytes)));
@@ -391,6 +391,6 @@ public static class MapPresentationExtractor
         JsonSerializer.Serialize(manifest, new AreaMapCatalogManifest
         {
             Version = AreaMapCatalogFormat.Version, SourceCartridgeSha256 = sourceCartridgeSha256, Sha256 = hashes
-        }, CamelCaseIndentedJson);
+        }, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Map.AreaMapCatalogManifest>(CamelCaseIndentedJson));
     }
 }

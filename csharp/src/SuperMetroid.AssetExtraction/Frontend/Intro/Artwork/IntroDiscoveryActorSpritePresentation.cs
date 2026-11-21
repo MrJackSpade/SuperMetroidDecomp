@@ -56,8 +56,7 @@ public sealed class IntroDiscoveryActorSpritePresentation : ICinematicSpriteFram
     public static void Write(Stream json, IntroDiscoveryActorSpriteDocument document)
     {
         Ensure.NotNull(json);
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
-            ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Intro.Artwork.IntroDiscoveryActorSpriteDocument>(ArtworkJson.Options));
         json.Write(bytes);
     }
 }

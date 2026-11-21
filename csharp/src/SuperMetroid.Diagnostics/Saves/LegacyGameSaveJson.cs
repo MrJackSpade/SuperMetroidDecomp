@@ -792,7 +792,7 @@ public static class LegacyGameSaveJson
         var sram = new byte[SaveRamLayout.ImageByteCount];
         for (int page = 0; page < pages.Count; page++)
         {
-            var entry = pages[page]?.Deserialize<LegacySramPage>(PageOptions) ??
+            var entry = pages[page]?.Deserialize<LegacySramPage>(global::SuperMetroid.Diagnostics.DiagnosticsJson.Info<global::SuperMetroid.Diagnostics.Saves.LegacyGameSaveJson.LegacySramPage>(PageOptions)) ??
                 throw new InvalidDataException($"preservedUntranslatedSram[{page}] is null");
             if (!string.Equals(entry.Offset, $"0x{page * size:X4}", StringComparison.OrdinalIgnoreCase))
                 throw new InvalidDataException($"preservedUntranslatedSram[{page}].offset must be 0x{page * size:X4}");
@@ -806,7 +806,7 @@ public static class LegacyGameSaveJson
     }
 
     /// <summary>One fixed-size raw SRAM page in a legacy save awaiting schema upgrade.</summary>
-    private sealed record LegacySramPage
+    internal sealed record LegacySramPage
     {
         /// <summary>Expected hexadecimal SRAM page origin used to verify ordering.</summary>
         public required string Offset { get; init; }

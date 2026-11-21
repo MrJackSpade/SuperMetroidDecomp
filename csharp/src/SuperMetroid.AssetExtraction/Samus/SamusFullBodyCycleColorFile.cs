@@ -29,7 +29,7 @@ public static class SamusFullBodyCycleColorFile
 
     /// <summary>Serializes a full-body cycle color document as JSON.</summary>
     public static byte[] Write(SamusFullBodyCycleColorDocument document) =>
-        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Samus.SamusFullBodyCycleColorDocument>(ArtworkJson.Options));
 
     /// <summary>Validates a family's three suits and four shades, then places RGB5 colors in their artwork rows.</summary>
     private static void AddFamily(Dictionary<SamusFullBodyCycleShade, RgbColor[]> destination,

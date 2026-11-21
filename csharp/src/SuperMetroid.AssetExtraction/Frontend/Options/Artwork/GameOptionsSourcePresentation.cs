@@ -299,7 +299,7 @@ public sealed class GameOptionsSourcePresentation
     /// <param name="document">Authored artwork and layout, whose collections are not modified by serialization.</param>
     public static void Write(Stream output, GameOptionsPresentationDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Options.Artwork.GameOptionsPresentationDocument>(ArtworkJson.Options));
         output.Write(bytes);
     }
 

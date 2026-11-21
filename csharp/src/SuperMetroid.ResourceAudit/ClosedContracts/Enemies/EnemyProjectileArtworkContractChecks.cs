@@ -23,15 +23,14 @@ internal static class EnemyProjectileArtworkContractChecks
         var document = new EnemyProjectileSpritemapDocument {
             Version = EnemyProjectileSpritemapDocuments.Version, Frames = direct, ProgramFrames = programs };
         EnemyProjectileSpritemapCatalog Load(EnemyProjectileSpritemapDocument value) =>
-            EnemyProjectileSpritemapDocuments.Load(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(value,
-                new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })));
+            EnemyProjectileSpritemapDocuments.Load(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(value, global::SuperMetroid.ResourceAudit.ResourceAuditJson.Info<global::SuperMetroid.AssetExtraction.Enemies.EnemyProjectileSpritemapDocument>(new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }))));
         EnemyProjectileSpritemapCatalog catalog = Load(document);
         EnemyProjectileFrameId directId = EnemyProjectileFrames.Identity(EnemyProjectileSpritemapDefinitions.FrameNames[0]);
         EnemyProjectilePresentationFrameDefinition program = EnemyProjectilePresentationFrameSets.All[0];
         Require(catalog.Get(directId).IsEmpty && catalog.GetProgramFrame(program.Frame).IsEmpty, "complete authored empty compositions");
         string directName = EnemyProjectileSpritemapDefinitions.FrameNames[0];
         var camelCase = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
-        JsonNode withNullFrame = RequiredJson.Parse(JsonSerializer.SerializeToUtf8Bytes(document, camelCase));
+        JsonNode withNullFrame = RequiredJson.Parse(JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.ResourceAudit.ResourceAuditJson.Info<global::SuperMetroid.AssetExtraction.Enemies.EnemyProjectileSpritemapDocument>(camelCase)));
         withNullFrame.Required("frames")[directName] = null;
         Reject(() => EnemyProjectileSpritemapDocuments.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(withNullFrame.ToJsonString()))),
             "null direct composition");

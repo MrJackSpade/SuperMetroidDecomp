@@ -40,7 +40,7 @@ public static class PowerBombGlowColorFile
     /// <param name="document">The two complete colour sequences to serialize; the writer does not retain their collections.</param>
     /// <returns>JSON bytes for <see cref="FileName"/>.</returns>
     public static byte[] Write(PowerBombGlowColorDocument document) =>
-        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Samus.PowerBombGlowColorDocument>(ArtworkJson.Options));
 
     /// <summary>Checks a sequence's length and reads each colour, which lies on the game's fade scale.</summary>
     private static RgbColor[] Compile(string[]? source, int count, string name)

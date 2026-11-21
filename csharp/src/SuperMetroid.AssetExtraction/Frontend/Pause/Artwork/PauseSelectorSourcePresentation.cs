@@ -74,7 +74,7 @@ public sealed class PauseSelectorSourcePresentation
     /// <summary>Writes a pause-selector document as JSON.</summary>
     public static void Write(Stream output, PauseSelectorDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Pause.Artwork.PauseSelectorDocument>(ArtworkJson.Options));
         output.Write(bytes);
     }
 }

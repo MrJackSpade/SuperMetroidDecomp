@@ -18,8 +18,7 @@ public static class CeresRevealActorLayoutFile
         CeresRevealActorLayoutDocument document;
         try
         {
-            document = JsonSerializer.Deserialize<CeresRevealActorLayoutDocument>(json,
-                ArtworkJson.Options)
+            document = JsonSerializer.Deserialize<CeresRevealActorLayoutDocument>(json, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork.CeresRevealActorLayoutDocument>(ArtworkJson.Options))
                 ?? throw new InvalidDataException("Ceres reveal actor layout is null.");
         }
         catch (JsonException error)
@@ -47,8 +46,7 @@ public static class CeresRevealActorLayoutFile
     public static void Write(Stream json, CeresRevealActorLayoutDocument document)
     {
         Ensure.NotNull(json);
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
-            ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork.CeresRevealActorLayoutDocument>(ArtworkJson.Options));
         json.Write(bytes);
     }
 }

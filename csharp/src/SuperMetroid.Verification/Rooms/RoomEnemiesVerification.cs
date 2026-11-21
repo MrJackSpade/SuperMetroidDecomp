@@ -801,8 +801,7 @@ internal static void VerifyCeresRidleyRoomEntry()
         Frames = fixtureSpriteFrames.ToDictionary(frame => frame.Name, _ => Array.Empty<SpriteVisualPart>()),
         DisplayFrames = fixtureSpriteFrames.ToDictionary(frame => frame.Name, frame => frame.Name),
     };
-    using var fixtureSpriteJson = new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(
-        fixtureSprites, CamelCaseJson));
+    using var fixtureSpriteJson = new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(fixtureSprites, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.World.Artwork.EnemySpritemapDocument>(CamelCaseJson)));
     bool ceresBossDefeated = false;
     ushort generatedRandom = 0x1234;
     ushort currentRandom = 0x1234;

@@ -1157,8 +1157,7 @@ internal static class LookupStream5Verification
         }).ToArray();
         var original = new MapPaletteCycleDocument { Version = MapPaletteCycleFile.Version, Frames = frames };
         // The extraction states each frame's look as the colour its highlight shows: both of the frame's highlight colours.
-        MapPaletteCycleDocument extracted = System.Text.Json.JsonSerializer.Deserialize<MapPaletteCycleDocument>(
-            SuperMetroid.AssetExtraction.Frontend.Map.MapPaletteCycleExtractor.Extract(rom), ArtworkJson.Options)
+        MapPaletteCycleDocument extracted = System.Text.Json.JsonSerializer.Deserialize<MapPaletteCycleDocument>(SuperMetroid.AssetExtraction.Frontend.Map.MapPaletteCycleExtractor.Extract(rom), global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Map.MapPaletteCycleDocument>(ArtworkJson.Options))
             ?? throw new InvalidDataException("The extracted map highlight cycle is null.");
         AssertTrue(extracted.Frames.SequenceEqual(frames), "the extracted highlight cycle holds each frame's hold and highlight colour");
         for (int frame = 0; frame < 14; frame++)
@@ -1182,7 +1181,7 @@ internal static class LookupStream5Verification
 
         static MapPaletteCycle Check(MapPaletteCycleDocument document)
         {
-            byte[] json = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+            byte[] json = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Map.MapPaletteCycleDocument>(ArtworkJson.Options));
             var cycle = MapPaletteCycleFile.Read(new MemoryStream(json, writable: false));
             AssertEqual(document.Frames.Length, cycle.FrameCount, "Highlight frame count");
             AssertEqual(document.Frames.Length, cycle.Timing.FrameCount, "Highlight timing frame count");
@@ -1672,7 +1671,7 @@ internal static class LookupStream5Verification
         CeresFlightPalette Check()
         {
             var document = new CeresFlightPaletteDocument { Version = 1, Colors = colors };
-            using var json = new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options));
+            using var json = new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Areas.Ceres.CeresFlightPaletteDocument>(ArtworkJson.Options)));
             CeresFlightPalette actual = CeresFlightPaletteFile.Read(json);
             RgbColor[] selected = [.. actual.Colours];
             RgbColor[] loaded = [.. actual.BackgroundColours, .. actual.SpriteColours];

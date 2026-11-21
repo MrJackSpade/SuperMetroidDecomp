@@ -71,7 +71,7 @@ public sealed class RoomMetatileAtlas
     public static void Write(Stream json, RoomMetatileDocument document)
     {
         Ensure.NotNull(json);
-        json.Write(JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions));
+        json.Write(JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Rooms.RoomMetatileDocument>(JsonOptions)));
     }
 
     /// <summary>Strict camel-case JSON settings for editable metatile documents.</summary>

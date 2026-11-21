@@ -58,8 +58,7 @@ public static class RoomBackgroundTilemapArtworkFiles
         }
         using var manifest = new FileStream(Path.Combine(importData, ManifestFileName),
             FileMode.CreateNew, FileAccess.Write);
-        JsonSerializer.Serialize(manifest,
-            new RoomBackgroundFileManifest(FormatVersion, sourceCartridgeSha256, entries), JsonOptions);
+        JsonSerializer.Serialize(manifest, new RoomBackgroundFileManifest(FormatVersion, sourceCartridgeSha256, entries), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Rooms.RoomBackgroundTilemapArtworkFiles.RoomBackgroundFileManifest>(JsonOptions));
     }
 
     /// <summary>Checks the backgrounds' provenance and compiles each tilemap document of the component's import data, without cartridge access.</summary>
@@ -118,8 +117,8 @@ public static class RoomBackgroundTilemapArtworkFiles
     };
 
     /// <summary>One stock tilemap's name, decompressed length in bytes, and JSON digest.</summary>
-    private sealed record RoomBackgroundFileEntry([InstalledKey] string Tilemap, int ByteCount, string Sha256);
+    internal sealed record RoomBackgroundFileEntry([InstalledKey] string Tilemap, int ByteCount, string Sha256);
     /// <summary>Records cartridge provenance and complete stock background tilemap coverage.</summary>
-    private sealed record RoomBackgroundFileManifest(int Version, string SourceCartridgeSha256,
+    internal sealed record RoomBackgroundFileManifest(int Version, string SourceCartridgeSha256,
         Dictionary<string, RoomBackgroundFileEntry> Entries);
 }

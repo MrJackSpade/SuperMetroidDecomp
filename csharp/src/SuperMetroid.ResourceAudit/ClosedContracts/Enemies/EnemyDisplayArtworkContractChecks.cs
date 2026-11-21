@@ -22,8 +22,7 @@ internal static class EnemyDisplayArtworkContractChecks
         var simpleBindings = simpleFrames.Keys.ToDictionary(name => name, name => name);
         var simpleDocument = new EnemySpritemapDocument {
             Version = EnemySpritemapSchema.Revision, Frames = simpleFrames, DisplayFrames = simpleBindings };
-        Stream Json<T>(T document) => new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document,
-            new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        Stream Json<T>(T document) => new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.ResourceAudit.ResourceAuditJson.Info<T>(new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })));
         EnemySpritemapCatalog simple = EnemySpritemapDocuments.Load(Json(simpleDocument));
         EnemyFrameName simpleId = EnemySpritemapDefinitions.Frames.First();
         Require(simple.TryGetDisplay(simpleId.Frame, out var parts) && parts.IsEmpty,

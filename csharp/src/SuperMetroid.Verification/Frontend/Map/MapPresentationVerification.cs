@@ -102,8 +102,7 @@ internal static class MapPresentationVerification
             Top = MapCellEdge.Wall, Bottom = MapCellEdge.Open, Left = MapCellEdge.Wall, Right = MapCellEdge.ElevatorShaft };
         var document = new MapPresentationDocument { Version = 2, Area = "Crateria",
             Cells = Enumerable.Repeat(cell, 64 * 32).ToArray() };
-        string Json(MapPresentationDocument value) => JsonSerializer.Serialize(value,
-            CamelCaseJson);
+        string Json(MapPresentationDocument value) => JsonSerializer.Serialize(value, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Map.MapPresentationDocument>(CamelCaseJson));
         AreaMapPresentationAsset Load(string text) => AreaMapPresentationFile.Read(
             new MemoryStream(Encoding.UTF8.GetBytes(text)), rules);
 
@@ -413,8 +412,7 @@ internal static class MapPresentationVerification
     {
         string source = Path.Combine(importColours, MotherBrainRainbowPaletteFile.FileName);
         MotherBrainRainbowPaletteDocument document =
-            JsonSerializer.Deserialize<MotherBrainRainbowPaletteDocument>(
-                File.ReadAllBytes(source), ArtworkJson.Options)
+            JsonSerializer.Deserialize<MotherBrainRainbowPaletteDocument>(File.ReadAllBytes(source), global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRainbowPaletteDocument>(ArtworkJson.Options))
             ?? throw new InvalidDataException("Extracted Mother Brain rainbow palette is null.");
         InstalledMotherBrainRainbowPalette rainbow = InstalledFixtures.ImportMaps.MotherBrainRainbowColours;
         Suite(nameof(VerifyMotherBrainFakeDeathPalette), () => VerifyMotherBrainFakeDeathPalette(bus, rainbow));
@@ -508,32 +506,31 @@ internal static class MapPresentationVerification
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
             {
                 Rainbow = document.Rainbow.Take(9).ToArray(),
-            }, ArtworkJson.Options))), "reject truncated Mother Brain rainbow loop");
+            }, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRainbowPaletteDocument>(ArtworkJson.Options)))), "reject truncated Mother Brain rainbow loop");
         AssertThrows<InvalidDataException>(() => MotherBrainRainbowPaletteFile.Read(
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
             {
                 Normal = document.Normal with { Body = document.Normal.Body.Take(14).ToArray() },
-            }, ArtworkJson.Options))), "reject truncated Mother Brain normal palette");
-        MotherBrainBeamColourDocument beam = JsonSerializer.Deserialize<MotherBrainBeamColourDocument>(
-                File.ReadAllBytes(Path.Combine(stock, MotherBrainBeamColourFile.FileName)), ArtworkJson.Options)
+            }, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRainbowPaletteDocument>(ArtworkJson.Options)))), "reject truncated Mother Brain normal palette");
+        MotherBrainBeamColourDocument beam = JsonSerializer.Deserialize<MotherBrainBeamColourDocument>(File.ReadAllBytes(Path.Combine(stock, MotherBrainBeamColourFile.FileName)), global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainBeamColourDocument>(ArtworkJson.Options))
             ?? throw new InvalidDataException("Installed Mother Brain beam colours are null.");
         AssertThrows<InvalidDataException>(() => MotherBrainBeamColourFile.Read(
-            new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(beam with { Cycle = [] }, ArtworkJson.Options))),
+            new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(beam with { Cycle = [] }, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainBeamColourDocument>(ArtworkJson.Options)))),
             "reject a Mother Brain beam without a cycle colour");
         AssertThrows<InvalidDataException>(() => MotherBrainBeamColourFile.Read(
-            new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(beam with { First = "blue" }, ArtworkJson.Options))),
+            new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(beam with { First = "blue" }, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainBeamColourDocument>(ArtworkJson.Options)))),
             "reject a Mother Brain beam colour not written as #rrggbb");
         AssertThrows<InvalidDataException>(() => MotherBrainBeamColourFile.Read(
-            new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(beam with { First = "#010203" }, ArtworkJson.Options))),
+            new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(beam with { First = "#010203" }, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainBeamColourDocument>(ArtworkJson.Options)))),
             "reject a Mother Brain beam colour off the game's fade scale");
         AssertThrows<InvalidDataException>(() => MotherBrainBeamColourFile.Read(
-            new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(beam with { Version = MotherBrainBeamColourFile.Version + 1 }, ArtworkJson.Options))),
+            new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(beam with { Version = MotherBrainBeamColourFile.Version + 1 }, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainBeamColourDocument>(ArtworkJson.Options)))),
             "reject another Mother Brain beam colour version");
         AssertThrows<InvalidDataException>(() => MotherBrainRainbowPaletteFile.Read(
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
             {
                 FakeDeathToGrey = (document.FakeDeathToGrey ?? throw new InvalidOperationException("Verification requires document.FakeDeathToGrey.")).Take(7).ToArray(),
-            }, ArtworkJson.Options))), "reject truncated Mother Brain fake-death grey fade");
+            }, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRainbowPaletteDocument>(ArtworkJson.Options)))), "reject truncated Mother Brain fake-death grey fade");
         Console.WriteLine("Mother Brain palette: 10 rainbow, 38 HDMA beam, 16 drain/revival and eight fake-death grey frames; native CGRAM parity, ROM-free fades and strict validation pass.");
     }
 
@@ -545,8 +542,7 @@ internal static class MapPresentationVerification
     {
         string source = Path.Combine(stock, MotherBrainHealthPaletteFile.FileName);
         MotherBrainHealthPaletteDocument document =
-            JsonSerializer.Deserialize<MotherBrainHealthPaletteDocument>(
-                File.ReadAllBytes(source), ArtworkJson.Options)
+            JsonSerializer.Deserialize<MotherBrainHealthPaletteDocument>(File.ReadAllBytes(source), global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainHealthPaletteDocument>(ArtworkJson.Options))
             ?? throw new InvalidDataException("Extracted Mother Brain health palette is null.");
         MotherBrainHealthPalettePresentation extracted =
             MotherBrainHealthPaletteFile.Read(new MemoryStream(
@@ -573,18 +569,18 @@ internal static class MapPresentationVerification
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
             {
                 Version = MotherBrainHealthPaletteFile.Version + 1,
-            }, ArtworkJson.Options))), "reject unsupported Mother Brain palette version");
+            }, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainHealthPaletteDocument>(ArtworkJson.Options)))), "reject unsupported Mother Brain palette version");
         AssertThrows<InvalidDataException>(() => MotherBrainHealthPaletteFile.Read(
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
             {
                 HealthBands = document.HealthBands.Take(3).ToDictionary(),
-            }, ArtworkJson.Options))), "reject incomplete Mother Brain damage states");
+            }, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainHealthPaletteDocument>(ArtworkJson.Options)))), "reject incomplete Mother Brain damage states");
         AssertThrows<InvalidDataException>(() => MotherBrainHealthPaletteFile.Read(
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
             {
                 HealthBands = document.HealthBands.Select((band, index) => index == 0 ?
                     KeyValuePair.Create(band.Key, band.Value with { BackLegs = band.Value.BackLegs.Take(14).ToArray() }) : band).ToDictionary(),
-            }, ArtworkJson.Options))), "reject truncated Mother Brain rear-leg palette");
+            }, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainHealthPaletteDocument>(ArtworkJson.Options)))), "reject truncated Mother Brain rear-leg palette");
 
         Console.WriteLine("Mother Brain health palette: 8 threshold boundaries, ROM-free stock copies and schema checks pass.");
     }

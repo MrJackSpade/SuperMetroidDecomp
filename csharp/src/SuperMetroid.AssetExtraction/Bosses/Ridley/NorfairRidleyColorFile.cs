@@ -49,7 +49,7 @@ public static class NorfairRidleyColorFile
     /// <param name="document">Palette document to serialize; it must satisfy the loader's version, dimensions, and RGB5 constraints.</param>
     /// <returns>JSON bytes suitable for the catalog asset file.</returns>
     public static byte[] Write(NorfairRidleyColorDocument document) =>
-        JsonSerializer.SerializeToUtf8Bytes(document, Options);
+        JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Bosses.Ridley.NorfairRidleyColorDocument>(Options));
 
     /// <summary>Validates each RGB5 channel and packs one authored row into SNES color words.</summary>
     private static RgbColor[] Compile(PaletteRgb5[] colors, string label)

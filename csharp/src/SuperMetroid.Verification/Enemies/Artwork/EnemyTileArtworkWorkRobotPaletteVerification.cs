@@ -34,8 +34,7 @@ internal static class EnemyTileArtworkWorkRobotPaletteVerification
         string file = Path.Combine(stockDirectory, WorkRobotPaletteCycleFormat.FileName);
         byte[] stockJson = File.ReadAllBytes(file);
         WorkRobotPaletteCycleDocument visual =
-            JsonSerializer.Deserialize<WorkRobotPaletteCycleDocument>(stockJson,
-                CaseInsensitiveJson) ??
+            JsonSerializer.Deserialize<WorkRobotPaletteCycleDocument>(stockJson, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Enemies.WorkRobotPaletteCycleDocument>(CaseInsensitiveJson)) ??
             throw new InvalidDataException("Stock Work Robot palette JSON is null.");
         PaletteRgb5 prior = visual.Frames[2][1];
         visual.Frames[2][1] = prior with { Green = 32 };

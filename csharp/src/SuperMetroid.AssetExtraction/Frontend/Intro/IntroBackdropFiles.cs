@@ -33,7 +33,7 @@ public static class IntroBackdropFiles
             Version = Version,
             Opening = InstalledColourText.Format(opening.Backdrop),
             CeresFlight = InstalledColourText.Format(flight.Backdrop),
-        }, ArtworkJson.Options);
+        }, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Intro.IntroBackdropDocument>(ArtworkJson.Options));
     }
 
     /// <summary>Reads the installed opening backdrops.</summary>

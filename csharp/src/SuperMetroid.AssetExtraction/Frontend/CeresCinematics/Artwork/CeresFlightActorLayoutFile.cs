@@ -18,8 +18,7 @@ public static class CeresFlightActorLayoutFile
         CeresFlightActorLayoutDocument document;
         try
         {
-            document = JsonSerializer.Deserialize<CeresFlightActorLayoutDocument>(json,
-                ArtworkJson.Options)
+            document = JsonSerializer.Deserialize<CeresFlightActorLayoutDocument>(json, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork.CeresFlightActorLayoutDocument>(ArtworkJson.Options))
                 ?? throw new InvalidDataException("Ceres flight actor layout is null.");
         }
         catch (JsonException error)
@@ -47,8 +46,7 @@ public static class CeresFlightActorLayoutFile
     public static void Write(Stream json, CeresFlightActorLayoutDocument document)
     {
         Ensure.NotNull(json);
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
-            ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork.CeresFlightActorLayoutDocument>(ArtworkJson.Options));
         json.Write(bytes);
     }
 }

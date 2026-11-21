@@ -29,7 +29,7 @@ public static class MapHighlightTimingFile
         {
             Version = Version,
             DurationTicks = [.. Enumerable.Range(0, cycle.Timing.FrameCount).Select(frame => cycle.Timing.Duration(MapHighlightFrame.At(frame)))],
-        }, ArtworkJson.Options);
+        }, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Map.MapHighlightTimingDocument>(ArtworkJson.Options));
     }
 
     /// <summary>Reads and validates the installed cycle: the frame count and each frame's hold the game steps the highlight through.</summary>

@@ -52,8 +52,7 @@ public sealed class EndingRewardSpritePresentation : ICinematicSpriteFrames
     public static void Write(Stream json, EndingRewardSpriteDocument document)
     {
         Ensure.NotNull(json);
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
-            ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingRewardSpriteDocument>(ArtworkJson.Options));
         json.Write(bytes);
     }
 }

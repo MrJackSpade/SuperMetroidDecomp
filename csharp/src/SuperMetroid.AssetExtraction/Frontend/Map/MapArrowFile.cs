@@ -36,7 +36,7 @@ public static class MapArrowFile
     /// <param name="document">The document to serialize.</param>
     public static void Write(Stream json, MapArrowDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Map.Artwork.MapArrowDocument>(ArtworkJson.Options));
         json.Write(bytes);
     }
 }

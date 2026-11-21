@@ -59,7 +59,7 @@ public sealed class RoomBackgroundTilemapAtlas
     public static void Write(Stream json, RoomBackgroundTilemapDocument document)
     {
         Ensure.NotNull(json);
-        json.Write(JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions));
+        json.Write(JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Rooms.RoomBackgroundTilemapDocument>(JsonOptions)));
     }
 
     /// <summary>Accepts casing variations but rejects unknown or duplicate tilemap properties.</summary>

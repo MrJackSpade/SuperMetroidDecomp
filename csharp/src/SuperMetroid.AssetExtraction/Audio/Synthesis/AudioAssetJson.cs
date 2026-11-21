@@ -107,9 +107,9 @@ internal static class AudioAssetJson
                 : AudioMusicInstructionKindKeys.Installed.Of(value.Kind));
             writer.WriteNumber("opcode"u8, value.Opcode);
             writer.WritePropertyName("timing"u8);
-            JsonSerializer.Serialize(writer, value.Timing, options);
+            JsonSerializer.Serialize(writer, value.Timing, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::System.Collections.Generic.IReadOnlyList<byte>>(options));
             writer.WritePropertyName("arguments"u8);
-            JsonSerializer.Serialize(writer, value.Arguments, options);
+            JsonSerializer.Serialize(writer, value.Arguments, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::System.Collections.Generic.IReadOnlyList<byte>>(options));
             writer.WriteEndObject();
         }
 

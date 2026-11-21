@@ -48,7 +48,7 @@ public sealed class InstalledGrappleSprites
         {
             using var parsed = JsonDocument.Parse(json);
             RejectDuplicates(parsed.RootElement);
-            document = parsed.RootElement.Deserialize<GrappleSpriteDocument>(Options)
+            document = parsed.RootElement.Deserialize<GrappleSpriteDocument>(global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Samus.GrappleSpriteDocument>(Options))
                 ?? throw new InvalidDataException("Grapple sprite document is null.");
         }
         catch (JsonException error) { throw new InvalidDataException("Invalid Grapple sprite JSON.", error); }
@@ -73,7 +73,7 @@ public sealed class InstalledGrappleSprites
     /// <param name="document">Authored endpoint and segment styles read for serialization, not retained by the writer.</param>
     /// <returns>A new caller-owned UTF-8 JSON byte array with camel-case properties and indented formatting.</returns>
     public static byte[] Write(GrappleSpriteDocument document) =>
-        JsonSerializer.SerializeToUtf8Bytes(document, Options);
+        JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Samus.GrappleSpriteDocument>(Options));
 
     /// <summary>Rejects duplicate style keys before JSON deserialization can overwrite them.</summary>
     private static void RejectDuplicates(JsonElement value) =>

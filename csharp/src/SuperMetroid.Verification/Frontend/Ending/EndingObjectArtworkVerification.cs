@@ -218,8 +218,7 @@ internal static class EndingObjectArtworkVerification
             "installed ending OBJ scenes never reread compiled instructions, sprite maps or character sources");
 
         EndingCloudSpriteDocument cloudDocument =
-            JsonSerializer.Deserialize<EndingCloudSpriteDocument>(
-                File.ReadAllBytes(Path.Combine(SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.EndingObjectDirectoryName), EndingCloudSpriteFormat.FileName)), ArtworkJson.Options) ??
+            JsonSerializer.Deserialize<EndingCloudSpriteDocument>(File.ReadAllBytes(Path.Combine(SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.EndingObjectDirectoryName), EndingCloudSpriteFormat.FileName)), global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingCloudSpriteDocument>(ArtworkJson.Options)) ??
             throw new InvalidDataException("Stock ending cloud sprite JSON is empty.");
         cloudDocument.Frames.Remove("right-side-cloud");
         AssertThrows<InvalidDataException>(() =>

@@ -82,7 +82,7 @@ internal static class RoomMetatilesVerification
         JsonNode malformed = JsonNode.Parse(files[RoomMetatileFormat.CreFileName])
             ?? throw new InvalidDataException("CRE metatile JSON is empty.");
         malformed.Required("blocks").Required(0).Required("topLeft")["palette"] = RoomMetatileFormat.PaletteCount;
-        byte[] invalid = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(malformed);
+        byte[] invalid = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(malformed, global::SuperMetroid.Verification.VerificationJson.Info<global::System.Text.Json.Nodes.JsonNode>());
         AssertThrows<InvalidDataException>(() => RoomMetatileAtlas.Load(
                 new MemoryStream(invalid, writable: false), cre.Length),
             "metatile JSON rejects an invalid palette selector");

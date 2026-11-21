@@ -59,7 +59,7 @@ internal sealed class EnemyTileArtworkReader
         EnemyTileArtworkFiles.EnemyTileManifest manifest;
         try
         {
-            manifest = JsonSerializer.Deserialize<EnemyTileArtworkFiles.EnemyTileManifest>(File.ReadAllBytes(manifestPath), EnemyTileArtworkFiles.JsonOptions)
+            manifest = JsonSerializer.Deserialize<EnemyTileArtworkFiles.EnemyTileManifest>(File.ReadAllBytes(manifestPath), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Enemies.EnemyTileArtworkFiles.EnemyTileManifest>(EnemyTileArtworkFiles.JsonOptions))
                 ?? throw new InvalidDataException("Enemy tile manifest is empty.");
         }
         catch (JsonException error)

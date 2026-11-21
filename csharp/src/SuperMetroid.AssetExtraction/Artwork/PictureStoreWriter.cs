@@ -172,8 +172,7 @@ internal static class PictureStoreWriter
                 Page = placements[picture].Page, Corner = placements[picture].Corner, Size = picture.Content.Rectangle.Size,
             },
             StringComparer.Ordinal);
-        File.WriteAllBytes(Path.Combine(directory, PictureStoreFiles.IndexFileName), JsonSerializer.SerializeToUtf8Bytes(
-            new PictureStoreIndex(PictureStoreIndex.FormatVersion, pages.Count, tagged, regions, blending), PictureStoreIndex.JsonOptions));
+        File.WriteAllBytes(Path.Combine(directory, PictureStoreFiles.IndexFileName), JsonSerializer.SerializeToUtf8Bytes(new PictureStoreIndex(PictureStoreIndex.FormatVersion, pages.Count, tagged, regions, blending), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Artwork.PictureStoreIndex>(PictureStoreIndex.JsonOptions)));
     }
 
     /// <summary>

@@ -29,5 +29,5 @@ public static class BotwoonColorFile
     /// <param name="document">The eight complete RGB5 health palettes to serialize.</param>
     /// <returns>UTF-8 JSON bytes.</returns>
     public static byte[] Write(BotwoonColorDocument document) =>
-        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Bosses.BotwoonColorDocument>(ArtworkJson.Options));
 }

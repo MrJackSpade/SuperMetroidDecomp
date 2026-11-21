@@ -39,7 +39,7 @@ public sealed class PauseEquipmentBasePresentation
     /// <param name="document">The complete 32-by-32 tile-reference document to serialize.</param>
     public static void Write(Stream output, PauseEquipmentBaseDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Pause.Artwork.PauseEquipmentBaseDocument>(ArtworkJson.Options));
         output.Write(bytes);
     }
 }

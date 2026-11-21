@@ -47,5 +47,5 @@ public static class RoomFxPaletteBlendFile
     /// <param name="document">Eight named blend selections.</param>
     /// <returns>The UTF-8 JSON payload; this method does not write an external resource.</returns>
     public static byte[] Write(RoomFxPaletteBlendDocument document) =>
-        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Fx.RoomFxPaletteBlendDocument>(ArtworkJson.Options));
 }

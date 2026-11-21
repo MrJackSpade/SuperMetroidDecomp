@@ -177,7 +177,7 @@ public sealed class ExtractedAudioAssetCatalog
     {
         using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
         using (var hashing = new HashingWriteStream(hash))
-            JsonSerializer.Serialize(hashing, manifest, AudioAssetJson.Options);
+            JsonSerializer.Serialize(hashing, manifest, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Audio.Synthesis.AudioAssetManifest>(AudioAssetJson.Options));
         return Convert.ToHexString(hash.GetHashAndReset());
     }
 
@@ -506,7 +506,7 @@ public sealed class ExtractedAudioAssetCatalog
         using var file = File.OpenRead(path);
         try
         {
-            return JsonSerializer.Deserialize<AudioAssetManifest>(file, AudioAssetJson.Options)
+            return JsonSerializer.Deserialize<AudioAssetManifest>(file, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Audio.Synthesis.AudioAssetManifest>(AudioAssetJson.Options))
                 ?? throw new InvalidDataException($"Audio manifest '{path}' deserialized to null.");
         }
         catch (JsonException error)

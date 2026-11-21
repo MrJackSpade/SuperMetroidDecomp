@@ -104,7 +104,7 @@ internal static class AudioClipExporter
             soundEffects);
         File.WriteAllText(
             Path.Combine(root, InstalledAudioClips.ManifestFileName),
-            JsonSerializer.Serialize(manifest, InstalledAudioClips.ManifestOptions));
+            JsonSerializer.Serialize(manifest, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Audio.AudioClipManifest>(InstalledAudioClips.ManifestOptions)));
     }
 
     /// <summary>Analyzes and renders one track and records its loop and tempo timeline.</summary>

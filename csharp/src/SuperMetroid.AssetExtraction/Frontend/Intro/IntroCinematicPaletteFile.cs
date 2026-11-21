@@ -48,8 +48,7 @@ public static class IntroCinematicPaletteFile
     public static void Write(Stream json, IntroCinematicPaletteDocument document)
     {
         Ensure.NotNull(json);
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
-            ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Intro.IntroCinematicPaletteDocument>(ArtworkJson.Options));
         json.Write(bytes);
     }
 }

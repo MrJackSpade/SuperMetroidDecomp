@@ -27,7 +27,7 @@ public static class SamusOverreadFiles
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
         Directory.CreateDirectory(directory);
         SamusOverreadDocument document = SamusOverreadDecoding.Decode(cartridge);
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, SamusOverreadFormat.JsonOptions);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Samus.SamusOverreadDocument>(SamusOverreadFormat.JsonOptions));
         File.WriteAllBytes(Path.Combine(directory, SamusOverreadFormat.FileName), bytes);
     }
 

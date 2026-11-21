@@ -55,7 +55,7 @@ public static class GameplayHudPresentationFile
     public static void Write(Stream output, GameplayHudPresentationDocument document)
     {
         Ensure.NotNull(output);
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Hud.GameplayHudPresentationDocument>(ArtworkJson.Options));
         output.Write(bytes);
     }
 

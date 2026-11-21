@@ -35,7 +35,7 @@ internal static class EnemySpritemapFiles
             Version = EnemySpritemapSchema.Revision,
             Frames = frames,
             DisplayFrames = EnemyFrameBindingRules.Identity(EnemySpritemapDefinitions.Frames),
-        }, CamelCaseIndentedJson);
+        }, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.World.Artwork.EnemySpritemapDocument>(CamelCaseIndentedJson));
         return json;
     }
 

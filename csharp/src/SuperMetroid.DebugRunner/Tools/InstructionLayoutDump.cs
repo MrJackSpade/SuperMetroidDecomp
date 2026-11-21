@@ -28,7 +28,7 @@ internal static class InstructionLayoutDump
             int[] slots = [.. (catalog.PresentationOperands ?? []).Select(address => (int)address)];
             result[catalog.Type.Name] = new { mechanics = words, presentation = slots };
         }
-        File.WriteAllText(outputPath, JsonSerializer.Serialize(result, CompactJson));
+        File.WriteAllText(outputPath, JsonSerializer.Serialize(result, global::SuperMetroid.DebugRunner.DebugRunnerJson.Info<global::System.Collections.Generic.SortedDictionary<string, object>>(CompactJson)));
         Console.WriteLine($"Instruction layouts: {result.Count} program types written to {outputPath}.");
     }
 }

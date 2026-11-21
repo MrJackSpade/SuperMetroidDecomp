@@ -75,7 +75,7 @@ public static class CeresDoorVisualFiles
         CeresDoorVisualDocument document;
         try
         {
-            document = JsonSerializer.Deserialize<CeresDoorVisualDocument>(paletteJson, Options)
+            document = JsonSerializer.Deserialize<CeresDoorVisualDocument>(paletteJson, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Areas.Ceres.CeresDoorVisualDocument>(Options))
                 ?? throw new InvalidDataException("Ceres-door visual palette JSON is null.");
         }
         catch (JsonException error)
@@ -99,7 +99,7 @@ public static class CeresDoorVisualFiles
     /// <summary>Serializes visual JSON as indented camel-case UTF-8, validating version, palette dimensions and RGB5 bounds before returning it; PNG admission is a separate boundary.</summary>
     internal static byte[] Write(CeresDoorVisualDocument document)
     {
-        byte[] json = JsonSerializer.SerializeToUtf8Bytes(document, Options);
+        byte[] json = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Areas.Ceres.CeresDoorVisualDocument>(Options));
         // The PNG is validated independently; validate color structure here.
         if (document.Version != 1 || document.Animation is null ||
             document.Animation.Length != CeresDoorVisualDefinitions.AnimationStepCount)

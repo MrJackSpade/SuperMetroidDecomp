@@ -185,7 +185,7 @@ public static class IntroCinematicArtworkFiles
         var manifest = new IntroCinematicArtworkManifest(FormatVersion, sourceCartridgeSha256, hashes);
         using var stream = new FileStream(Path.Combine(importData, IntroCinematicArtworkFormat.ManifestFileName),
             FileMode.CreateNew, FileAccess.Write);
-        JsonSerializer.Serialize(stream, manifest, JsonOptions);
+        JsonSerializer.Serialize(stream, manifest, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Intro.IntroCinematicArtworkFiles.IntroCinematicArtworkManifest>(JsonOptions));
         return;
 
         void WriteSheet(string name, byte[] planar, int expectedByteCount)
@@ -470,8 +470,7 @@ public static class IntroCinematicArtworkFiles
         IntroCinematicArtworkManifest manifest;
         try
         {
-            manifest = JsonSerializer.Deserialize<IntroCinematicArtworkManifest>(
-                File.ReadAllBytes(manifestPath), JsonOptions)
+            manifest = JsonSerializer.Deserialize<IntroCinematicArtworkManifest>(File.ReadAllBytes(manifestPath), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Intro.IntroCinematicArtworkFiles.IntroCinematicArtworkManifest>(JsonOptions))
                 ?? throw new InvalidDataException("Intro artwork manifest is empty.");
         }
         catch (JsonException error)
@@ -584,6 +583,6 @@ public static class IntroCinematicArtworkFiles
     };
 
     /// <summary>Records resource hashes and cartridge provenance for one extracted stock artwork set.</summary>
-    private sealed record IntroCinematicArtworkManifest(
+    internal sealed record IntroCinematicArtworkManifest(
         int Version, string SourceCartridgeSha256, Dictionary<string, string> StockSha256);
 }

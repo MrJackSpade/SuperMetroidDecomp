@@ -125,7 +125,7 @@ public sealed class TitleGraphicsCharacters
     /// <param name="document">The map and sprite-composition document to serialize.</param>
     public static void WriteMap(Stream json, TitleFloorMapDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Title.Artwork.TitleFloorMapDocument>(ArtworkJson.Options));
         TitleFloorMapDocument restored;
         try
         {

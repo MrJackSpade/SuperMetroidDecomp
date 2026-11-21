@@ -107,7 +107,7 @@ public static class TitleGradientFile
     /// <param name="document">Authored gradient whose mutable arrays are read for serialization, not retained by the writer.</param>
     public static void Write(Stream json, TitleGradientDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Title.Artwork.TitleGradientDocument>(ArtworkJson.Options));
         json.Write(bytes);
     }
 }

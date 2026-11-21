@@ -195,8 +195,7 @@ public sealed class GameplayMessageNoticePresentation
     /// <param name="document">The document to serialize.</param>
     public static void Write(Stream output, GameplayMessageNoticeDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(
-            document, ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Hud.GameplayMessageNoticeDocument>(ArtworkJson.Options));
         output.Write(bytes);
     }
 

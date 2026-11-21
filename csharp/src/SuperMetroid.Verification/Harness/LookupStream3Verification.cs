@@ -217,7 +217,7 @@ internal static class LookupStream3Verification
         GameOptionsPresentationDocument Read() => RequiredJson.Deserialize<GameOptionsPresentationDocument>(imported, ArtworkJson.Options);
         Dictionary<GameOptionsPage, SpriteComposition> Load(GameOptionsPresentationDocument document)
         {
-            var value = GameOptionsSourcePresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
+            var value = GameOptionsSourcePresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Options.Artwork.GameOptionsPresentationDocument>(ArtworkJson.Options))));
             return value.headingSprites;
         }
         void Confirm(SpriteComposition actual, SpriteVisualPart[] parts)
@@ -237,7 +237,7 @@ internal static class LookupStream3Verification
             var stock = Load(original)[page];
             AssertEqual(count, stock.PartCount, "native perimeter count");
             Confirm(stock, original.Sprites[name]);
-            var presentation = GameOptionsSourcePresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(original, ArtworkJson.Options)));
+            var presentation = GameOptionsSourcePresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(original, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Options.Artwork.GameOptionsPresentationDocument>(ArtworkJson.Options))));
             string anchorKey = GameOptionsPresentationFormat.MenuName(page);
             var actualOam = ScreenSpritesFixtures.Blank();
             var expectedOam = new OamBuffer();
@@ -265,7 +265,7 @@ internal static class LookupStream3Verification
         FileSelectArtworkDocument Read() => RequiredJson.Deserialize<FileSelectArtworkDocument>(imported.Artwork, ArtworkJson.Options);
         FileSelectLayoutDocument layout = RequiredJson.Deserialize<FileSelectLayoutDocument>(imported.Layout, ArtworkJson.Options);
         FileSelectSourcePresentation LoadPresentation(FileSelectArtworkDocument document) => FileSelectSourcePresentation.Load(
-            new MemoryStream(imported.Layout), new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
+            new MemoryStream(imported.Layout), new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork.FileSelectArtworkDocument>(ArtworkJson.Options))));
         Dictionary<FileSelectBorder, SpriteComposition> Load(FileSelectArtworkDocument document) => LoadPresentation(document).borderSprites;
         void Confirm(SpriteComposition actual, SpriteVisualPart[] parts)
         {
@@ -406,7 +406,7 @@ internal static class LookupStream3Verification
         byte[] imported = SuperMetroid.AssetExtraction.Frontend.GameOverPresentationExtractor.Extract(rom);
         GameOverPresentationDocument Read() => RequiredJson.Deserialize<GameOverPresentationDocument>(imported, ArtworkJson.Options);
         GameOverSourcePresentation Load(GameOverPresentationDocument document) => GameOverSourcePresentation.Load(new MemoryStream(
-            System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
+            System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork.GameOverPresentationDocument>(ArtworkJson.Options))));
         var original = Read();
         var stock = Sprites(Load(original));
         // The stock presentation draws the installation's sheet, composed from it.
@@ -525,7 +525,7 @@ internal static class LookupStream3Verification
         byte[] imported = SuperMetroid.AssetExtraction.Frontend.GameOverPresentationExtractor.Extract(rom);
         var document = RequiredJson.Deserialize<GameOverPresentationDocument>(imported, ArtworkJson.Options);
         GameOverSourcePresentation Load() => GameOverSourcePresentation.Load(new MemoryStream(
-            System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
+            System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork.GameOverPresentationDocument>(ArtworkJson.Options))));
         var stock = Load();
         AssertTrue(stock.page.SequenceEqual(Enumerable.Range(0, GameOverPageDefinitions.TilemapCellCount).Select(GameOverText.TilemapTile)),
             "the stock game-over page is the spelled game-over text");
@@ -554,7 +554,7 @@ internal static class LookupStream3Verification
         GameOptionsPresentationDocument ReadDocument() => RequiredJson.Deserialize<GameOptionsPresentationDocument>(
             imported, ArtworkJson.Options);
         GameOptionsSourcePresentation Load(GameOptionsPresentationDocument document) => GameOptionsSourcePresentation.Load(new MemoryStream(
-            System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
+            System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Options.Artwork.GameOptionsPresentationDocument>(ArtworkJson.Options))));
         var stock = ReadDocument();
         var loaded = Load(stock);
         for (int action = 0; action < 7; action++)
@@ -1259,7 +1259,7 @@ internal static class LookupStream3Verification
             Cycle = [.. beamWords.Select(word => InstalledColourText.Format(RgbColor.FromWord(word)))],
         };
         InstalledMotherBrainRainbowPalette Load(MotherBrainRainbowPaletteDocument value) => MotherBrainRainbowPaletteFile.Read(
-            new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(value, ArtworkJson.Options)));
+            new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(value, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRainbowPaletteDocument>(ArtworkJson.Options))));
         void Check(InstalledMotherBrainRainbowPalette palette)
         {
             var cgram = new SnesCgram();
@@ -1289,7 +1289,7 @@ internal static class LookupStream3Verification
             AssertEqual(0x3ce0, palette.BeamInitialColor, "stream 3 beam initial fixed color unchanged");
         }
         MotherBrainRainbowBeamColours beam = MotherBrainBeamColourFile.Read(
-            new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(beamDocument, ArtworkJson.Options)));
+            new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(beamDocument, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainBeamColourDocument>(ArtworkJson.Options))));
         CheckBeam(beam);
         Check(stock);
         void CheckRainbow(InstalledMotherBrainRainbowPalette palette)
@@ -1815,7 +1815,7 @@ internal static class LookupStream3Verification
             }).ToArray();
         }
         EnemySpritemapCatalog Load() => EnemySpritemapDocuments.Load(new MemoryStream(
-            System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
+            System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.World.Artwork.EnemySpritemapDocument>(ArtworkJson.Options))));
         void Check(EnemySpritemapCatalog catalog)
         {
             foreach (var frame in selected)
@@ -1892,7 +1892,7 @@ internal static class LookupStream3Verification
         byte[] imported = SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorExtractor.Extract(rom);
         var document = RequiredJson.Deserialize<MotherBrainRoomColorDocument>(imported, ArtworkJson.Options);
         MotherBrainRoomColorPresentation Load() => MotherBrainRoomColorFile.Read(new MemoryStream(
-            System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
+            System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorDocument>(ArtworkJson.Options))));
         var stock = Load();
         for (int color = 0; color < document.FinalRoom.Length; color++)
         {
@@ -1940,8 +1940,7 @@ internal static class LookupStream3Verification
         MotherBrainRoomColorDocument Read() => RequiredJson.Deserialize<MotherBrainRoomColorDocument>(
             imported, ArtworkJson.Options);
         MotherBrainRoomColorPresentation Load(MotherBrainRoomColorDocument document) =>
-            MotherBrainRoomColorFile.Read(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(
-                document, ArtworkJson.Options)));
+            MotherBrainRoomColorFile.Read(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorDocument>(ArtworkJson.Options))));
         var document = Read();
         var stock = Load(document);
         for (int color = 0; color < MotherBrainRoomColorGeometry.InitialColors; color++)
@@ -2064,7 +2063,7 @@ internal static class LookupStream3Verification
         FileSelectArtworkDocument Read() => RequiredJson.Deserialize<FileSelectArtworkDocument>(imported.Artwork, ArtworkJson.Options);
         FileSelectLayoutDocument layout = RequiredJson.Deserialize<FileSelectLayoutDocument>(imported.Layout, ArtworkJson.Options);
         FileSelectSourcePresentation Load(FileSelectArtworkDocument document) => FileSelectSourcePresentation.Load(new MemoryStream(imported.Layout),
-            new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
+            new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork.FileSelectArtworkDocument>(ArtworkJson.Options))));
         SpriteComposition Composition(FileSelectSourcePresentation owner, FileSelectHelmetFrame frame) => owner.helmetSprites[frame];
         var original = Read();
         var stock = Load(original);

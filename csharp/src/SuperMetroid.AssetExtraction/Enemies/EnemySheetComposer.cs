@@ -81,8 +81,8 @@ internal static class EnemySheetComposer
         }, _ => { });
         SharedSpawnedSheets shared = SpawnedObjectSheetSharing.Share(spawnedLayouts);
         var names = new SheetNames();
-        var variants = new VariantNames<EnemyVariantDocument>(document => JsonSerializer.Serialize(document));
-        var spawnedVariants = new VariantNames<SpawnedObjectSheetDocument>(document => JsonSerializer.Serialize(document));
+        var variants = new VariantNames<EnemyVariantDocument>(document => JsonSerializer.Serialize(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Enemies.EnemyVariantDocument>()));
+        var spawnedVariants = new VariantNames<SpawnedObjectSheetDocument>(document => JsonSerializer.Serialize(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Enemies.SpawnedObjectSheetDocument>()));
         var setArtwork = new Dictionary<RoomEnemyGraphicsSetDefinition, PopulationArtworkDocument>();
         // The session start's variants are named first, as each owner's standard variant.
         foreach (LaidGraphicsSet set in laidSets.OrderBy(set => set.Set == RoomEnemyGraphicsSetDefinitions.SessionStart ? 0 : 1))

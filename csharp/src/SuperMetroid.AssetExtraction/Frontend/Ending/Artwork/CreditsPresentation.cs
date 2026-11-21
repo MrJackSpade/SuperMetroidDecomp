@@ -123,8 +123,7 @@ public sealed class CreditsPresentation
     public static void Write(Stream output, CreditsPresentationDocument document)
     {
         Ensure.NotNull(output);
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(
-            document, ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.CreditsPresentationDocument>(ArtworkJson.Options));
         output.Write(bytes);
     }
 

@@ -72,6 +72,6 @@ public static class AreaMapPresentationFile
         JsonSerializer.Serialize(json, new MapPresentationDocument
         {
             Version = MapPresentationFormat.Version, Area = AreaIdKeys.Installed.Of(map.Area), Cells = cells
-        }, ArtworkJson.Options);
+        }, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Map.MapPresentationDocument>(ArtworkJson.Options));
     }
 }

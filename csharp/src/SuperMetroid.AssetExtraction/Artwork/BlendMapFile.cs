@@ -38,7 +38,7 @@ internal static class BlendMapFile
             if (!documents.TryAdd(tag, Encoded(Ensure.NotNull(map))))
                 throw new ArgumentException($"Blend map {tag} is named twice.", nameof(maps));
         }
-        return JsonSerializer.SerializeToUtf8Bytes(new Document(Version, documents), Options);
+        return JsonSerializer.SerializeToUtf8Bytes(new Document(Version, documents), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Artwork.BlendMapFile.Document>(Options));
     }
 
     /// <summary>One map's runs of blending pixels.</summary>
@@ -124,10 +124,10 @@ internal static class BlendMapFile
     /// <summary>The map file.</summary>
     /// <param name="Version">The format revision.</param>
     /// <param name="Maps">Every map, by tag.</param>
-    private sealed record Document(int Version, Dictionary<string, MapDocument> Maps);
+    internal sealed record Document(int Version, Dictionary<string, MapDocument> Maps);
 
     /// <summary>One map.</summary>
     /// <param name="Size">The width and height of the picture it is for.</param>
     /// <param name="Rows">Each row's runs of blending pixels, first pixel then length.</param>
-    private sealed record MapDocument(Extent16<ImagePixels> Size, int[][] Rows);
+    internal sealed record MapDocument(Extent16<ImagePixels> Size, int[][] Rows);
 }

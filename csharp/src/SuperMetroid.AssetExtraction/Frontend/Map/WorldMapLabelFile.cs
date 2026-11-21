@@ -38,7 +38,7 @@ public static class WorldMapLabelFile
     /// <param name="document">Document to serialize.</param>
     public static void Write(Stream json, WorldMapLabelDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Map.Artwork.WorldMapLabelDocument>(ArtworkJson.Options));
         json.Write(bytes);
     }
 }

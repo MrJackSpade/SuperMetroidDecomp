@@ -108,7 +108,7 @@ public static class TitlePaletteFile
     /// <param name="document">Editable RGB5 collections read for serialization, not retained by the writer.</param>
     public static void Write(Stream json, TitlePaletteDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Title.TitlePaletteDocument>(ArtworkJson.Options));
         json.Write(bytes);
     }
 }

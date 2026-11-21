@@ -31,7 +31,7 @@ public static class KraidEyeColourFile
             Version = Version,
             HurtFlash = Written(eyes.Hurt),
             HealthBands = KraidHealthBandDefinitions.HighestFirst.ToDictionary(band => band.Key, band => Written(eyes.Of(band)), StringComparer.Ordinal),
-        }, JsonOptions);
+        }, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Bosses.Kraid.Artwork.KraidEyeColourDocument>(JsonOptions));
 
         static string[] Written(ReadOnlySpan<RgbColor> colours)
         {

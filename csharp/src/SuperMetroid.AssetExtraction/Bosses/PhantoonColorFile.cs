@@ -41,7 +41,7 @@ public static class PhantoonColorFile
     /// <param name="document">Document containing every required color source.</param>
     /// <returns>A new caller-owned JSON byte array.</returns>
     public static byte[] Write(PhantoonColorDocument document) =>
-        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Bosses.PhantoonColorDocument>(ArtworkJson.Options));
 
     /// <summary>Checks a palette row's length and five-bit channels before converting it to hardware color words.</summary>
     private static RgbColor[] Compile(PaletteRgb5[]? source, int count, string name) =>

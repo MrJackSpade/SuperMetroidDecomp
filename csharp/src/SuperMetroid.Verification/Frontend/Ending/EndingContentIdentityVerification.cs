@@ -48,9 +48,8 @@ internal static class EndingContentIdentityVerification
             AssertEqual($"ending-{native.Fourth}-mode7-characters.png", EndingFloorArtworkFormat.CharacterFileName(native.First), "published character filename");
             AssertEqual($"ending-{native.Fourth}-mode7-map.json", EndingFloorArtworkFormat.MapFileName(native.First), "published map filename");
         }
-        static MemoryStream Map(int height, int seed) => new(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(
-            new EndingFloorMapDocument { Version = 1, Width = 128, Height = height,
-                Tiles = Enumerable.Repeat(seed, 128 * height).ToArray() }, ArtworkJson.Options));
+        static MemoryStream Map(int height, int seed) => new(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(new EndingFloorMapDocument { Version = 1, Width = 128, Height = height,
+                Tiles = Enumerable.Repeat(seed, 128 * height).ToArray() }, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingFloorMapDocument>(ArtworkJson.Options)));
         static MemoryStream Png(int seed)
         {
             var png = new MemoryStream();

@@ -29,7 +29,7 @@ public static class MotherBrainBeamColourFile
             Version = Version,
             First = InstalledColourText.Format(colours.BeamInitialColor),
             Cycle = [.. colours.BeamCycle.Select(InstalledColourText.Format)],
-        }, ArtworkJson.Options);
+        }, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainBeamColourDocument>(ArtworkJson.Options));
     }
 
     /// <summary>Reads the beam backdrop's colours a document holds, as installed.</summary>

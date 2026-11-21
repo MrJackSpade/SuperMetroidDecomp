@@ -78,6 +78,6 @@ public static class MotherBrainRoomColorFile
     /// <param name="document">Authored RGB5 arrays read for serialization, not retained by the writer.</param>
     public static void Write(Stream json, MotherBrainRoomColorDocument document)
     {
-        json.Write(JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options));
+        json.Write(JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorDocument>(ArtworkJson.Options)));
     }
 }

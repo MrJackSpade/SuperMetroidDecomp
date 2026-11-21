@@ -113,8 +113,7 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
 
         document.Frames[frameName][0] = first with { X = 32 };
         using var invalid = new MemoryStream(
-            JsonSerializer.SerializeToUtf8Bytes(document,
-                CamelCaseJson));
+            JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Enemies.EnemyBg2FrameDocument>(CamelCaseJson)));
         AssertThrows<InvalidDataException>(
             () => PhantoonBg2FrameCatalog.Load(invalid),
             "Phantoon BG2 frame outside tilemap fails loudly");

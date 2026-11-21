@@ -101,6 +101,6 @@ public static class MotherBrainRainbowPaletteFile
     /// <param name="document">Bounded RGB5 palette sequences to serialize.</param>
     public static void Write(Stream json, MotherBrainRainbowPaletteDocument document)
     {
-        json.Write(JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options));
+        json.Write(JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRainbowPaletteDocument>(ArtworkJson.Options)));
     }
 }

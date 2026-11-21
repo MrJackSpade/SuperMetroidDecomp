@@ -61,7 +61,7 @@ public static class ChargeFlarePlacementFile
         {
             using var parsed = JsonDocument.Parse(json);
             ValidateUnique(parsed.RootElement);
-            document = parsed.RootElement.Deserialize<ChargeFlarePlacementDocument>(Options)
+            document = parsed.RootElement.Deserialize<ChargeFlarePlacementDocument>(global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Samus.ChargeFlarePlacementDocument>(Options))
                 ?? throw new InvalidDataException("Missing charge-flare placement document.");
         }
         catch (JsonException error) { throw new InvalidDataException("Invalid charge-flare placement JSON.", error); }
@@ -88,7 +88,7 @@ public static class ChargeFlarePlacementFile
     /// <summary>Serializes a beam or Grapple placement document as indented camel-case UTF-8 JSON.</summary>
     /// <param name="document">Document containing every placement its flare is drawn at.</param>
     /// <returns>Placement JSON bytes.</returns>
-    public static byte[] Write(ChargeFlarePlacementDocument document) => JsonSerializer.SerializeToUtf8Bytes(document, Options);
+    public static byte[] Write(ChargeFlarePlacementDocument document) => JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Samus.ChargeFlarePlacementDocument>(Options));
 
     /// <summary>Rejects duplicate top-level or nested object keys before deserialization can overwrite them.</summary>
     private static void ValidateUnique(JsonElement element) =>

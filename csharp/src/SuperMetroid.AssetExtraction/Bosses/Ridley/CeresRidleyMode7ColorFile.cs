@@ -48,5 +48,5 @@ public static class CeresRidleyMode7ColorFile
     /// <param name="document">Complete nine-row color document to serialize.</param>
     /// <returns>JSON bytes, without writing an external resource.</returns>
     public static byte[] Write(CeresRidleyMode7ColorDocument document) =>
-        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyMode7ColorDocument>(ArtworkJson.Options));
 }

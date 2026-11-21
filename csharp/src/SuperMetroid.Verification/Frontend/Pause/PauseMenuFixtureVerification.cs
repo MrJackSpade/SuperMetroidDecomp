@@ -32,11 +32,8 @@ internal static class PauseMenuFixtureVerification
         InstalledScreenContent game = stock.Game;
         byte[] Read(int address, int count) => RomDataReader.ReadFixedBank(
             CartridgeImportSource.Require(bus), address, count);
-        T ImportDocument<T>(string name) => JsonSerializer.Deserialize<T>(
-            File.ReadAllBytes(Path.Combine(SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.MapDirectoryName), name)),
-            ArtworkJson.Options) ?? throw new InvalidDataException(name);
-        MemoryStream Json<T>(T document) => new(JsonSerializer.SerializeToUtf8Bytes(
-            document, ArtworkJson.Options));
+        T ImportDocument<T>(string name) => JsonSerializer.Deserialize<T>(File.ReadAllBytes(Path.Combine(SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.MapDirectoryName), name)), global::SuperMetroid.Verification.VerificationJson.Info<T>(ArtworkJson.Options)) ?? throw new InvalidDataException(name);
+        MemoryStream Json<T>(T document) => new(JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.Verification.VerificationJson.Info<T>(ArtworkJson.Options)));
 
         // The pause colours come from the constructed ROM, as the import reads them; the other screens' are stock's.
         var pauseColors = new SnesCgram();
@@ -58,8 +55,7 @@ internal static class PauseMenuFixtureVerification
         // The map sprites' compositions are import data (#1638): the cartridge-derived extraction's.
         var sprites = JsonSerializer.Deserialize<MapSpriteDocument>(File.ReadAllBytes(Path.Combine(
             SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(
-                SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.MapDirectoryName), MapSpriteFormat.JsonFile)),
-            ArtworkJson.Options) ?? throw new InvalidDataException(MapSpriteFormat.JsonFile);
+                SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.MapDirectoryName), MapSpriteFormat.JsonFile)), global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Map.MapSpriteDocument>(ArtworkJson.Options)) ?? throw new InvalidDataException(MapSpriteFormat.JsonFile);
         foreach (string name in new[] { "Indicator.Small", "Indicator.Middle", "Indicator.Large" })
             sprites.Frames[name] = [singlePart];
         using var spriteJson = Json(sprites);

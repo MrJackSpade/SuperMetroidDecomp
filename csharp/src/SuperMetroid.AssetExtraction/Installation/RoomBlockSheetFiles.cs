@@ -76,18 +76,16 @@ public static class RoomBlockSheetFiles
         foreach ((TilesetDefinition tileset, RoomBlockAppearances appearances) in composition.BlockAppearances)
             RoomBlockAppearanceFiles.Write(directory, tileset, appearances);
         ComposedWrittenPictureSheet[] writtenSheets = [.. composition.Written.Values, .. composition.RoomEffects.Values];
-        File.WriteAllBytes(Path.Combine(directory, FloorManifestFileName), JsonSerializer.SerializeToUtf8Bytes(
-            new FloorManifest(FloorManifestVersion, [.. composition.Floors.Keys.Select(RoomBlockSheet.NameOf).Order(StringComparer.Ordinal)]),
-            JsonOptions));
+        File.WriteAllBytes(Path.Combine(directory, FloorManifestFileName), JsonSerializer.SerializeToUtf8Bytes(new FloorManifest(FloorManifestVersion, [.. composition.Floors.Keys.Select(RoomBlockSheet.NameOf).Order(StringComparer.Ordinal)]), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Installation.RoomBlockSheetFiles.FloorManifest>(JsonOptions)));
         var sheets = new WrittenManifest(WrittenManifestVersion, [.. writtenSheets.Select(written => new WrittenSheetDocument(written.Layer,
             RoomBlockSheet.NameOf(written.Tileset), [.. written.Inputs.OrderBy(entry => entry.Key, StringComparer.Ordinal)
                 .Select(entry => new WrittenPictureDocument(entry.Key, [.. entry.Value.Select(input => input.Token)]))]))]);
-        File.WriteAllBytes(Path.Combine(directory, WrittenManifestFileName), JsonSerializer.SerializeToUtf8Bytes(sheets, JsonOptions));
+        File.WriteAllBytes(Path.Combine(directory, WrittenManifestFileName), JsonSerializer.SerializeToUtf8Bytes(sheets, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Installation.RoomBlockSheetFiles.WrittenManifest>(JsonOptions)));
         var manifest = new BackgroundManifest(BackgroundManifestVersion,
             composition.Backgrounds.ToDictionary(entry => entry.Key, entry => entry.Value.Size, StringComparer.Ordinal),
             composition.Backgrounds.ToDictionary(entry => entry.Key, entry => entry.Value.Cells.Select(cell => new CellDocument(cell.Cell, cell.Picture,
                 [.. cell.Inputs.Select(input => input.Token)])).ToArray(), StringComparer.Ordinal));
-        File.WriteAllBytes(Path.Combine(directory, BackgroundManifestFileName), JsonSerializer.SerializeToUtf8Bytes(manifest, JsonOptions));
+        File.WriteAllBytes(Path.Combine(directory, BackgroundManifestFileName), JsonSerializer.SerializeToUtf8Bytes(manifest, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Installation.RoomBlockSheetFiles.BackgroundManifest>(JsonOptions)));
         return InstalledSheetFamily.Install(directory, [
             .. composition.BlockSheets.Select(entry => new NamedComposedSheet(RoomBlockSheet.NameOf(entry.Key), entry.Value)),
             .. composition.Backgrounds.Select(entry => new NamedComposedSheet(entry.Key, entry.Value.Sheet)),
@@ -107,17 +105,17 @@ public static class RoomBlockSheetFiles
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         string manifestPath = Path.Combine(directory, BackgroundManifestFileName);
-        BackgroundManifest manifest = JsonSerializer.Deserialize<BackgroundManifest>(File.ReadAllBytes(manifestPath), JsonOptions)
+        BackgroundManifest manifest = JsonSerializer.Deserialize<BackgroundManifest>(File.ReadAllBytes(manifestPath), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Installation.RoomBlockSheetFiles.BackgroundManifest>(JsonOptions))
             ?? throw new InvalidDataException($"Room background manifest {manifestPath} is empty.");
         if (manifest.Version != BackgroundManifestVersion || manifest.Sizes is null || manifest.Cells is null)
             throw new InvalidDataException($"Room background manifest {manifestPath} is not revision {BackgroundManifestVersion}.");
         string writtenPath = Path.Combine(directory, WrittenManifestFileName);
-        WrittenManifest written = JsonSerializer.Deserialize<WrittenManifest>(File.ReadAllBytes(writtenPath), JsonOptions)
+        WrittenManifest written = JsonSerializer.Deserialize<WrittenManifest>(File.ReadAllBytes(writtenPath), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Installation.RoomBlockSheetFiles.WrittenManifest>(JsonOptions))
             ?? throw new InvalidDataException($"Written picture manifest {writtenPath} is empty.");
         if (written.Version != WrittenManifestVersion || written.Sheets is null)
             throw new InvalidDataException($"Written picture manifest {writtenPath} is not revision {WrittenManifestVersion}.");
         string floorPath = Path.Combine(directory, FloorManifestFileName);
-        FloorManifest floors = JsonSerializer.Deserialize<FloorManifest>(File.ReadAllBytes(floorPath), JsonOptions)
+        FloorManifest floors = JsonSerializer.Deserialize<FloorManifest>(File.ReadAllBytes(floorPath), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Installation.RoomBlockSheetFiles.FloorManifest>(JsonOptions))
             ?? throw new InvalidDataException($"Floor manifest {floorPath} is empty.");
         if (floors.Version != FloorManifestVersion || floors.Tilesets is null)
             throw new InvalidDataException($"Floor manifest {floorPath} is not revision {FloorManifestVersion}.");
@@ -215,34 +213,34 @@ public static class RoomBlockSheetFiles
     /// <param name="Version">The schema revision.</param>
     /// <param name="Sizes">Each image's width and height, which a part of its picture that shows nothing does not record (#1634): one period of what it shows (#1651), laid out as its room shows it (#1617).</param>
     /// <param name="Cells">Each image's cells whose pictures change with appearance inputs.</param>
-    private sealed record BackgroundManifest(int Version, Dictionary<string, Extent16<ImagePixels>> Sizes, Dictionary<string, CellDocument[]> Cells);
+    internal sealed record BackgroundManifest(int Version, Dictionary<string, Extent16<ImagePixels>> Sizes, Dictionary<string, CellDocument[]> Cells);
 
     /// <summary>One cell of a background image whose picture changes with appearance inputs.</summary>
     /// <param name="Cell">The cell.</param>
     /// <param name="Picture">The name its pictures in the block sheet begin with.</param>
     /// <param name="Inputs">The inputs it depends on, as their tokens spell them.</param>
-    private sealed record CellDocument(int Cell, string? Picture, string[]? Inputs);
+    internal sealed record CellDocument(int Cell, string? Picture, string[]? Inputs);
 
     /// <summary>The floor manifest: the Ceres tilesets whose turning floors are installed.</summary>
     /// <param name="Version">The schema revision.</param>
     /// <param name="Tilesets">Each tileset's installed name.</param>
-    private sealed record FloorManifest(int Version, string[]? Tilesets);
+    internal sealed record FloorManifest(int Version, string[]? Tilesets);
 
     /// <summary>The written picture manifest: each written picture sheet and the inputs each of its pictures depends on.</summary>
     /// <param name="Version">The schema revision.</param>
     /// <param name="Sheets">The sheets.</param>
-    private sealed record WrittenManifest(int Version, WrittenSheetDocument[] Sheets);
+    internal sealed record WrittenManifest(int Version, WrittenSheetDocument[] Sheets);
 
     /// <summary>One written picture sheet.</summary>
     /// <param name="Layer">The display layer the pictures show on, by its name.</param>
     /// <param name="Tileset">The installed name of the tileset whose rooms the pictures are written in.</param>
     /// <param name="Pictures">Each picture the sheet holds and the inputs it depends on.</param>
-    private sealed record WrittenSheetDocument(WrittenPictureLayer Layer, string Tileset, WrittenPictureDocument[]? Pictures);
+    internal sealed record WrittenSheetDocument(WrittenPictureLayer Layer, string Tileset, WrittenPictureDocument[]? Pictures);
 
     /// <summary>One picture a written picture sheet holds, by the name its frames begin with.</summary>
     /// <param name="Picture">The name.</param>
     /// <param name="Inputs">The inputs it depends on, as their tokens spell them.</param>
-    private sealed record WrittenPictureDocument(string? Picture, string[]? Inputs);
+    internal sealed record WrittenPictureDocument(string? Picture, string[]? Inputs);
 
     /// <summary>Stable camel-case manifest fields; a written picture sheet's layer is named, never numbered (#1731).</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()

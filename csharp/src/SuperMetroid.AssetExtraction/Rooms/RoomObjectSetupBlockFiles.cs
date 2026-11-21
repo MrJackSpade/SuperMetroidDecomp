@@ -67,7 +67,7 @@ public static class RoomObjectSetupBlockFiles
             entries.Add(new BlockEntry(Id(block), shown.Shows == RoomBlockShown.Nothing ? null : shown.Block, shown.Mirroring));
         }
         Directory.CreateDirectory(directory);
-        byte[] json = JsonSerializer.SerializeToUtf8Bytes(new BlockDocument(FormatVersion, entries.ToArray()), JsonOptions);
+        byte[] json = JsonSerializer.SerializeToUtf8Bytes(new BlockDocument(FormatVersion, entries.ToArray()), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Rooms.RoomObjectSetupBlockFiles.BlockDocument>(JsonOptions));
         using var output = new FileStream(Path.Combine(directory, VisualFileName), FileMode.CreateNew, FileAccess.Write);
         output.Write(json);
     }
@@ -183,7 +183,7 @@ public static class RoomObjectSetupBlockFiles
     {
         try
         {
-            return JsonSerializer.Deserialize<BlockDocument>(File.ReadAllBytes(path), JsonOptions)
+            return JsonSerializer.Deserialize<BlockDocument>(File.ReadAllBytes(path), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Rooms.RoomObjectSetupBlockFiles.BlockDocument>(JsonOptions))
                 ?? throw new InvalidDataException($"Room-object setup-block pictures {path} are empty.");
         }
         catch (JsonException error)
@@ -193,11 +193,11 @@ public static class RoomObjectSetupBlockFiles
     }
 
     /// <summary>The installed document: its format and every setup block's picture.</summary>
-    private sealed record BlockDocument(int Version, BlockEntry[] Blocks);
+    internal sealed record BlockDocument(int Version, BlockEntry[] Blocks);
 
     /// <summary>
     /// One setup block's picture: its published name, the block it shows, or null where it shows nothing, and how it is
     /// mirrored.
     /// </summary>
-    private sealed record BlockEntry(string Id, int? Block, BlockMirroring Mirroring);
+    internal sealed record BlockEntry(string Id, int? Block, BlockMirroring Mirroring);
 }

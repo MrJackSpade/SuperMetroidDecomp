@@ -33,7 +33,7 @@ public static class SporeSpawnColorFile
 
     /// <summary>Serializes the editable palette document as indented camel-case UTF-8 JSON.</summary>
     public static byte[] Write(SporeSpawnColorDocument document) =>
-        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Bosses.SporeSpawnColorDocument>(ArtworkJson.Options));
 
     /// <summary>Requires the native number of ordered palette phases and compiles each sixteen-ink RGB5 row.</summary>
     private static RgbColor[][] CompileFrames(PaletteRgb5[][]? source, int count, string name)

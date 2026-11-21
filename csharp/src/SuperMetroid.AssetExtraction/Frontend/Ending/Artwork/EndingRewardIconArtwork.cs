@@ -34,8 +34,7 @@ public class EndingRewardIconArtwork
         EndingFloorMapDocument map;
         try
         {
-            map = JsonSerializer.Deserialize<EndingFloorMapDocument>(mapJson,
-                ArtworkJson.Options)
+            map = JsonSerializer.Deserialize<EndingFloorMapDocument>(mapJson, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingFloorMapDocument>(ArtworkJson.Options))
                 ?? throw new InvalidDataException("Reward icon map JSON is null.");
         }
         catch (JsonException error)
@@ -55,7 +54,7 @@ public class EndingRewardIconArtwork
     {
         Ensure.NotNull(json);
         ValidateMap(map);
-        JsonSerializer.Serialize(json, map, ArtworkJson.Options);
+        JsonSerializer.Serialize(json, map, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingFloorMapDocument>(ArtworkJson.Options));
     }
 
     /// <summary>Requires a full 128-by-128 reward map of byte-valued tile indices.</summary>

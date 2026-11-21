@@ -42,7 +42,7 @@ public static class MotherBrainDeathColorFile
     /// <param name="document">Palette-stage colors to serialize; their collections are not retained.</param>
     /// <returns>JSON bytes ready to install under <see cref="MotherBrainDeathColorFormat.FileName"/>.</returns>
     public static byte[] Write(MotherBrainDeathColorDocument document) =>
-        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainDeathColorDocument>(ArtworkJson.Options));
 
     /// <summary>Checks the authored stage count and converts each RGB5 row.</summary>
     private static RgbColor[][] CompileFrames(PaletteRgb5[][]? source,

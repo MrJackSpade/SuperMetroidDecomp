@@ -53,7 +53,7 @@ internal static class JsonAssetDocument
             RejectDuplicates(json, options.PropertyNameCaseInsensitive
                 ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal, DuplicatePropertyScope.EveryObject,
                 name => new JsonException($"Duplicate presentation property '{name}'."));
-            return JsonSerializer.Deserialize<T>(json, options)
+            return JsonSerializer.Deserialize<T>(json, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<T>(options))
                 ?? throw new InvalidDataException($"{description} JSON is null.");
         }
         catch (JsonException error)

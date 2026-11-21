@@ -37,7 +37,7 @@ public static class CrystalFlashColorFile
     /// <param name="document">Body and bubble RGB5 frame arrays with the supported schema version.</param>
     /// <returns>JSON bytes ready to store as the catalog resource.</returns>
     public static byte[] Write(CrystalFlashColorDocument document) =>
-        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Samus.CrystalFlashColorDocument>(ArtworkJson.Options));
 
     /// <summary>Validates an authored palette grid's dimensions and RGB5 channels before packing its colors.</summary>
     private static RgbColor[][] Compile(PaletteRgb5[][]? source, int frameCount,

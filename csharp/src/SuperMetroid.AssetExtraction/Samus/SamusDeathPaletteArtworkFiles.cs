@@ -97,13 +97,12 @@ public static class SamusDeathPaletteArtworkFiles
             selectors[key] = selector;
         }
         var document = new ArtworkDocument(FormatVersion, suited, suitless, whiteout, selectors);
-        File.WriteAllBytes(Path.Combine(importData, ArtworkFileName), JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions));
+        File.WriteAllBytes(Path.Combine(importData, ArtworkFileName), JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Samus.SamusDeathPaletteArtworkFiles.ArtworkDocument>(JsonOptions)));
         // The game works with the death steps and the whiteout colours alone: they are installed by purpose.
         SamusDeathSteps steps = Build(document).Steps;
         File.WriteAllBytes(Path.Combine(directory, StepFileName), JsonSerializer.SerializeToUtf8Bytes(new StepDocument(StepFormatVersion,
             SamusDeathSheetDefinitions.Explosion.Distinct().ToDictionary(frame => SamusDeathExplosionFrameKeys.Installed.Of(frame), frame => steps.ExplosionShade(frame).Step, StringComparer.Ordinal),
-            [.. SamusWhiteoutShade.All.Select(shade => InstalledColourText.Format(steps.WhiteoutColour(shade)))]),
-            JsonOptions));
+            [.. SamusWhiteoutShade.All.Select(shade => InstalledColourText.Format(steps.WhiteoutColour(shade)))]), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Samus.SamusDeathPaletteArtworkFiles.StepDocument>(JsonOptions)));
     }
 
     /// <summary>
@@ -189,11 +188,11 @@ public static class SamusDeathPaletteArtworkFiles
     }
 
     /// <summary>Complete suited, suitless, whiteout, and explosion death-step payload, which only the import reads.</summary>
-    private sealed record ArtworkDocument(int Version, Dictionary<string, ushort[][]> Suited,
+    internal sealed record ArtworkDocument(int Version, Dictionary<string, ushort[][]> Suited,
         ushort[][] Suitless, ushort[] Whiteout, Dictionary<string, int> ExplosionSteps);
     /// <summary>
     /// The installed death steps by purpose: the death step each explosion frame shows her suit and suitless body in, and the
     /// colour the room and every other sprite whiten to at each whiteout step, written as <c>#rrggbb</c> (#2564).
     /// </summary>
-    private sealed record StepDocument(int Version, Dictionary<string, int> ExplosionSteps, string[] Whiteout);
+    internal sealed record StepDocument(int Version, Dictionary<string, int> ExplosionSteps, string[] Whiteout);
 }

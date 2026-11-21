@@ -106,8 +106,7 @@ public static class EndingMode7ArtworkFiles
         Write(importData, EndingRewardIconArtworkFormat.CharacterFileName, rewardCharacterFile);
         using var manifest = new FileStream(Path.Combine(importData,
             EndingFloorArtworkFormat.ManifestFileName), FileMode.CreateNew, FileAccess.Write);
-        JsonSerializer.Serialize(manifest,
-            new Manifest(ManifestVersion, sourceCartridgeSha256, hashes), JsonOptions);
+        JsonSerializer.Serialize(manifest, new Manifest(ManifestVersion, sourceCartridgeSha256, hashes), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Ending.EndingMode7ArtworkFiles.Manifest>(JsonOptions));
 
         void Write(string destination, string name, byte[] bytes)
         {
@@ -134,8 +133,7 @@ public static class EndingMode7ArtworkFiles
         Manifest manifest;
         try
         {
-            manifest = JsonSerializer.Deserialize<Manifest>(File.ReadAllBytes(manifestPath),
-                JsonOptions) ?? throw new InvalidDataException("Ending art manifest is empty.");
+            manifest = JsonSerializer.Deserialize<Manifest>(File.ReadAllBytes(manifestPath), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Ending.EndingMode7ArtworkFiles.Manifest>(JsonOptions)) ?? throw new InvalidDataException("Ending art manifest is empty.");
         }
         catch (JsonException error)
         {
@@ -215,6 +213,6 @@ public static class EndingMode7ArtworkFiles
     };
 
     /// <summary>Installed source identity and stock digest for every ending Mode-7 map and character file.</summary>
-    private sealed record Manifest(int Version, string SourceCartridgeSha256,
+    internal sealed record Manifest(int Version, string SourceCartridgeSha256,
         Dictionary<string, string> StockSha256);
 }

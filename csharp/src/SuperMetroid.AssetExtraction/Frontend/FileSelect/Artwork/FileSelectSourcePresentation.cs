@@ -321,13 +321,13 @@ public sealed class FileSelectSourcePresentation
     /// <param name="output">Writable stream receiving UTF-8 JSON at its current position; left open.</param>
     /// <param name="document">Authored layout to serialize; its collections are not modified.</param>
     public static void Write(Stream output, FileSelectLayoutDocument document) =>
-        output.Write(JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options));
+        output.Write(JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork.FileSelectLayoutDocument>(ArtworkJson.Options)));
 
     /// <summary>Serializes an authored artwork document to the output.</summary>
     /// <param name="output">Writable stream receiving UTF-8 JSON at its current position; left open.</param>
     /// <param name="document">Authored artwork to serialize; its collections are not modified.</param>
     public static void WriteArtwork(Stream output, FileSelectArtworkDocument document) =>
-        output.Write(JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options));
+        output.Write(JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork.FileSelectArtworkDocument>(ArtworkJson.Options)));
 
     /// <summary>Rejects authored field patches or time digits that would escape the page.</summary>
     private static void ValidatePatchPlacements(

@@ -125,8 +125,7 @@ public static class RoomLevelStreamFiles
         JsonSerializer.Serialize(kinds, new CollisionKindDocument(FormatVersion, [.. CollisionKinds.Select(RoomCollisionTypeKeys.Installed.Of)],
             Families.ToDictionary(family => BlockReactionFamilyKeys.Installed.Of(family),
                 family => BlockReactionFamilies.Reactions(family).Select(reaction => reaction.Key).ToArray()),
-            [.. SlopeShapes.Select(shape => shape.Name)]),
-            JsonOptions);
+            [.. SlopeShapes.Select(shape => shape.Name)]), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Rooms.RoomLevelStreamFiles.CollisionKindDocument>(JsonOptions));
     }
 
     /// <summary>
@@ -457,6 +456,6 @@ public static class RoomLevelStreamFiles
     /// The collision kinds, each reaction family's reactions, and the slope shapes, by the position the level files write
     /// them at, under the document's schema revision.
     /// </summary>
-    private sealed record CollisionKindDocument(int Version, [InstalledKey] string[] CollisionKinds, [InstalledKey] Dictionary<string, string[]> Reactions,
+    internal sealed record CollisionKindDocument(int Version, [InstalledKey] string[] CollisionKinds, [InstalledKey] Dictionary<string, string[]> Reactions,
         string[] SlopeShapes);
 }

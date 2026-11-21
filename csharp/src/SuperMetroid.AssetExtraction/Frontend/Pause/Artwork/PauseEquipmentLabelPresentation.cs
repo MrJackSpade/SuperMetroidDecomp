@@ -127,7 +127,7 @@ public sealed class PauseEquipmentLabelPresentation
     /// <param name="document">Label artwork and placement to serialize; the writer does not retain the document.</param>
     public static void Write(Stream output, PauseEquipmentLabelDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Pause.Artwork.PauseEquipmentLabelDocument>(ArtworkJson.Options));
         output.Write(bytes);
     }
 

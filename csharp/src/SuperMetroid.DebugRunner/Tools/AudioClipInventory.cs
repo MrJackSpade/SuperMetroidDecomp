@@ -79,7 +79,7 @@ internal static class AudioClipInventory
         var document = new InventoryDocument(music, scans, effects, timings);
         var options = IndentedFieldsJson;
         options.Converters.Add(new JsonStringEnumConverter());
-        File.WriteAllText(Path.Combine(outputDirectory, "audio-clip-inventory.json"), JsonSerializer.Serialize(document, options));
+        File.WriteAllText(Path.Combine(outputDirectory, "audio-clip-inventory.json"), JsonSerializer.Serialize(document, global::SuperMetroid.DebugRunner.DebugRunnerJson.Info<global::SuperMetroid.DebugRunner.Tools.AudioClipInventory.InventoryDocument>(options)));
         string summary = Summarize(catalog, document);
         File.WriteAllText(Path.Combine(outputDirectory, "audio-clip-inventory.md"), summary);
         Console.WriteLine(summary);
@@ -192,7 +192,7 @@ internal static class AudioClipInventory
     /// <param name="Seam">The shipped loop against the cartridge's next pass, or null when the track ends.</param>
     /// <param name="TempoPhasePeriod">Loop passes until the tempo phase recurs, or null when the track ends.</param>
     /// <param name="ClipHash">The clip's sample hash, or empty without a period.</param>
-    private sealed record MusicRow(
+    internal sealed record MusicRow(
         AudioBank Bank,
         int Track,
         MusicTrackShape Shape,
@@ -210,7 +210,7 @@ internal static class AudioClipInventory
     /// <param name="LayerFrames">Each clip layer's stereo frames.</param>
     /// <param name="LayerHashes">Each clip layer's sample hash.</param>
     /// <param name="Missing">Instruments whose samples the context lacks; empty when rendered.</param>
-    private sealed record SoundEffectRow(
+    internal sealed record SoundEffectRow(
         AudioBank? Context,
         SoundEffectLibrary Library,
         int Command,
@@ -224,14 +224,14 @@ internal static class AudioClipInventory
     /// <param name="Items">Items measured.</param>
     /// <param name="WallSeconds">Elapsed seconds with parallel items.</param>
     /// <param name="SummedSeconds">Sum of each item's elapsed seconds, approximating one core.</param>
-    private sealed record PhaseTiming(string Phase, int Items, double WallSeconds, double SummedSeconds);
+    internal sealed record PhaseTiming(string Phase, int Items, double WallSeconds, double SummedSeconds);
 
     /// <summary>The complete inventory written as JSON.</summary>
     /// <param name="Music">Every track's measurements.</param>
     /// <param name="Programs">Every sound program's inherited-state scan.</param>
     /// <param name="SoundEffects">Every effect in every bank context.</param>
     /// <param name="Timings">Phase timings.</param>
-    private sealed record InventoryDocument(
+    internal sealed record InventoryDocument(
         IReadOnlyList<MusicRow> Music,
         IReadOnlyList<SoundEffectStateScan> Programs,
         IReadOnlyList<SoundEffectRow> SoundEffects,

@@ -97,7 +97,7 @@ public static class SpcAudioAssetExtractor
         // Stream the UTF-8 JSON into the file; the manifest is large enough that one
         // intermediate string per install dominated extraction allocation.
         using (var output = File.Create(Path.Combine(root, ExtractedAudioAssetCatalog.ManifestFileName)))
-            JsonSerializer.Serialize(output, manifest, AudioAssetJson.Options);
+            JsonSerializer.Serialize(output, manifest, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Audio.Synthesis.AudioAssetManifest>(AudioAssetJson.Options));
         return manifest;
     }
 

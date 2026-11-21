@@ -46,7 +46,7 @@ public static class EndingBackdropFiles
             Credits = InstalledColourText.Format(colours[EndingPaletteId.Credits].Backdrop),
             PostCredits = InstalledColourText.Format(colours[EndingPaletteId.PostCredits].Backdrop),
             SpaceBehindExplodingPlanet = [.. EndingSpaceBackdropColours.InFrameOrder(space).Select(InstalledColourText.Format)],
-        }, ArtworkJson.Options);
+        }, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Ending.EndingBackdropDocument>(ArtworkJson.Options));
         using var output = new FileStream(Path.Combine(directory, FileName), FileMode.CreateNew, FileAccess.Write);
         output.Write(json);
     }

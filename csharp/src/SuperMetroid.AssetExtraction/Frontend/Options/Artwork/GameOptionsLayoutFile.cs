@@ -36,7 +36,7 @@ public static class GameOptionsLayoutFile
         {
             Version = Version, HeadingAnchors = document.HeadingAnchors, CursorAnchors = document.CursorAnchors,
             CursorFrameDuration = document.CursorFrameDuration,
-        }, ArtworkJson.Options);
+        }, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Options.Artwork.GameOptionsPlacementDocument>(ArtworkJson.Options));
     }
 
     /// <summary>Reads and validates the installed layout the game binds.</summary>

@@ -57,7 +57,7 @@ public sealed class RoomFxLayer3Pages
     public static void Write(Stream json, RoomFxLayer3TilemapDocument document)
     {
         Ensure.NotNull(json);
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Fx.RoomFxLayer3TilemapDocument>(JsonOptions));
         json.Write(bytes);
     }
 

@@ -33,7 +33,7 @@ public static class BabyMetroidColorFile
 
     /// <summary>Serializes the editable color document as indented camel-case UTF-8 JSON.</summary>
     public static byte[] Write(BabyMetroidColorDocument document) =>
-        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Bosses.MotherBrain.BabyMetroidColorDocument>(ArtworkJson.Options));
 
     /// <summary>Checks one authored color row for its required length and RGB5 channel range before packing it.</summary>
     private static RgbColor[] Compile(PaletteRgb5[]? source, int required, string name) =>

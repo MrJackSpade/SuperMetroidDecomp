@@ -59,7 +59,7 @@ public static class StraddledTerrainFiles
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         Directory.CreateDirectory(directory);
         File.WriteAllBytes(Path.Combine(directory, StraddledTerrainFormat.FileName),
-            JsonSerializer.SerializeToUtf8Bytes(Decode(), StraddledTerrainFormat.JsonOptions));
+            JsonSerializer.SerializeToUtf8Bytes(Decode(), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Rooms.StraddledTerrainDocument>(StraddledTerrainFormat.JsonOptions)));
     }
 
     /// <summary>Builds the straddled terrain from the installed file, as the player may have edited it.</summary>

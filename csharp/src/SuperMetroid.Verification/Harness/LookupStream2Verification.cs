@@ -126,7 +126,7 @@ internal static class LookupStream2Verification
             }).ToArray();
         }
         EnemySpritemapCatalog Load() => EnemySpritemapDocuments.Load(new MemoryStream(
-            System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
+            System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.World.Artwork.EnemySpritemapDocument>(ArtworkJson.Options))));
         void Check(EnemySpritemapCatalog catalog)
         {
             foreach (var frame in selected)
@@ -1573,7 +1573,7 @@ internal static class LookupStream2Verification
         }
         AssertEqual(220, nativeBodyParts, "Golden Torizo ten native body-composition extents");
         EnemyExtendedFrameCatalog Load() => EnemyExtendedFrameDocuments.Load(new MemoryStream(
-            System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
+            System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Enemies.EnemyExtendedFrameDocument>(ArtworkJson.Options))));
         void Check(EnemyExtendedFrameCatalog catalog)
         {
             foreach (var frame in selected)

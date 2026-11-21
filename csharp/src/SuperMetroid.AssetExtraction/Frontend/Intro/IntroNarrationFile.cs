@@ -93,8 +93,7 @@ public static class IntroNarrationFile
     public static void Write(Stream output, IntroNarrationDocument document)
     {
         Ensure.NotNull(output);
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(
-            document, ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Intro.Artwork.IntroNarrationDocument>(ArtworkJson.Options));
         output.Write(bytes);
     }
 }

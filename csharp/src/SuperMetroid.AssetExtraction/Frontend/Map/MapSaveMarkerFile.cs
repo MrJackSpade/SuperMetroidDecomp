@@ -42,7 +42,7 @@ public static class MapSaveMarkerFile
     /// <param name="document">Complete editable marker layout to serialize.</param>
     public static void Write(Stream json, MapSaveMarkerDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Map.Artwork.MapSaveMarkerDocument>(ArtworkJson.Options));
         json.Write(bytes);
     }
 }

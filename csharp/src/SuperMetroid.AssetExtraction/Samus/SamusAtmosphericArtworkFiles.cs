@@ -58,11 +58,11 @@ public static class SamusAtmosphericArtworkFiles
         var document = new ArtworkDocument(FormatVersion,
             ReadList(bus, SamusSourceDefinitions.TypeOneAtmosphericAttributes),
             ReadList(bus, SamusSourceDefinitions.SharedAtmosphericAttributes));
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Samus.SamusAtmosphericArtworkFiles.ArtworkDocument>(JsonOptions));
         File.WriteAllBytes(Path.Combine(directory, ArtworkFileName), bytes);
         File.WriteAllBytes(Path.Combine(directory, ManifestFileName),
             JsonSerializer.SerializeToUtf8Bytes(new ArtworkManifest(FormatVersion,
-                sourceCartridgeSha256), JsonOptions));
+                sourceCartridgeSha256), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Samus.SamusAtmosphericArtworkFiles.ArtworkManifest>(JsonOptions)));
     }
 
     /// <summary>Validates the manifest's provenance and loads the atmospheric attributes the import composes the atmosphere sheet from (#1638).</summary>
@@ -123,7 +123,7 @@ public static class SamusAtmosphericArtworkFiles
     }
 
     /// <summary>The extracted single small pieces for footsteps and the shared lava/dust effect.</summary>
-    private sealed record ArtworkDocument(int Version, SpriteVisualPart[] FootstepSplash, SpriteVisualPart[] LavaAndDust);
+    internal sealed record ArtworkDocument(int Version, SpriteVisualPart[] FootstepSplash, SpriteVisualPart[] LavaAndDust);
     /// <summary>The extracted artwork's source revision.</summary>
-    private sealed record ArtworkManifest(int Version, string SourceCartridgeSha256);
+    internal sealed record ArtworkManifest(int Version, string SourceCartridgeSha256);
 }

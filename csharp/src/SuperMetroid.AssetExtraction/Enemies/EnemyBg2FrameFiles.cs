@@ -106,7 +106,7 @@ internal static class EnemyBg2FrameFiles
         {
             Version = version,
             Frames = frames,
-        }, CamelCaseIndentedJson);
+        }, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Enemies.EnemyBg2FrameDocument>(CamelCaseIndentedJson));
         return json;
     }
 }

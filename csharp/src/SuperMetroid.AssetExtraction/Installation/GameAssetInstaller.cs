@@ -148,7 +148,7 @@ public static class GameAssetInstaller
     /// <summary>Why the receipt at <paramref name="receiptPath"/> does not name this importer's format and source, or null when it does.</summary>
     /// <exception cref="JsonException">The receipt is not a receipt document.</exception>
     internal static string? ReceiptMismatchAt(string receiptPath) =>
-        ReceiptMismatch(JsonSerializer.Deserialize<InstallationReceipt>(File.ReadAllText(receiptPath)), receiptPath);
+        ReceiptMismatch(JsonSerializer.Deserialize<InstallationReceipt>(File.ReadAllText(receiptPath), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Installation.GameAssetInstaller.InstallationReceipt>()), receiptPath);
 
     /// <summary>Stages a content directory of <paramref name="components"/> extracted from <paramref name="rom"/> and publishes it atomically.</summary>
     private static GameInstallation ExtractAndPublish(GameInstallation installation, byte[] rom, IReadOnlyList<InstallerComponent> components,
@@ -166,7 +166,7 @@ public static class GameAssetInstaller
             // The receipt names the format and source the content was extracted for, which decides whether later opens
             // reuse it.
             File.WriteAllText(Path.Combine(staging, GameInstallationLayout.ReceiptFileName),
-                JsonSerializer.Serialize(new InstallationReceipt(GameInstallationLayout.FormatVersion, SupportedCartridge.Sha256)));
+                JsonSerializer.Serialize(new InstallationReceipt(GameInstallationLayout.FormatVersion, SupportedCartridge.Sha256), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Installation.GameAssetInstaller.InstallationReceipt>()));
             progress?.Report("Finishing setup…");
             cancellationToken.ThrowIfCancellationRequested();
             // These are fixed app-owned content directories. Player saves, recordings,
@@ -273,7 +273,7 @@ public static class GameAssetInstaller
     }
 
     /// <summary>The published content's format and the digest of the source revision it was extracted from.</summary>
-    private sealed record InstallationReceipt(int FormatVersion, string RomSha256);
+    internal sealed record InstallationReceipt(int FormatVersion, string RomSha256);
 
     /// <summary>One extraction stage: its progress text and extractor.</summary>
     internal sealed record InstallerStep(

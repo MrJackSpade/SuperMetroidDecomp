@@ -38,7 +38,7 @@ public static class TourianStatueColorFile
 
     /// <summary>Serializes the editable colors as indented camel-case UTF-8 JSON.</summary>
     public static byte[] Write(TourianStatueColorDocument document) =>
-        JsonSerializer.SerializeToUtf8Bytes(document, Options);
+        JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.TourianStatueColorDocument>(Options));
 
     /// <summary>Checks a band's required length and five-bit channels before converting to hardware color words.</summary>
     private static RgbColor[] Compile(PaletteRgb5[]? colors, int count, string label)

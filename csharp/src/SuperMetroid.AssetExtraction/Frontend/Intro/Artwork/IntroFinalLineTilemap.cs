@@ -44,8 +44,7 @@ public sealed class IntroFinalLineTilemap
     public static void Write(Stream json, IntroFinalLineTilemapDocument document)
     {
         Ensure.NotNull(json);
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
-            ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Intro.Artwork.IntroFinalLineTilemapDocument>(ArtworkJson.Options));
         json.Write(bytes);
     }
 }

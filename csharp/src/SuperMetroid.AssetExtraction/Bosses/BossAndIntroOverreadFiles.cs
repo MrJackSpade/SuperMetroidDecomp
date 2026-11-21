@@ -25,7 +25,7 @@ public static class BossAndIntroOverreadFiles
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
         Directory.CreateDirectory(directory);
         BossAndIntroOverreadDocument document = BossAndIntroOverreadDecoding.Decode(cartridge);
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, BossAndIntroOverreadFormat.JsonOptions);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Bosses.BossAndIntroOverreadDocument>(BossAndIntroOverreadFormat.JsonOptions));
         File.WriteAllBytes(Path.Combine(directory, BossAndIntroOverreadFormat.FileName), bytes);
     }
 

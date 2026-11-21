@@ -105,8 +105,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
                 DrawDraygonBg2(stock, firstIdentity.Pointer, false)),
             "Draygon's body shows his current frame on an update that selects no new frame");
         document.Frames[firstIdentity.Name][0] = first with { X = 32 };
-        using var invalid = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document,
-            CamelCaseJson));
+        using var invalid = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Enemies.EnemyBg2FrameDocument>(CamelCaseJson)));
         AssertThrows<InvalidDataException>(
             () => DraygonBg2FrameCatalog.Load(invalid),
             "Draygon BG2 write outside its tilemap fails loudly");

@@ -61,8 +61,7 @@ public sealed class CeresFlightSpritePresentation : ICinematicSpriteFrames
     public static void Write(Stream json, CeresFlightSpriteDocument document)
     {
         Ensure.NotNull(json);
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
-            ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork.CeresFlightSpriteDocument>(ArtworkJson.Options));
         json.Write(bytes);
     }
 }

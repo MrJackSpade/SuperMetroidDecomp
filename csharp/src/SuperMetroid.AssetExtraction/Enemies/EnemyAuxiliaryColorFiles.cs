@@ -54,7 +54,7 @@ public static class EnemyAuxiliaryColorFiles
         {
             using JsonDocument parsed = JsonDocument.Parse(source);
             RejectDuplicates(parsed.RootElement);
-            document = parsed.RootElement.Deserialize<EnemyAuxiliaryColorDocument>(JsonOptions)
+            document = parsed.RootElement.Deserialize<EnemyAuxiliaryColorDocument>(global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Enemies.EnemyAuxiliaryColorDocument>(JsonOptions))
                 ?? throw new InvalidDataException("Enemy auxiliary colors are null.");
         }
         catch (JsonException error) { throw new InvalidDataException("Invalid enemy auxiliary color JSON.", error); }
@@ -91,7 +91,7 @@ public static class EnemyAuxiliaryColorFiles
     /// <param name="document">Document containing the supported version and every palette family's complete RGB5 rows.</param>
     /// <returns>Auxiliary-color JSON bytes.</returns>
     internal static byte[] Write(EnemyAuxiliaryColorDocument document) =>
-        JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
+        JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Enemies.EnemyAuxiliaryColorDocument>(JsonOptions));
 
     /// <summary>Rejects case-insensitive duplicate JSON keys before deserialization can discard an earlier color edit.</summary>
     private static void RejectDuplicates(JsonElement value) =>

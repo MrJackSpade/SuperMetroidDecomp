@@ -58,8 +58,7 @@ public sealed class IntroMotherBrainSpritePresentation : ICinematicSpriteFrames
     public static void Write(Stream json, IntroMotherBrainSpriteDocument document)
     {
         Ensure.NotNull(json);
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
-            ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Intro.Artwork.IntroMotherBrainSpriteDocument>(ArtworkJson.Options));
         json.Write(bytes);
     }
 }

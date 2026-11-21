@@ -57,8 +57,7 @@ public sealed class EndingLogoSpritePresentation : ICinematicSpriteFrames
     public static void Write(Stream json, EndingLogoSpriteDocument document)
     {
         Ensure.NotNull(json);
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
-            ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingLogoSpriteDocument>(ArtworkJson.Options));
         json.Write(bytes);
     }
 }

@@ -52,8 +52,7 @@ public static class RoomMetatileArtworkFiles
         }
         using var manifest = new FileStream(Path.Combine(importData, ManifestFileName),
             FileMode.CreateNew, FileAccess.Write);
-        JsonSerializer.Serialize(manifest,
-            new RoomMetatileFileManifest(FormatVersion, sourceCartridgeSha256, entries), JsonOptions);
+        JsonSerializer.Serialize(manifest, new RoomMetatileFileManifest(FormatVersion, sourceCartridgeSha256, entries), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Rooms.RoomMetatileArtworkFiles.RoomMetatileFileManifest>(JsonOptions));
     }
 
     /// <summary>Validates the compositions' provenance and every block composition of the component's import data, without a ROM.</summary>
@@ -140,8 +139,8 @@ public static class RoomMetatileArtworkFiles
     };
 
     /// <summary>Native decompressed length and SHA-256 for one stock visual-block JSON file.</summary>
-    private sealed record RoomMetatileFileEntry(int NativeByteCount, string Sha256);
+    internal sealed record RoomMetatileFileEntry(int NativeByteCount, string Sha256);
     /// <summary>Versioned cartridge provenance and all expected visual-block file entries.</summary>
-    private sealed record RoomMetatileFileManifest(int Version, string SourceCartridgeSha256,
+    internal sealed record RoomMetatileFileManifest(int Version, string SourceCartridgeSha256,
         Dictionary<string, RoomMetatileFileEntry> Entries);
 }

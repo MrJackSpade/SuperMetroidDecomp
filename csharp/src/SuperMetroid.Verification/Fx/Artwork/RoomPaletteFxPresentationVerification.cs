@@ -449,13 +449,9 @@ internal static class RoomPaletteFxPresentationVerification
         byte[] extracted)
     {
         RoomPaletteFxPresentationDocument document =
-            JsonSerializer.Deserialize<RoomPaletteFxPresentationDocument>(
-                extracted,
-                ArtworkJson.Options)
+            JsonSerializer.Deserialize<RoomPaletteFxPresentationDocument>(extracted, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Fx.RoomPaletteFxPresentationDocument>(ArtworkJson.Options))
             ?? throw new InvalidDataException("Extracted room palette-FX document is null.");
-        byte[] Json() => JsonSerializer.SerializeToUtf8Bytes(
-            document,
-            ArtworkJson.Options);
+        byte[] Json() => JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Fx.RoomPaletteFxPresentationDocument>(ArtworkJson.Options));
         void Reject(string description) => AssertThrows<InvalidDataException>(
             () => RoomPaletteFxPresentationFile.Read(new MemoryStream(Json(), writable: false)),
             description);

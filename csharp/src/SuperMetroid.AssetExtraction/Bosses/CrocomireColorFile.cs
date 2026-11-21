@@ -37,7 +37,7 @@ public static class CrocomireColorFile
 
     /// <summary>Serializes the five editable color bands as indented camel-case UTF-8 JSON.</summary>
     public static byte[] Write(CrocomireColorDocument document) =>
-        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Bosses.CrocomireColorDocument>(ArtworkJson.Options));
 
     /// <summary>Validates a band's length and RGB5 range before packing its color words.</summary>
     private static RgbColor[] Compile(PaletteRgb5[]? source, int count, string name) =>

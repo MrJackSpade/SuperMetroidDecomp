@@ -54,7 +54,7 @@ public static class BeamPaletteFile
         {
             using var parsed = JsonDocument.Parse(json);
             RejectDuplicates(parsed.RootElement);
-            document = parsed.RootElement.Deserialize<BeamPaletteDocument>(Options)
+            document = parsed.RootElement.Deserialize<BeamPaletteDocument>(global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Samus.BeamPaletteDocument>(Options))
                 ?? throw new InvalidDataException("Beam palettes are null.");
         }
         catch (JsonException error) { throw new InvalidDataException("Invalid beam palette JSON.", error); }
@@ -83,7 +83,7 @@ public static class BeamPaletteFile
     /// <param name="document">Document containing the supported version and all twelve sixteen-color RGB5 palettes.</param>
     /// <returns>JSON bytes suitable for the beam-palette asset file.</returns>
     public static byte[] Write(BeamPaletteDocument document) =>
-        JsonSerializer.SerializeToUtf8Bytes(document, Options);
+        JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Samus.BeamPaletteDocument>(Options));
 
     /// <summary>Rejects repeated property names before JSON deserialization can overwrite a color selection.</summary>
     private static void RejectDuplicates(JsonElement value) =>

@@ -61,8 +61,7 @@ public sealed class EndingFloorSceneCharacters : EndingFloorSceneArtwork
     public static void WriteMap(Stream json, EndingFloorMapDocument document)
     {
         Ensure.NotNull(json);
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
-            ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingFloorMapDocument>(ArtworkJson.Options));
         json.Write(bytes);
     }
 
@@ -72,8 +71,7 @@ public sealed class EndingFloorSceneCharacters : EndingFloorSceneArtwork
         EndingFloorMapDocument document;
         try
         {
-            document = JsonSerializer.Deserialize<EndingFloorMapDocument>(json,
-                ArtworkJson.Options)
+            document = JsonSerializer.Deserialize<EndingFloorMapDocument>(json, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingFloorMapDocument>(ArtworkJson.Options))
                 ?? throw new InvalidDataException("Ending Mode-7 map JSON is null.");
         }
         catch (JsonException error)

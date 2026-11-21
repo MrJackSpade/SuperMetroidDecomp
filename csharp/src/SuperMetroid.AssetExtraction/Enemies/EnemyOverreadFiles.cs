@@ -26,7 +26,7 @@ public static class EnemyOverreadFiles
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
         Directory.CreateDirectory(directory);
         EnemyOverreadDocument document = EnemyOverreadDecoding.Decode(cartridge);
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, EnemyOverreadFormat.JsonOptions);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Enemies.EnemyOverreadDocument>(EnemyOverreadFormat.JsonOptions));
         File.WriteAllBytes(Path.Combine(directory, EnemyOverreadFormat.FileName), bytes);
     }
 

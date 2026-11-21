@@ -42,9 +42,7 @@ public static class RoomPaletteFxPresentationFile
     /// <param name="document">The complete editable color document; animation timing and destinations remain defined by engine mechanics.</param>
     public static void Write(Stream json, RoomPaletteFxPresentationDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(
-            document,
-            ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Fx.RoomPaletteFxPresentationDocument>(ArtworkJson.Options));
         json.Write(bytes);
     }
 

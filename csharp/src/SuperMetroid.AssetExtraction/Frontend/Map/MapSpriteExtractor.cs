@@ -31,8 +31,7 @@ public static class MapSpriteExtractor
             4, MapSpriteFormat.TileColumns, out Extent16<ImagePixels> size);
         using var png = new MemoryStream();
         IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
-        byte[] json = JsonSerializer.SerializeToUtf8Bytes(new MapSpriteDocument { Version = MapSpriteFormat.Version, Frames = frames },
-            CamelCaseIndentedJson);
+        byte[] json = JsonSerializer.SerializeToUtf8Bytes(new MapSpriteDocument { Version = MapSpriteFormat.Version, Frames = frames }, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Map.MapSpriteDocument>(CamelCaseIndentedJson));
         byte[] pngBytes = png.ToArray();
         return new() { [MapSpriteFormat.JsonFile] = json, [MapSpriteFormat.PngFile] = pngBytes };
     }

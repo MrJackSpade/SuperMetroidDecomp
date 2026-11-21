@@ -90,9 +90,8 @@ public static class EndingObjectArtworkFiles
         using var manifest = new FileStream(Path.Combine(importData,
             EndingObjectArtworkFormat.ManifestFileName), FileMode.CreateNew,
             FileAccess.Write);
-        JsonSerializer.Serialize(manifest,
-            new Manifest(EndingObjectArtworkFormat.ManifestVersion,
-                sourceCartridgeSha256, hashes), JsonOptions);
+        JsonSerializer.Serialize(manifest, new Manifest(EndingObjectArtworkFormat.ManifestVersion,
+                sourceCartridgeSha256, hashes), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Ending.EndingObjectArtworkFiles.Manifest>(JsonOptions));
 
         void Export(string name, int source, int count)
         {
@@ -199,8 +198,7 @@ public static class EndingObjectArtworkFiles
         Manifest manifest;
         try
         {
-            manifest = JsonSerializer.Deserialize<Manifest>(File.ReadAllBytes(manifestPath),
-                JsonOptions) ?? throw new InvalidDataException("Ending OBJ manifest is empty.");
+            manifest = JsonSerializer.Deserialize<Manifest>(File.ReadAllBytes(manifestPath), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Ending.EndingObjectArtworkFiles.Manifest>(JsonOptions)) ?? throw new InvalidDataException("Ending OBJ manifest is empty.");
         }
         catch (JsonException error)
         {
@@ -282,6 +280,6 @@ public static class EndingObjectArtworkFiles
     };
 
     /// <summary>Records schema and source-ROM identity plus SHA-256 digests for every installed stock artwork file.</summary>
-    private sealed record Manifest(int Version, string SourceCartridgeSha256,
+    internal sealed record Manifest(int Version, string SourceCartridgeSha256,
         Dictionary<string, string> StockSha256);
 }

@@ -8,5 +8,5 @@ public static class SpriteSheetManifestWriter
 {
     /// <summary>Serializes an installed sheet manifest.</summary>
     public static byte[] Write(InstalledSheetDocument document) =>
-        JsonSerializer.SerializeToUtf8Bytes(Ensure.NotNull(document), SpriteSheetFile.Options);
+        JsonSerializer.SerializeToUtf8Bytes(Ensure.NotNull(document), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Artwork.InstalledSheetDocument>(SpriteSheetFile.Options));
 }

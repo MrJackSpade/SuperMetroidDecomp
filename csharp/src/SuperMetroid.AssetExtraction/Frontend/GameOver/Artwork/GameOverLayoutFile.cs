@@ -23,7 +23,7 @@ public static class GameOverLayoutFile
         {
             Version = Version, BabyAnchor = document.BabyAnchor, CursorX = document.CursorX, YesCursorY = document.YesCursorY,
             NoCursorY = document.NoCursorY, CursorFrameDuration = document.CursorFrameDuration,
-        }, ArtworkJson.Options);
+        }, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork.GameOverPlacementDocument>(ArtworkJson.Options));
     }
 
     /// <summary>Reads and validates the installed layout the game binds.</summary>

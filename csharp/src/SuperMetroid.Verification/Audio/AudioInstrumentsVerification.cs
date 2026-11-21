@@ -118,7 +118,7 @@ internal static class AudioInstrumentsVerification
     internal static AudioAssetManifest ReadAudioManifest(string path)
     {
         using var input = File.OpenRead(path);
-        return JsonSerializer.Deserialize<AudioAssetManifest>(input, AudioAssetJson.Options)
+        return JsonSerializer.Deserialize<AudioAssetManifest>(input, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Audio.Synthesis.AudioAssetManifest>(AudioAssetJson.Options))
             ?? throw new InvalidDataException($"Audio manifest '{path}' deserialized to null.");
     }
 
@@ -126,7 +126,7 @@ internal static class AudioInstrumentsVerification
     internal static void WriteAudioManifest(string path, AudioAssetManifest manifest)
     {
         using var output = File.Create(path);
-        JsonSerializer.Serialize(output, manifest, AudioAssetJson.Options);
+        JsonSerializer.Serialize(output, manifest, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Audio.Synthesis.AudioAssetManifest>(AudioAssetJson.Options));
     }
 
     /// <summary>

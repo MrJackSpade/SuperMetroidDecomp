@@ -34,7 +34,7 @@ public static class SamusHurtColorFile
     /// <param name="document">Hurt and cinematic RGB5 artwork to serialize; its arrays are not modified.</param>
     /// <returns>A newly allocated JSON byte array suitable for <see cref="FileName"/>.</returns>
     public static byte[] Write(SamusHurtColorDocument document) =>
-        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Samus.SamusHurtColorDocument>(ArtworkJson.Options));
 
     /// <summary>Checks one complete sixteen-color RGB5 document array and converts it to packed colors.</summary>
     private static RgbColor[] Compile(PaletteRgb5[]? source, string name)

@@ -26,7 +26,7 @@ public static class SamusChargeColorFile
 
     /// <summary>Serializes the charge/pseudo-Screw/Hyper-shot colors as indented camel-case UTF-8 JSON.</summary>
     public static byte[] Write(SamusChargeColorDocument document) =>
-        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Samus.SamusChargeColorDocument>(ArtworkJson.Options));
 
     /// <summary>Requires every suit, each keyed by its name, and six complete RGB5 rows per suit before building the charge or pseudo-Screw view.</summary>
     private static Dictionary<SamusSuit, RgbColor[][]> CompileCharge(Dictionary<string, PaletteRgb5[][]>? source, string name)

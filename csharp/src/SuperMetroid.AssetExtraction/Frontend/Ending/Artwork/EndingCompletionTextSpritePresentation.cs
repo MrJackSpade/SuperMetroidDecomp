@@ -77,8 +77,7 @@ public sealed class EndingCompletionTextSpritePresentation : ICinematicSpriteFra
     public static void Write(Stream json, EndingCompletionTextSpriteDocument document)
     {
         Ensure.NotNull(json);
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
-            ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingCompletionTextSpriteDocument>(ArtworkJson.Options));
         json.Write(bytes);
     }
 }

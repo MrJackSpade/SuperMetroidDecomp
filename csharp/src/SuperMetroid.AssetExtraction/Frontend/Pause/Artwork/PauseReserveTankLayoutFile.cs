@@ -19,8 +19,7 @@ public static class PauseReserveTankLayoutFile
     {
         PauseReserveTankDocument document = JsonAssetDocument.Read<PauseReserveTankDocument>(artwork, ArtworkJson.Options)
             ?? throw new InvalidDataException("Reserve tank document is null.");
-        return JsonSerializer.SerializeToUtf8Bytes(new PauseReserveTankLayoutDocument { Version = Version, Anchors = document.Anchors },
-            ArtworkJson.Options);
+        return JsonSerializer.SerializeToUtf8Bytes(new PauseReserveTankLayoutDocument { Version = Version, Anchors = document.Anchors }, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Pause.Artwork.PauseReserveTankLayoutDocument>(ArtworkJson.Options));
     }
 
     /// <summary>Reads and validates the installed layout: the anchors the game binds.</summary>

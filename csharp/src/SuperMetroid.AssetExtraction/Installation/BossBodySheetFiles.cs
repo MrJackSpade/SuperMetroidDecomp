@@ -58,7 +58,7 @@ public static class BossBodySheetFiles
         var manifest = new Manifest(ManifestVersion, sheets.ToDictionary(sheet => BossBodyOwnerKeys.Installed.Of(sheet.Owner), sheet => (SheetDocument?)new SheetDocument(
             sheet.Frames.ToDictionary(frame => frame.Key, frame => (FrameDocument?)Document(sheet.Owner, frame.Key, frame.Value, dissolves), StringComparer.Ordinal)),
             StringComparer.Ordinal));
-        File.WriteAllBytes(Path.Combine(directory, ManifestFileName), JsonSerializer.SerializeToUtf8Bytes(manifest, JsonOptions));
+        File.WriteAllBytes(Path.Combine(directory, ManifestFileName), JsonSerializer.SerializeToUtf8Bytes(manifest, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Installation.BossBodySheetFiles.Manifest>(JsonOptions)));
         string content = ContentOf(directory);
         Directory.CreateDirectory(Path.Combine(content, GameInstallationLayout.DissolveMapDirectoryName));
         File.WriteAllBytes(BossBodyDissolveMapFile.PathIn(content), BossBodyDissolveMapFile.Encode(dissolves));
@@ -76,7 +76,7 @@ public static class BossBodySheetFiles
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         string manifestPath = Path.Combine(directory, ManifestFileName);
-        Manifest manifest = JsonSerializer.Deserialize<Manifest>(File.ReadAllBytes(manifestPath), JsonOptions)
+        Manifest manifest = JsonSerializer.Deserialize<Manifest>(File.ReadAllBytes(manifestPath), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Installation.BossBodySheetFiles.Manifest>(JsonOptions))
             ?? throw new InvalidDataException($"Boss body manifest {manifestPath} is empty.");
         if (manifest.Version != ManifestVersion || manifest.Sheets is null)
             throw new InvalidDataException($"Boss body manifest {manifestPath} is not revision {ManifestVersion}.");
@@ -146,18 +146,18 @@ public static class BossBodySheetFiles
     /// <summary>The manifest: each boss's sheet, by boss.</summary>
     /// <param name="Version">The schema revision.</param>
     /// <param name="Sheets">Each boss's frames, by boss name.</param>
-    private sealed record Manifest(int Version, Dictionary<string, SheetDocument?> Sheets);
+    internal sealed record Manifest(int Version, Dictionary<string, SheetDocument?> Sheets);
 
     /// <summary>One boss's frames.</summary>
     /// <param name="Frames">Each frame, by frame name.</param>
-    private sealed record SheetDocument(Dictionary<string, FrameDocument?>? Frames);
+    internal sealed record SheetDocument(Dictionary<string, FrameDocument?>? Frames);
 
     /// <summary>One frame: its whole picture, where it lies and the depth it is drawn at.</summary>
     /// <param name="Picture">The sheet frame of its picture, or null for a frame that paints nothing.</param>
     /// <param name="Anchor">Where its picture's top-left corner lies from its boss's position (#2031).</param>
     /// <param name="Depth">The depth its picture is drawn at, by name (#1634), or null for a frame that paints nothing.</param>
     /// <param name="Dissolve">The tag of the dissolve map its picture dissolves by (#2478), or null for a frame no dissolve erases.</param>
-    private sealed record FrameDocument(string? Picture, Offset16<RoomPixels>? Anchor,
+    internal sealed record FrameDocument(string? Picture, Offset16<RoomPixels>? Anchor,
         [property: JsonConverter(typeof(BossBodyDepthJsonConverter))]
         [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] BossBodyDepth? Depth,
         [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)][InstalledKey] string? Dissolve = null);

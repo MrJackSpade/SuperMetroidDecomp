@@ -46,5 +46,5 @@ public static class SamusVisorColorFile
     /// <param name="document">All six RGB5 visor colors to serialize; the array is not retained.</param>
     /// <returns>JSON bytes for <see cref="FileName"/>.</returns>
     public static byte[] Write(SamusVisorColorDocument document) =>
-        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Samus.SamusVisorColorDocument>(ArtworkJson.Options));
 }

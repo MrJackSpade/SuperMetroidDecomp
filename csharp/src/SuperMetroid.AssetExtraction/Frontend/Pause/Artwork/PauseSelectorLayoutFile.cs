@@ -24,7 +24,7 @@ public static class PauseSelectorLayoutFile
         return JsonSerializer.SerializeToUtf8Bytes(new PauseSelectorLayoutDocument
         {
             Version = Version, InitialDurationTicks = document.InitialDurationTicks, Anchors = document.Anchors, Animation = document.Animation,
-        }, ArtworkJson.Options);
+        }, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Pause.Artwork.PauseSelectorLayoutDocument>(ArtworkJson.Options));
     }
 
     /// <summary>Reads and validates the installed layout: the anchors, frame sequences and timing the game binds.</summary>

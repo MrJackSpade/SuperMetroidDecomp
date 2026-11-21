@@ -75,8 +75,7 @@ public static class GameplayBasePaletteFiles
     /// <summary>Serializes a gameplay base-palette document as JSON.</summary>
     internal static byte[] Write(GameplayBasePaletteDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
-            GameplayBasePaletteFormat.JsonOptions);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.GameplayBasePaletteDocument>(GameplayBasePaletteFormat.JsonOptions));
         return bytes;
     }
 

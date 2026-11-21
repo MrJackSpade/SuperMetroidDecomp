@@ -49,8 +49,7 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
         string file = Path.Combine(stockDirectory, SporeSpawnColorFormat.FileName);
         byte[] stockJson = File.ReadAllBytes(file);
         SporeSpawnColorDocument visual =
-            JsonSerializer.Deserialize<SporeSpawnColorDocument>(stockJson,
-                CaseInsensitiveJson) ??
+            JsonSerializer.Deserialize<SporeSpawnColorDocument>(stockJson, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Bosses.SporeSpawnColorDocument>(CaseInsensitiveJson)) ??
             throw new InvalidDataException("Stock Spore Spawn color JSON is null.");
         SporeSpawnColorCatalog colors = native;
 

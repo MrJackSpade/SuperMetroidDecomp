@@ -95,7 +95,7 @@ public sealed class SamusArmCannonSourceArtwork
     /// <summary>Serializes the extracted document as indented camel-case UTF-8 JSON for the import data's <c>samus-arm-cannon-artwork.json</c>; table bounds and selector validation occur when it is loaded, not here.</summary>
     public static byte[] Write(SamusArmCannonArtworkDocument document)
     {
-        byte[] json = JsonSerializer.SerializeToUtf8Bytes(document, Options);
+        byte[] json = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Samus.SamusArmCannonArtworkDocument>(Options));
         return json;
     }
 

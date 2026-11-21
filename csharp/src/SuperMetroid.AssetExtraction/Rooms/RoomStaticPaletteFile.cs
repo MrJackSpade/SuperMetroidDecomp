@@ -45,7 +45,7 @@ public static class RoomStaticPaletteFile
     public static void Write(Stream json, RoomStaticPaletteDocument document)
     {
         Ensure.NotNull(json);
-        json.Write(JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions));
+        json.Write(JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Rooms.RoomStaticPaletteDocument>(JsonOptions)));
     }
 
     /// <summary>Uses camel-case JSON and rejects unknown properties so palette schema mistakes fail during loading.</summary>

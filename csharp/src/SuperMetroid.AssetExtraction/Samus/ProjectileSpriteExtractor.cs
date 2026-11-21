@@ -92,8 +92,7 @@ public static class ProjectileSpriteExtractor
             }
             frames.Add(id.Name, parts);
         }
-        byte[] json = JsonSerializer.SerializeToUtf8Bytes(new ProjectileSpriteDocument { Version = ProjectileSpriteDefinitions.Version, Frames = frames },
-            CamelCaseIndentedJson);
+        byte[] json = JsonSerializer.SerializeToUtf8Bytes(new ProjectileSpriteDocument { Version = ProjectileSpriteDefinitions.Version, Frames = frames }, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Samus.ProjectileSpriteDocument>(CamelCaseIndentedJson));
         return json;
     }
 }

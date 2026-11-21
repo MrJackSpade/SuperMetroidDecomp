@@ -53,11 +53,11 @@ public sealed class InstalledProjectileSprites
         {
             using var parsed = JsonDocument.Parse(json);
             RejectDuplicateProperties(parsed.RootElement);
-            document = parsed.RootElement.Deserialize<ProjectileSpriteDocument>(new JsonSerializerOptions
+            document = parsed.RootElement.Deserialize<ProjectileSpriteDocument>(global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Samus.ProjectileSpriteDocument>(new JsonSerializerOptions
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
                 UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
-            }) ?? throw new InvalidDataException("Projectile composition document is null.");
+            })) ?? throw new InvalidDataException("Projectile composition document is null.");
         }
         catch (JsonException error) { throw new InvalidDataException("Invalid projectile composition JSON.", error); }
         if (document.Version != ProjectileSpriteDefinitions.Version || document.Frames is null || document.Frames.Count != requiredCount)

@@ -54,7 +54,7 @@ public sealed class IntroNextPageArrowSpritePresentation : ICinematicSpriteFrame
     public static void Write(Stream json, IntroNextPageArrowSpriteDocument document)
     {
         Ensure.NotNull(json);
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Intro.Artwork.IntroNextPageArrowSpriteDocument>(ArtworkJson.Options));
         json.Write(bytes);
     }
 }

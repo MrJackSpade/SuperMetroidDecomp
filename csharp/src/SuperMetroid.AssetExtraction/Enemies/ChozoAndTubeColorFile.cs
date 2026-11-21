@@ -27,7 +27,7 @@ public static class ChozoAndTubeColorFile
 
     /// <summary>Serializes the three color images as indented camel-case UTF-8 JSON.</summary>
     public static byte[] Write(ChozoAndTubeColorDocument document) =>
-        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Enemies.ChozoAndTubeColorDocument>(ArtworkJson.Options));
 
     /// <summary>Validates exactly 32 five-bit RGB triples and converts them to the installed RGB colours.</summary>
     private static RgbColor[] Compile(PaletteRgb5[]? source, string name)

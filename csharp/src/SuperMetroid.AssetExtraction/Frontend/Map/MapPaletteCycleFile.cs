@@ -57,7 +57,7 @@ public static class MapPaletteCycleFile
     /// <param name="document">Ordered selected frames satisfying <see cref="Read"/>'s version, duration, count, and highlight colour requirements.</param>
     public static void Write(Stream json, MapPaletteCycleDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Map.MapPaletteCycleDocument>(ArtworkJson.Options));
         json.Write(bytes);
     }
 }

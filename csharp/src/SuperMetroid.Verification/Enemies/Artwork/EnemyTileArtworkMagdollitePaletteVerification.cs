@@ -44,8 +44,7 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
         string file = Path.Combine(stockDirectory, MagdollitePaletteCycleFormat.FileName);
         byte[] stockJson = File.ReadAllBytes(file);
         MagdollitePaletteCycleDocument document =
-            JsonSerializer.Deserialize<MagdollitePaletteCycleDocument>(stockJson,
-                CaseInsensitiveJson) ??
+            JsonSerializer.Deserialize<MagdollitePaletteCycleDocument>(stockJson, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Enemies.MagdollitePaletteCycleDocument>(CaseInsensitiveJson)) ??
             throw new InvalidDataException("Stock Magdollite palette JSON is null.");
         PaletteRgb5 original = document.Frames[1][0];
         // Exercise the room's production glow step. Forbid all bus reads: installed artwork must be sufficient on every tick.

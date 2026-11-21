@@ -37,7 +37,7 @@ public static class KraidColorFile
     /// <param name="document">Complete palette sources to serialize; the writer does not retain their arrays.</param>
     /// <returns>JSON bytes for <see cref="KraidColorFormat.FileName"/>.</returns>
     public static byte[] Write(KraidColorDocument document) =>
-        JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
+        JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Bosses.KraidColorDocument>(JsonOptions));
 
     /// <summary>Validates one source's native length and RGB5 channels before packing its colors.</summary>
     private static RgbColor[] Compile(PaletteRgb5[]? source, KraidPaletteSource kind)

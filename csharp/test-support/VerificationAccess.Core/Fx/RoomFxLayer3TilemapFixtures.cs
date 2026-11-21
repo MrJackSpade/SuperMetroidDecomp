@@ -25,9 +25,7 @@ internal static class RoomFxLayer3TilemapFixtures
         var pages = RoomFxLayer3TilemapFormat.Types.ToDictionary(each => each.ToString(),
             each => Cells(stock.Resolve(each).Span));
         pages[type.ToString()] = Cells(page);
-        using var json = new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(
-            new RoomFxLayer3TilemapDocument { Version = RoomFxLayer3TilemapFormat.Version, Pages = pages },
-            new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }));
+        using var json = new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(new RoomFxLayer3TilemapDocument { Version = RoomFxLayer3TilemapFormat.Version, Pages = pages }, global::SuperMetroid.TestSupport.VerificationAccess.Core.VerificationAccessCoreJson.Info<global::SuperMetroid.AssetExtraction.Fx.RoomFxLayer3TilemapDocument>(new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase })));
         return RoomFxLayer3Pages.Load(json);
     }
 

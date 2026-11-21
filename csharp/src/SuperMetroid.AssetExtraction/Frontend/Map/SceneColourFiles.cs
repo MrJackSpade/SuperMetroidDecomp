@@ -66,7 +66,7 @@ public static class SceneColourFiles
             WorldMapBackdrops = ZebesAreas().ToDictionary(area => AreaIdKeys.Installed.Of(area), area => InstalledColourText.Format(backdrops.World(area))),
             CeresHazeWhileRidleyLives = InstalledColourText.Format(StockCeresHazeBlue),
             CeresHazeAfterRidleyDies = InstalledColourText.Format(StockCeresHazeRed),
-        }, ArtworkJson.Options);
+        }, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Map.SceneColourDocument>(ArtworkJson.Options));
     }
 
     /// <summary>Reads the installed scene colours.</summary>

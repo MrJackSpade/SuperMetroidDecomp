@@ -38,7 +38,7 @@ public static class GameplayHudLayoutFile
             IconAnchors = anchors,
             IconsShowOverTemplate = showsOverTemplate,
             MinimapAnchor = parts.MinimapAnchor,
-        }, ArtworkJson.Options);
+        }, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Hud.GameplayHudLayoutDocument>(ArtworkJson.Options));
     }
 
     /// <summary>Reads and validates an installed gameplay-HUD layout.</summary>

@@ -39,8 +39,7 @@ public static class RoomScrollOverreadFiles
                 past[cell] = CellOf(cartridge.ReadCartridgeByte(table + layout.Cells.Count + cell));
             cells.Add(layout.Name, past);
         }
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(
-            new RoomScrollOverreadDocument(RoomScrollOverreadFormat.Version, cells), RoomScrollOverreadFormat.JsonOptions);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(new RoomScrollOverreadDocument(RoomScrollOverreadFormat.Version, cells), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Rooms.RoomScrollOverreadDocument>(RoomScrollOverreadFormat.JsonOptions));
         File.WriteAllBytes(Path.Combine(directory, RoomScrollOverreadFormat.FileName), bytes);
     }
 

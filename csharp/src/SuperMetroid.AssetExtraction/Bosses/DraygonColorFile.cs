@@ -30,7 +30,7 @@ public static class DraygonColorFile
 
     /// <summary>Serializes a Draygon color document as indented camel-case JSON.</summary>
     public static byte[] Write(DraygonColorDocument document) =>
-        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Bosses.DraygonColorDocument>(ArtworkJson.Options));
 
     /// <summary>Checks a named RGB5 array's required length and channel bounds before packing its colors.</summary>
     private static RgbColor[] Compile(PaletteRgb5[]? source, int count, string name) =>

@@ -117,7 +117,7 @@ public sealed class CeresFlightCharacters : CeresFlightSourceArtwork
     public static void WriteMap(Stream json, CeresFlightMapDocument document)
     {
         Ensure.NotNull(json);
-        json.Write(JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options));
+        json.Write(JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Areas.Ceres.CeresFlightMapDocument>(ArtworkJson.Options)));
     }
 
     /// <summary>Requires two complete 32-by-24 tile-index views before compiling their upload bytes.</summary>
@@ -126,8 +126,7 @@ public sealed class CeresFlightCharacters : CeresFlightSourceArtwork
         CeresFlightMapDocument document;
         try
         {
-            document = JsonSerializer.Deserialize<CeresFlightMapDocument>(json,
-                ArtworkJson.Options)
+            document = JsonSerializer.Deserialize<CeresFlightMapDocument>(json, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Areas.Ceres.CeresFlightMapDocument>(ArtworkJson.Options))
                 ?? throw new InvalidDataException("Ceres flight Mode-7 map JSON is null.");
         }
         catch (JsonException error)

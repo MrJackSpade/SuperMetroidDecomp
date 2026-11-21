@@ -55,7 +55,7 @@ public sealed class PauseWireframePresentation
     /// <param name="document">Document containing all four complete wireframe variants.</param>
     public static void Write(Stream output, PauseWireframeDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Pause.Artwork.PauseWireframeDocument>(ArtworkJson.Options));
         output.Write(bytes);
     }
 }

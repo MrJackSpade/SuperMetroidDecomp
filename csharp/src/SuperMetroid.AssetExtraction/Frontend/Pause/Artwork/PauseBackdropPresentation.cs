@@ -87,7 +87,7 @@ public sealed class PauseBackdropPresentation
     /// <param name="document">Editable page collections read for serialization, not retained by the writer.</param>
     public static void Write(Stream output, PauseBackdropDocument document)
     {
-        byte[] json = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        byte[] json = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Pause.Artwork.PauseBackdropDocument>(ArtworkJson.Options));
         output.Write(json);
     }
 }

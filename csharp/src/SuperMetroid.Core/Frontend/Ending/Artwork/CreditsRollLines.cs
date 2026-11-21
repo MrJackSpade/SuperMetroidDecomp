@@ -34,7 +34,7 @@ public static class CreditsRollLines
         {
             top += role.SpaceBefore;
             int height = HeightOf(role.Style);
-            lines.Add(new CreditsRollLine(EndingPictureNames.CreditsLine(role.Role), top, height));
+            lines.Add(new CreditsRollLine(role, top, height));
             top += height;
         }
         int length = top + CreditsRollDefinitions.TrailingSpace;

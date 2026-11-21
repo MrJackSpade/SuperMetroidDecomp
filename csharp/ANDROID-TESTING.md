@@ -161,18 +161,10 @@ defaults to that fallback. The old `AndroidExperimentalAot` property is accepted
 when `AndroidUseAot` is not specified. Historical experiments below explain why
 the default was held back until the X-ray and sustained-run checks passed.
 
-Before installing an experimental APK, compare each application assembly with its
-`obj/Release/net10.0-android/android-arm64/linked` counterpart:
-
-```powershell
-dotnet run --no-launch-profile --project csharp/src/SuperMetroid.DebugRunner -c Release -- --compare-assembly-metadata INPUT.dll LINKED.dll
-```
-
-This read-only tool checks named types, fields, properties, events, and method
-overload counts including private declarations without executing either assembly.
-It does **not** establish signature/body equivalence, framework reflection support,
-or debugger-state compatibility. A successful device state load/continuation test
-and performance comparison remain required before making AOT the default.
+Debugger states no longer read the object graph by reflection (#2602): their
+serializer is generated, so linking cannot remove a declaration a state needs. A
+successful device state load/continuation test and performance comparison remain
+required before making AOT the default.
 
 ### Release acceptance evidence (2026-09-08)
 

@@ -85,7 +85,7 @@ public sealed class SamusArmCannonState
         Ensure.NotNull(samus);
 
         // The cannon shares Samus's invincibility flicker; a closed or flickered-out cover draws nothing.
-        if (Frame is not { } cover || (!samus.InvincibilityTimer.IsZero && SamusCadenceDefinitions.InvincibilityFlickerHidden.IsSetIn(frameCounter)))
+        if (Frame is not { } cover || (!samus.InvincibilityTimer.IsZero && SamusCadenceDefinitions.InvincibilityFlickerHidden.IsInSecondHalfAt(frameCounter)))
             return;
 
         SamusArmCannonPlacement placement = Placement(samus.Pose);

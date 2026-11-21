@@ -10,5 +10,5 @@ internal static class SmokePuffPlacements
     internal static DustExplosionPlacement Point { get; } = new(RandomSampleField.Nothing, RandomSampleField.Nothing, default);
 
     /// <summary>The puff lands anywhere in a centred box 16 pixels wide and 32 tall.</summary>
-    internal static DustExplosionPlacement CentredBox { get; } = new(new(0, 4), new(8, 5), new(-8, -16));
+    internal static DustExplosionPlacement CentredBox { get; } = new(RandomSampleField.OneOf(16), RandomSampleField.SecondOf(32), new(-8, -16));
 }

@@ -31,7 +31,7 @@ internal sealed class TorizoChoices
     /// <param name="frameCounter">The frame counter on the update the choice is made.</param>
     /// <param name="samusX">Samus's X, in whole pixels.</param>
     internal static bool InFirstAttackPhase(int frameCounter, int samusX) =>
-        TorizoCadenceDefinitions.FirstAttackPhase.IsSetIn(frameCounter + TwoPixelStepsRoundedUp(samusX));
+        TorizoCadenceDefinitions.FirstAttackPhase.IsInSecondHalfAt(frameCounter + TwoPixelStepsRoundedUp(samusX));
 
     /// <summary>
     /// <paramref name="x"/> counted in two-pixel steps, rounded up (#2555): an odd X reads as the next step, toward
@@ -73,7 +73,7 @@ internal sealed class TorizoChoices
         int distance = Math.Abs(samus.Position.X.Whole - torizo.Position.X.Whole);
         if (!TorizoFacing.FacesSamus(torizo, samus) ||
             distance < TorizoDecisionDefinitions.MediumRangeNearest || distance >= TorizoDecisionDefinitions.MediumRangeFarthest ||
-            !TorizoRandomDefinitions.MediumRangeAttack.IsTakenBy(_room.Random.Generate()))
+            !TorizoRandomRolls.MediumRangeAttack.IsTakenBy(_room.Random.Generate()))
         {
             return null;
         }

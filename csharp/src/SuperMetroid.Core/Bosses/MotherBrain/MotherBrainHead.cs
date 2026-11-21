@@ -201,7 +201,7 @@ internal sealed class MotherBrainHead
             return state.BrainShake.Offset;
 
         int paced = head.HurtFlash.IsRunning ? head.HurtFlash.UpdatesLeft : head.Shake.UpdatesLeft;
-        return MotherBrainShakeDefinitions.Offsets[MotherBrainCadenceDefinitions.BrainShakeStep.Of(paced)];
+        return MotherBrainShakeDefinitions.Offsets[MotherBrainCadenceDefinitions.BrainShakeStep.StepAt(paced)];
     }
 
     /// <summary>Moves neck segments toward the head and updates their attachment to Samus's position.</summary>

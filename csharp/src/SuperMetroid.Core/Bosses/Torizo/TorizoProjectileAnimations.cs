@@ -50,7 +50,7 @@ internal static class TorizoProjectileAnimations
         [P.LowHealthExplosionBurst] =
         [
             Cue(new TorizoProjectileCue.Signal(K.ReturnToOrigin)),
-            Cue(new TorizoProjectileCue.Scatter(Spread: new(XRange: new(0, 4), YRange: new(0, 4), Center: new(0, 0)))),
+            Cue(new TorizoProjectileCue.Scatter(Spread: new(XSpan: 16, YSpan: 16, Center: new(0, 0)))),
             Cue(new TorizoProjectileCue.PlaySound(Sound: EnemySound.SmallExplosion, Priority: SoundRequestPriority.Normal)),
             .. QuickBurst(ExplosionBurst),
         ],
@@ -63,7 +63,7 @@ internal static class TorizoProjectileAnimations
         [P.DeathExplosionBurst] =
         [
             Cue(new TorizoProjectileCue.Signal(K.ReturnToOrigin)),
-            Cue(new TorizoProjectileCue.Scatter(Spread: new(XRange: new(0, 5), YRange: new(0, 6), Center: new(0, 16)))),
+            Cue(new TorizoProjectileCue.Scatter(Spread: new(XSpan: 32, YSpan: 64, Center: new(0, 16)))),
             Cue(new TorizoProjectileCue.PlaySound(Sound: EnemySound.SmallExplosion, Priority: SoundRequestPriority.Normal)),
             Show(EnemyProjectileFrameId.TorizoDeathExplosionSpark, 4),
             Show(EnemyProjectileFrameId.TorizoExplosionFireballSmall, 6),
@@ -75,7 +75,7 @@ internal static class TorizoProjectileAnimations
         [P.DeathSmoke] =
         [
             Cue(new TorizoProjectileCue.Signal(K.ReturnToOrigin)),
-            Cue(new TorizoProjectileCue.Scatter(Spread: new(XRange: new(0, 5), YRange: new(0, 6), Center: new(0, 4)))),
+            Cue(new TorizoProjectileCue.Scatter(Spread: new(XSpan: 32, YSpan: 64, Center: new(0, 4)))),
             Cue(new TorizoProjectileCue.PlaySound(Sound: EnemySound.SmallExplosion, Priority: SoundRequestPriority.Normal)),
             Show(EnemyProjectileFrameId.TorizoExplosionFireCloud, 8),
             Show(EnemyProjectileFrameId.TorizoExplosionFireCloudSpreading, 8),
@@ -159,7 +159,7 @@ internal static class TorizoProjectileAnimations
         [P.SonicBoomWallImpactBurst] =
         [
             Cue(new TorizoProjectileCue.Signal(K.ReturnToOrigin)),
-            Cue(new TorizoProjectileCue.Scatter(Spread: new(XRange: new(0, 4), YRange: new(0, 5), Center: new(0, 0)))),
+            Cue(new TorizoProjectileCue.Scatter(Spread: new(XSpan: 16, YSpan: 32, Center: new(0, 0)))),
             .. QuickBurst(SonicBoomBurst),
         ],
         [P.LandingDustRightFoot] = LandingDust(Right),

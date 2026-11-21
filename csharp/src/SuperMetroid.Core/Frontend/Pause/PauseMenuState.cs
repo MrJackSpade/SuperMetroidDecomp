@@ -705,7 +705,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen, IComposedFrontendSce
             int steps = remainder / PauseReserveEnergyDefinitions.EnergyPerFillStep;
             if (steps < PauseReserveEnergyDefinitions.FlickerFillStepLimit &&
                 remainder % PauseReserveEnergyDefinitions.EnergyPerFillStep != 0 &&
-                !PauseCadenceDefinitions.ReserveFlickerStepHidden.IsSetIn(pauseFrameCycle))
+                !PauseCadenceDefinitions.ReserveFlickerStepHidden.IsInSecondHalfAt(pauseFrameCycle))
                 steps++;
             Draw(PauseReserveTankParts.FillLevel(steps), tank++);
         }

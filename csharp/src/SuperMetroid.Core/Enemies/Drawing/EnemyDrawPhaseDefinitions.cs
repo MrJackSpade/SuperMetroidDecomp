@@ -11,10 +11,10 @@ internal static class EnemyDrawPhaseDefinitions
     internal const int WallJumpLaunchShakeDraws = 64;
 
     /// <summary>
-    /// The phase of the enemy-pass counter on which a hurt enemy shows the hurt flash: set for two passes of every four,
+    /// The phase of the enemy-pass counter on which a hurt enemy shows the hurt flash: for two passes of every four,
     /// while its own colours show for the other two.
     /// </summary>
-    internal static readonly UpdateCounterField HurtFlashShown = new(1, 1);
+    internal static readonly UpdateAlternation HurtFlashShown = new(2);
 
     /// <summary>
     /// The frozen updates still to run from which a frozen enemy shows its frozen colours steadily; with fewer left, the
@@ -23,14 +23,14 @@ internal static class EnemyDrawPhaseDefinitions
     internal const int FrozenColoursSteadyUpdates = 90;
 
     /// <summary>
-    /// The phase of a thawing enemy's frozen timer on which it still shows its frozen colours: set for two updates of
+    /// The phase of a thawing enemy's frozen timer on which it still shows its frozen colours: for two updates of
     /// every four of the thaw's final stretch, while its own colours show for the other two.
     /// </summary>
-    internal static readonly UpdateCounterField FrozenColoursShown = new(1, 1);
+    internal static readonly UpdateAlternation FrozenColoursShown = new(2);
 
     /// <summary>
-    /// The phase of a shaking enemy's own update count on which its draw shifts one pixel left; while clear it shifts
+    /// The phase of a shaking enemy's own update count on which its draw shifts one pixel left; otherwise it shifts
     /// one pixel right.
     /// </summary>
-    internal static readonly UpdateCounterField ShakeShiftsLeft = new(1, 1);
+    internal static readonly UpdateAlternation ShakeShiftsLeft = new(2);
 }

@@ -13,16 +13,16 @@ internal static class RidleyCadenceDefinitions
     internal static readonly UpdateCadence NorfairRidleyActs = new(2, 0);
 
     /// <summary>
-    /// The phase of a Norfair Ridley breakup fragment's own update count on which it is hidden: set on odd updates, so it
+    /// The phase of a Norfair Ridley breakup fragment's own update count on which it is hidden: on odd updates, so it
     /// flickers (#1940).
     /// </summary>
-    internal static readonly UpdateCounterField BreakupFragmentHidden = new(0, 1);
+    internal static readonly UpdateAlternation BreakupFragmentHidden = new(1);
 
     /// <summary>
     /// The phase of Ceres Ridley's hurt flash timer that a new hit keeps: a hit during a flash on its odd counts restarts
     /// it one update longer, so his flash and the escape that follows keep their place in the alternation.
     /// </summary>
-    internal static readonly UpdateCounterField CeresHurtFlashOddCount = new(0, 1);
+    internal static readonly UpdateAlternation CeresHurtFlashOddCount = new(1);
 
     /// <summary>
     /// The updates on which the Baby's capsule in Ceres Ridley's getaway takes its next picture, counted on the frame

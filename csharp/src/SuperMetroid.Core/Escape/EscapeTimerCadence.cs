@@ -9,5 +9,5 @@ namespace SuperMetroid.Core.Escape;
 internal static class EscapeTimerCadence
 {
     /// <summary>The centiseconds the update at <paramref name="frameCounter"/> removes: its period place's authored step.</summary>
-    internal static int Centiseconds(int frameCounter) => CentisecondsRemoved[PeriodPlace.Of(frameCounter)];
+    internal static int Centiseconds(int frameCounter) => CentisecondsRemoved[PeriodPlace.StepAt(frameCounter)];
 }

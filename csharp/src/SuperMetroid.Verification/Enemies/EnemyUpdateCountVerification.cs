@@ -41,9 +41,9 @@ internal static class EnemyUpdateCountVerification
 
         for (int count = 0; count < SixteenBitSpan; count++)
         {
-            AssertEqual(EnemyDrawPhaseDefinitions.ShakeShiftsLeft.IsSetIn(count), EnemyDrawPhaseDefinitions.ShakeShiftsLeft.IsSetIn(count + SixteenBitSpan),
+            AssertEqual(EnemyDrawPhaseDefinitions.ShakeShiftsLeft.IsInSecondHalfAt(count), EnemyDrawPhaseDefinitions.ShakeShiftsLeft.IsInSecondHalfAt(count + SixteenBitSpan),
                 $"the shake phase at update {count}");
-            AssertEqual(EnemyDrawPhaseDefinitions.HurtFlashShown.IsSetIn(count), EnemyDrawPhaseDefinitions.HurtFlashShown.IsSetIn(count + SixteenBitSpan),
+            AssertEqual(EnemyDrawPhaseDefinitions.HurtFlashShown.IsInSecondHalfAt(count), EnemyDrawPhaseDefinitions.HurtFlashShown.IsInSecondHalfAt(count + SixteenBitSpan),
                 $"the hurt flash phase at update {count}");
         }
         Console.WriteLine("  Enemy update count: counts on past 65535, its draw phases unchanged.");

@@ -127,7 +127,7 @@ internal static class TorizoMotionDefinitions
     internal static readonly TrigonometryAngle EyeBeamHeadingFacingLeft = new(160);
 
     /// <summary>
-    /// The steps the eye beam's spread (<see cref="TorizoRandomDefinitions.EyeBeamSpread"/>) is turned back by, so the
+    /// The steps the eye beam's spread (<see cref="TorizoRandomRolls.EyeBeamSpread"/>) is turned back by, so the
     /// spread lies either side of the heading.
     /// </summary>
     internal const int EyeBeamSpreadCentre = 8;

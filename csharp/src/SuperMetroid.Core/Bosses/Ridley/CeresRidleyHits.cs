@@ -66,7 +66,7 @@ internal sealed class CeresRidleyHits
     {
         // A hit restarts his hurt flash; a hit while the flash runs on an odd count restarts it one update longer,
         // so repeated hits keep the flash's place in its alternation.
-        place.HurtFlash.Restart(place.HurtFlash.IsRunning && RidleyCadenceDefinitions.CeresHurtFlashOddCount.IsSetIn(place.HurtFlash.UpdatesLeft)
+        place.HurtFlash.Restart(place.HurtFlash.IsRunning && RidleyCadenceDefinitions.CeresHurtFlashOddCount.IsInSecondHalfAt(place.HurtFlash.UpdatesLeft)
             ? CeresRidleyFightDefinitions.HurtFlashKeepingPhase
             : CeresRidleyFightDefinitions.HurtFlash);
         ridley.HitCounter++;

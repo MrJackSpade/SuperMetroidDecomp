@@ -411,7 +411,7 @@ internal sealed class SamusPresentation
         bool bodyVisible = samus.KnockbackHold.IsRunning ||
             samus.InvincibilityTimer.IsZero ||
             SamusInputSnapshot.HoldsShine(samus) ||
-            !SamusCadenceDefinitions.InvincibilityFlickerHidden.IsSetIn(frameCounter);
+            !SamusCadenceDefinitions.InvincibilityFlickerHidden.IsInSecondHalfAt(frameCounter);
         // A hidden body keeps the picture and origin it last drew, which the echoes repeat.
         if (!bodyVisible)
             return;

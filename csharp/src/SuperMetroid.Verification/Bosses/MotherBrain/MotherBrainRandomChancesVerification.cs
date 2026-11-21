@@ -47,7 +47,7 @@ internal static class MotherBrainRandomChancesVerification
             AssertSameAt(roll256 < 128, MotherBrainRandomDefinitions.ThirdPhaseBombs.IsTakenBy(sample), "phase-three bomb", sample);
             AssertSameAt(sample >= 32768, MotherBrainRandomDefinitions.ThirdPhaseAttacks.IsTakenBy(sample), "phase-three attack", sample);
             AssertSameAt(sample >= 32768, MotherBrainRandomDefinitions.BabyVolleyFires.IsTakenBy(sample), "Baby volley", sample);
-            AssertSameAt((sample & 32) == 0 && (sample & 1024) == 0, MotherBrainGlassShardDefinitions.ShardSparkles.IsTakenBy(sample), "shard sparkle", sample);
+            AssertSameAt((sample & 32) == 0 && (sample & 1024) == 0, MotherBrainRandomRolls.ShardSparkles.IsTakenBy(sample), "shard sparkle", sample);
             AssertSameAt(sample < 16384, MotherBrainRandomDefinitions.FakeDeathDustSmokes.IsTakenBy(sample), "fake death dust smoke", sample);
             AssertSameAt((sample & 256) != 0, MotherBrainRandomDefinitions.AscentDustIsBig.IsTakenBy(sample), "big ascent dust", sample);
             AssertSameAt((sample & 2) != 0, MotherBrainRandomDefinitions.ForwardInchWaitsLonger.IsTakenBy(sample), "longer forward inch", sample);

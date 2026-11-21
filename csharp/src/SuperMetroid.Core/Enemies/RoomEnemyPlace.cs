@@ -256,7 +256,7 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
 
     /// <summary>
     /// The enemy's own update count, independent of the game's frame counter: its behaviour and drawing read it only
-    /// through power-of-two cadences (an <see cref="UpdateCadence"/>, an <see cref="UpdateCounterField"/> or a random field
+    /// through power-of-two cadences (an <see cref="UpdateCadence"/>, an <see cref="UpdateAlternation"/>, an <see cref="UpdateCycle"/> or a random roll
     /// advanced by it), so it is a plain count (#2454).
     /// </summary>
     public int FrameCounter

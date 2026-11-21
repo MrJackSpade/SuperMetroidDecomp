@@ -20,7 +20,7 @@ public static class AtmosphereDriftDefinitions
     /// wind left, a strong wind right, a gentle wind left and a gentle wind right in turn; the rest of the number is ignored.
     /// </summary>
     internal static WeightedRandomChoice<RainWind> RainWindDraw { get; } = WeightedRandomChoice<RainWind>.InTurn(
-        new RandomSampleField(2, 2), RainWind.StrongLeft, RainWind.StrongRight, RainWind.GentleLeft, RainWind.GentleRight);
+        RainWindRandomRoll.Wind, RainWind.StrongLeft, RainWind.StrongRight, RainWind.GentleLeft, RainWind.GentleRight);
 
 
     /// <summary>How fast a strong wind blows the rain sideways, either way: six pixels a frame.</summary>

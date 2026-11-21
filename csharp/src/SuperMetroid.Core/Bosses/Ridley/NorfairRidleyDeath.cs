@@ -239,7 +239,7 @@ internal sealed class NorfairRidleyDeath
     internal void RunNorfairRidleyExplosionMain(RoomEnemyOccupant piece, SamusState samus)
     {
         RoomEnemyPlace fragment = piece.Place;
-        if (RidleyCadenceDefinitions.BreakupFragmentHidden.IsSetIn(fragment.FrameCounter))
+        if (RidleyCadenceDefinitions.BreakupFragmentHidden.IsInSecondHalfAt(fragment.FrameCounter))
             fragment.Presence = fragment.Presence.With(EnemyPresence.Hidden);
         else
             fragment.Presence = fragment.Presence.Without(EnemyPresence.Hidden);

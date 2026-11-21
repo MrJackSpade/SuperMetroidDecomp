@@ -61,7 +61,7 @@ internal sealed class PhantoonDeath
         RoomEnemyPlace body,
         PhantoonEnemyState state)
     {
-        if (PhantoonCadenceDefinitions.DyingFadeIn.IsSetIn(state.Death.FadeCycles))
+        if (PhantoonCadenceDefinitions.DyingFadeIn.IsInSecondHalfAt(state.Death.FadeCycles))
             _phantoonPresentation.AdvancePhantoonFadeIn(body, state, steps: PhantoonColorDefinitions.BodyFadeSteps);
         else
             _patterns.AdvancePhantoonFadeOut(state, steps: PhantoonColorDefinitions.BodyFadeSteps);

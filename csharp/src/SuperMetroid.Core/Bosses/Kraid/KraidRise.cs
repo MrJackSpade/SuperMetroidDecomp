@@ -152,7 +152,7 @@ internal sealed class KraidRise
                 if (KraidCadenceDefinitions.CeilingBreakRock.IsDue(body.FrameCounter))
                     RequestKraidRisingRock(body);
                 body.Position = body.Position.WithWholeX(body.Position.X.Whole +
-                    1.Toward(KraidCadenceDefinitions.RiseSwayPhase.IsSetIn(body.Position.Y.Whole) ? HorizontalDirection.Left : HorizontalDirection.Right));
+                    1.Toward(KraidCadenceDefinitions.RiseSwayPhase.IsInSecondHalfAt(body.Position.Y.Whole) ? HorizontalDirection.Left : HorizontalDirection.Right));
                 body.Position = body.Position.WithWholeY(body.Position.Y.Whole - 1);
                 if (KraidCadenceDefinitions.CeilingRockRow.IsDue(body.Position.Y.Whole) &&
                     state.BodyState.NextCeilingRock is { } rock)
@@ -307,7 +307,7 @@ internal sealed class KraidRise
                     KraidCadenceDefinitions.RaisedBodySecondRockOfEight.IsDue(_earthquake.RemainingFrames))
                     RequestKraidRisingRock(body);
                 body.Position = body.Position.WithWholeX(body.Position.X.Whole +
-                    1.Toward(KraidCadenceDefinitions.RiseSwayPhase.IsSetIn(body.Position.Y.Whole) ? HorizontalDirection.Right : HorizontalDirection.Left));
+                    1.Toward(KraidCadenceDefinitions.RiseSwayPhase.IsInSecondHalfAt(body.Position.Y.Whole) ? HorizontalDirection.Right : HorizontalDirection.Left));
                 body.Position = body.Position.AdvanceY(KraidArenaDefinitions.RisingBodyLift);
                 if (body.Position.Y.Whole < KraidArenaDefinitions.RisenY)
                 {

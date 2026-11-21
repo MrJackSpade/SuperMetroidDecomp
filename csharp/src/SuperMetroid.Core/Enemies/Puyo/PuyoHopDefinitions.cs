@@ -22,12 +22,12 @@ internal static class PuyoHopDefinitions
     /// <summary>
     /// The random field a Puyo's hop roll starts from: the roll and the enemy's update count together choose its hop.
     /// </summary>
-    internal static readonly RandomSampleField HopRoll = new(0, 3);
+    internal static readonly RandomSampleField HopRoll = RandomSampleField.OneOf(8);
 
     /// <summary>
     /// The part of <see cref="HopRoll"/> a choice between two outcomes reads, taking each one time in two.
     /// </summary>
-    private static readonly RandomSampleField HopRollParity = new(0, 1);
+    private static readonly RandomSampleField HopRollParity = RandomSampleField.OneOf(2);
 
     /// <summary>
     /// The ordinary hop a Puyo that last made the small one takes next (#1619): its hop roll advanced by the enemy's frame

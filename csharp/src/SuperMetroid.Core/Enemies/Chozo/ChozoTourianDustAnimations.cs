@@ -17,14 +17,14 @@ internal static class ChozoTourianDustAnimations
     {
         [P.Footsteps] =
         [
-            Cue(new EnemyProjectileCommonCue.Scatter(Spread: new(XRange: new(0, 4), YRange: new(0, 4), Center: new(0, 3)))),
+            Cue(new EnemyProjectileCommonCue.Scatter(Spread: new(XSpan: 16, YSpan: 16, Center: new(0, 3)))),
             .. PuffToCloud,
             Cue(new EnemyProjectileCommonCue.Signal(CK.Delete)),
         ],
         [P.TourianDescentDust] =
         [
             Cue(new EnemyProjectileCommonCue.Signal(CK.ReturnToOrigin)),
-            Cue(new EnemyProjectileCommonCue.Scatter(Spread: new(XRange: new(0, 6), YRange: new(0, 2), Center: new(0, 0)))),
+            Cue(new EnemyProjectileCommonCue.Scatter(Spread: new(XSpan: 64, YSpan: 4, Center: new(0, 0)))),
             .. PuffToCloud,
         ],
         [P.TourianDescentDustEnd] =

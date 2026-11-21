@@ -91,7 +91,7 @@ internal sealed class TorizoCombat
     {
         _body.MaybeSpawnLowHealthDrool(occupant, torizo);
         TorizoEnemyState state = torizo.RequireSpeciesState<TorizoEnemyState>();
-        if (!TorizoCadenceDefinitions.HurtWhiteShown.IsSetIn(torizo.HurtFlash.UpdatesLeft))
+        if (!TorizoCadenceDefinitions.HurtWhiteShown.IsInSecondHalfAt(torizo.HurtFlash.UpdatesLeft))
             unflashed(state);
         else
             TorizoBody.ShowLook(torizo, state, new TorizoLook(TorizoLookKind.White));

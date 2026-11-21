@@ -7,11 +7,11 @@ internal static class CeresDoorCadenceDefinitions
     /// The phase of the door's own update count that picks the turning floor's elevator platform picture: two pictures,
     /// each shown for two updates in turn.
     /// </summary>
-    internal static readonly UpdateCounterField PlatformPicture = new(1, 1);
+    internal static readonly UpdateCycle PlatformPicture = new(2, 2);
 
     /// <summary>
     /// The phase of the door's own update count that picks the elevator room's glow step: eight steps in turn, each held
-    /// as the field steps (<see cref="UpdateCounterField"/>).
+    /// for eight updates.
     /// </summary>
-    internal static readonly UpdateCounterField GlowStep = new(3, 3);
+    internal static readonly UpdateCycle GlowStep = new(8, 8);
 }

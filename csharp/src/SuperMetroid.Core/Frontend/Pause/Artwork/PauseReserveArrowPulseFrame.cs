@@ -18,5 +18,5 @@ public readonly record struct PauseReserveArrowPulseFrame
 
     /// <summary>The frame the pause screen's frame counter at <paramref name="frameCycle"/> shows.</summary>
     internal static PauseReserveArrowPulseFrame PacedBy(int frameCycle) =>
-        All[PauseCadenceDefinitions.ReserveArrowPulseFrame.Of(frameCycle)];
+        All[PauseCadenceDefinitions.ReserveArrowPulseFrame.StepAt(frameCycle)];
 }

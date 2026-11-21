@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Escape;
+
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>
@@ -37,11 +39,18 @@ internal sealed class CeresSelfDestructPhase
     /// <summary>The EMERGENCY title holds, the alarm colours cycling, until its hold runs out.</summary>
     internal static CeresSelfDestructPhase HoldingTitle { get; } = new(nameof(HoldingTitle), turn => turn.Escape.RunHoldingTitle(turn.RidleyFrameCounter));
 
-    /// <summary>Japanese text only: the typewriter runs while the subtitle's wait counts down, then the subtitle is drawn.</summary>
-    internal static CeresSelfDestructPhase JapaneseSubtitle { get; } = new(nameof(JapaneseSubtitle), turn => turn.Escape.RunJapaneseSubtitle(turn.RidleyFrameCounter));
+    /// <summary>
+    /// Japanese text only: <paramref name="typewriter"/> runs while the subtitle's wait counts down, then the subtitle is
+    /// drawn.
+    /// </summary>
+    /// <param name="typewriter">The typewriter the title's hold started.</param>
+    internal static CeresSelfDestructPhase JapaneseSubtitle(EscapeTypewriterState typewriter) =>
+        new(nameof(JapaneseSubtitle), turn => turn.Escape.RunJapaneseSubtitle(turn.RidleyFrameCounter, typewriter));
 
-    /// <summary>The typewriter types the warning, one step per update, until its message ends.</summary>
-    internal static CeresSelfDestructPhase TypingWarning { get; } = new(nameof(TypingWarning), turn => turn.Escape.RunTypingWarning(turn.RidleyFrameCounter));
+    /// <summary><paramref name="typewriter"/> types the warning, one step per update, until its message ends.</summary>
+    /// <param name="typewriter">The typewriter the title's hold started.</param>
+    internal static CeresSelfDestructPhase TypingWarning(EscapeTypewriterState typewriter) =>
+        new(nameof(TypingWarning), turn => turn.Escape.RunTypingWarning(turn.RidleyFrameCounter, typewriter));
 
     /// <summary>The warning is complete: Ridley stops, the station's countdown starts and the area boss counts as beaten.</summary>
     internal static CeresSelfDestructPhase Finishing { get; } = new(nameof(Finishing), turn => turn.Escape.RunFinishing(turn.RidleyFrameCounter));

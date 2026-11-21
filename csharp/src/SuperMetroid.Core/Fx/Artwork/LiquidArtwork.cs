@@ -16,11 +16,16 @@ public sealed record LiquidArtwork : RoomEffectArtwork
     {
         Surface = Ensure.NotNull(surface);
         Body = Ensure.NotNull(body);
-        SurfaceSize = surface.Size ?? throw new InvalidDataException("A liquid's surface strip installs neither of its parts.");
-        BodySize = body.Size ?? throw new InvalidDataException("A liquid's body installs neither of its parts.");
+        if (!surface.ShowsSomething(out Extent16<ImagePixels> surfaceSize))
+            throw new InvalidDataException("A liquid's surface strip installs neither of its parts.");
+        if (!body.ShowsSomething(out Extent16<ImagePixels> bodySize))
+            throw new InvalidDataException("A liquid's body installs neither of its parts.");
+        SurfaceSize = surfaceSize;
+        BodySize = bodySize;
         if (surface.Behind is { } behind && surface.InFront is { } inFront && behind.Origin != inFront.Origin)
             throw new InvalidDataException("A liquid's surface strip places its surface differently in its two parts.");
-        SurfaceRow = (surface.Behind ?? surface.InFront ?? throw new InvalidDataException("A liquid's surface strip installs neither of its parts.")).Origin.Y;
+        // The strip shows something, so it installs a part; both parts place the surface alike.
+        SurfaceRow = surface.Parts.First().Origin.Y;
     }
 
     /// <summary>The surface strip, its origin on the surface line.</summary>

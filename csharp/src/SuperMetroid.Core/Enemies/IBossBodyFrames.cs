@@ -10,4 +10,7 @@ internal interface IBossBodyFrames
     /// <param name="selected">The resolved visual frame.</param>
     /// <exception cref="InvalidDataException">The frame draws on the body layer but the installed body sheet lacks it.</exception>
     BossBodyFrame? FindBodyFrame(EnemyFrameId selected);
+
+    /// <summary>The body its boss holds from its setup, which its frames show on.</summary>
+    BossBodyParts BodyParts { get; }
 }

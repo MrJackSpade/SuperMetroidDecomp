@@ -99,8 +99,8 @@ internal abstract record CrocomireDeathStage
     internal sealed record PublishDefeatAndRestoreMusic : CrocomireDeathStage;
 
     /// <summary>
-    /// His corpse, inert: the live room's once his defeat is recorded, and the already-defeated room's from its setup. It
-    /// never hands over.
+    /// His corpse, inert: the live room's once his defeat is recorded, and the already-defeated room's from its setup. His
+    /// course rests here: it hands over to no other stage.
     /// </summary>
     internal sealed record InertCorpse : CrocomireDeathStage;
 }

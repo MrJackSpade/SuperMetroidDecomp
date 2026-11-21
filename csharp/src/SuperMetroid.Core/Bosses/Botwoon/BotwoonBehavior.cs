@@ -247,20 +247,12 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     /// <summary>Moves Botwoon toward a hole or along one of his authored paths, as his movement says.</summary>
     private static void RunBotwoonMovement(RoomEnemyPlace head, BotwoonEnemyState state)
     {
-        switch (state.Movement)
-        {
-            case BotwoonMovement.MoveTowardHole:
-                MoveBotwoonTowardHole(head, state);
-                return;
-            case BotwoonMovement.FollowAuthoredPath:
-                FollowBotwoonPath(head, state);
-                return;
-            case BotwoonMovement.Finished:
-                throw new InvalidOperationException("Botwoon moves after finishing his movement, before choosing what follows.");
-            default:
-                throw new InvalidDataException(
-                    $"Botwoon has no behaviour for movement {state.Movement}.");
-        }
+        if (state.Movement is BotwoonMovement.AlongPath walking)
+            FollowBotwoonPath(head, state, walking);
+        else if (state.Movement == BotwoonMovement.MoveTowardHole)
+            MoveBotwoonTowardHole(head, state);
+        else
+            throw new InvalidOperationException("Botwoon moves after finishing his movement, before choosing what follows.");
     }
 
     /// <summary>Steers the head toward its selected hole until inside/outside state changes.</summary>
@@ -318,39 +310,37 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     }
 
     /// <summary>
-    /// Starts <paramref name="walk"/>: its path, the way it is walked, its first step and the hole it reaches. The game
+    /// Starts <paramref name="walk"/>: its path, the way it is walked and its first step, which his movement holds, and the
+    /// hole it reaches. The game
     /// loaded the walk on the next movement update; nothing reads the walk or the target hole before then, so loading it
     /// as it is drawn moves him the same (#1868).
     /// </summary>
     private static void StartBotwoonWalk(BotwoonEnemyState state, BotwoonPathWalk walk)
     {
-        state.Path = walk.Path;
-        state.PathTraversal = walk.Traversal;
-        state.PathStep = walk.FirstStep;
         state.TargetHole = walk.Destination;
-        state.Movement = BotwoonMovement.FollowAuthoredPath;
+        state.Movement = new BotwoonMovement.AlongPath(walk);
     }
 
     /// <summary>
     /// Takes as many path steps as the current speed allows. Walking off either end of the path completes it; the
     /// steps already taken on that update are then discarded, so the head does not move on its final update.
     /// </summary>
-    private static void FollowBotwoonPath(RoomEnemyPlace head, BotwoonEnemyState state)
+    private static void FollowBotwoonPath(RoomEnemyPlace head, BotwoonEnemyState state, BotwoonMovement.AlongPath walking)
     {
-        BotwoonPathDefinition path = state.Path ?? throw new InvalidOperationException("Botwoon follows a path before choosing one.");
+        BotwoonPathDefinition path = walking.Path;
         Offset16<RoomPixels> total = Offset16<RoomPixels>.Zero;
         for (int taken = 0; taken < state.SpeedStage.MovementSpeed; taken++)
         {
-            if (!BotwoonNavigation.HasStep(path, state.PathStep))
+            if (!BotwoonNavigation.HasStep(path, walking.Step))
             {
                 state.Movement = BotwoonMovement.Finished;
                 return;
             }
-            total += BotwoonNavigation.Step(path, state.PathStep);
-            state.PathStep += AlongTraversal(state.PathTraversal, 1);
+            total += BotwoonNavigation.Step(path, walking.Step);
+            walking.Step += AlongTraversal(walking.Traversal, 1);
         }
 
-        head.Position += AlongTraversal(state.PathTraversal, total);
+        head.Position += AlongTraversal(walking.Traversal, total);
     }
 
     /// <summary>

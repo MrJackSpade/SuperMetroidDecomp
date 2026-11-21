@@ -86,7 +86,7 @@ internal sealed class MotherBrainRainbowAndDeath
             // Her faded body is gone: the flicker stops and her body stays hidden, its picture cleared from the background.
             state.DeathHidesBodyLayer = false;
             state.Body.Presence = state.Body.Presence.With(EnemyPresence.Hidden);
-            _presentation.RequireBossBody().Clear();
+            state.BodyParts.Clear();
         }
         if (step.CorpseFadeImage is { } corpseFade)
             state.Colours.ShowCorpseFade(corpseFade);

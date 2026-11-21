@@ -47,6 +47,9 @@ internal abstract class PhantoonEntity(PhantoonBehavior species, RoomEnemyOccupa
     public EnemyHitboxContact FindHitboxReaction(EnemyHitboxProbe probe) => PhantoonCombat.FindPhantoonHitboxReaction(Place, probe);
 
     /// <inheritdoc/>
+    public BossBodyParts BodyParts => Encounter.BodyParts;
+
+    /// <inheritdoc/>
     public BossBodyFrame? FindBodyFrame(EnemyFrameId selected) =>
         bossArtwork.Body(BossBodyOwner.Phantoon).Find(selected);
 }

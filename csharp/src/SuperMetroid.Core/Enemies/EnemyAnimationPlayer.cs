@@ -28,16 +28,13 @@ internal sealed class EnemyAnimationPlayer
     /// pose with no body frame leaves the part's frame as it was.
     /// </summary>
     /// <exception cref="InvalidDataException">The installed body sheet lacks the frame.</exception>
-    /// <exception cref="InvalidOperationException">
-    /// The frame is shown before its boss attached the body it shows on, or by a part its boss does not draw there.
-    /// </exception>
+    /// <exception cref="InvalidOperationException">The frame is shown by a part its boss does not draw there.</exception>
     internal void DrawBossBodyFrame(RoomEnemyPlace place, RoomEnemyOccupant occupant, EnemyFrameId selected)
     {
-        if ((place.Entity as IBossBodyFrames)?.FindBodyFrame(selected) is not { } frame)
+        if (place.Entity is not IBossBodyFrames bossFrames || bossFrames.FindBodyFrame(selected) is not { } frame)
             return;
-        // Every boss that shows a body attaches it at initialization; Mother Brain's shows only once her second phase begins.
-        BossBodyParts body = _presentation.BossBody
-            ?? throw new InvalidOperationException("A boss body frame was shown before its owner attached the body it shows on.");
+        // Every boss that shows a body holds it from its setup; Mother Brain's shows only once her second phase begins.
+        BossBodyParts body = bossFrames.BodyParts;
         if (!place.AnimationClock.ShowsNewFrame && body.ShowsSelected(Ensure.NotNull(occupant).DefinitionId, selected))
             return;
         body.ShowSelected(occupant.DefinitionId, selected, frame);

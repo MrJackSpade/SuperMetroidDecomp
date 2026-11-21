@@ -26,6 +26,12 @@ public readonly record struct ListStep<T>
     /// <summary>The entry after this one, or null after the list's last.</summary>
     public ListStep<T>? Following => Place + 1 < _list.Count ? new ListStep<T>(_list, Place + 1) : null;
 
+    /// <summary>
+    /// The entry after this one in a walk that comes to rest at the list's last entry: the last is where the walk ends, so
+    /// it follows itself.
+    /// </summary>
+    public ListStep<T> FollowingToRest => Place + 1 < _list.Count ? new ListStep<T>(_list, Place + 1) : this;
+
     /// <summary>The entry after this one in a cycling walk: the list's first follows its last.</summary>
     public ListStep<T> NextInCycle => new(_list, (Place + 1) % _list.Count);
 

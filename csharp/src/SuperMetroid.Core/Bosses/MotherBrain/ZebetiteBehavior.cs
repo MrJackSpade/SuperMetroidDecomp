@@ -79,7 +79,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemySpawnFactory<Enemy
     /// <returns>The state the enemy holds from its setup.</returns>
     internal ZebetiteEnemyState InitializeZebetite(RoomEnemyOccupant occupant, RoomEnemyPlace place, RoomEnemyPlace? linkedTo)
     {
-        var state = new ZebetiteEnemyState(occupant.Spawn) { LinkedHalf = linkedTo };
+        var state = new ZebetiteEnemyState(occupant.Spawn, place.Frame) { LinkedHalf = linkedTo };
 
         // A Zebetite animates and is solid to Samus.
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
@@ -265,12 +265,11 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemySpawnFactory<Enemy
     /// Shows a half's chosen picture where the shared enemy animation runs (#2250): a still picture, which shows for good on
     /// the update its clock runs out, until the half chooses again.
     /// </summary>
-    /// <exception cref="InvalidOperationException">The half shows a picture before its setup chose one.</exception>
     internal static void AdvanceZebetiteAnimation(RoomEnemyPlace place, ZebetiteEnemyState state)
     {
         if (!place.AnimationClock.Expire())
             return;
-        place.Frame = state.Picture ?? throw new InvalidOperationException("A Zebetite shows its picture before its setup chose one.");
+        place.Frame = state.Picture;
         place.AnimationClock.ShowForGood();
     }
 

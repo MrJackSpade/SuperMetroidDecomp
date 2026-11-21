@@ -312,8 +312,14 @@ internal static class NativeEnemyFamilyStateImport
             // A zero word is a setup that never ran this far (a defeated room's deleted boss); the state keeps its start.
             if (words.D != 0)
                 botwoonRecord.Phase = BotwoonNativeWords.Phases.Decode(words.D, "recorded BotwoonPhase");
+            // A recorded walk names no path the import could rebuild it from, so only a hole approach is imported.
             if (words.E != 0)
-                botwoonRecord.Movement = BotwoonNativeWords.Movements.Decode(words.E, "recorded BotwoonMovement");
+                botwoonRecord.Movement = BotwoonNativeWords.Movements.Decode(words.E, "recorded BotwoonMovement") switch
+                {
+                    BotwoonRecordedMovement.MoveTowardHole => BotwoonMovement.MoveTowardHole,
+                    BotwoonRecordedMovement.FollowAuthoredPath => throw new InvalidDataException("A recorded Botwoon walk names no path to rebuild it from."),
+                    var undefined => throw new InvalidDataException($"Undefined recorded Botwoon movement {undefined}."),
+                };
             if (words.F != 0)
                 botwoonRecord.HeadAction = BotwoonNativeWords.HeadActions.Decode(words.F, "recorded BotwoonHeadAction");
         }

@@ -106,13 +106,14 @@ internal static class BotwoonNavigationDefinitionsVerification
             ushort pointer = ReadRomWord(rom, 0xb3e150 + offset);
             short direction = (short)ReadRomWord(rom, 0xb3e152 + offset);
             BotwoonPathPosition start = BotwoonPathCodec.Locate(cartridge, direction < 0 ? pointer - BackwardRewindBytes : pointer);
-            AssertEqual(start.Path, TablePosition(state.Path ?? throw new InvalidOperationException("The walk sets a path.")), "Botwoon production path");
-            AssertEqual(start.Step, state.PathStep, "Botwoon production first step and backward rewind");
-            AssertEqual(direction < 0 ? BotwoonPathTraversal.Backward : BotwoonPathTraversal.Forward, state.PathTraversal,
+            AssertTrue(state.Movement is BotwoonMovement.AlongPath, "Botwoon walk handoff, which starts unfinished");
+            var walking = (BotwoonMovement.AlongPath)state.Movement;
+            AssertEqual(start.Path, TablePosition(walking.Path), "Botwoon production path");
+            AssertEqual(start.Step, walking.Step, "Botwoon production first step and backward rewind");
+            AssertEqual(direction < 0 ? BotwoonPathTraversal.Backward : BotwoonPathTraversal.Forward, walking.Traversal,
                 "Botwoon production path direction");
             AssertEqual(ReadRomWord(rom, 0xb3e154 + offset), RecordBytes * Array.FindIndex(BotwoonNavigationDefinitions.Holes, hole => hole.Hole == state.TargetHole),
                 "Botwoon production destination");
-            AssertEqual(BotwoonMovement.FollowAuthoredPath, state.Movement, "Botwoon walk handoff, which starts unfinished");
         }
         Console.WriteLine("Botwoon path descriptors: all 32 path, first-step, direction and destination fields and production installations match native records.");
     }
@@ -251,13 +252,8 @@ internal static class BotwoonNavigationDefinitionsVerification
                 {
                     movementHead.Position = movementHead.Position.WithWhole(new(0x8000, 0x8000));
                     // He starts at full speed: two path steps an update.
-                    var state = new BotwoonEnemyState(body: [])
-                    {
-                        Movement = BotwoonMovement.FollowAuthoredPath,
-                        Path = definition,
-                        PathStep = step,
-                        PathTraversal = traversal,
-                    };
+                    var walking = new BotwoonMovement.AlongPath(new BotwoonPathWalk(definition, traversal, step, definition.To));
+                    var state = new BotwoonEnemyState(body: []) { Movement = walking };
                     AssertEqual(2, state.SpeedStage.MovementSpeed, "Botwoon walks two path steps an update at full speed");
                     runMovement(movementHead, state);
 
@@ -268,7 +264,7 @@ internal static class BotwoonNavigationDefinitionsVerification
                     AssertEqual(terminates || nextTerminates, state.Movement == BotwoonMovement.Finished, $"{context} completion");
                     if (terminates || nextTerminates)
                     {
-                        AssertEqual(terminates ? step : step + sign, state.PathStep, $"{context} terminating step");
+                        AssertEqual(terminates ? step : step + sign, walking.Step, $"{context} terminating step");
                         AssertEqual((ushort)0x8000, movementHead.Position.X.Whole, $"{context} terminating X");
                         AssertEqual((ushort)0x8000, movementHead.Position.Y.Whole, $"{context} terminating Y");
                         continue;
@@ -277,7 +273,7 @@ internal static class BotwoonNavigationDefinitionsVerification
                     Offset16<RoomPixels> next = BotwoonPathCodec.Sample(cartridge, nextAddress);
                     AssertEqual(unchecked((ushort)(0x8000 + sign * (expected.X + next.X))), movementHead.Position.X.Whole, $"{context} X");
                     AssertEqual(unchecked((ushort)(0x8000 + sign * (expected.Y + next.Y))), movementHead.Position.Y.Whole, $"{context} Y");
-                    AssertEqual(step + 2 * sign, state.PathStep, $"{context} next step");
+                    AssertEqual(step + 2 * sign, walking.Step, $"{context} next step");
                 }
                 movementStepCount++;
             }

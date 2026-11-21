@@ -29,7 +29,14 @@ public sealed class PhantoonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IB
         EyePart = new PhantoonPart(this, eye, PhantoonPartSegment.EyeClosed);
         TentaclesPart = new PhantoonPart(this, tentacles, PhantoonPartSegment.Tentacles);
         MouthPart = new PhantoonPart(this, mouth, PhantoonPartSegment.MouthInitial);
+        BodyParts = new(SuperMetroid.Core.Enemies.BossBodies.BossBodyOwner.Phantoon, this);
     }
+
+    /// <summary>
+    /// The parts his body layer shows (#1466, #1515), which his setup attaches to the room's display and his parts' frames
+    /// show on: nothing at first.
+    /// </summary>
+    internal SuperMetroid.Core.Enemies.BossBodies.BossBodyParts BodyParts { get; }
 
     /// <summary>Phantoon's body's and his room's colours (#1512).</summary>
     internal PhantoonColours Colours { get; } = new();

@@ -1204,7 +1204,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     enemies.StepStandaloneFrame(enemies.StandaloneFrame(openRoom) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
     AssertTrue(!enemies.LastEnemyFrame.Has<CeresEscapeStarted>(),
         "Ceres escape does not skip the English warning after its 128-frame title hold");
-    AssertEqual(CeresSelfDestructPhase.TypingWarning, enemies.CeresEscape.Warning.Phase,
+    AssertEqual(nameof(CeresSelfDestructPhase.TypingWarning), enemies.CeresEscape.Warning.Phase.ToString(),
         "Ceres English warning enters the typewriter phase");
 
     int typewriterFrames = 0;

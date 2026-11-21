@@ -110,18 +110,19 @@ internal sealed class RoomEffectActors
                 CameraPastRoomEdge.FromCamera(spawned.Position.Whole.X, camera.X),
                 CameraPastRoomEdge.FromCamera(spawned.Position.Whole.Y, camera.Y));
 
-            // A hit burst shows Samus's burst sprites, every other object a frame of its enemy sheet (#1817).
-            if (spawned.Frame.HitBurst is { } burst)
+            // A hit burst shows Samus's burst sprites, every other object a frame of its enemy sheet (#1817); an object whose
+            // animation has shown no frame yet shows neither.
+            switch (spawned.Frame)
             {
-                hitBursts.Draw(sprites, burst, screen);
-                continue;
+                case { HitBurst: { } burst }:
+                    hitBursts.Draw(sprites, burst, screen);
+                    break;
+                // The empty frame, between a Metroid's crackles and its shell's flashes, draws nothing.
+                case { EnemyFrame: { } shown } when !CommonEnemyEmptyFrames.DrawsNothing(shown):
+                    _presentation.PublishSpawnedFrame(sprites, new SpriteSource(SpriteSourceKind.RoomEffectActor),
+                        EnemySheetDefinitions.EffectActorFrameName(shown), screen, spawned.Graphics);
+                    break;
             }
-            EnemyFrameId shown = spawned.Frame.RequireEnemyFrame();
-            // The empty frame, between a Metroid's crackles and its shell's flashes, draws nothing.
-            if (CommonEnemyEmptyFrames.DrawsNothing(shown))
-                continue;
-            _presentation.PublishSpawnedFrame(sprites, new SpriteSource(SpriteSourceKind.RoomEffectActor),
-                EnemySheetDefinitions.EffectActorFrameName(shown), screen, spawned.Graphics);
         }
     }
 }

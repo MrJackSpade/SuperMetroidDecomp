@@ -69,7 +69,7 @@ internal sealed class DraygonParts
         // Draygon shows his body, eye and dying arms' frames on his body (#1354, #1466, #1515, #1540), nothing at first; the
         // room keeps showing it, hidden, once his body is deleted (#2194). The room's display reads only what he attaches;
         // his parts each hold the encounter from their own setup.
-        _presentation.AttachBossBody(new BossBodyParts(BossBodyOwner.Draygon, draygon));
+        _presentation.AttachBossBody(draygon.BodyParts);
         _presentation.BossShadings.Show(BossShadingLayer.Draygon, draygon.Colours);
         // His setup shows only his opening's colours (#2547). His health band is the one his health starts in (#2304), so a
         // hurt the grapple's shock starts before any hit shows it, but his body layer shows it only from his first hurt

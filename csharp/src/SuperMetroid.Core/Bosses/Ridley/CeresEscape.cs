@@ -282,47 +282,49 @@ internal sealed class CeresEscape : IGameplayShadingSource
         if (Warning.PhaseWait.StepKeepsRunning())
             return false;
 
-        Warning.Typewriter = new(_bossArtwork.EscapeTypewriterPresentation.Get(EscapeTypewriterMessageId.Ceres));
+        var typewriter = new EscapeTypewriterState(_bossArtwork.EscapeTypewriterPresentation.Get(EscapeTypewriterMessageId.Ceres));
+        Warning.Typewriter = typewriter;
 
         // English goes straight to typing the warning; Japanese first runs the subtitle phase.
         if (_roomStatus.JapaneseText)
         {
-            Warning.Phase = CeresSelfDestructPhase.JapaneseSubtitle;
+            Warning.Phase = CeresSelfDestructPhase.JapaneseSubtitle(typewriter);
             Warning.PhaseWait.LastFor(CeresSelfDestructWarningDefinitions.JapaneseSubtitleWaitUpdates);
         }
         else
-            Warning.Phase = CeresSelfDestructPhase.TypingWarning;
+            Warning.Phase = CeresSelfDestructPhase.TypingWarning(typewriter);
         return false;
     }
 
     /// <summary>Runs one update of the warning's <see cref="CeresSelfDestructPhase.JapaneseSubtitle"/> phase.</summary>
     /// <returns>Whether the warning goes on to the phase it entered in this same update.</returns>
-    internal bool RunJapaneseSubtitle(int ridleyFrameCounter)
+    internal bool RunJapaneseSubtitle(int ridleyFrameCounter, EscapeTypewriterState typewriter)
     {
         StepAlarm(ridleyFrameCounter);
-        if (Warning.PhaseWait.StepRunsOut())
+        bool subtitleShown = Warning.PhaseWait.StepRunsOut();
+        if (subtitleShown)
         {
-            Warning.Phase = CeresSelfDestructPhase.TypingWarning;
+            Warning.Phase = CeresSelfDestructPhase.TypingWarning(typewriter);
             foreach (CeresEscapeWarningPicture line in CeresEscapeWarningPictures.JapaneseSubtitle)
                 ShowWarningPicture(line);
         }
         // The typewriter finishing moves the warning one phase on from wherever the wait left it: the
         // subtitle phase to typing, or typing to finishing.
-        if (StepTypewriter())
+        if (StepTypewriter(typewriter))
         {
-            Warning.Phase = Warning.Phase == CeresSelfDestructPhase.JapaneseSubtitle
-                ? CeresSelfDestructPhase.TypingWarning
-                : CeresSelfDestructPhase.Finishing;
+            Warning.Phase = subtitleShown
+                ? CeresSelfDestructPhase.Finishing
+                : CeresSelfDestructPhase.TypingWarning(typewriter);
         }
         return false;
     }
 
     /// <summary>Runs one update of the warning's <see cref="CeresSelfDestructPhase.TypingWarning"/> phase.</summary>
     /// <returns>Whether the warning goes on to the phase it entered in this same update.</returns>
-    internal bool RunTypingWarning(int ridleyFrameCounter)
+    internal bool RunTypingWarning(int ridleyFrameCounter, EscapeTypewriterState typewriter)
     {
         StepAlarm(ridleyFrameCounter);
-        if (StepTypewriter())
+        if (StepTypewriter(typewriter))
             Warning.Phase = CeresSelfDestructPhase.Finishing;
         return false;
     }
@@ -349,11 +351,9 @@ internal sealed class CeresEscape : IGameplayShadingSource
         Warning.Show(new WrittenPicture(page.Picture, page.Corner));
 
     /// <summary>Types the next step of the escape text.</summary>
-    private bool StepTypewriter()
+    private bool StepTypewriter(EscapeTypewriterState typewriter)
     {
-        var installed = Warning.Typewriter ?? throw new InvalidDataException(
-            "Ceres warning text requires installed typewriter artwork.");
-        EscapeTypewriterStep typing = installed.Step();
+        EscapeTypewriterStep typing = typewriter.Step();
         // The Ceres message types as part of the warning (#1348, #1555).
         if (typing is EscapeTypewriterStep.Typed typed)
             Warning.Show(new WrittenPicture(typed.Glyph.Picture, typed.Glyph.Corner));

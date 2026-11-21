@@ -79,7 +79,7 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
             "the Zebetite pulse steps again once the door fade completes");
         counterBeforeGate = Counter(selected);
         // The place now holds a linked half, which the pulse skips.
-        selected.Places.InUpdateOrder[0].SetSpeciesState(new ZebetiteEnemyState(Zebetites.SpawnPopulation(ZebetiteHalf.Linked, destroyed: 0)));
+        selected.Places.InUpdateOrder[0].SetSpeciesState(new ZebetiteEnemyState(Zebetites.SpawnPopulation(ZebetiteHalf.Linked, destroyed: 0), selected.Places.InUpdateOrder[0].Frame));
         Cycle(selected);
         AssertEqual(counterBeforeGate, Counter(selected),
             "Zebetite secondary-half gate remains an engine-owned condition");
@@ -98,7 +98,7 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
                 RoomEnemyCompatibilityFixtures.ForNewRoom(fadeStepCount, new UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork.Bosses);
             RoomEnemyPlace primaryPlace = enemies.Places.InUpdateOrder[0];
             primaryPlace.BindPlaced(EnemyDefinitionId.Zebetite, new ZebetiteSpawnSettings(ZebetiteHalf.Primary));
-            var primary = new ZebetiteEnemyState(primaryPlace.HeldOccupant().Spawn);
+            var primary = new ZebetiteEnemyState(primaryPlace.HeldOccupant().Spawn, primaryPlace.Frame);
             primaryPlace.SetSpeciesState(primary);
             return enemies;
         }

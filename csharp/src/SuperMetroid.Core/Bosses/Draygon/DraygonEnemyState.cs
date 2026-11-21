@@ -32,6 +32,7 @@ public sealed class DraygonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBo
         TailPart = new DraygonPart(this, tail, DraygonSegment.TailFacingLeftInitialFakeWhip);
         ArmsPart = new DraygonPart(this, arms, DraygonSegment.ArmsFacingLeftIdle);
         HealthBand = DraygonHealthBand.Of(body.Place.Health);
+        BodyParts = new(SuperMetroid.Core.Enemies.BossBodies.BossBodyOwner.Draygon, this);
     }
 
     /// <summary>Draygon's body layer's and sprites' colours (#1512).</summary>

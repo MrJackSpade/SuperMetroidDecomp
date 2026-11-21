@@ -60,34 +60,19 @@ internal sealed class EnemyPresentation
     internal void BindBackgrounds(RoomAppearance appearance) => Appearance = Ensure.NotNull(appearance);
 
     /// <summary>
-    /// The body the room's boss shows its parts' frames on (#1353, #1466, #1515), once a boss that shows one attaches it;
-    /// Kraid publishes his own.
-    /// </summary>
-    internal BossBodyParts? BossBody { get; private set; }
-
-    /// <summary>A boss's initialization: attaches the body, no part showing anything yet, that its parts show their frames on.</summary>
-    internal void AttachBossBody(BossBodyParts body)
-    {
-        BossBody = Ensure.NotNull(body);
-        BossBodyDisplay = body;
-    }
-
-    /// <summary>
     /// The boss body the room shows (#2194), which the frame-end display latch reads: the one the room's boss attached as
     /// it set up, kept for the room's lifetime; null in a room no boss has shown a body in.
     /// </summary>
     internal IBossBodyDisplay? BossBodyDisplay { get; private set; }
 
-    /// <summary>A boss that draws its own body, as Kraid does, attaches it as it sets up (#2194).</summary>
+    /// <summary>
+    /// A boss's initialization attaches its body (#2194): the parts its parts show their frames on (#1353, #1466, #1515), no
+    /// part showing anything yet, or the body it draws itself, as Kraid does.
+    /// </summary>
     internal void AttachBossBody(IBossBodyDisplay display) => BossBodyDisplay = Ensure.NotNull(display);
 
     /// <summary>The colour effects the room's bosses show on gameplay's pictures, attached as each sets up (#2194).</summary>
     internal BossShadings BossShadings { get; } = new();
-
-    /// <summary>The attached body.</summary>
-    /// <exception cref="InvalidOperationException">No boss has attached one.</exception>
-    internal BossBodyParts RequireBossBody() =>
-        BossBody ?? throw new InvalidOperationException("No boss has attached its body.");
 
     /// <summary>The look each of the room's encounters shows, which the frames its looks change show their pictures of (#1538).</summary>
     private EncounterLooks Looks { get; }

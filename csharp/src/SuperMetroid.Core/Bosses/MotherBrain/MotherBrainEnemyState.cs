@@ -35,7 +35,14 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
         Walk = Ensure.NotNull(walk);
         Bursts = Ensure.NotNull(bursts);
         Brain = Ensure.NotNull(brain);
+        BodyParts = SuperMetroid.Core.Enemies.BossBodies.BossBodyParts.Hidden(SuperMetroid.Core.Enemies.BossBodies.BossBodyOwner.MotherBrain, this);
     }
+
+    /// <summary>
+    /// The parts her body layer shows (#1466, #1515), which her setup attaches to the room's display and her body's frames
+    /// show on; hidden until her phase-two transition reveals it.
+    /// </summary>
+    internal SuperMetroid.Core.Enemies.BossBodies.BossBodyParts BodyParts { get; }
 
     /// <summary>
     /// The enemy holding her body's place (#2558), which owns the encounter: its definition's damage is her contact damage,

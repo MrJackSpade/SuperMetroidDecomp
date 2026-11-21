@@ -272,7 +272,7 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
     /// <summary>The enemy population of the Pre Bowling room.</summary>
     internal static PlacedRoomEnemyPopulationDefinition PreBowling { get; } = new("PreBowling",
     [
-        new(EnemyDefinitionId.OrangeZoomer, EnemyPlacing.At(new(128, 72)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.OnFloor, BlockSide: CrawlerSurfaceOrientation.OnRightWall, CrawlSpeed: SignedEightEight.FromPixelFraction(1, 2))),
+        new(EnemyDefinitionId.OrangeZoomer, EnemyPlacing.At(new(128, 72)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new OrangeZoomerSpawnSettings(Orientation: CrawlerSurfaceOrientation.OnFloor, BlockSide: CrawlerSurfaceOrientation.OnRightWall, CrawlSpeed: SignedEightEight.FromPixelFraction(1, 2))),
     ], 1);
 
     /// <summary>The enemy population of the Climb room once Zebes is awake.</summary>

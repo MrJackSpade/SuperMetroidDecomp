@@ -34,4 +34,18 @@ public sealed record LayeredPicture(SpriteSheetFrame? Behind, SpriteSheetFrame? 
             return Behind?.Size ?? InFront?.Size;
         }
     }
+
+    /// <summary>Whether the picture shows something, and then its parts' width and height in <paramref name="size"/>.</summary>
+    /// <param name="size">The parts' width and height, when the picture shows something.</param>
+    /// <exception cref="InvalidDataException">The two parts differ in size.</exception>
+    public bool ShowsSomething(out Extent16<ImagePixels> size)
+    {
+        if (Size is { } shown)
+        {
+            size = shown;
+            return true;
+        }
+        size = default;
+        return false;
+    }
 }

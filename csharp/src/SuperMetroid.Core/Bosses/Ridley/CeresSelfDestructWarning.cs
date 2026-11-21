@@ -17,7 +17,9 @@ public sealed class CeresSelfDestructWarning
     /// title, the title's hold, then, for Japanese text, the subtitle's wait. The typewriter keeps its own schedule.
     /// </summary>
     public BossCountdown PhaseWait { get; } = new();
-    /// <summary>Gets the installed warning typewriter state, created after the initial delay; null before then.</summary>
+    /// <summary>
+    /// The typewriter the title's hold started, which the phases that type run: none before then, when nothing types.
+    /// </summary>
     public EscapeTypewriterState? Typewriter { get; internal set; }
     /// <summary>
     /// The warning's cycling alarm (#2316, #2409), which shows nothing before its first step; each step, at the alarm's

@@ -48,6 +48,9 @@ internal abstract class DraygonEntity(DraygonBehavior species, RoomEnemyOccupant
         DraygonCombat.FindDraygonHitboxReaction(Place, probe);
 
     /// <inheritdoc/>
+    public BossBodyParts BodyParts => Encounter.BodyParts;
+
+    /// <inheritdoc/>
     public BossBodyFrame? FindBodyFrame(EnemyFrameId selected) =>
         DraygonBodyLayerFrameDefinitions.Frames.Contains(selected) ? bossArtwork.Body(BossBodyOwner.Draygon).Frame(selected) : null;
 }

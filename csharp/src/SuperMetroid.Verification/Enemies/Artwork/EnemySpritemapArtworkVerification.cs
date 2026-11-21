@@ -156,7 +156,7 @@ internal static class EnemySpritemapArtworkVerification
             "the room sprite-object pictures are exactly the spritemaps the native lists show");
         foreach (RoomEffectActorPicture picture in RoomEffectActorVisualDefinitionsConstants.Pictures)
         {
-            bool installed = picture.HitBurst is null && !CommonEnemyEmptyFrames.DrawsNothing(picture.RequireEnemyFrame());
+            bool installed = picture.EnemyFrame is { } enemyFrame && !CommonEnemyEmptyFrames.DrawsNothing(enemyFrame);
             AssertEqual(installed, installedSpritePointers.Contains(RoomEffectActorVisualDefinitionsConstants.Spritemap(picture)),
                 $"room sprite-object picture {picture} has installed enemy art unless it is Samus's hit burst or the empty frame");
         }

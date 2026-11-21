@@ -115,7 +115,7 @@ internal sealed class CrocomireBridgeCollapse
     /// sinks (#1515, #2031): this is what makes his body disappear into the acid as it slides down past the view's bottom.
     /// </summary>
     private void HideCrocomireSunkenBody(CrocomireEnemyState state, Position16<RoomPixels> camera) =>
-        _bodyLayer.HideCrocomireBodyBelow(state, camera.Y + CrocomireBridgeCollapseDefinitions.SinkHiddenRowDepth);
+        CrocomireBodyLayer.HideCrocomireBodyBelow(state, camera.Y + CrocomireBridgeCollapseDefinitions.SinkHiddenRowDepth);
 
     /// <summary>
     /// Runs his body for one update of a sink into the acid as <paramref name="body"/> (#2193): the acid smokes about him

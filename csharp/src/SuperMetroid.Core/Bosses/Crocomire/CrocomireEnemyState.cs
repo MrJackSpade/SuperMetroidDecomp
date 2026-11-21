@@ -27,7 +27,14 @@ public sealed class CrocomireEnemyState : SuperMetroid.Core.Enemies.BossBodies.I
         BodyOccupant = bodyOccupant;
         Body = body;
         Tongue = Ensure.NotNull(tongue);
+        BodyParts = new(SuperMetroid.Core.Enemies.BossBodies.BossBodyOwner.Crocomire, this);
     }
+
+    /// <summary>
+    /// The parts his body layer shows (#1466, #1515), which his setup attaches to the room's display and his parts' frames
+    /// show on: nothing at first.
+    /// </summary>
+    internal SuperMetroid.Core.Enemies.BossBodies.BossBodyParts BodyParts { get; }
 
     /// <summary>The enemy holding his body's place, whose sheet the objects he spawns draw from (#2558).</summary>
     public RoomEnemyOccupant BodyOccupant { get; }
@@ -77,10 +84,8 @@ public sealed class CrocomireEnemyState : SuperMetroid.Core.Enemies.BossBodies.I
     /// </summary>
     internal ListStep<CrocomireDeathStage> DeathStage { get; private set; } = ListStep<CrocomireDeathStage>.FirstOf(CrocomireDeathStageDefinitions.Stages);
 
-    /// <summary>Hands his death over to the stage after the one he is at.</summary>
-    /// <exception cref="InvalidOperationException">He is at his inert corpse, which hands over to no stage.</exception>
-    internal void AdvanceDeathStage() =>
-        DeathStage = DeathStage.Following ?? throw new InvalidOperationException($"Crocomire's death stage {DeathStage} hands over to no other stage.");
+    /// <summary>Hands his death over to the stage after the one he is at; his course rests at his inert corpse.</summary>
+    internal void AdvanceDeathStage() => DeathStage = DeathStage.FollowingToRest;
 
     /// <summary>His course stands at his inert corpse from now on, as an already-defeated room's setup leaves him.</summary>
     internal void RestAsCorpse() =>

@@ -1022,6 +1022,21 @@ share is declared once, as a property of each member's definition or a named fam
 reads it. A switch that maps each member to its own value is a lookup, and a test of one member or of a named constant is
 not a listing.
 
+SME6488 (#2574) gives each thing one identity named for what it is. In Core and the import pipeline no enum mirrors
+another member for member: no switch expression or dictionary initializer maps every member of one enum to the member of
+the same name of another enum with exactly the same members, each to its own. The users name the one identity, or the
+definition carries the member it stands for (a palette effect's `ColourEffectId`, a growth resume's `KraidHeadFrame`, a
+shell piece's picture). A narrower enum embedded into a wider one (`HorizontalDirection.Left =>
+SamusCollisionDirection.Left`, the two horizontal directions among the four collision directions), or a wider one
+collapsed onto a narrower one, converts between two domains and is not a mirror. A map onto other names (a pose to the
+picture it shows) is a definition carrying its property, and enums sharing member names that nothing maps onto each other
+are separate identities. No member is named by joining the names of two or more members of another type, each
+of two words or more (`EastAqueductQuicksandWestAqueductQuicksand`): a thing several users share is named for what it is
+(`QuicksandShaftsFallingSand`, `SaveRoomDoorOnLeft`), generated catalogs included. A frame is named for what its picture
+shows, never for the hitbox or depth its record carried (`PhantoonBody`, whose hit area is the fight's
+`PhantoonBodyHitArea`), and data is never reached through another thing's identity (a shot flame drops from
+`ShotFlameDropChances`, not through his eye's enemy definition).
+
 SME6472 (#2575) keeps definition data in domain catalogs. Outside a catalog file, Core builds no value of a Core type
 wholly from constants with a nonzero numeric literal among them (`new Offset16<RoomPixels>(1, 0)`,
 `SignedSixteenSixteen.FromWholePixels(1)`, `UpdateCountdown.Lasting(1)`) and passes no nonzero numeric literal by name

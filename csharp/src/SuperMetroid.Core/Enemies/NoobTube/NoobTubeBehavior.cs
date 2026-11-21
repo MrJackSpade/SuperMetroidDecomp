@@ -59,7 +59,7 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
         Position16<RoomPixels> place = request.RoomObjectBlock.ToRoomPixels() + piece.Offset;
         projectile.StartAnimation(new NoobTubeProjectileAnimation(TubePieces, piece.Start switch
         {
-            NoobTubePieceStart.AtSegment start => NoobTubeProjectileAnimations.StartingWith(start.Segment),
+            NoobTubePieceStart.AtSegment start => NoobTubeProjectileAnimations.StartingAt[start.Segment],
             NoobTubePieceStart.ShardFlight flight => NoobTubeProjectileAnimations.ShardAnimations[flight.Shard],
             _ => throw new InvalidOperationException($"A n00b tube piece starts by {piece.Start}, which no case answers."),
         }));

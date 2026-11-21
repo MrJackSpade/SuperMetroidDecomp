@@ -122,10 +122,10 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
     /// <summary>The enemy population of the Noob Bridge room.</summary>
     internal static PlacedRoomEnemyPopulationDefinition NoobBridge { get; } = new("NoobBridge",
     [
-        new(EnemyDefinitionId.Cacatac, EnemyPlacing.At(new(192, 179)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Left, Start: CacatacStart.Patrolling, Mounting: CacatacMounting.Floor, TravelDistance: 64, Speed: SignedSixteenSixteen.FromPixelFraction(3, 16))),
-        new(EnemyDefinitionId.Cacatac, EnemyPlacing.At(new(432, 179)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Left, Start: CacatacStart.Patrolling, Mounting: CacatacMounting.Floor, TravelDistance: 64, Speed: SignedSixteenSixteen.FromPixelFraction(3, 16))),
-        new(EnemyDefinitionId.Cacatac, EnemyPlacing.At(new(1392, 179)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Right, Start: CacatacStart.Patrolling, Mounting: CacatacMounting.Floor, TravelDistance: 64, Speed: SignedSixteenSixteen.FromPixelFraction(3, 16))),
-        new(EnemyDefinitionId.Cacatac, EnemyPlacing.At(new(976, 179)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Left, Start: CacatacStart.Patrolling, Mounting: CacatacMounting.Floor, TravelDistance: 64, Speed: SignedSixteenSixteen.FromPixelFraction(3, 16))),
+        new(EnemyDefinitionId.Cacatac, EnemyPlacing.At(new(192, 179)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Left, Start: CacatacAction.Patrolling, Mounting: CacatacMounting.Floor, TravelDistance: 64, Speed: SignedSixteenSixteen.FromPixelFraction(3, 16))),
+        new(EnemyDefinitionId.Cacatac, EnemyPlacing.At(new(432, 179)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Left, Start: CacatacAction.Patrolling, Mounting: CacatacMounting.Floor, TravelDistance: 64, Speed: SignedSixteenSixteen.FromPixelFraction(3, 16))),
+        new(EnemyDefinitionId.Cacatac, EnemyPlacing.At(new(1392, 179)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Right, Start: CacatacAction.Patrolling, Mounting: CacatacMounting.Floor, TravelDistance: 64, Speed: SignedSixteenSixteen.FromPixelFraction(3, 16))),
+        new(EnemyDefinitionId.Cacatac, EnemyPlacing.At(new(976, 179)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Left, Start: CacatacAction.Patrolling, Mounting: CacatacMounting.Floor, TravelDistance: 64, Speed: SignedSixteenSixteen.FromPixelFraction(3, 16))),
         new(EnemyDefinitionId.Zeela, EnemyPlacing.At(new(584, 118)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.OnCeiling, BlockSide: CrawlerSurfaceOrientation.OnRightWall, CrawlSpeed: SignedEightEight.FromPixelFraction(1, 4))),
         new(EnemyDefinitionId.Zeela, EnemyPlacing.At(new(680, 118)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.OnCeiling, BlockSide: CrawlerSurfaceOrientation.OnRightWall, CrawlSpeed: SignedEightEight.FromPixelFraction(1, 4))),
         new(EnemyDefinitionId.Zeela, EnemyPlacing.At(new(768, 118)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.OnCeiling, BlockSide: CrawlerSurfaceOrientation.OnRightWall, CrawlSpeed: SignedEightEight.FromPixelFraction(1, 4))),
@@ -135,7 +135,7 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
     /// <summary>The enemy population of the Morph Ball room once Zebes is awake.</summary>
     internal static PlacedRoomEnemyPopulationDefinition MorphBallWhenZebesAwake { get; } = new("MorphBallWhenZebesAwake",
     [
-        new(EnemyDefinitionId.Elevator, EnemyPlacing.At(new(1408, 706)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Up, ArrivalY: 24)),
+        new(EnemyDefinitionId.Elevator, EnemyPlacing.At(new(1408, 706)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: VerticalDirection.Up, ArrivalY: 24)),
         new(EnemyDefinitionId.SidehopperLarge, EnemyPlacing.At(new(152, 678)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Floor)),
         new(EnemyDefinitionId.SidehopperLarge, EnemyPlacing.At(new(380, 678)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Floor)),
         new(EnemyDefinitionId.SidehopperLarge, EnemyPlacing.At(new(263, 620)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Ceiling)),
@@ -153,7 +153,7 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
     [
         new(EnemyDefinitionId.MorphBallEye, EnemyPlacing.At(new(1032, 584)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new MorphBallEyeMountSpawnSettings(Side: MorphBallEyeMountSide.Left)),
         new(EnemyDefinitionId.MorphBallEye, EnemyPlacing.At(new(1032, 584)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new MorphBallEyeBodySpawnSettings(Facing: HorizontalDirection.Left)),
-        new(EnemyDefinitionId.Elevator, EnemyPlacing.At(new(1408, 706)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Up, ArrivalY: 24)),
+        new(EnemyDefinitionId.Elevator, EnemyPlacing.At(new(1408, 706)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: VerticalDirection.Up, ArrivalY: 24)),
         new(EnemyDefinitionId.FaceBlock, EnemyPlacing.At(new(1352, 576)), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 64, Facing: HorizontalDirection.Right)),
         new(EnemyDefinitionId.FaceBlock, EnemyPlacing.At(new(1464, 576)), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 64, Facing: HorizontalDirection.Left)),
         new(EnemyDefinitionId.FaceBlock, EnemyPlacing.At(new(1160, 696)), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 64, Facing: HorizontalDirection.Left)),
@@ -221,7 +221,7 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
     [
         new(EnemyDefinitionId.YappingMaw, EnemyPlacing.At(new(400, 456)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new YappingMawSpawnSettings(ActivationDistance: 48, Attack: VerticalDirection.Up)),
         new(EnemyDefinitionId.YappingMaw, EnemyPlacing.At(new(128, 456)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new YappingMawSpawnSettings(ActivationDistance: 48, Attack: VerticalDirection.Up)),
-        new(EnemyDefinitionId.Cacatac, EnemyPlacing.At(new(264, 403)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Left, Start: CacatacStart.Patrolling, Mounting: CacatacMounting.Floor, TravelDistance: 16, Speed: SignedSixteenSixteen.FromPixelFraction(1, 8))),
+        new(EnemyDefinitionId.Cacatac, EnemyPlacing.At(new(264, 403)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Left, Start: CacatacAction.Patrolling, Mounting: CacatacMounting.Floor, TravelDistance: 16, Speed: SignedSixteenSixteen.FromPixelFraction(1, 8))),
     ], 1);
 
     /// <summary>The enemy population of the Green Brinstar Save room.</summary>
@@ -321,7 +321,7 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
     /// <summary>The enemy population of the Warehouse Entrance room.</summary>
     internal static PlacedRoomEnemyPopulationDefinition WarehouseEntrance { get; } = new("WarehouseEntrance",
     [
-        new(EnemyDefinitionId.Elevator, EnemyPlacing.At(new(128, 160)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Down, ArrivalY: 320)),
+        new(EnemyDefinitionId.Elevator, EnemyPlacing.At(new(128, 160)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: VerticalDirection.Down, ArrivalY: 320)),
     ], 0);
 
     /// <summary>The enemy population of the Warehouse Kihunter room.</summary>
@@ -340,7 +340,7 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
     /// <summary>The enemy population of the Green Brinstar Main Shaft room.</summary>
     internal static PlacedRoomEnemyPopulationDefinition GreenBrinstarMainShaft { get; } = new("GreenBrinstarMainShaft",
     [
-        new(EnemyDefinitionId.Elevator, EnemyPlacing.At(new(128, 706)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Up, ArrivalY: 24)),
+        new(EnemyDefinitionId.Elevator, EnemyPlacing.At(new(128, 706)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: VerticalDirection.Up, ArrivalY: 24)),
         new(EnemyDefinitionId.Zeela, EnemyPlacing.At(new(218, 715)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.OnRightWall, BlockSide: CrawlerSurfaceOrientation.OnFloor, CrawlSpeed: SignedEightEight.FromPixelFraction(1, 2))),
         new(EnemyDefinitionId.Zeela, EnemyPlacing.At(new(112, 920)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.OnFloor, BlockSide: CrawlerSurfaceOrientation.OnRightWall, CrawlSpeed: SignedEightEight.FromPixelFraction(1, 2))),
         new(EnemyDefinitionId.JetRipper, EnemyPlacing.At(new(108, 1014)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new RipperSpawnSettings(Speed: SignedSixteenSixteen.FromPixelFraction(3, 2), Direction: HorizontalDirection.Right)),
@@ -509,12 +509,12 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
     /// <summary>The enemy population of the Caterpillar room.</summary>
     internal static PlacedRoomEnemyPopulationDefinition Caterpillar { get; } = new("Caterpillar",
     [
-        new(EnemyDefinitionId.Elevator, EnemyPlacing.At(new(128, 706)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Up, ArrivalY: 24)),
+        new(EnemyDefinitionId.Elevator, EnemyPlacing.At(new(128, 706)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: VerticalDirection.Up, ArrivalY: 24)),
         new(EnemyDefinitionId.Zero, EnemyPlacing.At(new(95, 1928)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.OnFloor, BlockSide: CrawlerSurfaceOrientation.OnRightWall, CrawlSpeed: SignedEightEight.FromPixelFraction(1, 4))),
         new(EnemyDefinitionId.Zero, EnemyPlacing.At(new(23, 1758)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.OnLeftWall, BlockSide: CrawlerSurfaceOrientation.OnCeiling, CrawlSpeed: SignedEightEight.FromPixelFraction(1, 4))),
         new(EnemyDefinitionId.Zero, EnemyPlacing.At(new(120, 1679)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.OnRightWall, BlockSide: CrawlerSurfaceOrientation.OnCeiling, CrawlSpeed: SignedEightEight.FromPixelFraction(1, 4))),
-        new(EnemyDefinitionId.Cacatac, EnemyPlacing.At(new(113, 1139)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Right, Start: CacatacStart.Patrolling, Mounting: CacatacMounting.Floor, TravelDistance: 16, Speed: SignedSixteenSixteen.FromPixelFraction(3, 16))),
-        new(EnemyDefinitionId.Cacatac, EnemyPlacing.At(new(192, 1283)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Left, Start: CacatacStart.Patrolling, Mounting: CacatacMounting.Floor, TravelDistance: 16, Speed: SignedSixteenSixteen.FromPixelFraction(3, 16))),
+        new(EnemyDefinitionId.Cacatac, EnemyPlacing.At(new(113, 1139)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Right, Start: CacatacAction.Patrolling, Mounting: CacatacMounting.Floor, TravelDistance: 16, Speed: SignedSixteenSixteen.FromPixelFraction(3, 16))),
+        new(EnemyDefinitionId.Cacatac, EnemyPlacing.At(new(192, 1283)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Left, Start: CacatacAction.Patrolling, Mounting: CacatacMounting.Floor, TravelDistance: 16, Speed: SignedSixteenSixteen.FromPixelFraction(3, 16))),
     ], 5);
 
     /// <summary>The enemy population of the Mini Kraid room.</summary>

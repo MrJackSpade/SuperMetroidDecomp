@@ -38,9 +38,6 @@ internal static class FallingSparkAnimations
         [P.HitFloor] = new([Segments.Whole(P.HitFloor)], AnimationEnd.Holds),
     };
 
-    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<FallingSparkSegment> StartingWith(FallingSparkSegment segment) => StartingAt[segment];
-
     /// <summary>
     /// How many times a spark that hits the floor flickers in each of its upright and diagonal shapes, before it flickers
     /// once in its small shape and shows that shape once more as it goes.

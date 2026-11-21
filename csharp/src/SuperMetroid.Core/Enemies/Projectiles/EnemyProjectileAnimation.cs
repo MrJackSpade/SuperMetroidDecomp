@@ -48,6 +48,9 @@ internal abstract class EnemyProjectileAnimation
                 // starts another animation.
                 projectile.StopFrameHold();
                 return;
+            case EnemyProjectileFrameStep.Delete:
+                projectile.Delete();
+                return;
             default:
                 throw new InvalidOperationException($"A projectile animation took an undefined step {step}.");
         }

@@ -322,11 +322,6 @@ public enum EnemyProjectileFrameId
     TorizoExplosionFlareRing,
     /// <summary>A Torizo's explosion: a fading ring of light.</summary>
     TorizoExplosionFlareRingFading,
-    /// <summary>
-    /// A Torizo's death explosion: a small spark, the picture of TorizoExplosionSpark drawn in front of the actors, as
-    /// the rest of the death explosion is.
-    /// </summary>
-    TorizoDeathExplosionSpark,
     /// <summary>A Torizo's explosion: a small fireball.</summary>
     TorizoExplosionFireballSmall,
     /// <summary>A Torizo's explosion: a large fireball.</summary>

@@ -9,23 +9,15 @@ namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 public static class BrinstarBlueSporePaletteFxColorDefinitions
 {
     /// <summary>The ordinary Brinstar entry without a boss-death pre-instruction.</summary>
-    internal static readonly BrinstarBlueSporePaletteFxColorDefinition Standard =
-        new()
-        {
-            Owner = BrinstarBlueSporePaletteOwner.StandardRooms,
-            ColorFrames = PaletteFxColorFrames.Of(ColourEffectId.BrinstarBlueBackgroundSpores, ColorsPerFrame),
-        };
+    internal static readonly BrinstarBlueSporePaletteFxColorDefinition BrinstarBlueBackgroundSpores =
+        new(ColourEffectId.BrinstarBlueBackgroundSpores, ColorsPerFrame);
     /// <summary>The Spore Spawn entry that deletes itself after the area's mini-boss dies.</summary>
-    private static readonly BrinstarBlueSporePaletteFxColorDefinition SporeSpawn =
-        new()
-        {
-            Owner = BrinstarBlueSporePaletteOwner.SporeSpawnRoom,
-            ColorFrames = PaletteFxColorFrames.Of(ColourEffectId.SporeSpawnBlueBackgroundSpores, ColorsPerFrame),
-        };
+    private static readonly BrinstarBlueSporePaletteFxColorDefinition SporeSpawnBlueBackgroundSpores =
+        new(ColourEffectId.SporeSpawnBlueBackgroundSpores, ColorsPerFrame);
 
     /// <summary>Three BGR555 colors are presentation-owned by each timed record.</summary>
     private const int ColorsPerFrame = 3;
 
     /// <summary>The standard-room and Spore Spawn variants in definition order.</summary>
-    public static IReadOnlyList<BrinstarBlueSporePaletteFxColorDefinition> All { get; } = [Standard, SporeSpawn];
+    public static IReadOnlyList<BrinstarBlueSporePaletteFxColorDefinition> All { get; } = [BrinstarBlueBackgroundSpores, SporeSpawnBlueBackgroundSpores];
 }

@@ -1817,7 +1817,6 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.TorizoExplosionFlareRingCored,
         EnemyProjectileFrameId.TorizoExplosionFlareRing,
         EnemyProjectileFrameId.TorizoExplosionFlareRingFading,
-        EnemyProjectileFrameId.TorizoDeathExplosionSpark,
         EnemyProjectileFrameId.TorizoExplosionFireballSmall,
         EnemyProjectileFrameId.TorizoExplosionFireballLarge,
         EnemyProjectileFrameId.TorizoExplosionFlamingRing,
@@ -2653,7 +2652,7 @@ internal static class SpawnedObjectFrameDefinitions
         new Dictionary<EnemyDefinitionId, SpawnedObjects>
         {
             [EnemyDefinitionId.CeresElevatorDoor] = new(CeresElevatorDoorSharedProjectiles, CeresElevatorDoorSharedEffectActors),
-            [EnemyDefinitionId.CeresSteam] = new(CeresSteamSharedProjectiles, CeresSteamSharedEffectActors),
+            [EnemyDefinitionId.SteamVent] = new(CeresSteamSharedProjectiles, CeresSteamSharedEffectActors),
             [EnemyDefinitionId.TourianStatue] = new(TourianEntranceStatueSharedProjectiles, TourianEntranceStatueSharedEffectActors),
             [EnemyDefinitionId.Botwoon] = new(BotwoonSharedProjectiles, BotwoonSharedEffectActors),
             [EnemyDefinitionId.Crocomire] = new(CrocomireSharedProjectiles, CrocomireSharedEffectActors),

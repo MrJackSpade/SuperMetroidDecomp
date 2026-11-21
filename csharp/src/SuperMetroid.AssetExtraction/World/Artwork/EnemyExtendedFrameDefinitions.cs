@@ -35,7 +35,7 @@ internal static class EnemyExtendedFrameDefinitions
     /// <summary>Draygon frames whose editable content consists solely of BG2 tiles.</summary>
     internal const int DraygonBg2FrameCount = 32;
     /// <summary>Phantoon frames whose editable content consists solely of BG2 tiles.</summary>
-    internal const int PhantoonBg2FrameCount = 20;
+    internal const int PhantoonBg2FrameCount = 18;
     /// <summary>Ceres steam OAM frames added after Spore Spawn identities.</summary>
     private const int CeresSteamFrameCount = 28;
     /// <summary>Oum snail OAM frames supplied by Maridia's instruction catalog.</summary>

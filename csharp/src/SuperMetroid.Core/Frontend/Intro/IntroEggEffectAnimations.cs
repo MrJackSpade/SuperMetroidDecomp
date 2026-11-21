@@ -11,16 +11,24 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// </summary>
 internal static class IntroEggEffectAnimations
 {
-    /// <summary>The shell pieces' and slime's animations.</summary>
+    /// <summary>Each shell piece's still picture, by the piece.</summary>
+    internal static CinematicAnimations<IntroEggShellFragment, CinematicSpritePose, NoAnimationCue> ShellPieces { get; } = new(
+        new Dictionary<IntroEggShellFragment, CinematicSpritePose>
+        {
+            [IntroEggShellFragment.UpperLeft] = S.EggShellUpperLeft,
+            [IntroEggShellFragment.UpperRight] = S.EggShellUpperRight,
+            [IntroEggShellFragment.Left] = S.EggShellLeft,
+            [IntroEggShellFragment.Centre] = S.EggShellCentre,
+            [IntroEggShellFragment.Right] = S.EggShellRight,
+            [IntroEggShellFragment.Lower] = S.EggShellLower,
+        },
+        new Dictionary<IntroEggShellFragment, AnimationBeat<CinematicSpritePose, NoAnimationCue>[]>(),
+        _ => new Dictionary<IntroEggShellFragment, Animation<IntroEggShellFragment>>());
+
+    /// <summary>The slime's animations.</summary>
     internal static CinematicAnimations<IntroEggEffectAnimation, CinematicSpritePose, NoAnimationCue> Effects { get; } = new(
         new Dictionary<IntroEggEffectAnimation, CinematicSpritePose>
         {
-            [A.ShellUpperLeft] = S.EggShellUpperLeft,
-            [A.ShellUpperRight] = S.EggShellUpperRight,
-            [A.ShellLeft] = S.EggShellLeft,
-            [A.ShellCentre] = S.EggShellCentre,
-            [A.ShellRight] = S.EggShellRight,
-            [A.ShellLower] = S.EggShellLower,
             [A.SlimeDrop] = S.SlimeMoving,
         },
         new Dictionary<IntroEggEffectAnimation, AnimationBeat<CinematicSpritePose, NoAnimationCue>[]>

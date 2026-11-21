@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 internal sealed class IntroEggParticle
 {
     /// <summary>The cinematic sprite showing the fragment: its position and animation.</summary>
-    private readonly CinematicActor<IntroEggEffectAnimation, CinematicSpritePose, NoAnimationCue> sprite;
+    private readonly CinematicActor<IntroEggShellFragment, CinematicSpritePose, NoAnimationCue> sprite;
 
     /// <summary>Which piece of the shell this is: it selects the fragment's animation and horizontal velocity, and never changes.</summary>
     private readonly IntroEggShellFragment fragment;
@@ -29,10 +29,10 @@ internal sealed class IntroEggParticle
     {
         this.fallPastCurve = Ensure.NotNull(fallPastCurve);
         fall = UpdateCountdown.Lasting(IntroEggMotionDefinitions.ShellFall.Updates + fallPastCurve.Updates);
-        CinematicActorDefinition<IntroEggEffectAnimation> definition = IntroEggParticleActors.Particle(fragment);
+        CinematicActorDefinition<IntroEggShellFragment> definition = IntroEggParticleActors.Particle(fragment);
         this.fragment = fragment;
         sprite = new(IntroEggMotion.FragmentInitialPosition(fragment), IntroShades.Drawn(IntroSpriteColouring.DiscoveryActors),
-            IntroEggEffectAnimations.Effects, definition.Animation);
+            IntroEggEffectAnimations.ShellPieces, definition.Animation);
     }
 
     /// <summary>Applies the fragment's velocity and gravity, redirecting to deletion once it reaches the floor.</summary>

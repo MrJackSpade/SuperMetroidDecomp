@@ -22,19 +22,18 @@ internal static class KraidRockAnimations
             [
                 new Beat.Event(KraidRockCue.StopFlyingFromNextPass),
                 .. FlareBurst.Steady<KraidRockCue>(Burst, 4),
-                new Beat.Event(KraidRockCue.Delete),
             ],
         });
 
     /// <summary>
-    /// The animation that starts at each segment: each plays its segment once and holds its last frame; the burst plays
-    /// its cue, five frames and its deletion.
+    /// The animation that starts at each segment: each pose plays its segment once and holds its last frame; the burst plays
+    /// its cue and five frames and ends, its end deleting the rock.
     /// </summary>
     internal static IReadOnlyDictionary<KraidRockSegment, Animation<KraidRockSegment>> StartingAt { get; } = new Dictionary<KraidRockSegment, Animation<KraidRockSegment>>
     {
         [KraidRockSegment.SharedPose] = new([Segments.Whole(KraidRockSegment.SharedPose)], AnimationEnd.Holds),
         [KraidRockSegment.RisingRightPose] = new([Segments.Whole(KraidRockSegment.RisingRightPose)], AnimationEnd.Holds),
-        [KraidRockSegment.SpitRockShot] = new([Segments.Whole(KraidRockSegment.SpitRockShot)], AnimationEnd.Holds),
+        [KraidRockSegment.SpitRockShot] = new([Segments.Whole(KraidRockSegment.SpitRockShot)], AnimationEnd.Stops),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

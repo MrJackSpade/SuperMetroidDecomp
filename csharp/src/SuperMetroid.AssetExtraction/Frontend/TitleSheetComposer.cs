@@ -58,7 +58,7 @@ internal static class TitleSheetComposer
         }
         foreach (TitleCardDefinition card in TitleCards.All)
         {
-            IReadOnlyList<TitleCardTyping> typings = TitleCards.Typings(card.Card);
+            IReadOnlyList<TitleCardTyping> typings = TitleCards.Typings(card);
             SpriteFramePart[][] letters = TypedTextGlyphs.Of(card.Card.ToString(),
                 [.. typings.Select(typed => characters.Frame(typed, TitleSpriteDefinitions.LetterFrameName(typed)))],
                 Offset16<ScreenPixels>.Of(TitleCardDefinitions.TypedScroll.X, TitleCardDefinitions.TypedScroll.Y));

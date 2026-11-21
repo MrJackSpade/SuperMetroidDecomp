@@ -58,7 +58,7 @@ public static class CrateriaRoomStateDefinitions
 
     /// <summary>The Crateria Save room's state.</summary>
     public static RoomStateSettings CrateriaSave { get; } =
-        new("CrateriaSave", RoomLevelDefinitions.CrateriaSave, RoomGraphicsSet.SaveStation, new RoomMusic(MusicDataSet.LowerCrateria, RoomMusicTrack.Plays(MusicTrack.LowerCrateria)), SuperMetroid.Core.Fx.RoomFxDefinitions.CrateriaSave, RoomEnemyPopulationDefinitions.CrateriaSave, new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.CrateriaSave, null, RoomSetupBehavior.None);
+        new("CrateriaSave", RoomLevelDefinitions.SaveRoomDoorOnRight, RoomGraphicsSet.SaveStation, new RoomMusic(MusicDataSet.LowerCrateria, RoomMusicTrack.Plays(MusicTrack.LowerCrateria)), SuperMetroid.Core.Fx.RoomFxDefinitions.CrateriaSave, RoomEnemyPopulationDefinitions.CrateriaSave, new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.CrateriaSave, null, RoomSetupBehavior.None);
 
 
     /// <summary>The West Ocean room's state.</summary>
@@ -213,7 +213,7 @@ public static class CrateriaRoomStateDefinitions
 
     /// <summary>The Crateria Map room's state.</summary>
     public static RoomStateSettings CrateriaMap { get; } =
-        new("CrateriaMap", RoomLevelDefinitions.CrateriaMap, RoomGraphicsSet.MapStatues, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.NoEffect, RoomEnemyPopulationDefinitions.CrateriaMap, new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.CrateriaMap, null, RoomSetupBehavior.None);
+        new("CrateriaMap", RoomLevelDefinitions.MapStationRoomDoorOnLeft, RoomGraphicsSet.MapStatues, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.NoEffect, RoomEnemyPopulationDefinitions.CrateriaMap, new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.CrateriaMap, null, RoomSetupBehavior.None);
 
 
     /// <summary>The Green Pirates Shaft room's state.</summary>

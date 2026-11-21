@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Animation;
-using F = SuperMetroid.Core.Rooms.Doors.DoorCapFrame;
+using L = SuperMetroid.Core.Rooms.Doors.DoorCapLook;
 using S = SuperMetroid.Core.Rooms.Doors.DoorCapSegment;
 
 namespace SuperMetroid.Core.Rooms.Doors;
@@ -26,20 +26,26 @@ internal static class DoorCapSequenceDefinitions
     /// <summary>How many times a hit short of opening a cap flashes it.</summary>
     internal const int FlashesPerHit = 3;
 
+    /// <summary>The cleared opening every cap leaves once it has opened, which the grey caps draw.</summary>
+    private static readonly DoorCapShown ClearedOpening = new(DoorCapLook.Cleared, DoorCapShownPaint.Grey);
+
+    /// <summary>The blue cap a hit flashes: the blue paint's closed look, whatever the cap's own paint.</summary>
+    private static readonly DoorCapShown HitFlash = new(DoorCapLook.Closed, DoorCapShownPaint.Blue);
+
     /// <summary>Every run's pictures, each for its updates, and the sounds requested as the picture after each draws.</summary>
-    internal static AnimationSegments<DoorCapSegment, DoorCapFrame, SoundEffectId> Segments { get; } = new(
-        new Dictionary<DoorCapSegment, AnimationBeat<DoorCapFrame, SoundEffectId>[]>
+    internal static AnimationSegments<DoorCapSegment, DoorCapShown, SoundEffectId> Segments { get; } = new(
+        new Dictionary<DoorCapSegment, AnimationBeat<DoorCapShown, SoundEffectId>[]>
         {
-            [S.Closed] = [Show(F.Closed, 1)],
-            [S.YellowDownClosed] = [Show(F.Closed, 3)],
-            [S.Flash] = [Show(F.BlueFlash, 3), Show(F.Closed, 4)],
+            [S.Closed] = [Show(L.Closed, 1)],
+            [S.YellowDownClosed] = [Show(L.Closed, 3)],
+            [S.Flash] = [Show(HitFlash, 3), Show(L.Closed, 4)],
             [S.RedHitSounding] = [Sound(RedHitSound)],
             [S.Opening] = Opening(imageUpdates: 6, clearedUpdates: 1),
             [S.YellowLeftOpening] = Opening(imageUpdates: 4, clearedUpdates: 92),
             [S.GreyOpening] = Opening(imageUpdates: 4, clearedUpdates: 1),
             [S.BlueOpening] = Opening(imageUpdates: 6, clearedUpdates: 94),
             [S.Closing] = Closing(clearedUpdates: 2, imagesBeforeSound: 2),
-            [S.BombTorizoHeldOpen] = [Show(F.Clear, 2)],
+            [S.BombTorizoHeldOpen] = [Show(ClearedOpening, 2)],
             [S.BombTorizoClosing] = Closing(clearedUpdates: 40, imagesBeforeSound: 1),
         });
 
@@ -71,25 +77,29 @@ internal static class DoorCapSequenceDefinitions
     /// A cap opening: its sound, then its ajar, half-open and nearly open images for <paramref name="imageUpdates"/> each and
     /// its cleared image for <paramref name="clearedUpdates"/>.
     /// </summary>
-    private static AnimationBeat<DoorCapFrame, SoundEffectId>[] Opening(int imageUpdates, int clearedUpdates) =>
-        [Sound(OpenSound), Show(F.Ajar, imageUpdates), Show(F.HalfOpen, imageUpdates), Show(F.NearlyOpen, imageUpdates), Show(F.Clear, clearedUpdates)];
+    private static AnimationBeat<DoorCapShown, SoundEffectId>[] Opening(int imageUpdates, int clearedUpdates) =>
+        [Sound(OpenSound), Show(L.Ajar, imageUpdates), Show(L.HalfOpen, imageUpdates), Show(L.NearlyOpen, imageUpdates), Show(ClearedOpening, clearedUpdates)];
 
     /// <summary>
     /// A cap closing: its cleared image for <paramref name="clearedUpdates"/>, then its nearly open, half-open and ajar images
     /// for two updates each, its sound after the first <paramref name="imagesBeforeSound"/> of them.
     /// </summary>
-    private static AnimationBeat<DoorCapFrame, SoundEffectId>[] Closing(int clearedUpdates, int imagesBeforeSound) =>
+    private static AnimationBeat<DoorCapShown, SoundEffectId>[] Closing(int clearedUpdates, int imagesBeforeSound) =>
         [.. ClosingImages(clearedUpdates)[..imagesBeforeSound], Sound(CloseSound), .. ClosingImages(clearedUpdates)[imagesBeforeSound..]];
 
     /// <summary>A cap's closing images: its cleared image for <paramref name="clearedUpdates"/>, then its nearly open, half-open and ajar images for two updates each.</summary>
-    private static AnimationBeat<DoorCapFrame, SoundEffectId>[] ClosingImages(int clearedUpdates) =>
-        [Show(F.Clear, clearedUpdates), Show(F.NearlyOpen, 2), Show(F.HalfOpen, 2), Show(F.Ajar, 2)];
+    private static AnimationBeat<DoorCapShown, SoundEffectId>[] ClosingImages(int clearedUpdates) =>
+        [Show(ClearedOpening, clearedUpdates), Show(L.NearlyOpen, 2), Show(L.HalfOpen, 2), Show(L.Ajar, 2)];
 
     /// <summary>Draws <paramref name="frame"/> for <paramref name="updates"/> updates.</summary>
-    private static AnimationBeat<DoorCapFrame, SoundEffectId> Show(DoorCapFrame frame, int updates) =>
-        new AnimationBeat<DoorCapFrame, SoundEffectId>.Frame(frame, updates);
+    private static AnimationBeat<DoorCapShown, SoundEffectId> Show(DoorCapShown shown, int updates) =>
+        new AnimationBeat<DoorCapShown, SoundEffectId>.Frame(shown, updates);
+
+    /// <summary>A beat showing <paramref name="look"/> in the cap's own paint for <paramref name="updates"/> updates.</summary>
+    private static AnimationBeat<DoorCapShown, SoundEffectId> Show(DoorCapLook look, int updates) =>
+        Show(new DoorCapShown(look, DoorCapShownPaint.Own), updates);
 
     /// <summary>Requests <paramref name="sound"/> as the picture after it draws.</summary>
-    private static AnimationBeat<DoorCapFrame, SoundEffectId> Sound(SoundEffectId sound) =>
-        new AnimationBeat<DoorCapFrame, SoundEffectId>.Event(sound);
+    private static AnimationBeat<DoorCapShown, SoundEffectId> Sound(SoundEffectId sound) =>
+        new AnimationBeat<DoorCapShown, SoundEffectId>.Event(sound);
 }

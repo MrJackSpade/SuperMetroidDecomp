@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>One style of Mother Brain's death explosions (<see cref="MotherBrainDeathExplosionStyles"/>).</summary>
@@ -7,4 +8,4 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal sealed record MotherBrainDeathExplosionStyleDefinition(
     int IntervalUpdates,
     Func<MotherBrainDeathExplosionGroup, IReadOnlyList<Offset16<RoomPixels>>> Anchors,
-    Func<int, MotherBrainDeathExplosionAnimation> Animation);
+    Func<int, DustExplosionAnimation> Animation);

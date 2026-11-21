@@ -157,8 +157,8 @@ public enum EnemyDefinitionId
     Ridley,
     /// <summary>One piece of Ridley's body as it breaks apart at his death.</summary>
     RidleyBreakupPiece,
-    /// <summary>A jet of steam in Ceres station.</summary>
-    CeresSteam,
+    /// <summary>A steam vent, which Ceres and the escaping Zebes place.</summary>
+    SteamVent,
     /// <summary>An ordinary Ceres door, facing either way, which opens as Samus comes near (#1989).</summary>
     CeresDoor,
     /// <summary>The door of Ceres Ridley's room, which his scene draws while he holds the room (#1989).</summary>

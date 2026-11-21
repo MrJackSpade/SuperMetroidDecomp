@@ -24,7 +24,7 @@ internal static class ElevatorInputDefinitionsVerification
         for (ushort direction = 0; direction < 2; direction++)
         {
             ushort tableByteOffset = (ushort)(direction * 2);
-            ElevatorTravelDirection travel = direction == 0 ? ElevatorTravelDirection.Down : ElevatorTravelDirection.Up;
+            VerticalDirection travel = direction == 0 ? VerticalDirection.Down : VerticalDirection.Up;
             GameplayAction native = GameplayActionWordCodec.FromJoypadWord(CartridgeImportSource.Require(rom).ReadCartridgeWord(inputTable + tableByteOffset), "native elevator departure mask");
 
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
@@ -67,7 +67,7 @@ internal static class ElevatorInputDefinitionsVerification
     /// <summary>Checks both directions' inputs against the two-entry mask table at $A3:94E2.</summary>
     private static void VerifyElevatorDirectionInputMapping(CartridgeImportAddressSpace rom)
     {
-        ElevatorTravelDirection[] tableOrder = [ElevatorTravelDirection.Down, ElevatorTravelDirection.Up];
+        VerticalDirection[] tableOrder = [VerticalDirection.Down, VerticalDirection.Up];
         for (int entry = 0; entry < tableOrder.Length; entry++)
         {
             ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa394e2 + entry * 2);

@@ -535,7 +535,6 @@ internal static class EnemyProjectilePresentationFrameDefinitions
         new("torizo_explosion_flare_ring_cored"),
         new("torizo_explosion_flare_ring"),
         new("torizo_explosion_flare_ring_fading"),
-        new("torizo_death_explosion_spark"),
         new("torizo_explosion_fireball_small"),
         new("torizo_explosion_fireball_large"),
         new("torizo_explosion_flaming_ring"),

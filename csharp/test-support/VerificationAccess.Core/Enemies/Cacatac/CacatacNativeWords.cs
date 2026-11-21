@@ -24,12 +24,12 @@ internal static class CacatacNativeWords
     /// The direction word naming each patrol direction and start, as the placement and the enemy's state hold it: a
     /// Cacatac stopped at first patrols right once it starts (#2369).
     /// </summary>
-    internal static readonly NativeWordIdentities<(HorizontalDirection Direction, CacatacStart Start)> Directions =
-        new(new Dictionary<(HorizontalDirection Direction, CacatacStart Start), ushort>
+    internal static readonly NativeWordIdentities<(HorizontalDirection Direction, CacatacAction Start)> Directions =
+        new(new Dictionary<(HorizontalDirection Direction, CacatacAction Start), ushort>
         {
-            [(HorizontalDirection.Left, CacatacStart.Patrolling)] = 0,
-            [(HorizontalDirection.Right, CacatacStart.Patrolling)] = 1,
-            [(HorizontalDirection.Right, CacatacStart.Stopped)] = 2,
+            [(HorizontalDirection.Left, CacatacAction.Patrolling)] = 0,
+            [(HorizontalDirection.Right, CacatacAction.Patrolling)] = 1,
+            [(HorizontalDirection.Right, CacatacAction.Stopped)] = 2,
         });
 
     /// <summary>

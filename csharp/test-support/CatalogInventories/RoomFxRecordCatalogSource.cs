@@ -316,12 +316,24 @@ internal static class RoomFxRecordCatalogSource
         source.AppendLine("public static class RoomFxDefinitions");
         source.AppendLine("{");
         bool first = true;
+        // A selection the cartridge stores under two headers (the quicksand shafts') is one member, written where its first
+        // header stands; the later header must hold the same records.
+        var written = new Dictionary<string, string>(StringComparer.Ordinal);
         foreach ((ushort header, ushort[] pointers) in capture.Lists)
         {
+            string name = SelectionNames[RoomFxSources.Fx(header)];
+            string rendered = string.Join(" ", pointers.Select(pointer => capture.Doors.TryGetValue(pointer, out DoorDefinition? door)
+                ? $"{RenderDoor(door)} {RenderRecord(capture.Records[pointer])}" : RenderRecord(capture.Records[pointer])));
+            if (written.TryGetValue(name, out string? earlier))
+            {
+                if (!string.Equals(earlier, rendered, StringComparison.Ordinal))
+                    throw new InvalidDataException($"Room FX headers of {name} hold different records.");
+                continue;
+            }
+            written.Add(name, rendered);
             if (!first)
                 source.AppendLine();
             first = false;
-            string name = SelectionNames[RoomFxSources.Fx(header)];
             ushort[] doorRecords = [.. pointers.TakeWhile(capture.Doors.ContainsKey)];
             ushort[] rest = [.. pointers.Skip(doorRecords.Length)];
             if ((rest.Length > 0 && MotherBrainRecordNames.ContainsKey(rest[0])) ||

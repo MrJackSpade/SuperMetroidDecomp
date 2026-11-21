@@ -15,7 +15,7 @@ internal interface IElevatorJourney
     ElevatorArming DoorArming { get; }
 
     /// <summary>The way the elevator travels.</summary>
-    ElevatorTravelDirection ElevatorTravel { get; }
+    VerticalDirection ElevatorTravel { get; }
 
     /// <summary>Whether the elevator, not Samus's own movement, moves Samus this frame.</summary>
     bool ElevatorRunsSamusMovement { get; }

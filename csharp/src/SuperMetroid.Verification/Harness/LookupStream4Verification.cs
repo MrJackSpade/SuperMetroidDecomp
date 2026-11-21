@@ -254,7 +254,7 @@ internal static class LookupStream4Verification
             fx.StepScreen();
             foreach (var program in TitleScreenAmbientPaletteOwners.All)
             {
-                var rows = program.Owner == TitleScreenAmbientPaletteFxProgramOwner.BabyMetroidTubeLight
+                var rows = program.Effect == ColourEffectId.TitleScreenBabyMetroidTubeLight
                     ? document.BabyMetroidTubeLight : document.FlickeringDisplays;
                 int frame = tick / program.FrameDuration % program.FrameCount;
                 ColourEffectFrame record = fx.FrameOf(program.Colours)
@@ -471,7 +471,6 @@ internal static class LookupStream4Verification
             var definition = all[index];
             int pointer = rom.ReadCartridgeWordFixedBank(0x8D0000 | (0xF795 + index * 4 + 2));
             AssertEqual((ushort)pointer, definition.ProgramStart, "native definition selects calculated setup");
-            AssertEqual((MaridiaEnvironmentalPaletteOwner)index, definition.Owner, "owner order");
             AssertEqual(rom.ReadCartridgeWordFixedBank(0x8D0000 | (pointer + 2)), definition.AnimatedColours.CartridgeByteIndex, "native colours start where the definition's colour group is placed");
             pointer += 4;
             int frame = 0;

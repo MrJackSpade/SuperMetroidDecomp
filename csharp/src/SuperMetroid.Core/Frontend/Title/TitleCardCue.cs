@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.Title;
 
 /// <summary>What a title card does as it ends (#1826): start the next floor scene, or remove the card.</summary>
-internal enum TitleCardCue
+public enum TitleCardCue
 {
     /// <summary>Removes the card.</summary>
     RemoveCard,

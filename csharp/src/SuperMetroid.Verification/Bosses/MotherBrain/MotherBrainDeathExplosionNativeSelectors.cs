@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Bosses.MotherBrain;
 
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
@@ -9,6 +10,6 @@ namespace SuperMetroid.Verification.Bosses.MotherBrain;
 internal static class MotherBrainDeathExplosionNativeSelectors
 {
     /// <summary>The explosion each native parameter selects, in parameter order.</summary>
-    internal static readonly MotherBrainDeathExplosionAnimation[] Animations =
-        [MotherBrainDeathExplosionAnimation.SmallExplosion, MotherBrainDeathExplosionAnimation.Smoke, MotherBrainDeathExplosionAnimation.BigExplosion];
+    internal static readonly DustExplosionAnimation[] Animations =
+        [DustExplosionAnimation.SmallExplosion, DustExplosionAnimation.Smoke, DustExplosionAnimation.BigExplosion];
 }

@@ -65,7 +65,7 @@ internal static class TorizoProjectileAnimations
             Cue(new TorizoProjectileCue.Signal(K.ReturnToOrigin)),
             Cue(new TorizoProjectileCue.Scatter(Spread: new(Span: new(32, 64), Center: new(0, 16)))),
             Cue(new TorizoProjectileCue.PlaySound(Sound: EnemySound.SmallExplosion, Priority: SoundRequestPriority.Normal)),
-            Show(EnemyProjectileFrameId.TorizoDeathExplosionSpark, 4),
+            Show(EnemyProjectileFrameId.TorizoExplosionSpark, 4),
             Show(EnemyProjectileFrameId.TorizoExplosionFireballSmall, 6),
             Show(EnemyProjectileFrameId.TorizoExplosionFireballLarge, 5),
             Show(EnemyProjectileFrameId.TorizoExplosionFlamingRing, 5),
@@ -263,12 +263,9 @@ internal static class TorizoProjectileAnimations
         P.EyeBeamWallImpact, P.EyeBeamFloorFlames),
         P.EyeBeam);
 
-    /// <summary>How <paramref name="animation"/> plays.</summary>
-    internal static Animation<TorizoProjectileSegment> StartingWith(TorizoProjectileSegment animation) => StartingAt[animation];
-
     /// <summary>A cue's continuation into <paramref name="animation"/>, from its start.</summary>
     internal static AnimationContinuation<TorizoProjectileSegment> ContinueWith(TorizoProjectileSegment animation) =>
-        new(StartingWith(animation), AnimationPlace.StartOfAnimation);
+        new(StartingAt[animation], AnimationPlace.StartOfAnimation);
 
     /// <summary>
     /// A low-health drool that forms unseen for two updates before it is released and falls, holding its falling pose: one of

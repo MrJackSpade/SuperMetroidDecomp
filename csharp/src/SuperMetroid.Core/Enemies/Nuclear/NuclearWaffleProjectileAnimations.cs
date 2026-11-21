@@ -37,9 +37,6 @@ internal static class NuclearWaffleProjectileAnimations
         [P.Churning] = Animation<NuclearWaffleProjectileSegment>.Looping([Segments.Whole(P.Churning)]),
     };
 
-    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<NuclearWaffleProjectileSegment> StartingWith(NuclearWaffleProjectileSegment segment) => StartingAt[segment];
-
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Frame(frame, duration);
 }

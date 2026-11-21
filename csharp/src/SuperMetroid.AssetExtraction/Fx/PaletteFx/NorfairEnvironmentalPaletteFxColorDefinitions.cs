@@ -9,20 +9,21 @@ namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 public static class NorfairEnvironmentalPaletteFxColorDefinitions
 {
     /// <summary>Each phase writes five live BGR555 colors.</summary>
-    public const int ColorsPerFrame = 5;
+    private const int ColorsPerFrame = 5;
 
-    /// <summary>
-    /// Each program's owner with its palette-FX object, in definition order: the heat-phase program, then the green, purple
-    /// and dark foreground glows.
-    /// </summary>
-    internal static readonly IReadOnlyList<KeyValuePair<NorfairEnvironmentalPaletteOwner, ColourEffectId>> Programs =
-    [
-        KeyValuePair.Create(NorfairEnvironmentalPaletteOwner.ForegroundAndHeatPhase, ColourEffectId.NorfairForegroundAndHeatPhase),
-        KeyValuePair.Create(NorfairEnvironmentalPaletteOwner.GreenForeground, ColourEffectId.NorfairGreenForegroundHeatGlow),
-        KeyValuePair.Create(NorfairEnvironmentalPaletteOwner.PurpleForeground, ColourEffectId.NorfairPurpleForegroundHeatGlow),
-        KeyValuePair.Create(NorfairEnvironmentalPaletteOwner.DarkForeground, ColourEffectId.NorfairDarkForegroundHeatGlow),
-    ];
+    /// <summary>The foreground colours that pulse with the heat phase.</summary>
+    internal static NorfairEnvironmentalPaletteFxColorDefinition NorfairForegroundAndHeatPhase { get; } = new(ColourEffectId.NorfairForegroundAndHeatPhase, ColorsPerFrame);
 
-    /// <summary>The four real environmental programs in definition order.</summary>
-    public static IReadOnlyList<NorfairEnvironmentalPaletteFxColorDefinition> All { get; } = new NorfairEnvironmentalPalettePrograms();
+    /// <summary>The green foreground's heat glow.</summary>
+    internal static NorfairEnvironmentalPaletteFxColorDefinition NorfairGreenForegroundHeatGlow { get; } = new(ColourEffectId.NorfairGreenForegroundHeatGlow, ColorsPerFrame);
+
+    /// <summary>The purple foreground's heat glow.</summary>
+    internal static NorfairEnvironmentalPaletteFxColorDefinition NorfairPurpleForegroundHeatGlow { get; } = new(ColourEffectId.NorfairPurpleForegroundHeatGlow, ColorsPerFrame);
+
+    /// <summary>The dark foreground's heat glow.</summary>
+    internal static NorfairEnvironmentalPaletteFxColorDefinition NorfairDarkForegroundHeatGlow { get; } = new(ColourEffectId.NorfairDarkForegroundHeatGlow, ColorsPerFrame);
+
+    /// <summary>The four environmental programs in definition order: the heat-phase program, then the green, purple and dark foreground glows.</summary>
+    public static IReadOnlyList<NorfairEnvironmentalPaletteFxColorDefinition> All { get; } =
+        [NorfairForegroundAndHeatPhase, NorfairGreenForegroundHeatGlow, NorfairPurpleForegroundHeatGlow, NorfairDarkForegroundHeatGlow];
 }

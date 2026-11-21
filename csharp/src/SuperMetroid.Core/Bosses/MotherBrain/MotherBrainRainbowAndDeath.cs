@@ -130,7 +130,7 @@ internal sealed class MotherBrainRainbowAndDeath
     /// <summary>Places a death explosion with the requested position and visual phase.</summary>
     private void SpawnMotherBrainDeathExplosion(MotherBrainEnemyState state, MotherBrainDeathExplosionRequest request)
     {
-        DustExplosionAnimation animation = MotherBrainDeathExplosionDefinitions.Animations[request.Animation];
+        DustExplosionAnimation animation = request.Animation;
         var projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainDeathExplosion, _projectileAttacks.Projectile, graphics: SpriteGraphics.SharedStandard);
         if (projectile is null) return; // A room whose projectiles are all in flight spawns none.
         projectile.StartAnimation(new DustExplosionProjectileAnimation(animation));

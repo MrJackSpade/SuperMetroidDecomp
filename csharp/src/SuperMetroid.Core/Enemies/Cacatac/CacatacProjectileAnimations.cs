@@ -31,13 +31,6 @@ internal static class CacatacProjectileAnimations
         P.LeftFacingUp, P.UpLeft, P.Up, P.UpRight, P.RightFacingUp, P.LeftFacingDown, P.DownLeft, P.Down, P.DownRight,
         P.RightFacingDown);
 
-    /// <summary>The animation of a spike launched in <paramref name="direction"/>.</summary>
-    /// <exception cref="InvalidDataException"><paramref name="direction"/> is not one of the ten spike directions.</exception>
-    internal static Animation<CacatacSpikeDirection> StartingWith(CacatacSpikeDirection direction) =>
-        StartingAt.TryGetValue(direction, out Animation<CacatacSpikeDirection>? animation)
-            ? animation
-            : throw new InvalidDataException($"Cacatac spike direction {direction} is outside the ten spike directions.");
-
     /// <summary>A still picture (#2275): <paramref name="frame"/>, held from the update it shows.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue> Hold(EnemyProjectileFrameId frame) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.HeldFrame(frame);
 }

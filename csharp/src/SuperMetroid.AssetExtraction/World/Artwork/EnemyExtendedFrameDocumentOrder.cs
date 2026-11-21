@@ -572,9 +572,7 @@ internal static class EnemyExtendedFrameDocumentOrder
     /// <summary>Phantoon's BG2-only poses, in the document's order.</summary>
     internal static ImmutableArray<EnemyFrameId> PhantoonBg2 { get; } =
     [
-        EnemyFrameId.PhantoonInvulnerableBody,
-        EnemyFrameId.PhantoonFullHitboxBody,
-        EnemyFrameId.PhantoonEyeHitboxBody,
+        EnemyFrameId.PhantoonBody,
         EnemyFrameId.PhantoonEyeClosed,
         EnemyFrameId.PhantoonEyeHalfOpen,
         EnemyFrameId.PhantoonEyeballCentered,

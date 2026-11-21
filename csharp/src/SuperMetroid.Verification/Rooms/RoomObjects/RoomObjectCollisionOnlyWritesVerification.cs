@@ -208,9 +208,9 @@ internal static class RoomObjectCollisionOnlyWritesVerification
         var kept = new KeptPictures();
         var block = new Position16<RoomBlocks>(3, 3);
         kept.Check("a scroll trigger's setup", Solid, [block], level =>
-            ScrollObjects.SetupScrollTrigger(level, PlaceAt(RoomObjectFixtures.Unbound(), block), RoomScrollChange.LandingSiteOpensScreen1x2TopAligned));
+            ScrollObjects.SetupScrollTrigger(level, PlaceAt(RoomObjectFixtures.Unbound(), block), RoomScrollChange.LandingSite));
         kept.Check("a scroll trigger's rest", Solid, [block], level =>
-            new ScrollTriggerObject(RoomScrollChange.LandingSiteOpensScreen1x2TopAligned).Rest(level, block));
+            new ScrollTriggerObject(RoomScrollChange.LandingSite).Rest(level, block));
         kept.Check("a scroll extension's setup", Solid, [block], level =>
             ScrollObjects.SetupScrollExtension(level, PlaceAt(RoomObjectFixtures.Unbound(), block),
                 new ScrollExtension(ScrollExtensionDirection.Left)));

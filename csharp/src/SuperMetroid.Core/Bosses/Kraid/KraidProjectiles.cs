@@ -114,7 +114,7 @@ internal sealed class KraidProjectiles
             }
         }
 
-        /// <summary>Carries out a rock animation's cue: stopping its flight from the next pass, or deletion.</summary>
+        /// <summary>Carries out a rock animation's cue: stopping its flight from the next pass.</summary>
         public void RunCue(EnemyProjectileCueContext context, KraidRockCue cue)
         {
             EnemyProjectile projectile = context.Projectile;
@@ -122,9 +122,6 @@ internal sealed class KraidProjectiles
             {
                 case KraidRockCue.StopFlyingFromNextPass:
                     projectile.HoldStill();
-                    return;
-                case KraidRockCue.Delete:
-                    projectile.Delete();
                     return;
                 default:
                     throw new InvalidOperationException($"Undefined {nameof(KraidRockCue)} {cue}.");

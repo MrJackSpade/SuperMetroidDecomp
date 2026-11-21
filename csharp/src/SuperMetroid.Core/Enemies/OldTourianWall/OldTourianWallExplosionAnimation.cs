@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Enemies.OldTourianWall;
 /// <param name="owner">The family's cue owner, which carries out the events the animation raises (#2571).</param>
 /// <param name="segment">Where the animation starts.</param>
 internal sealed class OldTourianWallExplosionAnimation(IEnemyProjectileCues<OldTourianWallExplosionCue> owner, OldTourianWallExplosionSegment segment)
-    : EnemyProjectileTypedAnimation<OldTourianWallExplosionSegment, EnemyProjectileFrameId, OldTourianWallExplosionCue>(AllAnimations[segment], EnemyProjectileCueRunner<OldTourianWallExplosionSegment, OldTourianWallExplosionCue>.By(owner))
+    : EnemyProjectileTypedAnimation<OldTourianWallExplosionSegment, EnemyProjectileFrameId, OldTourianWallExplosionCue>(segment, AllAnimations[segment], EnemyProjectileCueRunner<OldTourianWallExplosionSegment, OldTourianWallExplosionCue>.By(owner))
 {
     /// <summary>
     /// The segments' beats: the setup that stops the movement, the burst that scatters, plays its sound and shows the six
@@ -52,9 +52,6 @@ internal sealed class OldTourianWallExplosionAnimation(IEnemyProjectileCues<OldT
 
     /// <inheritdoc/>
     private protected override AnimationSegments<OldTourianWallExplosionSegment, EnemyProjectileFrameId, OldTourianWallExplosionCue> Segments => AllSegments;
-
-    /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<OldTourianWallExplosionSegment, Animation<OldTourianWallExplosionSegment>> StartingAt => AllAnimations;
 
     /// <inheritdoc/>
     private protected override EnemyProjectileFrameId Present(EnemyProjectileFrameId frame) => frame;

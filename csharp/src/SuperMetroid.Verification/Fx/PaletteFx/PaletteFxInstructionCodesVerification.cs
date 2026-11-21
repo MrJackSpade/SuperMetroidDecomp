@@ -225,11 +225,11 @@ internal static class PaletteFxInstructionCodesVerification
     {
         var programs = SamusLoadingSuitPaletteFxColorDefinitions.All;
         AssertEqual(3, programs.Count, "Loading roster count");
-        AssertTrue(programs.Select(program => program.Owner).SequenceEqual(new[]
+        AssertTrue(programs.Select(program => program.Effect).SequenceEqual(new[]
         {
-            SamusLoadingSuitPaletteFxProgramOwner.PowerSuit,
-            SamusLoadingSuitPaletteFxProgramOwner.VariaSuit,
-            SamusLoadingSuitPaletteFxProgramOwner.GravitySuit,
+            ColourEffectId.SamusLoadingPowerSuit,
+            ColourEffectId.SamusLoadingVariaSuit,
+            ColourEffectId.SamusLoadingGravitySuit,
         }), "Original loading roster order");
         for (int index = 0; index < 3; index++)
             AssertTrue(ReferenceEquals(programs[index], programs.ElementAt(index)), "Indexed and enumerated named owner agree");
@@ -1341,7 +1341,7 @@ internal static class PaletteFxInstructionCodesVerification
                 {
                     bool presentationByte = false;
                     for (int color = 0;
-                         color < NorfairEnvironmentalPaletteFxColorDefinitions.ColorsPerFrame;
+                         color < definition.ColorFrames.ColorsPerFrame;
                          color++)
                     {
                         int colorOffset = source.Offset - definition.ColorPointer(frame, color);

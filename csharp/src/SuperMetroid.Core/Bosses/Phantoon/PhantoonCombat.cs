@@ -234,12 +234,12 @@ internal sealed class PhantoonCombat
         }
 
         /// <summary>
-        /// Runs the flame's drop step: the flame's exact position and the Phantoon eye's enemy definition go to the
-        /// enemy drop spawner, which places the pickup from the definition's item table.
+        /// Runs the flame's drop step: the enemy drop spawner places a pickup at the flame's exact position from the shot
+        /// flame's own drop chances (<see cref="PhantoonFlameSpawnDefinitions.ShotFlameDropChances"/>).
         /// </summary>
         private void RequestPhantoonFlameDrop(EnemyProjectile flame, SamusState samus)
         {
-            deathsAndDrops.SpawnEnemyDropFromDefinition(flame.Position.Whole, EnemyDefinitionId.PhantoonEye, samus);
+            deathsAndDrops.SpawnEnemyDropFromChanceTable(flame.Position.Whole, PhantoonFlameSpawnDefinitions.ShotFlameDropChances, samus);
         }
     }
 
@@ -406,7 +406,7 @@ internal sealed class PhantoonCombat
         state.WindowEnd = PhantoonWindowEnd.EyeCloses;
         state.Round.Damage = 0;
         state.Translucent = true;
-        state.BodyPart.StartAnimation(PhantoonPartSegment.InvulnerableBody);
+        state.ShowBody(PhantoonBodyHitArea.SolidifyingCentre);
         state.EyePart.StartAnimation(PhantoonPartSegment.EyeClose);
         body.Contact = body.Contact.With(EnemyContact.IgnoresSamus);
         state.BodyFade.Resume();
@@ -557,14 +557,14 @@ internal sealed class PhantoonCombat
 
     /// <summary>
     /// The reaction of the first hitbox the probe overlaps on <paramref name="enemy"/>'s frame, one of Phantoon's parts,
-    /// which its own entity asks for (#2301).
+    /// which its own entity asks for (#2301), his body's picture having <paramref name="bodyHitArea"/> live.
     /// </summary>
-    internal static EnemyHitboxContact FindPhantoonHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe)
+    internal static EnemyHitboxContact FindPhantoonHitboxReaction(RoomEnemyPlace enemy, PhantoonBodyHitArea bodyHitArea, EnemyHitboxProbe probe)
     {
         // His pictures' hit areas are his collision definitions', never his editable pictures'; the invulnerable body's
         // centre point is a compatibility rule (PhantoonSolidifyingCentre).
         foreach (EnemyCollisionComponent component in
-                 PhantoonCollision.ComponentsAt(enemy.Frame))
+                 PhantoonCollision.ComponentsAt(enemy.Frame, bodyHitArea))
         {
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
             foreach (EnemyCollisionHitbox hitbox in component.Hitboxes)

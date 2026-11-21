@@ -60,12 +60,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!Enum.IsDefined(settings.Direction))
             throw new InvalidOperationException($"Undefined Cacatac direction {settings.Direction}.");
         // A Cacatac placed to stop at first stands still, then patrols its direction from its first idle step.
-        var state = new CacatacEnemyState(settings.Start switch
-        {
-            CacatacStart.Patrolling => CacatacAction.Patrolling,
-            CacatacStart.Stopped => CacatacAction.Stopped,
-            _ => throw new InvalidOperationException($"Undefined {nameof(CacatacStart)} {settings.Start}."),
-        })
+        var state = new CacatacEnemyState(settings.Start)
         {
             PatrolDirection = settings.Direction,
             RightPatrolX = spawnX + settings.TravelDistance,

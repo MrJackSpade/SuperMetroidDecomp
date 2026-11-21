@@ -43,18 +43,18 @@ public static class TitleSequenceDefinitions
         /// <summary>Where every card draws, in screen pixels.</summary>
         private static readonly Offset16<ScreenPixels> CardOrigin = new(129, 112);
         /// <summary>The year card.</summary>
-        public static readonly TitleTextSequenceDefinition Year = Card(TitleSequencePhase.YearText);
+        public static readonly TitleTextSequenceDefinition Year = Card(TitleSequencePhase.YearText, TitleCardDefinitions.Year);
         /// <summary>The Nintendo card.</summary>
-        public static readonly TitleTextSequenceDefinition Nintendo = Card(TitleSequencePhase.NintendoText);
+        public static readonly TitleTextSequenceDefinition Nintendo = Card(TitleSequencePhase.NintendoText, TitleCardDefinitions.Nintendo);
         /// <summary>The Presents card.</summary>
-        public static readonly TitleTextSequenceDefinition Presents = Card(TitleSequencePhase.PresentsText);
+        public static readonly TitleTextSequenceDefinition Presents = Card(TitleSequencePhase.PresentsText, TitleCardDefinitions.Presents);
         /// <summary>The Metroid 3 card.</summary>
-        public static readonly TitleTextSequenceDefinition MetroidThree = Card(TitleSequencePhase.MetroidThreeText);
+        public static readonly TitleTextSequenceDefinition MetroidThree = Card(TitleSequencePhase.MetroidThreeText, TitleCardDefinitions.MetroidThree);
         /// <summary>The four cards, in the order the title shows them.</summary>
         public static readonly IReadOnlyList<TitleTextSequenceDefinition> All = [Year, Nintendo, Presents, MetroidThree];
 
-        /// <summary>The card <paramref name="phase"/> shows, drawn at the cards' origin in the text colouring.</summary>
-        private static TitleTextSequenceDefinition Card(TitleSequencePhase phase) => new(phase, CardOrigin, TitleSpriteColouring.Text);
+        /// <summary><paramref name="phase"/> typing <paramref name="card"/>, drawn at the cards' origin in the text colouring.</summary>
+        private static TitleTextSequenceDefinition Card(TitleSequencePhase phase, TitleCardDefinition card) => new(phase, card, CardOrigin, TitleSpriteColouring.Text);
     }
 
     /// <summary>The floor scenes' starting transforms, motion and completion thresholds.</summary>

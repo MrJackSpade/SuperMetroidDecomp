@@ -23,7 +23,7 @@ internal static class RoomObjectPopulationInputBoundaryVerification
         [0, 1];
 
     /// <summary>The compiled scroll change the fixture's triggers apply: it opens screen (1, 0) aligned to its top.</summary>
-    private const RoomScrollChange TriggerChange = RoomScrollChange.BrinstarReserveTankOpensScreen1x0TopAligned;
+    private const RoomScrollChange TriggerChange = RoomScrollChange.BrinstarReserveTank;
 
     /// <summary>Verifies the identified typed-input conversion, without importing a ROM or driving gameplay.</summary>
     internal static void VerifyObjectPopulationInputBoundary()
@@ -66,9 +66,9 @@ internal static class RoomObjectPopulationInputBoundaryVerification
         int count = 0;
         foreach (ushort pointer in RoomObjectPopulationDefinitions.Pointers)
             count += RoomObjectPopulationDefinitions.Get(pointer).Placements.Length;
-        AssertEqual(RoomObjectPopulationDefinitions.RetailRecordCount, count,
-            "every compiled population converts to the typed contract before gameplay");
-        Console.WriteLine("PLM input boundary: 283 compiled populations/941 records, native slot reuse, RAM-only scroll execution, and bounded validation pass.");
+        AssertEqual(RoomObjectPopulationDefinitions.RetailRecordCount - RoomObjectPopulationDefinitions.OmittedOrphanScrollExtensionCount, count,
+            "every compiled population converts to the typed contract before gameplay, less the stray extension that reaches nothing");
+        Console.WriteLine("PLM input boundary: 283 compiled populations/940 records, native slot reuse, RAM-only scroll execution, and bounded validation pass.");
     }
 
     /// <summary>Runs the focused compiled-population conversion and scroll execution check.</summary>

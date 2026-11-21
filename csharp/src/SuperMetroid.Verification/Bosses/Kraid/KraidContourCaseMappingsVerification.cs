@@ -83,13 +83,13 @@ internal static class KraidContourCaseMappingsVerification
         var native = new KraidHeadNativeCursors(CartridgeImportSource.Require(rom));
         var selected = new Dictionary<ushort, KraidHeadGrowthResume>
         {
-            [SuperMetroid.Core.Bosses.Kraid.Artwork.KraidHeadFrameDefinitions.PresentationKey(KraidHeadFrame.Closed)] = KraidHeadGrowthResume.NextFrameClosed,
-            [SuperMetroid.Core.Bosses.Kraid.Artwork.KraidHeadFrameDefinitions.PresentationKey(KraidHeadFrame.Opening)] = KraidHeadGrowthResume.NextFrameOpening,
-            [SuperMetroid.Core.Bosses.Kraid.Artwork.KraidHeadFrameDefinitions.PresentationKey(KraidHeadFrame.Wider)] = KraidHeadGrowthResume.NextFrameWider,
+            [SuperMetroid.Core.Bosses.Kraid.Artwork.KraidHeadFrameDefinitions.PresentationKey(KraidHeadFrame.Closed)] = new(KraidHeadSegment.RoarClosing, KraidHeadFrame.Closed),
+            [SuperMetroid.Core.Bosses.Kraid.Artwork.KraidHeadFrameDefinitions.PresentationKey(KraidHeadFrame.Opening)] = new(KraidHeadSegment.RoarClosing, KraidHeadFrame.Opening),
+            [SuperMetroid.Core.Bosses.Kraid.Artwork.KraidHeadFrameDefinitions.PresentationKey(KraidHeadFrame.Wider)] = new(KraidHeadSegment.RoarClosing, KraidHeadFrame.Wider),
         };
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
-            KraidHeadGrowthResume resume = selected.GetValueOrDefault((ushort)raw, KraidHeadGrowthResume.NextStepOther);
+            KraidHeadGrowthResume resume = selected.GetValueOrDefault((ushort)raw, new KraidHeadGrowthResume(KraidHeadSegment.RoarOpenHold, KraidHeadFrame.Open));
             (ushort pointer, ushort timer) = NativeKraidGrowthResume(rom, (ushort)raw);
             KraidHeadEntry resumed = KraidHeadAnimations.GrowthResume(resume);
             AssertEqual(pointer, native.PointerAt(resumed.Playback), "Kraid native word-dependent resume cursor");

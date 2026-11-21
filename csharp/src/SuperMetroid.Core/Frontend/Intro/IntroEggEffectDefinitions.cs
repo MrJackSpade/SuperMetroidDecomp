@@ -10,7 +10,6 @@ internal static class IntroEggEffectDefinitions
         IntroEggShellFragment.Centre, IntroEggShellFragment.Right, IntroEggShellFragment.Lower,
     ];
 
-
     /// <summary>The screen height a falling slime drop lands at, where its puddle plays in place.</summary>
     public const int SlimeDropLandingY = 168;
 

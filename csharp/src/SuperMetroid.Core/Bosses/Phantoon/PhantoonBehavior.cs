@@ -218,6 +218,8 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 return null;
             });
         part.Playback = playback;
+        if (ReferenceEquals(part, part.Phantoon.BodyPart))
+            part.Phantoon.BodyPictureShown();
     }
 
     /// <summary>Carries out one cue of a Phantoon part animation.</summary>
@@ -256,7 +258,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         state.WindowEnd = PhantoonWindowEnd.EyeCloses;
         RoomEnemyPlace body = state.Body;
-        state.BodyPart.StartAnimation(PhantoonPartSegment.EyeHitboxBody);
+        state.ShowBody(PhantoonBodyHitArea.EyeOnly);
         body.Contact = body.Contact.Without(EnemyContact.IgnoresSamus);
         state.PhaseWait.LastFor(PhantoonRandomDefinitions.VulnerableWindow.Choose(_room.Random.Generate()));
         state.Phase = PhantoonPhase.EyeTracksSamus;

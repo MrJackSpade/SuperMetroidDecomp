@@ -92,9 +92,6 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
     /// <summary>The room's main, once the definition step has composed the one its state names.</summary>
     public IRoomMain? Main { get; private set; }
 
-    /// <summary>The elevatube's ride, once the definition step has composed the elevatube's main.</summary>
-    public MaridiaElevatubeRoomMainState? MaridiaElevatube { get; private set; }
-
     /// <summary>The Ceres elevator shaft's turn, once the elevator door's room event has started it (#2485).</summary>
     public CeresElevatorShaftRoomMainState? CeresElevatorShaft { get; private set; }
 
@@ -125,9 +122,7 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
     /// <summary>Composes the Maridia elevatube's main and its ride, which the tube's doors start (#2287).</summary>
     internal void ComposeElevatubeMain()
     {
-        var tube = new MaridiaElevatubeRoomMainState(_handOvers.ElevatubeFraction);
-        MaridiaElevatube = tube;
-        Main = new MaridiaElevatubeMain(tube);
+        Main = new MaridiaElevatubeMain(new MaridiaElevatubeRoomMainState(_handOvers.ElevatubeFraction));
     }
 
     /// <summary>Composes the Ceres elevator shaft's main over the turn its elevator door's room event started (#2287, #2485).</summary>

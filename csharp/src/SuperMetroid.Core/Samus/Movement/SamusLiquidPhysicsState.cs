@@ -273,6 +273,7 @@ public sealed class SamusLiquidPhysicsState
     [IndependentFlag("Boss presence is an independent fact of the room the frame runs in.")]
     public void PrepareAnimationFrame(
         SamusState samus,
+        SamusGround ground,
         SharedRandom random,
         int frameCounter,
         bool bossPresent)
@@ -280,7 +281,7 @@ public sealed class SamusLiquidPhysicsState
         Ensure.NotNull(samus);
 
         SamusMovementType movementType = SamusPoseMetadata.ReadMovementType(samus);
-        TrySpawnRunningFootsteps(samus, movementType, bossPresent);
+        TrySpawnRunningFootsteps(samus, ground, movementType, bossPresent);
 
         // The animation's liquid steps read Samus's occupied bottom pixel, Y + pose radius - 1.
         // The exclusive collision boundary would
@@ -378,6 +379,7 @@ public sealed class SamusLiquidPhysicsState
     /// </summary>
     public void HandleLandingSoundEffectsAndGraphics(
         SamusState samus,
+        SamusGround ground,
         SamusMovementType previousMovementType,
         SamusPoseId previousPose,
         UnsignedSixteenSixteen impactYSpeed)
@@ -411,19 +413,18 @@ public sealed class SamusLiquidPhysicsState
                 priority: SoundRequestPriority.Normal);
         }
 
-        HandleLandingGraphics(samus);
+        HandleLandingGraphics(samus, ground);
     }
 
     /// <summary>
     /// Raises the landing's splash on wet ground and its dust on dry ground whose landings raise dust, and otherwise shows
     /// nothing; the landing chooses its impact sound itself.
     /// </summary>
-    private void HandleLandingGraphics(SamusState samus)
+    private void HandleLandingGraphics(SamusState samus, SamusGround ground)
     {
-        // Every room and scene sets her ground as it loads; on none, a landing raises nothing.
-        if (samus.Ground is { } ground && IsWet(samus, ground.Wetness))
+        if (IsWet(samus, ground.Wetness))
             SpawnLandingPairUnlessSubmerged(samus, SamusParticleKind.SurfaceSplash);
-        else if (samus.Ground is { DryLandingsRaiseDust: true })
+        else if (ground.DryLandingsRaiseDust)
             SpawnLandingPairUnlessSubmerged(samus, SamusParticleKind.Dust);
         else
             EndLandingEffectWait();
@@ -557,6 +558,7 @@ public sealed class SamusLiquidPhysicsState
     /// <summary>Emits wet-ground or boosted footstep art at running contact frames and applies the game's sound suppression.</summary>
     private void TrySpawnRunningFootsteps(
         SamusState samus,
+        SamusGround ground,
         SamusMovementType movementType,
         bool bossPresent)
     {
@@ -568,7 +570,7 @@ public sealed class SamusLiquidPhysicsState
         }
 
         bool cinematic = samus.Presentation.Mode == SamusPresentationMode.Cinematic;
-        if (samus.Ground is { } ground && IsWet(samus, ground.Wetness))
+        if (IsWet(samus, ground.Wetness))
             SpawnFootstepPair(samus, SamusParticleKind.SurfaceSplash);
         else if (samus.HorizontalSpeed.IsActivelySpeedBoosting &&
                  DetermineRawMediumAtBoundary(samus.Kinematics.BottomBoundary) == SamusLiquidMedium.Air)

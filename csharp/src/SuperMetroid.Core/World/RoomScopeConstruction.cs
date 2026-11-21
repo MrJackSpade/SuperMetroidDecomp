@@ -209,6 +209,7 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
         Projectiles = Ensure.NotNull(projectiles),
         BombProjectiles = BombProjectiles,
         FxOverlay = Ensure.NotNull(fxOverlay),
+        SamusGround = SamusGround.Of(Room.Definition),
         ColourEffects = Ensure.NotNull(colourEffects),
         CeresHaze = CeresHaze,
         BlockAnimations = Ensure.NotNull(blockAnimations),

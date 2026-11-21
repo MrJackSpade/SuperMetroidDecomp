@@ -161,6 +161,7 @@ internal sealed class SamusPresentation
         // consumes independently of its current top-boundary submersion check.
         samus.LiquidPhysics.PrepareAnimationFrame(
             samus,
+            step.Ground,
             step.Random,
             step.FrameCounter,
             step.BossPresent);

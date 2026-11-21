@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Input;
 
 namespace SuperMetroid.Core.Samus.Poses;
@@ -17,6 +18,9 @@ public sealed record SamusAnimationStep
         get;
         init => field = Ensure.BetweenInclusive(0, Compatibility.FrameClock.CounterPeriod - 1, value);
     }
+
+    /// <summary>The ground of the room or scene Samus animates in, which her running footsteps go by (#2416).</summary>
+    public required SamusGround Ground { get; init; }
 
     /// <summary>The session's random-number generator, which Samus's liquid effects draw air bubbles from.</summary>
     public required SharedRandom Random { get; init; }

@@ -1026,6 +1026,7 @@ internal sealed class SamusFramePhases
                 : samus.Kinematics.VerticalVelocity;
             samus.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
                 samus,
+                room.SamusGround,
                 frame.MovementTypeAtFrameStart,
                 frame.PoseAtFrameStart,
                 impact.Speed);
@@ -1065,7 +1066,7 @@ internal sealed class SamusFramePhases
         // The station lock's empty movement mode skips animation like the locked movement mode.
         else if (frame.Mode.Movement is not (SamusMovementMode.ScriptLocked or SamusMovementMode.RefillStation or SamusMovementMode.SuitPickup))
         {
-            SamusPresentation.Animate(samus, new SamusAnimationStep { BossPresent = room.Enemies.RoomStatus.Boss is not null, ControllerInput = _playerActions.Current, FrameCounter = _clock.Counter, Random = _system.Random, ProspectiveInputPose = _player.ProspectiveSamusPose?.ProspectivePose ?? _player.ProspectiveSamusFallbackPose, DemoPoseInput = _attractDemo.IsAttractDemo });
+            SamusPresentation.Animate(samus, new SamusAnimationStep { Ground = room.SamusGround, BossPresent = room.Enemies.RoomStatus.Boss is not null, ControllerInput = _playerActions.Current, FrameCounter = _clock.Counter, Random = _system.Random, ProspectiveInputPose = _player.ProspectiveSamusPose?.ProspectivePose ?? _player.ProspectiveSamusFallbackPose, DemoPoseInput = _attractDemo.IsAttractDemo });
             StepSamusLoadAppearance(samus);
         }
 

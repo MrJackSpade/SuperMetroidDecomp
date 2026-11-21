@@ -19,11 +19,15 @@ internal static class PhantoonCollisionDefinitionsAccess
         internal static ImmutableArray<EnemyCollisionComponent> ComponentsAt(ushort frame) =>
             PhantoonCollision.ComponentsAt(RoomEnemyPlaceFrameAccess.TryFrameAt(NativeBank, frame), NativeHitArea(frame));
 
-        /// <summary>The hit area the native body record at <paramref name="frame"/> has live; any other record's is unread.</summary>
-        internal static PhantoonBodyHitArea NativeHitArea(ushort frame) => (PhantoonCollisionFrame)frame switch
+        /// <summary>
+        /// The hit area the native body record at <paramref name="frame"/> has live: the whole body or only the eye for
+        /// those two records, the solidifying centre for the record his picture is first stored as; a tentacle record's
+        /// hit area is unread.
+        /// </summary>
+        internal static PhantoonBodyHitArea NativeHitArea(ushort frame) => frame switch
         {
-            PhantoonCollisionFrame.BodyFullHitbox => PhantoonBodyHitArea.WholeBody,
-            PhantoonCollisionFrame.BodyEyeHitboxOnly => PhantoonBodyHitArea.EyeOnly,
+            (ushort)PhantoonCollisionFrame.BodyFullHitbox => PhantoonBodyHitArea.WholeBody,
+            (ushort)PhantoonCollisionFrame.BodyEyeHitboxOnly => PhantoonBodyHitArea.EyeOnly,
             _ => PhantoonBodyHitArea.SolidifyingCentre,
         };
     }

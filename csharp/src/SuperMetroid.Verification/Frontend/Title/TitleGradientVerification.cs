@@ -160,7 +160,7 @@ internal static class TitleGradientVerification
             Array.Sort(records, StringComparer.Ordinal);
             return records;
         }
-        TitleCardFrame year = spriteDocument.Cards.Single(frame => frame.Typed == new TitleCardTyping(TitleCard.YearText, 1));
+        TitleCardFrame year = spriteDocument.Cards.Single(frame => frame.Typed == new TitleCardTyping(TitleCard.Year, 1));
         SpriteVisualPart originalPart = year.Parts[0];
         year.Parts[0] = originalPart with { TileRow = TitleGraphicsFormat.ObjectTileRows };
         byte[] malformedMap = JsonSerializer.SerializeToUtf8Bytes(spriteDocument, ArtworkJson.Options);

@@ -62,7 +62,7 @@ internal static class TitleCardOracle
     }
 
     /// <summary>
-    /// The native list entries the card <paramref name="phase"/> shows types as: each beat of its typing, a frame or the
+    /// The native list entries <paramref name="card"/> types as: each beat of its typing, a frame or the
     /// blank opening as a timed entry and each cue as a command.
     /// </summary>
     internal static IEnumerable<NativeEntry> Entries(TitleCard card) => TitleCards.Segments.Beats(card).Select(beat => beat switch
@@ -70,7 +70,7 @@ internal static class TitleCardOracle
         AnimationBeat<TitleCardTyping, TitleCardCue>.Frame frame => new NativeEntry(frame.Duration, frame.Shown, null),
         AnimationBeat<TitleCardTyping, TitleCardCue>.Pause pause => new NativeEntry(pause.Duration, null, null),
         AnimationBeat<TitleCardTyping, TitleCardCue>.Event cue => new NativeEntry(0, null, cue.Raised),
-        _ => throw new InvalidDataException($"Title card {phase} plays a beat no native list entry shows: {beat}."),
+        _ => throw new InvalidDataException($"Title card {card} plays a beat no native list entry shows: {beat}."),
     });
 
     /// <summary>One native title-list entry a card's typing stands for: a timed frame or a command.</summary>

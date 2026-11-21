@@ -531,15 +531,15 @@ internal static class PaletteFxInstructionCodesVerification
             }
 
             AssertTrue(paletteFx.IsRunning(definition.DefinitionPointer),
-                $"{definition.Effect} completes and repeats the shared cycle");
+                $"{definition.Owner} completes and repeats the shared cycle");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
-                $"{definition.Effect} avoids mechanics ROM reads");
+                $"{definition.Owner} avoids mechanics ROM reads");
             AssertEqual(
                 (TourianEscapeSharedRedFlashPaletteFxColorDefinitionsConstants.FrameCount + 1) *
                     TourianEscapeSharedRedFlashPaletteFxColorDefinitions.ColorsPerFrame *
                     sizeof(ushort),
                 guardedPresentationReads.Value,
-                $"{definition.Effect} retains every live color through the shared cycle");
+                $"{definition.Owner} retains every live color through the shared cycle");
         }
     }
 

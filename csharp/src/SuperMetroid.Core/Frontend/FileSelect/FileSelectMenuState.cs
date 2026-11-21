@@ -530,8 +530,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen, IComposedFrontend
             return FileSelectSaveChange.None;
         SaveSlot copyTargetSlot = FileCopyRoutes.DestinationOf(route);
         saves.CopySlot(FileCopyRoutes.SourceOf(route), copyTargetSlot);
-        saveSlots[copyTargetSlot] = saves.ReadSlot(copyTargetSlot)
-            ?? throw new InvalidDataException("The copied save slot did not read back as a valid save.");
+        saveSlots[copyTargetSlot] = saves.ReadSavedSlot(copyTargetSlot);
         ShowPage(SelectedFileSelectPage.CopyCompleted(route));
         Phase = new FileSelectPhase.DataManagement.CopyCompleted();
         return FileSelectSaveChange.Copied;
@@ -551,43 +550,12 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen, IComposedFrontend
             Phase = new FileSelectPhase.DataManagement.ClearSelectSlot();
             return FileSelectSaveChange.None;
         }
-<<<<<<< ours
-
-        if (mode == FileSelectDataMode.Copy)
-        {
-            saves.CopySlot(ChosenSource, ChosenTarget);
-            saveSlots[ChosenTarget] = saves.ReadSavedSlot(ChosenTarget);
-            ShowPage(FileSelectPage.CopyCompleted);
-            Phase = FileSelectPhase.CopyCompleted;
-            return FileSelectSaveChange.Copied;
-        }
-        saves.ClearSlot(ChosenSource);
-        saveSlots[ChosenSource] = null;
-        ShowPage(FileSelectPage.ClearCompleted);
-        Phase = FileSelectPhase.ClearCompleted;
-||||||| base
-
-        if (mode == FileSelectDataMode.Copy)
-        {
-            saves.CopySlot(ChosenSource, ChosenTarget);
-            saveSlots[ChosenTarget] = saves.ReadSlot(ChosenTarget)
-                ?? throw new InvalidDataException("The copied save slot did not read back as a valid save.");
-            ShowPage(FileSelectPage.CopyCompleted);
-            Phase = FileSelectPhase.CopyCompleted;
-            return FileSelectSaveChange.Copied;
-        }
-        saves.ClearSlot(ChosenSource);
-        saveSlots[ChosenSource] = null;
-        ShowPage(FileSelectPage.ClearCompleted);
-        Phase = FileSelectPhase.ClearCompleted;
-=======
         if (answer == FileSelectConfirmationAnswer.Undecided)
             return FileSelectSaveChange.None;
         saves.ClearSlot(operationSourceSlot);
         saveSlots[operationSourceSlot] = null;
         ShowPage(SelectedFileSelectPage.ClearCompleted(operationSourceSlot));
         Phase = new FileSelectPhase.DataManagement.ClearCompleted();
->>>>>>> theirs
         return FileSelectSaveChange.Cleared;
     }
 

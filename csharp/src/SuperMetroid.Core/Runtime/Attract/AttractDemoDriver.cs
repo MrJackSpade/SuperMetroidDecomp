@@ -120,13 +120,7 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
             RoomViewportLoadMode.DisplayInitialViewport);
         // The scene's room setup acts on the demo room the load just built; a scene without one leaves the room as loaded.
         if (scene.RoomSetup is { } roomSetup)
-<<<<<<< ours
             ApplyAttractRoomSetup(roomSetup, loaded);
-||||||| base
-            ApplyAttractRoomSetup(roomSetup, _room.LoadedScope.Enemies);
-=======
-            ApplyAttractRoomSetup(roomSetup);
->>>>>>> theirs
         SuperMetroid.Core.Samus.Colours.SamusSuitShade.Show(_player.Colours, samus.EquippedItems);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
@@ -135,55 +129,16 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
     }
 
     /// <summary>What <see cref="ApplyAttractRoomSetup"/> does for each <see cref="AttractDemoRoomSetup"/> member, each member's own arm.</summary>
-    private IdentityTable<AttractDemoRoomSetup, Action> ApplyAttractRoomSetupForAttractDemoRoomSetup => field ??= new(new Dictionary<AttractDemoRoomSetup, Action>
+    private IdentityTable<AttractDemoRoomSetup, Action<RoomScope>> ApplyAttractRoomSetupForAttractDemoRoomSetup => field ??= new(new Dictionary<AttractDemoRoomSetup, Action<RoomScope>>
     {
-        [AttractDemoRoomSetup.ChargeBeamScroll] = () => _room.LoadedCamera.Scrolls.SetRoomScreen(AttractDemoDefinitions.ChargeBeamClosedScreen, RoomScrollState.Closed),
-        [AttractDemoRoomSetup.KraidTimer] = () => _room.LoadedScope.Enemies.AttractDemoHooks.StartKraidPhaseWait(AttractDemoDefinitions.KraidPhaseWaitUpdates),
-        [AttractDemoRoomSetup.DefeatedKraid] = () => _system.RecordBossesDefeated(AreaId.Brinstar, DefeatedBosses.AreaBoss),
+        [AttractDemoRoomSetup.ChargeBeamScroll] = room => room.Camera.Scrolls.SetRoomScreen(AttractDemoDefinitions.ChargeBeamClosedScreen, RoomScrollState.Closed),
+        [AttractDemoRoomSetup.KraidTimer] = room => room.Enemies.AttractDemoHooks.StartKraidPhaseWait(AttractDemoDefinitions.KraidPhaseWaitUpdates),
+        [AttractDemoRoomSetup.DefeatedKraid] = _ => _system.RecordBossesDefeated(AreaId.Brinstar, DefeatedBosses.AreaBoss),
     });
 
     /// <summary>Applies scene-specific scroll, Kraid timer, or defeated-boss setup.</summary>
-<<<<<<< ours
     private void ApplyAttractRoomSetup(AttractDemoRoomSetup roomSetup, RoomScope room)
-||||||| base
-    private void ApplyAttractRoomSetup(AttractDemoRoomSetup roomSetup, RoomEnemySystem enemies)
-=======
-    private void ApplyAttractRoomSetup(AttractDemoRoomSetup roomSetup)
->>>>>>> theirs
     {
-<<<<<<< ours
-        RoomEnemySystem enemies = room.Enemies;
-        switch (roomSetup)
-        {
-            case AttractDemoRoomSetup.ChargeBeamScroll:
-                room.Camera.Scrolls.SetRoomScreen(AttractDemoDefinitions.ChargeBeamClosedScreen, RoomScrollState.Closed);
-                break;
-            case AttractDemoRoomSetup.KraidTimer:
-                enemies.AttractDemoHooks.StartKraidPhaseWait(AttractDemoDefinitions.KraidPhaseWaitUpdates);
-                break;
-            case AttractDemoRoomSetup.DefeatedKraid:
-                _system.RecordBossesDefeated(AreaId.Brinstar, DefeatedBosses.AreaBoss);
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined AttractDemoRoomSetup {roomSetup}.");
-        }
-||||||| base
-        switch (roomSetup)
-        {
-            case AttractDemoRoomSetup.ChargeBeamScroll:
-                _room.LoadedCamera.Scrolls.SetRoomScreen(AttractDemoDefinitions.ChargeBeamClosedScreen, RoomScrollState.Closed);
-                break;
-            case AttractDemoRoomSetup.KraidTimer:
-                enemies.AttractDemoHooks.StartKraidPhaseWait(AttractDemoDefinitions.KraidPhaseWaitUpdates);
-                break;
-            case AttractDemoRoomSetup.DefeatedKraid:
-                _system.RecordBossesDefeated(AreaId.Brinstar, DefeatedBosses.AreaBoss);
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined AttractDemoRoomSetup {roomSetup}.");
-        }
-=======
-        ApplyAttractRoomSetupForAttractDemoRoomSetup[roomSetup]();
->>>>>>> theirs
+        ApplyAttractRoomSetupForAttractDemoRoomSetup[roomSetup](room);
     }
 }

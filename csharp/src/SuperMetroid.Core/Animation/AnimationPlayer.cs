@@ -363,94 +363,41 @@ internal sealed class AnimationPlayer<TSegment, TFrame, TEvent>
         AnimationPlace place = Playback.Place;
         AnimationShown<TSegment, TFrame> next = segments.PlayToNextFrame(ref animation, ref place, react);
         Playback = new(animation, place);
-<<<<<<< ours
-        switch (next)
-        {
-            case AnimationShown<TSegment, TFrame>.Frame frame:
-                Shown = frame.Shown;
-                UpdatesLeft = frame.Duration;
-                break;
-            case AnimationShown<TSegment, TFrame>.Paused pause:
-                UpdatesLeft = pause.Duration;
-                break;
-            case AnimationShown<TSegment, TFrame>.Hidden hidden:
-                Shown = null;
-                UpdatesLeft = hidden.Duration;
-                break;
-            case AnimationShown<TSegment, TFrame>.HeldFrame held:
-                Shown = held.Shown;
-                Motion = AnimationMotion.Resting;
-                break;
-            case AnimationShown<TSegment, TFrame>.Held:
-                Motion = AnimationMotion.Resting;
-                break;
-            case AnimationShown<TSegment, TFrame>.Ended:
-                Motion = AnimationMotion.Stopped;
-                break;
-            default:
-                throw new InvalidOperationException($"The animation played on to {next}.");
-        }
-        return next;
-||||||| base
-        switch (next)
-        {
-            case AnimationShown<TSegment, TFrame>.Frame frame:
-                Shown = frame.Shown;
-                UpdatesLeft = frame.Duration;
-                return frame.Shown;
-            case AnimationShown<TSegment, TFrame>.Paused pause:
-                UpdatesLeft = pause.Duration;
-                return null;
-            case AnimationShown<TSegment, TFrame>.Hidden hidden:
-                Shown = null;
-                UpdatesLeft = hidden.Duration;
-                return null;
-            case AnimationShown<TSegment, TFrame>.HeldFrame held:
-                Shown = held.Shown;
-                Motion = AnimationMotion.Resting;
-                return held.Shown;
-            case AnimationShown<TSegment, TFrame>.Held:
-                Motion = AnimationMotion.Resting;
-                return null;
-            case AnimationShown<TSegment, TFrame>.Ended:
-                Motion = AnimationMotion.Stopped;
-                return null;
-            default:
-                throw new InvalidOperationException($"The animation played on to {next}.");
-        }
-=======
         return next.Match(PlayOnCases, this);
->>>>>>> theirs
     }
 
-    /// <summary>What <see cref="PlayOnReacting"/> makes of each <see cref="AnimationShown{TSegment, TFrame}"/>, built once (#2553).</summary>
-    private static AnimationShownCases<TSegment, TFrame, AnimationPlayer<TSegment, TFrame, TEvent>, TFrame?> PlayOnCases { get; } = new(
+    /// <summary>
+    /// What <see cref="Advance(Func{TEvent, AnimationContinuation{TSegment}?})"/> makes of each
+    /// <see cref="AnimationShown{TSegment, TFrame}"/> it reaches, built once (#2553): the player takes on what it shows and
+    /// the case is handed back.
+    /// </summary>
+    private static AnimationShownCases<TSegment, TFrame, AnimationPlayer<TSegment, TFrame, TEvent>, AnimationShown<TSegment, TFrame>> PlayOnCases { get; } = new(
         Frame: static (frame, player) =>
         {
             player.Shown = frame.Shown;
             player.UpdatesLeft = frame.Duration;
-            return frame.Shown;
+            return frame;
         },
         HeldFrame: static (held, player) =>
         {
             player.Shown = held.Shown;
             player.Motion = AnimationMotion.Resting;
-            return held.Shown;
+            return held;
         },
         Paused: static (pause, player) =>
         {
             player.UpdatesLeft = pause.Duration;
-            return null;
+            return pause;
         },
-        Held: static (_, player) =>
+        Held: static (held, player) =>
         {
             player.Motion = AnimationMotion.Resting;
-            return null;
+            return held;
         },
-        Ended: static (_, player) =>
+        Ended: static (ended, player) =>
         {
             player.Motion = AnimationMotion.Stopped;
-            return null;
+            return ended;
         });
 
     /// <summary>

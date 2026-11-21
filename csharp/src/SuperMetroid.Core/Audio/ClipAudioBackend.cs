@@ -72,80 +72,14 @@ public sealed class ClipAudioBackend
     private static AudioEventReactions<Rendering> RenderReactions { get; } = new(
         ChangeMusicDataSet: static (change, render) =>
         {
-<<<<<<< ours
-            switch (audioEvent)
-            {
-                case AudioEvent.ChangeMusicDataSet change:
-                    RequireBeforeSteps(stepped, audioEvent);
-                    SwitchClipSet(change.DataSet, frameStart);
-                    break;
-                case AudioEvent.InstallSharedSounds:
-                    RequireBeforeSteps(stepped, audioEvent);
-                    ReleaseMusic(frameStart);
-                    State.StopMusic();
-                    break;
-                case AudioEvent.SelectMusicTrack selection:
-                    RequireBeforeSteps(stepped, audioEvent);
-                    State.SongChange.Hold(new SongChange.Play(selection.Track));
-                    break;
-                case AudioEvent.StopMusic:
-                    RequireBeforeSteps(stepped, audioEvent);
-                    State.SongChange.Hold(new SongChange.Stop());
-                    break;
-                case AudioEvent.ClockStep step:
-                    if (step.SampleOffset < cursor || step.SampleOffset >= FramesPerUpdate)
-                        throw new InvalidDataException($"Clock step at sample {step.SampleOffset} is out of order or outside the update.");
-                    Mix(frameStart, cursor, step.SampleOffset);
-                    cursor = step.SampleOffset;
-                    stepped = true;
-                    lastStep = step.SampleOffset;
-                    lastChecked = step.ChecksRequests;
-                    Step(frameStart + cursor, step.Steps, step.ChecksRequests);
-                    break;
-                case AudioEvent.StartSoundEffect startSoundEffect:
-                    if (!lastChecked || lastStep != startSoundEffect.SampleOffset)
-                        throw new InvalidDataException($"{audioEvent} does not follow its request-checking clock step.");
-                    StartSoundEffect(startSoundEffect.SoundEffect, frameStart + startSoundEffect.SampleOffset);
-                    break;
-                default:
-                    throw new InvalidDataException($"Unknown audio event {audioEvent}.");
-            }
-||||||| base
-            switch (audioEvent)
-            {
-                case AudioEvent.ChangeMusicDataSet change:
-                    RequireBeforeSteps(stepped, audioEvent);
-                    SwitchClipSet(change.DataSet, frameStart);
-                    break;
-                case AudioEvent.SelectMusicTrack selection:
-                    RequireBeforeSteps(stepped, audioEvent);
-                    State.SongChange.Hold(new SongChange.Play(selection.Track));
-                    break;
-                case AudioEvent.StopMusic:
-                    RequireBeforeSteps(stepped, audioEvent);
-                    State.SongChange.Hold(new SongChange.Stop());
-                    break;
-                case AudioEvent.ClockStep step:
-                    if (step.SampleOffset < cursor || step.SampleOffset >= FramesPerUpdate)
-                        throw new InvalidDataException($"Clock step at sample {step.SampleOffset} is out of order or outside the update.");
-                    Mix(frameStart, cursor, step.SampleOffset);
-                    cursor = step.SampleOffset;
-                    stepped = true;
-                    lastStep = step.SampleOffset;
-                    lastChecked = step.ChecksRequests;
-                    Step(frameStart + cursor, step.Steps, step.ChecksRequests);
-                    break;
-                case AudioEvent.StartSoundEffect startSoundEffect:
-                    if (!lastChecked || lastStep != startSoundEffect.SampleOffset)
-                        throw new InvalidDataException($"{audioEvent} does not follow its request-checking clock step.");
-                    StartSoundEffect(startSoundEffect.SoundEffect, frameStart + startSoundEffect.SampleOffset);
-                    break;
-                default:
-                    throw new InvalidDataException($"Unknown audio event {audioEvent}.");
-            }
-=======
             RequireBeforeSteps(render.Pass.Stepped, change);
             render.Backend.SwitchClipSet(change.DataSet, render.Pass.FrameStart);
+        },
+        InstallSharedSounds: static (install, render) =>
+        {
+            RequireBeforeSteps(render.Pass.Stepped, install);
+            render.Backend.ReleaseMusic(render.Pass.FrameStart);
+            render.Backend.State.StopMusic();
         },
         SelectMusicTrack: static (selection, render) =>
         {
@@ -217,7 +151,6 @@ public sealed class ClipAudioBackend
             Stepped = true;
             LastStep = sampleOffset;
             LastChecked = checksRequests;
->>>>>>> theirs
         }
     }
 

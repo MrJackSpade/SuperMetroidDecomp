@@ -128,29 +128,12 @@ internal sealed class CinematicActor<TAnimation, TFrame, TCue> : ICinematicActor
 
         Animation<TAnimation> animation = Playback.Animation;
         AnimationPlace place = Playback.Place;
-<<<<<<< ours
-        AnimationShown<TAnimation, TFrame> shown = animations.Segments.PlayToNextFrame(
-            animation, ref place, ownerCue);
-||||||| base
-        AnimationShown<TAnimation, TFrame> shown = animations.Segments.PlayToNextFrame(
-            animation, ref place, cue => ApplyCue(cue, ownerCue));
-=======
         IHidingAnimationShown<TAnimation, TFrame> shown = animations.Segments.PlayToNextFrame(
-            animation, ref place, cue => ApplyCue(cue, ownerCue));
->>>>>>> theirs
+            animation, ref place, ownerCue);
         Playback = new AnimationPlayback<TAnimation>(animation, place);
-        shown.React(StepHidingReactions, new StepContext(ownerCue, this));
+        shown.React(StepHidingReactions, new StepContext(this));
     }
 
-<<<<<<< ours
-||||||| base
-    /// <summary>Hands the cue to the actor's owner.</summary>
-    private void ApplyCue(TCue cue, Action<TCue>? ownerCue)
-    {
-        (ownerCue ?? throw new InvalidOperationException(
-            $"Cinematic sprite animation in {Playback.PlayingSegment} raised {cue} with no owner to act on it."))(cue);
-    }
-=======
     /// <summary>What <c>Step</c> does on each <see cref="AnimationShown{TAnimation, TFrame}"/>, built once (#2553).</summary>
     private static AnimationShownReactions<TAnimation, TFrame, StepContext> StepReactions { get; } = new(
         Frame: static (frame, context) =>
@@ -181,17 +164,8 @@ internal sealed class CinematicActor<TAnimation, TFrame, TCue> : ICinematicActor
         });
 
     /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
-    /// <param name="OwnerCue">The owner's reaction to its cues, as the step was given it.</param>
     /// <param name="Owner">The <see cref="CinematicActor{TAnimation, TFrame, TCue}"/> reacting.</param>
-    private readonly record struct StepContext(Action<TCue>? OwnerCue, CinematicActor<TAnimation, TFrame, TCue> Owner);
-
-    /// <summary>Hands the cue to the actor's owner.</summary>
-    private void ApplyCue(TCue cue, Action<TCue>? ownerCue)
-    {
-        (ownerCue ?? throw new InvalidOperationException(
-            $"Cinematic sprite animation in {Playback.PlayingSegment} raised {cue} with no owner to act on it."))(cue);
-    }
->>>>>>> theirs
+    private readonly record struct StepContext(CinematicActor<TAnimation, TFrame, TCue> Owner);
 
     /// <summary>
     /// The width, in pixels, of the loop the actor drifts round, or null for an actor that drifts round none. The loop's

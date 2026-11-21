@@ -268,22 +268,6 @@ internal sealed class FrontendSession
         Ensure.NotNull(phase);
         running = phase == Phases.LoadingGame ? new SequenceStep.Of<GameDataLoadRoute>(phase, GameDataLoadRoute.SelectedGame)
             : phase == Phases.DoorTransition ? new SequenceStep.Of<DoorTransitionStep>(phase, DoorTransitionStep.EnteringDoor)
-<<<<<<< ours
-||||||| base
-            : phase == Phases.Pause ? new SequenceStep.Of<PauseStep>(phase, PauseStep.DarkeningGameplay)
-            : phase == Phases.DeathSequence ? new SequenceStep.Of<DeathSequenceStep>(phase, DeathSequenceStep.FinalGameplayPass)
-            : phase == Phases.CeresDestruction ? new SequenceStep.Of<CeresDestructionOutcome>(phase, CeresDestructionOutcome.SamusEscaped)
-            : phase == Phases.TimeUp ? new SequenceStep.Of<TimeUpStep>(phase, TimeUpStep.WhiteningOut)
-            : phase == Phases.Ending ? new SequenceStep.Of<EndingStep>(phase, EndingStep.LeavingZebes)
-            : phase == Phases.AttractDemo ? new SequenceStep.Of<AttractDemoStep>(phase, AttractDemoStep.Loading)
-=======
-            : phase == Phases.Pause ? new SequenceStep.Of<PauseStep>(phase, PauseStep.DarkeningGameplay)
-            : phase == Phases.DeathSequence ? new SequenceStep.Of<DeathSequenceStep>(phase, DeathSequenceStep.FinalGameplayPass)
-            : phase == Phases.CeresDestruction ? new SequenceStep.Of<CeresDestructionOutcome>(phase, CeresDestructionOutcome.SamusEscaped)
-            : phase == Phases.TimeUp ? new SequenceStep.Of<TimeUpStep>(phase, TimeUpStep.WhiteningOut)
-            : phase == Phases.Ending ? new SequenceStep.Of<EndingStep>(phase, EndingStep.LeavingZebes)
-            : phase == Phases.AttractDemo ? new SequenceStep.Of<AttractDemoStep>(phase, Demo.RequestFromTitle())
->>>>>>> theirs
             : new SequenceStep.Stepless(phase);
     }
 

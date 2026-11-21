@@ -133,7 +133,6 @@ public sealed class SoundRequestHandshakes<TLibrary, TSound>
     /// <exception cref="ArgumentOutOfRangeException">The handshakes were not given <paramref name="library"/>.</exception>
     public RequestedSound<TSound>? Awaited(TLibrary library) => HandshakeOf(library).Awaited;
 
-<<<<<<< ours
     /// <summary>
     /// Runs one pass of <paramref name="library"/>'s handshake against what the library reports as accepted, and
     /// says what the pass asks of the library's queue.
@@ -147,107 +146,27 @@ public sealed class SoundRequestHandshakes<TLibrary, TSound>
     {
         Handshake handshake = HandshakeOf(library);
         switch (handshake)
-||||||| base
-    /// <summary>
-    /// Runs one pass of <paramref name="library"/>'s handshake against what the library reports as accepted, and
-    /// says what the pass asks of the library's queue.
-    /// </summary>
-    /// <param name="library">The library whose queue runs.</param>
-    /// <param name="acceptance">What the library reports as accepted to this update.</param>
-    /// <returns>What the pass asks of the library's queue.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">The handshakes were not given <paramref name="library"/>.</exception>
-    /// <exception cref="InvalidDataException">The library's handshake holds a phase no pass can leave.</exception>
-    public HandshakeStep Advance(TLibrary library, SoundAcknowledgement<TSound> acceptance)
-    {
-        Handshake handshake = HandshakeOf(library);
-        switch (handshake.Phase)
-=======
-    /// <summary>What a pass does in each phase of a library's handshake, and the step it hands the library.</summary>
-    private IdentityTable<Phase, Func<TLibrary, SoundAcknowledgement<TSound>, Handshake, HandshakeStep>> PhaseSteps => field ??=
-        new(new Dictionary<Phase, Func<TLibrary, SoundAcknowledgement<TSound>, Handshake, HandshakeStep>>
->>>>>>> theirs
         {
-<<<<<<< ours
             case ReadyHandshake:
                 return HandshakeStep.RequestNext;
             case AwaitingHandshake awaiting:
                 if (!acceptance.Acknowledges(awaiting.Awaited))
-||||||| base
-            case Phase.ReadyToRequest:
-                return HandshakeStep.RequestNext;
-
-            case Phase.AwaitingAcceptance:
-                if (!acceptance.Acknowledges(handshake.Awaited))
-=======
-            [Phase.ReadyToRequest] = (library, acceptance, handshake) => HandshakeStep.RequestNext,
-            [Phase.AwaitingAcceptance] = (library, acceptance, handshake) =>
-            {
-                if (!acceptance.Acknowledges(handshake.Awaited))
->>>>>>> theirs
                     return HandshakeStep.RepeatRequest;
                 handshakes[library] = new HoldingHandshake(awaiting.Awaited, UpdateCountdown.Lasting(WithdrawalHoldPasses));
                 return HandshakeStep.Wait;
-<<<<<<< ours
             case HoldingHandshake holding:
                 if (!holding.Hold.Count())
-||||||| base
-
-            case Phase.HoldingBeforeWithdrawal:
-                UpdateCountdown hold = handshake.Hold
-                    ?? throw new InvalidDataException("A sound handshake holds its accepted request with no hold.");
-                if (!hold.Count())
-=======
-            },
-            [Phase.HoldingBeforeWithdrawal] = (library, acceptance, handshake) =>
-            {
-                UpdateCountdown hold = handshake.Hold
-                    ?? throw new InvalidDataException("A sound handshake holds its accepted request with no hold.");
-                if (!hold.Count())
->>>>>>> theirs
                     return HandshakeStep.Wait;
                 handshakes[library] = new WithdrawingHandshake();
                 return HandshakeStep.Withdraw;
-<<<<<<< ours
             case WithdrawingHandshake:
-||||||| base
-
-            case Phase.AwaitingWithdrawalAcceptance:
-=======
-            },
-            [Phase.AwaitingWithdrawalAcceptance] = (library, acceptance, handshake) =>
-            {
->>>>>>> theirs
                 if (!acceptance.IsNone)
                     return HandshakeStep.Withdraw;
                 handshakes[library] = new ReadyHandshake();
                 return HandshakeStep.RequestNext;
-<<<<<<< ours
             default:
                 throw new InvalidDataException($"Sound library {library} holds handshake {handshake}, which no pass can leave.");
         }
-||||||| base
-
-            default:
-                throw new InvalidDataException($"Sound library {library} holds handshake phase {handshake.Phase}, which no pass can leave.");
-        }
-=======
-            },
-        });
-
-    /// <summary>
-    /// Runs one pass of <paramref name="library"/>'s handshake against what the library reports as accepted, and
-    /// says what the pass asks of the library's queue.
-    /// </summary>
-    /// <param name="library">The library whose queue runs.</param>
-    /// <param name="acceptance">What the library reports as accepted to this update.</param>
-    /// <returns>What the pass asks of the library's queue.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">The handshakes were not given <paramref name="library"/>.</exception>
-    /// <exception cref="InvalidDataException">The library's handshake holds a phase no pass can leave.</exception>
-    public HandshakeStep Advance(TLibrary library, SoundAcknowledgement<TSound> acceptance)
-    {
-        Handshake handshake = HandshakeOf(library);
-        return PhaseSteps[handshake.Phase](library, acceptance, handshake);
->>>>>>> theirs
     }
 
     /// <summary>Records that <paramref name="library"/>'s ready queue requested <paramref name="sound"/>; it then awaits its acceptance.</summary>

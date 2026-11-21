@@ -19,11 +19,14 @@ internal sealed class OpeningDoorTransition(DoorOpeningScrollState scroll, Gradu
     internal GradualFadeSteps FadeSteps { get; } = Ensure.NotNull(fadeIn);
 
     /// <inheritdoc/>
-    internal override DoorTransitionPhase Phase => _phase;
+    internal override DoorTransitionPhase Phase => RunningPhase;
 
-    /// <summary>The stage this transition has reached; it begins at the wait for the door's opening scroll.</summary>
-    private DoorTransitionPhase _phase = DoorTransitionPhase.WaitForDoorOpeningScroll;
+    /// <summary>
+    /// The stage this transition has reached, one of the phases only a transition under way holds (#2553); it begins at
+    /// the wait for the door's opening scroll.
+    /// </summary>
+    internal DoorTransitionPhase.Running RunningPhase { get; private set; } = new DoorTransitionPhase.Running.WaitForDoorOpeningScroll();
 
     /// <summary>Moves the transition on to <paramref name="phase"/>, which the next update runs.</summary>
-    internal void Enter(DoorTransitionPhase phase) => _phase = phase;
+    internal void Enter(DoorTransitionPhase.Running phase) => RunningPhase = phase;
 }

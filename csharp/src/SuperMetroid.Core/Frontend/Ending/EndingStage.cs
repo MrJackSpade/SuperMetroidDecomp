@@ -105,11 +105,6 @@ internal sealed class EndingStage
     /// shows that scene's own backdrop behind every layer; a load within a scene restores some of its colours.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The load is not one the ending makes.</exception>
-<<<<<<< ours
-    internal void LoadColours(EndingColourLoad load)
-||||||| base
-    internal void LoadColours(EndingColourLoad load) => screen.Colours.Load(load, load switch
-=======
     internal void LoadColours(EndingColourLoad load) => ColourLoads[load](screen.Colours, Backdrops);
 
     /// <summary>
@@ -117,39 +112,7 @@ internal sealed class EndingStage
     /// scene restores some of its colours, showing no backdrop of its own.
     /// </summary>
     private static IdentityTable<EndingColourLoad, Action<EndingColours, EndingBackdrops>> ColourLoads => field ??= new(new Dictionary<EndingColourLoad, Action<EndingColours, EndingBackdrops>>
->>>>>>> theirs
     {
-<<<<<<< ours
-        switch (load)
-        {
-            case EndingColourLoad.Escape:
-                screen.Colours.StartScene(load, Backdrops.Escape);
-                return;
-            case EndingColourLoad.Explosion:
-                screen.Colours.StartScene(load, Backdrops.Explosion);
-                return;
-            case EndingColourLoad.Credits:
-                screen.Colours.StartScene(load, Backdrops.Credits);
-                return;
-            case EndingColourLoad.PostCredits:
-                screen.Colours.StartScene(load, Backdrops.PostCredits);
-                return;
-            case EndingColourLoad.ExplosionBackgrounds or EndingColourLoad.FinalGunship or EndingColourLoad.RestoredShot or EndingColourLoad.LogoInitial:
-                screen.Colours.Restore(load);
-                return;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(load), load, "Undefined ending colour load.");
-        }
-    }
-||||||| base
-        EndingColourLoad.Escape => Backdrops.Escape,
-        EndingColourLoad.Explosion => Backdrops.Explosion,
-        EndingColourLoad.Credits => Backdrops.Credits,
-        EndingColourLoad.PostCredits => Backdrops.PostCredits,
-        EndingColourLoad.ExplosionBackgrounds or EndingColourLoad.FinalGunship or EndingColourLoad.RestoredShot or EndingColourLoad.LogoInitial => null,
-        _ => throw new ArgumentOutOfRangeException(nameof(load), load, "Undefined ending colour load."),
-    });
-=======
         [EndingColourLoad.Escape] = static (colours, backdrops) => colours.StartScene(EndingColourLoad.Escape, backdrops.Escape),
         [EndingColourLoad.Explosion] = static (colours, backdrops) => colours.StartScene(EndingColourLoad.Explosion, backdrops.Explosion),
         [EndingColourLoad.Credits] = static (colours, backdrops) => colours.StartScene(EndingColourLoad.Credits, backdrops.Credits),
@@ -159,7 +122,6 @@ internal sealed class EndingStage
         [EndingColourLoad.RestoredShot] = static (colours, _) => colours.Restore(EndingColourLoad.RestoredShot),
         [EndingColourLoad.LogoInitial] = static (colours, _) => colours.Restore(EndingColourLoad.LogoInitial),
     });
->>>>>>> theirs
 
 
     /// <summary>Whether the exploding planet's actor is still shown.</summary>

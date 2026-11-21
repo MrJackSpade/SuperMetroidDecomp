@@ -38,60 +38,22 @@ internal sealed class DoorTransitionGameSequence(FrontendSession session) : IGam
     /// <inheritdoc/>
     public bool IsWaitingOutDisplayFrame => false;
 
-<<<<<<< ours
-    /// <inheritdoc/>
-    public void Step(ControllerButton controllerInput, LoadedGameplay live)
-||||||| base
-    /// <inheritdoc/>
-    public void Step(ControllerButton controllerInput)
-=======
     /// <summary>What <c>Step</c> does for each <see cref="DoorTransitionStep"/> member, each member's own arm.</summary>
-    private IdentityTable<DoorTransitionStep, Action<ControllerButton>> StepForDoorTransitionStep => field ??= new(new Dictionary<DoorTransitionStep, Action<ControllerButton>>
->>>>>>> theirs
+    private IdentityTable<DoorTransitionStep, Action<ControllerButton, LoadedGameplay>> StepForDoorTransitionStep => field ??= new(new Dictionary<DoorTransitionStep, Action<ControllerButton, LoadedGameplay>>
     {
-        [DoorTransitionStep.EnteringDoor] = controllerInput =>
+        [DoorTransitionStep.EnteringDoor] = (controllerInput, live) =>
         {
-<<<<<<< ours
-            case DoorTransitionStep.EnteringDoor:
-                if (StepEnteringDoor(controllerInput, live))
-                    BeginTransition(controllerInput, live);
-                break;
-            case DoorTransitionStep.BeginningTransition:
+            if (StepEnteringDoor(controllerInput, live))
                 BeginTransition(controllerInput, live);
-                break;
-            case DoorTransitionStep.Transitioning:
-                StepTransition(controllerInput, live);
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(DoorTransitionStep)} {session.DoorTransitionStep}.");
-        }
-||||||| base
-            case DoorTransitionStep.EnteringDoor:
-                if (StepEnteringDoor(controllerInput))
-                    BeginTransition(controllerInput);
-                break;
-            case DoorTransitionStep.BeginningTransition:
-                BeginTransition(controllerInput);
-                break;
-            case DoorTransitionStep.Transitioning:
-                StepTransition(controllerInput);
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(DoorTransitionStep)} {session.DoorTransitionStep}.");
-        }
-=======
-            if (StepEnteringDoor(controllerInput))
-                BeginTransition(controllerInput);
         },
-        [DoorTransitionStep.BeginningTransition] = controllerInput => BeginTransition(controllerInput),
-        [DoorTransitionStep.Transitioning] = controllerInput => StepTransition(controllerInput),
+        [DoorTransitionStep.BeginningTransition] = (controllerInput, live) => BeginTransition(controllerInput, live),
+        [DoorTransitionStep.Transitioning] = (controllerInput, live) => StepTransition(controllerInput, live),
     });
 
     /// <inheritdoc/>
-    public void Step(ControllerButton controllerInput)
+    public void Step(ControllerButton controllerInput, LoadedGameplay live)
     {
-        StepForDoorTransitionStep[session.DoorTransitionStep](controllerInput);
->>>>>>> theirs
+        StepForDoorTransitionStep[session.DoorTransitionStep](controllerInput, live);
     }
 
     /// <summary>
@@ -162,19 +124,9 @@ internal sealed class DoorTransitionGameSequence(FrontendSession session) : IGam
     /// <summary>One update of loading, scrolling into and fading in the next room, which returns to gameplay once complete.</summary>
     private void StepTransition(ControllerButton controllerInput, LoadedGameplay live)
     {
-<<<<<<< ours
         session.doorTransition.Step(live.Runtime, live.Room, session.audio, controllerInput, session.RoomLoadProgress);
         session.display.PublishGameplay(live);
-        if (session.doorTransition.Phase == DoorTransitionPhase.Complete)
-||||||| base
-        session.doorTransition.Step(session.GameplayRuntime, session.audio, controllerInput, session.RoomLoadProgress);
-        session.display.PublishGameplay(session.GameplayRuntime);
-        if (session.doorTransition.Phase == DoorTransitionPhase.Complete)
-=======
-        session.doorTransition.Step(session.GameplayRuntime, session.audio, controllerInput, session.RoomLoadProgress);
-        session.display.PublishGameplay(session.GameplayRuntime);
         if (session.doorTransition.Phase is DoorTransitionPhase.Complete)
->>>>>>> theirs
         {
             // The door forces full brightness before the destination fade-in, so a door
             // taken mid-pause-fade still leaves the screen fully lit.

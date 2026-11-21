@@ -44,42 +44,16 @@ internal sealed class CeresDestructionGameSequence(FrontendSession session, Cere
     public bool IsWaitingOutDisplayFrame => Screen.IsWaitingOutDisplayFrame;
 
     /// <summary>What <c>Step</c> does for each <see cref="CeresDestructionOutcome"/> member, each member's own arm.</summary>
-    private IdentityTable<CeresDestructionOutcome, Action<ControllerButton>> StepForCeresDestructionOutcome => field ??= new(new Dictionary<CeresDestructionOutcome, Action<ControllerButton>>
+    private IdentityTable<CeresDestructionOutcome, Action<ControllerButton, SuperMetroidRuntime>> StepForCeresDestructionOutcome => field ??= new(new Dictionary<CeresDestructionOutcome, Action<ControllerButton, SuperMetroidRuntime>>
     {
-        [CeresDestructionOutcome.SamusEscaped] = controllerInput => StepEscaped(controllerInput),
-        [CeresDestructionOutcome.SamusAboard] = controllerInput => StepWithSamusAboard(controllerInput),
+        [CeresDestructionOutcome.SamusEscaped] = (controllerInput, runtime) => StepEscaped(controllerInput, runtime),
+        [CeresDestructionOutcome.SamusAboard] = (controllerInput, runtime) => StepWithSamusAboard(controllerInput, runtime),
     });
 
     /// <inheritdoc/>
     public void Step(ControllerButton controllerInput, SuperMetroidRuntime runtime)
     {
-<<<<<<< ours
-        switch (Outcome)
-        {
-            case CeresDestructionOutcome.SamusEscaped:
-                StepEscaped(controllerInput, runtime);
-                break;
-            case CeresDestructionOutcome.SamusAboard:
-                StepWithSamusAboard(controllerInput, runtime);
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(CeresDestructionOutcome)} {Outcome}.");
-        }
-||||||| base
-        switch (session.CeresDestructionOutcome)
-        {
-            case CeresDestructionOutcome.SamusEscaped:
-                StepEscaped(controllerInput);
-                break;
-            case CeresDestructionOutcome.SamusAboard:
-                StepWithSamusAboard(controllerInput);
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(CeresDestructionOutcome)} {session.CeresDestructionOutcome}.");
-        }
-=======
-        StepForCeresDestructionOutcome[session.CeresDestructionOutcome](controllerInput);
->>>>>>> theirs
+        StepForCeresDestructionOutcome[Outcome](controllerInput, runtime);
     }
 
     /// <summary>One update of the escaped destruction, which loads the Zebes landing once finished.</summary>

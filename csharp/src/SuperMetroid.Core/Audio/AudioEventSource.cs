@@ -30,61 +30,7 @@ internal sealed class AudioEventSource
         var events = new List<AudioEvent>(requests.Count + SoundClockTiming.MaximumStepsPerUpdate);
         var applying = new RequestApplying(clock, events);
         foreach (AudioRequest request in requests)
-<<<<<<< ours
-        {
-            switch (request)
-            {
-                case AudioRequest.ChangeMusicDataSet change:
-                    clock.PauseForMusicLoad();
-                    events.Add(new AudioEvent.ChangeMusicDataSet(change.DataSet));
-                    break;
-                case AudioRequest.InstallSharedSounds:
-                    clock.PauseForMusicLoad();
-                    events.Add(new AudioEvent.InstallSharedSounds());
-                    break;
-                case AudioRequest.PlayMusicTrack play:
-                    events.Add(new AudioEvent.SelectMusicTrack(play.Track));
-                    break;
-                case AudioRequest.StopMusic:
-                    events.Add(new AudioEvent.StopMusic());
-                    break;
-                case AudioRequest.RequestSound sound:
-                    clock.Request(sound.Sound.Library, new RequestedSound<SoundEffectId>(sound.Sound));
-                    break;
-                case AudioRequest.ClearSoundRequest clear:
-                    clock.Request(clear.Library, null);
-                    break;
-                default:
-                    throw new InvalidDataException($"Unknown audio request {request}.");
-            }
-        }
-||||||| base
-        {
-            switch (request)
-            {
-                case AudioRequest.ChangeMusicDataSet change:
-                    clock.PauseForMusicLoad();
-                    events.Add(new AudioEvent.ChangeMusicDataSet(change.DataSet));
-                    break;
-                case AudioRequest.PlayMusicTrack play:
-                    events.Add(new AudioEvent.SelectMusicTrack(play.Track));
-                    break;
-                case AudioRequest.StopMusic:
-                    events.Add(new AudioEvent.StopMusic());
-                    break;
-                case AudioRequest.RequestSound sound:
-                    clock.Request(sound.Sound.Library, sound.Sound);
-                    break;
-                case AudioRequest.ClearSoundRequest clear:
-                    clock.Request(clear.Library, null);
-                    break;
-                default:
-                    throw new InvalidDataException($"Unknown audio request {request}.");
-            }
-        }
-=======
             request.React(RequestReactions, applying);
->>>>>>> theirs
         var schedule = new SoundClockStep<SoundEffectLibrary, SoundEffectId>[SoundClockTiming.MaximumStepsPerUpdate];
         int stepCount = clock.Advance(schedule);
         foreach (SoundClockStep<SoundEffectLibrary, SoundEffectId> step in schedule.AsSpan(0, stepCount))
@@ -101,7 +47,7 @@ internal sealed class AudioEventSource
     }
 
     /// <summary>
-    /// What an update does with each request (#2553): a data-set change pauses the clock for the load and is published, a
+    /// What an update does with each request (#2553): a data-set change or the shared sounds' install pauses the clock for the load and is published, a
     /// track or a stop is published as the track selected, and a sound request or its withdrawal goes to the clock.
     /// </summary>
     private static AudioRequestReactions<RequestApplying> RequestReactions { get; } = new(
@@ -112,7 +58,12 @@ internal sealed class AudioEventSource
             applying.Clock.PauseForMusicLoad();
             applying.Events.Add(new AudioEvent.ChangeMusicDataSet(change.DataSet));
         },
-        RequestSound: static (sound, applying) => applying.Clock.Request(sound.Sound.Library, sound.Sound),
+        InstallSharedSounds: static (_, applying) =>
+        {
+            applying.Clock.PauseForMusicLoad();
+            applying.Events.Add(new AudioEvent.InstallSharedSounds());
+        },
+        RequestSound: static (sound, applying) => applying.Clock.Request(sound.Sound.Library, new RequestedSound<SoundEffectId>(sound.Sound)),
         ClearSoundRequest: static (clear, applying) => applying.Clock.Request(clear.Library, null));
 
     /// <summary>An update applying its requests (#2553): the clock they reach and the events it publishes.</summary>

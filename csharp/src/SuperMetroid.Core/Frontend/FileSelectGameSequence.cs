@@ -29,93 +29,18 @@ internal sealed class FileSelectGameSequence(FrontendSession session, FileSelect
     /// <inheritdoc/>
     public GamePhaseAudio Audio => GamePhaseAudio.Ordinary;
 
-    /// <summary>The diagnostic name of each file-select step, read from the session it runs against.</summary>
-    private static IdentityTable<FileSelectStep, Func<FrontendSession, string>> Names => field ??= new(new Dictionary<FileSelectStep, Func<FrontendSession, string>>
-    {
-        [FileSelectStep.SaveSlots] = static running => running.ActiveFileSelect.Phase.Name,
-        [FileSelectStep.Options] = static running => running.ActiveOptions.Phase.ToString(),
-        [FileSelectStep.AreaMap] = static running => running.ScreenAs<FileSelectMapMenuState>() is { } map
-            ? (map.IsEnteringArea ? "Entering the area map" : map.Phase.ToString())
-            : "Preparing saved-game map",
-    });
-
     /// <inheritdoc/>
-<<<<<<< ours
     public string Name => Current.Name;
-||||||| base
-    public string Name => session.FileSelectStep switch
-    {
-        FileSelectStep.SaveSlots => session.ActiveFileSelect.Phase.ToString(),
-        FileSelectStep.Options => session.ActiveOptions.Phase.ToString(),
-        FileSelectStep.AreaMap => session.ScreenAs<FileSelectMapMenuState>()?.Phase.ToString() ?? "Preparing saved-game map",
-        _ => throw new InvalidOperationException($"Undefined {nameof(FileSelectStep)} {session.FileSelectStep}."),
-    };
-=======
-    public string Name => Names[session.FileSelectStep](session);
-
-    /// <summary>Whether each file-select step is waiting out a frame of the display, read from the session it runs against.</summary>
-    private static IdentityTable<FileSelectStep, Func<FrontendSession, bool>> WaitsOutDisplayFrame => field ??= new(new Dictionary<FileSelectStep, Func<FrontendSession, bool>>
-    {
-        [FileSelectStep.SaveSlots] = static running => running.ScreenAs<FileSelectMenuState>()?.IsWaitingOutDisplayFrame == true,
-        [FileSelectStep.Options] = static running => false,
-        [FileSelectStep.AreaMap] = static running => running.ScreenAs<FileSelectMapMenuState>()?.Outcome == FileSelectMapOutcome.Load,
-    });
->>>>>>> theirs
 
     /// <inheritdoc/>
     /// <remarks>
     /// The save slots wait out a frame of the display on some of their steps. The area map's final update latched its
     /// load request, blanked the display and waits out one frame; the next update continues that step.
     /// </remarks>
-<<<<<<< ours
     public bool IsWaitingOutDisplayFrame => Current.IsWaitingOutDisplayFrame;
-||||||| base
-    public bool IsWaitingOutDisplayFrame => session.FileSelectStep switch
-    {
-        FileSelectStep.SaveSlots => session.ScreenAs<FileSelectMenuState>()?.IsWaitingOutDisplayFrame == true,
-        FileSelectStep.Options => false,
-        FileSelectStep.AreaMap => session.ScreenAs<FileSelectMapMenuState>()?.Outcome == FileSelectMapOutcome.Load,
-        _ => throw new InvalidOperationException($"Undefined {nameof(FileSelectStep)} {session.FileSelectStep}."),
-    };
-=======
-    public bool IsWaitingOutDisplayFrame => WaitsOutDisplayFrame[session.FileSelectStep](session);
-
-    /// <summary>What <c>Step</c> does for each <see cref="FileSelectStep"/> member, each member's own arm.</summary>
-    private IdentityTable<FileSelectStep, Action<ControllerButton>> StepForFileSelectStep => field ??= new(new Dictionary<FileSelectStep, Action<ControllerButton>>
-    {
-        [FileSelectStep.SaveSlots] = controllerInput => RunSaveSlots(controllerInput),
-        [FileSelectStep.Options] = controllerInput => RunOptions(controllerInput),
-        [FileSelectStep.AreaMap] = controllerInput => RunAreaMap(controllerInput),
-    });
->>>>>>> theirs
 
     /// <inheritdoc/>
-<<<<<<< ours
     public void Step(ControllerButton controllerInput) => Current.Run(this, controllerInput);
-||||||| base
-    public void Step(ControllerButton controllerInput)
-    {
-        switch (session.FileSelectStep)
-        {
-            case FileSelectStep.SaveSlots:
-                RunSaveSlots(controllerInput);
-                break;
-            case FileSelectStep.Options:
-                RunOptions(controllerInput);
-                break;
-            case FileSelectStep.AreaMap:
-                RunAreaMap(controllerInput);
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(FileSelectStep)} {session.FileSelectStep}.");
-        }
-    }
-=======
-    public void Step(ControllerButton controllerInput)
-    {
-        StepForFileSelectStep[session.FileSelectStep](controllerInput);
-    }
->>>>>>> theirs
 
     /// <summary>One update of the save slots.</summary>
     private void RunSaveSlots(FileSelectMenuState slots, ControllerButton controllerInput)
@@ -383,7 +308,7 @@ internal sealed class FileSelectGameSequence(FrontendSession session, FileSelect
             internal override FileSelectStep Step => FileSelectStep.SaveSlots;
 
             /// <inheritdoc/>
-            internal override string Name => Screen.Phase.ToString();
+            internal override string Name => Screen.Phase.Name;
 
             /// <inheritdoc/>
             internal override bool IsWaitingOutDisplayFrame => Screen.IsWaitingOutDisplayFrame;
@@ -450,7 +375,7 @@ internal sealed class FileSelectGameSequence(FrontendSession session, FileSelect
             internal override FileSelectStep Step => FileSelectStep.AreaMap;
 
             /// <inheritdoc/>
-            internal override string Name => Screen.Phase.ToString();
+            internal override string Name => Screen.IsEnteringArea ? "Entering the area map" : Screen.Phase.ToString();
 
             /// <inheritdoc/>
             /// <remarks>The map's final update latched its load request, blanked the display and waits out one frame.</remarks>

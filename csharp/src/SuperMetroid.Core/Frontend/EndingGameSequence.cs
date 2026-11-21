@@ -16,91 +16,22 @@ internal sealed class EndingGameSequence(FrontendSession session) : IGameplayPha
     /// <inheritdoc/>
     public SuperMetroidGameState State => SuperMetroidGameState.Ending;
 
-    /// <summary>How each step of the ending advances the random generator.</summary>
-    private static IdentityTable<EndingStep, PhaseRandomStep> RandomSteps => field ??= new(new Dictionary<EndingStep, PhaseRandomStep>
-    {
-        [EndingStep.LeavingZebes] = PhaseRandomStep.RuntimeOwned,
-        [EndingStep.Credits] = PhaseRandomStep.Advance,
-    });
-
     /// <inheritdoc/>
-<<<<<<< ours
     /// <remarks>Leaving Zebes runs gameplay, which advances the generator itself.</remarks>
     public PhaseRandomStep RandomStep => PhaseRandomStep.RuntimeOwned;
-||||||| base
-    /// <remarks>Leaving Zebes runs gameplay, which advances the generator itself; the credits advance it once per update.</remarks>
-    public PhaseRandomStep RandomStep => session.EndingStep switch
-    {
-        EndingStep.LeavingZebes => PhaseRandomStep.RuntimeOwned,
-        EndingStep.Credits => PhaseRandomStep.Advance,
-        _ => throw new InvalidOperationException($"Undefined {nameof(EndingStep)} {session.EndingStep}."),
-    };
-=======
-    /// <remarks>Leaving Zebes runs gameplay, which advances the generator itself; the credits advance it once per update.</remarks>
-    public PhaseRandomStep RandomStep => RandomSteps[session.EndingStep];
->>>>>>> theirs
 
     /// <inheritdoc/>
     public GamePhaseAudio Audio => GamePhaseAudio.Ordinary;
 
-<<<<<<< ours
     /// <inheritdoc/>
     public string Name => $"Zebes escape fade-out ({session.EscapeFade.Level})";
-||||||| base
-    /// <inheritdoc/>
-    public string Name => session.EndingStep switch
-    {
-        EndingStep.LeavingZebes => $"Zebes escape fade-out ({session.EscapeFade.Level})",
-        EndingStep.Credits => $"Ending: {session.ScreenAs<EndingCreditsState>()?.Phase}",
-        _ => throw new InvalidOperationException($"Undefined {nameof(EndingStep)} {session.EndingStep}."),
-    };
-=======
-    /// <summary>The diagnostic name of each step of the ending, read from the session it runs against.</summary>
-    private static IdentityTable<EndingStep, Func<FrontendSession, string>> Names => field ??= new(new Dictionary<EndingStep, Func<FrontendSession, string>>
-    {
-        [EndingStep.LeavingZebes] = static running => $"Zebes escape fade-out ({running.EscapeFade.Level})",
-        [EndingStep.Credits] = static running => $"Ending: {running.ScreenAs<EndingCreditsState>()?.Phase}",
-    });
-
-    /// <inheritdoc/>
-    public string Name => Names[session.EndingStep](session);
->>>>>>> theirs
 
     /// <inheritdoc/>
     public bool IsWaitingOutDisplayFrame => false;
 
-    /// <summary>What <c>Step</c> does for each <see cref="EndingStep"/> member, each member's own arm.</summary>
-    private IdentityTable<EndingStep, Action<ControllerButton>> StepForEndingStep => field ??= new(new Dictionary<EndingStep, Action<ControllerButton>>
-    {
-        [EndingStep.LeavingZebes] = controllerInput => LeaveZebes(controllerInput),
-        [EndingStep.Credits] = controllerInput => RunCredits(),
-    });
-
     /// <inheritdoc/>
-<<<<<<< ours
     /// <remarks>Samus leaves Zebes in the loaded room.</remarks>
     public void Step(ControllerButton controllerInput, LoadedGameplay live) => LeaveZebes(controllerInput, live);
-||||||| base
-    public void Step(ControllerButton controllerInput)
-    {
-        switch (session.EndingStep)
-        {
-            case EndingStep.LeavingZebes:
-                LeaveZebes(controllerInput);
-                break;
-            case EndingStep.Credits:
-                RunCredits();
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(EndingStep)} {session.EndingStep}.");
-        }
-    }
-=======
-    public void Step(ControllerButton controllerInput)
-    {
-        StepForEndingStep[session.EndingStep](controllerInput);
-    }
->>>>>>> theirs
 
     /// <summary>One update of the departing gunship's gameplay while the screen darkens, which starts the credits once black.</summary>
     private void LeaveZebes(ControllerButton controllerInput, LoadedGameplay live)

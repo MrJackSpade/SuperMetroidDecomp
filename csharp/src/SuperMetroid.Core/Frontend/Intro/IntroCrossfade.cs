@@ -52,33 +52,6 @@ public sealed class IntroCrossfade
         incoming = to;
     }
 
-<<<<<<< ours
-    /// <summary>
-    /// Takes one step of the running crossfade <see cref="Advance"/> runs: the outgoing scene moves one level toward black and
-    /// the incoming one toward its colours.
-    /// </summary>
-    /// <exception cref="InvalidOperationException">The crossfade has already taken every step.</exception>
-    private void Step()
-    {
-        if (steps == Levels)
-            throw new InvalidOperationException($"The opening's crossfade from {outgoing} to {incoming} has already taken its {Levels} steps.");
-        steps++;
-    }
-
-||||||| base
-    /// <summary>Takes one step: the outgoing scene moves one level toward black and the incoming one toward its colours.</summary>
-    /// <exception cref="InvalidOperationException">No crossfade has started, or the crossfade has already taken every step.</exception>
-    private void Step()
-    {
-        if (incoming is null)
-            throw new InvalidOperationException("The opening has not started a crossfade.");
-        if (steps == Levels)
-            throw new InvalidOperationException($"The opening's crossfade from {outgoing} to {incoming} has already taken its {Levels} steps.");
-        steps++;
-    }
-
-=======
->>>>>>> theirs
     /// <summary>
     /// Runs the crossfade for one update (#1980): on the last update of each run of its step's updates the outgoing scene
     /// moves one level toward black and the incoming one toward its colours, so its steps end on its last update; reports

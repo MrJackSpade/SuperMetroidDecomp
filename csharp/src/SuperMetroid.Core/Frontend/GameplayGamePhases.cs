@@ -105,54 +105,9 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         EnterUpdateTransition(outcome.Transition, live);
     }
 
-    /// <summary>What <see cref="EnterUpdateTransition"/> does for each <see cref="GameplayUpdateTransition"/> member, each member's own arm.</summary>
-    private IdentityTable<GameplayUpdateTransition, Action> EnterUpdateTransitionForGameplayUpdateTransition => field ??= new(new Dictionary<GameplayUpdateTransition, Action>
-    {
-        [GameplayUpdateTransition.None] = () =>
-        {
-        },
-        [GameplayUpdateTransition.TimeUp] = () =>
-        {
-            // The escape countdown started the time-up during Samus's update, after her movement's door hits and
-            // before pause-check, which then sees the game no longer in main gameplay. Once the Zebes time bomb is
-            // set, Samus's draw returns the game to the time-up a run-out countdown started (#2518).
-            session.BeginTimeUp();
-        },
-        [GameplayUpdateTransition.LeavesZebes] = () => session.BeginZebesEscapeFade(),
-        [GameplayUpdateTransition.MapStationPause] = () =>
-        {
-            // The message box's close explicitly starts the pause for map acquisition, independently of Start or the
-            // station's input lock. Keep this separate from admission of a manual pause request.
-            session.Close<PauseMenuState>();
-            session.Enter(PauseStep.DarkeningGameplay);
-        },
-        [GameplayUpdateTransition.Pause] = () =>
-        {
-            // Samus's pause check runs during the main-gameplay update just completed. It sets the pause fade's wait
-            // before each step and starts the pause; the following update spends the first wait.
-            session.screenFade.SetCadence(PauseFadeTiming.WaitBeforeEachStep, PauseFadeTiming.WaitBeforeEachStep);
-            session.Close<PauseMenuState>();
-            session.Enter(PauseStep.DarkeningGameplay);
-        },
-        [GameplayUpdateTransition.CeresDeparture] = () =>
-        {
-            // The elevator has already selected standing pose and locked Samus. The following update owns the
-            // elevator hold (CeresElevatorDepartureDefinitions.DepartureHoldFrames); this update does not count it down.
-            session.BeginCeresDeparture();
-            session.Enter(session.Phases.CeresDeparture);
-        },
-        [GameplayUpdateTransition.Door] = () =>
-        {
-            // A door hit enters the door transition during the gameplay update. The already-produced gameplay image
-            // remains this frame's image; the following update reaches the door from that publication.
-            session.Enter(DoorTransitionStep.EnteringDoor);
-        },
-    });
-
     /// <summary>Enters the game state a main-gameplay update's steps moved the game to (#2517).</summary>
     private void EnterUpdateTransition(GameplayUpdateTransition transition, LoadedGameplay live)
     {
-<<<<<<< ours
         switch (transition)
         {
             case GameplayUpdateTransition.Stays:
@@ -182,7 +137,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
             case GameplayUpdateTransition.CeresDeparture:
                 // The elevator has already selected standing pose and locked Samus. The following update owns the
                 // elevator hold (CeresElevatorDepartureDefinitions.DepartureHoldFrames); this update does not count it down.
-                session.ceresDeparture.Begin();
+                session.BeginCeresDeparture();
                 session.Enter(session.Phases.CeresDeparture);
                 break;
             case GameplayUpdateTransition.Door door:
@@ -193,50 +148,6 @@ internal sealed class GameplayGamePhases(FrontendSession session)
             default:
                 throw new InvalidOperationException($"Undefined {nameof(GameplayUpdateTransition)} {transition}.");
         }
-||||||| base
-        switch (transition)
-        {
-            case GameplayUpdateTransition.None:
-                break;
-            case GameplayUpdateTransition.TimeUp:
-                // The escape countdown started the time-up during Samus's update, after her movement's door hits and
-                // before pause-check, which then sees the game no longer in main gameplay. Once the Zebes time bomb is
-                // set, Samus's draw returns the game to the time-up a run-out countdown started (#2518).
-                session.BeginTimeUp();
-                break;
-            case GameplayUpdateTransition.LeavesZebes:
-                session.BeginZebesEscapeFade();
-                break;
-            case GameplayUpdateTransition.MapStationPause:
-                // The message box's close explicitly starts the pause for map acquisition, independently of Start or the
-                // station's input lock. Keep this separate from admission of a manual pause request.
-                session.Close<PauseMenuState>();
-                session.Enter(PauseStep.DarkeningGameplay);
-                break;
-            case GameplayUpdateTransition.Pause:
-                // Samus's pause check runs during the main-gameplay update just completed. It sets the pause fade's wait
-                // before each step and starts the pause; the following update spends the first wait.
-                session.screenFade.SetCadence(PauseFadeTiming.WaitBeforeEachStep, PauseFadeTiming.WaitBeforeEachStep);
-                session.Close<PauseMenuState>();
-                session.Enter(PauseStep.DarkeningGameplay);
-                break;
-            case GameplayUpdateTransition.CeresDeparture:
-                // The elevator has already selected standing pose and locked Samus. The following update owns the
-                // elevator hold (CeresElevatorDepartureDefinitions.DepartureHoldFrames); this update does not count it down.
-                session.ceresDeparture.Begin();
-                session.Enter(session.Phases.CeresDeparture);
-                break;
-            case GameplayUpdateTransition.Door:
-                // A door hit enters the door transition during the gameplay update. The already-produced gameplay image
-                // remains this frame's image; the following update reaches the door from that publication.
-                session.Enter(DoorTransitionStep.EnteringDoor);
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(GameplayUpdateTransition)} {transition}.");
-        }
-=======
-        EnterUpdateTransitionForGameplayUpdateTransition[transition]();
->>>>>>> theirs
     }
 
     /// <summary>Where each route of the update's out-of-health check sends Samus, and whether the refill or the death takes the update.</summary>

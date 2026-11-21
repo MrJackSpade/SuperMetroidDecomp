@@ -34,93 +34,21 @@ internal sealed class CeresDepartureGameSequence(FrontendSession session) : IGam
     /// <inheritdoc/>
     public void Step(ControllerButton controllerInput, LoadedGameplay live)
     {
-<<<<<<< ours
-        switch (session.ceresDeparture.Phase)
-        {
-            case CeresDeparturePhase.HoldingOnElevator:
-                HoldOnElevator(controllerInput, live);
-                break;
-            case CeresDeparturePhase.FadingToBlack:
-                FadeToBlack(controllerInput, live);
-                break;
-            case CeresDeparturePhase.Inactive:
-            case CeresDeparturePhase.Complete:
-            default:
-                // Entering the departure begins its hold, and its completed fade leaves it for Ceres's destruction.
-                throw new InvalidOperationException($"The Ceres departure runs only while it holds on the elevator or fades, not while {session.ceresDeparture.Phase}.");
-        }
-    }
-
-    /// <summary>One update of gameplay during the elevator hold.</summary>
-    private void HoldOnElevator(ControllerButton controllerInput, LoadedGameplay live)
-    {
-||||||| base
-        switch (session.ceresDeparture.Phase)
-        {
-            case CeresDeparturePhase.HoldingOnElevator:
-                HoldOnElevator(controllerInput);
-                break;
-            case CeresDeparturePhase.FadingToBlack:
-                FadeToBlack(controllerInput);
-                break;
-            case CeresDeparturePhase.Inactive:
-            case CeresDeparturePhase.Complete:
-            default:
-                // Entering the departure begins its hold, and its completed fade leaves it for Ceres's destruction.
-                throw new InvalidOperationException($"The Ceres departure runs only while it holds on the elevator or fades, not while {session.ceresDeparture.Phase}.");
-        }
-    }
-
-    /// <summary>One update of gameplay during the elevator hold.</summary>
-    private void HoldOnElevator(ControllerButton controllerInput)
-    {
-=======
         // Entering the departure begins its hold, and its completed fade leaves it for Ceres's destruction.
         bool fading = session.CeresDeparture.Phase == CeresDeparturePhase.FadingToBlack;
->>>>>>> theirs
         // The arrival descent runs in ordinary main gameplay while the elevator's enemy projectiles lock Samus; the
         // departure is only the hold and the fade.
-<<<<<<< ours
         live.Runtime.StepFrame(controllerInput, new RuntimeFrameRequest { Owner = GameplayUpdateOwner.CeresDeparture }, live.Room);
         session.display.PublishGameplay(live);
-        session.ceresDeparture.StepHoldAfterGameplay();
-||||||| base
-        session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Owner = GameplayUpdateOwner.CeresDeparture });
-        session.display.PublishGameplay(session.GameplayRuntime);
-        session.ceresDeparture.StepHoldAfterGameplay();
-=======
-        session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Owner = GameplayUpdateOwner.CeresDeparture });
-        session.display.PublishGameplay(session.GameplayRuntime);
         bool ceresFadeFinished = session.CeresDeparture.StepAfterGameplay();
         if (fading)
-            FadeToBlack(ceresFadeFinished);
->>>>>>> theirs
+            FadeToBlack(ceresFadeFinished, live);
     }
 
-<<<<<<< ours
-    /// <summary>One update of gameplay during the fade to black, which saves the checkpoint and starts Ceres's destruction once black.</summary>
-    private void FadeToBlack(ControllerButton controllerInput, LoadedGameplay live)
-||||||| base
-    /// <summary>One update of gameplay during the fade to black, which saves the checkpoint and starts Ceres's destruction once black.</summary>
-    private void FadeToBlack(ControllerButton controllerInput)
-=======
     /// <summary>Shows the fade to black's step, which saves the checkpoint and starts Ceres's destruction once black.</summary>
-    private void FadeToBlack(bool ceresFadeFinished)
->>>>>>> theirs
+    private void FadeToBlack(bool ceresFadeFinished, LoadedGameplay live)
     {
-<<<<<<< ours
-        live.Runtime.StepFrame(controllerInput, new RuntimeFrameRequest { Owner = GameplayUpdateOwner.CeresDeparture }, live.Room);
-        session.display.PublishGameplay(live);
-        bool ceresFadeFinished = session.ceresDeparture.StepFadeAfterGameplay();
-        session.SetDisplayBrightness(session.ceresDeparture.Brightness);
-||||||| base
-        session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Owner = GameplayUpdateOwner.CeresDeparture });
-        session.display.PublishGameplay(session.GameplayRuntime);
-        bool ceresFadeFinished = session.ceresDeparture.StepFadeAfterGameplay();
-        session.SetDisplayBrightness(session.ceresDeparture.Brightness);
-=======
         session.SetDisplayBrightness(session.CeresDeparture.Brightness);
->>>>>>> theirs
         if (ceresFadeFinished)
         {
             // The blackout saves the live Ceres elevator checkpoint only after

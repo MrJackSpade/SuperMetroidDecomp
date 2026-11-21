@@ -217,28 +217,7 @@ public sealed class AudioQueues
     /// Whether a room's track choice is queued: never for an inherited track, always for a
     /// silenced room, and for a played song or area theme when the data set changes or it is not playing.
     /// </summary>
-<<<<<<< ours
-    private bool RoomTrackQueues(RoomMusicTrack track, bool dataSetDiffers) => track switch
-    {
-        RoomMusicTrack.Inherit => false,
-        RoomMusicTrack.Silence => true,
-        RoomMusicTrack.Play play => dataSetDiffers || play.Track != PlayingTrack,
-        RoomMusicTrack.PlayAreaTheme => dataSetDiffers || AreaThemeDefinitions.Themes[DataSet] != PlayingTrack,
-        _ => throw new InvalidDataException($"Unknown room music track {track}."),
-    };
-||||||| base
-    private bool RoomTrackQueues(RoomMusicTrack track, bool dataSetDiffers) => track switch
-    {
-        RoomMusicTrack.Inherit => false,
-        RoomMusicTrack.Silence => true,
-        RoomMusicTrack.Play play => dataSetDiffers || play.Track != PlayingTrack,
-        // With no data set loaded no area theme can play, so the choice is queued.
-        RoomMusicTrack.PlayAreaTheme => dataSetDiffers || DataSet is not MusicDataSet loaded || AreaThemeDefinitions.Themes[loaded] != PlayingTrack,
-        _ => throw new InvalidDataException($"Unknown room music track {track}."),
-    };
-=======
     private bool RoomTrackQueues(RoomMusicTrack track, bool dataSetDiffers) => track.Queues(new RoomMusicEntry(dataSetDiffers, PlayingTrack, DataSet));
->>>>>>> theirs
 
     /// <summary>
     /// Runs the shared permanent-item music sequence.
@@ -356,24 +335,7 @@ public sealed class AudioQueues
                 return;
             }
 
-<<<<<<< ours
-            PlayingTrack = pending.Request switch
-            {
-                MusicRequest.PlayTrack play => play.Track,
-                MusicRequest.StopMusic => null,
-                _ => throw new InvalidDataException($"Unknown music request {pending.Request}."),
-            };
-||||||| base
-            PlayingTrack = pending.Request switch
-            {
-                MusicRequest.PlayTrack play => play.Track,
-                MusicRequest.PlayAreaTheme => AreaThemeOf(DataSet),
-                MusicRequest.StopMusic => null,
-                _ => throw new InvalidDataException($"Unknown music request {pending.Request}."),
-            };
-=======
-            PlayingTrack = pending.Request.TrackPlayedWith(DataSet);
->>>>>>> theirs
+            PlayingTrack = pending.Request.TrackPlayed;
             requests.Add(AudioRequest.ForTrack(PlayingTrack));
             Music.Dequeue();
             _soundDowntime.Restart(AudioQueueDefinitions.MusicChangeSoundDowntimePasses);
@@ -408,7 +370,7 @@ public sealed class AudioQueues
         {
         },
         [SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandshakeStep.RequestNext] = (library, requests) => SendNextSound(library, requests),
-        [SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandshakeStep.RepeatRequest] = (library, requests) => requests.Add(AudioRequest.ForSound(library, SoundHandshakes.Awaited(library))),
+        [SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandshakeStep.RepeatRequest] = (library, requests) => requests.Add(AudioRequest.ForSound(library, SoundHandshakes.Awaited(library)?.Sound)),
         [SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandshakeStep.Withdraw] = (library, requests) => requests.Add(new AudioRequest.ClearSoundRequest(library)),
     });
 
@@ -419,51 +381,7 @@ public sealed class AudioQueues
         List<AudioRequest> requests)
     {
         SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandshakeStep step = SoundHandshakes.Advance(library, acknowledgement);
-<<<<<<< ours
-        switch (step)
-        {
-            case SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandshakeStep.Wait:
-                break;
-
-            case SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandshakeStep.RequestNext:
-                SendNextSound(library, requests);
-                break;
-
-            case SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandshakeStep.RepeatRequest:
-                requests.Add(AudioRequest.ForSound(library, SoundHandshakes.Awaited(library)?.Sound));
-                break;
-
-            case SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandshakeStep.Withdraw:
-                requests.Add(new AudioRequest.ClearSoundRequest(library));
-                break;
-
-            default:
-                throw new InvalidDataException($"Sound library {library}'s request cycle asked for unknown step {step}.");
-        }
-||||||| base
-        switch (step)
-        {
-            case SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandshakeStep.Wait:
-                break;
-
-            case SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandshakeStep.RequestNext:
-                SendNextSound(library, requests);
-                break;
-
-            case SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandshakeStep.RepeatRequest:
-                requests.Add(AudioRequest.ForSound(library, SoundHandshakes.Awaited(library)));
-                break;
-
-            case SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandshakeStep.Withdraw:
-                requests.Add(new AudioRequest.ClearSoundRequest(library));
-                break;
-
-            default:
-                throw new InvalidDataException($"Sound library {library}'s request cycle asked for unknown step {step}.");
-        }
-=======
         HandleSoundEffectQueueForHandshakeStep[step](library, requests);
->>>>>>> theirs
     }
 
     /// <summary>Takes <paramref name="library"/>'s oldest waiting request, if one waits, asks the library for it, and starts awaiting its acceptance.</summary>

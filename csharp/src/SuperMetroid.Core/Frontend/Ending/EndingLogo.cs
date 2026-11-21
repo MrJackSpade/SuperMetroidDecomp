@@ -57,52 +57,15 @@ internal sealed class EndingLogo
     public bool Step(EndingColours colours)
     {
         // The crossfade's first step shows on the update after the grey-out cue, not on the update that requests it.
-<<<<<<< ours
-        EndingLogoCrossfadeStep? step = progress switch
-        {
-            Progress.Assembling => null,
-            Progress.CrossfadeRequested => EndingLogoCrossfadeStep.First,
-            Progress.Crossfading crossfading => crossfading.Next,
-            Progress.HandedOff => throw new InvalidOperationException("Completed logo must hand off to percentage text."),
-            _ => throw new InvalidOperationException($"Undefined logo progress {progress}."),
-        };
-        if (step is { } shown)
-||||||| base
-        EndingLogoCrossfadeStep? step = progress switch
-        {
-            Progress.Assembling => null,
-            Progress.CrossfadeRequested => EndingLogoCrossfadeStep.First,
-            Progress.Crossfading crossfading => crossfading.Shown.Following
-                ?? throw new InvalidOperationException("The logo's crossfade showed its last step."),
-            Progress.HandedOff => throw new InvalidOperationException("Completed logo must hand off to percentage text."),
-            _ => throw new InvalidOperationException($"Undefined logo progress {progress}."),
-        };
-        if (step is { } shown)
-=======
         if (NextCrossfade is { } step)
->>>>>>> theirs
         {
-<<<<<<< ours
-            Ensure.NotNull(colours).LogoCrossfade(shown);
-            if (shown.Following is not { } next)
-||||||| base
-            Ensure.NotNull(colours).LogoCrossfade(shown);
-            if (shown.Following is null)
-=======
             Ensure.NotNull(colours).LogoCrossfade(step);
             if (step.Following is not { } following)
->>>>>>> theirs
             {
                 Completed = true;
                 return true;
             }
-<<<<<<< ours
-            progress = new Progress.Crossfading(next);
-||||||| base
-            progress = new Progress.Crossfading(shown);
-=======
             NextCrossfade = following;
->>>>>>> theirs
         }
         // Each S half moves just before its own animation steps.
         upperS.Move();
@@ -143,44 +106,6 @@ internal sealed class EndingLogo
     private static CinematicActor<EndingLogoAnimation, CinematicSpritePose, EndingLogoCue> Create(EndingLogoActorDefinition definition) =>
         new(definition.Origin, EndingShades.Drawn(EndingLogoDefinitions.Colouring), EndingLogoAnimations.Logo, definition.Animation);
 
-<<<<<<< ours
-    /// <summary>Where the logo stands (#2560), one value: each case carries only its own data.</summary>
-    private abstract record Progress
-    {
-        /// <summary>The halves move and the circles draw in; the grey-out cue has not run.</summary>
-        internal sealed record Assembling : Progress;
-
-        /// <summary>The grey-out cue has run; the crossfade shows its first step on the next update.</summary>
-        internal sealed record CrossfadeRequested : Progress;
-
-        /// <summary>The crossfade under way, with the step it shows next: every step but its last has one after it.</summary>
-        /// <param name="Next">The step the crossfade shows on its next update.</param>
-        internal sealed record Crossfading(EndingLogoCrossfadeStep Next) : Progress;
-
-        /// <summary>The logo has shown its crossfade's last step and hands off to the percentage text.</summary>
-        internal sealed record HandedOff : Progress;
-    }
-
-||||||| base
-    /// <summary>Where the logo stands (#2560), one value: each case carries only its own data.</summary>
-    private abstract record Progress
-    {
-        /// <summary>The halves move and the circles draw in; the grey-out cue has not run.</summary>
-        internal sealed record Assembling : Progress;
-
-        /// <summary>The grey-out cue has run; the crossfade shows its first step on the next update.</summary>
-        internal sealed record CrossfadeRequested : Progress;
-
-        /// <summary>The crossfade shows its steps in turn.</summary>
-        /// <param name="Shown">The step the logo showed last.</param>
-        internal sealed record Crossfading(EndingLogoCrossfadeStep Shown) : Progress;
-
-        /// <summary>The logo has shown its crossfade's last step and hands off to the percentage text.</summary>
-        internal sealed record HandedOff : Progress;
-    }
-
-=======
->>>>>>> theirs
     /// <summary>
     /// An S half accelerating diagonally toward its landing point: the upper half down and left, the lower half up and
     /// right, each stopping where it reaches or passes its landing point's X.

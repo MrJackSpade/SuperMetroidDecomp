@@ -151,7 +151,9 @@ internal static class RoomLevelStreamDecoder
             return RoomBlockBehavior.None;
         if (BlockReactionFamilies.Of(kind) is not { } family)
             return RoomBlockBehaviorCodec.Decode(value);
-<<<<<<< ours
+        if (family == BlockReactionFamily.Shootable && RoomBlockBehaviorCodec.ReadsPastAreaShootableTable(value))
+            throw new InvalidDataException(
+                $"Room level {level} block {index} is {kind} with behaviour byte {value}, whose reaction the game reads past its area's shootable table.");
         // Every area the level lies in must give the block the same installed behaviour: the first area's.
         AreaId[] inAreas = [.. areas];
         if (inAreas.Length == 0)
@@ -168,16 +170,6 @@ internal static class RoomLevelStreamDecoder
 
         // The first behaviour holding the reaction the block's kind reads in the area.
         RoomBlockBehavior FirstBehaviorIn(AreaId area)
-||||||| base
-        RoomBlockBehavior? installed = null;
-        foreach (AreaId area in areas)
-=======
-        if (family == BlockReactionFamily.Shootable && RoomBlockBehaviorCodec.ReadsPastAreaShootableTable(value))
-            throw new InvalidDataException(
-                $"Room level {level} block {index} is {kind} with behaviour byte {value}, whose reaction the game reads past its area's shootable table.");
-        RoomBlockBehavior? installed = null;
-        foreach (AreaId area in areas)
->>>>>>> theirs
         {
             RoomBlockBehavior resolved = RoomBlockBehaviorCodec.Decode(area, value);
             BlockReaction reaction = resolved.ReactionIn(family) ?? throw new InvalidDataException(

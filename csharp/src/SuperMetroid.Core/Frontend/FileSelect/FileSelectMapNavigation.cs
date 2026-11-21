@@ -55,73 +55,6 @@ public sealed class FileSelectMapNavigation
         bool confirm = (pressed & (ControllerButton.Start | ControllerButton.A)) != ControllerButton.None;
         if (Phase == FileSelectMapNavigationPhase.Area)
         {
-<<<<<<< ours
-            case FileSelectMapNavigationPhase.Area:
-                // The area map changes areas only with the game's debug mode enabled. Without it, a newly pressed
-                // direction or Select discards the update's input, a confirm pressed with it included.
-                if ((pressed & (ControllerButton.Up | ControllerButton.Down | ControllerButton.Left |
-                        ControllerButton.Right | ControllerButton.Select)) != ControllerButton.None) break;
-                // Otherwise B wins over A/Start, and selecting keeps the saved area.
-                if (cancel) Phase = FileSelectMapNavigationPhase.OptionsRequested;
-                else if (confirm) Phase = FileSelectMapNavigationPhase.PreparingWindow;
-                break;
-            case FileSelectMapNavigationPhase.PreparingWindow:
-                ActiveWindow = new FileSelectMapWindow(area, labels);
-                Phase = FileSelectMapNavigationPhase.ExpandingWindow;
-                break;
-            case FileSelectMapNavigationPhase.ExpandingWindow:
-                if (ActiveWindow.Step()) Phase = FileSelectMapNavigationPhase.InitializingRoom;
-                break;
-            case FileSelectMapNavigationPhase.InitializingRoom:
-                // The room map is installed after the expanding-window endpoint;
-                // the endpoint itself still shows only the frame, not room-map cells.
-                Phase = FileSelectMapNavigationPhase.Room;
-                break;
-            case FileSelectMapNavigationPhase.Room:
-                if (cancel) Phase = FileSelectMapNavigationPhase.AreaReturnRequested;
-                else if (confirm) Phase = FileSelectMapNavigationPhase.LoadRequested;
-                break;
-            case FileSelectMapNavigationPhase.AreaReturnRequested:
-            case FileSelectMapNavigationPhase.OptionsRequested:
-            case FileSelectMapNavigationPhase.LoadRequested:
-                break;
-            case FileSelectMapNavigationPhase.EnteringArea:
-            default:
-                throw new InvalidOperationException($"Unknown map navigation phase {Phase}.");
-||||||| base
-            case FileSelectMapNavigationPhase.Area:
-                // The area map changes areas only with the game's debug mode enabled. Without it, a newly pressed
-                // direction or Select discards the update's input, a confirm pressed with it included.
-                if ((pressed & (ControllerButton.Up | ControllerButton.Down | ControllerButton.Left |
-                        ControllerButton.Right | ControllerButton.Select)) != ControllerButton.None) break;
-                // Otherwise B wins over A/Start, and selecting keeps the saved area.
-                if (cancel) Phase = FileSelectMapNavigationPhase.OptionsRequested;
-                else if (confirm) Phase = FileSelectMapNavigationPhase.PreparingWindow;
-                break;
-            case FileSelectMapNavigationPhase.PreparingWindow:
-                Window = new FileSelectMapWindow(area, labels);
-                Phase = FileSelectMapNavigationPhase.ExpandingWindow;
-                break;
-            case FileSelectMapNavigationPhase.ExpandingWindow:
-                if (ActiveWindow.Step()) Phase = FileSelectMapNavigationPhase.InitializingRoom;
-                break;
-            case FileSelectMapNavigationPhase.InitializingRoom:
-                // The room map is installed after the expanding-window endpoint;
-                // the endpoint itself still shows only the frame, not room-map cells.
-                Phase = FileSelectMapNavigationPhase.Room;
-                break;
-            case FileSelectMapNavigationPhase.Room:
-                if (cancel) Phase = FileSelectMapNavigationPhase.AreaReturnRequested;
-                else if (confirm) Phase = FileSelectMapNavigationPhase.LoadRequested;
-                break;
-            case FileSelectMapNavigationPhase.AreaReturnRequested:
-            case FileSelectMapNavigationPhase.OptionsRequested:
-            case FileSelectMapNavigationPhase.LoadRequested:
-                break;
-            case FileSelectMapNavigationPhase.EnteringArea:
-            default:
-                throw new InvalidOperationException($"Unknown map navigation phase {Phase}.");
-=======
             // The area map changes areas only with the game's debug mode enabled. Without it, a newly pressed
             // direction or Select discards the update's input, a confirm pressed with it included.
             if ((pressed & (ControllerButton.Up | ControllerButton.Down | ControllerButton.Left |
@@ -132,7 +65,7 @@ public sealed class FileSelectMapNavigation
         }
         else if (Phase == FileSelectMapNavigationPhase.PreparingWindow)
         {
-            Window = new FileSelectMapWindow(area, labels);
+            ActiveWindow = new FileSelectMapWindow(area, labels);
             Phase = FileSelectMapNavigationPhase.ExpandingWindow;
         }
         else if (Phase == FileSelectMapNavigationPhase.ExpandingWindow)
@@ -149,7 +82,6 @@ public sealed class FileSelectMapNavigation
         {
             if (cancel) Phase = FileSelectMapNavigationPhase.AreaReturnRequested;
             else if (confirm) Phase = FileSelectMapNavigationPhase.LoadRequested;
->>>>>>> theirs
         }
     }
 
@@ -159,16 +91,6 @@ public sealed class FileSelectMapNavigation
     /// </summary>
     public void CompleteAreaReturn()
     {
-<<<<<<< ours
-        if (Phase != FileSelectMapNavigationPhase.AreaReturnRequested)
-            throw new InvalidOperationException("No return-to-area transition is pending.");
-||||||| base
-        if (Phase != FileSelectMapNavigationPhase.AreaReturnRequested)
-            throw new InvalidOperationException("No return-to-area transition is pending.");
-        Window = null;
-=======
-        Window = null;
->>>>>>> theirs
         Phase = FileSelectMapNavigationPhase.Area;
     }
 }

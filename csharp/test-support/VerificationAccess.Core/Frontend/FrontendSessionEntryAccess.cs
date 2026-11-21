@@ -58,7 +58,6 @@ internal static class FrontendSessionEntryAccess
         {
             DeathSequenceStep.FinalGameplayPass => DeathGameSequence.Stage.Stateless.FinalGameplayPass,
             DeathSequenceStep.BlackingOutSurroundings => new DeathGameSequence.Stage.BlackingOutSurroundings(RunningFade(self)),
-            DeathSequenceStep.WaitingForMusic => DeathGameSequence.Stage.Stateless.WaitingForMusic,
             DeathSequenceStep.SamusDying => DeathGameSequence.Stage.Stateless.SamusDying,
             DeathSequenceStep.FinalBlackOut => DeathGameSequence.Stage.Stateless.FinalBlackOut,
             _ => throw new InvalidOperationException($"Undefined {nameof(DeathSequenceStep)} {step}."),

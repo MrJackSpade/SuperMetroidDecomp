@@ -700,60 +700,6 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen, ICompose
     {
         [CeresCue.FadeInZebesTitle] = () =>
         {
-<<<<<<< ours
-            case CeresCue.FadeInZebesTitle:
-                // The caption starts fading in from black as it first shows (#1733).
-                ColourEffects.StartScreen(CeresDestructionSceneDefinitions.ZebesTextFadeIn);
-                return;
-
-            case CeresCue.FadeOutZebesTitle:
-                // The caption fades out to black as its hold ends, and stays black (#1733).
-                ColourEffects.StartScreen(CeresDestructionSceneDefinitions.ZebesTextFadeOut);
-                return;
-
-            case CeresCue.SpawnJapaneseTitleIfNeeded:
-                // With Japanese text the title spawns its Japanese subtitle as its first hold ends (#1733).
-                if (language == TextLanguage.Japanese)
-                    spawnedSubtitle = new ZebesRevealCaption(CreateZebesSprite(ZebesRevealActorRole.JapaneseSubtitle,
-                        CeresDestructionActors.ZebesActor(ZebesRevealActorRole.JapaneseSubtitle)));
-                return;
-
-            case CeresCue.StartFlyingToZebes:
-                // The title actor, not a separate timer, publishes the camera flight exactly
-                // where its animation reaches the flight step.
-                FloorScroll = new(FloorScroll.X.WithWholePixels(CeresDestructionSceneDefinitions.Motion.FloorExitX),
-                    FloorScroll.Y.WithWholePixels(CeresDestructionSceneDefinitions.Places.CeresAndFlightFloorScrollY));
-                angle = CeresDestructionSceneDefinitions.Motion.ApproachAngle;
-                Zoom = CeresDestructionSceneDefinitions.Motion.MinimumZoom;
-                Phase = CeresDestructionPhase.FlyingTowardZebes;
-                return;
-||||||| base
-            case CeresCue.FadeInZebesTitle:
-                // The caption starts fading in from black as it first shows (#1733).
-                ColourEffects.StartScreen(CeresDestructionSceneDefinitions.ZebesTextFadeIn);
-                return;
-
-            case CeresCue.FadeOutZebesTitle:
-                // The caption fades out to black as its hold ends, and stays black (#1733).
-                ColourEffects.StartScreen(CeresDestructionSceneDefinitions.ZebesTextFadeOut);
-                return;
-
-            case CeresCue.SpawnJapaneseTitleIfNeeded:
-                // With Japanese text the title spawns its Japanese subtitle as its first hold ends (#1733).
-                if (language == TextLanguage.Japanese)
-                    spawnedSubtitle = CreateZebesActor(ZebesRevealActorRole.JapaneseSubtitle);
-                return;
-
-            case CeresCue.StartFlyingToZebes:
-                // The title actor, not a separate timer, publishes the camera flight exactly
-                // where its animation reaches the flight step.
-                FloorScroll = new(FloorScroll.X.WithWholePixels(CeresDestructionSceneDefinitions.Motion.FloorExitX),
-                    FloorScroll.Y.WithWholePixels(CeresDestructionSceneDefinitions.Places.CeresAndFlightFloorScrollY));
-                angle = CeresDestructionSceneDefinitions.Motion.ApproachAngle;
-                Zoom = CeresDestructionSceneDefinitions.Motion.MinimumZoom;
-                Phase = CeresDestructionPhase.FlyingTowardZebes;
-                return;
-=======
             // The caption starts fading in from black as it first shows (#1733).
             ColourEffects.StartScreen(CeresDestructionSceneDefinitions.ZebesTextFadeIn);
         },
@@ -766,7 +712,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen, ICompose
         {
             // With Japanese text the title spawns its Japanese subtitle as its first hold ends (#1733).
             if (language == TextLanguage.Japanese)
-                spawnedSubtitle = CreateZebesActor(ZebesRevealActorRole.JapaneseSubtitle);
+                spawnedSubtitle = new ZebesRevealCaption(CreateZebesSprite(ZebesRevealActorRole.JapaneseSubtitle,
+                    CeresDestructionActors.ZebesActor(ZebesRevealActorRole.JapaneseSubtitle)));
         },
         [CeresCue.StartFlyingToZebes] = () =>
         {
@@ -779,7 +726,6 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen, ICompose
             Phase = CeresDestructionPhase.FlyingTowardZebes;
         },
     });
->>>>>>> theirs
 
     /// <summary>Lets the title actor start the camera flight at its authored cue boundary.</summary>
     private void HandleZebesCue(CeresCue cue)

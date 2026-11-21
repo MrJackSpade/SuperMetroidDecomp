@@ -59,72 +59,11 @@ internal sealed class EndingColours
     internal ColourEffectSystem ColourEffects { get; private set; } = ColourEffectSystem.ForScreen();
 
     /// <summary>
-<<<<<<< ours
-    /// Shows the installed colours <paramref name="load"/>, a scene's whole screen of colours, which starts that scene with
-    /// <paramref name="backdrop"/> as its backdrop: nothing shown before it shows any more.
-||||||| base
-    /// Shows the installed colours <paramref name="load"/>. A scene's whole screen of colours starts that scene, with
-    /// <paramref name="backdrop"/> as its backdrop: nothing shown before it shows any more. A load within a scene restores
-    /// some of its colours and ends the effects in them.
-=======
     /// Shows the installed colours of scene <paramref name="sceneLoad"/>, its whole screen of colours, which starts that
     /// scene with <paramref name="backdrop"/> as its backdrop: nothing shown before it shows any more.
->>>>>>> theirs
     /// </summary>
-<<<<<<< ours
-    /// <exception cref="ArgumentException">The load restores colours within a scene.</exception>
-    internal void StartScene(EndingColourLoad load, RgbColor backdrop)
-    {
-        if (!StartsScene(load))
-            throw new ArgumentException($"The ending's {load} load restores colours within its scene and starts none.", nameof(load));
-        scene = load;
-        sceneBackdrop = backdrop;
-        restored.Clear();
-        restoredColourEffects.Clear();
-        fades.Clear();
-        flashes.Clear();
-        logoCrossfadeStep = null;
-    }
-
-    /// <summary>
-    /// Shows the installed colours <paramref name="load"/>, a load within a scene, which restores some of its colours and
-    /// ends the effects in them.
-    /// </summary>
-    /// <exception cref="ArgumentException">The load is a scene's whole screen of colours.</exception>
-    /// <exception cref="InvalidOperationException">The load restores colours a running colour effect still animates.</exception>
-    internal void Restore(EndingColourLoad load)
-||||||| base
-    /// <exception cref="ArgumentException">A scene's load names no backdrop, or a load within a scene names one.</exception>
-    /// <exception cref="InvalidOperationException">A load within a scene restores colours a running colour effect still animates.</exception>
-    internal void Load(EndingColourLoad load, RgbColor? backdrop)
-=======
     internal void StartScene(EndingColourLoad sceneLoad, RgbColor backdrop)
->>>>>>> theirs
     {
-<<<<<<< ours
-        if (StartsScene(load))
-            throw new ArgumentException($"The ending's {load} load starts a scene and restores nothing within one.", nameof(load));
-        EndingRestoredEffects restores = EndingColourOwnerDefinitions.Restores.TryGetValue(load, out EndingRestoredEffects? listed)
-            ? listed
-            : throw new InvalidDataException($"The ending's {load} load lists nothing it restores.");
-||||||| base
-        if (StartsScene(load))
-        {
-            scene = load;
-            sceneBackdrop = backdrop ?? throw new ArgumentException($"The ending's {load} scene names no backdrop.", nameof(backdrop));
-            restored.Clear();
-            restoredColourEffects.Clear();
-            fades.Clear();
-            flashes.Clear();
-            logoCrossfadeStep = null;
-            return;
-        }
-        if (backdrop is not null)
-            throw new ArgumentException($"The ending's {load} load restores colours within its scene and shows no backdrop of its own.", nameof(backdrop));
-        EndingRestoredEffects restores = EndingColourOwnerDefinitions.Restores.TryGetValue(load, out EndingRestoredEffects? listed)
-            ? listed
-            : throw new InvalidDataException($"The ending's {load} load lists nothing it restores.");
-=======
         scene = sceneLoad;
         sceneBackdrop = backdrop;
         restored.Clear();
@@ -142,7 +81,6 @@ internal sealed class EndingColours
     internal void Restore(EndingColourLoad load)
     {
         EndingRestoredEffects restores = EndingColourOwnerDefinitions.Restores[load];
->>>>>>> theirs
         foreach (EndingFade fade in restores.Fades)
             fades.Remove(fade);
         foreach (ColourEffectColours colours in restores.ColourEffects)

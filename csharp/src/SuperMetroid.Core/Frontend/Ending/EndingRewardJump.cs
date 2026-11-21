@@ -118,7 +118,7 @@ internal sealed class EndingRewardJump
     }
 
     /// <summary>
-    /// Handles launch, head placement, the flights and the shoot event the jump animations publish: whether
+    /// Handles launch, the flights and the shoot event the jump animations publish: whether
     /// <paramref name="cue"/> is the shoot event.
     /// </summary>
     private bool HandleCue(EndingRewardJumpCue cue) => CueReactions[cue]();
@@ -128,63 +128,12 @@ internal sealed class EndingRewardJump
     {
         [EndingRewardJumpCue.Launch] = () =>
         {
-<<<<<<< ours
-            case EndingRewardJumpCue.Launch:
-                Velocity = EndingRewardJumpDefinitions.LaunchVelocity;
-                return false;
-            case ShootCue:
-                body.SetColouring(EndingShades.Drawn(ShootingColouring));
-                return true;
-            case EndingRewardJumpCue.StartBodyFlight:
-                bodyMotion = EndingRewardJumpMotion.Rising;
-                return false;
-            case EndingRewardJumpCue.StartHeadFlight:
-                headMotion = EndingRewardJumpMotion.Rising;
-                return false;
-            // Only a suited jump's body raises these, which places the head it spawned (HandleSuitedBodyCue).
-            case EndingRewardJumpCue.PrepareHead:
-            case EndingRewardJumpCue.LaunchHead:
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(EndingRewardJumpCue)} {cue}.");
-        }
-    }
-||||||| base
-            case EndingRewardJumpCue.Launch:
-                Velocity = EndingRewardJumpDefinitions.LaunchVelocity;
-                return false;
-            case EndingRewardJumpCue.PrepareHead:
-                RequireHead().ScreenPlace = RequireJumpHead().Readied;
-                return false;
-            case EndingRewardJumpCue.LaunchHead:
-                RequireHead().ScreenPlace = RequireJumpHead().Launched;
-                return false;
-            case ShootCue:
-                body.SetColouring(EndingShades.Drawn(ShootingColouring));
-                return true;
-            case EndingRewardJumpCue.StartBodyFlight:
-                bodyMotion = EndingRewardJumpMotion.Rising;
-                return false;
-            case EndingRewardJumpCue.StartHeadFlight:
-                headMotion = EndingRewardJumpMotion.Rising;
-                return false;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(EndingRewardJumpCue)} {cue}.");
-        }
-    }
-=======
             Velocity = EndingRewardJumpDefinitions.LaunchVelocity;
             return false;
         },
-        [EndingRewardJumpCue.PrepareHead] = () =>
-        {
-            RequireHead().ScreenPlace = RequireJumpHead().Readied;
-            return false;
-        },
-        [EndingRewardJumpCue.LaunchHead] = () =>
-        {
-            RequireHead().ScreenPlace = RequireJumpHead().Launched;
-            return false;
-        },
+        // Only a suited jump's body raises these, which places the head it spawned (HandleSuitedBodyCue).
+        [EndingRewardJumpCue.PrepareHead] = () => throw new InvalidOperationException($"Only a suited jump's body raises {EndingRewardJumpCue.PrepareHead}."),
+        [EndingRewardJumpCue.LaunchHead] = () => throw new InvalidOperationException($"Only a suited jump's body raises {EndingRewardJumpCue.LaunchHead}."),
         [ShootCue] = () =>
         {
             body.SetColouring(EndingShades.Drawn(ShootingColouring));
@@ -201,7 +150,6 @@ internal sealed class EndingRewardJump
             return false;
         },
     });
->>>>>>> theirs
 
     /// <summary>
     /// Handles a cue a suited jump's body raises: its preparing and launching place the head it spawned with

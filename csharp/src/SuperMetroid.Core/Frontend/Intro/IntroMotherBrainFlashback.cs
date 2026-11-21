@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Frontend.Intro;
@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// <param name="samus">The Samus the flashback's demo drives.</param>
 /// <param name="motherBrain">Mother Brain's sprite.</param>
 /// <param name="rinkas">The flashback's Rinkas.</param>
-/// <param name="level">The flashback's collision room.</param>
+/// <param name="terrain">The flashback's collision room.</param>
 /// <param name="progression">The flashback's own progression, which its shots act on; the demo's shots never change the game's.</param>
 /// <param name="demoInput">The flashback's scripted controller input.</param>
 [RoomLifetime]
@@ -22,7 +22,7 @@ internal sealed class IntroMotherBrainFlashback(
     SamusState samus,
     IntroMotherBrainSpriteState motherBrain,
     IntroRinkaSystem rinkas,
-    RoomLevelData level,
+    PlainTerrain terrain,
     SharedGameState progression,
     DemoInputState demoInput)
 {
@@ -39,7 +39,7 @@ internal sealed class IntroMotherBrainFlashback(
     internal IntroRinkaSystem Rinkas { get; } = Ensure.NotNull(rinkas);
 
     /// <summary>The flashback's collision room.</summary>
-    internal RoomLevelData Level { get; } = Ensure.NotNull(level);
+    internal PlainTerrain Terrain { get; } = Ensure.NotNull(terrain);
 
     /// <summary>The flashback's own progression, which its shots act on.</summary>
     internal SharedGameState Progression { get; } = Ensure.NotNull(progression);

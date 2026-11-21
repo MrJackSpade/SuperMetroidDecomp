@@ -452,25 +452,31 @@ internal static class RidleyFullMovieVerification
     /// <summary>Checks the tail's impact response against the recorded contact geometry.</summary>
     internal static void VerifyRidleyTailImpact()
     {
-        var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = CreateRetailRuntimeFixture();
-        runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
-        runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Ridley);
-        var state = runtime.Enemies.NorfairRidley();
-        var body = runtime.Enemies.Places.InUpdateOrder[0];
-        (state ?? throw new InvalidOperationException("Verification requires state.")).Phase = NorfairRidleyPhase.PogoFall;
-        state.Tail.Tip.Position = new Position16<RoomPixels>(4, 118);
-        runtime.AudioRequests.BeginRecordedUpdate();
-        runtime.Enemies.NorfairRidleyBehavior.Combat.TickNorfairRidleyPogoFall(body, state, runtime.Player.IntroducedSamus, runtime.Room.LevelData ?? throw new InvalidOperationException("The runtime has no loaded room."));
-        var dust = runtime.Enemies.Projectiles.SpawnedInPlace(17);
-        AssertEqual(RoomEnemyProjectileKind.DustOrExplosion, dust.Kind, "native tail impact allocates highest free slot");
-        AssertEqual((ushort)4, dust.Position.X.Whole, "native tail impact dust X");
-        AssertEqual((ushort)130, dust.Position.Y.Whole, "native tail impact dust Y includes twelve-pixel offset");
-        AssertTrue(dust.Animation is DustExplosionProjectileAnimation { PlayingSegment: DustExplosionAnimation.SmallDustCloud }, "native impact selects variant nine");
-        AssertTrue(runtime.AudioRequests.SoundsQueued.Contains(EnemySound.Quake), "native impact queues the quake sound");
+        // The impact's quake sound is requested at normal priority: behind five library-two requests made earlier in the
+        // update its library's queue admits it, and behind six turns it away.
+        foreach ((int competing, bool joins) in new[] { (5, true), (6, false) })
+        {
+            var runtime = CreateRetailRuntimeFixture();
+            runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
+            runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
+            runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Ridley);
+            var state = runtime.Enemies.NorfairRidley();
+            var body = runtime.Enemies.Places.InUpdateOrder[0];
+            (state ?? throw new InvalidOperationException("Verification requires state.")).Phase = NorfairRidleyPhase.PogoFall;
+            state.Tail.Tip.Position = new Position16<RoomPixels>(4, 118);
+            runtime.AudioRequests.BeginRecordedUpdate();
+            runtime.AudioRequests.FillQueueAhead(EnemySound.Beacon, competing);
+            runtime.Enemies.NorfairRidleyBehavior.Combat.TickNorfairRidleyPogoFall(body, state, runtime.Player.IntroducedSamus, runtime.Room.LevelData ?? throw new InvalidOperationException("The runtime has no loaded room."));
+            var dust = runtime.Enemies.Projectiles.SpawnedInPlace(17);
+            AssertEqual(RoomEnemyProjectileKind.DustOrExplosion, dust.Kind, "native tail impact allocates highest free slot");
+            AssertEqual((ushort)4, dust.Position.X.Whole, "native tail impact dust X");
+            AssertEqual((ushort)130, dust.Position.Y.Whole, "native tail impact dust Y includes twelve-pixel offset");
+            AssertTrue(dust.Animation is DustExplosionProjectileAnimation { PlayingSegment: DustExplosionAnimation.SmallDustCloud }, "native impact selects variant nine");
+            AssertEqual(joins, runtime.AudioRequests.SoundsQueued.Contains(EnemySound.Quake),
+                $"behind {competing} waiting library-two requests the impact's normal-priority quake sound {(joins ? "joins" : "is turned away")}");
+        }
 
-        Console.WriteLine("Ridley tail impact: native dust slot, position, instruction variant and sound pass.");
+        Console.WriteLine("Ridley tail impact: native dust slot, position, instruction variant and normal-priority quake sound pass.");
     }
 
     /// <summary>Checks that Ridley enters his screen gate only after the prior Y position becomes visible.</summary>

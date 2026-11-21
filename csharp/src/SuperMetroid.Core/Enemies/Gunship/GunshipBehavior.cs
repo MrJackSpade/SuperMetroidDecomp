@@ -21,6 +21,7 @@ internal sealed partial class GunshipBehavior : IEnemyEntityFactory
     private readonly EnemyPassEvents _passEvents;
 
     /// <inheritdoc/>
+    [field: NonSerialized]
     public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= new Dictionary<EnemyDefinitionId, EnemyEntityCreation>
     {
         [EnemyDefinitionId.ShipBottomEntrance] = (occupant, place, common) => EnemyOccupant.WithoutMainAi(new GunshipBottomEntity(this, occupant, place, common)),
@@ -165,6 +166,7 @@ internal sealed partial class GunshipBehavior : IEnemyEntityFactory
     }
 
     /// <summary>What <see cref="RunGunshipTopMain"/> does for each <see cref="GunshipPhase"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<GunshipPhase, Action<RoomEnemyPlace, SamusState, GameplayAction>> RunGunshipTopMainForGunshipPhase => field ??= new(new Dictionary<GunshipPhase, Action<RoomEnemyPlace, SamusState, GameplayAction>>
     {
         [GunshipPhase.DescendAfterCeres] = (top, samus, newlyPressedControllerInput) => DescendPostCeresGunship(top, samus),

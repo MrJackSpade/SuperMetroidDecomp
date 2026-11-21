@@ -24,6 +24,7 @@ internal sealed partial class RidleyEntityFactory(NorfairRidleyBehavior norfair,
     private ICeresEscapeStatus Escape { get; } = escape;
 
     /// <inheritdoc/>
+    [field: NonSerialized]
     public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= new Dictionary<EnemyDefinitionId, EnemyEntityCreation>
     {
         [EnemyDefinitionId.Ridley] = (occupant, place, common) => EnemyOccupant.Of(new NorfairRidleyEntity(Norfair, occupant, place, common)),

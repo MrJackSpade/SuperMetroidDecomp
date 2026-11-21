@@ -107,6 +107,7 @@ public sealed partial class GameOverMenuState : IMenuFrontendScreen, IComposedFr
     }
 
     /// <summary>What <c>Step</c> does for each <see cref="GameOverMenuPhase"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<GameOverMenuPhase, Action<ControllerButton>> StepForGameOverMenuPhase => field ??= new(new Dictionary<GameOverMenuPhase, Action<ControllerButton>>
     {
         [GameOverMenuPhase.BlackHold] = pressed =>

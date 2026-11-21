@@ -187,6 +187,7 @@ internal sealed partial class TourianUnlockBehavior : TourianStatueProjectileBeh
     };
 
     /// <summary>What <c>Move</c> does for each <see cref="TourianStatueEffectMotion"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<TourianStatueEffectMotion, Action<EnemyProjectileMotionContext>> MoveForTourianStatueEffectMotion => field ??= new(new Dictionary<TourianStatueEffectMotion, Action<EnemyProjectileMotionContext>>
     {
         [TourianStatueEffectMotion.SplashHolding] = context => HoldTourianStatueSplash(context.Projectile),

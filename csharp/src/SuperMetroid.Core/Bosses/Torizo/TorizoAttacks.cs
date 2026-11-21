@@ -97,6 +97,7 @@ internal sealed partial class TorizoAttacks
         };
 
         /// <summary>What <c>Move</c> does for each <see cref="TorizoProjectileMotion"/> member, each member's own arm.</summary>
+        [field: NonSerialized]
         private IdentityTable<TorizoProjectileMotion, Action<EnemyProjectileMotionContext, EnemyProjectile>> MoveForTorizoProjectileMotion => field ??= new(new Dictionary<TorizoProjectileMotion, Action<EnemyProjectileMotionContext, EnemyProjectile>>
         {
             [TorizoProjectileMotion.StatueFragmentFalling] = (context, projectile) => DropStatueFragment(projectile, context.Level),

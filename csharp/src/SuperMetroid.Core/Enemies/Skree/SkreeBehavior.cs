@@ -45,6 +45,7 @@ internal sealed partial class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>What <see cref="RunSkreeMain"/> does for each <see cref="SkreeAction"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<SkreeAction, Action<RoomEnemyOccupant, RoomEnemyPlace, SamusState, RoomLevelData, SkreeEnemyState>> RunSkreeMainForSkreeAction => field ??= new(new Dictionary<SkreeAction, Action<RoomEnemyOccupant, RoomEnemyPlace, SamusState, RoomLevelData, SkreeEnemyState>>
     {
         [SkreeAction.Idling] = (_, place, samus, level, state) =>

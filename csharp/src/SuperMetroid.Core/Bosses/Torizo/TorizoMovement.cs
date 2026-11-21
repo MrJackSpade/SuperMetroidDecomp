@@ -112,6 +112,7 @@ internal sealed partial class TorizoMovement
         MotionSteps[state.Motion](torizo, state, level);
 
     /// <summary>How the body moves in each motion (#2553): not at all while holding still, a walk, gravity while standing, or a leap.</summary>
+    [field: NonSerialized]
     private IdentityTable<TorizoBodyMotion, Action<RoomEnemyPlace, TorizoEnemyState, RoomLevelData>> MotionSteps => field ??= new(
         new Dictionary<TorizoBodyMotion, Action<RoomEnemyPlace, TorizoEnemyState, RoomLevelData>>
         {

@@ -43,6 +43,7 @@ internal sealed partial class EndingGameSequence(FrontendSession session) : IGam
         session.EndingStep == EndingStep.Credits && session.ScreenAs<EndingCreditsState>()?.IsWaitingOutDisplayFrame == true;
 
     /// <summary>What <c>Step</c> does for each <see cref="EndingStep"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<EndingStep, Action<ControllerButton>> StepForEndingStep => field ??= new(new Dictionary<EndingStep, Action<ControllerButton>>
     {
         [EndingStep.LeavingZebes] = controllerInput => LeaveZebes(controllerInput),

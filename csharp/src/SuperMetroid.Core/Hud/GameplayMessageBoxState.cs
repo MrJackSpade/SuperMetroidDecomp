@@ -134,6 +134,7 @@ public sealed partial class GameplayMessageBoxState(SaveChoiceInputCadence saveC
     }
 
     /// <summary>What the message box does in each phase on an update with the controller's held buttons, and what it asks of the game.</summary>
+    [field: NonSerialized]
     private IdentityTable<GameplayMessageBoxPhase, Func<ControllerButton, MessageBoxStep>> PhaseSteps => field ??=
         new(new Dictionary<GameplayMessageBoxPhase, Func<ControllerButton, MessageBoxStep>>
         {

@@ -72,6 +72,7 @@ internal sealed partial class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntity
     }
 
     /// <summary>What <see cref="RunMorphBallEyeMain"/> does for each <see cref="MorphBallEyeAction"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<MorphBallEyeAction, Action<RoomEnemyOccupant, RoomEnemyPlace, MorphBallEyeEnemyState, SamusState>> RunMorphBallEyeMainForMorphBallEyeAction => field ??= new(new Dictionary<MorphBallEyeAction, Action<RoomEnemyOccupant, RoomEnemyPlace, MorphBallEyeEnemyState, SamusState>>
     {
         [MorphBallEyeAction.WaitForSamus] = (occupant, place, state, samus) => WaitForSamusNearMorphBallEye(occupant, place, state, samus),
@@ -190,6 +191,7 @@ internal sealed partial class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntity
     }
 
     /// <summary>What <see cref="StepMorphBallEyeBeam"/> does for each <see cref="MorphBallEyeBeamPhase"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<MorphBallEyeBeamPhase, Action> StepMorphBallEyeBeamForMorphBallEyeBeamPhase => field ??= new(new Dictionary<MorphBallEyeBeamPhase, Action>
     {
         [MorphBallEyeBeamPhase.Inactive] = () => { },

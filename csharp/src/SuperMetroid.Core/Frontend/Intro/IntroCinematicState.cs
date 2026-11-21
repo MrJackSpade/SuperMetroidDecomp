@@ -280,6 +280,7 @@ public sealed partial class IntroCinematicState : IFrontendScreen
     public bool CeresFlightFinished => CurrentCeresFlight?.Finished ?? false;
 
     /// <summary>What <c>Step</c> does for each <see cref="IntroCinematicPhase"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<IntroCinematicPhase, Action> StepForIntroCinematicPhase => field ??= new(new Dictionary<IntroCinematicPhase, Action>
     {
         [IntroCinematicPhase.Initial] = () =>

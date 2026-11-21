@@ -12,6 +12,7 @@ namespace SuperMetroid.Core.Enemies.FuneNamihe;
 internal sealed partial class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
+    [field: NonSerialized]
     public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= new Dictionary<EnemyDefinitionId, EnemyEntityCreation>
     {
         [EnemyDefinitionId.Fune] = (occupant, place, common) => EnemyOccupant.Of(new FuneEntity(this, occupant, place, common)),
@@ -33,6 +34,7 @@ internal sealed partial class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFa
     }
 
     /// <summary>What <see cref="ApplyFuneNamiheCue"/> does for each <see cref="FuneNamiheCueKind"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<FuneNamiheCueKind, Action<FuneNamiheEnemyState>> ApplyFuneNamiheCueForFuneNamiheCueKind => field ??= new(new Dictionary<FuneNamiheCueKind, Action<FuneNamiheEnemyState>>
     {
         [FuneNamiheCueKind.SpitSound] = state =>

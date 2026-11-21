@@ -34,6 +34,7 @@ internal sealed partial class CeresDestructionGameSequence(FrontendSession sessi
     public bool IsWaitingOutDisplayFrame => session.ScreenAs<CeresDestructionCinematicState>()?.IsWaitingOutDisplayFrame == true;
 
     /// <summary>What <c>Step</c> does for each <see cref="CeresDestructionOutcome"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<CeresDestructionOutcome, Action<ControllerButton>> StepForCeresDestructionOutcome => field ??= new(new Dictionary<CeresDestructionOutcome, Action<ControllerButton>>
     {
         [CeresDestructionOutcome.SamusEscaped] = controllerInput => StepEscaped(controllerInput),

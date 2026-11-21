@@ -45,6 +45,7 @@ internal sealed partial class MetareeBehavior : IEnemySpecies, IEnemyEntityFacto
     }
 
     /// <summary>What <see cref="RunMetareeMain"/> does for each <see cref="MetareeAction"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<MetareeAction, Action<RoomEnemyOccupant, RoomEnemyPlace, MetareeEnemyState, SamusState, RoomLevelData>> RunMetareeMainForMetareeAction => field ??= new(new Dictionary<MetareeAction, Action<RoomEnemyOccupant, RoomEnemyPlace, MetareeEnemyState, SamusState, RoomLevelData>>
     {
         [MetareeAction.Idling] = (_, place, state, samus, level) => RunMetareeIdle(place, state, samus),

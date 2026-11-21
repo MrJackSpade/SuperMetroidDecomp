@@ -45,6 +45,7 @@ internal sealed partial class YappingMawBehavior : IEnemySpecies, IEnemyEntityFa
     }
 
     /// <summary>What <see cref="ApplyYappingMawCue"/> does for each <see cref="YappingMawCueKind"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<YappingMawCueKind, Action<YappingMawEnemyState>> ApplyYappingMawCueForYappingMawCueKind => field ??= new(new Dictionary<YappingMawCueKind, Action<YappingMawEnemyState>>
     {
         [YappingMawCueKind.PlayBiteSound] = state => PlayYappingMawAttackSound(state),
@@ -106,6 +107,7 @@ internal sealed partial class YappingMawBehavior : IEnemySpecies, IEnemyEntityFa
     }
 
     /// <summary>What <see cref="RunYappingMawMain"/> does for each <see cref="YappingMawAction"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<YappingMawAction, Action<RoomEnemyOccupant, RoomEnemyPlace, YappingMawEnemyState, SamusState>> RunYappingMawMainForYappingMawAction => field ??= new(new Dictionary<YappingMawAction, Action<RoomEnemyOccupant, RoomEnemyPlace, YappingMawEnemyState, SamusState>>
     {
         [YappingMawAction.WaitingForSamus] = (occupant, place, state, samus) => WaitForSamusWithYappingMaw(occupant, state, samus),

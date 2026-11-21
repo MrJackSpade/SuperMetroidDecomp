@@ -135,6 +135,7 @@ internal sealed partial class KraidRise
     }
 
     /// <summary>What <see cref="RunKraidGrowthPhase"/> does for each <see cref="KraidGrowthPhase"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<KraidGrowthPhase, Action<RoomEnemyPlace, KraidEnemyState>> RunKraidGrowthPhaseForKraidGrowthPhase => field ??= new(new Dictionary<KraidGrowthPhase, Action<RoomEnemyPlace, KraidEnemyState>>
     {
         [KraidGrowthPhase.ReleaseCamera] = (body, state) =>
@@ -246,6 +247,7 @@ internal sealed partial class KraidRise
     }
 
     /// <summary>What <see cref="RunKraidRisePhase"/> does for each <see cref="KraidRisePhase"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<KraidRisePhase, Action<RoomEnemyPlace, KraidEnemyState, SamusState>> RunKraidRisePhaseForKraidRisePhase => field ??= new(new Dictionary<KraidRisePhase, Action<RoomEnemyPlace, KraidEnemyState, SamusState>>
     {
         [KraidRisePhase.RestrictSamusToFirstScreen] = (body, state, samus) =>

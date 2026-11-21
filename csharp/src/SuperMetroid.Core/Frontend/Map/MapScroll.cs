@@ -67,6 +67,7 @@ public sealed partial class MapScroll
     }
 
     /// <summary>Whether the map can scroll one step toward each direction.</summary>
+    [field: NonSerialized]
     private IdentityTable<MapScrollDirection, Func<bool>> ScrollsToward => field ??= new(new Dictionary<MapScrollDirection, Func<bool>>
     {
         [MapScrollDirection.Left] = () => Limits.Left - Scroll.X < Framing.LeftEdge,

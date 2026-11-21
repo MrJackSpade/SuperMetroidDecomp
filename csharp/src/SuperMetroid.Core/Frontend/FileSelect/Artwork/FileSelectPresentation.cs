@@ -37,6 +37,7 @@ public sealed partial class FileSelectPresentation
     internal Position16<PlanePixels> DynamicAnchor(FileSelectAnchor anchor) => placements.DynamicAnchors[anchor];
 
     /// <summary>Where the cursor points at each item on each page that shows one.</summary>
+    [field: NonSerialized]
     private IdentityTable<FileSelectCursorPage, Func<FileSelectItem, Offset16<ScreenPixels>>> CursorAnchors => field ??= new(new Dictionary<FileSelectCursorPage, Func<FileSelectItem, Offset16<ScreenPixels>>>
     {
         [FileSelectCursorPage.Main] = item => Ensure.Listed(placements.MainCursorAnchors, item),

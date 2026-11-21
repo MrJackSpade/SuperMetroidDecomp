@@ -33,7 +33,7 @@ internal sealed partial class RoomObjectFramePhase
     /// game shows each pickup's or station's box inside its room object's update, so a second one shows only once the box
     /// before it has closed, its pickup's consequence applied as it opens.
     /// </summary>
-    private readonly Queue<Action> _waitingMessages = new();
+    private readonly Queue<WaitingMessage> _waitingMessages = new();
 
     /// <summary>Opens the message box on <paramref name="message"/>, continuing from the buttons held at the update's controller read.</summary>
     private void BeginMessage(GameplayMessageId message) =>
@@ -116,14 +116,10 @@ internal sealed partial class RoomObjectFramePhase
             var opening = new RoomObjectMessages(this, samus);
             foreach (CollectiblePickupEvent pickup in step.Pickups)
             {
-                _waitingMessages.Enqueue(() =>
-                {
-                    pickup.Consequence.Apply(opening);
-                    BeginMessage(pickup.Message);
-                });
+                _waitingMessages.Enqueue(new WaitingMessage.Pickup(pickup, opening));
             }
             foreach (StationActivationEvent station in step.StationActivations)
-                _waitingMessages.Enqueue(() => station.Open(opening));
+                _waitingMessages.Enqueue(new WaitingMessage.Station(station, opening));
             OpenNextMessage();
             SpawnThrownProjectiles(step.ThrownProjectiles);
         }
@@ -136,8 +132,41 @@ internal sealed partial class RoomObjectFramePhase
     /// </summary>
     internal void OpenNextMessage()
     {
-        if (_waitingMessages.TryDequeue(out Action? open))
-            open();
+        if (_waitingMessages.TryDequeue(out WaitingMessage? waiting))
+            waiting.Open(this);
+    }
+
+    /// <summary>
+    /// A message box one room-object step made that waits for the box before it to close (#2553): a pickup's, whose
+    /// consequence applies as its box opens, or a station's.
+    /// </summary>
+    /// <param name="Opening">What the step's pickups and station actions open.</param>
+    private abstract partial record WaitingMessage(RoomObjectMessages Opening)
+    {
+        /// <summary>Opens the box on <paramref name="phase"/>'s message box.</summary>
+        internal abstract void Open(RoomObjectFramePhase phase);
+
+        /// <summary>A pickup's box: its consequence applies, and its message opens.</summary>
+        /// <param name="Event">The pickup.</param>
+        /// <param name="Opening">What the step's pickups and station actions open.</param>
+        internal sealed partial record Pickup(CollectiblePickupEvent Event, RoomObjectMessages Opening) : WaitingMessage(Opening)
+        {
+            /// <inheritdoc/>
+            internal override void Open(RoomObjectFramePhase phase)
+            {
+                Event.Consequence.Apply(Opening);
+                phase.BeginMessage(Event.Message);
+            }
+        }
+
+        /// <summary>A station's box, which the station's activation opens.</summary>
+        /// <param name="Event">The station's activation.</param>
+        /// <param name="Opening">What the step's pickups and station actions open.</param>
+        internal sealed partial record Station(StationActivationEvent Event, RoomObjectMessages Opening) : WaitingMessage(Opening)
+        {
+            /// <inheritdoc/>
+            internal override void Open(RoomObjectFramePhase phase) => Event.Open(Opening);
+        }
     }
 
     /// <summary>

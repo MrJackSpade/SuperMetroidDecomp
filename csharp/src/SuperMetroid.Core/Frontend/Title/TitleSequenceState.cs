@@ -272,6 +272,7 @@ public sealed partial class TitleSequenceState : IFrontendScreen, IComposedFront
     }
 
     /// <summary>What <see cref="StepRunningStep"/> does for each <see cref="TitleSequencePhase"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<TitleSequencePhase, Action<bool>> StepRunningStepForTitleSequencePhase => field ??= new(new Dictionary<TitleSequencePhase, Action<bool>>
     {
         [TitleSequencePhase.YearText] = confirmPressed => StepTextSequence(),
@@ -534,6 +535,7 @@ public sealed partial class TitleSequenceState : IFrontendScreen, IComposedFront
     }
 
     /// <summary>What <see cref="RunCardCue"/> does for each <see cref="TitleCardCue"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<TitleCardCue, Action> RunCardCueForTitleCardCue => field ??= new(new Dictionary<TitleCardCue, Action>
     {
         [TitleCardCue.StartLowerPan] = () => ApplyScene(TitleSequenceDefinitions.Scenes.LowerPan),

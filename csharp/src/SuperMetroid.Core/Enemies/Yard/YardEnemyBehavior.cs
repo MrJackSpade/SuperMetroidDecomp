@@ -98,6 +98,7 @@ internal sealed partial class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFac
     private readonly record struct ApplyYardCueContext(RoomEnemyPlace Place, YardEnemyState State, AnimationPlayback<YardSegment> Playing, YardEnemyBehavior Owner);
 
     /// <summary>What each of the Yard's signals does, and the animation it continues at, or null to run on.</summary>
+    [field: NonSerialized]
     private IdentityTable<YardCueKind, Func<YardEnemyState, AnimationPlayback<YardSegment>, AnimationContinuation<YardSegment>?>> YardSignals => field ??=
         new(new Dictionary<YardCueKind, Func<YardEnemyState, AnimationPlayback<YardSegment>, AnimationContinuation<YardSegment>?>>
         {
@@ -165,6 +166,7 @@ internal sealed partial class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFac
         state.CrawlingVelocity = YardCrawlVelocity.Apply(state.CrawlSpeed, direction);
 
     /// <summary>What <see cref="RunYardMain"/> does for each <see cref="YardMovement"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<YardMovement, Action<RoomEnemyPlace, SamusState, RoomLevelData, YardEnemyState>> RunYardMainForYardMovement => field ??= new(new Dictionary<YardMovement, Action<RoomEnemyPlace, SamusState, RoomLevelData, YardEnemyState>>
     {
         [YardMovement.HoldingStill] = (place, samus, level, state) => { },

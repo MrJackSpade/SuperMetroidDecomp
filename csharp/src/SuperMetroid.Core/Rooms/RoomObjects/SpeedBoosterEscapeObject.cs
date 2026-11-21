@@ -25,6 +25,7 @@ internal sealed partial class SpeedBoosterEscapeObject(SpeedBoosterEscapeObjects
     internal bool IsEscaped => RisesPassed == SpeedBoosterEscapeStageDefinitions.Stages.Length;
 
     /// <summary>What <c>Update</c> does for each <see cref="SpeedBoosterEscapePhase"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<SpeedBoosterEscapePhase, Action<RoomObjectPlace>> UpdateForSpeedBoosterEscapePhase => field ??= new(new Dictionary<SpeedBoosterEscapePhase, Action<RoomObjectPlace>>
     {
         [SpeedBoosterEscapePhase.Starting] = place => Phase = SpeedBoosterEscapePhase.WaitingForSpeedBooster,

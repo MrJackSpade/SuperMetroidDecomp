@@ -44,6 +44,7 @@ internal sealed partial class RioBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>What <see cref="RunRioMain"/> does for each <see cref="RioAction"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<RioAction, Action<RoomEnemyPlace, RioEnemyState, SamusState, RoomLevelData, Position16<RoomPixels>>> RunRioMainForRioAction => field ??= new(new Dictionary<RioAction, Action<RoomEnemyPlace, RioEnemyState, SamusState, RoomLevelData, Position16<RoomPixels>>>
     {
         [RioAction.WaitingForSamus] = (place, state, samus, level, camera) =>

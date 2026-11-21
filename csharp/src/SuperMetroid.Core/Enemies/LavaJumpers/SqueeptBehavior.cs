@@ -72,6 +72,7 @@ internal sealed partial class SqueeptBehavior : IEnemySpecies, IEnemyEntityFacto
     }
 
     /// <summary>What <see cref="RunSqueeptMain"/> does for each <see cref="SqueeptAction"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<SqueeptAction, Action<RoomEnemyPlace, SqueeptState, int>> RunSqueeptMainForSqueeptAction => field ??= new(new Dictionary<SqueeptAction, Action<RoomEnemyPlace, SqueeptState, int>>
     {
         [SqueeptAction.BeginJump] = (place, state, random) =>

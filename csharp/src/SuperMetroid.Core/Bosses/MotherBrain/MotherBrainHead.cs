@@ -315,6 +315,7 @@ internal sealed partial class MotherBrainHead
     /// Only the animations of her attacks on the Baby, which her late fight starts, raise the Baby's cues
     /// (ApplyLateFightHeadCue), so one raised before it fails.
     /// </summary>
+    [field: NonSerialized]
     private IdentityTable<MotherBrainHeadCueKind, Func<MotherBrainEnemyState, SamusState, MotherBrainHeadSegment?>> HeadSignals => field ??=
         new(new Dictionary<MotherBrainHeadCueKind, Func<MotherBrainEnemyState, SamusState, MotherBrainHeadSegment?>>
         {

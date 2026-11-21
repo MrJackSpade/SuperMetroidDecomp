@@ -78,6 +78,7 @@ internal sealed partial class EndingLogo
     }
 
     /// <summary>What <see cref="HandleCue"/> does for each <see cref="EndingLogoCue"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<EndingLogoCue, Action> HandleCueForEndingLogoCue => field ??= new(new Dictionary<EndingLogoCue, Action>
     {
         [EndingLogoCue.GreyOut] = () =>

@@ -13,6 +13,7 @@ namespace SuperMetroid.Core.Enemies.WorkRobots;
 internal sealed partial class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory, IRoomGlow
 {
     /// <inheritdoc/>
+    [field: NonSerialized]
     public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= new Dictionary<EnemyDefinitionId, EnemyEntityCreation>
     {
         [EnemyDefinitionId.WorkRobot] = (occupant, place, common) => EnemyOccupant.Of(new PoweredWorkRobotEntity(this, occupant, place, common)),
@@ -152,6 +153,7 @@ internal sealed partial class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFac
     private readonly record struct ApplyWorkRobotCueContext(RoomEnemyPlace Place, WorkRobotEnemyState State, EnemyAnimationCueContext Context, WorkRobotBehavior Owner);
 
     /// <summary>What each of the Work Robot's signals does; each runs on.</summary>
+    [field: NonSerialized]
     private IdentityTable<WorkRobotCueKind, Action<RoomEnemyPlace, WorkRobotEnemyState, Position16<RoomPixels>>> WorkRobotSignals => field ??=
         new(new Dictionary<WorkRobotCueKind, Action<RoomEnemyPlace, WorkRobotEnemyState, Position16<RoomPixels>>>
         {

@@ -9,6 +9,7 @@ namespace SuperMetroid.Core.Enemies.PipeBugs;
 internal sealed partial class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
+    [field: NonSerialized]
     public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= new Dictionary<EnemyDefinitionId, EnemyEntityCreation>
     {
         [EnemyDefinitionId.Gamet] = (occupant, place, common) => EnemyOccupant.Of(new NorfairPipeBugEntity(this, occupant, place, common)),
@@ -108,6 +109,7 @@ internal sealed partial class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFact
     }
 
     /// <summary>What <see cref="RunNorfairPipeBug"/> does for each <see cref="NorfairPipeBugAction"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<NorfairPipeBugAction, Action<RoomEnemyOccupant, RoomEnemyPlace, NorfairPipeBugState, SamusState, Position16<RoomPixels>>> RunNorfairPipeBugForNorfairPipeBugAction => field ??= new(new Dictionary<NorfairPipeBugAction, Action<RoomEnemyOccupant, RoomEnemyPlace, NorfairPipeBugState, SamusState, Position16<RoomPixels>>>
     {
         [NorfairPipeBugAction.WaitForFormation] = (occupant, place, state, samus, camera) =>

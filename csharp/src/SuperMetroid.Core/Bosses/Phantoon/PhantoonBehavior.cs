@@ -13,6 +13,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 internal sealed partial class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
+    [field: NonSerialized]
     public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= new Dictionary<EnemyDefinitionId, EnemyEntityCreation>
     {
         [EnemyDefinitionId.PhantoonBody] = (occupant, place, common) => EnemyOccupant.Of(new PhantoonBodyEntity(this, occupant, place, common, _bossArtwork)),
@@ -208,6 +209,7 @@ internal sealed partial class PhantoonBehavior : IEnemySpecies, IEnemyEntityFact
     }
 
     /// <summary>What <see cref="ApplyPhantoonPartCue"/> does for each <see cref="PhantoonPartCue"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<PhantoonPartCue, Action<PhantoonEnemyState>> ApplyPhantoonPartCueForPhantoonPartCue => field ??= new(new Dictionary<PhantoonPartCue, Action<PhantoonEnemyState>>
     {
         [PhantoonPartCue.PlayMaterializationSound] = state =>

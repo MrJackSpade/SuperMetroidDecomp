@@ -54,6 +54,7 @@ internal sealed partial class OumBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>What <see cref="RunOumMain"/> does for each <see cref="OumAction"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<OumAction, Action<RoomEnemyPlace, OumEnemyState, SamusState, RoomLevelData, HorizontalDirection?>> RunOumMainForOumAction => field ??= new(new Dictionary<OumAction, Action<RoomEnemyPlace, OumEnemyState, SamusState, RoomLevelData, HorizontalDirection?>>
     {
         [OumAction.Idle] = (place, state, samus, level, pushSide) => RunOumIdle(place, state, samus, level),
@@ -170,6 +171,7 @@ internal sealed partial class OumBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>What <see cref="RunOumBounce"/> does for each <see cref="OumBouncePhase"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<OumBouncePhase, Action<RoomEnemyPlace, OumEnemyState, RoomLevelData>> RunOumBounceForOumBouncePhase => field ??= new(new Dictionary<OumBouncePhase, Action<RoomEnemyPlace, OumEnemyState, RoomLevelData>>
     {
         [OumBouncePhase.Falling] = (place, state, level) =>
@@ -332,6 +334,7 @@ internal sealed partial class OumBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>What <see cref="ApplyOumCue"/> does for each <see cref="OumCueKind"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<OumCueKind, Action<OumEnemyState>> ApplyOumCueForOumCueKind => field ??= new(new Dictionary<OumCueKind, Action<OumEnemyState>>
     {
         [OumCueKind.PlaySplash] = state => _audio.QueueEnemySound(EnemySoundEffectDefinitions.OumSplashSound, priority: SoundRequestPriority.Normal),

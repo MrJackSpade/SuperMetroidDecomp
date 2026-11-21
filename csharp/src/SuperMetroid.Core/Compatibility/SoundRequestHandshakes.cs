@@ -101,6 +101,7 @@ public sealed partial class SoundRequestHandshakes<TLibrary, TSound>
     public TSound? Awaited(TLibrary library) => HandshakeOf(library).Awaited;
 
     /// <summary>What a pass does in each phase of a library's handshake, and the step it hands the library.</summary>
+    [field: NonSerialized]
     private IdentityTable<Phase, Func<TLibrary, SoundAcknowledgement<TSound>, Handshake, HandshakeStep>> PhaseSteps => field ??=
         new(new Dictionary<Phase, Func<TLibrary, SoundAcknowledgement<TSound>, Handshake, HandshakeStep>>
         {

@@ -151,6 +151,7 @@ public sealed partial class SamusSuitPickupState
     }
 
     /// <summary>What <c>Step</c> does for each <see cref="SamusSuitPickupStage"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<SamusSuitPickupStage, Action<SamusState, SamusColours>> StepForSamusSuitPickupStage => field ??= new(new Dictionary<SamusSuitPickupStage, Action<SamusState, SamusColours>>
     {
         [SamusSuitPickupStage.LightBeamAppears] = (samus, colours) => StepLightBeamAppears(),
@@ -180,6 +181,7 @@ public sealed partial class SamusSuitPickupState
     }
 
     /// <summary>What <see cref="LeaveProgress"/> does for each <see cref="SamusSuitPickupStage"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<SamusSuitPickupStage, Action<SamusState>> LeaveProgressForSamusSuitPickupStage => field ??= new(new Dictionary<SamusSuitPickupStage, Action<SamusState>>
     {
         [SamusSuitPickupStage.LightBeamAppears] = samus => samus.SparkCarryover.LeaveLines(Stage, _lightBeamLines),

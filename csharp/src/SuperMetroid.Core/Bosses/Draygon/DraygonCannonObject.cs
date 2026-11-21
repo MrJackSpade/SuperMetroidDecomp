@@ -65,6 +65,7 @@ internal sealed partial class DraygonCannonObject : RoomObjectBehaviour, IShoota
     public void Strike(ResidentObjectProjectileHit hit) => _strike.Land(hit);
 
     /// <summary>What <c>Update</c> does for each <see cref="DraygonCannonPhase"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<DraygonCannonPhase, Action<RoomObjectPlace, RoomObjectStepContext>> UpdateForDraygonCannonPhase => field ??= new(new Dictionary<DraygonCannonPhase, Action<RoomObjectPlace, RoomObjectStepContext>>
     {
         [DraygonCannonPhase.StartingWhole] = (place, context) => Show(place, context, _look.Shield, DraygonCannonPhase.Shielded),

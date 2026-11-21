@@ -84,6 +84,7 @@ internal sealed partial class PowampBehavior : IEnemySpecies, IEnemyEntityFactor
     }
 
     /// <summary>What <see cref="RunPowampMain"/> does for each <see cref="PowampAction"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<PowampAction, Action<RoomEnemyOccupant, RoomEnemyPlace, PowampBodyState, RoomLevelData, SamusState, PowampBalloon>> RunPowampMainForPowampAction => field ??= new(new Dictionary<PowampAction, Action<RoomEnemyOccupant, RoomEnemyPlace, PowampBodyState, RoomLevelData, SamusState, PowampBalloon>>
     {
         [PowampAction.DeflatedResting] = (_, place, state, level, samus, balloon) => RunPowampDeflatedResting(place, state, balloon),

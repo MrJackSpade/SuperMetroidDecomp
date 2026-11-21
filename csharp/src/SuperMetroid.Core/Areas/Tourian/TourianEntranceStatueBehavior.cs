@@ -205,6 +205,7 @@ internal sealed partial class TourianEntranceStatueBehavior : IEnemySpecies, IEn
             projectile.StartMotion(this, TourianStatueDecorationMotion.FollowingReveal);
 
         /// <summary>What <c>Move</c> does for each <see cref="TourianStatueDecorationMotion"/> member, each member's own arm.</summary>
+        [field: NonSerialized]
         private IdentityTable<TourianStatueDecorationMotion, Action<EnemyProjectileMotionContext>> MoveForTourianStatueDecorationMotion => field ??= new(new Dictionary<TourianStatueDecorationMotion, Action<EnemyProjectileMotionContext>>
         {
             [TourianStatueDecorationMotion.FollowingReveal] = context => PositionTourianEntranceStatueProjectile(context.Projectile),

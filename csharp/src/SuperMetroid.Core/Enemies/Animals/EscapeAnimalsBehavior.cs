@@ -12,6 +12,7 @@ namespace SuperMetroid.Core.Enemies.Animals;
 internal sealed partial class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
+    [field: NonSerialized]
     public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= new Dictionary<EnemyDefinitionId, EnemyEntityCreation>
     {
         [EnemyDefinitionId.EtecoonEscape] = (occupant, place, common) => EnemyOccupant.Of(new EscapeEtecoonEntity(this, occupant, place, common)),
@@ -76,6 +77,7 @@ internal sealed partial class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntit
     }
 
     /// <summary>What <see cref="RunEscapeEtecoonMain"/> does for each <see cref="EscapeEtecoonAction"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<EscapeEtecoonAction, Action<RoomEnemyPlace, EscapeEtecoonEnemyState, RoomLevelData>> RunEscapeEtecoonMainForEscapeEtecoonAction => field ??= new(new Dictionary<EscapeEtecoonAction, Action<RoomEnemyPlace, EscapeEtecoonEnemyState, RoomLevelData>>
     {
         [EscapeEtecoonAction.ExpressingGratitude] = (place, state, level) => { },

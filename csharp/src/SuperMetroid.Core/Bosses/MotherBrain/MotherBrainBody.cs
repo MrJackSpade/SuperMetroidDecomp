@@ -163,6 +163,7 @@ internal sealed partial class MotherBrainBody
     }
 
     /// <summary>What <see cref="ApplyMotherBrainBodyCue"/> does for each <see cref="MotherBrainBodyCueKind"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<MotherBrainBodyCueKind, Action<MotherBrainEnemyState, SamusState>> ApplyMotherBrainBodyCueForMotherBrainBodyCueKind => field ??= new(new Dictionary<MotherBrainBodyCueKind, Action<MotherBrainEnemyState, SamusState>>
     {
         [MotherBrainBodyCueKind.FireHandBeam] = (state, samus) =>

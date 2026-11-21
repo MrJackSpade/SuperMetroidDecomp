@@ -61,6 +61,7 @@ internal sealed partial class KraidDeath
     }
 
     /// <summary>What <see cref="RunKraidDeathPhase"/> does for each <see cref="KraidDeathPhase"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<KraidDeathPhase, Action<RoomEnemyPlace, KraidEnemyState, int, SamusState>> RunKraidDeathPhaseForKraidDeathPhase => field ??= new(new Dictionary<KraidDeathPhase, Action<RoomEnemyPlace, KraidEnemyState, int, SamusState>>
     {
         [KraidDeathPhase.Initialize] = (body, state, cameraX, samus) => InitializeKraidDeath(state, samus),

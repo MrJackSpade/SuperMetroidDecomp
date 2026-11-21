@@ -137,6 +137,7 @@ public sealed partial class FileSelectMapMenuState : IMenuFrontendScreen, ICompo
     }
 
     /// <summary>What <c>Step</c> does for each <see cref="FileSelectMapNavigationPhase"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<FileSelectMapNavigationPhase, Action> StepForFileSelectMapNavigationPhase => field ??= new(new Dictionary<FileSelectMapNavigationPhase, Action>
     {
         [FileSelectMapNavigationPhase.AreaReturnRequested] = () =>

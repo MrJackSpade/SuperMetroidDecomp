@@ -58,6 +58,7 @@ internal sealed partial class SamusEaterObject : SilentSequencedRoomObject<Samus
     }
 
     /// <summary>What <see cref="SequenceEnded"/> does for each <see cref="SamusEaterPhase"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<SamusEaterPhase, Action<RoomObjectPlace, RoomObjectStepContext>> SequenceEndedForSamusEaterPhase => field ??= new(new Dictionary<SamusEaterPhase, Action<RoomObjectPlace, RoomObjectStepContext>>
     {
         [SamusEaterPhase.Biting] = (place, context) =>
@@ -86,6 +87,7 @@ internal sealed partial class SamusEaterObject : SilentSequencedRoomObject<Samus
     }
 
     /// <summary>What <c>Show</c> does for each <see cref="SamusEaterBite"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<SamusEaterBite, Action<RoomObjectStepContext>> ShowForSamusEaterBite => field ??= new(new Dictionary<SamusEaterBite, Action<RoomObjectStepContext>>
     {
         [SamusEaterBite.None] = context =>

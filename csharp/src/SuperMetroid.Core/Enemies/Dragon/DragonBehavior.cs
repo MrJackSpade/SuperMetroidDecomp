@@ -94,6 +94,7 @@ internal sealed partial class DragonBehavior : IEnemySpecies, IEnemyEntityFactor
         _followUpRecipients.Place(place, FollowUpAfterStruckPart.Recipient(_places.PlacesAfter(place)));
 
     /// <summary>What <see cref="RunDragonMain"/> does for each <see cref="DragonAction"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<DragonAction, Action<RoomEnemyOccupant, RoomEnemyPlace, DragonEnemyState, SamusState>> RunDragonMainForDragonAction => field ??= new(new Dictionary<DragonAction, Action<RoomEnemyOccupant, RoomEnemyPlace, DragonEnemyState, SamusState>>
     {
         [DragonAction.WaitToRise] = (_, place, state, samus) => RunDragonWaitToRise(place, state, samus),

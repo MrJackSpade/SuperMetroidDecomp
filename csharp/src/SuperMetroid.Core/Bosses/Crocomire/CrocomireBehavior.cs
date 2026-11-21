@@ -11,6 +11,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 internal sealed partial class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
+    [field: NonSerialized]
     public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= new Dictionary<EnemyDefinitionId, EnemyEntityCreation>
     {
         [EnemyDefinitionId.Crocomire] = (occupant, place, common) => EnemyOccupant.Of(new CrocomireBodyEntity(this, occupant, place, common, _bossArtwork)),

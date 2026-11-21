@@ -57,6 +57,7 @@ internal sealed partial class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>What <see cref="RunPuyoMain"/> does for each <see cref="PuyoAction"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<PuyoAction, Action<RoomEnemyOccupant, RoomEnemyPlace, PuyoEnemyState, SamusState, RoomLevelData>> RunPuyoMainForPuyoAction => field ??= new(new Dictionary<PuyoAction, Action<RoomEnemyOccupant, RoomEnemyPlace, PuyoEnemyState, SamusState, RoomLevelData>>
     {
         [PuyoAction.Grounded] = (occupant, place, state, samus, level) => RunGroundedPuyo(occupant, place, state, samus),
@@ -155,6 +156,7 @@ internal sealed partial class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     private static PuyoHopDefinition Hop(PuyoEnemyState state) => PuyoHopDefinitions.Hops[state.CurrentHop];
 
     /// <summary>What <see cref="RunAirbornePuyo"/> does for each <see cref="PuyoAirborneMovement"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<PuyoAirborneMovement, Action<RoomEnemyPlace, PuyoEnemyState, RoomLevelData, VerticalDirection>> RunAirbornePuyoForPuyoAirborneMovement => field ??= new(new Dictionary<PuyoAirborneMovement, Action<RoomEnemyPlace, PuyoEnemyState, RoomLevelData, VerticalDirection>>
     {
         [PuyoAirborneMovement.NormalShortHop] = (place, state, level, heading) =>

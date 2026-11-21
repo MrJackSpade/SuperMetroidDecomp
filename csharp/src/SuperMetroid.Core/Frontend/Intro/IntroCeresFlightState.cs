@@ -121,6 +121,7 @@ internal sealed partial class IntroCeresFlightState
     public bool Finished => Phase == IntroCeresFlightPhase.Finished;
 
     /// <summary>What <c>Step</c> does for each <see cref="IntroCeresFlightPhase"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<IntroCeresFlightPhase, Action> StepForIntroCeresFlightPhase => field ??= new(new Dictionary<IntroCeresFlightPhase, Action>
     {
         [IntroCeresFlightPhase.Initial] = () =>

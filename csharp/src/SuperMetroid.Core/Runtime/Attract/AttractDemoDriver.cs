@@ -130,6 +130,7 @@ internal sealed partial class AttractDemoDriver : IAttractSamusInput
     }
 
     /// <summary>What <see cref="ApplyAttractRoomSetup"/> does for each <see cref="AttractDemoRoomSetup"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<AttractDemoRoomSetup, Action> ApplyAttractRoomSetupForAttractDemoRoomSetup => field ??= new(new Dictionary<AttractDemoRoomSetup, Action>
     {
         [AttractDemoRoomSetup.ChargeBeamScroll] = () => _room.LoadedCamera.Scrolls.SetRoomScreen(AttractDemoDefinitions.ChargeBeamClosedScreen, RoomScrollState.Closed),

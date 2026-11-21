@@ -74,6 +74,7 @@ internal abstract partial class EyeDoorPartObject
         context.Draw(place, EyeDoorDraws.Of(Part, frame));
 
     /// <summary>What <see cref="SequenceEnded"/> does for each <see cref="EyeDoorPartPhase"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<EyeDoorPartPhase, Action<RoomObjectPlace, RoomObjectStepContext>> SequenceEndedForEyeDoorPartPhase => field ??= new(new Dictionary<EyeDoorPartPhase, Action<RoomObjectPlace, RoomObjectStepContext>>
     {
         [EyeDoorPartPhase.ClosingBehindSamus] = (place, context) => context.RoomObjects.DeleteObject(place),

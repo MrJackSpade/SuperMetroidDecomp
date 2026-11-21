@@ -281,6 +281,7 @@ internal sealed partial class BeamCombos
     }
 
     /// <summary>What <see cref="StepPlasmaCombo"/> does for each <see cref="PlasmaRingPhase"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<PlasmaRingPhase, Action<SamusProjectileOccupant, Position16<RoomPixels>, PlasmaParticleState>> StepPlasmaComboForPlasmaRingPhase => field ??= new(new Dictionary<PlasmaRingPhase, Action<SamusProjectileOccupant, Position16<RoomPixels>, PlasmaParticleState>>
     {
         [PlasmaRingPhase.Expanding] = (held, camera, ring) =>

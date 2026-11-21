@@ -125,6 +125,7 @@ internal sealed partial class WalkingSpacePirateBehavior : IEnemySpecies, IEnemy
     }
 
     /// <summary>What <see cref="RunWalkingSpacePirateMain"/> does for each <see cref="WalkingSpacePirateAction"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<WalkingSpacePirateAction, Action<RoomEnemyPlace, WalkingSpacePirateEnemyState, SamusState, RoomLevelData>> RunWalkingSpacePirateMainForWalkingSpacePirateAction => field ??= new(new Dictionary<WalkingSpacePirateAction, Action<RoomEnemyPlace, WalkingSpacePirateEnemyState, SamusState, RoomLevelData>>
     {
         [WalkingSpacePirateAction.StandingStill] = (place, state, samus, level) =>

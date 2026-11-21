@@ -48,6 +48,7 @@ internal sealed partial class OldTourianEscapeShaftWallBehavior
         : EnemyProjectileBehavior, IEnemyProjectileCues<OldTourianWallExplosionCue>
     {
         /// <summary>What <see cref="RunCue"/> does for each <see cref="OldTourianWallExplosionCue"/> member, each member's own arm.</summary>
+        [field: NonSerialized]
         private IdentityTable<OldTourianWallExplosionCue, Action<EnemyProjectile>> RunCueForOldTourianWallExplosionCue => field ??= new(new Dictionary<OldTourianWallExplosionCue, Action<EnemyProjectile>>
         {
             [OldTourianWallExplosionCue.StopMoving] = projectile => projectile.HoldStill(),

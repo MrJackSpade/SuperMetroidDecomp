@@ -142,6 +142,7 @@ internal sealed partial class CeresDoorBehavior : IEnemySpecies, IGameplayShadin
     internal const CeresDoorSegment ElevatorRoomWallDoorAnimation = CeresDoorSegment.Door;
 
     /// <summary>What <see cref="ApplyCue"/> comes to for each <see cref="CeresDoorCueKind"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<CeresDoorCueKind, Func<RoomEnemyPlace, SamusState, CeresDoorSegment?>> ApplyCueForCeresDoorCueKind => field ??= new(new Dictionary<CeresDoorCueKind, Func<RoomEnemyPlace, SamusState, CeresDoorSegment?>>
     {
         [CeresDoorCueKind.DoorAppears] = (place, samus) => IsSamusAway(place, samus) ? DoorClosedAnimation : null,

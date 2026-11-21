@@ -39,8 +39,11 @@ internal sealed partial class SamusPoseSetupSteps
     internal SamusPoseSetupSteps(GameplayAction held, GameplayAction newlyPressed, int frameCounter)
     {
         _playerActions = _clock = new DemoInputs(held, newlyPressed, frameCounter);
-        _moonwalkEnabled = static () => false;
+        _moonwalkEnabled = MoonwalkUnset;
     }
+
+    /// <summary>The moonwalk option before any file is chosen: unset, so she does not moonwalk.</summary>
+    private static bool MoonwalkUnset() => false;
 
     /// <summary>What the setups read of the update: its buttons and its frame counter.</summary>
     private interface ISetupInputs

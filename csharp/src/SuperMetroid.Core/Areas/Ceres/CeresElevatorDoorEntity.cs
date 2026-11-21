@@ -33,6 +33,7 @@ internal sealed partial class CeresElevatorDoorEntity(CeresDoorBehavior doors, R
     }
 
     /// <summary>What <see cref="RunMainAi"/> does for each <see cref="CeresElevatorDoorPhase"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<CeresElevatorDoorPhase, Action<CeresElevatorDoorState>> RunMainAiForCeresElevatorDoorPhase => field ??= new(new Dictionary<CeresElevatorDoorPhase, Action<CeresElevatorDoorState>>
     {
         [CeresElevatorDoorPhase.Intact] = state =>

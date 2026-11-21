@@ -11,6 +11,7 @@ internal sealed partial class HoppersBehavior : IEnemySpecies, IEnemyEntityFacto
 {
     /// <inheritdoc/>
     /// <remarks>Each hopper definition's creation carries the kind <see cref="HopperKindDefinitions.Kinds"/> gives it.</remarks>
+    [field: NonSerialized]
     public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= new Dictionary<EnemyDefinitionId, EnemyEntityCreation>
     {
         [EnemyDefinitionId.Sidehopper] = (occupant, place, common) => Create(occupant, place, common, HopperKindDefinitions.Kinds[EnemyDefinitionId.Sidehopper]),
@@ -89,6 +90,7 @@ internal sealed partial class HoppersBehavior : IEnemySpecies, IEnemyEntityFacto
     }
 
     /// <summary>What <see cref="RunHopperMain"/> does for each <see cref="HopperAction"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<HopperAction, Action<RoomEnemyOccupant, RoomEnemyPlace, SamusState, RoomLevelData, HopperEnemyState>> RunHopperMainForHopperAction => field ??= new(new Dictionary<HopperAction, Action<RoomEnemyOccupant, RoomEnemyPlace, SamusState, RoomLevelData, HopperEnemyState>>
     {
         [HopperAction.ChooseHopSize] = (_, place, samus, level, state) =>

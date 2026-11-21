@@ -22,6 +22,7 @@ internal sealed partial class OldTourianWallObject(IRoomSamusAccess samus, IOldT
     internal OldTourianWallPhase Phase { get; private set; } = OldTourianWallPhase.Starting;
 
     /// <summary>What <c>Update</c> does for each <see cref="OldTourianWallPhase"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<OldTourianWallPhase, Action<RoomObjectPlace, RoomObjectStepContext>> UpdateForOldTourianWallPhase => field ??= new(new Dictionary<OldTourianWallPhase, Action<RoomObjectPlace, RoomObjectStepContext>>
     {
         [OldTourianWallPhase.Starting] = (place, context) => Phase = OldTourianWallPhase.Waiting,

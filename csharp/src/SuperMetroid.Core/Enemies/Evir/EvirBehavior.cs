@@ -13,6 +13,7 @@ internal sealed partial class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     /// An Evir's body or arms, as the placement's settings name the part it is, or its spit (#2146). The arms share the
     /// body's definition; only their placement tells them apart.
     /// </remarks>
+    [field: NonSerialized]
     public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= new Dictionary<EnemyDefinitionId, EnemyEntityCreation>
     {
         [EnemyDefinitionId.Evir] = (occupant, place, common) => occupant.SpawnSettings<EvirSpawnSettings>().Part == EvirBodyPart.Arms
@@ -43,6 +44,7 @@ internal sealed partial class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>What <see cref="ApplyEvirCue"/> does for each <see cref="EvirCueKind"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<EvirCueKind, Action<EvirSpitState>> ApplyEvirCueForEvirCueKind => field ??= new(new Dictionary<EvirCueKind, Action<EvirSpitState>>
     {
         [EvirCueKind.PlaySpitSound] = state => QueueEvirSpitSound(),

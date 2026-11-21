@@ -80,6 +80,7 @@ internal sealed partial class GreyDoorObject : DoorCapObject, IShootableRoomObje
     }
 
     /// <summary>What <c>React</c> comes to for each <see cref="GreyDoorWait"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<GreyDoorWait, Func<RoomObjectPlace, RoomObjectStepContext, GreyDoorObjects, bool>> ReactForGreyDoorWait => field ??= new(new Dictionary<GreyDoorWait, Func<RoomObjectPlace, RoomObjectStepContext, GreyDoorObjects, bool>>
     {
         [GreyDoorWait.Nothing] = (place, context, doors) => false,
@@ -118,6 +119,7 @@ internal sealed partial class GreyDoorObject : DoorCapObject, IShootableRoomObje
     }
 
     /// <summary>What <see cref="SequenceEnded"/> does for each <see cref="GreyDoorPhase"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<GreyDoorPhase, Action<RoomObjectPlace, RoomObjectStepContext>> SequenceEndedForGreyDoorPhase => field ??= new(new Dictionary<GreyDoorPhase, Action<RoomObjectPlace, RoomObjectStepContext>>
     {
         [GreyDoorPhase.Placed] = (place, context) => Look(place, context),

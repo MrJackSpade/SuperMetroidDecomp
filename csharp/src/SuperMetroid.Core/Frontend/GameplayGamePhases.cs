@@ -116,6 +116,7 @@ internal sealed partial class GameplayGamePhases(FrontendSession session)
     }
 
     /// <summary>What <see cref="EnterUpdateTransition"/> does for each <see cref="GameplayUpdateTransition"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<GameplayUpdateTransition, Action> EnterUpdateTransitionForGameplayUpdateTransition => field ??= new(new Dictionary<GameplayUpdateTransition, Action>
     {
         [GameplayUpdateTransition.None] = () =>
@@ -166,6 +167,7 @@ internal sealed partial class GameplayGamePhases(FrontendSession session)
     }
 
     /// <summary>Where each route of the update's out-of-health check sends Samus, and whether the refill or the death takes the update.</summary>
+    [field: NonSerialized]
     private IdentityTable<SamusOutOfHealthRoute, Func<SamusState, bool>> OutOfHealthRoutes => field ??=
         new(new Dictionary<SamusOutOfHealthRoute, Func<SamusState, bool>>
         {

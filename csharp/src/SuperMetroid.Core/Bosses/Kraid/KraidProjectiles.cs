@@ -149,6 +149,7 @@ internal sealed partial class KraidProjectiles
     }
 
     /// <summary>What <see cref="RunKraidNailMain"/> does for each <see cref="KraidNailPhase"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<KraidNailPhase, Action<RoomEnemyPlace, KraidNailState, RoomLevelData>> RunKraidNailMainForKraidNailPhase => field ??= new(new Dictionary<KraidNailPhase, Action<RoomEnemyPlace, KraidNailState, RoomLevelData>>
     {
         [KraidNailPhase.WaitBeforeLaunch] = (nail, part, level) =>
@@ -247,6 +248,7 @@ internal sealed partial class KraidProjectiles
     private static SignedSixteenSixteen ReflectKraidNailHorizontalVelocity(SignedSixteenSixteen velocity) => -velocity;
 
     /// <summary>What <see cref="RunKraidLintMain"/> does for each <see cref="KraidLintPhase"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<KraidLintPhase, Action<RoomEnemyPlace, KraidLintState, SamusState>> RunKraidLintMainForKraidLintPhase => field ??= new(new Dictionary<KraidLintPhase, Action<RoomEnemyPlace, KraidLintState, SamusState>>
     {
         [KraidLintPhase.Inactive] = (lint, part, samus) => { },

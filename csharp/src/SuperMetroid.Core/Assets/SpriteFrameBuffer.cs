@@ -25,6 +25,7 @@ public sealed partial class SpriteFrameBuffer
     public void Add(SpriteDraw draw) => pending.Add(Ensure.NotNull(draw));
 
     /// <summary>What <c>Add</c> does for each <see cref="ActorLayering"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<ActorLayering, Action<SpriteDraw>> AddForActorLayering => field ??= new(new Dictionary<ActorLayering, Action<SpriteDraw>>
     {
         [ActorLayering.InDrawOrder] = draw => Add(draw),

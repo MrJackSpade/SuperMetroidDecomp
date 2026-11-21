@@ -12,6 +12,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 internal sealed partial class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
+    [field: NonSerialized]
     public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= new Dictionary<EnemyDefinitionId, EnemyEntityCreation>
     {
         [EnemyDefinitionId.Kraid] = (occupant, place, common) => EnemyOccupant.Of(new KraidBodyEntity(this, occupant, place, common)),
@@ -183,6 +184,7 @@ internal sealed partial class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal readonly partial record struct KraidCollisionShot(Position16<RoomPixels> Position, Extent16<RoomPixels> Radius, SamusProjectileType Type, int Damage, bool IsPlacedBomb);
 
     /// <summary>What <see cref="RunKraidBodyStage"/> does for each <see cref="KraidBodyStage"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<KraidBodyStage, Action<RoomEnemyPlace, KraidEnemyState, int, SamusState>> RunKraidBodyStageForKraidBodyStage => field ??= new(new Dictionary<KraidBodyStage, Action<RoomEnemyPlace, KraidEnemyState, int, SamusState>>
     {
         [KraidBodyStage.Rising] = (body, state, cameraX, samus) => Rise.RunKraidRisePhase(body, state, samus),
@@ -207,6 +209,7 @@ internal sealed partial class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>What <see cref="RunKraidFightPhase"/> does for each <see cref="KraidFightPhase"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<KraidFightPhase, Action<RoomEnemyPlace, KraidEnemyState>> RunKraidFightPhaseForKraidFightPhase => field ??= new(new Dictionary<KraidFightPhase, Action<RoomEnemyPlace, KraidEnemyState>>
     {
         [KraidFightPhase.FirstPhaseThinking] = (body, state) =>

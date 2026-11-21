@@ -10,6 +10,7 @@ namespace SuperMetroid.Core.Enemies.Ripper;
 internal sealed partial class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
+    [field: NonSerialized]
     public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= new Dictionary<EnemyDefinitionId, EnemyEntityCreation>
     {
         [EnemyDefinitionId.GrappleRipper] = (occupant, place, common) => EnemyOccupant.Of(new GrappleRipperEntity(this, occupant, place, common)),

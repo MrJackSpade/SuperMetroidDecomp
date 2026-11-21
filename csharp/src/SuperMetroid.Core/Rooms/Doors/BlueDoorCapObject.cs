@@ -88,6 +88,7 @@ internal sealed partial class BlueDoorCapObject : DoorCapObject
     }
 
     /// <summary>What <see cref="SequenceEnded"/> does for each <see cref="BlueDoorCapPhase"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<BlueDoorCapPhase, Action<RoomObjectPlace, RoomObjectStepContext>> SequenceEndedForBlueDoorCapPhase => field ??= new(new Dictionary<BlueDoorCapPhase, Action<RoomObjectPlace, RoomObjectStepContext>>
     {
         [BlueDoorCapPhase.Closing] = (place, context) => Close(place, context),

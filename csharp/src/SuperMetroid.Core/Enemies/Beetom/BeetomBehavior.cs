@@ -79,6 +79,7 @@ internal sealed partial class BeetomBehavior : IEnemySpecies, IEnemyEntityFactor
     }
 
     /// <summary>What <see cref="RunBeetomMain"/> does for each <see cref="BeetomAction"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<BeetomAction, Action<RoomEnemyPlace, BeetomEnemyState, SamusState, RoomLevelData, GameplayAction>> RunBeetomMainForBeetomAction => field ??= new(new Dictionary<BeetomAction, Action<RoomEnemyPlace, BeetomEnemyState, SamusState, RoomLevelData, GameplayAction>>
     {
         [BeetomAction.DecideAction] = (place, state, samus, level, controllerInput) =>

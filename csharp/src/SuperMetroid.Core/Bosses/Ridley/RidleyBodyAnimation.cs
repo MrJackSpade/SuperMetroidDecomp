@@ -43,6 +43,7 @@ internal sealed partial class RidleyBodyAnimation
     }
 
     /// <summary>What <see cref="ApplyCue"/> comes to for each <see cref="RidleyBodyCueKind"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<RidleyBodyCueKind, Func<RoomEnemyPlace, SamusState, IRidleyBodyOwner, RidleyFlightState, RidleyBodySegment?>> ApplyCueForRidleyBodyCueKind => field ??= new(new Dictionary<RidleyBodyCueKind, Func<RoomEnemyPlace, SamusState, IRidleyBodyOwner, RidleyFlightState, RidleyBodySegment?>>
     {
         [RidleyBodyCueKind.MayCutFireballingShort] = (place, samus, owner, flight) => owner.CutFireballingShort(samus),

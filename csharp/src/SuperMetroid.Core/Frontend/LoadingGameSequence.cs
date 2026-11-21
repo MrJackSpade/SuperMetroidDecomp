@@ -34,6 +34,7 @@ internal sealed partial class LoadingGameSequence(FrontendSession session) : IGa
     public bool IsWaitingOutDisplayFrame => session.ResumesGameLoadingWait;
 
     /// <summary>What <c>Step</c> does for each <see cref="GameDataLoadRoute"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<GameDataLoadRoute, Action<ControllerButton>> StepForGameDataLoadRoute => field ??= new(new Dictionary<GameDataLoadRoute, Action<ControllerButton>>
     {
         [GameDataLoadRoute.SelectedGame] = controllerInput =>
@@ -86,6 +87,7 @@ internal sealed partial class LoadingGameSequence(FrontendSession session) : IGa
     }
 
     /// <summary>What <see cref="StepGameLoadingWait"/> does for each <see cref="GameLoadingCompletion"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<GameLoadingCompletion, Action> StepGameLoadingWaitForGameLoadingCompletion => field ??= new(new Dictionary<GameLoadingCompletion, Action>
     {
         [GameLoadingCompletion.CeresArrivalFadeIn] = () =>

@@ -16,6 +16,7 @@ internal sealed partial class CeresDoorFactory(CeresDoorBehavior doors) : IEnemy
     private readonly CeresDoorBehavior _doors = Ensure.NotNull(doors);
 
     /// <inheritdoc/>
+    [field: NonSerialized]
     public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= new Dictionary<EnemyDefinitionId, EnemyEntityCreation>
         {
             [EnemyDefinitionId.CeresDoor] = (occupant, place, common) =>

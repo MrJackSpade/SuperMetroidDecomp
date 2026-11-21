@@ -21,6 +21,7 @@ internal sealed partial class LowerNorfairChozoHandObject(ChozoStatueObjects sta
     internal LowerNorfairChozoHandPhase Phase { get; set; } = LowerNorfairChozoHandPhase.Starting;
 
     /// <summary>What <c>Update</c> does for each <see cref="LowerNorfairChozoHandPhase"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<LowerNorfairChozoHandPhase, Action<RoomObjectPlace, RoomObjectStepContext>> UpdateForLowerNorfairChozoHandPhase => field ??= new(new Dictionary<LowerNorfairChozoHandPhase, Action<RoomObjectPlace, RoomObjectStepContext>>
     {
         [LowerNorfairChozoHandPhase.Starting] = (place, context) =>

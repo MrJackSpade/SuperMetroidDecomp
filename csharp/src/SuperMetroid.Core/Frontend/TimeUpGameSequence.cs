@@ -48,6 +48,7 @@ internal sealed partial class TimeUpGameSequence(FrontendSession session, Gamepl
     public bool IsWaitingOutDisplayFrame => false;
 
     /// <summary>What <c>Step</c> does for each <see cref="TimeUpStep"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<TimeUpStep, Action<ControllerButton>> StepForTimeUpStep => field ??= new(new Dictionary<TimeUpStep, Action<ControllerButton>>
     {
         [TimeUpStep.WhiteningOut] = controllerInput => WhiteOut(controllerInput),

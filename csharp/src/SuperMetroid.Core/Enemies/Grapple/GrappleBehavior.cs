@@ -53,6 +53,7 @@ internal sealed partial class GrappleBehavior : IGrappleTargets
     }
 
     /// <summary>How the grapple beam moves an enemy of each grapple reaction; true when it replaced main AI for the enemy frame.</summary>
+    [field: NonSerialized]
     private IdentityTable<GrappleEnemyReaction, Func<RoomEnemyOccupant, RoomEnemyPlace, IEnemyAiFrame, bool>> GrappleReactions => field ??=
         new(new Dictionary<GrappleEnemyReaction, Func<RoomEnemyOccupant, RoomEnemyPlace, IEnemyAiFrame, bool>>
         {

@@ -50,6 +50,7 @@ internal sealed partial class FileSelectGameSequence(FrontendSession session) : 
     public bool IsWaitingOutDisplayFrame => WaitsOutDisplayFrame[session.FileSelectStep](session);
 
     /// <summary>What <c>Step</c> does for each <see cref="FileSelectStep"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<FileSelectStep, Action<ControllerButton>> StepForFileSelectStep => field ??= new(new Dictionary<FileSelectStep, Action<ControllerButton>>
     {
         [FileSelectStep.SaveSlots] = controllerInput => RunSaveSlots(controllerInput),

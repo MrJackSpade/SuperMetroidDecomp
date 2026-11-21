@@ -107,6 +107,7 @@ internal sealed partial class NorfairRidleyBehavior : IEnemySpecies, IRidleyReve
     }
 
     /// <summary>What <see cref="RunNorfairRidleyFightPhase"/> does for each <see cref="NorfairRidleyPhase"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<NorfairRidleyPhase, Action<RoomEnemyPlace, NorfairRidleyState, SamusState, GameplayAction, RoomLevelData, SamusPowerBombExplosionState>> RunNorfairRidleyFightPhaseForNorfairRidleyPhase => field ??= new(new Dictionary<NorfairRidleyPhase, Action<RoomEnemyPlace, NorfairRidleyState, SamusState, GameplayAction, RoomLevelData, SamusPowerBombExplosionState>>
     {
         [NorfairRidleyPhase.EnterArena] = (place, state, samus, controllerInput, level, powerBomb) =>

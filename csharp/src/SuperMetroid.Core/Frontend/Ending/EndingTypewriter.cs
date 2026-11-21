@@ -65,6 +65,7 @@ internal sealed partial class EndingTypewriter
     public void Step() => typing.Step(CarryOut);
 
     /// <summary>What <see cref="CarryOut"/> does for each <see cref="EndingTypewriterCue"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<EndingTypewriterCue, Action> CarryOutForEndingTypewriterCue => field ??= new(new Dictionary<EndingTypewriterCue, Action>
     {
         [EndingTypewriterCue.ShowPercentage] = () => shownPercentage = ItemPercentage(),

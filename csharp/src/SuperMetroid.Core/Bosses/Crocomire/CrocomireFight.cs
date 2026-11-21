@@ -251,6 +251,7 @@ internal sealed partial class CrocomireFight
     };
 
     /// <summary>What <see cref="ApplyCrocomireBodySignal"/> comes to for each <see cref="CrocomireBodyCueKind"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<CrocomireBodyCueKind, Func<CrocomireEnemyState, SamusState, RoomLevelData, RoomEnemyPlace, CrocomireBodyAnimation?>> ApplyCrocomireBodySignalForCrocomireBodyCueKind => field ??= new(new Dictionary<CrocomireBodyCueKind, Func<CrocomireEnemyState, SamusState, RoomLevelData, RoomEnemyPlace, CrocomireBodyAnimation?>>
     {
         [CrocomireBodyCueKind.FightAi] = (state, samus, level, body) => RunCrocomireFightCue(state, samus),
@@ -325,6 +326,7 @@ internal sealed partial class CrocomireFight
         body.Position.X.Whole - body.Radius.X - CrocomireFightDefinitions.StepBackScreenReach < cameraX;
 
     /// <summary>What <see cref="RunCrocomireFightCue"/> comes to for each <see cref="CrocomirePhase"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<CrocomirePhase, Func<CrocomireEnemyState, SamusState, CrocomireBodyAnimation?>> RunCrocomireFightCueForCrocomirePhase => field ??= new(new Dictionary<CrocomirePhase, Func<CrocomireEnemyState, SamusState, CrocomireBodyAnimation?>>
     {
         [CrocomirePhase.Dormant] = (state, samus) =>

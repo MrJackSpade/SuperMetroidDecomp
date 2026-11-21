@@ -104,6 +104,7 @@ internal sealed partial class PlatformsBehavior : IEnemySpecies, IEnemyEntityFac
     }
 
     /// <summary>What <see cref="MovePlatformVertically"/> does for each <see cref="PlatformVerticalMovement"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<PlatformVerticalMovement, Action<RoomEnemyOccupant, RoomEnemyPlace, PlatformEnemyState, SamusState, RoomLevelData, int>> MovePlatformVerticallyForPlatformVerticalMovement => field ??= new(new Dictionary<PlatformVerticalMovement, Action<RoomEnemyOccupant, RoomEnemyPlace, PlatformEnemyState, SamusState, RoomLevelData, int>>
     {
         [PlatformVerticalMovement.Rising] = (occupant, place, state, samus, level, preHorizontalX) => RaisePlatform(occupant, place, state, level),

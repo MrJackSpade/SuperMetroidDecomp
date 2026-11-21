@@ -112,6 +112,7 @@ internal sealed partial class DraygonShots
         }
 
         /// <summary>What <see cref="RunCue"/> does for each <see cref="DraygonProjectileCue"/> member, each member's own arm.</summary>
+        [field: NonSerialized]
         private IdentityTable<DraygonProjectileCue, Action<EnemyProjectileCueContext, EnemyProjectile>> RunCueForDraygonProjectileCue => field ??= new(new Dictionary<DraygonProjectileCue, Action<EnemyProjectileCueContext, EnemyProjectile>>
         {
             [DraygonProjectileCue.StickToSamus] = (context, projectile) => AttachDraygonGoopToSamus(projectile, context.Samus, context.SamusBombs.PowerBombExplosion),

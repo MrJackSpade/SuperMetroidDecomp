@@ -49,6 +49,7 @@ internal sealed partial class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>What <see cref="RunOwtchMain"/> does for each <see cref="OwtchBehaviorState"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<OwtchBehaviorState, Action<RoomEnemyOccupant, RoomEnemyPlace, OwtchEnemyState>> RunOwtchMainForOwtchBehaviorState => field ??= new(new Dictionary<OwtchBehaviorState, Action<RoomEnemyOccupant, RoomEnemyPlace, OwtchEnemyState>>
     {
         [OwtchBehaviorState.MovingLeft] = (occupant, place, state) =>

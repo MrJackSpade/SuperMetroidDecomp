@@ -95,6 +95,7 @@ internal sealed partial class EndingEscapeScenes
     }
 
     /// <summary>What <see cref="HandleSpriteCue"/> does for each <see cref="EndingSceneCue"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<EndingSceneCue, Action<EndingSprite, EndingSceneCue>> HandleSpriteCueForEndingSceneCue => field ??= new(new Dictionary<EndingSceneCue, Action<EndingSprite, EndingSceneCue>>
     {
         [EndingSceneCue.WaitForFlyaway] = (wrapper, cue) =>

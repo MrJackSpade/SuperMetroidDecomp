@@ -24,6 +24,7 @@ internal sealed partial class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new BoyonEntity(this, occupant, place, common));
 
     /// <summary>What <see cref="ApplyBoyonCue"/> does for each <see cref="BoyonCueKind"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<BoyonCueKind, Action<RoomEnemyPlace, BoyonEnemyState>> ApplyBoyonCueForBoyonCueKind => field ??= new(new Dictionary<BoyonCueKind, Action<RoomEnemyPlace, BoyonEnemyState>>
     {
         [BoyonCueKind.PlayBounceSound] = (place, state) => PlayBoyonBounceSound(),

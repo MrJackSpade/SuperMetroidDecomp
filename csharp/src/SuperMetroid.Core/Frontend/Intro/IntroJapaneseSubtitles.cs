@@ -81,6 +81,7 @@ internal sealed partial class IntroJapaneseSubtitles
     }
 
     /// <summary>What <c>Step</c> does for each <see cref="SubtitleStage"/> member, each member's own arm, given its page.</summary>
+    [field: NonSerialized]
     private IdentityTable<SubtitleStage, Action<IntroNarrationPageId, Action<IntroNarrationPageId>>> StepForSubtitleStage => field ??= new(new Dictionary<SubtitleStage, Action<IntroNarrationPageId, Action<IntroNarrationPageId>>>
     {
         [SubtitleStage.ShowFirstSubtitle] = (shownPage, startInputWait) => showing = new(shownPage, SubtitleStage.FinishFirstSubtitle),

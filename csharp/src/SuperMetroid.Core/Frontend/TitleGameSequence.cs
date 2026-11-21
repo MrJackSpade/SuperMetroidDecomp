@@ -26,6 +26,7 @@ internal sealed partial class TitleGameSequence(FrontendSession session) : IGame
     public bool IsWaitingOutDisplayFrame => false;
 
     /// <summary>What <c>Step</c> does for each <see cref="TitleStep"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<TitleStep, Action<ControllerButton>> StepForTitleStep => field ??= new(new Dictionary<TitleStep, Action<ControllerButton>>
     {
         [TitleStep.Starting] = controllerInput => Start(),

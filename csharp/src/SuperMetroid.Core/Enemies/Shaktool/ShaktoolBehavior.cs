@@ -112,6 +112,7 @@ internal sealed partial class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFact
     internal ShaktoolChain ChainOf(RoomEnemyPlace segment) => _chains.Of(segment).Chain;
 
     /// <summary>What <see cref="RunShaktoolMain"/> does for each <see cref="ShaktoolSegmentMotion"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<ShaktoolSegmentMotion, Action<RoomEnemyPlace, ShaktoolSegmentState, RoomLevelData>> RunShaktoolMainForShaktoolSegmentMotion => field ??= new(new Dictionary<ShaktoolSegmentMotion, Action<RoomEnemyPlace, ShaktoolSegmentState, RoomLevelData>>
     {
         [ShaktoolSegmentMotion.Idle] = (place, state, level) => { },
@@ -242,6 +243,7 @@ internal sealed partial class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFact
     }
 
     /// <summary>What <see cref="ReverseShaktoolAfterCollision"/> does for each <see cref="ShaktoolWallResponse"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<ShaktoolWallResponse, Action<RoomEnemyPlace, Position16<RoomPixels>, ShaktoolChain, ShaktoolChainMotion>> ReverseShaktoolAfterCollisionForShaktoolWallResponse => field ??= new(new Dictionary<ShaktoolWallResponse, Action<RoomEnemyPlace, Position16<RoomPixels>, ShaktoolChain, ShaktoolChainMotion>>
     {
         [ShaktoolWallResponse.ReverseOrbit] = (place, previous, chain, motion) => chain.Motion = new(ShaktoolChainPhase.Curling, ShaktoolWallResponse.TurnEndForEnd, motion.OrbitDirection.Reversed()),
@@ -375,6 +377,7 @@ internal sealed partial class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFact
             $"Enemy place {place.Ordinal} has no initialized Shaktool state.");
 
     /// <summary>What <see cref="ApplyShaktoolCue"/> does for each <see cref="ShaktoolCueKind"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<ShaktoolCueKind, Action<RoomEnemyPlace, ShaktoolCue>> ApplyShaktoolCueForShaktoolCueKind => field ??= new(new Dictionary<ShaktoolCueKind, Action<RoomEnemyPlace, ShaktoolCue>>
     {
         [ShaktoolCueKind.Lower] = (place, cue) => ApplyShaktoolCueForShaktoolCueKindLower(place, cue),

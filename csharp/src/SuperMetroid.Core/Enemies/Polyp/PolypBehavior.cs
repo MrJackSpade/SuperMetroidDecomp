@@ -44,6 +44,7 @@ internal sealed partial class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>What <see cref="RunPolypMain"/> does for each <see cref="PolypAction"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<PolypAction, Action<RoomEnemyOccupant, RoomEnemyPlace, PolypEnemyState, SamusState>> RunPolypMainForPolypAction => field ??= new(new Dictionary<PolypAction, Action<RoomEnemyOccupant, RoomEnemyPlace, PolypEnemyState, SamusState>>
     {
         [PolypAction.WaitingForSamus] = (_, place, state, samus) =>
@@ -130,6 +131,7 @@ internal sealed partial class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>What <see cref="FlyPolypRock"/> does for each <see cref="PolypRockMovement"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<PolypRockMovement, Action<EnemyProjectile>> FlyPolypRockForPolypRockMovement => field ??= new(new Dictionary<PolypRockMovement, Action<EnemyProjectile>>
     {
         [PolypRockMovement.Rising] = projectile => StepRisingPolypRock(projectile),

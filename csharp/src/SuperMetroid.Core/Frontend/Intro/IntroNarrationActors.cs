@@ -164,7 +164,7 @@ internal sealed class IntroNarrationActors
             TypeCharacter(page.Characters, typed.Letters - 1);
     }
 
-    /// <summary>What <see cref="CarryOut"/> does for each <see cref="IntroNarrationTypingCue"/> member, each member's own arm.</summary>
+    /// <summary>What the typing does at each <see cref="IntroNarrationTypingCue"/> it raises, each cue's own arm.</summary>
     private IdentityTable<IntroNarrationTypingCue, Action<IntroNarrationPageId>> CarryOutForIntroNarrationTypingCue => field ??= new(new Dictionary<IntroNarrationTypingCue, Action<IntroNarrationPageId>>
     {
         [IntroNarrationTypingCue.ShowSubtitle] = page =>

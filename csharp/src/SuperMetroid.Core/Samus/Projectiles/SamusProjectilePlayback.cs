@@ -63,7 +63,7 @@ internal static class SamusProjectilePlayback
     /// The hitbox each animation declares through its first step, read once from every animation as they are built, so an
     /// animation that does not open with a frame fails there and no selection checks again (#2553).
     /// </summary>
-    private static IReadOnlyDictionary<SamusProjectileSegment, Extent16<RoomPixels>> OpeningRadii { get; } =
+    private static Dictionary<SamusProjectileSegment, Extent16<RoomPixels>> OpeningRadii { get; } =
         SamusProjectileAnimations.StartingAt.ToDictionary(entry => entry.Key, entry => OpeningRadius(entry.Key, entry.Value));
 
     /// <summary>The hitbox <paramref name="animation"/>, the one starting at <paramref name="segment"/>, declares through its first step.</summary>

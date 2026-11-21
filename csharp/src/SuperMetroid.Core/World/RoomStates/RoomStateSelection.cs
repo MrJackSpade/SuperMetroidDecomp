@@ -24,7 +24,7 @@ public static class RoomStateSelection
     /// Each room's state choice, checked once as the selection loads to name exactly the rooms of
     /// <see cref="RoomDefinitions.All"/>, the only rooms there are (<see cref="RoomDefinition"/>).
     /// </summary>
-    private static readonly IReadOnlyDictionary<RoomDefinition, RoomStateChoice> Choices = CheckedChoices();
+    private static readonly Dictionary<RoomDefinition, RoomStateChoice> Choices = CheckedChoices();
 
     /// <summary>The state choice of <paramref name="room"/>, one of the game's rooms as every room is.</summary>
     internal static RoomStateChoice ChoiceFor(RoomDefinition room) => Choices[room];

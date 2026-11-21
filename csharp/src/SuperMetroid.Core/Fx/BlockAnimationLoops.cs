@@ -103,7 +103,7 @@ public static class BlockAnimationLoops
     /// loop, so no effect's animation is checked again as it starts (#2553).
     /// </summary>
     /// <exception cref="InvalidOperationException">An effect's animation has no loop.</exception>
-    private static IReadOnlyDictionary<RoomFxType, BlockAnimation> EffectOverlayLoops { get; } =
+    private static Dictionary<RoomFxType, BlockAnimation> EffectOverlayLoops { get; } =
         BlockAnimationLoopDefinitions.EffectOverlayAnimations.ToDictionary(entry => entry.Key, entry => Require(entry.Value));
 
     /// <summary>The treadmill animation a Wrecked Ship entrance door starts for a belt pushing <paramref name="direction"/>.</summary>

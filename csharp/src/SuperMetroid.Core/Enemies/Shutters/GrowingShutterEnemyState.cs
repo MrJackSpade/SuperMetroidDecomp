@@ -13,18 +13,6 @@ public sealed class GrowingShutterEnemyState
     private const int SectionOriginSpacing = 8;
 
     /// <summary>
-    /// The growth sections in the order they grow, each by the artwork the shutter shows while it grows, a quarter, a half,
-    /// three quarters and the whole of its length (#2553), and how many sections grew before it.
-    /// </summary>
-    private static readonly GrowingShutterSection[] Sections =
-    [
-        new(ShutterSegment.QuarterGrown, GrownBefore: 0),
-        new(ShutterSegment.HalfGrown, GrownBefore: 1),
-        new(ShutterSegment.ThreeQuartersGrown, GrownBefore: 2),
-        new(ShutterSegment.FullyGrown, GrownBefore: 3),
-    ];
-
-    /// <summary>
     /// Creates the state of a shutter spawned at row <paramref name="spawnY"/> growing <paramref name="growth"/>, starting in
     /// <paramref name="action"/>.
     /// </summary>
@@ -63,7 +51,7 @@ public sealed class GrowingShutterEnemyState
     internal ListStep<GrowingShutterSection>? Growing { get; set; } = FirstSection;
 
     /// <summary>The first section to grow, a quarter of the shutter's length.</summary>
-    internal static ListStep<GrowingShutterSection> FirstSection => ListStep<GrowingShutterSection>.FirstOf(Sections);
+    internal static ListStep<GrowingShutterSection> FirstSection => ListStep<GrowingShutterSection>.FirstOf(GrowingShutterDefinitions.Sections);
 
     /// <summary>
     /// The origin row of growing section <paramref name="section"/>, derived from the spawn row (#2183): the first section's

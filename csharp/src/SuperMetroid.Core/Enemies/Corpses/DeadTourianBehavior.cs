@@ -66,7 +66,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = DeadSidehopperBehavior.StartDeadTourianAnimation(place, definition.InitialAnimation);
     }
 
-    /// <summary>What <see cref="RunDeadTourianCorpseMain"/> does for each <see cref="DeadTourianCorpsePhase"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunDeadTourianCorpseMain"/> does for each <see cref="CorpsePhase"/> member, each member's own arm.</summary>
     private IdentityTable<CorpsePhase, Action<RoomEnemyPlace, SamusState, DeadTourianCorpseEnemyState>> RunDeadTourianCorpseMainForDeadTourianCorpsePhase => field ??= new(new Dictionary<CorpsePhase, Action<RoomEnemyPlace, SamusState, DeadTourianCorpseEnemyState>>
     {
         [CorpsePhase.Waiting] = WaitToRot,

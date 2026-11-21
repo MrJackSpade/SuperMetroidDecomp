@@ -62,7 +62,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         });
     }
 
-    /// <summary>What <see cref="RunDeadTorizoMain"/> does for each <see cref="DeadTorizoPhase"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunDeadTorizoMain"/> does for each <see cref="CorpsePhase"/> member, each member's own arm.</summary>
     private IdentityTable<CorpsePhase, Action<RoomEnemyPlace, SamusState, DeadTorizoEnemyState>> RunDeadTorizoMainForDeadTorizoPhase => field ??= new(new Dictionary<CorpsePhase, Action<RoomEnemyPlace, SamusState, DeadTorizoEnemyState>>
     {
         [CorpsePhase.Waiting] = WaitToRot,

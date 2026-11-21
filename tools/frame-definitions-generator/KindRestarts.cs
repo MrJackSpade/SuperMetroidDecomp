@@ -164,7 +164,7 @@ internal sealed class KindRestarts
     {
         var sources = new MotionSources();
         var names = new HashSet<string>(_starting.MotionTypes.SelectMany(type => type.GetMembers().OfType<IFieldSymbol>()).Select(member => member.Name), StringComparer.Ordinal);
-        foreach (SyntaxTree tree in _model.Compilation.SyntaxTrees)
+        foreach (SyntaxTree tree in _model.AuthoredTrees)
         {
             SemanticModel? semantic = null;
             foreach (IdentifierNameSyntax name in tree.GetRoot().DescendantNodes().OfType<IdentifierNameSyntax>())
@@ -276,7 +276,7 @@ internal sealed class KindRestarts
     /// </summary>
     private IEnumerable<(SyntaxNode Region, HashSet<IFieldSymbol> Motions)> GuardedRegions()
     {
-        foreach (SyntaxTree tree in _model.Compilation.SyntaxTrees)
+        foreach (SyntaxTree tree in _model.AuthoredTrees)
         {
             SemanticModel? semantic = null;
             foreach (MethodDeclarationSyntax move in tree.GetRoot().DescendantNodes().OfType<MethodDeclarationSyntax>())
@@ -455,7 +455,7 @@ internal sealed class KindRestarts
             || method.ContainingType.AllInterfaces.SelectMany(type => type.GetMembers()).Any(member => SymbolEqualityComparer.Default.Equals(
                 method.ContainingType.FindImplementationForInterfaceMember(member)?.OriginalDefinition, method))), SymbolEqualityComparer.Default);
         var names = new HashSet<string>(candidates.Select(method => method.Name), StringComparer.Ordinal);
-        foreach (SyntaxTree tree in _model.Compilation.SyntaxTrees)
+        foreach (SyntaxTree tree in _model.AuthoredTrees)
         {
             SemanticModel? semantic = null;
             foreach (SimpleNameSyntax name in tree.GetRoot().DescendantNodes().OfType<SimpleNameSyntax>())

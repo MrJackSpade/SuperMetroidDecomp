@@ -384,7 +384,7 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
     /// </summary>
     private bool IsFrameRecord(INamedTypeSymbol frameType)
     {
-        IMethodSymbol[] constructors = [.. frameType.InstanceConstructors.Where(constructor => constructor.Parameters.Length > 0)];
+        IMethodSymbol[] constructors = [.. GameConstructors.Of(frameType).Where(constructor => constructor.Parameters.Length > 0)];
         return constructors.Length > 0 && constructors.All(constructor => constructor.Parameters.All(parameter =>
             parameter.Type is INamedTypeSymbol type
             && SymbolEqualityComparer.Default.Equals(
@@ -394,7 +394,7 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
     /// <summary>Whether <paramref name="frameType"/> is a pose its programs construct from arguments: neither a plain value nor a lone pose.</summary>
     private static bool IsConstructedPose(INamedTypeSymbol frameType) =>
         frameType.SpecialType == SpecialType.None && frameType.TypeKind != TypeKind.Enum
-        && frameType.InstanceConstructors.Any(constructor => constructor.Parameters.Length > 0);
+        && GameConstructors.Of(frameType).Any(constructor => constructor.Parameters.Length > 0);
 
     /// <summary>
     /// Records, in source order, what <paramref name="node"/> contributes to a segment or animation: the projectile frames it
@@ -773,7 +773,7 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
     {
         var named = new HashSet<string>(StringComparer.Ordinal);
         var members = new HashSet<string>(segmentType.GetMembers().OfType<IFieldSymbol>().Select(member => member.Name), StringComparer.Ordinal);
-        foreach (SyntaxTree tree in model.Compilation.SyntaxTrees)
+        foreach (SyntaxTree tree in model.AuthoredTrees)
         {
             SemanticModel? semantic = null;
             foreach (IdentifierNameSyntax name in tree.GetRoot().DescendantNodes().OfType<IdentifierNameSyntax>())
@@ -880,7 +880,7 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
     /// <summary>Every name in Core reading <paramref name="field"/>.</summary>
     private IEnumerable<IdentifierNameSyntax> References(IFieldSymbol field)
     {
-        foreach (SyntaxTree tree in model.Compilation.SyntaxTrees)
+        foreach (SyntaxTree tree in model.AuthoredTrees)
         {
             SemanticModel? semantic = null;
             foreach (IdentifierNameSyntax name in tree.GetRoot().DescendantNodes().OfType<IdentifierNameSyntax>())
@@ -903,7 +903,7 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
     {
         var tracer = new ProgramTracer(model, reaches: null);
         var values = new HashSet<SyntaxNode>();
-        foreach (IMethodSymbol constructor in family.OriginalDefinition.InstanceConstructors)
+        foreach (IMethodSymbol constructor in GameConstructors.Of(family.OriginalDefinition))
         {
             if (model.ProgramParameterOf(constructor, family) is not { } program)
                 continue;
@@ -1018,7 +1018,7 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
     /// </summary>
     internal IEnumerable<SyntaxNode> CueHandlers(INamedTypeSymbol cueType)
     {
-        foreach (SyntaxTree tree in model.Compilation.SyntaxTrees)
+        foreach (SyntaxTree tree in model.AuthoredTrees)
         {
             SemanticModel? semantic = null;
             foreach (MethodDeclarationSyntax method in tree.GetRoot().DescendantNodes().OfType<MethodDeclarationSyntax>())
@@ -1048,7 +1048,7 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
     /// </summary>
     private IEnumerable<SyntaxNode> MotionHandlers()
     {
-        foreach (SyntaxTree tree in model.Compilation.SyntaxTrees)
+        foreach (SyntaxTree tree in model.AuthoredTrees)
         {
             SemanticModel? semantic = null;
             foreach (SyntaxNode node in tree.GetRoot().DescendantNodes())

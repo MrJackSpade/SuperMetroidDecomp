@@ -306,7 +306,7 @@ internal sealed class UnitScanner(CoreModel model)
             return;
         scan.Targets.Add(Unit.InstanceInitialization(type));
         if (!callsBase && type.BaseType is { } baseType && model.IsSource(baseType.OriginalDefinition)
-            && baseType.OriginalDefinition.InstanceConstructors.FirstOrDefault(c => c.Parameters.All(p => p.IsOptional || p.IsParams)) is { } implicitBase)
+            && GameConstructors.Of(baseType.OriginalDefinition).FirstOrDefault(c => c.Parameters.All(p => p.IsOptional || p.IsParams)) is { } implicitBase)
         {
             scan.Targets.Add(Unit.Member(implicitBase.OriginalDefinition));
         }

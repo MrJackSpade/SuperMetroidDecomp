@@ -371,7 +371,7 @@ public static class RoomDefinitions
     /// <summary>The Glass Tunnel Save room.</summary>
     public static RoomDefinition GlassTunnelSave { get; } = new("GlassTunnelSave", AreaId.Maridia, new(12, 20), new(1, 1), 112, 160, RoomDoorTransitionStyle.Standard);
     /// <summary>The Glass Tunnel room.</summary>
-    public static RoomDefinition GlassTunnel { get; } = new("GlassTunnel", AreaId.Maridia, new(11, 18), new(1, 3), 112, 160, RoomDoorTransitionStyle.Standard) { XrayHidesBackground = true };
+    public static RoomDefinition GlassTunnel { get; } = new("GlassTunnel", AreaId.Maridia, new(11, 18), new(1, 3), 112, 160, RoomDoorTransitionStyle.Standard, xrayHidesBackground: true);
     /// <summary>The West Tunnel room.</summary>
     public static RoomDefinition WestTunnel { get; } = new("WestTunnel", AreaId.Maridia, new(10, 19), new(1, 1), 112, 160, RoomDoorTransitionStyle.Standard);
     /// <summary>The East Tunnel room.</summary>

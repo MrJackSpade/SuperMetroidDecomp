@@ -34,7 +34,6 @@ internal static class LibraryBackgroundInstructionAccess
         internal LibraryBackgroundDestination Destination => self switch
         {
             LibraryBackgroundInstruction.Copy copy => copy.Destination,
-            LibraryBackgroundInstruction.Decompress => LibraryBackgroundDestination.TilemapStaging,
             _ => throw new InvalidOperationException($"{self} writes to no destination of its own."),
         };
 

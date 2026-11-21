@@ -30,9 +30,9 @@ internal static class SamusBodySheetFixtures
     internal static SamusSheetInputs Inputs => inputs.Value;
 
     /// <summary>
-    /// Sheets already composed, by the body's content identity and its characters' identity. Every table, spritemap,
-    /// atmosphere, death and arm-cannon catalog the body sheets are composed from enters the first, and the characters the
-    /// second, so the bodies a fixture rebuilds with the same content compose their sheets once.
+    /// Sheets already composed, by the body's tag and its characters' identity (#2604): a body is told apart as itself,
+    /// and the characters by what they hold, so a body bound to characters again composes its sheets once. Painting is
+    /// shared by layout (<c>paintedLayouts</c>), so bodies that lay a sheet out alike paint it once.
     /// </summary>
     private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, Lazy<InstalledSpriteSheets>> composed =
         new(StringComparer.Ordinal);
@@ -52,7 +52,7 @@ internal static class SamusBodySheetFixtures
     /// <summary>The body each fixture presentation was last bound to by <c>BindBodyFixture</c>.</summary>
     private static readonly ConditionalWeakTable<SamusPresentation, SamusBodySources> boundBodies = new();
 
-    /// <summary>Atmosphere sheets already composed, by the spritemaps' and then the atmospheric attributes' content identities.</summary>
+    /// <summary>Atmosphere sheets already composed, by the spritemaps' and then the atmospheric attributes' tags.</summary>
     private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, Lazy<InstalledSpriteSheets>> atmospheres =
         new(StringComparer.Ordinal);
 
@@ -63,7 +63,7 @@ internal static class SamusBodySheetFixtures
     private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, Lazy<SpriteSheet>> paintedLayouts =
         new(StringComparer.Ordinal);
 
-    /// <summary>Sheets already composed, by the body's and then the arm cannon's content identities.</summary>
+    /// <summary>Sheets already composed, by the body's sheet identity and then the arm cannon's tag.</summary>
     private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, Lazy<InstalledSpriteSheets>> cannons =
         new(StringComparer.Ordinal);
 
@@ -84,7 +84,7 @@ internal static class SamusBodySheetFixtures
 
     /// <summary>The identity the body sheets <paramref name="shown"/> composes are kept by: its body's and its characters'.</summary>
     private static string SheetIdentityOf(SamusBodyCharacterArtwork shown) =>
-        $"{shown.Body.ContentIdentity}-{CharactersIdentityOf(shown)}";
+        $"{FixtureArtworkTags.Of(shown.Body)}-{CharactersIdentityOf(shown)}";
 
     /// <summary>Registers a fixture body's own characters, which its sheets compose from; returns the body.</summary>
     internal static SamusBodySources Register(SamusBodyCharacterArtwork artwork)
@@ -117,9 +117,9 @@ internal static class SamusBodySheetFixtures
     {
         ArgumentNullException.ThrowIfNull(body);
         ArgumentNullException.ThrowIfNull(cannon);
-        if (cannon.ContentIdentity == body.ArmCannon.ContentIdentity)
+        if (ReferenceEquals(cannon, body.ArmCannon))
             return For(body);
-        return cannons.GetOrAdd($"{SheetIdentityOf(CharactersOf(body))}-{cannon.ContentIdentity}", key => new(() => Compose(For(body),
+        return cannons.GetOrAdd($"{SheetIdentityOf(CharactersOf(body))}-{FixtureArtworkTags.Of(cannon)}", key => new(() => Compose(For(body),
             inputs.Value with { SamusBody = CharactersOf(body) }, [SpriteSheetId.SamusOverlays], cannon, $"fixture-{key}"))).Value;
     }
 
@@ -133,11 +133,11 @@ internal static class SamusBodySheetFixtures
         SamusBodySources installed = inputs.Value.SamusBody.Body;
         spritemaps ??= installed.Spritemaps;
         atmosphere ??= installed.Atmosphere;
-        if (spritemaps.ContentIdentity == installed.Spritemaps.ContentIdentity && atmosphere.ContentIdentity == installed.Atmosphere.ContentIdentity)
+        if (ReferenceEquals(spritemaps, installed.Spritemaps) && ReferenceEquals(atmosphere, installed.Atmosphere))
             return InstalledFixtures.SpriteSheets;
         SamusSpritemapSources maps = spritemaps;
         SamusAtmosphericSourceArtwork attributes = atmosphere;
-        return atmospheres.GetOrAdd($"{maps.ContentIdentity}-{attributes.ContentIdentity}", key => new(() =>
+        return atmospheres.GetOrAdd($"{FixtureArtworkTags.Of(maps)}-{FixtureArtworkTags.Of(attributes)}", key => new(() =>
         {
             SpriteSheetSources sources = SamusAtmosphereSheetComposer.Sources(inputs.Value, maps, attributes);
             return Replace(InstalledFixtures.SpriteSheets, SpriteSheetId.SamusAtmosphere, sources, $"fixture-{key}");

@@ -22,7 +22,7 @@ internal static class SpcSoundPoliciesVerification
         byte Read(int address) => rom.ReadCartridgeByte(0xcf6c08 + address);
         int Word(int address) => LittleEndianBytes.Word(Read(address), Read(address + 1));
         Action<SuperMetroid.Core.Audio.SoundEffectLibrary, ManagedSpcSoundLibrary, string> applyPolicy = SpcSoundLibraries.ConfigureSoundLibrary;
-        SuperMetroid.Core.Audio.SoundEffectLibrary soundLibrary = SuperMetroid.AssetExtraction.Audio.SoundLibraryNumbers.FromDriverIndex(library);
+        SuperMetroid.Core.Audio.SoundEffectLibrary soundLibrary = SuperMetroid.AssetExtraction.Audio.SoundDriverLibraryPlaces.At(library);
         byte NativeNumber(string key) => soundLibrary switch
         {
             SuperMetroid.Core.Audio.SoundEffectLibrary.Samus => SpcSoundPolicyCodecConstants.NativeNumber(SpcSoundPolicyCodec.Parse(SpcSoundPolicyCodec.Library1Keys, key, soundLibrary)),

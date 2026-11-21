@@ -11,9 +11,9 @@ internal static class RenderFrameHandoffTestsVerification
     internal static void VerifyRenderFrameHandoff()
     {
         // Two dimmings, 2 and 12 of 15, combine once: 2 * 12 / 15 = 1.6, the nearest level being 2.
-        int brightness = DisplayBrightness.Combine(DisplayBrightness.StepsAbove(2), DisplayBrightness.StepsAbove(12)).StepsAboveBlack;
+        int brightness = DisplayBrightness.Combine(DisplayBrightness.Black.Brighter(2), DisplayBrightness.Black.Brighter(12)).StepsAboveBlack;
         AssertEqual(2, brightness, "two dimmings combine into one brightness, rounded once");
-        var first = new global::SuperMetroid.Core.Rendering.DisplayPacket((int)(ushort.MaxValue), new RgbaPixel(198, 127, 63, 255), DisplayBrightness.StepsAbove(brightness));
+        var first = new global::SuperMetroid.Core.Rendering.DisplayPacket((int)(ushort.MaxValue), new RgbaPixel(198, 127, 63, 255), DisplayBrightness.Black.Brighter(brightness));
         AssertEqual(brightness, first.Brightness.StepsAboveBlack, "the packet carries the combined brightness");
         RgbaPixel[] pixels = DisplayRendering.Render(first);
         AssertEqual(new RgbaPixel(26, 16, 8, 255), pixels[0], "one brightness pass dims each channel once");

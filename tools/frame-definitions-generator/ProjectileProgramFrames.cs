@@ -158,21 +158,28 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
         // other presents each pose it shows.
         bool direct = SymbolEqualityComparer.Default.Equals(frameType, model.EnemyProjectileFrameId) || IsFrameRecord(frameType);
         ISymbol segments = NamedBy(family, "Segments");
-        ISymbol startingAt = StartTableOf(family, segments, segmentType)
-            ?? throw new InvalidDataException($"{family.ToDisplayString()} names no table of the animations starting at each {segmentType.Name} this generator can read.");
+        // A family whose owners start every animation by its own name (#2604: Botwoon's spit, which plays its one flight)
+        // has no table of the animations starting at each segment; its animations are read from its animation data.
+        ISymbol? startingAt = StartTableOf(family, segments, segmentType);
+        INamedTypeSymbol animationData = (startingAt ?? segments).ContainingType;
         List<ExpressionSyntax> segmentInitializers = model.InitializersWithSpreads(segments);
-        ExpressionSyntax startInitializer = CoreModel.InitializerOf(startingAt);
+        ExpressionSyntax? startInitializer = startingAt is null ? null : CoreModel.InitializerOf(startingAt);
         AssignmentExpressionSyntax[] segmentEntries = [.. segmentInitializers.SelectMany(initializer => KeyedEntries(initializer, segmentType))];
-        AssignmentExpressionSyntax[] startEntries = [.. KeyedEntries(startInitializer, segmentType)];
-        (ExpressionSyntax Played, string Name)[] builtStarts = [.. BuilderStarts(startInitializer, segmentType)];
+        AssignmentExpressionSyntax[] startEntries = startInitializer is null ? [] : [.. KeyedEntries(startInitializer, segmentType)];
+        (ExpressionSyntax Played, string Name)[] builtStarts = startInitializer is null ? [] : [.. BuilderStarts(startInitializer, segmentType)];
         // The animations its owners start by their own identity rather than at a segment (#2044: each n00b-tube shard's,
         // keyed by the shard) are starts as well, named by their key's type and member.
-        (ExpressionSyntax Initializer, INamedTypeSymbol Key)[] ownerKeyed = [.. OwnerKeyedAnimations(startingAt, segmentType)];
+        (ExpressionSyntax Initializer, INamedTypeSymbol Key)[] ownerKeyed = [.. OwnerKeyedAnimations(animationData, startingAt, segmentType)];
         (AssignmentExpressionSyntax Entry, string Name)[] ownerEntries = [.. ownerKeyed.SelectMany(owned =>
             KeyedEntries(owned.Initializer, owned.Key).Select(entry => (entry, $"{owned.Key.Name}.{KeyOf(entry)}")))];
         // So are the animations its owners start by the animation's own name (#2061: the Tourian statue's descent dust),
         // named by their member.
-        (ExpressionSyntax Initializer, string Name)[] ownerNamed = [.. OwnerNamedAnimations(startingAt, segmentType)];
+        (ExpressionSyntax Initializer, string Name)[] ownerNamed = [.. OwnerNamedAnimations(animationData, segmentType)];
+        if (startingAt is null && ownerKeyed.Length == 0 && ownerNamed.Length == 0)
+        {
+            throw new InvalidDataException(
+                $"{family.ToDisplayString()} names no table of the animations starting at each {segmentType.Name}, and no animation by name, this generator can read.");
+        }
         (ISymbol? table, bool indexedByPose) = direct ? (null, false) : TableOf(family);
         // The programs choose the frames only when each segment and animation is an authored [Segment] = ... entry of a
         // named segment, and each beat names the projectile frame it shows or constructs the pose it presents (#1513). A
@@ -275,12 +282,13 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
 
     /// <summary>
     /// The initializers of the dictionaries of a family's animations its owners start by their own identity (#2044): each
-    /// other static property or field the type declaring <paramref name="startingAt"/> declares whose value maps an enum
-    /// other than <paramref name="segmentType"/> to animations over it, with that enum.
+    /// static property or field <paramref name="animationData"/> declares, other than <paramref name="startingAt"/>, whose
+    /// value maps an enum other than <paramref name="segmentType"/> to animations over it, with that enum.
     /// </summary>
-    private IEnumerable<(ExpressionSyntax Initializer, INamedTypeSymbol Key)> OwnerKeyedAnimations(ISymbol startingAt, INamedTypeSymbol segmentType)
+    private static IEnumerable<(ExpressionSyntax Initializer, INamedTypeSymbol Key)> OwnerKeyedAnimations(
+        INamedTypeSymbol animationData, ISymbol? startingAt, INamedTypeSymbol segmentType)
     {
-        foreach (ISymbol member in startingAt.ContainingType.GetMembers())
+        foreach (ISymbol member in animationData.GetMembers())
         {
             ITypeSymbol? type = member switch
             {
@@ -298,13 +306,13 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
     }
 
     /// <summary>
-    /// The initializers of a family's animations its owners start by the animation's own name (#2061): each other static
-    /// property or field the type declaring <paramref name="startingAt"/> declares whose value is an animation over
-    /// <paramref name="segmentType"/>, with its name.
+    /// The initializers of a family's animations its owners start by the animation's own name (#2061): each static property
+    /// or field <paramref name="animationData"/> declares whose value is an animation over <paramref name="segmentType"/>,
+    /// with its name.
     /// </summary>
-    private IEnumerable<(ExpressionSyntax Initializer, string Name)> OwnerNamedAnimations(ISymbol startingAt, INamedTypeSymbol segmentType)
+    private static IEnumerable<(ExpressionSyntax Initializer, string Name)> OwnerNamedAnimations(INamedTypeSymbol animationData, INamedTypeSymbol segmentType)
     {
-        foreach (ISymbol member in startingAt.ContainingType.GetMembers())
+        foreach (ISymbol member in animationData.GetMembers())
         {
             ITypeSymbol? type = member switch
             {
@@ -926,13 +934,17 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
     /// </summary>
     public IReadOnlyList<ExpressionSyntax> AnimationData(INamedTypeSymbol family)
     {
-        if (model.ProgramTypeOf(family) is not { } programType || ReadableNamedBy(family, "Segments") is not { } segments
-            || StartTableOf(family, segments, (INamedTypeSymbol)TimelineAnimationOf(family).TypeArguments[0]) is not { } startingAt)
+        if (model.ProgramTypeOf(family) is not { } programType || ReadableNamedBy(family, "Segments") is not { } segments)
+            return [];
+        ISymbol? startingAt = StartTableOf(family, segments, (INamedTypeSymbol)TimelineAnimationOf(family).TypeArguments[0]);
+        INamedTypeSymbol animationData = (startingAt ?? segments).ContainingType;
+        ExpressionSyntax[] named = [.. OwnerNamedAnimations(animationData, programType).Select(owned => owned.Initializer)];
+        if (startingAt is null && named.Length == 0)
             return [];
         List<ExpressionSyntax> initializers = model.InitializersWithSpreads(segments);
-        return [.. initializers, .. SharedRunsIn(initializers), CoreModel.InitializerOf(startingAt),
-            .. OwnerKeyedAnimations(startingAt, programType).Select(owned => owned.Initializer),
-            .. OwnerNamedAnimations(startingAt, programType).Select(owned => owned.Initializer)];
+        return [.. initializers, .. SharedRunsIn(initializers), .. startingAt is null ? [] : new[] { CoreModel.InitializerOf(startingAt) },
+            .. OwnerKeyedAnimations(animationData, startingAt, programType).Select(owned => owned.Initializer),
+            .. named];
     }
 
     /// <summary>

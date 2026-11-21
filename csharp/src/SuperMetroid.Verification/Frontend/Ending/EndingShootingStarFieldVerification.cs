@@ -42,7 +42,7 @@ internal static class EndingShootingStarFieldVerification
     internal static void VerifyEndingStillShootingStars()
     {
         int still = 0;
-        for (int index = 0; index < EndingShootingStarDefinitions.Count; index++)
+        for (int index = 0; index < EndingShootingStarDefinitions.Stars.Length; index++)
         {
             if (EndingShootingStarDefinitions.Stars[index].Pace.Animates)
                 continue;

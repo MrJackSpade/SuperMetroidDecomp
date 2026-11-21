@@ -45,7 +45,7 @@ internal static class CeresRidleyColorsVerification
                 CeresRidleyColorFormat.BodyFadeColorCount * sizeof(ushort),
                 CeresRidleyColorFormat.BodyFadeColorCount,
                 color => native.ResolveBodyFade(row, color));
-        for (int row = 0; row < CeresRidleyColorFormat.HealthBandCount; row++)
+        for (int row = 0; row < SuperMetroid.Core.Bosses.Ridley.CeresRidleyHealthBandDefinitions.HighestFirst.Count; row++)
             Check(RidleySourceDefinitions.Ceres.HealthColors + row *
                 CeresRidleyColorFormat.HealthColorCount * sizeof(ushort),
                 CeresRidleyColorFormat.HealthColorCount,

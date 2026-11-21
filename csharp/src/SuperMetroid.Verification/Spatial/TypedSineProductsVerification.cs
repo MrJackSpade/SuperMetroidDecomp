@@ -72,21 +72,13 @@ internal static class TypedSineProductsVerification
     }
 
     /// <summary>
-    /// A quadratic curve speed's coarse rise (#2537) equals the coarse speed it replaced, counted back into a displacement,
-    /// at every mark of the curve; and the displacement read at that precision equals its reading in 256ths counted back,
+    /// A quadratic curve speed's coarse rise (#2537) reads the displacement at a 256th's precision: the displacement read
+    /// at that precision equals its reading in 256ths counted back,
     /// for every whole pixel at the fractions around a 256th's edges and for every fraction of the whole pixels around zero.
     /// </summary>
     private static int VerifyCoarseRise()
     {
         int compared = 0;
-        for (int mark = 0; mark < QuadraticSpeedCurveDefinitions.MarkCount; mark++)
-        {
-            QuadraticCurveSpeed speed = QuadraticSpeedCurve.AtMark(mark);
-            SignedSixteenSixteen old = speed.CoarseToward(VerticalDirection.Down);
-            if (speed.CoarseRise != old)
-                throw new InvalidDataException($"Mark {mark}: the coarse rise {speed.CoarseRise.RawValue} differs from {old.RawValue}.");
-            compared++;
-        }
         for (int whole = short.MinValue; whole <= short.MaxValue; whole++)
         {
             foreach (int fraction in (int[])[0, 1, 255, 256, 257, 32768, 65280, 65535])

@@ -207,7 +207,7 @@ internal static class Program
                 for (byte brightness = 0; brightness <= 15; brightness++)
                 {
                     samples++;
-                    var frame = new global::SuperMetroid.Core.Rendering.DisplayPacket(0, new RgbaPixel(231, 123, 47, alpha), DisplayBrightness.Combine(DisplayBrightness.StepsAbove(brightness), DisplayBrightness.StepsAbove(11)));
+                    var frame = new global::SuperMetroid.Core.Rendering.DisplayPacket(0, new RgbaPixel(231, 123, 47, alpha), DisplayBrightness.Combine(DisplayBrightness.Black.Brighter(brightness), DisplayBrightness.Black.Brighter(11)));
                     RgbaPixel[] expected = DisplayRendering.Render(frame);
                     RgbaPixel[] actual = renderer.RenderForReadback(frame);
                     PixelComparison.Verify(frame, expected, actual, $"{kind}: solid compute sample {samples}");

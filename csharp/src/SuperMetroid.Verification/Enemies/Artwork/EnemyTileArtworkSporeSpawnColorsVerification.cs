@@ -35,7 +35,7 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
         Suite(nameof(VerifyFrame), () => VerifyFrame(SporeSpawnSourceDefinitions.SporeColors, native.ResolveSpore,
             "spore initialization"));
         Suite(nameof(VerifyFrames), () => VerifyFrames(SporeSpawnSourceDefinitions.HealthColors,
-            SporeSpawnColorFormat.HealthFrameCount, (band, colour) => native.ResolveHealth(SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnHealthBandDefinitions.HighestFirst[band], colour), "health"));
+            SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnHealthBandDefinitions.HighestFirst.Count, (band, colour) => native.ResolveHealth(SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnHealthBandDefinitions.HighestFirst[band], colour), "health"));
         Suite(nameof(VerifyFrames), () => VerifyFrames(SporeSpawnSourceDefinitions.DeathSpriteColors,
             SporeSpawnColorFormat.DeathSpriteFrameCount, native.ResolveDeathSprite,
             "death sprite"));

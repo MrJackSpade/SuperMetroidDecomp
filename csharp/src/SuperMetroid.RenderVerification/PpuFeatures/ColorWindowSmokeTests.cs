@@ -10,7 +10,7 @@ namespace SuperMetroid.RenderVerification.PpuFeatures;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.FrameRendering;
-using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Compatibility;
 
 /// <summary>Compares Direct3D on the graphics device and the WARP reference for color windows, subscreen math, and message masks.</summary>
@@ -118,7 +118,7 @@ internal static class ColorWindowSmokeTests
             count++;
             var frame = new DisplayPacket(0, new LayeredScene(memory,
                 new DisplayLayer[] { background,
-                    new ScreenTintLayer(new FadeLevelColour(1, 2, 3).ToColour()), new AddedPicturedPlaneLayer(subscreen, coverage) }, DisplayBrightness.StepsAbove(13)));
+                    new ScreenTintLayer(new FadeLevelColour(1, 2, 3).ToColour()), new AddedPicturedPlaneLayer(subscreen, coverage) }, DisplayBrightness.Black.Brighter(13)));
             PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: glow {count}, over a plane {masked}, geometry {width}x{height}");
         }
@@ -128,7 +128,7 @@ internal static class ColorWindowSmokeTests
             count++;
             var frame = new DisplayPacket(0, new LayeredScene(memory,
                 new DisplayLayer[] { background,
-                    new global::SuperMetroid.Core.Rendering.MessageBoxLayer(SuperMetroid.Core.Rooms.Backgrounds.RoomBackgroundsFixtures.SeededMessagePicture(random, palette, rows), radius) }, DisplayBrightness.StepsAbove(13)));
+                    new global::SuperMetroid.Core.Rendering.MessageBoxLayer(SuperMetroid.Core.Rooms.Backgrounds.RoomBackgroundsFixtures.SeededMessagePicture(random, palette, rows), radius) }, DisplayBrightness.Black.Brighter(13)));
             PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: message {count}, rows {rows}, radius {radius}");
         }
@@ -139,7 +139,7 @@ internal static class ColorWindowSmokeTests
             count++;
             var frame = new DisplayPacket(0, new LayeredScene(memory,
                 new DisplayLayer[] { background,
-                    windows, new ScreenTintLayer(new FadeLevelColour(1, 2, 3).ToColour()), windows }, DisplayBrightness.Combine(DisplayBrightness.StepsAbove(13), DisplayBrightness.StepsAbove(11))));
+                    windows, new ScreenTintLayer(new FadeLevelColour(1, 2, 3).ToColour()), windows }, DisplayBrightness.Combine(DisplayBrightness.Black.Brighter(13), DisplayBrightness.Black.Brighter(11))));
             PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: color-window sample {count}");
         }

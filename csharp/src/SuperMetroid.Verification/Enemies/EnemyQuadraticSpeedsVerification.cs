@@ -30,8 +30,8 @@ internal static class EnemyQuadraticSpeedsVerification
                 AssertEqual(speeds.Toward(VerticalDirection.Up), negative,
                     $"quadratic speed row {row} at {table:X6}: stored negation is the speed negated at use");
             }
-            foreach (VerticalDirection direction in directions)
-                AssertEqual(EnemySpeedTableCodec.QuadraticCoarseSpeed(cartridge, row, direction), (int)unchecked((ushort)speeds.CoarseToward(direction).InTwoFiftySixths), "quadratic coarse speed");
+            AssertEqual(EnemySpeedTableCodec.QuadraticCoarseSpeed(cartridge, row, VerticalDirection.Down), (int)unchecked((ushort)speeds.CoarseRise.InTwoFiftySixths),
+                "quadratic coarse rise");
         }
         AssertThrows<InvalidDataException>(() => QuadraticSpeedCurve.AtMark(-1), "negative quadratic row");
         AssertThrows<InvalidDataException>(() => QuadraticSpeedCurve.AtMark(QuadraticSpeedCurveDefinitions.MarkCount), "quadratic row past the table");

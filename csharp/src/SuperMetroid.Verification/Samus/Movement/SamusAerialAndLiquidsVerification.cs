@@ -1323,7 +1323,7 @@ internal static void VerifySamusAtmosphericEffects()
         "cinematic landing suppresses both sound libraries");
     AssertEqual(beforeCinematic + 2, landingParticles.Count, "Norfair cinematic still dispatches landing dust");
     AssertEqual(SamusParticleKind.Dust, landingParticles[^1].Kind, "Norfair cinematic landing particles are dust");
-    landing.Presentation.Mode = SamusPresentationMode.Gameplay;
+    landing.Presentation.Mode = default(SamusPresentationMode);
 
     landing.LiquidPhysics.ConfigureWater(surfaceY: 111, ignoresSurface: false, type: SuperMetroid.Core.Fx.RoomFxType.Water);
     int beforeSurface = landingParticles.Count;

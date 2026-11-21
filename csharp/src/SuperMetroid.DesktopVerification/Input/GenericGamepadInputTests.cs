@@ -119,27 +119,27 @@ private static void VerifyXInputGamepad()
     VerifyXInputButton(XInputButtons.DPadRight, ControllerButton.Right, "XInput D-pad right maps to SNES Right");
     VerifyXInputButton(XInputButtons.DPadUp | XInputButtons.DPadLeft, ControllerButton.Up | ControllerButton.Left,
         "XInput D-pad diagonal maps to both SNES directions");
-    VerifyXInputButton(XInputButtons.None, ControllerButton.None, "an idle XInput controller is neutral");
+    VerifyXInputButton(default(XInputButtons), ControllerButton.None, "an idle XInput controller is neutral");
 
     AssertEqual(
         ControllerButton.L | ControllerButton.R,
-        GenericGamepadInput.Map(new XInputGamepadState(XInputButtons.None, 255, 255, new(0, 0)).ToSnapshot()),
+        GenericGamepadInput.Map(new XInputGamepadState(default(XInputButtons), 255, 255, new(0, 0)).ToSnapshot()),
         "pulled XInput triggers map to SNES L and R");
     AssertEqual(
         ControllerButton.None,
         GenericGamepadInput.Map(new XInputGamepadState(
-            XInputButtons.None, XInputGamepadState.TriggerThreshold, XInputGamepadState.TriggerThreshold, new(0, 0)).ToSnapshot()),
+            default(XInputButtons), XInputGamepadState.TriggerThreshold, XInputGamepadState.TriggerThreshold, new(0, 0)).ToSnapshot()),
         "XInput triggers resting at the threshold stay released");
 
     // XInput's stick Y points up; the SNES word must still read up as Up.
     AssertEqual(
         ControllerButton.Up | ControllerButton.Right,
-        GenericGamepadInput.Map(new XInputGamepadState(XInputButtons.None, 0, 0, new(20000, 20000)).ToSnapshot()),
+        GenericGamepadInput.Map(new XInputGamepadState(default(XInputButtons), 0, 0, new(20000, 20000)).ToSnapshot()),
         "XInput stick up-right maps to SNES Up and Right");
     AssertEqual(
         ControllerButton.Down | ControllerButton.Left,
         GenericGamepadInput.Map(new XInputGamepadState(
-            XInputButtons.None, 0, 0, new(short.MinValue, short.MinValue)).ToSnapshot()),
+            default(XInputButtons), 0, 0, new(short.MinValue, short.MinValue)).ToSnapshot()),
         "XInput stick fully down-left maps to SNES Down and Left");
 }
 

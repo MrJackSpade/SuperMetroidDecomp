@@ -273,8 +273,8 @@ internal static class FrontendSheetColouringsVerification
         {
             EndingRewardActorDefinition record = EndingRewardActors.Get(actor);
             EndingSpriteColouring colouring = record.Start.Colouring;
-            // A gesture actor plays the gesture's animations, a jump actor the jump's (#2197).
-            if (EndingRewardAnimations.Gesture.Starts.Contains(record.Animation))
+            // A gesture actor, which a reward's gesture cast lists, plays the gesture's animations, a jump actor the jump's (#2197).
+            if (EndingRewardDefinitions.Rewards.Values.Any(reward => reward.Gesture.Contains(actor)))
                 AddProgram(sets, CinematicSpriteFamily.EndingReward, EndingRewardAnimations.Gesture, record.Animation, colouring);
             else
                 AddProgram(sets, CinematicSpriteFamily.EndingReward, EndingRewardAnimations.Jump, record.Animation, colouring);

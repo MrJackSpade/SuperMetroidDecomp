@@ -170,7 +170,7 @@ internal static class XrayGameplayTests
                 bg2Subscreen || frame % 3 == 0 ? null : bg3, bg2Subscreen);
             byte obsel = (byte)random.Next(256);
             var memory = FramePaint.FromOamGameplay(bytes, colors, oam, 128, obsel);
-            var scene = new LayeredScene(memory, new DisplayLayer[] { layer }, DisplayBrightness.StepsAbove((byte)(frame % 16)));
+            var scene = new LayeredScene(memory, new DisplayLayer[] { layer }, DisplayBrightness.Black.Brighter((byte)(frame % 16)));
             count++;
             var packet = new DisplayPacket(0, scene);
             var expected = DisplayRendering.Render(scene);

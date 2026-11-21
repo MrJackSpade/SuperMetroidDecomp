@@ -35,8 +35,6 @@ internal static class LibraryBackgroundProgramsVerification
                             $"library BG $8F:{program.Pointer:X4} decompresses a named tilemap");
                         AssertEqual(LibraryBackgroundOperandDecoding.Address(instruction.Source), ReadLong(cursor),
                             $"library BG $8F:{program.Pointer:X4} compressed source {instruction.Source}");
-                        AssertEqual(LibraryBackgroundDestination.TilemapStaging, instruction.Destination,
-                            $"library BG $8F:{program.Pointer:X4} decompresses into the tilemap staging");
                         AssertEqual(LibraryBackgroundOperandDecoding.TilemapStagingOffset,
                             ReadWord(unchecked((ushort)(cursor + 3))),
                             $"library BG $8F:{program.Pointer:X4} WRAM destination");

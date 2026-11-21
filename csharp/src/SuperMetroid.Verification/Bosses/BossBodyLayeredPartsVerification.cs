@@ -136,7 +136,7 @@ internal static class BossBodyLayeredPartsVerification
         {
             foreach (EnemyFrameId eye in eyes)
             {
-                var parts = new BossBodyParts(BossBodyOwner.Phantoon);
+                var parts = new BossBodyParts(BossBodyOwner.Phantoon, showing: null);
                 parts.Show(EnemyDefinitionId.PhantoonBody, sheet.Frame(body));
                 parts.Show(EnemyDefinitionId.PhantoonEye, sheet.Frame(eye));
                 parts.Show(EnemyDefinitionId.PhantoonTentacles, sheet.Frame(EnemyFrameId.PhantoonTentaclesNarrow));

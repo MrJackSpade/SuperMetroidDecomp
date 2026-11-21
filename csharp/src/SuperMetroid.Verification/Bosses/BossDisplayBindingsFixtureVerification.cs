@@ -132,7 +132,7 @@ internal static class BossDisplayBindingsFixtureVerification
         internal void ClearBg2()
         {
             if (bodyOwner is { } owner)
-                Enemies.Presentation.AttachBossBody(new BossBodyParts(owner));
+                Enemies.Presentation.AttachBossBody(new BossBodyParts(owner, showing: null));
         }
     }
 }

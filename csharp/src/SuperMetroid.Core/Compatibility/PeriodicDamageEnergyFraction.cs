@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// by her suit and applied (<c>SamusPeriodicDamage.Apply</c>); a fatal result empties it
 /// (<see cref="None"/>). A value owned by Samus's state, starting empty with each new Samus. Evidence: the original
 /// periodic damage subtracts the fraction from Samus's held fraction of one energy's
-/// <see cref="FractionalEnergyDrain.PartsPerEnergy"/> parts and takes one more energy when the subtraction borrows,
+/// parts, the parts a <see cref="FractionalEnergyDrain"/> counts in, and takes one more energy when the subtraction borrows,
 /// keeping the wrapped remainder; the atmospheric effects check (<c>VerifySamusAtmosphericEffects</c>) covers a covered
 /// fraction, a borrowing one, and a fatal borrow and fatal whole damage that empty it.
 /// </remarks>

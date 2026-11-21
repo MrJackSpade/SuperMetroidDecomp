@@ -30,7 +30,7 @@ internal static class SaveStationElectricityNativeListAddresses
     /// The family's typed programs beside their native lists: each of the sweep's frames, a place the band is drawn at (#2557),
     /// is read as the native operand that draws the band there.
     /// </summary>
-    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, SaveStationElectricityAnimations.Segments, SaveStationElectricityAnimations.StartingAt,
+    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, SaveStationElectricityAnimations.Segments, new Dictionary<SaveStationElectricitySegment, SuperMetroid.Core.Animation.Animation<SaveStationElectricitySegment>>(),
         placement => EnemyProjectileProgramFrameOperands.KeyOf(SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileFrameId.SaveStationElectricityBand, placement), NativeEnemyProjectileCommonCues.Rules,
         countedEntries: [new NativeCountedEntry<SaveStationElectricitySegment>("the discharge", SaveStationElectricityAnimations.Discharge, DischargeStart)],
         onlyRunOnInto: new HashSet<SaveStationElectricitySegment> { SaveStationElectricitySegment.Deletion });

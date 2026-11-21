@@ -17,13 +17,12 @@ internal static class MetroidDrainCountersVerification
     {
         var metroid = new MetroidEnemyState(new RoomEffectActor(RoomEffectActorKind.MetroidElectricity, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard), new RoomEffectActor(RoomEffectActorKind.MetroidShell, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard))
         {
-            Drain = FractionalEnergyDrain.HoldingOver(3 * FractionalEnergyDrain.PartsPerEnergy / 16),
+            Drain = FractionalEnergyDrain.HoldingOver(3 * FractionalEnergyDrainAccess.CartridgePartsPerEnergy / 16),
         };
         AssertTrue(!metroid.DrainTakesEnergy(EnergyAmount.FromEnergyFraction(3, 16)), "a fraction equal to what is held over takes no energy");
         AssertEqual(0, metroid.Drain.HeldOver, "nothing is held over after it");
         AssertTrue(metroid.DrainTakesEnergy(EnergyAmount.FromEnergyFraction(3, 16)), "a fraction above what is held over takes an energy");
-        AssertEqual(13 * FractionalEnergyDrain.PartsPerEnergy / 16, metroid.Drain.HeldOver, "the rest of the energy taken is held over");
-        AssertEqual(65536, FractionalEnergyDrain.PartsPerEnergy, "an energy is drained in the original's 65536 parts");
+        AssertEqual(13 * FractionalEnergyDrainAccess.CartridgePartsPerEnergy / 16, metroid.Drain.HeldOver, "the rest of the energy taken is held over");
         AssertTrue(FractionalEnergyDrain.Start.TakesEnergy(1), "a drain that has taken nothing takes an energy on its first fraction");
 
         AssertEqual(80, new MochtroidEnemyState().DrainPeriod.Length, "the drain period lasts 80 attached updates");

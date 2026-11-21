@@ -89,6 +89,6 @@ internal static class MotherBrainBodyPresentationFixtureVerification
         /// <summary>Runs the fixture's production enemy drawing path once, publishing into <paramref name="frame"/>.</summary>
         internal void DrawInto(SpriteFrameBuffer frame) => Inner.DrawInto(frame);
         /// <summary>Attaches a fresh body showing nothing, as her phase-two transition reveals it, before checking fresh publication.</summary>
-        internal void ClearBg2() => Inner.Enemies.Presentation.AttachBossBody(new BossBodyParts(BossBodyOwner.MotherBrain));
+        internal void ClearBg2() => Inner.Enemies.Presentation.AttachBossBody(new BossBodyParts(BossBodyOwner.MotherBrain, showing: null));
     }
 }

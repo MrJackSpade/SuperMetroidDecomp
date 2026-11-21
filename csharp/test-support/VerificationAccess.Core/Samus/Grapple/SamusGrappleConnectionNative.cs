@@ -11,7 +11,6 @@ internal static class SamusGrappleConnectionNative
     {
         [GrappleConnectionKind.LockedInPlace] = 0xc77e,
         [GrappleConnectionKind.Swinging] = 0xc79d,
-        [GrappleConnectionKind.WallGrab] = 0xc814,
     });
 
     /// <summary>The pose a connection record's handler word installs: the routine that sets that pose.</summary>

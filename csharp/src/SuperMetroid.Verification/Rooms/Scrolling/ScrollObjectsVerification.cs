@@ -118,9 +118,8 @@ internal static class ScrollObjectsVerification
             [0x08, 0x04, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
         var ball = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = SamusPoseId.MorphBallGroundRightPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(56, 56)),
-        };
+        }.InPose(SamusPoseId.MorphBallGroundRightPose);
         SamusPoseMetadata.RefreshCollisionRadii(ball);
         ball.Kinematics.ExtraDisplacement = ball.Kinematics.ExtraDisplacement.WithX(SignedSixteenSixteen.FromParts(1, 0));
         ushort ballStartX = ball.Position.X.Whole;
@@ -146,10 +145,9 @@ internal static class ScrollObjectsVerification
         scrolls.SetRoomScreen(new(1, 0), RoomScrollState.Closed);
         var bombJump = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = SamusPoseId.MorphBallGroundRightPose,
             EquippedItems = SamusEquipmentFlags.Bombs,
             Position = FixedPosition<RoomPixels>.FromWhole(new(56, 40)),
-        };
+        }.InPose(SamusPoseId.MorphBallGroundRightPose);
         SamusPoseMetadata.RefreshCollisionRadii(bombJump);
         bombJump.Kinematics.YAcceleration = default;
         bombJump.RequestMorphedBombJump(SamusBombJumpDirection.Straight);

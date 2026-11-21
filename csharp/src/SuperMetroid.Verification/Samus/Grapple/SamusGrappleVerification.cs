@@ -444,9 +444,8 @@ SamusTerrain.InRoom(emptyWideLevel, SamusRoomObjectFixtures.Uninstalled), rangeL
     // function call, mirroring the bank-$9B pointer change rather than disappearing early.
     var cancelledSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.FallingRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(32, 48)),
-    };
+    }.InPose(SamusPoseId.FallingRightPose);
     BindGrapplePresentation(cancelledSamus);
     SamusGrappleMovement.BeginFiring(cancelledSamus, SuperMetroid.Core.Input.GameplayAction.None);
     GrappleMovementResult cancelQueued = SamusGrappleMovement.StepFiringAndCommit(
@@ -503,9 +502,8 @@ SamusTerrain.InRoom(firingLevel, SamusRoomObjectFixtures.Uninstalled), cancelled
 
             var connectionSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
             {
-                Pose = sourcePose,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(40, 40)),
-            };
+            }.InPose(sourcePose);
 
             BindGrapplePresentation(connectionSamus);
             if (family == 2)

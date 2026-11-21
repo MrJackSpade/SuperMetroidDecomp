@@ -130,7 +130,7 @@ internal static class SamusSnapshotWords
     private static ChargedShotGlow PlayedUpdates(ChargedShotGlow glow, int updates)
     {
         for (int update = 0; update < updates; update++)
-            _ = glow.PlayUpdate();
+            _ = glow.PlayUpdate(out _);
         return glow;
     }
 
@@ -138,11 +138,12 @@ internal static class SamusSnapshotWords
     /// <exception cref="InvalidDataException">The glow stands nowhere its start plays through.</exception>
     private static int UpdatesPlayed(ChargedShotGlow start, ChargedShotGlow glow)
     {
-        for (int updates = 0; !start.HasEnded; updates++)
+        bool ended = false;
+        for (int updates = 0; !ended; updates++)
         {
             if (start.Play.Playback == glow.Play.Playback && start.Play.UpdatesLeft == glow.Play.UpdatesLeft)
                 return updates;
-            _ = start.PlayUpdate();
+            _ = start.PlayUpdate(out ended);
         }
         throw new InvalidDataException($"The {glow.Kind} glow stands nowhere its start plays through.");
     }

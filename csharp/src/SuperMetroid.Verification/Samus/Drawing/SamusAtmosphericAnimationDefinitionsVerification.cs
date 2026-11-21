@@ -157,11 +157,10 @@ internal static class SamusAtmosphericAnimationDefinitionsVerification
     {
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = SamusPoseId.FacingRightNormalPose,
             Health = 99,
             Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)),
             Kinematics = { Radius = new(5, 12) },
-        };
+        }.InPose(SamusPoseId.FacingRightNormalPose);
         samus.LiquidPhysics.ConfigureLavaAcid(
             surfaceY: 100,
             fxType == RoomFxType.Acid ? RoomFxType.Acid : RoomFxType.Lava);

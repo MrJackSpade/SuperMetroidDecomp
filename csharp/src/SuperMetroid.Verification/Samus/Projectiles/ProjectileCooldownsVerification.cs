@@ -46,7 +46,7 @@ internal static class ProjectileCooldownsVerification
         {
             var projectiles = CreateProjectileFixture();
             var shared = CreateBombFixture();
-            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), EquippedBeams = SamusEquipmentWordCodec.FromBeamWord(beam) };
+            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), EquippedBeams = SamusEquipmentWordCodec.FromBeamWord(beam) }.InPose(SamusPoseId.FacingRightNormalPose);
             var result = projectiles.Firing.TryFireBeam(SamusTerrain.InRoom(room, SamusRoomObjectFixtures.Uninstalled), samus, edge, shared, charged);
             AssertTrue(result is not null, "Cooldown check exercises the actual successful producer");
             int address = charged ? 0x90c264 + beam : edge == 0 ? 0x90c283 + beam : 0x90c254 + beam;
@@ -59,8 +59,8 @@ internal static class ProjectileCooldownsVerification
         {
             var projectiles = CreateProjectileFixture();
             var shared = CreateBombFixture();
-            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.NormalJumpGunExtendedLeftPose,
-                Position = FixedPosition<RoomPixels>.FromWhole(new(211, 288)), EquippedBeams = (chargeEquipped ? SamusBeamFlags.Charge : SamusBeamFlags.None) | SamusBeamFlags.Wave | SamusBeamFlags.Plasma };
+            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { 
+                Position = FixedPosition<RoomPixels>.FromWhole(new(211, 288)), EquippedBeams = (chargeEquipped ? SamusBeamFlags.Charge : SamusBeamFlags.None) | SamusBeamFlags.Wave | SamusBeamFlags.Plasma }.InPose(SamusPoseId.NormalJumpGunExtendedLeftPose);
             samus.TransitionShot.Hand(global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Samus.SamusTransitionShot>([typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection)], new object?[] { SamusProjectileDirection.Left }));
             SamusProjectileSlotObservation slotsBefore = projectiles.ObserveSlots();
             projectiles.StepFrame(SamusTerrain.InRoom(room, SamusRoomObjectFixtures.Uninstalled), samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = 0, ControllerPreviousNewInput = chargeEquipped ? 0 : GameplayAction.Shoot }, new(0, 0), shared, new SharedGameState(new SharedRandom()));
@@ -72,7 +72,7 @@ internal static class ProjectileCooldownsVerification
         {
             var projectiles = CreateProjectileFixture();
             var shared = CreateBombFixture();
-            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), EquippedBeams = SamusEquipmentWordCodec.FromBeamWord(beam) };
+            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), EquippedBeams = SamusEquipmentWordCodec.FromBeamWord(beam) }.InPose(SamusPoseId.FacingRightNormalPose);
             var frames = new List<int>();
             for (int frame = 0; frame < 70; frame++)
             {
@@ -89,8 +89,8 @@ internal static class ProjectileCooldownsVerification
         {
             var projectiles = CreateProjectileFixture();
             var shared = CreateBombFixture();
-            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
-                EquippedBeams = SamusEquipmentWordCodec.FromBeamWord(beam), SelectedHudItem = HudItem.PowerBomb, PowerBombs = 10 };
+            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
+                EquippedBeams = SamusEquipmentWordCodec.FromBeamWord(beam), SelectedHudItem = HudItem.PowerBomb, PowerBombs = 10 }.InPose(SamusPoseId.FacingRightNormalPose);
             AssertTrue(projectiles.Combos.TryActivateCombo(samus, shared, out _),
                 "Each native special beam attack reaches its actual cooldown publisher");
             AssertEqual(retail.ReadCartridgeByte(SamusSourceDefinitionsConstants.ChargedCooldowns + projectiles.Shots[0].HeldShot().Type.BeamCombination.TableIndex),

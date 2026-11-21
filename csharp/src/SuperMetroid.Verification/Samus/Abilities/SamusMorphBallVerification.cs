@@ -98,9 +98,8 @@ internal static void VerifySamusMorphBallMovement()
 
     var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.CrouchingRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 48)),
-    };
+    }.InPose(SamusPoseId.CrouchingRightPose);
     SamusPoseMetadata.RefreshCollisionRadii(samus);
     SamusPresentation.InitializeAnimation(samus);
 
@@ -122,11 +121,10 @@ SamusTerrain.InRoom(floor, SamusRoomObjectFixtures.Uninstalled), SamusPoseId.Mor
     // acceleration mode two exactly as the initializer's previous-type-three branch does.
     var fallingMorph = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.FallingAimDownLeftPose,
         EquippedItems = SamusEquipmentFlags.MorphBall,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 40)),
         BombSpreadCharge = UpdateCountdownAccess.AtAge(SuperMetroid.Core.Samus.Projectiles.MorphBallBombDefinitions.DownChargeTimeoutUpdates, 52),
-    }.WithBeamChargeCount(0x003c);
+    }.InPose(SamusPoseId.FallingAimDownLeftPose).WithBeamChargeCount(0x003c);
     SamusPoseMetadata.RefreshCollisionRadii(fallingMorph);
     fallingMorph.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Turning;
     SamusPosturePoseTransitions.ApplyMorphTransition(fallingMorph, 
@@ -135,9 +133,9 @@ SamusTerrain.InRoom(floor, SamusRoomObjectFixtures.Uninstalled), SamusPoseId.Mor
         "compact falling morph uses command-seven table displacement, not radius difference");
     var clippedMorph = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.FallingAimDownLeftPose, EquippedItems = SamusEquipmentFlags.MorphBall,
+        EquippedItems = SamusEquipmentFlags.MorphBall,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 54)),
-    };
+    }.InPose(SamusPoseId.FallingAimDownLeftPose);
     SamusPoseMetadata.RefreshCollisionRadii(clippedMorph);
     SamusPosturePoseTransitions.ApplyMorphTransition(clippedMorph, SamusTerrain.InRoom(floor, SamusRoomObjectFixtures.Uninstalled),
         SamusPoseId.MorphingTransitionLeftPose, 0);
@@ -152,10 +150,9 @@ SamusTerrain.InRoom(floor, SamusRoomObjectFixtures.Uninstalled), SamusPoseId.Mor
 
     var spinMorph = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.SpinJumpLeftPose,
         EquippedItems = SamusEquipmentFlags.MorphBall,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 40)),
-    };
+    }.InPose(SamusPoseId.SpinJumpLeftPose);
     SamusPoseMetadata.RefreshCollisionRadii(spinMorph);
     SamusPosturePoseTransitions.ApplyMorphTransition(spinMorph, 
 SamusTerrain.InRoom(floor, SamusRoomObjectFixtures.Uninstalled), SamusPoseId.MorphingTransitionLeftPose, frameCounter: 0);
@@ -210,9 +207,8 @@ empty, samus, frameCounter: 1, roomObjects: SamusRoomObjectFixtures.Uninstalled)
     // routes below retain it.
     var boostedRoll = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.MorphBallMovingRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(32, 32)),
-    };
+    }.InPose(SamusPoseId.MorphBallMovingRightPose);
     SamusPoseMetadata.RefreshCollisionRadii(boostedRoll);
     boostedRoll.HorizontalSpeed.HasRunningMomentum = true;
     boostedRoll.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(1, 0x8000);
@@ -228,9 +224,8 @@ empty, samus, frameCounter: 1, roomObjects: SamusRoomObjectFixtures.Uninstalled)
 
     var boostedFall = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.MorphBallFallingLeftPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(32, 32)),
-    };
+    }.InPose(SamusPoseId.MorphBallFallingLeftPose);
     SamusPoseMetadata.RefreshCollisionRadii(boostedFall);
     boostedFall.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(1, 0x8000);
     boostedFall.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(boostedFall.Kinematics.VerticalVelocity.Speed, SamusVerticalDirection.Down);
@@ -249,9 +244,8 @@ empty, samus, frameCounter: 1, roomObjects: SamusRoomObjectFixtures.Uninstalled)
 
     var opposedDirectionFall = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.MorphBallFallingLeftPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(32, 32)),
-    };
+    }.InPose(SamusPoseId.MorphBallFallingLeftPose);
     SamusPoseMetadata.RefreshCollisionRadii(opposedDirectionFall);
     opposedDirectionFall.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(1, 0x8000);
     opposedDirectionFall.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(opposedDirectionFall.Kinematics.VerticalVelocity.Speed, SamusVerticalDirection.Down);
@@ -269,9 +263,8 @@ empty, samus, frameCounter: 1, roomObjects: SamusRoomObjectFixtures.Uninstalled)
 
     var boostedSpring = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.SpringBallJumpRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(32, 32)),
-    };
+    }.InPose(SamusPoseId.SpringBallJumpRightPose);
     SamusPoseMetadata.RefreshCollisionRadii(boostedSpring);
     boostedSpring.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(1, 0x8000);
     boostedSpring.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(boostedSpring.Kinematics.VerticalVelocity.Speed, SamusVerticalDirection.Down);
@@ -288,9 +281,8 @@ empty, samus, frameCounter: 1, roomObjects: SamusRoomObjectFixtures.Uninstalled)
 
     var boostedTransition = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.MorphingTransitionRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(32, 32)),
-    };
+    }.InPose(SamusPoseId.MorphingTransitionRightPose);
     SamusPoseMetadata.RefreshCollisionRadii(boostedTransition);
     boostedTransition.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(1, 0x8000);
     SamusMorphBallMovement.StepTransition(
@@ -310,9 +302,8 @@ empty, samus, frameCounter: 1, roomObjects: SamusRoomObjectFixtures.Uninstalled)
     // additional ten-pixel stable-crouch adjustment before command three arms the jump.
     var frozenCrouchBombJump = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.CrouchingRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 48)),
-    };
+    }.InPose(SamusPoseId.CrouchingRightPose);
     SamusPoseMetadata.RefreshCollisionRadii(frozenCrouchBombJump);
     SamusPresentation.InitializeAnimation(frozenCrouchBombJump);
     SamusPoseMetadata.PublishBombJumpDirection(frozenCrouchBombJump, SamusBombJumpDirection.Straight);
@@ -329,9 +320,8 @@ empty, samus, frameCounter: 1, roomObjects: SamusRoomObjectFixtures.Uninstalled)
 
     var crouchBombJump = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.CrouchingLeftPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 48)),
-    };
+    }.InPose(SamusPoseId.CrouchingLeftPose);
     SamusPoseMetadata.RefreshCollisionRadii(crouchBombJump);
     SamusPresentation.InitializeAnimation(crouchBombJump);
     SamusPoseMetadata.PublishBombJumpDirection(crouchBombJump, SamusBombJumpDirection.Left);
@@ -352,9 +342,8 @@ empty, samus, frameCounter: 1, roomObjects: SamusRoomObjectFixtures.Uninstalled)
 
     var airborneBombRejection = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.NormalJumpForwardRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 32)),
-    };
+    }.InPose(SamusPoseId.NormalJumpForwardRightPose);
     SamusPoseMetadata.RefreshCollisionRadii(airborneBombRejection);
     SamusPresentation.InitializeAnimation(airborneBombRejection);
     SamusPoseMetadata.PublishBombJumpDirection(airborneBombRejection, SamusBombJumpDirection.Right);
@@ -419,10 +408,9 @@ SamusTerrain.InRoom(floor, SamusRoomObjectFixtures.Uninstalled), SamusPoseId.Unm
     RoomLevelData tunnel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(tunnelBlocks, new RoomBlockBehavior[tunnelBlocks.Length], new RoomBlockAppearance[tunnelBlocks.Length]), RoomLevelData.NothingBeyondGrid(), []);
     var boxedBall = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.MorphBallGroundRightPose,
         EquippedItems = SamusEquipmentFlags.MorphBall,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 57)),
-    };
+    }.InPose(SamusPoseId.MorphBallGroundRightPose);
     SamusPoseMetadata.RefreshCollisionRadii(boxedBall);
     SamusPresentation.InitializeAnimation(boxedBall);
     SamusPosturePoseTransitions.ApplyMorphTransition(boxedBall, 
@@ -443,9 +431,8 @@ SamusTerrain.InRoom(tunnel, SamusRoomObjectFixtures.Uninstalled), SamusPoseId.Un
     {
         var fallingUnmorph = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = sourcePose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(48, 48)),
-        };
+        }.InPose(sourcePose);
         SamusPoseMetadata.RefreshCollisionRadii(fallingUnmorph);
         SamusPresentation.InitializeAnimation(fallingUnmorph);
         fallingUnmorph.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(2, 0x3456);
@@ -473,10 +460,9 @@ SamusTerrain.InRoom(empty, SamusRoomObjectFixtures.Uninstalled), targetPose, fra
     // current collision radius or pose name. Spring Ball remains unequipped, selecting $31.
     var airborneEntry = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.CrouchingRightPose,
         EquippedItems = SamusEquipmentFlags.MorphBall,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 48)),
-    };
+    }.InPose(SamusPoseId.CrouchingRightPose);
     SamusPoseMetadata.RefreshCollisionRadii(airborneEntry);
     SamusPresentation.InitializeAnimation(airborneEntry);
     SamusPosturePoseTransitions.ApplyMorphTransition(airborneEntry, 
@@ -494,10 +480,9 @@ SamusTerrain.InRoom(floor, SamusRoomObjectFixtures.Uninstalled), SamusPoseId.Mor
     // then movement type `$11` reads its own speed record rather than ordinary type four.
     var spring = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.CrouchingRightPose,
         EquippedItems = (SamusEquipmentFlags.SpringBall | SamusEquipmentFlags.MorphBall),
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 48)),
-    };
+    }.InPose(SamusPoseId.CrouchingRightPose);
     SamusPoseMetadata.RefreshCollisionRadii(spring);
     SamusPresentation.InitializeAnimation(spring);
     SamusPosturePoseTransitions.ApplyMorphTransition(spring, 
@@ -549,9 +534,8 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
     {
         var impact = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = springEquipped ? SamusPoseId.SpringBallFallingRightPose : SamusPoseId.MorphBallFallingRightPose,
             EquippedItems = (SamusEquipmentFlags.MorphBall | (springEquipped ? SamusEquipmentFlags.SpringBall : 0)),
-        };
+        }.InPose(springEquipped ? SamusPoseId.SpringBallFallingRightPose : SamusPoseId.MorphBallFallingRightPose);
         SamusPoseMetadata.RefreshCollisionRadii(impact);
         SamusPresentation.InitializeAnimation(impact);
         impact.Kinematics.VerticalVelocity = impact.Kinematics.VerticalVelocity.WithSpeed(impact.Kinematics.VerticalVelocity.Speed.WithWhole(impactSpeed));
@@ -579,10 +563,9 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
 
     var noBombItemSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.MorphBallGroundRightPose,
         EquippedItems = SamusEquipmentFlags.MorphBall,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 57)),
-    };
+    }.InPose(SamusPoseId.MorphBallGroundRightPose);
     SamusPoseMetadata.RefreshCollisionRadii(noBombItemSamus);
     var noBombItemSystem = CreateBombFixture();
     noBombItemSystem.StepFrame(SamusTerrain.InRoom(floor, SamusRoomObjectFixtures.Uninstalled), noBombItemSamus, GameplayAction.Shoot, GameplayAction.Shoot);
@@ -591,10 +574,9 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
 
     var bombProjectileSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.MorphBallGroundRightPose,
         EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 57)),
-    };
+    }.InPose(SamusPoseId.MorphBallGroundRightPose);
     SamusPoseMetadata.RefreshCollisionRadii(bombProjectileSamus);
     var bombs = CreateBombFixture();
     bombs.StepFrame(SamusTerrain.InRoom(floor, SamusRoomObjectFixtures.Uninstalled), bombProjectileSamus, GameplayAction.Shoot, GameplayAction.Shoot);
@@ -630,10 +612,9 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
     {
         var fixtureSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = SamusPoseId.MorphBallGroundRightPose,
             EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
             Position = FixedPosition<RoomPixels>.FromWhole(new(48, 57)),
-        };
+        }.InPose(SamusPoseId.MorphBallGroundRightPose);
         SamusPoseMetadata.RefreshCollisionRadii(fixtureSamus);
         var fixtureSystem = CreateBombFixture();
         fixtureSystem.StepFrame(SamusTerrain.InRoom(fixtureFloor, SamusRoomObjectFixtures.Uninstalled), fixtureSamus, GameplayAction.Shoot, GameplayAction.Shoot);
@@ -708,10 +689,9 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
     // later in that same frame, so fuses and positions below include their first tick.
     var spreadSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.MorphBallGroundRightPose,
         EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
         Position = FixedPosition<RoomPixels>.FromWhole(new(80, 80)),
-    }.WithBeamChargeCount(BeamChargeDefinitions.FullyChargedCounter);
+    }.InPose(SamusPoseId.MorphBallGroundRightPose).WithBeamChargeCount(BeamChargeDefinitions.FullyChargedCounter);
     SamusPoseMetadata.RefreshCollisionRadii(spreadSamus);
     var spreadBombs = CreateBombFixture();
     spreadBombs.StepFrame(SamusTerrain.InRoom(empty, SamusRoomObjectFixtures.Uninstalled), spreadSamus, (GameplayAction.Shoot | GameplayAction.Down), 0);
@@ -748,12 +728,11 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
     // from selecting no HUD item and releasing Down in the spread test above.
     var selectedPowerBombSpreadSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.MorphBallGroundRightPose,
         EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
         SelectedHudItem = HudItem.PowerBomb,
         PowerBombs = 2,
         Position = FixedPosition<RoomPixels>.FromWhole(new(80, 80)),
-    }.WithBeamChargeCount(BeamChargeDefinitions.FullyChargedCounter);
+    }.InPose(SamusPoseId.MorphBallGroundRightPose).WithBeamChargeCount(BeamChargeDefinitions.FullyChargedCounter);
     SamusPoseMetadata.RefreshCollisionRadii(selectedPowerBombSpreadSamus);
     var selectedPowerBombSpreadBombs = CreateBombFixture();
     selectedPowerBombSpreadBombs.StepFrame(SamusTerrain.InRoom(empty, SamusRoomObjectFixtures.Uninstalled), selectedPowerBombSpreadSamus, GameplayAction.Shoot, 0);
@@ -810,11 +789,10 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
     // one final frame; the next held frame forces the same five-slot launch.
     var timeoutSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.MorphBallGroundRightPose,
         EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
         Position = FixedPosition<RoomPixels>.FromWhole(new(80, 80)),
         BombSpreadCharge = UpdateCountdownAccess.AtAge(SuperMetroid.Core.Samus.Projectiles.MorphBallBombDefinitions.DownChargeTimeoutUpdates, 0x00bf),
-    }.WithBeamChargeCount(BeamChargeDefinitions.FullyChargedCounter);
+    }.InPose(SamusPoseId.MorphBallGroundRightPose).WithBeamChargeCount(BeamChargeDefinitions.FullyChargedCounter);
     SamusPoseMetadata.RefreshCollisionRadii(timeoutSamus);
     var timeoutBombs = CreateBombFixture();
     timeoutBombs.StepFrame(SamusTerrain.InRoom(empty, SamusRoomObjectFixtures.Uninstalled), timeoutSamus, (GameplayAction.Shoot | GameplayAction.Down), 0);
@@ -831,9 +809,8 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
     // restore the suit palette, and queue the same library-one cancellation sound.
     var cancelledSpreadSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.MorphBallGroundRightPose,
         EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
-    }.WithBeamChargeCount(BeamChargeDefinitions.FullyChargedCounter);
+    }.InPose(SamusPoseId.MorphBallGroundRightPose).WithBeamChargeCount(BeamChargeDefinitions.FullyChargedCounter);
     var cancelledSpreadBombs = CreateBombFixture();
     AssertTrue(cancelledSpreadBombs.StepFrameConsumingCharge(SamusTerrain.InRoom(empty, SamusRoomObjectFixtures.Uninstalled), cancelledSpreadSamus, 0, 0),
         "released Shoot publishes carried-charge cancellation");
@@ -845,12 +822,11 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
     // the literal bank-$93 record, and installs cooldown table entry three (`$28`).
     var powerBombSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.MorphBallGroundRightPose,
         EquippedItems = SamusEquipmentFlags.MorphBall,
         SelectedHudItem = HudItem.PowerBomb,
         PowerBombs = 2,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 48)),
-    };
+    }.InPose(SamusPoseId.MorphBallGroundRightPose);
     SamusPoseMetadata.RefreshCollisionRadii(powerBombSamus);
     var powerBombs = CreateBombFixture();
     powerBombs.StepFrame(SamusTerrain.InRoom(floor, SamusRoomObjectFixtures.Uninstalled), powerBombSamus, GameplayAction.Shoot, GameplayAction.Shoot);
@@ -1020,10 +996,9 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
     var reactionBombs = CreateBombFixture();
     var reactionSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.MorphBallGroundRightPose,
         EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 48)),
-    };
+    }.InPose(SamusPoseId.MorphBallGroundRightPose);
     SamusPoseMetadata.RefreshCollisionRadii(reactionSamus);
     reactionBombs.StepFrame(SamusTerrain.InRoom(reactionLevel, reactionObjects), reactionSamus, GameplayAction.Shoot, GameplayAction.Shoot);
 
@@ -1091,10 +1066,9 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
     var integratedRevealBombs = CreateBombFixture();
     var integratedRevealSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.MorphBallGroundRightPose,
         EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 48)),
-    };
+    }.InPose(SamusPoseId.MorphBallGroundRightPose);
     SamusPoseMetadata.RefreshCollisionRadii(integratedRevealSamus);
     integratedRevealBombs.StepFrame(SamusTerrain.InRoom(integratedRevealLevel, integratedRevealObjects), integratedRevealSamus, GameplayAction.Shoot, GameplayAction.Shoot);
     while (!integratedRevealBombs.Bombs[0].IsExploding)
@@ -1131,10 +1105,9 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
     var bombDoorBombs = CreateBombFixture();
     var bombDoorSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.MorphBallGroundRightPose,
         EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 48)),
-    };
+    }.InPose(SamusPoseId.MorphBallGroundRightPose);
     SamusPoseMetadata.RefreshCollisionRadii(bombDoorSamus);
     bombDoorBombs.StepFrame(SamusTerrain.InRoom(bombDoorLevel, bombDoorObjects), bombDoorSamus, GameplayAction.Shoot, GameplayAction.Shoot);
     while (!bombDoorBombs.Bombs[0].IsExploding)
@@ -1243,13 +1216,12 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
     var integratedPowerBombs = CreateBombFixture();
     var integratedPowerBombSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.MorphBallGroundRightPose,
         EquippedItems = SamusEquipmentFlags.MorphBall,
         SelectedHudItem = HudItem.PowerBomb,
         PowerBombs = 1,
         MaxPowerBombs = 5,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 48)),
-    };
+    }.InPose(SamusPoseId.MorphBallGroundRightPose);
     SamusPoseMetadata.RefreshCollisionRadii(integratedPowerBombSamus);
     integratedPowerBombs.StepFrame(SamusTerrain.InRoom(integratedPowerBombLevel, integratedPowerBombObjects), integratedPowerBombSamus, GameplayAction.Shoot, GameplayAction.Shoot);
     while (!integratedPowerBombs.PowerBombExplosion.IsActive)
@@ -1512,10 +1484,9 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
     // must also reject non-ball callers instead of silently inventing a normal jump.
     var bombJump = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.MorphBallGroundRightPose,
         EquippedItems = SamusEquipmentFlags.MorphBall,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 48)),
-    };
+    }.InPose(SamusPoseId.MorphBallGroundRightPose);
     SamusPoseMetadata.RefreshCollisionRadii(bombJump);
     SamusPresentation.InitializeAnimation(bombJump);
     bombJump.Kinematics.YAcceleration = new UnsignedSixteenSixteen(0, 0x4000);
@@ -1567,10 +1538,9 @@ SamusTerrain.InRoom(empty, RoomObjectFixtures.Unbound()), bombJump, frameCounter
     RoomLevelData ceiling = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(ceilingBlocks, new RoomBlockBehavior[ceilingBlocks.Length], new RoomBlockAppearance[ceilingBlocks.Length]), RoomLevelData.NothingBeyondGrid(), []);
     var straightBombJump = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.MorphBallGroundLeftPose,
         EquippedItems = SamusEquipmentFlags.MorphBall,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 56)),
-    };
+    }.InPose(SamusPoseId.MorphBallGroundLeftPose);
     SamusPoseMetadata.RefreshCollisionRadii(straightBombJump);
     SamusPresentation.InitializeAnimation(straightBombJump);
     straightBombJump.Kinematics.YAcceleration = new UnsignedSixteenSixteen(0, 0x4000);
@@ -1609,13 +1579,12 @@ private static void RunPowerBombToInitialBoundary(
 {
     var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.MorphBallGroundRightPose,
         EquippedItems = SamusEquipmentFlags.MorphBall,
         SelectedHudItem = HudItem.PowerBomb,
         PowerBombs = 1,
         MaxPowerBombs = 5,
         Position = FixedPosition<RoomPixels>.FromWhole(position),
-    };
+    }.InPose(SamusPoseId.MorphBallGroundRightPose);
     SamusPoseMetadata.RefreshCollisionRadii(samus);
     var bombs = CreateBombFixture();
     bombs.StepFrame(SamusTerrain.InRoom(level, roomObjects), samus, GameplayAction.Shoot, GameplayAction.Shoot);

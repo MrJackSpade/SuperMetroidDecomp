@@ -20,10 +20,9 @@ internal static class SpringBallBounceVerification
         {
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
             {
-                Pose = SamusPoseId.SpringBallJumpRightPose,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(0x80, 0x169)),
                 MorphBallBounceState = bounceState,
-            };
+            }.InPose(SamusPoseId.SpringBallJumpRightPose);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0xffff);
             samus.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(new UnsignedSixteenSixteen(1, 0), SamusVerticalDirection.Up);

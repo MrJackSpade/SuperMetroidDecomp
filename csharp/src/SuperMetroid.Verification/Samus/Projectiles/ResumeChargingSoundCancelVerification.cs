@@ -97,7 +97,7 @@ internal static class ResumeChargingSoundCancelVerification
     private static void VerifyHyperBeamAfterSpinCancels()
     {
         var fixture = new Fixture(SamusPoseId.FacingRightNormalPose, StandingPosition, SamusBeamFlags.Wave | SamusBeamFlags.Plasma);
-        fixture.Samus.HyperBeamEnabled = true;
+        fixture.Samus.EnableHyperBeam();
         fixture.Fire(new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None });
         AssertTrue(fixture.Charge.HyperBeamFlare, "the first Hyper Beam shot starts its flare");
 
@@ -138,10 +138,9 @@ internal static class ResumeChargingSoundCancelVerification
         {
             Samus = new SamusState(Requests, InstalledFixtures.FramesBeyondAnimation, new UnauthoredBoostCadence(), SamusCompatibility.ForNewSamus(), Charge, global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
             {
-                Pose = pose,
                 Position = position,
                 EquippedBeams = beams,
-            };
+            }.InPose(pose);
             Projectiles = new SamusProjectileSystem(Requests, Charge, InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: InstalledFixtures.Projectiles.FrameBindings), new global::SuperMetroid.Core.Fx.RoomEarthquake());
             slotsBeforeFire = Projectiles.ObserveSlots();
         }

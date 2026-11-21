@@ -230,9 +230,8 @@ internal static void VerifySamusPostureMovement()
 
     var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.FacingRightNormalPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 43)), // standing bottom is pixel 63, immediately above row-four floor
-    };
+    }.InPose(SamusPoseId.FacingRightNormalPose);
     SamusPoseMetadata.RefreshCollisionRadii(samus);
     SamusPresentation.InitializeAnimation(samus);
     SamusPosturePoseTransitions.ApplyPostureTransition(samus, 
@@ -247,9 +246,8 @@ SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), SamusPoseId.Cro
     // moves three pixels rather than the unconditional five.
     var sunkSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.FacingRightNormalPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 45)), // standing bottom pixel 65 overlaps the floor starting at 64
-    };
+    }.InPose(SamusPoseId.FacingRightNormalPose);
     SamusPoseMetadata.RefreshCollisionRadii(sunkSamus);
     SamusPresentation.InitializeAnimation(sunkSamus);
     SamusPosturePoseTransitions.ApplyPostureTransition(sunkSamus, 
@@ -298,9 +296,8 @@ SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), SamusPoseId.Sta
         bool facesLeft = (index & 1) != 0;
         var aimedSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = facesLeft ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(48, 43)),
-        };
+        }.InPose(facesLeft ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose);
         SamusPoseMetadata.RefreshCollisionRadii(aimedSamus);
         SamusPresentation.InitializeAnimation(aimedSamus);
         SamusPosturePoseTransitions.ApplyPostureTransition(aimedSamus, 
@@ -343,9 +340,8 @@ SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), aimedStandTrans
     // both facing families and the definition-byte-two return to ordinary crouch.
     var crouchAim = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.CrouchingRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 48)),
-    };
+    }.InPose(SamusPoseId.CrouchingRightPose);
     SamusPoseMetadata.RefreshCollisionRadii(crouchAim);
     SamusPresentation.InitializeAnimation(crouchAim);
     foreach (SamusPoseId target in new SamusPoseId[] {
@@ -368,9 +364,8 @@ SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), aimedStandTrans
     // live radius published until ordinary alpha begins the following frame.
     var directStand = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.CrouchingRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 48)),
-    };
+    }.InPose(SamusPoseId.CrouchingRightPose);
     SamusPoseMetadata.RefreshCollisionRadii(directStand);
     SamusPresentation.InitializeAnimation(directStand);
     SamusPosturePoseTransitions.ApplyDirectCrouchToStandingTransition(directStand, 
@@ -384,9 +379,8 @@ SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), SamusPoseId.Fac
 
     var directStandLeft = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.CrouchingLeftPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 48)),
-    };
+    }.InPose(SamusPoseId.CrouchingLeftPose);
     SamusPoseMetadata.RefreshCollisionRadii(directStandLeft);
     SamusPresentation.InitializeAnimation(directStandLeft);
     SamusPosturePoseTransitions.ApplyDirectCrouchToStandingTransition(directStandLeft, 
@@ -400,9 +394,8 @@ SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), SamusPoseId.Fac
     // ordinary crouch `$27/$28`. Make_Samus_Jump follows with the ROM's 4.E000 velocity.
     var crouchJump = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.CrouchingRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 48)),
-    };
+    }.InPose(SamusPoseId.CrouchingRightPose);
     SamusPoseMetadata.RefreshCollisionRadii(crouchJump);
     SamusPresentation.InitializeAnimation(crouchJump);
     SamusPosturePoseTransitions.ApplyCrouchJumpTransition(crouchJump, 
@@ -419,9 +412,8 @@ SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), SamusPoseId.Neu
 
     var crouchJumpLeft = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.CrouchingLeftPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 48)),
-    };
+    }.InPose(SamusPoseId.CrouchingLeftPose);
     SamusPoseMetadata.RefreshCollisionRadii(crouchJumpLeft);
     SamusPresentation.InitializeAnimation(crouchJumpLeft);
     SamusPosturePoseTransitions.ApplyCrouchJumpTransition(crouchJumpLeft, 
@@ -434,9 +426,8 @@ SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), SamusPoseId.Neu
     // adjustment from pose-change collision.
     var aimedCrouchJump = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.CrouchingAimDiagonalUpRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 48)),
-    };
+    }.InPose(SamusPoseId.CrouchingAimDiagonalUpRightPose);
     SamusPoseMetadata.RefreshCollisionRadii(aimedCrouchJump);
     SamusPresentation.InitializeAnimation(aimedCrouchJump);
     SamusPosturePoseTransitions.ApplyCrouchJumpTransition(aimedCrouchJump, 
@@ -452,9 +443,8 @@ SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), SamusPoseId.Neu
     RoomLevelData tunnel = CreateRoom(new(width, height), tunnelBlocks, new RoomBlockBehavior[tunnelBlocks.Length]);
     var tunnelSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.CrouchingRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 48)),
-    };
+    }.InPose(SamusPoseId.CrouchingRightPose);
     SamusPoseMetadata.RefreshCollisionRadii(tunnelSamus);
     SamusPresentation.InitializeAnimation(tunnelSamus);
     SamusPosturePoseTransitions.ApplyPostureTransition(tunnelSamus, 
@@ -464,9 +454,8 @@ SamusTerrain.InRoom(tunnel, SamusRoomObjectFixtures.Uninstalled), SamusPoseId.St
 
     var tunnelJump = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.CrouchingAimUpRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 48)),
-    };
+    }.InPose(SamusPoseId.CrouchingAimUpRightPose);
     SamusPoseMetadata.RefreshCollisionRadii(tunnelJump);
     SamusPresentation.InitializeAnimation(tunnelJump);
     SamusPosturePoseTransitions.ApplyCrouchJumpTransition(tunnelJump, 

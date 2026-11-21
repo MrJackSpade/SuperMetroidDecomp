@@ -31,8 +31,8 @@ internal static class MissileEdgeVerification
             var blocks = new RoomTerrainBlock[64 * 16];
             for (int row = 0; row < 16; row++) blocks[row * 64 + 32] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
             var room = CreateRoom(new(64, 16), blocks, new RoomBlockBehavior[blocks.Length]);
-            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(497, 128)),
-                SelectedHudItem = HudItem.Missile, Missiles = 5, MaxMissiles = 5 };
+            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(497, 128)),
+                SelectedHudItem = HudItem.Missile, Missiles = 5, MaxMissiles = 5 }.InPose(SamusPoseId.FacingRightNormalPose);
             var projectiles = CreateProjectileFixture();
             var shared = CreateBombFixture();
             for (int frame = 0; frame < 20; frame++)

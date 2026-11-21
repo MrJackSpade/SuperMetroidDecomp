@@ -118,7 +118,7 @@ internal static class ProjectileTrailPlacementSources
         {
             if (family is not { } named)
                 continue;
-            SamusProjectileDirectionMap<ProjectileTrailPlacementList?> lists = ProjectileTrailPlacementDefinitions.Lists[named];
+            SamusProjectileDirectionMap<ProjectileTrailPlacementList> lists = ProjectileTrailPlacementDefinitions.Lists[named];
             if (SamusProjectileDirectionCodec.InAimOrder.Where(direction => lists.For(direction) == list).ToArray() is not [var direction, ..])
                 continue;
             SnesAddress selector = SelectorTable(row.Group).AddWithinBank(row.Beams.TableIndex * sizeof(ushort));

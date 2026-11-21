@@ -81,10 +81,9 @@ internal static void VerifySamusStoredShineAndShinespark()
 
     var shine = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.ShinesparkWindupRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(160, 160)),
         Health = 99,
-    };
+    }.InPose(SamusPoseId.ShinesparkWindupRightPose);
     AssertTrue(!shine.Shinespark.TryStoreFromSpeedBooster(new SamusSpeedBoostCounter(3, 255)),
         "stage three cannot store shine");
     AssertTrue(shine.Shinespark.TryStoreFromSpeedBooster(new SamusSpeedBoostCounter(4, 0)),
@@ -162,10 +161,9 @@ internal static void VerifySamusStoredShineAndShinespark()
     {
         var directional = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = windupPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(160, 160)),
             Health = 99,
-        };
+        }.InPose(windupPose);
         SamusPoseMetadata.RefreshCollisionRadii(directional);
         SamusPresentation.InitializeAnimation(directional);
         directional.Shinespark.TryStoreFromSpeedBooster(new SamusSpeedBoostCounter(4, 0));
@@ -203,10 +201,9 @@ internal static void VerifySamusStoredShineAndShinespark()
     // Starting at 7.0000 with acceleration 0.2800 and adding +8.0000 yields +0.D800.
     var externallyReversedSpark = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.ShinesparkWindupRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(160, 160)),
         Health = 99,
-    };
+    }.InPose(SamusPoseId.ShinesparkWindupRightPose);
     SamusPoseMetadata.RefreshCollisionRadii(externallyReversedSpark);
     SamusPresentation.InitializeAnimation(externallyReversedSpark);
     externallyReversedSpark.Shinespark.TryStoreFromSpeedBooster(new SamusSpeedBoostCounter(4, 0));
@@ -252,10 +249,9 @@ internal static void VerifySamusStoredShineAndShinespark()
     {
         var invincible = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = SamusPoseId.ShinesparkWindupRightPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(160, 160)),
             Health = energy,
-        };
+        }.InPose(SamusPoseId.ShinesparkWindupRightPose);
         SamusPoseMetadata.RefreshCollisionRadii(invincible);
         SamusPresentation.InitializeAnimation(invincible);
         invincible.Shinespark.TryStoreFromSpeedBooster(SamusSpeedBoostCounter.AtFullStage);
@@ -276,10 +272,9 @@ internal static void VerifySamusStoredShineAndShinespark()
     var horizontalCompatibility = SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus();
     var horizontal = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), horizontalCompatibility, new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.ShinesparkWindupRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(160, 160)),
         Health = 30,
-    };
+    }.InPose(SamusPoseId.ShinesparkWindupRightPose);
     SamusPoseMetadata.RefreshCollisionRadii(horizontal);
     SamusPresentation.InitializeAnimation(horizontal);
     horizontal.Shinespark.TryStoreFromSpeedBooster(new SamusSpeedBoostCounter(4, 0));
@@ -435,10 +430,9 @@ internal static void VerifySamusStoredShineAndShinespark()
         fixtureShots.Pool.ShotCount.Restore(projectileCounter);
         var fixture = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), compatibility, new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = SamusPoseId.ShinesparkWindupRightPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(160, 160)),
             Health = 29,
-        };
+        }.InPose(SamusPoseId.ShinesparkWindupRightPose);
         SamusPoseMetadata.RefreshCollisionRadii(fixture);
         SamusPresentation.InitializeAnimation(fixture);
         fixture.Shinespark.TryStoreFromSpeedBooster(new SamusSpeedBoostCounter(4, 0));
@@ -487,10 +481,9 @@ internal static void VerifySamusStoredShineAndShinespark()
         var compatibility = SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus();
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), compatibility, new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = SamusPoseId.ShinesparkWindupRightPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(160, 160)),
             Health = 29,
-        };
+        }.InPose(SamusPoseId.ShinesparkWindupRightPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         var shots = Shots();
@@ -554,9 +547,8 @@ internal static void VerifySamusStoredShineAndShinespark()
             new RoomLevelPlanes(new RoomTerrainBlock[16 * 16], new RoomBlockBehavior[16 * 16], new RoomBlockAppearance[16 * 16]), RoomLevelData.NothingBeyondGrid(), []);
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
-        };
+        }.InPose(SamusPoseId.FacingRightNormalPose);
         var terrain = SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled);
         var frame = new ShinesparkFrame
         {

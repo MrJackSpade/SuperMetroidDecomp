@@ -40,7 +40,7 @@ internal static class ProjectileDamageVerification
         }
 
         var room = CreateRoom(new(32, 16), new RoomTerrainBlock[512], new RoomBlockBehavior[512]);
-        SamusState Samus() => new(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), artwork: global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.FacingRightNormalPose, Position = new(new(128, 0), new(128, 0)), Missiles = 10, SuperMissiles = 10 };
+        SamusState Samus() => new(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), artwork: global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = new(new(128, 0), new(128, 0)), Missiles = 10, SuperMissiles = 10 }.InPose(SamusPoseId.FacingRightNormalPose);
         void Check(SamusProjectile slot, int table, int index, int direction)
         {
             int data = 0x930000 | Word(table + index * 2);
@@ -187,12 +187,11 @@ internal static class ProjectileDamageVerification
             var shared = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
             {
-                Pose = SamusPoseId.FacingRightNormalPose,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
                 EquippedBeams = SamusEquipmentWordCodec.FromBeamWord(beam),
                 SelectedHudItem = HudItem.PowerBomb,
                 PowerBombs = 10,
-            };
+            }.InPose(SamusPoseId.FacingRightNormalPose);
             AssertTrue(projectiles.Combos.TryActivateCombo(
                     samus, shared, out _),
                 $"beam {beam:X} activates with cost/angle ROM reads forbidden");
@@ -242,12 +241,11 @@ internal static class ProjectileDamageVerification
             var shared = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
             {
-                Pose = pose,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
                 EquippedBeams = SamusBeamFlags.Plasma,
                 SelectedHudItem = HudItem.PowerBomb,
                 PowerBombs = 10,
-            };
+            }.InPose(pose);
             AssertTrue(projectiles.Combos.TryActivateCombo(samus, shared, out _),
                 $"{pose} Plasma special attack activates");
             SamusProjectile first = projectiles.Shots[0];
@@ -286,12 +284,11 @@ internal static class ProjectileDamageVerification
         var shared = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(1024, 1024)),
             EquippedBeams = SamusBeamFlags.Plasma,
             SelectedHudItem = HudItem.PowerBomb,
             PowerBombs = 10,
-        };
+        }.InPose(SamusPoseId.FacingRightNormalPose);
         AssertTrue(projectiles.Combos.TryActivateCombo(samus, shared, out _), "the Plasma special attack activates");
         SamusProjectile ring = projectiles.Shots[0];
         PlasmaParticleState ringState = ring.KindStateAs<PlasmaParticleState>();

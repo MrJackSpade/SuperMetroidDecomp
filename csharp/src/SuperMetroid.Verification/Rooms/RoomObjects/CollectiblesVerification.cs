@@ -714,11 +714,10 @@ internal static class CollectiblesVerification
         var suitColours = new SamusColours();
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(500, 600)),
             EquippedItems = SamusEquipmentFlags.VariaSuit,
             CollectedItems = SamusEquipmentFlags.VariaSuit,
-        }.WithBeamChargeCount(60);
+        }.InPose(SamusPoseId.FacingRightNormalPose).WithBeamChargeCount(60);
         SamusSuitShade.ShowPower(suitColours);
 
         var pickup = new SamusSuitPickupState();

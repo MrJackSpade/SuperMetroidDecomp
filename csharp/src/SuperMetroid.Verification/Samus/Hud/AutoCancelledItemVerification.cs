@@ -71,14 +71,13 @@ internal static class AutoCancelledItemVerification
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
                 SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
             {
-                Pose = SamusPoseId.FacingRightNormalPose,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
                 Health = 99,
                 MaxHealth = 99,
                 EquippedItems = SamusEquipmentFlags.XrayScope,
                 SelectedHudItem = HudItem.XRay,
                 AutoCancelledItem = autoCancelled ? HudItem.XRay : null,
-            };
+            }.InPose(SamusPoseId.FacingRightNormalPose);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             SamusPresentation.InitializeAnimation(samus);
             AssertTrue(samus.Xray.TryBeginAndActivate(samus, SamusMovementType.Standing,

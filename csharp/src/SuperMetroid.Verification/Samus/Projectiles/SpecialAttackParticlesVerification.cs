@@ -482,12 +482,11 @@ internal static class SpecialAttackParticlesVerification
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new UnauthoredBoostCadence(),
             SamusCompatibility.ForNewSamus(), new BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(samusAt),
             EquippedBeams = beam,
             SelectedHudItem = HudItem.PowerBomb,
             PowerBombs = 10,
-        };
+        }.InPose(SamusPoseId.FacingRightNormalPose);
         return (projectiles, shared, samus);
     }
 }

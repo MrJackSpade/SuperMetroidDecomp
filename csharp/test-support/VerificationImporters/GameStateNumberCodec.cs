@@ -45,7 +45,7 @@ internal static class GameStateNumberCodec
         new(session => session.Enter(PauseStep.BrighteningGameplay), session => session.IsAt(PauseStep.BrighteningGameplay)),
         new(session => session.Enter(DeathSequenceStep.FinalGameplayPass), session => session.IsAt(DeathSequenceStep.FinalGameplayPass)),
         new(session => session.Enter(DeathSequenceStep.BlackingOutSurroundings), session => session.IsAt(DeathSequenceStep.BlackingOutSurroundings)),
-        new(session => session.Enter(DeathSequenceStep.WaitingForMusic), session => session.IsAt(DeathSequenceStep.WaitingForMusic)),
+        new(session => session.Enter(DeathSequenceStep.SamusDying), session => IsDying(session, new SamusDeathSequencePhase.Inactive())),
         new(session => session.Enter(DeathSequenceStep.SamusDying), session => IsDying(session, new SamusDeathSequencePhase.Begun.PreFlashing())),
         new(session => session.Enter(DeathSequenceStep.SamusDying), session => IsDying(session, new SamusDeathSequencePhase.Begun.Flashing())),
         new(session => session.Enter(DeathSequenceStep.SamusDying), session => IsDying(session, new SamusDeathSequencePhase.Begun.SuitExplosion())),

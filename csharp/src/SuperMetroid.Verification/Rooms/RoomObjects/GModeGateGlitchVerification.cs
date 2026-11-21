@@ -177,9 +177,8 @@ internal static class GModeGateGlitchVerification
     {
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(24, 24)),
-        };
+        }.InPose(SamusPoseId.FacingRightNormalPose);
         samus.Kinematics.Radius = new(5, 8);
         EnterDirectGMode(samus);
 
@@ -323,9 +322,8 @@ internal static class GModeGateGlitchVerification
             {
                 var result = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
                 {
-                    Pose = SamusPoseId.FacingRightNormalPose,
                     Position = FixedPosition<RoomPixels>.FromWhole(new(40, 54)),
-                };
+                }.InPose(SamusPoseId.FacingRightNormalPose);
                 result.Kinematics.Radius = new(5, 8);
                 return result;
             }

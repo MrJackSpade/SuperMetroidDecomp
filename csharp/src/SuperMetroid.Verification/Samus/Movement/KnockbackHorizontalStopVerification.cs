@@ -15,7 +15,7 @@ internal static class KnockbackHorizontalStopVerification
         var level = CreateRoom(new(16, 16), new RoomTerrainBlock[256], new RoomBlockBehavior[256]);
         foreach (bool right in new[] { false, true })
         {
-            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.FacingLeftNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) };
+            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) }.InPose(SamusPoseId.FacingLeftNormalPose);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             SamusKnockbackMovement.Start(samus, 0, new KnockbackLaunch { KnockbackXDirection = right ? KnockbackHorizontalDirection.Right : KnockbackHorizontalDirection.Left, KnockbackTimer = SuperMetroid.Core.Enemies.EnemyCollisionDefinitions.SamusTouchKnockbackUpdates }, poseCollision: new KnockbackPoseCollision(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), 0));
             SamusPoseMetadata.RefreshCollisionRadii(samus);

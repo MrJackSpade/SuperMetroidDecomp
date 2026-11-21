@@ -248,14 +248,13 @@ internal static class RidleyFullMovieVerification
         {
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
             {
-                Pose = branch switch
+                Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
+            }.InPose(branch switch
                 {
                     0 => SamusPoseId.NormalJumpForwardRightPose,
                     2 => SamusPoseId.SpringBallJumpRightPose,
                     _ => SamusPoseId.FallingAimDownRightPose,
-                },
-                Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
-            };
+                });
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             samus.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(samus.Kinematics.VerticalVelocity.Speed, SamusVerticalDirection.Down);
             samus.HorizontalSpeed.CalculateTotalSpeed(UnsignedSixteenSixteen.FromRaw(0x00054321));
@@ -318,7 +317,7 @@ internal static class RidleyFullMovieVerification
             runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite);
             var samus = runtime.Player.IntroducedSamus;
             samus.Control.Unlock();
-            samus.Pose = pose; samus.Position = samus.Position.WithWhole(new(512, 400));
+            samus.ChangePoseKeepingAnimation(pose); samus.Position = samus.Position.WithWhole(new(512, 400));
             samus.EquippedItems = (SamusEquipmentFlags.SpaceJump | SamusEquipmentFlags.ScrewAttack);
             SamusPoseMetadata.RefreshCollisionRadii(samus); SamusPresentation.InitializeAnimation(samus);
             samus.PoseHistory.Restore(pose, samus.PoseHistory.PreviousMovement, samus.PoseHistory.MovementBeforePrevious);
@@ -340,10 +339,9 @@ internal static class RidleyFullMovieVerification
         {
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
             {
-                Pose = left ? SamusPoseId.FallingAimDownLeftPose : SamusPoseId.FallingAimDownRightPose,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(128, 402)),
                 EquippedItems = SamusEquipmentFlags.MorphBall,
-            };
+            }.InPose(left ? SamusPoseId.FallingAimDownLeftPose : SamusPoseId.FallingAimDownRightPose);
             samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0x97ff);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             var previous = FixedPosition<RoomPixels>.FromStoredParts(128, 0, 401, 0xb7ff);
@@ -371,7 +369,7 @@ internal static class RidleyFullMovieVerification
         var level = CreateEmptyRoom(new(16, 32));
         foreach (SamusPoseId pose in new[] { SamusPoseId.FallingAimUpRightPose, SamusPoseId.FallingAimUpLeftPose })
         {
-            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 200)) };
+            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 200)) }.InPose(pose);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             SamusPoseTransitions.ApplyAerialLandingInRoom(samus, level, false, 0, 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
             AssertEqual(1, samus.AnimationNumber, "native standing initializer skips raised-gun frame");

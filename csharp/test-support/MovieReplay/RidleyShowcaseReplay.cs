@@ -411,7 +411,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             }
             Check("Samus total horizontal speed", samus.HorizontalSpeed.TotalSpeed.Whole, NativeSnapshotMemory.TotalHorizontalSpeed);
             Check("Samus total horizontal fraction", samus.HorizontalSpeed.TotalSpeed.Fraction, NativeSnapshotMemory.TotalHorizontalSubspeed);
-            Check("Samus movement handler", samus.KnockbackActive
+            Check("Samus movement handler", samus.Knockback is SuperMetroid.Core.Samus.Movement.SamusKnockback.Moving
                 ? NativeSnapshotMemory.KnockbackMovementHandler : NativeSnapshotMemory.NormalMovementHandler,
                 NativeSnapshotMemory.SamusMovementHandler);
             // DoorTransitionState installs a locked pair to suppress host control, while
@@ -427,7 +427,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             Check("Samus health", SamusCountWords.Encode(samus.Health), NativeSnapshotMemory.Health);
             Check("Samus general Samus damage immunity countdown", samus.InvincibilityTimer.RawValue, NativeSnapshotMemory.InvincibilityTimer);
             Check("Samus Samus knockback countdown", samus.KnockbackHold.UpdatesLeft, NativeSnapshotMemory.KnockbackTimer);
-            Check("Samus Samus knockback direction", SuperMetroid.Core.Samus.Movement.SamusMovementNativeWords.KnockbackDirections.Word(samus.KnockbackDirection), NativeSnapshotMemory.KnockbackDirection);
+            Check("Samus Samus knockback direction", SuperMetroid.Core.Samus.Movement.SamusMovementNativeWords.KnockbackDirectionWord(samus.Knockback), NativeSnapshotMemory.KnockbackDirection);
             Check("Samus horizontal knockback direction", (ushort)samus.KnockbackXDirection, NativeSnapshotMemory.KnockbackXDirection);
             Check("Samus hurt palette/audio recovery countdown", checked((ushort)samus.HurtFlash.Count), NativeSnapshotMemory.HurtFlashCounter);
             Check("Samus fractional health word", checked((ushort)samus.EnergyFraction.Parts), NativeSnapshotMemory.SubunitHealth);

@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -20,7 +21,7 @@ internal abstract class NativeEnemyProjectileFamily
     internal static NativeEnemyProjectileAnimationFamily<TSegment, TFrame, TEvent> Of<TSegment, TFrame, TEvent>(
         NativeProgramEntry<TSegment>[] entries,
         UnpausedAnimationSegments<TSegment, TFrame, TEvent> segments,
-        IReadOnlyDictionary<TSegment, Animation<TSegment>> startingAt,
+        IEnumerable<KeyValuePair<TSegment, Animation<TSegment>>> startingAt,
         Func<TFrame, ushort> presentationKey,
         NativeEnemyProjectileCueRules<TEvent> rules,
         Func<TFrame, ushort?>? reflectedPresentationKey = null,
@@ -30,7 +31,25 @@ internal abstract class NativeEnemyProjectileFamily
         where TSegment : struct, Enum
         where TFrame : struct
         where TEvent : notnull =>
-        new(entries, segments, startingAt, presentationKey, rules, reflectedPresentationKey, startsWithClearedCounter, countedEntries ?? [], onlyRunOnInto);
+        new(entries, Ensure.NotNull(segments).Beats, Ensure.NotNull(startingAt).ToDictionary(pair => pair.Key, pair => pair.Value), presentationKey, rules,
+            reflectedPresentationKey, startsWithClearedCounter, countedEntries ?? [], onlyRunOnInto);
+
+    /// <summary>The oracle parameters of a family whose segments may hide the projectile, as <see cref="Of{TSegment, TFrame, TEvent}(NativeProgramEntry{TSegment}[], UnpausedAnimationSegments{TSegment, TFrame, TEvent}, IEnumerable{KeyValuePair{TSegment, Animation{TSegment}}}, Func{TFrame, ushort}, NativeEnemyProjectileCueRules{TEvent}, Func{TFrame, ushort?}?, IReadOnlySet{TSegment}?, IReadOnlyList{NativeCountedEntry{TSegment}}?, IReadOnlySet{TSegment}?)"/> gives them.</summary>
+    internal static NativeEnemyProjectileAnimationFamily<TSegment, TFrame, TEvent> Of<TSegment, TFrame, TEvent>(
+        NativeProgramEntry<TSegment>[] entries,
+        HidingUnpausedAnimationSegments<TSegment, TFrame, TEvent> segments,
+        IEnumerable<KeyValuePair<TSegment, Animation<TSegment>>> startingAt,
+        Func<TFrame, ushort> presentationKey,
+        NativeEnemyProjectileCueRules<TEvent> rules,
+        Func<TFrame, ushort?>? reflectedPresentationKey = null,
+        IReadOnlySet<TSegment>? startsWithClearedCounter = null,
+        IReadOnlyList<NativeCountedEntry<TSegment>>? countedEntries = null,
+        IReadOnlySet<TSegment>? onlyRunOnInto = null)
+        where TSegment : struct, Enum
+        where TFrame : struct
+        where TEvent : notnull =>
+        new(entries, Ensure.NotNull(segments).Beats, Ensure.NotNull(startingAt).ToDictionary(pair => pair.Key, pair => pair.Value), presentationKey, rules,
+            reflectedPresentationKey, startsWithClearedCounter, countedEntries ?? [], onlyRunOnInto);
 
     /// <summary>Compares every program with its native list and returns the total step count.</summary>
     internal abstract int CompareAll(IImportCartridgeSource cartridge);

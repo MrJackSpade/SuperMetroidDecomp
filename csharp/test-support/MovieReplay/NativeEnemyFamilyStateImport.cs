@@ -564,13 +564,16 @@ internal static class NativeEnemyFamilyStateImport
             // recorded origins must be the ones it derives.
             global::SuperMetroid.Core.PrivateState.Set(growingShutterRecord, "SpawnY", (int)(words.B));
             ushort[] originRows = [words.B, words.C, words.D, words.E];
-            for (int level = 0; level < GrowingShutterEnemyState.SectionCount; level++)
+            for (int level = 0; level < GrowingShutterDefinitions.Sections.Length; level++)
             {
-                if (growingShutterRecord.SectionOriginY(level) != originRows[level])
+                if (growingShutterRecord.OriginY(ListStep<GrowingShutterSection>.At(GrowingShutterDefinitions.Sections, level)) != originRows[level])
                     throw new InvalidDataException(
                         $"Recorded growing shutter section {level} origin {originRows[level]:X4} does not follow from its spawn row {words.B:X4}.");
             }
-            growingShutterRecord.GrowthLevel = words.F;
+            // The recorded growth level counts the sections grown; a shutter that has grown every section grows no more.
+            growingShutterRecord.Growing = words.F < GrowingShutterDefinitions.Sections.Length
+                ? ListStep<GrowingShutterSection>.At(GrowingShutterDefinitions.Sections, words.F)
+                : null;
         }
         // A bobbing Fireflea keeps none of these words.
         if (enemy.SpeciesState<FirefleaEnemyState>() is { Flight: CirclingFirefleaState firefleaRecord })

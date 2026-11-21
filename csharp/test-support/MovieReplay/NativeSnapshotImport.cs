@@ -230,7 +230,7 @@ internal static class NativeSnapshotImport
         global::SuperMetroid.Core.PrivateState.Set(runtime.BombProjectiles, "BombCounter", (int)(W(NativeSnapshotMemory.BombCount)));
         samus.BombSpreadCharge = UpdateCountdownAccess.AtAge(MorphBallBombDefinitions.DownChargeTimeoutUpdates, W(NativeSnapshotMemory.BombSpreadChargeTimeout));
         samus.TransitionShot.Hand(SamusSnapshotWords.DecodeTransitionShot(W(NativeSnapshotMemory.PoseShotDirection)));
-        samus.HyperBeamEnabled = SamusSnapshotWords.DecodeHyperBeam(W(NativeSnapshotMemory.HyperBeam));
+        if (SamusSnapshotWords.DecodeHyperBeam(W(NativeSnapshotMemory.HyperBeam))) samus.EnableHyperBeam();
         if (SamusSnapshotWords.DecodeResumeChargingBeamSound(W(NativeSnapshotMemory.ResumeChargeSound))) samus.ChargingSound.Arm(); else samus.ChargingSound.Cancel();
         PrivateState.Set(samus.InputSnapshot, "PreviousDrawHeldInput", GameplayActionWordCodec.FromJoypadWord(W(NativeSnapshotMemory.SamusFilteredHeld), "native Samus filtered held input"));
         samus.InputSnapshot.PressesSeenLastUpdate = GameplayActionWordCodec.FromJoypadWord(W(NativeSnapshotMemory.SamusFilteredNew), "native Samus filtered new input");
@@ -246,7 +246,8 @@ internal static class NativeSnapshotImport
         samus.MaxHealth = SamusCountWords.Decode(W(NativeSnapshotMemory.MaxHealth));
         samus.InvincibilityTimer = WrappingCountdown.Start(W(NativeSnapshotMemory.InvincibilityTimer));
         samus.KnockbackHold = UpdateCountdown.For(W(NativeSnapshotMemory.KnockbackTimer));
-        samus.KnockbackDirection = SamusMovementNativeWords.KnockbackDirections.Decode(W(NativeSnapshotMemory.KnockbackDirection), "Samus knockback direction");
+        samus.Knockback = SamusMovementNativeWords.DecodeKnockback(W(NativeSnapshotMemory.KnockbackDirection),
+            W(NativeSnapshotMemory.SamusMovementHandler) == NativeSnapshotMemory.KnockbackMovementHandler);
         samus.KnockbackXDirection = (KnockbackHorizontalDirection)W(NativeSnapshotMemory.KnockbackXDirection);
         samus.HurtFlash.HoldAt(W(NativeSnapshotMemory.HurtFlashCounter));
         PrivateState.Set(samus, "EnergyFraction", SuperMetroid.Core.Compatibility.PeriodicDamageEnergyFraction.Holding(W(NativeSnapshotMemory.SubunitHealth)));

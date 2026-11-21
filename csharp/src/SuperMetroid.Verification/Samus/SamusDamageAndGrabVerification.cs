@@ -111,9 +111,8 @@ internal static void VerifySamusDrainedController()
     VerifyDrainedPoseHistory();
     var right = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.CrouchingRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 75)),
-    };
+    }.InPose(SamusPoseId.CrouchingRightPose);
     SamusPoseMetadata.RefreshCollisionRadii(right);
     SamusPresentation.InitializeAnimation(right);
     right.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(3, 0x4444);
@@ -186,9 +185,8 @@ level, SamusRoomObjectFixtures.Uninstalled, right, unchecked((ushort)(frame + 1)
 
     var left = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.CrouchingLeftPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 75)),
-    };
+    }.InPose(SamusPoseId.CrouchingLeftPose);
     SamusPoseMetadata.RefreshCollisionRadii(left);
     SamusPresentation.InitializeAnimation(left);
     left.Drained.CrouchDrained(left);
@@ -255,9 +253,8 @@ level, SamusRoomObjectFixtures.Uninstalled, right, unchecked((ushort)(frame + 1)
     // pose `$54` and lock normal input; only their installed Up-edge handler differs.
     var able = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.FacingRightNormalPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 75)),
-    };
+    }.InPose(SamusPoseId.FacingRightNormalPose);
     SamusPoseMetadata.RefreshCollisionRadii(able);
     SamusPresentation.InitializeAnimation(able);
     able.Drained.SetupForRainbowBeamAbleToStand(able);
@@ -282,9 +279,8 @@ level, SamusRoomObjectFixtures.Uninstalled, right, unchecked((ushort)(frame + 1)
 
     var unable = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.FacingRightNormalPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 75)),
-    };
+    }.InPose(SamusPoseId.FacingRightNormalPose);
     SamusPoseMetadata.RefreshCollisionRadii(unable);
     SamusPresentation.InitializeAnimation(unable);
     unable.Drained.SetupForRainbowBeamUnableToStand(unable);

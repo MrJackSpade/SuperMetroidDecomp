@@ -23,9 +23,9 @@ internal static class GroundedBombSpreadVerification
         foreach (int hold in new[] { 0, 1, 63, 64, 127, 128, 191, 192 })
         foreach (bool keepDown in hold == 192 ? new[] { false, true } : new[] { false })
         {
-            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.MorphBallGroundRightPose,
+            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { 
                 EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
-                Position = FixedPosition<RoomPixels>.FromWhole(new(512, 512))}.WithBeamChargeCount(BeamChargeDefinitions.FullyChargedCounter);
+                Position = FixedPosition<RoomPixels>.FromWhole(new(512, 512))}.InPose(SamusPoseId.MorphBallGroundRightPose).WithBeamChargeCount(BeamChargeDefinitions.FullyChargedCounter);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             samus.Kinematics.YAcceleration = new UnsignedSixteenSixteen(0, 0x1c00);
             var bombs = CreateBombFixture();

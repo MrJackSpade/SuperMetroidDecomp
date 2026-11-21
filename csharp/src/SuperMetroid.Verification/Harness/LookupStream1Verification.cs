@@ -469,7 +469,7 @@ internal static class LookupStream1Verification
         {
             // Only the frames the drained crouch can show are drawn; the draw rejects the others (#1513).
             if (!shown.TryPictureFrame(SamusPoseId.DrainedCrouchingLeftPose, SamusAnimationNumbers.Frame(SamusPoseId.DrainedCrouchingLeftPose, frame), out _)) continue;
-            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.DrainedCrouchingLeftPose, AnimationFrame = SamusAnimationNumbers.Frame(SamusPoseId.DrainedCrouchingLeftPose, frame), Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
+            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { AnimationFrame = SamusAnimationNumbers.Frame(SamusPoseId.DrainedCrouchingLeftPose, frame), Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) }.InPose(SamusPoseId.DrainedCrouchingLeftPose);
             samus.BindBodyFixture(stockArt);
             samus.Presentation.DrawWithoutFlicker(samus, new SpriteFrameBuffer(), new(0, 0));
             // A frame outside the crouch's own pictures is placed as the picture it draws (#1513).
@@ -501,7 +501,7 @@ internal static class LookupStream1Verification
             int count = pose is SamusPoseId.CrouchingTransitionRightPose or SamusPoseId.CrouchingTransitionLeftPose or SamusPoseId.StandingTransitionRightPose or SamusPoseId.StandingTransitionLeftPose ? 1 : 2;
             for (ushort frame = 0; frame < count; frame++)
             {
-                var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = pose, AnimationFrame = SamusAnimationNumbers.Frame(pose, frame), Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
+                var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { AnimationFrame = SamusAnimationNumbers.Frame(pose, frame), Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) }.InPose(pose);
                 samus.BindBodyFixture(stockArt);
                 samus.Presentation.DrawWithoutFlicker(samus, new SpriteFrameBuffer(), new(0, 0));
                 AssertEqual(128 + native[(SamusPoseNumbers.Number(pose) - 0x35) * 2 + frame], (int)samus.Presentation.DrawOrigin.Y,
@@ -553,9 +553,9 @@ internal static class LookupStream1Verification
                 continue;
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
             {
-                Pose = landingPose, AnimationFrame = SamusAnimationNumbers.Frame(landingPose, (ushort)(index % 4)),
+                AnimationFrame = SamusAnimationNumbers.Frame(landingPose, (ushort)(index % 4)),
                 Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
-            };
+            }.InPose(landingPose);
             samus.BindBodyFixture(stock);
             samus.Presentation.DrawWithoutFlicker(samus, new SpriteFrameBuffer(), cameraPosition: new(0, 0));
             // The game subtracts a word whose high byte the drawn position never shows; the body sits by the low byte (#1500).
@@ -713,7 +713,7 @@ internal static class LookupStream1Verification
             SamusPoseId.MovingRightNormalPose, SamusPoseId.MovingLeftNormalPose
         })
         {
-            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) };
+            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) }.InPose(pose);
             samus.BindBodyFixture(body);
             int direction = LookupStream1FlarePlacementRomByte(rom, 0x91b629 + SamusPoseNumbers.Number(pose) * 8 + 3);
             bool running = pose is SamusPoseId.MovingRightNormalPose or SamusPoseId.MovingLeftNormalPose;
@@ -1685,7 +1685,7 @@ internal static class LookupStream1Verification
             int count = pose == SamusPoseId.NormalLandingRightPose ? 2 : pose == SamusPoseId.SpinLandingRightPose ? 3 : pose is SamusPoseId.StandingAimUpRightPose or SamusPoseId.NormalJumpAimUpRightPose or SamusPoseId.NormalJumpAimUpLeftPose or SamusPoseId.NormalJumpAimDownRightPose or SamusPoseId.NormalJumpAimDownLeftPose or SamusPoseId.FallingAimUpRightPose or SamusPoseId.FallingAimUpLeftPose or SamusPoseId.FallingAimDownRightPose or SamusPoseId.FallingAimDownLeftPose ? 2 : 1;
             for (ushort frame = 0; frame < count; frame++)
             {
-                var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = pose, AnimationFrame = SamusAnimationNumbers.Frame(pose, frame), Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), SelectedHudItem = HudItem.Missile };
+                var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { AnimationFrame = SamusAnimationNumbers.Frame(pose, frame), Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), SelectedHudItem = HudItem.Missile }.InPose(pose);
                 samus.BindBodyFixture(body);
                 var cannon = new SamusArmCannonState(InstalledFixtures.SamusArtwork(armCannon: stock.Gameplay));
                 cannon.Update(samus); cannon.Update(samus);

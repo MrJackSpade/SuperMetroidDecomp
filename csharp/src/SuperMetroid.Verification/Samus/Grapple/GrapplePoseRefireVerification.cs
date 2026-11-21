@@ -22,9 +22,8 @@ internal static class GrapplePoseRefireVerification
         foreach (int changeFrame in Enumerable.Range(1, 10))
         {
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) {
-                Pose = left ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(512, 512)),
-            };
+            }.InPose(left ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose);
             SamusGrappleMovement.BeginFiring(samus, SuperMetroid.Core.Input.GameplayAction.None);
             for (int frame = 1; frame < changeFrame; frame++)
                 SamusGrappleMovement.StepFiringAndCommit(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, GameplayAction.Shoot, enemyCollision: GrappleEnemyFixtures.NoEnemy);

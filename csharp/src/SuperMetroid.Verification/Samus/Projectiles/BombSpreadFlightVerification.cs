@@ -166,10 +166,9 @@ internal static class BombSpreadFlightVerification
             new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SamusCompatibility.ForNewSamus(), new BeamChargeState(),
             InstalledFixtures.SamusArtwork())
         {
-            Pose = SamusPoseId.MorphBallGroundRightPose,
             EquippedItems = SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs,
             Position = position,
-        };
+        }.InPose(SamusPoseId.MorphBallGroundRightPose);
         samus.Kinematics.YAcceleration = new UnsignedSixteenSixteen(0, 0x1c00);
         return samus;
     }

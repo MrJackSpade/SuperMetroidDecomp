@@ -22,19 +22,21 @@ internal static class KraidMouthReopenCountVerification
 
         var state = new KraidEnemyState(new KraidParts());
         state.ArmMouthReopens();
-        for (int expected = 2; expected >= 0; expected--)
+        for (int expected = 2; expected >= 1; expected--)
         {
-            state.RemoveOneMouthReopen();
-            AssertEqual(expected, state.PendingMouthReopens, "each reopen continuation removes one pending reopen");
+            state.MarkMouthReopen();
+            AssertTrue(state.SpendMouthReopenAsMouthCloses(), "a marked mouth closing with reopens left waits to glow his eye again");
+            AssertEqual(expected, state.PendingMouthReopens, "each marked close spends one pending reopen");
         }
-        _ = AssertThrows<InvalidOperationException>(state.RemoveOneMouthReopen, "removing a reopen from none is rejected: no caller reaches it, so no wrap is kept (#1627)");
-        AssertEqual(0, state.PendingMouthReopens, "the rejected removal leaves the count at none");
+        state.MarkMouthReopen();
+        AssertTrue(!state.SpendMouthReopenAsMouthCloses(), "the last marked close leaves no reopen pending");
+        AssertTrue(!state.MouthReopenMarked && state.PendingMouthReopens == 0, "spending the last reopen forgets the mouth's hits");
 
-        state.MouthReopenArmed = true;
-        state.MouthReopenMarked = true;
+        state.ArmMouthReopens();
+        state.MarkMouthReopen();
         state.ClearMouthReactions();
-        AssertTrue(!state.MouthReopenArmed && !state.MouthReopenMarked, "clearing the mouth clears every latch");
-        AssertEqual(0, state.PendingMouthReopens, "clearing the mouth clears the pending reopen count with the latches");
+        AssertTrue(!state.MouthReopenMarked, "clearing the mouth forgets its marked hit");
+        AssertEqual(0, state.PendingMouthReopens, "clearing the mouth clears the pending reopen count with the latch");
 
         VerifyKraidHurtFlash();
 

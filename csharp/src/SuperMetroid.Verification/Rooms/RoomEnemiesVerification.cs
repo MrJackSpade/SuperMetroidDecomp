@@ -492,10 +492,9 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
         ripper.HurtFlash.End();
         var touchingSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = SamusPoseId.FacingRightNormalPose,
             Health = 99,
             Position = FixedPosition<RoomPixels>.FromWhole(ripper.Position.Whole),
-        };
+        }.InPose(SamusPoseId.FacingRightNormalPose);
         enemies.StepStandaloneFrame(enemies.StandaloneFrame(level) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = touchingSamus });
         AssertEqual(0, ripper.Invincibility.UpdatesLeft, "ordinary frame expires the last invincibility tick");
         AssertEqual(99, touchingSamus.Health, "expiration frame still skips native collision branch");
@@ -547,10 +546,9 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
 
     var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.FacingRightNormalPose,
         Health = 99,
         Position = FixedPosition<RoomPixels>.FromWhole(ripper.Position.Whole),
-    };
+    }.InPose(SamusPoseId.FacingRightNormalPose);
     enemies.Collision.ResolveOrdinarySamusContact(samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), controllerInput: 0, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), ripper.HeldOccupant(), Position16<RoomPixels>.Zero);
     AssertEqual(94, samus.Health, "Ripper header contact damage");
     AssertEqual(0x60, samus.InvincibilityTimer.RawValue, "Ripper contact invincibility clock");
@@ -920,9 +918,8 @@ internal static void VerifyCeresRidleyRoomEntry()
     // A6C8 crosses Y=$50 and publishes fight mode one.
     var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.FacingRightNormalPose,
         Health = 99,
-    };
+    }.InPose(SamusPoseId.FacingRightNormalPose);
     int battleEntryFrames = 0;
     bool observedRoarSound = false;
     while (!state.Runs(CeresRidleyPhase.Hovering) && battleEntryFrames < 1024)

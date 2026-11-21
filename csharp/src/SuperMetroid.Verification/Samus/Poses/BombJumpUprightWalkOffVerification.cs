@@ -23,7 +23,7 @@ internal static class BombJumpUprightWalkOffVerification
             (SamusPoseId.CrouchingLeftPose, SamusPoseId.FallingLeftPose),
         })
         {
-            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), InstalledFixtures.SamusArtwork()) { Pose = upright, Position = FixedPosition<RoomPixels>.FromWhole(new(0x80, 0x80)) };
+            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x80, 0x80)) }.InPose(upright);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             var speed = samus.Kinematics.VerticalVelocity;
 

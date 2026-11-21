@@ -136,7 +136,7 @@ internal static class GrappleConnectionDefinitionsVerification
         var g = samus.Grapple;
         for (int angle = 0; angle <= ushort.MaxValue; angle++)
         {
-            samus.Pose = SamusPoseId.FacingRightNormalPose; samus.Position = samus.Position.WithWhole(new(100, 200));
+            samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose); samus.Position = samus.Position.WithWhole(new(100, 200));
             g.Phase = GrapplePhase.ConnectedSwinging; g.Anchor = g.Anchor.WithY(512).WithX(512);
             g.Angle = RotationAngleConstants.FromRaw((ushort)angle);
             int index = Array.FindLastIndex(native, row => row.Angle.RawValue == angle);
@@ -197,7 +197,7 @@ internal static class GrappleConnectionDefinitionsVerification
         // bytes in a fake bus; that did not represent a cartridge-reachable state.
         var guard = NewGrappleConnectionReadGuard(rom);
         var empty = CreateRoom(new(64, 64), new RoomTerrainBlock[4096], new RoomBlockBehavior[4096]);
-        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(512, 512)) };
+        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(512, 512)) }.InPose(SamusPoseId.FacingRightNormalPose);
         samus.BindBodyFixture(InstalledFixtures.SamusBody);
         samus.Artwork.GrappleFlarePlacement = SuperMetroid.AssetExtraction.Samus.ChargeFlarePlacementFile.LoadGrapple(
             new MemoryStream(SuperMetroid.AssetExtraction.Samus.GrappleFlarePlacementExtractor.Extract(rom)));

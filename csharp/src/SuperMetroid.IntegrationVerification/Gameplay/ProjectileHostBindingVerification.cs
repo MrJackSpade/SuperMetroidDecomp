@@ -43,9 +43,13 @@ internal static class ProjectileHostBindingVerification
     {
         if (actual is null) throw new InvalidDataException("Host did not bind flare placement.");
         foreach (ChargeFlarePlacement placement in ChargeFlarePlacements.Placements(source))
-            if (actual.Resolve(placement.Running, placement.Aim) != expected.Resolve(placement.Running, placement.Aim))
+            if (Offsets(actual)[placement] != Offsets(expected)[placement])
                 throw new InvalidDataException("Host restored stale flare placement.");
     }
+
+    /// <summary>The installed offset at every placement <paramref name="placements"/> holds.</summary>
+    private static IReadOnlyDictionary<ChargeFlarePlacement, Offset16<RoomPixels>> Offsets(ChargeFlarePlacements placements) =>
+        global::SuperMetroid.Core.PrivateState.Field<ChargeFlarePlacements, Dictionary<ChargeFlarePlacement, Offset16<RoomPixels>>>(placements, "offsets");
 
     /// <summary>Checks the Grapple flare placement and swing choices the host bound.</summary>
     private static void CheckGrapple(GameArtwork actual, InstalledGrapplePresentation expected)

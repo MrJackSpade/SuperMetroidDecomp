@@ -24,10 +24,7 @@ internal static class SamusLiquidLinesVerification
     {
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation,
             new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SamusCompatibility.ForNewSamus(),
-            new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), InstalledFixtures.SamusArtwork())
-        {
-            Pose = SamusPoseId.SpinJumpRightPose,
-        };
+            new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), InstalledFixtures.SamusArtwork()).InPose(SamusPoseId.SpinJumpRightPose);
         samus.Kinematics.Radius = samus.Kinematics.Radius.WithY(SpinRadius);
         int poseRadius = SamusPoseMetadata.ReadPoseYRadius(samus.Pose);
         int cases = 0;

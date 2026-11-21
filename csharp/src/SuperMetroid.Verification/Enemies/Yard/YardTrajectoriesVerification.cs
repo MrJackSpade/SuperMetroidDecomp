@@ -41,7 +41,7 @@ internal static class YardTrajectoriesVerification
             var actor = enemies.Places.InUpdateOrder[focus];
             var state = enemies.YardStates[focus];
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Health = 999, MaxHealth = 999,
-                Pose = SamusPoseId.FacingLeftNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(actor.Position.X.Whole - 64)), actor.Position.Y.Whole)) };
+                Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(actor.Position.X.Whole - 64)), actor.Position.Y.Whole)) }.InPose(SamusPoseId.FacingLeftNormalPose);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             SamusPresentation.InitializeAnimation(samus);
             int largest = 0;
@@ -80,7 +80,7 @@ internal static class YardTrajectoriesVerification
             state.Behavior = YardBehavior.Dropped;
             state.AirborneVelocity = state.AirborneVelocity.WithWholeY(1);
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Health = 999, MaxHealth = 999,
-                Pose = SamusPoseId.FacingLeftNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(32, 32)) };
+                Position = FixedPosition<RoomPixels>.FromWhole(new(32, 32)) }.InPose(SamusPoseId.FacingLeftNormalPose);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             enemies.StepStandaloneFrame(enemies.StandaloneFrame(floor) with { Camera = new(128, 128), TimeIsFrozen = false, Samus = samus });
             AssertEqual(YardBehavior.NormalCrawling, state.Behavior, "dropped Yard lands without becoming aggressive");

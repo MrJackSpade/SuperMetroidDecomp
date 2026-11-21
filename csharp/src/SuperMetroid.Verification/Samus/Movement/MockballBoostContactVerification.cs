@@ -26,9 +26,9 @@ internal static class MockballBoostContactVerification
         {
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
             {
-                Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(64, 57)),
+                Position = FixedPosition<RoomPixels>.FromWhole(new(64, 57)),
                 EquippedItems = (SamusEquipmentFlags.SpeedBooster | SamusEquipmentFlags.MorphBall),
-            };
+            }.InPose(pose);
             var fixture = CreateEnemyDropFixture(samus, [1]);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             RoomTerrainBlock[] blocks = new RoomTerrainBlock[32 * 8];
@@ -65,8 +65,8 @@ internal static class MockballBoostContactVerification
             AssertEqual(SamusBodyAttack.None, speed.BodyAttack, "sub-threshold boost does not grant a ball contact attack");
             speed.SpeedBoostCounter = new SamusSpeedBoostCounter(4, 1);
             speed.BodyAttack = SamusBodyAttack.None;
-            samus.Pose = pose == SamusPoseId.MorphBallMovingRightPose
-                ? SamusPoseId.MorphBallGroundRightPose : SamusPoseId.SpringBallGroundRightPose;
+            samus.ChangePoseKeepingAnimation(pose == SamusPoseId.MorphBallMovingRightPose
+                ? SamusPoseId.MorphBallGroundRightPose : SamusPoseId.SpringBallGroundRightPose);
             speed.AccelerationMode = SamusAccelerationMode.Accelerating;
             SamusMorphBallMovement.StepGrounded(floor, samus, 5, roomObjects: SamusRoomObjectFixtures.Uninstalled);
             AssertEqual(SamusBodyAttack.None, speed.BodyAttack, "stationary ball does not run the moving-ball boost publication");

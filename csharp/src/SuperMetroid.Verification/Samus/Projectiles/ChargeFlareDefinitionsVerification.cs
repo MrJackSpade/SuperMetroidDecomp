@@ -111,7 +111,7 @@ internal static class ChargeFlareDefinitionsVerification
         {
             var hyper = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
             var samus = new SuperMetroid.Core.Samus.SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
-                SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), hyper.Charge, artwork: global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { HyperBeamEnabled = true };
+                SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), hyper.Charge, artwork: global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) .WithHyperBeam(true);
             if (shot)
             {
                 hyper.Charge.StartHyperBeamFlare();

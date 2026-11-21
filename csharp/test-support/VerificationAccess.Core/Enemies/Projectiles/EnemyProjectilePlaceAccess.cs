@@ -11,13 +11,21 @@ internal static class EnemyProjectilePlaceAccess
 
     /// <summary>
     /// Makes <paramref name="place"/> hold a fresh projectile of <paramref name="kind"/>, starting from what the place's
-    /// latest projectile left there, as a spawn into it would, for the check to set up.
+    /// latest projectile left there, as a spawn into it would, for the check to set up. Every projectile runs an animation:
+    /// this one deletes itself at its first animation step unless the check starts the animation it means to watch.
     /// </summary>
-    internal static EnemyProjectile Occupy(this EnemyProjectileEngine engine, int place, RoomEnemyProjectileKind kind)
+    internal static EnemyProjectile Occupy(this EnemyProjectileEngine engine, int place, RoomEnemyProjectileKind kind) =>
+        engine.Occupy(place, kind, EnemyProjectileDeleteAnimation.Instance);
+
+    /// <summary>
+    /// Makes <paramref name="place"/> hold a fresh projectile of <paramref name="kind"/> running <paramref name="animation"/>,
+    /// starting from what the place's latest projectile left there, as a spawn into it would.
+    /// </summary>
+    internal static EnemyProjectile Occupy(this EnemyProjectileEngine engine, int place, RoomEnemyProjectileKind kind, EnemyProjectileAnimation animation)
     {
         EnemyProjectile?[] places = PrivateState.Field<EnemyProjectileEngine, EnemyProjectile?[]>(engine, "_places");
         EnemyProjectilePlaceLeftovers leftovers = PrivateState.Field<EnemyProjectileEngine, EnemyProjectilePlaceLeftovers>(engine, "_leftovers");
-        return places[place] = new EnemyProjectile(place, leftovers.StartOf(place, places[place]?.LeftInPlace), kind);
+        return places[place] = new EnemyProjectile(place, leftovers.StartOf(place, places[place]?.LeftInPlace), kind, animation);
     }
 
     /// <summary>

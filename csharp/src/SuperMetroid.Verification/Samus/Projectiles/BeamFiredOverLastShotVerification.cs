@@ -307,11 +307,10 @@ internal static class BeamFiredOverLastShotVerification
             new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SamusCompatibility.ForNewSamus(), new BeamChargeState(),
             InstalledFixtures.SamusArtwork())
         {
-            Pose = SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             EquippedBeams = beams,
             SelectedHudItem = HudItem.Beam,
-        };
+        }.InPose(SamusPoseId.FacingRightNormalPose);
         return (CreateProjectileFixture(), CreateBombFixture(), samus);
     }
 

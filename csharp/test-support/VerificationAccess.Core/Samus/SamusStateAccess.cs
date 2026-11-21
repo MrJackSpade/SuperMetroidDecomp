@@ -21,6 +21,24 @@ internal static class SamusStateAccess
         }
 
         /// <summary>
+        /// Changes her pose keeping her animation (<see cref="SamusState.ChangePoseKeepingAnimation"/>), as a check that builds
+        /// her in a pose sets it, and returns her.
+        /// </summary>
+        internal SamusState InPose(SamusPoseId pose)
+        {
+            self.ChangePoseKeepingAnimation(pose);
+            return self;
+        }
+
+        /// <summary>Enables her Hyper Beam when <paramref name="enabled"/>, as the Baby's gift does, and returns her.</summary>
+        internal SamusState WithHyperBeam(bool enabled)
+        {
+            if (enabled)
+                self.EnableHyperBeam();
+            return self;
+        }
+
+        /// <summary>
         /// Compatibility name for the `$13/$14` Fire subset. Keeping this narrow wrapper makes
         /// existing focused tests readable while all input-table exits share one native handler.
         /// </summary>
@@ -35,9 +53,8 @@ internal static class SamusStateAccess
                 throw new InvalidOperationException(
                     $"Spin-fire compatibility route requires pose $13/$14, not ${(int)SamusPoseNumbers.Number(targetPose):X2}.");
             }
-            SamusAerialPoseTransitions.ApplySpinOrWallJumpToNormalJumpTransition(self, 
-
-                SamusTerrain.InRoom(level, roomObjects ?? SamusRoomObjectFixtures.Uninstalled),
+            SamusAerialPoseTransitions.ApplySpinOrWallJumpToNormalJumpTransition(self,
+                terrain,
                 targetPose,
                 frameCounter,
                 controllerNewInput);

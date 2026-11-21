@@ -59,9 +59,9 @@ internal static class SamusGrappleMovementAccess
             grapple.CancelFromConnectedPose = false;
             SamusGrappleBeamDrawing.InitializeBeamAnimation(grapple);
 
-            samus.Pose = faceRight
+            samus.ChangePoseKeepingAnimation(faceRight
                 ? SamusPoseId.GrappleSwingRightPose
-                : SamusPoseId.GrappleSwingLeftPose;
+                : SamusPoseId.GrappleSwingLeftPose);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             SamusPresentation.InitializeAnimation(samus);
 
@@ -109,7 +109,7 @@ internal static class SamusGrappleMovementAccess
         /// frame whose pose update nothing outranks does.
         /// </summary>
         internal static GrappleMovementResult StepFiringAndCommit(
-            SamusTerrain terrain,
+            RoomTerrain terrain,
             SamusState samus,
             GameplayAction controllerInput,
             Func<Position16<RoomPixels>, GrappleEnemyCollision?> enemyCollision)
@@ -124,7 +124,7 @@ internal static class SamusGrappleMovementAccess
         /// frame whose pose update nothing outranks does.
         /// </summary>
         internal static GrappleMovementResult StepAndCommit(
-            SamusTerrain terrain,
+            RoomTerrain terrain,
             SamusState samus,
             GameplayAction controllerInput,
             GameplayAction newlyPressedInput,

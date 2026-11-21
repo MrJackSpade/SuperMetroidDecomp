@@ -70,11 +70,10 @@ internal static class ChainsawFiringVerification
         var reactiveLevel = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(reactiveWords, new RoomBlockBehavior[256], new RoomBlockAppearance[256]), RoomLevelData.NothingBeyondGrid(), []);
         var reactiveSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             EquippedBeams = SamusBeamFlags.Wave | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma,
             SelectedHudItem = HudItem.Beam,
-        };
+        }.InPose(SamusPoseId.FacingRightNormalPose);
         AssertThrows<InvalidOperationException>(() => CreateProjectileFixture().StepFrame(SamusTerrain.InRoom(reactiveLevel, SamusRoomObjectFixtures.Uninstalled), reactiveSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), CreateBombFixture(), new SharedGameState(new SharedRandom())), "cleared Chainsaw still reaches Power Bomb boundary reactions");
 
         // Wave collision scans do not kill their owner, but they still run every touched
@@ -94,11 +93,10 @@ internal static class ChainsawFiringVerification
         var doorLevel = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(doorWords, doorBts, new RoomBlockAppearance[256]), RoomLevelData.NothingBeyondGrid(), []);
         var doorSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             EquippedBeams = SamusBeamFlags.Wave | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma,
             SelectedHudItem = HudItem.Beam,
-        };
+        }.InPose(SamusPoseId.FacingRightNormalPose);
         var doorObjects = RoomObjectFixtures.Unbound();
         var doorProjectiles = CreateProjectileFixture();
         doorProjectiles.StepFrame(SamusTerrain.InRoom(doorLevel, doorObjects), doorSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), CreateBombFixture(), new SharedGameState(new SharedRandom()));
@@ -229,10 +227,9 @@ internal static class ChainsawFiringVerification
         // destination and fail loudly rather than silently choosing ordinary Wave motion.
         var chargedSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             EquippedBeams = SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma,
-        };
+        }.InPose(SamusPoseId.FacingRightNormalPose);
         var chargedShared = CreateBombFixture();
         var chargedProjectiles = CreateProjectileFixture();
         for (int frame = 0; frame < 60; frame++)

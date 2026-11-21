@@ -58,7 +58,6 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
 
     var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.DrainedCrouchingLeftPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(0x00ca, 0x00c0)),
         // These are the private-ROM runner's post-rainbow values. The Baby must add one
         // point on each `$CA7A` call and stop exactly at 899 rather than using a host fill.
@@ -66,7 +65,7 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
         MaxHealth = 899,
         ReserveEnergy = 7,
         MaxReserveEnergy = 99,
-    };
+    }.InPose(SamusPoseId.DrainedCrouchingLeftPose);
     // The real route reached `$E9` through controller zero, which had already loaded the
     // pose radius. Controller one/four intentionally do not refresh it, so initialize that
     // pre-existing WRAM state once rather than widening touch collision in production code.

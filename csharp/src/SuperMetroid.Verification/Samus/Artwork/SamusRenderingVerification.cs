@@ -39,10 +39,9 @@ internal static void VerifySamusRenderingSlice()
 
     var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.FacingRightNormalPose,
         AnimationNumber = 0,
         Position = FixedPosition<RoomPixels>.FromWhole(new(0x0480, 0x0086)),
-    };
+    }.InPose(SamusPoseId.FacingRightNormalPose);
     var samusColours = new SamusColours();
     var oamFrame = new SpriteFrameBuffer();
     var oam = new OamBuffer();
@@ -113,7 +112,7 @@ internal static void VerifySamusRenderingSlice()
     // one in retail, and no pose animates by it: the left-facing morph read past its end reaches it (#2048), at native
     // frame 29 its one zero-tick frame, so the death-animation entry point, which shares the interpreter but needs no
     // gameplay movement metadata, reaches the transition on its first tick.
-    var itemTransitionSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.MorphingTransitionLeftPose };
+    var itemTransitionSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()).InPose(SamusPoseId.MorphingTransitionLeftPose);
     SamusPresentation.InitializeAnimation(itemTransitionSamus, itemTransitionSamus.PoseFrameNumbered(29));
     SamusPresentation.AnimateDeathFrame(itemTransitionSamus);
     AssertEqual(SamusPoseId.MorphBallGroundRightPose, itemTransitionSamus.CuePose.Named,
@@ -486,11 +485,10 @@ internal static void VerifySamusArmCannon()
     SamusArmCannonSourceArtwork artwork = coverCharacters.Cannon;
     var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.FacingRightNormalPose,
         AnimationNumber = 0,
         Position = FixedPosition<RoomPixels>.FromWhole(new(0x0480, 0x0086)),
         SelectedHudItem = HudItem.Beam,
-    };
+    }.InPose(SamusPoseId.FacingRightNormalPose);
 
     samus.BindBodyFixture(InstalledFixtures.SamusBody);
     samus.BindArmCannonFixture(artwork);
@@ -704,9 +702,8 @@ internal static void VerifySamusHurtFlashPalette()
     var hurtColors = SamusHurtColorFile.Read(new MemoryStream(SuperMetroid.AssetExtraction.Samus.SamusHurtColorExtractor.Extract(bus)));
     var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.FacingRightNormalPose,
         EquippedItems = (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.GravitySuit), // Both suit bits prove Gravity's native precedence.
-    }.WithHurtFlashCount(1);
+    }.InPose(SamusPoseId.FacingRightNormalPose).WithHurtFlashCount(1);
     // The flash names shades (#1512); the import resolves them from the diagnostic hurt and suit colours.
     var hurtSources = InstalledFixtures.SamusShadeSources with
     {
@@ -799,10 +796,7 @@ internal static void VerifySamusHurtFlashPalette()
     // must select `$33`; using the ROM movement-type byte keeps this a real dispatcher test.
     WritePoseDefinition(bus, SamusPoseNumbers.Number(SamusPoseId.ScrewAttackRightPose),
         [0x08, 0x03, 0, 0, 0, 0, 0x15, 0]);
-    var spinning = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
-    {
-        Pose = SamusPoseId.ScrewAttackRightPose,
-    }.WithHurtFlashCount(39);
+    var spinning = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()).InPose(SamusPoseId.ScrewAttackRightPose).WithHurtFlashCount(39);
     SamusHurtFlash.Update(
         samusColours, spinning, controllerInput: 0);
     AssertEqual(1, spinning.LiquidPhysics.SoundRequests.Count,
@@ -815,10 +809,7 @@ internal static void VerifySamusHurtFlashPalette()
     // queues `$41` only while Shoot is still held, then clears the latch in either case.
     WritePoseDefinition(bus, SamusPoseNumbers.Number(SamusPoseId.FacingRightNormalPose),
         [0x08, 0x00, 0, 0, 0, 0, 0x15, 0]);
-    var charging = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
-    {
-        Pose = SamusPoseId.FacingRightNormalPose,
-    }.WithBeamChargeCount(0x10).WithHurtFlashCount(39);
+    var charging = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()).InPose(SamusPoseId.FacingRightNormalPose).WithBeamChargeCount(0x10).WithHurtFlashCount(39);
     SamusHurtFlash.Update(
         samusColours, charging, GameplayAction.Shoot);
     AssertEqual(0, charging.LiquidPhysics.SoundRequests.Count,

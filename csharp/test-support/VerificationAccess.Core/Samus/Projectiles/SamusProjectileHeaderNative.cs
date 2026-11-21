@@ -83,7 +83,7 @@ internal static class SamusProjectileHeaderNative
         }
         foreach (SamusProjectileFamily family in (SamusProjectileFamily[])[
             SamusProjectileFamily.Missile, SamusProjectileFamily.SuperMissile, SamusProjectileFamily.PowerBomb, SamusProjectileFamily.Bomb])
-            yield return new(NonBeamSelectors + sizeof(ushort) * NonBeamSelectorRow(family), SamusProjectileSelection.NonBeam(family));
+            yield return new(NonBeamSelectors + sizeof(ushort) * NonBeamSelectorRow(family), SamusProjectileFixtureOccupancy.NonBeam(family));
         foreach (SamusBeamEcho echo in Enum.GetValues<SamusBeamEcho>())
             yield return new(EchoSelectors + sizeof(ushort) * (SamusProjectileType.EchoOf(echo).BeamCombination.TableIndex - EchoSelectorLeadingCombinations),
                 SamusProjectileSelection.Echo(echo));

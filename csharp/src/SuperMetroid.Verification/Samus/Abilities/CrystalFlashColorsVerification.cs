@@ -92,14 +92,13 @@ internal static class CrystalFlashColorsVerification
         {
             var started = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
             {
-                Pose = SamusPoseId.FacingRightNormalPose,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
                 Health = 1,
                 MaxHealth = 99,
                 Missiles = 10,
                 SuperMissiles = 10,
                 PowerBombs = 10,
-            };
+            }.InPose(SamusPoseId.FacingRightNormalPose);
             SamusPoseMetadata.RefreshCollisionRadii(started);
             AssertTrue(started.CrystalFlash.TryBegin(started, SamusCrystalFlashState.RequiredInput), "start real Crystal Flash palette owner");
             return started;

@@ -18,7 +18,26 @@ internal static class SamusProjectileFixtureOccupancy
         { Echo: { } echo } => SamusProjectileDamage.Read(SamusProjectileSelection.Echo(echo)),
         { Family: SamusProjectileFamily.Beam } => SamusProjectileDamage.Read(SamusProjectileSelection.BeamShot(type.BeamCombination, type.IsChargedBeam)),
         { Family: SamusProjectileFamily.BeamExplosion or SamusProjectileFamily.MissileExplosion } => SamusProjectileDamageDefinitions.ExplosionDamage,
-        _ => SamusProjectileDamage.Read(SamusProjectileSelection.NonBeam(type.Family)),
+        _ => SamusProjectileDamage.Read(NonBeam(type.Family)),
+    };
+
+    /// <summary>The kind of a missile, Super Missile, bomb or Power Bomb of <paramref name="family"/>.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The family is no missile or bomb family.</exception>
+    internal static SamusProjectileKind NonBeam(SamusProjectileFamily family) => family switch
+    {
+        SamusProjectileFamily.Missile => SamusProjectileSelection.Missile(super: false),
+        SamusProjectileFamily.SuperMissile => SamusProjectileSelection.Missile(super: true),
+        SamusProjectileFamily.Bomb or SamusProjectileFamily.PowerBomb => SamusProjectileSelection.Bomb(BombKindOf(family)),
+        _ => throw new ArgumentOutOfRangeException(nameof(family), family, "The family is no missile or bomb family."),
+    };
+
+    /// <summary>The bomb of <paramref name="family"/>.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The family is no bomb family.</exception>
+    internal static SamusBombKind BombKindOf(SamusProjectileFamily family) => family switch
+    {
+        SamusProjectileFamily.Bomb => SamusBombKind.Bomb,
+        SamusProjectileFamily.PowerBomb => SamusBombKind.PowerBomb,
+        _ => throw new ArgumentOutOfRangeException(nameof(family), family, "The family is no bomb family."),
     };
 
     /// <summary>Fixture occupancy of a shot place.</summary>
@@ -34,6 +53,6 @@ internal static class SamusProjectileFixtureOccupancy
     {
         /// <summary>Takes the place with a bomb of <paramref name="type"/> dealing the damage its family's bomb definition gives.</summary>
         /// <returns>The bomb now holding the place.</returns>
-        internal SamusBombOccupant OccupyAsPlaced(SamusProjectileType type) => bomb.Occupy(type, DamageAsPlaced(type));
+        internal SamusBombOccupant OccupyAsPlaced(SamusProjectileType type) => bomb.Occupy(BombKindOf(type.Family), DamageAsPlaced(type));
     }
 }

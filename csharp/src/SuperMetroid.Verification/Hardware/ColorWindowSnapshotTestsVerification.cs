@@ -33,7 +33,7 @@ internal static class ColorWindowSnapshotTestsVerification
         {
             var pickup = new SamusSuitPickupState();
             AssertTrue(GameplayEffectCapture.CaptureSuitPickup(pickup.Flash) is null, "inactive suit emits no operation");
-            var samus = (new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.FacingRightNormalPose });
+            var samus = (new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()).InPose(SamusPoseId.FacingRightNormalPose));
             pickup.Begin(samus, new(0, 0), kind);
             var phases = new HashSet<SamusSuitPickupStage>();
             for (int tick = 0; tick < 2000 && pickup.IsActive; tick++)

@@ -37,14 +37,13 @@ internal static class MurderBeamVerification
         var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(new RoomTerrainBlock[256], new RoomBlockBehavior[256], new RoomBlockAppearance[256]), RoomLevelData.NothingBeyondGrid(), []);
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = SamusPoseId.FacingLeftNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             CollectedItems = SamusEquipmentFlags.HiJumpBoots,
             EquippedItems = SamusEquipmentFlags.HiJumpBoots,
             CollectedBeams = SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma,
             EquippedBeams = SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer,
             SelectedHudItem = HudItem.Beam,
-        };
+        }.InPose(SamusPoseId.FacingLeftNormalPose);
         var projectiles = CreateProjectileFixture();
         var shared = CreateBombFixture();
 
@@ -183,11 +182,10 @@ internal static class MurderBeamVerification
     {
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             EquippedBeams = SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer,
             SelectedHudItem = HudItem.Beam,
-        };
+        }.InPose(SamusPoseId.FacingRightNormalPose);
         var projectiles = CreateProjectileFixture();
         var shared = CreateBombFixture();
         HoldCharge(level, samus, projectiles, shared);
@@ -205,11 +203,10 @@ internal static class MurderBeamVerification
     {
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = SamusPoseId.FacingLeftNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             EquippedBeams = SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma,
             Missiles = 5,
-        };
+        }.InPose(SamusPoseId.FacingLeftNormalPose);
         var projectiles = CreateProjectileFixture();
         var shared = CreateBombFixture();
         GameplayAction select = GameplayAction.ItemSelect;
@@ -247,10 +244,9 @@ internal static class MurderBeamVerification
     {
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = SamusPoseId.FacingLeftNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             EquippedBeams = SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma,
-        };
+        }.InPose(SamusPoseId.FacingLeftNormalPose);
         AssertThrows<NotSupportedException>(() => CreateProjectileFixture().StepFrame(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), CreateBombFixture(), new SharedGameState(new SharedRandom())),
             "unsafe uncharged Murder Beam does not silently become an ordinary projectile");
     }

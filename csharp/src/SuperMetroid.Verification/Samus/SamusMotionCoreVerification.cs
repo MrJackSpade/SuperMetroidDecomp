@@ -169,10 +169,9 @@ internal static void VerifySamusHorizontalSpeed()
     // those immutable definitions from SamusRunningCadenceDefinitions.
     var dashAnimation = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.MovingRightNormalPose,
         // She runs in a room, whose footsteps her stride's foot contacts raise: a dry one, the Landing Site without its rain.
         Ground = RoomDefinitions.LandingSite.Ground,
-    };
+    }.InPose(SamusPoseId.MovingRightNormalPose);
     SamusPresentation.InitializeAnimation(dashAnimation);
     dashAnimation.HorizontalSpeed.HandleExtraRunSpeed(
         movementType: SamusMovementType.Running,
@@ -486,9 +485,8 @@ internal static void VerifySamusExtraDisplacement()
 
     var standing = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.FacingRightNormalPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(64, 64)),
-    };
+    }.InPose(SamusPoseId.FacingRightNormalPose);
     standing.Kinematics.Radius = new(5, 21);
     standing.Kinematics.ExtraDisplacement = FixedVector<RoomPixels>.FromStoredParts(1, 0x8000, 2, 0x4000);
     GroundedMovementResult positive = SamusGroundedMovement.StepStanding(
@@ -508,9 +506,8 @@ internal static void VerifySamusExtraDisplacement()
 
     var negative = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.FacingRightNormalPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(64, 64)),
-    };
+    }.InPose(SamusPoseId.FacingRightNormalPose);
     negative.Kinematics.Radius = new(5, 21);
     negative.Kinematics.ExtraDisplacement = negative.Kinematics.ExtraDisplacement.WithWholeY(-2).WithFractionY(0x8000);
     GroundedMovementResult upward = SamusGroundedMovement.StepStanding(
@@ -524,9 +521,8 @@ internal static void VerifySamusExtraDisplacement()
 
     var transition = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.NeutralJumpTransitionRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(64, 64)),
-    };
+    }.InPose(SamusPoseId.NeutralJumpTransitionRightPose);
     transition.Kinematics.Radius = new(5, 19);
     transition.Kinematics.ExtraDisplacement = FixedVector<RoomPixels>.FromStoredParts(0xffff, 0x8000, 0, 0x4000); // -0.8000 // +0.4000
     FixedCoordinate transitionXBefore = transition.Kinematics.Position.X;
@@ -544,9 +540,8 @@ internal static void VerifySamusExtraDisplacement()
 
     var rising = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.NeutralJumpRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(64, 64)),
-    };
+    }.InPose(SamusPoseId.NeutralJumpRightPose);
     rising.Kinematics.Radius = new(5, 19);
     rising.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(new UnsignedSixteenSixteen(1, 0), SamusVerticalDirection.Up);
     rising.Kinematics.ExtraDisplacement = rising.Kinematics.ExtraDisplacement.WithWholeY(1).WithFractionY(0x8000);
@@ -564,11 +559,10 @@ internal static void VerifySamusExtraDisplacement()
 
     var bouncingBall = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.MorphBallFallingRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(64, 64)),
         MorphBallBounceState = SamusBallBounceState.FirstRebound,
         KnockbackDirection = SamusKnockbackDirection.None,
-    };
+    }.InPose(SamusPoseId.MorphBallFallingRightPose);
     bouncingBall.Kinematics.Radius = new(5, 7);
     bouncingBall.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(new UnsignedSixteenSixteen(3, 0x4000), SamusVerticalDirection.Up);
     bouncingBall.Kinematics.ExtraDisplacement = bouncingBall.Kinematics.ExtraDisplacement.WithWholeY(-1).WithFractionY(0x8000); // -0.8000

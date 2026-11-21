@@ -33,7 +33,7 @@ internal static class FrontendSessionAccess
 
         /// <summary>Whether the session runs the Ceres departure while its timing is at <paramref name="phase"/>.</summary>
         internal bool IsAt(CeresDeparturePhase phase) =>
-            self.GameState == SuperMetroidGameState.CeresDeparture && self.ceresDeparture.Phase == phase;
+            self.GameState == SuperMetroidGameState.CeresDeparture && self.CeresDeparture.Phase == phase;
 
         /// <summary>Whether the session runs the time-up at <paramref name="step"/>.</summary>
         internal bool IsAt(TimeUpStep step) => self.GameState == SuperMetroidGameState.TimeUp && self.TimeUpStep == step;
@@ -59,7 +59,7 @@ internal static class FrontendSessionAccess
             SuperMetroidGameState.DeathSequence => self.DeathStep == DeathSequenceStep.SamusDying
                 ? self.Runtime?.Player.Samus?.DeathSequence.Phase ?? throw new InvalidOperationException("Samus's death animation runs without her.")
                 : self.DeathStep,
-            SuperMetroidGameState.CeresDeparture => self.ceresDeparture.Phase,
+            SuperMetroidGameState.CeresDeparture => self.CeresDeparture.Phase,
             SuperMetroidGameState.CeresDestruction => self.CeresDestructionOutcome,
             SuperMetroidGameState.TimeUp => self.TimeUpStep,
             SuperMetroidGameState.Ending => self.EndingStep,

@@ -24,9 +24,8 @@ internal static class CompactWalkOffCollisionVerification
             // that body, so F404 must shift its center and clamp its fractional word.
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
             {
-                Pose = left ? SamusPoseId.CrouchingLeftPose : SamusPoseId.CrouchingRightPose,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(80, 240)),
-            };
+            }.InPose(left ? SamusPoseId.CrouchingLeftPose : SamusPoseId.CrouchingRightPose);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             SamusPresentation.InitializeAnimation(samus);
             samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0x6400);

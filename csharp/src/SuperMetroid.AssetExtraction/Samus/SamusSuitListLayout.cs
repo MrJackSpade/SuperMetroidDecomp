@@ -13,10 +13,11 @@ public static class SamusSuitListLayout
     /// <summary>The suits in the order their colour lists follow one another.</summary>
     public static ImmutableArray<SamusSuit> Order { get; } = [SamusSuit.Power, SamusSuit.Varia, SamusSuit.Gravity];
 
-    /// <summary>The suit whose entries lie at <paramref name="place"/> among the per-suit lists.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="place"/> is past the last suit's entries.</exception>
-    public static SamusSuit AtPlace(int place) =>
-        (uint)place < (uint)Order.Length
-            ? Order[place]
-            : throw new ArgumentOutOfRangeException(nameof(place), place, "No suit's entries lie there.");
+    /// <summary>
+    /// Each suit's entries of a per-suit list, keyed by the suit's name for the installed document (#2565): the entries the
+    /// list holds at the suit's place in <see cref="Order"/>.
+    /// </summary>
+    /// <param name="entries">The list's entries at a suit's place.</param>
+    internal static Dictionary<string, T> BySuit<T>(Func<int, T> entries) =>
+        Order.Select((suit, place) => KeyValuePair.Create(SamusSuitKeys.Installed.Of(suit), entries(place))).ToDictionary(StringComparer.Ordinal);
 }

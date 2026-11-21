@@ -24,9 +24,6 @@ internal sealed class RoomEarthquake
     /// </summary>
     private Run _run = new Run.ForLength(default);
 
-    /// <summary>Whether the room shakes continuously (<see cref="KeepShaking"/>).</summary>
-    private bool IsContinuous => _run is Run.Continuous;
-
     /// <summary>
     /// The shake the earthquake shows while it runs: the one its last producer gave it, or
     /// <see cref="RoomEarthquakeDefinitions.UnshakenRoomShake"/> in a room no producer has shaken yet, which the Zebes

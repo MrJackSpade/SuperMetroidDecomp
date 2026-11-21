@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>One projectile in a simultaneous death-explosion batch.</summary>
@@ -6,5 +7,5 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <param name="SoundEffect">The sound it requests.</param>
 public readonly record struct MotherBrainDeathExplosionRequest(
     Offset16<RoomPixels> Offset,
-    MotherBrainDeathExplosionAnimation Animation,
+    DustExplosionAnimation Animation,
     SoundEffectId SoundEffect);

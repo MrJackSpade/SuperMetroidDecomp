@@ -13,9 +13,9 @@ internal static class PhantoonBg2FrameDefinitions
     /// <summary>
     /// Schema version of the extracted BG2 frame artwork file; 3 names each frame for the animation that first shows it
     /// (#1623), 4 holds each picture once (#2249): the closed eye and the open eye looking ahead, which the cartridge stores
-    /// twice each, are one frame each.
+    /// twice each, are one frame each, and 5 holds his body once (#2574): the cartridge stores it once for each hit area.
     /// </summary>
-    internal const int Version = 4;
+    internal const int Version = 5;
     /// <summary>Installed filename for Phantoon's BG2 frame artwork.</summary>
     internal const string FileName = "phantoon-bg2-frames.json";
     /// <summary>Phantoon's tentacle frames have at most two BG2 components.</summary>
@@ -24,9 +24,7 @@ internal static class PhantoonBg2FrameDefinitions
     /// <summary>Enumerates the selected native frames in instruction-program order.</summary>
     internal static ImmutableArray<EnemyFrameName> Frames { get; } =
     [
-        new(EnemyFrameId.PhantoonInvulnerableBody, "body_invulnerable"),
-        new(EnemyFrameId.PhantoonFullHitboxBody, "body_full_hitbox"),
-        new(EnemyFrameId.PhantoonEyeHitboxBody, "body_eye_hitbox_only"),
+        new(EnemyFrameId.PhantoonBody, "body"),
         new(EnemyFrameId.PhantoonEyeClosed, "eye_closed"),
         new(EnemyFrameId.PhantoonEyeHalfOpen, "eye_half_open"),
         new(EnemyFrameId.PhantoonEyeballCentered, "eyeball_center"),

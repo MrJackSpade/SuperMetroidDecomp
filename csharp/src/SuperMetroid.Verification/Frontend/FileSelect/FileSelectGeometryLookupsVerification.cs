@@ -64,7 +64,7 @@ internal static class FileSelectGeometryLookupsVerification
     /// <summary>Compares three helmet anchors with native immediate operands and extracted artwork positions.</summary>
     private static void VerifyFileSelectHelmetY(ISnesAddressSpace rom, FileSelectLayoutDocument document)
     {
-        AssertEqual(3, document.HelmetAnchors.Length, "extracted helmet anchor count");
+        AssertEqual(3, document.HelmetAnchors.Count, "extracted helmet anchor count");
         for (int slot = 0; slot < 3; slot++)
         {
             int instruction = 0x81a027 + slot * 6;
@@ -72,7 +72,7 @@ internal static class FileSelectGeometryLookupsVerification
             AssertEqual((byte)0x8d, FileSelectHelmetYRomByte(rom, instruction + 3), "helmet STA absolute opcode");
             ushort expected = ReadVerificationWord(rom, instruction + 1);
             AssertEqual(expected, FileSelectCursorPositions.HelmetY(FileSelectCursorPositions.Slots[slot]), $"helmet Y {slot}");
-            AssertEqual(expected, document.HelmetAnchors[slot].Y, $"extracted helmet Y {slot}");
+            AssertEqual(expected, document.HelmetAnchors[FileSelectCursorPositions.Slots[slot].ToString()].Y, $"extracted helmet Y {slot}");
         }
         Suite(nameof(VerifyFileSelectGeometryBounds), () => VerifyFileSelectGeometryBounds(FileSelectCursorPositions.HelmetY, [(SuperMetroid.Core.Saves.SaveSlot)99]));
     }

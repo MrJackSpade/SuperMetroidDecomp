@@ -115,10 +115,9 @@ internal sealed class KraidProjectiles
         private static IdentityTable<KraidRockCue, Action<EnemyProjectile>> RunCueForKraidRockCue => field ??= new(new Dictionary<KraidRockCue, Action<EnemyProjectile>>
         {
             [KraidRockCue.StopFlyingFromNextPass] = static projectile => projectile.HoldStill(),
-            [KraidRockCue.Delete] = static projectile => projectile.Delete(),
         });
 
-        /// <summary>Carries out a rock animation's cue: stopping its flight from the next pass, or deletion.</summary>
+        /// <summary>Carries out a rock animation's cue: stopping its flight from the next pass.</summary>
         public void RunCue(EnemyProjectileCueContext context, KraidRockCue cue)
         {
             EnemyProjectile projectile = context.Projectile;

@@ -38,7 +38,7 @@ internal static class PhantoonBodyPublicationVerification
         RoomEnemyPlace body = runtime.Enemies.Places.InUpdateOrder[0];
 
         // The body frame draws on his body layer from his installed body sheet (#1466).
-        EnemyFrameId frame = PhantoonBg2FrameDefinitions.Frames[1].Frame;
+        EnemyFrameId frame = EnemyFrameId.PhantoonBody;
         SuperMetroid.Core.PrivateState.Set(body.AnimationClock, nameof(EnemyAnimationClock.ShowsNewFrame), true);
         runtime.Enemies.AnimationPlayer.DrawBossBodyFrame(body, body.HeldOccupant(), frame);
         // The retail runtime draws Phantoon's body from the installation's body sheet, composed from these frames.

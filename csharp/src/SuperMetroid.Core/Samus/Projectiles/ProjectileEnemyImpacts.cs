@@ -36,7 +36,7 @@ internal sealed class ProjectileEnemyImpacts
     /// </summary>
     public void TouchEnemyWithoutImpact(SamusProjectileOccupant held, bool markCollisionState)
     {
-        SamusProjectile shot = Ensure.NotNull(held).Projectile;
+        _ = Ensure.NotNull(held).Projectile;
         if (!held.HasEnemyCollisionPayload)
             return;
 

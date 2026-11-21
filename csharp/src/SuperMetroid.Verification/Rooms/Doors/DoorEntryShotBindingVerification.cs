@@ -24,11 +24,10 @@ internal static class DoorEntryShotBindingVerification
     /// </summary>
     internal static void VerifyDoorEntryShotBinding()
     {
-        ControllerBindings lowc = ControllerBindings.Default with
-        {
-            Shoot = ControllerButton.Y, ItemSelect = ControllerButton.X, ItemCancel = ControllerButton.Select,
-            AimUp = ControllerButton.L, AimDown = ControllerButton.R,
-        };
+        ControllerBindings lowc = ControllerBindings.Default
+            .With(ControllerAction.Shoot, ControllerButton.Y).With(ControllerAction.ItemSelect, ControllerButton.X)
+            .With(ControllerAction.ItemCancel, ControllerButton.Select)
+            .With(ControllerAction.AimUp, ControllerButton.L).With(ControllerAction.AimDown, ControllerButton.R);
         foreach ((ControllerButton held, bool cancels) in new[] { new VerifyDoorEntryShotBindingCase(ControllerButton.X, true), new VerifyDoorEntryShotBindingCase(ControllerButton.Y, false) })
         {
             var random = new SharedRandom();

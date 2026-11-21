@@ -7,13 +7,9 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// <param name="segment">The animation to play.</param>
 /// <param name="owner">The family's cue owner, which carries out the events the animation raises (#2571).</param>
 internal sealed class CrocomireProjectileAnimation(IEnemyProjectileCues<CrocomireProjectileCue> owner, CrocomireProjectileSegment segment)
-    : EnemyProjectileFrameAnimation<CrocomireProjectileSegment, CrocomireProjectileCue>(CrocomireAnimations.ProjectileStartingWith(segment), EnemyProjectileCueRunner<CrocomireProjectileSegment, CrocomireProjectileCue>.By(owner))
+    : EnemyProjectileFrameAnimation<CrocomireProjectileSegment, CrocomireProjectileCue>(segment, CrocomireAnimations.ProjectileStartingWith(segment), EnemyProjectileCueRunner<CrocomireProjectileSegment, CrocomireProjectileCue>.By(owner))
 {
     /// <inheritdoc/>
     private protected override IUnpausedAnimationPlay<CrocomireProjectileSegment, EnemyProjectileFrameId, CrocomireProjectileCue> Segments =>
         CrocomireAnimations.ProjectileSegments;
-
-    /// <inheritdoc/>
-    private protected override IEnumerable<KeyValuePair<CrocomireProjectileSegment, Animation<CrocomireProjectileSegment>>> StartingAt =>
-        CrocomireAnimations.ProjectileStartingAt;
 }

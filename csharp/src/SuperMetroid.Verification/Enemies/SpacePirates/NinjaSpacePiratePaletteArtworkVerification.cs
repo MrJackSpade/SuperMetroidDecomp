@@ -36,10 +36,9 @@ internal static class NinjaSpacePiratePaletteArtworkVerification
         const ushort nativeX = 0x0102;
         (RoomEnemyPlace stockPlace, AnimationPlayback<NinjaSpacePirateSegment> stockProgram) = Initialize(stock);
         SpriteSheetShadeDocument stockShade = GoldWallShade(stock);
-        AssertTrue(stockShade.Inks.Length > 0, "The ninja's sheet installs its gold wall shade over the inks it paints");
-        for (int index = 0; index < stockShade.Inks.Length; index++)
-            AssertEqual(native[stockShade.Inks[index] % native.Length], stockShade.Colours[index],
-                $"Installed ninja gold wall shade ink {stockShade.Inks[index]} shows the gold Pirate's native colour");
+        AssertTrue(stockShade.InkColours.Count > 0, "The ninja's sheet installs its gold wall shade over the inks it paints");
+        foreach ((int ink, SuperMetroid.Core.Assets.RgbColor colour) in stockShade.InkColours)
+            AssertEqual(native[ink % native.Length], colour, $"Installed ninja gold wall shade ink {ink} shows the gold Pirate's native colour");
         AssertEqual(nativeX, stockPlace.Position.X.Whole,
             "Installing ninja palette does not change initial post placement");
         // Facing left, the ninja starts at the native initial list $B2:F2DA.

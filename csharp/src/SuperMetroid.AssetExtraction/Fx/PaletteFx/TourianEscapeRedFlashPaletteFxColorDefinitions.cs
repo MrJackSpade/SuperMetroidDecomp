@@ -6,21 +6,12 @@ namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 public static class TourianEscapeRedFlashPaletteFxColorDefinitions
 {
 
-    /// <summary>Shutter and background loops with distinct colour starts, frame durations, and color extents.</summary>
-    private static readonly TourianEscapeRedFlashPaletteFxColorDefinition[] Definitions =
-    [
-        new()
-        {
-            Owner = TourianEscapeRedFlashPaletteOwner.Shutter,
-            ColorFrames = PaletteFxColorFrames.Of(ColourEffectId.TourianShutterRedFlashing, 6),
-        },
-        new()
-        {
-            Owner = TourianEscapeRedFlashPaletteOwner.Background,
-            ColorFrames = PaletteFxColorFrames.Of(ColourEffectId.TourianBackgroundRedFlashing, 4),
-        },
-    ];
+    /// <summary>The shutters' red flashing.</summary>
+    internal static TourianEscapeRedFlashPaletteFxColorDefinition TourianShutterRedFlashing { get; } = new(ColourEffectId.TourianShutterRedFlashing, 6);
 
-    /// <summary>The shutter and background red-flash programs in definition order.</summary>
-    public static IReadOnlyList<TourianEscapeRedFlashPaletteFxColorDefinition> All { get; } = Array.AsReadOnly(Definitions);
+    /// <summary>The background's red flashing.</summary>
+    internal static TourianEscapeRedFlashPaletteFxColorDefinition TourianBackgroundRedFlashing { get; } = new(ColourEffectId.TourianBackgroundRedFlashing, 4);
+
+    /// <summary>The shutter and background red-flash programs in definition order, with distinct colour starts, frame durations, and color extents.</summary>
+    public static IReadOnlyList<TourianEscapeRedFlashPaletteFxColorDefinition> All { get; } = [TourianShutterRedFlashing, TourianBackgroundRedFlashing];
 }

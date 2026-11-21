@@ -8,11 +8,8 @@ namespace SuperMetroid.Core.Enemies.EyeDoor;
 /// <param name="owner">The family's cue owner, which carries out the events the animation raises (#2571).</param>
 /// <param name="segment">Where the animation starts.</param>
 internal sealed class EyeDoorProjectileAnimation(IEnemyProjectileCues<EyeDoorProjectileCue> owner, EyeDoorProjectileSegment segment)
-    : EnemyProjectileFrameAnimation<EyeDoorProjectileSegment, EyeDoorProjectileCue>(EyeDoorProjectileAnimations.StartingWith(segment), EnemyProjectileCueRunner<EyeDoorProjectileSegment, EyeDoorProjectileCue>.By(owner))
+    : EnemyProjectileFrameAnimation<EyeDoorProjectileSegment, EyeDoorProjectileCue>(segment, EyeDoorProjectileAnimations.StartingAt[segment], EnemyProjectileCueRunner<EyeDoorProjectileSegment, EyeDoorProjectileCue>.By(owner))
 {
     /// <inheritdoc/>
     private protected override IUnpausedAnimationPlay<EyeDoorProjectileSegment, EnemyProjectileFrameId, EyeDoorProjectileCue> Segments => EyeDoorProjectileAnimations.Segments;
-
-    /// <inheritdoc/>
-    private protected override IEnumerable<KeyValuePair<EyeDoorProjectileSegment, Animation<EyeDoorProjectileSegment>>> StartingAt => EyeDoorProjectileAnimations.StartingAt;
 }

@@ -89,7 +89,7 @@ internal sealed class KraidColours : IGameplayShadingSource
         // His body's shades show his eyes in one set of colours; the glow's colours are shown in their place.
         ImmutableArray<RgbColor> eyes = EyeGlow.Shown;
         if (!eyes.SequenceEqual(shadedEyes))
-            frame.Affect(GameplayPictures.BossBody, new ColourSubstitution([.. shadedEyes], [.. eyes]));
+            frame.Affect(GameplayPictures.BossBody, new ColourSubstitution(EyeGlow.ShownInPlaceOf(shadedEyes)));
     }
 
     /// <summary>What his body shows (#2560), each case with the shade his parts show.</summary>
@@ -100,8 +100,15 @@ internal sealed class KraidColours : IGameplayShadingSource
     private sealed record RoomColours() : BodyShown((PictureShade?)null);
 
     /// <summary>A health band's or the hurt flash's shade, on his body and his parts.</summary>
-    /// <param name="Shade">The shade.</param>
-    private sealed record BandShade(PictureShade Shade) : BodyShown(Shade);
+    private sealed record BandShade : BodyShown
+    {
+        /// <summary>Shows <paramref name="shade"/> on his body and his parts.</summary>
+        /// <param name="shade">The band's or hurt flash's shade.</param>
+        public BandShade(PictureShade shade)
+            : base(shade)
+        {
+        }
+    }
 
     /// <summary>His death colours on his body; his parts keep the last shade shown.</summary>
     /// <param name="PartsShade">The shade his parts show.</param>

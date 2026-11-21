@@ -2,6 +2,8 @@ using System.Collections.Frozen;
 using SuperMetroid.Core.Progression;
 using F = SuperMetroid.Core.Samus.Projectiles.SamusProjectileFrameId;
 using L = SuperMetroid.Core.Samus.Projectiles.ProjectileTrailPlacementList;
+using T = SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFamily;
+using C = SuperMetroid.Core.Samus.Projectiles.ProjectileTrailCourse;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
@@ -618,26 +620,26 @@ internal static class ProjectileTrailPlacementDefinitions
     /// list, and a list of its own for downward travel.
     /// </summary>
     internal static readonly SamusProjectileDirectionMap<ProjectileTrailPlacementList> SpazerAttackTrailingPairLists =
-        new(L.SpazerAttackTrailingPair, L.SpazerAttackTrailingPair, L.SpazerAttackTrailingPair, L.SpazerAttackTrailingPair,
-            L.SpazerAttackTrailingPairDown, L.SpazerAttackTrailingPairDown, L.SpazerAttackTrailingPair, L.SpazerAttackTrailingPair,
-            L.SpazerAttackTrailingPair, L.SpazerAttackTrailingPair);
+        new(new L(T.SpazerAttackTrailingPair, C.AnyDirection), new L(T.SpazerAttackTrailingPair, C.AnyDirection), new L(T.SpazerAttackTrailingPair, C.AnyDirection), new L(T.SpazerAttackTrailingPair, C.AnyDirection),
+            new L(T.SpazerAttackTrailingPair, C.Down), new L(T.SpazerAttackTrailingPair, C.Down), new L(T.SpazerAttackTrailingPair, C.AnyDirection), new L(T.SpazerAttackTrailingPair, C.AnyDirection),
+            new L(T.SpazerAttackTrailingPair, C.AnyDirection), new L(T.SpazerAttackTrailingPair, C.AnyDirection));
 
     /// <summary>The list each family gives a shot in each direction it is fired in.</summary>
     internal static readonly FrozenDictionary<ProjectileTrailFamily, SamusProjectileDirectionMap<ProjectileTrailPlacementList>> Lists =
         new Dictionary<ProjectileTrailFamily, SamusProjectileDirectionMap<ProjectileTrailPlacementList>>
         {
-            [ProjectileTrailFamily.UnchargedDefault] = new(L.UnchargedDefault),
-            [ProjectileTrailFamily.UnchargedWave] = new(L.UnchargedWaveVertical, L.UnchargedWaveRisingDiagonal, L.UnchargedWaveHorizontal, L.UnchargedWaveFallingDiagonal, L.UnchargedWaveVertical, L.UnchargedWaveVertical, L.UnchargedWaveRisingDiagonal, L.UnchargedWaveHorizontal, L.UnchargedWaveFallingDiagonal, L.UnchargedWaveVertical),
-            [ProjectileTrailFamily.UnchargedIceSpazer] = new(L.UnchargedIceSpazerUp, L.UnchargedIceSpazerUpRight, L.UnchargedIceSpazerRight, L.UnchargedIceSpazerDownRight, L.UnchargedIceSpazerDown, L.UnchargedIceSpazerDown, L.UnchargedIceSpazerDownLeft, L.UnchargedIceSpazerLeft, L.UnchargedIceSpazerUpLeft, L.UnchargedIceSpazerUp),
-            [ProjectileTrailFamily.UnchargedWaveIceSpazer] = new(L.UnchargedWaveIceSpazerUp, L.UnchargedWaveIceSpazerUpRight, L.UnchargedWaveIceSpazerRight, L.UnchargedWaveIceSpazerDownRight, L.UnchargedWaveIceSpazerDown, L.UnchargedWaveIceSpazerDown, L.UnchargedWaveIceSpazerDownLeft, L.UnchargedWaveIceSpazerLeft, L.UnchargedWaveIceSpazerUpLeft, L.UnchargedWaveIceSpazerUp),
-            [ProjectileTrailFamily.UnchargedIcePlasma] = new(L.UnchargedIcePlasmaUp, L.UnchargedIcePlasmaUpRight, L.UnchargedIcePlasmaRight, L.UnchargedIcePlasmaDownRight, L.UnchargedIcePlasmaDown, L.UnchargedIcePlasmaDown, L.UnchargedIcePlasmaDownLeft, L.UnchargedIcePlasmaLeft, L.UnchargedIcePlasmaUpLeft, L.UnchargedIcePlasmaUp),
-            [ProjectileTrailFamily.UnchargedWaveIcePlasma] = new(L.UnchargedWaveIcePlasmaUp, L.UnchargedWaveIcePlasmaUpRight, L.UnchargedWaveIcePlasmaRight, L.UnchargedWaveIcePlasmaDownRight, L.UnchargedWaveIcePlasmaDown, L.UnchargedWaveIcePlasmaDown, L.UnchargedWaveIcePlasmaDownLeft, L.UnchargedWaveIcePlasmaLeft, L.UnchargedWaveIcePlasmaUpLeft, L.UnchargedWaveIcePlasmaUp),
-            [ProjectileTrailFamily.ChargedDefault] = new(L.ChargedDefault),
-            [ProjectileTrailFamily.ChargedWave] = new(L.ChargedWaveVertical, L.ChargedWaveRisingDiagonal, L.ChargedWaveHorizontal, L.ChargedWaveFallingDiagonal, L.ChargedWaveVertical, L.ChargedWaveVertical, L.ChargedWaveRisingDiagonal, L.ChargedWaveHorizontal, L.ChargedWaveFallingDiagonal, L.ChargedWaveVertical),
-            [ProjectileTrailFamily.ChargedIceSpazer] = new(L.ChargedIceSpazerUp, L.ChargedIceSpazerUpRight, L.ChargedIceSpazerRight, L.ChargedIceSpazerDownRight, L.ChargedIceSpazerDown, L.ChargedIceSpazerDown, L.ChargedIceSpazerDownLeft, L.ChargedIceSpazerLeft, L.ChargedIceSpazerUpLeft, L.ChargedIceSpazerUp),
-            [ProjectileTrailFamily.ChargedWaveIceSpazer] = new(L.ChargedWaveIceSpazerUp, L.ChargedWaveIceSpazerUpRight, L.ChargedWaveIceSpazerRight, L.ChargedWaveIceSpazerDownRight, L.ChargedWaveIceSpazerDown, L.ChargedWaveIceSpazerDown, L.ChargedWaveIceSpazerDownLeft, L.ChargedWaveIceSpazerLeft, L.ChargedWaveIceSpazerUpLeft, L.ChargedWaveIceSpazerUp),
-            [ProjectileTrailFamily.ChargedIcePlasma] = new(L.ChargedIcePlasmaUp, L.ChargedIcePlasmaUpRight, L.ChargedIcePlasmaRight, L.ChargedIcePlasmaDownRight, L.ChargedIcePlasmaDown, L.ChargedIcePlasmaDown, L.ChargedIcePlasmaDownLeft, L.ChargedIcePlasmaLeft, L.ChargedIcePlasmaUpLeft, L.ChargedIcePlasmaUp),
-            [ProjectileTrailFamily.ChargedWaveIcePlasma] = new(L.ChargedWaveIcePlasmaUp, L.ChargedWaveIcePlasmaUpRight, L.ChargedWaveIcePlasmaRight, L.ChargedWaveIcePlasmaDownRight, L.ChargedWaveIcePlasmaDown, L.ChargedWaveIcePlasmaDown, L.ChargedWaveIcePlasmaDownLeft, L.ChargedWaveIcePlasmaLeft, L.ChargedWaveIcePlasmaUpLeft, L.ChargedWaveIcePlasmaUp),
+            [ProjectileTrailFamily.UnchargedDefault] = new(new L(T.UnchargedDefault, C.AnyDirection)),
+            [ProjectileTrailFamily.UnchargedWave] = new(new L(T.UnchargedWave, C.Vertical), new L(T.UnchargedWave, C.RisingDiagonal), new L(T.UnchargedWave, C.Horizontal), new L(T.UnchargedWave, C.FallingDiagonal), new L(T.UnchargedWave, C.Vertical), new L(T.UnchargedWave, C.Vertical), new L(T.UnchargedWave, C.RisingDiagonal), new L(T.UnchargedWave, C.Horizontal), new L(T.UnchargedWave, C.FallingDiagonal), new L(T.UnchargedWave, C.Vertical)),
+            [ProjectileTrailFamily.UnchargedIceSpazer] = new(new L(T.UnchargedIceSpazer, C.Up), new L(T.UnchargedIceSpazer, C.UpRight), new L(T.UnchargedIceSpazer, C.Right), new L(T.UnchargedIceSpazer, C.DownRight), new L(T.UnchargedIceSpazer, C.Down), new L(T.UnchargedIceSpazer, C.Down), new L(T.UnchargedIceSpazer, C.DownLeft), new L(T.UnchargedIceSpazer, C.Left), new L(T.UnchargedIceSpazer, C.UpLeft), new L(T.UnchargedIceSpazer, C.Up)),
+            [ProjectileTrailFamily.UnchargedWaveIceSpazer] = new(new L(T.UnchargedWaveIceSpazer, C.Up), new L(T.UnchargedWaveIceSpazer, C.UpRight), new L(T.UnchargedWaveIceSpazer, C.Right), new L(T.UnchargedWaveIceSpazer, C.DownRight), new L(T.UnchargedWaveIceSpazer, C.Down), new L(T.UnchargedWaveIceSpazer, C.Down), new L(T.UnchargedWaveIceSpazer, C.DownLeft), new L(T.UnchargedWaveIceSpazer, C.Left), new L(T.UnchargedWaveIceSpazer, C.UpLeft), new L(T.UnchargedWaveIceSpazer, C.Up)),
+            [ProjectileTrailFamily.UnchargedIcePlasma] = new(new L(T.UnchargedIcePlasma, C.Up), new L(T.UnchargedIcePlasma, C.UpRight), new L(T.UnchargedIcePlasma, C.Right), new L(T.UnchargedIcePlasma, C.DownRight), new L(T.UnchargedIcePlasma, C.Down), new L(T.UnchargedIcePlasma, C.Down), new L(T.UnchargedIcePlasma, C.DownLeft), new L(T.UnchargedIcePlasma, C.Left), new L(T.UnchargedIcePlasma, C.UpLeft), new L(T.UnchargedIcePlasma, C.Up)),
+            [ProjectileTrailFamily.UnchargedWaveIcePlasma] = new(new L(T.UnchargedWaveIcePlasma, C.Up), new L(T.UnchargedWaveIcePlasma, C.UpRight), new L(T.UnchargedWaveIcePlasma, C.Right), new L(T.UnchargedWaveIcePlasma, C.DownRight), new L(T.UnchargedWaveIcePlasma, C.Down), new L(T.UnchargedWaveIcePlasma, C.Down), new L(T.UnchargedWaveIcePlasma, C.DownLeft), new L(T.UnchargedWaveIcePlasma, C.Left), new L(T.UnchargedWaveIcePlasma, C.UpLeft), new L(T.UnchargedWaveIcePlasma, C.Up)),
+            [ProjectileTrailFamily.ChargedDefault] = new(new L(T.ChargedDefault, C.AnyDirection)),
+            [ProjectileTrailFamily.ChargedWave] = new(new L(T.ChargedWave, C.Vertical), new L(T.ChargedWave, C.RisingDiagonal), new L(T.ChargedWave, C.Horizontal), new L(T.ChargedWave, C.FallingDiagonal), new L(T.ChargedWave, C.Vertical), new L(T.ChargedWave, C.Vertical), new L(T.ChargedWave, C.RisingDiagonal), new L(T.ChargedWave, C.Horizontal), new L(T.ChargedWave, C.FallingDiagonal), new L(T.ChargedWave, C.Vertical)),
+            [ProjectileTrailFamily.ChargedIceSpazer] = new(new L(T.ChargedIceSpazer, C.Up), new L(T.ChargedIceSpazer, C.UpRight), new L(T.ChargedIceSpazer, C.Right), new L(T.ChargedIceSpazer, C.DownRight), new L(T.ChargedIceSpazer, C.Down), new L(T.ChargedIceSpazer, C.Down), new L(T.ChargedIceSpazer, C.DownLeft), new L(T.ChargedIceSpazer, C.Left), new L(T.ChargedIceSpazer, C.UpLeft), new L(T.ChargedIceSpazer, C.Up)),
+            [ProjectileTrailFamily.ChargedWaveIceSpazer] = new(new L(T.ChargedWaveIceSpazer, C.Up), new L(T.ChargedWaveIceSpazer, C.UpRight), new L(T.ChargedWaveIceSpazer, C.Right), new L(T.ChargedWaveIceSpazer, C.DownRight), new L(T.ChargedWaveIceSpazer, C.Down), new L(T.ChargedWaveIceSpazer, C.Down), new L(T.ChargedWaveIceSpazer, C.DownLeft), new L(T.ChargedWaveIceSpazer, C.Left), new L(T.ChargedWaveIceSpazer, C.UpLeft), new L(T.ChargedWaveIceSpazer, C.Up)),
+            [ProjectileTrailFamily.ChargedIcePlasma] = new(new L(T.ChargedIcePlasma, C.Up), new L(T.ChargedIcePlasma, C.UpRight), new L(T.ChargedIcePlasma, C.Right), new L(T.ChargedIcePlasma, C.DownRight), new L(T.ChargedIcePlasma, C.Down), new L(T.ChargedIcePlasma, C.Down), new L(T.ChargedIcePlasma, C.DownLeft), new L(T.ChargedIcePlasma, C.Left), new L(T.ChargedIcePlasma, C.UpLeft), new L(T.ChargedIcePlasma, C.Up)),
+            [ProjectileTrailFamily.ChargedWaveIcePlasma] = new(new L(T.ChargedWaveIcePlasma, C.Up), new L(T.ChargedWaveIcePlasma, C.UpRight), new L(T.ChargedWaveIcePlasma, C.Right), new L(T.ChargedWaveIcePlasma, C.DownRight), new L(T.ChargedWaveIcePlasma, C.Down), new L(T.ChargedWaveIcePlasma, C.Down), new L(T.ChargedWaveIcePlasma, C.DownLeft), new L(T.ChargedWaveIcePlasma, C.Left), new L(T.ChargedWaveIcePlasma, C.UpLeft), new L(T.ChargedWaveIcePlasma, C.Up)),
         }.ToFrozenDictionary();
 
     /// <summary>
@@ -648,7 +650,7 @@ internal static class ProjectileTrailPlacementDefinitions
     internal static readonly FrozenDictionary<ProjectileTrailPlacementList, FrozenDictionary<SamusProjectileFrameId, ProjectileTrailPlacement>> PlacementsByList =
         new Dictionary<ProjectileTrailPlacementList, FrozenDictionary<SamusProjectileFrameId, ProjectileTrailPlacement>>
         {
-            [L.UnchargedDefault] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.UnchargedDefault, C.AnyDirection)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot,
                 [
@@ -694,7 +696,7 @@ internal static class ProjectileTrailPlacementDefinitions
                     F.SuperMissileUpLeft, F.SuperMissileLinkHidden,
                 ]),
             ]),
-            [L.UnchargedWaveVertical] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.UnchargedWave, C.Vertical)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, WaveCentreFrames),
                 new(new(new(8, 0), new(0, 0)), WaveNearLobeFrames),
@@ -706,7 +708,7 @@ internal static class ProjectileTrailPlacementDefinitions
                 new(new(new(-16, 0), new(0, 0)), WaveFarLobeOppositeFrames),
                 new(new(new(-20, 0), new(0, 0)), WavePeakLobeOppositeFrames),
             ]),
-            [L.UnchargedWaveHorizontal] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.UnchargedWave, C.Horizontal)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, WaveCentreFrames),
                 new(new(new(0, -8), new(0, 0)), WaveNearLobeFrames),
@@ -718,7 +720,7 @@ internal static class ProjectileTrailPlacementDefinitions
                 new(new(new(0, 16), new(0, 0)), WaveFarLobeOppositeFrames),
                 new(new(new(0, 20), new(0, 0)), WavePeakLobeOppositeFrames),
             ]),
-            [L.UnchargedWaveRisingDiagonal] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.UnchargedWave, C.RisingDiagonal)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, WaveCentreFrames),
                 new(new(new(-4, -4), new(0, 0)), WaveNearLobeFrames),
@@ -730,7 +732,7 @@ internal static class ProjectileTrailPlacementDefinitions
                 new(new(new(10, 10), new(0, 0)), WaveFarLobeOppositeFrames),
                 new(new(new(12, 12), new(0, 0)), WavePeakLobeOppositeFrames),
             ]),
-            [L.UnchargedWaveFallingDiagonal] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.UnchargedWave, C.FallingDiagonal)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, WaveCentreFrames),
                 new(new(new(4, -4), new(0, 0)), WaveNearLobeFrames),
@@ -742,55 +744,55 @@ internal static class ProjectileTrailPlacementDefinitions
                 new(new(new(-10, 10), new(0, 0)), WaveFarLobeOppositeFrames),
                 new(new(new(-12, 12), new(0, 0)), WavePeakLobeOppositeFrames),
             ]),
-            [L.UnchargedIceSpazerUp] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.UnchargedIceSpazer, C.Up)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, SpazerSeedFrames),
                 new(new(new(-8, 8), new(8, 8)), SpazerPartingFrames),
                 new(new(new(-16, 8), new(16, 8)), SpazerSpreadFrames),
             ]),
-            [L.UnchargedIceSpazerDown] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.UnchargedIceSpazer, C.Down)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, SpazerSeedFrames),
                 new(new(new(-8, -8), new(8, -8)), SpazerPartingFrames),
                 new(new(new(-16, -8), new(16, -8)), SpazerSpreadFrames),
             ]),
-            [L.UnchargedIceSpazerUpRight] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.UnchargedIceSpazer, C.UpRight)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(new(new(-8, 8), new(-8, 8)), SpazerSeedFrames),
                 new(new(new(-14, 2), new(-2, 14)), SpazerPartingFrames),
                 new(new(new(-20, -4), new(2, 20)), SpazerSpreadFrames),
             ]),
-            [L.UnchargedIceSpazerRight] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.UnchargedIceSpazer, C.Right)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(new(new(-8, 0), new(-8, 0)), SpazerSeedFrames),
                 new(new(new(-8, -8), new(-8, 8)), SpazerPartingFrames),
                 new(new(new(-8, -16), new(-8, 16)), SpazerSpreadFrames),
             ]),
-            [L.UnchargedIceSpazerDownRight] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.UnchargedIceSpazer, C.DownRight)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(new(new(-8, -8), new(-8, -8)), SpazerSeedFrames),
                 new(new(new(-2, -16), new(-16, -2)), SpazerPartingFrames),
                 new(new(new(4, -20), new(-20, 4)), SpazerSpreadFrames),
             ]),
-            [L.UnchargedIceSpazerDownLeft] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.UnchargedIceSpazer, C.DownLeft)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(new(new(8, -8), new(8, -8)), SpazerSeedFrames),
                 new(new(new(14, -2), new(2, -14)), SpazerPartingFrames),
                 new(new(new(20, 4), new(-2, -20)), SpazerSpreadFrames),
             ]),
-            [L.UnchargedIceSpazerLeft] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.UnchargedIceSpazer, C.Left)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(new(new(8, 0), new(8, 0)), SpazerSeedFrames),
                 new(new(new(8, 8), new(8, -8)), SpazerPartingFrames),
                 new(new(new(8, 16), new(8, -16)), SpazerSpreadFrames),
             ]),
-            [L.UnchargedIceSpazerUpLeft] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.UnchargedIceSpazer, C.UpLeft)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(new(new(8, 8), new(8, 8)), SpazerSeedFrames),
                 new(new(new(2, 16), new(16, 2)), SpazerPartingFrames),
                 new(new(new(-4, 20), new(20, -4)), SpazerSpreadFrames),
             ]),
-            [L.UnchargedWaveIceSpazerUp] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.UnchargedWaveIceSpazer, C.Up)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, SpazerWaveSeedFrames),
                 new(new(new(-4, 8), new(4, 8)), SpazerWaveSplittingFrames),
@@ -798,7 +800,7 @@ internal static class ProjectileTrailPlacementDefinitions
                 new(new(new(-12, 8), new(12, 8)), SpazerWaveSpreadingFrames),
                 new(new(new(-16, 8), new(16, 8)), SpazerWaveNearlySpreadAndSpreadFrames),
             ]),
-            [L.UnchargedWaveIceSpazerUpRight] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.UnchargedWaveIceSpazer, C.UpRight)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, SpazerWaveSeedFrames),
                 new(new(new(-12, 6), new(-6, 12)), SpazerWaveSplittingFrames),
@@ -807,7 +809,7 @@ internal static class ProjectileTrailPlacementDefinitions
                 new(new(new(-18, -2), new(2, 18)), SpazerWaveNearlySpreadFrames),
                 new(new(new(-20, -4), new(2, 20)), SpazerWaveSpreadFrames),
             ]),
-            [L.UnchargedWaveIceSpazerRight] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.UnchargedWaveIceSpazer, C.Right)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, SpazerWaveSeedFrames),
                 new(new(new(-8, -4), new(-8, 4)), SpazerWaveSplittingFrames),
@@ -815,7 +817,7 @@ internal static class ProjectileTrailPlacementDefinitions
                 new(new(new(-8, -12), new(-8, 12)), SpazerWaveSpreadingFrames),
                 new(new(new(-8, -16), new(-8, 16)), SpazerWaveNearlySpreadAndSpreadFrames),
             ]),
-            [L.UnchargedWaveIceSpazerDownRight] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.UnchargedWaveIceSpazer, C.DownRight)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, SpazerWaveSeedFrames),
                 new(new(new(-12, -6), new(-6, -12)), SpazerWaveSplittingFrames),
@@ -824,7 +826,7 @@ internal static class ProjectileTrailPlacementDefinitions
                 new(new(new(-18, 2), new(2, -18)), SpazerWaveNearlySpreadFrames),
                 new(new(new(4, -20), new(-20, 4)), SpazerWaveSpreadFrames),
             ]),
-            [L.UnchargedWaveIceSpazerDown] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.UnchargedWaveIceSpazer, C.Down)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, SpazerWaveSeedFrames),
                 new(new(new(-4, -8), new(4, -8)), SpazerWaveSplittingFrames),
@@ -832,7 +834,7 @@ internal static class ProjectileTrailPlacementDefinitions
                 new(new(new(-12, -8), new(12, -8)), SpazerWaveSpreadingFrames),
                 new(new(new(-16, -8), new(16, -8)), SpazerWaveNearlySpreadAndSpreadFrames),
             ]),
-            [L.UnchargedWaveIceSpazerDownLeft] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.UnchargedWaveIceSpazer, C.DownLeft)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, SpazerWaveSeedFrames),
                 new(new(new(2, -14), new(14, -2)), SpazerWaveSplittingFrames),
@@ -840,7 +842,7 @@ internal static class ProjectileTrailPlacementDefinitions
                 new(new(new(-2, -18), new(18, 2)), SpazerWaveSpreadingFrames),
                 new(new(new(-2, -20), new(20, 4)), SpazerWaveNearlySpreadAndSpreadFrames),
             ]),
-            [L.UnchargedWaveIceSpazerLeft] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.UnchargedWaveIceSpazer, C.Left)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, SpazerWaveSeedFrames),
                 new(new(new(8, -4), new(8, 4)), SpazerWaveSplittingFrames),
@@ -848,7 +850,7 @@ internal static class ProjectileTrailPlacementDefinitions
                 new(new(new(8, -12), new(8, 12)), SpazerWaveSpreadingFrames),
                 new(new(new(8, -16), new(8, 16)), SpazerWaveNearlySpreadAndSpreadFrames),
             ]),
-            [L.UnchargedWaveIceSpazerUpLeft] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.UnchargedWaveIceSpazer, C.UpLeft)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, SpazerWaveSeedFrames),
                 new(new(new(6, 10), new(10, 6)), SpazerWaveSplittingFrames),
@@ -857,54 +859,54 @@ internal static class ProjectileTrailPlacementDefinitions
                 new(new(new(-2, 18), new(18, -2)), SpazerWaveNearlySpreadFrames),
                 new(new(new(-4, 20), new(20, -4)), SpazerWaveSpreadFrames),
             ]),
-            [L.UnchargedIcePlasmaUp] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.UnchargedIcePlasma, C.Up)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, PlasmaCoreFrames),
                 new(new(new(0, 16), new(0, 16)), PlasmaFullLengthFrames),
             ]),
-            [L.UnchargedIcePlasmaUpRight] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.UnchargedIcePlasma, C.UpRight)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, PlasmaCoreFrames),
                 new(new(new(-12, 12), new(-12, 12)), PlasmaFullLengthFrames),
             ]),
-            [L.UnchargedIcePlasmaRight] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.UnchargedIcePlasma, C.Right)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, PlasmaCoreFrames),
                 new(new(new(-16, 0), new(-16, 0)), PlasmaFullLengthFrames),
             ]),
-            [L.UnchargedIcePlasmaDownRight] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.UnchargedIcePlasma, C.DownRight)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, PlasmaCoreFrames),
                 new(new(new(-12, -12), new(-12, -12)), PlasmaFullLengthFrames),
             ]),
-            [L.UnchargedIcePlasmaDown] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.UnchargedIcePlasma, C.Down)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, PlasmaCoreFrames),
                 new(new(new(0, -16), new(0, -16)), PlasmaFullLengthFrames),
             ]),
-            [L.UnchargedIcePlasmaDownLeft] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.UnchargedIcePlasma, C.DownLeft)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, PlasmaCoreFrames),
                 new(new(new(12, -12), new(12, -12)), PlasmaFullLengthFrames),
             ]),
-            [L.UnchargedIcePlasmaLeft] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.UnchargedIcePlasma, C.Left)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, PlasmaCoreFrames),
                 new(new(new(16, 0), new(16, 0)), PlasmaFullLengthFrames),
             ]),
-            [L.UnchargedIcePlasmaUpLeft] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.UnchargedIcePlasma, C.UpLeft)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, PlasmaCoreFrames),
                 new(new(new(12, 12), new(12, 12)), PlasmaFullLengthFrames),
             ]),
-            [L.UnchargedWaveIcePlasmaUp] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.UnchargedWaveIcePlasma, C.Up)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, PlasmaIceWaveCoreFrames),
                 new(new(new(0, 16), new(0, 16)), PlasmaWaveShortCoreFrames),
                 new(new(new(-8, 16), new(8, 16)), PlasmaWaveShortLobesNearFrames),
                 new(new(new(-16, 16), new(16, 16)), PlasmaWaveShortLobesMidwayToPeakFrames),
             ]),
-            [L.UnchargedWaveIcePlasmaUpRight] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.UnchargedWaveIcePlasma, C.UpRight)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, PlasmaIceWaveCoreFrames),
                 new(new(new(-12, 12), new(-12, 12)), PlasmaWaveShortCoreFrames),
@@ -912,7 +914,7 @@ internal static class ProjectileTrailPlacementDefinitions
                 new(new(new(-24, 2), new(-2, 20)), PlasmaWaveShortLobesMidwayFrames),
                 new(new(new(-24, 0), new(0, 24)), PlasmaWaveShortLobesFarAndPeakFrames),
             ]),
-            [L.UnchargedWaveIcePlasmaRight] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.UnchargedWaveIcePlasma, C.Right)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, PlasmaIceWaveCoreFrames),
                 new(new(new(-16, 0), new(-16, 0)), PlasmaWaveShortCoreFrames),
@@ -920,7 +922,7 @@ internal static class ProjectileTrailPlacementDefinitions
                 new(new(new(-16, -12), new(-16, 12)), PlasmaWaveShortLobesMidwayFrames),
                 new(new(new(-16, -16), new(-16, 16)), PlasmaWaveShortLobesFarAndPeakFrames),
             ]),
-            [L.UnchargedWaveIcePlasmaDownRight] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.UnchargedWaveIcePlasma, C.DownRight)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, PlasmaIceWaveCoreFrames),
                 new(new(new(-12, -12), new(-12, -12)), PlasmaWaveShortCoreFrames),
@@ -928,14 +930,14 @@ internal static class ProjectileTrailPlacementDefinitions
                 new(new(new(-20, -2), new(-2, -20)), PlasmaWaveShortLobesMidwayFrames),
                 new(new(new(-24, 0), new(0, -24)), PlasmaWaveShortLobesFarAndPeakFrames),
             ]),
-            [L.UnchargedWaveIcePlasmaDown] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.UnchargedWaveIcePlasma, C.Down)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, PlasmaIceWaveCoreFrames),
                 new(new(new(0, -16), new(0, -16)), PlasmaWaveShortCoreFrames),
                 new(new(new(-8, -16), new(8, -16)), PlasmaWaveShortLobesNearFrames),
                 new(new(new(-16, -16), new(16, -16)), PlasmaWaveShortLobesMidwayToPeakFrames),
             ]),
-            [L.UnchargedWaveIcePlasmaDownLeft] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.UnchargedWaveIcePlasma, C.DownLeft)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, PlasmaIceWaveCoreFrames),
                 new(new(new(12, -12), new(12, -12)), PlasmaWaveShortCoreFrames),
@@ -943,7 +945,7 @@ internal static class ProjectileTrailPlacementDefinitions
                 new(new(new(24, -2), new(2, -20)), PlasmaWaveShortLobesMidwayFrames),
                 new(new(new(24, 0), new(0, -24)), PlasmaWaveShortLobesFarAndPeakFrames),
             ]),
-            [L.UnchargedWaveIcePlasmaLeft] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.UnchargedWaveIcePlasma, C.Left)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, PlasmaIceWaveCoreFrames),
                 new(new(new(16, 0), new(16, 0)), PlasmaWaveShortCoreFrames),
@@ -951,7 +953,7 @@ internal static class ProjectileTrailPlacementDefinitions
                 new(new(new(16, -12), new(16, 12)), PlasmaWaveShortLobesMidwayFrames),
                 new(new(new(16, -16), new(16, 16)), PlasmaWaveShortLobesFarAndPeakFrames),
             ]),
-            [L.UnchargedWaveIcePlasmaUpLeft] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.UnchargedWaveIcePlasma, C.UpLeft)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, PlasmaIceWaveCoreFrames),
                 new(new(new(12, 12), new(12, 12)), PlasmaWaveShortCoreFrames),
@@ -959,7 +961,7 @@ internal static class ProjectileTrailPlacementDefinitions
                 new(new(new(20, 2), new(2, 20)), PlasmaWaveShortLobesMidwayFrames),
                 new(new(new(24, 0), new(0, 24)), PlasmaWaveShortLobesFarAndPeakFrames),
             ]),
-            [L.ChargedDefault] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.ChargedDefault, C.AnyDirection)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot,
                 [
@@ -1051,35 +1053,35 @@ internal static class ProjectileTrailPlacementDefinitions
                     F.PlasmaSpecialAttackRing,
                 ]),
             ]),
-            [L.ChargedWaveVertical] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.ChargedWave, C.Vertical)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, ChargedWaveCoreFrames),
                 new(new(new(-8, 0), new(8, 0)), ChargedWaveLobesNearFrames),
                 new(new(new(-12, 0), new(12, 0)), ChargedWaveLobesMidwayFrames),
                 new(new(new(-16, 0), new(16, 0)), ChargedWaveLobesFarAndPeakFrames),
             ]),
-            [L.ChargedWaveHorizontal] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.ChargedWave, C.Horizontal)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, ChargedWaveCoreFrames),
                 new(new(new(0, -8), new(0, 8)), ChargedWaveLobesNearFrames),
                 new(new(new(0, -12), new(0, 12)), ChargedWaveLobesMidwayFrames),
                 new(new(new(0, -16), new(0, 16)), ChargedWaveLobesFarAndPeakFrames),
             ]),
-            [L.ChargedWaveRisingDiagonal] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.ChargedWave, C.RisingDiagonal)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, ChargedWaveCoreFrames),
                 new(new(new(-4, -4), new(4, 4)), ChargedWaveLobesNearFrames),
                 new(new(new(-8, -8), new(8, 8)), ChargedWaveLobesMidwayAndFarFrames),
                 new(new(new(-10, -10), new(10, 10)), ChargedWaveLobesPeakFrames),
             ]),
-            [L.ChargedWaveFallingDiagonal] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.ChargedWave, C.FallingDiagonal)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, ChargedWaveCoreFrames),
                 new(new(new(-4, 4), new(4, -4)), ChargedWaveLobesNearFrames),
                 new(new(new(-8, 8), new(8, -8)), ChargedWaveLobesMidwayAndFarFrames),
                 new(new(new(-10, 10), new(10, -10)), ChargedWaveLobesPeakFrames),
             ]),
-            [L.ChargedIceSpazerUp] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.ChargedIceSpazer, C.Up)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, ChargedSpazerStartupShortFrames),
                 new(new(new(0, 8), new(0, 8)), ChargedSpazerStartupLongFrames),
@@ -1087,7 +1089,7 @@ internal static class ProjectileTrailPlacementDefinitions
                 new(new(new(-8, 16), new(8, 16)), ChargedSpazerPartingFrames),
                 new(new(new(-16, 16), new(16, 16)), ChargedSpazerSpreadFrames),
             ]),
-            [L.ChargedIceSpazerUpRight] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.ChargedIceSpazer, C.UpRight)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, ChargedSpazerStartupShortFrames),
                 new(new(new(-8, 8), new(-8, 8)), ChargedSpazerStartupLongFrames),
@@ -1095,7 +1097,7 @@ internal static class ProjectileTrailPlacementDefinitions
                 new(new(new(-16, 8), new(-8, 16)), ChargedSpazerPartingFrames),
                 new(new(new(-24, 0), new(0, 24)), ChargedSpazerSpreadFrames),
             ]),
-            [L.ChargedIceSpazerRight] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.ChargedIceSpazer, C.Right)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, ChargedSpazerStartupShortFrames),
                 new(new(new(-8, 8), new(-8, 8)), ChargedSpazerStartupLongFrames),
@@ -1103,7 +1105,7 @@ internal static class ProjectileTrailPlacementDefinitions
                 new(new(new(-16, -8), new(-16, 8)), ChargedSpazerPartingFrames),
                 new(new(new(-16, -16), new(-16, 16)), ChargedSpazerSpreadFrames),
             ]),
-            [L.ChargedIceSpazerDownRight] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.ChargedIceSpazer, C.DownRight)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, ChargedSpazerStartupShortFrames),
                 new(new(new(-8, -8), new(-8, -8)), ChargedSpazerStartupLongFrames),
@@ -1111,7 +1113,7 @@ internal static class ProjectileTrailPlacementDefinitions
                 new(new(new(-16, -8), new(-8, -16)), ChargedSpazerPartingFrames),
                 new(new(new(-24, 0), new(0, -24)), ChargedSpazerSpreadFrames),
             ]),
-            [L.ChargedIceSpazerDown] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.ChargedIceSpazer, C.Down)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, ChargedSpazerStartupShortFrames),
                 new(new(new(0, -8), new(0, -8)), ChargedSpazerStartupLongFrames),
@@ -1119,7 +1121,7 @@ internal static class ProjectileTrailPlacementDefinitions
                 new(new(new(-8, -16), new(8, -16)), ChargedSpazerPartingFrames),
                 new(new(new(-16, -16), new(16, -16)), ChargedSpazerSpreadFrames),
             ]),
-            [L.ChargedIceSpazerDownLeft] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.ChargedIceSpazer, C.DownLeft)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, ChargedSpazerStartupShortFrames),
                 new(new(new(8, -8), new(8, -8)), ChargedSpazerStartupLongFrames),
@@ -1127,7 +1129,7 @@ internal static class ProjectileTrailPlacementDefinitions
                 new(new(new(16, -8), new(8, -16)), ChargedSpazerPartingFrames),
                 new(new(new(24, 0), new(0, -24)), ChargedSpazerSpreadFrames),
             ]),
-            [L.ChargedIceSpazerLeft] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.ChargedIceSpazer, C.Left)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, ChargedSpazerStartupShortFrames),
                 new(new(new(8, 0), new(8, 0)), ChargedSpazerStartupLongFrames),
@@ -1135,7 +1137,7 @@ internal static class ProjectileTrailPlacementDefinitions
                 new(new(new(16, -8), new(16, 8)), ChargedSpazerPartingFrames),
                 new(new(new(16, -16), new(16, 16)), ChargedSpazerSpreadFrames),
             ]),
-            [L.ChargedIceSpazerUpLeft] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.ChargedIceSpazer, C.UpLeft)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, ChargedSpazerStartupShortFrames),
                 new(new(new(8, 8), new(8, 8)), ChargedSpazerStartupLongFrames),
@@ -1143,7 +1145,7 @@ internal static class ProjectileTrailPlacementDefinitions
                 new(new(new(16, 8), new(8, 16)), ChargedSpazerPartingFrames),
                 new(new(new(24, 0), new(0, 24)), ChargedSpazerSpreadFrames),
             ]),
-            [L.ChargedWaveIceSpazerUp] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.ChargedWaveIceSpazer, C.Up)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, ChargedSpazerWaveStartupShortFrames),
                 new(new(new(0, 8), new(0, 8)), ChargedSpazerWaveStartupLongFrames),
@@ -1153,7 +1155,7 @@ internal static class ProjectileTrailPlacementDefinitions
                 new(new(new(-12, 16), new(12, 16)), ChargedSpazerWaveSpreadingFrames),
                 new(new(new(-16, 16), new(16, 16)), ChargedSpazerWaveNearlySpreadAndSpreadFrames),
             ]),
-            [L.ChargedWaveIceSpazerUpRight] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.ChargedWaveIceSpazer, C.UpRight)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, ChargedSpazerWaveStartupShortFrames),
                 new(new(new(-8, 8), new(-8, 8)), ChargedSpazerWaveStartupLongFrames),
@@ -1187,7 +1189,7 @@ internal static class ProjectileTrailPlacementDefinitions
                 ]),
                 new(new(new(-24, 0), new(0, 24)), ChargedSpazerWaveNearlySpreadAndSpreadFrames),
             ]),
-            [L.ChargedWaveIceSpazerRight] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.ChargedWaveIceSpazer, C.Right)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, ChargedSpazerWaveStartupShortFrames),
                 new(new(new(-8, 0), new(-8, 0)), ChargedSpazerWaveStartupLongFrames),
@@ -1197,7 +1199,7 @@ internal static class ProjectileTrailPlacementDefinitions
                 new(new(new(-16, -12), new(-16, 12)), ChargedSpazerWaveSpreadingFrames),
                 new(new(new(-16, -16), new(-16, 16)), ChargedSpazerWaveNearlySpreadAndSpreadFrames),
             ]),
-            [L.ChargedWaveIceSpazerDownRight] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.ChargedWaveIceSpazer, C.DownRight)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, ChargedSpazerWaveStartupShortFrames),
                 new(new(new(-8, -8), new(-8, -8)), ChargedSpazerWaveStartupLongFrames),
@@ -1206,7 +1208,7 @@ internal static class ProjectileTrailPlacementDefinitions
                 new(new(new(-20, -4), new(-4, -20)), ChargedSpazerWaveSpreadingFrames),
                 new(new(new(-24, 0), new(0, -24)), ChargedSpazerWaveNearlySpreadAndSpreadFrames),
             ]),
-            [L.ChargedWaveIceSpazerDown] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.ChargedWaveIceSpazer, C.Down)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, ChargedSpazerWaveStartupShortFrames),
                 new(new(new(0, -8), new(0, -8)), ChargedSpazerWaveStartupLongFrames),
@@ -1216,7 +1218,7 @@ internal static class ProjectileTrailPlacementDefinitions
                 new(new(new(-12, -16), new(12, -16)), ChargedSpazerWaveSpreadingFrames),
                 new(new(new(-16, -16), new(16, -16)), ChargedSpazerWaveNearlySpreadAndSpreadFrames),
             ]),
-            [L.ChargedWaveIceSpazerDownLeft] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.ChargedWaveIceSpazer, C.DownLeft)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, ChargedSpazerWaveStartupShortFrames),
                 new(new(new(8, -8), new(8, -8)), ChargedSpazerWaveStartupLongFrames),
@@ -1225,7 +1227,7 @@ internal static class ProjectileTrailPlacementDefinitions
                 new(new(new(4, -20), new(20, -4)), ChargedSpazerWaveSpreadingFrames),
                 new(new(new(0, -24), new(24, 0)), ChargedSpazerWaveNearlySpreadAndSpreadFrames),
             ]),
-            [L.ChargedWaveIceSpazerLeft] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.ChargedWaveIceSpazer, C.Left)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, ChargedSpazerWaveStartupShortFrames),
                 new(new(new(8, 0), new(8, 0)), ChargedSpazerWaveStartupLongFrames),
@@ -1235,7 +1237,7 @@ internal static class ProjectileTrailPlacementDefinitions
                 new(new(new(16, -12), new(16, 12)), ChargedSpazerWaveSpreadingFrames),
                 new(new(new(16, -16), new(16, 16)), ChargedSpazerWaveNearlySpreadAndSpreadFrames),
             ]),
-            [L.ChargedWaveIceSpazerUpLeft] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.ChargedWaveIceSpazer, C.UpLeft)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, ChargedSpazerWaveStartupShortFrames),
                 new(new(new(8, 8), new(8, 8)), ChargedSpazerWaveStartupLongFrames),
@@ -1244,63 +1246,63 @@ internal static class ProjectileTrailPlacementDefinitions
                 new(new(new(4, 20), new(20, 4)), ChargedSpazerWaveSpreadingFrames),
                 new(new(new(0, 24), new(24, 0)), ChargedSpazerWaveNearlySpreadAndSpreadFrames),
             ]),
-            [L.ChargedIcePlasmaUp] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.ChargedIcePlasma, C.Up)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, ChargedPlasmaCoreFrames),
                 new(new(new(0, 12), new(0, 12)), ChargedPlasmaShortFrames),
                 new(new(new(0, 24), new(0, 24)), ChargedPlasmaLongFrames),
                 new(new(new(0, 28), new(0, 28)), ChargedPlasmaFullFrames),
             ]),
-            [L.ChargedIcePlasmaUpRight] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.ChargedIcePlasma, C.UpRight)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, ChargedPlasmaCoreFrames),
                 new(new(new(-8, 8), new(-8, 8)), ChargedPlasmaShortFrames),
                 new(new(new(-16, 16), new(-16, 16)), ChargedPlasmaLongFrames),
                 new(new(new(-24, 24), new(-24, 24)), ChargedPlasmaFullFrames),
             ]),
-            [L.ChargedIcePlasmaRight] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.ChargedIcePlasma, C.Right)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, ChargedPlasmaCoreFrames),
                 new(new(new(-12, 0), new(-12, 0)), ChargedPlasmaShortFrames),
                 new(new(new(-24, 0), new(-24, 0)), ChargedPlasmaLongFrames),
                 new(new(new(-28, 0), new(-28, 0)), ChargedPlasmaFullFrames),
             ]),
-            [L.ChargedIcePlasmaDownRight] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.ChargedIcePlasma, C.DownRight)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, ChargedPlasmaCoreFrames),
                 new(new(new(-8, -8), new(-8, -8)), ChargedPlasmaShortFrames),
                 new(new(new(-16, -16), new(-16, -16)), ChargedPlasmaLongFrames),
                 new(new(new(-24, -24), new(-24, -24)), ChargedPlasmaFullFrames),
             ]),
-            [L.ChargedIcePlasmaDown] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.ChargedIcePlasma, C.Down)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, ChargedPlasmaCoreFrames),
                 new(new(new(0, -12), new(0, -12)), ChargedPlasmaShortFrames),
                 new(new(new(0, -24), new(0, -24)), ChargedPlasmaLongFrames),
                 new(new(new(0, -28), new(0, -28)), ChargedPlasmaFullFrames),
             ]),
-            [L.ChargedIcePlasmaDownLeft] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.ChargedIcePlasma, C.DownLeft)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, ChargedPlasmaCoreFrames),
                 new(new(new(8, -8), new(8, -8)), ChargedPlasmaShortFrames),
                 new(new(new(16, -16), new(16, -16)), ChargedPlasmaLongFrames),
                 new(new(new(24, -24), new(24, -24)), ChargedPlasmaFullFrames),
             ]),
-            [L.ChargedIcePlasmaLeft] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.ChargedIcePlasma, C.Left)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, ChargedPlasmaCoreFrames),
                 new(new(new(12, 0), new(12, 0)), ChargedPlasmaShortFrames),
                 new(new(new(24, 0), new(24, 0)), ChargedPlasmaLongFrames),
                 new(new(new(28, 0), new(28, 0)), ChargedPlasmaFullFrames),
             ]),
-            [L.ChargedIcePlasmaUpLeft] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.ChargedIcePlasma, C.UpLeft)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, ChargedPlasmaCoreFrames),
                 new(new(new(8, 8), new(8, 8)), ChargedPlasmaShortFrames),
                 new(new(new(16, 16), new(16, 16)), ChargedPlasmaLongFrames),
                 new(new(new(24, 24), new(24, 24)), ChargedPlasmaFullFrames),
             ]),
-            [L.ChargedWaveIcePlasmaUp] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.ChargedWaveIcePlasma, C.Up)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, ChargedPlasmaWaveCoreFrames),
                 new(new(new(0, 12), new(0, 12)), ChargedPlasmaWaveShortFrames),
@@ -1310,7 +1312,7 @@ internal static class ProjectileTrailPlacementDefinitions
                 new(new(new(-12, 28), new(12, 28)), ChargedPlasmaWaveLobesMidwayFrames),
                 new(new(new(-16, 28), new(16, 28)), ChargedPlasmaWaveLobesFarAndPeakFrames),
             ]),
-            [L.ChargedWaveIcePlasmaUpRight] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.ChargedWaveIcePlasma, C.UpRight)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, ChargedPlasmaWaveCoreFrames),
                 new(new(new(-8, 8), new(-8, 8)), ChargedPlasmaWaveShortFrames),
@@ -1320,7 +1322,7 @@ internal static class ProjectileTrailPlacementDefinitions
                 new(new(new(-32, 12), new(-12, 28)), ChargedPlasmaWaveLobesMidwayFrames),
                 new(new(new(-32, 8), new(-8, 32)), ChargedPlasmaWaveLobesFarAndPeakFrames),
             ]),
-            [L.ChargedWaveIcePlasmaRight] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.ChargedWaveIcePlasma, C.Right)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, ChargedPlasmaWaveCoreFrames),
                 new(new(new(-12, 0), new(-12, 0)), ChargedPlasmaWaveShortFrames),
@@ -1330,7 +1332,7 @@ internal static class ProjectileTrailPlacementDefinitions
                 new(new(new(-28, -12), new(-28, 12)), ChargedPlasmaWaveLobesMidwayFrames),
                 new(new(new(-28, -16), new(-28, 16)), ChargedPlasmaWaveLobesFarAndPeakFrames),
             ]),
-            [L.ChargedWaveIcePlasmaDownRight] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.ChargedWaveIcePlasma, C.DownRight)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, ChargedPlasmaWaveCoreFrames),
                 new(new(new(-8, -8), new(-8, -8)), ChargedPlasmaWaveShortFrames),
@@ -1340,7 +1342,7 @@ internal static class ProjectileTrailPlacementDefinitions
                 new(new(new(-32, -12), new(-12, -32)), ChargedPlasmaWaveLobesMidwayFrames),
                 new(new(new(-32, -8), new(-8, -32)), ChargedPlasmaWaveLobesFarAndPeakFrames),
             ]),
-            [L.ChargedWaveIcePlasmaDown] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.ChargedWaveIcePlasma, C.Down)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, ChargedPlasmaWaveCoreFrames),
                 new(new(new(0, -12), new(0, -12)), ChargedPlasmaWaveShortFrames),
@@ -1350,7 +1352,7 @@ internal static class ProjectileTrailPlacementDefinitions
                 new(new(new(-12, -28), new(12, -28)), ChargedPlasmaWaveLobesMidwayFrames),
                 new(new(new(-16, -28), new(16, -28)), ChargedPlasmaWaveLobesFarAndPeakFrames),
             ]),
-            [L.ChargedWaveIcePlasmaDownLeft] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.ChargedWaveIcePlasma, C.DownLeft)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, ChargedPlasmaWaveCoreFrames),
                 new(new(new(8, -8), new(8, -8)), ChargedPlasmaWaveShortFrames),
@@ -1360,7 +1362,7 @@ internal static class ProjectileTrailPlacementDefinitions
                 new(new(new(32, -12), new(12, -28)), ChargedPlasmaWaveLobesMidwayFrames),
                 new(new(new(32, -8), new(8, -32)), ChargedPlasmaWaveLobesFarAndPeakFrames),
             ]),
-            [L.ChargedWaveIcePlasmaLeft] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.ChargedWaveIcePlasma, C.Left)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, ChargedPlasmaWaveCoreFrames),
                 new(new(new(12, 0), new(12, 0)), ChargedPlasmaWaveShortFrames),
@@ -1370,7 +1372,7 @@ internal static class ProjectileTrailPlacementDefinitions
                 new(new(new(28, -12), new(28, 12)), ChargedPlasmaWaveLobesMidwayFrames),
                 new(new(new(28, -16), new(28, 16)), ChargedPlasmaWaveLobesFarAndPeakFrames),
             ]),
-            [L.ChargedWaveIcePlasmaUpLeft] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.ChargedWaveIcePlasma, C.UpLeft)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, ChargedPlasmaWaveCoreFrames),
                 new(new(new(8, 8), new(8, 8)), ChargedPlasmaWaveShortFrames),
@@ -1380,13 +1382,13 @@ internal static class ProjectileTrailPlacementDefinitions
                 new(new(new(32, 12), new(12, 32)), ChargedPlasmaWaveLobesMidwayFrames),
                 new(new(new(32, 8), new(8, 32)), ChargedPlasmaWaveLobesFarAndPeakFrames),
             ]),
-            [L.SpazerAttackTrailingPair] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.SpazerAttackTrailingPair, C.AnyDirection)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, SpazerUpSeedWithAttackTrailFrames),
                 new(new(new(-8, 8), new(8, 8)), SpazerUpPartingWithAttackTrailFrames),
                 new(new(new(-16, 8), new(16, 8)), SpazerUpSpreadWithAttackTrailFrames),
             ]),
-            [L.SpazerAttackTrailingPairDown] = ProjectileTrailPlacementGroup.ByFrame(
+            [new L(T.SpazerAttackTrailingPair, C.Down)] = ProjectileTrailPlacementGroup.ByFrame(
             [
                 new(ProjectileTrailPlacement.AtTheShot, SpazerUpSeedWithAttackTrailFrames),
                 new(new(new(-8, -8), new(8, -8)), SpazerUpPartingWithAttackTrailFrames),

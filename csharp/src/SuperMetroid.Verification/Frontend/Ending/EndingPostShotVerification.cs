@@ -39,7 +39,7 @@ internal static class EndingPostShotVerification
                 {
                     ushort word = initial[start + i].ToWord();
                     ushort faded = (ushort)(((word & 31) * level / 32) | ((word >> 5 & 31) * level / 32) << 5 | ((word >> 10 & 31) * level / 32) << 10);
-                    AssertEqual(faded, shade.Colours[i].ToWord(), "post-shot fade level colour matches the cartridge's component fade");
+                    AssertEqual(faded, shade.Colours.ElementAt(i).ToWord(), "post-shot fade level colour matches the cartridge's component fade");
                 }
             }
         }

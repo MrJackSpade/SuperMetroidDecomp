@@ -149,7 +149,7 @@ internal static class FrontendSheetColouringsVerification
             TitleSequenceDefinitions.TextSequences.MetroidThree])
         {
             // Each card's text is drawn as the letters typed so far, each letter in the card's colouring (#1979).
-            foreach (TitleCardTyping typed in TitleCards.Typings(card.Phase))
+            foreach (TitleCardTyping typed in TitleCards.Typings(card.Card))
                 Add(sets, TitleSpriteDefinitions.LetterFrameName(typed), TitleSheetInks.SpriteSet(card.Colouring));
         }
         Add(sets, TitleSpriteDefinitions.FrameName(TitleSprite.SuperMetroidLogo), TitleSheetInks.SpriteSet(TitleSpriteColouring.Logo));

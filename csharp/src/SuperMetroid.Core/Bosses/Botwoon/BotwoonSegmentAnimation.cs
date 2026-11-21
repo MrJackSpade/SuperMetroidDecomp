@@ -8,7 +8,7 @@ internal sealed class BotwoonSegmentAnimation : EnemyProjectileSilentFrameAnimat
 {
     /// <summary>Starts the animation of <paramref name="segment"/>.</summary>
     internal BotwoonSegmentAnimation(BotwoonBodyAnimationSegment segment)
-        : base(BotwoonAnimations.BodyStartingWith(segment))
+        : base(segment, BotwoonAnimations.BodyStartingWith(segment))
     {
     }
 
@@ -21,15 +21,11 @@ internal sealed class BotwoonSegmentAnimation : EnemyProjectileSilentFrameAnimat
     {
         if (PlayingSegment == animation)
             return false;
-        Playback = new(BotwoonAnimations.BodyStartingWith(animation), AnimationPlace.StartOfAnimation);
+        Start(animation, BotwoonAnimations.BodyStartingWith(animation));
         return true;
     }
 
     /// <inheritdoc/>
     private protected override IUnpausedAnimationPlay<BotwoonBodyAnimationSegment, EnemyProjectileFrameId, NoAnimationCue> Segments =>
         BotwoonAnimations.BodySegments;
-
-    /// <inheritdoc/>
-    private protected override IEnumerable<KeyValuePair<BotwoonBodyAnimationSegment, Animation<BotwoonBodyAnimationSegment>>> StartingAt =>
-        BotwoonAnimations.BodyStartingAt;
 }

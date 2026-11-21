@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>
 /// What a projectile's animation does when its frame expires (#1607): shows a frame for a duration, shows a frame for
-/// good, shows nothing for a duration (#2558), rests on the frame it shows, or ends (#2553).
+/// good, shows nothing for a duration (#2558), rests on the frame it shows, or ends by deleting its projectile.
 /// </summary>
 internal abstract record EnemyProjectileFrameStep
 {
@@ -20,8 +20,8 @@ internal abstract record EnemyProjectileFrameStep
     /// <summary>The animation rests on the frame it shows: its timeline holds.</summary>
     internal static EnemyProjectileFrameStep Rests { get; } = new Rest();
 
-    /// <summary>The animation has ended.</summary>
-    internal static EnemyProjectileFrameStep Ends { get; } = new End();
+    /// <summary>The animation ends, deleting its projectile.</summary>
+    internal static EnemyProjectileFrameStep Deletes { get; } = new Delete();
 
     /// <summary>
     /// The animation shows <paramref name="Frame"/> for <paramref name="Duration"/> projectile passes, drawn
@@ -60,11 +60,11 @@ internal abstract record EnemyProjectileFrameStep
         internal override void React<TContext>(EnemyProjectileFrameStepReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).Hide(this, context);
     }
 
-    /// <summary>The animation has ended.</summary>
-    internal sealed record End : EnemyProjectileFrameStep
+    /// <summary>The animation ends, and its end deletes the projectile: no step follows it.</summary>
+    internal sealed record Delete : EnemyProjectileFrameStep
     {
         /// <inheritdoc/>
-        internal override void React<TContext>(EnemyProjectileFrameStepReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).End(this, context);
+        internal override void React<TContext>(EnemyProjectileFrameStepReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).Delete(this, context);
     }
 }
 
@@ -73,11 +73,11 @@ internal abstract record EnemyProjectileFrameStep
 /// <param name="ShowForGood">Reacts to a <see cref="EnemyProjectileFrameStep.ShowForGood"/>.</param>
 /// <param name="Hide">Reacts to a <see cref="EnemyProjectileFrameStep.Hide"/>.</param>
 /// <param name="Rest">Reacts to a <see cref="EnemyProjectileFrameStep.Rest"/>.</param>
-/// <param name="End">Reacts to a <see cref="EnemyProjectileFrameStep.End"/>.</param>
+/// <param name="Delete">Reacts to a <see cref="EnemyProjectileFrameStep.Delete"/>.</param>
 /// <typeparam name="TContext">What each case reads besides itself.</typeparam>
 internal sealed record EnemyProjectileFrameStepReactions<TContext>(
     Action<EnemyProjectileFrameStep.Show, TContext> Show,
     Action<EnemyProjectileFrameStep.ShowForGood, TContext> ShowForGood,
     Action<EnemyProjectileFrameStep.Hide, TContext> Hide,
     Action<EnemyProjectileFrameStep.Rest, TContext> Rest,
-    Action<EnemyProjectileFrameStep.End, TContext> End);
+    Action<EnemyProjectileFrameStep.Delete, TContext> Delete);

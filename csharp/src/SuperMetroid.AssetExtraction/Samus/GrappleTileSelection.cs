@@ -19,9 +19,14 @@ public static class GrappleTileSelection
     public static GrappleTileTransfer SegmentTransferFor(GrappleRopeOrientation orientation) => SegmentTransfers[orientation];
 
     /// <summary>$9B:BFBD cycles endpoint characters at $8200/$8400/$8600/$8800, independently of rope angle.</summary>
-    public static GrappleTileTransfer PointTransferFor(int frame) => frame switch
+    public static GrappleTileTransfer PointTransferFor(GrappleEndpointFrame frame) => PointTransfers[frame];
+
+    /// <summary>The transfer of each endpoint frame's installed character, one of <see cref="GrappleTileDefinitions.Transfers"/>.</summary>
+    private static readonly IdentityTable<GrappleEndpointFrame, GrappleTileTransfer> PointTransfers = new(new Dictionary<GrappleEndpointFrame, GrappleTileTransfer>
     {
-        0 or 1 or 2 or 3 => Transfers[frame],
-        _ => throw new ArgumentOutOfRangeException(nameof(frame)),
-    };
+        [GrappleEndpointFrame.Point] = Transfers[0],
+        [GrappleEndpointFrame.Orb] = Transfers[1],
+        [GrappleEndpointFrame.Ring] = Transfers[2],
+        [GrappleEndpointFrame.SparklingRing] = Transfers[3],
+    });
 }

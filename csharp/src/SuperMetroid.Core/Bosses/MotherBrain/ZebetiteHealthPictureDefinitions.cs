@@ -8,8 +8,20 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 internal static class ZebetiteHealthPictureDefinitions
 {
-    /// <summary>The least health of each band, most health first; each form shows one picture a band.</summary>
-    private static readonly int[] BandMinimums = [800, 600, 400, 200, 0];
+    /// <summary>The least health a barrier shows its intact picture at.</summary>
+    private const int IntactMinimum = 800;
+
+    /// <summary>The least health a barrier shows its drained picture at.</summary>
+    private const int DrainedMinimum = 600;
+
+    /// <summary>The least health a barrier shows its half-drained picture at.</summary>
+    private const int HalfDrainedMinimum = 400;
+
+    /// <summary>The least health a barrier shows its mostly drained picture at.</summary>
+    private const int MostlyDrainedMinimum = 200;
+
+    /// <summary>The least health a barrier shows its nearly drained picture at: any.</summary>
+    private const int NearlyDrainedMinimum = 0;
 
     /// <summary>The pictures of each barrier form: the tall single barrier's, and the short ones of a split pair's halves.</summary>
     internal static IReadOnlyDictionary<ZebetiteBarrierForm, IReadOnlyList<ZebetiteHealthPicture>> ByForm { get; } =
@@ -23,7 +35,11 @@ internal static class ZebetiteHealthPictureDefinitions
             EnemyFrameId.ZebetiteShortMostlyDrained, EnemyFrameId.ZebetiteShortNearlyDrained),
     };
 
-    /// <summary>A form's pictures: each of <paramref name="pictures"/> shown in its band of <see cref="BandMinimums"/>, in order.</summary>
-    private static ZebetiteHealthPicture[] ByBand(params EnemyFrameId[] pictures) =>
-        [.. BandMinimums.Zip(pictures, (minimum, picture) => new ZebetiteHealthPicture(minimum, picture))];
+    /// <summary>A form's pictures, most health first, each shown from the least health of its band.</summary>
+    private static ZebetiteHealthPicture[] ByBand(EnemyFrameId intact, EnemyFrameId drained, EnemyFrameId halfDrained,
+        EnemyFrameId mostlyDrained, EnemyFrameId nearlyDrained) =>
+    [
+        new(IntactMinimum, intact), new(DrainedMinimum, drained), new(HalfDrainedMinimum, halfDrained),
+        new(MostlyDrainedMinimum, mostlyDrained), new(NearlyDrainedMinimum, nearlyDrained),
+    ];
 }

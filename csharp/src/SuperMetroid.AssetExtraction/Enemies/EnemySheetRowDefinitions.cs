@@ -134,7 +134,7 @@ internal static class EnemySheetRowDefinitions
         [EnemyDefinitionId.RidleyCeres] = Ridley,
         [EnemyDefinitionId.Ridley] = Ridley,
         [EnemyDefinitionId.RidleyBreakupPiece] = Ridley,
-        [EnemyDefinitionId.CeresSteam] = EnemyProjectiles,
+        [EnemyDefinitionId.SteamVent] = EnemyProjectiles,
         [EnemyDefinitionId.CeresDoor] = CeresDoorInactive,
         [EnemyDefinitionId.CeresRidleyRoomDoor] = CeresDoorInactive,
         [EnemyDefinitionId.CeresElevatorDoor] = CeresDoorInactive,

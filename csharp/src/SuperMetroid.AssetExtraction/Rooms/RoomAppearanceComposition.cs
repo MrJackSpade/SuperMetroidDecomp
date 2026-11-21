@@ -37,53 +37,41 @@ internal static class RoomAppearanceComposition
     /// Every assignment of a value to each of <paramref name="inputs"/>, in order: the room's load, when
     /// <paramref name="withLoaded"/>, and each value an option gives the input.
     /// </summary>
-    internal static IEnumerable<string[]> Assignments(ImmutableArray<AppearanceInput> inputs, AppearanceOptions options, bool withLoaded)
+    internal static IEnumerable<AppearanceAssignment> Assignments(ImmutableArray<AppearanceInput> inputs, AppearanceOptions options, bool withLoaded)
     {
         Ensure.NotNull(options);
-        IEnumerable<string[]> assignments = [new string[inputs.Length]];
-        for (int index = 0; index < inputs.Length; index++)
+        IEnumerable<Dictionary<AppearanceInput, string>> assignments = [new Dictionary<AppearanceInput, string>()];
+        foreach (AppearanceInput input in inputs)
         {
-            int place = index;
-            string[] values = [.. (withLoaded ? [RoomAppearanceValues.Loaded] : Array.Empty<string>()), .. options.ValuesOf(inputs[place])];
+            string[] values = [.. (withLoaded ? [RoomAppearanceValues.Loaded] : Array.Empty<string>()), .. options.ValuesOf(input)];
             assignments = [.. assignments.SelectMany(earlier => values.Select(value =>
-            {
-                string[] chosen = [.. earlier];
-                chosen[place] = value;
-                return chosen;
-            }))];
+                new Dictionary<AppearanceInput, string>(earlier) { [input] = value }))];
         }
-        return assignments;
+        return [.. assignments.Select(chosen => new AppearanceAssignment(inputs, chosen))];
     }
 
     /// <summary>
-    /// What shows over <paramref name="characters"/> while
-    /// <paramref name="inputs"/> take <paramref name="values"/>: an animation that paints them shows its selected frame
+    /// What shows over <paramref name="characters"/> while the inputs take the values of
+    /// <paramref name="assignment"/>: an animation that paints them shows its selected frame
     /// (#1406); otherwise the newest artwork shown there, a later encounter look over an earlier; otherwise what
     /// <paramref name="load"/> binds there. False where
     /// nothing shows, or where an animation's selected frame does not reach them.
     /// </summary>
-    internal static bool TryShowing(CharacterSpan characters, ImmutableArray<AppearanceInput> inputs, ReadOnlySpan<string> values,
-        AppearanceOptions options, BgArtworkBindings? load, out BgArtworkShown shown)
+    internal static bool TryShowing(CharacterSpan characters, AppearanceAssignment assignment, AppearanceOptions options,
+        BgArtworkBindings? load, out BgArtworkShown shown)
     {
         (BgCharacterSet set, int first, int count) = characters;
-        Ensure.LengthEqual(values, inputs.Length);
+        Ensure.NotNull(assignment);
         AppearanceOption[] reaching = Ensure.NotNull(options).Reaching(set, first);
-        // The first animation by name that paints the characters and has selected a frame shows that frame there; selected
-        // is its index in the inputs, or null while none has.
-        int? selected = null;
-        foreach (AppearanceOption option in reaching)
+        // The first animation by name that paints the characters and has selected a frame shows that frame there: their
+        // tokens share one prefix before the name, and two animations of one name are one input.
+        AnimationAppearance? selected = reaching.Select(option => option.Input).OfType<AnimationAppearance>()
+            .Where(candidate => assignment.TryValueOf(candidate, out string? value) && value != RoomAppearanceValues.Loaded)
+            .OrderBy(candidate => candidate.Animation.Name, StringComparer.Ordinal)
+            .FirstOrDefault();
+        if (selected is not null)
         {
-            if (option.Input is not AnimationAppearance candidate)
-                continue;
-            int index = inputs.IndexOf(candidate);
-            if (index < 0 || values[index] == RoomAppearanceValues.Loaded)
-                continue;
-            if (selected is not int leading || ShowsBefore(candidate, (AnimationAppearance)inputs[leading]))
-                selected = index;
-        }
-        if (selected is int animation)
-        {
-            AppearanceOption? frame = options.Option(inputs[animation], values[animation]);
+            AppearanceOption? frame = options.Option(selected, assignment.ValueOf(selected));
             if (frame is null || !frame.Upload.Covers(set, first))
             {
                 shown = default;
@@ -96,8 +84,7 @@ internal static class RoomAppearanceComposition
         foreach (AppearanceOption option in reaching)
         {
             AppearancePrecedence precedence = PrecedenceOf(option.Input);
-            int index = inputs.IndexOf(option.Input);
-            if (precedence == AppearancePrecedence.Animation || index < 0 || values[index] != option.Value)
+            if (precedence == AppearancePrecedence.Animation || !assignment.TryValueOf(option.Input, out string? value) || value != option.Value)
                 continue;
             if (bound is null || Precedence.PlaceOf(precedence) <= Precedence.PlaceOf(PrecedenceOf(bound.Input)))
                 bound = option;
@@ -113,12 +100,6 @@ internal static class RoomAppearanceComposition
         return false;
     }
 
-    /// <summary>
-    /// Whether animation <paramref name="input"/> comes before <paramref name="other"/>: by name, the order of their tokens,
-    /// which share one prefix before the name. Two animations of one name are one input, so neither comes before the other.
-    /// </summary>
-    private static bool ShowsBefore(AnimationAppearance input, AnimationAppearance other) =>
-        string.CompareOrdinal(input.Animation.Name, other.Animation.Name) < 0;
 
     /// <summary>Whether <paramref name="input"/>'s artwork shows over another's where both reach the same characters.</summary>
     /// <exception cref="InvalidDataException">The input is of no kind extraction pictures.</exception>

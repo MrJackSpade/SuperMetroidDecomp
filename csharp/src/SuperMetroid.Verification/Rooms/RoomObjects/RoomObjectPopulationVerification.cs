@@ -800,7 +800,7 @@ internal static class RoomObjectPopulationVerification
 
         var malformed = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulation>([typeof(string), typeof(global::System.Collections.Generic.IEnumerable<global::SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPlacement>)], new object?[] { $"$8F:{malformedPopulation:X4}", (global::System.Collections.Generic.IEnumerable<global::SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPlacement>)([
             RoomObjectPlacementAccess.Placed(RoomObjectKind.ScrollTrigger,
-                new(offRoomX, offRoomY), scrollChange: RoomScrollChange.BrinstarReserveTankOpensScreen1x0TopAligned) with { Site = RoomObjectSite.OffTheRoom },
+                new(offRoomX, offRoomY), scrollChange: RoomScrollChange.BrinstarReserveTank) with { Site = RoomObjectSite.OffTheRoom },
         ]) });
         AssertThrows<InvalidDataException>(
             () => RoomObjectFixtures.LoadPopulation(RoomObjectFixtures.Unbound(), new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), AreaId.Brinstar), malformed, RoomObjectServiceFixtures.Uninstalled with { Samus = new FixtureRoomSamus(() => new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
@@ -1494,7 +1494,7 @@ internal static class RoomObjectPopulationVerification
     /// a retail program (#2355), and the dormant one is never touched, so which one does not matter.
     /// </summary>
     private static ushort DormantScrollProgram =>
-        RoomScrollProgramNative.Addresses[RoomScrollChange.BrinstarReserveTankOpensScreen1x0TopAligned];
+        RoomScrollProgramNative.Addresses[RoomScrollChange.BrinstarReserveTank];
 
     /// <summary>Seeds the retail scroll program the dormant scroll trigger is set up with where the cartridge stores it.</summary>
     private static void SeedDormantScrollObjectProgram(TestAddressSpace bus) =>

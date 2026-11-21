@@ -61,9 +61,9 @@ internal static class MotherBrainEscapeTextArtworkVerification
     private static SnesVram TransferMotherBrainEscapeTextPages(
         ImportEnemyArtwork artwork)
     {
-        var resolver = new EnemyTileTransfers(new ImportEnemyArtwork(artwork.Enemies, artwork.Bosses, InstalledFixtures.AreaArtwork));
-        int text = EncounterLookUploads.IndexOf(ComposedEncounter.MotherBrain, EncounterLookUploads.MotherBrainEscapeTextLook);
-        AssertEqual(EscapeTextSheetFormat.PageCount, EncounterLookUploads.Uploads(ComposedEncounter.MotherBrain, text, resolver).Count,
+        var resolver = new EnemyTileTransfers(new ImportEnemyArtwork(artwork.Enemies, artwork.Bosses, InstalledFixtures.AreaArtwork), timer: InstalledFixtures.ImportMaps.EscapeTimerTiles);
+        ComposedLook text = EncounterLookUploads.MotherBrainEscapeTextLook;
+        AssertEqual(EscapeTextSheetFormat.PageCount, EncounterLookUploads.Steps(ComposedEncounter.MotherBrain, resolver).CopiesOf(text).Count,
             "her escape message's look copies every escape-text page");
         return ObjCharacterVramImage.Of(EncounterArtworkPlacements.Of(ComposedEncounter.MotherBrain, [text], resolver), resolver);
     }

@@ -214,26 +214,27 @@ internal static class SamusOverreadServicesReader
         };
     }
 
-    /// <summary>Every SpaceTime animation position's overwrite, by slot.</summary>
+    /// <summary>Every SpaceTime animation position's overwrite, by shot place.</summary>
     private static SpaceTimeProgressionOverwrite<SamusProjectileSegmentBeat, ProgressionOverwrite> SpaceTimeOverwrite(
-        IReadOnlyDictionary<string, IReadOnlyDictionary<string, IReadOnlyList<SamusOverreadDocument.Overwrite?>>> overwrites)
+        IReadOnlyDictionary<string, IReadOnlyDictionary<string, IReadOnlyDictionary<string, SamusOverreadDocument.Overwrite?>>> overwrites)
     {
-        var result = new Dictionary<SamusProjectileSegmentBeat, IReadOnlyList<ProgressionOverwrite?>>();
-        foreach ((string programName, IReadOnlyDictionary<string, IReadOnlyList<SamusOverreadDocument.Overwrite?>> positions) in overwrites)
+        var result = new Dictionary<SamusProjectileSegmentBeat, IReadOnlyDictionary<int, ProgressionOverwrite?>>();
+        foreach ((string programName, IReadOnlyDictionary<string, IReadOnlyDictionary<string, SamusOverreadDocument.Overwrite?>> positions) in overwrites)
         {
             SamusProjectileSegment program = Parse(SamusProjectileSegmentKeys.Installed, programName, "SpaceTime program");
             // A segment's places: before each beat, and at its end.
             int steps = SamusProjectileAnimations.Segments.Beats(program).Count + 1;
             if (positions.Count != steps)
                 throw new InvalidDataException($"Samus overread file holds SpaceTime overwrites for {positions.Count} of {program}'s {steps} steps.");
-            foreach ((string positionName, IReadOnlyList<SamusOverreadDocument.Overwrite?> bySlot) in positions)
+            foreach ((string positionName, IReadOnlyDictionary<string, SamusOverreadDocument.Overwrite?> byPlace) in positions)
             {
                 int position = ParseCount(positionName, $"{program} step");
                 if (position >= steps)
                     throw new InvalidDataException($"Samus overread file names step {position} of {program}, which has {steps}.");
-                if (bySlot.Count != SamusProjectileSystem.PlaceCount)
-                    throw new InvalidDataException($"Samus overread file holds SpaceTime overwrites for {bySlot.Count} slots, not {SamusProjectileSystem.PlaceCount}.");
-                result.Add(new(program, position), [.. bySlot.Select(Overwrite)]);
+                IEnumerable<int> places = Enumerable.Range(0, SamusProjectileSystem.PlaceCount);
+                if (byPlace.Count != SamusProjectileSystem.PlaceCount || places.Any(place => !byPlace.ContainsKey(SamusOverreadFormat.ShotPlaceName(place))))
+                    throw new InvalidDataException($"Samus overread file must hold SpaceTime's overwrite from each of the {SamusProjectileSystem.PlaceCount} shot places, by its name.");
+                result.Add(new(program, position), places.ToDictionary(place => place, place => Overwrite(byPlace[SamusOverreadFormat.ShotPlaceName(place)])));
             }
         }
         if (result.Count == 0)

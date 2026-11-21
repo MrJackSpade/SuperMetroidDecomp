@@ -75,14 +75,17 @@ internal static class ChootFallingPathDefinitions
         At(new(-18, 27)), At(new(-15, 28)), At(new(-12, 29)), At(new(-8, 30)), At(new(-5, 31)), At(new(-2, 32)),
     ];
 
-    /// <summary>The samples each falling path follows; the update after its last sample ends one loop of the path.</summary>
-    internal static readonly IdentityTable<ChootFallingPath, ChootFallSample[]> Paths = new(new Dictionary<ChootFallingPath, ChootFallSample[]>
+    /// <summary>
+    /// Each falling path: its samples, the update after its last ending one loop of the path, and its loop origin's advance.
+    /// Slow variants repeat normal-path plateau frames and use the same vertical advance.
+    /// </summary>
+    internal static readonly IdentityTable<ChootFallingPath, ChootFallingPathDefinition> Paths = new(new Dictionary<ChootFallingPath, ChootFallingPathDefinition>
     {
-        [ChootFallingPath.Normal] = Normal,
-        [ChootFallingPath.Wide] = Wide,
-        [ChootFallingPath.VeryWide] = VeryWide,
-        [ChootFallingPath.Slow] = Slow,
-        [ChootFallingPath.VerySlow] = VerySlow,
+        [ChootFallingPath.Normal] = new(Normal, ChootPatternDefinitions.NormalLoopYDistance),
+        [ChootFallingPath.Wide] = new(Wide, ChootPatternDefinitions.WideLoopYDistance),
+        [ChootFallingPath.VeryWide] = new(VeryWide, ChootPatternDefinitions.VeryWideLoopYDistance),
+        [ChootFallingPath.Slow] = new(Slow, ChootPatternDefinitions.NormalLoopYDistance),
+        [ChootFallingPath.VerySlow] = new(VerySlow, ChootPatternDefinitions.NormalLoopYDistance),
     });
 
     /// <summary>A sample at <paramref name="offset"/> from the falling origin, held <paramref name="updates"/> updates.</summary>

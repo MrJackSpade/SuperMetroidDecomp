@@ -13,5 +13,14 @@ public static class FileSelectFieldTiles
     internal static BackgroundTile Digit(int digit) => DigitTileBase with { Tile = DigitTileBase.Tile + digit };
 
     /// <summary>The menu tile of save slot <paramref name="slot"/>'s letter.</summary>
-    internal static BackgroundTile SlotLetter(int slot) => SamusLetterTileBase with { Tile = SamusLetterTileBase.Tile + slot };
+    internal static BackgroundTile SlotLetter(SuperMetroid.Core.Saves.SaveSlot slot) => SamusLetterTileBase with
+    {
+        Tile = SamusLetterTileBase.Tile + slot switch
+        {
+            SuperMetroid.Core.Saves.SaveSlot.A => 0,
+            SuperMetroid.Core.Saves.SaveSlot.B => 1,
+            SuperMetroid.Core.Saves.SaveSlot.C => 2,
+            _ => throw new ArgumentOutOfRangeException(nameof(slot), slot, "Undefined save slot."),
+        },
+    };
 }

@@ -371,7 +371,7 @@ SamusTerrain.InRoom(floor, SamusRoomObjectFixtures.Uninstalled), SamusPoseId.Mor
     AssertEqual(0u, samus.HorizontalSpeed.BaseSpeed.RawValue, "final ball landing clears both base-speed words");
     AssertEqual(SamusAccelerationMode.Accelerating, samus.HorizontalSpeed.AccelerationMode, "final ball landing clears acceleration mode");
     AssertEqual(SamusPoseId.MorphBallGroundLeftPose, samus.Pose, "bounce recovery uses facing-left ground pose");
-    AssertEqual((SamusBallBounce?)null, samus.MorphBallBounceState, "grounding clears bounce state");
+    AssertEqual(null, samus.MorphBallBounceState, "grounding clears bounce state");
 
     // Unmorphing against only the floor succeeds and moves center up nine, preserving the
     // target body's bottom boundary. The live radius changes in the next alpha pass.
@@ -500,7 +500,7 @@ SamusTerrain.InRoom(floor, SamusRoomObjectFixtures.Uninstalled), SamusPoseId.Mor
     AssertEqual(SamusBallBounce.SpringBallFirst, spring.MorphBallBounceState, "Spring Ball first bounce state");
     var springLandingAnimation = new AnimationResult(spring.AnimationNumber, spring.AnimationFrameTimer.RawValue);
     SamusPosturePoseTransitions.ApplySpringBallLanding(spring, GameplayAction.Jump);
-    AssertEqual((SamusBallBounce?)null, spring.MorphBallBounceState, "held-Jump relaunch clears bounce state");
+    AssertEqual(null, spring.MorphBallBounceState, "held-Jump relaunch clears bounce state");
     AssertEqual(SamusPoseId.SpringBallFallingRightPose, spring.Pose, "held-Jump landing retains its existing airborne pose");
     AssertEqual(springLandingAnimation, new AnimationResult(spring.AnimationNumber, spring.AnimationFrameTimer.RawValue),
         "held-Jump landing does not restart the rolling animation");
@@ -527,7 +527,7 @@ SamusTerrain.InRoom(floor, SamusRoomObjectFixtures.Uninstalled), SamusPoseId.Mor
             SamusPosturePoseTransitions.ApplyMorphBallLanding(impact);
         AssertEqual(rebounds
             ? springEquipped ? SamusBallBounce.SpringBallFirst : SamusBallBounce.MorphBallFirst
-            : (SamusBallBounce?)null, impact.MorphBallBounceState,
+            : null, impact.MorphBallBounceState,
             "signed threshold preserves the selected bounce family");
         AssertEqual(rebounds ? 0x00018000u : 0u, impact.HorizontalSpeed.BaseSpeed.RawValue,
             "Only settled ball landing clears both base-speed words");

@@ -31,9 +31,9 @@ public static class GameplayHudLayoutFile
             Version = GameplayHudDocumentDefinitions.LayoutVersion,
             EnergyTankCorners = [.. parts.EnergyTankCorners],
             HealthAnchor = parts.HealthAnchor,
-            MissileAmmoAnchor = parts.MissileAmmoAnchor,
-            SuperMissileAmmoAnchor = parts.SuperMissileAmmoAnchor,
-            PowerBombAmmoAnchor = parts.PowerBombAmmoAnchor,
+            MissileAmmoAnchor = parts.AmmoFields[HudAmmoCounter.Missiles].Anchor,
+            SuperMissileAmmoAnchor = parts.AmmoFields[HudAmmoCounter.SuperMissiles].Anchor,
+            PowerBombAmmoAnchor = parts.AmmoFields[HudAmmoCounter.PowerBombs].Anchor,
             AutoReserveCorner = parts.AutoReserveCorner,
             IconAnchors = anchors,
             IconsShowOverTemplate = showsOverTemplate,
@@ -77,9 +77,12 @@ public static class GameplayHudLayoutFile
         {
             EnergyTankCorners = [.. document.EnergyTankCorners.Select((corner, index) => InBand(corner, $"energy tank {index}"))],
             HealthAnchor = InBand(document.HealthAnchor, "health digits"),
-            MissileAmmoAnchor = InBand(document.MissileAmmoAnchor, "missile digits"),
-            SuperMissileAmmoAnchor = InBand(document.SuperMissileAmmoAnchor, "Super Missile digits"),
-            PowerBombAmmoAnchor = InBand(document.PowerBombAmmoAnchor, "Power Bomb digits"),
+            AmmoFields = new(new Dictionary<HudAmmoCounter, HudAmmoField>
+            {
+                [HudAmmoCounter.Missiles] = new(InBand(document.MissileAmmoAnchor, "missile digits"), GameplayHudDefinitions.MissileDigits),
+                [HudAmmoCounter.SuperMissiles] = new(InBand(document.SuperMissileAmmoAnchor, "Super Missile digits"), GameplayHudDefinitions.SuperMissileDigits),
+                [HudAmmoCounter.PowerBombs] = new(InBand(document.PowerBombAmmoAnchor, "Power Bomb digits"), GameplayHudDefinitions.PowerBombDigits),
+            }),
             AutoReserveCorner = InBand(document.AutoReserveCorner, "AUTO indicator"),
             Icons = icons.ToImmutableDictionary(icon => icon, icon => new HudIconPlacement(
                 InBand(document.IconAnchors[HudIconKeys.Installed.Of(icon)], $"{icon} icon"), document.IconsShowOverTemplate[HudIconKeys.Installed.Of(icon)])),

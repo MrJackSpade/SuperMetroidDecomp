@@ -7,11 +7,8 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// <param name="owner">The family's cue owner, which carries out the events the animation raises (#2571).</param>
 /// <param name="segment">Where the animation starts.</param>
 internal sealed class SpacePirateProjectileAnimation(IEnemyProjectileCues<SpacePirateProjectileCue> owner, SpacePirateProjectileSegment segment)
-    : EnemyProjectileFrameAnimation<SpacePirateProjectileSegment, SpacePirateProjectileCue>(SpacePirateProjectileAnimations.StartingWith(segment), EnemyProjectileCueRunner<SpacePirateProjectileSegment, SpacePirateProjectileCue>.By(owner))
+    : EnemyProjectileFrameAnimation<SpacePirateProjectileSegment, SpacePirateProjectileCue>(segment, SpacePirateProjectileAnimations.StartingAt[segment], EnemyProjectileCueRunner<SpacePirateProjectileSegment, SpacePirateProjectileCue>.By(owner))
 {
     /// <inheritdoc/>
     private protected override IUnpausedAnimationPlay<SpacePirateProjectileSegment, EnemyProjectileFrameId, SpacePirateProjectileCue> Segments => SpacePirateProjectileAnimations.Segments;
-
-    /// <inheritdoc/>
-    private protected override IEnumerable<KeyValuePair<SpacePirateProjectileSegment, Animation<SpacePirateProjectileSegment>>> StartingAt => SpacePirateProjectileAnimations.StartingAt;
 }

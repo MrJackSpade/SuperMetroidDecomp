@@ -171,7 +171,7 @@ internal static class FamilyProjectileStarts
             _ => new FuneNamiheFireballAnimation(FuneNamiheFireballSegment.Left),
         RoomEnemyProjectileKind.PolypRock => _ => new PolypRockAnimation(PolypRockSegment.LavaRock),
         RoomEnemyProjectileKind.LavaThrownByMagdollite => enemies => new MagdolliteLavaAnimation(enemies.MagdolliteBehavior.Lava, MagdolliteLavaSegment.Left),
-        RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep => _ => new ChozoTourianDustAnimation(ChozoTourianDustAnimations.StartingWith(ChozoTourianDustSegment.Footsteps)),
+        RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep => _ => new ChozoTourianDustAnimation(ChozoTourianDustAnimations.StartingAt[ChozoTourianDustSegment.Footsteps]),
         RoomEnemyProjectileKind.TourianStatueDescentDust => _ => new ChozoTourianDustAnimation(ChozoTourianDustAnimations.TourianDescentDust),
         RoomEnemyProjectileKind.EnemyDeathPickup or RoomEnemyProjectileKind.EnemyDeathExplosion =>
             enemies => new EnemyDeathAndDropAnimation(enemies.DeathsAndDrops.ExplosionsAndPickups, EnemyDeathAndDropSegment.SmallEnergy),
@@ -184,9 +184,9 @@ internal static class FamilyProjectileStarts
         RoomEnemyProjectileKind.SaveStationElectricity => _ => new SaveStationElectricityAnimation(),
         RoomEnemyProjectileKind.DownwardGateMoving => enemies => new DownwardGateProjectileAnimation(enemies.DownwardGateBehavior.Gate, DownwardGateProjectileSegment.Moving),
         RoomEnemyProjectileKind.DownwardGateClosed => enemies => new DownwardGateProjectileAnimation(enemies.DownwardGateBehavior.Gate, DownwardGateProjectileSegment.Closed),
-        RoomEnemyProjectileKind.NoobTubeCrack => enemies => new NoobTubeProjectileAnimation(enemies.NoobTubeBehavior.TubePieces, NoobTubeProjectileAnimations.StartingWith(NoobTubeProjectileSegment.Crack)),
+        RoomEnemyProjectileKind.NoobTubeCrack => enemies => new NoobTubeProjectileAnimation(enemies.NoobTubeBehavior.TubePieces, NoobTubeProjectileAnimations.StartingAt[NoobTubeProjectileSegment.Crack]),
         RoomEnemyProjectileKind.NoobTubeShard => enemies => new NoobTubeProjectileAnimation(enemies.NoobTubeBehavior.TubePieces, NoobTubeProjectileAnimations.ShardAnimations[NoobTubeShard.DownOutward]),
-        RoomEnemyProjectileKind.NoobTubeReleasedAirBubble => enemies => new NoobTubeProjectileAnimation(enemies.NoobTubeBehavior.TubePieces, NoobTubeProjectileAnimations.StartingWith(NoobTubeProjectileSegment.ReleasedAirBubble)),
+        RoomEnemyProjectileKind.NoobTubeReleasedAirBubble => enemies => new NoobTubeProjectileAnimation(enemies.NoobTubeBehavior.TubePieces, NoobTubeProjectileAnimations.StartingAt[NoobTubeProjectileSegment.ReleasedAirBubble]),
         RoomEnemyProjectileKind.MotherBrainRainbowBeamExplosion =>
             _ => new DustExplosionProjectileAnimation(DustExplosionAnimation.MotherBrainRainbowBeamExplosion),
         RoomEnemyProjectileKind.MotherBrainTopRightTube => _ => new MotherBrainTopTubeAnimation(MotherBrainTopTubeSegment.TopRight),

@@ -74,12 +74,9 @@ public static class RoomObjectSporeSpawnCeilingVisualFiles
             list = default;
             return false;
         }
-        RoomBlockShape shape = described;
-        int rows = 2;
         int rowWidth = 2;
-        list = RoomObjectDrawListExport.Runs(request, rows, _ => rowWidth,
-            (run, cell) => shape.CollisionAt(RoomObjectDrawListExport.Stacked(run) + new Offset16<RoomBlocks>(cell, 0)),
-            RoomObjectDrawListExport.Horizontal, RoomObjectDrawListExport.Stacked);
+        list = RoomObjectDrawListExport.Runs(request, described,
+            [RoomObjectShapeRun.Row(new(0, 0), rowWidth), RoomObjectShapeRun.Row(new(0, 1), rowWidth)]);
         return true;
     }
 }

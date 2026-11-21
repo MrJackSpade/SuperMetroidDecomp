@@ -38,9 +38,6 @@ internal static class MagdolliteLavaAnimations
         [P.Shot] = new([Segments.Whole(P.Shot)], AnimationEnd.Holds),
     };
 
-    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<MagdolliteLavaSegment> StartingWith(MagdolliteLavaSegment segment) => StartingAt[segment];
-
     /// <summary>Shows <paramref name="frame"/> for good (#2337): a still picture rests on it until its owner plays another.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, MagdolliteLavaCue>.Unpaused Hold(EnemyProjectileFrameId frame) => new AnimationBeat<EnemyProjectileFrameId, MagdolliteLavaCue>.HeldFrame(frame);
 

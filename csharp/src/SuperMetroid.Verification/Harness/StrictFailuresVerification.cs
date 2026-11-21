@@ -11,14 +11,7 @@ internal static class StrictFailuresVerification
 /// <summary>Exercises specific invalid inputs at the controller, display, PLM, and enemy-service boundaries.</summary>
 internal static void VerifyStrictFailureBoundaries()
 {
-    var duplicateBindings = new ControllerBindings(
-        Shoot: ControllerButton.X,
-        Jump: ControllerButton.X,
-        Dash: ControllerButton.B,
-        ItemSelect: ControllerButton.Select,
-        ItemCancel: ControllerButton.Y,
-        AimUp: ControllerButton.R,
-        AimDown: ControllerButton.L);
+    var duplicateBindings = ControllerBindings.Default.With(ControllerAction.Jump, ControllerButton.X);
     AssertThrows<InvalidDataException>(
         () => duplicateBindings.RequireUniquePermutation(),
         "duplicate persisted controller binding is rejected");

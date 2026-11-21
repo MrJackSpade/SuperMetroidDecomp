@@ -3,6 +3,7 @@ using SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.Options;
+using SuperMetroid.Core.Frontend.Options.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.Frontend;
@@ -29,10 +30,11 @@ internal static class OptionsGeometryLookupsVerification
     private static void VerifyOptionsCursorRows(ISnesAddressSpace rom, int address, int count, GameOptionsPage page, string name)
     {
         var document = RequiredJson.Deserialize<GameOptionsPresentationDocument>(GameOptionsPresentationExtractor.Extract(rom), ArtworkJson.Options);
-        Offset16<ScreenPixels>[] anchors = document.CursorAnchors[GameOptionsPresentationFormat.MenuName(page)];
-        AssertEqual(count, anchors.Length, $"{name} row count");
+        Dictionary<string, Offset16<ScreenPixels>> anchors = document.CursorAnchors[GameOptionsPresentationFormat.MenuName(page)];
+        IReadOnlyList<GameOptionsCursorRow> rows = GameOptionsLayoutFile.CursorRowsOn(page);
+        AssertEqual(count, anchors.Count, $"{name} row count");
         for (int index = 0; index < count; index++)
-            AssertEqual(ReadVerificationWord(rom, address + 4 * index), anchors[index].Y, $"{name} native word {index}");
+            AssertEqual(ReadVerificationWord(rom, address + 4 * index), anchors[rows[index].Name].Y, $"{name} native word {index}");
     }
 
     /// <summary>Checks the seven controller-label boxes against the native byte offsets their labels are drawn at.</summary>
@@ -48,7 +50,9 @@ internal static class OptionsGeometryLookupsVerification
     /// <summary>Checks seven source words used by controller-label transfers.</summary>
     internal static void VerifyOptionsLabelSources(ISnesAddressSpace rom) =>
         Suite(nameof(VerifyOptionsGeometryWords), () => VerifyOptionsGeometryWords(rom, 0x82f647, 2, 7,
-            index => GameOptionsSourceDefinitions.ControllerLabelSources[index], "controller label source"));
+            index => GameOptionsSourceDefinitions.ControllerLabelSources[(uint)index < (uint)GameOptionsPresentationDefinitions.ControllerLabelButtons.Count
+                ? GameOptionsPresentationDefinitions.ControllerLabelButtons[index]
+                : throw new ArgumentOutOfRangeException(nameof(index), index, "The controller page shows no label at that selector.")], "controller label source"));
 
     /// <summary>Compares an indexed native geometry sequence and rejects indexes beyond its declared count.</summary>
     private static void VerifyOptionsGeometryWords(ISnesAddressSpace rom, int address,

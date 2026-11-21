@@ -158,7 +158,7 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
 
     /// <summary>The animation each start of a piece plays (#2553): the one beginning at its segment, or its shard's flight.</summary>
     private static NoobTubePieceStartCases<int, Animation<NoobTubeProjectileSegment>> PieceStartAnimations { get; } = new(
-        AtSegment: static (start, _) => NoobTubeProjectileAnimations.StartingWith(start.Segment),
+        AtSegment: static (start, _) => NoobTubeProjectileAnimations.StartingAt[start.Segment],
         ShardFlight: static (flight, _) => NoobTubeProjectileAnimations.ShardAnimations[flight.Shard]);
 
     /// <summary>A crack, shard or bubble: the crack's, shards' and bubbles' movers, and their animations' cues.</summary>

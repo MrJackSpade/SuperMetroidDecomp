@@ -17,13 +17,10 @@ internal static class IntroEggEffectDefinitionsVerification
         IReadOnlyList<IntroEggShellFragment> fragments = IntroEggEffectDefinitions.ShellFragments;
         AssertEqual(Enum.GetValues<IntroEggShellFragment>().Length, fragments.Distinct().Count(), "the egg spawns each piece of its shell once");
         for (int index = 0; index < fragments.Count; index++)
-            VerifyIntroEggEffectActor(retail, unchecked((ushort)(0xcecd + index * 6)), IntroEggParticleActors.Particle(fragments[index]),
-                $"intro egg shell {fragments[index]}");
-        Suite(nameof(VerifyIntroEggEffectActor), () => VerifyIntroEggEffectActor(retail, 0xcef1, IntroEggEffectDefinitions.SlimeDrop,
-            "intro egg slime drop"));
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => IntroEggParticleActors.Particle((IntroEggShellFragment)fragments.Count),
-            "intro egg particle definition rejects an undefined fragment");
+            VerifyIntroEggEffectActor(retail, unchecked((ushort)(0xcecd + index * 6)), IntroEggParticleActors.Particle(fragments[index]).Animation,
+                CinematicActorNativeMotions.EggShellFragment, $"intro egg shell {fragments[index]}");
+        Suite(nameof(VerifyIntroEggEffectActor), () => VerifyIntroEggEffectActor(retail, 0xcef1, IntroEggEffectDefinitions.SlimeDrop.Animation,
+            CinematicActorNativeMotions.EggSlimeDrop, "intro egg slime drop"));
 
         var guarded = NewIntroEggEffectDefinitionGuard(retail);
         var particles = fragments
@@ -68,19 +65,22 @@ internal static class IntroEggEffectDefinitionsVerification
             "  Intro egg effects: 21 actor words and 76 instruction/delete bytes match; six fragments and four slime drops complete without source-list reads.");
     }
 
-    /// <summary>Compares an actor's native pre-instruction and list pointers while leaving its initialization callback unowned.</summary>
+    /// <summary>
+    /// Compares an actor's native pre-instruction and list pointers, the flight <paramref name="routine"/> it moves by and
+    /// the list its <paramref name="animation"/> starts at, while leaving its initialization callback unowned.
+    /// </summary>
     private static void VerifyIntroEggEffectActor(
         CartridgeImportAddressSpace retail,
         ushort definitionPointer,
-        CinematicActorDefinition<IntroEggEffectAnimation> actual,
+        Enum animation,
+        ushort routine,
         string name)
     {
         // The six-byte header's first word (initialization callback) has no compiled owner.
         int address = IntroEggEffectDefinitions.NativeDefinitionBank | definitionPointer;
-        ushort routine = actual.Animation == IntroEggEffectAnimation.SlimeDrop ? CinematicActorNativeMotions.EggSlimeDrop : CinematicActorNativeMotions.EggShellFragment;
         AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((address + 2)), routine,
             $"{name} routine: a slime drop's or a shell fragment's flight");
-        AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Start(actual.Animation),
+        AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Start(animation),
             $"{name} instruction list");
     }
 

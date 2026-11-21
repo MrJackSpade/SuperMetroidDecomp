@@ -132,9 +132,6 @@ internal static class EnemyDeathAndDropAnimations
     /// <summary>How many bursts Fake Kraid's explosion makes before it becomes the drop.</summary>
     private const int FakeKraidExplosionBursts = 16;
 
-    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<EnemyDeathAndDropSegment> StartingWith(EnemyDeathAndDropSegment segment) => StartingAt[segment];
-
     /// <summary>
     /// The animation each death explosion starts (#2061): the big explosion's bursts and Fake Kraid's (<see cref="BigExplosionBursts"/>, <see cref="FakeKraidExplosionBursts"/>), each
     /// scattering its sprites, before it becomes the drop; the other explosions' animations start at their segments.

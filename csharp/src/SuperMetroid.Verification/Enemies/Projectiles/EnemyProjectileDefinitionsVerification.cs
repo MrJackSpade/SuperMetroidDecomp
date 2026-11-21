@@ -406,7 +406,7 @@ internal static class EnemyProjectileDefinitionsVerification
                     _ => TorizoProjectileSegment.ChozoOrbShot,
                 };
                 AssertTrue(projectile.Animation is TorizoProjectileAnimation started
-                        && started.Playback == new AnimationPlayback<TorizoProjectileSegment>(TorizoProjectileAnimations.StartingWith(expected), AnimationPlace.StartOfAnimation),
+                        && started.Playback == new AnimationPlayback<TorizoProjectileSegment>(TorizoProjectileAnimations.StartingAt[expected], AnimationPlace.StartOfAnimation),
                     $"{kind} production shot starts the typed {expected} program");
                 AssertTrue(projectile.Animation is not null, $"{kind} typed shot keeps no native list");
             }

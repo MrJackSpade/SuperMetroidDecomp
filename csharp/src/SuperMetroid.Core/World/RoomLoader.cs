@@ -614,7 +614,7 @@ internal sealed class RoomLoader
 
         if (_room.LoadedScope.Enemies.Elevator.DoorArming != ElevatorArming.None)
         {
-            if (_room.LoadedScope.Enemies.Elevator.ElevatorTravel == ElevatorTravelDirection.Down)
+            if (_room.LoadedScope.Enemies.Elevator.ElevatorTravel == VerticalDirection.Down)
                 SamusPoseMetadata.SetupForElevator(samus);
             else
                 samus.Control.LockOutPlayer();

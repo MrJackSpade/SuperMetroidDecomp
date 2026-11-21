@@ -83,3 +83,5 @@ SME6481 | Design | Error | ImpossibleGuardAnalyzer
 SME6483 | Design | Error | RepeatedDefinitionStructureAnalyzer
 SME6484 | Design | Error | IdentityListingAnalyzer
 SME6486 | Design | Error | RandomPlaceSelectionAnalyzer
+SME6487 | Design | Error | ParallelListAnalyzer
+SME6488 | Design | Error | IdentityDuplicationAnalyzer

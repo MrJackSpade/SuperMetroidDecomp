@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// <param name="orientation">The cap's facing.</param>
 /// <param name="paint">The paint its closed images show.</param>
 internal abstract class DoorCapObject(ColoredDoorOrientation orientation, DoorCapPaint paint)
-    : SequencedRoomObject<DoorCapSegment, DoorCapFrame, SoundEffectId>(DoorCapSequenceDefinitions.Segments), IDoorBehindSamus
+    : SequencedRoomObject<DoorCapSegment, DoorCapShown, SoundEffectId>(DoorCapSequenceDefinitions.Segments), IDoorBehindSamus
 {
     /// <inheritdoc/>
     public abstract bool StaysOpenBehindSamus(Func<LockedDoor, bool> openedForGood);
@@ -26,7 +26,7 @@ internal abstract class DoorCapObject(ColoredDoorOrientation orientation, DoorCa
     internal DoorCapPaint Paint { get; } = paint;
 
     /// <inheritdoc/>
-    private protected sealed override void Show(DoorCapFrame frame, RoomObjectPlace place, RoomObjectStepContext context) =>
+    private protected sealed override void Show(DoorCapShown frame, RoomObjectPlace place, RoomObjectStepContext context) =>
         context.Draw(place, DoorCaps.Image(Paint, Orientation, frame));
 
     /// <inheritdoc/>

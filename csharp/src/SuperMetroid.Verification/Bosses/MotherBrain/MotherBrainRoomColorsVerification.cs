@@ -113,7 +113,7 @@ internal static class MotherBrainRoomColorsVerification
         SheetShade a = first.Single(candidate => candidate.Shade == shade);
         SheetShade b = second.Single(candidate => candidate.Shade == shade);
         AssertTrue(a.Inks.SequenceEqual(b.Inks), $"shade {shade.Key} recolours the same inks");
-        return a.Colours.Zip(b.Colours).Count(pair => pair.First != pair.Second);
+        return a.InkColours.Count(entry => b.InkColours[entry.Key] != entry.Value);
     }
 
     /// <summary>

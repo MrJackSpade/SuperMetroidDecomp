@@ -393,7 +393,6 @@ using static SuperMetroid.Verification.Rooms.RoomObjects.SaveConfirmationCadence
 using static SuperMetroid.Verification.Hud.MessageBoxPausesVerification;
 using static SuperMetroid.Verification.Saves.SaveRamLayoutVerification;
 using static SuperMetroid.Verification.Rooms.Scrolling.ScrollObjectsVerification;
-using static SuperMetroid.Verification.Rooms.Scrolling.ScrollChangeNamesVerification;
 using static SuperMetroid.Verification.Rooms.Doors.DoorSetupNamesVerification;
 using static SuperMetroid.Verification.Samus.Movement.ShallowWaterJumpVerification;
 using static SuperMetroid.Verification.Samus.Abilities.ShinesparkEnemyStopVerification;
@@ -1077,7 +1076,6 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyHudState), () => VerifyHudState()),
         new(nameof(VerifyRoomScrollGridAndBoundaryCamera), () => VerifyRoomScrollGridAndBoundaryCamera()),
         new(nameof(VerifyRoomScrollObjects), () => VerifyRoomScrollObjects()),
-        new(nameof(VerifyScrollChangeNamesDescribeTheirScreens), () => VerifyScrollChangeNamesDescribeTheirScreens()),
         new(nameof(VerifyDoorSetupNamesDescribeTheirScreens), () => VerifyDoorSetupNamesDescribeTheirScreens()),
         new(nameof(VerifyRoomObjectHeaderCatalog), () => VerifyRoomObjectHeaderCatalog()),
         new(nameof(VerifyRoomObjectAnimationScriptCatalog), () => VerifyRoomObjectAnimationScriptCatalog()),

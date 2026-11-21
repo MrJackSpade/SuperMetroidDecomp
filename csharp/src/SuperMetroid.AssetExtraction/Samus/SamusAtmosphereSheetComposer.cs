@@ -29,12 +29,11 @@ internal static class SamusAtmosphereSheetComposer
         Ensure.NotNull(spritemaps);
         Ensure.NotNull(atmosphere);
         var frames = new List<SheetFrameSource>();
-        // Each effect's pictures stand in the cartridge's order of its frames and spritemaps.
-        for (int frame = 0; frame < SamusAtmosphericArtworkDefinitions.DirectAtmosphericFrameCount; frame++)
-        {
-            frames.Add(Direct(inputs, atmosphere, SamusAtmosphereSheetDefinitions.FrameName(SamusAtmosphereSheetDefinitions.FootstepSplash[frame]), SamusAtmosphericPictures.FootstepSplash, frame));
-            frames.Add(Direct(inputs, atmosphere, SamusAtmosphereSheetDefinitions.FrameName(SamusAtmosphereSheetDefinitions.LavaAndDust[frame]), SamusAtmosphericPictures.LavaAndDust, frame));
-        }
+        // Each picture of a small-sprite effect shows the effect's appearance at its own frame of the effect's animation.
+        frames.AddRange(SamusAtmosphereSheetDefinitions.FootstepSplash.Select((picture, frame) =>
+            Direct(inputs, atmosphere, SamusAtmosphereSheetDefinitions.FrameName(picture), SamusAtmosphericPictures.FootstepSplash, frame)));
+        frames.AddRange(SamusAtmosphereSheetDefinitions.LavaAndDust.Select((picture, frame) =>
+            Direct(inputs, atmosphere, SamusAtmosphereSheetDefinitions.FrameName(picture), SamusAtmosphericPictures.LavaAndDust, frame)));
         foreach (SamusAtmosphereFrame frame in SamusAtmosphereSheetDefinitions.DivingSplash.Concat(SamusAtmosphereSheetDefinitions.Bubbles))
             frames.Add(Spritemap(inputs, spritemaps, SamusAtmosphereSheetDefinitions.FrameName(frame)));
         return new SpriteSheetSources(frames, inputs.SuitedColours(), ObjectSelectionCodec.GameplaySizes, Shades: inputs.Shades);

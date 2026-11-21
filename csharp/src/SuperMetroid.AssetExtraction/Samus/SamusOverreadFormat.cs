@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -30,9 +31,14 @@ internal static class SamusOverreadFormat
     /// revision twenty-six names the frame each frame past a segment's cue goes on to, and holds the knockback's unnamed
     /// slow recoil as frames past the knockback's cue (#2395); revision twenty-seven states the unauthored beams' launch
     /// speeds in pixels an update (#2555); revision twenty-eight holds the byte each frame a pose start or a cue can move an
-    /// animation to reads as its delay where the frame holds no delay of its own (#2553).
+    /// animation to reads as its delay where the frame holds no delay of its own (#2553); revision twenty-nine keys
+    /// SpaceTime's overwrites by the shot place's name, not by a list position (#2565).
     /// </summary>
-    internal const int Version = 28;
+    internal const int Version = 29;
+
+    /// <summary>The installed name of Samus's shot place <paramref name="place"/>, which keys what SpaceTime's copy overwrites from it.</summary>
+    internal static string ShotPlaceName(int place) =>
+        string.Create(System.Globalization.CultureInfo.InvariantCulture, $"place-{Ensure.AtLeastZero(place)}");
     /// <summary>JSON filename holding the decoded over-read results.</summary>
     internal const string FileName = "samus-overreads.json";
     /// <summary>Shared camel-case, case-insensitive JSON options that reject unknown fields; the file is written compactly.</summary>

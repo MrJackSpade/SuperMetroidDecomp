@@ -31,9 +31,6 @@ internal static class CacatacProjectileAnimations
         P.LeftFacingUp, P.UpLeft, P.Up, P.UpRight, P.RightFacingUp, P.LeftFacingDown, P.DownLeft, P.Down, P.DownRight,
         P.RightFacingDown));
 
-    /// <summary>The animation of a spike launched in <paramref name="direction"/>.</summary>
-    internal static Animation<CacatacSpikeDirection> StartingWith(CacatacSpikeDirection direction) => StartingAt[direction];
-
     /// <summary>A still picture (#2275): <paramref name="frame"/>, held from the update it shows.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Unpaused Hold(EnemyProjectileFrameId frame) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.HeldFrame(frame);
 }

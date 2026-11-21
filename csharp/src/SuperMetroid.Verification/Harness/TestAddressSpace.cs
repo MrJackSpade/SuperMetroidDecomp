@@ -156,7 +156,6 @@ internal sealed class TestAddressSpace : ISnesMemoryBus,
     {
         int cursor = RoomEnemyRomLayout.TilesetBank | pointer;
         var records = new List<RoomEnemyGraphicsSetMember>();
-        var rows = new List<int>();
         for (int slot = 0; slot <= 4; slot++)
         {
             ushort definitionPointerWord = ReadFixtureWord(cursor);
@@ -167,38 +166,30 @@ internal sealed class TestAddressSpace : ISnesMemoryBus,
                 // A set no retail set holds is coloured in the rows its records' placement words name (#1512).
                 var fixture = new RoomEnemyGraphicsSetDefinition($"fixture graphics set ${pointer:X4}");
                 SuperMetroid.TestSupport.RepositoryInstallation.Verification.FixtureGraphicsSetMembers.Record(fixture, [.. records]);
-                SuperMetroid.TestSupport.RepositoryInstallation.Verification.FixtureGraphicsSetRows.Record(fixture, [.. rows]);
                 return fixture;
             }
             if (slot == 4)
                 throw new InvalidDataException($"Fixture graphics set ${pointer:X4} exceeds four entries.");
             // A seeded header of artwork a set loads for no enemy (#1686) is that artwork's record.
+            int row = RoomEnemyGraphicsSetMember.NativePaletteRow(ReadFixtureWord(cursor + 2));
             records.Add(SuperMetroid.AssetExtraction.CartridgeTables.EnemyHeaderWords.UnplacedArtworkHeaders.TryDecode(definitionPointerWord, out UnplacedEnemyArtwork unplaced)
-                ? new RoomEnemyGraphicsSetMember(unplaced)
-                : new RoomEnemyGraphicsSetMember(FixtureDefinitionId(definitionPointerWord)));
-            rows.Add(RoomEnemyGraphicsSetMember.NativePaletteRow(ReadFixtureWord(cursor + 2)));
+                ? new RoomEnemyGraphicsSetMember(unplaced, row)
+                : new RoomEnemyGraphicsSetMember(FixtureDefinitionId(definitionPointerWord), row));
             cursor += 4;
         }
         throw new InvalidDataException($"Fixture graphics set ${pointer:X4} is unterminated.");
     }
 
     /// <summary>
-    /// The retail graphics set holding exactly <paramref name="records"/>, whose catalogued palette rows the import colours
-    /// its members' sheets in (#1512), or null when no retail set holds them: a fixture seeding a retail set's records loads
-    /// as that set, as the game's room loader would.
+    /// The retail graphics set holding exactly <paramref name="records"/>, each in the palette row the import colours its
+    /// member's sheets in (#1512), or null when no retail set holds them: a fixture seeding a retail set's records loads as
+    /// that set, as the game's room loader would.
     /// </summary>
-    /// <exception cref="InvalidDataException">Retail sets holding these records catalogue different palette rows.</exception>
     private static RoomEnemyGraphicsSetDefinition? RetailSetOf(List<RoomEnemyGraphicsSetMember> records)
     {
-        // Only the cartridge's own sets: the session's start-up set is no retail set and catalogues no palette rows.
-        RoomEnemyGraphicsSetDefinition[] matches = [.. RoomEnemyGraphicsSetLists.All
-            .Where(set => RoomEnemyGraphicsSetLists.MembersOf(set).Records.Span.SequenceEqual(records.ToArray()))];
-        if (matches.Length == 0)
-            return null;
-        IReadOnlyDictionary<RoomEnemyGraphicsSetDefinition, int[]> rows = SuperMetroid.AssetExtraction.Enemies.EnemyGraphicsSetPaletteRowDefinitions.Rows;
-        if (matches.Select(set => string.Join(',', rows[set])).Distinct().Count() != 1)
-            throw new InvalidDataException($"Retail graphics sets {string.Join(", ", matches.Select(set => set.Name))} hold these records in different palette rows.");
-        return matches[0];
+        // Only the cartridge's own sets: the session's start-up set is no retail set and loads no records.
+        return RoomEnemyGraphicsSetLists.All
+            .FirstOrDefault(set => RoomEnemyGraphicsSetLists.MembersOf(set).Records.Span.SequenceEqual(records.ToArray()));
     }
 
     /// <summary>Combines two seeded bus bytes in native little-endian order.</summary>

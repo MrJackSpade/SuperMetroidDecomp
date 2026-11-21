@@ -48,7 +48,7 @@ internal static class DraygonIntroDanceDefinitionsVerification
     internal static void VerifyDraygonIntroLatencyDefinitions(CartridgeImportAddressSpace rom)
     {
         const int source = DraygonIntroDanceDefinitionsConstants.NativeMovementLatencyAddress;
-        for (int dancer = 0; dancer < DraygonIntroDanceDefinitions.EvirCount; dancer++)
+        for (int dancer = 0; dancer < DraygonIntroDanceDefinitions.DancerStartDelays.Count; dancer++)
         {
             int slotIndex = NativeDancerSlot(dancer);
             int address = source + (slotIndex - 28) * 2;
@@ -56,11 +56,9 @@ internal static class DraygonIntroDanceDefinitionsVerification
             AssertEqual(native % DraygonIntroDanceDefinitionsConstants.NativeMovementRecordBytes, 0,
                 $"Draygon intro Evir slot {slotIndex} latency is whole records");
             AssertEqual(-native / DraygonIntroDanceDefinitionsConstants.NativeMovementRecordBytes,
-                DraygonIntroDanceDefinitions.StartDelays[dancer],
+                DraygonIntroDanceDefinitions.DancerStartDelays[dancer],
                 $"Draygon intro Evir {dancer} (native slot {slotIndex}) start delay");
         }
-        AssertEqual(DraygonIntroDanceDefinitions.EvirCount, DraygonIntroDanceDefinitions.StartDelays.Length,
-            "Draygon intro start delays, one per Evir");
         Console.WriteLine("Evir start delays: all four native latencies match.");
     }
 
@@ -109,8 +107,8 @@ internal static class DraygonIntroDanceDefinitionsVerification
         ushort[] expectedY = new ushort[4];
         bool[] expectedActive = new bool[4];
         // Each dancer is the Evir spawned in its turn; the native slot it would take indexes its expected values.
-        var dancers = new RoomEffectActor[DraygonIntroDanceDefinitions.EvirCount];
-        for (int dancer = 0; dancer < DraygonIntroDanceDefinitions.EvirCount; dancer++)
+        var dancers = new RoomEffectActor[DraygonIntroDanceDefinitions.DancerStartDelays.Count];
+        for (int dancer = 0; dancer < dancers.Length; dancer++)
         {
             dancers[dancer] = enemies.EffectActors.SpawnRoomEffectActor(new(0x0100, 0x0180), RoomEffectActorKind.EvirFacingLeft,
                 SuperMetroid.Core.Enemies.SpriteGraphics.SharedIn(DraygonColours.Evirs));
@@ -118,7 +116,7 @@ internal static class DraygonIntroDanceDefinitionsVerification
             expectedX[actor] = 0x0100;
             expectedY[actor] = 0x0180;
             expectedActive[actor] = true;
-            state.IntroDancers.Add(new DraygonIntroDancer(dancers[dancer], DraygonIntroDanceDefinitions.StartDelays[dancer]));
+            state.IntroDancers.Add(new DraygonIntroDancer(dancers[dancer], DraygonIntroDanceDefinitions.DancerStartDelays[dancer]));
         }
 
         const int latencySource = DraygonIntroDanceDefinitionsConstants.NativeMovementLatencyAddress;
@@ -175,8 +173,7 @@ internal static class DraygonIntroDanceDefinitionsVerification
 
 
     /// <summary>The longest start delay of the Evirs the dance spawns.</summary>
-    private static int LongestEvirStartDelay() =>
-        DraygonIntroDanceDefinitions.StartDelays.Max();
+    private static int LongestEvirStartDelay() => DraygonIntroDanceDefinitions.DancerStartDelays.Max();
 
     /// <summary>Runs the Draygon intro dance suite through the verification command dispatcher.</summary>
     [VerificationCommand("--draygon-intro-dance-definitions")]

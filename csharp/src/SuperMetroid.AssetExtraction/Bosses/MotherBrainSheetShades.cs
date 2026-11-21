@@ -149,12 +149,11 @@ internal static class MotherBrainSheetShades
     {
         Ensure.NotNull(health);
         var shades = new List<SheetShade>();
-        for (int band = 0; band < MotherBrainHealthPaletteFormat.StateCount; band++)
+        foreach (MotherBrainHealthBand band in MotherBrainHealthBandDefinitions.HighestFirst)
         {
-            int shown = band;
-            shades.Add(BrainAndLegs(MotherBrainShades.Health(MotherBrainHealthBandDefinitions.HighestFirst[shown]), LegsRow + FirstColour,
-                Colours(MotherBrainRainbowPaletteGeometry.ColorCount, colour => health.body.Colour(shown, colour)),
-                Colours(MotherBrainRainbowPaletteGeometry.ColorCount, colour => health.backLegs.Colour(shown, colour))));
+            shades.Add(BrainAndLegs(MotherBrainShades.Health(band), LegsRow + FirstColour,
+                Colours(MotherBrainRainbowPaletteGeometry.ColorCount, colour => health.body.Colour(band, colour)),
+                Colours(MotherBrainRainbowPaletteGeometry.ColorCount, colour => health.backLegs.Colour(band, colour))));
         }
         return shades;
     }
@@ -167,8 +166,8 @@ internal static class MotherBrainSheetShades
     {
         Ensure.NotNull(rainbow);
         var shades = new List<SheetShade>();
-        for (int frame = 0; frame < rainbow.rainbow.Length; frame++)
-            shades.Add(Phase(MotherBrainShades.Rainbow(MotherBrainRainbowImage.All[frame]), rainbow.rainbow[frame]));
+        foreach (MotherBrainRainbowImage image in Steps(MotherBrainRainbowImage.All, rainbow.rainbow.Length, "rainbow"))
+            shades.Add(Phase(MotherBrainShades.Rainbow(image), rainbow.rainbow[image.Step]));
         shades.Add(Phase(MotherBrainShades.Restored, rainbow.normal));
         foreach (MotherBrainFadeImage image in Images(MotherBrainFadeDefinitions.DrainToGrey, rainbow.toGrey.Length))
         {
@@ -204,11 +203,8 @@ internal static class MotherBrainSheetShades
     {
         Ensure.NotNull(health);
         var shades = new List<SheetShade>();
-        for (int band = 0; band < MotherBrainHealthPaletteFormat.StateCount; band++)
-        {
-            int shown = band;
-            shades.Add(Body(MotherBrainShades.Health(MotherBrainHealthBandDefinitions.HighestFirst[shown]), Colours(MotherBrainRainbowPaletteGeometry.ColorCount, colour => health.body.Colour(shown, colour))));
-        }
+        foreach (MotherBrainHealthBand band in MotherBrainHealthBandDefinitions.HighestFirst)
+            shades.Add(Body(MotherBrainShades.Health(band), Colours(MotherBrainRainbowPaletteGeometry.ColorCount, colour => health.body.Colour(band, colour))));
         return shades;
     }
 
@@ -217,10 +213,10 @@ internal static class MotherBrainSheetShades
     {
         Ensure.NotNull(rainbow);
         var shades = new List<SheetShade>();
-        for (int frame = 0; frame < rainbow.rainbow.Length; frame++)
+        foreach (MotherBrainRainbowImage image in Steps(MotherBrainRainbowImage.All, rainbow.rainbow.Length, "rainbow"))
         {
-            InstalledMotherBrainRainbowPalette.PaletteFrame phase = rainbow.rainbow[frame];
-            shades.Add(Body(MotherBrainShades.Rainbow(MotherBrainRainbowImage.All[frame]), Colours(phase.Body.Length, colour => phase.Body[colour])));
+            InstalledMotherBrainRainbowPalette.PaletteFrame phase = rainbow.rainbow[image.Step];
+            shades.Add(Body(MotherBrainShades.Rainbow(image), Colours(phase.Body.Length, colour => phase.Body[colour])));
         }
         shades.Add(Body(MotherBrainShades.Restored, Colours(rainbow.normal.Body.Length, colour => rainbow.normal.Body[colour])));
         foreach (MotherBrainFadeImage image in Images(MotherBrainFadeDefinitions.DrainToGrey, rainbow.toGrey.Length))
@@ -250,11 +246,8 @@ internal static class MotherBrainSheetShades
     {
         Ensure.NotNull(room);
         var shades = new List<SheetShade>();
-        for (int frame = 0; frame < MotherBrainRoomFlashDefinitions.FlashFrameCount; frame++)
-        {
-            int shown = frame;
-            shades.Add(Flash(MotherBrainShades.Flash(MotherBrainRoomFlashImage.All[shown]), colour => room.flash.Colour(shown, colour)));
-        }
+        foreach (MotherBrainRoomFlashImage image in Steps(MotherBrainRoomFlashImage.All, room.flash.RowCount, "room flash"))
+            shades.Add(Flash(MotherBrainShades.Flash(image), colour => room.flash.Colour(image.Step, colour)));
         shades.Add(Flash(MotherBrainShades.FinalRoom, colour => room.finalRoom.Colour(colour)));
         shades.Add(Lights(MotherBrainShades.LightsOut, _ => RgbColor.Black));
         foreach (MotherBrainFadeImage lights in MotherBrainFadeDefinitions.RecoveryLights.Images)
@@ -274,11 +267,10 @@ internal static class MotherBrainSheetShades
                 new ColourRun(BrainRow + FirstColour, Colours(Group - FirstColour, colour => babyMetroid.TargetColor(BabyMetroidColorTarget.Sidehopper, colour + FirstColour))),
                 new ColourRun(AttackRow + FirstColour, Colours(Group - FirstColour, colour => babyMetroid.TargetColor(BabyMetroidColorTarget.BabyMetroid, colour + FirstColour)))),
         };
-        for (int phase = 0; phase < BabyMetroidColorDefinitions.NormalFrameCount; phase++)
+        foreach (BabyMetroidMembranePulse pulse in Steps(BabyMetroidMembranePulse.All, BabyMetroidColorDefinitions.NormalFrameCount, "membrane pulse"))
         {
-            int shown = phase;
-            shades.Add(SheetShade.Run(BabyMetroidShades.Membrane(BabyMetroidMembranePulse.All[shown]), AttackRow + MembraneFirstColour,
-                Colours(BabyMetroidColorDefinitions.NormalColorsPerFrame, colour => babyMetroid.NormalColor(shown, colour))));
+            shades.Add(SheetShade.Run(BabyMetroidShades.Membrane(pulse), AttackRow + MembraneFirstColour,
+                Colours(BabyMetroidColorDefinitions.NormalColorsPerFrame, colour => babyMetroid.NormalColor(pulse.Step, colour))));
         }
         return shades;
     }
@@ -289,9 +281,18 @@ internal static class MotherBrainSheetShades
     {
         Ensure.NotNull(bosses);
         ZebetiteColorCatalog zebetites = bosses.ZebetiteColors ?? throw Missing("the Zebetites' colours");
-        return [.. Enumerable.Range(0, ZebetiteColorFormat.FrameCount).Select(frame => SheetShade.Run(ZebetiteShades.Pulse(ZebetitePulse.All[frame]),
-            AttackRow + PulseFirstColour, Colours(ZebetiteColorFormat.ColorsPerFrame, colour => zebetites.Resolve(frame, colour))))];
+        return [.. Steps(ZebetitePulse.All, ZebetiteColorFormat.FrameCount, "Zebetite pulse").Select(pulse => SheetShade.Run(ZebetiteShades.Pulse(pulse),
+            AttackRow + PulseFirstColour, Colours(ZebetiteColorFormat.ColorsPerFrame, colour => zebetites.Resolve(pulse.Step, colour))))];
     }
+
+    /// <summary>
+    /// The steps of a cycle whose colours the installation holds <paramref name="installed"/> rows of, one for each step and
+    /// read at the step's own place in its cycle.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The installation holds another number of rows than the cycle has steps.</exception>
+    private static IReadOnlyList<T> Steps<T>(IReadOnlyList<T> steps, int installed, string cycle) => installed == steps.Count
+        ? steps
+        : throw new InvalidDataException($"Mother Brain's {cycle} shows {steps.Count} steps, but the installation holds {installed} rows of its colours.");
 
     /// <summary>
     /// <paramref name="fade"/>'s images, whose colours the installation holds <paramref name="installed"/> rows of: one for
@@ -325,7 +326,7 @@ internal static class MotherBrainSheetShades
 
     /// <summary>A shade of several runs of colours, each from its first ink, in rising order.</summary>
     private static SheetShade Rows(PictureShade shade, params ColourRun[] runs) =>
-        new(shade, [.. runs.SelectMany(run => Enumerable.Range(run.FirstInk, run.Colours.Length))], [.. runs.SelectMany(run => run.Colours)]);
+        SheetShade.Combined(shade, runs.Select(run => SheetShade.Run(shade, run.FirstInk, run.Colours)));
 
     /// <summary><paramref name="count"/> colours, each from <paramref name="colour"/>.</summary>
     private static RgbColor[] Colours(int count, Func<int, RgbColor> colour) => [.. Enumerable.Range(0, count).Select(colour)];

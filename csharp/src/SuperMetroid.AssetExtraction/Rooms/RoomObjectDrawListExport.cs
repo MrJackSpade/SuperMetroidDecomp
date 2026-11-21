@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Spatial;
@@ -12,48 +13,23 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// </summary>
 internal static class RoomObjectDrawListExport
 {
-    /// <summary>The direction of every run of a draw that writes its runs along their rows.</summary>
-    internal static readonly Func<int, RoomObjectRunDirection> Horizontal = static _ => RoomObjectRunDirection.Horizontal;
-
-    /// <summary>Where each of a draw's stacked rows starts: its row number of blocks below the origin.</summary>
-    internal static readonly Func<int, Offset16<RoomBlocks>> Stacked = static run => new(0, run);
-
     /// <summary>
-    /// Builds the draw list of a draw whose runs are described one by one, each placed where it starts (#1546); the
+    /// Builds the draw list of a draw written as <paramref name="runs"/> (#1546), each run one description of where it
+    /// starts, its direction and its cells, and each cell colliding as the game's <paramref name="shape"/> says; the
     /// cartridge's continuation after each run is derived by <see cref="RoomObjectRunContinuationCodec"/>.
     /// </summary>
     /// <param name="draw">The draw the list exports.</param>
-    /// <param name="runCount">The number of runs the draw writes.</param>
-    /// <param name="blockCount">The number of cells in a run.</param>
-    /// <param name="collisionAt">How a cell of a run collides.</param>
-    /// <param name="direction">The direction a run writes its cells in.</param>
-    /// <param name="start">Where a run starts, in blocks from the draw's origin.</param>
+    /// <param name="shape">The block shape the game draws the draw as, whose collision each cell takes.</param>
+    /// <param name="runs">The draw's runs in the cartridge's write order; the first starts at the origin.</param>
     /// <exception cref="InvalidDataException">The draw has no run, or its first run does not start at its origin.</exception>
-    internal static DrawList Runs(RoomObjectDraw draw, int runCount, Func<int, int> blockCount, Func<int, int, RoomCollisionType> collisionAt,
-        Func<int, RoomObjectRunDirection> direction, Func<int, Offset16<RoomBlocks>> start)
+    internal static DrawList Runs(RoomObjectDraw draw, RoomBlockShape shape, IReadOnlyList<RoomObjectShapeRun> runs)
     {
-        if (runCount < 1 || start(0) != Offset16<RoomBlocks>.Zero)
+        Ensure.NotNull(shape);
+        if (Ensure.NotNull(runs).Count < 1 || runs[0].Start != Offset16<RoomBlocks>.Zero)
             throw new InvalidDataException($"Draw {draw} does not start its first run at its origin.");
-        var runs = new Run[runCount];
-        for (int run = 0; run < runs.Length; run++)
-        {
-            var collisions = new RoomCollisionType[blockCount(run)];
-            for (int cell = 0; cell < collisions.Length; cell++) collisions[cell] = collisionAt(run, cell);
-            runs[run] = new(direction(run), collisions, start(run));
-        }
-        return new(draw, runs);
+        return new(draw, runs.Select(run => new Run(run.Direction,
+            Enumerable.Range(0, run.Count).Select(cell => shape.CollisionAt(run.CellAt(cell))).ToArray(), run.Start)).ToArray());
     }
-
-    /// <summary>Builds the draw list of a draw of horizontal strips, each placed where it starts (#1546).</summary>
-    /// <param name="draw">The draw the list exports.</param>
-    /// <param name="stripCount">The number of strips the draw writes.</param>
-    /// <param name="blockCount">The number of cells in a strip.</param>
-    /// <param name="collisionAt">How a cell of a strip collides.</param>
-    /// <param name="start">Where a strip starts, in blocks from the draw's origin.</param>
-    /// <exception cref="InvalidDataException">The draw has no strip, or its first strip does not start at its origin.</exception>
-    internal static DrawList Strips(RoomObjectDraw draw, int stripCount, Func<int, int> blockCount, Func<int, int, RoomCollisionType> collisionAt,
-        Func<int, Offset16<RoomBlocks>> start) =>
-        Runs(draw, stripCount, blockCount, collisionAt, Horizontal, start);
 
     /// <summary>Builds the draw list of a draw that writes one run and ends there.</summary>
     /// <param name="draw">The draw the list exports.</param>

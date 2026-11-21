@@ -78,7 +78,7 @@ internal static class EnemySpeciesCapabilitiesVerification
             [EnemyDefinitionId.Crocomire] = BothWalkers,
             [EnemyDefinitionId.CrocomireTongue] = BothWalkers,
             [EnemyDefinitionId.SporeSpawn] = BothWalkers,
-            [EnemyDefinitionId.CeresSteam] = BothWalkers,
+            [EnemyDefinitionId.SteamVent] = BothWalkers,
             [EnemyDefinitionId.KraidArm] = BothWalkers,
             [EnemyDefinitionId.KraidFoot] = BothWalkers,
             [EnemyDefinitionId.DraygonBody] = BothWalkers,

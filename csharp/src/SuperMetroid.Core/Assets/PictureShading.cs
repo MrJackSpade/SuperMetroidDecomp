@@ -1,4 +1,6 @@
+using System.Collections.Frozen;
 using System.Collections.Immutable;
+using System.Runtime.CompilerServices;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -8,10 +10,18 @@ namespace SuperMetroid.Core.Assets;
 /// what the effects show. A shade names the pixels it recolours by their colour key, the colour they hold with their
 /// recolour region. The simulation names shades and effects; it never selects a colour for a pixel or blends one. A backend
 /// colours the picture from <see cref="KeyColours(SpriteImage, IColourBlend)"/> alone, blending its fades as it blends them
-/// (#2563).
+/// (#2563). Each colour key's colour under a shading is worked out once per picture and blend, keyed by the colour key
+/// (#2565).
 /// </summary>
 public sealed record PictureShading
 {
+    /// <summary>
+    /// Each colour key's colour under this shading, by blend and picture, worked out once for each picture it colours with
+    /// each blend: derived from the shading, the picture and the backend's blend, not game state, and made again when absent.
+    /// </summary>
+    [NonSerialized]
+    private ConditionalWeakTable<IColourBlend, ConditionalWeakTable<SpriteImage, FrozenDictionary<ColourKey, RgbColor>>>? coloured;
+
     /// <summary>Keeps a draw's shades and effects.</summary>
     /// <param name="shades">The installed shades laid over the standard colours, in order; a later one wins where they overlap.</param>
     /// <param name="effects">The colour effects applied after the shades, in order.</param>
@@ -102,10 +112,30 @@ public sealed record PictureShading
     /// <param name="blend">The backend's blending of a fade's colours.</param>
     public RgbColor[] KeyColours(SpriteImage picture, IColourBlend blend)
     {
+        FrozenDictionary<ColourKey, RgbColor> colours = ColoursOf(picture, blend);
+        return [.. picture.ColourKeys.Select(key => colours[key])];
+    }
+
+    /// <summary>
+    /// Each of <paramref name="picture"/>'s colour keys' colour under this shading, by key, worked out once per picture and
+    /// blend.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The installation did not pre-colour the picture in a shade this shading names.</exception>
+    /// <param name="picture">The picture coloured.</param>
+    /// <param name="blend">The backend's blending of a fade's colours.</param>
+    public FrozenDictionary<ColourKey, RgbColor> ColoursOf(SpriteImage picture, IColourBlend blend)
+    {
         Ensure.NotNull(picture);
-        var shown = new RgbColor[picture.ColourKeys.Length];
-        KeyColours(picture, shown, blend);
-        return shown;
+        Ensure.NotNull(blend);
+        return (coloured ??= new()).GetValue(blend, _ => new()).GetValue(picture, shaded => Colour(shaded, blend));
+    }
+
+    /// <summary>Works out each of <paramref name="picture"/>'s colour keys' colour under this shading, from the key's own.</summary>
+    private FrozenDictionary<ColourKey, RgbColor> Colour(SpriteImage picture, IColourBlend blend)
+    {
+        Dictionary<ColourKey, RgbColor> shown = picture.ColourKeys.ToDictionary(key => key, key => key.Colour);
+        ApplyOver(picture, shown, blend);
+        return shown.ToFrozenDictionary();
     }
 
     /// <summary>
@@ -120,33 +150,34 @@ public sealed record PictureShading
     /// <param name="blend">The backend's blending of a fade's colours.</param>
     public void KeyColours(SpriteImage picture, Span<RgbColor> shown, IColourBlend blend)
     {
-        Ensure.NotNull(picture);
+        FrozenDictionary<ColourKey, RgbColor> colours = ColoursOf(picture, blend);
         ImmutableArray<ColourKey> keys = picture.ColourKeys;
         _ = Ensure.LengthEqual(shown, keys.Length);
-        for (int key = 0; key < keys.Length; key++)
-            shown[key] = keys[key].Colour;
-        ApplyOver(picture, shown, blend);
+        // The colours are listed in the order of the picture's keys; each is written at its key's own place.
+        int place = 0;
+        foreach (ColourKey key in keys)
+            shown[place++] = colours[key];
     }
 
     /// <summary>
     /// Lays this shading over <paramref name="shown"/>, the colour each of <paramref name="picture"/>'s colour keys shows so
-    /// far: its shades, then its fades, its effects and the shades over its effects.
+    /// far, by key: its shades, then its fades, its effects and the shades over its effects.
     /// </summary>
     /// <exception cref="InvalidDataException">The installation did not pre-colour the picture in a shade this shading names.</exception>
-    internal void ApplyOver(SpriteImage picture, Span<RgbColor> shown, IColourBlend blend)
+    internal void ApplyOver(SpriteImage picture, Dictionary<ColourKey, RgbColor> shown, IColourBlend blend)
     {
         Ensure.NotNull(blend);
         foreach (PictureShade shade in Shades)
-            Recolour(picture, picture.Shade(shade), shown);
+            Recolour(picture.Shade(shade), shown);
         foreach (PictureShadeFade fade in Fades)
             fade.ApplyOver(picture, shown, blend);
         foreach (ColourEffect effect in Effects)
         {
-            for (int key = 0; key < shown.Length; key++)
+            foreach (ColourKey key in picture.ColourKeys)
                 shown[key] = effect.Apply(shown[key], blend);
         }
         foreach (PictureShade shade in OverEffects)
-            Recolour(picture, picture.Shade(shade), shown);
+            Recolour(picture.Shade(shade), shown);
     }
 
     /// <summary>The colour <paramref name="key"/> of <paramref name="picture"/> shows under this shading, such as its backdrop's.</summary>
@@ -155,20 +186,18 @@ public sealed record PictureShading
     /// <param name="picture">The picture coloured.</param>
     /// <param name="key">The key whose colour is shown.</param>
     /// <param name="blend">The backend's blending of a fade's colours.</param>
-    public RgbColor Shown(SpriteImage picture, ColourKey key, IColourBlend blend)
-    {
-        Ensure.NotNull(picture);
-        int place = picture.PlaceOf(key) ?? throw new ArgumentException($"Picture {picture.Name} holds no colour key {key}.", nameof(key));
-        return KeyColours(picture, blend)[place];
-    }
+    public RgbColor Shown(SpriteImage picture, ColourKey key, IColourBlend blend) =>
+        ColoursOf(picture, blend).TryGetValue(key, out RgbColor shown)
+            ? shown
+            : throw new ArgumentException($"Picture {picture.Name} holds no colour key {key}.", nameof(key));
 
-    /// <summary>Writes each colour <paramref name="recolouring"/> shows over the keys of <paramref name="picture"/> it names.</summary>
-    private static void Recolour(SpriteImage picture, PictureRecolouring recolouring, Span<RgbColor> shown)
+    /// <summary>Writes each colour <paramref name="recolouring"/> shows over the keys it names that the picture holds.</summary>
+    private static void Recolour(PictureRecolouring recolouring, Dictionary<ColourKey, RgbColor> shown)
     {
         foreach (KeyedSubstitution substitution in recolouring.Substitutions)
         {
-            if (picture.PlaceOf(substitution.Replaced) is { } place)
-                shown[place] = substitution.Shown;
+            if (shown.ContainsKey(substitution.Replaced))
+                shown[substitution.Replaced] = substitution.Shown;
         }
     }
 }

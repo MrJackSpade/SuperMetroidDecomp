@@ -53,11 +53,11 @@ internal static class SpawnedObjectSheetSharing
         var common = new List<PictureSheetPlan>();
         foreach (HeldPicture picture in pictures.Where(picture => picture.IsCommon))
         {
-            int sheet = common.FindIndex(plan => plan.TryTake(picture));
-            if (sheet < 0)
+            PictureSheetPlan? sheet = common.FirstOrDefault(plan => plan.TryTake(picture));
+            if (sheet is null)
             {
-                sheet = common.Count;
-                common.Add(new PictureSheetPlan(picture, $"Spawned-Common {sheet}"));
+                sheet = new PictureSheetPlan(picture, $"Spawned-Common {common.Count}");
+                common.Add(sheet);
             }
             picture.CommonSheet = sheet;
         }
@@ -88,10 +88,10 @@ internal static class SpawnedObjectSheetSharing
         {
             shares[sheet] = new SpawnedSheetShare(own[sheet] is { } plan ? installedOf[plan] : null,
                 held[sheet].Where(frame => frame.Value.IsCommon)
-                    .ToDictionary(frame => frame.Key, frame => frame.Value.CommonSheet ?? throw new InvalidOperationException(
-                        $"Common picture {frame.Key} was given no common sheet."), StringComparer.Ordinal));
+                    .ToDictionary(frame => frame.Key, frame => frame.Value.CommonSheet is { } commonPlan ? installedOf[commonPlan]
+                        : throw new InvalidOperationException($"Common picture {frame.Key} was given no common sheet."), StringComparer.Ordinal));
         }
-        return new SharedSpawnedSheets([.. common.Select(plan => installedOf[plan])], shares);
+        return new SharedSpawnedSheets(shares);
     }
 
     /// <summary>One distinct picture the spawned-object sheets hold, and which of them hold it under which frame names.</summary>
@@ -132,8 +132,8 @@ internal static class SpawnedObjectSheetSharing
         /// <summary>Whether two or more sheets hold the picture, so it is held once on a common sheet.</summary>
         internal bool IsCommon => holders.Count > 1;
 
-        /// <summary>The common sheet the picture is held on, by its place among the common sheets; null until one holds it.</summary>
-        internal int? CommonSheet { get; set; }
+        /// <summary>The common sheet the picture is held on; null until one holds it.</summary>
+        internal PictureSheetPlan? CommonSheet { get; set; }
 
         /// <summary>
         /// Records that sheet <paramref name="sheet"/>, coloured as <paramref name="colouring"/>, shows the picture as frame

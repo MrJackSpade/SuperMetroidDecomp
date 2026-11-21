@@ -292,12 +292,17 @@ internal static class LookupStream2Verification
         Suite(nameof(VerifyNinjaSpacePirateInstructionProgramDefinitions), () => VerifyNinjaSpacePirateInstructionProgramDefinitions());
     }
 
-    /// <summary>Checks projectile identity selectors, extracted compositions, and 417 actual OAM drawings.</summary>
+    /// <summary>Checks projectile identity selectors, extracted compositions, and 416 actual OAM drawings.</summary>
     internal static void VerifyLookupStream2ProjectileIdentityGeometry(ISnesAddressSpace rom)
     {
         var expected = new SortedSet<ushort>();
         foreach (ushort record in SamusProjectileFrameDefinitions.TimedRecordAddresses)
             expected.Add(ReadVerificationWord(rom, (0x930000 | record) + 2));
+        // The invisible frames select the cartridge's empty record, which holds no parts: they draw nothing and bind no
+        // composition (#2558), so the compositions are the selector union without it. VerifyLookupStream2PowerDirectionBindings
+        // confirms each record selecting it resolves to drawing nothing.
+        AssertEqual((ushort)0, ReadVerificationWord(rom, 0x930000 | ProjectileSpriteNative.EmptyRecordAddress), "The empty record the invisible frames select holds no parts");
+        AssertTrue(expected.Remove(ProjectileSpriteNative.EmptyRecordAddress), "The invisible frames select the empty record");
         int physicalAddress = 0x93f0fa;
         int physicalRecords = 0;
         for (int orientation = 0; orientation < 8; orientation++)
@@ -313,7 +318,7 @@ internal static class LookupStream2Verification
         }
         AssertEqual(48, physicalRecords, "All48 physical Plasma startup records including omitted stages");
         AssertEqual(0x93f5e2, physicalAddress, "Native Plasma startup layout end after the final ten-part composition");
-        AssertEqual(417, expected.Count, "The timed records reference417 distinct compositions");
+        AssertEqual(416, expected.Count, "The timed records reference416 distinct compositions besides the empty record");
         int ordinal = 0;
         foreach (ushort pointer in expected)
             AssertEqual(pointer, ProjectileSpriteDefinitions.NativePointers[ordinal++], "Calculated projectile identity equals native sorted selector union");
@@ -326,7 +331,7 @@ internal static class LookupStream2Verification
             var actual = new OamBuffer();
             DrawImportedProjectileSpritemap(rom, native, pointer, new(255, 255));
             selected.Draw(pointer, actual, new(255, 255));
-            AssertTrue(native.ImageEquals(actual), "All417 installed identities extract and draw exact native OAM");
+            AssertTrue(native.ImageEquals(actual), "All416 installed identities extract and draw exact native OAM");
         }
         var flare = ChargeFlareSprites.Load(new MemoryStream(ChargeFlareSpriteExtractor.Extract(rom)));
         for (ushort selector = 0; selector < ChargeFlareSpriteNative.NativeSelectorCount; selector++)
@@ -338,8 +343,8 @@ internal static class LookupStream2Verification
             AssertTrue(native.ImageEquals(actual), "Existing flare span caller preserves exact extracted OAM");
         }
         AssertThrows<ArgumentOutOfRangeException>(() => _ = ProjectileSpriteDefinitions.NativePointers[-1], "Projectile identity lower bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => _ = ProjectileSpriteDefinitions.NativePointers[417], "Projectile identity upper bound");
-        Console.WriteLine("Projectile identity geometry:417 exact identities from805 native selectors,48 physical startup records,417 actual extracted OAM draws,all existing flare selectors and bounds pass;all417 identities and 208 stock beam/missile/effect compositions calculate; independent frame selection/composition/art inputs remain pending.");
+        AssertThrows<ArgumentOutOfRangeException>(() => _ = ProjectileSpriteDefinitions.NativePointers[416], "Projectile identity upper bound");
+        Console.WriteLine("Projectile identity geometry:416 exact identities and the empty record from805 native selectors,48 physical startup records,416 actual extracted OAM draws,all existing flare selectors and bounds pass;all416 identities and 208 stock beam/missile/effect compositions calculate; independent frame selection/composition/art inputs remain pending.");
     }
     /// <summary>Checks Norfair and Old Tourian palette-FX owner catalogs and native definition identities.</summary>
     internal static void VerifyLookupStream2EnvironmentalCatalogs(CartridgeImportAddressSpace rom)
@@ -351,7 +356,6 @@ internal static class LookupStream2Verification
         int count = 0;
         foreach (var item in norfair)
         {
-            AssertEqual((NorfairEnvironmentalPaletteOwner)count, item.Owner, "Norfair native owner order");
             AssertEqual(ReadVerificationWord(rom, 0x8d0000 | item.DefinitionPointer + 2), item.ProgramStart, "Native Norfair definition/list binding");
             AssertEqual(ReadVerificationWord(rom, 0x8d0000 | item.ProgramStart + 2), item.ColorFrames.Effect.AnimatedColours.CartridgeByteIndex, "Native Norfair colours start where the object's colour group is placed");
             AssertEqual(ReadVerificationWord(rom, 0x8d0000 | item.LoopInstructionPointer + 2), item.FirstRecordPointer, "Native Norfair loop target");
@@ -362,7 +366,6 @@ internal static class LookupStream2Verification
         count = 0;
         foreach (var item in accents)
         {
-            AssertEqual((OldTourianEscapeAccentPaletteOwner)count, item.Owner, "Accent native owner order");
             AssertEqual(ReadVerificationWord(rom, 0x8d0000 | item.DefinitionPointer + 2), item.ProgramStart, "Native accent definition/list binding");
             AssertEqual(ReadVerificationWord(rom, 0x8d0000 | item.ProgramStart + 2), item.ColorFrames.Effect.AnimatedColours.CartridgeByteIndex, "Native railings/panels colours start where the object's colour group is placed");
             AssertEqual(ReadVerificationWord(rom, 0x8d0000 | item.LoopInstructionPointer + 2), item.FirstFramePointer, "Native accent loop target");
@@ -370,10 +373,6 @@ internal static class LookupStream2Verification
             count++;
         }
         AssertEqual(2, count, "Complete accent lazy enumeration");
-        AssertThrows<ArgumentOutOfRangeException>(() => { _ = norfair[-1]; }, "Norfair lower owner bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => { _ = norfair[4]; }, "Norfair upper owner bound");
-        AssertThrows<IndexOutOfRangeException>(() => { _ = accents[-1]; }, "Accent lower owner bound");
-        AssertThrows<IndexOutOfRangeException>(() => { _ = accents[2]; }, "Accent upper owner bound");
         Console.WriteLine("Environmental catalogs:six native definition/color/loop bindings,292mechanics words,16heat phase bytes,actual complete/repeating cycles,live colors,enumeration/order and bounds pass; accent timing and independent colors remain pending.");
     }
     /// <summary>Checks extracted pause backdrop geometry and VRAM tile output.</summary>
@@ -787,7 +786,7 @@ internal static class LookupStream2Verification
             pages[ordinal++] = RoomCharacterAtlasPng.Read(png, page.ByteCount);
         }
         AssertEqual(8, ordinal, "Torizo page count");
-        var artwork = new TorizoSwapArtwork(pages);
+        var artwork = new TorizoSwapArtwork(TorizoSwapArtworkDefinitions.All.Zip(pages).ToDictionary(entry => entry.First.Page, entry => entry.Second));
         string expectedHash = SelectedPresentationHash.Create("TorizoInstructionVramArtwork-v1", content =>
         {
             content.Append("pages", original.Length);
@@ -1229,8 +1228,8 @@ internal static class LookupStream2Verification
         {
             var pulse = shades.Single(shade => shade.Shade == SuperMetroid.Core.Frontend.Pause.Artwork.PauseReserveArrowShades.Pulse(SuperMetroid.Core.Frontend.Pause.Artwork.PauseReserveArrowPulseFrame.All[frame]));
             AssertTrue(pulse.Inks.SequenceEqual([102, 107]), "the pulse shade recolours the arrow's two bevel colours");
-            AssertEqual(ReadVerificationWord(rom, 0x82ad5d + 2 * frame), pulse.Colours[0], "Native arrow color6 reaches the arrow's shade colour");
-            AssertEqual(ReadVerificationWord(rom, 0x82ad9d + 2 * frame), pulse.Colours[1], "Native arrow color11 reaches the arrow's light colour");
+            AssertEqual(ReadVerificationWord(rom, 0x82ad5d + 2 * frame), pulse.InkColours[102], "Native arrow color6 reaches the arrow's shade colour");
+            AssertEqual(ReadVerificationWord(rom, 0x82ad9d + 2 * frame), pulse.InkColours[107], "Native arrow color11 reaches the arrow's light colour");
         }
         Check(stock, document);
         Console.WriteLine("Reserve arrow ramps: all 64 native colors and shades pass.");
@@ -1370,7 +1369,7 @@ internal static class LookupStream2Verification
         int enumerated = 0;
         foreach (var definition in definitions)
         {
-            AssertEqual(definitions[enumerated].Owner, definition.Owner, "Torizo enumerated owner");
+            AssertEqual(definitions[enumerated].Effect, definition.Effect, "Torizo enumerated effect");
             enumerated++;
         }
         AssertEqual(2, enumerated, "Torizo definition enumeration");

@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Bosses.Ridley.Artwork;
+
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>Ridley's tail as it is made, and the swings, spacings, reaches and extensions its actions set (#2238).</summary>
@@ -120,21 +122,22 @@ internal static class RidleyTailDefinitions
         [RidleyFacing.Right] = RidleyTailAngle.StraightDown.TurnedCounterclockwise(16),
     };
 
-    /// <summary>The base, two pixels from the hip, pointing straight down; it holds its length.</summary>
-    internal static RidleyTailLinkDefinition BaseLink { get; } =
-        new(SignedEightEight.FromPixels(2), SignedEightEight.FromPixels(2), RidleyTailAngle.StraightDown);
+    /// <summary>The base, two pixels from the hip, pointing straight down; it holds its length and is drawn as the base link.</summary>
+    internal static RidleyDrawnTailLinkDefinition BaseLink { get; } =
+        new(new(SignedEightEight.FromPixels(2), SignedEightEight.FromPixels(2), RidleyTailAngle.StraightDown), RidleySupplementalVisualDefinitions.BaseLink);
 
     /// <summary>
     /// The five shaft links from the body out, each eight pixels from the link before and starting one standard spacing
     /// further counterclockwise; the two nearest the body stretch to 24 pixels, the next two to 22 and the last to 18.
+    /// The first is drawn as a base link, the next two as middle links and the last two as outer links.
     /// </summary>
-    internal static IReadOnlyList<RidleyTailLinkDefinition> ShaftLinks { get; } =
+    internal static IReadOnlyList<RidleyDrawnTailLinkDefinition> ShaftLinks { get; } =
     [
-        new(SignedEightEight.FromPixels(8), SignedEightEight.FromPixels(24), RidleyTailAngle.StraightDown.TurnedCounterclockwise(16)),
-        new(SignedEightEight.FromPixels(8), SignedEightEight.FromPixels(24), RidleyTailAngle.StraightDown.TurnedCounterclockwise(32)),
-        new(SignedEightEight.FromPixels(8), SignedEightEight.FromPixels(22), RidleyTailAngle.StraightDown.TurnedCounterclockwise(48)),
-        new(SignedEightEight.FromPixels(8), SignedEightEight.FromPixels(22), RidleyTailAngle.StraightDown.TurnedCounterclockwise(64)),
-        new(SignedEightEight.FromPixels(8), SignedEightEight.FromPixels(18), RidleyTailAngle.StraightDown.TurnedCounterclockwise(80)),
+        new(new(SignedEightEight.FromPixels(8), SignedEightEight.FromPixels(24), RidleyTailAngle.StraightDown.TurnedCounterclockwise(16)), RidleySupplementalVisualDefinitions.BaseLink),
+        new(new(SignedEightEight.FromPixels(8), SignedEightEight.FromPixels(24), RidleyTailAngle.StraightDown.TurnedCounterclockwise(32)), RidleySupplementalVisualDefinitions.MiddleLink),
+        new(new(SignedEightEight.FromPixels(8), SignedEightEight.FromPixels(22), RidleyTailAngle.StraightDown.TurnedCounterclockwise(48)), RidleySupplementalVisualDefinitions.MiddleLink),
+        new(new(SignedEightEight.FromPixels(8), SignedEightEight.FromPixels(22), RidleyTailAngle.StraightDown.TurnedCounterclockwise(64)), RidleySupplementalVisualDefinitions.OuterLink),
+        new(new(SignedEightEight.FromPixels(8), SignedEightEight.FromPixels(18), RidleyTailAngle.StraightDown.TurnedCounterclockwise(80)), RidleySupplementalVisualDefinitions.OuterLink),
     ];
 
     /// <summary>The tip, five pixels from the last shaft link, starting one standard spacing further round; it never stretches.</summary>

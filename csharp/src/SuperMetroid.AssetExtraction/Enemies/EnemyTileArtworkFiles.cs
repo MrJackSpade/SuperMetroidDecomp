@@ -148,10 +148,9 @@ public static class EnemyTileArtworkFiles
                 Convert.ToHexString(SHA256.HashData(png)));
         }
         var ceresEscapeTileHashes = new Dictionary<string, string>(StringComparer.Ordinal);
-        for (int pageIndex = 0; pageIndex < CeresEscapeTileArtworkDefinitions.All.Length; pageIndex++)
+        foreach (TileSheetDefinition page in CeresEscapeTileArtworkDefinitions.All)
         {
-            TileSheetDefinition page = CeresEscapeTileArtworkDefinitions.All[pageIndex];
-            byte[] png = IndexedTilePageExtractor.Extract(bus, (int)EscapeSourceDefinitions.CeresEscapePages[pageIndex],
+            byte[] png = IndexedTilePageExtractor.Extract(bus, (int)EscapeSourceDefinitions.CeresEscapePageSources[page],
                 page.ByteCount, $"Ceres escape page {page.FileName}");
             File.WriteAllBytes(Path.Combine(importData, page.FileName), png);
             ceresEscapeTileHashes.Add(page.FileName,

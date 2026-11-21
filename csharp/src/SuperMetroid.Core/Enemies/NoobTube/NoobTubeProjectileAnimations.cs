@@ -158,9 +158,6 @@ internal static class NoobTubeProjectileAnimations
     /// <summary>The flickers of a shard's swaying fall.</summary>
     private const int FallFlickers = 272;
 
-    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<NoobTubeProjectileSegment> StartingWith(NoobTubeProjectileSegment segment) => StartingAt[segment];
-
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<NoobTubeProjectileFrame, NoobTubeProjectileCue>.Unpaused Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<NoobTubeProjectileFrame, NoobTubeProjectileCue>.Frame(new(frame), duration);
 

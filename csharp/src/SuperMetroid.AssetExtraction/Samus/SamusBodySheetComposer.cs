@@ -102,10 +102,10 @@ internal static class SamusBodySheetComposer
             {
                 SheetShade shade = shades.FirstOrDefault(candidate => candidate.Shade == name)
                     ?? throw new InvalidDataException($"Samus's sheets have no shade {name.Effect} {name.Step} to colour body frame {frame.Name} in.");
-                for (int index = 0; index < shade.Inks.Length; index++)
+                foreach ((int ink, RgbColor colour) in shade.InkColours)
                 {
-                    if (rows.Contains(shade.Inks[index] / SamusSheetInks.GroupColours))
-                        left[shade.Inks[index]] = shade.Colours[index];
+                    if (rows.Contains(ink / SamusSheetInks.GroupColours))
+                        left[ink] = colour;
                 }
             }
             foreach (KeyValuePair<int, RgbColor> ink in left)

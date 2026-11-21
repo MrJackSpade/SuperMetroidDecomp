@@ -30,7 +30,7 @@ public static class BotwoonHealthBandDefinitions
     /// <summary>Botwoon below his full health: hurt at all.</summary>
     public static BotwoonHealthBand BelowFull { get; } = new(3000, "below-full", BelowSevenEighths);
 
-    /// <summary>The bands in the order he shows them, the order his installed health colours hold them in.</summary>
+    /// <summary>The bands in the order he shows them.</summary>
     public static IReadOnlyList<BotwoonHealthBand> InOrderShown { get; } =
         [BelowFull, BelowSevenEighths, BelowThreeQuarters, BelowFiveEighths, BelowHalf, BelowThreeEighths, BelowQuarter, BelowEighth];
 }

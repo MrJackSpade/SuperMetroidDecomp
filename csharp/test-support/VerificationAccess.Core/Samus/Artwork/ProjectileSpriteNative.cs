@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Samus.Artwork;
 internal static class ProjectileSpriteNative
 {
     /// <summary>
-    /// The bank-$93 address of each projectile composition record, in <see cref="ProjectileSpriteDefinitions.Stored"/> order:
+    /// The bank-$93 address of each projectile composition record, in the order <c>ProjectileSpriteDefinitions.Stored</c> lists the stored records:
     /// a record that stores a composition again, byte for byte, holds that composition (#2295).
     /// </summary>
     private static readonly ushort[] ProjectileAddresses =

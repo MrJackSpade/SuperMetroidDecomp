@@ -28,12 +28,11 @@ public static class MotherBrainDeathColorFile
         if (document.Version != MotherBrainDeathColorFormat.Version)
             throw new InvalidDataException(
                 "Mother Brain death colors require the supported version.");
-        return new(CompileFrames(document.BodyFade,
-                BodyFadeFrameCount,
-                MotherBrainDeathColorFormat.BodyColorCount, "body fade"),
-            CompileFrames(document.LegFade,
-                BodyFadeFrameCount,
-                MotherBrainDeathColorFormat.BodyColorCount, "leg fade"),
+        if (document.BodyFade is not { } stages || stages.Length != BodyFadeFrameCount)
+            throw new InvalidDataException($"Mother Brain death body fade requires {BodyFadeFrameCount} stages.");
+        return new([.. stages.Select((stage, index) => new MotherBrainDeathFadeStage(
+                Compile(stage?.Body, MotherBrainDeathColorFormat.BodyColorCount, $"body fade stage {index} body"),
+                Compile(stage?.BackLegs, MotherBrainDeathColorFormat.BodyColorCount, $"body fade stage {index} legs")))],
             CompileFrames(document.CorpseFade,
                 CorpseFadeFrameCount,
                 MotherBrainDeathColorFormat.CorpseColorCount, "corpse fade"));

@@ -476,15 +476,17 @@ public sealed class SamusBombProjectileSystem
     /// <summary>Installs five bombs with each place's own launch and clears Samus's stored charge.</summary>
     private void SpawnBombSpread(SamusState samus)
     {
-        for (int place = 0; place < PlaceCount; place++)
+        // One bomb for each authored launch, from the spread's leftmost place to its rightmost.
+        int place = 0;
+        foreach (BombSpreadLaunchDefinition launch in SamusBombSpreadLaunchDefinitions.LeftToRight)
         {
-            SamusBomb bomb = Occupy(place);
+            SamusBomb bomb = Occupy(place++);
             SamusBombOccupant placed = Place(bomb, SamusBombKind.Bomb);
             placed.PicturedBeams = SamusBeamCombinations.Of(samus.EquippedBeams);
-            placed.SpreadFlight = SamusBombSpreadLaunches.Launch(place, samus.BombSpreadCharge.Age);
+            placed.SpreadFlight = SamusBombSpreadLaunches.Launch(launch, samus.BombSpreadCharge.Age);
             placed.Position = placed.Position.WithWhole(samus.Position.Whole);
             InitializeBomb(placed);
-            placed.Fuse = UpdateCountdown.For(SamusBombSpreadLaunches.ForPlace(place).FuseTimer);
+            placed.Fuse = UpdateCountdown.For(launch.FuseTimer);
         }
 
         BombCounter = PlaceCount;

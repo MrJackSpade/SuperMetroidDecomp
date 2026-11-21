@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core;
@@ -9,11 +10,11 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 /// <summary>Editable staff-credit text compiled into the cartridge's fixed row cadence.</summary>
 public sealed class CreditsPresentation
 {
-    /// <summary>Validated editable lines rendered on demand at the fixed cartridge cadence.</summary>
-    private readonly CreditsLineDocument[] lines;
+    /// <summary>Each roll line with its validated editable text, in roll order, rendered on demand at the fixed cartridge cadence.</summary>
+    private readonly RollLineText[] lines;
 
     /// <summary>Retains the lines and the identity of their original JSON bytes.</summary>
-    private CreditsPresentation(CreditsLineDocument[] lines, string contentIdentity)
+    private CreditsPresentation(RollLineText[] lines, string contentIdentity)
     {
         this.lines = lines;
         ContentIdentity = contentIdentity;
@@ -30,15 +31,13 @@ public sealed class CreditsPresentation
     {
         if ((uint)index >= CreditsPresentationDefinitions.RowCount)
             throw new ArgumentOutOfRangeException(nameof(index));
-        CreditsLineDocument[] authored = lines;
-        for (int line = 0; line < authored.Length; line++)
+        foreach (RollLineText line in lines)
         {
-            CreditsRollLine placed = CreditsRollLines.Lines[line];
-            int row = RowsOf(placed.Top);
+            int row = RowsOf(line.Placed.Top);
             if (index < row)
                 return BlankRow();
-            if (index < row + RowsOf(placed.Height))
-                return RenderLine(CreditsRoles.Lines[line], lines[line], bottom: index != row);
+            if (index < row + RowsOf(line.Placed.Height))
+                return RenderLine(line.Placed.Role, line.Text, bottom: index != row);
         }
         return BlankRow();
     }
@@ -73,27 +72,26 @@ public sealed class CreditsPresentation
             throw new InvalidDataException("Invalid credits JSON.", error);
         }
 
-        IReadOnlyList<CreditsLineDefinition> definitions =
-            CreditsRoles.Lines;
+        ImmutableArray<CreditsRollLine> roll = CreditsRollLines.Lines;
         if (document.Version != CreditsPresentationDefinitions.Version ||
-            document.Lines is null || document.Lines.Length != definitions.Count)
+            document.Lines is null || document.Lines.Length != roll.Length)
         {
             throw new InvalidDataException(
                 $"Credits require version {CreditsPresentationDefinitions.Version} and " +
-                $"exactly {definitions.Count} ordered lines.");
+                $"exactly {roll.Length} ordered lines.");
         }
+        // Each line's text is the document's line of its role; the document lists them in roll order.
+        if (!document.Lines.Select(line => line.Id).SequenceEqual(roll.Select(line => line.Role.Role), StringComparer.Ordinal))
+            throw new InvalidDataException("Credits lines must retain each role's id, in roll order.");
+        Dictionary<string, CreditsLineDocument> textOf = document.Lines.ToDictionary(line => line.Id, StringComparer.Ordinal);
 
         int compiledRows = 0;
-        for (int index = 0; index < definitions.Count; index++)
+        var lines = new List<RollLineText>(roll.Length);
+        foreach (CreditsRollLine placed in roll)
         {
-            CreditsLineDefinition definition = definitions[index];
+            CreditsLineDefinition definition = placed.Role;
             string id = definition.Role;
-            CreditsLineDocument line = document.Lines[index];
-            if (!string.Equals(line.Id, id, StringComparison.Ordinal))
-            {
-                throw new InvalidDataException(
-                    $"Credits line {index} must retain id '{id}'.");
-            }
+            CreditsLineDocument line = textOf[id];
             if (line.Text is null || line.Text.Length == 0)
                 throw new InvalidDataException($"Credits line '{id}' cannot be empty.");
             if ((uint)line.Palette >= BackgroundTile.ColourVariants)
@@ -107,6 +105,7 @@ public sealed class CreditsPresentation
 
             compiledRows += RowsOf(definition.SpaceBefore) + RowsOf(CreditsRollLines.HeightOf(definition.Style));
             ValidateLine(definition, id, line);
+            lines.Add(new RollLineText(placed, line));
         }
         compiledRows += RowsOf(CreditsRollDefinitions.TrailingSpace);
         if (compiledRows != CreditsPresentationDefinitions.RowCount)
@@ -115,7 +114,7 @@ public sealed class CreditsPresentation
                 $"Credits compiled to {compiledRows} rows; expected " +
                 $"{CreditsPresentationDefinitions.RowCount}.");
         }
-        return new(document.Lines, Convert.ToHexString(SHA256.HashData(source)));
+        return new([.. lines], Convert.ToHexString(SHA256.HashData(source)));
     }
 
     /// <summary>Writes a credits document as JSON.</summary>
@@ -162,6 +161,11 @@ public sealed class CreditsPresentation
         glyph == CreditsPresentationDefinitions.BlankTile
             ? glyph
             : glyph with { ColourVariant = colourVariant };
+
+    /// <summary>One staff line on the roll with its editable text.</summary>
+    /// <param name="Placed">The line's role and where it lies on the roll.</param>
+    /// <param name="Text">The line's validated editable text, column and colour.</param>
+    private sealed record RollLineText(CreditsRollLine Placed, CreditsLineDocument Text);
 
     /// <summary>Allocates a 32-tile row filled with the credits' compiled blank tile.</summary>
     private static BackgroundTile[] BlankRow() =>

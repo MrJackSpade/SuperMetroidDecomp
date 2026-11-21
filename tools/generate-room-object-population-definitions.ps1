@@ -173,7 +173,7 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
     }
     function Get-Capitalised([string] $text) { return $text.Substring(0, 1).ToUpperInvariant() + $text.Substring(1) }
     $roomScreens = @{}
-    foreach ($match in [regex]::Matches([IO.File]::ReadAllText((Join-Path $repoRoot 'csharp/src/SuperMetroid.Core/Rooms/RoomDefinitions.cs')), 'public static RoomDefinition (\w+) \{ get; \} = new\("\1", AreaId\.\w+, new\(\d+, \d+\), new\((\d+), (\d+)\)')) {
+    foreach ($match in [regex]::Matches([IO.File]::ReadAllText((Join-Path $repoRoot 'csharp/src/SuperMetroid.Core/Rooms/RoomDefinitions.cs')), 'public static RoomDefinition (\w+) \{ get; \} = (?:\w+\()?new\("\1", AreaId\.\w+, new\(\d+, \d+\), new\((\d+), (\d+)\)')) {
         $roomScreens[$match.Groups[1].Value] = [pscustomobject]@{ Width = [int]$match.Groups[2].Value; Height = [int]$match.Groups[3].Value }
     }
     if ($roomScreens.Count -ne 261) { throw "Expected 261 retail room sizes, found $($roomScreens.Count)." }
@@ -463,7 +463,7 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
         [pscustomobject]@{ State = 1; Verb = 'Opens'; Suffix = 'TopAligned'; Phrase = 'opens {0} with the camera aligned to the screen''s top' }
     )
     $scrollChanges = @{}
-    $scrollChangeNames = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+    $scrollChangeContents = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
     $scrollByteTotal = 0
     $scrollPairTotal = 0
     foreach ($pointer in $orderedScrollPrograms) {
@@ -512,7 +512,7 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
                 State = [int]$bytes[$pair + 1]
             })
         }
-        $changeName = $room
+        $changeContent = $room
         $phrases = [Collections.Generic.List[string]]::new()
         foreach ($effect in $scrollEffects) {
             $affectedWrites = @($writes | Where-Object State -EQ $effect.State | Sort-Object Cell)
@@ -520,11 +520,19 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
             [string[]] $affected = @($affectedWrites | ForEach-Object { '{0}x{1}{2}' -f $_.Column, $_.Row, $(if ($_.BelowTheRoom) { 'BelowTheRoom' } else { '' }) })
             [string[]] $described = @($affectedWrites | ForEach-Object { '{0}x{1}{2}' -f $_.Column, $_.Row, $(if ($_.BelowTheRoom) { ' below the room' } else { '' }) })
             $noun = if ($affected.Count -eq 1) { 'Screen' } else { 'Screens' }
-            $changeName += '{0}{1}{2}{3}' -f $effect.Verb, $noun, ($affected -join 'And'), $effect.Suffix
+            $changeContent += '{0}{1}{2}{3}' -f $effect.Verb, $noun, ($affected -join 'And'), $effect.Suffix
             $phrases.Add(($effect.Phrase -f ('{0} {1}' -f $noun.ToLowerInvariant(), ($described -join ' and '))))
         }
-        if (-not $scrollChangeNames.Add($changeName)) { throw "Two scroll programs of the $room room make the same change $changeName." }
-        $scrollChanges[$pointer] = [pscustomobject]@{ Name = $changeName; Room = $room; Writes = $writes; Summary = ($phrases -join '; ') }
+        if (-not $scrollChangeContents.Add($changeContent)) { throw "Two scroll programs of the $room room make the same change." }
+        $scrollChanges[$pointer] = [pscustomobject]@{ Name = $null; Room = $room; Pointer = $pointer; Writes = $writes; Summary = ($phrases -join '; ') }
+    }
+    # A scroll change is an identity of its room (#2574): named for the room, numbered in storage order when the room has
+    # more than one; its writes are stated once, in the change's definition, never again in its name.
+    foreach ($roomChanges in @($scrollChanges.Values | Group-Object Room)) {
+        [object[]] $ordered = @($roomChanges.Group | Sort-Object Pointer)
+        for ($index = 0; $index -lt $ordered.Count; $index++) {
+            $ordered[$index].Name = if ($ordered.Count -eq 1) { $roomChanges.Name } else { '{0}{1}' -f $roomChanges.Name, ($index + 1) }
+        }
     }
     if ($scrollByteTotal -ne 743 -or $scrollPairTotal -ne 285) {
         throw "Expected 743 scroll-program bytes/285 pairs, found $scrollByteTotal/$scrollPairTotal."
@@ -723,9 +731,9 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
     $identityLines.Add('namespace SuperMetroid.Core.Rooms.RoomObjects;')
     $identityLines.Add('')
     $identityLines.Add('/// <summary>')
-    $identityLines.Add('/// A scroll change, named for its room and what it does to the room''s screens: the screens it closes to the')
-    $identityLines.Add('/// camera, opens, and opens with the camera aligned to the screen''s top, each as its column and row in the room. Regenerate')
-    $identityLines.Add('/// with tools/generate-room-object-population-definitions.ps1.')
+    $identityLines.Add('/// A scroll change: one of its room''s, named for the room and numbered in storage order where the room has more than')
+    $identityLines.Add('/// one (#2574). What it does to the room''s screens is its definition''s (RoomObjectScrollChangeDefinitions.Changes).')
+    $identityLines.Add('/// Regenerate with tools/generate-room-object-population-definitions.ps1.')
     $identityLines.Add('/// </summary>')
     $identityLines.Add('internal enum RoomScrollChange')
     $identityLines.Add('{')

@@ -1,4 +1,6 @@
+using SuperMetroid.AssetExtraction.Enemies.Artwork;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Bosses.Phantoon;
 
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
@@ -23,4 +25,32 @@ internal static class PhantoonSourceDefinitions
     /// its order, which the installed document keeps in that order and the import decodes into the sets they target.
     /// </summary>
     internal const int PowerOnColourCount = 112;
+
+    /// <summary>The sixteen-colour health palette of <see cref="HealthBandColors"/> each health band shows, lowest band first.</summary>
+    internal static IReadOnlyDictionary<PhantoonHealthBand, int> HealthBandPalettes { get; } = new Dictionary<PhantoonHealthBand, int>
+    {
+        [PhantoonHealthBandDefinitions.BelowEighth] = 0,
+        [PhantoonHealthBandDefinitions.BelowQuarter] = 1,
+        [PhantoonHealthBandDefinitions.BelowThreeEighths] = 2,
+        [PhantoonHealthBandDefinitions.BelowHalf] = 3,
+        [PhantoonHealthBandDefinitions.BelowFiveEighths] = 4,
+        [PhantoonHealthBandDefinitions.BelowThreeQuarters] = 5,
+        [PhantoonHealthBandDefinitions.BelowSevenEighths] = 6,
+        [PhantoonHealthBandDefinitions.Unhurt] = 7,
+    };
+
+    /// <summary>
+    /// The background colour group each part the power-on fades is painted in, which is also its sixteen colours' place in
+    /// <see cref="PowerOnColors"/>.
+    /// </summary>
+    internal static IReadOnlyDictionary<WreckedShipPoweredPart, int> PowerOnGroups { get; } = new Dictionary<WreckedShipPoweredPart, int>
+    {
+        [WreckedShipPoweredPart.Shared] = 0,
+        [WreckedShipPoweredPart.GreenDoors] = 1,
+        [WreckedShipPoweredPart.MagentaDoors] = 2,
+        [WreckedShipPoweredPart.BlueDoors] = 3,
+        [WreckedShipPoweredPart.Foreground] = 4,
+        [WreckedShipPoweredPart.Background] = 5,
+        [WreckedShipPoweredPart.Lights] = 6,
+    };
 }

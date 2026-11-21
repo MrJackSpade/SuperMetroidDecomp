@@ -36,7 +36,7 @@ internal static class SamusBallBounceDefinitionsVerification
                 samus.ChangePoseKeepingAnimation(pose);
                 samus.MorphBallBounceState = phase switch
                 {
-                    0 => (SamusBallBounce?)null,
+                    0 => null,
                     1 => spring ? SamusBallBounce.SpringBallFirst : SamusBallBounce.MorphBallFirst,
                     _ => spring ? SamusBallBounce.SpringBallSecond : SamusBallBounce.MorphBallSecond,
                 };
@@ -53,7 +53,7 @@ internal static class SamusBallBounceDefinitionsVerification
                     samus.Kinematics.VerticalVelocity.Speed.Whole, "Native rebound whole decrement");
                 AssertEqual(rebound ? fraction : (ushort)0, samus.Kinematics.VerticalVelocity.Speed.Fraction, "Native rebound fraction");
                 AssertEqual(rebound ? SamusVerticalDirection.Up : SamusVerticalDirection.None, samus.Kinematics.VerticalVelocity.Direction, "Native rebound direction");
-                SamusBallBounce? published = !rebound ? (SamusBallBounce?)null
+                SamusBallBounce? published = !rebound ? null
                     : first
                         ? spring ? SamusBallBounce.SpringBallFirst : SamusBallBounce.MorphBallFirst
                         : spring ? SamusBallBounce.SpringBallSecond : SamusBallBounce.MorphBallSecond;

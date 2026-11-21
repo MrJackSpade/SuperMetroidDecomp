@@ -78,7 +78,6 @@ internal static class EnemyRoomListsVerification
         {
             RoomEnemyGraphicsSetDefinition compiled = RoomEnemyGraphicsSetDefinitions.Get(pointer);
             RoomEnemyGraphicsSetMembers members = RoomEnemyGraphicsSetLists.MembersOf(compiled);
-            var importRows = new GraphicsSetRows(members, EnemyGraphicsSetPaletteRowDefinitions.Rows);
             int address = RoomEnemyRomLayout.TilesetBank | pointer;
             ReadOnlySpan<RoomEnemyGraphicsSetMember> records = members.Records.Span;
             int index = 0;
@@ -90,15 +89,15 @@ internal static class EnemyRoomListsVerification
                     continue;
                 AssertTrue(index < records.Length, $"graphics set $B4:{pointer:X4} compiles its native record {index}");
                 ushort placementWord = ReadVerificationWord(bus, address + 2);
+                // The member's palette row is the import's knowledge, which colours its sheets (#1512), so the record the
+                // import holds names the row the native record's placement word names.
+                int nativeRow = RoomEnemyGraphicsSetMember.NativePaletteRow(placementWord);
                 RoomEnemyGraphicsSetMember native = EnemyDefinitionIdsConstants2.TryFromHeaderPointer(definitionWord, out EnemyDefinitionId enemy)
-                    ? new RoomEnemyGraphicsSetMember(enemy)
+                    ? new RoomEnemyGraphicsSetMember(enemy, nativeRow)
                     : new RoomEnemyGraphicsSetMember(SuperMetroid.AssetExtraction.CartridgeTables.EnemyHeaderWords.UnplacedArtworkHeaders
-                        .Decode(definitionWord, "header of unplaced enemy artwork"));
+                        .Decode(definitionWord, "header of unplaced enemy artwork"), nativeRow);
                 AssertEqual(native, records[index],
-                    $"graphics set $B4:{pointer:X4} ordered member {index}");
-                // The member's palette row is the import's knowledge, which colours its sheets (#1512).
-                AssertEqual(RoomEnemyGraphicsSetMember.NativePaletteRow(placementWord), importRows.RecordRow(index),
-                    $"graphics set $B4:{pointer:X4} member {index}'s palette row in the import's catalog");
+                    $"graphics set $B4:{pointer:X4} ordered member {index} and its palette row");
                 // So is the fixed block its tiles stage at, which places them among the sprite characters (#1513).
                 AssertEqual(RoomEnemyGraphicsSetMember.NativeStagingBlock(placementWord), native.FixedBlock ?? 0,
                     $"graphics set $B4:{pointer:X4} member {index}'s staging block in the import's catalog");

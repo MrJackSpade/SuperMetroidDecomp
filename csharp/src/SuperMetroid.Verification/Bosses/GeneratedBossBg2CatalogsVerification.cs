@@ -18,9 +18,7 @@ internal static class GeneratedBossBg2CatalogsVerification
     {
         SpritemapFrameDefinition[] expected =
         [
-        new(0xdedd, "body_invulnerable"),
-        new(0xdee7, "body_full_hitbox"),
-        new(0xdef1, "body_eye_hitbox_only"),
+        new(0xdedd, "body"),
         new(0xdefb, "eye_closed"),
         new(0xdf0f, "eye_half_open"),
         new(0xdf19, "eyeball_center"),
@@ -106,7 +104,7 @@ internal static class GeneratedBossBg2CatalogsVerification
         {
             AssertEqual(expected[index], new SpritemapFrameDefinition(frames[index].Pointer, nameBefore1465(frames[index])), $"{family} published identity and its name before #1465");
             int root = ((int)new SnesAddress(bank, expected[index].Pointer));
-            int components = family == "Phantoon" && index is >= 14 and < 17 ? 2 : 1;
+            int components = family == "Phantoon" && index is >= 12 and < 15 ? 2 : 1;
             AssertEqual((ushort)components, Word(root), $"{family} native count determines stride");
             for (int component = 0; component < components; component++)
             {

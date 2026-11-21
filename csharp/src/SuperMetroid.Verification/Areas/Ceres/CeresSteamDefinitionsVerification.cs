@@ -40,8 +40,8 @@ internal static class CeresSteamDefinitionsVerification
                 shaftTurn: shaft);
             enemies.VerificationServices().NextRandom = () => 0x001f;
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            place.SetSpawnParameter1(EnemyDefinitionId.CeresSteam, (ushort)index);
-            place.Bind(EnemyDefinitionId.CeresSteam, place.KeptDefinition);
+            place.SetSpawnParameter1(EnemyDefinitionId.SteamVent, (ushort)index);
+            place.Bind(EnemyDefinitionId.SteamVent, place.KeptDefinition);
             ((IEnemyInitialization)(place.Entity ?? throw new InvalidOperationException("The vent bound no entity."))).Initialize();
 
             AssertEqual(new AnimationPlayback<CeresSteamSegment>(definition.Way.StartingAt[CeresSteamSegment.Dormant], AnimationPlace.StartOfAnimation), place.RequireSpeciesState<CeresSteamEnemyState>().Playback,

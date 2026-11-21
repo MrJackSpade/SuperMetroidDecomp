@@ -21,7 +21,8 @@ public static class SporeSpawnColorFile
             throw new InvalidDataException("Spore Spawn colors require the supported version.");
         return new(
             Compile(document.Spores, "spores"),
-            CompileFrames(document.Health, SporeSpawnColorFormat.HealthFrameCount, "health"),
+            Rgb5Rows.CompileKeyed(document.Health, SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnHealthBandDefinitions.HighestFirst,
+                band => band.Key, SporeSpawnColorFormat.ColorsPerFrame, "Spore Spawn health band"),
             CompileFrames(document.DeathSprite, SporeSpawnColorFormat.DeathSpriteFrameCount,
                 "death sprite"),
             CompileFrames(document.DeathLevel, SporeSpawnColorFormat.DeathSceneFrameCount,

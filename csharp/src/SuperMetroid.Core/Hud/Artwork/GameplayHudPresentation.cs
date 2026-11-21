@@ -59,20 +59,12 @@ public sealed class GameplayHudPresentation
     public IEnumerable<PlacedHudImage> EnergyCount(int remainder) =>
         Digits(remainder, parts.HealthAnchor, GameplayHudDefinitions.EnergyCountDigits).Select(digit => new PlacedHudImage(new HudEnergyDigitImage(digit.Numeral), digit.Corner));
 
-    /// <summary>Where each ammunition counter draws its digits, and how many.</summary>
-    private IdentityTable<HudAmmoCounter, Func<HudAmmoField>> AmmoFields => field ??= new(new Dictionary<HudAmmoCounter, Func<HudAmmoField>>
-    {
-        [HudAmmoCounter.Missiles] = () => new HudAmmoField(parts.MissileAmmoAnchor, GameplayHudDefinitions.MissileDigits),
-        [HudAmmoCounter.SuperMissiles] = () => new HudAmmoField(parts.SuperMissileAmmoAnchor, GameplayHudDefinitions.SuperMissileDigits),
-        [HudAmmoCounter.PowerBombs] = () => new HudAmmoField(parts.PowerBombAmmoAnchor, GameplayHudDefinitions.PowerBombDigits),
-    });
-
     /// <summary>The ammunition count <paramref name="counter"/> shows.</summary>
     /// <param name="counter">The ammunition counter.</param>
     /// <param name="value">The ammunition count to display.</param>
     public IEnumerable<PlacedHudImage> Ammo(HudAmmoCounter counter, int value)
     {
-        HudAmmoField field = AmmoFields[counter]();
+        HudAmmoField field = parts.AmmoFields[counter];
         // A count the game has drained below zero shows as CountsRunBelowZero.HudShown describes.
         return Digits(CountsRunBelowZero.HudShown(value), field.Anchor, field.Digits)
             .Select(digit => new PlacedHudImage(new HudAmmoDigitImage(digit.Numeral), digit.Corner));

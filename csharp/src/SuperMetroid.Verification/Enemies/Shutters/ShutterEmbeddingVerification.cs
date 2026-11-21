@@ -48,7 +48,7 @@ internal static class ShutterEmbeddingVerification
             for (int frame = 0; frame < 220; frame++)
             {
                 ControllerButton input = frame < stopAt ? direction : ControllerButton.None;
-                if (frame == bombAt || frame == bombAt + 20) input |= runtime.Options.ControllerBindings.Shoot;
+                if (frame == bombAt || frame == bombAt + 20) input |= runtime.Options.ControllerBindings[SuperMetroid.Core.Input.ControllerAction.Shoot];
                 runtime.StepFrame(input);
                 activated |= (runtime.Enemies.VerticalShutterStates[slot] ?? throw new InvalidOperationException("Verification requires runtime.Enemies.VerticalShutterStates[slot].")).Action == VerticalShutterAction.MovingUp;
                 carried |= samus.Kinematics.ExtraDisplacement.Y.RawValue < 0;

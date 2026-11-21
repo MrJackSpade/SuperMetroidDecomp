@@ -10,11 +10,10 @@ internal static class ChootFalls
     /// samples, each held for the updates it lists.
     /// </summary>
     private static readonly IdentityTable<ChootFallingPath, Offset16<RoomPixels>[]> LoopOffsets = new(path =>
-        [.. Paths[path].SelectMany(sample => Enumerable.Repeat(sample.Offset, sample.Updates))]);
+        [.. Paths[path].Samples.SelectMany(sample => Enumerable.Repeat(sample.Offset, sample.Updates))]);
 
     /// <summary>How far, in pixels, the loop origin of <paramref name="fallingPath"/> advances per loop.</summary>
-    internal static int LoopYDistance(ChootFallingPath fallingPath) =>
-        ChootPatternDefinitions.LoopYDistances[fallingPath];
+    internal static int LoopYDistance(ChootFallingPath fallingPath) => Paths[fallingPath].LoopYDistance;
 
     /// <summary>
     /// The offset from the falling origin <paramref name="fallingPath"/> shows on each update of one loop; the update after

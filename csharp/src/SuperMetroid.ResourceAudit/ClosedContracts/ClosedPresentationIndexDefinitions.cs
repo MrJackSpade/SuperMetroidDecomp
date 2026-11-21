@@ -47,7 +47,7 @@ internal static class ClosedPresentationIndexDefinitions
         ("PauseReserveUiPresentation", "ApplyDigit", "position") => new(0, PauseReserveUiDefinitions.SupplyDigitPlaces),
         ("PauseReserveUiPresentation", "ApplyDigit", "value") => new(0, PauseReserveUiDefinitions.DigitCount),
         ("InstalledBeamPalettes", "Colours", "selection") => new(0, BeamPaletteFile.SelectionCount),
-        ("PhantoonColorCatalog", "ResolveHealth", "band") => new(0, PhantoonColorDefinitions.HealthBandCount),
+
         ("PhantoonColorCatalog", "ResolveHealth", "color") => new(0, PhantoonColorFormat.HealthBandColorCount),
         ("PhantoonColorCatalog", "ResolveFadeOut", "color") => new(0, PhantoonColorFormat.FadeOutCount),
         ("PhantoonColorCatalog", "ResolvePowerOn", "color") => new(0, SuperMetroid.AssetExtraction.Bosses.Phantoon.Artwork.PhantoonColorFormat.PoweredPartColourCount),
@@ -104,7 +104,7 @@ internal static class ClosedPresentationIndexDefinitions
         ("CeresDoorVisuals", "AnimationColor", "step") => new(0, CeresDoorVisualDefinitions.AnimationStepCount),
         ("CeresDoorVisuals", "AnimationColor", "color") => new(0, CeresDoorVisualDefinitions.AnimationColorCount),
         ("CeresDoorVisuals", "NormalColor" or "EscapeColor", "color") => new(0, CeresDoorVisualDefinitions.SetupColorCount),
-        ("InstalledGrappleSprites", "Segment", "frame") => new(0, GrappleSpriteDefinitions.SegmentFrameCount),
+        ("InstalledGrappleSprites", "Segment", "picture") => new(0, GrappleSpriteDefinitions.SegmentFrameCount),
         ("InstalledSamusBodyArtwork", "ArtOrigin", "pose") => new(0, SamusBodyTableDecoding.PoseCount),
         ("SamusSpritemapSources", "TryGetFrame", "halfFrame.Pose") => new(0, SamusBodyTableDecoding.PoseCount),
         ("SamusArmCannonDescriptors", "PoseDescriptor", "pose") => new(0, SamusBodyTableDecoding.PoseCount),

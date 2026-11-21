@@ -11,6 +11,8 @@ using SuperMetroid.Core.Frontend.FileSelect.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Frontend.Menus;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Saves;
 
 namespace SuperMetroid.AssetExtraction.Frontend;
 
@@ -107,9 +109,8 @@ public static class FileSelectPresentationExtractor
         var digits = Enumerable.Range(0, FileSelectPresentationDefinitions.DigitCount)
             .Select(value => Cell(BackgroundTileWords.ToWord(FileSelectFieldTiles.Digit(value))))
             .ToArray();
-        var letters = Enumerable.Range(0, SaveSlots.All.Count)
-            .Select(value => Cell(BackgroundTileWords.ToWord(FileSelectFieldTiles.SlotLetter(value))))
-            .ToArray();
+        Dictionary<string, MapPresentationCell> letters = SaveSlots.All.ToDictionary(slot => SaveSlotKeys.Installed.Of(slot),
+            slot => Cell(BackgroundTileWords.ToWord(FileSelectFieldTiles.SlotLetter(slot))), StringComparer.Ordinal);
 
         var sprites = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal)
         {
@@ -142,29 +143,30 @@ public static class FileSelectPresentationExtractor
         FileSelectSourcePresentation.Write(output, new()
         {
             Version = FileSelectPresentationFormat.Version,
-            MainSlots = [.. Enumerable.Range(0, SaveSlots.All.Count).Select(slot =>
-                Slot(FileSelectNativeLayout.MainSlotDestination(slot, FileSelectSlotField.Energy),
-                    FileSelectNativeLayout.MainSlotDestination(slot, FileSelectSlotField.TimeValue)))],
-            DataSlots = [.. Enumerable.Range(0, SaveSlots.All.Count).Select(slot =>
-                Slot(FileSelectNativeLayout.DataSlotDestination(slot, FileSelectSlotField.Energy),
-                    FileSelectNativeLayout.DataSlotDestination(slot, FileSelectSlotField.TimeValue)))],
+            // The native layout places the slots' fields one under another, in the slots' order.
+            MainSlots = SaveSlots.All.Select((slot, place) => KeyValuePair.Create(SaveSlotKeys.Installed.Of(slot),
+                Slot(FileSelectNativeLayout.MainSlotDestination(place, FileSelectSlotField.Energy),
+                    FileSelectNativeLayout.MainSlotDestination(place, FileSelectSlotField.TimeValue)))).ToDictionary(StringComparer.Ordinal),
+            DataSlots = SaveSlots.All.Select((slot, place) => KeyValuePair.Create(SaveSlotKeys.Installed.Of(slot),
+                Slot(FileSelectNativeLayout.DataSlotDestination(place, FileSelectSlotField.Energy),
+                    FileSelectNativeLayout.DataSlotDestination(place, FileSelectSlotField.TimeValue)))).ToDictionary(StringComparer.Ordinal),
             BorderAnchors = new(StringComparer.Ordinal)
             {
                 [FileSelectPresentationFormat.BorderName(FileSelectBorder.Main)] = FileSelectNativeLayout.NormalBorderAnchor,
                 [FileSelectPresentationFormat.BorderName(FileSelectBorder.Copy)] = FileSelectNativeLayout.CopyBorderAnchor,
                 [FileSelectPresentationFormat.BorderName(FileSelectBorder.Clear)] = FileSelectNativeLayout.ClearBorderAnchor,
             },
-            MainCursorAnchors = FileSelectItemRows.MainWithData
-                .Select(FileSelectCursorPositions.MainSelectionY)
-                .Select(y => new Offset16<ScreenPixels>(FileSelectCursorPositions.MainCursorX, y)).ToArray(),
-            DataCursorAnchors = FileSelectItemRows.Data
-                .Select(FileSelectCursorPositions.DataSelectionY)
-                .Select(y => new Offset16<ScreenPixels>(FileSelectCursorPositions.DataCursorX, y)).ToArray(),
-            ConfirmationCursorAnchors =
-                [FileSelectCursorPositions.ConfirmationYesAnchor, FileSelectCursorPositions.ConfirmationNoAnchor],
-            HelmetAnchors = FileSelectCursorPositions.Slots
-                .Select(FileSelectCursorPositions.HelmetY)
-                .Select(y => new Offset16<ScreenPixels>(FileSelectCursorPositions.HelmetX, y)).ToArray(),
+            MainCursorAnchors = FileSelectItemRows.MainWithData.ToDictionary(row => FileSelectItemKeys.Installed.Of(row),
+                row => new Offset16<ScreenPixels>(FileSelectCursorPositions.MainCursorX, FileSelectCursorPositions.MainSelectionY(row)), StringComparer.Ordinal),
+            DataCursorAnchors = FileSelectItemRows.Data.ToDictionary(row => FileSelectItemKeys.Installed.Of(row),
+                row => new Offset16<ScreenPixels>(FileSelectCursorPositions.DataCursorX, FileSelectCursorPositions.DataSelectionY(row)), StringComparer.Ordinal),
+            ConfirmationCursorAnchors = new(StringComparer.Ordinal)
+            {
+                [YesNoChoiceKeys.Installed.Of(YesNoChoice.Yes)] = FileSelectCursorPositions.ConfirmationYesAnchor,
+                [YesNoChoiceKeys.Installed.Of(YesNoChoice.No)] = FileSelectCursorPositions.ConfirmationNoAnchor,
+            },
+            HelmetAnchors = FileSelectCursorPositions.Slots.ToDictionary(slot => SaveSlotKeys.Installed.Of(slot),
+                slot => new Offset16<ScreenPixels>(FileSelectCursorPositions.HelmetX, FileSelectCursorPositions.HelmetY(slot)), StringComparer.Ordinal),
             DynamicAnchors = new(StringComparer.Ordinal)
             {
                 [FileSelectPresentationFormat.AnchorName(FileSelectAnchor.CopyDestinationSource)] =

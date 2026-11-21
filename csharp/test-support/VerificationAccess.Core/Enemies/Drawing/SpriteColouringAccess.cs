@@ -99,7 +99,7 @@ internal static class SpriteColouringAccess
     extension(RoomEnemyGraphicsSetDefinition self)
     {
         /// <summary>The row <paramref name="enemy"/>'s sheets are coloured in under the set.</summary>
-        internal int DrawRow(EnemyDefinitionId enemy) => new GraphicsSetRows(SuperMetroid.TestSupport.RepositoryInstallation.Verification.FixtureGraphicsSetMembers.MembersOf(self), EnemyGraphicsSetPaletteRowDefinitions.Rows).RowOf(enemy);
+        internal int DrawRow(EnemyDefinitionId enemy) => new GraphicsSetRows(SuperMetroid.TestSupport.RepositoryInstallation.Verification.FixtureGraphicsSetMembers.MembersOf(self)).RowOf(enemy);
 
         /// <summary>
         /// The row the objects of <paramref name="owner"/> are coloured in under the set: the common row for the shared sheet,

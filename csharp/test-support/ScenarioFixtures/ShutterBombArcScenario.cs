@@ -85,7 +85,7 @@ internal sealed class ShutterBombArcScenario
     /// <summary>Controller buttons for <paramref name="frame"/>: periodic bombs, an approach, then roll off and back.</summary>
     internal ControllerButton Input(int frame)
     {
-        ControllerButton input = frame < 220 && frame % Interval == 0 ? Runtime.Options.ControllerBindings.Shoot : ControllerButton.None;
+        ControllerButton input = frame < 220 && frame % Interval == 0 ? Runtime.Options.ControllerBindings[SuperMetroid.Core.Input.ControllerAction.Shoot] : ControllerButton.None;
         int direction = Approach && frame < 12 ? Toward : 0;
         if (frame >= RollAt && frame < RollAt + Duration) direction = -Toward;
         if (frame >= RollAt + Duration && frame < RollAt + Duration * 2) direction = Toward;

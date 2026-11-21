@@ -1,5 +1,3 @@
-using static SuperMetroid.Core.Frontend.Intro.IntroEggEffectDefinitions;
-
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
@@ -11,6 +9,5 @@ internal static class IntroEggParticleActors
     /// The actor of one of the six shell pieces: every piece flies as a shell piece does and shows its own picture, in the
     /// egg's colours in front of the scene, for as long as it flies.
     /// </summary>
-    public static CinematicActorDefinition<IntroEggEffectAnimation> Particle(IntroEggShellFragment fragment) =>
-        new(ShellFragmentAnimations[fragment]);
+    public static CinematicActorDefinition<IntroEggShellFragment> Particle(IntroEggShellFragment fragment) => new(fragment);
 }

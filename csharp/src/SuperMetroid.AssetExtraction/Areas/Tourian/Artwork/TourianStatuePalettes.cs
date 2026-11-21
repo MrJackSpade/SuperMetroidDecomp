@@ -13,17 +13,17 @@ public sealed class TourianStatuePalettes
     private readonly PaletteBand baseColors;
     /// <summary>Sixteen statue-body inks.</summary>
     private readonly PaletteBand statueColors;
-    /// <summary>Four boss-specific eye glows overlaid on base-decoration colors nine through twelve.</summary>
-    internal readonly PaletteBand eyeColors;
+    /// <summary>Each boss statue's eye glow, overlaid on base-decoration colors nine through twelve.</summary>
+    private readonly Dictionary<TourianStatue, PaletteBand> eyeColors;
     /// <summary>Eight grey inks a released statue takes.</summary>
     private readonly PaletteBand greyColors;
 
     /// <summary>Keeps the base, statue, eye, and grey colors as independent paint bands.</summary>
     /// <param name="baseColors">The base-decoration band.</param>
     /// <param name="statueColors">The statue-body band.</param>
-    /// <param name="eyeColors">The four eye glows, glow after glow, as one band.</param>
+    /// <param name="eyeColors">Each boss statue's eye glow.</param>
     /// <param name="greyColors">The grey-transition band.</param>
-    internal TourianStatuePalettes(PaletteBand baseColors, PaletteBand statueColors, PaletteBand eyeColors, PaletteBand greyColors)
+    internal TourianStatuePalettes(PaletteBand baseColors, PaletteBand statueColors, Dictionary<TourianStatue, PaletteBand> eyeColors, PaletteBand greyColors)
     {
         this.baseColors = baseColors;
         this.statueColors = statueColors;
@@ -31,20 +31,14 @@ public sealed class TourianStatuePalettes
         this.greyColors = greyColors;
     }
 
-    /// <summary>The boss statues in the order the installed eye colours list their glows: Phantoon, Ridley, Draygon, Kraid.</summary>
-    private static IReadOnlyList<TourianStatue> EyeRowOrder { get; } =
-        [TourianStatue.Phantoon, TourianStatue.Ridley, TourianStatue.Draygon, TourianStatue.Kraid];
 
     /// <summary>Gets eye colour 0–3 of <paramref name="statue"/>'s eye glow.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The statue is undefined or the colour lies past the glow's four.</exception>
     public RgbColor ResolveEye(TourianStatue statue, int color)
     {
-        int row = EyeRowOrder.ToList().IndexOf(statue);
-        if (row < 0)
+        if (!eyeColors.TryGetValue(statue, out PaletteBand? glow))
             throw new ArgumentOutOfRangeException(nameof(statue), statue, "Undefined Tourian statue.");
-        if ((uint)color >= TourianStatueColorDefinitions.EyeColorCount)
-            throw new ArgumentOutOfRangeException(nameof(color));
-        return eyeColors.Read(row * TourianStatueColorDefinitions.EyeColorCount + color);
+        return glow.Read(color);
     }
 
     /// <summary>Base-decoration colour <paramref name="color"/>, 0–15.</summary>

@@ -87,7 +87,7 @@ internal static class EnemyHeaderWords
         [EnemyDefinitionId.RidleyCeres] = 0xe13f,
         [EnemyDefinitionId.Ridley] = 0xe17f,
         [EnemyDefinitionId.RidleyBreakupPiece] = 0xe1bf,
-        [EnemyDefinitionId.CeresSteam] = 0xe1ff,
+        [EnemyDefinitionId.SteamVent] = 0xe1ff,
         [EnemyDefinitionId.Zebetite] = 0xe27f,
         [EnemyDefinitionId.Kraid] = 0xe2bf,
         [EnemyDefinitionId.KraidArm] = 0xe2ff,

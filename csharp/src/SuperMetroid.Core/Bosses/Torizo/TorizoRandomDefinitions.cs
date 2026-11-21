@@ -36,7 +36,7 @@ internal static class TorizoRandomDefinitions
     /// </summary>
     internal static readonly WeightedRandomChoice<Animation<TorizoProjectileSegment>> LowHealthDroolForm =
         WeightedRandomChoice<Animation<TorizoProjectileSegment>>.InTurn(TorizoRandomRolls.LowHealthDroolForm,
-            TorizoProjectileAnimations.StartingWith(TorizoProjectileSegment.DroolNoDelay), TorizoProjectileAnimations.DroolFormingShort,
+            TorizoProjectileAnimations.StartingAt[TorizoProjectileSegment.DroolNoDelay], TorizoProjectileAnimations.DroolFormingShort,
             TorizoProjectileAnimations.DroolFormingLong);
 
     /// <summary>

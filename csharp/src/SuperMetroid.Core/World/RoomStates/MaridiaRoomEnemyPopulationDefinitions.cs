@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Boulder;
 using SuperMetroid.Core.Enemies.Boyon;
@@ -73,7 +72,7 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
     /// <summary>The enemy population of the Maridia Elevator room.</summary>
     internal static PlacedRoomEnemyPopulationDefinition MaridiaElevator { get; } = new("MaridiaElevator",
     [
-        new(EnemyDefinitionId.Elevator, EnemyPlacing.At(new(128, 704)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Up, ArrivalY: 24)),
+        new(EnemyDefinitionId.Elevator, EnemyPlacing.At(new(128, 704)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: VerticalDirection.Up, ArrivalY: 24)),
         new(EnemyDefinitionId.Ripper, EnemyPlacing.At(new(208, 788)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new RipperSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(1), Direction: HorizontalDirection.Left)),
         new(EnemyDefinitionId.Ripper, EnemyPlacing.At(new(112, 900)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new RipperSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(1), Direction: HorizontalDirection.Right)),
         new(EnemyDefinitionId.Ripper, EnemyPlacing.At(new(128, 1012)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new RipperSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(1), Direction: HorizontalDirection.Left)),
@@ -538,21 +537,21 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
     /// <summary>The enemy population of the West Cactus Alley room.</summary>
     internal static PlacedRoomEnemyPopulationDefinition WestCactusAlley { get; } = new("WestCactusAlley",
     [
-        new(EnemyDefinitionId.Cacatac, EnemyPlacing.At(new(72, 180)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Right, Start: CacatacStart.Patrolling, Mounting: CacatacMounting.Floor, TravelDistance: 16, Speed: SignedSixteenSixteen.Zero)),
-        new(EnemyDefinitionId.Cacatac, EnemyPlacing.At(new(176, 308)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Right, Start: CacatacStart.Patrolling, Mounting: CacatacMounting.Floor, TravelDistance: 16, Speed: SignedSixteenSixteen.Zero)),
-        new(EnemyDefinitionId.Cacatac, EnemyPlacing.At(new(104, 436)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Left, Start: CacatacStart.Patrolling, Mounting: CacatacMounting.Floor, TravelDistance: 16, Speed: SignedSixteenSixteen.Zero)),
-        new(EnemyDefinitionId.Cacatac, EnemyPlacing.At(new(160, 74)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Left, Start: CacatacStart.Patrolling, Mounting: CacatacMounting.Ceiling, TravelDistance: 16, Speed: SignedSixteenSixteen.Zero)),
+        new(EnemyDefinitionId.Cacatac, EnemyPlacing.At(new(72, 180)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Right, Start: CacatacAction.Patrolling, Mounting: CacatacMounting.Floor, TravelDistance: 16, Speed: SignedSixteenSixteen.Zero)),
+        new(EnemyDefinitionId.Cacatac, EnemyPlacing.At(new(176, 308)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Right, Start: CacatacAction.Patrolling, Mounting: CacatacMounting.Floor, TravelDistance: 16, Speed: SignedSixteenSixteen.Zero)),
+        new(EnemyDefinitionId.Cacatac, EnemyPlacing.At(new(104, 436)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Left, Start: CacatacAction.Patrolling, Mounting: CacatacMounting.Floor, TravelDistance: 16, Speed: SignedSixteenSixteen.Zero)),
+        new(EnemyDefinitionId.Cacatac, EnemyPlacing.At(new(160, 74)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Left, Start: CacatacAction.Patrolling, Mounting: CacatacMounting.Ceiling, TravelDistance: 16, Speed: SignedSixteenSixteen.Zero)),
     ], 4);
 
     /// <summary>The enemy population of the East Cactus Alley room.</summary>
     internal static PlacedRoomEnemyPopulationDefinition EastCactusAlley { get; } = new("EastCactusAlley",
     [
-        new(EnemyDefinitionId.Cacatac, EnemyPlacing.At(new(384, 148)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Right, Start: CacatacStart.Patrolling, Mounting: CacatacMounting.Floor, TravelDistance: 16, Speed: SignedSixteenSixteen.Zero)),
-        new(EnemyDefinitionId.Cacatac, EnemyPlacing.At(new(656, 164)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Left, Start: CacatacStart.Patrolling, Mounting: CacatacMounting.Floor, TravelDistance: 16, Speed: SignedSixteenSixteen.Zero)),
-        new(EnemyDefinitionId.Cacatac, EnemyPlacing.At(new(912, 260)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Right, Start: CacatacStart.Patrolling, Mounting: CacatacMounting.Floor, TravelDistance: 16, Speed: SignedSixteenSixteen.Zero)),
-        new(EnemyDefinitionId.Cacatac, EnemyPlacing.At(new(720, 436)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Left, Start: CacatacStart.Patrolling, Mounting: CacatacMounting.Floor, TravelDistance: 16, Speed: SignedSixteenSixteen.Zero)),
-        new(EnemyDefinitionId.Cacatac, EnemyPlacing.At(new(240, 346)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Right, Start: CacatacStart.Patrolling, Mounting: CacatacMounting.Ceiling, TravelDistance: 16, Speed: SignedSixteenSixteen.Zero)),
-        new(EnemyDefinitionId.Cacatac, EnemyPlacing.At(new(720, 362)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Left, Start: CacatacStart.Patrolling, Mounting: CacatacMounting.Ceiling, TravelDistance: 64, Speed: SignedSixteenSixteen.FromPixelFraction(1, 8))),
+        new(EnemyDefinitionId.Cacatac, EnemyPlacing.At(new(384, 148)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Right, Start: CacatacAction.Patrolling, Mounting: CacatacMounting.Floor, TravelDistance: 16, Speed: SignedSixteenSixteen.Zero)),
+        new(EnemyDefinitionId.Cacatac, EnemyPlacing.At(new(656, 164)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Left, Start: CacatacAction.Patrolling, Mounting: CacatacMounting.Floor, TravelDistance: 16, Speed: SignedSixteenSixteen.Zero)),
+        new(EnemyDefinitionId.Cacatac, EnemyPlacing.At(new(912, 260)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Right, Start: CacatacAction.Patrolling, Mounting: CacatacMounting.Floor, TravelDistance: 16, Speed: SignedSixteenSixteen.Zero)),
+        new(EnemyDefinitionId.Cacatac, EnemyPlacing.At(new(720, 436)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Left, Start: CacatacAction.Patrolling, Mounting: CacatacMounting.Floor, TravelDistance: 16, Speed: SignedSixteenSixteen.Zero)),
+        new(EnemyDefinitionId.Cacatac, EnemyPlacing.At(new(240, 346)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Right, Start: CacatacAction.Patrolling, Mounting: CacatacMounting.Ceiling, TravelDistance: 16, Speed: SignedSixteenSixteen.Zero)),
+        new(EnemyDefinitionId.Cacatac, EnemyPlacing.At(new(720, 362)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Left, Start: CacatacAction.Patrolling, Mounting: CacatacMounting.Ceiling, TravelDistance: 64, Speed: SignedSixteenSixteen.FromPixelFraction(1, 8))),
     ], 6);
 
     /// <summary>The enemy population of the Fish Tank room.</summary>
@@ -568,8 +567,8 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
         new(EnemyDefinitionId.Skultera, EnemyPlacing.At(new(872, 184)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new SkulteraSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(1), StartDirection: HorizontalDirection.Right, Radius: 16, AngleStep: RotationAngle.FromSteps(2))),
     ], 8);
 
-    /// <summary>The enemy population shared by the Draygon room and the Mother Brain room once each area's boss is dead.</summary>
-    internal static EmptyRoomEnemyPopulationDefinition DraygonOrMotherBrainWhenAreaBossDead { get; } = new("DraygonOrMotherBrainWhenAreaBossDead");
+    /// <summary>The enemy population of the Draygon room once Maridia's boss is dead: none.</summary>
+    internal static EmptyRoomEnemyPopulationDefinition DraygonWhenAreaBossDead { get; } = new("DraygonWhenAreaBossDead");
 
     /// <summary>The Maridia rooms' lists, in their authored order.</summary>
     internal static RoomEnemyPopulationDefinition[] Lists { get; } =
@@ -630,6 +629,6 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
         WestCactusAlley,
         EastCactusAlley,
         FishTank,
-        DraygonOrMotherBrainWhenAreaBossDead,
+        DraygonWhenAreaBossDead,
     ];
 }

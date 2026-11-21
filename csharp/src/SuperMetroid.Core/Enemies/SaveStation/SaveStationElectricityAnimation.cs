@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.SaveStation;
 /// (#2557).
 /// </summary>
 internal sealed class SaveStationElectricityAnimation()
-    : EnemyProjectileTypedAnimation<SaveStationElectricitySegment, Offset16<RoomPixels>, EnemyProjectileCommonCue>(SaveStationElectricityAnimations.Discharge, EnemyProjectileCueRunners.Common<SaveStationElectricitySegment>())
+    : EnemyProjectileTypedAnimation<SaveStationElectricitySegment, Offset16<RoomPixels>, EnemyProjectileCommonCue>(SaveStationElectricityAnimations.Discharge.Phases[0].Segment, SaveStationElectricityAnimations.Discharge, EnemyProjectileCueRunners.Common<SaveStationElectricitySegment>())
 {
     /// <summary>The electricity shows its band wherever its sweep places it.</summary>
     private protected override EnemyProjectileFrameId Present(Offset16<RoomPixels> frame) => EnemyProjectileFrameId.SaveStationElectricityBand;
@@ -19,7 +19,4 @@ internal sealed class SaveStationElectricityAnimation()
 
     /// <inheritdoc/>
     private protected override IUnpausedAnimationPlay<SaveStationElectricitySegment, Offset16<RoomPixels>, EnemyProjectileCommonCue> Segments => SaveStationElectricityAnimations.Segments;
-
-    /// <inheritdoc/>
-    private protected override IEnumerable<KeyValuePair<SaveStationElectricitySegment, Animation<SaveStationElectricitySegment>>> StartingAt => SaveStationElectricityAnimations.StartingAt;
 }

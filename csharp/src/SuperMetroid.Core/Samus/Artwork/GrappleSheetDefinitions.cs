@@ -23,6 +23,7 @@ public static class GrappleSheetDefinitions
     public static IReadOnlyList<GrappleRopePicture> RopePattern { get; } =
         [GrappleRopePicture.Start, GrappleRopePicture.Quarter, GrappleRopePicture.Half, GrappleRopePicture.ThreeQuarters];
 
+
     /// <summary>The rope's orientations in the sheet's order (#2567): horizontal, diagonal, vertical.</summary>
     public static IReadOnlyList<GrappleRopeOrientation> RopeOrientations { get; } =
         [GrappleRopeOrientation.Horizontal, GrappleRopeOrientation.Diagonal, GrappleRopeOrientation.Vertical];

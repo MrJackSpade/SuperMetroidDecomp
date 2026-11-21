@@ -165,7 +165,7 @@ internal static class ScrollObjectsVerification
     /// The retail scroll program the fixture's trigger runs (#2355): it opens screen (1, 0) aligned to its top, as the
     /// Brinstar Reserve Tank room's trigger does.
     /// </summary>
-    private const RoomScrollChange TriggerProgram = RoomScrollChange.BrinstarReserveTankOpensScreen1x0TopAligned;
+    private const RoomScrollChange TriggerProgram = RoomScrollChange.BrinstarReserveTank;
 
     /// <summary>
     /// Seeds the room-scroll PLM population and the retail scroll program its trigger runs. Six-byte room records are

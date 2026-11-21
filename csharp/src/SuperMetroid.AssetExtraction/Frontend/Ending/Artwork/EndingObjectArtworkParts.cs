@@ -13,8 +13,8 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 public sealed record EndingObjectArtworkParts
 {
 
-    /// <summary>Four 32-by-32-cell explosion maps, ordered by <see cref="EndingExplosionPicture"/>.</summary>
-    public required IReadOnlyList<RoomBackgroundTilemapAtlas> Fragments { get; init; }
+    /// <summary>The four 32-by-32-cell explosion maps, each keyed by the explosion picture it holds.</summary>
+    public required IReadOnlyDictionary<EndingExplosionPicture, RoomBackgroundTilemapAtlas> Fragments { get; init; }
 
     /// <summary>$0800-byte, 32-by-32-cell BG2 waiting-scene map.</summary>
     public required RoomBackgroundTilemapAtlas WaitingTilemap { get; init; }

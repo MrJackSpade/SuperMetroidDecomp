@@ -7,13 +7,9 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <param name="pose">The turret's or bullet's pose facing its direction, or the impact smoke.</param>
 /// <param name="owner">The family's cue owner, which carries out the events the animation raises (#2571).</param>
 internal sealed class MotherBrainTurretAnimation(IEnemyProjectileCues<MotherBrainTurretCue> owner, MotherBrainTurretPose pose)
-    : EnemyProjectileFrameAnimation<MotherBrainTurretPose, MotherBrainTurretCue>(MotherBrainTurretAnimations.StartingAt[pose], EnemyProjectileCueRunner<MotherBrainTurretPose, MotherBrainTurretCue>.By(owner))
+    : EnemyProjectileFrameAnimation<MotherBrainTurretPose, MotherBrainTurretCue>(pose, MotherBrainTurretAnimations.StartingAt[pose], EnemyProjectileCueRunner<MotherBrainTurretPose, MotherBrainTurretCue>.By(owner))
 {
     /// <inheritdoc/>
     private protected override IUnpausedAnimationPlay<MotherBrainTurretPose, EnemyProjectileFrameId, MotherBrainTurretCue> Segments =>
         MotherBrainTurretAnimations.Segments;
-
-    /// <inheritdoc/>
-    private protected override IEnumerable<KeyValuePair<MotherBrainTurretPose, Animation<MotherBrainTurretPose>>> StartingAt =>
-        MotherBrainTurretAnimations.StartingAt;
 }

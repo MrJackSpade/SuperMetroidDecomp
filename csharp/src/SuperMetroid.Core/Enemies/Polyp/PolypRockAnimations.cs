@@ -26,9 +26,6 @@ internal static class PolypRockAnimations
         [P.LavaRock] = new([Segments.Whole(P.LavaRock)], AnimationEnd.Holds),
     };
 
-    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<PolypRockSegment> StartingWith(PolypRockSegment segment) => StartingAt[segment];
-
     /// <summary>Shows <paramref name="frame"/> for good (#2276): a still picture rests on it until its owner plays another.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Unpaused Hold(EnemyProjectileFrameId frame) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.HeldFrame(frame);
 }

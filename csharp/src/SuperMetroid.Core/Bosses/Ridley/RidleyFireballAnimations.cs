@@ -66,9 +66,6 @@ internal static class RidleyFireballAnimations
             [P.DirectionalAfterburn] = new([Segments.Whole(P.DirectionalAfterburn), Segments.Whole(P.AfterburnPuff)], AnimationEnd.Holds),
         };
 
-    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<RidleyFireballSegment> StartingWith(RidleyFireballSegment segment) => StartingAt[segment];
-
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> passes.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, RidleyFireballCue>.Unpaused Show(EnemyProjectileFrameId frame, int duration) =>
         new AnimationBeat<EnemyProjectileFrameId, RidleyFireballCue>.Frame(frame, duration);

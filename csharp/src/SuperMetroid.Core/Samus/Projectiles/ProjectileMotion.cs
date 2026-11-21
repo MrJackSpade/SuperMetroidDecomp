@@ -242,7 +242,7 @@ internal sealed class ProjectileMotion
     /// </summary>
     private static void Accelerate(SamusProjectileOccupant held, PixelVelocity<RoomPixels> acceleration)
     {
-        SamusProjectile shot = held.Projectile;
+        _ = held.Projectile;
         held.Velocity += acceleration;
     }
 

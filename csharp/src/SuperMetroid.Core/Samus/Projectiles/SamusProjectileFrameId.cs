@@ -178,9 +178,9 @@ internal enum SamusProjectileFrameId
     SpazerWaveUpNearlySpread,
     /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUp"/> showing the Spazer picture, up, its lanes fully spread.</summary>
     SpazerWaveUpSpread,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUp"/> showing the Spazer picture, up, its lanes parting, as <see cref="SpazerWaveUpParting"/> does, leaving no trail where <see cref="ProjectileTrailPlacementList.UnchargedDefault"/> places one from it.</summary>
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUp"/> showing the Spazer picture, up, its lanes parting, as <see cref="SpazerWaveUpParting"/> does, leaving no trail where <see cref="ProjectileTrailFamily.UnchargedDefault"/> places one from it.</summary>
     SpazerWaveUpPartingWithoutDefaultTrail,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUp"/> showing the Spazer picture, up, its lanes splitting, as <see cref="SpazerWaveUpSplitting"/> does, leaving no trail where <see cref="ProjectileTrailPlacementList.UnchargedDefault"/> places one from it.</summary>
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUp"/> showing the Spazer picture, up, its lanes splitting, as <see cref="SpazerWaveUpSplitting"/> does, leaving no trail where <see cref="ProjectileTrailFamily.UnchargedDefault"/> places one from it.</summary>
     SpazerWaveUpSplittingWithoutDefaultTrail,
     /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUpRight"/> showing the Spazer picture, up right, seed.</summary>
     SpazerWaveUpRightSeed,
@@ -194,9 +194,9 @@ internal enum SamusProjectileFrameId
     SpazerWaveUpRightNearlySpread,
     /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUpRight"/> showing the Spazer picture, up right, its lanes fully spread.</summary>
     SpazerWaveUpRightSpread,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUpRight"/> showing the Spazer picture, up right, its lanes parting, as <see cref="SpazerWaveUpRightParting"/> does, leaving no trail where <see cref="ProjectileTrailPlacementList.UnchargedDefault"/> places one from it.</summary>
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUpRight"/> showing the Spazer picture, up right, its lanes parting, as <see cref="SpazerWaveUpRightParting"/> does, leaving no trail where <see cref="ProjectileTrailFamily.UnchargedDefault"/> places one from it.</summary>
     SpazerWaveUpRightPartingWithoutDefaultTrail,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUpRight"/> showing the Spazer picture, up right, its lanes splitting, as <see cref="SpazerWaveUpRightSplitting"/> does, leaving no trail where <see cref="ProjectileTrailPlacementList.UnchargedDefault"/> places one from it.</summary>
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUpRight"/> showing the Spazer picture, up right, its lanes splitting, as <see cref="SpazerWaveUpRightSplitting"/> does, leaving no trail where <see cref="ProjectileTrailFamily.UnchargedDefault"/> places one from it.</summary>
     SpazerWaveUpRightSplittingWithoutDefaultTrail,
     /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveRight"/> showing the Spazer picture, right, seed.</summary>
     SpazerWaveRightSeed,
@@ -210,9 +210,9 @@ internal enum SamusProjectileFrameId
     SpazerWaveRightNearlySpread,
     /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveRight"/> showing the Spazer picture, right, its lanes fully spread.</summary>
     SpazerWaveRightSpread,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveRight"/> showing the Spazer picture, right, its lanes parting, as <see cref="SpazerWaveRightParting"/> does, leaving no trail where <see cref="ProjectileTrailPlacementList.UnchargedDefault"/> places one from it.</summary>
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveRight"/> showing the Spazer picture, right, its lanes parting, as <see cref="SpazerWaveRightParting"/> does, leaving no trail where <see cref="ProjectileTrailFamily.UnchargedDefault"/> places one from it.</summary>
     SpazerWaveRightPartingWithoutDefaultTrail,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveRight"/> showing the Spazer picture, right, its lanes splitting, as <see cref="SpazerWaveRightSplitting"/> does, leaving no trail where <see cref="ProjectileTrailPlacementList.UnchargedDefault"/> places one from it.</summary>
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveRight"/> showing the Spazer picture, right, its lanes splitting, as <see cref="SpazerWaveRightSplitting"/> does, leaving no trail where <see cref="ProjectileTrailFamily.UnchargedDefault"/> places one from it.</summary>
     SpazerWaveRightSplittingWithoutDefaultTrail,
     /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDownRight"/> showing the Spazer picture, down right, seed.</summary>
     SpazerWaveDownRightSeed,
@@ -226,9 +226,9 @@ internal enum SamusProjectileFrameId
     SpazerWaveDownRightNearlySpread,
     /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDownRight"/> showing the Spazer picture, down right, its lanes fully spread.</summary>
     SpazerWaveDownRightSpread,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDownRight"/> showing the Spazer picture, down right, its lanes parting, as <see cref="SpazerWaveDownRightParting"/> does, leaving no trail where <see cref="ProjectileTrailPlacementList.UnchargedDefault"/> places one from it.</summary>
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDownRight"/> showing the Spazer picture, down right, its lanes parting, as <see cref="SpazerWaveDownRightParting"/> does, leaving no trail where <see cref="ProjectileTrailFamily.UnchargedDefault"/> places one from it.</summary>
     SpazerWaveDownRightPartingWithoutDefaultTrail,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDownRight"/> showing the Spazer picture, down right, its lanes splitting, as <see cref="SpazerWaveDownRightSplitting"/> does, leaving no trail where <see cref="ProjectileTrailPlacementList.UnchargedDefault"/> places one from it.</summary>
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDownRight"/> showing the Spazer picture, down right, its lanes splitting, as <see cref="SpazerWaveDownRightSplitting"/> does, leaving no trail where <see cref="ProjectileTrailFamily.UnchargedDefault"/> places one from it.</summary>
     SpazerWaveDownRightSplittingWithoutDefaultTrail,
     /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDown"/> showing the Spazer picture, down, seed.</summary>
     SpazerWaveDownSeed,
@@ -242,9 +242,9 @@ internal enum SamusProjectileFrameId
     SpazerWaveDownNearlySpread,
     /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDown"/> showing the Spazer picture, down, its lanes fully spread.</summary>
     SpazerWaveDownSpread,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDown"/> showing the Spazer picture, down, its lanes parting, as <see cref="SpazerWaveDownParting"/> does, leaving no trail where <see cref="ProjectileTrailPlacementList.UnchargedDefault"/> places one from it.</summary>
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDown"/> showing the Spazer picture, down, its lanes parting, as <see cref="SpazerWaveDownParting"/> does, leaving no trail where <see cref="ProjectileTrailFamily.UnchargedDefault"/> places one from it.</summary>
     SpazerWaveDownPartingWithoutDefaultTrail,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDown"/> showing the Spazer picture, down, its lanes splitting, as <see cref="SpazerWaveDownSplitting"/> does, leaving no trail where <see cref="ProjectileTrailPlacementList.UnchargedDefault"/> places one from it.</summary>
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDown"/> showing the Spazer picture, down, its lanes splitting, as <see cref="SpazerWaveDownSplitting"/> does, leaving no trail where <see cref="ProjectileTrailFamily.UnchargedDefault"/> places one from it.</summary>
     SpazerWaveDownSplittingWithoutDefaultTrail,
     /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDownLeft"/> showing the Spazer picture, down left, seed.</summary>
     SpazerWaveDownLeftSeed,
@@ -256,11 +256,11 @@ internal enum SamusProjectileFrameId
     SpazerWaveDownLeftNearlySpread,
     /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDownLeft"/> showing the Spazer picture, down left, its lanes fully spread.</summary>
     SpazerWaveDownLeftSpread,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDownLeft"/> showing the Spazer picture, down left, its lanes fully spread, as <see cref="SpazerWaveDownLeftSpread"/> does, with its trail placed elsewhere by <see cref="ProjectileTrailPlacementList.UnchargedWaveIceSpazerUpRight"/>, <see cref="ProjectileTrailPlacementList.UnchargedWaveIceSpazerDownRight"/>, <see cref="ProjectileTrailPlacementList.UnchargedWaveIceSpazerUpLeft"/>.</summary>
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDownLeft"/> showing the Spazer picture, down left, its lanes fully spread, as <see cref="SpazerWaveDownLeftSpread"/> does, with its trail placed elsewhere by <see cref="ProjectileTrailFamily.UnchargedWaveIceSpazer"/>, <see cref="ProjectileTrailFamily.UnchargedWaveIceSpazer"/>, <see cref="ProjectileTrailFamily.UnchargedWaveIceSpazer"/>.</summary>
     SpazerWaveDownLeftSpreadShiftedTrail,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDownLeft"/> showing the Spazer picture, down left, its lanes spreading, as <see cref="SpazerWaveDownLeftSpreading"/> does, leaving no trail where <see cref="ProjectileTrailPlacementList.UnchargedDefault"/> places one from it.</summary>
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDownLeft"/> showing the Spazer picture, down left, its lanes spreading, as <see cref="SpazerWaveDownLeftSpreading"/> does, leaving no trail where <see cref="ProjectileTrailFamily.UnchargedDefault"/> places one from it.</summary>
     SpazerWaveDownLeftSpreadingWithoutDefaultTrail,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDownLeft"/> showing the Spazer picture, down left, its lanes parting, as <see cref="SpazerWaveDownLeftParting"/> does, leaving no trail where <see cref="ProjectileTrailPlacementList.UnchargedDefault"/> places one from it.</summary>
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDownLeft"/> showing the Spazer picture, down left, its lanes parting, as <see cref="SpazerWaveDownLeftParting"/> does, leaving no trail where <see cref="ProjectileTrailFamily.UnchargedDefault"/> places one from it.</summary>
     SpazerWaveDownLeftPartingWithoutDefaultTrail,
     /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveLeft"/> showing the Spazer picture, left, seed.</summary>
     SpazerWaveLeftSeed,
@@ -274,9 +274,9 @@ internal enum SamusProjectileFrameId
     SpazerWaveLeftNearlySpread,
     /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveLeft"/> showing the Spazer picture, left, its lanes fully spread.</summary>
     SpazerWaveLeftSpread,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveLeft"/> showing the Spazer picture, left, its lanes parting, as <see cref="SpazerWaveLeftParting"/> does, leaving no trail where <see cref="ProjectileTrailPlacementList.UnchargedDefault"/> places one from it.</summary>
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveLeft"/> showing the Spazer picture, left, its lanes parting, as <see cref="SpazerWaveLeftParting"/> does, leaving no trail where <see cref="ProjectileTrailFamily.UnchargedDefault"/> places one from it.</summary>
     SpazerWaveLeftPartingWithoutDefaultTrail,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveLeft"/> showing the Spazer picture, left, its lanes splitting, as <see cref="SpazerWaveLeftSplitting"/> does, leaving no trail where <see cref="ProjectileTrailPlacementList.UnchargedDefault"/> places one from it.</summary>
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveLeft"/> showing the Spazer picture, left, its lanes splitting, as <see cref="SpazerWaveLeftSplitting"/> does, leaving no trail where <see cref="ProjectileTrailFamily.UnchargedDefault"/> places one from it.</summary>
     SpazerWaveLeftSplittingWithoutDefaultTrail,
     /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUpLeft"/> showing the Spazer picture, up left, seed.</summary>
     SpazerWaveUpLeftSeed,
@@ -290,9 +290,9 @@ internal enum SamusProjectileFrameId
     SpazerWaveUpLeftNearlySpread,
     /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUpLeft"/> showing the Spazer picture, up left, its lanes fully spread.</summary>
     SpazerWaveUpLeftSpread,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUpLeft"/> showing the Spazer picture, up left, its lanes parting, as <see cref="SpazerWaveUpLeftParting"/> does, leaving no trail where <see cref="ProjectileTrailPlacementList.UnchargedDefault"/> places one from it.</summary>
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUpLeft"/> showing the Spazer picture, up left, its lanes parting, as <see cref="SpazerWaveUpLeftParting"/> does, leaving no trail where <see cref="ProjectileTrailFamily.UnchargedDefault"/> places one from it.</summary>
     SpazerWaveUpLeftPartingWithoutDefaultTrail,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUpLeft"/> showing the Spazer picture, up left, its lanes splitting, as <see cref="SpazerWaveUpLeftSplitting"/> does, leaving no trail where <see cref="ProjectileTrailPlacementList.UnchargedDefault"/> places one from it.</summary>
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUpLeft"/> showing the Spazer picture, up left, its lanes splitting, as <see cref="SpazerWaveUpLeftSplitting"/> does, leaving no trail where <see cref="ProjectileTrailFamily.UnchargedDefault"/> places one from it.</summary>
     SpazerWaveUpLeftSplittingWithoutDefaultTrail,
     /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaVertical"/> showing the Plasma Startup picture, up, core.</summary>
     PlasmaVerticalCore,
@@ -322,7 +322,7 @@ internal enum SamusProjectileFrameId
     PlasmaWaveVerticalShortLobesFar,
     /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaWaveVertical"/> showing the Plasma Wave picture, up short, its lobes at their peak.</summary>
     PlasmaWaveVerticalShortLobesPeak,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaWaveVertical"/> showing the Plasma Wave picture, up short, its lobes near the centre, as <see cref="PlasmaWaveVerticalShortLobesNear"/> does, leaving no trail where <see cref="ProjectileTrailPlacementList.UnchargedDefault"/> places one from it.</summary>
+    /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaWaveVertical"/> showing the Plasma Wave picture, up short, its lobes near the centre, as <see cref="PlasmaWaveVerticalShortLobesNear"/> does, leaving no trail where <see cref="ProjectileTrailFamily.UnchargedDefault"/> places one from it.</summary>
     PlasmaWaveVerticalShortLobesNearWithoutDefaultTrail,
     /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaIceWaveRisingDiagonal"/> showing the Plasma Startup picture, up right, core.</summary>
     PlasmaIceWaveRisingDiagonalCore,
@@ -336,7 +336,7 @@ internal enum SamusProjectileFrameId
     PlasmaWaveRisingDiagonalShortLobesFar,
     /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaWaveRisingDiagonal"/> showing the Plasma Wave picture, up right short, its lobes at their peak.</summary>
     PlasmaWaveRisingDiagonalShortLobesPeak,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaWaveRisingDiagonal"/> showing the Plasma Wave picture, up right short, its lobes near the centre, as <see cref="PlasmaWaveRisingDiagonalShortLobesNear"/> does, leaving no trail where <see cref="ProjectileTrailPlacementList.UnchargedDefault"/> places one from it.</summary>
+    /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaWaveRisingDiagonal"/> showing the Plasma Wave picture, up right short, its lobes near the centre, as <see cref="PlasmaWaveRisingDiagonalShortLobesNear"/> does, leaving no trail where <see cref="ProjectileTrailFamily.UnchargedDefault"/> places one from it.</summary>
     PlasmaWaveRisingDiagonalShortLobesNearWithoutDefaultTrail,
     /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaWaveHorizontal"/> showing the Plasma Startup picture, right, core.</summary>
     PlasmaWaveHorizontalCore,
@@ -350,7 +350,7 @@ internal enum SamusProjectileFrameId
     PlasmaWaveHorizontalShortLobesFar,
     /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaWaveHorizontalSwing"/> showing the Plasma Wave picture, right short, its lobes at their peak.</summary>
     PlasmaWaveHorizontalShortLobesPeak,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaWaveHorizontalSwing"/> showing the Plasma Wave picture, right short, its lobes near the centre, as <see cref="PlasmaWaveHorizontalShortLobesNear"/> does, leaving no trail where <see cref="ProjectileTrailPlacementList.UnchargedDefault"/> places one from it.</summary>
+    /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaWaveHorizontalSwing"/> showing the Plasma Wave picture, right short, its lobes near the centre, as <see cref="PlasmaWaveHorizontalShortLobesNear"/> does, leaving no trail where <see cref="ProjectileTrailFamily.UnchargedDefault"/> places one from it.</summary>
     PlasmaWaveHorizontalShortLobesNearWithoutDefaultTrail,
     /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaIceWaveFallingDiagonal"/> showing the Plasma Startup picture, down right, core.</summary>
     PlasmaIceWaveFallingDiagonalCore,
@@ -364,7 +364,7 @@ internal enum SamusProjectileFrameId
     PlasmaWaveFallingDiagonalShortLobesFar,
     /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaWaveFallingDiagonal"/> showing the Plasma Wave picture, down right short, its lobes at their peak.</summary>
     PlasmaWaveFallingDiagonalShortLobesPeak,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaWaveFallingDiagonal"/> showing the Plasma Wave picture, down right short, its lobes near the centre, as <see cref="PlasmaWaveFallingDiagonalShortLobesNear"/> does, leaving no trail where <see cref="ProjectileTrailPlacementList.UnchargedDefault"/> places one from it.</summary>
+    /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaWaveFallingDiagonal"/> showing the Plasma Wave picture, down right short, its lobes near the centre, as <see cref="PlasmaWaveFallingDiagonalShortLobesNear"/> does, leaving no trail where <see cref="ProjectileTrailFamily.UnchargedDefault"/> places one from it.</summary>
     PlasmaWaveFallingDiagonalShortLobesNearWithoutDefaultTrail,
     /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPowerUp"/> showing the Charged Power picture, up.</summary>
     ChargedPowerUp,

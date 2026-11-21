@@ -8,6 +8,9 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// </summary>
 internal sealed record SpecialAttackParticle
 {
+    /// <summary>The shot place, among Samus's first places, the particle takes when the attack starts (#2565).</summary>
+    public required int ShotPlace { get; init; }
+
     /// <summary>The angle an Ice or Plasma particle starts its orbit of Samus at.</summary>
     public required TrigonometryAngle OrbitStart { get; init; }
 

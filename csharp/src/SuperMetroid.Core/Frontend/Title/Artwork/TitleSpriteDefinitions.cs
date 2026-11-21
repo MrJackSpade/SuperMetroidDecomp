@@ -12,5 +12,5 @@ public static class TitleSpriteDefinitions
     /// (#1513, #1979).
     /// </summary>
     [InstalledKey]
-    public static string LetterFrameName(TitleCardTyping typed) => $"Title.{TitleSequencePhaseKeys.Installed.Of(typed.Card)}.Letter{typed.Letters}";
+    public static string LetterFrameName(TitleCardTyping typed) => $"Title.{TitleCardKeys.Installed.Of(typed.Card)}.Letter{typed.Letters}";
 }

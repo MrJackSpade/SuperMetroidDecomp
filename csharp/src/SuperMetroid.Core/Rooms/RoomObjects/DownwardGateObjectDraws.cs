@@ -8,9 +8,6 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// </summary>
 internal static class DownwardGateObjectDraws
 {
-    /// <summary>The blocks of the gate's column, down from its top block.</summary>
-    private const int ColumnHeight = 5;
-
     /// <summary>The part and shape of one of the column's draws or one of the eight trigger draws.</summary>
     internal static Draw Describe(DownwardGateDraw gate) => Draws[gate];
 
@@ -37,8 +34,8 @@ internal static class DownwardGateObjectDraws
         [DownwardGateDraw.QuarterLowered] = ColumnDraw(DownwardGateDraw.QuarterLowered, 2),
         [DownwardGateDraw.HalfLowered] = ColumnDraw(DownwardGateDraw.HalfLowered, 3),
         [DownwardGateDraw.ThreeQuartersLowered] = ColumnDraw(DownwardGateDraw.ThreeQuartersLowered, 4),
-        [DownwardGateDraw.FullyLowered] = ColumnDraw(DownwardGateDraw.FullyLowered, ColumnHeight),
-        [DownwardGateDraw.Closed] = ColumnDraw(DownwardGateDraw.Closed, ColumnHeight),
+        [DownwardGateDraw.FullyLowered] = ColumnDraw(DownwardGateDraw.FullyLowered, DownwardGateDefinitions.GateHeightInBlocks),
+        [DownwardGateDraw.Closed] = ColumnDraw(DownwardGateDraw.Closed, DownwardGateDefinitions.GateHeightInBlocks),
         [DownwardGateDraw.TriggerBlueLeft] = new(DownwardGatePart.LeftTrigger, DownwardGateDraw.TriggerBlueLeft, LeftTrigger),
         [DownwardGateDraw.TriggerBlueRight] = new(DownwardGatePart.RightTrigger, DownwardGateDraw.TriggerBlueRight, RightTrigger),
         [DownwardGateDraw.TriggerRedLeft] = new(DownwardGatePart.LeftTrigger, DownwardGateDraw.TriggerRedLeft, LeftTrigger),
@@ -52,12 +49,12 @@ internal static class DownwardGateObjectDraws
     /// <summary>The column draw <paramref name="gate"/>, filling <paramref name="rows"/> rows.</summary>
     private static Draw ColumnDraw(DownwardGateDraw gate, int rows) => new(DownwardGatePart.Column, gate, Columns[rows]);
 
-    /// <summary>The column filling each count of rows, by the count: <see cref="ColumnHeight"/> down from its top block, the filled rows shootable and the rest air.</summary>
-    private static readonly RoomBlockShape[] Columns = [.. Enumerable.Range(0, ColumnHeight + 1).Select(Column)];
+    /// <summary>The column filling each count of rows, by the count: <see cref="DownwardGateDefinitions.GateHeightInBlocks"/> down from its top block, the filled rows shootable and the rest air.</summary>
+    private static readonly RoomBlockShape[] Columns = [.. Enumerable.Range(0, DownwardGateDefinitions.GateHeightInBlocks + 1).Select(Column)];
 
-    /// <summary>The column filling <paramref name="rows"/> rows: <see cref="ColumnHeight"/> down from its top block, the filled rows shootable and the rest air.</summary>
+    /// <summary>The column filling <paramref name="rows"/> rows: <see cref="DownwardGateDefinitions.GateHeightInBlocks"/> down from its top block, the filled rows shootable and the rest air.</summary>
     private static RoomBlockShape Column(int rows) => new(
-        [.. Enumerable.Range(0, ColumnHeight).Select(row => new RoomBlockShapeCell(new(0, row),
+        [.. Enumerable.Range(0, DownwardGateDefinitions.GateHeightInBlocks).Select(row => new RoomBlockShapeCell(new(0, row),
             row < rows ? RoomCollisionType.ShootableBlock : RoomCollisionType.Air))]);
 
     /// <summary>One gate draw: the part it writes, which of the gate's draws it is, and the blocks it changes.</summary>

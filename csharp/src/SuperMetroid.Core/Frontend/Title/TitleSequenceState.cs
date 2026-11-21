@@ -66,8 +66,8 @@ public sealed class TitleSequenceState : IFrontendScreen, IComposedFrontendScene
     /// <summary>The idle title screen's wait before the attract demo starts.</summary>
     private UpdateCountdown IdleTimeout { get; set; } = UpdateCountdown.Ended();
     /// <summary>The running title card's typing (#2359): it shows nothing until its first update reads its first beat.</summary>
-    private readonly AnimationPlayer<TitleSequencePhase, TitleCardTyping, TitleCardCue> textCard =
-        AnimationPlayer<TitleSequencePhase, TitleCardTyping, TitleCardCue>.Starting(TitleCards.Segments, TitleCards.Typing(TitleSequencePhase.YearText));
+    private readonly AnimationPlayer<TitleCard, TitleCardTyping, TitleCardCue> textCard =
+        AnimationPlayer<TitleCard, TitleCardTyping, TitleCardCue>.Starting(TitleCards.Segments, TitleCards.Typing(TitleCardDefinitions.Year));
     /// <summary>The whole composition the title shows, the logo, or null while it shows none.</summary>
     internal TitleSprite? ActiveSprite { get; private set; }
     /// <summary>The running title card's text as far as it is typed, or null while no card shows any (#1979).</summary>
@@ -558,7 +558,7 @@ public sealed class TitleSequenceState : IFrontendScreen, IComposedFrontendScene
     private void BeginTextSequence(TitleTextSequenceDefinition definition)
     {
         Phase = definition.Phase;
-        textCard.Start(TitleCards.Typing(definition.Phase));
+        textCard.Start(TitleCards.Typing(definition.Card));
         ActiveSprite = null;
         ActiveCard = null;
         ActiveOrigin = definition.Origin;

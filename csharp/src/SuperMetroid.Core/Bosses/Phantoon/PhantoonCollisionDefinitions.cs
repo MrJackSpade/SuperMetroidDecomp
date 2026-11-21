@@ -66,18 +66,19 @@ internal static class PhantoonCollisionDefinitions
     private static EnemyCollisionHitbox Centered(int halfWidth, int top, int bottom) =>
         Contact(-halfWidth, top, halfWidth - 1, bottom);
     /// <summary>
-    /// Each of Phantoon's body pictures' components: the full body, the eye alone and the invulnerable body each have
-    /// one component; the eye's, tentacles' and mouth's looks are <see cref="PartsWithoutHitboxes"/>.
+    /// The components of each hit area his body's picture can have live: the full body, the eye alone and the
+    /// invulnerable body's centre point each have one component; the eye's, tentacles' and mouth's looks are
+    /// <see cref="PartsWithoutHitboxes"/>.
     /// </summary>
-    internal static readonly Dictionary<EnemyFrameId, ImmutableArray<EnemyCollisionComponent>> FrameComponents = new()
+    internal static readonly Dictionary<PhantoonBodyHitArea, ImmutableArray<EnemyCollisionComponent>> HitAreaComponents = new()
     {
-        [EnemyFrameId.PhantoonInvulnerableBody] = SolidifyingCentreComponents,
-        [EnemyFrameId.PhantoonFullHitboxBody] = FullBodyComponents,
-        [EnemyFrameId.PhantoonEyeHitboxBody] = EyeOnlyComponents,
+        [PhantoonBodyHitArea.SolidifyingCentre] = SolidifyingCentreComponents,
+        [PhantoonBodyHitArea.WholeBody] = FullBodyComponents,
+        [PhantoonBodyHitArea.EyeOnly] = EyeOnlyComponents,
     };
 
     /// <summary>
-    /// The looks of his eye, tentacles and mouth, which carry no hitbox: his body's pictures alone hold his components, so
+    /// The looks of his eye, tentacles and mouth, which carry no hitbox: his body's picture alone holds his components, so
     /// every one of these has none.
     /// </summary>
     internal static readonly IReadOnlySet<EnemyFrameId> PartsWithoutHitboxes = new HashSet<EnemyFrameId>

@@ -121,18 +121,18 @@ internal sealed class SetCharacters
         var sources = new List<SheetFrameSource>();
         var blank = new List<string>();
         var placements = new Dictionary<string, CorpsePicturePlacement>(StringComparer.Ordinal);
-        foreach (ComposedLook[] combination in Combinations(parts))
+        foreach (PartLook[] combination in Combinations(parts))
         {
-            string picture = EncounterLook.PictureName(name, parts.Select((part, index) => part.ShownAs is EncounterArtwork shown
-                ? new EncounterLook(shown, combination[index].Name) : (EncounterLook?)null)
+            string picture = EncounterLook.PictureName(name, combination.Select(choice => choice.Part.ShownAs is EncounterArtwork shown
+                ? new EncounterLook(shown, choice.Look.Name) : (EncounterLook?)null)
                 .OfType<EncounterLook>().OrderBy(look => Installation.EnemySheetFiles.EncounterOrder.PlaceOf(look.Encounter)));
-            byte[] characters = Characters(parts, combination);
+            byte[] characters = Characters(combination);
             if (ShowsNothing(characters, read))
             {
                 blank.Add(picture);
                 continue;
             }
-            sources.Add(new SheetFrameSource(picture, frame, Page(parts, combination)));
+            sources.Add(new SheetFrameSource(picture, frame, Page(combination)));
             if (corpse is not null)
                 placements.Add(picture, CorpseRowPictures.PlacementOf(picture, frame, corpse));
         }
@@ -143,11 +143,11 @@ internal sealed class SetCharacters
     /// Every combination of the looks <paramref name="parts"/> picture the frame in, one look of each part, by part: a
     /// part that leaves the frame alike in all its looks pictures it in one.
     /// </summary>
-    private static IEnumerable<ComposedLook[]> Combinations(IReadOnlyList<FrameLookPart> parts)
+    private static IEnumerable<PartLook[]> Combinations(IReadOnlyList<FrameLookPart> parts)
     {
-        IEnumerable<ComposedLook[]> combinations = [[]];
+        IEnumerable<PartLook[]> combinations = [[]];
         foreach (FrameLookPart part in parts)
-            combinations = [.. combinations.SelectMany(earlier => part.Looks.Select(look => (ComposedLook[])[.. earlier, look]))];
+            combinations = [.. combinations.SelectMany(earlier => part.Looks.Select(look => (PartLook[])[.. earlier, new PartLook(part, look)]))];
         return combinations;
     }
 
@@ -175,12 +175,12 @@ internal sealed class SetCharacters
     }
 
     /// <summary>The characters with every look of each part up to the one <paramref name="combination"/> names copied in order.</summary>
-    private SpriteArtwork Page(IReadOnlyList<FrameLookPart> parts, ComposedLook[] combination)
+    private SpriteArtwork Page(PartLook[] combination)
     {
-        var key = new EncounterLookCombination(parts, combination);
+        var key = new EncounterLookCombination(combination.Select(choice => choice.Look));
         if (pages.TryGetValue(key, out SpriteArtwork? page))
             return page;
-        byte[] characters = Characters(parts, combination);
+        byte[] characters = Characters(combination);
         page = ReferenceEquals(characters, table) ? Loaded : ObjCharacterPage.Create(new SpriteArtworkId(SpriteArtworkKind.GameplayObjects), characters);
         pages.Add(key, page);
         return page;
@@ -190,17 +190,17 @@ internal sealed class SetCharacters
     /// The character table <see cref="Page"/> shows for <paramref name="combination"/>, built once: the loaded table where
     /// every part shows its room's load.
     /// </summary>
-    private byte[] Characters(IReadOnlyList<FrameLookPart> parts, ComposedLook[] combination)
+    private byte[] Characters(PartLook[] combination)
     {
-        if (combination.All(look => look.IsLoaded))
+        if (combination.All(choice => choice.Look.IsLoaded))
             return table;
-        var key = new EncounterLookCombination(parts, combination);
+        var key = new EncounterLookCombination(combination.Select(choice => choice.Look));
         if (lookTables.TryGetValue(key, out byte[]? known))
             return known;
         byte[] shown = [.. table];
-        for (int index = 0; index < parts.Count; index++)
+        foreach (PartLook choice in combination)
         {
-            foreach (EncounterArtworkUpload upload in parts[index].Encounter.CopiesThrough(combination[index]))
+            foreach (EncounterArtworkUpload upload in choice.Part.Encounter.CopiesThrough(choice.Look))
                 upload.ApplyTo(shown);
         }
         lookTables.Add(key, shown);
@@ -230,4 +230,9 @@ internal sealed class SetCharacters
     /// <param name="Looks">The looks the frame is pictured in.</param>
     /// <param name="ShownAs">The encounter gameplay shows, whose looks name the frame's pictures; none for a part that pictures the frame in one look.</param>
     internal sealed record FrameLookPart(EncounterLookSteps Encounter, IReadOnlyList<ComposedLook> Looks, EncounterArtwork? ShownAs);
+
+    /// <summary>One part of a frame with the look a combination shows it in.</summary>
+    /// <param name="Part">The part.</param>
+    /// <param name="Look">The look of the part's encounter shown.</param>
+    private readonly record struct PartLook(FrameLookPart Part, ComposedLook Look);
 }

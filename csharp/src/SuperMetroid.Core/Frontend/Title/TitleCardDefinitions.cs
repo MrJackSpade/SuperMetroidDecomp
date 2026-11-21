@@ -17,17 +17,17 @@ internal static class TitleCardDefinitions
 
     /// <summary>The year card: a blank opening, then 1994, held before the lower pan.</summary>
     internal static readonly TitleCardDefinition Year =
-        new(TitleSequencePhase.YearText, "1994", OpeningFrames: 60, HoldFrames: 45, TitleCardCue.StartLowerPan);
+        new(TitleCard.Year, "1994", OpeningFrames: 60, HoldFrames: 45, TitleCardCue.StartLowerPan);
 
     /// <summary>The Nintendo card, held before the upper pan.</summary>
     internal static readonly TitleCardDefinition Nintendo =
-        new(TitleSequencePhase.NintendoText, "NINTENDO", OpeningFrames: 0, HoldFrames: 45, TitleCardCue.StartUpperPan);
+        new(TitleCard.Nintendo, "NINTENDO", OpeningFrames: 0, HoldFrames: 45, TitleCardCue.StartUpperPan);
 
     /// <summary>The Presents card, held before the downward pan.</summary>
     internal static readonly TitleCardDefinition Presents =
-        new(TitleSequencePhase.PresentsText, "PRESENTS", OpeningFrames: 0, HoldFrames: 45, TitleCardCue.StartDownwardPan);
+        new(TitleCard.Presents, "PRESENTS", OpeningFrames: 0, HoldFrames: 45, TitleCardCue.StartDownwardPan);
 
     /// <summary>The Metroid 3 card, the space before its numeral typed as a letter, held longest, before the final zoom.</summary>
     internal static readonly TitleCardDefinition MetroidThree =
-        new(TitleSequencePhase.MetroidThreeText, "METROID 3", OpeningFrames: 0, HoldFrames: 120, TitleCardCue.StartFinalZoom);
+        new(TitleCard.MetroidThree, "METROID 3", OpeningFrames: 0, HoldFrames: 120, TitleCardCue.StartFinalZoom);
 }

@@ -1,4 +1,6 @@
+using SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Assets;
 using SuperMetroid.Core;
 
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
@@ -25,6 +27,10 @@ internal static class EscapeSourceDefinitions
     private static readonly SnesAddress CeresEscapeDoorCharacters = new(0xb0, 0xba00);
     /// <summary>$B0:C000: the escape timer's characters, its two pages one after the other.</summary>
     internal static readonly SnesAddress TimerCharacters = new(0xb0, 0xc000);
-    /// <summary>Where each Ceres escape character page starts, in <c>CeresEscapeTileArtworkDefinitions.All</c> order.</summary>
-    internal static readonly SnesAddress[] CeresEscapePages = [TextCharacters, CeresEscapeDoorCharacters];
+    /// <summary>Where each Ceres escape character page starts, by the page.</summary>
+    internal static readonly IReadOnlyDictionary<TileSheetDefinition, SnesAddress> CeresEscapePageSources = new Dictionary<TileSheetDefinition, SnesAddress>
+    {
+        [CeresEscapeTileArtworkDefinitions.WarningText] = TextCharacters,
+        [CeresEscapeTileArtworkDefinitions.Doors] = CeresEscapeDoorCharacters,
+    };
 }

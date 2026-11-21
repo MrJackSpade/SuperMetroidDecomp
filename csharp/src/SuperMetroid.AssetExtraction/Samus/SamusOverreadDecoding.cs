@@ -50,19 +50,20 @@ internal static class SamusOverreadDecoding
     /// What SpaceTime's palette copy overwrites in progression for every animation position a SpaceTime shot can hold and
     /// every shot slot.
     /// </summary>
-    private static Dictionary<string, IReadOnlyDictionary<string, IReadOnlyList<SamusOverreadDocument.Overwrite?>>> SpaceTimeOverwrites(
+    private static Dictionary<string, IReadOnlyDictionary<string, IReadOnlyDictionary<string, SamusOverreadDocument.Overwrite?>>> SpaceTimeOverwrites(
         IImportCartridgeSource cartridge, SamusProjectileListLayout lists)
     {
-        var result = new Dictionary<string, IReadOnlyDictionary<string, IReadOnlyList<SamusOverreadDocument.Overwrite?>>>();
+        var result = new Dictionary<string, IReadOnlyDictionary<string, IReadOnlyDictionary<string, SamusOverreadDocument.Overwrite?>>>();
         foreach (SamusProjectileSegment program in SpaceTimeShotPrograms())
         {
-            var positions = new Dictionary<string, IReadOnlyList<SamusOverreadDocument.Overwrite?>>();
+            var positions = new Dictionary<string, IReadOnlyDictionary<string, SamusOverreadDocument.Overwrite?>>();
             // Every place of the segment: before each beat, and at its end.
             for (int position = 0; position <= SamusProjectileAnimations.Segments.Beats(program).Count; position++)
             {
                 int place = lists.Position(new SamusProjectileSegmentBeat(program, position));
                 positions.Add(position.ToString(System.Globalization.CultureInfo.InvariantCulture),
-                    [.. Enumerable.Range(0, SamusProjectileSystem.PlaceCount).Select(slot => SpaceTimeOverwrite(cartridge, place, slot))]);
+                    Enumerable.Range(0, SamusProjectileSystem.PlaceCount).ToDictionary(SamusOverreadFormat.ShotPlaceName,
+                        slot => SpaceTimeOverwrite(cartridge, place, slot), StringComparer.Ordinal));
             }
             result.Add(SamusProjectileSegmentKeys.Installed.Of(program), positions);
         }

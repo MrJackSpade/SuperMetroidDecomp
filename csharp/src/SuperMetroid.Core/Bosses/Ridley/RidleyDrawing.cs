@@ -49,9 +49,7 @@ internal sealed class RidleyDrawing
 
         // The tail is drawn from the tip back from the inner joint to the base, so the links nearer the tip lie over
         // the others; drawn the other way, the curl would look different.
-        IEnumerable<RidleyTailLinkPicture> links = ridley.Tail.Links.Zip(
-            RidleySupplementalVisualDefinitions.LinkFrames, (link, frame) => new RidleyTailLinkPicture(link, frame));
-        foreach (RidleyTailLinkPicture picture in links.Reverse())
+        foreach (RidleyTailLinkPicture picture in ridley.Tail.LinkPictures.Reverse())
             DrawTailFrame(sprites, ridley.TailAndWingsShading, picture.Link, picture.Frame, camera);
     }
 

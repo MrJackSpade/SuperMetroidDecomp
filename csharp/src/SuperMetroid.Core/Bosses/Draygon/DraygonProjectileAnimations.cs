@@ -75,9 +75,6 @@ internal static class DraygonProjectileAnimations
             [P.WallTurretBloom] = Animation<DraygonProjectileSegment>.LeadingInto([Segments.Whole(P.WallTurretBloom)], [Segments.Whole(P.WallTurretFlight)]),
         };
 
-    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<DraygonProjectileSegment> StartingWith(DraygonProjectileSegment segment) => StartingAt[segment];
-
     /// <summary>Raises <paramref name="cue"/>.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, DraygonProjectileCue>.Unpaused Cue(DraygonProjectileCue cue) =>
         new AnimationBeat<EnemyProjectileFrameId, DraygonProjectileCue>.Event(cue);

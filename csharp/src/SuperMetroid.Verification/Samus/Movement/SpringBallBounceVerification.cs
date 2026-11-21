@@ -30,7 +30,7 @@ internal static class SpringBallBounceVerification
 
             SamusMorphBallMovement.StepSpringBallInAir(SamusMovement.SpringBallInAir, SamusTerrain.InRoom(room, SamusRoomObjectFixtures.Uninstalled), samus, GameplayAction.Right, 0);
             string context = $"Spring Ball in air with bounce state {bounceState}";
-            if (bounceState != (SamusBallBounce?)null)
+            if (bounceState != null)
             {
                 AssertEqual((ushort)0x168, samus.Position.Y.Whole, $"{context} rises by the rebound speed");
                 AssertEqual((ushort)0xffff, samus.Kinematics.Position.Y.Fraction, $"{context} Y fraction");

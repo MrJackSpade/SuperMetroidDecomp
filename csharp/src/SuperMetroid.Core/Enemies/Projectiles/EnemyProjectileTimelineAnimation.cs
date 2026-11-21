@@ -17,23 +17,38 @@ internal abstract class EnemyProjectileTimelineAnimation<TSegment, TFrame, TEven
     where TFrame : struct
     where TEvent : notnull
 {
-    /// <summary>Starts <paramref name="animation"/> before its first play.</summary>
-    private protected EnemyProjectileTimelineAnimation(Animation<TSegment> animation) =>
-        Playback = new AnimationPlayback<TSegment>(Ensure.NotNull(animation), AnimationPlace.StartOfAnimation);
+    /// <summary>Starts <paramref name="animation"/>, which starts at <paramref name="startsAt"/>, before its first play.</summary>
+    /// <param name="startsAt">
+    /// The segment the animation starts at: the one the family's table keys it by, or the first phase's of an animation an
+    /// owner builds for itself (the n00b tube's shard flights, #2044, Torizo's forming drools, the Tourian Chozo's dust, a
+    /// death's run, the save station's electricity).
+    /// </param>
+    /// <param name="animation">The animation to play.</param>
+    private protected EnemyProjectileTimelineAnimation(TSegment startsAt, Animation<TSegment> animation) => Start(startsAt, animation);
 
     /// <summary>The animation playing and where it stands.</summary>
-    private protected AnimationPlayback<TSegment> Playback { private get; set; }
+    private AnimationPlayback<TSegment> Playback { get; set; }
+
+    /// <summary>The segment the playing animation starts at, which its owner names as it starts it.</summary>
+    private TSegment StartedAt { get; set; }
 
     /// <summary>
     /// The segment the animation stands in: before its first play, or in an animation of no phase, the segment it starts
     /// at; otherwise the segment its playing phase plays, the one its next play shows a frame of, or rests in.
     /// </summary>
     internal TSegment PlayingSegment => Playback.Place == AnimationPlace.StartOfAnimation || Playback.Animation.Phases.Count == 0
-        ? SegmentStartedAt(Playback.Animation)
+        ? StartedAt
         : Playback.Animation.Phases[Playback.Place.Phase].Segment;
 
     /// <summary>The family's segments, which never pause and may hide.</summary>
     private protected abstract IUnpausedAnimationPlay<TSegment, TFrame, TEvent> Segments { get; }
+
+    /// <summary>Starts <paramref name="animation"/>, which starts at <paramref name="startsAt"/>, before its first play.</summary>
+    private protected void Start(TSegment startsAt, Animation<TSegment> animation)
+    {
+        StartedAt = startsAt;
+        Playback = new AnimationPlayback<TSegment>(Ensure.NotNull(animation), AnimationPlace.StartOfAnimation);
+    }
 
     /// <summary>
     /// Plays <paramref name="animation"/> on from <paramref name="place"/> to its next frame through <see cref="Segments"/>,
@@ -41,23 +56,6 @@ internal abstract class EnemyProjectileTimelineAnimation<TSegment, TFrame, TEven
     /// </summary>
     private protected abstract IUnpausedHidingAnimationShown<TSegment, TFrame> PlayToNextFrame(EnemyProjectileCueContext context,
         ref Animation<TSegment> animation, ref AnimationPlace place);
-
-    /// <summary>The family's animations, by the segment each starts at.</summary>
-    private protected abstract IEnumerable<KeyValuePair<TSegment, Animation<TSegment>>> StartingAt { get; }
-
-    /// <summary>
-    /// The segment <paramref name="started"/>, one of the animations the family's owners start, starts at: an animation of
-    /// <see cref="StartingAt"/> at its key, and one an owner builds for itself, which the table does not key (the n00b
-    /// tube's shard flights, #2044, Torizo's forming drools, the Tourian Chozo's dust, a death's run, the save station's
-    /// electricity), at its first phase's segment.
-    /// </summary>
-    private protected TSegment SegmentStartedAt(Animation<TSegment> started)
-    {
-        Ensure.NotNull(started);
-        return StartingAt.Any(keyed => ReferenceEquals(keyed.Value, started))
-            ? StartingAt.Single(pair => ReferenceEquals(pair.Value, started)).Key
-            : started.Phases[0].Segment;
-    }
 
     /// <summary>The projectile frame <paramref name="frame"/> shows.</summary>
     private protected abstract EnemyProjectileFrameId Present(TFrame frame);
@@ -87,7 +85,7 @@ internal abstract class EnemyProjectileTimelineAnimation<TSegment, TFrame, TEven
         Frame: static (shownFrame, timeline) => new EnemyProjectileFrameStep.Show(timeline.Present(shownFrame.Shown), shownFrame.Duration, timeline.Placement(shownFrame.Shown)),
         HeldFrame: static (held, timeline) => new EnemyProjectileFrameStep.ShowForGood(timeline.Present(held.Shown), timeline.Placement(held.Shown)),
         Held: static (_, _) => EnemyProjectileFrameStep.Rests,
-        Ended: static (_, _) => EnemyProjectileFrameStep.Ends);
+        Ended: static (_, _) => EnemyProjectileFrameStep.Deletes);
 
     /// <summary>
     /// What <see cref="NextFrame"/> makes of a hidden stretch, which hides the projectile for its updates (#2558), and of every

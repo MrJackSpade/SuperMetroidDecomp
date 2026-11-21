@@ -7,11 +7,8 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// <param name="owner">The family's cue owner, which carries out the events the animation raises (#2571).</param>
 /// <param name="segment">Where the animation starts.</param>
 internal sealed class TourianStatueProjectileAnimation(IEnemyProjectileCues<TourianStatueProjectileCue> owner, TourianStatueProjectileSegment segment)
-    : EnemyProjectileFrameAnimation<TourianStatueProjectileSegment, TourianStatueProjectileCue>(TourianStatueProjectileAnimations.StartingWith(segment), EnemyProjectileCueRunner<TourianStatueProjectileSegment, TourianStatueProjectileCue>.By(owner))
+    : EnemyProjectileFrameAnimation<TourianStatueProjectileSegment, TourianStatueProjectileCue>(segment, TourianStatueProjectileAnimations.StartingAt[segment], EnemyProjectileCueRunner<TourianStatueProjectileSegment, TourianStatueProjectileCue>.By(owner))
 {
     /// <inheritdoc/>
     private protected override IUnpausedAnimationPlay<TourianStatueProjectileSegment, EnemyProjectileFrameId, TourianStatueProjectileCue> Segments => TourianStatueProjectileAnimations.Segments;
-
-    /// <inheritdoc/>
-    private protected override IEnumerable<KeyValuePair<TourianStatueProjectileSegment, Animation<TourianStatueProjectileSegment>>> StartingAt => TourianStatueProjectileAnimations.StartingAt;
 }

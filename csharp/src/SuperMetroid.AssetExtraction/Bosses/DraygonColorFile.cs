@@ -4,6 +4,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Draygon.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Draygon;
+using SuperMetroid.Core.Bosses.Draygon;
 
 namespace SuperMetroid.AssetExtraction.Bosses;
 
@@ -18,17 +19,13 @@ public static class DraygonColorFile
         document = JsonAssetDocument.Read<DraygonColorDocument>(json, ArtworkJson.Options, "Draygon color");
         if (document.Version != DraygonColorFormat.Version)
             throw new InvalidDataException("Draygon colors require the supported version.");
-        if (document.HealthBands is null ||
-            document.HealthBands.Length != DraygonColorDefinitions.HealthBandCount)
-            throw new InvalidDataException("Draygon colors require eight health bands.");
         return new(
             Compile(document.Intro, DraygonColorDefinitions.IntroCount, "intro"),
             Compile(document.Background, DraygonColorDefinitions.BackgroundCount, "background"),
             Compile(document.Sprite, DraygonColorDefinitions.SpriteCount, "sprite"),
             Compile(document.WhiteFlash, DraygonColorDefinitions.WhiteFlashCount, "white flash"),
-            document.HealthBands.Select((band, index) =>
-                Compile(band, DraygonColorDefinitions.HealthBandColorCount,
-                    $"health band {index}")).ToArray());
+            Rgb5Rows.CompileKeyed(document.HealthBands, DraygonHealthBandDefinitions.HighestFirst, band => band.Key,
+                DraygonColorDefinitions.HealthBandColorCount, "Draygon health band"));
     }
 
     /// <summary>Serializes a Draygon color document as indented camel-case JSON.</summary>

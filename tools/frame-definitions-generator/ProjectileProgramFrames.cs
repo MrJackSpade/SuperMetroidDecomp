@@ -158,7 +158,8 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
         // other presents each pose it shows.
         bool direct = SymbolEqualityComparer.Default.Equals(frameType, model.EnemyProjectileFrameId) || IsFrameRecord(frameType);
         ISymbol segments = NamedBy(family, "Segments");
-        ISymbol startingAt = NamedBy(family, "StartingAt");
+        ISymbol startingAt = StartTableOf(family, segments, segmentType)
+            ?? throw new InvalidDataException($"{family.ToDisplayString()} names no table of the animations starting at each {segmentType.Name} this generator can read.");
         List<ExpressionSyntax> segmentInitializers = model.InitializersWithSpreads(segments);
         ExpressionSyntax startInitializer = CoreModel.InitializerOf(startingAt);
         AssignmentExpressionSyntax[] segmentEntries = [.. segmentInitializers.SelectMany(initializer => KeyedEntries(initializer, segmentType))];
@@ -936,7 +937,7 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
     public IReadOnlyList<ExpressionSyntax> AnimationData(INamedTypeSymbol family)
     {
         if (model.ProgramTypeOf(family) is not { } programType || ReadableNamedBy(family, "Segments") is not { } segments
-            || ReadableNamedBy(family, "StartingAt") is not { } startingAt)
+            || StartTableOf(family, segments, (INamedTypeSymbol)TimelineAnimationOf(family).TypeArguments[0]) is not { } startingAt)
             return [];
         List<ExpressionSyntax> initializers = model.InitializersWithSpreads(segments);
         return [.. initializers, .. SharedRunsIn(initializers), CoreModel.InitializerOf(startingAt),
@@ -952,6 +953,32 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
 
     /// <summary>The static segments <paramref name="family"/>'s <c>Segments</c> returns, when it declares any this generator reads.</summary>
     public ISymbol? AnimationSegments(INamedTypeSymbol family) => ReadableNamedBy(family, "Segments");
+
+    /// <summary>
+    /// The static table of the animations starting at each <paramref name="segmentType"/> member: the one the family declares
+    /// or the one beside its <paramref name="segments"/>, whose type is a dictionary from the segment to its
+    /// animation (each family names the segment it starts at and passes the animation from that table, so the table is
+    /// found by its type, not through an override). Null when neither declares exactly one.
+    /// </summary>
+    private ISymbol? StartTableOf(INamedTypeSymbol family, ISymbol segments, INamedTypeSymbol segmentType)
+    {
+        ISymbol[] tables = [.. new[] { family.OriginalDefinition, segments.ContainingType.OriginalDefinition }
+            .Distinct<INamedTypeSymbol>(SymbolEqualityComparer.Default)
+            .SelectMany(type => type.GetMembers())
+            .Where(member => member.IsStatic && member.DeclaringSyntaxReferences.Length > 0 && IsStartTable(member switch
+            {
+                IPropertySymbol property => property.Type,
+                IFieldSymbol field => field.Type,
+                _ => null,
+            }, segmentType))
+            .Select(member => member.OriginalDefinition)];
+        return tables.Length == 1 ? tables[0] : null;
+    }
+
+    /// <summary>Whether <paramref name="type"/> is a dictionary or identity table (#2553) from <paramref name="segmentType"/> to an animation of it.</summary>
+    private static bool IsStartTable(ITypeSymbol? type, INamedTypeSymbol segmentType) =>
+        type is INamedTypeSymbol { Name: "IReadOnlyDictionary" or "Dictionary" or "IdentityTable", TypeArguments: [var key, INamedTypeSymbol { Name: "Animation", TypeArguments: [var played] }] }
+        && SymbolEqualityComparer.Default.Equals(key, segmentType) && SymbolEqualityComparer.Default.Equals(played, segmentType);
 
     /// <summary>The static member <paramref name="family"/>'s <paramref name="property"/> returns, when it declares one this generator reads.</summary>
     private ISymbol? ReadableNamedBy(INamedTypeSymbol family, string property)

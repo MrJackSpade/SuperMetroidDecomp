@@ -39,7 +39,7 @@ internal static class ShutterRepeatedBombsVerification
             runtime.StepFrame(0);
             for (int frame = 0; frame < 320; frame++)
             {
-                ControllerButton input = frame < 220 && frame % interval == 0 ? runtime.Options.ControllerBindings.Shoot : 0;
+                ControllerButton input = frame < 220 && frame % interval == 0 ? runtime.Options.ControllerBindings[SuperMetroid.Core.Input.ControllerAction.Shoot] : 0;
                 if (frame == unmorphAt) input |= ControllerButton.Up;
                 runtime.StepFrame(input);
                 int gap = platform.Position.Y.Whole - platform.Radius.Y - samus.Position.Y.Whole - samus.Kinematics.Radius.Y;

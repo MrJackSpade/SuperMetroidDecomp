@@ -3,6 +3,9 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <summary>A trail family: the trails, one per direction, that a kind of shot leaves.</summary>
 internal enum ProjectileTrailFamily
 {
+    /// <summary>The trails the Spazer special attack's trailing pair leaves (#2348), whatever beams fire it.</summary>
+    SpazerAttackTrailingPair,
+
     /// <summary>The trails of uncharged beams that start every trail at the projectile.</summary>
     UnchargedDefault,
 

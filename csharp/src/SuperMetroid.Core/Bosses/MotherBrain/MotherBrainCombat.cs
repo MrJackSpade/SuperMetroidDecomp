@@ -12,19 +12,6 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 [RoomLifetime]
 internal sealed class MotherBrainCombat
 {
-    /// <summary>The projectile her head reacts to a shot of each family as: a missile's explosion reacts as a beam does.</summary>
-    private static IdentityTable<SamusProjectileFamily, MotherBrainProjectileType> ReactionProjectiles => field ??=
-        new(new Dictionary<SamusProjectileFamily, MotherBrainProjectileType>
-        {
-            [SamusProjectileFamily.Beam] = MotherBrainProjectileType.Beam,
-            [SamusProjectileFamily.MissileExplosion] = MotherBrainProjectileType.Beam,
-            [SamusProjectileFamily.Missile] = MotherBrainProjectileType.Missile,
-            [SamusProjectileFamily.SuperMissile] = MotherBrainProjectileType.SuperMissile,
-            [SamusProjectileFamily.PowerBomb] = MotherBrainProjectileType.PowerBomb,
-            [SamusProjectileFamily.Bomb] = MotherBrainProjectileType.Bomb,
-            [SamusProjectileFamily.BeamExplosion] = MotherBrainProjectileType.BeamExplosion,
-        });
-
     /// <summary>Provides room services, pictures, colour state, and effects used by the encounter.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Owns the bombs, glass, beams, turrets, and other encounter projectiles.</summary>
@@ -100,7 +87,6 @@ internal sealed class MotherBrainCombat
         int projectileDamage)
     {
         RoomEnemyPlace head = struck.Place;
-        SamusProjectile projectile = held.Projectile;
         SamusProjectileFamily family = projectileType.Family;
         if (state.Form != MotherBrainForm.Glass)
         {
@@ -150,8 +136,7 @@ internal sealed class MotherBrainCombat
         // The shot collision marked the projectile before running this reaction.
         TouchHeadWithoutImpact(head, held, projectiles, projectileType);
 
-        // A missile's explosion reacts as a beam does.
-        MotherBrainProjectileType reactionProjectile = ReactionProjectiles[projectileType.Family];
+        SamusProjectileFamily reactionProjectile = projectileType.Family;
         if (state.RainbowBeamSequence is { } sequence)
         {
             // The attached sequence shares the walk counter with the encounter. A shot that takes the walk credit below

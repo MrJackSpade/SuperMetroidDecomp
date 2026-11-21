@@ -22,9 +22,9 @@ internal static class SporeSpawnProjectileDefinitionsVerification
         AssertEqual(4, SporeSpawnProjectileDefinitions.Emitters.Count, "Spore Spawn emitters");
         for (ushort index = 0; index < 4; index++)
         {
-            AssertEqual(0, SporeSpawnProjectileDefinitions.StalkSegments[index].X, $"Spore Spawn stalk X {index}");
+            AssertEqual(0, SporeSpawnProjectileDefinitions.StalkSegments[index].SpawnOffset.X, $"Spore Spawn stalk X {index}");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86dcb9 + index * 2)),
-                CoordinateAxis.Wrap(SporeSpawnProjectileDefinitions.StalkSegments[index].Y),
+                CoordinateAxis.Wrap(SporeSpawnProjectileDefinitions.StalkSegments[index].SpawnOffset.Y),
                 $"Spore Spawn stalk Y {index}");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86dce6 + index * 2)),
                 SporeSpawnProjectileDefinitions.Emitters[index].Place.X,

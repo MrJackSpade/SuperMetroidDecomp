@@ -1,8 +1,15 @@
+using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>Authored Phantoon flame starts and rain columns.</summary>
 public static class PhantoonFlameSpawnDefinitions
 {
+    /// <summary>
+    /// The chances of what a shot-down flame drops: mostly missiles or nothing, sometimes energy or a Super Missile, never
+    /// a Power Bomb; the same chances his eye's definition lists.
+    /// </summary>
+    internal static readonly EnemyDropChances ShotFlameDropChances = new(SmallEnergy: 20, BigEnergy: 20, Missile: 100, Nothing: 105, SuperMissile: 10, PowerBomb: 0);
+
     /// <summary>
     /// The seven flames of an even rage wave in the order they spawn: down the right of the body from just short of
     /// straight down to just past straight up, each circling clockwise.

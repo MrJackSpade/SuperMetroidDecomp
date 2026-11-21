@@ -33,8 +33,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen, IComposedFronten
     private InstalledScreenContent screenContent;
     /// <summary>The page last loaded and the state its labels, language rows and toggle choices were drawn from (#1467).</summary>
     private ShownOptionsPage ShownPage { get; set; }
-    /// <summary>Page whose input and cursor policy currently apply.</summary>
-    private GameOptionsPage page = GameOptionsPage.Primary;
+
     /// <summary>Page to load when the current page has dissolved to black.</summary>
     private GameOptionsPage dissolveDestination = GameOptionsPage.Primary;
     /// <summary>The screen's brightness, which the page fades and final exits step one level an update.</summary>
@@ -102,7 +101,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen, IComposedFronten
     });
 
     /// <summary>The row the cursor is on: the selected row of the page the menu shows (#2206).</summary>
-    private GameOptionsRow SelectedRow => SelectedRows[page]();
+    private GameOptionsRow SelectedRow => SelectedRows[Page]();
 
     /// <summary>
     /// The selected save's startup route, loaded from the save by file select.
@@ -114,7 +113,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen, IComposedFronten
     public TextLanguage Language { get; private set; }
 
     /// <summary>The page the menu shows: the page taking input, or the page a transition shows (#2560).</summary>
-    public GameOptionsPage Page => page;
+    private GameOptionsPage Page { get; set; } = GameOptionsPage.Primary;
 
     /// <summary>The seven live button assignments committed when the controller page exits.</summary>
     public ControllerBindings ControllerBindings { get; private set; }
@@ -155,13 +154,13 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen, IComposedFronten
             if (fade.Brighten())
                 Phase = GameOptionsPhase.Browsing;
         },
-        [GameOptionsPhase.Browsing] = pressed => BrowsePage[page](pressed),
+        [GameOptionsPhase.Browsing] = pressed => BrowsePage[Page](pressed),
         [GameOptionsPhase.DissolveOut] = pressed =>
         {
             if (fade.Darken())
             {
-                page = dissolveDestination;
-                SelectFirstRow(page);
+                Page = dissolveDestination;
+                SelectFirstRow(Page);
                 pageVerticalScroll = 0;
                 LoadVisiblePage();
                 Phase = GameOptionsPhase.DissolveIn;
@@ -227,9 +226,9 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen, IComposedFronten
         sprites.BeginFrame();
         var content = screenContent;
         SpriteSheet sheet = spriteSheets.Get(SpriteSheetId.GameOptions);
-        content.GameOptions.DrawHeading(sprites, sheet, page, pageVerticalScroll);
+        content.GameOptions.DrawHeading(sprites, sheet, Page, pageVerticalScroll);
         // Transitions show no cursor: only a page phase places it, at the selected row of the page it shows.
-        if (GameOptionsCursorPolicy.Select(Phase, page) is { } cursorPage)
+        if (GameOptionsCursorPolicy.Select(Phase, Page) is { } cursorPage)
         {
             GameOptionsRow selected = SelectedRow;
             if (selected.Page != cursorPage)
@@ -428,7 +427,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen, IComposedFronten
     [MemberNotNull(nameof(ShownPage))]
     private void LoadVisiblePage()
     {
-        ShownPage = new ShownOptionsPage(page, Language, ControllerBindings, IconCancelEnabled, MoonwalkEnabled);
+        ShownPage = new ShownOptionsPage(Page, Language, ControllerBindings, IconCancelEnabled, MoonwalkEnabled);
     }
 
     /// <summary>Queues the cursor sound at the menu's sound priority.</summary>

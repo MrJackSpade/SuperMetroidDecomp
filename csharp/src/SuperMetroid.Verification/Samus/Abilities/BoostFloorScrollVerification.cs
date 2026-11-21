@@ -40,7 +40,7 @@ internal static class BoostFloorScrollVerification
         samus.HorizontalSpeed.SpeedBoostCounter = new SamusSpeedBoostCounter(4, 1);
         for (int tick = 0; tick < 420; tick++)
         {
-            runtime.StepFrame((ControllerButton.Right | runtime.Options.ControllerBindings.Dash | runtime.Options.ControllerBindings.Shoot));
+            runtime.StepFrame((ControllerButton.Right | runtime.Options.ControllerBindings[SuperMetroid.Core.Input.ControllerAction.Dash] | runtime.Options.ControllerBindings[SuperMetroid.Core.Input.ControllerAction.Shoot]));
             if (tick >= 40)
             {
                 AssertEqual(RoomScrollState.Open, runtime.Room.LoadedCamera.Scrolls.ReadScreen(new(4, 1)),

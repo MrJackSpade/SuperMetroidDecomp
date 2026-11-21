@@ -10,16 +10,36 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// </summary>
 /// <remarks>
 /// The colours a member draws in are its installed sheet's (#1512) and its pictures are its sheet's frames (#1513): the
-/// import composes and pre-colours each member's sheets as its graphics set loads it, so a member names nothing else.
+/// import composes and pre-colours each member's sheets as its graphics set loads it, in the sprite palette row the record
+/// loads the member's colours into, so a member names nothing else.
 /// </remarks>
 internal sealed record RoomEnemyGraphicsSetMember
 {
-    /// <summary>A record loading <paramref name="definitionId"/>'s artwork.</summary>
-    /// <param name="definitionId">The member enemy, which selects its installed sheets and its spawned objects' sheet.</param>
-    internal RoomEnemyGraphicsSetMember(EnemyDefinitionId definitionId) => Source = new GraphicsSetEnemy(definitionId);
+    /// <summary>The last sprite palette row a record loads colours into.</summary>
+    private const int LastPaletteRow = 7;
 
-    /// <summary>A record loading <paramref name="artwork"/>, which no enemy of the game draws.</summary>
-    internal RoomEnemyGraphicsSetMember(UnplacedEnemyArtwork artwork) => Source = new GraphicsSetUnplacedArtwork(artwork);
+    /// <summary>A record loading <paramref name="definitionId"/>'s artwork, its colours into <paramref name="row"/>.</summary>
+    /// <param name="definitionId">The member enemy, which selects its installed sheets and its spawned objects' sheet.</param>
+    /// <param name="row">The sprite palette row, 0 through 7, the record loads the member's colours into.</param>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="row"/> is no sprite palette row.</exception>
+    internal RoomEnemyGraphicsSetMember(EnemyDefinitionId definitionId, int row)
+    {
+        Source = new GraphicsSetEnemy(definitionId);
+        PaletteRow = Ensure.BetweenInclusive(0, LastPaletteRow, row);
+    }
+
+    /// <summary>A record loading <paramref name="artwork"/>, which no enemy of the game draws, its colours into <paramref name="row"/>.</summary>
+    /// <param name="artwork">The artwork the record loads for no enemy.</param>
+    /// <param name="row">The sprite palette row, 0 through 7, the record loads the artwork's colours into.</param>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="row"/> is no sprite palette row.</exception>
+    internal RoomEnemyGraphicsSetMember(UnplacedEnemyArtwork artwork, int row)
+    {
+        Source = new GraphicsSetUnplacedArtwork(artwork);
+        PaletteRow = Ensure.BetweenInclusive(0, LastPaletteRow, row);
+    }
+
+    /// <summary>The sprite palette row the record loads its colours into, which the import colours the member's sheets in (#1512).</summary>
+    internal int PaletteRow { get; }
 
     /// <summary>What the record loads: an enemy's artwork, or artwork for no enemy (#2560).</summary>
     private RoomEnemyGraphicsSetSource Source { get; }

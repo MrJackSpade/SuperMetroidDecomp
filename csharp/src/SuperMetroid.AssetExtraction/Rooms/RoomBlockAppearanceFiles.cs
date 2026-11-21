@@ -10,8 +10,9 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>
 /// The installed record of the appearance inputs each block of a tileset's rooms depends on (#1466), one file per tileset
-/// beside the block sheets: for every block, by its index in what a room of the tileset loads, the inputs its picture
-/// changes with; or no entry at all for a block no room of the tileset shows, which the sheet does not picture (#1636). It holds no characters,
+/// beside the block sheets: for every block, by the name its pictures begin with (<see cref="RoomBlockPictureNames.OfBlock"/>),
+/// the inputs its picture changes with; or no entry at all for a block no room of the tileset shows, which the sheet does
+/// not picture (#1636). It holds no characters,
 /// tile positions or colours; those are drawn into the block sheet, which a player edits in place.
 /// </summary>
 public static class RoomBlockAppearanceFiles
@@ -27,9 +28,10 @@ public static class RoomBlockAppearanceFiles
     /// revision 8 names a block animation's frames by its block animation, not by the hardware's tiles (#1726); revision 9
     /// records each block's inputs once, Ceres Ridley's arena's among them, with no second record over other artwork (#1791);
     /// revision 10 records the tileset's block count and the inputs of only the blocks its rooms show, by block, so a block
-    /// no room shows has no entry rather than a null one (#2558).
+    /// no room shows has no entry rather than a null one (#2558); revision 11 keys each block's inputs by the name its
+    /// pictures begin with, not by a bare index (#2565).
     /// </summary>
-    private const int Version = 10;
+    private const int Version = 11;
 
     /// <summary>The installed file name of <paramref name="tileset"/>'s record.</summary>
     private static string FileNameOf(TilesetDefinition tileset) => $"{RoomBlockSheet.NameOf(tileset)}.block-appearances.json";
@@ -61,36 +63,42 @@ public static class RoomBlockAppearanceFiles
             throw new InvalidDataException($"Block appearance record {path} describes {document.Tileset}, not {RoomBlockSheet.NameOf(tileset)}.");
         try
         {
-            Dictionary<int, string?[]?> blocks = document.Blocks ?? throw new InvalidDataException("A block appearance record lists no blocks.");
-            if (document.Count < 0 || blocks.Keys.Any(block => block < 0 || block >= document.Count))
-                throw new InvalidDataException($"A block appearance record of {document.Count} blocks lists a block outside them.");
-            int[] shown = [.. blocks.Keys.Order()];
-            return new RoomBlockAppearances(Inputs(document.Count, blocks), shown);
+            Dictionary<string, string?[]?> blocks = document.Blocks ?? throw new InvalidDataException("A block appearance record lists no blocks.");
+            if (document.Count < 0)
+                throw new InvalidDataException($"A block appearance record holds {document.Count} blocks.");
+            Dictionary<string, int> blockNamed = Enumerable.Range(0, document.Count).ToDictionary(RoomBlockPictureNames.OfBlock, StringComparer.Ordinal);
+            // Each block's inputs, as the record spells them; none for a block no room shows, which the record does not list.
+            ImmutableArray<AppearanceInput>[] inputs = [.. Enumerable.Repeat(ImmutableArray<AppearanceInput>.Empty, document.Count)];
+            var shown = new List<int>();
+            foreach ((string name, string?[]? tokens) in blocks.OrderBy(entry => entry.Key, StringComparer.Ordinal))
+            {
+                if (!blockNamed.TryGetValue(name, out int block))
+                    throw new InvalidDataException($"A block appearance record of {document.Count} blocks lists {name}, not among them.");
+                inputs[block] = ImmutableArray.CreateRange((tokens ?? throw new InvalidDataException($"{name} lists null inputs.")).Select(token =>
+                    AppearanceInputSpellings.Parse(token ?? throw new InvalidDataException($"{name} lists a null input."))));
+                shown.Add(block);
+            }
+            return new RoomBlockAppearances(inputs, shown);
         }
         catch (InvalidDataException error)
         {
             throw new InvalidDataException($"Invalid block appearance record {path}: {error.Message}", error);
         }
-
-        // Each block's inputs, as the record spells them; none for a block no room shows, which the record does not list.
-        static ImmutableArray<AppearanceInput>[] Inputs(int count, Dictionary<int, string?[]?> blocks) =>
-            [.. Enumerable.Range(0, count).Select(block => !blocks.TryGetValue(block, out string?[]? tokens)
-                ? ImmutableArray<AppearanceInput>.Empty
-                : ImmutableArray.CreateRange((tokens ?? throw new InvalidDataException($"Block {block} lists null inputs.")).Select(token =>
-                    AppearanceInputSpellings.Parse(token ?? throw new InvalidDataException($"Block {block} lists a null input.")))))];
     }
 
-    /// <summary>The inputs of each block a room shows, as the record spells them, by block.</summary>
-    private static Dictionary<int, string?[]?> Tokens(RoomBlockAppearances appearances) =>
+    /// <summary>The inputs of each block a room shows, as the record spells them, by the name the block's pictures begin with.</summary>
+    private static Dictionary<string, string?[]?> Tokens(RoomBlockAppearances appearances) =>
         Enumerable.Range(0, appearances.Count).Where(appearances.Shows)
-            .ToDictionary(block => block, block => (string?[]?)[.. appearances.Of(block).Select(input => (string?)input.Token)]);
+            .ToDictionary(RoomBlockPictureNames.OfBlock, block => (string?[]?)[.. appearances.Of(block).Select(input => (string?)input.Token)], StringComparer.Ordinal);
 
     /// <summary>One tileset's record.</summary>
     /// <param name="Version">The schema revision.</param>
     /// <param name="Tileset">The tileset's installed name.</param>
     /// <param name="Count">How many blocks the tileset holds.</param>
-    /// <param name="Blocks">The inputs of each block a room shows, by block index; a block no room shows has no entry.</param>
-    private sealed record BlockAppearancesDocument(int Version, string? Tileset, int Count, Dictionary<int, string?[]?>? Blocks);
+    /// <param name="Blocks">
+    /// The inputs of each block a room shows, by the name the block's pictures begin with; a block no room shows has no entry.
+    /// </param>
+    private sealed record BlockAppearancesDocument(int Version, string? Tileset, int Count, Dictionary<string, string?[]?>? Blocks);
 
     /// <summary>Strict camel-case record fields.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()

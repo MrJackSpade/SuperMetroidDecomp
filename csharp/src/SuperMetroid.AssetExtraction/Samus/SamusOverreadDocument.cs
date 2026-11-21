@@ -31,8 +31,8 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// the delay (#2553).
 /// </param>
 /// <param name="SpaceTimeOverwrites">
-/// What SpaceTime's palette copy overwrites in progression, by program name, then by step position, then by slot
-/// ordinal; null where the copy stops before progression.
+/// What SpaceTime's palette copy overwrites in progression, by program name, then by step position, then by the shot
+/// place's name (<see cref="SamusOverreadFormat.ShotPlaceName"/>); null where the copy stops before progression.
 /// </param>
 /// <param name="ChainsawFuseLandings">Where the Chainsaw fuse moves each animation position, by program name, then by step position.</param>
 /// <param name="PostureAdmissions">Whether the posture-transition admission admits weapons, by the name of each pose outside its table.</param>
@@ -46,7 +46,7 @@ internal sealed record SamusOverreadDocument(
     IReadOnlyDictionary<string, IReadOnlyDictionary<string, SamusOverreadDocument.ReadPast>> AnimationReadsPast,
     IReadOnlyDictionary<string, IReadOnlyDictionary<string, string>> AnimationPlaceLandings,
     IReadOnlyDictionary<string, IReadOnlyDictionary<string, int>> AnimationDelaysRead,
-    IReadOnlyDictionary<string, IReadOnlyDictionary<string, IReadOnlyList<SamusOverreadDocument.Overwrite?>>> SpaceTimeOverwrites,
+    IReadOnlyDictionary<string, IReadOnlyDictionary<string, IReadOnlyDictionary<string, SamusOverreadDocument.Overwrite?>>> SpaceTimeOverwrites,
     IReadOnlyDictionary<string, IReadOnlyDictionary<string, SamusOverreadDocument.Cursor>> ChainsawFuseLandings,
     IReadOnlyDictionary<string, bool> PostureAdmissions,
     IReadOnlyDictionary<string, SamusOverreadDocument.LaunchSpeeds> UnauthoredBeamLaunchSpeeds,

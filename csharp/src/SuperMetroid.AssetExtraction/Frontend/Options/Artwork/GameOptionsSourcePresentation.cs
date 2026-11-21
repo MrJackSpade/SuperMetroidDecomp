@@ -58,9 +58,8 @@ public sealed class GameOptionsSourcePresentation
         this.pages = pages.Pages;
         background = pages.Background;
         controllerLabels = pages.ControllerLabels;
-        // The document lists the anchors in the order the controller page lists its actions.
-        controllerLabelAnchors = GameOptionsPageRows.ControllerActions.Zip(document.ControllerLabelAnchors, KeyValuePair.Create)
-            .ToDictionary();
+        controllerLabelAnchors = GameOptionsPageRows.ControllerActions.ToDictionary(action => action,
+            action => document.ControllerLabelAnchors[ControllerActionKeys.Installed.Of(action)]);
         languageRegions = [.. document.LanguageRegions];
         specialToggles = GameOptionsPresentationFormat.Toggles.ToDictionary(
             toggle => toggle, toggle => document.SpecialToggles[GameOptionsNames.ToggleName(toggle)]);
@@ -241,8 +240,9 @@ public sealed class GameOptionsSourcePresentation
         GameOptionsPresentation presentation = GameOptionsLayoutFile.Presentation(document.HeadingAnchors, document.CursorAnchors,
             document.CursorFrameDuration);
         if (document.ControllerLabelAnchors is null ||
-            document.ControllerLabelAnchors.Length != GameOptionsPageRows.ControllerActions.Count)
-            throw new InvalidDataException("Options require seven controller-label anchors.");
+            document.ControllerLabelAnchors.Count != GameOptionsPageRows.ControllerActions.Count ||
+            GameOptionsPageRows.ControllerActions.Any(action => !document.ControllerLabelAnchors.ContainsKey(ControllerActionKeys.Installed.Of(action))))
+            throw new InvalidDataException("Options require each controller action's label anchor, keyed by the action.");
         if (document.LanguageRegions is null || document.LanguageRegions.Length != GameOptionsPageDefinitions.LanguageRegions.RowCount)
             throw new InvalidDataException("Options require four primary-language highlight regions.");
         ValidatePalette(document.SelectedPalette, nameof(document.SelectedPalette));
@@ -265,7 +265,7 @@ public sealed class GameOptionsSourcePresentation
             labels.Add(button, CompileCells(cells, $"options controller label {name}"));
         }
 
-        foreach (Position16<CharacterCells> anchor in document.ControllerLabelAnchors)
+        foreach (Position16<CharacterCells> anchor in document.ControllerLabelAnchors.Values)
             ValidateTilePoint(anchor, "controller-label anchor", GameOptionsPageDefinitions.ControllerLabelSize);
         var claimedLanguageCells = new HashSet<int>();
         foreach (GameOptionsLanguageRegionDocument? region in document.LanguageRegions)

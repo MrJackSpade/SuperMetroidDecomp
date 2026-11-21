@@ -5,9 +5,7 @@ using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Progression;
 
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Compatibility;
-namespace SuperMetroid.Core.Samus.Abilities;
+using SuperMetroid.Core.Assets;namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>
 /// The shared Varia- and Gravity-suit pickup transformation.

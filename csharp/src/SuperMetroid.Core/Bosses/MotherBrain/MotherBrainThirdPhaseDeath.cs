@@ -56,7 +56,7 @@ internal sealed class MotherBrainThirdPhaseDeath
         {
             // The shared random sequence advances once per projectile, not once per visual batch.
             int random = nextRandomNumber();
-            MotherBrainDeathExplosionAnimation animation = definition.Animation(random);
+            DustExplosionAnimation animation = definition.Animation(random);
             requests.Add(new MotherBrainDeathExplosionRequest(
                 Offset: anchor,
                 Animation: animation,

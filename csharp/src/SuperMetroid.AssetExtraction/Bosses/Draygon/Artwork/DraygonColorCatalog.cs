@@ -19,7 +19,7 @@ public sealed class DraygonColorCatalog
     /// <summary>The installed white-flash colours.</summary>
     private readonly InstalledColourRows whiteFlash;
     /// <summary>The installed health bands' colours.</summary>
-    private readonly InstalledColourRows healthBands;
+    private readonly InstalledKeyedColourRows<DraygonHealthBand> healthBands;
 
     /// <summary>Keeps every complete installed colour set.</summary>
     /// <param name="intro">The opening's <see cref="DraygonColorDefinitions.IntroCount"/> colours.</param>
@@ -29,14 +29,14 @@ public sealed class DraygonColorCatalog
     /// <param name="healthBands">Each health band's <see cref="DraygonColorDefinitions.HealthBandColorCount"/> colours.</param>
     /// <exception cref="InvalidDataException">A set is missing a band or a colour.</exception>
     internal DraygonColorCatalog(RgbColor[] intro, RgbColor[] background, RgbColor[] sprite, RgbColor[] whiteFlash,
-        RgbColor[][] healthBands)
+        IReadOnlyDictionary<DraygonHealthBand, RgbColor[]> healthBands)
     {
         this.intro = new InstalledColourRows(intro, DraygonColorDefinitions.IntroCount, "Draygon intro");
         this.background = new InstalledColourRows(background, DraygonColorDefinitions.BackgroundCount, "Draygon background");
         this.sprite = new InstalledColourRows(sprite, DraygonColorDefinitions.SpriteCount, "Draygon sprite");
         this.whiteFlash = new InstalledColourRows(whiteFlash, DraygonColorDefinitions.WhiteFlashCount, "Draygon white flash");
-        this.healthBands = new InstalledColourRows(healthBands, DraygonColorDefinitions.HealthBandCount,
-            DraygonColorDefinitions.HealthBandColorCount, "Draygon health bands");
+        this.healthBands = new InstalledKeyedColourRows<DraygonHealthBand>(healthBands, DraygonHealthBandDefinitions.HighestFirst,
+            DraygonColorDefinitions.HealthBandColorCount, "Draygon health band");
     }
 
     /// <summary>Gets one of the 25 installed colours of Draygon's opening palette.</summary>
@@ -50,5 +50,5 @@ public sealed class DraygonColorCatalog
 
     /// <summary>Gets one of the four installed colors of one of Draygon's eight health bands.</summary>
     public RgbColor ResolveHealthBand(DraygonHealthBand band, int color) =>
-        healthBands.Colour(InstalledRows.Of(DraygonHealthBandDefinitions.HighestFirst, band), color);
+        healthBands.Colour(band, color);
 }

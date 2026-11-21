@@ -9,8 +9,8 @@ public sealed record SporeSpawnColorDocument
     public required int Version { get; init; }
     /// <summary>Sixteen spore colors corresponding to $A5:E359, installed in OBJ palette 7 at CGRAM 240–255; stock values share the healthy boss row.</summary>
     public required PaletteRgb5[] Spores { get; init; }
-    /// <summary>Four ordered sixteen-color boss rows from healthy to critical, corresponding to $A5:E379–$E3F8; health thresholds remain compiled AI behavior.</summary>
-    public required PaletteRgb5[][] Health { get; init; }
+    /// <summary>Each of the four health bands' sixteen boss colors, keyed by the band's installed key, corresponding to $A5:E379–$E3F8; health thresholds remain compiled AI behavior.</summary>
+    public required Dictionary<string, PaletteRgb5[]> Health { get; init; }
     /// <summary>Eight ordered sixteen-color OBJ-palette-1 death phases corresponding to $A5:E3F9–$E4F8, beginning with the critical-health row in stock content.</summary>
     public required PaletteRgb5[][] DeathSprite { get; init; }
     /// <summary>Seven ordered sixteen-color level-graphics BG-palette-4 death phases corresponding to $A5:E4F9–$E5D8.</summary>

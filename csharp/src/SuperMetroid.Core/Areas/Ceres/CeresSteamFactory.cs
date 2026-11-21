@@ -23,7 +23,7 @@ internal sealed class CeresSteamFactory(CeresSteamBehavior vents, CeresSteamVent
     private readonly CeresSteamVentMotions _motions = Ensure.NotNull(motions);
 
     /// <inheritdoc/>
-    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.CeresSteam], Create);
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.SteamVent], Create);
 
     /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
     /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>

@@ -55,7 +55,7 @@ internal abstract class EnemyProjectileAnimation
             // starts another animation.
             projectile.StopFrameHold();
         },
-        End: static (_, projectile) => projectile.Delete());
+        Delete: static (_, projectile) => projectile.Delete());
 
     /// <summary>Advances the timeline to its next frame, a frame shown for good, or its rest.</summary>
     /// <param name="context">

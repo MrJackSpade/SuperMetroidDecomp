@@ -5,11 +5,8 @@ namespace SuperMetroid.Core.Enemies.Nuclear;
 
 /// <summary>Nuclear Waffle body's typed animation.</summary>
 internal sealed class NuclearWaffleProjectileAnimation(NuclearWaffleProjectileSegment segment)
-    : EnemyProjectileFrameAnimation<NuclearWaffleProjectileSegment, EnemyProjectileCommonCue>(NuclearWaffleProjectileAnimations.StartingWith(segment), EnemyProjectileCueRunners.Common<NuclearWaffleProjectileSegment>())
+    : EnemyProjectileFrameAnimation<NuclearWaffleProjectileSegment, EnemyProjectileCommonCue>(segment, NuclearWaffleProjectileAnimations.StartingAt[segment], EnemyProjectileCueRunners.Common<NuclearWaffleProjectileSegment>())
 {
     /// <inheritdoc/>
     private protected override IUnpausedAnimationPlay<NuclearWaffleProjectileSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => NuclearWaffleProjectileAnimations.Segments;
-
-    /// <inheritdoc/>
-    private protected override IEnumerable<KeyValuePair<NuclearWaffleProjectileSegment, Animation<NuclearWaffleProjectileSegment>>> StartingAt => NuclearWaffleProjectileAnimations.StartingAt;
 }

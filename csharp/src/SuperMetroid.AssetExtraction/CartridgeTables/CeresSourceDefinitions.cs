@@ -54,8 +54,13 @@ internal static class CeresSourceDefinitions
         /// <summary>$A6:ACE2, $A6:ACF5 and $A6:AD08: the Baby capsule's three frames, two descriptors each.</summary>
         internal static readonly SnesAddress[] CapsuleFrames = [new(0xa6, 0xace2), new(0xa6, 0xacf5), new(0xa6, 0xad08)];
 
-        /// <summary>$A6:AD49 and $A6:AD80: Ridley's wings' two frames, six descriptors each.</summary>
-        internal static readonly SnesAddress[] WingFrames = [new(0xa6, 0xad49), new(0xa6, 0xad80)];
+        /// <summary>$A6:AD49 and $A6:AD80: Ridley's wings' two frames' lists, six descriptors each, keyed by the frame.</summary>
+        internal static readonly IReadOnlyDictionary<SuperMetroid.Core.Rooms.Backgrounds.CeresFloorActorPicture, SnesAddress> WingFrames =
+            new Dictionary<SuperMetroid.Core.Rooms.Backgrounds.CeresFloorActorPicture, SnesAddress>
+            {
+                [SuperMetroid.Core.Rooms.Backgrounds.CeresFloorActorPicture.WingsRaised] = new(0xa6, 0xad49),
+                [SuperMetroid.Core.Rooms.Backgrounds.CeresFloorActorPicture.WingsLowered] = new(0xa6, 0xad80),
+            };
 
         /// <summary>The descriptors each capsule frame's list holds, which the queue holds ahead of the wing's.</summary>
         internal const int CapsuleRunCount = 2;

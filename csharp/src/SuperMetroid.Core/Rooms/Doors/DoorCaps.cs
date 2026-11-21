@@ -10,20 +10,18 @@ internal static class DoorCaps
 {
     /// <summary>
     /// The draw of <paramref name="image"/> of a cap painted <paramref name="paint"/> facing <paramref name="orientation"/>:
-    /// the cleared opening, one of the paint's closing images, or the blue image a hit flashes.
+    /// the look it shows in the paint it is drawn in: the cleared opening in the grey caps', one of the paint's closing
+    /// images in its own, or the blue cap a hit flashes in the blue paint's.
     /// </summary>
-    internal static RoomObjectDraw Image(DoorCapPaint paint, ColoredDoorOrientation orientation, DoorCapFrame image) =>
-        Images[image](paint, orientation);
+    internal static RoomObjectDraw Image(DoorCapPaint paint, ColoredDoorOrientation orientation, DoorCapShown image) =>
+        PaintsShown[image.Paint](paint).Of(orientation, image.Look);
 
-    /// <summary>What each door cap image draws in a cap's paint and orientation.</summary>
-    private static IdentityTable<DoorCapFrame, Func<DoorCapPaint, ColoredDoorOrientation, RoomObjectDraw>> Images { get; } = new(new Dictionary<DoorCapFrame, Func<DoorCapPaint, ColoredDoorOrientation, RoomObjectDraw>>
+    /// <summary>The paint each shown paint draws in, given the cap's own.</summary>
+    private static IdentityTable<DoorCapShownPaint, Func<DoorCapPaint, DoorCapPaint>> PaintsShown { get; } = new(new Dictionary<DoorCapShownPaint, Func<DoorCapPaint, DoorCapPaint>>
     {
-        [DoorCapFrame.Clear] = static (_, orientation) => GreyDoorCaps.Family.Of(GreyDoorCaps.Draw.ClearedOf(orientation)),
-        [DoorCapFrame.Closed] = static (paint, orientation) => paint.Of(orientation, DoorCapLook.Closed),
-        [DoorCapFrame.Ajar] = static (paint, orientation) => paint.Of(orientation, DoorCapLook.Ajar),
-        [DoorCapFrame.HalfOpen] = static (paint, orientation) => paint.Of(orientation, DoorCapLook.HalfOpen),
-        [DoorCapFrame.NearlyOpen] = static (paint, orientation) => paint.Of(orientation, DoorCapLook.NearlyOpen),
-        [DoorCapFrame.BlueFlash] = static (_, orientation) => DoorCapPaint.Blue.Of(orientation, DoorCapLook.Closed),
+        [DoorCapShownPaint.Own] = static paint => paint,
+        [DoorCapShownPaint.Grey] = static _ => DoorCapPaint.Grey,
+        [DoorCapShownPaint.Blue] = static _ => DoorCapPaint.Blue,
     });
 
     /// <summary>The four looks of a cap closing and sliding aside, in the order it opens.</summary>

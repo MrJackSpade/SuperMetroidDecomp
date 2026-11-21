@@ -96,14 +96,21 @@ internal static class EscapeDachoraAnimations
     /// <paramref name="step"/> pixels.
     /// </summary>
     private static AnimationBeat<EnemyFrameId, EscapeDachoraCue>[] Stride(DachoraStride stride, int updates, int step) =>
-        Stride(stride, DachoraStridePace.Even(updates), step);
+        Stride(stride, new DachoraStridePace(updates, updates, updates, updates, updates, updates), step);
 
     /// <summary>
-    /// One <paramref name="stride"/> whose pace changes from pose to pose (#2477): each pose shown for its own count of
-    /// <paramref name="pace"/> and followed by a step of <paramref name="step"/> pixels.
+    /// One <paramref name="stride"/> whose pace changes from pose to pose (#2477): each pose shown for the updates
+    /// <paramref name="pace"/> gives it and followed by a step of <paramref name="step"/> pixels.
     /// </summary>
     private static AnimationBeat<EnemyFrameId, EscapeDachoraCue>[] Stride(DachoraStride stride, DachoraStridePace pace, int step) =>
-        [.. stride.Poses.Zip(pace.Updates, (pose, updates) => new[] { Show(pose, updates), Cue(new EscapeDachoraCue.Move(Offset: step)) }).SelectMany(beats => beats)];
+    [
+        Show(stride.FarLegBack, pace.FarLegBack), Move(step), Show(stride.FarLegPassing, pace.FarLegPassing), Move(step),
+        Show(stride.FarLegReaching, pace.FarLegReaching), Move(step), Show(stride.NearLegBack, pace.NearLegBack), Move(step),
+        Show(stride.NearLegPassing, pace.NearLegPassing), Move(step), Show(stride.NearLegReaching, pace.NearLegReaching), Move(step),
+    ];
+
+    /// <summary>A step of <paramref name="step"/> pixels.</summary>
+    private static AnimationBeat<EnemyFrameId, EscapeDachoraCue> Move(int step) => Cue(new EscapeDachoraCue.Move(Offset: step));
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, EscapeDachoraCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, EscapeDachoraCue>.Frame(frame, duration);

@@ -820,7 +820,7 @@ internal static void VerifySamusKnockbackAndDamageBoost()
         "expired morphed knockback retains rolling frame");
     AssertEqual(retainedBallTimer, ballExpires.AnimationFrameTimer.RawValue,
         "expired morphed knockback retains rolling timer");
-    AssertEqual((SamusBallBounce?)null, ballExpires.MorphBallBounceState,
+    AssertEqual(null, ballExpires.MorphBallBounceState,
         "expired morphed knockback clears bounce state");
     AssertEqual(0, ballExpires.Kinematics.VerticalVelocity.Speed.Whole,
         "expired morphed knockback clears whole Y speed");

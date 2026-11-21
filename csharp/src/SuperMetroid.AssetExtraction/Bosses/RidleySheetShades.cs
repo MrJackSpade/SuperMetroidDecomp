@@ -134,8 +134,8 @@ internal static class RidleySheetShades
         foreach (RidleyFadeImage image in RidleyFadeDefinitions.BodyFade.Images)
         {
             RgbColor[] body = Colours(CeresRidleyColorFormat.BodyFadeColorCount, colour => ceres.ResolveBodyFade(image.Step, colour));
-            shades.Add(new SheetShade(RidleyShades.Fade(image),
-                [.. Enumerable.Range(ShadowRow + 1, body.Length), .. Enumerable.Range(OwnRow + 1, body.Length)], [.. body, .. body]));
+            shades.Add(SheetShade.Combined(RidleyShades.Fade(image),
+                [SheetShade.Run(RidleyShades.Fade(image), ShadowRow + 1, body), SheetShade.Run(RidleyShades.Fade(image), OwnRow + 1, body)]));
         }
         foreach (RidleyHealthShade band in RidleyHealthShadeDefinitions.LeastHurtFirst)
         {

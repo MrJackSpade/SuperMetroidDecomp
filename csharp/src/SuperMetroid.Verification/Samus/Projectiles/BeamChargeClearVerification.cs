@@ -61,7 +61,7 @@ internal static class BeamChargeClearVerification
         samus.Position = samus.Position.WithWhole(new(512, 490));
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
-        ControllerButton shoot = runtime.Options.ControllerBindings.Shoot;
+        ControllerButton shoot = runtime.Options.ControllerBindings[SuperMetroid.Core.Input.ControllerAction.Shoot];
         for (int update = 0; update < ChargingUpdates; update++)
             runtime.StepFrame(shoot);
         built = samus.BeamCharge.UpdatesHeld;

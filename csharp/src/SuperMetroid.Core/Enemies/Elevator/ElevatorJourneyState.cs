@@ -10,5 +10,5 @@ internal sealed class ElevatorJourneyState
     internal ElevatorActorStatus Status { get; set; }
 
     /// <summary>The way the active elevator travels (#2277).</summary>
-    internal ElevatorTravelDirection Travel { get; set; }
+    internal VerticalDirection Travel { get; set; }
 }

@@ -37,7 +37,7 @@ internal static class MotherBrainMouthLaserDamageVerification
         EnemyProjectile? laser = null;
         for (int draw = 0; draw < draws && laser is null; draw++)
         {
-            enemies.MotherBrainBehavior.Head.DrawBrain(state, samus: RoomEnemyFrameFixtures.StandaloneSamus());
+            enemies.DrawMotherBrainBrain(state, samus: RoomEnemyFrameFixtures.StandaloneSamus());
             laser = enemies.Projectiles.EnemyProjectiles.SingleOrDefault(projectile => projectile.IsActive && projectile.Kind == RoomEnemyProjectileKind.PirateMotherBrainLaser);
         }
 

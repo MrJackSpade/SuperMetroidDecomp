@@ -105,7 +105,7 @@ internal static class BossSheetShades
         .Concat(DraygonParts.Select(part => KeyValuePair.Create(part,
             (Func<BossSourceArtwork, int, IReadOnlyList<SheetShade>>)((bosses, _) => [.. DraygonSprites(bosses)]))))
         .Concat(KraidParts.Select(part => KeyValuePair.Create(part,
-            (Func<BossSourceArtwork, int, IReadOnlyList<SheetShade>>)KraidSprites)))
+            KraidSprites)))
         .ToDictionary();
 
     /// <summary>
@@ -122,7 +122,7 @@ internal static class BossSheetShades
         }
         .Concat(DraygonParts.Select(part => KeyValuePair.Create(part,
             (Func<BossSourceArtwork, IReadOnlyList<SheetShade>>)(bosses => [.. DraygonSprites(bosses)]))))
-        .Concat(KraidParts.Select(part => KeyValuePair.Create(part, (Func<BossSourceArtwork, IReadOnlyList<SheetShade>>)KraidRocks)))
+        .Concat(KraidParts.Select(part => KeyValuePair.Create(part, KraidRocks)))
         .ToDictionary();
 
     /// <summary>

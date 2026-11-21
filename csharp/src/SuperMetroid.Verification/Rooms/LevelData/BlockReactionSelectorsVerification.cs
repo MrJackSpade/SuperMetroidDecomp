@@ -125,9 +125,19 @@ internal static class BlockReactionSelectorsVerification
     /// <summary>Checks collision-triggered bomb PLM instruction selection through native headers.</summary>
     internal static void VerifyCollisionBombInstructionSelection(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifyNativeBlockInstructionSelection), () => VerifyNativeBlockInstructionSelection(rom, 0x94936b, 8,
-            index => BlockReactionChanges.TryCollisionBomb(RoomBlockBehaviorCodec.Decode(index).Bombable ?? throw new InvalidDataException($"Bomb BTS {index} gives no reaction."), out BlockReactionChange? change)
-                ? RoomObjectNativeListAddresses.BlockReactionEntry(change)
-                : throw new InvalidDataException($"Bomb BTS {index} breaks nothing."), "collision bomb"));
+            index => RoomObjectNativeListAddresses.BlockReactionEntry(CollisionBombAt(index)), "collision bomb"));
+
+    /// <summary>
+    /// The collision bomb block bomb-block reaction <paramref name="index"/> sets off, rejecting any other index: a reaction
+    /// whose break sets off nothing is a block Samus's contact breaks without one (<see cref="BlockReactionChanges.TryCollisionBomb"/>),
+    /// outside the selector's domain.
+    /// </summary>
+    private static BlockReactionChange CollisionBombAt(int index) =>
+        index is >= 0 and < RoomBlockBehaviorCodec.ByteCount &&
+            RoomBlockBehaviorCodec.Decode(index).Bombable is { } reaction &&
+            BlockReactionChanges.TryCollisionBomb(reaction, out BlockReactionChange? change)
+            ? change
+            : throw new ArgumentOutOfRangeException(nameof(index), index, "The reaction sets off no collision bomb block.");
 
     /// <summary>Checks projectile-triggered bomb reaction instruction selection through native headers.</summary>
     internal static void VerifyReactionBombInstructionSelection(CartridgeImportAddressSpace rom) =>

@@ -203,8 +203,6 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
         CreatePairResult CreatePair()
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            Func<RoomEnemyPlace, KiHunterBodyState> initializeBody = fixturePlace => enemies.KiHunterBehavior.InitializeKiHunter(fixturePlace.HeldOccupant().SpawnSettings<KiHunterSpawnSettings>(), fixturePlace);
-            Action<RoomEnemyPlace> initializeWings = fixturePlace => fixturePlace.SetUpAsPlaced();
 
             RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
             body.Bind(EnemyDefinitionId.KihunterGreen, body.KeptDefinition);
@@ -219,9 +217,11 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
             // entry's detachment health is never reached by these unhurt programs.
             body.SetSpawnSettings(new KiHunterSpawnSettings(KiHunterWings.Winged));
             wings.SetSpawnSettings(new KiHunterWingsSpawnSettings(DetachHealth: 0));
-            // The body's setup builds the state its steps and its animation, which the check plays, run on.
-            KiHunterBodyState bodyState = initializeBody(body);
-            initializeWings(wings);
+            // The body is set up as its room's population sets it up, offering its wings, which are set up after it; its
+            // setup, run again, builds the state the body's steps and its animation, which the check plays, run on.
+            body.SetUpAsPlaced();
+            KiHunterBodyState bodyState = enemies.KiHunterBehavior.InitializeKiHunter(body.HeldOccupant().SpawnSettings<KiHunterSpawnSettings>(), body);
+            wings.SetUpAsPlaced();
             return new CreatePairResult(enemies, body, wings,
                 bodyState, (enemies.KiHunterWingStates[1] ?? throw new InvalidOperationException("Verification requires the initialized KiHunter wing state.")));
         }

@@ -84,7 +84,7 @@ public sealed class TitleSequenceState : IFrontendScreen
     /// <summary>The floor's pan position, whose whole pixels may lie left of zero.</summary>
     private FixedVector<FloorPixels> panPosition;
     /// <summary>The floor's zoom, animated from the close-up scene to the floor's own size.</summary>
-    private FloorZoom Zoom { get; set; }
+    private TitleFloorZoom Zoom { get; set; }
     /// <summary>The title's screen brightness and the cadence of its fades; the skip's and the fade-in's step every update.</summary>
     private readonly ScreenFade fade = new(0);
     /// <summary>Current screen brightness applied after composing title layers.</summary>
@@ -305,8 +305,8 @@ public sealed class TitleSequenceState : IFrontendScreen
             zoomAge.Count();
             if (!zoomSteps)
                 return;
-            if (Zoom < FloorZoom.OwnSize)
-                Zoom = Zoom.Widened(TitleSequenceDefinitions.Scenes.FinalZoomStep);
+            if (Zoom.Grown() is { } grown)
+                Zoom = grown;
             else
             {
                 ActiveSprite = TitleSprite.SuperMetroidLogo;
@@ -435,7 +435,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         bool floorShown = ShowsFloor(Phase);
         return new(new FramePaint(Backdrop, screenSprites.Draws),
             floorShown
-                ? new PlacedFloor(FloorView.Turned(TitleSequenceDefinitions.Scenes.Rotation, Zoom, TitleSequenceDefinitions.Scenes.FloorCentre,
+                ? new PlacedFloor(FloorView.Turned(TitleSequenceDefinitions.Scenes.Rotation, Zoom.FloorZoom, TitleSequenceDefinitions.Scenes.FloorCentre,
                     panPosition.Whole), TitleFloors.Of(spriteSheets, BabyPose).Shaded(FloorShading))
                 : null,
             Brightness, ShowsGradient(Phase) ? new ScreenGradientLayer(ResolveTitleGradient()) : null);
@@ -578,7 +578,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         // The pan returns to the floor's origin in whole pixels alone: the fractions an earlier pan left stay, as the game
         // resets only the pan's whole pixels.
         panPosition = panPosition.WithWhole(Offset16<FloorPixels>.Zero);
-        Zoom = FloorZoom.OwnSize;
+        Zoom = TitleFloorZoom.OwnSize;
     }
 
     /// <summary>Opens the idle title screen at full brightness with its demo countdown.</summary>

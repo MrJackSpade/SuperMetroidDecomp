@@ -26,21 +26,13 @@ public sealed class TitleGradientPresentation
     /// <see cref="TitleGradientFormat.ZoomRangeWidth"/> wide from no zoom up, holds the zoom, and at the floor's own size
     /// <see cref="TitleGradientFormat.OwnSizeVariant"/>.
     /// </summary>
-    /// <param name="zoom">The title floor's zoom, no larger than the floor's own size.</param>
+    /// <param name="titleZoom">The title floor's zoom, no larger than the floor's own size by type.</param>
     /// <returns>The selected gradient, covering the whole screen.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">
-    /// <paramref name="zoom"/> shows the floor smaller than its own size, which the title never does: its final zoom stops
-    /// at the floor's own size.
-    /// </exception>
-    public ScreenGradient Resolve(FloorZoom zoom)
+    public ScreenGradient Resolve(TitleFloorZoom titleZoom)
     {
-        if (zoom == FloorZoom.OwnSize)
+        if (titleZoom.IsOwnSize)
             return variants[TitleGradientFormat.OwnSizeVariant];
-        if (zoom > FloorZoom.OwnSize)
-        {
-            throw new ArgumentOutOfRangeException(nameof(zoom), zoom,
-                "The title never zooms its floor out past the floor's own size.");
-        }
+        FloorZoom zoom = titleZoom.FloorZoom;
         // The ranges follow one another from no zoom up, each one range width past the last, and together end at the
         // floor's own size (one for each gradient, which the constructor requires), so a zoom below it lies in exactly
         // one: past every earlier range, in the last (#2553).

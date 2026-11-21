@@ -234,7 +234,7 @@ internal sealed class CrocomireFight
 
     /// <summary>What <see cref="ApplyCrocomireBodyCue"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="State">The Crocomire encounter whose body runs the animation.</param>
-    /// <param name="Body">The <c>body</c> <c>ApplyCrocomireBodyCue</c> works with.</param>
+    /// <param name="Body">The <c>body</c> <see cref="ApplyCrocomireBodyCue"/> works with.</param>
     /// <param name="CameraX">The camera's X, which the on-screen movement tests use.</param>
     /// <param name="Level">The room's collision level, which the movement cues require.</param>
     /// <param name="Samus">Samus, whom the fight AI measures against.</param>

@@ -70,7 +70,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>What <see cref="ApplyKiHunterCue"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="Occupant">The occupant whose cue is carried out.</param>
-    /// <param name="Place">The <c>place</c> <c>ApplyKiHunterCue</c> was handed.</param>
+    /// <param name="Place">The <c>place</c> <see cref="ApplyKiHunterCue"/> was handed.</param>
     /// <param name="Owner">The <see cref="KiHunterBehavior"/> reacting.</param>
     private readonly record struct ApplyKiHunterCueContext(RoomEnemyOccupant Occupant, RoomEnemyPlace Place, KiHunterBehavior Owner);
 
@@ -747,7 +747,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             });
 
         /// <summary>What <see cref="RunCue"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
-        /// <param name="Projectile">The <c>projectile</c> <c>RunCue</c> works with.</param>
+        /// <param name="Projectile">The <c>projectile</c> <see cref="RunCue"/> works with.</param>
         /// <param name="Owner">The <see cref="AcidBehavior"/> reacting.</param>
         private readonly record struct RunCueContext(EnemyProjectile Projectile, AcidBehavior Owner);
 

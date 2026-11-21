@@ -193,7 +193,7 @@ internal sealed class DraygonParts
         SpawnGoop: static (goop, context) => context.Owner.SpawnDraygonGoop(context.State, goop.Direction));
 
     /// <summary>What <see cref="ApplyDraygonCue"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
-    /// <param name="State">The <c>state</c> <c>ApplyDraygonCue</c> was handed.</param>
+    /// <param name="State">The <c>state</c> <see cref="ApplyDraygonCue"/> was handed.</param>
     /// <param name="Samus">The <c>samus</c> <c>ApplyDraygonCue</c> was handed.</param>
     /// <param name="Owner">The <see cref="DraygonParts"/> reacting.</param>
     private readonly record struct ApplyDraygonCueContext(DraygonEnemyState State, SamusState Samus, DraygonParts Owner);

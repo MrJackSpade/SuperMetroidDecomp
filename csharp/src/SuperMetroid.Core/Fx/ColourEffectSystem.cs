@@ -338,7 +338,7 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
         BurnsSamusInHeat: static (_, context) => context.Owner.BurnSamusInHeat(context.Effect, context.Conditions.EquippedItems, context.Conditions.Samus, context.Conditions.FrameCounter));
 
     /// <summary>What <see cref="CheckCondition"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
-    /// <param name="Conditions">The <c>conditions</c> <c>CheckCondition</c> was handed.</param>
+    /// <param name="Conditions">The <c>conditions</c> <see cref="CheckCondition"/> was handed.</param>
     /// <param name="Effect">The <c>effect</c> <c>CheckCondition</c> was handed.</param>
     /// <param name="Owner">The <see cref="ColourEffectSystem"/> reacting.</param>
     private readonly record struct CheckConditionContext(ColourEffectInputs Conditions, RoomColourEffect Effect, ColourEffectSystem Owner);

@@ -189,7 +189,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         });
 
     /// <summary>What <see cref="ApplyChozoStatueCue"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
-    /// <param name="Statue">The <c>statue</c> <c>ApplyChozoStatueCue</c> was handed.</param>
+    /// <param name="Statue">The <c>statue</c> <see cref="ApplyChozoStatueCue"/> was handed.</param>
     /// <param name="Level">The <c>level</c> <c>ApplyChozoStatueCue</c> was handed.</param>
     /// <param name="Samus">The <c>samus</c> <c>ApplyChozoStatueCue</c> was handed.</param>
     /// <param name="State">The <c>state</c> <c>ApplyChozoStatueCue</c> works with.</param>

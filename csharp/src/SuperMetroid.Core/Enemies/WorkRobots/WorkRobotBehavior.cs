@@ -145,7 +145,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory, IR
             });
 
     /// <summary>What <see cref="ApplyWorkRobotCue"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
-    /// <param name="Place">The <c>place</c> <c>ApplyWorkRobotCue</c> was handed.</param>
+    /// <param name="Place">The <c>place</c> <see cref="ApplyWorkRobotCue"/> was handed.</param>
     /// <param name="State">The <c>state</c> <c>ApplyWorkRobotCue</c> was handed.</param>
     /// <param name="Context">The <c>context</c> <c>ApplyWorkRobotCue</c> was handed.</param>
     /// <param name="Owner">The <see cref="WorkRobotBehavior"/> reacting.</param>

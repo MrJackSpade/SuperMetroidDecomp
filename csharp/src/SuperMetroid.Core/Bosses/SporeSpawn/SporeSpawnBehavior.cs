@@ -464,7 +464,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         });
 
     /// <summary>What <see cref="ApplySporeSpawnCue"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
-    /// <param name="Body">The <c>body</c> <c>ApplySporeSpawnCue</c> was handed.</param>
+    /// <param name="Body">The <c>body</c> <see cref="ApplySporeSpawnCue"/> was handed.</param>
     /// <param name="State">The <c>state</c> <c>ApplySporeSpawnCue</c> was handed.</param>
     /// <param name="Samus">The <c>samus</c> <c>ApplySporeSpawnCue</c> was handed.</param>
     /// <param name="Owner">The <see cref="SporeSpawnBehavior"/> reacting.</param>

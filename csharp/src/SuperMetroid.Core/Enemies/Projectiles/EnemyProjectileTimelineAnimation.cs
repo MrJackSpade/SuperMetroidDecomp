@@ -90,7 +90,7 @@ internal abstract class EnemyProjectileTimelineAnimation<TSegment, TFrame, TEven
         Ended: static (_, _) => EnemyProjectileFrameStep.Ends);
 
     /// <summary>
-    /// What <c>NextFrame</c> makes of a hidden stretch, which hides the projectile for its updates (#2558), and of every
+    /// What <see cref="NextFrame"/> makes of a hidden stretch, which hides the projectile for its updates (#2558), and of every
     /// other outcome, built once.
     /// </summary>
     private static UnpausedHidingAnimationShownCases<TSegment, TFrame, EnemyProjectileTimelineAnimation<TSegment, TFrame, TEvent>, EnemyProjectileFrameStep> NextFrameHidingCases { get; } = new(

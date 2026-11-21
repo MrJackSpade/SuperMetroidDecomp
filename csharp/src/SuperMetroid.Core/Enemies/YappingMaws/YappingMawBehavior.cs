@@ -65,7 +65,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         });
 
     /// <summary>What <see cref="ApplyYappingMawCue"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
-    /// <param name="State">The <c>state</c> <c>ApplyYappingMawCue</c> was handed.</param>
+    /// <param name="State">The <c>state</c> <see cref="ApplyYappingMawCue"/> was handed.</param>
     /// <param name="Owner">The <see cref="YappingMawBehavior"/> reacting.</param>
     private readonly record struct ApplyYappingMawCueContext(YappingMawEnemyState State, YappingMawBehavior Owner);
 

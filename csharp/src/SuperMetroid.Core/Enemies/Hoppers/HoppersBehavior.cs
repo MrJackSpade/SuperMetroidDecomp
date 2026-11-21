@@ -61,7 +61,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         });
 
     /// <summary>What <see cref="ApplyHopperCue"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
-    /// <param name="Place">The <c>place</c> <c>ApplyHopperCue</c> was handed.</param>
+    /// <param name="Place">The <c>place</c> <see cref="ApplyHopperCue"/> was handed.</param>
     /// <param name="State">The <c>state</c> <c>ApplyHopperCue</c> was handed.</param>
     /// <param name="Owner">The <see cref="HoppersBehavior"/> reacting.</param>
     private readonly record struct ApplyHopperCueContext(RoomEnemyPlace Place, HopperEnemyState State, HoppersBehavior Owner);

@@ -126,7 +126,7 @@ internal sealed class CeresRidleyBabyScene
         Ended: static (_, context) => context.Baby.Clock.Stop());
 
     /// <summary>What <see cref="AdvanceCeresBabyAnimation"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
-    /// <param name="Baby">The <c>baby</c> <c>AdvanceCeresBabyAnimation</c> works with.</param>
+    /// <param name="Baby">The <c>baby</c> <see cref="AdvanceCeresBabyAnimation"/> works with.</param>
     /// <param name="Ridley">Ceres Ridley's encounter, which holds the Baby and the colours its cues show.</param>
     /// <param name="Owner">The <see cref="CeresRidleyBabyScene"/> reacting.</param>
     private readonly record struct AdvanceCeresBabyAnimationContext(CeresBaby Baby, CeresRidleyState Ridley, CeresRidleyBabyScene Owner);
@@ -164,7 +164,7 @@ internal sealed class CeresRidleyBabyScene
             });
 
     /// <summary>What <see cref="ApplyCeresBabyCue"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
-    /// <param name="Ridley">The <c>ridley</c> <c>ApplyCeresBabyCue</c> was handed.</param>
+    /// <param name="Ridley">The <c>ridley</c> <see cref="ApplyCeresBabyCue"/> was handed.</param>
     /// <param name="Owner">The <see cref="CeresRidleyBabyScene"/> reacting.</param>
     private readonly record struct ApplyCeresBabyCueContext(CeresRidleyState Ridley, CeresRidleyBabyScene Owner);
 }

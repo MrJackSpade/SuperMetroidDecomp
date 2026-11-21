@@ -317,7 +317,7 @@ internal sealed class MotherBrainHead
             Signal: static (signal, context) => context.Owner.HeadSignals[signal.Kind](context.State, context.Samus));
 
     /// <summary>What <see cref="ApplyMotherBrainHeadCue"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
-    /// <param name="State">The <c>state</c> <c>ApplyMotherBrainHeadCue</c> was handed.</param>
+    /// <param name="State">The <c>state</c> <see cref="ApplyMotherBrainHeadCue"/> was handed.</param>
     /// <param name="Samus">The <c>samus</c> <c>ApplyMotherBrainHeadCue</c> was handed.</param>
     /// <param name="Owner">The <see cref="MotherBrainHead"/> reacting.</param>
     private readonly record struct ApplyMotherBrainHeadCueContext(MotherBrainEnemyState State, SamusState Samus, MotherBrainHead Owner);

@@ -123,7 +123,7 @@ internal sealed class RidleyBodyAnimation
 
     /// <summary>What <see cref="ApplyCue"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="Place">Ridley's body.</param>
-    /// <param name="Flight">The <c>flight</c> <c>ApplyCue</c> works with.</param>
+    /// <param name="Flight">The <c>flight</c> <see cref="ApplyCue"/> works with.</param>
     /// <param name="Ridley">Ridley's encounter.</param>
     /// <param name="Samus">Samus.</param>
     /// <param name="Owner">The encounter that owns the body, which handles the lift-off and the fireball cut (#2230).</param>

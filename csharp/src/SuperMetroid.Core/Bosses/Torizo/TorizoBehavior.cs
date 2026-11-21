@@ -598,7 +598,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>What <see cref="ApplyTorizoCue"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="Occupant">The occupant whose cue is carried out.</param>
-    /// <param name="Torizo">The <c>torizo</c> <c>ApplyTorizoCue</c> was handed.</param>
+    /// <param name="Torizo">The <c>torizo</c> <see cref="ApplyTorizoCue"/> was handed.</param>
     /// <param name="State">The <c>state</c> <c>ApplyTorizoCue</c> was handed.</param>
     /// <param name="Inputs">The <c>inputs</c> <c>ApplyTorizoCue</c> was handed.</param>
     /// <param name="Continuation">The <c>continuation</c> <c>ApplyTorizoCue</c> was handed.</param>

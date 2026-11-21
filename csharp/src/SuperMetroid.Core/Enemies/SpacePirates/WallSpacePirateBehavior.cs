@@ -255,7 +255,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
 
     /// <summary>What <see cref="ApplyWallSpacePirateCue"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="Occupant">The occupant whose cue is carried out.</param>
-    /// <param name="Place">The <c>place</c> <c>ApplyWallSpacePirateCue</c> was handed.</param>
+    /// <param name="Place">The <c>place</c> <see cref="ApplyWallSpacePirateCue"/> was handed.</param>
     /// <param name="State">The <c>state</c> <c>ApplyWallSpacePirateCue</c> works with.</param>
     /// <param name="Level">The <c>level</c> <c>ApplyWallSpacePirateCue</c> was handed.</param>
     /// <param name="Owner">The <see cref="WallSpacePirateBehavior"/> reacting.</param>

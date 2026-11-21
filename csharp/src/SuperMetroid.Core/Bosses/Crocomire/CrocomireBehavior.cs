@@ -137,7 +137,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         });
 
     /// <summary>What <see cref="RunCrocomireDeathSequence"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
-    /// <param name="State">The <c>state</c> <c>RunCrocomireDeathSequence</c> was handed.</param>
+    /// <param name="State">The <c>state</c> <see cref="RunCrocomireDeathSequence"/> was handed.</param>
     /// <param name="Camera">The <c>camera</c> <c>RunCrocomireDeathSequence</c> was handed.</param>
     /// <param name="Samus">The <c>samus</c> <c>RunCrocomireDeathSequence</c> was handed.</param>
     /// <param name="Owner">The <see cref="CrocomireBehavior"/> reacting.</param>

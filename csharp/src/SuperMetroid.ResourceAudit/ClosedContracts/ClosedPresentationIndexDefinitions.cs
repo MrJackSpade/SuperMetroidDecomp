@@ -104,7 +104,7 @@ internal static class ClosedPresentationIndexDefinitions
         ("CeresDoorVisuals", "AnimationColor", "step") => new(0, CeresDoorVisualDefinitions.AnimationStepCount),
         ("CeresDoorVisuals", "AnimationColor", "color") => new(0, CeresDoorVisualDefinitions.AnimationColorCount),
         ("CeresDoorVisuals", "NormalColor" or "EscapeColor", "color") => new(0, CeresDoorVisualDefinitions.SetupColorCount),
-        ("InstalledGrappleSprites", "Segment", "frame") => new(0, GrappleSpriteDefinitions.SegmentFrameCount),
+        ("InstalledGrappleSprites", "Segment", "picture") => new(0, GrappleSpriteDefinitions.SegmentFrameCount),
         ("InstalledSamusBodyArtwork", "ArtOrigin", "pose") => new(0, SamusBodyTableDecoding.PoseCount),
         ("SamusSpritemapSources", "TryGetFrame", "halfFrame.Pose") => new(0, SamusBodyTableDecoding.PoseCount),
         ("SamusArmCannonDescriptors", "PoseDescriptor", "pose") => new(0, SamusBodyTableDecoding.PoseCount),

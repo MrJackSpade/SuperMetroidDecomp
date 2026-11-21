@@ -13,7 +13,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 internal static class EncounterArtworkPlacements
 {
     /// <summary>The placements the looks <paramref name="looks"/> shows leave, with their artwork as <paramref name="resolver"/> holds it.</summary>
-    internal static SpriteArtworkPlacements Of(EncounterLooks looks, IInstalledArtworkContent resolver)
+    internal static SpriteArtworkPlacements Of(EncounterLooks looks, IInstalledEncounterArtwork resolver)
     {
         ArgumentNullException.ThrowIfNull(looks);
         ArgumentNullException.ThrowIfNull(resolver);
@@ -33,7 +33,7 @@ internal static class EncounterArtworkPlacements
     /// copied in the order given, with their artwork as <paramref name="resolver"/> holds it: the looks a check shows, apart
     /// from the encounter's other looks.
     /// </summary>
-    internal static SpriteArtworkPlacements Of(ComposedEncounter encounter, IEnumerable<int> lookPlaces, IInstalledArtworkContent resolver)
+    internal static SpriteArtworkPlacements Of(ComposedEncounter encounter, IEnumerable<int> lookPlaces, IInstalledEncounterArtwork resolver)
     {
         ArgumentNullException.ThrowIfNull(lookPlaces);
         ArgumentNullException.ThrowIfNull(resolver);
@@ -53,7 +53,7 @@ internal static class EncounterArtworkPlacements
     }
 
     /// <summary>Records every copy of <paramref name="lookPlaces"/>, places among <paramref name="encounter"/>'s looks, in order.</summary>
-    private static void Record(SpriteArtworkPlacements placements, ComposedEncounter encounter, IEnumerable<int> lookPlaces, IInstalledArtworkContent resolver)
+    private static void Record(SpriteArtworkPlacements placements, ComposedEncounter encounter, IEnumerable<int> lookPlaces, IInstalledEncounterArtwork resolver)
     {
         foreach (int look in lookPlaces)
         {

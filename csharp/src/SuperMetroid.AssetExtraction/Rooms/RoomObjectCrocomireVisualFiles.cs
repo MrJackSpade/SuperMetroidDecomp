@@ -22,6 +22,13 @@ public static class RoomObjectCrocomireVisualFiles
         CrocomireArenaMutation.CreateInvisibleWall,
     ]);
 
+    /// <summary>The frames that write one of the arena's invisible walls; every other frame writes along the bridge's row.</summary>
+    private static readonly HashSet<CrocomireArenaMutation> WallFrames = new HashSet<CrocomireArenaMutation>
+    {
+        CrocomireArenaMutation.ClearInvisibleWall,
+        CrocomireArenaMutation.CreateInvisibleWall,
+    };
+
     /// <summary>The Crocomire arena as the import pictures them: every frame's geometry and published name.</summary>
     internal static RoomObjectFrameFamily<RoomObjectDraw> Family { get; } =
         RoomObjectFrameImageFiles.DrawFamily(VisualFileName, "Crocomire arena", All, VisualId);
@@ -71,10 +78,9 @@ public static class RoomObjectCrocomireVisualFiles
         RoomBlockShape shape = described;
         // A wall is written as its three columns, each down from the wall's top row and started from the origin rather
         // than from the column before. A bridge is written as the one run along its row.
-        Offset16<RoomBlocks> belowOrigin = new(0, 1);
         Offset16<RoomBlocks>[] wallStarts = [new(0, 0), new(1, 0), new(2, 0)];
         int wallColumnHeight = 8;
-        if (shape.Covers(belowOrigin))
+        if (WallFrames.Contains(RoomObjectDrawIdentity.FrameOf<CrocomireArenaMutation>(draw, "Crocomire arena")))
         {
             list = RoomObjectDrawListExport.Runs(draw, wallStarts.Length, _ => wallColumnHeight,
                 (run, cell) => shape.CollisionAt(wallStarts[run] + new Offset16<RoomBlocks>(0, cell)),

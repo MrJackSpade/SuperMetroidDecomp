@@ -30,7 +30,7 @@ internal static class MotherBrainTubeCollapseDefinitions
     internal static IReadOnlyList<MotherBrainTubeDrop> Drops { get; } =
     [
         new MotherBrainBottomTubeDrop(MotherBrainTubePiece.BottomLeft,
-            new(new(5, 9), MotherBrainRoomMutation.ClearBottomLeftTube), StepWaitUpdates),
+            new(new(5, 9), MotherBrainRoomMutation.ClearBottomLeftTube), StepWaitUpdates) { WaitsForFreeProjectiles = true },
         new MotherBrainTopTubeDrop(RoomEnemyProjectileKind.MotherBrainTopRightTube, MotherBrainTopTubeSegment.TopRight, new(152, 47),
             new(new(9, 2), MotherBrainRoomMutation.ClearCeilingBlock), StepWaitUpdates),
         new MotherBrainTopTubeDrop(RoomEnemyProjectileKind.MotherBrainTopLeftTube, MotherBrainTopTubeSegment.TopLeft, new(104, 47),

@@ -80,8 +80,7 @@ public sealed class KraidBodyState : KraidPartState
     /// body and the one that starts his sinking. While he rises through the floor and once he sinks, his mouth and body
     /// passes let every shot through.
     /// </summary>
-    internal bool ShotsCollide => Fights || Stage == KraidBodyStage.Dying && DeathPhase is KraidDeathPhase.Initialize or
-        KraidDeathPhase.FadeOut or KraidDeathPhase.ShowBody or KraidDeathPhase.StartSinking;
+    internal bool ShotsCollide => Fights || Stage == KraidBodyStage.Dying && KraidDeathPhaseDefinitions.ShotsCollide.Contains(DeathPhase);
 
     /// <summary>
     /// The next rock his growth knocks from the ceiling (#2400), walked through <see cref="KraidCeilingRockDefinitions.Rocks"/>

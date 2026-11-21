@@ -12,23 +12,27 @@ namespace SuperMetroid.Core.Enemies.KiHunters;
 internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } =
-    [
-        EnemyDefinitionId.KihunterGreen, EnemyDefinitionId.KihunterGreenWings, EnemyDefinitionId.KihunterRed,
-        EnemyDefinitionId.KihunterRedWings, EnemyDefinitionId.KihunterYellow, EnemyDefinitionId.KihunterYellowWings,
-    ];
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. PartFactories.Keys];
 
     /// <summary>A body of any colour, or its wings (#2146).</summary>
-    /// <exception cref="InvalidOperationException">The place holds no Ki-Hunter definition.</exception>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    {
-        EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
-        if (definition is EnemyDefinitionId.KihunterGreen or EnemyDefinitionId.KihunterRed or EnemyDefinitionId.KihunterYellow)
-            return EnemyOccupant.Of(new KiHunterBodyEntity(this, occupant, place, common));
-        if (definition is EnemyDefinitionId.KihunterGreenWings or EnemyDefinitionId.KihunterRedWings or EnemyDefinitionId.KihunterYellowWings)
-            return EnemyOccupant.Of(new KiHunterWingsEntity(this, occupant, place, common));
-        throw new InvalidOperationException($"The Ki-Hunter species creates no {occupant.DefinitionId}.");
-    }
+    /// <exception cref="KeyNotFoundException">The place holds no Ki-Hunter definition.</exception>
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        PartFactories[Ensure.NotNull(occupant).DefinitionId](this, occupant, place, common);
+
+    /// <summary>
+    /// The factory of each part the species creates, by the definition that places it: the species serves these
+    /// definitions, and each builds its own part from the species it is given.
+    /// </summary>
+    private static readonly Dictionary<EnemyDefinitionId, EnemyPartFactory<KiHunterBehavior>> PartFactories =
+        new()
+        {
+            [EnemyDefinitionId.KihunterGreen] = static (species, occupant, place, common) => EnemyOccupant.Of(new KiHunterBodyEntity(species, occupant, place, common)),
+            [EnemyDefinitionId.KihunterGreenWings] = static (species, occupant, place, common) => EnemyOccupant.Of(new KiHunterWingsEntity(species, occupant, place, common)),
+            [EnemyDefinitionId.KihunterRed] = static (species, occupant, place, common) => EnemyOccupant.Of(new KiHunterBodyEntity(species, occupant, place, common)),
+            [EnemyDefinitionId.KihunterRedWings] = static (species, occupant, place, common) => EnemyOccupant.Of(new KiHunterWingsEntity(species, occupant, place, common)),
+            [EnemyDefinitionId.KihunterYellow] = static (species, occupant, place, common) => EnemyOccupant.Of(new KiHunterBodyEntity(species, occupant, place, common)),
+            [EnemyDefinitionId.KihunterYellowWings] = static (species, occupant, place, common) => EnemyOccupant.Of(new KiHunterWingsEntity(species, occupant, place, common)),
+        };
 
     /// <summary>Provides the active room state used by Ki-Hunter movement.</summary>
     private readonly EnemyRoomBinding _room;

@@ -65,9 +65,28 @@ internal static class RoomObjectFixtures
         var room = (RoomObjectRoom)RuntimeHelpers.GetUninitializedObject(typeof(RoomObjectRoom));
         var services = (RoomObjectServices)RuntimeHelpers.GetUninitializedObject(typeof(RoomObjectServices));
         var roomObjects = new RoomObjectSystem(room, services, visuals, new CollectibleBlockPairs(), new RoomObjectPlaces(), ShotCapClosing(),
-            GameplayAudioRequests.Standalone());
+            new RoomObjectOutputs(GameplayAudioRequests.Standalone(), UnspawnedThrows));
         VisualsTable(roomObjects).Add(roomObjects, visuals);
         return roomObjects;
+    }
+
+    /// <summary>
+    /// Where a fixture's thrown projectiles would spawn: a fixture has no enemy projectiles, so a thrown projectile that
+    /// spawns fails there; checks read the step's thrown requests instead.
+    /// </summary>
+    private static readonly RoomObjectThrownProjectileSpawners UnspawnedThrows = new(new NoEnemyProjectiles(), new NoEnemyProjectiles());
+
+    /// <summary>A fixture's absent enemy projectiles, which fail any thrown projectile's spawn.</summary>
+    private sealed class NoEnemyProjectiles : SuperMetroid.Core.Bosses.MotherBrain.IMotherBrainGlassShardSpawner,
+        SuperMetroid.Core.Bosses.Torizo.IBombTorizoStatueFragmentSpawner
+    {
+        /// <inheritdoc/>
+        public void SpawnMotherBrainGlassProjectile(SuperMetroid.Core.Bosses.MotherBrain.MotherBrainGlassProjectileRequest request) =>
+            throw new InvalidOperationException("A fixture's room objects spawned a glass shard with no enemy projectiles.");
+
+        /// <inheritdoc/>
+        public void SpawnBombTorizoStatueBreakingProjectile(SuperMetroid.Core.Bosses.Torizo.BombTorizoStatueProjectileRequest request) =>
+            throw new InvalidOperationException("A fixture's room objects spawned a statue fragment with no enemy projectiles.");
     }
 
     /// <summary>The shot cap's closing rule the room loader composes each room's objects with (#1906).</summary>
@@ -79,7 +98,7 @@ internal static class RoomObjectFixtures
     {
         RoomObjectVisuals visuals = VisualsOf(fixture);
         var roomObjects = new RoomObjectSystem(room, services, visuals, new CollectibleBlockPairs(), new RoomObjectPlaces(), ShotCapClosing(),
-            GameplayAudioRequests.Standalone());
+            new RoomObjectOutputs(GameplayAudioRequests.Standalone(), UnspawnedThrows));
         VisualsTable(roomObjects).Add(roomObjects, visuals);
         return roomObjects;
     }

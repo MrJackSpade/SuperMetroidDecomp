@@ -42,9 +42,6 @@ internal static class EnemyExtendedFrameFiles
         return json;
     }
 
-    /// <summary>$10: the high byte of Ceres steam's spritemap headers, cartridge drawing metadata after the component count (#1415).</summary>
-    private const int CeresSteamHeaderHighByte = 16;
-
     /// <summary>Decodes one declared visual root without importing its gameplay-owned hitboxes.</summary>
     internal static EnemyExtendedVisualComponent[] ExtractComponents(
         ISnesAddressSpace bus, EnemyFrameName definition)
@@ -56,20 +53,13 @@ internal static class EnemyExtendedFrameFiles
         int baseAddress = ((int)SnesAddress.InBank(bank, pointer));
         int count = bus.ReadCartridgeByte(baseAddress);
         int padding = bus.ReadCartridgeByte(((int)SnesAddress.InBank(bank, unchecked((ushort)(pointer + 1)))));
-        // Ceres steam's header is $1001: the generic drawing/collision
-        // walkers consume its low byte as one component and retain the
-        // high byte as native presentation metadata.
-        int expectedPadding = EnemyExtendedFrameFamilies.Of(definition.Frame) == EnemyExtendedFrameFamily.CeresSteam
-            ? CeresSteamHeaderHighByte : 0;
-        bool motherBrainMixed = MotherBrainBodyVisualDefinitions.AnimationFrames.Contains(definition.Frame);
-        bool bg2Only = EnemyExtendedFrameBounds.IsBg2Only(definition);
-        int maximumNativeComponents = motherBrainMixed
-            ? MotherBrainBodyBg2FrameDefinitions.MaximumComponents
-            : bg2Only ? PhantoonBodyLayerFrameDefinitions.Frames.Contains(definition.Frame)
-                ? PhantoonBg2FrameDefinitions.MaximumComponents : DraygonBg2FrameDefinitions.MaximumComponents
-                : EnemyExtendedFrameBounds.MaximumSpriteComponents(definition);
-        if (count < 1 || count > maximumNativeComponents ||
-            padding != expectedPadding)
+        // A header's byte after the component count is drawing metadata its run states (Ceres steam's header is $1001):
+        // the generic drawing/collision walkers consume its low byte as one component and retain the high byte.
+        EnemyExtendedFrameRun run = EnemyExtendedFrameFamilies.RunOf(definition.Frame);
+        bool bg2Only = run.Layers == EnemyExtendedFrameLayers.Bg2Only;
+        bool besideBg2 = run.Layers == EnemyExtendedFrameLayers.SpritesBesideBg2;
+        if (count < 1 || count > run.MaximumComponents ||
+            padding != run.HeaderHighByte)
             throw new InvalidDataException(
                 $"Extended frame ${bank:X2}:{pointer:X4} has invalid component header.");
         var components = new List<EnemyExtendedVisualComponent>(count);
@@ -85,8 +75,7 @@ internal static class EnemyExtendedFrameFiles
                 // Multipart bodies combine ordinary OAM with BG2 streams
                 // in one native extended root. Its BG2 half is extracted
                 // separately, never misrepresented as sprite artwork.
-                if (bg2Only || motherBrainMixed
-                    || EnemyExtendedFrameFamilies.Of(definition.Frame) == EnemyExtendedFrameFamily.CrocomireBody)
+                if (bg2Only || besideBg2)
                     continue;
                 throw new InvalidDataException(
                     $"Extended frame ${bank:X2}:{pointer:X4} contains a BG2 command, not OAM.");

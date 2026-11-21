@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Rooms.RoomObjects;
@@ -13,6 +14,13 @@ public static class RoomObjectTourianAccessVisualFiles
 
     /// <summary>The stages of a row's crumble the floor draws, in their published order (#2567): rock, pieces, dust.</summary>
     private static readonly BlockBreakupStage[] CrumbleStages = [BlockBreakupStage.Rock, BlockBreakupStage.Pieces, BlockBreakupStage.Dust];
+
+    /// <summary>The four-block rows each access frame is written as: the empty row its one, the clear frame the passage's six.</summary>
+    private static readonly IReadOnlyDictionary<TourianAccessDraw, int> RowCounts = new Dictionary<TourianAccessDraw, int>
+    {
+        [TourianAccessDraw.EmptyRow] = 1,
+        [TourianAccessDraw.Clear] = 6,
+    };
 
     /// <summary>The Tourian access floor as the import pictures them: every frame's geometry and published name.</summary>
     internal static RoomObjectFrameFamily<RoomObjectDraw> Family { get; } =
@@ -52,7 +60,7 @@ public static class RoomObjectTourianAccessVisualFiles
 
     /// <summary>The draw list of a Tourian access draw: its block shape written one four-block row at a time, top row first (#1862).</summary>
     private static RoomObjectDrawLists.DrawList Compile(TourianAccessDraw draw) =>
-        Compile(TourianAccessDraws.Family.Of(draw), TourianAccessDraws.Family, draw == TourianAccessDraw.Clear ? 6 : 1);
+        Compile(TourianAccessDraws.Family.Of(draw), TourianAccessDraws.Family, Ensure.Listed(RowCounts, draw));
 
     /// <summary>The draw list of a drawn stage of a row's crumble: one four-block row (#2291).</summary>
     private static RoomObjectDrawLists.DrawList CompileCrumble(BlockBreakupStage stage) =>

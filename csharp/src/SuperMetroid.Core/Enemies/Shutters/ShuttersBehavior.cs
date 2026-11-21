@@ -66,23 +66,25 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory, IEs
     }
 
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Kamer, EnemyDefinitionId.ShutterDestroyable, EnemyDefinitionId.ShutterGrowing, EnemyDefinitionId.ShutterShootable];
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. PartFactories.Keys];
 
     /// <summary>The growing shutter, a shootable vertical shutter, the Kamer that reuses it, or a destroyable vertical shutter (#2146, #2179).</summary>
-    /// <exception cref="InvalidOperationException">The place holds no Shutters definition.</exception>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    {
-        EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
-        if (definition == EnemyDefinitionId.ShutterGrowing)
-            return EnemyOccupant.Of(new GrowingShutterEntity(this, occupant, place, common));
-        if (definition == EnemyDefinitionId.ShutterShootable)
-            return EnemyOccupant.Of(new ShootableShutterEntity(this, occupant, place, common));
-        if (definition == EnemyDefinitionId.Kamer)
-            return EnemyOccupant.Of(new KamerEntity(this, occupant, place, common));
-        if (definition == EnemyDefinitionId.ShutterDestroyable)
-            return EnemyOccupant.Of(new DestroyableShutterEntity(this, occupant, place, common));
-        throw new InvalidOperationException($"The Shutters species creates no {occupant.DefinitionId}.");
-    }
+    /// <exception cref="KeyNotFoundException">The place holds no Shutters definition.</exception>
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        PartFactories[Ensure.NotNull(occupant).DefinitionId](this, occupant, place, common);
+
+    /// <summary>
+    /// The factory of each part the species creates, by the definition that places it: the species serves these
+    /// definitions, and each builds its own part from the species it is given.
+    /// </summary>
+    private static readonly Dictionary<EnemyDefinitionId, EnemyPartFactory<ShuttersBehavior>> PartFactories =
+        new()
+        {
+            [EnemyDefinitionId.Kamer] = static (species, occupant, place, common) => EnemyOccupant.Of(new KamerEntity(species, occupant, place, common)),
+            [EnemyDefinitionId.ShutterDestroyable] = static (species, occupant, place, common) => EnemyOccupant.Of(new DestroyableShutterEntity(species, occupant, place, common)),
+            [EnemyDefinitionId.ShutterGrowing] = static (species, occupant, place, common) => EnemyOccupant.Of(new GrowingShutterEntity(species, occupant, place, common)),
+            [EnemyDefinitionId.ShutterShootable] = static (species, occupant, place, common) => EnemyOccupant.Of(new ShootableShutterEntity(species, occupant, place, common)),
+        };
 
     /// <summary>Initializes the growing shutter.</summary>
     internal static void InitializeGrowingShutter(RoomEnemyOccupant occupant, RoomEnemyPlace place)

@@ -9,21 +9,25 @@ namespace SuperMetroid.Core.Enemies.PipeBugs;
 internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Gamet, EnemyDefinitionId.Geega, EnemyDefinitionId.Zeb, EnemyDefinitionId.Zebbo];
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. PartFactories.Keys];
 
     /// <summary>A Brinstar Pipe Bug (Zeb or Zebbo), a Norfair one (Gamet) or a yellow one (Geega) (#2146).</summary>
-    /// <exception cref="InvalidOperationException">The place holds no Pipe Bugs definition.</exception>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    {
-        EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
-        if (definition is EnemyDefinitionId.Zeb or EnemyDefinitionId.Zebbo)
-            return EnemyOccupant.Of(new BrinstarPipeBugEntity(occupant, place, common));
-        if (definition == EnemyDefinitionId.Gamet)
-            return EnemyOccupant.Of(new NorfairPipeBugEntity(this, occupant, place, common));
-        if (definition == EnemyDefinitionId.Geega)
-            return EnemyOccupant.Of(new YellowPipeBugEntity(occupant, place, common));
-        throw new InvalidOperationException($"The Pipe Bugs species creates no {occupant.DefinitionId}.");
-    }
+    /// <exception cref="KeyNotFoundException">The place holds no Pipe Bugs definition.</exception>
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        PartFactories[Ensure.NotNull(occupant).DefinitionId](this, occupant, place, common);
+
+    /// <summary>
+    /// The factory of each part the species creates, by the definition that places it: the species serves these
+    /// definitions, and each builds its own part from the species it is given.
+    /// </summary>
+    private static readonly Dictionary<EnemyDefinitionId, EnemyPartFactory<PipeBugsBehavior>> PartFactories =
+        new()
+        {
+            [EnemyDefinitionId.Gamet] = static (species, occupant, place, common) => EnemyOccupant.Of(new NorfairPipeBugEntity(species, occupant, place, common)),
+            [EnemyDefinitionId.Geega] = static (_, occupant, place, common) => EnemyOccupant.Of(new YellowPipeBugEntity(occupant, place, common)),
+            [EnemyDefinitionId.Zeb] = static (_, occupant, place, common) => EnemyOccupant.Of(new BrinstarPipeBugEntity(occupant, place, common)),
+            [EnemyDefinitionId.Zebbo] = static (_, occupant, place, common) => EnemyOccupant.Of(new BrinstarPipeBugEntity(occupant, place, common)),
+        };
 
     /// <summary>The room's enemy places, where each Norfair formation leader finds its formation when it is placed.</summary>
     private readonly EnemyPlaces _places;

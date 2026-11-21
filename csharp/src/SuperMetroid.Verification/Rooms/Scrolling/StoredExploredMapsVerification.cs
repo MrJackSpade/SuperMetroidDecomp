@@ -113,9 +113,10 @@ internal static class StoredExploredMapsVerification
         DoorDefinition[] native = [.. DoorHeaderSourceDefinitions.ByPointer
             .Where(pair => (cartridge.ReadCartridgeByte(0x830000 | (pair.Key + 2)) & 0x40) != 0)
             .Select(pair => pair.Value)];
-        AssertEqual(native.Length, ExploredMapExchangeDoorDefinitions.Doors.Count, "doors that exchange explored maps");
+        AssertEqual(native.Length, DoorHeaderSourceDefinitions.ByPointer.Values.Distinct().Count(door => door.ExchangesExploredMaps),
+            "doors that declare they exchange explored maps");
         foreach (DoorDefinition door in native)
-            AssertTrue(ExploredMapExchangeDoorDefinitions.Doors.Contains(door), $"{door.Name} exchanges explored maps");
+            AssertTrue(door.ExchangesExploredMaps, $"{door.Name} exchanges explored maps");
         Console.WriteLine($"  Explored-map exchange doors: the {native.Length} doors whose elevator properties carry $40.");
     }
 

@@ -38,6 +38,32 @@ internal static class SpcSoundEffectTables
         _ => throw new ArgumentOutOfRangeException(nameof(library), library, "Undefined sound library."),
     };
 
+    /// <summary>How library <paramref name="libraryIndex"/>'s handler admits a changed request for one-based <paramref name="command"/>.</summary>
+    internal static SpcSoundRequestAdmission Admission(int libraryIndex, int command) => libraryIndex switch
+    {
+        0 => AdmissionIn(SpcSoundEffectDefinitions.Library1, command),
+        1 => AdmissionIn(SpcSoundEffectDefinitions.Library2, command),
+        2 => AdmissionIn(SpcSoundEffectDefinitions.Library3, command),
+        _ => throw new ArgumentOutOfRangeException(nameof(libraryIndex)),
+    };
+
+    /// <summary>Whether library <paramref name="libraryIndex"/> keeps the low-health mode, which refuses its requests but the clearing one.</summary>
+    internal static bool HasLowHealthMode(int libraryIndex) => libraryIndex switch
+    {
+        0 or 1 => false,
+        2 => true,
+        _ => throw new ArgumentOutOfRangeException(nameof(libraryIndex)),
+    };
+
+    /// <summary>
+    /// How the request rule admits one-based <paramref name="command"/> in <paramref name="library"/>: as its effect states,
+    /// and by priority for a command beyond the library's effects, as the driver admits every command it does not exempt;
+    /// such a command's start then finds no effect.
+    /// </summary>
+    private static SpcSoundRequestAdmission AdmissionIn<TPolicy>(SpcSoundEffectDefinition<TPolicy>[] library, int command)
+        where TPolicy : struct, Enum =>
+        (uint)(command - 1) < (uint)library.Length ? library[command - 1].Admission : SpcSoundRequestAdmission.ByPriority;
+
     /// <summary>The effect a one-based <paramref name="command"/> selects in <paramref name="library"/>.</summary>
     internal static SpcSoundEffectDefinition<TPolicy> Effect<TPolicy>(SpcSoundEffectDefinition<TPolicy>[] library, int command)
         where TPolicy : struct, Enum =>

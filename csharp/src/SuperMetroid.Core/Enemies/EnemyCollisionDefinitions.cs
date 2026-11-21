@@ -22,6 +22,16 @@ internal static class EnemyCollisionDefinitions
     /// <summary>The updates an enemy a shot freezes in a Norfair room stays frozen.</summary>
     internal const int NorfairFreezeUpdates = 300;
 
+    /// <summary>
+    /// The areas whose rooms keep a shot's freeze for a length of their own, with that length: Norfair's; every other area's
+    /// rooms keep it <see cref="FreezeUpdates"/>.
+    /// </summary>
+    internal static readonly IReadOnlyDictionary<SuperMetroid.Core.Progression.AreaId, int> FreezeUpdatesByArea =
+        new Dictionary<SuperMetroid.Core.Progression.AreaId, int>
+        {
+            [SuperMetroid.Core.Progression.AreaId.Norfair] = NorfairFreezeUpdates,
+        };
+
     /// <summary>The updates an enemy a shot freezes in a room of any other area stays frozen.</summary>
     internal const int FreezeUpdates = 400;
 

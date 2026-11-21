@@ -53,4 +53,7 @@ internal static class PuyoHopDefinitions
 
     /// <summary>The farthest place along the quadratic speed curve an airborne Puyo's speed is read from.</summary>
     internal static QuadraticSpeedCurvePlace FastestSpeedPlace { get; } = QuadraticSpeedCurvePlace.FromMarks(64);
+
+    /// <summary>The ordinary hops, whose next hop proximity and chance choose: the small, big and long ones.</summary>
+    internal static readonly PuyoHopType[] NormalHops = [PuyoHopType.NormalSmall, PuyoHopType.NormalBig, PuyoHopType.NormalLong];
 }

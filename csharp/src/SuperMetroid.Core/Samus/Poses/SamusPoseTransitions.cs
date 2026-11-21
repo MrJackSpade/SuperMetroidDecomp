@@ -296,7 +296,7 @@ internal static class SamusPoseTransitions
         }
 
         bool startsMoonwalkJump = SamusPoseMetadata.IsMoonwalkTurnToSpinJumpPose(samus.Pose) &&
-            targetPose is SamusPoseId.SpinJumpRightPose or SamusPoseId.SpinJumpLeftPose;
+            SamusPoseTraits.IsIn(targetPose, SamusPoseFamily.GenericSpinJump);
         SamusPoseId sourcePose = samus.Pose;
         SamusMovementType previousMovementType = SamusPoseMetadata.ReadMovementType(sourcePose);
 

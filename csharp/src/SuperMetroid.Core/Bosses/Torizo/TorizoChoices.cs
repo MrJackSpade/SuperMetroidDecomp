@@ -47,11 +47,7 @@ internal sealed class TorizoChoices
         TorizoAnimation target)
     {
         int distance = Math.Abs(samus.Position.X.Whole - torizo.Position.X.Whole);
-        bool isGroundedBall = samus.Pose is
-            SamusPoseId.MorphBallGroundRightPose or SamusPoseId.MorphBallMovingRightPose or
-            SamusPoseId.MorphBallMovingLeftPose or SamusPoseId.SpringBallGroundRightPose or
-            SamusPoseId.SpringBallGroundLeftPose or SamusPoseId.SpringBallMovingRightPose or
-            SamusPoseId.SpringBallMovingLeftPose;
+        bool isGroundedBall = SamusPoseTraits.IsIn(samus.Pose, SamusPoseFamily.TorizoSitDownBall);
         if (TorizoFacing.FacesSamus(torizo, samus) ||
             distance < TorizoDecisionDefinitions.MorphedBehindNearest || distance >= TorizoDecisionDefinitions.MorphedBehindFarthest || !isGroundedBall)
         {

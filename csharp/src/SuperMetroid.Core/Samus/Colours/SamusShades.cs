@@ -171,8 +171,9 @@ public static class SamusShades
     public static PictureShade Beam(SamusBeamCombination combination) => new(Ensure.Listed(BeamKeys, ShownBeamShade(combination)), 0);
 
     /// <summary>The beam combination whose shade <paramref name="combination"/> shows.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The combination has no beam graphics.</exception>
     internal static SamusBeamCombination ShownBeamShade(SamusBeamCombination combination) =>
-        combination == ChainsawBeamGraphicsDefinitions.Selection ? ChainsawBeamGraphicsDefinitions.ShownBeamShade : combination;
+        Ensure.Listed(SamusBeamGraphicsDefinitions.ShownShades, combination);
 
     /// <summary>The Crystal Flash's body colours at each step of its pulse, in the order the pulse shows them (#2387).</summary>
     public static IReadOnlyList<PictureShade> CrystalFlashBody { get; } =

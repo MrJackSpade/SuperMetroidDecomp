@@ -277,7 +277,7 @@ internal static class SamusAerialPoseTransitions
     /// </remarks>
     public static void ApplyGrappleWallJump(SamusState samus)
     {
-        if (samus.Pose is not (SamusPoseId.GrappleWallContactLeftPose or SamusPoseId.GrappleWallContactRightPose))
+        if (!SamusPoseTraits.IsIn(samus.Pose, SamusPoseFamily.GrappleWallContact))
         {
             throw new InvalidOperationException(
                 $"Grapple wall jump requires a grapple wall-contact pose, not {samus.Pose}.");
@@ -449,7 +449,7 @@ internal static class SamusAerialPoseTransitions
     /// </summary>
     public static void ApplyShinesparkDirectionTransition(SamusState samus, SamusPoseId targetPose)
     {
-        if (samus.Pose is not (SamusPoseId.ShinesparkWindupRightPose or SamusPoseId.ShinesparkWindupLeftPose))
+        if (!SamusPoseTraits.IsIn(samus.Pose, SamusPoseFamily.ShinesparkWindup))
         {
             throw new InvalidOperationException(
                 $"Directional shinespark transition requires windup pose, not {samus.Pose}.");
@@ -476,7 +476,7 @@ internal static class SamusAerialPoseTransitions
                 $"Ordinary jump transition {samus.Pose} -> {targetPose} is not an active route for this setup.");
         }
 
-        samus.Pose = targetPose is SamusPoseId.SpinJumpRightPose or SamusPoseId.SpinJumpLeftPose
+        samus.Pose = SamusPoseTraits.IsIn(targetPose, SamusPoseFamily.GenericSpinJump)
             ? SelectEquippedSpinPose(samus, targetPose)
             : targetPose;
         // The pose update happens after movement. The next input phase, including
@@ -663,5 +663,5 @@ internal static class SamusAerialPoseTransitions
 
     /// <summary>Whether <paramref name="pose"/> is one the ordinary jump setup installs: a jump transition, neutral or aimed, or the spin jump.</summary>
     private static bool IsOrdinaryJumpTarget(SamusPoseId pose) =>
-        SamusPoseMetadata.IsJumpTransitionPose(pose) || pose is SamusPoseId.SpinJumpRightPose or SamusPoseId.SpinJumpLeftPose;
+        SamusPoseMetadata.IsJumpTransitionPose(pose) || SamusPoseTraits.IsIn(pose, SamusPoseFamily.GenericSpinJump);
 }

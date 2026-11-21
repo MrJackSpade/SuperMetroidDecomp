@@ -22,7 +22,8 @@ internal sealed record DispatchConstant(INamedTypeSymbol Type, object Value)
 /// <summary>
 /// Evaluates an entity's (or its factory's) dispatch for one definition: the entity's own slot holds that definition,
 /// and the behaviour's parts table maps it to its part, so a switch over the part, a test of the slot's definition, or a
-/// conditional on either takes the branches that definition takes. Whatever it cannot evaluate keeps every branch.
+/// conditional on either takes the branches that definition takes, and a lookup of the definition's entry in a parts table
+/// of factories runs that entry alone. Whatever it cannot evaluate keeps every branch.
 /// </summary>
 internal sealed class DefinitionPruner
 {
@@ -109,9 +110,34 @@ internal sealed class DefinitionPruner
                 return [conjunction.Left];
             case BinaryExpressionSyntax disjunction when disjunction.IsKind(SyntaxKind.LogicalOrExpression) && Truth(disjunction.Left) == true:
                 return [disjunction.Left];
+            // A factory looking its definition's entry up in its parts table of factories (#2559: Parts[definition] and the
+            // factory it holds builds the definition's entity) runs that entry alone, as an if-chain's branch would.
+            case ElementAccessExpressionSyntax { ArgumentList.Arguments: [var key] } lookup when OwnFactoryEntry(lookup, key) is { } entry:
+                return [key.Expression, entry];
             default:
                 return null;
         }
+    }
+
+    /// <summary>
+    /// The value of the definition's own entry when <paramref name="lookup"/> reads it from the behaviour's parts table and
+    /// that value is no part (an enum member, which <see cref="Value"/> evaluates) but code, such as the factory building
+    /// the definition's entity; null for any other lookup.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The entry is declared in another file than the lookup.</exception>
+    private ExpressionSyntax? OwnFactoryEntry(ElementAccessExpressionSyntax lookup, ArgumentSyntax key)
+    {
+        if (_context.Behaviour.PartsTable is not { } table || _context.Part is not null
+            || !SymbolEqualityComparer.Default.Equals(_semantic.GetSymbolInfo(lookup.Expression).Symbol?.OriginalDefinition, table)
+            || Equal(Value(key.Expression), DispatchConstant.Of(_context.Definition)) != true
+            || !_context.Behaviour.PartEntries.TryGetValue(_context.Definition.Name, out ExpressionSyntax? entry))
+        {
+            return null;
+        }
+        return entry.SyntaxTree == _semantic.SyntaxTree
+            ? entry
+            : throw new InvalidDataException(
+                $"{_context.Behaviour.Type.ToDisplayString()}: the parts table entry for {_context.Definition.Name} is not declared in the file that looks it up.");
     }
 
     /// <summary>Whether <paramref name="condition"/> holds for the definition, or null when it cannot be evaluated.</summary>

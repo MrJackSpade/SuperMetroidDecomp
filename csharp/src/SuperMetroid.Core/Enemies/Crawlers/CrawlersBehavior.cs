@@ -13,32 +13,32 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } =
-    [
-        EnemyDefinitionId.Sciser, EnemyDefinitionId.Zero, EnemyDefinitionId.Viola, EnemyDefinitionId.Zeela,
-        EnemyDefinitionId.Sova, EnemyDefinitionId.Zoomer, EnemyDefinitionId.ArmoredZoomer, EnemyDefinitionId.OrangeZoomer,
-    ];
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. PartFactories.Keys];
 
     /// <summary>
     /// A crawler set up in its animation family that crawls by the shared crawl: Sciser, Zero and Viola each in their own,
     /// Zeela, Sova and both Zoomers in the shared family; or an orange Zoomer (#2146).
     /// </summary>
-    /// <exception cref="InvalidOperationException">The place holds no crawler definition.</exception>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    {
-        EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
-        if (definition == EnemyDefinitionId.Sciser)
-            return EnemyOccupant.Of(new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Sciser));
-        if (definition == EnemyDefinitionId.Zero)
-            return EnemyOccupant.Of(new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Zero));
-        if (definition == EnemyDefinitionId.Viola)
-            return EnemyOccupant.Of(new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Viola));
-        if (definition is EnemyDefinitionId.Zeela or EnemyDefinitionId.Sova or EnemyDefinitionId.Zoomer or EnemyDefinitionId.ArmoredZoomer)
-            return EnemyOccupant.Of(new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Shared));
-        if (definition == EnemyDefinitionId.OrangeZoomer)
-            return EnemyOccupant.Of(new OrangeZoomerEntity(this, occupant, place, common));
-        throw new InvalidOperationException($"The crawler species creates no {occupant.DefinitionId}.");
-    }
+    /// <exception cref="KeyNotFoundException">The place holds no crawler definition.</exception>
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        PartFactories[Ensure.NotNull(occupant).DefinitionId](this, occupant, place, common);
+
+    /// <summary>
+    /// The factory of each part the species creates, by the definition that places it: the species serves these
+    /// definitions, and each builds its own part from the species it is given.
+    /// </summary>
+    private static readonly Dictionary<EnemyDefinitionId, EnemyPartFactory<CrawlersBehavior>> PartFactories =
+        new()
+        {
+            [EnemyDefinitionId.Sciser] = static (species, occupant, place, common) => EnemyOccupant.Of(new SurfaceCrawlerEntity(species, occupant, place, common, CrawlerAnimationFamily.Sciser)),
+            [EnemyDefinitionId.Zero] = static (species, occupant, place, common) => EnemyOccupant.Of(new SurfaceCrawlerEntity(species, occupant, place, common, CrawlerAnimationFamily.Zero)),
+            [EnemyDefinitionId.Viola] = static (species, occupant, place, common) => EnemyOccupant.Of(new SurfaceCrawlerEntity(species, occupant, place, common, CrawlerAnimationFamily.Viola)),
+            [EnemyDefinitionId.Zeela] = static (species, occupant, place, common) => EnemyOccupant.Of(new SurfaceCrawlerEntity(species, occupant, place, common, CrawlerAnimationFamily.Shared)),
+            [EnemyDefinitionId.Sova] = static (species, occupant, place, common) => EnemyOccupant.Of(new SurfaceCrawlerEntity(species, occupant, place, common, CrawlerAnimationFamily.Shared)),
+            [EnemyDefinitionId.Zoomer] = static (species, occupant, place, common) => EnemyOccupant.Of(new SurfaceCrawlerEntity(species, occupant, place, common, CrawlerAnimationFamily.Shared)),
+            [EnemyDefinitionId.ArmoredZoomer] = static (species, occupant, place, common) => EnemyOccupant.Of(new SurfaceCrawlerEntity(species, occupant, place, common, CrawlerAnimationFamily.Shared)),
+            [EnemyDefinitionId.OrangeZoomer] = static (species, occupant, place, common) => EnemyOccupant.Of(new OrangeZoomerEntity(species, occupant, place, common)),
+        };
 
     /// <summary>Performs wall, floor, and slope probes for attached crawlers and falling Zoomers.</summary>
     private readonly EnemyTerrain _terrain;
@@ -76,25 +76,11 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal static void InitializeCrawler(RoomEnemyOccupant occupant, RoomEnemyPlace place, CrawlerAnimationFamily animationFamily)
     {
-        // The placement names the starting surface; the Viola alone takes its block side instead, and a Viola's
-        // placement names no surface.
-        CrawlerSurfaceOrientation orientation;
-        CrawlerSurfaceOrientation blockSide;
-        SignedEightEight? crawlSpeed;
-        if (animationFamily == CrawlerAnimationFamily.Viola)
-        {
-            ViolaSpawnSettings viola = occupant.SpawnSettings<ViolaSpawnSettings>();
-            orientation = viola.BlockSide;
-            blockSide = viola.BlockSide;
-            crawlSpeed = viola.CrawlSpeed;
-        }
-        else
-        {
-            CrawlerSpawnSettings settings = occupant.SpawnSettings<CrawlerSpawnSettings>();
-            orientation = settings.Orientation;
-            blockSide = settings.BlockSide;
-            crawlSpeed = settings.CrawlSpeed;
-        }
+        // The placement names the starting surface; the Viola's names only its block side, which it starts on.
+        CrawlerStartSettings settings = occupant.SpawnSettings<CrawlerStartSettings>();
+        CrawlerSurfaceOrientation orientation = settings.StartingSurface;
+        CrawlerSurfaceOrientation blockSide = settings.HeldBlockSide;
+        SignedEightEight? crawlSpeed = settings.StartingCrawlSpeed;
 
         SetUpCrawler(place, animationFamily, orientation, blockSide, crawlSpeed);
     }

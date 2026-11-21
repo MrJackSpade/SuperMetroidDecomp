@@ -853,7 +853,7 @@ public sealed class IntroCinematicState : IFrontendScreen
             fallingMovement = SamusAerialMovement.StepNormalJump(level, samus,
                 demoInput, frameCounter, IntroCollisionRoomObjects.Instance);
         }
-        else if (samus.Pose is SamusPoseId.FallingRightPose or SamusPoseId.FallingLeftPose)
+        else if (SamusPoseTraits.IsIn(samus.Pose, SamusPoseFamily.PlainFallingOnly))
         {
             // When knockback ends humanoid knockback it selects the right or left falling pose and restores
             // normal movement. The following frames therefore run Samus's ordinary fall until the room's

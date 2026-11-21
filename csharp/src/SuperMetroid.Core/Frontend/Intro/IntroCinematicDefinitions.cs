@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Fx.ColourEffects;
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus.Drawing;
 
 namespace SuperMetroid.Core.Frontend.Intro;
@@ -69,7 +70,7 @@ public static class IntroCinematicDefinitions
         /// The ground her footsteps and landings go by in the flashback, which loads no room (#2416): dry, so her
         /// footsteps raise dust only while she speed-boosts, and her landings raise nothing.
         /// </summary>
-        internal static SamusGround Ground { get; } = new(SamusGroundWetness.Dry, DryLandingsRaiseDust: false);
+        internal static RoomGround Ground { get; } = RoomGroundDefinitions.Bare;
     }
 
     /// <summary>The actors' sounds.</summary>

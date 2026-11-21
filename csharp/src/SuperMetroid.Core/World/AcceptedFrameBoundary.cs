@@ -192,7 +192,7 @@ internal sealed class AcceptedFrameBoundary
     /// </summary>
     private static RoomBlockPictureTable BlockPictures(RoomScope scope, RoomAppearanceView appearance, RoomLevelPlane? backgroundPlane,
         XrayRevealedBlocks? reveal) =>
-        scope.Room.State.TurningFloor == RoomTurningFloor.ElevatorShaft
+        scope.Room.State.TurningFloor.HidesLevelBlocks
             ? RoomBlockPictureTable.NoneDrawn(scope.BlockPictures.Sheet)
             : scope.BlockPictures.Resolve(scope.LevelData.ForegroundPlane, backgroundPlane, appearance,
                 reveal?.Grid.Blocks.OfType<RevealedBlock>().Select(block => block.Picture) ?? []);

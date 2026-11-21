@@ -33,7 +33,7 @@ internal sealed class SamusPresentation
     }
 
     /// <summary>Whether she is presented in play or as a cinematic's figure; the intro's flashback is the one cinematic.</summary>
-    public SamusPresentationMode Mode { get; private set; }
+    public SamusPresentationMode Mode { get; private set; } = SamusPresentationMode.Gameplay;
 
     /// <summary>Presents her as a cinematic's figure from now on (<see cref="SamusPresentationMode.Cinematic"/>).</summary>
     internal void PresentInCinematic() => Mode = SamusPresentationMode.Cinematic;

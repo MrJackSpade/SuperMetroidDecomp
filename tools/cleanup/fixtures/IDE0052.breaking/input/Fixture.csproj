@@ -2,7 +2,7 @@
   <!-- Cleanup fixture (tools/cleanup/check-fixtures.ps1), #2599: IDE0052 shapes the fixer declined, applied. A kept initializer goes into a constructor
        the type is given, into a block body an expression-bodied constructor is given, and into a primary constructor's
        type body, which cannot hold it; a write through a receiver with effects stays as written; an assignment used with
-       the field's type keeps that type; a virtual method's parameter stays unread. The build fails at the two that break. -->
+       the field's type keeps that type; a virtual method's parameter goes. The build fails at the two that break. -->
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
   </PropertyGroup>

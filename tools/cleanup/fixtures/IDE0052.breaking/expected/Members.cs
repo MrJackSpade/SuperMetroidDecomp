@@ -56,8 +56,7 @@ public sealed class Narrow
 public class Virtual
 {
     /// <summary>Stores <paramref name="value"/>.</summary>
-    /// <param name="value">The value.</param>
-    public virtual void Store(int value)
+    public virtual void Store()
     {
     }
 }

@@ -9,6 +9,6 @@ internal static class ActiveRoomStateAccess2
     extension(ActiveRoomState self)
     {
         /// <summary>The loading or loaded room's effect-overlay FX, for the accepted-frame publication.</summary>
-        internal RoomFxOverlayState? FxOverlay => self.View(c => global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.World.RoomScopeConstruction, global::SuperMetroid.Core.Fx.RoomFxOverlayState?>(c, "FxOverlay"), s => s.FxOverlay);
+        internal RoomFxOverlayState? FxOverlay => self.View(c => c.FxOverlay, s => s.FxOverlay);
     }
 }

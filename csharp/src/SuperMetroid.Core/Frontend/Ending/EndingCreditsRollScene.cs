@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 internal sealed class EndingCreditsRollScene(CreditsScroll scroll) : EndingScene
 {
     /// <summary>The staff credits' scroll.</summary>
-    private CreditsScroll Scroll { get; } = Ensure.NotNull(scroll);
+    internal CreditsScroll Scroll { get; } = Ensure.NotNull(scroll);
 
     /// <inheritdoc/>
     internal override EndingCreditsPhase Phase => EndingCreditsPhase.Credits;

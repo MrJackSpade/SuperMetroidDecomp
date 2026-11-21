@@ -15,7 +15,7 @@ public sealed class IntroNarrationPresentation
     internal IntroNarrationPresentation(Dictionary<IntroNarrationPageId, NarrationPage> pages) => this.pages = pages;
 
     /// <summary>Ordered editable lines for one of the six narration pages.</summary>
-    private NarrationPage GetLines(IntroNarrationPageId page) =>
+    internal NarrationPage GetLines(IntroNarrationPageId page) =>
         pages.TryGetValue(page, out NarrationPage? lines)
             ? lines
             : throw new ArgumentOutOfRangeException(nameof(page), page, "The narration catalog does not contain this page.");

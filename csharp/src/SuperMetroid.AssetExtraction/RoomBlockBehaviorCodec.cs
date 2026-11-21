@@ -102,7 +102,7 @@ public static class RoomBlockBehaviorCodec
     /// <summary>The slope shape a slope's shape bits number.</summary>
     /// <param name="number">The shape bits, 0 through 31.</param>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="number"/> numbers no slope shape.</exception>
-    private static SlopeShape SlopeShapeOf(int number) => SlopeShapes[Ensure.BetweenInclusive(0, SlopeShapeMask, number)];
+    internal static SlopeShape SlopeShapeOf(int number) => SlopeShapes[Ensure.BetweenInclusive(0, SlopeShapeMask, number)];
 
     /// <summary>Encodes a behaviour as its byte.</summary>
     /// <param name="behavior">A decoded behaviour, or one a room object wrote.</param>

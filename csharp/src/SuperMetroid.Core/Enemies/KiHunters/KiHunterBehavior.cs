@@ -492,7 +492,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Turns the detached wings back along their orbit by the coarse speed of their place on the speed curve
     /// (<see cref="DetachedWingTurn"/>).
     /// </summary>
-    private static void RunDetachedKiHunterWingOrbit(RoomEnemyPlace wings, KiHunterWingState state)
+    internal static void RunDetachedKiHunterWingOrbit(RoomEnemyPlace wings, KiHunterWingState state)
     {
         state.WingArcAngle = state.WingArcAngle.TurnedBy(DetachedWingTurn(
             state.DetachedSpeedCurvePlace,
@@ -629,7 +629,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// The detached wing's turn along its orbit each update (#2439): one step for each pixel of its curve mark's coarse
     /// speed toward <paramref name="direction"/>; clockwise turns the orbit back.
     /// </summary>
-    private static AngularSpeed DetachedWingTurn(QuadraticSpeedCurvePlace place, RotationDirection direction) =>
+    internal static AngularSpeed DetachedWingTurn(QuadraticSpeedCurvePlace place, RotationDirection direction) =>
         place.Speed.TurnOfAStepAPixelToward(direction);
 
     /// <summary>Slows a detached wing by one speed step, landing on the slowest place on the curve when the step would go below its start.</summary>
@@ -732,7 +732,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     };
 
     /// <summary>Ki-Hunter acid, spat either way (#1760).</summary>
-    private AcidBehavior Acid { get; } = new();
+    internal AcidBehavior Acid { get; } = new();
 
     /// <summary>
     /// Ki-Hunter acid: it holds still in the Ki-Hunter's mouth until its animation launches it in its direction, then flies
@@ -816,7 +816,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Spawns an acid spit from its definition and setup.
     /// The acid draws from the Ki-Hunter's spawned-object sheet in the colours the firing body shows.
     /// </summary>
-    private void SpawnKiHunterAcidSpit(RoomEnemyOccupant occupant, RoomEnemyPlace body, HorizontalDirection direction)
+    internal void SpawnKiHunterAcidSpit(RoomEnemyOccupant occupant, RoomEnemyPlace body, HorizontalDirection direction)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.KiHunterAcidSpit, Acid, SpriteGraphics.SpawnedBy(occupant, body.Shading));
         if (projectile is null)
@@ -850,7 +850,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Moves the falling acid vertically, then horizontally, then speeds its fall up to its cap. Meeting the floor
     /// splashes it; meeting a wall only stops it moving sideways.
     /// </summary>
-    private static void RunKiHunterAcidMovement(
+    internal static void RunKiHunterAcidMovement(
         AcidBehavior owner,
         EnemyProjectile projectile,
         RoomLevelData level)

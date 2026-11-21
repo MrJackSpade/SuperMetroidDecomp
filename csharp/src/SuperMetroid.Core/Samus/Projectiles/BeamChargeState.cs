@@ -39,7 +39,7 @@ internal sealed class BeamChargeState
     /// charging sound and show the flare's components; or the Hyper Beam's flare (#1682), which a Hyper Beam shot starts in
     /// place of the charge and which ends when the flare's fast sparks show their last frame or anything clears the charge.
     /// </summary>
-    public BeamChargeLevel Level { get; private set; } = BeamChargeLevel.None;
+    public BeamChargeLevel Level { get; internal set; } = BeamChargeLevel.None;
 
     /// <summary>Whether any charge is held: a counted charge or the Hyper Beam's flare.</summary>
     internal bool IsCharging => Level.IsCharging;
@@ -59,7 +59,7 @@ internal sealed class BeamChargeState
     /// shades alike (<see cref="SamusGlowAnimationDefinitions.ChargePulses"/>), so a change of suit or of charge kind goes
     /// on from the same place in the other pulse.
     /// </summary>
-    private AnimationPlace ChargePulse { get; set; } = AnimationPlace.StartOfAnimation;
+    internal AnimationPlace ChargePulse { get; set; } = AnimationPlace.StartOfAnimation;
 
     /// <summary>
     /// Plays the charge pulse on by one update for <paramref name="kind"/> in <paramref name="suit"/> and returns the

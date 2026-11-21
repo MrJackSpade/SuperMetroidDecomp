@@ -14,7 +14,7 @@ public sealed class EndingFontCharacters
 
     /// <summary>Retains the installed font's 4-bpp characters.</summary>
     /// <param name="characters">The $1400-byte transfer of all 160 font and subtitle tiles in atlas order.</param>
-    private EndingFontCharacters(byte[] characters) => this.characters = characters;
+    internal EndingFontCharacters(byte[] characters) => this.characters = characters;
 
     /// <summary>The $1400-byte SNES 4-bpp transfer containing all 160 selected font/subtitle tiles in atlas order.</summary>
     public ReadOnlyMemory<byte> Characters => characters;

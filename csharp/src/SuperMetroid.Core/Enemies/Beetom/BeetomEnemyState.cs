@@ -52,7 +52,7 @@ public sealed class BeetomEnemyState
     /// The way the current action goes, for an action that goes one way (#2277): the crawl's, hop's or lunge's direction, or
     /// the side of Samus a drain holds. It is chosen as the action is, and need not be <see cref="Facing"/>.
     /// </summary>
-    public HorizontalDirection Heading { get; private set; }
+    public HorizontalDirection Heading { get; internal set; }
 
     /// <summary>Starts <paramref name="action"/> going toward <paramref name="heading"/>.</summary>
     internal void Begin(BeetomAction action, HorizontalDirection heading)

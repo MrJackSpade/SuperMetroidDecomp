@@ -24,7 +24,7 @@ internal static class FlyAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    private static Dictionary<FlySegment, Animation<FlySegment>> StartingAt { get; } = new Dictionary<FlySegment, Animation<FlySegment>>
+    internal static Dictionary<FlySegment, Animation<FlySegment>> StartingAt { get; } = new Dictionary<FlySegment, Animation<FlySegment>>
     {
         [P.Flight] = Animation<FlySegment>.Looping([Segments.Whole(P.Flight)]),
     };

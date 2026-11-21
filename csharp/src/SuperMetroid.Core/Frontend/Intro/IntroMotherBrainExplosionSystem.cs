@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 internal sealed class IntroMotherBrainExplosionSystem
 {
     /// <summary>Three small and five big actors retained in spawn and drawing order.</summary>
-    private readonly List<ExplosionActor> actors = [];
+    internal readonly List<ExplosionActor> actors = [];
 
     /// <summary>
     /// Spawns the eight explosions of the fourth hit on Mother Brain, in the order they appear.

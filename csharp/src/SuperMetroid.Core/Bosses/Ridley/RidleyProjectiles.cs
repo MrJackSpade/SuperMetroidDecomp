@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 internal sealed class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFireballMotion>, IEnemyProjectileCues<RidleyFireballCue>
 {
     /// <summary>How many afterburns each fireball and afterburn has left to raise, given as it spawns.</summary>
-    private EnemyProjectileStates<RidleyAfterburnChainState> Afterburns { get; } = new();
+    internal EnemyProjectileStates<RidleyAfterburnChainState> Afterburns { get; } = new();
 
     /// <summary>The loaded room, whose area selects Ridley's projectile damage.</summary>
     private readonly EnemyRoomBinding _room;
@@ -144,7 +144,7 @@ internal sealed class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFi
     /// Spawns a directional afterburn of <paramref name="kind"/>, horizontal or vertical, at <paramref name="source"/>,
     /// flying at <paramref name="velocity"/>, which holds the way it flies, with the afterburns its source's chain has left.
     /// </summary>
-    private void SpawnDirectionalAfterburn(
+    internal void SpawnDirectionalAfterburn(
         EnemyProjectile source,
         RoomEnemyProjectileKind kind,
         PixelVelocity<RoomPixels> velocity)
@@ -188,7 +188,7 @@ internal sealed class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFi
     /// Ridley's fireballs, the afterburn centres they leave and the directional afterburns those spawn (#1760): their
     /// spawners start their animations, and each kind starts its own flight.
     /// </summary>
-    private RidleyProjectiles Fireballs => this;
+    internal RidleyProjectiles Fireballs => this;
 
     /// <summary>A fireball and the directional afterburns fly from their spawn; the afterburn centres hold still.</summary>
     private static readonly Dictionary<RoomEnemyProjectileKind, RidleyFireballMotion?> StartingMotions = new()

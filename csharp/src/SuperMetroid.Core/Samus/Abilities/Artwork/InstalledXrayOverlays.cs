@@ -35,7 +35,7 @@ public sealed class InstalledXrayOverlays
     }
 
     /// <summary>Copies validated tank and room overlays and requires each of <paramref name="requiredOverlays"/>.</summary>
-    private InstalledXrayOverlays(IReadOnlyDictionary<InWorldCollectibleKind, RoomBlockAppearance> tankBlocks,
+    internal InstalledXrayOverlays(IReadOnlyDictionary<InWorldCollectibleKind, RoomBlockAppearance> tankBlocks,
         IEnumerable<XrayRoomOverlayBlocks> rooms,
         IEnumerable<XrayRoomOverlayDefinition> requiredOverlays)
     {

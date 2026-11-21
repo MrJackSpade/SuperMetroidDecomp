@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 public sealed class InstalledRoomLevelStreams
 {
     /// <summary>Installed levels keyed by their room level.</summary>
-    private readonly Dictionary<RoomLevelId, InstalledRoomLevel> levels;
+    internal readonly Dictionary<RoomLevelId, InstalledRoomLevel> levels;
 
     /// <summary>Each room's door blocks in each level its states use.</summary>
     private readonly Dictionary<RoomLevelUse, IReadOnlyList<RoomDoorBlock>> doorBlocks;

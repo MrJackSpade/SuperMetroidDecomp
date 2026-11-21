@@ -19,7 +19,7 @@ public sealed class SamusKinematicsState
     /// the end of the enemy pass clears them; the corpses' and idle shutters' contact tests observe this delayed result.
     /// They name enemies of the room they were made in, which forgets them when it unloads (#1702).
     /// </summary>
-    private readonly Dictionary<SamusCollisionDirection, ISolidEnemy> _solidEnemyContacts = [];
+    internal Dictionary<SamusCollisionDirection, ISolidEnemy> SolidEnemyContactsByDirection { get; } = [];
 
     /// <summary>
     /// The solid enemy Samus's latest wall jump launched from, which the next enemy pass shakes. Each wall-jump check
@@ -64,7 +64,7 @@ public sealed class SamusKinematicsState
         Array.Empty<SolidEnemyCollisionBody>();
 
     /// <summary>The solid enemies Samus met moving in any direction since the enemy pass last cleared them.</summary>
-    public IEnumerable<ISolidEnemy> SolidEnemyContacts => _solidEnemyContacts.Values;
+    public IEnumerable<ISolidEnemy> SolidEnemyContacts => SolidEnemyContactsByDirection.Values;
 
     /// <summary>
     /// Room position, to a fraction of a pixel.
@@ -112,7 +112,7 @@ public sealed class SamusKinematicsState
     /// which the next vertical move without speed reads for its one-pixel grounding probe, and the next terrain Y move of
     /// some distance ends.
     /// </summary>
-    public bool PositionAdjustedBySlope { get; private set; }
+    public bool PositionAdjustedBySlope { get; internal set; }
 
     /// <summary>
     /// Exclusive bottom collision boundary. Unlike the occupied bottom pixel returned by
@@ -139,14 +139,14 @@ public sealed class SamusKinematicsState
         ISolidEnemy? solidEnemy)
     {
         if (solidEnemy is null)
-            _solidEnemyContacts.Remove(RequireContactDirection(direction));
+            SolidEnemyContactsByDirection.Remove(RequireContactDirection(direction));
         else
-            _solidEnemyContacts[RequireContactDirection(direction)] = solidEnemy;
+            SolidEnemyContactsByDirection[RequireContactDirection(direction)] = solidEnemy;
     }
 
     /// <summary><paramref name="direction"/>, which must be one Samus can meet an enemy moving in.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="direction"/> is not left, right, up or down.</exception>
-    private static SamusCollisionDirection RequireContactDirection(SamusCollisionDirection direction) => direction switch
+    internal static SamusCollisionDirection RequireContactDirection(SamusCollisionDirection direction) => direction switch
     {
         SamusCollisionDirection.Left or SamusCollisionDirection.Right or SamusCollisionDirection.Up or SamusCollisionDirection.Down => direction,
         _ => throw new ArgumentOutOfRangeException(nameof(direction)),
@@ -156,11 +156,11 @@ public sealed class SamusKinematicsState
     internal bool DidCollideWithSolidEnemy(ISolidEnemy enemy)
     {
         Ensure.NotNull(enemy);
-        return _solidEnemyContacts.Values.Any(contact => ReferenceEquals(contact, enemy));
+        return SolidEnemyContactsByDirection.Values.Any(contact => ReferenceEquals(contact, enemy));
     }
 
     /// <summary>Forgets every direction's contact, as the end of the enemy pass does.</summary>
-    internal void ClearSolidEnemyCollisions() => _solidEnemyContacts.Clear();
+    internal void ClearSolidEnemyCollisions() => SolidEnemyContactsByDirection.Clear();
 
     /// <summary>
     /// Forgets the enemies of a room that unloads (#1697, #1702): a waiting launch shake and every direction's contact

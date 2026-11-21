@@ -8,13 +8,13 @@ namespace SuperMetroid.Core.Frontend.Ending;
 internal sealed class EndingTurningFloor
 {
     /// <summary>Where the floor stands: it moves across the screen by fractions of a pixel and up and down by whole pixels.</summary>
-    internal FixedVector<FloorPixels> Position { get; private set; }
+    internal FixedVector<FloorPixels> Position { get; set; }
 
     /// <summary>
     /// The floor's zoom, initially its own size. Every scene starts it at an authored zoom and moves it a little each
     /// update toward a bound it stops at, so it stays positive and small.
     /// </summary>
-    internal FloorZoom Zoom { get; private set; } = FloorZoom.OwnSize;
+    internal FloorZoom Zoom { get; set; } = FloorZoom.OwnSize;
 
     /// <summary>How far the floor is turned.</summary>
     internal RotationAngle Angle { get; private set; }

@@ -10,7 +10,7 @@ public sealed record RoomPlaneBackground : ShownRoomBackground
     public RoomPlaneBackground(RoomBackgroundLayer plane) => Plane = Ensure.NotNull(plane);
 
     /// <summary>The background plane with its pictures.</summary>
-    private RoomBackgroundLayer Plane { get; }
+    internal RoomBackgroundLayer Plane { get; }
 
     /// <inheritdoc/>
     public override TResult Map<TResult>(IShownRoomBackgroundMapping<TResult> mapping) => Ensure.NotNull(mapping).RoomPlane(Plane);

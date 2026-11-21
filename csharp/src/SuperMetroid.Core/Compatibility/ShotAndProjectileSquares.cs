@@ -29,5 +29,5 @@ internal static class ShotAndProjectileSquares
 
     /// <summary>The square, along one axis, that holds the whole room coordinate <paramref name="pixel"/>.</summary>
     /// <param name="pixel">The coordinate along the axis.</param>
-    private static int Square(int pixel) => Ensure.BetweenInclusive(0, ushort.MaxValue, pixel) / SquarePixels;
+    internal static int Square(int pixel) => Ensure.BetweenInclusive(0, ushort.MaxValue, pixel) / SquarePixels;
 }

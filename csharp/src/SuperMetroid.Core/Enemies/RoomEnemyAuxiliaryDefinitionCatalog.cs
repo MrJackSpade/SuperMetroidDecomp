@@ -53,7 +53,7 @@ internal static class RoomEnemyAuxiliaryDefinitionCatalog
     internal static readonly RoomEnemyDefinition CeresGetawayChamberWall = RoomEnemyDefinitionCatalog.CeresDoorAndWall;
 
     /// <summary>The cutscene actors' and getaway chamber walls' definitions, by identity.</summary>
-    private static readonly Dictionary<EnemyDefinitionId, RoomEnemyDefinition> Definitions =
+    internal static readonly Dictionary<EnemyDefinitionId, RoomEnemyDefinition> Definitions =
         new Dictionary<EnemyDefinitionId, RoomEnemyDefinition>
     {
         [EnemyDefinitionId.BabyMetroidCutscene] = BabyMetroidCutscene,

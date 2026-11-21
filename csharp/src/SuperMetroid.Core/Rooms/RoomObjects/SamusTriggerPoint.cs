@@ -11,5 +11,5 @@ internal readonly record struct SamusTriggerPoint(Position16<RoomPixels> Point)
     internal bool IsPassedBy(IRoomSamus samus) => IsPassedAt(Ensure.NotNull(samus).Position.Whole);
 
     /// <summary>Whether a Samus at whole-pixel <paramref name="position"/> is strictly right of and strictly below this point.</summary>
-    private bool IsPassedAt(Position16<RoomPixels> position) => Point.X < position.X && Point.Y < position.Y;
+    internal bool IsPassedAt(Position16<RoomPixels> position) => Point.X < position.X && Point.Y < position.Y;
 }

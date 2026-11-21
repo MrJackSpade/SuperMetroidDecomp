@@ -42,7 +42,7 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
     /// The ending's updates so far, counted at the end of each. Only its parity and quarter phase are read: the turning
     /// floor's every-other-update turn and the planet's every-fourth-update turn.
     /// </summary>
-    private int cinematicFrame;
+    internal int CinematicFrame { get; private set; }
 
     /// <summary>
     /// Current cinematic phase, including terminal display states (#2541): the phase its scene runs, which only the ending's
@@ -54,13 +54,13 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
     /// What the ending shows, with the phase it runs, which owns that scene's own actors (#2541, #2560): the cast, the staff
     /// credits, the reward's reveal, gesture, jump, shot and white flash, or the final logo.
     /// </summary>
-    internal EndingScene Scene { get; private set; } = new EndingCastScene(EndingCreditsPhase.SetupEscapeFromZebes);
+    internal EndingScene Scene { get; set; } = new EndingCastScene(EndingCreditsPhase.SetupEscapeFromZebes);
 
     /// <summary>
     /// The wait of the phase running now (#2541), begun as the phase is entered: the setup's waits, the explosion's hold and
     /// whiteout, and the post-credits scenes' holds, the waiting backdrop's age read from it.
     /// </summary>
-    internal UpdateCountdown PhaseHold { get; private set; } = UpdateCountdown.Lasting(EndingSequenceDefinitions.SetupFrameWaits);
+    internal UpdateCountdown PhaseHold { get; set; } = UpdateCountdown.Lasting(EndingSequenceDefinitions.SetupFrameWaits);
 
     /// <summary>The turning floor's zoom, which the escape's clouds read.</summary>
     public FloorZoom FloorZoom => Stage.Floor.Zoom;
@@ -140,7 +140,7 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
         // The shooting stars fly on every post-credits update, after the colour effects.
         if (EndingCreditsPhaseGroups.PostCredits.Contains(Phase))
             CreditsRoll.ShootingStars.Step();
-        cinematicFrame++;
+        CinematicFrame++;
     }
 
     /// <summary>Runs one update of the reward's gesture, which hands over to its jump as the gesture ends.</summary>
@@ -389,7 +389,7 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
     internal bool CastPlanetEscapeAccelerating()
     {
         StepActors();
-        if (Flyaway.StepPlanetEscapeAccelerating(cinematicFrame))
+        if (Flyaway.StepPlanetEscapeAccelerating(CinematicFrame))
             Enter(EndingCreditsPhase.OperationSuccessfulText);
         return true;
     }
@@ -620,7 +620,7 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
     private void StepAtmosphericTransform(FloorZoomStep zoomStep)
     {
         // The floor turns during both fades as well as the fully visible interval.
-        if (EndingCadenceDefinitions.AtmosphereFloorTurn.IsDue(cinematicFrame))
+        if (EndingCadenceDefinitions.AtmosphereFloorTurn.IsDue(CinematicFrame))
             Stage.Floor.Turn(EndingMotionDefinitions.AtmosphereTurnSteps);
         Stage.Floor.Widen(zoomStep);
     }

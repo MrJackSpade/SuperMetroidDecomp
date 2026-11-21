@@ -27,11 +27,11 @@ public sealed class FileSelectStationMarker
     }
 
     /// <summary>Station's area-map drawing anchor in whole pixels before scroll subtraction, independent of its load coordinates.</summary>
-    private Position16<MapPixels> MapPosition { get; set; }
+    internal Position16<MapPixels> MapPosition { get; set; }
     /// <summary>The marker's picture, following its pulse; querying does not advance it.</summary>
-    private MapSpriteId SpriteId => pulse.Sprite;
+    internal MapSpriteId SpriteId => pulse.Sprite;
     /// <summary>Whether the marker's backing frame is drawn before the marker: shown through the first pulse, then hidden and shown again on alternate pulses.</summary>
-    private bool ShowBacking { get; set; } = true;
+    internal bool ShowBacking { get; set; } = true;
 
     /// <summary>One menu update of the pulse, before drawing; each completed pulse shows or hides the backing.</summary>
     public void Step() => pulse.Step(_ => ShowBacking = !ShowBacking);

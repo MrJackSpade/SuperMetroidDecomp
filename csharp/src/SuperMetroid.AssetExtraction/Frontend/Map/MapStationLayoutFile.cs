@@ -13,7 +13,7 @@ public static class MapStationLayoutFile
     internal static readonly MapStationKind[] KindOrder = [MapStationKind.Missile, MapStationKind.Energy, MapStationKind.Map];
 
     /// <summary>Every compiled station marker in missile, energy, then map order: the complete marker set an editable layout must hold.</summary>
-    private static IEnumerable<MapStationDiscoveryRule> Markers =>
+    internal static IEnumerable<MapStationDiscoveryRule> Markers =>
         KindOrder.SelectMany(kind => AreaIds.All.SelectMany(area => MapStationDiscoveryRules.Get(area, kind)));
 
     /// <summary>Loads and validates the editable drawing layout for every known map-station marker.</summary>

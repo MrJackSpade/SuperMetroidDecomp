@@ -52,7 +52,7 @@ internal sealed class FallingSparksBehavior
 
 
     /// <summary>Moves the falling spark one update.</summary>
-    private void FallFallingSpark(
+    internal void FallFallingSpark(
         EnemyProjectile projectile,
         RoomLevelData level,
         int frameCycle)
@@ -95,7 +95,7 @@ internal sealed class FallingSparksBehavior
 
     /// <summary>Moves the spark by its horizontal drift, a fraction past a whole pixel carrying into the whole
     /// pixels.</summary>
-    private void AddFallingSparkHorizontalVelocity(
+    internal void AddFallingSparkHorizontalVelocity(
         EnemyProjectile projectile) =>
         projectile.Position = projectile.Position.AdvanceX(Spark.States.Of(projectile).HorizontalStep);
 
@@ -103,7 +103,7 @@ internal sealed class FallingSparksBehavior
     /// Switches a falling spark to its floor-impact animation and scales its sideways drift, a fraction past a whole
     /// pixel carrying into the whole pixels.
     /// </summary>
-    private void BeginFallingSparkFloorImpact(EnemyProjectile projectile)
+    internal void BeginFallingSparkFloorImpact(EnemyProjectile projectile)
     {
         projectile.StartAnimation(new FallingSparkAnimation(FallingSparkSegment.HitFloor));
 
@@ -128,6 +128,6 @@ internal sealed class FallingSparksBehavior
     }
 
     /// <summary>A falling spark (#1760): it drops under gravity, bouncing on the floor and leaving a trail.</summary>
-    private StatefulSingleMotionProjectileBehavior<FallingSparkState> Spark => field ??= new(
+    internal StatefulSingleMotionProjectileBehavior<FallingSparkState> Spark => field ??= new(
         context => FallFallingSpark(context.Projectile, context.Level, context.ShortCounter));
 }

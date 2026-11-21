@@ -349,25 +349,25 @@ internal sealed class RoomEnemySpecies
     private static IEnumerable<T> Present<T>(T? owner) where T : class => owner is null ? [] : [owner];
 
     /// <summary>What the room sees of Ridley's encounters in Ceres and Lower Norfair, and the Ceres escape's progress.</summary>
-    private RidleyEncounter RidleyEncounter { get; }
+    internal RidleyEncounter RidleyEncounter { get; }
 
     /// <summary>Coordinates Ridley's multipart tail through the shared place and projectile services.</summary>
-    private RidleyTail RidleyTail { get; }
+    internal RidleyTail RidleyTail { get; }
 
     /// <summary>Ridley's fireballs and the afterburn that trails them, which Mother Brain's afterburn reuses.</summary>
-    private RidleyProjectiles RidleyProjectiles { get; }
+    internal RidleyProjectiles RidleyProjectiles { get; }
 
     /// <summary>The parts of Ridley's body both his encounters run (#2229).</summary>
-    private RidleyBody RidleyBody { get; }
+    internal RidleyBody RidleyBody { get; }
 
     /// <summary>The station's escape from Ceres Ridley's room: his getaway and the self-destruct warning (#2228).</summary>
-    private CeresEscape CeresEscape { get; }
+    internal CeresEscape CeresEscape { get; }
 
     /// <summary>Raises the dust of dead monsters' fallen corpse rows through the same frame as enemy processing.</summary>
-    private CorpseRowDust CorpseRowDust { get; }
+    internal CorpseRowDust CorpseRowDust { get; }
 
     /// <summary>Owns Mother Brain's room encounter and its cutscene state.</summary>
-    private MotherBrainEncounter MotherBrainEncounter { get; }
+    internal MotherBrainEncounter MotherBrainEncounter { get; }
 
     /// <summary>Every species with room or frame lifecycle state, in the game's reset order.</summary>
     internal IReadOnlyList<IEnemySpecies> FrameParticipants { get; }
@@ -531,7 +531,7 @@ internal sealed class RoomEnemySpecies
     internal sealed class LoaderOperations(RinkaBehavior rinka, PrePhantoonRoomBehavior prePhantoonRoom, RidleyEncounter ridley) : IEnemyLoaderHooks
     {
         /// <summary>The room before Phantoon's.</summary>
-        private PrePhantoonRoomBehavior PrePhantoonRoom { get; } = prePhantoonRoom;
+        internal PrePhantoonRoomBehavior PrePhantoonRoom { get; } = prePhantoonRoom;
 
         /// <inheritdoc/>
         public bool HasDeferredLoaderTimeCameraReads => rinka.HasDeferredLoaderTimeCameraReads;
@@ -584,13 +584,13 @@ internal sealed class RoomEnemySpecies
         EscapeExplosionsBehavior escapeExplosions) : IEnemyObjectSpawns
     {
         /// <summary>The eyes guarding some doors.</summary>
-        private EyeDoorBehavior EyeDoor { get; } = eyeDoor;
+        internal EyeDoorBehavior EyeDoor { get; } = eyeDoor;
 
         /// <summary>The wall of old Tourian's escape shaft.</summary>
-        private OldTourianEscapeShaftWallBehavior OldTourianWall { get; } = oldTourianWall;
+        internal OldTourianEscapeShaftWallBehavior OldTourianWall { get; } = oldTourianWall;
 
         /// <summary>The explosions that go off around Samus during the escape.</summary>
-        private EscapeExplosionsBehavior EscapeExplosions { get; } = escapeExplosions;
+        internal EscapeExplosionsBehavior EscapeExplosions { get; } = escapeExplosions;
 
         /// <inheritdoc/>
         public void SpawnNoobTubeProjectile(NoobTubeProjectileRequest request) => noobTube.SpawnNoobTubeProjectile(request);
@@ -624,7 +624,7 @@ internal sealed class RoomEnemySpecies
     internal sealed class ObjectRequests(ChozoStatueBehavior chozoStatue, DownwardGateBehavior downwardGate) : IEnemyObjectRequests
     {
         /// <summary>The gates that close downward over a passage.</summary>
-        private DownwardGateBehavior DownwardGate { get; } = downwardGate;
+        internal DownwardGateBehavior DownwardGate { get; } = downwardGate;
 
         /// <inheritdoc/>
         public IReadOnlyList<RoomObjectSpawnRequest<ChozoStatueRoomObject>> ActivateChozoStatueHandTrigger() =>

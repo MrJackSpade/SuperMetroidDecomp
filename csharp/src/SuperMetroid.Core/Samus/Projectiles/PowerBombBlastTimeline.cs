@@ -18,16 +18,16 @@ using SuperMetroid.Core.Assets;namespace SuperMetroid.Core.Samus.Projectiles;
 public sealed class PowerBombBlastTimeline
 {
     /// <summary>The pre-explosion flash's radius.</summary>
-    private PowerBombRadius PreExplosionRadius { get; set; }
+    internal PowerBombRadius PreExplosionRadius { get; set; }
 
     /// <summary>The damaging explosion's radius.</summary>
-    public PowerBombRadius ExplosionRadius { get; private set; }
+    public PowerBombRadius ExplosionRadius { get; internal set; }
 
     /// <summary>
     /// The per-update radius change of the running stage, shared by the pre-explosion and explosion phases: each start
     /// sets it before any stage reads it, so a finished blast keeps none.
     /// </summary>
-    private PowerBombRadius _radiusSpeed;
+    internal PowerBombRadius RadiusSpeed { get; private set; }
 
     /// <summary>
     /// The play of the yellow pre-explosion's or the white explosion's ovals (#1927, #2529): each update shows the next
@@ -41,7 +41,7 @@ public sealed class PowerBombBlastTimeline
     /// The horizontal radius, in pixels, of the authored oval the current frame shows, or null when the frame shows the
     /// blast's own radius instead (#1927). The afterglow keeps the white explosion's last oval.
     /// </summary>
-    private int? RenderedOvalRadius { get; set; }
+    internal int? RenderedOvalRadius { get; set; }
 
     /// <summary>
     /// The horizontal radius, in whole pixels, of the oval the current frame shows (#1927); zero shows nothing. It is
@@ -72,16 +72,16 @@ public sealed class PowerBombBlastTimeline
     /// An update can advance <see cref="Phase"/> after choosing its oval. Keeping the shown phase separate prevents the
     /// display from showing the next phase one frame early at the yellow/white transition boundaries.
     /// </remarks>
-    private PowerBombExplosionPhase RenderedPhase { get; set; }
+    internal PowerBombExplosionPhase RenderedPhase { get; set; }
 
     /// <summary>Pre-explosion radius consumed before the end-of-frame update.</summary>
-    private PowerBombRadius RenderedPreExplosionRadius { get; set; }
+    internal PowerBombRadius RenderedPreExplosionRadius { get; set; }
 
     /// <summary>Explosion radius consumed before the end-of-frame update.</summary>
-    private PowerBombRadius RenderedExplosionRadius { get; set; }
+    internal PowerBombRadius RenderedExplosionRadius { get; set; }
 
     /// <summary>The blast's glow: the colour it adds to the scene inside its oval.</summary>
-    public RgbColor GlowColor { get; private set; }
+    public RgbColor GlowColor { get; internal set; }
 
     /// <summary>True from the blast's start until its animation ends: its phase is not inactive (#2560).</summary>
     public bool IsRunning => Phase != PowerBombExplosionPhase.Inactive;
@@ -122,7 +122,7 @@ public sealed class PowerBombBlastTimeline
     {
         PreExplosionRadius = radius;
         ExplosionRadius = radius;
-        _radiusSpeed = PowerBombRadius.Zero;
+        RadiusSpeed = PowerBombRadius.Zero;
         RenderedOvalRadius = null;
         Phase = phase;
         RenderedPhase = PowerBombExplosionPhase.Inactive;
@@ -151,7 +151,7 @@ public sealed class PowerBombBlastTimeline
         {
             case PowerBombExplosionPhase.PendingPreExplosionSetup:
                 PreExplosionRadius = PowerBombExplosionDefinitions.InitialRadius;
-                _radiusSpeed = PowerBombExplosionDefinitions.InitialPreExplosionSpeed;
+                RadiusSpeed = PowerBombExplosionDefinitions.InitialPreExplosionSpeed;
                 Phase = PowerBombExplosionPhase.PreExplosionWhite;
                 RenderedPhase = PowerBombExplosionPhase.Inactive;
                 return;
@@ -208,10 +208,10 @@ public sealed class PowerBombBlastTimeline
 
         // The white pre-explosion grows the radius by its speed and slows only while the grown radius is still
         // below the white limit.
-        PreExplosionRadius += _radiusSpeed;
+        PreExplosionRadius += RadiusSpeed;
         if (PreExplosionRadius < PowerBombExplosionDefinitions.PreExplosionWhiteLimit)
         {
-            _radiusSpeed -= PowerBombExplosionDefinitions.PreExplosionSlowing;
+            RadiusSpeed -= PowerBombExplosionDefinitions.PreExplosionSlowing;
             return;
         }
 
@@ -242,13 +242,13 @@ public sealed class PowerBombBlastTimeline
     /// <returns>True with the grown radius when the radius grows.</returns>
     private bool TryGrowRadius(PowerBombRadius radius, out PowerBombRadius grown)
     {
-        if (PowerBombGrowthHold.Holds(radius.WholePixelsGrownBy(_radiusSpeed)))
+        if (PowerBombGrowthHold.Holds(radius.WholePixelsGrownBy(RadiusSpeed)))
         {
             grown = radius;
             return false;
         }
 
-        grown = radius + _radiusSpeed;
+        grown = radius + RadiusSpeed;
         return true;
     }
 
@@ -270,7 +270,7 @@ public sealed class PowerBombBlastTimeline
         if (TryGrowRadius(PreExplosionRadius, out PowerBombRadius nextRadius))
         {
             PreExplosionRadius = nextRadius;
-            _radiusSpeed -= PowerBombExplosionDefinitions.PreExplosionSlowing;
+            RadiusSpeed -= PowerBombExplosionDefinitions.PreExplosionSlowing;
         }
 
         if (!stageEnds)
@@ -279,7 +279,7 @@ public sealed class PowerBombBlastTimeline
         // The yellow step initializes the actual damaging radius before the next frame's
         // yellow explosion update. PreExplosionRadius keeps its own value.
         ExplosionRadius = PowerBombExplosionDefinitions.InitialRadius;
-        _radiusSpeed = PowerBombRadius.Zero;
+        RadiusSpeed = PowerBombRadius.Zero;
         Phase = PowerBombExplosionPhase.ExplosionYellow;
     }
 
@@ -292,10 +292,10 @@ public sealed class PowerBombBlastTimeline
             PowerBombGlowSequence.Explosion,
             ExplosionRadius.GlowColorBand);
 
-        ExplosionRadius += _radiusSpeed;
+        ExplosionRadius += RadiusSpeed;
         if (ExplosionRadius < PowerBombExplosionDefinitions.ExplosionYellowLimit)
         {
-            _radiusSpeed += PowerBombExplosionDefinitions.ExplosionAcceleration;
+            RadiusSpeed += PowerBombExplosionDefinitions.ExplosionAcceleration;
             return;
         }
 
@@ -319,7 +319,7 @@ public sealed class PowerBombBlastTimeline
         if (TryGrowRadius(ExplosionRadius, out PowerBombRadius nextRadius))
         {
             ExplosionRadius = nextRadius;
-            _radiusSpeed += PowerBombExplosionDefinitions.ExplosionAcceleration;
+            RadiusSpeed += PowerBombExplosionDefinitions.ExplosionAcceleration;
         }
 
         if (!stageEnds)
@@ -352,10 +352,10 @@ public sealed class PowerBombBlastTimeline
             PowerBombGlowSequence.Explosion,
             ExplosionRadius.GlowColorBand);
 
-        ExplosionRadius += _radiusSpeed;
+        ExplosionRadius += RadiusSpeed;
         if (ExplosionRadius < PowerBombExplosionDefinitions.CrystalFlashRadiusLimit)
         {
-            _radiusSpeed += PowerBombExplosionDefinitions.ExplosionAcceleration;
+            RadiusSpeed += PowerBombExplosionDefinitions.ExplosionAcceleration;
             return;
         }
 

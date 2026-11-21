@@ -30,10 +30,10 @@ namespace SuperMetroid.Core.Compatibility;
 public sealed class BreathBubbleAndLavaSprayWaits
 {
     /// <summary>The wait for the effect holding up the next breath bubble to run out; over when none does.</summary>
-    private readonly UpdateCountdown bubbleWait = UpdateCountdown.Ended();
+    internal readonly UpdateCountdown bubbleWait = UpdateCountdown.Ended();
 
     /// <summary>The wait for the effect holding up the next lava spray to run out; over when none does.</summary>
-    private readonly UpdateCountdown sprayWait = UpdateCountdown.Ended();
+    internal readonly UpdateCountdown sprayWait = UpdateCountdown.Ended();
 
     /// <summary>Whether a breath bubble may form.</summary>
     public bool BubbleCanForm => bubbleWait.IsOver;

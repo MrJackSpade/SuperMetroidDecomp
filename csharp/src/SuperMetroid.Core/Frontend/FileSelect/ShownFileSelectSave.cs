@@ -10,7 +10,7 @@ internal sealed record ShownFileSelectSave
     /// <param name="maxHealth">The slot's maximum health.</param>
     /// <param name="hours">The slot's game-time hours, at most <see cref="FileSelectFieldDefinitions.MaximumTimePart"/>.</param>
     /// <param name="minutes">The slot's game-time minutes, at most <see cref="FileSelectFieldDefinitions.MaximumTimePart"/>.</param>
-    private ShownFileSelectSave(int health, int maxHealth, int hours, int minutes)
+    internal ShownFileSelectSave(int health, int maxHealth, int hours, int minutes)
     {
         Health = health;
         MaxHealth = maxHealth;

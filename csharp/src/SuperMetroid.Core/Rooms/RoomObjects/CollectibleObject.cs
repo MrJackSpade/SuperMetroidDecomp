@@ -32,7 +32,7 @@ internal sealed class CollectibleObject(
     /// The block the item's setup left at its place, its collision made the item's own (#2484): a concealing shot block
     /// draws it back as it hides the item again, and a collected item's shot block as it respawns.
     /// </summary>
-    private RoomTerrainBlock SavedTerrain { get; } = savedTerrain;
+    internal RoomTerrainBlock SavedTerrain { get; } = savedTerrain;
 
     /// <summary>Where the item lies in the game's item record, which its collection marks collected.</summary>
     internal ItemLocation Location { get; } = Ensure.NotNull(location);

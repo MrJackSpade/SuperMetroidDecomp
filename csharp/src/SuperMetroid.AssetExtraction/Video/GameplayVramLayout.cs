@@ -17,7 +17,7 @@ internal static class GameplayVramLayout
     public const ushort Bg2TilemapWord = 0x4800;
 
     /// <summary>VMADD of <see cref="HudCharacters"/>, for render packets and the PPU backend.</summary>
-    private const ushort HudCharacterWord = 0x4000;
+    internal const ushort HudCharacterWord = 0x4000;
 
     /// <summary>VMADD $0000-$3FFF: the BG1/BG2 4-bpp character base (BG12NBA=$00); room tilesets load here.</summary>
     public static readonly PpuLayoutCell BackgroundCharacters = new(nameof(BackgroundCharacters), PpuLayoutRegion.Vram,

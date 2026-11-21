@@ -126,13 +126,13 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
         _audio.QueueEnemySound(EnemySoundEffectDefinitions.CacatacSpikeSound, priority: SoundRequestPriority.Normal);
 
     /// <summary>Starts a patrol or attack animation on the next animation tick.</summary>
-    private static void SetCacatacAnimation(RoomEnemyPlace place, CacatacEnemyState state, CacatacSegment segment)
+    internal static void SetCacatacAnimation(RoomEnemyPlace place, CacatacEnemyState state, CacatacSegment segment)
     {
         state.Playback = EnemyAnimationPlayback.Start(place, CacatacAnimations.StartingWith(segment));
     }
 
     /// <summary>A Cacatac spike (#1760): it flies by its direction's velocity until it leaves the camera.</summary>
-    private static readonly EnemyProjectileBehavior Spike = new SingleMotionProjectileBehavior(
+    internal static readonly EnemyProjectileBehavior Spike = new SingleMotionProjectileBehavior(
         context => FlyCacatacSpike(context.Projectile, context.Camera));
 
     /// <summary>Runs Cacatac's main AI.</summary>
@@ -151,7 +151,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Spawns a spike projectile from the Cacatac and initializes it.
     /// The source actor supplies the origin's fractions of a pixel and the sheet and colours its spikes draw in.
     /// </summary>
-    private void SpawnCacatacSpike(RoomEnemyOccupant occupant, RoomEnemyPlace source, CacatacSpikeDirection direction)
+    internal void SpawnCacatacSpike(RoomEnemyOccupant occupant, RoomEnemyPlace source, CacatacSpikeDirection direction)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.CacatacSpike, Spike, SpriteGraphics.SpawnedBy(occupant, source.Shading));
         if (projectile is null)

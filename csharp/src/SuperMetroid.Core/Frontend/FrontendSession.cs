@@ -253,7 +253,7 @@ internal sealed class FrontendSession
     /// <summary>The ending transition after the Zebes escape, one level darker every frame.</summary>
     internal ScreenFade EscapeFade { get; } = new(DisplayBrightness.Full);
     /// <summary>The room state whose music was last queued.</summary>
-    internal RoomStateSettings? LastAudioRoomState { get; private set; }
+    internal RoomStateSettings? LastAudioRoomState { get; set; }
     /// <summary>The runtime whose room's enemies' start music was last queued (#2562).</summary>
     private SuperMetroidRuntime? _startMusicQueuedForRuntime;
     /// <summary>Which of that runtime's room loads it was: its count of rooms loaded then.</summary>
@@ -734,7 +734,7 @@ internal sealed class FrontendSession
     /// Bombs. The frontend cinematic uses isolated actor state, so its gameplay consequence
     /// is made explicit at the shared Ceres handoff.
     /// </summary>
-    private static void RestoreSpacetimeRestartInventory(
+    internal static void RestoreSpacetimeRestartInventory(
         SamusState samus,
         SuperMetroidSaveSlot slot)
     {

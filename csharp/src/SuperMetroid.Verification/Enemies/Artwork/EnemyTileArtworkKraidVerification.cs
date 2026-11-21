@@ -112,7 +112,7 @@ internal static class EnemyTileArtworkKraidVerification
     private static RunKraidHeadFrameResult RunKraidHeadFrame(ImportEnemyArtwork artwork, ushort pointer)
     {
         KraidHeadFrame frame = KraidHeadTilemapFormat.HeadsByMouthStage.Single(candidate => KraidHeadFrameDefinitions.PresentationKey(candidate) == pointer);
-        var state = global::SuperMetroid.Core.PrivateState.With<KraidEnemyState>(new KraidEnemyState(new KraidParts()), "DisplayedHeadFrame", (global::SuperMetroid.Core.Bosses.Kraid.KraidHeadFrame?)(frame));
+        var state = (new KraidEnemyState(new KraidParts()) with { DisplayedHeadFrame = (global::SuperMetroid.Core.Bosses.Kraid.KraidHeadFrame?)(frame) });
         state.InitializeBodyLayer();
         state.ShowBody();
         return new RunKraidHeadFrameResult(state, KraidBodyFixtures.Shown(artwork.Bosses, state));

@@ -47,7 +47,7 @@ internal sealed class AcceptedFrameBoundary
     [NonSerialized]
     private HudPictures? _hudPictures;
     /// <summary>Supplies the loaded room, door, and scrolling sky whose scroll and display settings the accepted frame captures.</summary>
-    private readonly ActiveRoomState room;
+    internal readonly ActiveRoomState room;
 
     /// <summary>Supplies the suit pickup whose colour is latched.</summary>
     private readonly SamusSuitPickupState _suitPickup;

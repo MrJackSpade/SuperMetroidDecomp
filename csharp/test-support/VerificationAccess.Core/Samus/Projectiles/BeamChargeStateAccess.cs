@@ -20,12 +20,11 @@ internal static class BeamChargeStateAccess
         internal int ChargeGlowStep
         {
             get => self.ChargePulse.HasNotEntered ? 0 : self.ChargePulse.Beat % PulseShades;
-            set => PrivateState.Set(self, "ChargePulse",
-                new AnimationPlace(0, Ensure.BetweenInclusive(0, PulseShades - 1, value)));
+            set => self.ChargePulse = new AnimationPlace(0, Ensure.BetweenInclusive(0, PulseShades - 1, value));
         }
 
         /// <summary>Places the charge at <paramref name="count"/> updates held, as a recorded state or a check's setup holds it.</summary>
         internal void SetFlareCount(int count) =>
-            PrivateState.Set(self, nameof(BeamChargeState.Level), BeamChargeLevel.Charged(count));
+            self.Level = BeamChargeLevel.Charged(count);
     }
 }

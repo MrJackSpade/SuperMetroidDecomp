@@ -22,7 +22,7 @@ internal sealed class ScreenCharacters
     internal TileInkDepth Depth { get; }
 
     /// <summary>The bytes of one character.</summary>
-    private int CharacterBytes => Depth == TileInkDepth.SixteenColours ? RoomTileCanvas.CharacterBytes : RoomTileCanvas.TwoBppCharacterBytes;
+    internal int CharacterBytes => Depth == TileInkDepth.SixteenColours ? RoomTileCanvas.CharacterBytes : RoomTileCanvas.TwoBppCharacterBytes;
 
     /// <summary>How a sheet of pictures painted from these characters is coloured.</summary>
     internal SpriteImageColours Colours => Depth == TileInkDepth.SixteenColours ? SpriteImageColours.Background : SpriteImageColours.TwoBppBackground;

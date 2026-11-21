@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 internal static class SamusBeamCombinationTableOrder
 {
     /// <summary>The combinations in the order the beam tables index them.</summary>
-    private static readonly SamusBeamCombination[] TableOrder =
+    internal static readonly SamusBeamCombination[] TableOrder =
     [
         SamusBeamCombination.Power, SamusBeamCombination.Wave, SamusBeamCombination.Ice, SamusBeamCombination.IceWave,
         SamusBeamCombination.Spazer, SamusBeamCombination.SpazerWave, SamusBeamCombination.SpazerIce,

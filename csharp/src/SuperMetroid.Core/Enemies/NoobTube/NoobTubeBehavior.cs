@@ -134,7 +134,7 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
     }
 
     /// <summary>Uses the sine of the debris's sway to advance its own horizontal position, then steps the sway.</summary>
-    private static void MoveNoobTubeProjectileHorizontallyAlongArc(
+    internal static void MoveNoobTubeProjectileHorizontallyAlongArc(
         NoobTubeProjectileBehavior owner,
         EnemyProjectile projectile,
         int swaySteps)
@@ -157,7 +157,7 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
     }
 
     /// <summary>The tube's crack, shards and released-air bubbles (#1760): their spawner starts their animations.</summary>
-    private NoobTubeProjectileBehavior TubePieces => field ??= new NoobTubeProjectileBehavior(_room);
+    internal NoobTubeProjectileBehavior TubePieces => field ??= new NoobTubeProjectileBehavior(_room);
 
     /// <summary>A crack, shard or bubble: the crack's, shards' and bubbles' movers, and their animations' cues.</summary>
     /// <param name="room">The loaded room, whose random numbers set a falling piece's sway.</param>

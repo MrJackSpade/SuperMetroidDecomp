@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.GameOver;
 public static class GameOverTexts
 {
     /// <summary>Selects one text element; unsupported selectors are rejected.</summary>
-    private static GameOverTextStream Get(GameOverTextElement element) => element switch
+    internal static GameOverTextStream Get(GameOverTextElement element) => element switch
     {
         GameOverTextElement.Title => new(element, new(11, 5), "GAME OVER"),
         GameOverTextElement.Objective => new(element, new(5, 14), "FIND THE METROID LARVA"),

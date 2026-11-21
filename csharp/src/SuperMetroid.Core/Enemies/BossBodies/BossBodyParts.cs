@@ -63,7 +63,7 @@ internal sealed class BossBodyParts : IBossBodyDisplay
     public static BossBodyParts Hidden(BossBodyOwner owner, IBossBodyShowing? showing) => new(owner, showing) { IsShown = false };
 
     /// <summary>Whether the room shows the body: false only while Mother Brain readies hers before her second phase (#1356).</summary>
-    private bool IsShown { get; set; }
+    internal bool IsShown { get; set; }
 
     /// <summary>The room shows the body from now on, as Mother Brain's second phase begins (#1356).</summary>
     public void Reveal() => IsShown = true;
@@ -122,7 +122,7 @@ internal sealed class BossBodyParts : IBossBodyDisplay
     }
 
     /// <summary>The body as it stands, shared until it changes.</summary>
-    private BossBodyLayer Publish() => published ??= new BossBodyLayer([.. parts.Where(frames.ContainsKey).Select(part => frames[part])], shownAbove);
+    internal BossBodyLayer Publish() => published ??= new BossBodyLayer([.. parts.Where(frames.ContainsKey).Select(part => frames[part])], shownAbove);
 
     /// <inheritdoc />
     BossBodyShowing? IBossBodyDisplay.Showing => IsShown ? new BossBodyShowing(Publish(), showing?.BodyPlacement) : null;

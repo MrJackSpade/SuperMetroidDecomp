@@ -21,7 +21,7 @@ internal static class KzanAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    private static Dictionary<KzanSegment, Animation<KzanSegment>> StartingAt { get; } = new Dictionary<KzanSegment, Animation<KzanSegment>>
+    internal static Dictionary<KzanSegment, Animation<KzanSegment>> StartingAt { get; } = new Dictionary<KzanSegment, Animation<KzanSegment>>
     {
         [P.Idle] = new([Segments.Whole(P.Idle)], AnimationEnd.Holds),
     };

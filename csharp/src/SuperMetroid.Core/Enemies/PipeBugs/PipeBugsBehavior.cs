@@ -269,7 +269,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Starts <paramref name="animation"/> unless it is the one playing, which keeps playing (#2145).</summary>
-    private static void SelectBrinstarPipeBugAnimation(
+    internal static void SelectBrinstarPipeBugAnimation(
         RoomEnemyPlace place,
         BrinstarPipeBugState state,
         PipeBugSegment animation) =>
@@ -293,7 +293,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Launches the five-bug rise when Samus enters the leader's trigger, retaining follower frame timers.</summary>
-    private void RunNorfairPipeBugSamusWait(
+    internal void RunNorfairPipeBugSamusWait(
         RoomEnemyOccupant occupant, RoomEnemyPlace leader,
         NorfairPipeBugState leaderState,
         SamusState samus)
@@ -605,7 +605,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>The playback of <paramref name="segment"/>'s animation started afresh, its first step playing on the next update.</summary>
-    private static AnimationPlayback<PipeBugSegment> StartPipeBugAnimation(RoomEnemyPlace place, PipeBugSegment segment) =>
+    internal static AnimationPlayback<PipeBugSegment> StartPipeBugAnimation(RoomEnemyPlace place, PipeBugSegment segment) =>
         EnemyAnimationPlayback.Start(place, PipeBugAnimations.StartingWith(segment));
 
     /// <summary>Advances a Brinstar Pipe Bug's typed animation.</summary>

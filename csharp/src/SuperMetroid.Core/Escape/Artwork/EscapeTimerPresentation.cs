@@ -9,7 +9,7 @@ public sealed class EscapeTimerPresentation
     private const int DigitBase = 10;
 
     /// <summary>Every anchor's installed screen-relative offset from the timer's origin.</summary>
-    private readonly Dictionary<EscapeTimerAnchor, Offset16<ScreenPixels>> anchors;
+    internal readonly Dictionary<EscapeTimerAnchor, Offset16<ScreenPixels>> anchors;
 
     /// <summary>Holds every installed anchor and the digit spacing the import pipeline validated.</summary>
     /// <exception cref="InvalidDataException">An anchor has no installed offset.</exception>

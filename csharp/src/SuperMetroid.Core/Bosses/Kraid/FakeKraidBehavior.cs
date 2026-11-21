@@ -75,7 +75,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
 
 
     /// <summary>Sets Fake Kraid up when the room spawns it.</summary>
-    private void InitializeFakeKraid(RoomEnemyPlace place, SamusState samus)
+    internal void InitializeFakeKraid(RoomEnemyPlace place, SamusState samus)
     {
         var state = new FakeKraidEnemyState();
         place.SetSpeciesState(state);
@@ -194,7 +194,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs Fake Kraid's left and right spit steps.</summary>
-    private void SpawnFakeKraidSpitPair(
+    internal void SpawnFakeKraidSpitPair(
         RoomEnemyOccupant occupant, RoomEnemyPlace place,
         HorizontalDirection direction)
     {
@@ -207,7 +207,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Allocates one spit projectile above and just ahead of Fake Kraid's body with its authored velocity; a full enemy
     /// projectile pool spawns none.
     /// </summary>
-    private void SpawnFakeKraidSpit(
+    internal void SpawnFakeKraidSpit(
         RoomEnemyOccupant occupant, RoomEnemyPlace source,
         int xOffset,
         PixelVelocity<RoomPixels> velocity)
@@ -224,7 +224,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Allocates a spike at an authored body row, flying the way Fake Kraid faces (#2278).</summary>
     /// <returns>False when the enemy projectile pool is full.</returns>
-    private bool SpawnFakeKraidSpike(
+    internal bool SpawnFakeKraidSpike(
         RoomEnemyOccupant occupant, RoomEnemyPlace source,
         FakeKraidEnemyState state,
         FakeKraidSpikeRow row)
@@ -318,7 +318,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     };
 
     /// <summary>Fake Kraid's spit and spikes (#1760): their spawners start their animations.</summary>
-    private SpitAndSpikeBehavior SpitAndSpikes { get; } = new();
+    internal SpitAndSpikeBehavior SpitAndSpikes { get; } = new();
 
     /// <summary>Fake Kraid's spit, with room collision then capped gravity, or a spike flying until it strikes a wall.</summary>
     internal sealed class SpitAndSpikeBehavior : EnemyProjectileBehavior
@@ -334,11 +334,11 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         };
 
         /// <summary>The spit flying through the room's blocks, then falling under capped gravity.</summary>
-        private EnemyProjectileOwnedMotion SpitFlying { get; } = new(nameof(SpitFlying),
+        internal EnemyProjectileOwnedMotion SpitFlying { get; } = new(nameof(SpitFlying),
             context => FlyFakeKraidSpit(context.Projectile, context.Level));
 
         /// <summary>A spike flying along its heading until it strikes a wall.</summary>
-        private EnemyProjectileOwnedMotion SpikeFlying { get; } = new(nameof(SpikeFlying),
+        internal EnemyProjectileOwnedMotion SpikeFlying { get; } = new(nameof(SpikeFlying),
             context => FlyFakeKraidSpike(context.Projectile, context.Level));
 
         /// <inheritdoc/>

@@ -10,13 +10,13 @@ namespace SuperMetroid.AssetExtraction.Areas.Tourian.Artwork;
 public sealed class TourianStatuePalettes
 {
     /// <summary>Sixteen base-decoration inks.</summary>
-    private readonly PaletteBand baseColors;
+    internal readonly PaletteBand baseColors;
     /// <summary>Sixteen statue-body inks.</summary>
-    private readonly PaletteBand statueColors;
+    internal readonly PaletteBand statueColors;
     /// <summary>Each boss statue's eye glow, overlaid on base-decoration colors nine through twelve.</summary>
     private readonly Dictionary<TourianStatue, PaletteBand> eyeColors;
     /// <summary>Eight grey inks a released statue takes.</summary>
-    private readonly PaletteBand greyColors;
+    internal readonly PaletteBand greyColors;
 
     /// <summary>Keeps the base, statue, eye, and grey colors as independent paint bands.</summary>
     /// <param name="baseColors">The base-decoration band.</param>

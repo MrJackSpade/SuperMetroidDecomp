@@ -37,7 +37,7 @@ public readonly record struct GameClockReading
     }
 
     /// <summary>The gameplay updates the clock has counted, from none through <see cref="MaximumUpdates"/>.</summary>
-    private int Updates { get; }
+    internal int Updates { get; }
 
     /// <summary>The sub-second counter: 0 through 59.</summary>
     public int Frames => Updates % UnitsPerNextUnit;

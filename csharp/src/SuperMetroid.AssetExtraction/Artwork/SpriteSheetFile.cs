@@ -81,7 +81,7 @@ public static class SpriteSheetFile
     /// A shade lists no colours, or a shade or the backdrop names a colour not written as <c>#rrggbb</c>, a negative region,
     /// or one key twice.
     /// </exception>
-    private static PictureColours ColoursOf(InstalledSheetDocument document)
+    internal static PictureColours ColoursOf(InstalledSheetDocument document)
     {
         Ensure.NotNull(document);
         var shades = ImmutableDictionary.CreateBuilder<PictureShade, PictureRecolouring>();
@@ -115,7 +115,7 @@ public static class SpriteSheetFile
     /// The manifest lists no frames, a null frame, places a frame off the image, or names a frame that shows nothing twice,
     /// as null, or as a pictured frame too.
     /// </exception>
-    private static SpriteSheet CutFrames(InstalledSheetDocument document, string name, SpriteImage image)
+    internal static SpriteSheet CutFrames(InstalledSheetDocument document, string name, SpriteImage image)
     {
         var frames = new Dictionary<string, SpriteSheetFrame>(StringComparer.Ordinal);
         foreach ((string frameName, InstalledSheetFrameDocument? frame) in document.Frames ??

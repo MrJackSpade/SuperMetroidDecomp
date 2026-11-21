@@ -27,5 +27,5 @@ internal static class TerrainChangeObjectAccess
 
     /// <summary>The frames <paramref name="terrainChange"/> plays.</summary>
     private static AnimationPlayer<RoomObjectFrameRun, TerrainChangeFrame, NoAnimationCue> FramesOf(TerrainChangeObject terrainChange) =>
-        PrivateState.Field<TerrainChangeObject, AnimationPlayer<RoomObjectFrameRun, TerrainChangeFrame, NoAnimationCue>>(terrainChange, "_frames");
+        terrainChange.Frames;
 }

@@ -36,10 +36,10 @@ public sealed class KraidEnemyState
     internal KraidArmState ArmState { get; }
 
     /// <summary>His top lint's own state.</summary>
-    private KraidLintState TopLintState { get; }
+    internal KraidLintState TopLintState { get; }
 
     /// <summary>His middle lint's own state.</summary>
-    private KraidLintState MiddleLintState { get; }
+    internal KraidLintState MiddleLintState { get; }
 
     /// <summary>His bottom lint's own state.</summary>
     internal KraidLintState BottomLintState { get; }
@@ -48,10 +48,10 @@ public sealed class KraidEnemyState
     internal KraidFootState FootState { get; }
 
     /// <summary>His first fingernail's own state.</summary>
-    private KraidNailState FirstNailState { get; }
+    internal KraidNailState FirstNailState { get; }
 
     /// <summary>His second fingernail's own state.</summary>
-    private KraidNailState SecondNailState { get; }
+    internal KraidNailState SecondNailState { get; }
 
     /// <summary>His lint <paramref name="part"/>'s own state.</summary>
     internal KraidLintState Lint(KraidLintPart part) => part switch
@@ -116,7 +116,7 @@ public sealed class KraidEnemyState
     /// <summary><paramref name="eighths"/> eighths of the health Kraid initialized with, one eighth truncated first (#1890).</summary>
     /// <param name="eighths">How many eighths, one through eight.</param>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="eighths"/> is not one through eight.</exception>
-    private int HealthEighths(int eighths) => KraidHealthThresholds.Eighths(InitialHealth, eighths);
+    internal int HealthEighths(int eighths) => KraidHealthThresholds.Eighths(InitialHealth, eighths);
 
     /// <summary>Seven eighths of Kraid's initial health: below it, the small Kraid grows (#1890).</summary>
     internal int SevenEighthsHealth => HealthEighths(7);
@@ -141,7 +141,7 @@ public sealed class KraidEnemyState
     internal void SettleHurtFlash() => HurtFlash = KraidHurtFlashAnimations.Resting();
 
     /// <summary>The head pose Kraid is showing, which selects the head image; null until the head animation shows its first pose.</summary>
-    internal KraidHeadFrame? DisplayedHeadFrame { get; private set; }
+    internal KraidHeadFrame? DisplayedHeadFrame { get; set; }
 
     /// <summary>
     /// Kraid's playing head animation and where it stands; <see cref="HeadHold"/> paces it. Null until the first attack, glow
@@ -255,7 +255,7 @@ public sealed class KraidEnemyState
     /// floor on or from the growth or death that shows it again in a room he was found in later, in front of the sprites once
     /// he has grown, hidden in a defeated room and once his death has sunk him.
     /// </summary>
-    private KraidBodyShowing Body { get; set; } = KraidBodyShowing.Hidden;
+    internal KraidBodyShowing Body { get; set; } = KraidBodyShowing.Hidden;
 
     /// <summary>What his body layer shows of his body now.</summary>
     internal KraidBodyAppearance BodyAppearance => Body.Appearance;

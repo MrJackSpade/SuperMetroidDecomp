@@ -23,7 +23,7 @@ internal sealed class SpcDefinitionUploads
     }
 
     /// <summary>Stores an instrument record at <paramref name="address"/> in the native byte order.</summary>
-    private void WriteInstrument(int address, SpcInstrumentRecord record)
+    internal void WriteInstrument(int address, SpcInstrumentRecord record)
     {
         int pitchBase = checked((ushort)record.PitchBase);
         ram[address] = checked((byte)record.SourceOrNoiseRate);

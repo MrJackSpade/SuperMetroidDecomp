@@ -20,7 +20,7 @@ internal static class RoomFxBlockAnimationSources
 
     /// <summary>Where the cartridge stores <paramref name="image"/>'s characters: its object's first picture, then one frame transfer further per picture.</summary>
     /// <exception cref="InvalidDataException">The object has no pictures in the atlas.</exception>
-    private static SnesAddress Of(AnimatedTileImage image)
+    internal static SnesAddress Of(AnimatedTileImage image)
     {
         (SnesAddress first, int byteCount) = image.Object switch
         {

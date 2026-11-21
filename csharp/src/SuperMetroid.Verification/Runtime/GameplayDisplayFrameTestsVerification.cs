@@ -156,13 +156,13 @@ internal static class GameplayDisplayFrameTestsVerification
         // offset six shades level eighteen and one at offset two level six.
         RoomFxType originalFx = runtime.RoomFxOverlay.Type;
         FirefleaFxState fireflea = runtime.RoomFxOverlay.StartFirefleaDarknessForCheck();
-        fireflea.Step(frozen: false, global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.FirefleaDarkness>([typeof(int)], new object?[] { 3 }));
+        fireflea.Step(frozen: false, new global::SuperMetroid.Core.Fx.FirefleaDarkness(3));
         AssertTrue(GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0] is GameplaySceneLayer,
             "Fireflea darkness waits for the accepted frame");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var darkness = (GameplayBlendLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
         AssertEqual(18, ((FirefleaDarknessBlend)darkness.Blend).Shade.FadeLevels.Red, "Fireflea's shade publishes with its blend");
-        fireflea.Step(frozen: false, global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.FirefleaDarkness>([typeof(int)], new object?[] { 1 }));
+        fireflea.Step(frozen: false, new global::SuperMetroid.Core.Fx.FirefleaDarkness(1));
         AssertEqual(18, ((FirefleaDarknessBlend)((GameplayBlendLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0]).Blend).Shade.FadeLevels.Red,
             "a shade chosen in the main loop waits for the next accepted frame");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
@@ -227,7 +227,7 @@ internal static class GameplayDisplayFrameTestsVerification
 
         // The station's escape owns the getaway's floor (#2228).
         CeresTurningFloor getaway = runtime.Enemies.CeresEscape.Floor;
-        global::SuperMetroid.Core.PrivateState.Set(runtime.Enemies.CeresEscape, "Stage", CeresEscapeStage.Getaway);
+        runtime.Enemies.CeresEscape.Stage = CeresEscapeStage.Getaway;
         getaway.Angle = RotationAngle.FromSteps(5);
         getaway.Zoom = FloorZoomConstants.FromTwoHundredFiftySixths(240);
         getaway.Center = new Offset16<FloorPixels>(128, 120);
@@ -239,7 +239,7 @@ internal static class GameplayDisplayFrameTestsVerification
         AssertEqual(RotationAngle.FromSteps(5).Radians, mode7.Transform.Angle, "the accepted NMI publishes Ridley's floor angle");
         AssertEqual(240 / 256.0, mode7.Transform.Scale, "the accepted NMI publishes Ridley's floor zoom");
         AssertTrue(mode7.LowerBand is not null, "the accepted NMI publishes Ridley's mixed Mode 7 band");
-        global::SuperMetroid.Core.PrivateState.Set(runtime.Enemies.CeresEscape, "Stage", CeresEscapeStage.SelfDestruct);
+        runtime.Enemies.CeresEscape.Stage = CeresEscapeStage.SelfDestruct;
         runtime.FrameBoundary.BeginAcceptedFrame(0);
     }
 

@@ -34,7 +34,7 @@ public sealed class BullEnemyState
     /// <see cref="Accelerate"/> and <see cref="Decelerate"/>; braking after a kick can take it below zero, which stops the
     /// flight (<see cref="HasStopped"/>).
     /// </summary>
-    internal SignedEightEight Acceleration { private get; set; }
+    internal SignedEightEight Acceleration { get; set; }
 
     /// <summary>
     /// The change in <see cref="Acceleration"/> at each interval expiry, <see cref="BullMovementDefinitions.AccelerationStep"/>

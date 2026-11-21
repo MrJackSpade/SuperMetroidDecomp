@@ -20,7 +20,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
 public sealed class GameOverSourcePresentation
 {
     /// <summary>The page's tiles, row by row, which the menus' picture of the page is composed from (#1467).</summary>
-    private readonly BackgroundTile[] page;
+    internal readonly BackgroundTile[] page;
     /// <summary>Each Baby frame's composition.</summary>
     internal readonly Dictionary<GameOverBabyFrame, SpriteComposition> babySprites;
     /// <summary>The egg's composition.</summary>

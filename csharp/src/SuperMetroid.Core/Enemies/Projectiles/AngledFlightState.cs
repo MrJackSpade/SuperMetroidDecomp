@@ -14,7 +14,7 @@ internal sealed class AngledFlightState(TrigonometryAngle heading, FixedVector<R
     internal TrigonometryAngle Heading { get; } = heading;
 
     /// <summary>The projectile's velocity along its heading.</summary>
-    private FixedVector<RoomPixels> Velocity { get; } = velocity;
+    internal FixedVector<RoomPixels> Velocity { get; } = velocity;
 
     /// <summary>Splits <paramref name="speed"/> along <paramref name="heading"/> by the heading's sine and cosine.</summary>
     /// <param name="heading">The direction the projectile flies in.</param>

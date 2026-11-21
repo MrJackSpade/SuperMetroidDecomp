@@ -131,7 +131,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Sets the Yard's crawl velocity for <paramref name="direction"/>: each axis takes its current crawl speed, or that
     /// speed reversed.
     /// </summary>
-    private static void SetYardCrawlingVelocities(YardEnemyState state, YardDirection direction) =>
+    internal static void SetYardCrawlingVelocities(YardEnemyState state, YardDirection direction) =>
         state.CrawlingVelocity = YardCrawlVelocity.Apply(state.CrawlSpeed, direction);
 
     /// <summary>Runs the Yard's main AI.</summary>
@@ -252,7 +252,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Moves Yard along its wall or floor, probes the turn lookahead, and detaches if the supporting surface ends.</summary>
-    private void RunYardCrawlingMovement(
+    internal void RunYardCrawlingMovement(
         RoomEnemyPlace place,
         YardEnemyState state,
         RoomLevelData level)
@@ -357,7 +357,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the common detach path.</summary>
-    private static void DropYard(RoomEnemyPlace place, YardEnemyState state)
+    internal static void DropYard(RoomEnemyPlace place, YardEnemyState state)
     {
         if (state.Behavior == YardBehavior.Dropped)
             return;
@@ -464,7 +464,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Reverses Yard's crawl direction and associated graphics, properties, and velocities unless it is hidden or holding still.</summary>
-    private static void TurnYardAround(YardEnemyState state)
+    internal static void TurnYardAround(YardEnemyState state)
     {
         if (state.Behavior == YardBehavior.Hiding ||
             state.Movement == YardMovement.HoldingStill)
@@ -488,7 +488,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Runs the running/airborne kick setup: the shell flies sideways at the camera's last measure of Samus's movement,
     /// reversed when she faces left, and upward at the speed that measure's whole pixels select.
     /// </summary>
-    private static void KickYardIntoAir(
+    internal static void KickYardIntoAir(
         RoomEnemyPlace place,
         YardEnemyState state,
         SamusState samus,
@@ -509,7 +509,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs ordinary-beam launch setup.</summary>
-    private static void ShootYardIntoAir(
+    internal static void ShootYardIntoAir(
         RoomEnemyPlace place,
         YardEnemyState state,
         SamusState samus)

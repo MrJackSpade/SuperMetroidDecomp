@@ -100,7 +100,7 @@ internal sealed class PhantoonCombat
             context => RunPhantoonStartingFlameWaiting(context.Projectile));
 
         /// <summary>An intro flame orbiting Phantoon's body as its orbit closes.</summary>
-        private EnemyProjectileOwnedMotion IntroOrbiting => field ??= new(nameof(IntroOrbiting),
+        internal EnemyProjectileOwnedMotion IntroOrbiting => field ??= new(nameof(IntroOrbiting),
             context => RunPhantoonStartingFlameOrbit(context.Projectile, context.FrameCounter));
 
         /// <summary>A casual flame falling to the floor.</summary>
@@ -329,7 +329,7 @@ internal sealed class PhantoonCombat
     }
 
     /// <summary>Phantoon's own reaction to a damaging shot, after the common damage.</summary>
-    private void ResolvePhantoonShotReaction(
+    internal void ResolvePhantoonShotReaction(
         RoomEnemyPlace body,
         PhantoonEnemyState state,
         SamusProjectileType projectileType,
@@ -524,7 +524,7 @@ internal sealed class PhantoonCombat
     /// </summary>
     /// <param name="angle">The flame's orbit angle.</param>
     /// <param name="radius">The orbit radius, zero or more; the product uses its place within 256 (<see cref="ShortCircleProduct"/>).</param>
-    private static int ReadPhantoonFlameComponent(TrigonometryAngle angle, int radius) =>
+    internal static int ReadPhantoonFlameComponent(TrigonometryAngle angle, int radius) =>
         UnitComponent.SineOf(angle).ReachOf(ShortCircleProduct.RadiusInUse(radius));
 
     /// <summary>

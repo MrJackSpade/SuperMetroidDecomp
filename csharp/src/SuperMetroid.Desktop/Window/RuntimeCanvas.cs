@@ -5,7 +5,7 @@ namespace SuperMetroid.Desktop.Window;
 public sealed class RuntimeCanvas : Control
 {
     /// <summary>Whether the GPU swapchain currently owns the window's painting surface.</summary>
-    private bool gpuOwned;
+    internal bool gpuOwned;
 
     /// <summary>Excludes GDI paint/erase from the swapchain-owned HWND once the swapchain presents into it.</summary>
     public void SetGpuOwned(bool value)

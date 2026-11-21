@@ -42,7 +42,7 @@ internal static class AlcoonAnimations
     /// its four strides, played for good (#2275). A fire animation ends at its start-walking cue, which always continues at
     /// the walk for the Alcoon's facing (#2061).
     /// </summary>
-    private static Dictionary<AlcoonSegment, Animation<AlcoonSegment>> StartingAt { get; } = new Dictionary<AlcoonSegment, Animation<AlcoonSegment>>
+    internal static Dictionary<AlcoonSegment, Animation<AlcoonSegment>> StartingAt { get; } = new Dictionary<AlcoonSegment, Animation<AlcoonSegment>>
     {
         [P.WalkingLeft] = Animation<AlcoonSegment>.Looping([Segments.Whole(P.WalkingLeft)]),
         [P.FireLeft] = new([Segments.Whole(P.FireLeft)], AnimationEnd.Holds),

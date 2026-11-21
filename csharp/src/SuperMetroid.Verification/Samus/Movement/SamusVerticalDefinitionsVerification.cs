@@ -26,12 +26,12 @@ internal static class SamusVerticalDefinitionsVerification
             bool gravity = (equipment & 2) != 0;
             bool boost = (equipment & 4) != 0;
             samus.EquippedItems = ((high ? SamusEquipmentFlags.HiJumpBoots : 0) | (gravity ? SamusEquipmentFlags.GravitySuit : 0) | (boost ? SamusEquipmentFlags.SpeedBooster : 0));
-            global::SuperMetroid.Core.PrivateState.Set(samus.LiquidPhysics, "Surface", environment switch
+            samus.LiquidPhysics.Surface = environment switch
             {
                 1 or 3 => new global::SuperMetroid.Core.Samus.Movement.SamusLiquidSurface.Water(0, IgnoredUntilEnabled: environment == 3),
                 2 => new global::SuperMetroid.Core.Samus.Movement.SamusLiquidSurface.LavaOrAcid(0),
                 _ => global::SuperMetroid.Core.Samus.Movement.SamusLiquidSurface.None,
-            });
+            };
             int medium = launch == 2 || gravity || environment == 3 ? 0 : environment;
             int address = launch == 2 ? 0x909eb9 : launch == 1
                 ? high ? 0x909edd : 0x909ed1

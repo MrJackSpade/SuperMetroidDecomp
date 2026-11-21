@@ -22,13 +22,13 @@ internal sealed class ProjectileTrails
         });
 
     /// <summary>The live trails, oldest first.</summary>
-    private readonly List<SamusProjectileTrail> trails = [];
+    internal readonly List<SamusProjectileTrail> trails = [];
 
     /// <summary>Removes every trail, as clearing Samus's shots does.</summary>
     internal void Clear() => trails.Clear();
 
     /// <summary>Adds a trail already under way, as a restored game does; a spawned trail is added the same way.</summary>
-    private void Add(SamusProjectileTrail trail) => trails.Add(Ensure.NotNull(trail));
+    internal void Add(SamusProjectileTrail trail) => trails.Add(Ensure.NotNull(trail));
 
     /// <summary>
     /// Leaves a trail behind <paramref name="projectile"/>: selects both sparkles' animations from the shot's beams and
@@ -94,7 +94,7 @@ internal sealed class ProjectileTrails
     /// The frame a trail starts from <paramref name="projectile"/> at: the frame its animation last showed, or null before
     /// its animation has shown one.
     /// </summary>
-    private static SamusProjectileFrameId? GetTrailFrame(SamusProjectile projectile) =>
+    internal static SamusProjectileFrameId? GetTrailFrame(SamusProjectile projectile) =>
         (projectile.Animation ?? throw new InvalidOperationException("A trail read the frame of an inactive projectile.")).Shown;
 
     /// <summary>

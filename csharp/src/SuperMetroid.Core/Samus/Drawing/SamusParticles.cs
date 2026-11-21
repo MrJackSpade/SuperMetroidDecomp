@@ -46,7 +46,7 @@ public sealed class SamusParticles
     private static SamusParticleKindDefinition Definition(SamusParticleKind kind) => Ensure.Listed(SamusParticleKindDefinitions.Kinds, kind);
 
     /// <summary>Adds a particle already under way, as a restored game does.</summary>
-    private void Add(SamusParticle particle) => _particles.Add(Ensure.NotNull(particle));
+    internal void Add(SamusParticle particle) => _particles.Add(Ensure.NotNull(particle));
 
     /// <summary>
     /// Runs every particle's update and draws those shown, the newest first, so a newer particle draws in front where

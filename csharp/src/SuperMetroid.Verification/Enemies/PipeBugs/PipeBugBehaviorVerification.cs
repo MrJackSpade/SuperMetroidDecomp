@@ -64,7 +64,7 @@ internal static class PipeBugBehaviorVerification
             NorfairPipeBugState state = place.RequireSpeciesState<NorfairPipeBugState>();
             state.Action = NorfairPipeBugAction.WaitForStagger;
             state.Role = new NorfairPipeBugRole.Leader(StaggerTarget: 72);
-            PrivateState.Set(state, "Departure", UpdateCountdownAccess.AtAge(72, before));
+            state.Departure = UpdateCountdownAccess.AtAge(72, before);
             enemies.PipeBugsBehavior.RunNorfairPipeBugMainAi(place.HeldOccupant(), place, Frame(new(200, 128)));
             AssertEqual(after, state.Departure.Age, $"Norfair Pipe Bug count after {before}");
             AssertEqual(departs ? NorfairPipeBugAction.Fly : NorfairPipeBugAction.WaitForStagger, state.Action,
@@ -145,7 +145,7 @@ internal static class PipeBugBehaviorVerification
             state.Action = NorfairPipeBugAction.Stagger;
             state.Role = role;
             state.RiseEndY = 128;
-            PrivateState.Set(state, "Departure", UpdateCountdown.Lasting(role.StaggerTarget));
+            state.Departure = UpdateCountdown.Lasting(role.StaggerTarget);
             int updates = 0;
             while (state.Action == NorfairPipeBugAction.Stagger && updates <= stagger.Distance + 1)
             {

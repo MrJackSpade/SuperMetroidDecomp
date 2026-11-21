@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 public sealed class RoomMetatileCatalog
 {
     /// <summary>Copied lookup by block table; the RoomMetatileAtlas instances are shared and immutable.</summary>
-    private readonly Dictionary<RoomBlockSet, RoomMetatileAtlas> byRoomBlockSet;
+    internal readonly Dictionary<RoomBlockSet, RoomMetatileAtlas> byRoomBlockSet;
 
     /// <summary>Copies the lookup and requires an entry for every retail graphics set's block table.</summary>
     /// <exception cref="ArgumentNullException">An argument is null.</exception>

@@ -35,7 +35,7 @@ public static class XrayRevealVisualFiles
     ];
 
     /// <summary>Family-relative version-nine installed JSON filename for reveal-rule blocks, the four tanks' reveal blocks, and special-room overlay records.</summary>
-    private const string VisualFileName = "reveals.json";
+    internal const string VisualFileName = "reveals.json";
     /// <summary>
     /// Schema revision that includes rule operands, tank metatiles, and room-overlay records: revision 3 holds the four tanks'
     /// reveal blocks alone, every other item being revealed as its kind's own picture (#1538); revision 4 holds the block an

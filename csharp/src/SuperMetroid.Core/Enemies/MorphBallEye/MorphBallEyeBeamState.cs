@@ -20,7 +20,7 @@ public sealed class MorphBallEyeBeamState : IDisplayLatch
     public RotationAngle AngularHalfWidth { get; internal set; }
 
     /// <summary>The whole steps of <see cref="AngularHalfWidth"/>, which the beam's window geometry uses.</summary>
-    private TrigonometryAngle AngularWidth => AngularHalfWidth.ToTrigonometryAngle();
+    internal TrigonometryAngle AngularWidth => AngularHalfWidth.ToTrigonometryAngle();
 
     /// <summary>The widening speed, the turn the half-width grows by each update: zero when the beam appears and raised by <see cref="MorphBallEyeBeamDefinitions.WidthGrowthStep"/> before each widening update adds it.</summary>
     public RotationAngle AngularHalfWidthGrowth { get; internal set; }
@@ -34,7 +34,7 @@ public sealed class MorphBallEyeBeamState : IDisplayLatch
     /// (<see cref="FadeLevelColour"/>) a channel an update and is removed on the update its green is found at none, so the
     /// beam's lifetime depends on those levels, as the beam fade tests the colour's green before darkening it.
     /// </summary>
-    internal RgbColor Color { private get; set; }
+    internal RgbColor Color { get; set; }
 
     /// <summary>
     /// The cone the frame boundary last latched: the beam's phase, width and colour with its eye's position and aim as they

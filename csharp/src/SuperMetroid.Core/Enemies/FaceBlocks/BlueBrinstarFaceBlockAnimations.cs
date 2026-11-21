@@ -30,7 +30,7 @@ internal static class BlueBrinstarFaceBlockAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    private static Dictionary<BlueBrinstarFaceBlockSegment, Animation<BlueBrinstarFaceBlockSegment>> StartingAt { get; } = new Dictionary<BlueBrinstarFaceBlockSegment, Animation<BlueBrinstarFaceBlockSegment>>
+    internal static Dictionary<BlueBrinstarFaceBlockSegment, Animation<BlueBrinstarFaceBlockSegment>> StartingAt { get; } = new Dictionary<BlueBrinstarFaceBlockSegment, Animation<BlueBrinstarFaceBlockSegment>>
     {
         [P.SamusLeft] = new([Segments.Whole(P.SamusLeft)], AnimationEnd.Holds),
         [P.SamusRight] = new([Segments.Whole(P.SamusRight)], AnimationEnd.Holds),

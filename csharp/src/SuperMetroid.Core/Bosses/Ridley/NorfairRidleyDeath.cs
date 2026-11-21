@@ -154,7 +154,7 @@ internal sealed class NorfairRidleyDeath
     }
 
     /// <summary>Spawns his death's next small explosion, once its wait runs out, at the next point of the shared scatter.</summary>
-    private void SpawnSmallExplosionNearNorfairRidley(
+    internal void SpawnSmallExplosionNearNorfairRidley(
         RoomEnemyPlace body,
         NorfairRidleyState state)
     {
@@ -175,7 +175,7 @@ internal sealed class NorfairRidleyDeath
     /// Allocates the body and tail pieces that continue moving after the intact body hides; each joins the breakup of
     /// <paramref name="state"/>'s body from its setup (#2231).
     /// </summary>
-    private void SpawnNorfairRidleyBreakupActors(RoomEnemyPlace body, NorfairRidleyState state)
+    internal void SpawnNorfairRidleyBreakupActors(RoomEnemyPlace body, NorfairRidleyState state)
     {
         RidleyBreakup.SpawnInBreakupOrder(SpawnPart);
 

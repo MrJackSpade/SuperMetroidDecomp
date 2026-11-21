@@ -33,7 +33,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Accesses the active room, enemy places, and shared RNG.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Crocomire's body layer: where it is placed, the canvas his death assembles it on, the tongue placed with it and the acid smoke drawn with it.</summary>
-    private CrocomireBodyLayer BodyLayer { get; }
+    internal CrocomireBodyLayer BodyLayer { get; }
 
     /// <summary>Crocomire's setup, its body and tongue animations and their cues, and the invisible wall that holds Samus back.</summary>
     internal CrocomireFight Fight { get; }
@@ -45,13 +45,13 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     internal CrocomireCombat Combat { get; }
 
     /// <summary>The bridge giving way under Crocomire: its fragments, the sink into the acid, the rise and the final sink.</summary>
-    private CrocomireBridgeCollapse BridgeCollapse { get; }
+    internal CrocomireBridgeCollapse BridgeCollapse { get; }
 
     /// <summary>Crocomire melting in the acid: the melt images and the dissolve passes.</summary>
-    private CrocomireMelting Melting { get; }
+    internal CrocomireMelting Melting { get; }
 
     /// <summary>Crocomire's skeleton: waiting behind the wall, breaking through, its arc and collapse, and the fight's end.</summary>
-    private CrocomireSkeleton Skeleton { get; }
+    internal CrocomireSkeleton Skeleton { get; }
     /// <summary>The session's installed boss artwork.</summary>
     private readonly BossArtworkBinding _bossArtwork;
 
@@ -72,7 +72,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs Crocomire's main AI for one update: the fight, or the stage of his death he is at.</summary>
-    private void RunCrocomireMain(
+    internal void RunCrocomireMain(
         RoomEnemyOccupant crocomire,
         SamusState samus,
         PseudoScrewCharge pseudoScrew,

@@ -18,7 +18,7 @@ internal sealed class SamusFrameState : IRoomSamusAccess
     internal SamusFrameState() => Colours = new SamusColours();
 
     /// <summary>The saved-game load appearance, before ordinary Samus drawing resumes.</summary>
-    private UpdateCountdown LoadAppearance { get; set; } = UpdateCountdown.Ended();
+    internal UpdateCountdown LoadAppearance { get; set; } = UpdateCountdown.Ended();
 
     /// <summary>Whether Samus's saved-game load appearance is still running.</summary>
     internal bool LoadAppearanceActive => LoadAppearance.IsRunning;

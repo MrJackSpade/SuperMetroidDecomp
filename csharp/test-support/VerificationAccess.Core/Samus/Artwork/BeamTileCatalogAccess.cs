@@ -20,7 +20,7 @@ internal static class BeamTileCatalogAccess
                     throw new InvalidDataException($"Missing beam artwork {name}.");
                 sheets[selection] = BeamTileAtlas.Load(new MemoryStream(png, writable: false), selection);
             }
-            return global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.AssetExtraction.Samus.BeamTileCatalog>([typeof(IReadOnlyDictionary<global::SuperMetroid.Core.Progression.SamusBeamCombination, BeamTileAtlas>), typeof(global::SuperMetroid.AssetExtraction.Samus.Artwork.InstalledBeamPalettes), typeof(global::SuperMetroid.AssetExtraction.Samus.Artwork.HyperBeamFxColours)], new object?[] { sheets, palettes, hyperBeamFxColors });
+            return new global::SuperMetroid.AssetExtraction.Samus.BeamTileCatalog(sheets, palettes, hyperBeamFxColors);
         }
     }
     /// <summary>Exposes <see cref="BeamTileCatalog"/> state that only verification reads.</summary>

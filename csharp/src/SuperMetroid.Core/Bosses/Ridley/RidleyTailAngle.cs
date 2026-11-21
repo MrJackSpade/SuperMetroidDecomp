@@ -13,7 +13,7 @@ public readonly record struct RidleyTailAngle : IComparable<RidleyTailAngle>
 
     /// <summary>The angle in steps of the turn from straight down, counterclockwise positive, counted without
     /// wrapping.</summary>
-    private int StepsFromStraightDown { get; }
+    internal int StepsFromStraightDown { get; }
 
     /// <summary>The link pointing straight down from its anchor.</summary>
     public static RidleyTailAngle StraightDown => default;

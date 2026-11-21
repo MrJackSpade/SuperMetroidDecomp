@@ -76,7 +76,7 @@ internal static class GerutaAnimations
     /// The animation that starts at each segment an owner can start or restart at. The dive and the climb place their
     /// flames and hold their one pose (#2512).
     /// </summary>
-    private static Dictionary<GerutaSegment, Animation<GerutaSegment>> StartingAt { get; } = new Dictionary<GerutaSegment, Animation<GerutaSegment>>
+    internal static Dictionary<GerutaSegment, Animation<GerutaSegment>> StartingAt { get; } = new Dictionary<GerutaSegment, Animation<GerutaSegment>>
     {
         [P.Idle] = Animation<GerutaSegment>.Looping([Segments.Whole(P.Idle)]),
         [P.StartDescending] = new([Segments.Whole(P.StartDescending)], AnimationEnd.Holds),

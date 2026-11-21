@@ -57,7 +57,7 @@ internal sealed class DraygonShots
         internal EnemyProjectileStates<AngledFlightState> Flights { get; } = new();
 
         /// <summary>Where each goop stuck to Samus sits in her stack, given as it sticks.</summary>
-        private EnemyProjectileStates<DraygonGoopAttachedState> Attached { get; } = new();
+        internal EnemyProjectileStates<DraygonGoopAttachedState> Attached { get; } = new();
 
         /// <inheritdoc/>
         internal override EnemyProjectileAnimation ShotAnimation() => shot(this);
@@ -73,11 +73,11 @@ internal sealed class DraygonShots
             context => RunFlyingDraygonGoop(context.Projectile, context.Samus, context.SamusBombs.PowerBombExplosion));
 
         /// <summary>A goop stuck to Samus, slowing her until it wears off or her body attack shakes it off.</summary>
-        private EnemyProjectileOwnedMotion GoopStuckToSamus => field ??= new(nameof(GoopStuckToSamus),
+        internal EnemyProjectileOwnedMotion GoopStuckToSamus => field ??= new(nameof(GoopStuckToSamus),
             context => RunAttachedDraygonGoop(context.Projectile, context.Samus, context.SamusBombs.PowerBombExplosion));
 
         /// <summary>A wall turret's shot flying along its heading until it leaves the room.</summary>
-        private EnemyProjectileOwnedMotion TurretShotFlying => field ??= new(nameof(TurretShotFlying), context =>
+        internal EnemyProjectileOwnedMotion TurretShotFlying => field ??= new(nameof(TurretShotFlying), context =>
         {
             // The goop's power-bomb step frees a power-bombed shot's place, then still moves the shot.
             FreePlaceIfPowerBombed(context.Projectile, context.Samus, context.SamusBombs.PowerBombExplosion);
@@ -155,7 +155,7 @@ internal sealed class DraygonShots
         /// <param name="goop">The goop stuck to Samus.</param>
         /// <param name="samus">Samus, whom the goop follows.</param>
         /// <param name="powerBomb">The power bomb explosion of the pass's bombs, which frees the goop's place.</param>
-        private void RunAttachedDraygonGoop(
+        internal void RunAttachedDraygonGoop(
             EnemyProjectile goop,
             SamusState samus,
             SamusPowerBombExplosionState powerBomb)

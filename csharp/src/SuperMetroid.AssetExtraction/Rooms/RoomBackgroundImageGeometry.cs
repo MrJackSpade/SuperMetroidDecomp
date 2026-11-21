@@ -10,13 +10,13 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 internal static class RoomBackgroundImageGeometry
 {
     /// <summary>The tilemap pages a library background's list leaves on BG2.</summary>
-    private const int Pages = 2;
+    internal const int Pages = 2;
 
     /// <summary>Tiles along a tilemap page's side.</summary>
     internal const int PageTiles = 32;
 
     /// <summary>Tiles in one tilemap page.</summary>
-    private const int PageWords = PageTiles * PageTiles;
+    internal const int PageWords = PageTiles * PageTiles;
 
     /// <summary>Tiles in a library background's two pages.</summary>
     internal const int Words = Pages * PageWords;

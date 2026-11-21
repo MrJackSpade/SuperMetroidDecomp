@@ -11,7 +11,7 @@ public static class SmCompressionCodes
     /// <summary><c>$E0</c>: selects the upper three bits used to recognize a long command header.</summary>
     public const byte LongHeaderMarkerMask = 0xe0;
     /// <summary><c>$E0</c>: all three marker bits must be set to introduce a second length byte.</summary>
-    private const byte LongHeaderMarker = 0xe0;
+    internal const byte LongHeaderMarker = 0xe0;
     /// <summary><c>$E0</c>: selects command bits in a short header or in the normalized long-header command.</summary>
     public const byte CommandMask = 0xe0;
     /// <summary><c>$1F</c>: selects the short header's five-bit output length minus one.</summary>

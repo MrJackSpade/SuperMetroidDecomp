@@ -34,7 +34,7 @@ public static class AimAngleSlope
     /// least zero: 0 through 65535 in 256ths, 65535 when the long side comes to zero.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">A side is negative.</exception>
-    private static int Of(int shortSide, int longSide)
+    internal static int Of(int shortSide, int longSide)
     {
         int rise = unchecked(Ensure.AtLeastZero(shortSide) * RisePerPixel) % RiseSpan;
         int run = Ensure.AtLeastZero(longSide) % RunSpan;

@@ -29,7 +29,7 @@ public readonly record struct CeresShaftTilt
     public static CeresShaftTilt FullAnticlockwise { get; } = new(-FullTiltSteps);
 
     /// <summary>The steps from level, clockwise positive, at most <see cref="FullTiltSteps"/> either way.</summary>
-    private int StepsFromLevel { get; }
+    internal int StepsFromLevel { get; }
 
     /// <summary>
     /// The steps from the full anticlockwise tilt, up to the full clockwise one: the place in the shaft's turn the following room's main

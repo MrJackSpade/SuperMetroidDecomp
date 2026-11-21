@@ -16,7 +16,7 @@ internal sealed class EndingPostCreditsText
     /// The typed texts the screen shows, by the text each types (#2541, #2556): none until the logo's end, then the item
     /// percentage, then, from the end of the move down on, the final message below which the item percentage stays shown.
     /// </summary>
-    private readonly Dictionary<EndingTextSequence, EndingTypewriter> typed = [];
+    internal readonly Dictionary<EndingTextSequence, EndingTypewriter> typed = [];
 
     /// <summary>The order the screen draws the typed texts in: the item percentage, then the final message.</summary>
     private static readonly EndingTextSequence[] DrawnOrder = [EndingTextSequence.ItemPercentage, EndingTextSequence.FinalMessage];

@@ -21,7 +21,7 @@ public sealed class RoomObjectPopulation
     /// it holds at once (<see cref="SuperMetroid.Core.Compatibility.RoomObjectPlaces"/>).
     /// </param>
     /// <exception cref="ArgumentNullException">The sequence or one of its placements is null.</exception>
-    private RoomObjectPopulation(string name, IEnumerable<RoomObjectPlacement> placements)
+    internal RoomObjectPopulation(string name, IEnumerable<RoomObjectPlacement> placements)
     {
         Ensure.NotNull(placements);
         Name = Ensure.NotNull(name);

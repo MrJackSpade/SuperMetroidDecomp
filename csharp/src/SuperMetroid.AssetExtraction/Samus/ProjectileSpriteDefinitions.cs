@@ -306,7 +306,7 @@ public static class ProjectileSpriteDefinitions
     /// groups are listed in their storage order; where each group's records lie is the import's layout of it
     /// (<see cref="ProjectileSpriteLocations"/>).
     /// </summary>
-    private static IReadOnlyList<ProjectileSpriteId> Stored { get; } =
+    internal static IReadOnlyList<ProjectileSpriteId> Stored { get; } =
     [
         .. PowerShots,
         .. PlasmaShots,

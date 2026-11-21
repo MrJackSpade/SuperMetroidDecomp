@@ -165,7 +165,7 @@ internal sealed class BeamCombos
         : BeamComboShotKind.Combo;
 
     /// <summary>Gives a particle the damage and animation of the charged beam, the special attack or the Spazer echo, and starts its first frame.</summary>
-    private static void InitializeComboShot(SamusProjectileOccupant held, BeamComboShotKind shotKind)
+    internal static void InitializeComboShot(SamusProjectileOccupant held, BeamComboShotKind shotKind)
     {
         held.Damage = SamusProjectileDamage.Read(ComboShotKind(held.Type, shotKind));
         StartComboShot(held, shotKind);

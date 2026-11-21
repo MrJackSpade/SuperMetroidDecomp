@@ -183,7 +183,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Makes the escaping Metroid's next move; after its last it chases Samus.</summary>
-    private static void RunMetroidPowerBombEscape(RoomEnemyPlace place, MetroidEnemyState state)
+    internal static void RunMetroidPowerBombEscape(RoomEnemyPlace place, MetroidEnemyState state)
     {
         place.Position += MetroidReactions.EscapeDisplacement(state.EscapeMovesLeft.UpdatesLeft);
         StoreMetroidXVelocity(state, SignedSixteenSixteen.Zero);

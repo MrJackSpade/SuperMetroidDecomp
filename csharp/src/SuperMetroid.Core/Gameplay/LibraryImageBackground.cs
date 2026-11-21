@@ -10,7 +10,7 @@ public sealed record LibraryImageBackground : ShownRoomBackground
     public LibraryImageBackground(RoomBackgroundImagePlane image) => Image = Ensure.NotNull(image);
 
     /// <summary>The image, repeated across and down.</summary>
-    private RoomBackgroundImagePlane Image { get; }
+    internal RoomBackgroundImagePlane Image { get; }
 
     /// <inheritdoc/>
     public override TResult Map<TResult>(IShownRoomBackgroundMapping<TResult> mapping) => Ensure.NotNull(mapping).LibraryImage(Image);

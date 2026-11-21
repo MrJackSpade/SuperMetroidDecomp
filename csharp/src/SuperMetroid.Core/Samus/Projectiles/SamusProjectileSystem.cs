@@ -49,7 +49,7 @@ public sealed class SamusProjectileSystem
     internal BeamCombos Combos { get; }
 
     /// <summary>Plays the shots' animations and draws their pictures.</summary>
-    private ProjectileAnimation Animation { get; }
+    internal ProjectileAnimation Animation { get; }
 
     /// <summary>Applies HUD, cooldown, equipment, and charge rules when allocating a shot.</summary>
     internal BeamFiring Firing { get; }
@@ -58,13 +58,13 @@ public sealed class SamusProjectileSystem
     internal ProjectileMotion Motion { get; }
 
     /// <summary>Resolves projectile impact with blocks and breakable terrain.</summary>
-    private ProjectileTerrainCollision TerrainCollision { get; }
+    internal ProjectileTerrainCollision TerrainCollision { get; }
 
     /// <summary>Routes ordinary shots into enemy collision and damage reactions.</summary>
     internal ProjectileEnemyImpacts EnemyImpacts { get; }
 
     /// <summary>The trails moving projectiles leave, which run and show until both their sparkles end.</summary>
-    private ProjectileTrails Trails { get; }
+    internal ProjectileTrails Trails { get; }
 
     /// <summary>
     /// Whether the posture-transition admission admits weapons for a pose outside its table, which the beam producer and
@@ -140,7 +140,7 @@ public sealed class SamusProjectileSystem
     /// is Plasma and Wave's (#1736), or the Spacetime beam's (#1512).
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The combination has no shade the game can show.</exception>
-    private static void ShowBeamShade(SamusColours colours, SamusBeamCombination selection)
+    internal static void ShowBeamShade(SamusColours colours, SamusBeamCombination selection)
     {
         Ensure.NotNull(colours);
         if (!SamusBeamGraphicsDefinitions.ShownShades.ContainsKey(selection))

@@ -42,7 +42,7 @@ public static class GrappleSpriteExtractor
     /// record.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The rope has no such frame.</exception>
-    private static int SegmentAttributeAddress(int frame) =>
+    internal static int SegmentAttributeAddress(int frame) =>
         SamusSourceDefinitions.GrappleSegmentAttributes.Value
         + Ensure.BetweenInclusive(0, GrappleSpriteDefinitions.SegmentFrameCount - 1, frame) * SamusSourceDefinitions.GrappleSegmentRecordBytes;
 }

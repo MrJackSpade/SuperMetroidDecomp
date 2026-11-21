@@ -176,7 +176,7 @@ internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<To
     /// The unlock's effects (#1760): the descending statue's dust, the eyes' glows, the released souls, particles and their
     /// tails, and the splashes. Their spawners start their animations.
     /// </summary>
-    private EnemyProjectileBehavior Effects => this;
+    internal EnemyProjectileBehavior Effects => this;
 
     /// <summary>A splash holds at the water, a particle falls and a soul rises from their spawn; the dust, the eye glows and the tails hold still.</summary>
     private static readonly Dictionary<RoomEnemyProjectileKind, TourianStatueEffectMotion?> StartingMotions = new()

@@ -57,10 +57,10 @@ internal sealed class CeresEscape : IGameplayShadingSource
     }
 
     /// <summary>Where the escape stands.</summary>
-    private CeresEscapeStage Stage { get; set; } = CeresEscapeStage.AwaitingGetaway;
+    internal CeresEscapeStage Stage { get; set; } = CeresEscapeStage.AwaitingGetaway;
 
     /// <summary>The getaway's turning floor.</summary>
-    private CeresTurningFloor Floor { get; } = new();
+    internal CeresTurningFloor Floor { get; } = new();
 
     /// <summary>The self-destruct's warning.</summary>
     internal CeresSelfDestructWarning Warning { get; } = new();
@@ -181,7 +181,7 @@ internal sealed class CeresEscape : IGameplayShadingSource
     /// <summary>Shows the floor in the shade its zoom selects.</summary>
     /// <param name="zoom">The floor's zoom.</param>
     /// <exception cref="ArgumentOutOfRangeException">The floor has no shade for the zoom's whole floor pixels per screen pixel.</exception>
-    private void ShowFloorZoom(FloorZoom zoom)
+    internal void ShowFloorZoom(FloorZoom zoom)
     {
         // The floor's shade is chosen by the zoom's whole floor pixels per screen pixel.
         int wholeZoom = zoom.WholeFloorPixelsPerScreenPixel;
@@ -189,7 +189,7 @@ internal sealed class CeresEscape : IGameplayShadingSource
     }
 
     /// <summary>Begins the self-destruct warning from its first step, as the getaway ends.</summary>
-    private void BeginSelfDestruct()
+    internal void BeginSelfDestruct()
     {
         Stage = CeresEscapeStage.SelfDestruct;
         Warning.Phase = CeresSelfDestructPhase.Start;
@@ -343,7 +343,7 @@ internal sealed class CeresEscape : IGameplayShadingSource
     /// Shows one warning picture as a placed image of the warning, its top-left corner at its pixel of the screen
     /// (#1466, #1555, #1601).
     /// </summary>
-    private void ShowWarningPicture(CeresEscapeWarningPicture page) =>
+    internal void ShowWarningPicture(CeresEscapeWarningPicture page) =>
         Warning.Show(new WrittenPicture(page.Picture, page.Corner));
 
     /// <summary>Types the next step of the escape text.</summary>
@@ -361,7 +361,7 @@ internal sealed class CeresEscape : IGameplayShadingSource
     }
 
     /// <summary>Plays the alarm cycle of the warning's EMERGENCY title on to its next colouring at the alarm's cadence.</summary>
-    private void StepAlarm(int frameCounter)
+    internal void StepAlarm(int frameCounter)
     {
         if (!RidleyCadenceDefinitions.SelfDestructAlarmStep.IsDue(frameCounter))
             return;
@@ -370,13 +370,13 @@ internal sealed class CeresEscape : IGameplayShadingSource
     }
 
     /// <summary>The shading the room's pictures show: the getaway floor's zoom, once the getaway has shown one.</summary>
-    private PictureShading RoomShading => floorZoom is { } zoom ? PictureShading.Shaded(RidleyShades.Fade(zoom)) : PictureShading.Standard;
+    internal PictureShading RoomShading => floorZoom is { } zoom ? PictureShading.Shaded(RidleyShades.Fade(zoom)) : PictureShading.Standard;
 
     /// <summary>
     /// The shading the warning's written pictures show: its alarm's step, once the alarm has shown one. They show their own
     /// colours and alarm, never the room's (#1544).
     /// </summary>
-    private PictureShading WarningShading => Warning.Alarm.Shown is { } step ? PictureShading.Shaded(RidleyShades.Fade(step)) : PictureShading.Standard;
+    internal PictureShading WarningShading => Warning.Alarm.Shown is { } step ? PictureShading.Shaded(RidleyShades.Fade(step)) : PictureShading.Standard;
 
     /// <summary>The getaway floor's zoom over the room's pictures, and the alarm over the warning's written pictures (#1544).</summary>
     public void ShadeGameplay(GameplayShadingBuilder frame)

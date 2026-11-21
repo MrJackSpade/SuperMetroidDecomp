@@ -51,10 +51,10 @@ internal sealed class BlueDoorCapObject : DoorCapObject
     }
 
     /// <summary>How the cap came to be, which decides whether it stays open behind Samus (#2560).</summary>
-    private CapOrigin Origin { get; }
+    internal CapOrigin Origin { get; }
 
     /// <summary>What the cap is doing.</summary>
-    private BlueDoorCapPhase Phase { get; set; }
+    internal BlueDoorCapPhase Phase { get; set; }
 
     /// <inheritdoc/>
     /// <remarks>

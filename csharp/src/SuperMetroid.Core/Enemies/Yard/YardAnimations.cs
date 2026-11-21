@@ -73,7 +73,7 @@ internal static class YardAnimations
     /// The animation that starts at each segment an owner can start or restart at. A hiding animation's closed shell and the
     /// cue ending its update are a phase of their own, which the Yard plays again while it holds its shell closed (#2180).
     /// </summary>
-    private static Dictionary<YardSegment, Animation<YardSegment>> StartingAt { get; } = new Dictionary<YardSegment, Animation<YardSegment>>
+    internal static Dictionary<YardSegment, Animation<YardSegment>> StartingAt { get; } = new Dictionary<YardSegment, Animation<YardSegment>>
     {
         [P.OutsideTurnOnLeftWallMovingUp] = Animation<YardSegment>.LeadingInto([Segments.Whole(P.OutsideTurnOnLeftWallMovingUp)], [Segments.Whole(P.CrawlingOnFloorMovingLeft)]),
         [P.CrawlingOnFloorMovingLeft] = Animation<YardSegment>.Looping([Segments.Whole(P.CrawlingOnFloorMovingLeft)]),

@@ -11,7 +11,7 @@ public static class ZebesExplosionLayerFadePaletteFxColorDefinitions
 {
 
     /// <summary>Each record writes fifteen live BGR555 colors.</summary>
-    private const int ColorsPerFrame = 15;
+    internal const int ColorsPerFrame = 15;
 
     /// <summary>The crust's one-shot fade.</summary>
     internal static ZebesExplosionLayerFadePaletteFxColorDefinition FadeOutExplodingZebesCrust { get; } = new(ColourEffectId.FadeOutExplodingZebesCrust, ColorsPerFrame);

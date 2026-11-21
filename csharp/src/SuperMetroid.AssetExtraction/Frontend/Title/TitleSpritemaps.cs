@@ -11,5 +11,5 @@ internal sealed record TitleSpritemaps(IReadOnlyDictionary<TitleSprite, int> Spr
     internal bool AllDistinct => Spritemaps.Count == Sprites.Count + Cards.Count;
 
     /// <summary>Every spritemap the compositions and card typings name, each once.</summary>
-    private HashSet<int> Spritemaps => Sprites.Values.Concat(Cards.Values).ToHashSet();
+    internal HashSet<int> Spritemaps => Sprites.Values.Concat(Cards.Values).ToHashSet();
 }

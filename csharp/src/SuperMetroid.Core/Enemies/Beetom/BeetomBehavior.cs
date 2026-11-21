@@ -172,7 +172,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Uses one random sample to choose to idle or hop (<see cref="BeetomDecisions.DistantChoice"/>, #2369) and which way to
     /// face.
     /// </summary>
-    private void ChooseDistantBeetomAction(BeetomEnemyState state)
+    internal void ChooseDistantBeetomAction(BeetomEnemyState state)
     {
         int random = _room.Random.Generate();
         BeetomDistantChoice choice = BeetomDecisions.DistantChoice.Choose(random);
@@ -184,7 +184,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Starts the crawl toward <paramref name="direction"/> and its animation.</summary>
-    private static void StartBeetomCrawling(RoomEnemyPlace place, BeetomEnemyState state, HorizontalDirection direction)
+    internal static void StartBeetomCrawling(RoomEnemyPlace place, BeetomEnemyState state, HorizontalDirection direction)
     {
         state.Begin(BeetomAction.Crawling, direction);
         SetBeetomAnimation(
@@ -196,7 +196,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Arms a short or long arc from its precomputed initial speed-curve place.</summary>
-    private static void StartBeetomHop(
+    internal static void StartBeetomHop(
         RoomEnemyPlace place,
         BeetomEnemyState state,
         HorizontalDirection direction,
@@ -242,7 +242,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Starts the attached blood-drain animation on <paramref name="side"/> of Samus.</summary>
-    private static void StartBeetomDrain(RoomEnemyPlace place, BeetomEnemyState state, HorizontalDirection side)
+    internal static void StartBeetomDrain(RoomEnemyPlace place, BeetomEnemyState state, HorizontalDirection side)
     {
         SetBeetomAnimation(
             place,

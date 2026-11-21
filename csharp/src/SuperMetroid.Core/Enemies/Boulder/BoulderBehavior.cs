@@ -166,7 +166,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Accelerates through terrain contact; ordinary impacts consume bounces while a boulder that breaks on impact breaks at the first.</summary>
-    private void RunBoulderFalling(RoomEnemyOccupant occupant, RoomEnemyPlace place, BoulderEnemyState state, RoomLevelData level)
+    internal void RunBoulderFalling(RoomEnemyOccupant occupant, RoomEnemyPlace place, BoulderEnemyState state, RoomLevelData level)
     {
         SignedSixteenSixteen verticalDisplacement = state.BounceCurvePlace.Speed.Positive;
         if (_terrain.MoveEnemyVertically(level, place, verticalDisplacement))

@@ -581,8 +581,8 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 Check("Ridley TailWhipRequest", ridleyState.Tail.Whip.IsWaiting ? (ushort)1 : (ushort)0, NativeSnapshotMemory.RidleyTailWhipRequest);
                 Check("Ridley TailExtensionSpeed", ridleyState.Tail.ExtensionSpeed.RawValue, NativeSnapshotMemory.RidleyTailExtensionSpeed);
                 Check("Ridley TailAngleDelta", checked((ushort)ridleyState.Tail.SwingStep.Steps), NativeSnapshotMemory.RidleyTailAngleDelta);
-                Check("Ridley TailMinimumClockwiseAngle", RidleyTailNativeWords.Angle(global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Bosses.Ridley.RidleyTailState, global::SuperMetroid.Core.Bosses.Ridley.RidleyTailAngle>(ridleyState.Tail, "MinimumClockwiseAngle")), NativeSnapshotMemory.RidleyTailMinimumClockwiseAngle);
-                Check("Ridley TailMaximumCounterClockwiseAngle", RidleyTailNativeWords.Angle(global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Bosses.Ridley.RidleyTailState, global::SuperMetroid.Core.Bosses.Ridley.RidleyTailAngle>(ridleyState.Tail, "MaximumCounterClockwiseAngle")), NativeSnapshotMemory.RidleyTailMaximumCounterClockwiseAngle);
+                Check("Ridley TailMinimumClockwiseAngle", RidleyTailNativeWords.Angle(ridleyState.Tail.MinimumClockwiseAngle), NativeSnapshotMemory.RidleyTailMinimumClockwiseAngle);
+                Check("Ridley TailMaximumCounterClockwiseAngle", RidleyTailNativeWords.Angle(ridleyState.Tail.MaximumCounterClockwiseAngle), NativeSnapshotMemory.RidleyTailMaximumCounterClockwiseAngle);
                 Check("Ridley TailWhipTargetClockwiseAngle", RidleyTailNativeWords.WhipTarget(ridleyState.Tail.ClockwiseWhipTarget), NativeSnapshotMemory.RidleyTailWhipTargetClockwiseAngle);
                 Check("Ridley TailWhipTargetCounterClockwiseAngle", RidleyTailNativeWords.WhipTarget(ridleyState.Tail.CounterClockwiseWhipTarget), NativeSnapshotMemory.RidleyTailWhipTargetCounterClockwiseAngle);
                 Check("Ridley IdealInterSegmentTailAngle", checked((ushort)ridleyState.Tail.IdealLinkSpacing.Steps), NativeSnapshotMemory.RidleyIdealInterSegmentTailAngle);
@@ -727,7 +727,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 Check("Beam charge", SamusSnapshotWords.EncodeBeamCharge(runtime.Projectiles.Charge.Level), NativeSnapshotMemory.BeamCharge);
                 Check("ProjectileCounter", runtime.Projectiles.Pool.ShotCount.Count, NativeSnapshotMemory.ProjectileCount);
                 Check("PreviousBeamChargeCounter", SamusSnapshotWords.EncodeBeamCharge(runtime.Projectiles.Charge.PreviousCharge), NativeSnapshotMemory.PreviousCharge);
-                Check("InteractionImmunityUpdatesLeft", global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Samus.Projectiles.BeamFiring, global::SuperMetroid.Core.UpdateCountdown>(runtime.Projectiles.Firing, "InteractionImmunity").UpdatesLeft, NativeSnapshotMemory.ProjectileInteractionImmunity);
+                Check("InteractionImmunityUpdatesLeft", runtime.Projectiles.Firing.InteractionImmunity.UpdatesLeft, NativeSnapshotMemory.ProjectileInteractionImmunity);
                 Check("ChargedShotGlowTimer", SamusSnapshotWords.EncodeChargedShotGlow(runtime.Projectiles.Charge.ChargedShotGlow), NativeSnapshotMemory.ChargedShotGlow);
                 Check("ChargeGlowStep", runtime.Projectiles.Charge.ChargeGlowStep * sizeof(ushort), NativeSnapshotMemory.ChargePaletteIndex);
                 Check("BombCounter", runtime.BombProjectiles.BombCounter, NativeSnapshotMemory.BombCount);
@@ -820,7 +820,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 // A Super Missile's link never sets or reads its trail timer, on the cartridge or here; the cartridge's word is
                 // whatever the place's previous projectile left, which a fresh link does not inherit (#1590).
                 if (projectile.Behavior != SamusShotBehaviors.SuperMissileLink)
-                    Check(owner + " TrailTimer", global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileOccupant, global::SuperMetroid.Core.UpdateCountdown?>(projectile.HeldShot(), "Trail")?.UpdatesLeft
+                    Check(owner + " TrailTimer", projectile.HeldShot().Trail?.UpdatesLeft
                         ?? throw new InvalidDataException($"{owner} leaves no trail, which no projectile this movie reaches does."),
                         NativeSnapshotMemory.ProjectileTrailTimer + index);
                 // No Spazer phase is compared: only a Spazer special attack's particles have one, they set it before

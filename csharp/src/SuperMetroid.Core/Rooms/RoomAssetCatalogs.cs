@@ -23,9 +23,9 @@ public sealed record RoomAssetCatalogs
     }
 
     /// <summary>Gets the complete source-keyed room visual-layout installation.</summary>
-    public RoomLevelArtworks VisualLayouts { get; private init; }
+    public RoomLevelArtworks VisualLayouts { get; internal init; }
     /// <summary>Gets the installed terrain of every room level, which appearance overrides never alter.</summary>
-    public InstalledRoomLevelStreams LevelStreams { get; private init; }
+    public InstalledRoomLevelStreams LevelStreams { get; internal init; }
     /// <summary>Gets the pre-coloured block pictures of each tileset (#1392).</summary>
     public InstalledRoomArtwork BlockSheets { get; init; }
     /// <summary>Gets the cells each explicit scroll layout's load writes past the room's screens (#2356).</summary>

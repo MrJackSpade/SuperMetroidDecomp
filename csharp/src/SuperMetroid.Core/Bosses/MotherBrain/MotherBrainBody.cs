@@ -249,7 +249,7 @@ internal sealed class MotherBrainBody
     }
 
     /// <summary>Checks a single head or body contact region and applies the phase-specific collision response.</summary>
-    private static bool ResolveMotherBrainSamusCollisionPart(
+    internal static bool ResolveMotherBrainSamusCollisionPart(
         MotherBrainEnemyState state,
         SamusState samus,
         MotherBrainContactPart contactPart,
@@ -298,7 +298,7 @@ internal sealed class MotherBrainBody
     /// Runs the hand beam's charging setup. The body—not the articulated
     /// head—is the source: its frame puts the hand at its hand offset.
     /// </summary>
-    private void SpawnMotherBrainHandBeamCharging(
+    internal void SpawnMotherBrainHandBeamCharging(
         MotherBrainEnemyState state,
         SamusState samus)
     {
@@ -350,7 +350,7 @@ internal sealed class MotherBrainBody
     }
 
     /// <summary>Spawns one of Mother Brain's turrets, <paramref name="definition"/>.</summary>
-    private void SpawnMotherBrainTurret(MotherBrainEnemyState state, MotherBrainTurretDefinition definition)
+    internal void SpawnMotherBrainTurret(MotherBrainEnemyState state, MotherBrainTurretDefinition definition)
     {
         EnemyProjectile? turret = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainRoomTurret, _projectileAttacks.Projectile, MotherBrainTurretDefinitions.Graphics);
         if (turret is null)

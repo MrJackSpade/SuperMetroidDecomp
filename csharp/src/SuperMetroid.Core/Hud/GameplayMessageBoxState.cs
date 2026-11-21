@@ -60,22 +60,22 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
     public GameplayMessageId? MessageId { get; private set; }
 
     /// <summary>The message box's current step.</summary>
-    private GameplayMessageBoxPhase Phase { get; set; }
+    internal GameplayMessageBoxPhase Phase { get; set; }
 
     /// <summary>
     /// Half-height of the row window visible in the most recently completed frame.
     /// The radius grows and shrinks by exactly its radius step each update.
     /// </summary>
-    private int RadiusPixels { get; set; }
+    internal int RadiusPixels { get; set; }
 
     /// <summary>The mandatory display before controller input is inspected.</summary>
-    private UpdateCountdown MinimumDisplay { get; set; } = UpdateCountdown.Ended();
+    internal UpdateCountdown MinimumDisplay { get; set; } = UpdateCountdown.Ended();
 
     /// <summary>
     /// What the box shows while a message has begun (#1466): the message, the button its panel names for the configured
     /// shoot or run binding, and the save choice a confirmation highlights; null while no message has begun.
     /// </summary>
-    private ShownMessage? Shown => MessageId is not { } message ? null
+    internal ShownMessage? Shown => MessageId is not { } message ? null
         : new ShownMessage(message, PanelButton(message),
             ConfirmationOf(message) != GameplayMessageConfirmation.None ? ConfirmationSelection : null);
 
@@ -87,7 +87,7 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
     public ExposedMessage? Exposed => RadiusPixels > 0 && Shown is { } shown ? new ExposedMessage(shown, RadiusPixels) : null;
 
     /// <summary>The answer a save confirmation highlights.</summary>
-    private SaveChoice ConfirmationSelection { get; set; } = SaveChoice.Yes;
+    internal SaveChoice ConfirmationSelection { get; set; } = SaveChoice.Yes;
 
     /// <summary>
     /// Starts one ordinary gameplay message with its authored layout.

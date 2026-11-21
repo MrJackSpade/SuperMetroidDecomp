@@ -12,11 +12,11 @@ public readonly record struct SnesObjAttributeWord(ushort Raw)
     /// <summary>Bits 0 through 8 select the OBJ character, including its tile page.</summary>
     private const ushort TileNumberMask = 0x01ff;
     /// <summary>The OBJ palette field follows the nine-bit tile number.</summary>
-    private const int PaletteShift = 9;
+    internal const int PaletteShift = 9;
     /// <summary>The OBJ priority field begins at bit 12.</summary>
     private const int PriorityShift = 12;
     /// <summary>OBJ palette indices and attribute priority fragments use three bits.</summary>
-    private const ushort ThreeBitMask = 0x0007;
+    internal const ushort ThreeBitMask = 0x0007;
     /// <summary>The PPU exposes four OBJ priority tiers.</summary>
     private const ushort TwoBitMask = 0x0003;
     /// <summary>Bit 14 mirrors the object left to right.</summary>
@@ -54,7 +54,7 @@ public readonly record struct SnesObjAttributeWord(ushort Raw)
     public bool FlipVertically => (FlipFlags & PictureFlip.Vertical) != 0;
 
     /// <summary>Bits 9 through 11 are the only bits accepted by palette-fragment operations.</summary>
-    private const ushort PaletteFieldMask = ThreeBitMask << PaletteShift;
+    internal const ushort PaletteFieldMask = ThreeBitMask << PaletteShift;
 
     /// <summary>Encodes every field in one standard two-byte low-OAM attribute record.</summary>
     public static SnesObjAttributeWord Create(

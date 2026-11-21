@@ -35,7 +35,7 @@ internal static class AtomicAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    private static Dictionary<AtomicSegment, Animation<AtomicSegment>> StartingAt { get; } = new Dictionary<AtomicSegment, Animation<AtomicSegment>>
+    internal static Dictionary<AtomicSegment, Animation<AtomicSegment>> StartingAt { get; } = new Dictionary<AtomicSegment, Animation<AtomicSegment>>
     {
         [P.UpRightTurning] = Animation<AtomicSegment>.Looping([Segments.Whole(P.UpRightTurning)]),
         [P.UpLeftTurning] = Animation<AtomicSegment>.Looping([Segments.Whole(P.UpLeftTurning)]),

@@ -191,7 +191,7 @@ internal sealed class KraidProjectiles
     }
 
     /// <summary>Seeds a released nail's velocity, animation, and collision state.</summary>
-    private void InitializeKraidNailFlight(RoomEnemyPlace nail, KraidNailState part)
+    internal void InitializeKraidNailFlight(RoomEnemyPlace nail, KraidNailState part)
     {
         // The pair coordinates its next launch through the other actor's previous
         // velocity and spawn flag. Read that actor before overwriting this one's state.
@@ -224,7 +224,7 @@ internal sealed class KraidProjectiles
     }
 
     /// <summary>Advances nail position and terrain response for one enemy update.</summary>
-    private void TickKraidNailFlight(RoomEnemyPlace nail, KraidNailState part, RoomLevelData level)
+    internal void TickKraidNailFlight(RoomEnemyPlace nail, KraidNailState part, RoomLevelData level)
     {
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, nail, part.NailVelocity.X))
             part.NailVelocity = part.NailVelocity.WithX(ReflectKraidNailHorizontalVelocity(part.NailVelocity.X));
@@ -236,7 +236,7 @@ internal sealed class KraidProjectiles
     }
 
     /// <summary>Checks whether a nail crosses the body contour that reverses its flight.</summary>
-    private bool KraidBodyContourReflectsNail(RoomEnemyPlace nail, KraidNailState part)
+    internal bool KraidBodyContourReflectsNail(RoomEnemyPlace nail, KraidNailState part)
     {
         RoomEnemyPlace body = _parts.Body;
         int relativeY = nail.Position.Y.Whole - body.Position.Y.Whole;
@@ -282,7 +282,7 @@ internal sealed class KraidProjectiles
     }
 
     /// <summary>Places a lint at its body-relative offset while its phase wait runs, and produces it on the wait's last update.</summary>
-    private void AlignKraidLint(RoomEnemyPlace lint, KraidLintState part)
+    internal void AlignKraidLint(RoomEnemyPlace lint, KraidLintState part)
     {
         lint.Position = lint.Position.WithWholeX(_parts.Body.Position.X.Whole - lint.Radius.X);
         if (part.PhaseWait.StepRunsOut())

@@ -115,6 +115,6 @@ public static class EscapeTypewriterExtractor
     /// <summary>Serializes both warning programs and writes their UTF-8 document bytes to the destination.</summary>
     /// <param name="output">Non-null caller-owned writable stream, written at its current position without being disposed.</param>
     /// <param name="document">Selected programs to serialize.</param>
-    private static void Write(Stream output, EscapeTypewriterDocument document) =>
+    internal static void Write(Stream output, EscapeTypewriterDocument document) =>
         output.Write(JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options));
 }

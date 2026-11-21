@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Compatibility;
 public sealed class RidleyTailWhipOrder
 {
     /// <summary>Whether an ordered whip waits for his tail's neutral control.</summary>
-    private bool IsWaiting { get; set; }
+    internal bool IsWaiting { get; set; }
 
     /// <summary>The fight orders a whip of his tail.</summary>
     internal void Give() => IsWaiting = true;

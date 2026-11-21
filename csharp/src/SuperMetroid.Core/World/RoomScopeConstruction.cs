@@ -63,7 +63,7 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
 
 
     /// <summary>The scrolling-sky updater, once the definition step has composed a sky room's main.</summary>
-    private ScrollingSkyState? ScrollingSky { get; set; }
+    internal ScrollingSkyState? ScrollingSky { get; set; }
 
     /// <summary>The turning floor the room shows, or null when it shows none (#1649).</summary>
     public RoomFloor? Floor { get; set; }
@@ -84,7 +84,7 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
     public SamusBombProjectileSystem? BombProjectiles { get; set; }
 
     /// <summary>The effect-overlay FX, once the FX step has built it.</summary>
-    public RoomFxOverlayState? FxOverlay { private get; set; }
+    public RoomFxOverlayState? FxOverlay { internal get; set; }
 
     /// <summary>The colour effects, once the FX step has built them.</summary>
     public ColourEffectSystem? ColourEffects { get; set; }

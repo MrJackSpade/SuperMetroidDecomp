@@ -13,7 +13,7 @@ public readonly record struct PowampWiggle
     private int Step { get; }
 
     /// <summary>Every offset of the cycle, in the order the Powamp takes them.</summary>
-    private static IReadOnlyList<PowampWiggle> All { get; } =
+    internal static IReadOnlyList<PowampWiggle> All { get; } =
         [.. Enumerable.Range(0, PowampMotionDefinitions.WiggleOffsets.Length).Select(step => new PowampWiggle(step))];
 
     /// <summary>The cycle's first offset, the centre, where a new body starts.</summary>

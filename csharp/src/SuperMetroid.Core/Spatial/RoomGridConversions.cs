@@ -90,7 +90,7 @@ public static class RoomGridConversions
     /// The centre pixel of the 16-pixel block holding an unsigned room pixel coordinate: the block's first pixel plus half
     /// a block.
     /// </summary>
-    private static int BlockCentre(int pixel) => BlockStart(pixel) + HalfBlockPixels;
+    internal static int BlockCentre(int pixel) => BlockStart(pixel) + HalfBlockPixels;
 
     /// <summary>The centre pixel of the block holding a room pixel, on each axis.</summary>
     public static Position16<RoomPixels> ToBlockCentre(this Position16<RoomPixels> position) =>

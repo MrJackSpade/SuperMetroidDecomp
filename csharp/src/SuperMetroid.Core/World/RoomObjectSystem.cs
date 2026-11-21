@@ -35,7 +35,7 @@ namespace SuperMetroid.Core.World;
 public sealed class RoomObjectSystem : IRoomObjects, ISamusRoomObjects
 {
     /// <summary>Creates collision-triggered block room objects from Samus and projectile reactions.</summary>
-    private BlockReactionObjects BlockReactions { get; }
+    internal BlockReactionObjects BlockReactions { get; }
 
     /// <summary>Applies boss encounter mutations through the active room's room-object places.</summary>
     internal BossRoomMutationObjects BossRoomMutations { get; }
@@ -44,28 +44,28 @@ public sealed class RoomObjectSystem : IRoomObjects, ISamusRoomObjects
     internal IStoryEvents Events { get; }
 
     /// <summary>The room's room objects at their places in the update order, shared by every room-object family.</summary>
-    private RoomObjectPlaceList Places { get; }
+    internal RoomObjectPlaceList Places { get; }
 
     /// <summary>Queues sound requests emitted by room object cues.</summary>
-    private RoomObjectSoundQueue Sounds { get; }
+    internal RoomObjectSoundQueue Sounds { get; }
 
     /// <summary>Turns room objects' block draws into level changes and background picture updates.</summary>
-    private RoomObjectBlockDrawing Drawing { get; }
+    internal RoomObjectBlockDrawing Drawing { get; }
 
     /// <summary>Spawns room objects for breakable blocks struck by projectile impacts.</summary>
-    private ProjectileTriggerObjects ProjectileTriggers { get; }
+    internal ProjectileTriggerObjects ProjectileTriggers { get; }
 
     /// <summary>Handles enemy-triggered changes to breakable room terrain.</summary>
     internal EnemyBreakableTerrainObjects BreakableTerrain { get; }
 
     /// <summary>Runs quicksand room objects, which take the room's room-object places.</summary>
-    private QuicksandObjects Quicksand { get; }
+    internal QuicksandObjects Quicksand { get; }
 
     /// <summary>Coordinates Shaktool's tunnel digging and block replacement room objects.</summary>
     internal ShaktoolObjects Shaktool { get; }
 
     /// <summary>Runs Samus Eater plant damage, release, and room object state.</summary>
-    private SamusEaterObjects SamusEater { get; }
+    internal SamusEaterObjects SamusEater { get; }
 
     /// <summary>Runs Tourian room object cues, including encounter scenery.</summary>
     internal TourianObjects Tourian { get; }
@@ -83,7 +83,7 @@ public sealed class RoomObjectSystem : IRoomObjects, ISamusRoomObjects
     internal ChozoStatueObjects ChozoStatue { get; }
 
     /// <summary>The room's scroll triggers and extensions.</summary>
-    private ScrollObjects Scrolls { get; }
+    internal ScrollObjects Scrolls { get; }
 
     /// <summary>
     /// The room's door contacts (#2545): the door Samus entered, until the door transition goes through it, and her stand at
@@ -92,13 +92,13 @@ public sealed class RoomObjectSystem : IRoomObjects, ISamusRoomObjects
     internal RoomDoorContacts DoorContacts { get; } = new();
 
     /// <summary>Handles Draygon arena cannon room objects and their block changes.</summary>
-    private DraygonCannonObjects DraygonCannons { get; }
+    internal DraygonCannonObjects DraygonCannons { get; }
 
     /// <summary>Runs Bomb Torizo's hand and statue room object sequences.</summary>
     internal BombTorizoHandObjects BombTorizoHand { get; }
 
     /// <summary>Runs the glass tube's scripted break and sound sequence.</summary>
-    private NoobTubeObjects NoobTube { get; }
+    internal NoobTubeObjects NoobTube { get; }
 
     /// <summary>Spawns the Wrecked Ship entrance treadmills.</summary>
     internal WreckedShipTreadmillObjects WreckedShipTreadmill { get; }
@@ -122,10 +122,10 @@ public sealed class RoomObjectSystem : IRoomObjects, ISamusRoomObjects
     internal CollectibleObjects CollectibleObjects { get; }
 
     /// <summary>Runs eye door opening and projectile interaction cues.</summary>
-    private EyeDoorObjects EyeDoors { get; }
+    internal EyeDoorObjects EyeDoors { get; }
 
     /// <summary>Handles grey door conditions and opening animation.</summary>
-    private GreyDoorObjects GreyDoors { get; }
+    internal GreyDoorObjects GreyDoors { get; }
 
     /// <summary>Creates one room's empty room-object list and the room-object family owners that run in it.</summary>
     /// <param name="room">The room the objects live in.</param>

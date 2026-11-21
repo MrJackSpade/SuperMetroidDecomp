@@ -101,7 +101,7 @@ internal static class HostIndependentAudioAcknowledgementsVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite);
         runtime.Player.IntroducedSamus.Control.LockOutPlayer();
         game.AdoptRuntime(runtime);
-        global::SuperMetroid.Core.PrivateState.Set(game.Session, "LastAudioRoomState", (global::SuperMetroid.Core.World.RoomStates.RoomStateSettings?)(runtime.Room.LoadedRoom.State));
+        game.Session.LastAudioRoomState = (global::SuperMetroid.Core.World.RoomStates.RoomStateSettings?)(runtime.Room.LoadedRoom.State);
         game.Session.Enter(SuperMetroidGameState.MainGameplay);
         game.AudioForVerification.Reset();
         return game;

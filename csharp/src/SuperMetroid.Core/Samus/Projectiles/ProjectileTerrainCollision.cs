@@ -128,7 +128,7 @@ internal sealed class ProjectileTerrainCollision
     /// Checks every block along the projectile's vertical span and reports a collision only when every block in the span
     /// stops the shot, or one ends the span.
     /// </summary>
-    private static bool ScanHorizontalShotReactions(
+    internal static bool ScanHorizontalShotReactions(
         RoomLevelData level,
         SamusProjectileOccupant held,
         ISamusRoomObjects roomObjects)
@@ -160,7 +160,7 @@ internal sealed class ProjectileTerrainCollision
     }
 
     /// <summary>Checks every block along the projectile's horizontal span, preserving each block reaction before aggregating solidity.</summary>
-    private static bool ScanVerticalShotReactions(
+    internal static bool ScanVerticalShotReactions(
         RoomLevelData level,
         SamusProjectileOccupant held,
         ISamusRoomObjects roomObjects)
@@ -508,7 +508,7 @@ internal sealed class ProjectileTerrainCollision
     /// <param name="held">The Wave or Hyper shot.</param>
     /// <param name="roomObjects">The room's objects, which a block reaction may spawn; none in a room without them.</param>
     /// <param name="straddledTerrain">The installation's straddled terrain, which the projectile system's terrain collision holds.</param>
-    private static void ScanHorizontalWaveShotReactions(
+    internal static void ScanHorizontalWaveShotReactions(
         RoomLevelData level, SamusProjectileOccupant held, ISamusRoomObjects roomObjects, StraddledTerrain<RoomTerrainBlock> straddledTerrain)
     {
         SamusProjectile shot = held.Projectile;

@@ -39,7 +39,7 @@ internal static class SuitPickupPeriodicDamageVerification
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.MaxHealth = 299;
         samus.Health = 299;
-        PrivateState.Set(samus, "EnergyFraction", PeriodicDamageEnergyFraction.None);
+        samus.EnergyFraction = PeriodicDamageEnergyFraction.None;
         // `$84:88F3` equips the suit before the message box and the pickup routine.
         samus.EquippedItems = SamusEquipmentFlags.VariaSuit;
         runtime.SuitPickup.Begin(samus, runtime.Room.LoadedCamera.PixelPosition, SamusSuitPickupKind.Varia);

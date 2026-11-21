@@ -53,7 +53,7 @@ public sealed class SamusShownFrames
 
     /// <summary>The picture frame the body draws for <paramref name="pose"/> at animation frame <paramref name="frame"/>.</summary>
     /// <exception cref="InvalidOperationException">No path of the game shows that frame.</exception>
-    private SamusAnimationFrame PictureFrame(SamusPoseId pose, SamusAnimationFrame frame) =>
+    internal SamusAnimationFrame PictureFrame(SamusPoseId pose, SamusAnimationFrame frame) =>
         TryPictureFrame(pose, frame, out SamusAnimationFrame picture)
             ? picture
             : throw new InvalidOperationException($"Samus's body cannot show pose {pose} at animation frame {frame}: no path of the game reaches it.");

@@ -20,7 +20,7 @@ internal static class EscapeTypewriterControlWords
     private const int LineStart = 13;
 
     /// <summary>Each command's control word.</summary>
-    private static readonly FrozenDictionary<EscapeTypewriterCommand, int> Words = new Dictionary<EscapeTypewriterCommand, int>
+    internal static readonly FrozenDictionary<EscapeTypewriterCommand, int> Words = new Dictionary<EscapeTypewriterCommand, int>
     {
         [EscapeTypewriterCommand.End] = End,
         [EscapeTypewriterCommand.LineStart] = LineStart,

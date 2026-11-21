@@ -49,7 +49,7 @@ internal static class YappingMawRetractionHoldVerification
             AssertEqual(YappingMawAction.ExtendingOrRetracting, state.Action, $"{context}: setup begins the extension");
 
             state.Aim = aim;
-            state.Extension = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Enemies.YappingMaws.YappingMawCurl>([typeof(global::SuperMetroid.Core.Spatial.SignedSixteenSixteen)], new object?[] { SixteenSixteenWords.ToDisplacement(-retract - 1) });
+            state.Extension = new global::SuperMetroid.Core.Enemies.YappingMaws.YappingMawCurl(SixteenSixteenWords.ToDisplacement(-retract - 1));
             state.SpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(row);
             state.CurlPhase = YappingMawCurlPhase.Retracting;
             state.HasGrabbedSamus = true;

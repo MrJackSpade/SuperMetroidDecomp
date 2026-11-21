@@ -16,19 +16,19 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 public sealed class EnemyTileSourceArtwork
 {
     /// <summary>Each enemy's installed characters, by definition.</summary>
-    private readonly Dictionary<EnemyDefinitionId, RoomCharacterAtlas> sheets;
+    internal readonly Dictionary<EnemyDefinitionId, RoomCharacterAtlas> sheets;
 
     /// <summary>Each enemy's installed palette, by definition.</summary>
-    private readonly Dictionary<EnemyDefinitionId, EnemyPaletteSheet> palettes;
+    internal readonly Dictionary<EnemyDefinitionId, EnemyPaletteSheet> palettes;
 
     /// <summary>The characters of the artwork graphics sets load for no enemy (#1686).</summary>
-    private readonly Dictionary<UnplacedEnemyArtwork, RoomCharacterAtlas> unplacedSheets;
+    internal readonly Dictionary<UnplacedEnemyArtwork, RoomCharacterAtlas> unplacedSheets;
 
     /// <summary>The colours of the artwork graphics sets load for no enemy (#1686).</summary>
-    private readonly Dictionary<UnplacedEnemyArtwork, EnemyPaletteSheet> unplacedPalettes;
+    internal readonly Dictionary<UnplacedEnemyArtwork, EnemyPaletteSheet> unplacedPalettes;
 
     /// <summary>Copies installed artwork, rejecting a sheet without its palette.</summary>
-    private EnemyTileSourceArtwork(EnemyTileArtworkParts parts)
+    internal EnemyTileSourceArtwork(EnemyTileArtworkParts parts)
     {
         RejectUnpaired(parts);
         sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(parts.Sheets);
@@ -49,7 +49,7 @@ public sealed class EnemyTileSourceArtwork
     }
 
     /// <summary>Finds the installed palette of <paramref name="enemy"/>.</summary>
-    private bool TryGetPalette(EnemyDefinitionId enemy, [NotNullWhen(true)] out EnemyPaletteSheet? palette) =>
+    internal bool TryGetPalette(EnemyDefinitionId enemy, [NotNullWhen(true)] out EnemyPaletteSheet? palette) =>
         palettes.TryGetValue(enemy, out palette);
 
     /// <summary>The installed palette of <paramref name="enemy"/>.</summary>

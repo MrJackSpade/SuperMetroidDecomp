@@ -166,7 +166,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     /// Installs the direction-selected relative position and begins brightening, its flicker's first step to start on the
     /// first update it brightens.
     /// </summary>
-    private static void SpawnWreckedShipGhost(
+    internal static void SpawnWreckedShipGhost(
         RoomEnemyPlace place,
         WreckedShipGhostEnemyState state,
         Position16<RoomPixels> samusPosition)
@@ -180,7 +180,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     }
 
     /// <summary>Brightens the ghost toward its white flash, flickering as it brightens; once no colour changes, it fades to its own colours.</summary>
-    private static void RunWreckedShipGhostBrightening(
+    internal static void RunWreckedShipGhostBrightening(
         RoomEnemyPlace place,
         WreckedShipGhostEnemyState state)
     {
@@ -262,7 +262,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     /// Advances the flicker: when the current step's updates run out, the next step starts and may show the ghost; past the
     /// last step the flicker ends and every later update keeps the ghost visible for this cycle.
     /// </summary>
-    private static void AdvanceWreckedShipGhostFlicker(
+    internal static void AdvanceWreckedShipGhostFlicker(
         RoomEnemyPlace place,
         WreckedShipGhostEnemyState state)
     {
@@ -287,7 +287,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     /// Steps the ghost's fade: every colour channel moves exactly one level toward its target per frame; the return value
     /// counts channel changes, not changed colours.
     /// </summary>
-    private static int StepWreckedShipGhostFadeTowardTarget(
+    internal static int StepWreckedShipGhostFadeTowardTarget(
         RoomEnemyPlace place,
         WreckedShipGhostEnemyState state)
     {

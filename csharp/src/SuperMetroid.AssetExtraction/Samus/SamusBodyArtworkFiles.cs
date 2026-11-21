@@ -31,7 +31,7 @@ public static class SamusBodyArtworkFiles
     /// Import-data JSON filename of the decoded body (#1638, #2556): what each pose frame shows, the half pictures' transfer
     /// sizes, the compositions, whose parts are packed sprite placements, and the half pictures' provenance hashes.
     /// </summary>
-    private const string ArtworkFileName = "samus-body-artwork.json";
+    internal const string ArtworkFileName = "samus-body-artwork.json";
     /// <summary>
     /// Manifest revision containing source hashes, selectors, spritemaps stored as sprite parts, and body placements.
     /// Revision nine holds each pose's placement and its frames' own placements instead of the cartridge's offset tables
@@ -180,7 +180,7 @@ public static class SamusBodyArtworkFiles
     /// <param name="directory">The component directory, holding the installed death documents and the arm cannon's manifest.</param>
     /// <param name="importData">The component's import-data directory, holding the decoded body, atmosphere and arm cannon.</param>
     /// <exception cref="InvalidDataException">Metadata or linked artwork are invalid; diagnostics retain the offending filename.</exception>
-    private static SamusBodySources LoadForImport(string directory, string importData)
+    internal static SamusBodySources LoadForImport(string directory, string importData)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(importData);
         SamusArtworkFile manifestFile = SamusArtworkFile.Read(Path.Combine(importData, ArtworkFileName));

@@ -18,7 +18,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 public static class RoomMetatileArtworkFiles
 {
     /// <summary>Import-data visual-block manifest filename recording cartridge provenance, metatile JSON hashes, and native transfer lengths.</summary>
-    private const string ManifestFileName = "room-blocks.json";
+    internal const string ManifestFileName = "room-blocks.json";
     /// <summary>Schema revision required by the visual-block provenance manifest; 3 writes the compositions as import data, not installed (#1638).</summary>
     private const int FormatVersion = 3;
 

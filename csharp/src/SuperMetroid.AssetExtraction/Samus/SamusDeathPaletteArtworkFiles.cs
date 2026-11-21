@@ -22,7 +22,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 public static class SamusDeathPaletteArtworkFiles
 {
     /// <summary>Import-data JSON filename for suited/suitless death rows, whiteout shades, and explosion death steps.</summary>
-    private const string ArtworkFileName = "samus-death-palettes.json";
+    internal const string ArtworkFileName = "samus-death-palettes.json";
     /// <summary>Installed JSON filename for the explosion's death steps and the whiteout colours, named by purpose.</summary>
     public const string StepFileName = "samus-death-steps.json";
     /// <summary>

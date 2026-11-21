@@ -7,7 +7,7 @@ public readonly record struct EscapeTimeReadout
     /// <param name="minutes">Whole minutes remaining, 0 through 99.</param>
     /// <param name="seconds">Whole seconds past the minutes, 0 through 59.</param>
     /// <param name="centiseconds">Centiseconds past the seconds, 0 through 99.</param>
-    private EscapeTimeReadout(int minutes, int seconds, int centiseconds)
+    internal EscapeTimeReadout(int minutes, int seconds, int centiseconds)
     {
         Minutes = minutes;
         Seconds = seconds;

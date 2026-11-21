@@ -17,7 +17,7 @@ public static class RoomObjectBlueDoorVisualFiles
     };
 
     /// <summary>Editable blue-door cap and shared clear-frame JSON filename.</summary>
-    private const string VisualFileName = "blue-doors.json";
+    internal const string VisualFileName = "blue-doors.json";
 
     /// <summary>The blue-door cap as the import pictures them: every frame's geometry and published name.</summary>
     internal static RoomObjectFrameFamily<RoomObjectDraw> Family { get; } =
@@ -55,7 +55,7 @@ public static class RoomObjectBlueDoorVisualFiles
     }
 
     /// <summary>Sixteen original artwork identities; each facing's closed cap drawn solid shows its closed cap's.</summary>
-    private static IEnumerable<RoomObjectDrawLists.DrawList> Editable
+    internal static IEnumerable<RoomObjectDrawLists.DrawList> Editable
     {
         get
         {
@@ -73,7 +73,7 @@ public static class RoomObjectBlueDoorVisualFiles
         TryGet(draw, out RoomObjectDrawLists.DrawList list) ? list : throw new InvalidDataException($"{draw} is not a blue door cap draw.");
 
     /// <summary>Builds the draw list of a recognized blue cap from how its cells collide.</summary>
-    private static bool TryGet(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
+    internal static bool TryGet(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
     {
         bool found = RoomObjectDrawIdentity.TryFrame<BlueDoorCaps.Draw>(request, out BlueDoorCaps.Draw cap);
         list = found ? RoomObjectShapeRun.DrawList(request, cap.Blocks, RoomObjectShapeRun.Line(cap.LineAxis, cap.Blocks)) : default;
@@ -81,7 +81,7 @@ public static class RoomObjectBlueDoorVisualFiles
     }
 
     /// <summary>Names an editable cap frame by direction and what it shows (#1994).</summary>
-    private static string VisualId(RoomObjectDraw request)
+    internal static string VisualId(RoomObjectDraw request)
     {
         if (!RoomObjectDrawIdentity.TryFrame<BlueDoorCaps.Draw>(request, out var draw))
             throw new InvalidDataException($"Blue-door draw {request} has no visual ID.");

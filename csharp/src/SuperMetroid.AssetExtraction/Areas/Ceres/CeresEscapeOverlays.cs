@@ -16,7 +16,7 @@ public sealed class CeresEscapeOverlays
     private CeresEscapeOverlays(Dictionary<string, BackgroundTile[]> pages) => this.pages = pages;
 
     /// <summary>One page's installed tiles, in tilemap order.</summary>
-    private BackgroundTile[] PageTiles(CeresEscapeWarningPicture page) => pages[page.Name];
+    internal BackgroundTile[] PageTiles(CeresEscapeWarningPicture page) => pages[page.Name];
     /// <summary>Validates the three-page JSON document and keeps every page's tiles.</summary>
     internal static CeresEscapeOverlays Load(Stream json)
     {

@@ -68,7 +68,7 @@ public sealed class SuperMetroidGame
     /// <param name="assists">The assists the session plays under, or <see langword="null"/> for the unassisted game.</param>
     /// <param name="hostServices">The compatibility services and display policy.</param>
     /// <param name="random">The session's random number generator, which the frontend and every gameplay runtime share.</param>
-    private SuperMetroidGame(
+    internal SuperMetroidGame(
         SaveSlotStore saves,
         GameplayAssists? assists,
         SuperMetroidGameHostServices hostServices,
@@ -129,7 +129,7 @@ public sealed class SuperMetroidGame
 
 
     /// <summary>Runs one update and returns its status.</summary>
-    private FrontendFrame Step(ControllerButton controllerInput)
+    internal FrontendFrame Step(ControllerButton controllerInput)
     {
         // The sound queues read whether the door transition has disabled sound effects from the door's phase itself as each
         // request is made (#2499); the phase's audio here chooses only the update's own audio processing.
@@ -286,14 +286,14 @@ public sealed class SuperMetroidGame
     /// True when the current phase's step is waiting out a frame of the display, so the next update finishes it instead
     /// of starting a new update of the phase (<see cref="DisplayFrameWaitContinuation"/>).
     /// </summary>
-    private bool PhaseIsWaitingOutDisplayFrame => Session.RunningPhase.IsWaitingOutDisplayFrame;
+    internal bool PhaseIsWaitingOutDisplayFrame => Session.RunningPhase.IsWaitingOutDisplayFrame;
 
     /// <summary>
     /// Advances the random generator once per update through the title, file selection and
     /// loading. These phases run once per update and do not run gameplay, which advances it
     /// itself. Saves keep no copy of the generator.
     /// </summary>
-    private void AdvanceMenuRandom()
+    internal void AdvanceMenuRandom()
     {
         switch (Session.RunningPhase.RandomStep)
         {

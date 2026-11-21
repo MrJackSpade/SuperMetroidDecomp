@@ -13,6 +13,6 @@ internal static class SamusDraygonGrabbedStateAccess
         /// (<see cref="SharedEscapeAndDrainCount{TStage}.EscapePressesReach"/>).
         /// </summary>
         public int EscapeButtonCounter =>
-            PrivateState.Field<SamusDraygonGrabbedState, SharedEscapeAndDrainCount<Abilities.SamusSuitPickupStage>>(self, "escapePresses").EscapePresses;
+            self.escapePresses.EscapePresses;
     }
 }

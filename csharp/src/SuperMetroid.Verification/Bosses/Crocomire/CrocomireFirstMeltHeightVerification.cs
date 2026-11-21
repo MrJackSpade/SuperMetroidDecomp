@@ -71,7 +71,7 @@ internal static class CrocomireFirstMeltHeightVerification
         foreach ((int y, CrocomireBodyAnimation animation, EnemyFrameId frame) in HeightBands.Concat(HeightBands.Reverse()))
         {
             string at = $"{phase} from height {y}";
-            global::SuperMetroid.Core.PrivateState.Set(state, "DeathStage", phase);
+            state.DeathStage = phase;
             state.VerticalSpeed = SignedEightEight.FromPixels(1);
             body.Position = body.Position.WithWholeY(y);
             fixture.Enemies.CrocomireBehavior.RunCrocomireMain(body.HeldOccupant(), samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), camera);

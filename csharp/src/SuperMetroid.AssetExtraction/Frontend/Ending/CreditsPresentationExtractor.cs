@@ -55,7 +55,7 @@ public static class CreditsPresentationExtractor
     }
 
     /// <summary>Interprets bank 8C row instructions into bounded 32-word tilemap rows.</summary>
-    private static ushort[][] ReadNativeRows(ISnesAddressSpace bus)
+    internal static ushort[][] ReadNativeRows(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
         byte[] source = RomDataReader.Decompress(CartridgeImportSource.Require(bus), EndingSourceDefinitions.Credits.Tilemap);

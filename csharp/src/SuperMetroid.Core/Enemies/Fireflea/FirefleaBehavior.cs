@@ -101,7 +101,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// normal contact therefore kills an otherwise healthy Fireflea, while Screw Attack and
     /// similar contact attacks can increment the room kill count twice.
     /// </summary>
-    private void ResolveFirefleaTouch(
+    internal void ResolveFirefleaTouch(
         RoomEnemyOccupant fireflea,
         SamusState samus,
         PseudoScrewCharge pseudoScrew)

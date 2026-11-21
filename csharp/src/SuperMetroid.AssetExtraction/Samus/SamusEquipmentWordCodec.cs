@@ -71,7 +71,7 @@ public static class SamusEquipmentWordCodec
     /// <param name="word">A sixteen-bit equipment word.</param>
     /// <returns>The items whose bits are set.</returns>
     /// <exception cref="InvalidDataException">The word sets a bit that records no item and is not the unused item bit.</exception>
-    private static SamusEquipmentFlags FromEquipmentWord(ushort word)
+    internal static SamusEquipmentFlags FromEquipmentWord(ushort word)
     {
         SamusEquipmentFlags items = SamusEquipmentFlags.None;
         ushort recorded = UnusedItemBit;
@@ -113,7 +113,7 @@ public static class SamusEquipmentWordCodec
     /// <param name="word">A sixteen-bit beam word.</param>
     /// <returns>The beams whose bits are set.</returns>
     /// <exception cref="InvalidDataException">The word sets a bit that records no beam.</exception>
-    private static SamusBeamFlags FromBeamWord(ushort word)
+    internal static SamusBeamFlags FromBeamWord(ushort word)
     {
         SamusBeamFlags beams = SamusBeamFlags.None;
         foreach (BeamBit entry in BeamBits)

@@ -18,7 +18,7 @@ internal readonly record struct EnemyProjectileBlockScan
     /// <param name="first">The first block tested, its row as the edge or span names it; <see cref="Block"/> takes it within the cycle.</param>
     /// <param name="edge">The edge scanned: horizontal for a horizontal move, stepping down the column; vertical for a vertical one, stepping along the row.</param>
     /// <param name="extraBlocks">How many blocks the scan tests after the first.</param>
-    private EnemyProjectileBlockScan(Position16<RoomBlocks> first, Axis edge, int extraBlocks)
+    internal EnemyProjectileBlockScan(Position16<RoomBlocks> first, Axis edge, int extraBlocks)
     {
         First = first;
         Edge = edge;

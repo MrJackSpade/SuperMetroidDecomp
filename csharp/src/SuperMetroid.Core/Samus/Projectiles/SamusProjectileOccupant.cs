@@ -110,7 +110,7 @@ public sealed class SamusProjectileOccupant
     /// particle starts to trail, counted by its flight, and started again with the flight's interval on each update it
     /// leaves one; null for a shot that leaves no trail, as the Hyper Beam's.
     /// </summary>
-    internal UpdateCountdown? Trail { private get; set; }
+    internal UpdateCountdown? Trail { get; set; }
 
     /// <summary>
     /// Counts one update of the shot's flight toward its next trail: whether the shot leaves one on this update, after which

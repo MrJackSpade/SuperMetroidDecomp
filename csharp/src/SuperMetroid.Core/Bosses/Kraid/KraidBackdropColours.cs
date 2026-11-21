@@ -21,7 +21,7 @@ internal sealed class KraidBackdropColours : IGameplayShadingSource
     private RunningKraidBackdropFade? running;
 
     /// <summary>What the backdrop shows.</summary>
-    private KraidBackdropShown Shows => running is null
+    internal KraidBackdropShown Shows => running is null
         ? StartedFrom
         : KraidBackdropShown.Fade(StartedFrom, running.Goal, running.Progress);
 

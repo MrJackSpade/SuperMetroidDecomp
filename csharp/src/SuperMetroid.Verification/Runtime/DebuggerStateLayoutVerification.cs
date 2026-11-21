@@ -185,7 +185,7 @@ internal static class DebuggerStateLayoutVerification
         {
             RoomObjectSetupBlocks = new InstalledRoomObjectSetupBlocks(new Dictionary<RoomObjectSetupBlock, RoomBlockAppearance> { [block] = shown }),
         });
-        RoomObjectDraw grapple = global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.World.RoomObjectArtwork, global::SuperMetroid.Core.Rooms.RoomObjects.InstalledRoomObjectPictures>(RoomObjectFixtures.Installed, "RoomObjectGrappleBlockVisuals").Images.All.Keys.First();
+        RoomObjectDraw grapple = RoomObjectFixtures.Installed.RoomObjectGrappleBlockVisuals.Images.All.Keys.First();
 
         var restored = DeserializeDebuggerGraph<SuperMetroid.Core.World.RoomObjectVisuals>(SerializeDebuggerGraph(visuals));
         AssertTrue(!ReferenceEquals(visuals, restored), "the restore builds its own room-object visuals");

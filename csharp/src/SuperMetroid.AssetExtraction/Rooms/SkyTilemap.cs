@@ -14,10 +14,10 @@ public sealed class SkyTilemap
     public const int Columns = 32;
 
     /// <summary>Rows in one chunk: the rows of one tilemap page.</summary>
-    private const int RowsPerChunk = RoomSkyTilemapFormat.RowsPerPage;
+    internal const int RowsPerChunk = RoomSkyTilemapFormat.RowsPerPage;
 
     /// <summary>Rows over the 2048-pixel span the chunk positions cover before they repeat: every chunk's rows.</summary>
-    private const int Rows = ScrollingSkyChunks.ChunkCount * RowsPerChunk;
+    internal const int Rows = ScrollingSkyChunks.ChunkCount * RowsPerChunk;
 
     /// <summary>The tiles of every row, row-major.</summary>
     private readonly BackgroundTile[] tiles = new BackgroundTile[Rows * Columns];

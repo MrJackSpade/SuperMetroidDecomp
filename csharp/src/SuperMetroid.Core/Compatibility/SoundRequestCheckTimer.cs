@@ -21,10 +21,10 @@ public readonly record struct SoundRequestCheckTimer
     public const int Period = 256;
 
     /// <summary>Stores a phase already inside [0, <see cref="Period"/>).</summary>
-    private SoundRequestCheckTimer(int phase) => Phase = phase;
+    internal SoundRequestCheckTimer(int phase) => Phase = phase;
 
     /// <summary>Counts accumulated since the last check, zero through <see cref="Period"/> - 1.</summary>
-    private int Phase { get; }
+    internal int Phase { get; }
 
     /// <summary>
     /// Advances the timer by one clock step spanning <paramref name="stepPeriods"/> step periods: it adds that many eighths

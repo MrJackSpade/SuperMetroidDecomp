@@ -133,7 +133,7 @@ internal sealed class EnemyRoomEffects
     /// Carries out the room-level effects one step of Mother Brain's death asked for: the escape's colour effects, the end
     /// of Samus's drained get-up, the escape countdown, her defeat's record and the Zebes time bomb's story event.
     /// </summary>
-    private void ApplyMotherBrainDeathStep(MotherBrainRainbowBeamAttackStepResult death, EnemyRoomEffectSite site)
+    internal void ApplyMotherBrainDeathStep(MotherBrainRainbowBeamAttackStepResult death, EnemyRoomEffectSite site)
     {
         foreach (ColourEffectId definition in death.EscapeColourEffectRequests)
             site.ColourEffects.Start(definition, site.Samus.EquippedItems);

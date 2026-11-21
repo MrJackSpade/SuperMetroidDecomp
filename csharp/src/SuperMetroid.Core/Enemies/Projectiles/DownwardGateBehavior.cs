@@ -93,7 +93,7 @@ internal sealed class DownwardGateBehavior
     /// <summary>
     /// Moves the gate at its speed, a whole pixel an update, and shows its next place each time it has moved a block.
     /// </summary>
-    private static void RunDownwardGateProjectileMovement(GateBehavior owner, EnemyProjectile projectile)
+    internal static void RunDownwardGateProjectileMovement(GateBehavior owner, EnemyProjectile projectile)
     {
         DownwardGateState gate = owner.Gates.Of(projectile);
         for (int pixel = 0; pixel < projectile.Velocity.Y.MagnitudeWholePixels; pixel++)
@@ -143,7 +143,7 @@ internal sealed class DownwardGateBehavior
     }
 
     /// <summary>A downward gate, moving or closed (#1760).</summary>
-    private GateBehavior Gate { get; } = new();
+    internal GateBehavior Gate { get; } = new();
 
     /// <summary>
     /// A downward gate: it slides by its vertical velocity, down while moving and up while closed, from when its animation

@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 public static class RoomObjectEyeDoorVisualFiles
 {
     /// <summary>JSON filename for editable eye-door eye, middle, bottom, and shared clearing frames.</summary>
-    private const string VisualFileName = "eye-doors.json";
+    internal const string VisualFileName = "eye-doors.json";
 
     /// <summary>The installed name of each side, as the published keys spell it.</summary>
     private static readonly IReadOnlyDictionary<EyeDoorOrientation, string> SideNames = new Dictionary<EyeDoorOrientation, string>
@@ -61,7 +61,7 @@ public static class RoomObjectEyeDoorVisualFiles
     }
 
     /// <summary>Enumerates both sides' clear, eye, middle, and bottom draws, left side first.</summary>
-    private static IEnumerable<RoomObjectDrawLists.DrawList> All
+    internal static IEnumerable<RoomObjectDrawLists.DrawList> All
     {
         get
         {
@@ -77,7 +77,7 @@ public static class RoomObjectEyeDoorVisualFiles
     }
 
     /// <summary>The frames with a picture of their own: a frame showing another's picture is that frame's in the installed file.</summary>
-    private static IEnumerable<RoomObjectDrawLists.DrawList> Editable =>
+    internal static IEnumerable<RoomObjectDrawLists.DrawList> Editable =>
         All.Where(draw => !SharedPictures.ContainsKey(draw.Draw));
 
     /// <summary>The draw list of <paramref name="draw"/>, which must be one of the eye door draws.</summary>
@@ -86,7 +86,7 @@ public static class RoomObjectEyeDoorVisualFiles
         TryGet(draw, out RoomObjectDrawLists.DrawList list) ? list : throw new InvalidDataException($"{draw} is not a eye door draw.");
 
     /// <summary>Builds the one-run draw list of a recognized eye-door draw from its cells' collision.</summary>
-    private static bool TryGet(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
+    internal static bool TryGet(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
     {
         if (!RoomObjectDrawIdentity.TryFrame<EyeDoorDraws.Draw>(request, out var draw)) { list = default; return false; }
         list = RoomObjectShapeRun.DrawList(request, draw.Blocks, RoomObjectShapeRun.Line(draw.LineAxis, draw.Blocks));
@@ -94,7 +94,7 @@ public static class RoomObjectEyeDoorVisualFiles
     }
 
     /// <summary>Gets a stable side and look identifier for an editable draw (#1994).</summary>
-    private static string VisualId(RoomObjectDraw request) => VisualKeys.TryGetValue(request, out string? key) ? key
+    internal static string VisualId(RoomObjectDraw request) => VisualKeys.TryGetValue(request, out string? key) ? key
         : throw new InvalidDataException($"Eye-door draw {request} has no visual ID.");
 
     /// <summary>The published key of the clear picture both sides' clear frames show.</summary>

@@ -7,7 +7,7 @@ public static class OldTourianEscapeRedFlashPaletteFxColorDefinitions
 {
 
     /// <summary>Each record writes eight live BGR555 colors.</summary>
-    private const int ColorsPerFrame = 8;
+    internal const int ColorsPerFrame = 8;
 
     /// <summary>The family's records, consecutive from the first its program shows, and the colours each writes.</summary>
     public static PaletteFxColorFrames ColorFrames { get; } = PaletteFxColorFrames.Of(ColourEffectId.OldTourianRedFlashing, ColorsPerFrame);

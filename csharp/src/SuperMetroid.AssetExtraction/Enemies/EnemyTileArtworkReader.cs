@@ -343,7 +343,7 @@ internal sealed class EnemyTileArtworkReader
 
     /// <summary>The enemies' compositions, import data whose parts are packed sprite placements (#1638), from <paramref name="importData"/>.</summary>
     /// <exception cref="InvalidDataException">A composition is invalid.</exception>
-    private static EnemySpritemapCatalog Spritemaps(string importData)
+    internal static EnemySpritemapCatalog Spritemaps(string importData)
     {
         try
         {

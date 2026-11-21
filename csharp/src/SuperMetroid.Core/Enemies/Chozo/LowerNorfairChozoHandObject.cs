@@ -18,7 +18,7 @@ internal sealed class LowerNorfairChozoHandObject(ChozoStatueObjects statue) : R
     private readonly ChozoStatueObjects _statue = Ensure.NotNull(statue);
 
     /// <summary>Where the hand is in its course.</summary>
-    private LowerNorfairChozoHandPhase Phase { get; set; } = LowerNorfairChozoHandPhase.Starting;
+    internal LowerNorfairChozoHandPhase Phase { get; set; } = LowerNorfairChozoHandPhase.Starting;
 
     /// <inheritdoc/>
     internal override void Update(RoomObjectPlace place, RoomObjectStepContext context)

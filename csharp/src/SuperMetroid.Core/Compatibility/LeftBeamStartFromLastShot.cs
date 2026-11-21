@@ -33,7 +33,7 @@ namespace SuperMetroid.Core.Compatibility;
 public sealed class LeftBeamStartFromLastShot
 {
     /// <summary>What each place keeps for its next projectile, in place order.</summary>
-    private readonly PixelFraction[] kept;
+    internal readonly PixelFraction[] kept;
 
     /// <summary>Starts a pool of places that keep nothing.</summary>
     /// <param name="placeCount">The number of shot places, at least one.</param>

@@ -14,7 +14,7 @@ public sealed class CeresFlightPalette
     internal const int ColourCount = 2 * OwnerColours;
 
     /// <summary>The colours of each owner, the backgrounds' or the sprites'.</summary>
-    private const int OwnerColours = 128;
+    internal const int OwnerColours = 128;
 
     /// <summary>The backdrop, the first background set's transparent colour.</summary>
     private const int BackdropColour = 0;

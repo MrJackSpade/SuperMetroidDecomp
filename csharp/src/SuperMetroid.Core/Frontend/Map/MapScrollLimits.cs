@@ -15,7 +15,7 @@ public readonly record struct MapScrollLimits
     /// <param name="right">The rightmost revealed column's left pixel.</param>
     /// <param name="top">The top revealed row's top pixel.</param>
     /// <param name="bottom">The bottom revealed row's top pixel.</param>
-    private MapScrollLimits(int left, int right, int top, int bottom)
+    internal MapScrollLimits(int left, int right, int top, int bottom)
     {
         Left = left;
         Right = right;

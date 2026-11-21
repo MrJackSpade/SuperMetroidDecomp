@@ -19,7 +19,7 @@ internal sealed class BotwoonSegmentState(RoomEnemyPlace head, int index, EnemyP
     internal RoomEnemyPlace Head { get; } = Ensure.NotNull(head);
 
     /// <summary>The segment's place in the body, from zero (the tail) to the last, behind the head.</summary>
-    private int Index { get; } = Ensure.BetweenInclusive(0, BotwoonFightDefinitions.BodySegments - 1, index);
+    internal int Index { get; } = Ensure.BetweenInclusive(0, BotwoonFightDefinitions.BodySegments - 1, index);
 
     /// <summary>Whether the segment is the tail, which shows the tail cap and signals the head when it lands.</summary>
     internal bool IsTail => Index == 0;

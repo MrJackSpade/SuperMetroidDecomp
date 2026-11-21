@@ -144,7 +144,7 @@ public static class GameplayDisplayCapture
     /// </summary>
     /// <param name="latched">The ordinary room frame the frame boundary latched.</param>
     /// <param name="live">The display inputs read as the frame ends.</param>
-    private static OrdinaryGameplayBase CaptureOrdinaryBase(OrdinaryRoomFrameLatch latched, GameplayFrameEndDisplayInputs live)
+    internal static OrdinaryGameplayBase CaptureOrdinaryBase(OrdinaryRoomFrameLatch latched, GameplayFrameEndDisplayInputs live)
     {
         Ensure.NotNull(latched);
         Ensure.NotNull(live);
@@ -250,13 +250,13 @@ public static class GameplayDisplayCapture
     /// <summary>The power bomb's live window inputs drawn in the colour the accepted frame latched.</summary>
     /// <param name="live">The display inputs read as the frame ends.</param>
     /// <param name="latched">The room's frame the frame boundary latched.</param>
-    private static PowerBombRenderSnapshot PowerBomb(GameplayFrameEndDisplayInputs live, RoomFrameLatch latched) =>
+    internal static PowerBombRenderSnapshot PowerBomb(GameplayFrameEndDisplayInputs live, RoomFrameLatch latched) =>
         live.PowerBomb with { Oval = live.PowerBomb.Oval with { Colour = latched.Tints.PowerBomb } };
 
     /// <summary>The suit pickup's live light beam drawn in the colour the accepted frame latched, or null while inactive.</summary>
     /// <param name="live">The display inputs read as the frame ends.</param>
     /// <param name="latched">The room's frame the frame boundary latched.</param>
-    private static SamusSuitPickupFlash? SuitPickup(GameplayFrameEndDisplayInputs live, RoomFrameLatch latched) =>
+    internal static SamusSuitPickupFlash? SuitPickup(GameplayFrameEndDisplayInputs live, RoomFrameLatch latched) =>
         live.SuitPickupBeam is { } beam ? new(beam, latched.Tints.SuitPickup) : null;
 
     /// <summary>

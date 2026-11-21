@@ -76,7 +76,7 @@ internal static class ShaktoolAnimations
     /// The animation that starts at each segment an owner can start or restart at; the final piece's spin only runs on from
     /// its head bob (#2166).
     /// </summary>
-    private static Dictionary<ShaktoolSegment, Animation<ShaktoolSegment>> StartingAt { get; } = new Dictionary<ShaktoolSegment, Animation<ShaktoolSegment>>
+    internal static Dictionary<ShaktoolSegment, Animation<ShaktoolSegment>> StartingAt { get; } = new Dictionary<ShaktoolSegment, Animation<ShaktoolSegment>>
     {
         [P.SawHandHeadBobPrimaryPiece] = Animation<ShaktoolSegment>.LeadingInto([Segments.Whole(P.SawHandHeadBobPrimaryPiece)], [Segments.Whole(P.SawHandPrimaryPiece)]),
         [P.SawHandHeadBobFinalPiece] = Animation<ShaktoolSegment>.LeadingInto([Segments.Whole(P.SawHandHeadBobFinalPiece)], [Segments.Whole(P.SawHandFinalPiece)]),

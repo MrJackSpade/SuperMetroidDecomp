@@ -130,7 +130,7 @@ public readonly record struct TrigonometryAngle : IComparable<TrigonometryAngle>
     /// This angle carried into the half turn from <see cref="HalfTurn"/> up to a full turn, keeping its position within
     /// the half turn: an angle in the other half turns on by a half turn.
     /// </summary>
-    private TrigonometryAngle InSecondHalfTurn() => new(RawValue % HalfTurn.RawValue + HalfTurn.RawValue);
+    internal TrigonometryAngle InSecondHalfTurn() => new(RawValue % HalfTurn.RawValue + HalfTurn.RawValue);
 
     /// <summary>
     /// This angle carried into the half turn on <paramref name="side"/> (#2555): on the right from just past straight down

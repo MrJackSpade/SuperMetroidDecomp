@@ -113,7 +113,7 @@ internal sealed class PauseScreen
     /// <summary>
     /// The gameplay HUD pause shows (#1351, #1466, #1626): the HUD gameplay displayed at its last accepted frame, whole.
     /// </summary>
-    private ShownHud Hud { get; set; } = ShownHud.Nothing;
+    internal ShownHud Hud { get; set; } = ShownHud.Nothing;
 
     /// <summary>The shown HUD's pictures last resolved, while neither the HUD nor the sheets have changed.</summary>
     private PicturedHud? pictured;

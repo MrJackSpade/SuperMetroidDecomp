@@ -32,7 +32,7 @@ public sealed class SamusProjectileTrail
     /// The place of the shot that left the trail, where it stood when it left it: both sparkles stand from it by their
     /// own <see cref="SamusProjectileTrailSide.Offset"/>.
     /// </summary>
-    private Position16<RoomPixels> Origin { get; }
+    internal Position16<RoomPixels> Origin { get; }
 
     /// <summary>Whether both sparkles' animations have ended, so the trail shows nothing more.</summary>
     internal bool IsFinished => Left.HasEnded && Right.HasEnded;

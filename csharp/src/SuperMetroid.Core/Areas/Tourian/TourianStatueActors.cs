@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Areas.Tourian;
 internal sealed class TourianStatueActors(TourianEntranceStatueBehavior statue, TourianUnlockBehavior unlock) : ITourianStatueActors
 {
     /// <summary>The unlock effects.</summary>
-    private TourianUnlockBehavior Unlock { get; } = unlock;
+    internal TourianUnlockBehavior Unlock { get; } = unlock;
 
     /// <inheritdoc/>
     public TourianStatueAnimation Animation => statue.StatueRoom.Animation;

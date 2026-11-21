@@ -44,7 +44,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// The tint the last effect loaded selected for the effect overlay's blend colours (#1512), or null while no effect
     /// has loaded one and the colours stay the tileset's.
     /// </summary>
-    private RoomEffectTint? Tint { get; set; }
+    internal RoomEffectTint? Tint { get; set; }
     /// <summary>
     /// Rain, fog, and spores texture drift, its fractions kept between updates. Its whole pixels shift the effect overlay's
     /// scroll before the next velocity step.
@@ -66,9 +66,9 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// How far round its rise and fall the liquid's tide is: the surface sits at the negative cosine of this angle's whole
     /// step, and <see cref="AdvanceTidePhase"/> turns it on, continuing round past a full turn.
     /// </summary>
-    private RotationAngle TidePhase { get; set; }
+    internal RotationAngle TidePhase { get; set; }
     /// <summary>How far the tide displaces the liquid surface from its base line, to a fraction of a pixel.</summary>
-    private SignedSixteenSixteen TideOffset { get; set; }
+    internal SignedSixteenSixteen TideOffset { get; set; }
     /// <summary>
     /// Water's effect overlay surface drift, its fraction kept between updates, whose whole pixels offset the surface
     /// texture. It only moves across.
@@ -111,13 +111,13 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// Countdown to the next quake sound while rising lava or acid or the Tourian statues rumble: the sound plays on the
     /// update the countdown runs past zero.
     /// </summary>
-    private WrappingCountdown EarthquakeSoundTimer { get; set; }
+    internal WrappingCountdown EarthquakeSoundTimer { get; set; }
 
     /// <summary>
     /// Where the quake sounds stand in their rhythm (<see cref="RoomEarthquakeDefinitions.RisingLiquidSoundBaseDelays"/>):
     /// the delay the next sound waits after it plays, returning to the first after the last.
     /// </summary>
-    private CyclingSequence<int> EarthquakeSoundRhythm { get; set; } =
+    internal CyclingSequence<int> EarthquakeSoundRhythm { get; set; } =
         CyclingSequence<int>.StartOf(RoomEarthquakeDefinitions.RisingLiquidSoundBaseDelays);
 
     /// <summary>
@@ -143,14 +143,14 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     public int? TargetSurface { get; private set; }
 
     /// <summary>The liquid's level speed in room pixels per update while it moves toward its target: negative rises.</summary>
-    private SignedEightEight LiquidLevelSpeed { get; set; }
+    internal SignedEightEight LiquidLevelSpeed { get; set; }
 
     /// <summary>
     /// The updates the liquid waits, once its level has somewhere to go, before it moves toward its target, as the room
     /// effect or a room object gives it. The wait counts down one update at a time and ends on reaching zero, so a wait of
     /// zero runs past zero and lasts a whole round of the countdown (<see cref="WrappingCountdown"/>).
     /// </summary>
-    private WrappingCountdown LiquidMoveDelay { get; set; }
+    internal WrappingCountdown LiquidMoveDelay { get; set; }
 
     /// <summary>How the effect's overlay blends with the room (#1545), as the room effect describes it, or null when it shows no overlay.</summary>
     public RoomEffectBlend? Blend => overlayLook?.Blend;
@@ -165,10 +165,10 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// The effect overlay's live scroll: an atmosphere's across and down; a liquid's across only, as its surface line
     /// places it down (#1706).
     /// </summary>
-    private Position16<OverlayPixels> Scroll { get; set; }
+    internal Position16<OverlayPixels> Scroll { get; set; }
 
     /// <summary>Whether the room's effect shows its pictures on the effect overlay over the gameplay area.</summary>
-    private bool IsRenderable => ShowsOnOverlay(Type);
+    internal bool IsRenderable => ShowsOnOverlay(Type);
 
     /// <summary>Whether a room of effect <paramref name="type"/> shows the effect's liquid or atmosphere on the effect overlay.</summary>
     public static bool ShowsOnOverlay(RoomFxType type) => RoomFxTypes.Of(type).Overlay != RoomFxOverlayMotion.None;
@@ -208,7 +208,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// <summary>Builds one room's effect-overlay FX from a load source, which may supply its effect directly.</summary>
     /// <param name="source">The room effect's source.</param>
     /// <param name="sounds">The update's sound requests of the runtime running the effect, which its sounds join.</param>
-    private static RoomFxOverlayState ForSource(RoomFxLoadSource source, GameplaySoundRequests sounds)
+    internal static RoomFxOverlayState ForSource(RoomFxLoadSource source, GameplaySoundRequests sounds)
     {
         var fx = new RoomFxOverlayState(sounds);
         fx.SelectEffect(source);
@@ -782,7 +782,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
 
     /// <summary>Creates one room's effect state, with no room effect selected, its sounds joining <paramref name="sounds"/>.</summary>
     /// <param name="sounds">The update's sound requests of the runtime running the effect.</param>
-    private RoomFxOverlayState(GameplaySoundRequests sounds) => this.sounds = Ensure.NotNull(sounds);
+    internal RoomFxOverlayState(GameplaySoundRequests sounds) => this.sounds = Ensure.NotNull(sounds);
 
     /// <summary>
     /// Ends the liquid's wave: no later update's liquid wave moves the liquid, queues its ambient sound or

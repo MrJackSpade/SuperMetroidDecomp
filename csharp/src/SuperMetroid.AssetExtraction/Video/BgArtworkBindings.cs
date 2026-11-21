@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Video;
 public sealed class BgArtworkBindings
 {
     /// <summary>The live bindings, oldest first.</summary>
-    private readonly List<BgArtworkBinding> bindings = [];
+    internal readonly List<BgArtworkBinding> bindings = [];
 
     /// <summary>
     /// Binds the first <paramref name="characterCount"/> characters of <paramref name="identity"/> over

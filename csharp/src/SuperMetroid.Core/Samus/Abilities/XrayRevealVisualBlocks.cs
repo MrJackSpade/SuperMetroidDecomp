@@ -21,16 +21,16 @@ public abstract record XrayRevealVisualBlocks
     public abstract IReadOnlyList<RoomCellPicture> InReadingOrder { get; }
 
     /// <summary>The one block a single-block copy shows.</summary>
-    private static OneBlock One(RoomCellPicture block) => new(block);
+    internal static OneBlock One(RoomCellPicture block) => new(block);
 
     /// <summary>The two blocks side by side a wide copy shows.</summary>
-    private static WidePair Wide(RoomCellPicture left, RoomCellPicture right) => new(left, right);
+    internal static WidePair Wide(RoomCellPicture left, RoomCellPicture right) => new(left, right);
 
     /// <summary>The two blocks one above the other a tall copy shows.</summary>
     public static XrayRevealVisualBlocks Tall(RoomCellPicture top, RoomCellPicture bottom) => new TallPair(top, bottom);
 
     /// <summary>The four blocks a square copy shows.</summary>
-    private static SquareOfFour Square(RoomCellPicture topLeft, RoomCellPicture topRight, RoomCellPicture bottomLeft, RoomCellPicture bottomRight) =>
+    internal static SquareOfFour Square(RoomCellPicture topLeft, RoomCellPicture topRight, RoomCellPicture bottomLeft, RoomCellPicture bottomRight) =>
         new(topLeft, topRight, bottomLeft, bottomRight);
 
     /// <summary>How many blocks a drawable copy shape shows.</summary>

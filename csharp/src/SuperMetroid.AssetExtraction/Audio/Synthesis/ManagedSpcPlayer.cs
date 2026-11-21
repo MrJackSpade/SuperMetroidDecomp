@@ -30,7 +30,7 @@ public sealed class ManagedSpcPlayer
     private ManagedSnesDsp CreateDsp() => new(ram);
 
     /// <summary>Owned 64-KiB APU RAM shared by the driver views and DSP sample decoder.</summary>
-    private readonly SpcRam ram = new();
+    internal readonly SpcRam ram = new();
     /// <summary>Eight music sequencer states that continue advancing under borrowed DSP voices.</summary>
     private readonly ManagedSpcMusicChannel[] channels = Enumerable
         .Range(0, SpcDriverDefinitions.ChannelCount)
@@ -50,7 +50,7 @@ public sealed class ManagedSpcPlayer
     internal SpcMusicSequencer Music { get; }
 
     /// <summary>What music and sound effects share on the DSP: instruments, pitch and volume writes, the key-on, key-off, noise and echo flags, and memory reads.</summary>
-    private SpcVoices Voices { get; }
+    internal SpcVoices Voices { get; }
 
     /// <summary>The SPC driver's three sound-effect libraries: their requests, configuration and channels.</summary>
     internal SpcSoundLibraries SoundLibraries { get; }
@@ -185,7 +185,7 @@ public sealed class ManagedSpcPlayer
     /// Negative echo countdown skips FLG/echo; an unsettled delay skips only echo.
     /// Independently checked against the original maps and pinned Spc_Loop_Part1
     /// for1165; the pending key masks clear only after publication.</summary>
-    private void LoopPartOne()
+    internal void LoopPartOne()
     {
         Music.observer?.KeysPublished(Voices.keyOn, Voices.keyOff);
         Voices.Dsp.Global.KeyOff(new DspVoiceMask(Voices.keyOff));

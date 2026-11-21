@@ -45,7 +45,7 @@ internal static class TitleSpriteExtractor
     /// logo pointer and the copyright from its fixed spritemap.
     /// </summary>
     /// <exception cref="InvalidDataException">A native list disagrees with its typed card, or two compositions share a spritemap.</exception>
-    private static TitleSpritemaps MapSprites(ISnesAddressSpace bus)
+    internal static TitleSpritemaps MapSprites(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);

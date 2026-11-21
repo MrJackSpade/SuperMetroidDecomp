@@ -224,7 +224,7 @@ internal sealed class PhantoonDeath
     /// progress: every colour but Phantoon's body's fades toward its powered colour, a typed fade the room shows.
     /// </summary>
     /// <returns>Whether the power had finished coming on.</returns>
-    private static bool AdvanceWreckedShipPowerOn(PhantoonEnemyState state)
+    internal static bool AdvanceWreckedShipPowerOn(PhantoonEnemyState state)
     {
         if (state.ShipPowerOn.TakeStep(PhantoonColorDefinitions.PowerOnSteps) is { } step)
         {

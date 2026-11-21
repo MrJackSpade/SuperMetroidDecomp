@@ -7,5 +7,5 @@ internal static class BoyonCurvePlaceConstants
     public static BoyonCurvePlace PastTheTop => BoyonCurvePlace.Top.Higher;
     /// <summary>The place <paramref name="entryFromTop"/> entries down the curve from its top, zero or more.</summary>
     /// <param name="entryFromTop">The entry, counted from the top.</param>
-    public static BoyonCurvePlace AtEntry(int entryFromTop) => global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Enemies.Boyon.BoyonCurvePlace>([typeof(int)], new object?[] { entryFromTop });
+    public static BoyonCurvePlace AtEntry(int entryFromTop) => new global::SuperMetroid.Core.Enemies.Boyon.BoyonCurvePlace(entryFromTop);
 }

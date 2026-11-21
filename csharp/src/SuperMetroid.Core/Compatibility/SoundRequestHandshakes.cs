@@ -70,7 +70,7 @@ public sealed class SoundRequestHandshakes<TLibrary, TSound>
     private readonly ImmutableArray<TLibrary> libraries;
 
     /// <summary>Each library's handshake, kept by its library (#1755).</summary>
-    private readonly Dictionary<TLibrary, Handshake> handshakes;
+    internal readonly Dictionary<TLibrary, Handshake> handshakes;
 
     /// <summary>Every library's queue ready, awaiting nothing.</summary>
     /// <param name="libraries">The libraries, distinct.</param>

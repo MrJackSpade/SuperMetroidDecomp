@@ -10,7 +10,7 @@ internal sealed class EndingPictureSprite(CinematicActor<EndingSceneAnimation, C
     : EndingSprite(role)
 {
     /// <summary>The actor, showing its family's pictures.</summary>
-    private CinematicActor<EndingSceneAnimation, CinematicSpritePose, EndingSceneCue> Picture { get; } = Ensure.NotNull(picture);
+    internal CinematicActor<EndingSceneAnimation, CinematicSpritePose, EndingSceneCue> Picture { get; } = Ensure.NotNull(picture);
 
     /// <inheritdoc/>
     public override ICinematicActor<EndingSceneCue> Sprite => Picture;

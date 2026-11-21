@@ -12,9 +12,9 @@ namespace SuperMetroid.Rendering.Direct3D11.Frames;
 public sealed class D3D11RenderWorker
 {
     /// <summary>Retains only the latest unpublished immutable visual packet.</summary>
-    private readonly LatestRenderFrameMailbox mailbox;
+    internal readonly LatestRenderFrameMailbox mailbox;
     /// <summary>Prevents old-generation presents from crossing a simulation reset.</summary>
-    private readonly RenderPresentationGate gate;
+    internal readonly RenderPresentationGate gate;
     /// <summary>Wakes the owner for new frames, resize, or shutdown.</summary>
     private readonly AutoResetEvent wake = new(false);
     /// <summary>Serializes publication, resize requests, and worker shutdown.</summary>
@@ -32,21 +32,21 @@ public sealed class D3D11RenderWorker
     /// <summary>Counts successful DXGI presents across device recreations.</summary>
     internal long presented;
     /// <summary>Counts presentation attempts rejected by window occlusion.</summary>
-    private long occluded;
+    internal long occluded;
     /// <summary>Counts packets rejected because a load/reset generation advanced.</summary>
     internal long stale;
     /// <summary>Most recent packet sequence submitted for drawing.</summary>
-    private long lastConsumedSequence;
+    internal long lastConsumedSequence;
     /// <summary>Counts redraws using a retained packet after resize or occlusion.</summary>
-    private long retainedRedraws;
+    internal long retainedRedraws;
     /// <summary>Packs the last drawn width and height into one atomically published word.</summary>
-    private long lastDrawnSize;
+    internal long lastDrawnSize;
     /// <summary>Records whether a zero-sized client surface has suspended presentation.</summary>
-    private bool surfaceSuspended;
+    internal bool surfaceSuspended;
     /// <summary>Counts successful GPU resource recreation after device loss.</summary>
     private long deviceRecoveries;
     /// <summary>Latest device-loss details captured before resource teardown.</summary>
-    private D3D11DeviceLossDiagnostic? lastDeviceLoss;
+    internal D3D11DeviceLossDiagnostic? lastDeviceLoss;
     /// <summary>CPU time spent submitting frame composition.</summary>
     private readonly RenderTimingWindow cpuCompositionTiming;
     /// <summary>CPU time spent in display setup and Present.</summary>
@@ -109,7 +109,7 @@ public sealed class D3D11RenderWorker
         : this(window, clientSize, generation, kind, null, timingCapacity) { }
 
     /// <summary>Starts the render owner with an optional pre-render verification hook.</summary>
-    private D3D11RenderWorker(nint window, Extent16<DisplayPixels> clientSize, long generation, D3D11DeviceKind kind,
+    internal D3D11RenderWorker(nint window, Extent16<DisplayPixels> clientSize, long generation, D3D11DeviceKind kind,
         Action? beforeRenderForVerification, int timingCapacity = RenderTelemetryLimits.DefaultHistoryCapacity)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(timingCapacity);

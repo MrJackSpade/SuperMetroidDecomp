@@ -124,7 +124,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         RunDeadSidehopperState(place, place.RequireSpeciesState<DeadSidehopperEnemyState>(), samus, level, camera);
 
     /// <summary>Advances the authored hop, post-landing delay, drain, or collision-triggered decay state.</summary>
-    private void RunDeadSidehopperState(
+    internal void RunDeadSidehopperState(
         RoomEnemyPlace place,
         DeadSidehopperEnemyState state,
         SamusState samus,
@@ -385,7 +385,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
 
 
     /// <summary>Starts a new dead Sidehopper animation, resetting both animation clocks before its first step runs.</summary>
-    private static void SetDeadSidehopperAnimation(RoomEnemyPlace place, DeadSidehopperEnemyState state, DeadTourianSegment segment) =>
+    internal static void SetDeadSidehopperAnimation(RoomEnemyPlace place, DeadSidehopperEnemyState state, DeadTourianSegment segment) =>
         state.Playback = StartDeadTourianAnimation(place, segment);
 
     /// <summary>Resets <paramref name="place"/>'s animation clocks and returns the playback of <paramref name="segment"/>'s animation from its start.</summary>

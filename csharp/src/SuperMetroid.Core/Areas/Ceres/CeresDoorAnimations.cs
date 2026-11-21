@@ -32,7 +32,7 @@ internal static class CeresDoorAnimations
         };
 
     /// <summary>The animation that starts at each segment of a door facing right and of one facing left.</summary>
-    private static Dictionary<HorizontalDirection, Dictionary<CeresDoorSegment, Animation<CeresDoorSegment>>> StartingAtBySide { get; } =
+    internal static Dictionary<HorizontalDirection, Dictionary<CeresDoorSegment, Animation<CeresDoorSegment>>> StartingAtBySide { get; } =
         new Dictionary<HorizontalDirection, Dictionary<CeresDoorSegment, Animation<CeresDoorSegment>>>
         {
             [HorizontalDirection.Right] = Starts(SegmentsBySide[HorizontalDirection.Right]),

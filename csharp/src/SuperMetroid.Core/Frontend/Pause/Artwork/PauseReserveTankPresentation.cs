@@ -30,7 +30,7 @@ public sealed class PauseReserveTankPresentation
     /// <param name="index">The place's place in the strip, from 0 through 5.</param>
     /// <returns>The installed screen-pixel anchor for that strip position.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The position is not one of the strip's six.</exception>
-    private Offset16<ScreenPixels> Anchor(int index) =>
+    internal Offset16<ScreenPixels> Anchor(int index) =>
         (uint)index < (uint)anchors.Length ? anchors[index] : throw new ArgumentOutOfRangeException(nameof(index));
 
     /// <summary>

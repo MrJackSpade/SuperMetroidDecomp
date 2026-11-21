@@ -117,7 +117,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Switches swimming AI, swimming toward <paramref name="swimming"/>, to its opposite-facing turn animation after a terrain collision.</summary>
-    private static void BeginSkulteraTurn(
+    internal static void BeginSkulteraTurn(
         RoomEnemyPlace place,
         SkulteraEnemyState state,
         HorizontalDirection swimming)
@@ -133,7 +133,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
     /// The swimming displacement of the Skultera in <paramref name="place"/> toward <paramref name="direction"/>: its
     /// spawn speed, reversed leftward (#2278).
     /// </summary>
-    private static SignedSixteenSixteen SwimVelocity(RoomEnemyOccupant occupant, HorizontalDirection direction)
+    internal static SignedSixteenSixteen SwimVelocity(RoomEnemyOccupant occupant, HorizontalDirection direction)
     {
         SignedSixteenSixteen speed = occupant.SpawnSettings<SkulteraSpawnSettings>().Speed;
         return speed.Toward(direction);

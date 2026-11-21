@@ -7,7 +7,7 @@ public static class RedBrinstarGlowPaletteFxColorDefinitions
 {
 
     /// <summary>Eight BGR555 colors are presentation-owned by each timed record.</summary>
-    private const int ColorsPerFrame = 8;
+    internal const int ColorsPerFrame = 8;
 
     /// <summary>The family's records, consecutive from the first its program shows, and the colours each writes.</summary>
     public static PaletteFxColorFrames ColorFrames { get; } = PaletteFxColorFrames.Of(ColourEffectId.BrinstarRedBackgroundGlow, ColorsPerFrame);

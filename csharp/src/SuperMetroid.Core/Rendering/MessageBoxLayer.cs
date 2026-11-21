@@ -16,7 +16,7 @@ public sealed record MessageBoxLayer : DisplayLayer
     /// <param name="radiusPixels">The centered reveal half-height in pixels, from none up to the fully open window's.</param>
     /// <exception cref="ArgumentException">The picture is empty, wider than the screen or taller than the open window.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The radius is out of range.</exception>
-    private MessageBoxLayer(SpriteSheetFrame picture, int radiusPixels)
+    internal MessageBoxLayer(SpriteSheetFrame picture, int radiusPixels)
     {
         Ensure.NotNull(picture);
         if (picture.Size.X == 0 || picture.Size.Y == 0 || picture.Size.X > ScreenGeometry.ScreenWidthPixels
@@ -62,6 +62,6 @@ public sealed record MessageBoxLayer : DisplayLayer
     /// <param name="radiusPixels">The reveal half-height in pixels.</param>
     /// <param name="sheet">The room's message box images.</param>
     /// <exception cref="InvalidDataException">The sheet pictures no such form.</exception>
-    private static MessageBoxLayer Of(ShownMessage shown, int radiusPixels, MessageBoxSheet sheet) =>
+    internal static MessageBoxLayer Of(ShownMessage shown, int radiusPixels, MessageBoxSheet sheet) =>
         new(Ensure.NotNull(sheet).Picture(shown), radiusPixels);
 }

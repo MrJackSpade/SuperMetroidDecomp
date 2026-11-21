@@ -25,16 +25,16 @@ public sealed class DoorSetup
     }
 
     /// <summary>The setup's name: the room its doors lead into, then what it does there.</summary>
-    private string Name { get; }
+    internal string Name { get; }
 
     /// <summary>The screens the setup closes and opens, in the order it changes them.</summary>
-    private IReadOnlyList<ScreenScrollChange> ScreenChanges { get; }
+    internal IReadOnlyList<ScreenScrollChange> ScreenChanges { get; }
 
     /// <summary>What the setup starts in the room besides changing its screens.</summary>
     public DoorRoomEvent RoomEvent { get; }
 
     /// <summary>Gives each of the setup's screens its new scroll state in <paramref name="scrolls"/>, in order.</summary>
-    private void ChangeScreens(RoomScrollGrid scrolls)
+    internal void ChangeScreens(RoomScrollGrid scrolls)
     {
         Ensure.NotNull(scrolls);
         foreach (ScreenScrollChange change in ScreenChanges)

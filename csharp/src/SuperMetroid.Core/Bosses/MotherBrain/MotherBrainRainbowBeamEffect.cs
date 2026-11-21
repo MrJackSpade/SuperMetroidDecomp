@@ -15,7 +15,7 @@ public sealed class MotherBrainRainbowBeamEffect
     /// <summary>Whether the last simulation update showed the beam; a hidden beam shows nothing.</summary>
     public bool Active => colours is not null;
     /// <summary>The colour the beam adds inside its cone; set when the beam appears and advanced only by later updates that show it.</summary>
-    private RgbColor Color { get; set; }
+    internal RgbColor Color { get; set; }
     /// <summary>
     /// The beam's colour sequence playing (#2404), a colour each update the beam shows: its first colour, then its hue
     /// cycle, which starts over at its first colour past its last, so no colour repeats (#2251); null while the beam is
@@ -25,12 +25,12 @@ public sealed class MotherBrainRainbowBeamEffect
     /// <summary>The installed colours <see cref="colours"/> plays.</summary>
     private MotherBrainRainbowBeamColours? played;
     /// <summary>The cone the last update that showed the beam aimed; null until the beam first shows.</summary>
-    private MotherBrainRainbowBeamGeometry? Geometry { get; set; }
+    internal MotherBrainRainbowBeamGeometry? Geometry { get; set; }
     /// <summary>
     /// The colour the screen shows the beam adding: <see cref="Color"/> as the last frame boundary latched it
     /// (<see cref="LatchDisplay"/>), which is the colour the beam starts with before any boundary.
     /// </summary>
-    private RgbColor DisplayedColor { get; set; }
+    internal RgbColor DisplayedColor { get; set; }
     /// <summary>
     /// What the beam shows now: the cone it aimed in the colour the last frame boundary latched, or null while it is hidden;
     /// taking it never advances the beam.

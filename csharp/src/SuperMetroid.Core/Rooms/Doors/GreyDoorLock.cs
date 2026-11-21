@@ -27,10 +27,10 @@ internal abstract class GreyDoorLock
     internal sealed class BossDefeated(SharedGameState system, AreaId area, DefeatedBosses bosses) : GreyDoorLock
     {
         /// <summary>The bosses of the area whose defeat unlocks the cap.</summary>
-        private readonly DefeatedBosses _bosses = bosses;
+        internal DefeatedBosses Bosses { get; } = bosses;
 
         /// <inheritdoc/>
-        internal override bool IsUnlocked(RoomObjectFrameInputs frame) => system.HasDefeatedAnyOf(area, _bosses);
+        internal override bool IsUnlocked(RoomObjectFrameInputs frame) => system.HasDefeatedAnyOf(area, Bosses);
     }
 
     /// <summary>A lock that holds until the room's enemy deaths reach its quota, which also wakes Zebes.</summary>
@@ -68,9 +68,9 @@ internal abstract class GreyDoorLock
     internal sealed class EventSet(SharedGameState system, StoryEvent storyEvent) : GreyDoorLock
     {
         /// <summary>The event that unlocks the cap.</summary>
-        private readonly StoryEvent _storyEvent = storyEvent;
+        internal StoryEvent StoryEvent { get; } = storyEvent;
 
         /// <inheritdoc/>
-        internal override bool IsUnlocked(RoomObjectFrameInputs frame) => system.HasEvent(_storyEvent);
+        internal override bool IsUnlocked(RoomObjectFrameInputs frame) => system.HasEvent(StoryEvent);
     }
 }

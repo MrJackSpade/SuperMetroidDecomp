@@ -18,6 +18,6 @@ internal static class VramDmaDestinationConstants
     /// <summary>The destination at physical VMADD <paramref name="word"/>.</summary>
     internal static VramDmaDestination At(int word, VramIncrement increment) =>
         (uint)word <= VramDmaDestination.WordMask
-            ? global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.AssetExtraction.Video.VramDmaDestination>([typeof(ushort)], new object?[] { (ushort)(word | (increment == VramIncrement.Column ? VramDmaDestination.ColumnFlag : 0)) })
+            ? new global::SuperMetroid.AssetExtraction.Video.VramDmaDestination((ushort)(word | (increment == VramIncrement.Column ? VramDmaDestination.ColumnFlag : 0)))
             : throw new ArgumentOutOfRangeException(nameof(word), word, "VMADD holds 15 bits.");
 }

@@ -31,7 +31,7 @@ internal sealed class MotherBrainRainbowAttackPhases
     /// <summary>
     /// The beam's sound attempts (#2253): each continuing beam step makes one and counts it, until none are left.
     /// </summary>
-    public UpdateCountdown SoundAttempts { get; private set; } = UpdateCountdown.Ended();
+    public UpdateCountdown SoundAttempts { get; internal set; } = UpdateCountdown.Ended();
 
     /// <summary>Rainbow-beam explosion timer.</summary>
     public BossCountdown ExplosionTimer { get; } = new();
@@ -58,7 +58,7 @@ internal sealed class MotherBrainRainbowAttackPhases
     /// <summary>
     /// Starts the beam proper once its charge has run out with no Power Bomb going off: the beam takes hold of Samus.
     /// </summary>
-    private void StartActiveBeam(SamusState samus)
+    internal void StartActiveBeam(SamusState samus)
     {
         Ensure.NotNull(samus);
 

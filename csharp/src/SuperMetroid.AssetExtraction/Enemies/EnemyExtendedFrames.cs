@@ -14,7 +14,7 @@ internal static class EnemyExtendedFrames
     /// The components of the installed frame <paramref name="frame"/> draws, or null when it is not installed (#2560). The empty
     /// frame draws nothing, so it has no components and needs no stored frame.
     /// </summary>
-    private static ReadOnlyMemory<EnemyExtendedDrawComponent>? ComponentsOf(EnemyExtendedFrameCatalog catalog, EnemyFrameId frame) =>
+    internal static ReadOnlyMemory<EnemyExtendedDrawComponent>? ComponentsOf(EnemyExtendedFrameCatalog catalog, EnemyFrameId frame) =>
         CommonEnemyEmptyFrames.IsEmpty(frame) ? ReadOnlyMemory<EnemyExtendedDrawComponent>.Empty
         : catalog.selection.Frames.TryGetValue(frame, out EnemyExtendedDrawComponent[]? components) ? new ReadOnlyMemory<EnemyExtendedDrawComponent>(components)
         // Typed as absent: a bare null would convert to an empty component list through the array conversion, and every

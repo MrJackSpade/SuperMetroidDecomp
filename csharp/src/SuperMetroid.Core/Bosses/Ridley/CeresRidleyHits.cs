@@ -97,7 +97,7 @@ internal sealed class CeresRidleyHits
     /// Whether a shot's rectangle overlaps any hitbox of the frame Ridley shows: his body is that frame's hitboxes, not
     /// the small radius of his species definition.
     /// </summary>
-    private static bool FrameHitboxesOverlapRectangle(
+    internal static bool FrameHitboxesOverlapRectangle(
         RoomEnemyPlace place,
         Position16<RoomPixels> subject,
         Extent16<RoomPixels> subjectRadius)

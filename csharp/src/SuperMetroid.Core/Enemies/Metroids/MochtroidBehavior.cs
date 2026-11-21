@@ -138,7 +138,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Starts a changed flight or attachment animation and restarts its frame timers (#2145).</summary>
-    private static void SetMochtroidAnimation(
+    internal static void SetMochtroidAnimation(
         RoomEnemyPlace place,
         MochtroidEnemyState state,
         MochtroidSegment segment) =>

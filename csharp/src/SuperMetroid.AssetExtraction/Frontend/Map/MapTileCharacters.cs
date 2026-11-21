@@ -14,7 +14,7 @@ public sealed class MapTileCharacters
 
     /// <summary>Retains already compiled planar characters.</summary>
     /// <param name="planar">Whole 4-bpp characters.</param>
-    private MapTileCharacters(byte[] planar) => this.planar = planar;
+    internal MapTileCharacters(byte[] planar) => this.planar = planar;
 
     /// <summary>The planar 4-bpp characters.</summary>
     public ReadOnlySpan<byte> Characters => planar;

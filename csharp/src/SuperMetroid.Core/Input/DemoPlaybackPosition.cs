@@ -6,7 +6,7 @@ public readonly record struct DemoPlaybackPosition
     /// <summary>A value of its parts; only its own operations make one.</summary>
     /// <param name="recording">The recording playing.</param>
     /// <param name="nextInput">The input it plays when the current one runs out; past the last, the recording ends.</param>
-    private DemoPlaybackPosition(DemoInputRecordingId recording, int nextInput)
+    internal DemoPlaybackPosition(DemoInputRecordingId recording, int nextInput)
     {
         Recording = recording;
         NextInput = nextInput;

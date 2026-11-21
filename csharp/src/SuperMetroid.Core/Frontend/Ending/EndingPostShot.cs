@@ -19,7 +19,7 @@ internal sealed class EndingPostShot
     /// <summary>Where the shot stands (#2560): rotating down to its minimum zoom, holding there, or handed to the white flash.</summary>
     private Stage stage;
     /// <summary>Indicates that the shot graphic has reached its minimum zoom.</summary>
-    private bool RotationFinished => stage != Stage.Rotating;
+    internal bool RotationFinished => stage != Stage.Rotating;
     /// <summary>Signals that the ending hands over to the white-flash phase now that the hold has expired.</summary>
     public bool ReadyForWhiteFlash => stage == Stage.ReadyForWhiteFlash;
 

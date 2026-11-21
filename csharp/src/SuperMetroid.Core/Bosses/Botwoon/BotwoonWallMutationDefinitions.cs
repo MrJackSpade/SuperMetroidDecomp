@@ -21,7 +21,7 @@ internal static class BotwoonWallMutationDefinitions
     internal const int CrumbleFrameDuration = 4;
 
     /// <summary>The sound each crumbling row starts with.</summary>
-    private static SoundEffectId CrumbleSound { get; } = EnemySound.BlockCrumble;
+    internal static SoundEffectId CrumbleSound { get; } = EnemySound.BlockCrumble;
 
     /// <summary>One block down: the crumble's step to its next row.</summary>
     private static readonly Offset16<RoomBlocks> NextRow = new(0, 1);

@@ -60,7 +60,7 @@ public sealed class DachoraEnemyState
 
     /// <summary>The updates left before the glow cycle shows <see cref="GlowFrame"/>.</summary>
     [IntegerQuantity("updates left before the glow cycle advances")]
-    private int GlowTicks => _glowCycle.UpdatesLeft;
+    internal int GlowTicks => _glowCycle.UpdatesLeft;
 
     /// <summary>Sets the glow cycle to <paramref name="cycle"/>, as the run, wall, launch and ceiling phases restart or clear it.</summary>
     internal void SetGlowCycle(DachoraGlowCycle cycle) => _glowCycle = cycle;

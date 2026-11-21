@@ -19,7 +19,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 public sealed class RoomLevelData
 {
     /// <summary>Each foreground block's terrain, row by row; collision and room objects read and change it.</summary>
-    private readonly RoomTerrainBlock[] terrain;
+    internal readonly RoomTerrainBlock[] terrain;
 
     /// <summary>Each foreground block's behaviour, row by row; its terrain's collision kind gives it meaning.</summary>
     private readonly RoomBlockBehavior[] behaviors;
@@ -43,7 +43,7 @@ public sealed class RoomLevelData
     private readonly RoomBlockAppearance[] background;
 
     /// <summary>The terrain past the grid, which room objects and probes past the room's last block reach.</summary>
-    private readonly TerrainBeyondRoom<RoomTerrainBlock, RoomBlockBehavior> BeyondRoom;
+    internal readonly TerrainBeyondRoom<RoomTerrainBlock, RoomBlockBehavior> BeyondRoom;
 
     /// <summary>The foreground plane last published for display, until the next visual write; derived, never saved.</summary>
     private RoomLevelPlane? PublishedForeground { get; set; }
@@ -112,7 +112,7 @@ public sealed class RoomLevelData
     /// the room reads solid terrain with no behaviour. The intro's collision rooms, which have no level space of their
     /// own, are built with it.
     /// </summary>
-    private static TerrainBeyondRoom<RoomTerrainBlock, RoomBlockBehavior> NothingBeyondGrid() =>
+    internal static TerrainBeyondRoom<RoomTerrainBlock, RoomBlockBehavior> NothingBeyondGrid() =>
         new([], 0, RoomTerrainBlocks.EdgeSolid, RoomBlockBehavior.None);
 
     /// <summary>
@@ -215,7 +215,7 @@ public sealed class RoomLevelData
     /// links reach it.
     /// </summary>
     /// <param name="extension">An extension block the read found in the grid.</param>
-    private RoomCollisionBlock LinkedBlockOrEdgeSolid(RoomCollisionBlock extension) =>
+    internal RoomCollisionBlock LinkedBlockOrEdgeSolid(RoomCollisionBlock extension) =>
         GridBlockStepped(extension.At, extension.ExtensionLink) is { } reached ? GetCollisionBlock(reached) : EdgeSolid();
 
     /// <summary>
@@ -427,7 +427,7 @@ public sealed class RoomLevelData
     }
 
     /// <summary>Writes the behaviour of the grid's block at <paramref name="place"/>, which no longer leads where it did.</summary>
-    private void WriteBehavior(int place, RoomBlockBehavior behavior)
+    internal void WriteBehavior(int place, RoomBlockBehavior behavior)
     {
         behaviors[place] = behavior;
         exits[place] = null;
@@ -470,5 +470,5 @@ public sealed class RoomLevelData
     private RoomCollisionBlock EdgeSolid() => new(Position: null, BeyondRoom.EdgeSolid, BeyondRoom.NoBehavior);
 
     /// <summary>A place in the level space past the grid, counted from the first block past it.</summary>
-    private int BeyondPlace(int place) => place - terrain.Length;
+    internal int BeyondPlace(int place) => place - terrain.Length;
 }

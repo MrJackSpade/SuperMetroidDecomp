@@ -18,7 +18,7 @@ namespace SuperMetroid.Core.Compatibility;
 public readonly record struct XrayWarmUp
 {
     /// <summary>The updates the warm-up lasts.</summary>
-    private const int Updates = 8;
+    internal const int Updates = 8;
 
     /// <summary>The warm-up's updates that pass before the room shows the X-ray's blend.</summary>
     public const int UpdatesBeforeBlend = 2;
@@ -33,7 +33,7 @@ public readonly record struct XrayWarmUp
     public static XrayWarmUp Over => default;
 
     /// <summary>The warm-up's updates still to spend, from <see cref="Updates"/> down to zero.</summary>
-    private int UpdatesLeft { get; }
+    internal int UpdatesLeft { get; }
 
     /// <summary>The warm-up's updates already spent.</summary>
     public int UpdatesSpent => Updates - UpdatesLeft;

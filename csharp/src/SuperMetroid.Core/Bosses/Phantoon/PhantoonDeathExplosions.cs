@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 public static class PhantoonDeathExplosions
 {
     /// <summary>The explosions in the order they burst: the opening explosions, then the repeated ones once.</summary>
-    private static IReadOnlyList<PhantoonDeathExplosionDefinition> Schedule { get; } = [.. Opening, .. Repeated];
+    internal static IReadOnlyList<PhantoonDeathExplosionDefinition> Schedule { get; } = [.. Opening, .. Repeated];
 
     /// <summary>His first death explosion.</summary>
     public static ListStep<PhantoonDeathExplosionDefinition> First => ListStep<PhantoonDeathExplosionDefinition>.FirstOf(Schedule);

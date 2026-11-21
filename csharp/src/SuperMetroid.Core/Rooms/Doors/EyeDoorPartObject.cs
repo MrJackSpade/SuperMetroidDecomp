@@ -27,7 +27,7 @@ internal abstract class EyeDoorPartObject
     }
 
     /// <summary>Which part this is and the way its door faces.</summary>
-    private EyeDoorPart Part { get; }
+    internal EyeDoorPart Part { get; }
 
     /// <summary>The eye door's facing.</summary>
     internal EyeDoorOrientation Orientation => Part.Orientation;
@@ -36,13 +36,13 @@ internal abstract class EyeDoorPartObject
     internal PlacedDoor Door { get; }
 
     /// <summary>What the part is doing (#2482).</summary>
-    private EyeDoorPartPhase Phase { get; set; } = EyeDoorPartPhase.Placed;
+    internal EyeDoorPartPhase Phase { get; set; } = EyeDoorPartPhase.Placed;
 
     /// <summary>
     /// Whether the part waits for its door to be opened for good, which makes it leave the room. The wait starts the first
     /// time Samus comes near and stays when she leaves, so it is a fact of its own beside what the part shows.
     /// </summary>
-    private bool WaitsForOpenedDoor { get; set; }
+    internal bool WaitsForOpenedDoor { get; set; }
 
     /// <summary>Leaves the room on the part's next update, as the body closing behind Samus does.</summary>
     private protected void LeaveOnNextUpdate()

@@ -166,7 +166,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
             place.Processing = population.Processing;
             place.Presence = population.Presence;
             place.CollidesByFrameHitboxes = population.CollidesByFrameHitboxes;
-            SuperMetroid.Core.PrivateState.Set(place.AnimationClock, nameof(EnemyAnimationClock.ShowsNewFrame), false);
+            place.AnimationClock.ShowsNewFrame = false;
 
             place.AnimationClock.StepOnNextUpdate();
 

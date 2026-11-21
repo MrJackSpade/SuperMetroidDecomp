@@ -28,7 +28,7 @@ public sealed class TourianStatueSequence : IDisplayLatch
     /// effects splash in, and whose statues' shared animation state (which statues animate, which one is releasing, whether
     /// all have released) the statue animations set (#2486).
     /// </summary>
-    private TourianStatueRoom Room { get; }
+    internal TourianStatueRoom Room { get; }
     /// <summary>The entrance statue and the unlock effects in the statue room, which the statue animations drive.</summary>
     private readonly ITourianStatueActors _statue;
     /// <summary>Supplies equipped items to colour effects started during the release animation.</summary>
@@ -100,7 +100,7 @@ public sealed class TourianStatueSequence : IDisplayLatch
     /// The four statue animations in Kraid, Phantoon, Draygon, Ridley order, the order they run in each update and so the
     /// order in which a waiting statue can claim the one release that plays at a time.
     /// </summary>
-    private readonly List<StatueBlockAnimation> _statues = [];
+    internal List<StatueBlockAnimation> Statues { get; } = [];
     /// <summary>Whether the statues await their releases, hold before lowering, or lower.</summary>
     private TourianStatueDescentPhase _descentPhase = TourianStatueDescentPhase.AwaitingReleases;
     /// <summary>
@@ -109,7 +109,7 @@ public sealed class TourianStatueSequence : IDisplayLatch
     /// </summary>
     private readonly UpdateCountdown _hold = UpdateCountdown.Ended();
     /// <summary>The statue room's statue offset: minus the whole pixels of its descent (<see cref="TourianStatueRoom.StatueOffset"/>).</summary>
-    private int VerticalOffset => Room.StatueOffset;
+    internal int VerticalOffset => Room.StatueOffset;
     /// <summary>How far the statues have sunk, as the displayed frame shows it.</summary>
     public int DisplayedVerticalOffset { get; private set; }
     /// <summary>Latches how far the statues have sunk for the displayed frame.</summary>
@@ -122,7 +122,7 @@ public sealed class TourianStatueSequence : IDisplayLatch
     /// <param name="roomObjects">The room's room-object system.</param>
     internal void RestartWithStatuesOpen(RoomObjectSystem roomObjects)
     {
-        _statues.Clear();
+        Statues.Clear();
         _descentPhase = TourianStatueDescentPhase.AwaitingReleases;
         _hold.End();
         Room.Descent = SignedSixteenSixteen.Zero;
@@ -168,7 +168,7 @@ public sealed class TourianStatueSequence : IDisplayLatch
             if (!TourianStatueAnimationDefinitions.Statues.TryGetValue(statue, out TourianStatueAnimationDefinition? definition))
                 throw new InvalidDataException($"Tourian statue {statue} is not cataloged.");
 
-            _statues.Add(new(definition));
+            Statues.Add(new(definition));
         }
     }
 
@@ -179,7 +179,7 @@ public sealed class TourianStatueSequence : IDisplayLatch
     public void StepBlockAnimations()
     {
         if (_assists.Current.TourianStatuesOpen) return;
-        foreach (StatueBlockAnimation statueAnimation in _statues)
+        foreach (StatueBlockAnimation statueAnimation in Statues)
         {
             TourianStatueAnimationDefinition definition = statueAnimation.Definition;
             TourianStatueBlockAnimations animations = statueAnimation.Animations;
@@ -264,13 +264,13 @@ public sealed class TourianStatueSequence : IDisplayLatch
     }
 
     /// <summary>The animation a statue that is already grey starts, finishing grey (#2189).</summary>
-    private const TourianStatueBlockSegment AlreadyGreyAnimation = TourianStatueBlockSegment.AlreadyGrey;
+    internal const TourianStatueBlockSegment AlreadyGreyAnimation = TourianStatueBlockSegment.AlreadyGrey;
 
     /// <summary>The animation a statue whose area boss is dead starts, its release (#2189).</summary>
-    private const TourianStatueBlockSegment ReleaseAnimation = TourianStatueBlockSegment.Release;
+    internal const TourianStatueBlockSegment ReleaseAnimation = TourianStatueBlockSegment.Release;
 
     /// <summary>The animation a statue waiting its turn to be released starts, oscillating again (#2189).</summary>
-    private const TourianStatueBlockSegment WaitingAnimation = TourianStatueBlockSegment.Oscillate;
+    internal const TourianStatueBlockSegment WaitingAnimation = TourianStatueBlockSegment.Oscillate;
 
     /// <summary>
     /// Runs the statues' descent for one update: once all four statues have released, the authored hold with its

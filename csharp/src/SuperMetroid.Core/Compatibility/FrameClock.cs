@@ -67,7 +67,7 @@ internal sealed class FrameClock
     /// Takes over the counters another owner kept, such as the frontend that counted before this runtime existed or an
     /// imported snapshot. The game has one pair of counters; creating a runtime never resets them.
     /// </summary>
-    private void Import(int shortCounter, int counter)
+    internal void Import(int shortCounter, int counter)
     {
         ShortCounter = new ShortFrameCount(shortCounter);
         Counter = Ensure.BetweenInclusive(0, CounterPeriod - 1, counter);

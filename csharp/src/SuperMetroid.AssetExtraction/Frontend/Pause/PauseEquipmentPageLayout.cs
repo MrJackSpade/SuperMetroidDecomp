@@ -20,7 +20,7 @@ internal static class PauseEquipmentPageLayout
     internal const int Columns = PauseEquipmentBaseDefinitions.Columns;
 
     /// <summary>The equipment page's tiles, row by row, as the cartridge writes them for <paramref name="page"/>.</summary>
-    private static BackgroundTile[] LayOut(ImportAreaMapPresentation maps, ShownEquipmentPage page)
+    internal static BackgroundTile[] LayOut(ImportAreaMapPresentation maps, ShownEquipmentPage page)
     {
         Ensure.NotNull(maps);
         Ensure.NotNull(page);

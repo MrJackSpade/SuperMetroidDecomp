@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 public static class RoomObjectMotherBrainGlassVisualFiles
 {
     /// <summary>The installed file holding the initial, damaged, shifted, shattering and cleared glass frames' pictures.</summary>
-    private const string VisualFileName = "mother-brain-glass.json";
+    internal const string VisualFileName = "mother-brain-glass.json";
 
     /// <summary>The glass frames in the installed file's order (#2567): intact, the pane's stages, the rim's, cleared.</summary>
     private static readonly IReadOnlyList<MotherBrainGlassDraw> FrameOrder = Ensure.EveryMemberOnce<MotherBrainGlassDraw>(

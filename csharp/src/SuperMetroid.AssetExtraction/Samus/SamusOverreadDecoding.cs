@@ -73,7 +73,7 @@ internal static class SamusOverreadDecoding
     /// Every segment a SpaceTime shot can animate by: the segments its header selects in every aim direction, and every
     /// segment their animations play.
     /// </summary>
-    private static SamusProjectileSegment[] SpaceTimeShotPrograms()
+    internal static SamusProjectileSegment[] SpaceTimeShotPrograms()
     {
         var programs = new HashSet<SamusProjectileSegment>();
         var pending = new Queue<SamusProjectileSegment>();

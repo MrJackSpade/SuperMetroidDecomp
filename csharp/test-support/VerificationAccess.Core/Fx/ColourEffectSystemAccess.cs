@@ -9,7 +9,7 @@ internal static class ColourEffectSystemAccess
     extension(ColourEffectSystem self)
     {
         /// <summary>The running effects, in the order they take their turns, which a recorded state's import replaces.</summary>
-        internal List<RoomColourEffect> RunningEffects => PrivateState.Field<ColourEffectSystem, List<RoomColourEffect>>(self, "effects");
+        internal List<RoomColourEffect> RunningEffects => self.effects;
 
         /// <summary>Whether <paramref name="effect"/> is running.</summary>
         public bool IsRunning(ColourEffectId effect) => self.RunningEffects.Exists(running => running.Effect == effect);

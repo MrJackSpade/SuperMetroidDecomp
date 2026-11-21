@@ -18,9 +18,9 @@ public sealed class D3D11RenderDevice : IDisposable
     /// <summary>Description queried from the adapter actually associated with the successfully created device.</summary>
     public string AdapterDescription { get; }
     /// <summary>Explicit hardware or WARP backend selected at construction; device creation never silently changes it.</summary>
-    private D3D11DeviceKind Kind { get; }
+    internal D3D11DeviceKind Kind { get; }
     /// <summary>Actual feature level returned by the created device, not an inferred adapter capability.</summary>
-    private FeatureLevel ActualFeatureLevel { get; }
+    internal FeatureLevel ActualFeatureLevel { get; }
     /// <summary>Adapter, selected backend, and actual feature level formatted for worker startup/recovery reporting without further GPU calls.</summary>
     public string DiagnosticDescription => $"{AdapterDescription}; backend={Kind}; feature level={ActualFeatureLevel}";
 

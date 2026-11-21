@@ -10,8 +10,7 @@ internal static class DownwardGateObjectAccess
     {
         /// <summary>Where the gate's animations stand.</summary>
         private SequencedRoomObjectProgress<DownwardGateSegment, DownwardGateImage, NoAnimationCue> GateProgress =>
-            PrivateState.Field<SequencedRoomObject<DownwardGateSegment, DownwardGateImage, NoAnimationCue>,
-                SequencedRoomObjectProgress<DownwardGateSegment, DownwardGateImage, NoAnimationCue>>(gate, "_progress");
+            gate.Progress;
 
         /// <summary>The image a resting gate rests on, the last its animation showed.</summary>
         /// <exception cref="InvalidOperationException">The gate does not rest on an image.</exception>

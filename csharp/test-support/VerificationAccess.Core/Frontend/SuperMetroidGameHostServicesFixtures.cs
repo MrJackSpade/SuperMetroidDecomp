@@ -11,11 +11,6 @@ internal static class SuperMetroidGameHostServicesFixtures
         IGameplayFramePublication? gameplayFrames = null)
     {
         SuperMetroidGameHostServices standard = SuperMetroidGameHostServices.Default;
-        return PrivateState.New<SuperMetroidGameHostServices>(
-            [typeof(IDoorMusicLoadFrames), typeof(IRoomLoadProgress), typeof(ISoundAcceptanceTiming<SoundEffectLibrary, SoundEffectId>), typeof(IGameplayFramePublication)],
-            doorMusicLoadFrames ?? standard.DoorMusicLoadFrames,
-            roomLoadProgress ?? standard.RoomLoadProgress,
-            soundAcceptance ?? standard.SoundAcceptance,
-            gameplayFrames ?? standard.GameplayFrames);
+        return new SuperMetroidGameHostServices(doorMusicLoadFrames ?? standard.DoorMusicLoadFrames, roomLoadProgress ?? standard.RoomLoadProgress, soundAcceptance ?? standard.SoundAcceptance, gameplayFrames ?? standard.GameplayFrames);
     }
 }

@@ -12,10 +12,10 @@ public sealed class SamusPoseHistoryState
     public SamusPoseId PreviousPose { get; private set; }
 
     /// <summary>The movement type the latest committed transition recorded.</summary>
-    private SamusMovementType PreviousMovement { get; set; }
+    internal SamusMovementType PreviousMovement { get; set; }
 
     /// <summary>The movement type the committed transition before the latest one recorded.</summary>
-    private SamusMovementType MovementBeforePrevious { get; set; }
+    internal SamusMovementType MovementBeforePrevious { get; set; }
 
     /// <summary>
     /// Whether the wall-jump probe may run: only when the older committed transition recorded spin jumping or wall

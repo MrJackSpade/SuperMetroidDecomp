@@ -18,7 +18,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 public static class EndingBackdropFiles
 {
     /// <summary>The installed document's file name.</summary>
-    private const string FileName = "ending-backdrops.json";
+    internal const string FileName = "ending-backdrops.json";
 
     /// <summary>
     /// Revision 4 of the backdrop document, the only revision the reader accepts: 2 holds the space's backdrops (#1637), 3

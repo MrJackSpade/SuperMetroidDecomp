@@ -8,10 +8,10 @@ namespace SuperMetroid.Core.Enemies.YappingMaws;
 public readonly record struct YappingMawCurl
 {
     /// <summary>Keeps the curl in angle units, fraction included, at the precision the curve's speeds add in.</summary>
-    private YappingMawCurl(SignedSixteenSixteen units) => _units = units;
+    internal YappingMawCurl(SignedSixteenSixteen units) => Units = units;
 
     /// <summary>The curl in angle units, fraction included.</summary>
-    private readonly SignedSixteenSixteen _units;
+    internal SignedSixteenSixteen Units { get; }
 
     /// <summary>No curl at all: the tongue drawn in.</summary>
     public static YappingMawCurl None => default;
@@ -21,14 +21,14 @@ public readonly record struct YappingMawCurl
 
     /// <summary>The curl's whole angle units, its fraction dropped toward fewer units.</summary>
     [IntegerQuantity("whole angle units of a Yapping Maw's tongue curl")]
-    public int WholeUnits => _units.WholePixels;
+    public int WholeUnits => Units.WholePixels;
 
     /// <summary>Whether the curl has passed back below none: its whole units are negative.</summary>
-    public bool IsNegative => _units.IsNegative;
+    public bool IsNegative => Units.IsNegative;
 
     /// <summary>
     /// The curl moved by one update of the curve's <paramref name="speed"/>, its pixels counting as angle units, the
     /// fraction carrying into the whole units.
     /// </summary>
-    public YappingMawCurl MovedBy(SignedSixteenSixteen speed) => new(_units + speed);
+    public YappingMawCurl MovedBy(SignedSixteenSixteen speed) => new(Units + speed);
 }

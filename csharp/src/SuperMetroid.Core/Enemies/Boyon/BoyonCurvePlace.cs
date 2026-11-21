@@ -14,7 +14,7 @@ public readonly record struct BoyonCurvePlace : IComparable<BoyonCurvePlace>
 
     /// <summary>Keeps the place's entry, zero or more.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="entry"/> is negative.</exception>
-    private BoyonCurvePlace(int entry) => this.entry = Ensure.AtLeastZero(entry);
+    internal BoyonCurvePlace(int entry) => this.entry = Ensure.AtLeastZero(entry);
 
     /// <summary>The place past the top a rise leaves.</summary>
     private static BoyonCurvePlace PastTheTop { get; } = new() { IsPastTheTop = true };

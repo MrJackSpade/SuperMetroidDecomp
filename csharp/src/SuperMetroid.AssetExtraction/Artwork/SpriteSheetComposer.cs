@@ -20,7 +20,7 @@ internal static class SpriteSheetComposer
         Compose(new SpriteSheetLayout(sources, palette, depth));
 
     /// <summary>Paints <paramref name="layout"/>'s distinct frame images onto one sheet.</summary>
-    private static ComposedSpriteSheet Compose(SpriteSheetLayout layout)
+    internal static ComposedSpriteSheet Compose(SpriteSheetLayout layout)
     {
         Ensure.NotNull(layout);
         Extent16<ImagePixels> size = layout.Size;

@@ -128,10 +128,10 @@ internal sealed class SpcVoices
     internal ushort ReadPointerEntry(int table, int index) => ReadWord(table + index * 2);
 
     /// <summary>The pan-volume table pair (this entry and the next) at <paramref name="address"/>.</summary>
-    private PanVolumePair ReadPanVolumePair(int address) => new PanVolumePair(ram[address], ram[address + 1]);
+    internal PanVolumePair ReadPanVolumePair(int address) => new PanVolumePair(ram[address], ram[address + 1]);
 
     /// <summary>The instrument record at <paramref name="address"/> (pitch base big-endian).</summary>
-    private SpcInstrumentRecord ReadInstrument(int address) => new(
+    internal SpcInstrumentRecord ReadInstrument(int address) => new(
         ram[address], ram[address + 1], ram[address + 2], ram[address + 3],
         unchecked(LittleEndianBytes.Word(ram[address + 5], ram[address + 4])));
 

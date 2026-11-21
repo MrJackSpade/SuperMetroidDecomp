@@ -34,7 +34,7 @@ internal static class MapSpriteSheetComposer
     internal static SpriteSheetSources Sources(ImportAreaMapPresentation maps) => Sources(Ensure.NotNull(maps).Sprites, maps);
 
     /// <summary>What the map sprite sheet composes from <paramref name="sprites"/>, coloured with the menus of <paramref name="maps"/>.</summary>
-    private static SpriteSheetSources Sources(MapSpriteCompositions sprites, ImportAreaMapPresentation maps)
+    internal static SpriteSheetSources Sources(MapSpriteCompositions sprites, ImportAreaMapPresentation maps)
     {
         Ensure.NotNull(sprites);
         Ensure.NotNull(maps);

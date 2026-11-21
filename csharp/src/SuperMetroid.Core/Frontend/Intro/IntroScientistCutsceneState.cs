@@ -25,7 +25,7 @@ internal sealed class IntroScientistCutsceneState
     };
 
     /// <summary>Delivered or examined Baby actor whose animation drives scene completion.</summary>
-    private readonly CinematicActor<IntroBabyAnimation, CinematicSpritePose, IntroLaboratoryCue> baby;
+    internal readonly CinematicActor<IntroBabyAnimation, CinematicSpritePose, IntroLaboratoryCue> baby;
 
     /// <summary>Initializes the selected laboratory page, mirrored camera pan, and Baby actor animation.</summary>
     private IntroScientistCutsceneState(IntroLaboratoryScene scene)

@@ -58,7 +58,7 @@ internal static class ChozoStatueAnimations
     /// its fingers a counted number of times and lets her go; the Wrecked Ship statue walks its counted strides with her
     /// before it sets her down.
     /// </summary>
-    private static Dictionary<ChozoStatueSegment, Animation<ChozoStatueSegment>> StartingAt { get; } = new Dictionary<ChozoStatueSegment, Animation<ChozoStatueSegment>>
+    internal static Dictionary<ChozoStatueSegment, Animation<ChozoStatueSegment>> StartingAt { get; } = new Dictionary<ChozoStatueSegment, Animation<ChozoStatueSegment>>
     {
         [P.LowerNorfairIdle] = new([Segments.Whole(P.LowerNorfairIdle)], AnimationEnd.Holds),
         [P.LowerNorfairActivated] = new(

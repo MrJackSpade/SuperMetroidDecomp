@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 public static class RoomObjectKraidVisualFiles
 {
     /// <summary>Family-relative installed JSON filename for Kraid's ten ceiling and spike layouts, including the fifteen- and twenty-two-block clears.</summary>
-    private const string VisualFileName = "kraid-room.json";
+    internal const string VisualFileName = "kraid-room.json";
 
     /// <summary>The stages of a crumbling block's breakup the room draws, in their published order; the last stage is the picture its draw leaves.</summary>
     private static readonly BlockBreakupStage[] CrumbleStages = [BlockBreakupStage.Rock, BlockBreakupStage.Pieces, BlockBreakupStage.Dust];
@@ -46,7 +46,7 @@ public static class RoomObjectKraidVisualFiles
 
     /// <summary>Gets the stable artwork identifier of a Kraid room draw: a crumble stage's, or a picture or clear's.</summary>
     /// <exception cref="InvalidDataException">The draw is neither a Kraid room crumble nor a Kraid room draw.</exception>
-    private static string VisualId(RoomObjectDraw request) =>
+    internal static string VisualId(RoomObjectDraw request) =>
         RoomObjectDrawIdentity.TryFrame(request, out KraidRoomObjectDraws.CrumbleDraw crumble)
             ? CrumbleVisualId(crumble.Stage)
             : VisualId(RoomObjectDrawIdentity.FrameOf<KraidRoomDraw>(request, "Kraid room draw with a visual ID"));
@@ -62,7 +62,7 @@ public static class RoomObjectKraidVisualFiles
     };
 
     /// <summary>Maps a named ceiling or spike draw to its stable artwork identifier.</summary>
-    private static string VisualId(KraidRoomDraw draw) => draw switch
+    internal static string VisualId(KraidRoomDraw draw) => draw switch
     {
         KraidRoomDraw.CeilingBackgroundLeftEdge => "ceiling-background-left-edge",
         KraidRoomDraw.CeilingBackgroundOddColumn => "ceiling-background-odd-column",
@@ -79,7 +79,7 @@ public static class RoomObjectKraidVisualFiles
     /// the object's block, each cell colliding as the game's block shape for the frame says (#1608). The run form is the
     /// cartridge's; the game draws the shape.
     /// </summary>
-    private static IEnumerable<RoomObjectDrawLists.DrawList> All =>
+    internal static IEnumerable<RoomObjectDrawLists.DrawList> All =>
         CrumbleStages.Select(stage => SingleRow(KraidRoomObjectDraws.Crumble(stage), KraidRoomObjectDraws.CrumbleFamily))
             .Concat(RoomFrames.Select(frame => SingleRow(KraidRoomObjectDraws.Family.Of(frame), KraidRoomObjectDraws.Family)));
 

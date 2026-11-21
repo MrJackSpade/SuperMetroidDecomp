@@ -37,7 +37,7 @@ public sealed class DisplayPacket
     /// <param name="solidColor">The colour filling the whole screen before the brightness applies.</param>
     /// <param name="brightness">The frame's brightness.</param>
     /// <exception cref="ArgumentOutOfRangeException">The frame number is negative.</exception>
-    private DisplayPacket(int frameNumber, RgbaPixel solidColor, DisplayBrightness brightness)
+    internal DisplayPacket(int frameNumber, RgbaPixel solidColor, DisplayBrightness brightness)
         : this(frameNumber, new SolidColourScene(solidColor, brightness))
     {
     }

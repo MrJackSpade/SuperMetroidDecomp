@@ -16,7 +16,7 @@ public sealed record ScrollingSkyLayer(int CameraRow, ImmutableArray<ShownSkyBan
     /// <exception cref="ArgumentException">A band begins above the end of the one before it.</exception>
     public ImmutableArray<ShownSkyBand> Bands
     {
-        private get;
+        internal get;
         init => field = RequireTopDown(value);
     } = RequireTopDown(Bands);
 

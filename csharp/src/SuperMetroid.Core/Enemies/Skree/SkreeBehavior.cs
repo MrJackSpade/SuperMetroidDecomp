@@ -42,7 +42,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Winds up near Samus, dives when the wind-up cue is ready, then burrows after floor contact.</summary>
-    private void RunSkreeMain(RoomEnemyOccupant occupant, RoomEnemyPlace place, SamusState samus, RoomLevelData level)
+    internal void RunSkreeMain(RoomEnemyOccupant occupant, RoomEnemyPlace place, SamusState samus, RoomLevelData level)
     {
         SkreeEnemyState state = place.RequireSpeciesState<SkreeEnemyState>();
         switch (state.Action)
@@ -118,7 +118,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Starts <paramref name="animation"/> unless it is the one playing, which keeps playing (#2145).</summary>
-    private static void StartSkreeAnimation(
+    internal static void StartSkreeAnimation(
         RoomEnemyPlace place,
         SkreeEnemyState state,
         SkreeMetareeSegment animation) =>

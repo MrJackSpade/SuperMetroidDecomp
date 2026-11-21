@@ -22,7 +22,7 @@ internal static class GameOptionsSheetComposer
     internal static SpriteSheetSources Sources(ImportAreaMapPresentation maps) => Sources(Ensure.NotNull(maps).GameOptions, maps);
 
     /// <summary>What the options sheet composes from <paramref name="options"/>, over the menus of <paramref name="maps"/>.</summary>
-    private static SpriteSheetSources Sources(GameOptionsSourcePresentation options, ImportAreaMapPresentation maps)
+    internal static SpriteSheetSources Sources(GameOptionsSourcePresentation options, ImportAreaMapPresentation maps)
     {
         Ensure.NotNull(options);
         Ensure.NotNull(maps);

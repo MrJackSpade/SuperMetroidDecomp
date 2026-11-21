@@ -38,7 +38,7 @@ public sealed class SamusArmCannonCoverCharacters
 
     /// <summary>The character of cover picture <paramref name="tile"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="tile"/> is no cover picture.</exception>
-    private ReadOnlyMemory<byte> TileCharacters(SamusArmCannonCoverTile tile) => tiles.TryGetValue(tile, out ReadOnlyMemory<byte> characters)
+    internal ReadOnlyMemory<byte> TileCharacters(SamusArmCannonCoverTile tile) => tiles.TryGetValue(tile, out ReadOnlyMemory<byte> characters)
         ? characters
         : throw new ArgumentOutOfRangeException(nameof(tile), tile, "No cover picture is held for it.");
 

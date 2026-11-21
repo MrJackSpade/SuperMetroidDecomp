@@ -33,7 +33,7 @@ internal sealed class StationObjects
     /// <summary>The map stations the room's population placed, which stay in the room for as long as it is loaded.</summary>
     private readonly List<AccessStationObject> _mapStations = [];
     /// <summary>Blocks repeated save confirmation during the current room entry.</summary>
-    private bool SaveStationLockedOut { get; set; }
+    internal bool SaveStationLockedOut { get; set; }
 
     /// <summary>
     /// The map station's side of gameplay resume. Ending the map access sequence does

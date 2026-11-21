@@ -50,7 +50,7 @@ public readonly record struct SoundQueueAdmission
 
     /// <summary>A request that joined a queue holding <paramref name="occupancy"/> waiting requests.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="occupancy"/> is outside 0 through <see cref="MaximumOccupancy"/>.</exception>
-    private static SoundQueueAdmission Admitted(int occupancy) => new()
+    internal static SoundQueueAdmission Admitted(int occupancy) => new()
     {
         IsAdmitted = true,
         Occupancy = Ensure.BetweenInclusive(0, MaximumOccupancy, occupancy),
@@ -58,7 +58,7 @@ public readonly record struct SoundQueueAdmission
 
     /// <summary>A request turned away by a queue holding <paramref name="occupancy"/> waiting requests.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="occupancy"/> is outside 0 through <see cref="MaximumOccupancy"/>.</exception>
-    private static SoundQueueAdmission Rejected(int occupancy) => new()
+    internal static SoundQueueAdmission Rejected(int occupancy) => new()
     {
         IsAdmitted = false,
         Occupancy = Ensure.BetweenInclusive(0, MaximumOccupancy, occupancy),

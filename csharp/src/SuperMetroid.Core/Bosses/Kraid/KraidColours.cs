@@ -21,7 +21,7 @@ internal sealed class KraidColours : IGameplayShadingSource
     private RgbColor[] shadedEyes = [];
 
     /// <summary>His eyes' glow, which his AI reads back: a compatibility value his colours own (#1552).</summary>
-    private KraidEyeGlow EyeGlow { get; set; } = KraidEyeGlow.Unlit;
+    internal KraidEyeGlow EyeGlow { get; set; } = KraidEyeGlow.Unlit;
 
     /// <summary>The shading his ceiling rocks and spat rocks draw in.</summary>
     internal static PictureShading RocksShading { get; } = PictureShading.Shaded(KraidShades.Rocks);

@@ -16,10 +16,10 @@ public readonly struct CgramPalettes(IPaletteColors cgram)
     public const int ByteCount = ColorCount * ColourWordCodec.ByteCount;
 
     /// <summary>All 256 colours.</summary>
-    private CgramPalette All => new(cgram, PpuMemoryLayout.Cgram);
+    internal CgramPalette All => new(cgram, PpuMemoryLayout.Cgram);
 
     /// <summary>The 128 background colours.</summary>
-    private CgramPalette Background => new(cgram, PpuMemoryLayout.BackgroundPalettes);
+    internal CgramPalette Background => new(cgram, PpuMemoryLayout.BackgroundPalettes);
 
     /// <summary>The complete 256-colour image, in CGRAM order.</summary>
     public ReadOnlySpan<RgbColor> Image => All.Colors;

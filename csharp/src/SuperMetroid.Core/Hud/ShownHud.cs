@@ -29,7 +29,7 @@ public sealed class ShownHud
     public static ShownHud Nothing { get; } = new([]);
 
     /// <summary>The placed images, earliest first.</summary>
-    private ImmutableArray<PlacedHudImage> Images { get; }
+    internal ImmutableArray<PlacedHudImage> Images { get; }
 
     /// <summary>
     /// The HUD as the backend draws it: each placed image's installed picture at the screen pixel its corner shows at, in

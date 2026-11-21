@@ -32,8 +32,8 @@ internal static class BabyMetroidHeadTargetVerification
         RoomEnemyPlace place = baby.Place;
 
         head.Position = head.Position.WithWhole(new(0x007d, 0x005d));
-        global::SuperMetroid.Core.PrivateState.Set(baby, "Phase", BabyMetroidCutscenePhase.ActivateRainbowBeamAndMotherBrainBody);
-        global::SuperMetroid.Core.PrivateState.Set(baby, "Position", FixedPosition<RoomPixels>.FromWhole(new(0x007d, 0x0045)).WithFractionsOf(baby.Position));
+        baby.Phase = BabyMetroidCutscenePhase.ActivateRainbowBeamAndMotherBrainBody;
+        baby.Position = FixedPosition<RoomPixels>.FromWhole(new(0x007d, 0x0045)).WithFractionsOf(baby.Position);
 
         runtime.Enemies.BabyMetroidCutsceneBehavior.RunMotherBrainBabyMetroidMain((place), runtime.Player.IntroducedSamus, Position16<RoomPixels>.Zero);
         AssertEqual(BabyMetroidCutscenePhase.WaitForMotherBrainToTurnToCorpse, baby.Phase, "the Baby reaches the head");

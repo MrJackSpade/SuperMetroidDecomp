@@ -28,7 +28,7 @@ public sealed class MotherBrainBurstCycle
     /// The place the last burst took in its effect's list of positions; the next burst takes the place before it. It may
     /// hold a place past the end of the next effect's list or below zero, as the encounter's earlier steps leave it.
     /// </summary>
-    private int Place { get; set; }
+    internal int Place { get; set; }
 
     /// <summary>The update a burst is due on, after its interval's updates have passed.</summary>
     private const int DueUpdate = 1;
@@ -37,7 +37,7 @@ public sealed class MotherBrainBurstCycle
     /// The wait for the next burst: the interval's updates left and the update the burst is due on, over on that update.
     /// A cycle not yet run is due at once.
     /// </summary>
-    private readonly UpdateCountdown burstWait = UpdateCountdown.Lasting(DueUpdate);
+    internal readonly UpdateCountdown burstWait = UpdateCountdown.Lasting(DueUpdate);
 
     /// <summary>
     /// Steps to the bursting effect's next burst and returns its entry of <paramref name="shown"/>, the effect's list in

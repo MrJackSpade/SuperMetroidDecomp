@@ -40,10 +40,10 @@ internal sealed class DesktopSessionLog : IDisposable
     }
 
     /// <summary>Durable interim text remains here if the process is forcibly terminated.</summary>
-    private string LiveLogPath { get; }
+    internal string LiveLogPath { get; }
 
     /// <summary>The tester-shareable archive, finalized at exit or a fatal-error checkpoint.</summary>
-    private string ArchivePath { get; }
+    internal string ArchivePath { get; }
 
     /// <summary>Installs one ordered, thread-safe tee for stdout and stderr before startup.</summary>
     internal static DesktopSessionLog Start(string executableDirectory)

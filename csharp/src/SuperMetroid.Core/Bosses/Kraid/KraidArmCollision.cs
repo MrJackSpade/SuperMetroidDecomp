@@ -21,7 +21,7 @@ internal static class KraidArmCollision
     /// The rectangles of one of Kraid's arm hitbox lists, in collision order; the first overlapping rectangle wins.
     /// Each reacts to touch as its list does, and to a shot as the arm.
     /// </summary>
-    private static ImmutableArray<EnemyCollisionHitbox> HitboxesAt(KraidArmHitboxList list) =>
+    internal static ImmutableArray<EnemyCollisionHitbox> HitboxesAt(KraidArmHitboxList list) =>
         HitboxLists.TryGetValue(list, out ImmutableArray<EnemyCollisionHitbox> rectangles)
             ? rectangles
             : throw new InvalidDataException($"Kraid's arm has no hitbox list {list}.");

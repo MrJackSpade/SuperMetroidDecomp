@@ -30,7 +30,7 @@ public readonly record struct PeriodicDamageEnergyFraction
     private PeriodicDamageEnergyFraction(FractionalEnergyDrain held) => _held = held;
 
     /// <summary>The fraction held, 0 through one part short of an energy, in <see cref="PartsPerEnergy"/>ths.</summary>
-    private int Parts => _held.HeldOver;
+    internal int Parts => _held.HeldOver;
 
     /// <summary>No fraction held: a new Samus's, and the one a fatal periodic damage leaves.</summary>
     public static PeriodicDamageEnergyFraction None => default;

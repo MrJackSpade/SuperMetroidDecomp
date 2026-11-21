@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 public static class RoomObjectGrappleBlockVisualFiles
 {
     /// <summary>Family-relative installed JSON filename for the five initial, breakup, and blank breakable-Grapple frames.</summary>
-    private const string VisualFileName = "grapple-blocks.json";
+    internal const string VisualFileName = "grapple-blocks.json";
 
     /// <summary>The Grapple block's frames in their authored order (#2567): intact, its rock, pieces and dust, then blank air.</summary>
     private static readonly IReadOnlyList<GrappleBlockDraw> FrameOrder = Ensure.EveryMemberOnce<GrappleBlockDraw>(
@@ -37,7 +37,7 @@ public static class RoomObjectGrappleBlockVisualFiles
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>The published artwork identity of a Grapple-block draw.</summary>
-    private static string VisualId(GrappleBlockDraw frame) => frame switch
+    internal static string VisualId(GrappleBlockDraw frame) => frame switch
     {
         GrappleBlockDraw.Intact => "intact",
         GrappleBlockDraw.Rock => "rock",
@@ -48,7 +48,7 @@ public static class RoomObjectGrappleBlockVisualFiles
     };
 
     /// <summary>Enumerates the intact Grapple block, its rock, pieces and dust, and blank air in authored order.</summary>
-    private static IEnumerable<RoomObjectGrappleBlockDrawDefinitions.DrawnBlock> All
+    internal static IEnumerable<RoomObjectGrappleBlockDrawDefinitions.DrawnBlock> All
     {
         get
         {

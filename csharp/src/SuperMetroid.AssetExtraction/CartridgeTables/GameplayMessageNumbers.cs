@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 internal static class GameplayMessageNumbers
 {
     /// <summary>The message number of each gameplay message.</summary>
-    private static readonly NativeWordIdentities<GameplayMessageId> Numbers = new(new Dictionary<GameplayMessageId, ushort>
+    internal static readonly NativeWordIdentities<GameplayMessageId> Numbers = new(new Dictionary<GameplayMessageId, ushort>
     {
         [GameplayMessageId.EnergyTank] = 1,
         [GameplayMessageId.MissileTank] = 2,

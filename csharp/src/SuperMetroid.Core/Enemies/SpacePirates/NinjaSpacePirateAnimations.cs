@@ -53,7 +53,7 @@ internal static class NinjaSpacePirateAnimations
     /// The animation that starts at each segment an owner can start or restart at, each segment played whole; a loop plays on
     /// from the entry before it (#2276). Each facing starts alike.
     /// </summary>
-    private static Dictionary<NinjaSpacePirateSegment, Animation<NinjaSpacePirateSegment>> StartingAt { get; } =
+    internal static Dictionary<NinjaSpacePirateSegment, Animation<NinjaSpacePirateSegment>> StartingAt { get; } =
         FacedStarts(LeftSegments).Concat(FacedStarts(RightSegments)).ToDictionary();
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

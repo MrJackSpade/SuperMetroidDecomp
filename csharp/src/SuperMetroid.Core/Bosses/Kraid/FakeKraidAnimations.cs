@@ -30,7 +30,7 @@ internal static class FakeKraidAnimations
     /// The animation that starts at each step and spit (#2214): it plays, then chooses the next action, which always
     /// continues at the step or spit it picks, so no animation plays past its choice and none starts at the choice.
     /// </summary>
-    private static Dictionary<FakeKraidSegment, Animation<FakeKraidSegment>> StartingAt { get; } =
+    internal static Dictionary<FakeKraidSegment, Animation<FakeKraidSegment>> StartingAt { get; } =
         new[]
         {
             P.StepForwardsFacingLeft, P.StepBackwardsFacingLeft, P.FireSpitFacingLeft,

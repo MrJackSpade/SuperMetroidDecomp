@@ -20,7 +20,7 @@ namespace SuperMetroid.Core.Samus;
 public sealed class SamusDraygonGrabbedState
 {
     /// <summary>Where Samus is in Draygon's hold: free, held, held while another owner moves her, or released unseen.</summary>
-    private SamusDraygonHoldPhase Phase { get; set; }
+    internal SamusDraygonHoldPhase Phase { get; set; }
 
     /// <summary>
     /// True while Draygon holds Samus: from the grab until her release, the escape check runs after each of her
@@ -42,7 +42,7 @@ public sealed class SamusDraygonGrabbedState
     }
 
     /// <summary>The count of escape presses, which Crystal Flash's ammunition drain and the suit pickup's stage share.</summary>
-    private readonly SharedEscapeAndDrainCount<SamusSuitPickupStage> escapePresses;
+    internal readonly SharedEscapeAndDrainCount<SamusSuitPickupStage> escapePresses;
 
     /// <summary>Creates a Draygon-held owner whose escape presses count on Samus's shared escape and drain count.</summary>
     /// <param name="escapePresses">Samus's shared escape and drain count.</param>
@@ -158,7 +158,7 @@ public sealed class SamusDraygonGrabbedState
     /// Releases Samus as she breaks free: the release Draygon has not yet seen, which his next carry of her reports
     /// (<see cref="CarryTo"/>).
     /// </summary>
-    private void Release(SamusState samus)
+    internal void Release(SamusState samus)
     {
         LetGo(samus);
         Phase = SamusDraygonHoldPhase.ReleasedUnseen;

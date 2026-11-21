@@ -21,7 +21,7 @@ internal static class GameplayFrameFailureDiagnostics
         $"Failed frame (may be partially mutated): {Describe(failed)}";
 
     /// <summary>One line naming where the game was and what Samus was doing in <paramref name="snapshot"/>.</summary>
-    private static string Describe(GameplaySnapshot snapshot)
+    internal static string Describe(GameplaySnapshot snapshot)
     {
         Ensure.NotNull(snapshot);
         string location = $"frame=${snapshot.FrameNumber:X4}; state={snapshot.GameState}; " +

@@ -114,7 +114,7 @@ internal static class RoomObjectFrameImageFiles
     /// writes last, as the room does.
     /// </summary>
     /// <exception cref="InvalidDataException">The draw list differs from the layout.</exception>
-    private static RoomObjectFrameImage Picture(ISnesAddressSpace bus, string family, RoomObjectFrameLayout layout)
+    internal static RoomObjectFrameImage Picture(ISnesAddressSpace bus, string family, RoomObjectFrameLayout layout)
     {
         Ensure.NotNull(bus);
         int pointer = RoomObjectDrawAddressCodec.Of(layout.Draw);

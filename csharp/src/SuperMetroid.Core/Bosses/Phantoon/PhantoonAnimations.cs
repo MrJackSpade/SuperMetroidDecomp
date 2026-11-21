@@ -75,7 +75,7 @@ internal static class PhantoonAnimations
     /// the closing eye closes and holds closed, the tentacles sway for good, and the flame-spitting mouth runs on into its
     /// initial pose and holds it.
     /// </summary>
-    private static Dictionary<PhantoonPartSegment, Animation<PhantoonPartSegment>> StartingAt { get; } = Segments.Starts(Segments.StartsEnding(new Dictionary<PhantoonPartSegment, Animation<PhantoonPartSegment>>
+    internal static Dictionary<PhantoonPartSegment, Animation<PhantoonPartSegment>> StartingAt { get; } = Segments.Starts(Segments.StartsEnding(new Dictionary<PhantoonPartSegment, Animation<PhantoonPartSegment>>
     {
         [P.EyeCloseAndPickNewPattern] = HeldAfter(P.EyeCloseAndPickNewPattern, P.EyeClosed),
         [P.EyeClose] = HeldAfter(P.EyeClose, P.EyeClosed),

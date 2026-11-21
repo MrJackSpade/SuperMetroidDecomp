@@ -13,7 +13,7 @@ internal static class EnemyTileSourceArtworkAccess
     {
         /// <summary>Explicitly partial constructed artwork; never an installed production catalog.</summary>
         internal static EnemyTileSourceArtwork FromArtworkForVerification(EnemyTileArtworkParts parts) =>
-            global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.AssetExtraction.Enemies.EnemyTileSourceArtwork>([typeof(global::SuperMetroid.AssetExtraction.Enemies.EnemyTileArtworkParts)], new object?[] { Ensure.NotNull(parts) });
+            new global::SuperMetroid.AssetExtraction.Enemies.EnemyTileSourceArtwork(Ensure.NotNull(parts));
     }
 
     /// <summary>Exposes <see cref="EnemyTileSourceArtwork"/> state that only verification reads.</summary>
@@ -47,9 +47,9 @@ internal static class EnemyTileSourceArtworkAccess
         internal EnemyTileArtworkParts Parts => new()
         {
             Sheets = self.sheets,
-            Palettes = PrivateState.Field<EnemyTileSourceArtwork, Dictionary<EnemyDefinitionId, EnemyPaletteSheet>>(self, "palettes"),
-            UnplacedSheets = PrivateState.Field<EnemyTileSourceArtwork, Dictionary<UnplacedEnemyArtwork, RoomCharacterAtlas>>(self, "unplacedSheets"),
-            UnplacedPalettes = PrivateState.Field<EnemyTileSourceArtwork, Dictionary<UnplacedEnemyArtwork, EnemyPaletteSheet>>(self, "unplacedPalettes"),
+            Palettes = self.palettes,
+            UnplacedSheets = self.unplacedSheets,
+            UnplacedPalettes = self.unplacedPalettes,
             MagdollitePaletteCycle = self.MagdollitePaletteCycle,
             WorkRobotPaletteCycle = self.WorkRobotPaletteCycle,
             ChozoAndTubeColors = self.ChozoAndTubeColors,
@@ -66,7 +66,7 @@ internal static class EnemyTileSourceArtworkAccess
         /// built through the constructor as the import builds it, for a fixture that authors its own frames.
         /// </summary>
         internal EnemyTileSourceArtwork WithFrames(EnemySpritemapCatalog? spritemaps, EnemyExtendedFrameCatalog? extendedFrames) =>
-            global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.AssetExtraction.Enemies.EnemyTileSourceArtwork>([typeof(global::SuperMetroid.AssetExtraction.Enemies.EnemyTileArtworkParts)], new object?[] { self.Parts with { Spritemaps = spritemaps, ExtendedFrames = extendedFrames } });
+            new global::SuperMetroid.AssetExtraction.Enemies.EnemyTileSourceArtwork(self.Parts with { Spritemaps = spritemaps, ExtendedFrames = extendedFrames });
 
         /// <summary>Each installed sheet with its palette, in definition order.</summary>
         internal IEnumerable<EnemyInstalledSheet> SheetsInDefinitionOrder =>

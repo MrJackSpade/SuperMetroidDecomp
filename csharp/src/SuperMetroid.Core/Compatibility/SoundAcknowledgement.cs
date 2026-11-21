@@ -25,10 +25,10 @@ public readonly record struct SoundAcknowledgement<TSound>
     public static SoundAcknowledgement<TSound> Of(TSound? sound) => sound is { } acknowledged ? new(new SoundReport(acknowledged)) : default;
 
     /// <summary>The acknowledged request, or none.</summary>
-    private TSound? Sound => reported is SoundReport { Sound: var sound } ? sound : null;
+    internal TSound? Sound => reported is SoundReport { Sound: var sound } ? sound : null;
 
     /// <summary>Whether the library reports new music loading.</summary>
-    private bool IsMusicLoading => reported is MusicLoadingReport;
+    internal bool IsMusicLoading => reported is MusicLoadingReport;
 
     /// <summary>What the library reports (#2560): an acknowledged sound or music loading; null when it reports nothing.</summary>
     private readonly Report? reported;

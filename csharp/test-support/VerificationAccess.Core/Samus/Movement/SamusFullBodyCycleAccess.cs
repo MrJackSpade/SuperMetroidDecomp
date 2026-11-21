@@ -36,8 +36,7 @@ internal static class SamusFullBodyCycleAccess
         internal int CycleShadeTimer
         {
             get => self.FullBodyGlow.UpdatesLeft;
-            set => PrivateState.Set(self.FullBodyGlow,
-                nameof(AnimationPlayer<SamusGlowSegment, PictureShade, NoAnimationCue>.UpdatesLeft), value);
+            set => self.FullBodyGlow.UpdatesLeft = value;
         }
     }
 }

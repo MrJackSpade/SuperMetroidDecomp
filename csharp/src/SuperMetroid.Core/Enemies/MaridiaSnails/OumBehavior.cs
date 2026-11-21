@@ -372,7 +372,7 @@ internal sealed class OumBehavior : IEnemySpecies, IEnemyEntityFactory
     /// still shows its spawn idle it counts as playing the right-facing idle, and its first start of another animation, the
     /// left-facing idle included, starts it afresh (<see cref="OumEnemyState.ShowsSpawnIdle"/>).
     /// </summary>
-    private static void StartOumAnimation(
+    internal static void StartOumAnimation(
         RoomEnemyPlace place,
         OumEnemyState state,
         OumSegment segment)

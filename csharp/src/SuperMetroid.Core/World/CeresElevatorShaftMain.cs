@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.World;
 internal sealed class CeresElevatorShaftMain(CeresElevatorShaftRoomMainState shaft) : IRoomMain
 {
     /// <summary>The shaft's turn and elevator, which the main steps and checks read.</summary>
-    private readonly CeresElevatorShaftRoomMainState shaft = shaft;
+    internal readonly CeresElevatorShaftRoomMainState shaft = shaft;
 
     /// <inheritdoc/>
     public RoomMainOutcome Run(RoomMainUpdate update)

@@ -623,7 +623,7 @@ internal sealed class EnemySheetShades
     /// darkened, brightened, materialized, vanished and materialized again from white, as its AI drives it.
     /// </summary>
     /// <exception cref="InvalidDataException">A step's shade names two different colourings.</exception>
-    private static IReadOnlyList<ShadeColours> GhostFadeSteps()
+    internal static IReadOnlyList<ShadeColours> GhostFadeSteps()
     {
         var steps = new Dictionary<PictureShade, RgbColor[]>();
         WreckedShipGhostFade fade = WreckedShipGhostFade.Dark;

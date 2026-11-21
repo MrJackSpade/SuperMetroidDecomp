@@ -54,7 +54,7 @@ public static class GameOptionsPageCells
     /// selected palette when Japanese is active.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The language or the row is undefined.</exception>
-    private static GameOptionsLanguagePaletteRegion LanguagePaletteRegion(TextLanguage language, GameOptionsLabelRow row)
+    internal static GameOptionsLanguagePaletteRegion LanguagePaletteRegion(TextLanguage language, GameOptionsLabelRow row)
     {
         int rowsBelowLabelTop = row switch
         {
@@ -85,7 +85,7 @@ public static class GameOptionsPageCells
     /// boxes of the toggle listed above it on the special page, and their choices seven cells apart. Exit has no boxes.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The row is not a toggle.</exception>
-    private static GameOptionsToggleLayout ToggleLayout(GameOptionsSpecialRow toggle)
+    internal static GameOptionsToggleLayout ToggleLayout(GameOptionsSpecialRow toggle)
     {
         if (toggle is not (GameOptionsSpecialRow.IconCancel or GameOptionsSpecialRow.Moonwalk))
             throw new ArgumentOutOfRangeException(nameof(toggle), toggle, "Not a toggle row.");

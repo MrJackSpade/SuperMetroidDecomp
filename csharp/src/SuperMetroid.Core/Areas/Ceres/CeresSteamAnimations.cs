@@ -15,10 +15,10 @@ namespace SuperMetroid.Core.Areas.Ceres;
 internal static class CeresSteamAnimations
 {
     /// <summary>How long a vent stays hidden between puffs.</summary>
-    private const int RestUpdates = 64;
+    internal const int RestUpdates = 64;
 
     /// <summary>How long each picture of a puff shows.</summary>
-    private const int PuffPictureUpdates = 3;
+    internal const int PuffPictureUpdates = 3;
 
     /// <summary>
     /// The segments of a vent whose puff shows <paramref name="puff"/>: its dormant wait hides the vent, its rest hides it

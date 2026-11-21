@@ -25,7 +25,7 @@ internal static class CeresFloorDrawings
     ]);
 
     /// <summary>The tiles of each cell <paramref name="frame"/>'s runs write, by floor cell.</summary>
-    private static Dictionary<int, int> Cells(CeresFloorActorPicture frame)
+    internal static Dictionary<int, int> Cells(CeresFloorActorPicture frame)
     {
         if (!CeresFloorDrawingDefinitions.Frames.TryGetValue(frame, out IReadOnlyList<CeresFloorRunDefinition>? rows))
             throw new InvalidDataException($"Unknown Ceres floor animation frame {frame}.");

@@ -75,10 +75,10 @@ internal sealed class MotherBrainColours : IGameplayShadingSource
     }
 
     /// <summary>The shading her body layer shows: her whole body's colouring.</summary>
-    private PictureShading BodyLayerShading => OverBody(PictureShading.Standard);
+    internal PictureShading BodyLayerShading => OverBody(PictureShading.Standard);
 
     /// <summary>The shading her fight lays over her room's pictures: its grey, then its lights.</summary>
-    private PictureShading RoomShading
+    internal PictureShading RoomShading
     {
         get
         {

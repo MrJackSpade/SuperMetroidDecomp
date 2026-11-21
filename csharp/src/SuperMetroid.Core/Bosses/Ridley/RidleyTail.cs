@@ -88,7 +88,7 @@ internal sealed class RidleyTail
     /// disables random/proximity flings only during the swoop, then sets a one-shot request
     /// at its lowest point so the tail snaps toward Samus as Ridley charges back upward.
     /// </summary>
-    private void HandleRidleyNeutralTailControl(
+    internal void HandleRidleyNeutralTailControl(
         RoomEnemyPlace place,
         RidleyEncounterState state,
         SamusState samus,
@@ -138,7 +138,7 @@ internal sealed class RidleyTail
     /// <param name="samus">Samus, whom the whip aims at.</param>
     /// <param name="samusProjectiles">Samus's beams and missiles; a missile near the tail tip draws the whip instead.</param>
     /// <param name="turnsBeyond">The whole turns the target lies past the whip's swing, or short of it when negative.</param>
-    private static void AimRidleyTailWhip(
+    internal static void AimRidleyTailWhip(
         RidleyEncounterState state,
         SamusState samus,
         SamusProjectileSystem samusProjectiles,
@@ -197,7 +197,7 @@ internal sealed class RidleyTail
     /// Advances one link's stagger and swing toward the shared target. In both directions a step that lands exactly on
     /// the limit or target counts as reaching it. A link that has swung its spacing starts the next link swinging its way.
     /// </summary>
-    private static void TickRidleyTailLink(RidleyTailState tail, RidleyTailLink link)
+    internal static void TickRidleyTailLink(RidleyTailState tail, RidleyTailLink link)
     {
         if (link.Active)
         {
@@ -283,7 +283,7 @@ internal sealed class RidleyTail
     /// Extends each shaft link and the tip toward its target distance, up to its longest, or shrinks one longer than its
     /// rest length back toward it. The base holds its length and takes no part.
     /// </summary>
-    private static void UpdateRidleyTailDistances(RidleyTailState tail)
+    internal static void UpdateRidleyTailDistances(RidleyTailState tail)
     {
         foreach (RidleyTailLink link in tail.Links.Skip(1))
         {
@@ -318,7 +318,7 @@ internal sealed class RidleyTail
     /// <param name="body">Ridley's body, whose contact decides whether the tail meets Samus.</param>
     /// <param name="state">Ridley's encounter.</param>
     /// <param name="samus">Samus.</param>
-    private static void ResolveRidleyTailSamusContact(RoomEnemyPlace body, RidleyEncounterState state, SamusState samus)
+    internal static void ResolveRidleyTailSamusContact(RoomEnemyPlace body, RidleyEncounterState state, SamusState samus)
     {
         // The tail composition checks the newly solved tail, independently of the earlier
         // extended-body contact pass, and never damages Samus while carrying her.

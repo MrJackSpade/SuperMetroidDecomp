@@ -90,7 +90,7 @@ public static class EnemyAuxiliaryColorFiles
     /// <summary>Serializes the auxiliary-color document as indented camel-case UTF-8 JSON with named palette identities.</summary>
     /// <param name="document">Document containing the supported version and every palette family's complete RGB5 rows.</param>
     /// <returns>Auxiliary-color JSON bytes.</returns>
-    private static byte[] Write(EnemyAuxiliaryColorDocument document) =>
+    internal static byte[] Write(EnemyAuxiliaryColorDocument document) =>
         JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
 
     /// <summary>Rejects case-insensitive duplicate JSON keys before deserialization can discard an earlier color edit.</summary>

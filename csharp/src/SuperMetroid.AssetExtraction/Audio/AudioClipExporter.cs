@@ -17,7 +17,7 @@ namespace SuperMetroid.AssetExtraction.Audio;
 internal static class AudioClipExporter
 {
     /// <summary>Directory of every clip file beneath the audio root, which holds it beside the clip index alone.</summary>
-    private const string ClipDirectory = "clips";
+    internal const string ClipDirectory = "clips";
 
     /// <summary>Directory of music clip files beneath the audio root.</summary>
     internal const string MusicDirectory = ClipDirectory + "/music";
@@ -78,7 +78,7 @@ internal static class AudioClipExporter
             select new SoundEffectKey(sounds, effect.Command)];
 
     /// <summary>Renders the given tracks and effects into <paramref name="audioDirectory"/> and writes the manifest.</summary>
-    private static void Export(
+    internal static void Export(
         ExtractedAudioAssetCatalog catalog,
         string audioDirectory,
         IReadOnlyList<MusicKey> tracks,

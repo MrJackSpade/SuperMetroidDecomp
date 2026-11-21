@@ -111,7 +111,7 @@ internal static class IntroSpriteSheetComposer
     /// sheet pictures every frame in its own colours.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">A family is not one the opening draws.</exception>
-    private static SpriteSheetSources Sources(IEnumerable<ICinematicSpriteFrames> families, ImportIntroCinematicArtwork intro)
+    internal static SpriteSheetSources Sources(IEnumerable<ICinematicSpriteFrames> families, ImportIntroCinematicArtwork intro)
     {
         Ensure.NotNull(intro);
         // The intro's actors draw in each colouring and cross-fade level as shades of the sheet (#1512).
@@ -210,7 +210,7 @@ internal static class IntroSpriteSheetComposer
     /// Each family's composition of every pose over <paramref name="page"/>, its objects at <paramref name="sizes"/> and its
     /// palette-inheriting parts in the sprite set <paramref name="set"/> gives the family's pose.
     /// </summary>
-    private static IEnumerable<SheetFrameSource> Frames(IEnumerable<ICinematicSpriteFrames> families, SpriteArtwork page,
+    internal static IEnumerable<SheetFrameSource> Frames(IEnumerable<ICinematicSpriteFrames> families, SpriteArtwork page,
         ScreenObjectSizes sizes, Func<CinematicSpriteFamily, CinematicSpritePose, int> set) =>
         Ensure.NotNull(families).SelectMany(family => family.Frames.OrderBy(pair => CinematicSpritemapSources.CartridgeOrder(pair.Key)).Select(pair =>
         {

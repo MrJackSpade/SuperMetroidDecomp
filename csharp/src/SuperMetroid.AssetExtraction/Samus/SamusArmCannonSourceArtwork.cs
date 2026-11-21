@@ -101,12 +101,12 @@ public sealed class SamusArmCannonSourceArtwork
 
     /// <summary>Gets where <paramref name="pose"/>'s extracted drawing descriptor begins within the drawing data.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The pose has no record in the pose tables.</exception>
-    private int PoseDescriptor(SamusPoseId pose) => Descriptors.PoseDescriptor(pose);
+    internal int PoseDescriptor(SamusPoseId pose) => Descriptors.PoseDescriptor(pose);
 
     /// <summary>The extracted descriptor byte <paramref name="offset"/> bytes into the drawing data.</summary>
     /// <param name="offset">Byte offset into the drawing data; coordinate bytes are signed pixel offsets.</param>
     /// <exception cref="InvalidDataException">The offset lies outside the extracted drawing window.</exception>
-    private byte ReadDrawingByte(int offset) => Descriptors.ReadDrawingByte(offset);
+    internal byte ReadDrawingByte(int offset) => Descriptors.ReadDrawingByte(offset);
 
     /// <summary>Gets the installed cover's character, palette, depth, and mirroring for aim <paramref name="direction"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="direction"/> is no aim.</exception>

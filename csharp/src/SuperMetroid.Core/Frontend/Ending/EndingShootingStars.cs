@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 internal sealed class EndingShootingStars
 {
     /// <summary>Each authored star's flight, each holding its own definition (#2541), retained across scene updates.</summary>
-    private readonly EndingShootingStar[] stars;
+    internal readonly EndingShootingStar[] stars;
 
     /// <summary>Seeds each authored star at the common origin and arms any authored start delay.</summary>
     internal EndingShootingStars()

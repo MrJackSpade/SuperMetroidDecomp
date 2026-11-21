@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.World;
 internal sealed class MaridiaElevatubeMain(MaridiaElevatubeRoomMainState tube) : IRoomMain
 {
     /// <summary>The tube's ride, which the main steps and checks read.</summary>
-    private readonly MaridiaElevatubeRoomMainState tube = tube;
+    internal readonly MaridiaElevatubeRoomMainState tube = tube;
 
     /// <inheritdoc/>
     public RoomMainOutcome Run(RoomMainUpdate update)

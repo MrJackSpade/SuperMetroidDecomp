@@ -55,7 +55,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     internal TorizoAttacks Attacks { get; }
 
     /// <summary>The branches Bomb and Golden Torizo's animations take on Samus's position, and their walk steps.</summary>
-    private TorizoChoices Choices { get; }
+    internal TorizoChoices Choices { get; }
 
     /// <summary>Bomb and Golden Torizo's hitboxes, touch and hurt, and what Samus's weapons do to them.</summary>
     internal TorizoCombat Combat { get; }
@@ -242,7 +242,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// cue: the place in the walk an interruption keeps (#2028). The attack choice alternates with the time
     /// (<see cref="TorizoCueInputs.FrameCounter"/>), as the attack phase's definition states.
     /// </summary>
-    private AnimationContinuation<TorizoBodySegment>? ApplyTorizoCue(
+    internal AnimationContinuation<TorizoBodySegment>? ApplyTorizoCue(
         RoomEnemyOccupant occupant, RoomEnemyPlace torizo,
         TorizoEnemyState state,
         TorizoCueInputs inputs,
@@ -550,7 +550,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Moves a Torizo by a posture change's displacement standing up, or back by it sitting down.</summary>
-    private static void ApplyTorizoPosture(
+    internal static void ApplyTorizoPosture(
         RoomEnemyPlace torizo,
         Offset16<RoomPixels> displacement,
         TorizoPostureKind kind) =>

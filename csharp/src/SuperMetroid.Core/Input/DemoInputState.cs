@@ -16,7 +16,7 @@ public sealed class DemoInputState
     public bool Enabled { get; private set; }
 
     /// <summary>Where the recording resumes; null once the recording has ended.</summary>
-    private DemoPlaybackPosition? Position { get; set; }
+    internal DemoPlaybackPosition? Position { get; set; }
 
     /// <summary>Whether the next <see cref="Step"/> plays the recording: the playback runs and its recording has not ended.</summary>
     public bool IsPlaying => Enabled && Position is not null;

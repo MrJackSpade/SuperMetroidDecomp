@@ -37,7 +37,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>The species whose corpse <paramref name="definitionId"/> places.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="definitionId"/> is not a Tourian corpse.</exception>
-    private static DeadTourianCorpseSpecies SpeciesOf(EnemyDefinitionId definitionId) =>
+    internal static DeadTourianCorpseSpecies SpeciesOf(EnemyDefinitionId definitionId) =>
         DeadTourianCorpseSpeciesDefinitions.Species.TryGetValue(definitionId, out DeadTourianCorpseSpecies species)
             ? species
             : throw new ArgumentOutOfRangeException(nameof(definitionId));

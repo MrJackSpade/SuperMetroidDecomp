@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Samus.Artwork;
 public sealed class InstalledSamusVisorColors
 {
     /// <summary>The installed visor shades, in cycle order.</summary>
-    private readonly RgbColor[] colors;
+    internal readonly RgbColor[] colors;
 
     /// <summary>Keeps a copy of the complete installed visor shades.</summary>
     /// <param name="colors">All <see cref="SamusVisorColorFormat.ColorCount"/> visor shades.</param>

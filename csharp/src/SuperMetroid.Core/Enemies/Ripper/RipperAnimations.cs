@@ -21,7 +21,7 @@ internal static class RipperAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    private static Dictionary<RipperSegment, Animation<RipperSegment>> StartingAt { get; } = new Dictionary<RipperSegment, Animation<RipperSegment>>
+    internal static Dictionary<RipperSegment, Animation<RipperSegment>> StartingAt { get; } = new Dictionary<RipperSegment, Animation<RipperSegment>>
     {
         [P.GrappleRipperMovingLeft] = Animation<RipperSegment>.Looping([Segments.Whole(P.GrappleRipperMovingLeft)]),
         [P.GrappleRipperMovingRight] = Animation<RipperSegment>.Looping([Segments.Whole(P.GrappleRipperMovingRight)]),

@@ -26,13 +26,13 @@ public sealed class GameOverMenuState : IMenuFrontendScreen, IComposedFrontendSc
     /// <summary>Shared music and sound queue advanced by the menu scene.</summary>
     private readonly AudioQueues audio;
     /// <summary>The menu screen game over draws: its artwork, pictures, colours and sprites.</summary>
-    private readonly MenuScreen screen;
+    internal readonly MenuScreen screen;
     /// <summary>Detects newly pressed answer-navigation and confirmation buttons.</summary>
     private readonly ControllerInputState controller = new();
     /// <summary>The screen's brightness, stepped one level on every fade update; the menu opens black.</summary>
     private readonly ScreenFade fade = new(DisplayBrightness.Black);
     /// <summary>The selection missile's frame cycle, shared by the Yes and No positions.</summary>
-    private readonly MenuMissileAnimation missile;
+    internal readonly MenuMissileAnimation missile;
     /// <summary>
     /// The Baby Metroid's animation (#2488), played by the shared player: it shows nothing of its own before the menu's
     /// set-up starts it, and holds its look once an answer is accepted.
@@ -40,7 +40,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen, IComposedFrontendSc
     private readonly AnimationPlayer<GameOverBabySegment, GameOverBabyLook, GameOverBabySound> baby =
         AnimationPlayer<GameOverBabySegment, GameOverBabyLook, GameOverBabySound>.Starting(GameOverBabyAnimation.Segments, GameOverBabyAnimation.Playing);
     /// <summary>The pose and colours the Baby shows: its animation's look, or its resting look before the animation starts.</summary>
-    private GameOverBabyLook BabyLook => baby.Shown ?? GameOverBabyAnimation.Resting;
+    internal GameOverBabyLook BabyLook => baby.Shown ?? GameOverBabyAnimation.Resting;
     /// <summary>Routes Yes directly to the Ceres loader for the saved arrival state.</summary>
     private readonly bool continueLoadsCeresArrival;
     /// <summary>Installed artwork rebound whenever the game is bound to its installed content without changing menu timing.</summary>
@@ -72,10 +72,10 @@ public sealed class GameOverMenuState : IMenuFrontendScreen, IComposedFrontendSc
     }
 
     /// <summary>The selected answer, Yes or No.</summary>
-    private YesNoChoice SelectedItem { get; set; }
+    internal YesNoChoice SelectedItem { get; set; }
 
     /// <summary>Current menu step.</summary>
-    private GameOverMenuPhase Phase { get; set; }
+    internal GameOverMenuPhase Phase { get; set; }
 
     /// <summary>
     /// True while the current menu step waits out a frame of the display (after blanking or unblanking): the next update
@@ -247,7 +247,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen, IComposedFrontendSc
 
     /// <summary>The sound of one of the Baby's cries.</summary>
     /// <exception cref="InvalidDataException">The cry is not one of the Baby's.</exception>
-    private static SoundEffectId CrySound(GameOverBabySound sound) => sound switch
+    internal static SoundEffectId CrySound(GameOverBabySound sound) => sound switch
     {
         GameOverBabySound.HighCry => GameOverMenuDefinitions.HighCry,
         GameOverBabySound.HitchedCry => GameOverMenuDefinitions.HitchedCry,

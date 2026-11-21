@@ -14,8 +14,7 @@ internal static class DoorCapObjectAccess
         /// </summary>
         /// <exception cref="InvalidOperationException">The cap rests, counting nothing.</exception>
         internal int UpdatesBeforeNextStep =>
-            PrivateState.Field<SequencedRoomObject<DoorCapSegment, DoorCapShown, SoundEffectId>,
-                SequencedRoomObjectProgress<DoorCapSegment, DoorCapShown, SoundEffectId>>(cap, "_progress") switch
+            cap.Progress switch
             {
                 SequencedRoomObjectProgress<DoorCapSegment, DoorCapShown, SoundEffectId>.Playing playing => playing.Player.UpdatesLeft,
                 SequencedRoomObjectProgress<DoorCapSegment, DoorCapShown, SoundEffectId>.Deciding => 1,

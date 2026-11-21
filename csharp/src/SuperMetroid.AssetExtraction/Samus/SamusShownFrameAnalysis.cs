@@ -141,7 +141,7 @@ internal sealed class SamusShownFrameAnalysis
     }
 
     /// <summary>Every pose some path of the game gives Samus: the poses the body can show.</summary>
-    private static IReadOnlyList<SamusPoseId> Poses { get; } = Ensure.EveryMemberOnce(SamusPoseIdKeys.ListedOrder);
+    internal static IReadOnlyList<SamusPoseId> Poses { get; } = Ensure.EveryMemberOnce(SamusPoseIdKeys.ListedOrder);
 
     /// <summary>
     /// What the installation holds of the analysis, for every pose with a record: every frame the pose shows, with the

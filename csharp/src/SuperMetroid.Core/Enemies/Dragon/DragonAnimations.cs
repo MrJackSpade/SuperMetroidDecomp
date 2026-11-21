@@ -48,7 +48,7 @@ internal static class DragonAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    private static Dictionary<DragonSegment, Animation<DragonSegment>> StartingAt { get; } = Segments.Starts(Segments.EachEnding(AnimationEnd.Holds,
+    internal static Dictionary<DragonSegment, Animation<DragonSegment>> StartingAt { get; } = Segments.Starts(Segments.EachEnding(AnimationEnd.Holds,
         P.IdleFacingLeft, P.IdleFacingRight, P.AttackingFacingLeft, P.AttackingFacingRight),
         P.WingsFacingLeft, P.WingsFacingRight);
 

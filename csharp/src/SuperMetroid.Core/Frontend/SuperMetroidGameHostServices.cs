@@ -19,7 +19,7 @@ internal sealed record SuperMetroidGameHostServices
     /// <param name="roomLoadProgress">How far room loading has progressed when each enemy initializes.</param>
     /// <param name="soundAcceptance">On which update each sound library accepts the sound the game requested.</param>
     /// <param name="gameplayFrames">How each gameplay update becomes the published display.</param>
-    private SuperMetroidGameHostServices(
+    internal SuperMetroidGameHostServices(
         IDoorMusicLoadFrames doorMusicLoadFrames,
         IRoomLoadProgress roomLoadProgress,
         ISoundAcceptanceTiming<SoundEffectLibrary, SoundEffectId> soundAcceptance,

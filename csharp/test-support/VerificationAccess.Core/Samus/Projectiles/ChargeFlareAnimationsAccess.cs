@@ -52,7 +52,7 @@ internal static class ChargeFlareAnimationsAccess
     {
         /// <summary>The play of the component's animation, which only the component's own updates step.</summary>
         internal AnimationPlayer<ChargeFlareSegment, ChargeFlarePicture, NoAnimationCue> Player() =>
-            PrivateState.Field<ChargeFlareComponentState, AnimationPlayer<ChargeFlareSegment, ChargeFlarePicture, NoAnimationCue>>(self, "player");
+            self.player;
 
         /// <summary>
         /// The number of the picture the component shows among its pictures, or null once the Hyper Beam's count has

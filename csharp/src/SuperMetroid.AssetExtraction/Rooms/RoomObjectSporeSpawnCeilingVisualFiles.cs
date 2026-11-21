@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 public static class RoomObjectSporeSpawnCeilingVisualFiles
 {
     /// <summary>Editable Spore Spawn ceiling visual JSON filename.</summary>
-    private const string VisualFileName = "spore-spawn-ceiling.json";
+    internal const string VisualFileName = "spore-spawn-ceiling.json";
 
     /// <summary>The ceiling's frames in the installed file's order (#2567): the clear, then the ceiling cracked, crumbling and crumbled.</summary>
     private static readonly IReadOnlyList<SporeSpawnCeilingDraw> FrameOrder = Ensure.EveryMemberOnce<SporeSpawnCeilingDraw>(
@@ -39,7 +39,7 @@ public static class RoomObjectSporeSpawnCeilingVisualFiles
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>The draw lists of the clear and crumble frames.</summary>
-    private static IEnumerable<RoomObjectDrawLists.DrawList> All
+    internal static IEnumerable<RoomObjectDrawLists.DrawList> All
     {
         get
         {
@@ -67,7 +67,7 @@ public static class RoomObjectSporeSpawnCeilingVisualFiles
     /// cell colliding as the game's block shape for the frame says (#1608). The run form is the cartridge's; the game
     /// draws the shape.
     /// </summary>
-    private static bool TryGet(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
+    internal static bool TryGet(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
     {
         if (!RoomObjectDrawIdentity.TryShape(SporeSpawnCeilingDraws.Family, request, out RoomBlockShape? described))
         {

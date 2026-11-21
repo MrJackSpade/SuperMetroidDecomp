@@ -124,7 +124,7 @@ internal static class EndingCreditsPresentation
     /// Whether the floor repeats beyond its edges (#1674): from the escape's setup through the planet's explosion and the
     /// music waits after it, until the gunship's planet escape shows nothing beyond its floor's edges.
     /// </summary>
-    private static bool FloorRepeatsBeyondEdges(EndingCreditsPhase phase) => EndingCreditsPhaseGroups.BeforePlanetEscape.Contains(phase);
+    internal static bool FloorRepeatsBeyondEdges(EndingCreditsPhase phase) => EndingCreditsPhaseGroups.BeforePlanetEscape.Contains(phase);
 
     /// <summary>Whether the current explosion music wait renders a white screen.</summary>
     internal static bool ExplosionWhiteout(IEndingActorScene ending) => EndingCreditsPhaseGroups.Whiteout.Contains(ending.Phase);
@@ -182,7 +182,7 @@ internal static class EndingCreditsPresentation
     /// <paramref name="only"/>'s sprite layer, or all of them when it is null (#1514).
     /// </summary>
     /// <exception cref="InvalidOperationException">The ending shows a scene the presentation does not draw.</exception>
-    private static ScreenSprites PrepareSprites(EndingCreditsState ending, EndingSpriteLayer? only = null)
+    internal static ScreenSprites PrepareSprites(EndingCreditsState ending, EndingSpriteLayer? only = null)
     {
         var sprites = new ScreenSprites();
         sprites.BeginFrame();

@@ -8,7 +8,7 @@ public sealed class GunshipLiftoffArtworkCatalog
 {
 
     /// <summary>Owned five-frame character atlases, each keyed by the takeoff transfer that uploads it.</summary>
-    private readonly IReadOnlyDictionary<InstalledArtworkId, RoomCharacterAtlas> frames;
+    internal readonly IReadOnlyDictionary<InstalledArtworkId, RoomCharacterAtlas> frames;
 
     /// <summary>Validates five complete native-size atlases, one per takeoff transfer, and copies them.</summary>
     internal GunshipLiftoffArtworkCatalog(IReadOnlyDictionary<InstalledArtworkId, RoomCharacterAtlas> frames) => this.frames = GunshipLiftoffArtwork.Validated(frames);

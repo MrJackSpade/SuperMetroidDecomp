@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Compatibility;
 public sealed class PoseTransitionCancellation
 {
     /// <summary>Whether a cancellation waits for the resample.</summary>
-    private bool IsWaiting { get; set; }
+    internal bool IsWaiting { get; set; }
 
     /// <summary>A control setup cancels the pending pose transition.</summary>
     internal void Cancel() => IsWaiting = true;

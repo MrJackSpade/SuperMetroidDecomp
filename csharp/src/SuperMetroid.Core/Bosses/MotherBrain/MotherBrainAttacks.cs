@@ -425,7 +425,7 @@ internal sealed class MotherBrainAttacks
     /// Goes straight on from the attack setup, at zero health, into the rainbow beam's setup in the same update; the
     /// beam's timer first counts down on her next update.
     /// </summary>
-    private static void StartLiveMotherBrainRainbowBeam(MotherBrainEnemyState state)
+    internal static void StartLiveMotherBrainRainbowBeam(MotherBrainEnemyState state)
     {
         state.BeginLateFight().StartAttackCycle();
         state.NextRainbowImage = MotherBrainRainbowImage.CycleStart;

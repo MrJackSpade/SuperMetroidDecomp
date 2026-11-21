@@ -18,7 +18,7 @@ namespace SuperMetroid.Core.Compatibility;
 public static class ShortCircleProduct
 {
     /// <summary>The span of radii the product tells apart: a radius past it continues from zero.</summary>
-    private const int RadiusSpan = 256;
+    internal const int RadiusSpan = 256;
 
     /// <summary>
     /// The radius, 0 through 255, the product uses for <paramref name="radius"/> pixels, zero or more: its place within

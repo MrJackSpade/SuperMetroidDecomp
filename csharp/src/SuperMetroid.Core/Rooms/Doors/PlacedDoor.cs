@@ -15,7 +15,7 @@ internal sealed class PlacedDoor(DoorLock placed)
     internal DoorLock Placed { get; } = Ensure.NotNull(placed);
 
     /// <summary>Whether the object recorded its door opened for good, after which it keeps no door.</summary>
-    private bool Spent { get; set; }
+    internal bool Spent { get; set; }
 
 
     /// <summary>Whether the door has been opened for good: never for one whose opening does not persist, or once spent.</summary>

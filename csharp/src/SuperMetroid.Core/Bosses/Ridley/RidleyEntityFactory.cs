@@ -15,10 +15,10 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 internal sealed class RidleyEntityFactory(NorfairRidleyBehavior norfair, CeresRidleyBehavior ceres, ICeresEscapeStatus escape) : IEnemyEntityFactory
 {
     /// <summary>Lower Norfair Ridley's encounter behaviour.</summary>
-    private NorfairRidleyBehavior Norfair { get; } = norfair;
+    internal NorfairRidleyBehavior Norfair { get; } = norfair;
 
     /// <summary>Ceres Ridley's encounter behaviour.</summary>
-    private CeresRidleyBehavior Ceres { get; } = ceres;
+    internal CeresRidleyBehavior Ceres { get; } = ceres;
 
     /// <summary>The station's escape progress, which ends Ceres Ridley's touch and drawing.</summary>
     private ICeresEscapeStatus Escape { get; } = escape;

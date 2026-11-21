@@ -15,9 +15,9 @@ namespace SuperMetroid.Core.Areas.Ceres;
 public sealed class CeresElevatorArrivalState : SuperMetroid.Core.Enemies.IActorInFrontOfSamus
 {
     /// <summary>The moving pad, which lowers Samus before the platform checks for her landing, and its wait before it moves.</summary>
-    private readonly CeresElevatorPad pad;
+    internal readonly CeresElevatorPad pad;
     /// <summary>The stationary platform, which waits behind the pad until Samus lands.</summary>
-    private readonly CeresElevatorArrivalActor platform;
+    internal readonly CeresElevatorArrivalActor platform;
 
     /// <summary>Starts the pad under Samus, waiting before it moves, and the platform at its fixed height below her.</summary>
     public CeresElevatorArrivalState(SamusState samus)

@@ -44,7 +44,7 @@ internal sealed class InstalledColourRows
     internal int RowCount => rows.Length;
 
     /// <summary>The colours each row holds.</summary>
-    private int ColoursPerRow { get; }
+    internal int ColoursPerRow { get; }
 
     /// <summary>The installed colour <paramref name="colour"/> of row <paramref name="row"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The row or colour is outside the table.</exception>

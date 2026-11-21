@@ -34,7 +34,7 @@ public static class RoomBlockAppearanceFiles
     private const int Version = 11;
 
     /// <summary>The installed file name of <paramref name="tileset"/>'s record.</summary>
-    private static string FileNameOf(TilesetDefinition tileset) => $"{RoomBlockSheet.NameOf(tileset)}.block-appearances.json";
+    internal static string FileNameOf(TilesetDefinition tileset) => $"{RoomBlockSheet.NameOf(tileset)}.block-appearances.json";
 
     /// <summary>Writes <paramref name="tileset"/>'s record of <paramref name="appearances"/> into <paramref name="directory"/>.</summary>
     /// <exception cref="IOException">The file already exists or cannot be written.</exception>

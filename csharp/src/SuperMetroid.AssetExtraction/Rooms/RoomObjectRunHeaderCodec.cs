@@ -11,10 +11,10 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 internal static class RoomObjectRunHeaderCodec
 {
     /// <summary>The header bit set when the run writes down a column.</summary>
-    private const int VerticalBit = 0x8000;
+    internal const int VerticalBit = 0x8000;
 
     /// <summary>The header bits below the direction bit, holding the run's block count.</summary>
-    private const int CountBits = 0x7fff;
+    internal const int CountBits = 0x7fff;
 
     /// <summary>The header word of a run of <paramref name="count"/> blocks, 0 through 32767, in <paramref name="direction"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="count"/> does not fit the header's count bits.</exception>

@@ -416,7 +416,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Positions the balloon above the body at its pose's height: the latest pose it has shown, or before its first pose
     /// shows, its sequence's first pose.
     /// </summary>
-    private static void AlignPowampBalloonY(RoomEnemyPlace body, PowampBalloon balloon) =>
+    internal static void AlignPowampBalloonY(RoomEnemyPlace body, PowampBalloon balloon) =>
         balloon.Place.Position = balloon.Place.Position.WithWholeY(
             body.Position.Y.Whole + PowampMotion.BalloonHeight(balloon.State.Inflation.Pose));
 
@@ -442,7 +442,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Restarts the balloon's animation at <paramref name="segment"/> on the next animation pass, and its sequence where
     /// that animation starts it (#1845).
     /// </summary>
-    private static void StartPowampBalloonAnimation(RoomEnemyPlace balloon, PowampBalloonState state, PowampSegment segment)
+    internal static void StartPowampBalloonAnimation(RoomEnemyPlace balloon, PowampBalloonState state, PowampSegment segment)
     {
         state.Playback = StartPowampAnimation(balloon, segment);
         state.Inflation = PowampMotionDefinitions.BalloonAnimationStarts.TryGetValue(segment, out PowampBalloonInflation start)
@@ -484,7 +484,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     /// A Powamp spike (#1760): it flies outward, accelerating, with room collision. A shot spike runs the same private
     /// delete animation its definition names as its shot animation.
     /// </summary>
-    private StatefulSingleMotionProjectileBehavior<PowampSpikeState> Spike => field ??= new(
+    internal StatefulSingleMotionProjectileBehavior<PowampSpikeState> Spike => field ??= new(
         context => FlyPowampSpike(context.Projectile, context.Level),
         shot: () => new PowampSpikeAnimation(PowampSpikeSegment.Delete));
 
@@ -574,7 +574,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <param name="occupant">The enemy holding <paramref name="body"/>.</param>
     /// <param name="body">The Powamp firing them.</param>
     /// <param name="look">The colours the spikes are drawn in.</param>
-    private void SpawnPowampSpikeBurst(RoomEnemyOccupant occupant, RoomEnemyPlace body, PictureShading look)
+    internal void SpawnPowampSpikeBurst(RoomEnemyOccupant occupant, RoomEnemyPlace body, PictureShading look)
     {
         // The spikes fire in their authored order, each taking the last free enemy-projectile place afresh.
         foreach (CompassDirection direction in PowampMotionDefinitions.SpikeFiringOrder)
@@ -612,7 +612,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Marks a spike for its deletion animation after its movement phase ends.</summary>
-    private static void BeginPowampSpikeDeletion(EnemyProjectile spike)
+    internal static void BeginPowampSpikeDeletion(EnemyProjectile spike)
     {
         // The animation deletes the spike as its first step, which the animation pass carries out later in this same
         // update.

@@ -32,7 +32,7 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
     /// that burns Samus, the heat glow that paces it and the beacon that sounds, are all started by the room's effect as
     /// the room loads and run until the room ends.
     /// </summary>
-    private readonly List<RoomColourEffect> effects = [];
+    internal readonly List<RoomColourEffect> effects = [];
     /// <summary>
     /// The effects whose animations ran to their end (#1597), in the order they settled: each keeps its final frame on its
     /// colours, without taking a turn, until an effect showing the same colours settles after it or the room ends.
@@ -59,7 +59,7 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
     /// </summary>
     /// <param name="session">Whether the effects run and the heat phases, which room loading never clears.</param>
     /// <param name="sounds">The update's sound requests of the runtime running the effects.</param>
-    private ColourEffectSystem(ColourEffectSessionState session, GameplaySoundRequests sounds)
+    internal ColourEffectSystem(ColourEffectSessionState session, GameplaySoundRequests sounds)
     {
         _session = Ensure.NotNull(session);
         this.sounds = Ensure.NotNull(sounds);
@@ -180,7 +180,7 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
     /// <param name="areaMiniBossDefeated">Whether the area's mini-boss is dead.</param>
     /// <param name="suppliedEffect">A room effect to use instead of the door's selection.</param>
     /// <param name="sounds">The update's sound requests of the runtime running the effects.</param>
-    private static ColourEffectSystem ForEffect(ColourEffectSessionState session, RoomFxSelection? fx, DoorDefinition? door,
+    internal static ColourEffectSystem ForEffect(ColourEffectSessionState session, RoomFxSelection? fx, DoorDefinition? door,
         SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems, bool areaMiniBossDefeated,
         RoomEffectDefinition? suppliedEffect, GameplaySoundRequests sounds)
     {

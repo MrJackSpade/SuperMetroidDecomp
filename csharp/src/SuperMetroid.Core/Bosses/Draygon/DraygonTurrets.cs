@@ -50,7 +50,7 @@ internal sealed class DraygonTurrets
     }
 
     /// <summary>Fires a wall turret and runs the wall turret projectile's setup.</summary>
-    private void SpawnDraygonWallTurret(
+    internal void SpawnDraygonWallTurret(
         SamusState samus,
         int random)
     {

@@ -38,7 +38,7 @@ internal static class KraidSuperMissileDamageVerification
         var state= runtime.Enemies.Kraid ?? throw new InvalidOperationException("Verification requires runtime.Enemies.Kraid.");
         state.BodyState.FightPhase = KraidFightPhase.MainAttackWithMouthOpen;
         state.HeadPlayback=RoarPastOpenPose;state.HeadHold.LastFor(64);
-        global::SuperMetroid.Core.PrivateState.Set(state, "DisplayedHeadFrame", (global::SuperMetroid.Core.Bosses.Kraid.KraidHeadFrame?)(FullyOpenRoarFrame()));
+        state.DisplayedHeadFrame = (global::SuperMetroid.Core.Bosses.Kraid.KraidHeadFrame?)(FullyOpenRoarFrame());
         var scope = runtime.Room.Scope ?? throw new InvalidOperationException("Verification requires a loaded room.");
         var level = KraidFloorLevel(scope.LevelData);
         runtime.Room.Adopt(scope with { LevelData = level });
@@ -148,7 +148,7 @@ internal static class KraidSuperMissileDamageVerification
             body.Health = 1000;
             state.BodyState.FightPhase = KraidFightPhase.MainAttackWithMouthOpen;
             state.HeadPlayback = RoarPastOpenPose;
-            global::SuperMetroid.Core.PrivateState.Set(state, "DisplayedHeadFrame", (global::SuperMetroid.Core.Bosses.Kraid.KraidHeadFrame?)(FullyOpenRoarFrame()));
+            state.DisplayedHeadFrame = (global::SuperMetroid.Core.Bosses.Kraid.KraidHeadFrame?)(FullyOpenRoarFrame());
         }
         void Place(int index) => PlaceShot(index, SamusProjectileType.Of(SamusProjectileFamily.SuperMissile), 300);
         // Each case fires a new shot into the place, ending the one an earlier case left there.

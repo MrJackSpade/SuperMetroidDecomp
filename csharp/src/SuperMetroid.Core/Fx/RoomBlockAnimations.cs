@@ -20,7 +20,7 @@ namespace SuperMetroid.Core.Fx;
 public sealed class RoomBlockAnimations
 {
     /// <summary>The loops the room effect lists, in the effect's order.</summary>
-    private readonly List<AnimationPlayer<BlockAnimation, ArtworkFrame, NoAnimationCue>> effectAnimations = [];
+    internal readonly List<AnimationPlayer<BlockAnimation, ArtworkFrame, NoAnimationCue>> effectAnimations = [];
 
     /// <summary>
     /// The loops still waiting for the area's boss to be defeated before their first frame: each starts on the first pass

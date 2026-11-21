@@ -268,7 +268,7 @@ internal static class BossSheetShades
     /// colours, their white flash and his eight health bands.
     /// </summary>
     /// <exception cref="InvalidDataException">His colours are not installed.</exception>
-    private static List<SheetShade> DraygonBackground(BossSourceArtwork bosses)
+    internal static List<SheetShade> DraygonBackground(BossSourceArtwork bosses)
     {
         DraygonColorCatalog draygon = Required(bosses.DraygonColors, "Draygon");
         var shades = new List<SheetShade>

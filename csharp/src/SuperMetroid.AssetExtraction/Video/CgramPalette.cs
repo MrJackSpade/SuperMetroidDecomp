@@ -33,7 +33,7 @@ public readonly struct CgramPalette
     }
 
     /// <summary>The number of colours in the range.</summary>
-    private int Count { get; }
+    internal int Count { get; }
 
     /// <summary>The range's colours, in CGRAM order.</summary>
     public ReadOnlySpan<RgbColor> Colors => cgram.Colors.Slice(first, Count);

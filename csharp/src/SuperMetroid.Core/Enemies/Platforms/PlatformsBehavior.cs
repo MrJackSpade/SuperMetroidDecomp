@@ -196,7 +196,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Steps the place one mark on along the quadratic speed curve, holding it at the cap its spawn settings name: as many
     /// marks on as their vertical acceleration updates.
     /// </summary>
-    private static void IncrementAndClampPlatformYSpeed(RoomEnemyOccupant occupant, PlatformEnemyState state)
+    internal static void IncrementAndClampPlatformYSpeed(RoomEnemyOccupant occupant, PlatformEnemyState state)
     {
         QuadraticSpeedCurvePlace cap = QuadraticSpeedCurvePlace.FromMarks(occupant.SpawnSettings<PlatformSpawnSettings>().VerticalAccelerationUpdates);
         state.YSpeedCurvePlace += QuadraticSpeedCurvePlace.OneMark;
@@ -227,7 +227,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Selects the moving animation from which platform it is and its current horizontal direction.</summary>
-    private static void StartPlatformMovingAnimationForHeading(
+    internal static void StartPlatformMovingAnimationForHeading(
         RoomEnemyPlace place,
         PlatformEnemyState state)
     {
@@ -236,7 +236,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Selects the stationary animation from which platform it is and its current horizontal direction.</summary>
-    private static void StartPlatformStillAnimationForHeading(
+    internal static void StartPlatformStillAnimationForHeading(
         RoomEnemyPlace place,
         PlatformEnemyState state)
     {

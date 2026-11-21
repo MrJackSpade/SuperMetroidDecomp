@@ -40,7 +40,7 @@ public sealed class EnemyProjectile
     /// What the projectile is (#2558): the kind it is created with, or the one a later binding turns it into. A projectile
     /// that has gone or freed its place is still the kind it was.
     /// </summary>
-    public RoomEnemyProjectileKind Kind { get; private set; }
+    public RoomEnemyProjectileKind Kind { get; internal set; }
 
     /// <summary>
     /// Whether the projectile holds its place and takes part in the projectile passes: from its creation until it is

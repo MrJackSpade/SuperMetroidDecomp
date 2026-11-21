@@ -21,7 +21,7 @@ internal static class ProjectileTrailSources
     ]);
 
     /// <summary>The bank-$90 address of <paramref name="program"/>'s first beat.</summary>
-    private static ushort Start(ProjectileTrailSegment program) =>
+    internal static ushort Start(ProjectileTrailSegment program) =>
         ProjectileTrailSourceDefinitions.Starts.ContainsKey(program)
             ? ProjectileTrailSourceDefinitions.Starts[program]
             : throw new ArgumentOutOfRangeException(nameof(program), program, "Undefined trail program.");
@@ -30,7 +30,7 @@ internal static class ProjectileTrailSources
     /// The bank-$90 address of beat <paramref name="beat"/> of <paramref name="program"/>; at the beat count, the program's
     /// end word.
     /// </summary>
-    private static ushort Address(ProjectileTrailSegment program, int beat)
+    internal static ushort Address(ProjectileTrailSegment program, int beat)
     {
         IReadOnlyList<AnimationBeat<ProjectileTrailFrame, ProjectileTrailCue>> beats = ProjectileTrailSparkleAnimations.PlayedBeats(program);
         if (beat < 0 || beat > beats.Count)

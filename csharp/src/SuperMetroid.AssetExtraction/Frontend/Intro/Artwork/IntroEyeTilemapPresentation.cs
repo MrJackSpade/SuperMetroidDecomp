@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 public sealed class IntroEyeTilemapPresentation
 {
     /// <summary>The four installed 3-by-2 eye patches, each its six row-major tiles, by the look it shows.</summary>
-    private readonly Dictionary<IntroEyeFrame, BackgroundTile[]> frames;
+    internal readonly Dictionary<IntroEyeFrame, BackgroundTile[]> frames;
 
     /// <summary>Retains the four installed eye rectangles as loaded.</summary>
     private IntroEyeTilemapPresentation(Dictionary<IntroEyeFrame, BackgroundTile[]> frames) => this.frames = frames;

@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Audio;
 internal sealed class SoundQueue
 {
     /// <summary>The waiting requests, oldest first.</summary>
-    private readonly List<SoundEffectId> Waiting = [];
+    internal readonly List<SoundEffectId> Waiting = [];
 
     /// <summary>The waiting requests, 0 through <see cref="SoundQueueAdmission.MaximumOccupancy"/>.</summary>
     internal int Count => Waiting.Count;

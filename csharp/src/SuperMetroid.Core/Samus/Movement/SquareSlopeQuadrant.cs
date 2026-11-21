@@ -8,7 +8,7 @@ public readonly record struct SquareSlopeQuadrant
     /// <summary>A value of its parts; only its own operations make one.</summary>
     /// <param name="column">The quarter's column half.</param>
     /// <param name="row">The quarter's row half.</param>
-    private SquareSlopeQuadrant(SquareSlopeColumnHalf column, SquareSlopeRowHalf row)
+    internal SquareSlopeQuadrant(SquareSlopeColumnHalf column, SquareSlopeRowHalf row)
     {
         Column = column;
         Row = row;

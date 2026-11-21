@@ -45,7 +45,7 @@ internal sealed class MotherBrainFakeDeath
     /// Collision radii and landing floor selected by piece role. The two
     /// outer and two inner pieces share their values; the main tube has its own floor.
     /// </summary>
-    private static MotherBrainFallingTubeDefinition MotherBrainFallingTubeBody(MotherBrainTubePiece piece) =>
+    internal static MotherBrainFallingTubeDefinition MotherBrainFallingTubeBody(MotherBrainTubePiece piece) =>
         MotherBrainFallingTubePopulationDefinitions.Bodies[piece];
 
     /// <summary>Steps Mother Brain's fake-death grey fade and moves on once the fade is over.</summary>
@@ -68,7 +68,7 @@ internal sealed class MotherBrainFakeDeath
     }
 
     /// <summary>Stops her room's flash and shows its steady grey.</summary>
-    private static void StopMotherBrainRoomFlash(MotherBrainEnemyState state)
+    internal static void StopMotherBrainRoomFlash(MotherBrainEnemyState state)
     {
         state.RoomFlash = null;
         state.Colours.ShowRoomGrey();
@@ -142,7 +142,7 @@ internal sealed class MotherBrainFakeDeath
     }
 
     /// <summary>Spawns the top tube projectile of <paramref name="kind"/>, falling as <paramref name="tube"/> shows, for the scripted collapse.</summary>
-    private void SpawnMotherBrainTopTube(
+    internal void SpawnMotherBrainTopTube(
         RoomEnemyProjectileKind kind,
         MotherBrainTopTubeSegment tube,
         Position16<RoomPixels> position)
@@ -158,7 +158,7 @@ internal sealed class MotherBrainFakeDeath
     }
 
     /// <summary>Creates the falling tube enemy of <paramref name="piece"/>.</summary>
-    private void SpawnMotherBrainFallingTube(MotherBrainEnemyState state, MotherBrainTubePiece piece)
+    internal void SpawnMotherBrainFallingTube(MotherBrainEnemyState state, MotherBrainTubePiece piece)
     {
         // The bound source supplies the fixed cutscene placement; rooms resolve it from the loaded definitions.
         RoomEnemyPlacement population = _room.Definitions.ReadFallingTubePopulation(piece);

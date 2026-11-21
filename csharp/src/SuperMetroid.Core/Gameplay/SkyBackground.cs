@@ -10,7 +10,7 @@ public sealed record SkyBackground : ShownRoomBackground
     public SkyBackground(SkyPictures rows) => Rows = Ensure.NotNull(rows);
 
     /// <summary>The sky's rows, drawn from its image.</summary>
-    private SkyPictures Rows { get; }
+    internal SkyPictures Rows { get; }
 
     /// <inheritdoc/>
     public override TResult Map<TResult>(IShownRoomBackgroundMapping<TResult> mapping) => Ensure.NotNull(mapping).Sky(Rows);

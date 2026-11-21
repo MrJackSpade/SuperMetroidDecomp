@@ -22,7 +22,7 @@ internal static class ElevatorAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    private static Dictionary<ElevatorSegment, Animation<ElevatorSegment>> StartingAt { get; } = new Dictionary<ElevatorSegment, Animation<ElevatorSegment>>
+    internal static Dictionary<ElevatorSegment, Animation<ElevatorSegment>> StartingAt { get; } = new Dictionary<ElevatorSegment, Animation<ElevatorSegment>>
     {
         [P.Idle] = Animation<ElevatorSegment>.Looping([Segments.Whole(P.Idle)]),
     };

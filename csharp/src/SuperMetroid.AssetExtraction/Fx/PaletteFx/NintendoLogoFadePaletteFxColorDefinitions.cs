@@ -12,7 +12,7 @@ public static class NintendoLogoFadePaletteFxColorDefinitions
 {
 
     /// <summary>Each record writes two live BGR555 colors.</summary>
-    private const int ColorsPerFrame = 2;
+    internal const int ColorsPerFrame = 2;
 
     /// <summary>The family's records, consecutive from the first its program shows, and the colours each writes.</summary>
     public static PaletteFxColorFrames ColorFrames { get; } = PaletteFxColorFrames.Of(ColourEffectId.FadeInNintendoCopyright, ColorsPerFrame);

@@ -22,7 +22,7 @@ internal static class SamusOverlaySheetComposer
     internal static SpriteSheetSources Sources(SamusSheetInputs inputs) => Sources(inputs, Ensure.NotNull(inputs).ArmCannonCover);
 
     /// <summary>What the overlay sheet composes with the cover characters <paramref name="cover"/> (#1636).</summary>
-    private static SpriteSheetSources Sources(SamusSheetInputs inputs, SamusArmCannonCoverCharacters cover)
+    internal static SpriteSheetSources Sources(SamusSheetInputs inputs, SamusArmCannonCoverCharacters cover)
     {
         Ensure.NotNull(inputs);
         Ensure.NotNull(cover);

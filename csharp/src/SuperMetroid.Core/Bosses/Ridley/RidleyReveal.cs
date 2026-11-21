@@ -92,7 +92,7 @@ internal sealed class RidleyReveal
     /// Plays Ridley's eye fade an update on each AI update (#2409): its shades, then its hold; on the update it rests,
     /// his body fade starts.
     /// </summary>
-    private static void TickEyeFadeIn(RidleyEncounterState ridley)
+    internal static void TickEyeFadeIn(RidleyEncounterState ridley)
     {
         // Each of the fade's first updates shows its next, lighter shade; its hold keeps the last, his own eye colours.
         if (ridley.EyeFade.StepToNewFrame() is { } image)
@@ -108,7 +108,7 @@ internal sealed class RidleyReveal
     /// Plays Ridley's body fade an update on each AI update (#2409), each shade for its hold from black to his own
     /// colours; as the final shade shows he stops ignoring Samus, waits before his opening roar, and the battle music starts.
     /// </summary>
-    private void TickBodyFadeIn(RoomEnemyPlace place, RidleyEncounterState ridley)
+    internal void TickBodyFadeIn(RoomEnemyPlace place, RidleyEncounterState ridley)
     {
         if (ridley.BodyFade.StepToNewFrame() is { } image)
             ridley.Colours.ShowBodyFade(image);

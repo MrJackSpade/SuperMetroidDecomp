@@ -33,10 +33,10 @@ public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
     private static readonly Dictionary<RoomBlockReadings, RoomBlockReadings> KeptByReadings = KeptBehaviors();
 
     /// <summary>The farthest an extension of any kept behaviour reaches backward, in blocks (or rows): a negative offset.</summary>
-    private static int MostBackwardExtension { get; } = RoomBlockReadingDefinitions.Extension.Keys.Min();
+    internal static int MostBackwardExtension { get; } = RoomBlockReadingDefinitions.Extension.Keys.Min();
 
     /// <summary>The farthest an extension of any kept behaviour reaches forward, in blocks (or rows).</summary>
-    private static int MostForwardExtension { get; } = RoomBlockReadingDefinitions.Extension.Keys.Max();
+    internal static int MostForwardExtension { get; } = RoomBlockReadingDefinitions.Extension.Keys.Max();
 
     /// <summary>The unresolved behaviour each behaviour the areas resolve is, keyed by itself and by each of its resolutions.</summary>
     private static readonly Dictionary<RoomBlockReadings, RoomBlockReadings> UnresolvedOf = [];
@@ -153,7 +153,7 @@ public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
     public static RoomBlockBehavior None => new(EmptyReadings);
 
     /// <summary>The kept behaviour this one is.</summary>
-    private RoomBlockReadings Readings => kept ?? EmptyReadings;
+    internal RoomBlockReadings Readings => kept ?? EmptyReadings;
 
     /// <summary>The behaviour holding <paramref name="readings"/>, which must be one of the kept behaviours.</summary>
     /// <exception cref="ArgumentOutOfRangeException">No kept behaviour holds exactly these readings.</exception>

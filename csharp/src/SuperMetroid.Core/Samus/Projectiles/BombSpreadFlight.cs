@@ -25,7 +25,7 @@ public sealed class BombSpreadFlight
     public SignedSixteenSixteen VerticalVelocity { get; internal set; }
 
     /// <summary>The vertical velocity the bomb was launched with, its held-Down bonus included, which a floor bounce restores.</summary>
-    private SignedSixteenSixteen LaunchVelocity { get; }
+    internal SignedSixteenSixteen LaunchVelocity { get; }
 
     /// <summary>Accelerates the bomb's fall by <paramref name="gravity"/>, the fraction carrying into the whole pixels.</summary>
     internal void Accelerate(SignedSixteenSixteen gravity) => VerticalVelocity += gravity;

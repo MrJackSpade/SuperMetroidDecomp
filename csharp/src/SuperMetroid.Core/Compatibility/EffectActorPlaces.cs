@@ -20,7 +20,7 @@ namespace SuperMetroid.Core.Compatibility;
 public sealed class EffectActorPlaces
 {
     /// <summary>How many places the room's effect actors take; a spawn while every place is taken takes none.</summary>
-    private const int PlaceCount = 32;
+    internal const int PlaceCount = 32;
 
     /// <summary>Whether each place is held by an object that has not been seen to end.</summary>
     private readonly bool[] _taken = new bool[PlaceCount];

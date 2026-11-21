@@ -15,12 +15,12 @@ public sealed class SamusBodyCharacterArtwork
     /// <summary>Maximum planar-byte capacity of one definition slot.</summary>
     public const int BytesPerDefinitionSlot = TilesPerDefinition * 32;
     /// <summary>Characters in Samus's body artwork: two sixteen-wide rows.</summary>
-    private const int BodyCharacterCount = 2 * SpriteArtwork.CharactersPerRow;
+    internal const int BodyCharacterCount = 2 * SpriteArtwork.CharactersPerRow;
     /// <summary>Characters in one half row, filled by one transfer.</summary>
     private const int HalfRowCharacters = SpriteArtwork.CharactersPerRow / 2;
 
     /// <summary>The tile transfers each half picture makes, by picture.</summary>
-    private readonly Dictionary<SamusBodyPicture, SamusBodyTileTransfer> pictures;
+    internal readonly Dictionary<SamusBodyPicture, SamusBodyTileTransfer> pictures;
     /// <summary>Composed body characters per selected pair, built once.</summary>
     private readonly System.Collections.Concurrent.ConcurrentDictionary<BodyHalvesVariant, SpriteArtwork> bodyArtwork = new();
 
@@ -36,7 +36,7 @@ public sealed class SamusBodyCharacterArtwork
     /// <param name="body">The body catalog whose frames select these characters.</param>
     /// <param name="pictures">The tile transfers each half picture makes.</param>
     /// <exception cref="InvalidDataException">A transfer is malformed, or a frame selects a picture with none.</exception>
-    private SamusBodyCharacterArtwork(SamusBodySources body, IReadOnlyDictionary<SamusBodyPicture, SamusBodyTileTransfer> pictures)
+    internal SamusBodyCharacterArtwork(SamusBodySources body, IReadOnlyDictionary<SamusBodyPicture, SamusBodyTileTransfer> pictures)
     {
         Body = Ensure.NotNull(body);
         this.pictures = Ensure.NotNull(pictures).ToDictionary();
@@ -83,7 +83,7 @@ public sealed class SamusBodyCharacterArtwork
 
     /// <summary>The tile transfers <paramref name="picture"/> makes.</summary>
     /// <exception cref="InvalidDataException">The picture is absent from installed art.</exception>
-    private SamusBodyTileTransfer Transfer(SamusBodyPicture picture) =>
+    internal SamusBodyTileTransfer Transfer(SamusBodyPicture picture) =>
         pictures.TryGetValue(picture, out SamusBodyTileTransfer? transfer)
             ? transfer
             : throw new InvalidDataException($"Samus body picture {picture.Name} is absent from installed art.");

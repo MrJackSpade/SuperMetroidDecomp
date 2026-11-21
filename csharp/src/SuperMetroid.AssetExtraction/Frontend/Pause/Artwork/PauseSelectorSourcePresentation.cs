@@ -26,7 +26,7 @@ public sealed class PauseSelectorSourcePresentation
     }
 
     /// <summary>The anchors, frame sequences and timing the game binds.</summary>
-    private PauseSelectorPresentation Presentation { get; }
+    internal PauseSelectorPresentation Presentation { get; }
 
     /// <summary>The sprite set the pause sheet composes every selector frame in.</summary>
     internal int SpriteSet { get; }

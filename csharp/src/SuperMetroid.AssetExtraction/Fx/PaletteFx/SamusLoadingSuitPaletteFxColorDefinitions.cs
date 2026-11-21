@@ -7,7 +7,7 @@ public static class SamusLoadingSuitPaletteFxColorDefinitions
 {
 
     /// <summary>Each record writes sixteen live colours.</summary>
-    private const int ColorsPerFrame = 16;
+    internal const int ColorsPerFrame = 16;
 
     /// <summary>The Power Suit's loading colours.</summary>
     internal static SamusLoadingSuitPaletteFxColorDefinition PowerSuit { get; } = new(ColourEffectId.SamusLoadingPowerSuit, ColorsPerFrame);

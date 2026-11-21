@@ -51,7 +51,7 @@ public sealed class SamusSuitPickupState
     /// The light-beam stage the next update runs, which the light beam leaves behind; a finished transformation stands at
     /// the first stage again, as its finish resets it, and leaves that.
     /// </summary>
-    private SamusSuitPickupStage Stage
+    internal SamusSuitPickupStage Stage
     {
         get => runningStage ?? SamusSuitPickupStage.LightBeamAppears;
         set => runningStage = value;

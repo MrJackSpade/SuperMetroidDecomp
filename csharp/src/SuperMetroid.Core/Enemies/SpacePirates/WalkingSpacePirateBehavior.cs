@@ -386,7 +386,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     /// The Pirates' and Mother Brain's laser (#1760): its spawner starts its animation and chooses its way, and the
     /// animation fires it.
     /// </summary>
-    private LaserBehavior Laser { get; } = new();
+    internal LaserBehavior Laser { get; } = new();
 
     /// <summary>A laser: it flies its way until it leaves the camera, once its animation fires it (#2278).</summary>
     internal sealed class LaserBehavior()

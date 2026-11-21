@@ -39,7 +39,7 @@ internal static class TitleSheetComposer
     /// records coloured from <paramref name="paletteFx"/>.
     /// </summary>
     /// <exception cref="InvalidDataException">A fade's record has no colour in the import's palette-effect colours, or writes past its colours.</exception>
-    private static SpriteSheetSources Sources(TitleGraphicsCharacters graphics, TitlePalettePresentation palette, IPaletteFxColorSource paletteFx)
+    internal static SpriteSheetSources Sources(TitleGraphicsCharacters graphics, TitlePalettePresentation palette, IPaletteFxColorSource paletteFx)
     {
         TitleGraphicsCharacters characters = Ensure.NotNull(graphics);
         Ensure.NotNull(palette);

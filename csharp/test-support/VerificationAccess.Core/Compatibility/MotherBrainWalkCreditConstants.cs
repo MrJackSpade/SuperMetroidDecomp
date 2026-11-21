@@ -4,5 +4,5 @@
 internal static class MotherBrainWalkCreditConstants
 {
     /// <summary>Preserves a snapshot's credit word exactly; every word is a valid credit.</summary>
-    public static MotherBrainWalkCredit FromNativeWord(ushort word) => global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Compatibility.MotherBrainWalkCredit>([typeof(int)], new object?[] { (int)(word) });
+    public static MotherBrainWalkCredit FromNativeWord(ushort word) => new global::SuperMetroid.Core.Compatibility.MotherBrainWalkCredit((int)(word));
 }

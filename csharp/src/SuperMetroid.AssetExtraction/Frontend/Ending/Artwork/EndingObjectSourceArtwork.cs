@@ -57,15 +57,15 @@ public class EndingObjectSourceArtwork
     public RoomBackgroundTilemapAtlas Fragment(EndingExplosionPicture id) => Ensure.Listed(fragmentsById, id);
 
     /// <summary>Six editable atmospheric-cloud compositions.</summary>
-    private EndingCloudSpritePresentation CloudSprites { get; }
+    internal EndingCloudSpritePresentation CloudSprites { get; }
     /// <summary>Sixteen editable Zebes-explosion compositions.</summary>
-    private EndingExplosionSpritePresentation ExplosionSprites { get; }
+    internal EndingExplosionSpritePresentation ExplosionSprites { get; }
     /// <summary>Fifty-six editable completion-message and clear-time compositions.</summary>
     public EndingCompletionTextSpritePresentation CompletionTextSprites { get; }
     /// <summary>Thirty-seven editable post-credits Samus reward compositions.</summary>
-    private EndingRewardSpritePresentation RewardSprites { get; }
+    internal EndingRewardSpritePresentation RewardSprites { get; }
     /// <summary>Eight editable compositions for the final assembling logo.</summary>
-    private EndingLogoSpritePresentation LogoSprites { get; }
+    internal EndingLogoSpritePresentation LogoSprites { get; }
 
     /// <summary>The compositions of <paramref name="family"/>: the ending's own, or the escaping animals' compiled pods.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The family is not an ending family.</exception>

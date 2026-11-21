@@ -8,7 +8,7 @@ public readonly record struct LatchedScrollingSky
 {
     /// <summary>A value of its parts; only its own operations make one.</summary>
     /// <param name="cameraRow">The room row at the camera when the sky last moved; a camera above the room's top is at a negative row.</param>
-    private LatchedScrollingSky(int cameraRow)
+    internal LatchedScrollingSky(int cameraRow)
     {
         CameraRow = cameraRow;
     }

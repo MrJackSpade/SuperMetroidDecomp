@@ -29,7 +29,7 @@ public static class GameAssetInstaller
     /// the installer's transaction is the same whatever components it extracts, and the game's installation extracts every
     /// one of <see cref="Components"/>.
     /// </summary>
-    private static GameInstallation Install(string sourcePath, string root, IReadOnlyList<InstallerComponent> components,
+    internal static GameInstallation Install(string sourcePath, string root, IReadOnlyList<InstallerComponent> components,
         CancellationToken cancellationToken, IProgress<string>? progress)
     {
         byte[] rom;
@@ -53,7 +53,7 @@ public static class GameAssetInstaller
     /// when the installation is not current: the installer's transaction is the same whatever components it extracts, and
     /// the game's installation extracts every one of <see cref="Components"/>.
     /// </summary>
-    private static GameInstallation? EnsureInstalled(string root, IReadOnlyList<InstallerComponent> components,
+    internal static GameInstallation? EnsureInstalled(string root, IReadOnlyList<InstallerComponent> components,
         CancellationToken cancellationToken, IProgress<string>? progress)
     {
         var installation = new GameInstallation(Path.GetFullPath(root));
@@ -244,7 +244,7 @@ public static class GameAssetInstaller
     }
 
     /// <summary>Extracts each step of <paramref name="component"/> into its directory under <paramref name="staging"/>.</summary>
-    private static void InstallComponent(byte[] rom, string staging, InstallerComponent component, InstalledSheetFamilies families,
+    internal static void InstallComponent(byte[] rom, string staging, InstallerComponent component, InstalledSheetFamilies families,
         CancellationToken cancellationToken, IProgress<string>? progress)
     {
         string directory = Path.Combine(staging, component.DirectoryName);
@@ -326,7 +326,7 @@ public static class GameAssetInstaller
     /// artwork every earlier component has installed beside them, and the picture store, after them, writes their pictures
     /// and manifests (#1635).
     /// </summary>
-    private static readonly InstallerComponent[] Components =
+    internal static readonly InstallerComponent[] Components =
     [
         new(GameInstallationLayout.AudioDirectoryName, InstallerComponentKind.Standalone,
             Step("Extracting audio…", (bus, d) => SpcAudioAssetExtractor.Extract(bus, ImportDataDirectory.Of(d))),

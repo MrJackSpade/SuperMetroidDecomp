@@ -34,7 +34,7 @@ internal class BlockReactionObject : RoomObjectBehaviour
     /// The terrain the reaction's setup saved at its block, which it restores as the block grows back; null when its setup
     /// saved none. Grapple setup saves the earlier block; collision-bomb setup saves the bomb block's parent instead.
     /// </summary>
-    private RoomTerrainBlock? SavedTerrain { get; }
+    internal RoomTerrainBlock? SavedTerrain { get; }
 
     /// <summary>
     /// The reaction's images playing, each for its own updates: its first shows on the update its first delay runs out

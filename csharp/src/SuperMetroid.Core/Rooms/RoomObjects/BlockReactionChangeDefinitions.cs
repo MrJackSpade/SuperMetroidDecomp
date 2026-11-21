@@ -39,19 +39,19 @@ internal static class BlockReactionChangeDefinitions
     private static BlockBreakupSound ContactBreakSound { get; } = new(EnemySound.ContactBlockBreak, SoundRequestPriority.Low);
 
     /// <summary>A bombed crumble block's reveal: its image for one update, 1x1.</summary>
-    private static BlockReactionChange CrumbleReveal1x1 { get; } =
+    internal static BlockReactionChange CrumbleReveal1x1 { get; } =
         BlockBreakups.CrumbleReveal(BlockArrangement.Single);
 
     /// <summary>A bombed crumble block's reveal: its image for one update, 2x1.</summary>
-    private static BlockReactionChange CrumbleReveal2x1 { get; } =
+    internal static BlockReactionChange CrumbleReveal2x1 { get; } =
         BlockBreakups.CrumbleReveal(BlockArrangement.Horizontal);
 
     /// <summary>A bombed crumble block's reveal: its image for one update, 1x2.</summary>
-    private static BlockReactionChange CrumbleReveal1x2 { get; } =
+    internal static BlockReactionChange CrumbleReveal1x2 { get; } =
         BlockBreakups.CrumbleReveal(BlockArrangement.Vertical);
 
     /// <summary>A bombed crumble block's reveal: its image for one update, 2x2.</summary>
-    private static BlockReactionChange CrumbleReveal2x2 { get; } =
+    internal static BlockReactionChange CrumbleReveal2x2 { get; } =
         BlockBreakups.CrumbleReveal(BlockArrangement.Square);
 
     /// <summary>A normal bomb's one-update reveal of a Power Bomb block, which it does not break.</summary>
@@ -95,19 +95,19 @@ internal static class BlockReactionChangeDefinitions
         BlockBreakups.Permanent(ContactCrumbleDelay, BlockArrangement.Square, BlockBreakupPace.Steady, CrumbleSound);
 
     /// <summary>A respawning shot block breaking up and growing back, 1x1.</summary>
-    private static BlockReactionChange RespawningShotBlock1x1 { get; } =
+    internal static BlockReactionChange RespawningShotBlock1x1 { get; } =
         BlockBreakups.Respawning(1, BlockArrangement.Single, BlockBreakupPace.Steady, CrumbleSound, ShotBlockOpenUpdates, BlockRestore.ShotBlock);
 
     /// <summary>A respawning shot block breaking up and growing back, 2x1.</summary>
-    private static BlockReactionChange RespawningShotBlock2x1 { get; } =
+    internal static BlockReactionChange RespawningShotBlock2x1 { get; } =
         BlockBreakups.Respawning(1, BlockArrangement.Horizontal, BlockBreakupPace.Steady, CrumbleSound, ShotBlockOpenUpdates, BlockRestore.ShotBlock);
 
     /// <summary>A respawning shot block breaking up and growing back, 1x2.</summary>
-    private static BlockReactionChange RespawningShotBlock1x2 { get; } =
+    internal static BlockReactionChange RespawningShotBlock1x2 { get; } =
         BlockBreakups.Respawning(1, BlockArrangement.Vertical, BlockBreakupPace.Steady, CrumbleSound, ShotBlockOpenUpdates, BlockRestore.ShotBlock);
 
     /// <summary>A respawning shot block breaking up and growing back, 2x2.</summary>
-    private static BlockReactionChange RespawningShotBlock2x2 { get; } =
+    internal static BlockReactionChange RespawningShotBlock2x2 { get; } =
         BlockBreakups.Respawning(1, BlockArrangement.Square, BlockBreakupPace.Steady, CrumbleSound, ShotBlockOpenUpdates, BlockRestore.ShotBlock);
 
     /// <summary>A respawning Super Missile block breaking up and growing back.</summary>
@@ -119,19 +119,19 @@ internal static class BlockReactionChangeDefinitions
         BlockBreakups.Respawning(1, BlockArrangement.Single, BlockBreakupPace.Steady, CrumbleSound, ShotBlockOpenUpdates, BlockRestore.ShotBlock);
 
     /// <summary>A shot block breaking up for good, 1x1.</summary>
-    private static BlockReactionChange PermanentShotBlock1x1 { get; } =
+    internal static BlockReactionChange PermanentShotBlock1x1 { get; } =
         BlockBreakups.Permanent(1, BlockArrangement.Single, BlockBreakupPace.Steady, CrumbleSound);
 
     /// <summary>A shot block breaking up for good, 2x1.</summary>
-    private static BlockReactionChange PermanentShotBlock2x1 { get; } =
+    internal static BlockReactionChange PermanentShotBlock2x1 { get; } =
         BlockBreakups.Permanent(1, BlockArrangement.Horizontal, BlockBreakupPace.Steady, CrumbleSound);
 
     /// <summary>A shot block breaking up for good, 1x2.</summary>
-    private static BlockReactionChange PermanentShotBlock1x2 { get; } =
+    internal static BlockReactionChange PermanentShotBlock1x2 { get; } =
         BlockBreakups.Permanent(1, BlockArrangement.Vertical, BlockBreakupPace.Steady, CrumbleSound);
 
     /// <summary>A shot block breaking up for good, 2x2.</summary>
-    private static BlockReactionChange PermanentShotBlock2x2 { get; } =
+    internal static BlockReactionChange PermanentShotBlock2x2 { get; } =
         BlockBreakups.Permanent(1, BlockArrangement.Square, BlockBreakupPace.Steady, CrumbleSound);
 
     /// <summary>A Super Missile block breaking up for good.</summary>
@@ -143,99 +143,99 @@ internal static class BlockReactionChangeDefinitions
         BlockBreakups.Permanent(1, BlockArrangement.Single, PowerBombBlockPace, CrumbleSound);
 
     /// <summary>A bomb block Samus's contact sets off, with its break sound: a 1x1 block, growing back.</summary>
-    private static BlockReactionChange CollisionBombBlock1x1Respawning { get; } =
+    internal static BlockReactionChange CollisionBombBlock1x1Respawning { get; } =
         BlockBreakups.Respawning(1, BlockArrangement.Single, BlockBreakupPace.Steady, ContactBreakSound, ShotBlockOpenUpdates, BlockRestore.BombBlock);
 
     /// <summary>A bomb block a Power Bomb sets off, with its crumble sound: a 1x1 block, growing back.</summary>
-    private static BlockReactionChange ReactionBombBlock1x1Respawning { get; } =
+    internal static BlockReactionChange ReactionBombBlock1x1Respawning { get; } =
         BlockBreakups.Respawning(1, BlockArrangement.Single, BlockBreakupPace.Steady, ReactionCrumbleSound, ShotBlockOpenUpdates, BlockRestore.BombBlock);
 
     /// <summary>A bomb block a normal bomb sets off, without a sound: a 1x1 block, growing back.</summary>
-    private static BlockReactionChange BombBlock1x1RespawningBreak { get; } =
+    internal static BlockReactionChange BombBlock1x1RespawningBreak { get; } =
         BlockBreakups.Respawning(1, BlockArrangement.Single, BlockBreakupPace.Steady, null, ShotBlockOpenUpdates, BlockRestore.BombBlock);
 
     /// <summary>A bomb block Samus's contact sets off, with its break sound: a 2x1 block, growing back.</summary>
-    private static BlockReactionChange CollisionBombBlock2x1Respawning { get; } =
+    internal static BlockReactionChange CollisionBombBlock2x1Respawning { get; } =
         BlockBreakups.Respawning(1, BlockArrangement.Horizontal, BlockBreakupPace.Steady, ContactBreakSound, ShotBlockOpenUpdates, BlockRestore.BombBlock);
 
     /// <summary>A bomb block a Power Bomb sets off, with its crumble sound: a 2x1 block, growing back.</summary>
-    private static BlockReactionChange ReactionBombBlock2x1Respawning { get; } =
+    internal static BlockReactionChange ReactionBombBlock2x1Respawning { get; } =
         BlockBreakups.Respawning(1, BlockArrangement.Horizontal, BlockBreakupPace.Steady, ReactionCrumbleSound, ShotBlockOpenUpdates, BlockRestore.BombBlock);
 
     /// <summary>A bomb block a normal bomb sets off, without a sound: a 2x1 block, growing back.</summary>
-    private static BlockReactionChange BombBlock2x1RespawningBreak { get; } =
+    internal static BlockReactionChange BombBlock2x1RespawningBreak { get; } =
         BlockBreakups.Respawning(1, BlockArrangement.Horizontal, BlockBreakupPace.Steady, null, ShotBlockOpenUpdates, BlockRestore.BombBlock);
 
     /// <summary>A bomb block Samus's contact sets off, with its break sound: a 1x2 block, growing back.</summary>
-    private static BlockReactionChange CollisionBombBlock1x2Respawning { get; } =
+    internal static BlockReactionChange CollisionBombBlock1x2Respawning { get; } =
         BlockBreakups.Respawning(1, BlockArrangement.Vertical, BlockBreakupPace.Steady, ContactBreakSound, ShotBlockOpenUpdates, BlockRestore.BombBlock);
 
     /// <summary>A bomb block a Power Bomb sets off, with its crumble sound: a 1x2 block, growing back.</summary>
-    private static BlockReactionChange ReactionBombBlock1x2Respawning { get; } =
+    internal static BlockReactionChange ReactionBombBlock1x2Respawning { get; } =
         BlockBreakups.Respawning(1, BlockArrangement.Vertical, BlockBreakupPace.Steady, ReactionCrumbleSound, ShotBlockOpenUpdates, BlockRestore.BombBlock);
 
     /// <summary>A bomb block a normal bomb sets off, without a sound: a 1x2 block, growing back.</summary>
-    private static BlockReactionChange BombBlock1x2RespawningBreak { get; } =
+    internal static BlockReactionChange BombBlock1x2RespawningBreak { get; } =
         BlockBreakups.Respawning(1, BlockArrangement.Vertical, BlockBreakupPace.Steady, null, ShotBlockOpenUpdates, BlockRestore.BombBlock);
 
     /// <summary>A bomb block Samus's contact sets off, with its break sound: a 2x2 block, growing back.</summary>
-    private static BlockReactionChange CollisionBombBlock2x2Respawning { get; } =
+    internal static BlockReactionChange CollisionBombBlock2x2Respawning { get; } =
         BlockBreakups.Respawning(1, BlockArrangement.Square, BlockBreakupPace.Steady, ContactBreakSound, ShotBlockOpenUpdates, BlockRestore.BombBlock);
 
     /// <summary>A bomb block a Power Bomb sets off, with its crumble sound: a 2x2 block, growing back.</summary>
-    private static BlockReactionChange ReactionBombBlock2x2Respawning { get; } =
+    internal static BlockReactionChange ReactionBombBlock2x2Respawning { get; } =
         BlockBreakups.Respawning(1, BlockArrangement.Square, BlockBreakupPace.Steady, ReactionCrumbleSound, ShotBlockOpenUpdates, BlockRestore.BombBlock);
 
     /// <summary>A bomb block a normal bomb sets off, without a sound: a 2x2 block, growing back.</summary>
-    private static BlockReactionChange BombBlock2x2RespawningBreak { get; } =
+    internal static BlockReactionChange BombBlock2x2RespawningBreak { get; } =
         BlockBreakups.Respawning(1, BlockArrangement.Square, BlockBreakupPace.Steady, null, ShotBlockOpenUpdates, BlockRestore.BombBlock);
 
     /// <summary>A bomb block Samus's contact sets off, with its break sound: a 1x1 block, gone for good.</summary>
-    private static BlockReactionChange CollisionBombBlock1x1Permanent { get; } =
+    internal static BlockReactionChange CollisionBombBlock1x1Permanent { get; } =
         BlockBreakups.Permanent(1, BlockArrangement.Single, BlockBreakupPace.Steady, ContactBreakSound);
 
     /// <summary>A bomb block a Power Bomb sets off, with its crumble sound: a 1x1 block, gone for good.</summary>
-    private static BlockReactionChange ReactionBombBlock1x1Permanent { get; } =
+    internal static BlockReactionChange ReactionBombBlock1x1Permanent { get; } =
         BlockBreakups.Permanent(1, BlockArrangement.Single, BlockBreakupPace.Steady, ReactionCrumbleSound);
 
     /// <summary>A bomb block a normal bomb sets off, without a sound: a 1x1 block, gone for good.</summary>
-    private static BlockReactionChange BombBlock1x1PermanentBreak { get; } =
+    internal static BlockReactionChange BombBlock1x1PermanentBreak { get; } =
         BlockBreakups.Permanent(1, BlockArrangement.Single, BlockBreakupPace.Steady, null);
 
     /// <summary>A bomb block Samus's contact sets off, with its break sound: a 2x1 block, gone for good.</summary>
-    private static BlockReactionChange CollisionBombBlock2x1Permanent { get; } =
+    internal static BlockReactionChange CollisionBombBlock2x1Permanent { get; } =
         BlockBreakups.Permanent(1, BlockArrangement.Horizontal, BlockBreakupPace.Steady, ContactBreakSound);
 
     /// <summary>A bomb block a Power Bomb sets off, with its crumble sound: a 2x1 block, gone for good.</summary>
-    private static BlockReactionChange ReactionBombBlock2x1Permanent { get; } =
+    internal static BlockReactionChange ReactionBombBlock2x1Permanent { get; } =
         BlockBreakups.Permanent(1, BlockArrangement.Horizontal, BlockBreakupPace.Steady, ReactionCrumbleSound);
 
     /// <summary>A bomb block a normal bomb sets off, without a sound: a 2x1 block, gone for good.</summary>
-    private static BlockReactionChange BombBlock2x1PermanentBreak { get; } =
+    internal static BlockReactionChange BombBlock2x1PermanentBreak { get; } =
         BlockBreakups.Permanent(1, BlockArrangement.Horizontal, BlockBreakupPace.Steady, null);
 
     /// <summary>A bomb block Samus's contact sets off, with its break sound: a 1x2 block, gone for good.</summary>
-    private static BlockReactionChange CollisionBombBlock1x2Permanent { get; } =
+    internal static BlockReactionChange CollisionBombBlock1x2Permanent { get; } =
         BlockBreakups.Permanent(1, BlockArrangement.Vertical, BlockBreakupPace.Steady, ContactBreakSound);
 
     /// <summary>A bomb block a Power Bomb sets off, with its crumble sound: a 1x2 block, gone for good.</summary>
-    private static BlockReactionChange ReactionBombBlock1x2Permanent { get; } =
+    internal static BlockReactionChange ReactionBombBlock1x2Permanent { get; } =
         BlockBreakups.Permanent(1, BlockArrangement.Vertical, BlockBreakupPace.Steady, ReactionCrumbleSound);
 
     /// <summary>A bomb block a normal bomb sets off, without a sound: a 1x2 block, gone for good.</summary>
-    private static BlockReactionChange BombBlock1x2PermanentBreak { get; } =
+    internal static BlockReactionChange BombBlock1x2PermanentBreak { get; } =
         BlockBreakups.Permanent(1, BlockArrangement.Vertical, BlockBreakupPace.Steady, null);
 
     /// <summary>A bomb block Samus's contact sets off, with its break sound: a 2x2 block, gone for good.</summary>
-    private static BlockReactionChange CollisionBombBlock2x2Permanent { get; } =
+    internal static BlockReactionChange CollisionBombBlock2x2Permanent { get; } =
         BlockBreakups.Permanent(1, BlockArrangement.Square, BlockBreakupPace.Steady, ContactBreakSound);
 
     /// <summary>A bomb block a Power Bomb sets off, with its crumble sound: a 2x2 block, gone for good.</summary>
-    private static BlockReactionChange ReactionBombBlock2x2Permanent { get; } =
+    internal static BlockReactionChange ReactionBombBlock2x2Permanent { get; } =
         BlockBreakups.Permanent(1, BlockArrangement.Square, BlockBreakupPace.Steady, ReactionCrumbleSound);
 
     /// <summary>A bomb block a normal bomb sets off, without a sound: a 2x2 block, gone for good.</summary>
-    private static BlockReactionChange BombBlock2x2PermanentBreak { get; } =
+    internal static BlockReactionChange BombBlock2x2PermanentBreak { get; } =
         BlockBreakups.Permanent(1, BlockArrangement.Square, BlockBreakupPace.Steady, null);
 
     /// <summary>A respawning breakable Grapple block: it holds, breaks up, grows back and breaks again.</summary>

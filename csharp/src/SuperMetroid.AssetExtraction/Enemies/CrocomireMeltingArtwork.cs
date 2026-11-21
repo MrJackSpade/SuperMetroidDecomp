@@ -16,13 +16,13 @@ public sealed class CrocomireMeltingArtwork
 {
 
     /// <summary>The import data's planar character data for the flesh's overlapping melt pass.</summary>
-    private readonly RoomCharacterAtlas flesh;
+    internal readonly RoomCharacterAtlas flesh;
     /// <summary>The import data's planar character data for the bare skull's eroded melt pass.</summary>
-    private readonly RoomCharacterAtlas bareSkull;
+    internal readonly RoomCharacterAtlas bareSkull;
     /// <summary>The import data's tile placements for the flesh illustration.</summary>
-    private readonly BackgroundTile[] fleshTilemap;
+    internal readonly BackgroundTile[] fleshTilemap;
     /// <summary>The import data's tile placements for the bare skull illustration.</summary>
-    private readonly BackgroundTile[] bareSkullTilemap;
+    internal readonly BackgroundTile[] bareSkullTilemap;
 
     /// <summary>Keeps both character sheets and both complete layouts the import composes the melt pictures from.</summary>
     private CrocomireMeltingArtwork(RoomCharacterAtlas flesh, RoomCharacterAtlas bareSkull,
@@ -137,7 +137,7 @@ public sealed class CrocomireMeltingArtwork
     /// The bytes of <paramref name="illustration"/>'s image the import assembles: a row per band of the image, and the row
     /// and word after the last, which the last band's copy carries past the image (#2573).
     /// </summary>
-    private static int UsedByteCount(CrocomireMeltingIllustration illustration) =>
+    internal static int UsedByteCount(CrocomireMeltingIllustration illustration) =>
         Enum.IsDefined(illustration) ? (CrocomireMeltingDefinitions.MeltImageBandCount + 1) * RowByteCount + sizeof(ushort)
             : throw new ArgumentOutOfRangeException(nameof(illustration), illustration, "Crocomire has two melt images.");
 

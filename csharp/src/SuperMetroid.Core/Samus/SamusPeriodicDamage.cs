@@ -12,7 +12,7 @@ public sealed class SamusPeriodicDamage
     /// The periodic damage accumulated and not yet applied, in whole energy and its fraction: <see cref="Apply"/> applies and
     /// clears it once an update, so it holds no more than one update's contributions.
     /// </summary>
-    private EnergyAmount Pending { get; set; }
+    internal EnergyAmount Pending { get; set; }
 
     /// <summary>Adds one periodic-damage contribution, in whole energy and its fraction.</summary>
     /// <remarks>

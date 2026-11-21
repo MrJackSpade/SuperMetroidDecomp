@@ -25,10 +25,10 @@ internal sealed class EndingFlyaway
     }
 
     /// <summary>Where the gunship's shake stands in the current planet-escape leg's authored sequence (#1902).</summary>
-    private EndingShipShakeCursor ShipShake { get; set; }
+    internal EndingShipShakeCursor ShipShake { get; set; }
 
     /// <summary>Planet-escape velocity: a displacement that grows more negative every accelerating update.</summary>
-    private SignedSixteenSixteen PlanetVelocity { get; set; }
+    internal SignedSixteenSixteen PlanetVelocity { get; set; }
 
     /// <summary>
     /// The white wash over the planet escape (<see cref="WhiteWash"/>), from full white fading to none, where it stays. The

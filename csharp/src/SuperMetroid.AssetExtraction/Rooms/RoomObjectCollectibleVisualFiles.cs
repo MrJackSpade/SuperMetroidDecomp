@@ -18,7 +18,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 public static class RoomObjectCollectibleVisualFiles
 {
     /// <summary>Editable JSON filename containing the sixteen editable collectible frames.</summary>
-    private const string VisualFileName = "collectibles.json";
+    internal const string VisualFileName = "collectibles.json";
 
     /// <summary>Every collectible frame in its published order (#2567): the empty block, the Chozo orb's stages, the tanks, the block pairs' looks and the shot block's stages.</summary>
     private static readonly IReadOnlyList<CollectibleDraw> PublishedOrder = Ensure.EveryMemberOnce<CollectibleDraw>(
@@ -83,13 +83,13 @@ public static class RoomObjectCollectibleVisualFiles
         : throw new InvalidOperationException($"Undefined {nameof(CollectibleDraw)} {draw}.");
 
     /// <summary>Whether the installed file holds <paramref name="draw"/>: every frame but a block pair's, which lies under the item's own picture (#1538).</summary>
-    private static bool IsEditable(CollectibleDraw draw) => CollectibleObjectDraws.GroupOf(draw) != DrawGroup.OwnPicture;
+    internal static bool IsEditable(CollectibleDraw draw) => CollectibleObjectDraws.GroupOf(draw) != DrawGroup.OwnPicture;
 
     /// <summary>The sixteen frames the installed file holds, in their published order.</summary>
-    private static IEnumerable<RoomObjectCollectibleDrawFrame> Editable => All.Where(frame => IsEditable(frame.Draw));
+    internal static IEnumerable<RoomObjectCollectibleDrawFrame> Editable => All.Where(frame => IsEditable(frame.Draw));
 
     /// <summary>Enumerates all 24 collectible one-cell draws in their published order.</summary>
-    private static IEnumerable<RoomObjectCollectibleDrawFrame> All
+    internal static IEnumerable<RoomObjectCollectibleDrawFrame> All
     {
         get
         {

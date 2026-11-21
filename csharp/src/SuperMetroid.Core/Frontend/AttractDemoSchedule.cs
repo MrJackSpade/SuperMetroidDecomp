@@ -9,19 +9,19 @@ namespace SuperMetroid.Core.Frontend;
 internal sealed class AttractDemoSchedule
 {
     /// <summary>The demo set the title plays.</summary>
-    private AttractDemoSet Set { get; set; } = StockAttractDemoScenes.FirstSet;
+    internal AttractDemoSet Set { get; set; } = StockAttractDemoScenes.FirstSet;
 
     /// <summary>
     /// How many of <see cref="Set"/>'s demonstrations have begun since the set last started from its first; the next
     /// one plays from this place in the set's list.
     /// </summary>
-    internal int ScenesBegun { get; private set; }
+    internal int ScenesBegun { get; set; }
 
     /// <summary>
     /// Where the scene stands (#2560): awaiting its runtime, loading, playing its scripted input or holding its final image,
     /// each with its own countdown.
     /// </summary>
-    private SceneState Scene { get; set; } = new SceneState.Awaiting();
+    internal SceneState Scene { get; set; } = new SceneState.Awaiting();
 
     /// <summary>How the scene last begun ended: played to its end, or cancelled by a press (#2560).</summary>
     private AttractPlaybackEnd end;

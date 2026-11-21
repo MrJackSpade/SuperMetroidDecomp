@@ -19,7 +19,7 @@ internal sealed record ShownOptionsPage(GameOptionsPage Page, TextLanguage Langu
     bool IconCancelEnabled, bool MoonwalkEnabled)
 {
     /// <summary>The screen the page shows in the chosen language (#2560).</summary>
-    private GameOptionsScreen Screen => GameOptionsScreen.Shown(Page, Language);
+    internal GameOptionsScreen Screen => GameOptionsScreen.Shown(Page, Language);
 
     /// <summary>The menus' pictures the page shows, in drawing order: the page, then what is drawn over it.</summary>
     internal string[] Frames() => Page switch

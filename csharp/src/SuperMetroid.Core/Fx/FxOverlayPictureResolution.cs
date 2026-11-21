@@ -27,7 +27,7 @@ internal static class FxOverlayPictureResolution
 
     /// <summary>The resolver's sheet, which pictures the effect overlay.</summary>
     /// <exception cref="InvalidOperationException">The resolver's sheet pictures another layer's pictures.</exception>
-    private static WrittenPictureSheet OverlaySheet(WrittenPictureResolver resolver)
+    internal static WrittenPictureSheet OverlaySheet(WrittenPictureResolver resolver)
     {
         Ensure.NotNull(resolver);
         return resolver.Sheet.Layer == WrittenPictureLayer.FxOverlay ? resolver.Sheet

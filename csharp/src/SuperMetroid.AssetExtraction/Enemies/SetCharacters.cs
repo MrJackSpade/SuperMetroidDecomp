@@ -21,7 +21,7 @@ internal sealed class SetCharacters
     private readonly byte[] table;
 
     /// <summary>The encounters the set's members play, and what each of their looks copies.</summary>
-    private IReadOnlyList<EncounterLookSteps> Encounters { get; }
+    internal IReadOnlyList<EncounterLookSteps> Encounters { get; }
 
     /// <summary>Each encounter's characters as each of its looks leaves them, from the loaded table.</summary>
     private readonly Dictionary<ComposedEncounter, Dictionary<ComposedLook, byte[]>> afterLook = [];

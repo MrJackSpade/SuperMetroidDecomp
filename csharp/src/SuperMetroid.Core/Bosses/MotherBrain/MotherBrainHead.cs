@@ -172,7 +172,7 @@ internal sealed class MotherBrainHead
     /// <param name="frame">The frame, where it lies and its shading.</param>
     /// <param name="camera">Camera position (viewport top-left) in whole room pixels.</param>
     /// <param name="corpseRows">The rows her rotting corpse shows, or none while she shows no rotting corpse.</param>
-    private void DrawMotherBrainWorldFrame(
+    internal void DrawMotherBrainWorldFrame(
         SpriteFrameBuffer sprites,
         SpriteSource source,
         MotherBrainWorldFrame frame,
@@ -426,7 +426,7 @@ internal sealed class MotherBrainHead
     /// Runs the head's onion-ring step and the ring's setup. The ring takes its enemy-projectile place after the
     /// room turrets and all lingering drool have theirs, so no ring appears when every place is held.
     /// </summary>
-    private void SpawnMotherBrainOnionRing(
+    internal void SpawnMotherBrainOnionRing(
         MotherBrainEnemyState state,
         TrigonometryAngle angle)
     {
@@ -447,7 +447,7 @@ internal sealed class MotherBrainHead
     }
 
     /// <summary>Runs the head's drool step and the drool's setup.</summary>
-    private void SpawnMotherBrainDrool(MotherBrainEnemyState state)
+    internal void SpawnMotherBrainDrool(MotherBrainEnemyState state)
     {
         if (!state.DroolGenerationEnabled)
             return;
@@ -503,7 +503,7 @@ internal sealed class MotherBrainHead
     }
 
     /// <summary>Spawns the rainbow beam's charge glow, pinned to her head in the update it spawns.</summary>
-    private void SpawnMotherBrainRainbowChargingProjectile(MotherBrainEnemyState state)
+    internal void SpawnMotherBrainRainbowChargingProjectile(MotherBrainEnemyState state)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainRainbowBeamCharging, _projectileAttacks.Projectile, graphics: SpriteGraphics.SharedStandard);
         if (projectile is null)

@@ -29,13 +29,13 @@ internal sealed class DefinitionObjects
     internal static DefinitionObjects Process { get; } = new();
 
     /// <summary>Guards the catalogs' indexes, whose path and resolution caches every capture and restore share.</summary>
-    private readonly Lock gate = new();
+    internal readonly Lock gate = new();
 
     /// <summary>
     /// The catalogs that may hold an object of <paramref name="type"/> where a game can reach it, in their prefixes'
     /// ordinal order, found from their declarations without indexing any (<see cref="DefinitionExposure"/>).
     /// </summary>
-    private IReadOnlyList<DefinitionCatalog> Candidates(Type type)
+    internal IReadOnlyList<DefinitionCatalog> Candidates(Type type)
     {
         Ensure.NotNull(type);
         lock (gate)
@@ -82,7 +82,7 @@ internal sealed class DefinitionObjects
     }
 
     /// <summary>The catalogs and what each may hold; callers hold the lock.</summary>
-    private Declarations Declared => field ??= Declare();
+    internal Declarations Declared => field ??= Declare();
 
     /// <summary>
     /// Every type of the game's assembly with static read-only fields holding a reference, each as a catalog of those

@@ -516,7 +516,7 @@ public static class SamusGrappleMovement
     }
 
     /// <summary>Chooses the fall pose from shot direction and body radius, with standing exceptions for both swinging poses.</summary>
-    private static SamusPoseId SelectDroppedPose(SamusState samus)
+    internal static SamusPoseId SelectDroppedPose(SamusState samus)
     {
         // The swinging poses ignore the shot direction and always fall to ordinary
         // standing, even though their live collision radius is compact.
@@ -537,7 +537,7 @@ public static class SamusGrappleMovement
     }
 
     /// <summary>Applies an exact special-angle connection, including its pose and bounded camera displacement.</summary>
-    private static bool TryHandleSpecialAngle(
+    internal static bool TryHandleSpecialAngle(
         SamusState samus,
         SamusGrappleState grapple,
         Position16<RoomPixels> previousPosition,
@@ -782,7 +782,7 @@ public static class SamusGrappleMovement
     /// Commits attachment, selecting the movement-specific pose and either locked or swinging handling; the pose itself
     /// is left pending for the frame's pose update (<see cref="ApplyPendingConnectionPose"/>).
     /// </summary>
-    private static GrappleMovementResult ConnectAcceptedFiringCore(
+    internal static GrappleMovementResult ConnectAcceptedFiringCore(
         SamusState samus,
         SamusGrappleState grapple,
         Position16<RoomPixels> previousPosition,
@@ -919,7 +919,7 @@ public static class SamusGrappleMovement
     /// Recomputes a firing beam's rope start and flare from Samus's final pose and position, the rope start at her
     /// projectile height and the flare at her picture's art origin.
     /// </summary>
-    private static void RefreshFiringOrigins(
+    internal static void RefreshFiringOrigins(
         SamusState samus,
         SamusGrappleState grapple)
     {
@@ -1064,7 +1064,7 @@ public static class SamusGrappleMovement
     }
 
     /// <summary>Changes Samus's pose as she fires the grapple beam, before the grapple's phase runs.</summary>
-    private static GrappleMovementResult? HandleFiringPoseChange(
+    internal static GrappleMovementResult? HandleFiringPoseChange(
         RoomLevelData level, SamusState samus, GameplayAction controllerInput)
     {
         var grapple = samus.Grapple;

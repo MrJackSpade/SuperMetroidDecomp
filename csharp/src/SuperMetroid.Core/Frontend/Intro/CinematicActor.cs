@@ -70,7 +70,7 @@ internal sealed class CinematicActor<TAnimation, TFrame, TCue> : ICinematicActor
     }
 
     /// <summary>The drawn shade of the colouring the current frame's recolourable parts draw in (#1512).</summary>
-    private PictureShade Colouring { get; set; }
+    internal PictureShade Colouring { get; set; }
 
     /// <summary>Applies a cinematic cue's change of the colours the actor draws in.</summary>
     public void SetColouring(PictureShade colouring) => Colouring = colouring;
@@ -79,7 +79,7 @@ internal sealed class CinematicActor<TAnimation, TFrame, TCue> : ICinematicActor
     internal TFrame? Shown { get; private set; }
 
     /// <summary>The actor's animation and where it stands in it (#1600).</summary>
-    private AnimationPlayback<TAnimation> Playback { get; set; }
+    internal AnimationPlayback<TAnimation> Playback { get; set; }
 
     /// <summary>Starts <paramref name="animation"/> on the actor's next update, discarding the old frame countdown.</summary>
     /// <exception cref="ArgumentOutOfRangeException">No actor of the family starts <paramref name="animation"/>.</exception>

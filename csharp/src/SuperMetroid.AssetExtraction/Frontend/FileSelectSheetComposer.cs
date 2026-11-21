@@ -26,7 +26,7 @@ internal static class FileSelectSheetComposer
         Sources(Ensure.NotNull(maps).FileSelect, maps);
 
     /// <summary>What the file-select sheet composes from <paramref name="fileSelect"/>, over the menus of <paramref name="maps"/>.</summary>
-    private static SpriteSheetSources Sources(FileSelectSourcePresentation fileSelect, ImportAreaMapPresentation maps)
+    internal static SpriteSheetSources Sources(FileSelectSourcePresentation fileSelect, ImportAreaMapPresentation maps)
     {
         Ensure.NotNull(fileSelect);
         Ensure.NotNull(maps);

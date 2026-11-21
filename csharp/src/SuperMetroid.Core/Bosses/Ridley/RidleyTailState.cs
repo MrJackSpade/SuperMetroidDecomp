@@ -55,12 +55,12 @@ public sealed class RidleyTailState
     /// left-facing Ridley's whichever way he faces (#2471), as the game's tail setup gives it, until his tail's action sets
     /// the bounds for his facing.
     /// </summary>
-    internal RidleyTailAngle MinimumClockwiseAngle { private get; set; } = RidleyTailReach.MinimumClockwise(RidleyFacing.Left);
+    internal RidleyTailAngle MinimumClockwiseAngle { get; set; } = RidleyTailReach.MinimumClockwise(RidleyFacing.Left);
     /// <summary>
     /// Gets the facing-dependent furthest-counterclockwise angle counterclockwise tail movement may reach, made with a
     /// left-facing Ridley's as <see cref="MinimumClockwiseAngle"/> is.
     /// </summary>
-    internal RidleyTailAngle MaximumCounterClockwiseAngle { private get; set; } = RidleyTailReach.MaximumCounterClockwise(RidleyFacing.Left);
+    internal RidleyTailAngle MaximumCounterClockwiseAngle { get; set; } = RidleyTailReach.MaximumCounterClockwise(RidleyFacing.Left);
     /// <summary>
     /// Gets the tail angle a clockwise whip stops at, or null while no clockwise whip is aimed. Aimed targets lie within
     /// a turn either side of straight down.

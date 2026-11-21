@@ -60,7 +60,7 @@ public static class SamusAerialMovement
     /// Applies the Speed Booster jump bonus when Speed Booster is equipped: the dash's extra run speed raises the launch
     /// speed part by part, as <see cref="SpeedBoosterJumpBonus"/> describes.
     /// </summary>
-    private static void ApplyEquippedSpeedBoosterJumpBonus(SamusState samus)
+    internal static void ApplyEquippedSpeedBoosterJumpBonus(SamusState samus)
     {
         Ensure.NotNull(samus);
         if (!samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster))

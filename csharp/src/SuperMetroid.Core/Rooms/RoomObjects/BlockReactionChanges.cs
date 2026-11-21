@@ -38,7 +38,7 @@ internal static class BlockReactionChanges
 
     /// <summary>The change <paramref name="changes"/> gives <paramref name="reaction"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="reaction"/> is none, or not among the selection.</exception>
-    private static BlockReactionChange From<TReaction>(IReadOnlyDictionary<TReaction, BlockReactionChange> changes, TReaction? reaction)
+    internal static BlockReactionChange From<TReaction>(IReadOnlyDictionary<TReaction, BlockReactionChange> changes, TReaction? reaction)
         where TReaction : struct, Enum =>
         reaction is { } read && changes.TryGetValue(read, out BlockReactionChange? change)
             ? change

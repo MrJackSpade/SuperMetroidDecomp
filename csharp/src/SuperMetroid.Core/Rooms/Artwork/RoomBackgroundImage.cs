@@ -17,7 +17,7 @@ public sealed class RoomBackgroundImage
     public const string FrameName = "image";
 
     /// <summary>Pixels along a cell's side.</summary>
-    private const int CellPixels = RoomGridConversions.BlockPixels;
+    internal const int CellPixels = RoomGridConversions.BlockPixels;
 
     /// <summary>
     /// Checks the image is whole cells across and down, that each installed part of its picture (#1634) is the image's size,

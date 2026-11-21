@@ -70,10 +70,10 @@ internal static class IntroEggMotionDefinitions
     internal static IntroEggFallCurve ShellFall { get; } = new(TwoSpellRise, Updates: FragmentCurveFrames);
 
     /// <summary>How the steeper slime drops fly: three spells rising, then falling.</summary>
-    private static IntroEggFallCurve SteepSlimeFall { get; } = new(ThreeSpellRise, Updates: 69);
+    internal static IntroEggFallCurve SteepSlimeFall { get; } = new(ThreeSpellRise, Updates: 69);
 
     /// <summary>How the shallower slime drops fly: two spells rising, then falling.</summary>
-    private static IntroEggFallCurve ShallowSlimeFall { get; } = new(TwoSpellRise, Updates: 62);
+    internal static IntroEggFallCurve ShallowSlimeFall { get; } = new(TwoSpellRise, Updates: 62);
 
     /// <summary>
     /// The slime drops the hatched Baby sheds, in the order it sheds them: a steep drop and a shallow one to the left, then

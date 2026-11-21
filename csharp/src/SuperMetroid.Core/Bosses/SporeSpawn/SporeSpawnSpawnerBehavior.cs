@@ -58,7 +58,7 @@ internal sealed class SporeSpawnSpawnerBehavior(EnemyRoomBinding room, EnemyProj
     /// Spawns one spore projectile and runs its setup. The spore shares <paramref name="sporeSpawn"/>'s body's colours as
     /// they show now (#1512).
     /// </summary>
-    private void SpawnSporeSpawnSpore(Position16<RoomPixels> position, HorizontalDirection drift, SporeSpawnEnemyState sporeSpawn)
+    internal void SpawnSporeSpawnSpore(Position16<RoomPixels> position, HorizontalDirection drift, SporeSpawnEnemyState sporeSpawn)
     {
         EnemyProjectile? spore = projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.SporeSpawnSpore, spores, SpriteGraphics.SharedIn(Ensure.NotNull(sporeSpawn).Colours.Sprites));
         if (spore is null)

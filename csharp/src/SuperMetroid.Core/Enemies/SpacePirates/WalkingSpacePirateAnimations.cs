@@ -29,7 +29,7 @@ internal static class WalkingSpacePirateAnimations
     /// The animation that starts at each segment an owner can start or restart at: a flinch walks on the way the pirate faces,
     /// and its lasers and its look turn it to walk the other way.
     /// </summary>
-    private static Dictionary<WalkingSpacePirateSegment, Animation<WalkingSpacePirateSegment>> StartingAt { get; } =
+    internal static Dictionary<WalkingSpacePirateSegment, Animation<WalkingSpacePirateSegment>> StartingAt { get; } =
         FacedStarts(LeftSegments, RightSegments).Concat(FacedStarts(RightSegments, LeftSegments)).ToDictionary();
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

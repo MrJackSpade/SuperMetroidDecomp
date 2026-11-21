@@ -32,7 +32,7 @@ public sealed class EscapeTimer
     public bool IsActive => !EscapeTimerPhaseDefinitions.Inactive.Contains(Phase);
 
     /// <summary>The countdown remaining, in centiseconds, 0 through <see cref="LongestTime"/>.</summary>
-    private int RemainingCentiseconds { get; set; }
+    internal int RemainingCentiseconds { get; set; }
 
     /// <summary>The minutes, seconds and centiseconds the timer shows.</summary>
     public EscapeTimeReadout Readout => EscapeTimeReadout.Of(RemainingCentiseconds);
@@ -41,7 +41,7 @@ public sealed class EscapeTimer
     /// The timer's signed place on the screen, from the screen's top-left corner, its fractions kept as it slides into its
     /// corner.
     /// </summary>
-    private FixedVector<ScreenPixels> Position { get; set; }
+    internal FixedVector<ScreenPixels> Position { get; set; }
 
     /// <summary>The whole-pixel screen place the timer's label and digits are drawn from.</summary>
     public Offset16<ScreenPixels> ScreenPlace => Position.Whole;
@@ -87,7 +87,7 @@ public sealed class EscapeTimer
     /// <summary>Sets the remaining countdown, as starting the timer installs its duration.</summary>
     /// <param name="centiseconds">The remaining countdown, 0 through <see cref="LongestTime"/>.</param>
     /// <exception cref="ArgumentOutOfRangeException">The countdown is negative or longer than the timer shows.</exception>
-    private void SetRemaining(int centiseconds) =>
+    internal void SetRemaining(int centiseconds) =>
         RemainingCentiseconds = Ensure.BetweenInclusive(0, LongestTime, centiseconds);
 
     /// <summary>Stops the timer, empties its countdown and returns it to the screen's centre.</summary>

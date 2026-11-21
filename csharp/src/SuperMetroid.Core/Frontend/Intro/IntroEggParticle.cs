@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 internal sealed class IntroEggParticle
 {
     /// <summary>The cinematic sprite showing the fragment: its position and animation.</summary>
-    private readonly CinematicActor<IntroEggShellFragment, CinematicSpritePose, NoAnimationCue> sprite;
+    internal readonly CinematicActor<IntroEggShellFragment, CinematicSpritePose, NoAnimationCue> sprite;
 
     /// <summary>Which piece of the shell this is: it selects the fragment's animation and horizontal velocity, and never changes.</summary>
     private readonly IntroEggShellFragment fragment;

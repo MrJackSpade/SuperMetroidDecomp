@@ -31,9 +31,9 @@ internal static class EndingWavySamusTests
         scene.CreditsRoll.SetupPostCreditsBlank();
         // The ending stands on the backdrop fade's last update.
         var lastFadeUpdate = UpdateCountdown.Lasting(EndingSequenceDefinitions.Timing.WaitingBackdropFadeSteps);
-        PrivateState.Set(lastFadeUpdate, nameof(UpdateCountdown.Age), EndingSequenceDefinitions.Timing.WaitingBackdropFadeSteps - 1);
+        lastFadeUpdate.Age = EndingSequenceDefinitions.Timing.WaitingBackdropFadeSteps - 1;
         scene.ShowCastPhase(EndingCreditsPhase.PostCreditsShootingStars);
-        PrivateState.Set(scene, nameof(EndingCreditsState.PhaseHold), lastFadeUpdate);
+        scene.PhaseHold = lastFadeUpdate;
         scene.Stage.Fade.Show(DisplayBrightness.Full);
         Require(!EndingCreditsPresentation.ComposeScene(scene).LayersOf<AddedPicturedPlaneLayer>().Any(), "Wave must not start during the palette fade");
         scene.Step();

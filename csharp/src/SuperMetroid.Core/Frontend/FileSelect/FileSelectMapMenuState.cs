@@ -32,9 +32,9 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen, IComposedFront
     /// <summary>Renders the six-area selection view during entry and area navigation.</summary>
     private readonly FileSelectAreaMapGraphics areaGraphics;
     /// <summary>Renders the selected area's room map, including exploration and markers.</summary>
-    private readonly FileSelectRoomMapGraphics roomGraphics;
+    internal readonly FileSelectRoomMapGraphics roomGraphics;
     /// <summary>Owns room-map scroll position anchored to the selected save station.</summary>
-    private MapScroll Scroll { get; set; }
+    internal MapScroll Scroll { get; set; }
     /// <summary>Save-station marker positioned from the installed presentation catalog.</summary>
     private FileSelectStationMarker marker;
     /// <summary>The saved station, which restores the marker and scroll anchor.</summary>

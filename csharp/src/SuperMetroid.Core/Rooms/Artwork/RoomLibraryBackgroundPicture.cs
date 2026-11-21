@@ -16,10 +16,10 @@ public abstract record RoomLibraryBackgroundPicture
     }
 
     /// <summary>The state loads no library background, so its background draws none.</summary>
-    private static RoomLibraryBackgroundPicture NoneLoaded { get; } = new NotLoaded();
+    internal static RoomLibraryBackgroundPicture NoneLoaded { get; } = new NotLoaded();
 
     /// <summary>The state's library background is seen as something else, so its background draws none of it.</summary>
-    private static RoomLibraryBackgroundPicture SeenOtherwise { get; } = new ShownOtherwise();
+    internal static RoomLibraryBackgroundPicture SeenOtherwise { get; } = new ShownOtherwise();
 
     /// <summary>
     /// What a state loading <paramref name="background"/> draws from it: its picture, which <paramref name="picture"/>

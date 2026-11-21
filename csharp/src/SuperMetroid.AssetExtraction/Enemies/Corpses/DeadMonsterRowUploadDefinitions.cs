@@ -33,7 +33,7 @@ internal static class DeadMonsterRowUploadDefinitions
     }.ToFrozenDictionary();
 
     /// <summary>Where the cartridge holds <paramref name="list"/>.</summary>
-    private static NativeList Native(CorpseRowUploadList list) => Ensure.Listed(NativeLists, list);
+    internal static NativeList Native(CorpseRowUploadList list) => Ensure.Listed(NativeLists, list);
 
     /// <summary>The rows <paramref name="list"/> uploads, in native descriptor order.</summary>
     /// <exception cref="InvalidDataException">The cartridge has no such row upload list.</exception>

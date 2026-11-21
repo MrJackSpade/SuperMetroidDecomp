@@ -64,7 +64,7 @@ internal static class MagdolliteAnimations
     /// pixel at a time, an emerge lowers it a pixel at a time and then surfaces the head, and the pillar stacks and cap are
     /// still pictures. A throw, a submerge and an emerge each end on their finishing cue, which moves their part on.
     /// </summary>
-    private static Dictionary<MagdolliteSegment, Animation<MagdolliteSegment>> StartingAt { get; } = Segments.StartsEnding(
+    internal static Dictionary<MagdolliteSegment, Animation<MagdolliteSegment>> StartingAt { get; } = Segments.StartsEnding(
         new[]
         {
             FacingStarts(new()

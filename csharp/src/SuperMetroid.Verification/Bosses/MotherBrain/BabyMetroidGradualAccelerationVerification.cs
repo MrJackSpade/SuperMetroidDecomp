@@ -142,7 +142,7 @@ internal static class BabyMetroidGradualAccelerationVerification
             state.Velocity = velocity;
             state.StateTimer.LastFor(101);
             state.SamusHeightHover = SuperMetroid.Core.Bosses.BossCountdown.Lasting(4);
-            PrivateState.Set(state.HorizontalLock, nameof(BabyMetroidHorizontalLock.Built), 0);
+            state.HorizontalLock.Built = 0;
             babyMetroid.Position = babyMetroid.Position.WithWhole(new(700, 150));
             samus.Position = samus.Position.WithWhole(new(600, 180));
             Position16<RoomPixels> target = flight.Target();

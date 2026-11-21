@@ -31,14 +31,14 @@ internal sealed class SamusInputSnapshot
     /// largest count continues from zero, and the auto-jump compares the count with its limit by whether their
     /// difference is negative, so a hold long enough reads as fresh again (<see cref="JumpHoldReadsAsFresh"/>).
     /// </summary>
-    private int AutoJumpTimer
+    internal int AutoJumpTimer
     {
         get;
         set => field = Ensure.BetweenInclusive(0, WrappingCounter.LargestCount, value);
     }
 
     /// <summary>Held input published by the post-draw input filter and at the end of each update.</summary>
-    private GameplayAction PreviousDrawHeldInput { get; set; }
+    internal GameplayAction PreviousDrawHeldInput { get; set; }
 
     /// <summary>The one-shot auto-jump, when a landing or a turn has installed it as Samus's pose input.</summary>
     public AutoJumpInput AutoJump { get; } = new();

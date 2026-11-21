@@ -10,7 +10,7 @@ internal sealed class EnemyBg2FrameCatalog
 {
 
     /// <summary>Validated ordered BG2 writes keyed by the extended frame that selects them.</summary>
-    private readonly Dictionary<EnemyFrameId, EnemyBg2TilemapWrite[]> frames;
+    internal readonly Dictionary<EnemyFrameId, EnemyBg2TilemapWrite[]> frames;
 
     /// <summary>Owns the validated writes for one enemy frame family.</summary>
     internal EnemyBg2FrameCatalog(Dictionary<EnemyFrameId, EnemyBg2TilemapWrite[]> frames) =>

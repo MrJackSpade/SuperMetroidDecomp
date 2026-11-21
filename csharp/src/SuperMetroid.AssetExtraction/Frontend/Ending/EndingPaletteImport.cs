@@ -52,7 +52,7 @@ internal static class EndingPaletteImport
     }
 
     /// <summary>The native colour words of resource <paramref name="id"/>, <paramref name="count"/> colours: the crossfade's in its destination order, any other resource's as stored.</summary>
-    private static byte[] ReadNativePalette(ISnesAddressSpace bus, EndingPaletteId id, int count) =>
+    internal static byte[] ReadNativePalette(ISnesAddressSpace bus, EndingPaletteId id, int count) =>
         Ensure.Listed(EndingPaletteDefinitions.Palettes, id).Kind == EndingPaletteKind.LogoCrossfade
             ? ReadNativeCrossfade(bus, count)
             : RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), EndingPaletteSources.Source(id), count * sizeof(ushort));

@@ -92,7 +92,7 @@ public sealed record InstalledPictureReferenceDocument
     /// The rectangle the picture fills on the sheet image of a frame whose rectangle's top-left pixel is
     /// <paramref name="frameCorner"/>.
     /// </summary>
-    private FrameRectangle PlacedIn(Position16<ImagePixels> frameCorner) =>
+    internal FrameRectangle PlacedIn(Position16<ImagePixels> frameCorner) =>
         new(Position16<ImagePixels>.Of(frameCorner.X + Offset.X, frameCorner.Y + Offset.Y), Size);
 
     /// <summary>Whether the picture lies wholly inside a frame rectangle of <paramref name="frameSize"/>.</summary>

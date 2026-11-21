@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 public readonly record struct SamusSpeedBoostCounter
 {
     /// <summary>The full boost stage: active boosting for blocks, contact and the echo, and enough to store a shinespark.</summary>
-    private const int FullStage = 4;
+    internal const int FullStage = 4;
 
     /// <summary>The authored boost stages, zero through <see cref="FullStage"/>.</summary>
     public const int AuthoredStages = FullStage + 1;
@@ -37,7 +37,7 @@ public readonly record struct SamusSpeedBoostCounter
     public int Stage { get; }
 
     /// <summary>Runs the running animation completes before the next stage.</summary>
-    private int Countdown { get; }
+    internal int Countdown { get; }
 
     /// <summary>Whether the boost is at its full stage.</summary>
     public bool IsAtFullStage => Stage == FullStage;

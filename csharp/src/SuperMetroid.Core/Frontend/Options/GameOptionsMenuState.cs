@@ -26,13 +26,13 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen, IComposedFronten
     /// <summary>Receives the cursor and confirmation sounds.</summary>
     private readonly AudioQueues audio;
     /// <summary>The menu screen the options menu draws: its artwork, pictures, colours and sprites.</summary>
-    private readonly MenuScreen screen;
+    internal readonly MenuScreen screen;
     /// <summary>Derives newly pressed buttons from the held controller buttons.</summary>
     private readonly ControllerInputState controller = new();
     /// <summary>The installed menu art, bound when the game is bound to its installed content.</summary>
     private InstalledScreenContent screenContent;
     /// <summary>The page last loaded and the state its labels, language rows and toggle choices were drawn from (#1467).</summary>
-    private ShownOptionsPage ShownPage { get; set; }
+    internal ShownOptionsPage ShownPage { get; set; }
 
     /// <summary>Page to load when the current page has dissolved to black.</summary>
     private GameOptionsPage dissolveDestination = GameOptionsPage.Primary;
@@ -93,7 +93,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen, IComposedFronten
     }
 
     /// <summary>The row the cursor is on: the selected row of the page the menu shows (#2206).</summary>
-    private GameOptionsRow SelectedRow => Page switch
+    internal GameOptionsRow SelectedRow => Page switch
     {
         GameOptionsPage.Primary => new GameOptionsRow.OnPrimaryPage(primaryRow),
         GameOptionsPage.Controller => new GameOptionsRow.OnControllerPage(controllerRow),
@@ -111,7 +111,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen, IComposedFronten
     public TextLanguage Language { get; private set; }
 
     /// <summary>The page the menu shows: the page taking input, or the page a transition shows (#2560).</summary>
-    private GameOptionsPage Page { get; set; } = GameOptionsPage.Primary;
+    internal GameOptionsPage Page { get; set; } = GameOptionsPage.Primary;
 
     /// <summary>The seven live button assignments committed when the controller page exits.</summary>
     public ControllerBindings ControllerBindings { get; private set; }

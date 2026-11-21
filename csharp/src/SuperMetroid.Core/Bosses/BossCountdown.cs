@@ -17,13 +17,13 @@ public sealed class BossCountdown
     /// The wait, over once the countdown has run out; a step of an over wait leaves it over. A countdown never started
     /// runs out on its first step.
     /// </summary>
-    private UpdateCountdown wait = UpdateCountdown.LastingOneUpdate();
+    internal UpdateCountdown Wait { get; set; } = UpdateCountdown.LastingOneUpdate();
 
     /// <summary>
     /// The updates the countdown has left, the one it runs out on included: none once it has run out. A cadence that
     /// paces a wait reads it.
     /// </summary>
-    public int UpdatesLeft => wait.UpdatesLeft;
+    public int UpdatesLeft => Wait.UpdatesLeft;
 
     /// <summary>A countdown started to run out on the step of its <paramref name="updates"/>th update.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The countdown would last no update.</exception>
@@ -39,10 +39,10 @@ public sealed class BossCountdown
 
     /// <summary>Starts the countdown so that it runs out on the step of its <paramref name="updates"/>th update.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The countdown would last no update.</exception>
-    internal void LastFor(int updates) => wait = UpdateCountdown.Lasting(updates);
+    internal void LastFor(int updates) => Wait = UpdateCountdown.Lasting(updates);
 
     /// <summary>Steps the countdown one update: whether it ran out on this step, or had run out before it.</summary>
-    internal bool StepRunsOut() => wait.Step();
+    internal bool StepRunsOut() => Wait.Step();
 
     /// <summary>Steps the countdown one update: whether it is still running after this step.</summary>
     internal bool StepKeepsRunning() => !StepRunsOut();

@@ -55,7 +55,7 @@ internal static class NativeSnapshotMotherBrainImport
         if (MotherBrainNativeListAddresses.DecodeTubeCollapse(W(MotherBrainMemory.BrainSubFunction)) is { } collapse)
             state.TubeCollapse = collapse;
         state.TubeCollapseTimer.SetCartridgeCount(CoordinateAxis.AsSigned(W(MotherBrainMemory.BrainSubFunctionTimer)));
-        PrivateState.Set(state.Bursts, "Place", CoordinateAxis.AsSigned(W(MotherBrainMemory.BrainSubFunctionTimer)));
+        state.Bursts.Place = CoordinateAxis.AsSigned(W(MotherBrainMemory.BrainSubFunctionTimer));
         state.FakeDeathExplosionTimer.SetCartridgeCount(CoordinateAxis.AsSigned(W(MotherBrainMemory.FakeDeathExplosionTimer)));
         // The recorded place is the position the last explosion took, counted in the order the game stepped back through
         // them; the positions are listed in the order they burst, so the next is the one after it there.
@@ -135,7 +135,7 @@ internal static class NativeSnapshotMotherBrainImport
         state.AttackPhase = MotherBrainNativeWords.AttackPhases.Decode(W(MotherBrainMemory.AttackPhase), "Mother Brain attack phase");
         // The cooldown's word holds the updates it lasts.
         state.AttackCooldown.SetCartridgeCount(W(MotherBrainMemory.BodyAttackCooldown) - 1);
-        global::SuperMetroid.Core.PrivateState.Set(state, "BombCounter", (int)(W(MotherBrainMemory.BombCounter)));
+        state.BombCounter = (int)(W(MotherBrainMemory.BombCounter));
         state.BodyTargetXPosition = W(MotherBrainMemory.BodyFunctionTimer);
         state.HandBeamPhase = MotherBrainNativeWords.HandBeamPhases.Decode(W(MotherBrainMemory.DeathBeamAttackPhase), "Mother Brain hand-beam phase");
         state.HandBeamNextPosition = FixedPosition<RoomPixels>.FromStoredParts(
@@ -262,9 +262,9 @@ internal static class NativeSnapshotMotherBrainImport
         MotherBrainRainbowBeamAttackSequence sequence = state.BeginLateFight();
         // The cartridge keeps the brain's fall speed in the body's phase timer.
         sequence.State.BrainFallSpeed = new SignedEightEight(W(MotherBrainMemory.BodyFunctionTimer));
-        global::SuperMetroid.Core.PrivateState.Set(sequence.RainbowAttack, "AngularWidth", RotationAngleConstants.FromRaw(W(MotherBrainMemory.RainbowBeamAngularWidth)));
+        sequence.RainbowAttack.AngularWidth = RotationAngleConstants.FromRaw(W(MotherBrainMemory.RainbowBeamAngularWidth));
         // The cartridge counts the attempts left less one, by sign: six at the start, minus one once they are spent.
-        global::SuperMetroid.Core.PrivateState.Set(sequence.RainbowAttack, "SoundAttempts", UpdateCountdown.For(CoordinateAxis.AsSigned(W(MotherBrainMemory.RainbowBeamSoundQueueCount)) + 1));
+        sequence.RainbowAttack.SoundAttempts = UpdateCountdown.For(CoordinateAxis.AsSigned(W(MotherBrainMemory.RainbowBeamSoundQueueCount)) + 1);
         sequence.State.RainbowBeamSoundPlaying = W(MotherBrainMemory.RainbowBeamSoundPlaying) != 0;
         sequence.State.HealthColoursEnabled = W(MotherBrainMemory.HealthBasedPaletteHandling) != 0;
         sequence.State.Phase2CorpseState = DecodePhase2CorpseState(W(MotherBrainMemory.Phase2CorpseState));
@@ -272,8 +272,7 @@ internal static class NativeSnapshotMotherBrainImport
         // Once the sequence runs, the sub-function word holds the bursts' interval; their place was imported with the
         // encounter, whose cycle the sequence shares.
         // The cartridge's interval runs below zero on the update a burst is due: a count at zero or below is due next.
-        PrivateState.SetField(state.Bursts, "burstWait",
-            UpdateCountdown.For(Math.Max(0, CoordinateAxis.AsSigned(W(MotherBrainMemory.BrainSubFunction))) + 1));
+        state.Bursts.burstWait = UpdateCountdown.For(Math.Max(0, CoordinateAxis.AsSigned(W(MotherBrainMemory.BrainSubFunction))) + 1);
     }
 
     /// <summary>The phases of her rise from which it has placed her body with her (#1949, #2031).</summary>
@@ -372,7 +371,7 @@ internal static class NativeSnapshotMotherBrainImport
         var screen = new ushort[BossBodySourceDefinitions.ScreenRows * BossBodySourceDefinitions.LayerColumns];
         for (int word = 0; word < screen.Length; word++)
             screen[word] = W(EnemyBg2StagingWram + word * sizeof(ushort));
-        BossBodySheets sheets = global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Bosses.Artwork.BossArtworkBinding, global::SuperMetroid.Core.Enemies.BossBodies.BossBodySheets>(runtime.BossArtwork, "BodySheets");
+        BossBodySheets sheets = runtime.BossArtwork.BodySheets;
         // The installation's frames, which the runtime's installed Mother Brain body sheet is composed from.
         BossSourceArtwork bosses = InstalledFixtures.BossArtwork;
         BossBodySheet sheet = sheets.Of(BossBodyOwner.MotherBrain);

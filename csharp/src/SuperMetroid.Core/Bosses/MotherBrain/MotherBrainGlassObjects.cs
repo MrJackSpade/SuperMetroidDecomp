@@ -32,7 +32,7 @@ internal sealed class MotherBrainGlassObjects
     /// <summary>The place of the live glass room object, or null after deletion.</summary>
     private RoomObjectPlace? _motherBrainGlassPlace;
     /// <summary>Whether the current room loaded the glass room object before head damage can update it.</summary>
-    private bool MotherBrainGlassWasLoaded { get; set; }
+    internal bool MotherBrainGlassWasLoaded { get; set; }
 
     /// <summary>Sets the glass up at its place in the room.</summary>
     internal void SetupMotherBrainGlass(RoomLevelData level, RoomObjectPlace place)
@@ -93,7 +93,7 @@ internal sealed class MotherBrainGlassObjects
 
 
     /// <summary>Finds the live glass, without accepting a later object that took its place.</summary>
-    private bool TryGetMotherBrainGlass([NotNullWhen(true)] out MotherBrainGlassObject? glass)
+    internal bool TryGetMotherBrainGlass([NotNullWhen(true)] out MotherBrainGlassObject? glass)
     {
         if (_motherBrainGlassPlace is { Active: true, Behaviour: MotherBrainGlassObject live })
         {

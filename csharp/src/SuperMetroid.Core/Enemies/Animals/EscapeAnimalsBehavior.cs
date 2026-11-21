@@ -192,7 +192,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>The run an escaping Etecoon starts the way it runs once the rising acid is high (#2167).</summary>
-    private static EscapeEtecoonSegment HighTideRun(HorizontalDirection running) =>
+    internal static EscapeEtecoonSegment HighTideRun(HorizontalDirection running) =>
         running == HorizontalDirection.Left ? EscapeEtecoonSegment.RunningLeftHighTide : EscapeEtecoonSegment.RunningRightHighTide;
 
     /// <summary>
@@ -219,14 +219,14 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Where the rising tide takes the escaping Dachora at the end of a low-tide lap the way <paramref name="lap"/> ran
     /// (#2167): the end of the high-tide lap that way, counting on the laps the low-tide run had left.
     /// </summary>
-    private static AnimationContinuation<EscapeDachoraSegment> RisingTideTakesOver(HorizontalDirection lap) =>
+    internal static AnimationContinuation<EscapeDachoraSegment> RisingTideTakesOver(HorizontalDirection lap) =>
         lap == HorizontalDirection.Left ? EscapeDachoraAnimations.HighTideLapsAfterLeftLap : EscapeDachoraAnimations.HighTideLapsAfterRightLap;
 
     /// <summary>
     /// Where the critters' escape takes the escaping Dachora at the end of a lap the way <paramref name="lap"/> ran (#2167):
     /// the run for the escape, from its pause after a lap to the left and from its acceleration after one to the right.
     /// </summary>
-    private static AnimationContinuation<EscapeDachoraSegment> EscapeTakesOver(HorizontalDirection lap) =>
+    internal static AnimationContinuation<EscapeDachoraSegment> EscapeTakesOver(HorizontalDirection lap) =>
         lap == HorizontalDirection.Left ? EscapeDachoraAnimations.EscapeAfterLeftLap : EscapeDachoraAnimations.EscapeAfterRightLap;
 
     /// <summary>Whether the critters have escaped, which both escaping animals read.</summary>

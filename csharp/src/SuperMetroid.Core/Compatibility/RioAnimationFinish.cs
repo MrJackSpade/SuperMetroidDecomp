@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Compatibility;
 public sealed class RioAnimationFinish
 {
     /// <summary>Whether a finish waits for the Rio's main AI.</summary>
-    private bool IsRaised { get; set; }
+    internal bool IsRaised { get; set; }
 
     /// <summary>The animation's finishing cue raises the finish.</summary>
     internal void Raise() => IsRaised = true;

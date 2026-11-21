@@ -77,7 +77,7 @@ internal static class EncounterLookUploads
     internal static ComposedLook MotherBrainCorpseLook { get; } = new(ComposedEncounter.MotherBrain, "Corpse");
 
     /// <summary>Mother Brain's look once her death has copied the escape timer.</summary>
-    private static ComposedLook MotherBrainEscapeTimerLook { get; } = new(ComposedEncounter.MotherBrain, "EscapeTimer");
+    internal static ComposedLook MotherBrainEscapeTimerLook { get; } = new(ComposedEncounter.MotherBrain, "EscapeTimer");
 
     /// <summary>Mother Brain's look once her death has copied the escape message.</summary>
     internal static ComposedLook MotherBrainEscapeTextLook { get; } = new(ComposedEncounter.MotherBrain, "EscapeText");
@@ -171,7 +171,7 @@ internal static class EncounterLookUploads
 
     /// <summary><paramref name="encounter"/>'s looks in the order it shows them, its room's load first.</summary>
     /// <exception cref="InvalidDataException">The encounter is not one the import composes.</exception>
-    private static IReadOnlyList<ComposedLook> Looks(ComposedEncounter encounter) =>
+    internal static IReadOnlyList<ComposedLook> Looks(ComposedEncounter encounter) =>
         [ComposedLook.Loaded(encounter), .. Authored(encounter).Select(look => look.Look)];
 
     /// <summary>

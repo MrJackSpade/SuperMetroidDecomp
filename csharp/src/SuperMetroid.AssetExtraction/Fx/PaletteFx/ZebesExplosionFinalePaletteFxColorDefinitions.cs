@@ -11,7 +11,7 @@ public static class ZebesExplosionFinalePaletteFxColorDefinitions
 {
 
     /// <summary>Each record writes fifteen live BGR555 colors.</summary>
-    private const int ColorsPerFrame = 15;
+    internal const int ColorsPerFrame = 15;
 
     /// <summary>The family's records, consecutive from the first its program shows, and the colours each writes.</summary>
     public static PaletteFxColorFrames ColorFrames { get; } = PaletteFxColorFrames.Of(ColourEffectId.ZebesExplosionFinale, ColorsPerFrame);

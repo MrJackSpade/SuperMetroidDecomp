@@ -10,7 +10,7 @@ public static class TorizoBellyPaletteFxColorDefinitions
 {
 
     /// <summary>Three BGR555 colors are presentation-owned by each timed record.</summary>
-    private const int ColorsPerFrame = 3;
+    internal const int ColorsPerFrame = 3;
 
     /// <summary>The Bomb Torizo's belly glow.</summary>
     internal static TorizoBellyPaletteFxColorDefinition BombTorizoBelly { get; } = new(ColourEffectId.BombTorizoBelly, ColorsPerFrame);

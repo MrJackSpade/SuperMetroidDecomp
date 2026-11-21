@@ -63,7 +63,7 @@ public sealed class PauseBackdropPresentation
     /// Builds the presentation from compiled tilemaps (one 1024-cell page per area, plus the 512-cell button page), keeping
     /// every tile.
     /// </summary>
-    private static PauseBackdropPresentation FromTilemaps(Dictionary<AreaId, BackgroundTile[]> areaTilemaps, BackgroundTile[] buttonTilemap)
+    internal static PauseBackdropPresentation FromTilemaps(Dictionary<AreaId, BackgroundTile[]> areaTilemaps, BackgroundTile[] buttonTilemap)
     {
         Ensure.NotNull(areaTilemaps);
         Ensure.NotNull(buttonTilemap);

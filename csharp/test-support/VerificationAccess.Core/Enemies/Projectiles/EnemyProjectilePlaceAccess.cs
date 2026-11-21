@@ -15,8 +15,8 @@ internal static class EnemyProjectilePlaceAccess
     /// </summary>
     internal static EnemyProjectile Occupy(this EnemyProjectileEngine engine, int place, RoomEnemyProjectileKind kind)
     {
-        EnemyProjectile?[] places = PrivateState.Field<EnemyProjectileEngine, EnemyProjectile?[]>(engine, "_places");
-        EnemyProjectilePlaceLeftovers leftovers = PrivateState.Field<EnemyProjectileEngine, EnemyProjectilePlaceLeftovers>(engine, "_leftovers");
+        EnemyProjectile?[] places = engine.ProjectilesInPlaces;
+        EnemyProjectilePlaceLeftovers leftovers = engine.Leftovers;
         return places[place] = new EnemyProjectile(place, leftovers.StartOf(place, places[place]?.LeftInPlace), kind);
     }
 
@@ -26,9 +26,9 @@ internal static class EnemyProjectilePlaceAccess
     /// </summary>
     internal static void ImportLeftover(this EnemyProjectileEngine engine, int place, EnemyProjectileHandOver leftover)
     {
-        EnemyProjectile?[] places = PrivateState.Field<EnemyProjectileEngine, EnemyProjectile?[]>(engine, "_places");
-        EnemyProjectilePlaceLeftovers leftovers = PrivateState.Field<EnemyProjectileEngine, EnemyProjectilePlaceLeftovers>(engine, "_leftovers");
-        PrivateState.Field<EnemyProjectilePlaceLeftovers, EnemyProjectileHandOver[]>(leftovers, "_fromRoomBefore")[place] = leftover;
+        EnemyProjectile?[] places = engine.ProjectilesInPlaces;
+        EnemyProjectilePlaceLeftovers leftovers = engine.Leftovers;
+        leftovers.FromRoomBefore[place] = leftover;
         places[place] = null;
     }
 

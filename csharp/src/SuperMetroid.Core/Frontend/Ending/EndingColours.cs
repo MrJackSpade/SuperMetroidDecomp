@@ -135,7 +135,7 @@ internal sealed class EndingColours
     }
 
     /// <summary>Every shade the running scene shows now, in the order the scenes bring them in, whoever each is authored for.</summary>
-    private IReadOnlyList<PictureShade> Shades
+    internal IReadOnlyList<PictureShade> Shades
     {
         get
         {

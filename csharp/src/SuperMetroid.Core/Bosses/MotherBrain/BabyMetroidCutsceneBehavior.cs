@@ -98,11 +98,11 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
     }
 
     /// <summary>Shows the Baby's arrival colours.</summary>
-    private static void ShowBabyMetroidArrival(MotherBrainColours colours) =>
+    internal static void ShowBabyMetroidArrival(MotherBrainColours colours) =>
         Ensure.NotNull(colours).ShowBabyArrived();
 
     /// <summary>Advances the later Baby place, publishes cries/healing, and writes body and Baby animation changes for their next ordered enemy turns.</summary>
-    private void RunMotherBrainBabyMetroidMain(
+    internal void RunMotherBrainBabyMetroidMain(
         RoomEnemyPlace place,
         SamusState samus,
         Position16<RoomPixels> camera)
@@ -171,7 +171,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         place.Shading = baby.HurtFlashShown ? EnemyShades.HurtFlashLook : colours.BabyShading;
 
     /// <summary>Applies one step's music, sounds, dust, fade and recovery-light requests to room systems.</summary>
-    private void ApplyBabyMetroidFrameEffects(MotherBrainColours colours, BabyMetroidCutsceneStepResult step)
+    internal void ApplyBabyMetroidFrameEffects(MotherBrainColours colours, BabyMetroidCutsceneStepResult step)
     {
         Ensure.NotNull(colours);
         if (step.FatalBlowStarted)
@@ -211,7 +211,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
 
     /// <summary>Shows <paramref name="image"/> of the Baby's fade to black from its installed colours.</summary>
     /// <exception cref="ArgumentException">The image is not one of the Baby's fade's.</exception>
-    private static void ShowBabyMetroidFade(MotherBrainColours colours, MotherBrainFadeImage image) =>
+    internal static void ShowBabyMetroidFade(MotherBrainColours colours, MotherBrainFadeImage image) =>
         Ensure.NotNull(colours).ShowBabyFade(image);
 
     /// <summary>Runs BabyMetroidCutscene's main AI.</summary>

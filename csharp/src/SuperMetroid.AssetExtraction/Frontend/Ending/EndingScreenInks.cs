@@ -19,7 +19,7 @@ internal static class EndingScreenInks
     internal const int SpriteFirst = 8 * GroupColours;
 
     /// <summary>The screen's colours.</summary>
-    private const int ScreenColourCount = 2 * SpriteFirst;
+    internal const int ScreenColourCount = 2 * SpriteFirst;
 
     /// <summary>
     /// The screen colours each load writes. A scene's own colours are its whole screen (#1544): nothing an earlier scene

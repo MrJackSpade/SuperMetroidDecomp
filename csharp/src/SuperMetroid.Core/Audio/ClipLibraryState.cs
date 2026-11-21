@@ -10,10 +10,10 @@ internal sealed class ClipLibraryState
     internal ClipLibraryPlayback? Playback { get; private set; }
 
     /// <summary>Whether the library holds a high-priority sound, which admits only requests exempt from priority; otherwise any request replaces the sound.</summary>
-    private bool HighPriority { get; set; }
+    internal bool HighPriority { get; set; }
 
     /// <summary>Whether the room library is in low-health mode, which rejects every request except those exempt from it.</summary>
-    private bool InLowHealthMode { get; set; }
+    internal bool InLowHealthMode { get; set; }
 
     /// <summary>Whether the library's priority or low-health mode turns away a request under <paramref name="policy"/>.</summary>
     internal bool Rejects(SoundEffectClipPolicy policy) =>

@@ -72,7 +72,7 @@ public sealed class ImportIntroCinematicArtwork : IntroCinematicSourceArtwork
     private const int PageCells = 32 * 32;
 
     /// <summary>The opening's and the Ceres destruction scene's sprite compositions, which their sheets are composed from.</summary>
-    private IntroCinematicSprites Sprites { get; }
+    internal IntroCinematicSprites Sprites { get; }
 
     /// <summary>The compositions of <paramref name="family"/>: the Ceres approach's are the flight's, the others the opening's.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The family is not an opening or Ceres family.</exception>
@@ -120,7 +120,7 @@ public sealed class ImportIntroCinematicArtwork : IntroCinematicSourceArtwork
     /// <summary>Four Samus-portrait eye rectangles, without their blink timing.</summary>
     public IntroEyeTilemapPresentation EyeFrames { get; }
     /// <summary>The Zebes reveal's tilemap, which the planet's picture is composed from with the reveal's characters.</summary>
-    private RoomBackgroundTilemapAtlas ZebesRevealMap { get; }
+    internal RoomBackgroundTilemapAtlas ZebesRevealMap { get; }
     /// <summary>The destruction's Mode 7 maps, which the Ceres floor's shots are composed from.</summary>
     public CeresDestructionMaps CeresDestructionMaps { get; }
 

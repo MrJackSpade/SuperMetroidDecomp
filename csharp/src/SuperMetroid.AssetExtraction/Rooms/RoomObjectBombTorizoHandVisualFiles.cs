@@ -30,7 +30,7 @@ public static class RoomObjectBombTorizoHandVisualFiles
         };
 
     /// <summary>Editable Bomb Torizo hand PLM visual JSON filename.</summary>
-    private const string VisualFileName = "bomb-torizo-hand.json";
+    internal const string VisualFileName = "bomb-torizo-hand.json";
 
     /// <summary>The Bomb Torizo hand as the import pictures them: every frame's geometry and published name.</summary>
     internal static RoomObjectFrameFamily<RoomObjectDraw> Family { get; } =
@@ -50,7 +50,7 @@ public static class RoomObjectBombTorizoHandVisualFiles
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>The intact and cleared hand draw lists, in authored order.</summary>
-    private static IEnumerable<RoomObjectDrawLists.DrawList> All
+    internal static IEnumerable<RoomObjectDrawLists.DrawList> All
     {
         get
         {
@@ -69,7 +69,7 @@ public static class RoomObjectBombTorizoHandVisualFiles
     /// cell colliding as the game's block shape for the frame says (#1608). The run form is the cartridge's; the game
     /// draws the shape.
     /// </summary>
-    private static bool TryGet(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
+    internal static bool TryGet(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
     {
         if (!RoomObjectDrawIdentity.TryShape(BombTorizoHandDraws.Family, request, out RoomBlockShape? described))
         {
@@ -82,9 +82,9 @@ public static class RoomObjectBombTorizoHandVisualFiles
     }
 
     /// <summary>Gets the stable artwork ID for a supported hand draw.</summary>
-    private static string VisualId(RoomObjectDraw request) =>
+    internal static string VisualId(RoomObjectDraw request) =>
         VisualId(RoomObjectDrawIdentity.FrameOf<BombTorizoHandDraw>(request, "Bomb Torizo hand draw with a visual ID"));
 
     /// <summary>Maps an intact or cleared hand draw to its stable artwork ID.</summary>
-    private static string VisualId(BombTorizoHandDraw frame) => BombTorizoHandDrawKeys.Installed.Of(frame);
+    internal static string VisualId(BombTorizoHandDraw frame) => BombTorizoHandDrawKeys.Installed.Of(frame);
 }

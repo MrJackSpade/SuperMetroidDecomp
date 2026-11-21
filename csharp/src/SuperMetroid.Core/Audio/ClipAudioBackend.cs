@@ -45,7 +45,7 @@ public sealed class ClipAudioBackend
     }
 
     /// <summary>The playback state this backend advances.</summary>
-    private ClipPlaybackState State { get; }
+    internal ClipPlaybackState State { get; }
 
     /// <summary>Applies one update's events in order and writes its interleaved stereo PCM at the clips' rate.</summary>
     /// <exception cref="InvalidDataException">
@@ -128,7 +128,7 @@ public sealed class ClipAudioBackend
     /// frames at the beat length in force. Reports whether the beat completed.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="steps"/> is negative.</exception>
-    private bool AdvanceMusicBeat(long now, int steps)
+    internal bool AdvanceMusicBeat(long now, int steps)
     {
         if (State.Song is MusicClipEntry song && song.LoopStart is null && now - State.SongStart >= song.Clip.Frames)
             State.EndSong(BeatLengthAt(song, song.Clip.Frames));
@@ -136,7 +136,7 @@ public sealed class ClipAudioBackend
     }
 
     /// <summary>Applies the song change waiting for this beat, unless it asks for what already plays.</summary>
-    private void OnBeat(long now)
+    internal void OnBeat(long now)
     {
         if (State.SongChange.Take() is not SongChange change)
             return;

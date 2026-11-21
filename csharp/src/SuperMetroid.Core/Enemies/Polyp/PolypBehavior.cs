@@ -95,7 +95,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>A Polyp rock (#1760): it rises and falls quadratically until it leaves the camera.</summary>
-    private StatefulSingleMotionProjectileBehavior<PolypRockState> Rock => field ??= new(
+    internal StatefulSingleMotionProjectileBehavior<PolypRockState> Rock => field ??= new(
         context => FlyPolypRock(context.Projectile, context.Camera));
 
     /// <summary>Advances Polyp's typed animation.</summary>
@@ -114,7 +114,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Spawns a lava rock from the Polyp and initializes it.
     /// The rock draws from the Polyp's spawned-object sheet in its colours and starts at the Polyp's position, fractions included.
     /// </summary>
-    private void SpawnPolypRock(
+    internal void SpawnPolypRock(
         RoomEnemyOccupant occupant, RoomEnemyPlace source,
         QuadraticSpeedCurvePlace launchPlace,
         SignedEightEight xVelocity)
@@ -189,7 +189,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>
     /// Adds one curve mark's speed toward <paramref name="direction"/>, the fraction first and then the whole pixels.
     /// </summary>
-    private static void AddPolypRockQuadraticStep(
+    internal static void AddPolypRockQuadraticStep(
         EnemyProjectile projectile,
         QuadraticSpeedCurvePlace place,
         VerticalDirection direction)

@@ -8,7 +8,7 @@ internal abstract record KraidMouthShapeRead(KraidMouthShapeReadKind Kind)
     internal static KraidMouthShapeRead NoPose { get; } = new NoPoseFound();
 
     /// <summary>A read that finds the closed mouth's missing shape.</summary>
-    private static KraidMouthShapeRead NoShape { get; } = new MissingShape();
+    internal static KraidMouthShapeRead NoShape { get; } = new MissingShape();
 
     /// <summary>The vulnerable shape of <paramref name="frame"/>.</summary>
     internal static KraidMouthShapeRead VulnerableOf(KraidHeadFrame frame) => new Found(frame.VulnerableShape);

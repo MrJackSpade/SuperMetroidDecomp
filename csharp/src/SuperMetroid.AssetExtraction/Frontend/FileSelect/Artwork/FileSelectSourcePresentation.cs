@@ -95,23 +95,23 @@ public sealed class FileSelectSourcePresentation
 
 
     /// <summary>Named, compiled 32-by-32 tilemaps for the menu pages.</summary>
-    private readonly Dictionary<FileSelectPage, BackgroundTile[]> pages;
+    internal readonly Dictionary<FileSelectPage, BackgroundTile[]> pages;
     /// <summary>The common backdrop tilemap.</summary>
     private readonly BackgroundTile[] background;
     /// <summary>Each slot-field patch.</summary>
-    private readonly Dictionary<FileSelectPatch, FileSelectCompiledPatch> patches;
+    internal readonly Dictionary<FileSelectPatch, FileSelectCompiledPatch> patches;
     /// <summary>The installed digit glyphs, zero to nine.</summary>
     private readonly BackgroundTile[] digits;
     /// <summary>The installed slot-letter glyphs, one per save slot.</summary>
     private readonly IReadOnlyDictionary<SaveSlot, BackgroundTile> slotLetters;
 
     /// <summary>The installed tile of decimal digit <paramref name="digit"/>.</summary>
-    private BackgroundTile Digit(int digit) => (uint)digit < FileSelectPresentationDefinitions.DigitCount
+    internal BackgroundTile Digit(int digit) => (uint)digit < FileSelectPresentationDefinitions.DigitCount
         ? digits[digit]
         : throw new ArgumentOutOfRangeException(nameof(digit));
 
     /// <summary>The installed tile of save slot <paramref name="slot"/>'s letter.</summary>
-    private BackgroundTile SlotLetter(SaveSlot slot) => Ensure.Listed(slotLetters, slot);
+    internal BackgroundTile SlotLetter(SaveSlot slot) => Ensure.Listed(slotLetters, slot);
 
     /// <summary>
     /// Every picture of file select the menus' sheet holds (#1467): the backdrop and each page, then each field picture
@@ -130,7 +130,7 @@ public sealed class FileSelectSourcePresentation
     /// The field pictures, each placed at its anchor: each patch with its cells where they lie from the anchor, each digit,
     /// the energy tank filled and empty, and each slot letter.
     /// </summary>
-    private IEnumerable<ScreenPictureSubject> FieldSubjects()
+    internal IEnumerable<ScreenPictureSubject> FieldSubjects()
     {
         Extent16<CharacterCells> cell = new(1, 1);
         foreach (FileSelectPatch name in FileSelectPresentationFormat.Patches)

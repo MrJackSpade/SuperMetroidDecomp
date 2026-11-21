@@ -117,7 +117,7 @@ internal sealed class MotherBrainCombat
     /// <see cref="MotherBrainForm.FakeDeath"/> the shot still costs walk credit but is a dud; in the later forms it deals
     /// ordinary damage, leaving her parts alive at zero health for her body's phases to end.
     /// </summary>
-    private void ResolveMotherBrainLaterFormHeadShot(
+    internal void ResolveMotherBrainLaterFormHeadShot(
         MotherBrainEnemyState state,
         RoomEnemyOccupant brain,
         SamusProjectileOccupant held,

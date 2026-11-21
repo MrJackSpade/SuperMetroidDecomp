@@ -17,7 +17,7 @@ internal sealed record RoomObjectArtwork
     public required InstalledRoomObjectPictures RoomObjectShotBlockVisuals { get; init; }
 
     /// <summary>Grapple-block art; the terrain owns collision.</summary>
-    public required InstalledRoomObjectPictures RoomObjectGrappleBlockVisuals { private get; init; }
+    public required InstalledRoomObjectPictures RoomObjectGrappleBlockVisuals { internal get; init; }
 
     /// <summary>Station appearance; the terrain retains collision.</summary>
     public required InstalledRoomObjectPictures RoomObjectStationVisuals { get; init; }

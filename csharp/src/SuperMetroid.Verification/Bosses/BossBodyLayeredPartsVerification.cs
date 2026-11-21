@@ -108,7 +108,7 @@ internal static class BossBodyLayeredPartsVerification
                 state.BringBodyInFront();
             foreach (KraidHeadFrame? head in new KraidHeadFrame?[] { null }.Concat(KraidHeadTilemapFormat.HeadsByMouthStage.Select(pose => (KraidHeadFrame?)pose)))
             {
-                global::SuperMetroid.Core.PrivateState.Set(state, "DisplayedHeadFrame", head);
+                state.DisplayedHeadFrame = head;
                 BossBodyLayer layer = enemies.KraidBehavior.BodyLayer.CaptureBodyLayer()
                     ?? throw new InvalidOperationException("Kraid showing his body layer draws his body.");
                 AssertEqual(2, layer.Frames.Length, $"Kraid's {appearance} body shows his body and one head");

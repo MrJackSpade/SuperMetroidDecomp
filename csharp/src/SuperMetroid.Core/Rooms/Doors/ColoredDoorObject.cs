@@ -20,12 +20,12 @@ internal sealed class ColoredDoorObject : DoorCapObject, IShootableRoomObject
         : base(variant.Orientation, ColoredDoorDefinitions.Colors[variant.Color].Paint)
     {
         Door = Ensure.NotNull(door);
-        _rules = ColoredDoorDefinitions.Colors[variant.Color];
+        Rules = ColoredDoorDefinitions.Colors[variant.Color];
         _sequences = ColoredDoorDefinitions.Sequences[variant];
     }
 
     /// <summary>The door the cap stands in, as its placement named it.</summary>
-    private PlacedDoor Door { get; }
+    internal PlacedDoor Door { get; }
 
     /// <summary>A cap whose door has been opened for good stays open behind Samus.</summary>
     public override bool StaysOpenBehindSamus(Func<LockedDoor, bool> openedForGood) =>
@@ -33,23 +33,23 @@ internal sealed class ColoredDoorObject : DoorCapObject, IShootableRoomObject
 
 
     /// <summary>What the cap is doing.</summary>
-    private ColoredDoorPhase Phase { get; set; } = ColoredDoorPhase.Placed;
+    internal ColoredDoorPhase Phase { get; set; } = ColoredDoorPhase.Placed;
 
     /// <summary>
     /// The hits counted toward the colour's count. It only counts up, by one a hit or straight to the count on a Super
     /// Missile, and the cap opens once it reaches the count.
     /// </summary>
-    private int HitCounter { get; set; }
+    internal int HitCounter { get; set; }
 
     /// <summary>
     /// Whether a shot at the cap's block reaches it: from its first look until the hit that opens it. This is what the cap
     /// waits for, apart from what it plays: a closing behind Samus keeps it, so a cap that has looked still takes shots while
     /// it closes, and one just placed takes none.
     /// </summary>
-    private bool TakesShots { get; set; }
+    internal bool TakesShots { get; set; }
 
     /// <summary>The colour's rules: the shots it counts and the hits it takes.</summary>
-    private readonly ColoredDoorColorDefinition _rules;
+    internal ColoredDoorColorDefinition Rules { get; }
 
     /// <summary>The colour and facing's sequences.</summary>
     private readonly ColoredDoorSequences _sequences;
@@ -83,7 +83,7 @@ internal sealed class ColoredDoorObject : DoorCapObject, IShootableRoomObject
     {
         if (!TakesShots || _strike.Take() is not { Family: var family })
             return false;
-        if (!_rules.Counts(family))
+        if (!Rules.Counts(family))
         {
             context.RoomObjects.DoorObjects.QueueDudSound();
             return false;
@@ -138,7 +138,7 @@ internal sealed class ColoredDoorObject : DoorCapObject, IShootableRoomObject
     /// </summary>
     private void CountHit(RoomObjectPlace place, RoomObjectStepContext context, bool opensAtOnce)
     {
-        int threshold = _rules.HitsToOpen;
+        int threshold = Rules.HitsToOpen;
         HitCounter = opensAtOnce ? threshold : HitCounter + 1;
         if (HitCounter < threshold)
         {

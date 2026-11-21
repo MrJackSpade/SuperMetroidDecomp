@@ -118,7 +118,7 @@ internal sealed class SpriteSheetSourceCatalog
     /// The sheet does not compose from sprite parts: the escape timer composes from the cartridge, and the painted sheets
     /// from their pages, images, floors and pictures.
     /// </exception>
-    private SpriteSheetSources For(SpriteSheetId sheet) => _parts[sheet]();
+    internal SpriteSheetSources For(SpriteSheetId sheet) => _parts[sheet]();
 
     /// <summary>
     /// Each sheet composed from sprite parts, bound to the parts it composes: the menus' and the opening's sprites, the

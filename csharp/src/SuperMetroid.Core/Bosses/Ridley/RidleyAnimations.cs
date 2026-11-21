@@ -70,7 +70,7 @@ internal static class RidleyAnimations
     /// The animation that starts at each segment: its segment played once, then a rest on its last frame; a fireballing segment
     /// runs on into its end, authored next, which rests.
     /// </summary>
-    private static Dictionary<RidleyBodySegment, Animation<RidleyBodySegment>> StartingAt { get; } = Segments.StartsEnding(new Dictionary<RidleyBodySegment, Animation<RidleyBodySegment>>
+    internal static Dictionary<RidleyBodySegment, Animation<RidleyBodySegment>> StartingAt { get; } = Segments.StartsEnding(new Dictionary<RidleyBodySegment, Animation<RidleyBodySegment>>
     {
         [P.FireballingFacingLeft] = new([Segments.Whole(P.FireballingFacingLeft), Segments.Whole(P.FireballingEndFacingLeft)], AnimationEnd.Holds),
         [P.FireballingFacingRight] = new([Segments.Whole(P.FireballingFacingRight), Segments.Whole(P.FireballingEndFacingRight)], AnimationEnd.Holds),

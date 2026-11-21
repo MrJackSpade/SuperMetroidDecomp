@@ -41,7 +41,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen, IComposedFrontend
     /// <summary>Reads and changes the three save slots.</summary>
     private readonly SaveSlotStore saves;
     /// <summary>The menu screen file select draws: its artwork, pictures, colours and sprites.</summary>
-    private readonly MenuScreen screen;
+    internal readonly MenuScreen screen;
     /// <summary>Tracks button edges used by menu navigation and confirmation.</summary>
     private readonly ControllerInputState controller = new();
     /// <summary>Installed file-select artwork, bound when the game is bound to its installed content.</summary>
@@ -53,7 +53,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen, IComposedFrontend
     /// <summary>The selected slot's helmet turn, whose picture the helmet keeps through the options fade.</summary>
     private readonly FileSelectHelmetAnimation selectedHelmet;
     /// <summary>The selected slot's helmet picture, retained through the options fade.</summary>
-    private FileSelectHelmetFrame HelmetAnimationFrame => selectedHelmet.Frame;
+    internal FileSelectHelmetFrame HelmetAnimationFrame => selectedHelmet.Frame;
     /// <summary>The screen's brightness and the cadence of its entry and submenu fades; the menu opens black.</summary>
     private readonly ScreenFade screenFade = new(DisplayBrightness.Black);
     /// <summary>The opening's black hold (<see cref="FileSelectPhase.BlackHold"/>), counted once each update.</summary>
@@ -61,7 +61,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen, IComposedFrontend
     /// <summary>The page file select has selected, which it shows with its slots as they are now.</summary>
     private FileSelectPage selectedPage = FileSelectPage.MainEmpty;
     /// <summary>The page shown, with its slots' fields and the slots its prompt names (#1467).</summary>
-    private ShownFileSelectPage ShownPage { get; set; } = new(FileSelectPage.MainEmpty,
+    internal ShownFileSelectPage ShownPage { get; set; } = new(FileSelectPage.MainEmpty,
         SaveSlots.All.ToImmutableDictionary(slot => slot, _ => (ShownFileSelectSave?)null), FileSelectSlotChoice.Unchosen);
 
     /// <summary>Reads the saves and readies the menu to open from black.</summary>
@@ -88,7 +88,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen, IComposedFrontend
     }
 
     /// <summary>Main-menu selection: slots A-C, Copy, Clear, or Exit.</summary>
-    private FileSelectItem SelectedItem { get; set; }
+    internal FileSelectItem SelectedItem { get; set; }
 
     /// <summary>Current menu phase.</summary>
     public FileSelectPhase Phase { get; private set; }
@@ -281,7 +281,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen, IComposedFrontend
     /// The step the copy arrows' colour rotation shows
     /// (#1512). The rotation runs on from where it stopped each time a copy is confirmed, as the game's colours keep it.
     /// </summary>
-    private FileCopyArrowRotationStep CopyArrowRotation { get; set; } = FileCopyArrowRotationStep.Unrotated;
+    internal FileCopyArrowRotationStep CopyArrowRotation { get; set; } = FileCopyArrowRotationStep.Unrotated;
 
     /// <summary>Controls whether the main page exposes Copy and Clear navigation.</summary>
     private bool HasAnySave => saveSlots.Values.Any(slot => slot is not null);

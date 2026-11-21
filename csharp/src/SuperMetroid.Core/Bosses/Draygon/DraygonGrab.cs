@@ -248,7 +248,7 @@ internal sealed class DraygonGrab
     /// update after an escape therefore drags the released Samus once more before Draygon
     /// switches to flying straight up.
     /// </summary>
-    private void MoveSamusWithDraygon(DraygonEnemyState state, SamusState samus)
+    internal void MoveSamusWithDraygon(DraygonEnemyState state, SamusState samus)
     {
         bool escaped = samus.DraygonGrabbed.CarryTo(
             samus,

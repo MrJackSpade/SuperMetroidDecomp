@@ -26,7 +26,7 @@ internal sealed class IntroMotherBrainSpriteState
     /// </summary>
     private UpdateCountdown exploding = UpdateCountdown.Ended();
     /// <summary>Missiles her hit test has consumed; the fourth starts the explosion.</summary>
-    private int hitCount;
+    internal int HitCount { get; private set; }
     /// <summary>Where she stands, from taking hits through her explosion and page two's crossfade to her deletion.</summary>
     private IntroMotherBrainPhase phase;
 
@@ -128,11 +128,11 @@ internal sealed class IntroMotherBrainSpriteState
     }
 
     /// <summary>Records the synchronous hit side effects after the projectile is killed.</summary>
-    private bool RecordMissileHit()
+    internal bool RecordMissileHit()
     {
         hurtFlash.Restart(IntroMotherBrainDefinitions.HurtFlashUpdates);
-        hitCount++;
-        if (hitCount != IntroMotherBrainDefinitions.MissileHitsToExplode)
+        HitCount++;
+        if (HitCount != IntroMotherBrainDefinitions.MissileHitsToExplode)
             return false;
 
         // The fourth hit clears the actor timer before selecting the exploding behaviour. The

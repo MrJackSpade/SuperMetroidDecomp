@@ -19,7 +19,7 @@ public sealed class PhantoonBodyWaveEffect
     /// </summary>
     private PhantoonWaveShape _built;
     /// <summary>Whether a setup has run and the wave has not since observed its length cleared; requesting it with Begin alone does not activate it.</summary>
-    private bool Active => SetUpWave is RipplingWave;
+    internal bool Active => SetUpWave is RipplingWave;
 
     /// <summary>The wave the last setup started, which a requested wave leaves standing until its setup runs.</summary>
     private WaveState? SetUpWave => _wave is RequestedWave requested ? requested.Replacing : _wave;
@@ -27,7 +27,7 @@ public sealed class PhantoonBodyWaveEffect
     /// The wave's phase (#2315): setup seeds <see cref="PhantoonWaveDefinitions.InitialPhase"/>, then each active update
     /// turns it by the wave's phase step. Its whole steps are the angle the wave ripples from.
     /// </summary>
-    private RotationAngle Phase { get; set; }
+    internal RotationAngle Phase { get; set; }
     /// <summary>The wave the last display latch observed (#1353, #1468); null when it observed no active wave.</summary>
     public PhantoonWave? DisplayedWave { get; private set; }
 
@@ -35,7 +35,7 @@ public sealed class PhantoonBodyWaveEffect
     /// The wave as it now stands (#1468), or null before any setup: his body rippled down the whole screen by its amplitude
     /// at its phase's angle, over its length's period.
     /// </summary>
-    private PhantoonWave? CurrentWave => SetUpWave is { } wave ? Describe(wave.Length, _built) : null;
+    internal PhantoonWave? CurrentWave => SetUpWave is { } wave ? Describe(wave.Length, _built) : null;
 
     /// <summary>
     /// The wave <paramref name="shape"/> shows at <paramref name="length"/> (#1468): his body rippled down the whole screen
@@ -44,7 +44,7 @@ public sealed class PhantoonBodyWaveEffect
     /// </summary>
     /// <param name="length">The wave's length.</param>
     /// <param name="shape">The phase and amplitude the wave was built from.</param>
-    private static PhantoonWave Describe(PhantoonWaveLength length, PhantoonWaveShape shape) => new(shape.Amplitude,
+    internal static PhantoonWave Describe(PhantoonWaveLength length, PhantoonWaveShape shape) => new(shape.Amplitude,
         shape.Phase.ToTrigonometryAngle(),
         Period(length));
 

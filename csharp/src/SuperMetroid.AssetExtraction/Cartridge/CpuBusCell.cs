@@ -17,7 +17,7 @@ public sealed record CpuBusCell
     /// <param name="encoding">How the bytes encode the domain value, e.g. "u16 little-endian" or "SamusPose (u16)".</param>
     /// <param name="aliasOf">The cell this one intentionally shares bytes with under a different meaning, if any.</param>
     /// <exception cref="ArgumentOutOfRangeException">The address is past 24 bits, or the cell holds no byte.</exception>
-    private CpuBusCell(string name, CpuBusRegion region, int address, int byteCount, string encoding, CpuBusCell? aliasOf = null)
+    internal CpuBusCell(string name, CpuBusRegion region, int address, int byteCount, string encoding, CpuBusCell? aliasOf = null)
     {
         Name = name;
         Region = region;
@@ -36,16 +36,16 @@ public sealed record CpuBusCell
         new(name, CpuBusRegion.Cartridge, address, length, encoding, aliasOf);
 
     /// <summary>The semantic identity, unique within its declaring catalog.</summary>
-    private string Name { get; init; }
+    internal string Name { get; init; }
 
     /// <summary>The store the cell lives in.</summary>
-    public CpuBusRegion Region { private get; init; }
+    public CpuBusRegion Region { internal get; init; }
 
     /// <summary>The 24-bit CPU address of the first byte.</summary>
     public int Address { get; }
 
     /// <summary>The cell's size in bytes.</summary>
-    private int ByteCount { get; }
+    internal int ByteCount { get; }
 
     /// <summary>How the bytes encode the domain value, e.g. "u16 little-endian" or "SamusPose (u16)".</summary>
     public string Encoding { get; init; }

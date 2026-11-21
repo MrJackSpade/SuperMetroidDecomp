@@ -10,7 +10,7 @@ internal sealed class RoomObjectSoundQueue
     internal RoomObjectSoundQueue(GameplayAudioRequests requests) => Requests = Ensure.NotNull(requests);
 
     /// <summary>The update's audio requests the room objects' requests join: the runtime's.</summary>
-    private GameplayAudioRequests Requests { get; }
+    internal GameplayAudioRequests Requests { get; }
 
     /// <summary>Queues <paramref name="soundEffect"/> at <paramref name="Priority"/> now.</summary>
     internal void Queue(SoundEffectId soundEffect, SoundRequestPriority Priority) => Requests.QueueSound(soundEffect, Priority);

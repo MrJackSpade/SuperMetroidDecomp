@@ -25,7 +25,7 @@ internal static class SbugAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    private static Dictionary<CompassDirection, Animation<CompassDirection>> StartingAt { get; } = Segments.EachLooping(
+    internal static Dictionary<CompassDirection, Animation<CompassDirection>> StartingAt { get; } = Segments.EachLooping(
         P.Right, P.UpRight, P.Up, P.UpLeft, P.Left, P.DownLeft, P.Down, P.DownRight);
 
     /// <summary>

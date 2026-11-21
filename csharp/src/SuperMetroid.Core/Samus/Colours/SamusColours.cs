@@ -18,13 +18,13 @@ namespace SuperMetroid.Core.Samus.Colours;
 public sealed class SamusColours
 {
     /// <summary>The shades laid over the suit's, in the order they were laid; the last covers the others.</summary>
-    private readonly List<PictureShade> suitOverlays = [];
+    internal readonly List<PictureShade> suitOverlays = [];
 
     /// <summary>The shades laid over the beams', in the order they were laid; the last covers the others.</summary>
-    private readonly List<PictureShade> beamOverlays = [];
+    internal readonly List<PictureShade> beamOverlays = [];
 
     /// <summary>The shade the suit shows.</summary>
-    private PictureShade Suit { get; set; } = SamusShades.StartingSuit;
+    internal PictureShade Suit { get; set; } = SamusShades.StartingSuit;
 
     /// <summary>The shade the beams show.</summary>
     public PictureShade Beams { get; private set; } = SamusShades.StartingBeams;
@@ -33,11 +33,11 @@ public sealed class SamusColours
     public PictureShade? Suitless { get; private set; }
 
     /// <summary>The shade her grapple flare shows, or null for its own colour until she first fires the grapple.</summary>
-    private PictureShade? GrappleFlare { get; set; }
+    internal PictureShade? GrappleFlare { get; set; }
 
     /// <summary>The shading her draws show now: the suit's and the beams' shades, what lies over each, and the suitless body's.</summary>
     [AllowNull]
-    private PictureShading Shading { get => field ??= Compose(); set; }
+    internal PictureShading Shading { get => field ??= Compose(); set; }
 
     /// <summary>Shows <paramref name="shade"/> as the suit's colours, replacing whatever was laid over them.</summary>
     public void ShowSuit(PictureShade shade)

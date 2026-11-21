@@ -20,7 +20,7 @@ internal sealed class NinjaPirateClawState(ReturningClawSpeed launchSpeed, Horiz
     internal ReturningClawSpeed Speed { get; private set; } = launchSpeed;
 
     /// <summary>The half of its throw the claw is in: it flies out first, and comes back once its outward speed has run out.</summary>
-    private NinjaPirateClawFlight Flight { get; set; } = NinjaPirateClawFlight.FlyingOut;
+    internal NinjaPirateClawFlight Flight { get; set; } = NinjaPirateClawFlight.FlyingOut;
 
     /// <summary>
     /// One update of the claw's flight: the whole pixels it moves along its throw, positive while it flies out and negative

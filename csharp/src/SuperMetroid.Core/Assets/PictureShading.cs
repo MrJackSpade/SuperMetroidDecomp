@@ -1,4 +1,6 @@
+using System.Collections.Frozen;
 using System.Collections.Immutable;
+using System.Runtime.CompilerServices;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -7,10 +9,14 @@ namespace SuperMetroid.Core.Assets;
 /// order, then the fades between shadings it shows (#2215), then each colour effect applied in order, then the shades laid over the effects, whose colours are written over
 /// what the effects show. A shade names the pixels it recolours by their colour key, the colour they hold with their
 /// recolour region. The simulation names shades and effects; it never selects a colour for a pixel. A backend colours the
-/// picture from <see cref="KeyColours(SpriteImage)"/> alone.
+/// picture from <see cref="KeyColours(SpriteImage)"/> alone. Each colour key's colour under a shading is worked out once
+/// per picture, keyed by the colour key (#2565).
 /// </summary>
 public sealed record PictureShading
 {
+    /// <summary>Each colour key's colour under this shading, by picture, worked out once for each picture it colours.</summary>
+    private readonly ConditionalWeakTable<SpriteImage, FrozenDictionary<ColourKey, RgbColor>> coloured = new();
+
     /// <summary>Keeps a draw's shades and effects.</summary>
     /// <param name="shades">The installed shades laid over the standard colours, in order; a later one wins where they overlap.</param>
     /// <param name="effects">The colour effects applied after the shades, in order.</param>
@@ -99,10 +105,20 @@ public sealed record PictureShading
     /// <exception cref="InvalidDataException">The installation did not pre-colour the picture in a shade this shading names.</exception>
     public RgbColor[] KeyColours(SpriteImage picture)
     {
-        Ensure.NotNull(picture);
-        var shown = new RgbColor[picture.ColourKeys.Length];
-        KeyColours(picture, shown);
-        return shown;
+        FrozenDictionary<ColourKey, RgbColor> colours = ColoursOf(picture);
+        return [.. picture.ColourKeys.Select(key => colours[key])];
+    }
+
+    /// <summary>Each of <paramref name="picture"/>'s colour keys' colour under this shading, by key, worked out once per picture.</summary>
+    /// <exception cref="InvalidDataException">The installation did not pre-colour the picture in a shade this shading names.</exception>
+    public FrozenDictionary<ColourKey, RgbColor> ColoursOf(SpriteImage picture) => coloured.GetValue(Ensure.NotNull(picture), Colour);
+
+    /// <summary>Works out each of <paramref name="picture"/>'s colour keys' colour under this shading, from the key's own.</summary>
+    private FrozenDictionary<ColourKey, RgbColor> Colour(SpriteImage picture)
+    {
+        Dictionary<ColourKey, RgbColor> shown = picture.ColourKeys.ToDictionary(key => key, key => key.Colour);
+        ApplyOver(picture, shown);
+        return shown.ToFrozenDictionary();
     }
 
     /// <summary>
@@ -114,51 +130,50 @@ public sealed record PictureShading
     /// <exception cref="InvalidDataException">The installation did not pre-colour the picture in a shade this shading names.</exception>
     public void KeyColours(SpriteImage picture, Span<RgbColor> shown)
     {
-        Ensure.NotNull(picture);
+        FrozenDictionary<ColourKey, RgbColor> colours = ColoursOf(picture);
         ImmutableArray<ColourKey> keys = picture.ColourKeys;
         _ = Ensure.LengthEqual(shown, keys.Length);
-        for (int key = 0; key < keys.Length; key++)
-            shown[key] = keys[key].Colour;
-        ApplyOver(picture, shown);
+        // The backend's colour table lists the picture's keys in their order; each entry is written at the key's own place.
+        int place = 0;
+        foreach (ColourKey key in keys)
+            shown[place++] = colours[key];
     }
 
     /// <summary>
     /// Lays this shading over <paramref name="shown"/>, the colour each of <paramref name="picture"/>'s colour keys shows so
-    /// far: its shades, then its fades, its effects and the shades over its effects.
+    /// far, by key: its shades, then its fades, its effects and the shades over its effects.
     /// </summary>
     /// <exception cref="InvalidDataException">The installation did not pre-colour the picture in a shade this shading names.</exception>
-    internal void ApplyOver(SpriteImage picture, Span<RgbColor> shown)
+    internal void ApplyOver(SpriteImage picture, Dictionary<ColourKey, RgbColor> shown)
     {
         foreach (PictureShade shade in Shades)
-            Recolour(picture, picture.Shade(shade), shown);
+            Recolour(picture.Shade(shade), shown);
         foreach (PictureShadeFade fade in Fades)
             fade.ApplyOver(picture, shown);
         foreach (ColourEffect effect in Effects)
         {
-            for (int key = 0; key < shown.Length; key++)
+            foreach (ColourKey key in picture.ColourKeys)
                 shown[key] = effect.Apply(shown[key]);
         }
         foreach (PictureShade shade in OverEffects)
-            Recolour(picture, picture.Shade(shade), shown);
+            Recolour(picture.Shade(shade), shown);
     }
 
     /// <summary>The colour <paramref name="key"/> of <paramref name="picture"/> shows under this shading, such as its backdrop's.</summary>
     /// <exception cref="ArgumentException">The picture holds no such key.</exception>
     /// <exception cref="InvalidDataException">The installation did not pre-colour the picture in a shade this shading names.</exception>
-    public RgbColor Shown(SpriteImage picture, ColourKey key)
-    {
-        Ensure.NotNull(picture);
-        int place = picture.PlaceOf(key) ?? throw new ArgumentException($"Picture {picture.Name} holds no colour key {key}.", nameof(key));
-        return KeyColours(picture)[place];
-    }
+    public RgbColor Shown(SpriteImage picture, ColourKey key) =>
+        ColoursOf(picture).TryGetValue(key, out RgbColor shown)
+            ? shown
+            : throw new ArgumentException($"Picture {picture.Name} holds no colour key {key}.", nameof(key));
 
-    /// <summary>Writes each colour <paramref name="recolouring"/> shows over the keys of <paramref name="picture"/> it names.</summary>
-    private static void Recolour(SpriteImage picture, PictureRecolouring recolouring, Span<RgbColor> shown)
+    /// <summary>Writes each colour <paramref name="recolouring"/> shows over the keys it names that the picture holds.</summary>
+    private static void Recolour(PictureRecolouring recolouring, Dictionary<ColourKey, RgbColor> shown)
     {
         foreach (KeyedSubstitution substitution in recolouring.Substitutions)
         {
-            if (picture.PlaceOf(substitution.Replaced) is { } place)
-                shown[place] = substitution.Shown;
+            if (shown.ContainsKey(substitution.Replaced))
+                shown[substitution.Replaced] = substitution.Shown;
         }
     }
 }

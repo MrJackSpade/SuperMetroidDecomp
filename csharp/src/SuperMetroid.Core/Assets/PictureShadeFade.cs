@@ -26,21 +26,19 @@ public sealed record PictureShadeFade(PictureShading From, PictureShading To, in
 
     /// <summary>
     /// Shows the fade over <paramref name="shown"/>, the colour each of <paramref name="picture"/>'s colour keys shows so
-    /// far: each colour's fade levels move from its colour under <see cref="From"/> toward its colour under <see cref="To"/>
-    /// by the fade's progress, truncated to a whole level (#2294), as a colour's typed fade moves (<see cref="ColourFade"/>),
-    /// so every colour the fade shows is one the game shows.
+    /// far, by key: each colour's fade levels move from its colour under <see cref="From"/> toward its colour under
+    /// <see cref="To"/> by the fade's progress, truncated to a whole level (#2294), as a colour's typed fade moves
+    /// (<see cref="ColourFade"/>), so every colour the fade shows is one the game shows.
     /// </summary>
     /// <exception cref="InvalidDataException">The installation did not pre-colour the picture in a shade either shading names.</exception>
     /// <exception cref="ArgumentException">A colour either shading shows is off the game's fade scale.</exception>
-    internal void ApplyOver(SpriteImage picture, Span<RgbColor> shown)
+    internal void ApplyOver(SpriteImage picture, Dictionary<ColourKey, RgbColor> shown)
     {
-        var from = new RgbColor[shown.Length];
-        var to = new RgbColor[shown.Length];
-        shown.CopyTo(from);
-        shown.CopyTo(to);
+        var from = new Dictionary<ColourKey, RgbColor>(shown);
+        var to = new Dictionary<ColourKey, RgbColor>(shown);
         From.ApplyOver(picture, from);
         To.ApplyOver(picture, to);
-        for (int key = 0; key < shown.Length; key++)
+        foreach (ColourKey key in picture.ColourKeys)
             shown[key] = FadeLevelColour.Partway(from[key].FadeLevels, to[key].FadeLevels, Progress, Length).ToColour();
     }
 }

@@ -20,7 +20,7 @@ public static class GrappleSwingFrameExtractor
     /// <returns>A new UTF-8 JSON buffer with versioned frame indices 0..31 in swing-direction order.</returns>
     /// <exception cref="InvalidDataException">Two angles of one swing direction select different frames.</exception>
     /// <remarks>This is an orientation-art selection, not a physical body-offset table; extraction does not modify swing geometry or facing.</remarks>
-    public static byte[] Extract(ISnesAddressSpace bus)
+    public static byte[] Extract(IImportCartridgeSource bus)
     {
         var frames = new Dictionary<int, int>();
         for (int angle = 0; angle < CartridgeAngleCount; angle++)

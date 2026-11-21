@@ -228,7 +228,7 @@ internal static class SamusBodyTableDecoding
         [.. Enumerable.Range(0, count).Select(i => cartridge.ReadCartridgeWord(start + i * 2))];
 
     /// <summary>Reads <paramref name="count"/> placement bytes from <paramref name="start"/>, signed or not.</summary>
-    private static int[] ReadBytes(ISnesAddressSpace bus, int start, int count, bool signed) =>
+    private static int[] ReadBytes(IImportCartridgeSource bus, int start, int count, bool signed) =>
         [.. Enumerable.Range(0, count).Select(index => bus.ReadCartridgeByte(start + index))
             .Select(value => signed ? (int)unchecked((sbyte)value) : value)];
 

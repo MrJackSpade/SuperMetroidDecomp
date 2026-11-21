@@ -11,6 +11,6 @@ internal static class RoomEnemySystemToolingExtensions
     {
         /// <summary>Returns the native-slot-indexed shutter states, including empty slots.</summary>
         public IReadOnlyList<VerticalShutterEnemyState?> VerticalShutterStates =>
-            [.. self.Places.InUpdateOrder.Select(place => place.Entity is ShuttersEntity ? place.SpeciesState<VerticalShutterEnemyState>() : null)];
+            [.. self.Places.InUpdateOrder.Select(place => place.Entity is VerticalShutterEntity vertical ? vertical.State : null)];
     }
 }

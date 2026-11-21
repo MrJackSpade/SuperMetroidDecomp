@@ -134,11 +134,11 @@ internal static class SamusOverreadDecoding
     /// <exception cref="InvalidDataException">The copied bytes are not a prefix of the slice, or split the loading state.</exception>
     private static SamusOverreadDocument.Overwrite? ProgressionOverwrite(byte?[] slice)
     {
-        var copiedBytes = new List<byte>();
-        while (copiedBytes.Count < slice.Length && slice[copiedBytes.Count] is byte copiedByte)
-            copiedBytes.Add(copiedByte);
-        int copied = copiedBytes.Count;
-        byte[] prefix = [.. copiedBytes];
+        // The copy writes the slice from its start: its copied prefix is every byte before the first it left alone.
+        int copied = 0;
+        while (copied < slice.Length && slice[copied] is not null)
+            copied++;
+        byte[] prefix = [.. slice.Take(copied).OfType<byte>()];
         if (slice.Skip(copied).Any(value => value is not null))
             throw new InvalidDataException("SpaceTime's copy reaches progression other than from its start.");
         if (copied == 0)

@@ -51,7 +51,8 @@ internal static class PhantoonSheetShades
         PhantoonBodyLookKind.Black => new RgbColor[GroupColours],
         PhantoonBodyLookKind.White => [.. Enumerable.Repeat(RgbColor.White, GroupColours)],
         PhantoonBodyLookKind.FadedOut => [.. Enumerable.Range(0, PhantoonColorFormat.FadeOutCount).Select(phantoon.ResolveFadeOut)],
-        _ => throw new InvalidDataException($"Undefined Phantoon body colouring {look.Kind}."),
+        // A health colouring names its band, which the colours above read.
+        PhantoonBodyLookKind.Health or _ => throw new InvalidDataException($"Undefined Phantoon body colouring {look.Kind}."),
     };
 
     /// <summary>The installed health colours' row of <paramref name="band"/>: they hold his bands lowest first (#2259).</summary>

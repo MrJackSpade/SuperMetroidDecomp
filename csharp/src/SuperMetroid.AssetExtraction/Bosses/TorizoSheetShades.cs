@@ -113,7 +113,8 @@ internal static class TorizoSheetShades
         TorizoLookKind.Golden => TorizoPaletteColours.Golden.ToArray(),
         TorizoLookKind.White => [.. Enumerable.Repeat(RgbColor.White, BodyColours)],
         TorizoLookKind.Black => new RgbColor[BodyColours],
-        _ => throw new InvalidDataException($"Undefined Torizo colouring {look.Kind}."),
+        // A health colouring names its band, which the colours above read.
+        TorizoLookKind.GoldenHealth or _ => throw new InvalidDataException($"Undefined Torizo colouring {look.Kind}."),
     };
 
     /// <summary>

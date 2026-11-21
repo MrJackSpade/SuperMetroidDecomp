@@ -491,7 +491,7 @@ public static class EnemyTileArtworkFiles
     }
 
     /// <summary>Assembles one Crocomire melt image as the cartridge does, as indexed PNG.</summary>
-    private static byte[] ExtractCrocomireMelt(ISnesAddressSpace bus,
+    private static byte[] ExtractCrocomireMelt(IImportCartridgeSource bus,
         CrocomireMeltingIllustration illustration, int encodedByteCount)
     {
         var planar = new byte[encodedByteCount];

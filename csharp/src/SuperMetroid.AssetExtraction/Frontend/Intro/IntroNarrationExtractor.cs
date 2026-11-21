@@ -153,7 +153,7 @@ public static class IntroNarrationExtractor
     }
 
     /// <summary>Reads one script byte from the fixed narration bank.</summary>
-    private static byte ReadByte(ISnesAddressSpace bus, int pointer) =>
+    private static byte ReadByte(IImportCartridgeSource bus, int pointer) =>
         bus.ReadCartridgeByte((int)SnesAddress.InBank(
             IntroNarrationScriptDefinitions.ScriptBank, pointer));
 

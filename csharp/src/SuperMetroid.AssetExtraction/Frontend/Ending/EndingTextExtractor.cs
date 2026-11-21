@@ -159,7 +159,7 @@ public static class EndingTextExtractor
     }
 
     /// <summary>Reads one bank-local glyph or stream byte from the import cartridge.</summary>
-    private static byte ReadByte(ISnesAddressSpace bus, int pointer) =>
+    private static byte ReadByte(IImportCartridgeSource bus, int pointer) =>
         bus.ReadCartridgeByte((int)SnesAddress.InBank(EndingSourceDefinitions.EndingBank, pointer));
     /// <summary>Reads one little-endian bank-local ending-text word from the import cartridge.</summary>
     private static ushort ReadWord(ISnesAddressSpace bus, int pointer) =>

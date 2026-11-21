@@ -238,7 +238,7 @@ internal static class EncounterLookUploads
     }
 
     /// <summary>What Torizo artwork look <paramref name="look"/> copies, in the order its copies land, each where the cartridge copies it.</summary>
-    private static EncounterArtworkUpload[] Torizo(TorizoArtworkLook look, IInstalledEncounterArtwork installed)
+    private static EncounterArtworkUpload[] Torizo(TorizoArtworkLook look, IInstalledBossSpriteCharacterArtwork installed)
     {
         TorizoSwapArtwork artwork = installed.BossTiles.TorizoSwaps;
         return [.. TorizoLookUploadDefinitions.Uploads[look].Select(upload => new EncounterArtworkUpload(upload.FirstCharacter,
@@ -246,12 +246,12 @@ internal static class EncounterLookUploads
     }
 
     /// <summary>Escape timer page <paramref name="page"/>, where the cartridge copies it.</summary>
-    private static EncounterArtworkUpload Timer(EscapeTimerTilePage page, IInstalledEncounterArtwork installed) =>
+    private static EncounterArtworkUpload Timer(EscapeTimerTilePage page, IInstalledArtworkContent installed) =>
         new(EscapeTimerTilePageTransfers.FirstCharacterOf(page),
             Whole(installed.Resolve(EscapeTimerTilePages.AssetOf(page)), EscapeTimerTilePageTransfers.ByteCountOf(page), $"escape timer page {page}"));
 
     /// <summary>Ceres warning page <paramref name="page"/>, where the cartridge copies it.</summary>
-    private static EncounterArtworkUpload Warning(int page, IInstalledEncounterArtwork installed) =>
+    private static EncounterArtworkUpload Warning(int page, IInstalledAreaSpriteCharacterArtwork installed) =>
         new(CeresWarningGlyphDefinitions.WarningFirstCharacter + CeresWarningTextPages.ByteOffset(page) / SpriteCharacterTableLayout.CharacterByteCount,
             installed.AreaTiles.CeresEscapeTiles
                 .TryResolve(CeresEscapeTileArtworkDefinitions.WarningText, CeresWarningTextPages.ByteOffset(page), CeresWarningTextPages.ByteCount(page),

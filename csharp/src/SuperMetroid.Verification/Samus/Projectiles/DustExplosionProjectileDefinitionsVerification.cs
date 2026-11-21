@@ -1,6 +1,7 @@
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -67,24 +68,38 @@ internal static class DustExplosionProjectileDefinitionsVerification
                 $"misc-dust placement X base {index}");
             AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 6))), definition.Base.Y,
                 $"misc-dust placement Y base {index}");
+        }
+
+        // The eye door spawns its two smokes as the cartridge's room-object instructions do: each instruction's parameter
+        // names the placement record (high byte) and the misc-dust selector (low byte) of the dust projectile it spawns.
+        foreach ((EyeDoorProjectileDefinition smoke, int parameterAddress) in new[]
+        {
+            (EyeDoorProjectileDefinition.ScatteredSmoke, 0x84d7a1), // $84:D7A0 LDA #$030A, spawning the two scattered smokes.
+            (EyeDoorProjectileDefinition.CenteredSmoke, 0x84d7b8), // $84:D7B7 LDA #$000B, spawning the smoke on the eye.
+        })
+        {
+            ushort parameter = CartridgeImportSource.Require(rom).ReadCartridgeWord(parameterAddress);
+            int address = placementTable + (parameter >> 8) * 8;
+            int nativeXMask = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
+            int nativeYMask = CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 2);
+            short nativeXBase = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 4));
+            short nativeYBase = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 6));
+            DustExplosionAnimation animation = DustExplosionAnimationIndices.Decode(parameter & 0xff);
 
             const ushort random = 0x5aad;
             int advances = 0;
             var enemies = CreateDustExplosionEnemySystem();
             enemies.VerificationServices().ReadRandom = () => random;
             enemies.VerificationServices().NextRandom = () => { advances++; return 0xbeef; };
-            Action<EnemyProjectile, DustExplosionAnimation, DustExplosionPlacement, Position16<RoomBlocks>> initialize = enemies.EyeDoorBehavior.InitializeEyeDoorSmoke;
-            EnemyProjectile smoke = enemies.Projectiles.Occupy(0, RoomEnemyProjectileKind.EyeDoorSmoke);
-            initialize(smoke, DustExplosionAnimation.CorpseDustCloud, definition, new(7, 9));
-            AssertTrue(smoke.Animation is DustExplosionProjectileAnimation { PlayingSegment: DustExplosionAnimation.CorpseDustCloud },
-                $"eye-door smoke production instruction {index}");
-            AssertEqual(unchecked((ushort)(7 * 16 + 8 + definition.Base.X +
-                (random & nativeXMask))), smoke.Position.X.Whole,
-                $"eye-door smoke production X {index}");
-            AssertEqual(unchecked((ushort)(9 * 16 + 8 + definition.Base.Y +
-                ((random >> 8) & nativeYMask))), smoke.Position.Y.Whole,
-                $"eye-door smoke production Y {index}");
-            AssertEqual(1, advances, $"eye-door smoke RNG advance {index}");
+            enemies.EyeDoorBehavior.SpawnEyeDoorProjectile(new EyeDoorProjectileRequest(smoke, EyeDoorOrientation.Left, new(7, 9)));
+            EnemyProjectile spawned = enemies.Projectiles.EnemyProjectiles.Single(slot => slot.IsActive);
+            AssertTrue(spawned.Animation is DustExplosionProjectileAnimation started && started.PlayingSegment == animation,
+                $"eye-door {smoke} production instruction");
+            AssertEqual(unchecked((ushort)(7 * 16 + 8 + nativeXBase + (random & nativeXMask))), spawned.Position.X.Whole,
+                $"eye-door {smoke} production X");
+            AssertEqual(unchecked((ushort)(9 * 16 + 8 + nativeYBase + ((random >> 8) & nativeYMask))), spawned.Position.Y.Whole,
+                $"eye-door {smoke} production Y");
+            AssertEqual(1, advances, $"eye-door {smoke} RNG advance");
         }
 
         var ridley = CreateDustExplosionEnemySystem();

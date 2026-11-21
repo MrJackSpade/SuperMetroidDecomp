@@ -8,14 +8,6 @@ namespace SuperMetroid.Core.Enemies.EyeDoor;
 /// </summary>
 internal static class EyeDoorBehaviorPrivateAccess
 {
-    /// <summary>The private instance members checks read or call.</summary>
-    extension(global::SuperMetroid.Core.Enemies.EyeDoor.EyeDoorBehavior self)
-    {
-        /// <summary>The private method <c>InitializeEyeDoorSmoke</c>, invoked by name.</summary>
-        internal void InitializeEyeDoorSmoke(global::SuperMetroid.Core.Enemies.EnemyProjectile projectile, global::SuperMetroid.Core.Enemies.Projectiles.DustExplosionAnimation animation, global::SuperMetroid.Core.Enemies.Projectiles.DustExplosionPlacement placement, global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.Core.Spatial.RoomBlocks> block) =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Enemies.EyeDoor.EyeDoorBehavior>(self, "InitializeEyeDoorSmoke", [typeof(global::SuperMetroid.Core.Enemies.EnemyProjectile), typeof(global::SuperMetroid.Core.Enemies.Projectiles.DustExplosionAnimation), typeof(global::SuperMetroid.Core.Enemies.Projectiles.DustExplosionPlacement), typeof(global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.Core.Spatial.RoomBlocks>)], new object?[] { projectile, animation, placement, block });
-    }
-
     /// <summary>The private static members checks name.</summary>
     extension(global::SuperMetroid.Core.Enemies.EyeDoor.EyeDoorBehavior)
     {

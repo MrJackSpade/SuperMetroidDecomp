@@ -64,7 +64,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemySpawnFactory<Ch
         // The statue shows its own colours, the shade of its site's statue, which no other enemy shows (#1512).
         statue.Shading = PictureShading.Shaded(site == ChozoStatueSite.WreckedShip ? ChozoAndTubeShades.WreckedShipStatue : ChozoAndTubeShades.LowerNorfairStatue);
 
-        var state = new ChozoStatueState { Phase = ChozoStatuePhase.Placed, Site = site };
+        var state = new ChozoStatueState { Site = site };
         // The statue's hand carries what triggering it wakes: this statue, as its room lists it first (#2554).
         var hand = new ChozoStatueHandTrigger(this, state);
 

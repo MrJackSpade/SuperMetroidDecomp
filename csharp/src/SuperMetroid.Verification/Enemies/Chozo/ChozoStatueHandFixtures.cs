@@ -17,7 +17,7 @@ internal static class ChozoStatueHandFixtures
     /// <param name="statue">The placed statue's state, which a triggered hand wakes.</param>
     internal static ChozoStatueHandTrigger Placed(ChozoStatueSite site, out ChozoStatueState statue)
     {
-        statue = new ChozoStatueState { Phase = ChozoStatuePhase.Placed, Site = site };
+        statue = new ChozoStatueState { Site = site };
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         return new ChozoStatueHandTrigger(enemies.ChozoStatueBehavior, statue);
     }

@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.MorphBallEye;
 
-/// <summary>The lifetime of the Morph Ball eye's beam.</summary>
+/// <summary>The lifetime of the Morph Ball eye's beam, from its request on; no beam exists before it or after it fades.</summary>
 /// <remarks>
 /// PendingInitialization is a state of its course, not a request another owner stores for it (#2562): a cue, a touch or a shot ends
 /// the state before, and the game acts on it one update later, the state naming where it stands until then; the update
@@ -8,8 +8,6 @@ namespace SuperMetroid.Core.Enemies.MorphBallEye;
 /// </remarks>
 public enum MorphBallEyeBeamPhase
 {
-    /// <summary>No beam exists; its width, growth and colour are at their reset values.</summary>
-    Inactive,
     /// <summary>The eye AI requested a beam, which appears on the next beam update, before the next enemy AI pass.</summary>
     PendingInitialization,
     /// <summary>The beam widens ever faster until it spreads its full half-width (<see cref="MorphBallEyeBeamDefinitions.FullHalfWidth"/>) either side of the eye's aim.</summary>

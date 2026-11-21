@@ -218,10 +218,6 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemySpawnFactory<M
             case MorphBallEyeBeamPhase.Deactivating:
                 FadeMorphBallEyeBeam();
                 return;
-            case MorphBallEyeBeamPhase.Inactive:
-            default:
-                throw new InvalidDataException(
-                    $"Unknown morph-ball eye beam phase {cast.Phase}.");
         }
     }
 

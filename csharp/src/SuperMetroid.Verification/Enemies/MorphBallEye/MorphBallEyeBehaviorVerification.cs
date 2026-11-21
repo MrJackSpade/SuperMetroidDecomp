@@ -90,7 +90,7 @@ internal static class MorphBallEyeBehaviorVerification
         // The eye's request casts the beam, whose first step seeds its colour, activates the eye and starts it widening.
         beam.Request(eye, eyeState);
         enemies.MorphBallEyeBehavior.StepMorphBallEyeBeam();
-        AssertEqual(MorphBallEyeBeamPhase.Widening, beam.Phase, "a cast beam's first step starts it widening");
+        AssertEqual(MorphBallEyeBeamPhase.Widening, beam.Cast?.Phase, "a cast beam's first step starts it widening");
         int[] widths = [0, 0, 1, 2, 3, 4];
         // #1684: every update against the 16.16 arithmetic the typed angles replace: the growth gains 16384/65536 of a
         // step, the width the growth, and the update whose whole width reaches four sets it to four, keeping its fraction.
@@ -108,7 +108,7 @@ internal static class MorphBallEyeBehaviorVerification
             AssertEqual(new TrigonometryAngle(widths[update]), beam.AngularWidth, $"eye beam whole width after widening update {update + 1}");
             AssertEqual(sixteenSixteenGrowth, beam.AngularHalfWidthGrowth.RawValue << 8, $"eye beam growth after widening update {update + 1} equals the 16.16 growth");
             AssertEqual(sixteenSixteenWidth, beam.AngularHalfWidth.RawValue << 8, $"eye beam half-width after widening update {update + 1} equals the 16.16 width");
-            AssertEqual(update == widths.Length - 1 ? MorphBallEyeBeamPhase.Full : MorphBallEyeBeamPhase.Widening, beam.Phase,
+            AssertEqual(update == widths.Length - 1 ? MorphBallEyeBeamPhase.Full : MorphBallEyeBeamPhase.Widening, beam.Cast?.Phase,
                 $"eye beam phase after widening update {update + 1}");
         }
         AssertEqual(RotationAngle.FromSteps(4, 64), beam.AngularHalfWidth, "a full beam keeps the fraction it overshot with");
@@ -116,7 +116,7 @@ internal static class MorphBallEyeBehaviorVerification
         // The full beam begins fading on the step after its eye is no longer activated.
         eyeState.IsActivated = false;
         enemies.MorphBallEyeBehavior.StepMorphBallEyeBeam();
-        AssertEqual(MorphBallEyeBeamPhase.Deactivating, beam.Phase, "a full beam whose eye is deactivated begins fading");
+        AssertEqual(MorphBallEyeBeamPhase.Deactivating, beam.Cast?.Phase, "a full beam whose eye is deactivated begins fading");
         beam.Color = MorphBallEyeBeamDefinitions.InitialColor;
         int fadeUpdates = MorphBallEyeBeamDefinitions.InitialColor.FadeLevels.Green;
         for (int update = 1; update <= fadeUpdates; update++)
@@ -126,10 +126,10 @@ internal static class MorphBallEyeBehaviorVerification
                 $"eye beam red intensity after fading update {update}");
             AssertEqual(MorphBallEyeBeamDefinitions.InitialColor.FadeLevels.Green - update, global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Enemies.MorphBallEye.MorphBallEyeBeamState, global::SuperMetroid.Core.Assets.RgbColor>(beam, "Color").FadeLevels.Green, $"eye beam green intensity after fading update {update}");
             AssertEqual(0, global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Enemies.MorphBallEye.MorphBallEyeBeamState, global::SuperMetroid.Core.Assets.RgbColor>(beam, "Color").FadeLevels.Blue, $"eye beam blue intensity after fading update {update}");
-            AssertEqual(MorphBallEyeBeamPhase.Deactivating, beam.Phase, $"eye beam still fading after update {update}");
+            AssertEqual(MorphBallEyeBeamPhase.Deactivating, beam.Cast?.Phase, $"eye beam still fading after update {update}");
         }
         enemies.MorphBallEyeBehavior.StepMorphBallEyeBeam();
-        AssertEqual(MorphBallEyeBeamPhase.Inactive, beam.Phase, "eye beam is removed on the update after green has faded");
+        AssertTrue(beam.Cast is null, "eye beam is removed on the update after green has faded");
         Console.WriteLine("  Morph Ball eye beam: six widening updates reach full width and a full fade removes the beam.");
     }
 
@@ -169,7 +169,7 @@ internal static class MorphBallEyeBehaviorVerification
         var frame = new ClockedEnemyAiFrame(RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with { Samus = samus }, new FrameCounters(SuperMetroid.Core.Compatibility.ShortFrameCount.Zero));
         enemies.MorphBallEyeBehavior.RunMorphBallEyeMainAi(eye.HeldOccupant().SpawnSettings<MorphBallEyeBodySpawnSettings>(), eye, eye.RequireSpeciesState<MorphBallEyeEnemyState>(), frame);
         AssertEqual(MorphBallEyeAction.Active, state.Action, "the eye has opened");
-        AssertEqual(MorphBallEyeBeamPhase.PendingInitialization, enemies.MorphBallEyeBehavior.MorphBallEyeBeam.Phase, "the opened eye requests the beam");
+        AssertEqual(MorphBallEyeBeamPhase.PendingInitialization, enemies.MorphBallEyeBehavior.MorphBallEyeBeam.Cast?.Phase, "the opened eye requests the beam");
         AssertTrue(ReferenceEquals(eye, enemies.MorphBallEyeBehavior.MorphBallEyeBeam.Cast?.Body), "the beam follows the eye that opened");
         Console.WriteLine("  Morph Ball eye beam: every room places one mount and one eye, and the beam follows the eye that opened.");
     }

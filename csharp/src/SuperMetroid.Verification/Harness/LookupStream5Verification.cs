@@ -1125,7 +1125,7 @@ internal static class LookupStream5Verification
         Action step = owner.MorphBallEyeBehavior.StepMorphBallEyeBeam;
         for (int update = 0; update < 7; update++)
             step();
-        AssertEqual(MorphBallEyeBeamPhase.Full, owner.MorphBallEyeBehavior.MorphBallEyeBeam.Phase, "the cast beam is full after its start and six widening steps");
+        AssertEqual(MorphBallEyeBeamPhase.Full, owner.MorphBallEyeBehavior.MorphBallEyeBeam.Cast?.Phase, "the cast beam is full after its start and six widening steps");
         AssertEqual(MorphBallEyeBeamColour.First, owner.MorphBallEyeBehavior.MorphBallEyeBeam.NextColour, "a full beam cycles from its first colour");
         for (int phase = 0; phase < 16; phase++)
         {

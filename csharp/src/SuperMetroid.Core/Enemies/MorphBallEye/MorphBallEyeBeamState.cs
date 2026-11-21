@@ -13,9 +13,6 @@ public sealed class MorphBallEyeBeamState : IDisplayLatch
     /// </summary>
     internal MorphBallEyeBeamCast? Cast { get; private set; }
 
-    /// <summary>The beam's lifetime, advanced before enemy AI and separate from the eye's own AI action: inactive while no beam exists.</summary>
-    public MorphBallEyeBeamPhase Phase => Cast?.Phase ?? MorphBallEyeBeamPhase.Inactive;
-
     /// <summary>Starts a beam cast by <paramref name="body"/>, whose state is <paramref name="eye"/>, pending its initialization.</summary>
     internal void Request(RoomEnemyPlace body, MorphBallEyeEnemyState eye)
     {

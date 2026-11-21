@@ -16,7 +16,8 @@ public readonly record struct PauseReserveArrowPulseFrame
     public static IReadOnlyList<PauseReserveArrowPulseFrame> All { get; } =
         [.. Enumerable.Range(0, PauseReserveArrowDefinitions.ArrowFrames).Select(frame => new PauseReserveArrowPulseFrame(frame))];
 
-    /// <summary>The frame the pause screen's frame counter at <paramref name="frameCycle"/> shows.</summary>
-    internal static PauseReserveArrowPulseFrame PacedBy(int frameCycle) =>
-        All[PauseCadenceDefinitions.ReserveArrowPulseFrame.StepAt(frameCycle)];
+    /// <summary>The frame the pulse shows when the game's short frame count stands at <paramref name="frameCount"/>.</summary>
+    /// <param name="frameCount">The short frame count of the update the arrow is drawn on.</param>
+    internal static PauseReserveArrowPulseFrame PacedBy(Compatibility.ShortFrameCount frameCount) =>
+        All[PauseCadenceDefinitions.ReserveArrowPulseFrame.StepAt(frameCount)];
 }

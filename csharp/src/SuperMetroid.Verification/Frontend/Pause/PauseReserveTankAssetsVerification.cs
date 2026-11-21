@@ -33,7 +33,7 @@ internal static class PauseReserveTankAssetsVerification
             foreach (byte phase in new byte[] { 0, 4 })
             {
                 nativeSamus.ReserveEnergy = installedSamus.ReserveEnergy = supply;
-                native.Step(0, 0, frameCycle: phase); installed.Step(0, 0, frameCycle: phase);
+                native.Step(0, 0, frameCount: phase); installed.Step(0, 0, frameCount: phase);
                 var expected = native.ComposeScene(); var actual = installed.ComposeScene();
                 AssertTrue(expected.SpriteParts().SequenceEqual(actual.SpriteParts()), "every legal reserve supply/flicker state matches native ordered OAM with reads forbidden");
                 AssertTrue(ScenePixels.Same(expected, actual), "every legal reserve supply/flicker state matches native pixels");

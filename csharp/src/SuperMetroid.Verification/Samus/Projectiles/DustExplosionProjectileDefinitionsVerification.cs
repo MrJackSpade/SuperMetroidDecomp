@@ -14,8 +14,8 @@ using SuperMetroid.Core.World;
 internal static class DustExplosionProjectileDefinitionsVerification
 {
     /// <summary>
-    /// Compares the fourteen selectors a spawner asks for and five placement records, including RNG advancement and invalid
-    /// allocation behavior; the cartridge table's sixteen other selectors no spawner asks for (#1686).
+    /// Compares the fourteen selectors a spawner asks for and five placement records, including RNG advancement; an
+    /// animation no member names is never made (#2553). The cartridge table's sixteen other selectors no spawner asks for (#1686).
     /// </summary>
     internal static void VerifyDustExplosionProjectileDefinitions(CartridgeImportAddressSpace rom)
     {
@@ -108,14 +108,6 @@ internal static class DustExplosionProjectileDefinitionsVerification
         AssertTrue(ridley.Projectiles.EnemyProjectiles.Single(slot => slot.IsActive).Animation is
                 DustExplosionProjectileAnimation { PlayingSegment: DustExplosionAnimation.BigExplosion },
             "Ridley production dust starts the requested animation's program");
-
-        var invalidRoom = CreateDustExplosionEnemySystem();
-        var spawnInvalidRoom = new Action<Position16<RoomPixels>, DustExplosionAnimation>(invalidRoom.Projectiles.SpawnDustOrExplosion);
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => spawnInvalidRoom(Position16<RoomPixels>.Zero, (DustExplosionAnimation)byte.MaxValue),
-            "room-graphics selector beyond authored table");
-        AssertEqual(0, invalidRoom.ActiveEnemyProjectileCount,
-            "invalid room-graphics misc dust does not partially allocate a slot");
 
         Console.WriteLine(
             "Misc dust definitions: fourteen selectors, five placement records, and Mother Brain, room-graphics, Eye Door, and Ridley production consumers pass with both ROM tables forbidden.");

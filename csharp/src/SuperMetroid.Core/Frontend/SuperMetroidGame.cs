@@ -52,7 +52,7 @@ public sealed class SuperMetroidGame
     /// <param name="saves">The saves the session owns; the host loads them and persists them on <see cref="SavesChanged"/>.</param>
     /// <param name="assists">The assists the session plays under, or <see langword="null"/> for the unassisted game.</param>
     /// <param name="hostServices">The compatibility services and display policy: <see cref="SuperMetroidGameHostServices.Default"/>
-    /// for a host on the game's own timing, or the hardware timing a recording was made under.</param>
+    /// for a host on the game's own timing, or the timing a recorded session ran with.</param>
     /// <param name="random">The session's random number generator, which the frontend and every gameplay runtime share.</param>
     /// <param name="audioOutput">What the session's audio produces for its host.</param>
     /// <param name="artwork">The installed catalogs the game draws from.</param>

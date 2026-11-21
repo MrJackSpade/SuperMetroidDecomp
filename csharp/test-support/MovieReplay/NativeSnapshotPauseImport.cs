@@ -64,14 +64,14 @@ internal static class NativeSnapshotPauseImport
     /// next frame, for its own updates, once none is left. The first frame's first update is its start.
     /// </summary>
     /// <exception cref="InvalidDataException">The frame is not one of the animation's, or has fewer updates than are left.</exception>
-    private static int UpdatesToShow(IReadOnlyList<int> durations, int frame, int updatesLeft)
+    private static int UpdatesToShow(int[] durations, int frame, int updatesLeft)
     {
-        if (frame < 0 || frame >= durations.Count || updatesLeft < 1 || updatesLeft > durations[frame])
-            throw new InvalidDataException($"A pause map picture's frame {frame} with {updatesLeft} updates left is not one its {durations.Count} frames show.");
+        if (frame < 0 || frame >= durations.Length || updatesLeft < 1 || updatesLeft > durations[frame])
+            throw new InvalidDataException($"A pause map picture's frame {frame} with {updatesLeft} updates left is not one its {durations.Length} frames show.");
         if (frame == 0 && updatesLeft == 1)
             return 0;
         // A first frame shows again once every later frame has shown, after its start's one update.
-        int reached = frame == 0 ? durations.Count : frame;
+        int reached = frame == 0 ? durations.Length : frame;
         return 1 + durations.Skip(1).Take(reached - 1).Sum() + durations[frame] - updatesLeft;
     }
 
@@ -80,7 +80,7 @@ internal static class NativeSnapshotPauseImport
     /// <paramref name="run"/> updates from its start, takes to show what it shows after <paramref name="shown"/> updates
     /// (<see cref="UpdatesToShow"/>): it shows the same after every whole loop of its frames' updates.
     /// </summary>
-    private static int UpdatesAfter(int run, IReadOnlyList<int> durations, int shown)
+    private static int UpdatesAfter(int run, int[] durations, int shown)
     {
         int loop = durations.Sum();
         return ((shown - run) % loop + loop) % loop;

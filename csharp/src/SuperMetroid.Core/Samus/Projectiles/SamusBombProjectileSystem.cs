@@ -566,10 +566,9 @@ public sealed class SamusBombProjectileSystem
     }
 
     /// <summary>Advances one bomb fuse or spread trajectory, starts explosions and visits terrain on the trigger frame.</summary>
-    /// <param name="level">The room terrain the bomb's spread flight and explosion reach.</param>
+    /// <param name="terrain">The room terrain the bomb's spread flight and explosion reach, with the room objects its explosion spawns block reactions in.</param>
     /// <param name="placed">The bomb holding its place.</param>
     /// <param name="fused">The animation the bomb plays as its update starts, which its fuse can switch to its fast speed.</param>
-    /// <param name="roomObjects">The room objects the bomb's explosion spawns block reactions in.</param>
     /// <param name="samusKinematics">Samus's motion, which a spread bomb's flight reads.</param>
     private bool AdvanceBomb(
         SamusTerrain terrain,

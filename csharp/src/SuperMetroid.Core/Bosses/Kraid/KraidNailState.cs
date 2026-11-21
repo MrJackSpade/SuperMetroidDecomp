@@ -18,7 +18,7 @@ public sealed class KraidNailState : KraidAnimatedPartState
 
     /// <summary>
     /// His other fingernail as this one's launch reads it in its place (#2298), whatever the place holds
-    /// (<see cref="RoomEnemyPlace.FoundState{T}"/>): the state it is attached as, the <see cref="KraidPartState"/> every
+    /// (<see cref="RoomEnemyPlace.FoundEntity"/>): the state it is attached as, the <see cref="KraidPartState"/> every
     /// Kraid part is attached as, or null when the place reads as holding none, as a killed sibling's cleared place does.
     /// Only his other fingernail joins that place, so a part found there is a fingernail.
     /// </summary>

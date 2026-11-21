@@ -74,28 +74,7 @@ internal sealed class BeamCombos
                 BeamComboShotKind shotKind = ParticleShotKind(kind, part, beam);
                 held.PicturedBeams = beam;
                 held.Direction = kind == SamusComboKind.Spazer ? SamusProjectileDirection.DownFacingLeft : SamusProjectileDirection.UpFacingRight;
-                switch (kind)
-                {
-                    case SamusComboKind.Wave:
-                        held.Install(SamusShotBehaviors.WaveSpecialAttack, new WaveParticleState(part));
-                        break;
-                    case SamusComboKind.Ice:
-                        held.Install(SamusShotBehaviors.IceSpecialAttackInward, new IceParticleState(part, orbitTurn));
-                        break;
-                    case SamusComboKind.Spazer:
-                        // Each Spazer beam particle pairs with the other particle that turns its way, whose place the
-                        // attack already holds.
-                        SamusProjectile partner = particles.Single(other => !ReferenceEquals(other.Shot, held) &&
-                            other.Part.SpazerTurn == part.SpazerTurn).Shot.Projectile;
-                        held.Install(SamusShotBehaviors.SpazerSpecialAttack,
-                            new SpazerParticleState(part, SpazerTurn(part.SpazerTurn, BeamComboDefinitions.SpazerCirclingTurn), partner));
-                        break;
-                    case SamusComboKind.Plasma:
-                        held.Install(SamusShotBehaviors.PlasmaSpecialAttack, new PlasmaParticleState(part, orbitTurn));
-                        break;
-                    default:
-                        throw new InvalidOperationException($"Undefined combo {kind}.");
-                }
+                ParticleInstalls[kind](held, part, orbitTurn, particles);
                 // Every particle but a Plasma ring leaves trails, the Spazer beam pair only once the attack falls
                 // (SpazerParticleState.LeavesTrails), which starts its countdown then.
                 if (kind is SamusComboKind.Wave or SamusComboKind.Ice || (kind == SamusComboKind.Spazer && part.SpazerTrail))
@@ -123,17 +102,19 @@ internal sealed class BeamCombos
 
     /// <summary>
     /// How each combination's special attack installs a particle (#2553): its behaviour and its state, the Ice and Plasma
-    /// particles turning round Samus by the attack's orbit turn and the Spazer particles circling by their own.
+    /// particles turning round Samus by the attack's orbit turn and the Spazer particles circling by their own, each Spazer
+    /// particle paired with the other of the attack's particles that turns its way (#2554).
     /// </summary>
-    private static IdentityTable<SamusComboKind, Action<SamusProjectileOccupant, SpecialAttackParticle, TrigonometryAngle>> ParticleInstalls => field ??= new(
-        new Dictionary<SamusComboKind, Action<SamusProjectileOccupant, SpecialAttackParticle, TrigonometryAngle>>
+    private static IdentityTable<SamusComboKind, Action<SamusProjectileOccupant, SpecialAttackParticle, TrigonometryAngle, IReadOnlyList<SpecialAttackReplacesFirstShots.ParticleShot<SpecialAttackParticle, SamusProjectileOccupant>>>> ParticleInstalls => field ??= new(
+        new Dictionary<SamusComboKind, Action<SamusProjectileOccupant, SpecialAttackParticle, TrigonometryAngle, IReadOnlyList<SpecialAttackReplacesFirstShots.ParticleShot<SpecialAttackParticle, SamusProjectileOccupant>>>>
         {
-            [SamusComboKind.Wave] = static (held, part, _) => held.Install(SamusShotBehaviors.WaveSpecialAttack, new WaveParticleState(part)),
-            [SamusComboKind.Ice] = static (held, part, orbitTurn) =>
+            [SamusComboKind.Wave] = static (held, part, _, _) => held.Install(SamusShotBehaviors.WaveSpecialAttack, new WaveParticleState(part)),
+            [SamusComboKind.Ice] = static (held, part, orbitTurn, _) =>
                 held.Install(SamusShotBehaviors.IceSpecialAttackInward, new IceParticleState(part, orbitTurn)),
-            [SamusComboKind.Spazer] = static (held, part, _) => held.Install(SamusShotBehaviors.SpazerSpecialAttack,
-                new SpazerParticleState(part, SpazerTurn(part.SpazerTurn, BeamComboDefinitions.SpazerCirclingTurn))),
-            [SamusComboKind.Plasma] = static (held, part, orbitTurn) =>
+            [SamusComboKind.Spazer] = static (held, part, _, particles) => held.Install(SamusShotBehaviors.SpazerSpecialAttack,
+                new SpazerParticleState(part, SpazerTurn(part.SpazerTurn, BeamComboDefinitions.SpazerCirclingTurn),
+                    particles.Single(other => !ReferenceEquals(other.Shot, held) && other.Part.SpazerTurn == part.SpazerTurn).Shot.Projectile)),
+            [SamusComboKind.Plasma] = static (held, part, orbitTurn, _) =>
                 held.Install(SamusShotBehaviors.PlasmaSpecialAttack, new PlasmaParticleState(part, orbitTurn)),
         });
 

@@ -268,7 +268,6 @@ global using static SuperMetroid.Core.Bosses.Draygon.DraygonGrabPrivateAccess;
 global using static SuperMetroid.Core.Bosses.Draygon.DraygonHealthBandPrivateAccess;
 global using static SuperMetroid.Core.Bosses.Draygon.DraygonPartsPrivateAccess;
 global using static SuperMetroid.Core.Bosses.Draygon.DraygonShotsDraygonShotBehaviorPrivateAccess;
-global using static SuperMetroid.Core.Bosses.Draygon.DraygonSwoopsPrivateAccess;
 global using static SuperMetroid.Core.Bosses.Draygon.DraygonTurretsPrivateAccess;
 global using static SuperMetroid.Core.Bosses.Kraid.FakeKraidAnimationsPrivateAccess;
 global using static SuperMetroid.Core.Bosses.Kraid.FakeKraidBehaviorPrivateAccess;

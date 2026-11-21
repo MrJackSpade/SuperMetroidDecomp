@@ -147,26 +147,27 @@ internal static class DraygonStateQuantitiesVerification
         VerifySwoopPath(acceleration: 40, resetY: 128);
         VerifySwoopPath(acceleration: 1, resetY: 124, expectedCount: 513);
 
-        (_, DraygonEnemyState still) = NewDraygon();
+        (RoomEnemySystem stillEnemies, DraygonEnemyState still) = NewDraygon();
         still.LeftSideReset = new Position16<RoomPixels>(65456, 128);
         still.SwoopAcceleration = default;
-        AssertThrows<InvalidOperationException>(() => DraygonSwoops.BuildDraygonSwoopYPositions(still, NewSwoopSamus()),
+        AssertThrows<InvalidOperationException>(() => stillEnemies.DraygonBehavior.Swoops.SetupDraygonRightSwoop(still, NewSwoopSamus(), frameCounter: 0),
             "a swoop path is not planned without a swoop acceleration");
         AssertTrue(still.Step is not DraygonSwoopStep, "Draygon has no swoop path before he plans one");
     }
 
     /// <summary>
-    /// Builds a swoop path under <paramref name="acceleration"/> 256ths of a pixel per update per update to
-    /// <paramref name="resetY"/> and compares it, entry by entry, with the original game's table build.
+    /// Starts a rightward swoop, as Draygon's phase step does, under <paramref name="acceleration"/> 256ths of a pixel per
+    /// update per update to <paramref name="resetY"/>, and compares the path it plans, entry by entry, with the original
+    /// game's table build.
     /// </summary>
     private static void VerifySwoopPath(ushort acceleration, ushort resetY, int? expectedCount = null)
     {
-        (_, DraygonEnemyState state) = NewDraygon();
+        (RoomEnemySystem enemies, DraygonEnemyState state) = NewDraygon();
         const ushort resetX = 65456;
         state.LeftSideReset = new Position16<RoomPixels>(resetX, resetY);
         state.SwoopAcceleration = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(acceleration);
 
-        DraygonSwoops.BuildDraygonSwoopYPositions(state, NewSwoopSamus());
+        enemies.DraygonBehavior.Swoops.SetupDraygonRightSwoop(state, NewSwoopSamus(), frameCounter: 0);
 
         var expected = new List<ushort>();
         ushort y = 384, speed = 0;

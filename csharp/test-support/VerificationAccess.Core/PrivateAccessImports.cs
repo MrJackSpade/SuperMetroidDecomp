@@ -393,7 +393,6 @@ global using static SuperMetroid.Core.Compatibility.SoundQueueAdmissionPrivateAc
 global using static SuperMetroid.Core.Compatibility.SoundRequestCheckTimerPrivateAccess;
 global using static SuperMetroid.Core.Compatibility.SuitPickupClosingLineWrapPrivateAccess;
 global using static SuperMetroid.Core.Compatibility.SuitShadeAtColourStepPrivateAccess;
-global using static SuperMetroid.Core.Compatibility.UpdateCounterFieldPrivateAccess;
 global using static SuperMetroid.Core.Compatibility.WeightedRandomChoicePrivateAccess;
 global using static SuperMetroid.Core.Compatibility.WreckedShipGhostFadePrivateAccess;
 global using static SuperMetroid.Core.Compatibility.XrayClosingPrivateAccess;

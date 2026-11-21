@@ -25,7 +25,7 @@ public sealed class InstalledSamusDeathPalettes
     /// <summary>The installed whiteout shades, by whiteout counter.</summary>
     private readonly RgbColor[] whiteout;
     /// <summary>The installed death-flash step each explosion frame selects.</summary>
-    private readonly ushort[] explosionPaletteIndices;
+    private readonly int[] explosionPaletteIndices;
 
     /// <summary>Keeps copies of the complete installed death artwork; no caller arrays are retained or modified.</summary>
     /// <param name="suited">Each suit family's death-flash steps of RGB5 words, in pointer-table order; <see cref="SuitCount"/>, <see cref="SamusShadeDefinitions.Death.ExplosionShadeCount"/> and <see cref="ColorCount"/> give the dimensions.</param>
@@ -35,7 +35,7 @@ public sealed class InstalledSamusDeathPalettes
     /// <exception cref="ArgumentNullException">A top-level input array is null.</exception>
     /// <exception cref="InvalidDataException">An input has the wrong dimensions, a nested family or step is null, or an explosion selector names no death-flash step.</exception>
     public InstalledSamusDeathPalettes(RgbColor[][][] suited, RgbColor[][] suitless,
-        RgbColor[] whiteout, ushort[] explosionPaletteIndices)
+        RgbColor[] whiteout, int[] explosionPaletteIndices)
     {
         Ensure.NotNull(suited);
         Ensure.NotNull(suitless);
@@ -47,12 +47,12 @@ public sealed class InstalledSamusDeathPalettes
             !deathSteps.Fits(suitless) ||
             whiteout.Length != SamusShadeDefinitions.Death.WhiteoutShadeCount ||
             explosionPaletteIndices.Length != SamusDeathSheetDefinitions.Explosion.Count ||
-            explosionPaletteIndices.Any(index => index >= SamusShadeDefinitions.Death.ExplosionShadeCount))
+            explosionPaletteIndices.Any(index => index is < 0 or >= SamusShadeDefinitions.Death.ExplosionShadeCount))
             throw new InvalidDataException("Samus death-palette artwork has an invalid shape or RGB5 color.");
         this.suited = [.. suited.Select(Copy)];
         this.suitless = Copy(suitless);
         this.whiteout = (RgbColor[])whiteout.Clone();
-        this.explosionPaletteIndices = (ushort[])explosionPaletteIndices.Clone();
+        this.explosionPaletteIndices = [.. explosionPaletteIndices];
     }
 
     /// <summary>Returns one installed suited death colour.</summary>

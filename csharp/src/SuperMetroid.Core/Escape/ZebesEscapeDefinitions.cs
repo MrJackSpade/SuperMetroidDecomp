@@ -31,12 +31,12 @@ public static class ZebesEscapeDefinitions
     /// <summary>
     /// The chance a lightly shaking room turns diagonal on an update (#1619): one update in 128.
     /// </summary>
-    private static readonly RandomChance LightShakeTurnsDiagonal = RandomChance.Lowest(512, RandomSampleField.Whole);
+    private static readonly RandomChance LightShakeTurnsDiagonal = RandomChance.Lowest(1, RandomSampleField.RangePart(128));
 
     /// <summary>
     /// The chance a medium shaking room turns diagonal on an update (#1619): three updates in 512.
     /// </summary>
-    private static readonly RandomChance MediumShakeTurnsDiagonal = RandomChance.Lowest(384, RandomSampleField.Whole);
+    private static readonly RandomChance MediumShakeTurnsDiagonal = RandomChance.Lowest(3, RandomSampleField.RangePart(512));
 
     /// <summary>
     /// The updates on which an outdoor escape room sets off an explosion (#1619), counted on the frame clock's counter at
@@ -54,19 +54,19 @@ public static class ZebesEscapeDefinitions
     /// The random selection that places an explosion across the screen: its pixels right of the camera's left edge, 256
     /// positions.
     /// </summary>
-    internal static readonly RandomSampleField ExplosionScreenX = new(0, 8);
+    internal static readonly RandomSampleField ExplosionScreenX = RandomSampleField.OneOf(256);
 
     /// <summary>
     /// The random selection that places an explosion down the screen: its pixels below the camera's top edge, 256
     /// positions, drawn from the same sample as <see cref="ExplosionScreenX"/>.
     /// </summary>
-    internal static readonly RandomSampleField ExplosionScreenY = new(8, 8);
+    internal static readonly RandomSampleField ExplosionScreenY = RandomSampleField.RangePart(256);
 
     /// <summary>
     /// The random selection, from the explosion's own sample, of which explosion goes off and whether it sounds: 16
     /// choices, which <see cref="ZebesEscapeExplosionDefinitions.Draw"/> names.
     /// </summary>
-    internal static readonly RandomSampleField ExplosionChoice = new(0, 4);
+    internal static readonly RandomSampleField ExplosionChoice = RandomSampleField.OneOf(16);
 
 
     /// <summary>The strong horizontal shake of both layers, enemies included, Mainstreet's escape room shakes with.</summary>

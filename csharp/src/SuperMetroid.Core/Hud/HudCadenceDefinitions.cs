@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Hud;
 internal static class HudCadenceDefinitions
 {
     /// <summary>
-    /// The phase of the frame counter on which Samus's square on the minimap keeps its explored shade: set for eight
+    /// The phase of the frame counter on which Samus's square on the minimap keeps its explored shade: for eight
     /// updates of every sixteen; for the other eight it shows the Samus-location shade, so her square blinks.
     /// </summary>
-    internal static readonly UpdateCounterField SamusSquareShowsExploredShade = new(3, 1);
+    internal static readonly UpdateAlternation SamusSquareShowsExploredShade = new(8);
 }

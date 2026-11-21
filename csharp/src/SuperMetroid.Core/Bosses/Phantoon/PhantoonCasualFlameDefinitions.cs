@@ -40,5 +40,5 @@ public static class PhantoonCasualFlameDefinitions
     /// others.
     /// </summary>
     internal static WeightedRandomChoice<PhantoonCasualFlameSchedule> Burst { get; } = WeightedRandomChoice<PhantoonCasualFlameSchedule>.InTurn(
-        new RandomSampleField(0, 2), SteadyFive, QuickThree, SlowSeven, UnevenSeven);
+        RandomSampleField.OneOf(4), SteadyFive, QuickThree, SlowSeven, UnevenSeven);
 }

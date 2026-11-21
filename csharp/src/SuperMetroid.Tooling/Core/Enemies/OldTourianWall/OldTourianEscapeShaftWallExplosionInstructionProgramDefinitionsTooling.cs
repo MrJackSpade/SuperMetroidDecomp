@@ -32,8 +32,8 @@ internal abstract class OldTourianEscapeShaftWallExplosionInstructionProgramDefi
         new(0xb445, (ushort)EnemyProjectileInstruction.TimerInY),
         new(0xb447, checked((ushort)BurstPlays)),
         new(OldTourianEscapeShaftWallExplosionInstructionProgramToolingDefinitions.Loop, (ushort)EnemyProjectileInstruction.MoveRandomlyWithinXRadius_YRadius),
-        new(0xb44b, ScatterWord(OldTourianEscapeShaftWallExplosionAnimationDefinitions.Scatter.XRange, OldTourianEscapeShaftWallExplosionAnimationDefinitions.Scatter.Center.X)),
-        new(0xb44d, ScatterWord(OldTourianEscapeShaftWallExplosionAnimationDefinitions.Scatter.YRange, OldTourianEscapeShaftWallExplosionAnimationDefinitions.Scatter.Center.Y)),
+        new(0xb44b, ScatterWord(OldTourianEscapeShaftWallExplosionAnimationDefinitions.Scatter.Span.X, OldTourianEscapeShaftWallExplosionAnimationDefinitions.Scatter.Center.X)),
+        new(0xb44d, ScatterWord(OldTourianEscapeShaftWallExplosionAnimationDefinitions.Scatter.Span.Y, OldTourianEscapeShaftWallExplosionAnimationDefinitions.Scatter.Center.Y)),
         new(0xb44f, (ushort)EnemyProjectileInstruction.QueueSoundInY_Lib2_Max6),
         .. FrameOperands.Select((operand, frame) => new InstructionMechanicsWord(
             (ushort)(operand - 2), (ushort)OldTourianEscapeShaftWallExplosionAnimationDefinitions.Beats[frame].Duration)),
@@ -47,11 +47,11 @@ internal abstract class OldTourianEscapeShaftWallExplosionInstructionProgramDefi
         .Single(phase => phase.Segment == OldTourianWallExplosionSegment.Burst).Plays;
 
     /// <summary>
-    /// The scatter command's packed operand word for one axis: the mask of the bits its range field reads in the low
-    /// byte, its centre in the high.
+    /// The scatter command's packed operand word for one axis: the mask of its span's ordinary roll in the low byte, its
+    /// centre in the high.
     /// </summary>
-    private static ushort ScatterWord(RandomSampleField range, int center) =>
-        LittleEndianBytes.Word(checked((byte)((range.Outcomes - 1) << range.Shift)), checked((byte)center));
+    private static ushort ScatterWord(int span, int center) =>
+        LittleEndianBytes.Word(checked((byte)(span - 1)), checked((byte)center));
 
     /// <summary>Includes fixed control words and one duration before each wall-explosion pose.</summary>
     public static int MechanicsWordCount => Words.Length;

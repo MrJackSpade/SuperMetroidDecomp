@@ -43,7 +43,7 @@ internal static class IntroNarrationPictureSheetComposer
         byte[] blanked = Blanked(whole);
         RgbColor[] colours = [.. intro.Palette.BackgroundColours];
         int cells = IntroArtworkExtentDefinitions.PlaneCells;
-        int finalRows = IntroArtworkExtentDefinitions.FinalLineWordCount / cells;
+        int finalRows = IntroFinalLineTilemapFormat.CellCount / cells;
         char[] letters = [.. IntroNarrationPictureSheetComposer.Letters];
         int letterTop = cells + finalRows;
         int letterRows = (letters.Length + cells - 1) / cells;
@@ -51,7 +51,7 @@ internal static class IntroNarrationPictureSheetComposer
         var frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal)
         {
             [IntroNarrationPictures.FirstCard] = PaintRect(canvas, 0, 0, cells, intro.InitialNarrationTilemap.Span[..IntroArtworkExtentDefinitions.NarrationTilemapCells], whole, colours),
-            [IntroNarrationPictures.FinalLine] = PaintRect(canvas, 0, cells, cells, intro.FinalLine.Tiles.Span[..IntroArtworkExtentDefinitions.FinalLineWordCount], blanked, colours),
+            [IntroNarrationPictures.FinalLine] = PaintRect(canvas, 0, cells, cells, intro.FinalLine.Tiles.Span[..IntroFinalLineTilemapFormat.CellCount], blanked, colours),
         };
         // Each letter is composed in the first colour variant; the variant its typing or glow gives it is a shade (#1512).
         for (int index = 0; index < letters.Length; index++)
@@ -101,7 +101,7 @@ internal static class IntroNarrationPictureSheetComposer
             Corner = new Position16<ImagePixels>(checked((ushort)(left * CharacterPixels)), checked((ushort)(top * CharacterPixels))),
             Size = new Extent16<ImagePixels>(checked((ushort)(columns * CharacterPixels)), checked((ushort)(tiles.Length / columns * CharacterPixels))),
             Origin = default,
-            ColourGroups = coloured.ManifestMembers,
+            ColourGroups = coloured,
         };
     }
 }

@@ -63,12 +63,7 @@ internal static class CeresFlightArtworkExtractor
             if (!RgbColor.IsColorWord(checked((ushort)word)))
                 throw new InvalidDataException(
                     $"Ceres flight palette color {index} has an unrepresentable high bit.");
-            colors[index] = new PaletteRgb5
-            {
-                Red = word & 31,
-                Green = word >> 5 & 31,
-                Blue = word >> 10 & 31,
-            };
+            colors[index] = PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(word));
         }
         using var paletteJson = new MemoryStream();
         CeresFlightPaletteFile.Write(paletteJson, new CeresFlightPaletteDocument

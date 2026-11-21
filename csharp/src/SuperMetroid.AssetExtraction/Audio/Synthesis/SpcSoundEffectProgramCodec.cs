@@ -24,8 +24,14 @@ internal static class SpcSoundEffectProgramCodec
     };
 
     /// <summary>The opcode byte of <paramref name="instruction"/>.</summary>
-    private static int OpcodeByte(SpcSoundEffectOpcode instruction) =>
+    internal static int OpcodeByte(SpcSoundEffectOpcode instruction) =>
         opcodes.First(pair => pair.Value == instruction).Key;
+
+    /// <summary>Whether the sound stream's <paramref name="commandByte"/> is <paramref name="instruction"/>'s opcode (#2563).</summary>
+    /// <param name="commandByte">A byte read from a sound effect's stream where a command stands.</param>
+    /// <param name="instruction">The instruction asked about.</param>
+    internal static bool Is(int commandByte, SpcSoundEffectOpcode instruction) =>
+        opcodes.TryGetValue(commandByte, out SpcSoundEffectOpcode command) && command == instruction;
 
     /// <summary>Decodes uploaded SPC bytes into bounded instructions until End or RepeatForever.</summary>
     internal static AudioSoundProgramMetadata Decode(

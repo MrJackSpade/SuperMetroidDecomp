@@ -909,7 +909,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         int hurtFlashCadence)
     {
         BotwoonSegmentState segment = Segments.Of(projectile);
-        projectile.Graphics = projectile.Graphics.In(segment.Head.HurtFlash.IsRunning && EnemyDrawPhaseDefinitions.HurtFlashShown.IsSetIn(hurtFlashCadence)
+        projectile.Graphics = projectile.Graphics.In(segment.Head.HurtFlash.IsRunning && EnemyDrawPhaseDefinitions.HurtFlashShown.IsInSecondHalfAt(hurtFlashCadence)
             ? EnemyShades.HurtFlashLook
             : Encounter(segment).BodyShading);
     }

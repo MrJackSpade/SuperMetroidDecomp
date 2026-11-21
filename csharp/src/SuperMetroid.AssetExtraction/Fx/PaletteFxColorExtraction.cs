@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -20,12 +22,7 @@ internal static class PaletteFxColorExtraction
                 int bgr555 = RomDataReader.ReadWordFixedBank(
                     CartridgeImportSource.Require(bus),
                     RoomFxBankSourceDefinitions.PaletteFx | PaletteFxRecordSources.ColorAddress(colorFrames.Color(frame, color)));
-                frames[frame][color] = new PaletteRgb5
-                {
-                    Red = bgr555 & 31,
-                    Green = bgr555 >> 5 & 31,
-                    Blue = bgr555 >> 10 & 31,
-                };
+                frames[frame][color] = PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(bgr555));
             }
         }
         return frames;

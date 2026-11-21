@@ -278,7 +278,7 @@ internal sealed class MotherBrainRainbowAndDeath
             return;
         }
         // The rainbow's colours step only on their update of the body's cadence.
-        if (!step.Starts(MotherBrainStepEffect.RainbowColours) || !MotherBrainCadenceDefinitions.RainbowColoursStep.IsSetIn(state.Body.FrameCounter))
+        if (!step.Starts(MotherBrainStepEffect.RainbowColours) || !MotherBrainCadenceDefinitions.RainbowColoursStep.IsInSecondHalfAt(state.Body.FrameCounter))
             return;
 
         ListStep<MotherBrainRainbowImage> image = state.NextRainbowImage;

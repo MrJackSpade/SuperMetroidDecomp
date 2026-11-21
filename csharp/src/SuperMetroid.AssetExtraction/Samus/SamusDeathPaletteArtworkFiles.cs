@@ -133,7 +133,7 @@ public static class SamusDeathPaletteArtworkFiles
         return new InstalledSamusDeathPalettes(
             Array.ConvertAll(document.Suited, suit => Array.ConvertAll(
                 suit ?? throw new InvalidDataException("Samus death-palette artwork is missing a suit."), Colors)),
-            Array.ConvertAll(document.Suitless, Colors), Colors(document.Whiteout), document.ExplosionPaletteIndices);
+            Array.ConvertAll(document.Suitless, Colors), Colors(document.Whiteout), Array.ConvertAll(document.ExplosionPaletteIndices, step => (int)step));
     }
 
     /// <summary>Validates the death-step document and builds the steps the game reads.</summary>

@@ -29,7 +29,10 @@ A picture is only its colours (#1633): each pixel is an RGBA colour, alpha zero 
 key is its colour with its recolour region, which the sheet's recolour-region map gives where pixels of one colour
 recolour differently. A visible pixel shows the colour its key shows under its colour slot's shading (`TexelColour`): the
 shading's shades overwrite the colours of the keys they name, then its colour effects change every key's colour, then its
-shades over the effects overwrite again (`PictureShading.KeyColours`). This is how glows, fades and tints recolour
+shades over the effects overwrite again (`PictureShading.KeyColours`). A fade names only how far it has come (`FadeLevel`); the
+backend blends it (`D3D11ColourBlend`, #2563), so a fade's colours are worked out here, never in the simulation. A colour the
+frame shows outside a picture, such as the backdrop, a white wash or a sprite tint, is a `ShownColour` the backend works out
+the same way. This is how glows, fades and tints recolour
 pre-coloured art. A clear pixel has no key and is never recoloured. A see-through layer leaves clear pixels out; a layer
 drawn opaque (`HudLayer.DrawsOpaque`, `PicturedPlaneLayer.DrawsOpaque`) shows a clear pixel's stored colour as it is: the
 colour the pixel keeps of its own (the HUD band and room-effect art), or black where it keeps none.
@@ -72,7 +75,7 @@ Each pass runs over the screen, or over a band of lines, in the order the scene 
   sprite layer's colour from the floor.
 - **Add colour.** Adds a fixed colour to every pixel, in the colour's thirty-two levels a channel, clamped. The display
   model describes colours as plain colours (`RgbColor`, 0-255 a channel), each on the game's fade scale; a colour reaches
-  the tile shaders' colour maths as its own levels (`FadeLevelColour`, #1544), and one off the scale is rejected.
+  the tile shaders' colour maths as its own steps (`FadeLevelColour`, #1544), and one off the steps is rejected.
 - **Line colour add.** Adds each line's colour within that line's window.
 - **Add / subtract layer.** Adds or subtracts the room effect's overlay, each line at its own horizontal scroll, eight
   bits a channel, clamped. The overlay is a liquid or an atmosphere (`OverlayPicture`, #1514, #1706), each picture

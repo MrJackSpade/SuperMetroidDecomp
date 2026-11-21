@@ -627,7 +627,7 @@ internal sealed class EnemyProjectileEngine
     }
 
     /// <summary>
-    /// Moves a projectile to a random place within <paramref name="scatter"/>'s fields: each axis draws again until its
+    /// Moves a projectile to a random place within <paramref name="scatter"/>'s spans: each axis draws again until its
     /// offset lands at or past the field's centre, and one chance in two for each sign
     /// (<see cref="EnemyProjectileScatterDefinitions.XOffsetTurnsLeft"/>,
     /// <see cref="EnemyProjectileScatterDefinitions.YOffsetTurnsUp"/>) turns it left or up. Bomb Torizo's sonic boom
@@ -636,12 +636,12 @@ internal sealed class EnemyProjectileEngine
     internal void Scatter(EnemyProjectile projectile, EnemyProjectileScatter scatter)
     {
         Ensure.NotNull(projectile);
-        // Each centre must lie among its field's values (#1627): the redraw ends only on a draw at or past the centre, so a
-        // centre past the field's last value would redraw for good.
-        RandomSampleField xRange = RequireLowHalfField(scatter.XRange);
-        int xCenter = Ensure.BetweenInclusive(0, xRange.Outcomes - 1, scatter.Center.X);
-        RandomSampleField yRange = RequireLowHalfField(scatter.YRange);
-        int yCenter = Ensure.BetweenInclusive(0, yRange.Outcomes - 1, scatter.Center.Y);
+        // Each centre must lie within its span (#1627): the redraw ends only on a draw at or past the centre, so a centre
+        // past the span's last pixel would redraw for good.
+        RandomSampleField xRange = RandomSampleField.OneOf(scatter.Span.X);
+        int xCenter = Ensure.BetweenInclusive(0, scatter.Span.X - 1, scatter.Center.X);
+        RandomSampleField yRange = RandomSampleField.OneOf(scatter.Span.Y);
+        int yCenter = Ensure.BetweenInclusive(0, scatter.Span.Y - 1, scatter.Center.Y);
         int signSample = _room.Random.Generate();
 
         int xOffset;
@@ -666,18 +666,6 @@ internal sealed class EnemyProjectileEngine
             yOffset = -yOffset;
         projectile.Position = OffRoomPlaces.WithWholeY(projectile.Position, projectile.Position.Y.Whole + yOffset);
     }
-
-    /// <summary>
-    /// <paramref name="field"/>, checked to read only the range of the random choice the scatter authors.
-    /// </summary>
-    private static RandomSampleField RequireLowHalfField(RandomSampleField field)
-    {
-        _ = Ensure.BetweenInclusive(0, LowHalfBits, field.Shift + field.Width);
-        return field;
-    }
-
-    /// <summary>The width of the part of the sample a scatter's range reads.</summary>
-    private const int LowHalfBits = 8;
 
     /// <summary>
     /// Spawns a dust cloud, smoke or an explosion, drawn from the pictures every room shares, playing the animation the

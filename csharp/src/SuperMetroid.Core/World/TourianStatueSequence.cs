@@ -200,7 +200,7 @@ public sealed class TourianStatueSequence : IDisplayLatch
         TourianStatueBlockAnimations animations) : ITourianStatueCueTarget
     {
         /// <inheritdoc/>
-        public void MarkAnimating() => sequence._statue.Animation.MarkAnimating(TourianGreyStatueSets.Alone[definition.Statue]);
+        public void MarkAnimating() => sequence._statue.Animation.MarkAnimating(definition.Statue);
 
         /// <inheritdoc/>
         public AnimationContinuation<TourianStatueBlockSegment>? MayAlreadyBeGrey() =>
@@ -211,7 +211,7 @@ public sealed class TourianStatueSequence : IDisplayLatch
             sequence._system.HasDefeatedAnyOf(definition.BossArea, definition.DefeatedBosses) ? Start(ReleaseAnimation) : null;
 
         /// <inheritdoc/>
-        public void ClearAnimating() => sequence._statue.Animation.StopAnimating(TourianGreyStatueSets.Alone[definition.Statue]);
+        public void ClearAnimating() => sequence._statue.Animation.StopAnimating(definition.Statue);
 
         /// <inheritdoc/>
         public AnimationContinuation<TourianStatueBlockSegment>? MayWaitItsTurn() =>
@@ -247,7 +247,7 @@ public sealed class TourianStatueSequence : IDisplayLatch
         public void SetGreyEvent() => sequence._system.SetEvent(definition.GreyEvent);
 
         /// <inheritdoc/>
-        public void FinishRelease() => sequence._statue.Animation.FinishRelease(TourianGreyStatueSets.Alone[definition.Statue]);
+        public void FinishRelease() => sequence._statue.Animation.FinishRelease(definition.Statue);
 
         /// <inheritdoc/>
         public void TurnGrey() => sequence._statue.ShowStatueLook(definition.GreyShade, DrawnInRoomBackground);

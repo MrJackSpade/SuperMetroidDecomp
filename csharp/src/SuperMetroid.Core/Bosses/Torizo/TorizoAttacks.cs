@@ -303,7 +303,7 @@ internal sealed class TorizoAttacks
         // The recurring low-health drool launches in a random direction: a turning Torizo's any of the turn's, a facing
         // one's spread about its facing's heading.
         TrigonometryAngle heading = TorizoFacing.Posture(torizo).IsTurning
-            ? new(TorizoRandomDefinitions.DroolTurningAngle.Of(random))
+            ? new(TorizoRandomRolls.DroolTurningAngle.Of(random))
             : DroolHeading(TorizoFacing.Posture(torizo).Facing, TorizoRandomDefinitions.DroolFacingSpread.Of(random));
         projectile.Velocity = VelocityAlong(TorizoMotionDefinitions.DroolLaunchSpeed, heading);
     }
@@ -518,7 +518,7 @@ internal sealed class TorizoAttacks
         SkipVelocityJitter();
 
         // The beam's heading is its facing's, spread either way by its random spread.
-        TrigonometryAngle heading = EyeBeamHeading(facing, _room.Random.Next(TorizoRandomDefinitions.EyeBeamSpread));
+        TrigonometryAngle heading = EyeBeamHeading(facing, _room.Random.Next(TorizoRandomRolls.EyeBeamSpread));
         projectile.Velocity = VelocityAlong(TorizoMotionDefinitions.EyeBeamSpeed, heading);
     }
 

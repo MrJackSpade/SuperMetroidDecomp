@@ -415,13 +415,13 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         // end. A power bomb hits the arms on their own, whose follow-up freezes their spit and the next Evir's body, and
         // the spit can be shot and frozen by itself.
         firstRelative.Freeze.Restart(actor.Freeze.UpdatesLeft);
-        firstRelative.AiStates = firstRelative.AiStates | EnemyAiStates.Frozen;
+        firstRelative.MarkFrozen();
         // The game compares the action of the enemy listed two places on with the moving spit's. In the
         // Evir rooms that place holds an Evir or nothing, never another species.
         if (secondRelative.SpeciesState<EvirSpitState>()?.Action != EvirSpitAction.Moving)
         {
             secondRelative.Freeze.Restart(actor.Freeze.UpdatesLeft);
-            secondRelative.AiStates = secondRelative.AiStates | EnemyAiStates.Frozen;
+            secondRelative.MarkFrozen();
         }
     }
 

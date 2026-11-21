@@ -465,7 +465,7 @@ internal sealed class PhantoonPatterns
             return;
 
         // Alternating waves contain different numbers of flames, as their definitions hold.
-        IReadOnlyList<PhantoonRageFlameStart> wave = PhantoonCadenceDefinitions.OddRageWave.IsSetIn(state.RageWaveCount)
+        IReadOnlyList<PhantoonRageFlameStart> wave = PhantoonCadenceDefinitions.OddRageWave.IsInSecondHalfAt(state.RageWaveCount)
             ? PhantoonFlameSpawns.OddRageWave
             : PhantoonFlameSpawns.EvenRageWave;
         foreach (PhantoonRageFlameStart start in wave)
@@ -639,7 +639,7 @@ internal sealed class PhantoonPatterns
     {
         state.PhaseWait.LastFor(PhantoonArenaDefinitions.PatternPickUpdates);
         state.Round.EyeClosedWait.LastFor(PhantoonRandomDefinitions.EyeClosed.Choose(_room.Random.Generate()));
-        if (PhantoonCadenceDefinitions.FigureEightReverses.IsSetIn(_frameContext.FrameCounter))
+        if (PhantoonCadenceDefinitions.FigureEightReverses.IsInSecondHalfAt(_frameContext.FrameCounter))
         {
             if (state.FigureEight.Direction == PhantoonPathDirection.Forwards)
                 state.FigureEight.PathPlace = state.FigureEight.PathPlace.PreviousInCycle;

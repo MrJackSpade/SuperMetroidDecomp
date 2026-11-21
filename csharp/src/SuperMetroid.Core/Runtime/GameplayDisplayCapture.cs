@@ -9,6 +9,7 @@ using SuperMetroid.Core.Gameplay;
 
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.BossBodies;
+using SuperMetroid.Core.Compatibility;
 
 namespace SuperMetroid.Core.Runtime;
 
@@ -214,7 +215,7 @@ public static class GameplayDisplayCapture
             // Phantoon's wave ripples his body about where it lies, and Crocomire's melt sags his.
             Horizontal = latched.Phantoon is { Wave: { } wave } phantoon ? BossLineScrolls.Of(wave, camera, phantoon.BodyPlacement) : liquid.Horizontal,
             Vertical = live.CrocomireMelt is { } melt ? BossLineScrolls.Of(melt, camera) : liquid.Vertical,
-            Pixelation = latched.Phantoon is { } phantoonDisplay ? new BackgroundPixelation(phantoonDisplay.PixelationBlockSize) : default,
+            Pixelation = latched.Phantoon is { } phantoonDisplay ? new BackgroundPixelation(phantoonDisplay.PixelationBlockSize) : BackgroundPixelation.Unpixelated,
         };
     }
 

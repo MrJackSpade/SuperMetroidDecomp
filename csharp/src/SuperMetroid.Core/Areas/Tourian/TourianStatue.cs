@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Areas.Tourian;
 
 /// <summary>
-/// One of the four boss statues in Tourian's entrance room (#2482); a set of them, such as the ones still animating, is a
-/// <see cref="TourianGreyStatues"/>. Its values are arbitrary.
+/// One of the four boss statues in Tourian's entrance room (#2482); the ones still animating are a set of them (#2563). Its
+/// values are arbitrary.
 /// </summary>
 public enum TourianStatue
 {

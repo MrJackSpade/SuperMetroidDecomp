@@ -24,7 +24,7 @@ internal static class RoomEnemyAuxiliaryDefinitionCatalog
         Shot: EnemyReaction.Ignore,
         TouchHitboxScan: EnemyHitboxScan.Scanned,
         ShotHitboxScan: EnemyHitboxScan.Withheld,
-        Drops: EnemyDrops.Rolling(new EnemyDropChances(0, 0, 0, 255, 0, 0)),
+        Drops: EnemyDrops.Rolling(new EnemyDropChances(SmallEnergy: 0, BigEnergy: 0, Missile: 0, Nothing: 255, SuperMissile: 0, PowerBomb: 0)),
         Vulnerability: EnemyVulnerabilityDefinitions.Standard);
 
     /// <summary>The falling tubes of Mother Brain's cutscene.</summary>

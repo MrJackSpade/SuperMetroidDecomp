@@ -5,7 +5,8 @@ using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Progression;
 
-using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Compatibility;
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>

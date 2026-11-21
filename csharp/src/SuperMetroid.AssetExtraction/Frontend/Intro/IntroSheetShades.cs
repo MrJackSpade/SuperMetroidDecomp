@@ -94,7 +94,7 @@ internal static class IntroSheetShades
     /// <summary>Each of <paramref name="colours"/> at crossfade <paramref name="level"/>.</summary>
     private static RgbColor[] Faded(IEnumerable<RgbColor> colours, int level)
     {
-        var faded = new ColourLevel(level, IntroCrossfade.Levels);
-        return [.. colours.Select(faded.Apply)];
+        var faded = new FadeLevel(level, IntroCrossfade.Levels);
+        return [.. colours.Select(colour => PreColouredFade.AtLevel(colour, faded))];
     }
 }

@@ -1152,13 +1152,13 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// The colour the opening shows where nothing is drawn (#1512): the installed backdrop at the narration's level, as the
     /// backdrop fades with the narration.
     /// </summary>
-    private RgbColor Backdrop
+    private ShownColour Backdrop
     {
         get
         {
             RgbColor installed = CharacterArtwork.Backdrop;
             int level = crossfade.LevelOf(IntroCrossfadeScene.Narration);
-            return level == IntroCrossfade.Levels ? installed : new ColourLevel(level, IntroCrossfade.Levels).Apply(installed);
+            return level == IntroCrossfade.Levels ? installed : new ShownColour.Faded(installed, new FadeLevel(level, IntroCrossfade.Levels));
         }
     }
 
@@ -1173,7 +1173,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         int level = crossfade.LevelOf(IntroCrossfadeScene.Narration);
         if (level == IntroCrossfade.Levels)
             return shaded;
-        var beamLevel = new ColourLevel(level, IntroCrossfade.Levels);
+        var beamLevel = new ColourLevel(new FadeLevel(level, IntroCrossfade.Levels));
         var faded = ImmutableArray.CreateBuilder<ImageSpriteDraw>(shaded.Length);
         foreach (ImageSpriteDraw draw in shaded)
         {

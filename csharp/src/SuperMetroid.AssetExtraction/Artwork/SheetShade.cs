@@ -69,7 +69,7 @@ internal sealed record SheetShade(PictureShade Shade, int[] Inks, RgbColor[] Col
             if (!documents.TryAdd(shade.Shade.Key, new SpriteSheetShadeDocument
                 {
                     Inks = shade.Inks,
-                    Colours = [.. shade.Colours.Select(colour => colour.ToWord())],
+                    Colours = [.. shade.Colours],
                     ColourMath = shade.TakesColourMath,
                 }))
             {

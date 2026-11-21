@@ -61,7 +61,7 @@ internal sealed class PhantoonDeath
         RoomEnemyPlace body,
         PhantoonEnemyState state)
     {
-        if (PhantoonCadenceDefinitions.DyingFadeIn.IsSetIn(state.Death.FadeCycles))
+        if (PhantoonCadenceDefinitions.DyingFadeIn.IsInSecondHalfAt(state.Death.FadeCycles))
             _phantoonPresentation.AdvancePhantoonFadeIn(body, state, steps: PhantoonColorDefinitions.BodyFadeSteps);
         else
             _patterns.AdvancePhantoonFadeOut(state, steps: PhantoonColorDefinitions.BodyFadeSteps);
@@ -112,7 +112,7 @@ internal sealed class PhantoonDeath
     internal void BeginPhantoonWavyPixelatedDeath(PhantoonEnemyState state)
     {
         RoomEnemyPlace mouth = state.Mouth;
-        state.Wave.Amplitude = SignedSixteenSixteen.Zero;
+        state.Wave.Amplitude = UnsignedSixteenSixteen.Zero;
         state.Wave.AmplitudeShrinking = false;
         state.Wave.PhaseStep = PhantoonWaveDefinitions.PhaseStep;
         state.BodyWave.Begin(PhantoonWaveDefinitions.DeathLength);

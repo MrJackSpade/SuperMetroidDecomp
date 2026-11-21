@@ -9,7 +9,8 @@ using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms.Backgrounds;
-using SuperMetroid.TestSupport.FrameRendering;
+using SuperMetroid.TestSupport.FrameRendering;
+using SuperMetroid.Core.Compatibility;
 
 /// <summary>Checks D3D11 turning-floor rendering against the WARP reference.</summary>
 internal static class Mode7SmokeTests

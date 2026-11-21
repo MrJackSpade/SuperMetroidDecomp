@@ -79,6 +79,7 @@ using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Compatibility;
 namespace SuperMetroid.Verification.Harness;
 
 /// <summary>Cartridge-oracle checks for Ceres, boss, projectile and map visual definitions in lookup stream five.</summary>
@@ -596,7 +597,7 @@ internal static class LookupStream5Verification
                         // The cartridge's first slot shows the area boss's flag.
                         AssertEqual(0, count, "Native used boss slot is the area boss's");
                         MapBossMarker marker = markers[shown++];
-                        AssertEqual(DefeatedBosses.AreaBoss, marker.Boss, "Named marker shows the area boss");
+                        AssertEqual(DefeatedBosses.AreaBoss, Ensure.Listed(AreaBossDefinitions.Bosses, marker.Boss).RecordedAs, "Named marker shows the area boss");
                         AssertEqual(Read(pointer + count * 4), layout.Get(marker.Id).X, "Native semantic boss X");
                         AssertEqual(Read(pointer + count * 4 + 2), layout.Get(marker.Id).Y, "Native semantic boss Y");
                     }

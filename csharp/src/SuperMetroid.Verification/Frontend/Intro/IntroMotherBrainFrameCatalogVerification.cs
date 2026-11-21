@@ -19,7 +19,7 @@ internal static class IntroMotherBrainFrameCatalogVerification
             ushort pointer = LittleEndianBytes.Word(IntroMotherBrainFrameCatalogRomByte(rom, operand), IntroMotherBrainFrameCatalogRomByte(rom, operand + 1));
             AssertEqual(pointer, CinematicSpritemapSources.Of(frames[frame].Pose), "original Mother Brain frame operand");
             int count = LittleEndianBytes.Word(IntroMotherBrainFrameCatalogRomByte(rom, 0x8c0000 + pointer), IntroMotherBrainFrameCatalogRomByte(rom, 0x8c0001 + pointer));
-            AssertEqual(count, IntroMotherBrainSpriteDefinitions.StockPartCount, "original nine-part frame");
+            AssertEqual(count, frames[frame].StockPartCount, "original nine-part frame");
             AssertEqual(keys[frame], frames[frame].Name, "published frame key");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 3, int.MaxValue })

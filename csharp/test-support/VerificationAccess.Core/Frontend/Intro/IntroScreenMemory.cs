@@ -76,7 +76,7 @@ internal static class IntroScreenMemory
             tiles[index] = IntroNarrationTilemapConstants.Margin;
             tiles[index + IntroNarrationTilemapConstants.JapaneseBlankBottomDelta] = IntroNarrationTilemapConstants.Margin;
         }
-        artwork.FinalLine.Tiles.Span[..IntroArtworkExtentDefinitions.FinalLineWordCount].CopyTo(tiles.AsSpan(IntroNarrationTilemapConstants.FinalLineFirstCell));
+        artwork.FinalLine.Tiles.Span[..SuperMetroid.AssetExtraction.Frontend.Intro.Artwork.IntroFinalLineTilemapFormat.CellCount].CopyTo(tiles.AsSpan(IntroNarrationTilemapConstants.FinalLineFirstCell));
         tiles[IntroNarrationTilemapConstants.FinalBlankLeftIndex] = IntroNarrationTilemapConstants.FinalBlank;
         tiles[IntroNarrationTilemapConstants.FinalBlankRightIndex] = IntroNarrationTilemapConstants.FinalBlank;
         for (int row = IntroNarrationText.FirstTextRow; row < IntroNarrationText.FirstTextRow + IntroNarrationText.TextRows; row++)
@@ -104,7 +104,7 @@ internal static class IntroScreenMemory
         ReadOnlySpan<BackgroundTile> rectangle = sources.EyeFrames.FrameTiles(frame);
         var corner = new Position16<CharacterCells>(IntroEyeAnimationDefinitions.PortraitEyeCorner.X / CharacterCellConversions.CellPixels,
             IntroEyeAnimationDefinitions.PortraitEyeCorner.Y / CharacterCellConversions.CellPixels);
-        Extent16<CharacterCells> size = IntroArtworkExtentDefinitions.EyeFrameSize;
+        Extent16<CharacterCells> size = new(SuperMetroid.AssetExtraction.Frontend.Intro.Artwork.IntroEyeTilemapFormat.Columns, SuperMetroid.AssetExtraction.Frontend.Intro.Artwork.IntroEyeTilemapFormat.Rows);
         for (int cell = 0; cell < rectangle.Length; cell++)
             portrait[(corner.Y + cell / size.X) * IntroArtworkExtentDefinitions.PlaneCells + corner.X + cell % size.X] = rectangle[cell];
         return portrait;

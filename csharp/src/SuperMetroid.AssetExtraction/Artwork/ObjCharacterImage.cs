@@ -33,12 +33,9 @@ internal static class ObjCharacterImage
     {
         if ((uint)tileNumber >= 2 * NameTableCharacters)
             throw new ArgumentOutOfRangeException(nameof(tileNumber));
-        Ensure.BetweenInclusive(0, byte.MaxValue, obsel);
-        // OBSEL bits 0-2 choose the base in $2000-word ($4000-byte) units. A set ninth
-        // tile bit selects the second name table, whose programmable displacement is
-        // ((bits 3-4) + 1) * $1000 words. Each 4-bpp 8x8 tile occupies 16 VRAM words.
-        int baseWord = (obsel & 7) << 13;
-        int nameSelectWordOffset = (((obsel >> 3) & 3) + 1) << 12;
+        // A set ninth tile bit selects the second name table, displaced past the first by the selection's displacement.
+        // Each 4-bpp 8x8 tile occupies 16 VRAM words.
+        (int baseWord, int nameSelectWordOffset) = ObjectSelectionCodec.CharacterPlacement(obsel);
         int tileWord = baseWord + unchecked((byte)tileNumber) * 16;
         if ((tileNumber & NameSelectBit) != 0)
             tileWord += nameSelectWordOffset;

@@ -53,7 +53,7 @@ internal static class SamusCadenceDefinitions
     /// The phase of the frame counter on which invincible Samus, and her arm cannon with her, is hidden, alternating with
     /// the updates she shows, so she flickers, unless knockback or a stored shine keeps her shown.
     /// </summary>
-    internal static readonly UpdateCounterField InvincibilityFlickerHidden = new(0, 1);
+    internal static readonly UpdateAlternation InvincibilityFlickerHidden = new(1);
 
     /// <summary>
     /// The updates on which the shinespark crash's echoes are drawn, orbiting or released, counted on the frame counter at
@@ -65,7 +65,7 @@ internal static class SamusCadenceDefinitions
     /// The phase of the hurt flash's count on which Samus's suit shows the hurt colours, so they alternate with her own
     /// colours each update until the flash's coloured stretch ends.
     /// </summary>
-    internal static readonly UpdateCounterField HurtColoursShown = new(0, 1);
+    internal static readonly UpdateAlternation HurtColoursShown = new(1);
 
     /// <summary>
     /// The updates on which Samus riding an elevator is drawn, counted on the frame counter at the period's even place, so

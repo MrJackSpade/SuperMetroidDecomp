@@ -5,7 +5,8 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rendering;
 
-using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Compatibility;
 namespace SuperMetroid.AssetExtraction.Frontend.Title;
 
 /// <summary>

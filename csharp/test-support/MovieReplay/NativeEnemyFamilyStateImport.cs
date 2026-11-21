@@ -122,7 +122,7 @@ internal static class NativeEnemyFamilyStateImport
                 phantoon.CasualFlames.NextFlame = casualFlames < 0
                     ? null
                     : SuperMetroid.Core.Bosses.ListStep<PhantoonCasualFlame>.At(flames, flames.Count - Math.Max(1, (int)casualFlames));
-                phantoon.Wave.Amplitude = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(words.D);
+                phantoon.Wave.Amplitude = UnsignedSixteenSixteen.FromRaw((uint)words.D << 8);
                 phantoon.Wave.AmplitudeShrinking = words.E != 0;
                 phantoon.Wave.PhaseStep = RotationAngle.WrappedSteps(words.F);
             }

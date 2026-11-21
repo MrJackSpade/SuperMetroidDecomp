@@ -26,7 +26,7 @@ internal static class PausePaletteSoundVerification
         int soundStarts = 0;
         for (int frame = 0; frame < 500; frame++)
         {
-            pause.AdvanceAnimations(0, PauseAnimationPhase.Stable);
+            pause.AdvanceAnimations(SuperMetroid.Core.Compatibility.ShortFrameCount.Zero, PauseAnimationPhase.Stable);
             // Retail timings: initial frame advances after one tick, thirteen frames
             // last three ticks each, and frame zero lasts fifteen ticks on later loops.
             bool expectedLoop = frame >= 39 && (frame - 39) % 54 == 0;

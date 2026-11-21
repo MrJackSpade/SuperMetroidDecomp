@@ -187,7 +187,7 @@ internal sealed class MotherBrainCombat
     /// Restarts her head's hurt flash: a second hit during a flash keeps the flash white or plain as it was.
     /// </summary>
     private static void RestartHurtFlash(RoomEnemyPlace head) =>
-        head.HurtFlash.Restart(head.HurtFlash.IsRunning && MotherBrainCadenceDefinitions.HurtFlashWhite.IsSetIn(head.HurtFlash.UpdatesLeft)
+        head.HurtFlash.Restart(head.HurtFlash.IsRunning && MotherBrainCadenceDefinitions.HurtFlashWhite.IsInSecondHalfAt(head.HurtFlash.UpdatesLeft)
             ? MotherBrainFightDefinitions.HurtFlashKeepingPhase
             : MotherBrainFightDefinitions.HurtFlash);
 

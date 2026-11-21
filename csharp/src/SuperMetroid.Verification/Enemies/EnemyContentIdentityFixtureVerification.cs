@@ -333,6 +333,14 @@ internal static class EnemyContentIdentityFixtureVerification
         }
 
         /// <summary>Builds two OAM parts while varying geometry, attributes, ordering, or count.</summary>
+        /// <summary>The parts of <see cref="Parts"/> as the projectile compositions name them, each character by its place (#2563).</summary>
+        private EnemyProjectilePartDocument[] ProjectileParts(string family, bool mutate) =>
+            [.. Parts(family, mutate).Select(part => new EnemyProjectilePartDocument
+            {
+                OffsetX = part.OffsetX, OffsetY = part.OffsetY, Character = part.TileRow * SuperMetroid.AssetExtraction.World.Artwork.EnemySpritemapCompiler.TileColumns + part.TileColumn,
+                Size = part.Size, Depth = part.Depth, Palette = part.Palette, FlipX = part.FlipX, FlipY = part.FlipY,
+            })];
+
         private SpriteVisualPart[] Parts(string family, bool mutate)
         {
             if (mutate)
@@ -416,9 +424,9 @@ internal static class EnemyContentIdentityFixtureVerification
             {
                 Version = EnemyProjectileSpritemapDocuments.Version,
                 Frames = Ordered(frames.Select((frame, index) =>
-                    KeyValuePair.Create(frame.Name, Parts("projectile", index == frames.Length - 1)))),
+                    KeyValuePair.Create(frame.Name, ProjectileParts("projectile", index == frames.Length - 1)))),
                 ProgramFrames = Ordered(programs.Select((frame, index) =>
-                    KeyValuePair.Create(frame.Name, Parts("projectile-program", index == programs.Length - 1)))),
+                    KeyValuePair.Create(frame.Name, ProjectileParts("projectile-program", index == programs.Length - 1)))),
             };
         }
         /// <summary>Compiles both projectile frame namespaces into one installed catalog.</summary>

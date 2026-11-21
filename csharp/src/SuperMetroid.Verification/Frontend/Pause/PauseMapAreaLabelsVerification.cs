@@ -68,7 +68,7 @@ internal static class PauseMapAreaLabelsVerification
             AssertTrue(differs < 0, $"{area} destination spelling, order, coordinates and palette match raw ROM OAM" + (differs < 0 ? "" :
                 $"; object {differs / 4} emitted {Convert.ToHexString(emitted, differs / 4 * 4, 4)}, native {Convert.ToHexString(native.LowTable.Slice(differs / 4 * 4, 4))}"));
             AssertLabels(start, "stable map");
-            pause.AdvanceAnimations(0, PauseAnimationPhase.FadingOut); _ = pause.ComposeScene();
+            pause.AdvanceAnimations(SuperMetroid.Core.Compatibility.ShortFrameCount.Zero, PauseAnimationPhase.FadingOut); _ = pause.ComposeScene();
             // The labels keep the stable map's layering through every fade (#2573).
             AssertLabels(start, "outer unpause fade-out");
             LayeredScene beforeRestore = pause.ComposeScene();

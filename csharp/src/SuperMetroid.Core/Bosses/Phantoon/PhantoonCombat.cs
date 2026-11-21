@@ -344,7 +344,7 @@ internal sealed class PhantoonCombat
             return;
         }
 
-        if ((body.AiStates & EnemyAiStates.Hurt) == EnemyAiStates.None)
+        if (!body.IsHurt)
             return;
 
         _audio.RequestPhantoonCombatSound(PhantoonSoundDefinitions.ShotCry);
@@ -467,7 +467,7 @@ internal sealed class PhantoonCombat
         // The flame drifts left or right by the game's frame counter.
         flame.Velocity = flame.Velocity.WithX(
             PhantoonArenaDefinitions.CasualDriftSpeed.Toward(
-                PhantoonCadenceDefinitions.RisingFlameDriftsLeft.IsSetIn(frameCounter) ? HorizontalDirection.Left : HorizontalDirection.Right));
+                PhantoonCadenceDefinitions.RisingFlameDriftsLeft.IsInSecondHalfAt(frameCounter) ? HorizontalDirection.Left : HorizontalDirection.Right));
     }
 
     /// <summary>Advances the flame's post-impact bounce motion.</summary>

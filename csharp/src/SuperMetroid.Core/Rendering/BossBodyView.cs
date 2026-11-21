@@ -18,5 +18,5 @@ public sealed record BossBodyView(ShownBossBody Body, Offset16<BackgroundPixels>
     public LineScroll? Vertical { get; init; }
 
     /// <summary>How the body is pixelated: none, or Phantoon's blocks as he appears and fades.</summary>
-    public BackgroundPixelation Pixelation { get; init; }
+    public BackgroundPixelation Pixelation { get; init; } = BackgroundPixelation.Unpixelated;
 }

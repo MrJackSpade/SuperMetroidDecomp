@@ -192,7 +192,7 @@ internal static class FloorSheetComposer
                 Corner = corner,
                 Size = new Extent16<ImagePixels>(checked((ushort)(picture.Columns * TilePixels)), checked((ushort)(picture.Rows * TilePixels))),
                 Origin = Offset16<ImagePixels>.Of(-picture.Column * TilePixels, -picture.Row * TilePixels),
-                ColourGroups = coloured.ManifestMembers,
+                ColourGroups = coloured,
             };
             if (!frames.TryAdd(picture.Name, frame))
                 throw new InvalidDataException($"Two floor pictures are named {picture.Name}.");

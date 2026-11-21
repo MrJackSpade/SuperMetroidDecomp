@@ -83,7 +83,7 @@ internal sealed class KraidBackdropColours : IGameplayShadingSource
     {
         Ensure.NotNull(fading);
         return new PictureShadeFade(ShadingOf(fading.From), ShadingOf(new KraidBackdropShown.Settled(fading.Goal)),
-            fading.Progress.Moved, fading.Progress.Length);
+            new FadeLevel(fading.Progress.Moved, fading.Progress.Length));
     }
 
     /// <summary>The room pictures' shading that shows <paramref name="shown"/>.</summary>

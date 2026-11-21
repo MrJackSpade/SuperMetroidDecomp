@@ -54,7 +54,7 @@ public static class SamusHurtFlash
         // restores the intro shade or the equipped suit. Later updates leave the colours as they are.
         if (counterBefore <= SamusHurtFlashDefinitions.ColouredUpdates)
         {
-            if (SamusCadenceDefinitions.HurtColoursShown.IsSetIn(counterBefore))
+            if (SamusCadenceDefinitions.HurtColoursShown.IsInSecondHalfAt(counterBefore))
             {
                 colours.ShowSuit(SamusShades.Hurt(SamusHurtColorVariant.Hurt));
             }

@@ -20,7 +20,7 @@ public static class KraidRockLaunchDefinitions
     /// The rock spit picks its launch from the current random number, not from its motion or a fresh random number.
     /// </remarks>
     internal static readonly WeightedRandomChoice<SignedEightEight> SpitLaunch = WeightedRandomChoice<SignedEightEight>.InTurn(
-        new RandomSampleField(1, 3), NormalLeft, SlowLeft, FastestLeft, FastLeft, FastestLeft, NormalLeft, FastLeft, SlowLeft);
+        KraidRandomRolls.SpitLaunch, NormalLeft, SlowLeft, FastestLeft, FastLeft, FastestLeft, NormalLeft, FastLeft, SlowLeft);
 
     /// <summary>
     /// The gravity on a spat or rising rock, each update. A rock is removed when its terrain probe finds a block, which

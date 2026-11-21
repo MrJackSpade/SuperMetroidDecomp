@@ -16,79 +16,11 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 /// <summary>Checks BG2 mosaic sampling against an independent pixel oracle and the Direct3D renderer.</summary>
 internal static class BackgroundMosaicTests
 {
-    /// <summary>Tests every mosaic size with normal, subscreen, additive, and BG1 modes while preserving OBJ pixels.</summary>
-    internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
-    {
-        var vram = new SnesVram();
-        var cgram = new SnesCgram();
-        for (int color = 1; color <= 15; color++) cgram.SetColor(color, new FadeLevelColour(color, 15 - color, 0).ToColour());
-        // A repeating asymmetric pixel pattern makes both sampling axes observable.
-        byte[] character = new byte[32];
-        for (int y = 0; y < 8; y++)
-        for (int x = 0; x < 8; x++)
-        {
-            int color = 1 + (x + 2 * y) % 15;
-            for (int plane = 0; plane < 4; plane++)
-                character[(plane / 2) * 16 + y * 2 + plane % 2] |= (byte)(((color >> plane) & 1) << (7 - x));
-        }
-        vram.LoadBytes(0, character);
-        for (int row = 0; row < 8; row++) vram.LoadBytes(32 + row * 2, new byte[] { 255, 0 });
-        cgram.SetColor(241, new RgbColor(0, 0, 255));
-        var oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount];
-        oam[0] = 96; oam[1] = 64; oam[2] = 1; oam[3] = 0x3e;
-        var memory = FramePaint.FromOamGameplay(vram.Bytes, cgram.Colors, oam, 1, 0);
-        // BG1's plane and BG2's loaded tilemap show tile word zero, the pattern, drawn from their pictures (#1403).
-        var rooms = RoomBackgroundsFixtures.Uniform(vram.Bytes, cgram.Colors, default);
-        // Every gameplay line scrolls differently on both axes (#1468): a sixteen-sample ramp across, three pixels a step, and
-        // one down, a pixel a step.
-        System.Collections.Immutable.ImmutableArray<int> ramp = [.. Enumerable.Range(0, 16)];
-        var horizontal = new SampledScrollWave(7, [.. ramp.Select(sample => 3 * sample)], 0, 32, 224);
-        var vertical = new SampledScrollWave(65530, ramp, 0, 32, 224);
-        int cases = 0;
-        foreach (int size in Enumerable.Range(1, 16))
-        foreach (int mode in Enumerable.Range(0, 4))
-        {
-            var registers = new GameplaySceneView(Offset16<RoomPixels>.Zero, Offset16<BackgroundPixels>.Zero,
-                ScreenLayers.Sprites | (mode == 2 ? ScreenLayers.None : ScreenLayers.Background) |
-                    (mode == 3 ? ScreenLayers.Foreground : ScreenLayers.None),
-                BackgroundPixelation: new(size));
-            var ordinary = new GameplaySceneLayer(registers, rooms, new BackgroundLineScrolls { Horizontal = horizontal, Vertical = vertical });
-            // Mode two shows the pixelated background only lying behind the backdrop, which it brightens; mode one blends nothing.
-            DisplayLayer layer = mode is 0 or 3 ? ordinary : new GameplayBlendLayer(ordinary, ScreenWindow.Closed, false,
-                new EffectBehindRoomBlend(new SuperMetroid.Core.Fx.OverlayBehindRoomBlend
-                {
-                    Blended = mode == 2 ? BlendedLayers.Backdrop : default,
-                    Operation = BlendOperation.Add,
-                    BackgroundBehind = mode == 2,
-                }), backgroundBehind: mode == 2);
-            var scene = new LayeredScene(memory, [layer], DisplayBrightness.Full);
-            cases++;
-            var packet = new DisplayPacket(0, scene);
-            var actual = DisplayRendering.Render(scene);
-            for (int y = 0; y < 224; y++)
-            for (int x = 0; x < 256; x++)
-            {
-                int expectedColor = 0;
-                if (y >= 32)
-                {
-                    // Independent scalar oracle: choose the screen block, then
-                    // current-row scroll, wrap within the authored 8x8 pattern. The view's scrolls are the
-                    // pixels the screen's top shows, with no further row (#1514).
-                    int sx = (x / size * size + ScrollShapeLines.Scroll(horizontal, y)) & 7;
-                    int sy = (y / size * size + ScrollShapeLines.Scroll(vertical, y)) & 7;
-                    if (mode == 3) { sx = x & 7; sy = y & 7; }
-                    expectedColor = 1 + (sx + 2 * sy) % 15;
-                }
-                if (x is >= 96 and < 104 && y is >= 64 and < 72) expectedColor = 241;
-                if (actual[y * 256 + x] != cgram.GetRgba(expectedColor))
-                    throw new InvalidDataException($"Mosaic size {size}, mode {mode}: wrong pixel ({x},{y}).");
-            }
-            PixelComparison.Verify(packet, actual, DisplayRendering.Render(packet), "mosaic WARP reference");
-            PixelComparison.Verify(packet, actual, renderer.RenderForReadback(packet), $"{device.Kind}: mosaic size {size}, mode {mode}");
-        }
-        Console.WriteLine($"{device.Kind}: {cases} mosaic frames match independent pixels (ordinary, main BG2, additive BG2; HUD/OBJ/BG1 unaffected).");
-        RunPicturedPlane(device, renderer);
-    }
+    /// <summary>
+    /// Tests the pixelation the game draws (#2563): a pixelated pictured plane. The gameplay scene's own background is never
+    /// pixelated, so only its pictured planes and a boss's body carry a pixelation.
+    /// </summary>
+    internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer) => RunPicturedPlane(device, renderer);
 
     /// <summary>
     /// Checks a pixelated pictured plane (#1774), as the Zebes reveal draws its planet picture: at every block width, each

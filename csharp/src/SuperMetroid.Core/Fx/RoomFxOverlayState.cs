@@ -342,7 +342,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         int random = system.RandomNumber;
         AdvanceLiquidMotion(random, system.EarthquakeSoundDelay);
         QueueLavaAmbientSound(random);
-        system.SwapRandomHalves();
+        system.StirRandomForLiquidWave();
     }
 
     /// <summary>

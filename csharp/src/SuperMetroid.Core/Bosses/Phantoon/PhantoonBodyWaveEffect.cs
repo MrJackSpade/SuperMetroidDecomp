@@ -91,7 +91,7 @@ public sealed class PhantoonBodyWaveEffect
         Phase += boss.Wave.PhaseStep;
         if (boss.Wave.Length != _setupLength)
             throw new InvalidOperationException($"Phantoon's wave length {boss.Wave.Length} changed from its setup length {_setupLength}.");
-        _built = new(Phase, boss.Wave.Amplitude.Magnitude());
+        _built = new(Phase, boss.Wave.Amplitude);
     }
 
     /// <summary>Latch the completed wave with the frame's other displayed presentation state.</summary>

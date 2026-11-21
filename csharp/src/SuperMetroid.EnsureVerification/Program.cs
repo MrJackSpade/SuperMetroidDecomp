@@ -76,6 +76,7 @@ internal static class Program
                 new AnalyzerSuite(nameof(NativeAddressAnalyzerTests.VerifyNativeAddressAnalyzer), NativeAddressAnalyzerTests.VerifyNativeAddressAnalyzer),
                 new AnalyzerSuite(nameof(RoomGridIdiomAnalyzerTests.VerifyRoomGridIdiomAnalyzer), RoomGridIdiomAnalyzerTests.VerifyRoomGridIdiomAnalyzer),
                 new AnalyzerSuite(nameof(CoordinateWrapAnalyzerTests.VerifyCoordinateWrapAnalyzer), CoordinateWrapAnalyzerTests.VerifyCoordinateWrapAnalyzer),
+                new AnalyzerSuite(nameof(RandomPlaceSelectionAnalyzerTests.VerifyRandomPlaceSelectionAnalyzer), RandomPlaceSelectionAnalyzerTests.VerifyRandomPlaceSelectionAnalyzer),
                 new AnalyzerSuite(nameof(CarriedValueAnalyzerTests.VerifyCarriedValueAnalyzer), CarriedValueAnalyzerTests.VerifyCarriedValueAnalyzer),
                 new AnalyzerSuite(nameof(OneUpdateRequestAnalyzerTests.VerifyOneUpdateRequestAnalyzer), OneUpdateRequestAnalyzerTests.VerifyOneUpdateRequestAnalyzer),
                 new AnalyzerSuite(nameof(MagicAbsenceAnalyzerTests.VerifyMagicAbsenceAnalyzer), MagicAbsenceAnalyzerTests.VerifyMagicAbsenceAnalyzer),

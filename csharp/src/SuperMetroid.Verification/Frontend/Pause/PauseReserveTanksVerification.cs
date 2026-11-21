@@ -36,7 +36,7 @@ internal static class PauseReserveTanksVerification
             foreach (byte phase in new byte[] { 0, 4 })
             {
                 samus.ReserveEnergy = supply;
-                pause.Step(0, 0, frameCycle: phase);
+                pause.Step(0, 0, frameCount: phase);
                 // The frame is captured once and drawn once; the repaint and restore checks compare descriptions,
                 // drawing only one that differs (#1532).
                 var capture = pause.ComposeScene();
@@ -64,7 +64,7 @@ internal static class PauseReserveTanksVerification
                 CartridgePaletteImporter.LoadToCgram(nativeColours, bus, MapSourceDefinitions.Artwork.PauseColors);
                 foreach (ImageSpriteDraw draw in capture.SpriteDraws.OfType<ImageSpriteDraw>().Where(draw => draw.Shading == PictureShading.Standard))
                     AssertTrue(SuperMetroid.AssetExtraction.Artwork.InstalledPictureColoursConstants.ShowsNativeColours(draw.Image.Sheet,
-                            PictureShading.Standard.KeyColours(draw.Image.Sheet), nativeColours.Colors),
+                            PictureShading.Standard.KeyColours(draw.Image.Sheet, global::SuperMetroid.Core.Assets.ColourBlendOracle.Instance), nativeColours.Colors),
                         $"pause sprite {draw.Image.Sheet.Name} shows the cartridge's pause sprite colours {capacity}/{supply}");
                 var expected = DisplayRendering.Render(capture.WithNativeColoursAndOam(captureVram, PauseShownColours.Of(pause, RetailPresentationFixture()), objects, native.LastFinalizedSpriteCount, SuperMetroid.AssetExtraction.Frontend.PauseSheetDefinitions.ObjectSelection));
                 // This rectangle encloses the tank strip and end-cap, but not the

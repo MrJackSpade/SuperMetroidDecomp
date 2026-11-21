@@ -80,3 +80,4 @@ SME6482 | Design | Error | ListPositionAnalyzer
 SME6479 | Design | Error | CoreDocumentationStorageAndHistoryAnalyzer
 SME6483 | Design | Error | RepeatedDefinitionStructureAnalyzer
 SME6484 | Design | Error | IdentityListingAnalyzer
+SME6486 | Design | Error | RandomPlaceSelectionAnalyzer

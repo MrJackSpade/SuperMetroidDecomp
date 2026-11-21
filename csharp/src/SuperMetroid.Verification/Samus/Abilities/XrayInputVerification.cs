@@ -20,6 +20,7 @@ namespace SuperMetroid.Verification.Samus.Abilities;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.TestSupport.FrameRendering;
+using SuperMetroid.Core.Compatibility;
 
 /// <summary>Checks X-Ray activation, beam display, release, and excluded-room input routes.</summary>
 internal static class XrayInputVerification
@@ -61,7 +62,7 @@ internal static class XrayInputVerification
                 {
                     AssertTrue(((GameplayBlendLayer)startup.Layers[0]).Window.IsClosed,
                         "setup keeps the beam closed while copying tilemaps");
-                    AssertEqual(frame == 7 ? XrayWindowRenderDefinitions.ActiveBackdrop : RgbColor.Black, startup.Paint.Backdrop,
+                    AssertEqual(frame == 7 ? XrayWindowRenderDefinitions.ActiveBackdrop : RgbColor.Black, startup.Paint.Backdrop.ShownWith(global::SuperMetroid.Core.Assets.ColourBlendOracle.Instance),
                         "only setup stage eight installs the X-ray backdrop");
                 }
             }
@@ -91,7 +92,7 @@ internal static class XrayInputVerification
         AssertTrue(reveal.RevealBlocks, "ordinary X-ray room selects terrain revelation");
         AssertTrue(reveal.Blend is XrayDimmingBlend { Mode.WashesGrey: true, Mode.KeepsBackgrounds: false, Mode.KeepsDarkness: false, RoomDarkens: false },
             "a reveal room washes both backgrounds, the actors and the backdrop grey outside the cone, brightening");
-        AssertEqual(XrayWindowRenderDefinitions.ActiveBackdrop, captured.Paint.Backdrop, "setup backdrop reaches the packet");
+        AssertEqual(XrayWindowRenderDefinitions.ActiveBackdrop, captured.Paint.Backdrop.ShownWith(global::SuperMetroid.Core.Assets.ColourBlendOracle.Instance), "setup backdrop reaches the packet");
         // The background shows the reveal over the room's own blocks (#1403, #1431, #1514).
         XrayRevealPlane shownReveal = reveal.Gameplay.Rooms.Background is SuperMetroid.Core.Gameplay.XrayRevealBackground { Reveal: var revealed } ? revealed
             : throw new InvalidOperationException("The captured X-ray frame shows no reveal.");
@@ -112,7 +113,7 @@ internal static class XrayInputVerification
             AssertTrue(closing.Layers[0] is GameplayBlendLayer, "the beam's closing retains X-ray layer ownership");
             AssertTrue(((GameplayBlendLayer)closing.Layers[0]).Window.IsClosed,
                 "the beam's window stays closed until the beam's last step");
-            AssertEqual(RgbColor.Black, closing.Paint.Backdrop, "the closing resets the backdrop before unfreezing");
+            AssertEqual(RgbColor.Black, closing.Paint.Backdrop.ShownWith(global::SuperMetroid.Core.Assets.ColourBlendOracle.Instance), "the closing resets the backdrop before unfreezing");
         }
         runtime.StepFrame(0);
         AssertTrue(!runtime.Freeze.TimeIsFrozen, "the beam's last step releases gameplay time");

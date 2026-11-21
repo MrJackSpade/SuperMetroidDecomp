@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
@@ -78,6 +80,6 @@ public static class PauseReserveUiExtractor
             Column = cell % PauseReserveUiDefinitions.TilemapColumns,
             Row = cell / PauseReserveUiDefinitions.TilemapColumns,
         };
-        static PaletteRgb5 Rgb(int word) => new() { Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31 };
+        static PaletteRgb5 Rgb(int word) => PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(word));
     }
 }

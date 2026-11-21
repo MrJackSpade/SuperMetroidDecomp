@@ -16,7 +16,7 @@ internal static class WorkRobotLaserDefinitions
     /// The random field that adds zero to thirty-one updates to a firing WorkRobot's laser cooldown, before the fixed
     /// <see cref="CooldownBase"/>.
     /// </summary>
-    internal static readonly RandomSampleField CooldownJitter = new(0, 5);
+    internal static readonly RandomSampleField CooldownJitter = RandomSampleField.OneOf(32);
 
     /// <summary>How much longer a WorkRobot waits to fire after it turns at a wall or a ledge, in updates.</summary>
     internal const int TurnDelay = 8;

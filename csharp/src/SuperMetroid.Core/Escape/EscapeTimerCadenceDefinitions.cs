@@ -10,7 +10,7 @@ internal static class EscapeTimerCadenceDefinitions
     /// The frame counter's place in the countdown's period, which picks the centiseconds the update removes (#1619): the
     /// counter's place in each of its periods, so the cadence repeats with the period.
     /// </summary>
-    internal static readonly UpdateCounterField PeriodPlace = new(0, 7);
+    internal static readonly UpdateCycle PeriodPlace = new(128, 1);
 
     /// <summary>Decimal timer time unit: one second contains 100 centiseconds.</summary>
     internal const int CentisecondsPerSecond = 100;

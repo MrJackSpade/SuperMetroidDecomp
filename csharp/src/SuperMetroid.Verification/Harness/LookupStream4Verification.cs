@@ -82,7 +82,8 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.Enemies.Artwork;
 using SuperMetroid.Verification.Bosses;
 using SuperMetroid.AssetExtraction.Bosses.SporeSpawn.Artwork;
-using SuperMetroid.Core.Bosses.Ridley.Artwork;
+using SuperMetroid.Core.Bosses.Ridley.Artwork;
+using SuperMetroid.Core.Compatibility;
 namespace SuperMetroid.Verification.Harness;
 
 /// <summary>Compares stream-four imported definitions and runtime consumers with pinned cartridge data.</summary>

@@ -21,7 +21,7 @@ public sealed class FramePaint
     /// its sprites are drawn by its scene's sprite layers, each at its place among the screen's layers.
     /// </summary>
     /// <param name="backdrop">The solid colour the screen shows where nothing is drawn.</param>
-    public FramePaint(RgbColor backdrop)
+    public FramePaint(ShownColour backdrop)
         : this(backdrop, ImmutableArray<ImageSpriteDraw>.Empty)
     {
     }
@@ -35,10 +35,10 @@ public sealed class FramePaint
     /// <param name="backdrop">The solid colour the screen shows where nothing is drawn.</param>
     /// <param name="spriteDraws">The draws, frontmost first, each naming its shading.</param>
     /// <exception cref="ArgumentException">The draw list is missing or holds a missing draw.</exception>
-    public FramePaint(RgbColor backdrop, ImmutableArray<ImageSpriteDraw> spriteDraws)
+    public FramePaint(ShownColour backdrop, ImmutableArray<ImageSpriteDraw> spriteDraws)
     {
         Check(spriteDraws);
-        Backdrop = backdrop;
+        Backdrop = Ensure.NotNull(backdrop);
         SpriteDraws = spriteDraws;
     }
 
@@ -72,15 +72,15 @@ public sealed class FramePaint
     }
 
     /// <summary>Keeps <paramref name="paint"/>'s draws with <paramref name="backdrop"/> and <paramref name="gameplay"/>'s shading.</summary>
-    private FramePaint(FramePaint paint, RgbColor backdrop, GameplayShading? gameplay)
+    private FramePaint(FramePaint paint, ShownColour backdrop, GameplayShading? gameplay)
     {
         Gameplay = gameplay;
         Backdrop = backdrop;
         SpriteDraws = paint.SpriteDraws;
     }
 
-    /// <summary>The colour shown where nothing is drawn.</summary>
-    public RgbColor Backdrop { get; }
+    /// <summary>What is shown where nothing is drawn, which the backend shows (#2563).</summary>
+    public ShownColour Backdrop { get; }
 
     /// <summary>How a gameplay frame's background pictures are coloured (#1512); null for a frontend screen's frame.</summary>
     public GameplayShading? Gameplay { get; }
@@ -93,7 +93,7 @@ public sealed class FramePaint
     public ImmutableArray<ImageSpriteDraw> SpriteDraws { get; }
 
     /// <summary>This frame with the backdrop shown in <paramref name="backdrop"/>, as X-ray shows its own.</summary>
-    public FramePaint WithBackdrop(RgbColor backdrop) => new(this, backdrop, Gameplay?.WithBackdrop(backdrop));
+    public FramePaint WithBackdrop(ShownColour backdrop) => new(this, backdrop, Gameplay?.WithBackdrop(backdrop));
 
     /// <summary>
     /// The shading a gameplay sprite draw naming <paramref name="shading"/> shows under <paramref name="gameplay"/>: the

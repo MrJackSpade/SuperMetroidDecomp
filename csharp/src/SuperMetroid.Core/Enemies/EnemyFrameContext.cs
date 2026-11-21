@@ -19,7 +19,7 @@ internal sealed class EnemyFrameContext
 
     /// <summary>
     /// The count of enemy passes, read by AI and projectiles: every reader takes a power-of-two cadence of it (an
-    /// <see cref="UpdateCadence"/> or <see cref="UpdateCounterField"/>), so it is a plain count.
+    /// <see cref="UpdateCadence"/>, an <see cref="UpdateAlternation"/> or an <see cref="UpdateCycle"/>), so it is a plain count.
     /// </summary>
     internal int EnemyPassCount
     {

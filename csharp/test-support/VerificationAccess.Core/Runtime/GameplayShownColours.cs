@@ -82,7 +82,7 @@ internal static class GameplayShownColours
     /// <exception cref="InvalidDataException">A colour lies outside the background colours.</exception>
     private static void Lay(RgbColor[] image, SpriteImage picture, PictureShading shading)
     {
-        RgbColor[] colours = shading.KeyColours(picture);
+        RgbColor[] colours = shading.KeyColours(picture, global::SuperMetroid.Core.Assets.ColourBlendOracle.Instance);
         System.Collections.Immutable.ImmutableArray<ColourKey> keys = picture.ColourKeys;
         for (int key = 0; key < colours.Length; key++)
         {

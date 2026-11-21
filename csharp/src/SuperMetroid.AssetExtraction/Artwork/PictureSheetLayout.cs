@@ -92,7 +92,7 @@ internal sealed class PictureSheetLayout
         }
         return new SpriteSheetDocument
         {
-            Palette = SpriteImageColours.Sprite, Colours = colouring.ColourWords(), PaletteBits = colouring.PaletteBits,
+            Palette = SpriteImageColours.Sprite, Colours = colouring.Colours(), PaletteBits = colouring.PaletteBits,
             Frames = frames, Shades = colouring.ShadeDocuments(),
         };
     }

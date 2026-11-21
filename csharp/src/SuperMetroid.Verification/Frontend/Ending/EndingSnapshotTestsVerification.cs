@@ -22,7 +22,11 @@ namespace SuperMetroid.Verification.Frontend.Ending;
 /// <summary>Checks retained render packets across the escape, credits, and timed reward branches.</summary>
 internal static class EndingSnapshotTestsVerification
 {
-    /// <summary>Compares sampled packet pixels with the live ending while checking native palettes, OAM, phase timing, and later packet stability.</summary>
+    /// <summary>
+    /// Compares sampled packet pixels with the live ending while checking native palettes, OAM, phase timing, and later
+    /// packet stability; each reward branch plays through escape, explosion, clear time, credits and its reward to the
+    /// final hold, a frame rendered at each phase change.
+    /// </summary>
     internal static void VerifyEndingRenderSnapshots()
     {
         byte[] rom = File.ReadAllBytes(Path.GetFullPath("Super Metroid.smc"));
@@ -31,6 +35,8 @@ internal static class EndingSnapshotTestsVerification
         // reward branch.
         EndingPaletteSet installedPalettes = InstalledFixtures.EndingColours;
         IReadOnlyList<SheetShade> installedShades = EndingScreenShades.Screen(installedPalettes, InstalledFixtures.ImportMaps.RoomPaletteFx);
+        // The reward each branch's clear time selects: under three hours, three to ten, and ten or more.
+        var rewards = new Dictionary<ushort, EndingReward> { [2] = EndingReward.Suitless, [3] = EndingReward.Helmetless, [10] = EndingReward.Armored };
         foreach (ushort hours in new ushort[] { 2, 3, 10 })
         {
             var bus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
@@ -49,9 +55,19 @@ internal static class EndingSnapshotTestsVerification
             // captured and again after the next update (#1532).
             DisplayPacket? previousPacket = null;
             byte[] previousHeld = [];
+            EndingCreditsPhase previousPhase = legacy.Phase;
+            int phaseChanges = 0;
             for (int tick = 0; tick < 60000; tick++)
             {
                 legacy.Step(); captured.Step();
+                if (legacy.Phase != previousPhase)
+                {
+                    // Each phase change shows a whole frame (#2553: the ending-state check's render, made here).
+                    previousPhase = legacy.Phase;
+                    AssertEqual(SuperMetroid.Core.Spatial.ScreenGeometry.ScreenWidthPixels * SuperMetroid.Core.Spatial.ScreenGeometry.ScreenHeightPixels,
+                        legacy.Render().Length, $"ending {previousPhase} frame size");
+                    phaseChanges++;
+                }
                 // The live ending's frame this update, captured once for every check of it: a capture does not advance the
                 // ending, which the capture-only control checks below (#1532).
                 LayeredScene? liveScene = null;
@@ -399,6 +415,10 @@ internal static class EndingSnapshotTestsVerification
             AssertTrue(burstDisplayFrames > 10, "ending executes the callback-driven explosion burst before its finale");
             AssertTrue(phases.Contains(EndingCreditsPhase.Credits) && phases.Contains(EndingCreditsPhase.PostCreditsReward)
                 && phases.Contains(EndingCreditsPhase.ZebesExplosionAnimation), "ending covers all composition families");
+            AssertTrue(phases.Contains(EndingCreditsPhase.OperationSuccessfulText), "ending executes the cartridge clear-time text chain");
+            AssertEqual(rewards[hours], legacy.Stage.EndingReward, $"the {hours}-hour clear time's reward");
+            if (hours == 2)
+                AssertTrue(phaseChanges >= 20, "ending renders each materially different cartridge phase");
             LayeredScene final = EndingCreditsPresentation.ComposeScene(legacy);
             LayeredScene retained = EndingCreditsPresentation.ComposeScene(captured);
             AssertTrue(ScenePixels.Same(final, retained), "ending final packet shows the legacy frame's pixels");

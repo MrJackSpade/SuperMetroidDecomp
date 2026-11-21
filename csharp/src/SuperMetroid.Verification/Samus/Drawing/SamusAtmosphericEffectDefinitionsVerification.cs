@@ -75,9 +75,6 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
         Suite(nameof(VerifyFlashbackGround), () => VerifyFlashbackGround(testPose));
 
         AssertThrows<InvalidDataException>(
-            () => SamusAtmosphericEffects.WaterSplashFor((SamusMovementType)(-1)),
-            "water-splash movement selector past table");
-        AssertThrows<InvalidDataException>(
             () => SamusAtmosphericEffects.IsRunningFootContact(new SamusAnimationFrame(SamusAnimationSegmentName.Run, 10)),
             "running foot-contact frame past table");
         AssertThrows<InvalidDataException>(

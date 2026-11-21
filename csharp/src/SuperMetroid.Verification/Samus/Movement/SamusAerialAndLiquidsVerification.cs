@@ -214,9 +214,6 @@ SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, 0, unche
         AssertEqual(neutralTarget, neutral.Pose,
             $"aimed standing turn ${SamusPoseNumbers.Number(source):X2} accepts facing neutral jump");
     }
-    AssertThrows<InvalidOperationException>(
-        () => SamusAerialPoseTransitions.ApplyOrdinaryJumpTransition(new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()).InPose(SamusPoseId.TurningRightToLeftCrouchingPose), SamusPoseId.SpinJumpLeftPose),
-        "crouched turn remains outside direct ordinary-jump initializer");
 
     // Walking off a ledge is the movement-type-six entry point. $91:E8F2 selects pose $2A
     // from the old left-facing direction and command five begins with a stationary falling

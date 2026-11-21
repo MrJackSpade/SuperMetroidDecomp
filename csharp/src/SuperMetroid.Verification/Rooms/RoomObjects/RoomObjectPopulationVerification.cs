@@ -626,7 +626,8 @@ internal static class RoomObjectPopulationVerification
 
         RoomFxOverlayState CreateFx(ushort baseY, int? targetY, ushort velocity, byte timer)
         {
-            var fx = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.RoomFxOverlayState>([typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone() });
+            // A room with no effect, built as room entry builds one; the escape's controller moves its liquid.
+            var fx = RoomFxOverlayState.ForRoom(fx: null, door: null, randomNumber: 0, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
             fx.SetLiquidLevel(baseY);
             if (targetY is int target)
                 fx.MoveLiquidTo(target, new SignedEightEight(velocity), timer);

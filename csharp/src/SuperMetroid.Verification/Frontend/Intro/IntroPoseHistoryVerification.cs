@@ -130,6 +130,10 @@ internal static class IntroPoseHistoryVerification
     [VerificationCommand("--frontend-fixtures")]
     internal static int FrontendFixturesCommand()
     {
-     VerifyIntroPoseHistory(); VerifyFrontendRenderCapture(); VerifyGameplayCaptureIntegration(); VerifyAttractCapture(); return 0; 
+        Suite(nameof(VerifyIntroPoseHistory), VerifyIntroPoseHistory);
+        Suite(nameof(VerifyFrontendRenderCapture), VerifyFrontendRenderCapture);
+        Suite(nameof(VerifyGameplayCaptureIntegration), VerifyGameplayCaptureIntegration);
+        Suite(nameof(VerifyAttractCapture), VerifyAttractCapture);
+        return 0;
     }
 }

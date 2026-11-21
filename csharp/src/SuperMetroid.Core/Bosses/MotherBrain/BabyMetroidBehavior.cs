@@ -23,9 +23,6 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyLoadedFactory<E
     private readonly EnemyPassEvents _passEvents;
 
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.BabyMetroid];
-
-    /// <inheritdoc/>
     public EnemyOccupant CreateLoaded(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common,
         EnemyPopulationSurroundings surroundings) => EnemyOccupant.Running(new BabyMetroidEntity(this, occupant, place, common, surroundings));
 
@@ -38,7 +35,6 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyLoadedFactory<E
     private readonly SharedFadeStepCount _fadeStepCount;
     /// <summary>Receives the Baby Metroid's cries and music changes.</summary>
     private readonly EnemyAudioQueue _audio;
-
 
     /// <summary>Connects the Tourian Baby Metroid to room, victim, colour, audio and Zebetite owners.</summary>
     internal BabyMetroidBehavior(EnemyRoomBinding room, EnemyPlaces places, SharedFadeStepCount fadeStepCount, EnemyPassEvents passEvents, EnemyAudioQueue audio)
@@ -115,37 +111,43 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyLoadedFactory<E
         Position16<RoomPixels> camera,
         SamusBombProjectileSystem samusBombs)
     {
-        switch (state.Action)
+        // Each case ends the update or goes on into the case it has just entered (#2553).
+        while (true)
         {
-            case BabyMetroidAction.Dormant:
+            if (state.Action == BabyMetroidAction.Dormant)
+            {
                 state.Velocity = default;
                 return;
-
-            case BabyMetroidAction.WaitForCamera:
+            }
+            else if (state.Action == BabyMetroidAction.WaitForCamera)
+            {
                 WaitForBabyMetroidCamera(state, camera);
                 return;
-
-            case BabyMetroidAction.BeginEntranceDelay:
+            }
+            else if (state.Action == BabyMetroidAction.BeginEntranceDelay)
+            {
                 state.Action = BabyMetroidAction.EntranceDelay;
                 state.StateTimer.LastFor(BabyMetroidFightDefinitions.EntranceDelayUpdates);
-                goto case BabyMetroidAction.EntranceDelay;
-
-            case BabyMetroidAction.EntranceDelay:
+                continue;
+            }
+            else if (state.Action == BabyMetroidAction.EntranceDelay)
+            {
                 if (state.StateTimer.StepRunsOut())
                 {
                     RequestBabyMetroidMusic(MusicRequest.SelectTrack(MusicTrack.KraidAndPhantoonBattle));
                     state.Action = BabyMetroidAction.FlyToSidehopper;
-                    goto case BabyMetroidAction.FlyToSidehopper;
+                    continue;
                 }
                 return;
-
-            case BabyMetroidAction.FlyToSidehopper:
+            }
+            else if (state.Action == BabyMetroidAction.FlyToSidehopper)
+            {
                 GraduallyAccelerateBabyMetroid(place, state, BabyMetroidFlightDefinitions.RushDivisor, BabyMetroidFightDefinitions.SidehopperRendezvous, camera);
                 if (BabyMetroidOverlapsRectangle(place, BabyMetroidFightDefinitions.SidehopperRendezvous, BabyMetroidFightDefinitions.RendezvousReach))
                     state.Action = BabyMetroidAction.ChaseSidehopper;
                 return;
-
-            case BabyMetroidAction.ChaseSidehopper:
+            }
+            else if (state.Action == BabyMetroidAction.ChaseSidehopper)
             {
                 RoomEnemyPlace victim = RequireBabyMetroidVictim(place);
                 GraduallyAccelerateBabyMetroid(
@@ -158,23 +160,26 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyLoadedFactory<E
                     state.Action = BabyMetroidAction.AttachToSidehopper;
                 return;
             }
-
-            case BabyMetroidAction.AttachToSidehopper:
+            else if (state.Action == BabyMetroidAction.AttachToSidehopper)
+            {
                 AttachBabyMetroidToSidehopper(place, state);
                 return;
-
-            case BabyMetroidAction.DrainSidehopper:
+            }
+            else if (state.Action == BabyMetroidAction.DrainSidehopper)
+            {
                 DrainBabyMetroidVictim(place, state);
                 return;
-
-            case BabyMetroidAction.ActivateSidehopperCorpse:
+            }
+            else if (state.Action == BabyMetroidAction.ActivateSidehopperCorpse)
+            {
                 DeadSidehopperEntity corpse = RequireBabyMetroidVictimCorpse(place);
                 DeadSidehopperBehavior.ActivateDeadSidehopperVictim(corpse.State);
                 state.Action = BabyMetroidAction.RiseAfterFeeding;
                 state.StateTimer.LastFor(BabyMetroidFightDefinitions.RiseUpdates);
-                goto case BabyMetroidAction.RiseAfterFeeding;
-
-            case BabyMetroidAction.RiseAfterFeeding:
+                continue;
+            }
+            else if (state.Action == BabyMetroidAction.RiseAfterFeeding)
+            {
                 GraduallyAccelerateBabyMetroid(place, state, BabyMetroidFlightDefinitions.DriftDivisor, new(place.Position.X.Whole, BabyMetroidFightDefinitions.RiseY), camera);
                 if (state.StateTimer.StepRunsOut())
                 {
@@ -184,12 +189,14 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyLoadedFactory<E
                     QueueBabyMetroidWallObjects(BabyMetroidWallMutation.Clear);
                 }
                 return;
-
-            case BabyMetroidAction.HoverNearSamus:
+            }
+            else if (state.Action == BabyMetroidAction.HoverNearSamus)
+            {
                 HoverBabyMetroidNearSamus(place, state, samus, camera);
                 return;
-
-            case BabyMetroidAction.ChaseSamus:
+            }
+            else if (state.Action == BabyMetroidAction.ChaseSamus)
+            {
                 GraduallyAccelerateBabyMetroid(
                     place,
                     state,
@@ -197,35 +204,39 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyLoadedFactory<E
                     samus.Position.Whole + BabyMetroidFightDefinitions.LatchOffset,
                     camera);
                 return;
-
-            case BabyMetroidAction.BeginDrainingSamus:
+            }
+            else if (state.Action == BabyMetroidAction.BeginDrainingSamus)
+            {
                 samus.MetroidAttachmentShade = SamusMetroidAttachmentShade.SpeedBoostNext;
                 state.Action = BabyMetroidAction.DrainSamus;
-                goto case BabyMetroidAction.DrainSamus;
-
-            case BabyMetroidAction.DrainSamus:
+                continue;
+            }
+            else if (state.Action == BabyMetroidAction.DrainSamus)
+            {
                 DrainSamusWithBabyMetroid(
                     place,
                     state,
                     samus,
                     samusBombs);
                 return;
-
-            case BabyMetroidAction.BeginPostDrainPause:
+            }
+            else if (state.Action == BabyMetroidAction.BeginPostDrainPause)
+            {
                 state.Action = BabyMetroidAction.PostDrainPause;
                 state.StateTimer.LastFor(BabyMetroidFightDefinitions.PostDrainPauseUpdates);
-                goto case BabyMetroidAction.PostDrainPause;
-
-            case BabyMetroidAction.PostDrainPause:
+                continue;
+            }
+            else if (state.Action == BabyMetroidAction.PostDrainPause)
+            {
                 if (state.StateTimer.StepRunsOut())
                 {
                     state.Action = BabyMetroidAction.RiseAfterDrainingSamus;
                     state.StateTimer.LastFor(BabyMetroidFightDefinitions.RiseUpdates);
-                    goto case BabyMetroidAction.RiseAfterDrainingSamus;
+                    continue;
                 }
                 return;
-
-            case BabyMetroidAction.RiseAfterDrainingSamus:
+            }
+            else if (state.Action == BabyMetroidAction.RiseAfterDrainingSamus)
             {
                 GraduallyAccelerateBabyMetroid(place, state, BabyMetroidFlightDefinitions.DriftDivisor, new(samus.Position.X.Whole, BabyMetroidFightDefinitions.RiseY), camera);
                 if (state.StateTimer.StepRunsOut())
@@ -235,12 +246,11 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyLoadedFactory<E
                     state.DepartureSide = HorizontalDirection.Left;
                     state.StateTimer.LastFor(BabyMetroidFightDefinitions.FlyBesideUpdates);
                     SetBabyMetroidAnimation(place, state, BabyMetroidSegment.LatchedOn);
-                    goto case BabyMetroidAction.FlyBesideSamus;
+                    continue;
                 }
                 return;
             }
-
-            case BabyMetroidAction.FlyBesideSamus:
+            else if (state.Action == BabyMetroidAction.FlyBesideSamus)
             {
                 bool toHerLeft = state.DepartureSide == HorizontalDirection.Left;
                 GraduallyAccelerateBabyMetroid(
@@ -260,20 +270,21 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyLoadedFactory<E
                 {
                     state.DepartureSide = HorizontalDirection.Right;
                     state.StateTimer.LastFor(BabyMetroidFightDefinitions.FlyBesideUpdates);
-                    goto case BabyMetroidAction.FlyBesideSamus;
+                    continue;
                 }
                 state.Action = BabyMetroidAction.HoldSamusBeforeRelease;
                 state.StateTimer.LastFor(BabyMetroidFightDefinitions.HoldBeforeReleaseUpdates);
                 SetBabyMetroidAnimation(place, state, BabyMetroidSegment.Remorse);
                 return;
             }
-
-            case BabyMetroidAction.BeginExit:
+            else if (state.Action == BabyMetroidAction.BeginExit)
+            {
                 RequestBabyMetroidSound(BabyMetroidSoundDefinitions.RemorseCry);
                 state.Action = BabyMetroidAction.Exit;
-                goto case BabyMetroidAction.Exit;
-
-            case BabyMetroidAction.Exit:
+                continue;
+            }
+            else if (state.Action == BabyMetroidAction.Exit)
+            {
                 GraduallyAccelerateBabyMetroid(place, state, BabyMetroidFlightDefinitions.DriftDivisor, BabyMetroidFightDefinitions.ExitPoint, camera);
                 if (BabyMetroidOverlapsRectangle(place, BabyMetroidFightDefinitions.ExitPoint, BabyMetroidFightDefinitions.ExitReach))
                 {
@@ -285,8 +296,9 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyLoadedFactory<E
                     state.Action = BabyMetroidAction.Dormant;
                 }
                 return;
-
-            case BabyMetroidAction.HoldSamusBeforeRelease:
+            }
+            else if (state.Action == BabyMetroidAction.HoldSamusBeforeRelease)
+            {
                 if (state.StateTimer.StepRunsOut())
                 {
                     samus.Drained.Release(samus);
@@ -295,15 +307,14 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyLoadedFactory<E
                 }
                 FollowReleasedSamus(place, state, samus, camera);
                 return;
-
-            case BabyMetroidAction.ReleasedFollow:
+            }
+            else
+            {
+                // The remaining member, BabyMetroidAction.ReleasedFollow.
                 if (FollowReleasedSamus(place, state, samus, camera))
                     state.Action = BabyMetroidAction.BeginExit;
                 return;
-
-            default:
-                throw new InvalidDataException(
-                    $"Baby Metroid has no behaviour for action {state.Action}.");
+            }
         }
     }
 
@@ -731,21 +742,24 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyLoadedFactory<E
         state.Playback = playback;
     }
 
+    /// <summary>What <see cref="ApplyBabyMetroidCue"/> comes to for each <see cref="BabyMetroidCue"/> member, each member's own arm.</summary>
+    private IdentityTable<BabyMetroidCue, Func<AnimationContinuation<BabyMetroidSegment>?>> ApplyBabyMetroidCueForBabyMetroidCue => field ??= new(new Dictionary<BabyMetroidCue, Func<AnimationContinuation<BabyMetroidSegment>?>>
+    {
+        [BabyMetroidCue.MaybeRemorseCry] = () =>
+        {
+            // The cue samples the existing random number; it does not generate a new one.
+            if (BossRandomRolls.InLowerHalf(_room.Random.Read()))
+                return new(BabyMetroidAnimations.StartingAt[BabyMetroidSegment.Remorse], AnimationPlace.StartOfAnimation);
+            RequestBabyMetroidSound(BabyMetroidSoundDefinitions.RemorseCry);
+            return null;
+        },
+    });
+
     /// <summary>Carries out one event of a Baby Metroid animation.</summary>
     /// <returns>The remorse animation from its start when the cry does not sound; otherwise null.</returns>
     private AnimationContinuation<BabyMetroidSegment>? ApplyBabyMetroidCue(BabyMetroidCue cue)
     {
-        switch (cue)
-        {
-            case BabyMetroidCue.MaybeRemorseCry:
-                // The cue samples the existing random number; it does not generate a new one.
-                if (BossRandomRolls.InLowerHalf(_room.Random.Read()))
-                    return new(BabyMetroidAnimations.StartingAt[BabyMetroidSegment.Remorse], AnimationPlace.StartOfAnimation);
-                RequestBabyMetroidSound(BabyMetroidSoundDefinitions.RemorseCry);
-                return null;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(BabyMetroidCue)} {cue}.");
-        }
+        return ApplyBabyMetroidCueForBabyMetroidCue[cue]();
     }
 
     /// <summary>Marks projectile collision and converts shot damage into recoil without vulnerability damage.</summary>

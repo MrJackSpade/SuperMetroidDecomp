@@ -54,9 +54,4 @@ internal static class SamusDrainedAnimationDefinitions
     internal const int PutCrouchingTimer = 16;
     /// <summary>How many ticks standing drained Samus up holds the drained stand's first frame.</summary>
     internal const int PutStandingTimer = 16;
-    /// <summary>
-    /// The drained crouch's vertical radius, in pixels: letting drained Samus fall keeps her feet where they were as her
-    /// body takes it.
-    /// </summary>
-    internal const int CrouchingYRadius = 21;
 }

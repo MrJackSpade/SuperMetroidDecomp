@@ -12,9 +12,6 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemySpawnFactory<Plat
 {
 
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.SuspensorPlatform, EnemyDefinitionId.Tripper];
-
-    /// <inheritdoc/>
     public EnemyOccupant Create(RoomEnemyOccupant occupant, PlatformSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new PlatformsEntity(this, occupant, place, common, settings));
 
     /// <summary>Clips the Tripper's and the suspensor platform's horizontal and vertical displacement against room terrain.</summary>
@@ -101,6 +98,13 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemySpawnFactory<Plat
         StartPlatformStillAnimationForHeading(place, state);
     }
 
+    /// <summary>What <see cref="MovePlatformVertically"/> does for each <see cref="PlatformVerticalMovement"/> member, each member's own arm.</summary>
+    private IdentityTable<PlatformVerticalMovement, Action<PlatformSpawnSettings, RoomEnemyPlace, PlatformEnemyState, SamusState, RoomLevelData, int>> MovePlatformVerticallyForPlatformVerticalMovement => field ??= new(new Dictionary<PlatformVerticalMovement, Action<PlatformSpawnSettings, RoomEnemyPlace, PlatformEnemyState, SamusState, RoomLevelData, int>>
+    {
+        [PlatformVerticalMovement.Rising] = (settings, place, state, samus, level, preHorizontalX) => RaisePlatform(settings, place, state, level),
+        [PlatformVerticalMovement.Sinking] = (settings, place, state, samus, level, preHorizontalX) => SinkPlatform(settings, place, state, samus, level, preHorizontalX),
+    });
+
     /// <summary>Routes the platform through rise or sink physics and carries a riding Samus by accepted motion.</summary>
     /// <param name="platformSpawnSettings">What the enemy's population entry tells its species.</param>
     /// <param name="place">The platform's place.</param>
@@ -117,18 +121,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemySpawnFactory<Plat
         PlatformVerticalMovement movement,
         int preHorizontalX)
     {
-        switch (movement)
-        {
-            case PlatformVerticalMovement.Rising:
-                RaisePlatform(platformSpawnSettings, place, state, level);
-                return;
-            case PlatformVerticalMovement.Sinking:
-                SinkPlatform(platformSpawnSettings, place, state, samus, level, preHorizontalX);
-                return;
-            default:
-                throw new InvalidDataException(
-                    $"Platform Y movement {movement} is neither rising nor falling.");
-        }
+        MovePlatformVerticallyForPlatformVerticalMovement[movement](platformSpawnSettings, place, state, samus, level, preHorizontalX);
     }
 
     /// <summary>Returns a depressed platform toward its spawn height, stopping at its resting depth.</summary>

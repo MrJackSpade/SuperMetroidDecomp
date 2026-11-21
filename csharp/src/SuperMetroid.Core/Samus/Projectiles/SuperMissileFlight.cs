@@ -8,6 +8,6 @@ internal sealed class SuperMissileFlight : SamusShotBehavior<SuperMissileShotSta
 {
     /// <inheritdoc/>
     internal override void Run(SamusShotUpdate update, SuperMissileShotState state) =>
-        update.Shots.Motion.FlySuperMissile(update.Terrain.Level, update.Samus, update.Held, state, update.Camera,
-            update.SamusBombs, update.Terrain.RoomObjects);
+        update.Shots.Motion.FlySuperMissile(update.Terrain, update.Samus, update.Held, state, update.Camera,
+            update.SamusBombs);
 }

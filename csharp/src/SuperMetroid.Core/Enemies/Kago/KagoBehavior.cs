@@ -11,8 +11,6 @@ namespace SuperMetroid.Core.Enemies.Kago;
 [RoomLifetime]
 internal sealed class KagoBehavior : IEnemySpecies, IEnemySpawnFactory<KagoSpawnSettings>
 {
-    /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Kago];
 
     /// <inheritdoc/>
     public EnemyOccupant Create(RoomEnemyOccupant occupant, KagoSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.PlacedOnly(new KagoEntity(this, occupant, place, common, settings));
@@ -113,48 +111,36 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemySpawnFactory<KagoSpawn
         /// <inheritdoc/>
         internal override EnemyProjectileAnimation ShotAnimation() => new KagoBugProjectileAnimation(this, KagoBugProjectileSegment.Shot);
 
+        /// <summary>What <c>Move</c> does for each <see cref="KagoBugMotion"/> member, each member's own arm.</summary>
+        private IdentityTable<KagoBugMotion, Action<EnemyProjectileMotionContext>> MoveForKagoBugMotion => field ??= new(new Dictionary<KagoBugMotion, Action<EnemyProjectileMotionContext>>
+        {
+            [KagoBugMotion.Waiting] = context => RunKagoBugIdle(context.Projectile),
+            [KagoBugMotion.Jumping] = context => RunKagoBugJumping(context.Projectile, context.Level),
+            [KagoBugMotion.Falling] = context => RunKagoBugFalling(context.Projectile, context.Level),
+        });
+
         /// <inheritdoc/>
         internal override void Move(EnemyProjectileMotionContext context, KagoBugMotion motion)
         {
-            switch (motion)
-            {
-                case KagoBugMotion.Waiting:
-                    RunKagoBugIdle(context.Projectile);
-                    break;
-                case KagoBugMotion.Jumping:
-                    RunKagoBugJumping(context.Projectile, context.Level);
-                    break;
-                case KagoBugMotion.Falling:
-                    RunKagoBugFalling(context.Projectile, context.Level);
-                    break;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(KagoBugMotion)} {motion}.");
-            }
+            MoveForKagoBugMotion[motion](context);
         }
 
         /// <inheritdoc/>
         public void RunCue(EnemyProjectileCueContext context, KagoBugProjectileCue cue) => ApplyKagoBugCue(context.Projectile, cue, context.Samus);
 
+        /// <summary>What <see cref="ApplyKagoBugCue"/> does for each <see cref="KagoBugProjectileCueKind"/> member, each member's own arm.</summary>
+        private IdentityTable<KagoBugProjectileCueKind, Action<EnemyProjectile, SamusState>> ApplyKagoBugCueForKagoBugProjectileCueKind => field ??= new(new Dictionary<KagoBugProjectileCueKind, Action<EnemyProjectile, SamusState>>
+        {
+            [KagoBugProjectileCueKind.StartJump] = (projectile, samus) => StartKagoBugJump(projectile),
+            [KagoBugProjectileCueKind.StartIdle] = (projectile, samus) => StartKagoBugIdle(projectile),
+            [KagoBugProjectileCueKind.SpawnDrop] = (projectile, samus) => RequestKagoBugDrop(projectile, samus),
+            [KagoBugProjectileCueKind.Delete] = (projectile, samus) => projectile.Delete(),
+        });
+
         /// <summary>Carries out one cue of the bugs' animations.</summary>
         private void ApplyKagoBugCue(EnemyProjectile projectile, KagoBugProjectileCue cue, SamusState samus)
         {
-            switch (cue.Kind)
-            {
-                case KagoBugProjectileCueKind.StartJump:
-                    StartKagoBugJump(projectile);
-                    break;
-                case KagoBugProjectileCueKind.StartIdle:
-                    StartKagoBugIdle(projectile);
-                    break;
-                case KagoBugProjectileCueKind.SpawnDrop:
-                    RequestKagoBugDrop(projectile, samus);
-                    break;
-                case KagoBugProjectileCueKind.Delete:
-                    projectile.Delete();
-                    break;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(KagoBugProjectileCueKind)} {cue.Kind}.");
-            }
+            ApplyKagoBugCueForKagoBugProjectileCueKind[cue.Kind](projectile, samus);
         }
 
         /// <summary>Runs the shared enemy sound countdown every live bug state uses.</summary>
@@ -283,8 +269,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemySpawnFactory<KagoSpawn
         if (!place.AnimationClock.Expire())
             return;
         AnimationPlayback<KagoSegment> playback = state.Playback;
-        EnemyAnimationPlayback.Play(place, KagoAnimations.Segments, ref playback,
-            static cue => throw new InvalidOperationException($"A cue-free Kago animation raised {cue}."));
+        EnemyAnimationPlayback.PlaySilently(place, KagoAnimations.Segments, ref playback);
         state.Playback = playback;
     }
 
@@ -300,7 +285,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemySpawnFactory<KagoSpawn
     /// <summary>Spawns and initializes a Kago bug; with no projectile place free, none spawns.</summary>
     private void SpawnKagoBug(RoomEnemyOccupant occupant, RoomEnemyPlace source)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.KagoBug, Bug, SpriteGraphics.SpawnedBy(occupant, source.Shading));
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.KagoBug, Bug, SpriteGraphics.SpawnedBy(occupant, source.Shading), new KagoBugProjectileAnimation(Bug, KagoBugProjectileSegment.Waiting));
         if (projectile is null)
             return;
 
@@ -316,7 +301,6 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemySpawnFactory<KagoSpawn
             SoundDelay = UpdateCountdown.Lasting(firstGroundWait + KagoDefinitions.FirstSoundPastFirstHop),
         });
         projectile.StartMotion(Bug, KagoBugMotion.Waiting);
-        projectile.StartAnimation(new KagoBugProjectileAnimation(Bug, KagoBugProjectileSegment.Waiting));
     }
 
     /// <summary>

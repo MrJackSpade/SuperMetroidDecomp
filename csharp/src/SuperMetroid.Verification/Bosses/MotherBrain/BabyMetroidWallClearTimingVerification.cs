@@ -44,7 +44,7 @@ internal static class BabyMetroidWallClearTimingVerification
         // A dash like the movie's: the wall's left edge is three pixels ahead and she moves 2.F000.
         SamusState samus = runtime.Player.Samus;
         samus.Control.Unlock();
-        samus.Pose = SamusPoseId.MovingRightNormalPose;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.MovingRightNormalPose);
         samus.Position = samus.Position.WithWhole(new(0x02f9, 0x00bb));
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);

@@ -13,8 +13,6 @@ namespace SuperMetroid.Core.Enemies.Powamp;
 [RoomLifetime]
 internal sealed class PowampBehavior : IEnemySpecies, IEnemySpawnFactory<PowampSpawnSettings>
 {
-    /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Powamp];
 
     /// <summary>
     /// A Powamp's body or balloon, as the placement's settings name the part it is (#2163). The balloon shares the body's
@@ -70,7 +68,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemySpawnFactory<PowampS
             Spawn = place.Position.Whole,
             Contact = Ensure.NotNull(settings).Contact,
         };
-        StartPowampBalloonAnimation(place, balloon, PowampSegment.BalloonDeflated);
+        StartPowampBalloonAnimation(place, balloon, PowampMotionDefinitions.Deflated);
         return balloon;
     }
 
@@ -81,54 +79,32 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemySpawnFactory<PowampS
         PrepareToAnimate(place);
         var state = new PowampBodyState(PowampAction.DeflatedResting);
         state.ActionTimer = UpdateCountdown.For(PowampMotionDefinitions.RestDuration);
-        state.Playback = StartPowampAnimation(place, PowampSegment.BodySlow);
+        state.Playback = StartPowampAnimation(place, PowampBodySegment.BodySlow);
         return state;
     }
+
+    /// <summary>What <see cref="RunPowampMain"/> does for each <see cref="PowampAction"/> member, each member's own arm.</summary>
+    private IdentityTable<PowampAction, Action<RoomEnemyOccupant, RoomEnemyPlace, PowampBodyState, RoomLevelData, SamusState, PowampBalloon, PowampBalloonEntity>> RunPowampMainForPowampAction => field ??= new(new Dictionary<PowampAction, Action<RoomEnemyOccupant, RoomEnemyPlace, PowampBodyState, RoomLevelData, SamusState, PowampBalloon, PowampBalloonEntity>>
+    {
+        [PowampAction.DeflatedResting] = (_, place, state, level, samus, balloon, _) => RunPowampDeflatedResting(place, state, balloon),
+        [PowampAction.Inflating] = (_, place, state, level, samus, balloon, _) => RunPowampInflating(place, state, balloon),
+        [PowampAction.InflatedRiseToTargetHeight] = (_, place, state, level, samus, balloon, balloonEntity) => RunPowampRise(place, state, balloon, balloonEntity.Settings, level, hold: PowampHold.Free),
+        [PowampAction.InflatedFinishWiggle] = (_, place, state, level, samus, balloon, _) => RunPowampFinishWiggle(place, state, balloon, level, hold: PowampHold.Free),
+        [PowampAction.GrappledRiseToTargetHeight] = (_, place, state, level, samus, balloon, balloonEntity) => RunPowampRise(place, state, balloon, balloonEntity.Settings, level, hold: PowampHold.Grappled),
+        [PowampAction.GrappledFinishWiggle] = (_, place, state, level, samus, balloon, _) => RunPowampFinishWiggle(place, state, balloon, level, hold: PowampHold.Grappled),
+        [PowampAction.GrappledResting] = (_, place, state, level, samus, balloon, _) => RunPowampGrappledResting(place, state, balloon),
+        [PowampAction.Deflating] = (_, place, state, level, samus, balloon, _) => RunPowampDeflating(place, state, balloon),
+        [PowampAction.DeflatedSinking] = (_, place, state, level, samus, balloon, _) => RunPowampSinking(place, state, balloon, level),
+        [PowampAction.FatalDamage] = (_, place, state, level, samus, balloon, _) => BeginPowampDeathSequence(place, state, balloon),
+        [PowampAction.DeathSequence] = (occupant, place, state, level, samus, balloon, _) => RunPowampDeathSequence(occupant, place, state, balloon, samus),
+    });
 
     /// <summary>Runs every action of a Powamp's body; the balloon has none, its body moves it.</summary>
     internal void RunPowampMain(RoomEnemyOccupant occupant, RoomEnemyPlace place, PowampBodyState state, PowampBalloonEntity balloonEntity,
         RoomLevelData level, SamusState samus)
     {
         PowampBalloon balloon = BalloonOf(balloonEntity);
-        switch (state.Action)
-        {
-            case PowampAction.DeflatedResting:
-                RunPowampDeflatedResting(place, state, balloon);
-                return;
-            case PowampAction.Inflating:
-                RunPowampInflating(place, state, balloon);
-                return;
-            case PowampAction.InflatedRiseToTargetHeight:
-                RunPowampRise(place, state, balloon, balloonEntity.Settings, level, hold: PowampHold.Free);
-                return;
-            case PowampAction.InflatedFinishWiggle:
-                RunPowampFinishWiggle(place, state, balloon, level, hold: PowampHold.Free);
-                return;
-            case PowampAction.GrappledRiseToTargetHeight:
-                RunPowampRise(place, state, balloon, balloonEntity.Settings, level, hold: PowampHold.Grappled);
-                return;
-            case PowampAction.GrappledFinishWiggle:
-                RunPowampFinishWiggle(place, state, balloon, level, hold: PowampHold.Grappled);
-                return;
-            case PowampAction.GrappledResting:
-                RunPowampGrappledResting(place, state, balloon);
-                return;
-            case PowampAction.Deflating:
-                RunPowampDeflating(place, state, balloon);
-                return;
-            case PowampAction.DeflatedSinking:
-                RunPowampSinking(place, state, balloon, level);
-                return;
-            case PowampAction.FatalDamage:
-                BeginPowampDeathSequence(place, state, balloon);
-                return;
-            case PowampAction.DeathSequence:
-                RunPowampDeathSequence(occupant, place, state, balloon, samus);
-                return;
-            default:
-                throw new InvalidDataException(
-                    $"Powamp body has no behaviour for action {state.Action}.");
-        }
+        RunPowampMainForPowampAction[state.Action](occupant, place, state, level, samus, balloon, balloonEntity);
     }
 
     /// <summary>Counts down the deflated rest and starts balloon inflation.</summary>
@@ -139,7 +115,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemySpawnFactory<PowampS
     {
         if (TickPowampTimer(state))
         {
-            StartPowampBalloonAnimation(balloon.Place, balloon.State, PowampSegment.BalloonInflatingFromDeflated);
+            StartPowampBalloonAnimation(balloon.Place, balloon.State, PowampMotionDefinitions.InflatingFromDeflated);
             state.Action = PowampAction.Inflating;
             state.ActionTimer = UpdateCountdown.For(PowampMotionDefinitions.InflationDuration);
         }
@@ -156,7 +132,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemySpawnFactory<PowampS
         {
             state.Action = PowampAction.InflatedRiseToTargetHeight;
             state.YVelocity = PowampMotionDefinitions.RiseVelocity;
-            state.Playback = StartPowampAnimation(body, PowampSegment.BodyFast);
+            state.Playback = StartPowampAnimation(body, PowampBodySegment.BodyFast);
         }
         AlignPowampBalloonY(body, balloon);
     }
@@ -285,7 +261,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemySpawnFactory<PowampS
             body.Position = body.Position.WithWholeY(balloon.State.Spawn.Y);
             state.Action = PowampAction.DeflatedResting;
             state.ActionTimer = UpdateCountdown.For(PowampMotionDefinitions.RestDuration);
-            state.Playback = StartPowampAnimation(body, PowampSegment.BodySlow);
+            state.Playback = StartPowampAnimation(body, PowampBodySegment.BodySlow);
         }
         AlignPowampBalloonY(body, balloon);
     }
@@ -300,11 +276,8 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemySpawnFactory<PowampS
         if (inflation.Sequence == PowampBalloonSequence.Sinking)
         {
             // A balloon sunk halfway restarts inflating from halfway, and one sunk deflated restarts inflating from
-            // deflated; one still full keeps sinking. A sinking balloon that has not shown its first pose is refused:
-            // it has no pose to restart from.
-            if (inflation.PosesShown == 0)
-                throw new InvalidDataException("Powamp death saw a sinking balloon that had shown none of its poses.");
-            if (PowampMotionDefinitions.SunkBalloonRestarts.TryGetValue(inflation.Pose, out PowampSegment restart))
+            // deflated; one still full keeps sinking.
+            if (PowampMotionDefinitions.SunkBalloonRestarts.TryGetValue(inflation.Pose, out PowampBalloonStart? restart))
                 StartPowampBalloonAnimation(balloon.Place, balloon.State, restart);
         }
 
@@ -412,7 +385,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemySpawnFactory<PowampS
     {
         state.Action = PowampAction.Deflating;
         state.ActionTimer = UpdateCountdown.For(PowampMotionDefinitions.InflationDuration);
-        StartPowampBalloonAnimation(balloon.Place, balloon.State, PowampSegment.BalloonStartSinking);
+        StartPowampBalloonAnimation(balloon.Place, balloon.State, PowampMotionDefinitions.StartSinking);
     }
 
     /// <summary>Counts one update of the body's action off its timer; true on the update it runs out.</summary>
@@ -421,20 +394,18 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemySpawnFactory<PowampS
         return state.ActionTimer.StepEnds();
     }
 
-    /// <summary>The playback of <paramref name="segment"/>'s animation, restarted on the next animation pass.</summary>
-    private static AnimationPlayback<PowampSegment> StartPowampAnimation(RoomEnemyPlace place, PowampSegment segment) =>
-        EnemyAnimationPlayback.Start(place, PowampAnimations.StartingWith(segment));
+    /// <summary>The playback of the body's <paramref name="segment"/> animation, restarted on the next animation pass.</summary>
+    private static AnimationPlayback<PowampBodySegment> StartPowampAnimation(RoomEnemyPlace place, PowampBodySegment segment) =>
+        EnemyAnimationPlayback.Start(place, PowampAnimations.BodyStartingAt[segment]);
 
     /// <summary>
-    /// Restarts the balloon's animation at <paramref name="segment"/> on the next animation pass, and its sequence where
-    /// that animation starts it (#1845).
+    /// Restarts the balloon's animation at <paramref name="start"/>'s segment on the next animation pass, and its sequence
+    /// where that start puts it (#1845).
     /// </summary>
-    private static void StartPowampBalloonAnimation(RoomEnemyPlace balloon, PowampBalloonState state, PowampSegment segment)
+    private static void StartPowampBalloonAnimation(RoomEnemyPlace balloon, PowampBalloonState state, PowampBalloonStart start)
     {
-        state.Playback = StartPowampAnimation(balloon, segment);
-        state.Inflation = PowampMotionDefinitions.BalloonAnimationStarts.TryGetValue(segment, out PowampBalloonInflation start)
-            ? start
-            : throw new InvalidOperationException($"Powamp balloon started body animation {segment}.");
+        state.Playback = EnemyAnimationPlayback.Start(balloon, PowampAnimations.BalloonStartingAt[start.Segment]);
+        state.Inflation = start.Inflation;
     }
 
     /// <summary>
@@ -508,28 +479,23 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemySpawnFactory<PowampS
 
     /// <summary>Advances the body's pulse.</summary>
     internal static void AdvancePowampBodyTypedAnimation(RoomEnemyPlace place, PowampBodyState powampBodyState) =>
-        EnemyAnimationPlayback.Advance(place, powampBodyState, PowampAnimations.Segments,
-            static (PowampBodyState state) => state.Playback, static (state, playback) => state.Playback = playback,
-            static (_, cue) => RaisesNoCues(cue));
+        EnemyAnimationPlayback.AdvanceSilently(place, powampBodyState, PowampAnimations.BodySegments,
+            static (PowampBodyState state) => state.Playback, static (state, playback) => state.Playback = playback);
 
     /// <summary>Advances the balloon's inflate or sink animation and the poses it shows.</summary>
     internal static void AdvancePowampBalloonTypedAnimation(RoomEnemyPlace place, PowampBalloonState balloon)
     {
         if (!place.AnimationClock.Expire())
             return;
-        AnimationPlayback<PowampSegment> playback = balloon.Playback;
-        // Every frame of the balloon's animations is one of its poses, so each frame shown records the next pose.
-        EnemyAnimationPlayback.Play(place, PowampAnimations.Segments, ref playback, pose =>
+        AnimationPlayback<PowampBalloonSegment> playback = balloon.Playback;
+        // Every frame of the balloon's animations is one of its poses, so each frame shown is the pose it stands at.
+        EnemyAnimationPlayback.PlaySilently(place, PowampAnimations.BalloonSegments, ref playback, pose =>
         {
-            balloon.Inflation = balloon.Inflation.AfterShowingPose();
-            return pose;
-        }, static cue => RaisesNoCues(cue));
+            balloon.Inflation = balloon.Inflation with { Pose = pose };
+            return PowampAnimations.BalloonFrames[pose];
+        });
         balloon.Playback = playback;
     }
-
-    /// <summary>Rejects a cue: no Powamp animation raises one.</summary>
-    private static AnimationContinuation<PowampSegment>? RaisesNoCues(NoAnimationCue cue) =>
-        throw new InvalidOperationException($"Powamp's cue-free animation raised {cue}.");
 
     /// <summary>Propagates power-bomb reaction state from the body to its balloon.</summary>
     /// <param name="balloon">The balloon the body holds.</param>
@@ -606,12 +572,11 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemySpawnFactory<PowampS
         // The spikes fire in their authored order, each taking the last free enemy-projectile place afresh.
         foreach (CompassDirection direction in PowampMotionDefinitions.SpikeFiringOrder)
         {
-            EnemyProjectile? spike = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.PowampSpike, Spike, SpriteGraphics.SpawnedBy(occupant, body.Shading).In(look));
+            EnemyProjectile? spike = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.PowampSpike, Spike, SpriteGraphics.SpawnedBy(occupant, body.Shading).In(look), new PowampSpikeAnimation(PowampSpikeSegment.Flying));
             if (spike is null)
                 return;
 
             // The spike starts as its definition has it, with its animation, size and damage, still, at the Powamp.
-            spike.StartAnimation(new PowampSpikeAnimation(PowampSpikeSegment.Flying));
             spike.Position = FixedPosition<RoomPixels>.FromWhole(body.Position.Whole);
             spike.Velocity = new(SignedEightEight.Zero, SignedEightEight.Zero);
             Spike.States.Start(spike, new PowampSpikeState(direction));
@@ -619,7 +584,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemySpawnFactory<PowampS
     }
 
     /// <summary>Flies the Powamp spike for one update.</summary>
-    internal void FlyPowampSpike(
+    private void FlyPowampSpike(
         EnemyProjectile spike,
         RoomLevelData level)
     {

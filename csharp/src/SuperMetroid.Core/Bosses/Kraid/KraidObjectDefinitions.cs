@@ -29,8 +29,7 @@ public static class KraidObjectDefinitions
     /// The platform mutation paired with each sinking-schedule step. The surviving platforms share the ceiling row and
     /// alternate background blocks by column parity, odd and even in turn along each platform.
     /// </summary>
-    public static IReadOnlyDictionary<KraidSinkStep, RoomObjectSpawnRequest<KraidRoomMutation>> SinkMutations { get; } =
-        new Dictionary<KraidSinkStep, RoomObjectSpawnRequest<KraidRoomMutation>>
+    public static IdentityTable<KraidSinkStep, RoomObjectSpawnRequest<KraidRoomMutation>> SinkMutations { get; } = new(new Dictionary<KraidSinkStep, RoomObjectSpawnRequest<KraidRoomMutation>>
         {
             [KraidSinkStep.CrumbleLeftPlatformLeft] = new RoomObjectSpawnRequest<KraidRoomMutation>(new(7, 18), KraidRoomMutation.CrumblePlatformInOddColumn),
             [KraidSinkStep.CrumbleLeftPlatformMiddle] = new RoomObjectSpawnRequest<KraidRoomMutation>(new(8, 18), KraidRoomMutation.CrumblePlatformInEvenColumn),
@@ -38,5 +37,5 @@ public static class KraidObjectDefinitions
             [KraidSinkStep.CrumbleRightPlatformLeft] = new RoomObjectSpawnRequest<KraidRoomMutation>(new(14, 18), KraidRoomMutation.CrumblePlatformInEvenColumn),
             [KraidSinkStep.CrumbleRightPlatformMiddle] = new RoomObjectSpawnRequest<KraidRoomMutation>(new(15, 18), KraidRoomMutation.CrumblePlatformInOddColumn),
             [KraidSinkStep.CrumbleRightPlatformRight] = new RoomObjectSpawnRequest<KraidRoomMutation>(new(16, 18), KraidRoomMutation.CrumblePlatformInEvenColumn),
-        };
+        });
 }

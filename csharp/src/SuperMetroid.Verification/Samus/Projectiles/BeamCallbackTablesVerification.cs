@@ -47,15 +47,16 @@ internal static class BeamCallbackTablesVerification
             var bus = new BeamSpeedRowAddressSpace(retail);
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
             {
-                Pose = SamusPoseId.FacingRightNormalPose,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
                 EquippedBeams = SamusEquipmentWordCodec.FromBeamWord(checked((ushort)beamType)) | (charged ? SamusBeamFlags.Charge : SamusBeamFlags.None),
-            };
+            }.InPose(SamusPoseId.FacingRightNormalPose);
             var projectiles = CreateProjectileFixture();
             var shared = CreateBombFixture();
             if (initializeOnly)
             {
-                projectiles.Firing.TryFireBeam(room, samus, GameplayAction.Shoot, shared, SamusRoomObjectFixtures.Uninstalled, charged);
+                _ = charged
+                    ? projectiles.FireChargedBeam(SamusTerrain.InRoom(room, SamusRoomObjectFixtures.Uninstalled), samus, shared, GameplayAction.Shoot)
+                    : projectiles.FireUnchargedBeam(SamusTerrain.InRoom(room, SamusRoomObjectFixtures.Uninstalled), samus, shared);
                 AssertTrue(projectiles.Shots[0].IsOccupied || projectiles.Shots[0].InstructionPointer != 0,
                     $"charged={charged} beam {beamType:X1} initializes");
                 AssertEqual(SamusBeamShotBehaviors.Resolve(charged, SamusBeamCombinationTableOrderConstants.FromTableIndex(beamType)),
@@ -67,17 +68,17 @@ internal static class BeamCallbackTablesVerification
             {
                 for (int frame = 0; frame < 60; frame++)
                 {
-                    shared.StepFrame(new SamusTerrain { Level = room, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, 0, 0);
-                    projectiles.StepFrame(new SamusTerrain { Level = room, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = frame == 0 ? GameplayAction.Shoot : 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), shared, new SharedGameState(new SharedRandom()));
+                    shared.StepFrame(SamusTerrain.InRoom(room, SamusRoomObjectFixtures.Uninstalled), samus, 0, 0);
+                    projectiles.StepFrame(SamusTerrain.InRoom(room, SamusRoomObjectFixtures.Uninstalled), samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = frame == 0 ? GameplayAction.Shoot : 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), shared, new SharedGameState(new SharedRandom()));
                 }
             }
-            SoundRequest? firingSound = projectiles.StepFrameFiringSound(new SamusTerrain { Level = room, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = charged ? 0 : GameplayAction.Shoot, ControllerNewInput = charged ? 0 : GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), shared, new SharedGameState(new SharedRandom()));
+            SoundRequest? firingSound = projectiles.StepFrameFiringSound(SamusTerrain.InRoom(room, SamusRoomObjectFixtures.Uninstalled), samus, new ProjectileButtonInput { ControllerInput = charged ? 0 : GameplayAction.Shoot, ControllerNewInput = charged ? 0 : GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), shared, new SharedGameState(new SharedRandom()));
             AssertTrue(firingSound is not null,
                 $"charged={charged} beam {beamType:X1} fires");
             // The fixture starts with every ordinary slot empty, so the fired shot is the
             // lowest live slot after the release frame.
             SamusProjectile fired = projectiles.Shots.First(slot => slot.IsActive);
-            SamusShotBehavior expected =
+            SamusShotFiring expected =
                 SamusBeamShotBehaviors.Resolve(charged, SamusBeamCombinationTableOrderConstants.FromTableIndex(beamType));
             AssertEqual(
                 expected,

@@ -6,19 +6,16 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// <summary>Which animation each Samus pose animates by (#1473), and how her animation reads its frames (#2048).</summary>
 internal static class SamusAnimationDelays
 {
-    /// <summary>Every animation by its name.</summary>
-    private static readonly Dictionary<SamusAnimationName, SamusPoseAnimation> ByName = NameEveryAnimation();
+    /// <summary>Every animation by its name, each name naming one, as the table requires as it is built.</summary>
+    private static readonly IdentityTable<SamusAnimationName, SamusPoseAnimation> ByName =
+        new(SamusAnimationDelayDefinitions.All.ToDictionary(animation => animation.Name));
 
     /// <summary>The animation <paramref name="pose"/> animates by.</summary>
     /// <exception cref="InvalidOperationException">The pose is undefined.</exception>
     internal static SamusPoseAnimation AnimationForPose(SamusPoseId pose) => SamusPoseTraits.Of(pose).Animation;
 
     /// <summary>The animation named <paramref name="name"/>.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The name names no animation.</exception>
-    internal static SamusPoseAnimation AnimationNamed(SamusAnimationName name) =>
-        ByName.TryGetValue(name, out SamusPoseAnimation? animation)
-            ? animation
-            : throw new ArgumentOutOfRangeException(nameof(name), name, "No Samus animation has this name.");
+    internal static SamusPoseAnimation AnimationNamed(SamusAnimationName name) => ByName[name];
 
     /// <summary>The step of <paramref name="pose"/>'s animation at <paramref name="frame"/>.</summary>
     /// <exception cref="InvalidDataException">The frame reads no step of the pose's animation.</exception>
@@ -58,6 +55,23 @@ internal static class SamusAnimationDelays
             throw new InvalidDataException(
                 $"Samus animation frame {frame} of pose {pose} reads frame {read.Frame} of the {read.Animation} animation, which names no step.");
         return true;
+    }
+
+    /// <summary>
+    /// <paramref name="frame"/> of <paramref name="pose"/>'s animation as a frame its animation starts on or a cue moves it
+    /// to, with the delay its timer starts from there (#2553): one of the animation's own delays, or, on any other frame, the
+    /// byte the import decoded there (<see cref="SamusFramesBeyondAnimation.DelayRead"/>).
+    /// </summary>
+    /// <param name="pose">The pose whose animation starts or moves.</param>
+    /// <param name="frame">The frame it starts on or moves to.</param>
+    /// <param name="framesBeyondAnimation">What a frame that is no step of its animation reads.</param>
+    /// <exception cref="InvalidDataException">The frame holds no delay of its own, and the installation holds no delay read there.</exception>
+    internal static SamusAnimationDelayFrame DelayFrame(SamusPoseId pose, SamusAnimationFrame frame, SamusFramesBeyondAnimation framesBeyondAnimation)
+    {
+        Ensure.NotNull(framesBeyondAnimation);
+        SamusPoseAnimation animation = AnimationForPose(pose);
+        return new SamusAnimationDelayFrame(frame,
+            animation.TryDelayAt(frame) ?? new SamusAnimationDelay(framesBeyondAnimation.DelayRead(animation.Name, frame)));
     }
 
     /// <summary>
@@ -134,13 +148,4 @@ internal static class SamusAnimationDelays
         return step is not null;
     }
 
-    /// <summary>Every animation of <see cref="SamusAnimationDelayDefinitions.All"/> by its name, which each has once.</summary>
-    /// <exception cref="InvalidOperationException">An animation's name is missing from the definitions.</exception>
-    private static Dictionary<SamusAnimationName, SamusPoseAnimation> NameEveryAnimation()
-    {
-        Dictionary<SamusAnimationName, SamusPoseAnimation> byName = SamusAnimationDelayDefinitions.All.ToDictionary(animation => animation.Name);
-        return byName.Count == Enum.GetValues<SamusAnimationName>().Length
-            ? byName
-            : throw new InvalidOperationException("A Samus animation name has no animation.");
-    }
 }

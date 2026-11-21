@@ -8,8 +8,6 @@ namespace SuperMetroid.Core.Enemies.Skultera;
 [RoomLifetime]
 internal sealed class SkulteraBehavior : IEnemySpecies, IEnemySpawnFactory<SkulteraSpawnSettings>
 {
-    /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Skultera];
 
     /// <inheritdoc/>
     public EnemyOccupant Create(RoomEnemyOccupant occupant, SkulteraSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new SkulteraEntity(this, occupant, place, common, settings));
@@ -23,23 +21,19 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemySpawnFactory<Skult
         _terrain = terrain;
     }
 
+    /// <summary>What <see cref="ApplySkulteraCue"/> does for each <see cref="SkulteraCueKind"/> member, each member's own arm.</summary>
+    private static IdentityTable<SkulteraCueKind, Action<SkulteraEnemyState>> ApplySkulteraCueForSkulteraCueKind => field ??= new(new Dictionary<SkulteraCueKind, Action<SkulteraEnemyState>>
+    {
+        // Turns rest immediately after finishing (#2450): the cue moves the Skultera into its finished turn, which main AI
+        // consumes on the following update, starting the steady swim.
+        [SkulteraCueKind.FinishTurn] = static state => state.Action = SkulteraAction.TurnFinished,
+    });
+
     /// <summary>Carries out one cue of Skultera's animations.</summary>
     private static void ApplySkulteraCue(SkulteraEnemyState state, SkulteraCue cue)
     {
-        switch (cue.Kind)
-        {
-            case SkulteraCueKind.FinishTurn:
-                // Turns rest immediately after finishing (#2450). Main AI starts the steady swim on the following
-                // update.
-                if (state.Action != SkulteraAction.Turning)
-                    throw new InvalidOperationException($"A Skultera's turn finished while it was {state.Action}.");
-                state.Action = SkulteraAction.TurnFinished;
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(SkulteraCueKind)} {cue.Kind}.");
-        }
+        ApplySkulteraCueForSkulteraCueKind[cue.Kind](state);
     }
-
 
     /// <summary>Initializes the Skultera.</summary>
     /// <returns>The state the enemy holds from its setup.</returns>
@@ -57,26 +51,21 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemySpawnFactory<Skult
         return state;
     }
 
+    /// <summary>What <see cref="RunSkulteraMain"/> does for each <see cref="SkulteraAction"/> member, each member's own arm.</summary>
+    private IdentityTable<SkulteraAction, Action<SkulteraSpawnSettings, RoomEnemyPlace, SkulteraEnemyState, RoomLevelData>> RunSkulteraMainForSkulteraAction => field ??= new(new Dictionary<SkulteraAction, Action<SkulteraSpawnSettings, RoomEnemyPlace, SkulteraEnemyState, RoomLevelData>>
+    {
+        [SkulteraAction.Swimming] = (settings, place, state, level) => SwimSkultera(settings, place, state, level, state.Heading),
+        [SkulteraAction.Turning] = (_, place, state, level) => { },
+        [SkulteraAction.TurnFinished] = (_, place, state, level) => FinishSkulteraTurn(place, state, state.Heading),
+    });
+
     /// <summary>Runs the Skultera's main AI.</summary>
     private void RunSkulteraMain(
         SkulteraSpawnSettings skulteraSpawnSettings, RoomEnemyPlace place,
         SkulteraEnemyState state,
         RoomLevelData level)
     {
-        switch (state.Action)
-        {
-            case SkulteraAction.Swimming:
-                SwimSkultera(skulteraSpawnSettings, place, state, level, state.Heading);
-                return;
-            case SkulteraAction.Turning:
-                return;
-            case SkulteraAction.TurnFinished:
-                FinishSkulteraTurn(place, state, state.Heading);
-                return;
-            default:
-                throw new InvalidDataException(
-                    $"Skultera has no behaviour for action {state.Action}.");
-        }
+        RunSkulteraMainForSkulteraAction[state.Action](skulteraSpawnSettings, place, state, level);
     }
 
     /// <summary>Runs the mirrored swimming actions.</summary>

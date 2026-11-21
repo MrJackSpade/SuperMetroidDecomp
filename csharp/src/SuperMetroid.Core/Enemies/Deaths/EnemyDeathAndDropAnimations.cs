@@ -13,8 +13,8 @@ namespace SuperMetroid.Core.Enemies.Deaths;
 internal static class EnemyDeathAndDropAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<EnemyDeathAndDropSegment, EnemyProjectileFrameId, EnemyDeathAndDropCue> Segments { get; } = new(
-        new Dictionary<EnemyDeathAndDropSegment, AnimationBeat<EnemyProjectileFrameId, EnemyDeathAndDropCue>[]>
+    internal static HidingUnpausedAnimationSegments<EnemyDeathAndDropSegment, EnemyProjectileFrameId, EnemyDeathAndDropCue> Segments { get; } = new(
+        new Dictionary<EnemyDeathAndDropSegment, IUnpausedHidingAnimationBeat<EnemyProjectileFrameId, EnemyDeathAndDropCue>[]>
     {
         [P.RespawnPause] =
         [
@@ -136,23 +136,22 @@ internal static class EnemyDeathAndDropAnimations
     /// The animation each death explosion starts (#2061): the big explosion's bursts and Fake Kraid's (<see cref="BigExplosionBursts"/>, <see cref="FakeKraidExplosionBursts"/>), each
     /// scattering its sprites, before it becomes the drop; the other explosions' animations start at their segments.
     /// </summary>
-    internal static IReadOnlyDictionary<EnemyDeathExplosion, Animation<EnemyDeathAndDropSegment>> Explosions { get; } =
-        new Dictionary<EnemyDeathExplosion, Animation<EnemyDeathAndDropSegment>>
+    internal static IdentityTable<EnemyDeathExplosion, Animation<EnemyDeathAndDropSegment>> Explosions { get; } = new(new Dictionary<EnemyDeathExplosion, Animation<EnemyDeathAndDropSegment>>
         {
             [EnemyDeathExplosion.Small] = StartingAt[P.SmallExplosion],
             [EnemyDeathExplosion.SamusContact] = StartingAt[P.KilledBySamusContact],
             [EnemyDeathExplosion.Normal] = StartingAt[P.NormalExplosion],
             [EnemyDeathExplosion.FakeKraid] = new([Segments.Repeated(P.FakeKraidExplosion, FakeKraidExplosionBursts), Segments.Whole(P.FakeKraidExplosionEnd)], AnimationEnd.Holds),
             [EnemyDeathExplosion.Big] = new([Segments.Repeated(P.BigExplosion, BigExplosionBursts), Segments.Whole(P.BigExplosionEnd)], AnimationEnd.Holds),
-        };
+        });
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, EnemyDeathAndDropCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EnemyDeathAndDropCue>.Frame(frame, duration);
+    private static AnimationBeat<EnemyProjectileFrameId, EnemyDeathAndDropCue>.Unpaused Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EnemyDeathAndDropCue>.Frame(frame, duration);
 
     /// <summary>Shows nothing for <paramref name="duration"/> updates (#2558): the projectile is hidden until its next frame.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, EnemyDeathAndDropCue> Hide(int duration) =>
-        new AnimationBeat<EnemyProjectileFrameId, EnemyDeathAndDropCue>.Hidden(duration);
+    private static AnimationHiddenBeat<EnemyProjectileFrameId, EnemyDeathAndDropCue> Hide(int duration) =>
+        new AnimationHiddenBeat<EnemyProjectileFrameId, EnemyDeathAndDropCue>(duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, EnemyDeathAndDropCue> Cue(EnemyDeathAndDropCue cue) => new AnimationBeat<EnemyProjectileFrameId, EnemyDeathAndDropCue>.Event(cue);
+    private static AnimationBeat<EnemyProjectileFrameId, EnemyDeathAndDropCue>.Unpaused Cue(EnemyDeathAndDropCue cue) => new AnimationBeat<EnemyProjectileFrameId, EnemyDeathAndDropCue>.Event(cue);
 }

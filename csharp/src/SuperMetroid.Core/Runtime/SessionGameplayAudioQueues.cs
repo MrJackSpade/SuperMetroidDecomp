@@ -26,16 +26,11 @@ internal sealed class SessionGameplayAudioQueues(AudioQueues queues, IAttractDem
         Ensure.NotNull(request);
         if (demo.IsAttractDemo)
             return;
-        switch (request)
-        {
-            case GameplayMusicRequest.Scheduled scheduled:
-                queues.ScheduleMusic(scheduled.Request.Request, scheduled.Request.Delay);
-                return;
-            case GameplayMusicRequest.PermanentItemFanfare:
-                queues.QueuePermanentItemFanfare();
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined gameplay music request {request}.");
-        }
+        request.React(QueueMusicReactions, this);
     }
+
+    /// <summary>What <see cref="QueueMusic"/> does on each <see cref="GameplayMusicRequest"/>, built once (#2553).</summary>
+    private static GameplayMusicRequestReactions<SessionGameplayAudioQueues> QueueMusicReactions { get; } = new(
+        Scheduled: static (scheduled, owner) => owner.queues.ScheduleMusic(scheduled.Request.Request, scheduled.Request.Delay),
+        PermanentItemFanfare: static (_, owner) => owner.queues.QueuePermanentItemFanfare());
 }

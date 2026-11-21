@@ -478,7 +478,9 @@ internal static class EnemyDropsVerification
         WriteTestWord(bus, header + 48, sharedReturn);
         WriteTestWord(bus, header + 50, sharedReturn);
         WriteTestWord(bus, header + 58, SuperMetroid.AssetExtraction.Enemies.EnemyHeaderTableDefinitions.FirstDropChances);
-        NativeDropChances.Deconstruct(out int small, out int big, out int missile, out int nothing, out int super, out int powerBomb);
+        EnemyDropChances chances = NativeDropChances;
+        (int small, int big, int missile, int nothing, int super, int powerBomb) =
+            (chances.SmallEnergy, chances.BigEnergy, chances.Missile, chances.Nothing, chances.SuperMissile, chances.PowerBomb);
         bus.WriteBytes(SuperMetroid.AssetExtraction.Enemies.EnemyHeaderTableDefinitions.TableBank | SuperMetroid.AssetExtraction.Enemies.EnemyHeaderTableDefinitions.FirstDropChances,
             [(byte)small, (byte)big, (byte)missile, (byte)nothing, (byte)super, (byte)powerBomb]);
     }

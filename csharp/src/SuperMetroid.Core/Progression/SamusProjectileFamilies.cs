@@ -11,7 +11,7 @@ public static class SamusProjectileFamilies
     extension(SamusProjectileFamily family)
     {
         /// <summary>What the family is to the rules that test it.</summary>
-        private SamusProjectileFamilyRole Role => Ensure.Listed(SamusProjectileFamilyDefinitions.Roles, family);
+        private SamusProjectileFamilyRole Role => SamusProjectileFamilyDefinitions.Roles[family];
 
         /// <summary>Whether the family is an explosion a shot left behind.</summary>
         public bool IsExplosion => family.Role == SamusProjectileFamilyRole.Explosion;

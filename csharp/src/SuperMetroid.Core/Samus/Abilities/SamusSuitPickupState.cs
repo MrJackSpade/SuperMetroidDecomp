@@ -100,9 +100,7 @@ public sealed class SamusSuitPickupState
         SamusSuitPickupKind kind)
     {
         Ensure.NotNull(samus);
-        if (IsActive)
-            throw new InvalidOperationException("A suit pickup transformation is already active.");
-
+        // The pickup locks Samus until it ends, so no second suit starts one while it runs.
         Kind = kind;
         BeamColor = (kind == SamusSuitPickupKind.Varia
             ? SamusShadeDefinitions.SuitPickup.VariaBeam
@@ -132,11 +130,10 @@ public sealed class SamusSuitPickupState
         bool otherSuitAlreadyEquipped = kind == SamusSuitPickupKind.Varia
             ? samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
             : samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit);
-        samus.Pose = otherSuitAlreadyEquipped
+        samus.ChangePose(otherSuitAlreadyEquipped
             ? SamusPoseId.ForwardFacingSuitedPose
-            : SamusPoseId.ForwardFacingPowerSuitPose;
+            : SamusPoseId.ForwardFacingPowerSuitPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
-        SamusPresentation.InitializeAnimation(samus);
         // Entry's suit-pickup lock publishes history before locking gameplay.
         samus.CommitPoseHistory();
         samus.Control.LockForSuitPickup();
@@ -153,6 +150,18 @@ public sealed class SamusSuitPickupState
         samus.AudioRequests.QueueSound(EnemySound.SuitAcquired, SoundRequestPriority.Normal);
     }
 
+    /// <summary>What <c>Step</c> does for each <see cref="SamusSuitPickupStage"/> member, each member's own arm.</summary>
+    private IdentityTable<SamusSuitPickupStage, Action<SamusState, SamusColours>> StepForSamusSuitPickupStage => field ??= new(new Dictionary<SamusSuitPickupStage, Action<SamusState, SamusColours>>
+    {
+        [SamusSuitPickupStage.LightBeamAppears] = (samus, colours) => StepLightBeamAppears(),
+        [SamusSuitPickupStage.UniformWidening] = (samus, colours) => StepUniformWidening(),
+        [SamusSuitPickupStage.CurvedWidening] = (samus, colours) => StepCurvedWidening(),
+        [SamusSuitPickupStage.RevealSuit] = (samus, colours) => RevealSuit(samus, colours),
+        [SamusSuitPickupStage.LightBeamShrinks] = (samus, colours) => StepLightBeamShrinks(),
+        [SamusSuitPickupStage.LightBeamDissipates] = (samus, colours) => StepLightBeamDissipates(),
+        [SamusSuitPickupStage.Finish] = (samus, colours) => Finish(samus),
+    });
+
     /// <summary>Runs one update of the light beam's current stage.</summary>
     public void Step(SamusState samus, SamusColours colours)
     {
@@ -166,34 +175,21 @@ public sealed class SamusSuitPickupState
             return;
         }
 
-        switch (Stage)
-        {
-            case SamusSuitPickupStage.LightBeamAppears:
-                StepLightBeamAppears();
-                break;
-            case SamusSuitPickupStage.UniformWidening:
-                StepUniformWidening();
-                break;
-            case SamusSuitPickupStage.CurvedWidening:
-                StepCurvedWidening();
-                break;
-            case SamusSuitPickupStage.RevealSuit:
-                RevealSuit(samus, colours);
-                break;
-            case SamusSuitPickupStage.LightBeamShrinks:
-                StepLightBeamShrinks();
-                break;
-            case SamusSuitPickupStage.LightBeamDissipates:
-                StepLightBeamDissipates();
-                break;
-            case SamusSuitPickupStage.Finish:
-                Finish(samus);
-                break;
-            default:
-                throw new InvalidDataException($"Unknown suit-pickup stage {Stage}.");
-        }
+        StepForSamusSuitPickupStage[Stage](samus, colours);
         LeaveProgress(samus);
     }
+
+    /// <summary>What <see cref="LeaveProgress"/> does for each <see cref="SamusSuitPickupStage"/> member, each member's own arm.</summary>
+    private IdentityTable<SamusSuitPickupStage, Action<SamusState>> LeaveProgressForSamusSuitPickupStage => field ??= new(new Dictionary<SamusSuitPickupStage, Action<SamusState>>
+    {
+        [SamusSuitPickupStage.LightBeamAppears] = samus => samus.SparkCarryover.LeaveLines(Stage, _lightBeamLines),
+        [SamusSuitPickupStage.RevealSuit] = samus => samus.SparkCarryover.LeaveLines(Stage, _lightBeamLines),
+        [SamusSuitPickupStage.LightBeamShrinks] = samus => samus.SparkCarryover.LeaveLines(Stage, _lightBeamLines),
+        [SamusSuitPickupStage.UniformWidening] = samus => samus.SparkCarryover.LeaveEdges(Stage, _lightBeamLeft, _lightBeamRight),
+        [SamusSuitPickupStage.CurvedWidening] = samus => samus.SparkCarryover.LeaveEdges(Stage, _lightBeamLeft, _lightBeamRight),
+        [SamusSuitPickupStage.LightBeamDissipates] = samus => samus.SparkCarryover.LeaveEdges(Stage, _lightBeamLeft, _lightBeamRight),
+        [SamusSuitPickupStage.Finish] = samus => samus.SparkCarryover.LeaveEdges(Stage, _lightBeamLeft, _lightBeamRight),
+    });
 
     /// <summary>
     /// Leaves the current stage and the light beam's progress for a later shinespark windup and the stage for Crystal
@@ -203,22 +199,7 @@ public sealed class SamusSuitPickupState
     /// </summary>
     private void LeaveProgress(SamusState samus)
     {
-        switch (Stage)
-        {
-            case SamusSuitPickupStage.LightBeamAppears:
-            case SamusSuitPickupStage.RevealSuit:
-            case SamusSuitPickupStage.LightBeamShrinks:
-                samus.SparkCarryover.LeaveLines(Stage, _lightBeamLines);
-                break;
-            case SamusSuitPickupStage.UniformWidening:
-            case SamusSuitPickupStage.CurvedWidening:
-            case SamusSuitPickupStage.LightBeamDissipates:
-            case SamusSuitPickupStage.Finish:
-                samus.SparkCarryover.LeaveEdges(Stage, _lightBeamLeft, _lightBeamRight);
-                break;
-            default:
-                throw new InvalidDataException($"Unknown suit-pickup stage {Stage}.");
-        }
+        LeaveProgressForSamusSuitPickupStage[Stage](samus);
         samus.EscapeAndDrainCount.LeaveSuitPickupStage(Stage);
     }
 
@@ -300,9 +281,8 @@ public sealed class SamusSuitPickupState
             : SamusEquipmentFlags.GravitySuit;
         samus.EquippedItems |= mask;
         samus.CollectedItems |= mask;
-        samus.Pose = SamusPoseId.ForwardFacingSuitedPose;
+        samus.ChangePose(SamusPoseId.ForwardFacingSuitedPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
-        SamusPresentation.InitializeAnimation(samus);
         // The reveal phase publishes another transition, even if the other suit
         // already selected this same front-facing pose at entry.
         samus.CommitPoseHistory();
@@ -366,9 +346,13 @@ public sealed class SamusSuitPickupState
         _lightBeamRight = edges.Right;
     }
 
-    /// <summary>Screen column <paramref name="column"/>, which must lie across the screen's width.</summary>
+    /// <summary>
+    /// The screen column an edge at <paramref name="column"/> stands at: the game keeps each edge as one byte of its
+    /// window, so an edge lies across the screen's 256-pixel row, and a column past either side would wrap round it as
+    /// that byte does. The stages' arithmetic keeps every edge inside the row (#2553).
+    /// </summary>
     private static int ScreenColumn(int column) =>
-        Ensure.BetweenInclusive(0, SuitPickupBeamDefinitions.RightmostColumn, column);
+        ((column % ScreenGeometry.ScreenWidthPixels) + ScreenGeometry.ScreenWidthPixels) % ScreenGeometry.ScreenWidthPixels;
 
     /// <summary>Raises each channel toward the white reveal colour, stopping at white's level.</summary>
     private void AdvanceColorTowardWhite()

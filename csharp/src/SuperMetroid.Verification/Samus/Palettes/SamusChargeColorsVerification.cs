@@ -54,9 +54,8 @@ internal static class SamusChargeColorsVerification
         var guarded = NewChargeColorReadGuard(rom, forbidden);
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = SamusPoseId.FacingRightNormalPose,
             EquippedBeams = SamusBeamFlags.Charge,
-        };
+        }.InPose(SamusPoseId.FacingRightNormalPose);
         // Charge and Hyper-shot steps name shades (#1512); the import resolves them from the installed charge colours.
         var installedSources = InstalledFixtures.SamusShadeSources with { Charge = InstalledFixtures.ImportOf(original).SamusColours.Charge };
         var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
@@ -83,7 +82,7 @@ internal static class SamusChargeColorsVerification
             }
         }
         AssertEqual(0, projectiles.Charge.ChargeGlowStep, "six charge phases wrap");
-        samus.HyperBeamEnabled = true;
+        samus.EnableHyperBeam();
         projectiles.Charge.ChargedShotGlow = ChargedShotGlow.StartHyperBeamGlow();
         for (int call = 0; call < 20; call++)
         {
@@ -242,8 +241,8 @@ internal static class SamusChargeColorsVerification
         foreach (int invalid in new[] { -1, 16, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => colours.ResolveCharge(false, 0, 0, invalid), "Invalid color rejected");
         var guarded = NewChargeColorReadGuard(rom, forbidden);
-        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.FacingRightNormalPose,
-            EquippedBeams = SamusBeamFlags.Charge };
+        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { 
+            EquippedBeams = SamusBeamFlags.Charge }.InPose(SamusPoseId.FacingRightNormalPose);
         var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
         projectiles.Charge.SetFlareCount(60);
         ushort[] suits = [0, 1, 0x20];

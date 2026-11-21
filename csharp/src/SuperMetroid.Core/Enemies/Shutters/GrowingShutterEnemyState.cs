@@ -11,9 +11,6 @@ public sealed class GrowingShutterEnemyState
     /// <summary>Pixels between consecutive growth sections' origins along the growth direction.</summary>
     private const int SectionOriginSpacing = 8;
 
-    /// <summary>The number of growth sections, each with a stored origin; a fully grown shutter is at this level.</summary>
-    internal const int SectionCount = 4;
-
     /// <summary>
     /// Creates the state of a shutter spawned at row <paramref name="spawnY"/> growing <paramref name="growth"/>, starting in
     /// <paramref name="action"/>.
@@ -47,28 +44,18 @@ public sealed class GrowingShutterEnemyState
     public UpdateCountdown ActivationTimer { get; internal set; } = UpdateCountdown.Ended();
 
     /// <summary>
-    /// The origin row of the section grown at <paramref name="level"/>, derived from the spawn row (#2183): level 0 is the
-    /// spawn row and each later level is <see cref="SectionOriginSpacing"/> further along the growth direction, down or
-    /// up. A growing shutter only ever moves vertically, so a section's origin is a row
-    /// in the shutter's own column.
+    /// The section growing, by its place in the growth order and the artwork it shows, or null once every section has grown
+    /// and the shutter grows no further (#2182).
     /// </summary>
-    /// <param name="level">The growth level, from the spawn row's onward.</param>
-    private int SectionOriginY(int level) =>
-        SpawnY + Ensure.BetweenInclusive(0, SectionCount - 1, level) *
-            (SectionOriginSpacing.Toward(Growth));
+    internal ListStep<GrowingShutterSection>? Growing { get; set; } = FirstSection;
 
-    /// <summary>Number of completed growth sections: zero through four, where four is the fully grown terminal state.</summary>
-    public int GrowthLevel
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, SectionCount, value);
-    }
+    /// <summary>The first section to grow, a quarter of the shutter's length.</summary>
+    internal static ListStep<GrowingShutterSection> FirstSection => ListStep<GrowingShutterSection>.FirstOf(GrowingShutterDefinitions.Sections);
 
-    /// <summary>Whether every section has grown (#2182): the shutter grows no further.</summary>
-    internal bool IsFullyGrown => GrowthLevel == SectionCount;
-
-    /// <summary>Selects the current growth section's stored origin row; a fully grown shutter has no next section.</summary>
-    internal int OriginYForLevel() => GrowthLevel < SectionCount
-        ? SectionOriginY(GrowthLevel)
-        : throw new InvalidOperationException($"Growing shutter level {GrowthLevel} has no section origin.");
+    /// <summary>
+    /// The origin row of growing section <paramref name="section"/>, derived from the spawn row (#2183): the first section's
+    /// is the spawn row and each later one's is <see cref="SectionOriginSpacing"/> further along the growth direction, down
+    /// or up. A growing shutter only ever moves vertically, so a section's origin is a row in the shutter's own column.
+    /// </summary>
+    internal int OriginY(ListStep<GrowingShutterSection> section) => SpawnY + section.Entry.GrownBefore * SectionOriginSpacing.Toward(Growth);
 }

@@ -79,20 +79,17 @@ internal sealed class MotherBrainProjectiles
         public void RunCue(EnemyProjectileCueContext context, MotherBrainTurretCue cue) => RunTurretCue(context.Projectile, cue);
     }
 
+    /// <summary>What <see cref="RunTurretCue"/> does for each <see cref="MotherBrainTurretCue"/> member, each member's own arm.</summary>
+    private static IdentityTable<MotherBrainTurretCue, Action<EnemyProjectile>> RunTurretCueForMotherBrainTurretCue => field ??= new(new Dictionary<MotherBrainTurretCue, Action<EnemyProjectile>>
+    {
+        [MotherBrainTurretCue.StopMoving] = static projectile => projectile.HoldStill(),
+        [MotherBrainTurretCue.Delete] = static projectile => projectile.Delete(),
+    });
+
     /// <summary>Carries out a turret cue, a turret's or its bullet's: stopping, or deletion.</summary>
     private static void RunTurretCue(EnemyProjectile projectile, MotherBrainTurretCue cue)
     {
-        switch (cue)
-        {
-            case MotherBrainTurretCue.StopMoving:
-                projectile.HoldStill();
-                return;
-            case MotherBrainTurretCue.Delete:
-                projectile.Delete();
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(MotherBrainTurretCue)} {cue}.");
-        }
+        RunTurretCueForMotherBrainTurretCue[cue](projectile);
     }
 
     /// <summary>
@@ -173,117 +170,100 @@ internal sealed class MotherBrainProjectiles
             [RoomEnemyProjectileKind.MotherBrainPurpleBreathSmall] = null,
         };
 
+        /// <summary>What <c>Move</c> does for each <see cref="MotherBrainProjectileMotion"/> member, each member's own arm.</summary>
+        private IdentityTable<MotherBrainProjectileMotion, Action<EnemyProjectileMotionContext, EnemyProjectile>> MoveForMotherBrainProjectileMotion => field ??= new(new Dictionary<MotherBrainProjectileMotion, Action<EnemyProjectileMotionContext, EnemyProjectile>>
+        {
+            [MotherBrainProjectileMotion.TurretAiming] = (context, projectile) => OperateMotherBrainTurret(projectile, context.Camera),
+            [MotherBrainProjectileMotion.GlassShardFlying] = (context, projectile) => MoveMotherBrainGlassShard(projectile),
+            [MotherBrainProjectileMotion.TubeFalling] = (context, projectile) => DropMotherBrainTopTube(projectile),
+            [MotherBrainProjectileMotion.DroolHanging] = (context, projectile) => HoldMotherBrainDroolAtMouth(projectile),
+            [MotherBrainProjectileMotion.DroolFalling] = (context, projectile) => DropMotherBrainDrool(this, projectile),
+            [MotherBrainProjectileMotion.OnionRingFlying] = (context, projectile) => FlyMotherBrainOnionRing(projectile, context.Samus, context.Camera.X),
+            [MotherBrainProjectileMotion.BombBouncing] = (context, projectile) => BounceMotherBrainBomb(projectile, context.SamusBombs, context.Samus),
+            [MotherBrainProjectileMotion.RainbowBeamCharging] = (context, projectile) => PinMotherBrainRainbowCharge(projectile),
+            [MotherBrainProjectileMotion.RainbowImpactTracking] = (context, projectile) => AdvanceMotherBrainRainbowExplosion(this, projectile, context.Samus),
+            [MotherBrainProjectileMotion.DeathExplosionTracking] = (context, projectile) => RunMotherBrainDeathExplosion(projectile),
+            [MotherBrainProjectileMotion.DoorFragmentFalling] = (context, projectile) => RunMotherBrainDoorFragment(projectile),
+            [MotherBrainProjectileMotion.SubtitleHeld] = (context, projectile) => PinMotherBrainEscapeSubtitle(projectile),
+        });
+
         /// <inheritdoc/>
         internal override void Move(EnemyProjectileMotionContext context, MotherBrainProjectileMotion motion)
         {
             EnemyProjectile projectile = context.Projectile;
-            switch (motion)
-            {
-                case MotherBrainProjectileMotion.TurretAiming:
-                    OperateMotherBrainTurret(projectile, context.Camera);
-                    break;
-                case MotherBrainProjectileMotion.GlassShardFlying:
-                    MoveMotherBrainGlassShard(projectile);
-                    break;
-                case MotherBrainProjectileMotion.TubeFalling:
-                    DropMotherBrainTopTube(projectile);
-                    break;
-                case MotherBrainProjectileMotion.DroolHanging:
-                    HoldMotherBrainDroolAtMouth(projectile);
-                    break;
-                case MotherBrainProjectileMotion.DroolFalling:
-                    DropMotherBrainDrool(this, projectile);
-                    break;
-                case MotherBrainProjectileMotion.OnionRingFlying:
-                    FlyMotherBrainOnionRing(projectile, context.Samus, context.Camera.X);
-                    break;
-                case MotherBrainProjectileMotion.BombBouncing:
-                    BounceMotherBrainBomb(projectile, context.SamusBombs, context.Samus);
-                    break;
-                case MotherBrainProjectileMotion.RainbowBeamCharging:
-                    PinMotherBrainRainbowCharge(projectile);
-                    break;
-                case MotherBrainProjectileMotion.RainbowImpactTracking:
-                    AdvanceMotherBrainRainbowExplosion(this, projectile, context.Samus);
-                    break;
-                case MotherBrainProjectileMotion.DeathExplosionTracking:
-                    RunMotherBrainDeathExplosion(projectile);
-                    break;
-                case MotherBrainProjectileMotion.DoorFragmentFalling:
-                    RunMotherBrainDoorFragment(projectile);
-                    break;
-                case MotherBrainProjectileMotion.SubtitleHeld:
-                    PinMotherBrainEscapeSubtitle(projectile);
-                    break;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(MotherBrainProjectileMotion)} {motion}.");
-            }
+            MoveForMotherBrainProjectileMotion[motion](context, projectile);
         }
 
         /// <summary>Carries out a turret cue: stopping, or deletion.</summary>
         public void RunCue(EnemyProjectileCueContext context, MotherBrainTurretCue cue) => RunTurretCue(context.Projectile, cue);
 
+        /// <summary>
+        /// What <see cref="RunCue(EnemyProjectileCueContext, MotherBrainGlassCue)"/> does for each <see cref="MotherBrainGlassCue"/>
+        /// member, each member's own arm.
+        /// </summary>
+        private static IdentityTable<MotherBrainGlassCue, Action<EnemyProjectileCueContext>> RunCueForMotherBrainGlassCue => field ??= new(new Dictionary<MotherBrainGlassCue, Action<EnemyProjectileCueContext>>
+        {
+            [MotherBrainGlassCue.Delete] = static context => context.Projectile.Delete(),
+        });
+
         /// <summary>Carries out a glass cue: deletion.</summary>
         public void RunCue(EnemyProjectileCueContext context, MotherBrainGlassCue cue)
         {
-            switch (cue)
-            {
-                case MotherBrainGlassCue.Delete:
-                    context.Projectile.Delete();
-                    return;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(MotherBrainGlassCue)} {cue}.");
-            }
+            RunCueForMotherBrainGlassCue[cue](context);
         }
 
         /// <summary>Carries out an effect cue.</summary>
         public void RunCue(EnemyProjectileCueContext context, MotherBrainEffectCue cue) =>
             ApplyMotherBrainEffectCue(context.Projectile, cue);
 
+        /// <summary>
+        /// What <see cref="RunCue(EnemyProjectileCueContext, MotherBrainHandBeamCue)"/> does for each
+        /// <see cref="MotherBrainHandBeamCue"/> member, each member's own arm.
+        /// </summary>
+        private IdentityTable<MotherBrainHandBeamCue, Action<EnemyProjectileCueContext>> RunCueForMotherBrainHandBeamCue => field ??= new(new Dictionary<MotherBrainHandBeamCue, Action<EnemyProjectileCueContext>>
+        {
+            [MotherBrainHandBeamCue.SpawnNextBeam] = context => SpawnMotherBrainHandBeamFired(MotherBrains.Of(context.Projectile).MotherBrain),
+            [MotherBrainHandBeamCue.Delete] = context => context.Projectile.Delete(),
+        });
+
         /// <summary>Carries out a hand-beam cue: the next beam's spawn, or deletion.</summary>
         public void RunCue(EnemyProjectileCueContext context, MotherBrainHandBeamCue cue)
         {
-            switch (cue)
-            {
-                case MotherBrainHandBeamCue.SpawnNextBeam:
-                    SpawnMotherBrainHandBeamFired(MotherBrains.Of(context.Projectile).MotherBrain);
-                    return;
-                case MotherBrainHandBeamCue.Delete:
-                    context.Projectile.Delete();
-                    return;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(MotherBrainHandBeamCue)} {cue}.");
-            }
+            RunCueForMotherBrainHandBeamCue[cue](context);
         }
+
+        /// <summary>What <see cref="ApplyMotherBrainEffectCue"/> does for each <see cref="MotherBrainEffectCueKind"/> member, each member's own arm.</summary>
+        private IdentityTable<MotherBrainEffectCueKind, Action<EnemyProjectile>> ApplyMotherBrainEffectCueForMotherBrainEffectCueKind => field ??= new(new Dictionary<MotherBrainEffectCueKind, Action<EnemyProjectile>>
+        {
+            [MotherBrainEffectCueKind.DropDrool] = projectile =>
+            {
+                // After its release starts its fall, the released drool drops before its first falling frame.
+                projectile.Position = projectile.Position.WithWholeY(projectile.Position.Y.Whole + MotherBrainFightDefinitions.DroolReleaseDrop);
+            },
+            [MotherBrainEffectCueKind.EndSmallPurpleBreath] = projectile => MotherBrains.Of(projectile).MotherBrain.SmallPurpleBreathActive = false,
+            [MotherBrainEffectCueKind.ReleaseDrool] = projectile => projectile.StartMotion(this, MotherBrainProjectileMotion.DroolFalling),
+            [MotherBrainEffectCueKind.StopMoving] = projectile => projectile.HoldStill(),
+            [MotherBrainEffectCueKind.Delete] = projectile => projectile.Delete(),
+        });
 
         /// <summary>Carries out one cue of Mother Brain's effect animations.</summary>
         private void ApplyMotherBrainEffectCue(EnemyProjectile projectile, MotherBrainEffectCue cue)
         {
-            switch (cue)
-            {
-                case MotherBrainEffectCue.SetRadius setRadius:
-                    projectile.Radius = setRadius.Radius;
-                    break;
-                case MotherBrainEffectCue.Signal { Kind: MotherBrainEffectCueKind.DropDrool }:
-                    // After its release starts its fall, the released drool drops before its first falling frame.
-                    projectile.Position = projectile.Position.WithWholeY(projectile.Position.Y.Whole + MotherBrainFightDefinitions.DroolReleaseDrop);
-                    break;
-                case MotherBrainEffectCue.Signal { Kind: MotherBrainEffectCueKind.EndSmallPurpleBreath }:
-                    MotherBrains.Of(projectile).MotherBrain.SmallPurpleBreathActive = false;
-                    break;
-                case MotherBrainEffectCue.Signal { Kind: MotherBrainEffectCueKind.ReleaseDrool }:
-                    projectile.StartMotion(this, MotherBrainProjectileMotion.DroolFalling);
-                    break;
-                case MotherBrainEffectCue.Signal { Kind: MotherBrainEffectCueKind.StopMoving }:
-                    projectile.HoldStill();
-                    break;
-                case MotherBrainEffectCue.Signal { Kind: MotherBrainEffectCueKind.Delete }:
-                    projectile.Delete();
-                    break;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(MotherBrainEffectCueKind)} {cue}.");
-            }
+            cue.React(ApplyMotherBrainEffectCueReactions, new ApplyMotherBrainEffectCueContext(projectile, this));
         }
+
+        /// <summary>What <see cref="ApplyMotherBrainEffectCue"/> does on each <see cref="MotherBrainEffectCue"/>, built once (#2553).</summary>
+        private static MotherBrainEffectCueReactions<ApplyMotherBrainEffectCueContext> ApplyMotherBrainEffectCueReactions { get; } = new(
+            SetRadius: static (setRadius, context) => context.Projectile.Radius = setRadius.Radius,
+            Signal: static (signal, context) =>
+            {
+                context.Owner.ApplyMotherBrainEffectCueForMotherBrainEffectCueKind[signal.Kind](context.Projectile);
+            });
+
+        /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
+        /// <param name="Projectile">The projectile the cases read.</param>
+        /// <param name="Owner">The <see cref="MotherBrainProjectileBehavior"/> reacting.</param>
+        private readonly record struct ApplyMotherBrainEffectCueContext(EnemyProjectile Projectile, MotherBrainProjectileBehavior Owner);
 
         /// <summary>Moves the bomb.</summary>
         private void BounceMotherBrainBomb(
@@ -296,27 +276,26 @@ internal sealed class MotherBrainProjectiles
             if (TryDestroyMotherBrainBombWithSamusBomb(bomb, state, samusBombs, samus))
                 return;
 
-            SignedEightEight acceleration;
-            if (bombState.Bounces == 0)
+            // A bomb landed from its last bounce expires.
+            if (bombState.Bounces is not MotherBrainBombBounces.Flying flying)
             {
-                // Only the initial fall applies its horizontal drag: the speed loses it, stopping at rest, and keeps its
-                // direction.
+                ExpireMotherBrainBomb(bomb, state);
+                return;
+            }
+
+            SignedEightEight acceleration;
+            if (flying is MotherBrainBombBounces.Flying.Bouncing bouncing)
+                acceleration = bouncing.Gravity.Entry;
+            else
+            {
+                // The remaining member, MotherBrainBombBounces.Flying.Falling. Only the initial fall applies its horizontal
+                // drag: the speed loses it, stopping at rest, and keeps its direction.
                 bomb.Velocity = bomb.Velocity.WithX(bomb.Velocity.X.SlowedBy(MotherBrainBombBounceDefinitions.FallDrag));
                 acceleration = MotherBrainBombBounceDefinitions.FallAcceleration;
             }
-            else
-            {
-                if (MotherBrainBombBounces.HasExpired(bombState.Bounces))
-                {
-                    ExpireMotherBrainBomb(bomb, state);
-                    return;
-                }
-
-                acceleration = MotherBrainBombBounces.YAcceleration(bombState.Bounces);
-            }
 
             if (MoveMotherBrainBomb(this, bomb, acceleration))
-                bombState.Bounces++;
+                bombState.Bounces = flying.Bounced;
         }
 
         /// <summary>Consumes an overlapping Samus bomb and resolves the Mother Brain bomb explosion.</summary>
@@ -344,7 +323,7 @@ internal sealed class MotherBrainProjectiles
                 }
 
                 Position16<RoomPixels> position = bomb.Position.Whole;
-                DeleteMotherBrainBomb(bomb, state);
+                DeleteMotherBrainBomb(bomb, state, Bombs.Of(bomb));
                 dependencies.Projectiles.SpawnDustOrExplosion(position, DustExplosionAnimation.SmallDustCloud);
                 dependencies.DeathsAndDrops.SpawnEnemyDropFromDefinition(
                     position,
@@ -363,7 +342,7 @@ internal sealed class MotherBrainProjectiles
         {
             Position16<RoomPixels> impact = bomb.Position.Whole;
             int afterburnCount = Bombs.Of(bomb).Afterburns;
-            DeleteMotherBrainBomb(bomb, state);
+            DeleteMotherBrainBomb(bomb, state, Bombs.Of(bomb));
 
             // The bomb is gone before its afterburns and explosion appear, so they can take its place among the room's
             // projectiles this update. Its afterburn pair flies left and right.
@@ -447,11 +426,10 @@ internal sealed class MotherBrainProjectiles
         /// <summary>Makes a sparkle appear near the shard <paramref name="source"/>.</summary>
         private void SpawnMotherBrainGlassSparkle(EnemyProjectile source)
         {
-            EnemyProjectile? sparkle = dependencies.Projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainGlassSparkle, Spawned, graphics: SpriteGraphics.SharedStandard);
+            EnemyProjectile? sparkle = dependencies.Projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainGlassSparkle, Spawned, graphics: SpriteGraphics.SharedStandard, new MotherBrainGlassAnimation(Spawned, MotherBrainGlassSegment.Sparkle));
             if (sparkle is null)
                 return;
 
-            sparkle.StartAnimation(new MotherBrainGlassAnimation(Spawned, MotherBrainGlassSegment.Sparkle));
             // A shard near the top of the room may sparkle above it, so the sparkle's place is its shard's moved by its
             // offset, which continues past the room's edge as positions do.
             int sparkleX = dependencies.Room.Random.Next(MotherBrainGlassShardDefinitions.SparkleOffset) - MotherBrainGlassShardDefinitions.SparkleOffsetCentre;
@@ -468,7 +446,7 @@ internal sealed class MotherBrainProjectiles
         /// </summary>
         private void SpawnMotherBrainHandBeamFired(MotherBrainEnemyState state)
         {
-            EnemyProjectile? beam = dependencies.Projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainHandBeamFired, Spawned, graphics: SpriteGraphics.SharedStandard);
+            EnemyProjectile? beam = dependencies.Projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainHandBeamFired, Spawned, graphics: SpriteGraphics.SharedStandard, new MotherBrainHandBeamAnimation(Spawned));
             if (beam is null)
                 return;
 
@@ -502,7 +480,6 @@ internal sealed class MotherBrainProjectiles
 
             beam.Velocity = PixelVelocity<RoomPixels>.Zero;
             Spawned.MotherBrains.Start(beam, new MotherBrainProjectileState(state));
-            beam.StartAnimation(new MotherBrainHandBeamAnimation(Spawned));
         }
 
         /// <summary>Holds Mother Brain's drool at its point on her mouth as her head moves.</summary>
@@ -653,17 +630,17 @@ internal sealed class MotherBrainProjectiles
         /// <summary>Runs turret-bullet initialization.</summary>
         private void SpawnMotherBrainTurretBullet(EnemyProjectile turret)
         {
-            EnemyProjectile? bullet = dependencies.Projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainRoomTurretBullet, turretBullet, MotherBrainTurretDefinitions.Graphics);
+            MotherBrainTurretDirection direction = Turrets.Of(turret).Direction;
+            // The bullet animation's first cue jumps to the pose for this direction.
+            EnemyProjectile? bullet = dependencies.Projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainRoomTurretBullet, turretBullet,
+                MotherBrainTurretDefinitions.Graphics, new MotherBrainTurretAnimation(turretBullet, MotherBrainTurretPose.Bullet(direction)));
             if (bullet is null)
                 return;
 
-            MotherBrainTurretDirection direction = Turrets.Of(turret).Direction;
             MotherBrainTurretDirectionDefinition definition =
                 MotherBrainTurrets.ForDirection(direction);
             bullet.Velocity = definition.BulletVelocity;
             bullet.Position = bullet.Position.WithWhole(turret.Position.Whole + definition.BulletOffset);
-            // The bullet animation's first cue jumps to the pose for this direction.
-            bullet.StartAnimation(new MotherBrainTurretAnimation(turretBullet, MotherBrainTurretPose.Bullet(direction)));
         }
 
         /// <summary>Pins the charging effect to the head while the beam winds up.</summary>
@@ -705,9 +682,10 @@ internal sealed class MotherBrainProjectiles
     /// <summary>Deletes a bomb when its lifetime or collision ends.</summary>
     private static void DeleteMotherBrainBomb(
         EnemyProjectile bomb,
-        MotherBrainEnemyState state)
+        MotherBrainEnemyState state,
+        MotherBrainBombState bombState)
     {
-        state.RecordBombRemoved();
+        state.RecordBombRemoved(bombState);
         bomb.Velocity = PixelVelocity<RoomPixels>.Zero;
         bomb.Delete();
     }
@@ -740,19 +718,18 @@ internal sealed class MotherBrainProjectiles
     /// </summary>
     public void SpawnMotherBrainGlassProjectile(MotherBrainGlassProjectileRequest request)
     {
-        EnemyProjectile? shard = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainGlassShard, Projectile, graphics: SpriteGraphics.SharedStandard);
-        if (shard is null)
+        if (_projectiles.FindVacancy() is not { } vacancy)
             return; // The shard is lost when the room has no place left for an enemy projectile.
-
 
         // The shard launches at a random angle, any step of the turn. It selects signed sine/cosine velocities and the
         // shard's spin animation.
         var angle = new TrigonometryAngle(MotherBrainGlassShardDefinitions.LaunchAngle.Of(_room.Random.Generate()));
+        EnemyProjectile shard = _projectiles.Spawn(vacancy, RoomEnemyProjectileKind.MotherBrainGlassShard, Projectile, SpriteGraphics.SharedStandard,
+            new MotherBrainGlassAnimation(Projectile, MotherBrainGlassAnimations.ShardAnimations.At(angle)));
         shard.Velocity = shard.Velocity.WithX(EnemyMath.SineVelocity(angle, MotherBrainGlassShardDefinitions.LaunchAcrossSpeed));
         // The vertical speed follows the negative cosine, the sine a quarter turn back.
         shard.Velocity = shard.Velocity.WithY(EnemyMath.SineVelocity(angle - TrigonometryAngle.QuarterTurn,
             MotherBrainGlassShardDefinitions.LaunchDownSpeed));
-        shard.StartAnimation(new MotherBrainGlassAnimation(Projectile, MotherBrainGlassAnimations.ShardAnimations.At(angle)));
         shard.Graphics = MotherBrainGlassShardDefinitions.Graphics(MotherBrainColours.GlassAndTubes);
 
         MotherBrainGlassShardPlacement placement =

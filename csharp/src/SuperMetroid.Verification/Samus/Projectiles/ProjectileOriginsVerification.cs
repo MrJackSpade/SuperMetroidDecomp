@@ -30,7 +30,7 @@ internal static class ProjectileOriginsVerification
 
         void Check(SamusPoseId pose, SamusProjectileDirection direction, ushort x, ushort y)
         {
-            samus.Pose = pose; samus.Position = samus.Position.WithWhole(new(x, y)); slot.HeldShot().Direction = direction;
+            samus.ChangePoseKeepingAnimation(pose); samus.Position = samus.Position.WithWhole(new(x, y)); slot.HeldShot().Direction = direction;
             bool running = rom.ReadCartridgeByte(0x91b629 + SamusPoseNumbers.Number(pose) * 8 + 1) == 1 || pose is SamusPoseId.MoonwalkAimUpLeftPose or SamusPoseId.MoonwalkAimUpRightPose;
             int offset = direction.ToAimIndex() * 2;
             short dx = Word((running ? 0x90c22c : 0x90c204) + offset);

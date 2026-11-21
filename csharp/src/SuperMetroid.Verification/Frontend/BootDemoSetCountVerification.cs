@@ -26,27 +26,27 @@ internal static class BootDemoSetCountVerification
             "boot with no valid slot overwrites the completion marker with 'madadameyohn'");
         AssertTrue(!saveRam.HasCompletedGame, "the overwritten marker no longer reads as a completed game");
         AssertEqual(SaveFileHistory.PowerOnFoundNoValidSave, saveRam.History, "boot with no valid slot keeps that it found none in the history");
-        AssertEqual(StockAttractDemoScenes.OrdinaryPlaylist, game.Session.DemoPlaylist,
+        AssertTrue(game.Session.Demo.Plays(StockAttractDemoScenes.Playlist(completionSetUnlocked: false)),
             "boot with no valid slot plays the three ordinary demo sets");
 
         // Saving creates a valid slot. The marker stays overwritten and the boot count stays latched.
         saveRam.SaveSlot(SaveSlot.A, SaveSnapshotFixtures.NewGame);
         AssertEqual("madadameyohn", ReadMarker(saveRam),
             "a later save does not restore the completion marker");
-        AssertEqual(StockAttractDemoScenes.OrdinaryPlaylist, game.Session.DemoPlaylist,
+        AssertTrue(game.Session.Demo.Plays(StockAttractDemoScenes.Playlist(completionSetUnlocked: false)),
             "a save after boot does not unlock the completion demo set mid-session");
 
         // The ending writes the marker mid-session; the playlist still waits for reset.
         saveRam.CompleteGame();
-        AssertEqual(StockAttractDemoScenes.OrdinaryPlaylist, game.Session.DemoPlaylist,
+        AssertTrue(game.Session.Demo.Plays(StockAttractDemoScenes.Playlist(completionSetUnlocked: false)),
             "a mid-session completion marker does not change the boot demo playlist");
         var completedBoot = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(saveRam);
         AssertEqual("supermetroid", ReadMarker(saveRam),
             "boot with a valid slot leaves the completion marker intact");
-        AssertEqual(StockAttractDemoScenes.CompletedGamePlaylist, completedBoot.Session.DemoPlaylist,
+        AssertTrue(completedBoot.Session.Demo.Plays(StockAttractDemoScenes.Playlist(completionSetUnlocked: true)),
             "reset with a valid completed save unlocks the completion demo set");
         saveRam.RestoreHistory(SaveFileHistory.None);
-        AssertEqual(StockAttractDemoScenes.CompletedGamePlaylist, completedBoot.Session.DemoPlaylist,
+        AssertTrue(completedBoot.Session.Demo.Plays(StockAttractDemoScenes.Playlist(completionSetUnlocked: true)),
             "clearing the marker mid-session does not change the boot demo playlist");
         Console.WriteLine("Boot demo sets: no valid slot writes 'madadameyohn'; the playlist is fixed until reset.");
     }

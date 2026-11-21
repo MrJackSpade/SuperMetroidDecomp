@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -93,7 +94,7 @@ internal static class WaveCeilingStraddleVerification
         shot.HeldShot().Position = new(new((ushort)((column * 16) + ShotXRadius), 0), new(ShotY, 0));
         shot.HeldShot().Radius = new(ShotXRadius, ShotYRadius);
         shot.HeldShot().Velocity = new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(1), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0));
-        ProjectileTerrainCollision.ScanHorizontalWaveShotReactions(level, held, roomObjects, straddled);
+        WaveShotTerrainMoves.MoveWaveShotHorizontally(SamusTerrain.InRoom(level, roomObjects), held, straddled);
         return new Scan(level, roomObjects);
     }
 

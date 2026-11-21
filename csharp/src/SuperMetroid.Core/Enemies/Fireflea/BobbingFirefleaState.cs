@@ -3,6 +3,9 @@ namespace SuperMetroid.Core.Enemies.Fireflea;
 /// <summary>The flight of a Fireflea that bobs up and down between two rows about where it started.</summary>
 public sealed class BobbingFirefleaState : FirefleaFlightState
 {
+    /// <inheritdoc/>
+    internal override void React<TContext>(FirefleaFlightStateReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).BobbingFirefleaState(this, context);
+
     /// <summary>Starts the bobbing flight its spawn settings chose, <paramref name="definition"/>.</summary>
     internal BobbingFirefleaState(FirefleaFlight.Bobbing definition) => Definition = Ensure.NotNull(definition);
 

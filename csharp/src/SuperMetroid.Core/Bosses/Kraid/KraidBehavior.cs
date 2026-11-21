@@ -11,7 +11,6 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 [RoomLifetime]
 internal sealed class KraidBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawnSettings>
 {
-
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Kraid];
 
@@ -93,8 +92,6 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpa
     internal KraidCombat Combat { get; }
     /// <summary>The session's installed boss artwork.</summary>
     private readonly BossArtworkBinding _bossArtwork;
-
-
 
     /// <summary>Binds Kraid's room systems and shared actor services.</summary>
     internal KraidBehavior(KraidBehaviorDependencies dependencies)

@@ -24,8 +24,6 @@ internal static class CeresPlacementsByRole
             if (placement is null)
                 throw new InvalidDataException($"{scene} holds an empty actor placement.");
             TRole role = roleOf(placement);
-            if (!Enum.IsDefined(role))
-                throw new InvalidDataException($"{scene} places an actor of unknown role {role}.");
             if (!byRole.TryAdd(role, placement))
                 throw new InvalidDataException($"{scene} places its {role} actor twice.");
         }

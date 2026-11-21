@@ -13,8 +13,8 @@ namespace SuperMetroid.Core.Enemies.EyeDoor;
 internal static class EyeDoorSweatAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<EyeDoorSweatSegment, EnemyProjectileFrameId, EyeDoorProjectileCue> Segments { get; } = new(
-        new Dictionary<EyeDoorSweatSegment, AnimationBeat<EnemyProjectileFrameId, EyeDoorProjectileCue>[]>
+    internal static UnpausedAnimationSegments<EyeDoorSweatSegment, EnemyProjectileFrameId, EyeDoorProjectileCue> Segments { get; } = new(
+        new Dictionary<EyeDoorSweatSegment, AnimationBeat<EnemyProjectileFrameId, EyeDoorProjectileCue>.Unpaused[]>
     {
         [P.Falling] = [Hold(EnemyProjectileFrameId.EyeDoorSweatDrop)],
         [P.HitFloor] =
@@ -35,11 +35,11 @@ internal static class EyeDoorSweatAnimations
     };
 
     /// <summary>A still picture (#2275): <paramref name="frame"/>, held from the update it shows.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, EyeDoorProjectileCue> Hold(EnemyProjectileFrameId frame) => new AnimationBeat<EnemyProjectileFrameId, EyeDoorProjectileCue>.HeldFrame(frame);
+    private static AnimationBeat<EnemyProjectileFrameId, EyeDoorProjectileCue>.Unpaused Hold(EnemyProjectileFrameId frame) => new AnimationBeat<EnemyProjectileFrameId, EyeDoorProjectileCue>.HeldFrame(frame);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, EyeDoorProjectileCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EyeDoorProjectileCue>.Frame(frame, duration);
+    private static AnimationBeat<EnemyProjectileFrameId, EyeDoorProjectileCue>.Unpaused Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EyeDoorProjectileCue>.Frame(frame, duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, EyeDoorProjectileCue> Cue(EyeDoorProjectileCue cue) => new AnimationBeat<EnemyProjectileFrameId, EyeDoorProjectileCue>.Event(cue);
+    private static AnimationBeat<EnemyProjectileFrameId, EyeDoorProjectileCue>.Unpaused Cue(EyeDoorProjectileCue cue) => new AnimationBeat<EnemyProjectileFrameId, EyeDoorProjectileCue>.Event(cue);
 }

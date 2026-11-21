@@ -171,8 +171,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!place.AnimationClock.Expire())
             return;
         AnimationPlayback<RipperSegment> playback = state.Playback;
-        EnemyAnimationPlayback.Play(place, RipperAnimations.Segments, ref playback,
-            static cue => throw new InvalidOperationException($"Ripper's cue-free animation raised {cue}."));
+        EnemyAnimationPlayback.PlaySilently(place, RipperAnimations.Segments, ref playback);
         state.Playback = playback;
     }
 

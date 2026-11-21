@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
 /// What one of Mother Brain's bouncing bombs keeps: the sideways speed each bounce restores, how many bounces it has
-/// made, and how many afterburns its explosion chains.
+/// made (#2553), and how many afterburns its explosion chains.
 /// </summary>
 /// <param name="motherBrain">The encounter that spawned the bomb.</param>
 /// <param name="bounceSpeed">The sideways speed each floor bounce restores, without its direction.</param>
@@ -16,10 +16,6 @@ internal sealed class MotherBrainBombState(MotherBrainEnemyState motherBrain, Si
     /// <summary>The afterburns the bomb's explosion chains when it expires, as its spawn set them.</summary>
     internal int Afterburns { get; } = Ensure.AtLeastZero(afterburns);
 
-    /// <summary>How many times the bomb has bounced off the floor; zero while it makes its first fall.</summary>
-    internal int Bounces
-    {
-        get;
-        set => field = Ensure.AtLeastZero(value);
-    }
+    /// <summary>Where the bomb stands in its flight: its first fall as it spawns, then each bounce, then landed.</summary>
+    internal MotherBrainBombBounces Bounces { get; set; } = MotherBrainBombBounces.FirstFall;
 }

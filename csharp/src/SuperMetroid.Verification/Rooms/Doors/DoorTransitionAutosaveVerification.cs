@@ -147,7 +147,7 @@ internal static class DoorTransitionAutosaveVerification
                         store.WaitForPendingWrites();
                         count++;
                         AssertEqual(SuperMetroidGameState.DoorTransition, before, "capture comes from door phase");
-                        AssertEqual(DoorTransitionPhase.Complete, game.DoorTransitionPhaseForVerification, "capture waits for complete fade");
+                        AssertEqual(new DoorTransitionPhase.Complete(), game.DoorTransitionPhaseForVerification, "capture waits for complete fade");
                     }
                     if (game.GameState == SuperMetroidGameState.MainGameplay) return count;
                     if (!File.Exists(autoPath)) AssertEqual(0, count, "no save in incomplete destination");

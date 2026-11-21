@@ -213,16 +213,16 @@ internal static void VerifyFileSelectFreshSaveTilemap()
     PulseFileSelect(copyMenu, ControllerButton.Down);
     AssertEqual(FileSelectItem.Copy, copyMenu.SelectedItem, "file-select reaches DATA COPY");
     PulseFileSelect(copyMenu, ControllerButton.A);
-    AdvanceFileSelectFade(copyMenu, FileSelectPhase.CopySelectSource);
+    AdvanceFileSelectFade(copyMenu, new FileSelectPhase.DataManagement.CopySelectSource());
     PulseFileSelect(copyMenu, ControllerButton.A);
-    AssertEqual(FileSelectPhase.CopySelectDestination, copyMenu.Phase,
+    AssertEqual(new FileSelectPhase.DataManagement.CopySelectDestination(), copyMenu.Phase,
         "copy chooses nonempty source slot");
     PulseFileSelect(copyMenu, ControllerButton.A);
-    AssertEqual(FileSelectPhase.CopyConfirm, copyMenu.Phase,
+    AssertEqual(true, copyMenu.Phase is FileSelectPhase.DataManagement.CopyConfirm,
         "copy chooses distinct destination slot");
     copyMenu.Step(0);
     AssertEqual(FileSelectSaveChange.Copied, copyMenu.Step(ControllerButton.A), "copy reports the update it changed the saves");
-    AssertEqual(FileSelectPhase.CopyCompleted, copyMenu.Phase, "copy reaches completion screen");
+    AssertEqual(new FileSelectPhase.DataManagement.CopyCompleted(), copyMenu.Phase, "copy reaches completion screen");
     SuperMetroidSaveSlot copied = saveRam.ReadSlot(SaveSlot.B)
         ?? throw new InvalidOperationException("File-select COPY did not create slot B.");
     AssertEqual(saved.Inventory.Health, copied.Inventory.Health, "file-select COPY preserves health");
@@ -237,26 +237,26 @@ internal static void VerifyFileSelectFreshSaveTilemap()
         PulseFileSelect(clearMenu, ControllerButton.Down);
     AssertEqual(FileSelectItem.Clear, clearMenu.SelectedItem, "file-select reaches DATA CLEAR");
     PulseFileSelect(clearMenu, ControllerButton.A);
-    AdvanceFileSelectFade(clearMenu, FileSelectPhase.ClearSelectSlot);
+    AdvanceFileSelectFade(clearMenu, new FileSelectPhase.DataManagement.ClearSelectSlot());
     PulseFileSelect(clearMenu, ControllerButton.A);
-    AssertEqual(FileSelectPhase.ClearConfirm, clearMenu.Phase,
+    AssertEqual(new FileSelectPhase.DataManagement.ClearConfirm(), clearMenu.Phase,
         "clear chooses first nonempty slot");
     clearMenu.Step(0);
     AssertEqual(FileSelectSaveChange.Cleared, clearMenu.Step(ControllerButton.A), "clear reports the update it cleared a save");
-    AssertEqual(FileSelectPhase.ClearCompleted, clearMenu.Phase,
+    AssertEqual(new FileSelectPhase.DataManagement.ClearCompleted(), clearMenu.Phase,
         "clear reaches DATA CLEARED screen");
     AssertTrue(saveRam.ReadSlot(SaveSlot.A) is null, "file-select CLEAR invalidates slot A checksums");
     AssertTrue(saveRam.ReadSlot(SaveSlot.B) is not null, "file-select CLEAR preserves other slots");
 
-    AdvanceFileSelectFade(savedMenu, FileSelectPhase.Main);
+    AdvanceFileSelectFade(savedMenu, new FileSelectPhase.Main());
     savedMenu.Step(ControllerButton.A);
     for (int guard = 0;
-         savedMenu.Phase != FileSelectPhase.FadeOutToOptions && guard < 80;
+         savedMenu.Phase is not FileSelectPhase.FadeOutToOptions && guard < 80;
          guard++)
     {
         savedMenu.Step(0);
     }
-    AssertEqual(FileSelectPhase.FadeOutToOptions, savedMenu.Phase,
+    AssertEqual(new FileSelectPhase.FadeOutToOptions(), savedMenu.Phase,
         "selected save completes helmet turn before load fade");
     FileSelectHelmetFrame selectedHelmetFrame = savedMenu.SelectedHelmetFrame;
     AssertEqual(FileSelectHelmetFrame.SparkleWide, selectedHelmetFrame,
@@ -282,9 +282,9 @@ static void AdvanceFileSelectToMain(FileSelectMenuState menu)
     // three's delay-one fade takes thirty dispatches (100% movie frames 399-437).
     for (int frame = 0; frame < 34; frame++)
         menu.Step(0);
-    AssertTrue(menu.Phase != FileSelectPhase.Main, "file-select fade is still running on its 34th update");
+    AssertTrue(menu.Phase is not FileSelectPhase.Main, "file-select fade is still running on its 34th update");
     menu.Step(0);
-    AssertEqual(FileSelectPhase.Main, menu.Phase, "file-select fade reaches main menu on its 35th update");
+    AssertEqual(new FileSelectPhase.Main(), menu.Phase, "file-select fade reaches main menu on its 35th update");
 }
 
 /// <summary>Steps a data-management fade until the expected file-select phase becomes active.</summary>
@@ -477,7 +477,13 @@ internal static void VerifyDemoInputObject()
     var demo = new DemoInputState();
     demo.Clear();
     demo.Enable();
-    demo.Load(DemoInputRecordingId.IntroMotherBrainFlashback);
+    int elapsed = 0, ends = 0;
+    // The flashback's signal runs its owner's end routine, which disables the object ($8739).
+    demo.Load(DemoSignallingRecordingId.IntroMotherBrainFlashback, () =>
+    {
+        ends++;
+        demo.Disable();
+    });
 
     // The first seven records at $91:8694, the last two one run of nothing held played as one input (#2557). The two
     // one-frame X edges are separated by held-X records; normal projectile cooldown/motion code, not this program, decides
@@ -488,18 +494,11 @@ internal static void VerifyDemoInputObject()
             GameplayAction.Shoot, 0];
     GameplayAction[] newlyPressed =
         [0, GameplayAction.Shoot, 0, GameplayAction.Shoot, 0, 0];
-    int elapsed = 0, ends = 0;
-    void EndRoutine(DemoInputCue cue)
-    {
-        AssertEqual(DemoInputCue.EndIntroMotherBrainFlashback, cue, "flashback demo end routine");
-        ends++;
-        demo.Disable();
-    }
     for (int record = 0; record < boundaries.Length; record++)
     {
         for (int frame = 0; frame < boundaries[record]; frame++)
         {
-            demo.Step(EndRoutine);
+            demo.Step();
             AssertEqual(held[record], demo.Held, $"demo record {record} held frame {frame}");
             AssertEqual(newlyPressed[record], demo.NewlyPressed,
                 $"demo record {record} new frame {frame}");
@@ -515,7 +514,7 @@ internal static void VerifyDemoInputObject()
 
     // $8739 disables the object and returns into the shared delete in the same handler call.
     for (int frame = 0; frame < 1024 && demo.IsActive; frame++)
-        demo.Step(EndRoutine);
+        demo.Step();
     AssertEqual(1, ends, "flashback demo end routine runs once");
     AssertEqual(false, demo.Enabled, "demo end routine disables the object");
     AssertEqual(false, demo.IsActive, "demo end routine continues into delete");

@@ -7,13 +7,22 @@ namespace SuperMetroid.Core.Enemies.Hoppers;
 
 /// <summary>The Hoppers species owner: its per-room state, AI behaviours and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class HoppersBehavior : IEnemySpecies, IEnemySpawnFactory<HopperSpawnSettings>
+internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
 {
-    /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Dessgeega, EnemyDefinitionId.DessgeegaLarge, EnemyDefinitionId.Sidehopper, EnemyDefinitionId.SidehopperLarge, EnemyDefinitionId.SidehopperTourian];
-
-    /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, HopperSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new HoppersEntity(this, occupant, place, common, settings));
+    /// <summary>Each hopper definition, from its settings, with the kind <see cref="HopperKindDefinitions.Kinds"/> gives it (#2553).</summary>
+    /// <param name="registrar">The room's registry being composed.</param>
+    public void OfferCreations(EnemySpeciesRegistrar registrar)
+    {
+        Ensure.NotNull(registrar);
+        EnemyDefinitionId[] definitions =
+            [EnemyDefinitionId.Sidehopper, EnemyDefinitionId.SidehopperLarge, EnemyDefinitionId.SidehopperTourian, EnemyDefinitionId.DessgeegaLarge, EnemyDefinitionId.Dessgeega];
+        foreach (EnemyDefinitionId definition in definitions)
+        {
+            HopperKind kind = HopperKindDefinitions.Kinds[definition];
+            registrar.Spawns<HopperSpawnSettings>([definition], (occupant, settings, place, common) =>
+                EnemyOccupant.Running(new HoppersEntity(this, occupant, place, common, settings, kind)));
+        }
+    }
 
     /// <summary>Supplies the shared RNG seed consumed during Hopper initialization.</summary>
     private readonly EnemyRoomBinding _room;
@@ -31,33 +40,38 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemySpawnFactory<Hopper
         _terrain = terrain;
     }
 
+    /// <summary>What <see cref="ApplyHopperCue"/> does for each <see cref="HopperCueKind"/> member, each member's own arm.</summary>
+    private static IdentityTable<HopperCueKind, Action<RoomEnemyPlace, HopperEnemyState>> ApplyHopperCueForHopperCueKind => field ??= new(new Dictionary<HopperCueKind, Action<RoomEnemyPlace, HopperEnemyState>>
+    {
+        [HopperCueKind.ProcessOffScreen] = static (place, state) => place.Processing = place.Processing.With(EnemyProcessing.OffScreen),
+        [HopperCueKind.StopProcessingOffScreen] = static (place, state) => place.Processing = place.Processing.Without(EnemyProcessing.OffScreen),
+        [HopperCueKind.ReadyToHop] = static (place, state) => state.ReadyToHop = true,
+    });
+
     /// <summary>Carries out one cue of the hoppers' animations.</summary>
     private void ApplyHopperCue(RoomEnemyPlace place, HopperEnemyState state, HopperCue cue)
     {
-        switch (cue)
-        {
-            case HopperCue.Signal { Kind: HopperCueKind.ProcessOffScreen }:
-                place.Processing = place.Processing.With(EnemyProcessing.OffScreen);
-                break;
-            case HopperCue.Signal { Kind: HopperCueKind.StopProcessingOffScreen }:
-                place.Processing = place.Processing.Without(EnemyProcessing.OffScreen);
-                break;
-            case HopperCue.PlaySound sound:
-                _audio.QueueEnemySound(sound.Sound, priority: SoundRequestPriority.Normal);
-                break;
-            case HopperCue.Signal { Kind: HopperCueKind.ReadyToHop }:
-                state.ReadyToHop = true;
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined hopper cue {cue}.");
-        }
+        cue.React(ApplyHopperCueReactions, new ApplyHopperCueContext(place, state, this));
     }
+
+    /// <summary>What <see cref="ApplyHopperCue"/> does on each <see cref="HopperCue"/>, built once (#2553).</summary>
+    private static HopperCueReactions<ApplyHopperCueContext> ApplyHopperCueReactions { get; } = new(
+        PlaySound: static (sound, context) => context.Owner._audio.QueueEnemySound(sound.Sound, priority: SoundRequestPriority.Normal),
+        Signal: static (signal, context) =>
+        {
+            ApplyHopperCueForHopperCueKind[signal.Kind](context.Place, context.State);
+        });
+
+    /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <param name="Place">The place the cases read.</param>
+    /// <param name="State">The state the cases read.</param>
+    /// <param name="Owner">The <see cref="HoppersBehavior"/> reacting.</param>
+    private readonly record struct ApplyHopperCueContext(RoomEnemyPlace Place, HopperEnemyState State, HoppersBehavior Owner);
 
     /// <summary>Initializes the Hopper.</summary>
     /// <returns>The state the enemy holds from its setup.</returns>
-    internal HopperEnemyState InitializeHopper(RoomEnemyPlace place, RoomEnemyOccupant occupant, HopperSpawnSettings hopperSpawnSettings)
+    internal HopperEnemyState InitializeHopper(RoomEnemyPlace place, RoomEnemyOccupant occupant, HopperSpawnSettings hopperSpawnSettings, HopperKind kind)
     {
-        HopperKind kind = HopperAnimationChoices.KindOf(Ensure.NotNull(occupant).DefinitionId);
         // The placement's reseed is followed by a draw it never reads, which later consumers observe.
         _room.Random.Reseed(SpeciesRandomReseed.HopperPlacement);
         _room.Random.Generate();
@@ -71,48 +85,38 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemySpawnFactory<Hopper
         return state;
     }
 
+    /// <summary>What <see cref="RunHopperMain"/> does for each <see cref="HopperAction"/> member, each member's own arm.</summary>
+    private IdentityTable<HopperAction, Action<HopperSpawnSettings, RoomEnemyPlace, SamusState, RoomLevelData, HopperEnemyState>> RunHopperMainForHopperAction => field ??= new(new Dictionary<HopperAction, Action<HopperSpawnSettings, RoomEnemyPlace, SamusState, RoomLevelData, HopperEnemyState>>
+    {
+        [HopperAction.ChooseHopSize] = (_, place, samus, level, state) =>
+        {
+            // Choosing between the two hops takes a whole update.
+            state.HopSize = HopperDecisions.HopsBig.IsTakenBy(_room.Random.Generate()) ? HopperHopSize.Big : HopperHopSize.Small;
+            state.Action = HopperAction.PrepareHop;
+        },
+        [HopperAction.PrepareHop] = (_, place, samus, level, state) => PrepareHopperHop(state),
+        [HopperAction.ChooseDirection] = (_, place, samus, level, state) => ChooseHopperDirection(place, state, samus),
+        [HopperAction.StartHop] = (settings, place, samus, level, state) => StartHopperJump(settings, place, state),
+        [HopperAction.Landed] = (settings, place, samus, level, state) => LandHopper(settings, place, state),
+        [HopperAction.HoppingAway] = (settings, place, samus, level, state) => RunHopperHopAway(settings, place, state, level),
+        [HopperAction.Returning] = (settings, place, samus, level, state) => RunHopperReturn(settings, place, state, level),
+        [HopperAction.WaitToHop] = (_, place, samus, level, state) =>
+        {
+            if (state.ReadyToHop)
+            {
+                state.ReadyToHop = false;
+                state.Action = HopperAction.ChooseHopSize;
+            }
+        },
+    });
+
     /// <summary>Runs the Hopper's current action.</summary>
     private void RunHopperMain(
         HopperSpawnSettings hopperSpawnSettings, RoomEnemyPlace place, HopperEnemyState state,
         SamusState samus,
         RoomLevelData level)
     {
-        switch (state.Action)
-        {
-            case HopperAction.ChooseHopSize:
-                // Choosing between the two hops takes a whole update.
-                state.HopSize = HopperDecisions.HopsBig.IsTakenBy(_room.Random.Generate()) ? HopperHopSize.Big : HopperHopSize.Small;
-                state.Action = HopperAction.PrepareHop;
-                return;
-            case HopperAction.PrepareHop:
-                PrepareHopperHop(state);
-                return;
-            case HopperAction.ChooseDirection:
-                ChooseHopperDirection(place, state, samus);
-                return;
-            case HopperAction.StartHop:
-                StartHopperJump(hopperSpawnSettings, place, state);
-                return;
-            case HopperAction.Landed:
-                LandHopper(hopperSpawnSettings, place, state);
-                return;
-            case HopperAction.HoppingAway:
-                RunHopperHopAway(hopperSpawnSettings, place, state, level);
-                return;
-            case HopperAction.Returning:
-                RunHopperReturn(hopperSpawnSettings, place, state, level);
-                return;
-            case HopperAction.WaitToHop:
-                if (state.ReadyToHop)
-                {
-                    state.ReadyToHop = false;
-                    state.Action = HopperAction.ChooseHopSize;
-                }
-                return;
-            default:
-                throw new InvalidDataException(
-                    $"Hopper has no behaviour for action {state.Action}.");
-        }
+        RunHopperMainForHopperAction[state.Action](hopperSpawnSettings, place, samus, level, state);
     }
 
     /// <summary>

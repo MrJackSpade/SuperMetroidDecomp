@@ -35,7 +35,7 @@ internal static class XrayInputVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.XrayScope);
         var samus = runtime.Player.Samus;
         samus.Control.Unlock();
-        samus.Pose = SamusPoseId.FacingRightNormalPose;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         // The platform's lowest position is a Morph-only tunnel. Standing there
@@ -134,7 +134,7 @@ internal static class XrayInputVerification
         {
             runtime.LoadCartridgeRoomForDebug(excludedRoom);
             samus.Control.Unlock();
-            samus.Pose = SamusPoseId.FacingRightNormalPose;
+            samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             SamusPresentation.InitializeAnimation(samus);
             samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.Stopped();

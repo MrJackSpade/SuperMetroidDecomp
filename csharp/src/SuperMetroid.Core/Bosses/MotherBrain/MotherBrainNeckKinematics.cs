@@ -35,124 +35,112 @@ internal static class MotherBrainNeckKinematics
         int brainY,
         int samusY)
     {
-        switch (lowerMovement)
+        if (lowerMovement == MotherBrainNeckMovement.BobDown)
         {
-            case MotherBrainNeckMovement.None:
-                break;
-            case MotherBrainNeckMovement.BobDown: // Bob down to the bob's floor, then reverse.
+            // Bob down to the bob's floor, then reverse.
+            RotationAngle candidate = lowerAngle - turn;
+            if (candidate.CompareTo(LowerBobFloor) < 0)
             {
-                RotationAngle candidate = lowerAngle - turn;
-                if (candidate.CompareTo(LowerBobFloor) < 0)
-                {
-                    candidate = LowerBobFloor;
-                    lowerMovement = MotherBrainNeckMovement.BobUp;
-                }
-                lowerAngle = candidate;
-                break;
+                candidate = LowerBobFloor;
+                lowerMovement = MotherBrainNeckMovement.BobUp;
             }
-            case MotherBrainNeckMovement.BobUp: // Bob up to the lower neck's ceiling unless the brain is already above its highest bob.
-                if (brainY < MotherBrainNeckJointDefinitions.BobUpHighestBrainY)
-                {
-                    lowerMovement = MotherBrainNeckMovement.BobDown;
-                }
-                else
-                {
-                    RotationAngle candidate = lowerAngle + turn;
-                    if (candidate.CompareTo(LowerCeiling) >= 0)
-                    {
-                        candidate = LowerCeiling;
-                        lowerMovement = MotherBrainNeckMovement.BobDown;
-                    }
-                    lowerAngle = candidate;
-                }
-                break;
-            case MotherBrainNeckMovement.Lower: // One-way lower used by beam setup and the resurrection stretch.
+            lowerAngle = candidate;
+        }
+        else if (lowerMovement == MotherBrainNeckMovement.BobUp)
+        {
+            // Bob up to the lower neck's ceiling unless the brain is already above its highest bob.
+            if (brainY < MotherBrainNeckJointDefinitions.BobUpHighestBrainY)
             {
-                RotationAngle candidate = lowerAngle - turn;
-                if (candidate.CompareTo(LowerFloor) < 0)
-                {
-                    candidate = LowerFloor;
-                    lowerMovement = MotherBrainNeckMovement.None;
-                }
-                lowerAngle = candidate;
-                break;
+                lowerMovement = MotherBrainNeckMovement.BobDown;
             }
-            case MotherBrainNeckMovement.Raise: // One-way raise used by fake-death ascent and Baby interruptions.
+            else
             {
                 RotationAngle candidate = lowerAngle + turn;
                 if (candidate.CompareTo(LowerCeiling) >= 0)
                 {
                     candidate = LowerCeiling;
-                    lowerMovement = MotherBrainNeckMovement.None;
+                    lowerMovement = MotherBrainNeckMovement.BobDown;
                 }
                 lowerAngle = candidate;
-                break;
             }
-            default:
-                throw new InvalidOperationException(
-                    $"Unsupported lower-neck movement {lowerMovement}.");
+        }
+        else if (lowerMovement == MotherBrainNeckMovement.Lower)
+        {
+            // One-way lower used by beam setup and the resurrection stretch.
+            RotationAngle candidate = lowerAngle - turn;
+            if (candidate.CompareTo(LowerFloor) < 0)
+            {
+                candidate = LowerFloor;
+                lowerMovement = MotherBrainNeckMovement.None;
+            }
+            lowerAngle = candidate;
+        }
+        else if (lowerMovement == MotherBrainNeckMovement.Raise)
+        {
+            // One-way raise used by fake-death ascent and Baby interruptions.
+            RotationAngle candidate = lowerAngle + turn;
+            if (candidate.CompareTo(LowerCeiling) >= 0)
+            {
+                candidate = LowerCeiling;
+                lowerMovement = MotherBrainNeckMovement.None;
+            }
+            lowerAngle = candidate;
         }
 
         // The upper neck moves after the lower neck and sees its new angle and movement.
-        switch (upperMovement)
+        if (upperMovement == MotherBrainNeckMovement.BobDown)
         {
-            case MotherBrainNeckMovement.None:
-                break;
-            case MotherBrainNeckMovement.BobDown: // Bob down; Samus below the brain forces both halves back upward.
-                if (brainY + MotherBrainNeckJointDefinitions.BobDownSamusBelowBrain >= samusY)
-                {
-                    lowerMovement = MotherBrainNeckMovement.BobUp;
-                    upperMovement = MotherBrainNeckMovement.BobUp;
-                }
-                else
-                {
-                    RotationAngle candidate = upperAngle - turn;
-                    if (candidate.CompareTo(UpperFloor) < 0)
-                    {
-                        candidate = UpperFloor;
-                        upperMovement = MotherBrainNeckMovement.BobUp;
-                    }
-                    upperAngle = candidate;
-                }
-                break;
-            case MotherBrainNeckMovement.BobUp: // Follow the upper neck's lead above the newly updated lower segment.
+            // Bob down; Samus below the brain forces both halves back upward.
+            if (brainY + MotherBrainNeckJointDefinitions.BobDownSamusBelowBrain >= samusY)
             {
-                RotationAngle target = lowerAngle + UpperLeadOverLower;
-                RotationAngle candidate = upperAngle + turn;
-                if (candidate.CompareTo(target) >= 0)
-                {
-                    candidate = target;
-                    upperMovement = MotherBrainNeckMovement.BobDown;
-                }
-                upperAngle = candidate;
-                break;
+                lowerMovement = MotherBrainNeckMovement.BobUp;
+                upperMovement = MotherBrainNeckMovement.BobUp;
             }
-            case MotherBrainNeckMovement.Lower: // One-way lower to the upper neck's floor.
+            else
             {
                 RotationAngle candidate = upperAngle - turn;
                 if (candidate.CompareTo(UpperFloor) < 0)
                 {
                     candidate = UpperFloor;
-                    upperMovement = MotherBrainNeckMovement.None;
+                    upperMovement = MotherBrainNeckMovement.BobUp;
                 }
                 upperAngle = candidate;
-                break;
             }
-            case MotherBrainNeckMovement.Raise: // One-way raise to the lower angle plus the upper neck's lead.
+        }
+        else if (upperMovement == MotherBrainNeckMovement.BobUp)
+        {
+            // Follow the upper neck's lead above the newly updated lower segment.
+            RotationAngle target = lowerAngle + UpperLeadOverLower;
+            RotationAngle candidate = upperAngle + turn;
+            if (candidate.CompareTo(target) >= 0)
             {
-                RotationAngle target = lowerAngle + UpperLeadOverLower;
-                RotationAngle candidate = upperAngle + turn;
-                if (candidate.CompareTo(target) >= 0)
-                {
-                    candidate = target;
-                    upperMovement = MotherBrainNeckMovement.None;
-                }
-                upperAngle = candidate;
-                break;
+                candidate = target;
+                upperMovement = MotherBrainNeckMovement.BobDown;
             }
-            default:
-                throw new InvalidOperationException(
-                    $"Unsupported upper-neck movement {upperMovement}.");
+            upperAngle = candidate;
+        }
+        else if (upperMovement == MotherBrainNeckMovement.Lower)
+        {
+            // One-way lower to the upper neck's floor.
+            RotationAngle candidate = upperAngle - turn;
+            if (candidate.CompareTo(UpperFloor) < 0)
+            {
+                candidate = UpperFloor;
+                upperMovement = MotherBrainNeckMovement.None;
+            }
+            upperAngle = candidate;
+        }
+        else if (upperMovement == MotherBrainNeckMovement.Raise)
+        {
+            // One-way raise to the lower angle plus the upper neck's lead.
+            RotationAngle target = lowerAngle + UpperLeadOverLower;
+            RotationAngle candidate = upperAngle + turn;
+            if (candidate.CompareTo(target) >= 0)
+            {
+                candidate = target;
+                upperMovement = MotherBrainNeckMovement.None;
+            }
+            upperAngle = candidate;
         }
     }
 

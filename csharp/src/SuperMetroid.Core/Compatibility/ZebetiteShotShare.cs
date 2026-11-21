@@ -15,16 +15,8 @@ public static class ZebetiteShotShare
 {
     /// <summary>The enemy the struck Zebetite shares its health and flash with.</summary>
     /// <typeparam name="TPlace">An enemy place.</typeparam>
-    /// <param name="places">Every enemy place, in placement order.</param>
+    /// <param name="firstPlace">The room's first enemy place in placement order.</param>
     /// <param name="linkedHalf">The struck Zebetite's linked half, or null when it has none.</param>
-    /// <exception cref="InvalidOperationException">The room places no enemy.</exception>
-    public static TPlace Recipient<TPlace>(IReadOnlyList<TPlace> places, TPlace? linkedHalf) where TPlace : class
-    {
-        Ensure.NotNull(places);
-        if (linkedHalf is not null)
-            return linkedHalf;
-        return places.Count != 0
-            ? places[0]
-            : throw new InvalidOperationException("A Zebetite with no linked half was shot in a room that places no enemy.");
-    }
+    public static TPlace Recipient<TPlace>(TPlace firstPlace, TPlace? linkedHalf) where TPlace : class =>
+        linkedHalf ?? Ensure.NotNull(firstPlace);
 }

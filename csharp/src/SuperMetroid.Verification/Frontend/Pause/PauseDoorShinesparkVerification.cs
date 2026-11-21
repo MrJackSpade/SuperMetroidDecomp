@@ -57,12 +57,12 @@ internal static class PauseDoorShinesparkVerification
             var samus = runtime.Player.Samus;
             samus.Control.Unlock();
             samus.Health = 999;
-            samus.Pose = SamusPoseId.FacingRightNormalPose;
+            samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             SamusPresentation.InitializeAnimation(samus);
             samus.Shinespark.TryStoreFromSpeedBooster(SamusSpeedBoostCounter.AtFullStage);
             samus.Shinespark.BeginWindup(samus);
-            samus.Shinespark.BeginDirectionalLaunch(samus, SamusPoseId.ShinesparkHorizontalRightPose);
+            samus.Shinespark.BeginDirectionalLaunch(samus, ShinesparkLaunchFixtures.Of(SamusPoseId.ShinesparkHorizontalRightPose));
             samus.CommitPoseHistory();
             samus.Position = samus.Position.WithWhole(new(128, 128));
             game.Session.Enter(SuperMetroidGameState.MainGameplay);

@@ -8,5 +8,5 @@ internal sealed class FallingSparkAnimation(FallingSparkSegment segment)
     : EnemyProjectileFrameAnimation<FallingSparkSegment, EnemyProjectileCommonCue>(segment, FallingSparkAnimations.StartingAt[segment], EnemyProjectileCueRunners.Common<FallingSparkSegment>())
 {
     /// <inheritdoc/>
-    private protected override AnimationSegments<FallingSparkSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => FallingSparkAnimations.Segments;
+    private protected override IUnpausedAnimationPlay<FallingSparkSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => FallingSparkAnimations.Segments;
 }

@@ -97,7 +97,7 @@ public static class RoomBlockBehaviorCodec
     /// <param name="value">The byte, 0 through 255.</param>
     /// <exception cref="ArgumentOutOfRangeException">The area is not a retail area, <paramref name="value"/> is not a byte, or no kept behaviour holds its readings.</exception>
     public static RoomBlockBehavior Decode(AreaId area, int value) =>
-        InAreas.Value[AreaIds.Require(area)][Ensure.BetweenInclusive(0, byte.MaxValue, value)];
+        InAreas.Value[area][Ensure.BetweenInclusive(0, byte.MaxValue, value)];
 
     /// <summary>The slope shape a slope's shape bits number.</summary>
     /// <param name="number">The shape bits, 0 through 31.</param>
@@ -126,7 +126,6 @@ public static class RoomBlockBehaviorCodec
     /// <exception cref="ArgumentOutOfRangeException">The area is not a retail area, or <paramref name="value"/> is not a byte.</exception>
     public static RoomBlockReadings ReadingsOf(AreaId area, int value)
     {
-        _ = AreaIds.Require(area);
         _ = Ensure.BetweenInclusive(0, byte.MaxValue, value);
         bool areaTable = (value & HighBit) != 0;
         int entry = value & EntryMask;
@@ -148,11 +147,29 @@ public static class RoomBlockBehaviorCodec
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="value"/> is not a byte.</exception>
     public static int DoorLinkOf(int value) => Ensure.BetweenInclusive(0, byte.MaxValue, value) & EntryMask;
 
-    /// <summary>The shot, bomb and grapple dispatchers' table entry for a shootable block, or none past their tables.</summary>
-    private static ShootableReaction? ShootableOf(bool area, int entry) => new TableEntry(area, entry) switch
+    /// <summary>The number of entries each area's shootable table holds.</summary>
+    private const int AreaShootableEntries = 8;
+
+    /// <summary>
+    /// Whether a shootable block with behaviour byte <paramref name="value"/> reads its reaction past its area's shootable
+    /// table, into the other areas' tables and the code after them (#2553): an area entry of 8 or more, bytes $88 and up.
+    /// That reading is outside the emulation's scope, so the import refuses such a block (no retail block holds one).
+    /// </summary>
+    /// <param name="value">The byte, 0 through 255.</param>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="value"/> is not a byte.</exception>
+    public static bool ReadsPastAreaShootableTable(int value) =>
+        (Ensure.BetweenInclusive(0, byte.MaxValue, value) & HighBit) != 0 && (value & EntryMask) >= AreaShootableEntries;
+
+    /// <summary>
+    /// The shot, bomb and grapple dispatchers' table entry for a shootable block. Every area entry sets off nothing in
+    /// shootable air, which passes an area byte by ($94:9E60), and the area tables' nothing in a shootable block; the
+    /// import refuses a block whose area entry reads past its area's table (<see cref="ReadsPastAreaShootableTable"/>).
+    /// The common entries past the common table's 80 read on into the area tables' 64 entries, every one the room object
+    /// that does nothing, which shots pass by (#2553).
+    /// </summary>
+    private static ShootableReaction ShootableOf(bool area, int entry) => new TableEntry(area, entry) switch
     {
-        (true, < 8) => ShootableReaction.NothingWhenSolid,
-        (true, _) => null,
+        (true, _) => ShootableReaction.NothingWhenSolid,
         (false, 0) => ShootableReaction.RespawningBreak1x1,
         (false, 1) => ShootableReaction.RespawningBreak2x1,
         (false, 2) => ShootableReaction.RespawningBreak1x2,
@@ -184,7 +201,7 @@ public static class RoomBlockBehaviorCodec
         (false, 77) => ShootableReaction.GateTriggerYellowRight,
         (false, 78) => ShootableReaction.IgnoresShots,
         (false, 79) => ShootableReaction.AnimalEscape,
-        (false, _) => null,
+        (false, _) => ShootableReaction.IgnoresShots,
     };
 
     /// <summary>The bomb-block table's entry for a bombable block, or none past the table.</summary>

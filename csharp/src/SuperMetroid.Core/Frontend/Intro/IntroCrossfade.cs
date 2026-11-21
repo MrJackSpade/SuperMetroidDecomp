@@ -27,10 +27,15 @@ public sealed class IntroCrossfade
     private readonly IntroCrossfadeScene? outgoing;
     /// <summary>The scene the crossfade fades in, or none before the first crossfade.</summary>
     private readonly IntroCrossfadeScene? incoming;
-    /// <summary>The steps the crossfade has taken, from zero through <see cref="Levels"/>.</summary>
-    private int steps;
     /// <summary>The crossfade's run (#1980), counted once each update it runs: it ends on its last.</summary>
     private readonly UpdateCountdown run = UpdateCountdown.Lasting(IntroCinematicDefinitions.Crossfade.Updates);
+
+    /// <summary>
+    /// The steps the crossfade has taken, from zero through <see cref="Levels"/>: one on the last update of each run of its
+    /// step's updates (<see cref="IntroCadenceDefinitions.CrossfadeStep"/>), so the updates it has run count them and its
+    /// last update takes its last.
+    /// </summary>
+    private int Steps => run.Age / IntroCadenceDefinitions.CrossfadeStep.Period;
 
     /// <summary>The opening before its first crossfade: every scene shows at full.</summary>
     internal IntroCrossfade()
@@ -47,6 +52,7 @@ public sealed class IntroCrossfade
         incoming = to;
     }
 
+<<<<<<< ours
     /// <summary>
     /// Takes one step of the running crossfade <see cref="Advance"/> runs: the outgoing scene moves one level toward black and
     /// the incoming one toward its colours.
@@ -59,9 +65,24 @@ public sealed class IntroCrossfade
         steps++;
     }
 
+||||||| base
+    /// <summary>Takes one step: the outgoing scene moves one level toward black and the incoming one toward its colours.</summary>
+    /// <exception cref="InvalidOperationException">No crossfade has started, or the crossfade has already taken every step.</exception>
+    private void Step()
+    {
+        if (incoming is null)
+            throw new InvalidOperationException("The opening has not started a crossfade.");
+        if (steps == Levels)
+            throw new InvalidOperationException($"The opening's crossfade from {outgoing} to {incoming} has already taken its {Levels} steps.");
+        steps++;
+    }
+
+=======
+>>>>>>> theirs
     /// <summary>
-    /// Runs the crossfade for one update (#1980): it takes a step on the last update of each run of its step's updates,
-    /// so its steps end on its last update, and reports what it did.
+    /// Runs the crossfade for one update (#1980): on the last update of each run of its step's updates the outgoing scene
+    /// moves one level toward black and the incoming one toward its colours, so its steps end on its last update; reports
+    /// what it did.
     /// </summary>
     /// <exception cref="InvalidOperationException">No crossfade has started, or the crossfade has already ended.</exception>
     internal IntroCrossfadeTick Advance()
@@ -70,15 +91,13 @@ public sealed class IntroCrossfade
             throw new InvalidOperationException("The opening has not started a crossfade.");
         if (run.IsOver)
             throw new InvalidOperationException($"The opening's crossfade from {from} to {to} has already ended.");
-        if (IntroCadenceDefinitions.CrossfadeStep.IsDue(run.UpdatesLeft))
-            Step();
         run.Count();
         return new IntroCrossfadeTick(from, to, run.UpdatesLeft);
     }
 
     /// <summary>The level <paramref name="scene"/> shows, from zero (black) to <see cref="Levels"/> (its colours).</summary>
     internal int LevelOf(IntroCrossfadeScene scene) =>
-        scene == incoming ? steps : scene == outgoing ? Levels - steps : Levels;
+        scene == incoming ? Steps : scene == outgoing ? Levels - Steps : Levels;
 
     /// <summary>
     /// The narration text's shading (#1512): the narration's level as a colour effect over its glow colours, or its glow

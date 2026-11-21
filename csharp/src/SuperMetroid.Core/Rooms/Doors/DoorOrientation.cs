@@ -9,10 +9,6 @@ public readonly record struct DoorOrientation
     /// <summary>Creates an orientation from its fields.</summary>
     public DoorOrientation(DoorDirection direction, DoorClosingBehavior closing)
     {
-        if (!Enum.IsDefined(direction))
-            throw new ArgumentOutOfRangeException(nameof(direction), direction, "Undefined door direction.");
-        if (!Enum.IsDefined(closing))
-            throw new ArgumentOutOfRangeException(nameof(closing), closing, "Undefined door closing behavior.");
         Direction = direction;
         Closing = closing;
     }

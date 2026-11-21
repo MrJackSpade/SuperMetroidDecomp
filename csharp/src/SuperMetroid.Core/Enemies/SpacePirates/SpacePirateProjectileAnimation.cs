@@ -10,5 +10,5 @@ internal sealed class SpacePirateProjectileAnimation(IEnemyProjectileCues<SpaceP
     : EnemyProjectileFrameAnimation<SpacePirateProjectileSegment, SpacePirateProjectileCue>(segment, SpacePirateProjectileAnimations.StartingAt[segment], EnemyProjectileCueRunner<SpacePirateProjectileSegment, SpacePirateProjectileCue>.By(owner))
 {
     /// <inheritdoc/>
-    private protected override AnimationSegments<SpacePirateProjectileSegment, EnemyProjectileFrameId, SpacePirateProjectileCue> Segments => SpacePirateProjectileAnimations.Segments;
+    private protected override IUnpausedAnimationPlay<SpacePirateProjectileSegment, EnemyProjectileFrameId, SpacePirateProjectileCue> Segments => SpacePirateProjectileAnimations.Segments;
 }

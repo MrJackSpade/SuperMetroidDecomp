@@ -21,8 +21,5 @@ internal sealed class CeresSteamFactory(CeresSteamBehavior vents, CeresSteamVent
     private readonly CeresSteamVentMotions _motions = Ensure.NotNull(motions);
 
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.SteamVent];
-
-    /// <inheritdoc/>
     public EnemyOccupant Create(RoomEnemyOccupant occupant, CeresSteamSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new CeresSteamEntity(_vents, occupant, place, common, _motions, settings));
 }

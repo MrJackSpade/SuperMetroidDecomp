@@ -27,6 +27,10 @@ public static class ShotBlockReactions
     /// <summary>Whether <paramref name="reaction"/> is one of the reactions every weapon's scan hands to the shot-block response.</summary>
     public static bool IsWeaponReaction(ShootableReaction? reaction) => reaction is { } read && WeaponReactions.Contains(read);
 
+    /// <summary>The shot block of each reaction the shot-block response handles (<see cref="Handled"/>).</summary>
+    public static IReadOnlyDictionary<ShootableReaction, ShotBlock> ShotBlocks { get; } =
+        Handled.ToDictionary(entry => entry.Key, entry => new ShotBlock(entry.Key, entry.Value));
+
     /// <summary>What the shot-block response makes of a shootable reaction.</summary>
     extension(ShootableReaction reaction)
     {

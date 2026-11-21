@@ -32,7 +32,7 @@ internal static class GrappleSpinVerification
             var samus = runtime.Player.Samus;
             samus.Control.Unlock();
             samus.Position = samus.Position.WithWhole(new(512, 256));
-            samus.Pose = left ? SamusPoseId.SpinJumpLeftPose : SamusPoseId.SpinJumpRightPose;
+            samus.ChangePoseKeepingAnimation(left ? SamusPoseId.SpinJumpLeftPose : SamusPoseId.SpinJumpRightPose);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             SamusPresentation.InitializeAnimation(samus);
             samus.SelectedHudItem = HudItem.Grapple;

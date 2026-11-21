@@ -24,7 +24,7 @@ internal static class RoomGroundDefinitions
     /// Each area's ground, which its rooms have unless they declare their own: Crateria's, Brinstar's, Tourian's and
     /// Ceres's bare, Norfair's and the Wrecked Ship's dusty, and Maridia's wet.
     /// </summary>
-    internal static readonly IReadOnlyDictionary<AreaId, RoomGround> AreaGrounds = new Dictionary<AreaId, RoomGround>
+    internal static readonly IdentityTable<AreaId, RoomGround> AreaGrounds = new(new Dictionary<AreaId, RoomGround>
     {
         [AreaId.Crateria] = Bare,
         [AreaId.Brinstar] = Bare,
@@ -33,5 +33,5 @@ internal static class RoomGroundDefinitions
         [AreaId.Maridia] = Wet,
         [AreaId.Tourian] = Bare,
         [AreaId.Ceres] = Bare,
-    };
+    });
 }

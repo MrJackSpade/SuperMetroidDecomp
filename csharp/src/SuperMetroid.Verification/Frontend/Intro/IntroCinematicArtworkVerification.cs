@@ -323,12 +323,24 @@ internal static class IntroCinematicArtworkVerification
     {
         RoomCollisionType[] native = VerifyIntroMotherBrainCollisionSource(bus);
         var guarded = NewIntroArtworkSourceReadGuard(bus);
+<<<<<<< ours
         var audio = AudioQueues.Standalone();
         var state = CreateRetailIntroFixture(audio, characterArtwork: stock);
         // The intro runs to the flashback's setup, which builds its room from the installed collision (#2554).
         _ = state.StepToMotherBrainFlashback(audio);
         RoomCollisionType[] installed = IntroMotherBrainCollision.CreateCollision();
         AssertTrue(installed.Length >= native.Length, "the flashback's installed collision covers the decoded original");
+||||||| base
+        var state = CreateRetailIntroFixture(characterArtwork: stock);
+        state.SetupFirstIllustratedPage();
+        state.SetupMotherBrainFlashback();
+        var level = state.CurrentFlashbackLevel ?? throw new InvalidOperationException("Verification requires level.");
+=======
+        var state = CreateRetailIntroFixture(characterArtwork: stock);
+        state.SetupFirstIllustratedPage();
+        state.SetupMotherBrainFlashback();
+        var level = state.CurrentFlashbackTerrain?.Level ?? throw new InvalidOperationException("Verification requires level.");
+>>>>>>> theirs
         for (int index = 0; index < native.Length; index++)
             AssertEqual(native[index], installed[index],
                 $"Mother Brain flashback collision block {index} matches the decoded original without ROM reads");
@@ -400,8 +412,7 @@ internal static class IntroCinematicArtworkVerification
                 File.ReadAllBytes(Path.Combine(SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.IntroCinematicDirectoryName), IntroMotherBrainExplosionSpriteFormat.FileName)),
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         var guarded = NewIntroArtworkSourceReadGuard(bus, IntroArtworkSources.IntroMotherBrainExplosions);
-        var explosions = new IntroMotherBrainExplosionSystem();
-        explosions.SpawnFourthHitExplosions();
+        var explosions = IntroMotherBrainExplosionSystem.SpawnFourthHitExplosions();
         explosions.Step(crossfadeFinishing: false);
         var stockOam = ScreenSpritesFixtures.Blank();
         stockOam.BeginFrame();

@@ -37,7 +37,7 @@ public sealed class SoundAcceptanceClock<TLibrary, TSound>
     /// Samples elapsed since the last step, 0 through <see cref="SoundClockTiming.SamplesPerStep"/>; a step that falls
     /// exactly on an update boundary runs at the start of the next update.
     /// </summary>
-    private int samplesSinceStep;
+    private SoundStepPhase samplesSinceStep;
     /// <summary>The request-check timer: each step adds an eighth of its period and its overflow checks the requests.</summary>
     private SoundRequestCheckTimer checkTimer;
 
@@ -82,31 +82,60 @@ public sealed class SoundAcceptanceClock<TLibrary, TSound>
     /// <param name="steps">Receives the update's steps; needs <see cref="SoundClockTiming.MaximumStepsPerUpdate"/> entries.</param>
     /// <returns>The number of steps written to <paramref name="steps"/>.</returns>
     /// <exception cref="ArgumentException"><paramref name="steps"/> is too short.</exception>
-    /// <exception cref="InvalidDataException">The clock holds a phase no update can leave.</exception>
     public int Advance(Span<SoundClockStep<TLibrary, TSound>> steps)
     {
         if (steps.Length < SoundClockTiming.MaximumStepsPerUpdate)
             throw new ArgumentException($"The sound clock requires {SoundClockTiming.MaximumStepsPerUpdate} step entries.", nameof(steps));
-        if (samplesSinceStep is < 0 or > SoundClockTiming.SamplesPerStep)
-            throw new InvalidDataException($"The sound clock holds impossible phase {samplesSinceStep}.");
 
         int count = 0;
         int sample = 0;
         while (sample < SoundClockTiming.SamplesPerUpdate)
         {
-            if (samplesSinceStep >= SoundClockTiming.SamplesPerStep)
+            if (samplesSinceStep.StepDue)
             {
-                steps[count++] = Step(sample, samplesSinceStep / SoundClockTiming.SamplesPerStep);
-                samplesSinceStep %= SoundClockTiming.SamplesPerStep;
+                // The phase reaches a step exactly as one period ends: the step runs that one period.
+                steps[count++] = Step(sample, 1);
+                samplesSinceStep = default;
             }
 
-            // Each stride stops at the next step, so the elapsed samples never pass one step period.
-            int samples = Math.Min(SoundClockTiming.SamplesPerUpdate - sample, SoundClockTiming.SamplesPerStep - samplesSinceStep);
-            samplesSinceStep += samples;
-            sample += samples;
+            SoundStride stride = samplesSinceStep.Strided(SoundClockTiming.SamplesPerUpdate - sample);
+            samplesSinceStep = stride.Phase;
+            sample += stride.Taken;
         }
         return count;
     }
+
+    /// <summary>
+    /// The samples elapsed since the clock's last step (#2553): none, as the clock starts and each step leaves it, up to
+    /// one whole period, at which a step falls due. Only a stride moves it, and a stride stops at the next step, so it
+    /// never passes one period.
+    /// </summary>
+    private readonly record struct SoundStepPhase
+    {
+        /// <summary>The phase <paramref name="samples"/> samples after a step.</summary>
+        private SoundStepPhase(int samples) => Samples = samples;
+
+        /// <summary>The samples elapsed since the last step.</summary>
+        private int Samples { get; }
+
+        /// <summary>Whether a whole period has elapsed, so a step falls due.</summary>
+        internal bool StepDue => Samples == SoundClockTiming.SamplesPerStep;
+
+        /// <summary>
+        /// Strides on through as many of <paramref name="available"/> samples as reach the next step: the phase after the
+        /// stride, and the samples it took.
+        /// </summary>
+        internal SoundStride Strided(int available)
+        {
+            int taken = Math.Min(available, SoundClockTiming.SamplesPerStep - Samples);
+            return new SoundStride(new SoundStepPhase(Samples + taken), taken);
+        }
+    }
+
+    /// <summary>One stride of the clock's phase toward its next step.</summary>
+    /// <param name="Phase">The phase after the stride.</param>
+    /// <param name="Taken">The samples the stride took.</param>
+    private readonly record struct SoundStride(SoundStepPhase Phase, int Taken);
 
     /// <summary>Runs one step at <paramref name="sampleOffset"/>, advancing the check timer and checking every library, in order, on its overflow.</summary>
     private SoundClockStep<TLibrary, TSound> Step(int sampleOffset, int periods)

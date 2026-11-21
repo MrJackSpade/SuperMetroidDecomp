@@ -8,5 +8,5 @@ internal sealed class BeamFlight : SamusShotBehavior
 {
     /// <inheritdoc/>
     internal override void Run(SamusShotUpdate update) =>
-        update.Shots.Motion.FlyBeam(update.Terrain.Level, update.Held, update.Camera, update.Terrain.RoomObjects);
+        update.Shots.Motion.FlyBeam(update.Terrain, update.Held, update.Camera);
 }

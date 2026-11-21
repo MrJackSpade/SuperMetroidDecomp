@@ -52,22 +52,26 @@ public sealed class EscapeTimer
     /// <summary>Requests the three-minute Mother Brain countdown; the timer's next update (<see cref="Process"/>) starts it.</summary>
     public void RequestMotherBrainStart() => RequestStart(MotherBrainDuration);
 
+    /// <summary>What each phase's update does, and whether the countdown ran out on it: an expired countdown is only drawn, and never counts, holds or expires again until an escape restarts it.</summary>
+    private static IdentityTable<EscapeTimerPhase, Func<EscapeTimer, int, bool>> PhaseUpdates => field ??= new(new Dictionary<EscapeTimerPhase, Func<EscapeTimer, int, bool>>
+    {
+        [EscapeTimerPhase.Inactive] = static (timer, frameCounter) => false,
+        [EscapeTimerPhase.StoppedAtTimeUp] = static (timer, frameCounter) => false,
+        [EscapeTimerPhase.Expired] = static (timer, frameCounter) => false,
+        [EscapeTimerPhase.Starting] = static (timer, frameCounter) => timer.Start(),
+        [EscapeTimerPhase.InitialDelay] = static (timer, frameCounter) => timer.ProcessInitialDelay(),
+        [EscapeTimerPhase.CountingAtCentre] = static (timer, frameCounter) => timer.ProcessCentreDelay(frameCounter),
+        [EscapeTimerPhase.MovingIntoPlace] = static (timer, frameCounter) => timer.ProcessMovement(frameCounter),
+        [EscapeTimerPhase.InPlace] = static (timer, frameCounter) => timer.CountDown(frameCounter),
+    });
+
     /// <summary>Runs one timer update and reports whether the countdown ran out on it.</summary>
     /// <param name="frameCounter">The game's frame counter, which selects this update's step of the countdown cadence.</param>
     /// <param name="holdAtOneSecond">Whether the countdown holds at one second instead of expiring, as an assist can ask; it runs normally until then.</param>
     public bool Process(int frameCounter, bool holdAtOneSecond)
     {
         // An expired countdown is only drawn: it never counts, holds or expires again until an escape restarts it.
-        bool expired = Phase switch
-        {
-            EscapeTimerPhase.Inactive or EscapeTimerPhase.StoppedAtTimeUp or EscapeTimerPhase.Expired => false,
-            EscapeTimerPhase.Starting => Start(),
-            EscapeTimerPhase.InitialDelay => ProcessInitialDelay(),
-            EscapeTimerPhase.CountingAtCentre => ProcessCentreDelay(frameCounter),
-            EscapeTimerPhase.MovingIntoPlace => ProcessMovement(frameCounter),
-            EscapeTimerPhase.InPlace => CountDown(frameCounter),
-            _ => throw new InvalidOperationException($"Undefined {nameof(EscapeTimerPhase)} {Phase}."),
-        };
+        bool expired = PhaseUpdates[Phase](this, frameCounter);
 
         // Apply the assist's floor before publishing expiration to the gameplay loop.
         // Startup delays and timer movement still run; inactive and expired timers keep their countdown.

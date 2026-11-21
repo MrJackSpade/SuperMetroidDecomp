@@ -491,10 +491,9 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
         ripper.HurtFlash.End();
         var touchingSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = SamusPoseId.FacingRightNormalPose,
             Health = 99,
             Position = FixedPosition<RoomPixels>.FromWhole(ripper.Position.Whole),
-        };
+        }.InPose(SamusPoseId.FacingRightNormalPose);
         enemies.StepStandaloneFrame(enemies.StandaloneFrame(level) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = touchingSamus });
         AssertEqual(0, ripper.Invincibility.UpdatesLeft, "ordinary frame expires the last invincibility tick");
         AssertEqual(99, touchingSamus.Health, "expiration frame still skips native collision branch");
@@ -546,10 +545,9 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
 
     var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.FacingRightNormalPose,
         Health = 99,
         Position = FixedPosition<RoomPixels>.FromWhole(ripper.Position.Whole),
-    };
+    }.InPose(SamusPoseId.FacingRightNormalPose);
     enemies.Collision.ResolveOrdinarySamusContact(samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), controllerInput: 0, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), ripper.HeldOccupant(), Position16<RoomPixels>.Zero);
     AssertEqual(94, samus.Health, "Ripper header contact damage");
     AssertEqual(0x60, samus.InvincibilityTimer.RawValue, "Ripper contact invincibility clock");
@@ -559,7 +557,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
         Console.WriteLine($"CONTACT health={samus.Health} pose={(int)SamusPoseNumbers.Number(samus.Pose):X2} timer={samus.KnockbackHold.UpdatesLeft} invincibility={samus.InvincibilityTimer.RawValue} direction={samus.KnockbackDirection} active={samus.KnockbackActive}");
     AssertEqual(SamusPoseId.FacingRightNormalPose, samus.Pose,
             "touch callback publishes request without changing the pre-movement pose");
-    AssertTrue(!samus.KnockbackActive && samus.KnockbackDirection == 0,
+    AssertTrue(!samus.KnockbackActive && samus.KnockbackDirection == null,
             "touch callback does not install the later hurt movement handler");
     AssertEqual(KnockbackHorizontalDirection.Right, samus.KnockbackXDirection, "contact publishes source-side word for later interruption");
     if (verifyDeferredContact) return;
@@ -918,9 +916,8 @@ internal static void VerifyCeresRidleyRoomEntry()
     // A6C8 crosses Y=$50 and publishes fight mode one.
     var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.FacingRightNormalPose,
         Health = 99,
-    };
+    }.InPose(SamusPoseId.FacingRightNormalPose);
     int battleEntryFrames = 0;
     bool observedRoarSound = false;
     while (!state.Runs(CeresRidleyPhase.Hovering) && battleEntryFrames < 1024)
@@ -1024,9 +1021,9 @@ internal static void VerifyCeresRidleyRoomEntry()
         // and first-frame motion. The public producer exercises allocation/type/radii
         // before this focused extended-hitbox/shot-AI test resolves the impact.
         samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(ridley.Position.X.Whole + 8)), ridley.Position.Y.Whole));
-        samusBombs.StepFrame(new SamusTerrain { Level = openRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, 0, 0);
+        samusBombs.StepFrame(SamusTerrain.InRoom(openRoom, SamusRoomObjectFixtures.Uninstalled), samus, 0, 0);
         SamusProjectileSlotObservation slotsBeforeFire = projectiles.ObserveSlots();
-        projectiles.StepFrame(new SamusTerrain { Level = openRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), samusBombs, progression);
+        projectiles.StepFrame(SamusTerrain.InRoom(openRoom, SamusRoomObjectFixtures.Uninstalled), samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), samusBombs, progression);
         AssertEqual(0, slotsBeforeFire.FiredSlot(projectiles),
             $"Ceres Ridley hit {hit + 1} allocates the power-beam slot");
         AssertTrue(projectiles.Shots[0].Position.X.Whole - projectiles.Shots[0].Radius.X > ridley.Position.X.Whole + 8,
@@ -1047,8 +1044,8 @@ internal static void VerifyCeresRidleyRoomEntry()
         // plus initialization, returning the same slot without shortening the program.
         for (int explosionFrame = 0; explosionFrame < nativeExplosionFrames; explosionFrame++)
         {
-            samusBombs.StepFrame(new SamusTerrain { Level = openRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, 0, 0);
-            projectiles.StepFrame(new SamusTerrain { Level = openRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), samusBombs, progression);
+            samusBombs.StepFrame(SamusTerrain.InRoom(openRoom, SamusRoomObjectFixtures.Uninstalled), samus, 0, 0);
+            projectiles.StepFrame(SamusTerrain.InRoom(openRoom, SamusRoomObjectFixtures.Uninstalled), samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), samusBombs, progression);
         }
 
         // This focused hit-counter test used to patch the cartridge cooldown to one.
@@ -1056,8 +1053,8 @@ internal static void VerifyCeresRidleyRoomEntry()
         // or speed up the separately stepped enemy phase/timer fixture.
         for (int cooldownFrame = 0; cooldownFrame < 15 && samusBombs.CooldownTimer != 0; cooldownFrame++)
         {
-            samusBombs.StepFrame(new SamusTerrain { Level = openRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, 0, 0);
-            projectiles.StepFrame(new SamusTerrain { Level = openRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), samusBombs, progression);
+            samusBombs.StepFrame(SamusTerrain.InRoom(openRoom, SamusRoomObjectFixtures.Uninstalled), samus, 0, 0);
+            projectiles.StepFrame(SamusTerrain.InRoom(openRoom, SamusRoomObjectFixtures.Uninstalled), samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), samusBombs, progression);
         }
         AssertEqual(0, samusBombs.CooldownTimer, "Native cooldown expires before the next Ceres shot");
 
@@ -1120,13 +1117,13 @@ internal static void VerifyCeresRidleyRoomEntry()
     {
         if (curveIndex != 0)
             GetawayFrame();
-        Offset16<FloorPixels> drift = CeresRidleyGetawayCurve.DriftAt(curveIndex);
+        Offset16<FloorPixels> drift = CeresRidleyGetawayCurve.Steps[curveIndex].Drift;
         expectedX = unchecked((ushort)(expectedX - drift.X));
         expectedY = unchecked((ushort)(expectedY + drift.Y));
-        AssertEqual(CeresRidleyGetawayCurve.ZoomAt(curveIndex), enemies.CeresEscape.Floor.Zoom, "Ceres real getaway zoom publication");
-        AssertEqual(unchecked((short)expectedX), enemies.CeresEscape.Floor.Offset.X, "Ceres real getaway horizontal integration");
-        AssertEqual(unchecked((short)expectedY), enemies.CeresEscape.Floor.Offset.Y, "Ceres real getaway vertical integration");
-        AssertTrue(enemies.CeresEscape.ShownFloor is not null, "Ceres getaway retains all 112 authored motion frames");
+        FloorView shown = enemies.CeresEscape.ShownFloor ?? throw new InvalidOperationException("Ceres getaway retains all 112 authored motion frames");
+        AssertEqual(CeresRidleyGetawayCurve.Steps[curveIndex].Zoom.FloorPixelsPerScreenPixel, shown.Scale, "Ceres real getaway zoom publication");
+        AssertEqual(unchecked((short)expectedX), shown.Scroll.X, "Ceres real getaway horizontal integration");
+        AssertEqual(unchecked((short)expectedY), shown.Scroll.Y, "Ceres real getaway vertical integration");
     }
     GetawayFrame();
     AssertTrue(enemies.CeresEscape.ShownFloor is null, "Ceres Ridley consumes the Mode-7 terminator");

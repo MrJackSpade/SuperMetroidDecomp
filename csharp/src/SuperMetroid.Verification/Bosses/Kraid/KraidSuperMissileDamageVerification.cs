@@ -42,7 +42,13 @@ internal static class KraidSuperMissileDamageVerification
         var scope = runtime.Room.Scope ?? throw new InvalidOperationException("Verification requires a loaded room.");
         var level = KraidFloorLevel(scope.LevelData);
         runtime.Room.Adopt(scope with { LevelData = level });
+<<<<<<< ours
         var samus=runtime.Player.Samus;samus.Pose=SamusPoseId.FacingRightNormalPose;
+||||||| base
+        var samus=runtime.Player.IntroducedSamus;samus.Pose=SamusPoseId.FacingRightNormalPose;
+=======
+        var samus=runtime.Player.IntroducedSamus;samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
+>>>>>>> theirs
         samus.Health=samus.MaxHealth=999;samus.SuperMissiles=samus.MaxSuperMissiles=10;samus.SelectedHudItem=HudItem.SuperMissile;
         SamusPoseMetadata.RefreshCollisionRadii(samus);SamusPresentation.InitializeAnimation(samus);samus.CommitPoseHistory();
         samus.Position = samus.Position.WithWhole(new(120, (ushort)(512-samus.Kinematics.Radius.Y)));samus.Control.Unlock();
@@ -205,7 +211,7 @@ internal static class KraidSuperMissileDamageVerification
 
         Prepare(5);
         var bomb = runtime.BombProjectiles.Bombs[0];
-        bomb.Occupy(SamusBombProjectileSystem.NormalBombType, 30);
+        bomb.Occupy(SamusBombKind.Bomb, 30);
         bomb.HeldBomb().Position = bomb.Position.WithWhole(new(176, 486));
         bomb.HeldBomb().Radius = new(8, 8);
         runtime.Enemies.ResolveKraidProjectileHits(projectiles, runtime.BombProjectiles);
@@ -213,7 +219,7 @@ internal static class KraidSuperMissileDamageVerification
         AssertEqual(true, bomb.IsSpent,
             "Count five reaches and marks the adjacent physical bomb slot");
         AssertEqual(true, runtime.Enemies.RoomEffectActors.Any(sprite =>
-            sprite.Kind == RoomEffectActorKind.DudShot && sprite.Position.X.Whole == 176 && sprite.Position.Y.Whole == 486),
+            sprite.Shows(RoomEffectActorKind.DudShot) && sprite.Position.X.Whole == 176 && sprite.Position.Y.Whole == 486),
             "Non-damaging mouth callback emits its native dud sprite");
         Console.WriteLine("Kraid close-range damage, deferred owner/link cleanup, count traversal and adjacent bomb slot verified.");
     }

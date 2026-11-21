@@ -12,6 +12,15 @@ public abstract record SamusMissileIgnition
     {
     }
 
+    /// <summary>What a beam fired into the missile's place finds of its ignition (#2524).</summary>
+    /// <param name="missile">What the missile holds besides its ignition.</param>
+    internal abstract BeamFiredOverLastShot.ReplacedShot ReplacedByBeam(ReplacedMissile missile);
+
+    /// <summary>What a missile a beam replaces holds besides its ignition.</summary>
+    /// <param name="ReflectionHeadStart">The head start a reflected missile re-ignites with.</param>
+    /// <param name="LinkPlace">The place a Super Missile names as its link, or null.</param>
+    internal readonly record struct ReplacedMissile(SignedEightEight ReflectionHeadStart, int? LinkPlace);
+
     /// <summary>Whether the missile has ignited since it was fired or reflected.</summary>
     public bool HasIgnited => this is Ignited;
 

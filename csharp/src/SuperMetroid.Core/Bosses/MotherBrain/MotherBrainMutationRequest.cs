@@ -9,5 +9,5 @@ public sealed record MotherBrainMutationRequest(Position16<RoomBlocks> Block, Mo
     : MotherBrainRoomChangeRequest(Block)
 {
     /// <inheritdoc/>
-    internal override TerrainChange Change => Ensure.Listed(MotherBrainRoomMutationDefinitions.Changes, Mutation);
+    internal override TerrainChange Change => MotherBrainRoomMutationDefinitions.Changes[Mutation];
 }

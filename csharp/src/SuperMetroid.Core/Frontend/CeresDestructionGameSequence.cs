@@ -43,9 +43,17 @@ internal sealed class CeresDestructionGameSequence(FrontendSession session, Cere
     /// <inheritdoc/>
     public bool IsWaitingOutDisplayFrame => Screen.IsWaitingOutDisplayFrame;
 
+    /// <summary>What <c>Step</c> does for each <see cref="CeresDestructionOutcome"/> member, each member's own arm.</summary>
+    private IdentityTable<CeresDestructionOutcome, Action<ControllerButton>> StepForCeresDestructionOutcome => field ??= new(new Dictionary<CeresDestructionOutcome, Action<ControllerButton>>
+    {
+        [CeresDestructionOutcome.SamusEscaped] = controllerInput => StepEscaped(controllerInput),
+        [CeresDestructionOutcome.SamusAboard] = controllerInput => StepWithSamusAboard(controllerInput),
+    });
+
     /// <inheritdoc/>
     public void Step(ControllerButton controllerInput, SuperMetroidRuntime runtime)
     {
+<<<<<<< ours
         switch (Outcome)
         {
             case CeresDestructionOutcome.SamusEscaped:
@@ -57,6 +65,21 @@ internal sealed class CeresDestructionGameSequence(FrontendSession session, Cere
             default:
                 throw new InvalidOperationException($"Undefined {nameof(CeresDestructionOutcome)} {Outcome}.");
         }
+||||||| base
+        switch (session.CeresDestructionOutcome)
+        {
+            case CeresDestructionOutcome.SamusEscaped:
+                StepEscaped(controllerInput);
+                break;
+            case CeresDestructionOutcome.SamusAboard:
+                StepWithSamusAboard(controllerInput);
+                break;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(CeresDestructionOutcome)} {session.CeresDestructionOutcome}.");
+        }
+=======
+        StepForCeresDestructionOutcome[session.CeresDestructionOutcome](controllerInput);
+>>>>>>> theirs
     }
 
     /// <summary>One update of the escaped destruction, which loads the Zebes landing once finished.</summary>

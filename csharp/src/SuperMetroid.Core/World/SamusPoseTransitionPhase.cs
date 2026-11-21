@@ -133,8 +133,8 @@ internal sealed class SamusPoseTransitionPhase
         if (!transitionApplied && frame.GrappleMovement is { PendingDropPose: SamusPoseId dropPose })
         {
             SamusAerialPoseTransitions.ApplyGrappleDropTransition(samus,
-                terrain.Level,
-                dropPose, _clock.Counter, terrain.RoomObjects);
+                terrain,
+                dropPose, _clock.Counter);
             transitionApplied = TakeInterruption();
         }
 
@@ -189,11 +189,10 @@ internal sealed class SamusPoseTransitionPhase
         // the armed bomb jump rather than an early speculative pose change.
         if (!transitionApplied && samus.HasNoKnockback &&
             SamusPoseMetadata.TrySetupPublishedBombJump(samus,
-                terrain.Level,
+                terrain,
                 _freeze.TimeIsFrozen,
                 _clock.Counter,
-                _playerActions.NewlyPressed,
-                terrain.RoomObjects))
+                _playerActions.NewlyPressed))
         {
             transitionApplied = TakeInterruption();
         }
@@ -271,7 +270,7 @@ internal sealed class SamusPoseTransitionPhase
         if (!transitionApplied &&
             frame.BombJumpMovement is { FellWithoutFloor: true })
         {
-            SamusPosturePoseTransitions.ApplyBombJumpFallingPose(samus);
+            SamusPosturePoseTransitions.ApplyBombJumpFallingPose(samus, terrain, _clock.Counter);
             _player.ClearProspectivePoses();
             transitionApplied = true;
         }
@@ -302,10 +301,9 @@ internal sealed class SamusPoseTransitionPhase
                     : _player.ProspectiveSamusFallbackPose;
             _player.ProspectiveSamusWallCollisionPose =
                 SamusGroundedPoseTransitions.CheckProspectiveRunningPoseForWall(samus,
-                    terrain.Level,
+                    terrain,
                     prospectiveRunningPose,
-                    currentRunHitWall,
-                    terrain.RoomObjects);
+                    currentRunHitWall);
         }
 
         if (!transitionApplied &&
@@ -350,7 +348,7 @@ internal sealed class SamusPoseTransitionPhase
         if (!transitionApplied &&
             frame.AerialMovement is { WallJumpTriggered: true })
         {
-            SamusAerialPoseTransitions.ApplyWallJumpTrigger(samus, terrain.Level, _clock.Counter, terrain.RoomObjects);
+            SamusAerialPoseTransitions.ApplyWallJumpTrigger(samus, terrain, _clock.Counter);
             transitionApplied = true;
         }
 
@@ -370,27 +368,28 @@ internal sealed class SamusPoseTransitionPhase
         // spin landing from the movement type that executed this frame, then settling
         // the accepted landing clears both velocity axes. This ordinary prospective pose
         // is lower priority than the animation's pending transition pose above.
+        // A turning pose turns rather than lands: only a pose holding its aim lands, keeping it. Among the poses that move
+        // through the air, the turning ones are exactly the jumping and falling turns.
         if (!transitionApplied &&
             frame.AerialMovement is { Landed: true } &&
-            !SamusPoseMetadata.IsAerialTurnPose(frame.PoseAtFrameStart))
+            SamusPoseMetadata.ReadAim(frame.PoseAtFrameStart) is SamusPoseAim.ISteady sourceAim)
         {
             if (SamusPoseMetadata.IsCompactAerialPose(frame.PoseAtFrameStart))
             {
                 SamusPoseTransitions.ApplyCompactAerialLanding(samus,
-                    terrain.Level,
-                    _clock.Counter,
-                    terrain.RoomObjects);
+                    terrain,
+                    _clock.Counter);
             }
             else
             {
                 bool wasSpinning = SamusPoseMetadata.IsSpinJumpPose(frame.PoseAtFrameStart) ||
                     SamusPoseMetadata.IsWallJumpPose(frame.PoseAtFrameStart);
                 SamusPoseTransitions.ApplyAerialLandingInRoom(samus,
-                    terrain.Level,
+                    sourceAim,
+                    terrain,
                     wasSpinning,
                     _playerActions.Current,
-                    _clock.Counter,
-                    terrain.RoomObjects);
+                    _clock.Counter);
             }
             transitionApplied = true;
         }
@@ -407,10 +406,9 @@ internal sealed class SamusPoseTransitionPhase
                 { Vertical.IsUnobstructedDownwardMovement: true } &&
             SamusPoseMetadata.WalksOffFloor(frame.PoseAtMovement))
         {
-            SamusPoseId fallingPose = SamusPoseTransitions.SelectFallingPoseForCurrentAim(samus);
             SamusPoseTransitions.ApplyWalkedOffFloorTransition(samus,
-                terrain.Level,
-                fallingPose, _clock.Counter, terrain.RoomObjects);
+                terrain,
+                _clock.Counter);
             transitionApplied = true;
         }
 

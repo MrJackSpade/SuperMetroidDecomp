@@ -20,5 +20,5 @@ public static class RoomFxTypes
 
     /// <summary>The definition of <paramref name="type"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="type"/> is undefined.</exception>
-    internal static RoomFxTypeDefinition Of(RoomFxType type) => Ensure.Listed(RoomFxTypeDefinitions.Types, type);
+    internal static RoomFxTypeDefinition Of(RoomFxType type) => RoomFxTypeDefinitions.Types[type];
 }

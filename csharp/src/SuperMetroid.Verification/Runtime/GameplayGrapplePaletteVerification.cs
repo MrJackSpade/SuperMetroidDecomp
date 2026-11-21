@@ -45,7 +45,7 @@ internal static class GameplayGrapplePaletteVerification
         var sources = InstalledFixtures.SamusShadeSources with { BeamPalettes = palettes };
         foreach (ushort beam in new ushort[] { 0, 4 })
         {
-            samus.Pose = SamusPoseId.FacingRightNormalPose;
+            samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
             samus.Control.Unlock();
             samus.EquippedItems = samus.CollectedItems = SamusEquipmentFlags.GrappleBeam;
             samus.EquippedBeams = SamusEquipmentWordCodec.FromBeamWord(beam);
@@ -60,7 +60,7 @@ internal static class GameplayGrapplePaletteVerification
             runtime.StepFrame(ControllerButton.X);
             AssertTrue(runtime.LatestGameplayFrame?.GrappleMovement is { Fired: true }, "normal HUD input fires grapple");
             AssertPalette("normal firing");
-            samus.Pose = SamusPoseId.StandingAimDiagonalUpRightPose;
+            samus.ChangePoseKeepingAnimation(SamusPoseId.StandingAimDiagonalUpRightPose);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             SamusPresentation.InitializeAnimation(samus);
             samus.CommitPoseHistory();

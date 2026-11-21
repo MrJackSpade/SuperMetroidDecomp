@@ -146,6 +146,47 @@ internal static class EnemyAnimationPlayback
         where TEvent : notnull =>
         Play(place, segments, ref playback, Shown, react);
 
+    /// <summary>
+    /// One typed-animation step of a species whose animations raise no event (#2553): frames, holds and repeats only, as
+    /// <see cref="Advance{TState, TSegment, TEvent}(RoomEnemyPlace, TState, AnimationSegments{TSegment, EnemyFrameId, TEvent}, Func{TState, AnimationPlayback{TSegment}}, Action{TState, AnimationPlayback{TSegment}}, Func{TState, TEvent, AnimationContinuation{TSegment}?})"/>
+    /// steps one with events. <see cref="NoAnimationCue"/> has no member, so the step takes no reaction to carry one out.
+    /// </summary>
+    internal static void AdvanceSilently<TState, TSegment>(
+        RoomEnemyPlace place, TState tState,
+        AnimationSegments<TSegment, EnemyFrameId, NoAnimationCue> segments,
+        Func<TState, AnimationPlayback<TSegment>> read,
+        Action<TState, AnimationPlayback<TSegment>> write)
+        where TState : class
+        where TSegment : struct =>
+        Advance(place, tState, segments, read, write, static (TState _, NoAnimationCue _) => null);
+
+    /// <summary>
+    /// Plays an animation that raises no event and shows the species' installed frames directly (#2553), as
+    /// <see cref="Play{TSegment, TEvent}(RoomEnemyPlace, AnimationSegments{TSegment, EnemyFrameId, TEvent}, ref AnimationPlayback{TSegment}, Func{TEvent, AnimationContinuation{TSegment}?})"/>
+    /// plays one with events.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The animation passes every beat without showing a frame.</exception>
+    internal static void PlaySilently<TSegment>(
+        RoomEnemyPlace place,
+        AnimationSegments<TSegment, EnemyFrameId, NoAnimationCue> segments,
+        ref AnimationPlayback<TSegment> playback)
+        where TSegment : struct =>
+        Play(place, segments, ref playback, Shown, static (NoAnimationCue _) => null);
+
+    /// <summary>
+    /// Plays an animation that raises no event and shows its frames through <paramref name="frame"/> (#2553), as the other
+    /// overload plays one that shows the installed frames directly.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The animation passes every beat without showing a frame.</exception>
+    internal static void PlaySilently<TSegment, TFrame>(
+        RoomEnemyPlace place,
+        AnimationSegments<TSegment, TFrame, NoAnimationCue> segments,
+        ref AnimationPlayback<TSegment> playback,
+        Func<TFrame, EnemyFrameId> frame)
+        where TSegment : struct
+        where TFrame : struct =>
+        Play(place, segments, ref playback, frame, static (NoAnimationCue _) => null);
+
     /// <summary>An installed frame an animation names outright, which it shows as it is.</summary>
     private static EnemyFrameId Shown(EnemyFrameId frame) => frame;
 
@@ -192,30 +233,74 @@ internal static class EnemyAnimationPlayback
         AnimationPlace place = playback.Place;
         AnimationShown<TSegment, TFrame> shown = segments.PlayToNextFrame(ref animation, ref place, react);
         playback = new AnimationPlayback<TSegment>(animation, place);
-        switch (shown)
-        {
-            case AnimationShown<TSegment, TFrame>.Frame shownFrame:
-                enemy.Frame = frame(shownFrame.Shown);
-                enemy.AnimationClock.Show(shownFrame.Duration);
-                return;
-            case AnimationShown<TSegment, TFrame>.HeldFrame held:
-                enemy.Frame = frame(held.Shown);
-                enemy.AnimationClock.ShowForGood();
-                return;
-            case AnimationShown<TSegment, TFrame>.Paused paused:
-                enemy.AnimationClock.Pause(paused.Duration);
-                return;
-            case AnimationShown<TSegment, TFrame>.Held:
-                enemy.AnimationClock.Stop();
-                return;
-            case AnimationShown<TSegment, TFrame>.Ended:
+        Show(enemy, shown, frame);
+    }
+
+    /// <summary>
+    /// Shows on <paramref name="enemy"/> what one step of its animation came to (#2553): a frame for its updates or for good
+    /// through <paramref name="frame"/>, a pause, a rest on the frame shown last, or the common end, which deletes the enemy.
+    /// </summary>
+    internal static void Show<TSegment, TFrame>(RoomEnemyPlace enemy, AnimationShown<TSegment, TFrame> shown, Func<TFrame, EnemyFrameId> frame)
+        where TSegment : struct
+        where TFrame : struct
+    {
+        Ensure.NotNull(frame);
+        Show(enemy, shown, static (shownOn, picture, frameOf) => shownOn.Frame = frameOf(picture), frame);
+    }
+
+    /// <summary>
+    /// Shows on <paramref name="enemy"/> what one step of its animation came to, as the other overload does, each frame it
+    /// shows through <paramref name="showFrame"/>, which reads <paramref name="context"/> besides the enemy and the frame
+    /// (#2553), so that no step builds a reaction of its own.
+    /// </summary>
+    internal static void Show<TSegment, TFrame, TContext>(
+        RoomEnemyPlace enemy, AnimationShown<TSegment, TFrame> shown, Action<RoomEnemyPlace, TFrame, TContext> showFrame, TContext context)
+        where TSegment : struct
+        where TFrame : struct
+    {
+        Ensure.NotNull(enemy);
+        Ensure.NotNull(showFrame);
+        Ensure.NotNull(shown).React(ShownOn<TSegment, TFrame, TContext>.Reactions, new EnemyFrameShowing<TFrame, TContext>(enemy, showFrame, context));
+    }
+
+    /// <summary>
+    /// An enemy a step of its animation shows on (#2553): the enemy, how it shows a frame, and what that reads besides the
+    /// enemy and the frame.
+    /// </summary>
+    /// <param name="Enemy">The enemy.</param>
+    /// <param name="ShowFrame">Shows a frame on the enemy.</param>
+    /// <param name="Context">What showing a frame reads besides the enemy and the frame.</param>
+    private readonly record struct EnemyFrameShowing<TFrame, TContext>(RoomEnemyPlace Enemy, Action<RoomEnemyPlace, TFrame, TContext> ShowFrame, TContext Context)
+        where TFrame : struct;
+
+    /// <summary>What a step of an enemy's animation shows on it, for each outcome, built once per animation (#2553).</summary>
+    private static class ShownOn<TSegment, TFrame, TContext>
+        where TSegment : struct
+        where TFrame : struct
+    {
+        /// <summary>
+        /// A frame for its updates or for good, a pause, a rest on the frame shown last, or the common end, which deletes the
+        /// enemy.
+        /// </summary>
+        internal static AnimationShownReactions<TSegment, TFrame, EnemyFrameShowing<TFrame, TContext>> Reactions { get; } = new(
+            Frame: static (shownFrame, showing) =>
+            {
+                showing.ShowFrame(showing.Enemy, shownFrame.Shown, showing.Context);
+                showing.Enemy.AnimationClock.Show(shownFrame.Duration);
+            },
+            HeldFrame: static (held, showing) =>
+            {
+                showing.ShowFrame(showing.Enemy, held.Shown, showing.Context);
+                showing.Enemy.AnimationClock.ShowForGood();
+            },
+            Paused: static (paused, showing) => showing.Enemy.AnimationClock.Pause(paused.Duration),
+            Held: static (_, showing) => showing.Enemy.AnimationClock.Stop(),
+            Ended: static (_, showing) =>
+            {
                 // The common end deletes the enemy, and its animation takes no further step (#2532).
-                enemy.Presence = enemy.Presence.With(EnemyPresence.Deleted);
-                enemy.AnimationClock.Stop();
-                return;
-            default:
-                throw new InvalidOperationException($"Enemy {enemy.Occupant?.DefinitionId}'s animation reached an undefined {shown}.");
-        }
+                showing.Enemy.Presence = showing.Enemy.Presence.With(EnemyPresence.Deleted);
+                showing.Enemy.AnimationClock.Stop();
+            });
     }
 
     /// <summary>

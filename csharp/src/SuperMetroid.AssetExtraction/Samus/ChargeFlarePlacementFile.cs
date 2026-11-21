@@ -46,15 +46,15 @@ public static class ChargeFlarePlacementFile
     /// <summary>Loads beam-charge flare placements, requiring the supported version and every standing, turning and running key while rejecting duplicate or unknown JSON properties.</summary>
     /// <param name="json">UTF-8 JSON stream containing signed 16-bit X/Y offsets for every direction in both modes.</param>
     /// <returns>The immutable beam-flare placement catalog; use <see cref="LoadGrapple"/> for Grapple's source contract.</returns>
-    public static ChargeFlarePlacements Load(Stream json) => Load(json, ChargeFlareSource.Beam);
+    public static BeamFlarePlacements Load(Stream json) => new(Load(json, ChargeFlareSource.Beam));
 
     /// <summary>Imports the Grapple placement resource: the ten named directions of each movement mode.</summary>
     /// <param name="json">UTF-8 JSON stream containing the twenty-key placement schema for Grapple flare origins.</param>
     /// <returns>The immutable placement catalog interpreted with Grapple's origin definitions.</returns>
-    public static ChargeFlarePlacements LoadGrapple(Stream json) => Load(json, ChargeFlareSource.Grapple);
+    public static ChargeFlarePlacements LoadGrapple(Stream json) => ChargeFlarePlacements.Grapple(Load(json, ChargeFlareSource.Grapple));
 
-    /// <summary>Validates every standing and running direction key of the source and binds their offsets to the import-selected source kind.</summary>
-    private static ChargeFlarePlacements Load(Stream json, ChargeFlareSource source)
+    /// <summary>Validates every standing and running direction key of the source and reads each placement's offset.</summary>
+    private static Dictionary<ChargeFlarePlacement, Offset16<RoomPixels>> Load(Stream json, ChargeFlareSource source)
     {
         ChargeFlarePlacementDocument document;
         try
@@ -82,7 +82,7 @@ public static class ChargeFlarePlacementFile
                 throw new InvalidDataException($"Missing charge-flare placement {key}.");
             offsets.Add(placement, value.Offset);
         }
-        return new(offsets, source);
+        return offsets;
     }
 
     /// <summary>Serializes a beam or Grapple placement document as indented camel-case UTF-8 JSON.</summary>

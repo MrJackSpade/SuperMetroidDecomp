@@ -164,7 +164,7 @@ internal static class FrontendSheetColouringsVerification
         foreach ((MapSpriteId id, MapSpriteColouring[] colourings) in MapSpriteDraws)
         {
             foreach (MapSpriteColouring colouring in colourings)
-                Add(sets, Ensure.Listed(MapSpriteDefinitions.Names, id), MapSpriteColouringSets.SpriteSet(colouring));
+                Add(sets, MapSpriteDefinitions.Names[id], MapSpriteColouringSets.SpriteSet(colouring));
         }
         return sets;
     }

@@ -38,8 +38,8 @@ internal static class SamusProjectileDamageDefinitions
     /// What each projectile kind starts its projectile with: an uncharged or charged beam shot its beams' damage, and every
     /// other kind its own.
     /// </summary>
-    internal static readonly IReadOnlyDictionary<SamusProjectileKind, SamusProjectileStartingDamage> StartingDamage =
-        new Dictionary<SamusProjectileKind, SamusProjectileStartingDamage>
+    internal static readonly IdentityTable<SamusProjectileKind, SamusProjectileStartingDamage> StartingDamage =
+        new(new Dictionary<SamusProjectileKind, SamusProjectileStartingDamage>
         {
             [SamusProjectileKind.UnchargedPower] = new SamusProjectileStartingDamage.BeamShot(SamusBeamCombination.Power, Charged: false),
             [SamusProjectileKind.UnchargedSpazer] = new SamusProjectileStartingDamage.BeamShot(SamusBeamCombination.Spazer, Charged: false),
@@ -75,5 +75,5 @@ internal static class SamusProjectileDamageDefinitions
             [SamusProjectileKind.SpazerSpecialAttack] = new SamusProjectileStartingDamage.Own(300),
             [SamusProjectileKind.SpazerSpecialAttackTrail] = new SamusProjectileStartingDamage.Own(300),
             [SamusProjectileKind.ShinesparkEcho] = new SamusProjectileStartingDamage.Own(ShinesparkEchoDamage),
-        };
+        });
 }

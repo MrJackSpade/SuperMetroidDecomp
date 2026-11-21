@@ -23,8 +23,8 @@ public sealed class AudioQueues
     /// </summary>
     private readonly Queue<QueuedMusic> Music = new();
     /// <summary>Each sound library's own queue of waiting requests.</summary>
-    private readonly Dictionary<SoundEffectLibrary, SoundQueue> SoundQueues =
-        SoundEffectLibraries.InQueueOrder.ToDictionary(library => library, _ => new SoundQueue());
+    private readonly IdentityTable<SoundEffectLibrary, SoundQueue> SoundQueues =
+        new(SoundEffectLibraries.InQueueOrder.ToDictionary(library => library, _ => new SoundQueue()));
     /// <summary>The request cycle each sound queue runs with its library, injected by the session's composition root.</summary>
     private readonly SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId> SoundHandshakes;
 
@@ -217,6 +217,7 @@ public sealed class AudioQueues
     /// Whether a room's track choice is queued: never for an inherited track, always for a
     /// silenced room, and for a played song or area theme when the data set changes or it is not playing.
     /// </summary>
+<<<<<<< ours
     private bool RoomTrackQueues(RoomMusicTrack track, bool dataSetDiffers) => track switch
     {
         RoomMusicTrack.Inherit => false,
@@ -225,6 +226,19 @@ public sealed class AudioQueues
         RoomMusicTrack.PlayAreaTheme => dataSetDiffers || AreaThemeDefinitions.Themes[DataSet] != PlayingTrack,
         _ => throw new InvalidDataException($"Unknown room music track {track}."),
     };
+||||||| base
+    private bool RoomTrackQueues(RoomMusicTrack track, bool dataSetDiffers) => track switch
+    {
+        RoomMusicTrack.Inherit => false,
+        RoomMusicTrack.Silence => true,
+        RoomMusicTrack.Play play => dataSetDiffers || play.Track != PlayingTrack,
+        // With no data set loaded no area theme can play, so the choice is queued.
+        RoomMusicTrack.PlayAreaTheme => dataSetDiffers || DataSet is not MusicDataSet loaded || AreaThemeDefinitions.Themes[loaded] != PlayingTrack,
+        _ => throw new InvalidDataException($"Unknown room music track {track}."),
+    };
+=======
+    private bool RoomTrackQueues(RoomMusicTrack track, bool dataSetDiffers) => track.Queues(new RoomMusicEntry(dataSetDiffers, PlayingTrack, DataSet));
+>>>>>>> theirs
 
     /// <summary>
     /// Runs the shared permanent-item music sequence.
@@ -279,15 +293,10 @@ public sealed class AudioQueues
     /// <exception cref="InvalidOperationException"><paramref name="soundEffect"/> is the default identity, which names no sound.</exception>
     public SoundQueueAdmission QueueSound(SoundEffectId soundEffect, SoundRequestPriority priority)
     {
-        SoundQueue queue = QueueOf(soundEffect.Library);
-        SoundQueueAdmission admission = SoundQueueAdmission.For(queue.Count, priority);
-        if (!admission.Joins(new SoundSuppression(_gameplay.DoorTransitionDisablesSounds, _gameplay.AttractDemoPlaying, _gameplay.PowerBombExploding)))
-            return admission;
-
         // Every priority turns a request away once the queue holds its most (SoundQueueAdmission.MaximumOccupancy), so
         // an admitted request always finds room.
-        queue.Add(soundEffect);
-        return admission;
+        return QueueOf(soundEffect.Library).Admit(soundEffect, priority,
+            new SoundSuppression(_gameplay.DoorTransitionDisablesSounds, _gameplay.AttractDemoPlaying, _gameplay.PowerBombExploding));
     }
 
     /// <summary>
@@ -347,12 +356,24 @@ public sealed class AudioQueues
                 return;
             }
 
+<<<<<<< ours
             PlayingTrack = pending.Request switch
             {
                 MusicRequest.PlayTrack play => play.Track,
                 MusicRequest.StopMusic => null,
                 _ => throw new InvalidDataException($"Unknown music request {pending.Request}."),
             };
+||||||| base
+            PlayingTrack = pending.Request switch
+            {
+                MusicRequest.PlayTrack play => play.Track,
+                MusicRequest.PlayAreaTheme => AreaThemeOf(DataSet),
+                MusicRequest.StopMusic => null,
+                _ => throw new InvalidDataException($"Unknown music request {pending.Request}."),
+            };
+=======
+            PlayingTrack = pending.Request.TrackPlayedWith(DataSet);
+>>>>>>> theirs
             requests.Add(AudioRequest.ForTrack(PlayingTrack));
             Music.Dequeue();
             _soundDowntime.Restart(AudioQueueDefinitions.MusicChangeSoundDowntimePasses);
@@ -380,6 +401,17 @@ public sealed class AudioQueues
             HandleSoundEffectQueue(library, acknowledgements[library], requests);
     }
 
+    /// <summary>What <see cref="HandleSoundEffectQueue"/> does for each <see cref="SoundRequestHandshakes{TLibrary, TSound}.HandshakeStep"/> member, each member's own arm.</summary>
+    private IdentityTable<SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandshakeStep, Action<SoundEffectLibrary, List<AudioRequest>>> HandleSoundEffectQueueForHandshakeStep => field ??= new(new Dictionary<SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandshakeStep, Action<SoundEffectLibrary, List<AudioRequest>>>
+    {
+        [SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandshakeStep.Wait] = (library, requests) =>
+        {
+        },
+        [SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandshakeStep.RequestNext] = (library, requests) => SendNextSound(library, requests),
+        [SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandshakeStep.RepeatRequest] = (library, requests) => requests.Add(AudioRequest.ForSound(library, SoundHandshakes.Awaited(library))),
+        [SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandshakeStep.Withdraw] = (library, requests) => requests.Add(new AudioRequest.ClearSoundRequest(library)),
+    });
+
     /// <summary>Runs one pass of <paramref name="library"/>'s request cycle and does what the pass asks of its queue.</summary>
     private void HandleSoundEffectQueue(
         SoundEffectLibrary library,
@@ -387,6 +419,7 @@ public sealed class AudioQueues
         List<AudioRequest> requests)
     {
         SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandshakeStep step = SoundHandshakes.Advance(library, acknowledgement);
+<<<<<<< ours
         switch (step)
         {
             case SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandshakeStep.Wait:
@@ -407,6 +440,30 @@ public sealed class AudioQueues
             default:
                 throw new InvalidDataException($"Sound library {library}'s request cycle asked for unknown step {step}.");
         }
+||||||| base
+        switch (step)
+        {
+            case SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandshakeStep.Wait:
+                break;
+
+            case SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandshakeStep.RequestNext:
+                SendNextSound(library, requests);
+                break;
+
+            case SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandshakeStep.RepeatRequest:
+                requests.Add(AudioRequest.ForSound(library, SoundHandshakes.Awaited(library)));
+                break;
+
+            case SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandshakeStep.Withdraw:
+                requests.Add(new AudioRequest.ClearSoundRequest(library));
+                break;
+
+            default:
+                throw new InvalidDataException($"Sound library {library}'s request cycle asked for unknown step {step}.");
+        }
+=======
+        HandleSoundEffectQueueForHandshakeStep[step](library, requests);
+>>>>>>> theirs
     }
 
     /// <summary>Takes <paramref name="library"/>'s oldest waiting request, if one waits, asks the library for it, and starts awaiting its acceptance.</summary>
@@ -420,9 +477,5 @@ public sealed class AudioQueues
     }
 
     /// <summary>The queue of <paramref name="library"/>.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="library"/> is not a sound library.</exception>
-    private SoundQueue QueueOf(SoundEffectLibrary library) =>
-        SoundQueues.TryGetValue(library, out SoundQueue? queue)
-            ? queue
-            : throw new ArgumentOutOfRangeException(nameof(library), library, "Unknown sound-effect library.");
+    private SoundQueue QueueOf(SoundEffectLibrary library) => SoundQueues[library];
 }

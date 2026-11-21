@@ -19,10 +19,6 @@ internal static class ShuttersBehaviorPrivateAccess
     /// <summary>The private static members checks name.</summary>
     extension(global::SuperMetroid.Core.Enemies.Shutters.ShuttersBehavior)
     {
-        /// <summary>The private method <c>AdvanceGrowingShutterTimer</c>, invoked by name.</summary>
-        internal static bool AdvanceGrowingShutterTimer(global::SuperMetroid.Core.Enemies.Shutters.GrowingShutterEnemyState state) =>
-            PrivateState.InvokeStatic<bool>(typeof(global::SuperMetroid.Core.Enemies.Shutters.ShuttersBehavior), "AdvanceGrowingShutterTimer", [typeof(global::SuperMetroid.Core.Enemies.Shutters.GrowingShutterEnemyState)], new object?[] { state });
-
         /// <summary>The private method <c>InitialAction</c>, invoked by name.</summary>
         internal static global::SuperMetroid.Core.Enemies.Shutters.VerticalShutterAction InitialAction(global::SuperMetroid.Core.Enemies.Shutters.ShutterTriggerMode triggerMode) =>
             PrivateState.InvokeStatic<global::SuperMetroid.Core.Enemies.Shutters.VerticalShutterAction>(typeof(global::SuperMetroid.Core.Enemies.Shutters.ShuttersBehavior), "InitialAction", [typeof(global::SuperMetroid.Core.Enemies.Shutters.ShutterTriggerMode)], new object?[] { triggerMode });

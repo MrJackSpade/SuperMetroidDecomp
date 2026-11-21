@@ -150,7 +150,7 @@ internal static class TorizoProjectileAnimationsVerification
     {
         IImportCartridgeSource cartridge = rom;
         int steps = NativeEnemyProjectileProgramOracle.CompareByEntry(cartridge, ProjectileLists, ProjectileAnimationEntries,
-            TorizoProjectileAnimations.Segments, TorizoProjectileAnimations.StartingAt,
+            TorizoProjectileAnimations.Segments.Beats, TorizoProjectileAnimations.StartingAt,
             EnemyProjectileProgramFrameOperands.KeyOf, CueRules, named: NamedProjectileAnimationEntries);
 
         int frames = 0;

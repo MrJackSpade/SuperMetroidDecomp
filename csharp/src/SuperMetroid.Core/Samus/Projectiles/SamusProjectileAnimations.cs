@@ -1238,7 +1238,7 @@ internal static class SamusProjectileAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    private static Dictionary<SamusProjectileSegment, Animation<SamusProjectileSegment>> StartingAt { get; } = new Dictionary<SamusProjectileSegment, Animation<SamusProjectileSegment>>
+    internal static Dictionary<SamusProjectileSegment, Animation<SamusProjectileSegment>> StartingAt { get; } = new Dictionary<SamusProjectileSegment, Animation<SamusProjectileSegment>>
     {
         [P.PowerUp] = Repeating(P.PowerUp),
         [P.PowerUpRight] = Repeating(P.PowerUpRight),

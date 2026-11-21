@@ -37,13 +37,47 @@ public static class ContinuedBlocks
     public static TWhole? StoodFor<TCell, TWhole>(TCell cell, int roomBlocks, Func<TCell, TWhole?> whole,
         Func<TCell, bool> standsForNothing, Func<TCell, TCell> linked) where TCell : struct where TWhole : struct
     {
+<<<<<<< ours
         Ensure.NotNull(whole);
+||||||| base
+        Ensure.NotNull(continues);
+=======
+        Ensure.NotNull(continues);
+        return StoodFor(cell, roomBlocks, read => continues(read) ? null : (TCell?)read, standsForNothing, linked);
+    }
+
+    /// <summary>
+    /// The block <paramref name="cell"/> stands for, as <see cref="StoodFor{TCell}(TCell, int, Func{TCell, bool}, Func{TCell, bool}, Func{TCell, TCell})"/>
+    /// finds it, in the form <paramref name="standing"/> gives a cell that continues nothing (#2553): a form a continuing
+    /// cell has none of, so the block found is never one that continues.
+    /// </summary>
+    /// <typeparam name="TCell">How the room module reads a cell.</typeparam>
+    /// <typeparam name="TStanding">How the room module reads a cell that continues nothing.</typeparam>
+    /// <param name="cell">The cell a read found.</param>
+    /// <param name="roomBlocks">How many blocks the room has, one or more: a longer chain revisits a cell.</param>
+    /// <param name="standing">A cell that continues nothing in its standing form, or none for a continuing cell.</param>
+    /// <param name="standsForNothing">Whether a continuing cell's link is zero.</param>
+    /// <param name="linked">The cell a continuing cell's link leads to.</param>
+    /// <exception cref="InvalidDataException">The chain never leaves its continuing cells.</exception>
+    public static TStanding? StoodFor<TCell, TStanding>(TCell cell, int roomBlocks, Func<TCell, TStanding?> standing,
+        Func<TCell, bool> standsForNothing, Func<TCell, TCell> linked) where TCell : struct where TStanding : struct
+    {
+        Ensure.NotNull(standing);
+>>>>>>> theirs
         Ensure.NotNull(standsForNothing);
         Ensure.NotNull(linked);
         for (int hops = Ensure.BetweenInclusive(1, int.MaxValue, roomBlocks); hops > 0; hops--)
         {
+<<<<<<< ours
             if (whole(cell) is { } reached)
                 return reached;
+||||||| base
+            if (!continues(cell))
+                return cell;
+=======
+            if (standing(cell) is { } stands)
+                return stands;
+>>>>>>> theirs
             if (standsForNothing(cell))
                 return null;
             cell = linked(cell);

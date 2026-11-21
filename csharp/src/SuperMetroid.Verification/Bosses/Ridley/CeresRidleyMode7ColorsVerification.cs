@@ -58,7 +58,7 @@ internal static class CeresRidleyMode7ColorsVerification
         var visited = new HashSet<int>();
         for (int index = 0; index < CeresRidleyGetawayCurve.Duration; index++)
         {
-            FloorZoom zoom = CeresRidleyGetawayCurve.ZoomAt(index);
+            FloorZoom zoom = CeresRidleyGetawayCurve.Steps[index].Zoom;
             int row = LittleEndianBytes.HighByte(zoom.TwoHundredFiftySixths);
             visited.Add(row);
             select(zoom);

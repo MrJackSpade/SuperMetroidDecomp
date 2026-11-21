@@ -74,46 +74,64 @@ internal sealed class KraidLimbs
         partState.Playback = playback;
     }
 
+    /// <summary>What <see cref="ApplyKraidPartCue"/> comes to for each <see cref="KraidPartCue"/> member, each member's own arm.</summary>
+    private IdentityTable<KraidPartCue, Func<KraidEnemyState, RoomEnemyPlace, KraidPartSegment?>> ApplyKraidPartCueForKraidPartCue => field ??= new(new Dictionary<KraidPartCue, Func<KraidEnemyState, RoomEnemyPlace, KraidPartSegment?>>
+    {
+        [KraidPartCue.RaiseBody] = (state, body) =>
+        {
+            body.Position = body.Position.WithWholeY(body.Position.Y.Whole - 1);
+            return null;
+        },
+        [KraidPartCue.LowerBodyAndShake] = (state, body) =>
+        {
+            body.Position = body.Position.WithWholeY(body.Position.Y.Whole + 1);
+            _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Light, EarthquakeDirection.Vertical, EarthquakeReach.RoomBlocks), KraidArenaDefinitions.StepShakeUpdates);
+            return null;
+        },
+        [KraidPartCue.StepSound] = (state, body) =>
+        {
+            _access.RequestKraidSound(KraidSoundDefinitions.Footstep);
+            return null;
+        },
+        [KraidPartCue.StepLeft] = (state, body) =>
+        {
+            body.Position = body.Position.WithWholeX(body.Position.X.Whole - KraidArenaDefinitions.StepPixels);
+            return null;
+        },
+        [KraidPartCue.StepRight] = (state, body) =>
+        {
+            body.Position = body.Position.WithWholeX(body.Position.X.Whole + KraidArenaDefinitions.StepPixels);
+            return null;
+        },
+        [KraidPartCue.SlowArmBelowHalfHealth] = (state, body) => SelectKraidArmSpeedAnimation(state),
+        [KraidPartCue.ArmSwingBegins] = (state, body) =>
+        {
+            state.ArmState.BeginSwing();
+            return null;
+        },
+        [KraidPartCue.ArmReachesPause] = (state, body) =>
+        {
+            state.ArmState.ReachPause();
+            return null;
+        },
+        [KraidPartCue.WalkReachesEnd] = (state, body) =>
+        {
+            state.FootState.ReachWalkEnd();
+            return null;
+        },
+        [KraidPartCue.WalkPlaysOn] = (state, body) =>
+        {
+            state.FootState.PlayWalkOn();
+            return null;
+        },
+    });
+
     /// <summary>Carries out one cue of a Kraid part animation.</summary>
     /// <returns>The slow arm animation when the speed cue switches the arm; otherwise null.</returns>
     private KraidPartSegment? ApplyKraidPartCue(KraidEnemyState state, KraidPartCue cue)
     {
         RoomEnemyPlace body = state.Parts.Body;
-        switch (cue)
-        {
-            case KraidPartCue.RaiseBody:
-                body.Position = body.Position.WithWholeY(body.Position.Y.Whole - 1);
-                return null;
-            case KraidPartCue.LowerBodyAndShake:
-                body.Position = body.Position.WithWholeY(body.Position.Y.Whole + 1);
-                _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Light, EarthquakeDirection.Vertical, EarthquakeReach.RoomBlocks), KraidArenaDefinitions.StepShakeUpdates);
-                return null;
-            case KraidPartCue.StepSound:
-                _access.RequestKraidSound(KraidSoundDefinitions.Footstep);
-                return null;
-            case KraidPartCue.StepLeft:
-                body.Position = body.Position.WithWholeX(body.Position.X.Whole - KraidArenaDefinitions.StepPixels);
-                return null;
-            case KraidPartCue.StepRight:
-                body.Position = body.Position.WithWholeX(body.Position.X.Whole + KraidArenaDefinitions.StepPixels);
-                return null;
-            case KraidPartCue.SlowArmBelowHalfHealth:
-                return SelectKraidArmSpeedAnimation(state);
-            case KraidPartCue.ArmSwingBegins:
-                state.ArmState.BeginSwing();
-                return null;
-            case KraidPartCue.ArmReachesPause:
-                state.ArmState.ReachPause();
-                return null;
-            case KraidPartCue.WalkReachesEnd:
-                state.FootState.ReachWalkEnd();
-                return null;
-            case KraidPartCue.WalkPlaysOn:
-                state.FootState.PlayWalkOn();
-                return null;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(KraidPartCue)} {cue}.");
-        }
+        return ApplyKraidPartCueForKraidPartCue[cue](state, body);
     }
 
     /// <summary>Runs the grown body's thinking, and on its last update opens the mouth for its next attack.</summary>
@@ -173,6 +191,39 @@ internal sealed class KraidLimbs
             arm.AnimationClock.Resume();
     }
 
+    /// <summary>What <see cref="RunKraidFootMain"/> does for each <see cref="KraidFootPhase"/> member, each member's own arm.</summary>
+    private IdentityTable<KraidFootPhase, Action<RoomEnemyPlace, KraidFootState, KraidEnemyState, RoomEnemyPlace>> RunKraidFootMainForKraidFootPhase => field ??= new(new Dictionary<KraidFootPhase, Action<RoomEnemyPlace, KraidFootState, KraidEnemyState, RoomEnemyPlace>>
+    {
+        [KraidFootPhase.Resting] = (foot, part, state, body) => { },
+        [KraidFootPhase.FirstPhaseThinking] = (foot, part, state, body) =>
+        {
+            if (TryBeginKraidGrowth(body, state))
+                return;
+            if (part.PhaseWait.StepRunsOut())
+                part.Phase = KraidFootPhase.PrepareFirstPhaseLunge;
+        },
+        [KraidFootPhase.PrepareFirstPhaseLunge] = (foot, part, state, body) => PrepareKraidFirstPhaseLunge(body, part),
+        [KraidFootPhase.FirstPhaseLunge] = (foot, part, state, body) => RunKraidFirstPhaseLunge(body, foot, part),
+        [KraidFootPhase.WaitBeforeRetreat] = (foot, part, state, body) =>
+        {
+            if (part.PhaseWait.StepRunsOut())
+            {
+                part.Phase = KraidFootPhase.FirstPhaseRetreat;
+                state.FootState.StartAnimation(KraidPartSegment.FootWalkingBackward);
+            }
+        },
+        [KraidFootPhase.WaitBeforeSecondPhase] = (foot, part, state, body) =>
+        {
+            if (part.PhaseWait.StepRunsOut())
+                part.Phase = KraidFootPhase.SecondPhaseInitialize;
+        },
+        [KraidFootPhase.FirstPhaseRetreat] = (foot, part, state, body) => RunKraidFirstPhaseRetreat(body, part),
+        [KraidFootPhase.SecondPhaseWalkToStart] = (foot, part, state, body) => RunKraidSecondPhaseWalkToStart(body, part),
+        [KraidFootPhase.SecondPhaseInitialize] = (foot, part, state, body) => SetKraidWalking(part, targetX: KraidMovementChoices.StartingX, thinkUpdates: KraidArenaDefinitions.SecondPhaseFirstThinkUpdates, direction: HorizontalDirection.Right),
+        [KraidFootPhase.SecondPhaseThinking] = (foot, part, state, body) => RunKraidSecondPhaseThinking(body, part),
+        [KraidFootPhase.SecondPhaseWalkingRight] = (foot, part, state, body) => RunKraidSecondPhaseWalkingRight(body, part),
+        [KraidFootPhase.SecondPhaseWalkingLeft] = (foot, part, state, body) => RunKraidSecondPhaseWalkingLeft(body, part),
+    });
     /// <summary>
     /// Hides <paramref name="limb"/> only while its anchor lies outside the screen's gameplay view below
     /// <paramref name="cameraY"/> (#2557): it is hidden, not drawn behind anything. The arm and the foot are shown so.
@@ -194,54 +245,7 @@ internal sealed class KraidLimbs
         foot.Position = foot.Position.WithWhole(body.Position.Whole + KraidArenaDefinitions.FootOffset);
         ShowWithinGameplayView(foot, cameraY);
 
-        switch (part.Phase)
-        {
-            case KraidFootPhase.Resting:
-                return;
-            case KraidFootPhase.FirstPhaseThinking:
-                if (TryBeginKraidGrowth(body, state))
-                    return;
-                if (part.PhaseWait.StepRunsOut())
-                    part.Phase = KraidFootPhase.PrepareFirstPhaseLunge;
-                return;
-            case KraidFootPhase.PrepareFirstPhaseLunge:
-                PrepareKraidFirstPhaseLunge(body, part);
-                return;
-            case KraidFootPhase.FirstPhaseLunge:
-                RunKraidFirstPhaseLunge(body, foot, part);
-                return;
-            case KraidFootPhase.WaitBeforeRetreat:
-                if (part.PhaseWait.StepRunsOut())
-                {
-                    part.Phase = KraidFootPhase.FirstPhaseRetreat;
-                    state.FootState.StartAnimation(KraidPartSegment.FootWalkingBackward);
-                }
-                return;
-            case KraidFootPhase.WaitBeforeSecondPhase:
-                if (part.PhaseWait.StepRunsOut())
-                    part.Phase = KraidFootPhase.SecondPhaseInitialize;
-                return;
-            case KraidFootPhase.FirstPhaseRetreat:
-                RunKraidFirstPhaseRetreat(body, part);
-                return;
-            case KraidFootPhase.SecondPhaseWalkToStart:
-                RunKraidSecondPhaseWalkToStart(body, part);
-                return;
-            case KraidFootPhase.SecondPhaseInitialize:
-                SetKraidWalking(part, targetX: KraidMovementChoices.StartingX, thinkUpdates: KraidArenaDefinitions.SecondPhaseFirstThinkUpdates, direction: HorizontalDirection.Right);
-                return;
-            case KraidFootPhase.SecondPhaseThinking:
-                RunKraidSecondPhaseThinking(body, part);
-                return;
-            case KraidFootPhase.SecondPhaseWalkingRight:
-                RunKraidSecondPhaseWalkingRight(body, part);
-                return;
-            case KraidFootPhase.SecondPhaseWalkingLeft:
-                RunKraidSecondPhaseWalkingLeft(body, part);
-                return;
-            default:
-                throw new InvalidDataException($"Undefined {nameof(KraidFootPhase)} {part.Phase}.");
-        }
+        RunKraidFootMainForKraidFootPhase[part.Phase](foot, part, state, body);
     }
 
     /// <summary>Waits for the arm before starting the small-form foot lunge, or begins growth.</summary>

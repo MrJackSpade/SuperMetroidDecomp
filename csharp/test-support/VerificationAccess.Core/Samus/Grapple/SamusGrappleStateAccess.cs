@@ -12,6 +12,7 @@ internal static class SamusGrappleStateAccess
         public SuperMetroid.Core.Samus.Artwork.ChargeFlarePlacements FlarePlacement => self.Artwork.GrappleFlarePlacement;
         /// <summary>The installed swing pictures, or none before they are installed; never a collision/body offset source.</summary>
         public SuperMetroid.Core.Samus.Artwork.InstalledGrappleSwingFrames SwingFrames => self.Artwork.GrappleSwingFrames;
+<<<<<<< ours
 
         /// <summary>
         /// The grapple flare's picture as the original numbers the main flare's pictures (#2396): sixteen opening pictures,
@@ -31,6 +32,26 @@ internal static class SamusGrappleStateAccess
                 ? throw new ArgumentOutOfRangeException(nameof(value), value, "The grapple's flare never leaves a wait run past zero.")
                 : value.RemainingFrames + 1);
         }
+||||||| base
+
+        /// <summary>
+        /// The grapple flare's picture as the original numbers the main flare's pictures (#2396): sixteen opening pictures,
+        /// then the loop's fourteen.
+        /// </summary>
+        internal int FlareFrame
+        {
+            get => self.Flare.NativePicture ?? throw new InvalidOperationException("The grapple's flare shows no picture.");
+            set => self.Flare.ShowNative(value, self.Flare.NativeWait);
+        }
+
+        /// <summary>The grapple flare's wait as the original keeps it: the updates its picture still shows less one.</summary>
+        internal WrappingCountdown FlareAnimationTimer
+        {
+            get => self.Flare.NativeWait;
+            set => self.Flare.ShowNative(self.FlareFrame, value);
+        }
+=======
+>>>>>>> theirs
     }
 
     /// <summary>The number of the main flare's picture <paramref name="playback"/> shows, its place standing just past the beat shown.</summary>

@@ -19,6 +19,20 @@ internal static class ControllerButtonLookupsVerification
     private static readonly ControllerAction[] UndefinedActions =
         [(ControllerAction)int.MinValue, (ControllerAction)(-1), (ControllerAction)7, (ControllerAction)int.MaxValue];
 
+    /// <summary>Whether <paramref name="bindings"/> bind <paramref name="buttons"/> to Shoot, rather than refusing it as unassignable.</summary>
+    private static bool BindingAccepts(ControllerBindings bindings, ControllerButton buttons)
+    {
+        try
+        {
+            _ = bindings.AssignAndSwap(ControllerAction.Shoot, buttons);
+            return true;
+        }
+        catch (ArgumentOutOfRangeException refused) when (refused.ParamName == "physicalButton")
+        {
+            return false;
+        }
+    }
+
     /// <summary>Checks seven assignable buttons, inverse lookup, swaps, and rejection of invalid permutations.</summary>
     internal static void VerifyAssignableControllerButtons(ISnesAddressSpace rom)
     {
@@ -30,24 +44,23 @@ internal static class ControllerButtonLookupsVerification
         for (int index = 0; index < 7; index++)
             AssertEqual(original[index], ControllerBindings.AssignableButtons[index],
                 $"native assignable button {index}");
-        int buttonBits = ControllerWordCodec.ToJoypadWord(ControllerButtons.All);
-        for (int word = 0; word <= ushort.MaxValue; word++)
-        {
-            // A word with bits no button produces names no set of buttons.
-            if ((word & ~buttonBits) != 0) continue;
-            ControllerButton buttons = ControllerWordCodec.FromJoypadWord((ushort)word, "assignable inverse word");
-            int nativeIndex = Array.IndexOf(original, buttons, 0, 7);
-            AssertEqual(nativeIndex >= 0,
-                ControllerBindings.IsAssignable(buttons),
-                $"assignable inverse {buttons}");
-        }
-
         var bindings = new ControllerBindings(new Dictionary<ControllerAction, ControllerButton>
         {
             [ControllerAction.Shoot] = original[0], [ControllerAction.Jump] = original[1], [ControllerAction.Dash] = original[2],
             [ControllerAction.ItemSelect] = original[3], [ControllerAction.ItemCancel] = original[4], [ControllerAction.AimUp] = original[5],
             [ControllerAction.AimDown] = original[6],
         });
+        int buttonBits = ControllerWordCodec.ToJoypadWord(ControllerButtons.All);
+        // A button set is assignable when the options menu can bind it: binding any other refuses it.
+        for (int word = 0; word <= ushort.MaxValue; word++)
+        {
+            // A word with bits no button produces names no set of buttons.
+            if ((word & ~buttonBits) != 0) continue;
+            ControllerButton buttons = ControllerWordCodec.FromJoypadWord((ushort)word, "assignable inverse word");
+            int nativeIndex = Array.IndexOf(original, buttons, 0, 7);
+            AssertEqual(nativeIndex >= 0, BindingAccepts(bindings, buttons), $"assignable inverse {buttons}");
+        }
+
         for (int action = 0; action < ConstructorOrder.Length; action++)
         for (int requested = 0; requested < 7; requested++)
         {

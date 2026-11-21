@@ -70,7 +70,15 @@ internal static class SamusOverreadServicesReader
         IReadOnlyDictionary<string, IReadOnlyDictionary<string, SamusOverreadDocument.ReadPast>> readsPast =
             document.AnimationReadsPast;
         IReadOnlyDictionary<string, IReadOnlyDictionary<string, string>> landings =
+<<<<<<< ours
             document.AnimationPlaceLandings;
+||||||| base
+            Require(document.AnimationPlaceLandings, nameof(document.AnimationPlaceLandings));
+=======
+            Require(document.AnimationPlaceLandings, nameof(document.AnimationPlaceLandings));
+        IReadOnlyDictionary<string, IReadOnlyDictionary<string, int>> delaysRead =
+            Require(document.AnimationDelaysRead, nameof(document.AnimationDelaysRead));
+>>>>>>> theirs
         IReadOnlyList<SamusPoseAnimation> animations = SamusAnimationDelayDefinitions.All;
         if (cueValueSteps.Count != animations.Count)
             throw new InvalidDataException($"Samus overread file holds cue-value steps for {cueValueSteps.Count} animations, not {animations.Count}.");
@@ -78,6 +86,8 @@ internal static class SamusOverreadServicesReader
             throw new InvalidDataException($"Samus overread file holds frames after cues for {framesAfterCues.Count} animations, not {animations.Count}.");
         if (readsPast.Count != animations.Count)
             throw new InvalidDataException($"Samus overread file holds reads past {readsPast.Count} animations, not {animations.Count}.");
+        if (delaysRead.Count != animations.Count)
+            throw new InvalidDataException($"Samus overread file holds delays read for {delaysRead.Count} animations, not {animations.Count}.");
         var animationCueValues = new Dictionary<SamusAnimationName, IReadOnlyDictionary<SamusAnimationFrame, SamusPoseAnimationStep>>();
         foreach (SamusPoseAnimation animation in animations)
         {
@@ -132,7 +142,20 @@ internal static class SamusOverreadServicesReader
         }
         if (landings.Count != places.Count)
             throw new InvalidDataException($"Samus overread file holds landings of {landings.Count} places, not {places.Count}.");
-        return new SamusFramesBeyondAnimation(animationCueValues, animationFramesAfterCues, animationReads, places);
+        var animationDelaysRead = new Dictionary<SamusAnimationName, IReadOnlyDictionary<SamusAnimationFrame, int>>();
+        foreach (SamusPoseAnimation animation in animations)
+        {
+            if (!delaysRead.TryGetValue(SamusAnimationNameKeys.Installed.Of(animation.Name), out IReadOnlyDictionary<string, int>? ticks))
+                throw new InvalidDataException($"Samus overread file has no delays read for the {animation.Name} animation.");
+            animationDelaysRead.Add(animation.Name, Require(ticks, $"delays read for the {animation.Name} animation").ToDictionary(
+                pair => animation.TryDelayAt(animation.FrameNamed(pair.Key)) is null
+                    ? animation.FrameNamed(pair.Key)
+                    : throw new InvalidDataException($"Samus overread file reads a delay at '{pair.Key}' of the {animation.Name} animation, which holds one of its own."),
+                pair => pair.Value is >= 0 and <= byte.MaxValue
+                    ? pair.Value
+                    : throw new InvalidDataException($"Samus overread file reads delay {pair.Value} at '{pair.Key}' of the {animation.Name} animation, which no byte holds.")));
+        }
+        return new SamusFramesBeyondAnimation(animationCueValues, animationFramesAfterCues, animationReads, places, animationDelaysRead);
     }
 
     /// <summary>

@@ -10,8 +10,6 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 [RoomLifetime]
 internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemySpawnFactory<CorpseSpawnSettings>
 {
-    /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. DeadTourianCorpseSpeciesDefinitions.Species.Keys];
 
     /// <inheritdoc/>
     public EnemyOccupant Create(RoomEnemyOccupant occupant, CorpseSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new DeadTourianEntity(this, occupant, place, common, settings));
@@ -60,24 +58,23 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemySpawnFactory<Co
         return state;
     }
 
+    /// <summary>What <see cref="RunDeadTourianCorpseMain"/> does for each <see cref="CorpsePhase"/> member, each member's own arm.</summary>
+    private IdentityTable<CorpsePhase, Action<RoomEnemyPlace, SamusState, DeadTourianCorpseEnemyState>> RunDeadTourianCorpseMainForDeadTourianCorpsePhase => field ??= new(new Dictionary<CorpsePhase, Action<RoomEnemyPlace, SamusState, DeadTourianCorpseEnemyState>>
+    {
+        [CorpsePhase.Waiting] = WaitToRot,
+        [CorpsePhase.PreRotDelay] = WaitToRot,
+        [CorpsePhase.Rotting] = (place, samus, state) => RunDeadTourianCorpseRotting(place, state),
+        [CorpsePhase.Finished] = (place, samus, state) => { },
+    });
+
+    /// <summary>Waits for Samus's touch and then the delay before the corpse rots.</summary>
+    private static void WaitToRot(RoomEnemyPlace place, SamusState samus, DeadTourianCorpseEnemyState state) =>
+        state.Phase = CorpseRotWait.Step(state.Phase, place, samus, state.PreRotDelay);
+
     /// <summary>Runs the shared corpse behaviour: Samus touching it starts its wait before rotting (<see cref="CorpseRotScheduleDefinitions.PreRotDelayUpdates"/>), then the corpse rots until its last row has fallen.</summary>
     private void RunDeadTourianCorpseMain(RoomEnemyPlace place, DeadTourianCorpseEnemyState state, SamusState samus)
     {
-        switch (state.Phase)
-        {
-            case CorpsePhase.Waiting:
-            case CorpsePhase.PreRotDelay:
-                state.Phase = CorpseRotWait.Step(state.Phase, place, samus, state.PreRotDelay);
-                return;
-            case CorpsePhase.Rotting:
-                RunDeadTourianCorpseRotting(place, state);
-                return;
-            case CorpsePhase.Finished:
-                return;
-            default:
-                throw new InvalidDataException(
-                    $"Dead Tourian enemy in place {place.Ordinal} has no behaviour for phase {state.Phase}.");
-        }
+        RunDeadTourianCorpseMainForDeadTourianCorpsePhase[state.Phase](place, samus, state);
     }
 
     /// <summary>Touch and shot reactions for these three corpse-only actors are identical.</summary>

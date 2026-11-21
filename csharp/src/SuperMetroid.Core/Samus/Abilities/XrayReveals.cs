@@ -17,30 +17,36 @@ public static class XrayReveals
     public static XrayRevealShape? Find(RoomCollisionType type, RoomBlockBehavior behavior) =>
         Find(type, behavior.ReactionUnder(type));
 
+    /// <summary>The X-ray reveal shape each collision type shows for its block reaction, or null for one that reveals nothing.</summary>
+    private static IdentityTable<RoomCollisionType, Func<RoomCollisionType, BlockReaction?, XrayRevealShape?>> RevealsByType => field ??= new(new Dictionary<RoomCollisionType, Func<RoomCollisionType, BlockReaction?, XrayRevealShape?>>
+    {
+        // Air reveals the same copy-one shape whatever its behaviour.
+        [RoomCollisionType.Air] = static (type, reaction) => XrayRevealShape.CopyOne,
+        [RoomCollisionType.SpecialAir] = static (type, reaction) => Lookup(SpecialAirReveals, type, reaction),
+        // A horizontal extension reveals as one whatever its behaviour.
+        [RoomCollisionType.HorizontalExtension] = static (type, reaction) => XrayRevealShape.HorizontalExtension,
+        [RoomCollisionType.SpikeBlock] = static (type, reaction) => Lookup(SpikeBlockReveals, type, reaction),
+        [RoomCollisionType.SpecialBlock] = static (type, reaction) => Lookup(SpecialBlockReveals, type, reaction),
+        [RoomCollisionType.ShootableBlock] = static (type, reaction) => Lookup(ShootableBlockReveals, type, reaction),
+        // A vertical extension reveals as one whatever its behaviour.
+        [RoomCollisionType.VerticalExtension] = static (type, reaction) => XrayRevealShape.VerticalExtension,
+        [RoomCollisionType.GrappleBlock] = static (type, reaction) => Lookup(GrappleBlockReveals, type, reaction),
+        [RoomCollisionType.BombableBlock] = static (type, reaction) => Lookup(BombableBlockReveals, type, reaction),
+        [RoomCollisionType.Slope] = static (type, reaction) => null,
+        [RoomCollisionType.SpikeAir] = static (type, reaction) => null,
+        [RoomCollisionType.ShootableAir] = static (type, reaction) => null,
+        [RoomCollisionType.UnrevealedAir] = static (type, reaction) => null,
+        [RoomCollisionType.BombableAir] = static (type, reaction) => null,
+        [RoomCollisionType.SolidBlock] = static (type, reaction) => null,
+        [RoomCollisionType.DoorBlock] = static (type, reaction) => null,
+    });
+
     /// <summary>
     /// Returns the reveal shape for one collision kind and the reaction it reads, null for a kind that reads none or a block
     /// with no reaction of its kind.
     /// </summary>
     /// <exception cref="ArgumentException"><paramref name="reaction"/> is not of the family <paramref name="type"/> reads.</exception>
-    public static XrayRevealShape? Find(RoomCollisionType type, BlockReaction? reaction) => type switch
-    {
-        // Air reveals the same copy-one shape whatever its behaviour.
-        RoomCollisionType.Air => XrayRevealShape.CopyOne,
-        RoomCollisionType.SpecialAir => Lookup(SpecialAirReveals, type, reaction),
-        // A horizontal extension reveals as one whatever its behaviour.
-        RoomCollisionType.HorizontalExtension => XrayRevealShape.HorizontalExtension,
-        RoomCollisionType.SpikeBlock => Lookup(SpikeBlockReveals, type, reaction),
-        RoomCollisionType.SpecialBlock => Lookup(SpecialBlockReveals, type, reaction),
-        RoomCollisionType.ShootableBlock => Lookup(ShootableBlockReveals, type, reaction),
-        // A vertical extension reveals as one whatever its behaviour.
-        RoomCollisionType.VerticalExtension => XrayRevealShape.VerticalExtension,
-        RoomCollisionType.GrappleBlock => Lookup(GrappleBlockReveals, type, reaction),
-        RoomCollisionType.BombableBlock => Lookup(BombableBlockReveals, type, reaction),
-        RoomCollisionType.Slope or RoomCollisionType.SpikeAir or
-            RoomCollisionType.ShootableAir or RoomCollisionType.UnrevealedAir or RoomCollisionType.BombableAir or
-            RoomCollisionType.SolidBlock or RoomCollisionType.DoorBlock => null,
-        _ => throw new InvalidOperationException($"Undefined RoomCollisionType {type}."),
-    };
+    public static XrayRevealShape? Find(RoomCollisionType type, BlockReaction? reaction) => RevealsByType[type](type, reaction);
 
     /// <summary>
     /// The shape a reacting kind's reveal table selects for <paramref name="reaction"/>, or none when the table has no entry

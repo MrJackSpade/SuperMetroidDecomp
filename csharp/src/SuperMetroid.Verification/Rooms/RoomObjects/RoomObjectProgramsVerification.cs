@@ -300,7 +300,7 @@ internal static class RoomObjectProgramsVerification
             ? (gate.Animation.Playback.Place.Beat > 0 ? gate.Animation.Playback.Place.Beat - 1
                 : throw new InvalidDataException($"A moving downward gate in {gate.Phase} ended an update showing no image."))
             : 0;
-        return downwardGateAddresses.TryGetValue(new GateState(gate.Phase, frame), out ushort address)
+        return downwardGateAddresses.TryGetValue(new GateState(gate.Phase, frame, gate.Resting), out ushort address)
             ? address
             : throw new InvalidDataException($"A downward gate in {gate.Phase} at image {frame} has no native instruction.");
     }
@@ -352,46 +352,47 @@ internal static class RoomObjectProgramsVerification
             AssertMovementSound(cursor + 4, at);
             return cursor + 7;
         }
-        int Resting(int list, DownwardGateImage image, DownwardGatePhase showing, DownwardGatePhase resting, Dictionary<GateState, ushort> into)
+        int Resting(int list, DownwardGateImage image, DownwardGatePhase standing, Dictionary<GateState, ushort> into)
         {
-            AssertEqual(DownwardGateMovement.None, image.Starts, $"{showing} starts no movement");
-            AssertShown(list, image, $"{showing}");
-            AssertEqual(RoomObjectInstruction.ClearDownwardGateTrigger, At(list + 4), $"{resting} clears the trigger");
-            AssertEqual(RoomObjectInstruction.InstallFrameBehavior, At(list + 6), $"{resting} arms its wake");
-            AssertEqual(resting, RoomObjectFrameBehaviorNativeWords.DownwardGate.Decode(Word(list + 8), "downward gate wake"), $"{resting} wake");
-            AssertEqual(RoomObjectInstruction.Sleep, At(list + 10), $"{resting} sleeps");
-            into[new GateState(showing, 0)] = checked((ushort)(list + 4));
-            into[new GateState(resting, 0)] = checked((ushort)(list + 10));
+            AssertEqual(DownwardGateMovement.None, image.Starts, $"{standing} starts no movement");
+            AssertShown(list, image, $"{standing}");
+            AssertEqual(RoomObjectInstruction.ClearDownwardGateTrigger, At(list + 4), $"resting {standing} clears the trigger");
+            AssertEqual(RoomObjectInstruction.InstallFrameBehavior, At(list + 6), $"resting {standing} arms its wake");
+            AssertEqual(standing, RoomObjectFrameBehaviorNativeWords.DownwardGate.Decode(Word(list + 8), "downward gate wake"), $"resting {standing} wake");
+            AssertEqual(RoomObjectInstruction.Sleep, At(list + 10), $"resting {standing} sleeps");
+            into[new GateState(standing, 0, Resting: false)] = checked((ushort)(list + 4));
+            into[new GateState(standing, 0, Resting: true)] = checked((ushort)(list + 10));
             return list + 12;
         }
 
         var addresses = new Dictionary<GateState, ushort>();
         int closed = Word(RoomObjectNativeWords.Word(RoomObjectKind.DownwardGate) + 2);
-        addresses[new GateState(DownwardGatePhase.Starting, 0)] = checked((ushort)closed);
-        int cursor = Resting(closed, DownwardGateMovementDefinitions.Closed, DownwardGatePhase.ShowingClosed, DownwardGatePhase.RestingClosed, addresses);
+        addresses[new GateState(DownwardGatePhase.Starting, 0, Resting: false)] = checked((ushort)closed);
+        int cursor = Resting(closed, DownwardGateMovementDefinitions.Closed, DownwardGatePhase.Closed, addresses);
         for (int index = 0; index < DownwardGateMovementDefinitions.Reopening.Count; index++, cursor += 4)
         {
             cursor = Starting(cursor, DownwardGateMovementDefinitions.Reopening[index], $"reopening image {index}");
             AssertShown(cursor, DownwardGateMovementDefinitions.Reopening[index], $"reopening image {index}");
-            addresses[new GateState(DownwardGatePhase.Reopening, index)] = checked((ushort)(cursor + 4));
+            addresses[new GateState(DownwardGatePhase.Reopening, index, Resting: false)] = checked((ushort)(cursor + 4));
         }
         AssertEqual(RoomObjectInstruction.Goto, At(cursor), "reopening goes on to the open gate");
         int open = Word(cursor + 2);
-        cursor = Resting(open, DownwardGateMovementDefinitions.Open, DownwardGatePhase.ShowingOpen, DownwardGatePhase.RestingOpen, addresses);
+        cursor = Resting(open, DownwardGateMovementDefinitions.Open, DownwardGatePhase.Open, addresses);
         for (int index = 0; index < DownwardGateMovementDefinitions.Closing.Count; index++, cursor += 4)
         {
             cursor = Starting(cursor, DownwardGateMovementDefinitions.Closing[index], $"closing image {index}");
             AssertShown(cursor, DownwardGateMovementDefinitions.Closing[index], $"closing image {index}");
-            addresses[new GateState(DownwardGatePhase.Closing, index)] = checked((ushort)(cursor + 4));
+            addresses[new GateState(DownwardGatePhase.Closing, index, Resting: false)] = checked((ushort)(cursor + 4));
         }
         AssertEqual(closed, cursor, "closing runs on into the closed gate");
         return addresses;
     }
 
-    /// <summary>A typed gate state: its phase and, while it moves, the image it shows.</summary>
+    /// <summary>A typed gate state: its phase, while it moves the image it shows, and whether it rests.</summary>
     /// <param name="Phase">The gate's phase.</param>
     /// <param name="Frame">The image of its movement, or zero at rest.</param>
-    private readonly record struct GateState(DownwardGatePhase Phase, int Frame);
+    /// <param name="Resting">Whether the gate rests as the closed or open gate it shows.</param>
+    private readonly record struct GateState(DownwardGatePhase Phase, int Frame, bool Resting);
 
     /// <summary>The Tourian elevator access changes play as their native lists do.</summary>
     internal static void VerifyTourianAccessPrograms(ISnesAddressSpace rom)

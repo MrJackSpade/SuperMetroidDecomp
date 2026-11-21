@@ -75,7 +75,7 @@ internal static class DragonBehaviorVerification
             body.Action = DragonAction.AttackFinished;
             body.Facing = HorizontalDirection.Left;
             body.AttackCounter = 3;
-            enemies.DragonBehavior.RunDragonAttacking(enemies.Places.InUpdateOrder[bodySlot].HeldOccupant(), enemies.Places.InUpdateOrder[bodySlot], body);
+            enemies.DragonBehavior.RunDragonMain(enemies.Places.InUpdateOrder[bodySlot].HeldOccupant(), enemies.Places.InUpdateOrder[bodySlot], body, RoomEnemyFrameFixtures.StandaloneSamus());
         }
         SoundEffectId fireball = EnemySoundEffectDefinitions.DragonFireballSound;
         AssertEqual(2, enemies.Audio.SoundRequests.Count(request => request.SoundEffect == fireball),

@@ -12,15 +12,20 @@ internal static class PowampNativeListAddresses
     /// <summary>The lists' bank.</summary>
     internal const byte Bank = 0xa8;
 
-    /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly NativeProgramEntry<PowampSegment>[] Entries =
+    /// <summary>Each of the body's typed programs' native entry point, in authored order.</summary>
+    internal static readonly NativeProgramEntry<PowampBodySegment>[] BodyEntries =
     [
-        new NativeProgramEntry<PowampSegment>(PowampSegment.BodyFast, 0xc163),
-        new NativeProgramEntry<PowampSegment>(PowampSegment.BodySlow, 0xc173),
-        new NativeProgramEntry<PowampSegment>(PowampSegment.BalloonInflatingFromDeflated, 0xc183),
-        new NativeProgramEntry<PowampSegment>(PowampSegment.BalloonInflatingFromHalfway, 0xc187),
-        new NativeProgramEntry<PowampSegment>(PowampSegment.BalloonStartSinking, 0xc191),
-        new NativeProgramEntry<PowampSegment>(PowampSegment.BalloonDeflated, 0xc199),
+        new NativeProgramEntry<PowampBodySegment>(PowampBodySegment.BodyFast, 0xc163),
+        new NativeProgramEntry<PowampBodySegment>(PowampBodySegment.BodySlow, 0xc173),
+    ];
+
+    /// <summary>Each of the balloon's typed programs' native entry point, in authored order.</summary>
+    internal static readonly NativeProgramEntry<PowampBalloonSegment>[] BalloonEntries =
+    [
+        new NativeProgramEntry<PowampBalloonSegment>(PowampBalloonSegment.InflatingFromDeflated, 0xc183),
+        new NativeProgramEntry<PowampBalloonSegment>(PowampBalloonSegment.InflatingFromHalfway, 0xc187),
+        new NativeProgramEntry<PowampBalloonSegment>(PowampBalloonSegment.StartSinking, 0xc191),
+        new NativeProgramEntry<PowampBalloonSegment>(PowampBalloonSegment.Deflated, 0xc199),
     ];
 
 }

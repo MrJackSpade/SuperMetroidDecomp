@@ -50,6 +50,16 @@ internal static class CoreAccess
         internal SuperMetroidRuntime? RuntimeForVerification => game.Session.Runtime;
         /// <summary>The gameplay runtime a test requires: the frontend must be in a loaded game.</summary>
         internal SuperMetroidRuntime GameplayRuntimeForVerification => game.Session.GameplayRuntime;
+<<<<<<< ours
+||||||| base
+        /// <summary>Remaining authored hold frames before the attract demo advances.</summary>
+        internal int AttractDemoHoldFramesRemaining => game.Session.Demo.Hold.UpdatesLeft;
+=======
+        /// <summary>Remaining authored hold frames before the attract demo advances.</summary>
+        internal int AttractDemoHoldFramesRemaining =>
+            game.Session.GameState == SuperMetroid.Core.Progression.SuperMetroidGameState.AttractDemo &&
+            game.Session.AttractDemoStep is AttractDemoStep.Playing.Holding holding ? holding.Hold.UpdatesLeft : 0;
+>>>>>>> theirs
         /// <summary>Whether the current runtime permits ordinary grounded Samus movement.</summary>
         internal bool GameplayMovementEnabled => game.RuntimeForVerification?.Player.GroundedSamusMovementEnabled ?? false;
         /// <summary>Reads the frontend audio queue owner across gameplay and menus.</summary>

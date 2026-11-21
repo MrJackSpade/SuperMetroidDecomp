@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// </summary>
 /// <param name="jump">The landed jump's actors, which keep running.</param>
 /// <param name="flash">The flash's white wash.</param>
-internal sealed class EndingWhiteFlashScene(EndingRewardJump jump, WhiteWash flash) : EndingScene
+internal sealed class EndingWhiteFlashScene(EndingRewardJump jump, WhiteWash flash) : EndingActorScene
 {
     /// <summary>The landed jump's actors.</summary>
     internal EndingRewardJump Jump { get; } = Ensure.NotNull(jump);

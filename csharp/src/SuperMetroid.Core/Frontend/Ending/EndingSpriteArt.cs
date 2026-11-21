@@ -7,5 +7,5 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// <param name="Pictures">The presentation of each sprite family's pictures, in the ending's colours.</param>
 /// <param name="TextSheet">The sheet that pictures the typed texts' letters.</param>
 /// <param name="Shading">The shading the screen shows a draw named in a colouring's drawn shade in.</param>
-internal sealed record EndingSpriteArt(Func<CinematicSpriteFamily, IIntroCinematicSpritePresentation> Pictures, SpriteSheet TextSheet,
+internal sealed record EndingSpriteArt(Func<EndingSpriteFamily, IIntroCinematicSpritePresentation> Pictures, SpriteSheet TextSheet,
     Func<PictureShade, PictureShading> Shading);

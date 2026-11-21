@@ -16,7 +16,7 @@ public sealed class SamusBomb
     internal SamusBomb(int place) => Place = place;
 
     /// <summary>The bomb's place among the five, zero through four: bombs take the lowest free one, and a spread fills all five.</summary>
-    public int Place { get; }
+    private int Place { get; }
 
     /// <summary>
     /// The bomb holding the place (#2558, #2560), which owns all it is and does: from its placing, which gives it its type
@@ -28,18 +28,18 @@ public sealed class SamusBomb
     public bool IsOccupied => Occupant is not null;
 
     /// <summary>
-    /// Takes the place with a bomb of <paramref name="type"/> dealing <paramref name="damage"/>, as its placing does: the
-    /// damage is the one its family's bomb definition gives.
+    /// Takes the place with a bomb of <paramref name="kind"/> dealing <paramref name="damage"/>, as its placing does: the
+    /// damage is the one its kind's bomb definition gives.
     /// </summary>
-    /// <param name="type">What the bomb is.</param>
+    /// <param name="kind">What the bomb is.</param>
     /// <param name="damage">The damage the bomb deals.</param>
     /// <returns>The bomb now holding the place.</returns>
     /// <exception cref="InvalidOperationException">A bomb already holds the place.</exception>
-    internal SamusBombOccupant Occupy(SamusProjectileType type, int damage)
+    internal SamusBombOccupant Occupy(SamusBombKind kind, int damage)
     {
         if (Occupant is { } held)
             throw new InvalidOperationException($"Samus's bomb place {Place} already holds a {held.Type}.");
-        Occupant = new SamusBombOccupant(this, type, damage);
+        Occupant = new SamusBombOccupant(this, kind, damage);
         return Occupant;
     }
 

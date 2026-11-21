@@ -9,8 +9,6 @@ namespace SuperMetroid.Core.Enemies.Metroids;
 [RoomLifetime]
 internal sealed class MochtroidBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawnSettings>
 {
-    /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Mochtroid];
 
     /// <inheritdoc/>
     public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new MochtroidEntity(this, occupant, place, common));
@@ -48,6 +46,13 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemySpawnFactory<Enem
         return state;
     }
 
+    /// <summary>What <see cref="RunMochtroidMain"/> does for each <see cref="MochtroidMovementMode"/> member, each member's own arm.</summary>
+    private IdentityTable<MochtroidMovementMode, Action<RoomEnemyPlace, SamusState, RoomLevelData, MochtroidEnemyState>> RunMochtroidMainForMochtroidMovementMode => field ??= new(new Dictionary<MochtroidMovementMode, Action<RoomEnemyPlace, SamusState, RoomLevelData, MochtroidEnemyState>>
+    {
+        [MochtroidMovementMode.NotTouchingSamus] = (place, samus, level, state) => RunMochtroidFreeFlight(place, state, samus, level),
+        [MochtroidMovementMode.TouchingSamus] = (place, samus, level, state) => RunMochtroidAttachedFlight(place, state, samus, level),
+    });
+
     /// <summary>Runs a Mochtroid for one update, resetting its movement before it moves.</summary>
     private void RunMochtroidMain(
         RoomEnemyPlace place, MochtroidEnemyState state,
@@ -56,18 +61,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemySpawnFactory<Enem
     {
         MochtroidMovementMode selectedMode = state.MovementMode;
         state.MovementMode = MochtroidMovementMode.NotTouchingSamus;
-        switch (selectedMode)
-        {
-            case MochtroidMovementMode.NotTouchingSamus:
-                RunMochtroidFreeFlight(place, state, samus, level);
-                return;
-            case MochtroidMovementMode.TouchingSamus:
-                RunMochtroidAttachedFlight(place, state, samus, level);
-                return;
-            default:
-                throw new InvalidDataException(
-                    $"Mochtroid movement {selectedMode} is not one of its two movements.");
-        }
+        RunMochtroidMainForMochtroidMovementMode[selectedMode](place, samus, level, state);
     }
 
     /// <summary>Accelerates toward Samus, resolving Y before X and clearing velocity on terrain contact.</summary>
@@ -194,9 +188,8 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemySpawnFactory<Enem
 
     /// <summary>Advances Mochtroid's typed animation.</summary>
     internal static void AdvanceMochtroidTypedAnimation(RoomEnemyPlace place, MochtroidEnemyState mochtroidEnemyState) =>
-        EnemyAnimationPlayback.Advance(place, mochtroidEnemyState, MochtroidAnimations.Segments,
-            static (MochtroidEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
-            static (state, cue) => throw new InvalidOperationException($"Mochtroid's cue-free animation raised {cue}."));
+        EnemyAnimationPlayback.AdvanceSilently(place, mochtroidEnemyState, MochtroidAnimations.Segments,
+            static (MochtroidEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback);
 
     /// <summary>Runs Mochtroid's main AI.</summary>
     internal void RunMochtroidMainAi(RoomEnemyPlace place, MochtroidEnemyState mochtroidEnemyState, IEnemyAiFrame frame)

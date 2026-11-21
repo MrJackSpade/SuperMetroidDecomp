@@ -8,8 +8,6 @@ namespace SuperMetroid.Core.Enemies.Shaktool;
 [RoomLifetime]
 internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemySpawnFactory<ShaktoolSpawnSettings>
 {
-    /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Shaktool];
 
     /// <summary>
     /// A chain's leading saw, which starts its chain and offers the segments its room lists after it the creation that
@@ -282,6 +280,19 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemySpawnFactory<Shakt
             chain.Motion = chain.Motion with { Phase = ShaktoolChainPhase.Straightening };
     }
 
+    /// <summary>What <see cref="ReverseShaktoolAfterCollision"/> does for each <see cref="ShaktoolWallResponse"/> member, each member's own arm.</summary>
+    private static IdentityTable<ShaktoolWallResponse, Action<RoomEnemyPlace, Position16<RoomPixels>, ShaktoolChain, ShaktoolChainMotion>> ReverseShaktoolAfterCollisionForShaktoolWallResponse => field ??= new(new Dictionary<ShaktoolWallResponse, Action<RoomEnemyPlace, Position16<RoomPixels>, ShaktoolChain, ShaktoolChainMotion>>
+    {
+        [ShaktoolWallResponse.ReverseOrbit] = (place, previous, chain, motion) => chain.Motion = new(ShaktoolChainPhase.Curling, ShaktoolWallResponse.TurnEndForEnd, motion.OrbitDirection.Reversed()),
+        [ShaktoolWallResponse.TurnEndForEnd] = (place, previous, chain, motion) =>
+        {
+            place.Position = place.Position.WithWhole(previous);
+            ReverseShaktoolChainEndpoints(chain);
+            // The chain curls again, and the next wall reverses its orbit (#2284).
+            chain.Motion = motion with { Phase = ShaktoolChainPhase.Curling, NextWall = ShaktoolWallResponse.ReverseOrbit };
+        },
+    });
+
     /// <summary>
     /// Reverses the chain at terrain contact as its next wall response says: it turns end for end, or its orbit turns the
     /// other way round; either way it curls again and turns toward a new target.
@@ -293,22 +304,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemySpawnFactory<Shakt
         ShaktoolChain chain)
     {
         ShaktoolChainMotion motion = chain.Motion;
-        switch (motion.NextWall)
-        {
-            case ShaktoolWallResponse.ReverseOrbit:
-                chain.Motion = new(ShaktoolChainPhase.Curling, ShaktoolWallResponse.TurnEndForEnd, motion.OrbitDirection.Reversed());
-                break;
-
-            case ShaktoolWallResponse.TurnEndForEnd:
-                place.Position = place.Position.WithWhole(previous);
-                ReverseShaktoolChainEndpoints(chain);
-                // The chain curls again, and the next wall reverses its orbit (#2284).
-                chain.Motion = motion with { Phase = ShaktoolChainPhase.Curling, NextWall = ShaktoolWallResponse.ReverseOrbit };
-                break;
-
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(ShaktoolWallResponse)} {motion.NextWall}.");
-        }
+        ReverseShaktoolAfterCollisionForShaktoolWallResponse[motion.NextWall](place, previous, chain, motion);
 
         state.ResetOrientation();
         RoomEnemyPlace owner = chain.LeadingSaw;
@@ -396,34 +392,32 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemySpawnFactory<Shakt
         }
     }
 
-    /// <summary>Carries out one cue of a Shaktool segment's animation.</summary>
-    private static void ApplyShaktoolCue(RoomEnemyPlace place, ShaktoolChain chain, ShaktoolCue cue)
+    /// <summary>What <see cref="ApplyShaktoolCue"/> does for each <see cref="ShaktoolCueKind"/> member, each member's own arm.</summary>
+    private static IdentityTable<ShaktoolCueKind, Action<RoomEnemyPlace, ShaktoolChain, ShaktoolCue>> ApplyShaktoolCueForShaktoolCueKind => field ??= new(new Dictionary<ShaktoolCueKind, Action<RoomEnemyPlace, ShaktoolChain, ShaktoolCue>>
     {
-        switch (cue.Kind)
+        [ShaktoolCueKind.Lower] = ApplyShaktoolCueForShaktoolCueKindLower,
+        [ShaktoolCueKind.Raise] = ApplyShaktoolCueForShaktoolCueKindLower,
+        [ShaktoolCueKind.ResumeMotion] = (_, chain, _) =>
         {
-            case ShaktoolCueKind.Lower:
-            case ShaktoolCueKind.Raise:
-            {
-                TrigonometryAngle targetDirection = chain.TargetAngle.ToTrigonometryAngle();
-                MoveShaktoolSegmentForAnimation(
-                    place,
-                    cue.Kind == ShaktoolCueKind.Lower
-                        ? targetDirection + TrigonometryAngle.HalfTurn
-                        : targetDirection);
-                break;
-            }
+            foreach (ShaktoolChainSegment segment in chain.Segments)
+                segment.Reached.Motion = segment.Definition.Motion;
+        },
+    });
 
-            case ShaktoolCueKind.ResumeMotion:
-            {
-                foreach (ShaktoolChainSegment segment in chain.Segments)
-                    segment.Reached.Motion = segment.Definition.Motion;
-                break;
-            }
-
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(ShaktoolCueKind)} {cue.Kind}.");
-        }
+    /// <summary>What <see cref="ApplyShaktoolCueForShaktoolCueKind"/> does for <see cref="ShaktoolCueKind.Lower"/>, <see cref="ShaktoolCueKind.Raise"/>.</summary>
+    private static void ApplyShaktoolCueForShaktoolCueKindLower(RoomEnemyPlace place, ShaktoolChain chain, ShaktoolCue cue)
+    {
+        TrigonometryAngle targetDirection = chain.TargetAngle.ToTrigonometryAngle();
+        MoveShaktoolSegmentForAnimation(
+            place,
+            cue.Kind == ShaktoolCueKind.Lower
+                ? targetDirection + TrigonometryAngle.HalfTurn
+                : targetDirection);
     }
+
+    /// <summary>Carries out one cue of a Shaktool segment's animation.</summary>
+    private static void ApplyShaktoolCue(RoomEnemyPlace place, ShaktoolChain chain, ShaktoolCue cue) =>
+        ApplyShaktoolCueForShaktoolCueKind[cue.Kind](place, chain, cue);
 
     /// <summary>Moves the segment one update along <paramref name="angle"/>, a pixel at most, as its cue raises or lowers it.</summary>
     private static void MoveShaktoolSegmentForAnimation(RoomEnemyPlace place, TrigonometryAngle angle)

@@ -14,7 +14,7 @@ internal static class EndingLogoAnimations
 {
     /// <summary>The logo's halves' animations.</summary>
     internal static CinematicAnimations<EndingLogoAnimation, CinematicSpritePose, EndingLogoCue> Logo { get; } = new(
-        new Dictionary<EndingLogoAnimation, AnimationBeat<CinematicSpritePose, EndingLogoCue>[]>
+        new Dictionary<EndingLogoAnimation, IHidingAnimationBeat<CinematicSpritePose, EndingLogoCue>[]>
         {
             [A.UpperS] = [B.Hold(S.LogoSUpper)],
             [A.LowerS] = [B.Hold(S.LogoSLower)],

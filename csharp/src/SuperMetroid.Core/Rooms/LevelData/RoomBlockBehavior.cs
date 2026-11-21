@@ -206,7 +206,6 @@ public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
     /// </exception>
     public RoomBlockBehavior In(AreaId area)
     {
-        _ = AreaIds.Require(area);
         RoomBlockReadings readings = Readings;
         if (!UnresolvedOf.TryGetValue(readings, out RoomBlockReadings? unresolved))
             return this;
@@ -217,7 +216,7 @@ public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
     }
 
     /// <summary>The reaction shootable blocks and shootable air read, or null when they have none for this behaviour.</summary>
-    public ShootableReaction? Shootable => Readings.Shootable;
+    public ShootableReaction Shootable => Readings.Shootable;
 
     /// <summary>The reaction bombable blocks and bombable air read, or null when they have none for this behaviour.</summary>
     public BombableReaction? Bombable => Readings.Bombable;
@@ -250,7 +249,7 @@ public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
     /// <exception cref="InvalidOperationException"><paramref name="family"/> is undefined.</exception>
     public BlockReaction? ReactionIn(BlockReactionFamily family) => family switch
     {
-        BlockReactionFamily.Shootable => Shootable is { } shootable ? BlockReaction.Of(shootable) : null,
+        BlockReactionFamily.Shootable => BlockReaction.Of(Shootable),
         BlockReactionFamily.Bombable => Bombable is { } bombable ? BlockReaction.Of(bombable) : null,
         BlockReactionFamily.Special => Special is { } special ? BlockReaction.Of(special) : null,
         BlockReactionFamily.SpecialAir => SpecialAir is { } specialAir ? BlockReaction.Of(specialAir) : null,
@@ -317,7 +316,7 @@ public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
     public override string ToString()
     {
         RoomBlockReadings readings = Readings;
-        return $"shootable {Named(readings.Shootable)}, bombable {Named(readings.Bombable)}, special {Named(readings.Special)}, " +
+        return $"shootable {Named<ShootableReaction>(readings.Shootable)}, bombable {Named(readings.Bombable)}, special {Named(readings.Special)}, " +
             $"special air {Named(readings.SpecialAir)}, spike {Named(readings.Spike)}, grapple {Named(readings.Grapple)}, " +
             $"slope {readings.Slope.Shape} {readings.Slope.Mirroring}, extension {readings.ExtensionOffset}";
     }

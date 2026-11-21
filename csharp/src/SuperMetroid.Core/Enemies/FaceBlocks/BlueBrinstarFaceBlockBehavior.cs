@@ -19,9 +19,6 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyLoade
         };
 
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.FaceBlock];
-
-    /// <inheritdoc/>
     public EnemyOccupant CreateLoaded(RoomEnemyOccupant occupant, FaceBlockSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common,
         EnemyPopulationSurroundings surroundings) => EnemyOccupant.Running(new BlueBrinstarFaceBlockEntity(this, occupant, place, common, surroundings, settings));
 
@@ -146,8 +143,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyLoade
         if (!place.AnimationClock.Expire())
             return;
         AnimationPlayback<BlueBrinstarFaceBlockSegment> playback = state.Playback;
-        EnemyAnimationPlayback.Play(place, BlueBrinstarFaceBlockAnimations.Segments, ref playback,
-            static cue => throw new InvalidOperationException($"A cue-free blue Brinstar face block animation raised {cue}."));
+        EnemyAnimationPlayback.PlaySilently(place, BlueBrinstarFaceBlockAnimations.Segments, ref playback);
         state.Playback = playback;
     }
 

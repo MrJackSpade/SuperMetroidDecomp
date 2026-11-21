@@ -10,6 +10,6 @@ internal sealed class MotherBrainHandBeamAnimation(IEnemyProjectileCues<MotherBr
         MotherBrainHandBeamSegment.Stage, MotherBrainHandBeamAnimations.StartingAt[MotherBrainHandBeamSegment.Stage], EnemyProjectileCueRunner<MotherBrainHandBeamSegment, MotherBrainHandBeamCue>.By(owner))
 {
     /// <inheritdoc/>
-    private protected override AnimationSegments<MotherBrainHandBeamSegment, EnemyProjectileFrameId, MotherBrainHandBeamCue> Segments =>
+    private protected override IUnpausedAnimationPlay<MotherBrainHandBeamSegment, EnemyProjectileFrameId, MotherBrainHandBeamCue> Segments =>
         MotherBrainHandBeamAnimations.Segments;
 }

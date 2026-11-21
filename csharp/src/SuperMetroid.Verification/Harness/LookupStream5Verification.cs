@@ -603,7 +603,7 @@ internal static class LookupStream5Verification
                         // The cartridge's first slot shows the area boss's flag.
                         AssertEqual(0, count, "Native used boss slot is the area boss's");
                         MapBossMarker marker = markers[shown++];
-                        AssertEqual(DefeatedBosses.AreaBoss, Ensure.Listed(AreaBossDefinitions.Bosses, marker.Boss).RecordedAs, "Named marker shows the area boss");
+                        AssertEqual(DefeatedBosses.AreaBoss, AreaBossDefinitions.Bosses[marker.Boss].RecordedAs, "Named marker shows the area boss");
                         AssertEqual(Read(pointer + count * 4), layout.Get(marker.Id).X, "Native semantic boss X");
                         AssertEqual(Read(pointer + count * 4 + 2), layout.Get(marker.Id).Y, "Native semantic boss Y");
                     }
@@ -612,7 +612,7 @@ internal static class LookupStream5Verification
             AssertEqual(shown, markers.Length, "Every named marker stands in a used native slot");
             bossSlots += count;
             if (area == AreaId.Ceres) continue;
-            var elevators = MapLandmarks.Elevators(area);
+            var elevators = MapLandmarks.Elevators(ZebesAreaFixtures.Of(area));
             pointer = Root(MapSourceDefinitions.Landmarks.ElevatorLists, area);
             count = 0;
             while (Read(pointer + count * 6) != ushort.MaxValue)
@@ -671,7 +671,6 @@ internal static class LookupStream5Verification
             void Draw(MapSpriteId id, int x, int y, MapSpriteColouring colouring) => MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(sprites), id, expected, Offset16<ScreenPixels>.Wrapped(x - 7, y - 9), MapSpriteScreen.FileSelect, colouring);
         }
         AssertThrows<ArgumentOutOfRangeException>(() => MapLandmarks.BossMarkers((AreaId)7), "Invalid boss area");
-        AssertEqual(0, MapLandmarks.Elevators(AreaId.Ceres).Length, "Ceres has no elevator labels");
         AssertEqual(8, bossSlots, "Eight native boss slots including three unused");
         AssertEqual(17, elevatorSlots, "Seventeen native destination labels");
         Console.WriteLine("Map landmark cases: eight native boss slots, seventeen destinations, extraction/schema, 23 ordered IDs, bounds and 28 stock ordered OAM/state cases pass.");

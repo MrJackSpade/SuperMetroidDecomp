@@ -64,6 +64,12 @@ public sealed class FramesBeyondAnimation<TAnimation, TFrame, TPlace, TStep>
     /// <summary>The frame each named place lands on in each animation it does not belong to.</summary>
     private readonly IReadOnlyDictionary<TPlace, IReadOnlyDictionary<TAnimation, TFrame>> _landings;
 
+    /// <summary>
+    /// The ticks the timer starts from on each frame a pose start or a cue can move an animation to that holds no delay of
+    /// the animation's own, by animation and frame.
+    /// </summary>
+    private readonly IReadOnlyDictionary<TAnimation, IReadOnlyDictionary<TFrame, int>> _delaysRead;
+
     /// <summary>Keeps every animation's cue-value steps, frames after cues and read-past outcomes and every place's landings.</summary>
     /// <param name="cueValueSteps">Every animation of the layout, with the step each of its cue values' frames reads.</param>
     /// <param name="framesAfterCues">
@@ -72,16 +78,24 @@ public sealed class FramesBeyondAnimation<TAnimation, TFrame, TPlace, TStep>
     /// </param>
     /// <param name="readsPast">What each frame read past an animation's end reaches, for animations of the layout.</param>
     /// <param name="landings">The frame each named place lands on in animations of the layout.</param>
-    /// <exception cref="ArgumentException">An outcome or landing names an animation outside the layout.</exception>
+    /// <param name="delaysRead">
+    /// For animations of the layout, the ticks the timer starts from on each frame a pose start or a cue can move the
+    /// animation to that holds no delay of its own (<see cref="DelayRead"/>).
+    /// </param>
+    /// <exception cref="ArgumentException">An outcome, landing or delay read names an animation outside the layout.</exception>
     public FramesBeyondAnimation(IReadOnlyDictionary<TAnimation, IReadOnlyDictionary<TFrame, TStep>> cueValueSteps,
         IReadOnlyDictionary<TAnimation, IReadOnlyDictionary<TFrame, TFrame>> framesAfterCues,
         IReadOnlyDictionary<TAnimation, IReadOnlyDictionary<TFrame, Read>> readsPast,
-        IReadOnlyDictionary<TPlace, IReadOnlyDictionary<TAnimation, TFrame>> landings)
+        IReadOnlyDictionary<TPlace, IReadOnlyDictionary<TAnimation, TFrame>> landings,
+        IReadOnlyDictionary<TAnimation, IReadOnlyDictionary<TFrame, int>> delaysRead)
     {
         Ensure.NotNull(cueValueSteps);
         Ensure.NotNull(framesAfterCues);
         Ensure.NotNull(readsPast);
         Ensure.NotNull(landings);
+        Ensure.NotNull(delaysRead);
+        if (delaysRead.Keys.Any(animation => !cueValueSteps.ContainsKey(animation)))
+            throw new ArgumentException("Delays read name an animation outside the layout.", nameof(delaysRead));
         if (framesAfterCues.Keys.Any(animation => !cueValueSteps.ContainsKey(animation)))
             throw new ArgumentException("Frames after cues name an animation outside the layout.", nameof(framesAfterCues));
         foreach (KeyValuePair<TAnimation, IReadOnlyDictionary<TFrame, Read>> pair in readsPast)
@@ -100,7 +114,20 @@ public sealed class FramesBeyondAnimation<TAnimation, TFrame, TPlace, TStep>
         _framesAfterCues = framesAfterCues;
         _readsPast = readsPast;
         _landings = landings;
+        _delaysRead = delaysRead;
     }
+
+    /// <summary>
+    /// The ticks the timer starts from when a pose starts <paramref name="animation"/> on <paramref name="frame"/>, or a cue
+    /// moves it there, where the frame holds no delay of the animation's own: the game starts the timer from the frame's byte
+    /// whatever it holds, a value a cue carries, a cue or a byte of an animation laid out after it, and the import decoded
+    /// that byte once.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The installation holds no delay read at this frame.</exception>
+    public int DelayRead(TAnimation animation, TFrame frame) =>
+        _delaysRead.TryGetValue(animation, out IReadOnlyDictionary<TFrame, int>? frames) && frames.TryGetValue(frame, out int ticks)
+            ? ticks
+            : throw new InvalidDataException($"Animation {animation} has no installed delay read at {frame}.");
 
     /// <summary>
     /// The step <paramref name="frame"/> of <paramref name="animation"/> reads when it lands on a value one of the

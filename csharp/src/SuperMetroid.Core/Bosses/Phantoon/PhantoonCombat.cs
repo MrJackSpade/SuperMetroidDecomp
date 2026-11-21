@@ -127,21 +127,18 @@ internal sealed class PhantoonCombat
         internal EnemyProjectileOwnedMotion SpiralOrbiting => field ??= new(nameof(SpiralOrbiting),
             context => RunPhantoonSpiralFlame(context.Projectile));
 
+        /// <summary>What <see cref="RunCue"/> does for each <see cref="PhantoonFlameCue"/> member, each member's own arm.</summary>
+        private IdentityTable<PhantoonFlameCue, Action<EnemyProjectileCueContext, EnemyProjectile>> RunCueForPhantoonFlameCue => field ??= new(new Dictionary<PhantoonFlameCue, Action<EnemyProjectileCueContext, EnemyProjectile>>
+        {
+            [PhantoonFlameCue.SpawnDrop] = (context, projectile) => RequestPhantoonFlameDrop(projectile, context.Samus),
+            [PhantoonFlameCue.Delete] = (context, projectile) => projectile.Delete(),
+        });
+
         /// <summary>Carries out a flame animation's cue: the flame's drop, or its deletion.</summary>
         public void RunCue(EnemyProjectileCueContext context, PhantoonFlameCue cue)
         {
             EnemyProjectile projectile = context.Projectile;
-            switch (cue)
-            {
-                case PhantoonFlameCue.SpawnDrop:
-                    RequestPhantoonFlameDrop(projectile, context.Samus);
-                    return;
-                case PhantoonFlameCue.Delete:
-                    projectile.Delete();
-                    return;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(PhantoonFlameCue)} {cue}.");
-            }
+            RunCueForPhantoonFlameCue[cue](context, projectile);
         }
 
         /// <summary>Holds an intro flame until its delayed orbit begins.</summary>
@@ -302,12 +299,7 @@ internal sealed class PhantoonCombat
                 return;
             }
 
-            if (hitboxShot != PhantoonReactions.Shot)
-            {
-                throw new InvalidDataException(
-                    $"Phantoon has no response to shot reaction {hitboxShot}.");
-            }
-
+            // Every other rectangle names his own shot (PhantoonCollisionDefinitions makes each so).
             // The shot is marked as having struck before Phantoon's reaction, whose damage does not turn it into an
             // explosion: the shot ends on its own next update, while a Plasma shot that passes through enemies keeps
             // its type, direction and animation.
@@ -541,17 +533,14 @@ internal sealed class PhantoonCombat
 
 
     /// <summary>Runs Phantoon's body contact through the shared enemy collision path.</summary>
+    /// <remarks>
+    /// His touches always meet his frames' hitboxes, each made touching as his own or, at the solidifying centre, ignoring
+    /// (<see cref="PhantoonCollisionDefinitions"/>).
+    /// </remarks>
     internal void ReactToPhantoonBodyTouch(EnemyTouchContext context)
     {
-        if (!context.UsesFrameHitboxes)
-            throw new InvalidDataException("Phantoon requires his authored extended touch hitboxes.");
         if (context.HitboxTouch == EnemyReaction.Ignore)
             return;
-        if (context.HitboxTouch != PhantoonReactions.Touch)
-        {
-            throw new InvalidDataException(
-                $"Phantoon has no response to touch reaction {context.HitboxTouch}.");
-        }
         _collision.ResolveOrdinaryTouch(context, TouchDeathAnimation.Skip);
     }
 

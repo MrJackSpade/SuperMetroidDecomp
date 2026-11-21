@@ -12,8 +12,6 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 [RoomLifetime]
 internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawnSettings>
 {
-    /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.CorpseTorizo];
 
     /// <inheritdoc/>
     public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new DeadTorizoEntity(this, occupant, place, common));
@@ -61,6 +59,28 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemySpawnFactory<Ene
         return state;
     }
 
+    /// <summary>What <see cref="RunDeadTorizoMain"/> does for each <see cref="CorpsePhase"/> member, each member's own arm.</summary>
+    private IdentityTable<CorpsePhase, Action<RoomEnemyPlace, SamusState, DeadTorizoEnemyState>> RunDeadTorizoMainForDeadTorizoPhase => field ??= new(new Dictionary<CorpsePhase, Action<RoomEnemyPlace, SamusState, DeadTorizoEnemyState>>
+    {
+        [CorpsePhase.Waiting] = WaitToRot,
+        [CorpsePhase.PreRotDelay] = WaitToRot,
+        [CorpsePhase.Rotting] = (place, samus, state) => RunDeadTorizoRotting(place, state),
+        [CorpsePhase.Finished] = (place, samus, state) =>
+        {
+        },
+    });
+
+    /// <summary>
+    /// Waits for Samus's touch and then the delay before the corpse rots; the update its delay runs out on, the corpse
+    /// already rots.
+    /// </summary>
+    private void WaitToRot(RoomEnemyPlace place, SamusState samus, DeadTorizoEnemyState state)
+    {
+        state.Phase = CorpseRotWait.Step(state.Phase, place, samus, state.PreRotDelay);
+        if (state.Phase == CorpsePhase.Rotting)
+            RunDeadTorizoRotting(place, state);
+    }
+
     /// <summary>Runs the dead Torizo's main AI.</summary>
     private void RunDeadTorizoMain(RoomEnemyPlace place, DeadTorizoEnemyState state, SamusState samus)
     {
@@ -73,29 +93,8 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemySpawnFactory<Ene
             TriggerDeadTorizoRotting(place, state);
         }
 
-        switch (state.Phase)
-        {
-            case CorpsePhase.Waiting:
-            case CorpsePhase.PreRotDelay:
-                // The update its delay runs out on, the corpse already rots.
-                state.Phase = CorpseRotWait.Step(state.Phase, place, samus, state.PreRotDelay);
-                if (state.Phase == CorpsePhase.Rotting)
-                    RunDeadTorizoRotting(place, state);
-                break;
-
-            case CorpsePhase.Rotting:
-                RunDeadTorizoRotting(place, state);
-                break;
-
-            case CorpsePhase.Finished:
-                break;
-
-            default:
-                throw new InvalidDataException(
-                    $"Dead Torizo has no behaviour for phase {state.Phase}.");
-        }
+        RunDeadTorizoMainForDeadTorizoPhase[state.Phase](place, samus, state);
     }
-
 
     /// <summary>Advances the corpse's fall and runs one rot update of its schedule.</summary>
     private void RunDeadTorizoRotting(RoomEnemyPlace place, DeadTorizoEnemyState state)
@@ -203,8 +202,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemySpawnFactory<Ene
         if (!place.AnimationClock.Expire())
             return;
         AnimationPlayback<DeadTorizoSegment> playback = state.Playback;
-        EnemyAnimationPlayback.Play(place, DeadTorizoAnimations.Segments, ref playback,
-            static cue => throw new InvalidOperationException($"A cue-free dead Torizo animation raised {cue}."));
+        EnemyAnimationPlayback.PlaySilently(place, DeadTorizoAnimations.Segments, ref playback);
         state.Playback = playback;
     }
 

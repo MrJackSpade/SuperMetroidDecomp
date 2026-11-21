@@ -23,16 +23,13 @@ internal static class IntroMotherBrainInputDefinitionsVerification
         compiled.Clear();
         compiled.Enable();
         reference.Enable();
-        compiled.Load(DemoInputRecordingId.IntroMotherBrainFlashback);
+        // The flashback's signal runs its owner's end routine, which disables the object.
+        compiled.Load(DemoSignallingRecordingId.IntroMotherBrainFlashback, compiled.Disable);
         reference.Load(DemoInputListWords.IntroMotherBrainFlashbackObject, initializationParameter: 0);
         int endFrame = -1;
         for (int frame = 0; frame < 1024; frame++)
         {
-            compiled.Step(cue =>
-            {
-                AssertEqual(DemoInputCue.EndIntroMotherBrainFlashback, cue, $"intro Mother Brain demo routine frame {frame}");
-                compiled.Disable();
-            });
+            compiled.Step();
             reference.Step(NativeDemoInputReference.ReturnOnly, (state, routine) =>
             {
                 AssertEqual(DemoInputListWords.EndIntroMotherBrainFlashbackRoutine, routine, $"intro Mother Brain native routine frame {frame}");

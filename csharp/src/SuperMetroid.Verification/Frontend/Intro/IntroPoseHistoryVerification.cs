@@ -26,10 +26,11 @@ internal static class IntroPoseHistoryVerification
     internal static void VerifyIntroPoseHistory()
     {
         Suite(nameof(VerifyIntroScenePoseHistory), () => VerifyIntroScenePoseHistory());
-        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.FacingLeftNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 235)) };
-        var entries = new RoomTerrainBlock[16 * 32];
-        for (int x = 0; x < 16; x++) entries[16 * 16 + x] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
-        var room = CreateRoom(new(16, 32), entries, new RoomBlockBehavior[entries.Length]);
+        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 235)) }.InPose(SamusPoseId.FacingLeftNormalPose);
+        // The intro's rooms are plain terrains: air, with a solid floor row.
+        var blocks = new PlainTerrainBlock[16 * 32];
+        for (int x = 0; x < 16; x++) blocks[16 * 16 + x] = PlainTerrainBlock.Solid;
+        var room = new PlainTerrain(new Extent16<RoomBlocks>(16, 32), blocks);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         var history = samus.PoseHistory;
@@ -72,7 +73,31 @@ internal static class IntroPoseHistoryVerification
         bool pageTwoText = false;
         for (int tick = 0; intro.Phase != IntroCinematicPhase.BabyDiscoveryCrossfade; tick++)
         {
+<<<<<<< ours
             AssertTrue(tick < 20_000, $"the intro reaches the discovery; it stands in {intro.Phase}");
+||||||| base
+            SamusState? before = intro.CurrentFlashbackSamus;
+            SamusPoseId? oldPose = before?.Pose;
+            SamusPoseId priorPose = before?.PoseHistory.PreviousPose ?? 0;
+            SamusMovementType priorMetadata = before?.PoseHistory.PreviousMovement ?? SamusMovementType.Standing;
+            SamusMovementType olderMetadata = before?.PoseHistory.MovementBeforePrevious ?? SamusMovementType.Standing;
+            bool demoEnabled = intro.CurrentFlashbackDemoInput?.Enabled == true;
+            bool hurtExpiry = before is { KnockbackHold.UpdatesLeft: 0, KnockbackDirection: not 0 };
+            // Publishing the display runs the draw passes whose side effects the scene keeps (projectile trails), as the
+            // frontend publishes every frame; rasterising it is the host's work, and nothing here reads pixels.
+            _ = intro.ComposeScene();
+=======
+            SamusState? before = intro.CurrentFlashbackSamus;
+            SamusPoseId? oldPose = before?.Pose;
+            SamusPoseId priorPose = before?.PoseHistory.PreviousPose ?? 0;
+            SamusMovementType priorMetadata = before?.PoseHistory.PreviousMovement ?? SamusMovementType.Standing;
+            SamusMovementType olderMetadata = before?.PoseHistory.MovementBeforePrevious ?? SamusMovementType.Standing;
+            bool demoEnabled = intro.CurrentFlashbackDemoInput?.Enabled == true;
+            bool hurtExpiry = before is { KnockbackHold.UpdatesLeft: 0, KnockbackDirection: not null };
+            // Publishing the display runs the draw passes whose side effects the scene keeps (projectile trails), as the
+            // frontend publishes every frame; rasterising it is the host's work, and nothing here reads pixels.
+            _ = intro.ComposeScene();
+>>>>>>> theirs
             intro.Step(tick % 47 == 0 ? ControllerButton.A : 0);
             audio.AdvanceFrame(default);
             // Publishing the display runs the draw passes whose side effects the scene keeps (projectile trails), as the
@@ -98,6 +123,10 @@ internal static class IntroPoseHistoryVerification
     [VerificationCommand("--frontend-fixtures")]
     internal static int FrontendFixturesCommand()
     {
-     VerifyIntroPoseHistory(); VerifyFrontendRenderCapture(); VerifyGameplayCaptureIntegration(); VerifyAttractCapture(); return 0; 
+        Suite(nameof(VerifyIntroPoseHistory), VerifyIntroPoseHistory);
+        Suite(nameof(VerifyFrontendRenderCapture), VerifyFrontendRenderCapture);
+        Suite(nameof(VerifyGameplayCaptureIntegration), VerifyGameplayCaptureIntegration);
+        Suite(nameof(VerifyAttractCapture), VerifyAttractCapture);
+        return 0;
     }
 }

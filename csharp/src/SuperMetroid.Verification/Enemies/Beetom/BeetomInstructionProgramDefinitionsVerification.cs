@@ -172,7 +172,7 @@ internal static class BeetomInstructionProgramDefinitionsVerification
     {
         RunBeetomCalls(arguments, place, callsThroughGoto);
         AnimationPlayback<BeetomSegment> playback = state.Playback;
-        int cycle = playback.Animation.CyclePhase;
+        int cycle = ((AnimationEnd.Loop)playback.Animation.End).Phase;
         AnimationPhase<BeetomSegment> loop = playback.Animation.Phases[cycle];
         AssertTrue(playback.Place.Phase == cycle && playback.Place.Beat == 1 && ReferenceEquals(playback.Animation, BeetomAnimations.StartingWith(animation)),
             $"Beetom {animation} loops back and shows its loop's first pose");

@@ -1,19 +1,15 @@
 namespace SuperMetroid.Core.Enemies.Hoppers;
 
-/// <summary>Chooses a Sidehopper's or Dessgeega's kind from its definition, and its animation for its kind, surface and movement phase.</summary>
+/// <summary>Chooses a Sidehopper's or Dessgeega's animation for its kind, surface and movement phase.</summary>
 internal static class HopperAnimationChoices
 {
-    /// <summary>The kind of hopper <paramref name="definition"/> is.</summary>
-    /// <exception cref="InvalidDataException">The definition is no hopper.</exception>
-    internal static HopperKind KindOf(EnemyDefinitionId definition) =>
-        HopperKindDefinitions.Kinds.TryGetValue(definition, out HopperKind kind)
-            ? kind
-            : throw new InvalidDataException($"Enemy definition {definition} is no hopper.");
+    /// <summary>
+    /// Each kind's animation on each surface in each phase, read once from <see cref="HopperAnimationDefinitions.Animations"/>
+    /// when it is built, so a combination the definitions leave out fails there and no lookup can miss (#2553).
+    /// </summary>
+    private static readonly IdentityTable<HopperKind, IdentityTable<HopperSurface, IdentityTable<HopperPhase, HopperSegment>>> Animations =
+        new(kind => new(surface => new(phase => HopperAnimationDefinitions.Animations[new(kind, surface, phase)])));
 
     /// <summary>The animation of a <paramref name="kind"/> hopper on <paramref name="surface"/> in <paramref name="phase"/>.</summary>
-    /// <exception cref="InvalidDataException">The kind is undefined.</exception>
-    internal static HopperSegment Animation(HopperKind kind, HopperSurface surface, HopperPhase phase) =>
-        HopperAnimationDefinitions.Animations.TryGetValue(new HopperAnimationKey(kind, surface, phase), out HopperSegment segment)
-            ? segment
-            : throw new InvalidDataException($"Undefined {nameof(HopperKind)} {kind}.");
+    internal static HopperSegment Animation(HopperKind kind, HopperSurface surface, HopperPhase phase) => Animations[kind][surface][phase];
 }

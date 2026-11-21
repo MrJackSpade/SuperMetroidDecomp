@@ -11,8 +11,8 @@ namespace SuperMetroid.Core.Enemies.Alcoon;
 internal static class AlcoonFireballAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<AlcoonFireballSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(
-        new Dictionary<AlcoonFireballSegment, AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>[]>
+    internal static UnpausedAnimationSegments<AlcoonFireballSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(
+        new Dictionary<AlcoonFireballSegment, AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Unpaused[]>
     {
         [P.Spinning] =
         [
@@ -30,5 +30,5 @@ internal static class AlcoonFireballAnimations
     };
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Frame(frame, duration);
+    private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Unpaused Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Frame(frame, duration);
 }

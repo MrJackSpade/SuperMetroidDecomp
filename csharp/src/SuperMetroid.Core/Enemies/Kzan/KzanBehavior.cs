@@ -65,34 +65,22 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         bottom.Position = bottom.Position.WithWhole(new(top.Position.X.Whole, top.Position.Y.Whole + KzanMotionDefinitions.BottomBelowTop));
     }
 
+    /// <summary>What <see cref="RunKzanTopMain"/> does for each <see cref="KzanAction"/> member, each member's own arm.</summary>
+    private IdentityTable<KzanAction, Action<KzanSpawnSettings, RoomEnemyPlace, KzanEnemyState, SamusState>> RunKzanTopMainForKzanAction => field ??= new(new Dictionary<KzanAction, Action<KzanSpawnSettings, RoomEnemyPlace, KzanEnemyState, SamusState>>
+    {
+        [KzanAction.WaitingToFall] = (settings, place, state, samus) => RunKzanWaitingToFall(settings, state),
+        [KzanAction.Falling] = (_, place, state, samus) => RunKzanFalling(place, state, samus),
+        [KzanAction.WaitingToRise] = (_, place, state, samus) => RunKzanWaitingToRise(state),
+        [KzanAction.Rising] = (_, place, state, samus) => RunKzanRising(place, state, samus),
+    });
+
     /// <summary>Runs the top actor through fall wait, accelerated descent, rise wait, and slow ascent.</summary>
     private void RunKzanTopMain(
         KzanSpawnSettings kzanSpawnSettings, RoomEnemyPlace place,
         KzanEnemyState state,
         SamusState samus)
     {
-        switch (state.Action)
-        {
-            case KzanAction.WaitingToFall:
-                RunKzanWaitingToFall(kzanSpawnSettings, state);
-                return;
-
-            case KzanAction.Falling:
-                RunKzanFalling(place, state, samus);
-                return;
-
-            case KzanAction.WaitingToRise:
-                RunKzanWaitingToRise(state);
-                return;
-
-            case KzanAction.Rising:
-                RunKzanRising(place, state, samus);
-                return;
-
-            default:
-                throw new InvalidDataException(
-                    $"Kzan has no behaviour for action {state.Action}.");
-        }
+        RunKzanTopMainForKzanAction[state.Action](kzanSpawnSettings, place, state, samus);
     }
 
     /// <summary>Decrements the wrapping top wait and resets the fall speed when descent begins.</summary>
@@ -173,9 +161,8 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Kzan's typed animation.</summary>
     internal static void AdvanceKzanTypedAnimation(RoomEnemyPlace place, KzanEnemyState kzanEnemyState) =>
-        EnemyAnimationPlayback.Advance(place, kzanEnemyState, KzanAnimations.Segments,
-            static (KzanEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
-            static (_, cue) => throw new InvalidOperationException($"A cue-free Kzan animation raised {cue}."));
+        EnemyAnimationPlayback.AdvanceSilently(place, kzanEnemyState, KzanAnimations.Segments,
+            static (KzanEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback);
 
     /// <summary>Runs KzanTop's main AI.</summary>
     internal void RunKzanTopMainAi(KzanSpawnSettings kzanSpawnSettings, RoomEnemyPlace place, KzanEnemyState kzanEnemyState, IEnemyAiFrame frame)

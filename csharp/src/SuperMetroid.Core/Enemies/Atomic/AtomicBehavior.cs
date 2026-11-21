@@ -14,6 +14,11 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemySpawnFactory<AtomicS
     /// <inheritdoc/>
     public EnemyOccupant Create(RoomEnemyOccupant occupant, AtomicSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new AtomicEntity(occupant, place, common, settings));
 
+    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
+    /// <param name="place">The place, already holding the occupant.</param>
+    /// <param name="common">The shared participation the entity composes.</param>
+    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new AtomicEntity(occupant, place, common));
 
     /// <summary>Initializes the Atomic.</summary>
     /// <returns>The state the enemy holds from its setup.</returns>
@@ -46,7 +51,6 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemySpawnFactory<AtomicS
 
     /// <summary>Advances Atomic's typed animation.</summary>
     internal static void AdvanceAtomicTypedAnimation(RoomEnemyPlace place, AtomicEnemyState atomicEnemyState) =>
-        EnemyAnimationPlayback.Advance(place, atomicEnemyState, AtomicAnimations.Segments,
-            static (AtomicEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
-            static (_, cue) => throw new InvalidOperationException($"A cue-free Atomic animation raised {cue}."));
+        EnemyAnimationPlayback.AdvanceSilently(place, atomicEnemyState, AtomicAnimations.Segments,
+            static (AtomicEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback);
 }

@@ -40,12 +40,14 @@ internal static class EndingLogoVerification
         AssertTrue(screen.Colours.Shading.Shades.SequenceEqual([EndingShades.Loaded(EndingColourLoad.LogoInitial), EndingShades.Flashed(EndingFlash.LogoBackground)]),
             "the logo shows its first sprite colours and its background colours blacked out (#1597: loads lie under flashes)");
         int frame = 0, fadeStart = 0;
+        bool completed = false;
         var poses = new HashSet<string>();
-        while (!logo.Completed && frame < 300)
+        while (!completed && frame < 300)
         {
             // The actors run their typed programs (#641), which the cinematic sprite oracle matches to the native
-            // lists; the timing and palette assertions below hold them to the cartridge's scene.
-            logo.Step(screen.Colours);
+            // lists; the timing and palette assertions below hold them to the cartridge's scene. The update that shows
+            // the crossfade's last step hands off, as the ending reads it.
+            completed = logo.Step(screen.Colours);
             frame++;
             if (logo.CrossfadeStarted && fadeStart == 0) fadeStart = frame;
             // The screen names the step the logo shows (#2560); the import's shade of that step holds the cartridge's table entry (#1512).
@@ -68,7 +70,7 @@ internal static class EndingLogoVerification
             }
             poses.Add(Convert.ToHexString(ScreenSpritesFixtures.Frame(objects => logo.Draw(objects, logoSprites)).LowTable));
         }
-        AssertTrue(logo.Completed, "logo actors reach the final palette handoff");
+        AssertTrue(completed, "logo actors reach the final palette handoff");
         AssertEqual(171, fadeStart, "native circle list waits 96+5+5+64 frames before grey-out instruction");
         AssertEqual(187, frame, "logo palette handoff follows sixteen function calls");
         AssertEqual(1, landings, "upper logo half spawns its palette FX exactly once on landing");

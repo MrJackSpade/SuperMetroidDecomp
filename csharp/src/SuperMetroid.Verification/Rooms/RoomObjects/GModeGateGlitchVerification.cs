@@ -84,14 +84,14 @@ internal static class GModeGateGlitchVerification
             roomObjects.Step(level);
         gate = roomObjects.PopulationPlaces.Single(place =>
             place.Behaviour is DownwardGateObject);
-        AssertTrue(gate.Behaviour is DownwardGateObject { Phase: DownwardGatePhase.ShowingClosed or DownwardGatePhase.RestingClosed },
+        AssertTrue(gate.Behaviour is DownwardGateObject { Phase: DownwardGatePhase.Closed },
             "the gate is closed before the shot");
         while (roomObjects.Places.ActiveCount < 40)
         {
             AssertTrue(roomObjects.BlockReactions.TrySpawnProjectileShotBlock(
                     level,
                     gate.Block,
-                    DownwardGateDefinitions.ClosedGateBehavior,
+                    ShotBlockReactions.ShotBlocks[DownwardGateDefinitions.ClosedGateBehavior.Shootable],
                     BlockStrike.By(SamusProjectileType.Beam(SamusBeamCombination.Wave, charged: false)),
                     solidBlock: true),
                 "direct G-Mode fixture fills the native forty-slot PLM pool");
@@ -100,7 +100,7 @@ internal static class GModeGateGlitchVerification
         SamusState samus = runtime.Player.Samus;
         EnterDirectGMode(samus);
         samus.Position = samus.Position.WithWhole(new(140, 360));
-        samus.Pose = SamusPoseId.FacingLeftNormalPose;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.FacingLeftNormalPose);
         samus.EquippedBeams = SamusBeamFlags.Wave;
         samus.SelectedHudItem = HudItem.Beam;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
@@ -121,8 +121,8 @@ internal static class GModeGateGlitchVerification
             }
 
             GameplayAction input = frame == 0 ? GameplayAction.Shoot : 0;
-            bombs.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, input, input);
-            shots.StepFrame(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input, ControllerPreviousNewInput = GameplayAction.None }, cameraPosition: new(0, 224), samusBombs: bombs, progression: new SharedGameState(new SharedRandom()));
+            bombs.StepFrame(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, input, input);
+            shots.StepFrame(SamusTerrain.InRoom(level, roomObjects), samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input, ControllerPreviousNewInput = GameplayAction.None }, cameraPosition: new(0, 224), samusBombs: bombs, progression: new SharedGameState(new SharedRandom()));
 
             SamusProjectile shot = shots.Shots[0];
             if (shot.IsOccupied && shot.Position.X.Whole < 112 && passedGateFrame < 0)
@@ -135,7 +135,7 @@ internal static class GModeGateGlitchVerification
 
             RoomObjectPlaceSnapshot currentGate = roomObjects.PopulationPlaces.Single(place =>
                 place.Behaviour is DownwardGateObject);
-            if (currentGate.Behaviour is not DownwardGateObject { Phase: DownwardGatePhase.ShowingClosed or DownwardGatePhase.RestingClosed } && openedFrame < 0)
+            if (currentGate.Behaviour is not DownwardGateObject { Phase: DownwardGatePhase.Closed } && openedFrame < 0)
                 openedFrame = frame;
         }
 
@@ -177,9 +177,8 @@ internal static class GModeGateGlitchVerification
     {
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(24, 24)),
-        };
+        }.InPose(SamusPoseId.FacingRightNormalPose);
         samus.Kinematics.Radius = new(5, 8);
         EnterDirectGMode(samus);
 
@@ -197,10 +196,9 @@ internal static class GModeGateGlitchVerification
             samus.HorizontalSpeed.BaseSpeed = samus.HorizontalSpeed.BaseSpeed.WithWhole(4);
             samus.HorizontalSpeed.HasRunningMomentum = true;
             SamusInsideBlockReactions.PrepareFrame(
-                level,
+                SamusTerrain.InRoom(level, roomObjects),
                 samus,
-                roomHasPower: true,
-                roomObjects: roomObjects);
+                roomHasPower: true);
             AssertTrue(roomObjects.Places.ActiveCount > before && roomObjects.Places.ActiveCount <= before + 3,
                 $"G-Mode sand contact {contact} consumes its bottom/center/top suspended PLM slots");
             AssertTrue(samus.Kinematics.ExtraDisplacement.Y.RawValue != 0,
@@ -213,10 +211,9 @@ internal static class GModeGateGlitchVerification
         samus.HorizontalSpeed.BaseSpeed = samus.HorizontalSpeed.BaseSpeed.WithWhole(4);
         samus.HorizontalSpeed.HasRunningMomentum = true;
         SamusInsideBlockReactions.PrepareFrame(
-            level,
+            SamusTerrain.InRoom(level, roomObjects),
             samus,
-            roomHasPower: true,
-            roomObjects: roomObjects);
+            roomHasPower: true);
         AssertEqual(40, roomObjects.Places.ActiveCount,
             "forty-first G-Mode sand contact cannot exceed the cartridge PLM pool");
         AssertEqual(0, samus.Kinematics.ExtraDisplacement.Y.RawValue,
@@ -325,9 +322,8 @@ internal static class GModeGateGlitchVerification
             {
                 var result = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
                 {
-                    Pose = SamusPoseId.FacingRightNormalPose,
                     Position = FixedPosition<RoomPixels>.FromWhole(new(40, 54)),
-                };
+                }.InPose(SamusPoseId.FacingRightNormalPose);
                 result.Kinematics.Radius = new(5, 8);
                 return result;
             }
@@ -335,7 +331,7 @@ internal static class GModeGateGlitchVerification
             RoomLevelData controlLevel = CreateLevel();
             var controlObjects = RoomObjectFixtures.Unbound();
             SamusState controlSamus = CreateSamus();
-            BlockMoveResult control = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = controlLevel, RoomObjects = controlObjects }, controlSamus.Kinematics, controlSamus, controlSamus.Pose, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(4), ScanLeftToRight = true });
+            BlockMoveResult control = SamusBlockCollision.MoveVertical(SamusTerrain.InRoom(controlLevel, controlObjects), controlSamus.Kinematics, controlSamus, controlSamus.Pose, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(4), ScanLeftToRight = true });
             AssertTrue(control.Collided,
                 $"available PLM allocation retains ordinary solid contact for {description}");
 
@@ -344,7 +340,7 @@ internal static class GModeGateGlitchVerification
             FillSuspendedObjectPool(roomObjects);
             SamusState samus = CreateSamus();
 
-            BlockMoveResult result = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(4), ScanLeftToRight = true });
+            BlockMoveResult result = SamusBlockCollision.MoveVertical(SamusTerrain.InRoom(level, roomObjects), samus.Kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(4), ScanLeftToRight = true });
             AssertEqual(expectedPass, !result.Collided,
                 $"full PLM pool gives cartridge default collision for {description}");
             AssertEqual(collisionType,
@@ -478,7 +474,7 @@ internal static class GModeGateGlitchVerification
     /// <summary>Uses fatal X-Ray damage and reserve recovery to reach direct G-Mode with all subsystem words disabled.</summary>
     private static void EnterDirectGMode(SamusState samus)
     {
-        samus.Pose = SamusPoseId.FacingLeftNormalPose;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.FacingLeftNormalPose);
         samus.EquippedItems |= SamusEquipmentFlags.XrayScope;
         samus.Health = 0;
         samus.MaxHealth = 99;

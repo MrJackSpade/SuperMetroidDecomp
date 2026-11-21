@@ -29,33 +29,25 @@ public static class SamusGroundedMovement
     /// (<see cref="SamusState"/>) is cleared every update; while an elevator moves, she first moves one pixel down
     /// through the downward block collision. The elevator itself says whether it moves and draws the platform.
     /// </remarks>
-    /// <param name="level">The room's level the elevator carries her through.</param>
+    /// <param name="terrain">The terrain Samus meets: its level and, in a room, the room objects its reacting blocks reach.</param>
     /// <param name="samus">Samus, in a front-facing pose.</param>
     /// <param name="frameCounter">The update's frame counter, whose parity picks the scan's column order.</param>
     /// <param name="elevatorIsMoving">Whether an elevator carries her this update.</param>
-    /// <param name="roomObjects">The room's room objects and door contacts her scan reaches.</param>
     /// <param name="doorBlocks">What the door blocks the elevator carries her through do to her (#2545).</param>
     internal static void StepFacingForward(
-        RoomLevelData level,
+        SamusTerrain terrain,
         SamusState samus,
         int frameCounter,
         bool elevatorIsMoving,
-        ISamusRoomObjects roomObjects,
         DoorBlockMeeting doorBlocks)
     {
-        Ensure.NotNull(level);
+        Ensure.NotNull(terrain);
         Ensure.NotNull(samus);
-        if (!SamusPoseMetadata.IsForwardFacingPose(samus.Pose))
-        {
-            throw new InvalidOperationException(
-                $"Forward-facing movement requires a forward-facing pose, not {samus.Pose}.");
-        }
-
         if (elevatorIsMoving)
         {
             // A moving elevator carries Samus down one whole pixel; that move meets no solid enemy but does meet the
             // room's blocks and their behaviours, in the left or right order the update's parity picks.
-            _ = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = SamusMovementDefinitions.ElevatorCarry, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter), IncludeSolidEnemies = false, DoorBlocks = doorBlocks });
+            _ = SamusBlockCollision.MoveVertical(terrain, samus.Kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = SamusMovementDefinitions.ElevatorCarry, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter), IncludeSolidEnemies = false, DoorBlocks = doorBlocks });
         }
 
         // Clearing the vertical collision result is all front-view movement does without a moving elevator. In
@@ -65,25 +57,19 @@ public static class SamusGroundedMovement
     }
 
     /// <summary>
-    /// Runs the movement-relevant portion of standing movement for either facing:
-    /// the right-facing standing family or the left-facing one, unaimed or aimed.
+    /// Runs the movement-relevant portion of standing movement for the poses of the standing movement type that neither
+    /// face forward nor land: the standing poses, unaimed or aimed, and the X-ray scope's standing poses. It reads only the
+    /// way the moving pose faces.
     /// </summary>
     internal static GroundedMovementResult StepStanding(
-        RoomLevelData level,
+        SamusTerrain terrain,
         SamusState samus,
         int frameCounter,
-        GameplayAction controllerInput,
-        ISamusRoomObjects roomObjects)
+        GameplayAction controllerInput)
     {
-        Ensure.NotNull(level);
+        Ensure.NotNull(terrain);
         Ensure.NotNull(samus);
-        bool facingLeft = SamusPoseMetadata.IsLeftFacingStandingPose(samus.Pose);
-        if (!facingLeft && !SamusPoseMetadata.IsRightFacingStandingPose(samus.Pose))
-        {
-            throw new InvalidOperationException(
-                $"Standing movement requires a standing pose, not {samus.Pose}.");
-        }
-
+        bool facingLeft = SamusPoseMetadata.IsFacingLeft(samus.Pose);
         ResetStandingShotAnimation(samus, controllerInput);
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
 
@@ -94,7 +80,6 @@ public static class SamusGroundedMovement
         // pose's direction is left, so the displacement is leftward even though its
         // base speed is zero, which matters once extra displacement contributes.
         var requestedHorizontal = SamusHorizontalDisplacement.Toward(facingLeft ? HorizontalDirection.Left : HorizontalDirection.Right, samus, baseSpeed: default);
-        SamusTerrain terrain = new() { Level = level, RoomObjects = roomObjects };
         BlockMoveResult horizontal = SamusTerrainMoves.MoveStoppingAtWalls(terrain, samus, requestedHorizontal);
 
         BlockMoveResult vertical = SamusTerrainMoves.ProbeGroundWithoutSpeed(terrain, samus, frameCounter);
@@ -110,29 +95,23 @@ public static class SamusGroundedMovement
     {
         if (SamusPoseTraits.IsIn(samus.Pose, SamusPoseFamily.NeutralStanding) &&
             (controllerInput & GameplayAction.Shoot) != GameplayAction.None)
-            SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusAnimationDelays.AnimationForPose(samus.AnimationPose).Start, SamusMovementDefinitions.StandingShotAnimationTimer);
+            SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusAnimationDelays.AnimationForPose(samus.Pose).Start, SamusMovementDefinitions.StandingShotAnimationTimer);
     }
 
     /// <summary>
     /// Runs running movement in dry air, including ordinary Dash, for either
-    /// facing: the right-moving running family or the left-moving one, unaimed or aimed.
+    /// facing: the right-moving running family or the left-moving one, unaimed or aimed. As the game's running movement
+    /// does, it reads only the way the pose faces.
     /// </summary>
     internal static GroundedMovementResult StepRunning(
-        RoomLevelData level,
+        SamusTerrain terrain,
         SamusState samus,
         int frameCounter,
-        GameplayAction controllerInput,
-        ISamusRoomObjects roomObjects)
+        GameplayAction controllerInput)
     {
-        Ensure.NotNull(level);
+        Ensure.NotNull(terrain);
         Ensure.NotNull(samus);
-        bool facingLeft = SamusPoseMetadata.IsLeftFacingRunningPose(samus.Pose);
-        if (!facingLeft && !SamusPoseMetadata.IsRightFacingRunningPose(samus.Pose))
-        {
-            throw new InvalidOperationException(
-                $"Running movement requires a pose of the running families, not {samus.Pose}.");
-        }
-
+        bool facingLeft = SamusPoseMetadata.IsFacingLeft(samus.Pose);
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
 
         // The liquid Samus's bottom boundary lies in can replace her ordinary speeds with the water or lava
@@ -162,7 +141,6 @@ public static class SamusGroundedMovement
         // A wall clears X speed immediately after block collision. Total
         // speed deliberately remains published: the following grounding probe reads it
         // even if base speed was just cleared by a wall.
-        SamusTerrain terrain = new() { Level = level, RoomObjects = roomObjects };
         BlockMoveResult horizontal = SamusTerrainMoves.MoveStoppingAtWalls(terrain, samus, requestedHorizontal);
 
         BlockMoveResult vertical = SamusTerrainMoves.ProbeGroundWithoutSpeed(terrain, samus, frameCounter);
@@ -175,36 +153,19 @@ public static class SamusGroundedMovement
     /// The latter is misleading for the aimed crouching turns: crouched entry leaves no vertical
     /// direction, so the game runs its no-speed grounding probe rather than airborne gravity.
     /// </summary>
+    /// <param name="movement">The turn on the ground her pose selected, whose movement type the turn reads.</param>
+    /// <param name="terrain">The terrain Samus meets: its level and, in a room, the room objects its reacting blocks reach.</param>
+    /// <param name="samus">Samus, turning.</param>
+    /// <param name="frameCounter">The update's frame counter, whose parity picks the scan's column order.</param>
     internal static GroundedMovementResult StepTurningOnGround(
-        RoomLevelData level,
+        SamusMovement.GroundTurnMovement movement,
+        SamusTerrain terrain,
         SamusState samus,
-        int frameCounter,
-        ISamusRoomObjects roomObjects)
+        int frameCounter)
     {
-        Ensure.NotNull(level);
+        Ensure.NotNull(terrain);
         Ensure.NotNull(samus);
-        bool turnsLeft = SamusPoseMetadata.IsRightToLeftGroundTurnPose(samus.Pose) ||
-            SamusPoseMetadata.IsMoonwalkTurnToSpinJumpLeftPose(samus.Pose);
-        bool turnsRight = SamusPoseMetadata.IsLeftToRightGroundTurnPose(samus.Pose) ||
-            SamusPoseMetadata.IsMoonwalkTurnToSpinJumpRightPose(samus.Pose);
-        if (!turnsLeft && !turnsRight)
-        {
-            throw new InvalidOperationException(
-                $"Grounded-turn movement requires a standing, crouched, or moonwalk turn pose, not {samus.Pose}.");
-        }
-
-        SamusMovementType movementType = SamusPoseMetadata.ReadMovementType(samus);
-        if (movementType is not (SamusMovementType.TurningOnGround or SamusMovementType.TurningRisingOrAimedCrouched))
-            throw new InvalidOperationException(
-                $"Grounded turn pose {samus.Pose} has movement type {movementType}.");
-        if (movementType == SamusMovementType.TurningRisingOrAimedCrouched && !SamusPoseMetadata.IsAimedCrouchingTurnPose(samus.Pose))
-            throw new InvalidOperationException($"A grounded rising-or-aimed-crouched turn requires an aimed crouched turn, not {samus.Pose}.");
-        if (movementType == SamusMovementType.TurningRisingOrAimedCrouched && !samus.Kinematics.VerticalVelocity.HasNoDirection)
-        {
-            throw new InvalidOperationException(
-                $"Airborne rising-or-aimed-crouched turn pose {samus.Pose} must execute through SamusAerialMovement.StepTurningInAir.");
-        }
-
+        SamusMovementType movementType = movement.Type;
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
         SamusLiquidMedium liquidMedium = samus.LiquidPhysics.DetermineMovementMedium(samus);
         speed.SelectSpeedsFor(liquidMedium);
@@ -225,7 +186,6 @@ public static class SamusGroundedMovement
         // The turn's direction comes from the pose's facing rather than its name; the acceleration mode then chooses
         // whether she moves the way she faces or against it.
         var requestedHorizontal = SamusHorizontalDisplacement.ForPoseDirection(samus, baseSpeed);
-        SamusTerrain terrain = new() { Level = level, RoomObjects = roomObjects };
         BlockMoveResult horizontal = SamusTerrainMoves.MoveStoppingAtWalls(terrain, samus, requestedHorizontal);
 
         BlockMoveResult vertical = SamusTerrainMoves.ProbeGroundWithoutSpeed(terrain, samus, frameCounter);
@@ -243,19 +203,13 @@ public static class SamusGroundedMovement
     /// including the complete shared extra-run-speed prepass.
     /// </summary>
     internal static GroundedMovementResult StepMoonwalking(
-        RoomLevelData level,
+        SamusMovement.MoonwalkingMovement movement,
+        SamusTerrain terrain,
         SamusState samus,
-        int frameCounter,
-        ISamusRoomObjects roomObjects)
+        int frameCounter)
     {
-        Ensure.NotNull(level);
+        Ensure.NotNull(terrain);
         Ensure.NotNull(samus);
-        if (!SamusPoseMetadata.IsMoonwalkingPose(samus.Pose) ||
-            SamusPoseMetadata.ReadMovementType(samus) != SamusMovementType.Moonwalking)
-        {
-            throw new InvalidOperationException(
-                $"Moonwalking movement requires a stable moonwalk pose, not {samus.Pose}.");
-        }
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
         SamusLiquidMedium liquidMedium = samus.LiquidPhysics.DetermineMovementMedium(samus);
@@ -264,7 +218,7 @@ public static class SamusGroundedMovement
         // The extra run speed survives moonwalking while she has running momentum and is cleared otherwise; moonwalking
         // never gains Dash speed.
         speed.HandleExtraRunSpeed(
-            movementType: SamusMovementType.Moonwalking,
+            movementType: movement.Type,
             controllerInput: GameplayAction.None,
             speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
             liquidImpeded: liquidMedium != SamusLiquidMedium.Air);
@@ -272,9 +226,8 @@ public static class SamusGroundedMovement
         // Moonwalking has its own speeds. Its poses' facings intentionally
         // produce travel opposite the visible facing; turning reverses that direction just as it
         // does for every other family. Do not derive either direction from the pose's name.
-        UnsignedSixteenSixteen baseSpeed = speed.CalculateBaseSpeed(movementType: SamusMovementType.Moonwalking);
+        UnsignedSixteenSixteen baseSpeed = speed.CalculateBaseSpeed(movementType: movement.Type);
         var requestedHorizontal = SamusHorizontalDisplacement.ForPoseDirection(samus, baseSpeed);
-        SamusTerrain terrain = new() { Level = level, RoomObjects = roomObjects };
         BlockMoveResult horizontal = SamusTerrainMoves.MoveStoppingAtWalls(terrain, samus, requestedHorizontal);
 
         // Moonwalking then runs the same no-speed-calculation grounding probe as running.
@@ -284,30 +237,22 @@ public static class SamusGroundedMovement
     }
 
     /// <summary>
-    /// Runs ran-into-wall movement for the ran-into-wall poses, unaimed or aimed.
+    /// Runs ran-into-wall movement for the ran-into-wall poses, unaimed or aimed. As the game's movement does, it reads only
+    /// the way the pose faces.
     /// </summary>
     internal static GroundedMovementResult StepRanIntoWall(
-        RoomLevelData level,
+        SamusTerrain terrain,
         SamusState samus,
-        int frameCounter,
-        ISamusRoomObjects roomObjects)
+        int frameCounter)
     {
-        Ensure.NotNull(level);
+        Ensure.NotNull(terrain);
         Ensure.NotNull(samus);
-        if (!SamusPoseMetadata.IsRanIntoWallPose(samus.Pose) ||
-            SamusPoseMetadata.ReadMovementType(samus) != SamusMovementType.RanIntoWall)
-        {
-            throw new InvalidOperationException(
-                $"Ran-into-wall movement requires a ran-into-wall pose, not {samus.Pose}.");
-        }
-
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
 
         // Ran-into-wall movement uses the same no-base-speed X movement as standing. Direction still
         // comes from the pose's own facing. Extra speed is included in the requested move
         // before the movement's unconditional cleanup, in the game's order.
         var requestedHorizontal = SamusHorizontalDisplacement.TowardFacing(samus, baseSpeed: default);
-        SamusTerrain terrain = new() { Level = level, RoomObjects = roomObjects };
         BlockMoveResult horizontal = SamusTerrainMoves.MoveStoppingAtWalls(terrain, samus, requestedHorizontal);
 
         // The one-or-more-pixel downward grounding probe runs before all X values are
@@ -327,29 +272,17 @@ public static class SamusGroundedMovement
     /// Landing animation is cosmetic with respect to movement: every member uses standing's
     /// zero-base-speed horizontal pass, grounding probe, and momentum cleanup until the animation
     /// cue's pose transition returns to <see cref="SamusPoseId.FacingRightNormalPose"/> and <see cref="SamusPoseId.FacingLeftNormalPose"/>.
+    /// It reads only the way the pose faces.
     /// </summary>
     internal static GroundedMovementResult StepLanding(
-        RoomLevelData level,
+        SamusTerrain terrain,
         SamusState samus,
-        int frameCounter,
-        ISamusRoomObjects roomObjects)
+        int frameCounter)
     {
-        Ensure.NotNull(level);
+        Ensure.NotNull(terrain);
         Ensure.NotNull(samus);
-        // Do not duplicate the pose list here. The predicates are the single audited definition
-        // of the standing movement type's landing family and deliberately include the two firing
-        // landings. Keeping the movement selection and this defensive guard on the same predicates prevents a
-        // landing the selection admits from being rejected here.
-        if (!SamusPoseMetadata.IsRightFacingLandingPose(samus.Pose) &&
-            !SamusPoseMetadata.IsLeftFacingLandingPose(samus.Pose))
-        {
-            throw new InvalidOperationException(
-                $"Landing movement requires a landing pose, not {samus.Pose}.");
-        }
-
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
         var requestedHorizontal = SamusHorizontalDisplacement.TowardFacing(samus, baseSpeed: default);
-        SamusTerrain terrain = new() { Level = level, RoomObjects = roomObjects };
         BlockMoveResult horizontal = SamusTerrainMoves.MoveStoppingAtWalls(terrain, samus, requestedHorizontal);
 
         BlockMoveResult vertical = SamusTerrainMoves.ProbeGroundWithoutSpeed(terrain, samus, frameCounter);
@@ -361,25 +294,21 @@ public static class SamusGroundedMovement
     }
 
     /// <summary>
-    /// Moves Samus at the end of a knockback, after its owner (damage or Ceres Ridley's ejection) has restored her
-    /// normal step while a knockback pose still shows: her vertical collision result is cleared and she probes for
-    /// ground, without moving.
+    /// Moves Samus vertically without a speed calculation, including the external-Y
+    /// replacement path and its asymmetric positive one-pixel bias.
     /// </summary>
-    internal static BlockMoveResult StepKnockbackEnding(
-        RoomLevelData level,
+    internal static BlockMoveResult RunNoSpeedCalculationGroundingProbe(
+        SamusTerrain terrain,
         SamusState samus,
-        int frameCounter,
-        ISamusRoomObjects roomObjects)
+        int frameCounter)
     {
-        Ensure.NotNull(level);
-        Ensure.NotNull(samus);
-        if (SamusPoseMetadata.ReadMovementType(samus) != SamusMovementType.Knockback)
-        {
-            throw new InvalidOperationException(
-                $"Knockback-ending movement requires the knockback movement type, not pose {samus.Pose}.");
-        }
+        SignedSixteenSixteen displacement = SamusExtraDisplacement.CalculateNoSpeedVerticalDisplacement(
+            samus.Kinematics,
+            samus.HorizontalSpeed);
 
-        SamusTerrain terrain = new() { Level = level, RoomObjects = roomObjects };
-        return SamusTerrainMoves.ProbeGroundWithoutSpeed(terrain, samus, frameCounter);
+        // The probe alternates its left-to-right and right-to-left horizontal scan order on
+        // the frame counter's parity. That parity can affect which simultaneous
+        // collision side effect wins.
+        return SamusBlockCollision.MoveVertical(terrain, samus.Kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter) });
     }
 }

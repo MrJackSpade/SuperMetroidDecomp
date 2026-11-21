@@ -12,8 +12,6 @@ namespace SuperMetroid.Core.Enemies.Metaree;
 [RoomLifetime]
 internal sealed class MetareeBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawnSettings>
 {
-    /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Metaree];
 
     /// <inheritdoc/>
     public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new MetareeEntity(this, occupant, place, common));
@@ -42,6 +40,16 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemySpawnFactory<EnemyS
         return state;
     }
 
+    /// <summary>What <see cref="RunMetareeMain"/> does for each <see cref="MetareeAction"/> member, each member's own arm.</summary>
+    private IdentityTable<MetareeAction, Action<RoomEnemyOccupant, RoomEnemyPlace, MetareeEnemyState, SamusState, RoomLevelData>> RunMetareeMainForMetareeAction => field ??= new(new Dictionary<MetareeAction, Action<RoomEnemyOccupant, RoomEnemyPlace, MetareeEnemyState, SamusState, RoomLevelData>>
+    {
+        [MetareeAction.Idling] = (_, place, state, samus, level) => RunMetareeIdle(place, state, samus),
+        [MetareeAction.PreparingAttack] = (_, place, state, samus, level) => { },
+        [MetareeAction.AttackReady] = (_, place, state, samus, level) => LaunchMetareeAttack(place, state),
+        [MetareeAction.LaunchedAttack] = (_, place, state, samus, level) => RunMetareeDive(place, state, samus, level),
+        [MetareeAction.Burrowing] = (occupant, place, state, samus, level) => RunMetareeBurrow(occupant, place, state),
+    });
+
     /// <summary>Runs the idle, attack preparation, airborne dive or burrow phase with required Samus and room data.</summary>
     private void RunMetareeMain(
         RoomEnemyOccupant occupant, RoomEnemyPlace place,
@@ -49,31 +57,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemySpawnFactory<EnemyS
         SamusState samus,
         RoomLevelData level)
     {
-        switch (state.Action)
-        {
-            case MetareeAction.Idling:
-                RunMetareeIdle(place, state, samus);
-                return;
-
-            case MetareeAction.PreparingAttack:
-                return;
-
-            case MetareeAction.AttackReady:
-                LaunchMetareeAttack(place, state);
-                return;
-
-            case MetareeAction.LaunchedAttack:
-                RunMetareeDive(place, state, samus, level);
-                return;
-
-            case MetareeAction.Burrowing:
-                RunMetareeBurrow(occupant, place, state);
-                return;
-
-            default:
-                throw new InvalidDataException(
-                    $"Metaree has no behaviour for action {state.Action}.");
-        }
+        RunMetareeMainForMetareeAction[state.Action](occupant, place, state, samus, level);
     }
 
     /// <summary>Starts preparation within its activation distance across and takes the dive's speed from Samus's height (<see cref="MetareeDiveSpeed"/>).</summary>
@@ -169,15 +153,11 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemySpawnFactory<EnemyS
             });
 
     /// <summary>
-    /// The launch crouch's finishing cue (#2439): the attack is ready, and the Metaree launches it on its next update.
+    /// The launch crouch's finishing cue (#2439): the attack is ready, and the Metaree launches it on its next update. The
+    /// cue moves the Metaree into its ready phase as the game's animation sets the attack-ready flag, and the ready
+    /// phase's step consumes it, launching the attack.
     /// </summary>
-    /// <exception cref="InvalidOperationException">The Metaree is not preparing an attack.</exception>
-    private static void ReadyMetareeAttack(MetareeEnemyState state)
-    {
-        if (state.Action != MetareeAction.PreparingAttack)
-            throw new InvalidOperationException($"A Metaree's attack was readied while it was {state.Action}.");
-        state.Action = MetareeAction.AttackReady;
-    }
+    private static void ReadyMetareeAttack(MetareeEnemyState state) => state.Action = MetareeAction.AttackReady;
 
     /// <summary>Spawns four metal debris actors in the dying Metaree's colours before common shot death clears them.</summary>
     /// <param name="metaree">The Metaree the reaction is built for, whose sheet the objects it spawns draw from.</param>

@@ -36,6 +36,7 @@ internal static class SamusOverreadDecoding
             animations.FramesAfterCues(),
             animations.ReadsPast(),
             animations.PlaceLandings(),
+            animations.DelaysRead(cartridge),
             SpaceTimeOverwrites(cartridge, lists),
             ChainsawFuseLandings(lists),
             PostureAdmissions(cartridge),

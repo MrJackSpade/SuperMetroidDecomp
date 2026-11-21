@@ -31,15 +31,15 @@ internal static class MissileEdgeVerification
             var blocks = new RoomTerrainBlock[64 * 16];
             for (int row = 0; row < 16; row++) blocks[row * 64 + 32] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
             var room = CreateRoom(new(64, 16), blocks, new RoomBlockBehavior[blocks.Length]);
-            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(497, 128)),
-                SelectedHudItem = HudItem.Missile, Missiles = 5, MaxMissiles = 5 };
+            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(497, 128)),
+                SelectedHudItem = HudItem.Missile, Missiles = 5, MaxMissiles = 5 }.InPose(SamusPoseId.FacingRightNormalPose);
             var projectiles = CreateProjectileFixture();
             var shared = CreateBombFixture();
             for (int frame = 0; frame < 20; frame++)
             {
                 GameplayAction input = frame == 0 ? GameplayAction.Shoot : 0;
-                shared.StepFrame(new SamusTerrain { Level = room, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, input, input);
-                projectiles.StepFrame(new SamusTerrain { Level = room, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input, ControllerPreviousNewInput = GameplayAction.None }, new((ushort)(edge == 1 ? 192 : 384), 0), shared, new SharedGameState(new SharedRandom()));
+                shared.StepFrame(SamusTerrain.InRoom(room, SamusRoomObjectFixtures.Uninstalled), samus, input, input);
+                projectiles.StepFrame(SamusTerrain.InRoom(room, SamusRoomObjectFixtures.Uninstalled), samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input, ControllerPreviousNewInput = GameplayAction.None }, new((ushort)(edge == 1 ? 192 : 384), 0), shared, new SharedGameState(new SharedRandom()));
                 if (frame == 0) AssertEqual(4, samus.Missiles,
                     "Missile edge fixture uses actual fire dispatch");
                 var shot = projectiles.Shots[0];

@@ -7,11 +7,10 @@ internal enum DeathSequenceStep
     FinalGameplayPass,
     /// <summary>The surroundings fade to black while Samus's suit keeps its colours, then the death music is queued.</summary>
     BlackingOutSurroundings,
-    /// <summary>Samus's fatal pose is drawn until the queued death music has been processed.</summary>
-    WaitingForMusic,
     /// <summary>
-    /// Samus's death animation: the pre-flash hold, the flashing and the suit explosion with its white-out, which her own
-    /// death sequence (<see cref="Samus.Death.SamusDeathSequencePhase"/>) steps through.
+    /// Samus's fatal pose is drawn until the queued death music has been processed, which begins her death animation: the
+    /// pre-flash hold, the flashing and the suit explosion with its white-out, which her own death sequence
+    /// (<see cref="Samus.Death.SamusDeathSequencePhase"/>) steps through.
     /// </summary>
     SamusDying,
     /// <summary>The finished death display fades to black before the game-over menu; also where both time-up endings finish.</summary>

@@ -98,7 +98,13 @@ public static class CartridgeRoomHeaderImporter
     /// <param name="bus">Address space providing the import-only cartridge source.</param>
     /// <param name="roomPointer">Sixteen-bit room-header address within bank $8F.</param>
     /// <param name="selection">Event, boss, and equipment conditions used to select the first matching native state, or the inline default state.</param>
-    /// <returns>The decoded room header and selected room-state payload; no gameplay state is initialized.</returns>
+    /// <returns>
+    /// The catalog's room, whose header fields the cartridge's header matches, and the selected room-state payload; no
+    /// gameplay state is initialized. Every room is a catalog room (<see cref="RoomDefinition"/>): installed content keyed by
+    /// a room, such as its door blocks in each level, is found only for the catalog's, which also names what no header holds
+    /// (the room's ground, its silent quakes and its X-ray rules).
+    /// </returns>
+    /// <exception cref="InvalidDataException">The cartridge's header differs from the catalog room's.</exception>
     public static SelectedRoom Load(ISnesAddressSpace bus, ushort roomPointer,
         RoomStateSelectionContext selection)
     {
@@ -106,12 +112,21 @@ public static class CartridgeRoomHeaderImporter
         int address = 0x8f0000 | roomPointer;
         byte Byte(int offset) => bus.ReadCartridgeByte(address + offset);
         ushort statePointer = SelectStatePointer(bus, roomPointer, selection);
-        var definition = new RoomDefinition(RoomDefinitions.Get(roomPointer).Name, AreaNumberCodec.Decode(Byte(1), $"Room header {roomPointer:X4}"),
-            new(Byte(2), Byte(3) + HeaderMapRowOffset), new(Byte(4), Byte(5)))
-        {
-            CameraLead = new RoomCameraLead(Byte(6), Byte(7)),
-            DoorTransition = (Byte(8) & IsolatedDoorTransitionBit) != 0 ? RoomDoorTransitionStyle.ObjectsOnly : RoomDoorTransitionStyle.Standard,
-        };
-        return new SelectedRoom(definition, CartridgeRoomStateImporter.Load(bus, statePointer));
+        RoomDefinition room = RoomDefinitions.Get(roomPointer);
+        RequireHeaderField(room, "area", room.Area, AreaNumberCodec.Decode(Byte(1), $"Room header {roomPointer:X4}"));
+        RequireHeaderField(room, "map position", room.MapPosition, new Position16<MapTiles>(Byte(2), Byte(3) + HeaderMapRowOffset));
+        RequireHeaderField(room, "size", room.Size, new Extent16<RoomScreens>(Byte(4), Byte(5)));
+        RequireHeaderField(room, "camera lead", room.CameraLead, new RoomCameraLead(Byte(6), Byte(7)));
+        RequireHeaderField(room, "door transition", room.DoorTransition,
+            (Byte(8) & IsolatedDoorTransitionBit) != 0 ? RoomDoorTransitionStyle.ObjectsOnly : RoomDoorTransitionStyle.Standard);
+        return new SelectedRoom(room, CartridgeRoomStateImporter.Load(bus, statePointer));
+    }
+
+    /// <summary>Requires the catalog room's <paramref name="field"/> to be the value its cartridge header decodes to.</summary>
+    /// <exception cref="InvalidDataException">The values differ.</exception>
+    private static void RequireHeaderField<T>(RoomDefinition room, string field, T compiled, T header)
+    {
+        if (!EqualityComparer<T>.Default.Equals(compiled, header))
+            throw new InvalidDataException($"Room {room.Name}'s {field} is {compiled} in the catalog but {header} in its cartridge header.");
     }
 }

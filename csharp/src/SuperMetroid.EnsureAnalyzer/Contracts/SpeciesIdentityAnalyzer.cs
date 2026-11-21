@@ -23,12 +23,12 @@ public sealed class SpeciesIdentityAnalyzer : DiagnosticAnalyzer
     /// <summary>The definition type whose named members are species identities.</summary>
     private const string DefinitionTypeName = "EnemyDefinitionId";
 
-    /// <summary>The factory interface whose Definitions name a species' owned definitions.</summary>
+    /// <summary>The factory interface whose Creations name a species' owned definitions.</summary>
     private const string FactoryInterfaceName = "IEnemyEntityFactory";
 
     /// <summary>
     /// The suffix of a species' part catalog, whose <c>Parts</c> map names the definitions the species owns when its
-    /// factory's Definitions list is built from that catalog.
+    /// factory's Creations are built from that catalog.
     /// </summary>
     private const string PartCatalogSuffix = "PartDefinitions";
 
@@ -63,7 +63,7 @@ public sealed class SpeciesIdentityAnalyzer : DiagnosticAnalyzer
         });
     }
 
-    /// <summary>Each owned definition member's owner directories, read from the factories' Definitions lists and part catalogs.</summary>
+    /// <summary>Each owned definition member's owner directories, read from the factories' Creations and part catalogs.</summary>
     private static Dictionary<string, List<string>> OwnerDirectories(Compilation compilation, CancellationToken cancellationToken)
     {
         var owners = new Dictionary<string, List<string>>(StringComparer.Ordinal);
@@ -75,14 +75,15 @@ public sealed class SpeciesIdentityAnalyzer : DiagnosticAnalyzer
             foreach (TypeDeclarationSyntax type in tree.GetRoot(cancellationToken).DescendantNodes().OfType<TypeDeclarationSyntax>())
             {
                 string? ownedProperty = type.BaseList?.Types.Any(baseType => baseType.Type.ToString() == FactoryInterfaceName) == true
-                    ? "Definitions"
+                    ? "Creations"
                     : type.Identifier.Text.EndsWith(PartCatalogSuffix, StringComparison.Ordinal) ? "Parts" : null;
                 if (ownedProperty is null)
                     continue;
                 foreach (PropertyDeclarationSyntax property in type.Members.OfType<PropertyDeclarationSyntax>()
                              .Where(property => property.Identifier.Text == ownedProperty))
                 {
-                    if (property.Initializer is not { } initializer)
+                    // A factory's creations are an expression body that builds them once; a part catalog's parts an initializer.
+                    if (((SyntaxNode?)property.Initializer ?? property.ExpressionBody) is not { } initializer)
                         continue;
                     foreach (MemberAccessExpressionSyntax member in initializer.DescendantNodes().OfType<MemberAccessExpressionSyntax>()
                                  .Where(member => member.Expression.ToString() == DefinitionTypeName))

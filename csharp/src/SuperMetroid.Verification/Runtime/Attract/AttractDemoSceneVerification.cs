@@ -76,17 +76,41 @@ internal static class AttractDemoSceneVerification
         Console.WriteLine("  Attract demo data: joined fields, signed placement, and end-of-set sentinel agree.");
         // Boot decides once whether the completion set plays, so each eligibility case boots a session.
         var saveRam = new SaveSlotStore(RetailPresentationFixture());
+<<<<<<< ours
         if (SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(saveRam).Session.DemoPlaylist != StockAttractDemoScenes.OrdinaryPlaylist)
+||||||| base
+        if (new SuperMetroidGame(saveRam).Session.DemoPlaylist != StockAttractDemoScenes.OrdinaryPlaylist)
+=======
+        if (!new SuperMetroidGame(saveRam).Session.Demo.Plays(StockAttractDemoScenes.Playlist(completionSetUnlocked: false)))
+>>>>>>> theirs
             throw new InvalidDataException("An empty save must expose only the three ordinary demo sets.");
         saveRam.CompleteGame();
+<<<<<<< ours
         if (SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(saveRam).Session.DemoPlaylist != StockAttractDemoScenes.OrdinaryPlaylist)
+||||||| base
+        if (new SuperMetroidGame(saveRam).Session.DemoPlaylist != StockAttractDemoScenes.OrdinaryPlaylist)
+=======
+        if (!new SuperMetroidGame(saveRam).Session.Demo.Plays(StockAttractDemoScenes.Playlist(completionSetUnlocked: false)))
+>>>>>>> theirs
             throw new InvalidDataException("Completion marker without any valid save incorrectly unlocked the completion set.");
         saveRam.SaveSlot(SaveSlot.A, SaveSnapshotFixtures.NewGame);
         saveRam.CompleteGame();
+<<<<<<< ours
         if (SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(saveRam).Session.DemoPlaylist != StockAttractDemoScenes.CompletedGamePlaylist)
+||||||| base
+        if (new SuperMetroidGame(saveRam).Session.DemoPlaylist != StockAttractDemoScenes.CompletedGamePlaylist)
+=======
+        if (!new SuperMetroidGame(saveRam).Session.Demo.Plays(StockAttractDemoScenes.Playlist(completionSetUnlocked: true)))
+>>>>>>> theirs
             throw new InvalidDataException("Valid completed-game save did not unlock the completion demo set.");
         saveRam.RestoreHistory(SaveFileHistory.None);
+<<<<<<< ours
         if (SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(saveRam).Session.DemoPlaylist != StockAttractDemoScenes.OrdinaryPlaylist)
+||||||| base
+        if (new SuperMetroidGame(saveRam).Session.DemoPlaylist != StockAttractDemoScenes.OrdinaryPlaylist)
+=======
+        if (!new SuperMetroidGame(saveRam).Session.Demo.Plays(StockAttractDemoScenes.Playlist(completionSetUnlocked: false)))
+>>>>>>> theirs
             throw new InvalidDataException("Incomplete-game save incorrectly unlocked the completion set.");
     }
 
@@ -146,7 +170,7 @@ internal static class AttractDemoSceneVerification
             AssertEqual(energy, setup.Energy, $"{setup} starts Samus with the energy its routine loads");
         }
         foreach ((AttractDemoSamusSetup.Shinespark setup, int poseImmediate) in AttractDemoNativeWords.ShinesparkImmediates)
-            AssertEqual(PoseLoadedAt(poseImmediate, setup.ToString()), setup.LaunchPose, $"{setup} launches Samus in the pose its routine loads");
+            AssertEqual(PoseLoadedAt(poseImmediate, setup.ToString()), setup.Launch.Pose, $"{setup} launches Samus in the pose its routine loads");
     }
 
     /// <summary>The opcode of a load of the accumulator from the immediate that follows it.</summary>
@@ -158,7 +182,7 @@ internal static class AttractDemoSceneVerification
     /// </summary>
     private static void VerifyAttractSamusStaging()
     {
-        AttractDemoScene pseudoScrewAttack = StockAttractDemoScenes.FirstSet.Scenes[5];
+        AttractDemoScene pseudoScrewAttack = StockAttractDemoScenes.Playlist(completionSetUnlocked: false)[0].Scenes[5];
         AttractDemoScene crystalFlash = StockAttractDemoScenes.CompletionSet.Scenes[4];
         AssertEqual(AttractDemoSamusSetups.MorphLeft, pseudoScrewAttack.Samus.Setup, "the pseudo Screw Attack stages the rolling morph ball");
         AssertEqual(AttractDemoSamusSetups.LowHealthLeft, crystalFlash.Samus.Setup, "the Crystal Flash stages low energy");

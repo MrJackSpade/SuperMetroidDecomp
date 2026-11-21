@@ -80,8 +80,16 @@ internal static class MotherBrainTurretDefinitionsVerification
             for (byte current = (byte)MotherBrainTurretDefinitions.Ring.PositionOf(definition.FirstAllowedDirection);
                 current <= MotherBrainTurretDefinitions.Ring.PositionOf(definition.LastAllowedDirection); current++)
             {
+<<<<<<< ours
                 var rotation = new EnemyProjectile(0, default, RoomEnemyProjectileKind.MotherBrainRoomTurret, global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior.Still);
                 enemies.MotherBrainBehavior.Projectiles.Projectile.Turrets.Start(rotation, new MotherBrainTurretState(new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0].BoundFor(EnemyDefinitionId.MotherBrainBody), enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation(), RoomWarningFixtures.Zebes()), definition)
+||||||| base
+                var rotation = new EnemyProjectile(0, default, RoomEnemyProjectileKind.MotherBrainRoomTurret);
+                enemies.MotherBrainBehavior.Projectiles.Projectile.Turrets.Start(rotation, new MotherBrainTurretState(new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0].BoundFor(EnemyDefinitionId.MotherBrainBody), enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation()), definition)
+=======
+                var rotation = new EnemyProjectile(0, default, RoomEnemyProjectileKind.MotherBrainRoomTurret, SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileDeleteAnimation.Instance);
+                enemies.MotherBrainBehavior.Projectiles.Projectile.Turrets.Start(rotation, new MotherBrainTurretState(new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0].BoundFor(EnemyDefinitionId.MotherBrainBody), enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation()), definition)
+>>>>>>> theirs
                 {
                     Direction = MotherBrainTurretDefinitions.Ring.At(current),
                     // The cartridge's forward step of one is a counterclockwise turn round the ring.
@@ -131,7 +139,13 @@ internal static class MotherBrainTurretDefinitionsVerification
                 $"Mother Brain turret bullet Y velocity {direction}");
 
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+<<<<<<< ours
             var turret = new EnemyProjectile(0, default, RoomEnemyProjectileKind.MotherBrainRoomTurret, global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior.Still)
+||||||| base
+            var turret = new EnemyProjectile(0, default, RoomEnemyProjectileKind.MotherBrainRoomTurret)
+=======
+            var turret = new EnemyProjectile(0, default, RoomEnemyProjectileKind.MotherBrainRoomTurret, SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileDeleteAnimation.Instance)
+>>>>>>> theirs
             {
                 Position = new(new(0x0400, 0), new(0x0200, 0)),
             };

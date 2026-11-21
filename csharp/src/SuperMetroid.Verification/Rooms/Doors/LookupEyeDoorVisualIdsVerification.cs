@@ -42,7 +42,10 @@ internal static class LookupEyeDoorVisualIdsVerification
             AssertTrue(!RoomObjectEyeDoorVisualFiles.Family.Ids.Values.Contains(bad, StringComparer.Ordinal),"Eye door unsupported identity");
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
-            if (!expected.Any(entry => entry.Pointer == raw))
+            // The mirrored opening clear shows the shared clear picture and publishes its key (#2559).
+            if (raw == 0x9bf7)
+                AssertEqual("left-eye-clear", RoomObjectEyeDoorVisualFiles.VisualId(NativeObjectDraws.At<EyeDoorDraws.Draw>((ushort)raw)), "Eye door mirrored clear's shared artwork ID");
+            else if (!expected.Any(entry => entry.Pointer == raw))
                 AssertThrows<InvalidDataException>(() => RoomObjectEyeDoorVisualFiles.VisualId(NativeObjectDraws.At<EyeDoorDraws.Draw>((ushort)raw)),"Eye door full rejected pointer domain");
             AssertEqual(NativeObjectDraws.At<EyeDoorDraws.Draw>(raw == 0x9bf7 ? 0x9c4f : raw),
                 EyeDoorDrawsConstants.VisualSource(NativeObjectDraws.At<EyeDoorDraws.Draw>((ushort)raw)),"Eye door original mirrored alias");

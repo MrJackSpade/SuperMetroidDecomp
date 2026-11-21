@@ -7,8 +7,6 @@ namespace SuperMetroid.Core.Enemies.Choot;
 [RoomLifetime]
 internal sealed class ChootBehavior : IEnemySpecies, IEnemySpawnFactory<ChootSpawnSettings>
 {
-    /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Choot];
 
     /// <inheritdoc/>
     public EnemyOccupant Create(RoomEnemyOccupant occupant, ChootSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new ChootEntity(occupant, place, common, settings));
@@ -32,30 +30,22 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemySpawnFactory<ChootSpa
         return state;
     }
 
+    /// <summary>What <see cref="RunChootMain"/> does for each <see cref="ChootAction"/> member, each member's own arm.</summary>
+    private static IdentityTable<ChootAction, Action<ChootSpawnSettings, RoomEnemyPlace, ChootEnemyState, SamusState>> RunChootMainForChootAction => field ??= new(new Dictionary<ChootAction, Action<ChootSpawnSettings, RoomEnemyPlace, ChootEnemyState, SamusState>>
+    {
+        [ChootAction.WaitingForSamus] = static (settings, place, state, samus) => WaitForChootActivation(settings, place, state, samus),
+        [ChootAction.PreparingJump] = static (_, place, state, samus) => PrepareChootJump(place, state),
+        [ChootAction.Jumping] = static (settings, place, state, samus) => RunChootJump(settings, place, state),
+        [ChootAction.Falling] = static (settings, place, state, samus) => RunChootFall(settings, place, state),
+    });
+
     /// <summary>Runs the Choot's wait, preparation, jump or fall.</summary>
     private static void RunChootMain(
         ChootSpawnSettings chootSpawnSettings, RoomEnemyPlace place,
         ChootEnemyState state,
         SamusState samus)
     {
-        switch (state.Action)
-        {
-            case ChootAction.WaitingForSamus:
-                WaitForChootActivation(chootSpawnSettings, place, state, samus);
-                return;
-            case ChootAction.PreparingJump:
-                PrepareChootJump(place, state);
-                return;
-            case ChootAction.Jumping:
-                RunChootJump(chootSpawnSettings, place, state);
-                return;
-            case ChootAction.Falling:
-                RunChootFall(chootSpawnSettings, place, state);
-                return;
-            default:
-                throw new InvalidDataException(
-                    $"Choot has no behaviour for action {state.Action}.");
-        }
+        RunChootMainForChootAction[state.Action](chootSpawnSettings, place, state, samus);
     }
 
     /// <summary>Arms the jump delay when Samus comes within the activation distance horizontally.</summary>

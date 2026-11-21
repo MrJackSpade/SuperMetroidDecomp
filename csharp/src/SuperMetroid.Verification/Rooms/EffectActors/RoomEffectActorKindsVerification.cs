@@ -29,7 +29,7 @@ internal static class RoomEffectActorKindsVerification
             AssertEqual(entry, RoomEffectActorProgramAddresses.Entries[kind], $"room sprite object {kind} entry");
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEffectActor slot = enemies.EffectActors.SpawnRoomEffectActor(new(0x1000, 0x2000), kind, SuperMetroid.Core.Enemies.SpriteGraphics.SharedIn(SuperMetroid.Core.Enemies.Drawing.EnemyShades.InProjectileLook));
-            AssertEqual(kind, slot.Kind, $"room sprite object {kind} identity");
+            AssertTrue(slot.Shows(kind), $"room sprite object {kind} identity");
             var native = new RoomEffectActorNativeLists.Reference(rom, entry);
             for (int update = 0; update < UpdatesPerKind; update++)
             {

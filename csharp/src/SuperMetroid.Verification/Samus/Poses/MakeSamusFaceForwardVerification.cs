@@ -13,7 +13,7 @@ internal static class MakeSamusFaceForwardVerification
     /// </summary>
     internal static void VerifyMakeSamusFaceForward()
     {
-        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.StandingAimUpRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(0x7b, 0x8b)) };
+        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x7b, 0x8b)) }.InPose(SamusPoseId.StandingAimUpRightPose);
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0xffff);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         ushort boardingRadius = samus.Kinematics.Radius.Y;

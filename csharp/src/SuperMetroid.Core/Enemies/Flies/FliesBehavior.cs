@@ -9,8 +9,6 @@ namespace SuperMetroid.Core.Enemies.Flies;
 [RoomLifetime]
 internal sealed class FliesBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawnSettings>
 {
-    /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Mella, EnemyDefinitionId.Mellow, EnemyDefinitionId.MaridiaFly];
 
     /// <inheritdoc/>
     public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new FliesEntity(this, occupant, place, common));
@@ -23,7 +21,6 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpa
     {
         _room = room;
     }
-
 
     /// <summary>Starts a newly loaded fly at angle zero with its flight animation and clockwise motion.</summary>
     /// <returns>The state the enemy holds from its setup.</returns>
@@ -40,33 +37,30 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpa
         return state;
     }
 
+    /// <summary>What <see cref="RunFlyMain"/> does for each <see cref="FlyAction"/> member, each member's own arm.</summary>
+    private static IdentityTable<FlyAction, Action<RoomEnemyPlace, SamusState, FlyEnemyState>> RunFlyMainForFlyAction => field ??= new(new Dictionary<FlyAction, Action<RoomEnemyPlace, SamusState, FlyEnemyState>>
+    {
+        [FlyAction.Circling] = static (place, samus, state) => RunFlyCircle(place, state, samus),
+        [FlyAction.AttackSamus] = static (place, samus, state) => RunFlyAttack(place, state),
+        [FlyAction.Retreat] = static (place, samus, state) =>
+        {
+            MoveFlyAccordingToVelocities(place, state);
+            if (state.RetreatUpdatesLeft.Count())
+            {
+                state.CooldownUpdatesLeft = UpdateCountdown.For(FlyMotionDefinitions.AttackCooldown);
+                state.Action = FlyAction.Circling;
+                state.Rotation = RotationDirection.Clockwise;
+            }
+        },
+    });
+
     /// <summary>Advances room RNG and runs a fly's circle, attack or retreat phase.</summary>
     private void RunFlyMain(RoomEnemyPlace place, FlyEnemyState state, SamusState samus)
     {
         // The flies advance the global RNG even though this family does not consume the
         // returned number. The side effect matters when several random enemies share a room.
         _room.Random.Generate();
-        switch (state.Action)
-        {
-            case FlyAction.Circling:
-                RunFlyCircle(place, state, samus);
-                return;
-            case FlyAction.AttackSamus:
-                RunFlyAttack(place, state);
-                return;
-            case FlyAction.Retreat:
-                MoveFlyAccordingToVelocities(place, state);
-                if (state.RetreatUpdatesLeft.Count())
-                {
-                    state.CooldownUpdatesLeft = UpdateCountdown.For(FlyMotionDefinitions.AttackCooldown);
-                    state.Action = FlyAction.Circling;
-                    state.Rotation = RotationDirection.Clockwise;
-                }
-                return;
-            default:
-                throw new InvalidDataException(
-                    $"Fly has no behaviour for action {state.Action}.");
-        }
+        RunFlyMainForFlyAction[state.Action](place, samus, state);
     }
 
     /// <summary>Rotates a fly around its flight path, reversing direction each revolution or diving when Samus enters range.</summary>
@@ -167,8 +161,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpa
         if (!place.AnimationClock.Expire())
             return;
         AnimationPlayback<FlySegment> playback = state.Playback;
-        EnemyAnimationPlayback.Play(place, FlyAnimations.Segments, ref playback,
-            static cue => throw new InvalidOperationException($"A cue-free fly animation raised {cue}."));
+        EnemyAnimationPlayback.PlaySilently(place, FlyAnimations.Segments, ref playback);
         state.Playback = playback;
     }
 

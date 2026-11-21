@@ -32,12 +32,7 @@ public sealed class InstalledPowerBombGlowColors
     /// <exception cref="ArgumentOutOfRangeException">The sequence is undefined or the step is outside it.</exception>
     public RgbColor Resolve(PowerBombGlowSequence sequence, int index)
     {
-        RgbColor[] colors = sequence switch
-        {
-            PowerBombGlowSequence.PreExplosion => preExplosion,
-            PowerBombGlowSequence.Explosion => explosion,
-            _ => throw new ArgumentOutOfRangeException(nameof(sequence)),
-        };
+        RgbColor[] colors = sequence == PowerBombGlowSequence.PreExplosion ? preExplosion : explosion;
         if (index < 0 || index >= colors.Length)
             throw new ArgumentOutOfRangeException(nameof(index));
         return colors[index];

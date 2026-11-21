@@ -11,15 +11,15 @@ public static class FileSelectParts
 {
     /// <summary>The JSON name of a foreground page.</summary>
     public static string PageName(FileSelectPage page) =>
-        Ensure.Listed(FileSelectPresentationDefinitions.PageNames, page);
+        FileSelectPresentationDefinitions.PageNames[page];
 
     /// <summary>The JSON name of a slot-field patch.</summary>
     public static string PatchName(FileSelectPatch patch) =>
-        Ensure.Listed(FileSelectPresentationDefinitions.PatchNames, patch);
+        FileSelectPresentationDefinitions.PatchNames[patch];
 
     /// <summary>The JSON name of a bordered heading's sprite.</summary>
     public static string BorderSpriteName(FileSelectBorder border) =>
-        Ensure.Listed(FileSelectPresentationDefinitions.BorderSpriteNames, border);
+        FileSelectPresentationDefinitions.BorderSpriteNames[border];
 
     /// <summary>The menus' picture of the file-select backdrop page (#1467).</summary>
     public const string BackgroundFrame = "FileSelect.Background";
@@ -33,7 +33,7 @@ public static class FileSelectParts
 
     /// <summary>The menus' picture of save slot <paramref name="slot"/>'s letter (#1467, #1976).</summary>
     public static string LetterFrame(SaveSlot slot) =>
-        $"FileSelect.Letter.{Ensure.Listed(FileSelectPresentationDefinitions.SlotLetterNames, slot)}";
+        $"FileSelect.Letter.{FileSelectPresentationDefinitions.SlotLetterNames[slot]}";
 
     /// <summary>The menus' picture of a slot field's <paramref name="patch"/>, placed at the patch's anchor (#1467).</summary>
     public static string PatchFrame(FileSelectPatch patch) => $"FileSelect.Patch.{PatchName(patch)}";
@@ -44,5 +44,5 @@ public static class FileSelectParts
     /// <summary>The name the helmet picture <paramref name="frame"/> is installed under.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="frame"/> is not one of the helmet's pictures.</exception>
     internal static string HelmetSpriteName(FileSelectHelmetFrame frame) =>
-        Ensure.Listed(HelmetSpriteNames, frame);
+        HelmetSpriteNames[frame];
 }

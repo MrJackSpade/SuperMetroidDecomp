@@ -12,15 +12,15 @@ internal static class SamusBeamShotBehaviorDefinitions
     /// live state, Samus's changing state twice and the Murder Beam's misaligned start. A shot whose effect lies
     /// outside the emulation scope limit is refused, as it is fired or as it flies (#1500).
     /// </summary>
-    internal static readonly UnauthoredBeamShotBehaviors<SamusBeamCombination, SamusShotBehavior> Unauthored = new(
-        new Dictionary<SamusBeamCombination, SamusShotBehavior>
+    internal static readonly UnauthoredBeamShotBehaviors<SamusBeamCombination, SamusShotFiring> Unauthored = new(
+        new Dictionary<SamusBeamCombination, SamusShotFiring>
         {
             [SamusBeamCombination.SpazerPlasma] = SamusShotBehaviors.UnchargedSpazerPlasma,
             [SamusBeamCombination.SpazerPlasmaWave] = SamusShotBehaviors.ChainsawPowerBomb,
             [SamusBeamCombination.SpazerPlasmaIce] = SamusShotBehaviors.Spacetime,
             [SamusBeamCombination.SpazerPlasmaIceWave] = SamusShotBehaviors.UnchargedAllBeams,
         },
-        new Dictionary<SamusBeamCombination, SamusShotBehavior>
+        new Dictionary<SamusBeamCombination, SamusShotFiring>
         {
             [SamusBeamCombination.SpazerPlasma] = SamusShotBehaviors.ChargedSpazerPlasma,
             [SamusBeamCombination.SpazerPlasmaWave] = SamusShotBehaviors.ChargedChainsaw,

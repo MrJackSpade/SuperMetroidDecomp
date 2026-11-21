@@ -7,8 +7,6 @@ namespace SuperMetroid.Core.Enemies.Sbug;
 [RoomLifetime]
 internal sealed class SbugBehavior : IEnemySpecies, IEnemySpawnFactory<SbugSpawnSettings>
 {
-    /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Sbug];
 
     /// <inheritdoc/>
     public EnemyOccupant Create(RoomEnemyOccupant occupant, SbugSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new SbugEntity(occupant, place, common, settings));
@@ -44,40 +42,27 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemySpawnFactory<SbugSpawn
         return new(x, y, SbugMovement.FacingOf(heading));
     }
 
+    /// <summary>What <see cref="RunSbugMain"/> does for each <see cref="SbugAction"/> member, each member's own arm.</summary>
+    private static IdentityTable<SbugAction, Action<SbugSpawnSettings, RoomEnemyPlace, SamusState, SbugEnemyState>> RunSbugMainForSbugAction => field ??= new(new Dictionary<SbugAction, Action<SbugSpawnSettings, RoomEnemyPlace, SamusState, SbugEnemyState>>
+    {
+        [SbugAction.WaitForSamus] = static (settings, place, samus, state) => RunSbugWait(settings, place, state, samus),
+        // An activation only changes the bug's action, which takes its update; it moves from the next update.
+        [SbugAction.ActivateMoveForward] = static (_, place, samus, state) => state.Action = SbugAction.MoveForward,
+        [SbugAction.ActivateZigZag] = static (_, place, samus, state) => state.Action = SbugAction.ZigZag,
+        [SbugAction.ActivateMoveForwardThenWait] = static (_, place, samus, state) =>
+        {
+            state.MovementTimer = UpdateCountdown.For(SbugMovementDefinitions.LegDuration);
+            state.Action = SbugAction.MoveForwardThenWait;
+        },
+        [SbugAction.MoveForward] = static (settings, place, samus, state) => AddSbugVelocity(place, ForwardLeg(settings)),
+        [SbugAction.ZigZag] = static (settings, place, samus, state) => RunSbugZigZag(settings, place, state),
+        [SbugAction.MoveForwardThenWait] = static (settings, place, samus, state) => RunSbugForwardThenWait(settings, place, state),
+    });
+
     /// <summary>Runs an Sbug for one update through all of its actions.</summary>
     private static void RunSbugMain(SbugSpawnSettings sbugSpawnSettings, RoomEnemyPlace place, SbugEnemyState state, SamusState samus)
     {
-        switch (state.Action)
-        {
-            case SbugAction.WaitForSamus:
-                RunSbugWait(sbugSpawnSettings, place, state, samus);
-                return;
-
-            // An activation only changes the bug's action, which takes its update; it moves from the next update.
-            case SbugAction.ActivateMoveForward:
-                state.Action = SbugAction.MoveForward;
-                return;
-            case SbugAction.ActivateZigZag:
-                state.Action = SbugAction.ZigZag;
-                return;
-            case SbugAction.ActivateMoveForwardThenWait:
-                state.MovementTimer = UpdateCountdown.For(SbugMovementDefinitions.LegDuration);
-                state.Action = SbugAction.MoveForwardThenWait;
-                return;
-
-            case SbugAction.MoveForward:
-                AddSbugVelocity(place, ForwardLeg(sbugSpawnSettings));
-                return;
-            case SbugAction.ZigZag:
-                RunSbugZigZag(sbugSpawnSettings, place, state);
-                return;
-            case SbugAction.MoveForwardThenWait:
-                RunSbugForwardThenWait(sbugSpawnSettings, place, state);
-                return;
-            default:
-                throw new InvalidDataException(
-                    $"Sbug has no behaviour for action {state.Action}.");
-        }
+        RunSbugMainForSbugAction[state.Action](sbugSpawnSettings, place, samus, state);
     }
 
     /// <summary>Arms the population-selected behavior only when Samus enters its square trigger region.</summary>
@@ -155,9 +140,8 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemySpawnFactory<SbugSpawn
 
     /// <summary>Advances Sbug's typed animation.</summary>
     internal static void AdvanceSbugTypedAnimation(RoomEnemyPlace place, SbugEnemyState sbugEnemyState) =>
-        EnemyAnimationPlayback.Advance(place, sbugEnemyState, SbugAnimations.Segments,
-            static (SbugEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
-            static (_, cue) => throw new InvalidOperationException($"Sbug's cue-free animation raised {cue}."));
+        EnemyAnimationPlayback.AdvanceSilently(place, sbugEnemyState, SbugAnimations.Segments,
+            static (SbugEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback);
 
     /// <summary>Runs Sbug's main AI.</summary>
     internal static void RunSbugMainAi(SbugSpawnSettings sbugSpawnSettings, RoomEnemyPlace place, SbugEnemyState sbugEnemyState, IEnemyAiFrame frame) => RunSbugMain(sbugSpawnSettings, place, sbugEnemyState, frame.Samus);

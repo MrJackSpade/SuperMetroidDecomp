@@ -10,8 +10,6 @@ namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 [RoomLifetime]
 internal sealed class OumBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawnSettings>
 {
-    /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Oum];
 
     /// <inheritdoc/>
     public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new OumEntity(this, occupant, place, common));
@@ -51,6 +49,17 @@ internal sealed class OumBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawn
         return state;
     }
 
+    /// <summary>What <see cref="RunOumMain"/> does for each <see cref="OumAction"/> member, each member's own arm.</summary>
+    private IdentityTable<OumAction, Action<RoomEnemyPlace, OumEnemyState, SamusState, RoomLevelData, HorizontalDirection?>> RunOumMainForOumAction => field ??= new(new Dictionary<OumAction, Action<RoomEnemyPlace, OumEnemyState, SamusState, RoomLevelData, HorizontalDirection?>>
+    {
+        [OumAction.Idle] = (place, state, samus, level, pushSide) => RunOumIdle(place, state, samus, level),
+        [OumAction.Rolling] = (place, state, samus, level, pushSide) => RunOumRolling(place, state, samus, level, pushSide),
+        [OumAction.Attacking] = (place, state, samus, level, pushSide) =>
+        {
+        },
+        [OumAction.AttackFinished] = (place, state, samus, level, pushSide) => RollOumAfterAttack(place, state),
+    });
+
     /// <summary>
     /// Runs the Oum's main behaviour and actions. Ordering is exact: proximity and
     /// previous positions, behavior, Samus carrying, then the input-derived stop flag. The side of Samus pushing it and its
@@ -66,23 +75,7 @@ internal sealed class OumBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawn
         HorizontalDirection? pushSide = OumPushSide(place, samus);
         Position16<RoomPixels> previousPosition = place.Position.Whole;
 
-        switch (state.Action)
-        {
-            case OumAction.Idle:
-                RunOumIdle(place, state, samus, level);
-                break;
-            case OumAction.Rolling:
-                RunOumRolling(place, state, samus, level, pushSide);
-                break;
-            case OumAction.Attacking:
-                break;
-            case OumAction.AttackFinished:
-                RollOumAfterAttack(place, state);
-                break;
-            default:
-                throw new InvalidDataException(
-                    $"Maridia Large Snail has no behaviour for action {state.Action}.");
-        }
+        RunOumMainForOumAction[state.Action](place, state, samus, level, pushSide);
 
         CarrySamusWithOum(place, state, samus, previousPosition, pushSide);
         UpdateOumInputStop(place, state, controllerInput, previousPosition, pushSide);
@@ -172,58 +165,57 @@ internal sealed class OumBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawn
         state.Action = OumAction.Rolling;
     }
 
+    /// <summary>What <see cref="RunOumBounce"/> does for each <see cref="OumBouncePhase"/> member, each member's own arm.</summary>
+    private IdentityTable<OumBouncePhase, Action<RoomEnemyPlace, OumEnemyState, RoomLevelData>> RunOumBounceForOumBouncePhase => field ??= new(new Dictionary<OumBouncePhase, Action<RoomEnemyPlace, OumEnemyState, RoomLevelData>>
+    {
+        [OumBouncePhase.Falling] = (place, state, level) =>
+        {
+            // Falling holds the place at its fastest fall place.
+            state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.Min(
+                state.YSpeedCurvePlace + OumMotionDefinitions.BounceAcceleration,
+                OumMotionDefinitions.FastestFallPlace);
+
+            if (!_terrain.MoveEnemyVertically(
+                    level,
+                    place,
+                    state.YSpeedCurvePlace.Speed.Positive))
+            {
+                return;
+            }
+
+            state.RemainingBounces--;
+            // An impact that leaves the place below the start ends the bounces; the negative place is kept.
+            state.YSpeedCurvePlace -= OumMotionDefinitions.ImpactCurveLoss;
+            if (state.YSpeedCurvePlace.IsNegative)
+                state.RemainingBounces = 0;
+            state.BouncePhase = OumBouncePhase.Rising;
+        },
+        [OumBouncePhase.Rising] = (place, state, level) =>
+        {
+            state.YSpeedCurvePlace -= OumMotionDefinitions.BounceAcceleration;
+            if (state.YSpeedCurvePlace.IsNegative)
+            {
+                state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
+                state.BouncePhase = OumBouncePhase.Falling;
+                return;
+            }
+
+            // The rising half moves at the same curve mark's speed upward; the place lies at or past the curve's start
+            // here, so its whole marks are that mark.
+            _terrain.MoveEnemyVertically(
+                level,
+                place,
+                state.YSpeedCurvePlace.Speed.Negative);
+        },
+    });
+
     /// <summary>Alternates quadratic-speed fall and rise phases, moving the place back after each impact.</summary>
     private void RunOumBounce(
         RoomEnemyPlace place,
         OumEnemyState state,
         RoomLevelData level)
     {
-        switch (state.BouncePhase)
-        {
-            case OumBouncePhase.Falling:
-                // Falling holds the place at its fastest fall place.
-                state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.Min(
-                    state.YSpeedCurvePlace + OumMotionDefinitions.BounceAcceleration,
-                    OumMotionDefinitions.FastestFallPlace);
-
-                if (!_terrain.MoveEnemyVertically(
-                        level,
-                        place,
-                        state.YSpeedCurvePlace.Speed.Positive))
-                {
-                    return;
-                }
-
-                state.RemainingBounces--;
-                // An impact that leaves the place below the start ends the bounces; the negative place is kept.
-                state.YSpeedCurvePlace -= OumMotionDefinitions.ImpactCurveLoss;
-                if (state.YSpeedCurvePlace.IsNegative)
-                    state.RemainingBounces = 0;
-                state.BouncePhase = OumBouncePhase.Rising;
-                return;
-
-            case OumBouncePhase.Rising:
-                state.YSpeedCurvePlace -= OumMotionDefinitions.BounceAcceleration;
-                if (state.YSpeedCurvePlace.IsNegative)
-                {
-                    state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
-                    state.BouncePhase = OumBouncePhase.Falling;
-                    return;
-                }
-
-                // The rising half moves at the same curve mark's speed upward; the place lies at or past the curve's start
-                // here, so its whole marks are that mark.
-                _terrain.MoveEnemyVertically(
-                    level,
-                    place,
-                    state.YSpeedCurvePlace.Speed.Negative);
-                return;
-
-            default:
-                throw new InvalidDataException(
-                    $"Maridia Large Snail has no behaviour for bounce phase " +
-                    $"{state.BouncePhase}.");
-        }
+        RunOumBounceForOumBouncePhase[state.BouncePhase](place, state, level);
     }
 
     /// <summary>Temporarily extends the collision probe toward Samus, then retracts it after wall resolution.</summary>
@@ -335,28 +327,24 @@ internal sealed class OumBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawn
         place.Position = place.Position.WithWholeX(previousPosition.X);
     }
 
+    /// <summary>What <see cref="ApplyOumCue"/> does for each <see cref="OumCueKind"/> member, each member's own arm.</summary>
+    private IdentityTable<OumCueKind, Action<OumEnemyState>> ApplyOumCueForOumCueKind => field ??= new(new Dictionary<OumCueKind, Action<OumEnemyState>>
+    {
+        [OumCueKind.PlaySplash] = state => _audio.QueueEnemySound(EnemySoundEffectDefinitions.OumSplashSound, priority: SoundRequestPriority.Normal),
+        [OumCueKind.FinishAttack] = state =>
+        {
+            if (state.Action != OumAction.Attacking)
+                throw new InvalidOperationException($"Oum's attack finished while it was {state.Action}.");
+            state.Action = OumAction.AttackFinished;
+        },
+        [OumCueKind.AllowAttackRotation] = state => state.AttackAllowsRotation = true,
+        [OumCueKind.DisallowAttackRotation] = state => state.AttackAllowsRotation = false,
+    });
+
     /// <summary>Carries out one cue of Oum's animations: the splash sound, attack completion and the attack-rotation window.</summary>
     private void ApplyOumCue(OumEnemyState state, OumCue cue)
     {
-        switch (cue.Kind)
-        {
-            case OumCueKind.PlaySplash:
-                _audio.QueueEnemySound(EnemySoundEffectDefinitions.OumSplashSound, priority: SoundRequestPriority.Normal);
-                break;
-            case OumCueKind.FinishAttack:
-                if (state.Action != OumAction.Attacking)
-                    throw new InvalidOperationException($"Oum's attack finished while it was {state.Action}.");
-                state.Action = OumAction.AttackFinished;
-                break;
-            case OumCueKind.AllowAttackRotation:
-                state.AttackAllowsRotation = true;
-                break;
-            case OumCueKind.DisallowAttackRotation:
-                state.AttackAllowsRotation = false;
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(OumCueKind)} {cue.Kind}.");
-        }
+        ApplyOumCueForOumCueKind[cue.Kind](state);
     }
 
     /// <summary>The roll Oum shows: facing as it faced when the roll began, forwards or, after a wall, backwards.</summary>

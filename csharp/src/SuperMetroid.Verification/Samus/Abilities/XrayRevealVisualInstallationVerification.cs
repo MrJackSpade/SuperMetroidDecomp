@@ -34,7 +34,7 @@ internal static class XrayRevealVisualInstallationVerification
             // Every copy's blocks come from the cartridge's reveal operands, as the import extracted them (#1596).
             XrayRevealDefinition? native = XrayRevealVerification.ReadNativeXrayRevealDefinition(nativeBus, type, unchecked((byte)bts));
             if (native is not { } definition ||
-                !InstalledXrayReveals.IsDrawable(definition.Shape)) continue;
+                !InstalledXrayReveals.IsDrawable(definition.Shape, out _)) continue;
             // Brinstar resolves every entry a drawable rule covers to the reaction the rule reveals, its own Speed Booster blocks
             // among them (#1805).
             AssertEqual((XrayRevealDefinition?)definition, stock.Apply(type, RoomBlockBehaviorCodec.Decode(AreaId.Brinstar, bts)),
@@ -87,15 +87,16 @@ internal static class XrayRevealVisualInstallationVerification
             "installed X-ray rooms name every retail overlay, in order");
         AssertTrue(rooms.All(room => !room.ContainsKey("pointer")), "installed X-ray rooms hold no cartridge pointer");
         // A rule lists the blocks its shape copies and no others: a tall reveal its top and bottom ones (#1756).
-        int[] tallBlocks = [.. tall.Required("blocks").AsArray().RequiredElements().Select(block => block.GetValue<int>())];
-        AssertEqual(2, tallBlocks.Length, "the tall reveal lists its two blocks");
+        JsonObject tallBlocks = tall.Required("blocks").AsObject();
+        AssertTrue(tallBlocks.Select(block => block.Key).Order(StringComparer.Ordinal).SequenceEqual(["bottom", "top"]),
+            "the tall reveal names its top and bottom blocks");
         AssertTrue(document.AsObject().ContainsKey("tanks") && !document.AsObject().ContainsKey("tankMetatiles"),
             "the tanks' reveal blocks are installed as tanks");
         // Each tank's reveal block is installed under its kind, not by its place in a list (#2115).
         AssertTrue(document.Required("tanks").AsObject().Select(tank => tank.Key).Order(StringComparer.Ordinal)
                 .SequenceEqual(InstalledXrayOverlays.TankKinds.Select(kind => kind.ToString()).Order(StringComparer.Ordinal)),
             "the tanks' reveal blocks are installed keyed by each tank kind");
-        int originalTop = tallBlocks[0];
+        int originalTop = tallBlocks.Required("top").GetValue<int>();
 
         var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(Enumerable.Repeat(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.SolidBlock), 1024).ToArray(), new RoomBlockBehavior[1024], new RoomBlockAppearance[1024]), RoomLevelData.NothingBeyondGrid(), []);
         level.SetObjectTerrain(33, RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.ShootableBlock));

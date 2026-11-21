@@ -80,18 +80,21 @@ public sealed class WeightedRandomChoice<TOutcome>
     /// <param name="advancedBy">The counter added to the field's roll, zero or more.</param>
     public TOutcome Choose(int sample, int advancedBy) => ChooseAt(Field.OfAdvancedBy(sample, advancedBy));
 
-    /// <summary>The outcome the field's value <paramref name="fieldValue"/> chooses.</summary>
+    /// <summary>
+    /// The outcome the field's value <paramref name="fieldValue"/> chooses: the shares, which the constructor requires to
+    /// cover every value the field reads, run from the lowest values, so a value past every earlier run lies in the last
+    /// one's (#2553).
+    /// </summary>
     /// <param name="fieldValue">A value of <see cref="Field"/>, 0 through its outcomes less one.</param>
     private TOutcome ChooseAt(int fieldValue)
     {
         int value = fieldValue;
-        foreach (WeightedRandomOutcome<TOutcome> outcome in _outcomes)
+        foreach (WeightedRandomOutcome<TOutcome> outcome in _outcomes.AsSpan()[..^1])
         {
             if (value < outcome.Values)
                 return outcome.Outcome;
             value -= outcome.Values;
         }
-
-        throw new InvalidOperationException($"Field value {fieldValue} lies past the choice's {Field.Outcomes} values.");
+        return _outcomes[^1].Outcome;
     }
 }

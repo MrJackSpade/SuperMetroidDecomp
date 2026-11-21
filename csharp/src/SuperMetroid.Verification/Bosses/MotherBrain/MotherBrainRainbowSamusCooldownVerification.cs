@@ -25,12 +25,12 @@ internal static class MotherBrainRainbowSamusCooldownVerification
         var attack = MotherBrainLateFightFixtures.NewSequence();
         attack.State.MoveBrainTo(new(64, 96));
         attack.Encounter.Body.Position = FixedPosition<RoomPixels>.FromWhole(new(64, 100));
-        attack.Encounter.RainbowPhase = MotherBrainRainbowPhase.WaitForCharge;
+        attack.State.RainbowPhase = MotherBrainRainbowPhase.WaitForCharge;
         attack.Encounter.PhaseTimer.LastFor(1);
         RainbowBeamAttackFrame Frame() => MotherBrainLateFightFixtures.QuietFrame(0, 0);
 
         MotherBrainRainbowBeamAttackStepResult neckLowered = attack.Step(samus, Frame());
-        AssertEqual(MotherBrainRainbowPhase.StartFiring, attack.Encounter.RainbowPhase,
+        AssertEqual(MotherBrainRainbowPhase.StartFiring, attack.State.RainbowPhase,
             "the charge's end lowers the neck and runs on into the start of firing");
         AssertEqual<int?>(MotherBrainBeamDefinitions.NeckLoweredSamusCooldown, neckLowered.SamusProjectileCooldown,
             "lowering the neck gives Samus the beam's cooldown");
@@ -48,10 +48,10 @@ internal static class MotherBrainRainbowSamusCooldownVerification
             "the encounter replaces Samus's longer cooldown with the beam's");
 
         bool started = false;
-        while ((attack.Encounter.Stage == MotherBrainBodyStage.RainbowBeam && attack.Encounter.RainbowPhase == MotherBrainRainbowPhase.StartFiring))
+        while ((attack.State.Stage == MotherBrainLateFightStage.RainbowBeam && attack.State.RainbowPhase == MotherBrainRainbowPhase.StartFiring))
         {
             MotherBrainRainbowBeamAttackStepResult charging = attack.Step(samus, Frame());
-            if ((attack.Encounter.Stage == MotherBrainBodyStage.RainbowBeam && attack.Encounter.RainbowPhase == MotherBrainRainbowPhase.StartFiring))
+            if ((attack.State.Stage == MotherBrainLateFightStage.RainbowBeam && attack.State.RainbowPhase == MotherBrainRainbowPhase.StartFiring))
                 AssertEqual<int?>(null, charging.SamusProjectileCooldown, "the widening beam gives Samus no cooldown");
             else
             {
@@ -60,18 +60,18 @@ internal static class MotherBrainRainbowSamusCooldownVerification
                     "the beam's start clears Samus's cooldown");
             }
         }
-        AssertTrue(started && attack.Encounter.RainbowPhase == MotherBrainRainbowPhase.MoveSamusTowardWall,
+        AssertTrue(started && attack.State.RainbowPhase == MotherBrainRainbowPhase.MoveSamusTowardWall,
             "the start of firing captures Samus");
         AssertTrue(samus.Control.InputLocked, "the beam's start locks Samus");
 
         MotherBrainRainbowBeamAttackStepResult? ended = null;
-        while ((attack.Encounter.Stage != MotherBrainBodyStage.RainbowBeam || attack.Encounter.RainbowPhase != MotherBrainRainbowPhase.LetSamusFall))
+        while ((attack.State.Stage != MotherBrainLateFightStage.RainbowBeam || attack.State.RainbowPhase != MotherBrainRainbowPhase.LetSamusFall))
         {
             MotherBrainRainbowBeamAttackStepResult firing = attack.Step(samus, Frame());
-            if ((attack.Encounter.Stage == MotherBrainBodyStage.RainbowBeam && attack.Encounter.RainbowPhase == MotherBrainRainbowPhase.LetSamusFall))
+            if ((attack.State.Stage == MotherBrainLateFightStage.RainbowBeam && attack.State.RainbowPhase == MotherBrainRainbowPhase.LetSamusFall))
                 ended = firing;
             else
-                AssertEqual<int?>(null, firing.SamusProjectileCooldown, $"the held beam gives Samus no cooldown in {attack.Encounter.RainbowPhase}");
+                AssertEqual<int?>(null, firing.SamusProjectileCooldown, $"the held beam gives Samus no cooldown in {attack.State.RainbowPhase}");
         }
         AssertTrue(!samus.Control.InputLocked, "the beam's end releases Samus");
         AssertEqual<int?>(MotherBrainBeamDefinitions.BeamEndedSamusCooldown, ended?.SamusProjectileCooldown,

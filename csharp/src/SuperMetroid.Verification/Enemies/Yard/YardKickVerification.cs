@@ -32,8 +32,8 @@ internal static class YardKickVerification
             enemies.Load(RoomEnemyFrameFixtures.StandaloneLoad(room.State.EnemyPopulation, BgArtworkFixtures.For(new SnesVram()), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), RoomEnemyFrameFixtures.StandaloneSamus()));
             var actor = enemies.Places.InUpdateOrder[0];
             var state = enemies.YardStates[0];
-            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = pose, Health = 999, MaxHealth = 999,
-                Position = FixedPosition<RoomPixels>.FromWhole(actor.Position.Whole) };
+            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Health = 999, MaxHealth = 999,
+                Position = FixedPosition<RoomPixels>.FromWhole(actor.Position.Whole) }.InPose(pose);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             enemies.StepStandaloneFrame(enemies.StandaloneFrame(assets.LevelData) with { Camera = new((ushort)(actor.Position.X.Whole - 128), (ushort)(actor.Position.Y.Whole - 112)), TimeIsFrozen = false, Samus = samus });
             // Seed the airborne touch-admission case. The real contact dispatcher

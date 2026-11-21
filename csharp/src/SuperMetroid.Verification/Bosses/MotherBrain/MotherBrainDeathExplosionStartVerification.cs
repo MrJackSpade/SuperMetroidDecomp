@@ -46,7 +46,7 @@ internal static class MotherBrainDeathExplosionStartVerification
         AssertEqual(new OctantVector(30, -22), new OctantVector(requests[1].Offset.X, requests[1].Offset.Y), "the second group's second offset");
 
         // The door's dust continues the place and the interval the last death burst left.
-        sequence.Encounter.DeathPhase = MotherBrainDeathPhase.EscapeDoorBursts;
+        sequence.State.DeathPhase = MotherBrainDeathPhase.EscapeDoorBursts;
         sequence.Encounter.PhaseTimer.LastFor(33);
         PrivateState.Set(state.Bursts, "Place", 2);
         PrivateState.SetField(state.Bursts, "burstWait", UpdateCountdown.For(0 + 1));

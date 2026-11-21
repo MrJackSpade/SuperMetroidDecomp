@@ -8,5 +8,5 @@ internal sealed class DragonFireballAnimation(DragonFireballSegment segment)
     : EnemyProjectileFrameAnimation<DragonFireballSegment, EnemyProjectileCommonCue>(segment, DragonFireballAnimations.StartingAt[segment], EnemyProjectileCueRunners.Common<DragonFireballSegment>())
 {
     /// <inheritdoc/>
-    private protected override AnimationSegments<DragonFireballSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => DragonFireballAnimations.Segments;
+    private protected override IUnpausedAnimationPlay<DragonFireballSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => DragonFireballAnimations.Segments;
 }

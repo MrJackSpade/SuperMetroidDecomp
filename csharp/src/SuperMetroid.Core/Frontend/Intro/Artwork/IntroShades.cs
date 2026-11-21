@@ -40,14 +40,14 @@ public static class IntroShades
 
     /// <summary>An actor's recolourable parts drawn in <paramref name="colouring"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The colouring has no installed name.</exception>
-    public static PictureShade Drawn(IntroSpriteColouring colouring) => new(Ensure.Listed(DrawnKeys, colouring), 0);
+    public static PictureShade Drawn(IntroSpriteColouring colouring) => new(DrawnKeys[colouring], 0);
 
     /// <summary>
     /// <paramref name="scene"/>'s colours at crossfade <paramref name="level"/>, below full, on the scene pictures or on the
     /// intro sprite sheet's own-colour parts.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The scene has no installed name.</exception>
-    public static PictureShade Faded(IntroCrossfadeScene scene, int level) => new(Ensure.Listed(FadeKeys, scene), level);
+    public static PictureShade Faded(IntroCrossfadeScene scene, int level) => new(FadeKeys[scene], level);
 
     /// <summary>
     /// <paramref name="scene"/>'s colours an actor drawn in <paramref name="drawn"/> shows at crossfade
@@ -55,7 +55,7 @@ public static class IntroShades
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The scene has no installed name.</exception>
     public static PictureShade Faded(IntroCrossfadeScene scene, int level, PictureShade drawn) =>
-        new($"{drawn.Effect}.{Ensure.Listed(FadeKeys, scene)}", level);
+        new($"{drawn.Effect}.{FadeKeys[scene]}", level);
 
     /// <summary>A narration letter in the colours of glow step <paramref name="step"/>, which its typing or glow gives it.</summary>
     public static PictureShade Glow(IntroTextGlowStep step) => new(GlowEffect, step.Step);

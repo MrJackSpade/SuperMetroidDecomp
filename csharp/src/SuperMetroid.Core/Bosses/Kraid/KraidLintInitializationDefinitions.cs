@@ -10,10 +10,10 @@ internal static class KraidLintInitializationDefinitions
     /// produced on its wait's last update (<see cref="KraidLintPhase.Produce"/>).
     /// Each lint's delay is its own, top latest and bottom soonest.
     /// </summary>
-    internal static readonly FrozenDictionary<KraidLintPart, int> InitialDelays = new Dictionary<KraidLintPart, int>
+    internal static readonly IdentityTable<KraidLintPart, int> InitialDelays = new(new Dictionary<KraidLintPart, int>
     {
         [KraidLintPart.Top] = 288,
         [KraidLintPart.Middle] = 160,
         [KraidLintPart.Bottom] = 64,
-    }.ToFrozenDictionary();
+    });
 }

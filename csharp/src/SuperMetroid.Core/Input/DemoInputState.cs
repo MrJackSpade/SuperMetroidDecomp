@@ -7,7 +7,8 @@ namespace SuperMetroid.Core.Input;
 /// The playback holds only the recording: where it is, how long the current input lasts and the actions it presses in
 /// the player's place. Its owner may switch it to another recording before a step while <see cref="IsPlaying"/> (the
 /// diagonal shinespark's demonstration continues into its second recording on its first step that plays), and then
-/// steps it; the cue a recording gives as it ends goes to the owner (an intro scene ends on it). The playback's own frame
+/// steps it; a signalling recording, which only the intro plays, runs the action its owner loaded it with as it ends
+/// (an intro scene ends on it). The playback's own frame
 /// hold gates the recording, so each input lasts exactly as long as its recorded input.
 /// </remarks>
 public sealed class DemoInputState
@@ -67,24 +68,33 @@ public sealed class DemoInputState
     /// The recording and its countdown change together, so a switch never publishes the new recording with the old
     /// countdown for one step, a state the game cannot expose.
     /// </remarks>
-    public void Load(DemoInputRecordingId recording)
+    public void Load(DemoInputRecordingId recording) => Start(DemoPlaybackPosition.Start(recording));
+
+    /// <summary>
+    /// Loads the signalling <paramref name="recording"/> as <see cref="Load(DemoInputRecordingId)"/> loads any: its signal
+    /// runs the owner's end action, <paramref name="signalled"/>, as its inputs run out, before its input ends.
+    /// </summary>
+    public void Load(DemoSignallingRecordingId recording, Action signalled) =>
+        Start(DemoPlaybackPosition.Start(recording, signalled));
+
+    /// <summary>Starts <paramref name="position"/>'s recording, its first input due on the next step.</summary>
+    private void Start(DemoPlaybackPosition position)
     {
-        Position = DemoPlaybackPosition.Start(recording);
+        Position = position;
         _frameHold.Restart(1);
     }
 
     /// <summary>
-    /// Plays one step of the recording and presses the resulting actions in the player's place. The owner acts on the cue
-    /// a recording gives as it ends in <paramref name="cue"/>.
+    /// Plays one step of the recording and presses the resulting actions in the player's place; a signalling recording's
+    /// signal runs the action its owner loaded it with.
     /// </summary>
-    public void Step(Action<DemoInputCue> cue)
+    public void Step()
     {
-        Ensure.NotNull(cue);
         if (!Enabled || Position is not { } position)
             return;
 
         if (_frameHold.StepEnds())
-            PlayNextInput(position, cue);
+            PlayNextInput(position);
         RememberPressed();
     }
 
@@ -100,28 +110,21 @@ public sealed class DemoInputState
 
     /// <summary>
     /// Plays the input <paramref name="position"/> names, or ends the recording as it says once its inputs have run out:
-    /// a held last input plays again at once, and a signal reaches the owner in <paramref name="cue"/> before the input ends.
+    /// a signalling recording runs its owner's end action first; then a held last input plays again at once, and a stop
+    /// ends the input.
     /// </summary>
-    private void PlayNextInput(DemoPlaybackPosition position, Action<DemoInputCue> cue)
+    private void PlayNextInput(DemoPlaybackPosition position)
     {
-        DemoRecording recording = DemoInputRecordings.Of(position.Recording);
+        DemoRecording recording = position.Recording;
         if (position.NextInput >= recording.Inputs.Count)
         {
-            switch (recording.End)
+            position.Ends();
+            if (recording.End is not DemoRecordingEnd.HoldLastInput)
             {
-                case DemoRecordingEnd.HoldLastInput:
-                    position = position with { NextInput = recording.Inputs.Count - 1 };
-                    break;
-                case DemoRecordingEnd.Signal signal:
-                    cue(signal.Cue);
-                    EndInput();
-                    return;
-                case DemoRecordingEnd.Stop:
-                    EndInput();
-                    return;
-                default:
-                    throw new InvalidOperationException($"Demo recording {position.Recording} has undefined end {recording.End}.");
+                EndInput();
+                return;
             }
+            position = position with { NextInput = recording.Inputs.Count - 1 };
         }
 
         DemoInput input = recording.Inputs[position.NextInput];

@@ -30,6 +30,18 @@ internal sealed class ProjectileTrails
     /// <summary>Adds a trail already under way, as a restored game does; a spawned trail is added the same way.</summary>
     private void Add(SamusProjectileTrail trail) => trails.Add(Ensure.NotNull(trail));
 
+    /// <summary>Whether a projectile of each family leaves a trail (#2553): beams and missiles do; the other families leave none.</summary>
+    private static IdentityTable<SamusProjectileFamily, bool> LeavesTrail => field ??= new(new Dictionary<SamusProjectileFamily, bool>
+    {
+        [SamusProjectileFamily.Beam] = true,
+        [SamusProjectileFamily.Missile] = true,
+        [SamusProjectileFamily.SuperMissile] = true,
+        [SamusProjectileFamily.PowerBomb] = false,
+        [SamusProjectileFamily.Bomb] = false,
+        [SamusProjectileFamily.BeamExplosion] = false,
+        [SamusProjectileFamily.MissileExplosion] = false,
+    });
+
     /// <summary>
     /// Leaves a trail behind <paramref name="projectile"/>: selects both sparkles' animations from the shot's beams and
     /// places them from the placement its trail list gives the frame it shows.
@@ -37,21 +49,8 @@ internal sealed class ProjectileTrails
     internal void SpawnTrail(SamusProjectileOccupant held)
     {
         SamusProjectile projectile = held.Projectile;
-        switch (held.Type.Family)
-        {
-            case SamusProjectileFamily.Beam:
-            case SamusProjectileFamily.Missile:
-            case SamusProjectileFamily.SuperMissile:
-                break;
-            case SamusProjectileFamily.PowerBomb:
-            case SamusProjectileFamily.Bomb:
-            case SamusProjectileFamily.BeamExplosion:
-            case SamusProjectileFamily.MissileExplosion:
-                // Other families leave no trail.
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(SamusProjectileFamily)} {held.Type.Family}.");
-        }
+        if (!LeavesTrail[held.Type.Family])
+            return;
 
         // Beams select by their beams and charge, so charged plain power selects the charged trail, not ordinary power's.
         ProjectileTrailAnimations animations = ProjectileTrailSelection.Select(held.Type);
@@ -129,8 +128,6 @@ internal sealed class ProjectileTrails
             animation.Step(cue => Move(pair, cue));
             if (animation.HasStopped)
                 return;
-            if (animation.IsResting)
-                throw new InvalidOperationException($"Trail sparkle animation came to rest at {animation.Playback.Place}; a sparkle shows frames and ends.");
         }
 
         side.DisplayedOffset = side.Offset;

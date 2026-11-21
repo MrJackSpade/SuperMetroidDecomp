@@ -19,15 +19,15 @@ internal static class KnockbackShinesparkLaunchVerification
     /// </summary>
     internal static void VerifyKnockbackShinesparkLaunch()
     {
-        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.ShinesparkWindupLeftPose, Position = FixedPosition<RoomPixels>.FromWhole(new(0x6c, 0x98)) };
+        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x6c, 0x98)) }.InPose(SamusPoseId.ShinesparkWindupLeftPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         AssertTrue(samus.Shinespark.TryStoreFromSpeedBooster(new SamusSpeedBoostCounter(4, 0)), "a shine is stored");
         samus.Shinespark.BeginWindup(samus);
-        SamusMovementHandOver.BackToPose(samus, SamusMovementOwner.Knockback);
+        SamusMovementHandOver.FromKnockback(samus);
         AssertEqual(ShinesparkPhase.Inactive, samus.Shinespark.Phase, "the knockback's end returned her movement to her pose, ending the windup");
 
-        SamusAerialPoseTransitions.ApplyShinesparkDirectionTransition(samus, SamusPoseId.ShinesparkHorizontalLeftPose);
+        SamusAerialPoseTransitions.ApplyShinesparkDirectionTransition(samus, ShinesparkLaunchFixtures.Of(SamusPoseId.ShinesparkHorizontalLeftPose));
 
         AssertEqual(ShinesparkPhase.Horizontal, samus.Shinespark.Phase, "the left launch installs the horizontal handler");
         AssertEqual(SamusPoseId.ShinesparkHorizontalLeftPose, samus.Pose, "Samus takes the left launch pose");

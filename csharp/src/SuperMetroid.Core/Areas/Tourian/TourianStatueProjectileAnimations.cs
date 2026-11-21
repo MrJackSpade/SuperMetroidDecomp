@@ -13,8 +13,8 @@ internal static class TourianStatueProjectileAnimations
     private const int ParticlesReleased = 4;
 
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<TourianStatueProjectileSegment, EnemyProjectileFrameId, TourianStatueProjectileCue> Segments { get; } = new(
-        new Dictionary<TourianStatueProjectileSegment, AnimationBeat<EnemyProjectileFrameId, TourianStatueProjectileCue>[]>
+    internal static HidingUnpausedAnimationSegments<TourianStatueProjectileSegment, EnemyProjectileFrameId, TourianStatueProjectileCue> Segments { get; } = new(
+        new Dictionary<TourianStatueProjectileSegment, IUnpausedHidingAnimationBeat<EnemyProjectileFrameId, TourianStatueProjectileCue>[]>
     {
         [P.Splash] =
         [
@@ -99,15 +99,15 @@ internal static class TourianStatueProjectileAnimations
     };
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, TourianStatueProjectileCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, TourianStatueProjectileCue>.Frame(frame, duration);
+    private static AnimationBeat<EnemyProjectileFrameId, TourianStatueProjectileCue>.Unpaused Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, TourianStatueProjectileCue>.Frame(frame, duration);
 
     /// <summary>Shows nothing for <paramref name="duration"/> updates (#2558): the projectile is hidden until its next frame.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, TourianStatueProjectileCue> Hide(int duration) =>
-        new AnimationBeat<EnemyProjectileFrameId, TourianStatueProjectileCue>.Hidden(duration);
+    private static AnimationHiddenBeat<EnemyProjectileFrameId, TourianStatueProjectileCue> Hide(int duration) =>
+        new AnimationHiddenBeat<EnemyProjectileFrameId, TourianStatueProjectileCue>(duration);
 
     /// <summary>Shows <paramref name="frame"/> for good (#2068): a statue and the base's decoration rest on their picture.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, TourianStatueProjectileCue> Hold(EnemyProjectileFrameId frame) => new AnimationBeat<EnemyProjectileFrameId, TourianStatueProjectileCue>.HeldFrame(frame);
+    private static AnimationBeat<EnemyProjectileFrameId, TourianStatueProjectileCue>.Unpaused Hold(EnemyProjectileFrameId frame) => new AnimationBeat<EnemyProjectileFrameId, TourianStatueProjectileCue>.HeldFrame(frame);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, TourianStatueProjectileCue> Cue(TourianStatueProjectileCue cue) => new AnimationBeat<EnemyProjectileFrameId, TourianStatueProjectileCue>.Event(cue);
+    private static AnimationBeat<EnemyProjectileFrameId, TourianStatueProjectileCue>.Unpaused Cue(TourianStatueProjectileCue cue) => new AnimationBeat<EnemyProjectileFrameId, TourianStatueProjectileCue>.Event(cue);
 }

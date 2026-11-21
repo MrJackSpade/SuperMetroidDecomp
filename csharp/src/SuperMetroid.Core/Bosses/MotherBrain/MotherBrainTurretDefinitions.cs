@@ -70,7 +70,7 @@ internal static class MotherBrainTurretDefinitions
     /// straight shot moves at <see cref="StraightBulletSpeed"/> along its axis and a diagonal one at
     /// <see cref="DiagonalBulletSpeed"/> along each.
     /// </summary>
-    internal static readonly Dictionary<MotherBrainTurretDirection, MotherBrainTurretDirectionDefinition> Launches = new()
+    internal static readonly IdentityTable<MotherBrainTurretDirection, MotherBrainTurretDirectionDefinition> Launches = new(new Dictionary<MotherBrainTurretDirection, MotherBrainTurretDirectionDefinition>
     {
         [MotherBrainTurretDirection.Left] = new(new(-17, -9), new(-StraightBulletSpeed, SignedEightEight.Zero)),
         [MotherBrainTurretDirection.DownLeft] = new(new(-12, 3), new(-DiagonalBulletSpeed, DiagonalBulletSpeed)),
@@ -80,5 +80,5 @@ internal static class MotherBrainTurretDefinitions
         [MotherBrainTurretDirection.UpRight] = new(new(12, -19), new(DiagonalBulletSpeed, -DiagonalBulletSpeed)),
         [MotherBrainTurretDirection.Up] = new(new(0, -21), new(SignedEightEight.Zero, -StraightBulletSpeed)),
         [MotherBrainTurretDirection.UpLeft] = new(new(-12, -19), new(-DiagonalBulletSpeed, -DiagonalBulletSpeed)),
-    };
+    });
 }

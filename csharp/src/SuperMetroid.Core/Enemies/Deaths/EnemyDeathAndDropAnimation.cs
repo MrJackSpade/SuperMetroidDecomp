@@ -19,5 +19,5 @@ internal sealed class EnemyDeathAndDropAnimation(IEnemyProjectileBranchingCues<E
     }
 
     /// <inheritdoc/>
-    private protected override AnimationSegments<EnemyDeathAndDropSegment, EnemyProjectileFrameId, EnemyDeathAndDropCue> Segments => EnemyDeathAndDropAnimations.Segments;
+    private protected override IUnpausedAnimationPlay<EnemyDeathAndDropSegment, EnemyProjectileFrameId, EnemyDeathAndDropCue> Segments => EnemyDeathAndDropAnimations.Segments;
 }

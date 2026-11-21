@@ -28,9 +28,12 @@ internal sealed class RoomObjectFramePhase
     private readonly MessageBoxFlow _messageBoxes;
     /// <summary>Shows the colours of the beams a pickup equips.</summary>
     private readonly SamusFrameState _player;
-    /// <summary>Prevents a second suit transformation from replacing an active one.</summary>
-    private readonly SamusSuitPickupState _suitPickup;
-
+    /// <summary>
+    /// The message boxes one room-object step opened that have not shown yet, in the order the step made them (#2553): the
+    /// game shows each pickup's or station's box inside its room object's update, so a second one shows only once the box
+    /// before it has closed, its pickup's consequence applied as it opens.
+    /// </summary>
+    private readonly Queue<Action> _waitingMessages = new();
 
     /// <summary>Opens the message box on <paramref name="message"/>, continuing from the buttons held at the update's controller read.</summary>
     private void BeginMessage(GameplayMessageId message) =>
@@ -46,8 +49,6 @@ internal sealed class RoomObjectFramePhase
         _messageBox = dependencies.MessageBox;
         _messageBoxes = dependencies.MessageBoxes;
         _player = dependencies.Player;
-        _suitPickup = dependencies.SuitPickup;
-
     }
     /// <summary>
     /// Runs the room objects once for the door transition, on the door scroll's final update and
@@ -64,6 +65,7 @@ internal sealed class RoomObjectFramePhase
         if (samus.Xray.AreObjectsSuspended)
             return;
 
+<<<<<<< ours
         RoomObjectStepOutcome step = StepRoomObjects(newlyPressed: GameplayAction.None, room, samus);
 
         // Setup-time room objects do not have Samus contact/input available. If a future
@@ -75,17 +77,37 @@ internal sealed class RoomObjectFramePhase
                 "A door-transition room-object step unexpectedly published a player interaction.");
         }
         SpawnThrownProjectiles(step, room.RoomObjects.Thrown);
+||||||| base
+        RoomObjectStepOutcome step = StepRoomObjects(newlyPressed: GameplayAction.None, room, samus);
+
+        // Setup-time room objects do not have Samus contact/input available. If a future
+        // change publishes a player-facing event here, fail at the exact ownership
+        // boundary instead of silently discarding it.
+        if (step.Pickups.Count != 0 || step.StationActivations.Count != 0)
+        {
+            throw new InvalidDataException(
+                "A door-transition room-object step unexpectedly published a player interaction.");
+        }
+        SpawnThrownProjectiles(step);
+=======
+        // The freshly loaded objects have met no contact of Samus's, so the step touches no item and no station acts: the
+        // untouched view's step yields only the projectiles its objects throw.
+        IReadOnlyList<RoomObjectProjectileRequest> thrown =
+            room.RoomObjects.Untouched.Step(room.LevelData, FrameInputs(GameplayAction.None, room, samus));
+        EnemyRoomEffects.ApplyPendingDownwardGateProjectileRequests(EnemyRoomEffectSite.Of(room, samus));
+        SpawnThrownProjectiles(thrown);
+>>>>>>> theirs
     }
 
-    /// <summary>
-    /// Steps the room objects, for ordinary gameplay and for the explicit
-    /// transition-time call. Player-facing events remain with each phase that runs them because the
-    /// transition path cannot legitimately collect an item or activate a station.
-    /// </summary>
-    /// <returns>The step's outcome, which the phase that ran it acts on.</returns>
+    /// <summary>The room objects' inputs for a step with <paramref name="newlyPressed"/> newly pressed.</summary>
+    private static RoomObjectFrameInputs FrameInputs(GameplayAction newlyPressed, RoomScope room, SamusState samus) =>
+        new() { Scrolls = room.Camera.Scrolls, EnemyDeaths = room.Enemies.RoomStatus.EnemiesKilled, EnemyDeathQuota = room.Enemies.PopulationLoader.DeathQuota, ControllerNewInput = newlyPressed, CollectedItems = samus.CollectedItems, PowerBombExplosionActive = room.BombProjectiles.PowerBombExplosion.IsActive };
+
+    /// <summary>Steps the room objects for ordinary gameplay.</summary>
+    /// <returns>The step's outcome, which the phase acts on.</returns>
     private static RoomObjectStepOutcome StepRoomObjects(GameplayAction newlyPressed, RoomScope room, SamusState samus)
     {
-        RoomObjectStepOutcome step = room.RoomObjects.Step(room.LevelData, new RoomObjectFrameInputs { Scrolls = room.Camera.Scrolls, EnemyDeaths = room.Enemies.RoomStatus.EnemiesKilled, EnemyDeathQuota = room.Enemies.PopulationLoader.DeathQuota, ControllerNewInput = newlyPressed, CollectedItems = samus.CollectedItems, PowerBombExplosionActive = room.BombProjectiles.PowerBombExplosion.IsActive });
+        RoomObjectStepOutcome step = room.RoomObjects.Step(room.LevelData, FrameInputs(newlyPressed, room, samus));
         EnemyRoomEffects.ApplyPendingDownwardGateProjectileRequests(EnemyRoomEffectSite.Of(room, samus));
         return step;
     }
@@ -95,10 +117,24 @@ internal sealed class RoomObjectFramePhase
     /// of its kind among <paramref name="spawners"/>: Mother Brain's glass's shards and the Bomb Torizo statue hand's
     /// fragments. The glass and the hand never share a room, so one step throws only one of the two kinds.
     /// </summary>
+<<<<<<< ours
     private static void SpawnThrownProjectiles(RoomObjectStepOutcome step, RoomObjectThrownProjectileSpawners spawners)
+||||||| base
+    private static void SpawnThrownProjectiles(RoomObjectStepOutcome step)
+=======
+    private static void SpawnThrownProjectiles(IReadOnlyList<RoomObjectProjectileRequest> thrown)
+>>>>>>> theirs
     {
+<<<<<<< ours
         foreach (RoomObjectProjectileRequest thrown in step.ThrownProjectiles)
             thrown.Spawn(spawners);
+||||||| base
+        foreach (RoomObjectProjectileRequest thrown in step.ThrownProjectiles)
+            thrown.Spawn();
+=======
+        foreach (RoomObjectProjectileRequest projectile in thrown)
+            projectile.Spawn();
+>>>>>>> theirs
     }
 
     /// <summary>Runs the ordinary room-object phase when gameplay permits it, then applies pickups, station messages, and spawned projectiles.</summary>
@@ -120,20 +156,36 @@ internal sealed class RoomObjectFramePhase
             var opening = new RoomObjectMessages(this, samus);
             foreach (CollectiblePickupEvent pickup in step.Pickups)
             {
-                pickup.Consequence.Apply(opening);
-
-                if (_messageBox.IsActive)
+                _waitingMessages.Enqueue(() =>
                 {
-                    throw new InvalidDataException(
-                        "Multiple permanent items attempted to enter the synchronous " +
-                        "message box during one room-object pass.");
-                }
-                BeginMessage(pickup.Message);
+                    pickup.Consequence.Apply(opening);
+                    BeginMessage(pickup.Message);
+                });
             }
             foreach (StationActivationEvent station in step.StationActivations)
+<<<<<<< ours
                 station.Open(opening);
             SpawnThrownProjectiles(step, room.RoomObjects.Thrown);
+||||||| base
+                station.Open(opening);
+            SpawnThrownProjectiles(step);
+=======
+                _waitingMessages.Enqueue(() => station.Open(opening));
+            OpenNextMessage();
+            SpawnThrownProjectiles(step.ThrownProjectiles);
+>>>>>>> theirs
         }
+    }
+
+    /// <summary>
+    /// Opens the next message box the last room-object step made, if one waits (#2553): on the step's own update for the
+    /// first, and as the box before it closes for each later one, as the game's next room object opens its box once the
+    /// box before it has returned.
+    /// </summary>
+    internal void OpenNextMessage()
+    {
+        if (_waitingMessages.TryDequeue(out Action? open))
+            open();
     }
 
     /// <summary>
@@ -149,18 +201,13 @@ internal sealed class RoomObjectFramePhase
         public void ShowEquippedBeamColours() => SamusProjectileSystem.ShowBeamShade(phase._player.Colours, samus.EquippedBeams);
 
         /// <inheritdoc/>
-        public void AwaitSuitTransformation(SamusSuitPickupKind suit)
-        {
-            if (phase._suitPickup.IsActive)
-                throw new InvalidDataException("A second suit pickup attempted to replace an active transformation.");
+        /// <remarks>A second suit's box closes into its own transformation, which restarts the first's, as the game's does.</remarks>
+        public void AwaitSuitTransformation(SamusSuitPickupKind suit) =>
             phase._messageBoxes.Await(new MessageBoxOutcome.SuitTransformation(suit));
-        }
 
         /// <inheritdoc/>
         public void RequestSaveConfirmation(SaveStationActivation save)
         {
-            if (phase._messageBoxes.HasPendingOutcome || phase._messageBox.IsActive)
-                throw new InvalidDataException("A save station attempted to replace an active room-object message owner.");
             phase._messageBoxes.Await(new MessageBoxOutcome.SaveConfirmation(save));
             phase.BeginMessage(GameplayMessageId.SaveConfirmation);
         }
@@ -168,21 +215,11 @@ internal sealed class RoomObjectFramePhase
         /// <inheritdoc/>
         public void ShowSaveCompleted(SaveStationActivation save)
         {
-            if (phase._messageBoxes.HasPendingOutcome || phase._messageBox.IsActive)
-                throw new InvalidDataException("A completed save station attempted to replace an active message owner.");
             phase._messageBoxes.Await(new MessageBoxOutcome.SaveCompletion(save));
             phase.BeginMessage(GameplayMessageId.SaveCompleted);
         }
 
         /// <inheritdoc/>
-        public void ShowStationMessage(GameplayMessageId message)
-        {
-            if (phase._messageBox.IsActive)
-            {
-                throw new InvalidDataException(
-                    "Multiple room objects attempted to open the synchronous message box during one room-object step.");
-            }
-            phase.BeginMessage(message);
-        }
+        public void ShowStationMessage(GameplayMessageId message) => phase.BeginMessage(message);
     }
 }

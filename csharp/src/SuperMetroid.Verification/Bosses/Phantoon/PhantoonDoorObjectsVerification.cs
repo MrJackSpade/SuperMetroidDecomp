@@ -116,7 +116,7 @@ internal static class PhantoonDoorObjectsVerification
         RoomEnemySystem enemies = CreatePhantoonSystem();
         PhantoonEnemyState state = enemies.BossEncounters.Phantoon
             ?? throw new InvalidOperationException("Verification requires Phantoon's state.");
-        state.StartingFlames.NextFlame = SuperMetroid.Core.Bosses.ListStep<TrigonometryAngle>.At(PhantoonFlameSpawns.StartingFlameStarts, 6);
+        state.StartingFlames.NextFlame = SuperMetroid.Core.ListStep<TrigonometryAngle>.At(PhantoonFlameSpawns.StartingFlameStarts, 6);
         state.PhaseWait.LastFor(1);
         enemies.PhantoonBehavior.Opening.RunPhantoonStartingFlameSpawner(state);
         AssertEqual(null, enemies.LastEnemyFrame.All<PhantoonDoorChanged>().Select(door => (PhantoonDoorChange?)door.Change).LastOrDefault(), "the seventh starting flame asks for no door change");

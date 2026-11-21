@@ -124,10 +124,22 @@ internal static class ProjectileInheritanceProbeVerification
                     3 or 4 or 5 or 6 => speed + LittleEndianBytes.Word(LittleEndianBytes.HighByte(snapshot[6]), unchecked((byte)snapshot[7])),
                     _ => 0,
                 }));
-                AssertEqual(new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(x), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(y)), BeamFiring.LaunchVelocity(inheritance, SamusProjectileDirectionCodec.FromAimIndex(direction), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(speed)),
+                AssertEqual(new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(x), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(y)), Launched(inheritance, SamusProjectileDirectionCodec.FromAimIndex(direction), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(speed)),
                     "projectile inheritance preserves each directional overlapping word");
             }
         }
+    }
+
+    /// <summary>
+    /// The velocity a shot fired in <paramref name="direction"/> at <paramref name="baseSpeed"/> takes from
+    /// <paramref name="inheritance"/>, as the shot's velocity setup gives it.
+    /// </summary>
+    private static PixelVelocity<RoomPixels> Launched(ProjectileLaunchInheritance inheritance, SamusProjectileDirection direction, SignedEightEight baseSpeed)
+    {
+        var slot = SuperMetroid.Core.Samus.Projectiles.SamusProjectileFixtureOccupancy.ShotPlace(SuperMetroid.Core.Progression.SamusProjectileType.Beam(SuperMetroid.Core.Progression.SamusBeamCombination.Power, charged: false));
+        slot.HeldShot().Direction = direction;
+        BeamFiring.InitializeDirectionalVelocity(inheritance, slot.HeldShot(), baseSpeed);
+        return slot.Velocity;
     }
 
     /// <summary>Checks directional displacement writes, wall clipping, camera subspeed, and alpha reset behavior.</summary>
@@ -138,31 +150,31 @@ internal static class ProjectileInheritanceProbeVerification
         samus.Kinematics.Radius = new(5, 5);
         var level = CreateRoom(new(16, 16), new RoomTerrainBlock[256], new RoomBlockBehavior[256]);
         samus.ProjectileInheritance.ClearMovement();
-        SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromParts(3, 4660) });
-        AssertEqual(0x0300, BeamFiring.LaunchVelocity(samus.ProjectileInheritance, SamusProjectileDirection.Right, SignedEightEight.Zero).X.InTwoHundredFiftySixthsOfPixel,
+        SamusBlockCollision.MoveHorizontal(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromParts(3, 4660) });
+        AssertEqual(0x0300, Launched(samus.ProjectileInheritance, SamusProjectileDirection.Right, SignedEightEight.Zero).X.InTwoHundredFiftySixthsOfPixel,
             "Live movement publishes right integer displacement");
-        SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromParts(-2, 32768) });
-        AssertEqual(unchecked((short)0xfe00), BeamFiring.LaunchVelocity(samus.ProjectileInheritance, SamusProjectileDirection.Left, SignedEightEight.Zero).X.InTwoHundredFiftySixthsOfPixel,
+        SamusBlockCollision.MoveHorizontal(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromParts(-2, 32768) });
+        AssertEqual(unchecked((short)0xfe00), Launched(samus.ProjectileInheritance, SamusProjectileDirection.Left, SignedEightEight.Zero).X.InTwoHundredFiftySixthsOfPixel,
             "Negative movement preserves two's-complement integer half");
-        AssertEqual(0x0380, BeamFiring.LaunchVelocity(samus.ProjectileInheritance, SamusProjectileDirection.Right, SignedEightEight.Zero).X.InTwoHundredFiftySixthsOfPixel,
+        AssertEqual(0x0380, Launched(samus.ProjectileInheritance, SamusProjectileDirection.Right, SignedEightEight.Zero).X.InTwoHundredFiftySixthsOfPixel,
             "Opposite direction fraction leaks into rightward velocity, not net displacement");
-        SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2) });
-        AssertEqual(0x0280, BeamFiring.LaunchVelocity(samus.ProjectileInheritance, SamusProjectileDirection.Right, SignedEightEight.Zero).X.InTwoHundredFiftySixthsOfPixel,
+        SamusBlockCollision.MoveHorizontal(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2) });
+        AssertEqual(0x0280, Launched(samus.ProjectileInheritance, SamusProjectileDirection.Right, SignedEightEight.Zero).X.InTwoHundredFiftySixthsOfPixel,
             "Second move overwrites one directional record instead of accumulating");
         var records = new ProjectileInheritanceRecordsAccess(samus.ProjectileInheritance);
         byte[] beforeProbe = records.Capture();
-        SamusBlockCollision.ProbeWallHorizontal(level, samus.Kinematics, samus, samus.Pose, SignedSixteenSixteen.FromParts(1, 0), roomObjects: SamusRoomObjectFixtures.Uninstalled);
+        SamusBlockCollision.ProbeWallHorizontal(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus.Kinematics, samus, samus.Pose, SignedSixteenSixteen.FromParts(1, 0));
         AssertTrue(beforeProbe.SequenceEqual(records.Capture()),
             "Wall observation cannot replace live movement inheritance");
         level.SetTerrain(4 * 16 + 5, RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock));
-        var clipped = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(20) });
+        var clipped = SamusBlockCollision.MoveHorizontal(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(20) });
         AssertTrue(clipped.Collided, "Inheritance fixture actually reaches its solid wall");
         AssertEqual(clipped.AcceptedDisplacement.UnsignedWholePixels,
             records.DistanceInteger(SamusCollisionDirection.Right),
             "Collision publishes clipped displacement, not the twenty-pixel request");
         samus.ProjectileInheritance.CameraVerticalSpeed = SignedSixteenSixteen.FromParts(0, 0xabcd);
         samus.ProjectileInheritance.ClearMovement();
-        AssertEqual(unchecked((short)0xfcab), BeamFiring.LaunchVelocity(samus.ProjectileInheritance, SamusProjectileDirection.Left, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0x400)).X.InTwoHundredFiftySixthsOfPixel,
+        AssertEqual(unchecked((short)0xfcab), Launched(samus.ProjectileInheritance, SamusProjectileDirection.Left, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0x400)).X.InTwoHundredFiftySixthsOfPixel,
             "Alpha reset preserves camera fractional high byte");
         AssertTrue(records.CaptureDistanceRecords().All(value => value == 0),
             "Alpha reset clears exactly all eight directional words");
@@ -197,7 +209,7 @@ internal static class ProjectileInheritanceProbeVerification
         samus.SelectedHudItem = SuperMetroid.Diagnostics.Saves.SaveSlotNumbering.SavedHudItem(0);
         samus.Missiles = samus.MaxMissiles = 10;
         samus.SuperMissiles = samus.MaxSuperMissiles = 10;
-        samus.Pose = SamusPoseId.FacingRightNormalPose;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
         samus.Position = samus.Position.WithWhole(new(512, 490));
         runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(400, 350));
         SamusPoseMetadata.RefreshCollisionRadii(samus);

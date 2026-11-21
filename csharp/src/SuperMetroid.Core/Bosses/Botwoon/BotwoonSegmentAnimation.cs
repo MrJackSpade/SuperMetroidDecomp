@@ -26,6 +26,6 @@ internal sealed class BotwoonSegmentAnimation : EnemyProjectileSilentFrameAnimat
     }
 
     /// <inheritdoc/>
-    private protected override AnimationSegments<BotwoonBodyAnimationSegment, EnemyProjectileFrameId, NoAnimationCue> Segments =>
+    private protected override IUnpausedAnimationPlay<BotwoonBodyAnimationSegment, EnemyProjectileFrameId, NoAnimationCue> Segments =>
         BotwoonAnimations.BodySegments;
 }

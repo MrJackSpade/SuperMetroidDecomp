@@ -147,52 +147,65 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IGameplayShadingSource
     /// <summary>The animation the elevator room's wall starts, as the left-facing door it stands as, until Ceres Ridley has escaped (#2189).</summary>
     private const CeresDoorSegment ElevatorRoomWallDoorAnimation = CeresDoorSegment.Door;
 
+    /// <summary>What <see cref="ApplyCue"/> comes to for each <see cref="CeresDoorCueKind"/> member, each member's own arm.</summary>
+    private IdentityTable<CeresDoorCueKind, Func<RoomEnemyPlace, CeresDoorAnimationState, SamusState, CeresDoorSegment?>> ApplyCueForCeresDoorCueKind => field ??= new(new Dictionary<CeresDoorCueKind, Func<RoomEnemyPlace, CeresDoorAnimationState, SamusState, CeresDoorSegment?>>
+    {
+        [CeresDoorCueKind.DoorAppears] = (place, state, samus) => IsSamusAway(place, samus) ? DoorClosedAnimation : null,
+        [CeresDoorCueKind.DoorStandsOpen] = (place, state, samus) => IsSamusAway(place, samus) ? DoorClosingAnimation : null,
+        [CeresDoorCueKind.DoorStandsClosed] = (place, state, samus) => IsSamusAway(place, samus) ? DoorWaitingAnimation : null,
+        [CeresDoorCueKind.RidleyRoomDoorWaits] = (place, state, samus) =>
+        {
+            // The door of Ridley's room waits while the area's boss is undefeated, as he is when Ceres begins, so it
+            // loops as a tangible actor during Ridley's fight. Ridley's escape records the boss's defeat together with
+            // Ceres's escape status; the next pass then runs on past the wait and makes the door intangible.
+            return Room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss) ? null : RidleyRoomDoorWaitingAnimation;
+        },
+        [CeresDoorCueKind.ElevatorRoomWallAppears] = (place, state, samus) => Escape.CeresStatus != CeresEscapeStatus.RidleyNotEscaped ? null : ElevatorRoomWallDoorAnimation,
+        [CeresDoorCueKind.MakeIntangible] = (place, state, samus) =>
+        {
+            place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
+            return null;
+        },
+        [CeresDoorCueKind.MakeTangible] = (place, state, samus) =>
+        {
+            place.Contact = place.Contact.Without(EnemyContact.IgnoresSamus);
+            return null;
+        },
+        [CeresDoorCueKind.ShowOverlay] = (place, state, samus) =>
+        {
+            state.Look = CeresRidleyRoomDoorLook.Overlay;
+            return null;
+        },
+        [CeresDoorCueKind.MakeInvisible] = (place, state, samus) =>
+        {
+            place.Presence = place.Presence.With(EnemyPresence.Hidden);
+            return null;
+        },
+        [CeresDoorCueKind.MakeVisibleAndShowActor] = (place, state, samus) =>
+        {
+            state.Look = CeresRidleyRoomDoorLook.Actor;
+            place.Presence = place.Presence.Without(EnemyPresence.Hidden);
+            return null;
+        },
+        [CeresDoorCueKind.MakeVisible] = (place, state, samus) =>
+        {
+            place.Presence = place.Presence.Without(EnemyPresence.Hidden);
+            return null;
+        },
+        [CeresDoorCueKind.PlayOpeningSound] = (place, state, samus) =>
+        {
+            Audio.QueueEnemySound(RoomSound.CeresDoorOpening, priority: SoundRequestPriority.Normal);
+            return null;
+        },
+    });
+
     /// <summary>
     /// Carries out one cue of a door's or wall's animation, returning the segment whose animation the owner starts on a waiting
     /// door's or wall's event, or null to run on.
     /// </summary>
     private CeresDoorSegment? ApplyCue(RoomEnemyPlace place, CeresDoorAnimationState state, SamusState samus, CeresDoorCue cue)
     {
-        switch (cue.Kind)
-        {
-            case CeresDoorCueKind.DoorAppears:
-                return IsSamusAway(place, samus) ? DoorClosedAnimation : null;
-            case CeresDoorCueKind.DoorStandsOpen:
-                return IsSamusAway(place, samus) ? DoorClosingAnimation : null;
-            case CeresDoorCueKind.DoorStandsClosed:
-                return IsSamusAway(place, samus) ? DoorWaitingAnimation : null;
-            case CeresDoorCueKind.RidleyRoomDoorWaits:
-                // The door of Ridley's room waits while the area's boss is undefeated, as he is when Ceres begins, so it
-                // loops as a tangible actor during Ridley's fight. Ridley's escape records the boss's defeat together with
-                // Ceres's escape status; the next pass then runs on past the wait and makes the door intangible.
-                return Room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss) ? null : RidleyRoomDoorWaitingAnimation;
-            case CeresDoorCueKind.ElevatorRoomWallAppears:
-                return Escape.CeresStatus != CeresEscapeStatus.RidleyNotEscaped ? null : ElevatorRoomWallDoorAnimation;
-            case CeresDoorCueKind.MakeIntangible:
-                place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
-                return null;
-            case CeresDoorCueKind.MakeTangible:
-                place.Contact = place.Contact.Without(EnemyContact.IgnoresSamus);
-                return null;
-            case CeresDoorCueKind.ShowOverlay:
-                state.Look = CeresRidleyRoomDoorLook.Overlay;
-                return null;
-            case CeresDoorCueKind.MakeInvisible:
-                place.Presence = place.Presence.With(EnemyPresence.Hidden);
-                return null;
-            case CeresDoorCueKind.MakeVisibleAndShowActor:
-                state.Look = CeresRidleyRoomDoorLook.Actor;
-                place.Presence = place.Presence.Without(EnemyPresence.Hidden);
-                return null;
-            case CeresDoorCueKind.MakeVisible:
-                place.Presence = place.Presence.Without(EnemyPresence.Hidden);
-                return null;
-            case CeresDoorCueKind.PlayOpeningSound:
-                Audio.QueueEnemySound(RoomSound.CeresDoorOpening, priority: SoundRequestPriority.Normal);
-                return null;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(CeresDoorCueKind)} {cue.Kind}.");
-        }
+        return ApplyCueForCeresDoorCueKind[cue.Kind](place, state, samus);
     }
 
     /// <summary>Whether Samus is away from the door: distant from it along either axis.</summary>

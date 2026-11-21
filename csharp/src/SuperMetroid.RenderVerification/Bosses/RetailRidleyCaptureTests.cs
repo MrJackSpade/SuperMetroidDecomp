@@ -2,6 +2,8 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.RenderVerification.Areas;
@@ -17,7 +19,13 @@ using SuperMetroid.TestSupport.FrameRendering;
 /// <summary>Checks D3D11 captures of the retail Ceres Ridley Mode 7 scene and retained packet replay.</summary>
 internal static class RetailRidleyCaptureTests
 {
-    /// <summary>Compares native HUD/floor scenes across scale, tilt, and scroll, then replays saved packets after replacing live GPU resources.</summary>
+    /// <summary>The getaway updates the comparison samples: every twelfth, so its zoom, turn and scroll cover their range.</summary>
+    private const int SampleSpacing = 12;
+
+    /// <summary>
+    /// Compares native HUD/floor scenes across the getaway's scales, tilts and scrolls, then replays saved packets after
+    /// replacing live GPU resources.
+    /// </summary>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var runtime = RepositoryInstallation.CreateRuntime();
@@ -28,15 +36,14 @@ internal static class RetailRidleyCaptureTests
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.CeresRidley, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var retained = new List<RetainedFrame>();
-        foreach (int scale in new[] { 128, 240, 256 })
-        foreach (int tilt in new[] { -33, 0, 33 })
-        foreach (short scroll in new short[] { -19, 0, 19 })
+        CeresEscape escape = runtime.Enemies.CeresEscape;
+        RoomFloor arena = runtime.Room.LoadedScope.Floor ?? throw new InvalidOperationException("Ridley's arena shows his floor.");
+        escape.BeginGetaway();
+        for (int update = 0; update < CeresRidleyGetawayCurve.Duration; update++)
         {
-            global::SuperMetroid.Core.PrivateState.Set(runtime.Enemies.CeresEscape, "Stage", SuperMetroid.Core.Bosses.Ridley.CeresEscapeStage.Getaway);
-            runtime.Enemies.CeresEscape.Floor.Zoom = FloorZoomConstants.FromTwoHundredFiftySixths(scale);
-            runtime.Enemies.CeresEscape.Floor.Angle = RotationAngle.WrappedSteps(tilt);
-            runtime.Enemies.CeresEscape.Floor.Center = new Offset16<FloorPixels>(128, 120);
-            runtime.Enemies.CeresEscape.Floor.Offset = new Offset16<FloorPixels>(7, unchecked(scroll));
+            escape.RunGetawayRoomMain(runtime.Player.IntroducedSamus, arena, update);
+            if (update % SampleSpacing != 0)
+                continue;
             // The getaway's floor reaches the display at the accepted frame boundary (#1307).
             runtime.FrameBoundary.BeginAcceptedFrame(0);
             var expected = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame()).ToArray();
@@ -46,10 +53,13 @@ internal static class RetailRidleyCaptureTests
                 throw new InvalidOperationException("Retail Ridley fixture did not capture mixed Mode-7 floor and HUD.");
             var packet = new DisplayPacket(retained.Count + 1, scene);
             PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet),
-                $"{device.Kind}: retail Ridley scale={scale}, tilt={tilt}, scroll={scroll}");
+                $"{device.Kind}: retail Ridley getaway update {update}, view {escape.ShownFloor}");
             retained.Add(new RetainedFrame(packet, expected));
         }
-        global::SuperMetroid.Core.PrivateState.Set(runtime.Enemies.CeresEscape, "Stage", SuperMetroid.Core.Bosses.Ridley.CeresEscapeStage.SelfDestruct);
+        // The update after the getaway's last hands on to the self-destruct warning, which leaves the turning floor.
+        escape.RunGetawayRoomMain(runtime.Player.IntroducedSamus, arena, CeresRidleyGetawayCurve.Duration);
+        if (escape.ShownFloor is not null)
+            throw new InvalidOperationException("The getaway's end leaves the turning floor.");
         runtime.Vram.LoadBytes(0, new byte[SnesVram.ByteCount]);
         foreach (var sample in retained.AsEnumerable().Reverse())
             PixelComparison.Verify(sample.Packet, sample.Expected, renderer.RenderForReadback(sample.Packet),

@@ -76,12 +76,12 @@ public static class GameplayHudLayoutFile
         {
             EnergyTankCorners = [.. document.EnergyTankCorners.Select((corner, index) => InBand(corner, $"energy tank {index}"))],
             HealthAnchor = InBand(document.HealthAnchor, "health digits"),
-            AmmoFields = new Dictionary<HudAmmoCounter, HudAmmoField>
+            AmmoFields = new(new Dictionary<HudAmmoCounter, HudAmmoField>
             {
                 [HudAmmoCounter.Missiles] = new(InBand(document.MissileAmmoAnchor, "missile digits"), GameplayHudDefinitions.MissileDigits),
                 [HudAmmoCounter.SuperMissiles] = new(InBand(document.SuperMissileAmmoAnchor, "Super Missile digits"), GameplayHudDefinitions.SuperMissileDigits),
                 [HudAmmoCounter.PowerBombs] = new(InBand(document.PowerBombAmmoAnchor, "Power Bomb digits"), GameplayHudDefinitions.PowerBombDigits),
-            }.ToImmutableDictionary(),
+            }),
             AutoReserveCorner = InBand(document.AutoReserveCorner, "AUTO indicator"),
             Icons = icons.ToImmutableDictionary(icon => icon, icon => new HudIconPlacement(
                 InBand(document.IconAnchors[HudIconKeys.Installed.Of(icon)], $"{icon} icon"), document.IconsShowOverTemplate[HudIconKeys.Installed.Of(icon)])),

@@ -75,9 +75,6 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
         Suite(nameof(VerifyFlashbackGround), () => VerifyFlashbackGround(testPose));
 
         AssertThrows<InvalidDataException>(
-            () => SamusAtmosphericEffects.WaterSplashFor((SamusMovementType)(-1)),
-            "water-splash movement selector past table");
-        AssertThrows<InvalidDataException>(
             () => SamusAtmosphericEffects.IsRunningFootContact(new SamusAnimationFrame(SamusAnimationSegmentName.Run, 10)),
             "running foot-contact frame past table");
         AssertThrows<InvalidDataException>(
@@ -121,12 +118,11 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
         {
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
             {
-                Pose = pose,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)),
                 Kinematics = { Radius = new(5, 12) },
-            };
+            }.InPose(pose);
             samus.Ground = RoomDefinitions.FirstIn(AreaId.Maridia).Ground;
-            SamusPresentation.InitializeAnimation(samus, samus.PoseFrameNumbered(frame));
+            samus.ChangePose(samus.Pose, samus.PoseFrameNumbered(frame));
             AdvanceToFootContactTick(samus);
             samus.LiquidPhysics.PrepareAnimationFrame(samus, new SharedRandom(), frameCounter: 1, bossPresent: false);
 
@@ -148,14 +144,13 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
 
             var runner = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
             {
-                Pose = pose,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(100, 0x03b0)),
                 Kinematics = { Radius = new(5, 12) },
-            };
+            }.InPose(pose);
             runner.Ground = room.Ground;
             if (wetness == RoomGroundWetness.WetWhileRaining)
-                runner.LiquidPhysics.ConfigureNonLiquidRoomFx(RoomFxType.Rain);
-            SamusPresentation.InitializeAnimation(runner, runner.PoseFrameNumbered(2));
+                runner.LiquidPhysics.ConfigureFor(SuperMetroid.Core.Fx.RoomEffectFixtures.Rain());
+            runner.ChangePose(runner.Pose, runner.PoseFrameNumbered(2));
             AdvanceToFootContactTick(runner);
             runner.LiquidPhysics.PrepareAnimationFrame(runner, new SharedRandom(), frameCounter: 1, bossPresent: false);
             AssertEqual(wet ? "SurfaceSplash,SurfaceSplash" : "", ParticleKinds(runner),
@@ -163,13 +158,12 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
 
             var landing = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
             {
-                Pose = pose,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(100, 0x03b0)),
                 Kinematics = { Radius = new(5, 12) },
-            };
+            }.InPose(pose);
             landing.Ground = room.Ground;
             if (wetness == RoomGroundWetness.WetWhileRaining)
-                landing.LiquidPhysics.ConfigureNonLiquidRoomFx(RoomFxType.Rain);
+                landing.LiquidPhysics.ConfigureFor(SuperMetroid.Core.Fx.RoomEffectFixtures.Rain());
             landing.LiquidPhysics.BeginFrameSoundRequests();
             landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
                 landing,
@@ -204,10 +198,9 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
 
             var landing = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
             {
-                Pose = pose,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)),
                 Kinematics = { Radius = new(5, 12) },
-            };
+            }.InPose(pose);
             landing.Ground = room.Ground;
             landing.LiquidPhysics.EffectWaits.HoldBubbles(9);
             landing.LiquidPhysics.BeginFrameSoundRequests();
@@ -233,11 +226,10 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
     {
         var landing = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = pose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)),
             Kinematics = { Radius = new(5, 12) },
             Ground = IntroCinematicDefinitions.Flashback.Ground,
-        };
+        }.InPose(pose);
         landing.Presentation.PresentInCinematic();
         landing.LiquidPhysics.EffectWaits.HoldBubbles(9);
         landing.LiquidPhysics.BeginFrameSoundRequests();
@@ -251,13 +243,12 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
 
         var runner = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = pose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)),
             Kinematics = { Radius = new(5, 12) },
             Ground = IntroCinematicDefinitions.Flashback.Ground,
-        };
+        }.InPose(pose);
         runner.Presentation.PresentInCinematic();
-        SamusPresentation.InitializeAnimation(runner, runner.PoseFrameNumbered(2));
+        runner.ChangePose(runner.Pose, runner.PoseFrameNumbered(2));
         AdvanceToFootContactTick(runner);
         runner.LiquidPhysics.PrepareAnimationFrame(runner, new SharedRandom(), frameCounter: 1, bossPresent: false);
         AssertEqual("", ParticleKinds(runner), "the flashback's unboosted footstep raises nothing");

@@ -43,11 +43,17 @@ internal sealed class SamusPoseMovement
     /// <summary>The turn in the air.</summary>
     internal static SamusPoseMovement TurningInAir { get; } = new(nameof(TurningInAir), steps => steps.StepTurningInAir());
 
-    /// <summary>The Morph Ball's and the Spring Ball's movement on the ground.</summary>
-    internal static SamusPoseMovement MorphBallGrounded { get; } = new(nameof(MorphBallGrounded), steps => steps.StepMorphBallGrounded());
+    /// <summary>The Morph Ball's movement on the ground.</summary>
+    internal static SamusPoseMovement MorphBallGrounded { get; } = new(nameof(MorphBallGrounded), steps => steps.StepBallGrounded(SamusMovement.MorphBallGround));
 
-    /// <summary>The Morph Ball's and the Spring Ball's fall.</summary>
-    internal static SamusPoseMovement MorphBallFalling { get; } = new(nameof(MorphBallFalling), steps => steps.StepMorphBallFalling());
+    /// <summary>The Spring Ball's movement on the ground.</summary>
+    internal static SamusPoseMovement SpringBallGrounded { get; } = new(nameof(SpringBallGrounded), steps => steps.StepBallGrounded(SamusMovement.SpringBallGround));
+
+    /// <summary>The Morph Ball's fall.</summary>
+    internal static SamusPoseMovement MorphBallFalling { get; } = new(nameof(MorphBallFalling), steps => steps.StepBallFalling(SamusMovement.MorphBallFalling));
+
+    /// <summary>The Spring Ball's fall.</summary>
+    internal static SamusPoseMovement SpringBallFalling { get; } = new(nameof(SpringBallFalling), steps => steps.StepBallFalling(SamusMovement.SpringBallFalling));
 
     /// <summary>The Spring Ball's jump.</summary>
     internal static SamusPoseMovement SpringBallInAir { get; } = new(nameof(SpringBallInAir), steps => steps.StepSpringBallInAir());

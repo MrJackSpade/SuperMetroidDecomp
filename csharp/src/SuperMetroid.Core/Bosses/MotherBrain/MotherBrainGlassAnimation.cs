@@ -10,6 +10,6 @@ internal sealed class MotherBrainGlassAnimation(IEnemyProjectileCues<MotherBrain
     : EnemyProjectileFrameAnimation<MotherBrainGlassSegment, MotherBrainGlassCue>(segment, MotherBrainGlassAnimations.StartingAt[segment], EnemyProjectileCueRunner<MotherBrainGlassSegment, MotherBrainGlassCue>.By(owner))
 {
     /// <inheritdoc/>
-    private protected override AnimationSegments<MotherBrainGlassSegment, EnemyProjectileFrameId, MotherBrainGlassCue> Segments =>
+    private protected override IUnpausedAnimationPlay<MotherBrainGlassSegment, EnemyProjectileFrameId, MotherBrainGlassCue> Segments =>
         MotherBrainGlassAnimations.Segments;
 }

@@ -99,16 +99,26 @@ internal static class KraidHeadAnimations
     /// The head entering the pose <paramref name="before"/> stands before, without showing it: the play stands just past
     /// the pose, which holds for its duration.
     /// </summary>
-    /// <exception cref="InvalidOperationException">The play reaches a cry or the animation's end before a pose.</exception>
+    /// <remarks>A play at rest enters no pose, so the head holds what it shows for no update.</remarks>
+    /// <exception cref="InvalidOperationException">The play reaches a cry before a pose.</exception>
     private static KraidHeadEntry Entering(AnimationPlayback<KraidHeadSegment> before)
     {
         AnimationPlace place = before.Place;
         AnimationShown<KraidHeadSegment, KraidHeadFrame> entered = Segments.PlayToNextFrame(before.Animation, ref place,
             cue => throw new InvalidOperationException($"Kraid's head enters a pose with no {cue} before it."));
-        return entered is AnimationShown<KraidHeadSegment, KraidHeadFrame>.Frame pose
-            ? new(before with { Place = place }, pose.Duration)
-            : throw new InvalidOperationException($"Kraid's head enters no pose where its play reaches {entered}.");
+        return new(before with { Place = place }, entered.Match(EnteredDelays, before));
     }
+
+    /// <summary>
+    /// How long the head holds the pose it enters, for each outcome of the play (#2553): a frame or a pause holds for its
+    /// duration, and a play that shows a frame for good, rests or ends holds what it shows for no update. Built once.
+    /// </summary>
+    private static AnimationShownCases<KraidHeadSegment, KraidHeadFrame, AnimationPlayback<KraidHeadSegment>, int> EnteredDelays { get; } = new(
+        Frame: static (pose, _) => pose.Duration,
+        HeldFrame: static (_, _) => 0,
+        Paused: static (pause, _) => pause.Duration,
+        Held: static (_, _) => 0,
+        Ended: static (_, _) => 0);
 
     /// <summary>
     /// Where <paramref name="playback"/> stands in its head animation: the animation, named by the segment it starts at, and
@@ -141,8 +151,6 @@ internal static class KraidHeadAnimations
         KraidHeadFrame?[] shown = [.. started.Animation.Phases
             .SelectMany(phase => Segments.Beats(phase.Segment).Skip(phase.FirstBeat).Take(phase.BeatCount))
             .Select(beat => beat.ShownFrame)];
-        if (place.Step < 0 || place.Step > shown.Length)
-            throw new InvalidOperationException($"Kraid head place {place} is outside its animation.");
         // A step that shows no frame is the roar's or the dying cry's.
         KraidMouthTrailsHead.HeadStep<KraidHeadFrame>[] steps = [.. shown.Select(frame => frame is { } pose
             ? new KraidMouthTrailsHead.HeadStep<KraidHeadFrame>.Posed(pose)

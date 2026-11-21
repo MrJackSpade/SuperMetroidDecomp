@@ -47,7 +47,7 @@ internal static class DraygonPrebattleXrayVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Draygon, camera: new Position16<RoomPixels>(256, 288));
         var samus = runtime.Player.Samus;
         samus.Control.Unlock();
-        samus.Pose = SamusPoseId.FacingLeftNormalPose;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.FacingLeftNormalPose);
         samus.Position = samus.Position.WithWhole(new(456, 459));
         samus.EquippedItems = SamusEquipmentFlags.XrayScope;
         samus.SelectedHudItem = HudItem.XRay;

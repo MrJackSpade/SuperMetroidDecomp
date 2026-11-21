@@ -32,8 +32,37 @@ internal sealed class TitleGameSequence(FrontendSession session, TitleGameSequen
     /// <inheritdoc/>
     public bool IsWaitingOutDisplayFrame => false;
 
+    /// <summary>What <c>Step</c> does for each <see cref="TitleStep"/> member, each member's own arm.</summary>
+    private IdentityTable<TitleStep, Action<ControllerButton>> StepForTitleStep => field ??= new(new Dictionary<TitleStep, Action<ControllerButton>>
+    {
+        [TitleStep.Starting] = controllerInput => Start(),
+        [TitleStep.Showing] = controllerInput => ShowTitle(controllerInput),
+    });
+
     /// <inheritdoc/>
+<<<<<<< ours
     public void Step(ControllerButton controllerInput) => Current.Run(this, controllerInput);
+||||||| base
+    public void Step(ControllerButton controllerInput)
+    {
+        switch (session.TitleStep)
+        {
+            case TitleStep.Starting:
+                Start();
+                break;
+            case TitleStep.Showing:
+                ShowTitle(controllerInput);
+                break;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(TitleStep)} {session.TitleStep}.");
+        }
+    }
+=======
+    public void Step(ControllerButton controllerInput)
+    {
+        StepForTitleStep[session.TitleStep](controllerInput);
+    }
+>>>>>>> theirs
 
     /// <summary>Power-on or a soft reset: discards every owner the last game kept, then shows the title opening.</summary>
     private void Start()
@@ -73,8 +102,15 @@ internal sealed class TitleGameSequence(FrontendSession session, TitleGameSequen
         }
         else if (title.Outcome == TitleSequenceOutcome.Demo)
         {
+<<<<<<< ours
             session.Demo.RequestFromTitle();
             session.Enter(new AttractDemoGameSequence.AwaitingScene(session));
+||||||| base
+            session.Demo.RequestFromTitle();
+            session.Enter(AttractDemoStep.Loading);
+=======
+            session.Enter(session.Demo.RequestFromTitle());
+>>>>>>> theirs
             session.display.PublishBlack();
         }
     }

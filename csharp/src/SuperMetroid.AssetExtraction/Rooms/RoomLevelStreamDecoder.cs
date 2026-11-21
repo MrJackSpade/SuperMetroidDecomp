@@ -140,7 +140,8 @@ internal static class RoomLevelStreamDecoder
     /// door, kinds nothing changes a reacting retail block to without writing its behaviour.
     /// </summary>
     /// <exception cref="InvalidDataException">
-    /// The block's kind has no reaction for the byte in an area, the areas give it different reactions, or the first
+    /// The block's kind has no reaction for the byte in an area, a shootable kind reads it past its area's table, the areas
+    /// give it different reactions, or the first
     /// behaviour holding its reaction gives another reacting kind something else.
     /// </exception>
     private static RoomBlockBehavior InstalledBehavior(RoomLevelId level, int index, RoomCollisionType kind, int value,
@@ -150,6 +151,7 @@ internal static class RoomLevelStreamDecoder
             return RoomBlockBehavior.None;
         if (BlockReactionFamilies.Of(kind) is not { } family)
             return RoomBlockBehaviorCodec.Decode(value);
+<<<<<<< ours
         // Every area the level lies in must give the block the same installed behaviour: the first area's.
         AreaId[] inAreas = [.. areas];
         if (inAreas.Length == 0)
@@ -166,6 +168,16 @@ internal static class RoomLevelStreamDecoder
 
         // The first behaviour holding the reaction the block's kind reads in the area.
         RoomBlockBehavior FirstBehaviorIn(AreaId area)
+||||||| base
+        RoomBlockBehavior? installed = null;
+        foreach (AreaId area in areas)
+=======
+        if (family == BlockReactionFamily.Shootable && RoomBlockBehaviorCodec.ReadsPastAreaShootableTable(value))
+            throw new InvalidDataException(
+                $"Room level {level} block {index} is {kind} with behaviour byte {value}, whose reaction the game reads past its area's shootable table.");
+        RoomBlockBehavior? installed = null;
+        foreach (AreaId area in areas)
+>>>>>>> theirs
         {
             RoomBlockBehavior resolved = RoomBlockBehaviorCodec.Decode(area, value);
             BlockReaction reaction = resolved.ReactionIn(family) ?? throw new InvalidDataException(

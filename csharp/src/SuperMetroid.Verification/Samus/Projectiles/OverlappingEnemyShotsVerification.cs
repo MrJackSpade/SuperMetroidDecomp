@@ -25,7 +25,15 @@ internal static class OverlappingEnemyShotsVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().SeedRandom = _ => { };
         var interactive = (List<RoomEnemyOccupant>)enemies.ProcessingWindow.InteractiveEnemies;
+<<<<<<< ours
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(64, 128)) };
+||||||| base
+        Action<RoomEnemyPlace, SamusState, GameplayAction> initialize = enemies.BeetomBehavior.InitializeBeetom;
+        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(64, 128)) };
+=======
+        Action<RoomEnemyPlace, SamusState, GameplayAction> initialize = enemies.BeetomBehavior.InitializeBeetom;
+        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(64, 128)) }.InPose(SamusPoseId.FacingRightNormalPose);
+>>>>>>> theirs
         for (int index = 0; index < 3; index++)
         {
             var enemy = enemies.Places.InUpdateOrder[index];
@@ -56,7 +64,7 @@ internal static class OverlappingEnemyShotsVerification
         AssertTrue(shot.IsSpent, "non-piercing shot is marked for deferred removal");
         AssertEqual(SamusProjectileType.Of(SamusProjectileFamily.Missile), shot.HeldShot().Type, "collision preserves the missile until projectile processing");
         var level = CreateRoom(new(16, 16), new RoomTerrainBlock[256], new RoomBlockBehavior[256]);
-        shots.HandleShots(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, Position16<RoomPixels>.Zero, bombs, new SharedGameState(new SharedRandom()));
+        shots.HandleShots(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, Position16<RoomPixels>.Zero, bombs, new SharedGameState(new SharedRandom()));
         AssertTrue(!shot.IsOccupied, "next projectile pass consumes the removal marker");
         foreach (var enemy in enemies.Places.InUpdateOrder.Take(3))
         {

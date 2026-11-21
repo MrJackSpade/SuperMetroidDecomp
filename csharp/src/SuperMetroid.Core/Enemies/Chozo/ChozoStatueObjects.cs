@@ -129,12 +129,8 @@ internal sealed class ChozoStatueObjects : IChozoStatueHand
     internal static RoomTerrainBlock CrumblePlugAir(CrumblePlugLeftBlock.Spawn spawn)
     {
         CrumblePlugLeftBlock.Picture left = CrumblePlugLeftBlock.LeftBy(spawn);
-        BlockMirroring mirroring = left.Mirrored switch
-        {
-            CrumblePlugLeftBlock.Mirroring.None => BlockMirroring.None,
-            CrumblePlugLeftBlock.Mirroring.BothWays => BlockMirroring.Both,
-            _ => throw new InvalidOperationException($"Undefined {nameof(CrumblePlugLeftBlock.Mirroring)} {left.Mirrored}."),
-        };
+        // The remaining member, CrumblePlugLeftBlock.Mirroring.BothWays, mirrors the picture both ways.
+        BlockMirroring mirroring = left.Mirrored == CrumblePlugLeftBlock.Mirroring.None ? BlockMirroring.None : BlockMirroring.Both;
         return RoomTerrainBlock.Of(left.Number, mirroring, RoomCollisionType.Air);
     }
 

@@ -29,7 +29,7 @@ internal static class GameplayFrameFailureDiagnostics
         if (snapshot.Samus is not { } samus)
             return location + "; Samus=not initialized";
         return location + $"; pose={samus.Pose}; animationFrame={samus.AnimationFrame}; animationTimer={samus.AnimationFramesRemaining}; " +
-            $"animatedPose={samus.AnimatedPose}; position={samus.Position.X},{samus.Position.Y}; " +
+            $"position={samus.Position.X},{samus.Position.Y}; " +
             $"input={samus.HeldActions}; newlyPressed={samus.NewlyPressedActions}; inputLocked={samus.InputLocked}; " +
             $"drainedPhase={samus.DrainedPhase}; drainedHandler={samus.DrainedGetUp}; " +
             $"escapeTimer={samus.EscapeTimer}; fx={samus.Fx}; medium={samus.Medium}; " +

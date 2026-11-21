@@ -253,11 +253,10 @@ internal static class VerificationHelpersVerification
     /// and whole-pixel position are assigned; all other fields retain production defaults
     /// unless the test changes them explicitly afterward.
     /// </summary>
-    internal static SamusState CreateSamus(SamusPoseId pose, Position16<RoomPixels> position) => new(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), artwork: global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
+    internal static SamusState CreateSamus(SamusPoseId pose, Position16<RoomPixels> position) => new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), artwork: global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = pose,
         Position = FixedPosition<RoomPixels>.FromWhole(position),
-    };
+    }.InPose(pose);
 
     /// <summary>
     /// Runs an exact number of verifier frames. Passing the index preserves native timelines

@@ -8,5 +8,5 @@ internal sealed class WorkRobotLaserAnimation(WorkRobotLaserSegment segment)
     : EnemyProjectileFrameAnimation<WorkRobotLaserSegment, EnemyProjectileCommonCue>(segment, WorkRobotLaserAnimations.StartingAt[segment], EnemyProjectileCueRunners.Common<WorkRobotLaserSegment>())
 {
     /// <inheritdoc/>
-    private protected override AnimationSegments<WorkRobotLaserSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => WorkRobotLaserAnimations.Segments;
+    private protected override IUnpausedAnimationPlay<WorkRobotLaserSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => WorkRobotLaserAnimations.Segments;
 }

@@ -84,6 +84,44 @@ internal static class RoomEnemySpeciesAccess
     private static IEnumerable<object> OwnersOf(RoomEnemySystem enemies)
     {
         RoomEnemySpecies species = enemies.SpeciesComposition;
+<<<<<<< ours
+||||||| base
+        foreach (IEnemyEntityFactory factory in species.Registry.Factories.Values)
+        {
+            yield return factory;
+            switch (factory)
+            {
+                case RidleyEntityFactory ridley:
+                    yield return ridley.Norfair;
+                    yield return ridley.Ceres;
+                    break;
+                case SparkBehavior spark:
+                    yield return spark.FallingSparks;
+                    break;
+                default:
+                    // Every other factory is its species' only owner.
+                    break;
+            }
+        }
+=======
+        foreach (IEnemyEntityFactory factory in species.Factories)
+        {
+            yield return factory;
+            switch (factory)
+            {
+                case RidleyEntityFactory ridley:
+                    yield return ridley.Norfair;
+                    yield return ridley.Ceres;
+                    break;
+                case SparkBehavior spark:
+                    yield return spark.FallingSparks;
+                    break;
+                default:
+                    // Every other factory is its species' only owner.
+                    break;
+            }
+        }
+>>>>>>> theirs
         foreach (IEnemySpecies participant in species.FrameParticipants)
         {
             yield return participant;

@@ -99,7 +99,7 @@ internal static class CeresElevatorDoorSealVerification
         samus.Kinematics.Radius = new(5, 16);
         for (int pixel = 0; pixel < 32 && runtime.RoomObjects.DoorContacts.EnteredDoor is null; pixel++)
         {
-            SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = runtime.RoomObjects }, samus.Kinematics,
+            SamusBlockCollision.MoveHorizontal(SamusTerrain.InRoom(level, runtime.RoomObjects), samus.Kinematics,
                 samus, samus.Pose, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(1) });
         }
         rightmostPixel = samus.Kinematics.Position.X.Whole + samus.Kinematics.Radius.X - 1;

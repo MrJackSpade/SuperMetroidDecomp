@@ -15,12 +15,12 @@ internal static class SamusAnimationNumberAccess
         /// <summary>Her animation frame's native number: its place in the game's layout of the animation she animates by.</summary>
         internal int AnimationNumber
         {
-            get => SamusAnimationNumbers.Number(samus.AnimationPose, samus.AnimationFrame);
-            set => samus.AnimationFrame = SamusAnimationNumbers.Frame(samus.AnimationPose, value);
+            get => SamusAnimationNumbers.Number(samus.Pose, samus.AnimationFrame);
+            set => samus.AnimationFrame = SamusAnimationNumbers.Frame(samus.Pose, value);
         }
 
         /// <summary>The frame of the animation she animates by that the native game numbers <paramref name="number"/>.</summary>
-        internal SamusAnimationFrame AnimationFrameNumbered(int number) => SamusAnimationNumbers.Frame(samus.AnimationPose, number);
+        internal SamusAnimationFrame AnimationFrameNumbered(int number) => SamusAnimationNumbers.Frame(samus.Pose, number);
 
         /// <summary>The frame of her pose's animation that the native game numbers <paramref name="number"/>, which starting that animation sets.</summary>
         internal SamusAnimationFrame PoseFrameNumbered(int number) => SamusAnimationNumbers.Frame(samus.Pose, number);

@@ -8,8 +8,6 @@ namespace SuperMetroid.Core.Enemies.Zoa;
 [RoomLifetime]
 internal sealed class ZoaBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawnSettings>
 {
-    /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Zoa];
 
     /// <inheritdoc/>
     public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new ZoaEntity(occupant, place, common));
@@ -50,6 +48,14 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawn
         return state;
     }
 
+    /// <summary>What <see cref="RunZoaMain"/> does for each <see cref="ZoaAction"/> member, each member's own arm.</summary>
+    private static IdentityTable<ZoaAction, Action<RoomEnemyPlace, ZoaEnemyState, SamusState, Position16<RoomPixels>>> RunZoaMainForZoaAction => field ??= new(new Dictionary<ZoaAction, Action<RoomEnemyPlace, ZoaEnemyState, SamusState, Position16<RoomPixels>>>
+    {
+        [ZoaAction.WaitForSamus] = static (place, state, samus, camera) => RunZoaWait(place, state, samus),
+        [ZoaAction.Rising] = static (place, state, samus, camera) => RunZoaRising(place, state, samus),
+        [ZoaAction.Shooting] = static (place, state, samus, camera) => RunZoaShooting(place, state, camera),
+    });
+
     /// <summary>Runs a Zoa for one update: its proximity wait, rise or horizontal shot, from the room state.</summary>
     private static void RunZoaMain(
         RoomEnemyPlace place,
@@ -57,21 +63,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawn
         SamusState samus,
         Position16<RoomPixels> camera)
     {
-        switch (state.Action)
-        {
-            case ZoaAction.WaitForSamus:
-                RunZoaWait(place, state, samus);
-                return;
-            case ZoaAction.Rising:
-                RunZoaRising(place, state, samus);
-                return;
-            case ZoaAction.Shooting:
-                RunZoaShooting(place, state, camera);
-                return;
-            default:
-                throw new InvalidDataException(
-                    $"Zoa has no behaviour for action {state.Action}.");
-        }
+        RunZoaMainForZoaAction[state.Action](place, state, samus, camera);
     }
 
     /// <summary>Wakes when Samus comes within its activation distance across and rises facing her.</summary>

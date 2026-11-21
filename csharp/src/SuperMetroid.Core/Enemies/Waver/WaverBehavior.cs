@@ -8,8 +8,6 @@ namespace SuperMetroid.Core.Enemies.Waver;
 [RoomLifetime]
 internal sealed class WaverBehavior : IEnemySpecies, IEnemySpawnFactory<WaverSpawnSettings>
 {
-    /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Waver];
 
     /// <inheritdoc/>
     public EnemyOccupant Create(RoomEnemyOccupant occupant, WaverSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new WaverEntity(this, occupant, place, common, settings));
@@ -23,21 +21,18 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemySpawnFactory<WaverSpa
         _terrain = terrain;
     }
 
+    /// <summary>What <see cref="ApplyWaverCue"/> does for each <see cref="WaverCueKind"/> member, each member's own arm.</summary>
+    private static IdentityTable<WaverCueKind, Action<WaverEnemyState>> ApplyWaverCueForWaverCueKind => field ??= new(new Dictionary<WaverCueKind, Action<WaverEnemyState>>
+    {
+        // The four-frame spin hands its completion back to main AI rather than going on to the steady animation itself
+        // (#2450): the cue moves the Waver into its finished spin, which main AI consumes.
+        [WaverCueKind.FinishSpin] = static state => state.Action = WaverAction.SpinFinished,
+    });
+
     /// <summary>Carries out Waver's one animation cue.</summary>
     private static void ApplyWaverCue(WaverEnemyState state, WaverCue cue)
     {
-        switch (cue.Kind)
-        {
-            case WaverCueKind.FinishSpin:
-                // The four-frame spin hands its completion back to main AI rather than
-                // going on to the steady animation itself (#2450).
-                if (state.Action != WaverAction.Spinning)
-                    throw new InvalidOperationException($"A Waver's spin finished while it was {state.Action}.");
-                state.Action = WaverAction.SpinFinished;
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(WaverCueKind)} {cue.Kind}.");
-        }
+        ApplyWaverCueForWaverCueKind[cue.Kind](state);
     }
 
     /// <summary>Initializes the Waver.</summary>

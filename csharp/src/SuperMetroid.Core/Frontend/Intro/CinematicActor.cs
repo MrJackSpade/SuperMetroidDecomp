@@ -128,37 +128,70 @@ internal sealed class CinematicActor<TAnimation, TFrame, TCue> : ICinematicActor
 
         Animation<TAnimation> animation = Playback.Animation;
         AnimationPlace place = Playback.Place;
+<<<<<<< ours
         AnimationShown<TAnimation, TFrame> shown = animations.Segments.PlayToNextFrame(
             animation, ref place, ownerCue);
+||||||| base
+        AnimationShown<TAnimation, TFrame> shown = animations.Segments.PlayToNextFrame(
+            animation, ref place, cue => ApplyCue(cue, ownerCue));
+=======
+        IHidingAnimationShown<TAnimation, TFrame> shown = animations.Segments.PlayToNextFrame(
+            animation, ref place, cue => ApplyCue(cue, ownerCue));
+>>>>>>> theirs
         Playback = new AnimationPlayback<TAnimation>(animation, place);
-        switch (shown)
-        {
-            case AnimationShown<TAnimation, TFrame>.Frame frame:
-                frameHold.Restart(frame.Duration);
-                Shown = frame.Shown;
-                return;
-            case AnimationShown<TAnimation, TFrame>.Hidden hidden:
-                // A hidden beat shows no pose for its updates (#2558).
-                frameHold.Restart(hidden.Duration);
-                Shown = null;
-                return;
-            case AnimationShown<TAnimation, TFrame>.HeldFrame rested:
-                // A held frame shows from now on: the animation plays on no further until its owner starts another.
-                Shown = rested.Shown;
-                play = CinematicActorPlay.Resting;
-                return;
-            case AnimationShown<TAnimation, TFrame>.Held:
-                // A held animation rests on its last frame for good: playing it on again would only hold again.
-                play = CinematicActorPlay.Resting;
-                return;
-            case AnimationShown<TAnimation, TFrame>.Ended:
-                Delete();
-                return;
-            default:
-                throw new InvalidOperationException($"A cinematic sprite animation ended an update with {shown}.");
-        }
+        shown.React(StepHidingReactions, new StepContext(ownerCue, this));
     }
 
+<<<<<<< ours
+||||||| base
+    /// <summary>Hands the cue to the actor's owner.</summary>
+    private void ApplyCue(TCue cue, Action<TCue>? ownerCue)
+    {
+        (ownerCue ?? throw new InvalidOperationException(
+            $"Cinematic sprite animation in {Playback.PlayingSegment} raised {cue} with no owner to act on it."))(cue);
+    }
+=======
+    /// <summary>What <c>Step</c> does on each <see cref="AnimationShown{TAnimation, TFrame}"/>, built once (#2553).</summary>
+    private static AnimationShownReactions<TAnimation, TFrame, StepContext> StepReactions { get; } = new(
+        Frame: static (frame, context) =>
+        {
+            context.Owner.frameHold.Restart(frame.Duration);
+            context.Owner.Shown = frame.Shown;
+        },
+        HeldFrame: static (rested, context) =>
+        {
+            // A held frame shows from now on: the animation plays on no further until its owner starts another.
+            context.Owner.Shown = rested.Shown;
+            context.Owner.play = CinematicActorPlay.Resting;
+        },
+        Paused: static (paused, context) => context.Owner.frameHold.Restart(paused.Duration),
+        Held: static (_, context) => context.Owner.play = CinematicActorPlay.Resting,
+        Ended: static (_, context) => context.Owner.Delete());
+
+    /// <summary>
+    /// What <c>Step</c> does on a hidden stretch, which shows no pose for its updates (#2558), and on every other outcome,
+    /// built once.
+    /// </summary>
+    private static HidingAnimationShownReactions<TAnimation, TFrame, StepContext> StepHidingReactions { get; } = new(
+        Shown: static (shown, context) => shown.React(StepReactions, context),
+        Hidden: static (hidden, context) =>
+        {
+            context.Owner.frameHold.Restart(hidden.Duration);
+            context.Owner.Shown = null;
+        });
+
+    /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <param name="OwnerCue">The owner's reaction to its cues, as the step was given it.</param>
+    /// <param name="Owner">The <see cref="CinematicActor{TAnimation, TFrame, TCue}"/> reacting.</param>
+    private readonly record struct StepContext(Action<TCue>? OwnerCue, CinematicActor<TAnimation, TFrame, TCue> Owner);
+
+    /// <summary>Hands the cue to the actor's owner.</summary>
+    private void ApplyCue(TCue cue, Action<TCue>? ownerCue)
+    {
+        (ownerCue ?? throw new InvalidOperationException(
+            $"Cinematic sprite animation in {Playback.PlayingSegment} raised {cue} with no owner to act on it."))(cue);
+    }
+>>>>>>> theirs
 
     /// <summary>
     /// The width, in pixels, of the loop the actor drifts round, or null for an actor that drifts round none. The loop's

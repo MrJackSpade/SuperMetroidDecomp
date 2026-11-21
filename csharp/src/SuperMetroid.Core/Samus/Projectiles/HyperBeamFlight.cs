@@ -5,5 +5,5 @@ internal sealed class HyperBeamFlight : SamusShotBehavior
 {
     /// <inheritdoc/>
     internal override void Run(SamusShotUpdate update) =>
-        update.Shots.Motion.FlyHyperBeam(update.Terrain.Level, update.Held, update.Camera, update.Terrain.RoomObjects);
+        update.Shots.Motion.FlyHyperBeam(update.Terrain, update.Held, update.Camera);
 }

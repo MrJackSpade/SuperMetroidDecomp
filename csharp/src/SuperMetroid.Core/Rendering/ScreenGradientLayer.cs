@@ -13,15 +13,9 @@ public sealed record ScreenGradientLayer : DisplayLayer
     /// <summary>Draws <paramref name="gradient"/>.</summary>
     /// <param name="gradient">The gradient drawn.</param>
     /// <exception cref="ArgumentNullException"><paramref name="gradient"/> is null.</exception>
-    /// <exception cref="ArgumentException">A stop's blend is not a defined gradient blend.</exception>
     public ScreenGradientLayer(ScreenGradient gradient)
     {
         Ensure.NotNull(gradient);
-        foreach (GradientStop stop in gradient.Stops)
-        {
-            if (!Enum.IsDefined(stop.Blend))
-                throw new ArgumentException("A gradient stop blends in an undefined way.", nameof(gradient));
-        }
         Gradient = gradient;
     }
 }

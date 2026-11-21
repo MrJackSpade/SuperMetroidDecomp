@@ -36,14 +36,16 @@ public sealed class FileSelectPresentation
     /// <summary>The page pixel a copy or clear prompt's slot letter is shown at.</summary>
     internal Position16<PlanePixels> DynamicAnchor(FileSelectAnchor anchor) => placements.DynamicAnchors[anchor];
 
+    /// <summary>Where the cursor points at each item on each page that shows one.</summary>
+    private IdentityTable<FileSelectCursorPage, Func<FileSelectItem, Offset16<ScreenPixels>>> CursorAnchors => field ??= new(new Dictionary<FileSelectCursorPage, Func<FileSelectItem, Offset16<ScreenPixels>>>
+    {
+        [FileSelectCursorPage.Main] = item => Ensure.Listed(placements.MainCursorAnchors, item),
+        [FileSelectCursorPage.DataManagement] = item => Ensure.Listed(placements.DataCursorAnchors, item),
+    });
+
     /// <summary>The cursor anchor at <paramref name="item"/>'s row on the main page or a copy or clear page.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The item is not a row of that page.</exception>
-    internal Offset16<ScreenPixels> CursorPosition(FileSelectCursorPage page, FileSelectItem item) => page switch
-    {
-        FileSelectCursorPage.Main => Ensure.Listed(placements.MainCursorAnchors, item),
-        FileSelectCursorPage.DataManagement => Ensure.Listed(placements.DataCursorAnchors, item),
-        _ => throw new InvalidOperationException($"Undefined {nameof(FileSelectCursorPage)} {page}."),
-    };
+    internal Offset16<ScreenPixels> CursorPosition(FileSelectCursorPage page, FileSelectItem item) => CursorAnchors[page](item);
 
     /// <summary>The cursor anchor at <paramref name="answer"/>'s row of a copy or clear confirmation.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The answer is undefined.</exception>

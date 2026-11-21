@@ -70,18 +70,18 @@ internal static class EscapeTimerSamusHeldVerification
     {
         (SuperMetroidGame game, SuperMetroidRuntime runtime, SamusState samus) = GameplayWithEscapeTimer(EscapeTimerClock.Time(0, 20, 0));
         samus.Control.LockOutPlayer();
-        game.Session.ceresDeparture.Begin();
+        game.Session.BeginCeresDeparture();
         game.Session.Enter(SuperMetroidGameState.CeresDeparture);
         int held = runtime.EscapeTimer.RemainingCentiseconds;
 
-        int holdUpdates = game.Session.ceresDeparture.Hold.UpdatesLeft;
+        int holdUpdates = game.Session.CeresDeparture.Hold.UpdatesLeft;
         for (int update = 0; update < holdUpdates + 2; update++)
         {
             game.Step(0);
             AssertEqual(held, runtime.EscapeTimer.RemainingCentiseconds, "the Ceres departure's updates hold the countdown");
             AssertTrue(TimerDrawn(runtime), "the Ceres departure's updates show the timer");
         }
-        AssertEqual(CeresDeparturePhase.FadingToBlack, game.Session.ceresDeparture.Phase, "the checked updates reach the blackout");
+        AssertEqual(CeresDeparturePhase.FadingToBlack, game.Session.CeresDeparture.Phase, "the checked updates reach the blackout");
 
         Console.WriteLine("Escape timer on the Ceres elevator: the hold and the blackout show it and never count it.");
     }

@@ -44,5 +44,5 @@ public sealed class AreaMapPresentation : IAreaMapSource
     /// <param name="area">One of the seven areas, including Ceres.</param>
     /// <returns>The immutable view built when this catalog was loaded.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The value is not an area.</exception>
-    public IAreaMapView Get(AreaId area) => areas[AreaIds.Require(area)];
+    public IAreaMapView Get(AreaId area) => areas[area];
 }

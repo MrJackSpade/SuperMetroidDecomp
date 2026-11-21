@@ -151,8 +151,7 @@ internal static class GenericSpriteArtworkVerification
         EqualParts(PlacedSpritePart.OfOamObjects(motherBrainOam, MenuRenderDefinitions.ObjectSelection, new SpriteArtworkId(SpriteArtworkKind.IntroObjects)),
             actualParts, "Mother Brain's drawn sprite parts are the cartridge's");
 
-        var explosions = new IntroMotherBrainExplosionSystem();
-        explosions.SpawnFourthHitExplosions();
+        var explosions = IntroMotherBrainExplosionSystem.SpawnFourthHitExplosions();
         explosions.Step(crossfadeFinishing: false);
         var actual = ScreenSpritesFixtures.Blank(); actual.BeginFrame();
         explosions.Draw(actual, CinematicSheetFixtures.Drawer(introArtwork.Sprites.MotherBrainExplosion));

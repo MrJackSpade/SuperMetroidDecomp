@@ -26,24 +26,31 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 [RoomLifetime]
 internal sealed class EnemyProjectileEngine
 {
+    /// <summary>What <see cref="ApplyCommonCue"/> does for each <see cref="EnemyProjectileCommonCueKind"/> member, each member's own arm.</summary>
+    private static IdentityTable<EnemyProjectileCommonCueKind, Action<EnemyProjectile>> ApplyCommonCueForEnemyProjectileCommonCueKind => field ??= new(new Dictionary<EnemyProjectileCommonCueKind, Action<EnemyProjectile>>
+    {
+        [EnemyProjectileCommonCueKind.Delete] = static projectile => projectile.Delete(),
+        [EnemyProjectileCommonCueKind.ReturnToOrigin] = static projectile => projectile.Position = projectile.Position.WithWhole(projectile.Anchor),
+    });
+
     /// <summary>Carries out one shared cue of a typed projectile animation, for every kind whose animations publish them.</summary>
     internal void ApplyCommonCue(EnemyProjectile projectile, EnemyProjectileCommonCue cue)
     {
-        switch (cue)
-        {
-            case EnemyProjectileCommonCue.Signal { Kind: EnemyProjectileCommonCueKind.Delete }:
-                projectile.Delete();
-                break;
-            case EnemyProjectileCommonCue.Scatter scatter:
-                Scatter(projectile, scatter.Spread);
-                break;
-            case EnemyProjectileCommonCue.Signal { Kind: EnemyProjectileCommonCueKind.ReturnToOrigin }:
-                projectile.Position = projectile.Position.WithWhole(projectile.Anchor);
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(EnemyProjectileCommonCueKind)} {cue}.");
-        }
+        cue.React(ApplyCommonCueReactions, new ApplyCommonCueContext(projectile, this));
     }
+
+    /// <summary>What <see cref="ApplyCommonCue"/> does on each <see cref="EnemyProjectileCommonCue"/>, built once (#2553).</summary>
+    private static EnemyProjectileCommonCueReactions<ApplyCommonCueContext> ApplyCommonCueReactions { get; } = new(
+        Scatter: static (scatter, context) => context.Owner.Scatter(context.Projectile, scatter.Spread),
+        Signal: static (signal, context) =>
+        {
+            ApplyCommonCueForEnemyProjectileCommonCueKind[signal.Kind](context.Projectile);
+        });
+
+    /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <param name="Projectile">The projectile the cases read.</param>
+    /// <param name="Owner">The <see cref="EnemyProjectileEngine"/> reacting.</param>
+    private readonly record struct ApplyCommonCueContext(EnemyProjectile Projectile, EnemyProjectileEngine Owner);
 
     /// <summary>Supplies room RNG and artwork for projectile effects.</summary>
     private readonly EnemyRoomBinding _room;
@@ -342,8 +349,43 @@ internal sealed class EnemyProjectileEngine
     /// <param name="kind">What the projectile is, which names its definition.</param>
     /// <param name="behavior">What the projectile's kind does, bound to it for its life (#1760), which starts its motion (#1843).</param>
     /// <param name="graphics">The sheet and shading the projectile draws with.</param>
-    internal EnemyProjectile? AllocateEnemyProjectile(RoomEnemyProjectileKind kind, EnemyProjectileBehavior behavior, SpriteGraphics graphics) =>
-        TryAllocateEnemyProjectile(kind, behavior, graphics, out EnemyProjectile? projectile) ? projectile : null;
+    /// <param name="animation">The animation the projectile plays from its first pass (#2553): every spawn starts one.</param>
+    internal EnemyProjectile? AllocateEnemyProjectile(RoomEnemyProjectileKind kind, EnemyProjectileBehavior behavior, SpriteGraphics graphics,
+        EnemyProjectileAnimation animation) =>
+        FindVacancy() is { } vacancy ? Spawn(vacancy, kind, behavior, graphics, animation) : null;
+
+    /// <summary>
+    /// The first free place the spawn search finds, from the last down, or none when every place is held (#2553): a spawner
+    /// that chooses its projectile's animation by a random draw the game makes only once a place is found looks first, and
+    /// spawns into the place before any other projectile spawns.
+    /// </summary>
+    internal EnemyProjectileVacancy? FindVacancy()
+    {
+        foreach (int place in EnemyProjectilePlaces.InRunOrder)
+        {
+            if (!IsFree(place))
+                continue;
+            Places.RecordSpawn(place);
+            return new EnemyProjectileVacancy(place);
+        }
+        Places.RecordSpawn(null);
+        return null;
+    }
+
+    /// <summary>
+    /// Spawns a fresh projectile of <paramref name="kind"/> into <paramref name="vacancy"/>, starting from what the place's
+    /// previous projectile left there (<see cref="EnemyProjectilePlaceLeftovers"/>) and copying its kind's definition
+    /// (<see cref="Occupy"/>), playing <paramref name="animation"/> from its first pass.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">A projectile has spawned into the place since it was found free.</exception>
+    internal EnemyProjectile Spawn(EnemyProjectileVacancy vacancy, RoomEnemyProjectileKind kind, EnemyProjectileBehavior behavior,
+        SpriteGraphics graphics, EnemyProjectileAnimation animation)
+    {
+        int place = vacancy.Place;
+        if (!IsFree(place))
+            throw new InvalidOperationException($"Enemy projectile place {place} was taken after the spawn search found it free.");
+        return Occupy(place, kind, behavior, graphics, animation);
+    }
 
     /// <summary>
     /// Makes <paramref name="place"/> hold a fresh projectile of <paramref name="kind"/>, starting from what the place's latest
@@ -354,30 +396,15 @@ internal sealed class EnemyProjectileEngine
     /// <param name="kind">What the projectile is, which names its definition.</param>
     /// <param name="behavior">What the projectile's kind does, bound to it for its life.</param>
     /// <param name="graphics">The sheet and shading the projectile draws with.</param>
+    /// <param name="animation">The animation the projectile plays from its first pass.</param>
     /// <returns>The projectile the place now holds.</returns>
-    internal EnemyProjectile Occupy(int place, RoomEnemyProjectileKind kind, EnemyProjectileBehavior behavior, SpriteGraphics graphics)
+    internal EnemyProjectile Occupy(int place, RoomEnemyProjectileKind kind, EnemyProjectileBehavior behavior, SpriteGraphics graphics,
+        EnemyProjectileAnimation animation)
     {
-        var projectile = new EnemyProjectile(place, _leftovers.StartOf(place, _places[place]?.LeftInPlace), kind, behavior);
+        var projectile = new EnemyProjectile(place, _leftovers.StartOf(place, _places[place]?.LeftInPlace), kind, behavior, animation);
         _places[place] = projectile;
         InitializeEnemyProjectileFromDefinition(projectile, kind, graphics);
         return projectile;
-    }
-
-    /// <summary>Spawns a fresh projectile into the first free place searched from the last down; false when every place is held.</summary>
-    private bool TryAllocateEnemyProjectile(RoomEnemyProjectileKind kind, EnemyProjectileBehavior behavior, SpriteGraphics graphics,
-        [NotNullWhen(true)] out EnemyProjectile? projectile)
-    {
-        foreach (int place in EnemyProjectilePlaces.InRunOrder)
-        {
-            if (!IsFree(place))
-                continue;
-            Places.RecordSpawn(place);
-            projectile = Occupy(place, kind, behavior, graphics);
-            return true;
-        }
-        Places.RecordSpawn(null);
-        projectile = null;
-        return false;
     }
 
     /// <summary>
@@ -416,8 +443,8 @@ internal sealed class EnemyProjectileEngine
         SpriteGraphics graphics)
     {
         EnemyProjectileDefinition definition = EnemyProjectileKinds.Get(kind);
-        // The spawn starts the animation timer at one, so the first step runs on the first pass. The spawner then starts
-        // the animation it chooses.
+        // The spawn starts the animation timer at one, so the animation the spawner chose shows its first frame on the
+        // first pass.
         projectile.FrameHold = WrappingCountdown.OneFrame;
 
         // The spawn shows no frame before the first animation tick: it is hidden until its animation shows the first frame
@@ -611,16 +638,10 @@ internal sealed class EnemyProjectileEngine
         Compatibility.ShortFrameCount shortCounter,
         SamusBombProjectileSystem samusBombs)
     {
+        // Every spawn starts an animation, so only a projectile its own update ended this pass plays none, and it runs
+        // nothing.
         if (projectile.Animation is { } animation)
-        {
             animation.Advance(new(projectile, samus, camera, shortCounter, Ensure.NotNull(samusBombs), this));
-            return;
-        }
-
-        // A projectile its own update ended this pass, or one spawned without an animation, runs nothing.
-        if (!projectile.IsActive)
-            return;
-        throw new InvalidOperationException($"Enemy projectile {projectile.Kind} in place {projectile.Place} runs no animation.");
     }
 
     /// <summary>
@@ -690,16 +711,14 @@ internal sealed class EnemyProjectileEngine
         Position16<RoomPixels> position,
         DustExplosionAnimation animation)
     {
-        // The animation is chosen before a place is taken, so an undefined one fails without taking a place.
-        var playing = new DustExplosionProjectileAnimation(animation);
-        EnemyProjectile? projectile = AllocateEnemyProjectile(RoomEnemyProjectileKind.DustOrExplosion, DustExplosionProjectileBehavior.Instance, graphics: SpriteGraphics.SharedStandard);
+        // The animation is chosen before a place is taken, so an undefined one fails without taking a place. The spawner
+        // chooses it: the Rinka's is the small explosion, and the Boulder's its impact cloud.
+        EnemyProjectile? projectile = AllocateEnemyProjectile(RoomEnemyProjectileKind.DustOrExplosion, DustExplosionProjectileBehavior.Instance,
+            graphics: SpriteGraphics.SharedStandard, new DustExplosionProjectileAnimation(animation));
         if (projectile is null)
             return;
 
         projectile.Position = projectile.Position.WithWhole(position);
-
-        // The spawner chooses the animation: the Rinka's is the small explosion, and the Boulder's its impact cloud.
-        projectile.StartAnimation(playing);
     }
 
     /// <summary>Creates the common dud shot for a protected head hitbox.</summary>

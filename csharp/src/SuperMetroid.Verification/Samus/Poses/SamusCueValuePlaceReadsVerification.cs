@@ -51,9 +51,8 @@ internal static class SamusCueValuePlaceReadsVerification
     {
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = pose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
-        };
+        }.InPose(pose);
         SamusPresentation.InitializeAnimation(samus);
         write(samus);
         AssertEqual(0, samus.ExtraAnimationDelay, $"{pose} at the {writer} animates without a liquid's delay buffer");

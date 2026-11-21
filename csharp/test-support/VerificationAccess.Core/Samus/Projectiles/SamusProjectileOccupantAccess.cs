@@ -13,5 +13,5 @@ internal static class SamusProjectileOccupantAccess
     /// <exception cref="InvalidOperationException">No bomb holds the place.</exception>
     internal static SamusBombOccupant HeldBomb(this SamusBomb bomb) =>
         Ensure.NotNull(bomb).Occupant
-            ?? throw new InvalidOperationException($"A check asks for the bomb in place {bomb.Place}, where none is held.");
+            ?? throw new InvalidOperationException("A check asks for the bomb in a place no bomb holds.");
 }

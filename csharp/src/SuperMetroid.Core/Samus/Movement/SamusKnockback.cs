@@ -1,57 +1,39 @@
 namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>
-/// What a hit's knockback does to Samus (#2560): a closed choice of no knockback, a knockback moving her in its direction,
-/// and a released knockback, which has returned her movement to her pose while its direction stays until the hit expires
-/// (a damage boost, Crystal Flash's drain and her death release it). The hit's countdown, which its producer starts before
-/// any knockback, is <see cref="SamusState.KnockbackHold"/>.
+/// The knockback a hit put Samus in (#2553): none, one moving her in its direction, or one whose movement a damage boost,
+/// Crystal Flash or her death handed back to her pose, which keeps its direction until her knockback hold's expiry
+/// finishes it. A knockback that moves her always has a direction: the game's knockback movement has no movement for
+/// the direction a hit never sets.
 /// </summary>
 public abstract record SamusKnockback
 {
-    /// <summary>Only the three cases below are knockbacks.</summary>
+    /// <summary>Closes the hierarchy to the cases declared here.</summary>
     private SamusKnockback()
     {
     }
 
-    /// <summary>No knockback is pending or moving Samus.</summary>
+    /// <summary>No knockback is pending or moving her.</summary>
     public static SamusKnockback None { get; } = new NoKnockback();
 
-    /// <summary>Which way the knockback sends Samus; <see cref="SamusKnockbackDirection.None"/> for no knockback.</summary>
-    public abstract SamusKnockbackDirection Direction { get; }
+    /// <summary>
+    /// The knockback once its movement is handed back to her pose: a moving knockback keeps its direction as a handed-back
+    /// one; any other stays as it is.
+    /// </summary>
+    internal virtual SamusKnockback HandBack() => this;
 
-    /// <summary>Whether the knockback moves Samus (<see cref="SamusMovementOwner.Knockback"/>).</summary>
-    public bool MovesSamus => this is MovingSamus;
+    /// <summary>No knockback is pending or moving her.</summary>
+    public sealed record NoKnockback : SamusKnockback;
 
-    /// <summary>A knockback moving Samus <paramref name="direction"/>.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="direction"/> is no way a knockback moves her.</exception>
-    public static SamusKnockback Moving(SamusKnockbackDirection direction) => new MovingSamus(direction is
-        SamusKnockbackDirection.UpLeft or SamusKnockbackDirection.UpRight or SamusKnockbackDirection.DownLeft or SamusKnockbackDirection.DownRight
-        ? direction
-        : throw new ArgumentOutOfRangeException(nameof(direction), direction, "A knockback moves Samus one of four ways."));
-
-    /// <summary>The knockback with Samus's movement returned to her pose; its direction stays until the hit expires.</summary>
-    public SamusKnockback Released() => this is MovingSamus moving ? new ReleasedSamus(moving.Way) : this;
-
-    /// <summary>No knockback.</summary>
-    private sealed record NoKnockback : SamusKnockback
+    /// <summary>A knockback that moves Samus (<see cref="SamusMovementOwner.Knockback"/>).</summary>
+    /// <param name="Direction">Which way it moves her.</param>
+    public sealed record Moving(SamusKnockbackDirection Direction) : SamusKnockback
     {
         /// <inheritdoc/>
-        public override SamusKnockbackDirection Direction => SamusKnockbackDirection.None;
+        internal override SamusKnockback HandBack() => new HandedBack(Direction);
     }
 
-    /// <summary>A knockback moving Samus <paramref name="Way"/>.</summary>
-    /// <param name="Way">Which way it moves her.</param>
-    private sealed record MovingSamus(SamusKnockbackDirection Way) : SamusKnockback
-    {
-        /// <inheritdoc/>
-        public override SamusKnockbackDirection Direction => Way;
-    }
-
-    /// <summary>A knockback that has returned Samus's movement to her pose, keeping <paramref name="Way"/>.</summary>
-    /// <param name="Way">Which way it moved her.</param>
-    private sealed record ReleasedSamus(SamusKnockbackDirection Way) : SamusKnockback
-    {
-        /// <inheritdoc/>
-        public override SamusKnockbackDirection Direction => Way;
-    }
+    /// <summary>A knockback whose movement went back to her pose before her knockback hold ran out.</summary>
+    /// <param name="Direction">Which way it moved her.</param>
+    public sealed record HandedBack(SamusKnockbackDirection Direction) : SamusKnockback;
 }

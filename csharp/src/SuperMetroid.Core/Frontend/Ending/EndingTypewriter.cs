@@ -29,7 +29,7 @@ internal sealed class EndingTypewriter
         this.sequence = sequence;
         Characters = Ensure.NotNull(setup.Text).CharactersOf(sequence).ToArray();
         AnimationSegments<EndingTextSequence, EndingTypewriterTyping, EndingTypewriterCue> segments =
-            EndingTypewriterAnimations.Segments(sequence, Characters.Length);
+            EndingTypewriterAnimations.Segments(sequence, Characters);
         typing = AnimationPlayer<EndingTextSequence, EndingTypewriterTyping, EndingTypewriterCue>.Starting(
             segments, EndingTypewriterAnimations.Typing(segments, sequence));
     }
@@ -57,28 +57,25 @@ internal sealed class EndingTypewriter
         if (TypedCount > Characters.Length)
             throw new InvalidDataException($"Saved ending-text typed count {TypedCount} exceeds the rebound text.");
         AnimationSegments<EndingTextSequence, EndingTypewriterTyping, EndingTypewriterCue> rebound =
-            EndingTypewriterAnimations.Segments(sequence, Characters.Length);
+            EndingTypewriterAnimations.Segments(sequence, Characters);
         typing.Rebind(rebound, EndingTypewriterAnimations.Typing(rebound, sequence));
     }
 
     /// <summary>Runs the typing one update: the initial delay, character cadence, optional percentage hold, and completion handoff.</summary>
     public void Step() => typing.Step(CarryOut);
 
+    /// <summary>What <see cref="CarryOut"/> does for each <see cref="EndingTypewriterCue"/> member, each member's own arm.</summary>
+    private IdentityTable<EndingTypewriterCue, Action> CarryOutForEndingTypewriterCue => field ??= new(new Dictionary<EndingTypewriterCue, Action>
+    {
+        [EndingTypewriterCue.ShowPercentage] = () => shownPercentage = ItemPercentage(),
+        [EndingTypewriterCue.Complete] = () => Completed = true,
+    });
+
     /// <summary>Carries out <paramref name="cue"/> of the text's typing.</summary>
     /// <exception cref="InvalidOperationException">The cue is not one a text's typing raises.</exception>
     private void CarryOut(EndingTypewriterCue cue)
     {
-        switch (cue)
-        {
-            case EndingTypewriterCue.ShowPercentage:
-                shownPercentage = ItemPercentage();
-                return;
-            case EndingTypewriterCue.Complete:
-                Completed = true;
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined ending typewriter cue {cue}.");
-        }
+        CarryOutForEndingTypewriterCue[cue]();
     }
 
     /// <summary>

@@ -37,7 +37,7 @@ public static class ProjectileSheetDefinitions
     /// fires a charged Power or a charged Ice-Wave shot, and their projectiles show that combination's sheet, which holds
     /// everything they fire or place.
     /// </summary>
-    public static readonly IReadOnlyDictionary<SamusBeamCombination, SpriteSheetId> Sheets = new Dictionary<SamusBeamCombination, SpriteSheetId>
+    public static readonly IdentityTable<SamusBeamCombination, SpriteSheetId> Sheets = new(new Dictionary<SamusBeamCombination, SpriteSheetId>
     {
         [SamusBeamCombination.Power] = SpriteSheetId.ProjectilesPower,
         [SamusBeamCombination.Wave] = SpriteSheetId.ProjectilesWave,
@@ -55,5 +55,5 @@ public static class ProjectileSheetDefinitions
         [SamusBeamCombination.SpazerPlasmaWave] = SpriteSheetId.ProjectilesSpazerPlasmaWave,
         [SamusBeamCombination.SpazerPlasmaIce] = SpriteSheetId.ProjectilesSpazerPlasmaIce,
         [SamusBeamCombination.SpazerPlasmaIceWave] = SpriteSheetId.ProjectilesIceWave,
-    };
+    });
 }

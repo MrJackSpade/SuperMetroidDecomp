@@ -7,9 +7,7 @@ internal static class KraidMouthHitboxes
 {
     /// <summary>The rectangle of <paramref name="shape"/>, relative to Kraid's body position.</summary>
     private static EnemyHitboxRectangle Resolve(KraidMouthHitbox shape) =>
-        KraidMouthHitboxDefinitions.Rectangles.TryGetValue(shape, out EnemyHitboxRectangle rectangle)
-            ? rectangle
-            : throw new InvalidOperationException($"Undefined Kraid mouth hitbox {shape}.");
+        KraidMouthHitboxDefinitions.Rectangles[shape];
 
     /// <summary>The left, top and bottom edges collision tests against for <paramref name="shape"/>; the right edge is unused.</summary>
     public static KraidMouthCollisionEdges ResolveCollision(KraidMouthHitbox shape)

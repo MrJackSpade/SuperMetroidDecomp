@@ -45,13 +45,33 @@ internal static class LookupSmallGameTablesVerification
         // The cartridge's table holds the fall gravity, then each bounce's, then a zero where the bomb expires.
         AssertEqual(rom.ReadCartridgeWord(0x86c550), MotherBrainBombBounceDefinitions.FallAcceleration.InTwoHundredFiftySixthsOfPixel,
             "The table's first entry is the ordinary fall gravity");
+<<<<<<< ours
         for (int bounces = 1; bounces <= MotherBrainBombBounces.Count; bounces++)
             AssertEqual(rom.ReadCartridgeWord(0x86c550 + 2 * bounces),
                 MotherBrainBombBounces.YAcceleration(bounces).InTwoHundredFiftySixthsOfPixel, $"Bomb gravity after bounce {bounces}");
         int expiry = MotherBrainBombBounces.Count + 1;
         AssertEqual(0, rom.ReadCartridgeWord(0x86c550 + 2 * expiry),
+||||||| base
+        for (int bounces = 1; bounces <= MotherBrainBombBounces.Count; bounces++)
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x86c550 + 2 * bounces),
+                MotherBrainBombBounces.YAcceleration(bounces).InTwoHundredFiftySixthsOfPixel, $"Bomb gravity after bounce {bounces}");
+        int expiry = MotherBrainBombBounces.Count + 1;
+        AssertEqual(0, CartridgeImportSource.Require(rom).ReadCartridgeWord(0x86c550 + 2 * expiry),
+=======
+        // Each bounce leads to the next bounce's gravity, and the last to the landing, where the bomb has none.
+        MotherBrainBombBounces stands = MotherBrainBombBounces.FirstFall.Bounced;
+        int bounces = 1;
+        for (; stands is MotherBrainBombBounces.Flying.Bouncing bouncing; bounces++)
+        {
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x86c550 + 2 * bounces),
+                bouncing.Gravity.Entry.InTwoHundredFiftySixthsOfPixel, $"Bomb gravity after bounce {bounces}");
+            stands = bouncing.Bounced;
+        }
+        AssertEqual(MotherBrainBombBounceDefinitions.BounceAccelerations.Length + 1, bounces, "The bomb lands after its last authored bounce");
+        AssertEqual(0, CartridgeImportSource.Require(rom).ReadCartridgeWord(0x86c550 + 2 * bounces),
+>>>>>>> theirs
             "The cartridge ends the bounces with a zero");
-        AssertTrue(MotherBrainBombBounces.HasExpired(expiry), "The bomb expires after its last bounce");
+        AssertTrue(stands is MotherBrainBombBounces.Landed, "The bomb expires after its last bounce");
     }
 
     /// <summary>Matches seven unrolled Crocomire bridge-dust spawn operands to their X/Y positions.</summary>

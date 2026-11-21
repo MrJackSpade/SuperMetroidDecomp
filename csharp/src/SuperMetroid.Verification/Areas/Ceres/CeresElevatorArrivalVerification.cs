@@ -35,7 +35,7 @@ internal static class CeresElevatorArrivalVerification
         var bus = NewCeresArrivalDefinitionReadGuard(memory);
 
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0000)) };
-        var arrival = new CeresElevatorArrivalState(samus);
+        var arrival = new CeresElevatorArrivalState(samus.Position.Whole);
         arrival.Step(samus);
 
         // With tile base zero, each actor shows its composition at tile base zero in the parts' own palettes; leaked

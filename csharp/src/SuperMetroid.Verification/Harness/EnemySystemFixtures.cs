@@ -60,7 +60,7 @@ internal static class EnemySystemFixtures
                 InstalledFixtures.Maps.MotherBrainRainbowBeamColours, InstalledFixtures.KraidEyes, InstalledFixtures.BossBodySheets),
             BreakableTerrain = breakableTerrain ?? new EnemyBreakableTerrainObjects(new RoomObjectPlaceList()),
             DoorPassage = doorPassage ?? new DoorPassage(),
-            RoomFx = roomFx ?? global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.RoomFxOverlayState>([typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone() }),
+            RoomFx = roomFx ?? global::SuperMetroid.Core.Fx.RoomFxOverlayState.ForRoom(fx: null, door: null, randomNumber: 0, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone()),
             Earthquake = new RoomEarthquake(),
             // A fixture room can place Ceres Ridley and Mother Brain, whose escapes write the room's warnings (#2554).
             Scenery = new RoomEnemyScenery(floor, shaftTurn, statueRoom, warnings ?? new RoomWarnings(InstalledFixtures.RoomAssets.BlockSheets.Written.Values.First())),

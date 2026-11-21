@@ -10,5 +10,5 @@ internal sealed class DownwardGateProjectileAnimation(IEnemyProjectileCues<Downw
     : EnemyProjectileFrameAnimation<DownwardGateProjectileSegment, DownwardGateProjectileCue>(segment, DownwardGateProjectileAnimations.StartingAt[segment], EnemyProjectileCueRunner<DownwardGateProjectileSegment, DownwardGateProjectileCue>.By(owner))
 {
     /// <inheritdoc/>
-    private protected override AnimationSegments<DownwardGateProjectileSegment, EnemyProjectileFrameId, DownwardGateProjectileCue> Segments => DownwardGateProjectileAnimations.Segments;
+    private protected override IUnpausedAnimationPlay<DownwardGateProjectileSegment, EnemyProjectileFrameId, DownwardGateProjectileCue> Segments => DownwardGateProjectileAnimations.Segments;
 }

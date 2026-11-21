@@ -38,7 +38,7 @@ internal sealed class ShallowWaterJumpScenario
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.BelowSpazer, camera: new Position16<RoomPixels>(0, 256));
         var samus = Samus;
         samus.Control.Unlock();
-        samus.Pose = SamusPoseId.FacingRightNormalPose;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
         samus.Position = samus.Position.WithWhole(new(104, 427));
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(PixelFraction.Last);
         samus.EquippedItems = 0;

@@ -179,7 +179,7 @@ internal static class FirefleaFxVerification
         AssertEqual(RoomFxType.Fireflea, runtime.RoomFxOverlay.Type, "retail fixture selects Fireflea FX");
         var samus = runtime.Player.Samus;
         samus.Control.Unlock();
-        samus.Pose = SamusPoseId.FacingRightNormalPose;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         // Seed a late darkness shade through the production FX owner. X-ray freezes

@@ -86,16 +86,16 @@ internal static class ReserveModeVerification
         secondRecovery.Begin(knockbackVariant);
         while (secondRecovery.IsActive)
             secondRecovery.StepAfterFrame(knockbackVariant, 0);
-        knockbackVariant.Pose = SamusPoseId.FacingRightNormalPose;
+        knockbackVariant.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
         SamusPoseMetadata.RefreshCollisionRadii(knockbackVariant);
         SamusPresentation.InitializeAnimation(knockbackVariant);
         knockbackVariant.HorizontalSpeed.SpeedBoostCounter = SamusSpeedBoostCounter.AtFullStage;
         var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(new RoomTerrainBlock[256], new RoomBlockBehavior[256], new RoomBlockAppearance[256]), RoomLevelData.NothingBeyondGrid(), []);
         SamusPosturePoseTransitions.ApplyPostureTransition(knockbackVariant, 
 
-                level,
+                SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled),
                 SamusPoseId.CrouchingTransitionRightPose,
-                frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+                frameCounter: 0);
         AssertEqual(ShinesparkPhase.Stored, knockbackVariant.Shinespark.Phase,
             "Reserve Mode crouch installs stored-shine owner");
         AssertEqual(SamusSpecialColouringKind.SpeedBoosterShine, knockbackVariant.SpecialColouring.Holder,
@@ -113,7 +113,6 @@ internal static class ReserveModeVerification
     {
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             Health = reserveEnergy == 0 ? (ushort)99 : (ushort)0,
             MaxHealth = 99,
@@ -121,7 +120,7 @@ internal static class ReserveModeVerification
             MaxReserveEnergy = 100,
             ReserveTankMode = reserveEnergy == 0 ? ReserveTankMode.None : ReserveTankMode.Auto,
             EquippedItems = SamusEquipmentFlags.XrayScope,
-        };
+        }.InPose(SamusPoseId.FacingRightNormalPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         AssertTrue(samus.Xray.TryBeginAndActivate(samus, SamusMovementType.Standing, new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay, PowerBombExplosionActive = false, ProjectileCooldownTimer = 0, BombCounter = 0 }),

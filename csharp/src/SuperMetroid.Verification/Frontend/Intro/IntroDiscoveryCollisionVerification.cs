@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.Cartridge;
 
@@ -16,7 +17,9 @@ internal static class IntroDiscoveryCollisionVerification
     internal static RoomCollisionType[] VerifyIntroDiscoveryCollision(IImportCartridgeSource rom)
     {
         byte[] native = RomDataReader.ReadFixedBank(rom, 0x8cc083, 0x300);
-        RoomCollisionType[] actual = IntroBabyDiscoveryCollision.CreateCollision();
+        var size = new Extent16<RoomBlocks>(IntroBabyDiscoveryCollisionDefinitions.Columns, IntroBabyDiscoveryCollisionDefinitions.RoomRows);
+        PlainTerrainBlock[] blocks = IntroBabyDiscoveryCollision.CreateCollision();
+        RoomCollisionType[] actual = PlainTerrainCollision.Of(size, blocks);
         AssertEqual(32 * 16, actual.Length, "discovery room allocation");
         var expected = new RoomCollisionType[actual.Length];
         for (int index = 0; index < actual.Length; index++)
@@ -26,10 +29,11 @@ internal static class IntroDiscoveryCollisionVerification
             expected[index] = RoomLevelWordCodec.Decode(word).Collision;
             AssertEqual(expected[index], actual[index], "decoded original discovery collision and empty tail");
         }
-        actual[0] = IntroBabyDiscoveryCollisionDefinitions.FloorBlock;
-        actual[10 * 32] = IntroBabyDiscoveryCollisionDefinitions.EmptyBlock;
-        RoomCollisionType[] fresh = IntroBabyDiscoveryCollision.CreateCollision();
-        AssertTrue(!ReferenceEquals(actual, fresh), "collision rooms are built independently");
+        blocks[0] = IntroBabyDiscoveryCollisionDefinitions.FloorBlock;
+        blocks[10 * 32] = IntroBabyDiscoveryCollisionDefinitions.EmptyBlock;
+        PlainTerrainBlock[] freshBlocks = IntroBabyDiscoveryCollision.CreateCollision();
+        AssertTrue(!ReferenceEquals(blocks, freshBlocks), "collision rooms are built independently");
+        RoomCollisionType[] fresh = PlainTerrainCollision.Of(size, freshBlocks);
         AssertEqual(expected[0], fresh[0], "modified air block does not change next room");
         AssertEqual(expected[10 * 32], fresh[10 * 32], "modified strip does not change next room");
         return expected;

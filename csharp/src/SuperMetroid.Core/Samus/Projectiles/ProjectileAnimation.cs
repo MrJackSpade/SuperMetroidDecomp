@@ -36,17 +36,16 @@ internal sealed class ProjectileAnimation
     /// <param name="animation">The animation the projectile is playing.</param>
     internal void AdvanceProjectileAnimation(
         SamusProjectileOccupant shot,
-        AnimationPlayer<SamusProjectileSegment, SamusProjectileFrameId, NoAnimationCue> animation)
-    {
-        if (SamusProjectilePlayback.StepToNewFrame(Ensure.NotNull(animation)) is { } frame)
-        {
-            shot.Sprite = _artwork.ProjectileFrames.Resolve(frame);
-            shot.Radius = SamusProjectileFrameDefinitions.Radius(frame);
-            return;
-        }
-        if (animation.HasStopped)
-            ClearProjectile(shot.Projectile);
-    }
+        AnimationPlayer<SamusProjectileSegment, SamusProjectileFrameId, NoAnimationCue> animation) =>
+        SamusProjectilePlayback.PlayOn(
+            Ensure.NotNull(animation),
+            _artwork.ProjectileFrames,
+            (sprite, radius) =>
+            {
+                shot.Sprite = sprite;
+                shot.Radius = radius;
+            },
+            () => ClearProjectile(shot.Projectile));
 
 
     /// <summary>Deletes a projectile, ending it, and decrements the shot count, which stays at zero.</summary>
@@ -81,7 +80,7 @@ internal sealed class ProjectileAnimation
     }
 
     /// <summary>Plays a flare component's ordinary animation one update on.</summary>
-    internal void AdvanceFlareComponent(ChargeFlareComponent component) => _charge.Flare(component).PlayForward();
+    internal void AdvanceFlareComponent(ChargeFlareComponent component) => _charge.PlayFlareForward(component);
 
     /// <summary>
     /// Reads Samus's shot direction and movement metadata before drawing an eligible charge-flare component. Only a pose
@@ -92,13 +91,13 @@ internal sealed class ProjectileAnimation
         if (SamusPoseMetadata.ReadAim(samus) is not SamusPoseAim.Armed { Flare: var flare })
             return;
 
-        DrawFlareComponentWithMetadata(sprites, samus, cameraPosition, component, turningFloor, artwork, new ChargeFlarePose { Aim = flare, Running = SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.Running, PoseYOffset = SamusPoseMetadata.ReadArtOrigin(samus), FacingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left) });
+        DrawFlareComponentWithMetadata(sprites, samus, cameraPosition, component, turningFloor, artwork, new ChargeFlarePose { Aim = flare, Running = SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.Running, PoseYOffset = SamusPoseMetadata.ReadArtOrigin(samus), Facing = FlareFacings[SamusPoseMetadata.ReadFacingDirection(samus)] });
     }
 
     /// <summary>Applies pose muzzle offsets after optional Ceres turning-floor center transform, then draws the installed component frame.</summary>
     private void DrawFlareComponentWithMetadata(SpriteFrameBuffer sprites, SamusState samus, Position16<RoomPixels> cameraPosition, ChargeFlareComponent component, TurningFloorTransform? turningFloor, ChargeFlareArtwork artwork, ChargeFlarePose pose)
     {
-        Offset16<RoomPixels> visualOffset = artwork.Placement.Resolve(pose.Running, pose.Aim);
+        Offset16<RoomPixels> visualOffset = pose.Aim.PlacedBy(artwork.Placement, pose.Running);
 
         // The flare turns with Ceres's turning floor whenever Samus's body does. Only Samus's centre turns; the muzzle
         // offsets her pose selects are added after, and her position itself is unchanged.
@@ -112,11 +111,18 @@ internal sealed class ProjectileAnimation
         // The flare is published wherever it lies; the display clips it to the view (#1541).
 
         // A component the Hyper Beam's count has stepped back past its first picture draws nothing (#1275, #2114).
-        if (_charge.Flare(component).Picture is not { } shown)
+        if (_charge.FlareComposition(component, pose.Facing) is not { } picture)
             return;
-        ProjectileSpriteId picture = ChargeFlarePictures.Of(component, pose.FacingLeft, shown);
         // The flare is Samus's own charge, so it shows the sheet of the beams she has equipped (#1586).
         SpriteSheetFrame image = artwork.Sheets.SheetOf(SamusBeamCombinations.Of(samus.EquippedBeams)).Frame(ProjectileSheetFrames.FlareFrame(picture));
         sprites.Add(new SamusColouredDraw(new SpriteSource(SpriteSourceKind.SamusChargeFlare), image, place));
     }
+
+    /// <summary>The way the charge flare faces for each way Samus's pose faces: left only while she faces left.</summary>
+    private static IdentityTable<SamusFacingDirection, HorizontalDirection> FlareFacings { get; } = new(new Dictionary<SamusFacingDirection, HorizontalDirection>
+    {
+        [SamusFacingDirection.ForwardOrSpecial] = HorizontalDirection.Right,
+        [SamusFacingDirection.Left] = HorizontalDirection.Left,
+        [SamusFacingDirection.Right] = HorizontalDirection.Right,
+    });
 }

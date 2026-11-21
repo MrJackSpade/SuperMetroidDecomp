@@ -91,7 +91,7 @@ internal static class GunshipGlowVerification
         var samus = runtime.Player.Samus;
         RoomEnemyPlace top = pieces.Single(piece => piece.Holds(EnemyDefinitionId.ShipTop));
         samus.Control.Unlock();
-        samus.Pose = SamusPoseId.FacingRightNormalPose;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
         samus.Position = samus.Position.WithWhole(new(top.Position.X.Whole, (ushort)(top.Position.Y.Whole - 30)));
         SamusPresentation.InitializeAnimation(samus);
         AssertTrue(runtime.RoomPaletteFx.IsRunning(GunshipLightDefinitions.Glow), "loading the Landing Site starts the gunship's glow");

@@ -6,6 +6,5 @@ namespace SuperMetroid.Core.Samus.Drawing;
 internal static class SamusArmCannonOpening
 {
     /// <summary>Whether a HUD item opens the cover.</summary>
-    public static bool Opens(HudItem selectedHudItem) =>
-        OpensCover.ContainsKey(selectedHudItem) ? OpensCover[selectedHudItem] : throw new ArgumentOutOfRangeException(nameof(selectedHudItem), selectedHudItem, "HUD item is not one of the six HUD items.");
+    public static bool Opens(HudItem selectedHudItem) => OpensCover[selectedHudItem];
 }

@@ -9,13 +9,16 @@ namespace SuperMetroid.Core.Frontend.Pause.Artwork;
 /// <param name="Equipment">The suit and boot columns' frame.</param>
 public readonly record struct PauseSelectorLook(string Reserve, string Beam, string Equipment)
 {
+    /// <summary>The frame the selector shows over each equipment category.</summary>
+    private static IdentityTable<PauseEquipmentCategory, Func<PauseSelectorLook, string>> Frames => field ??= new(new Dictionary<PauseEquipmentCategory, Func<PauseSelectorLook, string>>
+    {
+        [PauseEquipmentCategory.Reserves] = static look => look.Reserve,
+        [PauseEquipmentCategory.Beams] = static look => look.Beam,
+        [PauseEquipmentCategory.Suits] = static look => look.Equipment,
+        [PauseEquipmentCategory.Boots] = static look => look.Equipment,
+    });
+
     /// <summary>The frame the selector of <paramref name="category"/>'s column shows.</summary>
     /// <exception cref="InvalidOperationException">The category is undefined.</exception>
-    internal string FrameOf(PauseEquipmentCategory category) => category switch
-    {
-        PauseEquipmentCategory.Reserves => Reserve,
-        PauseEquipmentCategory.Beams => Beam,
-        PauseEquipmentCategory.Suits or PauseEquipmentCategory.Boots => Equipment,
-        _ => throw new InvalidOperationException($"Undefined PauseEquipmentCategory {category}."),
-    };
+    internal string FrameOf(PauseEquipmentCategory category) => Frames[category](this);
 }

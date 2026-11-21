@@ -24,12 +24,13 @@ internal sealed class AudioEventSource
     /// acknowledgements.
     /// </summary>
     /// <returns>The update's ordered semantic events (see <see cref="AudioFrameEvents"/>).</returns>
-    /// <exception cref="InvalidDataException">A request kind is unknown.</exception>
     internal AudioEvent[] Advance(IReadOnlyList<AudioRequest> requests)
     {
         Ensure.NotNull(requests);
         var events = new List<AudioEvent>(requests.Count + SoundClockTiming.MaximumStepsPerUpdate);
+        var applying = new RequestApplying(clock, events);
         foreach (AudioRequest request in requests)
+<<<<<<< ours
         {
             switch (request)
             {
@@ -57,6 +58,33 @@ internal sealed class AudioEventSource
                     throw new InvalidDataException($"Unknown audio request {request}.");
             }
         }
+||||||| base
+        {
+            switch (request)
+            {
+                case AudioRequest.ChangeMusicDataSet change:
+                    clock.PauseForMusicLoad();
+                    events.Add(new AudioEvent.ChangeMusicDataSet(change.DataSet));
+                    break;
+                case AudioRequest.PlayMusicTrack play:
+                    events.Add(new AudioEvent.SelectMusicTrack(play.Track));
+                    break;
+                case AudioRequest.StopMusic:
+                    events.Add(new AudioEvent.StopMusic());
+                    break;
+                case AudioRequest.RequestSound sound:
+                    clock.Request(sound.Sound.Library, sound.Sound);
+                    break;
+                case AudioRequest.ClearSoundRequest clear:
+                    clock.Request(clear.Library, null);
+                    break;
+                default:
+                    throw new InvalidDataException($"Unknown audio request {request}.");
+            }
+        }
+=======
+            request.React(RequestReactions, applying);
+>>>>>>> theirs
         var schedule = new SoundClockStep<SoundEffectLibrary, SoundEffectId>[SoundClockTiming.MaximumStepsPerUpdate];
         int stepCount = clock.Advance(schedule);
         foreach (SoundClockStep<SoundEffectLibrary, SoundEffectId> step in schedule.AsSpan(0, stepCount))
@@ -71,6 +99,26 @@ internal sealed class AudioEventSource
         Acknowledgements = clock.Acknowledgements;
         return [.. events];
     }
+
+    /// <summary>
+    /// What an update does with each request (#2553): a data-set change pauses the clock for the load and is published, a
+    /// track or a stop is published as the track selected, and a sound request or its withdrawal goes to the clock.
+    /// </summary>
+    private static AudioRequestReactions<RequestApplying> RequestReactions { get; } = new(
+        PlayMusicTrack: static (play, applying) => applying.Events.Add(new AudioEvent.SelectMusicTrack(play.Track)),
+        StopMusic: static (_, applying) => applying.Events.Add(new AudioEvent.StopMusic()),
+        ChangeMusicDataSet: static (change, applying) =>
+        {
+            applying.Clock.PauseForMusicLoad();
+            applying.Events.Add(new AudioEvent.ChangeMusicDataSet(change.DataSet));
+        },
+        RequestSound: static (sound, applying) => applying.Clock.Request(sound.Sound.Library, sound.Sound),
+        ClearSoundRequest: static (clear, applying) => applying.Clock.Request(clear.Library, null));
+
+    /// <summary>An update applying its requests (#2553): the clock they reach and the events it publishes.</summary>
+    /// <param name="Clock">The sound acceptance clock.</param>
+    /// <param name="Events">The update's events so far.</param>
+    private readonly record struct RequestApplying(SoundAcceptanceClock<SoundEffectLibrary, SoundEffectId> Clock, List<AudioEvent> Events);
 
     /// <summary>A library starts a sound only for a changed request, other than none, taken at the previous check.</summary>
     private static void AddStart(List<AudioEvent> events, SoundClockStep<SoundEffectLibrary, SoundEffectId> step, SoundRequestCheck<SoundEffectId> check)

@@ -29,7 +29,7 @@ internal sealed record RuntimeArtworkDependencies
     public required SuperMetroid.Core.Samus.Artwork.InstalledProjectileFrameBindings ProjectileFrameBindings { get; init; }
 
     /// <summary>The installed charge-flare placements the runtime is built over.</summary>
-    public required SuperMetroid.Core.Samus.Artwork.ChargeFlarePlacements ChargeFlarePlacement { get; init; }
+    public required SuperMetroid.Core.Samus.Artwork.BeamFlarePlacements ChargeFlarePlacement { get; init; }
 
     /// <summary>The installed block pictures the runtime is built over.</summary>
     public required SuperMetroid.Core.Rooms.Artwork.InstalledRoomArtwork RoomBlockSheets { get; init; }

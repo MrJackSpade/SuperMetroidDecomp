@@ -38,7 +38,7 @@ internal static class EnemyBombShotReactionVerification
             (RoomEnemySystem enemies, RoomEnemyPlace place) = LoadedRoomWithMellow(definition, frozenTimer);
             var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
             SamusBomb bomb = bombs.Bombs[0];
-            bomb.Occupy(SamusBombProjectileSystem.NormalBombType, 30);
+            bomb.Occupy(SamusBombKind.Bomb, 30);
             bomb.HeldBomb().Radius = new(4, 4);
             bomb.HeldBomb().Position = FixedPosition<RoomPixels>.FromWhole(Place);
             var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads,
@@ -58,7 +58,7 @@ internal static class EnemyBombShotReactionVerification
                 _ => [new SoundRequest(SamusSound.DudShot, SoundRequestPriority.Low)],
             };
             AssertSequenceEqual(expected, enemies.Audio.SoundRequests, $"{kind}: the sounds the bomb's hit queues");
-            RoomEffectActor[] duds = [.. enemies.EffectActors.Live.Where(spawned => spawned.Kind == RoomEffectActorKind.DudShot)];
+            RoomEffectActor[] duds = [.. enemies.EffectActors.Live.Where(spawned => spawned.Shows(RoomEffectActorKind.DudShot))];
             AssertEqual(immune ? 1 : 0, duds.Length, $"{kind}: the dud flashes the bomb's hit shows");
             if (immune)
                 AssertEqual(Place, duds[0].Position.Whole, "the dud flash shows where the bomb lies");
@@ -90,7 +90,7 @@ internal static class EnemyBombShotReactionVerification
                 enemy.Frame = EnemyFrameId.PointAtOrigin;
             var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
             SamusBomb bomb = bombs.Bombs[0];
-            bomb.Occupy(SamusBombProjectileSystem.NormalBombType, 30);
+            bomb.Occupy(SamusBombKind.Bomb, 30);
             bomb.HeldBomb().Radius = new(4, 4);
             bomb.HeldBomb().Position = FixedPosition<RoomPixels>.FromWhole(place);
             var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads,

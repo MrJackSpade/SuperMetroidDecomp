@@ -10,7 +10,7 @@ internal sealed class FakeKraidProjectileAnimation(FakeKraidProjectilePose pose)
 {
 
     /// <inheritdoc/>
-    private protected override AnimationSegments<FakeKraidProjectilePose, FakeKraidProjectilePose, NoAnimationCue> Segments => PoseSegments;
+    private protected override IUnpausedAnimationPlay<FakeKraidProjectilePose, FakeKraidProjectilePose, NoAnimationCue> Segments => PoseSegments;
 
     /// <inheritdoc/>
     private protected override EnemyProjectileFrameId Present(FakeKraidProjectilePose frame) =>
@@ -20,8 +20,8 @@ internal sealed class FakeKraidProjectileAnimation(FakeKraidProjectilePose pose)
     /// Each pose's segment: the spit and the left and right spikes each hold their pose for good (#1627), until a shot
     /// deletes the projectile.
     /// </summary>
-    private static AnimationSegments<FakeKraidProjectilePose, FakeKraidProjectilePose, NoAnimationCue> PoseSegments { get; } = new(
-        Enum.GetValues<FakeKraidProjectilePose>().ToDictionary(pose => pose, pose => new AnimationBeat<FakeKraidProjectilePose, NoAnimationCue>[]
+    private static UnpausedAnimationSegments<FakeKraidProjectilePose, FakeKraidProjectilePose, NoAnimationCue> PoseSegments { get; } = new(
+        Enum.GetValues<FakeKraidProjectilePose>().ToDictionary(pose => pose, pose => new AnimationBeat<FakeKraidProjectilePose, NoAnimationCue>.Unpaused[]
         {
             new AnimationBeat<FakeKraidProjectilePose, NoAnimationCue>.HeldFrame(pose),
         }));

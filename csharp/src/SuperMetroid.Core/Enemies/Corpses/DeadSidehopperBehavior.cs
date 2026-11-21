@@ -10,8 +10,6 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 [RoomLifetime]
 internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemySpawnFactory<DeadSidehopperSpawnSettings>
 {
-    /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.CorpseSidehopper];
 
     /// <inheritdoc/>
     public EnemyOccupant Create(RoomEnemyOccupant occupant, DeadSidehopperSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new DeadSidehopperEntity(this, occupant, place, common, settings));
@@ -44,31 +42,34 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemySpawnFactory
         _collision = dependencies.Collision;
     }
 
+    /// <summary>What <see cref="ApplyDeadSidehopperCue"/> does for each <see cref="DeadTourianCueKind"/> member, each member's own arm.</summary>
+    private static IdentityTable<DeadTourianCueKind, Action<DeadSidehopperEnemyState>> ApplyDeadSidehopperCueForDeadTourianCueKind => field ??= new(new Dictionary<DeadTourianCueKind, Action<DeadSidehopperEnemyState>>
+    {
+        [DeadTourianCueKind.EndHop] = static state =>
+        {
+            // The end-hop cue ends the landing animation and hands ownership back to main AI.
+            SelectDeadSidehopperPostAnimationState(state);
+        },
+    });
+
     /// <summary>Carries out the dead Sidehopper's animation cue.</summary>
     private static void ApplyDeadSidehopperCue(DeadSidehopperEnemyState deadSidehopperEnemyState, DeadTourianCue cue)
     {
-        switch (cue.Kind)
-        {
-            case DeadTourianCueKind.EndHop:
-                // The end-hop cue ends the landing animation and hands ownership back to main AI.
-                SelectDeadSidehopperPostAnimationState(deadSidehopperEnemyState);
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(DeadTourianCueKind)} {cue.Kind}.");
-        }
+        ApplyDeadSidehopperCueForDeadTourianCueKind[cue.Kind](deadSidehopperEnemyState);
     }
+
+    /// <summary>What <see cref="InitializeDeadSidehopper"/> does for each <see cref="DeadSidehopperLayout"/> member, each member's own arm.</summary>
+    private IdentityTable<DeadSidehopperLayout, Func<RoomEnemyPlace, DeadSidehopperEnemyState>> InitializeDeadSidehopperForDeadSidehopperLayout => field ??= new(new Dictionary<DeadSidehopperLayout, Func<RoomEnemyPlace, DeadSidehopperEnemyState>>
+    {
+        [DeadSidehopperLayout.BabyMetroidVictim] = place => InitializeBabyMetroidVictimSidehopper(place),
+        [DeadSidehopperLayout.AlreadyDead] = place => InitializeAlreadyDeadSidehopper(place),
+    });
 
     /// <summary>Initializes the dead Sidehopper.</summary>
     /// <returns>The state the corpse holds from its setup.</returns>
     internal DeadSidehopperEnemyState InitializeDeadSidehopper(DeadSidehopperSpawnSettings deadSidehopperSpawnSettings, RoomEnemyPlace place)
     {
-        DeadSidehopperLayout layout = deadSidehopperSpawnSettings.Layout;
-        return layout switch
-        {
-            DeadSidehopperLayout.BabyMetroidVictim => InitializeBabyMetroidVictimSidehopper(place),
-            DeadSidehopperLayout.AlreadyDead => InitializeAlreadyDeadSidehopper(place),
-            _ => throw new InvalidOperationException($"Undefined {nameof(DeadSidehopperLayout)} {layout}."),
-        };
+        return InitializeDeadSidehopperForDeadSidehopperLayout[deadSidehopperSpawnSettings.Layout](place);
     }
 
     /// <summary>Runs the Baby Metroid victim layout.</summary>
@@ -117,6 +118,57 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemySpawnFactory
         Position16<RoomPixels> camera) =>
         RunDeadSidehopperState(place, deadSidehopperEnemyState, samus, level, camera);
 
+    /// <summary>What <see cref="RunDeadSidehopperState"/> does for each <see cref="DeadSidehopperAction"/> member, each member's own arm.</summary>
+    private IdentityTable<DeadSidehopperAction, Action<RoomEnemyPlace, DeadSidehopperEnemyState, SamusState, RoomLevelData, Position16<RoomPixels>>> RunDeadSidehopperStateForDeadSidehopperAction => field ??= new(new Dictionary<DeadSidehopperAction, Action<RoomEnemyPlace, DeadSidehopperEnemyState, SamusState, RoomLevelData, Position16<RoomPixels>>>
+    {
+        [DeadSidehopperAction.AliveWaitForCamera] = (place, state, samus, level, camera) =>
+        {
+            // The camera reaching the victim starts its hop on the same update.
+            if (camera.X < DeadSidehopperVictimDefinitions.ActivationCameraX)
+            {
+                state.Action = DeadSidehopperAction.ActivatedMovement;
+                HopDeadSidehopper(place, state, level);
+            }
+        },
+        [DeadSidehopperAction.ActivatedMovement] = (place, state, samus, level, camera) => HopDeadSidehopper(place, state, level),
+        [DeadSidehopperAction.Landing] = (place, state, samus, level, camera) => { },
+        [DeadSidehopperAction.BeginPostLandingDelay] = (place, state, samus, level, camera) =>
+        {
+            state.Action = DeadSidehopperAction.PostLandingDelay;
+            state.PostLandingPause = UpdateCountdown.Lasting(DeadSidehopperVictimDefinitions.PostLandingPause);
+        },
+        [DeadSidehopperAction.PostLandingDelay] = (place, state, samus, level, camera) =>
+        {
+            if (!state.PostLandingPause.Step())
+                return;
+
+            if (state.HasBegunDraining)
+            {
+                state.Action = DeadSidehopperAction.Draining;
+                return;
+            }
+
+            state.Action = DeadSidehopperAction.ActivatedMovement;
+            SetDeadSidehopperAnimation(place, state, DeadTourianSegment.SidehopperIdle);
+            state.Velocity = state.NextHop.Current;
+        },
+        [DeadSidehopperAction.Draining] = (place, state, samus, level, camera) => StepDeadSidehopperDrain(place, state),
+        [DeadSidehopperAction.WaitForSamusCollision] = (place, state, samus, level, camera) =>
+        {
+            if (samus.Kinematics.DidCollideWithSolidEnemy(place) == true)
+                state.Action = DeadSidehopperAction.PreRotDelay;
+        },
+        [DeadSidehopperAction.PreRotDelay] = (place, state, samus, level, camera) =>
+        {
+            if (state.PreRotDelay.Step())
+            {
+                state.Action = DeadSidehopperAction.Rotting;
+                place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
+            }
+        },
+        [DeadSidehopperAction.Rotting] = (place, state, samus, level, camera) => RunDeadSidehopperRotting(place, state),
+    });
+
     /// <summary>Advances the authored hop, post-landing delay, drain, or collision-triggered decay state.</summary>
     private void RunDeadSidehopperState(
         RoomEnemyPlace place,
@@ -125,69 +177,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemySpawnFactory
         RoomLevelData level,
         Position16<RoomPixels> camera)
     {
-        switch (state.Action)
-        {
-            case DeadSidehopperAction.AliveWaitForCamera:
-                // The camera reaching the victim starts its hop on the same update.
-                if (camera.X < DeadSidehopperVictimDefinitions.ActivationCameraX)
-                {
-                    state.Action = DeadSidehopperAction.ActivatedMovement;
-                    HopDeadSidehopper(place, state, level);
-                }
-                return;
-
-            case DeadSidehopperAction.ActivatedMovement:
-                HopDeadSidehopper(place, state, level);
-                return;
-
-            case DeadSidehopperAction.Landing:
-                return;
-
-            case DeadSidehopperAction.BeginPostLandingDelay:
-                state.Action = DeadSidehopperAction.PostLandingDelay;
-                state.PostLandingPause = UpdateCountdown.Lasting(DeadSidehopperVictimDefinitions.PostLandingPause);
-                return;
-
-            case DeadSidehopperAction.PostLandingDelay:
-                if (!state.PostLandingPause.Step())
-                    return;
-
-                if (state.HasBegunDraining)
-                {
-                    state.Action = DeadSidehopperAction.Draining;
-                    return;
-                }
-
-                state.Action = DeadSidehopperAction.ActivatedMovement;
-                SetDeadSidehopperAnimation(place, state, DeadTourianSegment.SidehopperIdle);
-                state.Velocity = state.NextHop.Current;
-                return;
-
-            case DeadSidehopperAction.Draining:
-                StepDeadSidehopperDrain(place, state);
-                return;
-
-            case DeadSidehopperAction.WaitForSamusCollision:
-                if (samus.Kinematics.DidCollideWithSolidEnemy(place) == true)
-                    state.Action = DeadSidehopperAction.PreRotDelay;
-                return;
-
-            case DeadSidehopperAction.PreRotDelay:
-                if (state.PreRotDelay.Step())
-                {
-                    state.Action = DeadSidehopperAction.Rotting;
-                    place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
-                }
-                return;
-
-            case DeadSidehopperAction.Rotting:
-                RunDeadSidehopperRotting(place, state);
-                return;
-
-            default:
-                throw new InvalidDataException(
-                    $"Dead sidehopper has no behaviour for action {state.Action}.");
-        }
+        RunDeadSidehopperStateForDeadSidehopperAction[state.Action](place, state, samus, level, camera);
     }
 
     /// <summary>Moves the victim one update through its hop; on landing it counts the hop and plays its landing.</summary>
@@ -372,8 +362,6 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemySpawnFactory
     /// <summary>Spawns a completed row's dust at its randomized X offset, and conditionally requests sound.</summary>
     private void FinishDeadSidehopperCorpseRow(RoomEnemyPlace place) =>
         _rowDust.Spawn(place, _room.Random.Read(), _projectiles, _frameContext.EnemyPassCount);
-
-
 
     /// <summary>Starts a new dead Sidehopper animation, resetting both animation clocks before its first step runs.</summary>
     private static void SetDeadSidehopperAnimation(RoomEnemyPlace place, DeadSidehopperEnemyState state, DeadTourianSegment segment) =>

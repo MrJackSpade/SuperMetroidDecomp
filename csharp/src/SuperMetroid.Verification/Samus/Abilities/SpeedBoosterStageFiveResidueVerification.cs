@@ -47,10 +47,9 @@ internal static class SpeedBoosterStageFiveResidueVerification
             floor: ceresFloor);
         enemies.BossArtworkBinding.CeresRidleyGetawayBoostDelays = CeresRidleyGetawayBoostDelayFiles.Read(new MemoryStream(CeresRidleyGetawayBoostDelayFiles.Extract(bus)));
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
-        // The station's escape flies the getaway (#2228), from its second frame.
+        // The station's escape flies the getaway (#2228) from its beginning.
         CeresEscape escape = enemies.CeresEscape;
         escape.BeginGetaway();
-        escape.Floor.Flight = UpdateCountdownAccess.AtAge(SuperMetroid.Core.Bosses.Ridley.CeresRidleyGetawayCurve.Duration, 1);
 
         // The first NMI advances both: capsule phase one, then wing frame one.
         var samus = SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus();

@@ -134,7 +134,7 @@ internal static class KraidArmCollisionDefinitions
     /// Each hitbox list's touch reaction and its rectangles in collision order. The articulated and connecting lists
     /// touch as the arm; the body lists and both dying/lunge lists touch as his body.
     /// </summary>
-    internal static readonly Dictionary<KraidArmHitboxList, KraidHitboxListDefinition> HitboxListShapes = new()
+    internal static readonly IdentityTable<KraidArmHitboxList, KraidHitboxListDefinition> HitboxListShapes = new(new Dictionary<KraidArmHitboxList, KraidHitboxListDefinition>
     {
         [KraidArmHitboxList.LimbRaised] = new(KraidReactions.ArmTouch, [new(-13, -11, -3, -5), new(-9, -5, 1, 2)]),
         [KraidArmHitboxList.LimbRaisedOpen] = new(KraidReactions.ArmTouch, [new(-16, -5, 1, 2)]),
@@ -152,5 +152,5 @@ internal static class KraidArmCollisionDefinitions
         [KraidArmHitboxList.BodyBehindRaisedArm] = new(KraidReactions.BodyTouch, [new(-22, -25, -8, -5), new(-35, -35, -19, -17)]),
         [KraidArmHitboxList.DroopingDiagonal] = new(KraidReactions.BodyTouch, [new(-64, -48, -32, -16)]),
         [KraidArmHitboxList.Outstretched] = new(KraidReactions.BodyTouch, [new(-64, -4, 0, 4)]),
-    };
+    });
 }

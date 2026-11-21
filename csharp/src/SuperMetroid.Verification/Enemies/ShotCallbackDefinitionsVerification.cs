@@ -134,10 +134,9 @@ internal static class ShotCallbackDefinitionsVerification
             ((List<RoomEnemyOccupant>)enemies.ProcessingWindow.InteractiveEnemies).Add(enemy.HeldOccupant());
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
             {
-                Pose = SamusPoseId.FacingRightNormalPose,
                 Health = 99,
                 Position = FixedPosition<RoomPixels>.FromWhole(enemy.Position.Whole),
-            };
+            }.InPose(SamusPoseId.FacingRightNormalPose);
 
             enemies.Collision.ResolveOrdinarySamusContact(samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), 0, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), enemy.HeldOccupant(), Position16<RoomPixels>.Zero);
             AssertEqual(99, samus.Health,

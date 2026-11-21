@@ -26,9 +26,8 @@ internal static class ActorPartDrawsVerification
     {
         SamusState samus = (new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
-        });
+        }.InPose(SamusPoseId.FacingRightNormalPose));
         // Entering a pose starts its animation, at the first frame of the animation's first segment (#2530).
         SamusPresentation.InitializeAnimation(samus);
         var sprites = new SpriteFrameBuffer();

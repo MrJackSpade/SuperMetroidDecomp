@@ -1,5 +1,3 @@
-using System.Reflection;
-
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Forces a power-bomb explosion's activity so a check can test what an explosion rejects (#1483).</summary>
@@ -18,14 +16,8 @@ internal static class SamusPowerBombExplosionStateAccess
         {
             if (active)
                 explosion.Blast.Start();
-            else if (explosion.Blast.Phase != PowerBombExplosionPhase.Inactive)
-                SetPrivate(explosion.Blast, nameof(PowerBombBlastTimeline.Phase), PowerBombExplosionPhase.Inactive);
+            else if (explosion.Blast.Phase is not PowerBombExplosionPhase.Inactive)
+                explosion.Blast.Reset();
         }
     }
-
-    /// <summary>Writes a property through its private setter.</summary>
-    private static void SetPrivate(PowerBombBlastTimeline blast, string property, object value) =>
-        (typeof(PowerBombBlastTimeline).GetProperty(property, BindingFlags.Instance | BindingFlags.Public)?.SetMethod
-            ?? throw new MissingMemberException(nameof(PowerBombBlastTimeline), property))
-        .Invoke(blast, [value]);
 }

@@ -9,8 +9,6 @@ namespace SuperMetroid.Core.Enemies.Polyp;
 [RoomLifetime]
 internal sealed class PolypBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawnSettings>
 {
-    /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Polyp];
 
     /// <inheritdoc/>
     public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new PolypEntity(this, occupant, place, common));
@@ -41,37 +39,34 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpa
         return state;
     }
 
+    /// <summary>What <see cref="RunPolypMain"/> does for each <see cref="PolypAction"/> member, each member's own arm.</summary>
+    private IdentityTable<PolypAction, Action<RoomEnemyOccupant, RoomEnemyPlace, PolypEnemyState, SamusState>> RunPolypMainForPolypAction => field ??= new(new Dictionary<PolypAction, Action<RoomEnemyOccupant, RoomEnemyPlace, PolypEnemyState, SamusState>>
+    {
+        [PolypAction.WaitingForSamus] = (_, place, state, samus) =>
+        {
+            if (IsWithinPolypAxis(samus.Position.X.Whole, place.Position.X.Whole) &&
+                IsWithinPolypAxis(samus.Position.Y.Whole, place.Position.Y.Whole))
+            {
+                // The game only sets the shoot action here. The rock is emitted
+                // on the next enemy frame, a one-frame tell preserved deliberately.
+                state.Action = PolypAction.ShootingRock;
+            }
+        },
+        [PolypAction.ShootingRock] = (occupant, place, state, samus) => ShootPolypRock(occupant, place, state),
+        [PolypAction.Cooldown] = (_, place, state, samus) =>
+        {
+            if (state.CooldownTimer.StepEnds())
+                state.Action = PolypAction.WaitingForSamus;
+        },
+    });
+
     /// <summary>Runs the Polyp's main AI and its three actions.</summary>
     private void RunPolypMain(
         RoomEnemyOccupant occupant, RoomEnemyPlace place,
         PolypEnemyState state,
         SamusState samus)
     {
-        switch (state.Action)
-        {
-            case PolypAction.WaitingForSamus:
-                if (IsWithinPolypAxis(samus.Position.X.Whole, place.Position.X.Whole) &&
-                    IsWithinPolypAxis(samus.Position.Y.Whole, place.Position.Y.Whole))
-                {
-                    // The game only sets the shoot action here. The rock is emitted
-                    // on the next enemy frame, a one-frame tell preserved deliberately.
-                    state.Action = PolypAction.ShootingRock;
-                }
-                return;
-
-            case PolypAction.ShootingRock:
-                ShootPolypRock(occupant, place, state);
-                return;
-
-            case PolypAction.Cooldown:
-                if (state.CooldownTimer.StepEnds())
-                    state.Action = PolypAction.WaitingForSamus;
-                return;
-
-            default:
-                throw new InvalidDataException(
-                    $"Polyp has no behaviour for action {state.Action}.");
-        }
+        RunPolypMainForPolypAction[state.Action](occupant, place, state, samus);
     }
 
     /// <summary>Launches a rock with three independent random choices: its horizontal speed, its rise and the cooldown after it.</summary>
@@ -101,9 +96,8 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpa
 
     /// <summary>Advances Polyp's typed animation.</summary>
     internal static void AdvancePolypTypedAnimation(RoomEnemyPlace place, PolypEnemyState polypEnemyState) =>
-        EnemyAnimationPlayback.Advance(place, polypEnemyState, PolypAnimations.Segments,
-            static (PolypEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
-            static (_, cue) => throw new InvalidOperationException($"The Polyp's cue-free animation raised {cue}."));
+        EnemyAnimationPlayback.AdvanceSilently(place, polypEnemyState, PolypAnimations.Segments,
+            static (PolypEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback);
 
     /// <summary>Runs Polyp's main AI.</summary>
     internal void RunPolypMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, PolypEnemyState polypEnemyState, IEnemyAiFrame frame)
@@ -120,15 +114,21 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpa
         QuadraticSpeedCurvePlace launchPlace,
         SignedEightEight xVelocity)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.PolypRock, Rock, SpriteGraphics.SpawnedBy(occupant, source.Shading));
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.PolypRock, Rock, SpriteGraphics.SpawnedBy(occupant, source.Shading), new PolypRockAnimation(PolypRockSegment.LavaRock));
         if (projectile is null)
             return;
 
-        projectile.InstallAnimation(new PolypRockAnimation(PolypRockSegment.LavaRock));
         Rock.States.Start(projectile, new PolypRockState(launchPlace));
         projectile.Velocity = new(xVelocity, SignedEightEight.Zero);
         projectile.Position = source.Position;
     }
+
+    /// <summary>What <see cref="FlyPolypRock"/> does for each <see cref="PolypRockMovement"/> member, each member's own arm.</summary>
+    private IdentityTable<PolypRockMovement, Action<EnemyProjectile>> FlyPolypRockForPolypRockMovement => field ??= new(new Dictionary<PolypRockMovement, Action<EnemyProjectile>>
+    {
+        [PolypRockMovement.Rising] = projectile => StepRisingPolypRock(projectile),
+        [PolypRockMovement.Falling] = projectile => StepFallingPolypRock(projectile),
+    });
 
     /// <summary>Flies the rock for one update, rising or falling.</summary>
     internal void FlyPolypRock(
@@ -136,18 +136,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpa
         Position16<RoomPixels> camera)
     {
         PolypRockMovement phase = Rock.States.Of(projectile).Phase;
-        switch (phase)
-        {
-            case PolypRockMovement.Rising:
-                StepRisingPolypRock(projectile);
-                break;
-            case PolypRockMovement.Falling:
-                StepFallingPolypRock(projectile);
-                break;
-            default:
-                throw new InvalidDataException(
-                    $"Undefined {nameof(PolypRockMovement)} {phase}.");
-        }
+        FlyPolypRockForPolypRockMovement[phase](projectile);
 
         EnemyView.DeleteOutside(projectile, camera);
     }

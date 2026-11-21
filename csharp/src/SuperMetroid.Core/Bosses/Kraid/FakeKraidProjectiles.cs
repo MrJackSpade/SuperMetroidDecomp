@@ -11,9 +11,7 @@ internal static class FakeKraidProjectiles
     internal static PixelVelocity<RoomPixels> SpitLaunch(HorizontalDirection direction, FakeKraidSpit spit)
     {
         SignedEightEight horizontal = SignedEightEight.FromPixels(
-            FakeKraidProjectileDefinitions.SpitSpeedPixels.TryGetValue(spit, out int speed)
-                ? speed
-                : throw new InvalidDataException($"Fake Kraid spit {spit} is neither of its two shots."));
+            FakeKraidProjectileDefinitions.SpitSpeedPixels[spit]);
         return new(horizontal.Toward(direction), FakeKraidProjectileDefinitions.SpitRise);
     }
 
@@ -22,7 +20,5 @@ internal static class FakeKraidProjectiles
     /// this offset, whatever the body's animation and facing.
     /// </summary>
     internal static int SpikeYOffset(FakeKraidSpikeRow row) =>
-        FakeKraidProjectileDefinitions.SpikeYOffsets.TryGetValue(row, out int offset)
-            ? offset
-            : throw new InvalidDataException($"Fake Kraid spike row {row} is not a body launch port.");
+        FakeKraidProjectileDefinitions.SpikeYOffsets[row];
 }

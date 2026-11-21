@@ -57,7 +57,7 @@ internal sealed class MotherBrainFakeDeath
         if (state.FakeDeathGreying.Step() is { } image)
         {
             // The fake-death fade greys only her brain; the room stays as it is.
-            state.Colours.ShowFakeDeathToGrey(image);
+            state.Colours.ShowFade(image);
         }
         else if (state.FakeDeathGreying.IsOver)
         {
@@ -119,20 +119,7 @@ internal sealed class MotherBrainFakeDeath
                 : state.TubeCollapseTimer.StepRunsOut();
             if (!falls)
                 return;
-            switch (drop)
-            {
-                case MotherBrainBottomTubeDrop bottom:
-                    SpawnMotherBrainFallingTube(state, bottom.Piece);
-                    break;
-                case MotherBrainTopTubeDrop top:
-                    SpawnMotherBrainTopTube(top.Kind, top.Segment, top.Start);
-                    break;
-                case MotherBrainMainTubeDrop:
-                    SpawnMotherBrainFallingTube(state, MotherBrainTubePiece.Main);
-                    break;
-                default:
-                    throw new InvalidOperationException($"Mother Brain's tube collapse cannot drop {drop}.");
-            }
+            drop.React(TubeDrops, new TubeDropping(this, state));
             state.TubeCollapse = new(tube, MotherBrainTubeDropStage.Fallen);
             return;
         }
@@ -143,17 +130,27 @@ internal sealed class MotherBrainFakeDeath
         state.TubeCollapse = new(tube.Following, MotherBrainTubeDropStage.Standing);
     }
 
+    /// <summary>What the collapse drops for each tube (#2553): a bottom or the main tube falls, a top tube spawns as a projectile.</summary>
+    private static MotherBrainTubeDropReactions<TubeDropping> TubeDrops { get; } = new(
+        Bottom: static (bottom, dropping) => dropping.Owner.SpawnMotherBrainFallingTube(dropping.State, bottom.Piece),
+        Top: static (top, dropping) => dropping.Owner.SpawnMotherBrainTopTube(top.Kind, top.Segment, top.Start),
+        Main: static (_, dropping) => dropping.Owner.SpawnMotherBrainFallingTube(dropping.State, MotherBrainTubePiece.Main));
+
+    /// <summary>A tube the collapse drops (#2553): the fake death dropping it and Mother Brain's state.</summary>
+    /// <param name="Owner">The fake death dropping the tube.</param>
+    /// <param name="State">Mother Brain's state.</param>
+    private readonly record struct TubeDropping(MotherBrainFakeDeath Owner, MotherBrainEnemyState State);
+
     /// <summary>Spawns the top tube projectile of <paramref name="kind"/>, falling as <paramref name="tube"/> shows, for the scripted collapse.</summary>
     private void SpawnMotherBrainTopTube(
         RoomEnemyProjectileKind kind,
         MotherBrainTopTubeSegment tube,
         Position16<RoomPixels> position)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(kind, _projectileAttacks.Projectile, graphics: SpriteGraphics.SharedIn(MotherBrainColours.GlassAndTubes));
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(kind, _projectileAttacks.Projectile, graphics: SpriteGraphics.SharedIn(MotherBrainColours.GlassAndTubes), new MotherBrainTopTubeAnimation(tube));
         if (projectile is null)
             return;
 
-        projectile.StartAnimation(new MotherBrainTopTubeAnimation(tube));
         projectile.Position = projectile.Position.WithWhole(position);
         projectile.Velocity = PixelVelocity<RoomPixels>.Zero;
         _projectileAttacks.Projectile.TopTubes.Start(projectile, new MotherBrainTopTubeState());
@@ -188,28 +185,25 @@ internal sealed class MotherBrainFakeDeath
         return state;
     }
 
+    /// <summary>What <see cref="RunMotherBrainFallingTubeMain"/> does for each <see cref="MotherBrainTubeAction"/> member, each member's own arm.</summary>
+    private IdentityTable<MotherBrainTubeAction, Action<RoomEnemyPlace, MotherBrainFallingTubeState, MotherBrainEnemyState>> RunMotherBrainFallingTubeMainForMotherBrainTubeAction => field ??= new(new Dictionary<MotherBrainTubeAction, Action<RoomEnemyPlace, MotherBrainFallingTubeState, MotherBrainEnemyState>>
+    {
+        [MotherBrainTubeAction.NonMainTube] = (tube, tubeState, _) => FallMotherBrainSideTube(tube, tubeState),
+        [MotherBrainTubeAction.WaitingToFall] = (tube, tubeState, encounter) =>
+        {
+            // The main tube falls as its fall delay runs out.
+            if (tubeState.FallDelay.StepKeepsRunning())
+                return;
+            tubeState.Action = MotherBrainTubeAction.Falling;
+            FallMotherBrainMainTube(tube, tubeState, encounter);
+        },
+        [MotherBrainTubeAction.Falling] = (tube, tubeState, encounter) => FallMotherBrainMainTube(tube, tubeState, encounter),
+    });
+
     /// <summary>Runs the actions of the falling tubes.</summary>
     internal void RunMotherBrainFallingTubeMain(RoomEnemyPlace tube, MotherBrainEnemyState motherBrainEnemyState, MotherBrainFallingTubeState tubeState)
     {
-        switch (tubeState.Action)
-        {
-            case MotherBrainTubeAction.NonMainTube:
-                FallMotherBrainSideTube(tube, tubeState);
-                return;
-            case MotherBrainTubeAction.WaitingToFall:
-                // The main tube falls as its fall delay runs out.
-                if (tubeState.FallDelay.StepKeepsRunning())
-                    return;
-                tubeState.Action = MotherBrainTubeAction.Falling;
-                FallMotherBrainMainTube(tube, tubeState, motherBrainEnemyState);
-                return;
-            case MotherBrainTubeAction.Falling:
-                FallMotherBrainMainTube(tube, tubeState, motherBrainEnemyState);
-                return;
-            default:
-                throw new InvalidDataException(
-                    $"Mother Brain falling tube has no behaviour for action {tubeState.Action}.");
-        }
+        RunMotherBrainFallingTubeMainForMotherBrainTubeAction[tubeState.Action](tube, tubeState, motherBrainEnemyState);
     }
 
     /// <summary>Drops a side tube until it reaches the floor and explodes, trailing smoke as it falls.</summary>
@@ -310,7 +304,7 @@ internal sealed class MotherBrainFakeDeath
         if (state.FromFakeDeathGrey.Step() is { } image)
         {
             // Only her brain's colours return from grey.
-            state.Colours.ShowFakeDeathFromGrey(image);
+            state.Colours.ShowFade(image);
             return;
         }
         if (!state.FromFakeDeathGrey.IsOver)

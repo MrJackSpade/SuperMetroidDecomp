@@ -11,25 +11,47 @@ public abstract record RoomMusicTrack
     {
     }
 
+    /// <summary>Whether entering the room queues the choice, with the music standing as <paramref name="entry"/> finds it.</summary>
+    /// <param name="entry">The music as the room's entry finds it.</param>
+    internal abstract bool Queues(RoomMusicEntry entry);
+
     /// <summary>Keeps the track that plays, through every door into the room (the Ceres escape relies on it).</summary>
-    public sealed record Inherit : RoomMusicTrack;
+    public sealed record Inherit : RoomMusicTrack
+    {
+        /// <inheritdoc/>
+        internal override bool Queues(RoomMusicEntry entry) => false;
+    }
 
     /// <summary>Plays <paramref name="Track"/>, queued only when it is not already playing or the room changes the data set.</summary>
     /// <param name="Track">The track the room plays.</param>
-    public sealed record Play(MusicTrack Track) : RoomMusicTrack;
+    public sealed record Play(MusicTrack Track) : RoomMusicTrack
+    {
+        /// <inheritdoc/>
+        internal override bool Queues(RoomMusicEntry entry) => entry.DataSetDiffers || Track != entry.Playing;
+    }
 
     /// <summary>
     /// Plays the loaded data set's area theme (<see cref="AreaThemeDefinitions"/>), which a room that keeps the loaded
     /// set chooses: the song depends on the set loaded when the request plays. Queued only when the theme of the set
     /// loaded now is not already playing, or the room changes the data set.
     /// </summary>
-    public sealed record PlayAreaTheme : RoomMusicTrack;
+    public sealed record PlayAreaTheme : RoomMusicTrack
+    {
+        /// <inheritdoc/>
+        /// <remarks>With no data set loaded no area theme can play, so the choice is queued.</remarks>
+        internal override bool Queues(RoomMusicEntry entry) =>
+            entry.DataSetDiffers || entry.Loaded is not MusicDataSet set || AreaThemeDefinitions.Themes[set] != entry.Playing;
+    }
 
     /// <summary>
     /// Silences the music, queued on every entry: the choice never equals the playing song, so the stop is always
     /// queued.
     /// </summary>
-    public sealed record Silence : RoomMusicTrack;
+    public sealed record Silence : RoomMusicTrack
+    {
+        /// <inheritdoc/>
+        internal override bool Queues(RoomMusicEntry entry) => true;
+    }
 
     /// <summary>The choice that keeps the playing track.</summary>
     public static RoomMusicTrack Inherited { get; } = new Inherit();

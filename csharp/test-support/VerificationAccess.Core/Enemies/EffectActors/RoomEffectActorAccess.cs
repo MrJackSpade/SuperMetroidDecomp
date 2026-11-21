@@ -28,6 +28,16 @@ internal static class RoomEffectActorAccess
         checked((ushort)(RoomEffectActorProgramAddresses.SegmentEntries[segment] +
             Enumerable.Range(0, beat).Sum(index => BeatBytes(segment, index))));
 
+    /// <summary>Every picture <paramref name="kind"/>'s animation shows, over each of its phases' beats.</summary>
+    private static IEnumerable<RoomEffectActorPicture> PicturesOf(RoomEffectActorKind kind) =>
+        RoomEffectActorAnimations.StartingWith(kind).Phases.SelectMany(phase => RoomEffectActorAnimations.Segments.Beats(phase.Segment)
+            .Skip(phase.FirstBeat).Take(phase.BeatCount).Select(beat => beat switch
+            {
+                AnimationBeat<RoomEffectActorPicture, NoAnimationCue>.Frame frame => frame.Shown,
+                AnimationBeat<RoomEffectActorPicture, NoAnimationCue>.HeldFrame held => held.Shown,
+                _ => throw new InvalidOperationException($"Room sprite-object segments have no {beat} beat."),
+            }));
+
     /// <summary>Native views of a sprite object.</summary>
     extension(RoomEffectActor self)
     {
@@ -44,7 +54,7 @@ internal static class RoomEffectActorAccess
 
         /// <summary>The native timer word while the object counts down; a holding object counts none.</summary>
         internal ushort FrameHold => self.AnimationClock.IsStopped
-            ? throw new InvalidOperationException($"Sprite object {self.Kind} holds its frame and counts no timer.")
+            ? throw new InvalidOperationException("A holding sprite object counts no timer.")
             : checked((ushort)self.AnimationClock.Hold);
 
         /// <summary>The bank-$B4 spritemap the object shows, or zero once it has ended.</summary>
@@ -56,6 +66,12 @@ internal static class RoomEffectActorAccess
         /// </summary>
         internal ushort GraphicsIndexIn(RoomEnemySystem enemies) =>
             SnesObjAttributeWord.Create(self.Graphics.NativeTileBaseIn(enemies), self.Graphics.PaletteRowIn(enemies), priority: 0).Raw;
+
+        /// <summary>
+        /// Whether the object shows a picture of <paramref name="kind"/>'s animation: the effect the player sees it is, from
+        /// the frame it shows.
+        /// </summary>
+        internal bool Shows(RoomEffectActorKind kind) => PicturesOf(kind).Contains(self.Frame);
 
         /// <summary>The native disable word.</summary>
         internal int DisableFlags => self.AnimationClock.IsSuspended ? 1 : 0;

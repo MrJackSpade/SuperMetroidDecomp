@@ -75,7 +75,7 @@ internal static class RoomObjectPopulationVerification
         const ushort loop = 0xafb6;
         var cartridge = rom;
         ushort cursor = loop;
-        foreach (TerrainChangeFrame frame in ElevatorPlatformObjectDefinitions.Cycle)
+        foreach (ElevatorPlatformFrame frame in ElevatorPlatformObjectDefinitions.Cycle)
         {
             AssertEqual((ushort)frame.Updates, cartridge.ReadCartridgeWord(0x840000 | cursor), $"elevator platform image at $84:{cursor:X4} stays its updates");
             AssertEqual(RoomObjectDrawAddressCodec.Of(frame.Draw), cartridge.ReadCartridgeWord(0x840000 | (cursor + 2)), $"elevator platform image at $84:{cursor:X4} draws its layout");
@@ -626,7 +626,8 @@ internal static class RoomObjectPopulationVerification
 
         RoomFxOverlayState CreateFx(ushort baseY, int? targetY, ushort velocity, byte timer)
         {
-            var fx = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.RoomFxOverlayState>([typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone() });
+            // A room with no effect, built as room entry builds one; the escape's controller moves its liquid.
+            var fx = RoomFxOverlayState.ForRoom(fx: null, door: null, randomNumber: 0, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
             fx.SetLiquidLevel(baseY);
             if (targetY is int target)
                 fx.MoveLiquidTo(target, new SignedEightEight(velocity), timer);
@@ -798,12 +799,8 @@ internal static class RoomObjectPopulationVerification
         AssertEqual(RoomTerrainBlock.Of(0x004, BlockMirroring.None, RoomCollisionType.ShootableBlock), level.GetCollisionBlock(new(inRoomX, inRoomY)).Terrain,
             "in-room record following the harmless tail actor still draws normally");
 
-        var malformed = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulation>([typeof(string), typeof(global::System.Collections.Generic.IEnumerable<global::SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPlacement>)], new object?[] { $"$8F:{malformedPopulation:X4}", (global::System.Collections.Generic.IEnumerable<global::SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPlacement>)([
-            RoomObjectPlacementAccess.Placed(RoomObjectKind.ScrollTrigger,
+        AssertThrows<ArgumentException>(() => RoomObjectPlacementAccess.Placed(RoomObjectKind.ScrollTrigger,
                 new(offRoomX, offRoomY), scrollChange: RoomScrollChange.BrinstarReserveTank) with { Site = RoomObjectSite.OffTheRoom },
-        ]) });
-        AssertThrows<InvalidDataException>(
-            () => RoomObjectFixtures.LoadPopulation(RoomObjectFixtures.Unbound(), new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), AreaId.Brinstar), malformed, RoomObjectServiceFixtures.Uninstalled with { Samus = new FixtureRoomSamus(() => new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "a room object other than a coloured door is refused off the room");
 
         // The import decodes each placement to the block it occupies (#2034): one off the grid that it did not decode as off

@@ -14,7 +14,11 @@ namespace SuperMetroid.Core.Enemies;
 /// </summary>
 public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
 {
-    /// <summary>Creates the place at <paramref name="ordinal"/> in <see cref="EnemyPlaceOrder"/>, before any occupant is installed.</summary>
+    /// <summary>
+    /// Creates the place at <paramref name="ordinal"/> in <see cref="EnemyPlaceOrder"/>, before any occupant is installed,
+    /// reaching its species registry through <paramref name="registry"/> once an occupant is installed: the room's places are
+    /// created before the species that are composed with them (#2553).
+    /// </summary>
     /// <param name="ordinal">The place's position in allocation and processing order.</param>
     /// <param name="common">The shared participation every entity built in the place composes.</param>
     /// <param name="leftovers">What the place's removed occupants leave for their neighbours, created with the room's places.</param>

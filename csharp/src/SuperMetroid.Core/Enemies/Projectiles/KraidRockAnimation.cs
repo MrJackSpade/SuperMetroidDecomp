@@ -9,5 +9,5 @@ internal sealed class KraidRockAnimation(IEnemyProjectileCues<KraidRockCue> owne
     : EnemyProjectileFrameAnimation<KraidRockSegment, KraidRockCue>(segment, KraidRockAnimations.StartingWith(segment), EnemyProjectileCueRunner<KraidRockSegment, KraidRockCue>.By(owner))
 {
     /// <inheritdoc/>
-    private protected override AnimationSegments<KraidRockSegment, EnemyProjectileFrameId, KraidRockCue> Segments => KraidRockAnimations.Segments;
+    private protected override IUnpausedAnimationPlay<KraidRockSegment, EnemyProjectileFrameId, KraidRockCue> Segments => KraidRockAnimations.Segments;
 }

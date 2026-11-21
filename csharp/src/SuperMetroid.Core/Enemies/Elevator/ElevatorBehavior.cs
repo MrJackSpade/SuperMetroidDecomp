@@ -12,8 +12,6 @@ namespace SuperMetroid.Core.Enemies.Elevator;
 [RoomLifetime]
 internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyLoadedFactory<ElevatorSpawnSettings>, IElevatorJourney
 {
-    /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Elevator];
 
     /// <inheritdoc/>
     public EnemyOccupant CreateLoaded(RoomEnemyOccupant occupant, ElevatorSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common,
@@ -131,6 +129,27 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyLoadedFactory<Elev
         return state;
     }
 
+    /// <summary>What <see cref="RunElevatorMain"/> does for each <see cref="ElevatorActorStatus"/> member, each member's own arm.</summary>
+    private IdentityTable<ElevatorActorStatus, Action<ElevatorSpawnSettings, RoomEnemyPlace, ElevatorEnemyState, SamusState, GameplayAction, SamusProjectileSystem>> RunElevatorMainForElevatorActorStatus => field ??= new(new Dictionary<ElevatorActorStatus, Action<ElevatorSpawnSettings, RoomEnemyPlace, ElevatorEnemyState, SamusState, GameplayAction, SamusProjectileSystem>>
+    {
+        [ElevatorActorStatus.Inactive] = (settings, place, state, samus, newlyPressedControllerInput, samusProjectiles) =>
+        {
+            WaitForElevatorDirectionInput(
+                settings, place,
+                samus,
+                newlyPressedControllerInput,
+                samusProjectiles);
+        },
+        [ElevatorActorStatus.Departing] = (_, place, state, samus, newlyPressedControllerInput, samusProjectiles) => MoveDepartingElevator(place, samus),
+        [ElevatorActorStatus.BeginArrivalReturn] = (settings, place, state, samus, newlyPressedControllerInput, samusProjectiles) =>
+        {
+            ElevatorStatus = ElevatorActorStatus.ReturningToRest;
+            _passEvents.Publish(new ElevatorEvent(ElevatorFrameEvent.ArrivalReturnStarted));
+            MoveElevatorBackToRest(settings, place, state, samus);
+        },
+        [ElevatorActorStatus.ReturningToRest] = (settings, place, state, samus, newlyPressedControllerInput, samusProjectiles) => MoveElevatorBackToRest(settings, place, state, samus),
+    });
+
     /// <summary>Runs the elevator's main behaviour and its four phases.</summary>
     private void RunElevatorMain(
         ElevatorSpawnSettings elevatorSpawnSettings, RoomEnemyPlace place,
@@ -145,34 +164,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyLoadedFactory<Elev
             return;
         }
 
-        switch (ElevatorStatus)
-        {
-            case ElevatorActorStatus.Inactive:
-                WaitForElevatorDirectionInput(
-                    elevatorSpawnSettings, place,
-                    samus,
-                    newlyPressedControllerInput,
-                    samusProjectiles);
-                return;
-
-            case ElevatorActorStatus.Departing:
-                MoveDepartingElevator(place, samus);
-                return;
-
-            case ElevatorActorStatus.BeginArrivalReturn:
-                ElevatorStatus = ElevatorActorStatus.ReturningToRest;
-                _passEvents.Publish(new ElevatorEvent(ElevatorFrameEvent.ArrivalReturnStarted));
-                MoveElevatorBackToRest(elevatorSpawnSettings, place, state, samus);
-                return;
-
-            case ElevatorActorStatus.ReturningToRest:
-                MoveElevatorBackToRest(elevatorSpawnSettings, place, state, samus);
-                return;
-
-            default:
-                throw new InvalidDataException(
-                    $"Elevator status {ElevatorStatus} is outside the elevator's phases.");
-        }
+        RunElevatorMainForElevatorActorStatus[ElevatorStatus](elevatorSpawnSettings, place, state, samus, newlyPressedControllerInput, samusProjectiles);
     }
 
     /// <summary>Waits for the travel direction input.</summary>
@@ -265,9 +257,8 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyLoadedFactory<Elev
 
     /// <summary>Advances Elevator's typed animation.</summary>
     internal static void AdvanceElevatorTypedAnimation(RoomEnemyPlace place, ElevatorEnemyState elevatorEnemyState) =>
-        EnemyAnimationPlayback.Advance(place, elevatorEnemyState, ElevatorAnimations.Segments,
-            static (ElevatorEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
-            static (_, cue) => throw new InvalidOperationException($"A cue-free Elevator animation raised {cue}."));
+        EnemyAnimationPlayback.AdvanceSilently(place, elevatorEnemyState, ElevatorAnimations.Segments,
+            static (ElevatorEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback);
 
     /// <summary>Runs Elevator's main AI.</summary>
     internal void RunElevatorMainAi(ElevatorSpawnSettings elevatorSpawnSettings, RoomEnemyPlace place, ElevatorEnemyState elevatorEnemyState, IEnemyAiFrame frame)

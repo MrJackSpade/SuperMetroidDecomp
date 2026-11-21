@@ -10,7 +10,6 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 [RoomLifetime]
 internal sealed class DraygonBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawnSettings>
 {
-
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.DraygonBody];
 
@@ -84,8 +83,6 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemySpawnFactory<EnemyS
     internal DraygonCombat Combat { get; }
     /// <summary>The session's installed boss artwork.</summary>
     private readonly BossArtworkBinding _bossArtwork;
-
-
 
     /// <summary>Binds the encounter's room, projectile, presentation, and interaction owners.</summary>
     internal DraygonBehavior(DraygonBehaviorDependencies dependencies)

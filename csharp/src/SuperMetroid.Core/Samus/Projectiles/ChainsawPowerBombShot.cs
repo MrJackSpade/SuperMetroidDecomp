@@ -9,6 +9,5 @@ internal sealed class ChainsawPowerBombShot : SamusShotBehavior
 {
     /// <inheritdoc/>
     internal override void Run(SamusShotUpdate update) =>
-        update.Shots.Chainsaw.RunPowerBombFuse(update.Terrain.Level, update.Shot, update.SamusBombs,
-            update.Terrain.RoomObjects);
+        update.Shots.Chainsaw.RunPowerBombFuse(update.Terrain, update.Shot, update.SamusBombs);
 }

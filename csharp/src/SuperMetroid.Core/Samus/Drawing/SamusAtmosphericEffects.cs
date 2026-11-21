@@ -11,9 +11,7 @@ internal static class SamusAtmosphericEffects
     /// grounded postures produce the paired surface splash; other movement dives.
     /// </summary>
     internal static WaterSplashKind WaterSplashFor(SamusMovementType movementType) =>
-        SamusMovementTypeDefinitions.Movements.TryGetValue(movementType, out SamusMovementTypeDefinition? definition)
-            ? definition.Splash
-            : throw new InvalidDataException($"Water-splash movement type {movementType} is outside the movement types.");
+        SamusMovementTypeDefinitions.Movements[movementType].Splash;
 
     /// <summary>
     /// Whether <paramref name="strideFrame"/>, a frame of the run's stride, is one of its two foot contacts

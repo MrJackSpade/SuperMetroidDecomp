@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Samus.Movement;
 using static SuperMetroid.Core.Frontend.Intro.IntroMotherBrainCollisionDefinitions;
 
 namespace SuperMetroid.Core.Frontend.Intro;
@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 internal static class IntroMotherBrainCollision
 {
     /// <summary>How the block at <paramref name="column"/> of <paramref name="row"/> collides.</summary>
-    private static RoomCollisionType Block(int row, int column)
+    private static PlainTerrainBlock Block(int row, int column)
     {
         if (row is CeilingRow or FloorRow) return Solid;
         if (row > CeilingRow && row < FloorRow && column < LeftContourWidths[row - FormationTipRow])
@@ -27,9 +27,9 @@ internal static class IntroMotherBrainCollision
     }
 
     /// <summary>How each block of the flashback room collides, row-major and freshly for each flashback.</summary>
-    internal static RoomCollisionType[] CreateCollision()
+    internal static PlainTerrainBlock[] CreateCollision()
     {
-        var foreground = new RoomCollisionType[Columns * RoomRows];
+        var foreground = new PlainTerrainBlock[Columns * RoomRows];
         for (int row = 0; row < RoomRows; row++)
             for (int column = 0; column < Columns; column++)
                 foreground[row * Columns + column] = Block(row, column);

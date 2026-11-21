@@ -137,17 +137,31 @@ internal static class ShutterBehaviorVerification
         bus.ReadCartridgeWord(address.Value);
 
     /// <summary>
-    /// The growing shutter's timer-mode wait holds its true duration (#2281): a placement's wait of two activates on the
-    /// third call, the one that takes it to zero.
+    /// The growing shutter's timer-mode wait holds its true duration (#2281): a placement's wait of two, set up as a spawn
+    /// sets it up, starts growing on the shutter's third main AI update, the one that takes the wait to zero.
     /// </summary>
     internal static void VerifyGrowingShutterActivationTimer()
     {
-        var state = new GrowingShutterEnemyState(GrowingShutterAction.WaitForTimer, spawnY: 0, VerticalDirection.Up);
-        state.ActivationTimer = UpdateCountdown.For(2 + EnemyWaitDefinitions.RunOutUpdate);
-        AssertEqual(false, ShuttersBehavior.AdvanceGrowingShutterTimer(state), "a two-update wait does not activate on its first call");
-        AssertEqual(2, state.ActivationTimer.UpdatesLeft, "the first call counts the wait down by one");
-        AssertEqual(false, ShuttersBehavior.AdvanceGrowingShutterTimer(state), "a two-update wait does not activate on its second call");
-        AssertEqual(true, ShuttersBehavior.AdvanceGrowingShutterTimer(state), "a two-update wait activates on its third call");
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
+        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
+        place.Bind(EnemyDefinitionId.ShutterGrowing, place.KeptDefinition);
+        // A timer wait of two updates, growing down at the first growth speed.
+        place.SetSpawnWords(EnemyDefinitionId.ShutterGrowing, _ => new PopulationWords(0, 0, 0, 2, 0));
+        place.Position = place.Position.WithWholeY(296);
+        ShuttersBehavior.InitializeGrowingShutter(place.HeldOccupant(), place);
+        GrowingShutterEnemyState state = enemies.GrowingShutterStates[0] ?? throw new InvalidOperationException("The spawn sets the shutter up.");
+        var frame = new ClockedEnemyAiFrame(
+            RoomEnemyFrameFixtures.Standalone(VerificationHelpersVerification.CreateEmptyRoom(new(16, 16)), 0),
+            new FrameCounters(SuperMetroid.Core.Compatibility.ShortFrameCount.Zero));
+        void Update() => enemies.ShuttersBehavior.RunShutterGrowingMainAi(place.HeldOccupant(), place, frame);
+
+        Update();
+        AssertEqual(GrowingShutterAction.WaitForTimer, state.Action, "a two-update wait does not activate on its first update");
+        AssertEqual(2, state.ActivationTimer.UpdatesLeft, "the first update counts the wait down by one");
+        Update();
+        AssertEqual(GrowingShutterAction.WaitForTimer, state.Action, "a two-update wait does not activate on its second update");
+        Update();
+        AssertEqual(GrowingShutterAction.Grow, state.Action, "a two-update wait activates on its third update");
         AssertEqual(0, state.ActivationTimer.UpdatesLeft, "activation leaves the wait run out");
     }
 

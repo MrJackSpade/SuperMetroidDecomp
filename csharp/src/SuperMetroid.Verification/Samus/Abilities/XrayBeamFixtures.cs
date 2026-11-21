@@ -16,9 +16,8 @@ internal static class XrayBeamFixtures
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new UnauthoredBoostCadence(), SamusCompatibility.ForNewSamus(),
             new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(100, 200)),
-        };
+        }.InPose(SamusPoseId.FacingRightNormalPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         AssertTrue(samus.Xray.TryBeginAndActivate(samus, previousMovementType: SamusMovementType.Standing,

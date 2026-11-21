@@ -5,7 +5,5 @@ internal static class KraidLints
 {
     /// <summary>The initial delay of lint part <paramref name="part"/>.</summary>
     internal static int InitialDelay(KraidLintPart part) =>
-        KraidLintInitializationDefinitions.InitialDelays.TryGetValue(part, out int delay)
-            ? delay
-            : throw new InvalidOperationException($"Undefined KraidLintPart {part}.");
+        KraidLintInitializationDefinitions.InitialDelays[part];
 }

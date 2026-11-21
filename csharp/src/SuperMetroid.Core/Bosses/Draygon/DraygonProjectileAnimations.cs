@@ -14,8 +14,8 @@ internal static class DraygonProjectileAnimations
     /// Every goop and wall-turret segment's beats: the goop loops its frames and bursts; the wall turret's shot forms over
     /// two ramps, the second a tick faster, charges, fires, and flies in its looping flight frames.
     /// </summary>
-    internal static AnimationSegments<DraygonProjectileSegment, EnemyProjectileFrameId, DraygonProjectileCue> Segments { get; } = new(
-        new Dictionary<DraygonProjectileSegment, AnimationBeat<EnemyProjectileFrameId, DraygonProjectileCue>[]>
+    internal static UnpausedAnimationSegments<DraygonProjectileSegment, EnemyProjectileFrameId, DraygonProjectileCue> Segments { get; } = new(
+        new Dictionary<DraygonProjectileSegment, AnimationBeat<EnemyProjectileFrameId, DraygonProjectileCue>.Unpaused[]>
         {
             [P.GoopTouch] = [Cue(DraygonProjectileCue.StickToSamus)],
             [P.Goop] =
@@ -76,10 +76,10 @@ internal static class DraygonProjectileAnimations
         };
 
     /// <summary>Raises <paramref name="cue"/>.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, DraygonProjectileCue> Cue(DraygonProjectileCue cue) =>
+    private static AnimationBeat<EnemyProjectileFrameId, DraygonProjectileCue>.Unpaused Cue(DraygonProjectileCue cue) =>
         new AnimationBeat<EnemyProjectileFrameId, DraygonProjectileCue>.Event(cue);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> passes.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, DraygonProjectileCue> Show(EnemyProjectileFrameId frame, int duration) =>
+    private static AnimationBeat<EnemyProjectileFrameId, DraygonProjectileCue>.Unpaused Show(EnemyProjectileFrameId frame, int duration) =>
         new AnimationBeat<EnemyProjectileFrameId, DraygonProjectileCue>.Frame(frame, duration);
 }

@@ -78,7 +78,7 @@ internal static class BossMapMarkersVerification
                 var savedMenu = new FileSelectMapMenuState(SuperMetroid.Core.Audio.AudioQueues.Standalone(), new SharedRandom(), slot, 0,
                     RetailPresentationFixture(), MenuSheetFixtures.For(RetailPresentationFixture()));
                 var savedGraphics = savedMenu.RoomGraphics;
-                var liveGraphics = new FileSelectRoomMapGraphics(system, SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(area), screenContent: RetailPresentationFixture(), sheets: MenuSheetFixtures.For(RetailPresentationFixture()));
+                var liveGraphics = new FileSelectRoomMapGraphics(system, (global::SuperMetroid.Core.Progression.AreaIds.IsZebes(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(area), out global::SuperMetroid.Core.Progression.ZebesArea zebes) ? zebes : throw new InvalidOperationException($"Area {area} is not a Zebes area.")), screenContent: RetailPresentationFixture(), sheets: MenuSheetFixtures.For(RetailPresentationFixture()));
                 var marker = new FileSelectStationMarker(SuperMetroid.AssetExtraction.Progression.LoadStationNumberCodec.Decode(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(area), 0, "boss map fixture"), RetailPresentationFixture().Maps.SaveMarkers);
                 int scrollX = x - 128, scrollY = y - 112;
                 AssertTrue(liveGraphics.Render(new(scrollX, scrollY), marker).SequenceEqual(

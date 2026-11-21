@@ -33,9 +33,10 @@ internal sealed record ShownOptionsPage(GameOptionsPage Page, TextLanguage Langu
         _ => throw new InvalidOperationException($"Undefined options page {Page}."),
     };
 
-    /// <summary>The button bound to <paramref name="action"/>, which its label on the controller page names.</summary>
-    /// <exception cref="InvalidDataException">The binding is not an assignable button, which no label names.</exception>
-    private ControllerButton LabelledBinding(ControllerAction action) =>
-        ControllerBindings.IsAssignable(Bindings[action]) ? Bindings[action]
-            : throw new InvalidDataException($"{action} is bound to {Bindings[action]}, not an assignable button; the controller page has no label for it.");
+    /// <summary>
+    /// The button bound to <paramref name="action"/>, which its label on the controller page names: one of the assignable
+    /// buttons, as the options menu's bindings are a unique permutation of them, checked as the menu opens
+    /// (<see cref="ControllerBindings.RequireUniquePermutation"/>) and kept by its swaps.
+    /// </summary>
+    private ControllerButton LabelledBinding(ControllerAction action) => Bindings[action];
 }

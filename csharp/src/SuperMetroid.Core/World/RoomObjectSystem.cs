@@ -181,13 +181,19 @@ public sealed class RoomObjectSystem : IRoomObjects, ISamusRoomObjects
         GreyDoors = new GreyDoorObjects(room.System, room.Area, services.TourianStatue, Sounds);
         Tourian = new TourianObjects(services.Samus, services.Enemies, services.RoomFx, Places);
         CeresEscape = new CeresEscapeObjects(Places);
-        PopulationLoader = new RoomObjectPopulationLoader(new RoomObjectPopulationLoaderDependencies { BombTorizoHand = BombTorizoHand, CollectibleObjects = CollectibleObjects, EyeDoors = EyeDoors, GreyDoors = GreyDoors, Stations = Stations, Gates = Gates, MotherBrainGlass = MotherBrainGlass, Places = Places, SpeedBoosterEscape = SpeedBoosterEscape, DraygonCannons = DraygonCannons, NoobTube = NoobTube });
+        PopulationLoader = new RoomObjectPopulationLoader(new RoomObjectPopulationLoaderDependencies { BombTorizoHand = BombTorizoHand, CollectibleObjects = CollectibleObjects, EyeDoors = EyeDoors, GreyDoors = GreyDoors, Stations = Stations, Gates = Gates, MotherBrainGlass = MotherBrainGlass, Places = Places, SpeedBoosterEscape = SpeedBoosterEscape, DraygonCannons = DraygonCannons, NoobTube = NoobTube, Scrolls = Scrolls });
         BlockReactions = new BlockReactionObjects(EscapeAnimals, Places, Drawing);
         BossRoomMutations = new BossRoomMutationObjects(Places);
     }
 
     /// <summary>Door-object owner bound to this room's allocation and draw state.</summary>
     internal DoorObjects DoorObjects { get; }
+
+    /// <summary>
+    /// The objects as the door transition's step reaches them, freshly loaded and untouched by Samus
+    /// (<see cref="UntouchedRoomObjects"/>).
+    /// </summary>
+    internal UntouchedRoomObjects Untouched => new(this);
 
 
     /// <summary>

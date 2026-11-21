@@ -36,14 +36,13 @@ internal static class CrystalFlashPaletteTimingDefinitionsVerification
 
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             Health = 1,
             MaxHealth = 99,
             Missiles = 10,
             SuperMissiles = 10,
             PowerBombs = 10,
-        };
+        }.InPose(SamusPoseId.FacingRightNormalPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         AssertTrue(
             samus.CrystalFlash.TryBegin(samus, SamusCrystalFlashState.RequiredInput),

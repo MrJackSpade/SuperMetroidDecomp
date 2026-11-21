@@ -40,7 +40,7 @@ internal static class SporeSpawnAnimationsVerification
         var body = BodyLists(cartridge);
         int updates = VerifyProjectilePrograms(rom);
         Console.WriteLine($"  Spore Spawn animations: {body.Count} body segments ({body.Values.Sum(list => list.BeatAddresses.Length)} beats) match bank $A5, " +
-            $"and {ProjectileEntries.Length} projectile programs match bank $86 over {updates} updates.");
+            $"and {CeilingEntries.Length + SporeEntries.Length} projectile programs match bank $86 over {updates} updates.");
     }
 
     /// <summary>Each body segment's native entry, in authored order.</summary>
@@ -127,48 +127,69 @@ internal static class SporeSpawnAnimationsVerification
     /// </summary>
     private static int VerifyProjectilePrograms(CartridgeImportAddressSpace rom)
     {
+<<<<<<< ours
         IImportCartridgeSource cartridge = rom;
+||||||| base
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+=======
         int updates = 0;
-        foreach ((SporeSpawnProjectileSegment program, ushort entry) in ProjectileEntries)
+        // A spawner's programs run on a real ceiling spawner, whose release spawns its fight's spores (#2231); the stalk's,
+        // which publishes no cue, and the spore's run on a real spore.
+        foreach ((SporeSpawnCeilingSegment program, ushort entry) in CeilingEntries)
+            updates += VerifyProjectileProgram(rom, program.ToString(), entry,
+                onSpawner: program is SporeSpawnCeilingSegment.SpawnerClosed or SporeSpawnCeilingSegment.SpawnerRelease,
+                enemies => new SporeSpawnCeilingAnimation(enemies.SporeSpawnBehavior.Spawner, program), deletes: false);
+        foreach ((SporeSpawnSporeSegment program, ushort entry) in SporeEntries)
+            updates += VerifyProjectileProgram(rom, program.ToString(), entry, onSpawner: false,
+                enemies => new SporeSpawnSporeAnimation(enemies.SporeSpawnBehavior.Spore, program),
+                deletes: program == SporeSpawnSporeSegment.SporeShot);
+        return updates;
+    }
+
+    /// <summary>
+    /// Runs one projectile program, <paramref name="animation"/> started on a real spore or, <paramref name="onSpawner"/>,
+    /// a real ceiling spawner, beside its native list at <paramref name="entry"/>; returns the updates compared.
+    /// </summary>
+    private static int VerifyProjectileProgram(CartridgeImportAddressSpace rom, string program, ushort entry, bool onSpawner,
+        Func<RoomEnemySystem, EnemyProjectileAnimation> animation, bool deletes)
+    {
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+>>>>>>> theirs
+        int updates = 0;
+        RoomEnemySystem enemies = NewProjectileSystem();
+        // The spore takes the colours of the Spore Spawn whose spawner releases it (#2231).
+        var sporeSpawn = new SporeSpawnEnemyState();
+        enemies.SporeSpawnBehavior.Spawner.SpawnSporeSpawnSpore(new(128, 256), HorizontalDirection.Right, sporeSpawn);
+        EnemyProjectile projectile = enemies.Projectiles.EnemyProjectiles.First(item => item.Kind == RoomEnemyProjectileKind.SporeSpawnSpore);
+        AssertTrue(projectile.Animation is SporeSpawnSporeAnimation started &&
+            started.Playback == new AnimationPlayback<SporeSpawnSporeSegment>(SporeSpawnProjectileAnimations.StartingWith(SporeSpawnSporeSegment.Spore), AnimationPlace.StartOfAnimation),
+            "the real spore producer starts the falling-spore program");
+        if (onSpawner)
         {
-            RoomEnemySystem enemies = NewProjectileSystem();
-            // The spore takes the colours of the Spore Spawn whose spawner releases it (#2231).
-            var sporeSpawn = new SporeSpawnEnemyState();
-            enemies.SporeSpawnBehavior.Spawner.SpawnSporeSpawnSpore(new(128, 256), HorizontalDirection.Right, sporeSpawn);
-            EnemyProjectile projectile = enemies.Projectiles.EnemyProjectiles.First(item => item.Kind == RoomEnemyProjectileKind.SporeSpawnSpore);
-            AssertTrue(projectile.Animation is SporeSpawnProjectileAnimation started &&
-                started.Playback == new AnimationPlayback<SporeSpawnProjectileSegment>(SporeSpawnProjectileAnimations.StartingWith(SporeSpawnProjectileSegment.Spore), AnimationPlace.StartOfAnimation),
-                "the real spore producer starts the falling-spore program");
-            // A spawner's programs run on a real ceiling spawner, whose release spawns its fight's spores (#2231).
-            IEnemyProjectileCues<SporeSpawnProjectileCue> owner = enemies.SporeSpawnBehavior.Spore;
-            if (program is SporeSpawnProjectileSegment.SpawnerClosed or SporeSpawnProjectileSegment.SpawnerRelease)
-            {
-                owner = enemies.SporeSpawnBehavior.Spawner;
-                projectile.Delete();
-                enemies.SporeSpawnBehavior.SpawnSporeSpawnSpawner(enemies.Places.InUpdateOrder[0].BoundFor(EnemyDefinitionId.SporeSpawn), enemies.Places.InUpdateOrder[0], sporeSpawn, new(new(128, 256), HorizontalDirection.Right));
-                projectile = enemies.Projectiles.EnemyProjectiles.First(item => item.IsActive && item.Kind == RoomEnemyProjectileKind.SporeSpawnSpawner);
-            }
-            projectile.StartAnimation(new SporeSpawnProjectileAnimation(owner, program));
-            var native = new NativeEnemyProjectileListReader(entry, projectile.FrameHold.RawValue);
-            int drops = 0;
-            for (int update = 0; update < 48 && !native.Deleted; update++, updates++)
-            {
-                enemies.Projectiles.AdvanceEnemyProjectileAnimations(projectile, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), Position16<RoomPixels>.Zero, shortCounter: SuperMetroid.Core.Compatibility.ShortFrameCount.Zero);
-                native.Step(cartridge);
-                drops += native.Callbacks.Count(callback => callback == NativeEnemyProjectileInstruction.Spores_SpawnEnemyDrops);
-                string at = $"Spore Spawn projectile {program} update {update}";
-                AssertEqual(!native.Deleted, projectile.IsActive, $"{at}: deletion");
-                if (native.Deleted)
-                    break;
-                // A held frame (#2235) shows its picture for good and stops the hold (#2380): the native timer running down
-                // to the list's sleep shows nothing else, so only the picture is compared once the typed animation rests.
-                SuperMetroid.Verification.Enemies.NativeEnemyProjectileParity.AssertFrameHold(native.Timer, projectile, at);
-                // A list that shows a pose again from an operand of its own shows the pose's one installed frame (#2234).
-                AssertEqual<EnemyProjectileFrameId?>(EnemyProjectileProgramFrameOperands.Frame(native.Operand, projectile.Graphics.Owner), projectile.Frame, $"{at}: frame");
-            }
-            AssertEqual(drops, enemies.ActiveEnemyDropPickups, $"Spore Spawn projectile {program}: drop requests");
-            AssertEqual(program == SporeSpawnProjectileSegment.SporeShot, native.Deleted, $"Spore Spawn projectile {program}: only the shot deletes");
+            projectile.Delete();
+            enemies.SporeSpawnBehavior.SpawnSporeSpawnSpawner(enemies.Places.InUpdateOrder[0].BoundFor(EnemyDefinitionId.SporeSpawn), enemies.Places.InUpdateOrder[0], sporeSpawn, new(new(128, 256), HorizontalDirection.Right));
+            projectile = enemies.Projectiles.EnemyProjectiles.First(item => item.IsActive && item.Kind == RoomEnemyProjectileKind.SporeSpawnSpawner);
         }
+        projectile.StartAnimation(animation(enemies));
+        var native = new NativeEnemyProjectileListReader(entry, projectile.FrameHold.RawValue);
+        int drops = 0;
+        for (int update = 0; update < 48 && !native.Deleted; update++, updates++)
+        {
+            enemies.Projectiles.AdvanceEnemyProjectileAnimations(projectile, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), Position16<RoomPixels>.Zero, shortCounter: SuperMetroid.Core.Compatibility.ShortFrameCount.Zero);
+            native.Step(cartridge);
+            drops += native.Callbacks.Count(callback => callback == NativeEnemyProjectileInstruction.Spores_SpawnEnemyDrops);
+            string at = $"Spore Spawn projectile {program} update {update}";
+            AssertEqual(!native.Deleted, projectile.IsActive, $"{at}: deletion");
+            if (native.Deleted)
+                break;
+            // A held frame (#2235) shows its picture for good and stops the hold (#2380): the native timer running down
+            // to the list's sleep shows nothing else, so only the picture is compared once the typed animation rests.
+            SuperMetroid.Verification.Enemies.NativeEnemyProjectileParity.AssertFrameHold(native.Timer, projectile, at);
+            // A list that shows a pose again from an operand of its own shows the pose's one installed frame (#2234).
+            AssertEqual<EnemyProjectileFrameId?>(EnemyProjectileProgramFrameOperands.Frame(native.Operand, projectile.Graphics.Owner), projectile.Frame, $"{at}: frame");
+        }
+        AssertEqual(drops, enemies.ActiveEnemyDropPickups, $"Spore Spawn projectile {program}: drop requests");
+        AssertEqual(deletes, native.Deleted, $"Spore Spawn projectile {program}: only the shot deletes");
         return updates;
     }
 

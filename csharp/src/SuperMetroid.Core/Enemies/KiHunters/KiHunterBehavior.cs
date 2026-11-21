@@ -67,29 +67,42 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Carries out one cue of the Ki-Hunter body's animations. Returning to flight continues at the flying animation for
     /// the current direction, as the cue returns that animation; every other cue runs on.
     /// </summary>
-    private KiHunterSegment? ApplyKiHunterCue(RoomEnemyOccupant occupant, RoomEnemyPlace place, KiHunterBodyState kiHunterBodyState, KiHunterCue cue)
-    {
-        if (cue is KiHunterCue.Spit spit)
-        {
-            SpawnKiHunterAcidFromCue(occupant, place, kiHunterBodyState, direction: spit.Direction);
-            return null;
-        }
-        KiHunterCueKind kind = ((KiHunterCue.Signal)cue).Kind;
-        switch (kind)
-        {
-            case KiHunterCueKind.ReturnToFlying:
-                // The cue returns the body's flying animation while separately restarting the attached wings.
-                return ReturnKiHunterToSteadyAnimation(kiHunterBodyState);
-            case KiHunterCueKind.StartHop:
-                StartKiHunterGroundJumpFromCue(kiHunterBodyState);
+    private KiHunterSegment? ApplyKiHunterCue(RoomEnemyOccupant occupant, RoomEnemyPlace place, KiHunterBodyState kiHunterBodyState, KiHunterCue cue) =>
+        cue.Match(ApplyKiHunterCueCases, new ApplyKiHunterCueContext(occupant, place, kiHunterBodyState, this));
+
+    /// <summary>What <see cref="ApplyKiHunterCue"/> does on each <see cref="KiHunterCue"/>, built once (#2553).</summary>
+    private static KiHunterCueCases<ApplyKiHunterCueContext, KiHunterSegment?> ApplyKiHunterCueCases { get; } = new(
+            Spit: static (spit, context) =>
+            {
+                context.Owner.SpawnKiHunterAcidFromCue(context.Occupant, context.Place, context.State, direction: spit.Direction);
                 return null;
-            case KiHunterCueKind.StartWinglessThinking:
-                StartKiHunterGroundWaitFromCue(kiHunterBodyState);
+            },
+            Signal: static (signal, context) => context.Owner.KiHunterSignals[signal.Kind](context.State));
+
+    /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <param name="Occupant">The occupant whose cue is carried out.</param>
+    /// <param name="Place">The place the cases read.</param>
+    /// <param name="State">The body's state the cases read.</param>
+    /// <param name="Owner">The <see cref="KiHunterBehavior"/> reacting.</param>
+    private readonly record struct ApplyKiHunterCueContext(RoomEnemyOccupant Occupant, RoomEnemyPlace Place, KiHunterBodyState State, KiHunterBehavior Owner);
+
+    /// <summary>What each of the Ki-Hunter body's signals does, and the animation it continues at, or null to run on.</summary>
+    private IdentityTable<KiHunterCueKind, Func<KiHunterBodyState, KiHunterSegment?>> KiHunterSignals => field ??=
+        new(new Dictionary<KiHunterCueKind, Func<KiHunterBodyState, KiHunterSegment?>>
+        {
+            // The cue returns the body's flying animation while separately restarting the attached wings.
+            [KiHunterCueKind.ReturnToFlying] = state => ReturnKiHunterToSteadyAnimation(state),
+            [KiHunterCueKind.StartHop] = state =>
+            {
+                StartKiHunterGroundJumpFromCue(state);
                 return null;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(KiHunterCueKind)} {kind}.");
-        }
-    }
+            },
+            [KiHunterCueKind.StartWinglessThinking] = state =>
+            {
+                StartKiHunterGroundWaitFromCue(state);
+                return null;
+            },
+        });
 
     /// <summary>Initializes the Ki-Hunter body.</summary>
     /// <returns>The state the enemy holds from its setup.</returns>
@@ -133,6 +146,25 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         return state;
     }
 
+    /// <summary>What <see cref="RunKiHunterMain"/> does for each <see cref="KiHunterAction"/> member, each member's own arm.</summary>
+    private IdentityTable<KiHunterAction, Action<RoomEnemyPlace, KiHunterBodyState, SamusState, RoomLevelData>> RunKiHunterMainForKiHunterAction => field ??= new(new Dictionary<KiHunterAction, Action<RoomEnemyPlace, KiHunterBodyState, SamusState, RoomLevelData>>
+    {
+        [KiHunterAction.FlyingPatrol] = (actor, state, samus, level) => RunKiHunterFlyingPatrol(actor, state, samus, level),
+        [KiHunterAction.Swooping] = (actor, state, samus, level) =>
+        {
+            StartKiHunterSwipeOncePastItsAngle(actor, state);
+            RunKiHunterSwoop(actor, state, level);
+        },
+        [KiHunterAction.Swiping] = (actor, state, samus, level) => RunKiHunterSwoop(actor, state, level),
+        [KiHunterAction.RecoveringFromSwoop] = (actor, state, samus, level) => RunKiHunterSwoopRecovery(actor, state, level),
+        [KiHunterAction.FallingAfterWingLoss] = (actor, state, samus, level) => RunKiHunterFalling(actor, state, level),
+        [KiHunterAction.StartGroundJump] = (actor, state, samus, level) => StartKiHunterGroundJump(actor, state, samus),
+        [KiHunterAction.AnimatingOnGround] = (actor, state, samus, level) => { },
+        [KiHunterAction.GroundJump] = (actor, state, samus, level) => RunKiHunterGroundJump(actor, state, level),
+        [KiHunterAction.GroundWait] = (actor, state, samus, level) => RunKiHunterGroundWait(actor, state, samus),
+        [KiHunterAction.SelectAcidSpit] = (actor, state, samus, level) => SelectKiHunterAcidSpit(actor, state, samus),
+    });
+
     /// <summary>Runs the body's main behaviour.</summary>
     private void RunKiHunterMain(
         RoomEnemyPlace actor,
@@ -140,59 +172,20 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus,
         RoomLevelData level)
     {
-        switch (state.Action)
-        {
-            case KiHunterAction.FlyingPatrol:
-                RunKiHunterFlyingPatrol(actor, state, samus, level);
-                return;
-            case KiHunterAction.Swooping:
-                StartKiHunterSwipeOncePastItsAngle(actor, state);
-                RunKiHunterSwoop(actor, state, level);
-                return;
-            case KiHunterAction.Swiping:
-                RunKiHunterSwoop(actor, state, level);
-                return;
-            case KiHunterAction.RecoveringFromSwoop:
-                RunKiHunterSwoopRecovery(actor, state, level);
-                return;
-            case KiHunterAction.FallingAfterWingLoss:
-                RunKiHunterFalling(actor, state, level);
-                return;
-            case KiHunterAction.StartGroundJump:
-                StartKiHunterGroundJump(actor, state, samus);
-                return;
-            case KiHunterAction.AnimatingOnGround:
-                return;
-            case KiHunterAction.GroundJump:
-                RunKiHunterGroundJump(actor, state, level);
-                return;
-            case KiHunterAction.GroundWait:
-                RunKiHunterGroundWait(actor, state, samus);
-                return;
-            case KiHunterAction.SelectAcidSpit:
-                SelectKiHunterAcidSpit(actor, state, samus);
-                return;
-            default:
-                throw new InvalidDataException(
-                    $"Ki-Hunter body has no behaviour for action {state.Action}.");
-        }
+        RunKiHunterMainForKiHunterAction[state.Action](actor, state, samus, level);
     }
+
+    /// <summary>What <see cref="RunKiHunterWingMain"/> does for each <see cref="KiHunterWingAction"/> member, each member's own arm.</summary>
+    private IdentityTable<KiHunterWingAction, Action<RoomEnemyPlace, KiHunterWingState, KiHunterWingsBody, RoomLevelData>> RunKiHunterWingMainForKiHunterWingAction => field ??= new(new Dictionary<KiHunterWingAction, Action<RoomEnemyPlace, KiHunterWingState, KiHunterWingsBody, RoomLevelData>>
+    {
+        [KiHunterWingAction.FollowBody] = (wings, _, partner, _) => FollowKiHunterBody(wings, partner),
+        [KiHunterWingAction.Detached] = (wings, state, _, level) => RunDetachedKiHunterWing(wings, state, level),
+    });
 
     /// <summary>Runs the wings' main behaviour: following the body, or flying off once detached.</summary>
     private void RunKiHunterWingMain(RoomEnemyPlace wings, KiHunterWingState state, KiHunterWingsBody partner, RoomLevelData level)
     {
-        switch (state.Action)
-        {
-            case KiHunterWingAction.FollowBody:
-                FollowKiHunterBody(wings, partner);
-                return;
-            case KiHunterWingAction.Detached:
-                RunDetachedKiHunterWing(wings, state, level);
-                return;
-            default:
-                throw new InvalidDataException(
-                    $"Ki-Hunter wings have no behaviour for action {state.Action}.");
-        }
+        RunKiHunterWingMainForKiHunterWingAction[state.Action](wings, state, partner, level);
     }
 
     /// <summary>Flies the patrol.</summary>
@@ -465,24 +458,20 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         wings.Position = wings.Position.WithWhole(body.Position.Whole);
     }
 
+    /// <summary>What <see cref="RunDetachedKiHunterWing"/> does for each <see cref="KiHunterWingMovement"/> member, each member's own arm.</summary>
+    private IdentityTable<KiHunterWingMovement, Action<RoomEnemyPlace, KiHunterWingState, RoomLevelData>> RunDetachedKiHunterWingForKiHunterWingMovement => field ??= new(new Dictionary<KiHunterWingMovement, Action<RoomEnemyPlace, KiHunterWingState, RoomLevelData>>
+    {
+        [KiHunterWingMovement.Orbit] = (wings, state, level) => RunDetachedKiHunterWingOrbit(wings, state),
+        [KiHunterWingMovement.FallingCollisionArc] = (wings, state, level) => RunDetachedKiHunterWingCollisionArc(wings, state, level),
+    });
+
     /// <summary>Runs the detached wings' behaviour.</summary>
     private void RunDetachedKiHunterWing(
         RoomEnemyPlace wings,
         KiHunterWingState state,
         RoomLevelData level)
     {
-        switch (state.WingMovement)
-        {
-            case KiHunterWingMovement.Orbit:
-                RunDetachedKiHunterWingOrbit(wings, state);
-                return;
-            case KiHunterWingMovement.FallingCollisionArc:
-                RunDetachedKiHunterWingCollisionArc(wings, state, level);
-                return;
-            default:
-                throw new InvalidDataException(
-                    $"Detached Ki-Hunter has no behaviour for wing movement {state.WingMovement}.");
-        }
+        RunDetachedKiHunterWingForKiHunterWingMovement[state.WingMovement](wings, state, level);
     }
 
     /// <summary>
@@ -726,44 +715,49 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         /// <summary>The way each acid was spat, given as its Ki-Hunter spits it.</summary>
         internal EnemyProjectileStates<KiHunterAcidState> Spits { get; } = new();
 
+        /// <summary>What <see cref="RunCue"/> does for each <see cref="KiHunterAcidSpitCueKind"/> member, each member's own arm.</summary>
+        private static IdentityTable<KiHunterAcidSpitCueKind, Action<EnemyProjectile>> RunCueForKiHunterAcidSpitCueKind => field ??= new(new Dictionary<KiHunterAcidSpitCueKind, Action<EnemyProjectile>>
+        {
+            [KiHunterAcidSpitCueKind.StopMoving] = static projectile => projectile.HoldStill(),
+            [KiHunterAcidSpitCueKind.Delete] = static projectile => projectile.Delete(),
+        });
+
         /// <summary>Carries out one cue of the acid's animations: its launch either way, its stop on the floor, or its deletion.</summary>
         public void RunCue(EnemyProjectileCueContext context, KiHunterAcidSpitCue cue)
         {
             EnemyProjectile projectile = context.Projectile;
-            switch (cue)
-            {
-                case KiHunterAcidSpitCue.Launch launch:
-                    // The launch cue names the way the acid's animation spits it, which must be the way its Ki-Hunter spat it (#2338).
-                    HorizontalDirection spat = Spits.Of(projectile).Spat;
-                    if (launch.Direction != spat)
-                        throw new InvalidOperationException($"Acid spat {spat} played the animation that launches it {launch.Direction}.");
-                    projectile.StartMotion(this, KiHunterAcidMotion.Launching);
-                    break;
-                case KiHunterAcidSpitCue.Signal { Kind: KiHunterAcidSpitCueKind.StopMoving }:
-                    projectile.HoldStill();
-                    break;
-                case KiHunterAcidSpitCue.Signal { Kind: KiHunterAcidSpitCueKind.Delete }:
-                    projectile.Delete();
-                    break;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(KiHunterAcidSpitCue)} {cue}.");
-            }
+            cue.React(RunCueReactions, new RunCueContext(projectile, this));
         }
+
+        /// <summary>What <see cref="RunCue"/> does on each <see cref="KiHunterAcidSpitCue"/>, built once (#2553).</summary>
+        private static KiHunterAcidSpitCueReactions<RunCueContext> RunCueReactions { get; } = new(
+            Launch: static (launch, context) =>
+            {
+                // The launch flies the way the acid's Ki-Hunter spat it, the one place the way is held (#2338, #2553); the
+                // animation it plays was chosen from that same way.
+                context.Projectile.StartMotion(context.Owner, KiHunterAcidMotion.Launching);
+            },
+            Signal: static (signal, context) =>
+            {
+                RunCueForKiHunterAcidSpitCueKind[signal.Kind](context.Projectile);
+            });
+
+        /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
+        /// <param name="Projectile">The <c>projectile</c> <see cref="RunCue"/> works with.</param>
+        /// <param name="Owner">The <see cref="AcidBehavior"/> reacting.</param>
+        private readonly record struct RunCueContext(EnemyProjectile Projectile, AcidBehavior Owner);
+
+        /// <summary>What <c>Move</c> does for each <see cref="KiHunterAcidMotion"/> member, each member's own arm.</summary>
+        private IdentityTable<KiHunterAcidMotion, Action<EnemyProjectileMotionContext>> MoveForKiHunterAcidMotion => field ??= new(new Dictionary<KiHunterAcidMotion, Action<EnemyProjectileMotionContext>>
+        {
+            [KiHunterAcidMotion.Falling] = context => RunKiHunterAcidMovement(this, context.Projectile, context.Level),
+            [KiHunterAcidMotion.Launching] = context => StartKiHunterAcidMovement(this, context.Projectile),
+        });
 
         /// <inheritdoc/>
         internal override void Move(EnemyProjectileMotionContext context, KiHunterAcidMotion motion)
         {
-            switch (motion)
-            {
-                case KiHunterAcidMotion.Falling:
-                    RunKiHunterAcidMovement(this, context.Projectile, context.Level);
-                    break;
-                case KiHunterAcidMotion.Launching:
-                    StartKiHunterAcidMovement(this, context.Projectile);
-                    break;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(KiHunterAcidMotion)} {motion}.");
-            }
+            MoveForKiHunterAcidMotion[motion](context);
         }
     }
 
@@ -802,13 +796,12 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private void SpawnKiHunterAcidSpit(RoomEnemyOccupant occupant, RoomEnemyPlace body, HorizontalDirection direction)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.KiHunterAcidSpit, Acid, SpriteGraphics.SpawnedBy(occupant, body.Shading));
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.KiHunterAcidSpit, Acid, SpriteGraphics.SpawnedBy(occupant, body.Shading), new KiHunterAcidSpitAnimation(Acid, direction == HorizontalDirection.Right
+            ? KiHunterAcidSpitSegment.Right
+            : KiHunterAcidSpitSegment.Left));
         if (projectile is null)
             return;
 
-        projectile.StartAnimation(new KiHunterAcidSpitAnimation(Acid, direction == HorizontalDirection.Right
-            ? KiHunterAcidSpitSegment.Right
-            : KiHunterAcidSpitSegment.Left));
         Acid.Spits.Start(projectile, new KiHunterAcidState(direction));
 
         projectile.Velocity = projectile.Velocity.WithX(KiHunterMotionDefinitions.AcidHorizontalSpeed.Toward(direction));

@@ -144,7 +144,7 @@ internal static class RoomObjectCollisionOnlyWritesVerification
         {
             RoomBlockBehavior behavior = RoomBlockBehavior.Reacting(ShootableReaction.PermanentBreak1x1);
             level.SetBehavior(block, behavior);
-            AssertTrue(RoomObjectFixtures.Unbound().BlockReactions.TrySpawnProjectileShotBlock(level, block, behavior, BlockStrike.GrappleTouch.Instance,
+            AssertTrue(RoomObjectFixtures.Unbound().BlockReactions.TrySpawnProjectileShotBlock(level, block, ShotBlockReactions.ShotBlocks[behavior.Shootable], BlockStrike.GrappleTouch.Instance,
                 solidBlock: true), "the break takes a place");
         });
         var plant = new Position16<RoomBlocks>(1, 1);

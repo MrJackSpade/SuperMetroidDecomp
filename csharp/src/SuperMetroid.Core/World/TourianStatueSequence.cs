@@ -165,10 +165,7 @@ public sealed class TourianStatueSequence : IDisplayLatch
         // Resolve each statue's definition and start it at its animation entry.
         void Spawn(TourianStatue statue)
         {
-            if (!TourianStatueAnimationDefinitions.Statues.TryGetValue(statue, out TourianStatueAnimationDefinition? definition))
-                throw new InvalidDataException($"Tourian statue {statue} is not cataloged.");
-
-            _statues.Add(new(definition));
+            _statues.Add(new(TourianStatueAnimationDefinitions.Statues[statue]));
         }
     }
 

@@ -28,5 +28,5 @@ internal static class WorkRobotShades
     /// his health band (#2297).
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The place has no installed name.</exception>
-    internal static PictureShade Glow(WorkRobotGlowPlace place) => new(Ensure.Listed(GlowKeys, place), 0);
+    internal static PictureShade Glow(WorkRobotGlowPlace place) => new(GlowKeys[place], 0);
 }

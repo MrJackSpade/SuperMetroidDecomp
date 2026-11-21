@@ -27,5 +27,20 @@ internal static class SamusXrayStateAccess
                 self.CommitActivation(samus, pose, superseded: false);
             return admitted;
         }
+
+        /// <summary>Advances the live scope's cone effect by one update, as the frame's movement does while the scope runs.</summary>
+        /// <exception cref="InvalidOperationException">No scope is live.</exception>
+        internal XrayBeamStepResult StepBeam(SamusState samus, Input.GameplayAction controllerInput) =>
+            (self.Scope ?? throw new InvalidOperationException("The check steps an X-ray beam with no live scope.")).StepBeam(samus, controllerInput);
+
+        /// <summary>Handles the scope's pose input, as the frame does while the X-ray holds Samus's control.</summary>
+        /// <exception cref="InvalidOperationException">The X-ray holds no control of Samus.</exception>
+        internal void HandlePoseInput(SamusState samus, Input.GameplayAction controllerInput) =>
+            (self.Control ?? throw new InvalidOperationException("The check hands X-ray pose input it does not take.")).HandlePoseInput(samus, controllerInput);
+
+        /// <summary>Runs the X-ray's movement of Samus, as the frame does while the X-ray holds her control.</summary>
+        /// <exception cref="InvalidOperationException">The X-ray holds no control of Samus.</exception>
+        internal void StepMovement(SamusState samus) =>
+            (self.Control ?? throw new InvalidOperationException("The check steps X-ray movement it does not hold.")).StepMovement(samus);
     }
 }

@@ -10,6 +10,6 @@ internal sealed class PhantoonFlameAnimation(IEnemyProjectileCues<PhantoonFlameC
     : EnemyProjectileFrameAnimation<PhantoonFlameSegment, PhantoonFlameCue>(segment, PhantoonFlameAnimations.StartingWith(segment), EnemyProjectileCueRunner<PhantoonFlameSegment, PhantoonFlameCue>.By(owner))
 {
     /// <inheritdoc/>
-    private protected override AnimationSegments<PhantoonFlameSegment, EnemyProjectileFrameId, PhantoonFlameCue> Segments =>
+    private protected override IUnpausedAnimationPlay<PhantoonFlameSegment, EnemyProjectileFrameId, PhantoonFlameCue> Segments =>
         PhantoonFlameAnimations.Segments;
 }

@@ -9,7 +9,7 @@ public static class YardCrawlVelocity
     /// </summary>
     public static PixelVelocity<RoomPixels> Apply(SignedEightEight speed, YardDirection direction)
     {
-        YardCrawlHeading heading = Ensure.Listed(YardVelocityDefinitions.Headings, direction);
+        YardCrawlHeading heading = YardVelocityDefinitions.Headings[direction];
         return new(speed.Toward(heading.Horizontal), speed.Toward(heading.Vertical));
     }
 }

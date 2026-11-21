@@ -165,6 +165,46 @@ public sealed class IntroCinematicState : IFrontendScreen
     internal IntroScientistCutsceneState? CurrentScientistCutscene { get; private set; }
     /// <summary>Final SPACE COLONY flight sequence after the narrated pages.</summary>
     private IntroCeresFlightState? CurrentCeresFlight { get; set; }
+<<<<<<< ours
+||||||| base
+    /// <summary>The flight to Ceres, which exists while that scene runs.</summary>
+    internal IntroCeresFlightState CeresFlight => CurrentCeresFlight ??
+        throw new InvalidOperationException("The Ceres flight is not running.");
+    /// <summary>Scripted controller input for the Mother Brain gameplay demonstration.</summary>
+    private DemoInputState? CurrentFlashbackDemoInput { get; set; }
+    /// <summary>The flashback's scripted controller input, which exists while the flashback runs.</summary>
+    internal DemoInputState FlashbackDemoInput => CurrentFlashbackDemoInput ??
+        throw new InvalidOperationException("The Mother Brain flashback is not running.");
+    /// <summary>Collision data for the gameplay-style flashback room.</summary>
+    private RoomLevelData? CurrentFlashbackLevel { get; set; }
+    /// <summary>The flashback room's collision, which exists while the flashback runs.</summary>
+    internal RoomLevelData FlashbackLevel => CurrentFlashbackLevel ??
+        throw new InvalidOperationException("The Mother Brain flashback room is not loaded.");
+    /// <summary>The Mother Brain flashback's own progression, which its shots act on; the demo's shots never change it.</summary>
+    private SharedGameState? CurrentFlashbackProgression { get; set; }
+    /// <summary>The flashback's progression, which exists while the flashback runs.</summary>
+    private SharedGameState FlashbackProgression => CurrentFlashbackProgression ??
+        throw new InvalidOperationException("The Mother Brain flashback is not running.");
+=======
+    /// <summary>The flight to Ceres, which exists while that scene runs.</summary>
+    internal IntroCeresFlightState CeresFlight => CurrentCeresFlight ??
+        throw new InvalidOperationException("The Ceres flight is not running.");
+    /// <summary>Scripted controller input for the Mother Brain gameplay demonstration.</summary>
+    private DemoInputState? CurrentFlashbackDemoInput { get; set; }
+    /// <summary>The flashback's scripted controller input, which exists while the flashback runs.</summary>
+    internal DemoInputState FlashbackDemoInput => CurrentFlashbackDemoInput ??
+        throw new InvalidOperationException("The Mother Brain flashback is not running.");
+    /// <summary>Collision data for the gameplay-style flashback room.</summary>
+    private PlainTerrain? CurrentFlashbackTerrain { get; set; }
+    /// <summary>The flashback room's collision, which exists while the flashback runs.</summary>
+    internal PlainTerrain FlashbackTerrain => CurrentFlashbackTerrain ??
+        throw new InvalidOperationException("The Mother Brain flashback room is not loaded.");
+    /// <summary>The Mother Brain flashback's own progression, which its shots act on; the demo's shots never change it.</summary>
+    private SharedGameState? CurrentFlashbackProgression { get; set; }
+    /// <summary>The flashback's progression, which exists while the flashback runs.</summary>
+    private SharedGameState FlashbackProgression => CurrentFlashbackProgression ??
+        throw new InvalidOperationException("The Mother Brain flashback is not running.");
+>>>>>>> theirs
     /// <summary>
     /// What the running crossfade did on this update (#1980), or null on an update no crossfade runs: the actors the
     /// crossfade's finish ends react to it after the cinematic phase has advanced it.
@@ -246,6 +286,162 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>True when the SPACE COLONY caption and its final fade have completed.</summary>
     public bool CeresFlightFinished => CurrentCeresFlight?.Finished ?? false;
 
+    /// <summary>What <c>Step</c> does for each <see cref="IntroCinematicPhase"/> member, each member's own arm.</summary>
+    private IdentityTable<IntroCinematicPhase, Action> StepForIntroCinematicPhase => field ??= new(new Dictionary<IntroCinematicPhase, Action>
+    {
+        [IntroCinematicPhase.Initial] = () =>
+        {
+            // Stop the music, then load the opening music data.
+            audio.QueueMusic(MusicRequest.Stop);
+            audio.QueueMusic(
+                MusicRequest.LoadDataSet(MusicDataSet.LastMetroidInCaptivity));
+            Phase = IntroCinematicPhase.WaitForInitialMusicQueue;
+        },
+        [IntroCinematicPhase.WaitForInitialMusicQueue] = () =>
+        {
+            // A request queued with the shortest delay waits out that delay before HasQueuedMusic clears.
+            if (MusicQueueFinished())
+            {
+                Phase = IntroCinematicPhase.FadeInFirstNarration;
+                fade.StepEvery(IntroCinematicDefinitions.Fade.NarrationUpdatesPerStep);
+            }
+        },
+        [IntroCinematicPhase.FadeInFirstNarration] = () =>
+        {
+            if (fade.Brighten())
+            {
+                Phase = IntroCinematicPhase.LastMetroidIsInCaptivity;
+                timer = UpdateCountdown.For(IntroCinematicDefinitions.Timing.FirstLineHold);
+            }
+        },
+        [IntroCinematicPhase.LastMetroidIsInCaptivity] = () =>
+        {
+            if (timer.Step())
+            {
+                audio.QueueMusic(MusicRequest.SelectTrack(IntroCinematicDefinitions.Music.CaptivityLineSong));
+                Phase = IntroCinematicPhase.GalaxyIsAtPeace;
+                timer = UpdateCountdown.For(IntroCinematicDefinitions.Timing.CaptivityLineHold);
+            }
+        },
+        [IntroCinematicPhase.GalaxyIsAtPeace] = () =>
+        {
+            if (timer.Step())
+            {
+                // The next music requests wait on the music queue before the
+                // documented four-second hold; they take the shortest delay.
+                audio.QueueMusic(MusicRequest.Stop);
+                audio.QueueMusic(
+                    MusicRequest.LoadDataSet(MusicDataSet.GalaxyAtPeace));
+                audio.ScheduleMusic(
+                    MusicRequest.SelectTrack(IntroCinematicDefinitions.Music.PeaceLineSong),
+                    IntroCinematicDefinitions.Music.SceneTrackDelay);
+                Phase = IntroCinematicPhase.WaitForSecondMusicQueue;
+            }
+        },
+        [IntroCinematicPhase.WaitForSecondMusicQueue] = () =>
+        {
+            if (MusicQueueFinished())
+            {
+                Phase = IntroCinematicPhase.HoldFirstNarration;
+                timer = UpdateCountdown.For(IntroCinematicDefinitions.Timing.PeaceLineHold);
+            }
+        },
+        [IntroCinematicPhase.HoldFirstNarration] = () =>
+        {
+            if (timer.Step())
+            {
+                Phase = IntroCinematicPhase.FadeOutFirstNarration;
+                fade.StepEvery(IntroCinematicDefinitions.Fade.NarrationUpdatesPerStep);
+            }
+        },
+        [IntroCinematicPhase.FadeOutFirstNarration] = () =>
+        {
+            // Once the narration has faded out, the first page is set up on the next update.
+            if (fade.Darken())
+                Phase = IntroCinematicPhase.SetupFirstPage;
+        },
+        [IntroCinematicPhase.SetupFirstPage] = () => SetupFirstIllustratedPage(),
+        [IntroCinematicPhase.WaitForFirstPageMusicQueue] = () =>
+        {
+            // The scene song scheduled its track delay ahead is the longest request issued by
+            // the first page's setup, so HasQueuedMusic becomes clear once that delay has passed.
+            if (MusicQueueFinished())
+            {
+                Narration.StartPage(Page);
+                Phase = IntroCinematicPhase.FadeInFirstPage;
+                fade.StepEvery(IntroCinematicDefinitions.Fade.NarrationUpdatesPerStep);
+            }
+        },
+        [IntroCinematicPhase.FadeInFirstPage] = () =>
+        {
+            if (fade.Brighten())
+                Phase = IntroCinematicPhase.PageText;
+        },
+        [IntroCinematicPhase.PageText] = () =>
+        {
+        },
+        [IntroCinematicPhase.PageAwaitingInput] = () =>
+        {
+            if (!subtitles.HoldInputWait() && controller.NewlyPressed != ControllerButton.None)
+                TurnPage();
+        },
+        [IntroCinematicPhase.MotherBrainCrossfade] = () => StepMotherBrainCrossfade(),
+        [IntroCinematicPhase.MotherBrainFlashback] = () =>
+        {
+            if (CurrentFlashbackMotherBrain?.NextPageRequested == true)
+            {
+                // The crossfade recolours the room, so the fight lights' last colours stop showing.
+                ColourEffects = ColourEffectSystem.ForScreen();
+                StartPageCrossfade(IntroCrossfadeScene.Flashback);
+            }
+        },
+        [IntroCinematicPhase.PageCrossfade] = () =>
+        {
+            // The reverse crossfade undoes the one into the illustration exactly: the narration and the portrait fade in
+            // while the illustration, its projectiles and its sprites fade out, which keep running beneath it.
+            if (AdvanceCrossfade())
+            {
+                illustration = null;
+                Phase = IntroCinematicPhase.PageText;
+            }
+        },
+        [IntroCinematicPhase.BabyDiscoveryCrossfade] = () => StepBabyDiscoveryCrossfade(),
+        [IntroCinematicPhase.BabyDiscovery] = () =>
+        {
+            if (CurrentBabyDiscovery?.NextPageRequested == true)
+                StartPageCrossfade(IntroCrossfadeScene.Flashback);
+        },
+        [IntroCinematicPhase.BabyMetroidDeliveryCrossfade] = () => StepTextToScientistCrossfade(IntroCinematicPhase.BabyMetroidDelivery),
+        [IntroCinematicPhase.BabyMetroidDelivery] = () => StepForIntroCinematicPhaseBabyMetroidDelivery(),
+        [IntroCinematicPhase.BabyMetroidExamination] = () => StepForIntroCinematicPhaseBabyMetroidDelivery(),
+        [IntroCinematicPhase.BabyMetroidExaminationCrossfade] = () => StepTextToScientistCrossfade(IntroCinematicPhase.BabyMetroidExamination),
+        [IntroCinematicPhase.StartFinalPage] = () => StartFinalPage(),
+        [IntroCinematicPhase.IntroFadeOut] = () =>
+        {
+            // The intro's end fades out and finishes once the screen is black.
+            if (fade.Darken())
+            {
+                // The Ceres approach immediately replaces the narration display setup with the
+                // Ceres turning-floor scene. Give that scene its own display, colour, and
+                // brightness owner: the narration has just deliberately reached
+                // a blanked screen, while the approach restores full brightness only after
+                // the delayed music request has completed.
+                CurrentCeresFlight = new IntroCeresFlightState(audio,
+                    CharacterArtwork.CeresFlight,
+                    SceneSheets, subtitles.Language);
+                Phase = IntroCinematicPhase.CeresFlight;
+            }
+        },
+        [IntroCinematicPhase.CeresFlight] = () => CeresFlight.Step(),
+    });
+
+    /// <summary>What <see cref="StepForIntroCinematicPhase"/> does for <see cref="IntroCinematicPhase.BabyMetroidDelivery"/>, <see cref="IntroCinematicPhase.BabyMetroidExamination"/>.</summary>
+    private void StepForIntroCinematicPhaseBabyMetroidDelivery()
+    {
+        if (CurrentScientistCutscene?.NextPageRequested == true)
+            StartPageCrossfade(IntroCrossfadeScene.Laboratory);
+    }
+
     /// <summary>Advances the opening cinematic by one gameplay update.</summary>
     /// <param name="controllerInput">The current raw held controller buttons.</param>
     public void Step(ControllerButton controllerInput)
@@ -258,6 +454,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         bool explosionsExistedBeforeThisFrame = MotherBrainFlashback?.Explosions is not null;
         frameCounter++;
         crossfadeTick = null;
+<<<<<<< ours
         switch (step)
         {
             case IntroCinematicStep.Initial:
@@ -437,6 +634,183 @@ public sealed class IntroCinematicState : IFrontendScreen
             default:
                 throw new InvalidOperationException($"Undefined intro step {step}.");
         }
+||||||| base
+        switch (Phase)
+        {
+            case IntroCinematicPhase.Initial:
+                // Stop the music, then load the opening music data.
+                audio.QueueMusic(MusicRequest.Stop);
+                audio.QueueMusic(
+                    MusicRequest.LoadDataSet(MusicDataSet.LastMetroidInCaptivity));
+                Phase = IntroCinematicPhase.WaitForInitialMusicQueue;
+                break;
+
+            case IntroCinematicPhase.WaitForInitialMusicQueue:
+                // A request queued with the shortest delay waits out that delay before HasQueuedMusic clears.
+                if (MusicQueueFinished())
+                {
+                    Phase = IntroCinematicPhase.FadeInFirstNarration;
+                    fade.StepEvery(IntroCinematicDefinitions.Fade.NarrationUpdatesPerStep);
+                }
+                break;
+
+            case IntroCinematicPhase.FadeInFirstNarration:
+                if (fade.Brighten())
+                {
+                    Phase = IntroCinematicPhase.LastMetroidIsInCaptivity;
+                    timer = UpdateCountdown.For(IntroCinematicDefinitions.Timing.FirstLineHold);
+                }
+                break;
+
+            case IntroCinematicPhase.LastMetroidIsInCaptivity:
+                if (timer.Step())
+                {
+                    audio.QueueMusic(MusicRequest.SelectTrack(IntroCinematicDefinitions.Music.CaptivityLineSong));
+                    Phase = IntroCinematicPhase.GalaxyIsAtPeace;
+                    timer = UpdateCountdown.For(IntroCinematicDefinitions.Timing.CaptivityLineHold);
+                }
+                break;
+
+            case IntroCinematicPhase.GalaxyIsAtPeace:
+                if (timer.Step())
+                {
+                    // The next music requests wait on the music queue before the
+                    // documented four-second hold; they take the shortest delay.
+                    audio.QueueMusic(MusicRequest.Stop);
+                    audio.QueueMusic(
+                        MusicRequest.LoadDataSet(MusicDataSet.GalaxyAtPeace));
+                    audio.ScheduleMusic(
+                        MusicRequest.SelectTrack(IntroCinematicDefinitions.Music.PeaceLineSong),
+                        IntroCinematicDefinitions.Music.SceneTrackDelay);
+                    Phase = IntroCinematicPhase.WaitForSecondMusicQueue;
+                }
+                break;
+
+            case IntroCinematicPhase.WaitForSecondMusicQueue:
+                if (MusicQueueFinished())
+                {
+                    Phase = IntroCinematicPhase.HoldFirstNarration;
+                    timer = UpdateCountdown.For(IntroCinematicDefinitions.Timing.PeaceLineHold);
+                }
+                break;
+
+            case IntroCinematicPhase.HoldFirstNarration:
+                if (timer.Step())
+                {
+                    Phase = IntroCinematicPhase.FadeOutFirstNarration;
+                    fade.StepEvery(IntroCinematicDefinitions.Fade.NarrationUpdatesPerStep);
+                }
+                break;
+
+            case IntroCinematicPhase.FadeOutFirstNarration:
+                // The first page is set up on the update after the fade-out reaches black.
+                if (fade.Darken())
+                    Phase = IntroCinematicPhase.SetupFirstPage;
+                break;
+
+            case IntroCinematicPhase.SetupFirstPage:
+                SetupFirstIllustratedPage();
+                break;
+
+            case IntroCinematicPhase.WaitForFirstPageMusicQueue:
+                // The scene song scheduled its track delay ahead is the longest request issued by
+                // the first page's setup, so HasQueuedMusic becomes clear once that delay has passed.
+                if (MusicQueueFinished())
+                {
+                    Narration.StartPage(Page);
+                    Phase = IntroCinematicPhase.FadeInFirstPage;
+                    fade.StepEvery(IntroCinematicDefinitions.Fade.NarrationUpdatesPerStep);
+                }
+                break;
+
+            case IntroCinematicPhase.FadeInFirstPage:
+                if (fade.Brighten())
+                    Phase = IntroCinematicPhase.PageText;
+                break;
+
+            case IntroCinematicPhase.PageText:
+                break;
+
+            case IntroCinematicPhase.PageAwaitingInput:
+                if (!subtitles.HoldInputWait() && controller.NewlyPressed != ControllerButton.None)
+                    TurnPage();
+                break;
+
+            case IntroCinematicPhase.MotherBrainCrossfade:
+                StepMotherBrainCrossfade();
+                break;
+
+            case IntroCinematicPhase.MotherBrainFlashback:
+                if (CurrentFlashbackMotherBrain?.NextPageRequested == true)
+                {
+                    // The crossfade recolours the room, so the fight lights' last colours stop showing.
+                    ColourEffects = ColourEffectSystem.ForScreen();
+                    StartPageCrossfade(IntroCrossfadeScene.Flashback);
+                }
+                break;
+
+            case IntroCinematicPhase.PageCrossfade:
+                // The reverse crossfade undoes the one into the illustration exactly: the narration and the portrait fade in
+                // while the illustration, its projectiles and its sprites fade out, which keep running beneath it.
+                if (AdvanceCrossfade())
+                {
+                    illustration = null;
+                    Phase = IntroCinematicPhase.PageText;
+                }
+                break;
+
+            case IntroCinematicPhase.BabyDiscoveryCrossfade:
+                StepBabyDiscoveryCrossfade();
+                break;
+
+            case IntroCinematicPhase.BabyDiscovery:
+                if (CurrentBabyDiscovery?.NextPageRequested == true)
+                    StartPageCrossfade(IntroCrossfadeScene.Flashback);
+                break;
+
+            case IntroCinematicPhase.BabyMetroidDeliveryCrossfade:
+                StepTextToScientistCrossfade(IntroCinematicPhase.BabyMetroidDelivery);
+                break;
+
+            case IntroCinematicPhase.BabyMetroidDelivery:
+            case IntroCinematicPhase.BabyMetroidExamination:
+                if (CurrentScientistCutscene?.NextPageRequested == true)
+                    StartPageCrossfade(IntroCrossfadeScene.Laboratory);
+                break;
+
+            case IntroCinematicPhase.BabyMetroidExaminationCrossfade:
+                StepTextToScientistCrossfade(IntroCinematicPhase.BabyMetroidExamination);
+                break;
+
+            case IntroCinematicPhase.StartFinalPage:
+                StartFinalPage();
+                break;
+
+            case IntroCinematicPhase.IntroFadeOut:
+                // The intro's end fades out and finishes once the screen is black.
+                if (fade.Darken())
+                {
+                    // The Ceres approach immediately replaces the narration display setup with the
+                    // Ceres turning-floor scene. Give that scene its own display, colour, and
+                    // brightness owner: the narration has just deliberately reached
+                    // a blanked screen, while the approach restores full brightness only after
+                    // the delayed music request has completed.
+                    CurrentCeresFlight = new IntroCeresFlightState(audio,
+                        CharacterArtwork.CeresFlight,
+                        SceneSheets, subtitles.Language);
+                    Phase = IntroCinematicPhase.CeresFlight;
+                }
+                break;
+
+            case IntroCinematicPhase.CeresFlight:
+                CeresFlight.Step();
+                break;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(IntroCinematicPhase)} {Phase}.");
+        }
+=======
+        StepForIntroCinematicPhase[Phase]();
+>>>>>>> theirs
 
         if (CurrentNarration is not null)
         {
@@ -504,15 +878,59 @@ public sealed class IntroCinematicState : IFrontendScreen
             flashbackSamusDisplay = IntroSamusDisplay.Hidden;
         if (motherBrain.TakeMissileHit(flashbackProjectiles.EnemyImpacts, flashbackBombProjectiles))
         {
+<<<<<<< ours
             var explosions = new IntroMotherBrainExplosionSystem();
             flashback.Explosions = explosions;
             explosions.SpawnFourthHitExplosions();
+||||||| base
+            CurrentFlashbackMotherBrain.RunBehavior(
+                frameCounter,
+                CrossfadeFinishing);
+            // Deleting Mother Brain after the page-two crossfade hides Samus from
+            // the next update on.
+            if (!CurrentFlashbackMotherBrain.IsVisible)
+                flashbackSamusDisplay = IntroSamusDisplay.Hidden;
+            if (CurrentFlashbackMotherBrain.TakeMissileHit(flashbackProjectiles.EnemyImpacts, flashbackBombProjectiles))
+            {
+                FlashbackMotherBrainExplosions = new IntroMotherBrainExplosionSystem();
+                FlashbackMotherBrainExplosions.SpawnFourthHitExplosions();
+            }
+=======
+            CurrentFlashbackMotherBrain.RunBehavior(
+                frameCounter,
+                CrossfadeFinishing);
+            // Deleting Mother Brain after the page-two crossfade hides Samus from
+            // the next update on.
+            if (!CurrentFlashbackMotherBrain.IsVisible)
+                flashbackSamusDisplay = IntroSamusDisplay.Hidden;
+            if (CurrentFlashbackMotherBrain.TakeMissileHit(flashbackProjectiles.EnemyImpacts, flashbackBombProjectiles))
+            {
+                FlashbackMotherBrainExplosions = IntroMotherBrainExplosionSystem.SpawnFourthHitExplosions();
+            }
+>>>>>>> theirs
         }
 
+<<<<<<< ours
         flashback.Rinkas.Step(
             flashback.Samus,
             motherBrainExploding: motherBrain.ExplosionStarted,
             explosionsAllocated: flashback.Explosions is not null);
+||||||| base
+        if (FlashbackRinkas is not null && CurrentFlashbackSamus is not null)
+        {
+            FlashbackRinkas.Step(
+                CurrentFlashbackSamus,
+                motherBrainExploding: CurrentFlashbackMotherBrain?.ExplosionStarted == true,
+                explosionsAllocated: FlashbackMotherBrainExplosions is not null);
+        }
+=======
+        if (FlashbackRinkas is not null && CurrentFlashbackSamus is not null)
+        {
+            FlashbackRinkas.Step(
+                CurrentFlashbackSamus,
+                motherBrainExploding: CurrentFlashbackMotherBrain?.ExplosionStarted == true);
+        }
+>>>>>>> theirs
 
         // Mother Brain's sprite steps last, so one spawned on this update shows its first frame on the
         // same update as the first page's input transition.
@@ -541,7 +959,16 @@ public sealed class IntroCinematicState : IFrontendScreen
         var samus = new SamusState(flashbackAudioRequests, samusOverreads.FramesBeyondAnimation, UnauthoredBoostCadence,
             SamusCompatibility.ForNewSamus(), flashbackProjectiles.Charge, flashbackSamusArtwork)
         {
+<<<<<<< ours
             Pose = SamusPoseId.FacingLeftNormalPose,
+||||||| base
+            Pose = SamusPoseId.FacingLeftNormalPose,
+            // No room loads for the flashback; her footsteps and landings go by its own ground.
+            Ground = IntroCinematicDefinitions.Flashback.Ground,
+=======
+            // No room loads for the flashback; her footsteps and landings go by its own ground.
+            Ground = IntroCinematicDefinitions.Flashback.Ground,
+>>>>>>> theirs
             Position = FixedPosition<RoomPixels>.FromWhole(IntroCinematicDefinitions.Flashback.SamusPosition),
             SelectedHudItem = HudItem.Missile,
             Missiles = IntroCinematicDefinitions.Flashback.Missiles,
@@ -549,23 +976,61 @@ public sealed class IntroCinematicState : IFrontendScreen
         };
         // Samus's shared frame phases read the active cinematic phase to select
         // intro colour restoration and suppress gameplay-only sounds.
+<<<<<<< ours
         samus.Presentation.PresentInCinematic();
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         samus.CommitPoseHistory();
         var motherBrain = new IntroMotherBrainSpriteState();
         var rinkas = new IntroRinkaSystem();
+||||||| base
+        CurrentFlashbackSamus.Presentation.PresentInCinematic();
+        SamusPoseMetadata.RefreshCollisionRadii(CurrentFlashbackSamus);
+        SamusPresentation.InitializeAnimation(CurrentFlashbackSamus);
+        CurrentFlashbackSamus.CommitPoseHistory();
+        CurrentFlashbackMotherBrain = new IntroMotherBrainSpriteState();
+        FlashbackMotherBrainExplosions = null;
+        FlashbackRinkas = new IntroRinkaSystem();
+=======
+        CurrentFlashbackSamus.Presentation.PresentInCinematic();
+        CurrentFlashbackSamus.ChangePose(SamusPoseId.FacingLeftNormalPose);
+        SamusPoseMetadata.RefreshCollisionRadii(CurrentFlashbackSamus);
+        CurrentFlashbackSamus.CommitPoseHistory();
+        CurrentFlashbackMotherBrain = new IntroMotherBrainSpriteState();
+        FlashbackMotherBrainExplosions = null;
+        FlashbackRinkas = new IntroRinkaSystem();
+>>>>>>> theirs
 
         // The flashback's collision room is built from its own terrain blocks, so the
         // visual room page never stands in for the collision contract.
+<<<<<<< ours
         RoomLevelData level = CreateMotherBrainLevel();
         var progression = new SharedGameState(Random);
+||||||| base
+        CurrentFlashbackLevel = CreateMotherBrainLevel();
+        CurrentFlashbackProgression = new SharedGameState(Random);
+=======
+        CurrentFlashbackTerrain = CreateMotherBrainTerrain();
+        CurrentFlashbackProgression = new SharedGameState(Random);
+>>>>>>> theirs
         flashbackProjectiles.Reset();
+<<<<<<< ours
         var demoInput = new DemoInputState();
         demoInput.Clear();
         demoInput.Enable();
         demoInput.Load(DemoInputRecordingId.IntroMotherBrainFlashback);
         MotherBrainFlashback = new IntroMotherBrainFlashback(samus, motherBrain, rinkas, level, progression, demoInput);
+||||||| base
+        CurrentFlashbackDemoInput = new DemoInputState();
+        CurrentFlashbackDemoInput.Clear();
+        CurrentFlashbackDemoInput.Enable();
+        CurrentFlashbackDemoInput.Load(DemoInputRecordingId.IntroMotherBrainFlashback);
+=======
+        CurrentFlashbackDemoInput = new DemoInputState();
+        CurrentFlashbackDemoInput.Clear();
+        CurrentFlashbackDemoInput.Enable();
+        CurrentFlashbackDemoInput.Load(DemoSignallingRecordingId.IntroMotherBrainFlashback, HandleMotherBrainDemoCue);
+>>>>>>> theirs
         // Samus is processed, and drawn ahead of the cinematic actors.
         flashbackSamusDisplay = IntroSamusDisplay.InFrontOfActors;
 
@@ -608,6 +1073,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <param name="narration">The narration actors the pages run with.</param>
     private void TurnPage(IntroNarrationActors narration)
     {
+<<<<<<< ours
         IntroIllustration? next = IntroNarrationPageDefinitions.Pages[Page].TurnsTo;
         switch (next)
         {
@@ -631,7 +1097,46 @@ public sealed class IntroCinematicState : IFrontendScreen
             default:
                 throw new InvalidOperationException($"Undefined {nameof(IntroIllustration)} {next}.");
         }
+||||||| base
+        IntroIllustration? next = IntroNarrationPageDefinitions.Pages[Page].TurnsTo;
+        switch (next)
+        {
+            case IntroIllustration.MotherBrainFlashback:
+                SetupMotherBrainFlashback();
+                return;
+            case IntroIllustration.BabyDiscovery:
+                SetupBabyDiscoveryCrossfade();
+                return;
+            case IntroIllustration.BabyDelivery:
+                SetupBabyMetroidDelivery();
+                return;
+            case IntroIllustration.BabyExamination:
+                SetupBabyMetroidExamination();
+                return;
+            case null:
+                SetupFinalPage();
+                return;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(IntroIllustration)} {next}.");
+        }
+=======
+        // The last narration page turns to no illustration but the final page.
+        if (IntroNarrationPageDefinitions.Pages[Page].TurnsTo is { } next)
+            IllustrationSetups[next](this);
+        else
+            SetupFinalPage();
+>>>>>>> theirs
     }
+
+    /// <summary>How the intro sets up each illustration a narration page turns to (#2553).</summary>
+    private static IdentityTable<IntroIllustration, Action<IntroCinematicState>> IllustrationSetups => field ??= new(
+        new Dictionary<IntroIllustration, Action<IntroCinematicState>>
+        {
+            [IntroIllustration.MotherBrainFlashback] = static intro => intro.SetupMotherBrainFlashback(),
+            [IntroIllustration.BabyDiscovery] = static intro => intro.SetupBabyDiscoveryCrossfade(),
+            [IntroIllustration.BabyDelivery] = static intro => intro.SetupBabyMetroidDelivery(),
+            [IntroIllustration.BabyExamination] = static intro => intro.SetupBabyMetroidExamination(),
+        });
 
     /// <summary>
     /// Starts the page <paramref name="shown"/>, the illustration showing, leads into (#2489): its narration spawns and
@@ -668,7 +1173,25 @@ public sealed class IntroCinematicState : IFrontendScreen
         // The old gameplay actors have reached their delete animations. Releasing the scoped
         // references prevents their projectile and collision steps from running behind the
         // new scene while preserving the shared artwork and colours they intentionally reuse.
+<<<<<<< ours
         MotherBrainFlashback = null;
+||||||| base
+        CurrentFlashbackSamus = null;
+        CurrentFlashbackMotherBrain = null;
+        FlashbackMotherBrainExplosions = null;
+        FlashbackRinkas = null;
+        CurrentFlashbackDemoInput = null;
+        CurrentFlashbackLevel = null;
+        CurrentFlashbackProgression = null;
+=======
+        CurrentFlashbackSamus = null;
+        CurrentFlashbackMotherBrain = null;
+        FlashbackMotherBrainExplosions = null;
+        FlashbackRinkas = null;
+        CurrentFlashbackDemoInput = null;
+        CurrentFlashbackTerrain = null;
+        CurrentFlashbackProgression = null;
+>>>>>>> theirs
         flashbackProjectiles.Reset();
 
         crossfade = new IntroCrossfade(IntroCrossfadeScene.Narration, IntroCrossfadeScene.Flashback);
@@ -783,16 +1306,34 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <param name="flashback">The running flashback.</param>
     private void StepMotherBrainDemo(IntroMotherBrainFlashback flashback)
     {
+<<<<<<< ours
         DemoInputState demoInput = flashback.DemoInput;
         SamusState samus = flashback.Samus;
         demoInput.Step(cue => HandleMotherBrainDemoCue(flashback, cue));
+||||||| base
+        FlashbackDemoInput.Step(HandleMotherBrainDemoCue);
+=======
+        FlashbackDemoInput.Step();
+>>>>>>> theirs
 
         // The HUD and projectile step counts down the shared firing cooldown before
         // Samus's shots update. Standing facing left she cannot place bombs, but the cooldown
         // still decides when a missile may fire.
+<<<<<<< ours
         flashbackBombProjectiles.StepFrame(new SamusTerrain { Level = flashback.Level, RoomObjects = IntroCollisionRoomObjects.Instance }, samus, demoInput.Held, demoInput.NewlyPressed);
+||||||| base
+        flashbackBombProjectiles.StepFrame(new SamusTerrain { Level = FlashbackLevel, RoomObjects = IntroCollisionRoomObjects.Instance }, FlashbackSamus, FlashbackDemoInput.Held, FlashbackDemoInput.NewlyPressed);
+=======
+        flashbackBombProjectiles.StepFrame(FlashbackTerrain, FlashbackSamus, FlashbackDemoInput.Held, FlashbackDemoInput.NewlyPressed);
+>>>>>>> theirs
         // A missile's firing sound joins the frontend's queues as the shot fires.
+<<<<<<< ours
         flashbackProjectiles.StepFrame(new SamusTerrain { Level = flashback.Level, RoomObjects = IntroCollisionRoomObjects.Instance }, samus, new ProjectileButtonInput { ControllerInput = demoInput.Held, ControllerNewInput = demoInput.NewlyPressed, ControllerPreviousNewInput = demoInput.PublishedPreviousNewlyPressed }, cameraPosition: Position16<RoomPixels>.Zero, samusBombs: flashbackBombProjectiles, progression: flashback.Progression);
+||||||| base
+        flashbackProjectiles.StepFrame(new SamusTerrain { Level = FlashbackLevel, RoomObjects = IntroCollisionRoomObjects.Instance }, FlashbackSamus, new ProjectileButtonInput { ControllerInput = FlashbackDemoInput.Held, ControllerNewInput = FlashbackDemoInput.NewlyPressed, ControllerPreviousNewInput = FlashbackDemoInput.PublishedPreviousNewlyPressed }, cameraPosition: Position16<RoomPixels>.Zero, samusBombs: flashbackBombProjectiles, progression: FlashbackProgression);
+=======
+        flashbackProjectiles.StepFrame(FlashbackTerrain, FlashbackSamus, new ProjectileButtonInput { ControllerInput = FlashbackDemoInput.Held, ControllerNewInput = FlashbackDemoInput.NewlyPressed, ControllerPreviousNewInput = FlashbackDemoInput.PublishedPreviousNewlyPressed }, cameraPosition: Position16<RoomPixels>.Zero, samusBombs: flashbackBombProjectiles, progression: FlashbackProgression);
+>>>>>>> theirs
 
         // Both the demo and locked movement modes end by resetting the
         // movement and pose-change state, so a later missile inherits only the
@@ -807,10 +1348,20 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// </summary>
     private void StepMotherBrainFlashbackSamus(IntroMotherBrainFlashback flashback)
     {
+<<<<<<< ours
         SamusState samus = flashback.Samus;
         RoomLevelData level = flashback.Level;
         DemoInputState flashbackInput = flashback.DemoInput;
         GameplayAction demoInput = flashbackInput.Held;
+||||||| base
+        SamusState samus = FlashbackSamus;
+        RoomLevelData level = FlashbackLevel;
+        GameplayAction demoInput = CurrentFlashbackDemoInput?.Held ?? GameplayAction.None;
+=======
+        SamusState samus = FlashbackSamus;
+        PlainTerrain terrain = FlashbackTerrain;
+        GameplayAction demoInput = CurrentFlashbackDemoInput?.Held ?? GameplayAction.None;
+>>>>>>> theirs
 
         // Each frame shows the definitions selected by the previous Samus draw. This
         // is what makes pose/frame changes use their corresponding artwork rather than
@@ -820,48 +1371,63 @@ public sealed class IntroCinematicState : IFrontendScreen
         BlockMoveResult? hurtEndingProbe = null;
         bool transitionAccepted = false;
         bool groundedDemoStepped = false;
-        if (samus.KnockbackActive)
+        if (samus.Knockback is SamusKnockback.Moving knockback)
         {
             // The intro demo's movement phase runs the knockback movement that owns Samus. Its shared
             // vertical calculation now carries the Rinka knockback's arc through its apex.
-            SamusKnockbackMovement.Step(level, samus, frameCounter, IntroCollisionRoomObjects.Instance);
+            SamusKnockbackMovement.Step(terrain, samus, knockback, frameCounter);
         }
         else if (SamusPoseMetadata.IsKnockbackPose(samus.Pose))
         {
-            hurtEndingProbe = SamusGroundedMovement.StepKnockbackEnding(
-                level, samus, frameCounter, IntroCollisionRoomObjects.Instance);
+            hurtEndingProbe = SamusGroundedMovement.RunNoSpeedCalculationGroundingProbe(
+                terrain, samus, frameCounter);
         }
         else if (flashbackInput.Enabled &&
             (SamusPoseMetadata.IsLeftFacingStandingPose(samus.Pose) || SamusPoseMetadata.IsLeftFacingRunningPose(samus.Pose)))
         {
             // The demo's later run/jump records use the same input/movement order as the
             // discovery scene. This coordinator already animates and commits its pose.
+<<<<<<< ours
             IntroSamusDemoMovement.StepGroundedLeft(level, samus, demoInput,
                 flashbackInput.NewlyPressed, frameCounter, Random);
+||||||| base
+            IntroSamusDemoMovement.StepGroundedLeft(level, samus, demoInput,
+                CurrentFlashbackDemoInput.NewlyPressed, frameCounter, Random);
+=======
+            IntroSamusDemoMovement.StepGroundedLeft(terrain, samus, demoInput,
+                CurrentFlashbackDemoInput.NewlyPressed, frameCounter, Random);
+>>>>>>> theirs
             groundedDemoStepped = true;
         }
         else if (samus.Pose == SamusPoseId.SpinJumpLeftPose)
         {
+<<<<<<< ours
             fallingMovement = SamusAerialMovement.StepSpinJump(level, samus,
                 demoInput, frameCounter, flashbackInput.NewlyPressed, IntroCollisionRoomObjects.Instance);
+||||||| base
+            fallingMovement = SamusAerialMovement.StepSpinJump(level, samus,
+                demoInput, frameCounter, CurrentFlashbackDemoInput?.NewlyPressed ?? GameplayAction.None, IntroCollisionRoomObjects.Instance);
+=======
+            fallingMovement = SamusAerialMovement.StepSpinJump(SamusMovement.SpinJumping, terrain, samus,
+                demoInput, frameCounter, CurrentFlashbackDemoInput?.NewlyPressed ?? GameplayAction.None);
+>>>>>>> theirs
         }
         else if (SamusPoseMetadata.IsLeftFacingNormalJumpPose(samus.Pose))
         {
-            fallingMovement = SamusAerialMovement.StepNormalJump(level, samus,
-                demoInput, frameCounter, IntroCollisionRoomObjects.Instance);
+            fallingMovement = SamusAerialMovement.StepNormalJump(SamusMovement.NormalJumping, terrain, samus,
+                demoInput, frameCounter);
         }
         else if (SamusPoseTraits.IsIn(samus.Pose, SamusPoseFamily.PlainFallingOnly))
         {
             // When knockback ends humanoid knockback it selects the right or left falling pose and restores
             // normal movement. The following frames therefore run Samus's ordinary fall until the room's
             // collision reports the laboratory floor.
-            fallingMovement = SamusAerialMovement.StepFalling(
+            fallingMovement = SamusAerialMovement.StepFalling(SamusMovement.Falling,
 
-                level,
+                terrain,
                 samus,
                 demoInput,
-                frameCounter,
-                IntroCollisionRoomObjects.Instance);
+                frameCounter);
         }
 
         // Intro-demo state is not an animation shortcut. The intro demo's movement phase advances the same
@@ -879,23 +1445,24 @@ public sealed class IntroCinematicState : IFrontendScreen
 
         if (!animationTransitionApplied && hurtEndingProbe is { IsUnobstructedDownwardMovement: true })
         {
-            SamusPoseTransitions.ApplyWalkedOffFloorTransition(samus, level, SamusPoseTransitions.SelectFallingPoseForCurrentAim(samus), frameCounter, IntroCollisionRoomObjects.Instance);
+            SamusPoseTransitions.ApplyWalkedOffFloorTransition(samus, terrain, frameCounter);
             animationTransitionApplied = transitionAccepted = true;
         }
 
         // Samus's ordinary update resolves a downward collision only after animation.
         // Apply the shared landing transition here so pose, radii, feet alignment, and the
         // next animation all come from the same landing implementation as gameplay.
-        if (!animationTransitionApplied && fallingMovement is { Landed: true })
+        if (!animationTransitionApplied && fallingMovement is { Landed: true } && SamusPoseMetadata.ReadAim(samus) is SamusPoseAim.ISteady sourceAim)
         {
-            SamusPoseTransitions.ApplyAerialLanding(samus, wasSpinning: samus.Pose == SamusPoseId.SpinJumpLeftPose, demoInput);
+            SamusPoseTransitions.ApplyAerialLanding(samus, sourceAim, wasSpinning: samus.Pose == SamusPoseId.SpinJumpLeftPose, demoInput);
             transitionAccepted = true;
         }
 
         // The intro demo's movement phase consumes the knockback timer the first Rinka's hit published on the
         // preceding cinematic-sprite pass. Keeping this after animation matches Samus's update during the intro demo:
         // the hit frame finishes its standing animation before the knockback start installs the knockback pose.
-        if (samus.KnockbackPending)
+        if (samus.Knockback is SamusKnockback.NoKnockback &&
+            samus.KnockbackHold.IsRunning)
         {
             SamusKnockbackMovement.Start(samus, demoInput, KnockbackLaunch.FromHurtState(samus), poseCollision: null);
             transitionAccepted = true;
@@ -918,24 +1485,45 @@ public sealed class IntroCinematicState : IFrontendScreen
     }
 
     /// <summary>Runs the Mother Brain demo's end step, freezing input after its prescribed Samus pose change.</summary>
+<<<<<<< ours
     private static void HandleMotherBrainDemoCue(IntroMotherBrainFlashback flashback, DemoInputCue cue)
+||||||| base
+    private void HandleMotherBrainDemoCue(DemoInputCue cue)
+=======
+    /// <remarks>The flashback's recording runs it as its signal (<see cref="DemoInputCue.EndIntroMotherBrainFlashback"/>).</remarks>
+    private void HandleMotherBrainDemoCue()
+>>>>>>> theirs
     {
-        if (cue != DemoInputCue.EndIntroMotherBrainFlashback)
-            throw new InvalidOperationException($"The Mother Brain flashback demo handles no {cue} cue.");
-
         // The flashback's end stops the demo on this update, with Samus standing facing left and her pose and its
         // animation started afresh; she shows standing through the rest of Mother Brain's explosions.
+<<<<<<< ours
         SamusState samus = flashback.Samus;
         samus.Pose = SamusPoseId.FacingLeftNormalPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
+||||||| base
+        FlashbackSamus.Pose = SamusPoseId.FacingLeftNormalPose;
+        SamusPoseMetadata.RefreshCollisionRadii(FlashbackSamus);
+=======
+>>>>>>> theirs
         // A Samus already standing facing left keeps her running animation.
+<<<<<<< ours
         SamusPresentation.SetAnimationFrameIfPoseChanged(samus);
         samus.CommitPoseHistory();
         flashback.DemoInput.Disable();
+||||||| base
+        SamusPresentation.SetAnimationFrameIfPoseChanged(FlashbackSamus);
+        FlashbackSamus.CommitPoseHistory();
+        FlashbackDemoInput.Disable();
+=======
+        FlashbackSamus.ChangePoseRestartingIfChanged(SamusPoseId.FacingLeftNormalPose);
+        SamusPoseMetadata.RefreshCollisionRadii(FlashbackSamus);
+        FlashbackSamus.CommitPoseHistory();
+        FlashbackDemoInput.Disable();
+>>>>>>> theirs
     }
 
-    /// <summary>Builds the flashback's room: collision only, which the flashback's own pictures show.</summary>
-    private static RoomLevelData CreateMotherBrainLevel() => RoomLevelData.CollisionOnly(
+    /// <summary>Builds the flashback's room: a plain terrain, which the flashback's own pictures show.</summary>
+    private static PlainTerrain CreateMotherBrainTerrain() => new(
         new Extent16<RoomBlocks>(IntroMotherBrainCollisionDefinitions.Columns, IntroMotherBrainCollisionDefinitions.RoomRows),
         IntroMotherBrainCollision.CreateCollision());
 

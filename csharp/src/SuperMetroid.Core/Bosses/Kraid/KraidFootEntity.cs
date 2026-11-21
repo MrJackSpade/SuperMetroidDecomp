@@ -23,8 +23,12 @@ internal sealed class KraidFootEntity(KraidBehavior species, RoomEnemyOccupant o
     /// <summary>The foot's shot reaction.</summary>
     protected override EnemyShotReaction LimbShotReaction => KraidCombat.FootShotReaction;
 
-    /// <summary>The foot's bomb reaction.</summary>
-    protected override void ReactToLimbBomb(EnemyBombContext context) => KraidCombat.ReactToFootBomb(context);
+    /// <summary>
+    /// Takes every bomb that overlaps the foot, before the ignoring check, with no reaction of its own: every foot
+    /// rectangle ignores it (<see cref="KraidFootCollisionDefinitions.SharedHitboxes"/>, #2301).
+    /// </summary>
+    /// <param name="context">The bomb contact.</param>
+    public override bool TryReactToBomb(EnemyBombContext context) => true;
 
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) => Species.Limbs.RunKraidFootMain(Place, Encounter.FootState, frame.Camera.Y);

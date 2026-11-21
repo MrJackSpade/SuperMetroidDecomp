@@ -35,8 +35,7 @@ internal static class MetroidBombPlacementVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(FixtureEnemyTileArtwork()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(random.NextRandom) { SeedRandom = random.SetRandomNumber });
         enemies.Load(RoomEnemyFrameFixtures.StandaloneLoad(room.State.EnemyPopulation, BgArtworkFixtures.For(new SnesVram()), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), RoomEnemyFrameFixtures.StandaloneSamus()));
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Health = 999, MaxHealth = 999, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
-            Pose = SamusPoseId.MorphBallGroundRightPose,
-            EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs) };
+            EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs) }.InPose(SamusPoseId.MorphBallGroundRightPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         var target = enemies.Places.InUpdateOrder[0];
@@ -51,7 +50,7 @@ internal static class MetroidBombPlacementVerification
         for (int frame = 0; frame < 120; frame++)
         {
             GameplayAction input = frame == 0 ? GameplayAction.Shoot : 0;
-            bombs.StepFrame(new SamusTerrain { Level = assets.LevelData, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, input, input);
+            bombs.StepFrame(SamusTerrain.InRoom(assets.LevelData, SamusRoomObjectFixtures.Uninstalled), samus, input, input);
             if (firstExplosion < 0 && bombs.Bombs.Any(b => b.IsOccupied && b.HasBurnedOut)) firstExplosion = frame;
             enemies.StepStandaloneFrame(enemies.StandaloneFrame(assets.LevelData) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
             enemies.ResolveBombsOnInteractiveEnemies(bombs, shots, samus);

@@ -50,12 +50,14 @@ public sealed class PhantoonTimerSchedule
         ? WeightedRandomChoice<int>.InTurn(field, [.. Picks.Select(DurationOf)])
         : throw new ArgumentException($"A Phantoon timer's draw reads {PickCount} values, not {field.Outcomes}.", nameof(field));
 
-    /// <summary>The duration, in updates, a pick of <paramref name="length"/> takes.</summary>
-    private int DurationOf(PhantoonTimerLength length) => length switch
+    /// <summary>The duration of each length.</summary>
+    private IdentityTable<PhantoonTimerLength, int> DurationByLength => field ??= new(new Dictionary<PhantoonTimerLength, int>
     {
-        PhantoonTimerLength.Short => Durations.Short,
-        PhantoonTimerLength.Medium => Durations.Medium,
-        PhantoonTimerLength.Long => Durations.Long,
-        _ => throw new InvalidOperationException($"Undefined {nameof(PhantoonTimerLength)} {length}."),
-    };
+        [PhantoonTimerLength.Short] = Durations.Short,
+        [PhantoonTimerLength.Medium] = Durations.Medium,
+        [PhantoonTimerLength.Long] = Durations.Long,
+    });
+
+    /// <summary>The duration, in updates, a pick of <paramref name="length"/> takes.</summary>
+    private int DurationOf(PhantoonTimerLength length) => DurationByLength[length];
 }

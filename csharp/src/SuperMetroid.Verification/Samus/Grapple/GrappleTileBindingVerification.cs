@@ -28,8 +28,16 @@ internal static class GrappleTileBindingVerification
         var runtime = CreateRetailRuntimeFixture(random: random, audio: game.AudioForVerification);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame); runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
+<<<<<<< ours
         var samus = runtime.Player.Samus;
         samus.Pose = SamusPoseId.FacingRightNormalPose; samus.Position = samus.Position.WithWhole(new((ushort)(runtime.Room.LoadedCamera.PixelPosition.X + 100), (ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 100)));
+||||||| base
+        var samus = runtime.Player.IntroducedSamus;
+        samus.Pose = SamusPoseId.FacingRightNormalPose; samus.Position = samus.Position.WithWhole(new((ushort)(runtime.Room.LoadedCamera.PixelPosition.X + 100), (ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 100)));
+=======
+        var samus = runtime.Player.IntroducedSamus;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose); samus.Position = samus.Position.WithWhole(new((ushort)(runtime.Room.LoadedCamera.PixelPosition.X + 100), (ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 100)));
+>>>>>>> theirs
         SamusPresentation.InitializeAnimation(samus);
         samus.Grapple.Phase = GrapplePhase.ConnectedLocked;
         samus.Grapple.PointAnimationFrame = 1; samus.Grapple.PointAnimationTimer = WrappingCountdown.Start(4);

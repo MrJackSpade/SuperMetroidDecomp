@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Fx;
 public static class SpecialAirReactions
 {
     /// <summary>What each special-air reaction does to Samus inside the block and when her movement reaches it.</summary>
-    private static readonly Dictionary<SpecialAirReaction, SpecialAirReactionEffects> Reactions = new()
+    private static readonly IdentityTable<SpecialAirReaction, SpecialAirReactionEffects> Reactions = new(new Dictionary<SpecialAirReaction, SpecialAirReactionEffects>
     {
         [SpecialAirReaction.FloorPlant] = new(SpecialAirInsideReaction.BrinstarFloorPlant, SpecialAirCollisionReaction.PassesThrough),
         [SpecialAirReaction.CeilingPlant] = new(SpecialAirInsideReaction.BrinstarCeilingPlant, SpecialAirCollisionReaction.PassesThrough),
@@ -32,7 +32,7 @@ public static class SpecialAirReactions
         [SpecialAirReaction.PermanentSpeedBlock] = new(SpecialAirInsideReaction.Nothing, SpecialAirCollisionReaction.PermanentSpeedBlock),
         [SpecialAirReaction.WreckedShipChozoHand] = new(SpecialAirInsideReaction.Nothing, SpecialAirCollisionReaction.WreckedShipChozoHand),
         [SpecialAirReaction.LowerNorfairChozoHand] = new(SpecialAirInsideReaction.Nothing, SpecialAirCollisionReaction.LowerNorfairChozoHand),
-    };
+    });
 
     /// <summary>What the special-air block with reaction <paramref name="reaction"/> does to Samus inside it.</summary>
     /// <param name="reaction">The block's reaction.</param>
@@ -44,8 +44,40 @@ public static class SpecialAirReactions
 
     /// <summary>What the block's reaction does.</summary>
     /// <exception cref="InvalidOperationException">The reaction is undefined.</exception>
+<<<<<<< ours
     private static SpecialAirReactionEffects Of(SpecialAirReaction reaction) =>
         Reactions.TryGetValue(reaction, out var does)
             ? does
             : throw new InvalidOperationException($"Undefined {nameof(SpecialAirReaction)} {reaction}.");
+||||||| base
+    private static SpecialAirReactionEffects Of(SpecialAirReaction? reaction, string context)
+    {
+        SpecialAirReaction validated = Validate(reaction, context);
+        return Reactions.TryGetValue(validated, out var does)
+            ? does
+            : throw new InvalidOperationException($"Undefined {nameof(SpecialAirReaction)} {validated}.");
+    }
+
+    /// <summary>Requires the block to have a reaction.</summary>
+    /// <returns>The block's reaction.</returns>
+    private static SpecialAirReaction Validate(SpecialAirReaction? reaction, string context) =>
+        reaction ?? throw new ArgumentOutOfRangeException(
+            nameof(reaction),
+            reaction,
+            $"A special-air block's {context} reaction needs a reaction the block has.");
+=======
+    private static SpecialAirReactionEffects Of(SpecialAirReaction? reaction, string context)
+    {
+        SpecialAirReaction validated = Validate(reaction, context);
+        return Reactions[validated];
+    }
+
+    /// <summary>Requires the block to have a reaction.</summary>
+    /// <returns>The block's reaction.</returns>
+    private static SpecialAirReaction Validate(SpecialAirReaction? reaction, string context) =>
+        reaction ?? throw new ArgumentOutOfRangeException(
+            nameof(reaction),
+            reaction,
+            $"A special-air block's {context} reaction needs a reaction the block has.");
+>>>>>>> theirs
 }

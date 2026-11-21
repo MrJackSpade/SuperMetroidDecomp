@@ -65,7 +65,7 @@ internal static class SpacetimeBeamVerification
 
         Suite(nameof(VerifySpacetimeBeamGraphics), () => VerifySpacetimeBeamGraphics());
 
-        samus.Pose = SamusPoseId.FacingRightNormalPose;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
         samus.Position = samus.Position.WithWhole(new(128, 128));
         samus.SelectedHudItem = HudItem.Beam;
         samus.Missiles = 20;
@@ -83,14 +83,14 @@ internal static class SpacetimeBeamVerification
         var shared = CreateBombFixture();
         var projectiles = CreateProjectileFixture();
         SamusProjectileSlotObservation slotsBeforeHeld = projectiles.ObserveSlots();
-        projectiles.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), shared, system);
+        projectiles.StepFrame(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), shared, system);
         AssertEqual(0, slotsBeforeHeld.FiredSlot(projectiles),
             "SpaceTime initial shot allocation");
         AssertEqual(0x9137, projectiles.Shots[0].InstructionPointer,
             "native frame-zero next animation record");
 
         SamusProjectileSlotObservation slotsBeforeRelease = projectiles.ObserveSlots();
-        projectiles.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), shared, system);
+        projectiles.StepFrame(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), shared, system);
         AssertEqual(1, slotsBeforeRelease.FiredSlot(projectiles),
             "Charge release allocates the second uncharged SpaceTime shot");
         // The overwrite writes word $0880, which the dispatcher does not name, so it resumes the main game (#1523).

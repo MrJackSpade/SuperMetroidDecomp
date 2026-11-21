@@ -63,34 +63,32 @@ internal static class DraygonIntroDanceDefinitionsVerification
     }
 
     /// <summary>
-    /// Compares every step of the traced path with the cartridge's, its closing delete included, and rejects steps outside
-    /// it (#2464): the path ends at the cartridge's first delete record, which every Evir takes before the dance ends.
+    /// Compares every move of the traced path with the cartridge's and its end with the cartridge's delete record (#2464):
+    /// the path's moves are the records before the cartridge's first delete, which every Evir takes before the dance ends.
     /// </summary>
     internal static void VerifyDraygonIntroMovementDefinitions(CartridgeImportAddressSpace rom)
     {
-        // The original's path holds each move, then the record that deletes the Evir; the traced path holds the moves, and
-        // the update after the last ends the Evir's dance.
-        for (int step = 0; step <= DraygonIntroDanceDefinitions.TracedPath.Length; step++)
+        for (int step = 0; step < DraygonIntroDanceDefinitions.TracedPath.Length; step++)
         {
             NativeIntroRecord native = ReadRecord(rom, step);
-            bool expectedDelete = native.X == DraygonIntroDanceDefinitionsConstants.NativeDeleteByte &&
-                native.Y == DraygonIntroDanceDefinitionsConstants.NativeDeleteByte;
-            AssertEqual(expectedDelete, DraygonIntroDance.HasDanced(step), $"Draygon intro step {step} delete");
-            if (expectedDelete)
-                continue;
-            Offset16<RoomPixels> actual = DraygonIntroDance.Move(step);
+            Offset16<RoomPixels> actual = DraygonIntroDanceDefinitions.TracedPath[step];
+            AssertEqual(false, IsDelete(native), $"Draygon intro step {step} moves");
             AssertEqual(unchecked((sbyte)native.X), actual.X, $"Draygon intro step {step} X delta");
             AssertEqual(unchecked((sbyte)native.Y), actual.Y, $"Draygon intro step {step} Y delta");
         }
+        AssertEqual(true, IsDelete(ReadRecord(rom, DraygonIntroDanceDefinitions.TracedPath.Length)),
+            "Draygon intro path ends at the cartridge's delete record");
 
-        // The Evir that waits longest still takes the path's last step, its delete, before the dance ends.
+        // The Evir that waits longest still takes the step after the path's last move, its delete, before the dance ends.
         int longestDelay = LongestEvirStartDelay();
         AssertEqual(true, DraygonIntroDanceDefinitions.DurationFrames - 1 - longestDelay >= DraygonIntroDanceDefinitions.TracedPath.Length,
-            "Every Draygon intro Evir reaches the end of its dance");
-        foreach (int step in new[] { -1, DraygonIntroDanceDefinitions.TracedPath.Length, int.MaxValue })
-            AssertThrows<InvalidDataException>(() => DraygonIntroDance.Move(step),
-                "Draygon intro rejects a step outside the traced path");
+            "Every Draygon intro Evir reaches the path's delete its dance");
     }
+
+    /// <summary>Whether a cartridge intro path record is the delete record that ends an Evir's dance.</summary>
+    private static bool IsDelete(NativeIntroRecord record) =>
+        record.X == DraygonIntroDanceDefinitionsConstants.NativeDeleteByte &&
+        record.Y == DraygonIntroDanceDefinitionsConstants.NativeDeleteByte;
 
     /// <summary>Compares every Evir slot's position and lifetime across the full intro, including the fight handoff.</summary>
     private static void VerifyCompleteDraygonIntroTrajectory(CartridgeImportAddressSpace rom)
@@ -171,24 +169,6 @@ internal static class DraygonIntroDanceDefinitionsVerification
         AssertEqual(DraygonPhase.SwoopSetup, state.Phase,
             "Draygon intro transitions to right-swoop setup after the native duration");
         AssertEqual(HorizontalDirection.Right, state.PassDirection, "Draygon's first swoop flies right (#2165)");
-
-        // A restored dance step can be corrupt while the owner is still inside its native duration. Exercise the
-        // production dispatcher so this cannot regress into reading past the traced path.
-        var malformedEnemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        Action<DraygonEnemyState, SamusState, byte> malformedRun = (danceState, danceSamus, frameCounter) =>
-            malformedEnemies.DraygonBehavior.Intro.RunDraygonIntroDance(danceState, danceSamus, frameCounter);
-        var malformedState = new DraygonEnemyState(malformedEnemies.Places.InUpdateOrder[0].BoundFor(EnemyDefinitionId.DraygonBody), malformedEnemies.Places.InUpdateOrder[1], malformedEnemies.Places.InUpdateOrder[2], malformedEnemies.Places.InUpdateOrder[3])
-        {
-            // The first Evir waits the shortest, so it reaches one step past the path's end first.
-            IntroStage = UpdateCountdownAccess.AtAge(DraygonIntroDanceDefinitions.DurationFrames,
-                DraygonIntroDanceDefinitions.TracedPath.Length + 1 + DraygonIntroDanceDefinitions.DancerStartDelays[0]),
-        };
-        RoomEffectActor malformedSprite = malformedEnemies.EffectActors.SpawnRoomEffectActor(new(0x0100, 0x0180),
-            RoomEffectActorKind.EvirFacingLeft, SuperMetroid.Core.Enemies.SpriteGraphics.SharedIn(DraygonColours.Evirs));
-        malformedState.IntroDancers.Add(new DraygonIntroDancer(malformedSprite, DraygonIntroDanceDefinitions.DancerStartDelays[0]));
-        AssertThrows<InvalidDataException>(
-            () => malformedRun(malformedState, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus(), 1),
-            "Production Draygon intro rejects a restored step past the traced path");
     }
 
 

@@ -11,16 +11,55 @@ public abstract record MusicRequest
     {
     }
 
+    /// <summary>The track that plays once the request is carried out with <paramref name="dataSet"/> loaded, or null when none plays.</summary>
+    /// <param name="dataSet">The music data set loaded as the request plays.</param>
+    internal abstract MusicTrack? TrackPlayedWith(MusicDataSet? dataSet);
+
     /// <summary>Plays <paramref name="Track"/> of the loaded data set.</summary>
     /// <param name="Track">The track to play.</param>
-    public sealed record PlayTrack(MusicTrack Track) : MusicRequest;
+    public sealed record PlayTrack(MusicTrack Track) : MusicRequest
+    {
+        /// <inheritdoc/>
+        internal override MusicTrack? TrackPlayedWith(MusicDataSet? dataSet) => Track;
+    }
 
+<<<<<<< ours
+||||||| base
+    /// <summary>
+    /// Plays the area theme (<see cref="AreaThemeDefinitions"/>) of the data set loaded when the request plays, which a room
+    /// that keeps the loaded set asks for (#1748).
+    /// </summary>
+    public sealed record PlayAreaTheme : MusicRequest;
+
+=======
+    /// <summary>
+    /// Plays the area theme (<see cref="AreaThemeDefinitions"/>) of the data set loaded when the request plays, which a room
+    /// that keeps the loaded set asks for (#1748).
+    /// </summary>
+    public sealed record PlayAreaTheme : MusicRequest
+    {
+        /// <inheritdoc/>
+        /// <exception cref="InvalidOperationException">No data set is loaded, so no area theme can play.</exception>
+        internal override MusicTrack? TrackPlayedWith(MusicDataSet? dataSet) => dataSet is MusicDataSet loaded
+            ? AreaThemeDefinitions.Themes[loaded]
+            : throw new InvalidOperationException("An area theme was requested with no music data set loaded.");
+    }
+
+>>>>>>> theirs
     /// <summary>Stops the music.</summary>
-    public sealed record StopMusic : MusicRequest;
+    public sealed record StopMusic : MusicRequest
+    {
+        /// <inheritdoc/>
+        internal override MusicTrack? TrackPlayedWith(MusicDataSet? dataSet) => null;
+    }
 
     /// <summary>Changes the music data set to <paramref name="DataSet"/>, which stops the music.</summary>
     /// <param name="DataSet">The data set to load.</param>
-    public sealed record ChangeDataSet(MusicDataSet DataSet) : MusicRequest;
+    public sealed record ChangeDataSet(MusicDataSet DataSet) : MusicRequest
+    {
+        /// <inheritdoc/>
+        internal override MusicTrack? TrackPlayedWith(MusicDataSet? dataSet) => null;
+    }
 
     /// <summary>The request that stops the music.</summary>
     public static MusicRequest Stop { get; } = new StopMusic();

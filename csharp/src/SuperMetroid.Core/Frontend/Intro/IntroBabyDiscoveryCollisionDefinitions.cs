@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Samus.Movement;
 
 namespace SuperMetroid.Core.Frontend.Intro;
 
@@ -17,9 +17,9 @@ internal static class IntroBabyDiscoveryCollisionDefinitions
     /// <summary>The row of the room's solid floor, counted from its top: the row under <see cref="SlopeRow"/>.</summary>
     internal const int FloorRow = SlopeRow + 1;
     /// <summary>How every block of <see cref="SlopeRow"/> collides: as a slope.</summary>
-    internal const RoomCollisionType SlopeBlock = RoomCollisionType.Slope;
+    internal const PlainTerrainBlock SlopeBlock = PlainTerrainBlock.Slope;
     /// <summary>How every block of <see cref="FloorRow"/> collides: as a solid block.</summary>
-    internal const RoomCollisionType FloorBlock = RoomCollisionType.SolidBlock;
+    internal const PlainTerrainBlock FloorBlock = PlainTerrainBlock.Solid;
     /// <summary>How every other block of the room collides: as air.</summary>
-    internal const RoomCollisionType EmptyBlock = RoomCollisionType.Air;
+    internal const PlainTerrainBlock EmptyBlock = PlainTerrainBlock.Air;
 }

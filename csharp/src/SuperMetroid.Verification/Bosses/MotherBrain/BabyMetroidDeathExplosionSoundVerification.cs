@@ -27,9 +27,25 @@ internal static class BabyMetroidDeathExplosionSoundVerification
         runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MotherBrain);
         MotherBrainEnemyState state = (runtime.Enemies.BossEncounters.MotherBrain ?? throw new InvalidOperationException("Verification requires runtime.Enemies.BossEncounters.MotherBrain."));
+<<<<<<< ours
         // Her late fight brings in the Baby, whose death sequence's first update sets off its first explosion.
         BabyMetroidCutsceneEntity baby = MotherBrainBabyArrival.BabyOf(MotherBrainBabyArrival.BringInBaby(state, runtime.Player.Samus));
         global::SuperMetroid.Core.PrivateState.Set(baby.Baby, "Phase", BabyMetroidCutscenePhase.DeathSequence);
+||||||| base
+        var step = new BabyMetroidCutsceneStepResult(
+            BabyMetroidCutscenePhase.TakeFinalBlow, BabyMetroidCutscenePhase.TakeFinalBlow,
+            LatchSoundQueued: false, ReleaseDustClouds: [],
+            AmbientCrySoundQueued: false,
+            DeathExplosion: new DustExplosionRequest(new(0x0080, 0x0080), DustExplosionAnimation.SmallExplosion, MotherBrainSoundDefinitions.Explosion),
+            BabyFadeImage: null, RecoveryLightsImage: null, StartedAnimation: null, Visibility: BabyMetroidVisibilityRequest.Unchanged);
+=======
+        var step = new BabyMetroidCutsceneStepResult(
+            new BabyMetroidCutscenePhase.Flying.TakeFinalBlow(), new BabyMetroidCutscenePhase.Flying.TakeFinalBlow(), BabyDeleted: false,
+            LatchSoundQueued: false, ReleaseDustClouds: [],
+            AmbientCrySoundQueued: false,
+            DeathExplosion: new DustExplosionRequest(new(0x0080, 0x0080), DustExplosionAnimation.SmallExplosion, MotherBrainSoundDefinitions.Explosion),
+            BabyFadeImage: null, RecoveryLightsImage: null, StartedAnimation: null, Visibility: BabyMetroidVisibilityRequest.Unchanged);
+>>>>>>> theirs
 
         runtime.Enemies.Audio.BeginFrame();
         baby.Place.RunMainAi(runtime.Player.Samus);

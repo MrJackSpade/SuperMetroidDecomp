@@ -15,8 +15,6 @@ namespace SuperMetroid.Core.Enemies.Chozo;
 [RoomLifetime]
 internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemySpawnFactory<ChozoStatueSpawnSettings>
 {
-    /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Chozo];
 
     /// <inheritdoc/>
     public EnemyOccupant Create(RoomEnemyOccupant occupant, ChozoStatueSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new ChozoStatueEntity(this, occupant, place, common, settings));
@@ -59,7 +57,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemySpawnFactory<Ch
         statue.AnimationClock.Restart();
 
         // The statue shows its own colours, the shade of its site's statue, which no other enemy shows (#1512).
-        ChozoStatueSiteDefinition definition = Ensure.Listed(ChozoStatueSiteDefinitions.Sites, site);
+        ChozoStatueSiteDefinition definition = ChozoStatueSiteDefinitions.Sites[site];
         statue.Shading = PictureShading.Shaded(definition.Shade);
 
         var state = new ChozoStatueState { Site = site };
@@ -126,10 +124,27 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemySpawnFactory<Ch
             return;
 
         state.Playback = new(ChozoStatueAnimations.StartingWith(
-            Ensure.Listed(ChozoStatueSiteDefinitions.Sites, chozoStatueSpawnSettings.Site).Activated), AnimationPlace.StartOfAnimation);
+            ChozoStatueSiteDefinitions.Sites[chozoStatueSpawnSettings.Site].Activated), AnimationPlace.StartOfAnimation);
         statue.AnimationClock.StepOnNextUpdate();
         state.Phase = ChozoStatuePhase.Activated;
     }
+
+    /// <summary>What <see cref="ApplyChozoStatueCue"/> does for each <see cref="ChozoStatueCueKind"/> member, each member's own arm.</summary>
+    private IdentityTable<ChozoStatueCueKind, Action<ChozoStatueState>> ApplyChozoStatueCueForChozoStatueCueKind => field ??= new(new Dictionary<ChozoStatueCueKind, Action<ChozoStatueState>>
+    {
+        [ChozoStatueCueKind.AwaitHand] = state => state.AwaitHand(),
+        [ChozoStatueCueKind.StartLoweringAcid] = state =>
+        {
+            // The cue writes the liquid motion values consumed by the liquid's step once, when
+            // it runs; the liquid owns them from then on.
+            _roomFx.FxOverlay.MoveLiquidAfter(ChozoStatueFxData.LoweringDelay, ChozoStatueFxData.LoweringVelocity);
+        },
+        [ChozoStatueCueKind.SetLoweredAcidPosition] = state => _roomFx.FxOverlay.SetLiquidLevel(ChozoStatueRoomDefinitions.LoweredAcidY),
+        [ChozoStatueCueKind.UnlockSamus] = state => EnableChozoStatueSamusControls(),
+        [ChozoStatueCueKind.PlayGrabSound] = state => _audio.QueueEnemySound(EnemySoundEffectDefinitions.ChozoGrabsSamusSound, priority: SoundRequestPriority.Normal),
+        [ChozoStatueCueKind.PlayFootstepSound] = state => _audio.QueueEnemySound(EnemySoundEffectDefinitions.ChozoFootstepsSound, priority: SoundRequestPriority.Normal),
+        [ChozoStatueCueKind.ReleaseSamus] = state => FinishWreckedShipChozoSequence(),
+    });
 
     /// <summary>
     /// Carries out one cue of the Chozo statues' animations: every cue
@@ -141,57 +156,38 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemySpawnFactory<Ch
         SamusState samus,
         RoomLevelData level)
     {
-        switch (cue)
-        {
-            case ChozoStatueCue.Signal { Kind: ChozoStatueCueKind.AwaitHand }:
-                state.AwaitHand();
-                return;
-
-            case ChozoStatueCue.Signal { Kind: ChozoStatueCueKind.StartLoweringAcid }:
-                // The cue writes the liquid motion values consumed by the liquid's step once, when
-                // it runs; the liquid owns them from then on.
-                _roomFx.FxOverlay.MoveLiquidAfter(ChozoStatueFxData.LoweringDelay, ChozoStatueFxData.LoweringVelocity);
-                return;
-
-            case ChozoStatueCue.Signal { Kind: ChozoStatueCueKind.SetLoweredAcidPosition }:
-                _roomFx.FxOverlay.SetLiquidLevel(ChozoStatueRoomDefinitions.LoweredAcidY);
-                return;
-
-            case ChozoStatueCue.Signal { Kind: ChozoStatueCueKind.UnlockSamus }:
-                EnableChozoStatueSamusControls();
-                return;
-
-            case ChozoStatueCue.Signal { Kind: ChozoStatueCueKind.PlayGrabSound }:
-                _audio.QueueEnemySound(EnemySoundEffectDefinitions.ChozoGrabsSamusSound, priority: SoundRequestPriority.Normal);
-                return;
-
-            case ChozoStatueCue.Signal { Kind: ChozoStatueCueKind.PlayFootstepSound }:
-                _audio.QueueEnemySound(EnemySoundEffectDefinitions.ChozoFootstepsSound, priority: SoundRequestPriority.Normal);
-                return;
-
-            case ChozoStatueCue.Footstep footstep:
-                ProcessChozoStatueFootstep(
-                    statue,
-                    level,
-                    footstep.OffsetX);
-                return;
-
-            case ChozoStatueCue.Move move:
-                ProcessChozoStatueMovement(
-                    statue,
-                    samus,
-                    level,
-                    move.Step);
-                return;
-
-            case ChozoStatueCue.Signal { Kind: ChozoStatueCueKind.ReleaseSamus }:
-                FinishWreckedShipChozoSequence();
-                return;
-
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(ChozoStatueCueKind)} {cue}.");
-        }
+        cue.React(ApplyChozoStatueCueReactions, new ApplyChozoStatueCueContext(statue, level, samus, state, this));
     }
+
+    /// <summary>What <see cref="ApplyChozoStatueCue"/> does on each <see cref="ChozoStatueCue"/>, built once (#2553).</summary>
+    private static ChozoStatueCueReactions<ApplyChozoStatueCueContext> ApplyChozoStatueCueReactions { get; } = new(
+        Footstep: static (footstep, context) =>
+        {
+            context.Owner.ProcessChozoStatueFootstep(
+                context.Statue,
+                context.Level,
+                footstep.OffsetX);
+        },
+        Move: static (move, context) =>
+        {
+            context.Owner.ProcessChozoStatueMovement(
+                context.Statue,
+                context.Samus,
+                context.Level,
+                move.Step);
+        },
+        Signal: static (signal, context) =>
+        {
+            context.Owner.ApplyChozoStatueCueForChozoStatueCueKind[signal.Kind](context.State);
+        });
+
+    /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <param name="Statue">The statue the cases read.</param>
+    /// <param name="Level">The level the cases read.</param>
+    /// <param name="Samus">The samus the cases read.</param>
+    /// <param name="State">The statue's state <see cref="ApplyChozoStatueCue"/> works with.</param>
+    /// <param name="Owner">The <see cref="ChozoStatueBehavior"/> reacting.</param>
+    private readonly record struct ApplyChozoStatueCueContext(RoomEnemyPlace Statue, RoomLevelData Level, SamusState Samus, ChozoStatueState State, ChozoStatueBehavior Owner);
 
     /// <summary>Moves the statue through terrain, then places Samus at the authored carry offset from its accepted position.</summary>
     private void ProcessChozoStatueMovement(
@@ -239,11 +235,10 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemySpawnFactory<Ch
     /// <summary>Places the Wrecked Ship footstep projectile beneath the statue at its signed horizontal offset.</summary>
     internal void SpawnWreckedShipChozoFootstep(RoomEnemyPlace statue, int footstepOffsetX)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep, EnemyProjectileBehavior.Still, graphics: SpriteGraphics.SharedStandard);
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep, EnemyProjectileBehavior.Still, graphics: SpriteGraphics.SharedStandard, new ChozoTourianDustAnimation(ChozoTourianDustAnimations.StartingAt[ChozoTourianDustSegment.Footsteps]));
         if (projectile is null)
             return;
 
-        projectile.StartAnimation(new ChozoTourianDustAnimation(ChozoTourianDustAnimations.StartingAt[ChozoTourianDustSegment.Footsteps]));
         projectile.Position = projectile.Position.WithWhole(new(statue.Position.X.Whole + footstepOffsetX, statue.Position.Y.Whole + ChozoStatueRoomDefinitions.FootstepDepth));
     }
 

@@ -23,8 +23,16 @@ internal sealed class KraidArmEntity(KraidBehavior species, RoomEnemyOccupant oc
     /// <summary>The arm's shot reaction.</summary>
     protected override EnemyShotReaction LimbShotReaction => Species.Combat.ArmShotReaction;
 
-    /// <summary>The arm's bomb reaction.</summary>
-    protected override void ReactToLimbBomb(EnemyBombContext context) => Species.Combat.ReactToArmBomb(context);
+    /// <summary>
+    /// Runs the arm's own reaction to every bomb that overlaps it, before the ignoring check: a bomb its hitboxes select
+    /// (#2301).
+    /// </summary>
+    /// <param name="context">The bomb contact.</param>
+    public override bool TryReactToBomb(EnemyBombContext context)
+    {
+        Species.Combat.ReactToArmBomb(context);
+        return true;
+    }
 
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) => KraidLimbs.RunKraidArmMain(Place, Encounter, frame.Camera.Y);

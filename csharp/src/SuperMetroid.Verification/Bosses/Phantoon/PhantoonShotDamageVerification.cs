@@ -26,7 +26,7 @@ internal static class PhantoonShotDamageVerification
         AssertEqual(1, dudHits, "an uncharged beam meets his eye");
         AssertEqual(2500, dudBody.Health, "an uncharged beam does him no harm");
         AssertTrue(dud.IsSpent, "the common dud spends the uncharged beam");
-        AssertEqual(1, dudEnemies.RoomEffectActors.Count(actor => actor.IsActive && actor.Kind == RoomEffectActorKind.DudShot),
+        AssertEqual(1, dudEnemies.RoomEffectActors.Count(actor => actor.IsActive && actor.Shows(RoomEffectActorKind.DudShot)),
             "the common dud shows its flash where the beam struck");
         AssertTrue((dudBody.AiStates & EnemyAiStates.Hurt) == EnemyAiStates.None, "a dud does not hurt him");
 
@@ -35,7 +35,7 @@ internal static class PhantoonShotDamageVerification
         AssertEqual(2500 - 60, hurtBody.Health, "a charged beam takes its full damage");
         AssertEqual(hurtBody.HurtFlashFrames + 8, hurtBody.HurtFlash.UpdatesLeft, "the common damage starts his hurt flash");
         AssertTrue((hurtBody.AiStates & EnemyAiStates.Hurt) != EnemyAiStates.None, "the common damage hurts him");
-        AssertEqual(0, hurtEnemies.RoomEffectActors.Count(actor => actor.IsActive && actor.Kind == RoomEffectActorKind.DudShot),
+        AssertEqual(0, hurtEnemies.RoomEffectActors.Count(actor => actor.IsActive && actor.Shows(RoomEffectActorKind.DudShot)),
             "a hurting beam shows no dud");
         PhantoonEnemyState state = hurtEnemies.BossEncounters.Phantoon
             ?? throw new InvalidOperationException("The fixture's room holds Phantoon's encounter.");

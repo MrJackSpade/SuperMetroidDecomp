@@ -66,7 +66,7 @@ internal sealed class BombSpreadTransitionScenario
         }
         var samus = Samus;
         samus.Control.Unlock();
-        samus.Pose = left ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose;
+        samus.ChangePoseKeepingAnimation(left ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose);
         samus.EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs);
         samus.EquippedBeams = SamusBeamFlags.Charge;
         samus.Position = samus.Position.WithWhole(new(512, 490));

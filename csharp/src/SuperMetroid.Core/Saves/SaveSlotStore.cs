@@ -33,15 +33,14 @@ public sealed class SaveSlotStore
         IAreaMapSource maps)
     {
         Ensure.NotNull(saved);
-        RequireSlot(selectedSlot);
         var store = new SaveSlotStore(maps)
         {
             selectedSlot = selectedSlot,
-            History = RequireHistory(history),
+            History = history,
         };
         foreach (SuperMetroidSaveSlot save in saved)
         {
-            RequireSlot(Ensure.NotNull(save).Slot);
+            Ensure.NotNull(save);
             if (!store.slots.TryAdd(save.Slot, save))
                 throw new ArgumentException($"Two imported saves name slot {save.Slot}.", nameof(saved));
         }
@@ -57,7 +56,6 @@ public sealed class SaveSlotStore
     /// <summary>A detached copy of the save in <paramref name="slot"/>, or null when it is empty or invalid.</summary>
     public SuperMetroidSaveSlot? ReadSlot(SaveSlot slot)
     {
-        RequireSlot(slot);
         return slots.TryGetValue(slot, out SuperMetroidSaveSlot? saved) ? Detached(saved, slot) : null;
     }
 
@@ -80,15 +78,12 @@ public sealed class SaveSlotStore
     /// </summary>
     public void SaveSlot(SaveSlot slot, SuperMetroidSaveSnapshot snapshot)
     {
-        RequireSlot(slot);
         slots[slot] = SaveSlotRetention.Retain(snapshot, slot, maps);
     }
 
     /// <summary>Copies a save as the file-select menu's data copy does: the destination receives the source's save.</summary>
     public void CopySlot(SaveSlot sourceSlot, SaveSlot destinationSlot)
     {
-        RequireSlot(sourceSlot);
-        RequireSlot(destinationSlot);
         if (sourceSlot == destinationSlot)
             throw new ArgumentException("File copy requires two different save slots.");
         if (!slots.TryGetValue(sourceSlot, out SuperMetroidSaveSlot? source))
@@ -99,14 +94,12 @@ public sealed class SaveSlotStore
     /// <summary>Clears a save as the file-select menu's data clear does: the slot becomes empty.</summary>
     public void ClearSlot(SaveSlot slot)
     {
-        RequireSlot(slot);
         slots.Remove(slot);
     }
 
     /// <summary>Stores the menu's selected slot.</summary>
     public void SelectSlot(SaveSlot slot)
     {
-        RequireSlot(slot);
         selectedSlot = slot;
     }
 
@@ -121,7 +114,7 @@ public sealed class SaveSlotStore
 
     /// <summary>Restores the history a save file kept, as its host reads it back.</summary>
     /// <param name="history">The save file's history of the game as a whole.</param>
-    public void RestoreHistory(SaveFileHistory history) => History = RequireHistory(history);
+    public void RestoreHistory(SaveFileHistory history) => History = history;
 
     /// <summary>
     /// The frame this save file adds at power-on to every earthquake rumble's delay, which
@@ -145,20 +138,10 @@ public sealed class SaveSlotStore
         }
         return HasCompletedGame;
     }
-    /// <summary>Rejects a value that names none of the slots A, B and C.</summary>
-    private static void RequireSlot(SaveSlot slot)
-    {
-        if (!Enum.IsDefined(slot))
-            throw new ArgumentOutOfRangeException(nameof(slot), slot, "Save slot must be A, B, or C.");
-    }
 
     /// <summary>Whether any slot holds a save.</summary>
     private bool AnySlotValid => slots.Count > 0;
 
-    /// <summary>Rejects a value that names no save-file history.</summary>
-    private static SaveFileHistory RequireHistory(SaveFileHistory history) => Enum.IsDefined(history)
-        ? history
-        : throw new ArgumentOutOfRangeException(nameof(history), history, "Undefined save-file history.");
 
     /// <summary>A copy of <paramref name="saved"/> as slot <paramref name="slot"/>, sharing no array with it.</summary>
     private static SuperMetroidSaveSlot Detached(SuperMetroidSaveSlot saved, SaveSlot slot) => saved with

@@ -11,10 +11,6 @@ internal static class DragonBehaviorPrivateAccess
     /// <summary>The private instance members checks read or call.</summary>
     extension(global::SuperMetroid.Core.Enemies.Dragon.DragonBehavior self)
     {
-        /// <summary>The private method <c>RunDragonAttacking</c>, invoked by name.</summary>
-        internal void RunDragonAttacking(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant occupant, global::SuperMetroid.Core.Enemies.RoomEnemyPlace body, global::SuperMetroid.Core.Enemies.Dragon.DragonEnemyState bodyState) =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Enemies.Dragon.DragonBehavior>(self, "RunDragonAttacking", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant), typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Enemies.Dragon.DragonEnemyState)], new object?[] { occupant, body, bodyState });
-
         /// <summary>The private method <c>SpawnDragonFireball</c>, invoked by name.</summary>
         internal void SpawnDragonFireball(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant occupant, global::SuperMetroid.Core.Enemies.RoomEnemyPlace body, global::SuperMetroid.Core.Enemies.Dragon.DragonEnemyState bodyState) =>
             PrivateState.Invoke<global::SuperMetroid.Core.Enemies.Dragon.DragonBehavior>(self, "SpawnDragonFireball", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant), typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Enemies.Dragon.DragonEnemyState)], new object?[] { occupant, body, bodyState });

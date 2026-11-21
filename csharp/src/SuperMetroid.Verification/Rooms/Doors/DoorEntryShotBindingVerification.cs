@@ -60,7 +60,7 @@ internal static class DoorEntryShotBindingVerification
             game.Session.EnterDoor(runtime.EnteredDoor ?? throw new InvalidOperationException("Samus's collision entered no door."));
             game.Step(held);
 
-            AssertEqual(DoorTransitionPhase.WaitForSoundQueues, game.DoorTransitionPhaseForVerification,
+            AssertEqual(new DoorTransitionPhase.Running.WaitForSoundQueues(), game.DoorTransitionPhaseForVerification,
                 "the entry frame begins the door sound wait");
             IReadOnlyList<SoundEffectId> queued = audio.SoundsQueuedSinceForVerification(start);
             AssertEqual(cancels, queued.Count != 0,

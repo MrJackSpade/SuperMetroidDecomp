@@ -8,7 +8,5 @@ internal static class PhantoonEyeGaze
     /// <returns>The eye's gaze animation; Phantoon's eye starts it and resets its frame timer.</returns>
     /// <exception cref="InvalidDataException">The direction is not one of the eight the eye looks in.</exception>
     internal static PhantoonPartSegment EyeAnimation(CompassDirection direction) =>
-        PhantoonPatternDefinitions.EyeGazeAnimations.TryGetValue(direction, out PhantoonPartSegment segment)
-            ? segment
-            : throw new InvalidDataException($"Phantoon's eye has no gaze toward {direction}.");
+        PhantoonPatternDefinitions.EyeGazeAnimations[direction];
 }

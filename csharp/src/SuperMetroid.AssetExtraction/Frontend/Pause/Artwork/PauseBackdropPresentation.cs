@@ -29,7 +29,7 @@ public sealed class PauseBackdropPresentation
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="area"/> is not a retail area.</exception>
     public void LoadTo(Span<BackgroundTile> destination, AreaId area)
     {
-        var selected = areas[AreaIds.Require(area)];
+        var selected = areas[area];
         Ensure.BetweenInclusive(PauseBackdropDefinitions.Cells, int.MaxValue, destination.Length);
         selected.AsSpan().CopyTo(destination);
     }

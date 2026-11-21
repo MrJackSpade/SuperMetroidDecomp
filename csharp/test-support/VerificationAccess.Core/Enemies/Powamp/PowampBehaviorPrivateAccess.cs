@@ -11,30 +11,6 @@ internal static class PowampBehaviorPrivateAccess
     /// <summary>The private instance members checks read or call.</summary>
     extension(global::SuperMetroid.Core.Enemies.Powamp.PowampBehavior self)
     {
-        /// <summary>The private method <c>SpawnPowampSpikeBurst</c>, invoked by name.</summary>
-        internal void SpawnPowampSpikeBurst(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant occupant, global::SuperMetroid.Core.Enemies.RoomEnemyPlace body, global::SuperMetroid.Core.Assets.PictureShading look) =>
-            PrivateState.Invoke(self, "SpawnPowampSpikeBurst", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant), typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Assets.PictureShading)], new object?[] { occupant, body, look });
-    }
-
-    /// <summary>The private static members checks name.</summary>
-    extension(global::SuperMetroid.Core.Enemies.Powamp.PowampBehavior)
-    {
-        /// <summary>The private method <c>AlignPowampBalloonY</c>, invoked by name.</summary>
-        internal static void AlignPowampBalloonY(global::SuperMetroid.Core.Enemies.RoomEnemyPlace body, global::SuperMetroid.Core.Enemies.Powamp.PowampBalloon balloon) =>
-            PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Enemies.Powamp.PowampBehavior), "AlignPowampBalloonY", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Enemies.Powamp.PowampBalloon)], new object?[] { body, balloon });
-
-        /// <summary>The private method <c>BeginPowampSpikeDeletion</c>, invoked by name.</summary>
-        internal static void BeginPowampSpikeDeletion(global::SuperMetroid.Core.Enemies.EnemyProjectile spike) =>
-            PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Enemies.Powamp.PowampBehavior), "BeginPowampSpikeDeletion", [typeof(global::SuperMetroid.Core.Enemies.EnemyProjectile)], new object?[] { spike });
-
-        /// <summary>The private method <c>StartPowampBalloonAnimation</c>, invoked by name.</summary>
-        internal static void StartPowampBalloonAnimation(global::SuperMetroid.Core.Enemies.RoomEnemyPlace balloon, global::SuperMetroid.Core.Enemies.Powamp.PowampBalloonState state, global::SuperMetroid.Core.Enemies.Powamp.PowampSegment segment) =>
-            PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Enemies.Powamp.PowampBehavior), "StartPowampBalloonAnimation", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Enemies.Powamp.PowampBalloonState), typeof(global::SuperMetroid.Core.Enemies.Powamp.PowampSegment)], new object?[] { balloon, state, segment });
-    }
-
-    /// <summary>The private instance members checks read or call.</summary>
-    extension(global::SuperMetroid.Core.Enemies.Powamp.PowampBehavior self)
-    {
         /// <summary>The private property <c>Spike</c>, reached by name.</summary>
         internal global::SuperMetroid.Core.Enemies.Projectiles.StatefulSingleMotionProjectileBehavior<global::SuperMetroid.Core.Enemies.Powamp.PowampSpikeState> Spike
         {

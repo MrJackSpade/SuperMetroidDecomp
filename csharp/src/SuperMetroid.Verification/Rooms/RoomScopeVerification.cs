@@ -44,7 +44,7 @@ internal static class RoomScopeVerification
         source.Enemies.Earthquake.Start(NativeEarthquakeTypes.Shake(5), 4);
         runtime.EnemySession.CeresStatus = CeresEscapeStatus.RidleyEscaped;
         EnemyProjectile sourceProjectile = source.Enemies.Projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.DustOrExplosion,
-                SuperMetroid.Core.Enemies.Projectiles.DustExplosionProjectileBehavior.Instance, SpriteGraphics.SharedStandard) ??
+                SuperMetroid.Core.Enemies.Projectiles.DustExplosionProjectileBehavior.Instance, SpriteGraphics.SharedStandard, new SuperMetroid.Core.Enemies.Projectiles.DustExplosionProjectileAnimation(SuperMetroid.Core.Enemies.Projectiles.DustExplosionAnimation.SmallExplosion)) ??
             throw new InvalidOperationException("The Landing Site holds every enemy-projectile place.");
         sourceProjectile.Position = FixedPosition<RoomPixels>.FromStoredParts(0x0140, 0x1234, 0x0090, 0x5678);
         sourceProjectile.Velocity = new(SignedEightEight.FromPixels(2), SignedEightEight.FromPixels(-2));

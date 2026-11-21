@@ -12,8 +12,8 @@ internal static class TorizoChozoOrbDefinitions
     internal const int BombTorizoOrbsPerBurst = 3;
 
     /// <summary>The chances the drop a broken Bomb Torizo orb leaves rolls: mostly energy, often a missile, never a Super Missile or Power Bomb.</summary>
-    internal static readonly EnemyDropChances BombTorizoOrbDropChances = new(SmallEnergy: 116, BigEnergy: 20, Missile: 65, Nothing: 54, SuperMissile: 0, PowerBomb: 0);
+    internal static readonly EnemyDropChances BombTorizoOrbDropChances = new(smallEnergy: 116, bigEnergy: 20, missile: 65, nothing: 54, superMissile: 0, powerBomb: 0);
 
     /// <summary>The chances the drop a broken Golden Torizo orb leaves rolls: often a Super Missile, never a Power Bomb.</summary>
-    internal static readonly EnemyDropChances GoldenTorizoOrbDropChances = new(SmallEnergy: 30, BigEnergy: 30, Missile: 50, Nothing: 60, SuperMissile: 85, PowerBomb: 0);
+    internal static readonly EnemyDropChances GoldenTorizoOrbDropChances = new(smallEnergy: 30, bigEnergy: 30, missile: 50, nothing: 60, superMissile: 85, powerBomb: 0);
 }

@@ -26,8 +26,16 @@ internal static class JumpNoXMovementVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.RedFish);
+<<<<<<< ours
         var samus = runtime.Player.Samus;
         samus.Pose = SamusPoseId.NormalJumpAimDownLeftPose;
+||||||| base
+        var samus = runtime.Player.IntroducedSamus;
+        samus.Pose = SamusPoseId.NormalJumpAimDownLeftPose;
+=======
+        var samus = runtime.Player.IntroducedSamus;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.NormalJumpAimDownLeftPose);
+>>>>>>> theirs
         samus.Position = samus.Position.WithWhole(new(0x0225, 0x004a));
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
@@ -36,8 +44,8 @@ internal static class JumpNoXMovementVerification
         samus.Kinematics.YAcceleration = samus.Kinematics.YAcceleration.WithFraction(0x1c00);
         samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
 
-        SamusAerialMovement.StepNormalJump(runtime.Room.LoadedLevelData, samus,
-            (GameplayAction.Jump | GameplayAction.Dash), frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+        SamusAerialMovement.StepNormalJump(SuperMetroid.Core.Samus.Movement.SamusMovement.NormalJumping, SamusTerrain.InRoom(runtime.Room.LoadedLevelData, SamusRoomObjectFixtures.Uninstalled), samus,
+            (GameplayAction.Jump | GameplayAction.Dash), frameCounter: 0);
         AssertEqual((ushort)0x004a, samus.Position.Y.Whole, "no horizontal move means no slope alignment");
         AssertEqual((ushort)0x0225, samus.Position.X.Whole, "X is unchanged");
         Console.WriteLine("Jump without X movement: Samus_Jumping_Movement skips the horizontal mover and its slope alignment.");

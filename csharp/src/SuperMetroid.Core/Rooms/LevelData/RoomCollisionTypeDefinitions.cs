@@ -8,8 +8,8 @@ internal static class RoomCollisionTypeDefinitions
     /// through them (the air kinds but shootable air), and whether a bomb's blast leaves them alone (air and spike air,
     /// special and unrevealed air, slopes, and solid, door, spike and grapple blocks).
     /// </summary>
-    internal static readonly IReadOnlyDictionary<RoomCollisionType, RoomCollisionTypeDefinition> Types =
-        new Dictionary<RoomCollisionType, RoomCollisionTypeDefinition>
+    internal static readonly IdentityTable<RoomCollisionType, RoomCollisionTypeDefinition> Types =
+        new(new Dictionary<RoomCollisionType, RoomCollisionTypeDefinition>
         {
             [RoomCollisionType.Air] = new(RoomCollisionBehaviorKind.None, null, BombsPass: true, BombLeavesAlone: true),
             [RoomCollisionType.Slope] = new(RoomCollisionBehaviorKind.Slope, null, BombsPass: false, BombLeavesAlone: true),
@@ -27,5 +27,5 @@ internal static class RoomCollisionTypeDefinitions
             [RoomCollisionType.VerticalExtension] = new(RoomCollisionBehaviorKind.Extension, null, BombsPass: false, BombLeavesAlone: false),
             [RoomCollisionType.GrappleBlock] = new(RoomCollisionBehaviorKind.Reaction, BlockReactionFamily.Grapple, BombsPass: false, BombLeavesAlone: true),
             [RoomCollisionType.BombableBlock] = new(RoomCollisionBehaviorKind.Reaction, BlockReactionFamily.Bombable, BombsPass: false, BombLeavesAlone: false),
-        };
+        });
 }

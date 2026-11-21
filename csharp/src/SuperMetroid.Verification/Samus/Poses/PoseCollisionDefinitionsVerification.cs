@@ -21,7 +21,7 @@ internal static class PoseCollisionDefinitionsVerification
                 pose * SamusSourceDefinitions.PoseDefinitionByteCount + 6);
             AssertEqual(expected, SamusPoseMetadata.ReadPoseYRadius(SamusPoseNumbering.FromNumber(pose)),
                 "Prospective collision radius matches native pose, without authored ROM reads");
-            samus.Pose = SamusPoseNumbering.FromNumber(pose);
+            samus.ChangePoseKeepingAnimation(SamusPoseNumbering.FromNumber(pose));
             samus.Kinematics.Radius = new(ushort.MaxValue, ushort.MaxValue);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             AssertEqual((ushort)5, samus.Kinematics.Radius.X, "Every pose keeps native horizontal radius");

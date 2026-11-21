@@ -41,17 +41,17 @@ internal static class FileCopyArrowVerification
                 menu.ComposeScene();
                 return menu.screen.Sprites;
             }
-            Until(FileSelectPhase.Main);
+            Until(new FileSelectPhase.Main());
             for (int i = 0; i < 3; i++) Press(ControllerButton.Down);
             Press(ControllerButton.A);
-            Until(FileSelectPhase.CopySelectSource);
+            Until(new FileSelectPhase.DataManagement.CopySelectSource());
             for (int i = 0; i < pair.Slots.First; i++) Press(ControllerButton.Down);
             Press(ControllerButton.A);
             int firstDestination = pair.Slots.First == 0 ? 1 : 0;
             if (pair.Slots.Second != firstDestination) Press(ControllerButton.Down);
             int noArrowCount = Capture().LastFinalizedSpriteCount;
             Press(ControllerButton.A);
-            AssertEqual(FileSelectPhase.CopyConfirm, menu.Phase, "arrow appears at confirmation");
+            AssertEqual(true, menu.Phase is FileSelectPhase.DataManagement.CopyConfirm, "arrow appears at confirmation");
             int record = 0x82bb0c + pair.Row * 6;
             ushort id = ReadVerificationWord(rom, record);
             ushort originX = ReadVerificationWord(rom, record + 2);
@@ -123,7 +123,7 @@ internal static class FileCopyArrowVerification
             menu.Render(); menu.ComposeScene();
             AssertEqual(beforeRender, menu.CopyArrowRotation, "render leaves the arrows' rotation alone");
             Press(ControllerButton.A);
-            AssertEqual(FileSelectPhase.CopyCompleted, menu.Phase, "copy completes");
+            AssertEqual(new FileSelectPhase.DataManagement.CopyCompleted(), menu.Phase, "copy completes");
             AssertTrue(Capture().LastFinalizedSpriteCount < noArrowCount + count, "completed page removes Copy arrow");
         }
         Console.WriteLine("Copy arrow: all six native slot pairs match OAM; confirmation-only visibility and palette timing pass.");

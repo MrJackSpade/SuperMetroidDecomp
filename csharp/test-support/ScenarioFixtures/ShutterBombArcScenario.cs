@@ -64,7 +64,7 @@ internal sealed class ShutterBombArcScenario
         var samus = Samus;
         var platform = Platform;
         samus.Control.Unlock();
-        samus.Pose = SamusPoseId.MorphBallGroundRightPose;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.MorphBallGroundRightPose);
         samus.EquippedItems |= SamusEquipmentFlags.Bombs;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);

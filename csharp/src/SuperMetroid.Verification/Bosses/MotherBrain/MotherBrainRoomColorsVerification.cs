@@ -88,18 +88,15 @@ internal static class MotherBrainRoomColorsVerification
         Console.WriteLine("Mother Brain room colors: entry, 14 flash frames, final grey, phase-two and seven recovery-light shades match the cartridge's colours and the production paths that lay them; strict validation passes.");
     }
 
-    /// <summary>Checks the seven recovery-light images the Baby's cutscene lays, and that another fade's image is refused.</summary>
+    /// <summary>Checks the seven recovery-light images the Baby's cutscene lays over her room.</summary>
     private static void VerifyMotherBrainRecoveryLights(MotherBrainEnemyState state)
     {
         foreach (MotherBrainFadeImage lights in MotherBrainFadeDefinitions.RecoveryLights.Images)
         {
-            state.Colours.ShowLightsRecovering(lights);
+            state.Colours.ShowFade(lights);
             AssertEqual(MotherBrainShades.Fade(lights), state.Colours.RoomShading.Shades[^1],
                 $"Mother Brain recovery-light image {lights.Step} is laid over her room");
         }
-        AssertThrows<ArgumentException>(
-            () => state.Colours.ShowLightsRecovering(MotherBrainFadeDefinitions.BabyFade.Images[0]),
-            "an image of another fade is refused as the room lights' recovery");
     }
 
     /// <summary>Asserts that two lists of the import's shades hold the same shades with the same colours.</summary>

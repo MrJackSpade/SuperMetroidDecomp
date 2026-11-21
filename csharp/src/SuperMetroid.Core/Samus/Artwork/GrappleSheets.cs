@@ -17,5 +17,5 @@ public static class GrappleSheets
 
     /// <summary>The frame-name segment for a rope mirroring.</summary>
     private static string MirrorName(SpriteMirror mirror) =>
-        MirrorNames.TryGetValue(mirror, out string? value) ? value : throw new ArgumentOutOfRangeException(nameof(mirror), mirror, "Undefined rope mirroring.");
+        MirrorNames[mirror];
 }

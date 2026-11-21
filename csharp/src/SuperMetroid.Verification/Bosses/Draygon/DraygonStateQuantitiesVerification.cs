@@ -147,12 +147,26 @@ internal static class DraygonStateQuantitiesVerification
         VerifySwoopPath(acceleration: 40, resetY: 128);
         VerifySwoopPath(acceleration: 1, resetY: 124, expectedCount: 513);
 
+<<<<<<< ours
         (RoomEnemySystem stillEnemies, DraygonEnemyState still) = NewDraygon();
         still.LeftSideReset = new Position16<RoomPixels>(65456, 128);
         still.SwoopAcceleration = default;
         AssertThrows<InvalidOperationException>(() => stillEnemies.DraygonBehavior.Swoops.SetupDraygonRightSwoop(still, NewSwoopSamus(), frameCounter: 0),
             "a swoop path is not planned without a swoop acceleration");
         AssertTrue(still.Step is not DraygonSwoopStep, "Draygon has no swoop path before he plans one");
+||||||| base
+        (_, DraygonEnemyState still) = NewDraygon();
+        still.LeftSideReset = new Position16<RoomPixels>(65456, 128);
+        still.SwoopAcceleration = default;
+        AssertThrows<InvalidOperationException>(() => DraygonSwoops.BuildDraygonSwoopYPositions(still, NewSwoopSamus()),
+            "a swoop path is not planned without a swoop acceleration");
+        AssertTrue(still.SwoopPath is null, "Draygon has no swoop path before he plans one");
+=======
+        (_, DraygonEnemyState still) = NewDraygon();
+        AssertThrows<ArgumentOutOfRangeException>(() => still.SwoopAcceleration = default,
+            "Draygon's swoop acceleration is never set to none");
+        AssertTrue(still.SwoopPath is null, "Draygon has no swoop path before he plans one");
+>>>>>>> theirs
     }
 
     /// <summary>

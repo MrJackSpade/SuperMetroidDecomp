@@ -3,9 +3,6 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// <summary>Which way a hit knocks Samus.</summary>
 public enum SamusKnockbackDirection
 {
-    /// <summary>No knockback is pending or running.</summary>
-    None,
-
     /// <summary>Up and to the left.</summary>
     UpLeft,
 

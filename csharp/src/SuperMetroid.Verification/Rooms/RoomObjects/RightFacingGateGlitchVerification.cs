@@ -150,8 +150,8 @@ internal static class RightFacingGateGlitchVerification
                 for (int frame = 0; frame < 30; frame++)
                 {
                     GameplayAction input = frame == 0 ? GameplayAction.Shoot : 0;
-                    bombs.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, input, input);
-                    shots.StepFrame(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input, ControllerPreviousNewInput = GameplayAction.None }, new((ushort)cameraX, (ushort)cameraY), bombs, shotProgression);
+                    bombs.StepFrame(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, input, input);
+                    shots.StepFrame(SamusTerrain.InRoom(level, roomObjects), samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input, ControllerPreviousNewInput = GameplayAction.None }, new((ushort)cameraX, (ushort)cameraY), bombs, shotProgression);
                     if (!gatePlace.Active || gatePlace.Behaviour is not DownwardGateObject)
                         throw new InvalidOperationException($"The Pink Brinstar gate left its slot at ({x}, {y}), frame {frame}.");
                     if (gatePlace.Behaviour is DownwardGateObject { Triggered: true })
@@ -167,19 +167,13 @@ internal static class RightFacingGateGlitchVerification
         });
         foreach (SharedGameState columnState in gameStateByColumn)
             columnState.ClearEvent(StoryEvent.ZebesAwake);
-        // Each column's state is compared with a new state, the columns on every core (#1757): one comparison of every
-        // column's state on one thread took longer than the whole sweep. A new state's graph is the same for every column,
-        // so it is written once and each column's graph is compared with it as it is written. The new state is written
-        // and the first column's comparison runs alone, so the shared indexes every comparison reads are complete before
-        // the others read them.
-        byte[] newStateGraph = SerializeGraph(new SharedGameState(new SharedRandom()));
-        var columnUnchanged = new bool[gameStateByColumn.Length];
-        columnUnchanged[0] = MatchesGraph(gameStateByColumn[0], newStateGraph);
-        ParallelSweep.For(1, gameStateByColumn.Length, column =>
-            columnUnchanged[column] = MatchesGraph(gameStateByColumn[column], newStateGraph));
-        AssertTrue(columnUnchanged.All(unchanged => unchanged),
+        // Each column's state is compared with a new state as the game reads it: its startup route, random number and
+        // persistent progress. Setting and clearing the event leaves the progress set's storage grown (#2565), which the
+        // game never reads.
+        string newState = ObservedGameState(new SharedGameState(new SharedRandom()));
+        AssertTrue(gameStateByColumn.All(columnState => ObservedGameState(columnState) == newState),
             "No gate-glitch position writes any other part of the game state its column's positions share");
-        AssertTrue(MatchesGraph(shotProgression, newStateGraph),
+        AssertTrue(ObservedGameState(shotProgression) == newState,
             "No gate-glitch shot changes the progression every position's shots share");
         AssertTrue(MatchesGraph(scrolls, SerializeGraph(RoomObjectFixtures.UnreadScrolls())),
             "No gate-glitch room-object step changes the scroll grid every position's steps share");
@@ -194,6 +188,26 @@ internal static class RightFacingGateGlitchVerification
         Console.WriteLine(
             "PASS 24768 Pink Brinstar actual-room origins: all ten high-speed Super " +
             "right-gate activations and every negative match the original CPU.");
+    }
+
+    /// <summary>
+    /// The game state the game reads from <paramref name="state"/>: its saved startup route, its random number, and every
+    /// part of its persistent progress (story events, Zebetites, defeated bosses, collected items, opened doors, used
+    /// stations, acquired maps and explored cells).
+    /// </summary>
+    private static string ObservedGameState(SharedGameState state)
+    {
+        PersistentProgress progress = state.Progress;
+        var text = new System.Text.StringBuilder();
+        text.Append(state.SavedStartupRoute).Append('|').Append(state.RandomNumber).Append('|').Append(progress.ZebetitesDestroyed)
+            .Append('|').AppendJoin(',', progress.Events.Members)
+            .Append('|').AppendJoin(',', progress.CollectedItems.Members.Select(location => location.Name))
+            .Append('|').AppendJoin(',', progress.OpenedDoors.Members.Select(door => door.Name))
+            .Append('|').AppendJoin(',', progress.UsedStations.Members.Select(station => station.Name));
+        foreach (AreaId area in Enum.GetValues<AreaId>())
+            text.Append('|').Append(area).Append(':').Append(progress.BossesDefeatedIn(area)).Append(':').Append(progress.HasAreaMap(area))
+                .Append(':').AppendJoin(',', progress.ExploredCells(area));
+        return text.ToString();
     }
 
     /// <summary>Compares nine native frozen-Boyon shot timings, including the successful resumed frame, with production gameplay.</summary>

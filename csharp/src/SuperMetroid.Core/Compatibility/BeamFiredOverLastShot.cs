@@ -63,6 +63,31 @@ public static class BeamFiredOverLastShot
     /// them; a crash echo leaves its departure angle in steps, and a beam or an explosion the fuse it carries.
     /// </summary>
     /// <param name="replaced">What the beam finds in the place it takes.</param>
+<<<<<<< ours
+||||||| base
+    /// <exception cref="InvalidOperationException">
+    /// The place holds a special attack's particle: a beam takes a held place only when every place is held, and then the
+    /// last, which no particle holds.
+    /// </exception>
+    public static int FuseLeftBy(ReplacedShot replaced) => Ensure.NotNull(replaced) switch
+    {
+        ReplacedShot.FreePlace or ReplacedShot.UnignitedMissile => 0,
+        ReplacedShot.ReflectedMissile reflected => reflected.HeadStart.InTwoHundredFiftySixthsOfPixel,
+        ReplacedShot.IgnitedMissile { LinkChainPosition: { } linkPlace } superMissile =>
+            LinkedSuperMissileCount(superMissile.IgnitionSpeed, linkPlace).InTwoHundredFiftySixthsOfPixel,
+        ReplacedShot.IgnitedMissile missile => missile.IgnitionSpeed.InTwoHundredFiftySixthsOfPixel,
+        ReplacedShot.CrashEcho echo => echo.DepartureAngle.RawValue,
+        ReplacedShot.Beam beam => beam.CarriedFuse,
+        ReplacedShot.SpecialAttackParticle => throw new InvalidOperationException(
+            "A beam fired with every place held takes the last place, which no special attack particle holds, yet a particle was replaced."),
+        _ => throw new ArgumentOutOfRangeException(nameof(replaced), replaced, $"Undefined {nameof(ReplacedShot)}."),
+    };
+=======
+    /// <exception cref="InvalidOperationException">
+    /// The place holds a special attack's particle: a beam takes a held place only when every place is held, and then the
+    /// last, which no particle holds.
+    /// </exception>
+>>>>>>> theirs
     public static int FuseLeftBy(ReplacedShot replaced) => Ensure.NotNull(replaced).FuseLeft;
 
     /// <summary>
@@ -77,14 +102,27 @@ public static class BeamFiredOverLastShot
         {
         }
 
+<<<<<<< ours
         /// <summary>The Power Bomb fuse, in updates, a beam fired over the holding starts with: the count it leaves.</summary>
         public abstract int FuseLeft { get; }
+||||||| base
+=======
+        /// <summary>The fuse the replaced shot leaves the beam that takes its place.</summary>
+        /// <exception cref="InvalidOperationException">The place holds a special attack's particle.</exception>
+        internal abstract int FuseLeft { get; }
+>>>>>>> theirs
 
         /// <summary>A place no shot holds.</summary>
         public sealed record FreePlace : ReplacedShot
         {
             /// <inheritdoc/>
+<<<<<<< ours
             public override int FuseLeft => 0;
+||||||| base
+        public sealed record FreePlace : ReplacedShot;
+=======
+            internal override int FuseLeft => 0;
+>>>>>>> theirs
         }
 
         /// <summary>
@@ -93,7 +131,13 @@ public static class BeamFiredOverLastShot
         public sealed record UnignitedMissile : ReplacedShot
         {
             /// <inheritdoc/>
+<<<<<<< ours
             public override int FuseLeft => 0;
+||||||| base
+        public sealed record UnignitedMissile : ReplacedShot;
+=======
+            internal override int FuseLeft => 0;
+>>>>>>> theirs
         }
 
         /// <summary>A missile or Super Missile an enemy reflected, waiting to re-ignite.</summary>
@@ -101,7 +145,13 @@ public static class BeamFiredOverLastShot
         public sealed record ReflectedMissile(SignedEightEight HeadStart) : ReplacedShot
         {
             /// <inheritdoc/>
+<<<<<<< ours
             public override int FuseLeft => HeadStart.InTwoHundredFiftySixthsOfPixel;
+||||||| base
+        public sealed record ReflectedMissile(SignedEightEight HeadStart) : ReplacedShot;
+=======
+            internal override int FuseLeft => HeadStart.InTwoHundredFiftySixthsOfPixel;
+>>>>>>> theirs
         }
 
         /// <summary>An ignited missile or Super Missile, or the explosion of one.</summary>
@@ -124,7 +174,12 @@ public static class BeamFiredOverLastShot
             public int? LinkChainPosition { get; }
 
             /// <inheritdoc/>
+<<<<<<< ours
             public override int FuseLeft => LinkChainPosition is { } linkPlace
+||||||| base
+=======
+            internal override int FuseLeft => LinkChainPosition is { } linkPlace
+>>>>>>> theirs
                 ? LinkedSuperMissileCount(IgnitionSpeed, linkPlace).InTwoHundredFiftySixthsOfPixel
                 : IgnitionSpeed.InTwoHundredFiftySixthsOfPixel;
         }
@@ -134,7 +189,13 @@ public static class BeamFiredOverLastShot
         public sealed record CrashEcho(TrigonometryAngle DepartureAngle) : ReplacedShot
         {
             /// <inheritdoc/>
+<<<<<<< ours
             public override int FuseLeft => DepartureAngle.RawValue;
+||||||| base
+        public sealed record CrashEcho(TrigonometryAngle DepartureAngle) : ReplacedShot;
+=======
+            internal override int FuseLeft => DepartureAngle.RawValue;
+>>>>>>> theirs
         }
 
         /// <summary>A beam or the Hyper Beam's shot, or the explosion of either.</summary>
@@ -149,9 +210,15 @@ public static class BeamFiredOverLastShot
             public int CarriedFuse { get; }
 
             /// <inheritdoc/>
+<<<<<<< ours
             public override int FuseLeft => CarriedFuse;
+||||||| base
+=======
+            internal override int FuseLeft => CarriedFuse;
+>>>>>>> theirs
         }
 
+<<<<<<< ours
         /// <summary>
         /// One of a special attack's particles, which keeps its own angle where a beam's fuse is counted: an orbiting
         /// particle its angle round its circle, a Wave particle none.
@@ -161,6 +228,17 @@ public static class BeamFiredOverLastShot
         {
             /// <inheritdoc/>
             public override int FuseLeft => KeptAngle.RawValue;
+||||||| base
+        /// <summary>One of a special attack's particles.</summary>
+        public sealed record SpecialAttackParticle : ReplacedShot;
+=======
+        /// <summary>One of a special attack's particles.</summary>
+        public sealed record SpecialAttackParticle : ReplacedShot
+        {
+            /// <inheritdoc/>
+            internal override int FuseLeft => throw new InvalidOperationException(
+                "A beam fired with every place held takes the last place, which no special attack particle holds, yet a particle was replaced.");
+>>>>>>> theirs
         }
     }
 }

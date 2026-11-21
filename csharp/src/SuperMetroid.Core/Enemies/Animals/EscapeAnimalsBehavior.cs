@@ -81,36 +81,29 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         return state;
     }
 
+    /// <summary>What <see cref="RunEscapeEtecoonMain"/> does for each <see cref="EscapeEtecoonAction"/> member, each member's own arm.</summary>
+    private IdentityTable<EscapeEtecoonAction, Action<RoomEnemyPlace, EscapeEtecoonEnemyState, RoomLevelData>> RunEscapeEtecoonMainForEscapeEtecoonAction => field ??= new(new Dictionary<EscapeEtecoonAction, Action<RoomEnemyPlace, EscapeEtecoonEnemyState, RoomLevelData>>
+    {
+        [EscapeEtecoonAction.ExpressingGratitude] = (place, state, level) => { },
+        [EscapeEtecoonAction.Escaping] = (place, state, level) => AddEscapeAnimalX(place, EscapeAnimalMotionDefinitions.EtecoonExitSpeed),
+        [EscapeEtecoonAction.AwaitingEscape] = (place, state, level) =>
+        {
+            // The wait changes only the animation. It deliberately leaves the
+            // existing frame hold intact, so the new animation begins on the same
+            // update boundary the game observes.
+            if (HasCrittersEscaped())
+                state.Playback = new(EscapeEtecoonAnimations.StartingWith(EscapeEtecoonSegment.ExpressGratitudeThenEscape), AnimationPlace.StartOfAnimation);
+        },
+        [EscapeEtecoonAction.Walking] = (place, state, level) => RunEscapeEtecoonWalking(place, state, level),
+    });
+
     /// <summary>Runs an escaping Etecoon's action.</summary>
     private void RunEscapeEtecoonMain(
         RoomEnemyPlace place,
         EscapeEtecoonEnemyState state,
         RoomLevelData level)
     {
-        switch (state.Action)
-        {
-            case EscapeEtecoonAction.ExpressingGratitude:
-                return;
-
-            case EscapeEtecoonAction.Escaping:
-                AddEscapeAnimalX(place, EscapeAnimalMotionDefinitions.EtecoonExitSpeed);
-                return;
-
-            case EscapeEtecoonAction.AwaitingEscape:
-                // The wait changes only the animation. It deliberately leaves the
-                // existing frame hold intact, so the new animation begins on the same
-                // update boundary the game observes.
-                if (HasCrittersEscaped())
-                    state.Playback = new(EscapeEtecoonAnimations.StartingWith(EscapeEtecoonSegment.ExpressGratitudeThenEscape), AnimationPlace.StartOfAnimation);
-                return;
-
-            case EscapeEtecoonAction.Walking:
-                RunEscapeEtecoonWalking(place, state, level);
-                return;
-
-            default:
-                throw new InvalidDataException($"Escape Etecoon has no behaviour for action {state.Action}.");
-        }
+        RunEscapeEtecoonMainForEscapeEtecoonAction[state.Action](place, state, level);
     }
 
     /// <summary>Walks and falls, including the collision-only event branch.</summary>
@@ -162,26 +155,45 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = playback;
     }
 
+    /// <summary>What <see cref="ApplyEscapeEtecoonCue"/> comes to for each <see cref="EscapeEtecoonCueKind"/> member, each member's own arm.</summary>
+    private static IdentityTable<EscapeEtecoonCueKind, Func<EscapeEtecoonEnemyState, EscapeEtecoonSegment?>> ApplyEscapeEtecoonCueForEscapeEtecoonCueKind => field ??= new(new Dictionary<EscapeEtecoonCueKind, Func<EscapeEtecoonEnemyState, EscapeEtecoonSegment?>>
+    {
+        [EscapeEtecoonCueKind.Escapes] = static state =>
+        {
+            state.Escape();
+            return null;
+        },
+        [EscapeEtecoonCueKind.ExpressesGratitude] = static state =>
+        {
+            state.ExpressGratitude();
+            return null;
+        },
+    });
+
     /// <summary>Carries out one cue of an Etecoon's animation, returning the segment a branch continues at, or null to run on.</summary>
     private static EscapeEtecoonSegment? ApplyEscapeEtecoonCue(RoomEnemyPlace place, EscapeEtecoonEnemyState state, SamusState samus, EscapeEtecoonCue cue)
     {
-        switch (cue)
-        {
-            case EscapeEtecoonCue.Signal { Kind: EscapeEtecoonCueKind.Escapes }:
-                state.Escape();
-                return null;
-            case EscapeEtecoonCue.Signal { Kind: EscapeEtecoonCueKind.ExpressesGratitude }:
-                state.ExpressGratitude();
-                return null;
-            case EscapeEtecoonCue.LowTideRunStarts lowTide:
-                return IsAcidLow(samus) ? null : HighTideRun(lowTide.Running);
-            case EscapeEtecoonCue.Move move:
-                place.Position = place.Position.WithWholeX(place.Position.X.Whole + move.Offset);
-                return null;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(EscapeEtecoonCue)} {cue}.");
-        }
+        return cue.Match(ApplyEscapeEtecoonCueCases, new ApplyEscapeEtecoonCueContext(samus, place, state));
     }
+
+    /// <summary>What <see cref="ApplyEscapeEtecoonCue"/> does on each <see cref="EscapeEtecoonCue"/>, built once (#2553).</summary>
+    private static EscapeEtecoonCueCases<ApplyEscapeEtecoonCueContext, EscapeEtecoonSegment?> ApplyEscapeEtecoonCueCases { get; } = new(
+        LowTideRunStarts: static (lowTide, context) => IsAcidLow(context.Samus) ? null : HighTideRun(lowTide.Running),
+        Move: static (move, context) =>
+        {
+            context.Place.Position = context.Place.Position.WithWholeX(context.Place.Position.X.Whole + move.Offset);
+            return null;
+        },
+        Signal: static (signal, context) =>
+        {
+            return ApplyEscapeEtecoonCueForEscapeEtecoonCueKind[signal.Kind](context.State);
+        });
+
+    /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <param name="Samus">The samus the cases read.</param>
+    /// <param name="Place">The place the cases read.</param>
+    /// <param name="State">The state the cases read.</param>
+    private readonly record struct ApplyEscapeEtecoonCueContext(SamusState Samus, RoomEnemyPlace Place, EscapeEtecoonEnemyState State);
 
     /// <summary>The run an escaping Etecoon starts the way it runs once the rising acid is high (#2167).</summary>
     private static EscapeEtecoonSegment HighTideRun(HorizontalDirection running) =>
@@ -193,19 +205,24 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private AnimationContinuation<EscapeDachoraSegment>? ApplyEscapeDachoraCue(RoomEnemyPlace place, SamusState samus, EscapeDachoraCue cue)
     {
-        switch (cue)
-        {
-            case EscapeDachoraCue.Move move:
-                place.Position = place.Position.WithWholeX(place.Position.X.Whole + move.Offset);
-                return null;
-            case EscapeDachoraCue.LowTideLapEnds lowTide:
-                return IsAcidLow(samus) ? null : RisingTideTakesOver(lowTide.Lap);
-            case EscapeDachoraCue.LapEnds lap:
-                return HasCrittersEscaped() ? EscapeTakesOver(lap.Lap) : null;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(EscapeDachoraCue)} {cue}.");
-        }
+        return cue.Match(ApplyEscapeDachoraCueCases, new ApplyEscapeDachoraCueContext(samus, place, this));
     }
+
+    /// <summary>What <see cref="ApplyEscapeDachoraCue"/> does on each <see cref="EscapeDachoraCue"/>, built once (#2553).</summary>
+    private static EscapeDachoraCueCases<ApplyEscapeDachoraCueContext, AnimationContinuation<EscapeDachoraSegment>?> ApplyEscapeDachoraCueCases { get; } = new(
+        LowTideLapEnds: static (lowTide, context) => IsAcidLow(context.Samus) ? null : RisingTideTakesOver(lowTide.Lap),
+        LapEnds: static (lap, context) => context.Owner.HasCrittersEscaped() ? EscapeTakesOver(lap.Lap) : null,
+        Move: static (move, context) =>
+        {
+            context.Place.Position = context.Place.Position.WithWholeX(context.Place.Position.X.Whole + move.Offset);
+            return null;
+        });
+
+    /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <param name="Samus">The samus the cases read.</param>
+    /// <param name="Place">The place the cases read.</param>
+    /// <param name="Owner">The <see cref="EscapeAnimalsBehavior"/> reacting.</param>
+    private readonly record struct ApplyEscapeDachoraCueContext(SamusState Samus, RoomEnemyPlace Place, EscapeAnimalsBehavior Owner);
 
     /// <summary>
     /// Where the rising tide takes the escaping Dachora at the end of a low-tide lap the way <paramref name="lap"/> ran

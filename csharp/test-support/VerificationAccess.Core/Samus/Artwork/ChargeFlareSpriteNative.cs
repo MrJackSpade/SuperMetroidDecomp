@@ -25,16 +25,15 @@ internal static class ChargeFlareSpriteNative
         /// <exception cref="ArgumentOutOfRangeException">The selector is outside the table.</exception>
         internal static ProjectileSpriteId NativeSelector(int selector)
         {
-            (ChargeFlareComponent component, bool facingLeft, int phase) = selector switch
+            return selector switch
             {
-                >= 0 and < 30 => (ChargeFlareComponent.MainFlare, false, selector),
-                >= 30 and < 36 => (ChargeFlareComponent.SlowSparks, false, selector - 30),
-                >= 36 and < 42 => (ChargeFlareComponent.FastSparks, false, selector - 36),
-                >= 42 and < 48 => (ChargeFlareComponent.SlowSparks, true, selector - 42),
-                >= 48 and < NativeSelectorCount => (ChargeFlareComponent.FastSparks, true, selector - 48),
+                >= 0 and < 30 => ChargeFlarePictures.MainFlare(ChargeFlarePictureNumbers.MainFlare(selector)),
+                >= 30 and < 36 => ChargeFlarePictures.SlowSparks(HorizontalDirection.Right, ChargeFlarePictureNumbers.SlowSparks(selector - 30)),
+                >= 36 and < 42 => ChargeFlarePictures.FastSparks(HorizontalDirection.Right, ChargeFlarePictureNumbers.FastSparks(selector - 36)),
+                >= 42 and < 48 => ChargeFlarePictures.SlowSparks(HorizontalDirection.Left, ChargeFlarePictureNumbers.SlowSparks(selector - 42)),
+                >= 48 and < NativeSelectorCount => ChargeFlarePictures.FastSparks(HorizontalDirection.Left, ChargeFlarePictureNumbers.FastSparks(selector - 48)),
                 _ => throw new ArgumentOutOfRangeException(nameof(selector), selector, "The flare's selector table has 54 entries."),
             };
-            return ChargeFlarePictures.Of(component, facingLeft, ChargeFlareAnimationDefinitions.PictureNumbered(component, phase));
         }
     }
 }

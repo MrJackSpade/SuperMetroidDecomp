@@ -55,15 +55,7 @@ public static class SamusTerrainHazardCollision
         // Heavy spikes are harmless in a level whose heavy spikes do no damage.
         if (behavior == SpikeBlockBehavior.Heavy && !level.HeavySpikesDamage)
             return;
-        int damage = behavior switch
-        {
-            SpikeBlockBehavior.Heavy => SpikeHazardDefinitions.HeavySpikeDamage,
-            SpikeBlockBehavior.Light =>
-                SpikeHazardDefinitions.LightSpikeDamage,
-            _ => throw new InvalidOperationException($"Undefined SpikeBlockBehavior {behavior}."),
-        };
-
-        PublishDamage(samus, damage);
+        PublishDamage(samus, behavior == SpikeBlockBehavior.Light ? SpikeHazardDefinitions.LightSpikeDamage : SpikeHazardDefinitions.HeavySpikeDamage);
     }
 
     /// <summary>Tests one input-phase body sample for damaging spike-air, restoring normal-air speed selection before the invincibility and contact-damage gates.</summary>

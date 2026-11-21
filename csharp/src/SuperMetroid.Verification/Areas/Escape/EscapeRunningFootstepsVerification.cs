@@ -28,7 +28,7 @@ internal static class EscapeRunningFootstepsVerification
         foreach (bool able in new[] { false, true })
         foreach (SamusPoseId pose in new[] { SamusPoseId.MovingRightNormalPose, SamusPoseId.MovingLeftNormalPose })
         {
-            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) };
+            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) }.InPose(SamusPoseId.FacingRightNormalPose);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             SamusPresentation.InitializeAnimation(samus);
             if (able) samus.Drained.SetupForRainbowBeamAbleToStand(samus);
@@ -42,7 +42,7 @@ internal static class EscapeRunningFootstepsVerification
 
             // Begin at the identified native timer-handoff phase, not a boss playthrough.
             var sequence = MotherBrainLateFightFixtures.NewSequence();
-            sequence.Encounter.DeathPhase = MotherBrainDeathPhase.EscapeDoorBursts;
+            sequence.State.DeathPhase = MotherBrainDeathPhase.EscapeDoorBursts;
             var request = sequence.Step(samus, MotherBrainLateFightFixtures.QuietFrame(0, 0) with { NextRandomNumber = () => 0 });
             AssertTrue(request.Starts(MotherBrainStepEffect.GetUpRelease) && request.Starts(MotherBrainStepEffect.EscapeTimerStart),
                 "native death phase emits command F and timer start together");
@@ -59,10 +59,10 @@ internal static class EscapeRunningFootstepsVerification
                 Effects = [.. request.Effects.Where(effect => effect is not (MotherBrainStepEffect.DefeatRecord or MotherBrainStepEffect.ZebesTimebombEvent))],
             }, SuperMetroid.Core.World.EnemyRoomEffectSite.Of(runtime.Room.LoadedScope, samus));
 
-            samus.Pose = pose;
+            samus.ChangePoseKeepingAnimation(pose);
             samus.Control.Unlock();
             SamusPoseMetadata.RefreshCollisionRadii(samus);
-            SamusPresentation.InitializeAnimation(samus, samus.PoseFrameNumbered(8));
+            samus.ChangePose(samus.Pose, samus.PoseFrameNumbered(8));
             SamusPresentation.SetAnimationFrameFromMovementOwner(samus, samus.AnimationFrameNumbered(8), 1);
             PrivateState.Set(samus.LiquidPhysics, nameof(SamusLiquidPhysicsState.FxType), RoomFxType.Acid);
             global::SuperMetroid.Core.PrivateState.Set(samus.LiquidPhysics, "Surface", new global::SuperMetroid.Core.Samus.Movement.SamusLiquidSurface.LavaOrAcid(0));

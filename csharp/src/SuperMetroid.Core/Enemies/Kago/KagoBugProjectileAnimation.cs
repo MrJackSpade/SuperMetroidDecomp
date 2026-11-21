@@ -10,5 +10,5 @@ internal sealed class KagoBugProjectileAnimation(IEnemyProjectileCues<KagoBugPro
     : EnemyProjectileFrameAnimation<KagoBugProjectileSegment, KagoBugProjectileCue>(segment, KagoBugProjectileAnimations.StartingAt[segment], EnemyProjectileCueRunner<KagoBugProjectileSegment, KagoBugProjectileCue>.By(owner))
 {
     /// <inheritdoc/>
-    private protected override AnimationSegments<KagoBugProjectileSegment, EnemyProjectileFrameId, KagoBugProjectileCue> Segments => KagoBugProjectileAnimations.Segments;
+    private protected override IUnpausedAnimationPlay<KagoBugProjectileSegment, EnemyProjectileFrameId, KagoBugProjectileCue> Segments => KagoBugProjectileAnimations.Segments;
 }

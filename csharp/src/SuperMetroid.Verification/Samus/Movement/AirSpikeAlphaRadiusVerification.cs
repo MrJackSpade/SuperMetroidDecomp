@@ -44,7 +44,7 @@ internal static class AirSpikeAlphaRadiusVerification
 
         SamusState samus = runtime.Player.Samus;
         samus.Control.Unlock();
-        samus.Pose = SamusPoseId.FacingRightNormalPose;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
         samus.Position = samus.Position.WithWholeX(SpikeColumn * 16 + 8);
         // Radius 21 puts the top at Y 474, inside the spike row (464-479). The live radius
         // still holds the previous pose's 12, whose top (483) is in the air row below.

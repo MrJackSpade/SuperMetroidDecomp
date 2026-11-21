@@ -35,14 +35,6 @@ internal abstract class DraygonEntity(DraygonBehavior species, RoomEnemyOccupant
     /// <summary>The encounter the part is part of, which it holds from its setup (#2177).</summary>
     internal DraygonEnemyState Encounter => Part.Draygon;
 
-    /// <summary>The encounter <paramref name="part"/> is part of, which the part's own entity holds.</summary>
-    /// <param name="part">A place holding one of Draygon's parts.</param>
-    /// <exception cref="InvalidOperationException">The place holds none of his parts.</exception>
-    internal static DraygonEnemyState EncounterOf(RoomEnemyPlace part) =>
-        Ensure.NotNull(part).Entity is DraygonEntity entity
-            ? entity.Encounter
-            : throw new InvalidOperationException($"Enemy place {part.Ordinal} holds no part of Draygon.");
-
     /// <inheritdoc/>
     public EnemyHitboxContact FindHitboxReaction(EnemyHitboxProbe probe) =>
         DraygonCombat.FindDraygonHitboxReaction(Place, probe);

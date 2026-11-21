@@ -8,8 +8,6 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 [RoomLifetime]
 internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemySpawnFactory<MultiviolaSpawnSettings>
 {
-    /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Multiviola];
 
     /// <inheritdoc/>
     public EnemyOccupant Create(RoomEnemyOccupant occupant, MultiviolaSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new MultiviolaEntity(this, occupant, place, common, settings));
@@ -64,9 +62,8 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemySpawnFactory<Mul
 
     /// <summary>Advances Multiviola's typed animation.</summary>
     internal static void AdvanceMultiviolaTypedAnimation(RoomEnemyPlace place, MultiviolaEnemyState multiviolaEnemyState) =>
-        EnemyAnimationPlayback.Advance(place, multiviolaEnemyState, MultiviolaAnimations.Segments,
-            static (MultiviolaEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
-            static (_, cue) => throw new InvalidOperationException($"A cue-free Multiviola animation raised {cue}."));
+        EnemyAnimationPlayback.AdvanceSilently(place, multiviolaEnemyState, MultiviolaAnimations.Segments,
+            static (MultiviolaEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback);
 
     /// <summary>Runs Multiviola's main AI.</summary>
     internal void RunMultiviolaMainAi(MultiviolaSpawnSettings multiviolaSpawnSettings, RoomEnemyPlace place, MultiviolaEnemyState multiviolaEnemyState, IEnemyAiFrame frame)

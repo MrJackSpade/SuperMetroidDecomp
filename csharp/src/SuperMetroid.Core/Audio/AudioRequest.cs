@@ -12,17 +12,34 @@ internal abstract record AudioRequest
     {
     }
 
+    /// <summary>Carries out the reaction <paramref name="reactions"/> has to this request, through the request it is (#2553).</summary>
+    /// <typeparam name="TContext">What the request's reaction reads besides the request.</typeparam>
+    /// <param name="reactions">What the session does on each request.</param>
+    /// <param name="context">What the request's reaction reads besides the request, handed to it so the reactions are built once.</param>
+    internal abstract void React<TContext>(AudioRequestReactions<TContext> reactions, TContext context);
+
     /// <summary>Plays <paramref name="Track"/> of the loaded music data set from the music's next beat.</summary>
     /// <param name="Track">The track to play.</param>
-    internal sealed record PlayMusicTrack(MusicTrack Track) : AudioRequest;
+    internal sealed record PlayMusicTrack(MusicTrack Track) : AudioRequest
+    {
+        /// <inheritdoc/>
+        internal override void React<TContext>(AudioRequestReactions<TContext> reactions, TContext context) =>
+            Ensure.NotNull(reactions).PlayMusicTrack(this, context);
+    }
 
     /// <summary>Stops the music on its next beat.</summary>
-    internal sealed record StopMusic : AudioRequest;
+    internal sealed record StopMusic : AudioRequest
+    {
+        /// <inheritdoc/>
+        internal override void React<TContext>(AudioRequestReactions<TContext> reactions, TContext context) =>
+            Ensure.NotNull(reactions).StopMusic(this, context);
+    }
 
     /// <summary>
     /// Switches the clips the music and sounds play from to <paramref name="DataSet"/>'s. The switch stops the music and
     /// drops every sound request not yet accepted (<see cref="SoundAcceptanceClock{TLibrary, TSound}.PauseForMusicLoad"/>).
     /// </summary>
+<<<<<<< ours
     /// <param name="DataSet">The music data set switched to.</param>
     internal sealed record ChangeMusicDataSet(MusicDataSet DataSet) : AudioRequest;
 
@@ -31,14 +48,36 @@ internal abstract record AudioRequest
     /// asked for next are of the set loaded next.
     /// </summary>
     internal sealed record InstallSharedSounds : AudioRequest;
+||||||| base
+    /// <param name="DataSet">The music data set switched to, or null for only the shared sounds, as at power-on.</param>
+    internal sealed record ChangeMusicDataSet(MusicDataSet? DataSet) : AudioRequest;
+=======
+    /// <param name="DataSet">The music data set switched to, or null for only the shared sounds, as at power-on.</param>
+    internal sealed record ChangeMusicDataSet(MusicDataSet? DataSet) : AudioRequest
+    {
+        /// <inheritdoc/>
+        internal override void React<TContext>(AudioRequestReactions<TContext> reactions, TContext context) =>
+            Ensure.NotNull(reactions).ChangeMusicDataSet(this, context);
+    }
+>>>>>>> theirs
 
     /// <summary>Asks <paramref name="Sound"/>'s library to play it; the library keeps the request until it is changed.</summary>
     /// <param name="Sound">The sound requested.</param>
-    internal sealed record RequestSound(SoundEffectId Sound) : AudioRequest;
+    internal sealed record RequestSound(SoundEffectId Sound) : AudioRequest
+    {
+        /// <inheritdoc/>
+        internal override void React<TContext>(AudioRequestReactions<TContext> reactions, TContext context) =>
+            Ensure.NotNull(reactions).RequestSound(this, context);
+    }
 
     /// <summary>Withdraws whatever <paramref name="Library"/> is asked to play.</summary>
     /// <param name="Library">The library whose request is withdrawn.</param>
-    internal sealed record ClearSoundRequest(SoundEffectLibrary Library) : AudioRequest;
+    internal sealed record ClearSoundRequest(SoundEffectLibrary Library) : AudioRequest
+    {
+        /// <inheritdoc/>
+        internal override void React<TContext>(AudioRequestReactions<TContext> reactions, TContext context) =>
+            Ensure.NotNull(reactions).ClearSoundRequest(this, context);
+    }
 
     /// <summary>The request that asks <paramref name="library"/> for <paramref name="sound"/>, or withdraws its request for none.</summary>
     /// <param name="library">The library asked.</param>

@@ -32,14 +32,20 @@ internal static class TorizoLandingLifetimeVerification
         body.Health=body.Definition.Health;state.Posture=TorizoPosture.Initial;state.CaughtSuperMissile=state.Stunned=false;state.Breakage=TorizoBreakage.Intact;
         body.Contact = EnemyContact.None;
         body.Processing = EnemyProcessing.Animates;
-        body.Presence = EnemyPresence.None;state.BodyPlayback=new AnimationPlayback<TorizoBodySegment>(TorizoAnimations.StartingWith(TorizoAnimation.FacingLeftFalling), AnimationPlace.Before(TorizoAnimations.StartingWith(TorizoAnimation.FacingLeftFalling).CyclePhase));body.AnimationClock.HoldFor(5);
+        body.Presence = EnemyPresence.None;state.BodyPlayback=new AnimationPlayback<TorizoBodySegment>(TorizoAnimations.StartingWith(TorizoAnimation.FacingLeftFalling), AnimationPlace.Before(((AnimationEnd.Loop)TorizoAnimations.StartingWith(TorizoAnimation.FacingLeftFalling).End).Phase));body.AnimationClock.HoldFor(5);
         body.Position = body.Position.WithWhole(new(128, (ushort)(190-body.Radius.Y)));
         var terrain=new RoomTerrainBlock[256];for(int i=12*16;i<13*16;i++)terrain[i]=RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
         // A flat floor across row 12 of the room's own blocks, which its block sheet pictures.
         var scope = runtime.Room.Scope ?? throw new InvalidOperationException("Verification requires a loaded room.");
         var level=new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(terrain, new RoomBlockBehavior[256], new RoomBlockAppearance[256]), RoomLevelData.NothingBeyondGrid(), []);
         runtime.Room.Adopt(scope with { LevelData = level });
+<<<<<<< ours
         var samus=runtime.Player.Samus;samus.Pose=SamusPoseId.FacingRightNormalPose;
+||||||| base
+        var samus=runtime.Player.IntroducedSamus;samus.Pose=SamusPoseId.FacingRightNormalPose;
+=======
+        var samus=runtime.Player.IntroducedSamus;samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
+>>>>>>> theirs
         samus.Health=samus.MaxHealth=999;
         SamusPoseMetadata.RefreshCollisionRadii(samus);SamusPresentation.InitializeAnimation(samus);samus.CommitPoseHistory();
         samus.Position = samus.Position.WithWhole(new(240, (ushort)(192-samus.Kinematics.Radius.Y)));samus.Control.Unlock();

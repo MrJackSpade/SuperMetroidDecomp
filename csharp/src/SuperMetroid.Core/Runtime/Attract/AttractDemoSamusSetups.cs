@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Poses;
 
 namespace SuperMetroid.Core.Runtime.Attract;
@@ -28,8 +29,8 @@ public static class AttractDemoSamusSetups
     public static AttractDemoSamusSetup.Posed FallingLeft { get; } = new(SamusPoseId.FallingLeftPose);
 
     /// <summary>Already launched into a shinespark diagonally up and right.</summary>
-    public static AttractDemoSamusSetup.Shinespark DiagonalShinespark { get; } = new(SamusPoseId.ShinesparkDiagonalRightPose);
+    public static AttractDemoSamusSetup.Shinespark DiagonalShinespark { get; } = new(ShinesparkLaunch.DiagonalRight);
 
     /// <summary>Already launched into a shinespark horizontally to the left.</summary>
-    public static AttractDemoSamusSetup.Shinespark HorizontalShinespark { get; } = new(SamusPoseId.ShinesparkHorizontalLeftPose);
+    public static AttractDemoSamusSetup.Shinespark HorizontalShinespark { get; } = new(ShinesparkLaunch.HorizontalLeft);
 }

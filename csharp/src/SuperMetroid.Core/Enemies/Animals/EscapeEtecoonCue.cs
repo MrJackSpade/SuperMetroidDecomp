@@ -8,18 +8,46 @@ internal abstract record EscapeEtecoonCue
     {
     }
 
+    /// <summary>What <paramref name="cases"/> makes of this escape etecoon cue, through the case it is.</summary>
+    /// <typeparam name="TResult">What the escape etecoon cue is made into.</typeparam>
+    /// <param name="cases">What each case is made into.</param>
+    /// <typeparam name="TContext">What the case's reaction reads besides the case.</typeparam>
+    /// <param name="context">What the case's reaction reads besides the case, handed to it so the cases are built once.</param>
+    internal abstract TResult Match<TContext, TResult>(EscapeEtecoonCueCases<TContext, TResult> cases, TContext context);
+
+
     /// <summary>
     /// A low-tide run starts (#2167): once the rising acid is above its low surface (<see cref="EscapeAnimalMotionDefinitions.LowAcidSurfaceY"/>) the owner starts the high-tide run the same way
     /// instead.
     /// </summary>
     /// <param name="Running">The way the Etecoon runs.</param>
-    internal sealed record LowTideRunStarts(HorizontalDirection Running) : EscapeEtecoonCue;
+    internal sealed record LowTideRunStarts(HorizontalDirection Running) : EscapeEtecoonCue
+    {
+        /// <inheritdoc/>
+        internal override TResult Match<TContext, TResult>(EscapeEtecoonCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).LowTideRunStarts(this, context);
+    }
 
     /// <summary>Moves the Etecoon horizontally.</summary>
     /// <param name="Offset">The cue's signed pixel offset.</param>
-    internal sealed record Move(int Offset) : EscapeEtecoonCue;
+    internal sealed record Move(int Offset) : EscapeEtecoonCue
+    {
+        /// <inheritdoc/>
+        internal override TResult Match<TContext, TResult>(EscapeEtecoonCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).Move(this, context);
+    }
 
     /// <summary>A cue that signals what it does and carries nothing else.</summary>
     /// <param name="Kind">What the cue does.</param>
-    internal sealed record Signal(EscapeEtecoonCueKind Kind) : EscapeEtecoonCue;
+    internal sealed record Signal(EscapeEtecoonCueKind Kind) : EscapeEtecoonCue
+    {
+        /// <inheritdoc/>
+        internal override TResult Match<TContext, TResult>(EscapeEtecoonCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).Signal(this, context);
+    }
 }
+
+/// <summary>What each case of a <see cref="EscapeEtecoonCue"/> is made into (#2553).</summary>
+/// <typeparam name="TResult">What the escape etecoon cue is made into.</typeparam>
+/// <param name="LowTideRunStarts">Makes a <see cref="EscapeEtecoonCue.LowTideRunStarts"/> into the result.</param>
+/// <param name="Move">Makes a <see cref="EscapeEtecoonCue.Move"/> into the result.</param>
+/// <param name="Signal">Makes a <see cref="EscapeEtecoonCue.Signal"/> into the result.</param>
+/// <typeparam name="TContext">What each case reads besides itself.</typeparam>
+internal sealed record EscapeEtecoonCueCases<TContext, TResult>(Func<EscapeEtecoonCue.LowTideRunStarts, TContext, TResult> LowTideRunStarts, Func<EscapeEtecoonCue.Move, TContext, TResult> Move, Func<EscapeEtecoonCue.Signal, TContext, TResult> Signal);

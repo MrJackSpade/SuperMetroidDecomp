@@ -35,6 +35,31 @@ internal sealed class IntroEggParticle
             IntroEggEffectAnimations.ShellPieces, definition.Animation);
     }
 
+    /// <summary>
+    /// Confirms, once as the installed steps are accepted, that every shell fragment reaches the floor within its curve and
+    /// <paramref name="fallPastCurve"/>'s steps, flying each one as the cinematic does, so no fragment reads a step past them.
+    /// </summary>
+    /// <param name="fallPastCurve">The installed steps a fragment falls by past its gravity curve.</param>
+    /// <returns><paramref name="fallPastCurve"/>.</returns>
+    /// <exception cref="InvalidDataException">A fragment is still in the air after every step.</exception>
+    internal static ShellFragmentFallPastCurve ConfirmEveryFragmentLands(ShellFragmentFallPastCurve fallPastCurve)
+    {
+        Ensure.NotNull(fallPastCurve);
+        foreach (IntroEggShellFragment fragment in Enum.GetValues<IntroEggShellFragment>())
+        {
+            var particle = new IntroEggParticle(fragment, fallPastCurve);
+            for (int update = 0; update < IntroEggMotionDefinitions.ShellFall.Updates + fallPastCurve.Updates && particle.sprite.IsActive; update++)
+                particle.Step();
+            if (particle.sprite.IsActive)
+            {
+                throw new InvalidDataException(
+                    $"The {fragment} shell fragment is still in the air after the {fallPastCurve.Updates} installed steps past its gravity curve.");
+            }
+        }
+
+        return fallPastCurve;
+    }
+
     /// <summary>Applies the fragment's velocity and gravity, redirecting to deletion once it reaches the floor.</summary>
     public void Step()
     {

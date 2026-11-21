@@ -51,56 +51,27 @@ internal sealed class SamusPresentation
     /// Starts the pose's animation on its first frame and seeds the animation frame timer as a pose change does, including
     /// its bottom-minus-one liquid boundary test.
     /// </summary>
-    public static void InitializeAnimation(SamusState samus) => InitializeAnimation(samus, SamusAnimationDelays.AnimationForPose(samus.Pose).Start);
+    public static void InitializeAnimation(SamusState samus) => StartAnimation(samus, Ensure.NotNull(samus).AnimationRestart);
 
     /// <summary>
-    /// Starts the pose's animation on <paramref name="initialFrame"/>, a place named for another animation landing on the
-    /// frame the import decoded for it in the pose's (<see cref="SamusAnimationDelays.Land"/>), and seeds the timer as
-    /// <see cref="InitializeAnimation(SamusState)"/> does.
+    /// Starts her pose's animation on <paramref name="initialFrame"/>, a frame of the pose's own animation, and seeds the
+    /// timer from the delay read there as <see cref="InitializeAnimation(SamusState)"/> does: the animation start of a pose
+    /// change (<see cref="SamusState.ChangePose(SamusPoseId, SamusAnimationFrame)"/>).
     /// </summary>
-    internal static void InitializeAnimation(SamusState samus, SamusAnimationPlace initialFrame) =>
-        InitializeAnimation(samus, SamusAnimationDelays.Land(samus.Pose, initialFrame, samus.FramesBeyondAnimation));
-
-    /// <summary>
-    /// Starts the pose's animation on <paramref name="initialFrame"/>, a frame of the pose's own animation, and seeds the
-    /// timer as <see cref="InitializeAnimation(SamusState)"/> does.
-    /// </summary>
-    internal static void InitializeAnimation(SamusState samus, SamusAnimationFrame initialFrame)
+    internal static void StartAnimation(SamusState samus, SamusAnimationDelayFrame initialFrame)
     {
-        samus.AnimationFrame = initialFrame;
+        samus.AnimationFrame = initialFrame.Frame;
         // Pose initialization does not simply reuse the previous animation pass's extra animation delay. It
         // recomputes the water or lava delay from the NEW pose radius at Y + radius - 1, while
         // the Gravity Suit takes the slowdown level.
         samus.ExtraAnimationDelay = samus.LiquidPhysics.DeterminePoseChangeExtraAnimationDelay(samus);
-        samus.AnimatedPose = samus.Pose;
-        if (samus.AnimationStep is not SamusAnimationDelay initialDelay)
-        {
-            throw new InvalidOperationException(
-                $"Samus pose {samus.Pose} cannot start its animation on frame {samus.AnimationFrame}, which is not a delay.");
-        }
-
-        samus.AnimationFrameTimer = WrappingCountdown.Start(samus.ExtraAnimationDelay).AddFrames(initialDelay.Ticks);
+        samus.AnimationFrameTimer = WrappingCountdown.Start(samus.ExtraAnimationDelay).AddFrames(initialFrame.Delay.Ticks);
         samus.CuePose.Forget();
     }
 
     /// <summary>
-    /// The pose-change animation reset as a scene setup
-    /// calls it before committing pose history: the animation restarts only when Pose
-    /// differs from PreviousPose, and otherwise keeps its frame and timer running.
-    /// </summary>
-    /// <remarks>
-    /// The animation does not restart while <see cref="SamusState.ExtraAnimationDelay"/> is negative; it is nonnegative
-    /// at the intro's discovery setup and its demo's end, the only places this runs.
-    /// </remarks>
-    internal static void SetAnimationFrameIfPoseChanged(SamusState samus)
-    {
-        if (samus.Pose == samus.PoseHistory.PreviousPose)
-            return;
-        InitializeAnimation(samus);
-    }
-
-    /// <summary>
-    /// Restarts the pose's animation after a scripted sequence sets Samus's pose and animation directly.
+    /// Restarts the pose's animation after a scripted sequence sets Samus's pose and animation directly
+    /// (<see cref="SamusState.ChangePoseWithoutSetup"/>).
     /// </summary>
     /// <remarks>
     /// Standing drained Samus up and putting her back into the drained crouch do exactly that; her liquid's
@@ -119,29 +90,23 @@ internal sealed class SamusPresentation
     internal static void SetPoseAndAnimationForScriptedSequence(SamusState samus,
         SamusPoseId pose,
         SamusAnimationFrame frame,
-        int timer)
-    {
+        int timer) =>
         // Both drained sequences store only the pose; the prior movement and collision radii stay.
-        samus.WritePoseWithoutInitialization(pose);
-        samus.AnimatedPose = pose;
-        samus.AnimationFrame = SamusAnimationDelays.AnimationForPose(pose).Require(frame);
-        samus.AnimationFrameTimer = WrappingCountdown.Start(timer);
-        samus.CuePose.Forget();
-    }
+        samus.ChangePoseWithoutSetup(pose, frame, timer);
 
     /// <summary>
     /// Shows the grapple art the swing's angle selects, as the grapple swing does before her animation runs; her
     /// animation counts its hold (<see cref="SamusAnimationDelayDefinitions.GrappleSwingPictureHold"/>) down later in the
     /// same update.
     /// </summary>
+    /// <remarks>
+    /// The swing puts her animation on the picture's frame whatever her pose, as the game's swing sets its frame:
+    /// a connection's pose that an animation or hurt transition suppressed leaves the swing running in another pose
+    /// (<see cref="World.SamusPoseTransitionPhase"/>), whose animation then reads the frame.
+    /// </remarks>
     public static void ShowGrappleSwingPicture(SamusState samus, GrappleSwingPicture picture)
     {
-        if (!SamusPoseTraits.IsIn(samus.Pose, SamusPoseFamily.GrappleSwing))
-            throw new InvalidOperationException($"Grapple swing art cannot be assigned to pose {samus.Pose}.");
-        SamusPoseAnimation swing = SamusAnimationDelayDefinitions.GrappleSwingAnimation;
-        if (!ReferenceEquals(SamusAnimationDelays.AnimationForPose(samus.AnimationPose), swing))
-            throw new InvalidOperationException($"Grapple swing art cannot be assigned while Samus animates by pose {samus.AnimationPose}'s animation.");
-        samus.AnimationFrame = swing.Require(picture.AnimationFrame);
+        samus.AnimationFrame = picture.AnimationFrame;
         samus.AnimationFrameTimer = WrappingCountdown.Start(SamusAnimationDelayDefinitions.GrappleSwingPictureHold);
     }
 
@@ -154,8 +119,6 @@ internal sealed class SamusPresentation
     /// </remarks>
     public static void Animate(SamusState samus, SamusAnimationStep step)
     {
-        EnsureAnimationInitialized(samus);
-
         // The animation pass runs the active room effect's liquid step before touching the
         // frame timer. This also updates the remembered medium, which the next Space Jump gate
         // consumes independently of its current top-boundary submersion check.
@@ -193,7 +156,6 @@ internal sealed class SamusPresentation
     /// </summary>
     internal static void AnimateDeathFrame(SamusState samus)
     {
-        EnsureAnimationInitialized(samus);
         samus.AnimationFrameTimer = samus.AnimationFrameTimer.Decrement().Remaining;
         if (!samus.AnimationFrameTimer.IsZero && !samus.AnimationFrameTimer.IsNegative)
             return;
@@ -223,7 +185,7 @@ internal sealed class SamusPresentation
     /// </summary>
     internal static void SetAnimationFrameFromMovementOwner(SamusState samus, SamusAnimationFrame frame, int timer)
     {
-        samus.AnimationFrame = SamusAnimationDelays.AnimationForPose(samus.AnimationPose).Require(frame);
+        samus.AnimationFrame = SamusAnimationDelays.AnimationForPose(samus.Pose).Require(frame);
         samus.AnimationFrameTimer = WrappingCountdown.Start(timer);
     }
 
@@ -240,12 +202,20 @@ internal sealed class SamusPresentation
                 SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.Running
                 ? samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster)
                     ? samus.HorizontalSpeed.SpeedBoosterDelay(samus.UnauthoredBoostCadence, samus.RunStrideFrame.Frame)
-                    : SamusRunningCadences.Delay(samus.UnauthoredBoostCadence, SamusRunningCadence.Ordinary, samus.RunStrideFrame.Frame)
+                    : SamusRunningCadences.OrdinaryDelay(samus.RunStrideFrame.Frame)
                 : delay.Ticks;
             samus.AnimationFrameTimer = WrappingCountdown.Start(samus.ExtraAnimationDelay).AddFrames(runningOrPoseDelay);
             return;
         }
 
+        if (step is SamusAnimationCue cue)
+            RunCue(samus, cue, controllerInput, prospectiveInputPose, demoPoseInput);
+    }
+
+    /// <summary>Runs the cue the animation reaches when its frame timer expires.</summary>
+    private static void RunCue(SamusState samus, SamusAnimationCue cue, GameplayAction controllerInput,
+        SamusPoseId? prospectiveInputPose, bool demoPoseInput)
+    {
         bool activeDashAnimation = samus.HorizontalSpeed.HasRunningMomentum &&
             SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.Running &&
             (controllerInput & GameplayAction.Dash) != GameplayAction.None;
@@ -276,108 +246,102 @@ internal sealed class SamusPresentation
             {
                 samus.RestartAnimation();
                 samus.AnimationFrameTimer = WrappingCountdown.Start(samus.ExtraAnimationDelay).AddFrames(
-                    SamusRunningCadences.Delay(samus.UnauthoredBoostCadence, SamusRunningCadence.Ordinary, frame: 0));
+                    SamusRunningCadences.OrdinaryDelay(frame: 0));
                 return;
             }
         }
 
-        switch (step)
-        {
-            case SamusAnimationHold:
-                // The frame and timer stay as they are, so the frame lasts one more tick and the next tick moves on to
-                // the frame after this one. The aimed falling poses spend that extra tick before their held frame.
-                return;
+        // The cue moves the animation to a frame, whose delay the timer starts from, or leaves the frame and timer as they are.
+        if (cue.Match(CueRuns, new SamusCueRun(samus, prospectiveInputPose, demoPoseInput)) is not { } moved)
+            return;
 
-            case SamusAnimationLoopUnlessLowEnergy:
-                // Healthy Samus restarts her breathing; on low energy she continues into the drained breathing.
-                if (samus.Health < SamusAnimationDelayDefinitions.LowEnergyBreathingBelow)
-                    samus.AdvanceAnimationFrame();
-                else
-                    samus.RestartAnimation();
-                break;
-
-            case SamusAnimationInstallDrainedFall:
-                samus.Drained.StartFalling(samus);
-                samus.AdvanceAnimationFrame();
-                break;
-
-            case SamusAnimationTurnTransition turn:
-                // A jump the pose input already selected survives the turn's final frame; checking held Jump instead
-                // would accept inputs the pose input never matched.
-                if (!samus.Control.InputLocked && !demoPoseInput && prospectiveInputPose is { } selectedJump &&
-                    SamusPoseTraits.IsIn(selectedJump, SamusPoseFamily.JumpLaunch))
-                    return;
-                if (!samus.Control.InputLocked && !demoPoseInput) samus.InputSnapshot.AutoJump.Install();
-                // The transition neither selects a new delay nor advances the shown frame; the pose transitions that
-                // follow the animation consume it.
-                samus.CuePose.Name(turn.Pose);
-                return;
-
-            case SamusAnimationItemAirborneTransition itemAirborne:
-                // Moving vertically means any vertical speed at all. Morph entry uses this to finish
-                // without guessing whether the transition walked off a ledge.
-                bool movingVertically = samus.Kinematics.VerticalVelocity.IsMoving;
-                samus.CuePose.Name(samus.EquippedItems.HasAny(itemAirborne.Item)
-                    ? movingVertically ? itemAirborne.EquippedAirborne : itemAirborne.EquippedGrounded
-                    : movingVertically ? itemAirborne.UnequippedAirborne : itemAirborne.UnequippedGrounded);
-                return;
-
-            case SamusAnimationWallJumpSelect wallJump:
-                // The submersion test is on the body's top edge, unlike jump launch's bottom-edge test.
-                samus.MoveAnimationTo(
-                    !samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit) &&
-                    samus.LiquidPhysics.IsTopBoundarySubmerged(samus) ? wallJump.OrdinaryFrame :
-                    samus.EquippedItems.HasAny(SamusEquipmentFlags.ScrewAttack) ? wallJump.ScrewAttackFrame :
-                    samus.EquippedItems.HasAny(SamusEquipmentFlags.SpaceJump) ? wallJump.SpaceJumpFrame : wallJump.OrdinaryFrame);
-                break;
-
-            case SamusAnimationVerticalSpeedTransition verticalSpeed:
-                // Read only when the cue's place is reached (#1535): the pose it names depends only on whether Samus has
-                // any vertical speed.
-                samus.CuePose.Name(samus.Kinematics.VerticalVelocity.IsMoving
-                    ? verticalSpeed.Airborne
-                    : verticalSpeed.Grounded);
-                return;
-
-            case SamusAnimationItemTransition item:
-                samus.CuePose.Name(samus.EquippedItems.HasAny(item.Item) ? item.Equipped : item.Unequipped);
-                return;
-
-            case SamusAnimationTransition transition:
-                // Unlike a turn's transition, no selected jump supersedes it.
-                samus.CuePose.Name(transition.Pose);
-                return;
-
-            case SamusAnimationRepeat repeat:
-                samus.MoveAnimationTo(repeat.Target);
-                break;
-
-            case SamusAnimationRestart:
-                samus.RestartAnimation();
-                break;
-
-            default:
-                throw new InvalidOperationException($"Samus animation step {step} has no playback.");
-        }
-
-        if (samus.AnimationStep is not SamusAnimationDelay selected)
-        {
-            throw new InvalidDataException(
-                $"Samus animation step {step} selected frame {samus.AnimationFrame}, which is not a delay.");
-        }
-        samus.AnimationFrameTimer = WrappingCountdown.Start(samus.ExtraAnimationDelay).AddFrames(selected.Ticks);
+        samus.AnimationFrame = moved.Frame;
+        samus.AnimationFrameTimer = WrappingCountdown.Start(samus.ExtraAnimationDelay).AddFrames(moved.Delay.Ticks);
     }
 
-    /// <summary>Rejects animation updates after a pose change that did not restart the animation for the new pose's animation.</summary>
-    private static void EnsureAnimationInitialized(SamusState samus)
-    {
-        if (samus.AnimatedPose is not { } animated ||
-            !ReferenceEquals(SamusAnimationDelays.AnimationForPose(animated), SamusAnimationDelays.AnimationForPose(samus.Pose)))
+    /// <summary>
+    /// What each cue does as the animation reaches it (#2553), and the frame it moves the animation to, with the delay read
+    /// there, whose timer then starts; a cue that publishes a pose, or holds, moves nothing and leaves the timer as it is.
+    /// </summary>
+    private static SamusAnimationCueCases<SamusCueRun, SamusAnimationDelayFrame?> CueRuns { get; } = new(
+        Hold: static (_, _) =>
         {
-            throw new InvalidOperationException(
-                "Samus animation was not initialized for the current pose. Call InitializeAnimation after changing Pose.");
-        }
-    }
+            // The frame and timer stay as they are, so the frame lasts one more tick and the next tick moves on to
+            // the frame after this one. The aimed falling poses spend that extra tick before their held frame.
+            return null;
+        },
+        LoopUnlessLowEnergy: static (_, context) =>
+        {
+            // Healthy Samus restarts her breathing; on low energy she continues into the drained breathing.
+            return context.Samus.Health < SamusAnimationDelayDefinitions.LowEnergyBreathingBelow
+                ? context.Samus.AnimationFrameAfterCue
+                : context.Samus.AnimationRestart;
+        },
+        InstallDrainedFall: static (_, context) =>
+        {
+            context.Samus.Drained.StartFalling(context.Samus);
+            return context.Samus.AnimationFrameAfterCue;
+        },
+        TurnTransition: static (turn, context) =>
+        {
+            // A jump the pose input already selected survives the turn's final frame; checking held Jump instead
+            // would accept inputs the pose input never matched.
+            if (!context.Samus.Control.InputLocked && !context.DemoPoseInput && context.ProspectiveInputPose is { } selectedJump &&
+                SamusPoseTraits.IsIn(selectedJump, SamusPoseFamily.JumpLaunch))
+                return null;
+            if (!context.Samus.Control.InputLocked && !context.DemoPoseInput) context.Samus.InputSnapshot.AutoJump.Install();
+            // The transition neither selects a new delay nor advances the shown frame; the pose transitions that
+            // follow the animation consume it.
+            context.Samus.CuePose.Name(turn.Pose);
+            return null;
+        },
+        ItemAirborneTransition: static (itemAirborne, context) =>
+        {
+            // Moving vertically means any vertical speed at all. Morph entry uses this to finish
+            // without guessing whether the transition walked off a ledge.
+            bool movingVertically = context.Samus.Kinematics.VerticalVelocity.IsMoving;
+            context.Samus.CuePose.Name(context.Samus.EquippedItems.HasAny(itemAirborne.Item)
+                ? movingVertically ? itemAirborne.EquippedAirborne : itemAirborne.EquippedGrounded
+                : movingVertically ? itemAirborne.UnequippedAirborne : itemAirborne.UnequippedGrounded);
+            return null;
+        },
+        WallJumpSelect: static (wallJump, context) =>
+        {
+            // The submersion test is on the body's top edge, unlike jump launch's bottom-edge test.
+            return context.Samus.AnimationMovedTo(
+                !context.Samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit) &&
+                context.Samus.LiquidPhysics.IsTopBoundarySubmerged(context.Samus) ? wallJump.OrdinaryFrame :
+                context.Samus.EquippedItems.HasAny(SamusEquipmentFlags.ScrewAttack) ? wallJump.ScrewAttackFrame :
+                context.Samus.EquippedItems.HasAny(SamusEquipmentFlags.SpaceJump) ? wallJump.SpaceJumpFrame : wallJump.OrdinaryFrame);
+        },
+        VerticalSpeedTransition: static (verticalSpeed, context) =>
+        {
+            // Read only when the cue's place is reached (#1535): the pose it names depends only on whether Samus has
+            // any vertical speed.
+            context.Samus.CuePose.Name(context.Samus.Kinematics.VerticalVelocity.IsMoving
+                ? verticalSpeed.Airborne
+                : verticalSpeed.Grounded);
+            return null;
+        },
+        ItemTransition: static (item, context) =>
+        {
+            context.Samus.CuePose.Name(context.Samus.EquippedItems.HasAny(item.Item) ? item.Equipped : item.Unequipped);
+            return null;
+        },
+        Transition: static (transition, context) =>
+        {
+            // Unlike a turn's transition, no selected jump supersedes it.
+            context.Samus.CuePose.Name(transition.Pose);
+            return null;
+        },
+        Repeat: static (repeat, context) => context.Samus.AnimationMovedTo(repeat.Target),
+        Restart: static (_, context) => context.Samus.AnimationRestart);
+
+    /// <summary>What a cue's run reads besides the cue.</summary>
+    /// <param name="Samus">Samus, whose animation reaches the cue.</param>
+    /// <param name="ProspectiveInputPose">The pose her input selected this update, if any.</param>
+    /// <param name="DemoPoseInput">Whether a demo drives her pose input.</param>
+    private readonly record struct SamusCueRun(SamusState Samus, SamusPoseId? ProspectiveInputPose, bool DemoPoseInput);
 
     /// <summary>
     /// Draws Samus's body in her current pose, unless invincibility's flicker hides it on this frame.

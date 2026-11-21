@@ -65,7 +65,7 @@ internal static class CrystalFlashVisualsVerification
         // Removing only the captured color window keeps identical OAM, palette, terrain and camera, isolating its actual
         // visible contribution.
         LayeredScene? withoutWindow = runtime.BombProjectiles.PowerBombExplosion.Blast.Phase is
-            PowerBombExplosionPhase.CrystalFlashExplosion or PowerBombExplosionPhase.CrystalFlashAfterglow
+            PowerBombExplosionPhase.Running.CrystalFlashExplosion or PowerBombExplosionPhase.Running.CrystalFlashAfterglow
             ? packet.Without<ColourAddWindowLayer>() : null;
         return new CrystalFlashFrameScenes(elapsed, packet, new LayeredScene(beamsDark, packet.Layers, packet.Brightness),
             new LayeredScene(beamsLight, packet.Layers, packet.Brightness), withoutWindow, centerX, centerY);

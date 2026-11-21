@@ -36,7 +36,7 @@ internal static class ShutterEmbeddingVerification
             runtime.LoadCartridgeRoomForDebug(RoomDefinitions.XrayScope, new Position16<RoomPixels>(0, 0));
             var samus = runtime.Player.Samus;
             var platform = runtime.Enemies.Places.InUpdateOrder[slot];
-            samus.Pose = SamusPoseId.MorphBallGroundRightPose;
+            samus.ChangePoseKeepingAnimation(SamusPoseId.MorphBallGroundRightPose);
             samus.Control.Unlock();
             samus.EquippedItems |= SamusEquipmentFlags.Bombs;
             SamusPoseMetadata.RefreshCollisionRadii(samus);

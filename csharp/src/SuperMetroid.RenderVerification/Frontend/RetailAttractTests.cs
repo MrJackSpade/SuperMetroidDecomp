@@ -38,9 +38,9 @@ internal static class RetailAttractTests
                 if (expected.GameState != actual.Frame.GameState ||
                     expected.Phase != actual.Frame.Phase || !expected.Audio.Events.SequenceEqual(actual.Frame.Audio.Events))
                     throw new InvalidOperationException($"Attract state/audio/capture divergence at {tick}.");
-                sawStart |= legacy.IsAt(AttractDemoStep.Starting);
-                sawUnload |= legacy.IsAt(AttractDemoStep.Unloading);
-                sawRouting |= legacy.IsAt(AttractDemoStep.Routing);
+                sawStart |= legacy.IsAtAttractStep<AttractDemoStep.Starting>();
+                sawUnload |= legacy.IsAtAttractStep<AttractDemoStep.Unloading>();
+                sawRouting |= legacy.IsAtAttractStep<AttractDemoStep.Routing>();
                 bool demo = expected.GameState == SuperMetroidGameState.AttractDemo;
                 if (demo || tick % 31 == 0)
                 {
@@ -48,7 +48,13 @@ internal static class RetailAttractTests
                     PixelComparison.Verify(packet, legacy.PublishedPixels(), renderer.RenderForReadback(packet), $"{device.Kind}: attract tick={tick}, cancel={cancel}");
                     samples++;
                 }
+<<<<<<< ours
                 if (legacy.IsAt(AttractDemoStep.Holding))
+||||||| base
+                if (legacy.AttractDemoHoldFramesRemaining > 0 && legacy.IsAt(AttractDemoStep.Playing))
+=======
+                if (legacy.AttractDemoHoldFramesRemaining > 0)
+>>>>>>> theirs
                 {
                     sawHold = true;
                     // Each scene's ninety-frame final-image hold freezes that scene's own image.

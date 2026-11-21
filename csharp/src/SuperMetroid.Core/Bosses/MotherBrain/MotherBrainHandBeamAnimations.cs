@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.Projectiles;
-using Beat = SuperMetroid.Core.Animation.AnimationBeat<SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileFrameId, SuperMetroid.Core.Bosses.MotherBrain.MotherBrainHandBeamCue>;
+using Beat = SuperMetroid.Core.Animation.AnimationBeat<SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileFrameId, SuperMetroid.Core.Bosses.MotherBrain.MotherBrainHandBeamCue>.Unpaused;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
@@ -17,7 +17,7 @@ internal static class MotherBrainHandBeamAnimations
     /// The beam's stage, spawning the next beam after its first frame and fading over its frames, each held shorter than
     /// the last, and its deletion.
     /// </summary>
-    internal static AnimationSegments<MotherBrainHandBeamSegment, EnemyProjectileFrameId, MotherBrainHandBeamCue> Segments { get; } = new(
+    internal static UnpausedAnimationSegments<MotherBrainHandBeamSegment, EnemyProjectileFrameId, MotherBrainHandBeamCue> Segments { get; } = new(
         new Dictionary<MotherBrainHandBeamSegment, Beat[]>
         {
             [MotherBrainHandBeamSegment.Stage] =

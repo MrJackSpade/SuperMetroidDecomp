@@ -73,9 +73,6 @@ internal static class EnemyProjectileDefinitionsVerification
             // Every record of the kind starts the motion the projectile moves by.
             foreach (ushort startingMotion in startingMotions[kind])
                 AssertEqual(projectile.MotionOfWord(startingMotion), projectile.Motion, $"{kind} production pre-instruction");
-            // A kind whose spawner starts a typed initial program (#641, #1760) runs it in place of the definition's native list.
-            bool typedStart = FamilyProjectileStarts.StartingAnimation(kind) is not null;
-            AssertEqual(typedStart, projectile.Animation is not null, $"{kind} production typed start");
             AssertEqual((ushort)1, projectile.FrameHold.RawValue,
                 $"{kind} production timer");
             AssertEqual((ushort)0x8000, projectile.SpritemapPointer,
@@ -191,112 +188,13 @@ internal static class EnemyProjectileDefinitionsVerification
                 RoomEnemyProjectileKind.SporeSpawnSpawner)
             {
                 // Spore Spawn's projectiles are typed (#1288); VerifySporeSpawnAnimations matches them to the native lists.
-                SporeSpawnProjectileSegment expected = kind switch
-                {
-                    RoomEnemyProjectileKind.SporeSpawnStalk => SporeSpawnProjectileSegment.Stalk,
-                    RoomEnemyProjectileKind.SporeSpawnSpore => SporeSpawnProjectileSegment.SporeShot,
-                        RoomEnemyProjectileKind.YappingMawBody or
-                        RoomEnemyProjectileKind.SkreeMetareeParticle or
-                        RoomEnemyProjectileKind.CrocomireProjectile or
-                        RoomEnemyProjectileKind.CrocomireBridgeCrumbling or
-                        RoomEnemyProjectileKind.CrocomireSpikeWallPieces or
-                        RoomEnemyProjectileKind.KraidSpitRock or
-                        RoomEnemyProjectileKind.KraidCeilingRock or
-                        RoomEnemyProjectileKind.KraidRisingRock or
-                        RoomEnemyProjectileKind.PhantoonDestroyableFlame or
-                        RoomEnemyProjectileKind.PhantoonStartingFlame or
-                        RoomEnemyProjectileKind.DraygonGoop or
-                        RoomEnemyProjectileKind.DraygonWallTurret or
-                        RoomEnemyProjectileKind.MotherBrainRoomTurret or
-                        RoomEnemyProjectileKind.MotherBrainRoomTurretBullet or
-                        RoomEnemyProjectileKind.MotherBrainGlassShard or
-                        RoomEnemyProjectileKind.MotherBrainGlassSparkle or
-                        RoomEnemyProjectileKind.MotherBrainOnionRing or
-                        RoomEnemyProjectileKind.OldTourianEscapeShaftFakeWallExplosion or
-                        RoomEnemyProjectileKind.MotherBrainBomb or
-                        RoomEnemyProjectileKind.MotherBrainHandBeamCharging or
-                        RoomEnemyProjectileKind.MotherBrainHandBeamFired or
-                        RoomEnemyProjectileKind.MotherBrainRainbowBeamCharging or
-                        RoomEnemyProjectileKind.MotherBrainPurpleBreathBig or
-                        RoomEnemyProjectileKind.MotherBrainPurpleBreathSmall or
-                        RoomEnemyProjectileKind.MotherBrainDrool or
-                        RoomEnemyProjectileKind.MotherBrainDyingDrool or
-                        RoomEnemyProjectileKind.MotherBrainRainbowBeamExplosion or
-                        RoomEnemyProjectileKind.MotherBrainDeathExplosion or
-                        RoomEnemyProjectileKind.MotherBrainEscapeDoorFragment or
-                        RoomEnemyProjectileKind.MotherBrainEscapeSubtitle or
-                        RoomEnemyProjectileKind.MotherBrainTopRightTube or
-                        RoomEnemyProjectileKind.MotherBrainTopLeftTube or
-                        RoomEnemyProjectileKind.MotherBrainTopMiddleLeftTube or
-                        RoomEnemyProjectileKind.MotherBrainTopMiddleRightTube or
-                        RoomEnemyProjectileKind.RidleyFireball or
-                        RoomEnemyProjectileKind.RidleyAfterburnCenter or
-                        RoomEnemyProjectileKind.RidleyHorizontalAfterburn or
-                        RoomEnemyProjectileKind.RidleyVerticalAfterburn or
-                        RoomEnemyProjectileKind.CeresFallingDebris or
-                        RoomEnemyProjectileKind.GunshipLiftoffDustCloud or
-                        RoomEnemyProjectileKind.AlcoonFireball or
-                        RoomEnemyProjectileKind.PowampSpike or
-                        RoomEnemyProjectileKind.WorkRobotLaserDiagonal or
-                        RoomEnemyProjectileKind.WorkRobotLaserHorizontal or
-                        RoomEnemyProjectileKind.FallingSpark or
-                        RoomEnemyProjectileKind.NuclearWaffleBody or
-                        RoomEnemyProjectileKind.FakeKraidSpit or
-                        RoomEnemyProjectileKind.FakeKraidSpike or
-                        RoomEnemyProjectileKind.KiHunterAcidSpit or
-                        RoomEnemyProjectileKind.PirateMotherBrainLaser or
-                        RoomEnemyProjectileKind.PirateClaw or
-                        RoomEnemyProjectileKind.PolypRock or
-                        RoomEnemyProjectileKind.CacatacSpike or
-                        RoomEnemyProjectileKind.NamiheFireball or
-                        RoomEnemyProjectileKind.FuneFireball or
-                        RoomEnemyProjectileKind.LavaThrownByMagdollite or
-                        RoomEnemyProjectileKind.DragonFireball or
-                        RoomEnemyProjectileKind.EyeDoorProjectile or
-                        RoomEnemyProjectileKind.EyeDoorSweat or
-                        RoomEnemyProjectileKind.EyeDoorSmoke or
-                        RoomEnemyProjectileKind.DustOrExplosion or
-                        RoomEnemyProjectileKind.EnemyDeathPickup or
-                        RoomEnemyProjectileKind.EnemyDeathExplosion or
-                        RoomEnemyProjectileKind.KagoBug or
-                        RoomEnemyProjectileKind.BotwoonBody or
-                        RoomEnemyProjectileKind.BotwoonSpit or
-                        RoomEnemyProjectileKind.BombTorizoLowHealthDrool or
-                        RoomEnemyProjectileKind.TorizoInitialDrool or
-                        RoomEnemyProjectileKind.BombTorizoExplosiveSwipe or
-                        RoomEnemyProjectileKind.BombTorizoLowHealthExplosion or
-                        RoomEnemyProjectileKind.TorizoDeathExplosion or
-                        RoomEnemyProjectileKind.BombTorizoStatueBreaking or
-                        RoomEnemyProjectileKind.BombTorizoChozoOrb or
-                        RoomEnemyProjectileKind.BombTorizoSonicBoom or
-                        RoomEnemyProjectileKind.GoldenTorizoChozoOrb or
-                        RoomEnemyProjectileKind.GoldenTorizoSonicBoom or
-                        RoomEnemyProjectileKind.TorizoLandingDust or
-                        RoomEnemyProjectileKind.GoldenTorizoEgg or
-                        RoomEnemyProjectileKind.GoldenTorizoSuperMissile or
-                        RoomEnemyProjectileKind.GoldenTorizoEyeBeam or
-                        RoomEnemyProjectileKind.TourianStatueSplash or
-                        RoomEnemyProjectileKind.TourianStatueEyeGlow or
-                        RoomEnemyProjectileKind.TourianStatueParticle or
-                        RoomEnemyProjectileKind.TourianStatueTail or
-                        RoomEnemyProjectileKind.TourianStatueSoul or
-                        RoomEnemyProjectileKind.TourianStatueRidley or
-                        RoomEnemyProjectileKind.TourianStatuePhantoon or
-                        RoomEnemyProjectileKind.TourianStatueBaseDecoration or
-                        RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep or
-                        RoomEnemyProjectileKind.TourianStatueDescentDust or
-                        RoomEnemyProjectileKind.SporeSpawnSpawner or
-                        RoomEnemyProjectileKind.SaveStationElectricity or
-                        RoomEnemyProjectileKind.DownwardGateMoving or
-                        RoomEnemyProjectileKind.DownwardGateClosed or
-                        RoomEnemyProjectileKind.NoobTubeCrack or
-                        RoomEnemyProjectileKind.NoobTubeShard or
-                        RoomEnemyProjectileKind.NoobTubeReleasedAirBubble => SporeSpawnProjectileSegment.SpawnerClosed,
-                    _ => SporeSpawnProjectileSegment.SpawnerClosed,
-                };
-                AssertTrue(projectile.Animation is SporeSpawnProjectileAnimation started
-                        && started.Playback == new AnimationPlayback<SporeSpawnProjectileSegment>(SporeSpawnProjectileAnimations.StartingWith(expected), AnimationPlace.StartOfAnimation),
-                    $"{kind} production shot starts the typed {expected} program");
+                bool startsTyped = kind == RoomEnemyProjectileKind.SporeSpawnSpore
+                    ? projectile.Animation is SporeSpawnSporeAnimation spore
+                        && spore.Playback == new AnimationPlayback<SporeSpawnSporeSegment>(SporeSpawnProjectileAnimations.StartingWith(SporeSpawnSporeSegment.SporeShot), AnimationPlace.StartOfAnimation)
+                    : projectile.Animation is SporeSpawnCeilingAnimation ceiling
+                        && ceiling.Playback == new AnimationPlayback<SporeSpawnCeilingSegment>(SporeSpawnProjectileAnimations.StartingWith(
+                            kind == RoomEnemyProjectileKind.SporeSpawnStalk ? SporeSpawnCeilingSegment.Stalk : SporeSpawnCeilingSegment.SpawnerClosed), AnimationPlace.StartOfAnimation);
+                AssertTrue(startsTyped, $"{kind} production shot starts its typed program");
                 AssertTrue(projectile.Animation is not null, $"{kind} typed shot keeps no native list");
             }
             else if (kind is RoomEnemyProjectileKind.BombTorizoChozoOrb or RoomEnemyProjectileKind.GoldenTorizoChozoOrb or RoomEnemyProjectileKind.GoldenTorizoEgg or RoomEnemyProjectileKind.GoldenTorizoSuperMissile)

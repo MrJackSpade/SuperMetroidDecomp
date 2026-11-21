@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Rooms;
@@ -24,8 +25,11 @@ internal sealed class EndingFlyaway
         _stage = stage;
     }
 
-    /// <summary>Where the gunship's shake stands in the current planet-escape leg's authored sequence (#1902).</summary>
-    private EndingShipShakeCursor ShipShake { get; set; }
+    /// <summary>
+    /// Where the gunship's shake stands in the current planet-escape leg's authored sequence (#1902): the displacement the
+    /// next update moves the ship by, the sequence starting again after its last. The fast leg's sequence is the first.
+    /// </summary>
+    private ListStep<SignedSixteenSixteen> ShipShake { get; set; } = ListStep<SignedSixteenSixteen>.FirstOf(EndingShipShake.Fast);
 
     /// <summary>Planet-escape velocity: a displacement that grows more negative every accelerating update.</summary>
     private SignedSixteenSixteen PlanetVelocity { get; set; }
@@ -51,7 +55,7 @@ internal sealed class EndingFlyaway
         _stage.ColourEffects.StartScreen(EndingColourEffectDefinitions.GunshipEmergence);
         _stage.Floor.SetUp(new Offset16<FloorPixels>(EndingMotionDefinitions.PlanetEscapeFloorX, EndingMotionDefinitions.PlanetEscapeFloorY),
             EndingMotionDefinitions.PlanetEscapeInitialZoom, EndingMotionDefinitions.PlanetEscapeInitialAngle);
-        ShipShake = EndingShipShakeCursor.StartOf(EndingShipShake.Fast);
+        ShipShake = ListStep<SignedSixteenSixteen>.FirstOf(EndingShipShake.Fast);
     }
 
     /// <summary>Runs the first rotating planet-escape motion pattern until the fast zoom threshold.</summary>
@@ -66,7 +70,7 @@ internal sealed class EndingFlyaway
         _stage.Floor.Narrow(EndingMotionDefinitions.PlanetFastZoomStep);
         if (_stage.Floor.Zoom >= EndingMotionDefinitions.PlanetFastEndZoom)
             return false;
-        ShipShake = EndingShipShakeCursor.StartOf(EndingShipShake.Slow);
+        ShipShake = ListStep<SignedSixteenSixteen>.FirstOf(EndingShipShake.Slow);
         return true;
     }
 
@@ -105,8 +109,8 @@ internal sealed class EndingFlyaway
     /// <summary>Moves the gunship by its shake's next displacement and moves the shake on.</summary>
     private void ShakeShip()
     {
-        _stage.Floor.MoveAcross(ShipShake.Displacement);
-        ShipShake = ShipShake.Advanced();
+        _stage.Floor.MoveAcross(ShipShake.Entry);
+        ShipShake = ShipShake.NextInCycle;
     }
 
     /// <summary>Speeds the planet up and moves it by its velocity, turning it toward the final gunship text at the exit

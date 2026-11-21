@@ -65,7 +65,14 @@ public static class CeresRidleyGetawayBoostDelayFiles
             JsonAssetDocument.Read<CeresRidleyGetawayBoostDelayDocument>(json, ArtworkJson.Options, "Ceres Ridley getaway boost delay");
         if (document.Version != CeresRidleyGetawayBoostDelayFormat.Version)
             throw new InvalidDataException($"Ceres Ridley getaway boost delays require version {CeresRidleyGetawayBoostDelayFormat.Version}.");
+<<<<<<< ours
         return new CeresRidleyGetawayBoostDelays(Validated(document.WingFrames));
+||||||| base
+        return new CeresRidleyGetawayBoostDelays(Validated(Frames(document.WingFrames)));
+=======
+        Dictionary<CeresFloorActorPicture, IReadOnlyList<int>> wings = Validated(Frames(document.WingFrames));
+        return new CeresRidleyGetawayBoostDelays(wings[CeresFloorActorPicture.WingsRaised], wings[CeresFloorActorPicture.WingsLowered]);
+>>>>>>> theirs
     }
 
     /// <summary>

@@ -111,10 +111,118 @@ internal sealed class IntroCeresFlightState
     /// <summary>True after the SPACE COLONY hold and final fade reach black.</summary>
     public bool Finished => Phase == IntroCeresFlightPhase.Finished;
 
+    /// <summary>What <c>Step</c> does for each <see cref="IntroCeresFlightPhase"/> member, each member's own arm.</summary>
+    private IdentityTable<IntroCeresFlightPhase, Action> StepForIntroCeresFlightPhase => field ??= new(new Dictionary<IntroCeresFlightPhase, Action>
+    {
+        [IntroCeresFlightPhase.Initial] = () =>
+        {
+            // The flight's music data, then its track, on the shared queue.
+            audio.QueueMusic(MusicRequest.LoadDataSet(MusicDataSet.Ceres));
+            audio.ScheduleMusic(
+                MusicRequest.SelectTrack(CeresFlightSceneDefinitions.FlightSong),
+                CeresFlightSceneDefinitions.MusicDelay);
+            Phase = IntroCeresFlightPhase.WaitForMusicQueue;
+        },
+        [IntroCeresFlightPhase.WaitForMusicQueue] = () =>
+        {
+            // The approach enables the display once the music queue is empty.
+            if (!audio.HasQueuedMusic)
+            {
+                fade.Show(DisplayBrightness.Full);
+                Phase = IntroCeresFlightPhase.FlyingIntoCamera;
+            }
+        },
+        [IntroCeresFlightPhase.FlyingIntoCamera] = () =>
+        {
+            if (zoom >= CeresFlightRenderDefinitions.FrontNarrowingFloor)
+            {
+                zoom = zoom.Narrowed(CeresFlightRenderDefinitions.SlowZoomStep);
+            }
+            else
+            {
+                SetupRearView();
+            }
+        },
+        [IntroCeresFlightPhase.FlyingTowardCeres] = () => StepFlyingTowardCeres(),
+        [IntroCeresFlightPhase.SpaceColonyTitle] = () => StepSpaceColonyTitle(),
+        [IntroCeresFlightPhase.FadeOut] = () => StepFadeOut(),
+        [IntroCeresFlightPhase.StartGameAtCeres] = () =>
+        {
+            // The handoff runs as the update after the screen goes black; it hands control to
+            // the new-game setup state, whose owner also performs this phase's Ceres checkpoint save.
+            Phase = IntroCeresFlightPhase.Finished;
+        },
+        [IntroCeresFlightPhase.Finished] = () =>
+        {
+            // The flight has ended; its owner moves to the new-game setup state.
+        },
+    });
+
     /// <summary>Advances the music gate, camera, rear-view actors, title cadence, or final fade for one update.</summary>
     public void Step()
     {
+<<<<<<< ours
         stage.Step(this);
+||||||| base
+        switch (Phase)
+        {
+            case IntroCeresFlightPhase.Initial:
+                // The flight's music data, then its track, on the shared queue.
+                audio.QueueMusic(MusicRequest.LoadDataSet(MusicDataSet.Ceres));
+                audio.ScheduleMusic(
+                    MusicRequest.SelectTrack(CeresFlightSceneDefinitions.FlightSong),
+                    CeresFlightSceneDefinitions.MusicDelay);
+                Phase = IntroCeresFlightPhase.WaitForMusicQueue;
+                break;
+
+            case IntroCeresFlightPhase.WaitForMusicQueue:
+                // The approach enables the display once the music queue is empty.
+                if (!audio.HasQueuedMusic)
+                {
+                    fade.Show(DisplayBrightness.Full);
+                    Phase = IntroCeresFlightPhase.FlyingIntoCamera;
+                }
+                break;
+
+            case IntroCeresFlightPhase.FlyingIntoCamera:
+                if (zoom >= CeresFlightRenderDefinitions.FrontNarrowingFloor)
+                {
+                    zoom = zoom.Narrowed(CeresFlightRenderDefinitions.SlowZoomStep);
+                }
+                else
+                {
+                    SetupRearView();
+                }
+                break;
+
+            case IntroCeresFlightPhase.FlyingTowardCeres:
+                StepFlyingTowardCeres();
+                break;
+
+            case IntroCeresFlightPhase.SpaceColonyTitle:
+                StepSpaceColonyTitle();
+                break;
+
+            case IntroCeresFlightPhase.FadeOut:
+                StepFadeOut();
+                break;
+
+            case IntroCeresFlightPhase.StartGameAtCeres:
+                // The handoff runs as the update after the screen goes black; it hands control to
+                // the new-game setup state, whose owner also performs this phase's Ceres checkpoint save.
+                Phase = IntroCeresFlightPhase.Finished;
+                break;
+
+            case IntroCeresFlightPhase.Finished:
+                // The flight has ended; its owner moves to the new-game setup state.
+                break;
+
+            default:
+                throw new InvalidOperationException($"Undefined Ceres flight phase {Phase}.");
+        }
+=======
+        StepForIntroCeresFlightPhase[Phase]();
+>>>>>>> theirs
 
         if (Phase == IntroCeresFlightPhase.FlyingIntoCamera)
             StepStarsAndBackground();
@@ -279,14 +387,24 @@ internal sealed class IntroCeresFlightState
     private void StepSpaceColonyTitle(AnimationPlayer<SpaceColonyCaptionText, SpaceColonyCaptionTyping, SpaceColonyCaptionCue> caption) =>
         caption.Step(cue => CarryOut(cue, caption));
 
+<<<<<<< ours
     /// <summary>Carries out <paramref name="cue"/> of the caption's typing.</summary>
     /// <param name="cue">The cue the caption raised.</param>
     /// <param name="caption">The caption raising it, which stays shown through the fade.</param>
     /// <exception cref="InvalidOperationException">The cue is not one the caption's typing raises.</exception>
     private void CarryOut(SpaceColonyCaptionCue cue, AnimationPlayer<SpaceColonyCaptionText, SpaceColonyCaptionTyping, SpaceColonyCaptionCue> caption)
+||||||| base
+    /// <summary>Carries out <paramref name="cue"/> of the caption's typing.</summary>
+    /// <exception cref="InvalidOperationException">The cue is not one the caption's typing raises.</exception>
+    private void CarryOut(SpaceColonyCaptionCue cue)
+=======
+    /// <summary>
+    /// Carries out <paramref name="cue"/> of the caption's typing: <see cref="SpaceColonyCaptionCue.StartFadeOut"/>, the cue
+    /// type's one member, starts the fade out.
+    /// </summary>
+    private void CarryOut(SpaceColonyCaptionCue cue)
+>>>>>>> theirs
     {
-        if (cue != SpaceColonyCaptionCue.StartFadeOut)
-            throw new InvalidOperationException($"Undefined SPACE COLONY caption cue {cue}.");
         fade.StepEvery(CeresFlightSceneDefinitions.FadeOutUpdatesPerStep);
         stage = new FadeOutStage(caption);
     }

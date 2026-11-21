@@ -76,60 +76,49 @@ internal sealed class EyeDoorEyeObject(EyeDoorOrientation orientation, PlacedDoo
     private protected override void Show(EyeDoorObjectFrame frame, RoomObjectPlace place, RoomObjectStepContext context) =>
         context.Draw(place, EyeDoorDraws.Of(Orientation, frame));
 
-    /// <inheritdoc/>
-    private protected override void Raise(EyeDoorAction raised, RoomObjectPlace place, RoomObjectStepContext context)
+    /// <summary>What <c>Raise</c> does for each <see cref="EyeDoorAction"/> member, each member's own arm.</summary>
+    private IdentityTable<EyeDoorAction, Action<RoomObjectPlace, RoomObjectStepContext>> RaiseForEyeDoorAction => field ??= new(new Dictionary<EyeDoorAction, Action<RoomObjectPlace, RoomObjectStepContext>>
     {
-        EyeDoorObjects eyes = context.RoomObjects.EyeDoors;
-        switch (raised)
+        [EyeDoorAction.Shoot] = (place, context) => context.RoomObjects.EyeDoors.Shoot(place, Orientation, Door.Placed.Door),
+        [EyeDoorAction.SpawnTwoSmoke] = (place, context) => context.RoomObjects.EyeDoors.SpawnTwoSmoke(place, Orientation),
+        [EyeDoorAction.SpawnSweat] = (place, context) => context.RoomObjects.EyeDoors.SpawnSweat(place, Orientation),
+    });
+
+    /// <inheritdoc/>
+    private protected override Action<EyeDoorAction, RoomObjectPlace, RoomObjectStepContext> Raiser =>
+        (raised, place, context) => RaiseForEyeDoorAction[raised](place, context);
+
+    /// <summary>What <see cref="SequenceEnded"/> does for each <see cref="EyeDoorEyePhase"/> member, each member's own arm.</summary>
+    private IdentityTable<EyeDoorEyePhase, Action<RoomObjectPlace, RoomObjectStepContext>> SequenceEndedForEyeDoorEyePhase => field ??= new(new Dictionary<EyeDoorEyePhase, Action<RoomObjectPlace, RoomObjectStepContext>>
+    {
+        [EyeDoorEyePhase.Placed] = (place, context) => Look(place, context),
+        [EyeDoorEyePhase.Closed] = (place, context) =>
         {
-            case EyeDoorAction.Shoot:
-                eyes.Shoot(place, Orientation, Door.Placed.Door);
+            if (IsSamusNear(place, context, EyeDoorSequenceDefinitions.WakeReach))
+                Open(place, context);
+            else
+                Play(EyeDoorSequenceDefinitions.Closed, place, context);
+        },
+        [EyeDoorEyePhase.Watching] = (place, context) =>
+        {
+            if (IsSamusNear(place, context, EyeDoorSequenceDefinitions.WakeReach))
+            {
+                Watch(place, context);
                 return;
-            case EyeDoorAction.SpawnTwoSmoke:
-                eyes.SpawnTwoSmoke(place, Orientation);
-                return;
-            case EyeDoorAction.SpawnSweat:
-                eyes.SpawnSweat(place, Orientation);
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(EyeDoorAction)} {raised}.");
-        }
-    }
+            }
+            Phase = EyeDoorEyePhase.Closed;
+            Play(EyeDoorSequenceDefinitions.Closed, place, context);
+        },
+        [EyeDoorEyePhase.Opening] = (place, context) => Watch(place, context),
+        [EyeDoorEyePhase.Blinking] = (place, context) => Watch(place, context),
+        [EyeDoorEyePhase.Flinching] = (place, context) => Watch(place, context),
+        [EyeDoorEyePhase.Destroyed] = (place, context) => BlueDoorCapObject.TakeOver(place, context, CapFacing, Door),
+    });
 
     /// <inheritdoc/>
     private protected override void SequenceEnded(RoomObjectPlace place, RoomObjectStepContext context)
     {
-        switch (Phase)
-        {
-            case EyeDoorEyePhase.Placed:
-                Look(place, context);
-                return;
-            case EyeDoorEyePhase.Closed:
-                if (IsSamusNear(place, context, EyeDoorSequenceDefinitions.WakeReach))
-                    Open(place, context);
-                else
-                    Play(EyeDoorSequenceDefinitions.Closed, place, context);
-                return;
-            case EyeDoorEyePhase.Watching:
-                if (IsSamusNear(place, context, EyeDoorSequenceDefinitions.WakeReach))
-                {
-                    Watch(place, context);
-                    return;
-                }
-                Phase = EyeDoorEyePhase.Closed;
-                Play(EyeDoorSequenceDefinitions.Closed, place, context);
-                return;
-            case EyeDoorEyePhase.Opening:
-            case EyeDoorEyePhase.Blinking:
-            case EyeDoorEyePhase.Flinching:
-                Watch(place, context);
-                return;
-            case EyeDoorEyePhase.Destroyed:
-                BlueDoorCapObject.TakeOver(place, context, CapFacing, Door);
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(EyeDoorEyePhase)} {Phase}.");
-        }
+        SequenceEndedForEyeDoorEyePhase[Phase](place, context);
     }
 
     /// <summary>

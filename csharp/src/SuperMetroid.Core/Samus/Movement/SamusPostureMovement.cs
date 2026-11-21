@@ -15,28 +15,25 @@ namespace SuperMetroid.Core.Samus.Movement;
 public static class SamusPostureMovement
 {
     /// <summary>
-    /// Runs crouching movement for the complete equal-radius crouch family,
-    /// unaimed or aimed.
+    /// Runs crouching movement for the poses of the crouching movement type, the crouch family unaimed or aimed and the
+    /// X-ray scope's crouching poses alike: as the game's crouching movement does, it reads only the way the pose faces.
     /// </summary>
+    /// <param name="movement">The crouch her pose selected.</param>
+    /// <param name="terrain">The terrain Samus meets: its level and, in a room, the room objects its reacting blocks reach.</param>
+    /// <param name="samus">Samus, crouching.</param>
+    /// <param name="frameCounter">The update's frame counter, whose parity picks the scan's column order.</param>
     internal static GroundedMovementResult StepCrouching(
-        RoomLevelData level,
+        SamusMovement.CrouchingMovement movement,
+        SamusTerrain terrain,
         SamusState samus,
-        int frameCounter,
-        ISamusRoomObjects roomObjects)
+        int frameCounter)
     {
-        Validate(level, samus);
-        if (!SamusPoseMetadata.IsRightFacingCrouchingPose(samus.Pose) &&
-            !SamusPoseMetadata.IsLeftFacingCrouchingPose(samus.Pose))
-        {
-            throw new InvalidOperationException(
-                $"Crouching movement requires a crouching pose, not {samus.Pose}.");
-        }
-
+        Ensure.NotNull(movement);
+        Validate(terrain.Level, samus);
         GroundedMovementResult result = MoveWithZeroBaseSpeed(
-            level,
+            terrain,
             samus,
-            frameCounter,
-            roomObjects);
+            frameCounter);
 
         // The posture's cleanup runs after both collision passes, whether or not she is stationary; each cleared value is
         // observable.
@@ -48,38 +45,30 @@ public static class SamusPostureMovement
 
     /// <summary>
     /// Runs the crouch/stand subset of posture-transition movement: the crouching and
-    /// standing transitions, unaimed or aimed.
+    /// standing transitions, unaimed or aimed. It reads only the way the pose faces.
     /// </summary>
     internal static GroundedMovementResult StepCrouchStandTransition(
-        RoomLevelData level,
+        SamusTerrain terrain,
         SamusState samus,
-        int frameCounter,
-        ISamusRoomObjects roomObjects)
+        int frameCounter)
     {
-        Validate(level, samus);
-        if (!SamusPoseMetadata.IsCrouchStandTransitionPose(samus.Pose))
-        {
-            throw new InvalidOperationException(
-                $"Crouch/stand transition movement requires a crouching or standing transition pose, not {samus.Pose}.");
-        }
+        Validate(terrain.Level, samus);
 
         // Unlike crouching movement, the four crouch and stand transitions keep Samus's base momentum after moving,
         // although ordinary standing and crouching input brings her here at zero speed.
-        return MoveWithZeroBaseSpeed(level, samus, frameCounter, roomObjects);
+        return MoveWithZeroBaseSpeed(terrain, samus, frameCounter);
     }
 
     /// <summary>Runs horizontal collision with zero base displacement, then the coupled downward grounding probe.</summary>
     private static GroundedMovementResult MoveWithZeroBaseSpeed(
-        RoomLevelData level,
+        SamusTerrain terrain,
         SamusState samus,
-        int frameCounter,
-        ISamusRoomObjects roomObjects)
+        int frameCounter)
     {
         // Samus moves with no base speed, but keeps any extra run speed, which her horizontal movement adds to it.
         // A run at its full boost stage therefore keeps sliding through the crouch transition into a crouch, and
         // her pose handling stores the shine before ordinary crouching stops that momentum.
         var requestedHorizontal = SamusHorizontalDisplacement.TowardFacing(samus, baseSpeed: default);
-        SamusTerrain terrain = new() { Level = level, RoomObjects = roomObjects };
         BlockMoveResult horizontal = SamusTerrainMoves.MoveStoppingAtWalls(terrain, samus, requestedHorizontal);
 
         // An external Y displacement, when present, replaces the floor probe. Otherwise the probe couples

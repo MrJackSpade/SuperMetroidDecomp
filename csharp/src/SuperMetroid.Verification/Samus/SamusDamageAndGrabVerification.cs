@@ -111,9 +111,8 @@ internal static void VerifySamusDrainedController()
     VerifyDrainedPoseHistory();
     var right = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.CrouchingRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 75)),
-    };
+    }.InPose(SamusPoseId.CrouchingRightPose);
     SamusPoseMetadata.RefreshCollisionRadii(right);
     SamusPresentation.InitializeAnimation(right);
     right.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(3, 0x4444);
@@ -144,7 +143,8 @@ internal static void VerifySamusDrainedController()
     right.Kinematics.YAcceleration = new UnsignedSixteenSixteen(0, 0x4000);
     ushort firstHandlerY = right.Position.Y.Whole;
     ushort firstHandlerYSubposition = right.Kinematics.Position.Y.Fraction;
-    right.Drained.StepFalling(level, SamusRoomObjectFixtures.Uninstalled, right, 0);
+    AssertTrue(right.Drained.TryStepFalling(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), right, 0, out _),
+        "the first drained handler call steps her fall");
     AssertEqual(firstHandlerYSubposition, right.Kinematics.Position.Y.Fraction,
         "first drained handler call uses old zero speed");
     AssertEqual(firstHandlerY, right.Position.Y.Whole, "first drained handler frame is stationary");
@@ -154,8 +154,8 @@ internal static void VerifySamusDrainedController()
     DrainedSamusMovementResult landing = default;
     StepUntil(
         () => landing.Landed,
-        frame => landing = right.Drained.StepFalling(
-level, SamusRoomObjectFixtures.Uninstalled, right, unchecked((ushort)(frame + 1))),
+        frame => AssertTrue(right.Drained.TryStepFalling(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), right,
+            unchecked((ushort)(frame + 1)), out landing), "drained Samus falls until she lands"),
         maximumFrames: 99,
         context: "drained handler block-floor landing");
     AssertEqual(75, right.Position.Y.Whole, "drained body rests at floor minus radius");
@@ -186,9 +186,8 @@ level, SamusRoomObjectFixtures.Uninstalled, right, unchecked((ushort)(frame + 1)
 
     var left = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.CrouchingLeftPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 75)),
-    };
+    }.InPose(SamusPoseId.CrouchingLeftPose);
     SamusPoseMetadata.RefreshCollisionRadii(left);
     SamusPresentation.InitializeAnimation(left);
     left.Drained.CrouchDrained(left);
@@ -255,9 +254,8 @@ level, SamusRoomObjectFixtures.Uninstalled, right, unchecked((ushort)(frame + 1)
     // pose `$54` and lock normal input; only their installed Up-edge handler differs.
     var able = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.FacingRightNormalPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 75)),
-    };
+    }.InPose(SamusPoseId.FacingRightNormalPose);
     SamusPoseMetadata.RefreshCollisionRadii(able);
     SamusPresentation.InitializeAnimation(able);
     able.Drained.SetupForRainbowBeamAbleToStand(able);
@@ -282,9 +280,8 @@ level, SamusRoomObjectFixtures.Uninstalled, right, unchecked((ushort)(frame + 1)
 
     var unable = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.FacingRightNormalPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 75)),
-    };
+    }.InPose(SamusPoseId.FacingRightNormalPose);
     SamusPoseMetadata.RefreshCollisionRadii(unable);
     SamusPresentation.InitializeAnimation(unable);
     unable.Drained.SetupForRainbowBeamUnableToStand(unable);
@@ -577,7 +574,7 @@ internal static void VerifySamusSolidEnemyCollision()
         Radius = new(5, 10),
         InteractiveEnemies = [frozen],
     };
-    BlockMoveResult integratedHorizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = airRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, integrated, null, null, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2) });
+    BlockMoveResult integratedHorizontal = SamusBlockCollision.MoveHorizontal(SamusTerrain.InRoom(airRoom, SamusRoomObjectFixtures.Uninstalled), integrated, null, null, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2) });
     AssertTrue(integratedHorizontal.Collided, "ordinary horizontal mover reports enemy collision");
     AssertEqual(101, integrated.Position.X.Whole, "ordinary horizontal mover clips to enemy gap");
     AssertTrue(integratedHorizontal.EnemyCollision is not null,
@@ -590,7 +587,7 @@ internal static void VerifySamusSolidEnemyCollision()
 
     integrated.Position = integrated.Position.WithWholeY(100);
     integrated.InteractiveEnemies = [below];
-    BlockMoveResult integratedVertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = airRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, integrated, null, null, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2), ScanLeftToRight = true });
+    BlockMoveResult integratedVertical = SamusBlockCollision.MoveVertical(SamusTerrain.InRoom(airRoom, SamusRoomObjectFixtures.Uninstalled), integrated, null, null, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2), ScanLeftToRight = true });
     AssertTrue(integratedVertical.Collided, "ordinary vertical mover reports enemy collision");
     AssertEqual(101, integrated.Position.Y.Whole, "ordinary vertical mover clips to enemy gap");
     AssertEqual<ISolidEnemy?>(below.Enemy, integratedVertical.EnemyCollision?.Enemy,
@@ -602,16 +599,12 @@ internal static void VerifySamusSolidEnemyCollision()
     integrated.Position = integrated.Position.WithWholeX(100).WithWholeY(100).WithFractionY(0x4321);
     integrated.InteractiveEnemies = [solidTouch];
     BlockMoveResult wallProbe = SamusBlockCollision.ProbeWallHorizontal(
-airRoom, integrated, null, null, signedDistance: SignedSixteenSixteen.FromParts(1, 0), roomObjects: SamusRoomObjectFixtures.Uninstalled);
+SamusTerrain.InRoom(airRoom, SamusRoomObjectFixtures.Uninstalled), integrated, null, null, signedDistance: SignedSixteenSixteen.FromParts(1, 0));
     AssertTrue(wallProbe.EnemyCollision is { WasTouching: true },
         "wall probe detects touching enemy before blocks");
     AssertEqual(100, integrated.Position.X.Whole, "wall probe does not commit X motion");
     AssertEqual(0, integrated.Position.Y.Fraction, "wall probe commits only native touching side effect");
 
-    AssertThrows<ArgumentOutOfRangeException>(
-        () => SamusSolidEnemyCollision.Probe(
-            samus, [], (SamusCollisionDirection)(-1), UnsignedSixteenSixteen.FromWholePixels(0)),
-        "an undefined solid-enemy probe direction rejected");
 
     Console.WriteLine("  Solid enemies: eligibility, native rounding, overlap, gaps, order, and touching quirk agree.");
 }

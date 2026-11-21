@@ -230,11 +230,10 @@ internal static class SuperMetroidRuntimeAccess
         {
             self.Player.Samus = new SamusState(GameplayAudioRequests.Standalone(), self.SamusOverreads.FramesBeyondAnimation, self.UnauthoredBoostCadence, SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), self.BeamCharge, self.Artwork.SamusArtwork)
             {
-                Pose = SamusPoseId.FacingRightNormalPose,
-                AnimationFrame = SamusAnimationDelays.AnimationForPose(SamusPoseId.FacingRightNormalPose).Start,
                 Position = FixedPosition<RoomPixels>.FromWhole(position),
                 Ground = self.Room.LoadedRoom.Definition.Ground,
             };
+            self.Player.Samus.PlaceInPose(SamusPoseId.FacingRightNormalPose);
 
             SamusSuitShade.ShowPower(self.Player.Colours);
             SamusPoseMetadata.RefreshCollisionRadii(self.Player.Samus);

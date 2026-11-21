@@ -11,14 +11,14 @@ internal static class EnemyPickupDefinitions
     /// <summary>
     /// Each pickup kind's drop animation. A roll that drops nothing shows none; the dormant pickup path handles it.
     /// </summary>
-    internal static readonly Dictionary<EnemyPickupKind, EnemyPickupAnimationDefinition> Animations = new()
+    internal static readonly IdentityTable<EnemyPickupKind, EnemyPickupAnimationDefinition> Animations = new(new Dictionary<EnemyPickupKind, EnemyPickupAnimationDefinition>
     {
         [EnemyPickupKind.SmallEnergy] = new(EnemyDeathAndDropSegment.SmallEnergy),
         [EnemyPickupKind.BigEnergy] = new(EnemyDeathAndDropSegment.BigEnergy),
         [EnemyPickupKind.PowerBomb] = new(EnemyDeathAndDropSegment.PowerBombs),
         [EnemyPickupKind.Missile] = new(EnemyDeathAndDropSegment.Missiles),
         [EnemyPickupKind.SuperMissile] = new(EnemyDeathAndDropSegment.SuperMissiles),
-    };
+    });
 
     /// <summary>How long a new pickup stays to be collected, in updates.</summary>
     internal const int Lifetime = 400;

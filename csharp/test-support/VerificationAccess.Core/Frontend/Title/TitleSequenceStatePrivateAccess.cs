@@ -57,12 +57,6 @@ internal static class TitleSequenceStatePrivateAccess
             get => PrivateState.Get<global::SuperMetroid.Core.Frontend.Title.TitleSequenceState, global::SuperMetroid.Core.Frontend.Title.TitleSkipStage>(self, "SkipStage");
         }
 
-        /// <summary>The private property <c>Zoom</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Spatial.FloorZoom Zoom
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.Frontend.Title.TitleSequenceState, global::SuperMetroid.Core.Spatial.FloorZoom>(self, "Zoom");
-        }
-
         /// <summary>The private field <c>screenSprites</c>, reached by name.</summary>
         internal global::SuperMetroid.Core.Assets.ScreenSprites screenSprites => PrivateState.Field<global::SuperMetroid.Core.Frontend.Title.TitleSequenceState, global::SuperMetroid.Core.Assets.ScreenSprites>(self, "screenSprites");
     }

@@ -7,5 +7,5 @@ internal sealed class DustExplosionProjectileAnimation(DustExplosionAnimation an
     : EnemyProjectileFrameAnimation<DustExplosionAnimation, EnemyProjectileCommonCue>(animation, DustExplosionProjectileAnimations.StartingAt[animation], EnemyProjectileCueRunners.Common<DustExplosionAnimation>())
 {
     /// <inheritdoc/>
-    private protected override AnimationSegments<DustExplosionAnimation, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => DustExplosionProjectileAnimations.Segments;
+    private protected override IUnpausedAnimationPlay<DustExplosionAnimation, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => DustExplosionProjectileAnimations.Segments;
 }

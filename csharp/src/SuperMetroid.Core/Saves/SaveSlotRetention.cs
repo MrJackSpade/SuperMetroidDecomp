@@ -18,7 +18,7 @@ internal static class SaveSlotRetention
         Ensure.NotNull(snapshot);
         ControllerBindings bindings = snapshot.ControllerBindings.RequireUniquePermutation();
         SamusInventory inventory = Kept(snapshot.Inventory);
-        HudItem hudItem = Defined(snapshot.HudItem, nameof(snapshot.HudItem));
+        HudItem hudItem = snapshot.HudItem;
 
         LoadStation checkpoint = Ensure.NotNull(snapshot.Checkpoint);
         PersistentProgress progression = ExploredMapStorage.Retained(snapshot.Progress, maps);
@@ -40,12 +40,11 @@ internal static class SaveSlotRetention
     }
 
     /// <summary>
-    /// What Samus carries as the save keeps it (#2557): the reserve mode a defined one, and every count and capacity within
-    /// the range a count holds; the items and beams are kept as they are.
+    /// What Samus carries as the save keeps it (#2557): every count and capacity within the range a count holds; the reserve
+    /// mode, the items and the beams are kept as they are.
     /// </summary>
     private static SamusInventory Kept(SamusInventory inventory) => inventory with
     {
-        ReserveMode = Defined(inventory.ReserveMode, nameof(inventory.ReserveMode)),
         Health = Kept(inventory.Health),
         MaxHealth = Kept(inventory.MaxHealth),
         Missiles = Kept(inventory.Missiles),
@@ -61,8 +60,4 @@ internal static class SaveSlotRetention
     /// <summary>A quantity as the save keeps it: checked against the range a count holds.</summary>
     private static int Kept(int quantity) => CountsRunBelowZero.Require(quantity);
 
-    /// <summary>A selection the save keeps, rejected when it names no member of its kind.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="value"/> is undefined.</exception>
-    private static T Defined<T>(T value, string field) where T : struct, Enum =>
-        Enum.IsDefined(value) ? value : throw new ArgumentOutOfRangeException(field, value, $"Undefined {typeof(T).Name}.");
 }

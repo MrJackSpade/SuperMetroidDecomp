@@ -42,10 +42,16 @@ public static class XrayRevealMap
             if (RoomBlock(level, cameraBlock.X - 1, cameraBlock.Y + row) is { } before &&
                 Lookup(before)?.Blocks is { } predecessor)
             {
-                if (predecessor.BottomRight is { } bottomRight)
-                    CopyBlock(Position16<RoomBlocks>.Of(0, row + 1), bottomRight);
-                if (predecessor.TopRight is { } topRight)
-                    CopyBlock(Position16<RoomBlocks>.Of(0, row), topRight);
+                switch (predecessor)
+                {
+                    case XrayRevealVisualBlocks.SquareOfFour square:
+                        CopyBlock(Position16<RoomBlocks>.Of(0, row + 1), square.LowerRight);
+                        CopyBlock(Position16<RoomBlocks>.Of(0, row), square.UpperRight);
+                        break;
+                    case XrayRevealVisualBlocks.WidePair wide:
+                        CopyBlock(Position16<RoomBlocks>.Of(0, row), wide.Right);
+                        break;
+                }
             }
             for (int column = 0; column < XrayRevealGrid.Size.X; column++)
             {
@@ -62,13 +68,28 @@ public static class XrayRevealMap
                 }
                 if (reveal.Shape == XrayRevealShape.CopyBrinstar && area != AreaId.Brinstar)
                     continue;
-                CopyBlock(place, shown.TopLeft);
-                if (shown.TopRight is { } topRight)
-                    CopyBlock(place + Right, topRight);
-                if (shown.BottomLeft is { } bottomLeft)
-                    CopyBlock(place + Down, bottomLeft);
-                if (shown.BottomRight is { } bottomRight)
-                    CopyBlock(place + Right + Down, bottomRight);
+                switch (shown)
+                {
+                    case XrayRevealVisualBlocks.OneBlock one:
+                        CopyBlock(place, one.Block);
+                        break;
+                    case XrayRevealVisualBlocks.WidePair wide:
+                        CopyBlock(place, wide.Left);
+                        CopyBlock(place + Right, wide.Right);
+                        break;
+                    case XrayRevealVisualBlocks.TallPair tall:
+                        CopyBlock(place, tall.Top);
+                        CopyBlock(place + Down, tall.Bottom);
+                        break;
+                    case XrayRevealVisualBlocks.SquareOfFour square:
+                        CopyBlock(place, square.UpperLeft);
+                        CopyBlock(place + Right, square.UpperRight);
+                        CopyBlock(place + Down, square.LowerLeft);
+                        CopyBlock(place + Right + Down, square.LowerRight);
+                        break;
+                    default:
+                        throw new InvalidOperationException($"Undefined X-ray reveal blocks {shown}.");
+                }
             }
         }
         return result;

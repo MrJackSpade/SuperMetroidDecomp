@@ -340,24 +340,24 @@ public sealed class SamusHorizontalSpeedState
         bool screwAttackEquipped = frame.EquippedItems.HasAny(SamusEquipmentFlags.ScrewAttack);
         if (frame.MovementType == SamusMovementType.SpinJumping && screwAttackEquipped)
         {
-            if (frame.AnimationOnSpinStart)
+            switch (frame.SpinPlace)
             {
-                // The spin's first frame restarts only the colour cycle's step. That frame keeps the normal suit colours
-                // already shown; it shows no Screw Attack shade.
-                FullBodyGlow.GoOnFrom(SamusGlowPlay.Before(FullBodyGlowStart));
-                return;
+                case SpinGlowPlace.Restarting:
+                    // The spin's first frame restarts only the colour cycle's step. That frame keeps the normal suit colours
+                    // already shown; it shows no Screw Attack shade.
+                    FullBodyGlow.GoOnFrom(SamusGlowPlay.Before(FullBodyGlowStart));
+                    return;
+                case SpinGlowPlace.ShowsNormalColours:
+                    // From the spin's first wall-jump-ready frame onward Samus shows her normal suit colours; the spin's
+                    // frames between its first and that one cycle below. Her colours are what the next shown frame displays.
+                    SamusSuitShade.Show(colours, frame.EquippedItems);
+                    return;
+                case SpinGlowPlace.Glowing:
+                    ShowNextScrewAttackShade(colours, suit);
+                    return;
+                default:
+                    throw new InvalidOperationException($"A spin jump's animation stands at no {frame.SpinPlace} place.");
             }
-
-            if (frame.AnimationPastScrewAttackSpin)
-            {
-                // From the spin's first wall-jump-ready frame onward Samus shows her normal suit colours; the spin's
-                // frames between its first and that one cycle below. Her colours are what the next shown frame displays.
-                SamusSuitShade.Show(colours, frame.EquippedItems);
-                return;
-            }
-
-            ShowNextScrewAttackShade(colours, suit);
-            return;
         }
 
         if (frame.MovementType == SamusMovementType.WallJumping)
@@ -365,16 +365,19 @@ public sealed class SamusHorizontalSpeedState
             if (!screwAttackEquipped)
                 return;
 
-            if (frame.AnimationBeforeWallJumpSpin)
+            switch (frame.SpinPlace)
             {
-                // The wall-jump animation keeps the normal suit colours until its spin starts; its spin frames
-                // share the same six colour steps.
-                FullBodyGlow.GoOnFrom(SamusGlowPlay.Before(FullBodyGlowStart));
-                return;
+                case SpinGlowPlace.Restarting:
+                    // The wall-jump animation keeps the normal suit colours until its spin starts; its spin frames
+                    // share the same six colour steps.
+                    FullBodyGlow.GoOnFrom(SamusGlowPlay.Before(FullBodyGlowStart));
+                    return;
+                case SpinGlowPlace.Glowing:
+                    ShowNextScrewAttackShade(colours, suit);
+                    return;
+                default:
+                    throw new InvalidOperationException($"A wall jump's animation stands at no {frame.SpinPlace} place.");
             }
-
-            ShowNextScrewAttackShade(colours, suit);
-            return;
         }
 
         if (!IsActivelySpeedBoosting)

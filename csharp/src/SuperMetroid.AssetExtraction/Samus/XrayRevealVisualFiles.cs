@@ -402,16 +402,16 @@ public static class XrayRevealVisualFiles
         [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] int? BottomRight = null)
     {
         /// <summary>The document of the blocks <paramref name="blocks"/> a <paramref name="shape"/> copy shows.</summary>
-        internal static RevealBlocksDocument Of(XrayRevealShape shape, XrayRevealVisualBlocks blocks) => shape switch
+        internal static RevealBlocksDocument Of(XrayRevealShape shape, XrayRevealVisualBlocks blocks) => (shape, blocks) switch
         {
-            XrayRevealShape.CopyOne or XrayRevealShape.CopyBrinstar => new(Block: blocks.TopLeft.Block),
-            XrayRevealShape.CopyWide => new(Left: blocks.TopLeft.Block, Right: Required(blocks.TopRight, shape).Block),
-            XrayRevealShape.CopyTall => new(Top: blocks.TopLeft.Block, Bottom: Required(blocks.BottomLeft, shape).Block),
-            XrayRevealShape.CopySquare => new(TopLeft: blocks.TopLeft.Block, TopRight: Required(blocks.TopRight, shape).Block,
-                BottomLeft: Required(blocks.BottomLeft, shape).Block, BottomRight: Required(blocks.BottomRight, shape).Block),
-            XrayRevealShape.HorizontalExtension or XrayRevealShape.VerticalExtension =>
+            (XrayRevealShape.CopyOne or XrayRevealShape.CopyBrinstar, XrayRevealVisualBlocks.OneBlock one) => new(Block: one.Block.Block),
+            (XrayRevealShape.CopyWide, XrayRevealVisualBlocks.WidePair wide) => new(Left: wide.Left.Block, Right: wide.Right.Block),
+            (XrayRevealShape.CopyTall, XrayRevealVisualBlocks.TallPair tall) => new(Top: tall.Top.Block, Bottom: tall.Bottom.Block),
+            (XrayRevealShape.CopySquare, XrayRevealVisualBlocks.SquareOfFour square) => new(TopLeft: square.UpperLeft.Block,
+                TopRight: square.UpperRight.Block, BottomLeft: square.LowerLeft.Block, BottomRight: square.LowerRight.Block),
+            (XrayRevealShape.HorizontalExtension or XrayRevealShape.VerticalExtension, _) =>
                 throw new ArgumentOutOfRangeException(nameof(shape), shape, "An extension shape copies no blocks."),
-            _ => throw new ArgumentOutOfRangeException(nameof(shape), shape, $"Undefined {nameof(XrayRevealShape)}."),
+            _ => throw new InvalidOperationException($"An X-ray {shape} reveal shows {blocks}, which is not that shape's copy."),
         };
 
         /// <summary>Whether the document names exactly the places a <paramref name="shape"/> copy shows.</summary>
@@ -447,10 +447,6 @@ public static class XrayRevealVisualFiles
 
         /// <summary>The blocks of every place the document can name.</summary>
         private int?[] Named() => [Block, Left, Right, Top, Bottom, TopLeft, TopRight, BottomLeft, BottomRight];
-
-        /// <summary>The picture a shape's place holds, which its blocks always name.</summary>
-        private static RoomCellPicture Required(RoomCellPicture? picture, XrayRevealShape shape) =>
-            picture ?? throw new InvalidOperationException($"An X-ray {shape} reveal is missing one of its blocks.");
     }
 
     /// <summary>The compiled copy shape of an entry <see cref="ValidateStructure"/> has admitted.</summary>

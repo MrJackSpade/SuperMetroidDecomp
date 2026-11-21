@@ -179,8 +179,8 @@ exception, and the fixer is fixed. What each fixer does where a choice was neede
   reads the variable, a `nameof` or cref, a write through a receiver with effects) is left as written and fails the
   build. An initializer with an effect is kept as `_ = value;` in a constructor the type is given when it has none,
   or, in a type with a primary constructor, at the start of the type's body, which cannot hold it. A parameter left
-  unread whose removal needs a choice stays (IDE0060 reports it), and a member left reading no instance data is
-  reported by CA1822.
+  unread goes with its arguments even where that needs a choice (an override's then fails the build), and a member
+  left reading no instance data is reported by CA1822.
 
 A dead store or initializer whose value could have an effect keeps its evaluation as `_ = value;`.
 
@@ -190,11 +190,12 @@ only that code read (`UnreadParameters`), since IDE0060, an unused parameter, is
 parameter goes with its `param` documentation and the argument every call passes it, a target-typed `new` among them;
 an argument that read a parameter of its caller is removed code too, so that parameter goes when nothing else reads
 it. Reading an automatic property is free of effects, like reading a field, so such an argument goes as well. A
-parameter whose removal needs a choice stays, unread, with its arguments, while the dead code goes (#2599): one passed
-an argument that could have an effect, a `ref`, `out`, `in` or `params` parameter, one of a method something else
-decides the signature of (virtual, abstract, an override, an interface's), one of a method used other than by calls (a
-method group, a cref with parameters), one whose removal would clash with an overload, a record's positional
-parameter, and one `paramref` still names; IDE0060 (a build error) reports it where it applies. An instance member
+parameter whose removal needs a choice goes all the same, with every argument passed to it (#2599): one passed an
+argument that could have an effect, a `ref`, `out`, `in` or `params` parameter, one of a method something else decides
+the signature of (virtual, abstract, an override, an interface's, which then no longer matches and fails the build),
+one whose removal clashes with an overload (the build fails on the duplicate), a record's positional parameter, and one
+`paramref` still names (the build fails on the reference). A use of the method that is no call (a method group, a cref
+with parameters) stays as written and fails the build there. An instance member
 that read its instance only in the removed code reads none afterwards, and CA1822 (a build error) asks for it to be
 static. `IDE0052.unread-parameter` holds the constructor of the e4ce9514eb failure, a caller passing an automatic
 property through a target-typed `new`, a factory whose own parameter only fed the removed argument and a caller of it

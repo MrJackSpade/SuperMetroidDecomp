@@ -15,14 +15,11 @@ namespace SuperMetroid.EnsureAnalyzer.CodeFixes.DeadCode;
 /// code it removes (<see cref="Removing"/>); once it has, <see cref="RemoveAsync"/> takes out each parameter of a method
 /// or constructor (a class's primary constructor included) whose every read lies in removed code: the parameter, its
 /// <c>param</c> documentation and the argument every call passes it. An argument read by a removed call is removed code
-/// too, so a parameter of the caller that only that argument read goes as well, and so on. A parameter whose removal
-/// needs a choice stays, unread, with every argument passed to it (#2599): one passed an argument whose evaluation could
-/// have an effect; a <c>ref</c>, <c>out</c>, <c>in</c>, <c>params</c> or extension receiver parameter; one of a method
-/// that is virtual, abstract, overrides, implements an interface, is partial or extern, or would then clash with
-/// another of its type's members; one of a method used other than by calls, by name or by crefs without parameters; a
-/// record's positional parameter; and one documentation still names with <c>paramref</c>. The dead code is removed all
-/// the same, and IDE0060, a build error, reports the unread parameter where it applies. A member that read its instance
-/// only in the removed code then reads none, and CA1822, a build error, reports it.
+/// too, so a parameter of the caller that only that argument read goes as well, and so on. Every parameter left unread
+/// goes, with every argument passed to it, whatever needs a choice (#2599): a method something else decides the
+/// signature of (an override, an interface member) or one that would clash with an overload then fails the build at the
+/// site, and a use that is no call (a method group, a cref with parameters) stays as written and fails the build there.
+/// A member that read its instance only in the removed code then reads none, and CA1822, a build error, reports it.
 /// </summary>
 internal sealed class UnreadParameters
 {
@@ -97,39 +94,48 @@ internal sealed class UnreadParameters
     /// passed to it, or, when that needs a choice, leaves it and its arguments as they are.</summary>
     private async Task TakeAsync(IParameterSymbol parameter, IMethodSymbol method, CancellationToken cancellationToken)
     {
-        if (parameter.RefKind != RefKind.None || parameter.IsParams || parameter.IsThis)
-            return;
-        if (method.IsVirtual || method.IsAbstract || method.IsOverride || method.IsExtern || method.IsPartialDefinition ||
-            method.PartialImplementationPart is not null || method.PartialDefinitionPart is not null || !method.ExplicitInterfaceImplementations.IsEmpty ||
-            ImplementsInterface(method))
-            return;
-        if (parameter.DeclaringSyntaxReferences.Length != 1 ||
-            await parameter.DeclaringSyntaxReferences[0].GetSyntaxAsync(cancellationToken).ConfigureAwait(false) is not ParameterSyntax { Parent: ParameterListSyntax list } declaration)
-            return;
-        if (list.Parent is RecordDeclarationSyntax || Clashes(method, parameter))
-            return;
-        foreach (ReferenceLocation reference in await ReferencesAsync(parameter, cancellationToken).ConfigureAwait(false))
+        // Every declaration of the parameter goes (both parts of a partial method), whatever decides the signature: an
+        // override, an interface member or a clash with an overload then fails the build at the site (#2599).
+        var declarations = new List<(ParameterListSyntax List, ParameterSyntax Declaration)>();
+        foreach (SyntaxReference reference in parameter.DeclaringSyntaxReferences)
         {
-            if (!InRemoved(reference.Location) && !InParameterDocumentation(reference.Location))
-                return;
+            if (await reference.GetSyntaxAsync(cancellationToken).ConfigureAwait(false) is ParameterSyntax { Parent: ParameterListSyntax list } declaration)
+                declarations.Add((list, declaration));
         }
+        if (method.PartialImplementationPart?.Parameters[parameter.Ordinal] is { } implemented)
+            await AddDeclarationsAsync(implemented, declarations, cancellationToken).ConfigureAwait(false);
+        if (method.PartialDefinitionPart?.Parameters[parameter.Ordinal] is { } defined)
+            await AddDeclarationsAsync(defined, declarations, cancellationToken).ConfigureAwait(false);
+        if (declarations.Count == 0)
+            throw new InvalidOperationException($"'{parameter.Name}' of {method.ToDisplayString()} is declared in no parameter list.");
         var arguments = new List<(BaseArgumentListSyntax List, int Index, ArgumentSyntax Argument, SemanticModel Model)>();
         foreach (ReferencedSymbol referenced in await SymbolFinder.FindReferencesAsync(method, _solution, cancellationToken).ConfigureAwait(false))
         {
             foreach (ReferenceLocation call in referenced.Locations)
-            {
-                if (!await ArgumentsAsync(call, method, parameter, arguments, cancellationToken).ConfigureAwait(false))
-                    return;
-            }
+                await ArgumentsAsync(call, method, parameter, arguments, cancellationToken).ConfigureAwait(false);
         }
         _taken.Add(parameter);
-        Take(list, list.Parameters.IndexOf(declaration));
-        if (list.Parent is { } owner)
-            await RemoveDocumentationAsync(owner, parameter.Name, cancellationToken).ConfigureAwait(false);
+        foreach (var (list, declaration) in declarations.Distinct())
+        {
+            Take(list, list.Parameters.IndexOf(declaration));
+            if (list.Parent is { } owner)
+                await RemoveDocumentationAsync(owner, parameter.Name, cancellationToken).ConfigureAwait(false);
+        }
         foreach (var (argumentList, index, argument, model) in arguments)
         {
             Removing(argument, model);
             Take(argumentList, index);
+        }
+    }
+
+    /// <summary>Adds the parameter-list declarations of another part's parameter.</summary>
+    private static async Task AddDeclarationsAsync(IParameterSymbol parameter, List<(ParameterListSyntax List, ParameterSyntax Declaration)> declarations,
+        CancellationToken cancellationToken)
+    {
+        foreach (SyntaxReference reference in parameter.DeclaringSyntaxReferences)
+        {
+            if (await reference.GetSyntaxAsync(cancellationToken).ConfigureAwait(false) is ParameterSyntax { Parent: ParameterListSyntax list } declaration)
+                declarations.Add((list, declaration));
         }
     }
 
@@ -160,8 +166,6 @@ internal sealed class UnreadParameters
             bool passed = argument.NameColon is { } named ? named.Name.Identifier.ValueText == parameter.Name : index == parameter.Ordinal;
             if (!passed)
                 continue;
-            if (!SideEffects.IsFree(model.GetOperation(argument.Expression, cancellationToken)))
-                return false;
             arguments.Add((list, index, argument, model));
         }
         return true;
@@ -195,30 +199,6 @@ internal sealed class UnreadParameters
         node.Ancestors().OfType<InvocationExpressionSyntax>().Any(invocation =>
             invocation.Expression is IdentifierNameSyntax { Identifier.ValueText: "nameof" } &&
             model.GetOperation(invocation, cancellationToken) is INameOfOperation);
-
-    /// <summary>Whether the method, less the parameters taken out, would take the parameters of another of its type's
-    /// members of its name, which then clash or make calls ambiguous.</summary>
-    private bool Clashes(IMethodSymbol method, IParameterSymbol parameter)
-    {
-        var left = method.Parameters.Where(other => !SymbolEqualityComparer.Default.Equals(other, parameter) && !_taken.Contains(other)).ToList();
-        IEnumerable<ISymbol> siblings = method.MethodKind == MethodKind.Constructor
-            ? method.ContainingType.InstanceConstructors
-            : method.ContainingType.GetMembers(method.Name);
-        foreach (IMethodSymbol sibling in siblings.OfType<IMethodSymbol>())
-        {
-            if (SymbolEqualityComparer.Default.Equals(sibling, method) || sibling.Parameters.Length != left.Count)
-                continue;
-            if (sibling.Parameters.Zip(left, (first, second) => first.RefKind == second.RefKind &&
-                    SymbolEqualityComparer.Default.Equals(first.Type, second.Type)).All(same => same))
-                return true;
-        }
-        return false;
-    }
-
-    /// <summary>Whether the method implements a member of an interface its type implements.</summary>
-    private static bool ImplementsInterface(IMethodSymbol method) =>
-        method.ContainingType.AllInterfaces.SelectMany(contract => contract.GetMembers()).Any(member =>
-            SymbolEqualityComparer.Default.Equals(method.ContainingType.FindImplementationForInterfaceMember(member), method));
 
     /// <summary>Takes out the <c>param</c> element documenting <paramref name="parameter"/> in the documentation of
     /// <paramref name="owner"/>: with its lines when they hold nothing else, or alone when they do.</summary>

@@ -23,7 +23,13 @@ internal static class RidleyCollisionDefinitions
     internal static readonly EnemyReaction BodyShotReaction = RidleyReactions.Shot;
 
     /// <summary>Ridley's eleven body frames for both encounters, selected by facing, mouth and leg pose (#2234).</summary>
-    internal static IReadOnlyList<EnemyFrameId> BodyFrames => [.. SideFacing.Keys, EnemyFrameId.RidleyBodyForward];
+    internal static readonly IReadOnlyList<EnemyFrameId> BodyFrames =
+    [
+        EnemyFrameId.RidleyBodyLeft, EnemyFrameId.RidleyBodyRight, EnemyFrameId.RidleyBodyLeftMouthHalfOpen,
+        EnemyFrameId.RidleyBodyLeftMouthOpen, EnemyFrameId.RidleyBodyRightMouthHalfOpen, EnemyFrameId.RidleyBodyRightMouthOpen,
+        EnemyFrameId.RidleyBodyLeftLegsHalfExtended, EnemyFrameId.RidleyBodyLeftLegsExtended,
+        EnemyFrameId.RidleyBodyRightLegsHalfExtended, EnemyFrameId.RidleyBodyRightLegsExtended, EnemyFrameId.RidleyBodyForward,
+    ];
     /// <summary>The forward frame's single component Y offset, authored for its drawing.</summary>
     internal const int ForwardYOffset = -6;
 

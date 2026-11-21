@@ -567,6 +567,11 @@ internal static class EnemyExtendedFrameDocumentOrder
         EnemyFrameId.MotherBrainBodyArmDrawnBack,
         EnemyFrameId.MotherBrainBodyArmFlungOut,
         EnemyFrameId.MotherBrainBodyArmReturning,
+    ];
+
+    /// <summary>Phantoon's BG2-only poses, in the document's order.</summary>
+    internal static ImmutableArray<EnemyFrameId> PhantoonBg2 { get; } =
+    [
         EnemyFrameId.PhantoonInvulnerableBody,
         EnemyFrameId.PhantoonFullHitboxBody,
         EnemyFrameId.PhantoonEyeHitboxBody,
@@ -584,14 +589,14 @@ internal static class EnemyExtendedFrameDocumentOrder
         EnemyFrameId.PhantoonTentaclesNarrow,
         EnemyFrameId.PhantoonTentaclesSpreading,
         EnemyFrameId.PhantoonTentaclesSpread,
-    ];
-
-    /// <summary>Phantoon's BG2-only poses, in the document's order.</summary>
-    internal static ImmutableArray<EnemyFrameId> PhantoonBg2 { get; } =
-    [
         EnemyFrameId.PhantoonMouthOpen,
         EnemyFrameId.PhantoonMouthHalfOpen,
         EnemyFrameId.PhantoonMouthNarrow,
+    ];
+
+    /// <summary>Draygon's BG2-only poses, in the document's order.</summary>
+    internal static ImmutableArray<EnemyFrameId> DraygonBg2 { get; } =
+    [
         EnemyFrameId.DraygonLimpArmFacingLeftClawRaised,
         EnemyFrameId.DraygonLimpArmFacingLeftClawDropping,
         EnemyFrameId.DraygonLimpArmFacingLeftClawDropped,
@@ -609,11 +614,6 @@ internal static class EnemyExtendedFrameDocumentOrder
         EnemyFrameId.DraygonEyeFacingLeftNarrowing,
         EnemyFrameId.DraygonEyeFacingLeftClosing,
         EnemyFrameId.DraygonLimpArmFacingRightClawRaised,
-    ];
-
-    /// <summary>Draygon's BG2-only poses, in the document's order.</summary>
-    internal static ImmutableArray<EnemyFrameId> DraygonBg2 { get; } =
-    [
         EnemyFrameId.DraygonLimpArmFacingRightClawDropping,
         EnemyFrameId.DraygonLimpArmFacingRightClawDropped,
         EnemyFrameId.DraygonLimpArmFacingRightClawCurled,
@@ -629,6 +629,11 @@ internal static class EnemyExtendedFrameDocumentOrder
         EnemyFrameId.DraygonEyeFacingRightBloodshot,
         EnemyFrameId.DraygonEyeFacingRightNarrowing,
         EnemyFrameId.DraygonEyeFacingRightClosing,
+    ];
+
+    /// <summary>Crocomire's corpse and skeleton composite frames, in the document's order.</summary>
+    internal static ImmutableArray<EnemyFrameId> CrocomireSkeleton { get; } =
+    [
         EnemyFrameId.CrocomireBodySkeletonToppling,
         EnemyFrameId.CrocomireBodySkeletonLeaning,
         EnemyFrameId.CrocomireBodySkeletonTipping,
@@ -646,11 +651,6 @@ internal static class EnemyExtendedFrameDocumentOrder
         EnemyFrameId.CrocomireBodySkeletonSpineFallingApart,
         EnemyFrameId.CrocomireBodySkeletonRibsSplaying,
         EnemyFrameId.CrocomireBodySkeletonRibsFlattened,
-    ];
-
-    /// <summary>Crocomire's corpse and skeleton composite frames, in the document's order.</summary>
-    internal static ImmutableArray<EnemyFrameId> CrocomireSkeleton { get; } =
-    [
         EnemyFrameId.CrocomireBodySkeletonBonesGathering,
         EnemyFrameId.CrocomireBodySkeletonBonesHuddled,
         EnemyFrameId.CrocomireBodySkeletonRibsBesideSkull,

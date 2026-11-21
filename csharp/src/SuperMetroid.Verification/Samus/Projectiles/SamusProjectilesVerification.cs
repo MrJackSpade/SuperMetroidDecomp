@@ -220,7 +220,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         AssertEqual(beamType == 10 ? (ushort)12 : (ushort)15, combinedBombs.CooldownTimer,
             $"beam combination {beamType} indexes uncharged cooldown");
         AssertEqual(
-            (SoundEffectId?)SoundEffectCommands.Decode(
+            (SoundEffectId?)SoundEffectCommands.DecodeCartridge(
                 SoundEffectLibrary.Samus,
                 nativeUnchargedSounds[beamType]),
             combinedResult?.SoundEffect,
@@ -362,7 +362,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     SoundRequest? rejectedRelease = rejectedReleaseProjectiles.StepFrameFiringSound(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, rejectedReleaseSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), rejectedReleaseBombs, new SharedGameState(new SharedRandom()));
     AssertEqual(null, beforeRejectedRelease.FiredSlot(rejectedReleaseProjectiles),
         "cooldown gate rejects charged-audio release fixture");
-    AssertEqual((SoundEffectId?)SamusSound.Silence,
+    AssertEqual((SoundEffectId?)SamusSoundStop.Any,
         rejectedRelease?.SoundEffect,
         "rejected post-sound charge release queues cartridge cancellation");
     AssertEqual<SoundRequestPriority?>(SoundRequestPriority.Essential, rejectedRelease?.Priority,
@@ -607,7 +607,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         AssertEqual(30, combinedChargeBombs.CooldownTimer,
             $"charged beam combination {beamType} indexes charged cooldown");
         AssertEqual(
-            (SoundEffectId?)SoundEffectCommands.Decode(
+            (SoundEffectId?)SoundEffectCommands.DecodeCartridge(
                 SoundEffectLibrary.Samus,
                 nativeChargedSounds[beamType]),
             combinedChargedRelease?.SoundEffect,
@@ -645,7 +645,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     AssertEqual<int?>(null, global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileOccupant, global::SuperMetroid.Core.UpdateCountdown?>(hyperSlot.HeldShot(), "Trail")?.UpdatesLeft, "Hyper Beam does not arm a projectile trail");
     AssertEqual(21, hyperBombs.CooldownTimer, "Hyper Beam installs literal cooldown 21");
     AssertEqual(
-        (SoundEffectId?)SoundEffectCommands.Decode(
+        (SoundEffectId?)SoundEffectCommands.DecodeCartridge(
             SoundEffectLibrary.Samus, nativeChargedSounds[8]),
         hyperResult?.SoundEffect,
         "Hyper Beam indexes charged sound entry eight");

@@ -93,7 +93,7 @@ internal static class SoundAcceptanceClockVerification
         AssertSequenceEqual(new[]
             {
                 new SoundAcceptanceClockCase(3, SamusSound.MenuCursor),
-                new SoundAcceptanceClockCase(5, EnemySound.Silence),
+                new SoundAcceptanceClockCase(5, EnemySoundStop.Any),
                 new SoundAcceptanceClockCase(27, RoomSound.SpeedBooster),
                 new SoundAcceptanceClockCase(39, RoomSound.HardLanding),
             }, starts.Select(start => new SoundAcceptanceClockCase(start.Frame, start.Start.SoundEffect)),
@@ -176,7 +176,7 @@ internal static class SoundAcceptanceClockVerification
                 audio.QueueSound(SamusSound.MenuCursor, priority: SoundRequestPriority.Normal);
                 break;
             case 4:
-                audio.QueueSound(EnemySound.Silence, priority: SoundRequestPriority.Normal);
+                audio.QueueSound(EnemySoundStop.Any, priority: SoundRequestPriority.Normal);
                 break;
             case 10:
                 audio.QueueMusic(MusicRequest.LoadDataSet(MusicDataSet.GreenBrinstar));

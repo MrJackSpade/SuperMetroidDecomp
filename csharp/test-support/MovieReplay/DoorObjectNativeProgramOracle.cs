@@ -32,7 +32,7 @@ internal static class DoorObjectNativeProgramOracle
 
     /// <summary>The library-3 sound a queue-sound instruction at <paramref name="cursor"/> names.</summary>
     internal static SoundEffectId QueuedLibrary3Sound(IImportCartridgeSource cartridge, int cursor) =>
-        SoundEffectCommands.Decode(SoundEffectLibrary.Room, ReadOperandByte(cartridge, cursor + 2));
+        SoundEffectCommands.DecodeCartridge(SoundEffectLibrary.Room, ReadOperandByte(cartridge, cursor + 2));
 
     /// <summary>Every blue cap's lists equal its typed sequences; returns the images compared.</summary>
     internal static int CompareBlueCaps(IImportCartridgeSource cartridge)
@@ -183,7 +183,7 @@ internal static class DoorObjectNativeProgramOracle
 
             VerificationAssertions.AssertEqual(RoomObjectInstruction.QueueSoundLibrary2Maximum6, InstructionAt<RoomObjectInstruction>(cartridge, eye.Hit), $"{at} hit sounds");
             VerificationAssertions.AssertEqual(EyeDoorSequenceDefinitions.HitSound,
-                SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, ReadOperandByte(cartridge, eye.Hit + 2)), $"{at} hit sound");
+                SoundEffectCommands.DecodeCartridge(SoundEffectLibrary.Enemies, ReadOperandByte(cartridge, eye.Hit + 2)), $"{at} hit sound");
             VerificationAssertions.AssertEqual(SoundRequestPriority.Normal, EyeDoorSequenceDefinitions.HitSoundPriority, $"{at} hit sound priority");
             cursor = Expect(cartridge, unchecked((ushort)(eye.Hit + QueueSoundLength)), RoomObjectInstruction.SpawnTwoEyeDoorSmoke, 2, $"{at} hit smokes");
             cursor = Expect(cartridge, cursor, RoomObjectInstruction.SpawnTwoEyeDoorSmoke, 2, $"{at} hit smokes again");

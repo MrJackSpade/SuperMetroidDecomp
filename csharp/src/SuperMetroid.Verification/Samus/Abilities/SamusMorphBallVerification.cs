@@ -693,7 +693,7 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
     AssertEqual(1, bombs.AudioRequests.SoundRequests.Count,
         "normal bomb fuse expiry queues exactly one sound request");
     AssertEqual(
-        new SoundRequest(EnemySound.BombExplosion, SoundRequestPriority.Normal),
+        new SoundRequest(EnemySound.WeaponExplosion, SoundRequestPriority.Normal),
         bombs.AudioRequests.SoundRequests[0],
         "normal bomb fuse expiry requests the bomb explosion at normal priority");
 
@@ -729,7 +729,7 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
     AssertEqual(1, spreadBombs.AudioRequests.SoundRequests.Count,
         "bomb spread queues one charge-cancellation sound request");
     AssertEqual(
-        new SoundRequest(SamusSound.Silence, SoundRequestPriority.High),
+        new SoundRequest(SamusSoundStop.Any, SoundRequestPriority.High),
         spreadBombs.AudioRequests.SoundRequests[0],
         "bomb spread queues cartridge library-one sound two with Max9");
     AssertEqual(5, spreadBombs.BombCounter,
@@ -1179,7 +1179,7 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
         "respawning shot block begins with retail air frame");
     AssertEqual(1, shotObjects.Sounds.SoundRequests.Count,
         "shot-block head queues one sound request");
-    AssertEqual(SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, 0x0a), shotObjects.Sounds.SoundRequests[0].SoundEffect,
+    AssertEqual(SoundEffectCommands.DecodeCartridge(SoundEffectLibrary.Enemies, 0x0a), shotObjects.Sounds.SoundRequests[0].SoundEffect,
         "shot-block head queues crumble sound $0A");
     AssertEqual(1, shotObjects.Sounds.SoundRequests[0].Priority.Requests,
         "$84:8C79 uses sound-library-two maximum one");

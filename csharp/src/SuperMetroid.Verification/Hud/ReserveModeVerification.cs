@@ -41,7 +41,7 @@ internal static class ReserveModeVerification
         ordinary.Xray.StepBeam(ordinary, controllerInput: 0);
         AssertTrue(!ordinary.Xray.IsActive && !ordinary.Xray.IsReserveMode,
             "ordinary frozen X-Ray phase five performs cartridge cleanup");
-        AssertEqual(1, ordinary.AudioRequests.CountOf(SamusSound.XrayEnd),
+        AssertEqual(1, ordinary.AudioRequests.CountOf(SamusSoundStop.Xray),
             "ordinary X-Ray cleanup queues its sound");
 
         SamusState reserve = CreateXrayReserveFixture(reserveEnergy: 5);
@@ -60,7 +60,7 @@ internal static class ReserveModeVerification
             "cleared shared freeze strands X-Ray in phase five");
         AssertEqual(XrayBeamPhase.Finish, reserve.Xray.BeamPhase,
             "Reserve Mode keeps X-Ray cleanup dispatcher at phase five");
-        AssertEqual(0, reserve.AudioRequests.CountOf(SamusSound.XrayEnd),
+        AssertEqual(0, reserve.AudioRequests.CountOf(SamusSoundStop.Xray),
             "stranded phase five does not invent X-Ray teardown sound");
 
         // Crystal Flash replaces shared palette handler eight with handler seven without

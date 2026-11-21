@@ -38,7 +38,7 @@ internal static class MetroidBehaviorDefinitionsVerification
         for (ushort index = 0; index < 8; index++)
         {
             SoundEffectId cry = MetroidBehaviorDefinitions.Cry.Choose(index);
-            AssertEqual(SoundEffectCommands.Decode(cry.Library, CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3ead6 + index * 2))),
+            AssertEqual(SoundEffectCommands.DecodeCartridge(cry.Library, CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3ead6 + index * 2))),
                 cry,
                 $"Metroid random cry {index}");
         }

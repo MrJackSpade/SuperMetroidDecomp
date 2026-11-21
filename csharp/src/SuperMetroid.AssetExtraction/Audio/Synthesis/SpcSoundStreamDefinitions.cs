@@ -186,7 +186,7 @@ internal static class SpcSoundStreamDefinitions
         internal const ushort Sound13PlaysAtRandomInHeatedRooms = 0x3be7;
         /// <summary>SPC $3C08, sound2AnimationScripts_sound14; ROM pointer entry $CFA5E1. Plays at random in heated rooms</summary>
         internal const ushort Sound14PlaysAtRandomInHeatedRooms = 0x3c08;
-        /// <summary>SPC $3C33, sound2AnimationScripts_sound15; ROM pointer entry $CFA5E3. Maridia elevatube</summary>
+        /// <summary>SPC $3C33, sound2AnimationScripts_sound15; ROM pointer entry $CFA5E3. Maridia elevatube: one zero-volume note, a stop (#2580)</summary>
         internal const ushort Sound15MaridiaElevatube = 0x3c33;
         /// <summary>SPC $3C3B, sound2AnimationScripts_sound16; ROM pointer entry $CFA5E5. Unnamed sound command; original instruction-list identity.</summary>
         internal const ushort Sound16 = 0x3c3b;

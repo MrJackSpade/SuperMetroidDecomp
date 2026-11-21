@@ -34,7 +34,7 @@ internal static class CrocomireSoundDefinitions
     internal static readonly SoundEffectId SkeletonCollapse = EnemySound.CrocomireSkeletonCollapse;
 
     /// <summary>The quake queued with each screen shake of a heavy step.</summary>
-    internal static readonly SoundEffectId ScreenShake = EnemySound.Quake;
+    internal static readonly SoundEffectId ScreenShake = EnemySound.BigExplosion;
 
     /// <summary>The melting cry, which starts the first melt dissolve.</summary>
     internal static readonly SoundEffectId FirstMeltDissolve = EnemySound.CrocomireMeltingCry;

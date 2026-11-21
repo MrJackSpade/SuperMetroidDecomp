@@ -8,10 +8,14 @@ internal static class SporeSpawnProjectileDefinitions
 {
     /// <summary>
     /// His stalk's four segments in the order he spawns them, each relative to his body: on his centre line, from 64 pixels
-    /// above him downward eight pixels apart.
+    /// above him downward eight pixels apart; the last he spawns hangs at the ceiling, the one before it a quarter of the way
+    /// down the stalk, then half and three quarters of the way.
     /// </summary>
-    internal static IReadOnlyList<Offset16<RoomPixels>> StalkSegments { get; } =
-        [new(0, -64), new(0, -56), new(0, -48), new(0, -40)];
+    internal static IReadOnlyList<SporeSpawnStalkLinkDefinition> StalkSegments { get; } =
+    [
+        new(new(0, -64), SporeSpawnStalkPlace.ThreeQuarters), new(new(0, -56), SporeSpawnStalkPlace.Half),
+        new(new(0, -48), SporeSpawnStalkPlace.Quarter), new(new(0, -40), SporeSpawnStalkPlace.Ceiling),
+    ];
 
     /// <summary>
     /// The four ceiling spore emitters in the order he opens them, centred in successive 64-pixel columns of his room: the

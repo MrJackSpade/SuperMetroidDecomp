@@ -35,19 +35,16 @@ internal static class RidleyCollision
     {
         if (frame == EnemyFrameId.RidleyBodyForward)
             return [new(new(0, ForwardYOffset), Forward)];
-        bool right = RightFacing.Contains(frame);
-        EnemyHitboxRectangle[] legs = Legs.TryGetValue(frame, out EnemyHitboxRectangle[]? shownLegs)
-            ? shownLegs
+        RidleySideBodyCollision side = SideFacing.TryGetValue(frame, out RidleySideBodyCollision? shown)
+            ? shown
             : throw new InvalidOperationException($"{frame} is no side-facing Ridley body frame.");
-        EnemyHitboxRectangle[] head = Heads.TryGetValue(frame, out EnemyHitboxRectangle[]? shownHead)
-            ? shownHead
-            : throw new InvalidOperationException($"{frame} is no side-facing Ridley body frame.");
+        bool right = side.FacesRight;
         return
         [
-            Side(LeftLegsOrigin, legs),
+            Side(LeftLegsOrigin, side.Legs),
             Side(LeftHandOrigin, right ? RightHand : LeftHand),
             Side(LeftTorsoOrigin, right ? RightTorso : LeftTorso),
-            Side(LeftHeadOrigin, head),
+            Side(LeftHeadOrigin, side.Head),
         ];
 
         RidleyCollisionComponent Side(Offset16<RoomPixels> leftOrigin, EnemyHitboxRectangle[] hitboxes) =>

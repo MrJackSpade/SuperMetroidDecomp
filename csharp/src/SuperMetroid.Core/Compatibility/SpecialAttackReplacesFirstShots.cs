@@ -24,22 +24,28 @@ namespace SuperMetroid.Core.Compatibility;
 internal static class SpecialAttackReplacesFirstShots
 {
     /// <summary>
-    /// Takes Samus's first shot places for a starting attack's <paramref name="parts"/>, one place a part in the parts'
-    /// order, the last place first, each ending whatever shot holds it.
+    /// Takes the shot place each of a starting attack's <paramref name="parts"/> names, the last place first, each ending
+    /// whatever shot holds it.
     /// </summary>
     /// <typeparam name="TPart">A particle's part.</typeparam>
     /// <typeparam name="TShot">The shot type.</typeparam>
-    /// <param name="parts">The attack's particles' parts, one or more, in the order of the shot places they take.</param>
+    /// <param name="parts">The attack's particles' parts, one or more, each naming a different shot place.</param>
+    /// <param name="placeOf">The shot place a part takes.</param>
     /// <param name="replaceShotInPlace">Creates the new shot of a shot place, ending the one there.</param>
-    /// <returns>Each part with the shot that plays it, the first part's first.</returns>
-    internal static IReadOnlyList<ParticleShot<TPart, TShot>> ParticleShots<TPart, TShot>(IReadOnlyList<TPart> parts, Func<int, TShot> replaceShotInPlace)
+    /// <returns>Each part with the shot that plays it, the part in the first place first.</returns>
+    internal static IReadOnlyList<ParticleShot<TPart, TShot>> ParticleShots<TPart, TShot>(IReadOnlyList<TPart> parts, Func<TPart, int> placeOf,
+        Func<int, TShot> replaceShotInPlace)
     {
         Ensure.NotNull(parts);
+        Ensure.NotNull(placeOf);
         Ensure.NotNull(replaceShotInPlace);
         Ensure.BetweenInclusive(1, int.MaxValue, parts.Count);
-        var shots = new ParticleShot<TPart, TShot>[parts.Count];
-        for (int place = shots.Length - 1; place >= 0; place--)
-            shots[place] = new(parts[place], replaceShotInPlace(place));
+        if (parts.Select(placeOf).Distinct().Count() != parts.Count)
+            throw new InvalidDataException("Each of a special attack's particles takes a shot place of its own.");
+        var shots = new List<ParticleShot<TPart, TShot>>(parts.Count);
+        foreach (TPart part in parts.OrderByDescending(placeOf))
+            shots.Add(new(part, replaceShotInPlace(placeOf(part))));
+        shots.Reverse();
         return shots;
     }
 

@@ -226,7 +226,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     /// quarters of the way from the stalk's anchor toward his body.
     /// </summary>
     private static void WriteSporeSpawnStalkAxis(
-        IReadOnlyList<EnemyProjectile> links,
+        IReadOnlyList<SporeSpawnStalkLink> links,
         int firstPosition,
         int anchor,
         int end,
@@ -238,21 +238,20 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         int quarter = delta / 4;
         int half = delta / 2;
         int threeQuarters = quarter + half;
-        Span<int> positions = stackalloc int[4]
+        foreach ((SporeSpawnStalkPlace place, EnemyProjectile stalk) in links)
         {
-            firstPosition,
-            anchor + quarter,
-            anchor + half,
-            anchor + threeQuarters,
-        };
-
-        for (int segment = 0; segment < positions.Length; segment++)
-        {
-            EnemyProjectile stalk = links[segment];
+            int position = place switch
+            {
+                SporeSpawnStalkPlace.Ceiling => firstPosition,
+                SporeSpawnStalkPlace.Quarter => anchor + quarter,
+                SporeSpawnStalkPlace.Half => anchor + half,
+                SporeSpawnStalkPlace.ThreeQuarters => anchor + threeQuarters,
+                _ => throw new InvalidDataException($"Undefined Spore Spawn stalk place {place}."),
+            };
             if (axis == Axis.Horizontal)
-                stalk.Position = stalk.Position.WithWholeX(positions[segment]);
+                stalk.Position = stalk.Position.WithWholeX(position);
             else
-                stalk.Position = stalk.Position.WithWholeY(positions[segment]);
+                stalk.Position = stalk.Position.WithWholeY(position);
         }
     }
 
@@ -432,7 +431,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         foreach (EnemyProjectile projectile in _projectiles.EnemyProjectiles)
         {
-            if (!state.StalkLinks.Contains(projectile))
+            if (!state.StalkLinks.Any(link => link.Projectile == projectile))
                 projectile.Delete();
         }
     }
@@ -536,14 +535,14 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             samus: samus);
     /// <summary>Spawns the stalk link at <paramref name="segment"/> from his body and returns it (#1932).</summary>
     /// <exception cref="InvalidOperationException">No projectile place is free: he spawns his stalk into his room's empty places.</exception>
-    private EnemyProjectile SpawnSporeSpawnStalk(RoomEnemyOccupant occupant, RoomEnemyPlace body, Offset16<RoomPixels> segment)
+    private SporeSpawnStalkLink SpawnSporeSpawnStalk(RoomEnemyOccupant occupant, RoomEnemyPlace body, SporeSpawnStalkLinkDefinition link)
     {
         EnemyProjectile stalk = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.SporeSpawnStalk, Stalk, SpriteGraphics.SpawnedBy(occupant, body.Shading)) ?? throw new InvalidOperationException(
             "Spore Spawn's stalk found no free projectile place; he spawns it as his room loads, into its empty places.");
 
         stalk.StartAnimation(new SporeSpawnProjectileAnimation(Spawner, SporeSpawnProjectileSegment.Stalk));
-        stalk.Position = stalk.Position.WithWhole(body.Position.Whole + segment);
-        return stalk;
+        stalk.Position = stalk.Position.WithWhole(body.Position.Whole + link.SpawnOffset);
+        return new(link.Place, stalk);
     }
 
     /// <summary>Spawns the ceiling spore emitter at <paramref name="emitter"/> for <paramref name="state"/>'s fight and runs its setup.</summary>

@@ -61,7 +61,7 @@ internal sealed class BeamCombos
             // The attack's particles replace the shots Samus has in her first places (SpecialAttackReplacesFirstShots),
             // and each plays its part.
             IReadOnlyList<SpecialAttackReplacesFirstShots.ParticleShot<SpecialAttackParticle, SamusProjectile>> particles =
-                SpecialAttackReplacesFirstShots.ParticleShots(SpecialAttackParticleDefinitions.InPlaceOrder, _pool.Occupy);
+                SpecialAttackReplacesFirstShots.ParticleShots(SpecialAttackParticleDefinitions.InPlaceOrder, part => part.ShotPlace, _pool.Occupy);
             // The Ice and Plasma particles turn round Samus by OrbitTurnOn each update, or by OrbitTurnBack (a full circle
             // less as much) when a left-facing Samus starts the attack, which carries them the opposite way by as much.
             TrigonometryAngle orbitTurn = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Right)

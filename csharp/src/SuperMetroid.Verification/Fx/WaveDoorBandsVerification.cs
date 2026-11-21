@@ -29,7 +29,7 @@ internal static class WaveDoorBandsVerification
             var shot = new SamusProjectile(0);
             SamusProjectileOccupant held = shot.OccupyAsFired(SamusProjectileType.Beam(SamusBeamCombinations.Of(SamusBeamFlags.Wave), charged: false));
             // The shot stands a 256th of a pixel into its pixel, which its move by a 256th of a pixel either way leaves it in.
-            shot.HeldShot().Position = new(new(72, 1), new(y, 0));
+            shot.HeldShot().Position = new(new(72, 256), new(y, 0));
             shot.HeldShot().Radius = new(1, 0);
             shot.HeldShot().Velocity = new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(left ? -1 : 1), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0));
             // A one-pixel span avoids testing adjacent-row aggregation at the boundary.

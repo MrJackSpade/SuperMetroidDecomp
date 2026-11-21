@@ -68,7 +68,8 @@ internal static class ChargeFlareDefinitionsVerification
             // in the update its next picture first shows on.
             system.Charge.ClearFlare();
             ushort expectedPhase = 0, expectedHold = 0;
-            var shownPictures = new HashSet<int>();
+            AssertEqual(Shown(component, 0), system.Charge.FlareComposition(component, HorizontalDirection.Right), $"a cleared {component} shows its first picture");
+            var shownPictures = new HashSet<int> { 0 };
             for (int tick = 0; tick < 1024; tick++)
             {
                 Reference(place, ref expectedPhase, ref expectedHold);

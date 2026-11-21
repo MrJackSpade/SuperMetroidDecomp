@@ -95,11 +95,22 @@ internal static class ProjectileDamageVerification
             foreach (var slot in system.Shots.Take(4))
                 AssertEqual((ushort)(beam == 2 ? 90 : 300), slot.HeldShot().Damage, "special attack/ordinary Ice/Spazer trail damage");
         }
-        foreach (ushort type in new ushort[] { 0x0300, 0x0500, 0x8500 })
+        // A bomb laid as Samus lays it takes its kind's damage: a Power Bomb's, or a Morph Ball bomb's, which a spread's
+        // bombs, of the same kind, take too.
+        foreach ((bool power, int expected) in new[] { (true, 200), (false, 30) })
         {
-            var slot = new SamusBomb(0);
-            SamusBombOccupant placed = SamusBombProjectileSystem.Place(slot, SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type));
-            AssertEqual((ushort)(type == 0x0300 ? 200 : 30), placed.Damage, "Power/ordinary/spread bomb damage");
+            var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
+            var bomber = Samus();
+            bomber.EquippedItems |= SuperMetroid.Core.Progression.SamusEquipmentFlags.Bombs;
+            if (power)
+            {
+                bomber.SelectedHudItem = HudItem.PowerBomb;
+                bomber.PowerBombs = 1;
+            }
+            bombs.TryPlaceBomb(bomber, GameplayAction.Shoot, GameplayAction.Shoot, out _);
+            SamusBombOccupant placed = bombs.Bombs.Single(bomb => bomb.IsActive).Occupant
+                ?? throw new InvalidOperationException("The laid bomb holds its place.");
+            AssertEqual(expected, placed.Damage, power ? "Power Bomb damage" : "ordinary and spread bomb damage");
         }
         // The echo table's unused negative-damage entry sits at Spazer+Wave, a combination no echo is: the typed identity
         // cannot name it, so the import refuses the word that would select it (#1470).

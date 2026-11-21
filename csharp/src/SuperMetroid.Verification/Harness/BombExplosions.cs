@@ -39,5 +39,5 @@ internal static class BombExplosions
     /// </summary>
     internal static void ReachBlockWithPowerBomb(SamusTerrain terrain, Position16<RoomBlocks> block) =>
         SamusBombProjectileSystem.ReactToPowerBombBoundary(terrain, new(block.X * 16 + 8, block.Y * 16 + 8), PowerBombRadius.FromWholePixels(0),
-            SamusBombProjectileSystem.PowerBombType);
+            SamusProjectileType.Of(SamusProjectileFamily.PowerBomb));
 }

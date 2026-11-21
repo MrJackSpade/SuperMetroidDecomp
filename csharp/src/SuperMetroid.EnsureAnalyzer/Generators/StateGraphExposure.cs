@@ -10,10 +10,11 @@ namespace SuperMetroid.EnsureAnalyzer.Generators;
 /// and a test of whether an object is of it; the debugger closes the catalogs over what they hold when it first needs them.
 /// </summary>
 /// <remarks>
-/// A location declared with a type of the game's assembly, or with any value type, holds what each instance field of the
-/// type and its bases is declared with; an array holds its element type; another assembly's class or interface holds its
-/// type arguments, comparers of them, arrays of them where it is an interface an array implements, and the elements it
-/// enumerates. A class that is not sealed, or an interface, also holds each of the game's concrete types that derives from
+/// A location declared with a type of the game's assembly holds what each instance field of the type and its bases in the
+/// game's assembly is declared with; an array holds its element type; another assembly's type, class, struct or interface,
+/// holds its type arguments, comparers of them, arrays of them where it is an interface an array implements, and the
+/// elements it enumerates. Another assembly's fields are never read: its reference assembly declares a placeholder object
+/// field in a struct in place of the private fields, which would make every struct holding a reference hold anything. A class that is not sealed, or an interface, also holds each of the game's concrete types that derives from
 /// or implements it, a generic one taken in each construction its fields' declared types bind to constructions the game's
 /// declarations name (#2420). A location declared as <see cref="object"/>, <see cref="ValueType"/> or a collection that
 /// enumerates objects of no declared type can hold anything; a delegate, a string and reflection metadata hold nothing.
@@ -247,9 +248,12 @@ internal sealed class StateGraphExposure(StateGraphRun run)
         }
         if (type is not INamedTypeSymbol named)
             return;
-        if (IsGame(named) || named.IsValueType)
+        // Only the game's own declarations say what their fields hold. Another assembly's type is read from its reference
+        // assembly, whose structs declare a placeholder object field in place of their private fields, so what one holds is
+        // read from its type arguments and what it enumerates, as another assembly's class's is.
+        if (IsGame(named))
         {
-            for (INamedTypeSymbol? current = named; current is not null; current = current.BaseType)
+            for (INamedTypeSymbol? current = named; current is not null && IsGame(current); current = current.BaseType)
             {
                 foreach (IFieldSymbol field in current.GetMembers().OfType<IFieldSymbol>())
                     if (!field.IsStatic && !field.IsConst && field.Type.TypeKind is not (TypeKind.Pointer or TypeKind.FunctionPointer))
@@ -257,8 +261,6 @@ internal sealed class StateGraphExposure(StateGraphRun run)
                 foreach (ITypeSymbol captured in run.CapturedTypes(current))
                     types.Add(captured);
             }
-            if (!IsGame(named))
-                AddExposed(named, types);
         }
         else
         {

@@ -65,7 +65,7 @@ internal sealed class ArrayStateType<T>(StateGraphTypes types) : StateGraphType(
         NodeStateType<T> node = PackedNode(writer.Types) ?? throw new InvalidOperationException($"{typeof(T)} elements do not pack.");
         writer.Kind(PayloadKind.PackedArray);
         writer.Output.Write(elements.Length);
-        writer.Output.Write(node.PackedSchema!);
+        writer.WriteName(node.PackedSchema!);
         var tables = new PackedEnumTables(writer.Types);
         var objects = new PackedObjects();
         // Each run has its own buffer: an object in its table can hold runs of its own, written while this one is.
@@ -76,7 +76,7 @@ internal sealed class ArrayStateType<T>(StateGraphTypes types) : StateGraphType(
             foreach (T element in elements)
                 node.WriteTyped(packedWriter, element);
         }
-        tables.Write(writer.Output);
+        tables.Write(writer);
         objects.Write(writer);
         writer.Output.Write(checked((int)values.Length));
         writer.Output.Write(values.GetBuffer(), 0, (int)values.Length);
@@ -89,7 +89,7 @@ internal sealed class ArrayStateType<T>(StateGraphTypes types) : StateGraphType(
     /// <param name="elements">The elements read.</param>
     internal static void ReadPacked(GraphReader reader, NodeStateType<T> node, string name, Span<T> elements)
     {
-        string schema = reader.Input.ReadString();
+        string schema = reader.ReadName();
         if (schema != node.PackedSchema)
         {
             throw new InvalidDataException(

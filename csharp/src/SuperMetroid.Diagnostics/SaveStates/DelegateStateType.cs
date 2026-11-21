@@ -36,7 +36,7 @@ internal sealed class DelegateStateType<TDelegate>(StateGraphTypes types) : Stat
         writer.Output.Write(calls.Length);
         foreach (Delegate call in calls)
         {
-            writer.Output.Write(MethodOf(call));
+            writer.WriteName(MethodOf(call));
             writer.Write(call.Target);
         }
     }
@@ -65,7 +65,7 @@ internal sealed class DelegateStateType<TDelegate>(StateGraphTypes types) : Stat
         Delegate? combined = null;
         for (int index = 0; index < count; index++)
         {
-            string name = reader.Input.ReadString();
+            string name = reader.ReadName();
             if (!byName.TryGetValue(name, out Func<object?, TDelegate?>? create))
                 throw new InvalidDataException($"{DebuggerObjectGraphSerializer.UnsupportedVersion}: a saved {DelegateName()} calls {name}, which this build does not have.");
             object? target = reader.Read();

@@ -10,7 +10,7 @@ internal sealed class TypeIdentityStateType(StateGraphTypes types) : StateGraphT
     internal override void Write(GraphWriter writer, object value)
     {
         writer.Kind(PayloadKind.TypeIdentity);
-        writer.Output.Write(Types.NameOf((Type)value));
+        writer.WriteName(Types.NameOf((Type)value));
     }
 
     /// <inheritdoc/>

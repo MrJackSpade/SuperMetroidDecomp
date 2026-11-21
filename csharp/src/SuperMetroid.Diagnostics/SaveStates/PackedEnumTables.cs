@@ -42,9 +42,9 @@ internal sealed class PackedEnumTables(StateGraphTypes types)
     }
 
     /// <summary>Writes every table: how many, then each enum's name and its members' names.</summary>
-    internal void Write(BinaryWriter writer)
+    internal void Write(GraphWriter writer)
     {
-        writer.Write(tables.Count);
+        writer.Output.Write(tables.Count);
         foreach (IPackedEnumTable table in tables)
             table.Write(writer);
     }

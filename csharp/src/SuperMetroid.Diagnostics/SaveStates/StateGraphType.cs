@@ -11,9 +11,6 @@ internal abstract class StateGraphType(Type type, StateGraphTypes types)
     /// <summary>The cached name, worked out on first use, once every type it names is registered.</summary>
     private string? name;
 
-    /// <summary>The cached encoded name.</summary>
-    private byte[]? encodedName;
-
     /// <summary>The runtime type.</summary>
     internal Type Type { get; } = type;
 
@@ -25,9 +22,6 @@ internal abstract class StateGraphType(Type type, StateGraphTypes types)
 
     /// <summary>The name a state gives the type.</summary>
     internal string Name => name ??= Named();
-
-    /// <summary>The name as a state stores it.</summary>
-    internal byte[] EncodedName => encodedName ??= StateGraphNames.Encode(Name);
 
     /// <summary>Works out the type's name.</summary>
     protected abstract string Named();

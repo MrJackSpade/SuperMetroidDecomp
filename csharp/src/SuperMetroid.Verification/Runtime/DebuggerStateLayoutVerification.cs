@@ -35,7 +35,9 @@ internal static partial class DebuggerStateLayoutVerification
             "a renamed field", RestoreBound<SamusGrappleState>);
         RequireUnsupported(Replace(current, "SuperMetroid.Core.Samus.Grapple.SamusGrappleState", "SuperMetroid.Core.Samus.Grapple.SamusGrappleStatf"),
             "a type this build does not have", RestoreBound<SamusGrappleState>);
-        RequireUnsupported(Replace(current, "System.Int32", "System.Int64", after: timerField),
+        // A state stores each name's text once and names it by number after (#2602), so retyping the stored name retypes
+        // every value of the type, and the first field read holding one is refused.
+        RequireUnsupported(Replace(current, "System.Int32", "System.Int64"),
             "a retyped field value", RestoreBound<SamusGrappleState>);
         Console.WriteLine("Debugger state layout: current graphs round-trip; renamed fields, missing types and retyped values are rejected.");
 
@@ -69,25 +71,16 @@ internal static partial class DebuggerStateLayoutVerification
 
     /// <summary>
     /// A copy of <paramref name="graph"/> with the first occurrence of <paramref name="from"/> replaced by the same-length
-    /// <paramref name="to"/>: the first after the first occurrence of <paramref name="after"/> when one is given.
+    /// <paramref name="to"/>: the name's stored text, which every later use of the name refers to.
     /// </summary>
-    private static byte[] Replace(byte[] graph, string from, string to, string? after = null)
+    private static byte[] Replace(byte[] graph, string from, string to)
     {
         byte[] source = Encoding.UTF8.GetBytes(from), target = Encoding.UTF8.GetBytes(to);
         if (source.Length != target.Length)
             throw new InvalidOperationException("A layout substitution must keep the encoded length.");
-        int start = 0;
-        if (after is not null)
-        {
-            int anchor = graph.AsSpan().IndexOf(Encoding.UTF8.GetBytes(after));
-            if (anchor < 0)
-                throw new InvalidOperationException($"The serialized graph does not contain '{after}'.");
-            start = anchor + Encoding.UTF8.GetByteCount(after);
-        }
-        int found = graph.AsSpan(start).IndexOf(source);
-        if (found < 0)
-            throw new InvalidOperationException($"The serialized graph does not contain '{from}'{(after is null ? "" : $" after '{after}'")}.");
-        int index = start + found;
+        int index = graph.AsSpan().IndexOf(source);
+        if (index < 0)
+            throw new InvalidOperationException($"The serialized graph does not contain '{from}'.");
         byte[] copy = [.. graph];
         target.CopyTo(copy, index);
         return copy;

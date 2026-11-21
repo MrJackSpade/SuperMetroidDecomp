@@ -35,11 +35,11 @@ internal sealed class PackedEnumTable<TEnum>(EnumStateType<TEnum> type) : IPacke
     internal void Add(TEnum member) => members.Add(member);
 
     /// <inheritdoc/>
-    public void Write(BinaryWriter writer)
+    public void Write(GraphWriter writer)
     {
-        writer.Write(type.EncodedName);
-        writer.Write(members.Count);
+        writer.WriteName(type.Name);
+        writer.Output.Write(members.Count);
         foreach (TEnum member in members)
-            writer.Write(type.EncodedMember(member));
+            writer.WriteName(type.MemberName(member));
     }
 }

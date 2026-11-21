@@ -30,6 +30,9 @@ internal sealed class GraphReader(BinaryReader input, StateGraphTypes types, Bou
     /// <summary>The single instance of each name read during this restore.</summary>
     private readonly Dictionary<string, string> names = new(StringComparer.Ordinal);
 
+    /// <summary>Each name the state has stored, by its number.</summary>
+    private readonly List<string> numberedNames = [];
+
     /// <summary>Each name instance resolved, with its handling.</summary>
     private readonly Dictionary<string, StateGraphType> resolved = new(ReferenceEqualityComparer.Instance);
 
@@ -142,8 +145,27 @@ internal sealed class GraphReader(BinaryReader input, StateGraphTypes types, Bou
         return value;
     }
 
-    /// <summary>Reads a stored name, returning the restore's single instance of that text.</summary>
+    /// <summary>
+    /// Reads a name: its number, one more than the number of a name the state stored before, or zero and then its text,
+    /// which takes the next number. Returns the restore's single instance of that text.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The state names a name it has not stored.</exception>
     internal string ReadName()
+    {
+        int reference = Input.Read7BitEncodedInt();
+        if (reference != 0)
+        {
+            return reference > 0 && reference <= numberedNames.Count
+                ? numberedNames[reference - 1]
+                : throw new InvalidDataException($"Debugger state names name {reference - 1}, but it has stored {numberedNames.Count}.");
+        }
+        string name = ReadNameText();
+        numberedNames.Add(name);
+        return name;
+    }
+
+    /// <summary>Reads a name's stored text, returning the restore's single instance of that text.</summary>
+    private string ReadNameText()
     {
         int byteCount = Input.Read7BitEncodedInt();
         if (byteCount < 0)
@@ -304,6 +326,6 @@ internal sealed class GraphReader(BinaryReader input, StateGraphTypes types, Bou
         var kind = (PayloadKind)Input.ReadByte();
         if (kind != PayloadKind.EnumName)
             throw Retyped(expected.Name, kind.ToString());
-        return expected.Decode(Input.ReadString(), InStructElements);
+        return expected.Decode(ReadName(), InStructElements);
     }
 }

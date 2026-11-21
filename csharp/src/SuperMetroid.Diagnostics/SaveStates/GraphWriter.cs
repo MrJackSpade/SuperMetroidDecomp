@@ -19,6 +19,9 @@ internal sealed class GraphWriter(BinaryWriter output, StateGraphTypes types, Bo
     /// <summary>The number the next object written takes.</summary>
     private int nextReferenceId = 1;
 
+    /// <summary>Each name written so far, with its number: its first use stores its text, every later use its number.</summary>
+    private readonly Dictionary<string, int> names = new(StringComparer.Ordinal);
+
     /// <summary>The stream's writer.</summary>
     internal BinaryWriter Output { get; } = output;
 
@@ -54,7 +57,7 @@ internal sealed class GraphWriter(BinaryWriter output, StateGraphTypes types, Bo
         {
             Output.Write((byte)ObjectMarker.New);
             Output.Write(0);
-            Output.Write(type.EncodedName);
+            WriteName(type.Name);
             type.Write(this, value);
             return;
         }
@@ -64,7 +67,10 @@ internal sealed class GraphWriter(BinaryWriter output, StateGraphTypes types, Bo
             Output.Write(existing);
             return;
         }
-        if (bound is not null && bound.TryGetPath(value, out string? path))
+        // A framework singleton, such as a comparer, is the same object in every process, so a restore holds this process's
+        // instance: it is never looked for among the bound objects or the catalogs, where any collection keyed by it holds it.
+        bool singleton = type is SingletonStateType;
+        if (!singleton && bound is not null && bound.TryGetPath(value, out string? path))
         {
             int boundId = nextReferenceId++;
             references.Add(value, boundId);
@@ -74,7 +80,7 @@ internal sealed class GraphWriter(BinaryWriter output, StateGraphTypes types, Bo
             return;
         }
         // A string is written by its text: an interned literal a static member also holds is no identity.
-        if (value is not string && definitions.TryGetPath(value, out string? definitionPath))
+        if (!singleton && value is not string && definitions.TryGetPath(value, out string? definitionPath))
         {
             int definitionId = nextReferenceId++;
             references.Add(value, definitionId);
@@ -87,8 +93,24 @@ internal sealed class GraphWriter(BinaryWriter output, StateGraphTypes types, Bo
         references.Add(value, referenceId);
         Output.Write((byte)ObjectMarker.New);
         Output.Write(referenceId);
-        Output.Write(type.EncodedName);
+        WriteName(type.Name);
         type.Write(this, value);
+    }
+
+    /// <summary>
+    /// Writes a name: the first time the state names it, zero and then its text, which takes the next number; every later
+    /// time, one more than its number (#2602), so a type, field or enum member a state holds many of costs its text once.
+    /// </summary>
+    internal void WriteName(string name)
+    {
+        if (names.TryGetValue(name, out int number))
+        {
+            Output.Write7BitEncodedInt(number + 1);
+            return;
+        }
+        names.Add(name, names.Count);
+        Output.Write7BitEncodedInt(0);
+        Output.Write(name);
     }
 
     /// <summary>Writes an element of a collection of <typeparamref name="T"/>: a value of the game's value type without boxing it.</summary>
@@ -98,7 +120,7 @@ internal sealed class GraphWriter(BinaryWriter output, StateGraphTypes types, Bo
         {
             Output.Write((byte)ObjectMarker.New);
             Output.Write(0);
-            Output.Write(node.EncodedName);
+            WriteName(node.Name);
             Output.Write((byte)PayloadKind.Fields);
             node.WriteTyped(this, value);
             return;
@@ -113,13 +135,27 @@ internal sealed class GraphWriter(BinaryWriter output, StateGraphTypes types, Bo
     public void Fields(int count) => Output.Write(count);
 
     /// <inheritdoc/>
-    public void Field(StateGraphField field) => Output.Write(StateGraphNames.Encoded(Ensure.NotNull(field)));
+    public void Field(StateGraphField field)
+    {
+        Ensure.NotNull(field);
+        WriteName(field.DeclaringType);
+        WriteName(field.Name);
+    }
+
+    /// <summary>Writes the frame of a value of <paramref name="type"/> that has no identity: its marker, number zero, name and payload kind.</summary>
+    private void Frame(StateGraphType type, PayloadKind kind)
+    {
+        Output.Write((byte)ObjectMarker.New);
+        Output.Write(0);
+        WriteName(type.Name);
+        Output.Write((byte)kind);
+    }
 
     /// <summary>Writes a scalar framed as a value of its type.</summary>
     private void Scalar<T>(T value)
     {
         PrimitiveStateType<T> type = Types.Scalar<T>();
-        Output.Write(type.Prefix);
+        Frame(type, PayloadKind.Primitive);
         type.WriteValue(Output, value);
     }
 
@@ -130,7 +166,7 @@ internal sealed class GraphWriter(BinaryWriter output, StateGraphTypes types, Bo
     public void WriteEnum<TEnum>(TEnum value) where TEnum : struct, Enum
     {
         EnumStateType<TEnum> type = Types.EnumOf<TEnum>();
-        Output.Write(type.Prefix);
-        Output.Write(type.EncodedMember(value));
+        Frame(type, PayloadKind.EnumName);
+        WriteName(type.MemberName(value));
     }
 }

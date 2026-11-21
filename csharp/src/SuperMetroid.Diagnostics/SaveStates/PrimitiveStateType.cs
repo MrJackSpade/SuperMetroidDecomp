@@ -5,11 +5,6 @@ namespace SuperMetroid.Diagnostics.SaveStates;
 internal sealed class PrimitiveStateType<T>(StateGraphTypes types, string name, Action<BinaryWriter, T> write, Func<BinaryReader, T> read)
     : StateGraphType(typeof(T), types)
 {
-    /// <summary>What every framed value of the scalar starts with: its marker, number zero, name and payload kind.</summary>
-    internal byte[] Prefix => prefix ??= [(byte)ObjectMarker.New, 0, 0, 0, 0, .. EncodedName, (byte)PayloadKind.Primitive];
-
-    private byte[]? prefix;
-
     /// <inheritdoc/>
     protected override string Named() => name;
 

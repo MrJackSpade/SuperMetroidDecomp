@@ -13,8 +13,8 @@ namespace SuperMetroid.Diagnostics.SaveStates;
 internal sealed class EnumStateType<TEnum>(StateGraphTypes types, StateGraphName name, bool flags) : StateGraphType(typeof(TEnum), types), IPackedEnumType
     where TEnum : struct, Enum
 {
-    /// <summary>Each member's stored name, encoded once.</summary>
-    private readonly ConcurrentDictionary<TEnum, byte[]> encoded = new();
+    /// <summary>Each member's stored name, worked out once.</summary>
+    private readonly ConcurrentDictionary<TEnum, string> memberNames = new();
 
     /// <summary>Each name decoded to a defined member.</summary>
     private readonly ConcurrentDictionary<string, TEnum> decoded = new(StringComparer.Ordinal);
@@ -22,28 +22,23 @@ internal sealed class EnumStateType<TEnum>(StateGraphTypes types, StateGraphName
     /// <summary>The bits every defined member sets, for a flags enum.</summary>
     private readonly ulong definedBits = Enum.GetValues<TEnum>().Aggregate(0UL, static (bits, member) => bits | Bits(member));
 
-    private byte[]? prefix;
-
-    /// <summary>What every framed member starts with: its marker, number zero, name and payload kind.</summary>
-    internal byte[] Prefix => prefix ??= [(byte)ObjectMarker.New, 0, 0, 0, 0, .. EncodedName, (byte)PayloadKind.EnumName];
-
     /// <inheritdoc/>
     protected override string Named() => Types.Format(name);
 
     /// <summary>The stored name of <paramref name="value"/>.</summary>
-    internal byte[] EncodedMember(TEnum value) =>
-        encoded.TryGetValue(value, out byte[]? known) ? known : encoded.GetOrAdd(value, static member => StateGraphNames.Encode(member.ToString()));
+    internal string MemberName(TEnum value) =>
+        memberNames.TryGetValue(value, out string? known) ? known : memberNames.GetOrAdd(value, static member => member.ToString());
 
     /// <inheritdoc/>
     internal override void Write(GraphWriter writer, object value)
     {
         writer.Kind(PayloadKind.EnumName);
-        writer.Output.Write(EncodedMember((TEnum)value));
+        writer.WriteName(MemberName((TEnum)value));
     }
 
     /// <inheritdoc/>
     internal override object Read(GraphReader reader, int referenceId, PayloadKind kind) =>
-        kind == PayloadKind.EnumName ? Decode(reader.Input.ReadString(), reader.InStructElements) : throw UnexpectedKind(kind);
+        kind == PayloadKind.EnumName ? Decode(reader.ReadName(), reader.InStructElements) : throw UnexpectedKind(kind);
 
     /// <summary>The member a state names <paramref name="text"/>, validated in this build's domain.</summary>
     /// <exception cref="InvalidDataException">The name names no member of this build, or an undefined value.</exception>
@@ -75,7 +70,7 @@ internal sealed class EnumStateType<TEnum>(StateGraphTypes types, StateGraphName
         var table = new PackedEnumTable<TEnum>(this);
         int count = reader.ReadLength("packed enum member");
         for (int index = 0; index < count; index++)
-            table.Add(Decode(reader.Input.ReadString(), zeroStorageSlot: true));
+            table.Add(Decode(reader.ReadName(), zeroStorageSlot: true));
         return table;
     }
 

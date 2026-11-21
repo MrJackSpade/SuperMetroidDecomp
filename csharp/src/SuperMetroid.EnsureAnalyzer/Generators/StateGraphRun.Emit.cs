@@ -478,8 +478,7 @@ internal sealed partial class StateGraphRun
             case INamedTypeSymbol named:
                 if (named.TypeKind == TypeKind.Enum)
                 {
-                    bool flags = named.GetAttributes().Any(attribute => attribute.AttributeClass?.ToDisplayString() == "System.FlagsAttribute");
-                    lines.Add($"__registry.Enum<{Code(named)}>({NameExpression(named)}, {(flags ? "true" : "false")});");
+                    lines.Add(EnumRegistration(named));
                     return;
                 }
                 for (INamedTypeSymbol? container = named; container is not null; container = container.ContainingType)
@@ -537,6 +536,48 @@ internal sealed partial class StateGraphRun
             default:
                 return;
         }
+    }
+
+    /// <summary>The registration of an enum: its name, and whether its members compose as flags.</summary>
+    private string EnumRegistration(INamedTypeSymbol named)
+    {
+        bool flags = named.GetAttributes().Any(attribute => attribute.AttributeClass?.ToDisplayString() == "System.FlagsAttribute");
+        return $"__registry.Enum<{Code(named)}>({NameExpression(named)}, {(flags ? "true" : "false")});";
+    }
+
+    /// <summary>
+    /// Registers every enum the compilation declares. A generic type of the game holds a value of its type parameter, and
+    /// code made generic constructs it with an enum no declaration names (<c>SequenceStep.Of&lt;TitleStep&gt;</c>, built by
+    /// a step method its sequence calls with the step inferred), so an enum is registered whether or not a field names it.
+    /// An enum code outside its containers cannot name is registered by its container, which a state registers in turn;
+    /// one inside a generic type, which only a construction of the type can name, is registered by that construction's fields.
+    /// </summary>
+    private void RegisterEnums(INamespaceOrTypeSymbol container)
+    {
+        foreach (INamespaceOrTypeSymbol member in container.GetMembers().OfType<INamespaceOrTypeSymbol>())
+        {
+            if (member is INamedTypeSymbol { TypeKind: TypeKind.Enum } named)
+            {
+                // A file's own enum is held by no covered type: only code in its file can name it.
+                if (named.IsImplicitlyDeclared || named.IsFileLocal || IsGenericContext(named))
+                    continue;
+                if (named.ContainingType is not { } owner || Accessible(named))
+                    assemblyRegistrations.Add(EnumRegistration(named));
+                else if (covered.Contains(owner))
+                    AddRegistration(owner, EnumRegistration(named));
+                continue;
+            }
+            RegisterEnums(member);
+        }
+    }
+
+    /// <summary>Whether code outside the type's containers can name it: neither it nor a container is private or protected.</summary>
+    private static bool Accessible(INamedTypeSymbol type)
+    {
+        for (INamedTypeSymbol? current = type; current is not null; current = current.ContainingType)
+            if (current.IsFileLocal || current.DeclaredAccessibility is Accessibility.Private or Accessibility.Protected or Accessibility.ProtectedAndInternal)
+                return false;
+        return true;
     }
 
     /// <summary>

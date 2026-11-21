@@ -95,6 +95,7 @@ internal sealed partial class StateGraphRun
                 output.ReportDiagnostic(Diagnostic.Create(NotPartial, type.Locations.FirstOrDefault(), type.ToDisplayString()));
         }
         CollectDelegateMethods();
+        RegisterEnums(compilation.Assembly.GlobalNamespace);
         if (catalogs)
         {
             CollectCatalogs();

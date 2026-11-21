@@ -125,5 +125,5 @@ namespace SuperMetroid.AssetExtraction;
 [JsonSerializable(typeof(global::SuperMetroid.AssetExtraction.Samus.SamusSuitColorDocument))]
 [JsonSerializable(typeof(global::SuperMetroid.AssetExtraction.Samus.SamusVisorColorDocument))]
 [JsonSerializable(typeof(global::SuperMetroid.AssetExtraction.World.Artwork.EnemySpritemapDocument))]
-[JsonSerializable(typeof(global::System.Collections.Generic.Dictionary<string,))]
+[JsonSerializable(typeof(global::System.Collections.Generic.Dictionary<string, int[]>))]
 internal sealed partial class InstalledDocumentJsonContext : JsonSerializerContext;

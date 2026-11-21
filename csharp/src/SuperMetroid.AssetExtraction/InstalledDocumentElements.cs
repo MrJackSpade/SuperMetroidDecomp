@@ -26,8 +26,8 @@ internal static class InstalledDocumentElements
         if (typeInfo.Kind != JsonTypeInfoKind.Object)
             return;
         CheckedMember[] members = [.. typeInfo.Properties
-            .Where(property => property.Get is not null)
-            .Select(property => new CheckedMember(property.Name, property.Get!, property.PropertyType))];
+            .Select(property => property.Get is { } get ? new CheckedMember(property.Name, get, property.PropertyType) : null)
+            .OfType<CheckedMember>()];
         if (members.Length == 0)
             return;
         string document = typeInfo.Type.Name;

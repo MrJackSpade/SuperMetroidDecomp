@@ -146,23 +146,23 @@ internal static class MotherBrainAnimationsVerification
         foreach ((ushort random, bool bursts) in new[] { new VerifyBrainRandomHoldsCase(4063, false), new VerifyBrainRandomHoldsCase(4064, true) })
         {
             (RoomEnemySystem enemies, MotherBrainEnemyState state) = NewMotherBrainOverInstalledSheets();
-            int reads = 0;
+            var reads = new List<ushort>();
             enemies.VerificationServices().ReadRandom = () =>
             {
-                reads++;
+                reads.Add(random);
                 return random;
             };
             // Her dying drool plays through its bursts, which draw no random number, into its loop, whose frame's end asks the
             // random number whether to burst again: the first draw that asks it is that frame's last.
             var loopFrame = (AnimationBeat<EnemyFrameId, MotherBrainHeadCue>.Frame)MotherBrainAnimations.HeadSegments.Beats(MotherBrainHeadSegment.DyingDroolLoop)[0];
             MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.DyingDrool);
-            for (int draw = 0; draw < 100 && reads == 0; draw++)
+            for (int draw = 0; draw < 100 && reads.Count == 0; draw++)
                 enemies.DrawMotherBrainBrain(state, samus: RoomEnemyFrameFixtures.StandaloneSamus());
-            AssertEqual(1, reads, "the dying drool reaches its loop, which asks whether to burst again");
+            AssertEqual(1, reads.Count, "the dying drool reaches its loop, which asks whether to burst again");
             // A burst shows its frame for as long as the loop's and asks nothing; the loop asks again at its frame's end.
             for (int draw = 0; draw < loopFrame.Duration; draw++)
                 enemies.DrawMotherBrainBrain(state, samus: RoomEnemyFrameFixtures.StandaloneSamus());
-            AssertEqual(bursts ? 1 : 2, reads, $"random {random} {(bursts ? "bursts into more drool" : "keeps the drool loop")}");
+            AssertEqual(bursts ? 1 : 2, reads.Count, $"random {random} {(bursts ? "bursts into more drool" : "keeps the drool loop")}");
         }
     }
 

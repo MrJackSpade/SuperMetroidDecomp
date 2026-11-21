@@ -22,12 +22,11 @@ internal static class ShaktoolOwnedStateVerification
             enemies.ShaktoolSegments[index] ?? throw new InvalidOperationException($"Shaktool segment {index} has no state."))];
         RoomEnemyPlace center = enemies.Places.InUpdateOrder[3];
         ShaktoolSegmentState centerState = states[3];
-        ShaktoolChain chain = center.EntityOf<ShaktoolEntity>().Chain;
         SamusState samus = RoomEnemyFrameFixtures.StandaloneSamus();
 
+        // The chain curls clockwise as it was placed; the centre's orbit never changes how the chain moves.
         foreach ((bool reversed, CompassDirection expectedOrientation) in new[] { new VerifyShaktoolOwnedStateCase(false, CompassDirection.Down), new VerifyShaktoolOwnedStateCase(true, CompassDirection.Up) })
         {
-            chain.Motion = ShaktoolChainMotion.CurlingClockwise;
             centerState.OrbitAngle = RotationAngleConstants.FromRaw(0xff80);
             centerState.AngularVelocity = RotationAngle.FromSteps(1);
             centerState.ResetOrientation();
@@ -39,7 +38,6 @@ internal static class ShaktoolOwnedStateVerification
             AssertEqual(reversed, centerState.OrientationReversed, "orienting keeps the chain's reversal");
         }
 
-        chain.Motion = ShaktoolChainMotion.CurlingClockwise with { Phase = ShaktoolChainPhase.Straightening };
         centerState.ResetOrientation();
         RoomEnemyPlace tail = enemies.Places.InUpdateOrder[6];
         states[6].CurlProgress = RotationAngle.FromSteps(0x12, 0x34);
@@ -47,9 +45,21 @@ internal static class ShaktoolOwnedStateVerification
         ShaktoolInstructionDefinitionsVerification.DriveTailIntoWall(tail);
         AssertEqual(RotationAngle.Zero, states[6].CurlProgress, "a wall reversal empties the saw's curl progress");
         AssertTrue(centerState.OrientationReversed, "a first wall reversal swaps the chain's ends");
-        AssertEqual(ShaktoolChainMotion.CurlingClockwise with { NextWall = ShaktoolWallResponse.ReverseOrbit }, chain.Motion, "the chain curls again and its next wall reverses its orbit");
         for (int index = 0; index < states.Length; index++)
             AssertEqual(ShaktoolSegmentMotion.Idle, states[index].Motion, $"segment {index} idles through the collision response");
+
+        // Once the head bob ends each segment takes its course again; the chain then curls on, and its next wall reverses
+        // its orbit instead of turning it end for end again, so the centre keeps its swapped ends and orbits the other way.
+        for (int index = 0; index < states.Length; index++)
+            states[index].Motion = ShaktoolSegmentDefinitions.Segments[index].Motion;
+        ShaktoolInstructionDefinitionsVerification.DriveTailIntoWall(tail);
+        AssertTrue(centerState.OrientationReversed, "the chain's second wall reverses its orbit and leaves its ends as they are");
+        for (int index = 0; index < states.Length; index++)
+            states[index].Motion = ShaktoolSegmentDefinitions.Segments[index].Motion;
+        RotationAngle beforeOrbit = centerState.OrbitAngle;
+        centerState.AngularVelocity = RotationAngle.FromSteps(1);
+        center.RunMainAi(samus);
+        AssertEqual(beforeOrbit - RotationAngle.FromSteps(1), centerState.OrbitAngle, "the reversed chain's centre orbits counterclockwise");
 
         // The chain's death deletes the first seven slots, so a chain starting anywhere else is refused (#1500).
         var misplacedEnemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
@@ -86,7 +96,8 @@ internal static class ShaktoolOwnedStateVerification
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[index];
             place.Bind(EnemyDefinitionId.Shaktool, place.KeptDefinition);
             place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
-            place.SetSpawnParameter2(EnemyDefinitionId.Shaktool, unchecked((ushort)(index * 2)));
+            // The chain is placed curling clockwise, as its population entry names how it starts moving.
+            place.SetSpawnSettings(new ShaktoolSpawnSettings(ShaktoolChainMotion.CurlingClockwise, ShaktoolSegmentDefinitions.Segments[index]));
             place.Position = place.Position.WithWhole(new(unchecked((ushort)(0x0100 + index * 16)), 0x0200));
             place.SetUpAsPlaced();
         }

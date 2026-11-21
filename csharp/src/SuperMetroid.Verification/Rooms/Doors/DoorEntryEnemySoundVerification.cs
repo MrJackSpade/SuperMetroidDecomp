@@ -17,7 +17,6 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rooms.Doors;
-using SuperMetroid.Verification.Enemies.KiHunters;
 
 /// <summary>Reproduces enemy sound ordering on the first door-entry update.</summary>
 internal static class DoorEntryEnemySoundVerification
@@ -30,11 +29,29 @@ internal static class DoorEntryEnemySoundVerification
     internal static void VerifyDoorEntryEnemySound()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        (SuperMetroidGame game, SuperMetroidRuntime runtime) = KiHunterRoom();
+        var random = new SharedRandom();
+        var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), renderGameplayFrames: false, random: random);
+        var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true, random: random, audio: game.AudioForVerification);
+        runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.CrateriaKihunter);
         var samus = runtime.Player.Samus;
-        // The real spit opcode (library two $4C) executes during the entry frame's enemy pass: the room runs, nothing pressed,
-        // to the update before the one its wingless Ki Hunter spits on, as a run of the same room counts them.
-        KiHunterSpitStaging.Run(runtime, KiHunterSpitStaging.UpdatesBeforeTheSpit(() => KiHunterRoom().Runtime));
+        samus.PoseId = SamusPoseId.FacingRightNormalPose;
+        samus.Position = samus.Position.WithWhole(new(64, 128));
+        samus.Control.LockOutPlayer();
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusPresentation.InitializeAnimation(samus);
+        var body = runtime.Enemies.Places.InUpdateOrder.First(place => place.Holds(EnemyDefinitionId.KihunterGreen));
+        var state = runtime.Enemies.KiHunterBodyStates[body.Ordinal];
+        body.Position = body.Position.WithWhole(new(128, 128));
+        (state ?? throw new InvalidOperationException("Verification requires state.")).Action = KiHunterAction.AnimatingOnGround;
+        // The real spit opcode (library two $4C) executes during the entry frame's enemy pass.
+        // The spit cue, four poses into the right spit animation.
+        state.Playback = new(KiHunterAnimations.StartingWith(KiHunterSegment.SpitRight), new AnimationPlace(0, 4));
+        body.AnimationClock.StepOnNextUpdate();
+        game.AdoptRuntime(runtime);
+        global::SuperMetroid.Core.PrivateState.Set(game.Session, "LastAudioRoomState", (global::SuperMetroid.Core.World.RoomStates.RoomStateSettings?)(runtime.Room.LoadedRoom.State));
         var level = runtime.Room.LoadedLevelData;
         bool selected = false;
         for (int y = 0; y < level.Size.Y && !selected; y++)
@@ -58,28 +75,6 @@ internal static class DoorEntryEnemySoundVerification
         AssertEqual<SoundEffectId>(EnemySoundStop.Any, queued[1],
             "the door's library-two cancel follows the enemy sound");
         Console.WriteLine("Door entry enemy sound: the entry frame's enemy sounds precede the door's cancel and DisableSounds.");
-    }
-
-    /// <summary>The Crateria Ki Hunter room, its green Ki Hunter placed wingless and Samus standing locked out, adopted by a game.</summary>
-    private static (SuperMetroidGame Game, SuperMetroidRuntime Runtime) KiHunterRoom()
-    {
-        var random = new SharedRandom();
-        var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), renderGameplayFrames: false, random: random);
-        var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true, random: random, audio: game.AudioForVerification);
-        runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
-        runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
-        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.CrateriaKihunter);
-        var samus = runtime.Player.Samus;
-        samus.PoseId = SamusPoseId.FacingRightNormalPose;
-        samus.Position = samus.Position.WithWhole(new(64, 128));
-        samus.Control.LockOutPlayer();
-        SamusPoseMetadata.RefreshCollisionRadii(samus);
-        SamusPresentation.InitializeAnimation(samus);
-        _ = KiHunterSpitStaging.PlaceWingless(runtime);
-        game.AdoptRuntime(runtime);
-        global::SuperMetroid.Core.PrivateState.Set(game.Session, "LastAudioRoomState", (global::SuperMetroid.Core.World.RoomStates.RoomStateSettings?)(runtime.Room.LoadedRoom.State));
-        return (game, runtime);
     }
 
     /// <summary>Runs the focused enemy-before-door sound ordering check.</summary>

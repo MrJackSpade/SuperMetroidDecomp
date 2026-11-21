@@ -15,7 +15,6 @@ using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
-using SuperMetroid.Verification.Enemies.KiHunters;
 namespace SuperMetroid.Verification.Audio;
 
 /// <summary>
@@ -170,20 +169,17 @@ internal static class GameplayAudioOrderVerification
         return (runtime, game.AudioForVerification);
     }
 
-    /// <summary>
-    /// The room's green Ki Hunter, placed wingless, one update from its spit: the room runs, nothing pressed, for the updates
-    /// a run of the same room takes before the update its Ki Hunter spits on, so the next update is that one.
-    /// </summary>
+    /// <summary>The room's green Ki Hunter, its AI idle and its script one update from the spit.</summary>
     private static RoomEnemyPlace KiHunterAtItsSpit(SuperMetroidRuntime runtime)
     {
-        int before = KiHunterSpitStaging.UpdatesBeforeTheSpit(() =>
-        {
-            (SuperMetroidRuntime replica, _) = KiHunterRoomWithSessionAudio();
-            _ = KiHunterSpitStaging.PlaceWingless(replica);
-            return replica;
-        });
-        RoomEnemyPlace kiHunter = KiHunterSpitStaging.PlaceWingless(runtime);
-        KiHunterSpitStaging.Run(runtime, before);
-        return kiHunter;
+        RoomEnemyPlace body = runtime.Enemies.Places.InUpdateOrder.First(place => place.Holds(EnemyDefinitionId.KihunterGreen));
+        KiHunterBodyState state = runtime.Enemies.KiHunterBodyStates[body.Ordinal]
+            ?? throw new InvalidOperationException("The Ki Hunter has no state.");
+        body.Position = body.Position.WithWhole(new(128, 128));
+        state.Action = KiHunterAction.AnimatingOnGround;
+        // The spit cue, four poses into the right spit animation, which queues the acid spit (library two).
+        state.Playback = new(KiHunterAnimations.StartingWith(KiHunterSegment.SpitRight), new AnimationPlace(0, 4));
+        body.AnimationClock.StepOnNextUpdate();
+        return body;
     }
 }

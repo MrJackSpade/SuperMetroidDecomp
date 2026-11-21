@@ -196,6 +196,10 @@ internal static class RoomEnemySystemAccess
         internal IReadOnlyList<NorfairPipeBugState?> NorfairPipeBugStates =>
             [.. self.Places.InUpdateOrder.Select(place => place.SpeciesState<NorfairPipeBugState>())];
 
+        /// <summary>The Ki-Hunter body state of each slot that holds a body.</summary>
+        internal IReadOnlyList<KiHunterBodyState?> KiHunterBodyStates =>
+            [.. self.Places.InUpdateOrder.Select(place => place.SpeciesState<KiHunterBodyState>())];
+
         /// <summary>The Ki-Hunter wing state of each slot that holds wings.</summary>
         internal IReadOnlyList<KiHunterWingState?> KiHunterWingStates =>
             [.. self.Places.InUpdateOrder.Select(place => place.SpeciesState<KiHunterWingState>())];

@@ -71,7 +71,6 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
         {
             int maximumX = Math.Max(0, room.Size.X * 256 - 256);
             ushort cameraX = unchecked((ushort)Math.Clamp(actor.Position.X.Whole - 128, 0, maximumX));
-            ushort before = actor.Position.X.Whole;
             enemies.StepStandaloneFrame(enemies.StandaloneFrame(assets.LevelData) with { Camera = new(cameraX, 0), TimeIsFrozen = false, Samus = samus });
             // Each Alcoon's shown picture is the pose its animation reached.
             foreach (RoomEnemyPlace place in enemies.Places.InUpdateOrder)
@@ -79,9 +78,10 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
                 if (place.Holds(EnemyDefinitionId.Alcoon) && place.Frame is { } picture)
                     shownPictures.Add(picture);
             }
-            int moved = unchecked((short)(actor.Position.X.Whole - before));
-            if (moved != 0)
-                walking = Math.Sign(moved);
+            // The slot-zero Alcoon faces the way it walks, as the picture it shows says.
+            if (actor.Frame is { } facing)
+                walking = facing.ToString().Contains("FacingLeft", StringComparison.Ordinal) ? -1
+                    : facing.ToString().Contains("FacingRight", StringComparison.Ordinal) ? 1 : walking;
 
             samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(actor.Position.X.Whole + 32 * walking)), checked((ushort)landingY)));
             foreach (EnemyProjectile projectile in enemies.Projectiles.EnemyProjectiles.Where(

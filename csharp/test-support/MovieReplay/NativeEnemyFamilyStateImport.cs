@@ -362,6 +362,14 @@ internal static class NativeEnemyFamilyStateImport
             magdolliteOverlay.Action = MagdolliteNativeWords.MagdolliteOverlayActions.Decode(words.F, "recorded MagdolliteOverlayAction");
             magdolliteOverlay.ThrowDirection = words.B != 0 ? HorizontalDirection.Right : HorizontalDirection.Left;
         }
+        if (enemy.SpeciesState<KiHunterBodyState>() is { } kiHunterBodyRecord)
+        {
+            kiHunterBodyRecord.Action = KiHuntersNativeWords.KiHunterActions.Decode(words.A, "recorded KiHunterAction");
+            kiHunterBodyRecord.SwoopTargetX = words.B;
+            kiHunterBodyRecord.SwoopOriginY = words.C;
+            // The swipe's trigger angle follows from the way the body swoops (#2474); the game keeps it in an extra word.
+            kiHunterBodyRecord.SwoopAngle = RotationAngle.WrappedSteps(words.F);
+        }
         if (enemy.SpeciesState<KiHunterWingState>() is { } kiHunterWingRecord)
         {
             kiHunterWingRecord.Action = KiHuntersNativeWords.KiHunterWingActions.Decode(words.A, "recorded KiHunterWingAction");
@@ -486,6 +494,32 @@ internal static class NativeEnemyFamilyStateImport
     }
 
     /// <summary>
+    /// Translates the family facts a Ki-Hunter body keeps among its extra variables rather than its record words (#2473):
+    /// its swipe and wingless flags.
+    /// </summary>
+    /// <param name="enemy">The imported slot, its record words already imported.</param>
+    /// <param name="extraWord">The enemy's extra variable word at a byte offset from the start of its extra variables.</param>
+    internal static void ImportExtraWords(RoomEnemyPlace enemy, Func<int, ushort> extraWord)
+    {
+        RejectSealedFamily(enemy);
+        if (enemy.SpeciesState<KiHunterBodyState>() is { } kiHunterBody)
+        {
+            // The swipe flag ($7E:7820) marks a swoop whose swipe has started: the swipe half of the dive.
+            if (kiHunterBody.Action == KiHunterAction.Swooping && extraWord(KiHunterSwipeFlagOffset) != 0)
+                kiHunterBody.Action = KiHunterAction.Swiping;
+            // The wingless flag ($7E:7828) is the body's having lost its wings, which its routine already says.
+            if ((extraWord(KiHunterWinglessFlagOffset) != 0) == kiHunterBody.Flies)
+                throw new InvalidDataException($"Recorded Ki-Hunter {kiHunterBody.Action} disagrees with its wingless flag ${extraWord(KiHunterWinglessFlagOffset):X4}.");
+        }
+    }
+
+    /// <summary>The byte offset of a Ki-Hunter body's swipe flag among its extra variables ($7E:7820).</summary>
+    private const int KiHunterSwipeFlagOffset = 0x20;
+
+    /// <summary>The byte offset of a Ki-Hunter body's wingless flag among its extra variables ($7E:7828).</summary>
+    private const int KiHunterWinglessFlagOffset = 0x28;
+
+    /// <summary>
     /// Refuses a recorded enemy whose family keeps its state inside its entity alone (#2554): the game hands that state to
     /// nothing outside the enemy, so its recorded words have nowhere to go, and a snapshot holding it cannot be imported.
     /// </summary>
@@ -502,7 +536,7 @@ internal static class NativeEnemyFamilyStateImport
             or SkreeEntity or MochtroidEntity or OumEntity or WaverEntity or SbugEntity or SparkEntity or SkulteraEntity
             or UnpoweredWorkRobotEntity or PoweredWorkRobotEntity or ZoaEntity or PlatformsEntity or NuclearWaffleEntity or PuyoEntity
             or BotwoonEntity or FakeKraidEntity or MotherBrainTubesEntity or RinkaEntity
-            or EscapeEtecoonEntity or EtecoonEntity or ChozoStatueEntity or HoppersEntity or KiHunterBodyEntity or BabyTurtleEntity
+            or EscapeEtecoonEntity or EtecoonEntity or ChozoStatueEntity or HoppersEntity or BabyTurtleEntity
             or MetroidEntity or MorphBallEyeEntity or MorphBallEyeMountEntity or OwtchEntity or YellowPipeBugEntity or PowampBodyEntity
             or GrowingShutterEntity or NinjaSpacePirateEntity or WalkingSpacePirateEntity or WallSpacePirateEntity
             or WreckedShipGhostEntity or YardEntity or AlcoonEntity)

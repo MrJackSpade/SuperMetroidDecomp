@@ -16,7 +16,8 @@ namespace SuperMetroid.Verification.Enemies.Fireflea;
 
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Compatibility;
 
 /// <summary>Checks Fireflea shade flashing, darkness, frozen-time behavior, and X-Ray composition.</summary>
 internal static class FirefleaFxVerification

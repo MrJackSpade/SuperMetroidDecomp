@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 
@@ -27,10 +28,13 @@ internal sealed class IntroJapaneseSubtitles
     private ShowingSubtitle? showing;
 
     /// <summary>Selects Japanese subtitle handling from the opening's alternate-text setting.</summary>
-    public IntroJapaneseSubtitles(bool enabled) => Enabled = enabled;
+    public IntroJapaneseSubtitles(TextLanguage language) => Language = language;
 
     /// <summary>The Japanese text option at the start of the intro.</summary>
-    public bool Enabled { get; }
+    public bool Enabled => Language == TextLanguage.Japanese;
+
+    /// <summary>The game's text language, which shows the subtitles in Japanese (#2560).</summary>
+    public TextLanguage Language { get; }
 
     /// <summary>
     /// The second subtitle's hold on the page's input wait, counted once by each of the wait's hold checks; over when the

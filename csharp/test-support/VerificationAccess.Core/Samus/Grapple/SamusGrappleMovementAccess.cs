@@ -56,7 +56,6 @@ internal static class SamusGrappleMovementAccess
             grapple.ValidatedAnchor = null;
             grapple.SwingFreely();
             grapple.WallJumpTimer = UpdateCountdown.Ended();
-            grapple.CancelFromConnectedPose = false;
             SamusGrappleBeamDrawing.InitializeBeamAnimation(grapple);
 
             samus.ChangePoseKeepingAnimation(faceRight

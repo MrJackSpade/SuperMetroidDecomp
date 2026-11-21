@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.Verification.Frontend.Intro;
@@ -108,7 +109,7 @@ internal static class GenericSpriteArtworkVerification
 
         var intro = new IntroCinematicState(new IntroCinematicOverreads(InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve),
             AudioQueues.Standalone(), InstalledFixtures.SamusArtwork(body),
-            characterArtwork: introArtwork.BoundCatalog, japaneseText: false)
+            characterArtwork: introArtwork.BoundCatalog, language: TextLanguage.English)
         {
             Random = new SharedRandom(),
             UnauthoredBoostCadence = new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),

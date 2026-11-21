@@ -8,7 +8,7 @@ internal static class CeresRidleyAttackDefinitions
     /// lunge, a fireball route, a swoop and a fireball route in turn, so the fireballs are a little likelier than the lunge
     /// or the swoop. The choice reads the current number; it draws no other.
     /// </summary>
-    internal static readonly WeightedRandomChoice<CeresRidleyPhase> Attack = new(new RandomSampleField(0, 4),
+    internal static readonly WeightedRandomChoice<CeresRidleyPhase> Attack = new(RandomSampleField.OneOf(16),
         new(4, CeresRidleyPhase.FireballMoveToPosition),
         new(5, CeresRidleyPhase.LungeSetup),
         new(1, CeresRidleyPhase.FireballMoveToPosition),

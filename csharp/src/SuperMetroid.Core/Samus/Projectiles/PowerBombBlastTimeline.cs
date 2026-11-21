@@ -2,7 +2,8 @@ using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Artwork;
 
-using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Compatibility;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>

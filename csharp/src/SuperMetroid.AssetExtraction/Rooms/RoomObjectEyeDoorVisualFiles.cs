@@ -89,7 +89,7 @@ public static class RoomObjectEyeDoorVisualFiles
     private static bool TryGet(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
     {
         if (!RoomObjectDrawIdentity.TryFrame<EyeDoorDraws.Draw>(request, out var draw)) { list = default; return false; }
-        list = RoomObjectShapeRun.DrawList(request, draw.Blocks, RoomObjectShapeRun.Line(draw.Vertical, draw.Blocks));
+        list = RoomObjectShapeRun.DrawList(request, draw.Blocks, RoomObjectShapeRun.Line(draw.LineAxis, draw.Blocks));
         return true;
     }
 

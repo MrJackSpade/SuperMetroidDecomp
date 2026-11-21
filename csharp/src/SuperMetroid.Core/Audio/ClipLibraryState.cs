@@ -6,14 +6,8 @@ namespace SuperMetroid.Core.Audio;
 /// </summary>
 internal sealed class ClipLibraryState
 {
-    /// <summary>The playing sound, or null.</summary>
-    internal SoundEffectClipEntry? Sound { get; private set; }
-
-    /// <summary>Absolute frame of the sound's frame zero (the request check that accepted it).</summary>
-    internal long Start { get; private set; }
-
-    /// <summary>Whether the sound still holds the library: it has not reached its logical end.</summary>
-    private bool Active { get; set; }
+    /// <summary>The sound the library plays and whether it still holds the library, or null while it plays none (#2560).</summary>
+    internal ClipLibraryPlayback? Playback { get; private set; }
 
     /// <summary>Whether the library holds a high-priority sound, which admits only requests exempt from priority; otherwise any request replaces the sound.</summary>
     private bool HighPriority { get; set; }
@@ -32,11 +26,9 @@ internal sealed class ClipLibraryState
     /// </summary>
     internal void Play(SoundEffectClipEntry sound, long now, SoundEffectClipPolicy policy)
     {
-        if (Sound is not null && Active)
+        if (Playback is HoldingClipPlayback)
             HighPriority = false;
-        Sound = sound;
-        Start = now;
-        Active = true;
+        Playback = new HoldingClipPlayback(sound, now);
         HighPriority = PrioritySetBy[policy.Priority] ?? HighPriority;
         InLowHealthMode = LowHealthModeSetBy[policy.LowHealthMode] ?? InLowHealthMode;
     }
@@ -60,9 +52,10 @@ internal sealed class ClipLibraryState
     /// <summary>Ends the sound at a request check after its logical end, releasing the library and its priority.</summary>
     internal void EndIfFinished(long now)
     {
-        if (Active && Sound?.ActiveFrames is long active && now - Start > active)
+        if (Playback is HoldingClipPlayback { Sound.Shape: OneShotSoundEffectClip { ActiveFrames: long active } } holding &&
+            now - holding.Start > active)
         {
-            Active = false;
+            Playback = new EndedClipPlayback(holding.Sound, holding.Start);
             HighPriority = false;
         }
     }

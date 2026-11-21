@@ -303,7 +303,7 @@ public static class SamusKnockbackMovement
         SamusMovementHandOver.FromKnockback(samus);
         // The knockback ends with Samus falling, in humanoid and morphed form alike.
         samus.Knockback = SamusKnockback.None;
-        samus.MorphBallBounceState = SamusBallBounceState.None;
+        samus.MorphBallBounceState = null;
         samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.FallFromRest;
     }
 

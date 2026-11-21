@@ -135,11 +135,11 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         /// first bomb whether or not either holds one; an empty place lies at rest at the room's origin with no extent,
         /// which Kraid's mouth and body, standing in his room's lower half, never meet, so a pass skips it.
         /// </summary>
-        /// <value>The position, radius, type and damage of the projectile holding the place, or null while none holds it.</value>
-        public abstract KraidCollisionShot? Held { get; }
-
-        /// <summary>Marks the projectile as having collided with Kraid.</summary>
-        public abstract void MarkCollision();
+        /// <value>
+        /// The position, radius, type and damage of the projectile holding the place and the marking of its collision with
+        /// Kraid, or null while none holds it.
+        /// </value>
+        public abstract KraidHeldPassProjectile? Held { get; }
 
         /// <summary>A shot the passes test, in one of Samus's shot places.</summary>
         internal sealed record Shot : KraidPassProjectile
@@ -152,12 +152,9 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             internal Shot(SamusProjectile shot) => _shot = Ensure.NotNull(shot);
 
             /// <inheritdoc/>
-            public override KraidCollisionShot? Held => _shot.Occupant is { } held
-                ? new(_shot.Position.Whole, _shot.Radius, held.Type, held.Damage, IsPlacedBomb: false)
+            public override KraidHeldPassProjectile? Held => _shot.Occupant is { } held
+                ? new(new(held.Position.Whole, held.Radius, held.Type, held.Damage, IsPlacedBomb: false), held.Spend)
                 : null;
-
-            /// <inheritdoc/>
-            public override void MarkCollision() => _shot.Spend();
         }
 
         /// <summary>The bomb the passes test past the last shot place: Samus's first bomb.</summary>
@@ -171,12 +168,9 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             internal Bomb(SamusBomb bomb) => _bomb = Ensure.NotNull(bomb);
 
             /// <inheritdoc/>
-            public override KraidCollisionShot? Held => _bomb.Occupant is { } placed
-                ? new(_bomb.Position.Whole, _bomb.Radius, placed.Type, placed.Damage, IsPlacedBomb: !_bomb.IsBombSpread)
+            public override KraidHeldPassProjectile? Held => _bomb.Occupant is { } placed
+                ? new(new(placed.Position.Whole, placed.Radius, placed.Type, placed.Damage, IsPlacedBomb: placed.SpreadFlight is null), placed.Spend)
                 : null;
-
-            /// <inheritdoc/>
-            public override void MarkCollision() => _bomb.Spend();
         }
     }
 
@@ -196,6 +190,11 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         [KraidBodyStage.Growing] = (body, state, cameraX, samus) => Rise.RunKraidGrowthPhase(body, state),
         [KraidBodyStage.Dying] = (body, state, cameraX, samus) => Death.RunKraidDeathPhase(body, state, cameraX, samus),
     });
+    /// <summary>The projectile holding a place one of Kraid's passes tests, and the marking of its collision with him.</summary>
+    /// <param name="Shot">Its position, radius, type and damage.</param>
+    /// <param name="MarkCollision">Marks the projectile holding the place as having collided with Kraid.</param>
+    internal readonly record struct KraidHeldPassProjectile(KraidCollisionShot Shot, Action MarkCollision);
+
 
     /// <summary>Runs the phase of the stage the body is in: his rise, his fight, his growth or his death.</summary>
     private void RunKraidBodyStage(

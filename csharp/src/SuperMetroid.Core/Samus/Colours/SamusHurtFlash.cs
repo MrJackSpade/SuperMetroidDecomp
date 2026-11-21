@@ -1,9 +1,7 @@
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Grapple;
-using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Artwork;
 
 namespace SuperMetroid.Core.Samus.Colours;
@@ -56,7 +54,7 @@ public static class SamusHurtFlash
         // restores the intro shade or the equipped suit. Later updates leave the colours as they are.
         if (counterBefore <= SamusHurtFlashDefinitions.ColouredUpdates)
         {
-            if (SamusCadenceDefinitions.HurtColoursShown.IsSetIn(counterBefore))
+            if (SamusCadenceDefinitions.HurtColoursShown.IsInSecondHalfAt(counterBefore))
             {
                 colours.ShowSuit(SamusShades.Hurt(SamusHurtColorVariant.Hurt));
             }

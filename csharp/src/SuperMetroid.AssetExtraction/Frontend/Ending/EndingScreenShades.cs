@@ -219,8 +219,8 @@ internal static class EndingScreenShades
         int[] inks = EndingScreenInks.Fade(colours);
         for (int level = 0; level <= EndingShades.FadeLevels; level++)
         {
-            var faded = new ColourLevel(level, EndingShades.FadeLevels);
-            shades.Add(new SheetShade(EndingShades.Faded(colours, level), inks, [.. inks.Select(ink => faded.Apply(source[ink]))]));
+            var faded = new FadeLevel(level, EndingShades.FadeLevels);
+            shades.Add(new SheetShade(EndingShades.Faded(colours, level), inks, [.. inks.Select(ink => PreColouredFade.AtLevel(source[ink], faded))]));
         }
     }
 

@@ -35,7 +35,7 @@ internal static class SaveSlotRetention
             ControllerBindings = bindings,
             MoonwalkEnabled = snapshot.MoonwalkEnabled,
             IconCancelEnabled = snapshot.IconCancelEnabled,
-            JapaneseText = snapshot.JapaneseText,
+            Language = snapshot.Language,
         };
     }
 

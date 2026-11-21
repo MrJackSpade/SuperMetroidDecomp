@@ -122,7 +122,7 @@ internal static class NativeEnemyFamilyStateImport
                 phantoon.CasualFlames.NextFlame = casualFlames < 0
                     ? null
                     : SuperMetroid.Core.Bosses.ListStep<PhantoonCasualFlame>.At(flames, flames.Count - Math.Max(1, (int)casualFlames));
-                phantoon.Wave.Amplitude = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(words.D);
+                phantoon.Wave.Amplitude = UnsignedSixteenSixteen.FromRaw((uint)words.D << 8);
                 phantoon.Wave.AmplitudeShrinking = words.E != 0;
                 phantoon.Wave.PhaseStep = RotationAngle.WrappedSteps(words.F);
             }
@@ -135,7 +135,6 @@ internal static class NativeEnemyFamilyStateImport
                     phantoon.StartingFlames.NextFlame = SuperMetroid.Core.Bosses.ListStep<TrigonometryAngle>.At(PhantoonFlameSpawns.StartingFlameStarts, words.A);
                 phantoon.FigureEight.PathPlace = PhantoonPath.At(words.A);
                 phantoon.Death.ExplosionPasses = words.A;
-                phantoon.StartingFlames.Orbiting = words.B != 0;
                 phantoon.FigureEight.Speed = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Bosses.Phantoon.PhantoonPathSpeed>([typeof(global::SuperMetroid.Core.Spatial.SignedSixteenSixteen)], new object?[] { SignedSixteenSixteen.FromParts(CoordinateAxis.AsSigned(words.C), words.B) });
                 phantoon.FigureEight.Stage = PhantoonFigureEightStageWords.Decode(words.D);
                 if (words.F != 0)
@@ -278,10 +277,13 @@ internal static class NativeEnemyFamilyStateImport
             if (words.A != 0)
             {
                 (DraygonEyeAction eyeAction, HorizontalDirection? eyeFacing) = DraygonNativeWords.EyeActions.Decode(words.A, "recorded DraygonEyeAction");
-                draygonEyeRecord.Action = eyeAction;
-                // Only a tracking eye names the way it faces (#2165).
-                if (eyeFacing is { } facing)
-                    draygonEyeRecord.Facing = facing;
+                // Only a tracking eye names the way it faces (#2165); an inert eye faces no way (#2560).
+                draygonEyeRecord.TrackingFacing = eyeAction switch
+                {
+                    DraygonEyeAction.Inert => null,
+                    DraygonEyeAction.Tracking => eyeFacing ?? throw new InvalidDataException("A recorded tracking Draygon eye names no facing."),
+                    _ => throw new InvalidDataException($"Undefined {nameof(DraygonEyeAction)} {eyeAction}."),
+                };
             }
             // The game compares only the look angle's low byte, the bearing it stored.
             draygonEyeRecord.LookAngle = AimAngleConstants.FromClockwiseSteps(words.F & byte.MaxValue);
@@ -703,15 +705,16 @@ internal static class NativeEnemyFamilyStateImport
             // The record counts the bounces left, two before the first impact and minus one once rolling.
             boulderRecord.ImpactsSoFar = BoulderBounces.ImpactCount - 1 - unchecked((short)words.D);
             // The Boulder rolls as its placement names (#2476), which the recording's roll must be.
-            BoulderRoll boulderRoll = words.E switch
+            (HorizontalDirection Direction, bool Breaks) boulderRoll = words.E switch
             {
-                0 => BoulderRoll.Right,
-                1 => BoulderRoll.Left,
-                2 => BoulderRoll.LeftBreakingOnImpact,
+                0 => (HorizontalDirection.Right, false),
+                1 => (HorizontalDirection.Left, false),
+                2 => (HorizontalDirection.Left, true),
                 _ => throw new InvalidDataException($"Recorded Boulder roll {words.E} is not a roll."),
             };
-            if (boulderRoll != enemy.HeldOccupant().SpawnSettings<BoulderSpawnSettings>().Roll)
-                throw new InvalidDataException($"Recorded Boulder roll {boulderRoll} is not its placement's {enemy.HeldOccupant().SpawnSettings<BoulderSpawnSettings>().Roll}.");
+            BoulderSpawnSettings placed = enemy.HeldOccupant().SpawnSettings<BoulderSpawnSettings>();
+            if (boulderRoll != (placed.Roll, placed.FirstImpact == BoulderImpact.Breaks))
+                throw new InvalidDataException($"Recorded Boulder roll {boulderRoll} is not its placement's {(placed.Roll, placed.FirstImpact == BoulderImpact.Breaks)}.");
         }
         if (enemy.SpeciesState<RinkaEnemyState>() is { } rinkaRecord)
         {
@@ -1323,20 +1326,18 @@ internal static class NativeEnemyFamilyStateImport
             case KraidLintState lint:
                 if (recorded)
                     lint.Phase = KraidNativeWords.LintPhases.Decode(words.A, "recorded KraidLintPhase");
-                lint.LintXOffset = CoordinateAxis.AsSigned(words.C);
+                int emergesAt = CoordinateAxis.AsSigned(words.C);
+                lint.Emergence = KraidArenaDefinitions.LintEmergenceXOffsets.Single(pair => pair.Value == emergesAt).Key;
                 lint.LintTravel = words.B;
                 ImportPhaseWait(lint, words.F);
                 return;
             case KraidFootState foot:
             {
                 // A foot whose setup has not given it a phase rests.
-                (KraidFootPhase phase, HorizontalDirection? walk) = recorded
-                    ? KraidNativeWords.FootPhases.Decode(words.A, "recorded KraidFootPhase")
-                    : (KraidFootPhase.Resting, null);
-                foot.Phase = phase;
-                // Only the foot's walk names the way it walks (#2165).
-                if (walk is { } direction)
-                    foot.WalkDirection = direction;
+                // The foot's walk names the way it walks in its phase (#2165, #2560).
+                foot.Phase = recorded
+                    ? KraidNativeWords.FootPhases.Decode(words.A, "recorded KraidFootPhase").Phase
+                    : KraidFootPhase.Resting;
                 ImportPhaseWait(foot, words.F);
                 return;
             }

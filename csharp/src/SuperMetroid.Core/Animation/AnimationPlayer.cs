@@ -34,11 +34,14 @@ internal sealed class AnimationPlayer<TSegment, TFrame, TEvent>
     /// <summary>The updates the shown frame, or the pause, has left before the play moves on.</summary>
     internal int UpdatesLeft { get; private set; } = 1;
 
+    /// <summary>Whether the animation plays on, rests for good on a held frame or past its end, or has stopped (#2560).</summary>
+    private AnimationMotion Motion { get; set; }
+
     /// <summary>Whether the animation rests for good: on a held frame, or past its end where it holds or stops.</summary>
-    internal bool IsResting { get; private set; }
+    internal bool IsResting => Motion != AnimationMotion.Playing;
 
     /// <summary>Whether the animation has stopped: it played its last phase and ends there, showing nothing more.</summary>
-    internal bool HasStopped { get; private set; }
+    internal bool HasStopped => Motion == AnimationMotion.Stopped;
 
     /// <summary>The frame shown, which an animation that has shown its first always has.</summary>
     /// <exception cref="InvalidOperationException">The animation has shown no frame yet.</exception>
@@ -98,8 +101,7 @@ internal sealed class AnimationPlayer<TSegment, TFrame, TEvent>
         Playback = new(Ensure.NotNull(animation), AnimationPlace.StartOfAnimation);
         Shown = null;
         UpdatesLeft = 1;
-        IsResting = false;
-        HasStopped = false;
+        Motion = AnimationMotion.Playing;
     }
 
     /// <summary>
@@ -348,7 +350,7 @@ internal sealed class AnimationPlayer<TSegment, TFrame, TEvent>
         HeldFrame: static (held, player) =>
         {
             player.Shown = held.Shown;
-            player.IsResting = true;
+            player.Motion = AnimationMotion.Resting;
             return held.Shown;
         },
         Paused: static (pause, player) =>
@@ -358,13 +360,12 @@ internal sealed class AnimationPlayer<TSegment, TFrame, TEvent>
         },
         Held: static (_, player) =>
         {
-            player.IsResting = true;
+            player.Motion = AnimationMotion.Resting;
             return null;
         },
         Ended: static (_, player) =>
         {
-            player.IsResting = true;
-            player.HasStopped = true;
+            player.Motion = AnimationMotion.Stopped;
             return null;
         });
 
@@ -437,8 +438,7 @@ internal sealed class AnimationPlayer<TSegment, TFrame, TEvent>
             if (--phase < 0)
             {
                 Shown = null;
-                IsResting = true;
-                HasStopped = true;
+                Motion = AnimationMotion.Stopped;
                 return false;
             }
             AnimationPhase<TSegment> before = phases[phase];

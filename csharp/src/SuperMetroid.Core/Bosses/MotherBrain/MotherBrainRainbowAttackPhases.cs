@@ -46,8 +46,14 @@ internal sealed class MotherBrainRainbowAttackPhases
     private static ListStep<Offset16<RoomPixels>> FirstExplosion =>
         ListStep<Offset16<RoomPixels>>.FirstOf(MotherBrainBeamDefinitions.ExplosionOffsets);
 
-    /// <summary>Whether the rainbow attack has started its beam and not yet ended it.</summary>
-    public bool BeamActive { get; internal set; }
+    /// <summary>
+    /// Whether the rainbow attack has started its beam and not yet ended it (#2560): the beam takes hold as the push toward
+    /// the wall begins and ends as Samus is let fall, so it holds from that push through the beam's finish and in no other
+    /// phase or stage.
+    /// </summary>
+    public bool BeamActive => _state.Stage == MotherBrainLateFightStage.RainbowBeam && _state.RainbowPhase is
+        MotherBrainRainbowPhase.MoveSamusTowardWall or MotherBrainRainbowPhase.PinSamusToWall or
+        MotherBrainRainbowPhase.StartDrainingSamus or MotherBrainRainbowPhase.DrainingSamus or MotherBrainRainbowPhase.FinishFiring;
 
     /// <summary>
     /// Starts the beam proper once its charge has run out with no Power Bomb going off: the beam takes hold of Samus.
@@ -62,7 +68,6 @@ internal sealed class MotherBrainRainbowAttackPhases
         ExplosionTimer.LastFor(1);
         SoundAttempts = UpdateCountdown.Lasting(MotherBrainBeamDefinitions.SoundAttempts);
         _state.RainbowBeamSoundPlaying = false;
-        BeamActive = true;
         Encounter.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Slow;
         Encounter.NeckMovementEnabled = true;
         Encounter.LowerNeckMovement = MotherBrainNeckMovement.BobDown;
@@ -378,7 +383,6 @@ internal sealed class MotherBrainRainbowAttackPhases
         {
             AngularWidth = MotherBrainBeamDefinitions.RainbowNarrowestWidth;
             _movement.BeginFallingAfterRainbowBeam();
-            BeamActive = false;
             requests.Start(MotherBrainStepEffect.BeamEnded);
             requests.StopEarthquake();
             _state.RainbowBeamSoundPlaying = false;

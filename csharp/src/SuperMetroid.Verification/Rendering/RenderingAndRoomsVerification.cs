@@ -120,10 +120,9 @@ internal static void VerifyHudState()
     // The synthetic digit table uses conspicuous character names $100-$109.
     SeedBlankHudTemplateAndDigitTables(bus);
 
-    var hud = new HudState();
     SuperMetroid.AssetExtraction.Hud.GameplayHudArtwork hudArtwork = SuperMetroid.AssetExtraction.Hud.GameplayHudPresentationFile.Read(
         new MemoryStream(SuperMetroid.AssetExtraction.Hud.GameplayHudPresentationExtractor.Extract(bus)));
-    hud.BindPresentation(hudArtwork.Presentation);
+    var hud = new HudState(hudArtwork.Presentation);
     hud.Initialize(HudSnapshot.NewGame);
     AssertEqual(0x2d09, hud.TileWords(hudArtwork)[0x8c / 2], "HUD health tens digit from ROM table");
     AssertEqual(0x2d09, hud.TileWords(hudArtwork)[0x8e / 2], "HUD health ones digit from ROM table");

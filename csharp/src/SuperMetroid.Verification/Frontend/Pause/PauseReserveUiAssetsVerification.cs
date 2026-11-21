@@ -27,8 +27,8 @@ internal static class PauseReserveUiAssetsVerification
         EnterEquipment(native); EnterEquipment(installed);
         for (int frame = 0; frame < 64; frame++)
         {
-            native.Step(0, 0, frameCycle: (byte)frame);
-            installed.Step(0, 0, frameCycle: (byte)frame);
+            native.Step(0, 0, frameCount: (byte)frame);
+            installed.Step(0, 0, frameCount: (byte)frame);
             var shownNative = native.ShownVram(original);
             var shownInstalled = installed.ShownVram(original);
             AssertTrue(shownNative.SequenceEqual(shownInstalled),
@@ -48,7 +48,7 @@ internal static class PauseReserveUiAssetsVerification
         };
         static void EnterEquipment(PauseMenuState pause)
         {
-            byte nmiFrame = 0; ChangePausePage(pause, ControllerButton.R, input => pause.Step(input, input, frameCycle: nmiFrame++));
+            byte nmiFrame = 0; ChangePausePage(pause, ControllerButton.R, input => pause.Step(input, input, frameCount: nmiFrame++));
             AssertEqual(PauseScreenMode.Equipment, pause.ScreenMode, "reserve UI fixture enters equipment");
         }
     }

@@ -38,13 +38,23 @@ public sealed class RidleyTailLink
     /// Gets whether this link is participating in the current wave or whip; deactivation resets its stagger, readies it to
     /// start the next link again and reverses its swing.
     /// </summary>
-    public bool Active { get; internal set; }
+    public bool Active => Swing != RidleyTailLinkSwing.Resting;
 
     /// <summary>
     /// Gets whether the link has started the next link swinging its way since it was readied (#1413, #2410): it starts the
     /// next once its stagger reaches the tail's ideal link spacing, and from then on swings without staggering.
     /// </summary>
-    public bool StartedNextLink { get; internal set; }
+    public bool StartedNextLink => Swing == RidleyTailLinkSwing.Swinging;
+
+    /// <summary>Where the link's swing stands (#2560): resting, staggering toward starting the next link, or swinging after it.</summary>
+    public RidleyTailLinkSwing Swing { get; internal set; }
+
+    /// <summary>The link joins the current wave or whip: a resting link starts staggering; a link already in it keeps its swing.</summary>
+    internal void Activate()
+    {
+        if (Swing == RidleyTailLinkSwing.Resting)
+            Swing = RidleyTailLinkSwing.Staggering;
+    }
 
     /// <summary>
     /// Gets how far the link has staggered toward starting the next link, while it has not started it: it grows by the

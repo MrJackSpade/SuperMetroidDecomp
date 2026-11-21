@@ -120,12 +120,7 @@ public static class GameplayBasePaletteFiles
         for (int color = 0; color < count; color++)
         {
             int word = CartridgeImportSource.Require(bus).ReadCartridgeWord(address + color * 2);
-            colors[color] = new PaletteRgb5
-            {
-                Red = word & 31,
-                Green = word >> 5 & 31,
-                Blue = word >> 10 & 31,
-            };
+            colors[color] = PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(word));
         }
         return colors;
     }

@@ -21,7 +21,7 @@ internal static class BoulderBehaviorVerification
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.Bind(EnemyDefinitionId.Boulder, place.KeptDefinition);
         place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
-        place.SetSpawnSettings(new BoulderSpawnSettings(TriggerHeight: 8, TriggerReach: 8, Start: new BoulderStart.FallsFrom(1), Roll: BoulderRoll.Left));
+        place.SetSpawnSettings(new BoulderSpawnSettings(TriggerHeight: 8, TriggerReach: 8, Start: new BoulderStart.FallsFrom(1), Roll: HorizontalDirection.Left, FirstImpact: BoulderImpact.BouncesOn));
         place.Position = place.Position.WithWhole(new(256, 512));
         BoulderBehavior.InitializeBoulder(place.HeldOccupant(), place);
         AssertEqual(new AnimationPlayback<BoulderSegment>(BoulderAnimations.StartingWith(BoulderSegment.Left), AnimationPlace.StartOfAnimation), (enemies.Places.InUpdateOrder[0].EntityState<BoulderEntity, BoulderEnemyState>() ?? throw new InvalidOperationException("The Boulder has no state.")).Playback,

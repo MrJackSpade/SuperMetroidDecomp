@@ -18,15 +18,15 @@ internal static class TourianStatueNativeWords
     /// <summary>A statue and its bit in the statue room's native shared animation word.</summary>
     /// <param name="Statue">The statue.</param>
     /// <param name="Bit">Its bit in the word.</param>
-    private readonly record struct StatueBit(TourianGreyStatues Statue, int Bit);
+    private readonly record struct StatueBit(TourianStatue Statue, int Bit);
 
     /// <summary>Each statue and the word bit the statue lists' set and clear operands name its animating state by.</summary>
     private static readonly StatueBit[] StatueBits =
     [
-        new(TourianGreyStatues.Phantoon, 1 << 0),
-        new(TourianGreyStatues.Ridley, 1 << 1),
-        new(TourianGreyStatues.Kraid, 1 << 2),
-        new(TourianGreyStatues.Draygon, 1 << 3),
+        new(TourianStatue.Phantoon, 1 << 0),
+        new(TourianStatue.Ridley, 1 << 1),
+        new(TourianStatue.Kraid, 1 << 2),
+        new(TourianStatue.Draygon, 1 << 3),
     ];
 
     /// <summary>The native word bit of the all-released latch.</summary>
@@ -36,26 +36,22 @@ internal static class TourianStatueNativeWords
     private const int ReleaseInProgressBit = 1 << 15;
 
     /// <summary>The parts of the shared animation state a native set or clear operand names.</summary>
-    /// <param name="Statues">The statues whose animating state it names.</param>
+    /// <param name="Statue">The statue whose animating state it names, if it names one.</param>
     /// <param name="AllReleased">Whether it names the all-released latch.</param>
     /// <param name="ReleaseInProgress">Whether it names the release in progress.</param>
-    internal readonly record struct AnimationOperand(TourianGreyStatues Statues, bool AllReleased, bool ReleaseInProgress);
+    internal readonly record struct AnimationOperand(TourianStatue? Statue, bool AllReleased, bool ReleaseInProgress);
 
     /// <summary>The parts of the shared animation state a native set or clear operand names.</summary>
     /// <exception cref="InvalidDataException">The word sets a bit that names no part; the message names <paramref name="context"/>.</exception>
     internal static AnimationOperand AnimationState(int word, string context)
     {
-        TourianGreyStatues statues = TourianGreyStatues.None;
-        int unnamed = word & ~(AllReleasedBit | ReleaseInProgressBit);
-        foreach (StatueBit entry in StatueBits)
-        {
-            if ((word & entry.Bit) != 0)
-                statues |= entry.Statue;
-            unnamed &= ~entry.Bit;
-        }
+        TourianStatue[] statues = [.. StatueBits.Where(entry => (word & entry.Bit) != 0).Select(entry => entry.Statue)];
+        int unnamed = StatueBits.Aggregate(word & ~(AllReleasedBit | ReleaseInProgressBit), (left, entry) => left & ~entry.Bit);
         if (unnamed != 0)
             throw new InvalidDataException($"{context}: statue animation word ${word:X4} sets bits ${unnamed:X4}, which name no part of the state.");
-        return new(statues, (word & AllReleasedBit) != 0, (word & ReleaseInProgressBit) != 0);
+        if (statues.Length > 1)
+            throw new InvalidDataException($"{context}: statue animation word ${word:X4} names {statues.Length} statues; an operand names one.");
+        return new(statues.Length == 1 ? statues[0] : null, (word & AllReleasedBit) != 0, (word & ReleaseInProgressBit) != 0);
     }
 
     /// <summary>

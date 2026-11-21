@@ -153,7 +153,7 @@ internal static class SoundAcceptanceClockVerification
                 continue;
             foreach (SoundEffectLibrary library in SoundEffectLibraries.InQueueOrder)
             {
-                SoundRequestCheck<SoundEffectId> poll = tick.Checks[library];
+                SoundRequestCheck<SoundEffectId> poll = tick.RanChecks[library];
                 if (poll.Changed && poll.Request is SoundEffectId started)
                     expected.Add(new AudioEvent.StartSoundEffect(started, tick.SampleOffset));
             }

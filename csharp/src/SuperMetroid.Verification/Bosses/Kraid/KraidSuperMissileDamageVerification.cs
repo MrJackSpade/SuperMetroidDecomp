@@ -157,8 +157,8 @@ internal static class KraidSuperMissileDamageVerification
             var shot = projectiles.Shots[index];
             shot.End();
             shot.Occupy(type, damage);
-            shot.Position = shot.Position.WithWhole(new(176, 486));
-            shot.Radius = new(8, 8);
+            shot.HeldShot().Position = shot.Position.WithWhole(new(176, 486));
+            shot.HeldShot().Radius = new(8, 8);
             // Intentionally inactive: this native private pass has no sentinel check.
         }
 
@@ -207,8 +207,8 @@ internal static class KraidSuperMissileDamageVerification
         Prepare(5);
         var bomb = runtime.BombProjectiles.Bombs[0];
         bomb.Occupy(SamusBombKind.Bomb, 30);
-        bomb.Position = bomb.Position.WithWhole(new(176, 486));
-        bomb.Radius = new(8, 8);
+        bomb.HeldBomb().Position = bomb.Position.WithWhole(new(176, 486));
+        bomb.HeldBomb().Radius = new(8, 8);
         runtime.Enemies.ResolveKraidProjectileHits(projectiles, runtime.BombProjectiles);
         AssertEqual(1000, body.Health, "First bomb slot uses Kraid's zero bomb vulnerability");
         AssertEqual(true, bomb.IsSpent,

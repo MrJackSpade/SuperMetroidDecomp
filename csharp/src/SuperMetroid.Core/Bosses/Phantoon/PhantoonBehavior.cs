@@ -85,7 +85,6 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.PhaseWait.LastFor(PhantoonTimerDefinitions.InitialFlameDelayFrames);
         state.StartingFlames.NextFlame = PhantoonStartingFlamesState.First;
-        state.StartingFlames.Orbiting = false;
         body.Contact = body.Contact.With(EnemyContact.IgnoresSamus);
         StartPhantoonPart(state.BodyPart);
         body.SetSpeciesState(state.BodyPart);
@@ -166,7 +165,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         PhantoonRoundState round = state.Round;
         // His health colours return on his last hurt update, as the enemy pass is about to clear his hurt state.
         bool showHealthColours = body.HurtFlash.UpdatesLeft == EnemyCollisionDefinitions.HurtStateMinimumFlashUpdates ||
-            !PhantoonCadenceDefinitions.HurtFlashShown.IsSetIn(body.FrameCounter) && round.HurtFlashShown;
+            !PhantoonCadenceDefinitions.HurtFlashShown.IsInSecondHalfAt(body.FrameCounter) && round.HurtFlashShown;
         if (showHealthColours)
         {
             ShowPhantoonHealthColours(state);
@@ -174,7 +173,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        if (!PhantoonCadenceDefinitions.HurtFlashShown.IsSetIn(body.FrameCounter) || round.HurtFlashShown)
+        if (!PhantoonCadenceDefinitions.HurtFlashShown.IsInSecondHalfAt(body.FrameCounter) || round.HurtFlashShown)
             return;
 
         state.Colours.Show(PhantoonBodyLook.White);

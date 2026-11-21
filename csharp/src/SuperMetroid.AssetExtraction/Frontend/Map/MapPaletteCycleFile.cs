@@ -17,7 +17,7 @@ public static class MapPaletteCycleFile
     /// <summary>Required cycle-document schema revision: 2 states each frame's look as its highlight colour, not a palette row (#1637).</summary>
     public const int Version = 2;
 
-    /// <summary>Maximum selected frame count, 255, preserving the animation owner's byte-sized frame cursor.</summary>
+    /// <summary>The most frames the cartridge decoder reads before the stream must end, 255: the cartridge's terminator search limit.</summary>
     public const int MaximumFrames = 255;
 
     /// <summary>Maximum authored frame hold, 254 ticks; zero is invalid and a duration of 255 marks stream termination rather than a hold.</summary>

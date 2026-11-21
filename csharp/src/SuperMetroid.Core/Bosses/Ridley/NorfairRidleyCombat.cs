@@ -65,7 +65,7 @@ internal sealed class NorfairRidleyCombat
         place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
         place.Position = place.Position.WithWhole(NorfairRidleyArenaDefinitions.Spawn);
 
-        var ridley = new NorfairRidleyState { MovementAnimationEnabled = true };
+        var ridley = new NorfairRidleyState { Motion = RidleyMotion.Running };
         place.SetSpeciesState(ridley);
         _ridleyEncounter.BeginLowerNorfair();
         RidleyFlight.StartAnimation(ridley.Flight, place, RidleyAnimations.Standing);

@@ -40,7 +40,7 @@ internal sealed class AudioEventSource
                 continue;
             // The clock checks the libraries in queue order, so the starts follow it.
             foreach (SoundEffectLibrary library in SoundEffectLibraries.InQueueOrder)
-                AddStart(events, step, step.Checks[library]);
+                AddStart(events, step, step.RanChecks[library]);
         }
         Acknowledgements = clock.Acknowledgements;
         return [.. events];

@@ -51,5 +51,5 @@ public static class RoomEarthquakeDefinitions
     /// The random selection, read from the current sample without drawing, of the extra updates added to a rumble
     /// sound's base delay: 0 through 3.
     /// </summary>
-    internal static readonly RandomSampleField RisingLiquidSoundJitter = new(0, 2);
+    internal static readonly RandomSampleField RisingLiquidSoundJitter = RandomSampleField.OneOf(4);
 }

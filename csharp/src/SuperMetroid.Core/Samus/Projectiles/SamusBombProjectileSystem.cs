@@ -250,10 +250,10 @@ public sealed class SamusBombProjectileSystem
             }
 
             // A bomb its own update ended this pass shows nothing more.
-            if (!bomb.IsActive)
+            if (bomb.Occupant is not { IsAnimated: true } live)
                 continue;
 
-            AdvanceProjectileAnimation(bomb);
+            AdvanceProjectileAnimation(live);
         }
 
         // Main gameplay runs the bomb overlap check after the input phase (which placed/updated the
@@ -411,9 +411,9 @@ public sealed class SamusBombProjectileSystem
 
         SamusBomb bomb = Occupy(FindFreePlace());
         SamusBombOccupant placed = Place(bomb, placingPowerBomb ? SamusBombKind.PowerBomb : SamusBombKind.Bomb);
-        bomb.PicturedBeams = SamusBeamCombinations.Of(samus.EquippedBeams);
-        bomb.Position = bomb.Position.WithWhole(samus.Position.Whole);
-        bomb.Fuse = UpdateCountdown.Lasting(MorphBallBombDefinitions.InitialBombTimer);
+        placed.PicturedBeams = SamusBeamCombinations.Of(samus.EquippedBeams);
+        placed.Position = placed.Position.WithWhole(samus.Position.Whole);
+        placed.Fuse = UpdateCountdown.Lasting(MorphBallBombDefinitions.InitialBombTimer);
         InitializeBomb(placed);
         _cooldown.Restart(placingPowerBomb
             ? MorphBallBombDefinitions.PowerBombCooldown
@@ -480,11 +480,11 @@ public sealed class SamusBombProjectileSystem
         {
             SamusBomb bomb = Occupy(place);
             SamusBombOccupant placed = Place(bomb, SamusBombKind.Bomb);
-            bomb.PicturedBeams = SamusBeamCombinations.Of(samus.EquippedBeams);
-            bomb.SpreadFlight = SamusBombSpreadLaunches.Launch(place, samus.BombSpreadCharge.Age);
-            bomb.Position = bomb.Position.WithWhole(samus.Position.Whole);
+            placed.PicturedBeams = SamusBeamCombinations.Of(samus.EquippedBeams);
+            placed.SpreadFlight = SamusBombSpreadLaunches.Launch(place, samus.BombSpreadCharge.Age);
+            placed.Position = placed.Position.WithWhole(samus.Position.Whole);
             InitializeBomb(placed);
-            bomb.Fuse = UpdateCountdown.For(SamusBombSpreadLaunches.ForPlace(place).FuseTimer);
+            placed.Fuse = UpdateCountdown.For(SamusBombSpreadLaunches.ForPlace(place).FuseTimer);
         }
 
         BombCounter = PlaceCount;
@@ -545,7 +545,7 @@ public sealed class SamusBombProjectileSystem
         SamusBombOccupant placed)
     {
         SamusProjectileKind kind = SamusProjectileSelection.Bomb(placed.Kind);
-        placed.Bomb.Animation = SamusProjectilePlayback.Start(SamusProjectileKinds.SoleAnimation(kind));
+        placed.Animation = SamusProjectilePlayback.Start(SamusProjectileKinds.SoleAnimation(kind));
     }
 
     /// <summary>
@@ -607,7 +607,7 @@ public sealed class SamusBombProjectileSystem
             else if (burnedOut)
             {
                 // The fuse running out starts the bomb's explosion animation, which shows its first picture next.
-                bomb.Animation = SamusProjectilePlayback.Start(SamusProjectileSegment.BombExplosion);
+                placed.Animation = SamusProjectilePlayback.Start(SamusProjectileSegment.BombExplosion);
                 explosionStarted = true;
             }
         }
@@ -616,7 +616,7 @@ public sealed class SamusBombProjectileSystem
         // game still runs the spread's collision test on it, but with the fuse out that test sets off the explosion's
         // cross below and reports no collision, so the wall turn never moves it.
         if (bomb.SpreadFlight is { } flight && !bomb.HasBurnedOut)
-            MoveBombSpread(terrain.Level, bomb, flight, samusKinematics);
+            MoveBombSpread(terrain.Level, placed, flight, samusKinematics);
 
         if (kind == SamusBombKind.Bomb &&
             bomb.HasBurnedOut &&
@@ -624,7 +624,7 @@ public sealed class SamusBombProjectileSystem
         {
             // As soon as a normal bomb's fuse reads zero its explosion reacts with the
             // five-block cross around it, exactly once.
-            bomb.HasReactedToTerrain = true;
+            placed.HasReactedToTerrain = true;
             ReactToBombExplosionCross(terrain, placed);
         }
         else if (kind == SamusBombKind.PowerBomb)
@@ -652,7 +652,7 @@ public sealed class SamusBombProjectileSystem
     /// </summary>
     private static void MoveBombSpread(
         RoomLevelData level,
-        SamusBomb bomb,
+        SamusBombOccupant bomb,
         BombSpreadFlight flight,
         SamusKinematicsState samus)
     {
@@ -660,7 +660,7 @@ public sealed class SamusBombProjectileSystem
 
         FixedPosition<RoomPixels> beforeVertical = bomb.Position;
         bomb.Position = bomb.Position.AdvanceY(flight.VerticalVelocity);
-        if (BombSpreadCollides(level, bomb))
+        if (BombSpreadCollides(level, bomb.Bomb))
         {
             bomb.Position = beforeVertical;
             if (flight.VerticalVelocity.IsNegative)
@@ -679,7 +679,7 @@ public sealed class SamusBombProjectileSystem
         FixedPosition<RoomPixels> beforeHorizontal = bomb.Position;
         // The velocity moves the bomb, its fraction passing into the whole pixels in either direction.
         bomb.Position = bomb.Position.AdvanceX(flight.HorizontalVelocity);
-        if (!BombSpreadCollides(level, bomb))
+        if (!BombSpreadCollides(level, bomb.Bomb))
             return;
 
         bomb.Position = beforeHorizontal;
@@ -899,7 +899,7 @@ public sealed class SamusBombProjectileSystem
     /// </summary>
     /// <exception cref="InvalidOperationException">The bomb has ended and has no animation to play.</exception>
     /// <exception cref="InvalidDataException">The animation shows a still picture, which no bomb animation does.</exception>
-    private void AdvanceProjectileAnimation(SamusBomb bomb) =>
+    private void AdvanceProjectileAnimation(SamusBombOccupant bomb) =>
         // A bomb shows each frame its animation reaches, as the game's animation does.
         SamusProjectilePlayback.PlayOn(
             bomb.Animation ?? throw new InvalidOperationException("An inactive bomb has no animation to play."),
@@ -909,7 +909,7 @@ public sealed class SamusBombProjectileSystem
                 bomb.Sprite = sprite;
                 bomb.Radius = radius;
             },
-            () => ClearProjectile(bomb));
+            () => ClearProjectile(bomb.Bomb));
 
     /// <summary>Scans bombs from the first place up and publishes the last overlapping bomb's Samus launch direction.</summary>
     private void PublishBombJumpOverlap(SamusState samus)

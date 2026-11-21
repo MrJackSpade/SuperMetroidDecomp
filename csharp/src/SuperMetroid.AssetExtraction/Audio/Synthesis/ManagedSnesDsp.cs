@@ -162,7 +162,7 @@ public sealed class ManagedSnesDsp
                 voice.DecayRate = SnesDspTables.RatePeriod(
                     ((value & SnesDspRegisterLayout.Fields.AdsrDecayMask) >>
                         SnesDspRegisterLayout.Fields.AdsrDecayShift) * 2 + 16);
-                voice.UseGain = (value & SnesDspRegisterLayout.Fields.AdsrEnabled) == 0;
+                voice.Source = (value & SnesDspRegisterLayout.Fields.AdsrEnabled) == 0 ? EnvelopeSource.Gain : EnvelopeSource.Adsr;
                 break;
             case DspVoiceRegister.Adsr2:
                 voice.SustainRate = SnesDspTables.RatePeriod(
@@ -172,11 +172,10 @@ public sealed class ManagedSnesDsp
                     SnesDspRegisterLayout.Fields.AdsrSustainLevelShift) + 1) * SnesDspRegisterLayout.SustainLevelStep));
                 break;
             case DspVoiceRegister.Gain:
-                voice.DirectGain = (value & SnesDspRegisterLayout.Fields.AdsrEnabled) == 0;
-                if ((value & SnesDspRegisterLayout.Fields.AdsrEnabled) != 0)
+                voice.GainForm = (value & SnesDspRegisterLayout.Fields.AdsrEnabled) == 0 ? GainForm.Direct : GainForm.Stepped;
+                if (voice.GainForm == GainForm.Stepped)
                 {
-                    voice.GainMode = unchecked((byte)((value & SnesDspRegisterLayout.Fields.GainModeMask) >>
-                        SnesDspRegisterLayout.Fields.GainModeShift));
+                    voice.GainMode = SteppedGainModeOf(value);
                     voice.GainRate = SnesDspTables.RatePeriod(
                         value & SnesDspRegisterLayout.Fields.AdsrSustainRateMask);
                 }
@@ -318,7 +317,7 @@ public sealed class ManagedSnesDsp
     {
         ManagedPcmSampleBank bank = sampleBank ?? throw new InvalidOperationException(
             "S-DSP received key-on before an extracted PCM sample bank was installed.");
-        voice.PreviousFlags = 0;
+        voice.PreviousFlags = BrrBlockEnd.None;
         voice.ReleasedBrrCursor = null;
         voice.Sample = bank.Resolve(voice.SourceNumber);
         voice.SampleCursor = 0;
@@ -329,7 +328,7 @@ public sealed class ManagedSnesDsp
         voice.PitchCounter = 0;
         voice.RateCounter = 0;
         voice.Gain = 0;
-        voice.AdsrState = voice.UseGain ? EnvelopeState.Gain : EnvelopeState.Attack;
+        voice.AdsrState = voice.Source == EnvelopeSource.Gain ? EnvelopeState.Gain : EnvelopeState.Attack;
     }
 
     /// <summary>Advances one voice's pitch, decoded window, interpolation, and envelope output.</summary>
@@ -372,7 +371,7 @@ public sealed class ManagedSnesDsp
             voice.AdsrState = EnvelopeState.Release;
             voice.Gain = 0;
         }
-        bool direct = voice.AdsrState != EnvelopeState.Release && voice.UseGain && voice.DirectGain;
+        bool direct = voice.AdsrState != EnvelopeState.Release && voice.Source == EnvelopeSource.Gain && voice.GainForm == GainForm.Direct;
         ushort rate = voice.AdsrState == EnvelopeState.Release
             ? (ushort)0
             : voice.RateOf(voice.AdsrState);
@@ -419,20 +418,20 @@ public sealed class ManagedSnesDsp
             case EnvelopeState.Gain:
                 switch (voice.GainMode)
                 {
-                    case 0:
+                    case SteppedGainMode.LinearDecrease:
                         voice.Gain = unchecked((ushort)(voice.Gain - 32));
                         if (voice.Gain > SnesDspRegisterLayout.EnvelopeMaximum)
                             voice.Gain = 0;
                         break;
-                    case 1:
+                    case SteppedGainMode.ExponentialDecrease:
                         voice.Gain = unchecked((ushort)(voice.Gain - ExponentialDecayStep(voice.Gain)));
                         break;
-                    case 2:
+                    case SteppedGainMode.LinearIncrease:
                         voice.Gain = unchecked((ushort)(voice.Gain + 32));
                         if (voice.Gain > SnesDspRegisterLayout.EnvelopeMaximum)
                             voice.Gain = SnesDspRegisterLayout.EnvelopeMaximum;
                         break;
-                    case 3:
+                    case SteppedGainMode.BentLineIncrease:
                         voice.Gain = unchecked((ushort)(voice.Gain + (voice.Gain < SnesDspRegisterLayout.BentLineThreshold ? 32 : 8)));
                         if (voice.Gain > SnesDspRegisterLayout.EnvelopeMaximum)
                             voice.Gain = SnesDspRegisterLayout.EnvelopeMaximum;
@@ -477,7 +476,7 @@ public sealed class ManagedSnesDsp
         voice.DecodeBuffer[0] = voice.DecodeBuffer[16];
         voice.DecodeBuffer[1] = voice.DecodeBuffer[17];
         voice.DecodeBuffer[2] = voice.DecodeBuffer[18];
-        if (voice.PreviousFlags is 1 or 3)
+        if (voice.PreviousFlags.HasFlag(BrrBlockEnd.End))
         {
             // END/LOOP re-reads DIR + SRCN in the native decoder, without a new
             // KON. The sound driver can restore an instrument during release.
@@ -499,7 +498,7 @@ public sealed class ManagedSnesDsp
             }
             (sample, voice.SampleCursor) = bank.ResolveLoopEntry(voice.SourceNumber);
             voice.Sample = sample;
-            if (voice.PreviousFlags == 1)
+            if (voice.PreviousFlags == BrrBlockEnd.End)
             {
                 voice.AdsrState = EnvelopeState.Release;
                 voice.Gain = 0;
@@ -508,7 +507,7 @@ public sealed class ManagedSnesDsp
         }
 
         ReadOnlySpan<short> source = sample.Samples.Span;
-        voice.PreviousFlags = 0;
+        voice.PreviousFlags = BrrBlockEnd.None;
         for (int sampleIndex = 0; sampleIndex < InstrumentSampleFormat.StreamingWindowSampleCount; sampleIndex++)
         {
             if (voice.SampleCursor >= source.Length)
@@ -521,7 +520,7 @@ public sealed class ManagedSnesDsp
                 }
                 else
                 {
-                    voice.PreviousFlags = 1;
+                    voice.PreviousFlags = BrrBlockEnd.End;
                     voice.DecodeBuffer[sampleIndex + 3] = 0;
                     continue;
                 }
@@ -529,7 +528,7 @@ public sealed class ManagedSnesDsp
             voice.DecodeBuffer[sampleIndex + 3] = source[voice.SampleCursor++];
         }
         if (voice.SampleCursor == source.Length)
-            voice.PreviousFlags = sample.LoopSampleIndex.HasValue ? (byte)3 : (byte)1;
+            voice.PreviousFlags = sample.LoopSampleIndex.HasValue ? BrrBlockEnd.End | BrrBlockEnd.Loop : BrrBlockEnd.End;
     }
 
     /// <summary>Reads a source's loop pointer from the live BRR directory in audio RAM.</summary>
@@ -548,12 +547,12 @@ public sealed class ManagedSnesDsp
     private void AdvanceReleasedBrr(int index, int cursor)
     {
         Voice voice = voices[index];
-        if ((voice.PreviousFlags & DspBrrLayout.EndFlag) != 0)
+        if (voice.PreviousFlags.HasFlag(BrrBlockEnd.End))
         {
             cursor = ReadLoopAddress(voice.SourceNumber);
             registers[endFlagsAddress] |= unchecked((byte)(1 << index));
         }
-        voice.PreviousFlags = unchecked((byte)(apuRam[cursor] & DspBrrLayout.HeaderFlagsMask));
+        voice.PreviousFlags = DspBrrLayout.EndOf(apuRam[cursor]);
         voice.ReleasedBrrCursor = SpcDriverWrap.Word(cursor + DspBrrLayout.BlockBytes);
     }
 
@@ -638,6 +637,48 @@ public sealed class ManagedSnesDsp
     /// <summary>Clamps an intermediate mix or echo sum to signed 16-bit amplitude.</summary>
     private static int Clamp16(int value) => Math.Clamp(value, short.MinValue, short.MaxValue);
 
+    /// <summary>The stepped gain mode a GAIN register byte's mode field selects (#2560), decoded once at the write.</summary>
+    private static SteppedGainMode SteppedGainModeOf(int value) =>
+        ((value & SnesDspRegisterLayout.Fields.GainModeMask) >> SnesDspRegisterLayout.Fields.GainModeShift) switch
+        {
+            0 => SteppedGainMode.LinearDecrease,
+            1 => SteppedGainMode.ExponentialDecrease,
+            2 => SteppedGainMode.LinearIncrease,
+            3 => SteppedGainMode.BentLineIncrease,
+            var field => throw new InvalidDataException($"Unknown S-DSP gain mode {field}."),
+        };
+
+    /// <summary>Which envelope a voice runs at key-on, as ADSR1's enable bit selects (#2560).</summary>
+    private enum EnvelopeSource : byte
+    {
+        /// <summary>The attack, decay and sustain rates.</summary>
+        Adsr,
+        /// <summary>The GAIN register's direct level or stepped mode.</summary>
+        Gain,
+    }
+
+    /// <summary>Which form the GAIN register's top bit selects (#2560).</summary>
+    private enum GainForm : byte
+    {
+        /// <summary>A constant level applied at once.</summary>
+        Direct,
+        /// <summary>A timed step in one of the four stepped modes.</summary>
+        Stepped,
+    }
+
+    /// <summary>The four stepped GAIN modes (#2560).</summary>
+    private enum SteppedGainMode : byte
+    {
+        /// <summary>Lowers the envelope by a fixed step, stopping at silence.</summary>
+        LinearDecrease,
+        /// <summary>Lowers the envelope by a step proportional to its level.</summary>
+        ExponentialDecrease,
+        /// <summary>Raises the envelope by a fixed step, stopping at its maximum.</summary>
+        LinearIncrease,
+        /// <summary>Raises the envelope quickly, then slowly past the bent-line threshold.</summary>
+        BentLineIncrease,
+    }
+
     /// <summary>The S-DSP envelope phases selected by ADSR, gain mode, and key-off.</summary>
     private enum EnvelopeState : byte
     {
@@ -670,8 +711,8 @@ public sealed class ManagedSnesDsp
         public ManagedPcmSample? Sample;
         /// <summary>Next sample index within the bound PCM source.</summary>
         public int SampleCursor;
-        /// <summary>Previous BRR END and LOOP flags used when the next window starts.</summary>
-        public int PreviousFlags;
+        /// <summary>How the previous window's last block ended its sample, read when the next window starts.</summary>
+        public BrrBlockEnd PreviousFlags;
         /// <summary>BRR header cursor for a silent released voice whose PCM mapping vanished.</summary>
         public int? ReleasedBrrCursor;
         /// <summary>Routes the shared noise sample into this voice instead of PCM.</summary>
@@ -690,13 +731,13 @@ public sealed class ManagedSnesDsp
         public EnvelopeState AdsrState;
         /// <summary>Gain threshold at which decay changes to sustain.</summary>
         public int SustainLevel;
-        /// <summary>Selects GAIN behavior instead of ADSR rates.</summary>
-        public bool UseGain;
-        /// <summary>Stepped GAIN mode selected by the GAIN register.</summary>
-        public int GainMode;
-        /// <summary>Applies a constant gain immediately instead of using a rate counter.</summary>
-        public bool DirectGain;
-        /// <summary>Constant envelope level selected by direct GAIN mode.</summary>
+        /// <summary>Which envelope the voice runs at key-on, from ADSR1 (#2560).</summary>
+        public EnvelopeSource Source;
+        /// <summary>The stepped GAIN mode the GAIN register last selected; kept while the register holds a direct level.</summary>
+        public SteppedGainMode GainMode;
+        /// <summary>Whether the GAIN register holds a direct level or a stepped mode (#2560).</summary>
+        public GainForm GainForm;
+        /// <summary>Constant envelope level the GAIN register last selected; kept while the register holds a stepped mode.</summary>
         public int GainValue;
         /// <summary>Current eleven-bit envelope amplitude.</summary>
         public int Gain;
@@ -733,16 +774,16 @@ public sealed class ManagedSnesDsp
             SourceNumber = 0;
             Sample = null;
             SampleCursor = 0;
-            PreviousFlags = 0;
+            PreviousFlags = BrrBlockEnd.None;
             ReleasedBrrCursor = null;
             UseNoise = false;
             AttackRate = DecayRate = SustainRate = GainRate = 0;
             RateCounter = 0;
             AdsrState = EnvelopeState.Attack;
             SustainLevel = 0;
-            UseGain = false;
-            GainMode = 0;
-            DirectGain = false;
+            Source = EnvelopeSource.Adsr;
+            GainMode = SteppedGainMode.LinearDecrease;
+            GainForm = GainForm.Stepped;
             GainValue = Gain = 0;
             SampleOutput = 0;
             VolumeLeft = VolumeRight = 0;

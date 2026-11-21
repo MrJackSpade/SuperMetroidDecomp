@@ -61,7 +61,7 @@ internal sealed class PhantoonDeath
         RoomEnemyPlace body,
         PhantoonEnemyState state)
     {
-        if (PhantoonCadenceDefinitions.DyingFadeIn.IsSetIn(state.Death.FadeCycles))
+        if (PhantoonCadenceDefinitions.DyingFadeIn.IsInSecondHalfAt(state.Death.FadeCycles))
             _phantoonPresentation.AdvancePhantoonFadeIn(body, state, steps: PhantoonColorDefinitions.BodyFadeSteps);
         else
             _patterns.AdvancePhantoonFadeOut(state, steps: PhantoonColorDefinitions.BodyFadeSteps);
@@ -112,13 +112,13 @@ internal sealed class PhantoonDeath
     internal void BeginPhantoonWavyPixelatedDeath(PhantoonEnemyState state)
     {
         RoomEnemyPlace mouth = state.Mouth;
-        state.Wave.Amplitude = SignedSixteenSixteen.Zero;
+        state.Wave.Amplitude = UnsignedSixteenSixteen.Zero;
         state.Wave.AmplitudeShrinking = false;
         state.Wave.PhaseStep = PhantoonWaveDefinitions.PhaseStep;
         state.BodyWave.Begin(PhantoonWaveDefinitions.DeathLength);
         state.Phase = PhantoonPhase.DyingFadeOut;
         state.Death.PixelationSize = PhantoonDeathDefinitions.InitialPixelationSize;
-        state.Death.PixelationFinished = false;
+        state.Death.Stage = PhantoonDeathStage.Pixelating;
 
         // His body stays to show the death; his eye, tentacles and mouth are hidden (#2257).
         HideDyingPart(state.Eye);
@@ -145,14 +145,14 @@ internal sealed class PhantoonDeath
             PhantoonWaveDefinitions.DeathAmplitude);
 
         PhantoonDeathState death = state.Death;
-        if (!death.PixelationFinished)
+        if (death.Stage == PhantoonDeathStage.Pixelating)
         {
             if (!PhantoonCadenceDefinitions.DeathPixelationGrows.IsDue(_frameContext.FrameCounter))
                 return;
 
             if (death.PixelationSize == PhantoonDeathDefinitions.FinalPixelationSize)
             {
-                death.PixelationFinished = true;
+                death.Stage = PhantoonDeathStage.FadingOut;
                 state.BodyFade.Resume();
                 return;
             }

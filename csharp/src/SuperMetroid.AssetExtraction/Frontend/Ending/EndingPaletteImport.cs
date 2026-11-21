@@ -27,10 +27,6 @@ internal static class EndingPaletteImport
             ReadOne(bus, EndingPaletteId.LogoInitial), ReadOne(bus, EndingPaletteId.LogoCrossfade));
     }
 
-    /// <summary>The colour count of resource <paramref name="id"/>.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="id"/> is not a defined resource.</exception>
-    private static int ColorCount(EndingPaletteId id) => Ensure.Listed(EndingPaletteDefinitions.Palettes, id).ColorCount;
-
     /// <summary>Decodes resource <paramref name="id"/>: a whole screen's, a run's or the logo crossfade's colours.</summary>
     /// <exception cref="InvalidDataException">A colour has an unrepresentable high bit.</exception>
     private static EndingPalette ReadOne(ISnesAddressSpace bus, EndingPaletteId id)
@@ -71,11 +67,11 @@ internal static class EndingPaletteImport
         var native = new byte[count * sizeof(ushort)];
         for (int step = 0; step < EndingLogoDefinitions.CrossfadeSteps; step++)
         for (int palette = 0; palette < EndingPaletteSources.CrossfadeLayers.Count; palette++)
-        for (int color = 0; color < 16; color++)
+        for (int color = 0; color < EndingLogoCrossfadeColours.ColoursPerLayer; color++)
         {
             SnesAddress source = EndingPaletteSources.LogoCrossfadeSource(step, EndingPaletteSources.CrossfadeLayers[palette])
                 .AddWithinBank(-(15 - color) * sizeof(ushort));
-            int index = (step * 2 + palette) * 16 + color;
+            int index = EndingLogoCrossfadeImage.Position(step, EndingPaletteSources.CrossfadeLayers[palette], color);
             BinaryPrimitives.WriteUInt16LittleEndian(
                 native.AsSpan(index * sizeof(ushort)),
                 RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),

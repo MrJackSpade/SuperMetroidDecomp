@@ -8,23 +8,15 @@ namespace SuperMetroid.Core.Frontend.Options;
 /// </remarks>
 internal static class GameOptionsCursorPolicy
 {
-    /// <summary>The select of each phase.</summary>
-    private static IdentityTable<GameOptionsPhase, GameOptionsPage?> SelectByPhase => field ??= new(new Dictionary<GameOptionsPhase, GameOptionsPage?>
-    {
-        [GameOptionsPhase.FadeIn] = GameOptionsPage.Primary,
-        [GameOptionsPhase.Main] = GameOptionsPage.Primary,
-        [GameOptionsPhase.FadeOutToFileSelect] = GameOptionsPage.Primary,
-        [GameOptionsPhase.ControllerSettings] = GameOptionsPage.Controller,
-        [GameOptionsPhase.SpecialSettings] = GameOptionsPage.Special,
-        [GameOptionsPhase.DissolveOut] = null,
-        [GameOptionsPhase.DissolveIn] = null,
-        [GameOptionsPhase.ScrollControllerDown] = null,
-        [GameOptionsPhase.ScrollControllerUp] = null,
-        [GameOptionsPhase.FadeOutToIntro] = null,
-        [GameOptionsPhase.StartGame] = null,
-        [GameOptionsPhase.BlackHold] = null,
-    });
-
     /// <summary>The page whose cursor a phase shows, or none during a transition.</summary>
-    internal static GameOptionsPage? Select(GameOptionsPhase phase) => SelectByPhase[phase];
+    internal static GameOptionsPage? Select(GameOptionsPhase phase, GameOptionsPage page) => phase switch
+    {
+        GameOptionsPhase.FadeIn or GameOptionsPhase.FadeOutToFileSelect => GameOptionsPage.Primary,
+        GameOptionsPhase.Browsing => page,
+        GameOptionsPhase.DissolveOut or GameOptionsPhase.DissolveIn or
+            GameOptionsPhase.ScrollControllerDown or GameOptionsPhase.ScrollControllerUp or
+            GameOptionsPhase.FadeOutToIntro or GameOptionsPhase.StartGame or
+            GameOptionsPhase.BlackHold => null,
+        _ => throw new ArgumentOutOfRangeException(nameof(phase)),
+    };
 }

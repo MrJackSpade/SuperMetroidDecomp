@@ -13,11 +13,16 @@ internal static class KraidMouthReopenCountVerification
     /// <summary>Runs the count, rejection, clear and hurt flash checks.</summary>
     internal static void VerifyKraidMouthReopenCount()
     {
-        for (int pending = 0; pending <= 3; pending++)
+        for (int spent = 0; spent <= 3; spent++)
         {
-            var armed = global::SuperMetroid.Core.PrivateState.With<KraidEnemyState>(new KraidEnemyState(new KraidParts()), "PendingMouthReopens", pending);
+            var armed = new KraidEnemyState(new KraidParts());
             armed.ArmMouthReopens();
-            AssertEqual(3, armed.PendingMouthReopens, $"arming from {pending} pending reopens leaves three");
+            armed.MarkMouthReopen();
+            // Each closing of the marked mouth spends one pending reopen; the third spends the last and disarms them.
+            for (int reopen = 0; reopen < spent; reopen++)
+                _ = armed.SpendMouthReopenAsMouthCloses();
+            armed.ArmMouthReopens();
+            AssertEqual(3, armed.PendingMouthReopens, $"arming from {3 - spent} pending reopens leaves three");
         }
 
         var state = new KraidEnemyState(new KraidParts());

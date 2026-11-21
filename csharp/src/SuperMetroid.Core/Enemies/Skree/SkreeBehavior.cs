@@ -150,7 +150,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // Skree's shot reaction runs the common damage without the hit burst.
         ShowsHitBurst = EnemyShotReaction.NeverShowsHitBurst,
-        BeforeGenericDeath = c => SkreeMetareeParticles.SpawnBurst(_projectiles, skree, c.Enemy, SkreeMetareeParticleSegment.Skree),
+        Lethal = new EnemyShotLethal.AfterStage(c => SkreeMetareeParticles.SpawnBurst(_projectiles, skree, c.Enemy, SkreeMetareeParticleSegment.Skree)),
     };
 
     /// <summary>Handles lethal bombs with Skree's particle burst and its ordinary death after the shared hit path.</summary>

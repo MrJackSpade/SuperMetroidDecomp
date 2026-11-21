@@ -94,8 +94,8 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Action = BeetomAction.Idling;
         },
         [BeetomAction.StartCrawling] = (place, state, samus, level, controllerInput) => StartBeetomCrawling(place, state, state.Heading),
-        [BeetomAction.StartShortHop] = (place, state, samus, level, controllerInput) => StartBeetomHop(place, state, BeetomLeapDefinitions.ShortLeap.StartPlace, state.Heading, BeetomHopLength.Short),
-        [BeetomAction.StartLongHop] = (place, state, samus, level, controllerInput) => StartBeetomHop(place, state, BeetomLeapDefinitions.LongLeap.StartPlace, state.Heading, BeetomHopLength.Long),
+        [BeetomAction.StartShortHop] = (place, state, samus, level, controllerInput) => StartBeetomHop(place, state, state.Heading, BeetomHopLength.Short),
+        [BeetomAction.StartLongHop] = (place, state, samus, level, controllerInput) => StartBeetomHop(place, state, state.Heading, BeetomHopLength.Long),
         [BeetomAction.StartLunge] = (place, state, samus, level, controllerInput) => StartBeetomLunge(place, state, samus),
         [BeetomAction.StartDraining] = (place, state, samus, level, controllerInput) => StartBeetomDrain(place, state, side: state.Heading),
         [BeetomAction.StartDropping] = (place, state, samus, level, controllerInput) => StartBeetomDrop(place, state),
@@ -187,17 +187,23 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void StartBeetomHop(
         RoomEnemyPlace place,
         BeetomEnemyState state,
-        QuadraticSpeedCurvePlace initialYSpeedCurvePlace,
         HorizontalDirection direction,
         BeetomHopLength length)
     {
-        state.YSpeedCurvePlace = initialYSpeedCurvePlace;
-        state.Begin(length switch
+        // The hop's length selects its climb, whose start place the hop rises from (#2560).
+        switch (length)
         {
-            BeetomHopLength.Short => BeetomAction.ShortHopRising,
-            BeetomHopLength.Long => BeetomAction.LongHopRising,
-            _ => throw new ArgumentOutOfRangeException(nameof(length), length, "Unknown Beetom hop."),
-        }, direction);
+            case BeetomHopLength.Short:
+                state.YSpeedCurvePlace = BeetomLeapDefinitions.ShortLeap.StartPlace;
+                state.Begin(BeetomAction.ShortHopRising, direction);
+                break;
+            case BeetomHopLength.Long:
+                state.YSpeedCurvePlace = BeetomLeapDefinitions.LongLeap.StartPlace;
+                state.Begin(BeetomAction.LongHopRising, direction);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(length), length, "Unknown Beetom hop.");
+        }
         SetBeetomAnimation(
             place,
             state,

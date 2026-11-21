@@ -13,10 +13,6 @@ internal static class EndingPaletteImportPrivateAccess
     /// <summary>The private static members checks name.</summary>
     extension(global::SuperMetroid.AssetExtraction.Frontend.Ending.EndingPaletteImport)
     {
-        /// <summary>The private method <c>ColorCount</c>, invoked by name.</summary>
-        internal static int ColorCount(global::SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingPaletteId id) =>
-            PrivateState.InvokeStatic<int>(typeof(global::SuperMetroid.AssetExtraction.Frontend.Ending.EndingPaletteImport), "ColorCount", [typeof(global::SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingPaletteId)], new object?[] { id });
-
         /// <summary>The private method <c>ReadNativePalette</c>, invoked by name.</summary>
         internal static byte[] ReadNativePalette(global::SuperMetroid.AssetExtraction.Cartridge.ISnesAddressSpace bus, global::SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingPaletteId id, int count) =>
             PrivateState.InvokeStatic<byte[]>(typeof(global::SuperMetroid.AssetExtraction.Frontend.Ending.EndingPaletteImport), "ReadNativePalette", [typeof(global::SuperMetroid.AssetExtraction.Cartridge.ISnesAddressSpace), typeof(global::SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingPaletteId), typeof(int)], new object?[] { bus, id, count });

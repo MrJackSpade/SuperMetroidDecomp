@@ -45,11 +45,11 @@ internal static class OverlappingEnemyShotsVerification
         var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: InstalledFixtures.Projectiles.FrameBindings));
         var shot = shots.Shots[0];
         shot.Occupy(SamusProjectileType.Of(SamusProjectileFamily.Missile), 100);
-        shot.Direction = SamusProjectileDirection.Right;
-        shot.Position = shot.Position.WithWhole(new(128, 128));
-        shot.Radius = new(4, 4);
-        shot.Animation = ProjectileFixturePlaybacks.Active();
-        shot.Behavior = SamusShotBehaviors.Missile;
+        shot.HeldShot().Direction = SamusProjectileDirection.Right;
+        shot.HeldShot().Position = shot.Position.WithWhole(new(128, 128));
+        shot.HeldShot().Radius = new(4, 4);
+        shot.HeldShot().Animation = ProjectileFixturePlaybacks.Active();
+        shot.HeldShot().Behavior = SamusShotBehaviors.Missile;
 
         enemies.ResolveShotsOnInteractiveEnemies(shots, bombs, SuperMetroid.Core.Progression.AreaId.Crateria, samus);
         foreach (var enemy in enemies.Places.InUpdateOrder.Take(3))

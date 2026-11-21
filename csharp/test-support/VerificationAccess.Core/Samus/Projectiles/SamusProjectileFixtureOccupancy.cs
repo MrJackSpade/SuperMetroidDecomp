@@ -40,12 +40,44 @@ internal static class SamusProjectileFixtureOccupancy
         _ => throw new ArgumentOutOfRangeException(nameof(family), family, "The family is no bomb family."),
     };
 
+    /// <summary>
+    /// A shot place, the first of the pool's, holding a projectile of <paramref name="type"/> at rest at the room's origin
+    /// with the damage its type deals: the place a check that runs one projectile's own steps builds.
+    /// </summary>
+    /// <param name="type">What the projectile is.</param>
+    internal static SamusProjectile ShotPlace(SamusProjectileType type)
+    {
+        var place = new SamusProjectile(0);
+        _ = place.OccupyAsFired(type);
+        return place;
+    }
+
     /// <summary>Fixture occupancy of a shot place.</summary>
     extension(SamusProjectile shot)
     {
         /// <summary>Takes the place with a projectile of <paramref name="type"/> dealing the damage its type deals.</summary>
         /// <returns>The projectile now holding the place.</returns>
         internal SamusProjectileOccupant OccupyAsFired(SamusProjectileType type) => shot.Occupy(type, DamageAsPlaced(type));
+
+        /// <summary>
+        /// Takes the place with a projectile of <paramref name="type"/> dealing <paramref name="damage"/>, at rest at the
+        /// room's origin, as a check's fixture places one.
+        /// </summary>
+        /// <returns>The projectile now holding the place.</returns>
+        internal SamusProjectileOccupant Occupy(SamusProjectileType type, int damage) =>
+            shot.Occupy(type, damage, FixedPosition<RoomPixels>.Zero);
+    }
+
+    /// <summary>Fixture occupancy of the shot pool.</summary>
+    extension(SamusShotPool pool)
+    {
+        /// <summary>
+        /// Takes <paramref name="place"/>, ending the shot there, with a projectile of <paramref name="type"/> dealing the
+        /// damage its type deals, as firing does.
+        /// </summary>
+        /// <returns>The place the projectile now holds.</returns>
+        internal SamusProjectile OccupyAsFired(int place, SamusProjectileType type) =>
+            pool.Occupy(place, type, DamageAsPlaced(type)).Projectile;
     }
 
     /// <summary>Fixture occupancy of a bomb place.</summary>

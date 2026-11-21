@@ -51,8 +51,8 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
     public EndingCreditsPhase Phase => Scene.Phase;
 
     /// <summary>
-    /// What the ending shows with its phase, which owns that scene's own actors (#2541): the cast, the staff credits, the
-    /// reward's reveal, gesture, jump, shot and white flash, or the final logo. The ending changes it only with its phase.
+    /// What the ending shows, with the phase it runs, which owns that scene's own actors (#2541, #2560): the cast, the staff
+    /// credits, the reward's reveal, gesture, jump, shot and white flash, or the final logo.
     /// </summary>
     internal EndingScene Scene { get; private set; } = new EndingCastScene(EndingCreditsPhase.SetupEscapeFromZebes);
 
@@ -102,7 +102,7 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
         Flyaway = new EndingFlyaway(setup.CrittersEscaped, screen, Stage);
         Explosion = new EndingZebesExplosion(screen, sprites, Stage);
         EscapeScenes = new EndingEscapeScenes(audio, setup.GameTimeHours, setup.GameTimeMinutes, screen, sprites, Stage, InstalledArtwork);
-        CreditsRoll = new EndingCreditsRoll(setup.Inventory, setup.JapaneseText, screen, sprites, Stage, InstalledArtwork);
+        CreditsRoll = new EndingCreditsRoll(setup.Inventory, setup.Language, screen, sprites, Stage, InstalledArtwork);
     }
     /// <summary>
     /// True while the ending's setup waits out frames of the display: the next update finishes that wait instead of

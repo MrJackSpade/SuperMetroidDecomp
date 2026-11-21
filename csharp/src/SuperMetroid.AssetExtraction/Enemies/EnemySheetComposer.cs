@@ -493,7 +493,7 @@ internal static class EnemySheetComposer
         GraphicsSetCharacterLayout layout, SetCharacters characters) =>
         // The palette bits are the sheet's, ORed in at composition, so each pixel keeps its part's own row. A rotting corpse's
         // frames name where the corpse lies in them (#1539).
-        Composed(enemies, shown).Select(frame => characters.Pictures(frame.Name, frame.Picture(checked((ushort)layout.TileBaseOf(enemy, frame.Frame))),
+        Composed(enemies, shown).Select(frame => characters.Pictures(frame.Name, frame.Picture(layout.TileBaseOf(enemy, frame.Frame)),
             FrameDrawings.Of(frame.Frame), RottingCorpseCells.Shows(enemy, frame.Frame)));
 
     /// <summary>

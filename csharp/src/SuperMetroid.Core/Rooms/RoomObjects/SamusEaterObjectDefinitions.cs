@@ -21,10 +21,10 @@ internal static class SamusEaterObjectDefinitions
     internal const int ReleaseDuration = 96;
 
     /// <summary>The Brinstar floor plant.</summary>
-    public static readonly SamusEaterObjectDefinition Floor = new(Ceiling: false, FloorChews, Chew(SamusEaterDraw.FloorTeethBared, SamusEaterDraw.FloorTeethPeeking, SamusEaterDraw.FloorFangsOut), SamusEaterDraw.FloorFangsOut, SamusEaterDraw.FloorIdle);
+    public static readonly SamusEaterObjectDefinition Floor = new(Side: VerticalDirection.Down, FloorChews, Chew(SamusEaterDraw.FloorTeethBared, SamusEaterDraw.FloorTeethPeeking, SamusEaterDraw.FloorFangsOut), SamusEaterDraw.FloorFangsOut, SamusEaterDraw.FloorIdle);
 
     /// <summary>The Brinstar ceiling plant.</summary>
-    public static readonly SamusEaterObjectDefinition Ceiling = new(Ceiling: true, CeilingChews, Chew(SamusEaterDraw.CeilingTeethBared, SamusEaterDraw.CeilingTeethPeeking, SamusEaterDraw.CeilingFangsOut), SamusEaterDraw.CeilingFangsOut, SamusEaterDraw.CeilingIdle);
+    public static readonly SamusEaterObjectDefinition Ceiling = new(Side: VerticalDirection.Up, CeilingChews, Chew(SamusEaterDraw.CeilingTeethBared, SamusEaterDraw.CeilingTeethPeeking, SamusEaterDraw.CeilingFangsOut), SamusEaterDraw.CeilingFangsOut, SamusEaterDraw.CeilingIdle);
 
     /// <summary>
     /// One chew over a plant's looks, each for <see cref="ChewFrameDuration"/>: its teeth bared, peeking and bared again, its

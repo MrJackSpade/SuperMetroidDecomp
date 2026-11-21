@@ -94,8 +94,8 @@ internal static class EnemyHitBurstVerification
             var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
             SamusBomb bomb = bombs.Bombs[0];
             bomb.Occupy(SamusBombKind.Bomb, 30);
-            bomb.Radius = new(4, 4);
-            bomb.Position = FixedPosition<RoomPixels>.FromWhole(Place);
+            bomb.HeldBomb().Radius = new(4, 4);
+            bomb.HeldBomb().Position = FixedPosition<RoomPixels>.FromWhole(Place);
             (SamusProjectileSystem shots, _) = ShotAt(SamusBeamCombination.Power);
             shots.Shots[0].End();
             enemies.Collision.ResolveOrdinaryBombHit(bombs, shots, samus: RoomEnemyFrameFixtures.StandaloneSamus(), place.HeldOccupant(), Position16<RoomPixels>.Zero);
@@ -244,7 +244,7 @@ internal static class EnemyHitBurstVerification
     {
         SpriteSheetFrame frame = draw.Image;
         SpriteImage sheet = frame.Sheet;
-        RgbColor[] keyColours = (draw.Shading ?? throw new InvalidOperationException($"{name}: the burst's draw names a shading.")).KeyColours(sheet);
+        RgbColor[] keyColours = (draw.Shading ?? throw new InvalidOperationException($"{name}: the burst's draw names a shading.")).KeyColours(sheet, global::SuperMetroid.Core.Assets.ColourBlendOracle.Instance);
         RgbColor[] beams = colours.ShownBeams(InstalledFixtures.SamusShadeSources);
         var shown = new List<RgbColor>();
         var seen = new HashSet<ColourKey>();
@@ -304,7 +304,7 @@ internal static class EnemyHitBurstVerification
     private static RoomEffectActor SpawnDud(RoomEnemySystem enemies)
     {
         (SamusProjectileSystem shots, _) = ShotAt(SamusBeamCombination.Power);
-        enemies.Projectiles.CreateEnemyProjectileDudShot(shots.Shots[0]);
+        enemies.Projectiles.CreateEnemyProjectileDudShot(shots.Shots[0].HeldShot());
         return enemies.EffectActors.Live.Last();
     }
 
@@ -331,9 +331,9 @@ internal static class EnemyHitBurstVerification
         var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
         SamusProjectile shot = shots.Shots[0];
         shot.Occupy(SamusProjectileType.Beam(beam, charged: false), 20);
-        shot.Direction = SamusProjectileDirection.Right;
-        shot.Position = shot.Position.WithWhole(Place);
-        shot.Radius = new(4, 4);
+        shot.HeldShot().Direction = SamusProjectileDirection.Right;
+        shot.HeldShot().Position = shot.Position.WithWhole(Place);
+        shot.HeldShot().Radius = new(4, 4);
         return (shots, new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()));
     }
 

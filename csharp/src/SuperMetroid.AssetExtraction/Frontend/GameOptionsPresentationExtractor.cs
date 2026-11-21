@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Spatial;
@@ -54,7 +55,7 @@ public static class GameOptionsPresentationExtractor
                 .Select(region => new GameOptionsLanguageRegionDocument
                 {
                     Cells = CellRange(region.ByteOffset, region.ByteCount),
-                    HighlightWhenJapanese = region.HighlightWhenJapanese,
+                    Language = region.Language,
                 })
                 .ToArray();
         var toggles = new Dictionary<string, GameOptionsToggleVisualDocument>(StringComparer.Ordinal)

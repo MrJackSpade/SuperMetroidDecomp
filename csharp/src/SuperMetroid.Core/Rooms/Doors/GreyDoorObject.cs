@@ -40,11 +40,11 @@ internal sealed class GreyDoorObject : DoorCapObject, IShootableRoomObject
     private GreyDoorLock Lock { get; }
 
     /// <summary>What the cap is doing.</summary>
-    private GreyDoorPhase Phase { get; set; } = GreyDoorPhase.Locked;
+    private GreyDoorPhase Phase { get; set; } = GreyDoorPhase.Placed;
 
     /// <summary>
-    /// What the cap waits for on each update: nothing until its first look locks it (a locked cap waiting for nothing has
-    /// yet to take that look), and nothing once it opens.
+    /// What the cap waits for on each update: nothing until its first look locks it, and nothing once it opens. This is apart
+    /// from what the cap plays: a closing behind Samus keeps it.
     /// </summary>
     private GreyDoorWait Waits { get; set; }
 
@@ -120,6 +120,7 @@ internal sealed class GreyDoorObject : DoorCapObject, IShootableRoomObject
     /// <summary>What <see cref="SequenceEnded"/> does for each <see cref="GreyDoorPhase"/> member, each member's own arm.</summary>
     private IdentityTable<GreyDoorPhase, Action<RoomObjectPlace, RoomObjectStepContext>> SequenceEndedForGreyDoorPhase => field ??= new(new Dictionary<GreyDoorPhase, Action<RoomObjectPlace, RoomObjectStepContext>>
     {
+        [GreyDoorPhase.Placed] = (place, context) => Look(place, context),
         [GreyDoorPhase.Closing] = (place, context) => Look(place, context),
         [GreyDoorPhase.HeldOpen] = (place, context) =>
         {
@@ -132,12 +133,8 @@ internal sealed class GreyDoorObject : DoorCapObject, IShootableRoomObject
             Phase = GreyDoorPhase.Closing;
             Play(GreyDoorDefinitions.BombTorizoClosing, place, context);
         },
-        [GreyDoorPhase.Locked] = (place, context) =>
-        {
-            // Once it has looked, the cap rests on its closed image until its condition holds.
-            if (Waits == GreyDoorWait.Nothing)
-                Look(place, context);
-        },
+        // Once it has looked, the cap rests on its closed image until its condition holds.
+        [GreyDoorPhase.Locked] = (place, context) => { },
         [GreyDoorPhase.Flashing] = (place, context) =>
         {
             throw new InvalidOperationException("An unlocked grey cap flashes until a shot opens it; its flash never ends.");

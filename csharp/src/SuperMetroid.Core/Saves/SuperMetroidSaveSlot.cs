@@ -34,7 +34,7 @@ public sealed record SuperMetroidSaveSlot(
     public required bool IconCancelEnabled { get; init; }
 
     /// <summary>Whether the alternate Japanese text setting is enabled.</summary>
-    public required bool JapaneseText { get; init; }
+    public required TextLanguage Language { get; init; }
 
     /// <summary>Restores the subset the Samus state represents.</summary>
     public void ApplyTo(SamusState samus)

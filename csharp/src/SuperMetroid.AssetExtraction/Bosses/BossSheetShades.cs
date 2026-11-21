@@ -77,9 +77,11 @@ internal static class BossSheetShades
         EnemyDefinitionId.KraidLintBottom, EnemyDefinitionId.KraidFoot, EnemyDefinitionId.KraidFirstNail, EnemyDefinitionId.KraidSecondNail,
     ];
 
-    /// <summary>How one boss's body sheet is shaded from his installed colours and the inks its picture uses.</summary>
-    private delegate IReadOnlyList<SheetShade> BodyShading(BossSourceArtwork bosses, ReadOnlySpan<byte> paletteIndices,
-        ReadOnlySpan<RgbColor> standard);
+    /// <summary>
+    /// How one boss's body sheet is shaded from his installed colours and the places in its colour list of the colours its
+    /// picture uses.
+    /// </summary>
+    private delegate IReadOnlyList<SheetShade> BodyShading(BossSourceArtwork bosses, HashSet<int> used, ReadOnlySpan<RgbColor> standard);
 
     /// <summary>Each boss whose body sheet gameplay shades, with how it is shaded; every other body sheet has no shades.</summary>
     private static readonly Dictionary<BossBodyOwner, BodyShading> BodyShades = new Dictionary<BossBodyOwner, BodyShading>
@@ -105,7 +107,7 @@ internal static class BossSheetShades
         .Concat(DraygonParts.Select(part => KeyValuePair.Create(part,
             (Func<BossSourceArtwork, int, IReadOnlyList<SheetShade>>)((bosses, _) => [.. DraygonSprites(bosses)]))))
         .Concat(KraidParts.Select(part => KeyValuePair.Create(part,
-            (Func<BossSourceArtwork, int, IReadOnlyList<SheetShade>>)KraidSprites)))
+            KraidSprites)))
         .ToDictionary();
 
     /// <summary>
@@ -122,7 +124,7 @@ internal static class BossSheetShades
         }
         .Concat(DraygonParts.Select(part => KeyValuePair.Create(part,
             (Func<BossSourceArtwork, IReadOnlyList<SheetShade>>)(bosses => [.. DraygonSprites(bosses)]))))
-        .Concat(KraidParts.Select(part => KeyValuePair.Create(part, (Func<BossSourceArtwork, IReadOnlyList<SheetShade>>)KraidRocks)))
+        .Concat(KraidParts.Select(part => KeyValuePair.Create(part, KraidRocks)))
         .ToDictionary();
 
     /// <summary>
@@ -141,16 +143,17 @@ internal static class BossSheetShades
 
     /// <summary>
     /// The shades of <paramref name="owner"/>'s body sheet, painted from <paramref name="standard"/> with the inks
-    /// <paramref name="paletteIndices"/> name.
+    /// <paramref name="inks"/> of a sheet composed in <paramref name="palette"/> name.
     /// </summary>
     /// <exception cref="InvalidDataException">
     /// The boss's colours are not installed, or a colour gameplay substitutes is not unique on the body's picture.
     /// </exception>
-    internal static IReadOnlyList<SheetShade> Body(BossBodyOwner owner, BossSourceArtwork bosses, ReadOnlySpan<byte> paletteIndices,
-        ReadOnlySpan<RgbColor> standard)
+    internal static IReadOnlyList<SheetShade> Body(BossBodyOwner owner, BossSourceArtwork bosses, ReadOnlySpan<ComposedInk> inks,
+        SpriteImageColours palette, ReadOnlySpan<RgbColor> standard)
     {
         Ensure.NotNull(bosses);
-        return BodyShades.TryGetValue(owner, out BodyShading? shading) ? shading(bosses, paletteIndices, standard) : [];
+        return BodyShades.TryGetValue(owner, out BodyShading? shading)
+            ? shading(bosses, [.. inks.ToArray().Select(ink => ink.PlaceIn(palette))], standard) : [];
     }
 
     /// <summary>The shades of Crocomire's body sheet: his fight colours and their white hurt flash.</summary>
@@ -168,11 +171,10 @@ internal static class BossSheetShades
     /// his death arm.
     /// </summary>
     /// <exception cref="InvalidDataException">His colours are not installed, or an eye colour is not unique on his picture.</exception>
-    private static List<SheetShade> KraidBody(BossSourceArtwork bosses, ReadOnlySpan<byte> paletteIndices, ReadOnlySpan<RgbColor> standard)
+    private static List<SheetShade> KraidBody(BossSourceArtwork bosses, HashSet<int> used, ReadOnlySpan<RgbColor> standard)
     {
         KraidColorCatalog kraid = bosses.KraidColors ?? throw new InvalidDataException("Kraid's body is shaded from the installed Kraid colours.");
         var shades = new List<SheetShade>();
-        HashSet<int> used = [.. paletteIndices.ToArray().Select(index => (int)index)];
         // Every band's shade shows his eyes in the colours gameplay's eye glow replaces, whatever the band gives them (#1512).
         ReadOnlySpan<RgbColor> shadedEyes = kraid.Eyes().Shaded;
         for (int band = 0; band < KraidPalettes.HealthBandCount; band++)

@@ -67,10 +67,10 @@ internal static class RgbColorDomainVerification
         AssertThrows<ArgumentOutOfRangeException>(() => new RgbColor(0, -1, 0), "negative green");
 
         // The fades step on the levels: half of full white's level 31 is level 15, which shows 123, not half of 255.
-        AssertEqual(new FadeLevelColour(15, 15, 15).ToColour(), new ColourLevel(1, 2).Apply(RgbColor.White),
+        AssertEqual(new FadeLevelColour(15, 15, 15).ToColour(), new ColourLevel(new FadeLevel(1, 2)).Apply(RgbColor.White, global::SuperMetroid.Core.Assets.ColourBlendOracle.Instance),
             "the cross-fade halves each level, rounding down");
-        AssertEqual(new RgbColor(123, 123, 123), new ColourLevel(1, 2).Apply(RgbColor.White), "level 15 shows 123");
-        AssertEqual(new RgbColor(33, 33, 33), WhiteWash.Colour(4), "a white wash with four steps left shows level four");
+        AssertEqual(new RgbColor(123, 123, 123), new ColourLevel(new FadeLevel(1, 2)).Apply(RgbColor.White, global::SuperMetroid.Core.Assets.ColourBlendOracle.Instance), "level 15 shows 123");
+        AssertEqual(new RgbColor(33, 33, 33), WhiteWash.Colour(4).ShownWith(global::SuperMetroid.Core.Assets.ColourBlendOracle.Instance), "a white wash with four steps left shows level four");
 
         // CGRAM: the port boundary keeps fifteen bits, typed writes store exactly.
         RgbColor sample = new FadeLevelColour(3, 9, 27).ToColour();
@@ -86,7 +86,7 @@ internal static class RgbColorDomainVerification
         // colour it started from (#1512).
         var fade = new GradualFadeSteps(lastStep: 7, new SharedFadeStepCount());
         for (int step = 0; step < 16 && !fade.Step(); step++) { }
-        AssertTrue(cgram.Colors.ToArray().All(colour => fade.Toward(RgbColor.White).Apply(colour) == RgbColor.White),
+        AssertTrue(cgram.Colors.ToArray().All(colour => fade.Toward(RgbColor.White).Apply(colour, global::SuperMetroid.Core.Assets.ColourBlendOracle.Instance) == RgbColor.White),
             "typed gradual fade shows its exact target");
 
         // A fade's length is any count of steps (#1627): one longer than a word's range keeps its first steps' slow
@@ -96,13 +96,13 @@ internal static class RgbColorDomainVerification
         var longSteps = new GradualFadeSteps(longFade, new SharedFadeStepCount());
         _ = longSteps.Step();
         _ = longSteps.Step();
-        AssertEqual(RgbColor.Black, longSteps.Toward(RgbColor.White).Apply(RgbColor.Black),
+        AssertEqual(RgbColor.Black, longSteps.Toward(RgbColor.White).Apply(RgbColor.Black, global::SuperMetroid.Core.Assets.ColourBlendOracle.Instance),
             "the long fade's first moving step moves less than a level");
         int calls = 2;
         while (!longSteps.Step())
             calls++;
         AssertEqual(longFade + 1, calls, "the long fade completes on the call after the step at its last");
-        AssertEqual(RgbColor.White, longSteps.Toward(RgbColor.White).Apply(RgbColor.Black), "the long fade ends on its target");
+        AssertEqual(RgbColor.White, longSteps.Toward(RgbColor.White).Apply(RgbColor.Black, global::SuperMetroid.Core.Assets.ColourBlendOracle.Instance), "the long fade ends on its target");
         AssertThrows<ArgumentOutOfRangeException>(() => new GradualFadeSteps(0, new SharedFadeStepCount()), "a fade takes at least one step");
 
         // A fade started on a counter another fade advanced counts its own steps (#2421): its first step shows the colours it
@@ -113,17 +113,17 @@ internal static class RgbColorDomainVerification
             advanced.Advance();
         var late = new GradualFadeSteps(lastStep: 13, advanced);
         AssertTrue(!late.Step(), "a fade started on counter value ten takes its first step");
-        AssertEqual(new ColourFade(RgbColor.Black, GradualFadeDirection.Toward, 0, 13), late.Toward(RgbColor.Black),
+        AssertEqual(new ColourFade(RgbColor.Black, GradualFadeDirection.Toward, new FadeLevel(0, 13)), late.Toward(RgbColor.Black),
             "its first step shows the colours it starts from");
         AssertTrue(!late.Step(), "it takes its second step on counter value eleven");
-        AssertEqual(new ColourFade(RgbColor.Black, GradualFadeDirection.Toward, 1, 13), late.Toward(RgbColor.Black),
+        AssertEqual(new ColourFade(RgbColor.Black, GradualFadeDirection.Toward, new FadeLevel(1, 13)), late.Toward(RgbColor.Black),
             "its second step moves one of its thirteen parts, whatever value the counter took");
         AssertTrue(!late.Step() && !late.Step(), "it steps on counter values twelve and thirteen");
-        AssertEqual(new ColourFade(RgbColor.Black, GradualFadeDirection.Toward, 3, 13), late.Toward(RgbColor.Black),
+        AssertEqual(new ColourFade(RgbColor.Black, GradualFadeDirection.Toward, new FadeLevel(3, 13)), late.Toward(RgbColor.Black),
             "four steps have moved three parts");
         AssertTrue(late.Step(), "the shared counter past the fade's last step completes it, on its fifth call");
         AssertEqual(0, advanced.Step, "the completing fade resets the shared counter");
-        AssertEqual(new ColourFade(RgbColor.Black, GradualFadeDirection.Toward, 13, 13), late.Toward(RgbColor.Black),
+        AssertEqual(new ColourFade(RgbColor.Black, GradualFadeDirection.Toward, new FadeLevel(13, 13)), late.Toward(RgbColor.Black),
             "a completed fade shows its goal");
 
         Console.WriteLine("RgbColor domain: all 32768 words, levels, off-scale rejection, plain channel bounds, level fades, and CGRAM agree.");

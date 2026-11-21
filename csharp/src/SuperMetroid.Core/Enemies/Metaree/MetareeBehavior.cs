@@ -167,11 +167,11 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <param name="metaree">The Metaree the reaction is built for, whose sheet the objects it spawns draw from.</param>
     internal EnemyShotReaction MetareeShotReaction(RoomEnemyOccupant metaree) => new()
     {
-        BeforeGenericDeath = c =>
+        Lethal = new EnemyShotLethal.AfterStage(c =>
         {
             SkreeMetareeParticles.SpawnBurst(_projectiles, metaree, c.Enemy, SkreeMetareeParticleSegment.Metaree);
             c.Enemy.Shading = PictureShading.Standard;
-        },
+        }),
     };
 
     /// <summary>After a lethal bomb, spawns the debris in the dying Metaree's colours, then shows the dead enemy, which keeps its place, in its standard shading.</summary>

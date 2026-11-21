@@ -22,8 +22,8 @@ internal sealed class CreditsScroll
     /// <summary>The distance the roll has scrolled up, in pixels and fractions of a pixel.</summary>
     private SignedSixteenSixteen scrolled;
 
-    /// <summary>Whether the roll still scrolls.</summary>
-    private bool Enabled { get; set; } = true;
+    /// <summary>Whether the roll still scrolls: until it has finished (#2560).</summary>
+    private bool Enabled => !Finished;
     /// <summary>Set when the roll has scrolled past its end.</summary>
     public bool Finished { get; private set; }
     /// <summary>The whole pixels the roll has scrolled up.</summary>
@@ -39,7 +39,6 @@ internal sealed class CreditsScroll
         if (ScrolledPixels < CreditsRollLines.FinishingScroll)
             return;
         Finished = true;
-        Enabled = false;
     }
 
     /// <summary>

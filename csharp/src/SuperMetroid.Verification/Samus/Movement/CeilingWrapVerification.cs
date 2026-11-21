@@ -32,9 +32,9 @@ internal static class CeilingWrapVerification
             var roomObjects = RoomObjectFixtures.Unbound();
             var shot = new SamusProjectile(0);
             shot.OccupyAsFired(SamusProjectileType.Beam(SamusBeamCombination.Wave, charged: false));
-            shot.Position = new(new((ushort)(tileX * 16), 0), new(4, 0));
-            shot.Radius = new(1, 8);
-            shot.Direction = SamusProjectileDirection.Right;
+            shot.HeldShot().Position = new(new((ushort)(tileX * 16), 0), new(4, 0));
+            shot.HeldShot().Radius = new(1, 8);
+            shot.HeldShot().Direction = SamusProjectileDirection.Right;
             for (int call = 0; call < 45; call++)
             {
                 system.TerrainCollision.RunInitialBeamCollision(SamusTerrain.InRoom(level, roomObjects), shot.HeldShot(), true);

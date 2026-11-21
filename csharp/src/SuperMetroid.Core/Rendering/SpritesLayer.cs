@@ -23,7 +23,7 @@ public sealed record SpritesLayer : DisplayLayer
     /// The draw list is missing or holds a missing draw, or a tint is given for sprites that glow.
     /// </exception>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="blend"/> is not a defined blend.</exception>
-    public SpritesLayer(ImmutableArray<ImageSpriteDraw> draws, SpriteBlend blend = SpriteBlend.Drawn, RgbColor? tint = null)
+    public SpritesLayer(ImmutableArray<ImageSpriteDraw> draws, SpriteBlend blend = SpriteBlend.Drawn, ShownColour? tint = null)
     {
         if (draws.IsDefault)
             throw new ArgumentException("A sprite layer needs its draws.", nameof(draws));
@@ -46,7 +46,7 @@ public sealed record SpritesLayer : DisplayLayer
     public SpriteBlend Blend { get; }
 
     /// <summary>The colour added to each of the layer's sprite pixels that take part in blends, or null for none.</summary>
-    public RgbColor? Tint { get; }
+    public ShownColour? Tint { get; }
 
     /// <summary>Whether <paramref name="other"/> shows the same draws, in the same order, blended and tinted alike.</summary>
     /// <param name="other">The layer compared, or null.</param>

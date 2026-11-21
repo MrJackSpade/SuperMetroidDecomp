@@ -12,8 +12,8 @@ public sealed record SpriteSheetDocument
     /// <summary>Which half of the colour table the sheet's palette indices and colours name.</summary>
     public required SpriteImageColours Palette { get; init; }
 
-    /// <summary>The colours of that half the sheet was coloured with, as packed colour words.</summary>
-    public required ushort[] Colours { get; init; }
+    /// <summary>The colours of that half the sheet was coloured with.</summary>
+    public required RgbColor[] Colours { get; init; }
 
     /// <summary>
     /// The palette index of the colour the sheet's scene shows where nothing is drawn, for a room tileset's block sheet;

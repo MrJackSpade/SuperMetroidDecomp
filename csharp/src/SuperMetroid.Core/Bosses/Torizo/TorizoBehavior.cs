@@ -242,14 +242,15 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         },
         [TorizoCueKind.BlowUpGut] = (occupant, torizo, state, inputs) =>
         {
-            state.GutBlownUp = true;
+            if (state.Breakage == TorizoBreakage.Intact)
+                state.Breakage = TorizoBreakage.GutBlownUp;
             for (int piece = 0; piece < TorizoDeathDefinitions.GutDroolPieces; piece++)
                 Attacks.SpawnBombTorizoLowHealthDrool(occupant, torizo);
             return null;
         },
         [TorizoCueKind.MarkFaceBlownUp] = (_, torizo, state, inputs) =>
         {
-            state.FaceBlownUp = true;
+            state.Breakage = TorizoBreakage.GutAndFaceBlownUp;
             return null;
         },
         [TorizoCueKind.MakeVisible] = (_, torizo, state, inputs) =>
@@ -477,7 +478,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                             interrupt.Animation),
         [TorizoInterruptKind.GoldenEggsAtLowHealth] = (torizo, interrupt, state, inputs, continuation) =>
         {
-            if (torizo.Health > TorizoDecisionDefinitions.GoldenEggsHealth || !TorizoRandomDefinitions.LowHealthEggs.IsTakenBy(_room.Random.Generate()))
+            if (torizo.Health > TorizoDecisionDefinitions.GoldenEggsHealth || !TorizoRandomRolls.LowHealthEggs.IsTakenBy(_room.Random.Generate()))
                 return null;
             state.DecisionCounter = 0;
             state.InterruptedWalk = continuation;

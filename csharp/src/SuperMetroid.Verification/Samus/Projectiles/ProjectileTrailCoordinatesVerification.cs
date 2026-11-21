@@ -129,10 +129,10 @@ internal static class ProjectileTrailCoordinatesVerification
             system.Reset();
             var shot = new SamusProjectile(0);
             shot.OccupyAsFired(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type));
-            shot.Direction = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeDirection(direction);
-            shot.Animation = SamusProjectileProgramAddresses.StandingAt(unchecked((ushort)(record +
+            shot.HeldShot().Direction = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeDirection(direction);
+            shot.HeldShot().Animation = SamusProjectileProgramAddresses.StandingAt(unchecked((ushort)(record +
                     SuperMetroid.AssetExtraction.CartridgeTables.SamusProjectileListLayout.TimedRecordByteCount)));
-            shot.Position = new(new(origin, 0), new(origin, 0));
+            shot.HeldShot().Position = new(new(origin, 0), new(origin, 0));
             if (SamusProjectilePlayback.BeatOf(shot.Playback ?? throw new InvalidOperationException($"The position after {frame} names no playback.")).Beat == 0)
             {
                 // The record ends its list, so the position after it is the next list's start: a trail spawned there has no
@@ -169,9 +169,9 @@ internal static class ProjectileTrailCoordinatesVerification
             system.Reset();
             var shot = new SamusProjectile(0);
             shot.OccupyAsFired(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type));
-            shot.Direction = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeDirection(direction);
-            shot.Animation = SamusProjectileProgramAddresses.PlayerAt(listStart);
-            shot.Position = new(new(0x0100, 0), new(0x0100, 0));
+            shot.HeldShot().Direction = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeDirection(direction);
+            shot.HeldShot().Animation = SamusProjectileProgramAddresses.PlayerAt(listStart);
+            shot.HeldShot().Position = new(new(0x0100, 0), new(0x0100, 0));
             spawn(shot);
             AssertEqual(0, system.LiveTrails.Count, $"reflected type ${type:X4} direction {direction} leaves no trail at its list's start");
             cases++;

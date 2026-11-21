@@ -26,8 +26,7 @@ public static class GameOverPresentationFormat
     ];
 
     /// <summary>Required idle and crying Baby color phases in schema order.</summary>
-    private static readonly string[] paletteNames =
-        ["Baby.Idle", "Baby.ClosedCry", "Baby.MiddleCry", "Baby.OpenCry"];
+    private static readonly string[] paletteNames = [.. GameOverBabyPaletteNames.InSchemaOrder];
 
     /// <summary>Read-only view of the required composition identities: three Baby frames, egg, then the missile's pictures.</summary>
     public static ReadOnlySpan<string> SpriteNames => spriteNames;

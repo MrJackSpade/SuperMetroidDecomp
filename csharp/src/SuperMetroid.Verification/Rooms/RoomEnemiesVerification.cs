@@ -333,17 +333,17 @@ internal static void VerifyEnemyProjectileCollisionLifecycle()
     var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), shotsEarthquake);
     SamusProjectile owner = shots.Shots[0];
     owner.Occupy(SamusProjectileType.Of(SamusProjectileFamily.SuperMissile), 0x012c);
-    owner.Direction = SamusProjectileDirection.Right;
-    owner.Position = owner.Position.WithWhole(new(0x01b7, 0x0196));
-    owner.Animation = SamusProjectileProgramAddresses.PlayerAt(0x9f3b, updates: 15);
+    owner.HeldShot().Direction = SamusProjectileDirection.Right;
+    owner.HeldShot().Position = owner.Position.WithWhole(new(0x01b7, 0x0196));
+    owner.HeldShot().Animation = SamusProjectileProgramAddresses.PlayerAt(0x9f3b, updates: 15);
     owner.SpritemapPointer = 0xae0f;
     owner.HeldShot().Install(SamusShotBehaviors.SuperMissile, new SuperMissileShotState(new SamusMissileIgnition.Pending(), UnlinkedSuperMissileLink.Place));
 
     SamusProjectile link = shots.Shots[1];
     link.Occupy(SamusProjectileType.Of(SamusProjectileFamily.SuperMissile), 0x012c);
-    link.Direction = SamusProjectileDirection.Right;
-    link.Position = link.Position.WithWhole(new(0x01af, 0x0196));
-    link.Animation = SamusProjectileProgramAddresses.PlayerAt(0x9f7b);
+    link.HeldShot().Direction = SamusProjectileDirection.Right;
+    link.HeldShot().Position = link.Position.WithWhole(new(0x01af, 0x0196));
+    link.HeldShot().Animation = SamusProjectileProgramAddresses.PlayerAt(0x9f7b);
     link.SpritemapPointer = 0;
     link.HeldShot().Install(SamusShotBehaviors.SuperMissileLink, new SuperMissileShotState(new SamusMissileIgnition.Pending(), UnlinkedSuperMissileLink.Place));
 
@@ -574,12 +574,11 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
         ushort type,
         ushort damage)
     {
-        SamusProjectile projectile = pool.Pool.Occupy(0);
-        projectile.Occupy(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type), damage);
-        projectile.Direction = SamusProjectileDirection.Right;
-        projectile.Position = projectile.Position.WithWhole(target.Position.Whole);
-        projectile.Radius = new(4, 4);
-        projectile.Animation = ProjectileFixturePlaybacks.Active();
+        SamusProjectile projectile = pool.Pool.Occupy(0, SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type), damage).Projectile;
+        projectile.HeldShot().Direction = SamusProjectileDirection.Right;
+        projectile.HeldShot().Position = projectile.Position.WithWhole(target.Position.Whole);
+        projectile.HeldShot().Radius = new(4, 4);
+        projectile.HeldShot().Animation = ProjectileFixturePlaybacks.Active();
         return projectile;
     }
 
@@ -986,8 +985,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     // assertion isolates the missing request/target side effects reported in gameplay.
     foreach (RidleyTailLink segment in state.Tail.Links)
     {
-        segment.Active = true;
-        segment.StartedNextLink = true;
+        segment.Swing = RidleyTailLinkSwing.Swinging;
         segment.SwingDirection = RotationDirection.Clockwise;
         segment.TargetDistance = null;
     }
@@ -1126,10 +1124,10 @@ internal static void VerifyCeresRidleyRoomEntry()
         AssertEqual(CeresRidleyGetawayCurve.Steps[curveIndex].Zoom, enemies.CeresEscape.Floor.Zoom, "Ceres real getaway zoom publication");
         AssertEqual(unchecked((short)expectedX), enemies.CeresEscape.Floor.Offset.X, "Ceres real getaway horizontal integration");
         AssertEqual(unchecked((short)expectedY), enemies.CeresEscape.Floor.Offset.Y, "Ceres real getaway vertical integration");
-        AssertTrue(enemies.CeresEscape.Floor.Active, "Ceres getaway retains all 112 authored motion frames");
+        AssertTrue(enemies.CeresEscape.ShownFloor is not null, "Ceres getaway retains all 112 authored motion frames");
     }
     GetawayFrame();
-    AssertTrue(!enemies.CeresEscape.Floor.Active, "Ceres Ridley consumes the Mode-7 terminator");
+    AssertTrue(enemies.CeresEscape.ShownFloor is null, "Ceres Ridley consumes the Mode-7 terminator");
     AssertEqual(CeresEscapeStage.SelfDestruct, enemies.CeresEscape.Stage,
         "Ceres Ridley Mode-7 terminator starts the self-destruct, which runs in Ridley's step");
     AssertEqual(CeresSelfDestructPhase.Start, enemies.CeresEscape.Warning.Phase,

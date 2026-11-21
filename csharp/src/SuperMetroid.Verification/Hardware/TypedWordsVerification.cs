@@ -419,13 +419,13 @@ internal static void VerifyTypedNativeWords()
         () => RoomBlockAppearance.Of(-1),
         "an appearance names a block of the tileset's set, numbered from zero");
     // The level word's open-space block shows nothing, however it is mirrored, and encodes back to that block (#2100).
-    AssertTrue(RoomLevelWordCodec.DecodeAppearance(0x00ff).ShowsNothing && RoomLevelWordCodec.DecodeAppearance(0x04ff).ShowsNothing,
+    AssertTrue(RoomLevelWordCodec.DecodeAppearance(0x00ff).Shows == RoomBlockShown.Nothing && RoomLevelWordCodec.DecodeAppearance(0x04ff).Shows == RoomBlockShown.Nothing,
         "the level word's open-space block shows nothing");
     AssertEqual(RoomBlockAppearance.Nothing.WithMirroring(BlockMirroring.Horizontal), RoomLevelWordCodec.DecodeAppearance(0x04ff),
         "open space keeps its mirroring");
     AssertEqual(0x04ff, (int)RoomLevelWordEncoder.EncodeAppearance(RoomBlockAppearance.Nothing.WithMirroring(BlockMirroring.Horizontal)),
         "nothing encodes as the open-space block");
-    AssertTrue(RoomLevelWordCodec.DecodeAppearance(0x00fe).ShowsBlock, "the block before the open-space block is a block");
+    AssertTrue(RoomLevelWordCodec.DecodeAppearance(0x00fe).Shows == RoomBlockShown.Block, "the block before the open-space block is a block");
 
     RoomCollisionType[] retailCollisionTypes =
     [

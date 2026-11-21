@@ -461,7 +461,7 @@ internal static void VerifyIntroCrossfade()
         "a scene cannot crossfade into itself");
 
     RgbColor Shown(IntroCrossfade shown) =>
-        new ColourLevel(shown.LevelOf(IntroCrossfadeScene.Flashback), IntroCrossfade.Levels).Apply(target);
+        new ColourLevel(new FadeLevel(shown.LevelOf(IntroCrossfadeScene.Flashback), IntroCrossfade.Levels)).Apply(target, global::SuperMetroid.Core.Assets.ColourBlendOracle.Instance);
 
     // A crossfade takes a step every fourth update, counted down to its last.
     static void StepOnce(IntroCrossfade running)

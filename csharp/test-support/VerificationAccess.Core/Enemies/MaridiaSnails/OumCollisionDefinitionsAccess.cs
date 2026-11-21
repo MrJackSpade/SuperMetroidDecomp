@@ -32,10 +32,13 @@ internal static class OumCollisionDefinitionsAccess
         /// <summary>Whether <paramref name="frame"/> is one of Oum's frame addresses.</summary>
         internal static bool HasFrame(ushort frame) => OumCollisionDefinitionsConstants.FramePointers.Contains(frame);
 
-        /// <summary>The native address of the hitbox list the frame at <paramref name="frame"/> selects.</summary>
+        /// <summary>
+        /// The native address of the hitbox list the frame at <paramref name="frame"/> selects: the list at the frame's own
+        /// place in the run, since the cartridge stores one list per frame in the frames' order. Frames whose hitboxes are
+        /// the same compiled list (the two side-on turns) still select their own native lists.
+        /// </summary>
         internal static ushort HitboxListAt(ushort frame) => HasFrame(frame)
-            ? NativeLists.PointerAt(Array.IndexOf(ListsInNativeOrder,
-                OumCollisionDefinitions.Frames.Of(RoomEnemyPlaceFrameAccess.FrameAt(OumCollisionDefinitions.Bank, frame))))
+            ? NativeLists.PointerAt((frame - OumCollisionDefinitionsConstants.FirstFrame) / OumCollisionDefinitionsConstants.FrameStride)
             : throw new InvalidDataException($"Oum frame $A2:{frame:X4} has no compiled collision.");
 
         /// <summary>The hitbox list at native address <paramref name="list"/>.</summary>

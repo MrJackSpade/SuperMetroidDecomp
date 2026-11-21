@@ -36,9 +36,9 @@ internal static class SamusBallBounceDefinitionsVerification
                 samus.ChangePoseKeepingAnimation(pose);
                 samus.MorphBallBounceState = phase switch
                 {
-                    0 => SamusBallBounceState.None,
-                    1 => spring ? SamusBallBounceState.SpringBallFirstRebound : SamusBallBounceState.FirstRebound,
-                    _ => spring ? SamusBallBounceState.SpringBallSecondRebound : SamusBallBounceState.SecondRebound,
+                    0 => (SamusBallBounce?)null,
+                    1 => spring ? SamusBallBounce.SpringBallFirst : SamusBallBounce.MorphBallFirst,
+                    _ => spring ? SamusBallBounce.SpringBallSecond : SamusBallBounce.MorphBallSecond,
                 };
                 samus.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(new UnsignedSixteenSixteen((ushort)raw, ushort.MaxValue), SamusVerticalDirection.Down);
                 samus.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(2, 0x8000);
@@ -53,10 +53,10 @@ internal static class SamusBallBounceDefinitionsVerification
                     samus.Kinematics.VerticalVelocity.Speed.Whole, "Native rebound whole decrement");
                 AssertEqual(rebound ? fraction : (ushort)0, samus.Kinematics.VerticalVelocity.Speed.Fraction, "Native rebound fraction");
                 AssertEqual(rebound ? SamusVerticalDirection.Up : SamusVerticalDirection.None, samus.Kinematics.VerticalVelocity.Direction, "Native rebound direction");
-                SamusBallBounceState published = !rebound ? SamusBallBounceState.None
+                SamusBallBounce? published = !rebound ? (SamusBallBounce?)null
                     : first
-                        ? spring ? SamusBallBounceState.SpringBallFirstRebound : SamusBallBounceState.FirstRebound
-                        : spring ? SamusBallBounceState.SpringBallSecondRebound : SamusBallBounceState.SecondRebound;
+                        ? spring ? SamusBallBounce.SpringBallFirst : SamusBallBounce.MorphBallFirst
+                        : spring ? SamusBallBounce.SpringBallSecond : SamusBallBounce.MorphBallSecond;
                 AssertEqual(published, samus.MorphBallBounceState, "Native ball family/phase publication");
                 AssertEqual(rebound ? pose : groundedPose, samus.Pose, "Rebound retains airborne pose until grounded");
                 AssertEqual(rebound ? 0x00028000u : 0u, samus.HorizontalSpeed.BaseSpeed.RawValue,

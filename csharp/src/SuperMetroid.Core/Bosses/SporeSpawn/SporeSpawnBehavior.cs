@@ -314,7 +314,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (c.HitboxShot == EnemyReaction.DudShot)
                 {
                     c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
-                    _projectiles.CreateEnemyProjectileDudShot(c.Projectile);
+                    _projectiles.CreateEnemyProjectileDudShot(c.Shot);
                     return true;
                 }
                 if (!SporeSpawnAcceptsProjectile(c.ProjectileType))
@@ -325,7 +325,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
                 }
                 return false;
             },
-            ExemptFromGenericDeath = true,
+            Lethal = EnemyShotLethal.SpeciesOwned,
             AfterCommon = c => ResolveSporeSpawnShotAfterCommon(c.Enemy, body.Encounter),
         };
     }
@@ -566,7 +566,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
                         componentOrigin.X + hitbox.Right,
                         componentOrigin.Y + hitbox.Bottom))
                     continue;
-                return EnemyHitboxContact.Struck(probe.SelectsShot ? hitbox.Shot : hitbox.Touch);
+                return EnemyHitboxContact.Struck(probe.Contact == HitboxContactKind.Shot ? hitbox.Shot : hitbox.Touch);
             }
         }
         return EnemyHitboxContact.Missed;

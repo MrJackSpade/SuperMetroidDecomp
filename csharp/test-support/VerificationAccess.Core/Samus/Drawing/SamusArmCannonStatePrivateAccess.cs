@@ -11,23 +11,22 @@ internal static class SamusArmCannonStatePrivateAccess
     /// <summary>The private instance members checks read or call.</summary>
     extension(global::SuperMetroid.Core.Samus.Drawing.SamusArmCannonState self)
     {
-        /// <summary>The private property <c>Frame</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Samus.Artwork.SamusArmCannonCoverFrame? Frame
+        /// <summary>The private property <c>Cover</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Samus.Drawing.SamusArmCannonCover Cover
         {
-            get => PrivateState.Get<global::SuperMetroid.Core.Samus.Drawing.SamusArmCannonState, global::SuperMetroid.Core.Samus.Artwork.SamusArmCannonCoverFrame?>(self, "Frame");
+            get => PrivateState.Get<global::SuperMetroid.Core.Samus.Drawing.SamusArmCannonState, global::SuperMetroid.Core.Samus.Drawing.SamusArmCannonCover>(self, "Cover");
         }
 
-        /// <summary>The private property <c>IsOpen</c>, reached by name.</summary>
-        internal bool IsOpen
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.Samus.Drawing.SamusArmCannonState, bool>(self, "IsOpen");
-        }
+        /// <summary>The cover picture shown, or null while the cover is closed.</summary>
+        internal global::SuperMetroid.Core.Samus.Artwork.SamusArmCannonCoverFrame? Frame => self.Cover.Shown;
 
-        /// <summary>The private property <c>IsTransitioning</c>, reached by name.</summary>
-        internal bool IsTransitioning
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.Samus.Drawing.SamusArmCannonState, bool>(self, "IsTransitioning");
-        }
+        /// <summary>Whether the cover is open or opening.</summary>
+        internal bool IsOpen => self.Cover.OpenOrOpening;
+
+        /// <summary>Whether an opening or closing is still under way.</summary>
+        internal bool IsTransitioning =>
+            self.Cover is global::SuperMetroid.Core.Samus.Drawing.SamusArmCannonCover.Opening
+                or global::SuperMetroid.Core.Samus.Drawing.SamusArmCannonCover.Closing;
     }
 
     /// <summary>The private instance members checks read or call.</summary>

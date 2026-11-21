@@ -56,7 +56,7 @@ internal static class Mode7GameplaySnapshotTestsVerification
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         // The station's escape owns the getaway's floor (#2228).
         var getaway = runtime.Enemies.CeresEscape.Floor;
-        getaway.Active = true;
+        global::SuperMetroid.Core.PrivateState.Set(runtime.Enemies.CeresEscape, "Stage", SuperMetroid.Core.Bosses.Ridley.CeresEscapeStage.Getaway);
         getaway.Angle = RotationAngle.FromSteps(5);
         getaway.Zoom = FloorZoomConstants.FromTwoHundredFiftySixths(240);
         getaway.Center = new Offset16<FloorPixels>(128, 120);
@@ -75,7 +75,7 @@ internal static class Mode7GameplaySnapshotTestsVerification
         AssertEqual(new Offset16<BackgroundPixels>(5, -3) + runtime.Display.DisplayedGameplayScrolls.RoomShake.Background,
             (aboveOrigin.LowerBand ?? throw new InvalidOperationException("The getaway shows the room's background below its floor.")).Scroll,
             "the floor band's background scroll above the origin is signed");
-        getaway.Active = false; getaway.Zoom = default;
+        getaway.Flight = null; getaway.Zoom = default;
         runtime.Vram.LoadBytes(0, new byte[SnesVram.ByteCount]);
         AssertTrue(retail.SequenceEqual(RenderForComparison(retained)), "Ridley packet survives mode exit and live memory replacement");
         AssertThrows<ArgumentOutOfRangeException>(() => new TurningRoomLayer(default, RoomBackgroundsFixtures.BlankMode7Floor(), ScreenGeometry.ScreenHeightPixels + 1), "the HUD cannot cover more than the screen");

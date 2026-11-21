@@ -16,7 +16,7 @@ internal static class SpringBallBounceVerification
     internal static void VerifySpringBallBounce()
     {
         var room = CreateRoom(new(16, 32), new RoomTerrainBlock[16 * 32], new RoomBlockBehavior[16 * 32]);
-        foreach (SamusBallBounceState bounceState in new[] { SamusBallBounceState.SpringBallFirstRebound, SamusBallBounceState.None })
+        foreach (SamusBallBounce? bounceState in new[] { SamusBallBounce.SpringBallFirst, (SamusBallBounce?)null })
         {
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
             {
@@ -29,8 +29,8 @@ internal static class SpringBallBounceVerification
             samus.Kinematics.YAcceleration = samus.Kinematics.YAcceleration.WithFraction(0x1c00);
 
             SamusMorphBallMovement.StepSpringBallInAir(SamusMovement.SpringBallInAir, SamusTerrain.InRoom(room, SamusRoomObjectFixtures.Uninstalled), samus, GameplayAction.Right, 0);
-            string context = $"Spring Ball in air with bounce state ${(int)bounceState:X4}";
-            if (bounceState != SamusBallBounceState.None)
+            string context = $"Spring Ball in air with bounce state {bounceState}";
+            if (bounceState != (SamusBallBounce?)null)
             {
                 AssertEqual((ushort)0x168, samus.Position.Y.Whole, $"{context} rises by the rebound speed");
                 AssertEqual((ushort)0xffff, samus.Kinematics.Position.Y.Fraction, $"{context} Y fraction");

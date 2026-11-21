@@ -30,7 +30,7 @@ internal sealed record ShownFileSelectPage(SelectedFileSelectPage Selected, Immu
         yield return new PlacedFrame(FileSelectParts.PageFrame(Page), default);
         foreach (SaveSlot slot in SaveSlots.All)
         {
-            foreach (PlacedFrame field in Field(Ensure.Listed(Slots, slot), presentation.Slot(!Main, slot)))
+            foreach (PlacedFrame field in Field(Ensure.Listed(Slots, slot), presentation.Slot(Main ? FileSelectCursorPage.Main : FileSelectCursorPage.DataManagement, slot)))
                 yield return field;
         }
         foreach (FileSelectPromptLetter letter in Selected.Letters)

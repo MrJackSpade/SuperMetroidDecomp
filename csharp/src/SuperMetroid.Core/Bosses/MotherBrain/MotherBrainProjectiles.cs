@@ -413,7 +413,7 @@ internal sealed class MotherBrainProjectiles
 
             // The condition itself consumes one random value every live shard frame; a successful
             // sparkle consumes two more below.
-            if (MotherBrainGlassShardDefinitions.ShardSparkles.IsTakenBy(dependencies.Room.Random.Generate()))
+            if (MotherBrainRandomRolls.ShardSparkles.IsTakenBy(dependencies.Room.Random.Generate()))
                 SpawnMotherBrainGlassSparkle(shard);
         }
 

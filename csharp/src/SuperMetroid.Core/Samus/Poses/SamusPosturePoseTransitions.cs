@@ -304,9 +304,9 @@ internal static class SamusPosturePoseTransitions
     /// <summary>Shared bounce cancellation of the posture change.</summary>
     private static void CancelBounceForPostureTransition(SamusState samus)
     {
-        if (samus.MorphBallBounceState == SamusBallBounceState.None)
+        if (samus.MorphBallBounceState is null)
             return;
-        samus.MorphBallBounceState = SamusBallBounceState.None;
+        samus.MorphBallBounceState = null;
         samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.Still;
     }
 
@@ -405,22 +405,22 @@ internal static class SamusPosturePoseTransitions
     public static void ApplyMorphBallLanding(SamusState samus)
     {
         // A rising ball, as in Moonfall, lands without a rebound.
-        if (samus.MorphBallBounceState == SamusBallBounceState.None &&
+        if (samus.MorphBallBounceState is null &&
             SamusSpeedMagnitude.IsAtLeast(samus.Kinematics.VerticalVelocity.Speed.Whole, SamusMovementDefinitions.FirstBallBounceMinimumSpeed))
         {
-            samus.MorphBallBounceState = SamusBallBounceState.FirstRebound;
+            samus.MorphBallBounceState = SamusBallBounce.MorphBallFirst;
             samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.Rising(SamusVerticalMotionDefinitions.BallBounceSpeed);
             return;
         }
 
-        if (samus.MorphBallBounceState == SamusBallBounceState.FirstRebound)
+        if (samus.MorphBallBounceState is { Ball: SamusBouncingBall.MorphBall, Rebound: SamusBallRebound.First })
         {
-            samus.MorphBallBounceState = SamusBallBounceState.SecondRebound;
+            samus.MorphBallBounceState = SamusBallBounce.MorphBallSecond;
             samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.Rising(SamusVerticalMotionDefinitions.SecondBallBounceSpeed);
             return;
         }
 
-        samus.MorphBallBounceState = SamusBallBounceState.None;
+        samus.MorphBallBounceState = null;
         samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.Still;
         SamusPoseId groundedPose = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left)
             ? SamusPoseId.MorphBallGroundLeftPose
@@ -441,7 +441,7 @@ internal static class SamusPosturePoseTransitions
     {
         if ((controllerInput & GameplayAction.Jump) != GameplayAction.None)
         {
-            samus.MorphBallBounceState = SamusBallBounceState.None;
+            samus.MorphBallBounceState = null;
             SamusAerialMovement.InitializeJump(samus);
             // The landing relaunch only initializes velocity. It retains the
             // current airborne pose/animation, unlike a fresh grounded Jump input.
@@ -451,22 +451,22 @@ internal static class SamusPosturePoseTransitions
 
         // The bounce is chosen by the rebound count only, so an ordinary-ball
         // rebound left over from a Spring Ball toggle selects the same rebound step.
-        if (samus.MorphBallBounceState == SamusBallBounceState.None &&
+        if (samus.MorphBallBounceState is null &&
             SamusSpeedMagnitude.IsAtLeast(samus.Kinematics.VerticalVelocity.Speed.Whole, SamusMovementDefinitions.FirstBallBounceMinimumSpeed))
         {
-            samus.MorphBallBounceState = SamusBallBounceState.SpringBallFirstRebound;
+            samus.MorphBallBounceState = SamusBallBounce.SpringBallFirst;
             samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.Rising(SamusVerticalMotionDefinitions.BallBounceSpeed);
             return;
         }
 
-        if (samus.MorphBallBounceState is SamusBallBounceState.FirstRebound or SamusBallBounceState.SpringBallFirstRebound)
+        if (samus.MorphBallBounceState is { Rebound: SamusBallRebound.First })
         {
-            samus.MorphBallBounceState = SamusBallBounceState.SpringBallSecondRebound;
+            samus.MorphBallBounceState = SamusBallBounce.SpringBallSecond;
             samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.Rising(SamusVerticalMotionDefinitions.SecondBallBounceSpeed);
             return;
         }
 
-        samus.MorphBallBounceState = SamusBallBounceState.None;
+        samus.MorphBallBounceState = null;
         samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.Still;
         SamusPoseId groundPose = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left)
             ? SamusPoseId.SpringBallGroundLeftPose
@@ -486,7 +486,7 @@ internal static class SamusPosturePoseTransitions
     public static void ApplySpringBallJump(SamusState samus, SamusPoseId targetPose)
     {
         ApplyMorphBallPoseChange(samus, targetPose);
-        samus.MorphBallBounceState = SamusBallBounceState.None;
+        samus.MorphBallBounceState = null;
         SamusAerialMovement.InitializeJump(samus);
     }
 

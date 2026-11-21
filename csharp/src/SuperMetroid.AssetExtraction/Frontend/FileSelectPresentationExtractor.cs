@@ -3,6 +3,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.FileSelect;
 using SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.Menus;
@@ -103,10 +104,10 @@ public static class FileSelectPresentationExtractor
             [FileSelectParts.PatchName(FileSelectPatch.NoData)] = Document(Patch(FileSelectTilemapSourceDefinitions.NoData)),
             [FileSelectParts.PatchName(FileSelectPatch.TimeColon)] = Document(Patch(FileSelectTilemapSourceDefinitions.TimeColon)),
         };
-        var digits = Enumerable.Range(0, 10)
+        var digits = Enumerable.Range(0, FileSelectPresentationDefinitions.DigitCount)
             .Select(value => Cell(BackgroundTileWords.ToWord(FileSelectFieldTiles.Digit(value))))
             .ToArray();
-        var letters = Enumerable.Range(0, 3)
+        var letters = Enumerable.Range(0, SaveSlots.All.Count)
             .Select(value => Cell(BackgroundTileWords.ToWord(FileSelectFieldTiles.SlotLetter(value))))
             .ToArray();
 
@@ -141,10 +142,10 @@ public static class FileSelectPresentationExtractor
         FileSelectSourcePresentation.Write(output, new()
         {
             Version = FileSelectPresentationFormat.Version,
-            MainSlots = [.. Enumerable.Range(0, FileSelectCursorPositions.SaveSlotCount).Select(slot =>
+            MainSlots = [.. Enumerable.Range(0, SaveSlots.All.Count).Select(slot =>
                 Slot(FileSelectNativeLayout.MainSlotDestination(slot, FileSelectSlotField.Energy),
                     FileSelectNativeLayout.MainSlotDestination(slot, FileSelectSlotField.TimeValue)))],
-            DataSlots = [.. Enumerable.Range(0, FileSelectCursorPositions.SaveSlotCount).Select(slot =>
+            DataSlots = [.. Enumerable.Range(0, SaveSlots.All.Count).Select(slot =>
                 Slot(FileSelectNativeLayout.DataSlotDestination(slot, FileSelectSlotField.Energy),
                     FileSelectNativeLayout.DataSlotDestination(slot, FileSelectSlotField.TimeValue)))],
             BorderAnchors = new(StringComparer.Ordinal)
@@ -208,7 +209,7 @@ public static class FileSelectPresentationExtractor
         // Overlay each save slot's label and time label where <paramref name="destination"/> places the slot's fields.
         void AddSlotLabels(ushort[] page, Func<int, FileSelectSlotField, int> destination)
         {
-            for (int slot = 0; slot < FileSelectCursorPositions.SaveSlotCount; slot++)
+            for (int slot = 0; slot < SaveSlots.All.Count; slot++)
             {
                 Apply(page, Patch(FileSelectTilemapFormat.SlotLabel(slot)), destination(slot, FileSelectSlotField.Label));
                 Apply(page, Patch(FileSelectTilemapSourceDefinitions.Time), destination(slot, FileSelectSlotField.TimeLabel));

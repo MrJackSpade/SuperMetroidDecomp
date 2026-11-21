@@ -119,7 +119,7 @@ internal sealed class CeresSteamBehavior(EnemyRoomBinding room, EnemyCollision c
         Position16<RoomPixels> vent = enemy.Position.Whole;
         if (!probe.Overlaps(vent.X + rectangle.Left, vent.Y + rectangle.Top, vent.X + rectangle.Right, vent.Y + rectangle.Bottom))
             return EnemyHitboxContact.Missed;
-        return EnemyHitboxContact.Struck(probe.SelectsShot
+        return EnemyHitboxContact.Struck(probe.Contact == HitboxContactKind.Shot
             ? CeresSteamCollisionDefinitions.ShotReaction
             : CeresSteamCollisionDefinitions.TouchReaction);
     }

@@ -59,7 +59,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen, IComposedFronten
     /// <param name="controllerBindings">Initial controller-button permutation; a new game's are the defaults.</param>
     /// <param name="iconCancelEnabled">Initial state of the automatic item-cancel option.</param>
     /// <param name="moonwalkEnabled">Initial state of the moonwalk option.</param>
-    /// <param name="japaneseText">Whether the Japanese-language page variants are initially selected.</param>
+    /// <param name="language">The text language initially chosen, whose page variants the menu shows.</param>
     [IndependentFlag("Icon cancel, moonwalk and Japanese text are three independent saved options.")]
     public GameOptionsMenuState(
         AudioQueues audio,
@@ -68,7 +68,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen, IComposedFronten
         ControllerBindings controllerBindings,
         bool iconCancelEnabled,
         bool moonwalkEnabled,
-        bool japaneseText)
+        TextLanguage language)
     {
         this.audio = Ensure.NotNull(audio);
         this.screenContent = Ensure.NotNull(screenContent);
@@ -79,7 +79,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen, IComposedFronten
         ControllerBindings = controllerBindings.RequireUniquePermutation();
         IconCancelEnabled = iconCancelEnabled;
         MoonwalkEnabled = moonwalkEnabled;
-        JapaneseText = japaneseText;
+        Language = language;
         LoadVisiblePage();
         Phase = GameOptionsPhase.BlackHold;
     }
@@ -111,7 +111,10 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen, IComposedFronten
     public SaveStartupRoute StartupRoute { get; init; }
 
     /// <summary>Gets whether the Japanese-language options pages are selected.</summary>
-    public bool JapaneseText { get; private set; }
+    public TextLanguage Language { get; private set; }
+
+    /// <summary>The page the menu shows: the page taking input, or the page a transition shows (#2560).</summary>
+    public GameOptionsPage Page => page;
 
     /// <summary>The seven live button assignments committed when the controller page exits.</summary>
     public ControllerBindings ControllerBindings { get; private set; }
@@ -131,12 +134,12 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen, IComposedFronten
     /// </summary>
     public GameOptionsMenuOutcome? Outcome { get; private set; }
 
-    /// <summary>The phase the menu settles in once each page has dissolved in.</summary>
-    private static IdentityTable<GameOptionsPage, GameOptionsPhase> SettledPhases => field ??= new(new Dictionary<GameOptionsPage, GameOptionsPhase>
+    /// <summary>What browsing does on each page: its own rows' controls.</summary>
+    private IdentityTable<GameOptionsPage, Action<ControllerButton>> BrowsePage => field ??= new(new Dictionary<GameOptionsPage, Action<ControllerButton>>
     {
-        [GameOptionsPage.Primary] = GameOptionsPhase.Main,
-        [GameOptionsPage.Controller] = GameOptionsPhase.ControllerSettings,
-        [GameOptionsPage.Special] = GameOptionsPhase.SpecialSettings,
+        [GameOptionsPage.Primary] = StepPrimary,
+        [GameOptionsPage.Controller] = StepController,
+        [GameOptionsPage.Special] = StepSpecial,
     });
 
     /// <summary>What <c>Step</c> does for each <see cref="GameOptionsPhase"/> member, each member's own arm.</summary>
@@ -150,9 +153,9 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen, IComposedFronten
         [GameOptionsPhase.FadeIn] = pressed =>
         {
             if (fade.Brighten())
-                Phase = GameOptionsPhase.Main;
+                Phase = GameOptionsPhase.Browsing;
         },
-        [GameOptionsPhase.Main] = pressed => StepPrimary(pressed),
+        [GameOptionsPhase.Browsing] = pressed => BrowsePage[page](pressed),
         [GameOptionsPhase.DissolveOut] = pressed =>
         {
             if (fade.Darken())
@@ -167,23 +170,19 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen, IComposedFronten
         [GameOptionsPhase.DissolveIn] = pressed =>
         {
             if (fade.Brighten())
-            {
-                Phase = SettledPhases[page];
-            }
+                Phase = GameOptionsPhase.Browsing;
         },
-        [GameOptionsPhase.ControllerSettings] = pressed => StepController(pressed),
-        [GameOptionsPhase.SpecialSettings] = pressed => StepSpecial(pressed),
         [GameOptionsPhase.ScrollControllerDown] = pressed =>
         {
             pageVerticalScroll += GameOptionsDefinitions.ControllerScrollPixelsPerFrame;
             if (pageVerticalScroll == GameOptionsDefinitions.ControllerScrollLimit)
-                Phase = GameOptionsPhase.ControllerSettings;
+                Phase = GameOptionsPhase.Browsing;
         },
         [GameOptionsPhase.ScrollControllerUp] = pressed =>
         {
             pageVerticalScroll -= GameOptionsDefinitions.ControllerScrollPixelsPerFrame;
             if (pageVerticalScroll == 0)
-                Phase = GameOptionsPhase.ControllerSettings;
+                Phase = GameOptionsPhase.Browsing;
         },
         [GameOptionsPhase.FadeOutToIntro] = pressed =>
         {
@@ -230,7 +229,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen, IComposedFronten
         SpriteSheet sheet = spriteSheets.Get(SpriteSheetId.GameOptions);
         content.GameOptions.DrawHeading(sprites, sheet, page, pageVerticalScroll);
         // Transitions show no cursor: only a page phase places it, at the selected row of the page it shows.
-        if (GameOptionsCursorPolicy.Select(Phase) is { } cursorPage)
+        if (GameOptionsCursorPolicy.Select(Phase, page) is { } cursorPage)
         {
             GameOptionsRow selected = SelectedRow;
             if (selected.Page != cursorPage)
@@ -260,7 +259,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen, IComposedFronten
     /// <summary>What <see cref="StepPrimaryForGameOptionsPrimaryRow"/> does for <see cref="GameOptionsPrimaryRow.EnglishText"/>, <see cref="GameOptionsPrimaryRow.JapaneseText"/>.</summary>
     private void StepPrimaryForGameOptionsPrimaryRowEnglishText()
     {
-        JapaneseText = !JapaneseText;
+        Language = Language == TextLanguage.Japanese ? TextLanguage.English : TextLanguage.Japanese;
         SelectFirstRow(GameOptionsPage.Primary);
         LoadVisiblePage();
     }
@@ -422,14 +421,6 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen, IComposedFronten
         Phase = GameOptionsPhase.DissolveOut;
     }
 
-    /// <summary>The screen each page shows, in the menu's language.</summary>
-    private IdentityTable<GameOptionsPage, Func<GameOptionsScreen>> ScreensShown => field ??= new(new Dictionary<GameOptionsPage, Func<GameOptionsScreen>>
-    {
-        [GameOptionsPage.Primary] = () => GameOptionsScreen.Primary,
-        [GameOptionsPage.Controller] = () => JapaneseText ? GameOptionsScreen.ControllerJapanese : GameOptionsScreen.ControllerEnglish,
-        [GameOptionsPage.Special] = () => JapaneseText ? GameOptionsScreen.SpecialJapanese : GameOptionsScreen.SpecialEnglish,
-    });
-
     /// <summary>
     /// Selects the language-specific page and shows it with the current language highlight, controller labels and toggle
     /// choices, as the game reapplies them whenever it loads the page.
@@ -437,8 +428,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen, IComposedFronten
     [MemberNotNull(nameof(ShownPage))]
     private void LoadVisiblePage()
     {
-        GameOptionsScreen shown = ScreensShown[page]();
-        ShownPage = new ShownOptionsPage(shown, JapaneseText, ControllerBindings, IconCancelEnabled, MoonwalkEnabled);
+        ShownPage = new ShownOptionsPage(page, Language, ControllerBindings, IconCancelEnabled, MoonwalkEnabled);
     }
 
     /// <summary>Queues the cursor sound at the menu's sound priority.</summary>

@@ -35,7 +35,7 @@ internal static class BombJumpWallVerification
         AssertTrue(result.Vertical is { Collided: false }, "shaft wall leaves vertical travel clear");
         // Original $90:E032 bytes: GrapplePoseAudit bomb-wall. A horizontal collision
         // must not end the special handler; the native branch tests the later Y result.
-        AssertTrue(samus.BombJumpActive, "wall-only collision retains native bomb-jump handler");
+        AssertTrue(samus.BombJumpPhase == SamusBombJumpPhase.Rising, "wall-only collision retains native bomb-jump handler");
         AssertEqual(0u, samus.HorizontalSpeed.BaseSpeed.RawValue, "bomb-jump wall hit clears horizontal momentum without cancelling ascent");
         AssertEqual(SamusBombJump.FromBlast(SamusBombJumpDirection.Right).Arm(), samus.BombJump, "the bomb-wall request remains accepted");
         AssertEqual(59, samus.Position.X.Whole, "native bomb-wall X endpoint");
@@ -83,7 +83,7 @@ internal static class BombJumpWallVerification
         AssertTrue(hurt.BombJumpPoseInputLocked, "one-pixel speed keeps input locked despite crossing threshold this frame");
         SamusBombJumpMovement.Step(SamusTerrain.InRoom(level, RoomObjectFixtures.Unbound()), hurt, 1);
         AssertTrue(!hurt.BombJumpPoseInputLocked, "fractional upward speed restores next frame's input");
-        AssertTrue(hurt.BombJumpActive, "restoring input does not prematurely end upward movement");
+        AssertTrue(hurt.BombJumpPhase == SamusBombJumpPhase.Rising, "restoring input does not prematurely end upward movement");
         AssertEqual(SamusPoseId.KnockbackRightPose, hurt.Pose, "restoring input retains damaged pose until an actual transition");
         SamusPoseMetadata.PublishBombJumpDirection(hurt, SamusBombJumpDirection.Straight);
         AssertTrue(SamusPoseMetadata.TrySetupPublishedBombJump(hurt, SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), false, 0, controllerNewInput: 0), "fresh bomb command rearms retained hurt pose");
@@ -95,7 +95,7 @@ internal static class BombJumpWallVerification
         hurt.ChangePoseKeepingAnimation(SamusPoseId.NormalJumpForwardRightPose);
         SamusPoseMetadata.RefreshCollisionRadii(hurt);
         AssertTrue(SamusKnockbackMovement.Start(hurt, 0, new KnockbackLaunch { KnockbackXDirection = KnockbackHorizontalDirection.Left, KnockbackTimer = SuperMetroid.Core.Enemies.EnemyCollisionDefinitions.SamusTouchKnockbackUpdates }, poseCollision: null), "normal hurt interrupts humanoid bomb start");
-        AssertTrue(!hurt.BombJumpStarting && !hurt.BombJumpActive, "hurt replaces the bomb movement owner immediately");
+        AssertTrue(hurt.BombJumpPhase is null, "hurt replaces the bomb movement owner immediately");
         AssertTrue(hurt.BombJumpPoseInputLocked, "hurt admission preserves independent bomb input lock");
         hurt.KnockbackHold = UpdateCountdown.Ended();
         AssertTrue(SamusKnockbackMovement.TryFinishExpiredHitInterruption(hurt), "hurt expiry consumes its transitional command");

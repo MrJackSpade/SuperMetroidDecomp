@@ -68,8 +68,8 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
     private SamusDeathExplosionFrame? ExplosionFrame =>
         Phase is SamusDeathSequencePhase.Begun.SuitExplosion && Explosion is { HasStopped: false } explosion ? explosion.Shown : null;
 
-    /// <summary>The facing captured before pose metadata is replaced by the death-sequence pose.</summary>
-    private bool FacingLeft { get; set; }
+    /// <summary>The facing captured before pose metadata is replaced by the death-sequence pose: left, or right otherwise.</summary>
+    private HorizontalDirection Facing { get; set; }
 
     /// <summary>
     /// Sets Samus's death-sequence pose. It runs once
@@ -86,10 +86,13 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
 
         SamusMovementType sourceMovementType = SamusPoseMetadata.ReadMovementType(samus);
 
-        FacingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
-        SamusPoseId deathPose = FacingLeft
-            ? SamusPoseId.DeathSequenceLeftPose
-            : SamusPoseId.DeathSequenceRightPose;
+        Facing = SamusPoseMetadata.ReadFacingDirection(samus) is SamusFacingDirection.Left ? HorizontalDirection.Left : HorizontalDirection.Right;
+        SamusPoseId deathPose = Facing switch
+        {
+            HorizontalDirection.Left => SamusPoseId.DeathSequenceLeftPose,
+            HorizontalDirection.Right => SamusPoseId.DeathSequenceRightPose,
+            _ => throw new InvalidOperationException($"Undefined {nameof(HorizontalDirection)} {Facing}."),
+        };
         SamusAnimationFrame initialFrame = SamusDeathSequenceFrames.InitialFrame(sourceMovementType);
 
         // The death pose is set up as any pose is, then shows the frame the movement type it starts from begins it
@@ -213,7 +216,7 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
             return;
         SpriteSheet death = sheets.Get(SpriteSheetId.SamusDeath);
         sprites.Add(new SamusColouredDraw(new SpriteSource(SpriteSourceKind.SamusDeathExplosion),
-            death.Frame(SamusDeathSheetDefinitions.ExplosionFrame(FacingLeft ? HorizontalDirection.Left : HorizontalDirection.Right, frame)),
+            death.Frame(SamusDeathSheetDefinitions.ExplosionFrame(Facing, frame)),
             ScreenPosition));
     }
 

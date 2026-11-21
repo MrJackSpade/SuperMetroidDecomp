@@ -33,7 +33,7 @@ internal sealed class ColoredDoorObject : DoorCapObject, IShootableRoomObject
 
 
     /// <summary>What the cap is doing.</summary>
-    private ColoredDoorPhase Phase { get; set; } = ColoredDoorPhase.Waiting;
+    private ColoredDoorPhase Phase { get; set; } = ColoredDoorPhase.Placed;
 
     /// <summary>
     /// The hits counted toward the colour's count. It only counts up, by one a hit or straight to the count on a Super
@@ -42,8 +42,9 @@ internal sealed class ColoredDoorObject : DoorCapObject, IShootableRoomObject
     private int HitCounter { get; set; }
 
     /// <summary>
-    /// Whether a shot at the cap's block reaches it: from its first look until the hit that opens it, so a waiting cap that
-    /// takes no shots has yet to take that look.
+    /// Whether a shot at the cap's block reaches it: from its first look until the hit that opens it. This is what the cap
+    /// waits for, apart from what it plays: a closing behind Samus keeps it, so a cap that has looked still takes shots while
+    /// it closes, and one just placed takes none.
     /// </summary>
     private bool TakesShots { get; set; }
 
@@ -94,13 +95,10 @@ internal sealed class ColoredDoorObject : DoorCapObject, IShootableRoomObject
     /// <summary>What <see cref="SequenceEnded"/> does for each <see cref="ColoredDoorPhase"/> member, each member's own arm.</summary>
     private IdentityTable<ColoredDoorPhase, Action<RoomObjectPlace, RoomObjectStepContext>> SequenceEndedForColoredDoorPhase => field ??= new(new Dictionary<ColoredDoorPhase, Action<RoomObjectPlace, RoomObjectStepContext>>
     {
+        [ColoredDoorPhase.Placed] = (place, context) => Look(place, context),
         [ColoredDoorPhase.Closing] = (place, context) => Look(place, context),
-        [ColoredDoorPhase.Waiting] = (place, context) =>
-        {
-            // Once it has looked, the cap rests on its closed image until a hit wakes it.
-            if (!TakesShots)
-                Look(place, context);
-        },
+        // Once it has looked, the cap rests on its closed image until a hit wakes it.
+        [ColoredDoorPhase.Waiting] = (place, context) => { },
         [ColoredDoorPhase.Flashing] = (place, context) =>
         {
             // The cap rests on its closed image again until the next hit wakes it.

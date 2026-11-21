@@ -44,7 +44,7 @@ internal sealed class SpcMusicSequencer
             channel.FineTune = 0;
             channel.ChannelTransposition = 0;
             channel.PitchEnvelopeTicks = 0;
-            channel.CutKey = 0;
+            channel.CutKey = SpcMusicCutKey.Off;
             channel.VibratoDepth = 0;
             channel.TremoloDepth = 0;
         }
@@ -178,7 +178,7 @@ internal sealed class SpcMusicSequencer
             case SpcMusicEffect.PitchEnvelopeTo:
             case SpcMusicEffect.PitchEnvelopeFrom:
                 channel.PitchEnvelopeDirection = effect == SpcMusicEffect.PitchEnvelopeTo
-                    ? (byte)1 : (byte)0;
+                    ? PitchEnvelopeDirection.To : PitchEnvelopeDirection.From;
                 channel.PitchEnvelopeDelay = argument;
                 channel.PitchEnvelopeTicks = NextSequenceByte(ref channel.PatternOrderPointer);
                 channel.PitchEnvelopeSlide = NextSequenceByte(ref channel.PatternOrderPointer);
@@ -239,7 +239,7 @@ internal sealed class SpcMusicSequencer
                 channel.PatternOrderPointer = SpcDriverWrap.Word(channel.PatternOrderPointer + 1);
                 break;
             case SpcMusicEffect.CutKey:
-                channel.CutKey = unchecked((byte)(argument + 1));
+                channel.CutKey = SpcMusicCutKey.FromArgument(argument);
                 break;
             case SpcMusicEffect.FastForwardForFrames:
                 fastForward = unchecked((byte)(argument + 1));
@@ -308,7 +308,7 @@ internal sealed class SpcMusicSequencer
     /// <summary>Marks volume dirty and samples tremolo at the current tempo accumulator.</summary>
     private void HandleTremolo(ManagedSpcMusicChannel channel)
     {
-        affectedVolumeOrPitch = affectedVolumeOrPitch | 0x80; // cartridge-encoding: allow(BitMask) - dirty result marker
+        affectedVolumeOrPitch = true;
         CalculateTremolo(channel, (byte)SpcFixedPoint.Scale(channel.TremoloRate, mainTempoAccumulator));
     }
 
@@ -326,24 +326,24 @@ internal sealed class SpcMusicSequencer
     /// <summary>Interpolates active pan and pitch sweeps between full music ticks and publishes affected DSP registers.</summary>
     internal void HandlePanAndSweep(ManagedSpcMusicChannel channel)
     {
-        affectedVolumeOrPitch = 0;
+        affectedVolumeOrPitch = false;
         if (channel.TremoloDepth != 0 && channel.TremoloHoldCount == channel.TremoloDelayTicks)
             HandleTremolo(channel);
 
         int volume = channel.PanValue;
         if (channel.PanTicks != 0)
         {
-            affectedVolumeOrPitch = 0x80; // cartridge-encoding: allow(BitMask) - dirty result marker
+            affectedVolumeOrPitch = true;
             volume = AddWord(volume, mainTempoAccumulator * unchecked((short)channel.PanAddPerTick) / 256);
         }
-        if (affectedVolumeOrPitch != 0)
+        if (affectedVolumeOrPitch)
             _voices.WriteVolume(channel, volume);
 
-        affectedVolumeOrPitch = 0;
+        affectedVolumeOrPitch = false;
         int pitch = channel.Pitch;
         if (channel.PitchSlideLength != 0 && channel.PitchSlideDelayLeft == 0)
         {
-            affectedVolumeOrPitch = affectedVolumeOrPitch | 0x80; // cartridge-encoding: allow(BitMask) - dirty result marker
+            affectedVolumeOrPitch = true;
             pitch = AddWord(pitch, mainTempoAccumulator * unchecked((short)channel.PitchAddPerTick) / 256);
         }
         if (channel.VibratoDepth != 0 && channel.VibratoDelayTicks == channel.VibratoHoldCount)
@@ -352,7 +352,7 @@ internal sealed class SpcMusicSequencer
                 SpcFixedPoint.Scale(mainTempoAccumulator, channel.VibratoRate) + channel.VibratoCount)));
             return;
         }
-        if (affectedVolumeOrPitch != 0)
+        if (affectedVolumeOrPitch)
             WritePitch(channel, pitch);
     }
 
@@ -366,7 +366,7 @@ internal sealed class SpcMusicSequencer
                 _voices.Dsp.Global.KeyOff(new DspVoiceMask(_voices.currentChannelBit));
         }
 
-        affectedVolumeOrPitch = 0;
+        affectedVolumeOrPitch = false;
         if (channel.PitchSlideLength != 0)
         {
             if (channel.PitchSlideDelayLeft != 0)
@@ -375,7 +375,7 @@ internal sealed class SpcMusicSequencer
             }
             else
             {
-                affectedVolumeOrPitch = 0x80; // cartridge-encoding: allow(BitMask) - dirty result marker
+                affectedVolumeOrPitch = true;
                 channel.PitchSlideLength = SpcDriverWrap.Byte(channel.PitchSlideLength - 1);
                 channel.Pitch = channel.PitchSlideLength == 0
                     ? SpcFixedPoint.Compose(channel.PitchTarget, channel.FineTune)
@@ -403,7 +403,7 @@ internal sealed class SpcMusicSequencer
             }
             channel.VibratoHoldCount = SpcDriverWrap.Byte(channel.VibratoHoldCount + 1);
         }
-        if (affectedVolumeOrPitch != 0)
+        if (affectedVolumeOrPitch)
             WritePitch(channel, pitch);
     }
 
@@ -590,7 +590,7 @@ internal sealed class SpcMusicSequencer
                         HandleEffect(channel, noteCommand);
                         continue;
                     }
-                    if ((channel.CutKey | fastForward) == 0)
+                    if (!channel.CutKey.Holds && fastForward == 0)
                         PlayNote(channel, noteCommand);
                     channel.NoteTicksLeft = channel.NoteLength;
                     int gateTicks = SpcFixedPoint.Scale(channel.NoteTicksLeft, channel.NoteGateOffFixedPoint);
@@ -676,7 +676,7 @@ internal sealed class SpcMusicSequencer
         if (channel.PitchSlideLength != 0)
         {
             channel.PitchSlideDelayLeft = channel.PitchEnvelopeDelay;
-            if (channel.PitchEnvelopeDirection == 0)
+            if (channel.PitchEnvelopeDirection == PitchEnvelopeDirection.From)
                 channel.Pitch = AddWord(channel.Pitch, -SpcFixedPoint.FromWhole(channel.PitchEnvelopeSlide));
             ComputePitchAdd(channel, unchecked((byte)(SpcFixedPoint.Whole(channel.Pitch) + channel.PitchEnvelopeSlide)));
         }
@@ -711,8 +711,8 @@ internal sealed class SpcMusicSequencer
     /// <summary>Music block countdown before selecting the next top-level phrase.</summary>
     internal int counter;
 
-    /// <summary>Dirty marker shared by pan/tremolo and pitch/vibrato publication.</summary>
-    internal int affectedVolumeOrPitch;
+    /// <summary>Whether the pan/tremolo or pitch/vibrato pass changed what the voice publishes (#2560).</summary>
+    internal bool affectedVolumeOrPitch;
 
     /// <summary>Music sequence fast-forward flag written by its control effect.</summary>
     internal int fastForward;

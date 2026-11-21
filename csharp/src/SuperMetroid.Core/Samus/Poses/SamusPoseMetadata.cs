@@ -211,7 +211,7 @@ internal static class SamusPoseMetadata
         samus.HorizontalSpeed.BaseSpeed = default;
         samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
         samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.Still;
-        samus.MorphBallBounceState = SamusBallBounceState.None;
+        samus.MorphBallBounceState = null;
     }
 
     /// <summary>
@@ -249,6 +249,21 @@ internal static class SamusPoseMetadata
 
     /// <summary>True for all five left-facing Draygon-held poses.</summary>
     public static bool IsLeftFacingDraygonGrabbedPose(SamusPoseId pose) => IsRightFacingDraygonGrabbedPose(SamusPoseMirror.Of(pose));
+
+    /// <summary>
+    /// The way <paramref name="pose"/> faces as a member of the pose family whose right-facing members
+    /// <paramref name="isRightFacing"/> names and whose left-facing members <paramref name="isLeftFacing"/> names; none for
+    /// a pose of neither half (#2560).
+    /// </summary>
+    internal static HorizontalDirection? FacingIn(SamusPoseId pose, Func<SamusPoseId, bool> isRightFacing,
+        Func<SamusPoseId, bool> isLeftFacing) =>
+        isRightFacing(pose) ? HorizontalDirection.Right
+            : isLeftFacing(pose) ? HorizontalDirection.Left
+            : null;
+
+    /// <summary>Whether <paramref name="first"/> is a facing, and <paramref name="second"/> the same one.</summary>
+    internal static bool SameFacing(HorizontalDirection? first, HorizontalDirection? second) =>
+        first is { } facing && second == facing;
 
     /// <summary>True for all five right-facing Draygon-held poses.</summary>
     public static bool IsRightFacingDraygonGrabbedPose(SamusPoseId pose) => SamusPoseTraits.IsIn(pose, SamusPoseFamily.RightFacingDraygonGrabbed);

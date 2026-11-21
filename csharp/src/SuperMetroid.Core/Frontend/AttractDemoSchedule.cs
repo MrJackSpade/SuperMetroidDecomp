@@ -17,43 +17,40 @@ internal sealed class AttractDemoSchedule
     /// </summary>
     internal int ScenesBegun { get; private set; }
 
-    /// <summary>The scene's scripted input, lasting the scene's duration and counted once each scripted update.</summary>
-    internal UpdateCountdown Playback { get; private set; } = UpdateCountdown.Ended();
+    /// <summary>
+    /// Where the scene stands (#2560): awaiting its runtime, loading, playing its scripted input or holding its final image,
+    /// each with its own countdown.
+    /// </summary>
+    private SceneState Scene { get; set; } = new SceneState.Awaiting();
 
-    /// <summary>The still-frame hold after the scene's scripted input, over until the script runs out.</summary>
-    private UpdateCountdown Hold { get; set; } = UpdateCountdown.Ended();
+    /// <summary>How the scene last begun ended: played to its end, or cancelled by a press (#2560).</summary>
+    private AttractPlaybackEnd end;
 
     /// <summary>
-    /// The blank enemy-setup waits (<see cref="GameLoadingDefinitions.EnemySetupWaits"/>) before the scene becomes visible;
-    /// none before its runtime exists (#1627).
+    /// Where the attract mode goes after the scene (#2560): the set's next scene, the title at its title screen after a
+    /// cancelled scene, or the title from its beginning once the set has played through.
     /// </summary>
-    private UpdateCountdown? load;
-
-    /// <summary>Whether live controller input cancelled the scene.</summary>
-    internal bool Cancelled { get; private set; }
-
-    /// <summary>Whether another scene follows before returning to the title.</summary>
-    internal bool HasNextScene { get; private set; }
+    internal AttractDemoRoute RouteAfterScene { get; private set; }
 
     /// <summary>Whether the next scene's runtime has yet to be created.</summary>
-    internal bool AwaitsScene => load is null;
+    internal bool AwaitsScene => Scene is SceneState.Awaiting;
 
     /// <summary>Whether the scene's scripted input has ended and its final image is holding.</summary>
-    internal bool Holding => Hold.IsRunning;
+    internal bool Holding => Scene is SceneState.Holding { Hold.IsRunning: true };
 
     /// <summary>A soft reset returns to the first scene of the first set.</summary>
     internal void Reset()
     {
         Set = StockAttractDemoScenes.FirstSet;
         ScenesBegun = 0;
-        load = null;
+        Scene = new SceneState.Awaiting();
     }
 
     /// <summary>The title requests a demo: its set starts again from its first scene.</summary>
     internal void RequestFromTitle()
     {
         ScenesBegun = 0;
-        load = null;
+        Scene = new SceneState.Awaiting();
     }
 
     /// <summary>
@@ -70,30 +67,41 @@ internal sealed class AttractDemoSchedule
     {
         if (NextScene is not { } scene)
             return null;
-        Playback = UpdateCountdown.For(scene.Duration);
         ScenesBegun++;
-        Hold = UpdateCountdown.Ended();
-        Cancelled = false;
-        load = UpdateCountdown.Lasting(GameLoadingDefinitions.EnemySetupWaits);
+        end = AttractPlaybackEnd.Completed;
+        Scene = new SceneState.Loading(UpdateCountdown.Lasting(GameLoadingDefinitions.EnemySetupWaits), scene.Duration);
         return scene;
     }
 
-    /// <summary>Counts one enemy-setup wait; returns whether it was the last.</summary>
-    /// <exception cref="InvalidOperationException">No scene has begun loading.</exception>
-    internal bool CountLoadFrame() => (load ?? throw new InvalidOperationException("No attract demo scene is loading.")).Count();
+    /// <summary>Counts one enemy-setup wait; returns whether it was the last, after which the scene plays.</summary>
+    /// <exception cref="InvalidOperationException">No scene is loading.</exception>
+    internal bool CountLoadFrame()
+    {
+        SceneState.Loading loading = Scene as SceneState.Loading
+            ?? throw new InvalidOperationException("No attract demo scene is loading.");
+        if (!loading.Waits.Count())
+            return false;
+        Scene = new SceneState.Playing(UpdateCountdown.For(loading.Duration));
+        return true;
+    }
 
     /// <summary>Counts one held frame; returns whether the hold ended.</summary>
-    internal bool CountHoldFrame() => Hold.Count();
+    /// <exception cref="InvalidOperationException">The scene's final image is not holding.</exception>
+    internal bool CountHoldFrame() => (Scene as SceneState.Holding
+        ?? throw new InvalidOperationException("No attract demo scene holds its final image.")).Hold.Count();
 
     /// <summary>Counts one scripted frame; once the script runs out, the final image starts holding.</summary>
+    /// <exception cref="InvalidOperationException">No scene plays its scripted input.</exception>
     internal void CountPlaybackFrame()
     {
-        if (Playback.Step())
-            Hold = UpdateCountdown.Lasting(AttractDemoDefinitions.FinalImageHoldFrames);
+        SceneState.Playing playing = Scene as SceneState.Playing
+            ?? throw new InvalidOperationException("No attract demo scene plays its scripted input.");
+        if (playing.Playback.Step())
+            Scene = new SceneState.Holding(UpdateCountdown.Lasting(AttractDemoDefinitions.FinalImageHoldFrames));
     }
 
     /// <summary>Records how the scene ended.</summary>
-    internal void Finish(bool cancelled) => Cancelled = cancelled;
+    internal void Finish(AttractPlaybackEnd ended) => end = ended;
 
     /// <summary>
     /// After a scene: an uncancelled demo continues with the set's next scene, and once the set is exhausted the set that
@@ -103,18 +111,23 @@ internal sealed class AttractDemoSchedule
     internal void AdvanceAfterScene(IReadOnlyList<AttractDemoSet> playlist)
     {
         Ensure.NotNull(playlist);
-        HasNextScene = false;
-        if (Cancelled)
+        if (end == AttractPlaybackEnd.Cancelled)
+        {
+            RouteAfterScene = AttractDemoRoute.TitleAtItsScreen;
             return;
-        HasNextScene = NextScene is not null;
-        if (HasNextScene)
+        }
+        if (NextScene is not null)
+        {
+            RouteAfterScene = AttractDemoRoute.NextScene;
             return;
+        }
         Set = SetAfter(playlist, Set);
         ScenesBegun = 0;
+        RouteAfterScene = AttractDemoRoute.TitleFromBeginning;
     }
 
     /// <summary>The next scene of the set loads afresh.</summary>
-    internal void LoadNextScene() => load = null;
+    internal void LoadNextScene() => Scene = new SceneState.Awaiting();
 
     /// <summary>The set that follows <paramref name="played"/> in <paramref name="playlist"/>, which starts over after its last.</summary>
     /// <exception cref="InvalidOperationException"><paramref name="playlist"/> does not hold <paramref name="played"/>.</exception>
@@ -126,5 +139,25 @@ internal sealed class AttractDemoSchedule
                 return playlist[(place + 1) % playlist.Count];
         }
         throw new InvalidOperationException($"The attract playlist does not hold {played}.");
+    }
+
+    /// <summary>Where a scene stands (#2560), one value: each case carries only its own countdown.</summary>
+    internal abstract record SceneState
+    {
+        /// <summary>The scene's runtime has yet to be created.</summary>
+        internal sealed record Awaiting : SceneState;
+
+        /// <summary>The scene's runtime exists and the screen stays black (#1627).</summary>
+        /// <param name="Waits">The blank enemy-setup waits (<see cref="GameLoadingDefinitions.EnemySetupWaits"/>) left before the scene shows.</param>
+        /// <param name="Duration">How long the scene's scripted input lasts once it plays.</param>
+        internal sealed record Loading(UpdateCountdown Waits, int Duration) : SceneState;
+
+        /// <summary>The scene plays its scripted input.</summary>
+        /// <param name="Playback">The scripted input left, counted once each scripted update.</param>
+        internal sealed record Playing(UpdateCountdown Playback) : SceneState;
+
+        /// <summary>The scripted input has run out and the final image holds.</summary>
+        /// <param name="Hold">The still-frame hold left.</param>
+        internal sealed record Holding(UpdateCountdown Hold) : SceneState;
     }
 }

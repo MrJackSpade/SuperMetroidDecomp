@@ -17,8 +17,8 @@ namespace SuperMetroid.Core.Compatibility;
 /// terrain change) before the object's setup runs; freed when the object leaves the room, which may be its own setup
 /// (every scroll extension), leaving the place to the next spawn. Read in order by each room-object update and by a door's
 /// or a gate trigger's search for the object at a block; read from the last place back by the searches for a touched or
-/// shot collectible, station or scroll trigger. Lifetime: the room's; the room loader creates it with each room's
-/// objects, so a new room starts with every place free.
+/// shot collectible, station or scroll trigger. Each place says itself whether it holds an object (#2560), and a new
+/// room's places start free.
 /// </para>
 /// <para>
 /// The order is kept because the game observes it: a spawn made during the room-object update into a place the update
@@ -42,47 +42,22 @@ namespace SuperMetroid.Core.Compatibility;
 /// </para>
 /// </remarks>
 [CompatibilityService("room objects update in the order of the forty places they hold; a spawn takes the first free place in that order, a spawn into a full room is lost, and an escape room or the Wrecked Ship attic holds one place for good with an object that does nothing")]
-public sealed class RoomObjectPlaces
+public static class RoomObjectPlaces
 {
     /// <summary>How many room objects the room holds at once; a spawn while every place is held takes none.</summary>
     public const int PlaceCount = 40;
 
-    /// <summary>Whether each place, numbered in update order, holds a room object.</summary>
-    private readonly bool[] _held = new bool[PlaceCount];
-
-    /// <summary>How many places hold a room object.</summary>
-    private int HeldCount { get; set; }
-
-    /// <summary>Whether every place holds a room object, so a spawn would take none.</summary>
-    internal bool IsFull => HeldCount == PlaceCount;
-
-    /// <summary>Whether <paramref name="place"/> holds a room object.</summary>
-    /// <param name="place">A place, numbered in update order from zero, the place the update reaches first.</param>
-    internal bool IsHeld(int place) => _held[Ensure.BetweenInclusive(0, PlaceCount - 1, place)];
-
-    /// <summary>Takes the first free place in update order for a spawn.</summary>
-    /// <returns>The place taken, numbered in update order, or null when every place is held.</returns>
-    internal int? Take()
+    /// <summary>The place a spawn takes: the first free place in update order.</summary>
+    /// <param name="isHeld">Whether a place, numbered in update order from zero, holds a room object.</param>
+    /// <returns>The place to take, numbered in update order, or null when every place is held and the spawn is lost.</returns>
+    internal static int? FirstFree(Func<int, bool> isHeld)
     {
+        Ensure.NotNull(isHeld);
         for (int place = 0; place < PlaceCount; place++)
         {
-            if (_held[place])
-                continue;
-            _held[place] = true;
-            HeldCount++;
-            return place;
+            if (!isHeld(place))
+                return place;
         }
         return null;
-    }
-
-    /// <summary>Frees <paramref name="place"/>, whose room object has left the room.</summary>
-    /// <param name="place">A held place.</param>
-    /// <exception cref="InvalidOperationException">The place holds no room object.</exception>
-    internal void Free(int place)
-    {
-        if (!IsHeld(place))
-            throw new InvalidOperationException($"Room-object place {place} holds no room object.");
-        _held[place] = false;
-        HeldCount--;
     }
 }

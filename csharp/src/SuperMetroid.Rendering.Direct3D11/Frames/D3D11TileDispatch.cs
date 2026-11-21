@@ -52,5 +52,5 @@ internal sealed record D3D11TileDispatch
     public ScreenWindow? Window { get; init; } = null;
 
     /// <summary>How a layer pass pixelates what it draws (#1774); the default leaves it unpixelated.</summary>
-    public BackgroundPixelation Pixelation { get; init; } = default;
+    public BackgroundPixelation Pixelation { get; init; } = BackgroundPixelation.Unpixelated;
 }

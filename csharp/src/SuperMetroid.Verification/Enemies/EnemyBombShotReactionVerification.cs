@@ -39,8 +39,8 @@ internal static class EnemyBombShotReactionVerification
             var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
             SamusBomb bomb = bombs.Bombs[0];
             bomb.Occupy(SamusBombKind.Bomb, 30);
-            bomb.Radius = new(4, 4);
-            bomb.Position = FixedPosition<RoomPixels>.FromWhole(Place);
+            bomb.HeldBomb().Radius = new(4, 4);
+            bomb.HeldBomb().Position = FixedPosition<RoomPixels>.FromWhole(Place);
             var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads,
                 new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
 
@@ -91,8 +91,8 @@ internal static class EnemyBombShotReactionVerification
             var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
             SamusBomb bomb = bombs.Bombs[0];
             bomb.Occupy(SamusBombKind.Bomb, 30);
-            bomb.Radius = new(4, 4);
-            bomb.Position = FixedPosition<RoomPixels>.FromWhole(place);
+            bomb.HeldBomb().Radius = new(4, 4);
+            bomb.HeldBomb().Position = FixedPosition<RoomPixels>.FromWhole(place);
             var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads,
                 new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
 

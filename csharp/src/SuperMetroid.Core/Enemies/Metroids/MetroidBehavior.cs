@@ -215,7 +215,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void ApplyMetroidHurt(RoomEnemyPlace place)
     {
         MetroidEnemyState state = place.RequireSpeciesState<MetroidEnemyState>();
-        if (MetroidCadenceDefinitions.HurtOuterBodiesShowOwnColours.IsSetIn(place.HurtFlash.UpdatesLeft))
+        if (MetroidCadenceDefinitions.HurtOuterBodiesShowOwnColours.IsInSecondHalfAt(place.HurtFlash.UpdatesLeft))
         {
             state.Electricity.Graphics = state.Electricity.Graphics.In(place.Shading);
             state.Shell.Graphics = state.Shell.Graphics.In(place.Shading);
@@ -326,7 +326,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             {
                 state.IceDamageToFreeze = 0;
                 place.Freeze.Restart(MetroidBehaviorDefinitions.FrozenDuration);
-                place.AiStates |= EnemyAiStates.Frozen;
+                place.MarkFrozen();
                 return;
             }
             state.IceDamageToFreeze -= collisionProjectileDamage;
@@ -447,7 +447,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>The Metroid Power Bomb reaction, which clears its outer body before generic death.</summary>
     internal static EnemyPowerBombReaction PowerBombReaction { get; } = new()
     {
-        BeforeGenericDeath = c => FinishMetroidDeath(c.Enemy, c.Samus),
+        Lethal = new EnemyPowerBombLethal.AfterStage(c => FinishMetroidDeath(c.Enemy, c.Samus)),
     };
 
     /// <summary>Applies frozen missile damage or unfrozen recoil and Ice accumulation once the shot has marked its
@@ -475,7 +475,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             if (!frozenVulnerability.FreezesWithoutDamage && frozenDamage != 0)
             {
                 enemy.HurtFlash.Restart(enemy.HurtFlashFrames + MetroidBehaviorDefinitions.FrozenHurtFlashExtension);
-                enemy.AiStates |= EnemyAiStates.Hurt;
+                enemy.MarkHurt();
                 enemy.Health = frozenDamage >= enemy.Health
                     ? 0
                     : enemy.Health - frozenDamage;

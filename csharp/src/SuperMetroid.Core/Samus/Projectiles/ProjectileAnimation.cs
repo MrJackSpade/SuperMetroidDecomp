@@ -32,7 +32,7 @@ internal sealed class ProjectileAnimation
     /// radius, and an animation that ends deletes the projectile. A shot showing a still picture keeps it.
     /// </summary>
     /// <exception cref="InvalidOperationException">The projectile has ended and has no animation to play.</exception>
-    internal void AdvanceProjectileAnimation(SamusProjectile shot) =>
+    internal void AdvanceProjectileAnimation(SamusProjectileOccupant shot) =>
         SamusProjectilePlayback.PlayOn(
             shot.Animation ?? throw new InvalidOperationException("An ended projectile has no animation to play."),
             _artwork.ProjectileFrames,
@@ -41,7 +41,7 @@ internal sealed class ProjectileAnimation
                 shot.Sprite = sprite;
                 shot.Radius = radius;
             },
-            () => ClearProjectile(shot));
+            () => ClearProjectile(shot.Projectile));
 
 
     /// <summary>Deletes a projectile, ending it, and decrements the shot count, which stays at zero.</summary>

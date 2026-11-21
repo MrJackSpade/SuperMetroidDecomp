@@ -1273,18 +1273,18 @@ internal static class RoomObjectPopulationVerification
         SeedEmptyRoomEnemyPopulation(bus, 0x9600);
         SeedSaveStationElectricityProjectile(bus);
 
-        var visible = new SpriteVisualPart
+        var visible = new EnemyProjectilePartDocument
         {
-            OffsetX = 0, OffsetY = 0, TileColumn = 1, TileRow = 0,
+            OffsetX = 0, OffsetY = 0, Character = 1,
             Size = 8, Depth = SuperMetroid.Core.Assets.ActorDepth.BehindRoomInFrontOfFloor, Palette = 0, FlipX = false, FlipY = false,
         };
         HashSet<EnemyProjectileFrameId> electricityFrames = [EnemyProjectileFrameId.SaveStationElectricityBand];
         var artworkDocument = new EnemyProjectileSpritemapDocument
         {
             Version = EnemyProjectileSpritemapDocuments.Version,
-            Frames = EnemyProjectileSpritemapDefinitions.Frames.ToDictionary(frame => frame.Name, _ => Array.Empty<SpriteVisualPart>()),
+            Frames = EnemyProjectileSpritemapDefinitions.Frames.ToDictionary(frame => frame.Name, _ => Array.Empty<EnemyProjectilePartDocument>()),
             ProgramFrames = EnemyProjectilePresentationFrameSets.All.ToDictionary(
-                frame => frame.Name, frame => electricityFrames.Contains(frame.Frame) ? new[] { visible } : Array.Empty<SpriteVisualPart>()),
+                frame => frame.Name, frame => electricityFrames.Contains(frame.Frame) ? new[] { visible } : Array.Empty<EnemyProjectilePartDocument>()),
         };
         EnemyTileSourceArtwork tiles = EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(),
             // The save room's sprite objects compose with the installed enemy compositions, and their sheet takes the

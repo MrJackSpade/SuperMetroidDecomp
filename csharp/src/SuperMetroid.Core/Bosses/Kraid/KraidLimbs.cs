@@ -204,17 +204,8 @@ internal sealed class KraidLimbs
         [KraidFootPhase.SecondPhaseWalkToStart] = (foot, part, state, body) => RunKraidSecondPhaseWalkToStart(body, part),
         [KraidFootPhase.SecondPhaseInitialize] = (foot, part, state, body) => SetKraidWalking(part, targetX: KraidMovementChoices.StartingX, thinkUpdates: KraidArenaDefinitions.SecondPhaseFirstThinkUpdates, direction: HorizontalDirection.Right),
         [KraidFootPhase.SecondPhaseThinking] = (foot, part, state, body) => RunKraidSecondPhaseThinking(body, part),
-        [KraidFootPhase.SecondPhaseWalking] = (foot, part, state, body) =>
-        {
-            if (part.WalkDirection == HorizontalDirection.Right)
-            {
-                RunKraidSecondPhaseWalkingRight(body, part);
-            }
-            else
-            {
-                RunKraidSecondPhaseWalkingLeft(body, part);
-            }
-        },
+        [KraidFootPhase.SecondPhaseWalkingRight] = (foot, part, state, body) => RunKraidSecondPhaseWalkingRight(body, part),
+        [KraidFootPhase.SecondPhaseWalkingLeft] = (foot, part, state, body) => RunKraidSecondPhaseWalkingLeft(body, part),
     });
     /// <summary>
     /// Hides <paramref name="limb"/> only while its anchor lies outside the screen's gameplay view below
@@ -347,9 +338,19 @@ internal sealed class KraidLimbs
     {
         part.Kraid.WalkTargetX = targetX;
         part.ThinkWait.LastFor(thinkUpdates);
-        part.Phase = KraidFootPhase.SecondPhaseWalking;
-        part.WalkDirection = direction;
-        part.StartAnimation(direction == HorizontalDirection.Right ? KraidPartSegment.FootWalkingBackward : KraidPartSegment.FootWalkingForward);
+        switch (direction)
+        {
+            case HorizontalDirection.Right:
+                part.Phase = KraidFootPhase.SecondPhaseWalkingRight;
+                part.StartAnimation(KraidPartSegment.FootWalkingBackward);
+                break;
+            case HorizontalDirection.Left:
+                part.Phase = KraidFootPhase.SecondPhaseWalkingLeft;
+                part.StartAnimation(KraidPartSegment.FootWalkingForward);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(direction), direction, "Undefined walk direction.");
+        }
     }
 
     /// <summary>Moves the body and foot toward the selected rightward target.</summary>

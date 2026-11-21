@@ -37,14 +37,10 @@ public sealed class SamusParticles
     /// <summary>Starts a particle of lava spray on its first step, rising and drifting to one side as it shows.</summary>
     /// <param name="position">Where it starts, in whole room pixels.</param>
     /// <param name="start">Whether it shows at once or after a hidden wait.</param>
-    /// <param name="horizontalDrift">The pixels it drifts sideways on each update it shows: one right or one left.</param>
-    internal void SpawnLavaSpray(Position16<RoomPixels> position, SamusParticleStart start, int horizontalDrift)
-    {
-        if (horizontalDrift is not (1 or -1))
-            throw new ArgumentOutOfRangeException(nameof(horizontalDrift), horizontalDrift, "Lava spray drifts one pixel to one side.");
+    /// <param name="side">The side it drifts to, <see cref="Movement.SamusLiquidParticleDefinitions.LavaSprayDrift"/> pixels on each update it shows.</param>
+    internal void SpawnLavaSpray(Position16<RoomPixels> position, SamusParticleStart start, HorizontalDirection side) =>
         Add(new SamusParticle(SamusParticleKind.LavaSpray, AnimationPlace.StartOfAnimation, start, position,
-            new Offset16<RoomPixels>(horizontalDrift, LavaSprayRise)));
-    }
+            new Offset16<RoomPixels>(Movement.SamusLiquidParticleDefinitions.LavaSprayDrift.Toward(side), LavaSprayRise)));
 
     /// <summary>How particles of <paramref name="kind"/> move and are placed.</summary>
     private static SamusParticleKindDefinition Definition(SamusParticleKind kind) => SamusParticleKindDefinitions.Kinds[kind];

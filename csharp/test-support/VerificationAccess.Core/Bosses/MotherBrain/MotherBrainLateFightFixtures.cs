@@ -52,7 +52,7 @@ internal static class MotherBrainLateFightFixtures
         PowerBombActive = false,
         RandomNumberSeed = MotherBrainRandomSample.FromGenerator(0),
         NextRandomNumber = new SuperMetroid.Core.Compatibility.SharedRandom().Generate,
-        AlternateEscapeText = false,
+        Language = SuperMetroid.Core.Progression.TextLanguage.English,
         TypewriterFinished = false,
         RoomEarthquakeStopped = false,
     };

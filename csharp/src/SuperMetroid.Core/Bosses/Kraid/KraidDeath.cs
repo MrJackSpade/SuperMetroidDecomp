@@ -56,7 +56,7 @@ internal sealed class KraidDeath
     /// </summary>
     private static void HideKraidBody(KraidEnemyState state)
     {
-        state.BodyAppearance = KraidBodyAppearance.Hidden;
+        state.HideBody();
         state.ShowsBodyLayer = false;
     }
 

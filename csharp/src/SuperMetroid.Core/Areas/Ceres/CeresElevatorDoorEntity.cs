@@ -107,9 +107,9 @@ internal sealed class CeresElevatorDoorEntity(CeresDoorBehavior doors, RoomEnemy
         // The elevator platform's animation does not belong to the arrival's pad or platform: the elevator door alternates
         // the turning floor's platform frames for as long as the room runs, so the landed platform keeps flashing after the
         // arrival's touchdown ends. The import pictures both strips (#1467).
-        floor.Show(CeresFloorAnimation.ElevatorPlatformFrameForPhase(CeresDoorCadenceDefinitions.PlatformPicture.Of(frame)));
+        floor.Show(CeresFloorAnimation.ElevatorPlatformFrameForPhase(CeresDoorCadenceDefinitions.PlatformPicture.StepAt(frame)));
 
         // The glow takes its next step at its cadence's place.
-        doors.ElevatorRoomGlowStep = CeresDoorCadenceDefinitions.GlowStep.Of(frame);
+        doors.ElevatorRoomGlowStep = CeresDoorCadenceDefinitions.GlowStep.StepAt(frame);
     }
 }

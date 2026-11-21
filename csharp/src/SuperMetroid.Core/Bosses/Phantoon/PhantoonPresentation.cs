@@ -36,14 +36,14 @@ internal sealed class PhantoonPresentation
     /// <summary>Changes his body's wave toward its current phase's target.</summary>
     internal static bool AdvancePhantoonWaveAmplitude(
         PhantoonWaveState wave,
-        SignedSixteenSixteen change,
-        SignedSixteenSixteen maximum)
+        UnsignedSixteenSixteen change,
+        UnsignedSixteenSixteen maximum)
     {
         if (wave.AmplitudeShrinking)
         {
-            if ((wave.Amplitude - change).IsNegative)
+            if (wave.Amplitude.IsSlowerThan(change))
             {
-                wave.Amplitude = SignedSixteenSixteen.Zero;
+                wave.Amplitude = UnsignedSixteenSixteen.Zero;
                 return true;
             }
             wave.Amplitude -= change;
@@ -51,7 +51,7 @@ internal sealed class PhantoonPresentation
         }
 
         wave.Amplitude += change;
-        if (!(wave.Amplitude - maximum).IsNegative)
+        if (!wave.Amplitude.IsSlowerThan(maximum))
             wave.Amplitude = maximum;
         return false;
     }

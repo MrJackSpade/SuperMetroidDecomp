@@ -40,6 +40,9 @@ public readonly record struct TrigonometryAngle : IComparable<TrigonometryAngle>
     /// </summary>
     public int StepsIntoHalfTurn => RawValue % HalfTurn.RawValue;
 
+    /// <summary>The angle's place within its half of the turn, from zero up to a half turn (#2563).</summary>
+    public TrigonometryAngle IntoHalfTurn => new(StepsIntoHalfTurn);
+
     /// <summary>
     /// Whether this angle lies in the first or the third quarter of the turn: less than a quarter turn into its half (#2439).
     /// </summary>

@@ -35,12 +35,11 @@ public static class GameplayEffectCapture
         RoomFxOverlayRenderSnapshot fx,
         Offset16<BackgroundPixels> backgroundScroll)
     {
-        if (fx.Type != RoomFxType.Water || fx.Liquid is not RoomWater { BackgroundWave: true } ||
-            fx.WaterSurfaceScreenY is not int surfaceLine)
+        if (fx.WaterBackgroundWavePhase is not int wavePhase || fx.WaterSurfaceScreenY is not int surfaceLine)
             return null;
         int belowSurface = surfaceLine + 1;
         return new SampledScrollWave(backgroundScroll.X, WaterWaveDefinitions.BackgroundWaveform,
-            SampledScrollWave.PhaseWhere(fx.WaterBackgroundWavePhase + PhaseInBackgroundBlock(backgroundScroll.Y), belowSurface, WaterWaveDefinitions.BackgroundWaveform.Length),
+            SampledScrollWave.PhaseWhere(wavePhase + PhaseInBackgroundBlock(backgroundScroll.Y), belowSurface, WaterWaveDefinitions.BackgroundWaveform.Length),
             Math.Clamp(belowSurface, HudHeight, Height), Height);
     }
 
@@ -234,7 +233,7 @@ public static class GameplayEffectCapture
     {
         Offset16<ScreenPixels> samusOnScreen = xray.SamusPosition.RelativeToCamera(cameraPosition);
         int eyeX = samusOnScreen.X +
-            XrayWindowRenderDefinitions.EyeHorizontalOffset.Toward(xray.FacingLeft ? HorizontalDirection.Left : HorizontalDirection.Right);
+            XrayWindowRenderDefinitions.EyeHorizontalOffset.Toward(xray.Facing);
         int eyeY = samusOnScreen.Y -
             (xray.Crouching ? XrayWindowRenderDefinitions.CrouchingEyeHeight : XrayWindowRenderDefinitions.StandingEyeHeight);
         TrigonometryAngle angle = xray.Angle.ToTrigonometryAngle();

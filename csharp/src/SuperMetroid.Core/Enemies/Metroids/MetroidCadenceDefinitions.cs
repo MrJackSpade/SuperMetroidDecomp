@@ -11,8 +11,8 @@ internal static class MetroidCadenceDefinitions
     internal static readonly UpdateCadence DrainSound = new(8, 7);
 
     /// <summary>
-    /// The phase of a hurt Metroid's flash timer on which its outer bodies show its own colours: set for two updates of
+    /// The phase of a hurt Metroid's flash timer on which its outer bodies show its own colours: for two updates of
     /// every four, while they show the hurt flash for the other two.
     /// </summary>
-    internal static readonly UpdateCounterField HurtOuterBodiesShowOwnColours = new(1, 1);
+    internal static readonly UpdateAlternation HurtOuterBodiesShowOwnColours = new(2);
 }

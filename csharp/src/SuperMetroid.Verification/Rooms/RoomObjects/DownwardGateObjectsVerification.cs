@@ -44,7 +44,7 @@ internal static class DownwardGateObjectsVerification
     internal static void VerifyDownwardGateColumn()
     {
         SamusState? samus = null;
-        var places = new RoomObjectPlaceList(new SuperMetroid.Core.Compatibility.RoomObjectPlaces());
+        var places = new RoomObjectPlaceList();
         var gates = new GateObjects(new FixtureRoomSamus(() => samus ?? throw new InvalidOperationException("The column check places Samus before it reads her.")), places, new RoomObjectSoundQueue(GameplayAudioRequests.Standalone()));
         RoomObjectPlace gate = places.Spawn() ?? throw new InvalidOperationException("An empty room has a place for the gate.");
         gate.Block = new Position16<RoomBlocks>(6, 2);

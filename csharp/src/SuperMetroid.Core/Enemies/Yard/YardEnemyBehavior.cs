@@ -522,7 +522,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         SetYardAirborneLists(place, state);
 
         SignedSixteenSixteen horizontal = kickDistance.HorizontalDistancePlusOne;
-        SignedSixteenSixteen kick = YardKicks.ForHorizontalSpeed(horizontal.UnsignedWholePixels);
+        SignedSixteenSixteen kick = YardKicks.ForHorizontalSpeed(kickDistance.KickChoiceSpeed);
         if (SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left))
             horizontal = YardAirborneReversal.Reversed(horizontal);
         state.AirborneVelocity = new FixedVector<RoomPixels>(

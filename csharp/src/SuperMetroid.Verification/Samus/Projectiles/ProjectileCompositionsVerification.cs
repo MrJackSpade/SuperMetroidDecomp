@@ -158,13 +158,13 @@ internal static class ProjectileCompositionsVerification
             var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
             var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
             var shot = shots.Shots[0];
-            shot.Animation = ProjectileFixturePlaybacks.Active(); shot.SpritemapPointer = id;
-            shot.Occupy(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type), 123); shot.PicturedBeams = pictured; shot.Position = shot.Position.WithWhole(new(coordinate, coordinate));
-            shot.Radius = shot.Radius.WithX(7).WithY(9);
+            shot.HeldShot().Animation = ProjectileFixturePlaybacks.Active(); shot.SpritemapPointer = id;
+            shot.Occupy(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type), 123); shot.HeldShot().PicturedBeams = pictured; shot.HeldShot().Position = shot.Position.WithWhole(new(coordinate, coordinate));
+            shot.HeldShot().Radius = shot.Radius.WithX(7).WithY(9);
             var bomb = bombs.Bombs[0];
-            bomb.Animation = ProjectileFixturePlaybacks.Active(); bomb.SpritemapPointer = id;
-            bomb.OccupyAsPlaced(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type)); bomb.PicturedBeams = pictured; bomb.Position = bomb.Position.WithWhole(new(coordinate, coordinate));
-            bomb.Fuse = UpdateCountdown.For(1);
+            bomb.HeldBomb().Animation = ProjectileFixturePlaybacks.Active(); bomb.SpritemapPointer = id;
+            bomb.OccupyAsPlaced(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type)); bomb.HeldBomb().PicturedBeams = pictured; bomb.HeldBomb().Position = bomb.Position.WithWhole(new(coordinate, coordinate));
+            bomb.HeldBomb().Fuse = UpdateCountdown.For(1);
             {
                 var native = new SpriteFrameBuffer(); var extracted = new SpriteFrameBuffer();
                 native.BeginFrame(); extracted.BeginFrame();
@@ -184,7 +184,7 @@ internal static class ProjectileCompositionsVerification
             }
             if (type == 0x300)
             {
-                bomb.Fuse = UpdateCountdown.For(0);
+                bomb.HeldBomb().Fuse = UpdateCountdown.For(0);
                 var hidden = new SpriteFrameBuffer();
                 hidden.BeginFrame();
                 bombs.Draw(hidden, Position16<RoomPixels>.Zero, artwork);
@@ -245,14 +245,14 @@ internal static class ProjectileCompositionsVerification
             if (family == 0x500)
             {
                 var slot = runtime.BombProjectiles.Bombs[0];
-                slot.OccupyAsPlaced(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(family)); slot.Animation = ProjectileFixturePlaybacks.Active(); slot.SpritemapPointer = sprite;
-                slot.Position = slot.Position.WithWhole(new((ushort)(runtime.Room.LoadedCamera.PixelPosition.X + 100), (ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 100)));
+                slot.OccupyAsPlaced(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(family)); slot.HeldBomb().Animation = ProjectileFixturePlaybacks.Active(); slot.SpritemapPointer = sprite;
+                slot.HeldBomb().Position = slot.Position.WithWhole(new((ushort)(runtime.Room.LoadedCamera.PixelPosition.X + 100), (ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 100)));
             }
             else
             {
                 var slot = runtime.Projectiles.Shots[0];
-                slot.OccupyAsFired(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(family)); slot.Animation = ProjectileFixturePlaybacks.Active(); slot.SpritemapPointer = sprite;
-                slot.Position = slot.Position.WithWhole(new((ushort)(runtime.Room.LoadedCamera.PixelPosition.X + 100), (ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 100)));
+                slot.OccupyAsFired(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(family)); slot.HeldShot().Animation = ProjectileFixturePlaybacks.Active(); slot.SpritemapPointer = sprite;
+                slot.HeldShot().Position = slot.Position.WithWhole(new((ushort)(runtime.Room.LoadedCamera.PixelPosition.X + 100), (ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 100)));
             }
             SpriteSheet power = sheets.Get(SpriteSheetId.ProjectilesPower);
             AssertEqual(power.Frame(frame), Shown(runtime, kind).Image, $"Family ${family:X} draws its composition's frame from the bound power-beam sheet");

@@ -104,7 +104,8 @@ internal static class BossBodyLayeredPartsVerification
         int compared = 0;
         foreach (KraidBodyAppearance appearance in new[] { KraidBodyAppearance.BehindSprites, KraidBodyAppearance.InFrontOfSprites })
         {
-            state.BodyAppearance = appearance;
+            if (appearance == KraidBodyAppearance.InFrontOfSprites)
+                state.BringBodyInFront();
             foreach (KraidHeadFrame? head in new KraidHeadFrame?[] { null }.Concat(KraidHeadTilemapFormat.HeadsByMouthStage.Select(pose => (KraidHeadFrame?)pose)))
             {
                 global::SuperMetroid.Core.PrivateState.Set(state, "DisplayedHeadFrame", head);
@@ -151,10 +152,9 @@ internal static class BossBodyLayeredPartsVerification
     private static void CheckPartShowingNothing(BossBodySheet sheet)
     {
         BossBodyFrame body = sheet.Frame(EnemyFrameId.CrocomireBodyNearFootForwardArmBent);
-        var nothing = new BossBodyFrame("Nothing", picture: null, body.Anchor, depth: null);
+        var nothing = new BossBodyFrame("Nothing", shown: null, body.Anchor);
         ShownBossBody shown = new BossBodyLayer([body, nothing]).Show();
-        SpriteSheetFrame picture = body.Picture ?? throw new InvalidOperationException("Crocomire's body frame has a picture.");
-        BossBodyDepth depth = body.Depth ?? throw new InvalidOperationException("Crocomire's body frame has a depth.");
+        (SpriteSheetFrame picture, BossBodyDepth depth) = body.Shown ?? throw new InvalidOperationException("Crocomire's body frame has a picture.");
         AssertTrue(shown.Parts.Length == 1 && shown.Parts[0] == new ShownBossBodyPart(picture, body.Anchor, picture.Size, depth),
             "a part showing nothing is not drawn, and the body beneath it shows whole at its depth");
     }
@@ -225,7 +225,7 @@ internal static class BossBodyLayeredPartsVerification
         for (int pixel = 0; pixel < owners.Length; pixel++)
         {
             int x = pixel % area.X, y = pixel / area.X;
-            if (owners[pixel] is { Picture: { } picture } frame && (layer.ShownAbove is not { } shownAbove || y < shownAbove - areaFromBoss.Y)
+            if (owners[pixel] is { Shown.Picture: { } picture } frame && (layer.ShownAbove is not { } shownAbove || y < shownAbove - areaFromBoss.Y)
                 && KeyAt(picture, x - (frame.Anchor.X - areaFromBoss.X), y - (frame.Anchor.Y - areaFromBoss.Y)) is { } key)
                 shown[pixel] = new ShownPixel(key, depths[pixel]);
         }

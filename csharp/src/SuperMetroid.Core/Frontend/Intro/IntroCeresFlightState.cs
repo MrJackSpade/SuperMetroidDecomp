@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Frontend.CeresCinematics;
@@ -71,17 +72,17 @@ internal sealed class IntroCeresFlightState
     /// <summary>Whether the Japanese text's katakana caption has shown, from the update it shows until the flight ends.</summary>
     private bool JapaneseCaptionShown => caption?.Shown?.Shows == SpaceColonyCaptionText.WithKatakana;
     /// <summary>Whether the Japanese text is selected, which shows the katakana caption.</summary>
-    private readonly bool japaneseText;
+    private readonly TextLanguage language;
 
     /// <summary>Loads installed flight art and leaves the scene black for the setup update.</summary>
     /// <param name="audio">The shared music queue the approach waits on.</param>
     /// <param name="artwork">Installed cinematic artwork.</param>
     /// <param name="sheets">The installed sheets: the Ceres flight sheet the stars and rear-view actors draw from, and the caption's pictures.</param>
-    /// <param name="japaneseText">The Japanese text option, which adds the katakana SPACE COLONY caption.</param>
+    /// <param name="language">The text language; Japanese adds the katakana SPACE COLONY caption.</param>
     public IntroCeresFlightState(AudioQueues audio, CeresFlightArtwork artwork, InstalledSpriteSheets sheets,
-        bool japaneseText)
+        TextLanguage language)
     {
-        this.japaneseText = japaneseText;
+        this.language = language;
         this.audio = Ensure.NotNull(audio);
         BindSheets(sheets);
         CeresFlightArtwork content = Ensure.NotNull(artwork);
@@ -323,7 +324,7 @@ internal sealed class IntroCeresFlightState
         // shows it for one frame before the hold.
         caption = AnimationPlayer<SpaceColonyCaptionText, SpaceColonyCaptionTyping, SpaceColonyCaptionCue>.StartShowing(
             SpaceColonyCaptionAnimations.Segments,
-            SpaceColonyCaptionAnimations.Typing(japaneseText ? SpaceColonyCaptionText.WithKatakana : SpaceColonyCaptionText.English));
+            SpaceColonyCaptionAnimations.Typing(language == TextLanguage.Japanese ? SpaceColonyCaptionText.WithKatakana : SpaceColonyCaptionText.English));
         Phase = IntroCeresFlightPhase.SpaceColonyTitle;
     }
 

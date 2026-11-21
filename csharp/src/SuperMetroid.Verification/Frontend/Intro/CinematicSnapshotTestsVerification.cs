@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core;
 using static SuperMetroid.Verification.Frontend.Ending.EndingSnapshotTestsVerification;
@@ -28,7 +29,7 @@ internal static class CinematicSnapshotTestsVerification
         Suite(nameof(VerifyZebesDoesNotWrapDuringDescent), () => VerifyZebesDoesNotWrapDuringDescent());
         Suite(nameof(VerifyIntroDisplayCapture), () => VerifyIntroDisplayCapture());
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var flight = new IntroCeresFlightState(AudioQueues.Standalone(), InstalledFixtures.IntroArtwork.FlightCharacters.BoundCatalog, sheets: CinematicSheetFixtures.WithFlight(InstalledFixtures.IntroArtwork.FlightCharacters), japaneseText: false);
+        var flight = new IntroCeresFlightState(AudioQueues.Standalone(), InstalledFixtures.IntroArtwork.FlightCharacters.BoundCatalog, sheets: CinematicSheetFixtures.WithFlight(InstalledFixtures.IntroArtwork.FlightCharacters), language: TextLanguage.English);
         var flightPhases = new HashSet<IntroCeresFlightPhase>();
         int flightSamples = 0;
         bool coloredRearView = false;
@@ -41,7 +42,7 @@ internal static class CinematicSnapshotTestsVerification
                 LayeredScene snapshot = flight.ComposeScene();
                 byte[] held = GraphDigest(snapshot);
                 coloredRearView |= snapshot.Layers.Any(layer => layer is ScreenTintLayer c
-                    && c.Colour != RgbColor.Black);
+                    && c.Colour.ShownWith(global::SuperMetroid.Core.Assets.ColourBlendOracle.Instance) != RgbColor.Black);
                 AssertTrue(ScenePixels.Same(flight.ComposeScene(), snapshot), $"Ceres flight snapshot tick {tick} shows the live scene's pixels");
                 flight.StepFrame();
                 Survives(held, snapshot, tick);

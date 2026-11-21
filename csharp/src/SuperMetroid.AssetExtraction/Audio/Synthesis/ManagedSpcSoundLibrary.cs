@@ -21,8 +21,8 @@ internal sealed class ManagedSpcSoundLibrary
     internal int ChannelVoiceMaskPointer;
     /// <summary>SPC work-RAM address of the current channel's hardware voice index.</summary>
     internal int ChannelVoiceIndexPointer;
-    /// <summary>Library-three low-health or cancellation mode selected by its command.</summary>
-    internal int Mode;
+    /// <summary>Library three's request mode, which its low-health and cancellation commands select (#2560).</summary>
+    internal SoundLibraryMode Mode;
     /// <summary>Pointer to the selected sound's table of per-channel instruction streams.</summary>
     internal int CurrentPointer;
     /// <summary>Bit mask of hardware voices currently borrowed by this library.</summary>
@@ -37,15 +37,15 @@ internal sealed class ManagedSpcSoundLibrary
     internal int CurrentSoundIndex;
     /// <summary>Descending hardware voice number examined during allocation.</summary>
     internal int VoiceId;
-    /// <summary>Marks that the current sound's channels and borrowed voices have been initialized.</summary>
-    internal int InitializationFlag;
+    /// <summary>Whether the current sound's channels and borrowed voices have been initialized.</summary>
+    internal bool Initialized;
     /// <summary>DSP register-pair index assigned to the currently allocated voice.</summary>
     internal int VoiceIndex;
 
     /// <summary>Appends every field of this sound-effect library, in declaration order, to a driver-state snapshot (#1305).</summary>
     internal void WriteState(List<byte> state)
     {
-        SpcDriverSnapshot.AddBytes(state, [Priority, ChannelIndexTimesTwo, CurrentSound, Mode, EnabledVoices, VoicesToSetup, ChannelIndex, VoicesRemaining, CurrentSoundIndex, VoiceId, InitializationFlag, VoiceIndex]);
+        SpcDriverSnapshot.AddBytes(state, [Priority, ChannelIndexTimesTwo, CurrentSound, SpcDriverSnapshot.Byte(Mode), EnabledVoices, VoicesToSetup, ChannelIndex, VoicesRemaining, CurrentSoundIndex, VoiceId, SpcDriverSnapshot.Mark(Initialized), VoiceIndex]);
         SpcDriverSnapshot.AddWords(state, [ChannelVoiceBitsetPointer, ChannelVoiceMaskPointer, ChannelVoiceIndexPointer, CurrentPointer]);
     }
 }

@@ -42,7 +42,6 @@ internal static class YappingMawGrappleReleaseVerification
         samus.Grapple.Anchor = new Position16<RoomPixels>(936, 120);
         samus.Grapple.Angle = RotationAngle.HalfTurn;
         samus.Grapple.MirroredAngle = RotationAngle.HalfTurn;
-        samus.Grapple.CancelFromConnectedPose = false;
         samus.EquippedItems |= SamusEquipmentFlags.GrappleBeam;
         samus.SelectedHudItem = HudItem.Grapple;
         samus.Control.LockOutPlayer();

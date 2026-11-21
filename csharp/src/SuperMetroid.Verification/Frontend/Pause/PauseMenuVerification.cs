@@ -98,8 +98,7 @@ internal static class PauseMenuVerification
         var bus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
         var presentation = CreateConstructedPausePresentation(bus);
         // The HUD gameplay latched, which pause keeps resident (#1466).
-        var gameplayHud = new HudState();
-        gameplayHud.BindPresentation(presentation.Game.GameplayHud);
+        var gameplayHud = new HudState(presentation.Game.GameplayHud);
         gameplayHud.Initialize(HudSnapshot.NewGame);
         ShownHud retainedHud = gameplayHud.Shown();
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())

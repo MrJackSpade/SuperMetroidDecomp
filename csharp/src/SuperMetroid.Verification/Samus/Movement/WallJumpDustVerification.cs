@@ -29,9 +29,13 @@ internal static class WallJumpDustVerification
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             SamusPresentation.InitializeAnimation(samus);
             var liquid = samus.LiquidPhysics;
-            global::SuperMetroid.Core.PrivateState.Set(liquid, "WaterSurfaceY", medium is 1 or 3 ? 100 : medium == 4 ? 114 : null);
-            global::SuperMetroid.Core.PrivateState.Set(liquid, "LavaAcidSurfaceY", medium == 2 ? 100 : null);
-            PrivateState.Set(liquid, "IgnoresWaterSurface", medium == 3);
+            global::SuperMetroid.Core.PrivateState.Set(liquid, "Surface", medium switch
+            {
+                1 or 3 => new global::SuperMetroid.Core.Samus.Movement.SamusLiquidSurface.Water(100, IgnoredUntilEnabled: medium == 3),
+                4 => new global::SuperMetroid.Core.Samus.Movement.SamusLiquidSurface.Water(114, IgnoredUntilEnabled: false),
+                2 => new global::SuperMetroid.Core.Samus.Movement.SamusLiquidSurface.LavaOrAcid(100),
+                _ => global::SuperMetroid.Core.Samus.Movement.SamusLiquidSurface.None,
+            });
             var earlier = SamusParticle.AtStep(SamusParticleKind.SurfaceSplash, 1, SamusParticleStart.Shown(9), new(55, 66), Offset16<RoomPixels>.Zero);
             samus.Presentation.Particles.Add(earlier);
             if (grapple) SamusAerialPoseTransitions.ApplyGrappleWallJump(samus);

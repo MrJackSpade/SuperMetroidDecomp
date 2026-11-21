@@ -21,7 +21,8 @@ namespace SuperMetroid.Verification.Samus.Abilities;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Samus;
-using SuperMetroid.AssetExtraction.Samus.Artwork;
+using SuperMetroid.AssetExtraction.Samus.Artwork;
+using SuperMetroid.Core.Compatibility;
 
 /// <summary>Verifies Samus's Crystal Flash, X-ray, and death state machines with focused cartridge fixtures.</summary>
 internal static class SamusSpecialStatesVerification
@@ -718,7 +719,7 @@ static InstalledSamusDeathPalettes DecodeSamusDeathFixtureArtwork(TestAddressSpa
     ushort[][] suitlessColors = Enumerable.Range(0, 10).Select(palette => FixturePalette(0x9bd400 + palette * 0x20)).ToArray();
     ushort[] paletteIndices = Enumerable.Range(0, SuperMetroid.Core.Samus.Death.SamusDeathExplosionTimingDefinitionsConstants.RecordCount)
         .Select(index => (ushort)bus.ReadByte(SuperMetroid.Core.Samus.Death.SamusDeathExplosionTimingDefinitionsConstants.NativeFirstTimerAddress + index * 2 + 1)).ToArray();
-    return new InstalledSamusDeathPalettes([ToColors(suitColors), ToColors(suitColors), ToColors(suitColors)], ToColors(suitlessColors), ToColors(shades), paletteIndices);
+    return new InstalledSamusDeathPalettes([ToColors(suitColors), ToColors(suitColors), ToColors(suitColors)], ToColors(suitlessColors), ToColors(shades), Array.ConvertAll(paletteIndices, step => (int)step));
 }
 
 /// <summary>

@@ -91,7 +91,6 @@ internal sealed class CeresEscape : IGameplayShadingSource
     {
         _status.CeresStatus = CeresEscapeStatus.RidleyEscaped;
         Stage = CeresEscapeStage.Getaway;
-        Floor.Active = true;
         Floor.Flight = ListStep<CeresRidleyGetawayStep>.FirstOf(CeresRidleyGetawayCurve.Steps);
         Floor.Angle = CeresRidleyGetawayDefinitions.InitialAngle;
         Floor.Offset = CeresRidleyGetawayDefinitions.InitialFloorOffset;
@@ -114,14 +113,13 @@ internal sealed class CeresEscape : IGameplayShadingSource
     public void RunGetawayRoomMain(SamusState samus, RoomFloor floor, int frameCounter)
     {
         // The getaway's floor shows from its beginning until its end hands on to the self-destruct.
-        if (!Floor.Active)
+        if (Floor.Flight is null)
             return;
         // The update after the curves' last ends the getaway.
         if (Floor.Flight is not { } flying)
         {
             // The getaway's end restores the ordinary view and clears all rotation and scroll values, so the
             // self-destruct warning shows over the room, not the turning floor.
-            Floor.Active = false;
             Floor.Offset = Offset16<FloorPixels>.Zero;
             Floor.Center = Offset16<FloorPixels>.Zero;
             // The getaway's end hands on to the self-destruct warning, which Ridley's AI runs. Samus's
@@ -177,7 +175,7 @@ internal sealed class CeresEscape : IGameplayShadingSource
     /// the getaway does not show the floor: turned by the getaway's angle at its zoom about the floor's centre, and
     /// scrolled by the getaway's offset across the floor.
     /// </summary>
-    internal FloorView? ShownFloor => Floor.Active
+    internal FloorView? ShownFloor => Stage == CeresEscapeStage.Getaway
         ? FloorView.Turned(Floor.Angle, Floor.Zoom, Floor.Center, Floor.Offset)
         : null;
 
@@ -282,7 +280,7 @@ internal sealed class CeresEscape : IGameplayShadingSource
         Warning.Typewriter = new(_bossArtwork.EscapeTypewriterPresentation.Get(EscapeTypewriterMessageId.Ceres));
 
         // English goes straight to typing the warning; Japanese first runs the subtitle phase.
-        if (_roomStatus.JapaneseText)
+        if (_roomStatus.Language == TextLanguage.Japanese)
         {
             Warning.Phase = CeresSelfDestructPhase.JapaneseSubtitle;
             Warning.PhaseWait.LastFor(CeresSelfDestructWarningDefinitions.JapaneseSubtitleWaitUpdates);

@@ -119,9 +119,6 @@ internal static class RoomSheetShades
         yield return SheetShade.Run(TourianStatueShades.DraygonGrey, draygon, grey);
     }
 
-    /// <summary>Whether any of <paramref name="rooms"/> places Phantoon, whose death brings the Wrecked Ship's power on over it.</summary>
-    private static bool HoldsPhantoon(IEnumerable<SelectedRoom> rooms) => Places(rooms, EnemyDefinitionId.PhantoonBody);
-
     /// <summary>
     /// The shades of <paramref name="tileset"/>'s room effects' pictures on the effect overlay: the room effects' palette
     /// blends and, where its rooms hold Phantoon, the Wrecked Ship's power coming on.

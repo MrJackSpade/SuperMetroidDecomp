@@ -11,16 +11,7 @@ internal static class BeamChargeLevelPrivateAccess
     /// <summary>The private instance members checks read or call.</summary>
     extension(global::SuperMetroid.Core.Samus.Projectiles.BeamChargeLevel self)
     {
-        /// <summary>The private property <c>HyperBeamFlare</c>, reached by name.</summary>
-        internal bool HyperBeamFlare
-        {
-            get => PrivateState.ValueGet<global::SuperMetroid.Core.Samus.Projectiles.BeamChargeLevel, bool>(self, "HyperBeamFlare");
-        }
-
-        /// <summary>The private property <c>UpdatesHeld</c>, reached by name.</summary>
-        internal int UpdatesHeld
-        {
-            get => PrivateState.ValueGet<global::SuperMetroid.Core.Samus.Projectiles.BeamChargeLevel, int>(self, "UpdatesHeld");
-        }
+        /// <summary>Whether this is the Hyper Beam's flare rather than a held charge.</summary>
+        internal bool HyperBeamFlare => self is global::SuperMetroid.Core.Samus.Projectiles.BeamChargeLevel.HyperBeamFlareLevel;
     }
 }

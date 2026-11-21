@@ -337,7 +337,7 @@ internal static class SamusOverreadServicesReader
             cardinal.Add(beams, SignedEightEight.FromPixels(pair.Cardinal));
             diagonal.Add(beams, SignedEightEight.FromPixels(pair.Diagonal));
             if (!cooldowns.TryGetValue(SamusBeamCombinationKeys.Installed.Of(beams), out SamusOverreadDocument.Cooldowns? wait) || wait is null ||
-                wait.Uncharged is < 0 or > byte.MaxValue || wait.Charged is < 0 or > byte.MaxValue || wait.HeldFire is < 0 or > byte.MaxValue)
+                wait.Uncharged < 0 || wait.Charged < 0 || wait.HeldFire < 0)
                 throw new InvalidDataException($"Samus overread file holds no valid cooldowns for {beams}.");
             waits.Add(beams, new BeamShotCooldowns(wait.Uncharged, wait.Charged, wait.HeldFire));
         }

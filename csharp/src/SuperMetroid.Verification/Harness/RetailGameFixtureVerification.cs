@@ -53,8 +53,8 @@ internal static class RetailGameFixtureVerification
 
     /// <summary>Creates an ending state with supplied game time, inventory, audio, and language selection.</summary>
     internal static EndingCreditsState CreateRetailEndingFixture(AudioQueues audio, ushort gameTimeHours, ushort gameTimeMinutes,
-        EndingInventorySnapshot inventory = default, bool japaneseText = false) =>
-        InstalledFixtures.CreateEnding(audio, gameTimeHours, gameTimeMinutes, inventory, japaneseText);
+        EndingInventorySnapshot inventory = default, TextLanguage language = TextLanguage.English) =>
+        InstalledFixtures.CreateEnding(audio, gameTimeHours, gameTimeMinutes, inventory, language);
     /// <summary>Creates an intro state with optionally supplied audio and installed visual catalogs.</summary>
     internal static IntroCinematicState CreateRetailIntroFixture(AudioQueues? audio = null,
         ImportIntroCinematicArtwork? characterArtwork = null,

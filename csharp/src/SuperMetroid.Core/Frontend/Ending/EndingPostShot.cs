@@ -16,8 +16,10 @@ internal sealed class EndingPostShot
     public FloorZoom Zoom { get; private set; } = EndingPostShotDefinitions.InitialZoom;
     /// <summary>Rotation of the shot graphic, turned backward on each active rotation step and wrapping around the full turn.</summary>
     public RotationAngle Angle { get; private set; } = RotationAngle.Zero;
+    /// <summary>Where the shot stands (#2560): rotating down to its minimum zoom, holding there, or handed to the white flash.</summary>
+    private Stage stage;
     /// <summary>Indicates that the shot graphic has reached its minimum zoom.</summary>
-    private bool RotationFinished { get; set; }
+    private bool RotationFinished => stage != Stage.Rotating;
     /// <summary>Advances the rotation, both colour fades and the white-flash handoff by one update.</summary>
     /// <returns>Whether the hold has expired, which hands the ending over to the white flash.</returns>
     public bool Step(EndingScreen screen)
@@ -34,7 +36,7 @@ internal sealed class EndingPostShot
             if (Zoom < EndingPostShotDefinitions.MinimumZoom)
             {
                 Zoom = EndingPostShotDefinitions.MinimumZoom;
-                RotationFinished = true;
+                stage = Stage.Holding;
             }
             return false;
         }
@@ -53,4 +55,12 @@ internal sealed class EndingPostShot
         colours.Fade(group, fade.Left);
     }
 
+    /// <summary>Where the post-shot stands (#2560).</summary>
+    private enum Stage
+    {
+        /// <summary>The shot turns and narrows toward its minimum zoom.</summary>
+        Rotating,
+        /// <summary>The shot holds at its minimum zoom until the hold runs out.</summary>
+        Holding,
+    }
 }

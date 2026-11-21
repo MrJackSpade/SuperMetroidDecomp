@@ -122,8 +122,9 @@ internal sealed class KraidCombat
             KraidPassBounds bounds = PlaceKraidPassBounds(body, inner);
             foreach (KraidBehavior.KraidPassProjectile projectile in tested)
             {
-                if (projectile.Held is not { } shot)
+                if (projectile.Held is not { } held)
                     continue;
+                KraidBehavior.KraidCollisionShot shot = held.Shot;
                 SamusProjectileType type = shot.Type;
                 if (!OverlapsKraidMouth(bounds, shot) ||
                     (type.Family == SamusProjectileFamily.Beam && !type.IsChargedBeam))
@@ -143,7 +144,7 @@ internal sealed class KraidCombat
                         ? 0
                         : body.Health - damage;
                     body.HurtFlash.Restart(body.HurtFlashFrames + EnemyCollisionDefinitions.WeaponHurtFlashExtension);
-                    body.AiStates = body.AiStates | EnemyAiStates.Hurt;
+                    body.MarkHurt();
                     if (type.HasAnyBeam(SamusBeamFlags.Plasma))
                         body.Invincibility.Restart(EnemyCollisionDefinitions.PlasmaShotInvincibilityUpdates);
                 }
@@ -154,7 +155,7 @@ internal sealed class KraidCombat
                     bounds.LeaveAfterDud(_effectActors.PlaceOf(dud), shot.Position);
                     _audio.QueueEnemySound(SamusSound.DudShot, priority: SoundRequestPriority.Low);
                 }
-                projectile.MarkCollision();
+                held.MarkCollision();
                 mouthHits++;
             }
         }
@@ -185,13 +186,14 @@ internal sealed class KraidCombat
             KraidPassBounds bounds = PlaceKraidPassBounds(body, outerMouth);
             foreach (KraidBehavior.KraidPassProjectile projectile in tested)
             {
-                if (projectile.Held is not { } shot)
+                if (projectile.Held is not { } held)
                     continue;
+                KraidBehavior.KraidCollisionShot shot = held.Shot;
                 if (!OverlapsKraidBody(ref bounds, body, shot))
                     continue;
                 SpawnKraidArmShotExplosion(shot.Type, shot.Position);
                 bounds.LeaveAfterBodyHit(shot.Position);
-                projectile.MarkCollision();
+                held.MarkCollision();
                 if (shot.Type.IsChargedBeam)
                     chargedHit = true;
                 bodyHits++;
@@ -309,7 +311,7 @@ internal sealed class KraidCombat
                         componentOrigin.X + hitbox.Right,
                         componentOrigin.Y + hitbox.Bottom))
                     continue;
-                return EnemyHitboxContact.Struck(probe.SelectsShot ? hitbox.Shot : hitbox.Touch);
+                return EnemyHitboxContact.Struck(probe.Contact == HitboxContactKind.Shot ? hitbox.Shot : hitbox.Touch);
             }
         }
         return EnemyHitboxContact.Missed;

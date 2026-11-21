@@ -29,6 +29,4 @@ public sealed class YellowPipeBugState
     /// </summary>
     public QuadraticSpeedCurvePlace ArcCurvePlace { get; internal set; }
 
-    /// <summary>Whether the bug has completed its one authored arc.</summary>
-    public bool ArcCompleted { get; internal set; }
 }

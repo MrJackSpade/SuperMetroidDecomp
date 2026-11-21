@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx.ColourEffects;
@@ -406,7 +407,7 @@ internal sealed class MotherBrainThirdPhaseDeath
         requests.EscapeColourEffectRequests.Add(ColourEffectId.TourianRedFlashingArkanoidBlocksAndRedOrbs);
         requests.Start(MotherBrainStepEffect.EscapeTypewriterSetup);
         Encounter.PhaseTimer.LastFor(MotherBrainLateFightDefinitions.EscapeTextDelayUpdates);
-        _state.DeathPhase = frame.AlternateEscapeText
+        _state.DeathPhase = frame.Language == TextLanguage.Japanese
             ? MotherBrainDeathPhase.ShowsEscapeSubtitle
             : MotherBrainDeathPhase.TypeOutZebesEscapeText;
         return false;

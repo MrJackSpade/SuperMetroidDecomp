@@ -41,12 +41,12 @@ internal static class SaveSchemaTranslationVerification
         // A Zebetite count and the Baby Metroid-approach event, which schema four listed as counter events and by number (#1527).
         system.Progress.ZebetitesDestroyed = 3;
         system.SetEvent(StoryEvent.BabyMetroidEncounterMusicSkipped);
-        ram.SaveSlot(SaveSlot.A, SuperMetroidSaveSnapshot.Capture(samus, system, SaveSnapshotFixtures.At(SuperMetroid.Core.Progression.LoadStationDefinitions.Gunship) with { JapaneseText = true }));
+        ram.SaveSlot(SaveSlot.A, SuperMetroidSaveSnapshot.Capture(samus, system, SaveSnapshotFixtures.At(SuperMetroid.Core.Progression.LoadStationDefinitions.Gunship) with { Language = SuperMetroid.Core.Progression.TextLanguage.Japanese }));
         ram.CompleteGame();
         ram.SelectSlot(SaveSlot.A);
         string json = GameSaveJsonCodec.Serialize(GameSaveJsonCodec.Capture(ram));
         AssertTrue(!json.Contains("preservedUntranslatedSram", StringComparison.Ordinal) &&
-            json.Contains("\"gameCompleted\": true", StringComparison.Ordinal) &&
+            json.Contains("\"history\": \"gameCompleted\"", StringComparison.Ordinal) &&
             !json.Contains("reserveMissiles", StringComparison.Ordinal) &&
             !json.Contains("loadedItemCount", StringComparison.Ordinal) &&
             json.Contains("\"japaneseText\": true", StringComparison.Ordinal), "schema two contains named missing state and no SRAM blob");
@@ -57,13 +57,12 @@ internal static class SaveSchemaTranslationVerification
         var restoredSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         var restoredSystem = new SharedGameState(new SharedRandom());
         (loaded ?? throw new InvalidOperationException("Verification requires loaded.")).ApplyTo(restoredSamus, restoredSystem);
-        AssertTrue(loaded.JapaneseText && targetSaves.HasCompletedGame, "language and completion survive save load");
+        AssertTrue(loaded.Language == TextLanguage.Japanese && targetSaves.HasCompletedGame, "language and completion survive save load");
 
         Suite(nameof(VerifyNamedSaveRuntime), () => VerifyNamedSaveRuntime(ram));
 
         // A schema-two save lists bosses by the eight area slots, stations and maps by table bit; it upgrades to the same store.
-        JsonObject schemaTwo = RequiredJson.Parse(json).AsObject();
-        schemaTwo["schemaVersion"] = 2;
+        JsonObject schemaTwo = SaveSchemaFixtures.AtSchema(json, 2);
         ToSchemaFourProgression(schemaTwo);
         ToSchemaTwoProgression(schemaTwo);
         GameSaveJsonDocument upgradedTwo = LegacyGameSaveJson.Deserialize(schemaTwo.ToJsonString(), "game save", out bool migratedTwo);
@@ -74,11 +73,9 @@ internal static class SaveSchemaTranslationVerification
 
         // A schema-twelve save keeps each slot's reserve-missile count, which nothing in the game reads (#2364): the current
         // schema's strict reader rejects it, and the save upgrades to the same saves without it.
-        JsonObject schemaTwelve = RequiredJson.Parse(json).AsObject();
-        schemaTwelve["schemaVersion"] = 12;
+        JsonObject schemaTwelve = SaveSchemaFixtures.AtSchema(json, 12);
         schemaTwelve.Required("slots").Required(0).Required("resources")["reserveMissiles"] = 27;
-        JsonObject twelveAsCurrent = RequiredJson.Parse(schemaTwelve.ToJsonString()).AsObject();
-        twelveAsCurrent["schemaVersion"] = GameSaveJsonFormat.SchemaVersion;
+        JsonObject twelveAsCurrent = SaveSchemaFixtures.AsCurrent(schemaTwelve);
         AssertInvalidJsonSave(twelveAsCurrent.ToJsonString(), "reserveMissiles");
         GameSaveJsonDocument upgradedTwelve = LegacyGameSaveJson.Deserialize(schemaTwelve.ToJsonString(), "game save", out bool migratedTwelve);
         AssertTrue(migratedTwelve, "a schema-twelve save is upgraded");
@@ -92,8 +89,7 @@ internal static class SaveSchemaTranslationVerification
         UpgradesSchemaThree(null, SaveStartupRoute.MainGame);
         void UpgradesSchemaThree(int? word, SaveStartupRoute route)
         {
-            JsonObject schemaThree = RequiredJson.Parse(json).AsObject();
-            schemaThree["schemaVersion"] = 3;
+            JsonObject schemaThree = SaveSchemaFixtures.AtSchema(json, 3);
             ToSchemaFourProgression(schemaThree);
             JsonObject threeSlot = schemaThree.Required("slots").Required(0).AsObject();
             threeSlot.Remove("startupRoute");
@@ -112,13 +108,11 @@ internal static class SaveSchemaTranslationVerification
             json.Contains($"\"{nameof(LoadStationDefinitions.CrocomireSave)}\"", StringComparison.Ordinal) &&
             json.Contains($"\"{nameof(LoadStationDefinitions.MaridiaElevator)}\"", StringComparison.Ordinal),
             "the current schema names the checkpoint and used stations by their load stations");
-        JsonObject schemaEight = RequiredJson.Parse(json).AsObject();
-        schemaEight["schemaVersion"] = 8;
+        JsonObject schemaEight = SaveSchemaFixtures.AtSchema(json, 8);
         ToSchemaEightSlots(schemaEight);
         AssertEqual(0, schemaEight.Required("slots").Required(0).Required("checkpoint").Required("saveStation").GetValue<int>(),
             "the schema-eight fixture numbers the gunship as Crateria's station list does");
-        JsonObject eightAsCurrent = RequiredJson.Parse(schemaEight.ToJsonString()).AsObject();
-        eightAsCurrent["schemaVersion"] = GameSaveJsonFormat.SchemaVersion;
+        JsonObject eightAsCurrent = SaveSchemaFixtures.AsCurrent(schemaEight);
         AssertInvalidJsonSave(eightAsCurrent.ToJsonString(), "checkpoint");
         GameSaveJsonDocument upgradedEight = LegacyGameSaveJson.Deserialize(schemaEight.ToJsonString(), "game save", out bool migratedEight);
         AssertTrue(migratedEight, "a schema-eight save is upgraded");
@@ -131,8 +125,7 @@ internal static class SaveSchemaTranslationVerification
 
         // A schema-nine save could list the equipment bit no item records, which Golden Torizo's item code set and nothing
         // reads (#1778); the save upgrades without it, and a list it alone made up becomes no item.
-        JsonObject schemaNine = RequiredJson.Parse(json).AsObject();
-        schemaNine["schemaVersion"] = 9;
+        JsonObject schemaNine = SaveSchemaFixtures.AtSchema(json, 9);
         JsonObject nineInventory = schemaNine.Required("slots").Required(0).Required("inventory").AsObject();
         nineInventory["collectedItems"] = "springBall, unassignedItem";
         nineInventory["equippedItems"] = "unassignedItem";
@@ -144,13 +137,11 @@ internal static class SaveSchemaTranslationVerification
 
         // A schema-ten save names item locations and doors after the disassembly's abbreviated room labels (#2103); the
         // current schema's strict reader rejects those names, and the save upgrades to the rooms' spelled-out names.
-        JsonObject schemaTen = RequiredJson.Parse(json).AsObject();
-        schemaTen["schemaVersion"] = 10;
+        JsonObject schemaTen = SaveSchemaFixtures.AtSchema(json, 10);
         JsonObject tenProgression = schemaTen.Required("slots").Required(0).Required("progression").AsObject();
         tenProgression["collectedItems"] = new JsonArray("BlueBrinstarETankExposedMissileTank");
         tenProgression["openedDoors"] = new JsonArray("RedBinstarElevYellowDoorFacingDown");
-        JsonObject tenAsCurrent = RequiredJson.Parse(schemaTen.ToJsonString()).AsObject();
-        tenAsCurrent["schemaVersion"] = GameSaveJsonFormat.SchemaVersion;
+        JsonObject tenAsCurrent = SaveSchemaFixtures.AsCurrent(schemaTen);
         AssertInvalidJsonSave(tenAsCurrent.ToJsonString(), "BlueBrinstarETankExposedMissileTank");
         GameSaveJsonDocument upgradedTen = LegacyGameSaveJson.Deserialize(schemaTen.ToJsonString(), "game save", out bool migratedTen);
         AssertTrue(migratedTen, "a schema-ten save is upgraded");
@@ -163,12 +154,10 @@ internal static class SaveSchemaTranslationVerification
         // A schema-thirteen save names some item locations after the room state that first places them (#2491); the current
         // schema's strict reader rejects those names, and the save upgrades to the rooms' names. A schema-ten name that
         // schema eleven spelled out with its room state upgrades through both.
-        JsonObject schemaThirteen = RequiredJson.Parse(json).AsObject();
-        schemaThirteen["schemaVersion"] = 13;
+        JsonObject schemaThirteen = SaveSchemaFixtures.AtSchema(json, 13);
         schemaThirteen.Required("slots").Required(0).Required("progression")["collectedItems"] =
             new JsonArray("BombTorizoDefaultOrWhenAreaTorizoDeadChozoBombs", "MorphBallDefaultExposedMorphBall");
-        JsonObject thirteenAsCurrent = RequiredJson.Parse(schemaThirteen.ToJsonString()).AsObject();
-        thirteenAsCurrent["schemaVersion"] = GameSaveJsonFormat.SchemaVersion;
+        JsonObject thirteenAsCurrent = SaveSchemaFixtures.AsCurrent(schemaThirteen);
         AssertInvalidJsonSave(thirteenAsCurrent.ToJsonString(), "BombTorizoDefaultOrWhenAreaTorizoDeadChozoBombs");
         GameSaveJsonDocument upgradedThirteen = LegacyGameSaveJson.Deserialize(schemaThirteen.ToJsonString(), "game save", out bool migratedThirteen);
         AssertTrue(migratedThirteen, "a schema-thirteen save is upgraded");
@@ -184,12 +173,10 @@ internal static class SaveSchemaTranslationVerification
         // A schema-fourteen save names some doors after the room states that place them (#2501); the current schema's
         // strict reader rejects those names, and the save upgrades to the rooms' names: the Attic's two grey doors on one
         // block are told apart by their conditions, and the Climb's escape door by its state.
-        JsonObject schemaFourteen = RequiredJson.Parse(json).AsObject();
-        schemaFourteen["schemaVersion"] = 14;
+        JsonObject schemaFourteen = SaveSchemaFixtures.AtSchema(json, 14);
         schemaFourteen.Required("slots").Required(0).Required("progression")["openedDoors"] = new JsonArray(
             "ClimbWhenZebesTimebombSetGreyDoorFacingLeftAt46x6", "AtticDefaultGreyDoorFacingRight", "AtticWhenAreaBossDeadGreyDoorFacingRight");
-        JsonObject fourteenAsCurrent = RequiredJson.Parse(schemaFourteen.ToJsonString()).AsObject();
-        fourteenAsCurrent["schemaVersion"] = GameSaveJsonFormat.SchemaVersion;
+        JsonObject fourteenAsCurrent = SaveSchemaFixtures.AsCurrent(schemaFourteen);
         AssertInvalidJsonSave(fourteenAsCurrent.ToJsonString(), "ClimbWhenZebesTimebombSetGreyDoorFacingLeftAt46x6");
         GameSaveJsonDocument upgradedFourteen = LegacyGameSaveJson.Deserialize(schemaFourteen.ToJsonString(), "game save", out bool migratedFourteen);
         AssertTrue(migratedFourteen, "a schema-fourteen save is upgraded");
@@ -200,8 +187,7 @@ internal static class SaveSchemaTranslationVerification
 
         // A schema-seven save carries the count of item set-ups, which nothing in the game reads (#1691); the current
         // schema's strict reader rejects it, and the save upgrades to the same saves without it.
-        JsonObject schemaSeven = RequiredJson.Parse(json).AsObject();
-        schemaSeven["schemaVersion"] = 7;
+        JsonObject schemaSeven = SaveSchemaFixtures.AtSchema(json, 7);
         ToSchemaSevenSlots(schemaSeven);
         JsonObject sevenAsCurrent = RequiredJson.Parse(json).AsObject();
         sevenAsCurrent.Required("slots").Required(0)["loadedItemCount"] = 65535;
@@ -216,8 +202,7 @@ internal static class SaveSchemaTranslationVerification
         // A schema-six save keeps the HUD selection and reserve-tank mode as numbers and carries the debug build's
         // placement setting and the never-read new-file word (#1605); it upgrades to the names and the same saves,
         // whatever the two unread words held, and a number naming no selection or mode is rejected.
-        JsonObject schemaSix = RequiredJson.Parse(json).AsObject();
-        schemaSix["schemaVersion"] = 6;
+        JsonObject schemaSix = SaveSchemaFixtures.AtSchema(json, 6);
         ToSchemaSixSlots(schemaSix);
         JsonObject sixSlot = schemaSix.Required("slots").Required(0).AsObject();
         sixSlot["cartridgeDebugFlag"] = 0;
@@ -244,8 +229,7 @@ internal static class SaveSchemaTranslationVerification
         // A schema-five save lists event bits no story event uses by number, broken Chozo orbs, and item locations and
         // doors by room-data number, including numbers no retail placement has (#1553); it upgrades to the same saves,
         // without the bits nothing reads.
-        JsonObject schemaFive = RequiredJson.Parse(json).AsObject();
-        schemaFive["schemaVersion"] = 5;
+        JsonObject schemaFive = SaveSchemaFixtures.AtSchema(json, 5);
         ToSchemaFiveProgression(schemaFive);
         JsonObject fiveProgression = schemaFive.Required("slots").Required(0).Required("progression").AsObject();
         JsonArray fiveEvents = fiveProgression.Required("events").AsArray();
@@ -263,8 +247,7 @@ internal static class SaveSchemaTranslationVerification
 
         // A schema-four save lists the Zebetite count as the three counter events and names the Baby Metroid-approach event
         // after its number (#1527); it upgrades to the count, the event's name and the same saves.
-        JsonObject schemaFour = RequiredJson.Parse(json).AsObject();
-        schemaFour["schemaVersion"] = 4;
+        JsonObject schemaFour = SaveSchemaFixtures.AtSchema(json, 4);
         ToSchemaFourProgression(schemaFour);
         GameSaveJsonDocument upgradedFour = LegacyGameSaveJson.Deserialize(schemaFour.ToJsonString(), "game save", out bool migratedFour);
         AssertTrue(migratedFour, "a schema-four save is upgraded");
@@ -287,8 +270,7 @@ internal static class SaveSchemaTranslationVerification
             "a schema-four counter of seven becomes all four Zebetites destroyed");
 
         // Build a genuine old envelope independently: old named fields override its raw mirror.
-        JsonObject legacy = RequiredJson.Parse(json).AsObject();
-        legacy["schemaVersion"] = 1;
+        JsonObject legacy = SaveSchemaFixtures.AtSchema(json, 1);
         ToSchemaFourProgression(legacy);
         ToSchemaTwoProgression(legacy);
         legacy.Remove("gameCompleted");
@@ -322,7 +304,7 @@ internal static class SaveSchemaTranslationVerification
         AssertEqual(SaveRamLayout.LoadedItemCountSavedWord,
             SaveRamCodec.ReadSlotWord(SaveRamCodec.Encode(importedSaves, RetailPresentationFixture()), 0, SaveRamLayout.LoadedItemCountOffset),
             "legacy importer does not carry the image's item set-up count");
-        AssertTrue(imported.JapaneseText && importedSaves.HasCompletedGame, "legacy importer decodes language and completion");
+        AssertTrue(imported.Language == TextLanguage.Japanese && importedSaves.HasCompletedGame, "legacy importer decodes language and completion");
         AssertEqual(0, SaveRamCodec.Encode(importedSaves, RetailPresentationFixture())[0x1a00], "confirmed unused bytes are not perpetuated");
         AssertTrue(!GameSaveJsonCodec.Serialize(upgraded).Contains("preservedUntranslatedSram", StringComparison.Ordinal), "legacy import never re-emits its blob");
         var bad = RequiredJson.Parse(oldJson).AsObject();
@@ -547,12 +529,11 @@ internal static class SaveSchemaTranslationVerification
         var text = SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingTextPresentation.TypewriterOf(
             SuperMetroid.AssetExtraction.Frontend.Ending.EndingTextExtractor.Extract(native));
         // The game binds the installed sheets with the ending, which draws its stars from them.
-        var ending = new EndingCreditsState(SuperMetroid.Core.Audio.AudioQueues.Standalone(), new EndingCreditsSetup { GameTimeHours = 0, GameTimeMinutes = 0, Inventory = default, JapaneseText = false, CrittersEscaped = false },
+        var ending = new EndingCreditsState(SuperMetroid.Core.Audio.AudioQueues.Standalone(), new EndingCreditsSetup { GameTimeHours = 0, GameTimeMinutes = 0, Inventory = default, Language = SuperMetroid.Core.Progression.TextLanguage.English, CrittersEscaped = false },
             text, InstalledFixtures.EndingBackdrops, InstalledFixtures.SpriteSheets);
         // The ending stands on the item percentage's last move-down update, below the final logo.
         _ = ending.CreditsRoll.StartItemPercentage();
-        PrivateState.Set(ending, nameof(EndingCreditsState.Scene), new EndingLogoScene(new EndingLogo(ending.Stage, () => { })));
-        PrivateState.Set(ending, nameof(EndingCreditsState.Phase), EndingCreditsPhase.ItemPercentageScrollDown);
+        PrivateState.Set(ending, nameof(EndingCreditsState.Scene), new EndingItemPercentageDropScene());
         PrivateState.Set(ending, nameof(EndingCreditsState.PhaseHold), UpdateCountdown.Lasting(1));
         frontend.Session.Show(ending);
         frontend.Session.Enter(EndingStep.Credits);
@@ -568,7 +549,7 @@ internal static class SaveSchemaTranslationVerification
     }
 
     /// <summary>Confirms a malformed schema-one save is rejected by the hosts' upgrade with a diagnostic naming the invalid value.</summary>
-    private static void AssertInvalidLegacyJsonSave(string json, string expectedMessagePart)
+    internal static void AssertInvalidLegacyJsonSave(string json, string expectedMessagePart)
     {
         try
         {

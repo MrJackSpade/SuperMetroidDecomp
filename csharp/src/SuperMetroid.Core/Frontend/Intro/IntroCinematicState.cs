@@ -229,13 +229,13 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// and projectiles draw from until <see cref="BindSpriteSheets"/> binds others.
     /// </param>
     /// <param name="characterArtwork">The installed opening-cinematic background and sprite artwork.</param>
-    /// <param name="japaneseText">The options menu's Japanese text setting.</param>
+    /// <param name="language">The options menu's text language.</param>
     public IntroCinematicState(
         IntroCinematicOverreads overreads,
         AudioQueues audio,
         SamusArtworkBinding samusArtwork,
         IntroCinematicArtwork characterArtwork,
-        bool japaneseText)
+        TextLanguage language)
     {
         flashbackSamusArtwork = Ensure.NotNull(samusArtwork);
         SceneSheets = samusArtwork.Sheets;
@@ -249,7 +249,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         flashbackProjectiles = new SamusProjectileSystem(flashbackAudioRequests, new BeamChargeState(), samusOverreads,
             new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), samusArtwork, new RoomEarthquake());
 
-        subtitles = new IntroJapaneseSubtitles(japaneseText);
+        subtitles = new IntroJapaneseSubtitles(language);
         this.audio = Ensure.NotNull(audio);
         CharacterArtwork = Ensure.NotNull(characterArtwork);
 
@@ -421,7 +421,7 @@ public sealed class IntroCinematicState : IFrontendScreen
                 // the delayed music request has completed.
                 CurrentCeresFlight = new IntroCeresFlightState(audio,
                     CharacterArtwork.CeresFlight,
-                    SceneSheets, subtitles.Enabled);
+                    SceneSheets, subtitles.Language);
                 Phase = IntroCinematicPhase.CeresFlight;
             }
         },
@@ -1122,13 +1122,13 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// The colour the opening shows where nothing is drawn (#1512): the installed backdrop at the narration's level, as the
     /// backdrop fades with the narration.
     /// </summary>
-    private RgbColor Backdrop
+    private ShownColour Backdrop
     {
         get
         {
             RgbColor installed = CharacterArtwork.Backdrop;
             int level = crossfade.LevelOf(IntroCrossfadeScene.Narration);
-            return level == IntroCrossfade.Levels ? installed : new ColourLevel(level, IntroCrossfade.Levels).Apply(installed);
+            return level == IntroCrossfade.Levels ? installed : new ShownColour.Faded(installed, new FadeLevel(level, IntroCrossfade.Levels));
         }
     }
 
@@ -1143,7 +1143,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         int level = crossfade.LevelOf(IntroCrossfadeScene.Narration);
         if (level == IntroCrossfade.Levels)
             return shaded;
-        var beamLevel = new ColourLevel(level, IntroCrossfade.Levels);
+        var beamLevel = new ColourLevel(new FadeLevel(level, IntroCrossfade.Levels));
         var faded = ImmutableArray.CreateBuilder<ImageSpriteDraw>(shaded.Length);
         foreach (ImageSpriteDraw draw in shaded)
         {

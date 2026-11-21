@@ -20,7 +20,12 @@ public sealed class SamusPowerBombExplosionState
     /// </summary>
     public PowerBombBlastOval ShownOval => PowerBombBlastOval.Of(Position, Blast.ShownRadius, Blast.GlowColor);
 
-    /// <summary>True from placement until cleanup releases the one-at-a-time Power Bomb lock.</summary>
+    /// <summary>
+    /// True from placement until cleanup releases the one-at-a-time Power Bomb lock. The lock is no stage of the blast
+    /// (#2560): a placed Power Bomb holds it before any blast runs, Crystal Flash's blast runs without it, and cleanup
+    /// releases it after the blast has ended, so whether another Power Bomb may be placed and whether a blast runs are two
+    /// facts the game keeps apart.
+    /// </summary>
     public bool IsArmed { get; private set; }
 
     /// <summary>

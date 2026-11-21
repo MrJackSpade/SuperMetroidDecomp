@@ -286,7 +286,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     internal EnemyShotReaction ZebetiteShotReaction => field ??= new()
     {
         EndsWithoutImpact = true,
-        ExemptFromGenericDeath = true,
+        Lethal = EnemyShotLethal.SpeciesOwned,
         // The Zebetite's shot reaction runs the common damage without the hit burst.
         ShowsHitBurst = EnemyShotReaction.NeverShowsHitBurst,
         AfterCommon = c => ResolveZebetiteShotAfterCommon(c.Enemy),

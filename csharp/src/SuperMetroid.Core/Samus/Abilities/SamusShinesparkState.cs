@@ -542,11 +542,12 @@ public sealed class SamusShinesparkState
     /// </summary>
     /// <param name="samus">Samus, around whom the echo is placed.</param>
     /// <param name="cameraPosition">The camera's room position.</param>
-    /// <param name="shot">The shot carrying one of the crash's released echoes.</param>
+    /// <param name="held">The shot carrying one of the crash's released echoes.</param>
     /// <param name="flight">The shot's flight, which carries its echo.</param>
     /// <returns>Whether the echo is still on the screen; its shot is cleared otherwise.</returns>
-    internal bool StepReleasedEcho(SamusState samus, Position16<RoomPixels> cameraPosition, SamusProjectile shot, ShinesparkEchoShotState flight)
+    internal bool StepReleasedEcho(SamusState samus, Position16<RoomPixels> cameraPosition, SamusProjectileOccupant held, ShinesparkEchoShotState flight)
     {
+        SamusProjectile shot = Ensure.NotNull(held).Projectile;
         ShinesparkCrashEcho echo = flight.Echo;
 
         // The point is recalculated from Samus's current position on every update; these are expanding radial
@@ -568,7 +569,7 @@ public sealed class SamusShinesparkState
             return false;
 
         echo.MoveTo(point);
-        shot.Position = shot.Position.WithWhole(point);
+        held.Position = held.Position.WithWhole(point);
         return true;
     }
 

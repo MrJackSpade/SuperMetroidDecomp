@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Assets;
-
+﻿using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>Cartridge values and helpers of <see cref="PhantoonPresentation"/> that only verification reads.</summary>

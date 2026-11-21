@@ -150,8 +150,8 @@ public sealed class SoundAcceptanceClock<TLibrary, TSound>
     {
         (checkTimer, bool checks) = checkTimer.Advance(periods);
         if (!checks)
-            return new SoundClockStep<TLibrary, TSound>(sampleOffset, periods, ChecksRequests: false, default);
-        return new SoundClockStep<TLibrary, TSound>(sampleOffset, periods, ChecksRequests: true,
+            return new SoundClockStep<TLibrary, TSound>(sampleOffset, periods, null);
+        return new SoundClockStep<TLibrary, TSound>(sampleOffset, periods,
             new SoundRequestChecks<TLibrary, TSound>(libraries, Check));
     }
 

@@ -324,24 +324,26 @@ public sealed class SamusHorizontalSpeedState
         bool screwAttackEquipped = frame.EquippedItems.HasAny(SamusEquipmentFlags.ScrewAttack);
         if (frame.MovementType == SamusMovementType.SpinJumping && screwAttackEquipped)
         {
-            if (frame.AnimationOnSpinStart)
+            switch (frame.SpinPlace)
             {
-                // The spin's first frame restarts only the colour cycle's step. That frame keeps the normal suit colours
-                // already shown; it shows no Screw Attack shade.
-                FullBodyGlow.GoOnFrom(SamusGlowPlay.Before(FullBodyGlowStart));
-                return;
+                case SpinGlowPlace.Restarting:
+                    // The spin's first frame restarts only the colour cycle's step. That frame keeps the normal suit colours
+                    // already shown; it shows no Screw Attack shade.
+                    FullBodyGlow.GoOnFrom(SamusGlowPlay.Before(FullBodyGlowStart));
+                    return;
+                case SpinGlowPlace.ShowsNormalColours:
+                    // From the spin's first wall-jump-ready frame onward Samus shows her normal suit colours; the spin's
+                    // frames between its first and that one cycle below. Her colours are what the next shown frame displays.
+                    SamusSuitShade.Show(colours, frame.EquippedItems);
+                    return;
+                case SpinGlowPlace.Glowing:
+                    ShowNextScrewAttackShade(colours, suit);
+                    return;
+                case SpinGlowPlace.NotSpinning:
+                    throw new InvalidOperationException("A spin jump's animation stands somewhere in its spin.");
+                default:
+                    throw new InvalidOperationException($"Undefined {nameof(SpinGlowPlace)} {frame.SpinPlace}.");
             }
-
-            if (frame.AnimationPastScrewAttackSpin)
-            {
-                // From the spin's first wall-jump-ready frame onward Samus shows her normal suit colours; the spin's
-                // frames between its first and that one cycle below. Her colours are what the next shown frame displays.
-                SamusSuitShade.Show(colours, frame.EquippedItems);
-                return;
-            }
-
-            ShowNextScrewAttackShade(colours, suit);
-            return;
         }
 
         if (frame.MovementType == SamusMovementType.WallJumping)
@@ -349,16 +351,22 @@ public sealed class SamusHorizontalSpeedState
             if (!screwAttackEquipped)
                 return;
 
-            if (frame.AnimationBeforeWallJumpSpin)
+            switch (frame.SpinPlace)
             {
-                // The wall-jump animation keeps the normal suit colours until its spin starts; its spin frames
-                // share the same six colour steps.
-                FullBodyGlow.GoOnFrom(SamusGlowPlay.Before(FullBodyGlowStart));
-                return;
+                case SpinGlowPlace.Restarting:
+                    // The wall-jump animation keeps the normal suit colours until its spin starts; its spin frames
+                    // share the same six colour steps.
+                    FullBodyGlow.GoOnFrom(SamusGlowPlay.Before(FullBodyGlowStart));
+                    return;
+                case SpinGlowPlace.Glowing:
+                    ShowNextScrewAttackShade(colours, suit);
+                    return;
+                case SpinGlowPlace.NotSpinning:
+                case SpinGlowPlace.ShowsNormalColours:
+                    throw new InvalidOperationException($"A wall jump's animation stands at no {frame.SpinPlace} place.");
+                default:
+                    throw new InvalidOperationException($"Undefined {nameof(SpinGlowPlace)} {frame.SpinPlace}.");
             }
-
-            ShowNextScrewAttackShade(colours, suit);
-            return;
         }
 
         if (!IsActivelySpeedBoosting)
@@ -558,18 +566,28 @@ public sealed class SamusHorizontalSpeedState
     /// Executes running / normal jumping / airborne ball fallback's deceleration or stop, as the input phase selected it.
     /// Deceleration rechecks speed after movement before folding extra momentum.
     /// </summary>
-    /// <param name="selectedDeceleration">Whether the input phase selected deceleration rather than a stop.</param>
+    /// <param name="response">What the input phase selected (#2560): deceleration, or a stop.</param>
     /// <param name="facingDirection">The direction Samus faces, whose running momentum is cancelled.</param>
-    public void DecelerateForNoTransition(bool selectedDeceleration, SamusFacingDirection facingDirection)
+    /// <exception cref="ArgumentOutOfRangeException">The response is neither deceleration nor a stop.</exception>
+    public void DecelerateForNoTransition(SamusMomentumResponse response, SamusFacingDirection facingDirection)
     {
-        if (selectedDeceleration && HasBaseSpeed)
+        switch (response)
         {
-            BaseSpeed += ExtraRunSpeed;
-            ExtraRunSpeed = default;
-            AccelerationMode = SamusAccelerationMode.Decelerating;
+            case SamusMomentumResponse.Decelerate when HasBaseSpeed:
+                BaseSpeed += ExtraRunSpeed;
+                ExtraRunSpeed = default;
+                AccelerationMode = SamusAccelerationMode.Decelerating;
+                break;
+            case SamusMomentumResponse.Decelerate:
+            case SamusMomentumResponse.Stop:
+                AccelerationMode = SamusAccelerationMode.Accelerating;
+                break;
+            case SamusMomentumResponse.None:
+            case SamusMomentumResponse.KillXSpeed:
+            case SamusMomentumResponse.KillRunSpeed:
+            default:
+                throw new ArgumentOutOfRangeException(nameof(response), response, "A no-transition fallback decelerates or stops.");
         }
-        else
-            AccelerationMode = SamusAccelerationMode.Accelerating;
         CancelRunningMomentum(facingDirection);
     }
 

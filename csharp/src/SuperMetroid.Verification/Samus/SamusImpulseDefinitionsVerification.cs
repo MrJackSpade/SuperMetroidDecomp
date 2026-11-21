@@ -31,8 +31,12 @@ internal static class SamusImpulseDefinitionsVerification
             bomb.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(ushort.MaxValue, ushort.MaxValue);
             // A surface word from 32768 up lies above the room, where the game's sign test finds no surface.
             int? surface = raw <= short.MaxValue ? raw : null;
-            global::SuperMetroid.Core.PrivateState.Set(bomb.LiquidPhysics, "WaterSurfaceY", liquid == 1 ? surface : null);
-            global::SuperMetroid.Core.PrivateState.Set(bomb.LiquidPhysics, "LavaAcidSurfaceY", liquid == 2 ? surface : null);
+            global::SuperMetroid.Core.PrivateState.Set(bomb.LiquidPhysics, "Surface", (liquid, surface) switch
+            {
+                (1, int line) => new global::SuperMetroid.Core.Samus.Movement.SamusLiquidSurface.Water(line, IgnoredUntilEnabled: false),
+                (2, int line) => new global::SuperMetroid.Core.Samus.Movement.SamusLiquidSurface.LavaOrAcid(line),
+                _ => global::SuperMetroid.Core.Samus.Movement.SamusLiquidSurface.None,
+            });
             bomb.BombJump = SamusBombJump.FromBlast(direction).Arm();
             bomb.BombJumpPhase = SuperMetroid.Core.Samus.Projectiles.SamusBombJumpPhase.Starting;
             bomb.Kinematics.YAcceleration = new UnsignedSixteenSixteen(7, 123);
@@ -44,7 +48,7 @@ internal static class SamusImpulseDefinitionsVerification
             AssertEqual(7, bomb.Kinematics.YAcceleration.Whole, "Bomb launch retains live whole gravity");
             AssertEqual(123, bomb.Kinematics.YAcceleration.Fraction, "Bomb launch retains live fractional gravity");
             AssertEqual((ushort)128, bomb.Position.Y.Whole, "Bomb setup does not move Samus");
-            AssertTrue(bomb.BombJumpActive && !bomb.BombJumpStarting, "Bomb mover handoff");
+            AssertTrue(bomb.BombJumpPhase == SamusBombJumpPhase.Rising, "Bomb mover handoff");
             bombCases++;
         }
 
@@ -60,9 +64,12 @@ internal static class SamusImpulseDefinitionsVerification
             var hurt = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) }.InPose(pose);
             SamusPoseMetadata.RefreshCollisionRadii(hurt);
             hurt.EquippedItems = (((equipment & 1) != 0 ? SamusEquipmentFlags.HiJumpBoots : 0) | ((equipment & 2) != 0 ? SamusEquipmentFlags.SpeedBooster : 0) | ((equipment & 4) != 0 ? SamusEquipmentFlags.GravitySuit : 0));
-            global::SuperMetroid.Core.PrivateState.Set(hurt.LiquidPhysics, "WaterSurfaceY", environment is 1 or 3 ? 0 : null);
-            global::SuperMetroid.Core.PrivateState.Set(hurt.LiquidPhysics, "LavaAcidSurfaceY", environment == 2 ? 0 : null);
-            PrivateState.Set(hurt.LiquidPhysics, "IgnoresWaterSurface", environment == 3);
+            global::SuperMetroid.Core.PrivateState.Set(hurt.LiquidPhysics, "Surface", environment switch
+            {
+                1 or 3 => new global::SuperMetroid.Core.Samus.Movement.SamusLiquidSurface.Water(0, IgnoredUntilEnabled: environment == 3),
+                2 => new global::SuperMetroid.Core.Samus.Movement.SamusLiquidSurface.LavaOrAcid(0),
+                _ => global::SuperMetroid.Core.Samus.Movement.SamusLiquidSurface.None,
+            });
             hurt.BombJump = SamusBombJump.FromBlast(SamusBombJumpDirection.Left).Arm();
             hurt.BombJumpPhase = SuperMetroid.Core.Samus.Projectiles.SamusBombJumpPhase.Starting;
             hurt.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(ushort.MaxValue, ushort.MaxValue);
@@ -73,7 +80,7 @@ internal static class SamusImpulseDefinitionsVerification
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x909eef + medium * 2)), hurt.Kinematics.VerticalVelocity.Speed.Fraction, "Hurt native fractional launch");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x909ea1 + medium * 2)), hurt.Kinematics.YAcceleration.Fraction, "Hurt refreshes native gravity");
             AssertEqual(11, hurt.KnockbackHold.UpdatesLeft, "Hurt retains producer timer");
-            AssertTrue(hurt.KnockbackActive && !hurt.BombJumpActive && !hurt.BombJumpStarting, "Hurt replaces bomb mover");
+            AssertTrue(hurt.KnockbackActive && hurt.BombJumpPhase is null, "Hurt replaces bomb mover");
             AssertEqual(null, hurt.BombJump, "Hurt drops the bomb-jump request");
             AssertEqual(1, hurt.HurtFlash.Count, "Hurt starts flash");
             AssertEqual(SamusBodyAttack.None, hurt.HorizontalSpeed.BodyAttack, "Hurt cancels contact attack");

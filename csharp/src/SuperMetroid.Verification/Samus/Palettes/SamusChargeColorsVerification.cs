@@ -179,7 +179,7 @@ internal static class SamusChargeColorsVerification
             .Select(index => Word(SamusSourceDefinitions.DeathWhiteoutShades.Value + index * 2)).ToArray();
         var selectors = Enumerable.Range(0, SuperMetroid.Core.Samus.Death.SamusDeathExplosionTimingDefinitionsConstants.RecordCount)
             .Select(index => (ushort)rom.ReadCartridgeByte(SamusSourceDefinitions.DeathExplosionTimingAndPaletteIndices.Value + 2 * index + 1)).ToArray();
-        var death = new InstalledSamusDeathPalettes(ToColors(deathSuited), ToColors(deathSuitless), ToColors(whiteout), selectors);
+        var death = new InstalledSamusDeathPalettes(ToColors(deathSuited), ToColors(deathSuitless), ToColors(whiteout), Array.ConvertAll(selectors, step => (int)step));
         for (int index = 0; index < whiteout.Length; index++)
         {
             AssertEqual(whiteout[index], death.WhiteoutColor(index), "Every original whiteout RGB word");
@@ -192,7 +192,7 @@ internal static class SamusChargeColorsVerification
         // as they were supplied, and copies its inputs.
         {
             ushort[][][] suited = deathSuited.Select(rows => rows.Select(row => (ushort[])row.Clone()).ToArray()).ToArray();
-            var stockDeath = new InstalledSamusDeathPalettes(ToColors(suited), ToColors(deathSuitless), ToColors(whiteout), selectors);
+            var stockDeath = new InstalledSamusDeathPalettes(ToColors(suited), ToColors(deathSuitless), ToColors(whiteout), Array.ConvertAll(selectors, step => (int)step));
             for (int index = 0; index < whiteout.Length; index++)
                 AssertEqual(whiteout[index], stockDeath.WhiteoutColor(index), "Original whiteout shades");
             for (int frame = 0; frame < selectors.Length; frame++)

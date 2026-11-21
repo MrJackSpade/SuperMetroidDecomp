@@ -437,7 +437,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
                 // enemy is in selects its behaviour even when that behaviour does nothing, so the hurt state delays
                 // frozen behaviour until the flash ends.
                 if (!ranActorAi &&
-                    (place.AiStates & EnemyAiStates.Hurt) != EnemyAiStates.None &&
+                    place.IsHurt &&
                     place.Entity is IEnemyHurtReaction hurt &&
                     hurt.RunHurt(frame))
                 {
@@ -446,7 +446,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
                 // The enemy pass selects the AI from the first state the enemy is in alone. A frozen
                 // clock without the frozen state (a Geruta flame sharing its parent's freeze)
                 // still runs main AI.
-                if (!ranActorAi && (place.AiStates & EnemyAiStates.Frozen) != EnemyAiStates.None)
+                if (!ranActorAi && place.IsFrozen)
                 {
                     // A Rinka's termination clears or replaces the enemy in this place.
                     // The pass's list of active enemies was fixed before AI, so skip the rest
@@ -467,9 +467,9 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
                         place.Freeze.Count();
                     else
                     {
-                        place.AiStates = place.AiStates & ~EnemyAiStates.Frozen;
-                        bool stillGrappled = (place.AiStates & EnemyAiStates.Grappled) != EnemyAiStates.None;
-                        bool stillHurt = (place.AiStates & EnemyAiStates.Hurt) != EnemyAiStates.None;
+                        place.ClearFrozen();
+                        bool stillGrappled = place.IsGrappled;
+                        bool stillHurt = place.IsHurt;
                         ThawedFreezeLeftover.Hold hold = stillGrappled
                             ? stillHurt ? ThawedFreezeLeftover.Hold.GrappledAndHurt : ThawedFreezeLeftover.Hold.Grappled
                             : stillHurt ? ThawedFreezeLeftover.Hold.Hurt : ThawedFreezeLeftover.Hold.None;
@@ -493,7 +493,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
                     // frozen, even if the hurt state, tried first, selected an
                     // enemy-specific hurt behaviour above: a frozen Metroid's body holds its frame while its frozen
                     // behaviour runs its two outer effect actors.
-                    if ((place.AiStates & EnemyAiStates.Frozen) == EnemyAiStates.None &&
+                    if (!place.IsFrozen &&
                         place.Processing.HasAny(EnemyProcessing.Animates))
                         EnemyAnimationPlayer.AdvanceAnimation(
                             place,
@@ -523,7 +523,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
                 // The enemy pass ends the hurt state once too few flash updates remain, even while another AI state stays
                 // set, so a Metroid's own hurt behaviour ends.
                 if (place.HurtFlash.UpdatesLeft < EnemyCollisionDefinitions.HurtStateMinimumFlashUpdates)
-                    place.AiStates = place.AiStates & ~EnemyAiStates.Hurt;
+                    place.ClearHurt();
             }
         }
 

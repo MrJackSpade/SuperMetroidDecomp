@@ -40,5 +40,8 @@ public sealed record RoomEnemyLoadRequest : IRoomEnemyLoad
     public required GunshipLoadScenario GunshipScenario { get; init; }
 
     /// <inheritdoc />
-    public required bool DeferLoaderTimeCameraReads { get; init; }
+    public bool DeferLoaderTimeCameraReads => ViewportLoadMode == RoomViewportLoadMode.KeepSourceScreenWhileScrollingIn;
+
+    /// <summary>How the room's load shows its viewport (#2560).</summary>
+    public required RoomViewportLoadMode ViewportLoadMode { get; init; }
 }

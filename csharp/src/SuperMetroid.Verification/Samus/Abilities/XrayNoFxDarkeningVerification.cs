@@ -16,7 +16,8 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Samus.Abilities;
 
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.TestSupport.FrameRendering;
+using SuperMetroid.TestSupport.FrameRendering;
+using SuperMetroid.Core.Compatibility;
 /// <summary>Checks X-ray color math in a room without a visible room effect.</summary>
 internal static class XrayNoFxDarkeningVerification
 {

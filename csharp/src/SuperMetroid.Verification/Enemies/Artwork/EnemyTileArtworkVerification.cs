@@ -52,7 +52,8 @@ using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.AssetExtraction.Enemies.Artwork;
+using SuperMetroid.AssetExtraction.Enemies.Artwork;
+using SuperMetroid.Core.Compatibility;
 
 /// <summary>Coordinates retail tile and palette comparisons with installed enemy artwork and live consumers.</summary>
 internal static class EnemyTileArtworkVerification

@@ -14,15 +14,15 @@ internal static class ProjectileTerrainCollisionPrivateAccess
     extension(global::SuperMetroid.Core.Samus.Projectiles.ProjectileTerrainCollision)
     {
         /// <summary>The private method <c>ScanHorizontalShotReactions</c>, invoked by name.</summary>
-        internal static bool ScanHorizontalShotReactions(SamusTerrain terrain, global::SuperMetroid.Core.Samus.Projectiles.SamusProjectile shot) =>
-            PrivateState.InvokeStatic<bool>(typeof(global::SuperMetroid.Core.Samus.Projectiles.ProjectileTerrainCollision), "ScanHorizontalShotReactions", [typeof(global::SuperMetroid.Core.Samus.Movement.SamusTerrain), typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusProjectile)], new object?[] { terrain, shot });
+        internal static bool ScanHorizontalShotReactions(SamusTerrain terrain, global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileOccupant held) =>
+            PrivateState.InvokeStatic<bool>(typeof(global::SuperMetroid.Core.Samus.Projectiles.ProjectileTerrainCollision), "ScanHorizontalShotReactions", [typeof(global::SuperMetroid.Core.Samus.Movement.SamusTerrain), typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileOccupant)], new object?[] { terrain, held });
 
         /// <summary>The private method <c>ScanHorizontalWaveShotReactions</c>, invoked by name.</summary>
-        internal static void ScanHorizontalWaveShotReactions(SamusTerrain terrain, global::SuperMetroid.Core.Samus.Projectiles.SamusProjectile shot, global::SuperMetroid.Core.Compatibility.StraddledTerrain<global::SuperMetroid.Core.Rooms.LevelData.RoomTerrainBlock> straddledTerrain) =>
-            PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Samus.Projectiles.ProjectileTerrainCollision), "ScanHorizontalWaveShotReactions", [typeof(global::SuperMetroid.Core.Samus.Movement.SamusTerrain), typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusProjectile), typeof(global::SuperMetroid.Core.Compatibility.StraddledTerrain<global::SuperMetroid.Core.Rooms.LevelData.RoomTerrainBlock>)], new object?[] { terrain, shot, straddledTerrain });
+        internal static void ScanHorizontalWaveShotReactions(SamusTerrain terrain, global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileOccupant held, global::SuperMetroid.Core.Compatibility.StraddledTerrain<global::SuperMetroid.Core.Rooms.LevelData.RoomTerrainBlock> straddledTerrain) =>
+            PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Samus.Projectiles.ProjectileTerrainCollision), "ScanHorizontalWaveShotReactions", [typeof(global::SuperMetroid.Core.Samus.Movement.SamusTerrain), typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileOccupant), typeof(global::SuperMetroid.Core.Compatibility.StraddledTerrain<global::SuperMetroid.Core.Rooms.LevelData.RoomTerrainBlock>)], new object?[] { terrain, held, straddledTerrain });
 
         /// <summary>The private method <c>ScanVerticalShotReactions</c>, invoked by name.</summary>
-        internal static bool ScanVerticalShotReactions(SamusTerrain terrain, global::SuperMetroid.Core.Samus.Projectiles.SamusProjectile shot) =>
-            PrivateState.InvokeStatic<bool>(typeof(global::SuperMetroid.Core.Samus.Projectiles.ProjectileTerrainCollision), "ScanVerticalShotReactions", [typeof(global::SuperMetroid.Core.Samus.Movement.SamusTerrain), typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusProjectile)], new object?[] { terrain, shot });
+        internal static bool ScanVerticalShotReactions(SamusTerrain terrain, global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileOccupant held) =>
+            PrivateState.InvokeStatic<bool>(typeof(global::SuperMetroid.Core.Samus.Projectiles.ProjectileTerrainCollision), "ScanVerticalShotReactions", [typeof(global::SuperMetroid.Core.Samus.Movement.SamusTerrain), typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileOccupant)], new object?[] { terrain, held });
     }
 }

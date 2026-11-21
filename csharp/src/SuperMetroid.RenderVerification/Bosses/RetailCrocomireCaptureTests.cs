@@ -43,7 +43,7 @@ internal static class RetailCrocomireCaptureTests
             Position16<RoomPixels> previousPlacement = boss.Body.Position.Whole;
             runtime.StepFrame(0);
             GameplayDisplayFrame published = runtime.PublishDisplayFrame();
-            if (published.OrdinaryLatch.Bosses.Placement != previousPlacement)
+            if (published.OrdinaryLatch.Bosses?.Placement != previousPlacement)
                 throw new InvalidOperationException($"Crocomire's body placement was not published by the following frame boundary at tick {tick}.");
             if (previousPlacement != boss.Body.Position.Whole) latchedScrollChanges++;
             var scene = GameplayDisplayCapture.Capture(published);

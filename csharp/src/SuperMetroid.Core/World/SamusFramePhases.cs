@@ -92,7 +92,7 @@ internal sealed class SamusFramePhases
                 room.Enemies.GrappleTargets.ResolveGrappleEndpoint));
             grappleOwnsMovement = frame.GrappleMovement is { OwnsMovement: true };
         }
-        else if (samus.Grapple.Phase == GrapplePhase.CancelPending)
+        else if (samus.Grapple.Phase is GrapplePhase.CancelPending or GrapplePhase.CancelPendingFromConnectedPose)
         {
             frame.Record(SamusGrappleMovement.CompleteFiringCancellation(room.LevelData, samus));
             grappleOwnsMovement = frame.GrappleMovement is { OwnsMovement: true };
@@ -781,7 +781,7 @@ internal sealed class SamusFramePhases
             (SamusPoseMetadata.IsForwardFacingPose(samus.Pose) && room.Enemies.Elevator.ElevatorStatus != ElevatorActorStatus.Inactive));
         SamusPoseTransitionLookup poseLookup =
             frame.DeathOwnsSamus || frame.XrayOwnsPoseInput || frame.ActorLocksPoseInput || frame.PostureTransitionSkipsPoseInput
-            ? default
+            ? SamusPoseTransitionLookup.KeepsPose
             : SamusPoseInputTransitions.Lookup(
                 samus.Pose,
                 _playerActions.Current,

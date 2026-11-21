@@ -6,5 +6,4 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 public readonly record struct MotherBrainCorpseDustRequest(
     Position16<RoomPixels> Position,
     DustExplosionAnimation Animation,
-    bool SoundEffectQueued,
-    SoundEffectId SoundEffect);
+    SoundEffectId? Sound);

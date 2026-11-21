@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 internal sealed class EndingCastScene(EndingCastPhase phase) : EndingActorScene
 {
     /// <summary>The cast's phase the scene shows.</summary>
-    private EndingCastPhase CastPhase { get; } = Ensure.NotNull(phase);
+    internal EndingCastPhase CastPhase { get; } = Ensure.NotNull(phase);
 
     /// <inheritdoc/>
     internal override EndingCreditsPhase Phase => CastPhase;

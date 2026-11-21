@@ -108,7 +108,7 @@ internal sealed class IntroMotherBrainSpriteState
         if (hurtFlash.IsOver)
             return;
 
-        FlashesWhite = !IntroCadenceDefinitions.MotherBrainHurtShowsOwnColours.IsSetIn(hurtFlash.UpdatesLeft);
+        FlashesWhite = !IntroCadenceDefinitions.MotherBrainHurtShowsOwnColours.IsInSecondHalfAt(hurtFlash.UpdatesLeft);
         hurtFlash.Count();
     }
 
@@ -161,6 +161,6 @@ internal sealed class IntroMotherBrainSpriteState
         // The shake adds its pixels on even cinematic frames and subtracts them on odd ones, so the room's scroll alternates
         // between the flashback's own and further down, and never passes the room's top.
         Background = Background.WithY(Background.Y + IntroMotherBrainDefinitions.RoomShakePixels.Toward(
-            IntroCadenceDefinitions.MotherBrainRoomShakesUp.IsSetIn(cinematicFrameCounter) ? VerticalDirection.Up : VerticalDirection.Down));
+            IntroCadenceDefinitions.MotherBrainRoomShakesUp.IsInSecondHalfAt(cinematicFrameCounter) ? VerticalDirection.Up : VerticalDirection.Down));
     }
 }

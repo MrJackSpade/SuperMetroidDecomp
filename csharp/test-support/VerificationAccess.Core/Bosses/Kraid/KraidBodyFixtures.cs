@@ -28,7 +28,7 @@ internal static class KraidBodyFixtures
             .ToDictionary(frame => frame.Name, StringComparer.Ordinal);
         var words = new ushort[Enemies.BossBodies.BossBodyWords.KraidLayerRows * BossBodySourceDefinitions.LayerColumns];
         words.AsSpan().Fill(KraidWorkingMapDefinitions.BlankTile.PackedWord);
-        KraidBodyAppearance appearance = state.BodyShown ? state.BodyAppearance : KraidBodyAppearance.Hidden;
+        KraidBodyAppearance appearance = state.BodyAppearance;
         if (appearance == KraidBodyAppearance.Hidden)
             return words;
         foreach (string name in new[]

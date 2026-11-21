@@ -44,7 +44,7 @@ internal sealed class DraygonCombat
     /// </summary>
     internal EnemyPowerBombReaction DraygonPowerBombReaction(DraygonEnemyState state) => new()
     {
-        ExemptFromGenericDeath = true,
+        Lethal = EnemyPowerBombLethal.SpeciesOwned,
         AfterCommon = c => ResolveDraygonReaction(c.Enemy, state, c.Samus),
     };
 
@@ -69,10 +69,12 @@ internal sealed class DraygonCombat
         DraygonEnemyState state,
         SamusState samus)
     {
-        bool whiteFrame = DraygonCadenceDefinitions.HurtWhiteFlashShown.IsSetIn(body.HurtFlash.UpdatesLeft);
+        DraygonBodyColours hurt = DraygonCadenceDefinitions.HurtWhiteFlashShown.IsInSecondHalfAt(body.HurtFlash.UpdatesLeft)
+            ? DraygonBodyColours.WhiteFlash
+            : DraygonBodyColours.Material;
         // A hurt update shows his material colours with his band, or their white flash, as the import's shades (#1512).
-        state.Colours.ShowHurt(whiteFrame);
-        if (!whiteFrame)
+        state.Colours.ShowHurt(hurt);
+        if (hurt == DraygonBodyColours.Material)
             state.Colours.ShowBand(state.HealthBand);
         state.ShadeSprites();
 
@@ -126,7 +128,7 @@ internal sealed class DraygonCombat
         state.EyePart.StartAnimation(state.Facing == HorizontalDirection.Right
                 ? DraygonSegment.EyeFacingRightDying
                 : DraygonSegment.EyeFacingLeftDying);
-        state.EyeTracking.Action = DraygonEyeAction.Inert;
+        state.EyeTracking.TrackingFacing = null;
         state.Phase = DraygonPhase.Dying;
 
         // The death behaviour releases Samus unconditionally, even during an
@@ -167,13 +169,13 @@ internal sealed class DraygonCombat
                 // Body, claws, and shell use the shared common touch; only the first
                 // eye rectangle of the two eye-showing body frames reaches Draygon's damage reaction.
                 c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
-                _projectiles.CreateEnemyProjectileDudShot(c.Projectile);
+                _projectiles.CreateEnemyProjectileDudShot(c.Shot);
                 return true;
             }
             return false;
         },
         AfterImpact = _ => AdvanceDraygonShotAcceleration(state),
-        ExemptFromGenericDeath = true,
+        Lethal = EnemyShotLethal.SpeciesOwned,
         // Draygon's shot reaction runs the common damage without the hit burst.
         ShowsHitBurst = EnemyShotReaction.NeverShowsHitBurst,
         AfterCommon = c => ResolveDraygonReaction(c.Enemy, state, c.Samus),
@@ -199,7 +201,7 @@ internal sealed class DraygonCombat
                         componentOrigin.X + hitbox.Right,
                         componentOrigin.Y + hitbox.Bottom))
                     continue;
-                return EnemyHitboxContact.Struck(probe.SelectsShot ? hitbox.Shot : hitbox.Touch);
+                return EnemyHitboxContact.Struck(probe.Contact == HitboxContactKind.Shot ? hitbox.Shot : hitbox.Touch);
             }
         }
         return EnemyHitboxContact.Missed;

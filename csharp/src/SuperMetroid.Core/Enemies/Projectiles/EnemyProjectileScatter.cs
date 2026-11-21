@@ -1,10 +1,9 @@
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>
-/// The values of the random scatter: per axis, the random field of a fresh sample that offsets the axis and the center
-/// subtracted from it, a candidate below zero being drawn again.
+/// The values of the random scatter: per axis, the span of pixels a fresh random number's ordinary roll offsets the axis
+/// across and the center subtracted from it, a candidate below zero being drawn again.
 /// </summary>
-/// <param name="XRange">The random field that offsets the X axis.</param>
-/// <param name="YRange">The random field that offsets the Y axis.</param>
+/// <param name="Span">How many pixels each axis's offset is drawn across, a power of two on each.</param>
 /// <param name="Center">The center subtracted on each axis.</param>
-internal readonly record struct EnemyProjectileScatter(RandomSampleField XRange, RandomSampleField YRange, Extent16<RoomPixels> Center);
+internal readonly record struct EnemyProjectileScatter(Extent16<RoomPixels> Span, Extent16<RoomPixels> Center);

@@ -27,8 +27,11 @@ internal sealed class CinematicActor<TAnimation, TFrame, TCue> : ICinematicActor
     /// </summary>
     private readonly UpdateCountdown frameHold = UpdateCountdown.LastingOneUpdate();
 
-    /// <summary>Whether the animation has come to rest for good, so it plays on no further until its owner starts another.</summary>
-    private bool held;
+    /// <summary>
+    /// Whether the actor plays, rests for good until its owner starts another animation, or is deleted (#2560): one value
+    /// where it kept a held flag beside its active one.
+    /// </summary>
+    private CinematicActorPlay play = CinematicActorPlay.Playing;
 
     /// <summary>
     /// Creates an actor at a whole-pixel screen place with the drawn shade of the colouring it starts drawing in (#1512),
@@ -48,7 +51,7 @@ internal sealed class CinematicActor<TAnimation, TFrame, TCue> : ICinematicActor
     }
 
     /// <summary>Cleared when the animation's end retires the actor.</summary>
-    public bool IsActive { get; private set; } = true;
+    public bool IsActive => play != CinematicActorPlay.Deleted;
 
     /// <summary>
     /// Where the actor stands on the screen, to a fraction of a pixel, measured from the screen's top-left corner
@@ -84,7 +87,8 @@ internal sealed class CinematicActor<TAnimation, TFrame, TCue> : ICinematicActor
     {
         Playback = new AnimationPlayback<TAnimation>(animations.StartingWith(animation), AnimationPlace.StartOfAnimation);
         frameHold.Restart(1);
-        held = false;
+        if (play == CinematicActorPlay.Resting)
+            play = CinematicActorPlay.Playing;
     }
 
     /// <summary>
@@ -101,7 +105,7 @@ internal sealed class CinematicActor<TAnimation, TFrame, TCue> : ICinematicActor
     /// <summary>Retires the actor and clears its visible frame.</summary>
     public void Delete()
     {
-        IsActive = false;
+        play = CinematicActorPlay.Deleted;
         Shown = null;
     }
 
@@ -111,7 +115,7 @@ internal sealed class CinematicActor<TAnimation, TFrame, TCue> : ICinematicActor
     /// </summary>
     public void Step(Action<TCue>? ownerCue = null)
     {
-        if (!IsActive || held || !frameHold.Step())
+        if (play != CinematicActorPlay.Playing || !frameHold.Step())
             return;
 
         Animation<TAnimation> animation = Playback.Animation;
@@ -133,10 +137,10 @@ internal sealed class CinematicActor<TAnimation, TFrame, TCue> : ICinematicActor
         {
             // A held frame shows from now on: the animation plays on no further until its owner starts another.
             context.Owner.Shown = rested.Shown;
-            context.Owner.held = true;
+            context.Owner.play = CinematicActorPlay.Resting;
         },
         Paused: static (paused, context) => context.Owner.frameHold.Restart(paused.Duration),
-        Held: static (_, context) => context.Owner.held = true,
+        Held: static (_, context) => context.Owner.play = CinematicActorPlay.Resting,
         Ended: static (_, context) => context.Owner.Delete());
 
     /// <summary>

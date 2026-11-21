@@ -604,7 +604,7 @@ public sealed class BabyMetroidCutsceneState
                 {
                     deathExplosion = StepDeathExplosion();
                     // The flicker step shows the Baby on odd enemy frames and hides it on even.
-                    visibility = MotherBrainCadenceDefinitions.BabyDeathFlickerShown.IsSetIn(enemyFrameCounter)
+                    visibility = MotherBrainCadenceDefinitions.BabyDeathFlickerShown.IsInSecondHalfAt(enemyFrameCounter)
                         ? BabyMetroidVisibilityRequest.Show
                         : BabyMetroidVisibilityRequest.Hide;
                 }

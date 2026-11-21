@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal static class MotherBrainGlassShardDefinitions
 {
     /// <summary>The random sample's field a shard's launch angle is: a whole turn of 256 steps.</summary>
-    internal static readonly RandomSampleField LaunchAngle = new(0, 8);
+    internal static readonly RandomSampleField LaunchAngle = RandomSampleField.OneOf(256);
 
     /// <summary>A launched shard's sideways speed along its launch angle's sine, in whole pixels an update.</summary>
     internal const int LaunchAcrossSpeed = 1;
@@ -18,7 +18,7 @@ internal static class MotherBrainGlassShardDefinitions
     /// <summary>
     /// A launched shard's jitter on each axis, 0 through 15 pixels less <see cref="ShardJitterCentre"/>.
     /// </summary>
-    internal static readonly RandomSampleField ShardJitter = new(0, 4);
+    internal static readonly RandomSampleField ShardJitter = RandomSampleField.OneOf(16);
 
     /// <summary>
     /// The pixels taken from a launched shard's <see cref="ShardJitter"/> on each axis, so its jitter spans eight pixels
@@ -27,15 +27,9 @@ internal static class MotherBrainGlassShardDefinitions
     internal const int ShardJitterCentre = 8;
 
     /// <summary>
-    /// The chance a falling shard sparkles each update, one in four: two even choices of the random number must both
-    /// come up.
-    /// </summary>
-    internal static readonly RandomClearBitsChance ShardSparkles = RandomClearBitsChance.WhenAllClear(new RandomSampleField(5, 1), new RandomSampleField(10, 1));
-
-    /// <summary>
     /// A sparkle's offset from its shard on each axis, 0 through 31 pixels less <see cref="SparkleOffsetCentre"/>.
     /// </summary>
-    internal static readonly RandomSampleField SparkleOffset = new(0, 5);
+    internal static readonly RandomSampleField SparkleOffset = RandomSampleField.OneOf(32);
 
     /// <summary>
     /// The pixels taken from a sparkle's <see cref="SparkleOffset"/> on each axis, so it shows from sixteen pixels before

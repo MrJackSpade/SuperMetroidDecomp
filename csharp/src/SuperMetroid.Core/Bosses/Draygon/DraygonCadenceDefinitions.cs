@@ -10,10 +10,10 @@ internal static class DraygonCadenceDefinitions
     internal static readonly UpdateCadence GrappleShock = new(8, 0);
 
     /// <summary>
-    /// The phase of a hurt Draygon's flash timer on which his body shows the white flash: set for two updates of every
+    /// The phase of a hurt Draygon's flash timer on which his body shows the white flash: for two updates of every
     /// four, while his own colours show for the other two.
     /// </summary>
-    internal static readonly UpdateCounterField HurtWhiteFlashShown = new(1, 1);
+    internal static readonly UpdateAlternation HurtWhiteFlashShown = new(2);
 
     /// <summary>
     /// The updates on which the wall turrets take their turn to fire, counted on the frame counter at the period's first

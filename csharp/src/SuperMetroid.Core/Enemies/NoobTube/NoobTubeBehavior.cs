@@ -214,7 +214,7 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
         /// whichever its flicker last chose once it falls.
         /// </summary>
         private void FlickerNoobTubeCrack(EnemyProjectile projectile, Compatibility.ShortFrameCount shortCounter) =>
-            Pieces.Of(projectile).IsHidden = NoobTubeCadenceDefinitions.CrackHidden.IsSetIn(shortCounter);
+            Pieces.Of(projectile).IsHidden = NoobTubeCadenceDefinitions.CrackHidden.IsInSecondHalfAt(shortCounter);
 
         /// <summary>What <see cref="ApplyNoobTubeProjectileCue"/> does for each <see cref="NoobTubeProjectileCueKind"/> member, each member's own arm.</summary>
         private IdentityTable<NoobTubeProjectileCueKind, Action<EnemyProjectile, NoobTubeShardMirroring, bool>> ApplyNoobTubeProjectileCueForNoobTubeProjectileCueKind => field ??= new(new Dictionary<NoobTubeProjectileCueKind, Action<EnemyProjectile, NoobTubeShardMirroring, bool>>
@@ -253,7 +253,7 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
         /// <summary>Carries out one cue of the crack, shard and bubble animations; <paramref name="shortCounter"/> times the flicker.</summary>
         private void ApplyNoobTubeProjectileCue(EnemyProjectile projectile, Compatibility.ShortFrameCount shortCounter, NoobTubeProjectileCue cue, NoobTubeShardMirroring mirroring)
         {
-            bool atOwnColumn = NoobTubeCadenceDefinitions.DebrisAtOwnColumn.IsSetIn(shortCounter);
+            bool atOwnColumn = NoobTubeCadenceDefinitions.DebrisAtOwnColumn.IsInSecondHalfAt(shortCounter);
             ApplyNoobTubeProjectileCueForNoobTubeProjectileCueKind[cue.Kind](projectile, mirroring, atOwnColumn);
         }
     }

@@ -10,4 +10,4 @@ namespace SuperMetroid.Core.Areas.Ceres;
 public readonly record struct CeresElevatorShaftRoomMainResult(
     TurningFloorTransform Transform,
     bool TiltChanged,
-    bool ElevatorTookSamus);
+    CeresShaftOutcome Outcome);

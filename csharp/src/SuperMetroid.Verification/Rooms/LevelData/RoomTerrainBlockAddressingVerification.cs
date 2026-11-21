@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -194,17 +195,14 @@ internal static class RoomTerrainBlockAddressingVerification
     /// <summary>Runs a one-block shot's horizontal or vertical scan over <paramref name="block"/> and reports whether it stopped.</summary>
     private static bool ScanShot(RoomLevelData level, Position16<RoomBlocks> block, bool vertical)
     {
-        var shot = new SamusProjectile(0)
-        {
-            Position = FixedPosition<RoomPixels>.FromWhole(new(block.X * 16 + 8, block.Y * 16 + 8)),
-            Radius = new(1, 1),
-            Velocity = vertical
-                ? new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(1))
-                : new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(1), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0)),
-        };
+        var shot = SuperMetroid.Core.Samus.Projectiles.SamusProjectileFixtureOccupancy.ShotPlace(SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false));
+        shot.HeldShot().Position = FixedPosition<RoomPixels>.FromWhole(new(block.X * 16 + 8, block.Y * 16 + 8));
+        shot.HeldShot().Radius = new(1, 1);
+        shot.HeldShot().Velocity = vertical ? new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(1)) : new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(1), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0));
+        SamusProjectileOccupant held = shot.HeldShot();
         return vertical
-            ? ProjectileTerrainCollision.ScanVerticalShotReactions(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), shot)
-            : ProjectileTerrainCollision.ScanHorizontalShotReactions(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), shot);
+            ? ProjectileTerrainCollision.ScanVerticalShotReactions(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), held)
+            : ProjectileTerrainCollision.ScanHorizontalShotReactions(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), held);
     }
 
     /// <summary>The block a level-data place addresses: the place's remainder by the width is its column, its quotient its row.</summary>

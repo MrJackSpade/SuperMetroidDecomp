@@ -73,7 +73,7 @@ public sealed class GameplayMessageArtwork(
         {
             BackgroundTile[] notice = noticeArtwork.Build(message);
             if (shown.Choice is { } choice)
-                noticeArtwork.ApplySelection(message, notice, yesSelected: choice == SaveChoice.Yes);
+                noticeArtwork.ApplySelection(message, notice, choice);
             return notice;
         }
         if (Panels is { } panelArtwork && panelArtwork.Contains(message))

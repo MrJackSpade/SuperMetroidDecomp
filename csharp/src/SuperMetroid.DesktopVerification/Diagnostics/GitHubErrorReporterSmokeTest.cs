@@ -114,7 +114,7 @@ public static class GitHubErrorReporterSmokeTest
         PrivateState.Set(samus.Drained, nameof(SamusDrainedState.GetUpCheck), DrainedGetUpCheck.UnableToStand);
         SamusPresentation.SetAnimationFrameFromMovementOwner(samus, samus.AnimationFrameNumbered(8), 1);
         PrivateState.Set(samus.LiquidPhysics, nameof(SamusLiquidPhysicsState.FxType), RoomFxType.Acid);
-        global::SuperMetroid.Core.PrivateState.Set(samus.LiquidPhysics, "LavaAcidSurfaceY", (int?)(100));
+        global::SuperMetroid.Core.PrivateState.Set(samus.LiquidPhysics, "Surface", new global::SuperMetroid.Core.Samus.Movement.SamusLiquidSurface.LavaOrAcid(100));
         game.AdoptRuntime(runtime);
         GameplaySnapshot beforeSnapshot = game.CaptureGameplaySnapshot();
         string before = GameplayFrameFailureDiagnostics.Describe(beforeSnapshot);

@@ -31,6 +31,6 @@ internal sealed class CorpseRowDust
 
     /// <summary>How far right of its leftmost place <paramref name="random"/> spreads a corpse row's dust cloud.</summary>
     private static int CorpseDustSpread(int random) =>
-        (CorpseDustDefinitions.SpreadFineSteps.Of(random) * CorpseDustDefinitions.SpreadFineStep) +
-        (CorpseDustDefinitions.SpreadCoarseSteps.Of(random) * CorpseDustDefinitions.SpreadCoarseStep);
+        (EnemyRandomRolls.CorpseDustFineSpread.Of(random) * CorpseDustDefinitions.SpreadFineStep) +
+        (EnemyRandomRolls.CorpseDustCoarseSpread.Of(random) * CorpseDustDefinitions.SpreadCoarseStep);
 }

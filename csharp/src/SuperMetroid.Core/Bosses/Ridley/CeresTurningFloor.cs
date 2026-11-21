@@ -9,8 +9,6 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// </summary>
 public sealed class CeresTurningFloor
 {
-    /// <summary>Gets whether the getaway's turning floor currently owns the Ridley and Baby presentation.</summary>
-    public bool Active { get; internal set; }
     /// <summary>
     /// The getaway's flight along its curves (<see cref="CeresRidleyGetawayCurve.Steps"/>): the step the next getaway update
     /// flies, its place the update of the getaway; none once every step is flown, which ends the getaway on the update

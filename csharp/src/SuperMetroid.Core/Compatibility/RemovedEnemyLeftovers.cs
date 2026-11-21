@@ -33,27 +33,23 @@ namespace SuperMetroid.Core.Compatibility;
 public sealed class RemovedEnemyLeftovers<TStates> where TStates : class, new()
 {
     /// <summary>
-    /// The states the place's last removed enemy left: a deleted enemy's as it left them, the empty set a kill cleared
-    /// them to, or null while no enemy has left the place.
+    /// What the place's last removal left (#2560): nothing yet, a deleted enemy's states, or the cleared states a kill left;
+    /// null before any removal.
     /// </summary>
-    private TStates? _left;
+    private Leftover? _left;
 
-    /// <summary>Whether the place's last removal was a kill, so that <see cref="_left"/> is the record the kill cleared.</summary>
-    private bool _leftByKill;
 
     /// <summary>The place's enemy is deleted without being killed: its <paramref name="states"/> stay as it left them.</summary>
     /// <param name="states">The deleted enemy's species states.</param>
     internal void Deleted(TStates states)
     {
-        _left = Ensure.NotNull(states);
-        _leftByKill = false;
+        _left = new DeletedLeftover(Ensure.NotNull(states));
     }
 
     /// <summary>The place's enemy is killed: the kill clears what it leaves, to a set that holds no state.</summary>
     internal void Killed()
     {
-        _left = new TStates();
-        _leftByKill = true;
+        _left = new KilledLeftover(new TStates());
     }
 
     /// <summary>
@@ -61,12 +57,24 @@ public sealed class RemovedEnemyLeftovers<TStates> where TStates : class, new()
     /// what the last removed enemy left, which holds no state once a kill cleared it, or null while no enemy has left it.
     /// </summary>
     /// <param name="occupant">The states of the enemy holding the place, or null while it holds none.</param>
-    public TStates? Found(TStates? occupant) => occupant ?? _left;
+    public TStates? Found(TStates? occupant) => occupant ?? _left?.States;
 
     /// <summary>
     /// The record a kill cleared, while no enemy holds the place and its last removal was a kill: a neighbour that writes to
     /// the place writes there, and reads back what it wrote until an enemy is placed in the place again; otherwise null.
     /// </summary>
     /// <param name="occupant">The states of the enemy holding the place, or null while it holds none.</param>
-    public TStates? ClearedByKill(TStates? occupant) => occupant is null && _leftByKill ? _left : null;
+    public TStates? ClearedByKill(TStates? occupant) => occupant is null && _left is KilledLeftover killed ? killed.States : null;
+
+    /// <summary>The states a removal left in the place (#2560).</summary>
+    /// <param name="States">The states left.</param>
+    private abstract record Leftover(TStates States);
+
+    /// <summary>A deleted enemy's states, as it left them.</summary>
+    /// <param name="States">The states left.</param>
+    private sealed record DeletedLeftover(TStates States) : Leftover(States);
+
+    /// <summary>The cleared states a kill left.</summary>
+    /// <param name="States">The cleared states.</param>
+    private sealed record KilledLeftover(TStates States) : Leftover(States);
 }

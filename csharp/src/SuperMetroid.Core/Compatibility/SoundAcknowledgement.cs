@@ -19,16 +19,22 @@ public readonly record struct SoundAcknowledgement<TSound>
 {
 
     /// <summary>The music-load reporter reports new music loading instead of an acknowledgement; it matches no request.</summary>
-    public static SoundAcknowledgement<TSound> MusicLoading { get; } = new() { IsMusicLoading = true };
+    public static SoundAcknowledgement<TSound> MusicLoading { get; } = new(new MusicLoadingReport());
 
     /// <summary>The library acknowledges <paramref name="sound"/>, or reports nothing for none.</summary>
-    public static SoundAcknowledgement<TSound> Of(TSound? sound) => new() { Sound = sound };
+    public static SoundAcknowledgement<TSound> Of(TSound? sound) => sound is { } acknowledged ? new(new SoundReport(acknowledged)) : default;
 
     /// <summary>The acknowledged request, or none.</summary>
-    private TSound? Sound { get; init; }
+    private TSound? Sound => reported is SoundReport { Sound: var sound } ? sound : null;
 
     /// <summary>Whether the library reports new music loading.</summary>
-    private bool IsMusicLoading { get; init; }
+    private bool IsMusicLoading => reported is MusicLoadingReport;
+
+    /// <summary>What the library reports (#2560): an acknowledged sound or music loading; null when it reports nothing.</summary>
+    private readonly Report? reported;
+
+    /// <summary>Holds what the library reports.</summary>
+    private SoundAcknowledgement(Report reported) => this.reported = reported;
 
     /// <summary>Whether the library reports nothing at all.</summary>
     public bool IsNone => !IsMusicLoading && Sound is null;
@@ -38,4 +44,14 @@ public readonly record struct SoundAcknowledgement<TSound>
 
     /// <inheritdoc />
     public override string ToString() => IsMusicLoading ? "music loading" : Sound?.ToString() ?? "none";
+
+    /// <summary>What a library reports back (#2560): a closed choice of an acknowledged sound and music loading.</summary>
+    private abstract record Report;
+
+    /// <summary>The library acknowledges a sound.</summary>
+    /// <param name="Sound">The sound acknowledged.</param>
+    private sealed record SoundReport(TSound Sound) : Report;
+
+    /// <summary>The sound driver is loading music, which acknowledges no sound.</summary>
+    private sealed record MusicLoadingReport : Report;
 }

@@ -75,7 +75,7 @@ public sealed class InstalledXrayReveals
     {
         if (XrayReveals.Find(type, behavior) is not { } shape) return null;
         if (!IsDrawable(shape)) return new XrayRevealDefinition(shape, null);
-        if (!blocks.TryGetValue(new XrayRevealVisualKey(type, behavior.ReactionUnder(type)), out XrayRevealVisualBlocks visual))
+        if (!blocks.TryGetValue(new XrayRevealVisualKey(type, behavior.ReactionUnder(type)), out XrayRevealVisualBlocks? visual))
             throw new InvalidDataException($"Missing X-ray visual {type}/behaviour {behavior}.");
         return new XrayRevealDefinition(shape, visual);
     }

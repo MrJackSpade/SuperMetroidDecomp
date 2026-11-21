@@ -50,7 +50,7 @@ internal static class RoomScopeVerification
         sourceProjectile.Velocity = new(SignedEightEight.FromPixels(2), SignedEightEight.FromPixels(-2));
         SamusProjectile sourceShot = source.Projectiles.Pool.Shots[2];
         sourceShot.OccupyAsFired(SuperMetroid.Core.Progression.SamusProjectileType.Beam(SuperMetroid.Core.Progression.SamusBeamCombination.Power, charged: false));
-        sourceShot.Position = FixedPosition<RoomPixels>.FromStoredParts(0x0120, 0x4321, 0x0080, 0x8765);
+        sourceShot.HeldShot().Position = FixedPosition<RoomPixels>.FromStoredParts(0x0120, 0x4321, 0x0080, 0x8765);
 
         SelectedRoom parlor = runtime.RoomLoader.LoadSelectedRoom(RoomDefinitions.Parlor);
         var camera = new Position16<RoomPixels>(0, 0);

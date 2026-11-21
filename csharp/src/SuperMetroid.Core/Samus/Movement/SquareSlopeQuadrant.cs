@@ -32,11 +32,21 @@ public readonly record struct SquareSlopeQuadrant
     /// <summary>The quarter above or below this one in the same column.</summary>
     public SquareSlopeQuadrant OtherRow => this with { Row = Opposite(Row) };
 
-    /// <summary>The column half a point lies in: the right one when it lies in the block's second half.</summary>
-    public static SquareSlopeColumnHalf ColumnFor(bool inSecondHalf) => inSecondHalf ? SquareSlopeColumnHalf.Right : SquareSlopeColumnHalf.Left;
+    /// <summary>The column half room pixel <paramref name="x"/> lies in: the right one in the block's second half.</summary>
+    public static SquareSlopeColumnHalf ColumnFor(int x) =>
+        RoomGridConversions.InSecondHalfOfBlock(x) ? SquareSlopeColumnHalf.Right : SquareSlopeColumnHalf.Left;
 
-    /// <summary>The row half a point lies in: the bottom one when it lies in the block's second half.</summary>
-    public static SquareSlopeRowHalf RowFor(bool inSecondHalf) => inSecondHalf ? SquareSlopeRowHalf.Bottom : SquareSlopeRowHalf.Top;
+    /// <summary>The row half room pixel <paramref name="y"/> lies in: the bottom one in the block's second half.</summary>
+    public static SquareSlopeRowHalf RowFor(int y) =>
+        RoomGridConversions.InSecondHalfOfBlock(y) ? SquareSlopeRowHalf.Bottom : SquareSlopeRowHalf.Top;
+
+    /// <summary>The column half <paramref name="half"/>, a half-block number, is: the right one for a block's second half.</summary>
+    public static SquareSlopeColumnHalf ColumnOfHalf(int half) =>
+        RoomGridConversions.IsBlockSecondHalf(half) ? SquareSlopeColumnHalf.Right : SquareSlopeColumnHalf.Left;
+
+    /// <summary>The row half <paramref name="half"/>, a half-block number, is: the bottom one for a block's second half.</summary>
+    public static SquareSlopeRowHalf RowOfHalf(int half) =>
+        RoomGridConversions.IsBlockSecondHalf(half) ? SquareSlopeRowHalf.Bottom : SquareSlopeRowHalf.Top;
 
     /// <summary>
     /// The quarter of <paramref name="behavior"/>'s slope shape that a block's halves show: the block's horizontal and

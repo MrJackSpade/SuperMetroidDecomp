@@ -71,20 +71,22 @@ public sealed class EnemyProjectile
     /// </summary>
     public WrappingCountdown FrameHold
     {
-        get;
-        internal set
-        {
-            field = value;
-            IsFrameHoldStopped = false;
-        }
+        get => frameHold ?? StoppedHold;
+        internal set => frameHold = value;
     }
+
+    /// <summary>The hold's countdown while it counts, or null while it is stopped (#2560): one value for counting or stopped.</summary>
+    private WrappingCountdown? frameHold;
+
+    /// <summary>What a stopped hold reads: zero.</summary>
+    private static WrappingCountdown StoppedHold => WrappingCountdown.Start(0);
 
     /// <summary>
     /// Whether the frame hold is stopped (#2380): the animation shows a frame for good, or rests where its timeline holds, so
     /// the hold counts nothing and the animation takes no further step until the projectile's owner sets the hold again or
     /// starts an animation (<see cref="StopFrameHold"/>).
     /// </summary>
-    public bool IsFrameHoldStopped { get; private set; }
+    public bool IsFrameHoldStopped => frameHold is null;
 
     /// <summary>
     /// Stops the frame hold (#2380): the frame shown stays, and the animation takes no further step, until the projectile's
@@ -92,8 +94,7 @@ public sealed class EnemyProjectile
     /// </summary>
     internal void StopFrameHold()
     {
-        FrameHold = WrappingCountdown.Start(0);
-        IsFrameHoldStopped = true;
+        frameHold = null;
     }
     /// <summary>The frame the projectile shows: the blank frame from its spawn until its animation shows one, none once it is gone.</summary>
     public EnemyProjectileFrameId? Frame { get; internal set; }

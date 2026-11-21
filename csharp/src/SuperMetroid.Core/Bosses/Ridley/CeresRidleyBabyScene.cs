@@ -84,8 +84,12 @@ internal sealed class CeresRidleyBabyScene
     /// Ridley's movement and animation are off before his reveal, and in its place among them once his reveal has started
     /// his animation.
     /// </summary>
-    private static ActorLayering LayeringOf(CeresRidleyState ridley) =>
-        ridley.MovementAnimationEnabled ? ActorLayering.InDrawOrder : ActorLayering.InFrontOfActors;
+    private static ActorLayering LayeringOf(CeresRidleyState ridley) => ridley.Motion switch
+    {
+        RidleyMotion.Running => ActorLayering.InDrawOrder,
+        RidleyMotion.Still => ActorLayering.InFrontOfActors,
+        _ => throw new InvalidOperationException($"Undefined {nameof(RidleyMotion)} {ridley.Motion}."),
+    };
 
     /// <summary>
     /// Runs the Baby's typed cutscene animation one update on the Baby's own clock (#2228): the pose it shows holds for its

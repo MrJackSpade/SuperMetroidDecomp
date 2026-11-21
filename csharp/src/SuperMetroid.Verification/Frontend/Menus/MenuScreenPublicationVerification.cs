@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.FileSelect;
@@ -86,7 +87,7 @@ internal static class MenuScreenPublicationVerification
         AssertTrue(PaintedSpriteEntries.AreOwn(fileSelectScene.SpriteDraws, fileSelect.Screen.Sprites.Draws), "file select draws its own sprite entries");
 
         InstalledSpriteSheets optionsSheets = MenuSheetFixtures.For(maps);
-        var options = new GameOptionsMenuState(AudioQueues.Standalone(), screenContent: maps, spriteSheets: optionsSheets, controllerBindings: SuperMetroid.Core.Input.ControllerBindings.Default, iconCancelEnabled: false, moonwalkEnabled: false, japaneseText: false);
+        var options = new GameOptionsMenuState(AudioQueues.Standalone(), screenContent: maps, spriteSheets: optionsSheets, controllerBindings: SuperMetroid.Core.Input.ControllerBindings.Default, iconCancelEnabled: false, moonwalkEnabled: false, language: TextLanguage.English);
         for (int frame = 0; frame < 30; frame++)
             options.Step(0);
         // Options shows its backdrop's picture, then the primary page's picture with its language labels' English picture over it (#1467, #1780).
@@ -97,7 +98,7 @@ internal static class MenuScreenPublicationVerification
             "options shows its backdrop's picture under its page and sprites");
         AssertTrue(optionsScene.Layers[1] is PicturedPlaneLayer { Plane.Pictures: [{ } primaryPage, { } languages] } &&
             ReferenceEquals(primaryPage.Picture, menuPictures.Frame(GameOptionsNames.PageFrame(GameOptionsScreen.Primary))) &&
-            ReferenceEquals(languages.Picture, menuPictures.Frame(GameOptionsNames.LanguageFrame(japanese: false))),
+            ReferenceEquals(languages.Picture, menuPictures.Frame(GameOptionsNames.LanguageFrame(TextLanguage.English))),
             "options shows the primary page with one picture of its language labels highlighting English (#1780)");
         AssertEqual(maps.Backdrops.Menus, optionsScene.Paint.Backdrop, "options shows its own backdrop");
         AssertTrue(optionsScene.SpriteDraws.OfType<ImageSpriteDraw>().All(draw => draw.Shading == PictureShading.Standard),

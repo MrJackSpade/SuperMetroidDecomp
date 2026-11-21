@@ -105,24 +105,13 @@ internal sealed class DraygonParts
         arms.Shading = JoiningPart(arms, EnemyDefinitionId.DraygonArms, draygon => draygon.ArmsPart).Draygon.Colours.Sprites;
 
     /// <summary>Sets <paramref name="eye"/> tracking Samus facing <paramref name="facing"/> (#2165).</summary>
-    private static void Track(DraygonEyeState eye, HorizontalDirection facing)
-    {
-        eye.Action = DraygonEyeAction.Tracking;
-        eye.Facing = facing;
-    }
-
-    /// <summary>What <see cref="RunDraygonEyeMain"/> does for each <see cref="DraygonEyeAction"/> member, each member's own arm.</summary>
-    private IdentityTable<DraygonEyeAction, Action<DraygonEnemyState, SamusState, DraygonEyeState>> RunDraygonEyeMainForDraygonEyeAction => field ??= new(new Dictionary<DraygonEyeAction, Action<DraygonEnemyState, SamusState, DraygonEyeState>>
-    {
-        [DraygonEyeAction.Inert] = (state, samus, eye) => { },
-        [DraygonEyeAction.Tracking] = (state, samus, eye) => TrackSamusWithDraygonEye(state, samus, eye.Facing),
-    });
+    private static void Track(DraygonEyeState eye, HorizontalDirection facing) => eye.TrackingFacing = facing;
 
     /// <summary>Runs the eye's step: inert, or tracking Samus the way the body faces.</summary>
     internal void RunDraygonEyeMain(DraygonEnemyState state, SamusState samus)
     {
-        DraygonEyeState eye = state.EyeTracking;
-        RunDraygonEyeMainForDraygonEyeAction[eye.Action](state, samus, eye);
+        if (state.EyeTracking.TrackingFacing is { } facing)
+            TrackSamusWithDraygonEye(state, samus, facing);
     }
 
     /// <summary>

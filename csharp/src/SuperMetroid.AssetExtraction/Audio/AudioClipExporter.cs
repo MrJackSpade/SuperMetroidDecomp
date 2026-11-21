@@ -162,16 +162,14 @@ internal static class AudioClipExporter
         {
             IReadOnlyList<SoundEffectRendering.LoopingLayer> layers =
                 SoundEffectRendering.RenderLoopingLayers(catalog, null, key.Library, key.Command, effect.ChannelPrograms.Count);
-            return new InstalledSoundEffectClip(sound, policy, null,
-                [.. layers.Select(layer => new InstalledSoundEffectLayer(
-                    Write(root, SoundEffectDirectory, files, layer.Clip), layer.LoopStart))]);
+            return new InstalledSoundEffectClip(sound, policy, new InstalledLoopingSoundEffect(
+                [.. layers.Select(layer => new InstalledLoopingSoundEffectLayer(
+                    Write(root, SoundEffectDirectory, files, layer.Clip), layer.LoopStart))]));
         }
         SoundEffectRendering.OneShot shot = SoundEffectRendering.RenderOneShot(catalog, null, key.Library, key.Command);
         // A silent effect still occupies its library until its logical end, so it keeps an entry without layers.
-        return new InstalledSoundEffectClip(sound, policy, shot.ActiveFrames,
-            shot.Clip.Length == 0
-                ? []
-                : [new InstalledSoundEffectLayer(Write(root, SoundEffectDirectory, files, shot.Clip), null)]);
+        return new InstalledSoundEffectClip(sound, policy, new InstalledOneShotSoundEffect(shot.ActiveFrames,
+            shot.Clip.Length == 0 ? null : Write(root, SoundEffectDirectory, files, shot.Clip)));
     }
 
     /// <summary>
@@ -182,15 +180,15 @@ internal static class AudioClipExporter
     internal static SoundEffectClipPolicy Policy(SoundEffectLibrary soundLibrary, int command, string policyKey)
     {
         int libraryIndex = SoundLibraryNumbers.DriverIndex(soundLibrary);
-        ManagedSpcSoundLibrary Configure(int priority, int mode)
+        ManagedSpcSoundLibrary Configure(int priority, SoundLibraryMode mode)
         {
             var library = new ManagedSpcSoundLibrary { Priority = priority, Mode = mode };
             SpcSoundLibraries.ConfigureSoundLibrary(soundLibrary, library, policyKey);
             return library;
         }
 
-        ManagedSpcSoundLibrary fromLow = Configure(0, 0);
-        ManagedSpcSoundLibrary fromHigh = Configure(1, SpcDriverDefinitions.SoundEffects.LowHealthMode);
+        ManagedSpcSoundLibrary fromLow = Configure(0, SoundLibraryMode.Normal);
+        ManagedSpcSoundLibrary fromHigh = Configure(1, SoundLibraryMode.LowHealth);
         SoundEffectPriorityEffect priority = new LowHealthPriorityPair(fromLow.Priority, fromHigh.Priority) switch
         {
             (0, 0) => SoundEffectPriorityEffect.Low,
@@ -198,20 +196,18 @@ internal static class AudioClipExporter
             (0, 1) => SoundEffectPriorityEffect.Unchanged,
             _ => throw new InvalidDataException($"Policy {policyKey} sets priority {fromLow.Priority}/{fromHigh.Priority}."),
         };
-        LowHealthModeEffect mode = new LowHealthPriorityPair(fromLow.Mode, fromHigh.Mode) switch
-        {
-            (0, SpcDriverDefinitions.SoundEffects.LowHealthMode) => LowHealthModeEffect.Unchanged,
-            (0, 0) => LowHealthModeEffect.Clear,
-            (SpcDriverDefinitions.SoundEffects.LowHealthMode, SpcDriverDefinitions.SoundEffects.LowHealthMode) => LowHealthModeEffect.Enter,
-            _ => throw new InvalidDataException($"Policy {policyKey} sets low-health mode {fromLow.Mode}/{fromHigh.Mode}."),
-        };
+        LowHealthModeEffect mode =
+            fromLow.Mode == SoundLibraryMode.Normal && fromHigh.Mode == SoundLibraryMode.LowHealth ? LowHealthModeEffect.Unchanged
+            : fromLow.Mode == SoundLibraryMode.Normal && fromHigh.Mode == SoundLibraryMode.Normal ? LowHealthModeEffect.Clear
+            : fromLow.Mode == SoundLibraryMode.LowHealth && fromHigh.Mode == SoundLibraryMode.LowHealth ? LowHealthModeEffect.Enter
+            : throw new InvalidDataException($"Policy {policyKey} sets low-health mode {fromLow.Mode}/{fromHigh.Mode}.");
         // The voices the configuration sets up stay the driver's: the render plays them, and the clips carry the result
         // (#1749).
         return new SoundEffectClipPolicy(
             priority,
             mode,
-            IgnoresPriority: !SpcSoundLibraries.RejectsRequest(libraryIndex, command, priority: 1, mode: 0),
-            IgnoresLowHealthMode: SpcSoundEffectTables.HasLowHealthMode(libraryIndex) && !SpcSoundLibraries.RejectsRequest(libraryIndex, command, priority: 0, mode: SpcDriverDefinitions.SoundEffects.LowHealthMode));
+            IgnoresPriority: !SpcSoundLibraries.RejectsRequest(libraryIndex, command, priority: 1, SoundLibraryMode.Normal),
+            IgnoresLowHealthMode: SpcSoundEffectTables.HasLowHealthMode(libraryIndex) && !SpcSoundLibraries.RejectsRequest(libraryIndex, command, priority: 0, SoundLibraryMode.LowHealth));
     }
 
     /// <summary>

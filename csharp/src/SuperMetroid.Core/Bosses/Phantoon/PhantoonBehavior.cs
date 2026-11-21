@@ -20,7 +20,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemySpawnFactory<Enemy
     /// offers them as it sets up (<see cref="InitializePhantoonBody"/>).
     /// </summary>
     /// <param name="registrar">The room's registry being composed.</param>
-    public void Register(EnemySpeciesRegistrar registrar)
+    public void OfferCreations(EnemySpeciesRegistrar registrar)
     {
         Ensure.NotNull(registrar).Spawns<EnemySpawnSettings>(Definitions, Create);
         registrar.Joins([EnemyDefinitionId.PhantoonEye, EnemyDefinitionId.PhantoonTentacles, EnemyDefinitionId.PhantoonMouth]);

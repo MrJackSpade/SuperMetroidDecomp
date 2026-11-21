@@ -22,7 +22,7 @@ internal abstract class VerticalShutterEntity(ShuttersBehavior species, RoomEnem
     internal VerticalShutterEnemyState State { get; } = ShuttersBehavior.InitializeVerticalShutter(settings, place, pose);
 
     /// <summary>The vertical shutters' own Power Bomb reaction, built once for this shutter.</summary>
-    private EnemyPowerBombReaction OwnPowerBomb => field ??= Species.VerticalShutterPowerBombReaction(Occupant, Settings, State);
+    private EnemyPowerBombReaction OwnPowerBomb => field ??= Species.VerticalShutterPowerBombReaction(Settings, State);
 
     /// <summary>Whether the vertical shutters' own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
     public override bool ReactsToTouch => Occupant.Definition.Touch == ShutterReactions.Touch || base.ReactsToTouch;
@@ -32,7 +32,7 @@ internal abstract class VerticalShutterEntity(ShuttersBehavior species, RoomEnem
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (Occupant.Definition.Touch == ShutterReactions.Touch)
-            Species.ReactToVerticalShutterTouch(Occupant, Settings, context, State);
+            Species.ReactToVerticalShutterTouch(Settings, context, State);
         else
             base.ReactToTouch(context);
     }
@@ -42,7 +42,7 @@ internal abstract class VerticalShutterEntity(ShuttersBehavior species, RoomEnem
         LeavesPowerBombToSpecies ? OwnPowerBomb : base.PowerBombReaction;
 
     /// <inheritdoc/>
-    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunVerticalShutterMainAi(Occupant, Settings, Place, State, frame);
+    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunVerticalShutterMainAi(Settings, Place, State, frame);
 
     /// <inheritdoc/>
     public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) => ShuttersBehavior.AdvanceVerticalShutterTypedAnimation(Place, State);

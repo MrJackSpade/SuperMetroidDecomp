@@ -26,7 +26,7 @@ internal sealed class EnemyPlaces
         if (_places[0] is not null)
             throw new InvalidOperationException("The enemy places are installed once, when the room enemy system is built.");
         for (int ordinal = 0; ordinal < _places.Length; ordinal++)
-            _places[ordinal] = new RoomEnemyPlace(ordinal, species, new RemovedEnemyLeftovers());
+            _places[ordinal] = new RoomEnemyPlace(ordinal, species.Common, new RemovedEnemyLeftovers<IEnemyEntity>());
     }
 
     /// <summary>

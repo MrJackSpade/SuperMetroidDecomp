@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Areas.Tourian;
 
 namespace SuperMetroid.Core.World;
@@ -8,4 +9,5 @@ namespace SuperMetroid.Core.World;
 /// </summary>
 /// <param name="Room">The statues' room.</param>
 /// <param name="Actors">The statue actors the room's enemies built over it.</param>
+[RoomLifetime]
 internal sealed record RoomTourianStatues(TourianStatueRoom Room, ITourianStatueActors Actors);

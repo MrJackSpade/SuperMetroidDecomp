@@ -43,10 +43,11 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
     private UpdateCountdown Flashing { get; set; } = UpdateCountdown.Ended();
 
     /// <summary>
-    /// The suit's explosion (#2388), its pictures played once for their dwell times, or null before the suit explodes;
-    /// the sequence completes once its last picture has shown.
+    /// The suit's explosion (#2388), its pictures played once for their dwell times, showing nothing until the suit explodes
+    /// and starts it afresh; the sequence completes once its last picture has shown.
     /// </summary>
-    private AnimationPlayer<SamusDeathExplosionSegment, SamusDeathExplosionFrame, NoAnimationCue>? Explosion { get; set; }
+    private AnimationPlayer<SamusDeathExplosionSegment, SamusDeathExplosionFrame, NoAnimationCue> Explosion { get; set; } =
+        SamusDeathAnimations.ExplosionStarting();
 
     /// <summary>
     /// The whiteout's shades (#2387): one update each from the update after the explosion's second picture first shows,
@@ -66,7 +67,7 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
 
 /// <summary>The suit-explosion picture shown, or null outside the explosion.</summary>
     private SamusDeathExplosionFrame? ExplosionFrame =>
-        Phase == SamusDeathSequencePhase.SuitExplosion && Explosion is { HasStopped: false } explosion ? explosion.Shown : null;
+        Phase == SamusDeathSequencePhase.SuitExplosion && !Explosion.HasStopped ? Explosion.Shown : null;
 
     /// <summary>The facing captured before pose metadata is replaced by the death-sequence pose.</summary>
     private bool FacingLeft { get; set; }
@@ -110,7 +111,7 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
         PreFlashingTimer = UpdateCountdown.Lasting(SamusDeathSequenceDefinitions.PreFlashFrameCount);
         Flash = SamusDeathAnimations.FlashStarting();
         Flashing = UpdateCountdown.Lasting(SamusDeathSequenceDefinitions.FlashFrameCount);
-        Explosion = null;
+        Explosion = SamusDeathAnimations.ExplosionStarting();
         WhiteoutBrightening = null;
         Whiteout = null;
         // Dying while spin jumping ends the spin's sound at normal priority.
@@ -230,8 +231,7 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
     /// <summary>Plays the explosion on, its death shades and terminal whiteout, returning whether to draw this frame.</summary>
     private bool StepSuitExplosion(SamusState samus, SamusColours samusColours, SamusDeathSteps artwork)
     {
-        AnimationPlayer<SamusDeathExplosionSegment, SamusDeathExplosionFrame, NoAnimationCue> explosion =
-            Explosion ?? throw new InvalidOperationException("The suit's explosion has not started.");
+        AnimationPlayer<SamusDeathExplosionSegment, SamusDeathExplosionFrame, NoAnimationCue> explosion = Explosion;
         if (explosion.StepToNewFrame() is { } picture)
         {
             // The whiteout starts on the update after the explosion's second picture first shows.
@@ -258,8 +258,9 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
         if (WhiteoutBrightening is not { } whiteout)
             return;
 
-        ShowWhiteout(samusColours, artwork, whiteout.StepToNewFrame()
-            ?? throw new InvalidOperationException("The whiteout shows a shade on every update of the explosion."));
+        // The whiteout shows a new shade on every update of the explosion; one that showed none would keep its last.
+        if (whiteout.StepToNewFrame() is { } shade)
+            ShowWhiteout(samusColours, artwork, shade);
     }
 
     /// <summary>

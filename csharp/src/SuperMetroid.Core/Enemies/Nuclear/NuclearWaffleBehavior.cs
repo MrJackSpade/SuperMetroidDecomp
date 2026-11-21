@@ -57,7 +57,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemySpawnFactory<
     }
 
     /// <summary>Runs the Nuclear Waffle's main AI.</summary>
-    private void RunNuclearWaffleMain(RoomEnemyOccupant occupant, NuclearWaffleSpawnSettings nuclearWaffleSpawnSettings, RoomEnemyPlace place, NuclearWaffleEnemyState state)
+    private void RunNuclearWaffleMain(NuclearWaffleSpawnSettings nuclearWaffleSpawnSettings, RoomEnemyPlace place, NuclearWaffleEnemyState state)
     {
         switch (state.Action)
         {
@@ -297,8 +297,8 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemySpawnFactory<
     }
 
     /// <summary>Runs the Nuclear Waffle's main AI.</summary>
-    internal void RunNuclearWaffleMainAi(RoomEnemyOccupant occupant, NuclearWaffleSpawnSettings nuclearWaffleSpawnSettings, RoomEnemyPlace place, NuclearWaffleEnemyState nuclearWaffleEnemyState)
+    internal void RunNuclearWaffleMainAi(NuclearWaffleSpawnSettings nuclearWaffleSpawnSettings, RoomEnemyPlace place, NuclearWaffleEnemyState nuclearWaffleEnemyState)
     {
-        RunNuclearWaffleMain(occupant, nuclearWaffleSpawnSettings, place, nuclearWaffleEnemyState);
+        RunNuclearWaffleMain(nuclearWaffleSpawnSettings, place, nuclearWaffleEnemyState);
     }
 }

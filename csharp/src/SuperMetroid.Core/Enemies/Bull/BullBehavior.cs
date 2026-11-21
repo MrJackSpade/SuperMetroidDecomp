@@ -33,7 +33,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemySpawnFactory<BullSpawn
     }
 
     /// <summary>Runs a Bull for one update through all four of its actions.</summary>
-    internal static void RunBullMain(RoomEnemyOccupant occupant, BullSpawnSettings bullSpawnSettings, RoomEnemyPlace place, BullEnemyState state, SamusState samus)
+    internal static void RunBullMain(BullSpawnSettings bullSpawnSettings, RoomEnemyPlace place, BullEnemyState state, SamusState samus)
     {
         // A kick's guard runs out on the update its countdown reaches zero.
         state.ShotReactionDisableTimer.Step();

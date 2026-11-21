@@ -12,7 +12,7 @@ internal readonly record struct ShaktoolChainSegment(RoomEnemyPlace Place, Shakt
     /// <summary>
     /// The state the rest of the chain reaches at the segment: its own, or, once a hit killed it this update, the emptied
     /// record the kill left in its place, which the chain reads and writes until the kill's deletion of the chain
-    /// (<see cref="RoomEnemyPlace.ClearedByKill{TRecord}"/>, <see cref="Compatibility.RemovedEnemyLeftovers"/>).
+    /// (<see cref="RoomEnemyPlace.ClearedByKill{TRecord}"/>, <see cref="Compatibility.RemovedEnemyLeftovers{TEnemy}"/>).
     /// </summary>
     internal ShaktoolSegmentState Reached => Place.ClearedByKill<ShaktoolSegmentState>() ?? State;
 }

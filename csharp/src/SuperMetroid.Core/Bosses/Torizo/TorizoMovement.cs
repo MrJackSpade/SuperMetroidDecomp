@@ -192,14 +192,14 @@ internal sealed class TorizoMovement
         if (state.TurnTowardSamus is { } turn && turn.StepRunsOut())
         {
             state.TurnTowardSamus = null;
-            TorizoBody.StartTorizoBodyAnimation(torizo, state, TorizoAnimations.Start(state.Walker.TurnAbout(torizo, state)));
+            TorizoBody.StartTorizoBodyAnimation(torizo, state, TorizoAnimations.Start(state.Walker.TurnAbout(state)));
             return;
         }
 
         if (!_terrain.MoveEnemyVertically(level, torizo, SignedSixteenSixteen.FromWholePixels(TorizoGroundProbeFall.Pixels(state.Velocity.X))))
         {
             // The fall swaps to the in-air animation while the downward probe stays clear; its leaping motion lands it.
-            TorizoBody.StartTorizoBodyAnimation(torizo, state, TorizoAnimations.Start(TorizoFacing.FacesRight(torizo, state)
+            TorizoBody.StartTorizoBodyAnimation(torizo, state, TorizoAnimations.Start(TorizoFacing.FacesRight(state)
                 ? TorizoAnimation.FacingRightFalling
                 : TorizoAnimation.FacingLeftFalling));
             // The fall starts at the resting speed, so a Torizo whose ground returns at once lands without a quake.

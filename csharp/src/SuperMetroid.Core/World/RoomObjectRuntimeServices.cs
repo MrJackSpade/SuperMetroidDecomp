@@ -11,6 +11,7 @@ namespace SuperMetroid.Core.World;
 /// </summary>
 /// <param name="enemies">The room's enemies.</param>
 /// <param name="system">The game's shared state, which an eye door's opening records.</param>
+[RoomLifetime]
 internal sealed class RoomObjectRuntimeServices(RoomEnemySystem enemies, SharedGameState system) :
     IRoomEarthquakeWriter, IRoomObjectEnemyEffects
 {

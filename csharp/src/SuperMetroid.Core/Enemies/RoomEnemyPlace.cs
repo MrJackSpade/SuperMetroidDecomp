@@ -16,20 +16,20 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
 {
     /// <summary>Creates the place at <paramref name="ordinal"/> in <see cref="EnemyPlaceOrder"/>, before any occupant is installed.</summary>
     /// <param name="ordinal">The place's position in allocation and processing order.</param>
-    /// <param name="registry">The species registry that creates the entity for each installed occupant.</param>
+    /// <param name="common">The shared participation every entity built in the place composes.</param>
     /// <param name="leftovers">What the place's removed occupants leave for their neighbours, created with the room's places.</param>
-    internal RoomEnemyPlace(int ordinal, EnemySpeciesRegistry registry, RemovedEnemyLeftovers leftovers)
+    internal RoomEnemyPlace(int ordinal, EnemyCommonParticipation common, RemovedEnemyLeftovers<IEnemyEntity> leftovers)
     {
-        _registry = Ensure.NotNull(registry);
+        _common = Ensure.NotNull(common);
         _leftovers = Ensure.NotNull(leftovers);
         Ordinal = Ensure.BetweenInclusive(0, EnemyPlaceOrder.Capacity - 1, ordinal);
     }
 
     /// <summary>
     /// What the place's last removed occupant left there for the enemies that read it: the enemy as it left after a
-    /// deletion, and nothing after a kill (<see cref="RemovedEnemyLeftovers"/>).
+    /// deletion, and nothing after a kill (<see cref="RemovedEnemyLeftovers{TEnemy}"/>).
     /// </summary>
-    private readonly RemovedEnemyLeftovers _leftovers;
+    private readonly RemovedEnemyLeftovers<IEnemyEntity> _leftovers;
 
     /// <summary>
     /// The place's ordinal in <see cref="EnemyPlaceOrder"/>, 0 through <see cref="EnemyPlaceOrder.Capacity"/> minus one,
@@ -68,8 +68,8 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
     /// </summary>
     internal bool IsFree => History is NeverPopulatedEnemyPlace or PopulatedEnemyPlace { Occupancy: VacatedEnemyPlace };
 
-    /// <summary>The species registry that creates the entity for each installed occupant.</summary>
-    private readonly EnemySpeciesRegistry _registry;
+    /// <summary>The shared participation every entity built in the place composes.</summary>
+    private readonly EnemyCommonParticipation _common;
 
     /// <summary>The enemy occupying the place, bound with its identity; null while the place is empty.</summary>
     internal IEnemyEntity? Entity => BoundEntity?.Entity;
@@ -82,14 +82,14 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
 
     /// <summary>
     /// The enemy another enemy finds when it reads this place, which it does without testing what the place holds
-    /// (<see cref="RemovedEnemyLeftovers"/>): the enemy holding it, the one a deletion left there as it left, or null once
+    /// (<see cref="RemovedEnemyLeftovers{TEnemy}"/>): the enemy holding it, the one a deletion left there as it left, or null once
     /// the place's last occupant was killed or while no enemy has held it.
     /// </summary>
     internal IEnemyEntity? FoundEntity => _leftovers.Found(Occupant is null ? null : Entity);
 
     /// <summary>
     /// The <typeparamref name="TRecord"/> a neighbour that writes to this place finds there once its last occupant was
-    /// killed (<see cref="RemovedEnemyLeftovers.ClearedByKill{TRecord}"/>): emptied when first reached, keeping what the
+    /// killed (<see cref="RemovedEnemyLeftovers{TEnemy}.ClearedByKill{TRecord}"/>): emptied when first reached, keeping what the
     /// neighbour writes; null while an enemy holds the place or its last removal was no kill.
     /// </summary>
     /// <typeparam name="TRecord">The record the neighbour reads and writes.</typeparam>
@@ -127,7 +127,7 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
     /// <param name="occupant">The occupant the place was just bound to.</param>
     /// <param name="build">How the occupant's species builds it where it is set up.</param>
     /// <returns>The entity with the setup and main AI it runs.</returns>
-    internal EnemyOccupant Build(RoomEnemyOccupant occupant, IEnemyBuild build) => Hold(Ensure.NotNull(build).Create(occupant, this, _registry.Common));
+    internal EnemyOccupant Build(RoomEnemyOccupant occupant, IEnemyBuild build) => Hold(Ensure.NotNull(build).Create(occupant, this, _common));
 
     /// <summary>Holds <paramref name="built"/> as the place's entity.</summary>
     private EnemyOccupant Hold(EnemyOccupant built)
@@ -151,7 +151,7 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
     /// <summary>
     /// Empties the place's identity and its occupant's species states when the occupant is deleted without being killed.
     /// The place keeps the occupant's last position, health and timers, and the enemy with its state stays for the enemies
-    /// that read it (<see cref="FoundEntity"/>, <see cref="RemovedEnemyLeftovers"/>, <see cref="FollowUpAfterStruckPart"/>).
+    /// that read it (<see cref="FoundEntity"/>, <see cref="RemovedEnemyLeftovers{TEnemy}"/>, <see cref="FollowUpAfterStruckPart"/>).
     /// </summary>
     internal void Unbind()
     {

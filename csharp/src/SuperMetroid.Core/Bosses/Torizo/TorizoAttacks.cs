@@ -248,7 +248,7 @@ internal sealed class TorizoAttacks
             TorizoOwnedProjectileState owned = Held.Of(projectile);
             RoomEnemyPlace torizo = owned.Owner;
             Offset16<RoomPixels> held = TorizoProjectilePlacementDefinitions.HeldSuperMissile;
-            projectile.Position = projectile.Position.WithWhole(torizo.Position.Whole + (TorizoFacing.FacesRight(torizo, owned.OwnerState) ? held : held.MirroredX()));
+            projectile.Position = projectile.Position.WithWhole(torizo.Position.Whole + (TorizoFacing.FacesRight(owned.OwnerState) ? held : held.MirroredX()));
         }
 
         /// <summary>
@@ -299,7 +299,7 @@ internal sealed class TorizoAttacks
         projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectiles, TorizoRandomDefinitions.LowHealthDroolForm.Choose(_room.Random.Generate())));
         int random = _room.Random.Generate();
         Offset16<RoomPixels> drool = TorizoProjectilePlacementDefinitions.LowHealthDrool;
-        projectile.Position = projectile.Position.WithWhole(torizo.Position.Whole + (TorizoFacing.FacesRight(torizo, torizoEnemyState) ? drool : drool.MirroredX()));
+        projectile.Position = projectile.Position.WithWhole(torizo.Position.Whole + (TorizoFacing.FacesRight(torizoEnemyState) ? drool : drool.MirroredX()));
 
         // The recurring low-health drool launches in a random direction: a turning Torizo's any of the turn's, a facing
         // one's spread about its facing's heading.
@@ -332,7 +332,7 @@ internal sealed class TorizoAttacks
         int jitteredX = _room.Random.Next(TorizoRandomDefinitions.InitialDroolXJitter) + torizo.Position.X.Whole;
         projectile.Position = projectile.Position.WithWholeX(TorizoFacing.Posture(torizoEnemyState).IsTurning
             ? jitteredX
-            : TorizoFacing.FacesRight(torizo, torizoEnemyState)
+            : TorizoFacing.FacesRight(torizoEnemyState)
                 ? jitteredX + TorizoMotionDefinitions.InitialDroolSideOffset
                 : jitteredX - TorizoMotionDefinitions.InitialDroolSideOffset);
         projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.Zero);
@@ -372,7 +372,7 @@ internal sealed class TorizoAttacks
 
         // A right-facing Torizo mirrors the left-facing hand placement horizontally.
         projectile.Position = projectile.Position.WithWhole(torizo.Position.Whole +
-            (TorizoFacing.FacesRight(torizo, torizoEnemyState) ? placement.MirroredX() : placement));
+            (TorizoFacing.FacesRight(torizoEnemyState) ? placement.MirroredX() : placement));
     }
 
     /// <summary>Places a body-break explosion at the gut or face for Torizo's facing and records its impact coordinates.</summary>
@@ -441,7 +441,7 @@ internal sealed class TorizoAttacks
         Offset16<RoomPixels> placement = TorizoRandomDefinitions.SonicBoomFliesHigh.IsTakenBy(_room.Random.Generate())
             ? TorizoProjectilePlacementDefinitions.HighSonicBoom
             : TorizoProjectilePlacementDefinitions.LowSonicBoom;
-        if (TorizoFacing.FacesRight(torizo, torizoEnemyState))
+        if (TorizoFacing.FacesRight(torizoEnemyState))
         {
             projectile.Position = projectile.Position.WithWhole(torizo.Position.Whole + placement);
             projectile.Velocity = projectile.Velocity.WithX(TorizoMotionDefinitions.SonicBoomLaunchSpeed);
@@ -493,7 +493,7 @@ internal sealed class TorizoAttacks
             return;
 
         SuperMissile.Held.Start(projectile, new TorizoOwnedProjectileState(torizo, torizoEnemyState));
-        bool facingRight = TorizoFacing.FacesRight(torizo, torizoEnemyState);
+        bool facingRight = TorizoFacing.FacesRight(torizoEnemyState);
         Offset16<RoomPixels> caught = TorizoProjectilePlacementDefinitions.CaughtSuperMissile;
         projectile.Position = projectile.Position.WithWhole(torizo.Position.Whole + (facingRight ? caught : caught.MirroredX()));
         projectile.StartAnimation(new TorizoProjectileAnimation(SuperMissile, facingRight ? TorizoProjectileSegment.SuperMissileRight : TorizoProjectileSegment.SuperMissileLeft));

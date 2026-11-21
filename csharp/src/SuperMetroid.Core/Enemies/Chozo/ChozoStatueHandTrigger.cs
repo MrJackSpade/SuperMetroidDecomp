@@ -4,8 +4,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Enemies.Chozo;
 
 /// <summary>
-/// What triggering a Chozo statue's hand wakes: the statue that spawned the hand, which the cartridge reaches as the
-/// first enemy its room lists (#2554). The hand's spawn carries it to the room's statue objects, which hold it while the
+/// What triggering a Chozo statue's hand wakes: the statue that spawned the hand, the first enemy its room lists (#2554). The hand's spawn carries it to the room's statue objects, which hold it while the
 /// hand's block can be touched.
 /// </summary>
 /// <param name="statue">The Chozo statue species owner, which runs the hand's activation.</param>

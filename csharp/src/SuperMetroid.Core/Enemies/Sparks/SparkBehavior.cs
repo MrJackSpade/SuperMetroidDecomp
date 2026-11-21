@@ -48,7 +48,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemySpawnFactory<SparkSpa
 
     /// <summary>Initializes the Spark.</summary>
     /// <returns>The state the enemy holds from its setup.</returns>
-    internal static SparkEnemyState InitializeSpark(RoomEnemyOccupant occupant, SparkSpawnSettings sparkSpawnSettings, RoomEnemyPlace place)
+    internal static SparkEnemyState InitializeSpark(SparkSpawnSettings sparkSpawnSettings, RoomEnemyPlace place)
     {
         SparkMovementDefinition definition = sparkSpawnSettings.Start;
         var state = new SparkEnemyState(definition.Action,

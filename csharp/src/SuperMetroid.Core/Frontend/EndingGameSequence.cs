@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend;
 
 /// <summary>The ending: the gunship leaves Zebes while the screen darkens, then Zebes's destruction, the results and the credits.</summary>
 /// <param name="session">The frontend session the sequence runs against.</param>
-internal sealed class EndingGameSequence(FrontendSession session) : IGameplayPhase, IFrontendPhase
+internal sealed class EndingGameSequence(FrontendSession session) : IGameplayPhase, IUnattendedPhase
 {
     /// <inheritdoc/>
     public SuperMetroidGameState State => SuperMetroidGameState.Ending;
@@ -52,7 +52,7 @@ internal sealed class EndingGameSequence(FrontendSession session) : IGameplayPha
 
     /// <inheritdoc/>
     /// <remarks>The credits run without gameplay.</remarks>
-    public void Step(ControllerButton controllerInput) => RunCredits();
+    public void Step() => RunCredits();
 
     /// <summary>One update of the departing gunship's gameplay while the screen darkens, which starts the credits once black.</summary>
     private void LeaveZebes(ControllerButton controllerInput, LoadedGameplay live)

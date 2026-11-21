@@ -419,7 +419,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemySpawnFac
     }
 
     /// <summary>Runs the walking Space Pirate's main AI.</summary>
-    internal void RunWalkingSpacePirateMainAi(RoomEnemyOccupant occupant, WalkingSpacePirateSpawnSettings walkingSpacePirateSpawnSettings, RoomEnemyPlace place, WalkingSpacePirateEnemyState walkingSpacePirateEnemyState, IEnemyAiFrame frame)
+    internal void RunWalkingSpacePirateMainAi(WalkingSpacePirateSpawnSettings walkingSpacePirateSpawnSettings, RoomEnemyPlace place, WalkingSpacePirateEnemyState walkingSpacePirateEnemyState, IEnemyAiFrame frame)
     {
         RunWalkingSpacePirateMain(
             walkingSpacePirateSpawnSettings, place,

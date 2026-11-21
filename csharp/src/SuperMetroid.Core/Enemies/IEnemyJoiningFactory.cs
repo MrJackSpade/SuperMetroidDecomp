@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// A species owner some of whose enemies are spawned joining the encounter that spawns them (#2218, #2554): the spawner
+/// A species some of whose enemies are spawned joining the encounter that spawns them (#2218, #2554): the spawner
 /// hands the spawn this factory, the settings and the encounter (<see cref="JoiningEnemySpawn{TEncounter, TSettings}"/>),
 /// and the entity receives the encounter as it is built. No population load or respawn builds such an enemy.
 /// </summary>

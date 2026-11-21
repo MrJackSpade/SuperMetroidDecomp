@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Frontend.Intro.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Intro;
 

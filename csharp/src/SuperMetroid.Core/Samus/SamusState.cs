@@ -507,11 +507,8 @@ public sealed class SamusState
     /// </summary>
     public SamusPoseId? AnimatedPose { get; internal set; }
 
-    /// <summary>The step of the animated pose's animation that Samus's animation frame is on.</summary>
-    /// <exception cref="InvalidOperationException">The animation has not been started.</exception>
-    internal SamusPoseAnimationStep AnimationStep => SamusAnimationDelays.StepFor(
-        AnimatedPose ?? throw new InvalidOperationException("Samus's animation has not been started for any pose."), AnimationFrame,
-        FramesBeyondAnimation);
+    /// <summary>The step of the animation of <see cref="AnimationPose"/> that Samus's animation frame is on.</summary>
+    internal SamusPoseAnimationStep AnimationStep => SamusAnimationDelays.StepFor(AnimationPose, AnimationFrame, FramesBeyondAnimation);
 
     /// <summary>
     /// What an animation frame past her pose's animation reads, the session's installed service, which decides the frames her

@@ -73,7 +73,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemySpawnFactory<Hibash
     }
 
     /// <summary>Runs the Hibashi's main AI.</summary>
-    private void RunHibashiMain(RoomEnemyOccupant occupant, HibashiFlameSpawnSettings hibashiFlameSpawnSettings, RoomEnemyPlace place, HibashiEnemyState state)
+    private static void RunHibashiMain(HibashiFlameSpawnSettings hibashiFlameSpawnSettings, RoomEnemyPlace place, HibashiEnemyState state)
     {
         switch (state.Action)
         {
@@ -160,8 +160,8 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemySpawnFactory<Hibash
     }
 
     /// <summary>Runs the flame's main AI.</summary>
-    internal void RunHibashiMainAi(RoomEnemyOccupant occupant, HibashiFlameSpawnSettings hibashiFlameSpawnSettings, RoomEnemyPlace place, HibashiEnemyState hibashiEnemyState) =>
-        RunHibashiMain(occupant, hibashiFlameSpawnSettings, place, hibashiEnemyState);
+    internal static void RunHibashiMainAi(HibashiFlameSpawnSettings hibashiFlameSpawnSettings, RoomEnemyPlace place, HibashiEnemyState hibashiEnemyState) =>
+        RunHibashiMain(hibashiFlameSpawnSettings, place, hibashiEnemyState);
 
     /// <summary>Advances the collision part's hitbox hold.</summary>
     internal static void AdvanceHibashiCollisionPartTypedAnimation(RoomEnemyPlace place, HibashiCollisionPartState hibashiCollisionPartState) =>

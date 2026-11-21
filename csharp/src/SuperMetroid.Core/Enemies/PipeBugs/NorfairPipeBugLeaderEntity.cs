@@ -20,5 +20,5 @@ internal sealed class NorfairPipeBugLeaderEntity(PipeBugsBehavior species, RoomE
     private NorfairPipeBugFormation Formation { get; } = species.LeadFormation(place);
 
     /// <inheritdoc/>
-    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunNorfairPipeBugLeaderMainAi(Settings, Formation, Place, State, frame);
+    public override void RunMainAi(IEnemyAiFrame frame) => PipeBugsBehavior.RunNorfairPipeBugLeaderMainAi(Settings, Formation, Place, State, frame);
 }

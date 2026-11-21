@@ -38,7 +38,7 @@ internal static class KzanRiseStepVerification
         {
             state.Action = KzanAction.Rising;
             place.Position = place.Position.WithY(new FixedCoordinate(whole, fraction));
-            enemies.KzanBehavior.RunKzanTopMainAi(place.HeldOccupant(), place, frame);
+            enemies.KzanBehavior.RunKzanTopMainAi(place, frame);
             int lowered = fraction - 0x8000;
             int borrow = lowered < 0 ? 1 : 0;
             var expected = new FixedCoordinate(whole - borrow, lowered & ushort.MaxValue);

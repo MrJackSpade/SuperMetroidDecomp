@@ -13,7 +13,7 @@ internal sealed class SparkEntity(SparkBehavior species, RoomEnemyOccupant occup
     internal SparkSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal SparkEnemyState State { get; } = SparkBehavior.InitializeSpark(occupant, settings, place);
+    internal SparkEnemyState State { get; } = SparkBehavior.InitializeSpark(settings, place);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunSparkMainAi(Occupant, Settings, Place, State);

@@ -20,7 +20,7 @@ internal sealed class BullEntity(BullBehavior species, RoomEnemyOccupant occupan
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) =>
-        BullBehavior.RunBullMain(Occupant, Settings, Place, State, frame.Samus);
+        BullBehavior.RunBullMain(Settings, Place, State, frame.Samus);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => BullBehavior.AdvanceBullAnimation(Place, State);

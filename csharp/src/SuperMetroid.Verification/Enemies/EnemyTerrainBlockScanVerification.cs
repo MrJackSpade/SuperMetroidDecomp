@@ -52,7 +52,7 @@ internal static class EnemyTerrainBlockScanVerification
     }
 
     /// <summary>An enemy eight pixels square centred on <paramref name="x"/>, <paramref name="y"/>.</summary>
-    private static RoomEnemyPlace Enemy(int x, int y) => new(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>())
+    private static RoomEnemyPlace Enemy(int x, int y) => new(0, EnemyPlaceFixtures.Registry.Common, new RemovedEnemyLeftovers<IEnemyEntity>())
     {
         Position = FixedPosition<RoomPixels>.FromWhole(new(x, y)),
         Radius = new(4, 4),

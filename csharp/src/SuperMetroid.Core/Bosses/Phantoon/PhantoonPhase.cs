@@ -116,7 +116,7 @@ public sealed class PhantoonPhase
     public static PhantoonPhase DyingFadeOut { get; } = new(nameof(DyingFadeOut), turn => turn.Phantoon.Death.RunPhantoonWavyPixelatedDeath(turn.State));
 
     /// <summary>Clears Phantoon graphics and releases distortion before Wrecked Ship activation.</summary>
-    public static PhantoonPhase AlmostDead { get; } = new(nameof(AlmostDead), turn => turn.Phantoon.Death.ClearPhantoonDeathGraphics(turn.State));
+    public static PhantoonPhase AlmostDead { get; } = new(nameof(AlmostDead), turn => PhantoonDeath.ClearPhantoonDeathGraphics(turn.State));
 
     /// <summary>Restores the powered Wrecked Ship colours, publishes drops and boss persistence, restores the door, and deletes all four parts.</summary>
     public static PhantoonPhase Dead { get; } = new(nameof(Dead), turn => turn.Phantoon.Death.ActivateWreckedShipAfterPhantoon(turn.State.Body, turn.State, turn.Samus));

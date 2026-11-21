@@ -168,7 +168,7 @@ internal sealed class PhantoonDeath
 
 
     /// <summary>Hides his whole body, every part showing nothing (#1515), and starts the power's delay.</summary>
-    internal void ClearPhantoonDeathGraphics(PhantoonEnemyState state)
+    internal static void ClearPhantoonDeathGraphics(PhantoonEnemyState state)
     {
         state.Death.PixelationSize = PhantoonDeathDefinitions.InitialPixelationSize;
         state.Wave.End();

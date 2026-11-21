@@ -38,11 +38,11 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IGameplayShadingSource
     private readonly RoomEarthquake _earthquake;
 
     /// <summary>The door of Ceres Ridley's room and the animation holding its look, once it has initialized; null in any other room.</summary>
-    private (RoomEnemyPlace Place, CeresDoorAnimationState Door)? _ridleyRoomDoor;
+    private CeresRidleyRoomDoor? _ridleyRoomDoor;
 
     /// <summary>Attaches <paramref name="door"/>, whose animation <paramref name="state"/> holds its look, as the door of Ceres Ridley's room as it initializes.</summary>
     internal void AttachRidleyRoomDoor(RoomEnemyPlace door, CeresDoorAnimationState state) =>
-        _ridleyRoomDoor = (Ensure.NotNull(door), Ensure.NotNull(state));
+        _ridleyRoomDoor = new CeresRidleyRoomDoor(Ensure.NotNull(door), Ensure.NotNull(state));
 
     /// <summary>
     /// Shows the door of Ridley's room as its fixed overlay picture while its look is the overlay (#2573): hidden as an

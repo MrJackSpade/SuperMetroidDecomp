@@ -100,7 +100,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemySpawnFactory<Yap
 
     /// <summary>Runs the Maw's main behaviour, then places its four links.</summary>
     private void RunYappingMawMain(
-        RoomEnemyOccupant occupant, YappingMawSpawnSettings yappingMawSpawnSettings, RoomEnemyPlace place,
+        YappingMawSpawnSettings yappingMawSpawnSettings, RoomEnemyPlace place,
         YappingMawEnemyState state,
         SamusState samus,
         Position16<RoomPixels> camera)
@@ -512,10 +512,10 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemySpawnFactory<Yap
     };
 
     /// <summary>Runs YappingMaw's main AI.</summary>
-    internal void RunYappingMawMainAi(RoomEnemyOccupant occupant, YappingMawSpawnSettings yappingMawSpawnSettings, RoomEnemyPlace place, YappingMawEnemyState yappingMawEnemyState, IEnemyAiFrame frame)
+    internal void RunYappingMawMainAi(YappingMawSpawnSettings yappingMawSpawnSettings, RoomEnemyPlace place, YappingMawEnemyState yappingMawEnemyState, IEnemyAiFrame frame)
     {
         RunYappingMawMain(
-            occupant, yappingMawSpawnSettings, place,
+            yappingMawSpawnSettings, place,
             yappingMawEnemyState,
             frame.Samus,
             frame.Camera);

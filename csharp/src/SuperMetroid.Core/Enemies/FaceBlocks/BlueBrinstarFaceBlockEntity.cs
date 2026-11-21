@@ -17,7 +17,7 @@ internal sealed class BlueBrinstarFaceBlockEntity(BlueBrinstarFaceBlockBehavior 
     internal BlueBrinstarFaceBlockEnemyState State { get; } = species.InitializeBlueBrinstarFaceBlock(place, surroundings.Samus);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunBlueBrinstarFaceBlockMainAi(Occupant, Settings, Place, State, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunBlueBrinstarFaceBlockMainAi(Settings, Place, State, frame);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => BlueBrinstarFaceBlockBehavior.AdvanceBlueBrinstarFaceBlockTypedAnimation(Place, State);

@@ -47,7 +47,7 @@ internal static class HopperHopArcVerification
             };
             place.SetSpeciesState(state);
 
-            enemies.HoppersBehavior.RunHoppersMainAi(place.HeldOccupant(), place, frame);
+            enemies.HoppersBehavior.RunHoppersMainAi(place, frame);
 
             string context = $"Hopper {(falling ? "returning" : "rising")} from record {start} by {step}";
             AssertEqual(QuadraticSpeedCurvePlace.FromMarks(expected), state.YSpeedCurvePlace, context);

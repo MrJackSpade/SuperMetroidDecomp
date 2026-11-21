@@ -65,7 +65,7 @@ internal static class PipeBugBehaviorVerification
             state.Action = NorfairPipeBugAction.WaitForStagger;
             state.Role = new NorfairPipeBugRole.Leader(StaggerTarget: 72);
             PrivateState.Set(state, "Departure", UpdateCountdownAccess.AtAge(72, before));
-            enemies.PipeBugsBehavior.RunNorfairPipeBugMainAi(place.HeldOccupant(), place, Frame(new(200, 128)));
+            PipeBugsBehavior.RunNorfairPipeBugMainAi(place.HeldOccupant(), place, Frame(new(200, 128)));
             AssertEqual(after, state.Departure.Age, $"Norfair Pipe Bug count after {before}");
             AssertEqual(departs ? NorfairPipeBugAction.Fly : NorfairPipeBugAction.WaitForStagger, state.Action,
                 $"Norfair Pipe Bug departs only on reaching its target (count {before})");
@@ -80,10 +80,10 @@ internal static class PipeBugBehaviorVerification
             Initialize(enemies, place, EnemyDefinitionId.Zeb, 0);
             BrinstarPipeBugState state = place.RequireSpeciesState<BrinstarPipeBugState>();
             state.Action = BrinstarPipeBugAction.WaitForSamus;
-            PipeBugsBehavior.RunBrinstarPipeBugMainAi(place.HeldOccupant(), place, Frame(new(28, 78)));
+            PipeBugsBehavior.RunBrinstarPipeBugMainAi(place, Frame(new(28, 78)));
             AssertEqual(HorizontalDirection.Left, state.Flight, "Brinstar Pipe Bug flies left of Samus on her left");
             AssertEqual(BrinstarPipeBugAction.WaitForSamus, state.Action, "Brinstar Pipe Bug waits while Samus is 100 pixels away");
-            PipeBugsBehavior.RunBrinstarPipeBugMainAi(place.HeldOccupant(), place, Frame(new(148, 78)));
+            PipeBugsBehavior.RunBrinstarPipeBugMainAi(place, Frame(new(148, 78)));
             AssertEqual(HorizontalDirection.Right, state.Flight, "Brinstar Pipe Bug flies right toward Samus on her right");
             AssertEqual(BrinstarPipeBugAction.Emerge, state.Action, "Brinstar Pipe Bug emerges for Samus 20 pixels away");
             AssertEqual(PipeBugSegment.ZebRisingRight, state.Playback.PlayingSegment, "Brinstar Pipe Bug emerges facing right");
@@ -105,7 +105,7 @@ internal static class PipeBugBehaviorVerification
             PipeBugBehaviorExpected[] expected = [new PipeBugBehaviorExpected(0, true), new PipeBugBehaviorExpected(0, false), new PipeBugBehaviorExpected(1, false)];
             for (int update = 0; update < expected.Length; update++)
             {
-                PipeBugsBehavior.RunYellowPipeBugMainAi(place.HeldOccupant(), place, Frame(new(200, 128)));
+                PipeBugsBehavior.RunYellowPipeBugMainAi(place, Frame(new(200, 128)));
                 AssertEqual(SixteenSixteenWords.ToCoordinate(checked((uint)(128 * onePixel + (update + 1) * (onePixel + onePixel / 2)))), place.Position.X,
                     $"yellow Pipe Bug arc update {update} carries its 16.16 speed");
                 AssertEqual(QuadraticSpeedCurvePlace.FromMarks(expected[update].Counter), state.ArcCurvePlace, $"yellow Pipe Bug arc record after update {update}");
@@ -149,7 +149,7 @@ internal static class PipeBugBehaviorVerification
             int updates = 0;
             while (state.Action == NorfairPipeBugAction.Stagger && updates <= stagger.Distance + 1)
             {
-                enemies.PipeBugsBehavior.RunNorfairPipeBugMainAi(slot.HeldOccupant(), slot, frame);
+                PipeBugsBehavior.RunNorfairPipeBugMainAi(slot.HeldOccupant(), slot, frame);
                 updates++;
             }
             AssertEqual(NorfairPipeBugAction.WaitForStagger, state.Action, $"the member staggering {offset} pixels then waits");
@@ -177,7 +177,7 @@ internal static class PipeBugBehaviorVerification
         switch (definition)
         {
             case EnemyDefinitionId.Zeb or EnemyDefinitionId.Zebbo:
-                PipeBugsBehavior.InitializeBrinstarPipeBug(place.HeldOccupant(), place);
+                PipeBugsBehavior.InitializeBrinstarPipeBug(place);
                 break;
             case EnemyDefinitionId.Gamet:
                 enemies.PipeBugsBehavior.InitializeNorfairPipeBug(place.HeldOccupant(), place);

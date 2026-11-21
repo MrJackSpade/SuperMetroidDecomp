@@ -32,7 +32,7 @@ internal sealed class EvirBodyEntity(EvirBehavior species, RoomEnemyOccupant occ
     private EnemyShotReaction OwnShot => field ??= EvirBehavior.EvirShotReaction(FollowUpRecipients);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => EvirBehavior.RunEvirBodyMainAi(Occupant, Settings, Place, State, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => EvirBehavior.RunEvirBodyMainAi(Settings, Place, State, frame);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => EvirBehavior.AdvanceEvirPartTypedAnimation<EvirBodyState>(Place, State);

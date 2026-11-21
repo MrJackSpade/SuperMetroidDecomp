@@ -9,11 +9,10 @@ public sealed class ZebetiteEnemyState
 {
     /// <summary>
     /// Creates the state for one Zebetite half from its spawn parameters: its pairing. It has no linked half until a
-    /// pair links its halves, and shows <paramref name="shown"/>, the picture its place shows, until its setup chooses one.
+    /// pair links its halves.
     /// </summary>
-    internal ZebetiteEnemyState(RoomEnemyPlacement population, EnemyFrameId shown)
+    internal ZebetiteEnemyState(RoomEnemyPlacement population)
     {
-        Picture = shown;
         Half = (population.SpawnSettings is ZebetiteSpawnSettings settings
             ? settings
             : throw new InvalidDataException($"A Zebetite's population entry carries {population.SpawnSettings}, not its half.")).Half;
@@ -39,10 +38,10 @@ public sealed class ZebetiteEnemyState
     public ZebetiteBarrierForm Form { get; internal set; }
 
     /// <summary>
-    /// The picture this half shows, chosen by its form and health (#2250): by its setup, then by each active update; before
-    /// its setup chooses one, the picture its place showed as it was built.
+    /// The picture this half shows, chosen by its form and health (#2250): by its setup, then by each active update; none
+    /// for a half set up once every barrier is destroyed, which its setup deletes, so it shows nothing.
     /// </summary>
-    internal EnemyFrameId Picture { get; set; }
+    internal EnemyFrameId? Picture { get; set; }
 
     /// <summary>
     /// The other half of a linked pair, to which a shot's health and flash are copied; null for a single barrier, which

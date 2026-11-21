@@ -16,7 +16,7 @@ internal sealed class WalkingSpacePirateEntity(WalkingSpacePirateBehavior specie
     internal WalkingSpacePirateEnemyState State { get; } = WalkingSpacePirateBehavior.InitializeWalkingSpacePirate(settings, place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunWalkingSpacePirateMainAi(Occupant, Settings, Place, State, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunWalkingSpacePirateMainAi(Settings, Place, State, frame);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceWalkingSpacePirateTypedAnimation(Occupant, Settings, Place, State, context);

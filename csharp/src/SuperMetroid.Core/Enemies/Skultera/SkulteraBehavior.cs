@@ -59,14 +59,14 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemySpawnFactory<Skult
 
     /// <summary>Runs the Skultera's main AI.</summary>
     private void RunSkulteraMain(
-        RoomEnemyOccupant occupant, SkulteraSpawnSettings skulteraSpawnSettings, RoomEnemyPlace place,
+        SkulteraSpawnSettings skulteraSpawnSettings, RoomEnemyPlace place,
         SkulteraEnemyState state,
         RoomLevelData level)
     {
         switch (state.Action)
         {
             case SkulteraAction.Swimming:
-                SwimSkultera(occupant, skulteraSpawnSettings, place, state, level, state.Heading);
+                SwimSkultera(skulteraSpawnSettings, place, state, level, state.Heading);
                 return;
             case SkulteraAction.Turning:
                 return;
@@ -81,7 +81,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemySpawnFactory<Skult
 
     /// <summary>Runs the mirrored swimming actions.</summary>
     private void SwimSkultera(
-        RoomEnemyOccupant occupant, SkulteraSpawnSettings settings, RoomEnemyPlace place,
+        SkulteraSpawnSettings settings, RoomEnemyPlace place,
         SkulteraEnemyState state,
         RoomLevelData level,
         HorizontalDirection direction)
@@ -154,9 +154,9 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemySpawnFactory<Skult
     }
 
     /// <summary>Runs Skultera's main AI.</summary>
-    internal void RunSkulteraMainAi(RoomEnemyOccupant occupant, SkulteraSpawnSettings skulteraSpawnSettings, RoomEnemyPlace place, SkulteraEnemyState skulteraEnemyState, IEnemyAiFrame frame)
+    internal void RunSkulteraMainAi(SkulteraSpawnSettings skulteraSpawnSettings, RoomEnemyPlace place, SkulteraEnemyState skulteraEnemyState, IEnemyAiFrame frame)
     {
-        RunSkulteraMain(occupant, skulteraSpawnSettings, place, skulteraEnemyState, frame.Level);
+        RunSkulteraMain(skulteraSpawnSettings, place, skulteraEnemyState, frame.Level);
     }
 
     /// <summary>Advances Skultera's typed animation.</summary>

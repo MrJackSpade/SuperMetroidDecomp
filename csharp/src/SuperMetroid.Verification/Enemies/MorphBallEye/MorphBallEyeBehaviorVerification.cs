@@ -70,7 +70,7 @@ internal static class MorphBallEyeBehaviorVerification
             samus.Position = FixedPosition<RoomPixels>.FromWhole(new(
                 (ushort)(128 + (int)Math.Round(48 * Math.Sin(bearing))), (ushort)(128 - (int)Math.Round(48 * Math.Cos(bearing)))));
             tracking.Action = MorphBallEyeAction.Active;
-            tracker.MorphBallEyeBehavior.RunMorphBallEyeMainAi(eye.HeldOccupant(), eye, frame);
+            tracker.MorphBallEyeBehavior.RunMorphBallEyeMainAi(eye, frame);
             AssertEqual<EnemyFrameId?>(aims[arc], tracking.Aim, $"eye tracking Samus in arc {arc} aims along its pose");
             AssertEqual(EnemyInstructionRunner.ExpectedFrames([MorphBallEyeFrameToolingDefinitions.Spritemap(aims[arc])], [1]),
                 EnemyInstructionRunner.ShownFrames(eye, 1), $"eye tracking Samus in arc {arc} shows its pose on the same update");
@@ -161,7 +161,7 @@ internal static class MorphBallEyeBehaviorVerification
         state.Action = MorphBallEyeAction.Activating;
         state.ActionTimer = UpdateCountdown.For(1);
         var frame = new ClockedEnemyAiFrame(RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with { Samus = samus }, new FrameCounters(SuperMetroid.Core.Compatibility.ShortFrameCount.Zero));
-        enemies.MorphBallEyeBehavior.RunMorphBallEyeMainAi(eye.HeldOccupant(), eye, frame);
+        enemies.MorphBallEyeBehavior.RunMorphBallEyeMainAi(eye, frame);
         AssertEqual(MorphBallEyeAction.Active, state.Action, "the eye has opened");
         AssertEqual(MorphBallEyeBeamPhase.PendingInitialization, enemies.MorphBallEyeBehavior.MorphBallEyeBeam.Phase, "the opened eye requests the beam");
         AssertTrue(ReferenceEquals(eye, enemies.MorphBallEyeBehavior.MorphBallEyeBeam.Body), "the beam follows the eye that opened");

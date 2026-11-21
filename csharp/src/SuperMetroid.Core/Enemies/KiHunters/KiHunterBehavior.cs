@@ -16,7 +16,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// it (#2146, #2554); wings join the body listed before them, so wings no body offered are rejected where they are bound.
     /// </summary>
     /// <param name="registrar">The room's registry being composed.</param>
-    public void Register(EnemySpeciesRegistrar registrar)
+    public void OfferCreations(EnemySpeciesRegistrar registrar)
     {
         Ensure.NotNull(registrar).Spawns<KiHunterSpawnSettings>(
             [EnemyDefinitionId.KihunterGreen, EnemyDefinitionId.KihunterRed, EnemyDefinitionId.KihunterYellow],
@@ -709,7 +709,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs wing-detachment logic after common bomb damage to a Ki-Hunter body.</summary>
     /// <param name="state">The state of the enemy the reaction is built for, which it holds from its setup.</param>
-    internal EnemyBombReaction KiHunterBombReaction(KiHunterBodyState state) => new()
+    internal static EnemyBombReaction KiHunterBombReaction(KiHunterBodyState state) => new()
     {
         AfterCommon = c => ResolveKiHunterShotAfterCommon(c.Enemy, state),
     };
@@ -791,7 +791,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs wing-detachment logic after common shot damage to a body.</summary>
     /// <param name="state">The state of the enemy the reaction is built for, which it holds from its setup.</param>
-    internal EnemyShotReaction KiHunterShotReaction(KiHunterBodyState state) => new()
+    internal static EnemyShotReaction KiHunterShotReaction(KiHunterBodyState state) => new()
     {
         AfterCommon = c => ResolveKiHunterShotAfterCommon(c.Enemy, state),
     };

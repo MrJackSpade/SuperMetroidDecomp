@@ -13,10 +13,10 @@ internal sealed class KiHunterBodyEntity(KiHunterBehavior species, RoomEnemyOccu
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The species' KiHunterShotReaction, built once for this enemy with its state (#2554).</summary>
-    private EnemyShotReaction OwnKiHunterShotReaction => field ??= species.KiHunterShotReaction(State);
+    private EnemyShotReaction OwnKiHunterShotReaction => field ??= KiHunterBehavior.KiHunterShotReaction(State);
 
     /// <summary>The species' KiHunterBombReaction, built once for this enemy with its state (#2554).</summary>
-    private EnemyBombReaction OwnKiHunterBombReaction => field ??= species.KiHunterBombReaction(State);
+    private EnemyBombReaction OwnKiHunterBombReaction => field ??= KiHunterBehavior.KiHunterBombReaction(State);
 
     /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
     internal KiHunterSpawnSettings Settings { get; } = settings;

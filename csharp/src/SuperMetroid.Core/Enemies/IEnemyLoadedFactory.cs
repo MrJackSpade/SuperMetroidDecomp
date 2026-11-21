@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies;
 /// A species whose enemies only their room's population load places (#2554): their setup reads the load's surroundings,
 /// and no spawn, respawn or encounter builds one.
 /// </summary>
-/// <typeparam name="TSettings">The settings its population entries give it.</typeparam>
+/// <typeparam name="TSettings">The settings its placements in the room give it.</typeparam>
 internal interface IEnemyLoadedFactory<in TSettings> : IEnemyEntityFactory where TSettings : EnemySpawnSettings
 {
     /// <summary>The definitions whose enemies this factory creates.</summary>
@@ -20,5 +20,5 @@ internal interface IEnemyLoadedFactory<in TSettings> : IEnemyEntityFactory where
         EnemyPopulationSurroundings surroundings);
 
     /// <inheritdoc/>
-    void IEnemyEntityFactory.Register(EnemySpeciesRegistrar registrar) => Ensure.NotNull(registrar).Loads<TSettings>(Definitions, CreateLoaded);
+    void IEnemyEntityFactory.OfferCreations(EnemySpeciesRegistrar registrar) => Ensure.NotNull(registrar).Loads<TSettings>(Definitions, CreateLoaded);
 }

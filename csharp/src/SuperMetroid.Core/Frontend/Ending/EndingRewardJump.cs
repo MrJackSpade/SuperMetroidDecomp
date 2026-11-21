@@ -55,7 +55,7 @@ internal sealed class EndingRewardJump
         {
             CinematicActor<EndingRewardAnimation, CinematicSpritePose, EndingRewardJumpCue> spawned = Spawn(headActor);
             head = spawned;
-            bodyCues = cue => HandleSuitedBodyCue(cue, spawned);
+            bodyCues = cue => HandleSuitedBodyCue(cue, place => spawned.ScreenPlace = place);
         }
         else
             bodyCues = HandleCue;
@@ -140,30 +140,33 @@ internal sealed class EndingRewardJump
             case EndingRewardJumpCue.StartHeadFlight:
                 headMotion = EndingRewardJumpMotion.Rising;
                 return false;
+            // Only a suited jump's body raises these, which places the head it spawned (HandleSuitedBodyCue).
+            case EndingRewardJumpCue.PrepareHead:
+            case EndingRewardJumpCue.LaunchHead:
             default:
                 throw new InvalidOperationException($"Undefined {nameof(EndingRewardJumpCue)} {cue}.");
         }
     }
 
-
     /// <summary>
-    /// Handles a cue a suited jump's body raises: its preparing and launching place <paramref name="jumpHead"/>, and every
-    /// other cue is one any jump raises.
+    /// Handles a cue a suited jump's body raises: its preparing and launching place the head it spawned with
+    /// <paramref name="placeHead"/>, and every other cue is one any jump raises.
     /// </summary>
-    private bool HandleSuitedBodyCue(EndingRewardJumpCue cue, CinematicActor<EndingRewardAnimation, CinematicSpritePose, EndingRewardJumpCue> jumpHead)
+    private bool HandleSuitedBodyCue(EndingRewardJumpCue cue, Action<Offset16<ScreenPixels>> placeHead)
     {
-        switch (cue)
+        if (cue == EndingRewardJumpCue.PrepareHead)
         {
-            case EndingRewardJumpCue.PrepareHead:
-                jumpHead.ScreenPlace = helmeted ? EndingRewardJumpDefinitions.HelmetedHeadReadied : EndingRewardJumpDefinitions.HelmetlessHeadReadied;
-                return false;
-            case EndingRewardJumpCue.LaunchHead:
-                jumpHead.ScreenPlace = helmeted ? EndingRewardJumpDefinitions.HelmetedHeadLaunched : EndingRewardJumpDefinitions.HelmetlessHeadLaunched;
-                return false;
-            default:
-                return HandleCue(cue);
+            placeHead(helmeted ? EndingRewardJumpDefinitions.HelmetedHeadReadied : EndingRewardJumpDefinitions.HelmetlessHeadReadied);
+            return false;
         }
+        if (cue == EndingRewardJumpCue.LaunchHead)
+        {
+            placeHead(helmeted ? EndingRewardJumpDefinitions.HelmetedHeadLaunched : EndingRewardJumpDefinitions.HelmetlessHeadLaunched);
+            return false;
+        }
+        return HandleCue(cue);
     }
+
     /// <summary>Creates a jump actor from its catalogued initial position, colouring, and animations.</summary>
     private static CinematicActor<EndingRewardAnimation, CinematicSpritePose, EndingRewardJumpCue> Spawn(EndingRewardActor definition)
     {

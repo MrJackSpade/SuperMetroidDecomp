@@ -24,7 +24,7 @@ internal sealed class RinkaEntity(RinkaBehavior species, RoomEnemyOccupant occup
     private EnemyPowerBombReaction OwnPowerBomb => field ??= species.RinkaPowerBombReaction(Occupant, Settings, State);
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal RinkaEnemyState State { get; } = species.InitializeRinka(occupant, settings, place);
+    internal RinkaEnemyState State { get; } = species.InitializeRinka(settings, place);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunRinkaMainAi(Occupant, Settings, Place, State, frame);

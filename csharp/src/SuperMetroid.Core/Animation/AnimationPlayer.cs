@@ -173,11 +173,11 @@ internal sealed class AnimationPlayer<TSegment, TFrame, TEvent>
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="firstFrameUpdates"/> is below one.</exception>
     /// <exception cref="InvalidOperationException">The animation raises an event or pauses before the frame.</exception>
-    internal TFrame ShowAt(Animation<TSegment> animation, AnimationPlace place, int firstFrameUpdates)
+    internal void ShowAt(Animation<TSegment> animation, AnimationPlace place, int firstFrameUpdates)
     {
         Start(animation);
         Playback = Playback with { Place = place };
-        return ShowFirstFrame(firstFrameUpdates);
+        _ = ShowFirstFrame(firstFrameUpdates);
     }
 
     /// <summary>Runs one update of an animation that raises no event.</summary>
@@ -415,7 +415,7 @@ internal sealed class AnimationPlayer<TSegment, TFrame, TEvent>
             throw new InvalidOperationException("An animation of no phase has no last frame.");
         int last = animation.Phases.Count - 1;
         AnimationPhase<TSegment> lastPhase = animation.Phases[last];
-        _ = ShowAt(animation, new AnimationPlace(last, lastPhase.BeatCount - 1).WithPlaysLeft(lastPhase.IsRepeated ? 1 : 0), updates);
+        ShowAt(animation, new AnimationPlace(last, lastPhase.BeatCount - 1).WithPlaysLeft(lastPhase.IsRepeated ? 1 : 0), updates);
     }
 
     /// <summary>

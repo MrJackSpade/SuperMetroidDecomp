@@ -84,8 +84,7 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
     /// Loads the demo scene without consulting or writing a player save.
     /// Uses the ordinary room, room-object, enemy, FX, and graphics loaders with demo progression.
     /// </summary>
-    /// <returns>The runtime's loaded room, the demo's.</returns>
-    internal RoomScope InitializeAttractDemo(AttractDemoScene scene)
+    internal void InitializeAttractDemo(AttractDemoScene scene)
     {
         Ensure.NotNull(scene);
         _system.Progress.CopyFrom(DemoProgress());
@@ -128,7 +127,6 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
         samus.Ground = SamusGround.Of(room.Definition);
         _player.GroundedSamusMovementEnabled = true;
         _attractSession.Input = new AttractDemoInput(scene);
-        return loaded;
     }
 
     /// <summary>Applies scene-specific scroll, Kraid timer, or defeated-boss setup.</summary>

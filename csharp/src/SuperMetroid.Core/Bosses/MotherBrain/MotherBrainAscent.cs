@@ -35,7 +35,7 @@ internal sealed class MotherBrainAscent
     }
 
     /// <summary>Reveals her body and requests her first artwork.</summary>
-    internal void SetupMotherBrainPhaseTwoGraphics(MotherBrainEnemyState state)
+    internal static void SetupMotherBrainPhaseTwoGraphics(MotherBrainEnemyState state)
     {
         // Her phase-two colours show; the room's backdrop stays the room's.
         state.Colours.ShowPhaseTwo();

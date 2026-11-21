@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 
 namespace SuperMetroid.Core.Frontend;
@@ -28,6 +29,7 @@ internal abstract class PhaseGameplay
 
     /// <summary>The step runs gameplay in the runtime's loaded room.</summary>
     /// <param name="live">The session's runtime and its loaded room.</param>
+    [RoomScopeBoundary("A per-update input, built for one update and never kept.")]
     internal sealed class InRoom(LoadedGameplay live) : PhaseGameplay
     {
         /// <summary>The session's runtime and its loaded room.</summary>

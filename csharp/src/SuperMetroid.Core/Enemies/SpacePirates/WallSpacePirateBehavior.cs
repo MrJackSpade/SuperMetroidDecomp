@@ -56,7 +56,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemySpawnFactor
 
     /// <summary>Runs a wall Space Pirate's update: climbing its wall, attacking from it or jumping to the other.</summary>
     private static void RunWallSpacePirateMain(
-        RoomEnemyOccupant occupant, WallSpacePirateSpawnSettings wallSpacePirateSpawnSettings, RoomEnemyPlace place,
+        WallSpacePirateSpawnSettings wallSpacePirateSpawnSettings, RoomEnemyPlace place,
         WallSpacePirateEnemyState state,
         SamusState samus)
     {
@@ -80,7 +80,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemySpawnFactor
                 return;
 
             case WallSpacePirateAction.WallJumping:
-                StepWallSpacePirateJump(occupant, wallSpacePirateSpawnSettings, place, state, direction: state.Wall);
+                StepWallSpacePirateJump(wallSpacePirateSpawnSettings, place, state, direction: state.Wall);
                 return;
 
             default:
@@ -94,7 +94,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemySpawnFactor
     /// the wall reached at that side's target angle.
     /// </summary>
     private static void StepWallSpacePirateJump(
-        RoomEnemyOccupant occupant, WallSpacePirateSpawnSettings wallSpacePirateSpawnSettings, RoomEnemyPlace place,
+        WallSpacePirateSpawnSettings wallSpacePirateSpawnSettings, RoomEnemyPlace place,
         WallSpacePirateEnemyState state,
         HorizontalDirection direction)
     {
@@ -259,10 +259,10 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemySpawnFactor
     }
 
     /// <summary>Runs the wall Space Pirate's main AI.</summary>
-    internal static void RunWallSpacePirateMainAi(RoomEnemyOccupant occupant, WallSpacePirateSpawnSettings wallSpacePirateSpawnSettings, RoomEnemyPlace place, WallSpacePirateEnemyState wallSpacePirateEnemyState, IEnemyAiFrame frame)
+    internal static void RunWallSpacePirateMainAi(WallSpacePirateSpawnSettings wallSpacePirateSpawnSettings, RoomEnemyPlace place, WallSpacePirateEnemyState wallSpacePirateEnemyState, IEnemyAiFrame frame)
     {
         RunWallSpacePirateMain(
-            occupant, wallSpacePirateSpawnSettings, place,
+            wallSpacePirateSpawnSettings, place,
             wallSpacePirateEnemyState,
             frame.Samus);
     }

@@ -73,7 +73,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemySpawnFactory<Boulde
     }
 
     /// <summary>Runs the wait, fall, rebound, roll or inert phase with required Samus and terrain state.</summary>
-    private void RunBoulderMain(RoomEnemyOccupant occupant, BoulderSpawnSettings boulderSpawnSettings, RoomEnemyPlace place, BoulderEnemyState state, SamusState samus, RoomLevelData level)
+    private void RunBoulderMain(BoulderSpawnSettings boulderSpawnSettings, RoomEnemyPlace place, BoulderEnemyState state, SamusState samus, RoomLevelData level)
     {
         switch (state.Action)
         {
@@ -84,13 +84,13 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemySpawnFactory<Boulde
                 RunBoulderInitialFall(place, state);
                 break;
             case BoulderAction.Rebound:
-                RunBoulderRebound(occupant, boulderSpawnSettings, place, state);
+                RunBoulderRebound(boulderSpawnSettings, place, state);
                 break;
             case BoulderAction.Falling:
-                RunBoulderFalling(occupant, boulderSpawnSettings, place, state, level);
+                RunBoulderFalling(boulderSpawnSettings, place, state, level);
                 break;
             case BoulderAction.Rolling:
-                RunBoulderRolling(occupant, boulderSpawnSettings, place, state, level);
+                RunBoulderRolling(boulderSpawnSettings, place, state, level);
                 break;
             case BoulderAction.Inert:
                 break;
@@ -143,7 +143,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemySpawnFactory<Boulde
     }
 
     /// <summary>Applies upward quadratic motion while reducing bounce speed, adding sideways travel, then returns to falling.</summary>
-    private static void RunBoulderRebound(RoomEnemyOccupant occupant, BoulderSpawnSettings boulderSpawnSettings, RoomEnemyPlace place, BoulderEnemyState state)
+    private static void RunBoulderRebound(BoulderSpawnSettings boulderSpawnSettings, RoomEnemyPlace place, BoulderEnemyState state)
     {
         AddBoulderVerticalVelocity(place, state.BounceCurvePlace, direction: VerticalDirection.Up);
 
@@ -157,7 +157,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemySpawnFactory<Boulde
         }
         state.BounceCurvePlace = slowed;
 
-        AddBoulderHorizontalVelocity(occupant, boulderSpawnSettings, place, state);
+        AddBoulderHorizontalVelocity(boulderSpawnSettings, place, state);
         state.TravelCurvePlace = AddAndCap(
             state.TravelCurvePlace,
             BoulderMotionDefinitions.BouncingTravelSpeedStep,
@@ -165,7 +165,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemySpawnFactory<Boulde
     }
 
     /// <summary>Accelerates through terrain contact; ordinary impacts consume bounces while a boulder that breaks on impact breaks at the first.</summary>
-    private void RunBoulderFalling(RoomEnemyOccupant occupant, BoulderSpawnSettings boulderSpawnSettings, RoomEnemyPlace place, BoulderEnemyState state, RoomLevelData level)
+    private void RunBoulderFalling(BoulderSpawnSettings boulderSpawnSettings, RoomEnemyPlace place, BoulderEnemyState state, RoomLevelData level)
     {
         SignedSixteenSixteen verticalDisplacement = state.BounceCurvePlace.Speed.Positive;
         if (_terrain.MoveEnemyVertically(level, place, verticalDisplacement))
@@ -196,7 +196,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemySpawnFactory<Boulde
         // The fall's place on the curve is not capped: its next update reads the following mark, and the curve
         // rejects a place past its last mark.
         state.BounceCurvePlace += BoulderMotionDefinitions.BounceSpeedStep;
-        AddBoulderHorizontalVelocity(occupant, boulderSpawnSettings, place, state);
+        AddBoulderHorizontalVelocity(boulderSpawnSettings, place, state);
         state.TravelCurvePlace = AddAndCap(
             state.TravelCurvePlace,
             BoulderMotionDefinitions.BouncingTravelSpeedStep,
@@ -204,7 +204,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemySpawnFactory<Boulde
     }
 
     /// <summary>Tracks the floor with vertical compensation and advances horizontally until a wall hides/deletes the actor and spawns dust.</summary>
-    private void RunBoulderRolling(RoomEnemyOccupant occupant, BoulderSpawnSettings boulderSpawnSettings, RoomEnemyPlace place, BoulderEnemyState state, RoomLevelData level)
+    private void RunBoulderRolling(BoulderSpawnSettings boulderSpawnSettings, RoomEnemyPlace place, BoulderEnemyState state, RoomLevelData level)
     {
         SignedSixteenSixteen verticalDisplacement =
             state.TravelCurvePlace.Speed.Positive +
@@ -238,7 +238,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemySpawnFactory<Boulde
     }
 
     /// <summary>Moves the boulder horizontally by its travel speed on the quadratic speed curve, toward its roll.</summary>
-    private static void AddBoulderHorizontalVelocity(RoomEnemyOccupant occupant, BoulderSpawnSettings boulderSpawnSettings, RoomEnemyPlace place, BoulderEnemyState state) =>
+    private static void AddBoulderHorizontalVelocity(BoulderSpawnSettings boulderSpawnSettings, RoomEnemyPlace place, BoulderEnemyState state) =>
         place.Position = place.Position.WithX(place.Position.X.MovedBy(ReadBoulderHorizontalDisplacement(boulderSpawnSettings, state)));
 
     /// <summary>Reads the quadratic speed sample and signs it toward the roll its spawn settings name.</summary>
@@ -266,8 +266,8 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemySpawnFactory<Boulde
             static (_, cue) => throw new InvalidOperationException($"A cue-free Boulder animation raised {cue}."));
 
     /// <summary>Runs Boulder's main AI.</summary>
-    internal void RunBoulderMainAi(RoomEnemyOccupant occupant, BoulderSpawnSettings boulderSpawnSettings, RoomEnemyPlace place, BoulderEnemyState boulderEnemyState, IEnemyAiFrame frame)
+    internal void RunBoulderMainAi(BoulderSpawnSettings boulderSpawnSettings, RoomEnemyPlace place, BoulderEnemyState boulderEnemyState, IEnemyAiFrame frame)
     {
-        RunBoulderMain(occupant, boulderSpawnSettings, place, boulderEnemyState, frame.Samus, frame.Level);
+        RunBoulderMain(boulderSpawnSettings, place, boulderEnemyState, frame.Samus, frame.Level);
     }
 }

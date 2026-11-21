@@ -13,5 +13,5 @@ internal sealed class OrdinaryRipperEntity(RipperBehavior species, RoomEnemyOccu
     internal RipperSpawnSettings Settings { get; } = settings;
 
     /// <inheritdoc/>
-    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunRipperMainAi(Occupant, Settings, Place, State, frame);
+    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunRipperMainAi(Settings, Place, State, frame);
 }

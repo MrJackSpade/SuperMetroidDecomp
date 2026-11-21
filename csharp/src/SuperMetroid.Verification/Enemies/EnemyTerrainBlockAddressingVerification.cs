@@ -445,7 +445,7 @@ internal static class EnemyTerrainBlockAddressingVerification
             [.. Enumerable.Repeat(RoomBlockAppearance.Of(0), size.Area)]), RoomLevelData.NothingBeyondGrid(), []);
         var roomObjects = RoomObjectFixtures.Unbound();
         var mover = new EnemyTerrain(roomObjects.BreakableTerrain);
-        var place = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>())
+        var place = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry.Common, new RemovedEnemyLeftovers<IEnemyEntity>())
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(84, 24)),
             Radius = new(4, 4),

@@ -22,7 +22,7 @@ internal sealed class YappingMawEntity(YappingMawBehavior species, RoomEnemyOccu
     internal YappingMawEnemyState State { get; } = species.InitializeYappingMaw(occupant, settings, place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunYappingMawMainAi(Occupant, Settings, Place, State, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunYappingMawMainAi(Settings, Place, State, frame);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceYappingMawTypedAnimation(Place, State);

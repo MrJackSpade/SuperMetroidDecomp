@@ -10,21 +10,16 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>The ninja space pirate species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemySpawnFactory<NinjaSpacePirateSpawnSettings>
+internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFactory
 {
-    /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.PirateGoldNinja, EnemyDefinitionId.PirateSilverNinja];
-
-    /// <inheritdoc/>
-    /// <exception cref="InvalidOperationException">The place holds no ninja definition.</exception>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, NinjaSpacePirateSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common)
+    /// <summary>The gold and silver ninja Space Pirates, each with the settings its placement gives it.</summary>
+    /// <param name="registrar">The room's registry being composed.</param>
+    public void OfferCreations(EnemySpeciesRegistrar registrar)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
-        if (definition == EnemyDefinitionId.PirateGoldNinja)
-            return EnemyOccupant.Running(new GoldNinjaSpacePirateEntity(this, occupant, place, common, settings));
-        if (definition == EnemyDefinitionId.PirateSilverNinja)
-            return EnemyOccupant.Running(new NinjaSpacePirateEntity(this, occupant, place, common, settings));
-        throw new InvalidOperationException($"The ninja Space Pirate species creates no {occupant.DefinitionId}.");
+        Ensure.NotNull(registrar).Spawns<NinjaSpacePirateSpawnSettings>([EnemyDefinitionId.PirateGoldNinja], (occupant, settings, place, common) =>
+            EnemyOccupant.Running(new GoldNinjaSpacePirateEntity(this, occupant, place, common, settings)));
+        registrar.Spawns<NinjaSpacePirateSpawnSettings>([EnemyDefinitionId.PirateSilverNinja], (occupant, settings, place, common) =>
+            EnemyOccupant.Running(new NinjaSpacePirateEntity(this, occupant, place, common, settings)));
     }
 
     /// <summary>Provides the shared RNG used by divekick selection.</summary>

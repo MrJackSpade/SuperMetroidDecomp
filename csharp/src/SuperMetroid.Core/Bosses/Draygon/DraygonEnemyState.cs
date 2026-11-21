@@ -35,6 +35,12 @@ public sealed class DraygonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBo
         BodyParts = new(SuperMetroid.Core.Enemies.BossBodies.BossBodyOwner.Draygon, this);
     }
 
+    /// <summary>
+    /// The parts his body layer shows (#1466, #1515), which his setup attaches to the room's display and his parts' frames
+    /// show on: nothing at first. The room keeps showing it, hidden, once his body is deleted (#2194).
+    /// </summary>
+    internal SuperMetroid.Core.Enemies.BossBodies.BossBodyParts BodyParts { get; }
+
     /// <summary>Draygon's body layer's and sprites' colours (#1512).</summary>
     internal DraygonColours Colours { get; } = new();
 

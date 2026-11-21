@@ -114,7 +114,7 @@ internal sealed class CrocomireBridgeCollapse
     /// Hides his body from the room row <see cref="CrocomireBridgeCollapseDefinitions.SinkHiddenRowDepth"/> below the top of Crocomire's view down while he
     /// sinks (#1515, #2031): this is what makes his body disappear into the acid as it slides down past the view's bottom.
     /// </summary>
-    private void HideCrocomireSunkenBody(CrocomireEnemyState state, Position16<RoomPixels> camera) =>
+    private static void HideCrocomireSunkenBody(CrocomireEnemyState state, Position16<RoomPixels> camera) =>
         CrocomireBodyLayer.HideCrocomireBodyBelow(state, camera.Y + CrocomireBridgeCollapseDefinitions.SinkHiddenRowDepth);
 
     /// <summary>
@@ -197,7 +197,7 @@ internal sealed class CrocomireBridgeCollapse
     }
 
     /// <summary>Crocomire's sinking fall to a fraction of a pixel, with the camera his main update runs with.</summary>
-    private void RunCrocomireSink(CrocomireEnemyState state, Position16<RoomPixels> camera)
+    private static void RunCrocomireSink(CrocomireEnemyState state, Position16<RoomPixels> camera)
     {
         CrocomireBodyLayer.LevelCrocomireMeltDistortion(state);
         state.StepBack.Forget();

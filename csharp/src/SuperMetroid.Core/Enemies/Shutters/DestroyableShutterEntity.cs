@@ -16,10 +16,10 @@ internal sealed class DestroyableShutterEntity(ShuttersBehavior species, RoomEne
     : VerticalShutterEntity(species, occupant, place, common, settings, ShutterSegment.FullyGrown), IEnemyInitialization
 {
     /// <summary>The shutter's own shot reaction, built once for this shutter.</summary>
-    private EnemyShotReaction OwnShot => field ??= Species.DestroyableShutterShotReaction(Occupant, Settings, State);
+    private EnemyShotReaction OwnShot => field ??= Species.DestroyableShutterShotReaction(Settings, State);
 
     /// <summary>The shutter's own stages around common bomb damage, built once for this shutter.</summary>
-    private EnemyBombReaction OwnBomb => field ??= Species.DestroyableShutterBombReaction(Occupant, Settings, State);
+    private EnemyBombReaction OwnBomb => field ??= Species.DestroyableShutterBombReaction(Settings, State);
 
     /// <summary>Keeps the shutter, set up as vertical shutters are as it was built, among the shutters the escape's flash shows on (#2380).</summary>
     public void Initialize() => Species.KeepDestroyableShutter(this);

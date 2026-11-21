@@ -15,7 +15,7 @@ internal class ShootableShutterEntity(ShuttersBehavior species, RoomEnemyOccupan
     : VerticalShutterEntity(species, occupant, place, common, settings, pose)
 {
     /// <summary>The shutter's own shot reaction, built once for this shutter.</summary>
-    private EnemyShotReaction OwnShot => field ??= Species.ShootableShutterShotReaction(Occupant, Settings, State);
+    private EnemyShotReaction OwnShot => field ??= Species.ShootableShutterShotReaction(Settings, State);
     /// <summary>The shootable shutter's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
     public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == ShutterReactions.Shot ? OwnShot : base.ShotReaction;
 
@@ -27,7 +27,7 @@ internal class ShootableShutterEntity(ShuttersBehavior species, RoomEnemyOccupan
     {
         if (context.SelectedShot != ShutterReactions.Shot)
             return base.TryReactToBomb(context);
-        Species.ReactToShootableShutterBomb(Occupant, Settings, context, State);
+        Species.ReactToShootableShutterBomb(Settings, context, State);
         return true;
     }
 }

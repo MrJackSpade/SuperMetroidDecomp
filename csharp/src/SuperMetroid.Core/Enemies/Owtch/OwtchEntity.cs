@@ -22,7 +22,7 @@ internal sealed class OwtchEntity(OwtchBehavior species, RoomEnemyOccupant occup
     internal OwtchEnemyState State { get; } = OwtchBehavior.InitializeOwtch(settings, place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunOwtchMainAi(Occupant, Settings, Place, State);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunOwtchMainAi(Settings, Place, State);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => OwtchBehavior.AdvanceOwtchTypedAnimation(Place, State);

@@ -93,11 +93,7 @@ internal sealed class ShowingAnimationPlayer<TSegment, TFrame, TEvent>
 
     /// <summary>Runs one update, raising the events it passes in <paramref name="raise"/>.</summary>
     /// <exception cref="InvalidOperationException">The animation passes every beat without showing a frame.</exception>
-    internal void Step(Action<TEvent> raise) => _ = StepToNewFrame(raise);
-
-    /// <summary>Runs one update, raising the events it passes in <paramref name="raise"/>, and returns the frame it shows anew, if any.</summary>
-    /// <exception cref="InvalidOperationException">The animation passes every beat without showing a frame.</exception>
-    internal TFrame? StepToNewFrame(Action<TEvent> raise) => Shown(player.StepToNewFrame(raise));
+    internal void Step(Action<TEvent> raise) => _ = Shown(player.StepToNewFrame(raise));
 
     /// <summary>
     /// Runs one update of an animation that raises no event, but once the shown frame's updates run out plays on from

@@ -199,7 +199,7 @@ internal sealed class TorizoCombat
                 c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
                 c.Projectile.FlyOn();
                 torizoState.Phase = TorizoPhase.Idle;
-                TorizoBody.StartTorizoBodyAnimation(enemy, torizoState, TorizoAnimations.Start(TorizoFacing.FacesRight(enemy, torizoState)
+                TorizoBody.StartTorizoBodyAnimation(enemy, torizoState, TorizoAnimations.Start(TorizoFacing.FacesRight(torizoState)
                     ? TorizoAnimation.GoldenDodgeTurningRight
                     : TorizoAnimation.GoldenDodgeTurningLeft));
                 return true;
@@ -214,10 +214,10 @@ internal sealed class TorizoCombat
                     torizoState.Phase = TorizoPhase.Idle;
                     c.Projectile.Spend();
                     TorizoBody.StartTorizoBodyAnimation(enemy, torizoState, TorizoAnimations.Start(TorizoFacing.Posture(torizoState).LeadsWithFarFoot
-                        ? TorizoFacing.FacesRight(enemy, torizoState)
+                        ? TorizoFacing.FacesRight(torizoState)
                             ? TorizoAnimation.GoldenFacingRightCatchingSuperMissileLeftLegForward
                             : TorizoAnimation.GoldenFacingLeftCatchingSuperMissileRightLegForward
-                        : TorizoFacing.FacesRight(enemy, torizoState)
+                        : TorizoFacing.FacesRight(torizoState)
                             ? TorizoAnimation.GoldenFacingRightCatchingSuperMissileRightLegForward
                             : TorizoAnimation.GoldenFacingLeftCatchingSuperMissileLeftLegForward));
                     return true;

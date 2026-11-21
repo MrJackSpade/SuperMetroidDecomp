@@ -24,7 +24,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemySpawnFactory<En
     /// (<see cref="CreateJoining"/>).
     /// </summary>
     /// <param name="registrar">The room's registry being composed.</param>
-    public void Register(EnemySpeciesRegistrar registrar)
+    public void OfferCreations(EnemySpeciesRegistrar registrar)
     {
         Ensure.NotNull(registrar).Spawns<EnemySpawnSettings>(Definitions, Create);
         registrar.Joins([EnemyDefinitionId.MotherBrainHead, EnemyDefinitionId.MotherBrainTubes]);
@@ -35,15 +35,9 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemySpawnFactory<En
         EnemyCommonParticipation common, MotherBrainEnemyState encounter) =>
         EnemyOccupant.Running(new MotherBrainTubesEntity(this, occupant, place, common, settings, encounter));
 
-    /// <summary>Mother Brain's body (#2146).</summary>
-    /// <exception cref="InvalidOperationException">The place holds no Mother Brain definition.</exception>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common)
-    {
-        EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
-        if (definition == EnemyDefinitionId.MotherBrainBody)
-            return EnemyOccupant.Running(new MotherBrainBodyEntity(this, occupant, place, common, _bossArtwork));
-        throw new InvalidOperationException($"The Mother Brain species creates no {occupant.DefinitionId}.");
-    }
+    /// <summary>Mother Brain's body (#2146), the one definition her species builds wherever it is set up.</summary>
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        EnemyOccupant.Running(new MotherBrainBodyEntity(this, occupant, place, common, _bossArtwork));
     /// <summary>Provides room services, pictures, colour state, and effects used by the encounter.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Draws encounter artwork and applies installed colours.</summary>
@@ -285,7 +279,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemySpawnFactory<En
                 FakeDeath.DrawNextMuralRows(state);
                 return;
             case MotherBrainAscentPhase.SetupPhase2Graphics:
-                Ascent.SetupMotherBrainPhaseTwoGraphics(state);
+                MotherBrainAscent.SetupMotherBrainPhaseTwoGraphics(state);
                 return;
             case MotherBrainAscentPhase.SetupPhase2Brain:
                 MotherBrainAscent.SetupMotherBrainPhaseTwoBrain(state);

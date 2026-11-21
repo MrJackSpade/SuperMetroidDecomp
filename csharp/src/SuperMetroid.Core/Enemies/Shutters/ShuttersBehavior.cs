@@ -67,7 +67,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory, IEs
 
     /// <summary>The growing shutter, a shootable vertical shutter, the Kamer that reuses it, or a destroyable vertical shutter (#2146, #2179).</summary>
     /// <param name="registrar">The room's registry being composed.</param>
-    public void Register(EnemySpeciesRegistrar registrar)
+    public void OfferCreations(EnemySpeciesRegistrar registrar)
     {
         Ensure.NotNull(registrar).Spawns<GrowingShutterSpawnSettings>([EnemyDefinitionId.ShutterGrowing], (occupant, settings, place, common) =>
             EnemyOccupant.Running(new GrowingShutterEntity(this, occupant, place, common, settings)));
@@ -109,7 +109,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory, IEs
 
     /// <summary>Runs the growing shutter's main AI.</summary>
     private void RunGrowingShutterMain(
-        RoomEnemyOccupant occupant, GrowingShutterSpawnSettings growingShutterSpawnSettings, RoomEnemyPlace place,
+        GrowingShutterSpawnSettings growingShutterSpawnSettings, RoomEnemyPlace place,
         GrowingShutterEnemyState state,
         SamusState samus,
         Position16<RoomPixels> camera)
@@ -293,11 +293,10 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory, IEs
     }
 
     /// <summary>Lets bombs trigger shootable vertical shutters without damaging them.</summary>
-    /// <param name="occupant">The shutter the bomb struck.</param>
     /// <param name="c">The bomb contact.</param>
     /// <param name="settings">What the shutter's population entry tells its species.</param>
     /// <param name="verticalShutterEnemyState">The enemy's state, which it holds from its setup.</param>
-    internal void ReactToShootableShutterBomb(RoomEnemyOccupant occupant, ShutterSpawnSettings settings, EnemyBombContext c, VerticalShutterEnemyState verticalShutterEnemyState) =>
+    internal void ReactToShootableShutterBomb(ShutterSpawnSettings settings, EnemyBombContext c, VerticalShutterEnemyState verticalShutterEnemyState) =>
         // A bomb deals the shutter no damage: its collision already marked, it starts the shutter moving as a beam, a
         // missile, Samus's touch or a power bomb does.
         ReactVerticalShutter(settings, c.Enemy, verticalShutterEnemyState, c.Camera);
@@ -306,12 +305,11 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory, IEs
     /// Runs common bomb damage before reacting a destroyable vertical shutter, as its shot reaction, which a bomb runs,
     /// does.
     /// </summary>
-    /// <param name="shutter">The shutter the reaction is built for, whose placement names how it is set off.</param>
     /// <param name="settings">What the shutter's population entry tells its species.</param>
     /// <param name="state">The shutter's state, which it holds from its setup.</param>
-    internal EnemyBombReaction DestroyableShutterBombReaction(RoomEnemyOccupant shutter, ShutterSpawnSettings settings, VerticalShutterEnemyState state) => new()
+    internal EnemyBombReaction DestroyableShutterBombReaction(ShutterSpawnSettings settings, VerticalShutterEnemyState state) => new()
     {
-        AfterCommon = c => ReactDestroyableShutterAfterCommon(shutter, settings, c.Enemy, state, c.Camera),
+        AfterCommon = c => ReactDestroyableShutterAfterCommon(settings, c.Enemy, state, c.Camera),
     };
 
     /// <summary>Plays a shutter's cue-free animation on to its next frame after its frame expired.</summary>
@@ -339,39 +337,37 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory, IEs
     }
 
     /// <summary>Runs ShutterGrowing's main AI.</summary>
-    internal void RunShutterGrowingMainAi(RoomEnemyOccupant occupant, GrowingShutterSpawnSettings growingShutterSpawnSettings, RoomEnemyPlace place, GrowingShutterEnemyState growingShutterEnemyState, IEnemyAiFrame frame)
+    internal void RunShutterGrowingMainAi(GrowingShutterSpawnSettings growingShutterSpawnSettings, RoomEnemyPlace place, GrowingShutterEnemyState growingShutterEnemyState, IEnemyAiFrame frame)
     {
         RunGrowingShutterMain(
-            occupant, growingShutterSpawnSettings, place,
+            growingShutterSpawnSettings, place,
             growingShutterEnemyState,
             frame.Samus,
             frame.Camera);
     }
 
     /// <summary>Runs a vertical shutter's main AI: a shootable or destroyable shutter's, or the Kamer's.</summary>
-    internal void RunVerticalShutterMainAi(RoomEnemyOccupant occupant, ShutterSpawnSettings shutterSpawnSettings, RoomEnemyPlace place, VerticalShutterEnemyState verticalShutterEnemyState, IEnemyAiFrame frame)
+    internal void RunVerticalShutterMainAi(ShutterSpawnSettings shutterSpawnSettings, RoomEnemyPlace place, VerticalShutterEnemyState verticalShutterEnemyState, IEnemyAiFrame frame)
     {
         RunVerticalShutterMain(
-            occupant, shutterSpawnSettings, place,
+            shutterSpawnSettings, place,
             verticalShutterEnemyState,
             frame.Samus,
             frame.Camera);
     }
 
     /// <summary>Uses movement reactions instead of common power-bomb damage for shutter families.</summary>
-    /// <param name="shutter">The shutter the reaction is built for, whose placement names how it is set off.</param>
     /// <param name="settings">What the shutter's population entry tells its species.</param>
     /// <param name="state">The shutter's state, which it holds from its setup.</param>
-    internal EnemyPowerBombReaction VerticalShutterPowerBombReaction(RoomEnemyOccupant shutter, ShutterSpawnSettings settings, VerticalShutterEnemyState state) => new()
+    internal EnemyPowerBombReaction VerticalShutterPowerBombReaction(ShutterSpawnSettings settings, VerticalShutterEnemyState state) => new()
     {
         ReplacesCommon = c => ReactVerticalShutter(settings, c.Enemy, state, c.Camera),
     };
 
     /// <summary>Marks a shootable vertical shutter's projectile collision before activating it.</summary>
-    /// <param name="shutter">The shutter the reaction is built for, whose placement names how it is set off.</param>
     /// <param name="settings">What the shutter's population entry tells its species.</param>
     /// <param name="state">The shutter's state, which it holds from its setup.</param>
-    internal EnemyShotReaction ShootableShutterShotReaction(RoomEnemyOccupant shutter, ShutterSpawnSettings settings, VerticalShutterEnemyState state) => new()
+    internal EnemyShotReaction ShootableShutterShotReaction(ShutterSpawnSettings settings, VerticalShutterEnemyState state) => new()
     {
         // A shot deals the shutter no damage and starts it moving; the shot's collision is still marked, a Super
         // Missile's quake included.
@@ -384,20 +380,18 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory, IEs
     };
 
     /// <summary>Runs common shot damage for destroyable shutters.</summary>
-    /// <param name="shutter">The shutter the reaction is built for, whose placement names how it is set off.</param>
     /// <param name="settings">What the shutter's population entry tells its species.</param>
     /// <param name="state">The shutter's state, which it holds from its setup.</param>
-    internal EnemyShotReaction DestroyableShutterShotReaction(RoomEnemyOccupant shutter, ShutterSpawnSettings settings, VerticalShutterEnemyState state) => new()
+    internal EnemyShotReaction DestroyableShutterShotReaction(ShutterSpawnSettings settings, VerticalShutterEnemyState state) => new()
     {
-        AfterCommon = c => ReactDestroyableShutterAfterCommon(shutter, settings, c.Enemy, state, c.Camera),
+        AfterCommon = c => ReactDestroyableShutterAfterCommon(settings, c.Enemy, state, c.Camera),
     };
 
     /// <summary>Uses Samus contact to react vertical shutters.</summary>
     /// <param name="settings">What the shutter's population entry tells its species.</param>
-    /// <param name="occupant">The touched shutter's occupant.</param>
     /// <param name="context">The touch.</param>
     /// <param name="verticalShutterEnemyState">The shutter's state.</param>
-    internal void ReactToVerticalShutterTouch(RoomEnemyOccupant occupant, ShutterSpawnSettings settings, EnemyTouchContext context, VerticalShutterEnemyState verticalShutterEnemyState) =>
+    internal void ReactToVerticalShutterTouch(ShutterSpawnSettings settings, EnemyTouchContext context, VerticalShutterEnemyState verticalShutterEnemyState) =>
         // Samus's touch deals no contact damage: touching the shutter is itself the trigger, and the shutter's trigger mode
         // decides whether it starts moving.
         ReactVerticalShutter(settings, context.Place, verticalShutterEnemyState, context.Camera);
@@ -428,7 +422,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory, IEs
 
     /// <summary>Runs the vertical shutter's main AI.</summary>
     private void RunVerticalShutterMain(
-        RoomEnemyOccupant occupant, ShutterSpawnSettings shutterSpawnSettings, RoomEnemyPlace place,
+        ShutterSpawnSettings shutterSpawnSettings, RoomEnemyPlace place,
         VerticalShutterEnemyState state,
         SamusState samus,
         Position16<RoomPixels> camera)
@@ -462,11 +456,11 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory, IEs
                 break;
 
             case VerticalShutterAction.MovingUp:
-                MoveVerticalShutter(occupant, shutterSpawnSettings, place, state, samus, direction: VerticalDirection.Up);
+                MoveVerticalShutter(shutterSpawnSettings, place, state, samus, direction: VerticalDirection.Up);
                 break;
 
             case VerticalShutterAction.MovingDown:
-                MoveVerticalShutter(occupant, shutterSpawnSettings, place, state, samus, direction: VerticalDirection.Down);
+                MoveVerticalShutter(shutterSpawnSettings, place, state, samus, direction: VerticalDirection.Down);
                 break;
 
             case VerticalShutterAction.StoppedAfterMovingUp:
@@ -535,7 +529,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory, IEs
 
     /// <summary>Moves toward the upper or lower endpoint, carrying Samus when riding the shutter.</summary>
     private static void MoveVerticalShutter(
-        RoomEnemyOccupant occupant, ShutterSpawnSettings shutterSpawnSettings, RoomEnemyPlace place,
+        ShutterSpawnSettings shutterSpawnSettings, RoomEnemyPlace place,
         VerticalShutterEnemyState state,
         SamusState samus,
         VerticalDirection direction)
@@ -604,7 +598,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory, IEs
     /// it off, as a shutter at rest whose killed place lies at the room's top-left corner: the reaction reads the shutter's
     /// place, which the kill cleared: its state is the one the shutter held from its setup.
     /// </summary>
-    private void ReactDestroyableShutterAfterCommon(RoomEnemyOccupant occupant, ShutterSpawnSettings settings, RoomEnemyPlace place, VerticalShutterEnemyState state, Position16<RoomPixels> camera) =>
+    private void ReactDestroyableShutterAfterCommon(ShutterSpawnSettings settings, RoomEnemyPlace place, VerticalShutterEnemyState state, Position16<RoomPixels> camera) =>
         ReactVerticalShutter(settings, place, state, camera);
 
     /// <summary>

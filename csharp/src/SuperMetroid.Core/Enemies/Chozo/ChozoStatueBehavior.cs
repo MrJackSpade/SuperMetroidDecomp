@@ -279,7 +279,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemySpawnFactory<Ch
         _passEvents.Publish(new ChozoStatueHandAsked(new RoomObjectSpawnRequest<ChozoStatueHandObject>(block, handObject), hand));
 
     /// <summary>Runs ChozoStatue's main AI.</summary>
-    internal static void RunChozoStatueMainAi(RoomEnemyOccupant occupant, ChozoStatueSpawnSettings chozoStatueSpawnSettings, RoomEnemyPlace place, ChozoStatueState chozoStatueState)
+    internal static void RunChozoStatueMainAi(ChozoStatueSpawnSettings chozoStatueSpawnSettings, RoomEnemyPlace place, ChozoStatueState chozoStatueState)
     {
         RunChozoStatueMain(chozoStatueSpawnSettings, place, chozoStatueState);
     }

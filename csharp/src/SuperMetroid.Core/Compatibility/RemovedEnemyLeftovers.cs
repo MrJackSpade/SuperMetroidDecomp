@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Enemies;
-
 namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
@@ -30,11 +28,13 @@ namespace SuperMetroid.Core.Compatibility;
 /// damage, without testing whether an enemy still occupies it; a deletion clears only the record's identity, while a
 /// kill clears the whole record, which a respawned enemy's setup writes again, and which the Shaktool chain writes to.
 /// </remarks>
+/// <typeparam name="TEnemy">The enemies a place holds.</typeparam>
 [CompatibilityService("an enemy removed from its place leaves its state there for its neighbours: as it left it after a deletion, cleared after a kill")]
-public sealed class RemovedEnemyLeftovers
+public sealed class RemovedEnemyLeftovers<TEnemy>
+    where TEnemy : class
 {
     /// <summary>The enemy the place's last deletion left there as it left, or null when its last removal was a kill or none.</summary>
-    private IEnemyEntity? _deleted;
+    private TEnemy? _deleted;
 
     /// <summary>Whether the place's last removal was a kill, whose cleared record a neighbour may write to.</summary>
     private bool _leftByKill;
@@ -44,7 +44,7 @@ public sealed class RemovedEnemyLeftovers
 
     /// <summary>The place's enemy is deleted without being killed: <paramref name="enemy"/> stays as it left.</summary>
     /// <param name="enemy">The deleted enemy, with the state it holds.</param>
-    internal void Deleted(IEnemyEntity enemy)
+    internal void Deleted(TEnemy enemy)
     {
         _deleted = Ensure.NotNull(enemy);
         _leftByKill = false;
@@ -64,7 +64,7 @@ public sealed class RemovedEnemyLeftovers
     /// deletion left; null once a kill cleared the place or while no enemy has left it.
     /// </summary>
     /// <param name="held">The enemy holding the place, or null while it holds none.</param>
-    internal IEnemyEntity? Found(IEnemyEntity? held) => held ?? _deleted;
+    internal TEnemy? Found(TEnemy? held) => held ?? _deleted;
 
     /// <summary>
     /// The record a kill cleared, while no enemy holds the place and its last removal was a kill: a neighbour that writes to

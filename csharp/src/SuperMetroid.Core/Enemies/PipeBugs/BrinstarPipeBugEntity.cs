@@ -12,10 +12,10 @@ internal sealed class BrinstarPipeBugEntity(RoomEnemyOccupant occupant, RoomEnem
     internal BrinstarPipeBugSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal BrinstarPipeBugState State { get; } = PipeBugsBehavior.InitializeBrinstarPipeBug(occupant, settings, place);
+    internal BrinstarPipeBugState State { get; } = PipeBugsBehavior.InitializeBrinstarPipeBug(settings, place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => PipeBugsBehavior.RunBrinstarPipeBugMainAi(Occupant, Settings, Place, State, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => PipeBugsBehavior.RunBrinstarPipeBugMainAi(Settings, Place, State, frame);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => PipeBugsBehavior.AdvanceBrinstarPipeBugTypedAnimation(Place, State);

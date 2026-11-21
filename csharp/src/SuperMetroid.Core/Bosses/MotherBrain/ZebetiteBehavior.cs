@@ -79,7 +79,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemySpawnFactory<Enemy
     /// <returns>The state the enemy holds from its setup.</returns>
     internal ZebetiteEnemyState InitializeZebetite(RoomEnemyOccupant occupant, RoomEnemyPlace place, RoomEnemyPlace? linkedTo)
     {
-        var state = new ZebetiteEnemyState(occupant.Spawn, place.Frame) { LinkedHalf = linkedTo };
+        var state = new ZebetiteEnemyState(occupant.Spawn) { LinkedHalf = linkedTo };
 
         // A Zebetite animates and is solid to Samus.
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
@@ -267,9 +267,10 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemySpawnFactory<Enemy
     /// </summary>
     internal static void AdvanceZebetiteAnimation(RoomEnemyPlace place, ZebetiteEnemyState state)
     {
-        if (!place.AnimationClock.Expire())
+        // A half with no barrier left to show, which its setup deleted, shows nothing.
+        if (state.Picture is not { } picture || !place.AnimationClock.Expire())
             return;
-        place.Frame = state.Picture;
+        place.Frame = picture;
         place.AnimationClock.ShowForGood();
     }
 

@@ -16,8 +16,8 @@ internal static class MotherBrainLateFightFixtures
     /// <summary>A late-fight sequence as <see cref="NewSequence()"/> builds, whose encounter's bursts are <paramref name="bursts"/>.</summary>
     internal static MotherBrainRainbowBeamAttackSequence NewSequence(MotherBrainBurstCycle bursts)
     {
-        var body = new RoomEnemyPlace(0, StandaloneFixtureSpecies.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>());
-        var brain = new RoomEnemyPlace(1, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()) { Health = 3000 };
+        var body = new RoomEnemyPlace(0, StandaloneFixtureSpecies.Registry.Common, new RemovedEnemyLeftovers<IEnemyEntity>());
+        var brain = new RoomEnemyPlace(1, EnemyPlaceFixtures.Registry.Common, new RemovedEnemyLeftovers<IEnemyEntity>()) { Health = 3000 };
         var encounter = new MotherBrainEnemyState(body.BoundFor(EnemyDefinitionId.MotherBrainBody), brain, new MotherBrainWalkCounter(), bursts, new MotherBrainBrainAnimation()) { RainbowPhase = MotherBrainRainbowPhase.StartCharging, DroolGenerationEnabled = true, SmallPurpleBreathGenerationEnabled = true, HitboxesEnabled = MotherBrainHitboxParts.Body | MotherBrainHitboxParts.Brain | MotherBrainHitboxParts.Neck };
         return new MotherBrainRainbowBeamAttackSequence(encounter);
     }
@@ -29,7 +29,7 @@ internal static class MotherBrainLateFightFixtures
     /// </summary>
     internal static BabyMetroidCutsceneState Arrive(MotherBrainRainbowBeamAttackSequence lateFight, FixedPosition<RoomPixels> leftInPlace)
     {
-        var place = new RoomEnemyPlace(2, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()) { Position = leftInPlace };
+        var place = new RoomEnemyPlace(2, EnemyPlaceFixtures.Registry.Common, new RemovedEnemyLeftovers<IEnemyEntity>()) { Position = leftInPlace };
         BabyMetroidCutsceneState baby = Ensure.NotNull(lateFight).MakeBaby(place);
         baby.Arrive();
         return baby;

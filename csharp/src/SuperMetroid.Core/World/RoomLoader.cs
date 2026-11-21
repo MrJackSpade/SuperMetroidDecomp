@@ -276,7 +276,7 @@ internal sealed class RoomLoader
     /// Loads the game's arrival on Zebes after Ceres:
     /// Crateria, the Zebes arrival, with the airborne Landing Site gunship.
     /// </summary>
-    public RoomScope InitializePostCeresZebesRoom()
+    public void InitializePostCeresZebesRoom()
     {
         // The Ceres escape keeps its live Samus through the cinematic.
         SamusState carried = _player.Samus;
@@ -316,7 +316,7 @@ internal sealed class RoomLoader
 
         // Arriving on Zebes ends the Ceres room's objects and projectiles before Landing Site loads, the two of the Ceres
         // elevator's arrival among them, so the gunship alone carries Samus.
-        RoomScope loaded = LoadRoom(
+        _ = LoadRoom(
             door,
             room,
             station.Placement.CameraPosition,
@@ -328,7 +328,6 @@ internal sealed class RoomLoader
         samus.Ground = SamusGround.Of(room.Definition);
         _player.PreviousMovementTypeForXray = SamusPoseMetadata.ReadMovementType(samus);
         _player.GroundedSamusMovementEnabled = false;
-        return loaded;
     }
 
     /// <summary>
@@ -633,7 +632,7 @@ internal sealed class RoomLoader
     /// What the source room showed as its destination's load began, which the door's opening scroll keeps, and the loaded
     /// destination room.
     /// </returns>
-    internal (DoorOpeningSourceView SourceView, RoomScope Destination) LoadPendingDoorDestinationForTransition(DoorDefinition door,
+    internal DoorDestinationLoad LoadPendingDoorDestinationForTransition(DoorDefinition door,
         FixedPosition<RoomPixels> sourceSamus, RoomScope loaded)
     {
         Ensure.NotNull(door);
@@ -698,7 +697,7 @@ internal sealed class RoomLoader
         // does, so an elevator rider keeps the boarding pose's radius through the door.
         samus.Ground = SamusGround.Of(room.Definition);
         _player.GroundedSamusMovementEnabled = true;
-        return (sourceView, destination);
+        return new DoorDestinationLoad(sourceView, destination);
     }
 
     /// <summary>Loads the selected room, its state and its graphics; shared by stations, doors and the attract demo.</summary>
@@ -723,8 +722,8 @@ internal sealed class RoomLoader
             outgoing.Projectiles.HandOverTo(_room.HandOver);
             outgoing.Enemies.HandOverTo(_room.HandOver);
         }
-        // The destination's camera and bombs are built new before its load begins: no stale index of the outgoing room's
-        // bombs reaches into the destination's, and the camera step below places the camera.
+        // The destination's camera and bombs are built new before its load begins: none of the outgoing room's bombs
+        // reaches into the destination, and the camera step below places the camera.
         var destinationCamera = new ScrollBoundaryCamera(assets.Scrolls);
         var bombs = new SamusBombProjectileSystem(_audioRequests, _artwork.SamusArtwork);
         RoomScopeConstruction scope = _room.BeginConstruction(door, room, assets, entry.LoadStation, destinationCamera, bombs);

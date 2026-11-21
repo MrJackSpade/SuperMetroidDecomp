@@ -26,7 +26,7 @@ public readonly record struct FadeLevelColour
     /// The level whose plain value each channel value 0-<see cref="RgbColor.FullChannel"/> is, or none for a value that is
     /// no level's (#1627), so reading a colour's levels costs a look-up a channel.
     /// </summary>
-    private static readonly IReadOnlyDictionary<int, int> LevelByChannel = LevelsByChannel();
+    private static readonly Dictionary<int, int> LevelByChannel = LevelsByChannel();
 
     /// <summary>Makes a colour from its three levels, each 0-<see cref="FullLevel"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException">A level is outside 0-<see cref="FullLevel"/>.</exception>

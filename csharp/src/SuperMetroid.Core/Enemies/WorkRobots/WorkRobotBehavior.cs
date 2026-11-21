@@ -10,24 +10,19 @@ namespace SuperMetroid.Core.Enemies.WorkRobots;
 
 /// <summary>The work robot species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemySpawnFactory<WorkRobotSpawnSettings>, IRoomGlow
+internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory, IRoomGlow
 {
-    /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.WorkRobot, EnemyDefinitionId.UnpoweredWorkRobot];
-
     /// <summary>
     /// A powered or an unpowered work robot (#2146, #2179). The rooms place the powered robot's definition only in their
     /// states once Phantoon is defeated, so it always has power (#2455).
     /// </summary>
-    /// <exception cref="InvalidOperationException">The place holds no work robot definition.</exception>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, WorkRobotSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common)
+    /// <param name="registrar">The room's registry being composed.</param>
+    public void OfferCreations(EnemySpeciesRegistrar registrar)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
-        if (definition == EnemyDefinitionId.WorkRobot)
-            return EnemyOccupant.Running(new PoweredWorkRobotEntity(this, occupant, place, common));
-        if (definition == EnemyDefinitionId.UnpoweredWorkRobot)
-            return EnemyOccupant.Running(new UnpoweredWorkRobotEntity(this, occupant, place, common, settings));
-        throw new InvalidOperationException($"The work robot species creates no {occupant.DefinitionId}.");
+        Ensure.NotNull(registrar).Spawns<WorkRobotSpawnSettings>([EnemyDefinitionId.WorkRobot], (occupant, _, place, common) =>
+            EnemyOccupant.Running(new PoweredWorkRobotEntity(this, occupant, place, common)));
+        registrar.Spawns<WorkRobotSpawnSettings>([EnemyDefinitionId.UnpoweredWorkRobot], (occupant, settings, place, common) =>
+            EnemyOccupant.Running(new UnpoweredWorkRobotEntity(this, occupant, place, common, settings)));
     }
 
     /// <summary>Samples the room random number for laser timing.</summary>

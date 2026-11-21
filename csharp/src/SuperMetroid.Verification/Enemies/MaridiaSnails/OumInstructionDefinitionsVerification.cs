@@ -29,7 +29,7 @@ internal static class OumInstructionDefinitionsVerification
             AssertEqual(rom.ReadCartridgeWord(OumNativeValues.SelectorTable + animationIndex * 2),
                 NativeEnemyAnimationOracle.EntryOf(OumNativeListAddresses.Entries, program),
                 $"Oum selector {animationIndex}");
-            var place = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>());
+            var place = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry.Common, new RemovedEnemyLeftovers<IEnemyEntity>());
             var state = new OumEnemyState(OumAction.Idle, OumBouncePhase.Falling);
             place.AnimationClock.HoldFor(0x1234);
             OumBehavior.StartOumAnimation(place, state, animation);

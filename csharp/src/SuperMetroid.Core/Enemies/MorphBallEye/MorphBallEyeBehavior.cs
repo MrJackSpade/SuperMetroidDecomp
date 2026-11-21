@@ -76,7 +76,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemySpawnFactory<M
 
     /// <summary>Runs the body state machine only after Morph Ball is collected, preserving activation and tracking independently of equipment selection.</summary>
     private void RunMorphBallEyeMain(
-        RoomEnemyOccupant occupant, MorphBallEyeBodySpawnSettings morphBallEyeBodySpawnSettings, RoomEnemyPlace place,
+        MorphBallEyeBodySpawnSettings morphBallEyeBodySpawnSettings, RoomEnemyPlace place,
         MorphBallEyeEnemyState state,
         SamusState samus)
     {
@@ -218,6 +218,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemySpawnFactory<M
             case MorphBallEyeBeamPhase.Deactivating:
                 FadeMorphBallEyeBeam();
                 return;
+            case MorphBallEyeBeamPhase.Inactive:
             default:
                 throw new InvalidDataException(
                     $"Unknown morph-ball eye beam phase {cast.Phase}.");
@@ -304,8 +305,8 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemySpawnFactory<M
     }
 
     /// <summary>Runs MorphBallEye's main AI.</summary>
-    internal void RunMorphBallEyeMainAi(RoomEnemyOccupant occupant, MorphBallEyeBodySpawnSettings morphBallEyeBodySpawnSettings, RoomEnemyPlace place, MorphBallEyeEnemyState morphBallEyeEnemyState, IEnemyAiFrame frame)
+    internal void RunMorphBallEyeMainAi(MorphBallEyeBodySpawnSettings morphBallEyeBodySpawnSettings, RoomEnemyPlace place, MorphBallEyeEnemyState morphBallEyeEnemyState, IEnemyAiFrame frame)
     {
-        RunMorphBallEyeMain(occupant, morphBallEyeBodySpawnSettings, place, morphBallEyeEnemyState, frame.Samus);
+        RunMorphBallEyeMain(morphBallEyeBodySpawnSettings, place, morphBallEyeEnemyState, frame.Samus);
     }
 }

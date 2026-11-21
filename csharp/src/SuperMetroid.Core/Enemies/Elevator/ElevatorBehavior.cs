@@ -133,7 +133,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyLoadedFactory<Elev
 
     /// <summary>Runs the elevator's main behaviour and its four phases.</summary>
     private void RunElevatorMain(
-        RoomEnemyOccupant occupant, ElevatorSpawnSettings elevatorSpawnSettings, RoomEnemyPlace place,
+        ElevatorSpawnSettings elevatorSpawnSettings, RoomEnemyPlace place,
         ElevatorEnemyState state,
         SamusState samus,
         GameplayAction newlyPressedControllerInput,
@@ -270,10 +270,10 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyLoadedFactory<Elev
             static (_, cue) => throw new InvalidOperationException($"A cue-free Elevator animation raised {cue}."));
 
     /// <summary>Runs Elevator's main AI.</summary>
-    internal void RunElevatorMainAi(RoomEnemyOccupant occupant, ElevatorSpawnSettings elevatorSpawnSettings, RoomEnemyPlace place, ElevatorEnemyState elevatorEnemyState, IEnemyAiFrame frame)
+    internal void RunElevatorMainAi(ElevatorSpawnSettings elevatorSpawnSettings, RoomEnemyPlace place, ElevatorEnemyState elevatorEnemyState, IEnemyAiFrame frame)
     {
         RunElevatorMain(
-            occupant, elevatorSpawnSettings, place,
+            elevatorSpawnSettings, place,
             elevatorEnemyState,
             frame.Samus,
             frame.NewlyPressedControllerInput,

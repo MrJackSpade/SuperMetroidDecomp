@@ -378,22 +378,6 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemySpawnFactory<PowampS
         }
     }
 
-    /// <summary>Runs the paired state propagation after a power bomb hits a Powamp.</summary>
-    private static void ResolvePowampPowerBombAfterCommon(RoomEnemyPlace body, RoomEnemyPlace balloon)
-    {
-        if (body.Health == 0)
-        {
-            balloon.Presence = balloon.Presence.With(EnemyPresence.Deleted);
-            return;
-        }
-
-        balloon.Shake.Restart(body.Shake.UpdatesLeft);
-        balloon.Invincibility.Restart(body.Invincibility.UpdatesLeft);
-        balloon.HurtFlash.Restart(body.HurtFlash.UpdatesLeft);
-        balloon.Freeze.Restart(body.Freeze.UpdatesLeft);
-        balloon.AiStates = body.AiStates;
-    }
-
     /// <summary>Advances both halves to the same authored X offset each wiggle step (<see cref="PowampMotionDefinitions.WiggleStepDuration"/>).</summary>
     private static bool AdvancePowampWiggle(
         RoomEnemyPlace body,
@@ -478,7 +462,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemySpawnFactory<PowampS
     };
 
     /// <summary>
-    /// Routes bomb hits on a balloon through common shot logic and the Powamp's shot routine as the balloon runs it
+    /// Routes bomb hits on a balloon through common shot logic and the Powamp's reaction to a shot as the balloon runs it
     /// (<see cref="ResolvePowampBalloonShotAfterCommon"/>).
     /// </summary>
     /// <param name="balloonState">The state of the balloon the reaction is built for.</param>
@@ -491,11 +475,11 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemySpawnFactory<PowampS
     };
 
     /// <summary>
-    /// The Powamp's shot routine after its common damage, as a balloon that accepted the hit runs it (#2554): the routine
+    /// The Powamp's reaction to a shot after its common damage, as a balloon that accepted the hit runs it (#2554): it
     /// carries the struck half's freeze and hurt flash on to the enemy the room lists before it, which for a balloon is the
     /// enemy before the Powamp, and marks a half the hit left without health as refusing contact. Its fatal-damage action
     /// is the body's AI's, which a balloon has none of. Every room's balloons refuse contact from their setup, so their own
-    /// shot routine ends before its damage.
+    /// reaction to a shot ends before its damage.
     /// </summary>
     private void ResolvePowampBalloonShotAfterCommon(RoomEnemyPlace balloon, PowampBalloonState balloonState)
     {
@@ -551,20 +535,19 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemySpawnFactory<PowampS
     /// <param name="balloon">The balloon the body holds.</param>
     internal static EnemyPowerBombReaction PowampBodyPowerBombReaction(RoomEnemyPlace balloon) => new()
     {
-        AfterCommon = c => ResolvePowampPowerBombAfterCommon(c.Enemy, balloon),
+        AfterCommon = c => EnemyPartnerHits.CarryOnto(c.Enemy, balloon),
     };
 
     /// <summary>The balloon's Power Bomb reaction: the blast's damage alone, its body carrying a hit on to it.</summary>
     internal EnemyPowerBombReaction PowampBalloonPowerBombReaction => field ??= new();
 
     /// <summary>Skips later shots once fatal damage begins and mirrors surviving body presentation to the balloon.</summary>
-    /// <param name="body">The body the reaction is built for, whose placement names whether it refuses shots.</param>
     /// <param name="powampSpawnSettings">What the enemy's population entry tells its species.</param>
     /// <param name="bodyState">The state the body holds.</param>
     /// <param name="balloon">The balloon the body holds.</param>
-    internal static EnemyShotReaction PowampBodyShotReaction(RoomEnemyOccupant body, PowampSpawnSettings powampSpawnSettings, PowampBodyState bodyState,
+    internal static EnemyShotReaction PowampBodyShotReaction(PowampSpawnSettings powampSpawnSettings, PowampBodyState bodyState,
         RoomEnemyPlace balloon) =>
-        ShotReactionSkipping(place => BodyRefusesContact(body, powampSpawnSettings, bodyState),
+        ShotReactionSkipping(place => BodyRefusesContact(powampSpawnSettings, bodyState),
             c => ResolvePowampShotAfterCommon(c.Enemy, bodyState, balloon));
 
     /// <summary>The Powamp's shot reaction as the balloon takes it, skipped while the balloon refuses contact.</summary>
@@ -577,7 +560,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemySpawnFactory<PowampS
         powampSpawnSettings.Contact == PowampContact.Refuses;
 
     /// <summary>Whether the body refuses Samus's touch and shots: its placement refuses them, or it is dying (#2474).</summary>
-    private static bool BodyRefusesContact(RoomEnemyOccupant occupant, PowampSpawnSettings powampSpawnSettings, PowampBodyState powampBodyState) =>
+    private static bool BodyRefusesContact(PowampSpawnSettings powampSpawnSettings, PowampBodyState powampBodyState) =>
         PlacementRefusesContact(powampSpawnSettings) || powampBodyState.IsDying;
 
     /// <summary>
@@ -599,7 +582,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemySpawnFactory<PowampS
     internal void ReactToPowampBodyTouch(RoomEnemyOccupant occupant, PowampSpawnSettings powampSpawnSettings, EnemyTouchContext context, PowampBodyState powampBodyState,
         RoomEnemyPlace balloon)
     {
-        if (!BodyRefusesContact(occupant, powampSpawnSettings, powampBodyState))
+        if (!BodyRefusesContact(powampSpawnSettings, powampBodyState))
             ResolvePowampTouch(occupant, context.Place, balloon, context.Samus, context.PseudoScrew);
     }
 
@@ -607,7 +590,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemySpawnFactory<PowampS
     internal void ReactToPowampBalloonTouch(RoomEnemyOccupant occupant, PowampBalloonState balloonState, EnemyTouchContext context)
     {
         // A balloon that refuses contact ignores Samus's touch.
-        // A touch that kills it deletes the enemy listed before it, as the Powamp's touch routine does for either half.
+        // A touch that kills it deletes the enemy listed before it, as the Powamp's touch does for either half.
         if (!balloonState.RefusesContact)
             ResolvePowampTouch(occupant, context.Place, _places.PlacesBefore(context.Place)(1), context.Samus, context.PseudoScrew);
     }

@@ -9,5 +9,5 @@ internal interface IEnemyEntityFactory
 {
     /// <summary>Registers the creations this species supports for the definitions it owns; each definition has one owner.</summary>
     /// <param name="registrar">The room's registry being composed.</param>
-    void Register(EnemySpeciesRegistrar registrar);
+    void OfferCreations(EnemySpeciesRegistrar registrar);
 }

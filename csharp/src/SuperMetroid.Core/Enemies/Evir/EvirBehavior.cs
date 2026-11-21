@@ -14,7 +14,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     /// body's definition; only their placement tells them apart. Arms or a spit no body offered are refused.
     /// </summary>
     /// <param name="registrar">The room's registry being composed.</param>
-    public void Register(EnemySpeciesRegistrar registrar)
+    public void OfferCreations(EnemySpeciesRegistrar registrar)
     {
         Ensure.NotNull(registrar).Loads<EvirSpawnSettings>([EnemyDefinitionId.Evir], CreateBody);
         registrar.Joins([EnemyDefinitionId.EvirProjectile]);
@@ -38,7 +38,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         return EnemyOccupant.Running(body);
     }
 
-    /// <summary>An Evir's arms, following <paramref name="body"/>, whose placement's period a later body may borrow.</summary>
+    /// <summary>An Evir's arms, following <paramref name="body"/>, whose placement's period a later body may take on.</summary>
     private EnemyOccupant CreateArms(RoomEnemyOccupant occupant, EvirSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common,
         RoomEnemyPlace body)
     {
@@ -49,7 +49,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Where a body offers the arms and spit listed after it the creation that builds each following it.</summary>
     private readonly EnemyPartOffers _partOffers;
 
-    /// <summary>What a body's first half-cycle reads of the place it borrows from, with every Evir body's and arms' period.</summary>
+    /// <summary>What a body's first half-cycle reads of the place it takes its period from, with every Evir body's and arms' period.</summary>
     private readonly PlaceLender _lenders = new();
 
     /// <summary>The room's enemy places, where each Evir part finds its partners when it is placed.</summary>
@@ -147,7 +147,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             // A place that holds its enemy, or waits for its killed enemy's respawn, still reads that enemy's entry.
             PopulatedEnemyPlace { Occupancy: OccupiedEnemyPlace or AwaitingRespawnEnemyPlace } => _periods.TryGetValue(enemy, out int period)
                 ? period
-                : throw new InvalidDataException($"An Evir body borrows its first half-cycle from enemy place {enemy.Ordinal}, which holds no Evir body or arms."),
+                : throw new InvalidDataException($"An Evir body takes its first half-cycle from enemy place {enemy.Ordinal}, which holds no Evir body or arms."),
             _ => FreePlacePeriod,
         };
 
@@ -455,7 +455,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     };
 
     /// <summary>Runs an Evir body's main AI: it bobs and turns.</summary>
-    internal static void RunEvirBodyMainAi(RoomEnemyOccupant occupant, EvirSpawnSettings evirSpawnSettings, RoomEnemyPlace place, EvirBodyState evirBodyState, IEnemyAiFrame frame) =>
+    internal static void RunEvirBodyMainAi(EvirSpawnSettings evirSpawnSettings, RoomEnemyPlace place, EvirBodyState evirBodyState, IEnemyAiFrame frame) =>
         RunEvirMain(evirSpawnSettings, place, evirBodyState, frame.Samus);
 
     /// <summary>Runs an Evir's arms' main AI: they follow the body.</summary>

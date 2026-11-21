@@ -20,7 +20,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemySpawnFactory<Enem
     /// is bound.
     /// </summary>
     /// <param name="registrar">The room's registry being composed.</param>
-    public void Register(EnemySpeciesRegistrar registrar)
+    public void OfferCreations(EnemySpeciesRegistrar registrar)
     {
         Ensure.NotNull(registrar).Spawns<EnemySpawnSettings>(Definitions, Create);
         registrar.Joins([EnemyDefinitionId.CrocomireTongue]);
@@ -152,7 +152,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemySpawnFactory<Enem
                 Melting.RunCrocomireMelting(state);
                 return;
             case CrocomireDeathStage.ClearMeltImage:
-                Melting.FinishCrocomireMeltingPass(state);
+                CrocomireMelting.FinishCrocomireMeltingPass(state);
                 return;
             case CrocomireDeathStage.FinalSink:
                 BridgeCollapse.RunCrocomireFinalSink(state, camera);

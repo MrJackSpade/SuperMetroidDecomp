@@ -17,7 +17,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Zeela, Sova and both Zoomers in the shared family; or an orange Zoomer (#2146).
     /// </summary>
     /// <param name="registrar">The room's registry being composed.</param>
-    public void Register(EnemySpeciesRegistrar registrar)
+    public void OfferCreations(EnemySpeciesRegistrar registrar)
     {
         Ensure.NotNull(registrar).Spawns<CrawlerSpawnSettings>([EnemyDefinitionId.Sciser], (occupant, settings, place, common) =>
             EnemyOccupant.Running(new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Sciser, settings)));

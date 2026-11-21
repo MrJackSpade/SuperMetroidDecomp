@@ -14,13 +14,13 @@ internal static class TorizoFacing
         torizoEnemyState.Posture;
 
     /// <summary>Whether the Torizo faces right.</summary>
-    internal static bool FacesRight(RoomEnemyPlace torizo, TorizoEnemyState torizoEnemyState) => Posture(torizoEnemyState).Facing == HorizontalDirection.Right;
+    internal static bool FacesRight(TorizoEnemyState torizoEnemyState) => Posture(torizoEnemyState).Facing == HorizontalDirection.Right;
 
     /// <summary>Tests whether the Torizo faces the side Samus is on, as its attack branches do.</summary>
     internal static bool FacesSamus(RoomEnemyPlace torizo, TorizoEnemyState torizoEnemyState, SamusState samus)
     {
         // A Torizo facing right faces Samus when she stands right of it; one facing left faces her otherwise, also when
         // she stands level with it.
-        return FacesRight(torizo, torizoEnemyState) == torizo.Position.X.Whole < Ensure.NotNull(samus).Position.X.Whole;
+        return FacesRight(torizoEnemyState) == torizo.Position.X.Whole < Ensure.NotNull(samus).Position.X.Whole;
     }
 }

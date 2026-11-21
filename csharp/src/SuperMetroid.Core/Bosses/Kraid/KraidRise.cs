@@ -53,6 +53,7 @@ internal sealed class KraidRise
     /// <summary>The room's enemy places, where his body finds his other parts as his room lists them.</summary>
     private readonly EnemyPlaces _places;
 
+    /// <summary>Kraid's body layer, which his rise attaches to the room's display.</summary>
     private readonly KraidBodyLayer _bodyLayer;
 
     /// <summary>Creates his body's encounter state and restores the defeated room when the area-boss flag is set.</summary>

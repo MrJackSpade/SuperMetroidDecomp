@@ -56,7 +56,7 @@ internal static class MotherBrainRoomColorsVerification
         MotherBrainFakeDeath.StopMotherBrainRoomFlash(state);
         AssertEqual(MotherBrainShades.FinalRoom, state.Colours.RoomShading.Shades[^1], "stopping the flash shows the steady grey room");
         AssertTrue(state.RoomFlash is null, "stopping the flash stops it playing");
-        enemies.MotherBrainBehavior.Ascent.SetupMotherBrainPhaseTwoGraphics(state);
+        MotherBrainAscent.SetupMotherBrainPhaseTwoGraphics(state);
         AssertEqual(MotherBrainShades.PhaseTwo, state.Colours.OwnShading.Shades[^1], "the ascent loads the phase-two attack and rear-leg colours");
         Suite(nameof(VerifyMotherBrainRecoveryLights), () => VerifyMotherBrainRecoveryLights(state));
 

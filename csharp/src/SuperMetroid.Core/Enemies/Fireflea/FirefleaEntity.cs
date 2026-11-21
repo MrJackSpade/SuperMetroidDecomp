@@ -16,7 +16,7 @@ internal sealed class FirefleaEntity(FirefleaBehavior species, RoomEnemyOccupant
     internal FirefleaEnemyState State { get; } = FirefleaBehavior.InitializeFireflea(settings, place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => FirefleaBehavior.RunFirefleaMainAi(Occupant, Settings, Place, State);
+    public void RunMainAi(IEnemyAiFrame frame) => FirefleaBehavior.RunFirefleaMainAi(Settings, Place, State);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => FirefleaBehavior.AdvanceFirefleaTypedAnimation(Place, State);

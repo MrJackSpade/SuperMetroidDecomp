@@ -21,7 +21,7 @@ internal sealed class BoyonEntity(BoyonBehavior species, RoomEnemyOccupant occup
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) =>
-        BoyonBehavior.RunBoyonMain(Occupant, Settings, Place, State, frame.Samus);
+        BoyonBehavior.RunBoyonMain(Settings, Place, State, frame.Samus);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceBoyonAnimation(Place, State);

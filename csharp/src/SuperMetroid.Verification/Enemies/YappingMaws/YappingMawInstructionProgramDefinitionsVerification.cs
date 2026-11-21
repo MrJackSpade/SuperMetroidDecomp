@@ -122,7 +122,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
             (RoomEnemySystem enemies, RoomEnemyPlace place, YappingMawEnemyState state) = NewInitializedYappingMaw(activationDistance);
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
             samus.Position = samus.Position.WithWhole(new(128 + 300, 128));
-            enemies.YappingMawBehavior.RunYappingMawMainAi(place.HeldOccupant(), place, Frame(samus));
+            enemies.YappingMawBehavior.RunYappingMawMainAi(place, Frame(samus));
             string context = $"Yapping Maw activation distance {activationDistance}";
             AssertEqual(attacks ? YappingMawAction.BeginExtension : YappingMawAction.WaitingForSamus, state.Action, $"{context} attack decision");
             AssertEqual(attacks ? YappingMawAttackGeometry.MaximumTargetDistance : 300, state.DistanceToSamus, $"{context} target distance");
@@ -130,7 +130,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
                 continue;
 
             AssertEqual(TrigonometryAngle.QuarterTurn, state.AimAngle, $"{context} aims straight along X");
-            enemies.YappingMawBehavior.RunYappingMawMainAi(place.HeldOccupant(), place, Frame(samus));
+            enemies.YappingMawBehavior.RunYappingMawMainAi(place, Frame(samus));
             AssertEqual(YappingMawAction.ExtendingOrRetracting, state.Action, $"{context} begins extending");
             AssertEqual(32, state.SegmentRadius, $"{context} radius is half the capped distance");
             AssertEqual(RotationAngle.QuarterTurn, state.CurlAngle, $"{context} curl is a quarter turn minus the aim");

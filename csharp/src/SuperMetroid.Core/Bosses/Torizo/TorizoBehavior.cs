@@ -12,21 +12,19 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>The Torizo species owner, Bomb and Golden Torizo alike: their per-room state, behaviour and the interactions they register.</summary>
 [RoomLifetime]
-internal sealed class TorizoBehavior : IEnemySpecies, IEnemyLoadedFactory<EnemySpawnSettings>
+internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
 {
-    /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.BombTorizo, EnemyDefinitionId.GoldenTorizo];
-
-    /// <inheritdoc/>
-    public EnemyOccupant CreateLoaded(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common,
-        EnemyPopulationSurroundings surroundings)
+    /// <summary>
+    /// The Bomb Torizo and the Golden Torizo, which only their rooms' population loads place: each reads the load's
+    /// surroundings as it is set up.
+    /// </summary>
+    /// <param name="registrar">The room's registry being composed.</param>
+    public void OfferCreations(EnemySpeciesRegistrar registrar)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
-        if (definition == EnemyDefinitionId.BombTorizo)
-            return EnemyOccupant.Running(new BombTorizoEntity(this, occupant, place, common, surroundings));
-        if (definition == EnemyDefinitionId.GoldenTorizo)
-            return EnemyOccupant.Running(new GoldenTorizoEntity(this, occupant, place, common, surroundings));
-        throw new InvalidOperationException($"The Torizo species creates no {occupant.DefinitionId}.");
+        Ensure.NotNull(registrar).Loads<EnemySpawnSettings>([EnemyDefinitionId.BombTorizo], (occupant, _, place, common, surroundings) =>
+            EnemyOccupant.Running(new BombTorizoEntity(this, occupant, place, common, surroundings)));
+        registrar.Loads<EnemySpawnSettings>([EnemyDefinitionId.GoldenTorizo], (occupant, _, place, common, surroundings) =>
+            EnemyOccupant.Running(new GoldenTorizoEntity(this, occupant, place, common, surroundings)));
     }
 
     /// <summary>Supplies the live room services, boss flag, random state, and artwork for both statue variants.</summary>
@@ -55,7 +53,6 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyLoadedFactory<EnemyS
 
     /// <summary>Bomb and Golden Torizo's hitboxes, touch and hurt, and what Samus's weapons do to them.</summary>
     internal TorizoCombat Combat { get; }
-
 
 
     /// <summary>The room effects the bosses request this update, where the fight's start asks for the belly's glow.</summary>
@@ -330,7 +327,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyLoadedFactory<EnemyS
                 return TorizoAnimations.ContinueWith(walkOn.Walking);
 
             case TorizoCue.Turn turn:
-                return TorizoAnimations.ContinueWith(TorizoFacing.FacesRight(torizo, state) ? turn.WhenFacingRight : turn.WhenFacingLeft);
+                return TorizoAnimations.ContinueWith(TorizoFacing.FacesRight(state) ? turn.WhenFacingRight : turn.WhenFacingLeft);
 
             case TorizoCue.Signal { Kind: TorizoCueKind.ResumeWalk }:
                 return TorizoAnimations.ContinueAt(state.InterruptedWalk);

@@ -76,7 +76,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemySpawnFactory<Cacata
     }
 
     /// <summary>Runs a Cacatac for one update: its patrol, or it stays stopped.</summary>
-    private void RunCacatacMain(RoomEnemyOccupant occupant, CacatacSpawnSettings cacatacSpawnSettings, RoomEnemyPlace place, CacatacEnemyState state)
+    private void RunCacatacMain(CacatacSpawnSettings cacatacSpawnSettings, RoomEnemyPlace place, CacatacEnemyState state)
     {
         switch (state.Action)
         {
@@ -141,9 +141,9 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemySpawnFactory<Cacata
         context => FlyCacatacSpike(context.Projectile, context.Camera));
 
     /// <summary>Runs Cacatac's main AI.</summary>
-    internal void RunCacatacMainAi(RoomEnemyOccupant occupant, CacatacSpawnSettings cacatacSpawnSettings, RoomEnemyPlace place, CacatacEnemyState cacatacEnemyState)
+    internal void RunCacatacMainAi(CacatacSpawnSettings cacatacSpawnSettings, RoomEnemyPlace place, CacatacEnemyState cacatacEnemyState)
     {
-        RunCacatacMain(occupant, cacatacSpawnSettings, place, cacatacEnemyState);
+        RunCacatacMain(cacatacSpawnSettings, place, cacatacEnemyState);
     }
 
     /// <summary>Advances Cacatac's typed animation.</summary>

@@ -58,7 +58,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemySpawnFactory<BoyonSpa
     }
 
     /// <summary>Runs the Boyon's main AI.</summary>
-    internal static void RunBoyonMain(RoomEnemyOccupant occupant, BoyonSpawnSettings boyonSpawnSettings, RoomEnemyPlace place, BoyonEnemyState state, SamusState samus)
+    internal static void RunBoyonMain(BoyonSpawnSettings boyonSpawnSettings, RoomEnemyPlace place, BoyonEnemyState state, SamusState samus)
     {
         // The game spends Boyon's first active AI frame deriving the arc's baseline and
         // returns without moving or testing proximity. Preserving that frame is important:

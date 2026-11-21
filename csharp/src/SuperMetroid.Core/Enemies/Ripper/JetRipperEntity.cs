@@ -13,5 +13,5 @@ internal sealed class JetRipperEntity(RipperBehavior species, RoomEnemyOccupant 
     internal RipperSpawnSettings Settings { get; } = settings;
 
     /// <inheritdoc/>
-    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunJetRipperMainAi(Occupant, Settings, Place, State, frame);
+    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunJetRipperMainAi(Settings, Place, State, frame);
 }

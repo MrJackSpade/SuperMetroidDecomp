@@ -29,7 +29,7 @@ internal sealed class EnemyAnimationPlayer
     /// </summary>
     /// <exception cref="InvalidDataException">The installed body sheet lacks the frame.</exception>
     /// <exception cref="InvalidOperationException">The frame is shown by a part its boss does not draw there.</exception>
-    internal void DrawBossBodyFrame(RoomEnemyPlace place, RoomEnemyOccupant occupant, EnemyFrameId selected)
+    internal static void DrawBossBodyFrame(RoomEnemyPlace place, RoomEnemyOccupant occupant, EnemyFrameId selected)
     {
         if (place.Entity is not IBossBodyFrames bossFrames || bossFrames.FindBodyFrame(selected) is not { } frame)
             return;

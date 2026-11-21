@@ -47,8 +47,8 @@ internal static class BoyonBehaviorVerification
 
         (RoomEnemySystem bounceSystem, RoomEnemyPlace bounce, BoyonEnemyState bounceState) = Create(parameter1: 0);
         SamusState samus = SamusAt(bounce);
-        BoyonBehavior.RunBoyonMain(bounce.HeldOccupant(), bounce, bounceState, samus);
-        BoyonBehavior.RunBoyonMain(bounce.HeldOccupant(), bounce, bounceState, samus);
+        BoyonBehavior.RunBoyonMain(bounce, bounceState, samus);
+        BoyonBehavior.RunBoyonMain(bounce, bounceState, samus);
         AssertEqual(new AnimationPlayback<BoyonSegment>(BoyonAnimations.StartingWith(BoyonSegment.Bouncing), AnimationPlace.StartOfAnimation), bounceState.Playback, "Samus nearby starts the bounce");
         AssertEqual(EnemyInstructionRunner.ExpectedLoop(BoyonAnimations.Segments, BoyonSegment.BouncingStar, BoyonFrameToolingDefinitions.Spritemap),
             EnemyInstructionRunner.ShownFrames(bounce, EnemyInstructionRunner.LoopUpdates(BoyonAnimations.Segments, BoyonSegment.BouncingStar)), "Boyon bounce loop");
@@ -100,7 +100,7 @@ internal static class BoyonBehaviorVerification
         {
             (_, RoomEnemyPlace place, BoyonEnemyState state) = Create(parameter1: (heightSelector << 8) | multiplierSelector);
             SamusState samus = SamusAt(place);
-            BoyonBehavior.RunBoyonMain(place.HeldOccupant(), place, state, samus);
+            BoyonBehavior.RunBoyonMain(place, state, samus);
             int multiplier = SelectorMultipliers[multiplierSelector];
             (int baseline, _) = OriginalBaseline(samples, multiplier, rom.ReadCartridgeWord(0xa286ef + heightSelector * 2));
             string context = $"Boyon with multiplier {multiplier} and height selector {heightSelector}";
@@ -129,7 +129,7 @@ internal static class BoyonBehaviorVerification
                     expected = rising ? BoyonPhase.Landed : BoyonPhase.Falling;
                 }
 
-                BoyonBehavior.RunBoyonMain(place.HeldOccupant(), place, state, samus);
+                BoyonBehavior.RunBoyonMain(place, state, samus);
                 updates++;
                 string at = $"{context}, update {update}";
                 AssertEqual(y, (int)place.Position.Y.Whole, $"{at}: height");

@@ -15,7 +15,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory, IEnemyJ
 {
     /// <summary>The cutscene Baby, only spawned joining the late fight that makes it (<see cref="SpawnMotherBrainBabyMetroid"/>).</summary>
     /// <param name="registrar">The room's registry being composed.</param>
-    public void Register(EnemySpeciesRegistrar registrar) => Ensure.NotNull(registrar).Joins([EnemyDefinitionId.BabyMetroidCutscene]);
+    public void OfferCreations(EnemySpeciesRegistrar registrar) => Ensure.NotNull(registrar).Joins([EnemyDefinitionId.BabyMetroidCutscene]);
 
     /// <summary>The Baby its late fight made in its place, which it holds from its setup (#2218, #2471, #2554).</summary>
     public EnemyOccupant CreateJoining(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common,

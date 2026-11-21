@@ -11,7 +11,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <summary>The grapple Ripper, the ordinary Ripper or the jet Ripper (#2146).</summary>
     /// <param name="registrar">The room's registry being composed.</param>
-    public void Register(EnemySpeciesRegistrar registrar)
+    public void OfferCreations(EnemySpeciesRegistrar registrar)
     {
         Ensure.NotNull(registrar).Spawns<GrappleRipperSpawnSettings>([EnemyDefinitionId.GrappleRipper], (occupant, settings, place, common) =>
             EnemyOccupant.Running(new GrappleRipperEntity(this, occupant, place, common, settings)));
@@ -184,19 +184,19 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     };
 
     /// <summary>Runs grapple Ripper's main AI.</summary>
-    internal void RunGrappleRipperMainAi(RoomEnemyOccupant occupant, GrappleRipperSpawnSettings grappleRipperSpawnSettings, RoomEnemyPlace place, RipperEnemyState ripperEnemyState, IEnemyAiFrame frame)
+    internal void RunGrappleRipperMainAi(GrappleRipperSpawnSettings grappleRipperSpawnSettings, RoomEnemyPlace place, RipperEnemyState ripperEnemyState, IEnemyAiFrame frame)
     {
         RunGrappleRipperMain(grappleRipperSpawnSettings, place, ripperEnemyState, frame.Level);
     }
 
     /// <summary>Runs jet Ripper's main AI.</summary>
-    internal void RunJetRipperMainAi(RoomEnemyOccupant occupant, RipperSpawnSettings ripperSpawnSettings, RoomEnemyPlace place, RipperEnemyState ripperEnemyState, IEnemyAiFrame frame)
+    internal void RunJetRipperMainAi(RipperSpawnSettings ripperSpawnSettings, RoomEnemyPlace place, RipperEnemyState ripperEnemyState, IEnemyAiFrame frame)
     {
         RunJetRipperMain(ripperSpawnSettings, place, ripperEnemyState, frame.Level);
     }
 
     /// <summary>Runs Ripper's main AI.</summary>
-    internal void RunRipperMainAi(RoomEnemyOccupant occupant, RipperSpawnSettings ripperSpawnSettings, RoomEnemyPlace place, RipperEnemyState ripperEnemyState, IEnemyAiFrame frame)
+    internal void RunRipperMainAi(RipperSpawnSettings ripperSpawnSettings, RoomEnemyPlace place, RipperEnemyState ripperEnemyState, IEnemyAiFrame frame)
     {
         RunRipperMain(ripperSpawnSettings, place, ripperEnemyState, frame.Level);
     }

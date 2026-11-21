@@ -46,7 +46,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemySpawnFactory<OwtchSpa
     }
 
     /// <summary>Runs the Owtch's current behaviour.</summary>
-    private void RunOwtchMain(RoomEnemyOccupant occupant, OwtchSpawnSettings owtchSpawnSettings, RoomEnemyPlace place, OwtchEnemyState state)
+    private void RunOwtchMain(OwtchSpawnSettings owtchSpawnSettings, RoomEnemyPlace place, OwtchEnemyState state)
     {
         switch (state.Behavior)
         {
@@ -178,9 +178,9 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemySpawnFactory<OwtchSpa
     };
 
     /// <summary>Runs Owtch's main AI.</summary>
-    internal void RunOwtchMainAi(RoomEnemyOccupant occupant, OwtchSpawnSettings owtchSpawnSettings, RoomEnemyPlace place, OwtchEnemyState owtchEnemyState)
+    internal void RunOwtchMainAi(OwtchSpawnSettings owtchSpawnSettings, RoomEnemyPlace place, OwtchEnemyState owtchEnemyState)
     {
-        RunOwtchMain(occupant, owtchSpawnSettings, place, owtchEnemyState);
+        RunOwtchMain(owtchSpawnSettings, place, owtchEnemyState);
     }
 
     /// <summary>Advances Owtch's typed animation.</summary>

@@ -19,7 +19,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemySpawnFactory<EnemyS
     /// them as it sets up (<see cref="BeginDraygon"/>).
     /// </summary>
     /// <param name="registrar">The room's registry being composed.</param>
-    public void Register(EnemySpeciesRegistrar registrar)
+    public void OfferCreations(EnemySpeciesRegistrar registrar)
     {
         Ensure.NotNull(registrar).Spawns<EnemySpawnSettings>(Definitions, Create);
         registrar.Joins([EnemyDefinitionId.DraygonEye, EnemyDefinitionId.DraygonTail, EnemyDefinitionId.DraygonArms]);

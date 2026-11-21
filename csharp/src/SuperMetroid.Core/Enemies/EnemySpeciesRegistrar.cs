@@ -13,14 +13,14 @@ internal sealed class EnemySpeciesRegistrar
     internal Dictionary<EnemyDefinitionId, string> Owners { get; } = [];
 
     /// <summary>The species registering now.</summary>
-    private string _registering = string.Empty;
+    private string _offering = string.Empty;
 
     /// <summary>Registers <paramref name="factory"/>'s creations, naming it as their owner.</summary>
     /// <param name="factory">The species.</param>
     internal void Add(IEnemyEntityFactory factory)
     {
-        _registering = Ensure.NotNull(factory).GetType().Name;
-        factory.Register(this);
+        _offering = Ensure.NotNull(factory).GetType().Name;
+        factory.OfferCreations(this);
     }
 
     /// <summary>Registers <paramref name="create"/> as how <paramref name="definitions"/>' enemies are built wherever they are set up.</summary>
@@ -63,7 +63,7 @@ internal sealed class EnemySpeciesRegistrar
             Own(definition);
     }
 
-    /// <summary>Records <paramref name="bind"/> as how <paramref name="definitions"/>' population entries bind.</summary>
+    /// <summary>Records <paramref name="bind"/> as how an enemy of <paramref name="definitions"/> placed in its room is built.</summary>
     private void Place(IReadOnlyList<EnemyDefinitionId> definitions, Func<RoomEnemyPlacement, PopulationEnemySpawn> bind)
     {
         foreach (EnemyDefinitionId definition in Ensure.NotNull(definitions))
@@ -77,8 +77,8 @@ internal sealed class EnemySpeciesRegistrar
     /// <exception cref="InvalidOperationException">Another species owns it.</exception>
     private void Own(EnemyDefinitionId definition)
     {
-        if (!Owners.TryAdd(definition, _registering))
-            throw new InvalidOperationException($"Enemy definition {definition} has two factories: {Owners[definition]} and {_registering}.");
+        if (!Owners.TryAdd(definition, _offering))
+            throw new InvalidOperationException($"Enemy definition {definition} has two factories: {Owners[definition]} and {_offering}.");
     }
 
     /// <summary>The rejection of an entry whose settings are not those its species takes.</summary>

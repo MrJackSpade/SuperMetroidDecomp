@@ -238,31 +238,6 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemySpawnFactory<DragonS
         wing.Position = wing.Position.WithWholeY(wing.Position.Y.Whole + 1);
     }
 
-    /// <summary>
-    /// Runs after a touch, shot or power bomb. A dead part deletes <paramref name="following"/>, the enemy placed after it;
-    /// a surviving part gives that enemy its shake, invincibility, hurt flash, freeze and AI states.
-    /// </summary>
-    private static void ResolveDragonCombatAfterCommon(RoomEnemyPlace actor, RoomEnemyPlace following)
-    {
-        // The follow-up reaches the enemy placed after whichever part was hit: the body's own wing, or,
-        // for a power bomb hitting the intangible wing, the next enemy (FollowUpAfterStruckPart).
-        if (actor.Health == 0)
-        {
-            following.Presence = following.Presence.With(EnemyPresence.Deleted);
-            return;
-        }
-
-        // The wing keeps copies of its body's timers and states rather than reading the body's, as the Ki-Hunter's wings
-        // do (#2375, #2476): the copies are observable. A power bomb hits the wing on its own, and a copied invincibility
-        // never counts down on a wing that ignores Samus, so it keeps every later power bomb off the wing and its
-        // follow-up off the enemy placed after it. Each part also counts its copied freeze and flash down on its own
-        // turn, and the wing's own power-bomb hit sets them on the wing alone.
-        following.Shake.Restart(actor.Shake.UpdatesLeft);
-        following.Invincibility.Restart(actor.Invincibility.UpdatesLeft);
-        following.HurtFlash.Restart(actor.HurtFlash.UpdatesLeft);
-        following.Freeze.Restart(actor.Freeze.UpdatesLeft);
-        following.AiStates = actor.AiStates;
-    }
 
     /// <summary>Starts <paramref name="segment"/>'s animation unless the part already plays it, restarting its frame timer.</summary>
     private static void StartDragonAnimation(RoomEnemyPlace place, DragonPartState state, DragonSegment segment) =>
@@ -274,7 +249,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemySpawnFactory<DragonS
     /// </summary>
     internal static EnemyBombReaction DragonBombReaction(RoomEnemyPlace following) => new()
     {
-        AfterCommon = c => ResolveDragonCombatAfterCommon(c.Enemy, following),
+        AfterCommon = c => EnemyPartnerHits.CarryOnto(c.Enemy, following),
     };
 
     /// <summary>A Dragon fireball (#1760): it arcs under gravity and leaves below the screen.</summary>
@@ -300,7 +275,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemySpawnFactory<DragonS
     /// <summary>Carries a Dragon part's power-bomb hit to <paramref name="following"/>, the enemy its follow-up reaches.</summary>
     internal static EnemyPowerBombReaction DragonPowerBombReaction(RoomEnemyPlace following) => new()
     {
-        AfterCommon = c => ResolveDragonCombatAfterCommon(c.Enemy, following),
+        AfterCommon = c => EnemyPartnerHits.CarryOnto(c.Enemy, following),
     };
 
     /// <summary>
@@ -309,7 +284,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemySpawnFactory<DragonS
     /// </summary>
     internal static EnemyShotReaction DragonShotReaction(RoomEnemyPlace following) => new()
     {
-        AfterCommon = c => ResolveDragonCombatAfterCommon(c.Enemy, following),
+        AfterCommon = c => EnemyPartnerHits.CarryOnto(c.Enemy, following),
     };
 
     /// <summary>
@@ -319,7 +294,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemySpawnFactory<DragonS
     internal void ReactToDragonTouch(EnemyTouchContext context, RoomEnemyPlace following)
     {
         _collision.ResolveOrdinaryTouch(context);
-        ResolveDragonCombatAfterCommon(context.Place, following);
+        EnemyPartnerHits.CarryOnto(context.Place, following);
     }
 
     /// <summary>Spawns and initializes a Dragon fireball.</summary>

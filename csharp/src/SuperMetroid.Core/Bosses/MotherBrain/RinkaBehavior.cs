@@ -69,9 +69,9 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemySpawnFactory<RinkaSpa
 
     /// <summary>Sets a Rinka up when the room spawns it.</summary>
     /// <returns>The state the enemy holds from its setup.</returns>
-    internal RinkaEnemyState InitializeRinka(RoomEnemyOccupant occupant, RinkaSpawnSettings rinkaSpawnSettings, RoomEnemyPlace place)
+    internal RinkaEnemyState InitializeRinka(RinkaSpawnSettings rinkaSpawnSettings, RoomEnemyPlace place)
     {
-        var state = new RinkaEnemyState(RinkaAction.WatchForLeavingViewport, LifeAnimation(occupant, rinkaSpawnSettings), rinkaSpawnSettings);
+        var state = new RinkaEnemyState(RinkaAction.WatchForLeavingViewport, LifeAnimation(rinkaSpawnSettings), rinkaSpawnSettings);
 
         // Every Rinka starts animating and untouchable. Mother Brain's Rinkas also run off-screen and never respawn;
         // an ordinary room Rinka respawns: its death explosion brings it back in its place in the room's listing.
@@ -100,7 +100,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemySpawnFactory<RinkaSpa
         // Both ordinary and Mother Brain variants draw in the Rinka's own colours, which every room placing
         // Rinkas draws them in: their variant's standard colours (#1512, #1599).
         place.Shading = PictureShading.Standard;
-        InitializeRinkaLife(occupant, rinkaSpawnSettings, place, state);
+        InitializeRinkaLife(rinkaSpawnSettings, place, state);
         return state;
     }
 
@@ -114,11 +114,11 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemySpawnFactory<RinkaSpa
         place.Position = state.SharedSpawn is { } shared
             ? place.Position.WithWhole(RinkaSpawnReservations.Centre(shared.SpawnPoint))
             : occupant.Spawn.Placing.Place(place.Position);
-        InitializeRinkaLife(occupant, rinkaSpawnSettings, place, state);
+        InitializeRinkaLife(rinkaSpawnSettings, place, state);
     }
 
     /// <summary>Resets the watch state and animation after initialization or respawn; deletes terminated special actors.</summary>
-    private void InitializeRinkaLife(RoomEnemyOccupant occupant, RinkaSpawnSettings rinkaSpawnSettings, RoomEnemyPlace place, RinkaEnemyState state)
+    private void InitializeRinkaLife(RinkaSpawnSettings rinkaSpawnSettings, RoomEnemyPlace place, RinkaEnemyState state)
     {
         state.Action = RinkaAction.WatchForLeavingViewport;
         state.AimDelay.LastFor(RinkaLifeDefinitions.AimDelayUpdates);
@@ -129,12 +129,12 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemySpawnFactory<RinkaSpa
             place.Presence = place.Presence.With(EnemyPresence.Deleted);
             return;
         }
-        state.Playback = RinkaEnemyState.Starting(LifeAnimation(occupant, rinkaSpawnSettings));
+        state.Playback = RinkaEnemyState.Starting(LifeAnimation(rinkaSpawnSettings));
         place.AnimationClock.Restart();
     }
 
     /// <summary>The animation each of <paramref name="place"/>'s lives starts: a special Rinka's or an ordinary one's.</summary>
-    private static RinkaSegment LifeAnimation(RoomEnemyOccupant occupant, RinkaSpawnSettings rinkaSpawnSettings) =>
+    private static RinkaSegment LifeAnimation(RinkaSpawnSettings rinkaSpawnSettings) =>
         IsSpecialRinka(rinkaSpawnSettings) ? RinkaSegment.KeptRunningOffScreen : RinkaSegment.Ordinary;
 
     /// <summary>True while a door load still owes a special Rinka its spawn choice.</summary>

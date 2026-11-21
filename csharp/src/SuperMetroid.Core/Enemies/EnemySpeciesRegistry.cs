@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
@@ -5,6 +6,7 @@ namespace SuperMetroid.Core.Enemies;
 /// covers every definition its room can bind (<see cref="ForRoom"/>); the population load binds each entry to its
 /// species' creation once, checking the entry's settings against the type that creation takes.
 /// </summary>
+[RoomLifetime]
 internal sealed class EnemySpeciesRegistry
 {
     /// <summary>How each definition a population places binds its entries.</summary>

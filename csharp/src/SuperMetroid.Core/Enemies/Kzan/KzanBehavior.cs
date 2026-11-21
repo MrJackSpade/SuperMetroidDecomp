@@ -10,7 +10,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     /// <summary>A Kzan's top, from its settings, or the bottom that follows it (#2146).</summary>
     /// <param name="registrar">The room's registry being composed.</param>
-    public void Register(EnemySpeciesRegistrar registrar)
+    public void OfferCreations(EnemySpeciesRegistrar registrar)
     {
         Ensure.NotNull(registrar).Spawns<KzanSpawnSettings>([EnemyDefinitionId.KzanTop], (occupant, settings, place, common) =>
             EnemyOccupant.Running(new KzanTopEntity(this, occupant, place, common, settings)));
@@ -67,7 +67,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs the top actor through fall wait, accelerated descent, rise wait, and slow ascent.</summary>
     private void RunKzanTopMain(
-        RoomEnemyOccupant occupant, KzanSpawnSettings kzanSpawnSettings, RoomEnemyPlace place,
+        KzanSpawnSettings kzanSpawnSettings, RoomEnemyPlace place,
         KzanEnemyState state,
         SamusState samus)
     {
@@ -178,8 +178,8 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
             static (_, cue) => throw new InvalidOperationException($"A cue-free Kzan animation raised {cue}."));
 
     /// <summary>Runs KzanTop's main AI.</summary>
-    internal void RunKzanTopMainAi(RoomEnemyOccupant occupant, KzanSpawnSettings kzanSpawnSettings, RoomEnemyPlace place, KzanEnemyState kzanEnemyState, IEnemyAiFrame frame)
+    internal void RunKzanTopMainAi(KzanSpawnSettings kzanSpawnSettings, RoomEnemyPlace place, KzanEnemyState kzanEnemyState, IEnemyAiFrame frame)
     {
-        RunKzanTopMain(occupant, kzanSpawnSettings, place, kzanEnemyState, frame.Samus);
+        RunKzanTopMain(kzanSpawnSettings, place, kzanEnemyState, frame.Samus);
     }
 }

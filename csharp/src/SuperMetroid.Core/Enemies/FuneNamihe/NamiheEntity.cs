@@ -13,11 +13,11 @@ internal sealed class NamiheEntity(FuneNamiheBehavior species, RoomEnemyOccupant
     internal NamiheSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal NamiheEnemyState State { get; } = FuneNamiheBehavior.InitializeNamihe(occupant, settings, place);
+    internal NamiheEnemyState State { get; } = FuneNamiheBehavior.InitializeNamihe(settings, place);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) =>
-        FuneNamiheBehavior.RunNamiheMain(Occupant, Settings, Settings, Place, State, Ensure.NotNull(frame).Samus);
+        FuneNamiheBehavior.RunNamiheMain(Settings, Settings, Place, State, Ensure.NotNull(frame).Samus);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceFuneNamiheTypedAnimation<NamiheEnemyState>(Occupant, Settings, Place, State);

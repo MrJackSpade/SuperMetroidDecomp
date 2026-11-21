@@ -20,7 +20,7 @@ internal static class SbugMovementDefinitionsVerification
         const int activationTable = 0xa3a121;
 
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        Action<RoomEnemyPlace> initialize = fixturePlace => SbugBehavior.InitializeSbug(fixturePlace.HeldOccupant(), fixturePlace);
+        Action<RoomEnemyPlace> initialize = fixturePlace => SbugBehavior.InitializeSbug(fixturePlace);
         Action<RoomEnemyPlace, SamusState> runMain = (fixturePlace, fixtureArg1) => SbugBehavior.RunSbugMain(fixturePlace.HeldOccupant(), fixturePlace, fixtureArg1);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.Bind(EnemyDefinitionId.Sbug, place.KeptDefinition);

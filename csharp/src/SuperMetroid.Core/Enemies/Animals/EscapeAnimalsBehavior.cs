@@ -14,7 +14,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     /// <summary>An escaping Etecoon, from its settings, or the escaping Dachora (#2146).</summary>
     /// <param name="registrar">The room's registry being composed.</param>
-    public void Register(EnemySpeciesRegistrar registrar)
+    public void OfferCreations(EnemySpeciesRegistrar registrar)
     {
         Ensure.NotNull(registrar).Spawns<EscapeEtecoonSpawnSettings>([EnemyDefinitionId.EtecoonEscape], (occupant, settings, place, common) =>
             EnemyOccupant.Running(new EscapeEtecoonEntity(this, occupant, place, common, settings)));

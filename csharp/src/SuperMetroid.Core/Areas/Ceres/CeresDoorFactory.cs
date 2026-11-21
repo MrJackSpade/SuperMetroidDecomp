@@ -21,7 +21,7 @@ internal sealed class CeresDoorFactory(CeresDoorBehavior doors) : IEnemyEntityFa
     /// (<see cref="CreateGetawayChamberWall"/>).
     /// </summary>
     /// <param name="registrar">The room's registry being composed.</param>
-    public void Register(EnemySpeciesRegistrar registrar)
+    public void OfferCreations(EnemySpeciesRegistrar registrar)
     {
         Ensure.NotNull(registrar).Spawns<CeresDoorSpawnSettings>([EnemyDefinitionId.CeresDoor], CreateDoor);
         registrar.Spawns<EnemySpawnSettings>([EnemyDefinitionId.CeresRidleyRoomDoor], (occupant, _, place, common) =>

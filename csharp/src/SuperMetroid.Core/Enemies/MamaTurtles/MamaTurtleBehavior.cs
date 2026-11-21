@@ -17,7 +17,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     /// in her family (#2146, #2554); a baby no mama offered is rejected where it is bound.
     /// </summary>
     /// <param name="registrar">The room's registry being composed.</param>
-    public void Register(EnemySpeciesRegistrar registrar)
+    public void OfferCreations(EnemySpeciesRegistrar registrar)
     {
         Ensure.NotNull(registrar).Spawns<EnemySpawnSettings>([EnemyDefinitionId.MamaTurtle], (occupant, _, place, common) =>
         {
@@ -105,7 +105,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Initializes the Mama Turtle, asleep in her shell.</summary>
+    /// <summary>Initializes the Mama Turtle, resting in her shell.</summary>
     /// <returns>The state the enemy holds from its setup.</returns>
     internal static MamaTurtleEnemyState InitializeMamaTurtle(RoomEnemyPlace place)
     {

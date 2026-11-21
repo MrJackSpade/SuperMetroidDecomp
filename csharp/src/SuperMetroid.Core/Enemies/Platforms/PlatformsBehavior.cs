@@ -27,7 +27,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemySpawnFactory<Plat
     }
 
     /// <summary>Carries out one cue of the platforms' animations: each publishes the horizontal direction main AI moves in.</summary>
-    private static void ApplyPlatformCue(RoomEnemyPlace place, PlatformEnemyState platformEnemyState, PlatformCue cue) =>
+    private static void ApplyPlatformCue(PlatformEnemyState platformEnemyState, PlatformCue cue) =>
         SetPlatformHorizontalMovementFromCue(platformEnemyState, cue.Movement);
 
     /// <summary>
@@ -55,7 +55,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemySpawnFactory<Plat
 
     /// <summary>Runs the Tripper's and the suspensor platform's main AI.</summary>
     private void RunPlatformMain(
-        RoomEnemyOccupant occupant, PlatformSpawnSettings platformSpawnSettings, RoomEnemyPlace place,
+        PlatformSpawnSettings platformSpawnSettings, RoomEnemyPlace place,
         PlatformEnemyState state,
         SamusState samus,
         RoomLevelData level)
@@ -71,7 +71,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemySpawnFactory<Plat
         // The sinking carry measures the horizontal step from the position before it.
         int preHorizontalX = place.Position.X.Whole;
         MovePlatformHorizontally(platformSpawnSettings, place, state, level);
-        MovePlatformVertically(occupant, platformSpawnSettings, place, state, samus, level, movement, preHorizontalX);
+        MovePlatformVertically(platformSpawnSettings, place, state, samus, level, movement, preHorizontalX);
 
         // A newly selected vertical movement restarts the speed curve only after its first update:
         // that update can move by the curve's second mark, and the next starts from the curve's start.
@@ -102,7 +102,6 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemySpawnFactory<Plat
     }
 
     /// <summary>Routes the platform through rise or sink physics and carries a riding Samus by accepted motion.</summary>
-    /// <param name="occupant">The enemy holding <paramref name="place"/>.</param>
     /// <param name="platformSpawnSettings">What the enemy's population entry tells its species.</param>
     /// <param name="place">The platform's place.</param>
     /// <param name="state">The platform's state.</param>
@@ -111,7 +110,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemySpawnFactory<Plat
     /// <param name="movement">The vertical movement this update's rider test chose.</param>
     /// <param name="preHorizontalX">The platform's whole X before this update's horizontal movement.</param>
     private void MovePlatformVertically(
-        RoomEnemyOccupant occupant, PlatformSpawnSettings platformSpawnSettings, RoomEnemyPlace place,
+        PlatformSpawnSettings platformSpawnSettings, RoomEnemyPlace place,
         PlatformEnemyState state,
         SamusState samus,
         RoomLevelData level,
@@ -121,10 +120,10 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemySpawnFactory<Plat
         switch (movement)
         {
             case PlatformVerticalMovement.Rising:
-                RaisePlatform(occupant, platformSpawnSettings, place, state, level);
+                RaisePlatform(platformSpawnSettings, place, state, level);
                 return;
             case PlatformVerticalMovement.Sinking:
-                SinkPlatform(occupant, platformSpawnSettings, place, state, samus, level, preHorizontalX);
+                SinkPlatform(platformSpawnSettings, place, state, samus, level, preHorizontalX);
                 return;
             default:
                 throw new InvalidDataException(
@@ -134,7 +133,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemySpawnFactory<Plat
 
     /// <summary>Returns a depressed platform toward its spawn height, stopping at its resting depth.</summary>
     private void RaisePlatform(
-        RoomEnemyOccupant occupant, PlatformSpawnSettings platformSpawnSettings, RoomEnemyPlace place,
+        PlatformSpawnSettings platformSpawnSettings, RoomEnemyPlace place,
         PlatformEnemyState state,
         RoomLevelData level)
     {
@@ -158,7 +157,6 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemySpawnFactory<Plat
     }
 
     /// <summary>Accelerates a ridden platform downward and publishes its collision-clipped displacement to Samus.</summary>
-    /// <param name="occupant">The enemy holding <paramref name="place"/>.</param>
     /// <param name="platformSpawnSettings">What the enemy's population entry tells its species.</param>
     /// <param name="place">The platform's place.</param>
     /// <param name="state">The platform's state.</param>
@@ -166,7 +164,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemySpawnFactory<Plat
     /// <param name="level">The room's collision data.</param>
     /// <param name="preHorizontalX">The platform's whole X before this update's horizontal movement.</param>
     private void SinkPlatform(
-        RoomEnemyOccupant occupant, PlatformSpawnSettings platformSpawnSettings, RoomEnemyPlace place,
+        PlatformSpawnSettings platformSpawnSettings, RoomEnemyPlace place,
         PlatformEnemyState state,
         SamusState samus,
         RoomLevelData level,
@@ -272,9 +270,9 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemySpawnFactory<Plat
     };
 
     /// <summary>Runs Platforms's main AI.</summary>
-    internal void RunPlatformsMainAi(RoomEnemyOccupant occupant, PlatformSpawnSettings platformSpawnSettings, RoomEnemyPlace place, PlatformEnemyState platformEnemyState, IEnemyAiFrame frame)
+    internal void RunPlatformsMainAi(PlatformSpawnSettings platformSpawnSettings, RoomEnemyPlace place, PlatformEnemyState platformEnemyState, IEnemyAiFrame frame)
     {
-        RunPlatformMain(occupant, platformSpawnSettings, place, platformEnemyState, frame.Samus, frame.Level);
+        RunPlatformMain(platformSpawnSettings, place, platformEnemyState, frame.Samus, frame.Level);
     }
 
     /// <summary>Advances Platforms's typed animation.</summary>
@@ -283,7 +281,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemySpawnFactory<Plat
             static (PlatformEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {
-                ApplyPlatformCue(place, platformEnemyState, cue);
+                ApplyPlatformCue(platformEnemyState, cue);
                 return null;
             });
 

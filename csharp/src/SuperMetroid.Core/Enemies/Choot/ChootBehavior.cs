@@ -34,7 +34,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemySpawnFactory<ChootSpa
 
     /// <summary>Runs the Choot's wait, preparation, jump or fall.</summary>
     private static void RunChootMain(
-        RoomEnemyOccupant occupant, ChootSpawnSettings chootSpawnSettings, RoomEnemyPlace place,
+        ChootSpawnSettings chootSpawnSettings, RoomEnemyPlace place,
         ChootEnemyState state,
         SamusState samus)
     {
@@ -172,8 +172,8 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemySpawnFactory<ChootSpa
     }
 
     /// <summary>Runs Choot's main AI.</summary>
-    internal static void RunChootMainAi(RoomEnemyOccupant occupant, ChootSpawnSettings chootSpawnSettings, RoomEnemyPlace place, ChootEnemyState chootEnemyState, IEnemyAiFrame frame)
+    internal static void RunChootMainAi(ChootSpawnSettings chootSpawnSettings, RoomEnemyPlace place, ChootEnemyState chootEnemyState, IEnemyAiFrame frame)
     {
-        RunChootMain(occupant, chootSpawnSettings, place, chootEnemyState, frame.Samus);
+        RunChootMain(chootSpawnSettings, place, chootEnemyState, frame.Samus);
     }
 }

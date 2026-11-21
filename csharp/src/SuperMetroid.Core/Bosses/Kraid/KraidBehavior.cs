@@ -20,7 +20,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpa
     /// them as it sets up (<see cref="BeginKraid"/>), a respawned fingernail joining it again.
     /// </summary>
     /// <param name="registrar">The room's registry being composed.</param>
-    public void Register(EnemySpeciesRegistrar registrar)
+    public void OfferCreations(EnemySpeciesRegistrar registrar)
     {
         Ensure.NotNull(registrar).Spawns<EnemySpawnSettings>(Definitions, Create);
         registrar.Joins([

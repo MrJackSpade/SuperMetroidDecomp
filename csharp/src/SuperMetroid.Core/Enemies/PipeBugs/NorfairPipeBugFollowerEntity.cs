@@ -14,5 +14,5 @@ internal sealed class NorfairPipeBugFollowerEntity(PipeBugsBehavior species, Roo
     internal NorfairPipeBugSpawnSettings Settings { get; } = settings;
 
     /// <inheritdoc/>
-    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunNorfairPipeBugMainAi(Settings, Place, State, frame);
+    public override void RunMainAi(IEnemyAiFrame frame) => PipeBugsBehavior.RunNorfairPipeBugMainAi(Settings, Place, State, frame);
 }

@@ -21,7 +21,7 @@ internal sealed class GrowingShutterEntity(ShuttersBehavior species, RoomEnemyOc
 
 
     /// <inheritdoc/>
-    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunShutterGrowingMainAi(Occupant, Settings, Place, State, frame);
+    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunShutterGrowingMainAi(Settings, Place, State, frame);
 
     /// <inheritdoc/>
     public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) => ShuttersBehavior.AdvanceShutterGrowingTypedAnimation(Place, State);

@@ -214,8 +214,10 @@ internal sealed class DoorTransitionState
                 // This update sets up the destination's enemy graphics, music, projectiles, block animations,
                 // room objects, FX and backgrounds; each following update moves the door's scroll one step, from
                 // where it stood when loading began, until it finishes.
-                (DoorOpeningSourceView sourceView, RoomScope destination) =
+                DoorDestinationLoad destinationLoad =
                     runtime.RoomLoader.LoadPendingDoorDestinationForTransition(transition.Door, transition.SourceSamus, loaded);
+                DoorOpeningSourceView sourceView = destinationLoad.SourceView;
+                RoomScope destination = destinationLoad.Destination;
                 runtime.LiquidWaveAndStatueDescentOrder.ResumeAfterRoomLoad();
                 // The load re-asserted the door's gates over the destination's enemies:
                 // elevator AI stays frozen through the final colour fade. The destination stays dark until its fade in
@@ -241,6 +243,15 @@ internal sealed class DoorTransitionState
                 stage = new OpeningDoorTransition(scroll, fadeIn);
                 break;
 
+            case DoorTransitionPhase.Inactive:
+            case DoorTransitionPhase.WaitForDoorOpeningScroll:
+            case DoorTransitionPhase.AlignSamusWithDoorway:
+            case DoorTransitionPhase.StepDestinationBlockAnimations:
+            case DoorTransitionPhase.WaitForMusicQueue:
+            case DoorTransitionPhase.FinishDoorOpeningScroll:
+            case DoorTransitionPhase.DrawFirstDestinationFrame:
+            case DoorTransitionPhase.FadeInDestinationRoom:
+            case DoorTransitionPhase.Complete:
             default:
                 throw new InvalidOperationException($"Door transition phase {transition.Phase} does not run before the destination loads.");
         }
@@ -342,6 +353,16 @@ internal sealed class DoorTransitionState
                 }
                 break;
 
+            case DoorTransitionPhase.Inactive:
+            case DoorTransitionPhase.WaitForSoundQueues:
+            case DoorTransitionPhase.FadeOutSourceRoom:
+            case DoorTransitionPhase.BeginDoorDisplay:
+            case DoorTransitionPhase.AlignSourceCamera:
+            case DoorTransitionPhase.DestinationSetupWait:
+            case DoorTransitionPhase.MoveToDoorScrollStart:
+            case DoorTransitionPhase.PlaceSamusInDestination:
+            case DoorTransitionPhase.LoadDestinationRoom:
+            case DoorTransitionPhase.Complete:
             default:
                 throw new InvalidOperationException($"Door transition phase {transition.Phase} does not run once the destination has loaded.");
         }

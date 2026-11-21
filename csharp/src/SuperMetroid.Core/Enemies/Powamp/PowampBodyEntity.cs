@@ -22,7 +22,7 @@ internal sealed class PowampBodyEntity(PowampBehavior species, RoomEnemyOccupant
     internal PowampBodyState State { get; } = PowampBehavior.InitializePowampBody(place);
 
     /// <summary>The body's own shot reaction, built for this occupant with its state and balloon.</summary>
-    private EnemyShotReaction OwnShot => field ??= PowampBehavior.PowampBodyShotReaction(Occupant, Settings, State, Balloon.Place);
+    private EnemyShotReaction OwnShot => field ??= PowampBehavior.PowampBodyShotReaction(Settings, State, Balloon.Place);
 
     /// <summary>The body's own bomb reaction, built for this occupant with its state and balloon.</summary>
     private EnemyBombReaction OwnBomb => field ??= PowampBehavior.PowampBodyBombReaction(State, Balloon.Place);

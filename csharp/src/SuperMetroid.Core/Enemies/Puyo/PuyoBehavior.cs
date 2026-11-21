@@ -57,7 +57,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemySpawnFactory<PuyoSpawn
 
     /// <summary>Runs a Puyo for one update and its top-level actions.</summary>
     private void RunPuyoMain(
-        RoomEnemyOccupant occupant, PuyoSpawnSettings puyoSpawnSettings, RoomEnemyPlace place,
+        PuyoSpawnSettings puyoSpawnSettings, RoomEnemyPlace place,
         PuyoEnemyState state,
         SamusState samus,
         RoomLevelData level)
@@ -65,7 +65,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemySpawnFactory<PuyoSpawn
         switch (state.Action)
         {
             case PuyoAction.Grounded:
-                RunGroundedPuyo(occupant, puyoSpawnSettings, place, state, samus);
+                RunGroundedPuyo(puyoSpawnSettings, place, state, samus);
                 return;
             case PuyoAction.Rising or PuyoAction.Falling:
                 RunAirbornePuyo(place, state, level);
@@ -77,7 +77,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemySpawnFactory<PuyoSpawn
     }
 
     /// <summary>Runs the grounded Puyo.</summary>
-    private void RunGroundedPuyo(RoomEnemyOccupant occupant, PuyoSpawnSettings puyoSpawnSettings, RoomEnemyPlace place, PuyoEnemyState state, SamusState samus)
+    private void RunGroundedPuyo(PuyoSpawnSettings puyoSpawnSettings, RoomEnemyPlace place, PuyoEnemyState state, SamusState samus)
     {
         // A placement's cooldown of N keeps the Puyo grounded for N updates and it hops on the next, so a zero cooldown hops
         // at once.
@@ -367,8 +367,8 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemySpawnFactory<PuyoSpawn
             static (_, cue) => throw new InvalidOperationException($"Puyo's cue-free animation raised {cue}."));
 
     /// <summary>Runs Puyo's main AI.</summary>
-    internal void RunPuyoMainAi(RoomEnemyOccupant occupant, PuyoSpawnSettings puyoSpawnSettings, RoomEnemyPlace place, PuyoEnemyState puyoEnemyState, IEnemyAiFrame frame)
+    internal void RunPuyoMainAi(PuyoSpawnSettings puyoSpawnSettings, RoomEnemyPlace place, PuyoEnemyState puyoEnemyState, IEnemyAiFrame frame)
     {
-        RunPuyoMain(occupant, puyoSpawnSettings, place, puyoEnemyState, frame.Samus, frame.Level);
+        RunPuyoMain(puyoSpawnSettings, place, puyoEnemyState, frame.Samus, frame.Level);
     }
 }

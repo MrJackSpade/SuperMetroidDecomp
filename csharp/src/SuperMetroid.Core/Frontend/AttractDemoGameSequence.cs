@@ -51,6 +51,9 @@ internal sealed class AttractDemoGameSequence(FrontendSession session) : IFronte
             case AttractDemoStep.Playing:
                 Play(controllerInput, live);
                 break;
+            case AttractDemoStep.Loading:
+            case AttractDemoStep.Unloading:
+            case AttractDemoStep.Routing:
             default:
                 throw new InvalidOperationException($"The attract demo's {session.AttractDemoStep} runs without its room.");
         }
@@ -84,6 +87,8 @@ internal sealed class AttractDemoGameSequence(FrontendSession session) : IFronte
             case AttractDemoStep.Routing:
                 Route();
                 break;
+            case AttractDemoStep.Starting:
+            case AttractDemoStep.Playing:
             default:
                 throw new InvalidOperationException($"Undefined {nameof(AttractDemoStep)} {session.AttractDemoStep}.");
         }

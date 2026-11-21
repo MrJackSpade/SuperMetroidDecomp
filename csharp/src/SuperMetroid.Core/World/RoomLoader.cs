@@ -178,8 +178,18 @@ internal sealed class RoomLoader
             room,
             station.Placement.CameraPosition,
             RoomViewportLoadMode.DisplayInitialViewport,
-            new RoomEntry { LoadStation = station });
+            // The Ceres start places Samus at the station's X at the room's top (InitializeCeresStartSamus), where the
+            // elevator's arrival, built with the room, carries her down from.
+            new RoomEntry
+            {
+                LoadStation = station,
+                CeresElevatorArrival = new CeresElevatorArrivalState(CeresStartSamusPosition(station)),
+            });
     }
+
+    /// <summary>Where the Ceres start places Samus: at <paramref name="station"/>'s X, at the room's top.</summary>
+    private static Position16<RoomPixels> CeresStartSamusPosition(LoadStation station) =>
+        station.Placement.SamusPosition.WithY(0);
 
     /// <summary>
     /// Restores an existing save slot at its area's load station and
@@ -715,7 +725,7 @@ internal sealed class RoomLoader
             outgoing.Projectiles.HandOverTo(_room.HandOver);
             outgoing.Enemies.HandOverTo(_room.HandOver);
         }
-        RoomScopeConstruction scope = _room.BeginConstruction(door, room, assets, entry.LoadStation);
+        RoomScopeConstruction scope = _room.BeginConstruction(door, room, assets, entry.LoadStation, entry.CeresElevatorArrival);
         // The room's block animations: those the door-selected effect lists, and the treadmill a door's setup may start.
         var blockAnimations = new RoomBlockAnimations(room.State.Fx, door);
         scope.BlockAnimations = blockAnimations;
@@ -1078,7 +1088,7 @@ internal sealed class RoomLoader
 
         SamusState samus = InitializeSamus();
         samus.PlaceInPose(SamusPoseId.ForwardFacingPowerSuitPose);
-        samus.Position = FixedPosition<RoomPixels>.FromWhole(station.Placement.SamusPosition.WithY(0));
+        samus.Position = FixedPosition<RoomPixels>.FromWhole(CeresStartSamusPosition(station));
         _player.Samus = samus;
         SuperMetroid.Core.Samus.Colours.SamusSuitShade.ShowPower(_player.Colours);
         _assists.GrantLoadoutToNewSamus(samus);
@@ -1088,9 +1098,8 @@ internal sealed class RoomLoader
         _player.Samus.Ground = SamusGround.Of(room.Definition);
         _player.PreviousMovementTypeForXray = SamusPoseMetadata.ReadMovementType(_player.Samus);
 
-        // The Ceres elevator's arrival owns its own state from the first draw, the concealer over the room's level drawn in
-        // the room's own colours.
-        _room.LoadedScope.BeginCeresElevatorArrival(new CeresElevatorArrivalState(_player.Samus));
+        // The Ceres elevator's arrival, built with the room, owns its own state from the first draw, the concealer over the
+        // room's level drawn in the room's own colours.
 
         // The locked Ceres start's frame publishes the initial minimap itself, so the HUD shows Ceres's room from the
         // descent's first frame; later frames keep updating it.

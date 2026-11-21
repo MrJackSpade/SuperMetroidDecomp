@@ -19,20 +19,22 @@ public sealed class CeresElevatorArrivalState : SuperMetroid.Core.Enemies.IActor
     /// <summary>The stationary platform, which waits behind the pad until Samus lands.</summary>
     private readonly CeresElevatorArrivalActor platform;
 
-    /// <summary>Starts the pad under Samus, waiting before it moves, and the platform at its fixed height below her.</summary>
-    public CeresElevatorArrivalState(SamusState samus)
+    /// <summary>
+    /// Starts the pad under Samus's starting place, <paramref name="samusStart"/>, waiting before it moves, and the platform at
+    /// its fixed height below her.
+    /// </summary>
+    /// <param name="samusStart">Where the Ceres start places Samus: at the load station's X, at the room's top.</param>
+    public CeresElevatorArrivalState(Position16<RoomPixels> samusStart)
     {
-        Ensure.NotNull(samus);
-
         // Both actors show the shared sheet's pictures in the colours their frames author, with the concealer cleared to
         // black (CeresElevatorArrivalDefinitions.StartingGraphics).
         pad = new CeresElevatorPad(CreateActor(
             CeresElevatorArrivalSegment.Pad,
-            MovingPadUnder(samus)));
+            MovingPadUnder(samusStart)));
 
         platform = CreateActor(
             CeresElevatorArrivalSegment.Platform,
-            samus.Position.Whole.WithY(CeresElevatorArrivalDefinitions.StationaryPlatformY));
+            samusStart.WithY(CeresElevatorArrivalDefinitions.StationaryPlatformY));
     }
 
     /// <summary>True after both actors leave, once Samus has landed at <see cref="CeresElevatorArrivalDefinitions.LandingSamusY"/>.</summary>
@@ -76,7 +78,7 @@ public sealed class CeresElevatorArrivalState : SuperMetroid.Core.Enemies.IActor
             return false;
         // The descent samples the old Samus position for the pad, then increments
         // Samus. That one-pixel separation is visible throughout the descent.
-        pad.Actor.Position = pad.Actor.Position.WithY(MovingPadUnder(samus).Y);
+        pad.Actor.Position = pad.Actor.Position.WithY(MovingPadUnder(samus.Position.Whole).Y);
         samus.Position += CeresElevatorArrivalDefinitions.SamusDescentStep;
         // Samus starts the descent at the room's top and moves down a pixel an update, so she reaches the landing
         // threshold from above.
@@ -101,8 +103,8 @@ public sealed class CeresElevatorArrivalState : SuperMetroid.Core.Enemies.IActor
     }
 
     /// <summary>The moving pad's position: Samus's whole position, <see cref="CeresElevatorArrivalDefinitions.MovingPadYOffset"/> lower.</summary>
-    private static Position16<RoomPixels> MovingPadUnder(SamusState samus) =>
-        samus.Position.Whole + new Offset16<RoomPixels>(0, CeresElevatorArrivalDefinitions.MovingPadYOffset);
+    private static Position16<RoomPixels> MovingPadUnder(Position16<RoomPixels> samus) =>
+        samus + new Offset16<RoomPixels>(0, CeresElevatorArrivalDefinitions.MovingPadYOffset);
 
     /// <summary>Creates one arrival actor playing the animation of <paramref name="segment"/> at its room position.</summary>
     private static CeresElevatorArrivalActor CreateActor(

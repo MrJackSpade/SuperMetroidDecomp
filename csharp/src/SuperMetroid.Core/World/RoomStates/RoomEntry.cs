@@ -19,4 +19,7 @@ internal readonly record struct RoomEntry
 
     /// <summary>The load station the room is entered at; null for a room entered otherwise.</summary>
     public LoadStation? LoadStation { get; init; }
+
+    /// <summary>The Ceres elevator's arrival the Ceres start's room is built with (#2553); null for every other entry.</summary>
+    public SuperMetroid.Core.Areas.Ceres.CeresElevatorArrivalState? CeresElevatorArrival { get; init; }
 }

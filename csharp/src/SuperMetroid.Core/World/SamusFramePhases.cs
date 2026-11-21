@@ -6,6 +6,7 @@ using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Abilities;
+using SuperMetroid.Core.Samus.Death;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Hud;
 using SuperMetroid.Core.Samus.Movement;
@@ -483,11 +484,12 @@ internal sealed class SamusFramePhases
     }
 
     /// <summary>Runs Samus's movement while <see cref="SamusMovementOwner.CrystalFlash"/> holds it.</summary>
-    private void RunCrystalFlash(SamusControlFrame frame, SamusState samus, RoomScope room)
+    private void RunCrystalFlash(SamusControlFrame frame, SamusState samus, RoomScope room, CrystalFlashPhase.Moving moving)
     {
         _player.ClearProspectivePoses();
         frame.Record(samus.CrystalFlash.Step(
             samus,
+            moving,
             _clock.Counter));
         if (frame.CrystalFlashMovement is { BubbleStarted: true })
         {
@@ -606,11 +608,11 @@ internal sealed class SamusFramePhases
         // with a lock that moves her not at all. Once Samus's control is restored to normal movement, Flash resumes
         // under the drained pose. The Super Metroid never locks her movement so, and its interruption continues Flash
         // at once.
-        if (samus.CrystalFlash.Phase is not CrystalFlashPhase.Inactive &&
+        if (samus.CrystalFlash.Phase is CrystalFlashPhase.Moving crystalFlash &&
             !(samus.Drained.Phase == DrainedSamusPhase.RainbowBeamLocked && samus.Control.InputLocked))
         {
             frame.SampleMovementOwner(SamusMovementOwner.CrystalFlash);
-            RunCrystalFlash(frame, samus, room);
+            RunCrystalFlash(frame, samus, room, crystalFlash);
             return;
         }
         // The drain's operations install special-movement-type poses that do not move Samus.
@@ -870,10 +872,12 @@ internal sealed class SamusFramePhases
         // Animation sees the same held input as movement. The dash action both
         // builds up the running delay and holds the running animation at its
         // cue; passing a reconstructed input later would show the wrong frames.
-        if (frame.Mode.Movement == SamusMovementMode.Fatal)
+        // Death holds her movement in its fatal mode while her death sequence runs.
+        if (samus.DeathSequence.Phase is SamusDeathSequencePhase.Begun dying)
         {
             frame.Record(samus.DeathSequence.Step(
                 samus,
+                dying,
                 _player.Colours,
                 samus.Artwork.Body.DeathSteps));
         }

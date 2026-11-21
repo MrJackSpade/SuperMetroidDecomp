@@ -211,7 +211,7 @@ internal sealed class DoorTransitionState
                 // room state here; deferring them to the first ordinary gameplay frame
                 // exposes the room as it was before they ran.
                 runtime.Player.Colours.ShowVisor(SuperMetroid.Core.Samus.Colours.SamusShades.DoorCompletionVisor);
-                runtime.DoorFade.DoorOpened();
+                runtime.DoorFade.DoorOpened(transition.FadeSteps);
                 RoomObjectFramePhase.RunRoomObjectsForDoor(runtime.Room.LoadedScope, samus);
                 transition.Enter(new DoorTransitionPhase.Running.AlignSamusWithDoorway());
             }

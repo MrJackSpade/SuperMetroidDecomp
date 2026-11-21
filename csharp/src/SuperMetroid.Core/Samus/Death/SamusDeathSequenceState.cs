@@ -124,16 +124,20 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
     /// is shown by selecting its frame (<see cref="ExplosionFrame"/>), a whole coloured picture, on the update the game
     /// shows it.
     /// </summary>
+    /// <param name="samus">Samus, dying.</param>
+    /// <param name="begun">The phase her begun death sequence is in, its current <see cref="Phase"/>.</param>
+    /// <param name="samusColours">Samus's colours, which show her death shades and the white-out.</param>
+    /// <param name="artwork">The death sequence's pictures.</param>
     public SamusDeathSequenceStepResult Step(
         SamusState samus,
+        SamusDeathSequencePhase.Begun begun,
         SamusColours samusColours,
         SamusDeathSteps artwork)
     {
         Ensure.NotNull(samus);
+        Ensure.NotNull(begun);
         Ensure.NotNull(samusColours);
         Ensure.NotNull(artwork);
-        if (Phase is not SamusDeathSequencePhase.Begun begun)
-            throw new InvalidOperationException("Samus death sequence has not begun.");
 
         SamusDeathDraw draws = SamusDeathDraw.Nothing;
 

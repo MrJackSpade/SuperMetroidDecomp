@@ -129,8 +129,8 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>
     /// Finds where the hop's rise starts on the speed curve: stepping from the curve's start by the hop's launch search step,
     /// the first place at which the coarse speeds (<see cref="QuadraticCurveSpeed"/>) of the places passed sum past the hop's
-    /// height. The rise's half and three-quarter places, which pace its poses, are shares of that place. Every hop's search
-    /// steps past the curve's start, as its definition requires; one that runs off the curve fails when its speed is read.
+    /// height. The rise's half and three-quarter places, which pace its poses, are shares of that place. Every hop a Puyo
+    /// launches rises, and its search steps past the curve's start; one that runs off the curve fails when its speed is read.
     /// </summary>
     /// <exception cref="InvalidDataException">The hop's search runs off the curve.</exception>
     private static void CalculateInitialPuyoHopSpeed(PuyoEnemyState state)

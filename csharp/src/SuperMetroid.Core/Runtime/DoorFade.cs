@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Samus.Colours;
@@ -21,12 +20,8 @@ internal sealed class DoorFade(SamusColours samusColours) : IGameplayShadingSour
     /// <summary>Samus's colours, whose beams' shade the fade in keeps lit.</summary>
     private readonly SamusColours samusColours = Ensure.NotNull(samusColours);
 
-
     /// <summary>Whether the door leads from one common room into another, which keeps more of the HUD lit.</summary>
     private bool betweenCommonRooms;
-
-    /// <summary>Whether the door has opened in the room being entered, which keeps Samus's visor lit through the fade in.</summary>
-    private bool doorOpened;
 
     /// <summary>Where the fade is.</summary>
     private DoorFadeStage Stage { get; set; } = DoorFadeStage.None;
@@ -37,39 +32,20 @@ internal sealed class DoorFade(SamusColours samusColours) : IGameplayShadingSour
     internal void FadeOut(GradualFadeSteps fade, bool commonRooms)
     {
         betweenCommonRooms = commonRooms;
-        doorOpened = false;
-        Stage = new DoorFadeStage.FadingOut(Ensure.NotNull(fade));
-    }
-
-    /// <summary>
-    /// The door has opened in the room being entered: Samus's visor shows the door's completion green, which the fade in
-    /// keeps lit from now on.
-    /// </summary>
-    /// <exception cref="InvalidOperationException">The room being entered is not fading in.</exception>
-    internal void DoorOpened()
-    {
-        if (Stage is not DoorFadeStage.FadingIn)
-            throw new InvalidOperationException($"A door opens while its room fades in, not while {Stage}.");
-        doorOpened = true;
+        Stage = new DoorFadeStage.FadingOut(fade);
     }
 
     /// <summary>Keeps the faded-out room dark while the door loads and scrolls.</summary>
-    /// <exception cref="InvalidOperationException">No room is fading out.</exception>
-    internal void Darken()
-    {
-        if (Stage is not DoorFadeStage.FadingOut fadingOut)
-            throw new InvalidOperationException($"A door darkens once its room has faded out, not while {Stage}.");
-        Stage = new DoorFadeStage.Dark(fadingOut.Steps);
-    }
+    internal void Darken() => Stage = new DoorFadeStage.Dark();
 
     /// <summary>Starts the room being entered fading in over <paramref name="fade"/>'s steps.</summary>
-    /// <exception cref="InvalidOperationException">The room being left has not faded out.</exception>
-    internal void FadeIn(GradualFadeSteps fade)
-    {
-        if (Stage is not DoorFadeStage.Dark)
-            throw new InvalidOperationException($"A door fades its room in once the room it left is dark, not while {Stage}.");
-        Stage = new DoorFadeStage.FadingIn(Ensure.NotNull(fade));
-    }
+    internal void FadeIn(GradualFadeSteps fade) => Stage = new DoorFadeStage.FadingIn(fade);
+
+    /// <summary>
+    /// The door has opened in the room being entered, whose fade in goes on over <paramref name="fade"/>'s steps: Samus's
+    /// visor shows the door's completion green, which the fade in keeps lit from now on.
+    /// </summary>
+    internal void DoorOpened(GradualFadeSteps fade) => Stage = new DoorFadeStage.FadingInDoorOpen(fade);
 
     /// <summary>Ends the fade: the room entered shows its own colours.</summary>
     internal void End() => Stage = DoorFadeStage.None;
@@ -80,20 +56,10 @@ internal sealed class DoorFade(SamusColours samusColours) : IGameplayShadingSour
         Ensure.NotNull(frame);
         if (Stage is not DoorFadeStage.Running running)
             return;
-        frame.Fade(new GameplayDisplayFade(running.DisplayEffect, GameplayFadeSpares.Hud, LitOnSamus()));
+        frame.Fade(new GameplayDisplayFade(running.DisplayEffect, GameplayFadeSpares.Hud, running.LitOnSamus(samusColours)));
         // The HUD and the escape timer fade between their own colours and their dark shades, which keep their lit colours,
         // as far as the display's fade has come (#2289).
         running.Shade(frame, GameplayPictures.Hud, betweenCommonRooms ? DoorFadeShades.HudDarkBetweenCommonRooms : DoorFadeShades.HudDark);
         running.Shade(frame, GameplayPictures.EscapeTimer, DoorFadeShades.EscapeTimerDark);
     }
-
-    /// <summary>
-    /// Samus's shades the fade keeps lit at its stage: none while the room being left fades out or stays dark; her beams'
-    /// through the fade in, which the room's load starts, and her visor's door-completion green after them once the door
-    /// has opened.
-    /// </summary>
-    private ImmutableArray<PictureShade> LitOnSamus() => Stage is not DoorFadeStage.FadingIn ? []
-        : doorOpened ? [samusColours.Beams, SamusShades.DoorCompletionVisor]
-        : [samusColours.Beams];
-
 }

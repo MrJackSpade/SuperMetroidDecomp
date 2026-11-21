@@ -211,12 +211,12 @@ internal sealed class TorizoAttacks
             [TorizoProjectileCueKind.MayTurnToSmoke] = static context => context.Projectiles.TakeRandomAnimationChange() ? TorizoProjectileAnimations.ContinueWith(TorizoProjectileSegment.DeathSmoke) : null,
             [TorizoProjectileCueKind.AimSuperMissileTowardSamus] = static context =>
             {
-                SetGoldenTorizoSuperMissileVelocity(context.Projectile, context.Samus, awayFromSamus: false);
+                SetGoldenTorizoSuperMissileVelocity(context.Projectile, context.Samus, HorizontalDirection.Right);
                 return null;
             },
             [TorizoProjectileCueKind.AimSuperMissileAwayFromSamus] = static context =>
             {
-                SetGoldenTorizoSuperMissileVelocity(context.Projectile, context.Samus, awayFromSamus: true);
+                SetGoldenTorizoSuperMissileVelocity(context.Projectile, context.Samus, HorizontalDirection.Left);
                 return null;
             },
             [TorizoProjectileCueKind.SpawnOrbDrops] = static context =>
@@ -794,13 +794,18 @@ internal sealed class TorizoAttacks
     }
 
     /// <summary>Throws the missile toward or away from Samus.</summary>
+    /// <param name="projectile">The missile.</param>
+    /// <param name="samus">Samus, whom the throw aims by.</param>
+    /// <param name="half">
+    /// The half turn the throw's angle is taken into: the right half throws it toward Samus, the left half away from her.
+    /// </param>
     internal static void SetGoldenTorizoSuperMissileVelocity(
         EnemyProjectile projectile,
         SamusState samus,
-        bool awayFromSamus)
+        HorizontalDirection half)
     {
         TrigonometryAngle aim = EnemyMath.CalculateAimAngle(samus.Position.Whole - projectile.Position.Whole);
-        TrigonometryAngle angle = aim.InHalfTurnToward(awayFromSamus ? HorizontalDirection.Left : HorizontalDirection.Right);
+        TrigonometryAngle angle = aim.InHalfTurnToward(half);
 
         // The missile's X speed follows the angle's cosine and its Y speed its negative sine.
         projectile.Velocity = new(

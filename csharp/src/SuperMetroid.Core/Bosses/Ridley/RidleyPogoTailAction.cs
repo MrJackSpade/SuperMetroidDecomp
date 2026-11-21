@@ -8,43 +8,37 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// One step of Ridley's pogo tail (#2553): its setup's swing down, pointing down, the bouncing pogo, the readied stab and
 /// the stab. Each step says whether it points the tail and how fast, whether it readies a stab, and the step that follows.
 /// </summary>
-public sealed class RidleyPogoTailAction : RidleyTailAction
+public sealed class RidleyPogoTailAction : RidleySteeredTailAction
 {
-    /// <summary>
-    /// The step after this one, from this step, whether a link still moves and whether the links rest while Ridley falls.
-    /// </summary>
-    private readonly Func<RidleyPogoTailAction, bool, bool, RidleyPogoTailAction> _after;
+    /// <summary>The step after this one, from this step and how the tail has settled.</summary>
+    private readonly Func<RidleyPogoTailAction, RidleyPogoTailSettling, RidleyPogoTailAction> _after;
 
     /// <summary>A pogo step.</summary>
     /// <param name="name">The step's name, for diagnostics.</param>
     /// <param name="pointedSwing">How fast the step points the tail down, or null for a step that does not.</param>
-    /// <param name="readiesStab">Whether the step readies the stab, extending the tail once its links rest while Ridley falls.</param>
-    /// <param name="after">
-    /// The step after this one, from this step, whether a link still moves and whether the links rest while Ridley falls.
-    /// </param>
-    private RidleyPogoTailAction(string name, RidleyTailTurn? pointedSwing, bool readiesStab, Func<RidleyPogoTailAction, bool, bool, RidleyPogoTailAction> after)
+    /// <param name="after">The step after this one, from this step and how the tail has settled.</param>
+    private RidleyPogoTailAction(string name, RidleyTailTurn? pointedSwing, Func<RidleyPogoTailAction, RidleyPogoTailSettling, RidleyPogoTailAction> after)
         : base(name)
     {
         PointedSwing = pointedSwing;
-        ReadiesStab = readiesStab;
         _after = after;
     }
 
     /// <summary>Builds the steps, each after the steps it goes on to.</summary>
     static RidleyPogoTailAction()
     {
-        Stabbing = new(nameof(Stab), RidleyTailDefinitions.StabSwing, readiesStab: false, static (self, _, _) => self);
+        Stabbing = new(nameof(Stab), RidleyTailDefinitions.StabSwing, static (self, _) => self);
         RidleyPogoTailAction stabbing = Stabbing;
-        ReadyingStab = new(nameof(StabSetup), pointedSwing: null, readiesStab: true,
-            (self, _, restsWhileFalling) => restsWhileFalling ? stabbing : self);
+        ReadyingStab = new(nameof(StabSetup), pointedSwing: null,
+            (self, settling) => settling.RestsWhileFalling ? stabbing : self);
         RidleyPogoTailAction readyingStab = ReadyingStab;
-        Bouncing = new(nameof(Pogo), pointedSwing: null, readiesStab: false,
-            (self, _, restsWhileFalling) => restsWhileFalling ? readyingStab : self);
+        Bouncing = new(nameof(Pogo), pointedSwing: null,
+            (self, settling) => settling.RestsWhileFalling ? readyingStab : self);
         RidleyPogoTailAction bouncing = Bouncing;
-        PointingDown = new(nameof(PointDown), RidleyTailDefinitions.WhipSwing, readiesStab: false,
-            (self, linkMoves, _) => linkMoves ? self : bouncing);
+        PointingDown = new(nameof(PointDown), RidleyTailDefinitions.WhipSwing,
+            (self, settling) => settling.LinkMoves ? self : bouncing);
         RidleyPogoTailAction pointingDown = PointingDown;
-        Setup = new(nameof(PogoSetup), RidleyTailDefinitions.WhipSwing, readiesStab: false, (_, _, _) => pointingDown);
+        Setup = new(nameof(PogoSetup), RidleyTailDefinitions.WhipSwing, (_, _) => pointingDown);
     }
 
     /// <summary>The tail swings down for the pogo, then points down.</summary>
@@ -66,12 +60,10 @@ public sealed class RidleyPogoTailAction : RidleyTailAction
     internal RidleyTailTurn? PointedSwing { get; }
 
     /// <summary>Whether the step readies the stab, extending the tail once its links rest while Ridley falls.</summary>
-    internal bool ReadiesStab { get; }
+    internal bool ReadiesStab => this == ReadyingStab;
 
-    /// <summary>The step after this one.</summary>
-    /// <param name="linkMoves">Whether a link of the tail still moves after this update.</param>
-    /// <param name="restsWhileFalling">Whether every link rests while Ridley falls or hangs still.</param>
-    internal RidleyPogoTailAction After(bool linkMoves, bool restsWhileFalling) => _after(this, linkMoves, restsWhileFalling);
+    /// <summary>The step after this one, once the tail has settled as <paramref name="settling"/> says.</summary>
+    internal RidleyPogoTailAction After(RidleyPogoTailSettling settling) => _after(this, settling);
 
     /// <inheritdoc/>
     internal override void Steer(RidleyTail tail, RoomEnemyPlace place, RidleyEncounterState state, SamusState samus, SamusProjectileSystem samusProjectiles) =>

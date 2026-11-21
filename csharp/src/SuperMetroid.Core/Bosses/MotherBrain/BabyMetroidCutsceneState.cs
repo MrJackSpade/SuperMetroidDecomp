@@ -47,9 +47,9 @@ public sealed class BabyMetroidCutsceneState
     /// <summary>How far the Baby's hit area reaches above and below its center: 36 room pixels.</summary>
     public const int YHitboxRadius = 36;
 
-    /// <summary>The entrance's current phase.</summary>
-    public BabyMetroidCutscenePhase Phase { get; private set; } =
-        new BabyMetroidCutscenePhase.Inactive();
+    /// <summary>The entrance's current phase, from the dash onto the screen its arrival starts.</summary>
+    public BabyMetroidCutscenePhase.Flying Phase { get; private set; } =
+        new BabyMetroidCutscenePhase.Flying.DashOntoScreen();
 
     /// <summary>
     /// Whether the onion-ring hit flash shows the shared white colours this update instead of
@@ -153,8 +153,11 @@ public sealed class BabyMetroidCutsceneState
     /// <summary>Which of the two rainbow colour cycles Samus currently shows.</summary>
     public BabyMetroidSamusRainbowPhase SamusRainbowPhase { get; private set; }
 
-    /// <summary>True once the Baby has deleted itself at the end of the cutscene (<see cref="BabyMetroidCutscenePhase.Deleted"/>).</summary>
-    public bool IsDeleted => Phase is BabyMetroidCutscenePhase.Deleted;
+    /// <summary>
+    /// True once the Baby has deleted itself at the end of <see cref="BabyMetroidCutscenePhase.Flying.FinalCutscene"/>: the
+    /// cutscene is over, the room frees its place, and Mother Brain's rings no longer look for it. It never steps again.
+    /// </summary>
+    public bool IsDeleted { get; private set; }
 
     /// <summary>
     /// Initializes the Baby. Its place keeps how it meets Samus, what the room runs for it and whether it is drawn
@@ -202,10 +205,7 @@ public sealed class BabyMetroidCutsceneState
         int randomNumber)
     {
         Ensure.NotNull(samus);
-        if (Phase is not BabyMetroidCutscenePhase.Flying)
-            throw new InvalidOperationException($"The cutscene Baby Metroid flies only between its initialization and its deletion, not while {Phase}.");
-
-        BabyMetroidCutscenePhase phaseBefore = Phase;
+        BabyMetroidCutscenePhase.Flying phaseBefore = Phase;
         bool brainCollision;
 
         bool latchSoundQueued = false;
@@ -648,7 +648,7 @@ public sealed class BabyMetroidCutsceneState
                 LateFight.BeginPhase3RecoveryFromBabyCutscene();
                 samus.Drained.DisableRainbowAndStartStandingAnimation(samus);
                 samus.Drained.EnableHyperBeam(samus);
-                Phase = new BabyMetroidCutscenePhase.Deleted();
+                IsDeleted = true;
                 break;
             }
         }
@@ -665,6 +665,7 @@ public sealed class BabyMetroidCutsceneState
         return new BabyMetroidCutsceneStepResult(
             phaseBefore,
             Phase,
+            IsDeleted,
             latchSoundQueued,
             releaseDustClouds.ToArray(),
             ambientCrySoundQueued,

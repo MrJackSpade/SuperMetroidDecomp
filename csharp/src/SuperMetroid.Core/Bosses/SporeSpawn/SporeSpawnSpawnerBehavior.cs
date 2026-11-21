@@ -44,17 +44,15 @@ internal sealed class SporeSpawnSpawnerBehavior(EnemyRoomBinding room, EnemyProj
             SporeSpawnEmitterState emitter = Emitters.Of(spawner);
             SpawnSporeSpawnSpore(spawner.Position.Whole, emitter.Drift, emitter.SporeSpawn);
         },
-        [SporeSpawnProjectileCue.SetImpactProperties] = (context, cue) => RunCueForSporeSpawnProjectileCueSetImpactProperties(context, cue),
-        [SporeSpawnProjectileCue.QueueKilledSound] = (context, cue) => RunCueForSporeSpawnProjectileCueSetImpactProperties(context, cue),
-        [SporeSpawnProjectileCue.RequestDrop] = (context, cue) => RunCueForSporeSpawnProjectileCueSetImpactProperties(context, cue),
-        [SporeSpawnProjectileCue.Delete] = (context, cue) => RunCueForSporeSpawnProjectileCueSetImpactProperties(context, cue),
+        [SporeSpawnProjectileCue.SetImpactProperties] = (_, cue) => RefuseSporeCue(cue),
+        [SporeSpawnProjectileCue.QueueKilledSound] = (_, cue) => RefuseSporeCue(cue),
+        [SporeSpawnProjectileCue.RequestDrop] = (_, cue) => RefuseSporeCue(cue),
+        [SporeSpawnProjectileCue.Delete] = (_, cue) => RefuseSporeCue(cue),
     });
 
     /// <summary>What <see cref="RunCueForSporeSpawnProjectileCue"/> does for <see cref="SporeSpawnProjectileCue.SetImpactProperties"/>, <see cref="SporeSpawnProjectileCue.QueueKilledSound"/>, <see cref="SporeSpawnProjectileCue.RequestDrop"/>, <see cref="SporeSpawnProjectileCue.Delete"/>.</summary>
-    private void RunCueForSporeSpawnProjectileCueSetImpactProperties(EnemyProjectileCueContext context, SporeSpawnProjectileCue cue)
-    {
+    private static void RefuseSporeCue(SporeSpawnProjectileCue cue) =>
         throw new InvalidOperationException($"A ceiling spore spawner's animations publish no {cue}.");
-    }
 
     /// <summary>Carries out a cue of the spawner's release: the spore it spawns.</summary>
     public void RunCue(EnemyProjectileCueContext context, SporeSpawnProjectileCue cue)

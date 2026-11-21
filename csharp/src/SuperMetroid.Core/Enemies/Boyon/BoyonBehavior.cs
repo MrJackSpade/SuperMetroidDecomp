@@ -98,7 +98,8 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         BoyonPhase.Rising => MoveBoyonRising,
         BoyonPhase.Falling => MoveBoyonFalling,
-        _ => null,
+        BoyonPhase.DerivingArc or BoyonPhase.Resting or BoyonPhase.Landed => null,
+        _ => throw new ArgumentOutOfRangeException(nameof(phase), phase, $"Undefined {nameof(BoyonPhase)}."),
     };
 
     /// <summary>

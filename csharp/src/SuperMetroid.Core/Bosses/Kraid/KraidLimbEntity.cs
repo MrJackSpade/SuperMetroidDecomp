@@ -37,17 +37,6 @@ internal abstract class KraidLimbEntity(KraidBehavior species, RoomEnemyOccupant
     /// <summary>The limb's own shot reaction, which its hitboxes decide behind its definition's ignoring one (#2301).</summary>
     protected abstract EnemyShotReaction LimbShotReaction { get; }
 
-    /// <summary>Runs the limb's own reaction to every bomb that overlaps it, before the ignoring check.</summary>
-    /// <param name="context">The bomb contact.</param>
-    public override bool TryReactToBomb(EnemyBombContext context)
-    {
-        ReactToLimbBomb(context);
-        return true;
-    }
-
-    /// <summary>The limb's own reaction to a bomb its hitboxes select (#2301).</summary>
-    protected abstract void ReactToLimbBomb(EnemyBombContext context);
-
     /// <summary>The limb's contact and shots meet its frames' hitboxes.</summary>
     public override EnemyCapabilities Capabilities => EnemyCapabilities.SamusFrameHitboxes | EnemyCapabilities.ProjectileFrameHitboxes;
 }

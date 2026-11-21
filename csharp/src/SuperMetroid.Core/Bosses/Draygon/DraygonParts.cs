@@ -207,14 +207,19 @@ internal sealed class DraygonParts
         _audio.QueueEnemyMusic(new DelayedMusicRequest(request, MusicQueueDelay.Shortest));
 
     /// <summary>The eye's look toward each straight direction, facing right and facing left.</summary>
-    private static readonly IdentityTable<StraightDirection, (DraygonSegment FacingRight, DraygonSegment FacingLeft)> EyeLooks = new(
-        new Dictionary<StraightDirection, (DraygonSegment FacingRight, DraygonSegment FacingLeft)>
+    private static readonly IdentityTable<StraightDirection, EyeLooksByFacing> EyeLooks = new(
+        new Dictionary<StraightDirection, EyeLooksByFacing>
         {
-            [StraightDirection.Up] = (DraygonSegment.EyeFacingRightLookingUp, DraygonSegment.EyeFacingLeftLookingUp),
-            [StraightDirection.Right] = (DraygonSegment.EyeFacingRightLookingRight, DraygonSegment.EyeFacingLeftLookingRight),
-            [StraightDirection.Down] = (DraygonSegment.EyeFacingRightLookingDown, DraygonSegment.EyeFacingLeftLookingDown),
-            [StraightDirection.Left] = (DraygonSegment.EyeFacingRightLookingLeft, DraygonSegment.EyeFacingLeftLookingLeft),
+            [StraightDirection.Up] = new(DraygonSegment.EyeFacingRightLookingUp, DraygonSegment.EyeFacingLeftLookingUp),
+            [StraightDirection.Right] = new(DraygonSegment.EyeFacingRightLookingRight, DraygonSegment.EyeFacingLeftLookingRight),
+            [StraightDirection.Down] = new(DraygonSegment.EyeFacingRightLookingDown, DraygonSegment.EyeFacingLeftLookingDown),
+            [StraightDirection.Left] = new(DraygonSegment.EyeFacingRightLookingLeft, DraygonSegment.EyeFacingLeftLookingLeft),
         });
+
+    /// <summary>The eye's look toward one straight direction, facing right and facing left.</summary>
+    /// <param name="FacingRight">The look while Draygon faces right.</param>
+    /// <param name="FacingLeft">The look while Draygon faces left.</param>
+    private readonly record struct EyeLooksByFacing(DraygonSegment FacingRight, DraygonSegment FacingLeft);
 
     /// <summary>The eye breathes its bubble and turns its look toward Samus.</summary>
     private void TrackSamusWithDraygonEye(DraygonEnemyState state, SamusState samus, HorizontalDirection facing)
@@ -236,7 +241,7 @@ internal sealed class DraygonParts
 
         eyeState.LookAngle = aim;
         // The straight direction nearest the aim, up, right, down or left, chooses the look.
-        (DraygonSegment FacingRight, DraygonSegment FacingLeft) looks = EyeLooks[aim.NearestStraightDirection()];
+        EyeLooksByFacing looks = EyeLooks[aim.NearestStraightDirection()];
         DraygonSegment look = facing == HorizontalDirection.Right ? looks.FacingRight : looks.FacingLeft;
         state.EyePart.StartAnimation(look);
     }

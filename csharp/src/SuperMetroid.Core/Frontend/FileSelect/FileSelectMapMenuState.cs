@@ -259,8 +259,10 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen, IComposedFront
                     FileSelectMapDefinitions.EntryWindowRight + 1, ScreenGeometry.ScreenHeightPixels - FileSelectMapDefinitions.EntryWindowTop),
             FileSelectMapNavigationPhase.AreaReturnRequested when returnWindow is not null => Window(Area(), Frame(), returnWindow),
             FileSelectMapNavigationPhase.AreaReturnRequested => Frame(),
-            // The remaining phases, the area map, the window's preparation and the request for the options, show the area.
-            _ => Area(),
+            // The area map, the window's preparation and the request for the options show the area.
+            FileSelectMapNavigationPhase.Area or FileSelectMapNavigationPhase.PreparingWindow or
+                FileSelectMapNavigationPhase.OptionsRequested => Area(),
+            _ => throw new InvalidOperationException($"Undefined {nameof(FileSelectMapNavigationPhase)} {Phase}."),
         };
         return new(scene.Paint, scene.Layers, fade.Level);
     }

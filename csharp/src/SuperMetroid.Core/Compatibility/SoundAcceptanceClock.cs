@@ -106,8 +106,9 @@ public sealed class SoundAcceptanceClock<TLibrary, TSound>
                 samplesSinceStep = default;
             }
 
-            (samplesSinceStep, int samples) = samplesSinceStep.Strided(SoundClockTiming.SamplesPerUpdate - sample);
-            sample += samples;
+            SoundStride stride = samplesSinceStep.Strided(SoundClockTiming.SamplesPerUpdate - sample);
+            samplesSinceStep = stride.Phase;
+            sample += stride.Taken;
         }
         return count;
     }
@@ -132,12 +133,17 @@ public sealed class SoundAcceptanceClock<TLibrary, TSound>
         /// Strides on through as many of <paramref name="available"/> samples as reach the next step: the phase after the
         /// stride, and the samples it took.
         /// </summary>
-        internal (SoundStepPhase Phase, int Taken) Strided(int available)
+        internal SoundStride Strided(int available)
         {
             int taken = Math.Min(available, SoundClockTiming.SamplesPerStep - Samples);
-            return (new SoundStepPhase(Samples + taken), taken);
+            return new SoundStride(new SoundStepPhase(Samples + taken), taken);
         }
     }
+
+    /// <summary>One stride of the clock's phase toward its next step.</summary>
+    /// <param name="Phase">The phase after the stride.</param>
+    /// <param name="Taken">The samples the stride took.</param>
+    private readonly record struct SoundStride(SoundStepPhase Phase, int Taken);
 
     /// <summary>Runs one step at <paramref name="sampleOffset"/>, advancing the check timer and checking every library, in order, on its overflow.</summary>
     private SoundClockStep<TLibrary, TSound> Step(int sampleOffset, int periods)

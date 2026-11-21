@@ -1,3 +1,4 @@
+using System.Collections.Frozen;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
 
@@ -10,6 +11,23 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// </summary>
 internal static class ShootableTable
 {
+    /// <summary>
+    /// The reactions that set off a room object of their own, neither a gate trigger, a blue door cap nor a shot block: the
+    /// resident and item triggers and the escape animals' wall. Declared before <see cref="Entries"/>, which reads it as it
+    /// is built.
+    /// </summary>
+    private static readonly FrozenDictionary<ShootableReaction, Action<RoomTerrain, RoomCollisionBlock, BlockStrike, bool>> ObjectTriggers =
+        new Dictionary<ShootableReaction, Action<RoomTerrain, RoomCollisionBlock, BlockStrike, bool>>
+        {
+            // A block no object occupies hears nothing (ProjectileTriggerObjects.NotifyResidentProjectileHit).
+            [ShootableReaction.ResidentObjectTrigger] = static (terrain, block, strike, _) =>
+                terrain.RoomObjects.ProjectileTriggers.NotifyResidentProjectileHit(block.At, strike),
+            [ShootableReaction.CollectibleTrigger] = static (terrain, block, _, _) =>
+                terrain.RoomObjects.CollectibleObjects.NotifyCollectibleProjectileHit(block.At),
+            [ShootableReaction.AnimalEscape] = static (terrain, block, strike, _) =>
+                _ = terrain.RoomObjects.BlockReactions.TrySpawnAnimalEscape(terrain.Level, block.At, strike),
+        }.ToFrozenDictionary();
+
     /// <summary>What each reaction sets off for a strike at its block, given whether the block is solid.</summary>
     private static readonly IdentityTable<ShootableReaction, Action<RoomTerrain, RoomCollisionBlock, BlockStrike, bool>> Entries =
         new(EntryOf);
@@ -23,7 +41,7 @@ internal static class ShootableTable
         Entries[block.Behavior.Shootable](terrain, block, strike, solidBlock);
 
     /// <summary>The entry of <paramref name="reaction"/>, read from its meanings.</summary>
-    /// <exception cref="InvalidOperationException">The reaction means none of the table's room objects.</exception>
+    /// <exception cref="KeyNotFoundException">The reaction means none of the table's room objects.</exception>
     private static Action<RoomTerrain, RoomCollisionBlock, BlockStrike, bool> EntryOf(ShootableReaction reaction)
     {
         if (BlockReactionDefinitions.DownwardGateTriggers.TryGetMeaning(reaction, out _))
@@ -35,16 +53,6 @@ internal static class ShootableTable
         if (ShotBlockReactions.ShotBlocks.TryGetValue(reaction, out ShotBlock? shot))
             return (terrain, block, strike, solidBlock) =>
                 _ = terrain.RoomObjects.BlockReactions.TrySpawnProjectileShotBlock(terrain.Level, block.At, shot, strike, solidBlock);
-        return reaction switch
-        {
-            // A block no object occupies hears nothing (ProjectileTriggerObjects.NotifyResidentProjectileHit).
-            ShootableReaction.ResidentObjectTrigger => static (terrain, block, strike, _) =>
-                terrain.RoomObjects.ProjectileTriggers.NotifyResidentProjectileHit(block.At, strike),
-            ShootableReaction.CollectibleTrigger => static (terrain, block, _, _) =>
-                terrain.RoomObjects.CollectibleObjects.NotifyCollectibleProjectileHit(block.At),
-            ShootableReaction.AnimalEscape => static (terrain, block, strike, _) =>
-                _ = terrain.RoomObjects.BlockReactions.TrySpawnAnimalEscape(terrain.Level, block.At, strike),
-            _ => throw new InvalidOperationException($"The shootable reaction {reaction} names no room object of the table."),
-        };
+        return ObjectTriggers[reaction];
     }
 }

@@ -84,7 +84,7 @@ internal static class BabyMetroidPresenceVerification
                 throw new InvalidOperationException("The final cutscene did not end after the room lights' seven recovery steps.");
             RunMain(frame++);
         }
-        AssertEqual(new BabyMetroidCutscenePhase.Deleted(), baby.Phase, "the call after the last recovery step ends the cutscene");
+        AssertTrue(baby.IsDeleted, "the call after the last recovery step ends the cutscene");
         AssertEqual(EnemyPresence.Hidden | EnemyPresence.Deleted, place.Presence, "the cutscene's end deletes the Baby's place");
         AssertTrue(baby.IsDeleted, "Mother Brain's rings no longer look for the deleted Baby");
         Console.WriteLine("Baby Metroid presence: the place alone holds the Baby's contact, processing, flicker, hiding and deletion.");

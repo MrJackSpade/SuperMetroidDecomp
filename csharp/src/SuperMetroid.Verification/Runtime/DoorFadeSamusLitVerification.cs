@@ -28,10 +28,11 @@ internal static class DoorFadeSamusLitVerification
         fade.Darken();
         AssertEqual(0, LitOnSamus(fade).Length, "the dark display keeps nothing of Samus's lit");
 
-        fade.FadeIn(new GradualFadeSteps(DoorTransitionColourDefinitions.FadeLastStep, counter));
+        var entering = new GradualFadeSteps(DoorTransitionColourDefinitions.FadeLastStep, counter);
+        fade.FadeIn(entering);
         AssertTrue(LitOnSamus(fade).SequenceEqual([SamusShades.Beam(SamusBeamCombination.IceWave)]),
             "the room being entered fades in with Samus's beams lit");
-        fade.DoorOpened();
+        fade.DoorOpened(entering);
         AssertTrue(LitOnSamus(fade).SequenceEqual([SamusShades.Beam(SamusBeamCombination.IceWave), SamusShades.DoorCompletionVisor]),
             "once the door has opened her visor's door-completion green stays lit after her beams");
 

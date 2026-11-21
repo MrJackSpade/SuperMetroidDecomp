@@ -203,7 +203,7 @@ internal static class SamusBodyArtworkVerification
             frame++)
         {
             AssertTrue(frame < 200, "retail Samus death reaches the explosion draw phase");
-            deathSamus.DeathSequence.Step(deathSamus, deathCgram, stock.Gameplay.DeathSteps);
+            deathSamus.DeathSequence.Step(deathSamus, (SamusDeathSequencePhase.Begun)deathSamus.DeathSequence.Phase, deathCgram, stock.Gameplay.DeathSteps);
         }
         OamBuffer nativeDeathOam = SpriteFrameBuffer.DrawnOam(frame =>
             deathSamus.DeathSequence.DrawExplosion(frame, SamusBodySheetFixtures.For(stock)));
@@ -271,16 +271,16 @@ internal static class SamusBodyArtworkVerification
             // palette ownership passes to the independent bank-$9B sequence.
             for (int frame = 0; frame < 16; frame++)
             {
-                nativeSamus.DeathSequence.Step(nativeSamus, nativeColors, stock.Gameplay.DeathSteps);
-                installedSamus.DeathSequence.Step(installedSamus, installedColors, stock.Gameplay.DeathSteps);
+                nativeSamus.DeathSequence.Step(nativeSamus, (SamusDeathSequencePhase.Begun)nativeSamus.DeathSequence.Phase, nativeColors, stock.Gameplay.DeathSteps);
+                installedSamus.DeathSequence.Step(installedSamus, (SamusDeathSequencePhase.Begun)installedSamus.DeathSequence.Phase, installedColors, stock.Gameplay.DeathSteps);
             }
             int pairFrames = 0;
             for (int frame = 0; frame < 240; frame++)
             {
                 SamusDeathSequenceStepResult nativeStep = nativeSamus.DeathSequence.Step(
-                    nativeSamus, nativeColors, stock.Gameplay.DeathSteps);
+                    nativeSamus, (SamusDeathSequencePhase.Begun)nativeSamus.DeathSequence.Phase, nativeColors, stock.Gameplay.DeathSteps);
                 SamusDeathSequenceStepResult installedStep = installedSamus.DeathSequence.Step(
-                    installedSamus, installedColors, stock.Gameplay.DeathSteps);
+                    installedSamus, (SamusDeathSequencePhase.Begun)installedSamus.DeathSequence.Phase, installedColors, stock.Gameplay.DeathSteps);
                 // Samus's death colours are her shades and the whiteout a colour the display shows (#1512): each frame
                 // her shown suit and suitless colours are one of the cartridge's death palette pairs for her suit, and the
                 // whiteout one of the cartridge's whiteout shades.

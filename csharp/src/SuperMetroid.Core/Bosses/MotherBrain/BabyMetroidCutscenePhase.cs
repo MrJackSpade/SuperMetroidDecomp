@@ -1,21 +1,16 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>The phases of the Baby Metroid's entrance.</summary>
+/// <summary>
+/// The phases of the Baby Metroid's entrance (#2553): the Baby flies its course from its dash onto the screen until it
+/// deletes itself, and it has no phase outside its course, since it is made in its place as it arrives and never steps
+/// once it is deleted.
+/// </summary>
 public abstract record BabyMetroidCutscenePhase
 {
     /// <summary>Allows only the cases below.</summary>
     private BabyMetroidCutscenePhase()
     {
     }
-
-    /// <summary>No Baby Metroid cutscene phase is active.</summary>
-    public sealed record Inactive : BabyMetroidCutscenePhase;
-
-    /// <summary>
-    /// The Baby has deleted itself at the end of <see cref="Flying.FinalCutscene"/>: the cutscene is over, the room frees its
-    /// place, and Mother Brain's rings no longer look for it. It never steps again.
-    /// </summary>
-    public sealed record Deleted : BabyMetroidCutscenePhase;
 
     /// <summary>The phases in which the cutscene Baby Metroid flies its course, from its dash onto the screen until it is deleted.</summary>
     public abstract record Flying : BabyMetroidCutscenePhase

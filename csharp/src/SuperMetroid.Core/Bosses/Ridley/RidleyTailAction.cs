@@ -5,8 +5,9 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>
-/// What Ridley's tail is doing, as his fight steers it (#2553): each action steers the tail its own way each update, so the
-/// pogo's steps are reached only from a pogo action.
+/// What Ridley's tail is doing, as his fight steers it (#2553): each steered action (<see cref="RidleySteeredTailAction"/>)
+/// steers the tail its own way each update, so the pogo's steps are reached only from a pogo action, and nothing steers a
+/// resting tail.
 /// </summary>
 public abstract class RidleyTailAction
 {
@@ -36,14 +37,6 @@ public abstract class RidleyTailAction
 
     /// <summary>The tail stabs straight down, slower than the setup's swing.</summary>
     public static RidleyTailAction Stab => RidleyPogoTailAction.Stabbing;
-
-    /// <summary>Steers <paramref name="tail"/> for one update of Ridley's encounter.</summary>
-    /// <param name="tail">Ridley's tail.</param>
-    /// <param name="place">Ridley's body.</param>
-    /// <param name="state">Ridley's state.</param>
-    /// <param name="samus">Samus, whom the tail follows and whips at.</param>
-    /// <param name="samusProjectiles">Samus's beams and missiles, a missile among which the Ceres whip may aim at instead.</param>
-    internal abstract void Steer(RidleyTail tail, RoomEnemyPlace place, RidleyEncounterState state, SamusState samus, SamusProjectileSystem samusProjectiles);
 
     /// <inheritdoc/>
     public override string ToString() => _name;

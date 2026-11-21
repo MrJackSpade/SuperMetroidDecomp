@@ -21,27 +21,24 @@ public sealed record RoomDefinition
     /// <param name="area">The room's area.</param>
     /// <param name="mapPosition">The area-map cell of the room's top-left screen.</param>
     /// <param name="size">The room's size in scroll screens.</param>
-    internal RoomDefinition(string name, AreaId area, Position16<MapTiles> mapPosition, Extent16<RoomScreens> size)
-    {
-        Name = name;
-        Area = area;
-        MapPosition = mapPosition;
-        Size = size;
-        Ground = RoomGroundDefinitions.AreaGrounds[area];
-    }
+    internal RoomDefinition(string name, AreaId area, Position16<MapTiles> mapPosition, Extent16<RoomScreens> size) =>
+        Place = new RoomPlace(name, area, mapPosition, size);
 
     /// <summary>The room's name.</summary>
     [InstalledKey]
-    public string Name { get; }
+    public string Name => Place.Name;
 
     /// <summary>The room's area.</summary>
-    public AreaId Area { get; }
+    public AreaId Area => Place.Area;
 
     /// <summary>The area-map cell of the room's top-left screen; each of its screens shows one cell further right or down.</summary>
-    public Position16<MapTiles> MapPosition { get; }
+    public Position16<MapTiles> MapPosition => Place.MapPosition;
 
     /// <summary>The room's size in scroll screens.</summary>
-    public Extent16<RoomScreens> Size { get; }
+    public Extent16<RoomScreens> Size => Place.Size;
+
+    /// <summary>Where the room is and the ground it is on.</summary>
+    private RoomPlace Place { get; init; }
 
     /// <summary>How far above Samus the camera aims its top as she falls and as she rises (#2482); the standard lead unless the room names its own (#2557).</summary>
     public RoomCameraLead CameraLead { get; internal init; } = RoomCameraLeads.Standard;
@@ -71,5 +68,20 @@ public sealed record RoomDefinition
     /// The ground Samus's running footsteps and landings go by in the room (#2416): its area's
     /// (<see cref="RoomGroundDefinitions.AreaGrounds"/>) unless the room declares its own.
     /// </summary>
-    internal RoomGround Ground { get; init; }
+    internal RoomGround Ground
+    {
+        get => Place.Ground;
+        init => Place = Place with { Ground = value };
+    }
+
+    /// <summary>A room's name, its area and place on the map and its size, and the ground it is on.</summary>
+    /// <param name="Name">The room's name.</param>
+    /// <param name="Area">The room's area.</param>
+    /// <param name="MapPosition">The area-map cell of the room's top-left screen.</param>
+    /// <param name="Size">The room's size in scroll screens.</param>
+    private sealed record RoomPlace(string Name, AreaId Area, Position16<MapTiles> MapPosition, Extent16<RoomScreens> Size)
+    {
+        /// <summary>The ground the room is on: its area's unless the room declares its own.</summary>
+        internal RoomGround Ground { get; init; } = RoomGroundDefinitions.AreaGrounds[Area];
+    }
 }

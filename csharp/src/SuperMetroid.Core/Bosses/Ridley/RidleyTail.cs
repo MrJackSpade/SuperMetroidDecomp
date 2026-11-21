@@ -43,7 +43,9 @@ internal sealed class RidleyTail
         SamusState samus,
         SamusProjectileSystem samusProjectiles)
     {
-        state.Tail.Action.Steer(this, place, state, samus, samusProjectiles);
+        // A resting tail is steered by nothing: its offsets stay as they are.
+        if (state.Tail.Action is RidleySteeredTailAction steered)
+            steered.Steer(this, place, state, samus, samusProjectiles);
 
         // The tail composition always composes positions, but only the selected tail action
         // updates offsets. With no tail action, and on the stagger and stop returns, the offsets stay.
@@ -460,7 +462,7 @@ internal sealed class RidleyTail
             TickRidleyTailLink(state.Tail, link);
         // The tail's setup points it down next; a tail pointing down becomes a pogo once none of its links is active; a
         // pogo readies its stab, and a readied stab stabs, once its links rest while Ridley falls; a stab keeps stabbing.
-        state.Tail.Action = action.After(state.Tail.Links.Any(link => link.Active), restsWhileFalling);
+        state.Tail.Action = action.After(new RidleyPogoTailSettling(state.Tail.Links.Any(link => link.Active), restsWhileFalling));
     }
 
     /// <summary>

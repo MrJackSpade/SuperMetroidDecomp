@@ -174,7 +174,7 @@ internal static void VerifySamusCrystalFlash()
     samus.InvincibilityTimer = WrappingCountdown.Start(77);
     for (int frame = 0; frame < 9; frame++)
     {
-        samus.CrystalFlash.Step(samus, (ushort)frame);
+        samus.CrystalFlash.Step(samus, (CrystalFlashPhase.Moving)samus.CrystalFlash.Phase, (ushort)frame);
         AssertEqual(new CrystalFlashPhase.Moving.Raising(), samus.CrystalFlash.Phase,
             $"raise frame {frame} retains start handler");
         AssertEqual(77, samus.InvincibilityTimer.RawValue, "ordinary raise handler does not clear immunity");
@@ -183,7 +183,7 @@ internal static void VerifySamusCrystalFlash()
     }
     AssertEqual((initialY - 18), samus.Position.Y.Whole, "first nine raise calls move 18 pixels");
 
-    CrystalFlashMovementResult raiseEnd = samus.CrystalFlash.Step(samus, 9);
+    CrystalFlashMovementResult raiseEnd = samus.CrystalFlash.Step(samus, (CrystalFlashPhase.Moving)samus.CrystalFlash.Phase, 9);
     AssertEqual(0, samus.InvincibilityTimer.RawValue, "raise completion clears hit immunity");
     AssertEqual(new CrystalFlashPhase.Moving.DrainingAmmo(), samus.CrystalFlash.Phase,
         "tenth raise call installs ammo handler");
@@ -255,7 +255,7 @@ internal static void VerifySamusCrystalFlash()
     samus.KnockbackHold = UpdateCountdown.For(5);
     var resourcesBeforeSkipped =
         new ResourcesBeforeSkipped(samus.Health, samus.Missiles, samus.SuperMissiles, samus.PowerBombs);
-    samus.CrystalFlash.Step(samus, 15);
+    samus.CrystalFlash.Step(samus, (CrystalFlashPhase.Moving)samus.CrystalFlash.Phase, 15);
     AssertEqual(0, samus.InvincibilityTimer.RawValue, "non-draining main frame still clears hit immunity");
     AssertEqual(0, samus.KnockbackHold.UpdatesLeft, "non-draining main frame still clears knockback timer");
     AssertEqual(resourcesBeforeSkipped,
@@ -265,7 +265,7 @@ internal static void VerifySamusCrystalFlash()
     {
         samus.InvincibilityTimer = WrappingCountdown.Start(77);
         samus.KnockbackHold = UpdateCountdown.For(5);
-        samus.CrystalFlash.Step(samus, unchecked((ushort)(drain * 8)));
+        samus.CrystalFlash.Step(samus, (CrystalFlashPhase.Moving)samus.CrystalFlash.Phase, unchecked((ushort)(drain * 8)));
         AssertEqual(0, samus.InvincibilityTimer.RawValue, "ammo-drain frame clears hit immunity, including final drain");
         AssertEqual(0, samus.KnockbackHold.UpdatesLeft, "ammo-drain frame clears knockback timer");
     }
@@ -285,7 +285,7 @@ internal static void VerifySamusCrystalFlash()
     int finishFrames = 0;
     while (samus.CuePose.Named is null && finishFrames++ < 20)
     {
-        samus.CrystalFlash.Step(samus, (ushort)(0x0100 + finishFrames));
+        samus.CrystalFlash.Step(samus, (CrystalFlashPhase.Moving)samus.CrystalFlash.Phase, (ushort)(0x0100 + finishFrames));
         samus.LiquidPhysics.BeginFrameSoundRequests();
         SamusPresentation.Animate(samus, new SamusAnimationStep { Random = new SharedRandom(), ControllerInput = chord });
     }
@@ -296,7 +296,7 @@ internal static void VerifySamusCrystalFlash()
     AssertEqual(new CrystalFlashPhase.Moving.Finishing(), samus.CrystalFlash.Phase,
         "pose transition does not prematurely replace installed handler");
     samus.InvincibilityTimer = WrappingCountdown.Start(77);
-    samus.CrystalFlash.Step(samus, 0x0200);
+    samus.CrystalFlash.Step(samus, (CrystalFlashPhase.Moving)samus.CrystalFlash.Phase, 0x0200);
     AssertEqual(0, samus.InvincibilityTimer.RawValue, "Crystal Flash normal-input completion clears hit immunity");
     AssertEqual(new CrystalFlashPhase.Inactive(), samus.CrystalFlash.Phase,
         "following beta pass restores normal movement handler");
@@ -772,7 +772,7 @@ internal static void VerifySamusDeathSequence()
     var deathSources = InstalledFixtures.SamusShadeSources with { Death = artwork };
     SamusDeathSequenceStepResult step = default;
     for (int call = 1; call <= 16; call++)
-        step = samus.DeathSequence.Step(samus, samusColours, artwork.Steps);
+        step = samus.DeathSequence.Step(samus, (SamusDeathSequencePhase.Begun)samus.DeathSequence.Phase, samusColours, artwork.Steps);
     AssertEqual(new SamusDeathSequencePhase.Begun.Flashing(), samus.DeathSequence.Phase,
         "sixteen preflash calls enter flashing");
     AssertEqual(5, samus.AnimationNumber, "unmorphed death frame loops at five");
@@ -782,7 +782,7 @@ internal static void VerifySamusDeathSequence()
     // queues segment four at `$6000`, resets the explosion state, immediately decrements
     // 21 to 20, and draws right-facing spritemap `$81C`.
     for (int call = 1; call <= 60; call++)
-        step = samus.DeathSequence.Step(samus, samusColours, artwork.Steps);
+        step = samus.DeathSequence.Step(samus, (SamusDeathSequencePhase.Begun)samus.DeathSequence.Phase, samusColours, artwork.Steps);
     AssertEqual(new SamusDeathSequencePhase.Begun.SuitExplosion(), samus.DeathSequence.Phase,
         "60 flashing calls enter suit explosion");
     AssertEqual(SuperMetroid.Core.Samus.Artwork.SamusDeathExplosionFrame.SuitGlowing, samus.DeathSequence.ExplosionFrame,
@@ -799,7 +799,7 @@ internal static void VerifySamusDeathSequence()
     int explosionCalls = 0;
     while (samus.DeathSequence.Phase is not SamusDeathSequencePhase.Begun.Complete)
     {
-        step = samus.DeathSequence.Step(samus, samusColours, artwork.Steps);
+        step = samus.DeathSequence.Step(samus, (SamusDeathSequencePhase.Begun)samus.DeathSequence.Phase, samusColours, artwork.Steps);
         explosionCalls++;
         AssertTrue(explosionCalls <= 135, "death explosion terminates on native timer sum");
     }

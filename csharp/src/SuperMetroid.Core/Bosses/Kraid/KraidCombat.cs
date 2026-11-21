@@ -44,14 +44,6 @@ internal sealed class KraidCombat
             SpawnKraidArmShotExplosion(c.PlacedBomb.Type, c.Bomb.Position.Whole);
     }
 
-    /// <summary>
-    /// Runs the foot's reaction to a bomb its hitboxes select: every foot rectangle ignores it
-    /// (<see cref="KraidFootCollisionDefinitions.SharedHitboxes"/>), so it does nothing.
-    /// </summary>
-    internal static void ReactToFootBomb(EnemyBombContext c)
-    {
-    }
-
     /// <summary>The arm's shot reaction, which its hitboxes decide behind its definition's ignoring one.</summary>
     internal EnemyShotReaction ArmShotReaction => field ??= new()
     {

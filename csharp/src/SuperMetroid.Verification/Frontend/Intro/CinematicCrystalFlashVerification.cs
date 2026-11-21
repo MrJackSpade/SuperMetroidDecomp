@@ -278,7 +278,7 @@ internal static class CinematicCrystalFlashVerification
                 : (GameplayAction.Down | GameplayAction.AimDown | GameplayAction.AimUp));
         AssertEqual(admitFlash, admitted, "cinematic Flash fixture admission");
         for (ushort frame = 0; frame < movementCalls; frame++)
-            samus.CrystalFlash.Step(samus, frame);
+            samus.CrystalFlash.Step(samus, (CrystalFlashPhase.Moving)samus.CrystalFlash.Phase, frame);
         return new CreateCinematicFlashRuntimeResult(bus, runtime, samus);
     }
 

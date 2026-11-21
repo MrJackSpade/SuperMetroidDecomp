@@ -59,7 +59,7 @@ internal static class SoundQueuePowerBombAdmissionVerification
         flashing.Missiles = flashing.SuperMissiles = flashing.PowerBombs = 10;
         AssertTrue(flashing.CrystalFlash.TryBegin(flashing, chord), "Crystal Flash is accepted");
         for (int frame = 0; frame < 10; frame++)
-            flashing.CrystalFlash.Step(flashing, (ushort)frame);
+            flashing.CrystalFlash.Step(flashing, (CrystalFlashPhase.Moving)flashing.CrystalFlash.Phase, (ushort)frame);
         AssertEqual(new CrystalFlashPhase.Moving.DrainingAmmo(), flashing.CrystalFlash.Phase, "Crystal Flash's raise completes");
         AssertTurnedAway(audio, requests, RoomSound.Silence, "Crystal Flash's silence");
 

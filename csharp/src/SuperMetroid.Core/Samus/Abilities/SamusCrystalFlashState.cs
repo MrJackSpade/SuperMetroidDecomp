@@ -164,20 +164,17 @@ public sealed class SamusCrystalFlashState
 
     /// <summary>Runs one update of Crystal Flash's current phase in Samus's movement phase.</summary>
     /// <param name="samus">Live actor receiving movement, ammunition/energy, animation, and phase-completion writes.</param>
+    /// <param name="moving">The phase Crystal Flash moves Samus in, its current <see cref="Phase"/>.</param>
     /// <param name="frameCounter">The frame counter; ammunition drains only at its cadence (<see cref="SamusCadenceDefinitions.CrystalFlashDrain"/>).</param>
     /// <returns>A value snapshot of the entry phase and retained bubble-effect request, even when this update changes phase.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="samus"/> is null.</exception>
-    /// <exception cref="InvalidOperationException">Crystal Flash does not hold Samus's movement, or the phase/ammunition-family state is unsupported.</exception>
     public CrystalFlashMovementResult Step(
         SamusState samus,
+        CrystalFlashPhase.Moving moving,
         int frameCounter)
     {
         Ensure.NotNull(samus);
-        if (Phase is not CrystalFlashPhase.Moving moving)
-            throw new InvalidOperationException("Crystal Flash does not hold Samus's movement.");
-
-        CrystalFlashPhase phaseAtStart = Phase;
-
+        Ensure.NotNull(moving);
         if (moving is CrystalFlashPhase.Moving.Raising)
         {
             StepRaising(samus);
@@ -197,7 +194,7 @@ public sealed class SamusCrystalFlashState
         }
 
         return new CrystalFlashMovementResult(
-            BubbleStarted: phaseAtStart is CrystalFlashPhase.Moving.Raising && Phase is CrystalFlashPhase.Moving.DrainingAmmo);
+            BubbleStarted: moving is CrystalFlashPhase.Moving.Raising && Phase is CrystalFlashPhase.Moving.DrainingAmmo);
     }
 
     /// <summary>Raises Samus by <see cref="CrystalFlashDefinitions.RaiseStep"/> for <see cref="CrystalFlashDefinitions.RaiseUpdates"/>, then starts the drain phase and requests the bubble effect.</summary>

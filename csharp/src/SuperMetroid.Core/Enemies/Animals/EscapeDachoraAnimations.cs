@@ -103,7 +103,7 @@ internal static class EscapeDachoraAnimations
     /// <paramref name="pace"/> and followed by a step of <paramref name="step"/> pixels.
     /// </summary>
     private static AnimationBeat<EnemyFrameId, EscapeDachoraCue>[] Stride(DachoraStride stride, DachoraStridePace pace, int step) =>
-        [.. stride.Poses.Zip(pace.Updates).SelectMany(posed => new[] { Show(posed.First, posed.Second), Cue(new EscapeDachoraCue.Move(Offset: step)) })];
+        [.. stride.Poses.Zip(pace.Updates, (pose, updates) => new[] { Show(pose, updates), Cue(new EscapeDachoraCue.Move(Offset: step)) }).SelectMany(beats => beats)];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, EscapeDachoraCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, EscapeDachoraCue>.Frame(frame, duration);

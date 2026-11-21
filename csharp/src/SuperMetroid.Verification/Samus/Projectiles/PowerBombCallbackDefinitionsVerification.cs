@@ -56,7 +56,7 @@ internal static class PowerBombCallbackDefinitionsVerification
                     pointer is 0x804b or 0x804c,
                 EnemyInteractionCallbacks.DecodePowerBomb((byte)bank, (ushort)pointer) == EnemyReaction.Ignore,
                 "Power Bomb bank-qualified reaction");
-        AssertEqual<EnemyReaction?>(null, EnemyInteractionCallbacks.DecodePowerBomb(0xa2, 0), "a zero Power Bomb word names no reaction");
+        AssertEqual(EnemyReaction.CommonPowerBomb, EnemyInteractionCallbacks.DecodePowerBomb(0xa2, 0), "a zero Power Bomb word selects the common Power Bomb damage");
         Console.WriteLine($"Power Bomb callbacks: {headers} named headers match native opcode classification; all 16777216 bank/pointer pairs preserve the ten literal no-ops and zero/common distinction.");
     }
 

@@ -6,9 +6,10 @@ namespace SuperMetroid.EnsureVerification.Contracts;
 
 /// <summary>
 /// Checks SME6488: in Core and the import pipeline, a switch or a dictionary initializer mapping every member of one enum
-/// to the member of another of the same name, and a member named by joining two or more members of another type, are
-/// reported, while a map onto other names, a partial map, a flags enum, enums that share names but no map, a type's own
-/// combined member, a one-word part and another assembly are left alone (#2574).
+/// to the member of the same name of another with exactly the same members, and a member named by joining two or more
+/// members of another type, are reported, while a narrower enum embedded into a wider one (either side the key), a map
+/// onto other names, a partial map, a flags enum, enums that share names but no map, a type's own combined member, a
+/// one-word part and another assembly are left alone (#2574).
 /// </summary>
 internal static class IdentityDuplicationAnalyzerTests
 {
@@ -17,17 +18,26 @@ internal static class IdentityDuplicationAnalyzerTests
     {
         var analyzer = new IdentityDuplicationAnalyzer();
         const string Id = IdentityDuplicationAnalyzer.IdentityDuplicationId;
-        const string Types = "enum Dust { Small, Smoke, Big, Rock } enum DeathPuff { Small, Smoke, Big } enum Piece { Left, Right } " +
-            "enum PieceLook { PieceLeft, PieceRight, Slime } enum Shot { Beam, Missile, MissileBlast } enum Reaction { Beam, Missile } " +
-            "enum Colour { Red, Green } [System.Flags] enum Bits { None = 0, Small = 1, Smoke = 2, Big = 4 } ";
+        const string Types = "enum Dust { Small, Smoke, Big, Rock } enum DeathPuff { Small, Smoke, Big } enum Puff { Big, Small, Smoke } " +
+            "enum Piece { Left, Right } enum PieceLook { PieceLeft, PieceRight, Slime } enum Shot { Beam, Missile, MissileBlast } " +
+            "enum Reaction { Beam, Missile } enum Colour { Red, Green } [System.Flags] enum Bits { Small = 1, Smoke = 2, Big = 4 } ";
         void Expect(string body, string assembly = CoreLayerAnalyzer.CoreAssembly, params string[] ids) =>
             VerifySnippetIds("namespace SuperMetroid.Core.World { " + Types + body + " }", analyzer, assembly, ids);
 
-        // A total map onto members of each key's name, each to its own or reaching every member of the other, is a mirror.
-        Expect("class Map { Dust Of(DeathPuff puff) => puff switch { DeathPuff.Small => Dust.Small, DeathPuff.Smoke => Dust.Smoke, DeathPuff.Big => Dust.Big, _ => throw new System.Exception() }; }", ids: [Id]);
-        Expect("class Map { System.Collections.Generic.Dictionary<DeathPuff, Dust> Puffs = new() { [DeathPuff.Small] = Dust.Small, [DeathPuff.Smoke] = Dust.Smoke, [DeathPuff.Big] = Dust.Big }; }", ids: [Id]);
-        Expect("class Map { Reaction Of(Shot shot) => shot switch { Shot.Beam or Shot.MissileBlast => Reaction.Beam, Shot.Missile => Reaction.Missile, _ => throw new System.Exception() }; }", ids: [Id]);
-        Expect("class Map { Dust Of(DeathPuff puff) => puff switch { DeathPuff.Small => Dust.Small, DeathPuff.Smoke => Dust.Smoke, DeathPuff.Big => Dust.Big, _ => throw new System.Exception() }; }", "SuperMetroid.AssetExtraction", ids: [Id]);
+        // A total map of every member onto the member of its name of an enum with exactly the same members is a mirror.
+        const string Mirror = "class Map { Puff Of(DeathPuff puff) => puff switch { DeathPuff.Small => Puff.Small, DeathPuff.Smoke => Puff.Smoke, DeathPuff.Big => Puff.Big, _ => throw new System.Exception() }; }";
+        Expect(Mirror, ids: [Id]);
+        Expect("class Map { System.Collections.Generic.Dictionary<Puff, DeathPuff> Puffs = new() { [Puff.Small] = DeathPuff.Small, [Puff.Smoke] = DeathPuff.Smoke, [Puff.Big] = DeathPuff.Big }; }", ids: [Id]);
+        Expect(Mirror, "SuperMetroid.AssetExtraction", ids: [Id]);
+
+        // A narrower enum embedded into a wider one converts between two domains: the narrower side as the key (every
+        // member onto the wider enum's member of its name) and as the value (the wider enum's members of its names
+        // converted back, the rest refused or collapsed) are left alone.
+        Expect("class Map { Dust Of(DeathPuff puff) => puff switch { DeathPuff.Small => Dust.Small, DeathPuff.Smoke => Dust.Smoke, DeathPuff.Big => Dust.Big, _ => throw new System.Exception() }; }");
+        Expect("class Map { System.Collections.Generic.Dictionary<DeathPuff, Dust> Puffs = new() { [DeathPuff.Small] = Dust.Small, [DeathPuff.Smoke] = Dust.Smoke, [DeathPuff.Big] = Dust.Big }; }");
+        Expect("class Map { DeathPuff Of(Dust dust) => dust switch { Dust.Small => DeathPuff.Small, Dust.Smoke => DeathPuff.Smoke, Dust.Big => DeathPuff.Big, _ => throw new System.Exception() }; }");
+        Expect("class Map { DeathPuff Of(Dust dust) => dust switch { Dust.Small or Dust.Rock => DeathPuff.Small, Dust.Smoke => DeathPuff.Smoke, Dust.Big => DeathPuff.Big, _ => throw new System.Exception() }; }");
+        Expect("class Map { Reaction Of(Shot shot) => shot switch { Shot.Beam or Shot.MissileBlast => Reaction.Beam, Shot.Missile => Reaction.Missile, _ => throw new System.Exception() }; }");
 
         // A generated name joined from two members of another type, each of two words, is reported.
         VerifySnippetIds("// <auto-generated/>\nnamespace SuperMetroid.Core.World { static class Rooms { static int EastShaft; static int WestShaft; } static class Effects { static int EastShaftWestShaft; } }",
@@ -44,9 +54,9 @@ internal static class IdentityDuplicationAnalyzerTests
         Expect("class Map { DeathPuff Next(DeathPuff puff) => puff switch { DeathPuff.Small => DeathPuff.Smoke, DeathPuff.Smoke => DeathPuff.Big, DeathPuff.Big => DeathPuff.Small, _ => throw new System.Exception() }; }");
         Expect("class Map { Bits Of(DeathPuff puff) => puff switch { DeathPuff.Small => Bits.Small, DeathPuff.Smoke => Bits.Smoke, DeathPuff.Big => Bits.Big, _ => throw new System.Exception() }; }");
         Expect("static class Rooms { static int East; static int West; } static class Effects { static int EastWest; }");
-        Expect("class Map { Dust Of(DeathPuff puff) => puff switch { DeathPuff.Small => Dust.Small, DeathPuff.Smoke => Dust.Smoke, DeathPuff.Big => Dust.Big, _ => throw new System.Exception() }; }", "SuperMetroid.Verification");
+        Expect(Mirror, "SuperMetroid.Verification");
 
-        Console.WriteLine("Identity duplication rule: mirroring maps, same-member enums and joined names reported; unrelated, " +
-            "partial and self maps, flags enums, one-word parts and other assemblies left alone.");
+        Console.WriteLine("Identity duplication rule: mirroring maps and joined names reported; embeddings either way, unrelated, " +
+            "partial and self maps, flags enums, same-member enums with no map, one-word parts and other assemblies left alone.");
     }
 }

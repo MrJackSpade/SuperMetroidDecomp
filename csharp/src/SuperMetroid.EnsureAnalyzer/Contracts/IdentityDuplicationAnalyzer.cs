@@ -10,10 +10,12 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// <summary>
 /// Each thing has one identity named for what it is (SME6488, #2574). In <c>SuperMetroid.Core</c> and
 /// <c>SuperMetroid.AssetExtraction</c> the rule reports an enum mirrored member for member by another: a switch expression
-/// or a dictionary initializer that maps every member of one source enum to the member of another of the same name
-/// (<c>MotherBrainDeathExplosionAnimation.Smoke =&gt; DustExplosionAnimation.Smoke</c>,
-/// <c>SamusProjectileFamily.Missile =&gt; MotherBrainProjectileType.Missile</c>), each member to its own or every member of
-/// the other enum reached. It also reports a member of a generated catalog (<c>&lt;auto-generated/&gt;</c>) named by joining
+/// or a dictionary initializer that maps every member of one source enum to the member of the same name of another enum
+/// with exactly the same members (<c>DoorSide.Left =&gt; CapSide.Left, DoorSide.Right =&gt; CapSide.Right</c> where both
+/// are left and right), each member to its own. A narrower enum embedded into a wider one
+/// (<c>HorizontalDirection.Left =&gt; SamusCollisionDirection.Left</c>, the two horizontal directions among the four
+/// collision directions) or a wider one collapsed onto a narrower one converts between two domains and is not reported.
+/// It also reports a member of a generated catalog (<c>&lt;auto-generated/&gt;</c>) named by joining
 /// the names of two or more members of one other type, each of two words or more
 /// (<c>EastAqueductQuicksandWestAqueductQuicksand</c>, joined from two rooms): a generator names a thing several users
 /// share for what it is, not by listing them. A hand-written name built of two others (a charged Ice Spazer's trail, a
@@ -49,7 +51,8 @@ public sealed class IdentityDuplicationAnalyzer : DiagnosticAnalyzer
         DiagnosticSeverity.Error,
         isEnabledByDefault: true,
         description: "Each thing has one identity named for what it is (#2574): an enum that mirrors another member for " +
-            "member is a second identity for the same things, kept in step by a map that restates them.");
+            "member, the same members mapped each to its own, is a second identity for the same things, kept in step by a " +
+            "map that restates them. A narrower enum embedded into a wider one is a conversion, not a mirror.");
 
     private static readonly DiagnosticDescriptor DeclarationRule = new(
         IdentityDuplicationId,
@@ -132,8 +135,10 @@ public sealed class IdentityDuplicationAnalyzer : DiagnosticAnalyzer
     }
 
     /// <summary>
-    /// Reports <paramref name="syntax"/> when <paramref name="entries"/> map every member of one source enum to members of
-    /// another of the same names, each member to its own or every member of the other reached.
+    /// Reports <paramref name="syntax"/> when <paramref name="entries"/> map every member of one source enum to the member of
+    /// the same name of another that has exactly the same members, each member to its own. A narrower enum's members
+    /// embedded into a wider one (a horizontal direction into the four collision directions) is a conversion between two
+    /// domains, not a mirror, and so is a wider enum's members collapsed onto a narrower one's.
     /// </summary>
     private static void ReportMirror(OperationAnalysisContext context, SyntaxNode syntax, List<(IFieldSymbol[] Keys, IFieldSymbol Value)> entries, string what)
     {
@@ -145,16 +150,13 @@ public sealed class IdentityDuplicationAnalyzer : DiagnosticAnalyzer
             entries.Any(entry => !SymbolEqualityComparer.Default.Equals(entry.Value.ContainingType, valueType) ||
                 entry.Keys.Any(key => !SymbolEqualityComparer.Default.Equals(key.ContainingType, keyType))))
             return;
+        var keyMembers = new HashSet<string>(Members(keyType), StringComparer.Ordinal);
+        if (!keyMembers.SetEquals(Members(valueType)))
+            return;
         string[] keyNames = [.. entries.SelectMany(entry => entry.Keys).Select(key => key.Name)];
-        string[] valueNames = [.. entries.Select(entry => entry.Value.Name)];
-        string[] keyMembers = Members(keyType);
-        string[] valueMembers = Members(valueType);
-        bool everyKey = keyNames.Distinct(StringComparer.Ordinal).Count() == keyNames.Length && keyMembers.All(keyNames.Contains);
-        bool distinctValues = valueNames.Distinct(StringComparer.Ordinal).Count() == valueNames.Length;
-        bool eachToItsOwn = entries.All(entry => entry.Keys.Length == 1);
-        bool everyValue = valueMembers.All(valueNames.Contains);
-        bool sameNames = entries.All(entry => entry.Keys.Any(key => string.Equals(key.Name, entry.Value.Name, StringComparison.Ordinal)));
-        if (!everyKey || !distinctValues || !(eachToItsOwn || everyValue) || !sameNames)
+        bool eachToItsOwn = entries.All(entry => entry.Keys.Length == 1 && string.Equals(entry.Keys[0].Name, entry.Value.Name, StringComparison.Ordinal));
+        bool everyKeyOnce = keyNames.Distinct(StringComparer.Ordinal).Count() == keyNames.Length && keyMembers.SetEquals(keyNames);
+        if (!eachToItsOwn || !everyKeyOnce)
             return;
         context.ReportDiagnostic(Diagnostic.Create(MirrorRule, syntax.GetLocation(),
             $"{what} maps every member of {keyType.Name} to the member of {valueType.Name} of the same name: one of them mirrors the other member for member"));

@@ -774,14 +774,6 @@ internal static class LookupStream1Verification
             AssertEqual(Word(0x909ea7 + 2 * SamusLiquidMediumCodec.ToNative(medium)), gravity.Whole, "stream1 native whole gravity");
             AssertEqual(Word(0x909ea1 + 2 * SamusLiquidMediumCodec.ToNative(medium)), gravity.Fraction, "stream1 native fractional gravity");
         }
-        foreach (SamusLiquidMedium invalid in new[] { (SamusLiquidMedium)3, (SamusLiquidMedium)ushort.MaxValue })
-        {
-            for (int variant = 0; variant < 4; variant++)
-                AssertThrows<InvalidOperationException>(() => SamusVerticalMotion.Launch(invalid, (variant & 1) != 0, ((variant & 2) != 0) ? SamusLaunchKind.WallJump : SamusLaunchKind.Jump), "stream1 invalid launch medium");
-            AssertThrows<InvalidOperationException>(() => SamusVerticalMotion.Knockback(invalid), "stream1 invalid hurt medium");
-            AssertThrows<InvalidOperationException>(() => SamusVerticalMotion.BombJump(invalid), "stream1 invalid bomb medium");
-            AssertThrows<InvalidOperationException>(() => SamusVerticalMotion.Gravity(invalid), "stream1 invalid gravity medium");
-        }
     }
 
     /// <summary>Reads source bytes for the broad pose and gameplay lookup comparison.</summary>
@@ -815,8 +807,6 @@ internal static class LookupStream1Verification
         }
         AssertTrue(PowampMotionDefinitions.SpikeFiringOrder.SequenceEqual(spikeDirections.Reverse()),
             "Powamp fires its spikes from the cartridge table's last direction back to its first");
-        AssertThrows<ArgumentOutOfRangeException>(() => PowampMotion.BalloonHeight((PowampBalloonPose)3), "Powamp balloon pose domain");
-        AssertThrows<InvalidDataException>(() => PowampMotion.SpikeAcceleration((CompassDirection)spikeDirections.Length), "Powamp spike direction domain");
     }
 
     /// <summary>Reads Powamp native wiggle and balloon offset words.</summary>

@@ -34,43 +34,7 @@ internal sealed class PackedWriter(BinaryWriter output, StateGraphTypes types, P
     }
 
     /// <inheritdoc/>
-    public void WriteBoolean(bool value) => Output.Write(value);
-
-    /// <inheritdoc/>
-    public void WriteByte(byte value) => Output.Write(value);
-
-    /// <inheritdoc/>
-    public void WriteSByte(sbyte value) => Output.Write(value);
-
-    /// <inheritdoc/>
-    public void WriteInt16(short value) => Output.Write(value);
-
-    /// <inheritdoc/>
-    public void WriteUInt16(ushort value) => Output.Write(value);
-
-    /// <inheritdoc/>
-    public void WriteInt32(int value) => Output.Write(value);
-
-    /// <inheritdoc/>
-    public void WriteUInt32(uint value) => Output.Write(value);
-
-    /// <inheritdoc/>
-    public void WriteInt64(long value) => Output.Write(value);
-
-    /// <inheritdoc/>
-    public void WriteUInt64(ulong value) => Output.Write(value);
-
-    /// <inheritdoc/>
-    public void WriteChar(char value) => Output.Write(value);
-
-    /// <inheritdoc/>
-    public void WriteSingle(float value) => Output.Write(value);
-
-    /// <inheritdoc/>
-    public void WriteDouble(double value) => Output.Write(value);
-
-    /// <inheritdoc/>
-    public void WriteDecimal(decimal value) => Output.Write(value);
+    public void WriteScalar<T>(T value) where T : unmanaged => types.Scalar<T>().WriteValue(Output, value);
 
     /// <inheritdoc/>
     public void WriteEnum<TEnum>(TEnum value) where TEnum : struct, Enum => Output.Write7BitEncodedInt(tables.Index(value));

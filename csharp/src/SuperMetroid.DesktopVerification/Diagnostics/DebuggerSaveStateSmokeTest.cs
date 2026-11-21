@@ -15,7 +15,7 @@ using SuperMetroid.Diagnostics.SaveStates;
 namespace SuperMetroid.DesktopVerification.Diagnostics;
 
 /// <summary>Headless save/advance/load deterministic-continuation audit.</summary>
-public static class DebuggerSaveStateSmokeTest
+public static partial class DebuggerSaveStateSmokeTest
 {
     /// <summary>Uses the repository installation to check content/build warnings, exact saved continuation, and wrong-ROM/schema rejection.</summary>
     /// <param name="romPath">Retail cartridge path.</param>
@@ -180,7 +180,7 @@ public static class DebuggerSaveStateSmokeTest
         DebuggerObjectGraphSerializer.Serialize(stream, method);
         stream.Position = 0;
         Func<int, int> restored = DebuggerObjectGraphSerializer.Deserialize<Func<int, int>>(stream);
-        if (restored(42) != 42 || restored.Method != method.Method)
+        if (restored(42) != 42 || !restored.Equals(method))
             throw new InvalidDataException("Named generic delegate identity did not round-trip.");
     }
 

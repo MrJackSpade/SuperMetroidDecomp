@@ -1,10 +1,10 @@
 namespace SuperMetroid.Core;
 
 /// <summary>
-/// Learns how a debugger state holds each type of the game (#2602). The compiler writes each marked assembly's
-/// registration: every type's own members, the collections, arrays and enums its fields are declared with, the methods its
-/// delegates are made from, and the definition catalogs its static members hold, so a state names every type, field and
-/// method it holds in code rather than looking them up at run time.
+/// Learns how a game snapshot holds each type of the game (#2602). Each marked project's registration is generated: every
+/// type's own members, the collections, arrays and enums its fields are declared with, the methods its delegates are made
+/// from, and the definition catalogs its static members hold, so a snapshot names every type, field and method it holds in
+/// code rather than looking them up while the game runs.
 /// </summary>
 public interface IStateGraphRegistry
 {
@@ -15,12 +15,12 @@ public interface IStateGraphRegistry
     /// <param name="type">The type.</param>
     bool Begin(Type type);
 
-    /// <summary>Names a type no object of which a state holds, such as a static class a state can name as a value.</summary>
+    /// <summary>Names a type no object of which a snapshot holds, such as a static class a snapshot can name as a value.</summary>
     /// <param name="type">The type.</param>
     /// <param name="name">Its name.</param>
     void Name(Type type, StateGraphName name);
 
-    /// <summary>Registers a type of the game whose fields a state holds through its generated members.</summary>
+    /// <summary>Registers a type of the game whose fields a snapshot holds through its generated members.</summary>
     /// <typeparam name="T">The type.</typeparam>
     /// <param name="name">Its name.</param>
     /// <param name="write">Writes a value's fields.</param>
@@ -33,7 +33,7 @@ public interface IStateGraphRegistry
     void Node<T>(StateGraphName name, Action<IStateGraphWriter, T> write, Func<IStateGraphReader, T>? create,
         Action<T, IStateGraphVisitor> visit, string? packedSchema);
 
-    /// <summary>Registers an enum, which a state holds by member name.</summary>
+    /// <summary>Registers an enum, which a snapshot holds by member name.</summary>
     /// <typeparam name="TEnum">The enum.</typeparam>
     /// <param name="name">Its name.</param>
     /// <param name="flags">Whether its members are flags a value combines, so any combination of them is a value.</param>
@@ -55,16 +55,16 @@ public interface IStateGraphRegistry
     /// <typeparam name="T">The element type.</typeparam>
     void Stack<T>();
 
-    /// <summary>Registers hash sets of <typeparamref name="T"/>, which a state rebuilds from their members (#1681).</summary>
+    /// <summary>Registers hash sets of <typeparamref name="T"/>, which a snapshot rebuilds from their members (#1681).</summary>
     /// <typeparam name="T">The member type.</typeparam>
     void HashSet<T>();
 
-    /// <summary>Registers dictionaries, which a state rebuilds from their entries (#1681).</summary>
+    /// <summary>Registers dictionaries, which a snapshot rebuilds from their entries (#1681).</summary>
     /// <typeparam name="TKey">The key type.</typeparam>
     /// <typeparam name="TValue">The value type.</typeparam>
     void Dictionary<TKey, TValue>() where TKey : notnull;
 
-    /// <summary>Registers concurrent dictionaries, which a state rebuilds from their entries (#1681).</summary>
+    /// <summary>Registers concurrent dictionaries, which a snapshot rebuilds from their entries (#1681).</summary>
     /// <typeparam name="TKey">The key type.</typeparam>
     /// <typeparam name="TValue">The value type.</typeparam>
     void ConcurrentDictionary<TKey, TValue>() where TKey : notnull;
@@ -73,21 +73,21 @@ public interface IStateGraphRegistry
     /// <typeparam name="T">The element type.</typeparam>
     void ImmutableArray<T>();
 
-    /// <summary>Registers immutable dictionaries, which a state rebuilds from their entries (#1681).</summary>
+    /// <summary>Registers immutable dictionaries, which a snapshot rebuilds from their entries (#1681).</summary>
     /// <typeparam name="TKey">The key type.</typeparam>
     /// <typeparam name="TValue">The value type.</typeparam>
     void ImmutableDictionary<TKey, TValue>() where TKey : notnull;
 
-    /// <summary>Registers immutable hash sets, which a state rebuilds from their members (#1681).</summary>
+    /// <summary>Registers immutable hash sets, which a snapshot rebuilds from their members (#1681).</summary>
     /// <typeparam name="T">The member type.</typeparam>
     void ImmutableHashSet<T>();
 
-    /// <summary>Registers frozen dictionaries, which a state rebuilds from their entries (#1681).</summary>
+    /// <summary>Registers frozen dictionaries, which a snapshot rebuilds from their entries (#1681).</summary>
     /// <typeparam name="TKey">The key type.</typeparam>
     /// <typeparam name="TValue">The value type.</typeparam>
     void FrozenDictionary<TKey, TValue>() where TKey : notnull;
 
-    /// <summary>Registers frozen sets, which a state rebuilds from their members (#1681).</summary>
+    /// <summary>Registers frozen sets, which a snapshot rebuilds from their members (#1681).</summary>
     /// <typeparam name="T">The member type.</typeparam>
     void FrozenSet<T>();
 
@@ -106,8 +106,8 @@ public interface IStateGraphRegistry
 
     /// <summary>
     /// Registers what a field declared as a sequence of <typeparamref name="T"/> (a read-only list, a collection or an
-    /// enumerable) may hold: arrays, lists, immutable arrays, read-only collections, and the read-only lists the compiler
-    /// makes for a collection expression, which a state holds as arrays.
+    /// enumerable) may hold: arrays, lists, immutable arrays, read-only collections, and the read-only lists a collection
+    /// expression makes, which a snapshot holds as arrays.
     /// </summary>
     /// <typeparam name="T">The element type.</typeparam>
     void Sequence<T>();
@@ -122,11 +122,11 @@ public interface IStateGraphRegistry
     void Set<T>();
 
     /// <summary>
-    /// Registers a method a delegate of <typeparamref name="TDelegate"/> is made from, so a state names the method a
+    /// Registers a method a delegate of <typeparamref name="TDelegate"/> is made from, so a snapshot names the method a
     /// delegate calls by <paramref name="name"/> and remakes it for the restored target.
     /// </summary>
     /// <typeparam name="TDelegate">The delegate type.</typeparam>
-    /// <param name="name">The method's name, with its declaring type and parameter types.</param>
+    /// <param name="name">The method's name, after the name of the type declaring it, with what it takes.</param>
     /// <param name="create">Makes the delegate for a target, or answers none when the target is not one the method takes.</param>
     void Method<TDelegate>(string name, Func<object?, TDelegate?> create) where TDelegate : Delegate;
 

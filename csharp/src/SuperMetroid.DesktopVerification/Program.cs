@@ -11,6 +11,9 @@ using SuperMetroid.DesktopVerification.Harness;
 using SuperMetroid.DesktopVerification.Replay;
 using SuperMetroid.DesktopVerification.Soak;
 using SuperMetroid.DesktopVerification.Startup;
+// #2602: the fixtures a check writes into a debugger state get the members the compiler writes for the game's types.
+[assembly: SuperMetroid.Core.StateGraphAssembly(PartialTypesOnly = true)]
+
 namespace SuperMetroid.DesktopVerification;
 using SuperMetroid.TestSupport.WindowsConsole.Verification;
 using SuperMetroid.TestSupport.WindowsConsole;
@@ -53,6 +56,8 @@ internal static class Program
     /// <summary>Starts hidden desktop fixture commands with dialog suppression and a guarded idle callback.</summary>
     private static void Run(string[] args)
     {
+        // The fixtures this assembly writes into debugger states are registered beside the game's types (#2602).
+        SuperMetroid.Diagnostics.SaveStates.StateGraphTypes.Shared.Add(SuperMetroid.DesktopVerification.GeneratedStateGraph.Register);
         NativeConsoleErrors.DisableDialogs();
         SuperMetroid.TestSupport.RunTimeLimit.VerificationRunTimeLimit.Start("SuperMetroid.DesktopVerification " + string.Join(' ', args));
         SuperMetroid.TestSupport.RunTimeLimit.VerificationRunTimeLimit.Activity = string.Join(' ', args);

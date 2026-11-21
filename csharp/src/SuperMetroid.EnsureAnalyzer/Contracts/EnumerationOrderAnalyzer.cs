@@ -1,3 +1,4 @@
+using SuperMetroid.EnsureAnalyzer.SourceLayout;
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -129,6 +130,9 @@ public sealed class EnumerationOrderAnalyzer : DiagnosticAnalyzer
     /// </summary>
     private static void AnalyzeBlock(OperationBlockAnalysisContext context, INamedTypeSymbol? enumType, IAssemblySymbol assembly, OrderFlows flows)
     {
+        // Code a source generator emits, such as a debugger state's writer of every field, orders nothing of the game (#2602).
+        if (context.OperationBlocks.FirstOrDefault()?.Syntax.SyntaxTree is { } tree && GeneratedSource.IsSourceGeneratorOutput(tree, context.CancellationToken))
+            return;
         IOperation[] operations = [.. context.OperationBlocks.SelectMany(block => block.DescendantsAndSelf())];
         foreach (IOperation operation in operations)
         {

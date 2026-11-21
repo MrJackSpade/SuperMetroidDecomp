@@ -1,21 +1,19 @@
 namespace SuperMetroid.Core;
 
 /// <summary>
-/// Marks an assembly whose types the compiler gives the members a debugger state reads, writes and restores them through
-/// (#2602): every field a state holds is named in code the compiler writes, so a state reaches nothing by name at run time.
-/// In a marked assembly every class, struct and record is declared <see langword="partial"/>, so the compiler can add those
-/// members to it, unless <see cref="PartialTypesOnly"/> limits them to the types declared partial.
+/// Marks a project whose types get generated members a game snapshot is written, read and restored through (#2602): every
+/// field a snapshot holds is named in generated code, so a snapshot reaches nothing by name while the game runs. Every
+/// class, struct and record of a marked project is declared <see langword="partial"/>, so the generated members can join
+/// it, unless <see cref="PartialTypesOnly"/> limits them to the types declared so.
 /// </summary>
 [AttributeUsage(AttributeTargets.Assembly)]
 public sealed partial class StateGraphAssemblyAttribute : Attribute
 {
-    /// <summary>
-    /// Whether only the types declared <see langword="partial"/> get the members; otherwise every type must be declared so.
-    /// </summary>
+    /// <summary>Whether only the types declared <see langword="partial"/> get the members.</summary>
     public bool PartialTypesOnly { get; init; }
 
     /// <summary>
-    /// Whether the objects the assembly's static read-only members hold are definition catalogs, which a state names by
+    /// Whether the objects the project's static read-only members hold are definition catalogs, which a snapshot names by
     /// path rather than copying (#1623).
     /// </summary>
     public bool Catalogs { get; init; }

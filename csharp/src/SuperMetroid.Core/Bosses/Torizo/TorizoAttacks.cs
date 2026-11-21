@@ -48,41 +48,19 @@ internal sealed partial class TorizoAttacks
     /// One of the Torizos' projectiles: every motion of the statue fragments, orbs, sonic booms, drool, eggs,
     /// super missiles and eye beam, and the Torizo projectile animations' cues, which may continue an animation elsewhere.
     /// </summary>
-    internal sealed partial class TorizoProjectileBehavior
-        : EnemyProjectileMotionBehavior<TorizoProjectileMotion>, IEnemyProjectileBranchingCues<TorizoProjectileSegment, TorizoProjectileCue>
-    {
-        /// <summary>The enemy projectiles: their first place, the one-in-four chance of death smoke and the scatter.</summary>
-        private readonly EnemyProjectileEngine projectiles;
-
-        /// <summary>The enemy sound queue the projectiles' sounds join.</summary>
-        private readonly EnemyAudioQueue audio;
-
-        /// <summary>The drops a shot Chozo orb leaves.</summary>
-        private readonly EnemyDeathsAndDrops deathsAndDrops;
-
-        /// <summary>Where the animation a destroying shot starts begins, or null for the shared delete animation.</summary>
-        private readonly TorizoProjectileSegment? shot;
-
-        /// <summary>Creates a <see cref="TorizoProjectileBehavior"/>.</summary>
-        /// <param name="room">The loaded room, whose random numbers the projectiles draw.</param>
-        /// <param name="projectiles">The enemy projectiles: their first place, the one-in-four chance of death smoke and the scatter.</param>
-        /// <param name="audio">The enemy sound queue the projectiles' sounds join.</param>
-        /// <param name="deathsAndDrops">The drops a shot Chozo orb leaves.</param>
-        /// <param name="shot">Where the animation a destroying shot starts begins, or null for the shared delete animation.</param>
-        public TorizoProjectileBehavior(
+    /// <param name="room">The loaded room, whose random numbers the projectiles draw.</param>
+    /// <param name="projectiles">The enemy projectiles: their first place, the one-in-four chance of death smoke and the scatter.</param>
+    /// <param name="audio">The enemy sound queue the projectiles' sounds join.</param>
+    /// <param name="deathsAndDrops">The drops a shot Chozo orb leaves.</param>
+    /// <param name="shot">Where the animation a destroying shot starts begins, or null for the shared delete animation.</param>
+    internal sealed partial class TorizoProjectileBehavior(
         EnemyRoomBinding room,
         EnemyProjectileEngine projectiles,
         EnemyAudioQueue audio,
         EnemyDeathsAndDrops deathsAndDrops,
         TorizoProjectileSegment? shot = null)
-            : base(StartingMotions)
-        {
-            this.projectiles = projectiles;
-            this.audio = audio;
-            this.deathsAndDrops = deathsAndDrops;
-            this.shot = shot;
-        }
-
+        : EnemyProjectileMotionBehavior<TorizoProjectileMotion>(StartingMotions), IEnemyProjectileBranchingCues<TorizoProjectileSegment, TorizoProjectileCue>
+    {
         /// <summary>The drop chances each Chozo orb rolls, given as its Torizo throws it.</summary>
         internal EnemyProjectileStates<TorizoChozoOrbState> Orbs { get; } = new();
 

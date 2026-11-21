@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core;
 
 /// <summary>
-/// The name a debugger state gives a type (#2602): its declared name, and for a constructed generic type the types it is
-/// constructed with, whose own names the state's registry supplies once they are known.
+/// The name a game snapshot gives a type (#2602): its declared name, and for a constructed generic type the types it is
+/// constructed with, whose own names the snapshot's registry supplies once they are known.
 /// </summary>
 public sealed partial class StateGraphName
 {

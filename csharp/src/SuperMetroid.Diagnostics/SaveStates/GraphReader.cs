@@ -288,43 +288,7 @@ internal sealed class GraphReader(BinaryReader input, StateGraphTypes types, Bou
         $"{DebuggerObjectGraphSerializer.UnsupportedVersion}: the state holds {found} where this build stores {expected}.");
 
     /// <inheritdoc/>
-    public bool ReadBoolean() => Scalar<bool>();
-
-    /// <inheritdoc/>
-    public byte ReadByte() => Scalar<byte>();
-
-    /// <inheritdoc/>
-    public sbyte ReadSByte() => Scalar<sbyte>();
-
-    /// <inheritdoc/>
-    public short ReadInt16() => Scalar<short>();
-
-    /// <inheritdoc/>
-    public ushort ReadUInt16() => Scalar<ushort>();
-
-    /// <inheritdoc/>
-    public int ReadInt32() => Scalar<int>();
-
-    /// <inheritdoc/>
-    public uint ReadUInt32() => Scalar<uint>();
-
-    /// <inheritdoc/>
-    public long ReadInt64() => Scalar<long>();
-
-    /// <inheritdoc/>
-    public ulong ReadUInt64() => Scalar<ulong>();
-
-    /// <inheritdoc/>
-    public char ReadChar() => Scalar<char>();
-
-    /// <inheritdoc/>
-    public float ReadSingle() => Scalar<float>();
-
-    /// <inheritdoc/>
-    public double ReadDouble() => Scalar<double>();
-
-    /// <inheritdoc/>
-    public decimal ReadDecimal() => Scalar<decimal>();
+    public T ReadScalar<T>() where T : unmanaged => Scalar<T>();
 
     /// <inheritdoc/>
     public TEnum ReadEnum<TEnum>() where TEnum : struct, Enum

@@ -218,7 +218,8 @@ internal sealed partial class StateGraphRun
                 {
                     MemberKind.FixedProperty => $"__reader.Fixed({member.Expression});",
                     MemberKind.Field when member.Readonly => $"global::System.Runtime.CompilerServices.Unsafe.AsRef(in {member.Expression}) = {read};",
-                    _ => $"{member.Expression} = {read};",
+                    MemberKind.Field or MemberKind.SettableProperty or MemberKind.Captured => $"{member.Expression} = {read};",
+                    _ => throw new InvalidOperationException($"No restore of a {member.Kind}."),
                 }));
             }
             code.AppendLine("    }");
@@ -307,28 +308,30 @@ internal sealed partial class StateGraphRun
 
     // ---------------------------------------------------------------- values
 
-    private static string? Scalar(ITypeSymbol type) => type.SpecialType switch
+    /// <summary>The scalars a writer and reader name in their methods, by the name each method carries.</summary>
+    private static readonly Dictionary<SpecialType, string> Scalars = new()
     {
-        SpecialType.System_Boolean => "Boolean",
-        SpecialType.System_Byte => "Byte",
-        SpecialType.System_SByte => "SByte",
-        SpecialType.System_Int16 => "Int16",
-        SpecialType.System_UInt16 => "UInt16",
-        SpecialType.System_Int32 => "Int32",
-        SpecialType.System_UInt32 => "UInt32",
-        SpecialType.System_Int64 => "Int64",
-        SpecialType.System_UInt64 => "UInt64",
-        SpecialType.System_Char => "Char",
-        SpecialType.System_Single => "Single",
-        SpecialType.System_Double => "Double",
-        SpecialType.System_Decimal => "Decimal",
-        _ => null,
+        [SpecialType.System_Boolean] = "Boolean",
+        [SpecialType.System_Byte] = "Byte",
+        [SpecialType.System_SByte] = "SByte",
+        [SpecialType.System_Int16] = "Int16",
+        [SpecialType.System_UInt16] = "UInt16",
+        [SpecialType.System_Int32] = "Int32",
+        [SpecialType.System_UInt32] = "UInt32",
+        [SpecialType.System_Int64] = "Int64",
+        [SpecialType.System_UInt64] = "UInt64",
+        [SpecialType.System_Char] = "Char",
+        [SpecialType.System_Single] = "Single",
+        [SpecialType.System_Double] = "Double",
+        [SpecialType.System_Decimal] = "Decimal",
     };
+
+    private static string? Scalar(ITypeSymbol type) => Scalars.TryGetValue(type.SpecialType, out string? name) ? name : null;
 
     private static string WriteValue(ITypeSymbol type, string expression)
     {
-        if (Scalar(type) is { } scalar)
-            return $"__writer.Write{scalar}({expression});";
+        if (Scalar(type) is not null)
+            return $"__writer.WriteScalar<{Code(type)}>({expression});";
         if (type.TypeKind == TypeKind.Enum)
             return $"__writer.WriteEnum<{Code(type)}>({expression});";
         return $"__writer.Write((object){expression});";
@@ -336,8 +339,8 @@ internal sealed partial class StateGraphRun
 
     private static string ReadValue(ITypeSymbol type)
     {
-        if (Scalar(type) is { } scalar)
-            return $"__reader.Read{scalar}()";
+        if (Scalar(type) is not null)
+            return $"__reader.ReadScalar<{Code(type)}>()";
         if (type.TypeKind == TypeKind.Enum)
             return $"__reader.ReadEnum<{Code(type)}>()";
         return $"__reader.Read<{Code(type)}>()";

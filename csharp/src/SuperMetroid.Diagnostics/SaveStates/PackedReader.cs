@@ -52,43 +52,7 @@ internal sealed class PackedReader(BinaryReader input, StateGraphTypes types, Pa
     }
 
     /// <inheritdoc/>
-    public bool ReadBoolean() => Input.ReadBoolean();
-
-    /// <inheritdoc/>
-    public byte ReadByte() => Input.ReadByte();
-
-    /// <inheritdoc/>
-    public sbyte ReadSByte() => Input.ReadSByte();
-
-    /// <inheritdoc/>
-    public short ReadInt16() => Input.ReadInt16();
-
-    /// <inheritdoc/>
-    public ushort ReadUInt16() => Input.ReadUInt16();
-
-    /// <inheritdoc/>
-    public int ReadInt32() => Input.ReadInt32();
-
-    /// <inheritdoc/>
-    public uint ReadUInt32() => Input.ReadUInt32();
-
-    /// <inheritdoc/>
-    public long ReadInt64() => Input.ReadInt64();
-
-    /// <inheritdoc/>
-    public ulong ReadUInt64() => Input.ReadUInt64();
-
-    /// <inheritdoc/>
-    public char ReadChar() => Input.ReadChar();
-
-    /// <inheritdoc/>
-    public float ReadSingle() => Input.ReadSingle();
-
-    /// <inheritdoc/>
-    public double ReadDouble() => Input.ReadDouble();
-
-    /// <inheritdoc/>
-    public decimal ReadDecimal() => Input.ReadDecimal();
+    public T ReadScalar<T>() where T : unmanaged => types.Scalar<T>().ReadValue(Input);
 
     /// <inheritdoc/>
     public TEnum ReadEnum<TEnum>() where TEnum : struct, Enum => tables.Member<TEnum>(Input.Read7BitEncodedInt());

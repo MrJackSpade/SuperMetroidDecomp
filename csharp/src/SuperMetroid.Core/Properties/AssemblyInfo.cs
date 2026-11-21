@@ -10,5 +10,4 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("SuperMetroid.ResourceAudit")]
 [assembly: InternalsVisibleTo("SuperMetroid.Tooling")]
 
-// #2602: every type's debugger-state members are written by the compiler; the static members' objects are definition catalogs.
 [assembly: SuperMetroid.Core.StateGraphAssembly(Catalogs = true)]

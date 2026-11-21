@@ -113,7 +113,7 @@ internal sealed class GraphWriter(BinaryWriter output, StateGraphTypes types, Bo
     public void Fields(int count) => Output.Write(count);
 
     /// <inheritdoc/>
-    public void Field(StateGraphField field) => Output.Write(Ensure.NotNull(field).Encoded.Span);
+    public void Field(StateGraphField field) => Output.Write(StateGraphNames.Encoded(Ensure.NotNull(field)));
 
     /// <summary>Writes a scalar framed as a value of its type.</summary>
     private void Scalar<T>(T value)
@@ -124,43 +124,7 @@ internal sealed class GraphWriter(BinaryWriter output, StateGraphTypes types, Bo
     }
 
     /// <inheritdoc/>
-    public void WriteBoolean(bool value) => Scalar(value);
-
-    /// <inheritdoc/>
-    public void WriteByte(byte value) => Scalar(value);
-
-    /// <inheritdoc/>
-    public void WriteSByte(sbyte value) => Scalar(value);
-
-    /// <inheritdoc/>
-    public void WriteInt16(short value) => Scalar(value);
-
-    /// <inheritdoc/>
-    public void WriteUInt16(ushort value) => Scalar(value);
-
-    /// <inheritdoc/>
-    public void WriteInt32(int value) => Scalar(value);
-
-    /// <inheritdoc/>
-    public void WriteUInt32(uint value) => Scalar(value);
-
-    /// <inheritdoc/>
-    public void WriteInt64(long value) => Scalar(value);
-
-    /// <inheritdoc/>
-    public void WriteUInt64(ulong value) => Scalar(value);
-
-    /// <inheritdoc/>
-    public void WriteChar(char value) => Scalar(value);
-
-    /// <inheritdoc/>
-    public void WriteSingle(float value) => Scalar(value);
-
-    /// <inheritdoc/>
-    public void WriteDouble(double value) => Scalar(value);
-
-    /// <inheritdoc/>
-    public void WriteDecimal(decimal value) => Scalar(value);
+    public void WriteScalar<T>(T value) where T : unmanaged => Scalar(value);
 
     /// <inheritdoc/>
     public void WriteEnum<TEnum>(TEnum value) where TEnum : struct, Enum

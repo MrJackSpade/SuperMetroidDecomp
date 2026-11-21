@@ -235,5 +235,5 @@ namespace SuperMetroid.Verification;
 [JsonSerializable(typeof(global::SuperMetroid.AssetExtraction.Rooms.RoomStaticPaletteDocument), TypeInfoPropertyName = "SuperMetroid_AssetExtraction_Rooms_RoomStaticPaletteDocument")]
 [JsonSerializable(typeof(global::SuperMetroid.Verification.Frontend.SpriteFramesFixtureDocument), TypeInfoPropertyName = "SuperMetroid_Verification_Frontend_SpriteFramesFixtureDocument")]
 [JsonSerializable(typeof(global::System.Collections.Generic.Dictionary<string, object>), TypeInfoPropertyName = "System_Collections_Generic_Dictionary_string_object")]
-[JsonSerializable(typeof(int), TypeInfoPropertyName = "System_Int32")]
+[JsonSerializable(typeof(int))]
 internal sealed partial class VerificationJsonContext : JsonSerializerContext;

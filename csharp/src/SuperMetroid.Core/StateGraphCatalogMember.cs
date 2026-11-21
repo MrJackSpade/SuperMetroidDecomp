@@ -2,7 +2,7 @@ namespace SuperMetroid.Core;
 
 /// <summary>
 /// One static read-only member of a definition catalog (#1623, #2602): its name, the name of the type it is declared with,
-/// and how to read the object it holds, which runs its declaring type's initializer only when a state first needs it.
+/// and how to read the object it holds, which builds its declaring type's definitions only when a snapshot first needs them.
 /// </summary>
 /// <param name="Name">The member's name.</param>
 /// <param name="Declared">The name of the type the member is declared with.</param>

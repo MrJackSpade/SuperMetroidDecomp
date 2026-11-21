@@ -14,7 +14,7 @@ namespace SuperMetroid.Verification.Runtime;
 using SuperMetroid.Verification.Harness;
 
 /// <summary>Checks debugger graph restoration rejects stale field and type layouts.</summary>
-internal static class DebuggerStateLayoutVerification
+internal static partial class DebuggerStateLayoutVerification
 {
     /// <summary>
     /// #1270: debugger states restore only this build's exact layout. A stale field, a type this build
@@ -28,11 +28,11 @@ internal static class DebuggerStateLayoutVerification
             "a current-layout graph round-trips");
 
         // Same-length replacements keep every length prefix valid, so only the identity changes.
-        RequireUnsupported<SamusGrappleState>(Replace(current, "<PoseChangeAutoFireTimer>k__BackingField", "<PoseChangeAutoFireTamer>k__BackingField"),
+        RequireUnsupported<SamusGrappleState>(Replace(current, "PoseChangeAutoFireTimer", "PoseChangeAutoFireTamer"),
             "a renamed field");
-        RequireUnsupported<SamusGrappleState>(Replace(current, "SuperMetroid.Core.Samus.Grapple.SamusGrappleState,", "SuperMetroid.Core.Samus.Grapple.SamusGrappleStatf,"),
+        RequireUnsupported<SamusGrappleState>(Replace(current, "SuperMetroid.Core.Samus.Grapple.SamusGrappleState", "SuperMetroid.Core.Samus.Grapple.SamusGrappleStatf"),
             "a type this build does not have");
-        RequireUnsupported<SamusGrappleState>(Replace(current, "System.Int32,", "System.Int64,"), "a retyped field value");
+        RequireUnsupported<SamusGrappleState>(Replace(current, "System.Int32", "System.Int64"), "a retyped field value");
         Console.WriteLine("Debugger state layout: current graphs round-trip; renamed fields, missing types and retyped values are rejected.");
 
     }
@@ -239,16 +239,16 @@ internal static class DebuggerStateLayoutVerification
         ];
         byte[] packed = SerializeDebuggerGraph(blocks);
         AssertTrue(DeserializeDebuggerGraph<RoomTerrainBlock[]>(packed).SequenceEqual(blocks), "a packed block run round-trips");
-        RequireUnsupported<RoomTerrainBlock[]>(Replace(packed, "<Collision>k__BackingField", "<Collisiom>k__BackingField"),
+        RequireUnsupported<RoomTerrainBlock[]>(Replace(packed, "Collision:", "Collisiom:"),
             "a packed run with a renamed field");
-        RequireUnsupported<RoomTerrainBlock[]>(Replace(packed, "LevelData.RoomCollisionType,", "LevelData.RoomCollisionTypf,"),
+        RequireUnsupported<RoomTerrainBlock[]>(Replace(packed, "LevelData.RoomCollisionType", "LevelData.RoomCollisionTypf"),
             "a packed run naming a type this build does not have");
         Console.WriteLine("Debugger state packing: packed runs with renamed fields or missing types are rejected.");
     }
 
     /// <summary>A key compared by reference identity, whose hash is its object's.</summary>
     /// <param name="name">The name the fixture gives it.</param>
-    private sealed class HashedOwner(string name)
+    private sealed partial class HashedOwner(string name)
     {
         /// <summary>The name the fixture gives it.</summary>
         internal string Name { get; } = name;
@@ -257,13 +257,13 @@ internal static class DebuggerStateLayoutVerification
     /// <summary>A record key, whose hash combines its name's and its owner's identity hash.</summary>
     /// <param name="Name">The owner's name.</param>
     /// <param name="Owner">The owner it keys.</param>
-    private sealed record HashedKey(string Name, HashedOwner Owner);
+    private sealed partial record HashedKey(string Name, HashedOwner Owner);
 
     /// <summary>A dictionary subclass, which the rebuild of its base cannot rebuild.</summary>
-    private sealed class NamedCounts : Dictionary<string, int>;
+    private sealed partial class NamedCounts : Dictionary<string, int>;
 
     /// <summary>A state holding every hash-keyed collection kind the debugger state rebuilds.</summary>
-    private sealed class HashKeyedState
+    private sealed partial class HashKeyedState
     {
         /// <summary>Every owner, in creation order.</summary>
         internal List<HashedOwner> Owners { get; } = [];

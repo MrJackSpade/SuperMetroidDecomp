@@ -43,13 +43,9 @@ internal abstract partial class SequencedRoomObjectProgress<TSegment, TFrame, TE
     }
 
     /// <summary>The object's animation has ended with nothing to follow: it rests on the frame it last showed.</summary>
-    internal sealed partial class Resting : SequencedRoomObjectProgress<TSegment, TFrame, TEvent>
+    /// <param name="shown">The frame it last showed.</param>
+    internal sealed partial class Resting(TFrame shown) : SequencedRoomObjectProgress<TSegment, TFrame, TEvent>
     {
-        /// <summary>Creates a <see cref="Resting"/>.</summary>
-        /// <param name="shown">The frame it last showed.</param>
-        public Resting(TFrame shown)
-        {
-        }
     }
 
     /// <summary>The object's animation has ended with nothing to follow, its last step showing no frame: it rests showing none.</summary>

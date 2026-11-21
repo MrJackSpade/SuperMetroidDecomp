@@ -312,6 +312,8 @@ internal sealed partial class StateGraphRun
                     case null when !field.IsImplicitlyDeclared:
                         own.Add(new Member(field.Name, field.Type, MemberKind.Field, field.IsReadOnly));
                         break;
+                    default:
+                        break;
                 }
             }
         }
@@ -337,8 +339,9 @@ internal sealed partial class StateGraphRun
         {
             foreach (IParameterSymbol parameter in primary.Parameters)
             {
-                string? argument = MapArgument(type, primary, parameter, own);
-                if (argument is null)
+                string? argument = MapArgument(type, parameter, own);
+                // A parameter nothing in the type refers to changes nothing it builds, so its restore passes the default.
+                if (argument is null && IsReferenced(type, parameter))
                     output.ReportDiagnostic(Diagnostic.Create(UnmappedParameter, parameter.Locations.FirstOrDefault() ?? type.Locations.FirstOrDefault(),
                         type.ToDisplayString(), parameter.Name));
                 level.Arguments.Add(argument);
@@ -368,7 +371,7 @@ internal sealed partial class StateGraphRun
             SemanticModel model = compilation.GetSemanticModel(declaration.SyntaxTree);
             foreach (MemberDeclarationSyntax member in declaration.Members)
             {
-                if (member is BaseTypeDeclarationSyntax or DelegateDeclarationSyntax || member is FieldDeclarationSyntax)
+                if (member is BaseTypeDeclarationSyntax or DelegateDeclarationSyntax or FieldDeclarationSyntax)
                     continue;
                 foreach (IdentifierNameSyntax identifier in member.DescendantNodes().OfType<IdentifierNameSyntax>())
                 {
@@ -407,7 +410,7 @@ internal sealed partial class StateGraphRun
     /// The expression reading what keeps a primary constructor parameter's value: a record's member of its name, the
     /// captured parameter, a member whose initializer refers to it, or what the base it is passed to keeps of it.
     /// </summary>
-    private string? MapArgument(INamedTypeSymbol type, IMethodSymbol primary, IParameterSymbol parameter, List<Member> own)
+    private string? MapArgument(INamedTypeSymbol type, IParameterSymbol parameter, List<Member> own)
     {
         if (type.IsRecord)
         {
@@ -457,7 +460,12 @@ internal sealed partial class StateGraphRun
             for (int index = 0; index < baseArguments.Count && index < basePrimary.Parameters.Length; index++)
             {
                 SemanticModel model = compilation.GetSemanticModel(baseArguments[index].SyntaxTree);
-                if (baseArguments[index].Expression is IdentifierNameSyntax identifier &&
+                // The parameter itself, or a check of it that hands it on (Ensure.NotEmpty(parameter)).
+                ExpressionSyntax passedOn = baseArguments[index].Expression is InvocationExpressionSyntax { ArgumentList.Arguments.Count: 1 } call &&
+                    model.GetTypeInfo(call).Type is { } checkedType && SymbolEqualityComparer.Default.Equals(checkedType, parameter.Type)
+                    ? call.ArgumentList.Arguments[0].Expression
+                    : baseArguments[index].Expression;
+                if (passedOn is IdentifierNameSyntax identifier &&
                     model.GetSymbolInfo(identifier).Symbol is IParameterSymbol passed &&
                     SymbolEqualityComparer.Default.Equals(passed, parameter) &&
                     Converts(basePrimary.Parameters[index].Type, parameter.Type))
@@ -465,6 +473,23 @@ internal sealed partial class StateGraphRun
             }
         }
         return null;
+    }
+
+    /// <summary>Whether anything in the type's declarations (an initializer, the base's arguments, a member) refers to the parameter.</summary>
+    private bool IsReferenced(INamedTypeSymbol type, IParameterSymbol parameter)
+    {
+        foreach (SyntaxReference reference in type.DeclaringSyntaxReferences)
+        {
+            var declaration = (TypeDeclarationSyntax)reference.GetSyntax();
+            SemanticModel model = compilation.GetSemanticModel(declaration.SyntaxTree);
+            foreach (IdentifierNameSyntax identifier in declaration.DescendantNodes().OfType<IdentifierNameSyntax>())
+            {
+                if (identifier.Identifier.ValueText == parameter.Name &&
+                    SymbolEqualityComparer.Default.Equals(model.GetSymbolInfo(identifier).Symbol, parameter))
+                    return true;
+            }
+        }
+        return false;
     }
 
     /// <summary>The arguments the type's declaration passes to its base's constructor, or null when it passes none.</summary>

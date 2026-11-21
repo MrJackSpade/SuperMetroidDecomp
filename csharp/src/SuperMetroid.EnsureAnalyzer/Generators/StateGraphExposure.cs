@@ -124,6 +124,8 @@ internal sealed class StateGraphExposure(StateGraphRun run)
                             yield return required;
                 }
                 yield break;
+            default:
+                yield break;
         }
     }
 

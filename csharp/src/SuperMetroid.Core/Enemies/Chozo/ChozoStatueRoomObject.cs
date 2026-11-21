@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Chozo;
 /// <summary>
 /// A room object one of the two Chozo statues spawns, named for what it does to the statue's room (#1622): each carries
 /// the room object it becomes and the setup its spawn runs on its block (#2571), so the statue requests it directly and no
-/// switch over room-object identities builds or sets it up. The plug's two crumbles are one object spawned two ways, each
+/// switch over room-object identities builds or sets it up. The statues' hands are <see cref="ChozoStatueHandObject"/>s. The plug's two crumbles are one object spawned two ways, each
 /// leaving its own picture.
 /// </summary>
 public sealed class ChozoStatueRoomObject
@@ -31,19 +31,6 @@ public sealed class ChozoStatueRoomObject
         _create = create;
         _setUp = setUp;
     }
-
-    /// <summary>
-    /// The Lower Norfair statue's hand: it lowers the acid at once when the statue has already done so, and otherwise
-    /// waits for the Power Bomb block at its trigger to break open and makes that block the hand.
-    /// </summary>
-    public static ChozoStatueRoomObject LowerNorfairHand { get; } = new(nameof(LowerNorfairHand),
-        spawn => spawn.Statue.CreateLowerNorfairHand(),
-        static _ => { });
-
-    /// <summary>The Wrecked Ship statue's hand: its spawn makes its block the hand, and it leaves on its first update.</summary>
-    public static ChozoStatueRoomObject WreckedShipHand { get; } = new(nameof(WreckedShipHand),
-        static _ => new TerrainChangeObject(ChozoStatueObjectDefinitions.WreckedShipHand),
-        spawn => ChozoStatueObjects.WriteChozoBlock(spawn.Level, spawn.Block, RoomCollisionType.SpecialBlock, ChozoStatueRoomDefinitions.WreckedShipHandBehavior));
 
     /// <summary>The Wrecked Ship statue's slope access opening: it draws the opened access, then the spikes become slopes.</summary>
     public static ChozoStatueRoomObject SlopeAccessOpening { get; } = new(nameof(SlopeAccessOpening),

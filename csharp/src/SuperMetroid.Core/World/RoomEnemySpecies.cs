@@ -338,7 +338,7 @@ internal sealed class RoomEnemySpecies
         AttractDemoHooks = new AttractDemoOperations(enemies.Places);
         RoomObjectSpawns = new ObjectSpawns(noobTubeBehavior, eyeDoorBehavior, oldTourianEscapeShaftWallBehavior, draygonBehavior,
             motherBrainBehavior, torizoBehavior, escapeExplosionsBehavior);
-        RoomObjectRequests = new ObjectRequests(chozoStatueBehavior, downwardGateBehavior);
+        RoomObjectRequests = new ObjectRequests(downwardGateBehavior);
         EscapeShutterFlash = shuttersBehavior;
         Displays = new DisplayContributions(CeresEscape, MotherBrainEncounter, morphBallEyeBehavior.MorphBallEyeBeam);
     }
@@ -623,15 +623,11 @@ internal sealed class RoomEnemySpecies
             EscapeExplosions.SpawnEscapeExplosion(position, random, kindLeftOpen);
     }
 
-    /// <summary>The room-object work the Chozo statues and downward gates exchange with their room objects.</summary>
-    internal sealed class ObjectRequests(ChozoStatueBehavior chozoStatue, DownwardGateBehavior downwardGate) : IEnemyObjectRequests
+    /// <summary>The room-object work the downward gates exchange with their room objects.</summary>
+    internal sealed class ObjectRequests(DownwardGateBehavior downwardGate) : IEnemyObjectRequests
     {
         /// <summary>The gates that close downward over a passage.</summary>
         private DownwardGateBehavior DownwardGate { get; } = downwardGate;
-
-        /// <inheritdoc/>
-        public IReadOnlyList<RoomObjectSpawnRequest<ChozoStatueRoomObject>> ActivateChozoStatueHandTrigger() =>
-            chozoStatue.ActivateChozoStatueHandTrigger();
 
         /// <inheritdoc/>
         public void ApplyDownwardGateProjectileRequest(DownwardGateProjectileRequest request) =>

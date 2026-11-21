@@ -34,8 +34,6 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemySpawnFactory<Ch
     private readonly EnemyRoomFx _roomFx;
     /// <summary>The enemy pass's events, among which the statue asks for its room objects as it decides on them.</summary>
     private readonly EnemyPassEvents _passEvents;
-    /// <summary>The room's statue, which its hand belongs to, once the statue is placed (#2283).</summary>
-    private RoomEnemyPlace? _statue;
 
     /// <summary>Binds statue behavior to room, movement, FX, sound and projectile owners.</summary>
     internal ChozoStatueBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyProjectileEngine projectiles, EnemyAudioQueue audio, EnemyRoomFx roomFx,
@@ -67,32 +65,32 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemySpawnFactory<Ch
         statue.Shading = PictureShading.Shaded(site == ChozoStatueSite.WreckedShip ? ChozoAndTubeShades.WreckedShipStatue : ChozoAndTubeShades.LowerNorfairStatue);
 
         var state = new ChozoStatueState { Phase = ChozoStatuePhase.Placed, Site = site };
-        _statue = statue;
+        // The statue's hand carries what triggering it wakes: this statue, as its room lists it first (#2554).
+        var hand = new ChozoStatueHandTrigger(this, state);
 
         if (site == ChozoStatueSite.WreckedShip)
         {
             state.Playback = new(ChozoStatueAnimations.StartingWith(ChozoStatueSegment.WreckedShipIdle), AnimationPlace.StartOfAnimation);
-            RequestChozoObject(ChozoStatueRoomObject.WreckedShipHand, ChozoStatueRoomDefinitions.WreckedShipHandBlock);
+            RequestChozoHand(ChozoStatueHandObject.WreckedShip, ChozoStatueRoomDefinitions.WreckedShipHandBlock, hand);
             RequestChozoObject(ChozoStatueRoomObject.SlopeAccessClosing, ChozoStatueRoomDefinitions.WreckedShipSlopeAccessBlock);
         }
         else
         {
             state.Playback = new(ChozoStatueAnimations.StartingWith(ChozoStatueSegment.LowerNorfairIdle), AnimationPlace.StartOfAnimation);
-            RequestChozoObject(ChozoStatueRoomObject.LowerNorfairHand, ChozoStatueRoomDefinitions.LowerNorfairHandBlock);
+            RequestChozoHand(ChozoStatueHandObject.LowerNorfair, ChozoStatueRoomDefinitions.LowerNorfairHandBlock, hand);
         }
         return state;
     }
 
     /// <summary>
-    /// Wakes the statue once Samus triggers its hand: the statue's wait moves on
+    /// Wakes the statue <paramref name="statueState"/> describes once Samus triggers its hand: the statue's wait moves on
     /// (<see cref="ChozoStatueState.TriggerHand"/>), Samus's controls are taken and the site's room changes are made.
     /// Which touches the hand admits and the hand block's collision are the room object's.
     /// </summary>
+    /// <param name="statueState">The state of the statue whose hand was triggered.</param>
     /// <returns>The room objects the trigger asks its room for, in the order it asks, which the room spawns at once.</returns>
-    public IReadOnlyList<RoomObjectSpawnRequest<ChozoStatueRoomObject>> ActivateChozoStatueHandTrigger()
+    internal IReadOnlyList<RoomObjectSpawnRequest<ChozoStatueRoomObject>> ActivateChozoStatueHandTrigger(ChozoStatueState statueState)
     {
-        RoomEnemyPlace statue = _statue ?? throw new InvalidOperationException("A Chozo hand triggered in a room whose statue was never placed.");
-        ChozoStatueState statueState = statue.RequireSpeciesState<ChozoStatueState>();
         statueState.TriggerHand();
         DisableChozoStatueSamusControls();
         if (statueState.Site == ChozoStatueSite.LowerNorfair)
@@ -272,6 +270,13 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemySpawnFactory<Ch
     /// </summary>
     private void RequestChozoObject(ChozoStatueRoomObject roomObject, Position16<RoomBlocks> block) =>
         _passEvents.Publish(new ChozoStatueObjectAsked(new RoomObjectSpawnRequest<ChozoStatueRoomObject>(block, roomObject)));
+
+    /// <summary>
+    /// Asks the room to spawn the statue's hand <paramref name="handObject"/> at <paramref name="block"/>, carrying
+    /// <paramref name="hand"/>, what triggering it wakes.
+    /// </summary>
+    private void RequestChozoHand(ChozoStatueHandObject handObject, Position16<RoomBlocks> block, ChozoStatueHandTrigger hand) =>
+        _passEvents.Publish(new ChozoStatueHandAsked(new RoomObjectSpawnRequest<ChozoStatueHandObject>(block, handObject), hand));
 
     /// <summary>Runs ChozoStatue's main AI.</summary>
     internal static void RunChozoStatueMainAi(RoomEnemyOccupant occupant, ChozoStatueSpawnSettings chozoStatueSpawnSettings, RoomEnemyPlace place, ChozoStatueState chozoStatueState)

@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
@@ -18,23 +18,23 @@ internal sealed class ChozoStatueObjects : IChozoStatueHand
     /// <summary>The room's room objects, which the hand checks and the statues' objects join.</summary>
     private readonly RoomObjectPlaceList _places;
 
-    /// <summary>Starts the statue's hand sequence, which the room's enemies run, and names the room objects it spawns at once.</summary>
-    private readonly IChozoStatueHandActivation _hands;
+    /// <summary>
+    /// The statue each spawned hand belongs to, by the statue's site: a hand's block wakes the statue its spawn carried
+    /// (#2554). A room without a spawned hand has no hand block to touch.
+    /// </summary>
+    private readonly Dictionary<ChozoStatueSite, ChozoStatueHandTrigger> _hands = [];
     /// <summary>The room's liquid, which the Lower Norfair statue lowers.</summary>
     private readonly IRoomLiquid _roomFx;
 
     /// <summary>Binds Chozo hand behavior to its room services and room objects.</summary>
     /// <param name="system">The room's system and event state.</param>
     /// <param name="area">The room's area.</param>
-    /// <param name="hands">Starts the statue's hand sequence, which the room's enemies run.</param>
     /// <param name="roomFx">The room's liquid.</param>
     /// <param name="places">The room's room objects.</param>
-    internal ChozoStatueObjects(SharedGameState system, AreaId area, IChozoStatueHandActivation hands, IRoomLiquid roomFx,
-        RoomObjectPlaceList places)
+    internal ChozoStatueObjects(SharedGameState system, AreaId area, IRoomLiquid roomFx, RoomObjectPlaceList places)
     {
         _system = system;
         _area = area;
-        _hands = hands;
         _roomFx = roomFx;
         _places = places;
     }
@@ -53,6 +53,9 @@ internal sealed class ChozoStatueObjects : IChozoStatueHand
         bool lowerNorfair = _area == AreaId.Norfair &&
             behavior == ChozoStatueRoomDefinitions.LowerNorfairHandBehavior;
         if (!wreckedShip && !lowerNorfair) return;
+        // The hand's block wakes the statue whose spawned hand made it the hand.
+        if (!_hands.TryGetValue(wreckedShip ? ChozoStatueSite.WreckedShip : ChozoStatueSite.LowerNorfair, out ChozoStatueHandTrigger? hand))
+            return;
         // The hand block is solid whether or not the touch is admitted. Samus morphed facing left is not admitted; only
         // these three poses are.
         bool eligible = movingDown && collisionPose is
@@ -70,8 +73,8 @@ internal sealed class ChozoStatueObjects : IChozoStatueHand
             // Both triggers turn the hand block to air before waking the statue (#2502); its behaviour, picture and
             // what it shows survive until the room object the statue then spawns runs.
             level.SetCollision(block, RoomCollisionType.Air);
-            foreach (RoomObjectSpawnRequest<ChozoStatueRoomObject> request in _hands.ActivateChozoStatueHand())
-                TrySpawnChozoStatueObject(level, request);
+            foreach (RoomObjectSpawnRequest<ChozoStatueRoomObject> request in hand.Activate())
+                SpawnChozoStatueObject(level, request);
         }
         check.Delete();
     }
@@ -94,6 +97,26 @@ internal sealed class ChozoStatueObjects : IChozoStatueHand
 
         place.Block = spawn.Block;
         place.Become(roomObject);
+        request.RoomObject.SetUp(spawn);
+    }
+
+    /// <summary>
+    /// Spawns the statue's hand <paramref name="request"/> names at its block, at the first free place in the update
+    /// order, and runs its setup; the spawned hand's block then wakes <paramref name="hand"/>.
+    /// </summary>
+    /// <remarks>When the room is full nothing is spawned or changed (<see cref="Compatibility.RoomObjectPlaces"/>).</remarks>
+    internal void SpawnChozoStatueHand(RoomLevelData level, RoomObjectSpawnRequest<ChozoStatueHandObject> request, ChozoStatueHandTrigger hand)
+    {
+        Ensure.NotNull(level);
+        Ensure.NotNull(hand);
+        var spawn = new ChozoStatueObjectSpawn(this, level, level.GridBlock(request.Block));
+        RoomObjectBehaviour roomObject = request.RoomObject.Create(spawn);
+        if (_places.Spawn() is not { } place)
+            return;
+
+        place.Block = spawn.Block;
+        place.Become(roomObject);
+        _hands.Add(hand.Site, hand);
         request.RoomObject.SetUp(spawn);
     }
 

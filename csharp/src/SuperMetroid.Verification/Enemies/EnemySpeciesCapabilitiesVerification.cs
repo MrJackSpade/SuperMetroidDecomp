@@ -1,3 +1,5 @@
+using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -243,29 +245,24 @@ internal static class EnemySpeciesCapabilitiesVerification
         RoomEnemySystem motherBrainRoom = LoadThrough(motherBrainListing.Population, motherBrainListing.Index);
         MotherBrainEnemyState motherBrain = motherBrainRoom.Places.InUpdateOrder[listings[EnemyDefinitionId.MotherBrainBody].Index]
             .EntityOf<MotherBrainBodyEntity>().Encounter;
-        RoomEnemyPlace tube = ((IEnemyLifecycle)motherBrainRoom.Lifecycle).SpawnEnemy(
-            new JoiningEnemySpawn<MotherBrainEnemyState, MotherBrainTubeSpawnSettings>(
-                CompiledRoomEnemyDefinitions.Instance.ReadFallingTubePopulation(MotherBrainTubePiece.BottomLeft),
-                new MotherBrainTubeSpawnSettings(MotherBrainTubePiece.BottomLeft), motherBrainRoom.MotherBrainBehavior, motherBrain))
-            ?? throw new InvalidOperationException("Mother Brain's room had no free place for her falling tube.");
-        Check(EnemyDefinitionId.MotherBrainTubes, motherBrainRoom, tube);
+        // Her fake death's tube collapse drops its first tube, which waits only for free enemy projectiles, on the first
+        // update her body's main AI runs it.
+        motherBrain.DescentPhase = MotherBrainDescentPhase.CollapseTubes;
+        motherBrain.TubeCollapse = MotherBrainTubeCollapseProgress.Start;
+        motherBrain.Body.RunMainAi(RoomEnemyFrameFixtures.StandaloneSamus());
+        Check(EnemyDefinitionId.MotherBrainTubes, motherBrainRoom, Holding(motherBrainRoom, EnemyDefinitionId.MotherBrainTubes));
         MotherBrainRainbowBeamAttackSequence lateFight = MotherBrainBabyArrival.BringInBaby(motherBrain, RoomEnemyFrameFixtures.StandaloneSamus());
         Check(EnemyDefinitionId.BabyMetroidCutscene, motherBrainRoom, MotherBrainBabyArrival.BabyOf(lateFight).Place);
 
-        // His breakup's pieces join the breakup his death begins, each spawned as his death spawns it.
+        // His breakup's pieces join the breakup his death begins: the last update of his death's explosions spawns them.
         PopulationListing ridleyListing = listings[EnemyDefinitionId.Ridley];
         RoomEnemySystem ridleyRoom = LoadThrough(ridleyListing.Population, ridleyListing.Index);
         RoomEnemyPlace ridley = ridleyRoom.Places.InUpdateOrder[ridleyListing.Index];
-        var pieceSettings = new RidleyExplosionSpawnSettings(RidleyExplosionPart.TailBase);
-        RoomEnemyPlace piece = ((IEnemyLifecycle)ridleyRoom.Lifecycle).SpawnEnemy(
-            new JoiningEnemySpawn<RidleyBreakupSource, RidleyExplosionSpawnSettings>(
-                new RoomEnemyPlacement(EnemyDefinitionId.RidleyBreakupPiece, EnemyPlacing.At(Position16<RoomPixels>.Zero),
-                    EnemyContact.IgnoresSamus, EnemyProcessing.Animates | EnemyProcessing.OffScreen, EnemyPresence.None,
-                    CollidesByFrameHitboxes: false, pieceSettings),
-                pieceSettings, ridleyRoom.NorfairRidleyBehavior.Death,
-                new RidleyBreakupSource(ridley.EntityOf<NorfairRidleyEntity>().Encounter, ridley.Position.Whole)))
-            ?? throw new InvalidOperationException("Ridley's room had no free place for his breakup's piece.");
-        Check(EnemyDefinitionId.RidleyBreakupPiece, ridleyRoom, piece);
+        NorfairRidleyState ridleyState = ridley.EntityOf<NorfairRidleyEntity>().Encounter;
+        ridleyState.Phase = NorfairRidleyPhase.DeathExplosions;
+        ridleyState.PhaseTimer.LastFor(1);
+        ridley.RunMainAi(RoomEnemyFrameFixtures.StandaloneSamus());
+        Check(EnemyDefinitionId.RidleyBreakupPiece, ridleyRoom, Holding(ridleyRoom, EnemyDefinitionId.RidleyBreakupPiece));
 
         // The rest are placed by their spawners from placements of their own, each set up alone.
         foreach (EnemyDefinitionId definition in definitions.Where(definition => !checkedDefinitions.Contains(definition)).ToList())
@@ -302,7 +299,7 @@ internal static class EnemySpeciesCapabilitiesVerification
 
             // Only the door of Ceres Ridley's room is built as it; its setup attaches it to the room's Ceres doors, which
             // show its overlay picture while its animation's look is the overlay.
-            if (entity is not CeresRidleyRoomDoorEntity door)
+            if (entity is not CeresRidleyRoomDoorEntity)
             {
                 AssertTrue(definition != EnemyDefinitionId.CeresRidleyRoomDoor, $"{definition} is built as Ceres Ridley's room door");
                 return;
@@ -312,7 +309,7 @@ internal static class EnemySpeciesCapabilitiesVerification
             SpawnedObjectFixtures.LoadSetDrawing(enemies, EnemyDefinitionId.RidleyCeres);
             foreach (CeresRidleyRoomDoorLook look in new[] { CeresRidleyRoomDoorLook.Actor, CeresRidleyRoomDoorLook.Overlay })
             {
-                door.State.Look = look;
+                place.RequireSpeciesState<CeresDoorAnimationState>().Look = look;
                 var sprites = new SpriteFrameBuffer();
                 sprites.BeginFrame();
                 enemies.CeresDoorBehavior.PublishRidleyRoomDoorOverlay(sprites, Position16<RoomPixels>.Zero);
@@ -348,21 +345,24 @@ internal static class EnemySpeciesCapabilitiesVerification
     }
 
     /// <summary>
-    /// A new room's enemies drawing from <paramref name="population"/>'s artwork, with its entries through the one at
-    /// <paramref name="last"/> set up by the population load, in a walled room holding every one of their places.
+    /// A new room's enemies loaded as a room loads them with <paramref name="population"/>'s entries through the one at
+    /// <paramref name="last"/>, in a walled room holding every one of their places.
     /// </summary>
     private static RoomEnemySystem LoadThrough(RoomEnemyPopulationDefinition population, int last)
     {
         RoomEnemyPlacement[] placements = population.Placements.Span[..(last + 1)].ToArray();
         RoomEnemySystem enemies = NewRoomEnemies();
-        // The room's enemies draw from its whole population's artwork, as its load has them.
-        enemies.Presentation.DrawPopulation(population);
-        enemies.PopulationLoader.LoadPopulation(enemies.Species, CompiledRoomEnemyDefinitions.Instance,
-            new PlacedRoomEnemyPopulationDefinition(population.Name, placements, deathQuota: 0),
-            new EnemyPopulationSurroundings(WalledRoomHolding(placements), RoomEnemyFrameFixtures.StandaloneSamus(), GameplayAction.None,
-                Position16<RoomPixels>.Zero));
+        // The entries keep their population's name, so they draw from its artwork as its room's load has them.
+        enemies.Load(RoomEnemyFrameFixtures.StandaloneLoad(new PlacedRoomEnemyPopulationDefinition(population.Name, placements, deathQuota: 0),
+            BgArtworkFixtures.For(new SnesVram()), WalledRoomHolding(placements), RoomEnemyFrameFixtures.StandaloneSamus()));
         return enemies;
     }
+
+    /// <summary>The place of <paramref name="enemies"/> whose enemy is <paramref name="definition"/>, which a spawn has just placed.</summary>
+    /// <exception cref="InvalidOperationException">No place holds such an enemy.</exception>
+    private static RoomEnemyPlace Holding(RoomEnemySystem enemies, EnemyDefinitionId definition) =>
+        enemies.Places.InUpdateOrder.FirstOrDefault(place => place.Occupant?.DefinitionId == definition)
+            ?? throw new InvalidOperationException($"No enemy place holds {definition} after its spawn.");
 
     /// <summary>
     /// A room walled by solid blocks on every side with nothing inside, its far wall and floor a few blocks past the

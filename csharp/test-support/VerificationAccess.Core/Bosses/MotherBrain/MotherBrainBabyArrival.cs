@@ -29,9 +29,10 @@ internal static class MotherBrainBabyArrival
     }
 
     /// <summary>
-    /// Places Mother Brain in <paramref name="enemies"/>' first two places as her room's population places her: the
-    /// population load sets up her room's first two entries, her body and then her brain, which joins the encounter her body
-    /// begins, each with her definitions and her entries' placement and hit areas, beside <paramref name="samus"/> (#2554).
+    /// Places Mother Brain in <paramref name="enemies"/>' first two places as her room's population places her: the room's
+    /// load of her room's first two entries, her body and then her brain, which joins the encounter her body begins, sets
+    /// each up with her definitions and her entries' placement and hit areas, beside <paramref name="samus"/> (#2554). The
+    /// enemies load a room once, so a check places her in enemies of their own.
     /// </summary>
     /// <returns>The encounter her body began.</returns>
     internal static MotherBrainEnemyState PlaceMotherBrain(World.RoomEnemySystem enemies, SamusState samus)
@@ -39,10 +40,9 @@ internal static class MotherBrainBabyArrival
         Ensure.NotNull(enemies);
         RoomEnemyPopulationDefinition room = World.RoomStates.RoomEnemyPopulationDefinitions.MotherBrainBeforeDefeat;
         RoomEnemyPlacement[] bodyAndBrain = room.Placements.Span[..2].ToArray();
-        enemies.PopulationLoader.LoadPopulation(enemies.Species, World.CompiledRoomEnemyDefinitions.Instance,
-            new PlacedRoomEnemyPopulationDefinition(room.Name, bodyAndBrain, deathQuota: 0),
-            new EnemyPopulationSurroundings(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Ensure.NotNull(samus), Input.GameplayAction.None,
-                Position16<RoomPixels>.Zero));
+        enemies.Load(RoomEnemyFrameFixtures.StandaloneLoad(new PlacedRoomEnemyPopulationDefinition(room.Name, bodyAndBrain, deathQuota: 0),
+            Hardware.BgArtworkFixtures.For(new SuperMetroid.AssetExtraction.Video.SnesVram()), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)),
+            Ensure.NotNull(samus)));
         IReadOnlyList<RoomEnemyPlace> places = enemies.Places.InUpdateOrder;
         MotherBrainEnemyState state = places[0].EntityOf<MotherBrainBodyEntity>().Encounter;
         _ = places[1].EntityOf<MotherBrainHeadEntity>();

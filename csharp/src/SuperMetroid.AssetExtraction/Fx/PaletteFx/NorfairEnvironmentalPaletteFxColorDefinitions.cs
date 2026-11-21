@@ -11,21 +11,16 @@ public static class NorfairEnvironmentalPaletteFxColorDefinitions
     /// <summary>Each phase writes five live BGR555 colors.</summary>
     public const int ColorsPerFrame = 5;
 
-    /// <summary>Each program's owner, in definition order: the heat-phase program, then the green, purple and dark foreground glows.</summary>
-    internal static readonly NorfairEnvironmentalPaletteOwner[] Owners =
+    /// <summary>
+    /// Each program's owner with its palette-FX object, in definition order: the heat-phase program, then the green, purple
+    /// and dark foreground glows.
+    /// </summary>
+    internal static readonly IReadOnlyList<KeyValuePair<NorfairEnvironmentalPaletteOwner, ColourEffectId>> Programs =
     [
-        NorfairEnvironmentalPaletteOwner.ForegroundAndHeatPhase,
-        NorfairEnvironmentalPaletteOwner.GreenForeground,
-        NorfairEnvironmentalPaletteOwner.PurpleForeground,
-        NorfairEnvironmentalPaletteOwner.DarkForeground,
-    ];
-    /// <summary>The palette-FX object of each program, by owner.</summary>
-    internal static readonly ColourEffectId[] Objects =
-    [
-        ColourEffectId.NorfairForegroundAndHeatPhase,
-        ColourEffectId.NorfairGreenForegroundHeatGlow,
-        ColourEffectId.NorfairPurpleForegroundHeatGlow,
-        ColourEffectId.NorfairDarkForegroundHeatGlow,
+        KeyValuePair.Create(NorfairEnvironmentalPaletteOwner.ForegroundAndHeatPhase, ColourEffectId.NorfairForegroundAndHeatPhase),
+        KeyValuePair.Create(NorfairEnvironmentalPaletteOwner.GreenForeground, ColourEffectId.NorfairGreenForegroundHeatGlow),
+        KeyValuePair.Create(NorfairEnvironmentalPaletteOwner.PurpleForeground, ColourEffectId.NorfairPurpleForegroundHeatGlow),
+        KeyValuePair.Create(NorfairEnvironmentalPaletteOwner.DarkForeground, ColourEffectId.NorfairDarkForegroundHeatGlow),
     ];
 
     /// <summary>The four real environmental programs in definition order.</summary>

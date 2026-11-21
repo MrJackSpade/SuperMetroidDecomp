@@ -9,28 +9,24 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// <summary>Immutable Grapple visual attributes; cadence, placement, geometry and physics are not editable here.</summary>
 public sealed class InstalledGrappleSprites
 {
-    /// <summary>The installed appearance of each of the rope's four timed frames (#1596).</summary>
-    private readonly SpritePart[] segments;
+    /// <summary>The installed appearance of each of the rope's four pictures (#1596, #2565), keyed by the picture.</summary>
+    private readonly Dictionary<GrappleRopePicture, SpritePart> segments;
     /// <summary>Selected single-piece endpoint appearance used by both connected and unconnected drawing paths.</summary>
     public SpritePart Endpoint { get; }
     /// <summary>Keeps the installed endpoint and every rope frame's installed appearance.</summary>
-    private InstalledGrappleSprites(SpritePart endpoint, SpritePart[] segments)
+    private InstalledGrappleSprites(SpritePart endpoint, Dictionary<GrappleRopePicture, SpritePart> segments)
     {
         Endpoint = endpoint;
         this.segments = segments;
     }
-    /// <summary>Resolves one rope animation frame's selected appearance without advancing any segment's independent gameplay timer.</summary>
-    /// <param name="frame">Zero-based frame 0..3 in native $94:B18B..B19A record order.</param>
+    /// <summary>Resolves one rope picture's selected appearance without advancing any segment's independent gameplay timer.</summary>
+    /// <param name="picture">One of the rope's four pictures.</param>
     /// <returns>The character, palette, depth and authored mirroring; drawing additionally mirrors it by the rope's angle.</returns>
-    /// <exception cref="InvalidDataException"><paramref name="frame"/> is outside the four segment appearances.</exception>
-    public SpritePart Segment(int frame)
-        => (uint)frame < GrappleSpriteDefinitions.SegmentFrameCount
-            ? segments[frame]
-            : throw new InvalidDataException($"Invalid Grapple visual frame {frame}.");
-
-    /// <summary>The appearance of the rope's timed frame that shows <paramref name="picture"/>.</summary>
     /// <exception cref="InvalidDataException">The rope shows no such picture.</exception>
-    public SpritePart Segment(GrappleRopePicture picture) => Segment(GrappleSheetDefinitions.RopeTimedFrame(picture));
+    public SpritePart Segment(GrappleRopePicture picture)
+        => segments.TryGetValue(picture, out SpritePart appearance)
+            ? appearance
+            : throw new InvalidDataException($"Invalid Grapple rope picture {picture}.");
 
     /// <summary>Strict camel-case JSON settings shared by grapple sprite import and export.</summary>
     private static readonly JsonSerializerOptions Options = new()
@@ -57,9 +53,10 @@ public sealed class InstalledGrappleSprites
         }
         catch (JsonException error) { throw new InvalidDataException("Invalid Grapple sprite JSON.", error); }
         if (document.Version != GrappleSpriteDefinitions.Version || document.Segments is null ||
-            document.Segments.Length != GrappleSpriteDefinitions.SegmentFrameCount)
-            throw new InvalidDataException("Grapple sprites require version 1 and exactly four segment appearances.");
-        return new(Compile(document.Endpoint), document.Segments.Select(Compile).ToArray());
+            document.Segments.Count != GrappleSheetDefinitions.RopePattern.Count)
+            throw new InvalidDataException($"Grapple sprites require version {GrappleSpriteDefinitions.Version} and one appearance for each rope picture.");
+        return new(Compile(document.Endpoint), GrappleSheetDefinitions.RopePattern.ToDictionary(picture => picture, picture =>
+            Compile(document.Segments.TryGetValue(picture.ToString(), out GrappleSpriteStyle? style) ? style : null)));
     }
 
     /// <summary>Validates an authored tile, palette, depth, and flip style into a single-piece appearance.</summary>

@@ -894,12 +894,12 @@ internal static class LookupStream3Verification
             // The segment appearance has no packed word: the native attribute word is decoded by the import pipeline's
             // codec and compared by character, palette row, priority and mirroring.
             AssertEqual(new SnesObjAttributeWord(CartridgeImportSource.Require(rom).ReadCartridgeWord(address)).ToSinglePart(),
-                grappleSprites.Segment(frame), "stream 3 calculated native rope appearance");
+                grappleSprites.Segment(GrappleSheetDefinitions.RopePattern[frame]), "stream 3 calculated native rope appearance");
         }
         foreach (int invalid in new[] { -1, 4, int.MaxValue })
         {
             AssertThrows<ArgumentOutOfRangeException>(() => SuperMetroid.AssetExtraction.Samus.GrappleSpriteExtractor.SegmentAttributeAddress(invalid), "stream 3 rope operand address bounds");
-            AssertThrows<InvalidDataException>(() => grappleSprites.Segment(invalid), "stream 3 rope attribute bounds");
+            AssertThrows<InvalidDataException>(() => grappleSprites.Segment((GrappleRopePicture)invalid), "stream 3 rope attribute bounds");
         }
         var swingFrames = GrappleSwingFrameFile.Load(new MemoryStream(
             SuperMetroid.AssetExtraction.Samus.GrappleSwingFrameExtractor.Extract(rom)));

@@ -626,7 +626,6 @@ global using static SuperMetroid.Core.Gameplay.XrayRevealBackgroundPrivateAccess
 global using static SuperMetroid.Core.Hud.GameplayMessageBoxStatePrivateAccess;
 global using static SuperMetroid.Core.Hud.HudStatePrivateAccess;
 global using static SuperMetroid.Core.Hud.ShownHudPrivateAccess;
-global using static SuperMetroid.Core.Input.ControllerBindingsPrivateAccess;
 global using static SuperMetroid.Core.Input.DemoInputStatePrivateAccess;
 global using static SuperMetroid.Core.PacedCountdownPrivateAccess;
 global using static SuperMetroid.Core.Progression.GameClockReadingPrivateAccess;

@@ -50,7 +50,7 @@ internal static class SoundEffectCommandsAccess
         /// </summary>
         /// <exception cref="InvalidDataException">The library has no such request.</exception>
         internal static SoundEffectId DecodeCartridge(SoundEffectLibrary library, int command) =>
-            Merged.TryGetValue((library, command), out SoundEffectId survivor) ? survivor : SoundEffectCommands.Decode(library, command);
+            Merged.TryGetValue((library, command), out SoundEffectId? survivor) ? survivor : SoundEffectCommands.Decode(library, command);
 
         /// <summary>
         /// The sound a cartridge operand or header word queues through <paramref name="library"/>: the request in its byte,

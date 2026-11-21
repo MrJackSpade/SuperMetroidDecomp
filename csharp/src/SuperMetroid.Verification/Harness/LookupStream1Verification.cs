@@ -607,8 +607,8 @@ internal static class LookupStream1Verification
         AssertEqual(253, SamusBodyTableDecoding.PoseCount, "cannon original 506-byte pointer extent");
         foreach (SamusProjectileDirection direction in SamusProjectileDirectionCodec.InAimOrder)
         {
-            SpriteVisualPart appearance = document.CoverAppearances[direction];
-            AssertEqual(CannonCoverAppearance(appearance.TileRow, appearance.TileColumn, appearance.Palette ?? 0, appearance.Depth, appearance.FlipX, appearance.FlipY),
+            SpriteVisualPiece appearance = document.CoverAppearances[direction];
+            AssertEqual(CannonCoverAppearance(appearance.TileRow, appearance.TileColumn, appearance.Palette, appearance.Depth, appearance.FlipX, appearance.FlipY),
                 stock.CoverAppearance(direction), $"cannon {direction} cover appearance loads as its document places it");
         }
         AssertEqual(SamusPoseNumbers.RecordedPoses.Count, document.PoseDescriptors.Count, "cannon installs one descriptor per pose with a record, and none for a record no pose names");

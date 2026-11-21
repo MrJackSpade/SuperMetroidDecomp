@@ -36,7 +36,7 @@ internal static class SoundListClipsVerification
                 withoutClip.Add(sound);
                 continue;
             }
-            if (owners.TryGetValue(audio, out SoundEffectId owner))
+            if (owners.TryGetValue(audio, out SoundEffectId? owner))
                 AssertTrue(false, $"{sound} installs {audio}, as {owner} does: one sound under two names");
             owners[audio] = sound;
         }

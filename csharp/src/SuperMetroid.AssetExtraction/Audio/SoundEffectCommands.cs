@@ -42,7 +42,7 @@ internal static class SoundEffectCommands
     /// <summary>The sound or stop <paramref name="library"/>'s request <paramref name="command"/> names.</summary>
     /// <exception cref="InvalidDataException">The library has no such request.</exception>
     internal static SoundEffectId Decode(SoundEffectLibrary library, int command) =>
-        RequestsOf(library).TryGetValue(command, out SoundEffectId sound)
+        RequestsOf(library).TryGetValue(command, out SoundEffectId? sound)
             ? sound
             : throw new InvalidDataException($"{library} has no sound request ${command:X2}.");
 

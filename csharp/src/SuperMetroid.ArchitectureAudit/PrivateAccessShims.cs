@@ -66,21 +66,10 @@ internal sealed class PrivateAccessShims(INamedTypeSymbol owner, string path)
     private bool IsMutableValue => owner.IsValueType && !owner.IsReadOnly;
 
     /// <summary>
-    /// The generated class of <paramref name="owner"/> in the repository at <paramref name="root"/>: in its assembly's
-    /// verification-access folder, or, for code relocated into <paramref name="relocationTarget"/> when that folder is not
-    /// under it and holds no such class yet, beside the relocated code, which the same projects compile.
+    /// The generated class of <paramref name="owner"/> in the repository at <paramref name="root"/>, in its assembly's
+    /// verification-access folder.
     /// </summary>
-    public static PrivateAccessShims For(string root, INamedTypeSymbol owner, string? relocationTarget = null)
-    {
-        string path = PathFor(root, owner);
-        if (relocationTarget is null || File.Exists(path) ||
-            System.IO.Path.GetFullPath(path).StartsWith(System.IO.Path.GetFullPath(relocationTarget) + System.IO.Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
-            return new(owner, path);
-        string file = System.IO.Path.GetRelativePath(root, System.IO.Path.GetFullPath(owner.DeclaringSyntaxReferences[0].SyntaxTree.FilePath)).Replace('\\', '/');
-        string inAssembly = file[$"csharp/src/{owner.ContainingAssembly.Name}/".Length..];
-        string directory = System.IO.Path.GetDirectoryName(inAssembly) ?? "";
-        return new(owner, System.IO.Path.Combine(relocationTarget, directory, $"{ClassName(owner)}.cs"));
-    }
+    public static PrivateAccessShims For(string root, INamedTypeSymbol owner) => new(owner, PathFor(root, owner));
 
     /// <summary>The type whose private-access class stands in for <paramref name="member"/>: its own, or, for a member of an extension block, the static class declaring the block.</summary>
     public static INamedTypeSymbol OwnerOf(ISymbol member) =>

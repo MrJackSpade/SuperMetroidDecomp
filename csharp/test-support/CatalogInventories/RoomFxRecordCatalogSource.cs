@@ -1,5 +1,4 @@
 using System.Collections.Immutable;
-using System.Reflection;
 using System.Text;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Fx;
@@ -14,14 +13,29 @@ using SuperMetroid.Core.Rooms.Doors;
 namespace SuperMetroid.TestSupport.CatalogInventories;
 
 /// <summary>Reads the retail room-FX headers and renders the generated Core catalog that holds them.</summary>
-internal static class RoomFxRecordCatalogSource
+internal static partial class RoomFxRecordCatalogSource
 {
     /// <summary>Each catalog selection's member name in <see cref="RoomFxDefinitions"/>, which names it in the generated catalog.</summary>
-    private static readonly Dictionary<RoomFxSelection, string> SelectionNames = typeof(RoomFxDefinitions)
-        .GetProperties(BindingFlags.Public | BindingFlags.Static)
-        .Where(property => property.PropertyType == typeof(RoomFxSelection))
-        .ToDictionary(property => (RoomFxSelection)(property.GetValue(null)
-            ?? throw new InvalidDataException($"Room FX selection {property.Name} is null.")), property => property.Name);
+    private static readonly Dictionary<RoomFxSelection, string> SelectionNames = SelectionMembers()
+        .ToDictionary(member => member.Value, member => member.Name);
+
+    /// <summary>The area door catalogs, each naming the doors of its area's rooms; a door none names is the shared catalog's.</summary>
+    private static readonly Dictionary<string, string[]> DoorClasses = DoorMembers()
+        .GroupBy(member => member.Name, StringComparer.Ordinal)
+        .ToDictionary(group => group.Key, group => group.Select(member => member.Owner).ToArray(), StringComparer.Ordinal);
+
+    /// <summary>The selections <see cref="RoomFxDefinitions"/> names.</summary>
+    [NamedMembers(typeof(RoomFxDefinitions))]
+    private static partial (RoomFxSelection Value, string Owner, string Name)[] SelectionMembers();
+
+    /// <summary>The doors each area's door catalog names.</summary>
+    [NamedMembers(typeof(BrinstarDoorDefinitions), typeof(CeresDoorDefinitions), typeof(CrateriaDoorDefinitions),
+        typeof(MaridiaDoorDefinitions), typeof(NorfairDoorDefinitions), typeof(TourianDoorDefinitions), typeof(WreckedShipDoorDefinitions))]
+    private static partial (DoorDefinition Value, string Owner, string Name)[] DoorMembers();
+
+    /// <summary>The blends <see cref="RoomEffectBlendDefinitions"/> names.</summary>
+    [NamedMembers(typeof(RoomEffectBlendDefinitions))]
+    private static partial (RoomEffectBlend Value, string Owner, string Name)[] BlendMembers();
 
     /// <summary>The checked-in generated catalog the renderer's output must equal.</summary>
     internal static readonly string GeneratedPath = Path.GetFullPath(Path.Combine(
@@ -123,14 +137,11 @@ internal static class RoomFxRecordCatalogSource
     /// <summary>The door-definition class that names <paramref name="name"/>: its area's, or the shared one for doors no area names.</summary>
     private static string DeclaringDoorClass(string name)
     {
-        Type[] areas = [.. typeof(DoorDefinitions).Assembly.GetTypes().Where(type =>
-            type.Namespace == typeof(DoorDefinitions).Namespace && type != typeof(DoorDefinitions) &&
-            type.Name.EndsWith(nameof(DoorDefinitions), StringComparison.Ordinal) &&
-            type.GetProperty(name, BindingFlags.Public | BindingFlags.Static) is not null)];
+        string[] areas = DoorClasses.GetValueOrDefault(name) ?? [];
         return areas.Length switch
         {
             0 => nameof(DoorDefinitions),
-            1 => areas[0].Name,
+            1 => areas[0],
             _ => throw new InvalidOperationException($"Door {name} is named by {areas.Length} area classes."),
         };
     }
@@ -143,8 +154,7 @@ internal static class RoomFxRecordCatalogSource
     {
         if (blend is null)
             return "null";
-        PropertyInfo[] members = [.. typeof(RoomEffectBlendDefinitions).GetProperties(BindingFlags.Public | BindingFlags.Static)
-            .Where(property => ReferenceEquals(property.GetValue(null), blend))];
+        (RoomEffectBlend Value, string Owner, string Name)[] members = [.. BlendMembers().Where(member => ReferenceEquals(member.Value, blend))];
         return members.Length == 1 ? $"{nameof(RoomEffectBlendDefinitions)}.{members[0].Name}"
             : throw new InvalidDataException($"Blend {blend} is not one {nameof(RoomEffectBlendDefinitions)} member.");
     }

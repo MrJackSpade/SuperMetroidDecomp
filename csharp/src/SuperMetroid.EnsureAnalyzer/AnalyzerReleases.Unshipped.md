@@ -89,3 +89,4 @@ SME6491 | Build | Error | StateGraphGenerator
 SME6492 | Build | Error | StateGraphGenerator
 SME6493 | Build | Error | StateGraphGenerator
 SME6494 | Build | Error | StateGraphExposure
+SME6495 | Build | Error | NamedMembersGenerator

@@ -22,21 +22,6 @@ public static class RoomFxBlockAnimationLoops
         ? animation
         : throw new InvalidOperationException($"{animation} has no block animation loop.");
 
-    /// <summary>Enumerates the seven loops whose every picture the atlas holds as its own, in atlas order.</summary>
-    public static IEnumerable<BlockAnimation> All
-    {
-        get
-        {
-            yield return Require(BlockAnimation.HorizontalSpikes);
-            yield return Require(BlockAnimation.MaridiaSandCeiling);
-            yield return Require(BlockAnimation.MaridiaSandFalling);
-            yield return Require(BlockAnimation.Lava);
-            yield return Require(BlockAnimation.Acid);
-            yield return Require(BlockAnimation.Rain);
-            yield return Require(BlockAnimation.Spores);
-        }
-    }
-
     /// <summary>One loop's frames and the distinct pictures they show, as the import's atlas stores them (#1527).</summary>
     extension(BlockAnimation loop)
     {

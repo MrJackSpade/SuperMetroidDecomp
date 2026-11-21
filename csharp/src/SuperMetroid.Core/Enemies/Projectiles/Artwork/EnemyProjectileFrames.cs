@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Enemies.Artwork;
-
 namespace SuperMetroid.Core.Enemies.Projectiles.Artwork;
 
 /// <summary>Reads of what the enemy-projectile frames are drawn from (<see cref="EnemyProjectileRoomPictureDefinitions"/>).</summary>

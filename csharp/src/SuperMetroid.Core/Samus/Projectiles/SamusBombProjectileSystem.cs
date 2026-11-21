@@ -854,11 +854,9 @@ public sealed class SamusBombProjectileSystem
         if (block.CollisionType is RoomCollisionType.SolidBlock or RoomCollisionType.ShootableBlock &&
             block.Behavior.Shootable == ShootableReaction.ResidentObjectTrigger)
         {
-            if (!roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(block.At, BlockStrike.By(projectileType)))
-            {
-                throw new InvalidOperationException(
-                    $"Bombed resident-trigger block {block.Position} has no active room-object owner.");
-            }
+            // A block no object holds any more (the already-broken n00b tube's origin) takes the
+            // bomb and nothing happens.
+            roomObjects.ProjectileTriggers.NotifyResidentProjectileHit(block.At, BlockStrike.By(projectileType));
             return;
         }
 

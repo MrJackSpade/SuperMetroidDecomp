@@ -20,10 +20,12 @@ public sealed class KraidNailState : KraidAnimatedPartState
     private readonly KraidPartReference sibling;
 
     /// <summary>
-    /// The place his other fingernail occupies (#2298), whose last launch this one's reads in that place, whatever the
-    /// place holds.
+    /// His other fingernail as this one's launch reads it in its place (#2298), whatever the place holds
+    /// (<see cref="RoomEnemyPlace.FoundState{T}"/>): the state it is attached as, the <see cref="KraidPartState"/> every
+    /// Kraid part is attached as, or null when the place reads as holding none, as a killed sibling's cleared place does.
+    /// Only his other fingernail joins that place, so a part found there is a fingernail.
     /// </summary>
-    internal RoomEnemyPlace SiblingPlace => sibling.Place;
+    internal KraidNailState? FoundSibling => (KraidNailState?)sibling.Place.FoundState<KraidPartState>();
 
     /// <summary>The phase the fingernail runs; its setup has it wait before its first launch.</summary>
     public KraidNailPhase Phase { get; internal set; }

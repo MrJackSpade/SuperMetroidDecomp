@@ -186,10 +186,9 @@ internal sealed class KraidProjectiles
     {
         // The pair coordinates its next launch through the other actor's previous
         // velocity and spawn flag. Read that actor before overwriting this one's state.
-        // The sibling is read in its place whatever the place holds (RoomEnemyPlace.FoundState): a sibling killed since it
-        // was set up has a cleared place, which reads as a nail at rest that took no alternate spawn, so the launch goes up.
-        // The sibling's place is the one its reference joined as the other fingernail, which no other enemy joins.
-        KraidNailState? siblingPart = part.SiblingPlace.FoundState<KraidNailState>();
+        // The sibling is read in its place whatever the place holds: a sibling killed since it was set up has a cleared
+        // place, which reads as a nail at rest that took no alternate spawn, so the launch goes up.
+        KraidNailState? siblingPart = part.FoundSibling;
         int random = _room.Random.Read();
         part.NailVelocity = KraidNailLaunch.FromSiblingVelocity((siblingPart?.NailVelocity ?? FixedVector<RoomPixels>.Zero).Y);
         nail.Contact = nail.Contact.Without(EnemyContact.IgnoresSamus);

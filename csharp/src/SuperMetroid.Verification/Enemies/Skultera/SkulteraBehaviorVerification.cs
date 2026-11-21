@@ -34,18 +34,19 @@ internal static class SkulteraBehaviorVerification
             // state; the room spawn primes the instruction timer, which the setup leaves as it is.
             place.SetUpAsPlaced();
             place.AnimationClock.StepOnNextUpdate();
-            SkulteraEnemyState state = enemies.SkulteraStates[0] ?? throw new InvalidOperationException("Skultera has no state.");
+            // The Skultera's setup builds the state its steps and its animation, which the check plays, run on.
+            SkulteraEnemyState state = SkulteraBehavior.InitializeSkultera(place.HeldOccupant().SpawnSettings<SkulteraSpawnSettings>());
             AssertEqual(new AnimationPlayback<SkulteraSegment>(SkulteraAnimations.StartingWith(swim), AnimationPlace.StartOfAnimation), state.Playback, $"Skultera starts {swim}");
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(SkulteraAnimations.Segments, loop, SkulteraFrameToolingDefinitions.Spritemap),
-                EnemyInstructionRunner.ShownFrames(place, EnemyInstructionRunner.LoopUpdates(SkulteraAnimations.Segments, loop)), $"Skultera {swim} loop");
+                EnemyInstructionRunner.ShownFrames(place, EnemyInstructionRunner.LoopUpdates(SkulteraAnimations.Segments, loop), () => SkulteraBehavior.AdvanceSkulteraTypedAnimation(place, state)), $"Skultera {swim} loop");
 
             SkulteraBehavior.BeginSkulteraTurn(place, state, startsLeft ? HorizontalDirection.Left : HorizontalDirection.Right);
             AssertEqual(new AnimationPlayback<SkulteraSegment>(SkulteraAnimations.StartingWith(turn), AnimationPlace.StartOfAnimation), state.Playback, $"Skultera {swim} begins {turn}");
             int[] holds = [13, 10, 8, 6, 6, 8, 10, 13];
             AssertEqual(EnemyInstructionRunner.ExpectedFrames(SkulteraAnimationsConstants.Spritemaps(turn), holds),
-                EnemyInstructionRunner.ShownFrames(place, holds.Sum()), $"Skultera {turn} poses");
+                EnemyInstructionRunner.ShownFrames(place, holds.Sum(), () => SkulteraBehavior.AdvanceSkulteraTypedAnimation(place, state)), $"Skultera {turn} poses");
             AssertEqual(SkulteraAction.Turning, state.Action, $"Skultera {turn} is unfinished while its last pose holds");
-            EnemyInstructionRunner.ShownFrames(place, 1);
+            EnemyInstructionRunner.ShownFrames(place, 1, () => SkulteraBehavior.AdvanceSkulteraTypedAnimation(place, state));
             AssertEqual(SkulteraAction.TurnFinished, state.Action, $"Skultera {turn} finishes the turn");
         }
         Console.WriteLine("  Skultera behavior: both swims with their layers and both turns with their completion cue pass.");

@@ -11,19 +11,19 @@ internal sealed class MagdolliteBodyEntity(MagdolliteBehavior species, RoomEnemy
     : MagdollitePartEntity(species, occupant, place, common)
 {
     /// <inheritdoc/>
-    internal override MagdollitePartState State => Body;
+    internal override MagdollitePartState State => body;
 
     /// <summary>The body's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal MagdolliteBodyState Body { get; } = species.InitializeMagdolliteBody(place, partners);
+    private readonly MagdolliteBodyState body = species.InitializeMagdolliteBody(place, partners);
 
     /// <summary>The Magdollite its head began, which the body joined as it was built (#2554).</summary>
     internal override MagdollitePartners Partners { get; } = partners;
 
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) =>
-        Species.RunMagdolliteBody(Place, Body, Partners, Ensure.NotNull(frame).Samus);
+        Species.RunMagdolliteBody(Place, body, Partners, Ensure.NotNull(frame).Samus);
 
     /// <inheritdoc/>
     public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) =>
-        MagdolliteBehavior.AdvanceMagdolliteBodyAnimation(Place, Body);
+        MagdolliteBehavior.AdvanceMagdolliteBodyAnimation(Place, body);
 }

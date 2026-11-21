@@ -24,10 +24,10 @@ internal sealed class CeresElevatorDoorEntity(CeresDoorBehavior doors, RoomEnemy
     private const int RumbleInterval = 5;
 
     /// <summary>The door's animation, which its setup starts as the door is built (#2554).</summary>
-    internal CeresDoorAnimationState State { get; } = doors.Start(place, HorizontalDirection.Right, CeresDoorSegment.ElevatorDoor);
+    private readonly CeresDoorAnimationState ownState = doors.Start(place, HorizontalDirection.Right, CeresDoorSegment.ElevatorDoor);
 
     /// <summary>The door's phase and destruction counters, intact from its setup.</summary>
-    internal CeresElevatorDoorState Door { get; } = new() { Phase = CeresElevatorDoorPhase.Intact };
+    private readonly CeresElevatorDoorState ownDoor = new() { Phase = CeresElevatorDoorPhase.Intact };
 
     /// <summary>Shows the door's own look as it is set up: only the elevator door shows it (#1406, #1538).</summary>
     public void Initialize() => doors.Presentation.ShowLook(CeresElevatorDoorLookDefinitions.OverlayLook);
@@ -56,17 +56,17 @@ internal sealed class CeresElevatorDoorEntity(CeresDoorBehavior doors, RoomEnemy
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame)
     {
-        CeresElevatorDoorState state = Door;
+        CeresElevatorDoorState state = ownDoor;
         RunMainAiForCeresElevatorDoorPhase[state.Phase](state);
     }
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => doors.AdvanceAnimation(Place, State, context.Samus);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => doors.AdvanceAnimation(Place, ownState, context.Samus);
 
     /// <summary>Runs one update of the destruction.</summary>
     private void Explode()
     {
-        CeresElevatorDoorState state = Door;
+        CeresElevatorDoorState state = ownDoor;
         if (state.Rumble.Count())
         {
             // The last update ends the destruction: the door hides, keeps cycling the glow and platform from the next update

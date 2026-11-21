@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Input;
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -86,8 +87,11 @@ internal static class GerutaInstructionProgramDefinitionsVerification
         follower.Bind(EnemyDefinitionId.Geruta, follower.KeptDefinition);
         follower.Bind(follower.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         follower.SetUpAsPlaced();
-        AssertEqual(new AnimationPlayback<GerutaSegment>(GerutaAnimations.StartingWith(GerutaSegment.FlamesAscending), AnimationPlace.StartOfAnimation),
-            enemies.Places.InUpdateOrder[1].EntityState<GerutaFollowerEntity, GerutaFollowerState>()?.Playback,
+        // The follower shows the first picture of the ascending flames its setup started on its next animation step; the
+        // room spawn primes the instruction timer before the species' setup runs.
+        follower.AnimationClock.StepOnNextUpdate();
+        follower.AdvanceAnimation(RoomEnemyFrameFixtures.StandaloneSamus());
+        AssertEqual<EnemyFrameId?>(GerutaAnimations.Segments.FirstFrameShown(GerutaAnimations.StartingWith(GerutaSegment.FlamesAscending)), follower.Frame,
             "Norfair Rio follower initializer selects ascending flames");
     }
 

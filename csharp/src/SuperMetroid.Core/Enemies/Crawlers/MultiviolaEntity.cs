@@ -13,11 +13,11 @@ internal sealed class MultiviolaEntity(MultiviolaBehavior species, RoomEnemyOccu
     internal MultiviolaSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal MultiviolaEnemyState State { get; } = MultiviolaBehavior.InitializeMultiviola(settings);
+    private readonly MultiviolaEnemyState state = MultiviolaBehavior.InitializeMultiviola(settings);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunMultiviolaMainAi(Settings, Place, State, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunMultiviolaMainAi(Settings, Place, state, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => MultiviolaBehavior.AdvanceMultiviolaTypedAnimation(Place, State);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => MultiviolaBehavior.AdvanceMultiviolaTypedAnimation(Place, state);
 }

@@ -13,11 +13,11 @@ internal sealed class BoulderEntity(BoulderBehavior species, RoomEnemyOccupant o
     internal BoulderSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal BoulderEnemyState State { get; } = BoulderBehavior.InitializeBoulder(settings, place);
+    private readonly BoulderEnemyState state = BoulderBehavior.InitializeBoulder(settings, place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunBoulderMainAi(Settings, Place, State, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunBoulderMainAi(Settings, Place, state, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => BoulderBehavior.AdvanceBoulderTypedAnimation(Place, State);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => BoulderBehavior.AdvanceBoulderTypedAnimation(Place, state);
 }

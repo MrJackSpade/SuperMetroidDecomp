@@ -15,7 +15,7 @@ internal sealed class CeresGetawayChamberWallEntity(CeresDoorBehavior doors, Roo
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation
 {
     /// <summary>The wall's animation, which its setup starts as the wall is built (#2554).</summary>
-    internal CeresDoorAnimationState State { get; } = doors.Start(place, HorizontalDirection.Right, side);
+    private readonly CeresDoorAnimationState state = doors.Start(place, HorizontalDirection.Right, side);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame)
@@ -24,5 +24,5 @@ internal sealed class CeresGetawayChamberWallEntity(CeresDoorBehavior doors, Roo
     }
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => doors.AdvanceAnimation(Place, State, context.Samus);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => doors.AdvanceAnimation(Place, state, context.Samus);
 }

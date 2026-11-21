@@ -14,11 +14,11 @@ internal sealed class NorfairLavaJumperFollowerEntity(SqueeptBehavior species, R
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation
 {
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal NorfairLavaJumperFollowerState State { get; } = species.InitializeNorfairLavaJumperFollower(place, parent);
+    private readonly NorfairLavaJumperFollowerState state = species.InitializeNorfairLavaJumperFollower(place, parent);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunNorfairLavaJumperFollowerMain(Place, State);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunNorfairLavaJumperFollowerMain(Place, state);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => SqueeptBehavior.AdvanceNorfairLavaJumperFollowerTypedAnimation(Place, State);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => SqueeptBehavior.AdvanceNorfairLavaJumperFollowerTypedAnimation(Place, state);
 }

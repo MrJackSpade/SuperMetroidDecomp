@@ -29,7 +29,7 @@ internal static class RinkaInstructionProgramDefinitionsVerification
 
         CartridgeImportAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         (RoomEnemySystem ordinarySystem, RoomEnemyPlace ordinary) = RunRinkaProgram(RinkaSegment.Ordinary, special: false);
-        AssertEqual(RinkaAction.AimDelay, (ordinarySystem.RinkaStates[0] ?? throw new InvalidOperationException("Verification requires ordinarySystem.RinkaStates[0].")).Action,
+        AssertEqual(RinkaAction.AimDelay, ordinary.RequireSpeciesState<RinkaEnemyState>().Action,
             "ordinary Rinka fire callback selects aim-delay AI");
         AssertTrue(!ordinary.Presence.HasAny(EnemyPresence.Hidden),
             "ordinary Rinka fire callback makes the actor visible");
@@ -37,7 +37,7 @@ internal static class RinkaInstructionProgramDefinitionsVerification
             "ordinary Rinka program does not enable off-screen processing");
 
         (RoomEnemySystem specialSystem, RoomEnemyPlace special) = RunRinkaProgram(RinkaSegment.KeptRunningOffScreen, special: true);
-        AssertEqual(RinkaAction.AimDelay, (specialSystem.RinkaStates[0] ?? throw new InvalidOperationException("Verification requires specialSystem.RinkaStates[0].")).Action,
+        AssertEqual(RinkaAction.AimDelay, special.RequireSpeciesState<RinkaEnemyState>().Action,
             "special Rinka fire callback selects aim-delay AI");
         AssertTrue(!special.Presence.HasAny(EnemyPresence.Hidden),
             "special Rinka fire callback makes the actor visible");
@@ -64,12 +64,10 @@ internal static class RinkaInstructionProgramDefinitionsVerification
         var state = new RinkaEnemyState(RinkaAction.WatchForLeavingViewport, program, spawning);
         enemies.Places.InUpdateOrder[0].SetSpeciesState(state);
 
-        object?[] arguments = [rinka, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
-
         // One complete list is 127 timer frames plus zero-time callback/goto dispatch. The
         // margin proves that the native terminal goto loops rather than merely reaching it.
         for (int frame = 0; frame < 180; frame++)
-            EnemyInstructionRunner.Process(arguments);
+            RinkaBehavior.AdvanceRinkaTypedAnimation(rinka, state);
 
         return new RunRinkaProgramResult(enemies, rinka);
     }

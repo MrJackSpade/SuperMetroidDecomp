@@ -15,7 +15,7 @@ internal sealed class EvirArmsEntity(EvirBehavior species, RoomEnemyOccupant occ
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal EvirArmsState State { get; } = species.InitializeEvirArms(place, body);
+    private readonly EvirArmsState state = species.InitializeEvirArms(place, body);
 
     /// <summary>The two enemies the part's follow-up to a hit reaches, the ones its room lists after it, found as it is built.</summary>
     private IReadOnlyList<RoomEnemyPlace> FollowUpRecipients { get; } = species.FollowUpRecipientsOf(place);
@@ -27,10 +27,10 @@ internal sealed class EvirArmsEntity(EvirBehavior species, RoomEnemyOccupant occ
     private EnemyPowerBombReaction OwnPowerBomb => field ??= EvirBehavior.EvirPowerBombReaction(FollowUpRecipients);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => EvirBehavior.RunEvirArmsMainAi(Place, State);
+    public void RunMainAi(IEnemyAiFrame frame) => EvirBehavior.RunEvirArmsMainAi(Place, state);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => EvirBehavior.AdvanceEvirPartTypedAnimation<EvirArmsState>(Place, State);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => EvirBehavior.AdvanceEvirPartTypedAnimation<EvirArmsState>(Place, state);
 
     /// <summary>The Evir's own stages around common bomb damage for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>

@@ -14,11 +14,11 @@ internal sealed class ElevatorEntity(ElevatorBehavior species, RoomEnemyOccupant
     internal ElevatorSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal ElevatorEnemyState State { get; } = species.InitializeElevator(settings, place, surroundings.Samus);
+    private readonly ElevatorEnemyState state = species.InitializeElevator(settings, place, surroundings.Samus);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunElevatorMainAi(Settings, Place, State, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunElevatorMainAi(Settings, Place, state, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => ElevatorBehavior.AdvanceElevatorTypedAnimation(Place, State);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => ElevatorBehavior.AdvanceElevatorTypedAnimation(Place, state);
 }

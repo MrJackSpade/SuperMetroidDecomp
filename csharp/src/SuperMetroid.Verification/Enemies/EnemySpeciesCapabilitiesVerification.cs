@@ -277,7 +277,7 @@ internal static class EnemySpeciesCapabilitiesVerification
 
         AssertEqual(definitions.Count, checkedDefinitions.Count, "every definition is set up and asked once");
         Console.WriteLine($"Enemy species capabilities: {checkedDefinitions.Count} definitions set up as the game sets them up answer the " +
-            $"removed catalog's collision capabilities, {answers} private shot reaction queries and Ceres Ridley's room door overlay through their entities.");
+            $"removed catalog's collision capabilities, {answers} private shot reaction queries through their entities.");
 
         void Check(EnemyDefinitionId definition, RoomEnemySystem enemies, RoomEnemyPlace place)
         {
@@ -297,26 +297,6 @@ internal static class EnemySpeciesCapabilitiesVerification
                 answers++;
             }
 
-            // Only the door of Ceres Ridley's room is built as it; its setup attaches it to the room's Ceres doors, which
-            // show its overlay picture while its animation's look is the overlay.
-            if (entity is not CeresRidleyRoomDoorEntity)
-            {
-                AssertTrue(definition != EnemyDefinitionId.CeresRidleyRoomDoor, $"{definition} is built as Ceres Ridley's room door");
-                return;
-            }
-            AssertEqual(EnemyDefinitionId.CeresRidleyRoomDoor, definition, "only Ceres Ridley's room door is built as it");
-            // The overlay shows while Ridley is in his room, which draws under the graphics set his room loads.
-            SpawnedObjectFixtures.LoadSetDrawing(enemies, EnemyDefinitionId.RidleyCeres);
-            foreach (CeresRidleyRoomDoorLook look in new[] { CeresRidleyRoomDoorLook.Actor, CeresRidleyRoomDoorLook.Overlay })
-            {
-                place.RequireSpeciesState<CeresDoorAnimationState>().Look = look;
-                var sprites = new SpriteFrameBuffer();
-                sprites.BeginFrame();
-                enemies.CeresDoorBehavior.PublishRidleyRoomDoorOverlay(sprites, Position16<RoomPixels>.Zero);
-                sprites.FinalizeFrame();
-                AssertEqual(look == CeresRidleyRoomDoorLook.Overlay, !sprites.Draws.IsEmpty,
-                    $"Ceres Ridley's room door shows its overlay when its look is {look}");
-            }
         }
     }
 

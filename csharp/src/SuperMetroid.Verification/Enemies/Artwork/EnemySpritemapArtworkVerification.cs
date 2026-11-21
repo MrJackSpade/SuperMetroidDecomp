@@ -93,18 +93,15 @@ internal static class EnemySpritemapArtworkVerification
         bull.Bind(EnemyDefinitionId.Bull, bull.KeptDefinition);
         bull.Bind(bull.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         bull.SetSpawnWords(EnemyDefinitionId.Bull, words => words);
-        new Action<RoomEnemyPlace>(fixturePlace => enemies.BullBehavior.InitializeBull(fixturePlace.HeldOccupant().SpawnSettings<BullSpawnSettings>(), fixturePlace))(bull);
-        object?[] arguments =
-            [bull, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
+        // The Bull's setup builds the state its reaction and its animation, which the check plays, run on.
+        BullEnemyState state = enemies.BullBehavior.InitializeBull(bull.HeldOccupant().SpawnSettings<BullSpawnSettings>(), bull);
         for (int frame = 0; frame < 41; frame++)
-            EnemyInstructionRunner.Process(arguments);
+            BullBehavior.AdvanceBullAnimation(bull, state);
         AssertEqual(BullAnimationsConstants.Spritemaps(BullSegment.Idle).First(), bull.SpritemapPointer,
             "installed Bull normal animation loops back to its first frame on time");
-        BullEnemyState state = enemies.BullStates[0] ?? throw new InvalidDataException(
-            "Bull initializer did not publish typed state.");
         BullBehavior.ResolveBullImmuneShot(bull, state, BullMovementDefinitions.ShotAngles.For(SamusProjectileDirection.Right));
         for (int frame = 0; frame < 61; frame++)
-            EnemyInstructionRunner.Process(arguments);
+            BullBehavior.AdvanceBullAnimation(bull, state);
         AssertEqual(BullAnimationsConstants.Spritemaps(BullSegment.Idle).First(), bull.SpritemapPointer,
             "installed Bull immune-shot program returns to the normal loop");
     }

@@ -22,8 +22,6 @@ internal static class MultiviolaBehaviorVerification
         place.SetSpawnWords(EnemyDefinitionId.Multiviola, words => words);
         // The enemy is set up as its room's population sets it up: its species builds its entity, whose setup builds its state.
         place.SetUpAsPlaced();
-        AssertEqual(new AnimationPlayback<MultiviolaSegment>(MultiviolaAnimations.StartingWith(MultiviolaSegment.Flying), AnimationPlace.StartOfAnimation), (enemies.Places.InUpdateOrder[0].EntityState<MultiviolaEntity, MultiviolaEnemyState>() ?? throw new InvalidOperationException("Multiviola has no state.")).Playback,
-            "Multiviola initializer animation");
         place.AnimationClock.StepOnNextUpdate();
         AssertEqual(EnemyInstructionRunner.ExpectedLoop(MultiviolaAnimations.Segments, MultiviolaSegment.Flying, MultiviolaFrameToolingDefinitions.Spritemap),
             EnemyInstructionRunner.ShownFrames(place, EnemyInstructionRunner.LoopUpdates(MultiviolaAnimations.Segments, MultiviolaSegment.Flying)),

@@ -16,23 +16,23 @@ internal sealed class BullEntity(BullBehavior species, RoomEnemyOccupant occupan
     internal BullSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal BullEnemyState State { get; } = species.InitializeBull(settings, place);
+    private readonly BullEnemyState state = species.InitializeBull(settings, place);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) =>
-        BullBehavior.RunBullMain(Settings, Place, State, frame.Samus);
+        BullBehavior.RunBullMain(Settings, Place, state, frame.Samus);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => BullBehavior.AdvanceBullAnimation(Place, State);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => BullBehavior.AdvanceBullAnimation(Place, state);
 
     /// <summary>The Bull's own recoil reaction where its definition leaves shots to it, or the shared one.</summary>
     public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == BullReactions.Shot ? OwnShot : base.ShotReaction;
 
     /// <summary>The Bull's own shot reaction, built once for this Bull with its state (#2554).</summary>
-    private EnemyShotReaction OwnShot => field ??= BullBehavior.ShotReaction(State);
+    private EnemyShotReaction OwnShot => field ??= BullBehavior.ShotReaction(state);
 
     /// <summary>The Bull's own bomb stages, built once for this Bull with its state (#2554).</summary>
-    private EnemyBombReaction OwnBomb => field ??= BullBehavior.BombReaction(State);
+    private EnemyBombReaction OwnBomb => field ??= BullBehavior.BombReaction(state);
 
     /// <summary>The Bull's own bomb recoil around common bomb damage, for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>

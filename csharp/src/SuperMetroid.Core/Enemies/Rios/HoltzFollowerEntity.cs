@@ -14,11 +14,11 @@ internal sealed class HoltzFollowerEntity(HoltzBehavior species, RoomEnemyOccupa
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation
 {
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal HoltzFollowerState State { get; } = species.InitializeHoltzFollower(place, parent);
+    private readonly HoltzFollowerState state = species.InitializeHoltzFollower(place, parent);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunHoltzFollowerMainAi(Place, State);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunHoltzFollowerMainAi(Place, state);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => HoltzBehavior.AdvanceHoltzFollowerTypedAnimation(Place, State);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => HoltzBehavior.AdvanceHoltzFollowerTypedAnimation(Place, state);
 }

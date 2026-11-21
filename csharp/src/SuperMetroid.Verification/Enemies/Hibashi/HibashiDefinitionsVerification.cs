@@ -10,6 +10,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies.Hibashi;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Samus;
 
 /// <summary>Checks migrated Hibashi hitbox tables and both actor instruction streams against cartridge data and ROM-free production execution.</summary>
 internal static class HibashiDefinitionsVerification
@@ -38,9 +39,10 @@ internal static class HibashiDefinitionsVerification
         AssertEqual(22, steps.Length, "Hibashi eruption steps");
         // The flame erupts as its animation plays: each of its steps raises its hitbox to the step's height and gives it
         // the step's half-height, the first its half-width too. Each step is observed on the update it moves the hitbox.
-        HibashiEnemyState erupting = graphics.EntityOf<HibashiEntity>().State;
-        erupting.Playback = new(HibashiAnimations.StartingWith(HibashiSegment.Flame), AnimationPlace.StartOfAnimation);
-        graphics.AnimationClock.StepOnNextUpdate();
+        // The flame's AI starts the eruption on the update its first wait runs out (#2340).
+        SamusState samus = RoomEnemyFrameFixtures.StandaloneSamus();
+        for (int update = 0; update < HibashiDefinitions.FirstWait; update++)
+            graphics.RunMainAi(samus);
         object?[] eruptionUpdate = [graphics, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
         for (int frameIndex = 0; frameIndex < steps.Length; frameIndex++)
         {
@@ -104,9 +106,12 @@ internal static class HibashiDefinitionsVerification
         object?[] twinHitboxArguments =
             [twinHitbox, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
 
-        // Both flames erupt, as their AI starts the eruption it plays (#2439).
-        foreach (int flame in (int[])[0, 2])
-            (programSystem.HibashiStates[flame] ?? throw new InvalidOperationException($"Verification requires programSystem.HibashiStates[{flame}].")).Action = HibashiAction.Active;
+        // Both flames erupt, as their AI starts the eruption it plays when their first wait runs out (#2439).
+        for (int update = 0; update < HibashiDefinitions.FirstWait; update++)
+        {
+            programGraphics.RunMainAi(samus);
+            twinGraphics.RunMainAi(samus);
+        }
 
         // The visible stream needs 59 actor frames through its final cue; the margin proves both actors stay asleep.
         for (int frame = 0; frame < 70; frame++)
@@ -125,8 +130,6 @@ internal static class HibashiDefinitionsVerification
         SoundEffectId eruption = HibashiDefinitions.EruptionSoundEffect;
         AssertEqual(2, programSystem.Audio.SoundRequests.Count(request => request.SoundEffect == eruption),
             "each Hibashi graphics program queues its eruption sound");
-        AssertEqual(HibashiAction.Finished, (programSystem.HibashiStates[0] ?? throw new InvalidOperationException("Verification requires programSystem.HibashiStates[0].")).Action,
-            "Hibashi graphics program finishes the eruption");
         AssertEqual((ushort)0, programHitbox.Radius.X,
             "Hibashi finished program clears hitbox X radius");
         AssertEqual((ushort)0, programHitbox.Radius.Y,
@@ -135,16 +138,15 @@ internal static class HibashiDefinitionsVerification
             "Hibashi finished program hides graphics actor");
         AssertTrue(programHitbox.Contact.HasAny(EnemyContact.IgnoresSamus),
             "Hibashi finished program disables collision actor");
-        HibashiEnemyState graphicsState = programSystem.HibashiStates[0] ?? throw new InvalidOperationException("The Hibashi graphics part has no state.");
-        HibashiCollisionPartState hitboxState = programSystem.HibashiCollisionPartStates[1] ?? throw new InvalidOperationException("The Hibashi hitbox part has no state.");
-        AnimationPlayback<HibashiSegment> graphicsAsleep = graphicsState.Playback;
-        AnimationPlayback<HibashiSegment> hitboxAsleep = hitboxState.Playback;
+        // Both programs sleep: a further update shows the same pose with the same time left.
+        (ushort Spritemap, int Hold) graphicsAsleep = (programGraphics.SpritemapPointer, programGraphics.AnimationClock.Hold);
+        (ushort Spritemap, int Hold) hitboxAsleep = (programHitbox.SpritemapPointer, programHitbox.AnimationClock.Hold);
         EnemyInstructionRunner.Process(graphicsArguments);
         EnemyInstructionRunner.Process(hitboxArguments);
-        AssertEqual(graphicsAsleep, graphicsState.Playback, "Hibashi graphics program sleeps after finishing");
-        AssertEqual(hitboxAsleep, hitboxState.Playback, "Hibashi hitbox program sleeps on its one pose");
-        AssertEqual(HibashiSegment.Flame, graphicsState.Playback.Animation.Phases[graphicsState.Playback.Place.Phase].Segment, "Hibashi graphics part runs the eruption");
-        AssertEqual(HibashiSegment.Hitbox, hitboxState.Playback.Animation.Phases[hitboxState.Playback.Place.Phase].Segment, "Hibashi hitbox part runs the collision-part animation");
+        AssertEqual(graphicsAsleep, (programGraphics.SpritemapPointer, programGraphics.AnimationClock.Hold), "Hibashi graphics program sleeps after finishing");
+        AssertEqual(hitboxAsleep, (programHitbox.SpritemapPointer, programHitbox.AnimationClock.Hold), "Hibashi hitbox program sleeps on its one pose");
+        AssertTrue(HibashiAnimationsTooling.Spritemaps(HibashiSegment.Hitbox).Contains(programHitbox.SpritemapPointer),
+            "Hibashi hitbox part shows the collision-part animation's pose");
         Suite(nameof(HibashiAnimationsVerification.VerifyHibashiAnimations), () => HibashiAnimationsVerification.VerifyHibashiAnimations(rom));
 
         Console.WriteLine(

@@ -13,11 +13,11 @@ internal sealed class HibashiEntity(HibashiBehavior species, RoomEnemyOccupant o
     internal HibashiFlameSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal HibashiEnemyState State { get; } = species.InitializeHibashi(place);
+    private readonly HibashiEnemyState state = species.InitializeHibashi(place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => HibashiBehavior.RunHibashiMainAi(Settings, Place, State);
+    public void RunMainAi(IEnemyAiFrame frame) => HibashiBehavior.RunHibashiMainAi(Settings, Place, state);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceHibashiTypedAnimation(Place, State);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceHibashiTypedAnimation(Place, state);
 }

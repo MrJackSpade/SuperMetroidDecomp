@@ -47,9 +47,8 @@ internal static class WaverAnimationDefinitionsVerification
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
             place.Bind(EnemyDefinitionId.Waver, place.KeptDefinition);
             place.SetSpawnParameter1(EnemyDefinitionId.Waver, parameter);
-            WaverBehavior.InitializeWaver(place.HeldOccupant().SpawnSettings<WaverSpawnSettings>(), place);
+            WaverEnemyState waver = WaverBehavior.InitializeWaver(place.HeldOccupant().SpawnSettings<WaverSpawnSettings>(), place);
             WaverSegment expected = WaverNativeWords.Animations.Decode(parameter, "Waver spawn facing");
-            WaverEnemyState waver = enemies.WaverStates[0] ?? throw new InvalidOperationException("Verification requires enemies.WaverStates[0].");
             AssertEqual(WaverAnimationChoicesConstants.Facing(expected), waver.Facing,
                 $"production Waver initial facing {parameter}");
             AssertEqual(new AnimationPlayback<WaverSegment>(WaverAnimations.StartingWith(expected), AnimationPlace.StartOfAnimation),

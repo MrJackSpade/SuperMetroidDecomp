@@ -10,19 +10,19 @@ internal sealed class YardEntity(YardEnemyBehavior species, RoomEnemyOccupant oc
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The species' YardShotReaction, built once for this enemy with its state (#2554).</summary>
-    private EnemyShotReaction OwnYardShotReaction => field ??= species.YardShotReaction(State);
+    private EnemyShotReaction OwnYardShotReaction => field ??= species.YardShotReaction(state);
 
     /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
     internal YardSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal YardEnemyState State { get; } = YardEnemyBehavior.InitializeYard(settings, place);
+    private readonly YardEnemyState state = YardEnemyBehavior.InitializeYard(settings, place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunYardMainAi(Place, State, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunYardMainAi(Place, state, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceYardTypedAnimation(Place, State);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceYardTypedAnimation(Place, state);
 
     /// <summary>Whether the Yard's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
     public override bool ReactsToTouch => Occupant.Definition.Touch == YardReactions.Touch || base.ReactsToTouch;
@@ -32,7 +32,7 @@ internal sealed class YardEntity(YardEnemyBehavior species, RoomEnemyOccupant oc
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (Occupant.Definition.Touch == YardReactions.Touch)
-            species.ReactToYardTouch(Occupant, Settings, context, State);
+            species.ReactToYardTouch(Occupant, Settings, context, state);
         else
             base.ReactToTouch(context);
     }

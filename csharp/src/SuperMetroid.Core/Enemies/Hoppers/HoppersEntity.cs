@@ -14,11 +14,11 @@ internal sealed class HoppersEntity(HoppersBehavior species, RoomEnemyOccupant o
     internal HopperSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal HopperEnemyState State { get; } = species.InitializeHopper(place, occupant, settings, kind);
+    private readonly HopperEnemyState state = species.InitializeHopper(place, occupant, settings, kind);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunHoppersMainAi(Settings, Place, State, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunHoppersMainAi(Settings, Place, state, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceHoppersTypedAnimation(Place, State);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceHoppersTypedAnimation(Place, state);
 }

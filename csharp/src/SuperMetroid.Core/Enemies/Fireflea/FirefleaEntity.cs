@@ -13,13 +13,13 @@ internal sealed class FirefleaEntity(FirefleaBehavior species, RoomEnemyOccupant
     internal FirefleaSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal FirefleaEnemyState State { get; } = FirefleaBehavior.InitializeFireflea(settings, place);
+    private readonly FirefleaEnemyState state = FirefleaBehavior.InitializeFireflea(settings, place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => FirefleaBehavior.RunFirefleaMainAi(Settings, Place, State);
+    public void RunMainAi(IEnemyAiFrame frame) => FirefleaBehavior.RunFirefleaMainAi(Settings, Place, state);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => FirefleaBehavior.AdvanceFirefleaTypedAnimation(Place, State);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => FirefleaBehavior.AdvanceFirefleaTypedAnimation(Place, state);
 
     /// <summary>Whether the Fireflea's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
     public override bool ReactsToTouch => Occupant.Definition.Touch == FirefleaReactions.Touch || base.ReactsToTouch;

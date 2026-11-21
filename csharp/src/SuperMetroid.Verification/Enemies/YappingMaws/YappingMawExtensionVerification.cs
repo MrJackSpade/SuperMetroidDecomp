@@ -87,15 +87,15 @@ internal static class YappingMawExtensionVerification
         var frame = new ClockedEnemyAiFrame(
             RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = samus },
             new FrameCounters(SuperMetroid.Core.Compatibility.ShortFrameCount.Zero));
-        enemies.YappingMawBehavior.RunYappingMawMainAi(place.HeldOccupant().SpawnSettings<YappingMawSpawnSettings>(), place, place.RequireSpeciesState<YappingMawEnemyState>(), frame);
-        enemies.YappingMawBehavior.RunYappingMawMainAi(place.HeldOccupant().SpawnSettings<YappingMawSpawnSettings>(), place, place.RequireSpeciesState<YappingMawEnemyState>(), frame);
+        enemies.YappingMawBehavior.RunYappingMawMainAi(place.HeldOccupant().SpawnSettings<YappingMawSpawnSettings>(), place, state, frame);
+        enemies.YappingMawBehavior.RunYappingMawMainAi(place.HeldOccupant().SpawnSettings<YappingMawSpawnSettings>(), place, state, frame);
         AssertEqual(YappingMawAction.ExtendingOrRetracting, state.Action, "setup begins the extension");
         AssertEqual(SignedSixteenSixteen.Zero, state.Extension.InFixedPoint, "setup starts the curl at zero");
 
         state.Extension = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Enemies.YappingMaws.YappingMawCurl>([typeof(global::SuperMetroid.Core.Spatial.SignedSixteenSixteen)], new object?[] { start });
         state.SpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(row);
         state.CurlPhase = phase;
-        enemies.YappingMawBehavior.RunYappingMawMainAi(place.HeldOccupant().SpawnSettings<YappingMawSpawnSettings>(), place, place.RequireSpeciesState<YappingMawEnemyState>(), frame);
+        enemies.YappingMawBehavior.RunYappingMawMainAi(place.HeldOccupant().SpawnSettings<YappingMawSpawnSettings>(), place, state, frame);
         return state;
     }
 }

@@ -161,7 +161,9 @@ internal static class BotwoonAnimationsVerification
     /// <summary>Every body, tail, hidden and spit animation runs exactly like its native bank-$86 list.</summary>
     internal static void VerifyBotwoonProjectileAnimations(CartridgeImportAddressSpace rom)
     {
-        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
+        // Botwoon is alive: his setup spawns his body.
+        enemies.VerificationServices().IsAreaMiniBossDefeated = () => false;
         void Pass(EnemyProjectile projectile) => enemies.Projectiles.AdvanceEnemyProjectileAnimations(projectile, RoomEnemyFrameFixtures.StandaloneSamus(), Position16<RoomPixels>.Zero, shortCounter: SuperMetroid.Core.Compatibility.ShortFrameCount.Zero);
 
         for (ushort selector = 0; selector < 64; selector += 2)
@@ -201,9 +203,9 @@ internal static class BotwoonAnimationsVerification
             segment.PresentationOperandAddress, "the restarted segment shows its first frame");
 
         // Landing hands the segment to the shared native big-explosion list.
-        // His body is spawned as his setup spawns it, from the segment behind his head down to his tail.
+        // His setup spawns his body, from the segment behind his head down to his tail.
         Action<EnemyProjectile, int> runBody = enemies.BotwoonBehavior.MoveBotwoonBodySegment;
-        BotwoonSegmentState spawned = enemies.BotwoonBehavior.SpawnBotwoonBody(head.HeldOccupant(), head, state)[1];
+        BotwoonSegmentState spawned = enemies.BotwoonBehavior.InitializeBotwoon(head.HeldOccupant(), head).Body[1];
         EnemyProjectile body = spawned.Projectile;
         AssertTrue(enemies.Projectiles.EnemyProjectiles.Contains(body) && body.Kind == RoomEnemyProjectileKind.BotwoonBody,
             "the real body producer returns the segment it spawned among the room's projectiles");

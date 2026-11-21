@@ -20,8 +20,9 @@ internal static class SbugMovementDefinitionsVerification
         const int activationTable = 0xa3a121;
 
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        Action<RoomEnemyPlace> initialize = fixturePlace => SbugBehavior.InitializeSbug(fixturePlace.HeldOccupant().SpawnSettings<SbugSpawnSettings>(), fixturePlace);
-        Action<RoomEnemyPlace, SamusState> runMain = (fixturePlace, fixtureArg1) => SbugBehavior.RunSbugMain(fixturePlace.HeldOccupant(), fixturePlace, fixtureArg1);
+        Func<RoomEnemyPlace, SbugEnemyState> initialize = fixturePlace => SbugBehavior.InitializeSbug(fixturePlace.HeldOccupant().SpawnSettings<SbugSpawnSettings>(), fixturePlace);
+        Action<RoomEnemyPlace, SbugEnemyState, SamusState> runMain = (fixturePlace, fixtureState, fixtureSamus) =>
+            SbugBehavior.RunSbugMainAi(fixturePlace.HeldOccupant().SpawnSettings<SbugSpawnSettings>(), fixturePlace, fixtureState, PlacedEnemyAccess.AiFrame(fixtureSamus));
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.Bind(EnemyDefinitionId.Sbug, place.KeptDefinition);
 
@@ -57,10 +58,9 @@ internal static class SbugMovementDefinitionsVerification
             byte angle = unchecked((byte)(0x30 + selector * 0x20));
             place.SetSpawnParameter1(EnemyDefinitionId.Sbug, (ushort)(angle << 8 | 1));
             place.SetSpawnParameter2(EnemyDefinitionId.Sbug, 1);
-            initialize(place);
+            SbugEnemyState state = initialize(place);
 
             ushort native = rom.ReadCartridgeWord(instructionTable + selector * 2);
-            SbugEnemyState state = (enemies.SbugStates[0] ?? throw new InvalidOperationException("Verification requires enemies.SbugStates[0]."));
             CompassDirection forward = SbugBehavior.ForwardLeg(place.HeldOccupant()).Facing;
             AssertEqual(SbugMovementDefinitions.Facings.InTurnOrder[selector], forward,
                 $"Sbug production facing {selector}");
@@ -83,11 +83,10 @@ internal static class SbugMovementDefinitionsVerification
         {
             // The Sbug takes its activation behaviour from its placement when it is placed (#2063).
             place.SetSpawnParameter2(EnemyDefinitionId.Sbug, (ushort)(behavior << 8 | 1));
-            initialize(place);
+            SbugEnemyState state = initialize(place);
             place.Position = place.Position.WithWhole(samus.Position.Whole);
-            SbugEnemyState state = (enemies.SbugStates[0] ?? throw new InvalidOperationException("Verification requires enemies.SbugStates[0]."));
             state.Action = SbugAction.WaitForSamus;
-            runMain(place, samus);
+            runMain(place, state, samus);
 
             int address = activationTable + behavior * 2;
             var native = SbugNativeWords.SbugActions.Decode(rom.ReadCartridgeWord(address), "Sbug activation function");

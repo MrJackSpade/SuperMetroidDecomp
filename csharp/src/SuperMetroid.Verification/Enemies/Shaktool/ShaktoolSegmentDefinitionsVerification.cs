@@ -33,10 +33,8 @@ internal static class ShaktoolSegmentDefinitionsVerification
         }
 
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        Action<RoomEnemyPlace> initialize = fixturePlace => fixturePlace.SetUpAsPlaced();
         for (int index = 0; index < definitions.Length; index++)
         {
-            ShaktoolSegmentDefinition definition = definitions[index];
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[index];
             place.Bind(EnemyDefinitionId.Shaktool, place.KeptDefinition);
             place.SetSpawnParameter2(EnemyDefinitionId.Shaktool, unchecked((ushort)(index * 2)));
@@ -44,9 +42,14 @@ internal static class ShaktoolSegmentDefinitionsVerification
             place.Processing = EnemyProcessing.None;
             place.Presence = EnemyPresence.None;
             place.Position = place.Position.WithWhole(new(unchecked((ushort)(0x0100 + index * 16)), 0x0200));
-            initialize(place);
-
-            ShaktoolSegmentState state = (enemies.ShaktoolSegments[index] ?? throw new InvalidOperationException("Verification requires enemies.ShaktoolSegments[index]."));
+        }
+        // Each segment is set up in the chain the check holds (ShaktoolChainHolding), its own setup initializing its state.
+        ShaktoolChain chain = enemies.HoldShaktoolChain();
+        for (int index = 0; index < definitions.Length; index++)
+        {
+            ShaktoolSegmentDefinition definition = definitions[index];
+            RoomEnemyPlace place = enemies.Places.InUpdateOrder[index];
+            ShaktoolSegmentState state = chain.Segments[index].State;
             AssertEqual(EnemyContact.BlocksPlasmaBeam | definition.Contact,
                 place.Contact, $"Shaktool production contact {index}");
             AssertEqual(ShaktoolSegmentDefinitions.Processing,
@@ -65,21 +68,21 @@ internal static class ShaktoolSegmentDefinitionsVerification
                 $"Shaktool production instruction timer {index}");
         }
 
-        foreach (ShaktoolSegmentState? state in enemies.ShaktoolSegments.Take(7))
-            (state ?? throw new InvalidOperationException("Verification requires state.")).Motion = ShaktoolSegmentMotion.Idle;
+        foreach (ShaktoolChainSegment segment in chain.Segments)
+            segment.State.Motion = ShaktoolSegmentMotion.Idle;
         // The trailing saw's head bob ends with the cue that resumes the whole chain's motion, which its animation carries out
         // as it plays on.
         RoomEnemyPlace trailingSaw = enemies.Places.InUpdateOrder[6];
-        (enemies.ShaktoolSegments[6] ?? throw new InvalidOperationException("Verification requires the trailing saw's state.")).Playback =
+        chain.Segments[6].State.Playback =
             new(ShaktoolAnimations.StartingWith(ShaktoolSegment.SawHandHeadBobFinalPiece), AnimationPlace.StartOfAnimation);
         trailingSaw.AnimationClock.StepOnNextUpdate();
         object?[] arguments = [trailingSaw, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
-        for (int update = 0; update < 21 && enemies.ShaktoolSegments[1]?.Motion != definitions[1].Motion; update++)
+        for (int update = 0; update < 21 && chain.Segments[1].State.Motion != definitions[1].Motion; update++)
             EnemyInstructionRunner.Process(arguments);
         for (int index = 0; index < definitions.Length; index++)
         {
             AssertEqual(definitions[index].Motion,
-                (enemies.ShaktoolSegments[index] ?? throw new InvalidOperationException("Verification requires enemies.ShaktoolSegments[index].")).Motion,
+                chain.Segments[index].State.Motion,
                 $"Shaktool production reset callback {index}");
         }
 

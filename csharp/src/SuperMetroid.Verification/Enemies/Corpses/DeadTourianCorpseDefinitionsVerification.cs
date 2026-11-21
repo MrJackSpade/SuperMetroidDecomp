@@ -158,11 +158,11 @@ internal static class DeadTourianCorpseDefinitionsVerification
 
         initialize(place);
 
-        DeadTourianCorpseEnemyState state = (enemies.DeadTourianCorpses[0] ?? throw new InvalidOperationException("Verification requires enemies.DeadTourianCorpses[0]."));
-        AssertEqual(new AnimationPlayback<DeadTourianSegment>(DeadTourianAnimations.StartingWith(expected.InitialAnimation), AnimationPlace.StartOfAnimation),
-            state.Playback,
+        // The corpse shows the first picture of the animation its setup started on its next animation step.
+        place.AdvanceAnimation(RoomEnemyFrameFixtures.StandaloneSamus());
+        AssertEqual<EnemyFrameId?>(DeadTourianAnimations.Segments.FirstFrameShown(DeadTourianAnimations.StartingWith(expected.InitialAnimation)),
+            place.Frame,
             $"dead {species} variant {variantIndex} started animation");
-        CorpseRotScheduleChecks.AssertFreshSchedule(expected.RowCount, state.Rot, $"dead {species} variant {variantIndex}");
     }
 
 

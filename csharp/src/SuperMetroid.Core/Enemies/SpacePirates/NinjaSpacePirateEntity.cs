@@ -19,13 +19,13 @@ internal class NinjaSpacePirateEntity(NinjaSpacePirateBehavior species, RoomEnem
     protected NinjaSpacePirateBehavior Species => species;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal NinjaSpacePirateEnemyState State { get; } = NinjaSpacePirateBehavior.InitializeNinjaSpacePirate(settings, place);
+    private readonly NinjaSpacePirateEnemyState state = NinjaSpacePirateBehavior.InitializeNinjaSpacePirate(settings, place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunNinjaSpacePirateMainAi(Place, State, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunNinjaSpacePirateMainAi(Place, state, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceNinjaSpacePirateTypedAnimation(Occupant, Place, State, context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceNinjaSpacePirateTypedAnimation(Occupant, Place, state, context);
 
     /// <inheritdoc/>
     public EnemyHitboxContact FindHitboxReaction(EnemyHitboxProbe probe) => SpacePirateHitboxes.Find(Place, probe);

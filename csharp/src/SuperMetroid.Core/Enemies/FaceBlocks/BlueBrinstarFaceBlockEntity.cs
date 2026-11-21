@@ -14,13 +14,13 @@ internal sealed class BlueBrinstarFaceBlockEntity(BlueBrinstarFaceBlockBehavior 
     internal FaceBlockSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal BlueBrinstarFaceBlockEnemyState State { get; } = species.InitializeBlueBrinstarFaceBlock(place, surroundings.Samus);
+    private readonly BlueBrinstarFaceBlockEnemyState state = species.InitializeBlueBrinstarFaceBlock(place, surroundings.Samus);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunBlueBrinstarFaceBlockMainAi(Settings, Place, State, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunBlueBrinstarFaceBlockMainAi(Settings, Place, state, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => BlueBrinstarFaceBlockBehavior.AdvanceBlueBrinstarFaceBlockTypedAnimation(Place, State);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => BlueBrinstarFaceBlockBehavior.AdvanceBlueBrinstarFaceBlockTypedAnimation(Place, state);
 
     /// <summary>The pass-through shot reaction where the face block's definition leaves shots to it, or the shared one.</summary>
     public override EnemyShotReaction ShotReaction =>

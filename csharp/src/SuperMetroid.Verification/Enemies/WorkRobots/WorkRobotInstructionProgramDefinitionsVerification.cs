@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Input;
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
@@ -27,7 +28,8 @@ internal static class WorkRobotInstructionProgramDefinitionsVerification
     {
         RoomEnemySystem enemies = CreateWorkRobotInstructionSystem(out RoomEnemyPlace robot);
         RoomLevelData level = CreateWorkRobotInstructionRoom();
-        WorkRobotEnemyState state = enemies.WorkRobotStates[0] ?? throw new InvalidOperationException("Verification requires enemies.WorkRobotStates[0].");
+        // The robot's setup builds the state its animation, which the check plays, runs on.
+        WorkRobotEnemyState state = enemies.WorkRobotBehavior.InitializePoweredWorkRobot(robot);
 
         // Every animation an owner starts; the recoils run on from the shots (#2166).
         foreach (WorkRobotSegment program in WorkRobotAnimations.StartingAt.Keys)
@@ -38,7 +40,8 @@ internal static class WorkRobotInstructionProgramDefinitionsVerification
                 robot.AnimationClock.StepOnNextUpdate();
                 robot.Position = robot.Position.WithWhole(new(512, unchecked((ushort)(320 - robot.Radius.Y))));
                 state.LaserCooldown = WrappingCountdown.Start(ushort.MaxValue);
-                EnemyAnimationPlayer.AdvanceAnimation(robot, RoomEnemyFrameFixtures.StandaloneSamus(), level, new Position16<RoomPixels>(384, 192), 0);
+                enemies.WorkRobotBehavior.AdvanceWorkRobotTypedAnimation(robot, state, new EnemyAnimationCueContext
+                    { Samus = RoomEnemyFrameFixtures.StandaloneSamus(), Level = level, Camera = new Position16<RoomPixels>(384, 192), ControllerInput = GameplayAction.None });
             }
         }
 

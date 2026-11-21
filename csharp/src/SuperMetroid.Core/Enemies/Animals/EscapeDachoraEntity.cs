@@ -9,8 +9,8 @@ internal sealed class EscapeDachoraEntity(EscapeAnimalsBehavior species, RoomEne
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyTypedAnimation
 {
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal EscapeDachoraEnemyState State { get; } = species.InitializeEscapeDachora(place);
+    private readonly EscapeDachoraEnemyState state = species.InitializeEscapeDachora(place);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceEscapeDachoraTypedAnimation(Place, State, context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceEscapeDachoraTypedAnimation(Place, state, context);
 }

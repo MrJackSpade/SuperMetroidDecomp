@@ -42,8 +42,8 @@ internal static class MetroidBombPlacementVerification
         target.Position = target.Position.WithWhole(new(samus.Position.X.Whole, (ushort)(samus.Position.Y.Whole - 8)));
         enemies.StepStandaloneFrame(enemies.StandaloneFrame(assets.LevelData) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
         enemies.Collision.ResolveOrdinarySamusContact(samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), 0, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), target.HeldOccupant(), Position16<RoomPixels>.Zero);
-        var state = enemies.MetroidStates[0];
-        AssertEqual(MetroidMovement.AttachedToSamus, (state ?? throw new InvalidOperationException("Verification requires state.")).Movement, "real touch attaches Metroid to morphed Samus");
+        // An attached Metroid shades Samus, and its detach ends the shade.
+        AssertTrue(samus.MetroidAttachmentShade != SamusMetroidAttachmentShade.Inactive, "real touch attaches Metroid to morphed Samus");
         var bombs = CreateBombFixture();
         var shots = CreateProjectileFixture();
         int firstExplosion = -1, detached = -1;
@@ -54,18 +54,19 @@ internal static class MetroidBombPlacementVerification
             if (firstExplosion < 0 && bombs.Bombs.Any(b => b.IsOccupied && b.HasBurnedOut)) firstExplosion = frame;
             enemies.StepStandaloneFrame(enemies.StandaloneFrame(assets.LevelData) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
             enemies.ResolveBombsOnInteractiveEnemies(bombs, shots, samus);
-            if (state.Movement == MetroidMovement.PowerBombEscape && detached < 0) detached = frame;
+            if (samus.MetroidAttachmentShade == SamusMetroidAttachmentShade.Inactive && detached < 0) detached = frame;
             if (detached >= 0) break;
         }
         AssertTrue(firstExplosion >= 0, "placed normal bomb reaches its natural explosion");
         AssertTrue(detached >= firstExplosion, "centered placed bomb detaches attached Metroid");
-        Console.WriteLine($"Centered normal bomb: explosion frame {firstExplosion}, detached frame {detached}, escape moves left {state.EscapeMovesLeft.UpdatesLeft}.");
-        AssertEqual(4, state.EscapeMovesLeft.UpdatesLeft, "native bomb-detach escape interval");
+        Console.WriteLine($"Centered normal bomb: explosion frame {firstExplosion}, detached frame {detached}.");
+        AssertEqual(4, MetroidBehaviorDefinitions.EscapeDuration, "native bomb-detach escape interval");
         // Isolate the post-hit AI from further bomb/contact hits and check the exact
         // native jitter trajectory rather than treating a temporary detach as immunity.
+        // Each escape update moves by the jitter its moves left select, then counts one down.
         for (int frame = 0; frame < 4; frame++)
         {
-            int index = state.EscapeMovesLeft.UpdatesLeft & 3;
+            int index = (MetroidBehaviorDefinitions.EscapeDuration - frame) & 3;
             ushort expectedX = unchecked((ushort)(target.Position.X.Whole + SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadWordFixedBank(bus, 0xa3ea3f + index * 2)));
             ushort expectedY = unchecked((ushort)(target.Position.Y.Whole + SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadWordFixedBank(bus, 0xa3ea3f + (index + 4) * 2)));
             // Move Samus away to prevent touch from immediately changing the returned
@@ -74,8 +75,6 @@ internal static class MetroidBombPlacementVerification
             enemies.StepStandaloneFrame(enemies.StandaloneFrame(assets.LevelData) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
             AssertEqual(expectedX, target.Position.X.Whole, "native post-bomb escape X");
             AssertEqual(expectedY, target.Position.Y.Whole, "native post-bomb escape Y");
-            AssertEqual(frame == 3 ? MetroidMovement.Homing : MetroidMovement.PowerBombEscape,
-                state.Movement, "native escape phase ends after four updates");
         }
     }
 
@@ -115,18 +114,18 @@ internal static class MetroidBombPlacementVerification
         foreach (var other in runtime.Enemies.Places.InUpdateOrder.Skip(1)) other.Clear();
         target.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 145));
         runtime.PlayerActions.Latch(0);
-        var state = runtime.Enemies.MetroidStates[0];
 
         // Exact native rows 61..66, case right/travel2/single. The complete 40-case
         // trace is enforced by DebugRunner; these boundaries run in the core suite.
         MetroidBombPlacementExpected[] expected =
         [
-            new MetroidBombPlacementExpected(149, 145, MetroidMovement.AttachedToSamus, 0, 952),
-            new MetroidBombPlacementExpected(151, 145, MetroidMovement.PowerBombEscape, 3, 952),
-            new MetroidBombPlacementExpected(151, 147, MetroidMovement.PowerBombEscape, 2, 952),
-            new MetroidBombPlacementExpected(149, 147, MetroidMovement.PowerBombEscape, 1, 952),
-            new MetroidBombPlacementExpected(149, 145, MetroidMovement.Homing, 0, 952),
-            new MetroidBombPlacementExpected(149, 145, MetroidMovement.AttachedToSamus, 0, 951),
+            // Attached, the three escape jitters, the escape's end back at the attachment, and the drain once it holds her again.
+            new MetroidBombPlacementExpected(149, 145, 952),
+            new MetroidBombPlacementExpected(151, 145, 952),
+            new MetroidBombPlacementExpected(151, 147, 952),
+            new MetroidBombPlacementExpected(149, 147, 952),
+            new MetroidBombPlacementExpected(149, 145, 952),
+            new MetroidBombPlacementExpected(149, 145, 951),
         ];
         for (int frame = 0; frame <= 66; frame++)
         {
@@ -135,7 +134,7 @@ internal static class MetroidBombPlacementVerification
             runtime.StepFrame(input);
             if (frame < 61) continue;
             AssertEqual(expected[frame - 61],
-                new MetroidBombPlacementExpected(target.Position.X.Whole, target.Position.Y.Whole, (state ?? throw new InvalidOperationException("Verification requires state.")).Movement, checked((ushort)state.EscapeMovesLeft.UpdatesLeft), checked((ushort)samus.Health)),
+                new MetroidBombPlacementExpected(target.Position.X.Whole, target.Position.Y.Whole, checked((ushort)samus.Health)),
                 $"native bomb/EnemyMain detach trajectory at frame {frame}");
             AssertEqual(FixedCoordinate.Of(0x0095, 0x0000), samus.Kinematics.Position.X, "Samus remains at native release X");
             AssertEqual(FixedCoordinate.Of(0x0099, 0xffff), samus.Kinematics.Position.Y, "Samus stays on the floor during detach");

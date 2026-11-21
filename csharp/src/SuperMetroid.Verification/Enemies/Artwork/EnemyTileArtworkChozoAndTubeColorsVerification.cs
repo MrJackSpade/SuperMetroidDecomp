@@ -70,19 +70,19 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
         }
 
         void VerifyLive(ushort variant, PictureShading expectedShading, string name,
-            Action<RoomEnemySystem, RoomEnemyPlace> initialize, ChozoStatueSegment? expectedProgram)
+            Func<RoomEnemySystem, RoomEnemyPlace, ChozoStatueState> initialize, ChozoStatueSegment? expectedProgram)
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: stock.Bosses);
             RoomEnemyPlace statue = enemies.Places.InUpdateOrder[0];
             statue.SetSpawnParameter2(EnemyDefinitionId.Chozo, variant);
-            initialize(enemies, statue);
+            // The statue's setup builds the state its animation runs on.
+            ChozoStatueState state = initialize(enemies, statue);
             // The import pre-colours each shade from the installed band whose words VerifyBand matched to the cartridge.
             AssertEqual(expectedShading, statue.Shading, $"live {name} shows its installed shade");
             if (expectedProgram is not null)
             {
                 AssertEqual(new AnimationPlayback<ChozoStatueSegment>(ChozoStatueAnimations.StartingWith(expectedProgram.Value), AnimationPlace.StartOfAnimation),
-                    (statue.SpeciesState<ChozoStatueState>()
-                        ?? throw new InvalidOperationException($"{name} has no statue state.")).Playback,
+                    state.Playback,
                     $"{name} keeps native animation selection");
                 AssertTrue(enemies.ChozoStatueObjectRequests.Count != 0,
                     $"{name} still publishes its native PLM request");

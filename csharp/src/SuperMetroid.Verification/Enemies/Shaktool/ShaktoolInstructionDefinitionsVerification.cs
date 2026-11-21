@@ -37,10 +37,10 @@ internal static class ShaktoolInstructionDefinitionsVerification
                 $"Shaktool collision list {index}");
         }
 
-        RoomEnemySystem enemies = CreateCompiledShaktoolGroup();
+        (RoomEnemySystem enemies, ShaktoolChain chain) = CreateCompiledShaktoolGroup();
         RoomEnemyPlace center = enemies.Places.InUpdateOrder[3];
-        ShaktoolSegmentState centerState = (enemies.ShaktoolSegments[3] ?? throw new InvalidOperationException("Verification requires enemies.ShaktoolSegments[3]."));
-        ShaktoolSegmentState nextState = (enemies.ShaktoolSegments[4] ?? throw new InvalidOperationException("Verification requires enemies.ShaktoolSegments[4]."));
+        ShaktoolSegmentState centerState = chain.Segments[3].State;
+        ShaktoolSegmentState nextState = chain.Segments[4].State;
         // The centre's main AI orbits it and turns it to face between its neighbours, the chain curling clockwise as it was
         // placed: the centre's orbit never changes how the chain moves.
         SamusState samus = RoomEnemyFrameFixtures.StandaloneSamus();
@@ -64,7 +64,7 @@ internal static class ShaktoolInstructionDefinitionsVerification
         for (int index = 0; index < 7; index++)
         {
             AssertEqual(new AnimationPlayback<ShaktoolSegment>(ShaktoolAnimations.StartingWith(ShaktoolSegmentDefinitions.Segments[index].CollisionAnimation), AnimationPlace.StartOfAnimation),
-                (enemies.ShaktoolSegments[index] ?? throw new InvalidOperationException("Verification requires a Shaktool segment.")).Playback,
+                chain.Segments[index].State.Playback,
                 $"Shaktool production collision list {index}");
         }
 
@@ -82,7 +82,7 @@ internal static class ShaktoolInstructionDefinitionsVerification
     /// <summary>Runs every steady and collision program on the real seven-segment group; the program oracle matches bank $AA.</summary>
     internal static void VerifyShaktoolInstructionProgramDefinitions(CartridgeImportAddressSpace rom)
     {
-        RoomEnemySystem enemies = CreateCompiledShaktoolGroup();
+        (RoomEnemySystem enemies, ShaktoolChain chain) = CreateCompiledShaktoolGroup();
         ShaktoolSegment[] steadyPrograms =
         [
             ShaktoolSegment.SawHandPrimaryPiece,
@@ -93,7 +93,7 @@ internal static class ShaktoolInstructionDefinitionsVerification
         for (int index = 0; index < steadyPrograms.Length; index++)
         {
             int slotIndex = Math.Min(index, 6);
-            (enemies.ShaktoolSegments[slotIndex] ?? throw new InvalidOperationException("Verification requires a Shaktool segment.")).Playback =
+            chain.Segments[slotIndex].State.Playback =
                 new(ShaktoolAnimations.StartingWith(steadyPrograms[index]), AnimationPlace.StartOfAnimation);
             RunForcedShaktoolInstructions(enemies.Places.InUpdateOrder[slotIndex], 5);
         }
@@ -134,12 +134,13 @@ internal static class ShaktoolInstructionDefinitionsVerification
         return moved;
     }
 
-    /// <summary>Creates and initializes all seven Shaktool segments with the selector tables forbidden.</summary>
-    private static RoomEnemySystem CreateCompiledShaktoolGroup(
-)
+    /// <summary>
+    /// Places all seven Shaktool segments with the selector tables forbidden, each set up in the chain the check holds
+    /// (<see cref="ShaktoolChainHolding"/>), so the check steers their orbits while their own entities run their AI.
+    /// </summary>
+    private static (RoomEnemySystem Enemies, ShaktoolChain Chain) CreateCompiledShaktoolGroup()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        Action<RoomEnemyPlace> initialize = fixturePlace => fixturePlace.SetUpAsPlaced();
         for (int index = 0; index < 7; index++)
         {
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[index];
@@ -148,9 +149,8 @@ internal static class ShaktoolInstructionDefinitionsVerification
             // The chain is placed curling clockwise, as its population entry names how it starts moving.
             place.SetSpawnSettings(new ShaktoolSpawnSettings(ShaktoolChainMotion.CurlingClockwise, ShaktoolSegmentDefinitions.Segments[index]));
             place.Position = place.Position.WithWhole(new(unchecked((ushort)(0x0100 + index * 16)), 0x0200));
-            initialize(place);
         }
-        return enemies;
+        return (enemies, enemies.HoldShaktoolChain());
     }
 
     /// <summary>Runs the Shaktool orientation and collision animation-selection check.</summary>

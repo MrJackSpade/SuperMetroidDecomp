@@ -13,22 +13,22 @@ internal sealed class KiHunterBodyEntity(KiHunterBehavior species, RoomEnemyOccu
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The species' KiHunterShotReaction, built once for this enemy with its state (#2554).</summary>
-    private EnemyShotReaction OwnKiHunterShotReaction => field ??= KiHunterBehavior.KiHunterShotReaction(State);
+    private EnemyShotReaction OwnKiHunterShotReaction => field ??= KiHunterBehavior.KiHunterShotReaction(state);
 
     /// <summary>The species' KiHunterBombReaction, built once for this enemy with its state (#2554).</summary>
-    private EnemyBombReaction OwnKiHunterBombReaction => field ??= KiHunterBehavior.KiHunterBombReaction(State);
+    private EnemyBombReaction OwnKiHunterBombReaction => field ??= KiHunterBehavior.KiHunterBombReaction(state);
 
     /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
     internal KiHunterSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal KiHunterBodyState State { get; } = species.InitializeKiHunter(settings, place);
+    private readonly KiHunterBodyState state = species.InitializeKiHunter(settings, place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunKiHunterBodyMainAi(Place, State, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunKiHunterBodyMainAi(Place, state, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceKiHunterBodyTypedAnimation(Occupant, Place, State);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceKiHunterBodyTypedAnimation(Occupant, Place, state);
 
     /// <summary>The Ki-Hunter's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
     public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == KiHunterReactions.Shot ? OwnKiHunterShotReaction : base.ShotReaction;

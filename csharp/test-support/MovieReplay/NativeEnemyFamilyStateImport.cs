@@ -35,6 +35,9 @@ using SuperMetroid.Core.Enemies.Metroids;
 using SuperMetroid.Core.Enemies.MorphBallEye;
 using SuperMetroid.Core.Enemies.Hoppers;
 using SuperMetroid.Core.Enemies.Alcoon;
+using SuperMetroid.Core.Enemies.Atomic;
+using SuperMetroid.Core.Enemies.Elevator;
+using SuperMetroid.Core.Enemies.Evir;
 using SuperMetroid.Core.Enemies.Animals;
 using SuperMetroid.Core.Enemies.Beetom;
 using SuperMetroid.Core.Enemies.Choot;
@@ -78,6 +81,7 @@ internal static class NativeEnemyFamilyStateImport
     /// <param name="words">The enemy's six recorded record words.</param>
     internal static void Import(RoomEnemySystem enemies, RoomEnemyPlace enemy, NativeEnemyRecordWords words)
     {
+        RejectSealedFamily(enemy);
         int index = enemy.Ordinal;
         // The cartridge gives each of Phantoon's parts' record words a meaning per part (#1476); each part's words belong to
         // the encounter's state grouped by what it does (#1933).
@@ -175,41 +179,6 @@ internal static class NativeEnemyFamilyStateImport
                 Math.Min((int)words.E, GunshipTakeoffDefinitions.EngineRumbleFrames)));
             bottomOfShip.EscapeVelocity = new SignedEightEight(words.F);
         }
-        if (enemy.SpeciesState<CeresSteamEnemyState>() is { } ceresSteamRecord)
-        {
-            // The vent's action is its population variant's, which its initialization turned into its motion: the recorded
-            // action must be the one that motion carries out.
-            CeresSteamAction recordedAction = CeresNativeWords.DecodeSteamAction(words.A, "recorded CeresSteamAction");
-            CeresSteamAction initializedAction = ceresSteamRecord.Motion is CeresSteamMotion.RidesShaftTurn
-                ? CeresSteamAction.ApplyRotatingElevatorOffset
-                : CeresSteamAction.HoldsItsPlace;
-            if (recordedAction != initializedAction)
-                throw new InvalidDataException($"Recorded Ceres steam action {recordedAction} differs from the vent's initialized {initializedAction}.");
-            // Until its first count-down the cartridge's activation count is the wait the port holds the vent hidden for once
-            // its dormant animation has hidden it (#2480), the update it appears on included.
-            ceresSteamRecord.UpdatesToActivation = words.D;
-        }
-        if (enemy.SpeciesState<CeresElevatorDoorState>() is { } elevatorDoorRecord)
-        {
-            elevatorDoorRecord.Phase = CeresNativeWords.ElevatorDoorPhases.Decode(words.A, "recorded Ceres elevator door phase");
-            elevatorDoorRecord.Rumble = TrueWait(words.D);
-            elevatorDoorRecord.ExplosionWait = TrueWait(words.E);
-            // The recorded word is the native table place of the last burst, which the rumble walks from the table's last
-            // place to its first; the port lists the places in burst order, so the next burst is the one after it (#2424).
-            IReadOnlyList<Offset16<RoomPixels>> bursts = CeresDoorRumbleGeometryDefinitions.ExplosionOffsets;
-            int lastBurst = words.F < bursts.Count
-                ? words.F
-                : throw new InvalidDataException($"Recorded Ceres elevator door burst place {words.F} is not one of its {bursts.Count}.");
-            elevatorDoorRecord.NextExplosion = CyclingSequence<Offset16<RoomPixels>>.At(bursts, (bursts.Count - lastBurst) % bursts.Count);
-        }
-        else if (enemy.SpeciesState<CeresDoorAnimationState>() is not null && words.A != CeresNativeWords.MainBehaviourWord(enemy))
-        {
-            // Every other Ceres door and wall runs one main behaviour, which its actor names (#1953).
-            throw new InvalidDataException(
-                $"Recorded Ceres door or wall {enemy.Ordinal} runs routine {words.A:X4}, not its actor's {CeresNativeWords.MainBehaviourWord(enemy):X4}.");
-        }
-        if (enemy.SpeciesState<CeresDoorAnimationState>() is { } ridleyRoomDoorRecord)
-            ridleyRoomDoorRecord.Look = words.B != 0 ? CeresRidleyRoomDoorLook.Overlay : CeresRidleyRoomDoorLook.Actor;
         if (enemy.SpeciesState<DeadTorizoEnemyState>() is { } deadTorizoRecord)
         {
             deadTorizoRecord.Phase = CorpsesNativeWords.DeadTorizoPhases.Decode(words.A, "recorded dead Torizo CorpsePhase");
@@ -217,16 +186,6 @@ internal static class NativeEnemyFamilyStateImport
             if (words.B != 0)
                 throw new InvalidDataException($"Recorded dead Torizo sideways speed ${words.B:X4} is not nothing.");
             deadTorizoRecord.FallSpeed = new SignedEightEight(words.C);
-        }
-        if (enemy.SpeciesState<MotherBrainFallingTubeState>() is { } fallingTubeRecord)
-        {
-            // A zero word is a setup that never ran this far (a defeated room's deleted boss); the state keeps its start.
-            if (words.A != 0)
-                fallingTubeRecord.Action = MotherBrainNativeWords.MotherBrainTubeActions.Decode(words.A, "recorded MotherBrainTubeAction");
-            fallingTubeRecord.FloorY = words.B;
-            fallingTubeRecord.FallSpeed = new SignedEightEight(words.C);
-            fallingTubeRecord.SmokeDelay.SetCartridgeCount(CoordinateAxis.AsSigned(words.D));
-            fallingTubeRecord.SmokePuff = SuperMetroid.Core.ListStep<int>.At(MotherBrainTubeCollapseDefinitions.SmokeXOffsets, words.E);
         }
         if (enemy.SpeciesState<RidleyExplosionFragmentState>() is { } ridleyFragmentRecord)
         {
@@ -309,22 +268,6 @@ internal static class NativeEnemyFamilyStateImport
                 Math.Min((int)words.B, CorpseRotScheduleDefinitions.PreRotDelayUpdates)));
             deadSidehopperRecord.PostLandingPause = TrueWait(words.F);
         }
-        if (enemy.SpeciesState<BotwoonEnemyState>() is { } botwoonRecord)
-        {
-            // A zero word is a setup that never ran this far (a defeated room's deleted boss); the state keeps its start.
-            if (words.D != 0)
-                botwoonRecord.Phase = BotwoonNativeWords.Phases.Decode(words.D, "recorded BotwoonPhase");
-            // A recorded walk names no path the import could rebuild it from, so only a hole approach is imported.
-            if (words.E != 0)
-                botwoonRecord.Movement = BotwoonNativeWords.Movements.Decode(words.E, "recorded BotwoonMovement") switch
-                {
-                    BotwoonRecordedMovement.MoveTowardHole => BotwoonMovement.MoveTowardHole,
-                    BotwoonRecordedMovement.FollowAuthoredPath => throw new InvalidDataException("A recorded Botwoon walk names no path to rebuild it from."),
-                    var undefined => throw new InvalidDataException($"Undefined recorded Botwoon movement {undefined}."),
-                };
-            if (words.F != 0)
-                botwoonRecord.HeadAction = BotwoonNativeWords.HeadActions.Decode(words.F, "recorded BotwoonHeadAction");
-        }
         if (enemy.SpeciesState<BabyMetroidEnemyState>() is { } babyMetroidRecord)
         {
             // A zero word is a setup that never ran this far (a defeated room's deleted boss); the state keeps its start.
@@ -402,25 +345,6 @@ internal static class NativeEnemyFamilyStateImport
                 norfairPipeBug.Action = PipeBugsNativeWords.NorfairPipeBugActions.Decode(words.A, "recorded NorfairPipeBugAction");
             }
         }
-        if (enemy.SpeciesState<YellowPipeBugState>() is { } yellowPipeBug)
-        {
-            // Each way a flight or arc goes has a routine of its own (#2165); the bug flies the way its placement faces
-            // (#2474), which the recorded routine's way must be. An arc's dip direction word (F) is set while it dips and
-            // cleared once it climbs back (#2473).
-            if (PipeBugsNativeWords.YellowPipeBugFlights.TryDecode(words.A, out (YellowPipeBugAction Action, HorizontalDirection Direction) yellowFlight))
-            {
-                HorizontalDirection yellowFacing = enemy.HeldOccupant().SpawnSettings<YellowPipeBugSpawnSettings>().Facing;
-                if (yellowFlight.Direction != yellowFacing)
-                    throw new InvalidDataException($"Recorded yellow Pipe Bug flies {yellowFlight.Direction}, not its placement's {yellowFacing}.");
-                yellowPipeBug.Action = yellowFlight.Action == YellowPipeBugAction.ArcDipping && words.F == 0
-                    ? YellowPipeBugAction.ArcClimbing
-                    : yellowFlight.Action;
-            }
-            else
-            {
-                yellowPipeBug.Action = PipeBugsNativeWords.YellowPipeBugActions.Decode(words.A, "recorded YellowPipeBugAction");
-            }
-        }
         if (enemy.SpeciesState<MagdolliteHeadState>() is { } magdolliteHead)
             magdolliteHead.Action = MagdolliteNativeWords.MagdolliteHeadActions.Decode(words.F, "recorded MagdolliteHeadAction");
         if (enemy.SpeciesState<MagdolliteBodyState>() is { } magdolliteBody)
@@ -437,19 +361,6 @@ internal static class NativeEnemyFamilyStateImport
         {
             magdolliteOverlay.Action = MagdolliteNativeWords.MagdolliteOverlayActions.Decode(words.F, "recorded MagdolliteOverlayAction");
             magdolliteOverlay.ThrowDirection = words.B != 0 ? HorizontalDirection.Right : HorizontalDirection.Left;
-        }
-        if (enemy.SpeciesState<SbugEnemyState>() is { } sbugRecord)
-        {
-            sbugRecord.Action = SbugNativeWords.SbugActions.Decode(words.B, "recorded SbugAction");
-            sbugRecord.MovementTimer = TrueWait(words.F);
-        }
-        if (enemy.SpeciesState<KiHunterBodyState>() is { } kiHunterBodyRecord)
-        {
-            kiHunterBodyRecord.Action = KiHuntersNativeWords.KiHunterActions.Decode(words.A, "recorded KiHunterAction");
-            kiHunterBodyRecord.SwoopTargetX = words.B;
-            kiHunterBodyRecord.SwoopOriginY = words.C;
-            // The swipe's trigger angle follows from the way the body swoops (#2474); the game keeps it in an extra word.
-            kiHunterBodyRecord.SwoopAngle = RotationAngle.WrappedSteps(words.F);
         }
         if (enemy.SpeciesState<KiHunterWingState>() is { } kiHunterWingRecord)
         {
@@ -468,146 +379,6 @@ internal static class NativeEnemyFamilyStateImport
         // The native snapshot keeps the Zebetites' shared pulse counter in slot zero's word C, whichever enemy occupies the slot.
         if (enemy.Ordinal == 0)
             enemies.ZebetiteBehavior.SharedPulse = ListStep<ZebetitePulse>.At(ZebetitePulse.All, words.C);
-        if (enemy.SpeciesState<ChozoStatueState>() is { } chozoStatueRecord)
-        {
-            chozoStatueRecord.Phase = ChozoNativeWords.PhaseAt(words.F, enemy.HeldOccupant().SpawnSettings<ChozoStatueSpawnSettings>().Site == ChozoStatueSite.WreckedShip);
-        }
-        if (enemy.SpeciesState<YardEnemyState>() is { } yardRecord)
-        {
-            yardRecord.CrawlingVelocity = new(new SignedEightEight(words.A), new SignedEightEight(words.B));
-            yardRecord.AirborneFacingDirection = words.C switch
-            {
-                0 => HorizontalDirection.Left,
-                1 => HorizontalDirection.Right,
-                _ => throw new InvalidDataException($"Native Yard airborne facing {words.C:X4} is neither left nor right."),
-            };
-            // The recorded count is the misses in a row the Yard has counted, each counted as the game counts it.
-            yardRecord.ResetMissedProbes();
-            for (int miss = 1; miss <= words.E; miss++)
-            {
-                if (yardRecord.MissedSurfaceTooOften() && miss < words.E)
-                    throw new InvalidDataException($"Recorded Yard missed-probe count {words.E} lies past the {miss} misses that drop it.");
-            }
-            // A recorded flight lands with the hiding animation its airborne facing names, as every flight production
-            // begins does.
-            yardRecord.Motion = YardNativeWords.YardMovements.Decode(words.F, "recorded YardMovement") switch
-            {
-                YardMovement.HoldingStill => YardMotion.HoldingStill,
-                YardMovement.Hiding => YardMotion.Hiding,
-                YardMovement.Crawling => YardMotion.Crawling,
-                YardMovement.Airborne => new YardMotion.Airborne(YardDirections.ForAirborneFacing(yardRecord.AirborneFacingDirection).HidingAnimation),
-                _ => throw new InvalidDataException($"Recorded Yard movement {words.F:X4} is not one the Yard moves by."),
-            };
-            // A crawl's routine names its way (#2278).
-            if (yardRecord.Movement == YardMovement.Crawling)
-                yardRecord.Crawl = YardNativeWords.Crawls.Decode(words.F, "recorded Yard crawl");
-        }
-        if (enemy.SpeciesState<ZoaEnemyState>() is { } zoaRecord)
-        {
-            zoaRecord.SpawnPosition = new(words.A, words.B);
-            // The record keeps the requested animation beside the installed one (#2145): Core keeps the Zoa's facing, which
-            // the requested animation shows, and only the playing animation, which this import does not read.
-            ZoaSegment requested = ZoaNativeWords.AnimationSelectorOf(words.C);
-            zoaRecord.Facing = requested is ZoaSegment.FacingRightRising or ZoaSegment.FacingRightShooting
-                ? HorizontalDirection.Right
-                : HorizontalDirection.Left;
-            RequirePlaying(zoaRecord.Playback, ZoaAnimations.StartingWith(ZoaNativeWords.AnimationSelectorOf(words.D)), "Zoa");
-            zoaRecord.Action = ZoaNativeWords.ZoaActions.Decode(words.F, "recorded ZoaAction");
-        }
-        if (enemy.SpeciesState<BabyTurtleEnemyState>() is { } babyTurtleRecord)
-        {
-            babyTurtleRecord.Action = MamaTurtlesNativeWords.BabyTurtleActions.Decode(words.A, "recorded BabyTurtleAction");
-            // Every Baby Turtle's parent is a Mama Turtle, who links her babies when she is placed.
-            if (enemies.Places.InUpdateOrder[SlotIndex(words.B, "Baby Turtle parent offset")].Occupant?.DefinitionId != EnemyDefinitionId.MamaTurtle)
-                throw new InvalidDataException($"Recorded Baby Turtle parent offset ${words.B:X4} does not name a Mama Turtle.");
-            babyTurtleRecord.SpawnTopCenter = new(words.C, words.D);
-            // The record keeps the baby's signed whole-pixel speed (#2338): its sign the way it heads, a still baby's way kept.
-            short babySpeed = unchecked((short)words.E);
-            if (babySpeed != 0)
-                babyTurtleRecord.Heading = babySpeed < 0 ? HorizontalDirection.Left : HorizontalDirection.Right;
-            babyTurtleRecord.HorizontalSpeed = Math.Abs(babySpeed);
-        }
-        if (enemy.SpeciesState<OwtchEnemyState>() is { } owtchRecord)
-        {
-            // $A2:A423-$A435: fraction then whole for each direction, then the state and the sink depth. The Owtch walks at its
-            // placement's speed (#2439), which the recording's must be.
-            SignedSixteenSixteen owtchSpeed = NegatedPair(SignedSixteenSixteen.FromParts(unchecked((short)words.B), words.A),
-                SignedSixteenSixteen.FromParts(unchecked((short)words.D), words.C), "Owtch speed");
-            if (owtchSpeed != enemy.HeldOccupant().SpawnSettings<OwtchSpawnSettings>().Speed)
-                throw new InvalidDataException($"Recorded Owtch speed {owtchSpeed} is not its placement's {enemy.HeldOccupant().SpawnSettings<OwtchSpawnSettings>().Speed}.");
-            owtchRecord.Behavior = OwtchNativeWords.Behaviors.Decode(words.E, "recorded OwtchBehaviorState");
-            // The sink depth is the sink's age while sinking and the rise's updates left while rising; underground the Owtch
-            // is wholly buried, and walking it is not buried at all.
-            if (owtchRecord.Behavior == OwtchBehaviorState.Sinking)
-                owtchRecord.Sink = UpdateCountdownAccess.AtAge(OwtchMovementDefinitions.MaximumBurialDepth, words.F);
-            else if (owtchRecord.Behavior == OwtchBehaviorState.Rising)
-                owtchRecord.Rise = UpdateCountdown.For(words.F);
-            else if (owtchRecord.Behavior == OwtchBehaviorState.Underground && words.F != OwtchMovementDefinitions.MaximumBurialDepth)
-                throw new InvalidDataException($"Recorded underground Owtch sink depth {words.F} is not a whole burial.");
-        }
-        if (enemy.SpeciesState<BullEnemyState>() is { } bullRecord)
-        {
-            bullRecord.Action = BullNativeWords.BullActions.Decode(words.A, "recorded BullAction");
-            bullRecord.Acceleration = new SignedEightEight(words.B);
-            bullRecord.AccelerationDelta = new SignedEightEight(words.C);
-            bullRecord.Speed = new SignedEightEight(words.D);
-            bullRecord.ActivationTimer = UpdateCountdownAccess.Recorded(unchecked((short)words.E));
-            bullRecord.AccelerationIntervalTimer = UpdateCountdownAccess.Recorded(unchecked((short)words.F));
-        }
-        if (enemy.SpeciesState<BoyonEnemyState>() is { } boyonRecord)
-        {
-            // The Boyon scales its curve and bounces as its placement says (#2476), which the recording's copies must be.
-            BoyonSpawnSettings boyonSettings = enemy.HeldOccupant().SpawnSettings<BoyonSpawnSettings>();
-            if (words.A != boyonSettings.SpeedMultiplier)
-                throw new InvalidDataException($"Recorded Boyon multiplier {words.A} is not its placement's {boyonSettings.SpeedMultiplier}.");
-            // The speed word is the last update's product, which every update multiplies afresh before it moves (#2531).
-            if (SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(words.C) != SignedSixteenSixteen.FromWholePixels(boyonSettings.JumpHeight))
-                throw new InvalidDataException($"Recorded Boyon height ${words.C:X4} is not its placement's {boyonSettings.JumpHeight} pixels.");
-            // The arc's distance is only the first update's working sum (#2432): a Boyon still to derive its arc has summed
-            // nothing, and one that has derived it no longer reads it.
-            if (boyonRecord.Phase == BoyonPhase.DerivingArc && words.D != 0)
-                throw new InvalidDataException($"Recorded Boyon arc distance ${words.D:X4} belongs to a derived arc, which the port's Boyon has still to derive.");
-            // The rise leaves the curve index one below the top entry, the word's largest value, past the top.
-            boyonRecord.CurvePlace = words.E == ushort.MaxValue ? BoyonCurvePlaceConstants.PastTheTop : BoyonCurvePlaceConstants.AtEntry(words.E);
-            // The bouncing word is the phase's own: the record holds none of the latches the rest of the phase reads.
-            if ((words.F != 0) != boyonRecord.IsBouncing)
-                throw new InvalidDataException($"Recorded Boyon bouncing word ${words.F:X4} disagrees with its {boyonRecord.Phase} phase.");
-        }
-        if (enemy.SpeciesState<GrowingShutterEnemyState>() is { } growingShutterRecord)
-        {
-            // Each routine names the way the shutter grows, which is the placement's (#2512).
-            (GrowingShutterAction growingAction, VerticalDirection recordedGrowth) =
-                ShuttersNativeWords.GrowingShutterActions.Decode(words.A, "recorded GrowingShutterAction");
-            if (recordedGrowth != growingShutterRecord.Growth)
-                throw new InvalidDataException($"Recorded growing shutter routine ${words.A:X4} grows {recordedGrowth}, not its placement's {growingShutterRecord.Growth}.");
-            growingShutterRecord.Action = growingAction;
-            // The record keeps every section's origin; Core derives them from the first, the spawn row (#2183), and the
-            // recorded origins must be the ones it derives.
-            global::SuperMetroid.Core.PrivateState.Set(growingShutterRecord, "SpawnY", (int)(words.B));
-            ushort[] originRows = [words.B, words.C, words.D, words.E];
-            for (int level = 0; level < GrowingShutterDefinitions.Sections.Length; level++)
-            {
-                if (growingShutterRecord.OriginY(ListStep<GrowingShutterSection>.At(GrowingShutterDefinitions.Sections, level)) != originRows[level])
-                    throw new InvalidDataException(
-                        $"Recorded growing shutter section {level} origin {originRows[level]:X4} does not follow from its spawn row {words.B:X4}.");
-            }
-            // The recorded growth level counts the sections grown; a shutter that has grown every section grows no more.
-            growingShutterRecord.Growing = words.F < GrowingShutterDefinitions.Sections.Length
-                ? ListStep<GrowingShutterSection>.At(GrowingShutterDefinitions.Sections, words.F)
-                : null;
-        }
-        // A bobbing Fireflea keeps none of these words.
-        if (enemy.SpeciesState<FirefleaEnemyState>() is { Flight: CirclingFirefleaState firefleaRecord })
-        {
-            // The Fireflea circles as its placement chose (#2476), which the recording's turn and radius must be.
-            AngularSpeed firefleaTurn = SuperMetroid.AssetExtraction.Enemies.EnemySpawnSelectors.FirefleaTurnPerUpdate(SignedSixteenSixteen.FromParts(unchecked((short)words.B), words.A));
-            if (firefleaTurn != firefleaRecord.Definition.TurnPerUpdate)
-                throw new InvalidDataException($"Recorded Fireflea turn {firefleaTurn} is not its placement's {firefleaRecord.Definition.TurnPerUpdate}.");
-            if (words.C != enemy.HeldOccupant().SpawnSettings<FirefleaSpawnSettings>().Radius)
-                throw new InvalidDataException($"Recorded Fireflea radius {words.C} is not its placement's {enemy.HeldOccupant().SpawnSettings<FirefleaSpawnSettings>().Radius}.");
-            firefleaRecord.Angle = RotationAngleConstants.FromRaw(words.D);
-            firefleaRecord.Center = new(words.E, words.F);
-        }
         if (enemy.SpeciesState<VerticalShutterEnemyState>() is { } verticalShutterRecord)
         {
             ShutterSpawnSettings verticalShutterSettings = enemy.HeldOccupant().SpawnSettings<ShutterSpawnSettings>();
@@ -622,291 +393,6 @@ internal static class NativeEnemyFamilyStateImport
             if (verticalShutterSpeed != verticalShutterSettings.Speed)
                 throw new InvalidDataException($"Recorded vertical shutter speed {verticalShutterSpeed} is not its placement's {verticalShutterSettings.Speed}.");
         }
-        if (enemy.SpeciesState<CacatacEnemyState>() is { } cacatacRecord)
-        {
-            // The record holds the speed's whole pixels and their negation for walking left; the Cacatac walks at its
-            // placement's speed (#2476), whose whole pixels the recording's must be.
-            if (unchecked((short)words.A) != enemy.HeldOccupant().SpawnSettings<CacatacSpawnSettings>().Speed.WholePixels)
-                throw new InvalidDataException($"Recorded Cacatac speed {unchecked((short)words.A)} is not its placement's {enemy.HeldOccupant().SpawnSettings<CacatacSpawnSettings>().Speed}.");
-            // Every recorded direction but left patrols right, as the game's restore-patrol cue reads it (#2277).
-            HorizontalDirection cacatacPatrol = CacatacNativeWords.Directions.Decode(words.D, "recorded Cacatac direction").Direction;
-            (CacatacAction cacatacAction, HorizontalDirection? cacatacPatrolling) = CacatacNativeWords.CacatacActions.Decode(words.E, "recorded CacatacAction");
-            if (cacatacPatrolling is { } patrolling && patrolling != cacatacPatrol)
-                throw new InvalidDataException($"Recorded Cacatac patrols {patrolling} but its direction word ${words.D:X4} names {cacatacPatrol}.");
-            cacatacRecord.PatrolDirection = cacatacPatrol;
-            cacatacRecord.Action = cacatacAction;
-        }
-        if (enemy.SpeciesState<WorkRobotEnemyState>() is { } workRobotRecord)
-        {
-            // The game keeps the robot's facing as its laser velocity's sign, two pixels either way.
-            workRobotRecord.Facing = words.A switch
-            {
-                0xfe00 => HorizontalDirection.Left,
-                0x0200 => HorizontalDirection.Right,
-                _ => throw new InvalidDataException($"Recorded Work Robot laser velocity ${words.A:X4} is not two pixels either way."),
-            };
-            workRobotRecord.LaserCooldown = WrappingCountdown.Start(words.B);
-            workRobotRecord.FallVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.F), words.E);
-        }
-        // An unpowered robot keeps no facing, laser cooldown or fall: it only holds its pose (#2179, #2455).
-        if (enemy.SpeciesState<KzanEnemyState>() is { } kzanRecord)
-        {
-            kzanRecord.Action = KzanNativeWords.KzanActions.Decode(words.A, "recorded KzanAction");
-            kzanRecord.FallWaitTimer = WrappingCountdown.Start(words.B);
-            kzanRecord.RisingTargetY = words.C;
-            kzanRecord.FallingTargetY = words.D;
-        }
-        if (enemy.SpeciesState<MetroidEnemyState>() is { } metroidRecord)
-        {
-            metroidRecord.Velocity = FixedVector<RoomPixels>.FromStoredParts(words.B, words.A, words.D, words.C);
-            metroidRecord.EscapeMovesLeft = UpdateCountdown.For(words.E);
-            metroidRecord.Movement = MetroidsNativeWords.Movements.Decode(words.F, "recorded MetroidMovement");
-        }
-        if (enemy.SpeciesState<FakeKraidEnemyState>() is { } fakeKraidRecord)
-        {
-            // The cartridge keeps Fake Kraid's walk and facing as signed four-pixel steps (#2214).
-            fakeKraidRecord.Walking = FakeKraidNativeDirection(words.B, "walk");
-            fakeKraidRecord.Facing = FakeKraidNativeDirection(words.C, "facing");
-            // The cartridge counts both in walk steps left: the walk turns on the step its count reaches zero, and the spit
-            // count stops at zero.
-            fakeKraidRecord.WalkTurnWait.SetCartridgeCount(words.D - 1);
-            fakeKraidRecord.SpitWait.SetUpdatesLeft(words.E);
-        }
-        if (enemy.SpeciesState<OumEnemyState>() is { } oumRecord)
-        {
-            oumRecord.Action = MaridiaSnailsNativeWords.OumActions.Decode(words.A, "recorded MaridiaLargeSnailAction");
-            oumRecord.YSpeedCurvePlace = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(unchecked((short)words.B));
-            oumRecord.AttackCooldown = TrueWait(words.C);
-            oumRecord.Heading = words.D != 0 ? HorizontalDirection.Left : HorizontalDirection.Right;
-            oumRecord.RemainingBounces = unchecked((short)words.E);
-            oumRecord.BouncePhase = MaridiaSnailsNativeWords.OumBouncePhases.Decode(words.F, "recorded MaridiaLargeSnailBouncePhase");
-        }
-        if (enemy.SpeciesState<WallSpacePirateEnemyState>() is { } wallSpacePirateRecord)
-        {
-            (WallSpacePirateAction wallAction, HorizontalDirection? wall) = SpacePiratesNativeWords.WallSpacePirateActions.Decode(words.A, "recorded WallSpacePirateAction");
-            wallSpacePirateRecord.Action = wallAction;
-            // An attack's routine names no wall: the Pirate stays on the one it clung to (#2165).
-            if (wall is { } clung)
-                wallSpacePirateRecord.Wall = clung;
-            wallSpacePirateRecord.ClimbDirection = SpacePiratesNativeWords.WallClimbDirections.Decode(words.C, "recorded WallSpacePirateClimbDirection");
-            wallSpacePirateRecord.WallJumpArcCenter = new(words.D, words.E);
-            wallSpacePirateRecord.WallJumpArcAngle = RotationAngle.FromSteps(checked((byte)words.F));
-        }
-        if (enemy.SpeciesState<NinjaSpacePirateEnemyState>() is { } ninjaSpacePirateRecord)
-        {
-            (NinjaSpacePirateAction ninjaAction, HorizontalDirection? ninjaHeading) = SpacePiratesNativeWords.NinjaSpacePirateActions.Decode(words.A, "recorded NinjaSpacePirateAction");
-            ninjaSpacePirateRecord.Action = ninjaAction;
-            // Only a move that goes one way names its heading (#2165).
-            if (ninjaHeading is { } heading)
-                ninjaSpacePirateRecord.Heading = heading;
-            ninjaSpacePirateRecord.PostsMidpointX = words.D;
-            ninjaSpacePirateRecord.LeftPostX = words.E;
-            ninjaSpacePirateRecord.RightPostX = words.F;
-        }
-        if (enemy.SpeciesState<SkreeEnemyState>() is { } skreeRecord)
-        {
-            skreeRecord.BurrowTimer = UpdateCountdownAccess.Recorded(unchecked((short)words.A));
-            skreeRecord.Action = SkreeNativeWords.SkreeActions.Decode(words.B, "recorded SkreeAction");
-            RequirePlayingSkreeMetareeAnimation(skreeRecord.Playback, SkreeNativeWords.SkreeAnimationPhases, words, "Skree");
-            // The game keeps a readied dive as a flag beside its winding-up routine (#2450), set only while it winds up.
-            skreeRecord.Action = (skreeRecord.Action, words.E) switch
-            {
-                (SkreeAction.PreparingAttack, not 0) => SkreeAction.AttackReady,
-                (_, 0) => skreeRecord.Action,
-                (var readied, _) => throw new InvalidDataException($"Recorded Skree {readied} has its dive readied."),
-            };
-        }
-        if (enemy.SpeciesState<BoulderEnemyState>() is { } boulderRecord)
-        {
-            boulderRecord.Action = BoulderNativeWords.BoulderActions.Decode(words.A, "recorded BoulderAction");
-            boulderRecord.TravelCurvePlace = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(words.B);
-            boulderRecord.BounceCurvePlace = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(words.C);
-            // The record counts the bounces left, two before the first impact and minus one once rolling.
-            boulderRecord.ImpactsSoFar = BoulderBounces.ImpactCount - 1 - unchecked((short)words.D);
-            // The Boulder rolls as its placement names (#2476), which the recording's roll must be.
-            (HorizontalDirection Direction, bool Breaks) boulderRoll = words.E switch
-            {
-                0 => (HorizontalDirection.Right, false),
-                1 => (HorizontalDirection.Left, false),
-                2 => (HorizontalDirection.Left, true),
-                _ => throw new InvalidDataException($"Recorded Boulder roll {words.E} is not a roll."),
-            };
-            BoulderSpawnSettings placed = enemy.HeldOccupant().SpawnSettings<BoulderSpawnSettings>();
-            if (boulderRoll != (placed.Roll, placed.FirstImpact == BoulderImpact.Breaks))
-                throw new InvalidDataException($"Recorded Boulder roll {boulderRoll} is not its placement's {(placed.Roll, placed.FirstImpact == BoulderImpact.Breaks)}.");
-        }
-        if (enemy.SpeciesState<RinkaEnemyState>() is { } rinkaRecord)
-        {
-            // A zero word is a setup that never ran this far (a defeated room's deleted boss); the state keeps its start.
-            if (words.A != 0)
-                rinkaRecord.Action = MotherBrainNativeWords.RinkaActions.Decode(words.A, "recorded RinkaAction");
-            rinkaRecord.Velocity = new(new SignedEightEight(words.B), new SignedEightEight(words.C));
-            // A zero word holds no point; a special Rinka holding a point was placed at it, which makes it the point it
-            // respawns at (#2256). An ordinary Rinka shares no points, so it holds none.
-            if (rinkaRecord.SharedSpawn is { } shared)
-            {
-                shared.HeldSpawnPoint = words.D == 0 ? null : MotherBrainNativeWords.RinkaSpawnPoints.Decode(words.D, "recorded RinkaSpawnPoint");
-                if (shared.HeldSpawnPoint is { } heldPoint)
-                    shared.SpawnPoint = heldPoint;
-            }
-            else if (words.D != 0)
-                throw new InvalidDataException($"An ordinary Rinka's record holds spawn point word ${words.D:X4}.");
-            // The record's one wait is the respawn delay while the Rinka waits to respawn, and its aim delay otherwise.
-            (rinkaRecord.Action == RinkaAction.DeathRespawnDelay ? rinkaRecord.RespawnDelay : rinkaRecord.AimDelay)
-                .SetCartridgeCount(CoordinateAxis.AsSigned(words.F));
-        }
-        if (enemy.SpeciesState<EtecoonEnemyState>() is { } etecoonRecord)
-        {
-            etecoonRecord.Velocity = FixedVector<RoomPixels>.FromStoredParts(words.C, words.D, words.A, words.B);
-            etecoonRecord.Action = AnimalsNativeWords.EtecoonActions.Decode(words.F, "recorded EtecoonAction");
-            // A dormant Etecoon's record holds its countdown below zero while it waits for Samus; the same routine flexes
-            // once the countdown holds the flex's (#2476). The port's dormant Etecoon waits without one, and every other
-            // record's countdown is the wait it has left.
-            if (etecoonRecord.Action == EtecoonAction.Dormant && unchecked((short)words.E) >= 0)
-                etecoonRecord.Action = EtecoonAction.Flexing;
-            if (etecoonRecord.Action != EtecoonAction.Dormant)
-                etecoonRecord.ActionTimer = UpdateCountdown.For(words.E);
-        }
-        if (enemy.SpeciesState<MochtroidEnemyState>() is { } mochtroidRecord)
-        {
-            mochtroidRecord.Velocity = FixedVector<RoomPixels>.FromStoredParts(words.B, words.A, words.D, words.C);
-            mochtroidRecord.MovementMode = MetroidsNativeWords.MochtroidMovementModes.Decode(words.F, "recorded MochtroidMovementMode");
-        }
-        if (enemy.SpeciesState<MorphBallEyeEnemyState>() is { } morphBallEyeRecord)
-        {
-            morphBallEyeRecord.IsActivated = words.C != 0;
-            morphBallEyeRecord.Angle = RotationAngle.FromSteps(unchecked((byte)words.D));
-            morphBallEyeRecord.ActionTimer = UpdateCountdownAccess.Recorded(unchecked((short)words.E));
-            morphBallEyeRecord.Action = MorphBallEyeNativeWords.MorphBallEyeActions.Decode(words.F, "recorded MorphBallEyeAction");
-        }
-        if (enemy.SpeciesState<HopperEnemyState>() is { } hopperRecord)
-        {
-            (HopperAction hopperAction, HopperHopSize? hopSize, HorizontalDirection? startHeading) =
-                HoppersNativeWords.HopperActions.Decode(words.A, "recorded HopperAction");
-            hopperRecord.Action = hopperAction;
-            hopperRecord.YSpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(words.B);
-            // The record keeps the heading as three pixels either way (#2338), none before the first hop; a starting hop's
-            // routine names the heading it takes, which its velocity only gains as the hop starts.
-            hopperRecord.Heading = unchecked((short)words.C) switch
-            {
-                -HopperHopDefinitions.HorizontalSpeed => HorizontalDirection.Left,
-                HopperHopDefinitions.HorizontalSpeed => HorizontalDirection.Right,
-                0 => hopperRecord.Heading,
-                var other => throw new InvalidDataException($"Recorded hopper X velocity {other} is not three pixels either way."),
-            };
-            if (startHeading is { } starts)
-                hopperRecord.Heading = starts;
-            if (hopSize is { } size)
-                hopperRecord.HopSize = size;
-            hopperRecord.YSpeedCurvePlaceStep = QuadraticSpeedCurvePlace.FromMarks(words.D);
-        }
-        if (enemies.PlatformStates[index] is { } platform)
-        {
-            platform.RestingY = words.A;
-            // The platform reads its speed and its acceleration's cap from its spawn settings where it uses them (#2439); the
-            // recording's copy of the speed must be the placement's.
-            PlatformSpawnSettings platformSettings = enemy.HeldOccupant().SpawnSettings<PlatformSpawnSettings>();
-            SignedSixteenSixteen platformSpeed = NegatedPair(SignedSixteenSixteen.FromParts(unchecked((short)words.C), words.B),
-                SignedSixteenSixteen.FromParts(unchecked((short)words.E), words.D), "platform speed");
-            if (platformSpeed != platformSettings.Speed)
-                throw new InvalidDataException($"Recorded platform speed {platformSpeed} is not its placement's {platformSettings.Speed}.");
-            platform.YSpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(Index(words.F, platformSettings.VerticalAccelerationUpdates, "platform acceleration index"));
-        }
-        if (enemies.BeetomStates[index] is { } beetom)
-        {
-            beetom.YSpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(Index(words.B, short.MaxValue, "Beetom speed index"));
-            (BeetomAction beetomAction, HorizontalDirection? beetomHeading) = BeetomNativeWords.BeetomActions.Decode(words.C, "recorded BeetomAction");
-            beetom.Action = beetomAction;
-            // Only an action that goes one way names its heading (#2277).
-            if (beetomHeading is { } beetomGoes)
-                global::SuperMetroid.Core.PrivateState.Set(beetom, "Heading", beetomGoes);
-            beetom.ActionTimer = TrueWait(words.D);
-            beetom.ButtonCounter = unchecked((short)words.E);
-            beetom.LastSeenPlayerActions = GameplayActionWordCodec.FromJoypadWord(words.F, "native Beetom previous controller input");
-        }
-        if (enemy.Holds(EnemyDefinitionId.Shaktool) && enemies.ShaktoolSegments[index] is { } segment)
-        {
-            int segmentIndex = Array.IndexOf(ShaktoolSegmentDefinitions.Segments, enemy.HeldOccupant().SpawnSettings<ShaktoolSpawnSettings>().Segment);
-            // Every segment's record holds a copy of the chain's target; the leading saw's, which no straightening turns
-            // on, is the chain's (#2452), which the chain reached through its wall before the segments' import
-            // (ImportShaktoolTarget).
-            segment.OrbitAngle = RotationAngleConstants.FromRaw(words.B);
-            segment.AngularVelocity = RotationAngleConstants.FromRaw(Index(words.C, 1020, "Shaktool angular velocity"));
-            ImportShaktoolOrientation(segment, segmentIndex, words.D);
-            // Every segment's owner is the chain's leading saw, the first enemy its room lists.
-            if (SlotIndex(words.E, "Shaktool owner") != 0)
-                throw new InvalidDataException($"Recorded Shaktool owner ${words.E:X4} does not name the first enemy, where the chain's saw is placed.");
-            segment.Motion = ShaktoolNativeWords.DecodeMotion(words.F, "recorded ShaktoolSegmentMotion");
-        }
-        if (enemies.ChootStates[index] is { } choot)
-        {
-            choot.Action = ChootNativeWords.ChootActions.Decode(words.A, "recorded ChootAction");
-            // The ascent cursor is 8.8 and moves by whole records, so its signed high byte is the record index.
-            choot.YSpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(unchecked((short)words.B) >> 8);
-            choot.FallingLoop = (words.C & 0xff) == 0
-                ? ChootFallLoopAccess.AtAge(enemy.HeldOccupant().SpawnSettings<ChootSpawnSettings>().FallingPath, words.C >> 8)
-                : throw new InvalidDataException($"Recorded Choot falling cursor ${words.C:X4} is not a whole frame.");
-            choot.FallingPatternLoopCounter = TrueDuration(words.D);
-            // The Choot falls along its placement's path (#2476), which the recording's must be.
-            ChootFallingPath chootPath = ChootNativeWords.ChootFallingPaths.Decode(words.E, "recorded Choot falling pattern");
-            if (chootPath != enemy.HeldOccupant().SpawnSettings<ChootSpawnSettings>().FallingPath)
-                throw new InvalidDataException($"Recorded Choot falling path {chootPath} is not its placement's {enemy.HeldOccupant().SpawnSettings<ChootSpawnSettings>().FallingPath}.");
-            // The loop's Y distance is the placement's path's (#2531), which the recording's copy must be.
-            if (words.F != ChootFalls.LoopYDistance(chootPath))
-                throw new InvalidDataException($"Recorded Choot loop Y distance {words.F} is not its {chootPath} path's {ChootFalls.LoopYDistance(chootPath)}.");
-        }
-        if (enemies.SkulteraStates[index] is { } skultera)
-        {
-            (skultera.Action, skultera.Heading) = SkulteraNativeWords.SkulteraActions.Decode(words.A, "recorded SkulteraAction");
-            // The leftward words are the speed reversed (#2278): the speed is the rightward pair. The Skultera swims at its
-            // placement's speed (#2450), which the recording's must be.
-            SignedSixteenSixteen skulteraSpeed = SignedSixteenSixteen.FromParts(unchecked((short)words.C), words.B);
-            if (skulteraSpeed != enemy.HeldOccupant().SpawnSettings<SkulteraSpawnSettings>().Speed)
-                throw new InvalidDataException($"Recorded Skultera speed {skulteraSpeed} is not its placement's {enemy.HeldOccupant().SpawnSettings<SkulteraSpawnSettings>().Speed}.");
-            // Only the angle word's low byte is ever read; movement discards its high byte.
-            global::SuperMetroid.Core.PrivateState.Set(skultera, "Angle", RotationAngle.FromSteps(LittleEndianBytes.LowByte(words.F)));
-        }
-        if (enemy.Holds(EnemyDefinitionId.Coven) && enemy.SpeciesState<WreckedShipGhostEnemyState>() is { } ghost)
-        {
-            ghost.Action = WreckedShipNativeWords.WreckedShipGhostActions.Decode(words.A, "recorded WreckedShipGhostAction");
-            // Word B is the one timer the cartridge keeps for every phase; the port keeps a countdown for each timed phase
-            // (#2512). Watching Samus, the word holds the flicker's start, which the port's appearance sets; fading away, the
-            // bob's run-out.
-            int ghostTimer = unchecked((short)words.B);
-            switch (ghost.Action)
-            {
-                case WreckedShipGhostAction.InitialInvisibleDelay:
-                    ghost.InvisibleDelay = UpdateCountdownAccess.Recorded(ghostTimer);
-                    break;
-                case WreckedShipGhostAction.BrighteningAndFlickering or WreckedShipGhostAction.FadingToGhostColours:
-                    ghost.FlickerTimer = UpdateCountdownAccess.Recorded(ghostTimer);
-                    ghost.NextFlickerStep = WreckedShipGhostFlickerStepOf(words.C);
-                    break;
-                case WreckedShipGhostAction.BobbingWhileVisible:
-                    ghost.VisibleTimer = UpdateCountdownAccess.Recorded(ghostTimer);
-                    break;
-                case WreckedShipGhostAction.TrackingSamusForSpawn:
-                    if (ghostTimer != WreckedShipGhostAppearanceDefinitions.FlickerFirstStepDelay)
-                        throw new InvalidDataException($"Recorded watching Wrecked Ship ghost's timer {ghostTimer} is not its flicker's start.");
-                    break;
-                case WreckedShipGhostAction.WaitingForWhiteFade:
-                    if (ghostTimer != 0)
-                        throw new InvalidDataException($"Recorded vanishing Wrecked Ship ghost's timer {ghostTimer} is not its bob's run-out.");
-                    break;
-                default:
-                    throw new InvalidDataException($"Undefined {nameof(WreckedShipGhostAction)} {ghost.Action}.");
-            }
-        }
-        if (enemy.EntityState<WalkingSpacePirateEntity, WalkingSpacePirateEnemyState>() is { } walkingPirate)
-        {
-            (WalkingSpacePirateAction walkingAction, HorizontalDirection? walkingHeading) = SpacePiratesNativeWords.WalkingSpacePirateActions.Decode(words.A, "recorded WalkingSpacePirateAction");
-            walkingPirate.Action = walkingAction;
-            // Only a walk names its heading (#2165).
-            if (walkingHeading is { } walk)
-                walkingPirate.Heading = walk;
-            walkingPirate.LeftPostX = words.E;
-            walkingPirate.RightPostX = words.F;
-        }
         // A Multiviola's velocity words (C to F) are the last update's, which every update rebuilds from its heading before it
         // moves (#2531), so none is imported.
         if (enemy.EntityState<CrawlerEntity, CrawlerEnemyState>() is { } crawler)
@@ -920,35 +406,6 @@ internal static class NativeEnemyFamilyStateImport
             holtz.Velocity = new(new SignedEightEight(words.D), new SignedEightEight(words.C));
             holtz.Action = RiosNativeWords.HoltzActions.Decode(words.F, "recorded LowerNorfairRioAction");
         }
-        if (enemy.Holds(EnemyDefinitionId.EtecoonEscape) && enemy.SpeciesState<EscapeEtecoonEnemyState>() is { } escape)
-        {
-            // The record's signed walking speed: its sign is the way the Etecoon walks (#2369).
-            var escapeVelocity = new SignedEightEight(words.A);
-            PrivateState.Set(escape, nameof(EscapeEtecoonEnemyState.Direction), escapeVelocity.IsNegative ? HorizontalDirection.Left : HorizontalDirection.Right);
-            PrivateState.Set(escape, "Speed", escapeVelocity.IsNegative ? escapeVelocity.Negated() : escapeVelocity);
-            PrivateState.Set(escape, nameof(EscapeEtecoonEnemyState.Action), AnimalsNativeWords.EscapeEtecoonActionAt(words.F));
-        }
-        if (enemy.Holds(EnemyDefinitionId.FaceBlock) && enemy.SpeciesState<BlueBrinstarFaceBlockEnemyState>() is { } faceBlock)
-        {
-            // The game keeps a woken face as a flag beside the turn its wake installed; the port's face is awake while it
-            // plays that turn (#2476). The recording's place in the turn is not imported: a woken face holds its turn's end.
-            if (words.A != 0)
-            {
-                Animation<BlueBrinstarFaceBlockSegment> turn = BlueBrinstarFaceBlockAnimations.StartingWith(
-                    BlueBrinstarFaceBlockBehavior.Wake(enemy.HeldOccupant().SpawnSettings<FaceBlockSpawnSettings>().Facing));
-                faceBlock.Playback = new(turn, AnimationPlace.HoldingIn(0, turn.Phases[0].BeatCount));
-            }
-        }
-        if (enemy.Holds(EnemyDefinitionId.NuclearWaffle) && enemy.SpeciesState<NuclearWaffleEnemyState>() is { } waffle)
-        {
-            waffle.Action = NuclearNativeWords.NuclearWaffleActions.Decode(words.A, "recorded NuclearWaffleAction");
-            waffle.WaitingTimer = TrueWait(words.B);
-        }
-        if (enemy.Holds(EnemyDefinitionId.Polyp) && enemy.SpeciesState<PolypEnemyState>() is { } polyp)
-        {
-            polyp.Action = PolypNativeWords.PolypActions.Decode(words.A, "recorded PolypAction");
-            polyp.CooldownTimer = TrueWait(words.B);
-        }
         // The halves reuse the same words for different values, each half into its own state (#1845).
         if (enemy.Holds(EnemyDefinitionId.Powamp) && enemy.SpeciesState<PowampBalloonState>() is { } powampBalloon)
         {
@@ -958,14 +415,6 @@ internal static class NativeEnemyFamilyStateImport
                 throw new InvalidDataException($"Recorded Powamp grapple rise {words.D} is not its placement's {enemy.HeldOccupant().SpawnSettings<PowampBalloonSpawnSettings>().GrappleTravelDistance}.");
             if (words.F != PowampNativeWords.BalloonIdleWord)
                 throw new InvalidDataException($"Recorded Powamp balloon runs ${words.F:X4}, not the balloon's empty routine.");
-        }
-        if (enemy.Holds(EnemyDefinitionId.Powamp) && enemy.SpeciesState<PowampBodyState>() is { } powampBody)
-        {
-            powampBody.YVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.A), words.B);
-            powampBody.Wiggle = PowampWiggle.All[Index(words.C, PowampWiggle.All.Count - 1, "Powamp wiggle phase")];
-            powampBody.WiggleTimer = UpdateCountdown.For(ZeroOrBelowDuration(words.D));
-            powampBody.ActionTimer = UpdateCountdown.For(ZeroOrBelowDuration(words.E));
-            powampBody.Action = PowampNativeWords.PowampActions.Decode(words.F, "recorded PowampAction");
         }
         if (enemy.Holds(EnemyDefinitionId.MamaTurtle) && enemy.SpeciesState<MamaTurtleEnemyState>() is { } mama)
         {
@@ -984,99 +433,10 @@ internal static class NativeEnemyFamilyStateImport
                 _ => throw new InvalidDataException($"Recorded Mama Turtle wake count {words.F} is neither zero nor one."),
             };
         }
-        if (enemies.HibashiStates[index] is { } hibashi)
-        {
-            hibashi.Action = HibashiNativeWords.HibashiActions.Decode(words.A, "recorded HibashiAction");
-            hibashi.InactiveTimer = TrueWait(words.B);
-            // The game keeps a finished eruption as a flag beside its active routine: an active flame whose flag is set has
-            // finished and rests on its next update (#2439). An inactive flame's flag is left over from its last eruption.
-            if (hibashi.Action == HibashiAction.Active && words.C != 0)
-                hibashi.Action = HibashiAction.Finished;
-            hibashi.SpawnY = words.D;
-        }
-        if (enemies.AlcoonStates[index] is { } alcoon)
-        {
-            alcoon.Action = AlcoonNativeWords.AlcoonActions.Decode(words.A, "recorded AlcoonAction");
-            alcoon.WalkingDirection = CoordinateAxis.AsSigned(words.D) switch
-            {
-                -2 => AlcoonWalk.Left,
-                2 => AlcoonWalk.Right,
-                0 => AlcoonWalk.Undecided,
-                var speed => throw new InvalidDataException($"Recorded Alcoon walking speed {speed} is not -2, 0 or 2."),
-            };
-            alcoon.VerticalVelocity = SignedSixteenSixteen.FromParts(CoordinateAxis.AsSigned(words.B), words.C);
-            alcoon.SpawnPosition = alcoon.SpawnPosition.WithY(words.F);
-        }
-        if (enemies.DeadTourianCorpses[index] is { } corpse)
-        {
-            corpse.Phase = DeadTourianCorpsePhaseOf(DeadTourianBehavior.SpeciesOf(enemy.HeldOccupant().DefinitionId), words.A);
-            corpse.PreRotDelay.PlaceAt(UpdateCountdownAccess.AtAge(CorpseRotScheduleDefinitions.PreRotDelayUpdates,
-                Math.Min((int)words.B, CorpseRotScheduleDefinitions.PreRotDelayUpdates)));
-        }
-        if (enemies.RioStates[index] is { } rio)
-        {
-            rio.SavedHorizontalVelocity = new SignedEightEight(words.A);
-            rio.Action = RiosNativeWords.RioActions.Decode(words.B, "recorded RioAction");
-            rio.Velocity = new(new SignedEightEight(words.D), new SignedEightEight(words.C));
-            if (words.E != 0) rio.Finish.Raise(); else rio.Finish.Forget();
-        }
         if (enemy.EntityState<GerutaEntity, GerutaEnemyState>() is { } geruta)
         {
             geruta.Velocity = new(new SignedEightEight(words.B), new SignedEightEight(words.A));
             geruta.Action = RiosNativeWords.GerutaActions.Decode(words.F, "recorded NorfairRioAction");
-        }
-        if (enemies.WaverStates[index] is { } waver)
-        {
-
-            // The record keeps the requested animation beside the installed one (#2145): Core keeps the Waver's facing,
-            // which the requested animation shows, and only the playing animation, which this import does not read.
-            RequirePlaying(waver.Playback, WaverAnimations.StartingWith(WaverNativeWords.Animations.Decode(words.C, "recorded Waver installed animation")), "Waver");
-            // Only the phase word's low byte is ever read.
-            waver.Angle = RotationAngle.FromSteps(LittleEndianBytes.LowByte(words.D));
-            // The game keeps a finished spin as a flag beside the spin it installed (#2450): a spinning Waver whose flag is
-            // set has finished its spin, and only a spin sets it.
-            bool spins = WaverAnimationChoices.IsSpin(WaverNativeWords.Animations.Decode(words.C, "recorded Waver installed animation"));
-            waver.Action = (spins, words.E) switch
-            {
-                (true, 0) => WaverAction.Spinning,
-                (true, _) => WaverAction.SpinFinished,
-                (false, 0) => WaverAction.Gliding,
-                (false, _) => throw new InvalidDataException("Recorded steady Waver has finished a spin."),
-            };
-            waver.Facing = WaverAnimationChoicesConstants.Facing(WaverNativeWords.Animations.Decode(words.F, "recorded Waver requested animation"));
-            // The Waver flies its one speed toward its facing (#2278): the recorded velocity must be that.
-            if (waver.XVelocity != SignedSixteenSixteen.FromParts(unchecked((short)words.B), words.A))
-                throw new InvalidDataException($"Recorded Waver velocity ${words.B:X4}.{words.A:X4} is not its speed toward its facing {waver.Facing}.");
-        }
-        if (enemy.EntityState<FliesEntity, FlyEnemyState>() is { } fly)
-        {
-            fly.Velocity = new(new SignedEightEight(words.B), new SignedEightEight(words.C));
-            fly.TargetY = words.D;
-            // The phase word is an even byte offset into the 256-entry table, nine bits wide.
-            fly.Angle = words.E % 2 == 0
-                ? RotationAngle.FromSteps(checked((byte)(Index(words.E, 510, "fly phase") / 2)))
-                : throw new InvalidDataException($"Recorded fly phase ${words.E:X4} is odd.");
-            (FlyAction flyAction, RotationDirection? flyRotation) = FliesNativeWords.FlyActions.Decode(words.F, "recorded FlyAction");
-            fly.Action = flyAction;
-            // Only circling names the way it circles (#2277); a retreat starts circling clockwise again.
-            if (flyRotation is { } flyCircles)
-                fly.Rotation = flyCircles;
-            // The word counts the dive up, its retreat down past zero and the circling cooldown down (#2369): it is the
-            // current phase's count; the port's retreat holds its true duration.
-            switch (fly.Action)
-            {
-                case FlyAction.AttackSamus:
-                    PrivateState.Set(fly.Dive, nameof(ElapsedUpdates.Age), (int)unchecked((short)words.A));
-                    break;
-                case FlyAction.Retreat:
-                    fly.RetreatUpdatesLeft = TrueWait(words.A);
-                    break;
-                case FlyAction.Circling:
-                    fly.CooldownUpdatesLeft = UpdateCountdownAccess.Recorded(unchecked((short)words.A));
-                    break;
-                default:
-                    throw new InvalidDataException($"Recorded fly action {fly.Action} has no count.");
-            }
         }
         if (enemies.DragonStates[index] is { } dragon)
         {
@@ -1087,47 +447,6 @@ internal static class NativeEnemyFamilyStateImport
             // The wait before sinking runs out at zero in the cartridge too; its other waits run past zero.
             dragon.ActionTimer = dragon.Action == DragonAction.WaitToSink ? UpdateCountdownAccess.Recorded(unchecked((short)words.D)) : TrueWait(words.D);
             dragon.AttackCounter = unchecked((short)words.D);
-        }
-        if (enemies.ElevatorStates[index] is { } elevator)
-            elevator.RestingY = words.A;
-        // A Fune reads no wake distance and a Namihe no cooldown; each takes only its own species' words.
-        if (enemies.FuneStates[index] is { } fune)
-        {
-            fune.Action = FuneNamiheNativeWords.FuneActions.Decode(words.B, "recorded FuneAction");
-            if (Index(words.D, 15, "Fune/Namihe behaviour") != 0)
-                throw new InvalidDataException($"Recorded Fune/Namihe behaviour ${words.D:X4} names a Namihe.");
-            int cooldownUpdates = FuneNamiheBehavior.CooldownOf(enemy.HeldOccupant()).Length;
-            fune.Cooldown = UpdateCountdownAccess.AtAge(cooldownUpdates, Math.Min(words.E, cooldownUpdates));
-            // The Fune waits its placement's cooldown (#2476), which the recording's must be.
-            if (Index(words.F, byte.MaxValue, "Fune cooldown time") != enemy.HeldOccupant().SpawnSettings<FuneSpawnSettings>().CooldownTime)
-                throw new InvalidDataException($"Recorded Fune cooldown {words.F} is not its placement's {enemy.HeldOccupant().SpawnSettings<FuneSpawnSettings>().CooldownTime}.");
-            (bool namihe, bool active, bool right) = FuneNamiheSelectorOracle.Decode(words.A);
-            if (namihe)
-                throw new InvalidDataException($"Recorded Fune/Namihe selector ${words.A:X4} names a Namihe.");
-            // The selector's activity is the spit the recorded action names (#2432).
-            if (active != fune.IsSpitting)
-                throw new InvalidDataException($"Recorded Fune selector ${words.A:X4} disagrees with its recorded action {fune.Action}.");
-            // The Fune faces as its placement says (#2476), which the recording's selector must.
-            if ((right ? HorizontalDirection.Right : HorizontalDirection.Left) != enemy.HeldOccupant().SpawnSettings<FuneSpawnSettings>().Facing)
-                throw new InvalidDataException($"Recorded Fune selector ${words.A:X4} does not face its placement's {enemy.HeldOccupant().SpawnSettings<FuneSpawnSettings>().Facing}.");
-        }
-        if (enemies.NamiheStates[index] is { } namiheState)
-        {
-            namiheState.Action = FuneNamiheNativeWords.NamiheActions.Decode(words.B, "recorded NamiheAction");
-            // The Namihe wakes at its placement's distance (#2476), which the recording's must be.
-            if (Index(words.C, byte.MaxValue, "Namihe wake distance") != enemy.HeldOccupant().SpawnSettings<NamiheSpawnSettings>().YProximity)
-                throw new InvalidDataException($"Recorded Namihe wake distance {words.C} is not its placement's {enemy.HeldOccupant().SpawnSettings<NamiheSpawnSettings>().YProximity}.");
-            if (Index(words.D, 15, "Fune/Namihe behaviour") == 0)
-                throw new InvalidDataException($"Recorded Fune/Namihe behaviour ${words.D:X4} names a Fune.");
-            (bool namihe, bool active, bool right) = FuneNamiheSelectorOracle.Decode(words.A);
-            if (!namihe)
-                throw new InvalidDataException($"Recorded Fune/Namihe selector ${words.A:X4} names a Fune.");
-            // The selector's activity is the spit the recorded action names (#2432).
-            if (active != namiheState.IsSpitting)
-                throw new InvalidDataException($"Recorded Namihe selector ${words.A:X4} disagrees with its recorded action {namiheState.Action}.");
-            // The Namihe faces as its placement says (#2476), which the recording's selector must.
-            if ((right ? HorizontalDirection.Right : HorizontalDirection.Left) != enemy.HeldOccupant().SpawnSettings<NamiheSpawnSettings>().Facing)
-                throw new InvalidDataException($"Recorded Namihe selector ${words.A:X4} does not face its placement's {enemy.HeldOccupant().SpawnSettings<NamiheSpawnSettings>().Facing}.");
         }
         if (enemy.Occupant?.DefinitionId is EnemyDefinitionId.GrappleRipper or EnemyDefinitionId.Ripper or EnemyDefinitionId.JetRipper &&
             enemy.SpeciesState<RipperEnemyState>() is { } ripperVariant)
@@ -1149,151 +468,34 @@ internal static class NativeEnemyFamilyStateImport
             lavaJumper.SpawnPosition = new Position16<RoomPixels>(words.D, words.E);
             lavaJumper.Action = LavaJumpersNativeWords.SqueeptActions.Decode(words.F, "recorded NorfairLavaJumpingEnemyAction");
         }
-        if (enemies.MetareeStates[index] is { } metaree)
-        {
-            metaree.BurrowTimer = UpdateCountdownAccess.Recorded(unchecked((short)words.A));
-            metaree.Action = MetareeNativeWords.MetareeActions.Decode(words.B, "recorded MetareeAction");
-            RequirePlayingSkreeMetareeAnimation(metaree.Playback, SkreeNativeWords.MetareeAnimationPhases, words, "Metaree");
-            // The game keeps a readied attack as a flag beside its preparing routine (#2439), set only while it prepares.
-            metaree.Action = (metaree.Action, words.E) switch
-            {
-                (MetareeAction.PreparingAttack, not 0) => MetareeAction.AttackReady,
-                (_, 0) => metaree.Action,
-                (var readied, _) => throw new InvalidDataException($"Recorded Metaree {readied} has its attack readied."),
-            };
-            metaree.YVelocity = Index(words.F, 2734, "Metaree dive speed");
-        }
-        if (enemies.SparkStates[index] is { } spark)
-        {
-            spark.Action = SparksNativeWords.SparkActions.Decode(words.B, "recorded SparkAction");
-            // The Spark waits its placement's time between actions (#2450), which the recording's copy must be.
-            if (words.E != enemy.HeldOccupant().SpawnSettings<SparkSpawnSettings>().BaseActionTime)
-                throw new InvalidDataException($"Recorded Spark wait {words.E} is not its placement's {enemy.HeldOccupant().SpawnSettings<SparkSpawnSettings>().BaseActionTime}.");
-            // The cartridge's countdown expires on the update it would step from one, which the wait's last update stands for.
-            spark.ActionTimer = UpdateCountdownAccess.Recorded(unchecked((short)words.F));
-        }
-        if (enemies.PuyoStates[index] is { } puyo)
-        {
-            puyo.YSpeedCurvePlace = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(Index(words.A, short.MaxValue, "Puyo speed index"));
-            puyo.HopCooldownTimer = TrueWait(words.B);
-            puyo.Action = PuyoNativeWords.PuyoActions.Decode(words.C, "recorded PuyoAction");
-            // A Puyo that has not hopped yet records no airborne behaviour; the port chooses one as each hop starts, so a
-            // grounded Puyo's is not read before its next hop writes it.
-            if (words.D != 0)
-                puyo.AirborneMovement = PuyoNativeWords.PuyoAirborneMovements.Decode(words.D, "recorded PuyoAirborneMovement");
-            else if (puyo.Action != PuyoAction.Grounded)
-                throw new InvalidDataException($"Recorded {puyo.Action} Puyo has no airborne behaviour.");
-            puyo.CurrentHop = PuyoNativeWords.HopRecordOffsets.Decode(words.E, "recorded Puyo hop record offset");
-        }
     }
 
     /// <summary>
-    /// Translates the family facts some enemies keep among their extra variables rather than their record words (#2473):
-    /// a Ki-Hunter body's swipe and wingless flags, a hopper's, a Puyo's and a Beetom's falling flags, a Boyon's bounce
-    /// movement (#2531), a Wrecked Ship ghost's watch timers and a Kago's hits left (#2512).
+    /// Refuses a recorded enemy whose family keeps its state inside its entity alone (#2554): the game hands that state to
+    /// nothing outside the enemy, so its recorded words have nowhere to go, and a snapshot holding it cannot be imported.
     /// </summary>
-    /// <param name="enemy">The imported slot, its record words already imported.</param>
-    /// <param name="words">The enemy's six recorded record words.</param>
-    /// <param name="extraWord">The enemy's extra variable word at a byte offset from the start of its extra variables.</param>
-    internal static void ImportExtraWords(RoomEnemyPlace enemy, NativeEnemyRecordWords words, Func<int, ushort> extraWord)
+    /// <exception cref="InvalidDataException">The enemy is of such a family.</exception>
+    /// <param name="enemy">The imported slot.</param>
+    private static void RejectSealedFamily(RoomEnemyPlace enemy)
     {
-        if (enemy.SpeciesState<KiHunterBodyState>() is { } kiHunterBody)
+        if (enemy.Entity is CeresDoorEntity or CeresElevatorDoorEntity or CeresElevatorRoomWallEntity or CeresGetawayChamberWallEntity
+            or CeresRidleyRoomDoorEntity or CeresSteamEntity or AtomicEntity or ElevatorEntity or EscapeDachoraEntity or DeadTourianEntity
+            or HibashiCollisionPartEntity or HibashiEntity or RioEntity or GerutaFollowerEntity or HoltzFollowerEntity or EvirArmsEntity
+            or GunshipBottomEntity or BlueBrinstarFaceBlockEntity or MultiviolaEntity or PolypEntity or FliesEntity or FirefleaEntity
+            or FuneEntity or NamiheEntity or BeetomEntity or BullEntity or BoulderEntity or BoyonEntity or CacatacEntity or ChootEntity
+            or DragonWingEntity or KagoEntity or KzanTopEntity or NorfairLavaJumperFollowerEntity or MetareeEntity
+            or SkreeEntity or MochtroidEntity or OumEntity or WaverEntity or SbugEntity or SparkEntity or SkulteraEntity
+            or UnpoweredWorkRobotEntity or PoweredWorkRobotEntity or ZoaEntity or PlatformsEntity or NuclearWaffleEntity or PuyoEntity
+            or BotwoonEntity or FakeKraidEntity or MotherBrainTubesEntity or RinkaEntity
+            or EscapeEtecoonEntity or EtecoonEntity or ChozoStatueEntity or HoppersEntity or KiHunterBodyEntity or BabyTurtleEntity
+            or MetroidEntity or MorphBallEyeEntity or MorphBallEyeMountEntity or OwtchEntity or YellowPipeBugEntity or PowampBodyEntity
+            or GrowingShutterEntity or NinjaSpacePirateEntity or WalkingSpacePirateEntity or WallSpacePirateEntity
+            or WreckedShipGhostEntity or YardEntity or AlcoonEntity)
         {
-            // The swipe flag ($7E:7820) marks a swoop whose swipe has started: the swipe half of the dive.
-            if (kiHunterBody.Action == KiHunterAction.Swooping && extraWord(KiHunterSwipeFlagOffset) != 0)
-                kiHunterBody.Action = KiHunterAction.Swiping;
-            // The wingless flag ($7E:7828) is the body's having lost its wings, which its routine already says.
-            if ((extraWord(KiHunterWinglessFlagOffset) != 0) == kiHunterBody.Flies)
-                throw new InvalidDataException($"Recorded Ki-Hunter {kiHunterBody.Action} disagrees with its wingless flag ${extraWord(KiHunterWinglessFlagOffset):X4}.");
-        }
-        if (enemy.SpeciesState<HopperEnemyState>() is { } hopper)
-        {
-            // The falling flag ($7E:7806) is set only while a hop returns to its surface (#2473).
-            bool returning = extraWord(HopperFallingFlagOffset) != 0;
-            hopper.Action = (hopper.Action, returning) switch
-            {
-                (HopperAction.HoppingAway, true) => HopperAction.Returning,
-                (_, false) => hopper.Action,
-                (var other, true) => throw new InvalidDataException($"Recorded hopper {other} has its falling flag set."),
-            };
-        }
-        // The falling flag ($7E:780A) is an arc's having passed its apex (#2531); a Beetom on the ground keeps the last arc's,
-        // which its next hop or lunge clears.
-        if (enemy.SpeciesState<BeetomEnemyState>() is { } beetomArc && extraWord(BeetomFallingFlagOffset) != 0 &&
-            BeetomArcFalls.TryGetValue(beetomArc.Action, out BeetomAction beetomFall))
-            beetomArc.Action = beetomFall;
-        if (enemy.SpeciesState<BoyonEnemyState>() is { } boyon)
-        {
-            // The bounce movement index ($7E:7802) names a bounce's half, one the rise and zero the fall (#2531); the load
-            // and every landing leave it rising, so only a bouncing Boyon falls.
-            bool boyonFalls = extraWord(BoyonBounceMovementOffset) switch
-            {
-                0 => true,
-                1 => false,
-                var other => throw new InvalidDataException($"Recorded Boyon bounce movement index ${other:X4} is neither the rise nor the fall."),
-            };
-            if (boyon.IsBouncing)
-                boyon.Phase = boyonFalls ? BoyonPhase.Falling : BoyonPhase.Rising;
-            else if (boyonFalls)
-                throw new InvalidDataException($"Recorded Boyon falls in its {boyon.Phase} phase.");
-        }
-        if (enemy.SpeciesState<PuyoEnemyState>() is { Action: PuyoAction.Rising } puyo && extraWord(PuyoFallingFlagOffset) != 0)
-        {
-            // The falling flag ($7E:7806) is the airborne Puyo's having passed its hop's apex (#2512); a grounded Puyo keeps
-            // the last hop's, which its next hop clears.
-            puyo.Action = PuyoAction.Falling;
-        }
-        if (enemy.Holds(EnemyDefinitionId.Coven) && enemy.SpeciesState<WreckedShipGhostEnemyState>() is { } ghost)
-        {
-            // The lock-on timer ($7E:781A) counts Samus's keeping still, the directed movement timer ($7E:781C) her keeping
-            // her direction; the appearance sets both, which the ghost keeps until it watches her again (#2512).
-            ghost.StablePositionTimer = UpdateCountdownAccess.Recorded(extraWord(CovenLockOnTimerOffset));
-            ghost.StableDirectionTimer = UpdateCountdownAccess.Recorded(extraWord(CovenDirectedMovementTimerOffset));
-        }
-        if (enemy.EntityState<KagoEntity, KagoEnemyState>() is { } kago)
-        {
-            // The hit counter ($7E:7808) counts the shots left before the one that kills, from the placement's hit count; the
-            // fast animation flag (word B) is the shell's having been hit, which the hits taken say (#2473).
-            kago.HitsTaken = enemy.HeldOccupant().SpawnSettings<KagoSpawnSettings>().HitCount - unchecked((short)extraWord(KagoHitCounterOffset));
-            if ((words.B != 0) != (kago.HitsTaken > 0))
-                throw new InvalidDataException($"Recorded Kago fast animation flag ${words.B:X4} disagrees with its {kago.HitsTaken} hits taken.");
+            throw new InvalidDataException(
+                $"Recorded enemy {enemy.Ordinal} is a {enemy.HeldOccupant().DefinitionId}, whose state its entity keeps to itself; a native snapshot holding one cannot be imported.");
         }
     }
-
-    /// <summary>The byte offset of a Ki-Hunter body's swipe flag among its extra variables ($7E:7820).</summary>
-    private const int KiHunterSwipeFlagOffset = 0x20;
-
-    /// <summary>The byte offset of a Ki-Hunter body's wingless flag among its extra variables ($7E:7828).</summary>
-    private const int KiHunterWinglessFlagOffset = 0x28;
-
-    /// <summary>The byte offset of a hopper's falling flag among its extra variables ($7E:7806).</summary>
-    private const int HopperFallingFlagOffset = 0x06;
-
-    /// <summary>The byte offset of a Boyon's bounce movement index among its extra variables ($7E:7802).</summary>
-    private const int BoyonBounceMovementOffset = 0x02;
-
-    /// <summary>The byte offset of a Beetom's falling flag among its extra variables ($7E:780A).</summary>
-    private const int BeetomFallingFlagOffset = 0x0a;
-
-    /// <summary>Each Beetom arc's rise, which its routine word names, and the fall its falling flag tells (#2531).</summary>
-    private static readonly Dictionary<BeetomAction, BeetomAction> BeetomArcFalls = new()
-    {
-        [BeetomAction.ShortHopRising] = BeetomAction.ShortHopFalling,
-        [BeetomAction.LongHopRising] = BeetomAction.LongHopFalling,
-        [BeetomAction.LungeRising] = BeetomAction.LungeFalling,
-    };
-
-    /// <summary>The byte offset of a Wrecked Ship ghost's lock-on timer among its extra variables ($7E:781A).</summary>
-    private const int CovenLockOnTimerOffset = 0x1a;
-
-    /// <summary>The byte offset of a Wrecked Ship ghost's directed movement timer among its extra variables ($7E:781C).</summary>
-    private const int CovenDirectedMovementTimerOffset = 0x1c;
-
-    /// <summary>The byte offset of a Puyo's falling flag among its extra variables ($7E:7806).</summary>
-    private const int PuyoFallingFlagOffset = 0x06;
-
-    /// <summary>The byte offset of a Kago's hit counter among its extra variables ($7E:7808).</summary>
-    private const int KagoHitCounterOffset = 0x08;
 
     /// <summary>
     /// Imports one of Kraid's parts' record (#2208): word A names the phase the part runs, of its own part's type, and
@@ -1414,8 +616,33 @@ internal static class NativeEnemyFamilyStateImport
         int columns = (Math.Max(leading.X, stands.X) >> 4) + 2, rows = (Math.Max(leading.Y, stands.Y) >> 4) + 2;
         trailingSaw.RunMainAi(PlacedEnemyAccess.AiFrame(RoomEnemyFrameFixtures.StandaloneSamus(),
             level: PlacedEnemyAccess.SolidRoom(new(columns, rows))));
-        if (trailingSaw.SpeciesState<ShaktoolSegmentState>()?.Motion != ShaktoolSegmentMotion.Idle)
-            throw new InvalidOperationException("The Shaktool trailing saw's move through solid terrain did not reverse its chain.");
+        // A wall that turns the chain end for end puts the trailing saw back where it stood and trades the saws' places.
+        if (leadingSaw.Position.Whole != stands || trailingSaw.Position.Whole != leading)
+            throw new InvalidOperationException("The Shaktool trailing saw's move through solid terrain did not turn its chain end for end.");
+    }
+
+    /// <summary>
+    /// Translates the recorded record words of the Shaktool segment in <paramref name="enemy"/> into its state in
+    /// <paramref name="chain"/>, the chain the import holds (<see cref="ShaktoolChainHolding"/>): its orbit, its angular speed,
+    /// the centre's heading or the trailing saw's curl, and its motion. Every segment's record holds a copy of the chain's
+    /// target; the leading saw's, which no straightening turns on, is the chain's (#2452), which the chain reached through
+    /// its wall before the segments' import (<see cref="ImportShaktoolTarget"/>).
+    /// </summary>
+    /// <param name="chain">The chain the import holds, whose segments the room's first seven places hold.</param>
+    /// <param name="enemy">The imported segment's place.</param>
+    /// <param name="words">The segment's six recorded record words.</param>
+    /// <exception cref="InvalidDataException">A word lies outside what the segment's own updates leave.</exception>
+    internal static void ImportShaktoolSegment(ShaktoolChain chain, RoomEnemyPlace enemy, NativeEnemyRecordWords words)
+    {
+        ShaktoolSegmentDefinition definition = Ensure.NotNull(enemy).HeldOccupant().SpawnSettings<ShaktoolSpawnSettings>().Segment;
+        ShaktoolSegmentState segment = Ensure.NotNull(chain).StateOf(definition);
+        segment.OrbitAngle = RotationAngleConstants.FromRaw(words.B);
+        segment.AngularVelocity = RotationAngleConstants.FromRaw(Index(words.C, 1020, "Shaktool angular velocity"));
+        ImportShaktoolOrientation(segment, Array.IndexOf(ShaktoolSegmentDefinitions.Segments, definition), words.D);
+        // Every segment's owner is the chain's leading saw, the first enemy its room lists.
+        if (SlotIndex(words.E, "Shaktool owner") != 0)
+            throw new InvalidDataException($"Recorded Shaktool owner ${words.E:X4} does not name the first enemy, where the chain's saw is placed.");
+        segment.Motion = ShaktoolNativeWords.DecodeMotion(words.F, "recorded ShaktoolSegmentMotion");
     }
 
     /// <summary>The nearest offset, searched outward ring by ring, whose aim the enemies' aim calculation reads as <paramref name="aim"/>.</summary>

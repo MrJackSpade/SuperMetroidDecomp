@@ -36,8 +36,7 @@ internal static class SparkMovementDefinitionsVerification
 
             place.SetSpawnParameter1(EnemyDefinitionId.Spark, selector);
             place.SetSpawnParameter2(EnemyDefinitionId.Spark, 5);
-            SparkBehavior.InitializeSpark(place.HeldOccupant().SpawnSettings<SparkSpawnSettings>(), place);
-            SparkEnemyState state = enemies.SparkStates[0] ?? throw new InvalidOperationException("Spark has no state.");
+            SparkEnemyState state = SparkBehavior.InitializeSpark(place.HeldOccupant().SpawnSettings<SparkSpawnSettings>(), place);
             AssertEqual(new AnimationPlayback<SparkSegment>(SparkAnimations.StartingWith(definition.Animation), AnimationPlace.StartOfAnimation),
                 state.Playback, $"Spark production animation selector {selector}");
             AssertEqual(nativeAction, state.Action, $"Spark production function selector {selector}");
@@ -49,17 +48,18 @@ internal static class SparkMovementDefinitionsVerification
 
         foreach (SparkSegment loop in new[] { SparkSegment.Active, SparkSegment.Emitter })
         {
-            (RoomEnemySystem loopSystem, RoomEnemyPlace loopPlace, _) = Start(loop, intangible: false);
+            (RoomEnemySystem loopSystem, RoomEnemyPlace loopPlace, SparkEnemyState loopState) = Start(loop, intangible: false);
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(SparkAnimations.Segments, loop, SparkFrameToolingDefinitions.Spritemap),
-                EnemyInstructionRunner.ShownFrames(loopPlace, EnemyInstructionRunner.LoopUpdates(SparkAnimations.Segments, loop)), $"Spark {loop} loop");
+                EnemyInstructionRunner.ShownFrames(loopPlace, EnemyInstructionRunner.LoopUpdates(SparkAnimations.Segments, loop),
+                    () => SparkBehavior.AdvanceSparkTypedAnimation(loopPlace, loopState)), $"Spark {loop} loop");
         }
         (RoomEnemySystem onSystem, RoomEnemyPlace on, SparkEnemyState onState) = Start(SparkSegment.FlickerOn, intangible: true);
-        EnemyInstructionRunner.ShownFrames(on, 1);
+        EnemyInstructionRunner.ShownFrames(on, 1, () => SparkBehavior.AdvanceSparkTypedAnimation(on, onState));
         AssertTrue(!on.Contact.HasAny(EnemyContact.IgnoresSamus), "Spark flicker-on makes the actor tangible before its first flash");
-        EnemyInstructionRunner.ShownFrames(on, 40);
+        EnemyInstructionRunner.ShownFrames(on, 40, () => SparkBehavior.AdvanceSparkTypedAnimation(on, onState));
         AssertEqual<SparkSegment?>(SparkSegment.Active, StandsIn(onState.Playback), "Spark flicker-on runs into the active loop");
         (RoomEnemySystem outSystem, RoomEnemyPlace off, SparkEnemyState offState) = Start(SparkSegment.FlickerOut, intangible: false);
-        EnemyInstructionRunner.ShownFrames(off, 40);
+        EnemyInstructionRunner.ShownFrames(off, 40, () => SparkBehavior.AdvanceSparkTypedAnimation(off, offState));
         AssertTrue(off.Contact.HasAny(EnemyContact.IgnoresSamus), "Spark flicker-out makes the actor intangible");
         AssertEqual<SparkSegment?>(SparkSegment.FlickerOut, StandsIn(offState.Playback), "Spark flicker-out holds");
         Console.WriteLine("  Spark: three native selections, the unauthored-state rejection, both loops and both flickers with their collision cues pass.");
@@ -78,8 +78,8 @@ internal static class SparkMovementDefinitionsVerification
         place.Bind(EnemyDefinitionId.Spark, place.KeptDefinition);
         place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.SetSpawnSettings(new SparkSpawnSettings(Start: SparkMovementDefinitions.AlwaysActive, BaseActionTime: 0));
-        SparkBehavior.InitializeSpark(place.HeldOccupant().SpawnSettings<SparkSpawnSettings>(), place);
-        SparkEnemyState state = enemies.SparkStates[0] ?? throw new InvalidOperationException("Spark has no state.");
+        // The Spark's setup builds the state its animation, which the check plays, runs on.
+        SparkEnemyState state = SparkBehavior.InitializeSpark(place.HeldOccupant().SpawnSettings<SparkSpawnSettings>(), place);
         state.Playback = new(SparkAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
         place.AnimationClock.StepOnNextUpdate();
         place.Contact = intangible ? EnemyContact.IgnoresSamus : EnemyContact.None;

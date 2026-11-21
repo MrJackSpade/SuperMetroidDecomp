@@ -180,12 +180,6 @@ internal static class CoreAccess
         /// <summary>The room objects the Chozo statue has asked for since the pass or the load began, in the order it asked (#2562).</summary>
         internal IReadOnlyList<RoomObjectSpawnRequest<ChozoStatueRoomObject>> ChozoStatueObjectRequests =>
             [.. enemies.PassEvents.Published.OfType<ChozoStatueObjectAsked>().Select(asked => asked.Request)];
-        /// <summary>Per-slot Chozo statue states, including unused physical enemy slots.</summary>
-        internal IReadOnlyList<ChozoStatueState?> ChozoStatueStates =>
-            [.. enemies.Places.InUpdateOrder.Select(place => place.SpeciesState<ChozoStatueState>())];
-        /// <summary>Per-slot ninja pirate states for native slot-index verification.</summary>
-        internal IReadOnlyList<NinjaSpacePirateEnemyState?> NinjaSpacePirateStates =>
-            [.. enemies.Places.InUpdateOrder.Select(place => place.EntityState<NinjaSpacePirateEntity, NinjaSpacePirateEnemyState>())];
     }
 
     /// <summary>Reads Ceres pad and concealer positions and their projectile-slot activity.</summary>

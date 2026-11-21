@@ -17,14 +17,14 @@ internal sealed class GrowingShutterEntity(ShuttersBehavior species, RoomEnemyOc
     internal GrowingShutterSpawnSettings Settings { get; } = settings;
 
     /// <summary>The shutter's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal GrowingShutterEnemyState State { get; } = ShuttersBehavior.InitializeGrowingShutter(settings, place);
+    private readonly GrowingShutterEnemyState state = ShuttersBehavior.InitializeGrowingShutter(settings, place);
 
 
     /// <inheritdoc/>
-    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunShutterGrowingMainAi(Settings, Place, State, frame);
+    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunShutterGrowingMainAi(Settings, Place, state, frame);
 
     /// <inheritdoc/>
-    public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) => ShuttersBehavior.AdvanceShutterGrowingTypedAnimation(Place, State);
+    public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) => ShuttersBehavior.AdvanceShutterGrowingTypedAnimation(Place, state);
 
 
 }

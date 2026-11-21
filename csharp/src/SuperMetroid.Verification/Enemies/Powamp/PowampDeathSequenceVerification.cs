@@ -28,12 +28,13 @@ internal static class PowampDeathSequenceVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MtEverest);
         RoomEnemyPlace body = runtime.Enemies.Places.InUpdateOrder.First(place => place.Holds(EnemyDefinitionId.Powamp) &&
             place.HeldOccupant().SpawnSettings<PowampSpawnSettings>() is PowampBodySpawnSettings);
-        var state = body.RequireSpeciesState<PowampBodyState>();
+        // The body's setup, run on the body the room placed, builds the state its main AI runs on.
+        PowampBodyState state = PowampBehavior.InitializePowampBody(body);
 
         body.Health = 0;
         state.Action = PowampAction.DeathSequence;
         state.ActionTimer = UpdateCountdown.For(1);
-        runtime.Enemies.PowampBehavior.RunPowampMain(body.HeldOccupant(), body, state, (body.Entity as PowampBodyEntity ?? throw new InvalidOperationException("The Powamp body has no entity.")).Balloon, runtime.Room.LoadedLevelData, runtime.Player.Samus);
+        runtime.Enemies.PowampBehavior.RunPowampMain(body.HeldOccupant(), body, state, runtime.Enemies.PowampBehavior.PlacedBalloon(body), runtime.Room.LoadedLevelData, runtime.Player.Samus);
 
         var projectiles = runtime.Enemies.Projectiles.EnemyProjectiles;
         AssertEqual(8, projectiles.Count(p => p.Kind == RoomEnemyProjectileKind.PowampSpike), "the eight spikes fire");

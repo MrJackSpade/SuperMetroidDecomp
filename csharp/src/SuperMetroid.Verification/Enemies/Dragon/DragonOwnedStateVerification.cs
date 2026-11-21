@@ -25,8 +25,6 @@ internal static class DragonOwnedStateVerification
         DragonEnemyState bodyState = enemies.DragonStates[0] ?? throw new InvalidOperationException("The Dragon body has no state.");
         AssertTrue(body.Entity is DragonEntity && wing.Entity is DragonWingEntity,
             "parameter one selects the wing's own entity, and its absence the body's");
-        AssertTrue(enemies.DragonWingStates[0] is null && enemies.DragonWingStates[1] is not null && enemies.DragonStates[1] is null,
-            "parameter one selects the wing, which keeps no body state");
         AssertEqual(DragonAction.WaitToRise, bodyState.Action, "the body starts waiting to rise");
         Console.WriteLine("Dragon owned state: the body/wing selection matches.");
     }

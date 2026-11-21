@@ -64,9 +64,8 @@ internal static class PlatformInstructionProgramDefinitionsVerification
             place.SetSpawnParameter2(EnemyDefinitionId.Tripper, 0x0101);
             place.SetSpawnSettings(place.HeldOccupant().SpawnSettings<PlatformSpawnSettings>() with { Movement = testCase.Direction });
             place.Position = place.Position.WithWholeY(0x0100);
-            PlatformsBehavior.InitializePlatform(place.HeldOccupant().SpawnSettings<PlatformSpawnSettings>(), place, EnemyDefinitionId.Tripper);
-
-            PlatformEnemyState state = (enemies.PlatformStates[0] ?? throw new InvalidOperationException("Verification requires enemies.PlatformStates[0]."));
+            // The platform's setup builds the state its installers and its animation, which the check plays, run on.
+            PlatformEnemyState state = PlatformsBehavior.InitializePlatform(place.HeldOccupant().SpawnSettings<PlatformSpawnSettings>(), place, place.HeldOccupant().DefinitionId);
             PlatformSegment expectedInitial = testCase.IsKamer
                 ? testCase.Direction == HorizontalDirection.Left
                     ? PlatformSegment.SuspensorPlatformHeadingLeft
@@ -87,10 +86,10 @@ internal static class PlatformInstructionProgramDefinitionsVerification
             state.XMovement = testCase.Direction == HorizontalDirection.Left
                 ? HorizontalDirection.Right
                 : HorizontalDirection.Left;
-            ExecutePlatformProgram(place, callCount: 1);
+            ExecutePlatformProgram(place, state, callCount: 1);
             AssertEqual(testCase.Direction, state.XMovement, $"platform program {testCase.Program} publishes direction");
             AnimationPlayback<PlatformSegment>? firstPose = state.Playback;
-            ExecutePlatformProgram(place, callCount: 4);
+            ExecutePlatformProgram(place, state, callCount: 4);
             AssertEqual(firstPose, state.Playback, $"platform program {testCase.Program} loops through four poses");
         }
 
@@ -103,15 +102,13 @@ internal static class PlatformInstructionProgramDefinitionsVerification
     }
 
     /// <summary>Forces the selected platform's instruction timer across several interpreter calls.</summary>
-    private static void ExecutePlatformProgram(RoomEnemyPlace place,
+    private static void ExecutePlatformProgram(RoomEnemyPlace place, PlatformEnemyState state,
         int callCount)
     {
-        object?[] arguments =
-            [place, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
         for (int call = 0; call < callCount; call++)
         {
             place.AnimationClock.StepOnNextUpdate();
-            EnemyInstructionRunner.Process(arguments);
+            PlatformsBehavior.AdvancePlatformsTypedAnimation(place, state);
         }
     }
 

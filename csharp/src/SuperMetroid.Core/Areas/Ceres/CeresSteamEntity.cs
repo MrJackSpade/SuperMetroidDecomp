@@ -16,13 +16,13 @@ internal sealed class CeresSteamEntity(CeresSteamBehavior species, RoomEnemyOccu
     internal CeresSteamSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal CeresSteamEnemyState State { get; } = species.InitializeCeresSteam(settings, place, motions);
+    private readonly CeresSteamEnemyState state = species.InitializeCeresSteam(settings, place, motions);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => CeresSteamBehavior.RunCeresSteamMainAi(Place, State);
+    public void RunMainAi(IEnemyAiFrame frame) => CeresSteamBehavior.RunCeresSteamMainAi(Place, state);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => CeresSteamBehavior.AdvanceCeresSteamAnimation(Place, State);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => CeresSteamBehavior.AdvanceCeresSteamAnimation(Place, state);
 
     /// <inheritdoc/>
     public EnemyHitboxContact FindHitboxReaction(EnemyHitboxProbe probe) => CeresSteamBehavior.FindHitboxReaction(Place, probe);

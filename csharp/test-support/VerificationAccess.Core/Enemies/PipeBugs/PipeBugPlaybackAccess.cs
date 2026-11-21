@@ -3,8 +3,9 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.PipeBugs;
 
 /// <summary>
-/// Verification access to the animation of whichever Pipe Bug family occupies a place (#1845): the Brinstar, Norfair and
-/// yellow bugs each keep it in their own state, and native pointer oracles read and resume it whatever the family.
+/// Verification access to the animation of whichever Pipe Bug family occupies a place (#1845): the Brinstar and Norfair bugs
+/// each keep it in their own state, and native pointer oracles read and resume it whatever the family; the yellow bug keeps
+/// its state to itself (#2554).
 /// </summary>
 internal static class PipeBugPlaybackAccess
 {
@@ -16,8 +17,7 @@ internal static class PipeBugPlaybackAccess
         internal AnimationPlayback<PipeBugSegment>? PipeBugPlayback
         {
             get => place.SpeciesState<BrinstarPipeBugState>()?.Playback
-                ?? place.SpeciesState<NorfairPipeBugState>()?.Playback
-                ?? place.SpeciesState<YellowPipeBugState>()?.Playback;
+                ?? place.SpeciesState<NorfairPipeBugState>()?.Playback;
             set
             {
                 AnimationPlayback<PipeBugSegment> playback = value
@@ -26,8 +26,6 @@ internal static class PipeBugPlaybackAccess
                     brinstar.Playback = playback;
                 else if (place.SpeciesState<NorfairPipeBugState>() is { } norfair)
                     norfair.Playback = playback;
-                else if (place.SpeciesState<YellowPipeBugState>() is { } yellow)
-                    yellow.Playback = playback;
                 else
                     throw new InvalidOperationException($"Slot {place.Ordinal} holds no Pipe Bug.");
             }

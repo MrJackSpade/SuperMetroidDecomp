@@ -10,16 +10,16 @@ internal sealed class KagoEntity(KagoBehavior species, RoomEnemyOccupant occupan
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The Kago's own shot reaction, built for this occupant.</summary>
-    private EnemyShotReaction OwnShot => field ??= species.KagoShotReaction(Occupant, settings, State);
+    private EnemyShotReaction OwnShot => field ??= species.KagoShotReaction(Occupant, settings, state);
 
     /// <summary>The Kago's own stages around common bomb damage, built for this occupant.</summary>
-    private EnemyBombReaction OwnBomb => field ??= species.KagoBombReaction(Occupant, settings, State);
+    private EnemyBombReaction OwnBomb => field ??= species.KagoBombReaction(Occupant, settings, state);
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal KagoEnemyState State { get; } = KagoBehavior.InitializeKago(place);
+    private readonly KagoEnemyState state = KagoBehavior.InitializeKago(place);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => KagoBehavior.AdvanceKagoTypedAnimation(Place, State);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => KagoBehavior.AdvanceKagoTypedAnimation(Place, state);
 
     /// <summary>The Kago's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
     public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == KagoReactions.Shot ? OwnShot : base.ShotReaction;

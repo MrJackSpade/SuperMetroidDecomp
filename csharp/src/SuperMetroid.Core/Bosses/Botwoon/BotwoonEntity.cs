@@ -11,22 +11,22 @@ internal sealed class BotwoonEntity(BotwoonBehavior species, RoomEnemyOccupant o
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The species' BotwoonShotReaction, built once for this enemy with its state (#2554).</summary>
-    private EnemyShotReaction OwnBotwoonShotReaction => field ??= BotwoonBehavior.BotwoonShotReaction(State);
+    private EnemyShotReaction OwnBotwoonShotReaction => field ??= BotwoonBehavior.BotwoonShotReaction(state);
 
     /// <summary>The species' BotwoonPowerBombReaction, built once for this enemy with its state (#2554).</summary>
-    private EnemyPowerBombReaction OwnBotwoonPowerBombReaction => field ??= BotwoonBehavior.BotwoonPowerBombReaction(State);
+    private EnemyPowerBombReaction OwnBotwoonPowerBombReaction => field ??= BotwoonBehavior.BotwoonPowerBombReaction(state);
 
     /// <summary>The species' BotwoonBombReaction, built once for this enemy with its state (#2554).</summary>
-    private EnemyBombReaction OwnBotwoonBombReaction => field ??= BotwoonBehavior.BotwoonBombReaction(State);
+    private EnemyBombReaction OwnBotwoonBombReaction => field ??= BotwoonBehavior.BotwoonBombReaction(state);
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal BotwoonEnemyState State { get; } = species.InitializeBotwoon(occupant, place);
+    private readonly BotwoonEnemyState state = species.InitializeBotwoon(occupant, place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunBotwoonMainAi(Occupant, Place, State, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunBotwoonMainAi(Occupant, Place, state, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceBotwoonTypedAnimation(Place, State);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceBotwoonTypedAnimation(Place, state);
 
     /// <summary>Whether Botwoon's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
     public override bool ReactsToTouch => Occupant.Definition.Touch == BotwoonReactions.Touch || base.ReactsToTouch;
@@ -36,7 +36,7 @@ internal sealed class BotwoonEntity(BotwoonBehavior species, RoomEnemyOccupant o
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (Occupant.Definition.Touch == BotwoonReactions.Touch)
-            species.ReactToBotwoonTouch(context, State);
+            species.ReactToBotwoonTouch(context, state);
         else
             base.ReactToTouch(context);
     }

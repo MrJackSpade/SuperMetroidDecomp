@@ -1,4 +1,5 @@
 using SuperMetroid.TestSupport.MovieReplay;
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Animation;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
@@ -39,17 +40,25 @@ internal static class CeresDoorInitializationDefinitionsVerification
             place.StartCeresDoorOrWall(actor, settings);
 
             AssertEqual(rom.ReadCartridgeWord((functionTable + selector * 2)),
-                CeresNativeWords.MainBehaviourWord(place),
+                // An elevator door stands intact until the escape reaches it, where its explosion is checked.
+                place.Entity is CeresElevatorDoorEntity
+                    ? CeresNativeWords.ElevatorDoorPhases.Word(CeresElevatorDoorPhase.Intact)
+                    : CeresNativeWords.MainBehaviourWord(place),
                 $"production Ceres {actor} {settings} main behaviour, function selector {selector}");
-            CeresDoorAnimationState door = place.RequireSpeciesState<CeresDoorAnimationState>();
-            AnimationPlayback<CeresDoorSegment> playback = door.Playback;
-            CeresDoorSegment started = CeresDoorAnimationsConstants.StartingAt(door.Facing).Keys.Single(segment =>
-                new AnimationPlayback<CeresDoorSegment>(CeresDoorAnimations.StartingWith(door.Facing, segment), AnimationPlace.StartOfAnimation).Equals(playback));
-            AssertEqual(rom.ReadCartridgeWord((instructionTable + selector * 2)),
-                NativeEnemyAnimationOracle.EntryOf(CeresDoorNativeListAddresses.EntriesBySide[door.Facing], started),
-                $"production Ceres {actor} {settings} animation, instruction selector {selector}");
             AssertEqual(1, place.AnimationClock.Hold,
                 $"production Ceres {actor} {settings} instruction timer");
+            // The cartridge's instruction list names the animation the actor starts; the actor shows that animation's first
+            // picture on its next animation step (#2424).
+            ushort list = rom.ReadCartridgeWord(instructionTable + selector * 2);
+            EnemyFrameId[] firstPictures = [.. CeresDoorNativeListAddresses.EntriesBySide
+                .SelectMany(side => CeresDoorAnimationsConstants.StartingAt(side.Key).Keys
+                    .Where(segment => NativeEnemyAnimationOracle.EntryOf(side.Value, segment) == list)
+                    .Select(segment => CeresDoorAnimations.Segments(side.Key).FirstFrameShown(CeresDoorAnimations.StartingWith(side.Key, segment))))
+                .Distinct()];
+            AssertEqual(1, firstPictures.Length, $"Ceres instruction selector {selector} names one animation's first picture");
+            place.AdvanceAnimation(RoomEnemyFrameFixtures.StandaloneSamus());
+            AssertEqual(firstPictures[0], place.Frame,
+                $"production Ceres {actor} {settings} animation, instruction selector {selector}");
         }
 
         AssertThrows<InvalidDataException>(

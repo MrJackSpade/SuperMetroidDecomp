@@ -13,11 +13,11 @@ internal sealed class EscapeEtecoonEntity(EscapeAnimalsBehavior species, RoomEne
     internal EscapeEtecoonSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal EscapeEtecoonEnemyState State { get; } = species.InitializeEscapeEtecoon(settings, place);
+    private readonly EscapeEtecoonEnemyState state = species.InitializeEscapeEtecoon(settings, place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunEscapeEtecoonMainAi(Place, State, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunEscapeEtecoonMainAi(Place, state, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => EscapeAnimalsBehavior.AdvanceEscapeEtecoonTypedAnimation(Place, State, context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => EscapeAnimalsBehavior.AdvanceEscapeEtecoonTypedAnimation(Place, state, context);
 }

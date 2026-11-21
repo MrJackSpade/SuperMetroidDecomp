@@ -29,16 +29,16 @@ internal static class NorfairLavaJumperOwnedStateVerification
         follower.Bind(EnemyDefinitionId.Squeept, follower.KeptDefinition);
         follower.SetUpAsPlaced();
         SqueeptState parentState = enemies.SqueeptStates[0] ?? throw new InvalidOperationException("The parent has no state.");
-        AssertTrue(enemies.NorfairLavaJumperFollowerStates[0] is null && enemies.NorfairLavaJumperFollowerStates[1] is not null,
-            "parameter one's sign bit selects the follower");
         AssertTrue(parent.Entity is SqueeptEntity && follower.Entity is NorfairLavaJumperFollowerEntity,
-            "the placement builds each part's own entity (#2164): the jumper and its follower");
+            "parameter one's sign bit selects the follower: the placement builds each part's own entity (#2164)");
+        // The follower's setup builds the state its main AI runs on, which follows its parent's rise and fall.
+        NorfairLavaJumperFollowerState followerState = enemies.SqueeptBehavior.InitializeNorfairLavaJumperFollower(follower, parent.EntityOf<SqueeptEntity>());
 
         parentState.YVelocity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-512);
-        enemies.SqueeptBehavior.RunNorfairLavaJumperFollowerMain(follower, follower.RequireSpeciesState<NorfairLavaJumperFollowerState>());
+        enemies.SqueeptBehavior.RunNorfairLavaJumperFollowerMain(follower, followerState);
         AssertTrue(!follower.Presence.HasAny(EnemyPresence.Hidden), "the follower shows while its parent rises");
         parentState.YVelocity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(256);
-        enemies.SqueeptBehavior.RunNorfairLavaJumperFollowerMain(follower, follower.RequireSpeciesState<NorfairLavaJumperFollowerState>());
+        enemies.SqueeptBehavior.RunNorfairLavaJumperFollowerMain(follower, followerState);
         AssertTrue(follower.Presence.HasAny(EnemyPresence.Hidden), "the follower hides while its parent falls");
         Console.WriteLine("Norfair lava jumper owned state: gravity carrying the velocity through zero and the follower's parent velocity read match.");
     }

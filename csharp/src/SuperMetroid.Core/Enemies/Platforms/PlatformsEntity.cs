@@ -10,22 +10,22 @@ internal sealed class PlatformsEntity(PlatformsBehavior species, RoomEnemyOccupa
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The species' TripperShotReaction, built once for this enemy with its state (#2554).</summary>
-    private EnemyShotReaction OwnTripperShotReaction => field ??= PlatformsBehavior.TripperShotReaction(State);
+    private EnemyShotReaction OwnTripperShotReaction => field ??= PlatformsBehavior.TripperShotReaction(state);
 
     /// <summary>The species' TripperBombReaction, built once for this enemy with its state (#2554).</summary>
-    private EnemyBombReaction OwnTripperBombReaction => field ??= PlatformsBehavior.TripperBombReaction(State);
+    private EnemyBombReaction OwnTripperBombReaction => field ??= PlatformsBehavior.TripperBombReaction(state);
 
     /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
     internal PlatformSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal PlatformEnemyState State { get; } = PlatformsBehavior.InitializePlatform(settings, place, occupant.DefinitionId);
+    private readonly PlatformEnemyState state = PlatformsBehavior.InitializePlatform(settings, place, occupant.DefinitionId);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunPlatformsMainAi(Settings, Place, State, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunPlatformsMainAi(Settings, Place, state, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => PlatformsBehavior.AdvancePlatformsTypedAnimation(Place, State);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => PlatformsBehavior.AdvancePlatformsTypedAnimation(Place, state);
 
     /// <summary>The Tripper's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
     public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == PlatformsReactions.TripperShot ? OwnTripperShotReaction : base.ShotReaction;

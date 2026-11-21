@@ -131,20 +131,21 @@ internal static class LookupStream1Verification
     /// <summary>Reads a native Samus death tile byte for exact atlas comparison.</summary>
     private static byte LookupStream1DeathPixelsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    /// <summary>Checks every escape Dachora duration, pose, displacement, and uninterrupted update against bank $B3.</summary>
+    /// <summary>
+    /// Checks every duration, pose, displacement and uninterrupted update of the low-tide laps an escape Dachora runs from its
+    /// setup against bank $B3. The high-tide laps and the run for the escape, which the tide and the critters' escape lead
+    /// into, are matched to their native lists, control flow and continuations by the escape Dachora's animation check.
+    /// </summary>
     internal static void VerifyLookupStream1EscapeDachoraCadence(ISnesAddressSpace rom)
     {
         ushort Word(int address) => LittleEndianBytes.Word(LookupStream1EscapeDachoraCadenceRomByte(rom, address), LookupStream1EscapeDachoraCadenceRomByte(rom, address + 1));
-        foreach (int program in new[] { 0, 1, 2 })
+        foreach (int program in new[] { 0 })
         {
             var guard = new CartridgeReadGuard(rom).Forbid(address => address is >= 0xb3e964 and < 0xb3eaa8,
                 address => $"Production read a native escape-Dachora list byte ${address:X6}.");
             var enemies = CreateEscapeDachoraProgramSystem();
             var place = enemies.Places.InUpdateOrder[0];
-            // The typed programs (#641) replacing the native lists at $B3:E964, $B3:E9D0 and $B3:EA34.
-            EscapeDachoraEnemyState state = enemies.EscapeDachoraStates[0] ?? throw new InvalidOperationException("The Dachora fixture has no state.");
-            state.Playback = new(program == 0 ? EscapeDachoraAnimations.RunningAroundLowTide
-                : program == 1 ? EscapeDachoraAnimations.RunningAroundHighTide : EscapeDachoraAnimationsConstants.StartingWith(EscapeDachoraSegment.RunningForEscape), AnimationPlace.StartOfAnimation);
+            // The low-tide laps (#641) replacing the native list at $B3:E964, which the Dachora's setup starts.
             object?[] arguments = [place, null, null, Position16<RoomPixels>.Zero, GameplayAction.None];
             int records = program == 2 ? 19 : 60, expectedX = place.Position.X.Whole, calls = 0;
             for (int record = 0; record < records; record++)
@@ -180,7 +181,7 @@ internal static class LookupStream1Verification
             AssertEqual(Word(0xb30000 | next), place.AnimationClock.Hold, "Loop reload keeps native cadence");
             AssertEqual(0, guard.ForbiddenReadAttempts, "Escape Dachora mechanics avoid cartridge reads");
         }
-        Console.WriteLine("Escape Dachora cadence:139 native records,463 uninterrupted ticks,two complete pacing round trips and full accelerating departure pass.");
+        Console.WriteLine("Escape Dachora cadence: 60 native records, 180 uninterrupted ticks and a complete low-tide round trip pass.");
     }
 
     /// <summary>A room enemy system holding one initialized escape Dachora in slot zero.</summary>
@@ -211,30 +212,32 @@ internal static class LookupStream1Verification
             balloon.SetSpawnParameter1(EnemyDefinitionId.Powamp, 1);
             balloon.Bind(EnemyDefinitionId.Powamp, balloon.KeptDefinition);
             balloon.Bind(balloon.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
-            PowampBehavior.InitializePowampBalloon(balloon, balloon.HeldOccupant().SpawnSettings<PowampBalloonSpawnSettings>());
+            // The balloon is set up as its room sets it up.
+            balloon.SetUpAsPlaced();
             var body = enemies.Places.InUpdateOrder[1];
             body.BindPlaced(EnemyDefinitionId.Powamp, new PowampBodySpawnSettings(PowampContact.Accepts));
             body.Bind(body.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
-            PowampBehavior.InitializePowampBody(body);
+            // The body's setup builds the state its animation, which the check plays, runs on.
+            PowampBodyState bodyState = PowampBehavior.InitializePowampBody(body);
             body.Position = body.Position.WithWholeY(100);
             var place = isBody ? body : balloon;
             if (isBody)
             {
                 PowampBodySegment pulse = root == 0xc163 ? PowampBodySegment.BodyFast : PowampBodySegment.BodySlow;
-                body.RequireSpeciesState<PowampBodyState>().Playback = new(PowampAnimations.BodyStartingAt[pulse], AnimationPlace.StartOfAnimation);
+                bodyState.Playback = new(PowampAnimations.BodyStartingAt[pulse], AnimationPlace.StartOfAnimation);
             }
             else
             {
                 // The body's own AI starts the balloon's program: its rest's end the inflation, its release the sinking.
-                PowampBodyState bodyState = body.RequireSpeciesState<PowampBodyState>();
                 bodyState.Action = root == 0xc183 ? PowampAction.DeflatedResting : PowampAction.GrappledResting;
                 bodyState.ActionTimer = UpdateCountdown.For(1);
-                enemies.PowampBehavior.RunPowampMain(body.HeldOccupant(), body, bodyState, VerificationHelpersVerification.CreateEmptyRoom(new(16, 16)),
+                enemies.PowampBehavior.RunPowampMain(body.HeldOccupant(), body, bodyState, enemies.PowampBehavior.PlacedBalloon(body), VerificationHelpersVerification.CreateEmptyRoom(new(16, 16)),
                     new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()));
             }
             PowampBalloonState balloonState = balloon.RequireSpeciesState<PowampBalloonState>();
             place.AnimationClock.StepOnNextUpdate();
             object?[] arguments = [place, null, null, Position16<RoomPixels>.Zero, GameplayAction.None];
+            Action animate = isBody ? () => PowampBehavior.AdvancePowampBodyTypedAnimation(body, bodyState) : () => EnemyInstructionRunner.Process(arguments);
             int calls = 0;
             for (int pose = 0; pose < 3; pose++)
             {
@@ -242,7 +245,7 @@ internal static class LookupStream1Verification
                 ushort sprite = Word(0xa80000 | (address + 2));
                 for (int held = 0; held < duration; held++)
                 {
-                    EnemyInstructionRunner.Process(arguments); calls++;
+                    animate(); calls++;
                     // A balloon's last pose is shown for good, its clock stopped while the native timer counts it down (#2454).
                     SuperMetroid.Verification.Enemies.NativeEnemyProjectileParity.AssertClockHold((ushort)(duration - held), place.AnimationClock,
                         $"Every uninterrupted Powamp hold tick (program {root:X4}, pose {pose}, tick {held})");
@@ -256,7 +259,7 @@ internal static class LookupStream1Verification
                 }
             }
             AssertEqual(root == 0xc163 ? 15 : root == 0xc173 ? 27 : 167, calls, "Native Powamp sequence duration");
-            EnemyInstructionRunner.Process(arguments);
+            animate();
             if (isBody)
             {
                 AssertEqual(Word(0xa80000 | (root + 2)), place.SpritemapPointer, "Actual Powamp loop repeats first pose");
@@ -266,7 +269,7 @@ internal static class LookupStream1Verification
             {
                 AssertEqual(0, place.AnimationClock.Hold, "Powamp Sleep follows full terminal hold");
                 PowampBalloonPose terminal = balloonState.Inflation.Pose;
-                EnemyInstructionRunner.Process(arguments);
+                animate();
                 AssertEqual(terminal, balloonState.Inflation.Pose, "Sleep preserves terminal balloon collision center");
                 AssertTrue(place.AnimationClock.IsStopped, "Sleeping Powamp keeps its clock stopped");
             }
@@ -291,22 +294,21 @@ internal static class LookupStream1Verification
             place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
             // The Metroid is set up as its room's population sets it up, then plays the pulse its chase or drain starts.
             place.SetSpawnSettings(new MetroidSpawnSettings(IceDamageToFreeze: 0));
-            place.SetUpAsPlaced();
-            place.RequireSpeciesState<MetroidEnemyState>().Playback =
+            MetroidEnemyState metroid = enemies.MetroidBehavior.InitializeMetroid(place.HeldOccupant(), place.HeldOccupant().SpawnSettings<MetroidSpawnSettings>(), place);
+            metroid.Playback =
                 new(MetroidAnimations.StartingWith(chasing ? MetroidSegment.ChasingSamus : MetroidSegment.DrainingSamus), AnimationPlace.StartOfAnimation);
             place.AnimationClock.StepOnNextUpdate();
             randomCalls = 0;
-            object?[] arguments = [place, null, null, Position16<RoomPixels>.Zero, GameplayAction.None];
             for (int record = 0; record < records; record++)
             {
                 ushort address = (ushort)(root + record * 4);
                 ushort duration = Word(0xa30000 | address), visual = Word(0xa30000 | (address + 2));
-                EnemyInstructionRunner.Process(arguments); calls++;
+                enemies.MetroidBehavior.AdvanceMetroidTypedAnimation(place, metroid); calls++;
                 AssertEqual(duration, place.AnimationClock.Hold, "Actual Metroid duration reload");
                 AssertEqual(visual, place.SpritemapPointer, "Actual native inside-pose identity");
                 for (int held = 1; held < duration; held++)
                 {
-                    EnemyInstructionRunner.Process(arguments); calls++;
+                    enemies.MetroidBehavior.AdvanceMetroidTypedAnimation(place, metroid); calls++;
                     AssertEqual((ushort)(duration - held), place.AnimationClock.Hold, "Every actual Metroid exposure tick");
                     AssertEqual(visual, place.SpritemapPointer, "Held Metroid inside pose stays selected");
                 }
@@ -314,7 +316,7 @@ internal static class LookupStream1Verification
                 AssertTrue(enemies.Audio.LatestSound is null, "No Metroid callback before loop boundary");
             }
             AssertEqual(chasing ? 256 : 64, calls, "Exact native pulse-loop length");
-            EnemyInstructionRunner.Process(arguments);
+            enemies.MetroidBehavior.AdvanceMetroidTypedAnimation(place, metroid);
             AssertEqual(chasing ? 1 : 0, randomCalls, "Exact Metroid callback RNG ownership");
             ushort expectedSound = chasing ? Word(0xa3ead6 + 5 * 2) : Word(0xa3eaa8);
             AssertEqual(SoundEffectCommands.DecodeOptional(SoundEffectLibrary.Enemies, expectedSound),

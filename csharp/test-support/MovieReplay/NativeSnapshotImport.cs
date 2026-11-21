@@ -14,6 +14,7 @@ using static SuperMetroid.TestSupport.MovieReplay.NativeSnapshotMotherBrainImpor
 using static SuperMetroid.TestSupport.MovieReplay.NativeSnapshotPauseImport;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Shaktool;
 using SuperMetroid.Core.Enemies.PipeBugs;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
@@ -350,11 +351,16 @@ internal static class NativeSnapshotImport
         samus.LiquidPhysics.ConfigureFor(runtime.RoomFxOverlay);
         var pipeBugPointers = new PipeBugNativeInstructionPointers(bus);
         var kraidHeadCursors = new KraidHeadNativeCursors(bus);
-        // A Shaktool chain reaches its recorded target through its wall, whose reversal the segments' records then replace
-        // (#2554); its leading saw is the first enemy.
+        // A Shaktool chain's segments are set up again in a chain the import holds, whose segments' states their records
+        // fill (#2554); the chain reaches its recorded target through its wall, whose reversal the segments' records then
+        // replace. Its leading saw is the first enemy.
         int firstEnemy = NativeSnapshotMemory.EnemyBase + SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.OffsetOf(0);
+        ShaktoolChain? shaktool = null;
         if (W(firstEnemy) != 0 && runtime.Enemies.Places.InUpdateOrder[0].Holds(EnemyDefinitionId.Shaktool))
+        {
+            shaktool = runtime.Enemies.HoldShaktoolChain();
             NativeEnemyFamilyStateImport.ImportShaktoolTarget(runtime.Enemies, W(firstEnemy + 48));
+        }
         // EnemyData +$0E onward; +$00 is the identity, +$02..+$08 the 16.16 position and
         // +$0A/+$0C the radii, each imported as one typed value below.
         for (int index = 0; index < runtime.Enemies.Places.InUpdateOrder.Count; index++)
@@ -414,8 +420,9 @@ internal static class NativeSnapshotImport
             if (W(address) != 0)
             {
                 NativeEnemyFamilyStateImport.Import(runtime.Enemies, enemy, words);
-                int extra = NativeSnapshotMemory.EnemyExtra + index * NativeSnapshotMemory.EnemyExtraBytes;
-                NativeEnemyFamilyStateImport.ImportExtraWords(enemy, words, offset => W(extra + offset));
+                if (enemy.Holds(EnemyDefinitionId.Shaktool))
+                    NativeEnemyFamilyStateImport.ImportShaktoolSegment(shaktool
+                        ?? throw new InvalidDataException($"Recorded Shaktool segment {index} is not in the chain the first enemy leads."), enemy, words);
             }
             // Kraid's head program is typed and kept in the encounter state; the recorded body word is its native cursor,
             // which only this import translates. Before the first attack the word names no head record and the head stays unstarted.

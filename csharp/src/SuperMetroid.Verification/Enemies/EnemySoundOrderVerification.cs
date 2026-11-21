@@ -12,6 +12,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.AssetExtraction.Enemies;
 namespace SuperMetroid.Verification.Enemies;
 
 using SuperMetroid.Verification.Harness;
@@ -118,18 +119,13 @@ internal static class EnemySoundOrderVerification
     private static RoomEnemyPlace BoyonStartingItsBounce(RoomEnemySystem enemies, int place)
     {
         RoomEnemyPlace enemy = enemies.Places.InUpdateOrder[place];
-        enemy.Bind(EnemyDefinitionId.Boyon, enemy.KeptDefinition);
-        enemy.Bind(enemy.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
-        enemy.SetSpawnParameter2(EnemyDefinitionId.Boyon, 64);
-        enemy.Position = enemy.Position.WithWhole(new(256, 512));
-        BoyonBehavior.InitializeBoyon(enemy);
-        BoyonEnemyState state = enemy.RequireSpeciesState<BoyonEnemyState>();
+        // Parameter two is the horizontal trigger range Samus must be within to start a bounce.
+        var settings = (BoyonSpawnSettings)EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.Boyon, PopulationWords.Parameters(0, 64));
         SamusState samus = RoomEnemyFrameFixtures.StandaloneSamus();
+        enemy.PlaceAs<BoyonEntity>(EnemyDefinitionId.Boyon, settings, samus, new(256, 512));
         samus.Position = FixedPosition<RoomPixels>.FromWhole(enemy.Position.Whole);
-        BoyonBehavior.RunBoyonMain(enemy.HeldOccupant().SpawnSettings<BoyonSpawnSettings>(), enemy, state, samus);
-        BoyonBehavior.RunBoyonMain(enemy.HeldOccupant().SpawnSettings<BoyonSpawnSettings>(), enemy, state, samus);
-        AssertEqual(new AnimationPlayback<BoyonSegment>(BoyonAnimations.StartingWith(BoyonSegment.Bouncing), AnimationPlace.StartOfAnimation),
-            state.Playback, "Samus on the Boyon starts its bouncing animation");
+        enemy.RunMainAi(samus);
+        enemy.RunMainAi(samus);
         enemy.AnimationClock.StepOnNextUpdate();
         return enemy;
     }

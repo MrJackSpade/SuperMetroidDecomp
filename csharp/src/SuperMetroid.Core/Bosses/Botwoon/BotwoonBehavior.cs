@@ -785,7 +785,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     /// <param name="head">Botwoon's head, whose position and graphics the segments start with.</param>
     /// <returns>The segments from the tail to the segment behind the head; a segment the pool had no place for is not in it.</returns>
     /// <param name="botwoon">The state his head holds, which each segment holds from its spawn.</param>
-    internal List<BotwoonSegmentState> SpawnBotwoonBody(RoomEnemyOccupant occupant, RoomEnemyPlace head, BotwoonEnemyState botwoon)
+    private List<BotwoonSegmentState> SpawnBotwoonBody(RoomEnemyOccupant occupant, RoomEnemyPlace head, BotwoonEnemyState botwoon)
     {
         var body = new List<BotwoonSegmentState>(BotwoonFightDefinitions.BodySegments);
         for (int segmentIndex = BotwoonFightDefinitions.BodySegments - 1; segmentIndex >= 0; segmentIndex--)

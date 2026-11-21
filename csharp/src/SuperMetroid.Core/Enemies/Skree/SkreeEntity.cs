@@ -15,13 +15,13 @@ internal sealed class SkreeEntity(SkreeBehavior species, RoomEnemyOccupant occup
     private readonly EnemyBombReaction ownBomb = species.SkreeBombReaction(occupant);
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal SkreeEnemyState State { get; } = SkreeBehavior.InitializeSkree();
+    private readonly SkreeEnemyState state = SkreeBehavior.InitializeSkree();
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunSkreeMainAi(Occupant, Place, State, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunSkreeMainAi(Occupant, Place, state, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => SkreeBehavior.AdvanceSkreeTypedAnimation(Place, State);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => SkreeBehavior.AdvanceSkreeTypedAnimation(Place, state);
 
     /// <summary>The Skree's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
     public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == SkreeReactions.Shot ? ownShot : base.ShotReaction;

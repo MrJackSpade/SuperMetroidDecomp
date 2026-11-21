@@ -9,11 +9,11 @@ internal sealed class RioEntity(RioBehavior species, RoomEnemyOccupant occupant,
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation
 {
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal RioEnemyState State { get; } = RioBehavior.InitializeRio(place);
+    private readonly RioEnemyState state = RioBehavior.InitializeRio(place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunRioMainAi(Place, State, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunRioMainAi(Place, state, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => RioBehavior.AdvanceRioTypedAnimation(Place, State);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => RioBehavior.AdvanceRioTypedAnimation(Place, state);
 }

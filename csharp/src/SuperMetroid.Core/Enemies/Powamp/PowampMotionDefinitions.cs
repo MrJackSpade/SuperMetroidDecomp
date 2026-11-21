@@ -11,13 +11,16 @@ internal static class PowampMotionDefinitions
     /// </summary>
     internal static readonly int[] WiggleOffsets = [0, 1, 2, 3, 2, 1, 0, -1, -2, -3, -2, -1];
 
-    /// <summary>The pose each of the balloon's frames shows it in.</summary>
-    internal static readonly IdentityTable<EnemyFrameId, PowampBalloonPose> PosesShownBy = new(new Dictionary<EnemyFrameId, PowampBalloonPose>
+    /// <summary>
+    /// The pose each of the balloon's frames shows it in: the three frames its segments in <see cref="PowampAnimations"/> show,
+    /// and no other enemy's.
+    /// </summary>
+    internal static readonly IReadOnlyDictionary<EnemyFrameId, PowampBalloonPose> PosesShownBy = new Dictionary<EnemyFrameId, PowampBalloonPose>
     {
         [EnemyFrameId.PowampBalloonSmall] = PowampBalloonPose.Deflated,
         [EnemyFrameId.PowampBalloonHalfInflated] = PowampBalloonPose.Halfway,
         [EnemyFrameId.PowampBalloonInflated] = PowampBalloonPose.Full,
-    });
+    };
 
     /// <summary>How far above the body the balloon sits in each pose: four pixels higher per pose it inflates.</summary>
     internal static readonly IdentityTable<PowampBalloonPose, int> BalloonHeights = new(new Dictionary<PowampBalloonPose, int>

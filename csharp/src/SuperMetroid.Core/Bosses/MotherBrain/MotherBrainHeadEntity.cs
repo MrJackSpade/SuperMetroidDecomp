@@ -13,11 +13,7 @@ internal sealed class MotherBrainHeadEntity(MotherBrainBehavior species, RoomEne
     : MotherBrainEntity(species, occupant, place, common), IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
-    public override void Initialize()
-    {
-        RequireSharedPowerBombReaction();
-        Species.Head.InitializeMotherBrainHead(Place);
-    }
+    public override void Initialize() => Species.Head.InitializeMotherBrainHead(Place);
 
     /// <summary>The head's hitbox: her brain's rectangle, which it owns (#2220).</summary>
     public override EnemyHitboxContact FindHitboxReaction(EnemyHitboxProbe probe) =>

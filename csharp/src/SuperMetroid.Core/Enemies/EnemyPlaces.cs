@@ -11,7 +11,7 @@ internal sealed class EnemyPlaces
     /// neighbours, and reaching through <paramref name="species"/> the registry that creates its entities, which the room's
     /// species are composed with these places to build.
     /// </summary>
-    internal EnemyPlaces(Func<EnemySpeciesRegistry> species)
+    internal EnemyPlaces(IEnemySpeciesSource species)
     {
         Ensure.NotNull(species);
         _places = [.. Enumerable.Range(0, EnemyPlaceOrder.Capacity).Select(ordinal =>

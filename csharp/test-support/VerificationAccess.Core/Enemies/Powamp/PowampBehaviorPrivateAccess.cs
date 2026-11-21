@@ -26,10 +26,6 @@ internal static class PowampBehaviorPrivateAccess
         /// <summary>The private method <c>BeginPowampSpikeDeletion</c>, invoked by name.</summary>
         internal static void BeginPowampSpikeDeletion(global::SuperMetroid.Core.Enemies.EnemyProjectile spike) =>
             PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Enemies.Powamp.PowampBehavior), "BeginPowampSpikeDeletion", [typeof(global::SuperMetroid.Core.Enemies.EnemyProjectile)], new object?[] { spike });
-
-        /// <summary>The private method <c>StartPowampBalloonAnimation</c>, invoked by name.</summary>
-        internal static void StartPowampBalloonAnimation(global::SuperMetroid.Core.Enemies.RoomEnemyPlace balloon, global::SuperMetroid.Core.Enemies.Powamp.PowampBalloonState state, global::SuperMetroid.Core.Enemies.Powamp.PowampSegment segment) =>
-            PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Enemies.Powamp.PowampBehavior), "StartPowampBalloonAnimation", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Enemies.Powamp.PowampBalloonState), typeof(global::SuperMetroid.Core.Enemies.Powamp.PowampSegment)], new object?[] { balloon, state, segment });
     }
 
     /// <summary>The private instance members checks read or call.</summary>

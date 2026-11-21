@@ -21,97 +21,93 @@ internal sealed class AttractDemoGameSequence(FrontendSession session) : IGamePh
     public GamePhaseAudio Audio => GamePhaseAudio.Ordinary;
 
     /// <inheritdoc/>
-    public string Name => $"Attract demo: {session.AttractDemoStep}";
+    public string Name => $"Attract demo: {session.AttractDemoStep.Name}";
 
     /// <inheritdoc/>
     public bool IsWaitingOutDisplayFrame => false;
 
-    /// <summary>What <c>Step</c> does for each <see cref="AttractDemoStep"/> member, each member's own arm.</summary>
-    private IdentityTable<AttractDemoStep, Action<ControllerButton>> StepForAttractDemoStep => field ??= new(new Dictionary<AttractDemoStep, Action<ControllerButton>>
-    {
-        [AttractDemoStep.Loading] = controllerInput => Load(controllerInput),
-        [AttractDemoStep.Starting] = controllerInput =>
-        {
-            // The demo's first gameplay pass runs one gameplay frame before revealing the room. Its
-            // extra frame does not count down the playback.
-            session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Owner = GameplayUpdateOwner.AttractDemo });
-            session.display.PublishGameplay(session.GameplayRuntime);
-            session.Enter(AttractDemoStep.Playing);
-        },
-        [AttractDemoStep.Playing] = controllerInput => Play(controllerInput),
-        [AttractDemoStep.Unloading] = controllerInput =>
-        {
-            session.Demo.AdvanceAfterScene(session.DemoPlaylist);
-            session.ReleaseRuntime();
-            session.display.PublishBlack();
-            session.Enter(AttractDemoStep.Routing);
-        },
-        [AttractDemoStep.Routing] = controllerInput => Route(),
-    });
-
     /// <inheritdoc/>
-    public void Step(ControllerButton controllerInput)
-    {
-        StepForAttractDemoStep[session.AttractDemoStep](controllerInput);
-    }
+    public void Step(ControllerButton controllerInput) => session.AttractDemoStep.Run(this, controllerInput);
 
-    /// <summary>Loads the next demo scene, then holds the black screen for its load frames.</summary>
-    private void Load(ControllerButton controllerInput)
+    /// <summary>
+    /// Creates <paramref name="scene"/>'s runtime behind the black screen, which then holds for the load's enemy-setup waits.
+    /// </summary>
+    internal void CreateRuntime(AttractDemoScene scene)
     {
-        if (session.Demo.AwaitsScene)
-        {
-            AttractDemoScene scene = session.Demo.BeginNext()
-                ?? throw new InvalidDataException("The demo loader ran past the end of its set.");
-            // A separate runtime owns all demo progression and inventory. Never
-            // restore demo state into a selected save or publish checkpoints.
-            session.CreateGameplayRuntime(GameplayRuntimePurpose.AttractDemo);
-            session.GameplayRuntime.AttractDemo.InitializeAttractDemo(scene);
-            session.ForgetQueuedAudio();
-        }
-        else
-        {
-            session.GameplayRuntime.RunBlankGameplayFrame(controllerInput);
-            if (session.Demo.CountLoadFrame())
-                session.Enter(AttractDemoStep.Starting);
-        }
+        // A separate runtime owns all demo progression and inventory. Never
+        // restore demo state into a selected save or publish checkpoints.
+        session.CreateGameplayRuntime(GameplayRuntimePurpose.AttractDemo);
+        session.GameplayRuntime.AttractDemo.InitializeAttractDemo(scene);
+        session.ForgetQueuedAudio();
+        session.Enter(new AttractDemoStep.Loading.WaitingForEnemySetup(UpdateCountdown.Lasting(GameLoadingDefinitions.EnemySetupWaits), scene.Duration));
         session.display.PublishBlack();
     }
 
-    /// <summary>One update of the recording or of its final image's hold, either of which a newly pressed button cancels.</summary>
-    private void Play(ControllerButton controllerInput)
+    /// <summary>Holds the black screen for one of the load's enemy-setup waits; after the last the scene starts.</summary>
+    internal void WaitForEnemySetup(AttractDemoStep.Loading.WaitingForEnemySetup loading, ControllerButton controllerInput)
     {
-        if (session.Demo.Holding)
-        {
-            // The final image holds: no actor, animation, or script advances during the final-image hold
-            // (AttractDemoDefinitions.FinalImageHoldFrames).
-            session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);
-            if (session.GameplayRuntime.PlayerActions.NewlyPressed != GameplayAction.None)
-                FinishAttractPlayback(end: AttractPlaybackEnd.Cancelled);
-            else if (session.Demo.CountHoldFrame())
-                FinishAttractPlayback(end: AttractPlaybackEnd.Completed);
-        }
-        else
-        {
-            session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Owner = GameplayUpdateOwner.AttractDemo });
-            session.display.PublishGameplay(session.GameplayRuntime);
-            // The player's own actions are read again here, so a newly pressed button cancels the demo.
-            if (session.GameplayRuntime.PlayerActions.NewlyPressed != GameplayAction.None)
-                FinishAttractPlayback(end: AttractPlaybackEnd.Cancelled);
-            else
-                session.Demo.CountPlaybackFrame();
-        }
+        session.GameplayRuntime.RunBlankGameplayFrame(controllerInput);
+        if (loading.Waits.Count())
+            session.Enter(new AttractDemoStep.Starting(UpdateCountdown.For(loading.Duration)));
+        session.display.PublishBlack();
+    }
+
+    /// <summary>
+    /// The demo's first gameplay pass, which runs one gameplay frame before revealing the room. Its extra frame does not
+    /// count down the playback.
+    /// </summary>
+    internal void Start(AttractDemoStep.Starting starting, ControllerButton controllerInput)
+    {
+        session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Owner = GameplayUpdateOwner.AttractDemo });
+        session.display.PublishGameplay(session.GameplayRuntime);
+        session.Enter(new AttractDemoStep.Playing.Scripted(starting.Playback));
+    }
+
+    /// <summary>
+    /// One update of the recording, which a newly pressed button cancels; once the script runs out, the final image
+    /// starts holding.
+    /// </summary>
+    internal void PlayScript(AttractDemoStep.Playing.Scripted playing, ControllerButton controllerInput)
+    {
+        session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Owner = GameplayUpdateOwner.AttractDemo });
+        session.display.PublishGameplay(session.GameplayRuntime);
+        // The player's own actions are read again here, so a newly pressed button cancels the demo.
+        if (session.GameplayRuntime.PlayerActions.NewlyPressed != GameplayAction.None)
+            FinishAttractPlayback(AttractPlaybackEnd.Cancelled);
+        else if (playing.Playback.Step())
+            session.Enter(new AttractDemoStep.Playing.Holding(UpdateCountdown.Lasting(AttractDemoDefinitions.FinalImageHoldFrames)));
+    }
+
+    /// <summary>One update of the final image's hold, which a newly pressed button cancels.</summary>
+    internal void HoldFinalImage(AttractDemoStep.Playing.Holding holding, ControllerButton controllerInput)
+    {
+        // The final image holds: no actor, animation, or script advances during the final-image hold
+        // (AttractDemoDefinitions.FinalImageHoldFrames).
+        session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);
+        if (session.GameplayRuntime.PlayerActions.NewlyPressed != GameplayAction.None)
+            FinishAttractPlayback(AttractPlaybackEnd.Cancelled);
+        else if (holding.Hold.Count())
+            FinishAttractPlayback(AttractPlaybackEnd.Completed);
+    }
+
+    /// <summary>Releases the demo's gameplay while the schedule decides where the attract mode goes after the scene.</summary>
+    internal void Unload(AttractDemoStep.Unloading unloading)
+    {
+        AttractDemoRoute route = session.Demo.RouteAfterScene(unloading.End);
+        session.ReleaseRuntime();
+        session.display.PublishBlack();
+        session.Enter(new AttractDemoStep.Routing(route));
     }
 
     /// <summary>Loads the next demo, or returns to the title: from its beginning, or at its title screen after a cancelled demo.</summary>
-    private void Route()
+    internal void Route(AttractDemoRoute route)
     {
-        if (session.Demo.RouteAfterScene == AttractDemoRoute.NextScene)
+        if (route is AttractDemoRoute.NextScene next)
         {
-            session.Demo.LoadNextScene();
-            session.Enter(AttractDemoStep.Loading);
+            session.Enter(new AttractDemoStep.Loading.AwaitingRuntime(next.Scene));
             return;
         }
-        if (session.Demo.RouteAfterScene == AttractDemoRoute.TitleAtItsScreen)
+        if (route is AttractDemoRoute.TitleAtItsScreen)
             session.Show(TitleSequenceState.ReturnFromDemo(
                 session.audio,
                 session.Artwork.ScreenContent.TitleGradient,
@@ -130,11 +126,10 @@ internal sealed class AttractDemoGameSequence(FrontendSession session) : IGamePh
         session.display.Publish(session.ActiveTitle);
     }
 
-    /// <summary>Starts the transition out of a completed or cancelled demo scene.</summary>
+    /// <summary>Starts the transition out of a scene that ended as <paramref name="end"/>.</summary>
     private void FinishAttractPlayback(AttractPlaybackEnd end)
     {
-        session.Demo.Finish(end);
-        session.Enter(AttractDemoStep.Unloading);
+        session.Enter(new AttractDemoStep.Unloading(end));
         session.display.PublishBlack();
     }
 }

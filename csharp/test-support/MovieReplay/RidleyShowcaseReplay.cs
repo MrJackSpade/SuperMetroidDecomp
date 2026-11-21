@@ -474,7 +474,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             }
             // A door's fades are typed fades the port shows by their progress, not the shared counter's gradual steps
             // (#2289), so their colours are not the cartridge's while a fade runs; its completion, which gameplay sees, is.
-            bool doorFading = runtime.DoorFade.Stage is DoorFadeStage.FadingOut or DoorFadeStage.FadingIn;
+            bool doorFading = runtime.DoorFade.Stage is DoorFadeStage.FadingOut or DoorFadeStage.Entering;
             if (!deferLoadingOwners && !doorFading)
             foreach (int color in comparedColours)
             {

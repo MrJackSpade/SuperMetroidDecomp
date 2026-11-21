@@ -10,11 +10,10 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 public sealed class CeresTurningFloor
 {
     /// <summary>
-    /// The getaway's flight along its curves (<see cref="CeresRidleyGetawayCurve.Steps"/>): the step the next getaway update
-    /// flies, its place the update of the getaway; none once every step is flown, which ends the getaway on the update
-    /// after the last (#2553).
+    /// The getaway's flight along its curves (#2553): not begun until Ridley hands the room to it, then the step the next
+    /// getaway update flies, and flown once every step is, which ends the getaway on the update after the last.
     /// </summary>
-    public ListStep<CeresRidleyGetawayStep>? Flight { get; internal set; }
+    public CeresGetawayFlight Flight { get; internal set; } = CeresGetawayFlight.NotBegun;
     /// <summary>Gets how far the getaway has turned its floor clockwise, wrapping at a full turn.</summary>
     public RotationAngle Angle { get; internal set; }
     /// <summary>Gets the floor point the getaway places at the screen's top-left before turning and zooming the floor.</summary>

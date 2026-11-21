@@ -14,24 +14,15 @@ namespace SuperMetroid.Core.Enemies;
 /// </summary>
 public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
 {
-    /// <summary>Creates the place at <paramref name="ordinal"/> in <see cref="EnemyPlaceOrder"/>, before any occupant is installed.</summary>
-    /// <param name="ordinal">The place's position in allocation and processing order.</param>
-    /// <param name="registry">The species registry that creates the entity for each installed occupant.</param>
-    /// <param name="leftovers">What the place's removed occupants leave for their neighbours, created with the room's places.</param>
-    internal RoomEnemyPlace(int ordinal, EnemySpeciesRegistry registry, RemovedEnemyLeftovers<EnemyOccupantStates> leftovers)
-        : this(ordinal, ReadsRegistry(Ensure.NotNull(registry)), leftovers)
-    {
-    }
-
     /// <summary>
     /// Creates the place at <paramref name="ordinal"/> in <see cref="EnemyPlaceOrder"/>, before any occupant is installed,
     /// reaching its species registry through <paramref name="registry"/> once an occupant is installed: the room's places are
     /// created before the species that are composed with them (#2553).
     /// </summary>
     /// <param name="ordinal">The place's position in allocation and processing order.</param>
-    /// <param name="registry">Reads the species registry that creates the entity for each installed occupant.</param>
+    /// <param name="registry">Holds the species registry that creates the entity for each installed occupant.</param>
     /// <param name="leftovers">What the place's removed occupants leave for their neighbours, created with the room's places.</param>
-    internal RoomEnemyPlace(int ordinal, Func<EnemySpeciesRegistry> registry, RemovedEnemyLeftovers<EnemyOccupantStates> leftovers)
+    internal RoomEnemyPlace(int ordinal, IEnemySpeciesSource registry, RemovedEnemyLeftovers<EnemyOccupantStates> leftovers)
     {
         _registry = Ensure.NotNull(registry);
         _leftovers = Ensure.NotNull(leftovers);
@@ -81,11 +72,8 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
     /// </summary>
     internal bool IsFree => History is NeverPopulatedEnemyPlace or PopulatedEnemyPlace { Occupancy: VacatedEnemyPlace };
 
-    /// <summary>The species registry that creates the entity for each installed occupant.</summary>
-    private readonly Func<EnemySpeciesRegistry> _registry;
-
-    /// <summary>Reads <paramref name="registry"/>, a registry that already exists.</summary>
-    private static Func<EnemySpeciesRegistry> ReadsRegistry(EnemySpeciesRegistry registry) => () => registry;
+    /// <summary>Holds the species registry that creates the entity for each installed occupant.</summary>
+    private readonly IEnemySpeciesSource _registry;
 
     /// <summary>The enemy occupying the place, bound with its identity; null while the place is empty.</summary>
     internal IEnemyEntity? Entity => BoundEntity?.Entity;
@@ -166,7 +154,7 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
         }
         OccupantStates = new();
         AnimationClock = new();
-        BoundEntity = _registry().Create(occupant, this);
+        BoundEntity = _registry.Species.Create(occupant, this);
     }
 
     /// <summary>

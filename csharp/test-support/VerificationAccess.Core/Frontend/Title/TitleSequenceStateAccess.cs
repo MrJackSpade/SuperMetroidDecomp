@@ -10,7 +10,7 @@ internal static class TitleSequenceStateAccess
     {
 
         /// <summary>The floor's current zoom, exposed for title regression checks.</summary>
-        internal FloorZoom FloorZoom => self.Zoom;
+        internal FloorZoom FloorZoom => self.Zoom.FloorZoom;
 
         /// <summary>
         /// NTSC demo countdown. Retail initializes this to $0384 (900 frames); PAL uses $02D0

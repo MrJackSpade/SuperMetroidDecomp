@@ -32,7 +32,7 @@ internal static class RetailRidleyCaptureTests
         foreach (int tilt in new[] { -33, 0, 33 })
         foreach (short scroll in new short[] { -19, 0, 19 })
         {
-            global::SuperMetroid.Core.PrivateState.Set(runtime.Enemies.CeresEscape, "Stage", SuperMetroid.Core.Bosses.Ridley.CeresEscapeStage.Getaway);
+            runtime.Enemies.CeresEscape.BeginGetaway();
             runtime.Enemies.CeresEscape.Floor.Zoom = FloorZoomConstants.FromTwoHundredFiftySixths(scale);
             runtime.Enemies.CeresEscape.Floor.Angle = RotationAngle.WrappedSteps(tilt);
             runtime.Enemies.CeresEscape.Floor.Center = new Offset16<FloorPixels>(128, 120);

@@ -129,7 +129,7 @@ internal static class ZebetiteDefinitionsVerification
         foreach (bool linkedHalf in new[] { false, true })
         {
             var enemies = NewZebetiteDefinitionSystem(0);
-            RoomEnemyPlace place = enemies.ZebetiteBehavior.SpawnZebetite(linkedHalf ? ZebetiteHalf.Linked : ZebetiteHalf.Primary);
+            RoomEnemyPlace place = enemies.ZebetiteBehavior.SpawnZebetite(linkedHalf ? ZebetiteHalf.Linked : ZebetiteHalf.Primary, ZebetiteDefinitions.Generations[0]);
             AssertEqual(Zebetites.SpawnPopulation(linkedHalf ? ZebetiteHalf.Linked : ZebetiteHalf.Primary, ZebetiteDefinitions.Generations[0]), place.HeldOccupant().Spawn,
                 $"production Zebetite {(linkedHalf ? "linked" : "primary")} population");
             AssertEqual(linkedHalf ? ZebetiteHalf.Linked : ZebetiteHalf.Primary, place.HeldOccupant().SpawnSettings<ZebetiteSpawnSettings>().Half,

@@ -25,7 +25,7 @@ internal static class PowampOwnedStateVerification
         balloon.Position = balloon.Position.WithWhole(new(0x0180, 0x0020));
         PowampBehavior.InitializePowampBalloon(balloon);
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[1];
-        body.SetSpawnSettings(new PowampBodySpawnSettings(PowampContact.Accepts));
+        body.BindPlaced(EnemyDefinitionId.Powamp, new PowampBodySpawnSettings(PowampContact.Accepts));
         body.Bind(EnemyDefinitionId.Powamp, body.KeptDefinition);
         // The body rests below its balloon, inside the room.
         body.Position = body.Position.WithWhole(new(0x0180, 0x0040));

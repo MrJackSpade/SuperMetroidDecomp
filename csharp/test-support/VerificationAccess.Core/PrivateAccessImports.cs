@@ -553,7 +553,6 @@ global using static SuperMetroid.Core.Enemies.Zoa.ZoaBehaviorPrivateAccess;
 global using static SuperMetroid.Core.Escape.EscapeTimerPrivateAccess;
 global using static SuperMetroid.Core.Escape.EscapeTypewriterStatePrivateAccess;
 global using static SuperMetroid.Core.Escape.ZebesEscapeDefinitionsPrivateAccess;
-global using static SuperMetroid.Core.Frontend.AttractDemoSchedulePrivateAccess;
 global using static SuperMetroid.Core.Frontend.CeresCinematics.CeresDestructionCinematicStatePrivateAccess;
 global using static SuperMetroid.Core.Frontend.Ending.CreditsScrollPrivateAccess;
 global using static SuperMetroid.Core.Frontend.Ending.EndingActorDefinitionsPrivateAccess;
@@ -654,7 +653,6 @@ global using static SuperMetroid.Core.Rooms.RoomObjects.StationObjectsPrivateAcc
 global using static SuperMetroid.Core.Rooms.Scrolling.RoomScrollGridPrivateAccess;
 global using static SuperMetroid.Core.Rooms.Scrolling.ScrollTriggerObjectPrivateAccess;
 global using static SuperMetroid.Core.Runtime.Attract.StockAttractDemoScenesPrivateAccess;
-global using static SuperMetroid.Core.Runtime.DoorFadePrivateAccess;
 global using static SuperMetroid.Core.Runtime.DoorTransitionStatePrivateAccess;
 global using static SuperMetroid.Core.Runtime.GameplayDisplayCapturePrivateAccess;
 global using static SuperMetroid.Core.Runtime.SuperMetroidRuntimePrivateAccess;

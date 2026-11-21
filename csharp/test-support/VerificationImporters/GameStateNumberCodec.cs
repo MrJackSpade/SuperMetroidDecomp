@@ -65,11 +65,11 @@ internal static class GameStateNumberCodec
         new(session => session.BeginCeresDestruction(CeresDestructionOutcome.SamusAboard), session => session.IsAt(CeresDestructionOutcome.SamusAboard)),
         new(session => session.Enter(EndingStep.LeavingZebes), session => session.IsAt(EndingStep.LeavingZebes)),
         new(session => session.Enter(EndingStep.Credits), session => session.IsAt(EndingStep.Credits)),
-        new(session => session.Enter(AttractDemoStep.Loading), session => session.IsAt(AttractDemoStep.Loading)),
-        new(session => session.Enter(AttractDemoStep.Starting), session => session.IsAt(AttractDemoStep.Starting)),
-        new(session => session.Enter(AttractDemoStep.Playing), session => session.IsAt(AttractDemoStep.Playing)),
-        new(session => session.Enter(AttractDemoStep.Unloading), session => session.IsAt(AttractDemoStep.Unloading)),
-        new(session => session.Enter(AttractDemoStep.Routing), session => session.IsAt(AttractDemoStep.Routing)),
+        new(session => session.Enter(session.Demo.RequestFromTitle()), session => session.IsAtAttractStep<AttractDemoStep.Loading>()),
+        new(EnterNoAttractScene, session => session.IsAtAttractStep<AttractDemoStep.Starting>()),
+        new(EnterNoAttractScene, session => session.IsAtAttractStep<AttractDemoStep.Playing>()),
+        new(EnterNoAttractScene, session => session.IsAtAttractStep<AttractDemoStep.Unloading>()),
+        new(EnterNoAttractScene, session => session.IsAtAttractStep<AttractDemoStep.Routing>()),
     ];
 
     /// <summary>Enters <paramref name="game"/> at the step the cartridge numbers <paramref name="number"/>.</summary>
@@ -120,4 +120,12 @@ internal static class GameStateNumberCodec
     /// <param name="Enter">Enters the step.</param>
     /// <param name="IsRunning">Whether a session is at the step.</param>
     private sealed record Numbered(Action<FrontendSession> Enter, Func<FrontendSession, bool> IsRunning);
+
+    /// <summary>
+    /// Refuses to enter an attract demo past its load: each later step carries its scene's playback, hold, end or route,
+    /// which only the demo's own run makes (#2553).
+    /// </summary>
+    /// <exception cref="InvalidDataException">Always.</exception>
+    private static void EnterNoAttractScene(FrontendSession session) =>
+        throw new InvalidDataException("The import cannot enter an attract demo past its load: the step carries its scene's own state.");
 }

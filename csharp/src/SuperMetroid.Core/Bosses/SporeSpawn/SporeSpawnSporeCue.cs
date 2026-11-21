@@ -1,10 +1,8 @@
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
-/// <summary>The cues Spore Spawn's projectile animations publish.</summary>
-internal enum SporeSpawnProjectileCue
+/// <summary>The cues a Spore Spawn spore's animations publish (#2553): its burst's, once it is shot.</summary>
+internal enum SporeSpawnSporeCue
 {
-    /// <summary>Releases a spore at the emitter.</summary>
-    SpawnSpore,
     /// <summary>Makes a shot spore harmless.</summary>
     SetImpactProperties,
     /// <summary>Queues the enemy-killed sound.</summary>

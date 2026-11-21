@@ -40,7 +40,7 @@ namespace SuperMetroid.Core.World;
 /// Baby Metroid's victim) are compatibility services that read the places in order. A compacted list would lose those.
 /// </remarks>
 [RoomLifetime]
-public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
+public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources, IEnemySpeciesSource
 {
     /// <summary>The enemies' draw phase: the live enemies the enemy pass queues to draw, and the frames each one shows.</summary>
     internal EnemyDrawList Drawing { get; }
@@ -107,6 +107,9 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
 
     /// <summary>The species registry that binds each installed occupant's entity.</summary>
     internal EnemySpeciesRegistry Species => SpeciesComposition.Registry;
+
+    /// <inheritdoc/>
+    EnemySpeciesRegistry IEnemySpeciesSource.Species => Species;
 
     /// <summary>The loaded room's enemy definitions, services and artwork, shared with the composed owners.</summary>
     private EnemyRoomBinding Room { get; }
@@ -299,7 +302,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         FrameContext = new EnemyFrameContext(session);
         Presentation = new EnemyPresentation(session, Ensure.NotNull(dependencies.Looks), compatibility.FadeStepCount);
         BossPresentation = new BossPresentation(Presentation, BossArtworkBinding);
-        Places = new EnemyPlaces(() => Species);
+        Places = new EnemyPlaces(this);
         Audio = new EnemyAudioQueue(session.AudioRequests);
         ProcessingWindow = new EnemyProcessingWindow(FrameContext, Places);
         Lifecycle = new EnemyLifecycle(Room, Places, ProcessingWindow);

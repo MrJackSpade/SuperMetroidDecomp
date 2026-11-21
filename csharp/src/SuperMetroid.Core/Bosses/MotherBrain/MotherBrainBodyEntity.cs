@@ -19,11 +19,7 @@ internal sealed class MotherBrainBodyEntity(MotherBrainBehavior species, RoomEne
     : MotherBrainEntity(species, occupant, place, common), IBossBodyFrames, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
-    public override void Initialize()
-    {
-        RequireSharedPowerBombReaction();
-        Species.Body.InitializeMotherBrainBody(Occupant);
-    }
+    public override void Initialize() => Species.Body.InitializeMotherBrainBody(Occupant);
 
     /// <summary>The body's hitboxes: her brain's rectangle until its first animation shows a body frame, then its frame's.</summary>
     public override EnemyHitboxContact FindHitboxReaction(EnemyHitboxProbe probe) =>

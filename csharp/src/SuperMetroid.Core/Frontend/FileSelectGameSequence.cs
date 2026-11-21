@@ -24,7 +24,7 @@ internal sealed class FileSelectGameSequence(FrontendSession session) : IGamePha
     /// <summary>The diagnostic name of each file-select step, read from the session it runs against.</summary>
     private static IdentityTable<FileSelectStep, Func<FrontendSession, string>> Names => field ??= new(new Dictionary<FileSelectStep, Func<FrontendSession, string>>
     {
-        [FileSelectStep.SaveSlots] = static running => running.ActiveFileSelect.Phase.ToString(),
+        [FileSelectStep.SaveSlots] = static running => running.ActiveFileSelect.Phase.Name,
         [FileSelectStep.Options] = static running => running.ActiveOptions.Phase.ToString(),
         [FileSelectStep.AreaMap] = static running => running.ScreenAs<FileSelectMapMenuState>() is { } map
             ? (map.IsEnteringArea ? "Entering the area map" : map.Phase.ToString())

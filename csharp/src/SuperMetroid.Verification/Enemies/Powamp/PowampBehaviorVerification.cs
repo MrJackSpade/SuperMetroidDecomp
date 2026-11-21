@@ -45,10 +45,10 @@ internal static class PowampBehaviorVerification
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         PowampBalloonState balloonState = balloon.RequireSpeciesState<PowampBalloonState>();
         object?[] arguments = [balloon, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
-        foreach (PowampSegment start in new[] { PowampSegment.BalloonInflatingFromDeflated, PowampSegment.BalloonInflatingFromHalfway, PowampSegment.BalloonStartSinking, PowampSegment.BalloonDeflated })
+        foreach (PowampBalloonStart start in new[] { PowampMotionDefinitions.InflatingFromDeflated, PowampMotionDefinitions.InflatingFromHalfway, PowampMotionDefinitions.StartSinking, PowampMotionDefinitions.Deflated })
         {
             PowampBehavior.StartPowampBalloonAnimation(balloon, balloonState, start);
-            int frames = PowampAnimations.StartingWith(start).Phases.Sum(phase => phase.BeatCount);
+            int frames = PowampAnimations.StartingWith(start.Segment).Phases.Sum(phase => phase.BeatCount);
             for (int update = 0; update <= frames; update++)
             {
                 AssertBalloonInflation(cartridge, balloonState, $"Powamp balloon {start} after {update} updates");

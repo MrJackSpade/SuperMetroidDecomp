@@ -76,8 +76,7 @@ internal sealed class TitleGameSequence(FrontendSession session) : IGamePhase
         }
         else if (session.ActiveTitle.Outcome == TitleSequenceOutcome.Demo)
         {
-            session.Demo.RequestFromTitle();
-            session.Enter(AttractDemoStep.Loading);
+            session.Enter(session.Demo.RequestFromTitle());
             session.display.PublishBlack();
         }
     }

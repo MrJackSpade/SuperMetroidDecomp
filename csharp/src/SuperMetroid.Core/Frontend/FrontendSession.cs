@@ -45,6 +45,7 @@ internal sealed class FrontendSession
         // Construction is power-on: boot evaluates the saves once before entering the main game loop.
         earthquakeSoundDelay = saves.EarthquakeSoundDelayAtPowerOn();
         DemoPlaylist = StockAttractDemoScenes.Playlist(saves.DetermineCompletionDemoSetUnlocked());
+        Demo = new AttractDemoSchedule(DemoPlaylist);
         // The game starts at the title.
         Phases = new GamePhases(this);
         running = new SequenceStep.Of<TitleStep>(Phases.Title, default);
@@ -62,7 +63,7 @@ internal sealed class FrontendSession
     /// <summary>The step of the running sequence, whose steps are <typeparamref name="TStep"/>.</summary>
     /// <exception cref="InvalidOperationException">The running sequence has no steps of that kind.</exception>
     private TStep StepOf<TStep>()
-        where TStep : struct, Enum =>
+        where TStep : notnull =>
         running is SequenceStep.Of<TStep> sequence ? sequence.Step
             : throw new InvalidOperationException($"The game runs {RunningPhase.State}, which has no {typeof(TStep).Name}.");
 
@@ -319,7 +320,7 @@ internal sealed class FrontendSession
             : phase == Phases.CeresDestruction ? new SequenceStep.Of<CeresDestructionOutcome>(phase, CeresDestructionOutcome.SamusEscaped)
             : phase == Phases.TimeUp ? new SequenceStep.Of<TimeUpStep>(phase, TimeUpStep.WhiteningOut)
             : phase == Phases.Ending ? new SequenceStep.Of<EndingStep>(phase, EndingStep.LeavingZebes)
-            : phase == Phases.AttractDemo ? new SequenceStep.Of<AttractDemoStep>(phase, AttractDemoStep.Loading)
+            : phase == Phases.AttractDemo ? new SequenceStep.Of<AttractDemoStep>(phase, Demo.RequestFromTitle())
             : new SequenceStep.Stepless(phase);
     }
 
@@ -706,7 +707,7 @@ internal sealed class FrontendSession
         RaiseSavesChanged();
     }
     /// <summary>Where the attract demos are.</summary>
-    internal AttractDemoSchedule Demo { get; } = new();
+    internal AttractDemoSchedule Demo { get; }
     /// <summary>The demo sets the title cycles through, fixed at boot: the completion set plays only after a valid completed-game save exists.</summary>
     internal IReadOnlyList<AttractDemoSet> DemoPlaylist { get; }
     /// <summary>The waiting updates the current game load still owes.</summary>

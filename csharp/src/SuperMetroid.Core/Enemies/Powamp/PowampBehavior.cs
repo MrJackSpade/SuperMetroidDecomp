@@ -417,7 +417,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Restarts the balloon's animation at <paramref name="start"/>'s segment on the next animation pass, and its sequence
     /// where that start puts it (#1845).
     /// </summary>
-    private static void StartPowampBalloonAnimation(RoomEnemyPlace balloon, PowampBalloonState state, PowampBalloonStart start)
+    internal static void StartPowampBalloonAnimation(RoomEnemyPlace balloon, PowampBalloonState state, PowampBalloonStart start)
     {
         state.Playback = StartPowampAnimation(balloon, start.Segment);
         state.Inflation = start.Inflation;

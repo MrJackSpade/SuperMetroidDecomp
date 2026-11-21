@@ -218,7 +218,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Finds a free place in the room's enemies and initializes a primary or linked half from its population entry.</summary>
-    private RoomEnemyPlace SpawnZebetite(ZebetiteHalf half, ZebetiteGenerationDefinition generation)
+    internal RoomEnemyPlace SpawnZebetite(ZebetiteHalf half, ZebetiteGenerationDefinition generation)
     {
         // The spawn takes the first free place. In particular, a primary's death vacates
         // its place before spawning the next generation; surviving linked halves keep

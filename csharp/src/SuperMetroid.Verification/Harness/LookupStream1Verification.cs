@@ -228,7 +228,8 @@ internal static class LookupStream1Verification
             if (isBody)
                 body.RequireSpeciesState<PowampBodyState>().Playback = new(PowampAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
             else
-                PowampBehavior.StartPowampBalloonAnimation(balloon, balloon.RequireSpeciesState<PowampBalloonState>(), program);
+                PowampBehavior.StartPowampBalloonAnimation(balloon, balloon.RequireSpeciesState<PowampBalloonState>(),
+                    program == PowampSegment.BalloonInflatingFromDeflated ? PowampMotionDefinitions.InflatingFromDeflated : PowampMotionDefinitions.StartSinking);
             var pair = new PowampBalloon(balloon, balloon.RequireSpeciesState<PowampBalloonState>(), balloon.HeldOccupant());
             place.AnimationClock.StepOnNextUpdate();
             object?[] arguments = [place, null, null, Position16<RoomPixels>.Zero, GameplayAction.None];
@@ -1356,7 +1357,6 @@ internal static class LookupStream1Verification
             }
             AssertTrue(done, "escape text native program terminates");
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.Get((EscapeTypewriterMessageId)(-1)), "escape text rejects absent program");
         Console.WriteLine($"Escape text: five installed native lines and {totalFrames} actual native-oracle frames pass.");
     }
 

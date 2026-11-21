@@ -63,7 +63,7 @@ internal sealed class CeresEscape : IGameplayShadingSource
     private CeresEscapeStage Stage { get; set; } = CeresEscapeStage.Getaway;
 
     /// <summary>The getaway's turning floor.</summary>
-    private CeresTurningFloor Floor { get; } = new();
+    internal CeresTurningFloor Floor { get; } = new();
 
     /// <summary>The self-destruct's warning.</summary>
     internal CeresSelfDestructWarning Warning { get; } = new();
@@ -91,7 +91,7 @@ internal sealed class CeresEscape : IGameplayShadingSource
     {
         _status.CeresStatus = CeresEscapeStatus.RidleyEscaped;
         Stage = CeresEscapeStage.Getaway;
-        Floor.Flight = ListStep<CeresRidleyGetawayStep>.FirstOf(CeresRidleyGetawayCurve.Steps);
+        Floor.Flight = CeresGetawayFlight.Begun;
         Floor.Angle = CeresRidleyGetawayDefinitions.InitialAngle;
         Floor.Offset = CeresRidleyGetawayDefinitions.InitialFloorOffset;
         Floor.Zoom = CeresRidleyGetawayDefinitions.InitialZoom;
@@ -112,11 +112,11 @@ internal sealed class CeresEscape : IGameplayShadingSource
     /// <param name="frameCounter">The game's frame counter, which beats the capsule and the wings.</param>
     public void RunGetawayRoomMain(SamusState samus, RoomFloor floor, int frameCounter)
     {
-        // The getaway's floor shows from its beginning until its end hands on to the self-destruct.
-        if (Floor.Flight is null)
+        // The room main flies the getaway from Ridley's handing the room to it until its end hands on to the self-destruct.
+        if (Stage != CeresEscapeStage.Getaway || Floor.Flight is CeresGetawayFlight.Waiting)
             return;
         // The update after the curves' last ends the getaway.
-        if (Floor.Flight is not { } flying)
+        if (Floor.Flight is not CeresGetawayFlight.Flying flight)
         {
             // The getaway's end restores the ordinary view and clears all rotation and scroll values, so the
             // self-destruct warning shows over the room, not the turning floor.
@@ -128,7 +128,8 @@ internal sealed class CeresEscape : IGameplayShadingSource
             BeginSelfDestruct();
             return;
         }
-        Floor.Flight = flying.Following;
+        ListStep<CeresRidleyGetawayStep> flying = flight.Step;
+        Floor.Flight = flight.Following;
 
         // The getaway requests the departure sound on its first update only.
         if (flying == ListStep<CeresRidleyGetawayStep>.FirstOf(CeresRidleyGetawayCurve.Steps))
@@ -175,7 +176,7 @@ internal sealed class CeresEscape : IGameplayShadingSource
     /// the getaway does not show the floor: turned by the getaway's angle at its zoom about the floor's centre, and
     /// scrolled by the getaway's offset across the floor.
     /// </summary>
-    internal FloorView? ShownFloor => Stage == CeresEscapeStage.Getaway
+    internal FloorView? ShownFloor => Stage == CeresEscapeStage.Getaway && Floor.Flight is not CeresGetawayFlight.Waiting
         ? FloorView.Turned(Floor.Angle, Floor.Zoom, Floor.Center, Floor.Offset)
         : null;
 

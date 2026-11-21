@@ -70,7 +70,7 @@ internal static class IntroPoseHistoryVerification
             SamusMovementType priorMetadata = before?.PoseHistory.PreviousMovement ?? SamusMovementType.Standing;
             SamusMovementType olderMetadata = before?.PoseHistory.MovementBeforePrevious ?? SamusMovementType.Standing;
             bool demoEnabled = intro.CurrentFlashbackDemoInput?.Enabled == true;
-            bool hurtExpiry = before is { KnockbackHold.UpdatesLeft: 0, KnockbackDirection: not 0 };
+            bool hurtExpiry = before is { KnockbackHold.UpdatesLeft: 0, KnockbackDirection: not null };
             // Publishing the display runs the draw passes whose side effects the scene keeps (projectile trails), as the
             // frontend publishes every frame; rasterising it is the host's work, and nothing here reads pixels.
             _ = intro.ComposeScene();

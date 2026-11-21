@@ -84,7 +84,7 @@ public sealed class TitleSequenceState : IFrontendScreen, IComposedFrontendScene
     /// <summary>The floor's pan position, whose whole pixels may lie left of zero.</summary>
     private FixedVector<FloorPixels> panPosition;
     /// <summary>The floor's zoom, animated from the close-up scene to the floor's own size.</summary>
-    private TitleFloorZoom Zoom { get; set; }
+    internal TitleFloorZoom Zoom { get; private set; }
     /// <summary>The title's screen brightness and the cadence of its fades; the skip's and the fade-in's step every update.</summary>
     private readonly ScreenFade fade = new(DisplayBrightness.Black);
     /// <summary>Current screen brightness applied after composing title layers.</summary>

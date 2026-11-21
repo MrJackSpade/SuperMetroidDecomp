@@ -4,8 +4,11 @@ namespace SuperMetroid.Core.Enemies;
 /// The species registry: which factory creates the entity for each definition. An enemy system's registry covers every
 /// definition its room can bind (<see cref="ForRoom"/>).
 /// </summary>
-internal sealed class EnemySpeciesRegistry
+internal sealed class EnemySpeciesRegistry : IEnemySpeciesSource
 {
+    /// <inheritdoc/>
+    EnemySpeciesRegistry IEnemySpeciesSource.Species => this;
+
     /// <summary>The factory of every definition the room can bind.</summary>
     private Dictionary<EnemyDefinitionId, IEnemyEntityFactory> Factories { get; } = [];
 

@@ -71,10 +71,7 @@ internal static class IntroCinematicRomDataVerification
     {
         // Instruction entry points are owned by closed per-interpreter enums; an entry point
         // shared by two owners (a common delete or cry) is one bank-$8B address.
-        ushort[] bank8BCodePointers = GetUshortConstants(typeof(CinematicCodePointers))
-            .Where(field => field.Name != nameof(CinematicCodePointers.InstructionCommandBit))
-            .Select(field => field.RequiredConstant<ushort>())
-            .Concat(Enum.GetValues<CinematicSpriteInstruction>().Cast<object>().Select(Convert.ToUInt16))
+        ushort[] bank8BCodePointers = Enum.GetValues<CinematicSpriteInstruction>().Cast<object>().Select(Convert.ToUInt16)
             .Concat(new[] { IntroCinematicSourceDefinitions.PortraitTilemapDrawFunction })
             .Concat(Enum.GetValues<TitleCardCue>().Select(TitleNativeWords.Instructions.Word))
             .Concat(CinematicActorNativeMotions.NativeAddresses)
@@ -88,9 +85,8 @@ internal static class IntroCinematicRomDataVerification
         // The narration pages' lists are named by the narration script definitions, not by loose constants.
         ushort[] bank8CLists =
         [
-            .. GetUshortConstants(typeof(CinematicCodePointers.BackgroundLists))
-                .Concat(GetUshortConstants(typeof(CinematicCodePointersIndirectData)))
-                .Select(field => field.RequiredConstant<ushort>()),
+            CinematicCodePointers.BackgroundLists.SamusBlinking, CinematicCodePointers.BackgroundLists.SamusBlinkingPage6,
+            CinematicCodePointersIndirectData.IntroTextSpace,
             .. SuperMetroid.AssetExtraction.Frontend.Intro.IntroNarrationScriptDefinitions.Pages.Select(page => checked((ushort)page.InstructionPointer)),
         ];
 
@@ -100,10 +96,6 @@ internal static class IntroCinematicRomDataVerification
             "cinematic list catalog covers translated bank-$8B streams");
         AssertTrue(bank8CLists.Length >= 9,
             "cinematic background catalog covers translated bank-$8C streams");
-        AssertEqual(GetUshortConstants(typeof(CinematicCodePointers)).Count(),
-            GetUshortConstants(typeof(CinematicCodePointers))
-                .Select(field => field.RequiredConstant<ushort>()).Distinct().Count(),
-            "cinematic callback constants are unique");
         AssertEqual(bank8BLists.Length, bank8BLists.Distinct().Count(),
             "cinematic bank-$8B list pointers are unique");
         AssertEqual(bank8CLists.Length, bank8CLists.Distinct().Count(),

@@ -1,4 +1,3 @@
-using System.Reflection;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Samus.Artwork;
 
@@ -15,9 +14,7 @@ internal static class SamusParticlesAccess
     extension(SamusParticles self)
     {
         /// <summary>The particles shown or waiting to show, oldest first.</summary>
-        internal IReadOnlyList<SamusParticle> All =>
-            typeof(SamusParticles).GetField("_particles", BindingFlags.NonPublic | BindingFlags.Instance)?.GetValue(self) as List<SamusParticle>
-                ?? throw new InvalidOperationException("SamusParticles no longer keeps its particles in _particles.");
+        internal IReadOnlyList<SamusParticle> All => self._particles;
     }
 
     /// <summary>Reads a particle as the original's step and countdown.</summary>

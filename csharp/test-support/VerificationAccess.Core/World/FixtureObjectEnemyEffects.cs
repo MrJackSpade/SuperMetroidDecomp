@@ -2,7 +2,7 @@ using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
-namespace SuperMetroid.Verification.Harness;
+namespace SuperMetroid.Core.World;
 
 /// <summary>Enemy-side effects a PLM fixture observes; an uninstalled effect fails at the dependency (#633).</summary>
 internal sealed class FixtureObjectEnemyEffects : IRoomObjectEnemyEffects

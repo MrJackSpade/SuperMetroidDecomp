@@ -30,7 +30,7 @@ internal static class PauseMenuStateAccess
 
         /// <summary>Frames the map page by <paramref name="scroll"/> in place of the framing the menu set up, for a check of a map's edges.</summary>
         internal void FrameMap(MapScroll scroll) =>
-            PrivateFrontendState.Set(self, nameof(PauseMenuState.CurrentMapScroll), Ensure.NotNull(scroll));
+            self.CurrentMapScroll = Ensure.NotNull(scroll);
 
         /// <summary>
         /// Moves the map page's scroll to <paramref name="scroll"/> under the page's framing and limits, as a check or an

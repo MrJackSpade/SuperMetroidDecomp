@@ -15,8 +15,8 @@ internal static class GameOverMenuStateAccess
         /// </summary>
         internal void SkipToPhase(GameOverMenuPhase phase)
         {
-            PrivateFrontendState.Set(self, nameof(GameOverMenuState.IsWaitingOutDisplayFrame), false);
-            PrivateFrontendState.Set(self, "Phase", phase);
+            self.IsWaitingOutDisplayFrame = false;
+            self.Phase = phase;
         }
     }
 }

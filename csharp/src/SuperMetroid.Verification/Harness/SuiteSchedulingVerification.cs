@@ -226,7 +226,7 @@ internal static class SuiteSchedulingVerification
             };
             // Run through dotnet: pass the verifier assembly; through the apphost: the executable is the verifier.
             if (Path.GetFileNameWithoutExtension(host).Equals("dotnet", StringComparison.OrdinalIgnoreCase))
-                start.ArgumentList.Add(typeof(Program).Assembly.Location);
+                start.ArgumentList.Add(Path.Combine(AppContext.BaseDirectory, "SuperMetroid.Verification.dll"));
             start.ArgumentList.Add("--suite-worker");
             return new SuiteWorkerProcess(Process.Start(start)
                 ?? throw new InvalidOperationException($"Could not start verifier worker {host}."));

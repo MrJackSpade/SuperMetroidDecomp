@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Rooms.RoomObjects;
 
-namespace SuperMetroid.Verification.Harness;
+namespace SuperMetroid.Core.World;
 
 /// <summary>The Tourian statue progress a room-object fixture installs; an uninstalled read fails at the dependency (#2015).</summary>
 internal sealed class FixtureTourianStatue : ITourianStatueProgress

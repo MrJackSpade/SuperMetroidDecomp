@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Progression;
 
-namespace SuperMetroid.Verification.Harness;
+namespace SuperMetroid.Core.World;
 
 /// <summary>
 /// Event bits a focused enemy fixture installs (#633). An operation the fixture did not install fails

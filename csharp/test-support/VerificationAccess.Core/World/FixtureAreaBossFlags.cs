@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Progression;
 
-namespace SuperMetroid.Verification.Harness;
+namespace SuperMetroid.Core.World;
 
 /// <summary>Area boss bosses a focused enemy fixture installs (#633), per <see cref="DefeatedBosses"/> kind.</summary>
 internal sealed class FixtureAreaBossFlags : IDefeatedBossesRecorder

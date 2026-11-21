@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World;
 using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Animation;
 using static SuperMetroid.Verification.Fx.PaletteFx.LookupPaletteFxAreasVerification;

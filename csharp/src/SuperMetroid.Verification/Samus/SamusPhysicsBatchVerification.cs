@@ -16,22 +16,34 @@ internal static class SamusPhysicsBatchVerification
     /// <summary>Runs independent physics fixtures together while retaining every failure and a nonzero exit.</summary>
     internal static void VerifySamusPhysicsBatch()
     {
-        Action[] checks =
+        (string Name, Action Check)[] checks =
         [
-            VerifySamusHorizontalSpeed, VerifySamusExtraDisplacement, VerifySamusAerialMovement,
-            VerifySamusSpaceJumpAndScrewAttack, VerifySamusLiquidPhysics, VerifySamusAerialTurnsAndWallJump,
-            VerifySamusKnockbackAndDamageBoost, VerifySamusGrappleSwingAndRelease, VerifySamusPostureMovement,
-            VerifySamusMorphBallMovement, VerifySamusStandingAimMovement, VerifySamusAimedAerialMovement,
-            VerifySamusGunExtendedMovement, VerifySamusSlopePhysics, VerifySamusGroundedMovement,
-            VerifySamusGroundedReversal, VerifySamusMoonwalking, VerifySamusRanIntoWall,
+            (nameof(VerifySamusHorizontalSpeed), VerifySamusHorizontalSpeed),
+            (nameof(VerifySamusExtraDisplacement), VerifySamusExtraDisplacement),
+            (nameof(VerifySamusAerialMovement), VerifySamusAerialMovement),
+            (nameof(VerifySamusSpaceJumpAndScrewAttack), VerifySamusSpaceJumpAndScrewAttack),
+            (nameof(VerifySamusLiquidPhysics), VerifySamusLiquidPhysics),
+            (nameof(VerifySamusAerialTurnsAndWallJump), VerifySamusAerialTurnsAndWallJump),
+            (nameof(VerifySamusKnockbackAndDamageBoost), VerifySamusKnockbackAndDamageBoost),
+            (nameof(VerifySamusGrappleSwingAndRelease), VerifySamusGrappleSwingAndRelease),
+            (nameof(VerifySamusPostureMovement), VerifySamusPostureMovement),
+            (nameof(VerifySamusMorphBallMovement), VerifySamusMorphBallMovement),
+            (nameof(VerifySamusStandingAimMovement), VerifySamusStandingAimMovement),
+            (nameof(VerifySamusAimedAerialMovement), VerifySamusAimedAerialMovement),
+            (nameof(VerifySamusGunExtendedMovement), VerifySamusGunExtendedMovement),
+            (nameof(VerifySamusSlopePhysics), VerifySamusSlopePhysics),
+            (nameof(VerifySamusGroundedMovement), VerifySamusGroundedMovement),
+            (nameof(VerifySamusGroundedReversal), VerifySamusGroundedReversal),
+            (nameof(VerifySamusMoonwalking), VerifySamusMoonwalking),
+            (nameof(VerifySamusRanIntoWall), VerifySamusRanIntoWall),
         ];
         var failures = new List<Exception>();
-        foreach (Action check in checks)
+        foreach ((string name, Action check) in checks)
         {
             try { check(); }
             catch (Exception error)
             {
-                Console.Error.WriteLine($"FAILED {check.Method.Name}: {error}");
+                Console.Error.WriteLine($"FAILED {name}: {error}");
                 failures.Add(error);
             }
         }

@@ -1,6 +1,6 @@
 using SuperMetroid.Core.World;
 
-namespace SuperMetroid.Verification.Harness;
+namespace SuperMetroid.Core.World;
 
 /// <summary>
 /// The room services a room-object check builds its room objects with (#2015). Every room has each service; a check

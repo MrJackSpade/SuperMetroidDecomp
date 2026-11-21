@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Frontend.Title;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Audio;
@@ -33,7 +34,7 @@ internal static class PaletteFxInstructionCodesVerification
     /// </summary>
     internal static void VerifyPaletteFxInstructionCodeCatalogs()
     {
-        AssertPaletteFxCatalog(nameof(PaletteFxInstruction), CatalogWords(PaletteFxInstructionCodesType()), expectedCount: 19);
+        AssertPaletteFxCatalog(nameof(PaletteFxInstruction), PaletteFxInstructionWords(), expectedCount: 19);
         // The setups' and pre-instructions' values are arbitrary (#1415): their routine words are the native view's.
         AssertPaletteFxCatalog(nameof(NativePaletteFxSetup), NativeWords(FxNativeWords.PaletteFxSetups), expectedCount: 4);
         AssertPaletteFxCatalog(nameof(NativePaletteFxPreInstruction), NativeWords(FxNativeWords.PaletteFxPreInstructions), expectedCount: 7);
@@ -51,7 +52,7 @@ internal static class PaletteFxInstructionCodesVerification
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         ushort[][] catalogs =
         [
-            CatalogWords(PaletteFxInstructionCodesType()),
+            PaletteFxInstructionWords(),
             NativeWords(FxNativeWords.PaletteFxSetups),
             NativeWords(FxNativeWords.PaletteFxPreInstructions),
         ];
@@ -97,9 +98,9 @@ internal static class PaletteFxInstructionCodesVerification
             _ = cartridge.ReadCartridgeByte(0x8d0000 | pointer);
     }
 
-    /// <summary>The ushort constants a catalog type declares, in declaration order.</summary>
-    private static ushort[] CatalogWords(Type catalog) =>
-        GetUshortConstants(catalog).Select(field => field.RequiredConstant<ushort>()).ToArray();
+    /// <summary>The cartridge word of every palette-FX instruction.</summary>
+    private static ushort[] PaletteFxInstructionWords() =>
+        [.. Enum.GetValues<PaletteFxInstruction>().Select(instruction => (ushort)instruction)];
 
     /// <summary>The cartridge word naming each member of an identity whose values are arbitrary.</summary>
     private static ushort[] NativeWords<TIdentity>(SuperMetroid.AssetExtraction.Cartridge.NativeWordIdentities<TIdentity> words)
@@ -1515,9 +1516,6 @@ internal static class PaletteFxInstructionCodesVerification
         AssertEqual(0, paletteFxSounds.SoundRequests.Count,
             "$F781 advances beyond its one-byte sound operand");
     }
-
-    /// <summary>Preserves the catalog's name in failures without colliding with the verification command name.</summary>
-    private static Type PaletteFxInstructionCodesType() => typeof(PaletteFxInstruction);
 
     /// <summary>Checks catalog size, unique callback values, and mapped bank-$8D pointers.</summary>
     private static void AssertPaletteFxCatalog(

@@ -15,7 +15,7 @@ internal static class CeresDestructionCinematicStateAccess
 
         /// <summary>Puts the cinematic at <paramref name="phase"/>, for a check that starts at that step without running the updates that reach it.</summary>
         internal void SkipToPhase(CeresDestructionPhase phase) =>
-            PrivateFrontendState.Set(self, nameof(CeresDestructionCinematicState.Phase), phase);
+            self.Phase = phase;
 
         /// <summary>
         /// Reads the floor cell the cartridge's map holds for the cinematic's current floor shot.

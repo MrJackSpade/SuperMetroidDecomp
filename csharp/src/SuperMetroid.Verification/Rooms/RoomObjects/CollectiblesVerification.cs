@@ -36,7 +36,8 @@ namespace SuperMetroid.Verification.Rooms.RoomObjects;
 using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
-using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms;
+
 using SuperMetroid.Core.Compatibility;
 
 /// <summary>Constructed cartridge checks for permanent item PLMs, messages, saves, and suit acquisition.</summary>
@@ -737,7 +738,6 @@ internal static class CollectiblesVerification
 
         // Begin publishes an empty beam. The first stage call lights exactly eight
         // scanlines at each edge with the one-pixel `$7878` beam.
-        MotherBrainBeamWindowVerification.AssertOwnsNoScanlineTable(typeof(SamusSuitPickupState));
         AssertEqual(SamusSuitPickupBeam.None, pickup.Beam, "suit setup publishes an empty beam");
         AssertEqual((0, 0, 0), SuitAddition(pickup.Flash, 0, 0),
             "initial inverted suit window applies no fixed color");

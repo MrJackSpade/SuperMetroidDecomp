@@ -24,18 +24,18 @@ internal static class TitleSequenceStateAccess
         /// </summary>
         internal void ShowComposition(TitleSprite? sprite, TitleCardTyping? card, Offset16<ScreenPixels> origin, TitleSpriteColouring colouring)
         {
-            PrivateFrontendState.Set(self, nameof(TitleSequenceState.ActiveSprite), sprite);
-            PrivateFrontendState.Set(self, nameof(TitleSequenceState.ActiveCard), card);
-            PrivateFrontendState.Set(self, nameof(TitleSequenceState.ActiveOrigin), origin);
-            PrivateFrontendState.Set(self, nameof(TitleSequenceState.ActiveColouring), colouring);
+            self.ActiveSprite = sprite;
+            self.ActiveCard = card;
+            self.ActiveOrigin = origin;
+            self.ActiveColouring = colouring;
         }
 
         /// <summary>Puts the title at its title screen with no composition or card shown, for a check of the copyright that screen draws.</summary>
         internal void ShowTitleScreenOnly()
         {
-            PrivateFrontendState.Set(self, nameof(TitleSequenceState.ActiveSprite), null);
-            PrivateFrontendState.Set(self, nameof(TitleSequenceState.ActiveCard), null);
-            PrivateFrontendState.Set(self, nameof(TitleSequenceState.Phase), TitleSequencePhase.TitleScreen);
+            self.ActiveSprite = null;
+            self.ActiveCard = null;
+            self.Phase = TitleSequencePhase.TitleScreen;
         }
     }
 }

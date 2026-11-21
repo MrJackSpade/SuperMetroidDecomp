@@ -50,7 +50,7 @@ public sealed partial class ProjectileLaunchInheritance
     private const int RisingShareDivisor = 4;
 
     /// <summary>The four recorded distances: leftward, rightward, upward, downward.</summary>
-    private readonly SignedSixteenSixteen[] _distances = new SignedSixteenSixteen[4];
+    internal readonly SignedSixteenSixteen[] _distances = new SignedSixteenSixteen[4];
 
     /// <summary>
     /// The camera's vertical speed as it tracked Samus on its last update (#2555). The camera records it at the end of its

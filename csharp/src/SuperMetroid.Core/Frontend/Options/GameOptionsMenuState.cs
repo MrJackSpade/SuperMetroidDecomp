@@ -123,7 +123,7 @@ public sealed partial class GameOptionsMenuState : IMenuFrontendScreen, ICompose
     public bool MoonwalkEnabled { get; private set; }
 
     /// <summary>Gets the options menu's current phase.</summary>
-    public GameOptionsPhase Phase { get; private set; }
+    public GameOptionsPhase Phase { get; internal set; }
 
     /// <summary>
     /// How the menu hands off to the frontend (#2562): the opening sequence or file select, kept once it reaches one;

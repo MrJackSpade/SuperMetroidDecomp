@@ -687,7 +687,7 @@ internal static class AnalyzerTests
         string assemblies = (string?)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")
             ?? throw new InvalidOperationException("Trusted platform assemblies are unavailable.");
         return assemblies.Split(Path.PathSeparator)
-            .Append(typeof(Ensure).Assembly.Location)
+            .Append(Path.Combine(AppContext.BaseDirectory, "SuperMetroid.Core.dll"))
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .Select(path => MetadataReference.CreateFromFile(path))
             .ToArray();

@@ -69,13 +69,13 @@ public sealed partial class TitleSequenceState : IFrontendScreen, IComposedFront
     private readonly AnimationPlayer<TitleCard, TitleCardTyping, TitleCardCue> textCard =
         AnimationPlayer<TitleCard, TitleCardTyping, TitleCardCue>.Starting(TitleCards.Segments, TitleCards.Typing(TitleCardDefinitions.Year));
     /// <summary>The whole composition the title shows, the logo, or null while it shows none.</summary>
-    internal TitleSprite? ActiveSprite { get; private set; }
+    internal TitleSprite? ActiveSprite { get; internal set; }
     /// <summary>The running title card's text as far as it is typed, or null while no card shows any (#1979).</summary>
-    internal TitleCardTyping? ActiveCard { get; private set; }
+    internal TitleCardTyping? ActiveCard { get; internal set; }
     /// <summary>Screen origin used when drawing the active title frame.</summary>
-    internal Offset16<ScreenPixels> ActiveOrigin { get; private set; }
+    internal Offset16<ScreenPixels> ActiveOrigin { get; internal set; }
     /// <summary>What the title shows every part of the active composition as (#1512).</summary>
-    internal TitleSpriteColouring ActiveColouring { get; private set; }
+    internal TitleSpriteColouring ActiveColouring { get; internal set; }
     /// <summary>
     /// Whether the title screen's rebuild after a skip, or on the return from the demo, has restored the copyright's
     /// glyph colours (#1512), which the copyright then shows over its drawn colours.

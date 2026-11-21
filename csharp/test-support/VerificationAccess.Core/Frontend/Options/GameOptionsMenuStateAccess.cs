@@ -12,7 +12,7 @@ internal static class GameOptionsMenuStateAccess
     {
         /// <summary>Puts the menu at <paramref name="phase"/>, for a check that starts at that step without running the updates that reach it.</summary>
         internal void SkipToPhase(GameOptionsPhase phase) =>
-            PrivateFrontendState.Set(self, nameof(GameOptionsMenuState.Phase), phase);
+            self.Phase = phase;
 
         /// <summary>
         /// The page the menu shows, laid out as the cartridge's little-endian tilemap words from the import's sources of the

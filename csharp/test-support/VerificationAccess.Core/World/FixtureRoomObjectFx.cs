@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Rooms.RoomObjects;
 
-namespace SuperMetroid.Verification.Harness;
+namespace SuperMetroid.Core.World;
 
 /// <summary>
 /// The room FX of a room-object fixture whose room objects never touch the room's liquid (#2015): every read and write

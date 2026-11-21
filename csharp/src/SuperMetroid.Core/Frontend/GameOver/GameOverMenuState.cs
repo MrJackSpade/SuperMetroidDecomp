@@ -81,7 +81,7 @@ public sealed partial class GameOverMenuState : IMenuFrontendScreen, IComposedFr
     /// True while the current menu step waits out a frame of the display (after blanking or unblanking): the next update
     /// finishes that step instead of starting a new update of the menu (<see cref="DisplayFrameWaitContinuation"/>).
     /// </summary>
-    public bool IsWaitingOutDisplayFrame { get; private set; }
+    public bool IsWaitingOutDisplayFrame { get; internal set; }
 
     /// <summary>
     /// How the menu hands off to the outer game-state loop (#2562), kept once it reaches one; absent while the menu runs,

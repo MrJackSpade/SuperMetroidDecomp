@@ -12,8 +12,12 @@ internal static class OwnedReflectionAnalyzerTests
     private const string Usings = "using System; using System.Collections.Generic; using System.Reflection; " +
         "using System.Runtime.CompilerServices; using SuperMetroid.Core; ";
 
-    /// <summary>The fixture's own types: anything this compilation declares is owned.</summary>
-    private const string Owned = "sealed class C { private int x; public int P { get; set; } private void M() { } } ";
+    /// <summary>
+    /// The fixture's own types: anything this compilation declares is owned. The exemption attribute is matched by name, and
+    /// the game declares none (#2602), so the fixture declares the one its cases apply.
+    /// </summary>
+    private const string Owned = "sealed class C { private int x; public int P { get; set; } private void M() { } } " +
+        "sealed class ReflectionAuditAttribute(string reason) : Attribute { public string Reason { get; } = reason; } ";
 
     /// <summary>#622 owned-reflection rules: positive and negative cases for each diagnostic.</summary>
     internal static void VerifyOwnedReflectionAnalyzer()

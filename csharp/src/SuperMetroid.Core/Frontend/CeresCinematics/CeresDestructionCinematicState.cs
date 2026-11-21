@@ -202,7 +202,7 @@ internal sealed partial class CeresDestructionCinematicState : IFrontendScreen, 
     }
 
     /// <summary>Current phase, including the alternate game-over route.</summary>
-    public CeresDestructionPhase Phase { get; private set; } = CeresDestructionPhase.WaitForMusicQueue;
+    public CeresDestructionPhase Phase { get; internal set; } = CeresDestructionPhase.WaitForMusicQueue;
 
     /// <summary>True after the completion star leaves the Zebes screen or the terminal route ends.</summary>
     public bool Finished => Phase == CeresDestructionPhase.Finished;

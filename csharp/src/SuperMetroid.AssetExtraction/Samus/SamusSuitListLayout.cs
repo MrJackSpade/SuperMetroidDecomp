@@ -19,5 +19,5 @@ public static class SamusSuitListLayout
     /// </summary>
     /// <param name="entries">The list's entries at a suit's place.</param>
     internal static Dictionary<string, T> BySuit<T>(Func<int, T> entries) =>
-        Order.Select((suit, place) => KeyValuePair.Create(suit.ToString(), entries(place))).ToDictionary(StringComparer.Ordinal);
+        Order.Select((suit, place) => KeyValuePair.Create(SamusSuitKeys.Installed.Of(suit), entries(place))).ToDictionary(StringComparer.Ordinal);
 }

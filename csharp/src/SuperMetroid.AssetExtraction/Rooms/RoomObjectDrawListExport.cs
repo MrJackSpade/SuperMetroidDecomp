@@ -27,8 +27,8 @@ internal static class RoomObjectDrawListExport
         Ensure.NotNull(shape);
         if (Ensure.NotNull(runs).Count < 1 || runs[0].Start != Offset16<RoomBlocks>.Zero)
             throw new InvalidDataException($"Draw {draw} does not start its first run at its origin.");
-        return new(draw, [.. runs.Select(run => new Run(run.Direction,
-            Enumerable.Range(0, run.Count).Select(cell => shape.CollisionAt(run.CellAt(cell))).ToArray(), run.Start))]);
+        return new(draw, runs.Select(run => new Run(run.Direction,
+            Enumerable.Range(0, run.Count).Select(cell => shape.CollisionAt(run.CellAt(cell))).ToArray(), run.Start)).ToArray());
     }
 
     /// <summary>Builds the draw list of a draw that writes one run and ends there.</summary>

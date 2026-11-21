@@ -1,6 +1,7 @@
 using System.Text.Json;
 using SuperMetroid.Core.Frontend.Options;
 using SuperMetroid.Core.Frontend.Options.Artwork;
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core;
 
@@ -18,6 +19,12 @@ public static class GameOptionsLayoutFile
     /// cursor anchor by its row's name (#2565).
     /// </summary>
     public const int Version = 3;
+
+    /// <summary>The installed name of the controller page's Exit row, written out so renaming the row's type never changes it.</summary>
+    private const string ControllerExitRowKey = "Exit";
+
+    /// <summary>The installed name of the controller page's Reset row, written out so renaming the row's type never changes it.</summary>
+    private const string ControllerResetRowKey = "Reset";
 
     /// <summary>The layout of the extracted artwork document <paramref name="artwork"/>, as the installation holds it.</summary>
     /// <exception cref="InvalidDataException">The artwork document does not decode.</exception>
@@ -95,9 +102,11 @@ public static class GameOptionsLayoutFile
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="page"/> is not one of the three options pages.</exception>
     internal static IReadOnlyList<GameOptionsCursorRow> CursorRowsOn(GameOptionsPage page) => page switch
     {
-        GameOptionsPage.Primary => [.. GameOptionsPageRows.Primary.Select(row => new GameOptionsCursorRow(row.ToString(), new GameOptionsRow.OnPrimaryPage(row)))],
+        GameOptionsPage.Primary => [.. GameOptionsPageRows.Primary.Select(row =>
+            new GameOptionsCursorRow(GameOptionsPrimaryRowKeys.Installed.Of(row), new GameOptionsRow.OnPrimaryPage(row)))],
         GameOptionsPage.Controller => [.. GameOptionsPageRows.Controller.Select(row => new GameOptionsCursorRow(ControllerRowName(row), new GameOptionsRow.OnControllerPage(row)))],
-        GameOptionsPage.Special => [.. GameOptionsPageRows.Special.Select(row => new GameOptionsCursorRow(row.ToString(), new GameOptionsRow.OnSpecialPage(row)))],
+        GameOptionsPage.Special => [.. GameOptionsPageRows.Special.Select(row =>
+            new GameOptionsCursorRow(GameOptionsSpecialRowKeys.Installed.Of(row), new GameOptionsRow.OnSpecialPage(row)))],
         _ => throw new ArgumentOutOfRangeException(nameof(page), page, "Options rows exist only on the three menu pages."),
     };
 
@@ -105,9 +114,9 @@ public static class GameOptionsLayoutFile
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="row"/> is none of the controller page's rows.</exception>
     private static string ControllerRowName(GameOptionsControllerRow row) => row switch
     {
-        GameOptionsControllerRow.AssignsAction assigns => assigns.Action.ToString(),
-        GameOptionsControllerRow.Exit => nameof(GameOptionsControllerRow.Exit),
-        GameOptionsControllerRow.Reset => nameof(GameOptionsControllerRow.Reset),
+        GameOptionsControllerRow.AssignsAction assigns => ControllerActionKeys.Installed.Of(assigns.Action),
+        GameOptionsControllerRow.Exit => ControllerExitRowKey,
+        GameOptionsControllerRow.Reset => ControllerResetRowKey,
         _ => throw new ArgumentOutOfRangeException(nameof(row), row, "Undefined controller-page row."),
     };
 

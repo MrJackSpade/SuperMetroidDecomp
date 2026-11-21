@@ -39,7 +39,7 @@ public static class SamusFullBodyCycleColorFile
             throw new InvalidDataException($"{family} requires three suit palettes, each keyed by its suit.");
         foreach (SamusSuit suit in SamusSuitListLayout.Order)
         {
-            PaletteRgb5[][]? shades = source.TryGetValue(suit.ToString(), out PaletteRgb5[][]? held) ? held : null;
+            PaletteRgb5[][]? shades = source.TryGetValue(SamusSuitKeys.Installed.Of(suit), out PaletteRgb5[][]? held) ? held : null;
             if (shades is null || shades.Length != SamusFullBodyCycleColorFormat.ShadesPerSuit)
                 throw new InvalidDataException($"{family} suit {suit} requires four shades.");
             for (int shade = 0; shade < shades.Length; shade++)

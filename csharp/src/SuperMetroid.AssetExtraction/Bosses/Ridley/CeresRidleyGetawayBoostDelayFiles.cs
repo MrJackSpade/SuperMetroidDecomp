@@ -45,7 +45,7 @@ public static class CeresRidleyGetawayBoostDelayFiles
         return Write(new CeresRidleyGetawayBoostDelayDocument
         {
             Version = CeresRidleyGetawayBoostDelayFormat.Version,
-            WingFrames = WingFrames.ToDictionary(wing => wing.Key.ToString(), wing =>
+            WingFrames = WingFrames.ToDictionary(wing => CeresFloorActorPictureKeys.Installed.Of(wing.Key), wing =>
             {
                 RequireRuns(cartridge, wing.Value, WingRunCount);
                 return Enumerable.Range(0, UnauthoredBoostCadence.FrameCount)
@@ -82,7 +82,7 @@ public static class CeresRidleyGetawayBoostDelayFiles
         var copy = new Dictionary<CeresFloorActorPicture, IReadOnlyList<int>>();
         foreach (CeresFloorActorPicture frame in WingFrames.Keys)
         {
-            int[] delays = wings.TryGetValue(frame.ToString(), out int[]? held) && held is not null
+            int[] delays = wings.TryGetValue(CeresFloorActorPictureKeys.Installed.Of(frame), out int[]? held) && held is not null
                 ? held
                 : throw new InvalidDataException($"Ceres Ridley wing frame {frame} has no delays.");
             if (delays.Length != UnauthoredBoostCadence.FrameCount)

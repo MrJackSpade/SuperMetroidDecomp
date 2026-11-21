@@ -184,11 +184,12 @@ internal static class InstalledSheetConversion
         if (shade.InkColours is null)
             throw new InvalidDataException($"Shade {key} names no colours.");
         var written = new int?[groups];
-        foreach ((int index, ushort colour) in shade.InkColours)
+        foreach (KeyValuePair<int, ushort> entry in shade.InkColours)
         {
+            int index = entry.Key;
             if (index < 0 || index >= groups)
                 throw new InvalidDataException($"Shade {key} recolours palette index {index}, past its sheet's {groups} colours.");
-            written[index] = colour;
+            written[index] = entry.Value;
         }
         return written;
     }

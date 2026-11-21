@@ -180,7 +180,7 @@ internal static class PauseEquipmentPageLayout
         /// cartridge's later write does.
         /// </summary>
         /// <exception cref="InvalidDataException">The part's bounds cover a cell a part placed before it writes.</exception>
-        internal ScreenPictureSubject Part(string name, BackgroundTile[] page, IReadOnlyCollection<int> cells, IReadOnlySet<int> later)
+        internal ScreenPictureSubject Part(string name, BackgroundTile[] page, IReadOnlyCollection<int> cells, HashSet<int> later)
         {
             int left = cells.Min(cell => cell % Columns), right = cells.Max(cell => cell % Columns);
             int top = cells.Min(cell => cell / Columns), bottom = cells.Max(cell => cell / Columns);

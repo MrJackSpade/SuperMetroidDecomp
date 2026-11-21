@@ -48,7 +48,7 @@ public static class GameOptionsPresentationExtractor
         }
 
         Dictionary<string, Position16<CharacterCells>> controllerAnchors = GameOptionsPageRows.ControllerActions
-            .ToDictionary(action => action.ToString(), GameOptionsPageCells.ControllerLabelAnchor, StringComparer.Ordinal);
+            .ToDictionary(action => ControllerActionKeys.Installed.Of(action), GameOptionsPageCells.ControllerLabelAnchor, StringComparer.Ordinal);
         GameOptionsLanguageRegionDocument[] languageRegions =
             GameOptionsPageCells.LanguagePaletteRegions
                 .Select(region => new GameOptionsLanguageRegionDocument

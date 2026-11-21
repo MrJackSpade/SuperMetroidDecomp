@@ -93,7 +93,4 @@ internal static class IntroSheetShades
         }
         return shades;
     }
-
-    /// <summary>Each of <paramref name="colours"/> at crossfade <paramref name="level"/>.</summary>
-
 }

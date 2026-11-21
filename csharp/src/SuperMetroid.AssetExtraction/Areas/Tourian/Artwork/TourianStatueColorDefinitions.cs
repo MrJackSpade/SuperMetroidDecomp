@@ -19,6 +19,15 @@ public static class TourianStatueColorDefinitions
             [SuperMetroid.Core.Areas.Tourian.TourianStatue.Kraid] = TourianStatueShades.KraidEyeGlow,
         };
 
+    /// <summary>The order the statue sheets list the boss statues' eye-glow shades in (#2567).</summary>
+    public static IReadOnlyList<SuperMetroid.Core.Areas.Tourian.TourianStatue> EyeGlowOrder { get; } =
+    [
+        SuperMetroid.Core.Areas.Tourian.TourianStatue.Phantoon,
+        SuperMetroid.Core.Areas.Tourian.TourianStatue.Ridley,
+        SuperMetroid.Core.Areas.Tourian.TourianStatue.Draygon,
+        SuperMetroid.Core.Areas.Tourian.TourianStatue.Kraid,
+    ];
+
     /// <summary>The colours of one eye glow.</summary>
     public const int EyeColorCount = 4;
 

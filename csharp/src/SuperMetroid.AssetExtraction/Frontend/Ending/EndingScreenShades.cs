@@ -68,10 +68,8 @@ internal static class EndingScreenShades
             Loaded(EndingColourLoad.Credits, credits),
             Loaded(EndingColourLoad.PostCredits, postCredits),
             Loaded(EndingColourLoad.RestoredShot, postCredits),
-            new(EndingShades.Loaded(EndingColourLoad.FinalGunship), EndingScreenInks.Load(EndingColourLoad.FinalGunship),
-                Run(palettes[EndingPaletteId.FinalGunship], EndingScreenInks.Load(EndingColourLoad.FinalGunship).Length)),
-            new(EndingShades.Loaded(EndingColourLoad.LogoInitial), EndingScreenInks.Load(EndingColourLoad.LogoInitial),
-                Run(palettes[EndingPaletteId.LogoInitial], EndingScreenInks.Load(EndingColourLoad.LogoInitial).Length)),
+            LoadedRun(EndingColourLoad.FinalGunship, palettes[EndingPaletteId.FinalGunship]),
+            LoadedRun(EndingColourLoad.LogoInitial, palettes[EndingPaletteId.LogoInitial]),
         };
         // The explosion's crossfade fades the escape's far background out and the explosion's own lava and planet in. The
         // post-credits fades scale the post-credits colours.
@@ -198,6 +196,19 @@ internal static class EndingScreenShades
     private static SheetShade Loaded(EndingColourLoad load, RgbColor[] colours)
     {
         return SheetShade.Of(EndingShades.Loaded(load), EndingScreenInks.Load(load), ink => colours[ink]);
+    }
+
+    /// <summary>
+    /// The shade of <paramref name="load"/>, which writes one run of screen colours: each ink shows the colour of
+    /// <paramref name="palette"/>'s run as far in as the ink is past the load's first.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The palette's run holds fewer colours than the load writes.</exception>
+    private static SheetShade LoadedRun(EndingColourLoad load, EndingPalette palette)
+    {
+        int[] inks = EndingScreenInks.Load(load);
+        int first = inks[0];
+        RgbColor[] run = Run(palette, inks.Length);
+        return SheetShade.Of(EndingShades.Loaded(load), inks, ink => run[ink - first]);
     }
 
     /// <summary>Adds the shades of <paramref name="colours"/> at every level, scaling the whole screen <paramref name="source"/>'s colours.</summary>

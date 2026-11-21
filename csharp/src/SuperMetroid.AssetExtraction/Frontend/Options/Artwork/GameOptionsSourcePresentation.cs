@@ -58,7 +58,7 @@ public sealed class GameOptionsSourcePresentation
         background = pages.Background;
         controllerLabels = pages.ControllerLabels;
         controllerLabelAnchors = GameOptionsPageRows.ControllerActions.ToDictionary(action => action,
-            action => document.ControllerLabelAnchors[action.ToString()]);
+            action => document.ControllerLabelAnchors[ControllerActionKeys.Installed.Of(action)]);
         languageRegions = [.. document.LanguageRegions];
         specialToggles = GameOptionsPresentationFormat.Toggles.ToDictionary(
             toggle => toggle, toggle => document.SpecialToggles[GameOptionsNames.ToggleName(toggle)]);
@@ -240,7 +240,7 @@ public sealed class GameOptionsSourcePresentation
             document.CursorFrameDuration);
         if (document.ControllerLabelAnchors is null ||
             document.ControllerLabelAnchors.Count != GameOptionsPageRows.ControllerActions.Count ||
-            GameOptionsPageRows.ControllerActions.Any(action => !document.ControllerLabelAnchors.ContainsKey(action.ToString())))
+            GameOptionsPageRows.ControllerActions.Any(action => !document.ControllerLabelAnchors.ContainsKey(ControllerActionKeys.Installed.Of(action))))
             throw new InvalidDataException("Options require each controller action's label anchor, keyed by the action.");
         if (document.LanguageRegions is null || document.LanguageRegions.Length != GameOptionsPageDefinitions.LanguageRegions.RowCount)
             throw new InvalidDataException("Options require four primary-language highlight regions.");

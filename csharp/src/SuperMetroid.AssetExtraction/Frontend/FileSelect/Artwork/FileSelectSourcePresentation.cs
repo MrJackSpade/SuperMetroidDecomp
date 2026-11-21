@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.FileSelect.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Menus;
@@ -59,28 +60,32 @@ public sealed class FileSelectSourcePresentation
     /// </remarks>
     private static FileSelectPlacements Placements(FileSelectLayoutDocument document) => new()
     {
-        MainSlots = Keyed(SaveSlots.All, document.MainSlots, "main slot fields"),
-        DataSlots = Keyed(SaveSlots.All, document.DataSlots, "data slot fields"),
+        MainSlots = Keyed(SaveSlotKeys.Installed, SaveSlots.All, document.MainSlots, "main slot fields"),
+        DataSlots = Keyed(SaveSlotKeys.Installed, SaveSlots.All, document.DataSlots, "data slot fields"),
         BorderAnchors = FileSelectPresentationFormat.Borders.ToDictionary(border => border,
             border => document.BorderAnchors[FileSelectPresentationFormat.BorderName(border)]),
-        MainCursorAnchors = Keyed(FileSelectItemRows.MainWithData, document.MainCursorAnchors, "main cursor anchors"),
-        DataCursorAnchors = Keyed(FileSelectItemRows.Data, document.DataCursorAnchors, "data cursor anchors"),
-        ConfirmationCursorAnchors = Keyed(FileSelectItemRows.Confirmation, document.ConfirmationCursorAnchors, "confirmation cursor anchors"),
-        HelmetAnchors = Keyed(SaveSlots.All, document.HelmetAnchors, "helmet anchors"),
+        MainCursorAnchors = Keyed(FileSelectItemKeys.Installed, FileSelectItemRows.MainWithData, document.MainCursorAnchors, "main cursor anchors"),
+        DataCursorAnchors = Keyed(FileSelectItemKeys.Installed, FileSelectItemRows.Data, document.DataCursorAnchors, "data cursor anchors"),
+        ConfirmationCursorAnchors = Keyed(YesNoChoiceKeys.Installed, FileSelectItemRows.Confirmation, document.ConfirmationCursorAnchors,
+            "confirmation cursor anchors"),
+        HelmetAnchors = Keyed(SaveSlotKeys.Installed, SaveSlots.All, document.HelmetAnchors, "helmet anchors"),
         DynamicAnchors = FileSelectPresentationFormat.Anchors.ToDictionary(anchor => anchor,
             anchor => document.DynamicAnchors[FileSelectPresentationFormat.AnchorName(anchor)]),
         CursorFrameDuration = document.CursorFrameDuration,
         HelmetFrameDuration = document.HelmetFrameDuration,
     };
 
-    /// <summary>Each of <paramref name="keys"/>' entries of a document table that keys one entry by each one's name.</summary>
+    /// <summary>
+    /// Each of <paramref name="keys"/>' entries of a document table that keys one entry by each one's installed key in
+    /// <paramref name="names"/>.
+    /// </summary>
     /// <exception cref="InvalidDataException">The table does not hold exactly one entry for each key.</exception>
-    private static Dictionary<TKey, T> Keyed<TKey, T>(IReadOnlyList<TKey> keys, Dictionary<string, T>? byName, string what)
-        where TKey : notnull
+    private static Dictionary<TKey, T> Keyed<TKey, T>(InstalledKeys<TKey> names, IReadOnlyList<TKey> keys, Dictionary<string, T>? byName, string what)
+        where TKey : struct, Enum
     {
         if (byName is null || byName.Count != keys.Count)
             throw new InvalidDataException($"File select lists {byName?.Count ?? 0} {what}, not one for each of its {keys.Count}.");
-        return keys.ToDictionary(key => key, key => byName.TryGetValue(key.ToString() ?? string.Empty, out T? entry) && entry is not null
+        return keys.ToDictionary(key => key, key => byName.TryGetValue(names.Of(key), out T? entry) && entry is not null
             ? entry
             : throw new InvalidDataException($"File select lists no {what} entry for {key}."));
     }
@@ -239,7 +244,7 @@ public sealed class FileSelectSourcePresentation
 
         BackgroundTile[] digits = document.Digits.Select((cell, index) =>
             CompileCell(cell, $"file-select digit {index}")).ToArray();
-        Dictionary<SaveSlot, BackgroundTile> letters = Keyed(SaveSlots.All, document.SlotLetters, "slot letters").ToDictionary(
+        Dictionary<SaveSlot, BackgroundTile> letters = Keyed(SaveSlotKeys.Installed, SaveSlots.All, document.SlotLetters, "slot letters").ToDictionary(
             entry => entry.Key, entry => CompileCell(entry.Value, $"file-select slot letter {entry.Key}"));
         var borderSprites = FileSelectPresentationFormat.Borders.ToDictionary(border => border,
             border => CompileSprite(document, FileSelectParts.BorderSpriteName(border)));

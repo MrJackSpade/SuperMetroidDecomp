@@ -36,7 +36,7 @@ public static class SamusChargeColorFile
         var result = new Dictionary<SamusSuit, RgbColor[][]>();
         foreach (SamusSuit suit in SamusSuitListLayout.Order)
         {
-            PaletteRgb5[][]? phases = source.TryGetValue(suit.ToString(), out PaletteRgb5[][]? held) ? held : null;
+            PaletteRgb5[][]? phases = source.TryGetValue(SamusSuitKeys.Installed.Of(suit), out PaletteRgb5[][]? held) ? held : null;
             if (phases is null || phases.Length != SamusChargeColorFormat.PhasesPerSuit)
                 throw new InvalidDataException($"{name} suit {suit} requires six phases.");
             result[suit] = new RgbColor[phases.Length][];

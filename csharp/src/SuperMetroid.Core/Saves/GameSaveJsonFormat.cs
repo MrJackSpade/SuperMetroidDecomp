@@ -16,21 +16,16 @@ public static class GameSaveJsonFormat
     /// </summary>
     public const int SchemaVersion = 16;
 
-    /// <summary>Each save slot's name in a game save, which keys the slot and names the selected one (schema sixteen, #2565).</summary>
-    private static readonly InstalledKeys<SaveSlot> SlotKeys = new(new Dictionary<SaveSlot, string>
-    {
-        [SaveSlot.A] = "A",
-        [SaveSlot.B] = "B",
-        [SaveSlot.C] = "C",
-    });
-
-    /// <summary>The name a game save gives <paramref name="slot"/>.</summary>
+    /// <summary>
+    /// The name a game save gives <paramref name="slot"/>, which keys the slot and names the selected one (schema sixteen,
+    /// #2565): its installed key.
+    /// </summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="slot"/> is no save slot.</exception>
-    public static string SlotKey(SaveSlot slot) => SlotKeys.Of(slot);
+    public static string SlotKey(SaveSlot slot) => SaveSlotKeys.Installed.Of(slot);
 
     /// <summary>The save slot a game save names <paramref name="key"/>.</summary>
     /// <exception cref="InvalidDataException">No slot has that name.</exception>
-    public static SaveSlot SlotNamed(string? key) => SlotKeys.TryParse(key, out SaveSlot slot)
+    public static SaveSlot SlotNamed(string? key) => SaveSlotKeys.Installed.TryParse(key, out SaveSlot slot)
         ? slot
         : throw new InvalidDataException($"'{key}' names no save slot; a slot is named A, B or C");
 

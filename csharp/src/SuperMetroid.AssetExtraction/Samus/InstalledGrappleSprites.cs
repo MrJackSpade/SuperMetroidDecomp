@@ -56,7 +56,7 @@ public sealed class InstalledGrappleSprites
             document.Segments.Count != GrappleSheetDefinitions.RopePattern.Count)
             throw new InvalidDataException($"Grapple sprites require version {GrappleSpriteDefinitions.Version} and one appearance for each rope picture.");
         return new(Compile(document.Endpoint), GrappleSheetDefinitions.RopePattern.ToDictionary(picture => picture, picture =>
-            Compile(document.Segments.TryGetValue(picture.ToString(), out GrappleSpriteStyle? style) ? style : null)));
+            Compile(document.Segments.TryGetValue(GrappleRopePictureKeys.Installed.Of(picture), out GrappleSpriteStyle? style) ? style : null)));
     }
 
     /// <summary>Validates an authored tile, palette, depth, and flip style into a single-piece appearance.</summary>

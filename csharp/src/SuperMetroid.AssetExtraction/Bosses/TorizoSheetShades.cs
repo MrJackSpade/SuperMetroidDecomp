@@ -56,9 +56,12 @@ internal static class TorizoSheetShades
         Ensure.NotNull(paletteFx);
         var shades = new List<SheetShade>
         {
-            new(TorizoShades.Shared,
-                [.. Enumerable.Range(OrbsFirstInk, LoadedSetColours.RowColours), .. Enumerable.Range(ShadingFirstInk, LoadedSetColours.RowColours)],
-                TorizoPaletteColours.Shared.ToArray()),
+            // The shared colours are the orb-and-flame row's run, then the statue-shading row's.
+            SheetShade.Combined(TorizoShades.Shared,
+            [
+                SheetShade.Run(TorizoShades.Shared, OrbsFirstInk, TorizoPaletteColours.Shared[..LoadedSetColours.RowColours]),
+                SheetShade.Run(TorizoShades.Shared, ShadingFirstInk, TorizoPaletteColours.Shared[LoadedSetColours.RowColours..]),
+            ]),
         };
         TorizoLook[] settled =
         [

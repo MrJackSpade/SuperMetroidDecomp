@@ -65,12 +65,13 @@ internal sealed class SheetPictureColouring
         foreach ((string key, SpriteSheetShadeDocument shade) in document.Shades ?? [])
         {
             var shown = new SortedDictionary<int, RgbColor>();
-            foreach ((int ink, ushort colour) in shade.InkColours)
+            foreach (KeyValuePair<int, ushort> entry in shade.InkColours)
             {
+                int ink = entry.Key;
                 if (ink is < 0 or >= ImageColourGroup.HalfColours)
                     throw new InvalidDataException($"Shade {key} recolours ink {ink}, past a sprite sheet's {ImageColourGroup.HalfColours}.");
                 if (Covers(groups, ink))
-                    shown.Add(ink, RgbColor.FromWord(colour));
+                    shown.Add(ink, RgbColor.FromWord(entry.Value));
             }
             shades.Add(key, new SheetPictureShade(shade.ColourMath, shown));
         }

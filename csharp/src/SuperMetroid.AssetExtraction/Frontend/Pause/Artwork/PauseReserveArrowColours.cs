@@ -60,5 +60,9 @@ public sealed class PauseReserveArrowColours
 
     /// <summary>The shade that shows the arrow's bevels in <paramref name="colours"/>.</summary>
     private static SheetShade Shade(PictureShade shade, ReserveArrowColors colours) =>
-        new(shade, [BevelGroup * GroupColours + ShadeColour, BevelGroup * GroupColours + LightColour], [colours.Shade, colours.Light]);
+        SheetShade.Of(shade,
+        [
+            KeyValuePair.Create(BevelGroup * GroupColours + ShadeColour, colours.Shade),
+            KeyValuePair.Create(BevelGroup * GroupColours + LightColour, colours.Light),
+        ]);
 }

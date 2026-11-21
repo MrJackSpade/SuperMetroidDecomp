@@ -87,8 +87,9 @@ public static class SamusDeathPaletteArtworkFiles
             whiteout[shade] = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusSourceDefinitions.DeathWhiteoutShades.Value + shade * sizeof(ushort)));
         // The cartridge's explosion records follow the explosion's pictures in the order its animation shows them.
         var selectors = new Dictionary<string, int>(StringComparer.Ordinal);
-        foreach ((SamusDeathExplosionFrame frame, int record) in SamusDeathSheetDefinitions.Explosion.Select((frame, record) => (frame, record)))
+        for (int record = 0; record < SamusDeathSheetDefinitions.Explosion.Count; record++)
         {
+            SamusDeathExplosionFrame frame = SamusDeathSheetDefinitions.Explosion[record];
             int selector = bus.ReadCartridgeByte(SamusSourceDefinitions.DeathExplosionTimingAndPaletteIndices.Value + record * 2 + 1);
             string key = SamusDeathExplosionFrameKeys.Installed.Of(frame);
             if (selectors.TryGetValue(key, out int known) && known != selector)
@@ -147,7 +148,7 @@ public static class SamusDeathPaletteArtworkFiles
         }
         return new InstalledSamusDeathPalettes(
             SamusSuitListLayout.Order.ToDictionary(suit => suit, suit => Array.ConvertAll(
-                document.Suited.TryGetValue(suit.ToString(), out ushort[][]? steps) && steps is not null
+                document.Suited.TryGetValue(SamusSuitKeys.Installed.Of(suit), out ushort[][]? steps) && steps is not null
                     ? steps : throw new InvalidDataException($"Samus death-palette artwork is missing the {suit} suit."), Colors)),
             Array.ConvertAll(document.Suitless, Colors), Colors(document.Whiteout), explosion);
     }

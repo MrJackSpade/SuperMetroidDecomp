@@ -58,17 +58,16 @@ internal static class RidleyBreakupProgramsVerification
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         byte[] stockBytes = EnemySpritemapFiles.Extract(rom);
         var stock = EnemySpritemapDocuments.Load(new MemoryStream(stockBytes));
-        // VerifyRidleyAnimations matches each typed breakup program to its native list; this draws every pose.
-        foreach (EnemyFrameId frame in RidleyNativeListAddresses.BreakupEntries.Select(entry => entry.Frame))
+        // VerifyRidleyAnimations matches each typed breakup program to its native list; this draws every pose each death's
+        // pieces show, his tail tip's under every orientation it points in.
+        var shownPoses = new HashSet<EnemyFrameId>();
+        foreach (RoomEnemyPlace fragment in Enumerable.Range(0, 32).SelectMany(BreakupPieces))
         {
+            EnemyFrameId frame = fragment.RequireSpeciesState<RidleyExplosionFragmentState>().Picture;
+            if (!shownPoses.Add(frame))
+                continue;
             ushort operand = (ushort)(RidleyNativeProgramOracle.BreakupList(frame) + 2);
             ushort expectedPointer = rom.ReadCartridgeWordFixedBank(RidleyNativeListAddresses.BodyBankNumber << 16 | operand);
-            var fragment = fragments[0];
-            RidleyExplosionFragmentState spawned = fragment.RequireSpeciesState<RidleyExplosionFragmentState>();
-            var copied = new RidleyExplosionFragmentState { Velocity = spawned.Velocity, Picture = frame };
-            copied.Lifetime.SetCartridgeCount(spawned.Lifetime.CartridgeCount);
-            fragment.SetSpeciesState(copied);
-            fragment.AnimationClock.StepOnNextUpdate();
             process(fragment, RoomEnemyFrameFixtures.StandaloneSamus(), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Position16<RoomPixels>.Zero, 0);
             AssertEqual(expectedPointer, fragment.SpritemapPointer, "breakup selects native sprite");
             AssertEqual(RidleyBreakupFrameDefinitions.PictureShowingUpdates, fragment.AnimationClock.Hold,
@@ -85,6 +84,8 @@ internal static class RidleyBreakupProgramsVerification
             AssertTrue(expected.LowTable.SequenceEqual(actual.LowTable), "breakup exact OAM bytes");
             AssertTrue(expected.HighTable.SequenceEqual(actual.HighTable), "breakup exact OAM size/X bits");
         }
+        AssertTrue(RidleyNativeListAddresses.BreakupEntries.Select(entry => entry.Frame).ToHashSet().SetEquals(shownPoses),
+            "his deaths' pieces show every breakup pose");
         var expiring = fragments[0];
         ushort deathX = expiring.Position.X.Whole, deathY = expiring.Position.Y.Whole;
         RidleyExplosionFragmentState expiringState = expiring.SpeciesState<RidleyExplosionFragmentState>()
@@ -103,6 +104,25 @@ internal static class RidleyBreakupProgramsVerification
         AssertEqual(1, enemies.RoomStatus.EnemiesKilled, "fragment death updates shared kill count");
         Console.WriteLine("Ridley breakup: death while grabbing releases Samus and runs all twelve fragment programs without cartridge access.");
         Console.WriteLine("All 29 breakup programs match native mechanics, frame selection, sleep and installed OAM.");
+
+        // The pieces of a death with his tail tip turned (death % 16) steps from straight down, facing left for the first
+        // sixteen deaths and turning for the rest.
+        static IEnumerable<RoomEnemyPlace> BreakupPieces(int death)
+        {
+            var system = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+            system.VerificationServices().NextRandom = () => 1;
+            RoomEnemyPlace dying = system.Places.InUpdateOrder[0];
+            dying.Bind(EnemyDefinitionId.Ridley, dying.KeptDefinition);
+            var ridley = new NorfairRidleyState();
+            ridley.PhaseTimer.LastFor(1);
+            RidleyTailFixtures.BlankLinks(ridley.Tail);
+            foreach (RidleyTailLink link in ridley.Tail.Links)
+                link.Position = new Position16<RoomPixels>(128, 128);
+            ridley.Flight.FacingDirection = death < 16 ? RidleyFacing.Left : RidleyFacing.Turning;
+            ridley.Tail.Tip.Angle = RidleyTailAngle.FromStepsFromStraightDown((death % 16) << 4);
+            system.NorfairRidleyBehavior.Death.TickNorfairRidleyDeathExplosions(dying, ridley, RoomEnemyFrameFixtures.StandaloneSamus());
+            return [.. system.Places.InUpdateOrder.Where(place => place.Holds(EnemyDefinitionId.RidleyBreakupPiece))];
+        }
     }
 
     /// <summary>Runs the Ridley breakup program and artwork check.</summary>

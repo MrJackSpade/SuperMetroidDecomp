@@ -44,6 +44,9 @@ internal sealed class VerificationRoomEnemyServices(IRoomEnemyServices? loaded) 
     /// <summary>Optional case-owned callback for Mother Brain glass hit-count increments.</summary>
     public Action? HeadShotOnGlassCounted { get; set; }
 
+    /// <summary>Takes Samus's controls away (true) or gives them back (false), in place of the loaded services' lock.</summary>
+    public Action<bool>? SetControlsLocked { get; set; }
+
     /// <summary>Exposes this fixture's RNG overrides through the enemy service contract.</summary>
     public IEnemyRandomNumbers Random => this;
     /// <summary>Exposes this fixture's event query override through the enemy service contract.</summary>
@@ -132,10 +135,22 @@ internal sealed class VerificationRoomEnemyServices(IRoomEnemyServices? loaded) 
     }
 
     /// <summary>Forwards enabling Samus's controls to loaded room services.</summary>
-    public void EnableControls() => Loaded("enable Samus's controls").SamusControls.EnableControls();
+    public void EnableControls()
+    {
+        if (SetControlsLocked is { } set)
+            set(false);
+        else
+            Loaded("enable Samus's controls").SamusControls.EnableControls();
+    }
 
     /// <inheritdoc />
-    public void DisableControls() => Loaded("disable Samus's controls").SamusControls.DisableControls();
+    public void DisableControls()
+    {
+        if (SetControlsLocked is { } set)
+            set(true);
+        else
+            Loaded("disable Samus's controls").SamusControls.DisableControls();
+    }
 
     /// <summary>Advances the Mother Brain glass hit count through an override or loaded services.</summary>
     public void CountHeadShotOnGlass()

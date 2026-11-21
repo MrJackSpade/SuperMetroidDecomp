@@ -74,7 +74,7 @@ public static class SamusPoseInputTransitions
         // A match that keeps this pose keeps it, and its fallback is not consulted.
         return transition.ProspectivePose == currentPose
             ? SamusPoseTransitionLookup.KeepsPose
-            : new SamusPoseTransitionLookup.Chosen(transition);
+            : SamusPoseTransitionLookup.Choosing(transition);
     }
 
     /// <summary>

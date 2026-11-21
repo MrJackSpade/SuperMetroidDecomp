@@ -18,9 +18,5 @@ internal static class RipperBehaviorPrivateAccess
         /// <summary>The private method <c>Reverse</c>, invoked by name.</summary>
         internal static void Reverse(global::SuperMetroid.Core.Enemies.Ripper.RipperEnemyState state) =>
             PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Enemies.Ripper.RipperBehavior), "Reverse", [typeof(global::SuperMetroid.Core.Enemies.Ripper.RipperEnemyState)], new object?[] { state });
-
-        /// <summary>The private method <c>ReverseRipperVariant</c>, invoked by name.</summary>
-        internal static void ReverseRipperVariant(global::SuperMetroid.Core.Enemies.RoomEnemyPlace place) =>
-            PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Enemies.Ripper.RipperBehavior), "ReverseRipperVariant", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace)], new object?[] { place });
     }
 }

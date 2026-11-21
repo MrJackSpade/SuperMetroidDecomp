@@ -14,9 +14,5 @@ internal static class EnemyLifecyclePrivateAccess
         /// <summary>The private method <c>SetUpEnemy</c>, invoked by name.</summary>
         internal static void SetUpEnemy(global::SuperMetroid.Core.Enemies.RoomEnemyPlace place, global::SuperMetroid.Core.Enemies.EnemyPopulationSurroundings surroundings) =>
             PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Enemies.EnemyLifecycle), "SetUpEnemy", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Enemies.EnemyPopulationSurroundings)], new object?[] { place, surroundings });
-
-        /// <summary>The private method <c>SetUpSpawnedEnemy</c>, invoked by name.</summary>
-        internal static void SetUpSpawnedEnemy(global::SuperMetroid.Core.Enemies.RoomEnemyPlace place) =>
-            PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Enemies.EnemyLifecycle), "SetUpSpawnedEnemy", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace)], new object?[] { place });
     }
 }

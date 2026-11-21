@@ -21,7 +21,8 @@ internal static class RipperVariantOwnedStateVerification
         const int speedRecord = 3;
         place.SetSpawnParameter1(EnemyDefinitionId.JetRipper, speedRecord);
         place.SetSpawnParameter2(EnemyDefinitionId.JetRipper, 0);
-        RipperBehavior.InitializeJetRipper(place.HeldOccupant().SpawnSettings<RipperSpawnSettings>(), place);
+        // The enemy is set up as its room's population sets it up: its species builds its entity, whose setup builds its state.
+        place.SetUpAsPlaced();
         RipperEnemyState state = place.SpeciesState<RipperEnemyState>()
             ?? throw new InvalidOperationException("The Ripper II has no state.");
 
@@ -30,7 +31,8 @@ internal static class RipperVariantOwnedStateVerification
         AssertEqual(positive, place.HeldOccupant().SpawnSettings<RipperSpawnSettings>().Speed, "the selected speed");
         SignedSixteenSixteen speed = place.HeldOccupant().SpawnSettings<RipperSpawnSettings>().Speed;
         AssertEqual(negative, RipperBehavior.FlyingVelocity(speed, state.Heading), "the negative half is loaded");
-        RipperBehavior.ReverseRipperVariant(place);
+        // A wall the Ripper II flies into turns it round.
+        place.RunMainAi(PlacedEnemyAccess.AiFrame(RoomEnemyFrameFixtures.StandaloneSamus(), level: PlacedEnemyAccess.SolidRoom(new(64, 64))));
         AssertEqual(positive, RipperBehavior.FlyingVelocity(speed, state.Heading), "a reversal loads the positive half");
         Console.WriteLine("Ripper variant owned state: the record's velocity halves and the reversal match.");
     }

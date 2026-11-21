@@ -98,11 +98,14 @@ internal static class MurderBeamVerification
 
         EnemyDropFixture combat = CreateEnemyDropFixture(samus, [1]);
         RoomEnemyPlace target = combat.System.Places.InUpdateOrder[0];
-        target.Bind(EnemyPlaceFixtures.StandIn, target.KeptDefinition);
+        // An ordinary enemy, a Skultera reacting to shots as every ordinary enemy does, set up as its room sets it up.
+        target.Bind(EnemyDefinitionId.Skultera, target.KeptDefinition);
         target.Bind(target.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank with
         {
             Shot = EnemyReaction.OrdinaryShot,
         });
+        target.SetSpawnParameter1(EnemyDefinitionId.Skultera, 3);
+        target.InitializeAsPlaced(samus);
         target.Position = target.Position.WithWhole(shot.Position.Whole);
         target.Radius = new(16, 16);
         target.Health = 1000;

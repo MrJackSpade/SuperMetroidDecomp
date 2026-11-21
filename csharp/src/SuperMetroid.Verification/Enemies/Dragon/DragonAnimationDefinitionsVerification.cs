@@ -69,7 +69,7 @@ internal static class DragonAnimationDefinitionsVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         RoomEnemyPlace wing = enemies.Places.InUpdateOrder[1];
-        PlaceDragon(enemies, body, wing);
+        PlaceDragon(body, wing);
         DragonEnemyState bodyState = enemies.DragonStates[0] ?? throw new InvalidOperationException("Verification requires enemies.DragonStates[0].");
         Animation<DragonSegment> attack = DragonAnimations.StartingWith(DragonSegment.AttackingFacingRight);
         var playedOut = new AnimationPlayback<DragonSegment>(attack, AnimationPlace.HoldingIn(0, attack.Phases[0].BeatCount));
@@ -118,7 +118,7 @@ internal static class DragonAnimationDefinitionsVerification
         wing.Position = wing.Position.WithWholeY(0x0100);
         body.Position = body.Position.WithWholeY(0x0100);
 
-        PlaceDragon(enemies, body, wing);
+        PlaceDragon(body, wing);
         DragonEnemyState bodyState = (enemies.DragonStates[0] ?? throw new InvalidOperationException("Verification requires enemies.DragonStates[0]."));
         DragonWingState wingState = (enemies.DragonWingStates[1] ?? throw new InvalidOperationException("Verification requires enemies.DragonWingStates[1]."));
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
@@ -126,7 +126,9 @@ internal static class DragonAnimationDefinitionsVerification
             Position = new(new(unchecked((ushort)(body.Position.X.Whole + (facingLeft ? -0x10 : 0x10))), 0), new(0, 0)),
         };
 
-        DragonBehavior.RunDragonWaitToRise(body, (bodyState), samus);
+        // The body waits to rise from its setup; its main AI runs that wait.
+        AssertEqual(DragonAction.WaitToRise, bodyState.Action, "the placed Dragon waits to rise");
+        body.RunMainAi(samus);
         DragonSegment idle = facingLeft
             ? DragonSegment.IdleFacingLeft
             : DragonSegment.IdleFacingRight;
@@ -160,14 +162,15 @@ internal static class DragonAnimationDefinitionsVerification
     }
 
     /// <summary>Places a Dragon body and the wing listed after it, each bound as its own part and initialized.</summary>
-    private static void PlaceDragon(RoomEnemySystem enemies, RoomEnemyPlace body, RoomEnemyPlace wing)
+    private static void PlaceDragon(RoomEnemyPlace body, RoomEnemyPlace wing)
     {
         body.SetSpawnParameter1(EnemyDefinitionId.Dragon, 0);
         wing.SetSpawnParameter1(EnemyDefinitionId.Dragon, 1);
         body.Bind(EnemyDefinitionId.Dragon, body.KeptDefinition);
         wing.Bind(EnemyDefinitionId.Dragon, wing.KeptDefinition);
-        enemies.DragonBehavior.InitializeDragonBody(body);
-        DragonBehavior.InitializeDragonWing(wing, wing.RequireSpeciesState<DragonWingState>());
+        // Both parts are set up as their room's population sets them up, the wing after the body that offers it.
+        body.SetUpAsPlaced();
+        wing.SetUpAsPlaced();
     }
 
     /// <summary>Starts with nondefault instruction values so an omitted install remains observable.</summary>

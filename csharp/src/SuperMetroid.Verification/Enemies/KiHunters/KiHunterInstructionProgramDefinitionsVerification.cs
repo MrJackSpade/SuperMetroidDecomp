@@ -203,7 +203,8 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
         CreatePairResult CreatePair()
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            Action<RoomEnemyPlace> initializeBody = fixturePlace => enemies.KiHunterBehavior.InitializeKiHunter(fixturePlace.HeldOccupant().SpawnSettings<KiHunterSpawnSettings>(), fixturePlace);
+            // The body is set up as its room's population sets it up, offering its wings, which are set up after it.
+            Action<RoomEnemyPlace> initializeBody = fixturePlace => fixturePlace.SetUpAsPlaced();
             Action<RoomEnemyPlace> initializeWings = fixturePlace => fixturePlace.SetUpAsPlaced();
 
             RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];

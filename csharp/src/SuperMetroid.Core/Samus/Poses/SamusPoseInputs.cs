@@ -23,5 +23,5 @@ internal static class SamusPoseInputs
     /// transition list.
     /// </summary>
     internal static SamusPoseInputMatch Accept(SamusPoseId target, SamusPoseTransitionSetup setup) =>
-        new SamusPoseInputMatch.Matched(new SamusPoseTransition(target, setup));
+        SamusPoseInputMatch.Accepting(new SamusPoseTransition(target, setup));
 }

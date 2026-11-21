@@ -65,10 +65,8 @@ internal static class DragonBehaviorVerification
                 place.SetSpawnParameter1(EnemyDefinitionId.Dragon, (ushort)part);
                 place.Bind(EnemyDefinitionId.Dragon, place.KeptDefinition);
                 place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
-                if (part == 0)
-                    enemies.DragonBehavior.InitializeDragonBody(place);
-                else
-                    DragonBehavior.InitializeDragonWing(place, place.RequireSpeciesState<DragonWingState>());
+                // Each part is set up as its room's population sets it up, the wing after the body that offers it.
+                place.SetUpAsPlaced();
             }
         }
         foreach (int bodySlot in new[] { 0, 2 })
@@ -89,16 +87,19 @@ internal static class DragonBehaviorVerification
     private static InstallResult Install(DragonSegment selector)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         bool wing = selector is DragonSegment.WingsFacingLeft or DragonSegment.WingsFacingRight;
-        place.SetSpawnParameter1(EnemyDefinitionId.Dragon, wing ? (ushort)1 : (ushort)0);
-        place.Bind(EnemyDefinitionId.Dragon, place.KeptDefinition);
-        place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
-        if (wing)
-            DragonBehavior.InitializeDragonWing(place, place.RequireSpeciesState<DragonWingState>());
-        else
-            enemies.DragonBehavior.InitializeDragonBody(place);
-        DragonPartState state = enemies.DragonPartStates[0] ?? throw new InvalidOperationException("Dragon has no state.");
+        // The body is set up as its room's population sets it up, and a wing after the body that offers it.
+        int parts = wing ? 2 : 1;
+        for (int part = 0; part < parts; part++)
+        {
+            RoomEnemyPlace placed = enemies.Places.InUpdateOrder[part];
+            placed.SetSpawnParameter1(EnemyDefinitionId.Dragon, (ushort)part);
+            placed.Bind(EnemyDefinitionId.Dragon, placed.KeptDefinition);
+            placed.Bind(placed.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
+            placed.SetUpAsPlaced();
+        }
+        RoomEnemyPlace place = enemies.Places.InUpdateOrder[parts - 1];
+        DragonPartState state = enemies.DragonPartStates[parts - 1] ?? throw new InvalidOperationException("Dragon has no state.");
         // An attack plays while the body attacks, whose finishing cue it answers (#2476).
         if (state is DragonEnemyState body && selector is DragonSegment.AttackingFacingLeft or DragonSegment.AttackingFacingRight)
             body.Action = DragonAction.Attacking;

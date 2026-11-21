@@ -139,13 +139,20 @@ internal static class PoseInputDefinitionsVerification
             probeHeld[i] = GameplayActionWordCodec.FromJoypadWord((ushort)(i & buttonBits), "allocation probe held word");
             probeEdges[i] = GameplayActionWordCodec.FromJoypadWord((ushort)(~i & buttonBits), "allocation probe edge word");
         }
-        long allocatedBefore = GC.GetAllocatedBytesForCurrentThread();
-        int accepted = 0;
-        for (int i = 0; i < 65536; i++)
+        // One pass warms the lookup: each outcome it reaches is made the first time it is reached, and kept.
+        int Probe()
         {
-            if (!SamusPoseNumbering.NamesPose(i % 253)) continue;
-            if (SamusPoseInputTransitions.Lookup(SamusPoseNumbering.FromNumber(i % 253), probeHeld[i], probeEdges[i]).Transition.HasValue) accepted++;
+            int matches = 0;
+            for (int i = 0; i < 65536; i++)
+            {
+                if (!SamusPoseNumbering.NamesPose(i % 253)) continue;
+                if (SamusPoseInputTransitions.Lookup(SamusPoseNumbering.FromNumber(i % 253), probeHeld[i], probeEdges[i]).Transition.HasValue) matches++;
+            }
+            return matches;
         }
+        _ = Probe();
+        long allocatedBefore = GC.GetAllocatedBytesForCurrentThread();
+        int accepted = Probe();
         long allocated = GC.GetAllocatedBytesForCurrentThread() - allocatedBefore;
         AssertTrue(accepted > 0, "Allocation probe exercises successful matches");
         AssertEqual(0L, allocated, "Warmed production lookup allocates no per-frame graph or records");

@@ -349,7 +349,7 @@ internal static class DoorHeaderSourceDefinitions
         [0x98d6] = NorfairDoorDefinitions.LowerNorfairFarmingToPlowerhouse,
         [0x98e2] = NorfairDoorDefinitions.FastPillarsSetupToMainHall,
         [0x98ee] = NorfairDoorDefinitions.FastPillarsSetupToMickeyMouse,
-        [0x98fa] = NorfairDoorDefinitions.FastPillarsSetupToMainHallAlternate,
+        [0x98fa] = NorfairDoorDefinitions.FastPillarsSetupToMainHall,
         [0x9906] = NorfairDoorDefinitions.FastPillarsSetupToFastRipper,
         [0x9912] = NorfairDoorDefinitions.FastPillarsSetupToPillar,
         [0x992a] = NorfairDoorDefinitions.MickeyMouseToFastPillarsSetup,

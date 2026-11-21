@@ -420,9 +420,6 @@ public static class NorfairDoorDefinitions
     /// <summary>The door from the Fast Pillars Setup room to the Mickey Mouse room.</summary>
     public static DoorDefinition FastPillarsSetupToMickeyMouse { get; } = new("FastPillarsSetupToMickeyMouse", RoomDefinitions.MickeyMouse, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 54), new(0, 3), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
-    /// <summary>The door from the Fast Pillars Setup room to the Main Hall room: a second door the room lists to the Main Hall, leading where the first does.</summary>
-    public static DoorDefinition FastPillarsSetupToMainHallAlternate { get; } = new("FastPillarsSetupToMainHallAlternate", RoomDefinitions.MainHall, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(126, 38), new(7, 2), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
-
     /// <summary>The door from the Fast Pillars Setup room to the Fast Ripper room.</summary>
     public static DoorDefinition FastPillarsSetupToFastRipper { get; } = new("FastPillarsSetupToFastRipper", RoomDefinitions.FastRipper, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(62, 6), new(3, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 

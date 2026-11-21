@@ -63,7 +63,7 @@ internal sealed class CeresEscape : IGameplayShadingSource
     private CeresEscapeStage Stage { get; set; } = CeresEscapeStage.Getaway;
 
     /// <summary>The getaway's turning floor.</summary>
-    internal CeresTurningFloor Floor { get; } = new();
+    private CeresTurningFloor Floor { get; } = new();
 
     /// <summary>The self-destruct's warning.</summary>
     internal CeresSelfDestructWarning Warning { get; } = new();

@@ -13,6 +13,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -225,21 +226,23 @@ internal static class GameplayDisplayFrameTestsVerification
         AssertTrue(runtime.PublishDisplayFrame().Latched is OrdinaryRoomFrameLatch,
             "the accepted frame shows Ceres Ridley's room without the elevator shaft's floor");
 
-        // The station's escape owns the getaway's floor (#2228).
-        CeresTurningFloor getaway = runtime.Enemies.CeresEscape.Floor;
-        runtime.Enemies.CeresEscape.BeginGetaway();
-        getaway.Angle = RotationAngle.FromSteps(5);
-        getaway.Zoom = FloorZoomConstants.FromTwoHundredFiftySixths(240);
-        getaway.Center = new Offset16<FloorPixels>(128, 120);
-        getaway.Offset = new Offset16<FloorPixels>(7, 19);
+        // The station's escape owns the getaway's floor (#2228), which its first update turns, zooms and scrolls.
+        CeresEscape escape = runtime.Enemies.CeresEscape;
+        RoomFloor arena = runtime.Room.LoadedScope.Floor ?? throw new InvalidOperationException("Ridley's arena shows his floor.");
+        escape.BeginGetaway();
+        escape.RunGetawayRoomMain(runtime.Player.IntroducedSamus, arena, 0);
+        FloorView shown = escape.ShownFloor ?? throw new InvalidOperationException("Ridley flies his getaway.");
         AssertTrue(GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0] is GameplaySceneLayer,
             "Ridley's floor and fake BGMODE wait for the NMI");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var mode7 = (TurningRoomLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
-        AssertEqual(RotationAngle.FromSteps(5).Radians, mode7.Transform.Angle, "the accepted NMI publishes Ridley's floor angle");
-        AssertEqual(240 / 256.0, mode7.Transform.Scale, "the accepted NMI publishes Ridley's floor zoom");
+        AssertEqual(shown.Angle, mode7.Transform.Angle, "the accepted NMI publishes Ridley's floor angle");
+        AssertEqual(shown.Scale, mode7.Transform.Scale, "the accepted NMI publishes Ridley's floor zoom");
         AssertTrue(mode7.LowerBand is not null, "the accepted NMI publishes Ridley's mixed Mode 7 band");
-        global::SuperMetroid.Core.PrivateState.Set(runtime.Enemies.CeresEscape, "Stage", CeresEscapeStage.SelfDestruct);
+        // The getaway flies its remaining steps, and the update after its last hands on to the self-destruct warning.
+        for (int update = 1; update <= CeresRidleyGetawayCurve.Duration; update++)
+            escape.RunGetawayRoomMain(runtime.Player.IntroducedSamus, arena, update);
+        AssertTrue(escape.ShownFloor is null, "the getaway's end leaves the turning floor");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
     }
 

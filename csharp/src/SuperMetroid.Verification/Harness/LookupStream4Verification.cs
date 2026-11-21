@@ -865,10 +865,9 @@ internal static class LookupStream4Verification
         enemies.BossArtworkBinding.CeresRidleyGetawayBoostDelays = CeresRidleyGetawayBoostDelayFiles.Read(new MemoryStream(CeresRidleyGetawayBoostDelayFiles.Extract(rom)));
         var vram = new SnesVram();
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(vram));
-        // The station's escape flies the getaway (#2228), from its second frame.
+        // The station's escape flies the getaway (#2228) from its beginning.
         CeresEscape escape = enemies.CeresEscape;
         escape.BeginGetaway();
-        escape.Floor.Flight = new CeresGetawayFlight.Flying(ListStep<CeresRidleyGetawayStep>.At(CeresRidleyGetawayCurve.Steps, 1));
         SamusState samus = RoomEnemyFrameFixtures.StandaloneSamus();
         void tick(int frameCounter) => escape.RunGetawayRoomMain(samus, map, frameCounter);
         byte[] untouched = new byte[SnesVram.ByteCount];
@@ -883,7 +882,7 @@ internal static class LookupStream4Verification
             if (advances) expectedPhase = (expectedPhase + 1) & 3;
             tick(nmi);
             AssertTrue(vram.Bytes.SequenceEqual(untouched), "The getaway leaves VRAM to the published floor");
-            AssertEqual(expectedPhase, escape.Floor.Capsule.Place, "Actual getaway advances Baby before selection only on every fourth NMI");
+            AssertEqual(CeresFloorAnimationDefinitions.CapsuleCycle[expectedPhase], Capsule(), "Actual getaway advances Baby before selection only on every fourth NMI");
             AssertEqual(advances ? CeresFloorAnimationDefinitions.CapsuleCycle[expectedPhase] : before, Capsule(),
                 "Actual getaway draws the native capsule frame and keeps it on non-update NMIs");
         }

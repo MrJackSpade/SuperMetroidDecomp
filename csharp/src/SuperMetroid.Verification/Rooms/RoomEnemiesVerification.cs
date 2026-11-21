@@ -1121,10 +1121,10 @@ internal static void VerifyCeresRidleyRoomEntry()
         Offset16<FloorPixels> drift = CeresRidleyGetawayCurve.Steps[curveIndex].Drift;
         expectedX = unchecked((ushort)(expectedX - drift.X));
         expectedY = unchecked((ushort)(expectedY + drift.Y));
-        AssertEqual(CeresRidleyGetawayCurve.Steps[curveIndex].Zoom, enemies.CeresEscape.Floor.Zoom, "Ceres real getaway zoom publication");
-        AssertEqual(unchecked((short)expectedX), enemies.CeresEscape.Floor.Offset.X, "Ceres real getaway horizontal integration");
-        AssertEqual(unchecked((short)expectedY), enemies.CeresEscape.Floor.Offset.Y, "Ceres real getaway vertical integration");
-        AssertTrue(enemies.CeresEscape.ShownFloor is not null, "Ceres getaway retains all 112 authored motion frames");
+        FloorView shown = enemies.CeresEscape.ShownFloor ?? throw new InvalidOperationException("Ceres getaway retains all 112 authored motion frames");
+        AssertEqual(CeresRidleyGetawayCurve.Steps[curveIndex].Zoom.FloorPixelsPerScreenPixel, shown.Scale, "Ceres real getaway zoom publication");
+        AssertEqual(unchecked((short)expectedX), shown.Scroll.X, "Ceres real getaway horizontal integration");
+        AssertEqual(unchecked((short)expectedY), shown.Scroll.Y, "Ceres real getaway vertical integration");
     }
     GetawayFrame();
     AssertTrue(enemies.CeresEscape.ShownFloor is null, "Ceres Ridley consumes the Mode-7 terminator");

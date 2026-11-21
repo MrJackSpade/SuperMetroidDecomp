@@ -420,8 +420,7 @@ the private member through `PrivateState`, so C# binds the moved code's unchange
 is imported in `PrivateAccessImports.cs`. Production keeps no member wider for checks, and no promotion rule applies.
 Only a type moved code names still becomes internal. A member no extension member can stand in for (a constructor, an
 indexer, an event, a generic member or owner, a `ref struct` in its signature) and a private setter of a property moved
-code otherwise sees are refused, with a `MANUAL` line. The architecture audit's `--fix-test-only-members` generates the
-same classes for members only checks reach.
+code otherwise sees are refused, with a `MANUAL` line.
 
 Moved into a development-only project, a staying member becomes internal (a promotion) when moved code reaches it: through its owner's name, `this`, a receiver
 or a conditional access, or by constructing its type. A promotion changes only accessibility, so the rules it can break

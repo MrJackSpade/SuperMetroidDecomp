@@ -30,9 +30,12 @@ internal sealed class RoomObjectFramePhase
     private readonly MessageBoxFlow _messageBoxes;
     /// <summary>Shows the colours of the beams a pickup equips.</summary>
     private readonly SamusFrameState _player;
-    /// <summary>Prevents a second suit transformation from replacing an active one.</summary>
-    private readonly SamusSuitPickupState _suitPickup;
-
+    /// <summary>
+    /// The message boxes one room-object step opened that have not shown yet, in the order the step made them (#2553): the
+    /// game shows each pickup's or station's box inside its room object's update, so a second one shows only once the box
+    /// before it has closed, its pickup's consequence applied as it opens.
+    /// </summary>
+    private readonly Queue<Action> _waitingMessages = new();
 
     /// <summary>Opens the message box on <paramref name="message"/>, continuing from the buttons held at the update's controller read.</summary>
     private void BeginMessage(GameplayMessageId message) =>
@@ -48,8 +51,6 @@ internal sealed class RoomObjectFramePhase
         _messageBox = dependencies.MessageBox;
         _messageBoxes = dependencies.MessageBoxes;
         _player = dependencies.Player;
-        _suitPickup = dependencies.SuitPickup;
-
     }
     /// <summary>
     /// Runs the room objects once for the door transition, on the door scroll's final update and
@@ -129,20 +130,28 @@ internal sealed class RoomObjectFramePhase
             var opening = new RoomObjectMessages(this, samus);
             foreach (CollectiblePickupEvent pickup in step.Pickups)
             {
-                pickup.Consequence.Apply(opening);
-
-                if (_messageBox.IsActive)
+                _waitingMessages.Enqueue(() =>
                 {
-                    throw new InvalidDataException(
-                        "Multiple permanent items attempted to enter the synchronous " +
-                        "message box during one room-object pass.");
-                }
-                BeginMessage(pickup.Message);
+                    pickup.Consequence.Apply(opening);
+                    BeginMessage(pickup.Message);
+                });
             }
             foreach (StationActivationEvent station in step.StationActivations)
-                station.Open(opening);
+                _waitingMessages.Enqueue(() => station.Open(opening));
+            OpenNextMessage();
             SpawnThrownProjectiles(step, room);
         }
+    }
+
+    /// <summary>
+    /// Opens the next message box the last room-object step made, if one waits (#2553): on the step's own update for the
+    /// first, and as the box before it closes for each later one, as the game's next room object opens its box once the
+    /// box before it has returned.
+    /// </summary>
+    internal void OpenNextMessage()
+    {
+        if (_waitingMessages.TryDequeue(out Action? open))
+            open();
     }
 
     /// <summary>
@@ -157,19 +166,17 @@ internal sealed class RoomObjectFramePhase
         /// <inheritdoc/>
         public void ShowEquippedBeamColours() => SamusProjectileSystem.ShowBeamShade(phase._player.Colours, samus.EquippedBeams);
 
+        // Each below opens as its box opens: the step's first, or the next once the box before it has closed and resolved
+        // what waited on it, so no box is open and nothing waits.
+
         /// <inheritdoc/>
-        public void AwaitSuitTransformation(SamusSuitPickupKind suit)
-        {
-            if (phase._suitPickup.IsActive)
-                throw new InvalidDataException("A second suit pickup attempted to replace an active transformation.");
+        /// <remarks>A second suit's box closes into its own transformation, which restarts the first's, as the game's does.</remarks>
+        public void AwaitSuitTransformation(SamusSuitPickupKind suit) =>
             phase._messageBoxes.Await(new MessageBoxOutcome.SuitTransformation(suit));
-        }
 
         /// <inheritdoc/>
         public void RequestSaveConfirmation(SaveStationActivation save)
         {
-            if (phase._messageBoxes.HasPendingOutcome || phase._messageBox.IsActive)
-                throw new InvalidDataException("A save station attempted to replace an active room-object message owner.");
             phase._messageBoxes.Await(new MessageBoxOutcome.SaveConfirmation(save));
             phase.BeginMessage(GameplayMessageId.SaveConfirmation);
         }
@@ -177,21 +184,11 @@ internal sealed class RoomObjectFramePhase
         /// <inheritdoc/>
         public void ShowSaveCompleted(SaveStationActivation save)
         {
-            if (phase._messageBoxes.HasPendingOutcome || phase._messageBox.IsActive)
-                throw new InvalidDataException("A completed save station attempted to replace an active message owner.");
             phase._messageBoxes.Await(new MessageBoxOutcome.SaveCompletion(save));
             phase.BeginMessage(GameplayMessageId.SaveCompleted);
         }
 
         /// <inheritdoc/>
-        public void ShowStationMessage(GameplayMessageId message)
-        {
-            if (phase._messageBox.IsActive)
-            {
-                throw new InvalidDataException(
-                    "Multiple room objects attempted to open the synchronous message box during one room-object step.");
-            }
-            phase.BeginMessage(message);
-        }
+        public void ShowStationMessage(GameplayMessageId message) => phase.BeginMessage(message);
     }
 }

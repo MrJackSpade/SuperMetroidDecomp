@@ -233,7 +233,7 @@ internal sealed class SuperMetroidRuntime
         AttractDemo = new AttractDemoDriver(new AttractDemoDriverDependencies { AttractSession = AttractSession, PlayerActions = PlayerActions, HudSetup = HudSetup, FrameBoundary = FrameBoundary, Player = Player, Room = Room, RoomLoader = RoomLoader, System = System });
         DeathSequence = new DeathSequenceRunner(new DeathSequenceRunnerDependencies { Display = Display, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player});
         MessageBoxes = new MessageBoxFlow(new MessageBoxFlowDependencies { AudioRequests = AudioRequests, Freeze = Freeze, Hud = Hud, SuitPickup = SuitPickup, System = System });
-        RoomObjectPhase = new RoomObjectFramePhase(new RoomObjectFramePhaseDependencies { PlayerActions = PlayerActions, PlayerButtons = PlayerButtons, Options = Options, Freeze = Freeze, MessageBox = MessageBox, MessageBoxes = MessageBoxes, Player = Player, SuitPickup = SuitPickup});
+        RoomObjectPhase = new RoomObjectFramePhase(new RoomObjectFramePhaseDependencies { PlayerActions = PlayerActions, PlayerButtons = PlayerButtons, Options = Options, Freeze = Freeze, MessageBox = MessageBox, MessageBoxes = MessageBoxes, Player = Player });
         SamusPhases = new SamusFramePhases(new SamusFramePhasesDependencies { AttractDemo = AttractDemo, PlayerActions = PlayerActions, Freeze = Freeze, GameTime = GameTime, Clock = Clock, Options = Options, Assists = Assists, Player = Player, System = System, DoorPassage = DoorTransition.Passage });
 
         // Gameplay starts with Samus in her starting shades; every other picture shows its standard colours (#1512).
@@ -1273,6 +1273,8 @@ internal sealed class SuperMetroidRuntime
 
         SaveStationPersistenceRequest? completedSave =
             MessageBoxes.ResolveClosedMessageBox(closing, frameSuspended: _suspendedFrameTail is not null, room, samus);
+        // The next room object's box opens as the one before it returns (#2553), and the suspended update waits for it too.
+        RoomObjectPhase.OpenNextMessage();
         // The room objects' step returns once the box and its item's step finish; the
         // parked remainder of that gameplay frame runs now, in this same update.
         if (!MessageBox.IsActive && _suspendedFrameTail is { } tail)

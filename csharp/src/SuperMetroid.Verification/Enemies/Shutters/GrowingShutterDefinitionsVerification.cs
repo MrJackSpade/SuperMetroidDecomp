@@ -28,7 +28,7 @@ internal static class GrowingShutterDefinitionsVerification
         Suite(nameof(VerifyGrowingShutterFractionalSpeed), () => VerifyGrowingShutterFractionalSpeed(rom));
         ushort Word(int address) => LittleEndianBytes.Word(CompiledGrowingShuttersRomByte(rom, address), CompiledGrowingShuttersRomByte(rom, address + 1));
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        Action<RoomEnemyPlace> initialize = fixturePlace => ShuttersBehavior.InitializeGrowingShutter(fixturePlace.HeldOccupant().SpawnSettings<GrowingShutterSpawnSettings>(), fixturePlace);
+        Func<RoomEnemyPlace, GrowingShutterEnemyState> initialize = fixturePlace => ShuttersBehavior.InitializeGrowingShutter(fixturePlace.HeldOccupant().SpawnSettings<GrowingShutterSpawnSettings>(), fixturePlace);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.Bind(EnemyDefinitionId.ShutterGrowing, place.KeptDefinition);
         for (ushort selector = 0; selector < 4; selector++)
@@ -42,8 +42,8 @@ internal static class GrowingShutterDefinitionsVerification
                     place.SetSpawnWords(EnemyDefinitionId.ShutterGrowing, _ => new SuperMetroid.AssetExtraction.Enemies.PopulationWords(
                         selector & 1, 0, selector >> 1, 0, (high << 8) | speed));
                     place.Position = place.Position.WithWholeY(296);
-                    initialize(place);
-                    GrowingShutterEnemyState state = (enemies.GrowingShutterStates[0] ?? throw new InvalidOperationException("Verification requires enemies.GrowingShutterStates[0]."));
+                    // The shutter's setup builds its state.
+                    GrowingShutterEnemyState state = initialize(place);
                     AssertEqual(Word(0xa2ea4e + selector * 2), ShuttersNativeWords.GrowingShutterActions.Word((state.Action, state.Growth)), "Shutter real dispatch without bus");
                     AssertEqual(unchecked((short)Word(0xa2ea56 + speed * 4)), place.HeldOccupant().SpawnSettings<GrowingShutterSpawnSettings>().GrowthSpeed.WholePixels, "Shutter native whole speed");
                     AssertEqual(Word(0xa2ea58 + speed * 4), place.HeldOccupant().SpawnSettings<GrowingShutterSpawnSettings>().GrowthSpeed.Fraction, "Shutter native fractional speed");

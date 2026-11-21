@@ -187,6 +187,11 @@ internal static class NativeEnemyFamilyStateImport
                 throw new InvalidDataException($"Recorded dead Torizo sideways speed ${words.B:X4} is not nothing.");
             deadTorizoRecord.FallSpeed = new SignedEightEight(words.C);
         }
+        if (enemy.SpeciesState<RidleyExplosionFragmentState>() is { } ridleyFragmentRecord)
+        {
+            ridleyFragmentRecord.Velocity = new(new SignedEightEight(words.B), new SignedEightEight(words.C));
+            ridleyFragmentRecord.Lifetime.SetCartridgeCount(CoordinateAxis.AsSigned(words.F));
+        }
         if (enemy.SpeciesState<DraygonEnemyState>() is { } draygonRecord)
         {
             // A zero word is a fight that has not begun; the state keeps the phase it starts in.
@@ -388,6 +393,21 @@ internal static class NativeEnemyFamilyStateImport
             if (verticalShutterSpeed != verticalShutterSettings.Speed)
                 throw new InvalidDataException($"Recorded vertical shutter speed {verticalShutterSpeed} is not its placement's {verticalShutterSettings.Speed}.");
         }
+        if (enemy.Holds(EnemyDefinitionId.Shaktool) && enemies.ShaktoolSegments[index] is { } segment)
+        {
+            int segmentIndex = Array.IndexOf(ShaktoolSegmentDefinitions.Segments, enemy.HeldOccupant().SpawnSettings<ShaktoolSpawnSettings>().Segment);
+            // Every segment's record holds a copy of the chain's target; the leading saw's, which no straightening turns
+            // on, is the chain's (#2452).
+            if (segmentIndex == 0)
+                enemy.EntityOf<ShaktoolEntity>().Chain.TargetAngle = RotationAngleConstants.FromRaw(words.A);
+            segment.OrbitAngle = RotationAngleConstants.FromRaw(words.B);
+            segment.AngularVelocity = RotationAngleConstants.FromRaw(Index(words.C, 1020, "Shaktool angular velocity"));
+            ImportShaktoolOrientation(segment, segmentIndex, words.D);
+            // Every segment's owner is the chain's leading saw, the first enemy its room lists.
+            if (SlotIndex(words.E, "Shaktool owner") != 0)
+                throw new InvalidDataException($"Recorded Shaktool owner ${words.E:X4} does not name the first enemy, where the chain's saw is placed.");
+            segment.Motion = ShaktoolNativeWords.DecodeMotion(words.F, "recorded ShaktoolSegmentMotion");
+        }
         // A Multiviola's velocity words (C to F) are the last update's, which every update rebuilds from its heading before it
         // moves (#2531), so none is imported.
         if (enemy.EntityState<CrawlerEntity, CrawlerEnemyState>() is { } crawler)
@@ -481,11 +501,11 @@ internal static class NativeEnemyFamilyStateImport
             or DragonWingEntity or KagoEntity or KzanTopEntity or NorfairLavaJumperFollowerEntity or MetareeEntity
             or SkreeEntity or MochtroidEntity or OumEntity or WaverEntity or SbugEntity or SparkEntity or SkulteraEntity
             or UnpoweredWorkRobotEntity or PoweredWorkRobotEntity or ZoaEntity or PlatformsEntity or NuclearWaffleEntity or PuyoEntity
-            or BotwoonEntity or FakeKraidEntity or MotherBrainTubesEntity or RinkaEntity or RidleyBreakupPieceEntity
+            or BotwoonEntity or FakeKraidEntity or MotherBrainTubesEntity or RinkaEntity
             or EscapeEtecoonEntity or EtecoonEntity or ChozoStatueEntity or HoppersEntity or KiHunterBodyEntity or BabyTurtleEntity
             or MetroidEntity or MorphBallEyeEntity or MorphBallEyeMountEntity or OwtchEntity or YellowPipeBugEntity or PowampBodyEntity
             or GrowingShutterEntity or NinjaSpacePirateEntity or WalkingSpacePirateEntity or WallSpacePirateEntity
-            or WreckedShipGhostEntity or YappingMawEntity or YardEntity or AlcoonEntity or ShaktoolEntity)
+            or WreckedShipGhostEntity or YardEntity or AlcoonEntity)
         {
             throw new InvalidDataException(
                 $"Recorded enemy {enemy.Ordinal} is a {enemy.HeldOccupant().DefinitionId}, whose state its entity keeps to itself; a native snapshot holding one cannot be imported.");

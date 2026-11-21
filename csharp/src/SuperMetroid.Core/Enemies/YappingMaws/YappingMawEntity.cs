@@ -10,22 +10,22 @@ internal sealed class YappingMawEntity(YappingMawBehavior species, RoomEnemyOccu
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The species' YappingMawShotReaction, built once for this enemy with its state (#2554).</summary>
-    private EnemyShotReaction OwnYappingMawShotReaction => field ??= YappingMawBehavior.YappingMawShotReaction(state);
+    private EnemyShotReaction OwnYappingMawShotReaction => field ??= YappingMawBehavior.YappingMawShotReaction(State);
 
     /// <summary>The species' YappingMawBombReaction, built once for this enemy with its state (#2554).</summary>
-    private EnemyBombReaction OwnYappingMawBombReaction => field ??= YappingMawBehavior.YappingMawBombReaction(state);
+    private EnemyBombReaction OwnYappingMawBombReaction => field ??= YappingMawBehavior.YappingMawBombReaction(State);
 
     /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
     internal YappingMawSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    private readonly YappingMawEnemyState state = species.InitializeYappingMaw(occupant, settings, place);
+    internal YappingMawEnemyState State { get; } = species.InitializeYappingMaw(occupant, settings, place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunYappingMawMainAi(Settings, Place, state, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunYappingMawMainAi(Settings, Place, State, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceYappingMawTypedAnimation(Place, state);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceYappingMawTypedAnimation(Place, State);
 
     /// <summary>Whether the Yapping Maw's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
     public override bool ReactsToTouch => Occupant.Definition.Touch == YappingMawReactions.Touch || base.ReactsToTouch;
@@ -35,7 +35,7 @@ internal sealed class YappingMawEntity(YappingMawBehavior species, RoomEnemyOccu
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (Occupant.Definition.Touch == YappingMawReactions.Touch)
-            YappingMawBehavior.ReactToYappingMawTouch(context, state);
+            YappingMawBehavior.ReactToYappingMawTouch(context, State);
         else
             base.ReactToTouch(context);
     }
@@ -49,7 +49,7 @@ internal sealed class YappingMawEntity(YappingMawBehavior species, RoomEnemyOccu
         context.SelectedShot == YappingMawReactions.Shot ? OwnYappingMawBombReaction : base.CommonBombDamageReaction(context);
 
     /// <summary>Runs the Yapping Maw's frozen behaviour after the common thaw.</summary>
-    public override void RunFrozen() => YappingMawBehavior.RunYappingMawFrozen(Place, state);
+    public override void RunFrozen() => YappingMawBehavior.RunYappingMawFrozen(Place, State);
 
     /// <summary>The Yapping Maw's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
     /// <param name="reaction">The reaction the radius path or a hitbox selects: the species' own where its definition names it.</param>

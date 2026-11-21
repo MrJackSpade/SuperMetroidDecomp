@@ -56,6 +56,8 @@ internal static class EnemyEntityStates
             return held30;
         if (entity is global::SuperMetroid.Core.Bosses.Ridley.NorfairRidleyEntity entity31 && entity31.Encounter is T held31)
             return held31;
+        if (entity is global::SuperMetroid.Core.Bosses.Ridley.RidleyBreakupPieceEntity entity32 && entity32.Fragment is T held32)
+            return held32;
         if (entity is global::SuperMetroid.Core.Bosses.Ridley.RidleyEntity entity33 && entity33.Encounter is T held33)
             return held33;
         if (entity is global::SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnEntity entity35 && entity35.Encounter is T held35)
@@ -104,8 +106,12 @@ internal static class EnemyEntityStates
             return held104;
         if (entity is global::SuperMetroid.Core.Enemies.Ripper.RipperEntity entity107 && entity107.State is T held107)
             return held107;
+        if (entity is global::SuperMetroid.Core.Enemies.Shaktool.ShaktoolEntity entity109 && entity109.State is T held109)
+            return held109;
         if (entity is global::SuperMetroid.Core.Enemies.Shutters.VerticalShutterEntity entity111 && entity111.State is T held111)
             return held111;
+        if (entity is global::SuperMetroid.Core.Enemies.YappingMaws.YappingMawEntity entity122 && entity122.State is T held122)
+            return held122;
         return null;
     }
 }

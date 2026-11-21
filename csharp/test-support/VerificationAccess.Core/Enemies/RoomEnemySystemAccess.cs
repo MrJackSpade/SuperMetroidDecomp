@@ -137,14 +137,6 @@ internal static class RoomEnemySystemAccess
         internal IReadOnlyList<ShaktoolSegmentState?> ShaktoolSegments =>
             [.. self.Places.InUpdateOrder.Select(place => place.SpeciesState<ShaktoolSegmentState>())];
 
-        /// <summary>Typed state for each physical slot currently occupied by a Yard.</summary>
-        internal IReadOnlyList<YardEnemyState?> YardStates =>
-            [.. self.Places.InUpdateOrder.Select(place => place.EntityState<YardEntity, YardEnemyState>())];
-
-        /// <summary>Typed state for every physical Owtch-capable enemy slot.</summary>
-        internal IReadOnlyList<OwtchEnemyState?> OwtchStates =>
-            [.. self.Places.InUpdateOrder.Select(place => place.EntityState<OwtchEntity, OwtchEnemyState>())];
-
         /// <summary>Typed state for all physical places occupied by a Fune.</summary>
         internal IReadOnlyList<FuneEnemyState?> FuneStates =>
             [.. self.Places.InUpdateOrder.Select(place => place.EntityState<FuneEntity, FuneEnemyState>())];
@@ -152,10 +144,6 @@ internal static class RoomEnemySystemAccess
         /// <summary>Typed state for all physical places occupied by a Namihe.</summary>
         internal IReadOnlyList<NamiheEnemyState?> NamiheStates =>
             [.. self.Places.InUpdateOrder.Select(place => place.EntityState<NamiheEntity, NamiheEnemyState>())];
-
-        /// <summary>Fake Kraid extensions indexed by physical enemy slot.</summary>
-        internal IReadOnlyList<FakeKraidEnemyState?> FakeKraidStates =>
-            [.. self.Places.InUpdateOrder.Select(place => place.EntityState<FakeKraidEntity, FakeKraidEnemyState>())];
 
         /// <summary>Typed state for every physical slot currently owned by this family.</summary>
         internal IReadOnlyList<SqueeptState?> SqueeptStates =>
@@ -169,41 +157,17 @@ internal static class RoomEnemySystemAccess
         internal SporeSpawnEnemyState? SporeSpawn =>
             self.Places.InUpdateOrder.Select(place => place.SpeciesState<SporeSpawnEnemyState>()).FirstOrDefault(state => state is not null);
 
-        /// <summary>Typed state for each physical escape-Etecoon slot.</summary>
-        internal IReadOnlyList<EscapeEtecoonEnemyState?> EscapeEtecoonStates =>
-            [.. self.Places.InUpdateOrder.Select(place => place.EntityState<EscapeEtecoonEntity, EscapeEtecoonEnemyState>())];
-
         /// <summary>Nuclear Waffle extensions indexed by physical enemy slot.</summary>
         internal IReadOnlyList<NuclearWaffleEnemyState?> NuclearWaffleStates =>
             [.. self.Places.InUpdateOrder.Select(place => place.EntityState<NuclearWaffleEntity, NuclearWaffleEnemyState>())];
-
-        /// <summary>Typed state for every physical slot currently owned by the hopper family.</summary>
-        internal IReadOnlyList<HopperEnemyState?> HopperStates =>
-            [.. self.Places.InUpdateOrder.Select(place => place.EntityState<HoppersEntity, HopperEnemyState>())];
 
         /// <summary>Dead Zoomer/Ripper/Skree state indexed by physical enemy slot.</summary>
         internal IReadOnlyList<DeadTourianCorpseEnemyState?> DeadTourianCorpses =>
             [.. self.Places.InUpdateOrder.Select(place => place.EntityState<DeadTourianEntity, DeadTourianCorpseEnemyState>())];
 
-        /// <summary>Typed state for every physical enemy slot currently owned by a Rinka.</summary>
-        internal IReadOnlyList<RinkaEnemyState?> RinkaStates =>
-            [.. self.Places.InUpdateOrder.Select(place => place.EntityState<RinkaEntity, RinkaEnemyState>())];
-
-        /// <summary>Walking Space Pirate extensions indexed by physical enemy slot.</summary>
-        internal IReadOnlyList<WalkingSpacePirateEnemyState?> WalkingSpacePirateStates =>
-            [.. self.Places.InUpdateOrder.Select(place => place.EntityState<WalkingSpacePirateEntity, WalkingSpacePirateEnemyState>())];
-
-        /// <summary>Wall Space Pirate extensions indexed by physical enemy slot.</summary>
-        internal IReadOnlyList<WallSpacePirateEnemyState?> WallSpacePirateStates =>
-            [.. self.Places.InUpdateOrder.Select(place => place.EntityState<WallSpacePirateEntity, WallSpacePirateEnemyState>())];
-
         /// <summary>Magdollite extensions indexed by physical enemy slot.</summary>
         internal IReadOnlyList<MagdollitePartState?> MagdolliteStates =>
             [.. self.Places.InUpdateOrder.Select(place => (place.Entity as MagdollitePartEntity)?.State)];
-
-        /// <summary>Typed state for each physical enemy slot currently owned by a Metroid.</summary>
-        internal IReadOnlyList<MetroidEnemyState?> MetroidStates =>
-            [.. self.Places.InUpdateOrder.Select(place => place.EntityState<MetroidEntity, MetroidEnemyState>())];
 
         /// <summary>The state of the one Baby Metroid the room has placed, each Baby Metroid owning its own (#2030).</summary>
         /// <exception cref="InvalidOperationException">The room has placed no Baby Metroid, or more than one.</exception>
@@ -213,16 +177,8 @@ internal static class RoomEnemySystemAccess
         /// <summary>Native $40-byte slot offsets selected by the most recent activity scan.</summary>
         internal IReadOnlyList<RoomEnemyOccupant> ActiveEnemies => self.ProcessingWindow.ActiveEnemies;
 
-        /// <summary>Typed native state for every physical Etecoon slot.</summary>
-        internal IReadOnlyList<EtecoonEnemyState?> EtecoonStates =>
-            [.. self.Places.InUpdateOrder.Select(place => place.EntityState<EtecoonEntity, EtecoonEnemyState>())];
-
         /// <summary>Native slot offsets admitted to solid-enemy interaction.</summary>
         internal IReadOnlyList<RoomEnemyOccupant> InteractiveEnemies => self.ProcessingWindow.InteractiveEnemies;
-
-        /// <summary>Typed Alcoon state for all 32 physical enemy slots.</summary>
-        internal IReadOnlyList<AlcoonEnemyState?> AlcoonStates =>
-            [.. self.Places.InUpdateOrder.Select(place => place.EntityState<AlcoonEntity, AlcoonEnemyState>())];
 
         /// <summary>Typed Dragon state by physical enemy slot, including cosmetic wing slots.</summary>
         internal IReadOnlyList<DragonEnemyState?> DragonStates =>
@@ -239,10 +195,6 @@ internal static class RoomEnemySystemAccess
         /// <summary>The Norfair Pipe Bug state of each slot that holds a Gamet.</summary>
         internal IReadOnlyList<NorfairPipeBugState?> NorfairPipeBugStates =>
             [.. self.Places.InUpdateOrder.Select(place => place.SpeciesState<NorfairPipeBugState>())];
-
-        /// <summary>The Ki-Hunter body state of each slot that holds a body.</summary>
-        internal IReadOnlyList<KiHunterBodyState?> KiHunterBodyStates =>
-            [.. self.Places.InUpdateOrder.Select(place => place.SpeciesState<KiHunterBodyState>())];
 
         /// <summary>The Ki-Hunter wing state of each slot that holds wings.</summary>
         internal IReadOnlyList<KiHunterWingState?> KiHunterWingStates =>
@@ -261,10 +213,6 @@ internal static class RoomEnemySystemAccess
 
         /// <summary>The room's Golden Torizo's state, or null in a room without one.</summary>
         internal TorizoEnemyState? GoldenTorizo => self.Torizo is { Variant: GoldenTorizoVariant } torizo ? torizo : null;
-
-        /// <summary>Growing shutter extensions indexed by physical enemy slot.</summary>
-        internal IReadOnlyList<GrowingShutterEnemyState?> GrowingShutterStates =>
-            [.. self.Places.InUpdateOrder.Select(place => place.EntityState<ShuttersEntity, GrowingShutterEnemyState>())];
 
         /// <summary>Number of live actors in the shared bank-$86 enemy-projectile pool.</summary>
         internal int ActiveEnemyProjectileCount =>

@@ -28,9 +28,6 @@ internal sealed record RoomEnemySpeciesDependencies
     /// <summary>The room's loaded definitions, random numbers and area.</summary>
     public required EnemyRoomBinding Room { get; init; }
 
-    /// <summary>The room's species registry, made before its places, to which the composition adds the species.</summary>
-    public required EnemySpeciesRegistry Registry { get; init; }
-
     /// <summary>The room's enemy places.</summary>
     public required EnemyPlaces Places { get; init; }
 

@@ -137,9 +137,9 @@ internal static class ZebetiteDefinitionsVerification
             // The primary is placed as the game places a spawned Zebetite: from its population, with its definition's health.
             RoomEnemyPlace primary = enemies.Places.InUpdateOrder[0];
             RoomEnemyPlacement population = Zebetites.SpawnPopulation(ZebetiteHalf.Primary, ZebetiteDefinitions.Generations[1]);
-            EnemyLifecycle.InitializePlaceFromDefinition(primary, population, CompiledRoomEnemyDefinitions.Instance.ReadEnemyDefinition(population.DefinitionId));
+            primary.Bind(population, CompiledRoomEnemyDefinitions.Instance.ReadEnemyDefinition(population.DefinitionId));
+            primary.Health = CompiledRoomEnemyDefinitions.Instance.ReadEnemyDefinition(population.DefinitionId).Health;
             enemies.ZebetiteBehavior.InitializeZebetite(primary.HeldOccupant(), primary);
-            enemies.Places.CoverSpawn(primary);
             enemies.ZebetiteBehavior.RunZebetiteMainAi(primary.HeldOccupant());
             RoomEnemyPlace linked = primary.RequireSpeciesState<ZebetiteEnemyState>().LinkedHalf ??
                 throw new InvalidDataException("A split pair's primary spawns its linked half on its first update.");

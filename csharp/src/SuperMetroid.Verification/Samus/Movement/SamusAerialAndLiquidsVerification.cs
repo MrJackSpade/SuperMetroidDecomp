@@ -100,7 +100,7 @@ SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, 0, unche
         context: "neutral jump solid-floor landing");
     AssertEqual(77, samus.Position.Y.Whole, "aerial radius rests at floor before pose expansion");
 
-    SamusPoseTransitions.ApplyAerialLanding(samus, wasSpinning: false, controllerInput: GameplayAction.None);
+    SamusPoseTransitions.ApplyAerialLanding(samus, (SuperMetroid.Core.Samus.Poses.SamusPoseAim.ISteady)SamusPoseMetadata.ReadAim(samus), wasSpinning: false, controllerInput: GameplayAction.None);
     AssertEqual(SamusPoseId.NormalLandingRightPose, samus.Pose, "normal right-facing landing pose");
     AssertEqual(75, samus.Position.Y.Whole, "landing radius expansion keeps feet fixed");
     AssertEqual(SamusVerticalDirection.None, samus.Kinematics.VerticalVelocity.Direction, "landing clears vertical direction");
@@ -262,7 +262,7 @@ SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), fallLeft, contr
 SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), fallLeft, 0, unchecked((ushort)(frame + 1))),
         maximumFrames: 199,
         context: "left falling pose floor landing");
-    SamusPoseTransitions.ApplyAerialLanding(fallLeft, wasSpinning: false, controllerInput: GameplayAction.None);
+    SamusPoseTransitions.ApplyAerialLanding(fallLeft, (SuperMetroid.Core.Samus.Poses.SamusPoseAim.ISteady)SamusPoseMetadata.ReadAim(fallLeft), wasSpinning: false, controllerInput: GameplayAction.None);
     AssertEqual(SamusPoseId.NormalLandingLeftPose, fallLeft.Pose, "left fall selects normal landing pose");
 
     // The standing transition table is shared by `$A4/$A5`, so Jump may interrupt normal
@@ -705,7 +705,7 @@ SamusTerrain.InRoom(empty, SamusRoomObjectFixtures.Uninstalled), screwRepeat, Ga
     AssertEqual(0, palettes.CycleShadeStep, "six Screw palettes wrap to step zero");
 
     // A Screw landing requests the same normal palette reload performed by `$91:F433`.
-    SamusPoseTransitions.ApplyAerialLanding(screwRepeat, wasSpinning: true, controllerInput: GameplayAction.None);
+    SamusPoseTransitions.ApplyAerialLanding(screwRepeat, (SuperMetroid.Core.Samus.Poses.SamusPoseAim.ISteady)SamusPoseMetadata.ReadAim(screwRepeat), wasSpinning: true, controllerInput: GameplayAction.None);
     AssertEqual(SamusPoseId.SpinLandingRightPose, screwRepeat.Pose, "Screw Attack lands through spin landing");
     AssertTrue(screwRepeat.HorizontalSpeed.SuitShade.IsDue,
         "Screw Attack landing requests normal palette restore");

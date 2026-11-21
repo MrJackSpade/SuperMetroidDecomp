@@ -305,7 +305,7 @@ SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, Gameplay
             break;
     }
     AssertTrue(frame.Landed, "aimed normal jump lands");
-    SamusPoseTransitions.ApplyAerialLanding(samus, wasSpinning: false, controllerInput: GameplayAction.None);
+    SamusPoseTransitions.ApplyAerialLanding(samus, (SuperMetroid.Core.Samus.Poses.SamusPoseAim.ISteady)SamusPoseMetadata.ReadAim(samus), wasSpinning: false, controllerInput: GameplayAction.None);
     AssertEqual(SamusPoseId.LandingAimDiagonalDownRightPose, samus.Pose, "shot direction three selects E4 landing");
     AssertEqual(21, samus.Kinematics.Radius.Y, "aimed landing expands radius");
     AssertEqual(171, samus.Position.Y.Whole, "aimed landing retains floor-aligned feet");
@@ -674,7 +674,7 @@ internal static void VerifySamusGunExtendedMovement()
 
     // `$91:E99B` samples HELD Shot, not newly pressed Shot. Holding X at horizontal impact
     // selects `$E6`; releasing it selects `$A4` from the same source metadata.
-    SamusPoseTransitions.ApplyAerialLanding(falling, wasSpinning: false, GameplayAction.Shoot);
+    SamusPoseTransitions.ApplyAerialLanding(falling, (SuperMetroid.Core.Samus.Poses.SamusPoseAim.ISteady)SamusPoseMetadata.ReadAim(falling), false, GameplayAction.Shoot);
     AssertEqual(SamusPoseId.FiringLandingRightPose, falling.Pose, "held Shot selects firing landing $E6");
     AssertEqual(21, falling.Kinematics.Radius.Y, "firing landing expands to standing radius");
     AssertEqual(0u, falling.Kinematics.VerticalVelocity.Speed.RawValue, "firing landing clears Y speed");
@@ -689,13 +689,13 @@ internal static void VerifySamusGunExtendedMovement()
     var releasedLanding = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()).InPose(SamusPoseId.FallingGunExtendedRightPose);
     SamusPoseMetadata.RefreshCollisionRadii(releasedLanding);
     SamusPresentation.InitializeAnimation(releasedLanding);
-    SamusPoseTransitions.ApplyAerialLanding(releasedLanding, wasSpinning: false, controllerInput: 0);
+    SamusPoseTransitions.ApplyAerialLanding(releasedLanding, (SuperMetroid.Core.Samus.Poses.SamusPoseAim.ISteady)SamusPoseMetadata.ReadAim(releasedLanding), wasSpinning: false, controllerInput: 0);
     AssertEqual(SamusPoseId.NormalLandingRightPose, releasedLanding.Pose, "released Shot selects ordinary landing $A4");
 
     var mirroredLanding = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()).InPose(SamusPoseId.FallingGunExtendedLeftPose);
     SamusPoseMetadata.RefreshCollisionRadii(mirroredLanding);
     SamusPresentation.InitializeAnimation(mirroredLanding);
-    SamusPoseTransitions.ApplyAerialLanding(mirroredLanding, wasSpinning: false, GameplayAction.Shoot);
+    SamusPoseTransitions.ApplyAerialLanding(mirroredLanding, (SuperMetroid.Core.Samus.Poses.SamusPoseAim.ISteady)SamusPoseMetadata.ReadAim(mirroredLanding), false, GameplayAction.Shoot);
     AssertEqual(SamusPoseId.FiringLandingLeftPose, mirroredLanding.Pose, "held Shot selects mirrored firing landing $E7");
 
     AssertTrue(SamusPoseMetadata.IsRightFacingRunningPose(SamusPoseId.MovingRightGunExtendedPose), "$0B is admitted by running dispatcher");

@@ -60,12 +60,9 @@ internal static class CrampedAerialLandingVerification
         samus.HorizontalSpeed.BaseSpeed = samus.HorizontalSpeed.BaseSpeed.WithWhole(3);
         samus.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(samus.Kinematics.VerticalVelocity.Speed.WithWhole(4), SamusVerticalDirection.Down);
 
-        SamusPoseTransitions.ApplyAerialLandingInRoom(samus, 
-
-            level,
-            wasSpinning: true,
+        SamusPoseTransitions.ApplyAerialLandingInRoom(samus, (SuperMetroid.Core.Samus.Poses.SamusPoseAim.ISteady)SamusPoseMetadata.ReadAim(samus), SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), wasSpinning: true,
             controllerInput: (GameplayAction.Right | GameplayAction.Jump),
-            frameCounter: 39440, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+            frameCounter: 39440);
 
         AssertEqual(SamusPoseId.CrouchingRightPose, samus.Pose,
             "two-sided non-Morph landing collision selects native crouch fallback");
@@ -96,7 +93,7 @@ internal static class CrampedAerialLandingVerification
         samus.ChangePoseKeepingAnimation(SamusPoseId.ScrewAttackRightPose);
         samus.Position = samus.Position.WithWholeY(0x0034);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
-        SamusPoseTransitions.ApplyAerialLandingInRoom(samus, level, true, 0, 39440, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+        SamusPoseTransitions.ApplyAerialLandingInRoom(samus, (SuperMetroid.Core.Samus.Poses.SamusPoseAim.ISteady)SamusPoseMetadata.ReadAim(samus), SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), true, 0, 39440);
         AssertTrue(samus.HorizontalSpeed.SuitShade.IsDue,
             "rejected landing still performs pre-command suit palette restoration");
     }

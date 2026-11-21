@@ -371,12 +371,12 @@ internal static class RidleyFullMovieVerification
         {
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 200)) }.InPose(pose);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
-            SamusPoseTransitions.ApplyAerialLandingInRoom(samus, level, false, 0, 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+            SamusPoseTransitions.ApplyAerialLandingInRoom(samus, (SuperMetroid.Core.Samus.Poses.SamusPoseAim.ISteady)SamusPoseMetadata.ReadAim(samus), SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), false, 0, 0);
             AssertEqual(1, samus.AnimationNumber, "native standing initializer skips raised-gun frame");
             AssertEqual((ushort)2, samus.AnimationFrameTimer.RawValue, "native source3604 landing delay");
             samus.ChangePoseKeepingAnimation(pose);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
-            SamusPoseTransitions.ApplyAerialLanding(samus, false, GameplayAction.None);
+            SamusPoseTransitions.ApplyAerialLanding(samus, (SuperMetroid.Core.Samus.Poses.SamusPoseAim.ISteady)SamusPoseMetadata.ReadAim(samus), false, GameplayAction.None);
             AssertEqual(1, samus.AnimationNumber, "roomless landing shares native frame skip");
             SamusPoseId standing = pose == SamusPoseId.FallingAimUpRightPose
                 ? SamusPoseId.StandingAimUpRightPose : SamusPoseId.StandingAimUpLeftPose;

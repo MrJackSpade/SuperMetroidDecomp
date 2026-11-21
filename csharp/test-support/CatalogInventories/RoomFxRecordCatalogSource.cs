@@ -323,7 +323,7 @@ internal static partial class RoomFxRecordCatalogSource
         source.AppendLine("/// The room states' effect selections, each holding its door effects in the game's order and its default effect, and the effects");
         source.AppendLine("/// Mother Brain's fight applies by itself; regenerate with --generate-room-effects.");
         source.AppendLine("/// </summary>");
-        source.AppendLine("public static class RoomFxDefinitions");
+        source.AppendLine("public static partial class RoomFxDefinitions");
         source.AppendLine("{");
         bool first = true;
         // A selection the cartridge stores under two headers (the quicksand shafts') is one member, written where its first

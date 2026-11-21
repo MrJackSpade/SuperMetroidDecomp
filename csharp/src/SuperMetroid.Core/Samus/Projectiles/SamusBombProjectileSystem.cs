@@ -786,26 +786,18 @@ public sealed class SamusBombProjectileSystem
         SamusBombOccupant placed)
     {
         SamusBomb bomb = placed.Bomb;
-        int centerX = RoomGridConversions.PixelToBlock(bomb.Position.X.Whole);
-        int centerY = RoomGridConversions.PixelToBlock(bomb.Position.Y.Whole);
+        var center = new Position16<RoomBlocks>(
+            RoomGridConversions.PixelToBlock(bomb.Position.X.Whole),
+            RoomGridConversions.PixelToBlock(bomb.Position.Y.Whole));
         foreach (Offset16<RoomBlocks> member in MorphBallBombDefinitions.ExplosionCross)
         {
-            int x = centerX + member.X;
-            int y = centerY + member.Y;
-            if (x < 0 || x >= terrain.Level.Size.X || y < 0 || y >= terrain.Level.Size.Y)
-            {
-                // The bomb collision first admits the bomb centre through the room's scroll bounds,
-                // and valid rooms surround reachable bomb centres with an edge wall. An
-                // out-of-range cross member therefore identifies malformed room or bomb
-                // state rather than another bomb reaction.
-                throw new InvalidDataException(
-                    $"Bomb explosion cross reaches outside room storage at block ({x},{y}).");
-            }
-
-            ReactToBombedBlock(
-                terrain,
-                new Position16<RoomBlocks>(x, y),
-                placed.Type);
+            // The game walks the cross by the blocks' places in the level data, so a member past a row's
+            // end is the next row's first block and one before a row's start the row above's last (RoomReadingOrder),
+            // which a bomb at a room's open side edge reaches (#2553). A member before the room's first block or past its
+            // last row would read outside the level data, which no modelled state holds; the cross takes the blocks inside
+            // the room alone.
+            if (RoomReadingOrder.Step(center, member, terrain.Level.Size.X) is { } block && block.Y < terrain.Level.Size.Y)
+                ReactToBombedBlock(terrain, block, placed.Type);
         }
     }
 
@@ -834,10 +826,13 @@ public sealed class SamusBombProjectileSystem
         RoomCollisionBlock block = bombed.Block;
         StandingCollisionType type = bombed.CollisionType;
 
-        // A bombed item block, special or shootable, tells the item room object at it of the hit, and no other reaction
-        // runs.
+        // The game's shootable reaction reads one table for a bomb, a shot and the grapple, in shootable air as in a
+        // shootable block (#2553): the air passes the bomb on while the block stops it, but the room object each sets off
+        // is the same. A bombed item block, special or shootable, tells the item room object at it of the hit, and no
+        // other reaction runs.
+        bool shootable = type is StandingCollisionType.ShootableAir or StandingCollisionType.ShootableBlock;
         if (type == StandingCollisionType.SpecialBlock && block.Behavior.Special == SpecialBlockReaction.CollectibleTrigger ||
-            type == StandingCollisionType.ShootableBlock && block.Behavior.Shootable == ShootableReaction.CollectibleTrigger)
+            shootable && block.Behavior.Shootable == ShootableReaction.CollectibleTrigger)
         {
             terrain.RoomObjects.CollectibleObjects.NotifyCollectibleProjectileHit(block.At);
             return;
@@ -846,7 +841,7 @@ public sealed class SamusBombProjectileSystem
         // A bombed solid or shootable block holding a resident room object's trigger tells that room object the
         // projectile's type. Coloured doors are such blocks, and so is the intact n00b tube, a solid block its intact
         // picture makes shootable.
-        if (type is StandingCollisionType.SolidBlock or StandingCollisionType.ShootableBlock &&
+        if ((type == StandingCollisionType.SolidBlock || shootable) &&
             block.Behavior.Shootable == ShootableReaction.ResidentObjectTrigger)
         {
             // A block no object occupies hears nothing (ProjectileTriggerObjects.TryNotifyResidentProjectileHit).
@@ -857,8 +852,7 @@ public sealed class SamusBombProjectileSystem
         // The four ordinary blue-door cap orientations lead to the blue door setup whether the collision came from the
         // shot or the bomb step. Normal bombs use the bomb projectile family and are accepted, so a bomb placed beside a
         // blue door opens it; the Power Bomb family is rejected inside the shared setup.
-        if (type == StandingCollisionType.ShootableBlock &&
-            block.Behavior.TryGetBlueDoorOrientation(out _))
+        if (shootable && block.Behavior.TryGetBlueDoorOrientation(out _))
         {
             terrain.RoomObjects.DoorObjects.SpawnBlueDoorOpening(
                 terrain.Level,
@@ -906,12 +900,11 @@ public sealed class SamusBombProjectileSystem
             return;
         }
 
-        if (type is StandingCollisionType.ShootableAir or StandingCollisionType.ShootableBlock)
+        if (shootable)
         {
             // Gate shot blocks reuse shootable collision with the private gate-trigger behaviours. They
             // select temporary trigger room objects rather than the ordinary bomb reactions.
-            if (type == StandingCollisionType.ShootableBlock &&
-                block.Behavior.TryGetDownwardGateTrigger(out _))
+            if (block.Behavior.TryGetDownwardGateTrigger(out _))
             {
                 terrain.RoomObjects.Gates.SpawnDownwardGateTrigger(
                     terrain.Level,
@@ -925,16 +918,11 @@ public sealed class SamusBombProjectileSystem
             // shootable block with that reaction still spawns the empty room object, which takes a
             // room-object place for one pass.
             if (type == StandingCollisionType.ShootableAir &&
-                block.Behavior.Shootable is { } shootable && shootable.SetsOffOnlyInSolidBlocks)
+                block.Behavior.Shootable is { } reaction && reaction.SetsOffOnlyInSolidBlocks)
                 return;
-            if (block.Behavior.Shootable is not (ShootableReaction.NothingWhenSolid or ShootableReaction.AnimalEscape or
-                    ShootableReaction.CollisionProbe) &&
-                !ShotBlockReactions.IsWeaponReaction(block.Behavior.Shootable))
-            {
-                throw new InvalidDataException(
-                    $"Shootable block {block.Position} has behaviour ({block.Behavior}) with no " +
-                    "reaction a bomb sets off.");
-            }
+            // Every other reaction is the table's room object a bomb sets off: the breaks, the Power Bomb and Super Missile
+            // blocks' reveals, the collision probe, the escape animals' wall, and the one-update object that leaves the
+            // block alone, which the table names for the empty reactions and for those shots pass by alike.
             terrain.RoomObjects.BlockReactions.TrySpawnProjectileShotBlock(
                 terrain.Level,
                 block.At,

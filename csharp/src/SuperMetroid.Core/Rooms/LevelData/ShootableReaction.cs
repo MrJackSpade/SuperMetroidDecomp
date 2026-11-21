@@ -53,8 +53,8 @@ public enum ShootableReaction
     CollisionProbe,
 
     /// <summary>
-    /// Shots pass it by without a reaction and the X-ray scope does not reveal it; the grapple beam sets off the one-update
-    /// object that leaves the block alone, and a bomb has no reaction for it.
+    /// Shots pass it by without a reaction and the X-ray scope does not reveal it; the grapple beam and a bomb set off the
+    /// one-update object that leaves the block alone, the room object the game's shootable reaction table names for it.
     /// </summary>
     IgnoresShots,
 

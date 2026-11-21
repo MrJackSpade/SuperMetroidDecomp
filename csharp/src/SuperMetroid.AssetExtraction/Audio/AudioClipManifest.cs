@@ -31,7 +31,9 @@ public sealed record AudioClipManifest(
     /// records no note starts. Version 8 (#2475) names the Mama Turtle's spin for her, where version 7 named it by the
     /// original's name for her. Version 9 (#2560) holds each sound effect's shape as one closed choice, a one-shot with its
     /// active frames and optional clip or a never-ending effect with its looping layers, where version 8 held a nullable
-    /// active length beside layers each with a nullable loop start.
+    /// active length beside layers each with a nullable loop start. Version 10 (#2603) renders each sound that plays an
+    /// instrument only a music data set defines with the data set its room loads, Phantoon's appearance and Crocomire's
+    /// cries among them, where version 9 rendered those from the shared sounds alone, silent where they key that instrument.
     /// </summary>
-    public const int CurrentFormatVersion = 9;
+    public const int CurrentFormatVersion = 10;
 }

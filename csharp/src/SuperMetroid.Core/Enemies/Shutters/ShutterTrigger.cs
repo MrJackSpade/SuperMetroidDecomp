@@ -54,7 +54,7 @@ public abstract partial record ShutterTrigger(ShutterTriggerMode Mode)
 /// <param name="Plain">Makes a trigger that reads no wait or distance (starting at once, or a shot's reaction) into the result.</param>
 /// <typeparam name="TContext">What each case reads besides itself.</typeparam>
 /// <typeparam name="TResult">What the trigger is made into.</typeparam>
-internal sealed record ShutterTriggerCases<TContext, TResult>(
+internal sealed partial record ShutterTriggerCases<TContext, TResult>(
     Func<ShutterTrigger.Timer, TContext, TResult> Timer,
     Func<ShutterTrigger.HorizontalProximity, TContext, TResult> HorizontalProximity,
     Func<ShutterTrigger, TContext, TResult> Plain);

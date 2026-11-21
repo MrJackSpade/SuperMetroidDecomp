@@ -83,4 +83,4 @@ internal abstract partial record DoorContact
 /// <param name="StandsAtElevator">Reacts to a <see cref="DoorContact.StandsAtElevator"/>.</param>
 /// <param name="BrushesElevator">Reacts to a <see cref="DoorContact.BrushesElevator"/>.</param>
 /// <typeparam name="TContext">What each case reads besides itself.</typeparam>
-internal sealed record DoorContactReactions<TContext>(Action<DoorContact.EntersDoor, TContext> EntersDoor, Action<DoorContact.StandsAtElevator, TContext> StandsAtElevator, Action<DoorContact.BrushesElevator, TContext> BrushesElevator);
+internal sealed partial record DoorContactReactions<TContext>(Action<DoorContact.EntersDoor, TContext> EntersDoor, Action<DoorContact.StandsAtElevator, TContext> StandsAtElevator, Action<DoorContact.BrushesElevator, TContext> BrushesElevator);

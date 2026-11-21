@@ -56,7 +56,7 @@ internal sealed partial class HibashiBehavior : IEnemySpecies, IEnemyEntityFacto
     /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="Place">The place the cases read.</param>
     /// <param name="Owner">The <see cref="HibashiBehavior"/> reacting.</param>
-    private readonly record struct ApplyHibashiCueContext(RoomEnemyPlace Place, HibashiBehavior Owner);
+    private readonly partial record struct ApplyHibashiCueContext(RoomEnemyPlace Place, HibashiBehavior Owner);
 
     /// <summary>Initializes the collision part, which holds the one-frame hitbox animation.</summary>
     internal static void InitializeHibashiCollisionPart(RoomEnemyPlace place) =>

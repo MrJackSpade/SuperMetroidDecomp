@@ -64,7 +64,7 @@ internal sealed partial class AudioEventSource
     /// <summary>An update applying its requests (#2553): the clock they reach and the events it publishes.</summary>
     /// <param name="Clock">The sound acceptance clock.</param>
     /// <param name="Events">The update's events so far.</param>
-    private readonly record struct RequestApplying(SoundAcceptanceClock<SoundEffectLibrary, SoundEffectId> Clock, List<AudioEvent> Events);
+    private readonly partial record struct RequestApplying(SoundAcceptanceClock<SoundEffectLibrary, SoundEffectId> Clock, List<AudioEvent> Events);
 
     /// <summary>A library starts a sound only for a changed request, other than none, taken at the previous check.</summary>
     private static void AddStart(List<AudioEvent> events, SoundClockStep<SoundEffectLibrary, SoundEffectId> step, SoundRequestCheck<SoundEffectId> check)

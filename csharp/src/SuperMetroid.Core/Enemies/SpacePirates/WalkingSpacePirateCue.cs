@@ -59,4 +59,4 @@ internal abstract partial record WalkingSpacePirateCue
 /// <param name="BeginHeading">Makes a <see cref="WalkingSpacePirateCue.BeginHeading"/> into the result.</param>
 /// <param name="Signal">Makes a <see cref="WalkingSpacePirateCue.Signal"/> into the result.</param>
 /// <typeparam name="TContext">What each case reads besides itself.</typeparam>
-internal sealed record WalkingSpacePirateCueCases<TContext, TResult>(Func<WalkingSpacePirateCue.FireLaser, TContext, TResult> FireLaser, Func<WalkingSpacePirateCue.Begin, TContext, TResult> Begin, Func<WalkingSpacePirateCue.BeginHeading, TContext, TResult> BeginHeading, Func<WalkingSpacePirateCue.Signal, TContext, TResult> Signal);
+internal sealed partial record WalkingSpacePirateCueCases<TContext, TResult>(Func<WalkingSpacePirateCue.FireLaser, TContext, TResult> FireLaser, Func<WalkingSpacePirateCue.Begin, TContext, TResult> Begin, Func<WalkingSpacePirateCue.BeginHeading, TContext, TResult> BeginHeading, Func<WalkingSpacePirateCue.Signal, TContext, TResult> Signal);

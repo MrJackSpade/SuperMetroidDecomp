@@ -191,7 +191,7 @@ internal sealed partial class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntit
     /// <param name="Samus">The samus the cases read.</param>
     /// <param name="Place">The place the cases read.</param>
     /// <param name="State">The state the cases read.</param>
-    private readonly record struct ApplyEscapeEtecoonCueContext(SamusState Samus, RoomEnemyPlace Place, EscapeEtecoonEnemyState State);
+    private readonly partial record struct ApplyEscapeEtecoonCueContext(SamusState Samus, RoomEnemyPlace Place, EscapeEtecoonEnemyState State);
 
     /// <summary>The run an escaping Etecoon starts the way it runs once the rising acid is high (#2167).</summary>
     internal static EscapeEtecoonSegment HighTideRun(HorizontalDirection running) =>
@@ -220,7 +220,7 @@ internal sealed partial class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntit
     /// <param name="Samus">The samus the cases read.</param>
     /// <param name="Place">The place the cases read.</param>
     /// <param name="Owner">The <see cref="EscapeAnimalsBehavior"/> reacting.</param>
-    private readonly record struct ApplyEscapeDachoraCueContext(SamusState Samus, RoomEnemyPlace Place, EscapeAnimalsBehavior Owner);
+    private readonly partial record struct ApplyEscapeDachoraCueContext(SamusState Samus, RoomEnemyPlace Place, EscapeAnimalsBehavior Owner);
 
     /// <summary>
     /// Where the rising tide takes the escaping Dachora at the end of a low-tide lap the way <paramref name="lap"/> ran

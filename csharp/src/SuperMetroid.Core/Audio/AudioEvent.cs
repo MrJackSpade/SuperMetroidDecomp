@@ -90,4 +90,4 @@ public abstract partial record AudioEvent
 /// <param name="ClockStep">Reacts to a <see cref="AudioEvent.ClockStep"/>.</param>
 /// <param name="StartSoundEffect">Reacts to a <see cref="AudioEvent.StartSoundEffect"/>.</param>
 /// <typeparam name="TContext">What each case reads besides itself.</typeparam>
-public sealed record AudioEventReactions<TContext>(Action<AudioEvent.ChangeMusicDataSet, TContext> ChangeMusicDataSet, Action<AudioEvent.SelectMusicTrack, TContext> SelectMusicTrack, Action<AudioEvent.StopMusic, TContext> StopMusic, Action<AudioEvent.ClockStep, TContext> ClockStep, Action<AudioEvent.StartSoundEffect, TContext> StartSoundEffect);
+public sealed partial record AudioEventReactions<TContext>(Action<AudioEvent.ChangeMusicDataSet, TContext> ChangeMusicDataSet, Action<AudioEvent.SelectMusicTrack, TContext> SelectMusicTrack, Action<AudioEvent.StopMusic, TContext> StopMusic, Action<AudioEvent.ClockStep, TContext> ClockStep, Action<AudioEvent.StartSoundEffect, TContext> StartSoundEffect);

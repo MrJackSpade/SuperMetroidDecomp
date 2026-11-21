@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Animation;
 /// <typeparam name="TFrame">The frame identity.</typeparam>
 /// <typeparam name="TEvent">The events the owner reacts to.</typeparam>
 /// <param name="Duration">The updates the owner stays hidden.</param>
-internal sealed record AnimationHiddenBeat<TFrame, TEvent>(int Duration) : IHidingAnimationBeat<TFrame, TEvent>, IUnpausedHidingAnimationBeat<TFrame, TEvent>
+internal sealed partial record AnimationHiddenBeat<TFrame, TEvent>(int Duration) : IHidingAnimationBeat<TFrame, TEvent>, IUnpausedHidingAnimationBeat<TFrame, TEvent>
     where TFrame : struct
     where TEvent : notnull
 {

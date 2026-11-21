@@ -63,4 +63,4 @@ internal abstract partial record MagdolliteCue
 /// <param name="ShiftFromThrowOrigin">Reacts to a <see cref="MagdolliteCue.ShiftFromThrowOrigin"/>.</param>
 /// <param name="Signal">Reacts to a <see cref="MagdolliteCue.Signal"/>.</param>
 /// <typeparam name="TContext">What each case reads besides itself.</typeparam>
-internal sealed record MagdolliteCueReactions<TContext>(Action<MagdolliteCue.PlaySoundIfOnScreen, TContext> PlaySoundIfOnScreen, Action<MagdolliteCue.Move, TContext> Move, Action<MagdolliteCue.MoveWithPillar, TContext> MoveWithPillar, Action<MagdolliteCue.ShiftFromThrowOrigin, TContext> ShiftFromThrowOrigin, Action<MagdolliteCue.Signal, TContext> Signal);
+internal sealed partial record MagdolliteCueReactions<TContext>(Action<MagdolliteCue.PlaySoundIfOnScreen, TContext> PlaySoundIfOnScreen, Action<MagdolliteCue.Move, TContext> Move, Action<MagdolliteCue.MoveWithPillar, TContext> MoveWithPillar, Action<MagdolliteCue.ShiftFromThrowOrigin, TContext> ShiftFromThrowOrigin, Action<MagdolliteCue.Signal, TContext> Signal);

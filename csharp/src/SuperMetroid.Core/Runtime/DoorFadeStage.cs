@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Runtime;
 /// stages the steps of their fade, the dark stage nothing, and the fade in whether the door has opened. The running stages
 /// are a group of their own, so only a running stage shades the display, the faded pictures and Samus.
 /// </summary>
-internal abstract record DoorFadeStage
+internal abstract partial record DoorFadeStage
 {
     /// <summary>Only the stages below exist.</summary>
     private DoorFadeStage()
@@ -22,10 +22,10 @@ internal abstract record DoorFadeStage
     internal static DoorFadeStage None { get; } = new NoFade();
 
     /// <summary>No fade runs.</summary>
-    internal sealed record NoFade : DoorFadeStage;
+    internal sealed partial record NoFade : DoorFadeStage;
 
     /// <summary>A running stage of the fade.</summary>
-    internal abstract record Running : DoorFadeStage
+    internal abstract partial record Running : DoorFadeStage
     {
         /// <summary>Only the running stages below exist.</summary>
         private protected Running()
@@ -43,7 +43,7 @@ internal abstract record DoorFadeStage
     }
 
     /// <summary>The room being left fades out to black: pictures from their own colours toward their dark shades.</summary>
-    internal sealed record FadingOut : Running
+    internal sealed partial record FadingOut : Running
     {
         /// <summary>Fades the room out over <paramref name="steps"/>.</summary>
         internal FadingOut(GradualFadeSteps steps) => Steps = Ensure.NotNull(steps);
@@ -63,7 +63,7 @@ internal abstract record DoorFadeStage
     }
 
     /// <summary>The faded-out room stays dark while the door loads and scrolls: pictures at their dark shades.</summary>
-    internal sealed record Dark : Running
+    internal sealed partial record Dark : Running
     {
         /// <inheritdoc/>
         internal override ColourEffect DisplayEffect => new ColourFlash(RgbColor.Black);
@@ -80,7 +80,7 @@ internal abstract record DoorFadeStage
     /// The room being entered fades in from black: pictures from their dark shades to their own colours, Samus's beams lit
     /// from the room's load, which the fade in starts with.
     /// </summary>
-    internal abstract record Entering : Running
+    internal abstract partial record Entering : Running
     {
         /// <summary>Fades the room in over <paramref name="steps"/>.</summary>
         private protected Entering(GradualFadeSteps steps) => Steps = Ensure.NotNull(steps);
@@ -97,7 +97,7 @@ internal abstract record DoorFadeStage
     }
 
     /// <summary>The room being entered fades in before its door has opened: Samus's beams stay lit.</summary>
-    internal sealed record FadingIn : Entering
+    internal sealed partial record FadingIn : Entering
     {
         /// <summary>Fades the room in over <paramref name="steps"/>.</summary>
         internal FadingIn(GradualFadeSteps steps)
@@ -113,7 +113,7 @@ internal abstract record DoorFadeStage
     /// The room being entered fades in once its door has opened: Samus's visor shows the door's completion green, which
     /// stays lit after her beams.
     /// </summary>
-    internal sealed record FadingInDoorOpen : Entering
+    internal sealed partial record FadingInDoorOpen : Entering
     {
         /// <summary>Goes on fading the room in over <paramref name="steps"/>, the fade in's own.</summary>
         internal FadingInDoorOpen(GradualFadeSteps steps)

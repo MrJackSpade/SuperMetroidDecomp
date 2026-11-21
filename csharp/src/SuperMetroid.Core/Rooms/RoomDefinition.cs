@@ -79,7 +79,7 @@ public sealed partial record RoomDefinition
     /// <param name="Area">The room's area.</param>
     /// <param name="MapPosition">The area-map cell of the room's top-left screen.</param>
     /// <param name="Size">The room's size in scroll screens.</param>
-    private sealed record RoomPlace(string Name, AreaId Area, Position16<MapTiles> MapPosition, Extent16<RoomScreens> Size)
+    private sealed partial record RoomPlace(string Name, AreaId Area, Position16<MapTiles> MapPosition, Extent16<RoomScreens> Size)
     {
         /// <summary>The ground the room is on: its area's unless the room declares its own.</summary>
         internal RoomGround Ground { get; init; } = RoomGroundDefinitions.AreaGrounds[Area];

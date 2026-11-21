@@ -49,4 +49,4 @@ internal abstract partial record CeresBabyCue
 /// <param name="UpdateColors">Makes a <see cref="CeresBabyCue.UpdateColors"/> into the result.</param>
 /// <param name="Cries">Makes a <see cref="CeresBabyCue.Cries"/> into the result.</param>
 /// <typeparam name="TContext">What each case reads besides itself.</typeparam>
-internal sealed record CeresBabyCueCases<TContext, TResult>(Func<CeresBabyCue.ReactsToMotion, TContext, TResult> ReactsToMotion, Func<CeresBabyCue.UpdateColors, TContext, TResult> UpdateColors, Func<CeresBabyCue.Cries, TContext, TResult> Cries);
+internal sealed partial record CeresBabyCueCases<TContext, TResult>(Func<CeresBabyCue.ReactsToMotion, TContext, TResult> ReactsToMotion, Func<CeresBabyCue.UpdateColors, TContext, TResult> UpdateColors, Func<CeresBabyCue.Cries, TContext, TResult> Cries);

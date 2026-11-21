@@ -44,4 +44,4 @@ public static partial class CeresRidleyGetawayCurve
 /// The floor's drift on the update: its X is subtracted from the floor's horizontal offset, so the image moves right, and
 /// its Y added to the vertical offset.
 /// </param>
-public readonly record struct CeresRidleyGetawayStep(FloorZoom Zoom, Offset16<FloorPixels> Drift);
+public readonly partial record struct CeresRidleyGetawayStep(FloorZoom Zoom, Offset16<FloorPixels> Drift);

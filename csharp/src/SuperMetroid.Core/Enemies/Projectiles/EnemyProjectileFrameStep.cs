@@ -61,7 +61,7 @@ internal abstract partial record EnemyProjectileFrameStep
     }
 
     /// <summary>The animation ends, and its end deletes the projectile: no step follows it.</summary>
-    internal sealed record Delete : EnemyProjectileFrameStep
+    internal sealed partial record Delete : EnemyProjectileFrameStep
     {
         /// <inheritdoc/>
         internal override void React<TContext>(EnemyProjectileFrameStepReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).Delete(this, context);
@@ -75,7 +75,7 @@ internal abstract partial record EnemyProjectileFrameStep
 /// <param name="Rest">Reacts to a <see cref="EnemyProjectileFrameStep.Rest"/>.</param>
 /// <param name="Delete">Reacts to a <see cref="EnemyProjectileFrameStep.Delete"/>.</param>
 /// <typeparam name="TContext">What each case reads besides itself.</typeparam>
-internal sealed record EnemyProjectileFrameStepReactions<TContext>(
+internal sealed partial record EnemyProjectileFrameStepReactions<TContext>(
     Action<EnemyProjectileFrameStep.Show, TContext> Show,
     Action<EnemyProjectileFrameStep.ShowForGood, TContext> ShowForGood,
     Action<EnemyProjectileFrameStep.Hide, TContext> Hide,

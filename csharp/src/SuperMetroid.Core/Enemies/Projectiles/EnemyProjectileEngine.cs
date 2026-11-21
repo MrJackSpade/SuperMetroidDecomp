@@ -49,7 +49,7 @@ internal sealed partial class EnemyProjectileEngine
     /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="Projectile">The projectile the cases read.</param>
     /// <param name="Owner">The <see cref="EnemyProjectileEngine"/> reacting.</param>
-    private readonly record struct ApplyCommonCueContext(EnemyProjectile Projectile, EnemyProjectileEngine Owner);
+    private readonly partial record struct ApplyCommonCueContext(EnemyProjectile Projectile, EnemyProjectileEngine Owner);
 
     /// <summary>Supplies room RNG and artwork for projectile effects.</summary>
     private readonly EnemyRoomBinding _room;

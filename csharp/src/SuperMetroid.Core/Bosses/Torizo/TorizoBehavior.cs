@@ -609,7 +609,7 @@ internal sealed partial class TorizoBehavior : IEnemySpecies, IEnemyEntityFactor
     /// <param name="Inputs">The inputs the cases read.</param>
     /// <param name="Continuation">The continuation the cases read.</param>
     /// <param name="Owner">The <see cref="TorizoBehavior"/> reacting.</param>
-    private readonly record struct ApplyTorizoCueContext(RoomEnemyOccupant Occupant, RoomEnemyPlace Torizo, TorizoEnemyState State, TorizoCueInputs Inputs, AnimationPlayback<TorizoBodySegment> Continuation, TorizoBehavior Owner);
+    private readonly partial record struct ApplyTorizoCueContext(RoomEnemyOccupant Occupant, RoomEnemyPlace Torizo, TorizoEnemyState State, TorizoCueInputs Inputs, AnimationPlayback<TorizoBodySegment> Continuation, TorizoBehavior Owner);
 
     /// <summary>Moves a Torizo by a posture change's displacement standing up, or back by it sitting down.</summary>
     internal static void ApplyTorizoPosture(

@@ -129,7 +129,7 @@ internal sealed partial class RidleyBodyAnimation
     /// <param name="Samus">Samus.</param>
     /// <param name="Owner">The encounter that owns the body, which handles the lift-off and the fireball cut (#2230).</param>
     /// <param name="Animation">The <see cref="RidleyBodyAnimation"/> reacting.</param>
-    private readonly record struct ApplyCueContext(RoomEnemyPlace Place, RidleyFlightState Flight, RidleyEncounterState Ridley, SamusState Samus, IRidleyBodyOwner Owner, RidleyBodyAnimation Animation);
+    private readonly partial record struct ApplyCueContext(RoomEnemyPlace Place, RidleyFlightState Flight, RidleyEncounterState Ridley, SamusState Samus, IRidleyBodyOwner Owner, RidleyBodyAnimation Animation);
 
     /// <summary>
     /// Shows a breakup fragment's picture where the shared enemy animation runs (#2235): a still picture, which the

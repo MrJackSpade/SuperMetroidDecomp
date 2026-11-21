@@ -64,4 +64,4 @@ internal abstract partial record YardCue
 /// <param name="BeginCrawling">Makes a <see cref="YardCue.BeginCrawling"/> into the result.</param>
 /// <param name="Signal">Makes a <see cref="YardCue.Signal"/> into the result.</param>
 /// <typeparam name="TContext">What each case reads besides itself.</typeparam>
-internal sealed record YardCueCases<TContext, TResult>(Func<YardCue.MoveBy, TContext, TResult> MoveBy, Func<YardCue.SetDirection, TContext, TResult> SetDirection, Func<YardCue.SetHidingAnimation, TContext, TResult> SetHidingAnimation, Func<YardCue.BeginCrawling, TContext, TResult> BeginCrawling, Func<YardCue.Signal, TContext, TResult> Signal);
+internal sealed partial record YardCueCases<TContext, TResult>(Func<YardCue.MoveBy, TContext, TResult> MoveBy, Func<YardCue.SetDirection, TContext, TResult> SetDirection, Func<YardCue.SetHidingAnimation, TContext, TResult> SetHidingAnimation, Func<YardCue.BeginCrawling, TContext, TResult> BeginCrawling, Func<YardCue.Signal, TContext, TResult> Signal);

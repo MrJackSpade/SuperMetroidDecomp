@@ -477,7 +477,7 @@ internal sealed partial class ShuttersBehavior : IEnemySpecies, IEnemyEntityFact
     /// <param name="Place">The shutter.</param>
     /// <param name="State">The shutter's state.</param>
     /// <param name="Samus">Samus, whom a proximity wait measures.</param>
-    private readonly record struct ShutterWaitContext<TState>(RoomEnemyPlace Place, TState State, SamusState Samus);
+    private readonly partial record struct ShutterWaitContext<TState>(RoomEnemyPlace Place, TState State, SamusState Samus);
 
     /// <summary>The action a shutter of <paramref name="triggerMode"/> starts in: the wait its trigger names.</summary>
     internal static VerticalShutterAction InitialAction(ShutterTriggerMode triggerMode) => InitialActionByTriggerMode[triggerMode];

@@ -42,7 +42,7 @@ public sealed partial class SamusLiquidPhysicsState
     /// <param name="Surface">The liquid's surface as her physics sees it (<see cref="LiveSurface"/>), or null when none shows.</param>
     /// <param name="IgnoresSurfaceUntilEnabled">Whether the effect's water ignores its surface until the surface is enabled.</param>
     [IndependentFlag("Whether the water ignores its surface until it is enabled is the effect's own property, read as it is applied.")]
-    private readonly record struct RoomLiquidReading(int? Surface, bool IgnoresSurfaceUntilEnabled);
+    private readonly partial record struct RoomLiquidReading(int? Surface, bool IgnoresSurfaceUntilEnabled);
 
     /// <summary>The two water effects, each as its room effect type.</summary>
     private static IdentityTable<WaterRoomFx, RoomFxType> WaterRoomFxTypes => field ??= new(new Dictionary<WaterRoomFx, RoomFxType>

@@ -340,7 +340,7 @@ internal sealed partial class SamusPresentation
     /// <param name="Samus">Samus, whose animation reaches the cue.</param>
     /// <param name="ProspectiveInputPose">The pose her input selected this update, if any.</param>
     /// <param name="DemoPoseInput">Whether a demo drives her pose input.</param>
-    private readonly record struct SamusCueRun(SamusState Samus, SamusPoseId? ProspectiveInputPose, bool DemoPoseInput);
+    private readonly partial record struct SamusCueRun(SamusState Samus, SamusPoseId? ProspectiveInputPose, bool DemoPoseInput);
 
     /// <summary>
     /// Draws Samus's body in her current pose, unless invincibility's flicker hides it on this frame.

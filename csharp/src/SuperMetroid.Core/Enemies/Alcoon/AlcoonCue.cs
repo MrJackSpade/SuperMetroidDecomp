@@ -37,4 +37,4 @@ internal abstract partial record AlcoonCue
 /// <param name="Fire">Makes a <see cref="AlcoonCue.Fire"/> into the result.</param>
 /// <param name="Signal">Makes a <see cref="AlcoonCue.Signal"/> into the result.</param>
 /// <typeparam name="TContext">What each case reads besides itself.</typeparam>
-internal sealed record AlcoonCueCases<TContext, TResult>(Func<AlcoonCue.Fire, TContext, TResult> Fire, Func<AlcoonCue.Signal, TContext, TResult> Signal);
+internal sealed partial record AlcoonCueCases<TContext, TResult>(Func<AlcoonCue.Fire, TContext, TResult> Fire, Func<AlcoonCue.Signal, TContext, TResult> Signal);

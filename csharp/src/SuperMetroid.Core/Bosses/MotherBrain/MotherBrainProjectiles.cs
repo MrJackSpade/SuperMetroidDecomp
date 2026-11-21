@@ -266,7 +266,7 @@ internal sealed partial class MotherBrainProjectiles
         /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
         /// <param name="Projectile">The projectile the cases read.</param>
         /// <param name="Owner">The <see cref="MotherBrainProjectileBehavior"/> reacting.</param>
-        private readonly record struct ApplyMotherBrainEffectCueContext(EnemyProjectile Projectile, MotherBrainProjectileBehavior Owner);
+        private readonly partial record struct ApplyMotherBrainEffectCueContext(EnemyProjectile Projectile, MotherBrainProjectileBehavior Owner);
 
         /// <summary>Moves the bomb.</summary>
         private void BounceMotherBrainBomb(

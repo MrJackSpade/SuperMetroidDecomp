@@ -95,7 +95,7 @@ internal sealed partial class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFac
     /// <param name="State">The Yard's state.</param>
     /// <param name="Playing">Where the play stands just past the cue.</param>
     /// <param name="Owner">The <see cref="YardEnemyBehavior"/> reacting.</param>
-    private readonly record struct ApplyYardCueContext(RoomEnemyPlace Place, YardEnemyState State, AnimationPlayback<YardSegment> Playing, YardEnemyBehavior Owner);
+    private readonly partial record struct ApplyYardCueContext(RoomEnemyPlace Place, YardEnemyState State, AnimationPlayback<YardSegment> Playing, YardEnemyBehavior Owner);
 
     /// <summary>What each of the Yard's signals does, and the animation it continues at, or null to run on.</summary>
     [field: NonSerialized]

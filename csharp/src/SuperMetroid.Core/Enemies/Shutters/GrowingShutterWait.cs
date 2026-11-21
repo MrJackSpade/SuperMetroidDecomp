@@ -32,6 +32,6 @@ public abstract partial record GrowingShutterWait
 /// <param name="SamusNear">Makes a <see cref="GrowingShutterWait.SamusNear"/> into the result.</param>
 /// <typeparam name="TContext">What each case reads besides itself.</typeparam>
 /// <typeparam name="TResult">What the wait is made into.</typeparam>
-internal sealed record GrowingShutterWaitCases<TContext, TResult>(
+internal sealed partial record GrowingShutterWaitCases<TContext, TResult>(
     Func<GrowingShutterWait.Timer, TContext, TResult> Timer,
     Func<GrowingShutterWait.SamusNear, TContext, TResult> SamusNear);

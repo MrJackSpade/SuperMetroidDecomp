@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Animation;
 /// <typeparam name="TEvent">The events the owner reacts to.</typeparam>
 /// <typeparam name="TBeat">The beats the family's segments hold.</typeparam>
 /// <typeparam name="TShown">What a play of the family's animations comes to.</typeparam>
-internal abstract class AnimationSegmentPlay<TSegment, TFrame, TEvent, TBeat, TShown>
+internal abstract partial class AnimationSegmentPlay<TSegment, TFrame, TEvent, TBeat, TShown>
     where TSegment : struct
     where TFrame : struct
     where TEvent : notnull
@@ -310,7 +310,7 @@ internal abstract class AnimationSegmentPlay<TSegment, TFrame, TEvent, TBeat, TS
     /// <param name="place">Where the play stands.</param>
     /// <param name="phase">The phase it is in.</param>
     /// <param name="react">The owner's reaction to an event, and where the play goes on, if anywhere.</param>
-    private protected struct Play(
+    private protected partial struct Play(
         Animation<TSegment> animation, AnimationPlace place, AnimationPhase<TSegment> phase,
         Func<TEvent, AnimationPlayback<TSegment>, AnimationContinuation<TSegment>?> react)
     {

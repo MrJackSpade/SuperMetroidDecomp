@@ -60,7 +60,7 @@ internal sealed partial class CacatacBehavior : IEnemySpecies, IEnemyEntityFacto
     /// <param name="Place">The place the cases read.</param>
     /// <param name="State">The state the cases read.</param>
     /// <param name="Owner">The <see cref="CacatacBehavior"/> reacting.</param>
-    private readonly record struct ApplyCacatacCueContext(RoomEnemyOccupant Occupant, RoomEnemyPlace Place, CacatacEnemyState State, CacatacBehavior Owner);
+    private readonly partial record struct ApplyCacatacCueContext(RoomEnemyOccupant Occupant, RoomEnemyPlace Place, CacatacEnemyState State, CacatacBehavior Owner);
 
     /// <summary>Initializes the Cacatac.</summary>
     internal static void InitializeCacatac(RoomEnemyOccupant occupant, RoomEnemyPlace place)

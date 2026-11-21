@@ -549,7 +549,7 @@ internal sealed partial class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFa
     /// <param name="Camera">The camera the cases read.</param>
     /// <param name="State">The state the cases read.</param>
     /// <param name="Owner">The <see cref="MagdolliteBehavior"/> reacting.</param>
-    private readonly record struct ApplyMagdolliteCueContext(RoomEnemyOccupant Occupant, RoomEnemyPlace Place, Position16<RoomPixels> Camera, MagdollitePartState State, MagdolliteBehavior Owner);
+    private readonly partial record struct ApplyMagdolliteCueContext(RoomEnemyOccupant Occupant, RoomEnemyPlace Place, Position16<RoomPixels> Camera, MagdollitePartState State, MagdolliteBehavior Owner);
 
     /// <summary>
     /// Passes a struck part's fate to the two enemies listed after it, once any hit's ordinary damage is done: a part

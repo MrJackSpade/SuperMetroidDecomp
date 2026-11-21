@@ -132,7 +132,7 @@ internal sealed partial class CeresRidleyBabyScene
     /// <param name="Baby">The <c>baby</c> <see cref="AdvanceCeresBabyAnimation"/> works with.</param>
     /// <param name="Ridley">Ceres Ridley's encounter, which holds the Baby and the colours its cues show.</param>
     /// <param name="Owner">The <see cref="CeresRidleyBabyScene"/> reacting.</param>
-    private readonly record struct AdvanceCeresBabyAnimationContext(CeresBaby Baby, CeresRidleyState Ridley, CeresRidleyBabyScene Owner);
+    private readonly partial record struct AdvanceCeresBabyAnimationContext(CeresBaby Baby, CeresRidleyState Ridley, CeresRidleyBabyScene Owner);
 
     /// <summary>The frame the Baby shows for <paramref name="pose"/>, or none before the Baby's first pose.</summary>
     private static EnemyFrameId? CeresBabyFrame(CeresBabyPose? pose) =>
@@ -169,5 +169,5 @@ internal sealed partial class CeresRidleyBabyScene
     /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="Ridley">The ridley the cases read.</param>
     /// <param name="Owner">The <see cref="CeresRidleyBabyScene"/> reacting.</param>
-    private readonly record struct ApplyCeresBabyCueContext(CeresRidleyState Ridley, CeresRidleyBabyScene Owner);
+    private readonly partial record struct ApplyCeresBabyCueContext(CeresRidleyState Ridley, CeresRidleyBabyScene Owner);
 }

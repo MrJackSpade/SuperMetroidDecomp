@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Botwoon;
 public static partial class BotwoonHealthBandDefinitions
 {
     /// <summary>Botwoon below an eighth of his health, his last colours.</summary>
-    private static BotwoonHealthBand BelowEighth { get; } = new(375, "below-eighth", null);
+    internal static BotwoonHealthBand BelowEighth { get; } = new(375, "below-eighth", null);
 
     /// <summary>Botwoon below a quarter of his health.</summary>
     public static BotwoonHealthBand BelowQuarter { get; } = new(750, "below-quarter", BelowEighth);

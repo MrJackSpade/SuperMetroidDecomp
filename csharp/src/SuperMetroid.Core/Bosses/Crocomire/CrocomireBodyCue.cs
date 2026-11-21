@@ -47,4 +47,4 @@ internal abstract partial record CrocomireBodyCue
 /// <param name="Dust">Makes a <see cref="CrocomireBodyCue.Dust"/> into the result.</param>
 /// <param name="Signal">Makes a <see cref="CrocomireBodyCue.Signal"/> into the result.</param>
 /// <typeparam name="TContext">What each case reads besides itself.</typeparam>
-internal sealed record CrocomireBodyCueCases<TContext, TResult>(Func<CrocomireBodyCue.Step, TContext, TResult> Step, Func<CrocomireBodyCue.Dust, TContext, TResult> Dust, Func<CrocomireBodyCue.Signal, TContext, TResult> Signal);
+internal sealed partial record CrocomireBodyCueCases<TContext, TResult>(Func<CrocomireBodyCue.Step, TContext, TResult> Step, Func<CrocomireBodyCue.Dust, TContext, TResult> Dust, Func<CrocomireBodyCue.Signal, TContext, TResult> Signal);

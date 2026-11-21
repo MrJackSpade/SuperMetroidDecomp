@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Samus.Grapple;
 /// elevator, it has no reaction to the beam and its own behaviour carries on. Only a reacting enemy's reaction is one the
 /// grapple's reaction table answers.
 /// </summary>
-public abstract record EnemyGrappleResponse
+public abstract partial record EnemyGrappleResponse
 {
     /// <summary>Closes the hierarchy to the responses declared here.</summary>
     private EnemyGrappleResponse()
@@ -17,7 +17,7 @@ public abstract record EnemyGrappleResponse
 
     /// <summary>An enemy that reacts to the beam in <paramref name="Reaction"/>'s way.</summary>
     /// <param name="Reaction">How the enemy reacts to the beam.</param>
-    public sealed record Reacting(GrappleEnemyReaction Reaction) : EnemyGrappleResponse
+    public sealed partial record Reacting(GrappleEnemyReaction Reaction) : EnemyGrappleResponse
     {
         /// <inheritdoc/>
         public override GrappleEnemyReaction BeamReaction => Reaction;
@@ -29,7 +29,7 @@ public abstract record EnemyGrappleResponse
     /// and the beam, finding none of the shared grapple behaviours, reads it as it reads an enemy with no interaction; the
     /// held enemy's own behaviour carries on, and nothing releases it.
     /// </summary>
-    public sealed record Unreactive : EnemyGrappleResponse
+    public sealed partial record Unreactive : EnemyGrappleResponse
     {
         /// <inheritdoc/>
         public override GrappleEnemyReaction BeamReaction => GrappleEnemyReaction.None;

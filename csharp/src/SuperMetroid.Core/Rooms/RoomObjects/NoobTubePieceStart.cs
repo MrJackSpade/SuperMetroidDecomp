@@ -43,6 +43,6 @@ internal abstract partial record NoobTubePieceStart
 /// <typeparam name="TResult">What each case is made into.</typeparam>
 /// <param name="AtSegment">Makes a <see cref="NoobTubePieceStart.AtSegment"/> into a result.</param>
 /// <param name="ShardFlight">Makes a <see cref="NoobTubePieceStart.ShardFlight"/> into a result.</param>
-internal sealed record NoobTubePieceStartCases<TContext, TResult>(
+internal sealed partial record NoobTubePieceStartCases<TContext, TResult>(
     Func<NoobTubePieceStart.AtSegment, TContext, TResult> AtSegment,
     Func<NoobTubePieceStart.ShardFlight, TContext, TResult> ShardFlight);

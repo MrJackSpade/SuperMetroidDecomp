@@ -239,7 +239,7 @@ internal sealed partial class CrocomireFight
     /// <param name="Level">The room's collision level, which the movement cues require.</param>
     /// <param name="Samus">Samus, whom the fight AI measures against.</param>
     /// <param name="Owner">The <see cref="CrocomireFight"/> reacting.</param>
-    private readonly record struct ApplyCrocomireBodyCueContext(CrocomireEnemyState State, RoomEnemyPlace Body, int CameraX, RoomLevelData Level, SamusState Samus, CrocomireFight Owner);
+    private readonly partial record struct ApplyCrocomireBodyCueContext(CrocomireEnemyState State, RoomEnemyPlace Body, int CameraX, RoomLevelData Level, SamusState Samus, CrocomireFight Owner);
 
     /// <summary>Whether a step under <paramref name="condition"/> moves the body now.</summary>
     private static bool StepMoves(CrocomireStepCondition condition, CrocomireEnemyState state, RoomEnemyPlace body, int cameraX) => condition switch

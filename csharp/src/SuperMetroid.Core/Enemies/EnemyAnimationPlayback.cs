@@ -270,11 +270,11 @@ internal static partial class EnemyAnimationPlayback
     /// <param name="Enemy">The enemy.</param>
     /// <param name="ShowFrame">Shows a frame on the enemy.</param>
     /// <param name="Context">What showing a frame reads besides the enemy and the frame.</param>
-    private readonly record struct EnemyFrameShowing<TFrame, TContext>(RoomEnemyPlace Enemy, Action<RoomEnemyPlace, TFrame, TContext> ShowFrame, TContext Context)
+    private readonly partial record struct EnemyFrameShowing<TFrame, TContext>(RoomEnemyPlace Enemy, Action<RoomEnemyPlace, TFrame, TContext> ShowFrame, TContext Context)
         where TFrame : struct;
 
     /// <summary>What a step of an enemy's animation shows on it, for each outcome, built once per animation (#2553).</summary>
-    private static class ShownOn<TSegment, TFrame, TContext>
+    private static partial class ShownOn<TSegment, TFrame, TContext>
         where TSegment : struct
         where TFrame : struct
     {

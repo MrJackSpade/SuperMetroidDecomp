@@ -517,7 +517,7 @@ internal sealed partial class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEn
     /// <param name="State">The pirate's state <see cref="ApplyNinjaSpacePirateCue"/> works with.</param>
     /// <param name="Samus">The samus the cases read.</param>
     /// <param name="Owner">The <see cref="NinjaSpacePirateBehavior"/> reacting.</param>
-    private readonly record struct ApplyNinjaSpacePirateCueContext(RoomEnemyOccupant Occupant, RoomEnemyPlace Place, NinjaSpacePirateEnemyState State, SamusState Samus, NinjaSpacePirateBehavior Owner);
+    private readonly partial record struct ApplyNinjaSpacePirateCueContext(RoomEnemyOccupant Occupant, RoomEnemyPlace Place, NinjaSpacePirateEnemyState State, SamusState Samus, NinjaSpacePirateBehavior Owner);
 
     /// <summary>What each of the ninja Space Pirates' signals does, and the animation it continues at, or null to run on.</summary>
     [field: NonSerialized]

@@ -15,7 +15,7 @@ internal static class GameOverMenuStateAccess
         /// </summary>
         internal void SkipToPhase(GameOverMenuPhase phase)
         {
-            self.IsWaitingOutDisplayFrame = false;
+            self.PhaseAfterDisplayFrame = null;
             self.Phase = phase;
         }
     }

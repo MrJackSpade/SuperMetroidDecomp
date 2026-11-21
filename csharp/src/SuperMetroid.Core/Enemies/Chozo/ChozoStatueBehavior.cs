@@ -194,7 +194,7 @@ internal sealed partial class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityF
     /// <param name="Samus">The samus the cases read.</param>
     /// <param name="State">The statue's state <see cref="ApplyChozoStatueCue"/> works with.</param>
     /// <param name="Owner">The <see cref="ChozoStatueBehavior"/> reacting.</param>
-    private readonly record struct ApplyChozoStatueCueContext(RoomEnemyPlace Statue, RoomLevelData Level, SamusState Samus, ChozoStatueState State, ChozoStatueBehavior Owner);
+    private readonly partial record struct ApplyChozoStatueCueContext(RoomEnemyPlace Statue, RoomLevelData Level, SamusState Samus, ChozoStatueState State, ChozoStatueBehavior Owner);
 
     /// <summary>Moves the statue through terrain, then places Samus at the authored carry offset from its accepted position.</summary>
     internal void ProcessChozoStatueMovement(

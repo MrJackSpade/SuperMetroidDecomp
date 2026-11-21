@@ -33,7 +33,7 @@ internal abstract partial record AnimationShown<TSegment, TFrame> : IHidingAnima
     internal abstract TResult Match<TContext, TResult>(AnimationShownCases<TSegment, TFrame, TContext, TResult> cases, TContext context);
 
     /// <summary>An outcome that is no pause: a frame, a held frame, a rest or the end (#2553).</summary>
-    internal abstract record Unpaused : AnimationShown<TSegment, TFrame>, IUnpausedHidingAnimationShown<TSegment, TFrame>
+    internal abstract partial record Unpaused : AnimationShown<TSegment, TFrame>, IUnpausedHidingAnimationShown<TSegment, TFrame>
     {
         /// <summary>Allows only the outcomes below that are no pause.</summary>
         private protected Unpaused()

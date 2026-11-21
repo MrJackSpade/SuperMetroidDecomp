@@ -39,4 +39,4 @@ internal abstract partial record EnemyProjectileCommonCue
 /// <param name="Scatter">Reacts to a <see cref="EnemyProjectileCommonCue.Scatter"/>.</param>
 /// <param name="Signal">Reacts to a <see cref="EnemyProjectileCommonCue.Signal"/>.</param>
 /// <typeparam name="TContext">What each case reads besides itself.</typeparam>
-internal sealed record EnemyProjectileCommonCueReactions<TContext>(Action<EnemyProjectileCommonCue.Scatter, TContext> Scatter, Action<EnemyProjectileCommonCue.Signal, TContext> Signal);
+internal sealed partial record EnemyProjectileCommonCueReactions<TContext>(Action<EnemyProjectileCommonCue.Scatter, TContext> Scatter, Action<EnemyProjectileCommonCue.Signal, TContext> Signal);

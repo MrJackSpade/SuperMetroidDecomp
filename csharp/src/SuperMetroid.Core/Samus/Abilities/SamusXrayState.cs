@@ -667,7 +667,7 @@ public sealed partial class SamusXrayState
 
     /// <summary>The live X-ray scope (<see cref="Scope"/>): its cone effect steps from its activation until its teardown.</summary>
     /// <param name="xray">The X-ray state the scope belongs to.</param>
-    internal readonly struct LiveScope(SamusXrayState xray)
+    internal readonly partial struct LiveScope(SamusXrayState xray)
     {
         /// <summary>
         /// Advances the cone effect by one update: an update of the beam's warm-up, until that is over, and then the beam's
@@ -679,7 +679,7 @@ public sealed partial class SamusXrayState
 
     /// <summary>The X-ray's hold on Samus's pose input and movement (<see cref="Control"/>).</summary>
     /// <param name="xray">The X-ray state that holds them.</param>
-    internal readonly struct SamusControl(SamusXrayState xray)
+    internal readonly partial struct SamusControl(SamusXrayState xray)
     {
         /// <summary>
         /// Runs X-ray's own pose input, including the exact standing and crouching turns and their completion on the

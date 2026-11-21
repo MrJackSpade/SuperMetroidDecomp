@@ -16,7 +16,7 @@ internal abstract partial record MotherBrainBombBounces
     internal static Flying FirstFall { get; } = new Flying.Falling();
 
     /// <summary>The bomb is in the air: falling for the first time, or after a bounce.</summary>
-    internal abstract record Flying : MotherBrainBombBounces
+    internal abstract partial record Flying : MotherBrainBombBounces
     {
         /// <summary>Allows only the flights below.</summary>
         private Flying()
@@ -27,7 +27,7 @@ internal abstract partial record MotherBrainBombBounces
         internal abstract MotherBrainBombBounces Bounced { get; }
 
         /// <summary>The bomb falls for the first time, before any bounce.</summary>
-        internal sealed record Falling : Flying
+        internal sealed partial record Falling : Flying
         {
             /// <inheritdoc/>
             internal override MotherBrainBombBounces Bounced { get; } =
@@ -36,7 +36,7 @@ internal abstract partial record MotherBrainBombBounces
 
         /// <summary>The bomb has bounced, and falls at the gravity of the bounce it last made.</summary>
         /// <param name="Gravity">The bounce's gravity, among each bounce's in turn.</param>
-        internal sealed record Bouncing(ListStep<SignedEightEight> Gravity) : Flying
+        internal sealed partial record Bouncing(ListStep<SignedEightEight> Gravity) : Flying
         {
             /// <inheritdoc/>
             internal override MotherBrainBombBounces Bounced => Gravity.Following is { } next ? new Bouncing(next) : new Landed();
@@ -44,5 +44,5 @@ internal abstract partial record MotherBrainBombBounces
     }
 
     /// <summary>The bomb has landed from its last bounce: it expires on its next update.</summary>
-    internal sealed record Landed : MotherBrainBombBounces;
+    internal sealed partial record Landed : MotherBrainBombBounces;
 }

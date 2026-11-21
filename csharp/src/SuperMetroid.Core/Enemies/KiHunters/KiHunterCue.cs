@@ -37,4 +37,4 @@ internal abstract partial record KiHunterCue
 /// <param name="Spit">Makes a <see cref="KiHunterCue.Spit"/> into the result.</param>
 /// <param name="Signal">Makes a <see cref="KiHunterCue.Signal"/> into the result.</param>
 /// <typeparam name="TContext">What each case reads besides itself.</typeparam>
-internal sealed record KiHunterCueCases<TContext, TResult>(Func<KiHunterCue.Spit, TContext, TResult> Spit, Func<KiHunterCue.Signal, TContext, TResult> Signal);
+internal sealed partial record KiHunterCueCases<TContext, TResult>(Func<KiHunterCue.Spit, TContext, TResult> Spit, Func<KiHunterCue.Signal, TContext, TResult> Signal);

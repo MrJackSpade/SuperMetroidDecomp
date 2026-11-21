@@ -77,4 +77,4 @@ internal abstract partial record SporeSpawnCue
 /// <param name="SetSporeGeneration">Reacts to a <see cref="SporeSpawnCue.SetSporeGeneration"/>.</param>
 /// <param name="Signal">Reacts to a <see cref="SporeSpawnCue.Signal"/>.</param>
 /// <typeparam name="TContext">What each case reads besides itself.</typeparam>
-internal sealed record SporeSpawnCueReactions<TContext>(Action<SporeSpawnCue.ShowDeathShade, TContext> ShowDeathShade, Action<SporeSpawnCue.QueueSound, TContext> QueueSound, Action<SporeSpawnCue.SetMovement, TContext> SetMovement, Action<SporeSpawnCue.SetSway, TContext> SetSway, Action<SporeSpawnCue.SetSporeGeneration, TContext> SetSporeGeneration, Action<SporeSpawnCue.Signal, TContext> Signal);
+internal sealed partial record SporeSpawnCueReactions<TContext>(Action<SporeSpawnCue.ShowDeathShade, TContext> ShowDeathShade, Action<SporeSpawnCue.QueueSound, TContext> QueueSound, Action<SporeSpawnCue.SetMovement, TContext> SetMovement, Action<SporeSpawnCue.SetSway, TContext> SetSway, Action<SporeSpawnCue.SetSporeGeneration, TContext> SetSporeGeneration, Action<SporeSpawnCue.Signal, TContext> Signal);

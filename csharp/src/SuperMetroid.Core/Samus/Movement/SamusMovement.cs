@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// serves it. Each movement is its own type, so a step is handed only a movement it serves and reads the movement type
 /// from it, never checking Samus's pose again for a selection her pose already made.
 /// </summary>
-internal abstract class SamusMovement
+internal abstract partial class SamusMovement
 {
     /// <summary>Only the movements declared here exist.</summary>
     /// <param name="type">The movement type the movement is.</param>
@@ -68,7 +68,7 @@ internal abstract class SamusMovement
     internal static SpringBallInAirMovement SpringBallInAir { get; } = new();
 
     /// <summary>The normal jump's movement (<see cref="SamusMovementType.NormalJumping"/>).</summary>
-    internal sealed class NormalJumpingMovement : SamusMovement
+    internal sealed partial class NormalJumpingMovement : SamusMovement
     {
         /// <summary>The one normal jump's movement.</summary>
         internal NormalJumpingMovement()
@@ -78,7 +78,7 @@ internal abstract class SamusMovement
     }
 
     /// <summary>The spin jump's movement (<see cref="SamusMovementType.SpinJumping"/>).</summary>
-    internal sealed class SpinJumpingMovement : SamusMovement
+    internal sealed partial class SpinJumpingMovement : SamusMovement
     {
         /// <summary>The one spin jump's movement.</summary>
         internal SpinJumpingMovement()
@@ -88,7 +88,7 @@ internal abstract class SamusMovement
     }
 
     /// <summary>The wall jump's movement (<see cref="SamusMovementType.WallJumping"/>), which only wall-jump poses move by.</summary>
-    internal sealed class WallJumpingMovement : SamusMovement
+    internal sealed partial class WallJumpingMovement : SamusMovement
     {
         /// <summary>The one wall jump's movement.</summary>
         internal WallJumpingMovement()
@@ -98,7 +98,7 @@ internal abstract class SamusMovement
     }
 
     /// <summary>The damage boost's movement (<see cref="SamusMovementType.DamageBoost"/>), which only damage-boost poses move by.</summary>
-    internal sealed class DamageBoostMovement : SamusMovement
+    internal sealed partial class DamageBoostMovement : SamusMovement
     {
         /// <summary>The one damage boost's movement.</summary>
         internal DamageBoostMovement()
@@ -108,7 +108,7 @@ internal abstract class SamusMovement
     }
 
     /// <summary>The fall's movement (<see cref="SamusMovementType.Falling"/>).</summary>
-    internal sealed class FallingMovement : SamusMovement
+    internal sealed partial class FallingMovement : SamusMovement
     {
         /// <summary>The one fall's movement.</summary>
         internal FallingMovement()
@@ -118,7 +118,7 @@ internal abstract class SamusMovement
     }
 
     /// <summary>The moonwalk's movement (<see cref="SamusMovementType.Moonwalking"/>), which only the stable moonwalk poses move by.</summary>
-    internal sealed class MoonwalkingMovement : SamusMovement
+    internal sealed partial class MoonwalkingMovement : SamusMovement
     {
         /// <summary>The one moonwalk's movement.</summary>
         internal MoonwalkingMovement()
@@ -132,7 +132,7 @@ internal abstract class SamusMovement
     /// jumping turns and the aimed crouched turns, or <see cref="SamusMovementType.TurningWhileFalling"/>, whose poses are
     /// the falling turns.
     /// </summary>
-    internal sealed class AerialTurnMovement : SamusMovement
+    internal sealed partial class AerialTurnMovement : SamusMovement
     {
         /// <summary>The turn's movement in the air of <paramref name="type"/>.</summary>
         /// <param name="type">One of the two turning movement types that turn in the air.</param>
@@ -147,7 +147,7 @@ internal abstract class SamusMovement
     /// crouched and moonwalk turns, or <see cref="SamusMovementType.TurningRisingOrAimedCrouched"/> for an aimed crouched
     /// turn with no vertical direction.
     /// </summary>
-    internal sealed class GroundTurnMovement : SamusMovement
+    internal sealed partial class GroundTurnMovement : SamusMovement
     {
         /// <summary>The turn's movement on the ground of <paramref name="type"/>.</summary>
         /// <param name="type">One of the two turning movement types that turn on the ground.</param>
@@ -161,7 +161,7 @@ internal abstract class SamusMovement
     /// A crouch's movement (<see cref="SamusMovementType.Crouching"/>): the crouching poses' own, or the X-ray scope's
     /// crouching poses', which have the same movement type and are outside the crouching family.
     /// </summary>
-    internal sealed class CrouchingMovement : SamusMovement
+    internal sealed partial class CrouchingMovement : SamusMovement
     {
         /// <summary>A crouch's movement.</summary>
         internal CrouchingMovement()
@@ -174,7 +174,7 @@ internal abstract class SamusMovement
     /// A grounded ball's movement: <see cref="SamusMovementType.MorphBallGround"/>, whose poses are the grounded Morph Ball
     /// poses, or <see cref="SamusMovementType.SpringBallGround"/>, whose poses are the grounded Spring Ball poses.
     /// </summary>
-    internal sealed class GroundedBallMovement : SamusMovement
+    internal sealed partial class GroundedBallMovement : SamusMovement
     {
         /// <summary>The grounded ball's movement of <paramref name="type"/>.</summary>
         /// <param name="type">One of the two grounded ball movement types.</param>
@@ -188,7 +188,7 @@ internal abstract class SamusMovement
     /// A falling ball's movement: <see cref="SamusMovementType.MorphBallFalling"/>, whose poses are the airborne Morph Ball
     /// poses, or <see cref="SamusMovementType.SpringBallFalling"/>, whose poses are the falling Spring Ball poses.
     /// </summary>
-    internal sealed class FallingBallMovement : SamusMovement
+    internal sealed partial class FallingBallMovement : SamusMovement
     {
         /// <summary>The falling ball's movement of <paramref name="type"/>.</summary>
         /// <param name="type">One of the two falling ball movement types.</param>
@@ -199,7 +199,7 @@ internal abstract class SamusMovement
     }
 
     /// <summary>The rising Spring Ball jump's movement (<see cref="SamusMovementType.SpringBallInAir"/>), which only the Spring Ball jump poses move by.</summary>
-    internal sealed class SpringBallInAirMovement : SamusMovement
+    internal sealed partial class SpringBallInAirMovement : SamusMovement
     {
         /// <summary>The one Spring Ball jump's movement.</summary>
         internal SpringBallInAirMovement()

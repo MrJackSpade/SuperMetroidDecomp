@@ -33,7 +33,7 @@ internal abstract partial class SequencedRoomObject<TSegment, TFrame, TEvent> : 
         _segments = Ensure.NotNull(segments);
 
     /// <summary>Whether the object rests: its animation has ended with nothing to follow, until what it waits for wakes it.</summary>
-    private protected bool Resting => _progress is SequencedRoomObjectProgress<TSegment, TFrame, TEvent>.Resting
+    private protected bool Resting => Progress is SequencedRoomObjectProgress<TSegment, TFrame, TEvent>.Resting
         or SequencedRoomObjectProgress<TSegment, TFrame, TEvent>.RestingUnshown;
 
     /// <inheritdoc/>

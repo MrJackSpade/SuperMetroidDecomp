@@ -22,4 +22,4 @@ public abstract partial class FirefleaFlightState
 /// <param name="BobbingFirefleaState">Reacts to a <see cref="BobbingFirefleaState"/>.</param>
 /// <param name="CirclingFirefleaState">Reacts to a <see cref="CirclingFirefleaState"/>.</param>
 /// <typeparam name="TContext">What each case reads besides itself.</typeparam>
-public sealed record FirefleaFlightStateReactions<TContext>(Action<BobbingFirefleaState, TContext> BobbingFirefleaState, Action<CirclingFirefleaState, TContext> CirclingFirefleaState);
+public sealed partial record FirefleaFlightStateReactions<TContext>(Action<BobbingFirefleaState, TContext> BobbingFirefleaState, Action<CirclingFirefleaState, TContext> CirclingFirefleaState);

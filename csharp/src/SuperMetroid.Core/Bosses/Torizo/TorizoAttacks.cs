@@ -280,7 +280,7 @@ internal sealed partial class TorizoAttacks
         /// <param name="Projectile">The projectile the cases read.</param>
         /// <param name="Samus">The samus the cases read.</param>
         /// <param name="Owner">The <see cref="TorizoProjectileBehavior"/> reacting.</param>
-        private readonly record struct ApplyTorizoProjectileCueContext(EnemyAudioQueue Audio, EnemyProjectileEngine Projectiles, EnemyProjectile Projectile, SamusState Samus, TorizoProjectileBehavior Owner);
+        private readonly partial record struct ApplyTorizoProjectileCueContext(EnemyAudioQueue Audio, EnemyProjectileEngine Projectiles, EnemyProjectile Projectile, SamusState Samus, TorizoProjectileBehavior Owner);
 
         /// <summary>Keeps the held super missile beside the hand of the Golden Torizo that caught it.</summary>
         private void HoldSuperMissile(EnemyProjectile projectile)

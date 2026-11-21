@@ -47,4 +47,4 @@ internal abstract partial record WorkRobotCue
 /// <param name="TryLaser">Makes a <see cref="WorkRobotCue.TryLaser"/> into the result.</param>
 /// <param name="Signal">Makes a <see cref="WorkRobotCue.Signal"/> into the result.</param>
 /// <typeparam name="TContext">What each case reads besides itself.</typeparam>
-internal sealed record WorkRobotCueCases<TContext, TResult>(Func<WorkRobotCue.Step, TContext, TResult> Step, Func<WorkRobotCue.TryLaser, TContext, TResult> TryLaser, Func<WorkRobotCue.Signal, TContext, TResult> Signal);
+internal sealed partial record WorkRobotCueCases<TContext, TResult>(Func<WorkRobotCue.Step, TContext, TResult> Step, Func<WorkRobotCue.TryLaser, TContext, TResult> TryLaser, Func<WorkRobotCue.Signal, TContext, TResult> Signal);

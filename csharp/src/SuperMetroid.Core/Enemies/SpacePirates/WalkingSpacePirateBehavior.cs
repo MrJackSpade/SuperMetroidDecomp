@@ -96,7 +96,7 @@ internal sealed partial class WalkingSpacePirateBehavior : IEnemySpecies, IEnemy
     /// <param name="Place">The place the cases read.</param>
     /// <param name="Samus">The samus the cases read.</param>
     /// <param name="Owner">The <see cref="WalkingSpacePirateBehavior"/> reacting.</param>
-    private readonly record struct ApplyWalkingSpacePirateCueContext(RoomEnemyOccupant Occupant, RoomEnemyPlace Place, SamusState Samus, WalkingSpacePirateBehavior Owner);
+    private readonly partial record struct ApplyWalkingSpacePirateCueContext(RoomEnemyOccupant Occupant, RoomEnemyPlace Place, SamusState Samus, WalkingSpacePirateBehavior Owner);
 
     /// <summary>
     /// Queues <paramref name="sound"/> as a space pirate makes it, after the update's earlier requests: walking, wall and

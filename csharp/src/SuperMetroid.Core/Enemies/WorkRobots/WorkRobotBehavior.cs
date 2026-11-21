@@ -150,7 +150,7 @@ internal sealed partial class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFac
     /// <param name="State">The state the cases read.</param>
     /// <param name="Context">The context the cases read.</param>
     /// <param name="Owner">The <see cref="WorkRobotBehavior"/> reacting.</param>
-    private readonly record struct ApplyWorkRobotCueContext(RoomEnemyPlace Place, WorkRobotEnemyState State, EnemyAnimationCueContext Context, WorkRobotBehavior Owner);
+    private readonly partial record struct ApplyWorkRobotCueContext(RoomEnemyPlace Place, WorkRobotEnemyState State, EnemyAnimationCueContext Context, WorkRobotBehavior Owner);
 
     /// <summary>What each of the Work Robot's signals does; each runs on.</summary>
     [field: NonSerialized]

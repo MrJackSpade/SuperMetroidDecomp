@@ -158,7 +158,7 @@ internal sealed partial class CinematicActor<TAnimation, TFrame, TCue> : ICinema
     /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="OwnerCue">The owner's reaction to its cues, as the step was given it.</param>
     /// <param name="Owner">The <see cref="CinematicActor{TAnimation, TFrame, TCue}"/> reacting.</param>
-    private readonly record struct StepContext(Action<TCue>? OwnerCue, CinematicActor<TAnimation, TFrame, TCue> Owner);
+    private readonly partial record struct StepContext(Action<TCue>? OwnerCue, CinematicActor<TAnimation, TFrame, TCue> Owner);
 
     /// <summary>Hands the cue to the actor's owner.</summary>
     private void ApplyCue(TCue cue, Action<TCue>? ownerCue)

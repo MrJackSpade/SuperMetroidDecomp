@@ -1729,7 +1729,7 @@ internal static void VerifySamusRanIntoWall()
             $"ran-into-wall fixture pose ${(int)SamusPoseNumbers.Number(sourcePose):X2} aim");
         AssertEqual(
             selectedByShotDirection[direction],
-            SamusGroundedPoseTransitions.SelectRanIntoWallPose(sourcePose),
+            SamusGroundedPoseTransitions.SelectRanIntoWallPose((SamusPoseAim.Aiming)SamusPoseMetadata.ReadAim(sourcePose)),
             $"ran-into-wall shot selector {direction}");
     }
     WritePoseDefinitionByte(bus, SamusPoseNumbers.Number(SamusPoseId.MovingRightNormalPose), 3, 2);

@@ -341,7 +341,7 @@ public sealed partial class ColourEffectSystem : IGameplayShadingSource
     /// <param name="Conditions">The conditions the cases read.</param>
     /// <param name="Effect">The effect the cases read.</param>
     /// <param name="Owner">The <see cref="ColourEffectSystem"/> reacting.</param>
-    private readonly record struct CheckConditionContext(ColourEffectInputs Conditions, RoomColourEffect Effect, ColourEffectSystem Owner);
+    private readonly partial record struct CheckConditionContext(ColourEffectInputs Conditions, RoomColourEffect Effect, ColourEffectSystem Owner);
 
     /// <summary>
     /// The heat shimmer's condition. The shimmer owns both its look and the heat's damage: an unprotected Samus takes the

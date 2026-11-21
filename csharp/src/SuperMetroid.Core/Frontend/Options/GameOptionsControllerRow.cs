@@ -54,4 +54,4 @@ public abstract partial record GameOptionsControllerRow
 /// <param name="Exit">Reacts to a <see cref="GameOptionsControllerRow.Exit"/>.</param>
 /// <param name="Reset">Reacts to a <see cref="GameOptionsControllerRow.Reset"/>.</param>
 /// <typeparam name="TContext">What each case reads besides itself.</typeparam>
-public sealed record GameOptionsControllerRowReactions<TContext>(Action<GameOptionsControllerRow.AssignsAction, TContext> AssignsAction, Action<GameOptionsControllerRow.Exit, TContext> Exit, Action<GameOptionsControllerRow.Reset, TContext> Reset);
+public sealed partial record GameOptionsControllerRowReactions<TContext>(Action<GameOptionsControllerRow.AssignsAction, TContext> AssignsAction, Action<GameOptionsControllerRow.Exit, TContext> Exit, Action<GameOptionsControllerRow.Reset, TContext> Reset);

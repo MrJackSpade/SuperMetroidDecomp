@@ -185,7 +185,7 @@ internal sealed partial class DraygonParts
     /// <param name="State">The state the cases read.</param>
     /// <param name="Samus">The samus the cases read.</param>
     /// <param name="Owner">The <see cref="DraygonParts"/> reacting.</param>
-    private readonly record struct ApplyDraygonCueContext(DraygonEnemyState State, SamusState Samus, DraygonParts Owner);
+    private readonly partial record struct ApplyDraygonCueContext(DraygonEnemyState State, SamusState Samus, DraygonParts Owner);
 
     /// <summary>Queues a sound from one of Draygon's animations as the animation makes it, after the update's earlier requests.</summary>
     private void RequestDraygonSound(SoundEffectId sound) =>
@@ -208,7 +208,7 @@ internal sealed partial class DraygonParts
     /// <summary>The eye's look toward one straight direction, facing right and facing left.</summary>
     /// <param name="FacingRight">The look while Draygon faces right.</param>
     /// <param name="FacingLeft">The look while Draygon faces left.</param>
-    private readonly record struct EyeLooksByFacing(DraygonSegment FacingRight, DraygonSegment FacingLeft);
+    private readonly partial record struct EyeLooksByFacing(DraygonSegment FacingRight, DraygonSegment FacingLeft);
 
     /// <summary>The eye breathes its bubble and turns its look toward Samus.</summary>
     internal void TrackSamusWithDraygonEye(DraygonEnemyState state, SamusState samus, HorizontalDirection facing)

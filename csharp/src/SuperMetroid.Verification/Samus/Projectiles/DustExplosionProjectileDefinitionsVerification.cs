@@ -73,11 +73,10 @@ internal static class DustExplosionProjectileDefinitionsVerification
             var enemies = CreateDustExplosionEnemySystem();
             enemies.VerificationServices().ReadRandom = () => random;
             enemies.VerificationServices().NextRandom = () => { advances++; return 0xbeef; };
-            Action<EnemyProjectile, DustExplosionAnimation, DustExplosionPlacement, Position16<RoomBlocks>> initialize = enemies.EyeDoorBehavior.InitializeEyeDoorSmoke;
+            // The spawn starts the smoke's animation with the projectile (#2553); its placement follows.
+            Action<EnemyProjectile, DustExplosionPlacement, Position16<RoomBlocks>> initialize = enemies.EyeDoorBehavior.InitializeEyeDoorSmoke;
             EnemyProjectile smoke = enemies.Projectiles.Occupy(0, RoomEnemyProjectileKind.EyeDoorSmoke);
-            initialize(smoke, DustExplosionAnimation.CorpseDustCloud, definition, new(7, 9));
-            AssertTrue(smoke.Animation is DustExplosionProjectileAnimation { PlayingSegment: DustExplosionAnimation.CorpseDustCloud },
-                $"eye-door smoke production instruction {index}");
+            initialize(smoke, definition, new(7, 9));
             AssertEqual(unchecked((ushort)(7 * 16 + 8 + definition.Base.X +
                 (random & nativeXMask))), smoke.Position.X.Whole,
                 $"eye-door smoke production X {index}");

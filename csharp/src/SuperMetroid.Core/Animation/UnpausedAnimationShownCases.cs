@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Animation;
 /// <param name="HeldFrame">A frame shown for good.</param>
 /// <param name="Held">A rest on the frame shown last.</param>
 /// <param name="Ended">The animation's end.</param>
-internal sealed record UnpausedAnimationShownCases<TSegment, TFrame, TContext, TResult>(
+internal sealed partial record UnpausedAnimationShownCases<TSegment, TFrame, TContext, TResult>(
     Func<AnimationShown<TSegment, TFrame>.Frame, TContext, TResult> Frame,
     Func<AnimationShown<TSegment, TFrame>.HeldFrame, TContext, TResult> HeldFrame,
     Func<AnimationShown<TSegment, TFrame>.Held, TContext, TResult> Held,

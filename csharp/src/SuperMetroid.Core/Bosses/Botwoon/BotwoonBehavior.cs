@@ -566,7 +566,7 @@ internal sealed partial class BotwoonBehavior : EnemyProjectileMotionBehavior<Bo
     /// <param name="Head">The head the cases read.</param>
     /// <param name="State">The state the cases read.</param>
     /// <param name="Owner">The <see cref="BotwoonBehavior"/> reacting.</param>
-    private readonly record struct ApplyBotwoonHeadCueContext(RoomEnemyPlace Head, BotwoonEnemyState State, BotwoonBehavior Owner);
+    private readonly partial record struct ApplyBotwoonHeadCueContext(RoomEnemyPlace Head, BotwoonEnemyState State, BotwoonBehavior Owner);
 
     /// <summary>Emits a volley's spit projectiles, fanned out across the aimed direction, and starts his head's cooldown after it.</summary>
     private void SpawnBotwoonSpitVolley(

@@ -66,7 +66,7 @@ internal sealed partial class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFa
     /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="Place">The place the cases read.</param>
     /// <param name="Owner">The <see cref="MamaTurtleBehavior"/> reacting.</param>
-    private readonly record struct ApplyMamaTurtleCueContext(RoomEnemyPlace Place, MamaTurtleBehavior Owner);
+    private readonly partial record struct ApplyMamaTurtleCueContext(RoomEnemyPlace Place, MamaTurtleBehavior Owner);
 
     /// <summary>What each of the Mama Turtle's signals does; each runs on.</summary>
     [field: NonSerialized]

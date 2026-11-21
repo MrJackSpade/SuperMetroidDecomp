@@ -30,7 +30,7 @@ internal sealed partial class SamusAnimationLayout
     /// <summary>A place of an animation's layout Samus's animation can reach and the step it reads there.</summary>
     /// <param name="At">The place.</param>
     /// <param name="Read">The step read there.</param>
-    private readonly record struct ReachedPlace(LayoutPlace At, StepRead Read);
+    private readonly partial record struct ReachedPlace(LayoutPlace At, StepRead Read);
 
     /// <summary>A program laid out after another: its animation and how many frames later it starts.</summary>
     private readonly partial record struct Successor(SamusPoseAnimation Animation, int Shift);

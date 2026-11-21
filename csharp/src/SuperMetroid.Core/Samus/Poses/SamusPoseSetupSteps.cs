@@ -59,7 +59,7 @@ internal sealed partial class SamusPoseSetupSteps
     }
 
     /// <summary>Gameplay's live controller actions and clock, read as each setup runs.</summary>
-    private sealed class LiveInputs(GameplayActionInput actions, FrameClock clock) : ISetupInputs
+    private sealed partial class LiveInputs(GameplayActionInput actions, FrameClock clock) : ISetupInputs
     {
         /// <inheritdoc/>
         public GameplayAction Current => actions.Current;
@@ -72,7 +72,7 @@ internal sealed partial class SamusPoseSetupSteps
     }
 
     /// <summary>One demo update's recorded buttons and frame counter.</summary>
-    private sealed record DemoInputs(GameplayAction Current, GameplayAction NewlyPressed, int Counter) : ISetupInputs;
+    private sealed partial record DemoInputs(GameplayAction Current, GameplayAction NewlyPressed, int Counter) : ISetupInputs;
 
     /// <summary>Runs the <see cref="SamusPoseTransitionSetup.StartJump"/> setup.</summary>
     internal void SetUpStartJump(SamusState samus, SamusPoseId targetPose)

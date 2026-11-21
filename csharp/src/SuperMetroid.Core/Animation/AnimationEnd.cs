@@ -63,7 +63,7 @@ internal abstract partial record AnimationEnd
 /// <param name="Stop">Reaches a stop.</param>
 /// <param name="Loop">Reaches a loop.</param>
 /// <param name="Hold">Reaches a hold.</param>
-internal sealed record AnimationEndCases<TPlay, TResult>(
+internal sealed partial record AnimationEndCases<TPlay, TResult>(
     PlayCase<AnimationEnd.Stop, TPlay, TResult> Stop,
     PlayCase<AnimationEnd.Loop, TPlay, TResult> Loop,
     PlayCase<AnimationEnd.Hold, TPlay, TResult> Hold);

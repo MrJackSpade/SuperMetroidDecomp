@@ -36,4 +36,4 @@ internal abstract partial record GerutaCue
 /// <param name="PlaceFlames">Reacts to a <see cref="GerutaCue.PlaceFlames"/>.</param>
 /// <param name="SwoopStartFinished">Reacts to a <see cref="GerutaCue.SwoopStartFinished"/>.</param>
 /// <typeparam name="TContext">What each case reads besides itself.</typeparam>
-internal sealed record GerutaCueReactions<TContext>(Action<GerutaCue.PlaceFlames, TContext> PlaceFlames, Action<GerutaCue.SwoopStartFinished, TContext> SwoopStartFinished);
+internal sealed partial record GerutaCueReactions<TContext>(Action<GerutaCue.PlaceFlames, TContext> PlaceFlames, Action<GerutaCue.SwoopStartFinished, TContext> SwoopStartFinished);

@@ -105,13 +105,13 @@ public sealed partial class ClipAudioBackend
     /// <summary>One update's render as its events' reactions read it: the backend rendering and its pass through the update.</summary>
     /// <param name="Backend">The backend rendering.</param>
     /// <param name="Pass">The backend's progress through the update's events.</param>
-    private readonly record struct Rendering(ClipAudioBackend Backend, RenderPass Pass);
+    private readonly partial record struct Rendering(ClipAudioBackend Backend, RenderPass Pass);
 
     /// <summary>
     /// How far one update's render has come through its events (#2553): where the update starts, how far it has mixed, and
     /// the clock step it met last. One pass is kept per backend and begun afresh each update.
     /// </summary>
-    private sealed class RenderPass
+    private sealed partial class RenderPass
     {
         /// <summary>The sample the update starts at.</summary>
         internal long FrameStart { get; private set; }

@@ -72,4 +72,4 @@ internal abstract partial record MotherBrainBodyCue
 /// <param name="SpawnHandDust">Reacts to a <see cref="MotherBrainBodyCue.SpawnHandDust"/>.</param>
 /// <param name="Signal">Reacts to a <see cref="MotherBrainBodyCue.Signal"/>.</param>
 /// <typeparam name="TContext">What each case reads besides itself.</typeparam>
-internal sealed record MotherBrainBodyCueReactions<TContext>(Action<MotherBrainBodyCue.SetPose, TContext> SetPose, Action<MotherBrainBodyCue.Move, TContext> Move, Action<MotherBrainBodyCue.StepAndMove, TContext> StepAndMove, Action<MotherBrainBodyCue.SpawnHandDust, TContext> SpawnHandDust, Action<MotherBrainBodyCue.Signal, TContext> Signal);
+internal sealed partial record MotherBrainBodyCueReactions<TContext>(Action<MotherBrainBodyCue.SetPose, TContext> SetPose, Action<MotherBrainBodyCue.Move, TContext> Move, Action<MotherBrainBodyCue.StepAndMove, TContext> StepAndMove, Action<MotherBrainBodyCue.SpawnHandDust, TContext> SpawnHandDust, Action<MotherBrainBodyCue.Signal, TContext> Signal);

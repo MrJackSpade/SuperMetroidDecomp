@@ -87,13 +87,13 @@ internal static partial class PirateHitboxShotActions
     /// <summary>A family the gold ninja reflects, and the vulnerability it reads for it.</summary>
     /// <param name="Family">The family a reflection of the shot carries.</param>
     /// <param name="VulnerabilityOf">The ninja's vulnerability to the shot.</param>
-    private sealed record ReflectableShot(ReflectableShotFamily Family, Func<EnemyVulnerabilities, SamusProjectileOccupant, EnemyWeaponVulnerability> VulnerabilityOf);
+    private sealed partial record ReflectableShot(ReflectableShotFamily Family, Func<EnemyVulnerabilities, SamusProjectileOccupant, EnemyWeaponVulnerability> VulnerabilityOf);
 
     /// <summary>
     /// Outcome chosen from a Pirate component's shot reaction before ordinary damage processing (#2553): the Pirate's
     /// normal shot reaction, the hit consumed with no damage, or the shot reflected, carrying its reflectable family.
     /// </summary>
-    internal sealed record PirateHitboxShotAction
+    internal sealed partial record PirateHitboxShotAction
     {
         /// <summary>Only the outcomes below exist.</summary>
         private PirateHitboxShotAction()

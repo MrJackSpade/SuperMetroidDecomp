@@ -258,7 +258,7 @@ internal sealed partial class WallSpacePirateBehavior : IEnemySpecies, IEnemyEnt
     /// <param name="State">The pirate's state <see cref="ApplyWallSpacePirateCue"/> works with.</param>
     /// <param name="Level">The level the cases read.</param>
     /// <param name="Owner">The <see cref="WallSpacePirateBehavior"/> reacting.</param>
-    private readonly record struct ApplyWallSpacePirateCueContext(RoomEnemyOccupant Occupant, RoomEnemyPlace Place, WallSpacePirateEnemyState State, RoomLevelData Level, WallSpacePirateBehavior Owner);
+    private readonly partial record struct ApplyWallSpacePirateCueContext(RoomEnemyOccupant Occupant, RoomEnemyPlace Place, WallSpacePirateEnemyState State, RoomLevelData Level, WallSpacePirateBehavior Owner);
 
     /// <summary>Runs the wall Space Pirate's main AI.</summary>
     internal static void RunWallSpacePirateMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, IEnemyAiFrame frame)

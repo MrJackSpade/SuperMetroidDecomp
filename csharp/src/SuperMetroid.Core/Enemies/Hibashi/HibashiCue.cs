@@ -36,4 +36,4 @@ internal abstract partial record HibashiCue
 /// <param name="EruptionStep">Reacts to a <see cref="HibashiCue.EruptionStep"/>.</param>
 /// <param name="Signal">Reacts to a <see cref="HibashiCue.Signal"/>.</param>
 /// <typeparam name="TContext">What each case reads besides itself.</typeparam>
-internal sealed record HibashiCueReactions<TContext>(Action<HibashiCue.EruptionStep, TContext> EruptionStep, Action<HibashiCue.Signal, TContext> Signal);
+internal sealed partial record HibashiCueReactions<TContext>(Action<HibashiCue.EruptionStep, TContext> EruptionStep, Action<HibashiCue.Signal, TContext> Signal);

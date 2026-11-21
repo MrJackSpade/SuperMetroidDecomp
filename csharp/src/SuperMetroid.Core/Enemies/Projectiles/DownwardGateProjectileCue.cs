@@ -38,4 +38,4 @@ internal abstract partial record DownwardGateProjectileCue
 /// <param name="SetYVelocity">Reacts to a <see cref="DownwardGateProjectileCue.SetYVelocity"/>.</param>
 /// <param name="Signal">Reacts to a <see cref="DownwardGateProjectileCue.Signal"/>.</param>
 /// <typeparam name="TContext">What each case reads besides itself.</typeparam>
-internal sealed record DownwardGateProjectileCueReactions<TContext>(Action<DownwardGateProjectileCue.SetYVelocity, TContext> SetYVelocity, Action<DownwardGateProjectileCue.Signal, TContext> Signal);
+internal sealed partial record DownwardGateProjectileCueReactions<TContext>(Action<DownwardGateProjectileCue.SetYVelocity, TContext> SetYVelocity, Action<DownwardGateProjectileCue.Signal, TContext> Signal);

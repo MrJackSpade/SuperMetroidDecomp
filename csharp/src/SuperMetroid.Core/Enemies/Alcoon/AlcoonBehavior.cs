@@ -61,7 +61,7 @@ internal sealed partial class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactor
     /// <param name="State">The state the cases read.</param>
     /// <param name="Level">The level the cases read.</param>
     /// <param name="Owner">The <see cref="AlcoonBehavior"/> reacting.</param>
-    private readonly record struct ApplyAlcoonCueContext(RoomEnemyOccupant Occupant, RoomEnemyPlace Place, AlcoonEnemyState State, RoomLevelData Level, AlcoonBehavior Owner);
+    private readonly partial record struct ApplyAlcoonCueContext(RoomEnemyOccupant Occupant, RoomEnemyPlace Place, AlcoonEnemyState State, RoomLevelData Level, AlcoonBehavior Owner);
 
     /// <summary>What each of the Alcoon's signals does, and the animation it continues at, or null to run on.</summary>
     [field: NonSerialized]

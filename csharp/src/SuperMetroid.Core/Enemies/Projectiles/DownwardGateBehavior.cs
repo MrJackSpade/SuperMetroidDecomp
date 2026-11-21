@@ -133,7 +133,7 @@ internal sealed partial class DownwardGateBehavior
     /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="Projectile">The projectile the cases read.</param>
     /// <param name="Owner">The owner the cases read.</param>
-    private readonly record struct ApplyDownwardGateCueContext(EnemyProjectile Projectile, GateBehavior Owner);
+    private readonly partial record struct ApplyDownwardGateCueContext(EnemyProjectile Projectile, GateBehavior Owner);
 
     /// <summary>A downward gate, moving or closed (#1760).</summary>
     internal GateBehavior Gate { get; } = new();

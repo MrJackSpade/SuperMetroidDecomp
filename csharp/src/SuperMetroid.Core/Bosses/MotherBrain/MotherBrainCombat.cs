@@ -44,7 +44,7 @@ internal sealed partial class MotherBrainCombat
     /// (#2220), runs the head's reaction on the body; every body rectangle's is the dud shot.
     /// </summary>
     /// <param name="body">Her body, whose encounter the brain's reaction runs in.</param>
-    internal EnemyShotReaction BodyShotReactionOf(MotherBrainEntity body) => new()
+    internal static EnemyShotReaction BodyShotReactionOf(MotherBrainEntity body) => new()
     {
         BeforeSuperMissileQuake = body.ReactToBodyShot,
     };
@@ -71,7 +71,7 @@ internal sealed partial class MotherBrainCombat
 
     /// <summary>The head's shot response for each combat phase.</summary>
     /// <param name="head">Her head, whose encounter the reaction runs in.</param>
-    internal EnemyShotReaction HeadShotReactionOf(MotherBrainEntity head) => new()
+    internal static EnemyShotReaction HeadShotReactionOf(MotherBrainEntity head) => new()
     {
         BeforeSuperMissileQuake = head.ReactToHeadShot,
     };

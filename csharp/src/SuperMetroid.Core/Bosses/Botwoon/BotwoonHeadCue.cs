@@ -36,4 +36,4 @@ internal abstract partial record BotwoonHeadCue
 /// <param name="ApplyFacingRadius">Reacts to a <see cref="BotwoonHeadCue.ApplyFacingRadius"/>.</param>
 /// <param name="Signal">Reacts to a <see cref="BotwoonHeadCue.Signal"/>.</param>
 /// <typeparam name="TContext">What each case reads besides itself.</typeparam>
-internal sealed record BotwoonHeadCueReactions<TContext>(Action<BotwoonHeadCue.ApplyFacingRadius, TContext> ApplyFacingRadius, Action<BotwoonHeadCue.Signal, TContext> Signal);
+internal sealed partial record BotwoonHeadCueReactions<TContext>(Action<BotwoonHeadCue.ApplyFacingRadius, TContext> ApplyFacingRadius, Action<BotwoonHeadCue.Signal, TContext> Signal);

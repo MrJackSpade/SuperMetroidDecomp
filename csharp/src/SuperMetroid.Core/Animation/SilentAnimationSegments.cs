@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Animation;
 /// The play of animations that raise no event (#2553): <see cref="NoAnimationCue"/> has no member, so playing one takes no
 /// reaction to carry an event out.
 /// </summary>
-internal static class SilentAnimationSegments
+internal static partial class SilentAnimationSegments
 {
     /// <summary>
     /// Plays <paramref name="animation"/> on from <paramref name="place"/> to the next frame it shows, as

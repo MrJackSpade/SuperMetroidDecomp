@@ -81,7 +81,7 @@ internal sealed partial class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFac
     /// <param name="Level">The level the cases read.</param>
     /// <param name="Camera">The camera the cases read.</param>
     /// <param name="Owner">The <see cref="FakeKraidBehavior"/> reacting.</param>
-    private readonly record struct ApplyFakeKraidCueContext(RoomEnemyOccupant Occupant, RoomEnemyPlace Place, SamusState Samus, RoomLevelData Level, Position16<RoomPixels> Camera, FakeKraidBehavior Owner);
+    private readonly partial record struct ApplyFakeKraidCueContext(RoomEnemyOccupant Occupant, RoomEnemyPlace Place, SamusState Samus, RoomLevelData Level, Position16<RoomPixels> Camera, FakeKraidBehavior Owner);
 
     /// <summary>Queues one of Fake Kraid's sounds as it makes it, after the update's earlier requests.</summary>
     private void RequestFakeKraidSound(SoundEffectId sound) =>

@@ -33,7 +33,7 @@ internal abstract partial record AnimationBeat<TFrame, TEvent> : IHidingAnimatio
     /// <summary>
     /// A beat that is no pause: a frame, a held frame, an event or a marker, what an animation that never pauses plays (#2553).
     /// </summary>
-    internal abstract record Unpaused : AnimationBeat<TFrame, TEvent>, IUnpausedHidingAnimationBeat<TFrame, TEvent>
+    internal abstract partial record Unpaused : AnimationBeat<TFrame, TEvent>, IUnpausedHidingAnimationBeat<TFrame, TEvent>
     {
         /// <summary>Allows only the beats below that are no pause.</summary>
         private protected Unpaused()
@@ -125,7 +125,7 @@ internal abstract partial record AnimationBeat<TFrame, TEvent> : IHidingAnimatio
 /// <typeparam name="TResult">What a beat comes to.</typeparam>
 /// <param name="Unpaused">Passes a beat that is no pause.</param>
 /// <param name="Pause">Passes a pause.</param>
-internal sealed record AnimationBeatCases<TFrame, TEvent, TPlay, TResult>(
+internal sealed partial record AnimationBeatCases<TFrame, TEvent, TPlay, TResult>(
     PlayCase<AnimationBeat<TFrame, TEvent>.Unpaused, TPlay, TResult> Unpaused,
     PlayCase<AnimationBeat<TFrame, TEvent>.Pause, TPlay, TResult> Pause)
     where TFrame : struct
@@ -140,7 +140,7 @@ internal sealed record AnimationBeatCases<TFrame, TEvent, TPlay, TResult>(
 /// <param name="HeldFrame">Passes a frame held for good.</param>
 /// <param name="Event">Passes an event.</param>
 /// <param name="Marker">Passes a marker.</param>
-internal sealed record UnpausedAnimationBeatCases<TFrame, TEvent, TPlay, TResult>(
+internal sealed partial record UnpausedAnimationBeatCases<TFrame, TEvent, TPlay, TResult>(
     PlayCase<AnimationBeat<TFrame, TEvent>.Frame, TPlay, TResult> Frame,
     PlayCase<AnimationBeat<TFrame, TEvent>.HeldFrame, TPlay, TResult> HeldFrame,
     PlayCase<AnimationBeat<TFrame, TEvent>.Event, TPlay, TResult> Event,

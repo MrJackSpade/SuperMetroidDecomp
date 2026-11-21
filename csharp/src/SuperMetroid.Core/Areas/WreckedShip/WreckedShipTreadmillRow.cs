@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Areas.WreckedShip;
 /// The row of blocks a Wrecked Ship treadmill writes, from its first block (<see cref="WreckedShipTreadmillBlockDefinitions"/>):
 /// checked once, as the treadmill spawns, to fit its room's block row, so the belt it runs writes no block that wraps.
 /// </summary>
-internal readonly record struct WreckedShipTreadmillRow
+internal readonly partial record struct WreckedShipTreadmillRow
 {
     /// <summary>Starts the row at <paramref name="origin"/>.</summary>
     private WreckedShipTreadmillRow(Position16<RoomBlocks> origin) => Origin = origin;

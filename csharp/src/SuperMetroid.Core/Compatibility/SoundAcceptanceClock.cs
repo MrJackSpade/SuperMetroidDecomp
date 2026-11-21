@@ -110,7 +110,7 @@ public sealed partial class SoundAcceptanceClock<TLibrary, TSound>
     /// one whole period, at which a step falls due. Only a stride moves it, and a stride stops at the next step, so it
     /// never passes one period.
     /// </summary>
-    private readonly record struct SoundStepPhase
+    private readonly partial record struct SoundStepPhase
     {
         /// <summary>The phase <paramref name="samples"/> samples after a step.</summary>
         private SoundStepPhase(int samples) => Samples = samples;
@@ -135,7 +135,7 @@ public sealed partial class SoundAcceptanceClock<TLibrary, TSound>
     /// <summary>One stride of the clock's phase toward its next step.</summary>
     /// <param name="Phase">The phase after the stride.</param>
     /// <param name="Taken">The samples the stride took.</param>
-    private readonly record struct SoundStride(SoundStepPhase Phase, int Taken);
+    private readonly partial record struct SoundStride(SoundStepPhase Phase, int Taken);
 
     /// <summary>Runs one step at <paramref name="sampleOffset"/>, advancing the check timer and checking every library, in order, on its overflow.</summary>
     private SoundClockStep<TLibrary, TSound> Step(int sampleOffset, int periods)

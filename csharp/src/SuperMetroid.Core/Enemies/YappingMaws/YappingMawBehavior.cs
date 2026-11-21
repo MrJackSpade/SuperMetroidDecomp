@@ -68,7 +68,7 @@ internal sealed partial class YappingMawBehavior : IEnemySpecies, IEnemyEntityFa
     /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="State">The state the cases read.</param>
     /// <param name="Owner">The <see cref="YappingMawBehavior"/> reacting.</param>
-    private readonly record struct ApplyYappingMawCueContext(YappingMawEnemyState State, YappingMawBehavior Owner);
+    private readonly partial record struct ApplyYappingMawCueContext(YappingMawEnemyState State, YappingMawBehavior Owner);
 
     /// <summary>Initializes the Yapping Maw.</summary>
     internal void InitializeYappingMaw(RoomEnemyOccupant occupant, RoomEnemyPlace place)

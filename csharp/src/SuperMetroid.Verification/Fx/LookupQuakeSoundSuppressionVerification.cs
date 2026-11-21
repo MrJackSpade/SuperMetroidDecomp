@@ -29,7 +29,7 @@ internal static class LookupQuakeSoundSuppressionVerification
                 room.QuakesAreSilent,
                 "Quake suppression complete room domain");
 
-        var state = new global::SuperMetroid.Core.Fx.RoomFxOverlayState(SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
+        var state = global::SuperMetroid.Core.Fx.RoomFxOverlayState.ForRoom(fx: null, door: null, randomNumber: 0, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
         var bus = new TestAddressSpace();
         var vram = new SnesVram();
         foreach (RoomDefinition? room in nativeRooms.Select(pointer => RoomDefinitions.Get(pointer)).Append(null))

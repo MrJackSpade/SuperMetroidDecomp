@@ -308,7 +308,7 @@ internal sealed partial class MotherBrainHead
     /// <param name="State">The state the cases read.</param>
     /// <param name="Samus">The samus the cases read.</param>
     /// <param name="Owner">The <see cref="MotherBrainHead"/> reacting.</param>
-    private readonly record struct ApplyMotherBrainHeadCueContext(MotherBrainEnemyState State, SamusState Samus, MotherBrainHead Owner);
+    private readonly partial record struct ApplyMotherBrainHeadCueContext(MotherBrainEnemyState State, SamusState Samus, MotherBrainHead Owner);
 
     /// <summary>
     /// What each of her brain's signals does before her late fight, and the segment it continues at, or null to run on.

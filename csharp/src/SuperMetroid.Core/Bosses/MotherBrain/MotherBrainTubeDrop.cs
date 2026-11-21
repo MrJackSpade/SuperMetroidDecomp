@@ -27,7 +27,7 @@ internal abstract partial record MotherBrainTubeDrop(RoomObjectSpawnRequest<Moth
 /// <param name="Bottom">Drops a bottom tube.</param>
 /// <param name="Top">Drops a top tube.</param>
 /// <param name="Main">Drops the main tube.</param>
-internal sealed record MotherBrainTubeDropReactions<TContext>(
+internal sealed partial record MotherBrainTubeDropReactions<TContext>(
     Action<MotherBrainBottomTubeDrop, TContext> Bottom,
     Action<MotherBrainTopTubeDrop, TContext> Top,
     Action<MotherBrainMainTubeDrop, TContext> Main);

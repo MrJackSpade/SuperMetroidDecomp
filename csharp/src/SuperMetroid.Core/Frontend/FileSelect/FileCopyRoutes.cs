@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// The slots and arrow of each <see cref="FileCopyRoute"/> (#2553): the arrow is short between neighbouring slots and long
 /// between A and C, pointing down or up toward the destination, at the height between the two slots.
 /// </summary>
-internal static class FileCopyRoutes
+internal static partial class FileCopyRoutes
 {
     /// <summary>The slot each route copies from.</summary>
     private static IdentityTable<FileCopyRoute, SaveSlot> Sources => field ??= new(new Dictionary<FileCopyRoute, SaveSlot>

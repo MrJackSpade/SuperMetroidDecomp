@@ -36,4 +36,4 @@ internal abstract partial record CacatacCue
 /// <param name="SpawnSpike">Reacts to a <see cref="CacatacCue.SpawnSpike"/>.</param>
 /// <param name="Signal">Reacts to a <see cref="CacatacCue.Signal"/>.</param>
 /// <typeparam name="TContext">What each case reads besides itself.</typeparam>
-internal sealed record CacatacCueReactions<TContext>(Action<CacatacCue.SpawnSpike, TContext> SpawnSpike, Action<CacatacCue.Signal, TContext> Signal);
+internal sealed partial record CacatacCueReactions<TContext>(Action<CacatacCue.SpawnSpike, TContext> SpawnSpike, Action<CacatacCue.Signal, TContext> Signal);

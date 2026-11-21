@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// </summary>
 /// <param name="Room">The room's terrain, whose room objects the block's reaction reaches.</param>
 /// <param name="Standing">The block the met cell stands for and how it collides.</param>
-internal readonly record struct ReactingBlock(RoomTerrain Room, StandingBlock Standing)
+internal readonly partial record struct ReactingBlock(RoomTerrain Room, StandingBlock Standing)
 {
     /// <summary>The block the met cell stands for (<see cref="StandingBlock.Block"/>).</summary>
     internal RoomCollisionBlock Block => Standing.Block;

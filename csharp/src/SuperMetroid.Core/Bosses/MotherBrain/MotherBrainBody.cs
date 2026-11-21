@@ -208,7 +208,7 @@ internal sealed partial class MotherBrainBody
     /// <param name="State">The state the cases read.</param>
     /// <param name="Samus">The samus the cases read.</param>
     /// <param name="Owner">The <see cref="MotherBrainBody"/> reacting.</param>
-    private readonly record struct ApplyMotherBrainBodyCueContext(MotherBrainEnemyState State, SamusState Samus, MotherBrainBody Owner);
+    private readonly partial record struct ApplyMotherBrainBodyCueContext(MotherBrainEnemyState State, SamusState Samus, MotherBrainBody Owner);
 
     /// <summary>
     /// Resolves Mother Brain's contact with Samus. Mother Brain owns a flag-selected set of asymmetric

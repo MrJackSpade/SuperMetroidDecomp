@@ -35,4 +35,4 @@ public abstract partial record GameplayMusicRequest
 /// <param name="Scheduled">Reacts to a <see cref="GameplayMusicRequest.Scheduled"/>.</param>
 /// <param name="PermanentItemFanfare">Reacts to a <see cref="GameplayMusicRequest.PermanentItemFanfare"/>.</param>
 /// <typeparam name="TContext">What each case reads besides itself.</typeparam>
-public sealed record GameplayMusicRequestReactions<TContext>(Action<GameplayMusicRequest.Scheduled, TContext> Scheduled, Action<GameplayMusicRequest.PermanentItemFanfare, TContext> PermanentItemFanfare);
+public sealed partial record GameplayMusicRequestReactions<TContext>(Action<GameplayMusicRequest.Scheduled, TContext> Scheduled, Action<GameplayMusicRequest.PermanentItemFanfare, TContext> PermanentItemFanfare);

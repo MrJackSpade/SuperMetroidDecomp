@@ -192,7 +192,7 @@ public sealed partial class IntroCinematicState : IFrontendScreen
     internal DemoInputState FlashbackDemoInput => CurrentFlashbackDemoInput ??
         throw new InvalidOperationException("The Mother Brain flashback is not running.");
     /// <summary>Collision data for the gameplay-style flashback room.</summary>
-    private PlainTerrain? CurrentFlashbackTerrain { get; set; }
+    internal PlainTerrain? CurrentFlashbackTerrain { get; private set; }
     /// <summary>The flashback room's collision, which exists while the flashback runs.</summary>
     internal PlainTerrain FlashbackTerrain => CurrentFlashbackTerrain ??
         throw new InvalidOperationException("The Mother Brain flashback room is not loaded.");

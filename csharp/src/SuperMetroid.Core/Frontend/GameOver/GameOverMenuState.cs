@@ -81,10 +81,10 @@ public sealed partial class GameOverMenuState : IMenuFrontendScreen, IComposedFr
     /// True while the current menu step waits out a frame of the display (after blanking or unblanking): the next update
     /// finishes that step instead of starting a new update of the menu (<see cref="DisplayFrameWaitContinuation"/>).
     /// </summary>
-    public bool IsWaitingOutDisplayFrame => phaseAfterDisplayFrame is not null;
+    public bool IsWaitingOutDisplayFrame => PhaseAfterDisplayFrame is not null;
 
     /// <summary>The step a display-frame wait leads to once it is waited out (<see cref="IsWaitingOutDisplayFrame"/>); none while no wait runs.</summary>
-    private GameOverMenuPhase? phaseAfterDisplayFrame;
+    internal GameOverMenuPhase? PhaseAfterDisplayFrame { get; set; }
 
     /// <summary>
     /// How the menu hands off to the outer game-state loop (#2562), kept once it reaches one; absent while the menu runs,
@@ -116,7 +116,7 @@ public sealed partial class GameOverMenuState : IMenuFrontendScreen, IComposedFr
             // silences the room's sounds and holds the black screen while it waits out one update. The menu opens in this
             // phase with its fade made black, and nothing steps the fade before it.
             audio.QueueSound(RoomSoundStop.Any, priority: GameOverMenuDefinitions.SoundPriority);
-            phaseAfterDisplayFrame = GameOverMenuPhase.Initialize;
+            PhaseAfterDisplayFrame = GameOverMenuPhase.Initialize;
         },
         [GameOverMenuPhase.Initialize] = pressed =>
         {
@@ -128,7 +128,7 @@ public sealed partial class GameOverMenuState : IMenuFrontendScreen, IComposedFr
             SelectedItem = YesNoChoice.Yes;
             fade.Show(DisplayBrightness.Black);
             // Unblank, then wait out one update before advancing the step.
-            phaseAfterDisplayFrame = GameOverMenuPhase.WaitForInitialMusic;
+            PhaseAfterDisplayFrame = GameOverMenuPhase.WaitForInitialMusic;
         },
         [GameOverMenuPhase.WaitForInitialMusic] = pressed =>
         {
@@ -189,11 +189,11 @@ public sealed partial class GameOverMenuState : IMenuFrontendScreen, IComposedFr
     public void Step(ControllerButton controllerInput)
     {
         controller.Latch(controllerInput);
-        if (phaseAfterDisplayFrame is { } next)
+        if (PhaseAfterDisplayFrame is { } next)
         {
             // Each wait ends its step: what follows it only finishes setting up the screen and
             // moves the menu on to the step the wait leads to.
-            phaseAfterDisplayFrame = null;
+            PhaseAfterDisplayFrame = null;
             Phase = next;
             return;
         }

@@ -71,7 +71,7 @@ internal sealed partial class HoppersBehavior : IEnemySpecies, IEnemyEntityFacto
     /// <param name="Place">The place the cases read.</param>
     /// <param name="State">The state the cases read.</param>
     /// <param name="Owner">The <see cref="HoppersBehavior"/> reacting.</param>
-    private readonly record struct ApplyHopperCueContext(RoomEnemyPlace Place, HopperEnemyState State, HoppersBehavior Owner);
+    private readonly partial record struct ApplyHopperCueContext(RoomEnemyPlace Place, HopperEnemyState State, HoppersBehavior Owner);
 
     /// <summary>Initializes the Hopper.</summary>
     internal void InitializeHopper(RoomEnemyPlace place, RoomEnemyOccupant occupant, HopperKind kind)

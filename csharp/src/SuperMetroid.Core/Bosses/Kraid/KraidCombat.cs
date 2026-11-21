@@ -373,7 +373,7 @@ internal sealed partial class KraidCombat
     /// <summary>A damaging hit on Kraid's mouth: the damage it deals and its kind.</summary>
     /// <param name="Damage">The damage dealt, never zero.</param>
     /// <param name="Hit">The kind of hit, which names the row later shots reach the mouth from.</param>
-    private readonly record struct KraidMouthStrike(int Damage, KraidMouthHitReach.DamagingHit Hit)
+    private readonly partial record struct KraidMouthStrike(int Damage, KraidMouthHitReach.DamagingHit Hit)
     {
         /// <summary>The strike <paramref name="shot"/> makes with <paramref name="vulnerability"/>, or none when it deals no damage.</summary>
         internal static KraidMouthStrike? Of(EnemyWeaponVulnerability vulnerability, KraidBehavior.KraidCollisionShot shot,

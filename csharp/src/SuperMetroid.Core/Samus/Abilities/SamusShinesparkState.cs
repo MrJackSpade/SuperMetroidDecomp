@@ -684,7 +684,7 @@ public sealed partial class SamusShinesparkState
 
     /// <summary>The spark's hold on Samus's movement (<see cref="Movement"/>): from the windup, through the launch and the crash.</summary>
     /// <param name="spark">The shinespark that holds her movement.</param>
-    internal readonly struct SparkMovement(SamusShinesparkState spark)
+    internal readonly partial struct SparkMovement(SamusShinesparkState spark)
     {
         /// <summary>Runs one frame of the spark's windup, flight or crash.</summary>
         /// <param name="terrain">The room terrain Samus's block collision probes: the level data and the room objects that react to touched blocks (#633).</param>

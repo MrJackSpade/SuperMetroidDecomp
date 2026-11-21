@@ -137,7 +137,7 @@ internal sealed partial class MotherBrainFakeDeath
     /// <summary>A tube the collapse drops (#2553): the fake death dropping it and Mother Brain's state.</summary>
     /// <param name="Owner">The fake death dropping the tube.</param>
     /// <param name="State">Mother Brain's state.</param>
-    private readonly record struct TubeDropping(MotherBrainFakeDeath Owner, MotherBrainEnemyState State);
+    private readonly partial record struct TubeDropping(MotherBrainFakeDeath Owner, MotherBrainEnemyState State);
 
     /// <summary>Spawns the top tube projectile of <paramref name="kind"/>, falling as <paramref name="tube"/> shows, for the scripted collapse.</summary>
     internal void SpawnMotherBrainTopTube(

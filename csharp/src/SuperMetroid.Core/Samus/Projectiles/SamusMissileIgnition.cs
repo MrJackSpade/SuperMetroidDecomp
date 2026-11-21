@@ -19,13 +19,13 @@ public abstract partial record SamusMissileIgnition
     /// <summary>What a missile a beam replaces holds besides its ignition.</summary>
     /// <param name="ReflectionHeadStart">The head start a reflected missile re-ignites with.</param>
     /// <param name="LinkPlace">The place a Super Missile names as its link, or null.</param>
-    internal readonly record struct ReplacedMissile(SignedEightEight ReflectionHeadStart, int? LinkPlace);
+    internal readonly partial record struct ReplacedMissile(SignedEightEight ReflectionHeadStart, int? LinkPlace);
 
     /// <summary>Whether the missile has ignited since it was fired or reflected.</summary>
     public bool HasIgnited => this is Ignited;
 
     /// <summary>Not yet ignited since the missile was fired or reflected: where a missile starts its ignition.</summary>
-    public abstract record Unignited : SamusMissileIgnition
+    public abstract partial record Unignited : SamusMissileIgnition
     {
         /// <summary>Closes the group to the two stages declared here.</summary>
         private protected Unignited()

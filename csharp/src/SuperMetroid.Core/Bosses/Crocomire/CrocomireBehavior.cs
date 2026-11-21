@@ -142,7 +142,7 @@ internal sealed partial class CrocomireBehavior : IEnemySpecies, IEnemyEntityFac
     /// <param name="Camera">The camera the cases read.</param>
     /// <param name="Samus">The samus the cases read.</param>
     /// <param name="Owner">The <see cref="CrocomireBehavior"/> reacting.</param>
-    private readonly record struct RunCrocomireDeathSequenceContext(CrocomireEnemyState State, Position16<RoomPixels> Camera, SamusState Samus, CrocomireBehavior Owner);
+    private readonly partial record struct RunCrocomireDeathSequenceContext(CrocomireEnemyState State, Position16<RoomPixels> Camera, SamusState Samus, CrocomireBehavior Owner);
 
     /// <summary>Advances Crocomire's typed animation.</summary>
     internal void AdvanceCrocomireTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext context)

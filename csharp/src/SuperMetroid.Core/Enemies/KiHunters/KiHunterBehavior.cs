@@ -73,7 +73,7 @@ internal sealed partial class KiHunterBehavior : IEnemySpecies, IEnemyEntityFact
     /// <param name="Occupant">The occupant whose cue is carried out.</param>
     /// <param name="Place">The place the cases read.</param>
     /// <param name="Owner">The <see cref="KiHunterBehavior"/> reacting.</param>
-    private readonly record struct ApplyKiHunterCueContext(RoomEnemyOccupant Occupant, RoomEnemyPlace Place, KiHunterBehavior Owner);
+    private readonly partial record struct ApplyKiHunterCueContext(RoomEnemyOccupant Occupant, RoomEnemyPlace Place, KiHunterBehavior Owner);
 
     /// <summary>What each of the Ki-Hunter body's signals does, and the animation it continues at, or null to run on.</summary>
     [field: NonSerialized]
@@ -760,7 +760,7 @@ internal sealed partial class KiHunterBehavior : IEnemySpecies, IEnemyEntityFact
         /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
         /// <param name="Projectile">The <c>projectile</c> <see cref="RunCue"/> works with.</param>
         /// <param name="Owner">The <see cref="AcidBehavior"/> reacting.</param>
-        private readonly record struct RunCueContext(EnemyProjectile Projectile, AcidBehavior Owner);
+        private readonly partial record struct RunCueContext(EnemyProjectile Projectile, AcidBehavior Owner);
 
         /// <summary>What <c>Move</c> does for each <see cref="KiHunterAcidMotion"/> member, each member's own arm.</summary>
         [field: NonSerialized]

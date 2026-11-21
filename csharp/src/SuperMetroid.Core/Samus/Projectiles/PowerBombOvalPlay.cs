@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// Where an oval stage of the Power Bomb's blast stands (#2553): the oval it shows on its next update, one oval an update,
 /// from its first to its last. The stage ends on the update that shows its last oval, so no play stands past it.
 /// </summary>
-internal readonly record struct PowerBombOvalPlay
+internal readonly partial record struct PowerBombOvalPlay
 {
     /// <summary>The stage's ovals, by horizontal radius in pixels, in the order it shows them; at least one.</summary>
     private readonly IReadOnlyList<int> _radii;

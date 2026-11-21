@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Animation;
 /// </typeparam>
 /// <typeparam name="TFrame">The frame identity.</typeparam>
 /// <typeparam name="TEvent">The events the owner reacts to.</typeparam>
-internal sealed class UnpausedAnimationSegments<TSegment, TFrame, TEvent>
+internal sealed partial class UnpausedAnimationSegments<TSegment, TFrame, TEvent>
     : AnimationSegmentPlay<TSegment, TFrame, TEvent, AnimationBeat<TFrame, TEvent>.Unpaused, AnimationShown<TSegment, TFrame>.Unpaused>,
         IUnpausedAnimationPlay<TSegment, TFrame, TEvent>
     where TSegment : struct

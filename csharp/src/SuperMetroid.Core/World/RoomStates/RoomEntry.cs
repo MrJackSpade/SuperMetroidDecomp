@@ -68,7 +68,7 @@ internal abstract partial record RoomEntry
     /// </summary>
     /// <param name="Station">The Ceres start's load station.</param>
     /// <param name="Arrival">The elevator's arrival, starting under Samus.</param>
-    internal sealed record AtCeresStart(LoadStation Station, SuperMetroid.Core.Areas.Ceres.CeresElevatorArrivalState Arrival) : RoomEntry
+    internal sealed partial record AtCeresStart(LoadStation Station, SuperMetroid.Core.Areas.Ceres.CeresElevatorArrivalState Arrival) : RoomEntry
     {
         /// <inheritdoc/>
         internal override LoadStation? LoadStation => Station;

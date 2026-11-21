@@ -118,7 +118,7 @@ internal sealed partial class IntroJapaneseSubtitles
     /// <summary>A subtitle showing: the page it belongs to and what it does on its next update.</summary>
     /// <param name="Page">The page whose subtitle is showing.</param>
     /// <param name="Stage">What the subtitle does on its next update.</param>
-    private readonly record struct ShowingSubtitle(IntroNarrationPageId Page, SubtitleStage Stage);
+    private readonly partial record struct ShowingSubtitle(IntroNarrationPageId Page, SubtitleStage Stage);
 
     /// <summary>The steps of a page's subtitles.</summary>
     private enum SubtitleStage

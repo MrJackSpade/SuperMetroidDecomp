@@ -19,7 +19,7 @@ namespace SuperMetroid.Core.World;
 /// <param name="newlyPressed">The buttons newly pressed at it.</param>
 /// <param name="frameCounter">The update's frame counter.</param>
 /// <param name="elevator">The elevator under her, which a forward-facing pose reads.</param>
-internal sealed class SamusPoseMovementRun(SamusState samus, SamusTerrain terrain, SamusControlFrame frame, GameplayAction held,
+internal sealed partial class SamusPoseMovementRun(SamusState samus, SamusTerrain terrain, SamusControlFrame frame, GameplayAction held,
     GameplayAction newlyPressed, int frameCounter, SamusElevatorFooting elevator) : ISamusPoseMovementSteps
 {
     /// <summary>Runs the normal movement of <paramref name="movement"/>, the movement type that selects Samus's mover.</summary>

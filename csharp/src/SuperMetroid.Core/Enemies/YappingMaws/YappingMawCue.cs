@@ -36,4 +36,4 @@ internal abstract partial record YappingMawCue
 /// <param name="HoldSamus">Reacts to a <see cref="YappingMawCue.HoldSamus"/>.</param>
 /// <param name="Signal">Reacts to a <see cref="YappingMawCue.Signal"/>.</param>
 /// <typeparam name="TContext">What each case reads besides itself.</typeparam>
-internal sealed record YappingMawCueReactions<TContext>(Action<YappingMawCue.HoldSamus, TContext> HoldSamus, Action<YappingMawCue.Signal, TContext> Signal);
+internal sealed partial record YappingMawCueReactions<TContext>(Action<YappingMawCue.HoldSamus, TContext> HoldSamus, Action<YappingMawCue.Signal, TContext> Signal);

@@ -52,4 +52,4 @@ internal abstract partial record FakeKraidCue
 /// <param name="Move">Makes a <see cref="FakeKraidCue.Move"/> into the result.</param>
 /// <param name="PlayCrySound">Makes a <see cref="FakeKraidCue.PlayCrySound"/> into the result.</param>
 /// <typeparam name="TContext">What each case reads besides itself.</typeparam>
-internal sealed record FakeKraidCueCases<TContext, TResult>(Func<FakeKraidCue.Spit, TContext, TResult> Spit, Func<FakeKraidCue.ChooseAction, TContext, TResult> ChooseAction, Func<FakeKraidCue.Move, TContext, TResult> Move, Func<FakeKraidCue.PlayCrySound, TContext, TResult> PlayCrySound);
+internal sealed partial record FakeKraidCueCases<TContext, TResult>(Func<FakeKraidCue.Spit, TContext, TResult> Spit, Func<FakeKraidCue.ChooseAction, TContext, TResult> ChooseAction, Func<FakeKraidCue.Move, TContext, TResult> Move, Func<FakeKraidCue.PlayCrySound, TContext, TResult> PlayCrySound);

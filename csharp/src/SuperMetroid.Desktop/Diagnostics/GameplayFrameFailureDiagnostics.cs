@@ -11,7 +11,7 @@ internal static class GameplayFrameFailureDiagnostics
     internal static string Format(GameplaySnapshot before, GameplaySnapshot failed, ControllerButton attemptedInput,
         string? recordingPath, int? recordingIndex) =>
         $"Build: {BuildIdentity.InformationalVersion}\n" +
-        $"Core build ID: {global::SuperMetroid.Core.BuildIdentity.Version}\n" +
+        $"Core build ID: {SuperMetroid.Core.BuildIdentity.Version}\n" +
         $"Host build ID: {BuildIdentity.Version}\n" +
         $"Attempted input: {attemptedInput}\n" +
         $"Input recording: {recordingPath ?? "unavailable"}\n" +

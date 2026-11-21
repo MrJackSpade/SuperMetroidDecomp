@@ -225,7 +225,7 @@ public sealed class GitHubErrorReporter : IDisposable
         GitHubErrorContext context)
     {
         var body = new StringBuilder();
-        body.AppendLine($"Core build ID: {global::SuperMetroid.Core.BuildIdentity.Version}");
+        body.AppendLine($"Core build ID: {SuperMetroid.Core.BuildIdentity.Version}");
         body.AppendLine($"Host build ID: {BuildIdentity.Version}");
         body.Append("<!-- supermetroid-error-id:")
             .Append(fingerprint)

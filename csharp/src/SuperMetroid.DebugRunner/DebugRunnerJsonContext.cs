@@ -25,5 +25,4 @@ namespace SuperMetroid.DebugRunner;
 [JsonSerializable(typeof(global::System.Collections.Generic.IReadOnlyList<string>), TypeInfoPropertyName = "System_Collections_Generic_IReadOnlyList_string")]
 [JsonSerializable(typeof(global::System.Collections.Generic.List<global::SuperMetroid.DebugRunner.Assets.AssetCommands.AssetRecord>), TypeInfoPropertyName = "System_Collections_Generic_List_SuperMetroid_DebugRunner_Assets_AssetCommands_AssetRecord")]
 [JsonSerializable(typeof(global::System.Collections.Generic.SortedDictionary<string, global::SuperMetroid.DebugRunner.Tools.InstructionLayoutDump.InstructionLayout>), TypeInfoPropertyName = "SortedDictionary_string_InstructionLayout")]
-[JsonSerializable(typeof(object), TypeInfoPropertyName = "Builtin_object")]
 internal sealed partial class DebugRunnerJsonContext : JsonSerializerContext;

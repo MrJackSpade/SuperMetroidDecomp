@@ -1,7 +1,6 @@
 using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.AssetExtraction.Audio.Synthesis;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 
 namespace SuperMetroid.Verification.Audio;
 

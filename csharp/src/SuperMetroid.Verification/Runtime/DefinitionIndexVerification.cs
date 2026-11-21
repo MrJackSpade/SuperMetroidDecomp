@@ -19,11 +19,18 @@ namespace SuperMetroid.Verification.Runtime;
 /// </summary>
 internal static class DefinitionIndexVerification
 {
-    /// <summary>Catalogs a runtime standing in Landing Site reaches nothing of: bosses, cinematics and the ending.</summary>
+    /// <summary>
+    /// Catalogs a runtime standing in Landing Site reaches nothing of: bosses, cinematics and the ending. The trail
+    /// placements (<see cref="ProjectileTrailPlacementDefinitions"/>) are not among them (#2605): since 4105dddf04 the
+    /// catalog holds its frame sets as arrays of <see cref="SamusProjectileFrameId"/>, and the runtime lets an array of
+    /// ints, or of any enum stored as an int, be assigned to one. So a capture asks the catalog about each such array the
+    /// state holds (Landing Site's sound libraries, enemy identities, areas, story events, scroll states and ints), and
+    /// indexes it. It holds none of them, so the capture still names no member of it.
+    /// </summary>
     private static readonly Type[] LandingSiteUnreachedCatalogs =
     [
         typeof(KraidAnimations), typeof(MotherBrainAnimations), typeof(PhantoonAnimations), typeof(DraygonAnimations),
-        typeof(EndingCreditsPhaseGroups), typeof(CeresDestructionPhaseGroups), typeof(ProjectileTrailPlacementDefinitions),
+        typeof(EndingCreditsPhaseGroups), typeof(CeresDestructionPhaseGroups),
     ];
 
     /// <summary>

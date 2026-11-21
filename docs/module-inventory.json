@@ -14,7 +14,7 @@
     {
       "module": "csharp/src/SuperMetroid.ArchitectureAudit",
       "role": "tooling",
-      "files": 19,
+      "files": 20,
       "dependsOn": [
         "csharp/src/SuperMetroid.EnsureAnalyzer",
         "csharp/src/SuperMetroid.ReachabilityAudit",
@@ -24,7 +24,7 @@
     {
       "module": "csharp/src/SuperMetroid.AssetExtraction",
       "role": "production",
-      "files": 1914,
+      "files": 1918,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Animation",
@@ -105,7 +105,7 @@
     {
       "module": "csharp/src/SuperMetroid.Core/Audio",
       "role": "production",
-      "files": 69,
+      "files": 75,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Compatibility"
@@ -114,7 +114,7 @@
     {
       "module": "csharp/src/SuperMetroid.Core/Bosses",
       "role": "production",
-      "files": 1070,
+      "files": 1069,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Animation",
@@ -154,7 +154,7 @@
     {
       "module": "csharp/src/SuperMetroid.Core/Enemies",
       "role": "production",
-      "files": 1439,
+      "files": 1438,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Animation",
@@ -218,7 +218,7 @@
     {
       "module": "csharp/src/SuperMetroid.Core/Fx",
       "role": "production",
-      "files": 127,
+      "files": 126,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Animation",
@@ -550,7 +550,7 @@
     {
       "module": "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes",
       "role": "analyzer",
-      "files": 26,
+      "files": 27,
       "dependsOn": [
         "csharp/src/SuperMetroid.EnsureAnalyzer"
       ]
@@ -605,7 +605,7 @@
     {
       "module": "csharp/src/SuperMetroid.ReachabilityAudit",
       "role": "tooling",
-      "files": 63,
+      "files": 43,
       "dependsOn": [
         "csharp/test-support/WindowsConsole"
       ]
@@ -728,7 +728,7 @@
     {
       "module": "csharp/src/SuperMetroid.Verification",
       "role": "verification",
-      "files": 2327,
+      "files": 2329,
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core",
@@ -943,7 +943,7 @@
     {
       "module": "csharp/test-support/RepositoryInstallation.Verification",
       "role": "verification-support",
-      "files": 34,
+      "files": 35,
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core",
@@ -1039,7 +1039,7 @@
     {
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
-      "files": 2111,
+      "files": 2128,
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core",
@@ -1263,6 +1263,15 @@
       "dependsOn": [
         "csharp/src/SuperMetroid.EnsureAnalyzer",
         "csharp/src/SuperMetroid.ReachabilityAudit"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.ArchitectureAudit/PrivateAccessShims.cs",
+      "module": "csharp/src/SuperMetroid.ArchitectureAudit",
+      "role": "tooling",
+      "namespace": "SuperMetroid.ArchitectureAudit",
+      "assemblies": [
+        "SuperMetroid.ArchitectureAudit"
       ]
     },
     {
@@ -2717,6 +2726,15 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.AssetExtraction/Artwork/ObjectCharacterPlacement.cs",
+      "module": "csharp/src/SuperMetroid.AssetExtraction",
+      "role": "production",
+      "namespace": "SuperMetroid.AssetExtraction.Artwork",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.AssetExtraction/Artwork/ObjectSelectionCodec.cs",
       "module": "csharp/src/SuperMetroid.AssetExtraction",
       "role": "production",
@@ -3580,15 +3598,6 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.AssetExtraction/Artwork/objectcharacterplacement.cs",
-      "module": "csharp/src/SuperMetroid.AssetExtraction",
-      "role": "production",
-      "namespace": "SuperMetroid.AssetExtraction.Artwork",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ]
-    },
-    {
       "path": "csharp/src/SuperMetroid.AssetExtraction/ArtworkJson.cs",
       "module": "csharp/src/SuperMetroid.AssetExtraction",
       "role": "production",
@@ -3698,7 +3707,8 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
-        "csharp/src/SuperMetroid.Core/Audio"
+        "csharp/src/SuperMetroid.Core/Audio",
+        "csharp/src/SuperMetroid.Core/World"
       ]
     },
     {
@@ -4034,6 +4044,19 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core/Audio"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.AssetExtraction/Audio/SoundEffectRoomStateDefinitions.cs",
+      "module": "csharp/src/SuperMetroid.AssetExtraction",
+      "role": "production",
+      "namespace": "SuperMetroid.AssetExtraction.Audio",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Audio",
+        "csharp/src/SuperMetroid.Core/World"
       ]
     },
     {
@@ -12250,6 +12273,18 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.AssetExtraction/Frontend/FrontendFloor.cs",
+      "module": "csharp/src/SuperMetroid.AssetExtraction",
+      "role": "production",
+      "namespace": "SuperMetroid.AssetExtraction.Frontend",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Assets"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.AssetExtraction/Frontend/FrontendFloorSheetComposer.cs",
       "module": "csharp/src/SuperMetroid.AssetExtraction",
       "role": "production",
@@ -12302,6 +12337,18 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core/Assets",
+        "csharp/src/SuperMetroid.Core/Frontend"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.AssetExtraction/Frontend/GameOver/Artwork/GameOverBabyPaletteName.cs",
+      "module": "csharp/src/SuperMetroid.AssetExtraction",
+      "role": "production",
+      "namespace": "SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "dependsOn": [
         "csharp/src/SuperMetroid.Core/Frontend"
       ]
     },
@@ -12513,18 +12560,6 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
-        "csharp/src/SuperMetroid.Core/Frontend"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.AssetExtraction/Frontend/Intro/Artwork/CinematicSpriteArtwork.cs",
-      "module": "csharp/src/SuperMetroid.AssetExtraction",
-      "role": "production",
-      "namespace": "SuperMetroid.AssetExtraction.Frontend.Intro.Artwork",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "dependsOn": [
         "csharp/src/SuperMetroid.Core/Frontend"
       ]
     },
@@ -17002,6 +17037,15 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.AssetExtraction/Fx/RoomPaletteFxProgram.cs",
+      "module": "csharp/src/SuperMetroid.AssetExtraction",
+      "role": "production",
+      "namespace": "SuperMetroid.AssetExtraction.Fx",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.AssetExtraction/Fx/RoomPaletteFxPrograms.cs",
       "module": "csharp/src/SuperMetroid.AssetExtraction",
       "role": "production",
@@ -17011,6 +17055,15 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core/Fx"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.AssetExtraction/Fx/RoomPaletteFxRun.cs",
+      "module": "csharp/src/SuperMetroid.AssetExtraction",
+      "role": "production",
+      "namespace": "SuperMetroid.AssetExtraction.Fx",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
       ]
     },
     {
@@ -21933,7 +21986,6 @@
         "SuperMetroid.AssetExtraction"
       ],
       "dependsOn": [
-        "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Samus"
       ]
     },
@@ -22807,7 +22859,6 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
-        "csharp/src/SuperMetroid.Core/Samus",
         "csharp/src/SuperMetroid.Core/Spatial"
       ]
     },
@@ -26611,6 +26662,29 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Audio/EnemySoundStop.cs",
+      "module": "csharp/src/SuperMetroid.Core/Audio",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Audio",
+      "layer": "Foundation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Audio/EnemySoundStopKeys.cs",
+      "module": "csharp/src/SuperMetroid.Core/Audio",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Audio",
+      "layer": "Foundation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Audio/FetchedMusicRequest.cs",
       "module": "csharp/src/SuperMetroid.Core/Audio",
       "role": "production",
@@ -26994,6 +27068,29 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Audio/RoomSoundStop.cs",
+      "module": "csharp/src/SuperMetroid.Core/Audio",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Audio",
+      "layer": "Foundation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Audio/RoomSoundStopKeys.cs",
+      "module": "csharp/src/SuperMetroid.Core/Audio",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Audio",
+      "layer": "Foundation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Audio/SamusSound.cs",
       "module": "csharp/src/SuperMetroid.Core/Audio",
       "role": "production",
@@ -27005,6 +27102,29 @@
     },
     {
       "path": "csharp/src/SuperMetroid.Core/Audio/SamusSoundKeys.cs",
+      "module": "csharp/src/SuperMetroid.Core/Audio",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Audio",
+      "layer": "Foundation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Audio/SamusSoundStop.cs",
+      "module": "csharp/src/SuperMetroid.Core/Audio",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Audio",
+      "layer": "Foundation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Audio/SamusSoundStopKeys.cs",
       "module": "csharp/src/SuperMetroid.Core/Audio",
       "role": "production",
       "namespace": "SuperMetroid.Core.Audio",
@@ -29315,16 +29435,6 @@
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Enemies"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Core/Bosses/Draygon/DraygonEyeAction.cs",
-      "module": "csharp/src/SuperMetroid.Core/Bosses",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Bosses.Draygon",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
       ]
     },
     {
@@ -34925,7 +35035,6 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
-        "csharp/src/SuperMetroid.Core/Audio",
         "csharp/src/SuperMetroid.Core/Compatibility",
         "csharp/src/SuperMetroid.Core/Enemies",
         "csharp/src/SuperMetroid.Core/Fx",
@@ -52297,16 +52406,6 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core/Fx"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Core/Enemies/IFromKilledEnemy.cs",
-      "module": "csharp/src/SuperMetroid.Core/Enemies",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Enemies",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
       ]
     },
     {
@@ -70644,19 +70743,6 @@
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Rooms"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Core/Fx/FxOverlayPlane.cs",
-      "module": "csharp/src/SuperMetroid.Core/Fx",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Fx",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core"
       ]
     },
     {
@@ -94722,7 +94808,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes/Cleanup/CleanupFailure.cs",
+      "path": "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes/Cleanup/Directives.cs",
       "module": "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes",
       "role": "analyzer",
       "namespace": "SuperMetroid.EnsureAnalyzer.CodeFixes.Cleanup",
@@ -94764,6 +94850,18 @@
       "namespace": "SuperMetroid.EnsureAnalyzer.CodeFixes.Cleanup",
       "assemblies": [
         "SuperMetroid.EnsureAnalyzer.CodeFixes"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes/Cleanup/TypeMoves.cs",
+      "module": "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes",
+      "role": "analyzer",
+      "namespace": "SuperMetroid.EnsureAnalyzer.CodeFixes.Cleanup",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer.CodeFixes"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.EnsureAnalyzer"
       ]
     },
     {
@@ -97393,12 +97491,11 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.ReachabilityAudit/Removal/PrivateAccessShims.cs",
+      "path": "csharp/src/SuperMetroid.ReachabilityAudit/Removal/PositionalRecordConversion.cs",
       "module": "csharp/src/SuperMetroid.ReachabilityAudit",
       "role": "tooling",
       "namespace": "SuperMetroid.ReachabilityAudit.Removal",
       "assemblies": [
-        "SuperMetroid.ArchitectureAudit",
         "SuperMetroid.ReachabilityAudit"
       ]
     },
@@ -97412,34 +97509,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.ReachabilityAudit/Removal/PromotedNamePlan.cs",
-      "module": "csharp/src/SuperMetroid.ReachabilityAudit",
-      "role": "tooling",
-      "namespace": "SuperMetroid.ReachabilityAudit.Removal",
-      "assemblies": [
-        "SuperMetroid.ReachabilityAudit"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.ReachabilityAudit/Removal/PromotedNames.cs",
-      "module": "csharp/src/SuperMetroid.ReachabilityAudit",
-      "role": "tooling",
-      "namespace": "SuperMetroid.ReachabilityAudit.Removal",
-      "assemblies": [
-        "SuperMetroid.ReachabilityAudit"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.ReachabilityAudit/Removal/PromotionRules.cs",
-      "module": "csharp/src/SuperMetroid.ReachabilityAudit",
-      "role": "tooling",
-      "namespace": "SuperMetroid.ReachabilityAudit.Removal",
-      "assemblies": [
-        "SuperMetroid.ReachabilityAudit"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.ReachabilityAudit/Removal/QualifiedNameParts.cs",
+      "path": "csharp/src/SuperMetroid.ReachabilityAudit/Removal/RecordConversion.cs",
       "module": "csharp/src/SuperMetroid.ReachabilityAudit",
       "role": "tooling",
       "namespace": "SuperMetroid.ReachabilityAudit.Removal",
@@ -97457,78 +97527,6 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.ReachabilityAudit/Removal/ReferenceEdits.cs",
-      "module": "csharp/src/SuperMetroid.ReachabilityAudit",
-      "role": "tooling",
-      "namespace": "SuperMetroid.ReachabilityAudit.Removal",
-      "assemblies": [
-        "SuperMetroid.ReachabilityAudit"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.ReachabilityAudit/Removal/ReferenceRewriter.cs",
-      "module": "csharp/src/SuperMetroid.ReachabilityAudit",
-      "role": "tooling",
-      "namespace": "SuperMetroid.ReachabilityAudit.Removal",
-      "assemblies": [
-        "SuperMetroid.ReachabilityAudit"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.ReachabilityAudit/Removal/RefusedMove.cs",
-      "module": "csharp/src/SuperMetroid.ReachabilityAudit",
-      "role": "tooling",
-      "namespace": "SuperMetroid.ReachabilityAudit.Removal",
-      "assemblies": [
-        "SuperMetroid.ReachabilityAudit"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.ReachabilityAudit/Removal/RelocatedExtension.cs",
-      "module": "csharp/src/SuperMetroid.ReachabilityAudit",
-      "role": "tooling",
-      "namespace": "SuperMetroid.ReachabilityAudit.Removal",
-      "assemblies": [
-        "SuperMetroid.ReachabilityAudit"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.ReachabilityAudit/Removal/RelocationHolder.cs",
-      "module": "csharp/src/SuperMetroid.ReachabilityAudit",
-      "role": "tooling",
-      "namespace": "SuperMetroid.ReachabilityAudit.Removal",
-      "assemblies": [
-        "SuperMetroid.ReachabilityAudit"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.ReachabilityAudit/Removal/RelocationHolderKind.cs",
-      "module": "csharp/src/SuperMetroid.ReachabilityAudit",
-      "role": "tooling",
-      "namespace": "SuperMetroid.ReachabilityAudit.Removal",
-      "assemblies": [
-        "SuperMetroid.ReachabilityAudit"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.ReachabilityAudit/Removal/RelocationHolders.cs",
-      "module": "csharp/src/SuperMetroid.ReachabilityAudit",
-      "role": "tooling",
-      "namespace": "SuperMetroid.ReachabilityAudit.Removal",
-      "assemblies": [
-        "SuperMetroid.ReachabilityAudit"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.ReachabilityAudit/Removal/RelocationModifiers.cs",
-      "module": "csharp/src/SuperMetroid.ReachabilityAudit",
-      "role": "tooling",
-      "namespace": "SuperMetroid.ReachabilityAudit.Removal",
-      "assemblies": [
-        "SuperMetroid.ReachabilityAudit"
-      ]
-    },
-    {
       "path": "csharp/src/SuperMetroid.ReachabilityAudit/Removal/RelocationMove.cs",
       "module": "csharp/src/SuperMetroid.ReachabilityAudit",
       "role": "tooling",
@@ -97538,79 +97536,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.ReachabilityAudit/Removal/RelocationMoves.cs",
-      "module": "csharp/src/SuperMetroid.ReachabilityAudit",
-      "role": "tooling",
-      "namespace": "SuperMetroid.ReachabilityAudit.Removal",
-      "assemblies": [
-        "SuperMetroid.ReachabilityAudit"
-      ]
-    },
-    {
       "path": "csharp/src/SuperMetroid.ReachabilityAudit/Removal/RelocationOutput.cs",
-      "module": "csharp/src/SuperMetroid.ReachabilityAudit",
-      "role": "tooling",
-      "namespace": "SuperMetroid.ReachabilityAudit.Removal",
-      "assemblies": [
-        "SuperMetroid.ReachabilityAudit"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.ReachabilityAudit/Removal/RelocationPlacement.cs",
-      "module": "csharp/src/SuperMetroid.ReachabilityAudit",
-      "role": "tooling",
-      "namespace": "SuperMetroid.ReachabilityAudit.Removal",
-      "assemblies": [
-        "SuperMetroid.ReachabilityAudit"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.ReachabilityAudit/Removal/RelocationSelection.cs",
-      "module": "csharp/src/SuperMetroid.ReachabilityAudit",
-      "role": "tooling",
-      "namespace": "SuperMetroid.ReachabilityAudit.Removal",
-      "assemblies": [
-        "SuperMetroid.ReachabilityAudit"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.ReachabilityAudit/Removal/RelocationStyle.cs",
-      "module": "csharp/src/SuperMetroid.ReachabilityAudit",
-      "role": "tooling",
-      "namespace": "SuperMetroid.ReachabilityAudit.Removal",
-      "assemblies": [
-        "SuperMetroid.ReachabilityAudit"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.ReachabilityAudit/Removal/RelocationSymbols.cs",
-      "module": "csharp/src/SuperMetroid.ReachabilityAudit",
-      "role": "tooling",
-      "namespace": "SuperMetroid.ReachabilityAudit.Removal",
-      "assemblies": [
-        "SuperMetroid.ReachabilityAudit"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.ReachabilityAudit/Removal/RenameMap.cs",
-      "module": "csharp/src/SuperMetroid.ReachabilityAudit",
-      "role": "tooling",
-      "namespace": "SuperMetroid.ReachabilityAudit.Removal",
-      "assemblies": [
-        "SuperMetroid.ReachabilityAudit"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.ReachabilityAudit/Removal/RenamePairing.cs",
-      "module": "csharp/src/SuperMetroid.ReachabilityAudit",
-      "role": "tooling",
-      "namespace": "SuperMetroid.ReachabilityAudit.Removal",
-      "assemblies": [
-        "SuperMetroid.ReachabilityAudit"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.ReachabilityAudit/Removal/SourceTypes.cs",
       "module": "csharp/src/SuperMetroid.ReachabilityAudit",
       "role": "tooling",
       "namespace": "SuperMetroid.ReachabilityAudit.Removal",
@@ -97638,15 +97564,6 @@
     },
     {
       "path": "csharp/src/SuperMetroid.ReachabilityAudit/Removal/TextEdit.cs",
-      "module": "csharp/src/SuperMetroid.ReachabilityAudit",
-      "role": "tooling",
-      "namespace": "SuperMetroid.ReachabilityAudit.Removal",
-      "assemblies": [
-        "SuperMetroid.ReachabilityAudit"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.ReachabilityAudit/Removal/TextInsertion.cs",
       "module": "csharp/src/SuperMetroid.ReachabilityAudit",
       "role": "tooling",
       "namespace": "SuperMetroid.ReachabilityAudit.Removal",
@@ -106332,6 +106249,23 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Verification/Audio/RoomMusicSoundClipVerification.cs",
+      "module": "csharp/src/SuperMetroid.Verification",
+      "role": "verification",
+      "namespace": "SuperMetroid.Verification.Audio",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core/Audio",
+        "csharp/src/SuperMetroid.Core/Bosses",
+        "csharp/src/SuperMetroid.Core/World",
+        "csharp/test-support/Assertions",
+        "csharp/test-support/RepositoryInstallation.Verification"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Verification/Audio/SoundAcceptanceClockCase.cs",
       "module": "csharp/src/SuperMetroid.Verification",
       "role": "verification",
@@ -106361,6 +106295,20 @@
         "csharp/test-support/RepositoryInstallation.Verification",
         "csharp/test-support/VerificationAccess.Core",
         "csharp/test-support/VerificationAccess.Tooling"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Verification/Audio/SoundListClipsVerification.cs",
+      "module": "csharp/src/SuperMetroid.Verification",
+      "role": "verification",
+      "namespace": "SuperMetroid.Verification.Audio",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Audio",
+        "csharp/test-support/Assertions",
+        "csharp/test-support/RepositoryInstallation.Verification"
       ]
     },
     {
@@ -106413,6 +106361,21 @@
         "csharp/src/SuperMetroid.Core/Compatibility",
         "csharp/test-support/Assertions",
         "csharp/test-support/VerificationAccess.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Verification/Audio/SoundStopProgramsVerification.cs",
+      "module": "csharp/src/SuperMetroid.Verification",
+      "role": "verification",
+      "namespace": "SuperMetroid.Verification.Audio",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core/Audio",
+        "csharp/test-support/Assertions",
+        "csharp/test-support/RepositoryInstallation.Verification"
       ]
     },
     {
@@ -110362,6 +110325,26 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Verification/Bosses/MotherBrain/MotherBrainBrainDraws.cs",
+      "module": "csharp/src/SuperMetroid.Verification",
+      "role": "verification",
+      "namespace": "SuperMetroid.Verification.Bosses.MotherBrain",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Animation",
+        "csharp/src/SuperMetroid.Core/Assets",
+        "csharp/src/SuperMetroid.Core/Bosses",
+        "csharp/src/SuperMetroid.Core/Enemies",
+        "csharp/src/SuperMetroid.Core/Samus",
+        "csharp/src/SuperMetroid.Core/Spatial",
+        "csharp/src/SuperMetroid.Core/World",
+        "csharp/test-support/RepositoryInstallation.Verification",
+        "csharp/test-support/VerificationAccess.Core"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Verification/Bosses/MotherBrain/MotherBrainContactHitboxesVerification.cs",
       "module": "csharp/src/SuperMetroid.Verification",
       "role": "verification",
@@ -110960,7 +110943,6 @@
         "csharp/src/SuperMetroid.Core/Enemies",
         "csharp/src/SuperMetroid.Core/World",
         "csharp/test-support/Assertions",
-        "csharp/test-support/RepositoryInstallation.Verification",
         "csharp/test-support/VerificationAccess.Core"
       ]
     },
@@ -111808,7 +111790,8 @@
         "csharp/src/SuperMetroid.Core/Bosses",
         "csharp/src/SuperMetroid.Core/Spatial",
         "csharp/test-support/Assertions",
-        "csharp/test-support/VerificationAccess.Core"
+        "csharp/test-support/VerificationAccess.Core",
+        "csharp/test-support/VerificationAccess.Tooling"
       ]
     },
     {
@@ -118084,7 +118067,8 @@
         "csharp/src/SuperMetroid.Core/Bosses",
         "csharp/src/SuperMetroid.Core/Enemies",
         "csharp/src/SuperMetroid.Tooling",
-        "csharp/test-support/VerificationAccess.Core"
+        "csharp/test-support/VerificationAccess.Core",
+        "csharp/test-support/VerificationAccess.Tooling"
       ]
     },
     {
@@ -128280,23 +128264,6 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Verification/Frontend/Intro/IntroContentIdentityVerification.cs",
-      "module": "csharp/src/SuperMetroid.Verification",
-      "role": "verification",
-      "namespace": "SuperMetroid.Verification.Frontend.Intro",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.AssetExtraction",
-        "csharp/src/SuperMetroid.Core/Assets",
-        "csharp/src/SuperMetroid.Core/Compatibility",
-        "csharp/src/SuperMetroid.Core/Frontend",
-        "csharp/test-support/Assertions",
-        "csharp/test-support/VerificationAccess.Core"
-      ]
-    },
-    {
       "path": "csharp/src/SuperMetroid.Verification/Frontend/Intro/IntroDiscoveryActorSpriteArtworkVerification.cs",
       "module": "csharp/src/SuperMetroid.Verification",
       "role": "verification",
@@ -128764,15 +128731,6 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Verification/Frontend/Intro/VerifyIntroContentIdentityCase.cs",
-      "module": "csharp/src/SuperMetroid.Verification",
-      "role": "verification",
-      "namespace": "SuperMetroid.Verification.Frontend.Intro",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ]
-    },
-    {
       "path": "csharp/src/SuperMetroid.Verification/Frontend/Intro/VerifyIntroTrailPngCase.cs",
       "module": "csharp/src/SuperMetroid.Verification",
       "role": "verification",
@@ -129123,7 +129081,8 @@
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Frontend",
-        "csharp/test-support/Assertions"
+        "csharp/test-support/Assertions",
+        "csharp/test-support/VerificationAccess.Core"
       ]
     },
     {
@@ -131142,7 +131101,6 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
-        "csharp/src/SuperMetroid.Core/Assets",
         "csharp/src/SuperMetroid.Core/Fx",
         "csharp/test-support/Assertions",
         "csharp/test-support/VerificationAccess.Core"
@@ -138359,7 +138317,6 @@
         "csharp/src/SuperMetroid.Core/Hud",
         "csharp/src/SuperMetroid.Core/Rooms",
         "csharp/src/SuperMetroid.Core/Runtime",
-        "csharp/src/SuperMetroid.Core/Samus",
         "csharp/src/SuperMetroid.Core/World",
         "csharp/src/SuperMetroid.Diagnostics",
         "csharp/src/SuperMetroid.Tooling",
@@ -139953,6 +139910,7 @@
         "csharp/src/SuperMetroid.Core/Progression",
         "csharp/src/SuperMetroid.Core/Samus",
         "csharp/src/SuperMetroid.Core/Spatial",
+        "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/Assertions",
         "csharp/test-support/RepositoryInstallation",
         "csharp/test-support/RepositoryInstallation.Verification",
@@ -147295,6 +147253,7 @@
         "SuperMetroid.Verification"
       ],
       "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Animation",
         "csharp/src/SuperMetroid.Core/Enemies",
         "csharp/src/SuperMetroid.Core/Rooms",
         "csharp/test-support/VerificationAccess.Tooling"
@@ -147683,6 +147642,18 @@
         "csharp/src/SuperMetroid.Core/World",
         "csharp/test-support/RepositoryInstallation",
         "csharp/test-support/VerificationAccess.Core"
+      ]
+    },
+    {
+      "path": "csharp/test-support/RepositoryInstallation.Verification/FixtureArtworkTags.cs",
+      "module": "csharp/test-support/RepositoryInstallation.Verification",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.TestSupport.RepositoryInstallation.Verification",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ]
     },
     {
@@ -149356,7 +149327,10 @@
         "SuperMetroid.Verification"
       ],
       "dependsOn": [
-        "csharp/src/SuperMetroid.AssetExtraction"
+        "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core",
+        "csharp/src/SuperMetroid.Core/Assets",
+        "csharp/src/SuperMetroid.Core/Spatial"
       ]
     },
     {
@@ -153115,6 +153089,21 @@
       ]
     },
     {
+      "path": "csharp/test-support/VerificationAccess.Core/AssetExtraction/Rooms/RoomObjectFrameFamilyLayouts.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.AssetExtraction.Rooms",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction"
+      ]
+    },
+    {
       "path": "csharp/test-support/VerificationAccess.Core/AssetExtraction/Rooms/RoomObjectFrameImageFilesPrivateAccess.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
@@ -153710,22 +153699,6 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction"
-      ]
-    },
-    {
-      "path": "csharp/test-support/VerificationAccess.Core/AssetExtraction/Samus/SamusArmCannonSourceArtworkPrivateAccess.cs",
-      "module": "csharp/test-support/VerificationAccess.Core",
-      "role": "verification-support",
-      "namespace": "SuperMetroid.AssetExtraction.Samus",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.AssetExtraction",
-        "csharp/src/SuperMetroid.Core/Samus"
       ]
     },
     {
@@ -154912,6 +154885,22 @@
       ]
     },
     {
+      "path": "csharp/test-support/VerificationAccess.Core/Audio/SoundDriverLibraryPlaces.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.AssetExtraction.Audio",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core/Audio"
+      ]
+    },
+    {
       "path": "csharp/test-support/VerificationAccess.Core/Audio/SoundQueuePrivateAccess.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
@@ -155773,6 +155762,19 @@
       "dependsOn": [
         "csharp/src/SuperMetroid.Core/Bosses",
         "csharp/src/SuperMetroid.Core/Spatial"
+      ]
+    },
+    {
+      "path": "csharp/test-support/VerificationAccess.Core/Bosses/Draygon/DraygonEyeAction.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.Core.Bosses.Draygon",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ]
     },
     {
@@ -159533,6 +159535,21 @@
     },
     {
       "path": "csharp/test-support/VerificationAccess.Core/Cartridge/LittleEndianBytesConstants.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.AssetExtraction.Cartridge",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction"
+      ]
+    },
+    {
+      "path": "csharp/test-support/VerificationAccess.Core/Cartridge/NativeWordIdentitiesDecoding.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
       "namespace": "SuperMetroid.AssetExtraction.Cartridge",
@@ -169617,6 +169634,22 @@
       ]
     },
     {
+      "path": "csharp/test-support/VerificationAccess.Core/Frontend/Intro/Artwork/CinematicSpriteArtwork.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.AssetExtraction.Frontend.Intro.Artwork",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core/Frontend"
+      ]
+    },
+    {
       "path": "csharp/test-support/VerificationAccess.Core/Frontend/Intro/Artwork/IntroEyeTilemapPresentationAccess.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
@@ -171363,6 +171396,23 @@
       ]
     },
     {
+      "path": "csharp/test-support/VerificationAccess.Core/Fx/BlockAnimationLoopPasses.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.Core.Fx",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Animation",
+        "csharp/src/SuperMetroid.Core/Fx"
+      ]
+    },
+    {
       "path": "csharp/test-support/VerificationAccess.Core/Fx/ColourEffectSystemAccess.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
@@ -171532,6 +171582,23 @@
       ]
     },
     {
+      "path": "csharp/test-support/VerificationAccess.Core/Fx/FxOverlayPlane.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.Core.Fx",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core",
+        "csharp/src/SuperMetroid.Core/Fx"
+      ]
+    },
+    {
       "path": "csharp/test-support/VerificationAccess.Core/Fx/FxOverlayPlaneConstants.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
@@ -171558,9 +171625,6 @@
         "SuperMetroid.IntegrationVerification",
         "SuperMetroid.RenderVerification",
         "SuperMetroid.Verification"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Fx"
       ]
     },
     {
@@ -171576,8 +171640,7 @@
         "SuperMetroid.Verification"
       ],
       "dependsOn": [
-        "csharp/src/SuperMetroid.AssetExtraction",
-        "csharp/src/SuperMetroid.Core/Fx"
+        "csharp/src/SuperMetroid.AssetExtraction"
       ]
     },
     {
@@ -171694,6 +171757,21 @@
       ]
     },
     {
+      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/CinematicGlowPaletteFxColorDefinitionList.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.AssetExtraction.Fx.PaletteFx",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction"
+      ]
+    },
+    {
       "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/CinematicGlowPaletteFxColorDefinitionsConstants.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
@@ -171715,6 +171793,21 @@
       "role": "verification-support",
       "namespace": "SuperMetroid.Core.Fx.ColourEffects",
       "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction"
+      ]
+    },
+    {
+      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/CrateriaEscapeLightningPaletteFxColorDefinitionList.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.AssetExtraction.Fx.PaletteFx",
       "assemblies": [
         "SuperMetroid.DesktopVerification",
         "SuperMetroid.IntegrationVerification",
@@ -171807,6 +171900,21 @@
       ]
     },
     {
+      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/MaridiaEnvironmentalPaletteFxColorDefinitionList.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.AssetExtraction.Fx.PaletteFx",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction"
+      ]
+    },
+    {
       "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/MaridiaEnvironmentalPaletteFxColorDefinitionsConstants.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
@@ -171882,6 +171990,21 @@
       ]
     },
     {
+      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/NorfairEnvironmentalPaletteFxColorDefinitionList.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.AssetExtraction.Fx.PaletteFx",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction"
+      ]
+    },
+    {
       "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/NorfairEnvironmentalPaletteFxColorDefinitionsConstants.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
@@ -171903,6 +172026,21 @@
       "role": "verification-support",
       "namespace": "SuperMetroid.Core.Fx.ColourEffects",
       "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction"
+      ]
+    },
+    {
+      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/OldTourianEscapeAccentPaletteFxColorDefinitionList.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.AssetExtraction.Fx.PaletteFx",
       "assemblies": [
         "SuperMetroid.DesktopVerification",
         "SuperMetroid.IntegrationVerification",
@@ -172122,6 +172260,21 @@
       ]
     },
     {
+      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/PlanetZebesTextPaletteFxColorDefinitionList.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.AssetExtraction.Fx.PaletteFx",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction"
+      ]
+    },
+    {
       "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/PlanetZebesTextPaletteFxColorDefinitionsConstants.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
@@ -172175,6 +172328,21 @@
       "role": "verification-support",
       "namespace": "SuperMetroid.Core.Fx.ColourEffects",
       "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction"
+      ]
+    },
+    {
+      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/SamusLoadingSuitPaletteFxColorDefinitionList.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.AssetExtraction.Fx.PaletteFx",
       "assemblies": [
         "SuperMetroid.DesktopVerification",
         "SuperMetroid.IntegrationVerification",
@@ -172265,6 +172433,21 @@
       ]
     },
     {
+      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/TorizoBellyPaletteFxColorDefinitionList.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.AssetExtraction.Fx.PaletteFx",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction"
+      ]
+    },
+    {
       "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/TorizoBellyPaletteFxColorDefinitionsConstants.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
@@ -172295,6 +172478,21 @@
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Fx"
+      ]
+    },
+    {
+      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/TourianEscapeRedFlashPaletteFxColorDefinitionList.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.AssetExtraction.Fx.PaletteFx",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction"
       ]
     },
     {
@@ -172427,6 +172625,21 @@
       ]
     },
     {
+      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/ZebesExplosionAmbientPaletteFxColorDefinitionList.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.AssetExtraction.Fx.PaletteFx",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction"
+      ]
+    },
+    {
       "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/ZebesExplosionFinalePaletteFxColorDefinitionsConstants.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
@@ -172489,6 +172702,21 @@
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Fx"
+      ]
+    },
+    {
+      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/ZebesExplosionLayerFadePaletteFxColorDefinitionList.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.AssetExtraction.Fx.PaletteFx",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction"
       ]
     },
     {
@@ -172625,7 +172853,6 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
-        "csharp/src/SuperMetroid.Core/Assets",
         "csharp/src/SuperMetroid.Core/Fx"
       ]
     },
@@ -182240,7 +182467,6 @@
         "SuperMetroid.Verification"
       ],
       "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Fx",
         "csharp/src/SuperMetroid.Core/World"
       ]
     },
@@ -184430,7 +184656,6 @@
         "SuperMetroid.Verification"
       ],
       "dependsOn": [
-        "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Animation",
         "csharp/src/SuperMetroid.Core/Samus",
         "csharp/src/SuperMetroid.Tooling",

@@ -95,7 +95,7 @@ public sealed partial class RoomFxOverlayState : IGameplayShadingSource
     /// motion pass after the room loads, and each pass from then moves the lava, acid or water before the update draws its
     /// random number, until an enemy ends the motion directly, which stops its per-frame updates until the next room load.
     /// </summary>
-    internal LiquidMotion Motion { get; set; }
+    internal LiquidMotion Motion { get; set; } = LiquidMotion.AwaitingFirstPass;
 
     /// <summary>Lava's bubbling clock, which falls due each time lava bubbles.</summary>
     private IntervalClock lavaBubbling;

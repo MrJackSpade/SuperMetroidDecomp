@@ -59,10 +59,6 @@ internal static class GameInstallationPrivateAccess
         internal global::SuperMetroid.Core.Enemies.EnemyOverreadServices LoadEnemyOverreads() =>
             PrivateState.Invoke<global::SuperMetroid.AssetExtraction.Installation.GameInstallation, global::SuperMetroid.Core.Enemies.EnemyOverreadServices>(self, "LoadEnemyOverreads", [], new object?[] {  });
 
-        /// <summary>The private method <c>LoadEnemySheets</c>, invoked by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.Artwork.InstalledEnemySheets LoadEnemySheets() =>
-            PrivateState.Invoke<global::SuperMetroid.AssetExtraction.Installation.GameInstallation, global::SuperMetroid.Core.Enemies.Artwork.InstalledEnemySheets>(self, "LoadEnemySheets", [], new object?[] {  });
-
         /// <summary>The private method <c>LoadRoomBlockSheets</c>, invoked by name.</summary>
         internal global::SuperMetroid.Core.Rooms.Artwork.InstalledRoomArtwork LoadRoomBlockSheets() =>
             PrivateState.Invoke<global::SuperMetroid.AssetExtraction.Installation.GameInstallation, global::SuperMetroid.Core.Rooms.Artwork.InstalledRoomArtwork>(self, "LoadRoomBlockSheets", [], new object?[] {  });

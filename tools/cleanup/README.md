@@ -176,6 +176,12 @@ exception, and the fixer is fixed. What each fixer does where a choice was neede
   re-indented. When the file it belongs in exists, it goes into that file beside its code, deleting nothing. Two types
   that both belong in the file (`Pair` and `Pair<T>` in `Pair.cs`) get an `#error` naming both. A file-local type
   moves, and its references fail the build.
+
+That `#error` leaves the finding in place, since both types stay in the file. A fix whose only change is to add lines
+its file already holds has been applied before, by this run or an earlier one: the runner records "leaves its finding in
+place: the fix stands as applied" as a problem and goes on to the file's next rule, instead of adding the same `#error`
+again on every pass (as it did once #2607 stopped leaving the files of a project with compiler errors alone) and on every
+later run.
 - SME6401 renames a file whose name differs only in case (`objectcharacterplacement.cs`, which a file system that
   ignores case holds as the same file): the runner deletes it before it creates the new name, and the loop takes the
   old name out of git's index. When another file has the name, the type goes into it, as SME6400's does.
@@ -221,7 +227,7 @@ while it binds. The runner reads it from the compilation's own diagnostics, with
 options like any other, and applies the repository's fixer for it. Such a rule is also absent from `WarningsAsErrors`
 in `csharp/Directory.Build.props`; since the compiler computes it during binding anyway, `none` saves the build its
 reporting, not its analysis. A project that compiled when the run started and has compiler errors after a pass is
-recorded as a problem, naming them; its files are left alone from then on and the run goes on.
+recorded as a problem, naming them; its findings are fixed all the same and the run goes on.
 
 Roslyn skips an analyzer only when every rule it reports is off. A repository analyzer that reported a moved rule
 beside one that stays an error would still run in every build, so a moved rule gets an analyzer of its own: SME6391 is
@@ -249,11 +255,18 @@ one configuration (Debug), so a suppression whose range or member holds code ano
 inactive `#if` branch) is kept.
 
 It is a runner rather than `dotnet format` because of shared files. A file compiled into several projects
-(`csharp/test-support` through `.projitems`, or a `<Compile Link>`) is edited only where every project compiling it
-reports the same finding at the same place, and not at all while one of them has a compiler error. Where the projects
-disagree about a file's unused usings, only the usings all of them report are removed. `dotnet format` judges a shared
-file from one project and would remove usings another project needs. Disagreeing findings are left and counted in the
-commit body.
+(`csharp/test-support` through `.projitems`, or a `<Compile Link>`) is decided from every project that compiles it and
+reports the rule there (one without the rule's analyzer, or outside the rule's scope, has no say): a finding is code
+none of them needs, so a rule's findings in the file are those every one of them reports at the same place. A finding
+only some of them report is code another of them needs, and no finding. Where their unused usings differ, as where
+DesktopVerification, IntegrationVerification and RenderVerification have global usings of `SuperMetroid.Core.Audio`,
+`.Compatibility` and `.Spatial` that Verification lacks, the usings all of them report are removed and the others are
+usings a project needs. `dotnet format` judges a shared file from one project and would remove usings another project
+needs. A project with compiler errors decides like any other, and its fix is applied all the same (#2607): the build
+then fails there, and the cleanup commits it as `Cleanup (does not build)`. No finding is held back and no commit says
+that any was left: until #2607, findings in a shared file that not every project reported, and every finding in a file
+of a project that did not compile, were left in place and counted in the commit body ("Left in files compiled by several
+projects that do not all report them, or by a project that does not compile: IDE0005 240").
 
 The runner repeats its analysis until a pass finds nothing (one rule per file per pass, since other spans go stale
 once a file changes). A file that returns to an earlier text, or more than 20 passes, stops the loop: the run keeps
@@ -272,11 +285,10 @@ made each fixer bind a new compilation of its project, file after file. The comp
 several files runs while the pass goes on, and its problems are recorded in their place when the pass ends.
 
 A fix may change several files, such as IDE0032 deleting a field in one part of a partial type and rewriting its
-property in another. The runner accepts it when every file it changes is compiled by analyzed projects that have no
-compiler errors (otherwise its findings are kept and counted), and when no other fix in the same pass touched one of
-those files (otherwise it waits for the next pass, since its spans would be stale). Every project compiling one of
-its files that no longer compiles afterwards is recorded as a problem naming the fix, and the fix is kept. The cycle and pass checks cover every
-changed file, and the summary lists them all.
+property in another. The runner applies it unless another fix in the same pass touched one of those files, when it
+waits for the next pass, since its spans would be stale; whether the projects compiling its files compile does not
+matter. Every project compiling one of its files that does not compile afterwards is recorded as a problem naming the
+fix, and the fix stays applied. The cycle and pass checks cover every changed file, and the summary lists them all.
 
 A fix may also add, rename or delete files: SME6400 moves a type into a new file, SME6401 renames a file after its type,
 and SME6360 merges a type's hand-written parts into one and deletes the files it empties. The runner adds a new file to
@@ -319,6 +331,13 @@ file and a file of top-level statements; `SME6400.breaking` a file-local type an
 constructor's type body, a write through a receiver with effects left as written, an assignment used with the field's
 type, and a virtual method's parameter taken out with its signature; `IDE0052.unread-parameter` (above) a member left reading no
 instance data.
+
+The fixtures of #2607 hold the two kinds of finding the runner used to leave and count: `IDE0005.shared` a file two
+projects compile, one of which imports a namespace globally (`Fixture.csproj` and `Other/Other.csproj`, as
+DesktopVerification and Verification share test-support): the using neither needs goes, and the using only the other
+needs stays, as no finding; `IDE0005.does-not-compile` a project with a compiler error whose unnecessary using goes all
+the same, its build failing on the error (CS0029). A fixture may hold several projects; every project's `bin/` and
+`obj/` are left out of the comparison.
 
 `tools/cleanup/prune-fixtures/<name>/` confirms the dead-code prune the same way: `input/` is a small repository whose
 `csharp/Fixture.slnx` lists projects named like the shipped, host and verification projects (the reachability audit
@@ -426,6 +445,24 @@ and the build fails at each read, where moving the code that reads it into a con
 fixture's `Glow(Tint Level)`, whose property initializer reads `Level`, loses it, and the build fails there (CS0103). An
 argument passed to a removed parameter whose evaluation calls code or writes state stays as written, so the call fails
 to compile there instead of the effect silently going with it.
+
+The enum-default fixtures hold the shape of the failures at f4af8a1aca and 0ea41f339b (#2608): the prune removed
+`SamusPresentationMode.Gameplay` and `LiquidMotionStage.AwaitingFirstPass` as unreferenced enum members, though every new
+presentation's mode and every new liquid motion's stage held them as their default, unnamed; with the names gone a
+debugger state holding either could not be restored ("value 0 is not a defined member"). An enum's zero member is the
+value of storage that starts at its type's default, so the audit counts it as referenced wherever one does
+(`EnumDefaults` in `csharp/src/SuperMetroid.ReachabilityAudit/Analysis`): a field or automatic property of the enum
+without an initializer, or of a struct instance, which `default` holds at zero whatever its initializer; a struct's
+primary constructor parameter; a parameter marked `[Optional]` alone; an array of the enum created without an initializer,
+cleared or resized; and a `default`, a zero, a cast of zero or a `new E()` converted to the enum. A removed member never
+renumbers the members after it: each implicitly valued member after it gets its value written out. Each fixture failed on
+the tool before:
+
+- `enum-held-default`: a presentation's automatic property and a liquid motion's struct field hold their enums' zero
+  members, which nothing names (the shapes of the two failures). Both stay; an unused member between `Gameplay` and
+  `Cinematic` goes, and `Cinematic` keeps its value as `Cinematic = 2`.
+- `enum-unnamed-default`: the zero members are held only by expressions: a new array of facings, a lock set back to
+  `default` and a speed an optional parameter declares as `default`, which a call leaves out. Nothing is removed.
 
 A value typed `object` names no type, so what is compared through it is not followed. A `with` expression copies a
 record without comparing it, and a pattern names each value it tests (a property pattern by name, a positional one

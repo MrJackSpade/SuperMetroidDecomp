@@ -605,7 +605,7 @@
     {
       "module": "csharp/src/SuperMetroid.ReachabilityAudit",
       "role": "tooling",
-      "files": 43,
+      "files": 44,
       "dependsOn": [
         "csharp/test-support/WindowsConsole"
       ]
@@ -97279,6 +97279,15 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.ReachabilityAudit/Analysis/EnumDefaults.cs",
+      "module": "csharp/src/SuperMetroid.ReachabilityAudit",
+      "role": "tooling",
+      "namespace": "SuperMetroid.ReachabilityAudit.Analysis",
+      "assemblies": [
+        "SuperMetroid.ReachabilityAudit"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.ReachabilityAudit/Analysis/FrameworkDispatch.cs",
       "module": "csharp/src/SuperMetroid.ReachabilityAudit",
       "role": "tooling",
@@ -110943,7 +110952,6 @@
         "csharp/src/SuperMetroid.Core/Enemies",
         "csharp/src/SuperMetroid.Core/World",
         "csharp/test-support/Assertions",
-        "csharp/test-support/RepositoryInstallation.Verification",
         "csharp/test-support/VerificationAccess.Core"
       ]
     },
@@ -138318,7 +138326,6 @@
         "csharp/src/SuperMetroid.Core/Hud",
         "csharp/src/SuperMetroid.Core/Rooms",
         "csharp/src/SuperMetroid.Core/Runtime",
-        "csharp/src/SuperMetroid.Core/Samus",
         "csharp/src/SuperMetroid.Core/World",
         "csharp/src/SuperMetroid.Diagnostics",
         "csharp/src/SuperMetroid.Tooling",

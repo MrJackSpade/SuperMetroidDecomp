@@ -45,9 +45,9 @@ public readonly record struct LiquidMotion
         AwaitingFirstPass,
 
         /// <summary>Each motion pass moves the liquid.</summary>
-        Moving = 1,
+        Moving,
 
         /// <summary>No motion pass moves the liquid again until the next room load.</summary>
-        Stopped = 2,
+        Stopped,
     }
 }

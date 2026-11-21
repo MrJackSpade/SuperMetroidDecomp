@@ -80,7 +80,7 @@ internal static class ChargeFlarePlacementVerification
             DrawImportedFlareSpritemap(bus, native, selector, new(x, onScreen ? y : (byte)y));
             OamBuffer actual = SpriteFrameBuffer.DrawnOam(frame => drawMetadata(frame, samus, Position16<RoomPixels>.Zero, component, transform,
                 new ChargeFlareArtwork { Placement = stock, Sheets = objects },
-                new ChargeFlarePose { Aim = aim, Running = running, PoseYOffset = yOffset, FacingLeft = facingLeft }));
+                new ChargeFlarePose { Aim = aim, Running = running, PoseYOffset = yOffset, Facing = facingLeft ? HorizontalDirection.Left : HorizontalDirection.Right }));
             // The draw depth replaces each part's priority tier (#1514); everything else must match the cartridge.
             AssertEqual(native.NextByteOffset / 4, actual.LastFinalizedSpriteCount, "Flare placement publishes every native part");
             if (!onScreen)
@@ -145,7 +145,7 @@ internal static class ChargeFlarePlacementVerification
             var drawn = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(100, samusY)) }.InPose(SamusPoseId.FacingRightNormalPose);
             return SpriteFrameBuffer.DrawnOam(frame => drawMetadata(frame, drawn, Position16<RoomPixels>.Zero,
                 ChargeFlareComponent.MainFlare, null, new ChargeFlareArtwork { Placement = stock, Sheets = objects },
-                new ChargeFlarePose { Aim = SamusFlareRows.AimAtRow(0), Running = false, PoseYOffset = poseYOffset, FacingLeft = false }));
+                new ChargeFlarePose { Aim = SamusFlareRows.AimAtRow(0), Running = false, PoseYOffset = poseYOffset, Facing = HorizontalDirection.Right }));
         }
         OamBuffer negativeOffset = DrawnAtOffset(100, -4), noOffsetLower = DrawnAtOffset(104, 0);
         AssertTrue(negativeOffset.LastFinalizedSpriteCount > 0, "a flare at a negative pose offset draws visible sprites");

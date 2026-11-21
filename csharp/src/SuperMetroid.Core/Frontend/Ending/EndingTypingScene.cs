@@ -26,5 +26,5 @@ internal sealed class EndingTypingScene(EndingTypewriter typing) : EndingScene
 
     /// <inheritdoc/>
     internal override LayeredScene CaptureScreen(EndingCreditsState ending, FramePaint paint) =>
-        EndingCreditsPresentation.CaptureLogo(ending, crossfading: true, paint);
+        EndingCreditsPresentation.CaptureLogo(ending, SpriteBlend.Glows, paint);
 }

@@ -81,12 +81,10 @@ internal static class PaletteFxObjectAccess
     /// <summary>The object whose definition is at <paramref name="address"/>.</summary>
     /// <summary>The Torizo belly glow <paramref name="effect"/> is.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The effect is no Torizo's belly glow.</exception>
-    internal static TorizoBellyGlow BellyGlowOf(ColourEffectId effect) => effect switch
-    {
-        ColourEffectId.BombTorizoBelly => TorizoBellyGlow.BombTorizo,
-        ColourEffectId.GoldenTorizoBelly => TorizoBellyGlow.GoldenTorizo,
-        _ => throw new ArgumentOutOfRangeException(nameof(effect), effect, "The colour effect is no Torizo's belly glow."),
-    };
+    internal static TorizoBellyGlow BellyGlowOf(ColourEffectId effect) =>
+        effect == ColourEffectId.BombTorizoBelly ? TorizoBellyGlow.BombTorizo
+        : effect == ColourEffectId.GoldenTorizoBelly ? TorizoBellyGlow.GoldenTorizo
+        : throw new ArgumentOutOfRangeException(nameof(effect), effect, "The colour effect is no Torizo's belly glow.");
 
     internal static ColourEffectId FromNative(ushort address) => Objects.TryGetValue(address, out ColourEffectId paletteFxObject)
         ? paletteFxObject

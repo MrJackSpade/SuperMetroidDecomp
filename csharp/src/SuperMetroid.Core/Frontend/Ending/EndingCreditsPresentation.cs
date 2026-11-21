@@ -98,14 +98,14 @@ internal static class EndingCreditsPresentation
     /// The final logo's screen: while the logo's picture fades in, the picture with the logo's sprites glowing over it; then
     /// the post-credits text in front.
     /// </summary>
-    internal static LayeredScene CaptureLogo(EndingCreditsState ending, bool crossfading, FramePaint paint)
+    internal static LayeredScene CaptureLogo(EndingCreditsState ending, SpriteBlend sprites, FramePaint paint)
     {
         var layers = new List<DisplayLayer>();
-        if (crossfading)
+        if (sprites == SpriteBlend.Glows)
             layers.Add(new PicturedPlaneLayer(ending.ScreenPicture(SpriteSheetId.EndingPostCreditsPictures, EndingPictureNames.Logo, EndingScenery.LogoPicture),
                 Offset16<PlanePixels>.Zero));
         // While the logo's picture fades in, its sprites glow over it.
-        layers.Add(Sprites(ending, blend: crossfading ? SpriteBlend.Glows : SpriteBlend.Drawn));
+        layers.Add(Sprites(ending, blend: sprites));
         layers.Add(PostCreditsLayer(ending));
         return new(paint, layers.ToArray(), ending.Stage.Brightness);
     }

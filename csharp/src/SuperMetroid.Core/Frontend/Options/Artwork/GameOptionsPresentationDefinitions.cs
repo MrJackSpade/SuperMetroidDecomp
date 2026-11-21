@@ -19,12 +19,12 @@ public static class GameOptionsPresentationDefinitions
         };
 
     /// <summary>The name each text language's pictures are filed under (#2560).</summary>
-    internal static readonly IReadOnlyDictionary<TextLanguage, string> LanguageNames =
-        new Dictionary<TextLanguage, string>
+    internal static readonly IdentityTable<TextLanguage, string> LanguageNames =
+        new(new Dictionary<TextLanguage, string>
         {
             [TextLanguage.English] = "English",
             [TextLanguage.Japanese] = "Japanese",
-        };
+        });
 
     /// <summary>The JSON name of a menu layout's heading sprite.</summary>
     internal static readonly IdentityTable<GameOptionsPage, string> HeadingSpriteNames =

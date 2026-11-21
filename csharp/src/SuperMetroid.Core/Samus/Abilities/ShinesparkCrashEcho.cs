@@ -22,10 +22,10 @@ public sealed class ShinesparkCrashEcho(ShinesparkCrashEchoRelease release)
         Shot is { Behavior: ShinesparkEchoFlight } ? _position : null;
 
     /// <summary>
-    /// Whether this echo's flight leaves its height for the crash's orbit, and clears it once it leaves the screen: the
-    /// first echo's does (<see cref="SamusShinesparkState.FirstReleasedEcho"/>).
+    /// Which of the crash's two echoes this is: the first's flight leaves its height for the crash's orbit, and clears it
+    /// once it leaves the screen (<see cref="SamusShinesparkState.FirstReleasedEcho"/>).
     /// </summary>
-    internal bool LeavesOrbitHeight { get; } = release == ShinesparkCrashEchoRelease.First;
+    internal ShinesparkCrashEchoRelease Release { get; } = release;
 
     /// <summary>The echo departs on <paramref name="shot"/> from where the crash finished.</summary>
     /// <param name="shot">The shot that now carries the echo.</param>

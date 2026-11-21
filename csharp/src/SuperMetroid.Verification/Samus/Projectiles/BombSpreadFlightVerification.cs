@@ -148,7 +148,7 @@ internal static class BombSpreadFlightVerification
     }
 
     /// <summary>A room of air but for solid blocks at <paramref name="solid"/>, holding no room objects.</summary>
-    private static SamusTerrain RoomWithSolidBlocks(IEnumerable<(int X, int Y)> solid)
+    private static RoomTerrain RoomWithSolidBlocks(IEnumerable<(int X, int Y)> solid)
     {
         var blocks = new RoomTerrainBlock[RoomSide * RoomSide];
         foreach ((int x, int y) in solid)

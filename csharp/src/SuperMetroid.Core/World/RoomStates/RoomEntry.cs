@@ -55,6 +55,7 @@ internal abstract record RoomEntry
         /// <inheritdoc/>
         internal override bool RunsDoorClosingObject => true;
 
+        /// <inheritdoc/>
         internal override LoadedRoomAssets? PreloadedAssets => Preloaded;
     }
 

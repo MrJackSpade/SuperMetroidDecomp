@@ -17,7 +17,7 @@ public static class GameOptionsNames
 
     /// <summary>The name <paramref name="language"/>'s pictures are filed under (#2560).</summary>
     private static string LanguageName(TextLanguage language) =>
-        Ensure.Listed(GameOptionsPresentationDefinitions.LanguageNames, language);
+        GameOptionsPresentationDefinitions.LanguageNames[language];
 
     /// <summary>The JSON name of a menu layout's heading sprite.</summary>
     internal static string HeadingSpriteName(GameOptionsPage page) =>

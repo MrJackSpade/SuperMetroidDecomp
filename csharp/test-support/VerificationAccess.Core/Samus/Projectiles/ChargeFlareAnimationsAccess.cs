@@ -36,12 +36,10 @@ internal static class ChargeFlareAnimationsAccess
 
         /// <summary>The composition <paramref name="component"/>'s picture numbered <paramref name="number"/> shows in, facing <paramref name="facing"/>.</summary>
         /// <exception cref="ArgumentOutOfRangeException">The component has no picture of that number.</exception>
-        internal static ProjectileSpriteId CompositionNumbered(ChargeFlareComponent component, HorizontalDirection facing, int number) => component switch
-        {
-            ChargeFlareComponent.MainFlare => ChargeFlarePictures.MainFlare(ChargeFlarePictureNumbers.MainFlare(number)),
-            ChargeFlareComponent.SlowSparks => ChargeFlarePictures.SlowSparks(facing, ChargeFlarePictureNumbers.SlowSparks(number)),
-            _ => ChargeFlarePictures.FastSparks(facing, ChargeFlarePictureNumbers.FastSparks(number)),
-        };
+        internal static ProjectileSpriteId CompositionNumbered(ChargeFlareComponent component, HorizontalDirection facing, int number) =>
+            component == ChargeFlareComponent.MainFlare ? ChargeFlarePictures.MainFlare(ChargeFlarePictureNumbers.MainFlare(number))
+            : component == ChargeFlareComponent.SlowSparks ? ChargeFlarePictures.SlowSparks(facing, ChargeFlarePictureNumbers.SlowSparks(number))
+            : ChargeFlarePictures.FastSparks(facing, ChargeFlarePictureNumbers.FastSparks(number));
     }
 
     /// <summary>The spark ring <paramref name="component"/>'s animation.</summary>

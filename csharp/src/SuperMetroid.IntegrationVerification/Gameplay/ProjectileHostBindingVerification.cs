@@ -48,7 +48,7 @@ internal static class ProjectileHostBindingVerification
     }
 
     /// <summary>The installed offset at every placement <paramref name="placements"/> holds.</summary>
-    private static IReadOnlyDictionary<ChargeFlarePlacement, Offset16<RoomPixels>> Offsets(ChargeFlarePlacements placements) =>
+    private static Dictionary<ChargeFlarePlacement, Offset16<RoomPixels>> Offsets(ChargeFlarePlacements placements) =>
         global::SuperMetroid.Core.PrivateState.Field<ChargeFlarePlacements, Dictionary<ChargeFlarePlacement, Offset16<RoomPixels>>>(placements, "offsets");
 
     /// <summary>Checks the Grapple flare placement and swing choices the host bound.</summary>

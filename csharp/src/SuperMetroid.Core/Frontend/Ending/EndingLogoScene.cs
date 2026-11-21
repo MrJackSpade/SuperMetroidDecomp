@@ -32,5 +32,5 @@ internal sealed class EndingLogoScene(EndingLogo logo) : EndingActorScene
 
     /// <inheritdoc/>
     internal override LayeredScene CaptureScreen(EndingCreditsState ending, FramePaint paint) =>
-        EndingCreditsPresentation.CaptureLogo(ending, Logo.CrossfadeStarted, paint);
+        EndingCreditsPresentation.CaptureLogo(ending, Logo.Sprites, paint);
 }

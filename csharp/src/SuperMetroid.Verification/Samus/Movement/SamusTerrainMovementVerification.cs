@@ -227,7 +227,7 @@ internal static void VerifySamusBlockCollision()
     AssertEqual(RoomDefinitions.ForgottenHighwayElbow, enteredDoor.DestinationRoom,
         "normal type-$9 door preserves destination room header");
     doorRoomObjects.DoorContacts.GoThroughEnteredDoor(enteredDoor);
-    AssertTrue(doorRoomObjects.DoorContacts.EnteredDoor is null,
+    AssertEqual<DoorDefinition?>(null, doorRoomObjects.DoorContacts.EnteredDoor,
         "a door gone through does not leak into later movement");
 
     RoomLevelData elevatorDoorLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(doorForeground, doorBehavior, new RoomBlockAppearance[doorForeground.Length]), RoomLevelData.NothingBeyondGrid(),

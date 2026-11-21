@@ -13,32 +13,30 @@ internal static class SamusProjectileFixtureOccupancy
     /// The damage a projectile of <paramref name="type"/> deals as it takes its place: an echo's, a beam shot's of its
     /// combination and charge, an explosion's, or a missile's, Super Missile's, bomb's or Power Bomb's.
     /// </summary>
-    internal static int DamageAsPlaced(SamusProjectileType type) => type switch
+    internal static int DamageAsPlaced(SamusProjectileType type)
     {
-        { Echo: { } echo } => SamusProjectileDamage.Read(SamusProjectileSelection.Echo(echo)),
-        { Family: SamusProjectileFamily.Beam } => SamusProjectileDamage.Read(SamusProjectileSelection.BeamShot(type.BeamCombination, type.IsChargedBeam)),
-        { Family: SamusProjectileFamily.BeamExplosion or SamusProjectileFamily.MissileExplosion } => SamusProjectileDamageDefinitions.ExplosionDamage,
-        _ => SamusProjectileDamage.Read(NonBeam(type.Family)),
-    };
+        if (type.Echo is { } echo)
+            return SamusProjectileDamage.Read(SamusProjectileSelection.Echo(echo));
+        if (type.Family == SamusProjectileFamily.Beam)
+            return SamusProjectileDamage.Read(SamusProjectileSelection.BeamShot(type.BeamCombination, type.IsChargedBeam));
+        if (type.Family is SamusProjectileFamily.BeamExplosion or SamusProjectileFamily.MissileExplosion)
+            return SamusProjectileDamageDefinitions.ExplosionDamage;
+        return SamusProjectileDamage.Read(NonBeam(type.Family));
+    }
 
     /// <summary>The kind of a missile, Super Missile, bomb or Power Bomb of <paramref name="family"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The family is no missile or bomb family.</exception>
-    internal static SamusProjectileKind NonBeam(SamusProjectileFamily family) => family switch
-    {
-        SamusProjectileFamily.Missile => SamusProjectileSelection.Missile(super: false),
-        SamusProjectileFamily.SuperMissile => SamusProjectileSelection.Missile(super: true),
-        SamusProjectileFamily.Bomb or SamusProjectileFamily.PowerBomb => SamusProjectileSelection.Bomb(BombKindOf(family)),
-        _ => throw new ArgumentOutOfRangeException(nameof(family), family, "The family is no missile or bomb family."),
-    };
+    internal static SamusProjectileKind NonBeam(SamusProjectileFamily family) =>
+        family == SamusProjectileFamily.Missile ? SamusProjectileSelection.Missile(super: false)
+        : family == SamusProjectileFamily.SuperMissile ? SamusProjectileSelection.Missile(super: true)
+        : SamusProjectileSelection.Bomb(BombKindOf(family));
 
     /// <summary>The bomb of <paramref name="family"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The family is no bomb family.</exception>
-    internal static SamusBombKind BombKindOf(SamusProjectileFamily family) => family switch
-    {
-        SamusProjectileFamily.Bomb => SamusBombKind.Bomb,
-        SamusProjectileFamily.PowerBomb => SamusBombKind.PowerBomb,
-        _ => throw new ArgumentOutOfRangeException(nameof(family), family, "The family is no bomb family."),
-    };
+    internal static SamusBombKind BombKindOf(SamusProjectileFamily family) =>
+        family == SamusProjectileFamily.Bomb ? SamusBombKind.Bomb
+        : family == SamusProjectileFamily.PowerBomb ? SamusBombKind.PowerBomb
+        : throw new ArgumentOutOfRangeException(nameof(family), family, "The family is no bomb family.");
 
     /// <summary>
     /// A shot place, the first of the pool's, holding a projectile of <paramref name="type"/> at rest at the room's origin

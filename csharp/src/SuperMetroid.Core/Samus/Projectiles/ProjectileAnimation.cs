@@ -87,7 +87,7 @@ internal sealed class ProjectileAnimation
         if (SamusPoseMetadata.ReadAim(samus) is not SamusPoseAim.Armed { Flare: var flare })
             return;
 
-        DrawFlareComponentWithMetadata(sprites, samus, cameraPosition, component, turningFloor, artwork, new ChargeFlarePose { Aim = flare, Running = SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.Running, PoseYOffset = SamusPoseMetadata.ReadArtOrigin(samus), FacingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left) });
+        DrawFlareComponentWithMetadata(sprites, samus, cameraPosition, component, turningFloor, artwork, new ChargeFlarePose { Aim = flare, Running = SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.Running, PoseYOffset = SamusPoseMetadata.ReadArtOrigin(samus), Facing = FlareFacings[SamusPoseMetadata.ReadFacingDirection(samus)] });
     }
 
     /// <summary>Applies pose muzzle offsets after optional Ceres turning-floor center transform, then draws the installed component frame.</summary>
@@ -107,10 +107,18 @@ internal sealed class ProjectileAnimation
         // The flare is published wherever it lies; the display clips it to the view (#1541).
 
         // A component the Hyper Beam's count has stepped back past its first picture draws nothing (#1275, #2114).
-        if (_charge.FlareComposition(component, pose.FacingLeft ? HorizontalDirection.Left : HorizontalDirection.Right) is not { } picture)
+        if (_charge.FlareComposition(component, pose.Facing) is not { } picture)
             return;
         // The flare is Samus's own charge, so it shows the sheet of the beams she has equipped (#1586).
         SpriteSheetFrame image = artwork.Sheets.SheetOf(SamusBeamCombinations.Of(samus.EquippedBeams)).Frame(ProjectileSheetFrames.FlareFrame(picture));
         sprites.Add(new SamusColouredDraw(new SpriteSource(SpriteSourceKind.SamusChargeFlare), image, place));
     }
+
+    /// <summary>The way the charge flare faces for each way Samus's pose faces: left only while she faces left.</summary>
+    private static IdentityTable<SamusFacingDirection, HorizontalDirection> FlareFacings { get; } = new(new Dictionary<SamusFacingDirection, HorizontalDirection>
+    {
+        [SamusFacingDirection.ForwardOrSpecial] = HorizontalDirection.Right,
+        [SamusFacingDirection.Left] = HorizontalDirection.Left,
+        [SamusFacingDirection.Right] = HorizontalDirection.Right,
+    });
 }

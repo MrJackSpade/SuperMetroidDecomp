@@ -558,7 +558,7 @@ public sealed class SamusShinesparkState
         bool onScreen = CameraPastRoomEdge.FromCamera(point.X, cameraPosition.X) is >= 0 and < ShinesparkDefinitions.EchoScreenReach &&
             CameraPastRoomEdge.FromCamera(point.Y, cameraPosition.Y) is >= 0 and < ShinesparkDefinitions.EchoScreenReach;
 
-        if (echo.LeavesOrbitHeight)
+        if (echo.Release == ShinesparkCrashEchoRelease.First)
         {
             if (onScreen)
                 _orbitTravel.LeaveEchoHeight(point.Y);

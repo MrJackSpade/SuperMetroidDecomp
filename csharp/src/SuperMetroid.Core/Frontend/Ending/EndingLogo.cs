@@ -2,6 +2,7 @@ using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.Core.Frontend.Ending;
 
@@ -27,6 +28,9 @@ internal sealed class EndingLogo
 
     /// <summary>Becomes true when the grey-out cue begins paired background and sprite changes.</summary>
     public bool CrossfadeStarted => NextCrossfade is not null;
+
+    /// <summary>How the logo's sprites show: drawn until the grey-out cue begins the crossfade, then glowing over its picture.</summary>
+    public SpriteBlend Sprites { get; private set; } = SpriteBlend.Drawn;
     /// <summary>Whether the logo has shown its crossfade's last step and hands off to the percentage text.</summary>
     public bool Completed { get; private set; }
 
@@ -76,7 +80,11 @@ internal sealed class EndingLogo
     /// <summary>What <see cref="HandleCue"/> does for each <see cref="EndingLogoCue"/> member, each member's own arm.</summary>
     private IdentityTable<EndingLogoCue, Action> HandleCueForEndingLogoCue => field ??= new(new Dictionary<EndingLogoCue, Action>
     {
-        [EndingLogoCue.GreyOut] = () => NextCrossfade = EndingLogoCrossfadeStep.First,
+        [EndingLogoCue.GreyOut] = () =>
+        {
+            NextCrossfade = EndingLogoCrossfadeStep.First;
+            Sprites = SpriteBlend.Glows;
+        },
     });
 
     /// <summary>Starts the crossfade on the step after the grey-out cue.</summary>

@@ -41,7 +41,7 @@ internal static class CinematicSnapshotTestsVerification
                 LayeredScene snapshot = flight.ComposeScene();
                 byte[] held = GraphDigest(snapshot);
                 coloredRearView |= snapshot.Layers.Any(layer => layer is ScreenTintLayer c
-                    && c.Colour != RgbColor.Black);
+                    && c.Colour.ShownWith(global::SuperMetroid.Core.Assets.ColourBlendOracle.Instance) != RgbColor.Black);
                 AssertTrue(ScenePixels.Same(flight.ComposeScene(), snapshot), $"Ceres flight snapshot tick {tick} shows the live scene's pixels");
                 flight.StepFrame();
                 Survives(held, snapshot, tick);

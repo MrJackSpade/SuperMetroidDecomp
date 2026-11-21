@@ -65,13 +65,13 @@ internal sealed class D3D11SceneColourBuffer : IDisposable
         if (mostKeys > keyScratch.Length)
             keyScratch = new RgbColor[mostKeys];
         Span<uint> upload = Upload;
-        upload[0] = Shown(frame.Backdrop);
+        upload[0] = Shown(frame.Backdrop.ShownWith(D3D11ColourBlend.Instance));
         int table = 1 + slots.Count;
         for (int slot = 0; slot < slots.Count; slot++)
         {
             upload[1 + slot] = (uint)table;
             Span<RgbColor> keyColours = keyScratch.AsSpan(0, slots[slot].Sheet.ColourKeys.Length);
-            Shading(frame, slots[slot]).KeyColours(slots[slot].Sheet, keyColours);
+            Shading(frame, slots[slot]).KeyColours(slots[slot].Sheet, keyColours, D3D11ColourBlend.Instance);
             for (int key = 0; key < keyColours.Length; key++)
                 upload[table + key] = Shown(keyColours[key]);
             table += keyColours.Length;

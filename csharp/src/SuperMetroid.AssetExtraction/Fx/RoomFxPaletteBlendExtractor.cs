@@ -5,7 +5,8 @@ using System.Buffers.Binary;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.AssetExtraction.Fx.Artwork;
+using SuperMetroid.AssetExtraction.Fx.Artwork;
+using SuperMetroid.Core.Compatibility;
 
 namespace SuperMetroid.AssetExtraction.Fx;
 

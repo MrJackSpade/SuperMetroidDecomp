@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Assets;
+﻿using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Compatibility;
 
 namespace SuperMetroid.Core.Bosses.Phantoon;
 

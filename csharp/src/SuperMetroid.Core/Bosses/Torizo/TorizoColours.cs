@@ -51,7 +51,7 @@ internal sealed class TorizoColours
             TorizoLook? fadingToward = fade is { Moved: > 0 } ? target : null;
             shading = fadingToward is { } to && fade is { } running
                 ? shading.With(new PictureShadeFade(
-                    PictureShading.Shaded(TorizoShades.Body(settled)), PictureShading.Shaded(TorizoShades.Body(to)), running.Moved, running.Length))
+                    PictureShading.Shaded(TorizoShades.Body(settled)), PictureShading.Shaded(TorizoShades.Body(to)), new FadeLevel(running.Moved, running.Length)))
                 : shading.With(TorizoShades.Body(settled));
             if (glow is not { } step || settled.Kind == TorizoLookKind.White)
                 return shading;
@@ -61,7 +61,7 @@ internal sealed class TorizoColours
             // Over a moving fade the glow's colours show as their own fade, unmoved until the fade steps over this glow step.
             StepCountedFadeProgress? overGlow = glowFadeFrom is { } from ? body.Since(from) : null;
             return shading.With(new PictureShadeFade(PictureShading.Shaded(glowing), PictureShading.Shaded(TorizoShades.GlowingBelly(goal)),
-                overGlow?.Moved ?? 0, overGlow?.Length ?? body.Length));
+                new FadeLevel(overGlow?.Moved ?? 0, overGlow?.Length ?? body.Length)));
         }
     }
 

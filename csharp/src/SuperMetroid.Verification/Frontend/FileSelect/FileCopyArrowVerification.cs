@@ -88,7 +88,7 @@ internal static class FileCopyArrowVerification
                     "the copy arrow draws in its rotation step's shade");
                 // The sheet's colours laid out by the palette index each was composed as (#1544); a colour none of its
                 // pixels shows is not one of its colours.
-                RgbColor[] shown = InstalledPictureColoursConstants.ByComposedIndex(arrowSheet, shading.KeyColours(arrowSheet));
+                RgbColor[] shown = InstalledPictureColoursConstants.ByComposedIndex(arrowSheet, shading.KeyColours(arrowSheet, global::SuperMetroid.Core.Assets.ColourBlendOracle.Instance));
                 for (int color = 128; color < 256; color++)
                 {
                     if (InstalledPictureColoursConstants.KeyComposedAs(arrowSheet, color - 128) is null)

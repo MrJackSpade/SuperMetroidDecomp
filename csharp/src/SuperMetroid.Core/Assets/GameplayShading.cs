@@ -18,7 +18,7 @@ public sealed record GameplayShading
     /// <param name="shadings">The shading of every group of pictures, before the display's fade.</param>
     /// <param name="fade">The fade of the whole display, or null while none runs.</param>
     /// <exception cref="ArgumentException">A group has no shading.</exception>
-    public GameplayShading(RgbColor backdrop, ImmutableDictionary<GameplayPictures, PictureShading> shadings, GameplayDisplayFade? fade)
+    public GameplayShading(ShownColour backdrop, ImmutableDictionary<GameplayPictures, PictureShading> shadings, GameplayDisplayFade? fade)
     {
         Ensure.NotNull(shadings);
         foreach (GameplayPictures pictures in Enum.GetValues<GameplayPictures>())
@@ -26,13 +26,13 @@ public sealed record GameplayShading
             if (!shadings.ContainsKey(pictures))
                 throw new ArgumentException($"A gameplay frame's shading names none for its {pictures} pictures.", nameof(shadings));
         }
-        Backdrop = backdrop;
+        Backdrop = Ensure.NotNull(backdrop);
         this.shadings = shadings;
         Fade = fade;
     }
 
-    /// <summary>The colour shown where nothing is drawn.</summary>
-    public RgbColor Backdrop { get; }
+    /// <summary>What is shown where nothing is drawn, which the backend shows (#2563).</summary>
+    public ShownColour Backdrop { get; }
 
     /// <summary>The fade of the whole display, which every picture and every shaded sprite draw shows after its own shading.</summary>
     private GameplayDisplayFade? Fade { get; }
@@ -83,5 +83,5 @@ public sealed record GameplayShading
     }
 
     /// <summary>This shading with the backdrop shown in <paramref name="backdrop"/>, as X-ray shows its own.</summary>
-    public GameplayShading WithBackdrop(RgbColor backdrop) => new(backdrop, shadings, Fade);
+    public GameplayShading WithBackdrop(ShownColour backdrop) => new(backdrop, shadings, Fade);
 }

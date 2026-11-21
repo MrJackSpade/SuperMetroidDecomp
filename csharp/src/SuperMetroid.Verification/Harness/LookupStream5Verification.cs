@@ -78,7 +78,8 @@ using SuperMetroid.AssetExtraction.Bosses.Phantoon.Artwork;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
-using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Compatibility;
 namespace SuperMetroid.Verification.Harness;
 
 /// <summary>Cartridge-oracle checks for Ceres, boss, projectile and map visual definitions in lookup stream five.</summary>

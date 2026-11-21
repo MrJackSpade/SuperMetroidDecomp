@@ -19,7 +19,8 @@ namespace SuperMetroid.Verification.Samus.Abilities;
 
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.TestSupport.FrameRendering;
+using SuperMetroid.TestSupport.FrameRendering;
+using SuperMetroid.Core.Compatibility;
 
 /// <summary>Checks X-Ray activation, beam display, release, and excluded-room input routes.</summary>
 internal static class XrayInputVerification

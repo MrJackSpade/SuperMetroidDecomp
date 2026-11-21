@@ -31,7 +31,7 @@ public sealed record ColourSubstitution : ColourEffect
     public ImmutableArray<RgbColor> Shown { get; }
 
     /// <inheritdoc />
-    public override RgbColor Apply(RgbColor shown)
+    public override RgbColor Apply(RgbColor shown, IColourBlend blend)
     {
         int index = Replaced.IndexOf(shown);
         return index < 0 ? shown : Shown[index];

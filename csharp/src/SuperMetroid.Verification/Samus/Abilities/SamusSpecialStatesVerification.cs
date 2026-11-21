@@ -21,7 +21,8 @@ namespace SuperMetroid.Verification.Samus.Abilities;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Samus;
-using SuperMetroid.AssetExtraction.Samus.Artwork;
+using SuperMetroid.AssetExtraction.Samus.Artwork;
+using SuperMetroid.Core.Compatibility;
 
 /// <summary>Verifies Samus's Crystal Flash, X-ray, and death state machines with focused cartridge fixtures.</summary>
 internal static class SamusSpecialStatesVerification

@@ -108,7 +108,7 @@ internal static class NativeColouredPictures
     internal static RgbColor[] ShownIn(SpriteImage picture, PictureShading shading)
     {
         Ensure.NotNull(picture);
-        RgbColor[] shown = Ensure.NotNull(shading).KeyColours(picture);
+        RgbColor[] shown = Ensure.NotNull(shading).KeyColours(picture, global::SuperMetroid.Core.Assets.ColourBlendOracle.Instance);
         ImmutableArray<ColourKey> keys = picture.ColourKeys;
         var image = new RgbColor[ColorCount];
         for (int key = 0; key < shown.Length; key++)

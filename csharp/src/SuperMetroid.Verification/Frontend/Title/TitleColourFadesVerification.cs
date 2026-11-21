@@ -209,12 +209,12 @@ internal static class TitleColourFadesVerification
             }
         }
         RgbColor[] lastRecord = records.ColourSets[^1];
-        RgbColor[] drawnColours = drawn.KeyColours(picture);
-        RgbColor[] finalColours = final.KeyColours(picture);
+        RgbColor[] drawnColours = drawn.KeyColours(picture, global::SuperMetroid.Core.Assets.ColourBlendOracle.Instance);
+        RgbColor[] finalColours = final.KeyColours(picture, global::SuperMetroid.Core.Assets.ColourBlendOracle.Instance);
         var written = new HashSet<int>();
         for (int record = 0; record < records.Durations.Length; record++)
         {
-            RgbColor[] shown = drawn.With(ColourEffectShades.Of(records.Colours, new ColourEffectFrame(records.Animation, record))).KeyColours(picture);
+            RgbColor[] shown = drawn.With(ColourEffectShades.Of(records.Colours, new ColourEffectFrame(records.Animation, record))).KeyColours(picture, global::SuperMetroid.Core.Assets.ColourBlendOracle.Instance);
             foreach (ColourKey key in keys)
             {
                 int place = picture.PlaceOf(key) ?? throw new InvalidOperationException($"{picture} holds no place for its own key {key}.");

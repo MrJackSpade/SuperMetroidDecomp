@@ -86,7 +86,7 @@ public sealed class IntroCrossfade
     internal PictureShading NarrationShading(PictureShading glow)
     {
         int level = LevelOf(IntroCrossfadeScene.Narration);
-        return level == Levels ? Ensure.NotNull(glow) : Ensure.NotNull(glow).With(new ColourLevel(level, Levels));
+        return level == Levels ? Ensure.NotNull(glow) : Ensure.NotNull(glow).With(new ColourLevel(new FadeLevel(level, Levels)));
     }
 
     /// <summary>A scene picture's shading: the shade of each scene's level below full.</summary>

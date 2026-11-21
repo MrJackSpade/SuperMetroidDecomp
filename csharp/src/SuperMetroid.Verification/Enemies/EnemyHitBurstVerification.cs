@@ -244,7 +244,7 @@ internal static class EnemyHitBurstVerification
     {
         SpriteSheetFrame frame = draw.Image;
         SpriteImage sheet = frame.Sheet;
-        RgbColor[] keyColours = (draw.Shading ?? throw new InvalidOperationException($"{name}: the burst's draw names a shading.")).KeyColours(sheet);
+        RgbColor[] keyColours = (draw.Shading ?? throw new InvalidOperationException($"{name}: the burst's draw names a shading.")).KeyColours(sheet, global::SuperMetroid.Core.Assets.ColourBlendOracle.Instance);
         RgbColor[] beams = colours.ShownBeams(InstalledFixtures.SamusShadeSources);
         var shown = new List<RgbColor>();
         var seen = new HashSet<ColourKey>();

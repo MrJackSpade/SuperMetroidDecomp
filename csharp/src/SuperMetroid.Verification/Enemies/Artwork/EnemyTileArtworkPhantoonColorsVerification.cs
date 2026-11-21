@@ -82,7 +82,7 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
             state.BodyFade.Steps = 1;
             state.BodyFade.Resume();
             enemies.PhantoonBehavior.Presentation.AdvancePhantoonFadeIn(body, state, steps);
-            AssertEqual(PictureShading.Standard.With(new PictureShadeFade(Body(PhantoonBodyLook.Health(band)), Body(PhantoonBodyLook.Health(band)), 1, steps)),
+            AssertEqual(PictureShading.Standard.With(new PictureShadeFade(Body(PhantoonBodyLook.Health(band)), Body(PhantoonBodyLook.Health(band)), new FadeLevel(1, steps))),
                 Shown(state), $"Phantoon live materialization band {band}: a typed fade from its first moving step");
             AssertEqual(2, state.BodyFade.Steps, $"Phantoon fade-in band {band} takes one step");
         }
@@ -98,7 +98,7 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
         state.BodyFade.Steps = steps + 1;
         state.BodyFade.Resume();
         enemies.PhantoonBehavior.Patterns.AdvancePhantoonFadeOut(state, steps);
-        AssertEqual(PictureShading.Standard.With(new PictureShadeFade(Body(PhantoonBodyLook.Health(PhantoonHealthBandDefinitions.BelowThreeEighths)), Body(PhantoonBodyLook.FadedOut), 1, 1)),
+        AssertEqual(PictureShading.Standard.With(new PictureShadeFade(Body(PhantoonBodyLook.Health(PhantoonHealthBandDefinitions.BelowThreeEighths)), Body(PhantoonBodyLook.FadedOut), new FadeLevel(1, 1))),
             Shown(state), "Phantoon's fade-out restarted at its last step reaches its goal");
         AssertEqual(steps + 2, state.BodyFade.Steps, "Phantoon's fade-out takes its last step");
         enemies.PhantoonBehavior.Patterns.AdvancePhantoonFadeOut(state, steps);
@@ -114,19 +114,19 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
         AssertEqual(PictureShading.Standard.With(fromHealth), Shown(state), "Phantoon's fade has come four of its twelve steps from his health colours");
         state.Colours.Show(PhantoonBodyLook.White);
         state.Colours.Fade(PhantoonBodyLook.FadedOut, 5, steps);
-        AssertEqual(PictureShading.Standard.With(new PictureShadeFade(Body(PhantoonBodyLook.White), Body(PhantoonBodyLook.FadedOut), 1, 8)),
+        AssertEqual(PictureShading.Standard.With(new PictureShadeFade(Body(PhantoonBodyLook.White), Body(PhantoonBodyLook.FadedOut), new FadeLevel(1, 8))),
             Shown(state), "Phantoon's fade restarts from the hurt flash's white over the eight steps it has left");
         AssertShade(bodyShades, PhantoonShades.Body(PhantoonBodyLook.White), _ => RgbColor.White, "Phantoon's white hurt flash");
         PictureShadeFade toFadedOut = new(Body(PhantoonBodyLook.White), Body(PhantoonBodyLook.FadedOut), 1, 8);
         state.Colours.Fade(PhantoonBodyLook.Health(PhantoonHealthBandDefinitions.BelowThreeEighths), 6, steps);
-        AssertEqual(PictureShading.Standard.With(new PictureShadeFade(PictureShading.Standard.With(toFadedOut), Body(PhantoonBodyLook.Health(PhantoonHealthBandDefinitions.BelowThreeEighths)), 1, 7)),
+        AssertEqual(PictureShading.Standard.With(new PictureShadeFade(PictureShading.Standard.With(toFadedOut), Body(PhantoonBodyLook.Health(PhantoonHealthBandDefinitions.BelowThreeEighths)), new FadeLevel(1, 7))),
             Shown(state), "a fade toward another goal starts from the running fade as it shows");
 
         // The Wrecked Ship's power coming on is its own typed fade with its own progress.
         state.ShipPowerOn.Steps = PhantoonColorDefinitions.PowerOnSteps + 1;
         AssertTrue(!PhantoonDeath.AdvanceWreckedShipPowerOn(state), "Phantoon ship power-on remains active on its last step");
         AssertEqual(PictureShading.Standard.With(new PictureShadeFade(PictureShading.Standard, PictureShading.Shaded(PhantoonShades.Powered),
-            PhantoonColorDefinitions.PowerOnSteps, PhantoonColorDefinitions.PowerOnSteps)), Shown(state, GameplayPictures.Room),
+            new FadeLevel(PhantoonColorDefinitions.PowerOnSteps, PhantoonColorDefinitions.PowerOnSteps))), Shown(state, GameplayPictures.Room),
             "the power's last step reaches the room's powered colours");
         AssertEqual(PhantoonColorDefinitions.PowerOnSteps + 2, state.ShipPowerOn.Steps, "Phantoon ship power-on takes its last step");
         AssertTrue(PhantoonDeath.AdvanceWreckedShipPowerOn(state), "the next step completes the power coming on");

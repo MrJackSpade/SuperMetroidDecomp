@@ -17,6 +17,7 @@ using System.Collections.Immutable;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
+using SuperMetroid.Core.Compatibility;
 namespace SuperMetroid.Verification.Frontend.Ending;
 
 /// <summary>Checks retained render packets across the escape, credits, and timed reward branches.</summary>
@@ -278,7 +279,7 @@ internal static class EndingSnapshotTestsVerification
                 {
                     var flash = Live();
                     AssertEqual(0, flash.Layers.Length, "native F32B disables both screens for explosion whiteout");
-                    AssertEqual(0x7fff, flash.Paint.Backdrop.ToWord(), "native explosion whiteout backdrop");
+                    AssertEqual(0x7fff, flash.Paint.Backdrop.ShownWith(global::SuperMetroid.Core.Assets.ColourBlendOracle.Instance).ToWord(), "native explosion whiteout backdrop");
                     if (firstPhaseFrame)
                         AssertTrue(legacy.Render().All(pixel => pixel == new RgbaPixel(255, 255, 255)),
                             "explosion whiteout is white across the actual rendered viewport");
@@ -306,7 +307,7 @@ internal static class EndingSnapshotTestsVerification
                     if (expectedWhite > 0)
                     {
                         AssertEqual(WhiteWash.Colour(expectedWhite), fixedColors[0].Colour, "native flyaway holds 192 calls then fades a step every eight");
-                        RgbColor white = fixedColors[0].Colour;
+                        ShownColour white = fixedColors[0].Colour;
                         AssertTrue(flight.LayersOf<SpritesLayer>().All(layer => layer.Tint == white), "the sprites and the sky share the flyaway's white");
                         AssertTrue(flight.Layers[0] is ScreenTintLayer && flight.Layers[1] is SpritesLayer
                             && flight.Layers[2] is TurningFloorLayer,

@@ -15,7 +15,8 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Compatibility;
 
 /// <summary>Checks the Morph Ball eye's initial animations and how its eyelid and tracking animations run.</summary>
 internal static class MorphBallEyeBehaviorVerification

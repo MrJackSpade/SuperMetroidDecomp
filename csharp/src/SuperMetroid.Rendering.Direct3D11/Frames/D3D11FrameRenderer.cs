@@ -15,6 +15,8 @@ using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hud;
 
+using SuperMetroid.Core.Compatibility;
+
 namespace SuperMetroid.Rendering.Direct3D11.Frames;
 
 /// <summary>Integer compute composition from owned display inputs.</summary>
@@ -925,7 +927,7 @@ public sealed class D3D11FrameRenderer : IDisposable
                             _ => throw new InvalidOperationException($"Undefined sprite blend {sprites.Blend}."),
                         },
                         Green = sprites.Tint is not null ? 1u : 0u,
-                        Blue = sprites.Tint is { } tint ? PackedShaderLevels(tint) : 0,
+                        Blue = sprites.Tint is { } tint ? PackedShaderLevels(tint.ShownWith(D3D11ColourBlend.Instance)) : 0,
                     });
                     break;
                 case PictureGridLayer grid:
@@ -955,7 +957,7 @@ public sealed class D3D11FrameRenderer : IDisposable
                     });
                     break;
                 case ScreenTintLayer add:
-                    FadeLevelColour addedLevels = ShaderLevels(add.Colour);
+                    FadeLevelColour addedLevels = ShaderLevels(add.Colour.ShownWith(D3D11ColourBlend.Instance));
                     DispatchTile(D3D11TileOperation.AddColour, new D3D11TileDispatch { Red = (uint)addedLevels.Red, Green = (uint)addedLevels.Green, Blue = (uint)addedLevels.Blue });
                     break;
                 case ScreenGradientLayer gradient:

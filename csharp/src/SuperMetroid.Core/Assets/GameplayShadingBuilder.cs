@@ -50,7 +50,7 @@ public sealed class GameplayShadingBuilder
         ColourKey backdrop = roomColours.Backdrop
             ?? throw new InvalidDataException($"Room picture {roomColours.Name} names no backdrop colour for its scene.");
         var built = new GameplayShading(RgbColor.Black, shadings.ToImmutableDictionary(), fade);
-        return built.WithBackdrop(built.Of(GameplayPictures.Room).Shown(roomColours, backdrop));
+        return built.WithBackdrop(new ShownColour.OfPicture(roomColours, backdrop, built.Of(GameplayPictures.Room)));
     }
 
     /// <summary>Checks that <paramref name="pictures"/> is a group of gameplay pictures.</summary>

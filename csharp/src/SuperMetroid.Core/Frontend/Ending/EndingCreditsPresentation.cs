@@ -34,7 +34,7 @@ internal static class EndingCreditsPresentation
     {
         var layers = new List<DisplayLayer>();
         bool waiting = ending.Phase == EndingCreditsPhase.PostCreditsWaitingBackdrop;
-        RgbColor? skyWhite = FlyawaySkyWhite(ending)?.Colour;
+        ShownColour? skyWhite = FlyawaySkyWhite(ending)?.Colour;
         if (EndingCreditsPhaseGroups.PostCredits.Contains(ending.Phase))
         {
             // The shooting stars cross the sky behind the waiting backdrop.
@@ -175,7 +175,7 @@ internal static class EndingCreditsPresentation
     /// is null, shown as <paramref name="blend"/> says and tinted by <paramref name="tint"/>.
     /// </summary>
     internal static SpritesLayer Sprites(EndingCreditsState ending, EndingSpriteLayer? only = null,
-        SpriteBlend blend = SpriteBlend.Drawn, RgbColor? tint = null) =>
+        SpriteBlend blend = SpriteBlend.Drawn, ShownColour? tint = null) =>
         new(PrepareSprites(ending, only).Draws, blend, tint);
 
     /// <summary>The flyaway's white over the sky while the planet escape shows it, or null while it shows none.</summary>

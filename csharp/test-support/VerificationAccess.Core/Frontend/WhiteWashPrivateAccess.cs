@@ -12,8 +12,8 @@ internal static class WhiteWashPrivateAccess
     extension(global::SuperMetroid.Core.Frontend.WhiteWash)
     {
         /// <summary>The private method <c>Colour</c>, invoked by name.</summary>
-        internal static global::SuperMetroid.Core.Assets.RgbColor Colour(int stepsLeft) =>
-            PrivateState.InvokeStatic<global::SuperMetroid.Core.Assets.RgbColor>(typeof(global::SuperMetroid.Core.Frontend.WhiteWash), "Colour", [typeof(int)], new object?[] { stepsLeft });
+        internal static global::SuperMetroid.Core.Assets.ShownColour Colour(int stepsLeft) =>
+            PrivateState.InvokeStatic<global::SuperMetroid.Core.Assets.ShownColour>(typeof(global::SuperMetroid.Core.Frontend.WhiteWash), "Colour", [typeof(int)], new object?[] { stepsLeft });
     }
 
     /// <summary>The private static members checks name.</summary>

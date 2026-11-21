@@ -5,5 +5,5 @@ namespace SuperMetroid.Core.Assets;
 public sealed record ColourFlash(RgbColor Colour) : ColourEffect
 {
     /// <inheritdoc />
-    public override RgbColor Apply(RgbColor shown) => Colour;
+    public override RgbColor Apply(RgbColor shown, IColourBlend blend) => Colour;
 }

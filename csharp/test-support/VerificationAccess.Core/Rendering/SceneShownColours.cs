@@ -56,7 +56,7 @@ internal static class SceneShownColours
             shown[place] = [];
         foreach (ShownPictureKeys entry in ShownKeys(scene))
         {
-            RgbColor[] colours = entry.Shading.KeyColours(entry.Picture);
+            RgbColor[] colours = entry.Shading.KeyColours(entry.Picture, global::SuperMetroid.Core.Assets.ColourBlendOracle.Instance);
             ImmutableArray<ColourKey> keys = entry.Picture.ColourKeys;
             string? shading = null;
             foreach (int key in entry.Keys)

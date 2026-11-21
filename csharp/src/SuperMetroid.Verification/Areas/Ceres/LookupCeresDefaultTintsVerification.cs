@@ -5,7 +5,8 @@ using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.AssetExtraction.Fx.Artwork;
-using SuperMetroid.AssetExtraction.Frontend.Map;
+using SuperMetroid.AssetExtraction.Frontend.Map;
+using SuperMetroid.Core.Compatibility;
 
 namespace SuperMetroid.Verification.Areas.Ceres;
 

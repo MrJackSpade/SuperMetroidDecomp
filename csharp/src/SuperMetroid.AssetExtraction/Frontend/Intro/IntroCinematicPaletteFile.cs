@@ -3,7 +3,8 @@ using SuperMetroid.Core;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.Core.Compatibility;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 

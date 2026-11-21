@@ -1,5 +1,6 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Bosses;
 using SuperMetroid.Core.Enemies.Shutters;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.World;
@@ -48,8 +49,8 @@ internal static class GrowingShutterDefinitionsVerification
                     AssertEqual(unchecked((short)Word(0xa2ea56 + speed * 4)), place.HeldOccupant().SpawnSettings<GrowingShutterSpawnSettings>().GrowthSpeed.WholePixels, "Shutter native whole speed");
                     AssertEqual(Word(0xa2ea58 + speed * 4), place.HeldOccupant().SpawnSettings<GrowingShutterSpawnSettings>().GrowthSpeed.Fraction, "Shutter native fractional speed");
                     int direction = selector < 2 ? 1 : -1;
-                    for (int level = 0; level < GrowingShutterEnemyState.SectionCount; level++)
-                        AssertEqual(place.Position.Y.Whole + direction * 8 * level, state.SectionOriginY(level), $"Shutter section origin {level}");
+                    for (ListStep<GrowingShutterSection>? section = GrowingShutterEnemyState.FirstSection; section is { } step; section = step.Following)
+                        AssertEqual(place.Position.Y.Whole + direction * 8 * step.Entry.GrownBefore, state.OriginY(step), $"Shutter section origin {step.Entry.GrownBefore}");
                     AssertTrue(!place.CollidesByFrameHitboxes && !place.AnimationClock.ShowsNewFrame, "Shutter clears its additional properties");
                 }
             }

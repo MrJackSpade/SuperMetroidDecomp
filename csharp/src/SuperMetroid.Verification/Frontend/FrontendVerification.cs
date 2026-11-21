@@ -477,7 +477,13 @@ internal static void VerifyDemoInputObject()
     var demo = new DemoInputState();
     demo.Clear();
     demo.Enable();
-    demo.Load(DemoInputRecordingId.IntroMotherBrainFlashback);
+    int elapsed = 0, ends = 0;
+    // The flashback's signal runs its owner's end routine, which disables the object ($8739).
+    demo.Load(DemoSignallingRecordingId.IntroMotherBrainFlashback, () =>
+    {
+        ends++;
+        demo.Disable();
+    });
 
     // The first seven records at $91:8694, the last two one run of nothing held played as one input (#2557). The two
     // one-frame X edges are separated by held-X records; normal projectile cooldown/motion code, not this program, decides
@@ -488,18 +494,11 @@ internal static void VerifyDemoInputObject()
             GameplayAction.Shoot, 0];
     GameplayAction[] newlyPressed =
         [0, GameplayAction.Shoot, 0, GameplayAction.Shoot, 0, 0];
-    int elapsed = 0, ends = 0;
-    void EndRoutine(DemoInputCue cue)
-    {
-        AssertEqual(DemoInputCue.EndIntroMotherBrainFlashback, cue, "flashback demo end routine");
-        ends++;
-        demo.Disable();
-    }
     for (int record = 0; record < boundaries.Length; record++)
     {
         for (int frame = 0; frame < boundaries[record]; frame++)
         {
-            demo.Step(EndRoutine);
+            demo.Step();
             AssertEqual(held[record], demo.Held, $"demo record {record} held frame {frame}");
             AssertEqual(newlyPressed[record], demo.NewlyPressed,
                 $"demo record {record} new frame {frame}");
@@ -515,7 +514,7 @@ internal static void VerifyDemoInputObject()
 
     // $8739 disables the object and returns into the shared delete in the same handler call.
     for (int frame = 0; frame < 1024 && demo.IsActive; frame++)
-        demo.Step(EndRoutine);
+        demo.Step();
     AssertEqual(1, ends, "flashback demo end routine runs once");
     AssertEqual(false, demo.Enabled, "demo end routine disables the object");
     AssertEqual(false, demo.IsActive, "demo end routine continues into delete");

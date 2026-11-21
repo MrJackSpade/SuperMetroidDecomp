@@ -179,7 +179,7 @@ internal static class FileSelectRoomMapVerification
         var spriteDocument = RequiredJson.Deserialize<MapSpriteDocument>(artwork[MapSpriteFormat.JsonFile], options);
         foreach (MapScrollDirection direction in new[] { MapScrollDirection.Left, MapScrollDirection.Right, MapScrollDirection.Up, MapScrollDirection.Down })
         {
-            MapSpriteId id = Ensure.Listed(MapArrowDefinitions.ArrowPictures, direction);
+            MapSpriteId id = MapArrowDefinitions.ArrowPictures[direction];
             string name = MapSpriteArtwork.FrameNames.Single(frame => frame.Id == id).Name;
             spriteDocument.Frames[name] = [new SpriteVisualPart { OffsetX = 0, OffsetY = 0,
                 TileColumn = 0, TileRow = 1, Size = 8, Depth = SuperMetroid.Core.Assets.ActorDepth.InFront, Palette = null, FlipX = false, FlipY = false }];
@@ -231,7 +231,7 @@ internal static class FileSelectRoomMapVerification
         var landmarks = MapLandmarkFile.Ids().ToDictionary(id => id, _ => new Position16<MapPixels>(511, 255));
         landmarks[MapLandmarks.BossMarkers(AreaId.Brinstar).First().Id] = new(32, 40);
         var destination = MapLandmarks.Elevators(ZebesArea.Brinstar).First(label =>
-            label.Destination == AreaId.Crateria);
+            label.Destination == MapElevatorDestination.Crateria);
         landmarks[destination.Id] = new(96, 112);
         using var landmarkJson = new MemoryStream();
         MapLandmarkFile.Write(landmarkJson, new() { Version = MapLandmarkFormat.Version, Markers = landmarks });

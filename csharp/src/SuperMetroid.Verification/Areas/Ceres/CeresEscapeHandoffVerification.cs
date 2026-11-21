@@ -181,20 +181,19 @@ internal static class CeresEscapeHandoffVerification
     private static void VerifyCeresDepartureDispatcherTiming()
     {
         var departure = new CeresDepartureState();
-        departure.Begin();
+        AssertEqual(CeresDeparturePhase.HoldingOnElevator, departure.Phase, "a departure begins holding on the elevator");
         AssertEqual(60, departure.Hold.UpdatesLeft, "Ceres state 20 starts at 60");
 
         StepFrames(59, _ =>
-            AssertTrue(!departure.StepHoldAfterGameplay(), "first 59 state-20 calls retain hold"));
+            AssertTrue(!departure.StepAfterGameplay(), "first 59 state-20 calls retain hold"));
         AssertEqual(1, departure.Hold.UpdatesLeft, "state 20 has one call remaining");
-        AssertTrue(departure.StepHoldAfterGameplay(), "60th state-20 call enters blackout");
+        AssertTrue(!departure.StepAfterGameplay(), "60th state-20 call enters the blackout without completing it");
         AssertEqual(CeresDeparturePhase.FadingToBlack, departure.Phase, "state 21 is active");
 
         StepFrames(14, _ =>
-            AssertTrue(!departure.StepFadeAfterGameplay(), "first 14 fade calls are visible"));
+            AssertTrue(!departure.StepAfterGameplay(), "first 14 fade calls are visible"));
         AssertEqual(1, departure.Brightness.StepsAboveBlack, "14 fade calls leave brightness one");
-        AssertTrue(departure.StepFadeAfterGameplay(), "15th fade call reaches forced blank");
-        AssertEqual(CeresDeparturePhase.Complete, departure.Phase, "Ceres blackout completes");
+        AssertTrue(departure.StepAfterGameplay(), "15th fade call reaches forced blank and completes the departure");
     }
 
     /// <summary>Synthetic cartridge with the knockback and falling poses the Ridley ejection handler installs.</summary>

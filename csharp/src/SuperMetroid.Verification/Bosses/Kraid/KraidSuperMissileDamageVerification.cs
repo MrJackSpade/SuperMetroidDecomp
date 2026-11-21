@@ -206,7 +206,7 @@ internal static class KraidSuperMissileDamageVerification
 
         Prepare(5);
         var bomb = runtime.BombProjectiles.Bombs[0];
-        bomb.Occupy(SamusBombProjectileSystem.NormalBombType, 30);
+        bomb.Occupy(SamusBombKind.Bomb, 30);
         bomb.Position = bomb.Position.WithWhole(new(176, 486));
         bomb.Radius = new(8, 8);
         runtime.Enemies.ResolveKraidProjectileHits(projectiles, runtime.BombProjectiles);

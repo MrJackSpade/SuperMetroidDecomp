@@ -82,7 +82,7 @@ internal static class HostIndependentAudioAcknowledgementsVerification
                 AssertEqual(silent.AudioForVerification.SoundQueueForVerification(library),
                     playing.AudioForVerification.SoundQueueForVerification(library),
                     $"{library} library queue after door frame {frame}");
-            if (silentLeftSoundWait < 0 && silent.DoorTransitionPhaseForVerification > new DoorTransitionPhase.Running.WaitForSoundQueues())
+            if (silentLeftSoundWait < 0 && silent.DoorTransitionPhaseForVerification is DoorTransitionPhase.Running and not DoorTransitionPhase.Running.WaitForSoundQueues or DoorTransitionPhase.Complete)
                 silentLeftSoundWait = frame;
         }
         AssertTrue(silentLeftSoundWait >= 0, "the sessions leave WaitForSoundQueues");

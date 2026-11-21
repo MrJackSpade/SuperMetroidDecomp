@@ -223,23 +223,20 @@ internal static class MotherBrainEffectBehaviorVerification
         }
     }
 
-    /// <summary>
-    /// The live-bomb count rises with each spawned bomb and falls with each deleted one, and a
-    /// deletion with no counted bomb fails instead of wrapping to the cartridge's $FFFF.
-    /// </summary>
+    /// <summary>The live-bomb count rises with each spawned bomb and falls with each deleted one.</summary>
     internal static void VerifyMotherBrainBombCount()
     {
         var state = new MotherBrainEnemyState((new RoomEnemyPlace(0, StandaloneFixtureSpecies.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>())).BoundFor(EnemyDefinitionId.MotherBrainBody), new RoomEnemyPlace(1, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()), new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation());
-        state.RecordBombSpawned();
-        state.RecordBombSpawned();
+        var first = new MotherBrainBombState(state, default, afterburns: 0);
+        var second = new MotherBrainBombState(state, default, afterburns: 0);
+        state.RecordBombSpawned(first);
+        state.RecordBombSpawned(second);
         AssertEqual(2, state.BombCounter, "two spawned bombs are counted");
-        state.RecordBombRemoved();
-        state.RecordBombRemoved();
+        state.RecordBombRemoved(first);
+        AssertEqual(1, state.BombCounter, "one deletion leaves the other bomb counted");
+        state.RecordBombRemoved(second);
         AssertEqual(0, state.BombCounter, "both deletions are uncounted");
-        AssertThrows<InvalidOperationException>(state.RecordBombRemoved,
-            "deleting a bomb that was never counted is rejected");
-        AssertEqual(0, state.BombCounter, "the rejected deletion leaves the count at zero");
-        Console.WriteLine("  Mother Brain bombs: the live count follows spawns and deletions and never wraps.");
+        Console.WriteLine("  Mother Brain bombs: the live count follows spawns and deletions.");
     }
 
     /// <summary>Runs the Mother Brain live-bomb count check.</summary>

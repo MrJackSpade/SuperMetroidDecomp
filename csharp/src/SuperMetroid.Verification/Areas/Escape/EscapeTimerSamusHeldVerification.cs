@@ -70,7 +70,7 @@ internal static class EscapeTimerSamusHeldVerification
     {
         (SuperMetroidGame game, SuperMetroidRuntime runtime, SamusState samus) = GameplayWithEscapeTimer(EscapeTimerClock.Time(0, 20, 0));
         samus.Control.LockOutPlayer();
-        game.Session.CeresDeparture.Begin();
+        game.Session.BeginCeresDeparture();
         game.Session.Enter(SuperMetroidGameState.CeresDeparture);
         int held = runtime.EscapeTimer.RemainingCentiseconds;
 

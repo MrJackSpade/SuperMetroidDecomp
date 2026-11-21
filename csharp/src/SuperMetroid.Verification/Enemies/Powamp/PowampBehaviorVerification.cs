@@ -17,7 +17,8 @@ internal static class PowampBehaviorVerification
     /// <summary>
     /// The real initializers start the balloon deflated and the body on its slow pulse. At every update of each of the
     /// balloon's animations, played through the production animation pass, the inflation the balloon records (#1845)
-    /// matches the native pointer the game's AI reads: that sequence's first list plus four bytes per shown pose.
+    /// stands at the pose the native pointer the game's AI reads names: that sequence's first list plus four bytes per
+    /// shown pose, the pose last shown, or the sequence's first before it shows one.
     /// </summary>
     internal static void VerifyPowampBehavior(CartridgeImportAddressSpace rom)
     {
@@ -58,9 +59,16 @@ internal static class PowampBehaviorVerification
         Console.WriteLine("  Powamp behavior: both initial animations and the balloon's inflation at every update of its animations pass.");
     }
 
+    /// <summary>The poses the cartridge's inflating sequence shows, in the order its lists show them, four bytes per pose.</summary>
+    private static readonly PowampBalloonPose[] NativeInflatingPoses = [PowampBalloonPose.Deflated, PowampBalloonPose.Halfway, PowampBalloonPose.Full];
+
+    /// <summary>The poses the cartridge's sinking sequence shows, in the order its lists show them, four bytes per pose.</summary>
+    private static readonly PowampBalloonPose[] NativeSinkingPoses = [PowampBalloonPose.Full, PowampBalloonPose.Halfway, PowampBalloonPose.Deflated];
+
     /// <summary>
     /// The inflation the balloon records stands for the native pointer its animation's place holds: its segment's list
-    /// plus four bytes per beat passed, where the native record is the pose's own.
+    /// plus four bytes per beat passed, where the native record is the pose's own. The poses shown, the pointer's distance
+    /// from its sequence's first list in four-byte records, name the pose the balloon sits at.
     /// </summary>
     private static void AssertBalloonInflation(IImportCartridgeSource cartridge, PowampBalloonState balloon, string context)
     {
@@ -73,7 +81,10 @@ internal static class PowampBehaviorVerification
         ushort sequence = NativeEnemyAnimationOracle.EntryOf(PowampNativeListAddresses.Entries,
             inflation.Sequence == PowampBalloonSequence.Sinking ? PowampSegment.BalloonStartSinking : PowampSegment.BalloonInflatingFromDeflated);
         ushort pointer = (ushort)(NativeEnemyAnimationOracle.EntryOf(PowampNativeListAddresses.Entries, segment) + 4 * passed);
-        AssertEqual(pointer, (ushort)(sequence + 4 * inflation.PosesShown), context);
+        int shown = (pointer - sequence) / 4;
+        AssertTrue(pointer == sequence + 4 * shown && shown is >= 0 and <= 3, $"{context}: the native pointer lies on one of its sequence's pose records");
+        PowampBalloonPose[] poses = inflation.Sequence == PowampBalloonSequence.Sinking ? NativeSinkingPoses : NativeInflatingPoses;
+        AssertEqual(poses[shown == 0 ? 0 : shown - 1], inflation.Pose, context);
         IReadOnlyList<AnimationBeat<EnemyFrameId, NoAnimationCue>> beats = PowampAnimations.Segments.Beats(segment);
         // A pose the balloon rests on (#2439) shows its record until its list's sleep, whatever duration the record names.
         if (passed < beats.Count && beats[passed] is AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame frame)

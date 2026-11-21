@@ -93,7 +93,7 @@ internal static class EnemyHitBurstVerification
             (RoomEnemySystem enemies, RoomEnemyPlace place) = RoomWith(id, definition, health: 1000, frozenTimer);
             var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
             SamusBomb bomb = bombs.Bombs[0];
-            bomb.Occupy(SamusBombProjectileSystem.NormalBombType, 30);
+            bomb.Occupy(SamusBombKind.Bomb, 30);
             bomb.Radius = new(4, 4);
             bomb.Position = FixedPosition<RoomPixels>.FromWhole(Place);
             (SamusProjectileSystem shots, _) = ShotAt(SamusBeamCombination.Power);

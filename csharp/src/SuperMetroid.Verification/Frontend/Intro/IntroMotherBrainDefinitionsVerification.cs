@@ -164,7 +164,7 @@ internal static class IntroMotherBrainDefinitionsVerification
         for (int hit = 1; hit <= 5; hit++)
         {
             // The fixture's missile holds its place with its type and damage, as a fired missile does (#2558).
-            missile.Occupy(SamusProjectileType.Of(SamusProjectileFamily.Missile), SamusProjectileDamage.Read(SamusProjectileSelection.NonBeam(SamusProjectileFamily.Missile)));
+            missile.Occupy(SamusProjectileType.Of(SamusProjectileFamily.Missile), SamusProjectileDamage.Read(SamusProjectileSelection.Missile(super: false)));
             missile.Position = missile.Position.WithWhole(new(0x40, 0x80));
             bool fourth = motherBrain.TakeMissileHit(shots.EnemyImpacts, bombs);
             AssertEqual(hit == 4, fourth, $"missile {hit} starts the explosion only on the fourth hit");
@@ -190,7 +190,7 @@ internal static class IntroMotherBrainDefinitionsVerification
         {
             // A loop lasts its shown frames, its pauses and the updates it hides the actor; a cue takes no update.
             AnimationBeat<CinematicSpritePose, NoAnimationCue>.Frame frame => frame.Duration,
-            AnimationBeat<CinematicSpritePose, NoAnimationCue>.Hidden hidden => hidden.Duration,
+            AnimationHiddenBeat<CinematicSpritePose, NoAnimationCue> hidden => hidden.Duration,
             AnimationBeat<CinematicSpritePose, NoAnimationCue>.Pause pause => pause.Duration,
             _ => 0,
         });

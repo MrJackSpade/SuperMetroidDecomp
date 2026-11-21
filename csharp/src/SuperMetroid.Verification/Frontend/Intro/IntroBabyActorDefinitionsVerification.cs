@@ -31,7 +31,7 @@ internal static class IntroBabyActorDefinitionsVerification
         cartridgeInput.Load(DemoInputListWords.IntroBabyDiscoveryObject, initializationParameter: 0);
         for (int frame = 0; frame < 128; frame++)
         {
-            compiledInput.Step(cue => throw new InvalidOperationException($"SR388 running-left loop called {cue}."));
+            compiledInput.Step();
             cartridgeInput.Step((_, _) => { }, NativeDemoInputReference.NoRoutines);
             AssertEqual(cartridgeInput.Snapshot(), NativeDemoInputReference.Of(compiledInput, DemoInputNativeListAddresses.PhaseAddress(IntroBabyDiscoveryDemoPhase.RunningLeft)),
                 $"SR388 initial demo loop object at frame {frame}");

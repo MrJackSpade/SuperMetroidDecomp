@@ -39,7 +39,7 @@ internal static class PowampOwnedStateVerification
         AssertEqual(null, balloon.SpeciesState<PowampBodyState>(), "the balloon holds no body state");
         AssertEqual(new Position16<RoomPixels>(0x0180, 0x0020), balloonState.Spawn, "the balloon keeps its spawn");
         AssertEqual(65535, balloon.HeldOccupant().SpawnSettings<PowampBalloonSpawnSettings>().GrappleTravelDistance, "the grapple rise keeps parameter two's full word");
-        AssertEqual(new PowampBalloonInflation(PowampBalloonSequence.Sinking, 2), balloonState.Inflation,
+        AssertEqual(new PowampBalloonInflation(PowampBalloonSequence.Sinking, PowampBalloonPose.Halfway), balloonState.Inflation,
             "the balloon starts deflated, at the end of its sinking sequence");
         AssertEqual(PowampAction.DeflatedResting, bodyState.Action, "the body starts resting");
 

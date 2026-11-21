@@ -25,9 +25,10 @@ internal static class IntroPoseHistoryVerification
     {
         Suite(nameof(VerifyIntroScenePoseHistory), () => VerifyIntroScenePoseHistory());
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 235)) }.InPose(SamusPoseId.FacingLeftNormalPose);
-        var entries = new RoomTerrainBlock[16 * 32];
-        for (int x = 0; x < 16; x++) entries[16 * 16 + x] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
-        var room = CreateRoom(new(16, 32), entries, new RoomBlockBehavior[entries.Length]);
+        // The intro's rooms are plain terrains: air, with a solid floor row.
+        var blocks = new PlainTerrainBlock[16 * 32];
+        for (int x = 0; x < 16; x++) blocks[16 * 16 + x] = PlainTerrainBlock.Solid;
+        var room = new PlainTerrain(new Extent16<RoomBlocks>(16, 32), blocks);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         var history = samus.PoseHistory;

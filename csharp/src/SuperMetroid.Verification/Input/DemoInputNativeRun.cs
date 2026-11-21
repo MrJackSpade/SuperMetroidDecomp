@@ -6,4 +6,4 @@ namespace SuperMetroid.Verification.Input;
 /// <param name="Recording">The recording holding the input.</param>
 /// <param name="Input">The input's place in the typed recording.</param>
 /// <param name="Records">How many native records the input stands for.</param>
-internal readonly record struct DemoInputNativeRun(DemoInputRecordingId Recording, int Input, int Records);
+internal readonly record struct DemoInputNativeRun(DemoRecording Recording, int Input, int Records);

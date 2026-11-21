@@ -25,8 +25,7 @@ internal static class ZebetiteDefinitionsVerification
 
         for (ushort generation = 0; generation < 4; generation++)
         {
-            ZebetiteGenerationDefinition definition =
-                Zebetites.Generation(generation);
+            ZebetiteGenerationDefinition definition = ZebetiteDefinitions.Generations[generation];
             ushort[] actual =
             [
                 MotherBrainNativeWords.BarrierFormWord(definition.Form),
@@ -44,10 +43,6 @@ internal static class ZebetiteDefinitionsVerification
                     $"Zebetite generation {generation} field {field}");
             }
         }
-
-        AssertThrows<InvalidDataException>(
-            () => Zebetites.Generation(4),
-            "Zebetite generation past active table");
 
         ushort[] healthSamples = [1000, 800, 799, 600, 599, 400, 399, 200, 199, 0];
         foreach (ZebetiteBarrierForm form in Enum.GetValues<ZebetiteBarrierForm>())
@@ -67,7 +62,7 @@ internal static class ZebetiteDefinitionsVerification
         foreach (bool linkedHalf in new[] { false, true })
         {
             RoomEnemyPlacement population =
-                Zebetites.SpawnPopulation(linkedHalf ? ZebetiteHalf.Linked : ZebetiteHalf.Primary, destroyed: 0);
+                Zebetites.SpawnPopulation(linkedHalf ? ZebetiteHalf.Linked : ZebetiteHalf.Primary, ZebetiteDefinitions.Generations[0]);
             SuperMetroid.AssetExtraction.Enemies.PopulationEntryWords words =
                 SuperMetroid.AssetExtraction.Enemies.RoomEnemyPopulationRecordCodec.Encode(population);
             ushort[] actual =
@@ -106,7 +101,7 @@ internal static class ZebetiteDefinitionsVerification
             enemies.ZebetiteBehavior.InitializeZebetite(place.HeldOccupant(), place);
             ZebetiteEnemyState state = enemies.ZebetiteStates[0] ??
                 throw new InvalidDataException("Zebetite initializer omitted typed state.");
-            ZebetiteGenerationDefinition expected = Zebetites.Generation(generation);
+            ZebetiteGenerationDefinition expected = ZebetiteDefinitions.Generations[generation];
             AssertEqual(expected.Form, state.Form,
                 $"production Zebetite generation {generation} form");
             AssertEqual(expected.HalfHeight, place.Radius.Y,
@@ -135,7 +130,7 @@ internal static class ZebetiteDefinitionsVerification
         {
             var enemies = NewZebetiteDefinitionSystem(0);
             RoomEnemyPlace place = enemies.ZebetiteBehavior.SpawnZebetite(linkedHalf ? ZebetiteHalf.Linked : ZebetiteHalf.Primary);
-            AssertEqual(Zebetites.SpawnPopulation(linkedHalf ? ZebetiteHalf.Linked : ZebetiteHalf.Primary, destroyed: 0), place.HeldOccupant().Spawn,
+            AssertEqual(Zebetites.SpawnPopulation(linkedHalf ? ZebetiteHalf.Linked : ZebetiteHalf.Primary, ZebetiteDefinitions.Generations[0]), place.HeldOccupant().Spawn,
                 $"production Zebetite {(linkedHalf ? "linked" : "primary")} population");
             AssertEqual(linkedHalf ? ZebetiteHalf.Linked : ZebetiteHalf.Primary, place.HeldOccupant().SpawnSettings<ZebetiteSpawnSettings>().Half,
                 $"production Zebetite {(linkedHalf ? "linked" : "primary")} role");

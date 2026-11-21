@@ -591,14 +591,16 @@ internal static class NativeSnapshotImport
             int standardRow = graphicsWord.TileNumber == 0 ? SuperMetroid.AssetExtraction.Enemies.EnemySheetRowDefinitions.Common : graphicsWord.PaletteIndex;
             var graphics = new SpriteGraphics(graphicsSet.OwnerDrawingAt(graphicsWord.TileNumber),
                 SpriteColouringAccess.ShadingInRow(graphicsWord.PaletteIndex, standardRow));
-            // The room's load spawned the place's live projectile, which carries its spawner's state and must be the recorded
-            // kind drawing with the recorded graphics; a place it left free is spawned into afresh, as the kind's spawner does.
+            // A live projectile of the recorded kind that the room's load spawned into the place is the recorded one, which
+            // carries its spawner's state and must draw with the recorded graphics. A place the load left free, or holds with a
+            // projectile of another kind that the recorded one has since replaced there (Mother Brain's room turrets, gone by
+            // the time she charges her rainbow beam), is spawned into afresh, as the recorded kind's spawner does.
             EnemyProjectile projectile;
-            if (enemies.Projectiles.LatestInPlace(place) is { IsActive: true } loaded)
+            if (enemies.Projectiles.LatestInPlace(place) is { IsActive: true } loaded && loaded.Kind == kind)
             {
-                if (loaded.Kind != kind || loaded.Graphics != graphics)
+                if (loaded.Graphics != graphics)
                     throw new InvalidDataException(
-                        $"Initial native enemy projectile {place} is a {kind} drawing with {graphics}, but the room's load spawned a {loaded.Kind} drawing with {loaded.Graphics} there.");
+                        $"Initial native enemy projectile {place} is a {kind} drawing with {graphics}, but the room's load spawned it drawing with {loaded.Graphics}.");
                 projectile = loaded;
             }
             else

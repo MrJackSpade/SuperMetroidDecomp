@@ -759,7 +759,7 @@ internal static class LookupStream5Verification
         for (int band = 0; band < PhantoonColorDefinitions.HealthBandCount; band++)
         for (int color = 0; color < PhantoonColorFormat.HealthBandColorCount; color++)
         {
-            AssertEqual(ReadVerificationWord(rom, PhantoonSourceDefinitions.HealthBandColors + (band * 16 + color) * 2), stock.ResolveHealth(band, color), "Native health RGB equality");
+            AssertEqual(ReadVerificationWord(rom, PhantoonSourceDefinitions.HealthBandColors + (band * 16 + color) * 2), stock.ResolveHealthAtNative(band, color), "Native health RGB equality");
         }
         for (int color = 0; color < PhantoonSourceDefinitions.PowerOnColourCount; color++)
         {
@@ -768,10 +768,8 @@ internal static class LookupStream5Verification
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolvePowerOn(WreckedShipPoweredPart.Shared, -1), "Power lower bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolvePowerOn(WreckedShipPoweredPart.Lights, 16), "Power upper bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolvePowerOn((WreckedShipPoweredPart)Enum.GetValues<WreckedShipPoweredPart>().Length, 0), "Power rejects a part the power-on does not fade");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealth(-1, 0), "Health band lower bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealth(8, 0), "Health band upper bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealth(0, -1), "Health color lower bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealth(0, 16), "Health color upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealth(PhantoonHealthBandDefinitions.Unhurt, -1), "Health color lower bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealth(PhantoonHealthBandDefinitions.Unhurt, 16), "Health color upper bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveFadeOut(-1), "Fade lower bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveFadeOut(16), "Fade upper bound");
         Console.WriteLine("Phantoon colors: 16 native fade targets, 128 health colors, 112 power colors, the hash and bounds pass.");
@@ -782,18 +780,23 @@ internal static class LookupStream5Verification
             ushort[] Pack(PaletteRgb5[] colors) => colors.Select(c => (ushort)(c.Red | c.Green << 5 | c.Blue << 10)).ToArray();
             ushort[] fade = Pack(source.FadeOut);
             for (int color = 0; color < fade.Length; color++) AssertEqual(fade[color], result.ResolveFadeOut(color), "Fade input");
-            for (int band = 0; band < source.HealthBands.Length; band++)
+            foreach (PhantoonHealthBand band in PhantoonHealthBandDefinitions.HighestFirst)
             {
-                ushort[] values = Pack(source.HealthBands[band]);
+                ushort[] values = Pack(source.HealthBands[band.Key]);
                 for (int color = 0; color < values.Length; color++) AssertEqual(values[color], result.ResolveHealth(band, color), "Health channels");
             }
-            ushort[] power = Pack(source.PowerOn);
-            for (int color = 0; color < power.Length; color++) AssertEqual(power[color], result.ResolvePowerOnAtNative(color), "Power paint preserved");
+            foreach ((WreckedShipPoweredPart part, string key) in PhantoonColorFormat.PoweredPartKeys)
+            {
+                ushort[] power = Pack(source.PowerOn[key]);
+                for (int color = 0; color < power.Length; color++) AssertEqual(power[color], result.ResolvePowerOn(part, color), "Power paint preserved");
+            }
             string hash = SelectedPresentationHash.Create("PhantoonColorCatalog-v1", content =>
             {
                 content.AppendWords("fadeOut", fade);
-                content.AppendWords("powerOn", Pack(source.PowerOn));
-                content.AppendWordFrames("healthBands", source.HealthBands.Select(Pack).ToArray());
+                content.AppendWords("powerOn", [.. PhantoonSourceDefinitions.PowerOnGroups.OrderBy(group => group.Value)
+                    .SelectMany(group => Pack(source.PowerOn[PhantoonColorFormat.PoweredPartKeys[group.Key]]))]);
+                content.AppendWordFrames("healthBands", [.. PhantoonSourceDefinitions.HealthBandPalettes.OrderBy(palette => palette.Value)
+                    .Select(palette => Pack(source.HealthBands[palette.Key.Key]))]);
             });
             AssertEqual(hash, result.ContentIdentity, "Original canonical hash framing");
             return result;

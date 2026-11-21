@@ -5,29 +5,25 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// <summary>How the hatching egg's shell pieces and the Baby's slime drops fly, independent of their pictures.</summary>
 internal static class IntroEggMotionDefinitions
 {
-    /// <summary>Where each piece of the shell starts, which <see cref="IntroEggMotion.FragmentInitialPosition"/> selects.</summary>
-    internal static readonly IReadOnlyDictionary<IntroEggShellFragment, Offset16<ScreenPixels>> FragmentInitialPositions =
-        new Dictionary<IntroEggShellFragment, Offset16<ScreenPixels>>
+    /// <summary>
+    /// Each piece of the shell: where it starts, its horizontal launch speed and the animation it shows, which
+    /// <see cref="IntroEggMotion.FragmentInitialPosition"/>, <see cref="IntroEggMotion.FragmentX"/> and the piece's actor select.
+    /// </summary>
+    internal static readonly IReadOnlyDictionary<IntroEggShellFragment, IntroEggShellPiece> ShellPieces =
+        new Dictionary<IntroEggShellFragment, IntroEggShellPiece>
         {
-            [IntroEggShellFragment.UpperLeft] = new(108, 147),
-            [IntroEggShellFragment.UpperRight] = new(115, 147),
-            [IntroEggShellFragment.Left] = new(105, 152),
-            [IntroEggShellFragment.Centre] = new(112, 150),
-            [IntroEggShellFragment.Right] = new(118, 153),
-            [IntroEggShellFragment.Lower] = new(115, 155),
+            [IntroEggShellFragment.UpperLeft] = new(new(108, 147), SignedSixteenSixteen.FromPixelFraction(-3, 4), IntroEggEffectAnimation.ShellUpperLeft),
+            [IntroEggShellFragment.UpperRight] = new(new(115, 147), SignedSixteenSixteen.FromPixelFraction(1, 4), IntroEggEffectAnimation.ShellUpperRight),
+            [IntroEggShellFragment.Left] = new(new(105, 152), SignedSixteenSixteen.FromPixelFraction(-1, 2), IntroEggEffectAnimation.ShellLeft),
+            [IntroEggShellFragment.Centre] = new(new(112, 150), SignedSixteenSixteen.FromPixelFraction(-7, 8), IntroEggEffectAnimation.ShellCentre),
+            [IntroEggShellFragment.Right] = new(new(118, 153), SignedSixteenSixteen.FromPixelFraction(1, 2), IntroEggEffectAnimation.ShellRight),
+            [IntroEggShellFragment.Lower] = new(new(115, 155), SignedSixteenSixteen.FromPixelFraction(1, 8), IntroEggEffectAnimation.ShellLower),
         };
 
-    /// <summary>Each piece of the shell's horizontal launch speed, which <see cref="IntroEggMotion.FragmentX"/> selects.</summary>
-    internal static readonly IReadOnlyDictionary<IntroEggShellFragment, SignedSixteenSixteen> FragmentXVelocities =
-        new Dictionary<IntroEggShellFragment, SignedSixteenSixteen>
-        {
-            [IntroEggShellFragment.UpperLeft] = SignedSixteenSixteen.FromPixelFraction(-3, 4),
-            [IntroEggShellFragment.UpperRight] = SignedSixteenSixteen.FromPixelFraction(1, 4),
-            [IntroEggShellFragment.Left] = SignedSixteenSixteen.FromPixelFraction(-1, 2),
-            [IntroEggShellFragment.Centre] = SignedSixteenSixteen.FromPixelFraction(-7, 8),
-            [IntroEggShellFragment.Right] = SignedSixteenSixteen.FromPixelFraction(1, 2),
-            [IntroEggShellFragment.Lower] = SignedSixteenSixteen.FromPixelFraction(1, 8),
-        };
+    /// <summary>The definition of <paramref name="fragment"/>.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="fragment"/> is not a piece of the shell.</exception>
+    internal static IntroEggShellPiece ShellPiece(IntroEggShellFragment fragment) =>
+        ShellPieces.TryGetValue(fragment, out IntroEggShellPiece? piece) ? piece : throw new ArgumentOutOfRangeException(nameof(fragment));
 
     /// <summary>
     /// The updates <see cref="ShellFall"/> covers. The upper-left and upper-right pieces fly three updates past it before

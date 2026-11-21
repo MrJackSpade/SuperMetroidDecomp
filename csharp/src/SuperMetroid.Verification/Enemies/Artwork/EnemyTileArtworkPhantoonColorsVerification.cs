@@ -41,7 +41,7 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
                     PhantoonSourceDefinitions.HealthBandColors +
                     (band * PhantoonColorFormat.HealthBandColorCount + color) *
                         sizeof(ushort)),
-                native.ResolveHealth(band, color),
+                native.ResolveHealthAtNative(band, color),
                 $"installed Phantoon health palette {band} color {color} preserves RGB5");
 
         string file = Path.Combine(stockDirectory, PhantoonColorFormat.FileName);
@@ -73,11 +73,11 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
         for (int row = 0; row < PhantoonColorDefinitions.HealthBandCount; row++)
         {
             // The cartridge's band at health 312 times its row plus one is the row's band (#2259).
-            PhantoonHealthBand band = PhantoonHealthBandDefinitions.LowestFirst[row];
+            PhantoonHealthBand band = PhantoonHealthBandDefinitions.HighestFirst[^(row + 1)];
             body.Health = unchecked((ushort)(row * 312 + 1));
             PhantoonBehavior.ShowPhantoonHealthColours(state);
             AssertEqual(PictureShading.Shaded(PhantoonShades.Body(PhantoonBodyLook.Health(band))), Shown(state), $"Phantoon live health restore band {band}");
-            AssertShade(bodyShades, PhantoonShades.Body(PhantoonBodyLook.Health(band)), color => colors.ResolveHealth(row, color),
+            AssertShade(bodyShades, PhantoonShades.Body(PhantoonBodyLook.Health(band)), color => colors.ResolveHealth(band, color),
                 $"Phantoon health band {band}");
             state.BodyFade.Steps = 1;
             state.BodyFade.Resume();

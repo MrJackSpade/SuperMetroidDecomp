@@ -7,19 +7,20 @@ namespace SuperMetroid.Core.Frontend.Ending;
 internal sealed class EndingShootingStars
 {
     /// <summary>Each authored star's flight, each holding its own definition (#2541), retained across scene updates.</summary>
-    private readonly EndingShootingStar[] stars = new EndingShootingStar[EndingShootingStarDefinitions.Count];
+    private readonly EndingShootingStar[] stars;
 
-    /// <summary>Seeds each star at the common origin and arms any authored start delay.</summary>
+    /// <summary>Seeds each authored star at the common origin and arms any authored start delay.</summary>
     internal EndingShootingStars()
     {
-        ReadOnlySpan<EndingShootingStarDefinition> definitions = EndingShootingStarDefinitions.Stars;
-        for (int index = 0; index < stars.Length; index++)
+        var seeded = new List<EndingShootingStar>();
+        foreach (EndingShootingStarDefinition definition in EndingShootingStarDefinitions.Stars)
         {
-            EndingShootingStarDefinition definition = definitions[index];
-            stars[index] = Started(definition);
-            if (definition.Delay == 0) continue;
-            stars[index].Delay = UpdateCountdown.Lasting(definition.Delay);
+            EndingShootingStar star = Started(definition);
+            if (definition.Delay != 0)
+                star.Delay = UpdateCountdown.Lasting(definition.Delay);
+            seeded.Add(star);
         }
+        stars = [.. seeded];
     }
 
     /// <summary>Advances delayed or active stars, accelerates later pictures, and resets those leaving the visible bounds.</summary>

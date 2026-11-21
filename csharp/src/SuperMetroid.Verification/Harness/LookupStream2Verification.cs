@@ -787,7 +787,7 @@ internal static class LookupStream2Verification
             pages[ordinal++] = RoomCharacterAtlasPng.Read(png, page.ByteCount);
         }
         AssertEqual(8, ordinal, "Torizo page count");
-        var artwork = new TorizoSwapArtwork(pages);
+        var artwork = new TorizoSwapArtwork(TorizoSwapArtworkDefinitions.All.Zip(pages).ToDictionary(entry => entry.First.Page, entry => entry.Second));
         string expectedHash = SelectedPresentationHash.Create("TorizoInstructionVramArtwork-v1", content =>
         {
             content.Append("pages", original.Length);

@@ -20,15 +20,13 @@ internal static class TorizoSwapArtworkAccess
         internal bool TryResolve(int sourceAddress, int byteCount,
             out ReadOnlyMemory<byte> characters)
         {
-            for (int index = 0; index < self.pages.Length; index++)
+            foreach (TorizoTileSheet page in TorizoSwapArtworkDefinitions.All)
             {
-                TorizoTileSheet page =
-                    TorizoSwapArtworkDefinitions.All[index];
                 int offset = sourceAddress - page.SourceAddress;
                 if (offset < 0 || byteCount <= 0 ||
                     offset > page.ByteCount - byteCount)
                     continue;
-                characters = self.pages[index].Characters.Slice(offset, byteCount);
+                characters = self.pages[page.Page].Characters.Slice(offset, byteCount);
                 return true;
             }
             characters = default;
@@ -42,9 +40,9 @@ internal static class TorizoSwapArtworkAccess
         /// <summary>Canonical selected presentation data; no derived field is added to debugger states.</summary>
         public string ContentIdentity => SelectedPresentationHash.Create("TorizoInstructionVramArtwork-v1", content =>
             {
-                content.Append("pages", self.pages.Length);
-                foreach (RoomCharacterAtlas page in self.pages)
-                    content.Append("tiles", page.Characters.Span);
+                content.Append("pages", self.pages.Count);
+                foreach (TorizoTileSheet page in TorizoSwapArtworkDefinitions.All)
+                    content.Append("tiles", self.pages[page.Page].Characters.Span);
             });
     }
 }

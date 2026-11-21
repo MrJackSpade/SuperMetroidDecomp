@@ -17,7 +17,7 @@ internal sealed class GunshipState
     public UpdateCountdown PhaseTimer { get; internal set; } = UpdateCountdown.Ended();
 
     /// <summary>The ship's next idle-bob step.</summary>
-    public GunshipIdleBob Bob { get; internal set; }
+    public GunshipIdleBob Bob { get; internal set; } = GunshipIdleBob.First;
 
     /// <summary>The ship's updates until its next idle-bob step.</summary>
     public UpdateCountdown BobTimer { get; internal set; } = UpdateCountdown.Ended();
@@ -29,7 +29,7 @@ internal sealed class GunshipState
     public int BaseY { get; internal set; }
 
     /// <summary>The ship's next landing brake.</summary>
-    public GunshipLandingBrake LandingBrake { get; internal set; }
+    public GunshipLandingBrake LandingBrake { get; internal set; } = GunshipLandingBrake.First;
 
     /// <summary>
     /// The ship's engine rumble, the <see cref="GunshipTakeoffDefinitions.EngineRumbleFrames"/> updates before liftoff,

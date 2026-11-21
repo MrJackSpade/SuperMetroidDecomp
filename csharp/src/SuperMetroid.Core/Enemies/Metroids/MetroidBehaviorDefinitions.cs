@@ -67,8 +67,8 @@ internal static class MetroidBehaviorDefinitions
     /// <summary>How long a Metroid whose ice threshold is exhausted stays frozen, in updates.</summary>
     internal const int FrozenDuration = 400;
 
-    /// <summary>How long a latched Metroid a Power Bomb shakes loose takes to escape Samus, in updates.</summary>
-    internal const int EscapeDuration = 4;
+    /// <summary>How long a latched Metroid a Power Bomb shakes loose takes to escape Samus, in updates: one per escape move.</summary>
+    internal static int EscapeDuration => EscapeMoves.Length;
 
     /// <summary>The fastest a chasing Metroid moves on each axis, in whole pixels an update.</summary>
     internal const int FastestChase = 3;

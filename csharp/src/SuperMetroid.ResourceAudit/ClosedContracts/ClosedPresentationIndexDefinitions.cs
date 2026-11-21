@@ -47,7 +47,7 @@ internal static class ClosedPresentationIndexDefinitions
         ("PauseReserveUiPresentation", "ApplyDigit", "position") => new(0, PauseReserveUiDefinitions.SupplyDigitPlaces),
         ("PauseReserveUiPresentation", "ApplyDigit", "value") => new(0, PauseReserveUiDefinitions.DigitCount),
         ("InstalledBeamPalettes", "Colours", "selection") => new(0, BeamPaletteFile.SelectionCount),
-        ("PhantoonColorCatalog", "ResolveHealth", "band") => new(0, PhantoonColorDefinitions.HealthBandCount),
+
         ("PhantoonColorCatalog", "ResolveHealth", "color") => new(0, PhantoonColorFormat.HealthBandColorCount),
         ("PhantoonColorCatalog", "ResolveFadeOut", "color") => new(0, PhantoonColorFormat.FadeOutCount),
         ("PhantoonColorCatalog", "ResolvePowerOn", "color") => new(0, SuperMetroid.AssetExtraction.Bosses.Phantoon.Artwork.PhantoonColorFormat.PoweredPartColourCount),

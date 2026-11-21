@@ -14,6 +14,6 @@ internal static class GunshipLiftoffArtworkCatalogPrivateAccess
     extension(global::SuperMetroid.AssetExtraction.Enemies.GunshipLiftoffArtworkCatalog self)
     {
         /// <summary>The private field <c>frames</c>, reached by name.</summary>
-        internal global::SuperMetroid.AssetExtraction.Rooms.Artwork.RoomCharacterAtlas[] frames => PrivateState.Field<global::SuperMetroid.AssetExtraction.Enemies.GunshipLiftoffArtworkCatalog, global::SuperMetroid.AssetExtraction.Rooms.Artwork.RoomCharacterAtlas[]>(self, "frames");
+        internal global::System.Collections.Generic.IReadOnlyDictionary<global::SuperMetroid.Core.Assets.InstalledArtworkId, global::SuperMetroid.AssetExtraction.Rooms.Artwork.RoomCharacterAtlas> frames => PrivateState.Field<global::SuperMetroid.AssetExtraction.Enemies.GunshipLiftoffArtworkCatalog, global::System.Collections.Generic.IReadOnlyDictionary<global::SuperMetroid.Core.Assets.InstalledArtworkId, global::SuperMetroid.AssetExtraction.Rooms.Artwork.RoomCharacterAtlas>>(self, "frames");
     }
 }

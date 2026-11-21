@@ -18,6 +18,9 @@ internal sealed class EndingWhiteFlashScene(EndingRewardJump jump, WhiteWash fla
     internal WhiteWash Flash { get; } = Ensure.NotNull(flash);
 
     /// <inheritdoc/>
+    internal override EndingCreditsPhase Phase => EndingCreditsPhase.PostCreditsWhiteFlash;
+
+    /// <inheritdoc/>
     internal override bool Step(EndingCreditsState ending)
     {
         ending.StepWhiteFlash(this);

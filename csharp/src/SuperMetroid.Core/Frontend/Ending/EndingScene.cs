@@ -20,10 +20,12 @@ internal abstract class EndingScene
     {
     }
 
+    /// <summary>The ending's phase while the scene shows (#2553): the scene's own, so no phase runs on a scene it is not.</summary>
+    internal abstract EndingCreditsPhase Phase { get; }
+
     /// <summary>Runs one update of the scene's phase on the ending.</summary>
     /// <param name="ending">The ending showing the scene.</param>
     /// <returns>Whether the update goes on past the phase to the ending's colour effects and stars.</returns>
-    /// <exception cref="InvalidOperationException">The ending runs a phase the scene does not run.</exception>
     internal abstract bool Step(EndingCreditsState ending);
 
     /// <summary>Places the scene's actors among the frame's sprites: the scene's own, or the cast each on its role's layer.</summary>

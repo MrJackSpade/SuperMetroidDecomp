@@ -12,14 +12,17 @@ namespace SuperMetroid.Core.Frontend.Ending;
 internal sealed class EndingCastScene(EndingCastPhase phase) : EndingScene
 {
     /// <summary>The cast's phase the scene shows.</summary>
-    internal EndingCastPhase Phase { get; } = Ensure.NotNull(phase);
+    private EndingCastPhase CastPhase { get; } = Ensure.NotNull(phase);
+
+    /// <inheritdoc/>
+    internal override EndingCreditsPhase Phase => CastPhase;
 
     /// <inheritdoc/>
     internal override bool Step(EndingCreditsState ending)
     {
         // Each setup wait ends the update inside the setup phase, before the phase's own work; the update after the last
         // wait runs the scene setup.
-        return Phase.Step(ending);
+        return CastPhase.Step(ending);
     }
 
     /// <inheritdoc/>

@@ -18,14 +18,11 @@ internal sealed class EndingPostShot
     public RotationAngle Angle { get; private set; } = RotationAngle.Zero;
     /// <summary>Indicates that the shot graphic has reached its minimum zoom.</summary>
     private bool RotationFinished { get; set; }
-    /// <summary>Signals that the ending hands over to the white-flash phase now that the hold has expired.</summary>
-    public bool ReadyForWhiteFlash { get; private set; }
-
     /// <summary>Advances the rotation, both colour fades and the white-flash handoff by one update.</summary>
-    public void Step(EndingScreen screen)
+    /// <returns>Whether the hold has expired, which hands the ending over to the white flash.</returns>
+    public bool Step(EndingScreen screen)
     {
         Ensure.NotNull(screen);
-        if (ReadyForWhiteFlash) throw new InvalidOperationException("Post-shot white-flash handoff must be consumed.");
         shotFade.Advance();
         samusFade.Advance();
         ApplyFade(screen.Colours, EndingFade.Shot, shotFade);
@@ -39,11 +36,9 @@ internal sealed class EndingPostShot
                 Zoom = EndingPostShotDefinitions.MinimumZoom;
                 RotationFinished = true;
             }
+            return false;
         }
-        else
-        {
-            ReadyForWhiteFlash = hold.Count();
-        }
+        return hold.Count();
     }
 
     /// <summary>

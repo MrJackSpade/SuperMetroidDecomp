@@ -19,10 +19,14 @@ internal sealed class EndingLogo
     private readonly CinematicActor<EndingLogoAnimation, CinematicSpritePose, EndingLogoCue> upperCircle;
     /// <summary>The lower circle.</summary>
     private readonly CinematicActor<EndingLogoAnimation, CinematicSpritePose, EndingLogoCue> lowerCircle;
+    /// <summary>
+    /// The crossfade step the logo shows next (#2553): none until the grey-out cue begins paired background and sprite
+    /// changes, then each in turn, the last held once shown.
+    /// </summary>
+    private EndingLogoCrossfadeStep? NextCrossfade { get; set; }
+
     /// <summary>Becomes true when the grey-out cue begins paired background and sprite changes.</summary>
-    public bool CrossfadeStarted { get; private set; }
-    /// <summary>The crossfade step the logo showed last, or null before its crossfade shows a step.</summary>
-    private EndingLogoCrossfadeStep? ShownCrossfade { get; set; }
+    public bool CrossfadeStarted => NextCrossfade is not null;
     /// <summary>Whether the logo has shown its crossfade's last step and hands off to the percentage text.</summary>
     public bool Completed { get; private set; }
 
@@ -45,22 +49,19 @@ internal sealed class EndingLogo
 
     /// <summary>Shows the pending crossfade step before moving actors and running their next cues.</summary>
     /// <param name="colours">The ending's colours, which show the crossfade's step.</param>
-    public void Step(EndingColours colours)
+    /// <returns>Whether the update showed the crossfade's last step, which completes the logo and hands off to the percentage text.</returns>
+    public bool Step(EndingColours colours)
     {
-        if (Completed) throw new InvalidOperationException("Completed logo must hand off to percentage text.");
         // The crossfade's first step shows on the update after the grey-out cue, not on the update that requests it.
-        if (CrossfadeStarted)
+        if (NextCrossfade is { } step)
         {
-            EndingLogoCrossfadeStep step = ShownCrossfade is { } shown
-                ? shown.Following ?? throw new InvalidOperationException("The logo's crossfade showed its last step.")
-                : EndingLogoCrossfadeStep.First;
             Ensure.NotNull(colours).LogoCrossfade(step);
-            ShownCrossfade = step;
-            if (step.Following is null)
+            if (step.Following is not { } following)
             {
                 Completed = true;
-                return;
+                return true;
             }
+            NextCrossfade = following;
         }
         // Each S half moves just before its own animation steps.
         upperS.Move();
@@ -69,12 +70,13 @@ internal sealed class EndingLogo
         lowerS.Actor.Step(HandleCue);
         upperCircle.Step(HandleCue);
         lowerCircle.Step(HandleCue);
+        return false;
     }
 
     /// <summary>What <c>HandleCue</c> does for each <see cref="EndingLogoCue"/> member, each member's own arm.</summary>
     private IdentityTable<EndingLogoCue, Action> HandleCueForEndingLogoCue => field ??= new(new Dictionary<EndingLogoCue, Action>
     {
-        [EndingLogoCue.GreyOut] = () => CrossfadeStarted = true,
+        [EndingLogoCue.GreyOut] = () => NextCrossfade = EndingLogoCrossfadeStep.First,
     });
 
     /// <summary>Starts the crossfade on the step after the grey-out cue.</summary>

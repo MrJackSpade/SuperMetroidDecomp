@@ -241,14 +241,14 @@ internal sealed class UnitScanner(CoreModel model)
             case { IsImplicitlyDeclared: true }:
                 break;
             case IFieldSymbol field:
-                foreach (SyntaxReference reference in field.DeclaringSyntaxReferences)
+                foreach (SyntaxReference reference in field.DeclaringSyntaxReferences.Where(reference => !GameConstructors.IsCompilerWritten(reference)))
                 {
                     if (reference.GetSyntax() is VariableDeclaratorSyntax { Initializer: { } initializer })
                         Visit(scan, initializer, unit, context);
                 }
                 break;
             case IPropertySymbol or IEventSymbol or IMethodSymbol:
-                foreach (SyntaxReference reference in member.DeclaringSyntaxReferences)
+                foreach (SyntaxReference reference in member.DeclaringSyntaxReferences.Where(reference => !GameConstructors.IsCompilerWritten(reference)))
                 {
                     SyntaxNode declaration = reference.GetSyntax();
                     // A positional record's property is its constructor parameter, which has no code of its own.
@@ -279,7 +279,8 @@ internal sealed class UnitScanner(CoreModel model)
         bool chainsToThis = false;
         bool callsBase = false;
         // An implicitly declared constructor (a default or record copy constructor) runs only initialization.
-        IEnumerable<SyntaxReference> declarations = constructor.IsImplicitlyDeclared ? [] : constructor.DeclaringSyntaxReferences;
+        IEnumerable<SyntaxReference> declarations = constructor.IsImplicitlyDeclared ? [] :
+            constructor.DeclaringSyntaxReferences.Where(reference => !GameConstructors.IsCompilerWritten(reference));
         foreach (SyntaxReference reference in declarations)
         {
             switch (reference.GetSyntax())

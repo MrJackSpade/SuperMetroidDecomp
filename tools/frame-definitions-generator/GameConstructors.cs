@@ -12,6 +12,10 @@ internal static class GameConstructors
     /// <summary>The type's instance constructors, without the restore constructor the compiler writes for a state.</summary>
     internal static IEnumerable<IMethodSymbol> Of(INamedTypeSymbol type) => type.InstanceConstructors.Where(constructor => !IsRestore(constructor));
 
+    /// <summary>Whether <paramref name="reference"/> lies in code the compiler writes for debugger states, which makes no frame.</summary>
+    internal static bool IsCompilerWritten(SyntaxReference reference) =>
+        reference.SyntaxTree.FilePath.EndsWith(".g.cs", StringComparison.OrdinalIgnoreCase);
+
     /// <summary>Whether <paramref name="constructor"/> is the restore constructor the compiler writes for a state.</summary>
     internal static bool IsRestore(IMethodSymbol constructor) =>
         constructor.Parameters is [{ Type: { Name: "IStateGraphReader", ContainingNamespace: { Name: "Core", ContainingNamespace.Name: "SuperMetroid" } } }, ..];

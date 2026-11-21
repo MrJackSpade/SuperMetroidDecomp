@@ -64,7 +64,7 @@ internal static class CeresEscapeOverlayTilemapsVerification
             nativeTransfers++;
         }
         AssertEqual(5, nativeTransfers, "the cartridge writes the English title and four Japanese subtitle rows");
-        AssertTrue(native.SequenceEqual(installed.CeresEscape.FixtureWarning.Text.WordsIn(stockOverlay)),
+        AssertTrue(native.SequenceEqual(installed.CeresEscape.FixtureWarning.ShownText().WordsIn(stockOverlay)),
             "Ceres English/Japanese BG1 overlay matches cartridge without source reads");
 
         void WriteNativeWords(int source, int byteCount, int destinationWord)
@@ -80,7 +80,7 @@ internal static class CeresEscapeOverlayTilemapsVerification
             services: new SuperMetroid.Verification.Enemies.StandaloneRoomEnemyServices(() => throw new InvalidOperationException("The warning fixture generates no random numbers.")), installedBosses: stock.Bosses);
         shownEnemies.CeresEscape.ShowWarningPicture(CeresEscapeWarningPictures.Emergency);
         int titleWord = TwoScreenTilemapCells.IndexOf(CeresEscapeWarningPictures.Emergency.Corner);
-        AssertEqual(native[titleWord], shownEnemies.CeresEscape.FixtureWarning.Text.WordsIn(stock.Areas.CeresEscapeOverlayTilemaps)[titleWord],
+        AssertEqual(native[titleWord], shownEnemies.CeresEscape.FixtureWarning.ShownText().WordsIn(stock.Areas.CeresEscapeOverlayTilemaps)[titleWord],
             "the Ceres title shows its native word over BG1");
         // The getaway writes each page's picture by name (#1466) and holds no installed page of its own to miss.
         Console.WriteLine(

@@ -17,9 +17,9 @@ internal static class CrocomireBehaviorPrivateAccess
             get => PrivateState.Get<global::SuperMetroid.Core.Bosses.Crocomire.CrocomireBehavior, global::SuperMetroid.Core.Bosses.Crocomire.CrocomireMelting>(self, "Melting");
         }
 
-        /// <summary>The private method <c>RunCrocomireMain</c>, invoked by name.</summary>
+        /// <summary>The private method <c>RunCrocomireMain</c>, invoked by name with the encounter Crocomire's place holds.</summary>
         internal void RunCrocomireMain(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant crocomire, global::SuperMetroid.Core.Samus.SamusState samus, global::SuperMetroid.Core.Enemies.PseudoScrewCharge pseudoScrew, global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.Core.Spatial.RoomPixels> camera) =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Bosses.Crocomire.CrocomireBehavior>(self, "RunCrocomireMain", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant), typeof(global::SuperMetroid.Core.Samus.SamusState), typeof(global::SuperMetroid.Core.Enemies.PseudoScrewCharge), typeof(global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.Core.Spatial.RoomPixels>)], new object?[] { crocomire, samus, pseudoScrew, camera });
+            PrivateState.Invoke<global::SuperMetroid.Core.Bosses.Crocomire.CrocomireBehavior>(self, "RunCrocomireMain", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant), typeof(global::SuperMetroid.Core.Bosses.Crocomire.CrocomireEnemyState), typeof(global::SuperMetroid.Core.Samus.SamusState), typeof(global::SuperMetroid.Core.Enemies.PseudoScrewCharge), typeof(global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.Core.Spatial.RoomPixels>)], new object?[] { crocomire, crocomire.Place.RequireSpeciesState<global::SuperMetroid.Core.Bosses.Crocomire.CrocomireEnemyState>(), samus, pseudoScrew, camera });
     }
 
     /// <summary>The private instance members checks read or call.</summary>

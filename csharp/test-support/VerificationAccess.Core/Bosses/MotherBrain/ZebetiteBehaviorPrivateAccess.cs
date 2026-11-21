@@ -28,9 +28,11 @@ internal static class ZebetiteBehaviorPrivateAccess
             set => PrivateState.Set(self, "SharedPulse", value);
         }
 
-        /// <summary>The private method <c>SpawnZebetite</c>, invoked by name.</summary>
+        /// <summary>The private method <c>SpawnZebetite</c>, invoked by name for a half linked to no other.</summary>
+        /// <exception cref="InvalidOperationException">No place was free for the Zebetite.</exception>
         internal global::SuperMetroid.Core.Enemies.RoomEnemyPlace SpawnZebetite(global::SuperMetroid.Core.Bosses.MotherBrain.ZebetiteHalf half) =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Bosses.MotherBrain.ZebetiteBehavior, global::SuperMetroid.Core.Enemies.RoomEnemyPlace>(self, "SpawnZebetite", [typeof(global::SuperMetroid.Core.Bosses.MotherBrain.ZebetiteHalf)], new object?[] { half });
+            PrivateState.Invoke<global::SuperMetroid.Core.Bosses.MotherBrain.ZebetiteBehavior, global::SuperMetroid.Core.Enemies.RoomEnemyPlace?>(self, "SpawnZebetite", [typeof(global::SuperMetroid.Core.Bosses.MotherBrain.ZebetiteHalf), typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace)], new object?[] { half, null })
+                ?? throw new InvalidOperationException("No place was free for the Zebetite.");
     }
 
     /// <summary>The private static members checks name.</summary>

@@ -15,9 +15,9 @@ internal static class BabyMetroidCutsceneBehaviorPrivateAccess
         internal void ApplyBabyMetroidFrameEffects(global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainColours colours, global::SuperMetroid.Core.Bosses.MotherBrain.BabyMetroidCutsceneStepResult step) =>
             PrivateState.Invoke<global::SuperMetroid.Core.Bosses.MotherBrain.BabyMetroidCutsceneBehavior>(self, "ApplyBabyMetroidFrameEffects", [typeof(global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainColours), typeof(global::SuperMetroid.Core.Bosses.MotherBrain.BabyMetroidCutsceneStepResult)], new object?[] { colours, step });
 
-        /// <summary>The private method <c>RunMotherBrainBabyMetroidMain</c>, invoked by name.</summary>
+        /// <summary>The private method <c>RunMotherBrainBabyMetroidMain</c>, invoked by name with the state the Baby's place holds.</summary>
         internal void RunMotherBrainBabyMetroidMain(global::SuperMetroid.Core.Enemies.RoomEnemyPlace place, global::SuperMetroid.Core.Samus.SamusState samus, global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.Core.Spatial.RoomPixels> camera) =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Bosses.MotherBrain.BabyMetroidCutsceneBehavior>(self, "RunMotherBrainBabyMetroidMain", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Samus.SamusState), typeof(global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.Core.Spatial.RoomPixels>)], new object?[] { place, samus, camera });
+            PrivateState.Invoke<global::SuperMetroid.Core.Bosses.MotherBrain.BabyMetroidCutsceneBehavior>(self, "RunMotherBrainBabyMetroidMain", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Bosses.MotherBrain.BabyMetroidCutsceneState), typeof(global::SuperMetroid.Core.Samus.SamusState), typeof(global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.Core.Spatial.RoomPixels>)], new object?[] { place, place.RequireSpeciesState<global::SuperMetroid.Core.Bosses.MotherBrain.BabyMetroidCutsceneState>(), samus, camera });
     }
 
     /// <summary>The private static members checks name.</summary>

@@ -29,9 +29,11 @@ internal static class BotwoonBehaviorPrivateAccess
         internal global::SuperMetroid.Core.Bosses.Botwoon.BotwoonSegmentState[] SpawnBotwoonBody(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant occupant, global::SuperMetroid.Core.Enemies.RoomEnemyPlace head) =>
             PrivateState.Invoke<global::SuperMetroid.Core.Bosses.Botwoon.BotwoonBehavior, global::SuperMetroid.Core.Bosses.Botwoon.BotwoonSegmentState[]>(self, "SpawnBotwoonBody", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant), typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace)], new object?[] { occupant, head });
 
-        /// <summary>The private method <c>SpawnBotwoonBodySegment</c>, invoked by name.</summary>
+        /// <summary>The private method <c>SpawnBotwoonBodySegment</c>, invoked by name with the state Botwoon's head holds.</summary>
+        /// <exception cref="InvalidOperationException">No place was free for the segment.</exception>
         internal global::SuperMetroid.Core.Bosses.Botwoon.BotwoonSegmentState SpawnBotwoonBodySegment(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant occupant, global::SuperMetroid.Core.Enemies.RoomEnemyPlace head, int segmentIndex) =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Bosses.Botwoon.BotwoonBehavior, global::SuperMetroid.Core.Bosses.Botwoon.BotwoonSegmentState>(self, "SpawnBotwoonBodySegment", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant), typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(int)], new object?[] { occupant, head, segmentIndex });
+            PrivateState.Invoke<global::SuperMetroid.Core.Bosses.Botwoon.BotwoonBehavior, global::SuperMetroid.Core.Bosses.Botwoon.BotwoonSegmentState?>(self, "SpawnBotwoonBodySegment", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant), typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Bosses.Botwoon.BotwoonEnemyState), typeof(int)], new object?[] { occupant, head, head.RequireSpeciesState<global::SuperMetroid.Core.Bosses.Botwoon.BotwoonEnemyState>(), segmentIndex })
+                ?? throw new InvalidOperationException("No place was free for Botwoon's body segment.");
 
         /// <summary>The private method <c>SpawnBotwoonSpit</c>, invoked by name.</summary>
         internal void SpawnBotwoonSpit(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant occupant, global::SuperMetroid.Core.Enemies.RoomEnemyPlace head, global::SuperMetroid.Core.Spatial.TrigonometryAngle angle, int speed) =>

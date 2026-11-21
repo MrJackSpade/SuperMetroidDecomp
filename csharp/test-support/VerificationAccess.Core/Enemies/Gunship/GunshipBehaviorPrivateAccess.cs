@@ -15,9 +15,9 @@ internal static class GunshipBehaviorPrivateAccess
         internal void BouncePostCeresGunship(global::SuperMetroid.Core.Enemies.RoomEnemyPlace top, global::SuperMetroid.Core.Samus.SamusState samus) =>
             PrivateState.Invoke<global::SuperMetroid.Core.Enemies.Gunship.GunshipBehavior>(self, "BouncePostCeresGunship", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Samus.SamusState)], new object?[] { top, samus });
 
-        /// <summary>The private method <c>WaitForGunshipEngines</c>, invoked by name.</summary>
+        /// <summary>The private method <c>WaitForGunshipEngines</c>, invoked by name with the state the gunship's top holds.</summary>
         internal void WaitForGunshipEngines(global::SuperMetroid.Core.Enemies.RoomEnemyPlace top) =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Enemies.Gunship.GunshipBehavior>(self, "WaitForGunshipEngines", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace)], new object?[] { top });
+            PrivateState.Invoke<global::SuperMetroid.Core.Enemies.Gunship.GunshipBehavior>(self, "WaitForGunshipEngines", [typeof(global::SuperMetroid.Core.Enemies.Gunship.GunshipState)], new object?[] { top.RequireSpeciesState<global::SuperMetroid.Core.Enemies.Gunship.GunshipState>() });
     }
 
     /// <summary>The private static members checks name.</summary>

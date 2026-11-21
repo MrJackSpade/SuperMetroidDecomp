@@ -11,8 +11,9 @@ internal static class HibashiBehaviorPrivateAccess
     /// <summary>The private instance members checks read or call.</summary>
     extension(global::SuperMetroid.Core.Enemies.Hibashi.HibashiBehavior self)
     {
-        /// <summary>The private method <c>ApplyHibashiEruptionStep</c>, invoked by name.</summary>
+        /// <summary>The private method <c>ApplyHibashiEruptionStep</c>, invoked by name with the state the flame's place holds.</summary>
         internal void ApplyHibashiEruptionStep(global::SuperMetroid.Core.Enemies.RoomEnemyPlace flame, global::SuperMetroid.Core.Enemies.Hibashi.HibashiEruptionStep step) =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Enemies.Hibashi.HibashiBehavior>(self, "ApplyHibashiEruptionStep", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Enemies.Hibashi.HibashiEruptionStep)], new object?[] { flame, step });
+            PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Enemies.Hibashi.HibashiBehavior), "ApplyHibashiEruptionStep", [typeof(global::SuperMetroid.Core.Enemies.Hibashi.HibashiEnemyState), typeof(global::SuperMetroid.Core.Enemies.Hibashi.HibashiEruptionStep)],
+                new object?[] { flame.RequireSpeciesState<global::SuperMetroid.Core.Enemies.Hibashi.HibashiEnemyState>(), step });
     }
 }

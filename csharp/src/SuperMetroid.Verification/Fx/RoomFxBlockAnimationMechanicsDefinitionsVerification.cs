@@ -42,7 +42,7 @@ internal static class RoomFxBlockAnimationMechanicsDefinitionsVerification
         int mechanicsWordCount = 0;
         int frameCount = 0;
         foreach (BlockAnimation definition in
-                 RoomFxBlockAnimationLoops.All)
+                 RoomFxBlockAnimationLoopsConstants.All)
         {
             mechanicsWordCount += 3;
 
@@ -82,7 +82,7 @@ internal static class RoomFxBlockAnimationMechanicsDefinitionsVerification
                 $"object {definition} reads no compiled artwork-source operands");
         }
 
-        AssertEqual(7, RoomFxBlockAnimationLoops.All.Count(),
+        AssertEqual(7, RoomFxBlockAnimationLoopsConstants.All.Count(),
             "simple room-FX animated-tile object count");
         AssertEqual(30, frameCount, "simple room-FX animated-tile frame count");
         AssertEqual(65, mechanicsWordCount,
@@ -122,7 +122,7 @@ internal static class RoomFxBlockAnimationMechanicsDefinitionsVerification
     /// </summary>
     private static void VerifySimpleAnimationLoopWrapsToFirstFrame()
     {
-        foreach (BlockAnimation definition in RoomFxBlockAnimationLoops.All)
+        foreach (BlockAnimation definition in RoomFxBlockAnimationLoopsConstants.All)
         {
             var expected = new List<RoomFxBlockAnimationMechanicsDefinitionsExpected>();
             int update = 0;

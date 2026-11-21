@@ -51,7 +51,7 @@ internal static class InstalledSporesTests
     /// <summary>Checks the installed spores FX over freeze, scroll wrap, and animated transfers while guarding gameplay state.</summary>
     private static void CheckOwners(ImportAreaMapPresentation stock, List<DisplayPacket> packets)
     {
-        var mechanics = RoomFxBlockAnimationLoops.All.Single(
+        var mechanics = RoomFxBlockAnimationLoopsConstants.All.Single(
             value => value == BlockAnimation.Spores);
         Require(mechanics.InstructionPointer == 0x82ed && mechanics.PictureByteCount == 48 &&
             AnimatedTileVramDestinations.WordOf(mechanics) == 0x4280 && mechanics.GotoInstructionPointer == 0x82f9 &&
@@ -157,7 +157,7 @@ internal static class InstalledSporesTests
         }
         Require(segmentOffset == planar.Length, "Installed sheet length differs from its native segment list.");
         int sporesOffset = RoomFxBlockAnimationAtlasFormat.SporesFirstTile * 16;
-        var controls = RoomFxBlockAnimationLoops.All.Single(
+        var controls = RoomFxBlockAnimationLoopsConstants.All.Single(
             value => value == BlockAnimation.Spores);
         for (int frame = 0; frame < 3; frame++)
         {

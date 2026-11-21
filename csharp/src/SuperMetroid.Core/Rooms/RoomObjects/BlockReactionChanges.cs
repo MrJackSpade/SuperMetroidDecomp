@@ -9,14 +9,6 @@ internal static class BlockReactionChanges
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="reaction"/> is not a break.</exception>
     internal static BlockReactionChange CollisionBomb(BombableReaction? reaction) => From(BlockReactionChangeDefinitions.CollisionBomb, reaction);
 
-    /// <summary>The bomb reaction a Power Bomb sets off for a bomb block's break.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="reaction"/> is not a break.</exception>
-    internal static BlockReactionChange ReactionBomb(BombableReaction? reaction) => From(BlockReactionChangeDefinitions.ReactionBomb, reaction);
-
-    /// <summary>The bomb block a normal bomb sets off for a bomb block's break, without the reaction sound.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="reaction"/> is not a break.</exception>
-    internal static BlockReactionChange BombBreak(BombableReaction? reaction) => From(BlockReactionChangeDefinitions.BombBreak, reaction);
-
     /// <summary>The crumble reveal a normal bomb sets off for a crumble block, by the crumble's size.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="reaction"/> is not a crumble block.</exception>
     internal static BlockReactionChange CrumbleReveal(SpecialBlockReaction? reaction) => From(BlockReactionChangeDefinitions.CrumbleReveal, reaction);

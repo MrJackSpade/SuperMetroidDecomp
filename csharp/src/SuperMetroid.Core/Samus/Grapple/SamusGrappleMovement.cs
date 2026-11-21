@@ -727,39 +727,7 @@ public static class SamusGrappleMovement
         // spawn door room objects. Grapple, which is no shot, bypasses the
         // blue door setup's power-bomb rejection; the ordinary opening owner
         // supplies all four cap blocks, timing, collision changes, and sound.
-        if (block.Behavior.TryGetDownwardGateTrigger(out _))
-            terrain.RoomObjects.Gates.SpawnDownwardGateTrigger(terrain.Level, block.At, block.Behavior, BlockStrike.GrappleTouch.Instance);
-        else if (block.Behavior.TryGetBlueDoorOrientation(out _))
-            terrain.RoomObjects.DoorObjects.SpawnBlueDoorOpening(terrain.Level, block.At, block.Behavior, BlockStrike.GrappleTouch.Instance);
-        else if (block.Behavior.Shootable == ShootableReaction.ResidentObjectTrigger)
-        {
-            // A shot-triggered block also reacts to the grapple: its resident actor hears of a hit with no
-            // weapon, and decides itself whether to refuse the hit or wake up; a block no object occupies hears nothing
-            // (ProjectileTriggerObjects.TryNotifyResidentProjectileHit).
-            _ = terrain.RoomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(block.At, BlockStrike.GrappleTouch.Instance);
-        }
-        else if (block.Behavior.Shootable == ShootableReaction.CollectibleTrigger)
-            terrain.RoomObjects.CollectibleObjects.NotifyCollectibleProjectileHit(block.At);
-        else
-        {
-            try
-            {
-                terrain.RoomObjects.BlockReactions.TrySpawnProjectileShotBlock(
-                    terrain.Level,
-                    block.At,
-                    block.Behavior,
-                    BlockStrike.GrappleTouch.Instance,
-                    solidBlock: block.CollisionType == RoomCollisionType.ShootableBlock);
-            }
-            catch (UnsupportedShotBlockReactionException error)
-            {
-                throw new UnsupportedGameStateException(
-                    $"grapple-shootable/type-{block.CollisionType}/behaviour-{block.Behavior.Shootable}",
-                    $"Grapple shootable reaction type {block.CollisionType}/behaviour ({block.Behavior}) " +
-                    $"at block {block.Position} has no grapple reaction.",
-                    error);
-            }
-        }
+        ShootableTable.SetOff(terrain, block, BlockStrike.GrappleTouch.Instance, solidBlock: block.CollisionType == RoomCollisionType.ShootableBlock);
         return block.CollisionType == RoomCollisionType.ShootableBlock
             ? GrappleBlockReaction.Solid
             : GrappleBlockReaction.Passes;

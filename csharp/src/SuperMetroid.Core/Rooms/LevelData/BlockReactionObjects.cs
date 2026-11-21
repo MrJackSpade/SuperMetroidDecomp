@@ -214,37 +214,37 @@ internal sealed class BlockReactionObjects
     }
 
     /// <summary>What <c>TrySpawnProjectileShotBlock</c> comes to for each <see cref="ShotBlockReaction"/> member, each member's own arm.</summary>
-    private IdentityTable<ShotBlockReaction, Func<RoomLevelData, Position16<RoomBlocks>, RoomBlockBehavior, ShotBlockReaction, SamusProjectileFamily, RoomObjectPlace, RoomCollisionBlock, bool>> TrySpawnProjectileShotBlockForShotBlockReaction => field ??= new(new Dictionary<ShotBlockReaction, Func<RoomLevelData, Position16<RoomBlocks>, RoomBlockBehavior, ShotBlockReaction, SamusProjectileFamily, RoomObjectPlace, RoomCollisionBlock, bool>>
+    private IdentityTable<ShotBlockReaction, Func<RoomLevelData, Position16<RoomBlocks>, ShootableReaction, ShotBlockReaction, SamusProjectileFamily, RoomObjectPlace, RoomCollisionBlock, bool>> TrySpawnProjectileShotBlockForShotBlockReaction => field ??= new(new Dictionary<ShotBlockReaction, Func<RoomLevelData, Position16<RoomBlocks>, ShootableReaction, ShotBlockReaction, SamusProjectileFamily, RoomObjectPlace, RoomCollisionBlock, bool>>
     {
-        [ShotBlockReaction.CollisionProbe] = (level, position, behavior, reaction, projectileFamily, place, block) =>
+        [ShotBlockReaction.CollisionProbe] = (level, position, shootable, reaction, projectileFamily, place, block) =>
         {
             // Setting it up ends the shot's span of blocks, which a shot's collision does only once the room
             // object has taken a place. This object does not change terrain and leaves on its first update.
             place.Become(new BlockReactionObject(BlockReactionChange.MadeAtSpawn));
             return true;
         },
-        [ShotBlockReaction.RespawningBreak] = (level, position, behavior, reaction, projectileFamily, place, block) =>
+        [ShotBlockReaction.RespawningBreak] = (level, position, shootable, reaction, projectileFamily, place, block) =>
         {
             // The setup keeps the collision kind with the shot-block parent's appearance for the
             // restoration, and deactivates the live block immediately.
             RestoreAsParent(level, place, block, RoomObjectSetupBlock.ShotBlockParent,
-                BlockReactionChanges.RespawningShot(behavior.Shootable));
+                BlockReactionChanges.RespawningShot(shootable));
             return true;
         },
-        [ShotBlockReaction.PermanentBreak] = (level, position, behavior, reaction, projectileFamily, place, block) =>
+        [ShotBlockReaction.PermanentBreak] = (level, position, shootable, reaction, projectileFamily, place, block) =>
         {
             // The deactivating setup keeps no restore block: these breaks are permanent. The current block loses
             // its shootable collision before the first animated breaking frame runs later in this pass, keeping
             // what it shows until then (#2502).
-            place.Become(new BlockReactionObject(BlockReactionChanges.PermanentShot(behavior.Shootable)));
+            place.Become(new BlockReactionObject(BlockReactionChanges.PermanentShot(shootable)));
             level.SetCollision(position, block.Terrain.Deactivated().Collision);
             return true;
         },
-        [ShotBlockReaction.RespawningPowerBombBreak] = (level, position, behavior, reaction, projectileFamily, place, block) => TrySpawnProjectileShotBlockForShotBlockReactionRespawningPowerBombBreak(level, position, behavior, reaction, projectileFamily, place, block),
-        [ShotBlockReaction.PermanentPowerBombBreak] = (level, position, behavior, reaction, projectileFamily, place, block) => TrySpawnProjectileShotBlockForShotBlockReactionRespawningPowerBombBreak(level, position, behavior, reaction, projectileFamily, place, block),
-        [ShotBlockReaction.RespawningSuperMissileBreak] = (level, position, behavior, reaction, projectileFamily, place, block) => TrySpawnProjectileShotBlockForShotBlockReactionRespawningSuperMissileBreak(level, position, behavior, reaction, projectileFamily, place, block),
-        [ShotBlockReaction.PermanentSuperMissileBreak] = (level, position, behavior, reaction, projectileFamily, place, block) => TrySpawnProjectileShotBlockForShotBlockReactionRespawningSuperMissileBreak(level, position, behavior, reaction, projectileFamily, place, block),
-        [ShotBlockReaction.Nothing] = (level, position, behavior, reaction, projectileFamily, place, block) =>
+        [ShotBlockReaction.RespawningPowerBombBreak] = (level, position, shootable, reaction, projectileFamily, place, block) => TrySpawnProjectileShotBlockForShotBlockReactionRespawningPowerBombBreak(level, position, shootable, reaction, projectileFamily, place, block),
+        [ShotBlockReaction.PermanentPowerBombBreak] = (level, position, shootable, reaction, projectileFamily, place, block) => TrySpawnProjectileShotBlockForShotBlockReactionRespawningPowerBombBreak(level, position, shootable, reaction, projectileFamily, place, block),
+        [ShotBlockReaction.RespawningSuperMissileBreak] = (level, position, shootable, reaction, projectileFamily, place, block) => TrySpawnProjectileShotBlockForShotBlockReactionRespawningSuperMissileBreak(level, position, shootable, reaction, projectileFamily, place, block),
+        [ShotBlockReaction.PermanentSuperMissileBreak] = (level, position, shootable, reaction, projectileFamily, place, block) => TrySpawnProjectileShotBlockForShotBlockReactionRespawningSuperMissileBreak(level, position, shootable, reaction, projectileFamily, place, block),
+        [ShotBlockReaction.Nothing] = (level, position, shootable, reaction, projectileFamily, place, block) =>
         {
             // The empty reactions leave the block alone, and the object still holds a place until its first update.
             place.Become(new BlockReactionObject(BlockReactionChange.MadeAtSpawn));
@@ -253,7 +253,7 @@ internal sealed class BlockReactionObjects
     });
 
     /// <summary>What <see cref="TrySpawnProjectileShotBlockForShotBlockReaction"/> does for <see cref="ShotBlockReaction.RespawningPowerBombBreak"/>, <see cref="ShotBlockReaction.PermanentPowerBombBreak"/>.</summary>
-    private bool TrySpawnProjectileShotBlockForShotBlockReactionRespawningPowerBombBreak(RoomLevelData level, Position16<RoomBlocks> position, RoomBlockBehavior behavior, ShotBlockReaction reaction, SamusProjectileFamily projectileFamily, RoomObjectPlace place, RoomCollisionBlock block)
+    private bool TrySpawnProjectileShotBlockForShotBlockReactionRespawningPowerBombBreak(RoomLevelData level, Position16<RoomBlocks> position, ShootableReaction shootable, ShotBlockReaction reaction, SamusProjectileFamily projectileFamily, RoomObjectPlace place, RoomCollisionBlock block)
     {
         if (projectileFamily == SamusProjectileFamily.Bomb)
         {
@@ -274,7 +274,7 @@ internal sealed class BlockReactionObjects
     }
 
     /// <summary>What <see cref="TrySpawnProjectileShotBlockForShotBlockReaction"/> does for <see cref="ShotBlockReaction.RespawningSuperMissileBreak"/>, <see cref="ShotBlockReaction.PermanentSuperMissileBreak"/>.</summary>
-    private bool TrySpawnProjectileShotBlockForShotBlockReactionRespawningSuperMissileBreak(RoomLevelData level, Position16<RoomBlocks> position, RoomBlockBehavior behavior, ShotBlockReaction reaction, SamusProjectileFamily projectileFamily, RoomObjectPlace place, RoomCollisionBlock block)
+    private bool TrySpawnProjectileShotBlockForShotBlockReactionRespawningSuperMissileBreak(RoomLevelData level, Position16<RoomBlocks> position, ShootableReaction shootable, ShotBlockReaction reaction, SamusProjectileFamily projectileFamily, RoomObjectPlace place, RoomCollisionBlock block)
     {
         if (projectileFamily == SamusProjectileFamily.Bomb)
         {
@@ -293,28 +293,23 @@ internal sealed class BlockReactionObjects
         return true;
     }
 
-    /// <summary>Selects a shot-block room object by behaviour, weapon family, and air-versus-solid collision semantics.</summary>
+    /// <summary>
+    /// Sets off the room object of a shot block the shot-block response handles, by its reaction, the strike's weapon and
+    /// whether the struck block is solid: a reaction that sets off only in a shootable block passes shootable air by.
+    /// </summary>
     public bool TrySpawnProjectileShotBlock(
         RoomLevelData level,
         Position16<RoomBlocks> position,
-        RoomBlockBehavior behavior,
+        ShotBlock shot,
         BlockStrike strike,
         bool solidBlock)
     {
         Ensure.NotNull(level);
-        if (behavior == EscapeAnimalWallDefinitions.ReactionBehavior)
-            return _escapeAnimals.TrySpawnCrittersEscapeReaction(level, position, strike);
-        if (ShotBlockReactions.Of(behavior.Shootable) is not { } reaction)
-        {
-            throw new UnsupportedShotBlockReactionException(
-                nameof(behavior),
-                $"Shootable behaviour {behavior} has no reaction, or requires a specialized reaction outside the breakable/nothing room-object response.");
-        }
+        ShotBlockReaction reaction = Ensure.NotNull(shot).Response;
 
         // A reaction that sets its object off only in a shootable block leaves shootable air before spawning; its
-        // solid-block sibling places the object that does nothing. A reaction that sets its object off only in solid
-        // blocks spawns nothing outside one.
-        if (behavior.Shootable is { } shootable && shootable.SetsOffOnlyInSolidBlocks && !solidBlock)
+        // solid-block sibling places the object that does nothing.
+        if (shot.Reaction.SetsOffOnlyInSolidBlocks && !solidBlock)
             return false;
 
         SamusProjectileFamily projectileFamily = strike.Family;
@@ -336,8 +331,12 @@ internal sealed class BlockReactionObjects
         RoomCollisionBlock block = level.GetCollisionBlock(position);
         place.Block = position;
 
-        return TrySpawnProjectileShotBlockForShotBlockReaction[reaction](level, position, behavior, reaction, projectileFamily, place, block);
+        return TrySpawnProjectileShotBlockForShotBlockReaction[reaction](level, position, shot.Reaction, reaction, projectileFamily, place, block);
     }
+
+    /// <summary>Frees the animals the escape wall at <paramref name="position"/> holds in, when the strike breaks it.</summary>
+    public bool TrySpawnAnimalEscape(RoomLevelData level, Position16<RoomBlocks> position, BlockStrike strike) =>
+        _escapeAnimals.TrySpawnCrittersEscapeReaction(level, position, strike);
 
     /// <summary>Spawns the room object of a special block a normal bomb hits, by the block's reaction.</summary>
     public void SpawnBombedSpecialBlock(

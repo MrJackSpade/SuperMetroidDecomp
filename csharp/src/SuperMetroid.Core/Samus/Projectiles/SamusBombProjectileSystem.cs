@@ -828,37 +828,27 @@ public sealed class SamusBombProjectileSystem
 
         // The game's shootable reaction reads one table for a bomb, a shot and the grapple, in shootable air as in a
         // shootable block (#2553): the air passes the bomb on while the block stops it, but the room object each sets off
-        // is the same. A bombed item block, special or shootable, tells the item room object at it of the hit, and no
-        // other reaction runs.
-        bool shootable = type is StandingCollisionType.ShootableAir or StandingCollisionType.ShootableBlock;
-        if (type == StandingCollisionType.SpecialBlock && block.Behavior.Special == SpecialBlockReaction.CollectibleTrigger ||
-            shootable && block.Behavior.Shootable == ShootableReaction.CollectibleTrigger)
+        // is the same (ShootableTable). Normal bombs are accepted by the blue door setup, so a bomb placed beside a blue
+        // door opens it; the Power Bomb family is rejected inside the shared setup.
+        if (type is StandingCollisionType.ShootableAir or StandingCollisionType.ShootableBlock)
+        {
+            ShootableTable.SetOff(terrain, block, BlockStrike.By(projectileType), solidBlock: type == StandingCollisionType.ShootableBlock);
+            return;
+        }
+
+        // A bombed special item block tells the item room object at it of the hit, and no other reaction runs.
+        if (type == StandingCollisionType.SpecialBlock && block.Behavior.Special == SpecialBlockReaction.CollectibleTrigger)
         {
             terrain.RoomObjects.CollectibleObjects.NotifyCollectibleProjectileHit(block.At);
             return;
         }
 
-        // A bombed solid or shootable block holding a resident room object's trigger tells that room object the
-        // projectile's type. Coloured doors are such blocks, and so is the intact n00b tube, a solid block its intact
-        // picture makes shootable.
-        if ((type == StandingCollisionType.SolidBlock || shootable) &&
-            block.Behavior.Shootable == ShootableReaction.ResidentObjectTrigger)
+        // A bombed solid block holding a resident room object's trigger tells that room object the projectile's type: the
+        // intact n00b tube is such a block, a solid block its intact picture makes shootable.
+        if (type == StandingCollisionType.SolidBlock && block.Behavior.Shootable == ShootableReaction.ResidentObjectTrigger)
         {
             // A block no object occupies hears nothing (ProjectileTriggerObjects.TryNotifyResidentProjectileHit).
             _ = terrain.RoomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(block.At, BlockStrike.By(projectileType));
-            return;
-        }
-
-        // The four ordinary blue-door cap orientations lead to the blue door setup whether the collision came from the
-        // shot or the bomb step. Normal bombs use the bomb projectile family and are accepted, so a bomb placed beside a
-        // blue door opens it; the Power Bomb family is rejected inside the shared setup.
-        if (shootable && block.Behavior.TryGetBlueDoorOrientation(out _))
-        {
-            terrain.RoomObjects.DoorObjects.SpawnBlueDoorOpening(
-                terrain.Level,
-                block.At,
-                block.Behavior,
-                BlockStrike.By(projectileType));
             return;
         }
 
@@ -897,38 +887,6 @@ public sealed class SamusBombProjectileSystem
                 block.At,
                 block.Behavior,
                 projectileType);
-            return;
-        }
-
-        if (shootable)
-        {
-            // Gate shot blocks reuse shootable collision with the private gate-trigger behaviours. They
-            // select temporary trigger room objects rather than the ordinary bomb reactions.
-            if (block.Behavior.TryGetDownwardGateTrigger(out _))
-            {
-                terrain.RoomObjects.Gates.SpawnDownwardGateTrigger(
-                    terrain.Level,
-                    block.At,
-                    block.Behavior,
-                    BlockStrike.By(projectileType));
-                return;
-            }
-
-            // Shootable air passes a bomb by when its reaction sets off only in a shootable block. A
-            // shootable block with that reaction still spawns the empty room object, which takes a
-            // room-object place for one pass.
-            if (type == StandingCollisionType.ShootableAir &&
-                block.Behavior.Shootable is { } reaction && reaction.SetsOffOnlyInSolidBlocks)
-                return;
-            // Every other reaction is the table's room object a bomb sets off: the breaks, the Power Bomb and Super Missile
-            // blocks' reveals, the collision probe, the escape animals' wall, and the one-update object that leaves the
-            // block alone, which the table names for the empty reactions and for those shots pass by alike.
-            terrain.RoomObjects.BlockReactions.TrySpawnProjectileShotBlock(
-                terrain.Level,
-                block.At,
-                block.Behavior,
-                BlockStrike.By(projectileType),
-                solidBlock: type == StandingCollisionType.ShootableBlock);
             return;
         }
 

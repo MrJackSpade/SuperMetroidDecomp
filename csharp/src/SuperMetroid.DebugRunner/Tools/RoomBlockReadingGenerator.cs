@@ -69,7 +69,7 @@ internal static class RoomBlockReadingGenerator
     /// <summary>One kept behaviour's source, its slope and extension readings on a second line at <paramref name="indent"/>.</summary>
     private static string Readings(RoomBlockReadings readings, string indent) => new StringBuilder()
         .Append("new(")
-        .Append(Reaction(readings.Shootable)).Append(", ")
+        .Append(Reaction<ShootableReaction>(readings.Shootable)).Append(", ")
         .Append(Reaction(readings.Bombable)).Append(", ")
         .Append(Reaction(readings.Special)).Append(", ")
         .Append(Reaction(readings.SpecialAir)).Append(", ")

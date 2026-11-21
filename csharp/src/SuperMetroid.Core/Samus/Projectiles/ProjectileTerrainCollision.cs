@@ -334,8 +334,8 @@ internal sealed class ProjectileTerrainCollision
                     // Setting up the probe's room object ends the span. With every room-object place taken nothing is
                     // set up, and the span goes on.
                     endSpan = room.RoomObjects.BlockReactions.TrySpawnProjectileShotBlock(
-                        terrain.Level, block.At, block.Behavior, BlockStrike.By(shot.StrikingType),
-                        block.CollisionType == RoomCollisionType.ShootableBlock);
+                        terrain.Level, block.At, ShotBlockReactions.ShotBlocks[ShootableReaction.CollisionProbe],
+                        BlockStrike.By(shot.StrikingType), block.CollisionType == RoomCollisionType.ShootableBlock);
                     return block.CollisionType == RoomCollisionType.ShootableBlock;
                 }
                 TrySpawnShootableReaction(room, held, block);
@@ -395,15 +395,20 @@ internal sealed class ProjectileTerrainCollision
         // keep its room object that does nothing; shootable air places none. The RoomObject
         // owner performs the power-bomb/Super-Missile family checks synchronously, just as each
         // setup sees the current projectile type while the room object spawns.
-        bool spawnsShotBlockReaction = block.Behavior.Shootable is ShootableReaction.NothingWhenSolid or
-                ShootableReaction.AnimalEscape or ShootableReaction.CollisionProbe ||
-            ShotBlockReactions.IsWeaponReaction(block.Behavior.Shootable);
-        if (spawnsShotBlockReaction)
+        ShootableReaction reaction = block.Behavior.Shootable;
+        if (reaction == ShootableReaction.AnimalEscape)
+        {
+            _ = terrain.RoomObjects.BlockReactions.TrySpawnAnimalEscape(terrain.Level, block.At, BlockStrike.By(shot.StrikingType));
+            return;
+        }
+        if ((reaction is ShootableReaction.NothingWhenSolid or ShootableReaction.CollisionProbe ||
+                ShotBlockReactions.IsWeaponReaction(reaction)) &&
+            ShotBlockReactions.ShotBlocks.TryGetValue(reaction, out ShotBlock? shotBlock))
         {
             terrain.RoomObjects.BlockReactions.TrySpawnProjectileShotBlock(
                 terrain.Level,
                 block.At,
-                block.Behavior,
+                shotBlock,
                 BlockStrike.By(shot.StrikingType),
                 solidBlock: block.CollisionType == RoomCollisionType.ShootableBlock);
         }

@@ -26,28 +26,25 @@ using SuperMetroid.Core.World;
 internal static class RidleyBreakupProgramsVerification
 {
 
-    /// <summary>Drives the grab-release death branch and compares all 29 fragment programs with native data.</summary>
+    /// <summary>
+    /// Runs his death's explosions while he carries Samus through his body's main AI, which releases her and breaks him up,
+    /// and compares the pictures all 29 breakup programs show with native data (#2554).
+    /// </summary>
     internal static void VerifyRidleyBreakupPrograms()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+        (RoomEnemyPlace body, NorfairRidleyState state) = NorfairRidleyDeathFixtures.PlaceRidley(enemies);
         enemies.VerificationServices().NextRandom = () => 1;
-        Action<RoomEnemyPlace, NorfairRidleyState, SamusState> death = enemies.NorfairRidleyBehavior.Death.TickNorfairRidleyDeathExplosions;
         var process = new Action<RoomEnemyPlace, SamusState, RoomLevelData, Position16<RoomPixels>, GameplayAction>(EnemyAnimationPlayer.AdvanceAnimation);
-        var body = enemies.Places.InUpdateOrder[0];
-        body.Bind(EnemyDefinitionId.Ridley, body.KeptDefinition);
-        var state = new NorfairRidleyState { GrabState = RidleyGrabState.CarryingSamus };
-        state.PhaseTimer.LastFor(1);
+        state.GrabState = RidleyGrabState.CarryingSamus;
         RidleyTailFixtures.BlankLinks(state.Tail);
         foreach (RidleyTailLink link in state.Tail.Links)
             link.Position = new Position16<RoomPixels>(128, 128);
         state.Tail.Tip.Angle = RidleyTailAngle.FromStepsFromStraightDown(16);
-        body.HoldRidley(state);
-        death(body, state, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()));
+        NorfairRidleyDeathFixtures.RunPhase(body, state, NorfairRidleyPhase.DeathExplosions, 1, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()));
         AssertEqual(RidleyGrabState.Released, state.GrabState, "Ridley death releases Samus before breakup");
-        var fragments = enemies.Places.InUpdateOrder.Where(place => place.Holds(EnemyDefinitionId.RidleyBreakupPiece)).ToArray();
+        RoomEnemyPlace[] fragments = NorfairRidleyDeathFixtures.Pieces(enemies);
         AssertEqual(12, fragments.Length, "Ridley death spawns all twelve body/tail fragments");
-        AssertEqual(EnemyFrameId.RidleyTailTipPointingToward157, fragments[0].RequireSpeciesState<RidleyExplosionFragmentState>().Picture,
-            "reported tail orientation selects the second tip pose ($A6:CA9B)");
         foreach (var fragment in fragments)
         {
             AssertEqual(CommonEnemyEmptyFrameToolingDefinitions.EmptySpritemap, fragment.SpritemapPointer,
@@ -55,6 +52,8 @@ internal static class RidleyBreakupProgramsVerification
             process(fragment, RoomEnemyFrameFixtures.StandaloneSamus(), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Position16<RoomPixels>.Zero, 0);
             AssertTrue(!CommonEnemyEmptyFrames.DrawsNothing(fragment.Frame), "first breakup instruction replaces empty frame");
         }
+        AssertEqual<EnemyFrameId?>(EnemyFrameId.RidleyTailTipPointingToward157, fragments[0].Frame,
+            "reported tail orientation selects the second tip pose ($A6:CA9B)");
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         byte[] stockBytes = EnemySpritemapFiles.Extract(rom);
         var stock = EnemySpritemapDocuments.Load(new MemoryStream(stockBytes));
@@ -63,19 +62,17 @@ internal static class RidleyBreakupProgramsVerification
         var shownPoses = new HashSet<EnemyFrameId>();
         foreach (RoomEnemyPlace fragment in Enumerable.Range(0, 32).SelectMany(BreakupPieces))
         {
-            EnemyFrameId frame = fragment.RequireSpeciesState<RidleyExplosionFragmentState>().Picture;
+            EnemyFrameId frame = NorfairRidleyDeathFixtures.ShowPicture(fragment);
             if (!shownPoses.Add(frame))
                 continue;
             ushort operand = (ushort)(RidleyNativeProgramOracle.BreakupList(frame) + 2);
             ushort expectedPointer = rom.ReadCartridgeWordFixedBank(RidleyNativeListAddresses.BodyBankNumber << 16 | operand);
-            process(fragment, RoomEnemyFrameFixtures.StandaloneSamus(), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Position16<RoomPixels>.Zero, 0);
             AssertEqual(expectedPointer, fragment.SpritemapPointer, "breakup selects native sprite");
             AssertEqual(RidleyBreakupFrameDefinitions.PictureShowingUpdates, fragment.AnimationClock.Hold,
                 "breakup holds its picture's native frame duration before it sleeps");
             process(fragment, RoomEnemyFrameFixtures.StandaloneSamus(), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Position16<RoomPixels>.Zero, 0);
             AssertTrue(fragment.AnimationClock.IsStopped, "breakup sleeps on its picture, its clock stopped");
             AssertEqual(expectedPointer, fragment.SpritemapPointer, "breakup holds its picture");
-            AssertEqual((ushort)(RidleyNativeProgramOracle.BreakupList(frame) + 4), RidleyNativeProgramOracle.BreakupPointer(fragment), "breakup sleeps after its one frame");
             var actual = new OamBuffer();
             stock.DrawEnemySpritemap(actual, new NativeEnemySpritemapDraw { Bank = 0xa6, Pointer = expectedPointer, Origin = new Position16<ScreenPixels>(128, 112), PaletteBits = 0x0e00, BaseTileIndex = 0, ClipVerticalWrap = false, OriginYIsOnScreen = true });
             var expected = new OamBuffer();
@@ -86,18 +83,14 @@ internal static class RidleyBreakupProgramsVerification
         }
         AssertTrue(RidleyNativeListAddresses.BreakupEntries.Select(entry => entry.Frame).ToHashSet().SetEquals(shownPoses),
             "his deaths' pieces show every breakup pose");
+        // The first piece flies by its own main AI until its lifetime ends, when it becomes a small enemy death where it
+        // last stood.
         var expiring = fragments[0];
-        ushort deathX = expiring.Position.X.Whole, deathY = expiring.Position.Y.Whole;
-        RidleyExplosionFragmentState expiringState = expiring.SpeciesState<RidleyExplosionFragmentState>()
-            ?? throw new InvalidOperationException("The spawned fragment has no state.");
-        expiringState.Lifetime.LastFor(1);
-        expiringState.Velocity = default;
-        expiring.Position = expiring.Position.WithFractionX(0).WithFractionY(0);
-        enemies.NorfairRidleyBehavior.Death.RunNorfairRidleyExplosionMain(expiring.HeldOccupant(), expiringState, RoomEnemyFrameFixtures.StandaloneSamus());
+        _ = NorfairRidleyDeathFixtures.FlyUntilExpiry(expiring, RoomEnemyFrameFixtures.StandaloneSamus());
         AssertTrue(expiring.Occupant is null, "native breakup expiry clears the actor immediately");
         var explosion = enemies.Projectiles.EnemyProjectiles.Single(p => p.Kind == RoomEnemyProjectileKind.EnemyDeathExplosion);
-        AssertEqual(deathX, explosion.Position.X.Whole, "fragment death effect retains final X");
-        AssertEqual(deathY, explosion.Position.Y.Whole, "fragment death effect retains final Y");
+        AssertEqual(expiring.Position.X.Whole, explosion.Position.X.Whole, "fragment death effect retains final X");
+        AssertEqual(expiring.Position.Y.Whole, explosion.Position.Y.Whole, "fragment death effect retains final Y");
         AssertEqual(EnemyDefinitionId.RidleyBreakupPiece, enemies.DeathsAndDrops.Explosions.Of(explosion).Dropper?.DefinitionId, "fragment drop retains native header");
         AssertEqual(EnemyDeathAndDropSegment.SmallExplosion,
             ProgramOf(explosion), "fragment expiry selects native small death animation");
@@ -110,18 +103,15 @@ internal static class RidleyBreakupProgramsVerification
         static IEnumerable<RoomEnemyPlace> BreakupPieces(int death)
         {
             var system = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+            (RoomEnemyPlace dying, NorfairRidleyState ridley) = NorfairRidleyDeathFixtures.PlaceRidley(system);
             system.VerificationServices().NextRandom = () => 1;
-            RoomEnemyPlace dying = system.Places.InUpdateOrder[0];
-            dying.Bind(EnemyDefinitionId.Ridley, dying.KeptDefinition);
-            var ridley = new NorfairRidleyState();
-            ridley.PhaseTimer.LastFor(1);
             RidleyTailFixtures.BlankLinks(ridley.Tail);
             foreach (RidleyTailLink link in ridley.Tail.Links)
                 link.Position = new Position16<RoomPixels>(128, 128);
             ridley.Flight.FacingDirection = death < 16 ? RidleyFacing.Left : RidleyFacing.Turning;
             ridley.Tail.Tip.Angle = RidleyTailAngle.FromStepsFromStraightDown((death % 16) << 4);
-            system.NorfairRidleyBehavior.Death.TickNorfairRidleyDeathExplosions(dying, ridley, RoomEnemyFrameFixtures.StandaloneSamus());
-            return [.. system.Places.InUpdateOrder.Where(place => place.Holds(EnemyDefinitionId.RidleyBreakupPiece))];
+            NorfairRidleyDeathFixtures.RunPhase(dying, ridley, NorfairRidleyPhase.DeathExplosions, 1, RoomEnemyFrameFixtures.StandaloneSamus());
+            return NorfairRidleyDeathFixtures.Pieces(system);
         }
     }
 

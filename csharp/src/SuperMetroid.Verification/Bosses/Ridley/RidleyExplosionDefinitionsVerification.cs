@@ -8,6 +8,7 @@ using SuperMetroid.Core;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Bosses.Ridley;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.World;
 using SuperMetroid.TestSupport.MovieReplay;
 
@@ -139,14 +140,14 @@ internal static class RidleyExplosionDefinitionsVerification
         for (int selectedIndex = 0; selectedIndex < 10; selectedIndex++)
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            Action<RoomEnemyPlace, NorfairRidleyState> spawn = enemies.NorfairRidleyBehavior.Death.SpawnSmallExplosionNearNorfairRidley;
-
-            RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
+            // His room's population load places him (#2554); his death's explosions run in his body's main AI, which spawns
+            // the next small explosion as its wait runs out, before the phase's own long countdown.
+            (RoomEnemyPlace body, NorfairRidleyState state) = NorfairRidleyDeathFixtures.PlaceRidley(enemies);
             body.Position = body.Position.WithWhole(new(0xfff8, 0x0008));
-            var state = new NorfairRidleyState { NextDeathExplosion = ListStep<Offset16<RoomPixels>>.At(DeathExplosionScatterDefinitions.Offsets, selectedIndex) };
+            state.NextDeathExplosion = ListStep<Offset16<RoomPixels>>.At(DeathExplosionScatterDefinitions.Offsets, selectedIndex);
             state.DeathExplosionTimer.LastFor(1);
 
-            spawn(body, state);
+            NorfairRidleyDeathFixtures.RunPhase(body, state, NorfairRidleyPhase.DeathExplosions, NorfairRidleyMotionDefinitions.DeathExplosionUpdates, RoomEnemyFrameFixtures.StandaloneSamus());
 
             EnemyProjectile effect = enemies.Projectiles.EnemyProjectiles.Single(p => p.IsActive);
             int tableIndex = (selectedIndex + 1) % 10;
@@ -179,12 +180,9 @@ internal static class RidleyExplosionDefinitionsVerification
         for (int orientation = 0; orientation < 16; orientation++)
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+            (RoomEnemyPlace body, NorfairRidleyState state) = NorfairRidleyDeathFixtures.PlaceRidley(enemies);
             enemies.VerificationServices().NextRandom = () => 0x8130;
-            RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-            body.Bind(EnemyDefinitionId.Ridley, body.KeptDefinition);
             body.Position = body.Position.WithWhole(new(0xfff8, 0x0008));
-            var state = new NorfairRidleyState();
-            state.PhaseTimer.LastFor(1);
             RidleyTailFixtures.BlankLinks(state.Tail);
             for (int index = 0; index < state.Tail.Links.Count; index++)
             {
@@ -196,9 +194,10 @@ internal static class RidleyExplosionDefinitionsVerification
             state.Tail.InnerJoint.Angle = RidleyTailAngle.StraightDown;
             state.Tail.Tip.Angle = RidleyTailAngle.FromStepsFromStraightDown(orientation << 4);
 
-            // His death's first explosion spawns his pieces, each joining the breakup of his encounter and his body (#2231).
-            enemies.NorfairRidleyBehavior.Death.TickNorfairRidleyDeathExplosions(body, state, RoomEnemyFrameFixtures.StandaloneSamus());
-            RoomEnemyPlace[] fragments = [.. enemies.Places.InUpdateOrder.Where(place => place.Holds(EnemyDefinitionId.RidleyBreakupPiece))];
+            // The last update of his death's explosions, in his body's main AI, spawns his pieces, each joining the breakup of
+            // his encounter and his body (#2231, #2554).
+            NorfairRidleyDeathFixtures.RunPhase(body, state, NorfairRidleyPhase.DeathExplosions, 1, RoomEnemyFrameFixtures.StandaloneSamus());
+            RoomEnemyPlace[] fragments = NorfairRidleyDeathFixtures.Pieces(enemies);
             AssertEqual(12, fragments.Length, $"Ridley's death spawns his twelve pieces, facing {facingIndex} orientation {orientation}");
             foreach (RoomEnemyPlace fragment in fragments)
             {
@@ -208,27 +207,30 @@ internal static class RidleyExplosionDefinitionsVerification
                     "Ridley breakup production instruction timer");
                 AssertEqual(state.Colours.SpriteShading(flashing: false), fragment.Shading,
                     "Ridley breakup production colours: the shades Ridley laid over his own sprites");
-                RidleyExplosionFragmentState fragmentState = fragment.SpeciesState<RidleyExplosionFragmentState>()
-                    ?? throw new InvalidOperationException("The initialized fragment has no state.");
-                AssertEqual(
-                    rom.ReadCartridgeWord((0xa6c6ce + parameter)),
-                    fragmentState.Lifetime.CartridgeCount,
-                    $"Ridley breakup production lifetime ${parameter:X2}");
-                AssertEqual(unchecked((ushort)-0x0130), fragmentState.Velocity.X.RawValue,
+                // The piece shows its picture as its animation first steps, then flies by its own main AI: its first move
+                // carries the signed random speed its setup gave it, and it expires on the update its native lifetime
+                // runs out on.
+                EnemyFrameId picture = NorfairRidleyDeathFixtures.ShowPicture(fragment);
+                FixedPosition<RoomPixels> spawned = fragment.Position;
+                fragment.RunMainAi(RoomEnemyFrameFixtures.StandaloneSamus());
+                AssertEqual(NorfairRidleyDeathFixtures.FirstMove(spawned, new SignedEightEight(unchecked((ushort)-0x0130))), fragment.Position,
                     "Ridley breakup production signed random velocity");
+                AssertEqual(rom.ReadCartridgeWord((0xa6c6ce + parameter)) + 1,
+                    1 + NorfairRidleyDeathFixtures.FlyUntilExpiry(fragment, RoomEnemyFrameFixtures.StandaloneSamus()),
+                    $"Ridley breakup production lifetime ${parameter:X2}");
 
                 if (parameter <= SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.RidleyExplosionParameter(RidleyExplosionPart.TailTip))
                 {
                     int tailIndex = parameter >> 1;
-                    AssertEqual(state.Tail.Links[tailIndex].Position.X, fragment.Position.X.Whole,
+                    AssertEqual(state.Tail.Links[tailIndex].Position.X, spawned.X.Whole,
                         $"Ridley breakup production tail X ${parameter:X2}");
-                    AssertEqual(state.Tail.Links[tailIndex].Position.Y, fragment.Position.Y.Whole,
+                    AssertEqual(state.Tail.Links[tailIndex].Position.Y, spawned.Y.Whole,
                         $"Ridley breakup production tail Y ${parameter:X2}");
                     ushort expectedInstruction = parameter == SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.RidleyExplosionParameter(RidleyExplosionPart.TailTip)
                         ? rom.ReadCartridgeWord((0xa6c7ba + orientation * 2))
                         : rom.ReadCartridgeWord(TailBreakupInstructionAddresses
                                 [tailIndex]);
-                    AssertEqual(expectedInstruction, RidleyNativeProgramOracle.BreakupList(fragmentState.Picture),
+                    AssertEqual(expectedInstruction, RidleyNativeProgramOracle.BreakupList(picture),
                         $"Ridley breakup production tail instruction ${parameter:X2}/{orientation}");
                 }
                 else
@@ -239,13 +241,13 @@ internal static class RidleyExplosionDefinitionsVerification
                     int[] instructionTables = [0xa6c808, 0xa6c83a, 0xa6c86c, 0xa6c89e, 0xa6c8d0];
                     short xOffset = unchecked((short)rom.ReadCartridgeWord((xTables[bodyIndex] + facingIndex * 2)));
                     short yOffset = unchecked((short)rom.ReadCartridgeWord(yOperands[bodyIndex]));
-                    AssertEqual(unchecked((ushort)(body.Position.X.Whole + xOffset)), fragment.Position.X.Whole,
+                    AssertEqual(unchecked((ushort)(body.Position.X.Whole + xOffset)), spawned.X.Whole,
                         $"Ridley breakup production body X ${parameter:X2}/{facingIndex}");
-                    AssertEqual(unchecked((ushort)(body.Position.Y.Whole + yOffset)), fragment.Position.Y.Whole,
+                    AssertEqual(unchecked((ushort)(body.Position.Y.Whole + yOffset)), spawned.Y.Whole,
                         $"Ridley breakup production body Y ${parameter:X2}/{facingIndex}");
                     AssertEqual(
                         rom.ReadCartridgeWord((instructionTables[bodyIndex] + facingIndex * 2)),
-                        RidleyNativeProgramOracle.BreakupList(fragmentState.Picture),
+                        RidleyNativeProgramOracle.BreakupList(picture),
                         $"Ridley breakup production body instruction ${parameter:X2}/{facingIndex}");
                 }
             }

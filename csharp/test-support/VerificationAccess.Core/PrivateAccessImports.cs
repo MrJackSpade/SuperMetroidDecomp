@@ -349,7 +349,6 @@ global using static SuperMetroid.Core.Bosses.Ridley.CeresRidleyHitsPrivateAccess
 global using static SuperMetroid.Core.Bosses.Ridley.CeresRidleyPhasePrivateAccess;
 global using static SuperMetroid.Core.Bosses.Ridley.NorfairRidleyBehaviorPrivateAccess;
 global using static SuperMetroid.Core.Bosses.Ridley.NorfairRidleyCombatPrivateAccess;
-global using static SuperMetroid.Core.Bosses.Ridley.NorfairRidleyDeathPrivateAccess;
 global using static SuperMetroid.Core.Bosses.Ridley.NorfairRidleyHealthBandDefinitionsPrivateAccess;
 global using static SuperMetroid.Core.Bosses.Ridley.RidleyAnimationsPrivateAccess;
 global using static SuperMetroid.Core.Bosses.Ridley.RidleyColoursPrivateAccess;

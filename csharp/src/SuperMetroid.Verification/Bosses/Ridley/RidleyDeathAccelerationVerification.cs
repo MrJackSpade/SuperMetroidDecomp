@@ -22,11 +22,12 @@ internal static class RidleyDeathAccelerationVerification
         AssertEqual((byte)0xa9, rom.ReadCartridgeByte(0xa6c611), "Death movement LDA immediate opcode");
         AssertEqual((byte)16, rom.ReadCartridgeByte(0xa6c612), "Death movement native extra deceleration");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
+        // His room's population load places him (#2554); his roar runs in his body's main AI, his body holding still so the
+        // roar alone moves his speed.
+        (RoomEnemyPlace place, NorfairRidleyState state) = NorfairRidleyDeathFixtures.PlaceRidley(enemies);
         Action<RoomEnemyPlace, NorfairRidleyState> approaching = NorfairRidleyCombat.TickNorfairRidleyMoveToDeathSpot;
         SamusState samus = RoomEnemyFrameFixtures.StandaloneSamus();
-        Action<RoomEnemyPlace, NorfairRidleyState> roaring = (body, roaringState) => enemies.NorfairRidleyBehavior.Death.TickNorfairRidleyDeathRoar(body, roaringState, samus);
-        var place = enemies.Places.InUpdateOrder[0];
-        var state = new NorfairRidleyState();
+        Action<RoomEnemyPlace, NorfairRidleyState> roaring = (body, roaringState) => NorfairRidleyDeathFixtures.RunPhase(body, roaringState, NorfairRidleyPhase.DeathRoar, 21, samus);
         int[] distances = [-256, -64, -16, -1, 0, 1, 16, 64, 256];
         int[] velocities = [-1280, -256, -1, 0, 1, 256, 1280];
         foreach (var step in new[] { approaching, roaring })

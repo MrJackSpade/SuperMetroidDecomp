@@ -2146,17 +2146,19 @@ internal static class LookupStream4Verification
             rom.ReadCartridgeWord((0xa60000 | (rom.ReadCartridgeWord(0xa6c933 + index * 7) + 12)))).ToArray();
         foreach (int freeSlots in new[] { 12, 2, 0 })
         {
+            // His room's population load places him and fills every other place with an enemy that stands in it; the
+            // places the breakup may take are then emptied by kills (#2554).
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-            foreach (RoomEnemyPlace place in enemies.Places.InUpdateOrder) place.Bind(EnemyPlaceFixtures.StandIn, place.KeptDefinition);
+            (RoomEnemyPlace body, NorfairRidleyState state) = NorfairRidleyDeathFixtures.PlaceRidley(enemies,
+                [.. Enumerable.Repeat(PopulationPlacementAccess.Entry(EnemyPlaceFixtures.StandIn), EnemyPlaceOrder.Capacity - 1)]);
             for (int index = 1; index <= freeSlots; index++) enemies.Places.InUpdateOrder[index].Clear();
             int randomCalls = 0;
             enemies.VerificationServices().NextRandom = () => (ushort)(0x100 + 0x10 * randomCalls++);
-            var state = new NorfairRidleyState();
             for (int index = 0; index < 7; index++)
                 state.Tail.Links[index].Position = new Position16<RoomPixels>((ushort)(100 + index), (ushort)(200 + index));
-            // Each part joins the breakup of his encounter and his body as it spawns (#2231).
-            RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-            void Spawn() => enemies.NorfairRidleyBehavior.Death.SpawnNorfairRidleyBreakupActors(body, state);
+            // The last update of his death's explosions, in his body's main AI, spawns his pieces, each joining the breakup
+            // of his encounter and his body as it spawns (#2231).
+            void Spawn() => NorfairRidleyDeathFixtures.RunPhase(body, state, NorfairRidleyPhase.DeathExplosions, 1, RoomEnemyFrameFixtures.StandaloneSamus());
             if (freeSlots < expected.Length)
                 AssertThrows<InvalidOperationException>(Spawn, "Breakup preserves partial allocation before pool exhaustion");
             else Spawn();
@@ -2165,10 +2167,14 @@ internal static class LookupStream4Verification
             {
                 RoomEnemyPlace fragment = enemies.Places.InUpdateOrder[index + 1];
                 AssertEqual(SuperMetroid.AssetExtraction.Enemies.EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.RidleyBreakupPiece, SuperMetroid.AssetExtraction.Enemies.PopulationWords.Parameters(expected[index], 0)), fragment.HeldOccupant().Spawn.SpawnSettings, "Actual breakup slot order follows original native spawn calls");
-                RidleyExplosionFragmentState fragmentState = fragment.SpeciesState<RidleyExplosionFragmentState>()
-                    ?? throw new InvalidOperationException("A spawned fragment has no state.");
-                AssertEqual((ushort)((0x100 + 0x10 * index) & 0x130), fragmentState.Velocity.X.RawValue, "Actual breakup maps each random draw to its original fragment");
-                AssertEqual(rom.ReadCartridgeWord((0xa6c6ce + expected[index])), fragmentState.Lifetime.CartridgeCount, "Actual breakup preserves each unresolved native lifetime");
+                // Each piece flies by its own main AI: its first move carries the speed its random draw gave it, and it
+                // expires on the update its native lifetime runs out on.
+                FixedPosition<RoomPixels> spawned = fragment.Position;
+                fragment.RunMainAi(RoomEnemyFrameFixtures.StandaloneSamus());
+                AssertEqual(NorfairRidleyDeathFixtures.FirstMove(spawned, new SignedEightEight((ushort)((0x100 + 0x10 * index) & 0x130))), fragment.Position,
+                    "Actual breakup maps each random draw to its original fragment");
+                AssertEqual(rom.ReadCartridgeWord((0xa6c6ce + expected[index])) + 1, 1 + NorfairRidleyDeathFixtures.FlyUntilExpiry(fragment, RoomEnemyFrameFixtures.StandaloneSamus()),
+                    "Actual breakup preserves each unresolved native lifetime");
             }
         }
         Console.WriteLine("Ridley ordered spawning: native twelve-call order, exact RNG assignment, partial/full pool exhaustion pass.");

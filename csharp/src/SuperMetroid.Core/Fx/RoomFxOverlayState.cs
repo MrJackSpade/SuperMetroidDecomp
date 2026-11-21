@@ -199,7 +199,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// Publishes the liquid's surface line, <paramref name="line"/>, or its having none: a published surface moves its line
     /// in place, a liquid's first surface is created, and a liquid without one drops it.
     /// </summary>
-    private void PublishSurface(int? line)
+    internal void PublishSurface(int? line)
     {
         if (line is not int surface)
         {

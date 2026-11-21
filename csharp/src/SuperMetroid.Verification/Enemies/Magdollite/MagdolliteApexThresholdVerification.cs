@@ -52,7 +52,8 @@ internal static class MagdolliteApexThresholdVerification
         {
             const int onePixel = 65536;
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            Action<RoomEnemyPlace, MagdolliteBodyState, SamusState> rise = enemies.MagdolliteBehavior.RunMagdolliteBodyRising;
+            // The rising arm's own main AI raises it.
+            Action<RoomEnemyPlace, MagdolliteBodyState, SamusState> rise = static (body, _, samus) => body.RunMainAi(samus);
             for (int part = 0; part < 3; part++)
             {
                 RoomEnemyPlace member = enemies.Places.InUpdateOrder[part];
@@ -85,7 +86,8 @@ internal static class MagdolliteApexThresholdVerification
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             Action<RoomEnemyPlace, SamusState> initialize = static (place, samus) => place.InitializeAsPlaced(samus);
-            Action<RoomEnemyPlace, MagdolliteBodyState, SamusState> rise = enemies.MagdolliteBehavior.RunMagdolliteBodyRising;
+            // The rising arm's own main AI raises it.
+            Action<RoomEnemyPlace, MagdolliteBodyState, SamusState> rise = static (body, _, samus) => body.RunMainAi(samus);
             for (int part = 0; part < 3; part++)
             {
                 RoomEnemyPlace member = enemies.Places.InUpdateOrder[headSlot + part];

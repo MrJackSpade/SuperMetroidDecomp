@@ -11,13 +11,6 @@ internal static class MotherBrainBrainAnimationPrivateAccess
     /// <summary>The private instance members checks read or call.</summary>
     extension(global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBrainAnimation self)
     {
-        /// <summary>The private property <c>Playback</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBrainPlayback? Playback
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBrainAnimation, global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBrainPlayback?>(self, "Playback");
-            set => PrivateState.Set(self, "Playback", value);
-        }
-
         /// <summary>The picture the brain shows, which its playback holds; none while her brain is not live.</summary>
         internal global::SuperMetroid.Core.Enemies.Artwork.EnemyFrameId? ShownFrame => self.Playback?.Shown;
     }

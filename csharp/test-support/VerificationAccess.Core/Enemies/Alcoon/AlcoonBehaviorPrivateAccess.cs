@@ -8,14 +8,6 @@ namespace SuperMetroid.Core.Enemies.Alcoon;
 /// </summary>
 internal static class AlcoonBehaviorPrivateAccess
 {
-    /// <summary>The private instance members checks read or call.</summary>
-    extension(global::SuperMetroid.Core.Enemies.Alcoon.AlcoonBehavior self)
-    {
-        /// <summary>The private method <c>SpawnAlcoonFireball</c>, invoked by name with the state the Alcoon's place holds.</summary>
-        internal void SpawnAlcoonFireball(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant occupant, global::SuperMetroid.Core.Enemies.RoomEnemyPlace alcoon, global::SuperMetroid.Core.Enemies.Alcoon.AlcoonFireballLaunch launch) =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Enemies.Alcoon.AlcoonBehavior>(self, "SpawnAlcoonFireball", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant), typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Enemies.Alcoon.AlcoonEnemyState), typeof(global::SuperMetroid.Core.Enemies.Alcoon.AlcoonFireballLaunch)], new object?[] { occupant, alcoon, alcoon.RequireSpeciesState<global::SuperMetroid.Core.Enemies.Alcoon.AlcoonEnemyState>(), launch });
-    }
-
     /// <summary>The private static members checks name.</summary>
     extension(global::SuperMetroid.Core.Enemies.Alcoon.AlcoonBehavior)
     {

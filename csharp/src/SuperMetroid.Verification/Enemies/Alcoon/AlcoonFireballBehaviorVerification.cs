@@ -1,7 +1,9 @@
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.AssetExtraction.Enemies;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies.Alcoon;
 using SuperMetroid.Core.Enemies.Alcoon.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
@@ -25,17 +27,21 @@ internal static class AlcoonFireballBehaviorVerification
         IImportCartridgeSource cartridge = rom;
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, AlcoonFireballNativeListAddresses.Extent, "Alcoon-fireball");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        // The Alcoon is placed as its room's population places it; its volley's animation then spits its three fireballs, one
+        // at each of its fire cues, facing each way in turn.
         RoomEnemyPlace source = enemies.Places.InUpdateOrder[0];
-        source.Bind(EnemyDefinitionId.Alcoon, source.KeptDefinition);
+        AlcoonEnemyState state = source.PlaceAs<AlcoonEntity>(EnemyDefinitionId.Alcoon, EnemySpawnSettings.None, RoomEnemyFrameFixtures.StandaloneSamus()).State;
         source.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112));
         source.Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook;
-        var state = new AlcoonEnemyState(AlcoonAction.WaitingForSamus);
-        source.SetSpeciesState(state);
-        foreach (AlcoonWalk direction in new[] { AlcoonWalk.Left, AlcoonWalk.Right })
+        object?[] arguments = [source, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
+        foreach ((AlcoonWalk direction, AlcoonSegment volley) in new[] { (AlcoonWalk.Left, AlcoonSegment.FireLeft), (AlcoonWalk.Right, AlcoonSegment.FireRight) })
         {
             state.WalkingDirection = direction;
-            foreach (AlcoonFireballLaunch launch in new[] { AlcoonFireballLaunchDefinitions.Upward, AlcoonFireballLaunchDefinitions.Level, AlcoonFireballLaunchDefinitions.Downward })
-                enemies.AlcoonBehavior.SpawnAlcoonFireball(source.HeldOccupant(), source, launch);
+            state.Playback = new(AlcoonAnimations.StartingWith(volley), AnimationPlace.StartOfAnimation);
+            source.AnimationClock.StepOnNextUpdate();
+            int spat = enemies.Projectiles.EnemyProjectiles.Count(projectile => projectile.Kind == RoomEnemyProjectileKind.AlcoonFireball) + 3;
+            for (int update = 0; update < 200 && enemies.Projectiles.EnemyProjectiles.Count(projectile => projectile.Kind == RoomEnemyProjectileKind.AlcoonFireball) < spat; update++)
+                EnemyInstructionRunner.Process(arguments);
         }
         EnemyProjectile[] fireballs = [.. enemies.Projectiles.EnemyProjectiles.Where(projectile => projectile.Kind == RoomEnemyProjectileKind.AlcoonFireball)];
         AssertEqual(6, fireballs.Length, "all three fire commands spawn in both facings");

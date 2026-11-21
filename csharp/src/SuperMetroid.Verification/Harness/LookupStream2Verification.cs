@@ -923,7 +923,9 @@ internal static class LookupStream2Verification
                 place.AnimationClock.HoldFor((ushort)(member + 4));
             }
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(samusX, 112)) };
-            enemies.PipeBugsBehavior.RunNorfairPipeBugSamusWait(enemies.Places.InUpdateOrder[0].HeldOccupant(), enemies.Places.InUpdateOrder[0], (enemies.NorfairPipeBugStates[0] ?? throw new InvalidOperationException("Verification requires enemies.NorfairPipeBugStates[0].")), samus);
+            // The formation's leader waits for Samus, and its main AI launches the formation once she comes within its reach.
+            (enemies.NorfairPipeBugStates[0] ?? throw new InvalidOperationException("Verification requires enemies.NorfairPipeBugStates[0].")).Action = NorfairPipeBugAction.WaitForSamus;
+            enemies.Places.InUpdateOrder[0].RunMainAi(samus);
             for (int member = 0; member < 5; member++)
             {
                 var state = enemies.NorfairPipeBugStates[member];

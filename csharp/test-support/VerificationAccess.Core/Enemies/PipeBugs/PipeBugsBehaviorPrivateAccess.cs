@@ -8,18 +8,6 @@ namespace SuperMetroid.Core.Enemies.PipeBugs;
 /// </summary>
 internal static class PipeBugsBehaviorPrivateAccess
 {
-    /// <summary>The private instance members checks read or call.</summary>
-    extension(global::SuperMetroid.Core.Enemies.PipeBugs.PipeBugsBehavior self)
-    {
-        /// <summary>
-        /// The private method <c>RunNorfairPipeBugSamusWait</c>, invoked by name with the leader's placement and the formation
-        /// it leads, as the leader's entity hands them.
-        /// </summary>
-        internal void RunNorfairPipeBugSamusWait(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant occupant, global::SuperMetroid.Core.Enemies.RoomEnemyPlace leader, global::SuperMetroid.Core.Enemies.PipeBugs.NorfairPipeBugState leaderState, global::SuperMetroid.Core.Samus.SamusState samus) =>
-            PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Enemies.PipeBugs.PipeBugsBehavior), "RunNorfairPipeBugSamusWait",
-                [typeof(global::SuperMetroid.Core.Enemies.PipeBugs.NorfairPipeBugLeaderSpawnSettings), typeof(global::SuperMetroid.Core.Enemies.PipeBugs.NorfairPipeBugFormation), typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Enemies.PipeBugs.NorfairPipeBugState), typeof(global::SuperMetroid.Core.Samus.SamusState)],
-                new object?[] { occupant.SpawnSettings<global::SuperMetroid.Core.Enemies.PipeBugs.NorfairPipeBugLeaderSpawnSettings>(), self.LeadFormation(leader), leader, leaderState, samus });
-    }
 
     /// <summary>The private static members checks name.</summary>
     extension(global::SuperMetroid.Core.Enemies.PipeBugs.PipeBugsBehavior)

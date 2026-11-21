@@ -201,11 +201,12 @@ internal static class BotwoonAnimationsVerification
             segment.PresentationOperandAddress, "the restarted segment shows its first frame");
 
         // Landing hands the segment to the shared native big-explosion list.
-        Func<RoomEnemyPlace, int, BotwoonSegmentState> spawnBody = (head, segment) => enemies.BotwoonBehavior.SpawnBotwoonBodySegment(head.HeldOccupant(), head, segment);
+        // His body is spawned as his setup spawns it, from the segment behind his head down to his tail.
         Action<EnemyProjectile, int> runBody = enemies.BotwoonBehavior.MoveBotwoonBodySegment;
-        BotwoonSegmentState spawned = spawnBody(head, 1);
-        EnemyProjectile body = enemies.Projectiles.EnemyProjectiles.First(item => item.Kind == RoomEnemyProjectileKind.BotwoonBody);
-        AssertTrue(ReferenceEquals(spawned.Projectile, body), "the real body producer returns the segment it spawned");
+        BotwoonSegmentState spawned = enemies.BotwoonBehavior.SpawnBotwoonBody(head.HeldOccupant(), head, state)[1];
+        EnemyProjectile body = spawned.Projectile;
+        AssertTrue(enemies.Projectiles.EnemyProjectiles.Contains(body) && body.Kind == RoomEnemyProjectileKind.BotwoonBody,
+            "the real body producer returns the segment it spawned among the room's projectiles");
         AssertEqual(BotwoonBodyAnimationSegment.Hidden, ((BotwoonSegmentAnimation)(body.Animation ?? throw new InvalidOperationException("Verification requires body.Animation."))).PlayingSegment,
             "the real body producer starts a non-tail segment hidden");
         // A falling segment starts at the quadratic table's first row and moves on three quarters of a row each update

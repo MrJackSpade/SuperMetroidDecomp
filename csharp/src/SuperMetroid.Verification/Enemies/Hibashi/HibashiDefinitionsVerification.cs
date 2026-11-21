@@ -22,7 +22,6 @@ internal static class HibashiDefinitionsVerification
 
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemyPlace> initialize = static place => place.InitializeAsPlaced(RoomEnemyFrameFixtures.StandaloneSamus());
-        Action<RoomEnemyPlace, HibashiEruptionStep> applyStep = HibashiBehavior.ApplyHibashiEruptionStep;
 
         RoomEnemyPlace graphics = enemies.Places.InUpdateOrder[0];
         graphics.SetSpawnParameter2(EnemyDefinitionId.Hibashi, 0);
@@ -37,6 +36,12 @@ internal static class HibashiDefinitionsVerification
 
         HibashiEruptionStep[] steps = HibashiAnimationsToolingConstants.EruptionSteps();
         AssertEqual(22, steps.Length, "Hibashi eruption steps");
+        // The flame erupts as its animation plays: each of its steps raises its hitbox to the step's height and gives it
+        // the step's half-height, the first its half-width too. Each step is observed on the update it moves the hitbox.
+        HibashiEnemyState flame = graphics.EntityOf<HibashiEntity>().State;
+        flame.Playback = new(HibashiAnimations.StartingWith(HibashiSegment.Flame), AnimationPlace.StartOfAnimation);
+        graphics.AnimationClock.StepOnNextUpdate();
+        object?[] eruption = [graphics, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
         for (int frameIndex = 0; frameIndex < steps.Length; frameIndex++)
         {
             HibashiEruptionStep frame = steps[frameIndex];
@@ -46,7 +51,9 @@ internal static class HibashiDefinitionsVerification
                 $"Hibashi Y radius {frameIndex}");
 
             hitbox.Radius = hitbox.Radius.WithX(0);
-            applyStep(graphics, frame);
+            ushort before = hitbox.Position.Y.Whole;
+            for (int update = 0; update < 64 && hitbox.Position.Y.Whole == before; update++)
+                EnemyInstructionRunner.Process(eruption);
             AssertEqual(unchecked((ushort)(0x0200 - frame.YOffset)), hitbox.Position.Y.Whole,
                 $"Hibashi production Y position {frameIndex}");
             AssertEqual(frame.YRadius, hitbox.Radius.Y,

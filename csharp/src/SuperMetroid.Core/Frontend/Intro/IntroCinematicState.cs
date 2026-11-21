@@ -156,7 +156,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// The Mother Brain flashback while it runs, from its setup until the discovery's setup carries its Samus on and
     /// releases it; none outside it.
     /// </summary>
-    private IntroMotherBrainFlashback? MotherBrainFlashback { get; set; }
+    internal IntroMotherBrainFlashback? MotherBrainFlashback { get; private set; }
     /// <summary>How the Mother Brain flashback shows Samus: the flashback shows her, and deleting Mother Brain hides her.</summary>
     private IntroSamusDisplay flashbackSamusDisplay;
     /// <summary>Egg and baby actors in the SR388 discovery flashback.</summary>

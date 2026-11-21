@@ -43,12 +43,12 @@ internal static class PlacedEnemyAccess
     }
 
     /// <summary>
-    /// A main-AI frame over <paramref name="level"/>, an open room when none, with <paramref name="samus"/>, the camera at the
-    /// room's origin, nothing pressed and both clocks at <paramref name="enemyFrame"/>.
+    /// A main-AI frame over <paramref name="level"/>, an open room when none, with <paramref name="samus"/>, the camera at
+    /// <paramref name="camera"/> or the room's origin, nothing pressed and both clocks at <paramref name="enemyFrame"/>.
     /// </summary>
-    internal static IEnemyAiFrame AiFrame(SamusState samus, int enemyFrame = 0, RoomLevelData? level = null) =>
+    internal static IEnemyAiFrame AiFrame(SamusState samus, int enemyFrame = 0, RoomLevelData? level = null, Position16<RoomPixels> camera = default) =>
         new ClockedEnemyAiFrame(
-            RoomEnemyFrameFixtures.Standalone(level ?? RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), enemyFrame) with { Samus = Ensure.NotNull(samus) },
+            RoomEnemyFrameFixtures.Standalone(level ?? RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), enemyFrame) with { Samus = Ensure.NotNull(samus), Camera = camera },
             new FrameCounters(ShortFrameCount.Zero.After(enemyFrame)));
 
     /// <summary>A room of <paramref name="size"/> blocks that is solid throughout, so an enemy moving anywhere in it meets terrain.</summary>

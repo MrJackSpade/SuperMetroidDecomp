@@ -137,10 +137,13 @@ internal static class MotherBrainAnimationsVerification
         {
             (RoomEnemySystem enemies, MotherBrainEnemyState state) = NewMotherBrain();
             enemies.VerificationServices().ReadRandom = () => random;
-            // The dying drool's loop shows its first frame, which the burst's last drool has just moved on to.
+            // Her dying drool plays through its bursts until its loop shows its first frame, which the burst's last drool has
+            // just moved on to.
             var loopFrame = (AnimationBeat<EnemyFrameId, MotherBrainHeadCue>.Frame)MotherBrainAnimations.HeadSegments.Beats(MotherBrainHeadSegment.DyingDroolLoop)[0];
-            state.Brain.Playback = new(new(MotherBrainAnimations.HeadStartingWith(MotherBrainHeadSegment.DyingDrool), new AnimationPlace(2, 1)), loopFrame.Shown);
-            state.Brain.Clock.Show(loopFrame.Duration);
+            MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.DyingDrool);
+            for (int draw = 0; draw < 100 && !PlaysPhase(state, MotherBrainHeadSegment.DyingDroolLoop); draw++)
+                enemies.DrawMotherBrainBrain(state, samus: RoomEnemyFrameFixtures.StandaloneSamus());
+            AssertTrue(PlaysPhase(state, MotherBrainHeadSegment.DyingDroolLoop), "the dying drool reaches its loop");
             for (int draw = 0; draw < loopFrame.Duration; draw++)
                 enemies.DrawMotherBrainBrain(state, samus: RoomEnemyFrameFixtures.StandaloneSamus());
             AnimationPlayback<MotherBrainHeadSegment> drooling = state.Brain.Playback?.Animation ?? throw new InvalidOperationException("Verification requires a brain playback.");
@@ -148,6 +151,10 @@ internal static class MotherBrainAnimationsVerification
                 $"random {random} {(bursts ? "bursts into more drool" : "keeps the drool loop")}");
         }
     }
+
+    /// <summary>Whether her brain's animation stands in a phase of <paramref name="segment"/>.</summary>
+    private static bool PlaysPhase(MotherBrainEnemyState state, MotherBrainHeadSegment segment) =>
+        state.Brain.Playback?.Animation is { } playing && playing.Animation.Phases[playing.Place.Phase].Segment == segment;
 
     /// <summary>
     /// A forward walk carries the body 24 pixels right and a backward walk the same distance back, each ending

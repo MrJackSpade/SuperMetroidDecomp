@@ -349,7 +349,7 @@ internal static class NativeSnapshotImport
             tidePhase: RotationAngleConstants.FromRaw(W(NativeSnapshotMemory.TidePhase)),
             tideOffset: SixteenSixteenWords.ToDisplacement(W(NativeSnapshotMemory.TideOffset), W(NativeSnapshotMemory.TideOffsetFraction)),
             baseY: (runtime.RoomFxOverlay.BaseY
-                ?? throw new InvalidDataException("The imported acid room's effect names no surface.")).WithFraction(W(NativeSnapshotMemory.LiquidBaseFraction)),
+                ?? throw new InvalidDataException("The imported acid room's effect names no surface.")).WithFraction(new PixelFraction(W(NativeSnapshotMemory.LiquidBaseFraction))),
             // The surface word is a signed line: one a tide carries above the room's top is negative.
             surface: CoordinateAxis.AsSigned(W(NativeSnapshotMemory.AcidSurface)));
         samus.LiquidPhysics.ConfigureFor(runtime.RoomFxOverlay);

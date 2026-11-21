@@ -31,9 +31,9 @@ public sealed class SamusAtmosphericSourceArtwork
     }
 
     /// <summary>Immutable four-frame view of AtmosphericGraphics_SpriteTileNumberAttributes_1_Footstep ($90:8C0F), indexed by frame 0..3.</summary>
-    public IReadOnlyList<SpritePart> FootstepSplash { get; }
+    private IReadOnlyList<SpritePart> FootstepSplash { get; }
     /// <summary>Immutable four-frame view of AtmosphericGraphics_SpriteTileNumberAttribute_4_6_7_LavaDust ($90:8C17), shared by types 4, 6, and 7.</summary>
-    public IReadOnlyList<SpritePart> LavaAndDust { get; }
+    private IReadOnlyList<SpritePart> LavaAndDust { get; }
 
     /// <summary>Resolves one single-piece appearance: character, palette, depth and mirroring.</summary>
     /// <param name="pictures">The effect's pictures.</param>

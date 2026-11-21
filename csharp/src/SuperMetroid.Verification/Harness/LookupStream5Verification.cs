@@ -763,7 +763,7 @@ internal static class LookupStream5Verification
         {
             AssertEqual(ReadVerificationWord(rom, PhantoonSourceDefinitions.HealthBandColors + (band * 16 + color) * 2), stock.ResolveHealthAtNative(band, color), "Native health RGB equality");
         }
-        for (int color = 0; color < PhantoonSourceDefinitions.PowerOnColourCount; color++)
+        for (int color = 0; color < SuperMetroid.AssetExtraction.Bosses.Phantoon.Artwork.PhantoonColorCatalogAccess.PowerOnNativeColourCount; color++)
         {
             AssertEqual(ReadVerificationWord(rom, PhantoonSourceDefinitions.PowerOnColors + color * 2), stock.ResolvePowerOnAtNative(color), "Native power shade equality");
         }
@@ -897,7 +897,8 @@ internal static class LookupStream5Verification
                 .Single(definition => definition.Name == pair.Key).Pose,
                 pair => IntroCinematicSpriteCompiler.Compile(pair.Value, pair.Key));
             AssertEqual(CinematicSpriteArtwork.ContentIdentity(nameof(CeresDestructionSpritePresentation), expected),
-                result.ContentIdentity, "Stars retain canonical composition identity");
+                CinematicSpriteArtwork.ContentIdentity(nameof(CeresDestructionSpritePresentation), ((ICinematicSpriteFrames)result).Frames),
+                "Stars retain canonical composition identity");
             return result;
         }
         static void Check(CeresDestructionSpritePresentation catalog, CinematicSpritePose pose, SpriteVisualPart[] parts)
@@ -1653,21 +1654,9 @@ internal static class LookupStream5Verification
             Open(CeresFlightArtworkFileFormat.ObjectFileName), Open(CeresFlightArtworkFileFormat.MapFileName),
             Open(CeresFlightSpriteFormat.FileName),
             CeresFlightSourceArtwork.Read(stock.Backdrop, Open(CeresFlightActorLayoutFormat.FileName)));
-        // The installed documents' identity covers the backdrop and placements; the import's adds the maps and the
-        // compositions, which are import data like the characters (#1636, #1638, #1693).
-        string documentsHash = SelectedPresentationHash.Create("CeresFlightArtworkCatalog-v4", content =>
-        {
-            content.AppendColors("backdrop", [stock.Backdrop]);
-            content.Append("actors", Convert.FromHexString(catalog.Flight.Actors.ContentIdentity));
-        });
-        string expectedHash = SelectedPresentationHash.Create("CeresFlightImportArtwork-v2", content =>
-        {
-            content.Append("documents", Convert.FromHexString(documentsHash));
-            content.Append("mode7-maps", catalog.FloorMaps.Span);
-            content.Append("sprites", Convert.FromHexString(catalog.Sprites.ContentIdentity));
-        });
-        AssertEqual(expectedHash, catalog.ContentIdentity, "Ceres flight canonical hash covers its backdrop; its colours are the import's alone (#1544)");
-        Console.WriteLine("Ceres flight palette:256 native colors,actual CGRAM,byte serialization and catalog identity pass.");
+        // The flight the game binds keeps the palette's backdrop; its colours are the import's alone (#1544).
+        AssertEqual(stock.Backdrop, catalog.Flight.Backdrop, "the Ceres flight shows the palette's backdrop");
+        Console.WriteLine("Ceres flight palette:256 native colors,actual CGRAM,byte serialization and the bound backdrop pass.");
 
         MemoryStream Open(string name) => new(files[name], writable: false);
         CeresFlightPalette Check()

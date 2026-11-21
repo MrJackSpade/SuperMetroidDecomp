@@ -162,11 +162,11 @@ internal static class RidleyFullMovieVerification
         AssertTrue(samus.Control.Mode.Movement == SamusMovementMode.ScriptLocked, "native grab installs command-zero alpha/beta pair");
         var bombs = CreateBombFixture();
         bombs.SetSharedCooldown(10);
-        bombs.StepFrame(SamusTerrain.InRoom(runtime.Room.LoadedLevelData, SamusRoomObjectFixtures.Uninstalled), samus, 0, 0, explosion: PowerBombExplosionStep.Skip);
+        bombs.StepFrame(SamusTerrain.InRoom(runtime.Room.LoadedLevelData, SamusRoomObjectFixtures.Uninstalled), samus, 0, 0, explosion: PowerBombExplosionStep.Advance);
         AssertEqual(10, bombs.CooldownTimer, "native locked alpha preserves cooldown");
         NorfairRidleyDeath.ReleaseNorfairRidleyGrab(state, samus);
         AssertTrue(!samus.Control.InputLocked && samus.Control.Mode.Movement != SamusMovementMode.ScriptLocked, "native release restores ordinary control");
-        bombs.StepFrame(SamusTerrain.InRoom(runtime.Room.LoadedLevelData, SamusRoomObjectFixtures.Uninstalled), samus, 0, 0, explosion: PowerBombExplosionStep.Skip);
+        bombs.StepFrame(SamusTerrain.InRoom(runtime.Room.LoadedLevelData, SamusRoomObjectFixtures.Uninstalled), samus, 0, 0, explosion: PowerBombExplosionStep.Advance);
         AssertEqual(9, bombs.CooldownTimer, "native unlocked alpha resumes cooldown");
         // Native source8395: a descending lunge grabs standing Samus. Ground attacks
         // have their own reversal; this entry must negate after its lunge acceleration.

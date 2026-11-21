@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.AssetExtraction.Audio.Synthesis;
-using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.World.RoomStates;

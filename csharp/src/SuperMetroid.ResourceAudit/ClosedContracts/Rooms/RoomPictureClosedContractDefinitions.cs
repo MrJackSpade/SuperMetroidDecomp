@@ -63,7 +63,6 @@ internal static class RoomPictureClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Fx/Artwork/RoomEffectArtwork.cs"),
              new("csharp/src/SuperMetroid.Core/Fx/RoomFxTypes.cs"),
              new("csharp/src/SuperMetroid.Core/Fx/RoomFxOverlayState.cs"),
-             new("csharp/src/SuperMetroid.Core/Fx/FxOverlayPlane.cs"),
              new("csharp/src/SuperMetroid.Core/Fx/FxOverlayPictureResolution.cs"),
              new("csharp/src/SuperMetroid.Core/Rooms/Artwork/WrittenPictureSheet.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Rooms/WrittenPictureSheetComposer.cs"),

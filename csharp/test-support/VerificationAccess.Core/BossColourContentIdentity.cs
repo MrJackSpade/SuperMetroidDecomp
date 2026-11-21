@@ -73,9 +73,9 @@ internal static class BossColourContentIdentity
                 Span<RgbColor> flash = stackalloc RgbColor[DraygonColorDefinitions.WhiteFlashCount];
                 for (int color = 0; color < flash.Length; color++) flash[color] = colors.ResolveWhiteFlash(color);
                 content.AppendColors("whiteFlash", flash);
-                content.Append("healthBands", DraygonColorDefinitions.HealthBandCount);
+                content.Append("healthBands", SuperMetroid.Core.Bosses.Draygon.DraygonHealthBandDefinitions.HighestFirst.Count);
                 Span<RgbColor> bandColors = stackalloc RgbColor[DraygonColorDefinitions.HealthBandColorCount];
-                for (int band = 0; band < DraygonColorDefinitions.HealthBandCount; band++)
+                for (int band = 0; band < SuperMetroid.Core.Bosses.Draygon.DraygonHealthBandDefinitions.HighestFirst.Count; band++)
                 {
                     for (int color = 0; color < bandColors.Length; color++) bandColors[color] = colors.ResolveHealthBand(SuperMetroid.Core.Bosses.Draygon.DraygonHealthBandDefinitions.HighestFirst[band], color);
                     content.AppendColors("row", bandColors);
@@ -205,7 +205,7 @@ internal static class BossColourContentIdentity
             SelectedPresentationHash.Create("SporeSpawnColorCatalog-v1", content =>
             {
                 content.AppendColors("spores", Enumerable.Range(0, SporeSpawnColorFormat.ColorsPerFrame).Select(colors.ResolveSpore).ToArray());
-                content.AppendColorFrames("health", Enumerable.Range(0, SporeSpawnColorFormat.HealthFrameCount)
+                content.AppendColorFrames("health", Enumerable.Range(0, SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnHealthBandDefinitions.HighestFirst.Count)
                     .Select(frame => Enumerable.Range(0, SporeSpawnColorFormat.ColorsPerFrame)
                         .Select(color => colors.ResolveHealth(SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnHealthBandDefinitions.HighestFirst[frame], color)).ToArray()).ToArray());
                 content.AppendColorFrames("deathSprite", Enumerable.Range(0, SporeSpawnColorFormat.DeathSpriteFrameCount)

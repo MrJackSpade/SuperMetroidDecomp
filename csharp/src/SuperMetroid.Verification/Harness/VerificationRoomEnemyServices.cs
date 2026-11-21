@@ -114,10 +114,6 @@ internal sealed class VerificationRoomEnemyServices(IRoomEnemyServices? loaded) 
             Loaded($"set the area {bosses} flag").Bosses.SetDefeated(bosses);
     }
 
-    /// <summary>Reads a screen's scroll state from the services installed by room loading.</summary>
-    RoomScrollState IRoomScrollZoneAccess.Read(Position16<RoomScreens> screen) =>
-        Loaded("read a screen's scroll state").RoomScroll.Read(screen);
-
     /// <summary>Writes a screen's scroll state through the case callback or the services installed by room loading.</summary>
     public void Write(Position16<RoomScreens> screen, RoomScrollState state)
     {

@@ -895,7 +895,7 @@ SamusTerrain.InRoom(floor, SamusRoomObjectFixtures.Uninstalled), SamusPoseId.Mor
     AssertEqual(new PowerBombExplosionPhase.Running.PreExplosionYellow(),
         powerBombs.PowerBombExplosion.Blast.Phase,
         "white threshold advances to yellow shape phase");
-    AssertTrue(powerBombs.PowerBombExplosion.Blast.PreExplosionRadius >= PowerBombRadius.FromWholePixels(146),
+    AssertTrue(powerBombs.PowerBombExplosion.Blast.PreExplosionRadius.CompareTo(PowerBombRadius.FromWholePixels(146)) >= 0,
         "white phase crosses its 146-pixel radius threshold");
     AssertEqual<int?>(null, powerBombs.PowerBombExplosion.Blast.RenderedOvalRadius,
         "yellow pre-explosion shows its first oval on its next update");
@@ -919,7 +919,7 @@ SamusTerrain.InRoom(floor, SamusRoomObjectFixtures.Uninstalled), SamusPoseId.Mor
     AssertEqual(new PowerBombExplosionPhase.Running.ExplosionWhite(),
         powerBombs.PowerBombExplosion.Blast.Phase,
         "yellow radius threshold advances to white shape phase");
-    AssertTrue(powerBombs.PowerBombExplosion.Blast.ExplosionRadius >= PowerBombRadius.FromWholePixels(134),
+    AssertTrue(powerBombs.PowerBombExplosion.Blast.ExplosionRadius.CompareTo(PowerBombRadius.FromWholePixels(134)) >= 0,
         "yellow explosion crosses its 134-pixel threshold");
     AssertEqual<int?>(null, powerBombs.PowerBombExplosion.Blast.RenderedOvalRadius,
         "white explosion shows its first oval on its next update");

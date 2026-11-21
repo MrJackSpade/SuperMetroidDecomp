@@ -40,8 +40,10 @@ internal static class KraidMouthReopenCountVerification
         state.ArmMouthReopens();
         state.MarkMouthReopen();
         state.ClearMouthReactions();
-        AssertTrue(!state.MouthReopenMarked, "clearing the mouth forgets its marked hit");
-        AssertEqual(0, state.PendingMouthReopens, "clearing the mouth clears the pending reopen count with the latch");
+        AssertTrue(!state.MouthReopenMarked, "clearing the mouth clears the reopen mark");
+        state.MarkMouthReopen();
+        AssertTrue(!state.MouthReopenMarked, "clearing the mouth disarms its reopens: a mark after it marks nothing");
+        AssertEqual(0, state.PendingMouthReopens, "clearing the mouth clears the pending reopen count with the latches");
 
         VerifyKraidHurtFlash();
 

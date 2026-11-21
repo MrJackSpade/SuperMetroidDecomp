@@ -15,7 +15,7 @@ internal static class PeriodicDamageEnergyFractionAccess
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="parts"/> is outside one energy's parts.</exception>
         internal static PeriodicDamageEnergyFraction Holding(int parts) => PeriodicDamageEnergyFraction.None.After(EnergyAmount.FromEnergyFraction(
-            (PeriodicDamageEnergyFraction.PartsPerEnergy - Ensure.BetweenInclusive(0, PeriodicDamageEnergyFraction.PartsPerEnergy - 1, parts)) %
-                PeriodicDamageEnergyFraction.PartsPerEnergy, PeriodicDamageEnergyFraction.PartsPerEnergy));
+            (FractionalEnergyDrainAccess.CartridgePartsPerEnergy - Ensure.BetweenInclusive(0, FractionalEnergyDrainAccess.CartridgePartsPerEnergy - 1, parts)) %
+                FractionalEnergyDrainAccess.CartridgePartsPerEnergy, FractionalEnergyDrainAccess.CartridgePartsPerEnergy));
     }
 }

@@ -14,7 +14,7 @@ internal static class CinematicSpriteArtwork
             foreach ((CinematicSpritePose pose, SpriteComposition frame) in frames.OrderBy(pair => CinematicSpritemapSources.CartridgeOrder(pair.Key)))
             {
                 content.Append("frame", CinematicSpritemapSources.CartridgeOrder(pose));
-                frame.AppendIdentity(content);
+                content.AppendComposition(frame);
             }
         });
 }

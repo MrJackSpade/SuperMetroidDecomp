@@ -17,7 +17,7 @@ internal static class PhantoonDefinitionMigrationVerification
         // Colours: the health counts stay in Core; the sources and the power-on's cartridge colour count are the import's.
         AssertEqual(8, PhantoonColorDefinitions.HealthBandCount, "health band count");
         AssertEqual(16, PhantoonColorFormat.HealthBandColorCount, "health band colours");
-        AssertEqual(112, PhantoonSourceDefinitions.PowerOnColourCount, "power-on colours");
+        AssertEqual(112, SuperMetroid.AssetExtraction.Bosses.Phantoon.Artwork.PhantoonColorCatalogAccess.PowerOnNativeColourCount, "power-on colours");
         AssertEqual(0xa7cb41, PhantoonSourceDefinitions.HealthBandColors, "health band source");
         AssertEqual(0xa7ca41, PhantoonSourceDefinitions.FadeOutColors, "fade-out source");
         AssertEqual(0xa7ca61, PhantoonSourceDefinitions.PowerOnColors, "power-on source");

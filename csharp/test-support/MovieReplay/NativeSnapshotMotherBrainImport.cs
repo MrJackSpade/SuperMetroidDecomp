@@ -366,7 +366,7 @@ internal static class NativeSnapshotMotherBrainImport
         // The installation's frames, which the runtime's installed Mother Brain body sheet is composed from.
         BossSourceArtwork bosses = InstalledFixtures.BossArtwork;
         BossBodySheet sheet = sheets.Of(BossBodyOwner.MotherBrain);
-        var image = new BossBodyParts(BossBodyOwner.MotherBrain);
+        var image = new BossBodyParts(BossBodyOwner.MotherBrain, showing: null);
         BossBodyFrameSource? staged = BossBodySheetComposer.Frames(bosses, BossBodyOwner.MotherBrain).FirstOrDefault(frame =>
             frame.Cells.All(entry => entry.Key < screen.Length && screen[entry.Key] == entry.Value.PackedWord));
         if (staged is not null)

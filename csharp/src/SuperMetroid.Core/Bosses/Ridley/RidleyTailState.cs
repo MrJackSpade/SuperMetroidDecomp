@@ -12,18 +12,24 @@ public sealed class RidleyTailState
     internal RidleyTailState(int damage)
     {
         Damage = damage;
-        Base = new RidleyTailLink(RidleyTailDefinitions.BaseLink, previous: null);
+        Base = new RidleyTailLink(RidleyTailDefinitions.BaseLink.Link, previous: null);
         var shaft = new List<RidleyTailLink>();
+        var pictures = new List<RidleyTailLinkPicture> { new(Base, RidleyTailDefinitions.BaseLink.Frame) };
         RidleyTailLink previous = Base;
-        foreach (RidleyTailLinkDefinition definition in RidleyTailDefinitions.ShaftLinks)
+        foreach (RidleyDrawnTailLinkDefinition definition in RidleyTailDefinitions.ShaftLinks)
         {
-            previous = new RidleyTailLink(definition, previous);
+            previous = new RidleyTailLink(definition.Link, previous);
             shaft.Add(previous);
+            pictures.Add(new(previous, definition.Frame));
         }
         Shaft = shaft;
         Tip = new RidleyTailLink(RidleyTailDefinitions.TipLink, previous);
         Links = [Base, .. Shaft, Tip];
+        LinkPictures = pictures;
     }
+
+    /// <summary>Each link nearer the body than the tip, from the body out, with the frame drawn at it.</summary>
+    internal IReadOnlyList<RidleyTailLinkPicture> LinkPictures { get; }
 
     /// <summary>The link at Ridley's hip, which every wave starts from.</summary>
     public RidleyTailLink Base { get; }

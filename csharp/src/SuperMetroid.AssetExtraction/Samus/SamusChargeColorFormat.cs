@@ -7,7 +7,7 @@ public static class SamusChargeColorFormat
     /// <summary>Installed editable JSON filename for charged-beam, pseudo-Screw, and Hyper-shot palette rows.</summary>
     public const string FileName = "samus-charge-colors.json";
     /// <summary>Supported color schema revision, requiring the complete suit/phase and Hyper-shot row sets.</summary>
-    public const int Version = 1;
+    public const int Version = 2;
     /// <summary>Three ordered suit variants: Power, Varia, and Gravity.</summary>
     public const int SuitCount = 3;
     /// <summary>Six playback phases per suit, matching native charge lists $91:D7DB/$D7E7/$D7F3 and pseudo-Screw lists $D805/$D811/$D81D.</summary>

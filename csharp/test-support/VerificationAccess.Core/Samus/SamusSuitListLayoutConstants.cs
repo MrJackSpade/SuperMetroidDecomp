@@ -12,4 +12,10 @@ internal static class SamusSuitListLayoutConstants
         int place = SamusSuitListLayout.Order.IndexOf(suit);
         return place >= 0 ? place : throw new ArgumentOutOfRangeException(nameof(suit), suit, "Samus has no such suit.");
     }
+
+    /// <summary>The suit whose entries are at <paramref name="place"/> among the per-suit lists, in <see cref="SamusSuitListLayout.Order"/>.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">No suit's entries are at that place.</exception>
+    public static SamusSuit AtPlace(int place) => (uint)place < (uint)SamusSuitListLayout.Order.Length
+        ? SamusSuitListLayout.Order[place]
+        : throw new ArgumentOutOfRangeException(nameof(place), place, "No suit's entries are at that place.");
 }

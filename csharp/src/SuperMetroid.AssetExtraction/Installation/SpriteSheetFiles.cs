@@ -59,19 +59,21 @@ public static class SpriteSheetFiles
         // so the order stays the sheets' own.
         var sources = new SpriteSheetSourceCatalog(content, EndingPaletteImport.Read(bus));
         IReadOnlyList<SpriteSheetId> sheets = SpriteSheetDefinitions.Sheets;
-        var composed = new ComposedSpriteSheet[sheets.Count];
+        // Each place holds its sheet's name with its composition.
+        var composed = new NamedComposedSheet[sheets.Count];
         Parallel.For(0, sheets.Count, index =>
         {
-            if (sheets[index] != SpriteSheetId.EscapeTimer)
-                composed[index] = sources.Compose(sheets[index]);
+            SpriteSheetId sheet = sheets[index];
+            if (sheet != SpriteSheetId.EscapeTimer)
+                composed[index] = new NamedComposedSheet(SpriteSheetDefinitions.FileNames[sheet], sources.Compose(sheet));
         });
         for (int index = 0; index < sheets.Count; index++)
         {
-            if (sheets[index] == SpriteSheetId.EscapeTimer)
-                composed[index] = EscapeTimerSheetComposer.Compose(bus);
+            SpriteSheetId sheet = sheets[index];
+            if (sheet == SpriteSheetId.EscapeTimer)
+                composed[index] = new NamedComposedSheet(SpriteSheetDefinitions.FileNames[sheet], EscapeTimerSheetComposer.Compose(bus));
         }
-        return InstalledSheetFamily.Install(directory,
-            [.. sheets.Select((sheet, index) => new NamedComposedSheet(SpriteSheetDefinitions.FileNames[sheet], composed[index]))]);
+        return InstalledSheetFamily.Install(directory, composed);
     }
 
     /// <summary>Loads every sheet the catalog names from its installed manifest, its pictures from the picture store.</summary>

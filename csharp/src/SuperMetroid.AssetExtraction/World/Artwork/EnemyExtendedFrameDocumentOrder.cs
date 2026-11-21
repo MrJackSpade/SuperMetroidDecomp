@@ -4,13 +4,14 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.AssetExtraction.World.Artwork;
 
 /// <summary>
-/// The order of the frames the cartridge composes from several placed spritemaps, as the installed extended enemy
-/// frames document lists them (#1402). The order is part of the installed document contract.
+/// The frames the cartridge composes from several placed spritemaps, as the installed extended enemy frames document lists
+/// them (#1402), run by run of one enemy family each (<see cref="EnemyExtendedFrameDefinitions.FamilyRuns"/>): each run
+/// names its own frames, so no position assigns a frame its family (#2565).
 /// </summary>
 internal static class EnemyExtendedFrameDocumentOrder
 {
-    /// <summary>Every frame of the document, in the document's order.</summary>
-    internal static ImmutableArray<EnemyFrameId> Frames { get; } =
+    /// <summary>The walking Pirates' frames, in the document's order.</summary>
+    internal static ImmutableArray<EnemyFrameId> WalkingPirate { get; } =
     [
         EnemyFrameId.WalkingPirateFlinchLeft,
         EnemyFrameId.WalkingPirateFlinchRight,
@@ -47,6 +48,11 @@ internal static class EnemyExtendedFrameDocumentOrder
         EnemyFrameId.WalkingPirateFiringFacingRight,
         EnemyFrameId.WalkingPirateLookingAtViewerFacingRight,
         EnemyFrameId.WalkingPirateLookingAwayFacingRight,
+    ];
+
+    /// <summary>The wall Pirates' frames, in the document's order.</summary>
+    internal static ImmutableArray<EnemyFrameId> WallPirate { get; } =
+    [
         EnemyFrameId.WallPirateOnRightWallClawsTogether,
         EnemyFrameId.WallPirateOnRightWallClawsSpread,
         EnemyFrameId.WallPirateReachingForLeftWall,
@@ -65,6 +71,11 @@ internal static class EnemyExtendedFrameDocumentOrder
         EnemyFrameId.WallPirateOnRightWallKneesTucked,
         EnemyFrameId.WallPirateOnRightWallLegsPushing,
         EnemyFrameId.WallPirateOnRightWallLegsStretched,
+    ];
+
+    /// <summary>The ninja Pirates' frames, in the document's order.</summary>
+    internal static ImmutableArray<EnemyFrameId> NinjaPirate { get; } =
+    [
         EnemyFrameId.NinjaPirateCrouchFacingLeft,
         EnemyFrameId.NinjaPirateClawsReadyFacingLeft,
         EnemyFrameId.NinjaPirateClawDrawnBackFacingLeft,
@@ -140,6 +151,11 @@ internal static class EnemyExtendedFrameDocumentOrder
         EnemyFrameId.NinjaPirateKickChamberedFacingRight,
         EnemyFrameId.NinjaPirateKickExtendingFacingRight,
         EnemyFrameId.NinjaPirateKickExtendedFacingRight,
+    ];
+
+    /// <summary>Ridley's body frames, in the document's order.</summary>
+    internal static ImmutableArray<EnemyFrameId> RidleyBody { get; } =
+    [
         EnemyFrameId.RidleyBodyLeft,
         EnemyFrameId.RidleyBodyRight,
         EnemyFrameId.RidleyBodyLeftMouthHalfOpen,
@@ -151,6 +167,11 @@ internal static class EnemyExtendedFrameDocumentOrder
         EnemyFrameId.RidleyBodyRightLegsHalfExtended,
         EnemyFrameId.RidleyBodyRightLegsExtended,
         EnemyFrameId.RidleyBodyForward,
+    ];
+
+    /// <summary>Draygon's sprite frames, in the document's order.</summary>
+    internal static ImmutableArray<EnemyFrameId> DraygonSprites { get; } =
+    [
         EnemyFrameId.DraygonArmsFacingLeftForward,
         EnemyFrameId.DraygonArmsFacingLeftLowering,
         EnemyFrameId.DraygonArmsFacingLeftDown,
@@ -199,6 +220,11 @@ internal static class EnemyExtendedFrameDocumentOrder
         EnemyFrameId.DraygonTailFacingRightWhipLashedOut,
         EnemyFrameId.DraygonTailFacingRightWhipCurling,
         EnemyFrameId.DraygonTailFacingRightWhipRecoiling,
+    ];
+
+    /// <summary>Spore Spawn's frames, in the document's order.</summary>
+    internal static ImmutableArray<EnemyFrameId> SporeSpawn { get; } =
+    [
         EnemyFrameId.SporeSpawnHusk,
         EnemyFrameId.SporeSpawnShut,
         EnemyFrameId.SporeSpawnCracked,
@@ -210,6 +236,11 @@ internal static class EnemyExtendedFrameDocumentOrder
         EnemyFrameId.SporeSpawnOpen,
         EnemyFrameId.SporeSpawnOpenCoreGlowing,
         EnemyFrameId.SporeSpawnOpenCoreBright,
+    ];
+
+    /// <summary>The Ceres steam frames, in the document's order.</summary>
+    internal static ImmutableArray<EnemyFrameId> CeresSteam { get; } =
+    [
         EnemyFrameId.CeresSteamUp,
         EnemyFrameId.CeresSteamUpJetBursting,
         EnemyFrameId.CeresSteamUpJetLengthening,
@@ -238,6 +269,11 @@ internal static class EnemyExtendedFrameDocumentOrder
         EnemyFrameId.CeresSteamRightPlumeDrifting,
         EnemyFrameId.CeresSteamRightPlumeScattering,
         EnemyFrameId.CeresSteamRightPlumeFading,
+    ];
+
+    /// <summary>Oum's frames, in the document's order.</summary>
+    internal static ImmutableArray<EnemyFrameId> Oum { get; } =
+    [
         EnemyFrameId.OumFacingLeftTurned0,
         EnemyFrameId.OumFacingLeftVentOpening,
         EnemyFrameId.OumFacingLeftVentOpen,
@@ -268,6 +304,11 @@ internal static class EnemyExtendedFrameDocumentOrder
         EnemyFrameId.OumFacingRightTurned225,
         EnemyFrameId.OumFacingRightTurned270,
         EnemyFrameId.OumFacingRightTurned315,
+    ];
+
+    /// <summary>Crocomire's tongue and claw frames, in the document's order.</summary>
+    internal static ImmutableArray<EnemyFrameId> CrocomireTongue { get; } =
+    [
         EnemyFrameId.CrocomireTongueCurlingDown,
         EnemyFrameId.CrocomireTongueFlatRaised,
         EnemyFrameId.CrocomireTongueCurlingUp,
@@ -277,6 +318,11 @@ internal static class EnemyExtendedFrameDocumentOrder
         EnemyFrameId.CrocomireArmAloneOutstretched,
         EnemyFrameId.CrocomireArmAloneLowering,
         EnemyFrameId.CrocomireArmAloneReturning,
+    ];
+
+    /// <summary>Crocomire's fight-body frames, in the document's order.</summary>
+    internal static ImmutableArray<EnemyFrameId> CrocomireBody { get; } =
+    [
         EnemyFrameId.CrocomireBodyNearFootForwardArmBent,
         EnemyFrameId.CrocomireBodyNearFootForwardArmSquare,
         EnemyFrameId.CrocomireBodyNearFootForwardArmReaching,
@@ -327,8 +373,23 @@ internal static class EnemyExtendedFrameDocumentOrder
         EnemyFrameId.CrocomireBodyMeltingBareSkullTopTwoRows,
         EnemyFrameId.CrocomireBodyMeltingBareSkullTopThreeRows,
         EnemyFrameId.CrocomireBodyMeltingBareSkullTopFourRows,
+    ];
+
+    /// <summary>Bomb Torizo's dormant statue frame, in the document's order.</summary>
+    internal static ImmutableArray<EnemyFrameId> BombTorizoDormant { get; } =
+    [
         EnemyFrameId.BombTorizoDormant,
+    ];
+
+    /// <summary>The Torizos' third stand-up pose facing left, in the document's order.</summary>
+    internal static ImmutableArray<EnemyFrameId> TorizoFacingLeftStandingUpThird { get; } =
+    [
         EnemyFrameId.TorizoFacingLeftHalfRisen,
+    ];
+
+    /// <summary>Kraid's arm frames, in the document's order.</summary>
+    internal static ImmutableArray<EnemyFrameId> KraidArm { get; } =
+    [
         EnemyFrameId.KraidArmRaisedClawClosed,
         EnemyFrameId.KraidArmRaisedClawOpen,
         EnemyFrameId.KraidArmLoweringClawHooked,
@@ -341,6 +402,11 @@ internal static class EnemyExtendedFrameDocumentOrder
         EnemyFrameId.KraidArmLevelClawFoldedFlat,
         EnemyFrameId.KraidArmDroopingDiagonal,
         EnemyFrameId.KraidArmOutstretched,
+    ];
+
+    /// <summary>Golden Torizo's awakening, walking and rightward turning poses, in the document's order.</summary>
+    internal static ImmutableArray<EnemyFrameId> GoldenTorizoAwakeningWalkingAndTurning { get; } =
+    [
         EnemyFrameId.TorizoFacingLeftCrouched,
         EnemyFrameId.TorizoFacingLeftRisingFromSeat,
         EnemyFrameId.TorizoFacingLeftSeated,
@@ -368,9 +434,19 @@ internal static class EnemyExtendedFrameDocumentOrder
         EnemyFrameId.TorizoFacingRightWalkingRightLegReaching,
         EnemyFrameId.TorizoFacingRightWalkingRightLegPlanting,
         EnemyFrameId.TorizoFacingRightWalkingRightLegPlanted,
+    ];
+
+    /// <summary>The Torizos' backward-jump poses, in the document's order.</summary>
+    internal static ImmutableArray<EnemyFrameId> TorizoJumpBack { get; } =
+    [
         EnemyFrameId.TorizoFacingRightJumpCrouch,
         EnemyFrameId.TorizoFacingRightSpringing,
         EnemyFrameId.TorizoFacingRightLeaping,
+    ];
+
+    /// <summary>Golden Torizo's right-facing orb and sonic attack poses, in the document's order.</summary>
+    internal static ImmutableArray<EnemyFrameId> GoldenTorizoRightOrbAndSonic { get; } =
+    [
         EnemyFrameId.TorizoFacingRightRightFootForwardSpewingHeadLowered,
         EnemyFrameId.TorizoFacingRightRightFootForwardSpewingHeadRaised,
         EnemyFrameId.TorizoFacingRightRightFootForwardSpewingMouthOpening,
@@ -398,14 +474,34 @@ internal static class EnemyExtendedFrameDocumentOrder
         EnemyFrameId.TorizoFacingRightRightFootForwardFarArmLevel,
         EnemyFrameId.TorizoFacingRightRightFootForwardFarArmRaised,
         EnemyFrameId.TorizoFacingRightRightFootForwardFarArmOverhead,
+    ];
+
+    /// <summary>The Torizos' left-facing springing pose, in the document's order.</summary>
+    internal static ImmutableArray<EnemyFrameId> TorizoFacingLeftSpringing { get; } =
+    [
         EnemyFrameId.TorizoFacingLeftSpringing,
+    ];
+
+    /// <summary>Golden Torizo's left-foot orb poses, in the document's order.</summary>
+    internal static ImmutableArray<EnemyFrameId> GoldenTorizoLeftFootOrb { get; } =
+    [
         EnemyFrameId.TorizoFacingRightLeftFootForwardSpewingHeadRaised,
         EnemyFrameId.TorizoFacingRightLeftFootForwardSpewingMouthOpening,
         EnemyFrameId.TorizoFacingRightLeftFootForwardSpewingArmThrust,
         EnemyFrameId.TorizoFacingRightLeftFootForwardSpewingArmRaised,
         EnemyFrameId.TorizoFacingRightLeftFootForwardSpewingArmDrawnBack,
+    ];
+
+    /// <summary>The Torizos' further left-facing backward-jump poses, in the document's order.</summary>
+    internal static ImmutableArray<EnemyFrameId> TorizoJumpBackLeft { get; } =
+    [
         EnemyFrameId.TorizoFacingLeftJumpCrouch,
         EnemyFrameId.TorizoFacingLeftLeaping,
+    ];
+
+    /// <summary>Golden Torizo's left-facing orb poses, in the document's order.</summary>
+    internal static ImmutableArray<EnemyFrameId> GoldenTorizoLeftOrb { get; } =
+    [
         EnemyFrameId.TorizoFacingLeftRightFootForwardSpewingHeadLowered,
         EnemyFrameId.TorizoFacingLeftRightFootForwardSpewingHeadRaised,
         EnemyFrameId.TorizoFacingLeftRightFootForwardSpewingMouthOpening,
@@ -418,6 +514,11 @@ internal static class EnemyExtendedFrameDocumentOrder
         EnemyFrameId.TorizoFacingLeftLeftFootForwardSpewingArmThrust,
         EnemyFrameId.TorizoFacingLeftLeftFootForwardSpewingArmRaised,
         EnemyFrameId.TorizoFacingLeftLeftFootForwardSpewingArmDrawnBack,
+    ];
+
+    /// <summary>The Torizos' further combat poses, in the document's order.</summary>
+    internal static ImmutableArray<EnemyFrameId> TorizoCombat { get; } =
+    [
         EnemyFrameId.TorizoFacingLeftRightFootForwardNearArmDown,
         EnemyFrameId.TorizoFacingLeftRightFootForwardNearArmLifting,
         EnemyFrameId.TorizoFacingLeftRightFootForwardNearArmLevel,
@@ -445,6 +546,11 @@ internal static class EnemyExtendedFrameDocumentOrder
         EnemyFrameId.TorizoFacingRightNearlyUpright,
         EnemyFrameId.TorizoFacingRightUprightStepping,
         EnemyFrameId.TorizoFacingRightUprightWideStance,
+    ];
+
+    /// <summary>Mother Brain's mixed body poses, in the document's order.</summary>
+    internal static ImmutableArray<EnemyFrameId> MotherBrainBody { get; } =
+    [
         EnemyFrameId.MotherBrainBodyStanding,
         EnemyFrameId.MotherBrainBodyWalkingNearLegLifting,
         EnemyFrameId.MotherBrainBodyWalkingNearLegReaching,
@@ -461,6 +567,11 @@ internal static class EnemyExtendedFrameDocumentOrder
         EnemyFrameId.MotherBrainBodyArmDrawnBack,
         EnemyFrameId.MotherBrainBodyArmFlungOut,
         EnemyFrameId.MotherBrainBodyArmReturning,
+    ];
+
+    /// <summary>Phantoon's BG2-only poses, in the document's order.</summary>
+    internal static ImmutableArray<EnemyFrameId> PhantoonBg2 { get; } =
+    [
         EnemyFrameId.PhantoonInvulnerableBody,
         EnemyFrameId.PhantoonFullHitboxBody,
         EnemyFrameId.PhantoonEyeHitboxBody,
@@ -481,6 +592,11 @@ internal static class EnemyExtendedFrameDocumentOrder
         EnemyFrameId.PhantoonMouthOpen,
         EnemyFrameId.PhantoonMouthHalfOpen,
         EnemyFrameId.PhantoonMouthNarrow,
+    ];
+
+    /// <summary>Draygon's BG2-only poses, in the document's order.</summary>
+    internal static ImmutableArray<EnemyFrameId> DraygonBg2 { get; } =
+    [
         EnemyFrameId.DraygonLimpArmFacingLeftClawRaised,
         EnemyFrameId.DraygonLimpArmFacingLeftClawDropping,
         EnemyFrameId.DraygonLimpArmFacingLeftClawDropped,
@@ -513,6 +629,11 @@ internal static class EnemyExtendedFrameDocumentOrder
         EnemyFrameId.DraygonEyeFacingRightBloodshot,
         EnemyFrameId.DraygonEyeFacingRightNarrowing,
         EnemyFrameId.DraygonEyeFacingRightClosing,
+    ];
+
+    /// <summary>Crocomire's corpse and skeleton composite frames, in the document's order.</summary>
+    internal static ImmutableArray<EnemyFrameId> CrocomireSkeleton { get; } =
+    [
         EnemyFrameId.CrocomireBodySkeletonToppling,
         EnemyFrameId.CrocomireBodySkeletonLeaning,
         EnemyFrameId.CrocomireBodySkeletonTipping,
@@ -546,6 +667,11 @@ internal static class EnemyExtendedFrameDocumentOrder
         EnemyFrameId.CrocomireBubblesFading,
         EnemyFrameId.CrocomireBubblesVanishing,
         EnemyFrameId.CrocomireBubblesAdrift,
+    ];
+
+    /// <summary>Kraid's foot frames, in the document's order.</summary>
+    internal static ImmutableArray<EnemyFrameId> KraidFoot { get; } =
+    [
         EnemyFrameId.KraidFootPlanted,
         EnemyFrameId.KraidFootLifting,
         EnemyFrameId.KraidFootRaised,

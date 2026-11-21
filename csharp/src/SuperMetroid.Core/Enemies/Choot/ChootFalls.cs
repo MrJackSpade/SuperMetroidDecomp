@@ -7,16 +7,17 @@ internal static class ChootFalls
 {
     /// <summary>How far, in pixels, the loop origin of <paramref name="fallingPath"/> advances per loop.</summary>
     /// <exception cref="InvalidOperationException"><paramref name="fallingPath"/> is not a defined path.</exception>
-    internal static int LoopYDistance(ChootFallingPath fallingPath) =>
-        ChootPatternDefinitions.LoopYDistances.TryGetValue(fallingPath, out int distance)
-            ? distance
-            : throw new InvalidOperationException($"Undefined {nameof(ChootFallingPath)} {fallingPath}.");
+    internal static int LoopYDistance(ChootFallingPath fallingPath) => Path(fallingPath).LoopYDistance;
 
     /// <summary>The updates one loop of <paramref name="fallingPath"/> lasts: its samples' updates.</summary>
     /// <exception cref="InvalidOperationException"><paramref name="fallingPath"/> is not a defined path.</exception>
-    internal static int LoopUpdates(ChootFallingPath fallingPath) =>
-        Paths.TryGetValue(fallingPath, out ChootFallSample[]? path)
-            ? path.Sum(sample => sample.Updates)
+    internal static int LoopUpdates(ChootFallingPath fallingPath) => Path(fallingPath).Samples.Sum(sample => sample.Updates);
+
+    /// <summary>The definition of <paramref name="fallingPath"/>.</summary>
+    /// <exception cref="InvalidOperationException"><paramref name="fallingPath"/> is not a defined path.</exception>
+    private static ChootFallingPathDefinition Path(ChootFallingPath fallingPath) =>
+        Paths.TryGetValue(fallingPath, out ChootFallingPathDefinition? path)
+            ? path
             : throw new InvalidOperationException($"Undefined {nameof(ChootFallingPath)} {fallingPath}.");
 
     /// <summary>
@@ -27,8 +28,7 @@ internal static class ChootFalls
     /// <exception cref="InvalidDataException"><paramref name="update"/> is negative or lies past the loop's end.</exception>
     internal static Offset16<RoomPixels>? At(ChootFallingPath fallingPath, int update)
     {
-        if (!Paths.TryGetValue(fallingPath, out ChootFallSample[]? path))
-            throw new InvalidOperationException($"Undefined {nameof(ChootFallingPath)} {fallingPath}.");
+        ChootFallSample[] path = Path(fallingPath).Samples;
         if (update < 0)
             throw new InvalidDataException($"Choot falling-pattern update {update} lies before falling path {fallingPath}.");
 

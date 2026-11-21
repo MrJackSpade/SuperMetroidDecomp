@@ -233,9 +233,8 @@ public static class EndingObjectArtworkFiles
             throw new InvalidDataException($"Ending OBJ manifest {manifestPath} does not describe this installation.");
 
         return new EndingObjectArtworkParts { Fragments = EndingObjectArtworkFormat.ExplosionPictures
-                .Select(picture => LoadMap(EndingObjectArtworkFormat.FragmentFileName(picture),
-                    EndingObjectArtworkFormat.FragmentByteCount))
-                .ToArray(), WaitingTilemap = LoadMap(EndingObjectArtworkFormat.WaitingTilemapFileName,
+                .ToDictionary(picture => picture, picture => LoadMap(EndingObjectArtworkFormat.FragmentFileName(picture),
+                    EndingObjectArtworkFormat.FragmentByteCount)), WaitingTilemap = LoadMap(EndingObjectArtworkFormat.WaitingTilemapFileName,
                 EndingObjectArtworkFormat.WaitingTilemapByteCount), TransformationMap = LoadMap(EndingObjectArtworkFormat.TransformationMapFileName,
                 EndingObjectArtworkFormat.TransformationMapByteCount), PostShotLogoMap = LoadMap(EndingObjectArtworkFormat.PostShotLogoMapFileName,
                 EndingObjectArtworkFormat.PostShotLogoMapByteCount), CloudSprites = LoadSprites(EndingCloudSpriteFormat.FileName, "cloud", EndingCloudSpritePresentation.Load),

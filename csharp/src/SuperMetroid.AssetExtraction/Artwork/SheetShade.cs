@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 
@@ -8,15 +9,55 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// derived from the cartridge's colour data for that effect. Inks it leaves out keep what lies under it.
 /// </summary>
 /// <param name="Shade">The shade's name, which the game's draws give.</param>
-/// <param name="Inks">The inks it recolours, each once, in rising order; an ink is its colour group's place times sixteen plus its colour.</param>
-/// <param name="Colours">The colour each ink shows under it.</param>
-internal sealed record SheetShade(PictureShade Shade, int[] Inks, RgbColor[] Colours)
+/// <param name="InkColours">
+/// The colour each ink it recolours shows under it, by ink in rising order; an ink is its colour group's place times
+/// sixteen plus its colour.
+/// </param>
+internal sealed record SheetShade(PictureShade Shade, ImmutableSortedDictionary<int, RgbColor> InkColours)
 {
     /// <summary>
     /// Whether a draw showing the shade takes part in colour math over every part: a frontend colouring's drawn shade,
     /// whose sprite set the cartridge ORs into each part's palette, does when that set is one colour math covers.
     /// </summary>
     internal bool TakesColourMath { get; init; }
+
+    /// <summary>The inks the shade recolours, in rising order.</summary>
+    internal IEnumerable<int> Inks => InkColours.Keys;
+
+    /// <summary>The colours the shade shows, in the order of the inks they show at.</summary>
+    internal IEnumerable<RgbColor> Colours => InkColours.Values;
+
+    /// <summary>The shade that shows each of <paramref name="inkColours"/>' colours at its ink.</summary>
+    /// <exception cref="ArgumentException">An ink is named twice.</exception>
+    internal static SheetShade Of(PictureShade shade, IEnumerable<KeyValuePair<int, RgbColor>> inkColours) =>
+        new(shade, ImmutableSortedDictionary.CreateRange(Ensure.NotNull(inkColours)));
+
+    /// <summary>The shade that shows each of <paramref name="inks"/> in the colour <paramref name="colourOf"/> gives it.</summary>
+    /// <exception cref="ArgumentException">An ink is named twice.</exception>
+    internal static SheetShade Of(PictureShade shade, IEnumerable<int> inks, Func<int, RgbColor> colourOf)
+    {
+        Ensure.NotNull(inks);
+        Ensure.NotNull(colourOf);
+        return Of(shade, inks.Select(ink => KeyValuePair.Create(ink, colourOf(ink))));
+    }
+
+    /// <summary>The shade named <paramref name="shade"/> showing every ink of <paramref name="parts"/> in its part's colour.</summary>
+    /// <exception cref="InvalidDataException">Two parts give one ink different colours.</exception>
+    internal static SheetShade Combined(PictureShade shade, IEnumerable<SheetShade> parts)
+    {
+        Ensure.NotNull(parts);
+        var colours = new Dictionary<int, RgbColor>();
+        foreach (SheetShade part in parts)
+        {
+            foreach ((int ink, RgbColor colour) in part.InkColours)
+            {
+                if (colours.TryGetValue(ink, out RgbColor earlier) && earlier != colour)
+                    throw new InvalidDataException($"Shade {shade.Key} gives ink {ink} two colours.");
+                colours[ink] = colour;
+            }
+        }
+        return Of(shade, colours);
+    }
 
     /// <summary>
     /// The drawn shade of a colouring held in sprite set <paramref name="set"/>: a run of <paramref name="colours"/> from
@@ -34,28 +75,27 @@ internal sealed record SheetShade(PictureShade Shade, int[] Inks, RgbColor[] Col
     internal static SheetShade DrawnOver(PictureShade shade, int set, SortedSet<int> pictured, ReadOnlySpan<RgbColor> colours)
     {
         Ensure.NotNull(pictured);
-        var inks = new List<int>(pictured.Count * colours.Length);
-        var shown = new List<RgbColor>(pictured.Count * colours.Length);
+        var runs = new List<SheetShade>(pictured.Count);
         foreach (int frameSet in pictured)
-        {
-            for (int colour = 0; colour < colours.Length; colour++)
-            {
-                inks.Add(frameSet * colours.Length + colour);
-                shown.Add(colours[colour]);
-            }
-        }
-        return new SheetShade(shade, [.. inks], [.. shown]) { TakesColourMath = set >= SpriteColourMathDefinitions.FirstSetTakingColourMath };
+            runs.Add(Run(shade, frameSet * colours.Length, colours));
+        return Combined(shade, runs) with { TakesColourMath = set >= SpriteColourMathDefinitions.FirstSetTakingColourMath };
     }
 
     /// <summary>
     /// The shade that recolours <paramref name="colours"/>.Length inks from <paramref name="firstInk"/> on, as a run of a
-    /// colour group's colours.
+    /// colour group's colours: each colour of the run at the ink as far past the first as the colour is into the run.
     /// </summary>
-    internal static SheetShade Run(PictureShade shade, int firstInk, ReadOnlySpan<RgbColor> colours) =>
-        new(shade, [.. Enumerable.Range(firstInk, colours.Length)], colours.ToArray());
+    internal static SheetShade Run(PictureShade shade, int firstInk, ReadOnlySpan<RgbColor> colours)
+    {
+        var builder = ImmutableSortedDictionary.CreateBuilder<int, RgbColor>();
+        int ink = firstInk;
+        foreach (RgbColor colour in colours)
+            builder.Add(ink++, colour);
+        return new(shade, builder.ToImmutable());
+    }
 
     /// <summary>The manifest entries of <paramref name="shades"/>, or null for none.</summary>
-    /// <exception cref="InvalidDataException">Two shades share a name, or a shade's lists differ in length.</exception>
+    /// <exception cref="InvalidDataException">Two shades share a name.</exception>
     internal static Dictionary<string, SpriteSheetShadeDocument>? Documents(IReadOnlyList<SheetShade>? shades)
     {
         if (shades is null || shades.Count == 0)
@@ -63,12 +103,9 @@ internal sealed record SheetShade(PictureShade Shade, int[] Inks, RgbColor[] Col
         var documents = new Dictionary<string, SpriteSheetShadeDocument>(StringComparer.Ordinal);
         foreach (SheetShade shade in shades)
         {
-            if (shade.Inks.Length != shade.Colours.Length)
-                throw new InvalidDataException($"Shade {shade.Shade.Key} recolours {shade.Inks.Length} inks with {shade.Colours.Length} colours.");
             if (!documents.TryAdd(shade.Shade.Key, new SpriteSheetShadeDocument
                 {
-                    Inks = shade.Inks,
-                    Colours = [.. shade.Colours],
+                    InkColours = new SortedDictionary<int, RgbColor>(shade.InkColours),
                     ColourMath = shade.TakesColourMath,
                 }))
             {

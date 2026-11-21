@@ -115,3 +115,14 @@ Schema ten lists only the items Samus has: the equipment word's bit 4, which rec
 item code and one attract demonstration set, has no name. The import's equipment codec drops the bit when it decodes a
 word and never writes it. The upgrade from schema nine drops `unassignedItem` from each slot's collected and equipped
 items, and a list it alone made up becomes `none`.
+
+## Schema seventeen (#2565)
+
+Schema seventeen keys the saved slots by the slot's name, `A`, `B` or `C` (`GameSaveJsonFormat.SlotKey`), and names the
+selected slot the same way: `slots` is an object holding an entry for each slot that holds a save, an empty slot having
+no entry, and no slot numbers its own place. Earlier schemas listed the three slots in the file select's order, an empty
+slot as `null` and each saved slot numbering its place in `slot`, and numbered `selectedSlot` by its place, so a slot was
+known only by its position in the list. The upgrade from schema sixteen requires the three entries, each saved slot
+numbering its own place, moves each saved slot to the entry of its slot's name without its number, and names the
+selected slot. A slot's defeated bosses and explored map cells, listed by area in area order, are read by the area
+each entry names. Schema seventeen is not readable by older builds.

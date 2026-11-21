@@ -37,10 +37,10 @@ public sealed class GrappleTileAtlas : IInstalledArtworkContent
         return tiles.AsMemory(transfer.AtlasOffset, transfer.ByteCount);
     }
     /// <summary>
-    /// The endpoint character for animation <paramref name="pointFrame"/> followed by the four rope characters the
-    /// rope <paramref name="orientation"/> selects: OBJ characters $20-$24 as the beam's sprites name them.
+    /// The endpoint character of <paramref name="pointFrame"/> followed by the four rope characters the rope
+    /// <paramref name="orientation"/> selects: OBJ characters $20-$24 as the beam's sprites name them.
     /// </summary>
-    private SpriteArtwork Tiles(int pointFrame, GrappleRopeOrientation orientation)
+    private SpriteArtwork Tiles(GrappleEndpointFrame pointFrame, GrappleRopeOrientation orientation)
     {
         InstalledArtworkId point = GrappleTileSelection.PointAssetFor(pointFrame);
         InstalledArtworkId segments = GrappleTileSelection.SegmentAssetFor(orientation);
@@ -53,7 +53,7 @@ public sealed class GrappleTileAtlas : IInstalledArtworkContent
     /// The standard OBJ page with <see cref="Tiles"/> over characters $20-$24: the beam's sprites name OBJ characters
     /// directly, and one stock rope frame names tile $1FF outside the grapple's own characters.
     /// </summary>
-    public SpriteArtwork OnStandardObjects(SpriteArtwork standardObjects, int pointFrame, GrappleRopeOrientation orientation)
+    public SpriteArtwork OnStandardObjects(SpriteArtwork standardObjects, GrappleEndpointFrame pointFrame, GrappleRopeOrientation orientation)
     {
         Ensure.NotNull(standardObjects);
         if (!ReferenceEquals(pagesComposedOn, standardObjects))

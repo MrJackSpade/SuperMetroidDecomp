@@ -42,12 +42,6 @@ internal sealed record EnemySheetInputs(EnemyTileSourceArtwork Enemies, BossSour
         };
     }
 
-    /// <summary>
-    /// The palette row each graphics set's records load their members' colours into, by set (#1512): the retail
-    /// catalogue for the installation's sets; a fixture composing a set of its own names that set's rows, as its records'
-    /// placement words name them.
-    /// </summary>
-    internal IReadOnlyDictionary<RoomEnemyGraphicsSetDefinition, int[]> SetPaletteRows { get; private init; } = EnemyGraphicsSetPaletteRowDefinitions.Rows;
 
     /// <summary>
     /// The members each graphics set loads, by set (#1527): the retail catalogue for the installation's sets; a

@@ -16,8 +16,9 @@ internal static class EtecoonAnimations
     /// </summary>
     private static EnemyFrameId[] HopArms(EnemyFrameId raising, EnemyFrameId up, EnemyFrameId flung) => [raising, up, flung, up, raising];
 
-    /// <summary>How long each of a hop's arm poses shows.</summary>
-    private static readonly int[] HopPace = [12, 12, 6, 12, 12];
+    /// <summary>A hop's arm poses, <paramref name="raising"/>, <paramref name="up"/> and <paramref name="flung"/>, each shown for its own pace: the fling quickest.</summary>
+    private static AnimationBeat<EnemyFrameId, NoAnimationCue>[] Hop(EnemyFrameId raising, EnemyFrameId up, EnemyFrameId flung) =>
+        [Show(raising, 12), Show(up, 12), Show(flung, 6), Show(up, 12), Show(raising, 12)];
 
     /// <summary>A hop's arm poses facing right, which the flex also plays at its own pace.</summary>
     private static readonly EnemyFrameId[] HopArmsFacingRight =
@@ -47,8 +48,8 @@ internal static class EtecoonAnimations
         [P.JumpingLeft] = Spin(EnemyFrameId.EtecoonSpinningLeftTurned0, EnemyFrameId.EtecoonSpinningLeftTurned90,
             EnemyFrameId.EtecoonSpinningLeftTurned180, EnemyFrameId.EtecoonSpinningLeftTurned270),
         [P.HoppingFacingLeft] = [Hold(EnemyFrameId.EtecoonHopCrouchFacingLeft)],
-        [P.ContinueHoppingFacingLeft] = [.. HopArms(EnemyFrameId.EtecoonHopArmsRaisingFacingLeft, EnemyFrameId.EtecoonHopArmsUpFacingLeft,
-            EnemyFrameId.EtecoonHopArmsFlungFacingLeft).Zip(HopPace, Show)],
+        [P.ContinueHoppingFacingLeft] = Hop(EnemyFrameId.EtecoonHopArmsRaisingFacingLeft, EnemyFrameId.EtecoonHopArmsUpFacingLeft,
+            EnemyFrameId.EtecoonHopArmsFlungFacingLeft),
         [P.WallJumpLeftEligible] = [Hold(EnemyFrameId.EtecoonClingingFacingLeft)],
         [P.LookLeftAtSamusAndRunRight] =
         [
@@ -66,7 +67,8 @@ internal static class EtecoonAnimations
         [P.JumpingRight] = Spin(EnemyFrameId.EtecoonSpinningRightTurned0, EnemyFrameId.EtecoonSpinningRightTurned90,
             EnemyFrameId.EtecoonSpinningRightTurned180, EnemyFrameId.EtecoonSpinningRightTurned270),
         [P.HoppingFacingRight] = [Hold(EnemyFrameId.EtecoonHopCrouchFacingRight)],
-        [P.ContinueHoppingFacingRight] = [.. HopArmsFacingRight.Zip(HopPace, Show)],
+        [P.ContinueHoppingFacingRight] = Hop(EnemyFrameId.EtecoonHopArmsRaisingFacingRight, EnemyFrameId.EtecoonHopArmsUpFacingRight,
+            EnemyFrameId.EtecoonHopArmsFlungFacingRight),
         [P.WallJumpRightEligible] = [Hold(EnemyFrameId.EtecoonClingingFacingRight)],
         [P.StartingCrouch] = [Hold(EnemyFrameId.EtecoonHopCrouchFacingRight)],
         [P.Flexing] = [.. ((EnemyFrameId[])[EnemyFrameId.EtecoonHopCrouchFacingRight, .. HopArmsFacingRight]).Select(pose => Show(pose, FlexPoseUpdates))],

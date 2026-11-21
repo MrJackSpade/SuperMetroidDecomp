@@ -2,6 +2,8 @@ using System.Reflection;
 using SuperMetroid.Core.Samus.Projectiles;
 using F = SuperMetroid.Core.Samus.Projectiles.SamusProjectileFrameId;
 using L = SuperMetroid.Core.Samus.Projectiles.ProjectileTrailPlacementList;
+using T = SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFamily;
+using C = SuperMetroid.Core.Samus.Projectiles.ProjectileTrailCourse;
 
 namespace SuperMetroid.Verification.Rendering;
 
@@ -65,8 +67,8 @@ internal static class PresentationQuirkInventoryVerification
     /// <summary>The lists of the uncharged Wave, Ice and Spazer trails, one for each direction of travel.</summary>
     private static readonly L[] WaveIceSpazerLists =
     [
-        L.UnchargedWaveIceSpazerUp, L.UnchargedWaveIceSpazerUpRight, L.UnchargedWaveIceSpazerRight, L.UnchargedWaveIceSpazerDownRight,
-        L.UnchargedWaveIceSpazerDown, L.UnchargedWaveIceSpazerDownLeft, L.UnchargedWaveIceSpazerLeft, L.UnchargedWaveIceSpazerUpLeft,
+        new L(T.UnchargedWaveIceSpazer, C.Up), new L(T.UnchargedWaveIceSpazer, C.UpRight), new L(T.UnchargedWaveIceSpazer, C.Right), new L(T.UnchargedWaveIceSpazer, C.DownRight),
+        new L(T.UnchargedWaveIceSpazer, C.Down), new L(T.UnchargedWaveIceSpazer, C.DownLeft), new L(T.UnchargedWaveIceSpazer, C.Left), new L(T.UnchargedWaveIceSpazer, C.UpLeft),
     ];
 
     /// <summary>Checks that no listed quirk member remains in Core and that no trail placement lags its picture.</summary>

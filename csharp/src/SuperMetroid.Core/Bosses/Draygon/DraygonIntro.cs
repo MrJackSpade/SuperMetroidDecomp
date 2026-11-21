@@ -32,15 +32,14 @@ internal sealed class DraygonIntro
         {
             if (state.IntroStage.IsUncounted)
             {
-                // Each Evir the dance spawns carries its own start delay, by the order it spawned in; the dance moves
-                // exactly these.
-                for (int dancer = 0; dancer < DraygonIntroDanceDefinitions.EvirCount; dancer++)
+                // Each Evir the dance spawns carries its own start delay; the dance moves exactly these.
+                foreach (int startDelay in DraygonIntroDanceDefinitions.DancerStartDelays)
                 {
                     RoomEffectActor sprite = _effectActors.SpawnRoomEffectActor(
                         DraygonArenaDefinitions.IntroEvirEntry,
                         RoomEffectActorKind.EvirFacingLeft,
                         SpriteGraphics.SharedIn(DraygonColours.Evirs));
-                    state.IntroDancers.Add(new DraygonIntroDancer(sprite, DraygonIntroDance.StartDelay(dancer)));
+                    state.IntroDancers.Add(new DraygonIntroDancer(sprite, startDelay));
                 }
             }
             state.IntroStage.Count();

@@ -62,6 +62,13 @@ internal static class MotherBrainSourceDefinitions
 
         /// <summary>$AD:E742, the four health-band rear-leg image pointers.</summary>
         internal const int HealthRearLegPointerTable = 0xade742;
+
+        /// <summary>
+        /// The health bands in the order <see cref="HealthBodyPointerTable"/> and <see cref="HealthRearLegPointerTable"/> point
+        /// at their images: highest first.
+        /// </summary>
+        internal static IReadOnlyList<SuperMetroid.Core.Bosses.MotherBrain.MotherBrainHealthBand> HealthTableOrder =>
+            SuperMetroid.Core.Bosses.MotherBrain.MotherBrainHealthBandDefinitions.HighestFirst;
     }
 
     /// <summary>Mother Brain's room, attack, room-entry and room-light colour images.</summary>

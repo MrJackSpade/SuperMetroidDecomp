@@ -11,23 +11,23 @@ namespace SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
 public sealed class CeresEscapeTileArtwork
 {
 
-    /// <summary>Validated, owned warning-text and door atlases in transfer order.</summary>
-    private readonly RoomCharacterAtlas[] pages;
+    /// <summary>Validated, owned warning-text and door atlases, by the page each holds.</summary>
+    private readonly Dictionary<TileSheetDefinition, RoomCharacterAtlas> pages;
 
     /// <summary>Requires both tile pages at their compiled transfer sizes and copies the supplied atlas references.</summary>
-    internal CeresEscapeTileArtwork(RoomCharacterAtlas[] pages)
+    /// <exception cref="InvalidDataException">A page is missing, extra or of the wrong size.</exception>
+    internal CeresEscapeTileArtwork(IReadOnlyDictionary<TileSheetDefinition, RoomCharacterAtlas> pages)
     {
         Ensure.NotNull(pages);
-        if (pages.Length != CeresEscapeTileArtworkDefinitions.All.Length)
+        if (pages.Count != CeresEscapeTileArtworkDefinitions.All.Length)
             throw new InvalidDataException("Ceres escape artwork requires both tile pages.");
-        for (int index = 0; index < pages.Length; index++)
+        this.pages = [];
+        foreach (TileSheetDefinition page in CeresEscapeTileArtworkDefinitions.All)
         {
-            if (pages[index] is null || pages[index].Characters.Length !=
-                CeresEscapeTileArtworkDefinitions.All[index].ByteCount)
-                throw new InvalidDataException(
-                    $"Ceres escape tile page {index} has the wrong size.");
+            if (!pages.TryGetValue(page, out RoomCharacterAtlas? atlas) || atlas.Characters.Length != page.ByteCount)
+                throw new InvalidDataException($"Ceres escape tile page {page.FileName} is missing or has the wrong size.");
+            this.pages.Add(page, atlas);
         }
-        this.pages = [.. pages];
     }
 
     /// <summary>Returns a slice of installed page <paramref name="page"/> only when the requested range fits wholly inside it.</summary>
@@ -39,16 +39,14 @@ public sealed class CeresEscapeTileArtwork
     internal bool TryResolve(TileSheetDefinition page, int offset, int byteCount,
         out ReadOnlyMemory<byte> characters)
     {
-        // The pages are held in their definitions' transfer order.
-        int held = CeresEscapeTileArtworkDefinitions.All.IndexOf(page);
-        if (held < 0)
+        if (!pages.TryGetValue(page, out RoomCharacterAtlas? held))
             throw new ArgumentOutOfRangeException(nameof(page), page, "Not a Ceres escape tile page.");
         if (offset < 0 || byteCount <= 0 || offset > page.ByteCount - byteCount)
         {
             characters = default;
             return false;
         }
-        characters = pages[held].Characters.Slice(offset, byteCount);
+        characters = held.Characters.Slice(offset, byteCount);
         return true;
     }
 }

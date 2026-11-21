@@ -32,11 +32,12 @@ public static class RoomObjectDraygonCannonVisualFiles
     /// of the cannon's core is written as its two rows, core row first; a frame reaching left splits its top row into the
     /// core and the cell to its left, then writes the lower row from its left end.
     /// </summary>
-    private static readonly Dictionary<HorizontalDirection, RoomObjectStripRuns> RowsByFacing =
-        new Dictionary<HorizontalDirection, RoomObjectStripRuns>
+    private static readonly Dictionary<HorizontalDirection, RoomObjectShapeRun[]> RowsByFacing =
+        new Dictionary<HorizontalDirection, RoomObjectShapeRun[]>
         {
-            [HorizontalDirection.Right] = new([new(0, 0), new(0, 1)], [2, 2]),
-            [HorizontalDirection.Left] = new([new(0, 0), new(-1, 0), new(-1, 1)], [1, 1, 2]),
+            [HorizontalDirection.Right] = [RoomObjectShapeRun.Row(new(0, 0), 2), RoomObjectShapeRun.Row(new(0, 1), 2)],
+            [HorizontalDirection.Left] =
+                [RoomObjectShapeRun.Row(new(0, 0), 1), RoomObjectShapeRun.Row(new(-1, 0), 1), RoomObjectShapeRun.Row(new(-1, 1), 2)],
         };
 
     /// <summary>The installed file holding the right- and left-facing cannon frames' pictures.</summary>
@@ -61,7 +62,7 @@ public static class RoomObjectDraygonCannonVisualFiles
 
     /// <summary>The cannons as the import pictures them: every frame's geometry and published name.</summary>
     internal static RoomObjectFrameFamily<DraygonCannonDraw> Family { get; } =
-        new(VisualFileName, "Draygon cannon", Layouts(), DraygonCannonDrawKeys.Installed.ByIdentity);
+        new(VisualFileName, "Draygon cannon", Layouts());
 
     /// <summary>Pictures the twelve cannon frames from the cartridge's draw lists and writes the installed file.</summary>
     /// <param name="bus">The cartridge, whose draw lists are checked against the cannons' geometry and collision.</param>
@@ -88,11 +89,8 @@ public static class RoomObjectDraygonCannonVisualFiles
             RoomObjectDraw draw = DraygonCannonDraws.Family.Of(frame);
             if (!RoomObjectDrawIdentity.TryShape(DraygonCannonDraws.Family, draw, out RoomBlockShape? described))
                 throw new InvalidOperationException($"Draygon cannon frame {frame} has no shape.");
-            RoomBlockShape shape = described;
-            (Offset16<RoomBlocks>[] starts, int[] counts) = Ensure.Listed(RowsByFacing, Ensure.Listed(Facings, frame));
-            layouts.Add(new(frame, RoomObjectFrameLayout.Of(draw, starts.Length, run => counts[run],
-                (run, cell) => shape.CollisionAt(starts[run] + new Offset16<RoomBlocks>(cell, 0)),
-                RoomObjectDrawListExport.Horizontal, run => starts[run])));
+            layouts.Add(new(frame, RoomObjectFrameLayout.Of(draw, described, Ensure.Listed(RowsByFacing, Ensure.Listed(Facings, frame))),
+                DraygonCannonDrawKeys.Installed.Of(frame)));
         }
         return layouts;
     }

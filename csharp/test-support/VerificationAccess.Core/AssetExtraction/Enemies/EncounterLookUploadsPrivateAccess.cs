@@ -32,8 +32,8 @@ internal static class EncounterLookUploadsPrivateAccess
         internal static global::System.Collections.Generic.IReadOnlyList<global::SuperMetroid.AssetExtraction.Enemies.ComposedLook> Looks(global::SuperMetroid.AssetExtraction.Enemies.ComposedEncounter encounter) =>
             PrivateState.InvokeStatic<global::System.Collections.Generic.IReadOnlyList<global::SuperMetroid.AssetExtraction.Enemies.ComposedLook>>(typeof(global::SuperMetroid.AssetExtraction.Enemies.EncounterLookUploads), "Looks", [typeof(global::SuperMetroid.AssetExtraction.Enemies.ComposedEncounter)], new object?[] { encounter });
 
-        /// <summary>The private method <c>Uploads</c>, invoked by name.</summary>
+        /// <summary>What <paramref name="look"/> of <paramref name="encounter"/> copies, as the encounter's steps hold it.</summary>
         internal static global::System.Collections.Generic.IReadOnlyList<global::SuperMetroid.AssetExtraction.Enemies.EncounterArtworkUpload> Uploads(global::SuperMetroid.AssetExtraction.Enemies.ComposedEncounter encounter, global::SuperMetroid.AssetExtraction.Enemies.ComposedLook look, global::SuperMetroid.AssetExtraction.Artwork.IInstalledEncounterArtwork installed) =>
-            PrivateState.InvokeStatic<global::System.Collections.Generic.IReadOnlyList<global::SuperMetroid.AssetExtraction.Enemies.EncounterArtworkUpload>>(typeof(global::SuperMetroid.AssetExtraction.Enemies.EncounterLookUploads), "Uploads", [typeof(global::SuperMetroid.AssetExtraction.Enemies.ComposedEncounter), typeof(global::SuperMetroid.AssetExtraction.Enemies.ComposedLook), typeof(global::SuperMetroid.AssetExtraction.Artwork.IInstalledEncounterArtwork)], new object?[] { encounter, look, installed });
+            global::SuperMetroid.AssetExtraction.Enemies.EncounterLookUploads.Steps(encounter, installed).CopiesOf(look);
     }
 }

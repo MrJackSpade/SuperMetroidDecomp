@@ -576,7 +576,10 @@ internal static class SamusAnimationDelayDefinitions
         new(SamusAnimationSegmentName.AppearanceHeld, [48], new SamusAnimationRepeat(SamusAnimationSegmentName.AppearanceHeld)),
     ]);
 
-    /// <summary>Every animation, one for each <see cref="SamusAnimationName"/>, in the order of their names.</summary>
+    /// <summary>
+    /// Every animation, one for each <see cref="SamusAnimationName"/>. The list's order carries no meaning: every reader
+    /// finds an animation by its name or by the animation itself (#2565).
+    /// </summary>
     internal static IReadOnlyList<SamusPoseAnimation> All { get; } =
     [
         RunningAnimation,

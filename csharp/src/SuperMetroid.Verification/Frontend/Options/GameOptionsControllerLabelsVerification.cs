@@ -31,7 +31,7 @@ internal static class GameOptionsControllerLabelsVerification
         ];
         AssertTrue(page.Frames().SequenceEqual(expected), "the page shows each action's label for its bound button, top to bottom");
 
-        ShownOptionsPage unassignable = page with { Bindings = ControllerBindings.Default with { Dash = ControllerButton.Start } };
+        ShownOptionsPage unassignable = page with { Bindings = ControllerBindings.Default.With(ControllerAction.Dash, ControllerButton.Start) };
         AssertThrows<InvalidDataException>(() => unassignable.Frames(), "a binding no label names fails instead of showing X's label");
         Console.WriteLine("Options controller labels: pictured by action and button; an unassignable binding fails loudly.");
     }

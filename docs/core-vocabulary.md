@@ -1051,6 +1051,16 @@ absence belongs to the absent thing. A file format that keeps a bool for compati
 at its codec (`GameSaveJsonCodec`'s saved Japanese-text field). A comparison that only answers a question, a query's
 result, a condition or a local, is not a stored choice, and neither is a computed property asked of a value
 (`speed.IsNegative ? HorizontalDirection.Left : HorizontalDirection.Right`).
+SME6487 (#2565) pairs state and data by identity, never by list position. In Core and the import pipeline, outside an
+`[EncodingOwner]` type and a `[CompatibilityService]`, no `Zip` joins two collections that are not one
+(`frames.Zip(durations)`), no element is read at a position found in another collection
+(`colours[names.IndexOf(name)]`), no projection's index reads another collection
+(`looks.Select((look, place) => uploads[place])`), and no loop reads a static definition table and another collection at
+its own index. Each pairing is one record holding both (`KraidHealthSequenceBand`, `IntroEggShellPiece`), a keyed lookup by
+the identity it belongs to (a sheet shade's ink-to-colour map, Phantoon's health colours by band), or a reference (a packed
+picture carries its corner). Positions within one authored sequence are not pairings: a run's colours from its first ink,
+a cycle's steps (`ListStep<T>`), neighbouring entries of one list (`list.Zip(list.Skip(1))`) and a list written at the
+index it is read from.
 
 SME6483 (#2557) states repeated literal structure once, in Core's and AssetExtraction's hand-written catalog files. A
 list of two or more entries is not written out again, entry for entry, in another list of the same file, and a list

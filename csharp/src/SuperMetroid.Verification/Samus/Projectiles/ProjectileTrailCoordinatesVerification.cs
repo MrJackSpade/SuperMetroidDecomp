@@ -38,7 +38,7 @@ internal static class ProjectileTrailCoordinatesVerification
     /// </summary>
     internal static void VerifyProjectileTrailCoordinates(ISnesAddressSpace bus)
     {
-        Dictionary<ProjectileTrailPlacementList, ushort> starts = Enum.GetValues<ProjectileTrailPlacementList>().ToDictionary(
+        Dictionary<ProjectileTrailPlacementList, ushort> starts = ProjectileTrailPlacementSources.OwnPlacementCounts.Keys.ToDictionary(
             list => list, list => ProjectileTrailPlacementSources.Start(CartridgeImportSource.Require(bus), list).Offset);
         ushort[] orderedStarts = [.. starts.Values.Distinct().Order()];
         foreach ((ProjectileTrailPlacementList list, int count) in ProjectileTrailPlacementSources.OwnPlacementCounts)

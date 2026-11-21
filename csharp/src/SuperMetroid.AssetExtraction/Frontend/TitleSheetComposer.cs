@@ -84,9 +84,11 @@ internal static class TitleSheetComposer
                 sprites.AsSpan(set * TitleSheetInks.GroupColours, TitleSheetInks.GroupColours), set));
         }
         int copyright = TitleSheetInks.SpriteSet(TitleSequenceDefinitions.Sprites.CopyrightColouring) * TitleSheetInks.GroupColours;
-        shades.Add(new SheetShade(TitleShades.RestoredCopyright,
-            [copyright + TitleSheetInks.CopyrightWhiteColour, copyright + TitleSheetInks.CopyrightRedColour],
-            [palette.SkipCopyrightWhite, palette.SkipCopyrightTint]));
+        shades.Add(SheetShade.Of(TitleShades.RestoredCopyright,
+        [
+            KeyValuePair.Create(copyright + TitleSheetInks.CopyrightWhiteColour, palette.SkipCopyrightWhite),
+            KeyValuePair.Create(copyright + TitleSheetInks.CopyrightRedColour, palette.SkipCopyrightTint),
+        ]));
         // The logo and the copyright show each record their fades show over the inks each fade recolours (#1714), laid
         // over their drawn shades.
         foreach (ColourEffectColours faded in TitleSheetInks.Fades)

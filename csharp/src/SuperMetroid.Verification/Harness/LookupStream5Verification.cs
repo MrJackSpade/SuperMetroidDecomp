@@ -495,8 +495,9 @@ internal static class LookupStream5Verification
             // shade holds the initial wall's first sixteen colours in the wall's row.
             SheetShade wall = BossSheetShades.SpawnedObjects(InstalledFixtures.BossArtwork with { CrocomireColors = result }, EnemyDefinitionId.Crocomire)
                 .Single(shade => shade.Shade == SuperMetroid.Core.Bosses.Crocomire.Artwork.CrocomireShades.Wall);
-            for (int ink = 0; ink < wall.Colours.Length; ink++)
-                AssertEqual(resolve[1](ink), wall.Colours[ink], "Initial wall load shows the supplied colours");
+            RgbColor[] wallColours = [.. wall.Colours];
+            for (int ink = 0; ink < wallColours.Length; ink++)
+                AssertEqual(resolve[1](ink), wallColours[ink], "Initial wall load shows the supplied colours");
             string expectedHash = SelectedPresentationHash.Create("CrocomireColorCatalog-v1", content =>
             {
                 for (int band = 0; band < bands.Length; band++)
@@ -759,7 +760,7 @@ internal static class LookupStream5Verification
         for (int band = 0; band < PhantoonColorDefinitions.HealthBandCount; band++)
         for (int color = 0; color < PhantoonColorFormat.HealthBandColorCount; color++)
         {
-            AssertEqual(ReadVerificationWord(rom, PhantoonSourceDefinitions.HealthBandColors + (band * 16 + color) * 2), stock.ResolveHealth(band, color), "Native health RGB equality");
+            AssertEqual(ReadVerificationWord(rom, PhantoonSourceDefinitions.HealthBandColors + (band * 16 + color) * 2), stock.ResolveHealthAtNative(band, color), "Native health RGB equality");
         }
         for (int color = 0; color < PhantoonSourceDefinitions.PowerOnColourCount; color++)
         {
@@ -768,10 +769,8 @@ internal static class LookupStream5Verification
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolvePowerOn(WreckedShipPoweredPart.Shared, -1), "Power lower bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolvePowerOn(WreckedShipPoweredPart.Lights, 16), "Power upper bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolvePowerOn((WreckedShipPoweredPart)Enum.GetValues<WreckedShipPoweredPart>().Length, 0), "Power rejects a part the power-on does not fade");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealth(-1, 0), "Health band lower bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealth(8, 0), "Health band upper bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealth(0, -1), "Health color lower bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealth(0, 16), "Health color upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealth(PhantoonHealthBandDefinitions.Unhurt, -1), "Health color lower bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealth(PhantoonHealthBandDefinitions.Unhurt, 16), "Health color upper bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveFadeOut(-1), "Fade lower bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveFadeOut(16), "Fade upper bound");
         Console.WriteLine("Phantoon colors: 16 native fade targets, 128 health colors, 112 power colors, the hash and bounds pass.");
@@ -782,18 +781,23 @@ internal static class LookupStream5Verification
             ushort[] Pack(PaletteRgb5[] colors) => colors.Select(c => (ushort)(c.Red | c.Green << 5 | c.Blue << 10)).ToArray();
             ushort[] fade = Pack(source.FadeOut);
             for (int color = 0; color < fade.Length; color++) AssertEqual(fade[color], result.ResolveFadeOut(color), "Fade input");
-            for (int band = 0; band < source.HealthBands.Length; band++)
+            foreach (PhantoonHealthBand band in PhantoonHealthBandDefinitions.HighestFirst)
             {
-                ushort[] values = Pack(source.HealthBands[band]);
+                ushort[] values = Pack(source.HealthBands[band.Key]);
                 for (int color = 0; color < values.Length; color++) AssertEqual(values[color], result.ResolveHealth(band, color), "Health channels");
             }
-            ushort[] power = Pack(source.PowerOn);
-            for (int color = 0; color < power.Length; color++) AssertEqual(power[color], result.ResolvePowerOnAtNative(color), "Power paint preserved");
+            foreach ((WreckedShipPoweredPart part, string key) in PhantoonColorFormat.PoweredPartKeys)
+            {
+                ushort[] power = Pack(source.PowerOn[key]);
+                for (int color = 0; color < power.Length; color++) AssertEqual(power[color], result.ResolvePowerOn(part, color), "Power paint preserved");
+            }
             string hash = SelectedPresentationHash.Create("PhantoonColorCatalog-v1", content =>
             {
                 content.AppendWords("fadeOut", fade);
-                content.AppendWords("powerOn", Pack(source.PowerOn));
-                content.AppendWordFrames("healthBands", source.HealthBands.Select(Pack).ToArray());
+                content.AppendWords("powerOn", [.. PhantoonSourceDefinitions.PowerOnGroups.OrderBy(group => group.Value)
+                    .SelectMany(group => Pack(source.PowerOn[PhantoonColorFormat.PoweredPartKeys[group.Key]]))]);
+                content.AppendWordFrames("healthBands", [.. PhantoonSourceDefinitions.HealthBandPalettes.OrderBy(palette => palette.Value)
+                    .Select(palette => Pack(source.HealthBands[palette.Key.Key]))]);
             });
             AssertEqual(hash, result.ContentIdentity, "Original canonical hash framing");
             return result;
@@ -940,17 +944,17 @@ internal static class LookupStream5Verification
                 AssertEqual(Pack(expected.Grey[color]), actual.ResolveGrey(color), "Exact grey ramp color");
                 AssertEqual(Shown(expected.Grey[color]), actual.GreyColor(color), "Installed grey colour");
             }
-            for (int row = 0; row < expected.Eye.Length; row++)
+            foreach ((string statue, PaletteRgb5[] glow) in expected.Eye)
             {
-                for (int color = 0; color < expected.Eye[row].Length; color++)
-                    AssertEqual(Shown(expected.Eye[row][color]), actual.ResolveEye(TourianStatuePalettes.EyeRowOrder[row], color), "Installed eye glow colour");
+                for (int color = 0; color < glow.Length; color++)
+                    AssertEqual(Shown(glow[color]), actual.ResolveEye(Enum.Parse<SuperMetroid.Core.Areas.Tourian.TourianStatue>(statue), color), "Installed eye glow colour");
             }
             string identity = SelectedPresentationHash.Create("TourianStatueColorCatalog-v1", hash =>
             {
                 hash.AppendWords("baseColors", expected.Base.Select(Pack).ToArray());
                 hash.AppendWords("statueColors", expected.Statue.Select(Pack).ToArray());
                 hash.AppendWords("greyColors", expected.Grey.Select(Pack).ToArray());
-                hash.AppendWordFrames("eyeColors", expected.Eye.Select(row => row.Select(Pack).ToArray()).ToArray());
+                hash.AppendWordFrames("eyeColors", expected.Eye.Values.Select(row => row.Select(Pack).ToArray()).ToArray());
             });
             AssertEqual(identity, actual.ContentIdentity, "Exact canonical selected palette identity");
             return actual;

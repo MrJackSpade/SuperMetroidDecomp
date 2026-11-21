@@ -23,7 +23,7 @@ internal static class EscapeTimerDoorFadeShades
     /// <param name="row">The sprite row the timer is drawn in.</param>
     internal static IReadOnlyList<SheetShade> Of(int row)
     {
-        int[] faded = [.. Enumerable.Range(0, RowColours).Except(Kept).Select(colour => row * RowColours + colour)];
-        return [new SheetShade(DoorFadeShades.EscapeTimerDark, faded, [.. faded.Select(_ => RgbColor.Black)])];
+        IEnumerable<int> faded = Enumerable.Range(0, RowColours).Except(Kept).Select(colour => row * RowColours + colour);
+        return [SheetShade.Of(DoorFadeShades.EscapeTimerDark, faded, _ => RgbColor.Black)];
     }
 }

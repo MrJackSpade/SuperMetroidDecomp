@@ -20,14 +20,14 @@ internal sealed class BossBodyParts : IBossBodyDisplay
     /// <summary>The boss's parts, in draw order.</summary>
     private readonly ImmutableArray<EnemyDefinitionId> parts;
 
-    /// <summary>The frame each part shows, by its place in <see cref="parts"/>, or null before it shows one.</summary>
-    private readonly BossBodyFrame?[] frames;
+    /// <summary>The frame each part shows, by part; a part that has shown none has none.</summary>
+    private readonly Dictionary<EnemyDefinitionId, BossBodyFrame> frames = [];
 
     /// <summary>
-    /// The frame each part's animation last showed on the body, by its place in <see cref="parts"/>, or null before its
-    /// animation shows one there (#2573). Clearing the body, or a part showing a picture of its own, leaves it as it was.
+    /// The frame each part's animation last showed on the body, by part; a part whose animation has shown none there has
+    /// none (#2573). Clearing the body, or a part showing a picture of its own, leaves it as it was.
     /// </summary>
-    private readonly EnemyFrameId?[] selections;
+    private readonly Dictionary<EnemyDefinitionId, EnemyFrameId> selections = [];
 
     /// <summary>The row, reckoned from the body's placement, above which alone the body shows, or null when the whole body shows.</summary>
     private int? shownAbove;
@@ -52,8 +52,6 @@ internal sealed class BossBodyParts : IBossBodyDisplay
         this.showing = showing;
         parts = BossBodyPartDefinitions.DrawOrders.TryGetValue(owner, out ImmutableArray<EnemyDefinitionId> order) ? order
             : throw new InvalidOperationException($"{owner} draws its own body; it shows no parts' frames.");
-        frames = new BossBodyFrame?[parts.Length];
-        selections = new EnemyFrameId?[parts.Length];
         this.owner = owner;
         IsShown = true;
     }
@@ -77,7 +75,7 @@ internal sealed class BossBodyParts : IBossBodyDisplay
     /// <exception cref="InvalidOperationException"><paramref name="part"/> is not one of the parts the boss draws on its body.</exception>
     public void Show(EnemyDefinitionId part, BossBodyFrame frame)
     {
-        frames[PlaceOf(part)] = Ensure.NotNull(frame);
+        frames[Drawn(part)] = Ensure.NotNull(frame);
         shownAbove = null;
         published = null;
     }
@@ -90,25 +88,23 @@ internal sealed class BossBodyParts : IBossBodyDisplay
     public void ShowSelected(EnemyDefinitionId part, EnemyFrameId selected, BossBodyFrame frame)
     {
         Show(part, frame);
-        selections[PlaceOf(part)] = selected;
+        selections[Drawn(part)] = selected;
     }
 
     /// <summary>Whether the frame part <paramref name="part"/>'s animation last showed on the body is <paramref name="selected"/> (#2573).</summary>
     /// <exception cref="InvalidOperationException"><paramref name="part"/> is not one of the parts the boss draws on its body.</exception>
-    public bool ShowsSelected(EnemyDefinitionId part, EnemyFrameId selected) => selections[PlaceOf(part)] == selected;
+    public bool ShowsSelected(EnemyDefinitionId part, EnemyFrameId selected) =>
+        selections.TryGetValue(Drawn(part), out EnemyFrameId shown) && shown == selected;
 
-    /// <summary>The place of <paramref name="part"/> among the parts the boss draws on its body.</summary>
+    /// <summary><paramref name="part"/>, when it is one of the parts the boss draws on its body.</summary>
     /// <exception cref="InvalidOperationException"><paramref name="part"/> is not one of the parts the boss draws on its body.</exception>
-    private int PlaceOf(EnemyDefinitionId part)
-    {
-        int place = parts.IndexOf(part);
-        return place >= 0 ? place : throw new InvalidOperationException($"{part} is not a part {owner} draws on its body.");
-    }
+    private EnemyDefinitionId Drawn(EnemyDefinitionId part) =>
+        parts.Contains(part) ? part : throw new InvalidOperationException($"{part} is not a part {owner} draws on its body.");
 
     /// <summary>No part shows anything on the body, as a boss's death clears it.</summary>
     public void Clear()
     {
-        Array.Clear(frames);
+        frames.Clear();
         shownAbove = null;
         published = null;
     }
@@ -126,7 +122,7 @@ internal sealed class BossBodyParts : IBossBodyDisplay
     }
 
     /// <summary>The body as it stands, shared until it changes.</summary>
-    private BossBodyLayer Publish() => published ??= new BossBodyLayer([.. frames.OfType<BossBodyFrame>()], shownAbove);
+    private BossBodyLayer Publish() => published ??= new BossBodyLayer([.. parts.Where(frames.ContainsKey).Select(part => frames[part])], shownAbove);
 
     /// <inheritdoc />
     BossBodyShowing? IBossBodyDisplay.Showing => IsShown ? new BossBodyShowing(Publish(), showing?.BodyPlacement) : null;

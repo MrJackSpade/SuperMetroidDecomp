@@ -19,20 +19,18 @@ public sealed record PictureShadeFade(PictureShading From, PictureShading To, Fa
 
     /// <summary>
     /// Shows the fade over <paramref name="shown"/>, the colour each of <paramref name="picture"/>'s colour keys shows so
-    /// far: each colour shows partway from its colour under <see cref="From"/> toward its colour under <see cref="To"/>, as
-    /// <paramref name="blend"/> blends a colour's fade (<see cref="ColourFade"/>).
+    /// far, by key: each colour shows partway from its colour under <see cref="From"/> toward its colour under
+    /// <see cref="To"/>, as <paramref name="blend"/> blends a colour's fade (<see cref="ColourFade"/>).
     /// </summary>
     /// <exception cref="InvalidDataException">The installation did not pre-colour the picture in a shade either shading names.</exception>
-    internal void ApplyOver(SpriteImage picture, Span<RgbColor> shown, IColourBlend blend)
+    internal void ApplyOver(SpriteImage picture, Dictionary<ColourKey, RgbColor> shown, IColourBlend blend)
     {
         Ensure.NotNull(blend);
-        var from = new RgbColor[shown.Length];
-        var to = new RgbColor[shown.Length];
-        shown.CopyTo(from);
-        shown.CopyTo(to);
+        var from = new Dictionary<ColourKey, RgbColor>(shown);
+        var to = new Dictionary<ColourKey, RgbColor>(shown);
         From.ApplyOver(picture, from, blend);
         To.ApplyOver(picture, to, blend);
-        for (int key = 0; key < shown.Length; key++)
+        foreach (ColourKey key in picture.ColourKeys)
             shown[key] = blend.Partway(from[key], to[key], Progress);
     }
 }

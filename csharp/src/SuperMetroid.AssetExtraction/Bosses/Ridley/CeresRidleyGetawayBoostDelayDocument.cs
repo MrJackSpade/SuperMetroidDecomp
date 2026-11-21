@@ -9,6 +9,6 @@ public sealed record CeresRidleyGetawayBoostDelayDocument
 {
     /// <summary>Schema revision required to equal <see cref="CeresRidleyGetawayBoostDelayFormat.Version"/>.</summary>
     public required int Version { get; init; }
-    /// <summary>Ridley's wings' two frames, each ten delays by running frame.</summary>
-    public required int[][] WingFrames { get; init; }
+    /// <summary>Ridley's wings' two frames, keyed by the frame's name, each ten delays by running frame.</summary>
+    public required Dictionary<string, int[]> WingFrames { get; init; }
 }

@@ -2,16 +2,9 @@ using static SuperMetroid.Core.Bosses.Draygon.DraygonIntroDanceDefinitions;
 
 namespace SuperMetroid.Core.Bosses.Draygon;
 
-/// <summary>Draygon's opening Evir dance: how long each Evir waits and the step of the traced path it takes.</summary>
+/// <summary>Draygon's opening Evir dance: the step of the traced path each Evir takes.</summary>
 internal static class DraygonIntroDance
 {
-    /// <summary>How many dance updates the dancing Evir spawned <paramref name="dancer"/>-th waits before its first step.</summary>
-    /// <param name="dancer">The Evir's place in the order the dance spawns them, from zero.</param>
-    /// <exception cref="ArgumentOutOfRangeException">The dance spawns no Evir in that place.</exception>
-    public static int StartDelay(int dancer) =>
-        dancer is >= 0 and < EvirCount
-            ? StartDelays[dancer]
-            : throw new ArgumentOutOfRangeException(nameof(dancer), dancer, "The Draygon dance spawns four Evirs.");
 
     /// <summary>
     /// Whether an Evir <paramref name="step"/> updates into its dance has made the traced path's last move, so the update

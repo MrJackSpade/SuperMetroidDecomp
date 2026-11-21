@@ -14,6 +14,6 @@ internal static class TorizoSwapArtworkPrivateAccess
     extension(global::SuperMetroid.AssetExtraction.Bosses.Torizo.TorizoSwapArtwork self)
     {
         /// <summary>The private field <c>pages</c>, reached by name.</summary>
-        internal global::SuperMetroid.AssetExtraction.Rooms.Artwork.RoomCharacterAtlas[] pages => PrivateState.Field<global::SuperMetroid.AssetExtraction.Bosses.Torizo.TorizoSwapArtwork, global::SuperMetroid.AssetExtraction.Rooms.Artwork.RoomCharacterAtlas[]>(self, "pages");
+        internal global::System.Collections.Generic.Dictionary<global::SuperMetroid.AssetExtraction.Bosses.Torizo.TorizoTilePage, global::SuperMetroid.AssetExtraction.Rooms.Artwork.RoomCharacterAtlas> pages => PrivateState.Field<global::SuperMetroid.AssetExtraction.Bosses.Torizo.TorizoSwapArtwork, global::System.Collections.Generic.Dictionary<global::SuperMetroid.AssetExtraction.Bosses.Torizo.TorizoTilePage, global::SuperMetroid.AssetExtraction.Rooms.Artwork.RoomCharacterAtlas>>(self, "pages");
     }
 }

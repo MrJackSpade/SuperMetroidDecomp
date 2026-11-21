@@ -21,12 +21,10 @@ internal static class IntroEggMotion
     /// <summary>Where <paramref name="fragment"/> appears as the egg hatches.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="fragment"/> is not a piece of the shell.</exception>
     public static Offset16<ScreenPixels> FragmentInitialPosition(IntroEggShellFragment fragment) =>
-        IntroEggMotionDefinitions.FragmentInitialPositions.TryGetValue(fragment, out Offset16<ScreenPixels> position)
-            ? position : throw new ArgumentOutOfRangeException(nameof(fragment));
+        IntroEggMotionDefinitions.ShellPiece(fragment).Start;
 
     /// <summary>How far <paramref name="fragment"/> flies sideways each update.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="fragment"/> is not a piece of the shell.</exception>
     public static SignedSixteenSixteen FragmentX(IntroEggShellFragment fragment) =>
-        IntroEggMotionDefinitions.FragmentXVelocities.TryGetValue(fragment, out SignedSixteenSixteen velocity)
-            ? velocity : throw new ArgumentOutOfRangeException(nameof(fragment));
+        IntroEggMotionDefinitions.ShellPiece(fragment).LaunchSpeed;
 }

@@ -38,7 +38,8 @@ internal static class EnemyExtendedFrameDisplaysVerification
             bool ordinary = spritemaps.TryGetDisplay(frame, out _);
             bool composed = compositions.TryGetDisplay(frame, out ReadOnlyMemory<EnemyExtendedDrawComponent> pieces);
             bool displayed = displays.TryGetDisplay(frame, out bool hasPicture);
-            AssertEqual(ordinary || composed, displayed, $"{frame} is displayed exactly when an installed document composes it");
+            AssertEqual(ordinary || composed, displayed,
+                $"{frame} (ordinary {ordinary}, composed {composed}, displayed as {displays.GetDisplayFrame(frame)}) is displayed exactly when an installed document composes it");
             if (!displayed)
                 continue;
             installed++;

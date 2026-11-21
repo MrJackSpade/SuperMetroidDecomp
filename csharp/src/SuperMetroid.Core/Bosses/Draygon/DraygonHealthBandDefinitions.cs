@@ -33,7 +33,7 @@ public static class DraygonHealthBandDefinitions
     /// <summary>Draygon below an eighth of his health, his most hurt colours.</summary>
     public static DraygonHealthBand BelowEighth { get; } = new(0, "below-eighth");
 
-    /// <summary>The bands, highest first: the order his health is tested against them and his installed health colours hold them in.</summary>
+    /// <summary>The bands, highest first: the order his health is tested against them.</summary>
     public static IReadOnlyList<DraygonHealthBand> HighestFirst { get; } =
         [Unhurt, BelowSevenEighths, BelowThreeQuarters, BelowFiveEighths, BelowHalf, BelowThreeEighths, BelowQuarter, BelowEighth];
 }

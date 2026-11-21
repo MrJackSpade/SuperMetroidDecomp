@@ -68,7 +68,7 @@ internal static class SamusPaletteNative
 
     /// <summary>The suit an even native suit-table byte offset selects.</summary>
     internal static SamusSuit SuitAtTableByteOffset(int byteOffset) => (byteOffset & 1) == 0
-        ? SamusSuitListLayout.AtPlace(byteOffset / sizeof(ushort))
+        ? SamusSuitListLayoutConstants.AtPlace(byteOffset / sizeof(ushort))
         : throw new ArgumentOutOfRangeException(nameof(byteOffset), byteOffset, "An odd suit-table offset selects no suit.");
 
     /// <summary>The bank-$9B address of a found cycle palette, or zero when none was found.</summary>
@@ -145,7 +145,7 @@ internal static class SamusPaletteNative
         /// <summary>The bank-$9B address of a family's shade for a suit.</summary>
         internal static ushort Pointer(SamusFullBodyCycleFamily family, int suit, int shade) =>
             (uint)suit < SamusFullBodyCycleColorFormat.SuitCount && (uint)shade < SamusFullBodyCycleColorFormat.ShadesPerSuit
-                ? Address(new(family, SamusSuitListLayout.AtPlace(suit), shade))
+                ? Address(new(family, SamusSuitListLayoutConstants.AtPlace(suit), shade))
                 : throw new ArgumentOutOfRangeException(nameof(suit), "Suit and shade must be catalogued.");
 
     }

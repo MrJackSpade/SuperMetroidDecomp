@@ -38,21 +38,21 @@ internal static class SpcSoundEffectTables
         _ => throw new ArgumentOutOfRangeException(nameof(library), library, "Undefined sound library."),
     };
 
-    /// <summary>How library <paramref name="libraryIndex"/>'s handler admits a changed request for one-based <paramref name="command"/>.</summary>
-    internal static SpcSoundRequestAdmission Admission(int libraryIndex, int command) => libraryIndex switch
+    /// <summary>How <paramref name="library"/>'s handler admits a changed request for one-based <paramref name="command"/>.</summary>
+    internal static SpcSoundRequestAdmission Admission(SoundEffectLibrary library, int command) => library switch
     {
-        0 => AdmissionIn(SpcSoundEffectDefinitions.Library1, command),
-        1 => AdmissionIn(SpcSoundEffectDefinitions.Library2, command),
-        2 => AdmissionIn(SpcSoundEffectDefinitions.Library3, command),
-        _ => throw new ArgumentOutOfRangeException(nameof(libraryIndex)),
+        SoundEffectLibrary.Samus => AdmissionIn(SpcSoundEffectDefinitions.Library1, command),
+        SoundEffectLibrary.Enemies => AdmissionIn(SpcSoundEffectDefinitions.Library2, command),
+        SoundEffectLibrary.Room => AdmissionIn(SpcSoundEffectDefinitions.Library3, command),
+        _ => throw new ArgumentOutOfRangeException(nameof(library), library, "Undefined sound library."),
     };
 
-    /// <summary>Whether library <paramref name="libraryIndex"/> keeps the low-health mode, which refuses its requests but the clearing one.</summary>
-    internal static bool HasLowHealthMode(int libraryIndex) => libraryIndex switch
+    /// <summary>Whether <paramref name="library"/> keeps the low-health mode, which refuses its requests but the clearing one.</summary>
+    internal static bool HasLowHealthMode(SoundEffectLibrary library) => library switch
     {
-        0 or 1 => false,
-        2 => true,
-        _ => throw new ArgumentOutOfRangeException(nameof(libraryIndex)),
+        SoundEffectLibrary.Samus or SoundEffectLibrary.Enemies => false,
+        SoundEffectLibrary.Room => true,
+        _ => throw new ArgumentOutOfRangeException(nameof(library), library, "Undefined sound library."),
     };
 
     /// <summary>
@@ -73,11 +73,10 @@ internal static class SpcSoundEffectTables
     /// The SPC RAM address of one library's allocation field: contiguous per-channel bitsets and masks, then one
     /// intervening byte before the per-channel voice indices.
     /// </summary>
-    internal static ushort AllocationStateAddress(int libraryIndex, SpcAllocationField field)
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="library"/> is not a sound library.</exception>
+    internal static ushort AllocationStateAddress(SoundEffectLibrary library, SpcAllocationField field)
     {
-        if ((uint)libraryIndex >= (uint)SpcSoundEffectDefinitions.Allocations.Length)
-            throw new ArgumentOutOfRangeException(nameof(libraryIndex));
-        (int baseAddress, int channelCount) = SpcSoundEffectDefinitions.Allocations[libraryIndex];
+        (int baseAddress, int channelCount) = Allocation(library);
         int offset = field switch
         {
             SpcAllocationField.VoiceBitset => 0,
@@ -87,6 +86,13 @@ internal static class SpcSoundEffectTables
         };
         return (ushort)(baseAddress + offset);
     }
+
+    /// <summary>Where <paramref name="library"/>'s allocation state starts in SPC RAM, and how many channels it has.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="library"/> is not a sound library.</exception>
+    internal static SoundLibraryAllocation Allocation(SoundEffectLibrary library) =>
+        SpcSoundEffectDefinitions.Allocations.TryGetValue(library, out SoundLibraryAllocation allocation)
+            ? allocation
+            : throw new ArgumentOutOfRangeException(nameof(library), library, "Undefined sound library.");
 
     /// <summary>Number of channel programs the policy <paramref name="policyKey"/> names in <paramref name="library"/> requires.</summary>
     /// <remarks>#1165: matches the voice-count writes in the handlers catalogued by

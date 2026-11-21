@@ -13,9 +13,10 @@ namespace SuperMetroid.Core.Compatibility;
 /// <para>
 /// Consulted by the horizontal Wave-shot reaction scan during the projectile pass, for each step of its scan that
 /// straddles two blocks (<see cref="WaveScanRead"/>). Every lookup is a pure table lookup: the import decodes, for every
-/// first block, what its end contributes (its lead), for every block number what the start of the next block
-/// contributes (its tail), and for every lead and tail the terrain they make, once at installation; nothing here
-/// derives one block from another. The import supplies a lead and a tail for every terrain block the room can hold.
+/// first block, the class of what its end contributes (its lead), for every block number the class of what the start of
+/// the next block contributes (its tail), and the terrain each lead class makes with each tail class, keyed by the tail
+/// class, once at installation; nothing here derives one block from another. The import supplies a lead and a tail for
+/// every terrain block the room can hold.
 /// Created once from the installed table with the installation's other Samus
 /// projectile services and injected into each projectile system's terrain collision, which hands it to the scan.
 /// Lifetime: the installation's, shared by every runtime; it holds no state that changes.
@@ -31,45 +32,29 @@ namespace SuperMetroid.Core.Compatibility;
 public sealed class StraddledTerrain<TTerrain>
     where TTerrain : notnull
 {
-    /// <summary>What the end of each first block contributes, by the block as the room holds it.</summary>
-    private readonly Dictionary<TTerrain, int> leads;
+    /// <summary>The class of what the end of each first block contributes, by the block as the room holds it.</summary>
+    private readonly Dictionary<TTerrain, StraddledTerrainLead<TTerrain>> leads;
 
-    /// <summary>What the start of each second block contributes, by the block as the room holds it.</summary>
-    private readonly Dictionary<TTerrain, int> tails;
-
-    /// <summary>The terrain each lead and tail make, by lead and then by tail.</summary>
-    private readonly TTerrain[][] outcomes;
+    /// <summary>The class of what the start of each second block contributes, by the block as the room holds it.</summary>
+    private readonly Dictionary<TTerrain, StraddledTerrainTail> tails;
 
     /// <summary>Keeps the installed table, requiring a lead and a tail for the same blocks.</summary>
-    /// <param name="leads">What the end of each first block contributes; each one a lead of <paramref name="outcomes"/>.</param>
-    /// <param name="tails">
-    /// What the start of each second block contributes, for the same blocks as <paramref name="leads"/>; each one a tail of
-    /// every lead's outcomes.
-    /// </param>
-    /// <param name="outcomes">The terrain each lead and tail make, by lead and then by tail.</param>
+    /// <param name="leads">The class of what the end of each first block contributes, with the terrain it makes with each tail class.</param>
+    /// <param name="tails">The class of what the start of each second block contributes, for the same blocks as <paramref name="leads"/>.</param>
     /// <exception cref="ArgumentException">
-    /// The leads and tails cover different blocks, or an entry names no lead or tail of the outcomes.
+    /// The leads and tails cover different blocks, or a lead class makes no terrain with a block's tail class.
     /// </exception>
     internal StraddledTerrain(
-        IReadOnlyDictionary<TTerrain, int> leads,
-        IReadOnlyDictionary<TTerrain, int> tails,
-        IReadOnlyList<IReadOnlyList<TTerrain>> outcomes)
+        IReadOnlyDictionary<TTerrain, StraddledTerrainLead<TTerrain>> leads,
+        IReadOnlyDictionary<TTerrain, StraddledTerrainTail> tails)
     {
-        Ensure.NotNull(leads);
-        Ensure.NotNull(tails);
-        Ensure.NotNull(outcomes);
-        this.outcomes = [.. outcomes.Select(row => Ensure.NotNull(row).ToArray())];
-        if (this.outcomes.Length == 0 || this.outcomes.Any(row => row.Length != this.outcomes[0].Length))
-            throw new ArgumentException("Straddled terrain needs the same tails for every lead.", nameof(outcomes));
-        int tailCount = this.outcomes[0].Length;
-        this.leads = new Dictionary<TTerrain, int>(leads);
-        this.tails = new Dictionary<TTerrain, int>(tails);
-        if (this.leads.Count != this.tails.Count || this.leads.Keys.Any(block => !this.tails.ContainsKey(block)))
+        this.leads = new Dictionary<TTerrain, StraddledTerrainLead<TTerrain>>(Ensure.NotNull(leads));
+        this.tails = new Dictionary<TTerrain, StraddledTerrainTail>(Ensure.NotNull(tails));
+        if (this.leads.Count == 0 || this.leads.Count != this.tails.Count || this.leads.Keys.Any(block => !this.tails.ContainsKey(block)))
             throw new ArgumentException("Straddled terrain needs a lead and a tail for the same blocks.", nameof(tails));
-        if (this.leads.Values.Any(lead => lead < 0 || lead >= this.outcomes.Length))
-            throw new ArgumentException("Straddled terrain has a lead its outcomes do not hold.", nameof(leads));
-        if (this.tails.Values.Any(tail => tail < 0 || tail >= tailCount))
-            throw new ArgumentException("Straddled terrain has a tail its outcomes do not hold.", nameof(tails));
+        HashSet<StraddledTerrainTail> tailClasses = [.. this.tails.Values];
+        if (this.leads.Values.Distinct().Any(lead => tailClasses.Any(tail => !lead.MakesTerrainWith(tail))))
+            throw new ArgumentException("Straddled terrain has a lead that makes no terrain with a tail.", nameof(leads));
     }
 
     /// <summary>
@@ -78,5 +63,5 @@ public sealed class StraddledTerrain<TTerrain>
     /// </summary>
     /// <param name="first">The block whose end the read starts in.</param>
     /// <param name="second">The block after it, whose start the read ends in.</param>
-    public TTerrain Straddling(TTerrain first, TTerrain second) => outcomes[leads[first]][tails[second]];
+    public TTerrain Straddling(TTerrain first, TTerrain second) => leads[first].With(tails[second]);
 }

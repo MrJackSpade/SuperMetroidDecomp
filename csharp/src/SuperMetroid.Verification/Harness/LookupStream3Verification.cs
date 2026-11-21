@@ -609,7 +609,7 @@ internal static class LookupStream3Verification
             {
                 byte[] actual = presentation.CreatePageBytes(GameOptionsScreen.Settings(GameOptionsPage.Controller, TextLanguage.English));
                 byte[] expected = (byte[])actual.Clone();
-                Position16<CharacterCells> point = document.ControllerLabelAnchors[action];
+                Position16<CharacterCells> point = document.ControllerLabelAnchors[GameOptionsPageRows.ControllerActions[action].ToString()];
                 for (int cell = 0; cell < 6; cell++)
                 {
                     MapPresentationCell source = document.ControllerLabels[GameOptionsNames.ControllerLabelName(GameOptionsPresentationDefinitions.ControllerLabelButtons[button])][cell];
@@ -623,11 +623,11 @@ internal static class LookupStream3Verification
             }
             foreach (GameOptionsPage page in GameOptionsPresentationFormat.MenuPages)
             {
-                Offset16<ScreenPixels>[] cursors = document.CursorAnchors[GameOptionsPresentationFormat.MenuName(page)];
-                IReadOnlyList<GameOptionsRow> rows = GameOptionsRowConstants.OnPage(page);
-                AssertEqual(cursors.Length, rows.Count, "options stock cursor rows");
-                for (int place = 0; place < rows.Count; place++)
-                    AssertEqual(cursors[place], presentation.Presentation.CursorPosition(rows[place]), "options stock cursor");
+                Dictionary<string, Offset16<ScreenPixels>> cursors = document.CursorAnchors[GameOptionsPresentationFormat.MenuName(page)];
+                IReadOnlyList<GameOptionsCursorRow> rows = GameOptionsLayoutFile.CursorRowsOn(page);
+                AssertEqual(cursors.Count, rows.Count, "options stock cursor rows");
+                foreach (GameOptionsCursorRow row in rows)
+                    AssertEqual(cursors[row.Name], presentation.Presentation.CursorPosition(row.Row), "options stock cursor");
             }
             foreach (GameOptionsPage page in GameOptionsPresentationFormat.MenuPages)
             {
@@ -894,12 +894,12 @@ internal static class LookupStream3Verification
             // The segment appearance has no packed word: the native attribute word is decoded by the import pipeline's
             // codec and compared by character, palette row, priority and mirroring.
             AssertEqual(new SnesObjAttributeWord(CartridgeImportSource.Require(rom).ReadCartridgeWord(address)).ToSinglePart(),
-                grappleSprites.Segment(frame), "stream 3 calculated native rope appearance");
+                grappleSprites.Segment(GrappleSheetDefinitions.RopePattern[frame]), "stream 3 calculated native rope appearance");
         }
         foreach (int invalid in new[] { -1, 4, int.MaxValue })
         {
             AssertThrows<ArgumentOutOfRangeException>(() => SuperMetroid.AssetExtraction.Samus.GrappleSpriteExtractor.SegmentAttributeAddress(invalid), "stream 3 rope operand address bounds");
-            AssertThrows<InvalidDataException>(() => grappleSprites.Segment(invalid), "stream 3 rope attribute bounds");
+            AssertThrows<InvalidDataException>(() => grappleSprites.Segment((GrappleRopePicture)invalid), "stream 3 rope attribute bounds");
         }
         var swingFrames = GrappleSwingFrameFile.Load(new MemoryStream(
             SuperMetroid.AssetExtraction.Samus.GrappleSwingFrameExtractor.Extract(rom)));
@@ -1083,8 +1083,8 @@ internal static class LookupStream3Verification
     /// </summary>
     private static void VerifyStream3EscapeGeometry(ISnesAddressSpace rom)
     {
-        EncounterArtworkUpload[] Copies(params ComposedLook[] looks) => [.. looks.SelectMany(look => EncounterLookUploads.Uploads(ComposedEncounter.MotherBrain,
-            EncounterLookUploads.IndexOf(ComposedEncounter.MotherBrain, look), InstalledPageResolver))];
+        EncounterArtworkUpload[] Copies(params ComposedLook[] looks) =>
+            [.. looks.SelectMany(EncounterLookUploads.Steps(ComposedEncounter.MotherBrain, InstalledPageResolver).CopiesOf)];
         foreach (bool timerList in new[] { true, false })
         {
             int count = timerList ? 7 : 2;
@@ -1146,8 +1146,8 @@ internal static class LookupStream3Verification
             uint source = (uint)(CartridgeImportSource.Require(rom).ReadCartridgeLong(pageEntry + 2));
             AssertEqual(source, (uint)(MotherBrainSourceDefinitions.Corpse.Characters + MotherBrainCorpseSheet.PageOffset(row)),
                 "stream 3 corpse page starts at its offset in the corpse sheet");
-            EncounterArtworkUpload page = EncounterLookUploads.Uploads(ComposedEncounter.MotherBrain,
-                EncounterLookUploads.IndexOf(ComposedEncounter.MotherBrain, EncounterLookUploads.MotherBrainCorpseLook), InstalledPageResolver)[row];
+            EncounterArtworkUpload page = EncounterLookUploads.Steps(ComposedEncounter.MotherBrain, InstalledPageResolver)
+                .CopiesOf(EncounterLookUploads.MotherBrainCorpseLook)[row];
             AssertEqual((CartridgeImportSource.Require(rom).ReadCartridgeWord(pageEntry + 5) - GameplayVramLayoutConstants.ObjectCharacters.Offset) * 2,
                 page.FirstByte, "stream 3 corpse page placement");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(pageEntry), page.Characters.Length, "stream 3 corpse page bytes");
@@ -1416,8 +1416,11 @@ internal static class LookupStream3Verification
             MotherBrainDeathColorFile.Write(new MotherBrainDeathColorDocument
             {
                 Version = MotherBrainDeathColorFormat.Version,
-                BodyFade = body.Select(row => row.Select(Rgb).ToArray()).ToArray(),
-                LegFade = leg.Select(row => row.Select(Rgb).ToArray()).ToArray(),
+                BodyFade = [.. Enumerable.Range(0, body.Length).Select(stage => new MotherBrainBodyColoursDocument
+                {
+                    Body = [.. body[stage].Select(Rgb)],
+                    BackLegs = [.. leg[stage].Select(Rgb)],
+                })],
                 CorpseFade = corpse.Select(row => row.Select(Rgb).ToArray()).ToArray(),
             }), writable: false));
         void Check(MotherBrainDeathColorCatalog catalog)
@@ -1559,8 +1562,9 @@ internal static class LookupStream3Verification
             SheetShade sprites = SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.HealthSprites(health).Single(candidate => candidate.Shade == shade);
             SheetShade background = SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.HealthBackground(health).Single(candidate => candidate.Shade == shade);
             const int count = MotherBrainRainbowPaletteGeometry.ColorCount;
-            AssertEqual(2 * count, sprites.Colours.Length, "stream 3 health band sprite shade holds her brain's and rear legs' colours");
-            return (sprites.Colours[..count], sprites.Colours[count..], background.Colours);
+            RgbColor[] shown = [.. sprites.Colours];
+            AssertEqual(2 * count, shown.Length, "stream 3 health band sprite shade holds her brain's and rear legs' colours");
+            return (shown[..count], shown[count..], [.. background.Colours]);
         }
         for (int state = 0; state < 4; state++)
         {
@@ -2095,7 +2099,7 @@ internal static class LookupStream3Verification
             var actualOam = ScreenSpritesFixtures.Blank();
             var expectedOam = new OamBuffer();
             actual.Presentation.DrawHelmet(actualOam, MenuSheetFixtures.FileSelect(actual), frame, SuperMetroid.Core.Saves.SaveSlot.A);
-            var anchor = layout.HelmetAnchors[0];
+            var anchor = layout.HelmetAnchors[nameof(SuperMetroid.Core.Saves.SaveSlot.A)];
             expectedParts.DrawOnScreen(expectedOam, new(anchor.X, anchor.Y), (ushort)(expected.ObjectPalette << 9));
             actualOam.FinishFrame(); expectedOam.FinalizeFrame();
             AssertTrue(actualOam.ImageEquals(expectedOam),

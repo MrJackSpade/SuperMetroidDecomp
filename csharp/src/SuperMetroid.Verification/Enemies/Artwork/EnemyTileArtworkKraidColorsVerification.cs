@@ -58,21 +58,22 @@ internal static class EnemyTileArtworkKraidColorsVerification
         // reads back. They are the installed health colours at the eyes' inks.
         var eyeReaderOwner = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: stock.Bosses);
         KraidEyeColours eyes = eyeReaderOwner.KraidBehavior.Background.EyeColours;
-        List<PictureShade> installedGroups = [.. KraidPalettes.HealthShades];
-        AssertEyes(catalog, eyes.Hurt.ToArray(), installedGroups.IndexOf(KraidShades.HurtFlash), "the hurt flash");
+        int GroupOf(PictureShade shade) => KraidPalettes.HealthSequence.Single(band => band.Shade == shade).ColourGroup;
+        AssertEyes(catalog, eyes.Hurt.ToArray(), GroupOf(KraidShades.HurtFlash), "the hurt flash");
         foreach (KraidHealthBand band in KraidHealthBandDefinitions.HighestFirst)
-            AssertEyes(catalog, eyes.Of(band).ToArray(), installedGroups.IndexOf(KraidShades.Health(band)), $"band {band}");
+            AssertEyes(catalog, eyes.Of(band).ToArray(), GroupOf(KraidShades.Health(band)), $"band {band}");
         // The game reads the eye colours from their own installed document by purpose (#1637), and no other Kraid colour.
         SuperMetroid.AssetExtraction.Installation.GameInstallation installation = SuperMetroid.TestSupport.RepositoryInstallation.RepositoryInstallation.Installation;
         AssertTrue(!File.Exists(Path.Combine(installation.EnemyTileDirectory, KraidColorFormat.FileName)),
             "the installation holds none of Kraid's colours but his eyes'");
         KraidEyeColours installedEyes = installation.LoadEnemyTiles().KraidEyes;
-        AssertEqual(KraidPalettes.HealthBandCount, KraidPalettes.HealthShades.Count, "his health colours are the hurt flash's and the eight health bands'");
-        AssertEqual(KraidShades.HurtFlash, KraidPalettes.HealthShades[0], "the hurt flash's colours come first among his health colours");
+        AssertEqual(KraidPalettes.ColorCount(KraidPaletteSource.Health) / KraidPalettes.BandColors, KraidPalettes.HealthSequence.Count,
+            "his health colours are the hurt flash's and the eight health bands'");
+        AssertEqual(0, GroupOf(KraidShades.HurtFlash), "the hurt flash's colours come first among his health colours");
         AssertTrue(installedEyes.Hurt.ToArray().SequenceEqual(eyes.Hurt.ToArray()), "Kraid's installed hurt flash eye colours are the eyes' colours of his health colours");
         foreach (KraidHealthBand band in KraidHealthBandDefinitions.HighestFirst)
         {
-            AssertTrue(KraidPalettes.HealthShades.Contains(KraidShades.Health(band)), $"Kraid band {band}'s shade is among his health colours");
+            AssertTrue(KraidPalettes.HealthSequence.Any(sequenced => sequenced.Shade == KraidShades.Health(band)), $"Kraid band {band}'s shade is among his health colours");
             AssertTrue(installedEyes.Of(band).ToArray().SequenceEqual(eyes.Of(band).ToArray()),
                 $"Kraid band {band}'s installed eye colours are the eyes' colours of his health colours");
         }
@@ -285,14 +286,15 @@ internal static class EnemyTileArtworkKraidColorsVerification
     /// </summary>
     private static void VerifyKraidHealthBands()
     {
+        KraidHealthBand[] mostHurtFirst = [.. KraidHealthBandDefinitions.HighestFirst.Reverse()];
         foreach (int initial in new[] { 1000, 999, 1007, 8 })
         {
             for (int health = 0; health <= initial; health++)
             {
-                int band = KraidHealthBandDefinitions.MostHurtFirst.Count - 1;
+                int band = mostHurtFirst.Length - 1;
                 while (band != 0 && health < KraidHealthThresholds.Eighths(initial, band + 1))
                     band--;
-                AssertEqual(KraidHealthBandDefinitions.MostHurtFirst[band], KraidHealthBand.Of(health, initial),
+                AssertEqual(mostHurtFirst[band], KraidHealthBand.Of(health, initial),
                     $"Kraid at {health} of {initial} health is in his band {band}");
             }
         }
@@ -516,8 +518,8 @@ internal static class EnemyTileArtworkKraidColorsVerification
     private static void Lay(RgbColor[] colours, IReadOnlyList<SheetShade> made, PictureShade shade, int offset)
     {
         SheetShade found = made.Single(candidate => candidate.Shade == shade);
-        for (int index = 0; index < found.Inks.Length; index++)
-            colours[offset + found.Inks[index]] = found.Colours[index];
+        foreach ((int ink, RgbColor colour) in found.InkColours)
+            colours[offset + ink] = colour;
     }
 
     /// <summary>Production paths that load or animate Kraid's installed palette rows.</summary>

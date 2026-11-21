@@ -58,6 +58,6 @@ internal static class RidleySupplementalVisualDefinitions
     /// <summary>The installed frame of the two tail links nearest the tip.</summary>
     internal static EnemyFrameId OuterLink => EnemyFrameId.RidleyTailOuterLink;
 
-    /// <summary>The installed frame each of the six drawn tail links shows, from the body out (#1935).</summary>
-    internal static IReadOnlyList<EnemyFrameId> LinkFrames { get; } = [BaseLink, BaseLink, MiddleLink, MiddleLink, OuterLink, OuterLink];
+    /// <summary>The installed frames the drawn tail links show (#1935); each link's definition names its own.</summary>
+    internal static IReadOnlyList<EnemyFrameId> LinkFrames { get; } = [BaseLink, MiddleLink, OuterLink];
 }

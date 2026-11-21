@@ -7,7 +7,7 @@ public static class CeresRidleyColorFormat
     public const string FileName = "ceres-ridley-colors.json";
 
     /// <summary>Schema version five, requiring the complete startup, fade, health, retreat, alarm and Baby palette families, the Baby's colours named by shade, with no step-ordered Baby field.</summary>
-    public const int Version = 5;
+    public const int Version = 6;
 
     /// <summary>The colours Ceres Ridley's initialization loads: the door and Baby container colours and the Baby's initial colours.</summary>
     public const int StartColorCount = 32;

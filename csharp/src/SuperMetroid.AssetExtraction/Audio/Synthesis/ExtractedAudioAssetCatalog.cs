@@ -433,14 +433,13 @@ public sealed class ExtractedAudioAssetCatalog
                 $"Audio manifest defines {manifest.SoundLibraries.Count} SFX libraries; " +
                 $"expected {SuperMetroid.Core.Audio.SoundEffectLibraries.Count}.");
         }
-        for (int libraryIndex = 0; libraryIndex < manifest.SoundLibraries.Count; libraryIndex++)
+        if (!manifest.SoundLibraries.Select(library => library.Library).SequenceEqual(SoundLibraryNumbers.InNumberOrder.Select(SoundLibraryNumbers.Number)))
+            throw new InvalidDataException("Audio manifest does not list each SFX library once, in number order.");
+        foreach (AudioSoundLibraryMetadata library in manifest.SoundLibraries)
         {
-            AudioSoundLibraryMetadata library = manifest.SoundLibraries[libraryIndex];
             if (library.Effects is null)
                 throw new InvalidDataException($"Audio SFX library {library.Library} has no effect list.");
-            if (library.Library != libraryIndex + 1)
-                throw new InvalidDataException($"Audio SFX library index {libraryIndex} is identified as {library.Library}.");
-            SoundEffectLibrary soundLibrary = SoundLibraryNumbers.FromDriverIndex(libraryIndex);
+            SoundEffectLibrary soundLibrary = SoundLibraryNumbers.Decode(library.Library);
             int commandCount = SpcSoundEffectTables.CommandCount(soundLibrary);
             if (library.Effects.Count != commandCount)
             {

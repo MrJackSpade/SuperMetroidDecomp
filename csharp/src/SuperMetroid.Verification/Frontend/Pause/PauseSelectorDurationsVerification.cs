@@ -20,7 +20,8 @@ internal static class PauseSelectorDurationsVerification
         var document = RequiredJson.Deserialize<PauseSelectorDocument>(bytes, ArtworkJson.Options);
         PauseSelectorPresentation stock = PauseSelectorSourcePresentation.Load(new MemoryStream(bytes)).Presentation;
         Suite(nameof(VerifyPauseSelectorNativeDurations), () => VerifyPauseSelectorNativeDurations(rom, stock));
-        foreach (int invalid in new[] { 0, -1, 255 })
+        // A phase lasts at least one tick; the import leaves the cartridge's byte limit to its decoder (#2563).
+        foreach (int invalid in new[] { 0, -1 })
         {
             var phases = (PauseSelectorPhase[])document.Animation.Clone(); phases[0] = phases[0] with { DurationTicks = invalid };
             AssertThrows<InvalidDataException>(() => Load(document with { Animation = phases }), "invalid duration rejected before capture");

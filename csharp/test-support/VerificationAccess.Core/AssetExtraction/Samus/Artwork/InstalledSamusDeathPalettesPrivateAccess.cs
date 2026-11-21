@@ -13,8 +13,9 @@ internal static class InstalledSamusDeathPalettesPrivateAccess
     /// <summary>The private instance members checks read or call.</summary>
     extension(global::SuperMetroid.AssetExtraction.Samus.Artwork.InstalledSamusDeathPalettes self)
     {
-        /// <summary>The private method <c>ExplosionPaletteIndex</c>, invoked by name.</summary>
-        internal int ExplosionPaletteIndex(int frame) =>
-            PrivateState.Invoke<global::SuperMetroid.AssetExtraction.Samus.Artwork.InstalledSamusDeathPalettes, int>(self, "ExplosionPaletteIndex", [typeof(int)], new object?[] { frame });
+        /// <summary>The death step the explosion's picture at <paramref name="frame"/> of its animation shows.</summary>
+        internal int ExplosionPaletteIndex(int frame) => (uint)frame < (uint)global::SuperMetroid.Core.Samus.Artwork.SamusDeathSheetDefinitions.Explosion.Count
+            ? self.Steps.ExplosionShade(global::SuperMetroid.Core.Samus.Artwork.SamusDeathSheetDefinitions.Explosion[frame]).Step
+            : throw new global::System.ArgumentOutOfRangeException(nameof(frame));
     }
 }

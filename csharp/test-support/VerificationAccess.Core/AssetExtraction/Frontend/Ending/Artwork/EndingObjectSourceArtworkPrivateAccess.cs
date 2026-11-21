@@ -36,8 +36,5 @@ internal static class EndingObjectSourceArtworkPrivateAccess
         {
             get => PrivateState.Get<global::SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingObjectSourceArtwork, global::SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingRewardSpritePresentation>(self, "RewardSprites");
         }
-
-        /// <summary>The private field <c>fragments</c>, reached by name.</summary>
-        internal global::SuperMetroid.AssetExtraction.Rooms.RoomBackgroundTilemapAtlas[] fragments => PrivateState.Field<global::SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingObjectSourceArtwork, global::SuperMetroid.AssetExtraction.Rooms.RoomBackgroundTilemapAtlas[]>(self, "fragments");
     }
 }

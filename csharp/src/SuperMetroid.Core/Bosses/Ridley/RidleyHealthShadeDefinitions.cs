@@ -12,6 +12,6 @@ public static class RidleyHealthShadeDefinitions
     /// <summary>Ridley nearly dead: Norfair Ridley and Ceres Ridley in their nearly-dead health bands.</summary>
     public static RidleyHealthShade NearlyDead { get; } = new("nearly-dead");
 
-    /// <summary>The colourings, least hurt first: the order his installed health colours hold them.</summary>
+    /// <summary>The colourings, least hurt first.</summary>
     public static IReadOnlyList<RidleyHealthShade> LeastHurtFirst { get; } = [Wounded, BadlyWounded, NearlyDead];
 }

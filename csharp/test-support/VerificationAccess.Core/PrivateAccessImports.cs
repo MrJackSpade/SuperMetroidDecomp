@@ -500,7 +500,6 @@ global using static SuperMetroid.Core.Enemies.Platforms.PlatformAnimationsPrivat
 global using static SuperMetroid.Core.Enemies.Platforms.PlatformsBehaviorPrivateAccess;
 global using static SuperMetroid.Core.Enemies.Polyp.PolypAnimationsPrivateAccess;
 global using static SuperMetroid.Core.Enemies.Polyp.PolypBehaviorPrivateAccess;
-global using static SuperMetroid.Core.Enemies.Powamp.PowampAnimationsPrivateAccess;
 global using static SuperMetroid.Core.Enemies.Powamp.PowampBehaviorPrivateAccess;
 global using static SuperMetroid.Core.Enemies.Powamp.PowampWigglePrivateAccess;
 global using static SuperMetroid.Core.Enemies.Projectiles.AngledFlightStatePrivateAccess;

@@ -10,4 +10,6 @@ internal static class PowampFrameToolingDefinitions
     internal const byte Bank = 0xa8;
     /// <summary>The spritemap <paramref name="frame"/> shows.</summary>
     internal static ushort Spritemap(EnemyFrameId frame) => EnemyFrameCartridgeLookupTooling.Word(frame);
+    /// <summary>The spritemap the balloon shows in <paramref name="pose"/>.</summary>
+    internal static ushort BalloonSpritemap(PowampBalloonPose pose) => Spritemap(PowampAnimations.BalloonFrames[pose]);
 }

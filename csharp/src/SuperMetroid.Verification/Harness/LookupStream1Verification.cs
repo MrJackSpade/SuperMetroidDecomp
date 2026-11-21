@@ -218,18 +218,16 @@ internal static class LookupStream1Verification
             enemies.PowampBehavior.InitializePowampBody(body);
             body.Position = body.Position.WithWholeY(100);
             var place = isBody ? body : balloon;
-            PowampSegment program = root switch
-            {
-                0xc163 => PowampSegment.BodyFast,
-                0xc173 => PowampSegment.BodySlow,
-                0xc183 => PowampSegment.BalloonInflatingFromDeflated,
-                _ => PowampSegment.BalloonStartSinking,
-            };
             if (isBody)
-                body.RequireSpeciesState<PowampBodyState>().Playback = new(PowampAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
+            {
+                PowampBodySegment pulse = root == 0xc163 ? PowampBodySegment.BodyFast : PowampBodySegment.BodySlow;
+                body.RequireSpeciesState<PowampBodyState>().Playback = new(PowampAnimations.BodyStartingWith(pulse), AnimationPlace.StartOfAnimation);
+            }
             else
+            {
                 PowampBehavior.StartPowampBalloonAnimation(balloon, balloon.RequireSpeciesState<PowampBalloonState>(),
-                    program == PowampSegment.BalloonInflatingFromDeflated ? PowampMotionDefinitions.InflatingFromDeflated : PowampMotionDefinitions.StartSinking);
+                    root == 0xc183 ? PowampMotionDefinitions.InflatingFromDeflated : PowampMotionDefinitions.StartSinking);
+            }
             var pair = new PowampBalloon(balloon, balloon.RequireSpeciesState<PowampBalloonState>(), balloon.HeldOccupant());
             place.AnimationClock.StepOnNextUpdate();
             object?[] arguments = [place, null, null, Position16<RoomPixels>.Zero, GameplayAction.None];

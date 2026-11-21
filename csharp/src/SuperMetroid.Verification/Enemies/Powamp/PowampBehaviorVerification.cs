@@ -34,9 +34,9 @@ internal static class PowampBehaviorVerification
         body.Bind(EnemyDefinitionId.Powamp, body.KeptDefinition);
         body.Bind(body.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         enemies.PowampBehavior.InitializePowampBody(body);
-        AssertEqual(new AnimationPlayback<PowampSegment>(PowampAnimations.StartingWith(PowampSegment.BalloonDeflated), AnimationPlace.StartOfAnimation), balloon.RequireSpeciesState<PowampBalloonState>().Playback,
+        AssertEqual(new AnimationPlayback<PowampBalloonSegment>(PowampAnimations.BalloonStartingWith(PowampBalloonSegment.Deflated), AnimationPlace.StartOfAnimation), balloon.RequireSpeciesState<PowampBalloonState>().Playback,
             "the balloon starts deflated");
-        AssertEqual(new AnimationPlayback<PowampSegment>(PowampAnimations.StartingWith(PowampSegment.BodySlow), AnimationPlace.StartOfAnimation), body.RequireSpeciesState<PowampBodyState>().Playback,
+        AssertEqual(new AnimationPlayback<PowampBodySegment>(PowampAnimations.BodyStartingWith(PowampBodySegment.BodySlow), AnimationPlace.StartOfAnimation), body.RequireSpeciesState<PowampBodyState>().Playback,
             "the body starts on its slow pulse");
 
         // The ROM oracle holds every balloon beat to a four-byte native frame record, so the native pointer at a place
@@ -48,7 +48,7 @@ internal static class PowampBehaviorVerification
         foreach (PowampBalloonStart start in new[] { PowampMotionDefinitions.InflatingFromDeflated, PowampMotionDefinitions.InflatingFromHalfway, PowampMotionDefinitions.StartSinking, PowampMotionDefinitions.Deflated })
         {
             PowampBehavior.StartPowampBalloonAnimation(balloon, balloonState, start);
-            int frames = PowampAnimations.StartingWith(start.Segment).Phases.Sum(phase => phase.BeatCount);
+            int frames = PowampAnimations.BalloonStartingWith(start.Segment).Phases.Sum(phase => phase.BeatCount);
             for (int update = 0; update <= frames; update++)
             {
                 AssertBalloonInflation(cartridge, balloonState, $"Powamp balloon {start} after {update} updates");
@@ -72,29 +72,29 @@ internal static class PowampBehaviorVerification
     /// </summary>
     private static void AssertBalloonInflation(IImportCartridgeSource cartridge, PowampBalloonState balloon, string context)
     {
-        AnimationPlayback<PowampSegment> playback = balloon.Playback;
-        AnimationPhase<PowampSegment> phase = playback.Animation.Phases[playback.Place.Phase];
+        AnimationPlayback<PowampBalloonSegment> playback = balloon.Playback;
+        AnimationPhase<PowampBalloonSegment> phase = playback.Animation.Phases[playback.Place.Phase];
         // A phase the play has not entered yet has passed none of its beats, and a held one all of them.
         int passed = phase.FirstBeat + Math.Clamp(playback.Place.Beat, 0, phase.BeatCount);
-        PowampSegment segment = phase.Segment;
+        PowampBalloonSegment segment = phase.Segment;
         PowampBalloonInflation inflation = balloon.Inflation;
-        ushort sequence = NativeEnemyAnimationOracle.EntryOf(PowampNativeListAddresses.Entries,
-            inflation.Sequence == PowampBalloonSequence.Sinking ? PowampSegment.BalloonStartSinking : PowampSegment.BalloonInflatingFromDeflated);
-        ushort pointer = (ushort)(NativeEnemyAnimationOracle.EntryOf(PowampNativeListAddresses.Entries, segment) + 4 * passed);
+        ushort sequence = NativeEnemyAnimationOracle.EntryOf(PowampNativeListAddresses.BalloonEntries,
+            inflation.Sequence == PowampBalloonSequence.Sinking ? PowampBalloonSegment.StartSinking : PowampBalloonSegment.InflatingFromDeflated);
+        ushort pointer = (ushort)(NativeEnemyAnimationOracle.EntryOf(PowampNativeListAddresses.BalloonEntries, segment) + 4 * passed);
         int shown = (pointer - sequence) / 4;
         AssertTrue(pointer == sequence + 4 * shown && shown is >= 0 and <= 3, $"{context}: the native pointer lies on one of its sequence's pose records");
         PowampBalloonPose[] poses = inflation.Sequence == PowampBalloonSequence.Sinking ? NativeSinkingPoses : NativeInflatingPoses;
         AssertEqual(poses[shown == 0 ? 0 : shown - 1], inflation.Pose, context);
-        IReadOnlyList<AnimationBeat<EnemyFrameId, NoAnimationCue>> beats = PowampAnimations.Segments.Beats(segment);
+        IReadOnlyList<AnimationBeat<PowampBalloonPose, NoAnimationCue>> beats = PowampAnimations.BalloonSegments.Beats(segment);
         // A pose the balloon rests on (#2439) shows its record until its list's sleep, whatever duration the record names.
-        if (passed < beats.Count && beats[passed] is AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame frame)
+        if (passed < beats.Count && beats[passed] is AnimationBeat<PowampBalloonPose, NoAnimationCue>.Frame frame)
         {
             AssertEqual(frame.Duration,
                 (int)cartridge.ReadCartridgeWord((PowampNativeListAddresses.Bank << 16) | pointer), $"{context}: native pose record");
         }
         else if (passed < beats.Count)
         {
-            AssertIs<AnimationBeat<EnemyFrameId, NoAnimationCue>.HeldFrame>(beats[passed], context);
+            AssertIs<AnimationBeat<PowampBalloonPose, NoAnimationCue>.HeldFrame>(beats[passed], context);
         }
     }
 

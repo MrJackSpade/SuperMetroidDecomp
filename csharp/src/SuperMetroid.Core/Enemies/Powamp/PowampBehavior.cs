@@ -80,7 +80,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         _balloons.Place(place, _places.Member(place, PowampPartListingDefinitions.Listing, PowampMember.Body, PowampMember.Balloon));
         CheckPowampBalloonPlaced(place);
         state.ActionTimer = UpdateCountdown.For(PowampMotionDefinitions.RestDuration);
-        state.Playback = StartPowampAnimation(place, PowampSegment.BodySlow);
+        state.Playback = StartPowampAnimation(place, PowampBodySegment.BodySlow);
     }
 
     /// <summary>What <see cref="RunPowampMain"/> does for each <see cref="PowampAction"/> member, each member's own arm.</summary>
@@ -131,7 +131,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             state.Action = PowampAction.InflatedRiseToTargetHeight;
             state.YVelocity = PowampMotionDefinitions.RiseVelocity;
-            state.Playback = StartPowampAnimation(body, PowampSegment.BodyFast);
+            state.Playback = StartPowampAnimation(body, PowampBodySegment.BodyFast);
         }
         AlignPowampBalloonY(body, balloon);
     }
@@ -260,7 +260,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
             body.Position = body.Position.WithWholeY(balloon.State.Spawn.Y);
             state.Action = PowampAction.DeflatedResting;
             state.ActionTimer = UpdateCountdown.For(PowampMotionDefinitions.RestDuration);
-            state.Playback = StartPowampAnimation(body, PowampSegment.BodySlow);
+            state.Playback = StartPowampAnimation(body, PowampBodySegment.BodySlow);
         }
         AlignPowampBalloonY(body, balloon);
     }
@@ -409,9 +409,9 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         return state.ActionTimer.StepEnds();
     }
 
-    /// <summary>The playback of <paramref name="segment"/>'s animation, restarted on the next animation pass.</summary>
-    private static AnimationPlayback<PowampSegment> StartPowampAnimation(RoomEnemyPlace place, PowampSegment segment) =>
-        EnemyAnimationPlayback.Start(place, PowampAnimations.StartingWith(segment));
+    /// <summary>The playback of the body's <paramref name="segment"/> animation, restarted on the next animation pass.</summary>
+    private static AnimationPlayback<PowampBodySegment> StartPowampAnimation(RoomEnemyPlace place, PowampBodySegment segment) =>
+        EnemyAnimationPlayback.Start(place, PowampAnimations.BodyStartingWith(segment));
 
     /// <summary>
     /// Restarts the balloon's animation at <paramref name="start"/>'s segment on the next animation pass, and its sequence
@@ -419,7 +419,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal static void StartPowampBalloonAnimation(RoomEnemyPlace balloon, PowampBalloonState state, PowampBalloonStart start)
     {
-        state.Playback = StartPowampAnimation(balloon, start.Segment);
+        state.Playback = EnemyAnimationPlayback.Start(balloon, PowampAnimations.BalloonStartingWith(start.Segment));
         state.Inflation = start.Inflation;
     }
 
@@ -463,7 +463,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances the body's pulse.</summary>
     internal static void AdvancePowampBodyTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.AdvanceSilently(place, PowampAnimations.Segments,
+        EnemyAnimationPlayback.AdvanceSilently(place, PowampAnimations.BodySegments,
             static (PowampBodyState state) => state.Playback, static (state, playback) => state.Playback = playback);
 
     /// <summary>Advances the balloon's inflate or sink animation and the poses it shows.</summary>
@@ -472,12 +472,12 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!place.AnimationClock.Expire())
             return;
         PowampBalloonState balloon = place.RequireSpeciesState<PowampBalloonState>();
-        AnimationPlayback<PowampSegment> playback = balloon.Playback;
+        AnimationPlayback<PowampBalloonSegment> playback = balloon.Playback;
         // Every frame of the balloon's animations is one of its poses, so each frame shown is the pose it stands at.
-        EnemyAnimationPlayback.PlaySilently(place, PowampAnimations.Segments, ref playback, pose =>
+        EnemyAnimationPlayback.PlaySilently(place, PowampAnimations.BalloonSegments, ref playback, pose =>
         {
-            balloon.Inflation = balloon.Inflation.Showing(pose);
-            return pose;
+            balloon.Inflation = balloon.Inflation with { Pose = pose };
+            return PowampAnimations.BalloonFrames[pose];
         });
         balloon.Playback = playback;
     }

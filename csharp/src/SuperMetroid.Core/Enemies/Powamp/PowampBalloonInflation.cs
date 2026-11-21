@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Enemies.Artwork;
-
 namespace SuperMetroid.Core.Enemies.Powamp;
 
 /// <summary>
@@ -19,8 +17,4 @@ namespace SuperMetroid.Core.Enemies.Powamp;
 /// a frozen balloon shares its body's freeze and thaws as the body's next update begins, and every Powamp is processed
 /// off screen (#2553).
 /// </remarks>
-public readonly record struct PowampBalloonInflation(PowampBalloonSequence Sequence, PowampBalloonPose Pose)
-{
-    /// <summary>The record once the balloon's animation shows <paramref name="frame"/>, the pose it then stands at.</summary>
-    internal PowampBalloonInflation Showing(EnemyFrameId frame) => this with { Pose = PowampMotionDefinitions.PosesShownBy[frame] };
-}
+public readonly record struct PowampBalloonInflation(PowampBalloonSequence Sequence, PowampBalloonPose Pose);
